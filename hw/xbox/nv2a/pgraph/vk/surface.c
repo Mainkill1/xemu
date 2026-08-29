@@ -73,7 +73,12 @@ unsigned int pgraph_vk_get_surface_scale_factor(NV2AState *d)
 void pgraph_vk_reload_surface_scale_factor(PGRAPHState *pg)
 {
     int factor = g_config.display.quality.surface_scale;
-    pg->surface_scale_factor = MAX(factor, 1);
+    unsigned int scale = MAX(factor, 1);
+    if (pg->surface_scale_factor != scale) {
+        pg->surface_scale_factor = scale;
+        pgraph_uniform_input_touch_stages(
+            pg, PGRAPH_UNIFORM_STAGE_MASK_BOTH);
+    }
 }
 
 // FIXME: Move to common
@@ -1499,6 +1504,17 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
 
             if (is_compatible) {
                 // FIXME: Refactor
+                if (pg->surface_binding_dim.width != surface->width ||
+                    pg->surface_binding_dim.clip_x != surface->shape.clip_x ||
+                    pg->surface_binding_dim.clip_width !=
+                        surface->shape.clip_width ||
+                    pg->surface_binding_dim.height != surface->height ||
+                    pg->surface_binding_dim.clip_y != surface->shape.clip_y ||
+                    pg->surface_binding_dim.clip_height !=
+                        surface->shape.clip_height) {
+                    pgraph_uniform_input_touch_stages(
+                        pg, PGRAPH_UNIFORM_STAGE_MASK_BOTH);
+                }
                 pg->surface_binding_dim.width = surface->width;
                 pg->surface_binding_dim.clip_x = surface->shape.clip_x;
                 pg->surface_binding_dim.clip_width = surface->shape.clip_width;
@@ -1531,6 +1547,15 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
             surface_put(d, surface);
 
             // FIXME: Refactor
+            if (pg->surface_binding_dim.width != target.width ||
+                pg->surface_binding_dim.clip_x != target.shape.clip_x ||
+                pg->surface_binding_dim.clip_width != target.shape.clip_width ||
+                pg->surface_binding_dim.height != target.height ||
+                pg->surface_binding_dim.clip_y != target.shape.clip_y ||
+                pg->surface_binding_dim.clip_height != target.shape.clip_height) {
+                pgraph_uniform_input_touch_stages(
+                    pg, PGRAPH_UNIFORM_STAGE_MASK_BOTH);
+            }
             pg->surface_binding_dim.width = target.width;
             pg->surface_binding_dim.clip_x = target.shape.clip_x;
             pg->surface_binding_dim.clip_width = target.shape.clip_width;

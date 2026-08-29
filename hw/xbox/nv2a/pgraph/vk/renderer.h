@@ -412,6 +412,9 @@ typedef struct PGRAPHVkState {
     // FIXME: Merge these into a structure
     size_t uniform_buffer_offsets[2];
     bool uniforms_changed;
+    bool uniform_stage_dirty[PGRAPH_UNIFORM_STAGE_COUNT];
+    bool uniform_layout_changed[PGRAPH_UNIFORM_STAGE_COUNT];
+    PGRAPHUniformSourceEpochs last_uniform_source_epochs;
 
     VkQueryPool query_pool;
     int max_queries_in_flight; // FIXME: Move out to constant

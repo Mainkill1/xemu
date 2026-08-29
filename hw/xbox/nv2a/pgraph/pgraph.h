@@ -32,6 +32,7 @@
 #include "surface.h"
 #include "texture.h"
 #include "uniform-dirty.h"
+#include "uniform-source.h"
 #include "util.h"
 #include "vsh_regs.h"
 
@@ -215,6 +216,7 @@ typedef struct PGRAPHState {
     float specular_power_back;
 
     float point_params[8];
+    PGRAPHUniformSourceEpochs uniform_source_epochs;
 
     VertexAttribute vertex_attributes[NV2A_VERTEXSHADER_ATTRIBUTES];
     uint16_t compressed_attrs;
@@ -310,10 +312,29 @@ static inline uint32_t pgraph_reg_r(PGRAPHState *pg, unsigned int r)
 static inline void pgraph_reg_w(PGRAPHState *pg, unsigned int r, uint32_t v)
 {
     assert(r % 4 == 0);
-    if (pg->regs_[r] != v) {
-        bitmap_set(pg->regs_dirty, r / sizeof(uint32_t), 1);
+    if (pg->regs_[r] == v) {
+        return;
+    }
+
+    bitmap_set(pg->regs_dirty, r / sizeof(uint32_t), 1);
+    PGRAPHUniformStageMask uniform_stages =
+        pgraph_reg_uniform_stage_mask(r, pg->regs_[r] ^ v);
+    if (uniform_stages) {
+        pgraph_uniform_source_touch(&pg->uniform_source_epochs,
+                                    uniform_stages);
     }
     pg->regs_[r] = v;
+}
+
+static inline void pgraph_uniform_input_touch(PGRAPHState *pg)
+{
+    pgraph_uniform_source_touch_unclassified(&pg->uniform_source_epochs);
+}
+
+static inline void pgraph_uniform_input_touch_stages(
+    PGRAPHState *pg, PGRAPHUniformStageMask stages)
+{
+    pgraph_uniform_source_touch(&pg->uniform_source_epochs, stages);
 }
 
 static inline void pgraph_uniform_u32_row_w(PGRAPHState *pg,

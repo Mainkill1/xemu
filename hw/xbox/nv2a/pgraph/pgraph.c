@@ -230,6 +230,8 @@ void pgraph_init(NV2AState *d)
 
     pg->frame_time = 0;
     pg->draw_time = 0;
+    memset(&pg->uniform_source_epochs, 0,
+           sizeof(pg->uniform_source_epochs));
 
     pg->material_alpha = 0.0f;
     PG_SET_MASK(NV_PGRAPH_CONTROL_3, NV_PGRAPH_CONTROL_3_SHADEMODE,
@@ -990,6 +992,9 @@ DEF_METHOD(NV097, SET_SURFACE_FORMAT)
 {
     d->pgraph.renderer->ops.surface_update(d, false, true, true);
 
+    uint32_t old_zeta_format = pg->surface_shape.zeta_format;
+    uint32_t old_anti_aliasing = pg->surface_shape.anti_aliasing;
+
     pg->surface_shape.color_format =
         GET_MASK(parameter, NV097_SET_SURFACE_FORMAT_COLOR);
     pg->surface_shape.zeta_format =
@@ -1000,6 +1005,12 @@ DEF_METHOD(NV097, SET_SURFACE_FORMAT)
         GET_MASK(parameter, NV097_SET_SURFACE_FORMAT_WIDTH);
     pg->surface_shape.log_height =
         GET_MASK(parameter, NV097_SET_SURFACE_FORMAT_HEIGHT);
+
+    if (old_zeta_format != pg->surface_shape.zeta_format ||
+        old_anti_aliasing != pg->surface_shape.anti_aliasing) {
+        pgraph_uniform_input_touch_stages(
+            pg, PGRAPH_UNIFORM_STAGE_MASK_BOTH);
+    }
 
     int surface_type = GET_MASK(parameter, NV097_SET_SURFACE_FORMAT_TYPE);
     if (surface_type != pg->surface_type) {
@@ -1641,7 +1652,12 @@ DEF_METHOD_INC(NV097, SET_MATERIAL_EMISSION)
 
 DEF_METHOD(NV097, SET_MATERIAL_ALPHA)
 {
-    pg->material_alpha = *(float*)&parameter;
+    float value = *(float *)&parameter;
+    if (pg->material_alpha != value) {
+        pg->material_alpha = value;
+        pgraph_uniform_input_touch_stages(pg,
+                                          PGRAPH_UNIFORM_STAGE_MASK_VSH);
+    }
 }
 
 DEF_METHOD(NV097, SET_SPECULAR_ENABLE)
@@ -1921,7 +1937,12 @@ static float reconstruct_specular_power(const float *params) {
 DEF_METHOD_INC(NV097, SET_SPECULAR_PARAMS)
 {
     int slot = (method - NV097_SET_SPECULAR_PARAMS) / 4;
-    pg->specular_params[slot] = *(float *)&parameter;
+    float value = *(float *)&parameter;
+    if (pg->specular_params[slot] != value) {
+        pg->specular_params[slot] = value;
+        pgraph_uniform_input_touch_stages(pg,
+                                          PGRAPH_UNIFORM_STAGE_MASK_VSH);
+    }
     if (slot == 5) {
         pg->specular_power = reconstruct_specular_power(pg->specular_params);
     }
@@ -1945,7 +1966,12 @@ DEF_METHOD_INC(NV097, SET_VIEWPORT_OFFSET)
 DEF_METHOD_INC(NV097, SET_POINT_PARAMS)
 {
     int slot = (method - NV097_SET_POINT_PARAMS) / 4;
-    pg->point_params[slot] = *(float *)&parameter; /* FIXME: Where? */
+    float value = *(float *)&parameter;
+    if (pg->point_params[slot] != value) {
+        pg->point_params[slot] = value; /* FIXME: Where? */
+        pgraph_uniform_input_touch_stages(pg,
+                                          PGRAPH_UNIFORM_STAGE_MASK_VSH);
+    }
 }
 
 DEF_METHOD_INC(NV097, SET_EYE_POSITION)
@@ -2111,12 +2137,26 @@ DEF_METHOD_INC(NV097, SET_LIGHT_AMBIENT_COLOR)
     case NV097_SET_LIGHT_INFINITE_HALF_VECTOR ...
             NV097_SET_LIGHT_INFINITE_HALF_VECTOR + 8:
         part -= NV097_SET_LIGHT_INFINITE_HALF_VECTOR / 4;
-        pg->light_infinite_half_vector[slot][part] = *(float*)&parameter;
+        {
+            float value = *(float *)&parameter;
+            if (pg->light_infinite_half_vector[slot][part] != value) {
+                pg->light_infinite_half_vector[slot][part] = value;
+                pgraph_uniform_input_touch_stages(
+                    pg, PGRAPH_UNIFORM_STAGE_MASK_VSH);
+            }
+        }
         break;
     case NV097_SET_LIGHT_INFINITE_DIRECTION ...
             NV097_SET_LIGHT_INFINITE_DIRECTION + 8:
         part -= NV097_SET_LIGHT_INFINITE_DIRECTION / 4;
-        pg->light_infinite_direction[slot][part] = *(float*)&parameter;
+        {
+            float value = *(float *)&parameter;
+            if (pg->light_infinite_direction[slot][part] != value) {
+                pg->light_infinite_direction[slot][part] = value;
+                pgraph_uniform_input_touch_stages(
+                    pg, PGRAPH_UNIFORM_STAGE_MASK_VSH);
+            }
+        }
         break;
     case NV097_SET_LIGHT_SPOT_FALLOFF ...
             NV097_SET_LIGHT_SPOT_FALLOFF + 8:
@@ -2135,12 +2175,26 @@ DEF_METHOD_INC(NV097, SET_LIGHT_AMBIENT_COLOR)
     case NV097_SET_LIGHT_LOCAL_POSITION ...
             NV097_SET_LIGHT_LOCAL_POSITION + 8:
         part -= NV097_SET_LIGHT_LOCAL_POSITION / 4;
-        pg->light_local_position[slot][part] = *(float*)&parameter;
+        {
+            float value = *(float *)&parameter;
+            if (pg->light_local_position[slot][part] != value) {
+                pg->light_local_position[slot][part] = value;
+                pgraph_uniform_input_touch_stages(
+                    pg, PGRAPH_UNIFORM_STAGE_MASK_VSH);
+            }
+        }
         break;
     case NV097_SET_LIGHT_LOCAL_ATTENUATION ...
             NV097_SET_LIGHT_LOCAL_ATTENUATION + 8:
         part -= NV097_SET_LIGHT_LOCAL_ATTENUATION / 4;
-        pg->light_local_attenuation[slot][part] = *(float*)&parameter;
+        {
+            float value = *(float *)&parameter;
+            if (pg->light_local_attenuation[slot][part] != value) {
+                pg->light_local_attenuation[slot][part] = value;
+                pgraph_uniform_input_touch_stages(
+                    pg, PGRAPH_UNIFORM_STAGE_MASK_VSH);
+            }
+        }
         break;
     default:
         assert(!"Invalid light source prop or unhandled back light prop");
@@ -2516,6 +2570,8 @@ DEF_METHOD(NV097, SET_BEGIN_END)
         d->pgraph.renderer->ops.draw_end(d);
         pgraph_reset_inline_buffers(pg);
         pg->primitive_mode = PRIM_TYPE_INVALID;
+        pgraph_uniform_input_touch_stages(
+            pg, PGRAPH_UNIFORM_STAGE_MASK_PSH);
     } else {
         if (pg->primitive_mode != PRIM_TYPE_INVALID) {
             NV2A_DPRINTF("Begin without End!\n");
@@ -2523,6 +2579,8 @@ DEF_METHOD(NV097, SET_BEGIN_END)
         }
         assert(parameter <= NV097_SET_BEGIN_END_OP_POLYGON);
         pg->primitive_mode = parameter;
+        pgraph_uniform_input_touch_stages(
+            pg, PGRAPH_UNIFORM_STAGE_MASK_PSH);
         pgraph_reset_inline_buffers(pg);
         d->pgraph.renderer->ops.draw_begin(d);
     }
