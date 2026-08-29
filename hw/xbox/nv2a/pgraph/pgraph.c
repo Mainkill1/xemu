@@ -1652,12 +1652,9 @@ DEF_METHOD_INC(NV097, SET_MATERIAL_EMISSION)
 
 DEF_METHOD(NV097, SET_MATERIAL_ALPHA)
 {
-    float value = *(float *)&parameter;
-    if (pg->material_alpha != value) {
-        pg->material_alpha = value;
-        pgraph_uniform_input_touch_stages(pg,
-                                          PGRAPH_UNIFORM_STAGE_MASK_VSH);
-    }
+    pgraph_uniform_float_bits_update(
+        &pg->material_alpha, parameter, &pg->uniform_source_epochs,
+        PGRAPH_UNIFORM_STAGE_MASK_VSH);
 }
 
 DEF_METHOD(NV097, SET_SPECULAR_ENABLE)
@@ -1937,12 +1934,9 @@ static float reconstruct_specular_power(const float *params) {
 DEF_METHOD_INC(NV097, SET_SPECULAR_PARAMS)
 {
     int slot = (method - NV097_SET_SPECULAR_PARAMS) / 4;
-    float value = *(float *)&parameter;
-    if (pg->specular_params[slot] != value) {
-        pg->specular_params[slot] = value;
-        pgraph_uniform_input_touch_stages(pg,
-                                          PGRAPH_UNIFORM_STAGE_MASK_VSH);
-    }
+    pgraph_uniform_float_bits_update(
+        &pg->specular_params[slot], parameter, &pg->uniform_source_epochs,
+        PGRAPH_UNIFORM_STAGE_MASK_VSH);
     if (slot == 5) {
         pg->specular_power = reconstruct_specular_power(pg->specular_params);
     }
@@ -1966,12 +1960,9 @@ DEF_METHOD_INC(NV097, SET_VIEWPORT_OFFSET)
 DEF_METHOD_INC(NV097, SET_POINT_PARAMS)
 {
     int slot = (method - NV097_SET_POINT_PARAMS) / 4;
-    float value = *(float *)&parameter;
-    if (pg->point_params[slot] != value) {
-        pg->point_params[slot] = value; /* FIXME: Where? */
-        pgraph_uniform_input_touch_stages(pg,
-                                          PGRAPH_UNIFORM_STAGE_MASK_VSH);
-    }
+    pgraph_uniform_float_bits_update(
+        &pg->point_params[slot], parameter, &pg->uniform_source_epochs,
+        PGRAPH_UNIFORM_STAGE_MASK_VSH); /* FIXME: Where? */
 }
 
 DEF_METHOD_INC(NV097, SET_EYE_POSITION)
@@ -2137,26 +2128,16 @@ DEF_METHOD_INC(NV097, SET_LIGHT_AMBIENT_COLOR)
     case NV097_SET_LIGHT_INFINITE_HALF_VECTOR ...
             NV097_SET_LIGHT_INFINITE_HALF_VECTOR + 8:
         part -= NV097_SET_LIGHT_INFINITE_HALF_VECTOR / 4;
-        {
-            float value = *(float *)&parameter;
-            if (pg->light_infinite_half_vector[slot][part] != value) {
-                pg->light_infinite_half_vector[slot][part] = value;
-                pgraph_uniform_input_touch_stages(
-                    pg, PGRAPH_UNIFORM_STAGE_MASK_VSH);
-            }
-        }
+        pgraph_uniform_float_bits_update(
+            &pg->light_infinite_half_vector[slot][part], parameter,
+            &pg->uniform_source_epochs, PGRAPH_UNIFORM_STAGE_MASK_VSH);
         break;
     case NV097_SET_LIGHT_INFINITE_DIRECTION ...
             NV097_SET_LIGHT_INFINITE_DIRECTION + 8:
         part -= NV097_SET_LIGHT_INFINITE_DIRECTION / 4;
-        {
-            float value = *(float *)&parameter;
-            if (pg->light_infinite_direction[slot][part] != value) {
-                pg->light_infinite_direction[slot][part] = value;
-                pgraph_uniform_input_touch_stages(
-                    pg, PGRAPH_UNIFORM_STAGE_MASK_VSH);
-            }
-        }
+        pgraph_uniform_float_bits_update(
+            &pg->light_infinite_direction[slot][part], parameter,
+            &pg->uniform_source_epochs, PGRAPH_UNIFORM_STAGE_MASK_VSH);
         break;
     case NV097_SET_LIGHT_SPOT_FALLOFF ...
             NV097_SET_LIGHT_SPOT_FALLOFF + 8:
@@ -2175,26 +2156,16 @@ DEF_METHOD_INC(NV097, SET_LIGHT_AMBIENT_COLOR)
     case NV097_SET_LIGHT_LOCAL_POSITION ...
             NV097_SET_LIGHT_LOCAL_POSITION + 8:
         part -= NV097_SET_LIGHT_LOCAL_POSITION / 4;
-        {
-            float value = *(float *)&parameter;
-            if (pg->light_local_position[slot][part] != value) {
-                pg->light_local_position[slot][part] = value;
-                pgraph_uniform_input_touch_stages(
-                    pg, PGRAPH_UNIFORM_STAGE_MASK_VSH);
-            }
-        }
+        pgraph_uniform_float_bits_update(
+            &pg->light_local_position[slot][part], parameter,
+            &pg->uniform_source_epochs, PGRAPH_UNIFORM_STAGE_MASK_VSH);
         break;
     case NV097_SET_LIGHT_LOCAL_ATTENUATION ...
             NV097_SET_LIGHT_LOCAL_ATTENUATION + 8:
         part -= NV097_SET_LIGHT_LOCAL_ATTENUATION / 4;
-        {
-            float value = *(float *)&parameter;
-            if (pg->light_local_attenuation[slot][part] != value) {
-                pg->light_local_attenuation[slot][part] = value;
-                pgraph_uniform_input_touch_stages(
-                    pg, PGRAPH_UNIFORM_STAGE_MASK_VSH);
-            }
-        }
+        pgraph_uniform_float_bits_update(
+            &pg->light_local_attenuation[slot][part], parameter,
+            &pg->uniform_source_epochs, PGRAPH_UNIFORM_STAGE_MASK_VSH);
         break;
     default:
         assert(!"Invalid light source prop or unhandled back light prop");

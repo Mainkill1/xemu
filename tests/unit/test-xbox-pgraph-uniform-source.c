@@ -38,6 +38,56 @@ static void test_both_and_unclassified_are_conservative(void)
     g_assert_cmpuint(epochs.unclassified, ==, 1);
 }
 
+static uint32_t uniform_float_bits(float value)
+{
+    uint32_t bits;
+
+    memcpy(&bits, &value, sizeof(bits));
+    return bits;
+}
+
+static void test_float_setter_preserves_signed_zero(void)
+{
+    PGRAPHUniformSourceEpochs epochs = { 0 };
+    float value = 0.0f;
+
+    g_assert_true(pgraph_uniform_float_bits_update(
+        &value, 0x80000000, &epochs, PGRAPH_UNIFORM_STAGE_MASK_VSH));
+    g_assert_cmphex(uniform_float_bits(value), ==, 0x80000000);
+    g_assert_cmpuint(epochs.total, ==, 1);
+    g_assert_cmpuint(epochs.stage[PGRAPH_UNIFORM_STAGE_VSH], ==, 1);
+    g_assert_cmpuint(epochs.stage[PGRAPH_UNIFORM_STAGE_PSH], ==, 0);
+
+    g_assert_false(pgraph_uniform_float_bits_update(
+        &value, 0x80000000, &epochs, PGRAPH_UNIFORM_STAGE_MASK_VSH));
+    g_assert_cmpuint(epochs.total, ==, 1);
+
+    g_assert_true(pgraph_uniform_float_bits_update(
+        &value, 0x00000000, &epochs, PGRAPH_UNIFORM_STAGE_MASK_VSH));
+    g_assert_cmphex(uniform_float_bits(value), ==, 0x00000000);
+    g_assert_cmpuint(epochs.total, ==, 2);
+}
+
+static void test_float_setter_ignores_same_nan_bits(void)
+{
+    PGRAPHUniformSourceEpochs epochs = { 0 };
+    float value = 0.0f;
+
+    g_assert_true(pgraph_uniform_float_bits_update(
+        &value, 0x7FC01234, &epochs, PGRAPH_UNIFORM_STAGE_MASK_VSH));
+    g_assert_cmphex(uniform_float_bits(value), ==, 0x7FC01234);
+    g_assert_false(pgraph_uniform_float_bits_update(
+        &value, 0x7FC01234, &epochs, PGRAPH_UNIFORM_STAGE_MASK_VSH));
+    g_assert_cmpuint(epochs.total, ==, 1);
+
+    g_assert_true(pgraph_uniform_float_bits_update(
+        &value, 0x7FC05678, &epochs, PGRAPH_UNIFORM_STAGE_MASK_VSH));
+    g_assert_cmphex(uniform_float_bits(value), ==, 0x7FC05678);
+    g_assert_cmpuint(epochs.total, ==, 2);
+    g_assert_cmpuint(epochs.stage[PGRAPH_UNIFORM_STAGE_VSH], ==, 2);
+    g_assert_cmpuint(epochs.stage[PGRAPH_UNIFORM_STAGE_PSH], ==, 0);
+}
+
 static void assert_register_range(unsigned int first, unsigned int count,
                                   PGRAPHUniformStageMask expected)
 {
@@ -189,6 +239,10 @@ int main(int argc, char **argv)
                     test_stage_epochs_are_independent);
     g_test_add_func("/xbox/pgraph/uniform-source/conservative-unknown",
                     test_both_and_unclassified_are_conservative);
+    g_test_add_func("/xbox/pgraph/uniform-source/float-setter-signed-zero",
+                    test_float_setter_preserves_signed_zero);
+    g_test_add_func("/xbox/pgraph/uniform-source/float-setter-same-nan",
+                    test_float_setter_ignores_same_nan_bits);
     g_test_add_func("/xbox/pgraph/uniform-source/register-classification",
                     test_register_stage_classification);
     g_test_add_func("/xbox/pgraph/uniform-source/stage-update-decisions",

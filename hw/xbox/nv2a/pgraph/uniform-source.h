@@ -7,6 +7,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 
 #include "hw/xbox/nv2a/nv2a_regs.h"
 
@@ -46,6 +47,24 @@ static inline void pgraph_uniform_source_touch_unclassified(
 {
     pgraph_uniform_source_touch(epochs, PGRAPH_UNIFORM_STAGE_MASK_BOTH);
     epochs->unclassified++;
+}
+
+static inline bool pgraph_uniform_float_bits_update(
+    float *value, uint32_t new_bits, PGRAPHUniformSourceEpochs *epochs,
+    PGRAPHUniformStageMask stages)
+{
+    uint32_t old_bits;
+
+    _Static_assert(sizeof(*value) == sizeof(new_bits),
+                   "uniform float must be 32-bit");
+    memcpy(&old_bits, value, sizeof(old_bits));
+    if (old_bits == new_bits) {
+        return false;
+    }
+
+    memcpy(value, &new_bits, sizeof(new_bits));
+    pgraph_uniform_source_touch(epochs, stages);
+    return true;
 }
 
 static inline bool pgraph_uniform_source_stage_changed(
