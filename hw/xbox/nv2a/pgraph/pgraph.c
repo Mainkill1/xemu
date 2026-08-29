@@ -2570,8 +2570,6 @@ DEF_METHOD(NV097, SET_BEGIN_END)
         d->pgraph.renderer->ops.draw_end(d);
         pgraph_reset_inline_buffers(pg);
         pg->primitive_mode = PRIM_TYPE_INVALID;
-        pgraph_uniform_input_touch_stages(
-            pg, PGRAPH_UNIFORM_STAGE_MASK_PSH);
     } else {
         if (pg->primitive_mode != PRIM_TYPE_INVALID) {
             NV2A_DPRINTF("Begin without End!\n");
@@ -2579,8 +2577,6 @@ DEF_METHOD(NV097, SET_BEGIN_END)
         }
         assert(parameter <= NV097_SET_BEGIN_END_OP_POLYGON);
         pg->primitive_mode = parameter;
-        pgraph_uniform_input_touch_stages(
-            pg, PGRAPH_UNIFORM_STAGE_MASK_PSH);
         pgraph_reset_inline_buffers(pg);
         d->pgraph.renderer->ops.draw_begin(d);
     }

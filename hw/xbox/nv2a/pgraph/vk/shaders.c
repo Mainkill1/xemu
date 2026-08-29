@@ -50,8 +50,17 @@ static void get_uniform_stage_update_needs(PGRAPHState *pg,
                                            bool update_stage[])
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
+    PGRAPHPolygonOffsetUniformKey polygon_offset_key =
+        pgraph_polygon_offset_uniform_key(
+            pg->primitive_mode, pgraph_reg_r(pg, NV_PGRAPH_SETUPRASTER),
+            pgraph_reg_r(pg, NV_PGRAPH_ZOFFSETBIAS),
+            pgraph_reg_r(pg, NV_PGRAPH_ZOFFSETFACTOR));
     PGRAPHUniformStageUpdateInputs inputs = {
         .texture_bindings_changed = r->texture_bindings_changed,
+        .psh_effective_inputs_changed =
+            pgraph_polygon_offset_uniform_key_changed(
+                r->polygon_offset_key_valid, r->polygon_offset_key,
+                polygon_offset_key),
         .inline_values_in_vsh_ubo =
             pg->uniform_attrs && !r->use_push_constants_for_uniform_attrs,
         .vsh_rows_dirty =
@@ -671,6 +680,13 @@ void pgraph_vk_bind_shaders(PGRAPHState *pg)
     }
 
     update_shader_uniforms(pg, update_stage);
+    if (update_stage[PGRAPH_UNIFORM_STAGE_PSH]) {
+        r->polygon_offset_key = pgraph_polygon_offset_uniform_key(
+            pg->primitive_mode, pgraph_reg_r(pg, NV_PGRAPH_SETUPRASTER),
+            pgraph_reg_r(pg, NV_PGRAPH_ZOFFSETBIAS),
+            pgraph_reg_r(pg, NV_PGRAPH_ZOFFSETFACTOR));
+        r->polygon_offset_key_valid = true;
+    }
 
     NV2A_VK_DGROUP_END();
 }

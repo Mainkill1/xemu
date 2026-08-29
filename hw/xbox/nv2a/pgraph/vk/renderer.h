@@ -27,6 +27,7 @@
 #include "hw/hw.h"
 #include "hw/xbox/nv2a/nv2a_int.h"
 #include "hw/xbox/nv2a/nv2a_regs.h"
+#include "hw/xbox/nv2a/pgraph/polygon-offset.h"
 #include "hw/xbox/nv2a/pgraph/surface.h"
 #include "hw/xbox/nv2a/pgraph/texture.h"
 #include "hw/xbox/nv2a/pgraph/glsl/shaders.h"
@@ -415,6 +416,8 @@ typedef struct PGRAPHVkState {
     bool uniform_stage_dirty[PGRAPH_UNIFORM_STAGE_COUNT];
     bool uniform_layout_changed[PGRAPH_UNIFORM_STAGE_COUNT];
     PGRAPHUniformSourceEpochs last_uniform_source_epochs;
+    bool polygon_offset_key_valid;
+    PGRAPHPolygonOffsetUniformKey polygon_offset_key;
 
     VkQueryPool query_pool;
     int max_queries_in_flight; // FIXME: Move out to constant

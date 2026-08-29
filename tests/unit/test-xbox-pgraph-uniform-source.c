@@ -4,6 +4,7 @@
 
 #include <glib.h>
 
+#include "hw/xbox/nv2a/pgraph/polygon-offset.h"
 #include "hw/xbox/nv2a/pgraph/uniform-source.h"
 #include "hw/xbox/nv2a/pgraph/uniform-stage-update.h"
 
@@ -100,6 +101,12 @@ static void test_stage_update_decisions(void)
     g_assert_true(update_stage[PGRAPH_UNIFORM_STAGE_PSH]);
 
     inputs = (PGRAPHUniformStageUpdateInputs){ 0 };
+    inputs.psh_effective_inputs_changed = true;
+    pgraph_uniform_stage_update_needs(&inputs, update_stage);
+    g_assert_false(update_stage[PGRAPH_UNIFORM_STAGE_VSH]);
+    g_assert_true(update_stage[PGRAPH_UNIFORM_STAGE_PSH]);
+
+    inputs = (PGRAPHUniformStageUpdateInputs){ 0 };
     inputs.vsh_rows_dirty = true;
     pgraph_uniform_stage_update_needs(&inputs, update_stage);
     g_assert_true(update_stage[PGRAPH_UNIFORM_STAGE_VSH]);
@@ -110,6 +117,69 @@ static void test_stage_update_decisions(void)
     pgraph_uniform_stage_update_needs(&inputs, update_stage);
     g_assert_true(update_stage[PGRAPH_UNIFORM_STAGE_VSH]);
     g_assert_true(update_stage[PGRAPH_UNIFORM_STAGE_PSH]);
+}
+
+static uint32_t setup_raster(uint32_t mode, uint32_t enable)
+{
+    return (mode & NV_PGRAPH_SETUPRASTER_FRONTFACEMODE) | enable;
+}
+
+static void test_effective_polygon_offset(void)
+{
+    const uint32_t bias = 0x80000000;
+    const uint32_t factor = 0x7FC01234;
+    const uint32_t all_enables =
+        NV_PGRAPH_SETUPRASTER_POFFSETFILLENABLE |
+        NV_PGRAPH_SETUPRASTER_POFFSETLINEENABLE |
+        NV_PGRAPH_SETUPRASTER_POFFSETPOINTENABLE;
+    PGRAPHPolygonOffsetUniformKey key;
+
+    key = pgraph_polygon_offset_uniform_key(NV097_SET_BEGIN_END_OP_LINES,
+                                             all_enables, bias, factor);
+    g_assert_cmphex(key.offset_bits, ==, 0);
+    g_assert_cmphex(key.factor_bits, ==, 0);
+
+    const struct {
+        uint32_t mode;
+        uint32_t enable;
+    } cases[] = {
+        { NV_PGRAPH_SETUPRASTER_FRONTFACEMODE_FILL,
+          NV_PGRAPH_SETUPRASTER_POFFSETFILLENABLE },
+        { NV_PGRAPH_SETUPRASTER_FRONTFACEMODE_LINE,
+          NV_PGRAPH_SETUPRASTER_POFFSETLINEENABLE },
+        { NV_PGRAPH_SETUPRASTER_FRONTFACEMODE_POINT,
+          NV_PGRAPH_SETUPRASTER_POFFSETPOINTENABLE },
+    };
+
+    for (unsigned int primitive = NV097_SET_BEGIN_END_OP_TRIANGLES;
+         primitive <= NV097_SET_BEGIN_END_OP_POLYGON; primitive++) {
+        for (unsigned int i = 0; i < G_N_ELEMENTS(cases); i++) {
+            key = pgraph_polygon_offset_uniform_key(
+                primitive,
+                setup_raster(cases[i].mode, cases[i].enable), bias, factor);
+            g_assert_cmphex(key.offset_bits, ==, bias);
+            g_assert_cmphex(key.factor_bits, ==, factor);
+
+            key = pgraph_polygon_offset_uniform_key(
+                primitive,
+                setup_raster(cases[i].mode,
+                             cases[(i + 1) % G_N_ELEMENTS(cases)].enable),
+                bias, factor);
+            g_assert_cmphex(key.offset_bits, ==, 0);
+            g_assert_cmphex(key.factor_bits, ==, 0);
+        }
+    }
+
+    PGRAPHPolygonOffsetUniformKey same = { bias, factor };
+    PGRAPHPolygonOffsetUniformKey changed = { bias ^ 1U, factor };
+    g_assert_true(pgraph_polygon_offset_uniform_key_equal(same, same));
+    g_assert_false(pgraph_polygon_offset_uniform_key_equal(same, changed));
+    g_assert_true(pgraph_polygon_offset_uniform_key_changed(false, same,
+                                                             same));
+    g_assert_false(pgraph_polygon_offset_uniform_key_changed(true, same,
+                                                              same));
+    g_assert_true(pgraph_polygon_offset_uniform_key_changed(true, same,
+                                                             changed));
 }
 
 int main(int argc, char **argv)
@@ -123,6 +193,8 @@ int main(int argc, char **argv)
                     test_register_stage_classification);
     g_test_add_func("/xbox/pgraph/uniform-source/stage-update-decisions",
                     test_stage_update_decisions);
+    g_test_add_func("/xbox/pgraph/uniform-source/effective-polygon-offset",
+                    test_effective_polygon_offset);
 
     return g_test_run();
 }
