@@ -540,11 +540,6 @@ static bool create_logical_device(PGRAPHState *pg, Error **errp)
         .pNext = next_struct,
     };
 
-    if (enable_validation) {
-        device_create_info.enabledLayerCount = ARRAY_SIZE(validation_layers);
-        device_create_info.ppEnabledLayerNames = validation_layers;
-    }
-
     result = vkCreateDevice(r->physical_device, &device_create_info, NULL,
                             &r->device);
     if (result != VK_SUCCESS) {
