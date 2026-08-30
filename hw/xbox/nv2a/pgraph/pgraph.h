@@ -125,6 +125,7 @@ typedef struct PGRAPHRenderer {
         void (*pre_savevm_wait)(NV2AState *d);
         void (*pre_shutdown_trigger)(NV2AState *d);
         void (*pre_shutdown_wait)(NV2AState *d);
+        void (*perf_complete)(NV2AState *d);
         void (*process_pending)(NV2AState *d);
         void (*process_pending_reports)(NV2AState *d);
         void (*surface_flush)(NV2AState *d);
@@ -249,6 +250,9 @@ typedef struct PGRAPHState {
     bool flush_pending;
     QemuEvent flush_complete;
 
+    bool perf_complete_pending;
+    QemuEvent perf_complete;
+
     bool sync_pending;
     QemuEvent sync_complete;
 
@@ -283,6 +287,7 @@ void pgraph_pre_savevm_trigger(NV2AState *d);
 void pgraph_pre_savevm_wait(NV2AState *d);
 void pgraph_pre_shutdown_trigger(NV2AState *d);
 void pgraph_pre_shutdown_wait(NV2AState *d);
+void pgraph_request_perf_complete(NV2AState *d);
 
 int pgraph_method(NV2AState *d, unsigned int subchannel, unsigned int method,
                   uint32_t parameter, uint32_t *parameters,

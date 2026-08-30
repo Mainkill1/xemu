@@ -21,6 +21,7 @@
 #include "qemu/osdep.h"
 #include "qemu/option.h"
 #include "qemu/datadir.h"
+#include "qemu/timer.h"
 #include "hw/hw.h"
 #include "hw/loader.h"
 #include "hw/i386/pc.h"
@@ -53,12 +54,321 @@
 #include "hw/i2c/i2c.h"
 #include "hw/i2c/smbus_eeprom.h"
 #include "hw/xbox/nv2a/nv2a.h"
+#include "hw/xbox/nv2a/debug.h"
+#include "hw/xbox/nv2a/pgraph/pgraph.h"
 #include "hw/xbox/mcpx/apu/apu.h"
 
 #include "hw/xbox/xbox.h"
 #include "smbus.h"
 
 #define MAX_IDE_BUS 2
+
+static MemoryRegion xemu_perf_marker_io;
+
+/*
+ * The marker device is deliberately opt-in. In addition to the historical
+ * one-byte F0/F1/F2 markers, guest performance probes can send a v1 event
+ * frame. A frame starts with F8 and encodes each of its 23 bytes as two
+ * A0..AF nibbles, so payload bytes cannot be confused with legacy markers.
+ */
+#define XEMU_PERF_EVENT_PREAMBLE 0xF8
+#define XEMU_PERF_EVENT_NIBBLE_BASE 0xA0
+#define XEMU_PERF_EVENT_VERSION 1
+#define XEMU_PERF_EVENT_SIZE 23
+#define XEMU_PERF_EVENT_CRC_SIZE (XEMU_PERF_EVENT_SIZE - 1)
+
+enum XemuPerfEventType {
+    XEMU_PERF_EVENT_CONTEXT = 1,
+    XEMU_PERF_EVENT_HEARTBEAT = 2,
+    XEMU_PERF_EVENT_FAIL = 3,
+    XEMU_PERF_EVENT_PASS = 4,
+};
+
+typedef struct XemuPerfEventReceiver {
+    const char *live_marker_path;
+    uint8_t bytes[XEMU_PERF_EVENT_SIZE];
+    unsigned int byte_count;
+    uint8_t high_nibble;
+    bool have_high_nibble;
+    bool receiving;
+} XemuPerfEventReceiver;
+
+static XemuPerfEventReceiver xemu_perf_event_receiver;
+
+static uint8_t xemu_perf_event_crc8(const uint8_t *bytes, size_t length)
+{
+    uint8_t checksum = 0;
+
+    for (size_t i = 0; i < length; i++) {
+        checksum ^= bytes[i];
+        for (unsigned int bit = 0; bit < 8; bit++) {
+            checksum = checksum & 0x80 ? (checksum << 1) ^ 0x07 :
+                                         checksum << 1;
+        }
+    }
+
+    return checksum;
+}
+
+static uint16_t xemu_perf_event_read_u16(const uint8_t *bytes)
+{
+    return bytes[0] | ((uint16_t)bytes[1] << 8);
+}
+
+static uint32_t xemu_perf_event_read_u32(const uint8_t *bytes)
+{
+    return bytes[0] | ((uint32_t)bytes[1] << 8) |
+           ((uint32_t)bytes[2] << 16) | ((uint32_t)bytes[3] << 24);
+}
+
+static const char *xemu_perf_event_type_name(uint8_t type)
+{
+    switch (type) {
+    case XEMU_PERF_EVENT_CONTEXT:
+        return "CONTEXT";
+    case XEMU_PERF_EVENT_HEARTBEAT:
+        return "HEARTBEAT";
+    case XEMU_PERF_EVENT_FAIL:
+        return "FAIL";
+    case XEMU_PERF_EVENT_PASS:
+        return "PASS";
+    default:
+        return NULL;
+    }
+}
+
+static void xemu_perf_event_append_protocol_error(const char *reason)
+{
+    XemuPerfEventReceiver *receiver = &xemu_perf_event_receiver;
+    int64_t host_monotonic_ns = qemu_clock_get_ns(QEMU_CLOCK_REALTIME);
+
+    if (!receiver->live_marker_path) {
+        return;
+    }
+
+    FILE *file = fopen(receiver->live_marker_path, "a");
+    if (!file) {
+        error_report("xemu_perf: failed to write protocol error: %s",
+                     receiver->live_marker_path);
+        return;
+    }
+
+    bool write_failed = fprintf(
+        file,
+        "{\"schema_version\":1,\"source\":\"guest\","
+        "\"event\":\"PROTOCOL_ERROR\",\"host_monotonic_ns\":%" PRId64
+        ",\"reason\":\"%s\"}\n",
+        host_monotonic_ns, reason) < 0;
+
+    if (fflush(file) != 0) {
+        write_failed = true;
+    }
+    if (fclose(file) != 0) {
+        write_failed = true;
+    }
+    if (write_failed) {
+        error_report("xemu_perf: failed to flush protocol error: %s",
+                     receiver->live_marker_path);
+    }
+}
+
+static void xemu_perf_event_append_jsonl(const uint8_t *bytes)
+{
+    const char *type = xemu_perf_event_type_name(bytes[1]);
+    XemuPerfEventReceiver *receiver = &xemu_perf_event_receiver;
+
+    if (!receiver->live_marker_path) {
+        return;
+    }
+    if (bytes[0] != XEMU_PERF_EVENT_VERSION) {
+        xemu_perf_event_append_protocol_error("unsupported_version");
+        return;
+    }
+    if (!type) {
+        xemu_perf_event_append_protocol_error("unknown_type");
+        return;
+    }
+    if (bytes[XEMU_PERF_EVENT_CRC_SIZE] !=
+        xemu_perf_event_crc8(bytes, XEMU_PERF_EVENT_CRC_SIZE)) {
+        xemu_perf_event_append_protocol_error("crc_mismatch");
+        return;
+    }
+
+    FILE *file = fopen(receiver->live_marker_path, "a");
+    if (!file) {
+        error_report("xemu_perf: failed to write guest event: %s",
+                     receiver->live_marker_path);
+        return;
+    }
+
+    uint16_t phase = xemu_perf_event_read_u16(&bytes[2]);
+    uint16_t assertion = xemu_perf_event_read_u16(&bytes[4]);
+    uint32_t sequence = xemu_perf_event_read_u32(&bytes[6]);
+    uint32_t expected = xemu_perf_event_read_u32(&bytes[10]);
+    uint32_t actual = xemu_perf_event_read_u32(&bytes[14]);
+    uint32_t final_state = xemu_perf_event_read_u32(&bytes[18]);
+    int64_t host_monotonic_ns = qemu_clock_get_ns(QEMU_CLOCK_REALTIME);
+    bool write_failed = fprintf(
+        file,
+        "{\"schema_version\":1,\"source\":\"guest\",\"event\":\"%s\","
+        "\"phase\":%" PRIu16 ",\"assertion\":%" PRIu16
+        ",\"sequence\":%" PRIu32 ",\"expected\":%" PRIu32
+        ",\"actual\":%" PRIu32 ",\"final_state\":%" PRIu32
+        ",\"host_monotonic_ns\":%" PRId64 "}\n",
+        type, phase, assertion, sequence, expected, actual, final_state,
+        host_monotonic_ns) < 0;
+
+    if (fflush(file) != 0 ||
+        (bytes[1] == XEMU_PERF_EVENT_FAIL &&
+         qemu_fdatasync(fileno(file)) != 0)) {
+        write_failed = true;
+    }
+    if (fclose(file) != 0) {
+        write_failed = true;
+    }
+    if (write_failed) {
+        error_report("xemu_perf: failed to flush guest event: %s",
+                     receiver->live_marker_path);
+    }
+}
+
+static void xemu_perf_event_append_legacy_marker(uint8_t marker)
+{
+    XemuPerfEventReceiver *receiver = &xemu_perf_event_receiver;
+
+    if (!receiver->live_marker_path ||
+        (marker != XEMU_PERF_MARKER_MEASURE_BEGIN &&
+         marker != XEMU_PERF_MARKER_MEASURE_END)) {
+        return;
+    }
+
+    FILE *file = fopen(receiver->live_marker_path, "a");
+    if (!file) {
+        error_report("xemu_perf: failed to write legacy marker: %s",
+                     receiver->live_marker_path);
+        return;
+    }
+
+    bool write_failed = fprintf(file, "%02X\n", marker) < 0;
+
+    if (fflush(file) != 0) {
+        write_failed = true;
+    }
+    if (fclose(file) != 0) {
+        write_failed = true;
+    }
+    if (write_failed) {
+        error_report("xemu_perf: failed to flush legacy marker: %s",
+                     receiver->live_marker_path);
+    }
+}
+
+static void xemu_perf_event_reset(void)
+{
+    XemuPerfEventReceiver *receiver = &xemu_perf_event_receiver;
+
+    receiver->byte_count = 0;
+    receiver->have_high_nibble = false;
+    receiver->receiving = false;
+}
+
+static bool xemu_perf_event_receive_byte(uint8_t value)
+{
+    XemuPerfEventReceiver *receiver = &xemu_perf_event_receiver;
+
+    if (!receiver->receiving) {
+        if (value == XEMU_PERF_EVENT_PREAMBLE) {
+            receiver->byte_count = 0;
+            receiver->have_high_nibble = false;
+            receiver->receiving = true;
+            return true;
+        }
+        return false;
+    }
+
+    /*
+     * Restart immediately on a new preamble. A legal frame contains only
+     * encoded nibbles after its preamble, so this recovers from a truncated
+     * frame without sacrificing a following event.
+     */
+    if (value == XEMU_PERF_EVENT_PREAMBLE) {
+        receiver->byte_count = 0;
+        receiver->have_high_nibble = false;
+        return true;
+    }
+
+    if (value < XEMU_PERF_EVENT_NIBBLE_BASE ||
+        value >= XEMU_PERF_EVENT_NIBBLE_BASE + 16) {
+        /* Record framing loss before returning the byte to the raw handler. */
+        xemu_perf_event_append_protocol_error("invalid_encoding");
+        xemu_perf_event_reset();
+        return false;
+    }
+
+    uint8_t nibble = value - XEMU_PERF_EVENT_NIBBLE_BASE;
+    if (!receiver->have_high_nibble) {
+        receiver->high_nibble = nibble;
+        receiver->have_high_nibble = true;
+        return true;
+    }
+
+    receiver->bytes[receiver->byte_count++] =
+        (receiver->high_nibble << 4) | nibble;
+    receiver->have_high_nibble = false;
+    if (receiver->byte_count == XEMU_PERF_EVENT_SIZE) {
+        xemu_perf_event_append_jsonl(receiver->bytes);
+        xemu_perf_event_reset();
+    }
+    return true;
+}
+
+static uint64_t xemu_perf_marker_read(void *opaque, hwaddr addr,
+                                      unsigned int size)
+{
+    return XEMU_PERF_MARKER_READBACK;
+}
+
+static void xemu_perf_marker_write(void *opaque, hwaddr addr, uint64_t value,
+                                   unsigned int size)
+{
+    uint8_t marker = value;
+    bool event_byte = xemu_perf_event_receive_byte(marker);
+
+    /*
+     * Feed F2 through the decoder first: it resets a truncated F8 frame
+     * before requesting completion, while valid nibble frames cannot contain
+     * F2.
+     */
+    if (marker == XEMU_PERF_MARKER_GPU_COMPLETE) {
+        pgraph_request_perf_complete(g_nv2a);
+        return;
+    }
+
+    if (event_byte) {
+        return;
+    }
+
+    if (marker == XEMU_PERF_MARKER_MEASURE_BEGIN) {
+        /* Do not include the live-file write in the measured profile scope. */
+        xemu_perf_event_append_legacy_marker(marker);
+        nv2a_profile_marker(marker);
+    } else if (marker == XEMU_PERF_MARKER_MEASURE_END) {
+        nv2a_profile_marker(marker);
+        /* Close the profile scope before the live-file write. */
+        xemu_perf_event_append_legacy_marker(marker);
+    } else {
+        /* Preserve the existing receiver: one call for every other byte. */
+        nv2a_profile_marker(marker);
+    }
+}
+
+static const MemoryRegionOps xemu_perf_marker_ops = {
+    .read = xemu_perf_marker_read,
+    .write = xemu_perf_marker_write,
+    .valid.min_access_size = 1,
+    .valid.max_access_size = 1,
+    .endianness = DEVICE_LITTLE_ENDIAN,
+};
 
 /* FIXME: Clean this up and propagate errors to UI */
 static void xbox_flash_init(MachineState *ms, MemoryRegion *rom_memory)
@@ -268,6 +578,27 @@ void xbox_init_common(MachineState *machine,
     pcms->pcibus = pci_bus;
 
     isa_bus_register_input_irqs(isa_bus, x86ms->gsi);
+
+    const char *telemetry_path = g_getenv("XEMU_PERF_TELEMETRY_PATH");
+    const char *guest_markers = g_getenv("XEMU_PERF_GUEST_MARKERS");
+    const char *live_marker_path = g_getenv("XEMU_PERF_LIVE_MARKER_PATH");
+    bool enable_guest_markers = guest_markers &&
+                                strcmp(guest_markers, "1") == 0;
+    bool enable_guest_events = enable_guest_markers &&
+                               live_marker_path && live_marker_path[0];
+
+    /* The receiver is process-static; initialize it for this machine. */
+    xemu_perf_event_reset();
+    xemu_perf_event_receiver.live_marker_path = enable_guest_events ?
+        live_marker_path : NULL;
+
+    if ((telemetry_path && telemetry_path[0]) || enable_guest_markers) {
+        memory_region_init_io(&xemu_perf_marker_io, NULL,
+                              &xemu_perf_marker_ops, NULL,
+                              "xemu-perf-marker", 1);
+        isa_register_ioport(NULL, &xemu_perf_marker_io,
+                            XEMU_PERF_MARKER_IO_PORT);
+    }
 
     pc_i8259_create(isa_bus, gsi_state->i8259_irq);
 

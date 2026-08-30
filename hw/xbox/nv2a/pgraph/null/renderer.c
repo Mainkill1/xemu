@@ -73,6 +73,10 @@ static void pgraph_null_flip_stall(NV2AState *d)
 {
 }
 
+static void pgraph_null_perf_complete(NV2AState *d)
+{
+}
+
 static void pgraph_null_flush_draw(NV2AState *d)
 {
 }
@@ -134,6 +138,7 @@ static PGRAPHRenderer pgraph_null_renderer = {
         .pre_savevm_wait = pgraph_null_pre_savevm_wait,
         .pre_shutdown_trigger = pgraph_null_pre_shutdown_trigger,
         .pre_shutdown_wait = pgraph_null_pre_shutdown_wait,
+        .perf_complete = pgraph_null_perf_complete,
         .process_pending = pgraph_null_process_pending,
         .process_pending_reports = pgraph_null_process_pending_reports,
         .surface_update = pgraph_null_surface_update,

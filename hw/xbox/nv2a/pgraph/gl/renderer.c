@@ -105,6 +105,11 @@ static void pgraph_gl_flip_stall(NV2AState *d)
     glFinish();
 }
 
+static void pgraph_gl_perf_complete(NV2AState *d)
+{
+    glFinish();
+}
+
 static void pgraph_gl_flush(NV2AState *d)
 {
     pgraph_gl_surface_flush(d);
@@ -201,6 +206,7 @@ static PGRAPHRenderer pgraph_gl_renderer = {
         .pre_savevm_wait = pgraph_gl_pre_savevm_wait,
         .pre_shutdown_trigger = pgraph_gl_pre_shutdown_trigger,
         .pre_shutdown_wait = pgraph_gl_pre_shutdown_wait,
+        .perf_complete = pgraph_gl_perf_complete,
         .process_pending = pgraph_gl_process_pending,
         .process_pending_reports = pgraph_gl_process_pending_reports,
         .surface_update = pgraph_gl_surface_update,

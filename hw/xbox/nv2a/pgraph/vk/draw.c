@@ -1242,6 +1242,7 @@ const enum NV2A_PROF_COUNTERS_ENUM finish_reason_to_counter_enum[] = {
     [VK_FINISH_REASON_FLUSH] = NV2A_PROF_FINISH_FLUSH,
     [VK_FINISH_REASON_STALLED] = NV2A_PROF_FINISH_STALLED,
     [VK_FINISH_REASON_TEXTURE_DIRTY] = NV2A_PROF_FINISH_TEXTURE_DIRTY,
+    [VK_FINISH_REASON_PERF_COMPLETE] = NV2A_PROF_FINISH_PERF_COMPLETE,
 };
 
 void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
@@ -1450,19 +1451,38 @@ static void update_blend_constants(PGRAPHState *pg,
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     uint32_t guest_color = pgraph_reg_r(pg, NV_PGRAPH_BLENDCOLOR);
+    bool component_only_change = r->blend_constants.command_valid &&
+        r->blend_constants.command_guest_color != guest_color &&
+        (((r->blend_constants.command_guest_color ^ guest_color) &
+          relevant_component_mask) == 0);
+    int64_t profile_start = nv2a_profile_scope_begin();
+
+    nv2a_profile_inc_counter(NV2A_PROF_BLEND_UPDATE_CALLS);
 
     if (!pgraph_vk_blend_constants_cache_update(
             &r->blend_constants, guest_color, relevant_component_mask)) {
+        nv2a_profile_inc_counter(NV2A_PROF_BLEND_COMMAND_SKIPS);
+        if (component_only_change) {
+            nv2a_profile_inc_counter(NV2A_PROF_BLEND_COMPONENT_ONLY_SKIPS);
+        }
+        nv2a_profile_scope_end(NV2A_PROF_SCOPE_VK_BLEND_CONSTANT_UPDATE,
+                               profile_start);
         return;
     }
 
     if (pgraph_vk_blend_constants_cache_needs_pack(&r->blend_constants,
-                                                   guest_color)) {
+                                                    guest_color)) {
+        nv2a_profile_inc_counter(NV2A_PROF_BLEND_PACKS);
         pgraph_argb_pack32_to_rgba_float(
             guest_color, r->blend_constants.packed_color);
+    } else {
+        nv2a_profile_inc_counter(NV2A_PROF_BLEND_PACK_REUSES);
     }
+    nv2a_profile_inc_counter(NV2A_PROF_BLEND_COMMAND_EMITS);
     vkCmdSetBlendConstants(r->command_buffer,
                            r->blend_constants.packed_color);
+    nv2a_profile_scope_end(NV2A_PROF_SCOPE_VK_BLEND_CONSTANT_UPDATE,
+                           profile_start);
 }
 
 static void begin_draw(PGRAPHState *pg)
@@ -1501,9 +1521,19 @@ static void begin_draw(PGRAPHState *pg)
         nv2a_profile_inc_counter(NV2A_PROF_PIPELINE_BIND);
         vkCmdBindPipeline(r->command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                           r->pipeline_binding->pipeline);
+        bool dynamic_blend_constants =
+            r->pipeline_binding->dynamic_blend_constant_mask != 0;
+        if (dynamic_blend_constants) {
+            nv2a_profile_inc_counter(NV2A_PROF_BLEND_DYNAMIC_BINDS);
+            if (r->blend_constants.command_valid) {
+                nv2a_profile_inc_counter(NV2A_PROF_BLEND_DYNAMIC_BINDS_LIVE);
+            }
+        } else {
+            nv2a_profile_inc_counter(NV2A_PROF_BLEND_STATIC_BINDS);
+        }
         pgraph_vk_blend_constants_cache_pipeline_bound(
             &r->blend_constants,
-            r->pipeline_binding->dynamic_blend_constant_mask != 0);
+            dynamic_blend_constants);
         r->pipeline_binding->draw_time = pg->draw_time;
 
         unsigned int vp_width = pg->surface_binding_dim.width,
