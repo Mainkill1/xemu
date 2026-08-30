@@ -20,8 +20,12 @@
 #include "qemu/osdep.h"
 #include "qemu/fast-hash.h"
 #include "qemu/error-report.h"
+#include "xemu-version.h"
+#include "ui/xemu-settings.h"
 #include "renderer.h"
+#include "pipeline-cache-file.h"
 #include "vertex-range.h"
+#include <glib/gstdio.h>
 #include <math.h>
 
 static void init_framebuffer_cache(PGRAPHVkState *r);
@@ -126,19 +130,169 @@ static bool pipeline_cache_entry_compare(Lru *lru, LruNode *node,
     return memcmp(&snode->key, key, sizeof(PipelineKey));
 }
 
+static PGRAPHVkPipelineCacheIdentity get_pipeline_cache_identity(
+    const PGRAPHVkState *r)
+{
+    uint64_t build_hash = PGRAPH_VK_PIPELINE_CACHE_HASH_OFFSET;
+    build_hash = pgraph_vk_pipeline_cache_hash_update(
+        build_hash, xemu_version, strlen(xemu_version) + 1);
+    build_hash = pgraph_vk_pipeline_cache_hash_update(
+        build_hash, xemu_commit, strlen(xemu_commit) + 1);
+
+    PGRAPHVkPipelineCacheIdentity identity = {
+        .vendor_id = r->device_props.vendorID,
+        .device_id = r->device_props.deviceID,
+        .driver_version = r->device_props.driverVersion,
+        .api_version = r->vk_api_version,
+        .build_hash = build_hash,
+    };
+    memcpy(identity.pipeline_cache_uuid, r->device_props.pipelineCacheUUID,
+           VK_UUID_SIZE);
+    return identity;
+}
+
+static char *get_pipeline_cache_path(PGRAPHVkState *r)
+{
+    char uuid[VK_UUID_SIZE * 2 + 1];
+    for (size_t i = 0; i < VK_UUID_SIZE; i++) {
+        snprintf(&uuid[i * 2], 3, "%02x",
+                 r->device_props.pipelineCacheUUID[i]);
+    }
+
+    g_autofree char *filename = g_strdup_printf(
+        "vulkan-pipeline-cache-%08x-%08x-%s.bin",
+        r->device_props.vendorID, r->device_props.deviceID, uuid);
+    return g_build_filename(xemu_settings_get_base_path(), filename, NULL);
+}
+
+static void *load_pipeline_cache_data(PGRAPHVkState *r, size_t *data_size)
+{
+    *data_size = 0;
+    if (!g_config.perf.cache_shaders) {
+        return NULL;
+    }
+
+    g_autofree char *path = get_pipeline_cache_path(r);
+    GStatBuf stat_buffer;
+    if (g_stat(path, &stat_buffer) != 0) {
+        return NULL;
+    }
+
+    const uint64_t max_file_size = sizeof(PGRAPHVkPipelineCacheFileHeader) +
+                                   PGRAPH_VK_PIPELINE_CACHE_MAX_DATA_SIZE;
+    if (stat_buffer.st_size < 0 ||
+        (uint64_t)stat_buffer.st_size > max_file_size ||
+        stat_buffer.st_size < sizeof(PGRAPHVkPipelineCacheFileHeader) ||
+        !S_ISREG(stat_buffer.st_mode)) {
+        warn_report("Ignoring invalid Vulkan pipeline cache file");
+        qemu_unlink(path);
+        return NULL;
+    }
+
+    size_t file_size = stat_buffer.st_size;
+    g_autofree uint8_t *file_data = g_malloc(file_size);
+    FILE *file = qemu_fopen(path, "rb");
+    if (!file) {
+        return NULL;
+    }
+    bool read_complete = fread(file_data, 1, file_size, file) == file_size &&
+                         fgetc(file) == EOF && !ferror(file);
+    fclose(file);
+
+    PGRAPHVkPipelineCacheIdentity identity = get_pipeline_cache_identity(r);
+    const uint8_t *payload = NULL;
+    size_t payload_size = 0;
+    if (!read_complete || !pgraph_vk_pipeline_cache_file_validate(
+                              file_data, file_size, &identity, &payload,
+                              &payload_size)) {
+        warn_report("Ignoring invalid or incompatible Vulkan pipeline cache");
+        qemu_unlink(path);
+        return NULL;
+    }
+
+    *data_size = payload_size;
+    return g_memdup2(payload, payload_size);
+}
+
+static void save_pipeline_cache_data(PGRAPHVkState *r)
+{
+    if (!g_config.perf.cache_shaders) {
+        return;
+    }
+
+    size_t data_size = 0;
+    VkResult result =
+        vkGetPipelineCacheData(r->device, r->vk_pipeline_cache, &data_size,
+                               NULL);
+    if (result != VK_SUCCESS ||
+        data_size > PGRAPH_VK_PIPELINE_CACHE_MAX_DATA_SIZE) {
+        warn_report(
+            "Not saving oversized or unavailable Vulkan pipeline cache");
+        return;
+    }
+
+    size_t allocation_size = data_size;
+    g_autofree uint8_t *data = g_malloc(allocation_size);
+    result = vkGetPipelineCacheData(r->device, r->vk_pipeline_cache,
+                                    &data_size, data);
+    if (result != VK_SUCCESS || data_size > allocation_size ||
+        data_size > PGRAPH_VK_PIPELINE_CACHE_MAX_DATA_SIZE) {
+        warn_report("Failed to retrieve Vulkan pipeline cache data");
+        return;
+    }
+
+    PGRAPHVkPipelineCacheIdentity identity = get_pipeline_cache_identity(r);
+    PGRAPHVkPipelineCacheFileHeader header;
+    pgraph_vk_pipeline_cache_header_init(&header, &identity, data, data_size);
+
+    size_t file_size = sizeof(header) + data_size;
+    g_autofree uint8_t *file_data = g_malloc(file_size);
+    memcpy(file_data, &header, sizeof(header));
+    memcpy(file_data + sizeof(header), data, data_size);
+    if (!pgraph_vk_pipeline_cache_file_validate(
+            file_data, file_size, &identity, NULL, NULL)) {
+        warn_report("Driver returned invalid Vulkan pipeline cache data");
+        return;
+    }
+
+    g_autofree char *path = get_pipeline_cache_path(r);
+    g_autoptr(GError) error = NULL;
+    if (!g_file_set_contents_full(
+            path, (const char *)file_data, file_size,
+            G_FILE_SET_CONTENTS_CONSISTENT | G_FILE_SET_CONTENTS_DURABLE,
+            0600, &error)) {
+        warn_report("Failed to save Vulkan pipeline cache: %s",
+                    error->message);
+    }
+}
+
 static void init_pipeline_cache(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
+    size_t initial_data_size;
+    g_autofree void *initial_data =
+        load_pipeline_cache_data(r, &initial_data_size);
+
     VkPipelineCacheCreateInfo cache_info = {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO,
         .flags = 0,
-        .initialDataSize = 0,
-        .pInitialData = NULL,
+        .initialDataSize = initial_data_size,
+        .pInitialData = initial_data,
         .pNext = NULL,
     };
-    VK_CHECK(vkCreatePipelineCache(r->device, &cache_info, NULL,
-                                   &r->vk_pipeline_cache));
+    VkResult result = vkCreatePipelineCache(r->device, &cache_info, NULL,
+                                            &r->vk_pipeline_cache);
+    if (result != VK_SUCCESS && initial_data != NULL) {
+        warn_report("Vulkan rejected cached pipeline data; retrying empty");
+        g_autofree char *path = get_pipeline_cache_path(r);
+        qemu_unlink(path);
+        cache_info.initialDataSize = 0;
+        cache_info.pInitialData = NULL;
+        result = vkCreatePipelineCache(r->device, &cache_info, NULL,
+                                       &r->vk_pipeline_cache);
+    }
+    VK_CHECK(result);
 
     const size_t pipeline_cache_size = 2048;
     lru_init(&r->pipeline_cache);
@@ -162,6 +316,7 @@ static void finalize_pipeline_cache(PGRAPHState *pg)
     g_free(r->pipeline_cache_entries);
     r->pipeline_cache_entries = NULL;
 
+    save_pipeline_cache_data(r);
     vkDestroyPipelineCache(r->device, r->vk_pipeline_cache, NULL);
 }
 
