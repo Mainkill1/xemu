@@ -148,6 +148,9 @@ static void resize_buffer(PGRAPHState *pg, int index, size_t size)
     growth_stats.resize_count++;
     growth_stats.allocated_bytes += size;
     growth_stats.largest_buffer = MAX(growth_stats.largest_buffer, size);
+    fprintf(stderr,
+            "XEMU_LAB_BUFFER_RESIZE index=%d size=%zu count=%" PRIu64 "\n",
+            index, size, growth_stats.resize_count);
 
     if (buffer_is_persistently_mapped(index)) {
         VK_CHECK(vmaMapMemory(r->allocator, buffer->allocation,
