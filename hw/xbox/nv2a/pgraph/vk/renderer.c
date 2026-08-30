@@ -70,6 +70,10 @@ static void pgraph_vk_finalize(NV2AState *d)
 {
     PGRAPHState *pg = &d->pgraph;
 
+    /* Retire any framebuffer and other resources referenced by an open
+     * command buffer before cache and render-pass teardown. */
+    pgraph_vk_finish(pg, VK_FINISH_REASON_FLUSH);
+
     pgraph_vk_finalize_display(pg);
     pgraph_vk_finalize_compute(pg);
     pgraph_vk_finalize_reports(pg);

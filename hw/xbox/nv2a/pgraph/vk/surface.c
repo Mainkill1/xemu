@@ -771,9 +771,9 @@ static void invalidate_surface(NV2AState *d, SurfaceBinding *surface)
 
     /*
      * Images from older submissions are safe to recycle because finish waits
-     * for every submission and destroys that submission's framebuffers. Only
-     * finish when this command buffer rendered to the surface or recorded a
-     * surface-to-texture read from it.
+     * for every submission. Cached framebuffers are invalidated before an
+     * image view is destroyed. Only finish when this command buffer rendered
+     * to the surface or recorded a surface-to-texture read from it.
      */
     bool used_in_current_command_buffer =
         r->in_command_buffer &&
@@ -1030,6 +1030,7 @@ static void migrate_surface_image(SurfaceBinding *dst, SurfaceBinding *src)
 
 static void destroy_surface_image(PGRAPHVkState *r, SurfaceBinding *surface)
 {
+    pgraph_vk_invalidate_framebuffers(r, surface->image_view);
     vkDestroyImageView(r->device, surface->image_view, NULL);
     surface->image_view = VK_NULL_HANDLE;
 

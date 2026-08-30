@@ -38,6 +38,7 @@
 #include <vk_mem_alloc.h>
 
 #include "blend-constants-cache.h"
+#include "framebuffer-cache.h"
 #include "debug.h"
 #include "constants.h"
 #include "glsl.h"
@@ -233,6 +234,13 @@ typedef struct QueryReport {
     unsigned int query_count;
 } QueryReport;
 
+typedef struct PGRAPHVkFramebufferCacheEntry {
+    PGRAPHVkFramebufferKey key;
+    VkFramebuffer framebuffer;
+    uint64_t last_used;
+    uint32_t submit_time;
+} PGRAPHVkFramebufferCacheEntry;
+
 typedef struct PvideoState {
     bool enabled;
     hwaddr base;
@@ -355,8 +363,10 @@ typedef struct PGRAPHVkState {
     VkFence aux_command_buffer_fence;
     bool in_aux_command_buffer;
 
-    VkFramebuffer framebuffers[50];
-    int framebuffer_index;
+    PGRAPHVkFramebufferCacheEntry
+        framebuffer_cache[PGRAPH_VK_FRAMEBUFFER_CACHE_SIZE];
+    PGRAPHVkFramebufferCacheEntry *framebuffer_binding;
+    uint64_t framebuffer_cache_use_serial;
     bool framebuffer_dirty;
 
     VkRenderPass render_pass;
@@ -598,6 +608,7 @@ typedef enum FinishReason {
 // draw.c
 void pgraph_vk_init_pipelines(PGRAPHState *pg);
 void pgraph_vk_finalize_pipelines(PGRAPHState *pg);
+void pgraph_vk_invalidate_framebuffers(PGRAPHVkState *r, VkImageView view);
 void pgraph_vk_clear_surface(NV2AState *d, uint32_t parameter);
 void pgraph_vk_draw_begin(NV2AState *d);
 void pgraph_vk_draw_end(NV2AState *d);

@@ -24,6 +24,9 @@
 #include "vertex-range.h"
 #include <math.h>
 
+static void init_framebuffer_cache(PGRAPHVkState *r);
+static void finalize_framebuffer_cache(PGRAPHVkState *r);
+
 void pgraph_vk_draw_begin(NV2AState *d)
 {
     PGRAPHState *pg = &d->pgraph;
@@ -218,6 +221,7 @@ void pgraph_vk_init_pipelines(PGRAPHState *pg)
     init_pipeline_cache(pg);
     init_clear_shaders(pg);
     init_render_passes(r);
+    init_framebuffer_cache(r);
 
     VkSemaphoreCreateInfo semaphore_info = {
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO
@@ -238,6 +242,7 @@ void pgraph_vk_finalize_pipelines(PGRAPHState *pg)
 
     finalize_clear_shaders(pg);
     finalize_pipeline_cache(pg);
+    finalize_framebuffer_cache(r);
     finalize_render_passes(r);
 
     vkDestroyFence(r->device, r->command_buffer_fence, NULL);
@@ -373,54 +378,154 @@ static VkRenderPass get_render_pass(PGRAPHVkState *r, RenderPassState *state)
     return add_new_render_pass(r, state);
 }
 
-static void create_frame_buffer(PGRAPHState *pg)
+static bool framebuffer_cache_entry_in_use(
+    const PGRAPHVkState *r, const PGRAPHVkFramebufferCacheEntry *entry)
+{
+    return r->in_command_buffer && entry->submit_time == r->submit_count;
+}
+
+static void destroy_framebuffer_cache_entry(
+    PGRAPHVkState *r, PGRAPHVkFramebufferCacheEntry *entry)
+{
+    if (entry->framebuffer == VK_NULL_HANDLE) {
+        return;
+    }
+
+    assert(!framebuffer_cache_entry_in_use(r, entry) &&
+           "Framebuffer evicted while in use!");
+    vkDestroyFramebuffer(r->device, entry->framebuffer, NULL);
+    entry->framebuffer = VK_NULL_HANDLE;
+    if (r->framebuffer_binding == entry) {
+        r->framebuffer_binding = NULL;
+    }
+}
+
+static void init_framebuffer_cache(PGRAPHVkState *r)
+{
+    memset(r->framebuffer_cache, 0, sizeof(r->framebuffer_cache));
+    r->framebuffer_binding = NULL;
+    r->framebuffer_cache_use_serial = 0;
+}
+
+static void finalize_framebuffer_cache(PGRAPHVkState *r)
+{
+    for (size_t i = 0; i < ARRAY_SIZE(r->framebuffer_cache); i++) {
+        destroy_framebuffer_cache_entry(r, &r->framebuffer_cache[i]);
+    }
+    r->framebuffer_binding = NULL;
+}
+
+void pgraph_vk_invalidate_framebuffers(PGRAPHVkState *r, VkImageView view)
+{
+    if (view == VK_NULL_HANDLE) {
+        return;
+    }
+
+    for (size_t i = 0; i < ARRAY_SIZE(r->framebuffer_cache); i++) {
+        PGRAPHVkFramebufferCacheEntry *entry = &r->framebuffer_cache[i];
+        if (entry->framebuffer != VK_NULL_HANDLE &&
+            pgraph_vk_framebuffer_key_references_view(&entry->key, view)) {
+            destroy_framebuffer_cache_entry(r, entry);
+        }
+    }
+}
+
+static PGRAPHVkFramebufferCacheEntry *find_framebuffer_cache_entry(
+    PGRAPHVkState *r, const PGRAPHVkFramebufferKey *key)
+{
+    for (size_t i = 0; i < ARRAY_SIZE(r->framebuffer_cache); i++) {
+        PGRAPHVkFramebufferCacheEntry *entry = &r->framebuffer_cache[i];
+        if (entry->framebuffer != VK_NULL_HANDLE &&
+            pgraph_vk_framebuffer_key_equal(&entry->key, key)) {
+            return entry;
+        }
+    }
+    return NULL;
+}
+
+static PGRAPHVkFramebufferCacheEntry *find_framebuffer_cache_victim(
+    PGRAPHVkState *r)
+{
+    PGRAPHVkFramebufferCacheEntry *victim = NULL;
+
+    for (size_t i = 0; i < ARRAY_SIZE(r->framebuffer_cache); i++) {
+        PGRAPHVkFramebufferCacheEntry *entry = &r->framebuffer_cache[i];
+        if (entry->framebuffer == VK_NULL_HANDLE) {
+            return entry;
+        }
+        if (!framebuffer_cache_entry_in_use(r, entry) &&
+            (!victim || entry->last_used < victim->last_used)) {
+            victim = entry;
+        }
+    }
+    return victim;
+}
+
+static PGRAPHVkFramebufferKey get_framebuffer_key(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
-
-    NV2A_VK_DPRINTF("Creating framebuffer");
-
-    assert(r->color_binding || r->zeta_binding);
-
-    if (r->framebuffer_index >= ARRAY_SIZE(r->framebuffers)) {
-        pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
-    }
-
-    VkImageView attachments[2];
-    int attachment_count = 0;
+    PGRAPHVkFramebufferKey key = {
+        .render_pass = r->render_pass,
+        .layers = 1,
+    };
 
     if (r->color_binding) {
-        attachments[attachment_count++] = r->color_binding->image_view;
+        key.attachments[key.attachment_count++] =
+            r->color_binding->image_view;
     }
     if (r->zeta_binding) {
-        attachments[attachment_count++] = r->zeta_binding->image_view;
+        key.attachments[key.attachment_count++] =
+            r->zeta_binding->image_view;
     }
 
     SurfaceBinding *binding = r->color_binding ? : r->zeta_binding;
-
-    VkFramebufferCreateInfo create_info = {
-        .sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
-        .renderPass = r->render_pass,
-        .attachmentCount = attachment_count,
-        .pAttachments = attachments,
-        .width = binding->width,
-        .height = binding->height,
-        .layers = 1,
-    };
-    pgraph_apply_scaling_factor(pg, &create_info.width, &create_info.height);
-    VK_CHECK(vkCreateFramebuffer(r->device, &create_info, NULL,
-                                 &r->framebuffers[r->framebuffer_index++]));
+    key.width = binding->width;
+    key.height = binding->height;
+    pgraph_apply_scaling_factor(pg, &key.width, &key.height);
+    return key;
 }
 
-static void destroy_framebuffers(PGRAPHState *pg)
+static void get_frame_buffer(PGRAPHState *pg)
 {
-    NV2A_VK_DPRINTF("Destroying framebuffer");
     PGRAPHVkState *r = pg->vk_renderer_state;
 
-    for (int i = 0; i < r->framebuffer_index; i++) {
-        vkDestroyFramebuffer(r->device, r->framebuffers[i], NULL);
-        r->framebuffers[i] = VK_NULL_HANDLE;
+    assert(r->color_binding || r->zeta_binding);
+
+    PGRAPHVkFramebufferKey key = get_framebuffer_key(pg);
+    PGRAPHVkFramebufferCacheEntry *entry =
+        find_framebuffer_cache_entry(r, &key);
+    if (entry == NULL) {
+        entry = find_framebuffer_cache_victim(r);
+        if (entry == NULL) {
+            /*
+             * Preserve the existing synchronous fallback when one command
+             * buffer references the entire bounded cache.
+             */
+            pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+            entry = find_framebuffer_cache_victim(r);
+            assert(entry != NULL);
+        }
+
+        destroy_framebuffer_cache_entry(r, entry);
+        NV2A_VK_DPRINTF("Creating framebuffer");
+
+        VkFramebufferCreateInfo create_info = {
+            .sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+            .renderPass = key.render_pass,
+            .attachmentCount = key.attachment_count,
+            .pAttachments = key.attachments,
+            .width = key.width,
+            .height = key.height,
+            .layers = key.layers,
+        };
+        VK_CHECK(vkCreateFramebuffer(r->device, &create_info, NULL,
+                                     &entry->framebuffer));
+        entry->key = key;
     }
-    r->framebuffer_index = 0;
+
+    entry->last_used = ++r->framebuffer_cache_use_serial;
+    entry->submit_time = r->submit_count;
+    r->framebuffer_binding = entry;
 }
 
 static void create_clear_pipeline(PGRAPHState *pg)
@@ -1210,12 +1315,14 @@ static void begin_render_pass(PGRAPHState *pg)
                  vp_height = pg->surface_binding_dim.height;
     pgraph_apply_scaling_factor(pg, &vp_width, &vp_height);
 
-    assert(r->framebuffer_index > 0);
+    assert(r->framebuffer_binding != NULL);
+    r->framebuffer_binding->last_used = ++r->framebuffer_cache_use_serial;
+    r->framebuffer_binding->submit_time = r->submit_count;
 
     VkRenderPassBeginInfo render_pass_begin_info = {
         .sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
         .renderPass = r->render_pass,
-        .framebuffer = r->framebuffers[r->framebuffer_index - 1],
+        .framebuffer = r->framebuffer_binding->framebuffer,
         .renderArea.extent.width = vp_width,
         .renderArea.extent.height = vp_height,
         .clearValueCount = 0,
@@ -1320,8 +1427,6 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
 
         r->descriptor_set_index = 0;
         r->in_command_buffer = false;
-        destroy_framebuffers(pg);
-
         if (check_budget) {
             pgraph_vk_check_memory_budget(pg);
         }
@@ -1421,15 +1526,15 @@ static void begin_pre_draw(PGRAPHState *pg)
     if (render_pass_dirty) {
         r->render_pass = r->pipeline_binding->render_pass;
     }
-    if (r->framebuffer_dirty) {
-        create_frame_buffer(pg);
+    if (r->framebuffer_dirty || render_pass_dirty) {
+        get_frame_buffer(pg);
         r->framebuffer_dirty = false;
     }
     if (!pg->clearing) {
         pgraph_vk_update_descriptor_sets(pg);
     }
-    if (r->framebuffer_index == 0) {
-        create_frame_buffer(pg);
+    if (r->framebuffer_binding == NULL) {
+        get_frame_buffer(pg);
     }
 
     pgraph_vk_ensure_command_buffer(pg);
