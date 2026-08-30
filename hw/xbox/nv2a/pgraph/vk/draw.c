@@ -1345,8 +1345,9 @@ static void bind_descriptor_sets(PGRAPHState *pg)
 
     vkCmdBindDescriptorSets(r->command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                             r->pipeline_binding->layout, 0, 1,
-                            &r->descriptor_sets[r->descriptor_set_index - 1], 0,
-                            NULL);
+                            &r->descriptor_sets[r->descriptor_set_index - 1],
+                            ARRAY_SIZE(r->uniform_buffer_offsets),
+                            r->uniform_buffer_offsets);
 }
 
 static void begin_query(PGRAPHState *pg)
