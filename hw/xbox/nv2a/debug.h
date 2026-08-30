@@ -24,6 +24,12 @@
 
 #include <stdint.h>
 
+#define XEMU_PERF_MARKER_IO_PORT 0xE9
+#define XEMU_PERF_MARKER_READBACK 0x58
+#define XEMU_PERF_MARKER_MEASURE_BEGIN 0xF0
+#define XEMU_PERF_MARKER_MEASURE_END 0xF1
+#define XEMU_PERF_MARKER_GPU_COMPLETE 0xF2
+
 #define NV2A_XPRINTF(x, ...) do { \
     if (x) { \
         fprintf(stderr, "nv2a: " __VA_ARGS__); \
@@ -78,7 +84,6 @@
     _X(NV2A_PROF_FINISH_FLIP_STALL) \
     _X(NV2A_PROF_FINISH_FLUSH) \
     _X(NV2A_PROF_FINISH_STALLED) \
-    _X(NV2A_PROF_FINISH_TEXTURE_DIRTY) \
     _X(NV2A_PROF_CLEAR) \
     _X(NV2A_PROF_QUEUE_SUBMIT) \
     _X(NV2A_PROF_QUEUE_SUBMIT_AUX) \
@@ -121,12 +126,50 @@
     _X(NV2A_PROF_PGRAPH_ARRAY_SCALAR_FALLBACK_TRACE) \
     _X(NV2A_PROF_PGRAPH_ARRAY_SCALAR_FALLBACK_SHORT) \
     _X(NV2A_PROF_PGRAPH_ARRAY_SCALAR_FALLBACK_INCREMENTING) \
+    _X(NV2A_PROF_DISPLAY_COMPOSE_REQUESTS) \
+    _X(NV2A_PROF_DISPLAY_COMPOSE_HITS) \
+    _X(NV2A_PROF_DISPLAY_COMPOSE_MISSES) \
+    _X(NV2A_PROF_DISPLAY_COMPOSES) \
+    _X(NV2A_PROF_FINISH_TEXTURE_DIRTY) \
+    _X(NV2A_PROF_FINISH_PERF_COMPLETE) \
+    _X(NV2A_PROF_BLEND_UPDATE_CALLS) \
+    _X(NV2A_PROF_BLEND_COMMAND_EMITS) \
+    _X(NV2A_PROF_BLEND_COMMAND_SKIPS) \
+    _X(NV2A_PROF_BLEND_COMPONENT_ONLY_SKIPS) \
+    _X(NV2A_PROF_BLEND_PACKS) \
+    _X(NV2A_PROF_BLEND_PACK_REUSES) \
+    _X(NV2A_PROF_BLEND_DYNAMIC_BINDS) \
+    _X(NV2A_PROF_BLEND_DYNAMIC_BINDS_LIVE) \
+    _X(NV2A_PROF_BLEND_STATIC_BINDS) \
 
 enum NV2A_PROF_COUNTERS_ENUM {
     #define _X(x) x,
     NV2A_PROF_COUNTERS_XMAC
     #undef _X
     NV2A_PROF__COUNT
+};
+
+#define NV2A_PROF_SCOPES_XMAC \
+    _X(NV2A_PROF_SCOPE_VK_FINISH_CALL, "mixed") \
+    _X(NV2A_PROF_SCOPE_VK_FINISH_FENCE_WAIT, "wait") \
+    _X(NV2A_PROF_SCOPE_VK_AUX_COMMAND, "mixed") \
+    _X(NV2A_PROF_SCOPE_VK_AUX_QUEUE_WAIT, "wait") \
+    _X(NV2A_PROF_SCOPE_VK_SURFACE_DOWNLOAD, "mixed") \
+    _X(NV2A_PROF_SCOPE_VK_SURFACE_COMMAND_RECORD, "active_cpu") \
+    _X(NV2A_PROF_SCOPE_VK_SURFACE_MAP, "driver_api") \
+    _X(NV2A_PROF_SCOPE_VK_SURFACE_INVALIDATE, "driver_api") \
+    _X(NV2A_PROF_SCOPE_VK_SURFACE_MEMCPY, "active_cpu") \
+    _X(NV2A_PROF_SCOPE_VK_SURFACE_SWIZZLE, "active_cpu") \
+    _X(NV2A_PROF_SCOPE_VK_SURFACE_ALLOCATION, "active_cpu") \
+    _X(NV2A_PROF_SCOPE_VK_SURFACE_CALLBACK_LOCK_SCAN, "mixed") \
+    _X(NV2A_PROF_SCOPE_VK_SURFACE_CALLBACK_WAIT, "wait") \
+    _X(NV2A_PROF_SCOPE_VK_BLEND_CONSTANT_UPDATE, "active_cpu")
+
+enum NV2A_PROF_SCOPES_ENUM {
+    #define _X(x, kind) x,
+    NV2A_PROF_SCOPES_XMAC
+    #undef _X
+    NV2A_PROF_SCOPE__COUNT
 };
 
 #define NV2A_PROF_NUM_FRAMES 300
@@ -147,15 +190,34 @@ extern "C" {
 #endif
 
 extern NV2AStats g_nv2a_stats;
+extern bool g_nv2a_perf_telemetry_enabled;
 
 const char *nv2a_profile_get_counter_name(unsigned int cnt);
 int nv2a_profile_get_counter_value(unsigned int cnt);
+void nv2a_profile_init(void);
+void nv2a_profile_finalize(void);
+void nv2a_profile_record_counter(enum NV2A_PROF_COUNTERS_ENUM cnt);
+void nv2a_profile_add_counter(enum NV2A_PROF_COUNTERS_ENUM cnt,
+                              uint64_t amount);
+void nv2a_profile_add_bytes(enum NV2A_PROF_COUNTERS_ENUM cnt,
+                            uint64_t logical_bytes,
+                            uint64_t transferred_bytes);
+int64_t nv2a_profile_scope_begin(void);
+void nv2a_profile_scope_end(enum NV2A_PROF_SCOPES_ENUM scope,
+                            int64_t start_ns);
+void nv2a_profile_marker(uint8_t marker);
+void nv2a_profile_set_vulkan_memory(const char *mode,
+                                    uint32_t memory_property_flags);
+void nv2a_profile_record_gpu_duration(uint64_t duration_ns);
 void nv2a_profile_increment(void);
 void nv2a_profile_flip_stall(void);
 
 static inline void nv2a_profile_inc_counter(enum NV2A_PROF_COUNTERS_ENUM cnt)
 {
     g_nv2a_stats.frame_working.counters[cnt] += 1;
+    if (g_nv2a_perf_telemetry_enabled) {
+        nv2a_profile_record_counter(cnt);
+    }
 }
 
 static inline void nv2a_profile_add_counter(enum NV2A_PROF_COUNTERS_ENUM cnt,

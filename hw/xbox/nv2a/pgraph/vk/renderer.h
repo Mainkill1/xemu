@@ -583,8 +583,9 @@ typedef enum FinishReason {
     VK_FINISH_REASON_FLUSH,
     VK_FINISH_REASON_STALLED,
     VK_FINISH_REASON_TEXTURE_DIRTY,
+    VK_FINISH_REASON_PERF_COMPLETE,
+    VK_NUM_FINISH_REASONS,
 } FinishReason;
-
 // draw.c
 void pgraph_vk_init_pipelines(PGRAPHState *pg);
 void pgraph_vk_finalize_pipelines(PGRAPHState *pg);

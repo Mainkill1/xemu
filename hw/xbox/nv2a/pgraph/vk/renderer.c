@@ -148,6 +148,11 @@ static void pgraph_vk_flip_stall(NV2AState *d)
     pgraph_vk_debug_frame_terminator();
 }
 
+static void pgraph_vk_perf_complete(NV2AState *d)
+{
+    pgraph_vk_finish(&d->pgraph, VK_FINISH_REASON_PERF_COMPLETE,
+                     LAB_FINISH_SITE_PERF_COMPLETE);
+}
 static void pgraph_vk_pre_savevm_trigger(NV2AState *d)
 {
     qatomic_set(&d->pgraph.vk_renderer_state->download_dirty_surfaces_pending, true);
@@ -224,6 +229,7 @@ static PGRAPHRenderer pgraph_vk_renderer = {
         .pre_savevm_wait = pgraph_vk_pre_savevm_wait,
         .pre_shutdown_trigger = pgraph_vk_pre_shutdown_trigger,
         .pre_shutdown_wait = pgraph_vk_pre_shutdown_wait,
+        .perf_complete = pgraph_vk_perf_complete,
         .process_pending = pgraph_vk_process_pending,
         .process_pending_reports = pgraph_vk_process_pending_reports,
         .surface_update = pgraph_vk_surface_update,
