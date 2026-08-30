@@ -197,8 +197,8 @@ int nv2a_profile_get_counter_value(unsigned int cnt);
 void nv2a_profile_init(void);
 void nv2a_profile_finalize(void);
 void nv2a_profile_record_counter(enum NV2A_PROF_COUNTERS_ENUM cnt);
-void nv2a_profile_add_counter(enum NV2A_PROF_COUNTERS_ENUM cnt,
-                              uint64_t amount);
+void nv2a_profile_add_telemetry_counter(enum NV2A_PROF_COUNTERS_ENUM cnt,
+                                        uint64_t amount);
 void nv2a_profile_add_bytes(enum NV2A_PROF_COUNTERS_ENUM cnt,
                             uint64_t logical_bytes,
                             uint64_t transferred_bytes);
@@ -224,6 +224,9 @@ static inline void nv2a_profile_add_counter(enum NV2A_PROF_COUNTERS_ENUM cnt,
                                             int value)
 {
     g_nv2a_stats.frame_working.counters[cnt] += value;
+    if (g_nv2a_perf_telemetry_enabled) {
+        nv2a_profile_add_telemetry_counter(cnt, value);
+    }
 }
 
 #ifdef CONFIG_RENDERDOC
