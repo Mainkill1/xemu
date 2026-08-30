@@ -150,8 +150,7 @@ static void pgraph_vk_flip_stall(NV2AState *d)
 
 static void pgraph_vk_perf_complete(NV2AState *d)
 {
-    pgraph_vk_finish(&d->pgraph, VK_FINISH_REASON_PERF_COMPLETE,
-                     LAB_FINISH_SITE_PERF_COMPLETE);
+    pgraph_vk_finish(&d->pgraph, VK_FINISH_REASON_PERF_COMPLETE);
 }
 static void pgraph_vk_pre_savevm_trigger(NV2AState *d)
 {
