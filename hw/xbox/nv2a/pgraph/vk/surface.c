@@ -169,14 +169,15 @@ static void download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
     bool compute_needs_finish = (use_compute_to_convert_depth_stencil_format &&
                                  pgraph_vk_compute_needs_finish(r));
 
-    bool active_command_buffer_producer =
+    bool legacy_finish_required =
         r->in_command_buffer &&
         surface->draw_time >= r->command_buffer_start_time;
     bool fold_into_active_command_buffer =
-        active_command_buffer_producer && surface->color &&
+        r->in_command_buffer &&
+        surface->draw_time > r->command_buffer_start_time && surface->color &&
         !use_compute_to_convert_depth_stencil_format;
 
-    if (active_command_buffer_producer &&
+    if (legacy_finish_required &&
         !fold_into_active_command_buffer) {
         pgraph_vk_finish(pg, VK_FINISH_REASON_SURFACE_DOWN);
     } else if (!fold_into_active_command_buffer && compute_needs_finish) {
