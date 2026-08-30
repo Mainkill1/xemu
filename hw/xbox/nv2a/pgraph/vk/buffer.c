@@ -184,6 +184,12 @@ void pgraph_vk_ensure_buffer_pair_capacity(PGRAPHState *pg, int index,
         new_size = buffer_growth_target(required_size);
     }
 
+    fprintf(stderr,
+            "XEMU_LAB_BUFFER_GROWTH index=%d required=%zu current=%zu "
+            "paired_current=%zu target=%zu\n",
+            index, required_size, buffer->buffer_size, paired->buffer_size,
+            new_size);
+
     if (buffer->buffer == VK_NULL_HANDLE || buffer->buffer_size < new_size) {
         resize_buffer(pg, index, new_size);
     }
