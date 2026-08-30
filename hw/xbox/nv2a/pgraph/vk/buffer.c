@@ -19,8 +19,47 @@
 
 #include "renderer.h"
 
-static const size_t BUFFER_VERTEX_INLINE_INITIAL_SIZE = 16 * MiB;
-static const size_t BUFFER_GROWTH_ALIGNMENT = 4 * MiB;
+#ifndef XEMU_LAB_VK_INLINE_INITIAL_MIB
+#define XEMU_LAB_VK_INLINE_INITIAL_MIB 16
+#endif
+#ifndef XEMU_LAB_VK_GROWTH_ALIGNMENT_MIB
+#define XEMU_LAB_VK_GROWTH_ALIGNMENT_MIB 4
+#endif
+#ifndef XEMU_LAB_VK_HEADROOM_NUMERATOR
+#define XEMU_LAB_VK_HEADROOM_NUMERATOR 1
+#endif
+#ifndef XEMU_LAB_VK_HEADROOM_DENOMINATOR
+#define XEMU_LAB_VK_HEADROOM_DENOMINATOR 4
+#endif
+#ifndef XEMU_LAB_VK_HEADROOM_MIN_MIB
+#define XEMU_LAB_VK_HEADROOM_MIN_MIB 4
+#endif
+#ifndef XEMU_LAB_VK_HEADROOM_MAX_MIB
+#define XEMU_LAB_VK_HEADROOM_MAX_MIB 16
+#endif
+
+static const size_t BUFFER_VERTEX_INLINE_INITIAL_SIZE =
+    XEMU_LAB_VK_INLINE_INITIAL_MIB * MiB;
+static const size_t BUFFER_GROWTH_ALIGNMENT =
+    XEMU_LAB_VK_GROWTH_ALIGNMENT_MIB * MiB;
+static const size_t BUFFER_GROWTH_HEADROOM_MIN =
+    XEMU_LAB_VK_HEADROOM_MIN_MIB * MiB;
+static const size_t BUFFER_GROWTH_HEADROOM_MAX =
+    XEMU_LAB_VK_HEADROOM_MAX_MIB * MiB;
+
+QEMU_BUILD_BUG_ON(XEMU_LAB_VK_INLINE_INITIAL_MIB < 1);
+QEMU_BUILD_BUG_ON(XEMU_LAB_VK_GROWTH_ALIGNMENT_MIB < 1);
+QEMU_BUILD_BUG_ON(XEMU_LAB_VK_HEADROOM_DENOMINATOR < 1);
+QEMU_BUILD_BUG_ON(XEMU_LAB_VK_HEADROOM_MIN_MIB >
+                  XEMU_LAB_VK_HEADROOM_MAX_MIB);
+
+typedef struct BufferGrowthStats {
+    uint64_t resize_count;
+    uint64_t allocated_bytes;
+    size_t largest_buffer;
+} BufferGrowthStats;
+
+static BufferGrowthStats growth_stats;
 
 static bool buffer_is_persistently_mapped(int index)
 {
@@ -75,10 +114,12 @@ static void destroy_buffer(PGRAPHState *pg, StorageBuffer *buffer)
 
 static size_t buffer_growth_target(size_t required_size)
 {
-    size_t headroom = required_size / 4;
+    size_t headroom =
+        (required_size / XEMU_LAB_VK_HEADROOM_DENOMINATOR) *
+        XEMU_LAB_VK_HEADROOM_NUMERATOR;
 
-    headroom = MAX(headroom, 4 * MiB);
-    headroom = MIN(headroom, 16 * MiB);
+    headroom = MAX(headroom, BUFFER_GROWTH_HEADROOM_MIN);
+    headroom = MIN(headroom, BUFFER_GROWTH_HEADROOM_MAX);
     assert(required_size <= SIZE_MAX - headroom);
 
     size_t target = required_size + headroom;
@@ -103,6 +144,10 @@ static void resize_buffer(PGRAPHState *pg, int index, size_t size)
     buffer->buffer_offset = 0;
     buffer->buffer_size = size;
     create_buffer(pg, buffer);
+
+    growth_stats.resize_count++;
+    growth_stats.allocated_bytes += size;
+    growth_stats.largest_buffer = MAX(growth_stats.largest_buffer, size);
 
     if (buffer_is_persistently_mapped(index)) {
         VK_CHECK(vmaMapMemory(r->allocator, buffer->allocation,
@@ -148,6 +193,8 @@ void pgraph_vk_init_buffers(NV2AState *d)
 {
     PGRAPHState *pg = &d->pgraph;
     PGRAPHVkState *r = pg->vk_renderer_state;
+
+    growth_stats = (BufferGrowthStats) { 0 };
 
     // FIXME: Profile buffer sizes
 
@@ -259,6 +306,19 @@ void pgraph_vk_finalize_buffers(NV2AState *d)
 {
     PGRAPHState *pg = &d->pgraph;
     PGRAPHVkState *r = pg->vk_renderer_state;
+
+    fprintf(stderr,
+            "XEMU_LAB_BUFFER_GROWTH initial_mib=%u alignment_mib=%u "
+            "headroom=%u/%u min_mib=%u max_mib=%u resizes=%" PRIu64 " "
+            "allocated_bytes=%" PRIu64 " largest_buffer=%zu\n",
+            XEMU_LAB_VK_INLINE_INITIAL_MIB,
+            XEMU_LAB_VK_GROWTH_ALIGNMENT_MIB,
+            XEMU_LAB_VK_HEADROOM_NUMERATOR,
+            XEMU_LAB_VK_HEADROOM_DENOMINATOR,
+            XEMU_LAB_VK_HEADROOM_MIN_MIB,
+            XEMU_LAB_VK_HEADROOM_MAX_MIB,
+            growth_stats.resize_count, growth_stats.allocated_bytes,
+            growth_stats.largest_buffer);
 
     for (int i = 0; i < BUFFER_COUNT; i++) {
         if (r->storage_buffers[i].mapped) {
