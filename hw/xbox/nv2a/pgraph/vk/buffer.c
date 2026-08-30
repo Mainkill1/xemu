@@ -40,15 +40,16 @@
 
 static const size_t BUFFER_VERTEX_INLINE_INITIAL_SIZE =
     XEMU_LAB_VK_INLINE_INITIAL_MIB * MiB;
+#if XEMU_LAB_VK_GROWTH_ALIGNMENT_MIB > 0
 static const size_t BUFFER_GROWTH_ALIGNMENT =
     XEMU_LAB_VK_GROWTH_ALIGNMENT_MIB * MiB;
+#endif
 static const size_t BUFFER_GROWTH_HEADROOM_MIN =
     XEMU_LAB_VK_HEADROOM_MIN_MIB * MiB;
 static const size_t BUFFER_GROWTH_HEADROOM_MAX =
     XEMU_LAB_VK_HEADROOM_MAX_MIB * MiB;
 
 QEMU_BUILD_BUG_ON(XEMU_LAB_VK_INLINE_INITIAL_MIB < 1);
-QEMU_BUILD_BUG_ON(XEMU_LAB_VK_GROWTH_ALIGNMENT_MIB < 1);
 QEMU_BUILD_BUG_ON(XEMU_LAB_VK_HEADROOM_DENOMINATOR < 1);
 QEMU_BUILD_BUG_ON(XEMU_LAB_VK_HEADROOM_MIN_MIB >
                   XEMU_LAB_VK_HEADROOM_MAX_MIB);
@@ -123,8 +124,12 @@ static size_t buffer_growth_target(size_t required_size)
     assert(required_size <= SIZE_MAX - headroom);
 
     size_t target = required_size + headroom;
+#if XEMU_LAB_VK_GROWTH_ALIGNMENT_MIB == 0
+    return target;
+#else
     assert(target <= SIZE_MAX - (BUFFER_GROWTH_ALIGNMENT - 1));
     return ROUND_UP(target, BUFFER_GROWTH_ALIGNMENT);
+#endif
 }
 
 static void resize_buffer(PGRAPHState *pg, int index, size_t size)
