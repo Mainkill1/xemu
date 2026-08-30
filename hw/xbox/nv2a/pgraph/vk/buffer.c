@@ -44,15 +44,21 @@ static const size_t BUFFER_VERTEX_INLINE_INITIAL_SIZE =
 static const size_t BUFFER_GROWTH_ALIGNMENT =
     XEMU_LAB_VK_GROWTH_ALIGNMENT_MIB * MiB;
 #endif
+#if XEMU_LAB_VK_HEADROOM_MIN_MIB > 0
 static const size_t BUFFER_GROWTH_HEADROOM_MIN =
     XEMU_LAB_VK_HEADROOM_MIN_MIB * MiB;
+#endif
+#if XEMU_LAB_VK_HEADROOM_MAX_MIB > 0
 static const size_t BUFFER_GROWTH_HEADROOM_MAX =
     XEMU_LAB_VK_HEADROOM_MAX_MIB * MiB;
+#endif
 
 QEMU_BUILD_BUG_ON(XEMU_LAB_VK_INLINE_INITIAL_MIB < 1);
 QEMU_BUILD_BUG_ON(XEMU_LAB_VK_HEADROOM_DENOMINATOR < 1);
+#if XEMU_LAB_VK_HEADROOM_MAX_MIB > 0
 QEMU_BUILD_BUG_ON(XEMU_LAB_VK_HEADROOM_MIN_MIB >
                   XEMU_LAB_VK_HEADROOM_MAX_MIB);
+#endif
 
 typedef struct BufferGrowthStats {
     uint64_t resize_count;
@@ -119,8 +125,12 @@ static size_t buffer_growth_target(size_t required_size)
         (required_size / XEMU_LAB_VK_HEADROOM_DENOMINATOR) *
         XEMU_LAB_VK_HEADROOM_NUMERATOR;
 
+#if XEMU_LAB_VK_HEADROOM_MIN_MIB > 0
     headroom = MAX(headroom, BUFFER_GROWTH_HEADROOM_MIN);
+#endif
+#if XEMU_LAB_VK_HEADROOM_MAX_MIB > 0
     headroom = MIN(headroom, BUFFER_GROWTH_HEADROOM_MAX);
+#endif
     assert(required_size <= SIZE_MAX - headroom);
 
     size_t target = required_size + headroom;
