@@ -153,15 +153,16 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
     ShaderBinding *binding = r->shader_binding;
     ShaderUniformLayout *layouts[] = { &binding->vsh.module_info->uniforms,
                                        &binding->psh.module_info->uniforms };
-    VkDeviceSize ubo_buffer_total_size = 0;
+    VkDeviceSize ubo_buffer_sizes[ARRAY_SIZE(layouts)];
     for (int i = 0; i < ARRAY_SIZE(layouts); i++) {
-        ubo_buffer_total_size += layouts[i]->total_size;
+        ubo_buffer_sizes[i] = layouts[i]->total_size;
     }
     bool need_ubo_staging_buffer_reset =
         r->uniforms_changed &&
-        !pgraph_vk_buffer_has_space_for(pg, BUFFER_UNIFORM_STAGING,
-                                        ubo_buffer_total_size,
-                                        r->device_props.limits.minUniformBufferOffsetAlignment);
+        !pgraph_vk_buffer_has_space_for_array(
+            pg, BUFFER_UNIFORM_STAGING, ubo_buffer_sizes,
+            ARRAY_SIZE(ubo_buffer_sizes),
+            r->device_props.limits.minUniformBufferOffsetAlignment);
 
     bool need_descriptor_write_reset =
         (r->descriptor_set_index >= ARRAY_SIZE(r->descriptor_sets));

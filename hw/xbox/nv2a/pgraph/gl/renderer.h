@@ -195,13 +195,17 @@ typedef struct PGRAPHGLState {
     TextureLruNode *texture_cache_entries;
 
     Lru shader_cache;
-    ShaderBinding *shader_cache_entries;
+    GPtrArray *shader_cache_blocks;
+    size_t shader_cache_num_entries;
     ShaderBinding *shader_binding;
     QemuMutex shader_cache_lock;
     QemuThread shader_disk_thread;
+    bool shader_disk_thread_joined;
+    bool shader_cache_writeback_done;
 
     Lru shader_module_cache;
-    ShaderModuleCacheEntry *shader_module_cache_entries;
+    GPtrArray *shader_module_cache_blocks;
+    size_t shader_module_cache_num_entries;
 
     unsigned int zpass_pixel_count_result;
     unsigned int gl_zpass_pixel_count_query_count;

@@ -230,13 +230,13 @@ typedef void (*LruNodeVisitorFunc)(Lru *lru, LruNode *node, void *opaque);
 static inline
 void lru_visit_active(Lru *lru, LruNodeVisitorFunc visitor_func, void *opaque)
 {
-	LruNode *iter, *iter_next;
+    LruNode *iter, *iter_next;
 
-	for (unsigned int bin = 0; bin < LRU_NUM_BINS; bin++) {
-		QTAILQ_FOREACH_SAFE(iter, &lru->bins[bin], next_bin, iter_next) {
-			visitor_func(lru, iter, opaque);
-		}
-	}
+    QTAILQ_FOREACH_SAFE(iter, &lru->global, next_global, iter_next) {
+        if (lru_is_node_in_use(lru, iter)) {
+            visitor_func(lru, iter, opaque);
+        }
+    }
 }
 
 #endif

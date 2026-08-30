@@ -83,6 +83,16 @@ struct xemu_console {
     int ignore_hotkeys;
     SDL_GLContext winctx;
     QKbdState *kbd;
+    GLuint fallback_texture;
+    int fallback_texture_width;
+    int fallback_texture_height;
+    GLenum fallback_texture_format;
+    GLenum fallback_texture_type;
+    bool fallback_texture_dirty;
+    int fallback_dirty_x1;
+    int fallback_dirty_y1;
+    int fallback_dirty_x2;
+    int fallback_dirty_y2;
 };
 
 #ifdef _WIN32
@@ -629,7 +639,8 @@ static void mouse_define(DisplayChangeListener *dcl,
     }
 }
 
-static void xb_surface_gl_create_texture(DisplaySurface *surface)
+static GLuint xb_surface_gl_update_texture(struct xemu_console *scon,
+                                           DisplaySurface *surface)
 {
     assert(QEMU_IS_ALIGNED(surface_stride(surface), surface_bytes_per_pixel(surface)));
 
@@ -652,30 +663,46 @@ static void xb_surface_gl_create_texture(DisplaySurface *surface)
         g_assert_not_reached();
     }
 
-    if (!surface->texture) {
-        glGenTextures(1, &surface->texture);
+    if (!scon->fallback_texture) {
+        glGenTextures(1, &scon->fallback_texture);
     }
-    glBindTexture(GL_TEXTURE_2D, surface->texture);
+    glBindTexture(GL_TEXTURE_2D, scon->fallback_texture);
     glPixelStorei(GL_UNPACK_ROW_LENGTH_EXT,
                   surface_stride(surface) / surface_bytes_per_pixel(surface));
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
-                 surface_width(surface),
-                 surface_height(surface),
-                 0, surface->glformat, surface->gltype,
-                 surface_data(surface));
+
+    int width = surface_width(surface);
+    int height = surface_height(surface);
+    bool storage_changed = scon->fallback_texture_width != width ||
+                           scon->fallback_texture_height != height ||
+                           scon->fallback_texture_format != surface->glformat ||
+                           scon->fallback_texture_type != surface->gltype;
+    if (storage_changed) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0,
+                     surface->glformat, surface->gltype,
+                     surface_data(surface));
+        scon->fallback_texture_width = width;
+        scon->fallback_texture_height = height;
+        scon->fallback_texture_format = surface->glformat;
+        scon->fallback_texture_type = surface->gltype;
+    } else if (scon->fallback_texture_dirty) {
+        int x = scon->fallback_dirty_x1;
+        int y = scon->fallback_dirty_y1;
+        int dirty_width = scon->fallback_dirty_x2 - x;
+        int dirty_height = scon->fallback_dirty_y2 - y;
+        const uint8_t *pixels = surface_data(surface);
+        pixels += (size_t)y * surface_stride(surface) +
+                  (size_t)x * surface_bytes_per_pixel(surface);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, dirty_width, dirty_height,
+                        surface->glformat, surface->gltype, pixels);
+    }
     glPixelStorei(GL_UNPACK_ROW_LENGTH_EXT, 0);
+
+    scon->fallback_texture_dirty = false;
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-}
 
-static void xb_surface_gl_destroy_texture(DisplaySurface *surface)
-{
-    if (!surface || !surface->texture) {
-        return;
-    }
-    glDeleteTextures(1, &surface->texture);
-    surface->texture = 0;
+    return scon->fallback_texture;
 }
 
 static bool xb_console_gl_check_format(DisplayChangeListener *dcl,
@@ -696,6 +723,30 @@ static void gl_switch(DisplayChangeListener *dcl,
 {
     struct xemu_console *scon = container_of(dcl, struct xemu_console, dcl);
     scon->surface = new_surface;
+    scon->fallback_texture_dirty = true;
+    scon->fallback_dirty_x1 = 0;
+    scon->fallback_dirty_y1 = 0;
+    scon->fallback_dirty_x2 = surface_width(new_surface);
+    scon->fallback_dirty_y2 = surface_height(new_surface);
+}
+
+static void gl_update(DisplayChangeListener *dcl, int x, int y, int w, int h)
+{
+    struct xemu_console *scon = container_of(dcl, struct xemu_console, dcl);
+
+    if (!scon->fallback_texture_dirty) {
+        scon->fallback_dirty_x1 = x;
+        scon->fallback_dirty_y1 = y;
+        scon->fallback_dirty_x2 = x + w;
+        scon->fallback_dirty_y2 = y + h;
+        scon->fallback_texture_dirty = true;
+        return;
+    }
+
+    scon->fallback_dirty_x1 = MIN(scon->fallback_dirty_x1, x);
+    scon->fallback_dirty_y1 = MIN(scon->fallback_dirty_y1, y);
+    scon->fallback_dirty_x2 = MAX(scon->fallback_dirty_x2, x + w);
+    scon->fallback_dirty_y2 = MAX(scon->fallback_dirty_y2, y + h);
 }
 
 static float update_avg(float avg, float ms, float r) {
@@ -810,7 +861,6 @@ static void gl_render_frame(struct xemu_console *scon)
     SDL_GL_MakeCurrent(scon->real_window, scon->winctx);
 
     bool flip_required = false;
-    bool release_surface_texture = false;
 
     /* XXX: Note that this bypasses the usual VGA path in order to quickly
      * get the surface. This is simple and fast, at the cost of accuracy.
@@ -823,16 +873,14 @@ static void gl_render_frame(struct xemu_console *scon)
      * to the framebuffer, fall back to the VGA path.
      */
     GLuint tex = nv2a_get_framebuffer_surface();
+    bool renderer_owned_texture = tex != 0;
 
     assert(glGetError() == GL_NO_ERROR);
 
     if (tex == 0) {
         xemu_main_loop_lock();
-        // FIXME: Don't upload if notdirty
-        xb_surface_gl_create_texture(scon->surface);
-        tex = scon->surface->texture;
+        tex = xb_surface_gl_update_texture(scon, scon->surface);
         flip_required = true;
-        release_surface_texture = true;
         xemu_main_loop_unlock();
     }
 
@@ -851,12 +899,15 @@ static void gl_render_frame(struct xemu_console *scon)
     xemu_main_loop_unlock();
 
     xemu_hud_render();
-    glFinish();
 
-    if (release_surface_texture) {
-        xemu_main_loop_lock();
-        xb_surface_gl_destroy_texture(scon->surface);
-        xemu_main_loop_unlock();
+    /*
+     * The fallback texture is owned by this context, so subsequent updates
+     * are naturally ordered after this draw. Renderer-owned textures may be
+     * overwritten as soon as the framebuffer lease is released; keep the
+     * completion wait until that API can carry a consumer-done fence.
+     */
+    if (renderer_owned_texture) {
+        glFinish();
     }
 
     nv2a_release_framebuffer_surface();
@@ -1099,6 +1150,7 @@ static void display_early_init(DisplayOptions *o)
 static const DisplayChangeListenerOps dcl_gl_ops = {
     .dpy_name                = "xemu-gl",
     .dpy_gfx_switch          = gl_switch,
+    .dpy_gfx_update          = gl_update,
     .dpy_gfx_check_format    = xb_console_gl_check_format,
     .dpy_mouse_set           = mouse_warp,
     .dpy_cursor_define       = mouse_define,
@@ -1177,6 +1229,13 @@ static void display_finalize(void)
     }
 
     SDL_RemoveEventWatch(event_watch_callback, &scon_list[0]);
+    SDL_GL_MakeCurrent(m_window, m_context);
+    for (int i = 0; i < num_outputs; i++) {
+        if (scon_list[i].fallback_texture) {
+            glDeleteTextures(1, &scon_list[i].fallback_texture);
+            scon_list[i].fallback_texture = 0;
+        }
+    }
     SDL_GL_MakeCurrent(NULL, NULL);
     SDL_GL_DestroyContext(m_context);
     SDL_DestroyWindow(m_window);

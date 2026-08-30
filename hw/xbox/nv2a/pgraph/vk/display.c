@@ -17,7 +17,9 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "buffer-layout.h"
 #include "renderer.h"
+#include "qemu/error-report.h"
 #include <math.h>
 
 static uint8_t *convert_texture_data__CR8YB8CB8YA8(uint8_t *data_out,
@@ -67,6 +69,9 @@ static void destroy_pvideo_image(PGRAPHState *pg)
         d->pvideo.image = VK_NULL_HANDLE;
         d->pvideo.allocation = VK_NULL_HANDLE;
     }
+
+    d->pvideo.width = 0;
+    d->pvideo.height = 0;
 }
 
 static void create_pvideo_image(PGRAPHState *pg, int width, int height)
@@ -74,10 +79,12 @@ static void create_pvideo_image(PGRAPHState *pg, int width, int height)
     PGRAPHVkState *r = pg->vk_renderer_state;
     PGRAPHVkDisplayState *d = &r->display;
 
-    if (d->pvideo.image == VK_NULL_HANDLE || d->pvideo.width != width ||
-        d->pvideo.height != height) {
-        destroy_pvideo_image(pg);
+    if (d->pvideo.image != VK_NULL_HANDLE && d->pvideo.width == width &&
+        d->pvideo.height == height) {
+        return;
     }
+
+    destroy_pvideo_image(pg);
 
     VkImageCreateInfo image_create_info = {
         .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
@@ -128,6 +135,9 @@ static void create_pvideo_image(PGRAPHState *pg, int width, int height)
     };
     VK_CHECK(vkCreateSampler(r->device, &sampler_create_info, NULL,
                              &d->pvideo.sampler));
+
+    d->pvideo.width = width;
+    d->pvideo.height = height;
 }
 
 static void upload_pvideo_image(PGRAPHState *pg, PvideoState state)
@@ -140,6 +150,15 @@ static void upload_pvideo_image(PGRAPHState *pg, PvideoState state)
 
     // FIXME: Dirty tracking. We don't necessarily need to upload so much.
 
+    VkDeviceSize upload_size;
+    bool valid = pgraph_vk_buffer_image_size(
+        state.in_width, state.in_height, 4, &upload_size);
+    if (!valid || !upload_size) {
+        error_report("Vulkan PVIDEO upload size overflow");
+        return;
+    }
+    pgraph_vk_prepare_buffer_pair(pg, BUFFER_STAGING_SRC, upload_size);
+
     // Copy texture data to mapped device buffer
     uint8_t *mapped_memory_ptr;
 
@@ -151,9 +170,9 @@ static void upload_pvideo_image(PGRAPHState *pg, PvideoState state)
         mapped_memory_ptr, d->vram_ptr + state.base + state.offset,
         state.in_width, state.in_height, state.pitch);
 
-    vmaFlushAllocation(r->allocator,
-                       r->storage_buffers[BUFFER_STAGING_SRC].allocation, 0,
-                       VK_WHOLE_SIZE);
+    VK_CHECK(vmaFlushAllocation(
+        r->allocator, r->storage_buffers[BUFFER_STAGING_SRC].allocation, 0,
+        upload_size));
 
     vmaUnmapMemory(r->allocator,
                    r->storage_buffers[BUFFER_STAGING_SRC].allocation);

@@ -28,6 +28,8 @@
 #include "hw/xbox/nv2a/pgraph/swizzle.h"
 #include "qemu/fast-hash.h"
 #include "qemu/lru.h"
+#include "qemu/error-report.h"
+#include "buffer-layout.h"
 #include "renderer.h"
 
 static void texture_cache_release_node_resources(PGRAPHVkState *r, TextureBinding *snode);
@@ -443,32 +445,57 @@ void pgraph_vk_mark_textures_possibly_dirty(NV2AState *d,
                      &test);
 }
 
-static bool check_texture_dirty(NV2AState *d, hwaddr addr, hwaddr size)
+static bool check_texture_dirty_no_sync(NV2AState *d, hwaddr addr, hwaddr size)
 {
     hwaddr end = TARGET_PAGE_ALIGN(addr + size);
     addr &= TARGET_PAGE_MASK;
     assert(end < memory_region_size(d->vram));
-    return memory_region_test_and_clear_dirty(d->vram, addr, end - addr,
-                                              DIRTY_MEMORY_NV2A_TEX);
+    return memory_region_test_and_clear_dirty_no_sync(
+        d->vram, addr, end - addr, DIRTY_MEMORY_NV2A_TEX);
 }
 
-// Check if any of the pages spanned by the a texture are dirty.
+static bool check_texture_dirty(NV2AState *d, hwaddr addr, hwaddr size)
+{
+    memory_region_sync_dirty_bitmap(d->vram);
+    return check_texture_dirty_no_sync(d, addr, size);
+}
+
+/* Check if any of the pages spanned by a texture are dirty. */
+static bool check_texture_possibly_dirty_no_sync(
+    NV2AState *d, hwaddr texture_vram_offset, unsigned int length,
+    hwaddr palette_vram_offset, unsigned int palette_length)
+{
+    bool possibly_dirty = false;
+    if (check_texture_dirty_no_sync(d, texture_vram_offset, length)) {
+        possibly_dirty = true;
+        pgraph_vk_mark_textures_possibly_dirty(d, texture_vram_offset, length);
+    }
+    if (palette_length && check_texture_dirty_no_sync(
+                              d, palette_vram_offset, palette_length)) {
+        possibly_dirty = true;
+        pgraph_vk_mark_textures_possibly_dirty(d, palette_vram_offset,
+                                               palette_length);
+    }
+    return possibly_dirty;
+}
+
 static bool check_texture_possibly_dirty(NV2AState *d,
                                          hwaddr texture_vram_offset,
                                          unsigned int length,
                                          hwaddr palette_vram_offset,
                                          unsigned int palette_length)
 {
-    bool possibly_dirty = false;
-    if (check_texture_dirty(d, texture_vram_offset, length)) {
-        possibly_dirty = true;
+    /* Use the synchronized wrapper for the first range in this batch. */
+    bool possibly_dirty =
+        check_texture_dirty(d, texture_vram_offset, length);
+    if (possibly_dirty) {
         pgraph_vk_mark_textures_possibly_dirty(d, texture_vram_offset, length);
     }
-    if (palette_length && check_texture_dirty(d, palette_vram_offset,
-                                                     palette_length)) {
+    if (palette_length && check_texture_dirty_no_sync(
+                              d, palette_vram_offset, palette_length)) {
         possibly_dirty = true;
         pgraph_vk_mark_textures_possibly_dirty(d, palette_vram_offset,
-                                            palette_length);
+                                               palette_length);
     }
     return possibly_dirty;
 }
@@ -497,18 +524,23 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
     const int num_layers = state->cubemap ? 6 : 1;
 
     // Calculate decoded texture data size
-    size_t texture_data_size = 0;
+    VkDeviceSize texture_data_size = 0;
     for (int layer_idx = 0; layer_idx < num_layers; layer_idx++) {
         TextureLayer *layer = &layout->layers[layer_idx];
         for (int level_idx = 0; level_idx < state->levels; level_idx++) {
-            size_t size = layer->levels[level_idx].decoded_size;
+            VkDeviceSize size = layer->levels[level_idx].decoded_size;
             assert(size);
-            texture_data_size += size;
+            bool valid = pgraph_vk_buffer_checked_add(
+                texture_data_size, size, &texture_data_size);
+            if (!valid) {
+                error_report("Vulkan decoded texture size overflow");
+                return;
+            }
         }
     }
 
-    assert(texture_data_size <=
-           r->storage_buffers[BUFFER_STAGING_SRC].buffer_size);
+    pgraph_vk_prepare_buffer_pair(pg, BUFFER_STAGING_SRC,
+                                  texture_data_size);
 
     // Copy texture data to mapped device buffer
     uint8_t *mapped_memory_ptr;
@@ -552,9 +584,9 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
     }
     assert(buffer_offset <= r->storage_buffers[BUFFER_STAGING_SRC].buffer_size);
 
-    vmaFlushAllocation(r->allocator,
-                       r->storage_buffers[BUFFER_STAGING_SRC].allocation, 0,
-                       VK_WHOLE_SIZE);
+    VK_CHECK(vmaFlushAllocation(
+        r->allocator, r->storage_buffers[BUFFER_STAGING_SRC].allocation, 0,
+        buffer_offset));
 
     vmaUnmapMemory(r->allocator,
                    r->storage_buffers[BUFFER_STAGING_SRC].allocation);
@@ -616,6 +648,67 @@ static void copy_zeta_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surfac
         surface->host_fmt.vk_format == VK_FORMAT_D24_UNORM_S8_UINT ||
         surface->host_fmt.vk_format == VK_FORMAT_D32_SFLOAT_S8_UINT;
 
+    unsigned int scaled_width = surface->width,
+                 scaled_height = surface->height;
+    pgraph_apply_scaling_factor(pg, &scaled_width, &scaled_height);
+
+    VkDeviceSize copied_image_size;
+    VkDeviceSize stencil_buffer_offset = 0;
+    VkDeviceSize stencil_buffer_size = 0;
+    bool valid;
+
+    if (surface->host_fmt.aspect & VK_IMAGE_ASPECT_STENCIL_BIT) {
+        VkDeviceSize depth_buffer_size;
+        valid = pgraph_vk_buffer_image_size(
+                    scaled_width, scaled_height, 4, &depth_buffer_size) &&
+                pgraph_vk_buffer_image_size(
+                    scaled_width, scaled_height, 1, &stencil_buffer_size) &&
+                pgraph_vk_buffer_checked_align_up(
+                    stencil_buffer_size, sizeof(uint32_t),
+                    &stencil_buffer_size);
+        if (!valid) {
+            error_report("Vulkan zeta texture copy size overflow");
+            return;
+        }
+        VkDeviceSize image_sizes[] = {
+            depth_buffer_size,
+            stencil_buffer_size,
+        };
+        valid = valid && pgraph_vk_buffer_layout_required_size(
+                             0, image_sizes, ARRAY_SIZE(image_sizes),
+                             r->device_props.limits
+                                 .minStorageBufferOffsetAlignment,
+                             &copied_image_size);
+        if (!valid) {
+            error_report("Vulkan zeta texture buffer layout overflow");
+            return;
+        }
+        stencil_buffer_offset = ROUND_UP(
+            depth_buffer_size,
+            r->device_props.limits.minStorageBufferOffsetAlignment);
+    } else {
+        valid = pgraph_vk_buffer_image_size(
+            scaled_width, scaled_height,
+            surface->host_fmt.host_bytes_per_pixel, &copied_image_size);
+        if (!valid) {
+            error_report("Vulkan texture copy size overflow");
+            return;
+        }
+    }
+
+    VkDeviceSize packed_image_size = 0;
+    if (use_compute_to_convert_depth_stencil) {
+        valid = pgraph_vk_buffer_image_size(
+            scaled_width, scaled_height, 4, &packed_image_size);
+        if (!valid) {
+            error_report("Vulkan packed zeta texture size overflow");
+            return;
+        }
+    }
+    pgraph_vk_prepare_buffer_pair(
+        pg, BUFFER_COMPUTE_DST,
+        MAX(copied_image_size, packed_image_size));
+
     bool compute_needs_finish = use_compute_to_convert_depth_stencil &&
                                 pgraph_vk_compute_needs_finish(r);
     if (compute_needs_finish) {
@@ -628,16 +721,8 @@ static void copy_zeta_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surfac
         surface->vram_addr, surface->width, surface->height);
 
     VkCommandBuffer cmd = pgraph_vk_begin_nondraw_commands(pg);
+    surface->read_submit_time = r->submit_count;
     pgraph_vk_begin_debug_marker(r, cmd, RGBA_GREEN, __func__);
-
-    unsigned int scaled_width = surface->width,
-                 scaled_height = surface->height;
-    pgraph_apply_scaling_factor(pg, &scaled_width, &scaled_height);
-
-    size_t copied_image_size =
-        scaled_width * scaled_height * surface->host_fmt.host_bytes_per_pixel;
-    size_t stencil_buffer_offset = 0;
-    size_t stencil_buffer_size = 0;
 
     int num_regions = 0;
     VkBufferImageCopy regions[2];
@@ -654,12 +739,6 @@ static void copy_zeta_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surfac
     };
 
     if (surface->host_fmt.aspect & VK_IMAGE_ASPECT_STENCIL_BIT) {
-        stencil_buffer_offset =
-            ROUND_UP(scaled_width * scaled_height * 4,
-                     r->device_props.limits.minStorageBufferOffsetAlignment);
-        stencil_buffer_size = scaled_width * scaled_height;
-        copied_image_size += stencil_buffer_size;
-
         regions[num_regions++] = (VkBufferImageCopy){
             .bufferOffset = stencil_buffer_offset,
             .bufferRowLength = 0, // Tightly packed
@@ -693,8 +772,6 @@ static void copy_zeta_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surfac
     VkBuffer texture_source_buffer;
 
     if (use_compute_to_convert_depth_stencil) {
-        size_t packed_image_size = scaled_width * scaled_height * 4;
-
         VkBufferMemoryBarrier pre_pack_src_barrier = {
             .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
             .srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
@@ -833,6 +910,7 @@ static void copy_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surface,
         surface->vram_addr, surface->width, surface->height);
 
     VkCommandBuffer cmd = pgraph_vk_begin_nondraw_commands(pg);
+    surface->read_submit_time = r->submit_count;
     pgraph_vk_begin_debug_marker(r, cmd, RGBA_GREEN, __func__);
 
     pgraph_vk_transition_image_layout(
@@ -990,14 +1068,17 @@ static void create_dummy_texture(PGRAPHState *pg)
     size_t texture_data_size =
         image_create_info.extent.width * image_create_info.extent.height;
 
+    pgraph_vk_prepare_buffer_pair(pg, BUFFER_STAGING_SRC,
+                                  texture_data_size);
+
     VK_CHECK(vmaMapMemory(r->allocator,
                           r->storage_buffers[BUFFER_STAGING_SRC].allocation,
                           (void *)&mapped_memory_ptr));
     memset(mapped_memory_ptr, 0xff, texture_data_size);
 
-    vmaFlushAllocation(r->allocator,
-                       r->storage_buffers[BUFFER_STAGING_SRC].allocation, 0,
-                       VK_WHOLE_SIZE);
+    VK_CHECK(vmaFlushAllocation(
+        r->allocator, r->storage_buffers[BUFFER_STAGING_SRC].allocation, 0,
+        texture_data_size));
 
     vmaUnmapMemory(r->allocator,
                    r->storage_buffers[BUFFER_STAGING_SRC].allocation);
@@ -1125,7 +1206,6 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
     key.max_anisotropy = max_anisotropy;
 
     bool possibly_dirty = false;
-    bool possibly_dirty_checked = false;
     bool surface_to_texture = false;
 
     // Check active surfaces to see if this texture was a render target
@@ -1170,7 +1250,7 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
         possibly_dirty = true;
     }
 
-    if (!surface_to_texture && !possibly_dirty_checked) {
+    if (!surface_to_texture) {
         possibly_dirty |= check_texture_possibly_dirty(
             d, texture_vram_offset, texture_length, texture_palette_vram_offset,
             texture_palette_data_size);
@@ -1200,6 +1280,14 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
                 snode->hash = content_hash;
             }
         }
+
+        /*
+         * The cache entry has now been checked against its current producer:
+         * either the source surface draw time or the texture/palette bytes.
+         * Leave overlapping inactive entries dirty; each entry is cleared only
+         * when that specific entry is rebound and revalidated here.
+         */
+        snode->possibly_dirty = false;
 
         NV2A_VK_DGROUP_END();
         return;
@@ -1414,6 +1502,13 @@ static bool check_bound_texture_memory_dirty(NV2AState *d)
     PGRAPHState *pg = &d->pgraph;
     PGRAPHVkState *r = pg->vk_renderer_state;
 
+    bool has_testable_binding = false;
+
+    /*
+     * A sticky cache flag is already sufficient to force revalidation. Avoid
+     * walking dirty-log listeners until there is at least one clean binding
+     * whose guest-memory range actually needs to be tested.
+     */
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
         if (!pgraph_is_texture_enabled(pg, i)) {
             continue;
@@ -1424,17 +1519,41 @@ static bool check_bound_texture_memory_dirty(NV2AState *d)
             continue;
         }
 
-        if (binding->possibly_dirty ||
-            check_texture_possibly_dirty(
-                d, binding->key.texture_vram_offset,
-                binding->key.texture_length,
-                binding->key.palette_vram_offset,
-                binding->key.palette_length)) {
+        if (binding->possibly_dirty) {
             return true;
         }
+        has_testable_binding = true;
     }
 
-    return false;
+    if (!has_testable_binding) {
+        return false;
+    }
+
+    bool possibly_dirty = false;
+
+    memory_region_sync_dirty_bitmap(d->vram);
+
+    for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
+        if (!pgraph_is_texture_enabled(pg, i)) {
+            continue;
+        }
+
+        TextureBinding *binding = r->texture_bindings[i];
+        if (!binding || binding == &r->dummy_texture) {
+            continue;
+        }
+
+        /*
+         * Test every bound range after the single sync so all observed dirty
+         * bits are consumed in this batch, avoiding redundant later binds.
+         */
+        possibly_dirty |= check_texture_possibly_dirty_no_sync(
+            d, binding->key.texture_vram_offset,
+            binding->key.texture_length, binding->key.palette_vram_offset,
+            binding->key.palette_length);
+    }
+
+    return possibly_dirty;
 }
 
 static void update_timestamps(PGRAPHVkState *r)

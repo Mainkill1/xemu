@@ -2156,6 +2156,34 @@ void memory_region_set_log(MemoryRegion *mr, bool log, unsigned client);
 void memory_region_set_dirty(MemoryRegion *mr, hwaddr addr,
                              hwaddr size);
 
+/**
+ * memory_region_sync_dirty_bitmap: Synchronize dirty-log listeners.
+ *
+ * Makes dirty state maintained by listeners visible to subsequent
+ * memory_region_test_and_clear_dirty_no_sync() calls. Callers testing several
+ * ranges in one region can synchronize once and then test each range without
+ * repeatedly walking all listeners.
+ *
+ * @mr: the memory region being queried, or NULL to synchronize all regions.
+ */
+void memory_region_sync_dirty_bitmap(MemoryRegion *mr);
+
+/**
+ * memory_region_test_and_clear_dirty_no_sync: Test and clear synchronized
+ *                                             dirty state.
+ *
+ * This deliberately does not synchronize dirty-log listeners. The caller must
+ * call memory_region_sync_dirty_bitmap() before the first test in a batch.
+ * Prefer memory_region_test_and_clear_dirty() for standalone queries.
+ *
+ * @mr: the memory region being queried.
+ * @addr: the address (relative to the start of the region) being queried.
+ * @size: the size of the range being queried.
+ * @client: the dirty-log client whose bits are tested and cleared.
+ */
+bool memory_region_test_and_clear_dirty_no_sync(MemoryRegion *mr, hwaddr addr,
+                                                hwaddr size, unsigned client);
+
 bool memory_region_test_and_clear_dirty(MemoryRegion *mr, hwaddr addr,
                                         hwaddr size, unsigned client);
 

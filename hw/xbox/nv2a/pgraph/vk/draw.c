@@ -19,7 +19,9 @@
 
 #include "qemu/osdep.h"
 #include "qemu/fast-hash.h"
+#include "qemu/error-report.h"
 #include "renderer.h"
+#include "vertex-range.h"
 #include <math.h>
 
 void pgraph_vk_draw_begin(NV2AState *d)
@@ -1875,7 +1877,7 @@ static void pgraph_vk_debug_attrs(NV2AState *d)
 #endif
 
 static void bind_vertex_buffer(PGRAPHState *pg, uint16_t inline_map,
-                               VkDeviceSize offset)
+                               VkDeviceSize offset, uint32_t base_vertex)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
@@ -1892,6 +1894,15 @@ static void bind_vertex_buffer(PGRAPHState *pg, uint16_t inline_map,
                                                           BUFFER_VERTEX_RAM;
         buffers[i] = r->storage_buffers[buffer_idx].buffer;
         offsets[i] = offset + r->vertex_attribute_offsets[attr_idx];
+        if (buffer_idx == BUFFER_VERTEX_RAM) {
+            VkDeviceSize stride = r->vertex_binding_descriptions[i].stride;
+            bool valid = pgraph_vk_vertex_base_offset(
+                offsets[i], stride, base_vertex, &offsets[i]);
+            if (!valid) {
+                error_report("Vulkan vertex buffer offset overflow");
+                return;
+            }
+        }
     }
 
     vkCmdBindVertexBuffers(r->command_buffer, 0,
@@ -1901,7 +1912,7 @@ static void bind_vertex_buffer(PGRAPHState *pg, uint16_t inline_map,
 
 static void bind_inline_vertex_buffer(PGRAPHState *pg, VkDeviceSize offset)
 {
-    bind_vertex_buffer(pg, 0xffff, offset);
+    bind_vertex_buffer(pg, 0xffff, offset, 0);
 }
 
 void pgraph_vk_set_surface_dirty(PGRAPHState *pg, bool color, bool zeta)
@@ -1942,6 +1953,8 @@ static bool ensure_buffer_space(PGRAPHState *pg, int index, VkDeviceSize size,
 
     if (!pgraph_vk_buffer_has_space_for(pg, index, size, alignment)) {
         pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+        required_size = pgraph_vk_buffer_required_size(
+            pg, index, size, alignment);
         pgraph_vk_ensure_buffer_pair_capacity(pg, index, required_size);
         return true;
     }
@@ -1950,6 +1963,8 @@ static bool ensure_buffer_space(PGRAPHState *pg, int index, VkDeviceSize size,
         if (r->in_command_buffer || r->in_aux_command_buffer) {
             pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
         }
+        required_size = pgraph_vk_buffer_required_size(
+            pg, index, size, alignment);
         pgraph_vk_ensure_buffer_pair_capacity(pg, index, required_size);
         return true;
     }
@@ -2003,11 +2018,14 @@ typedef struct VertexBufferRemap {
 static const VkDeviceSize REMAPPED_VERTEX_BLOCK_ALIGNMENT = 4 * sizeof(float);
 
 static VertexBufferRemap remap_unaligned_attributes(PGRAPHState *pg,
-                                                    uint32_t num_vertices)
+                                                     uint32_t start_vertex,
+                                                     uint32_t num_vertices)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     VertexBufferRemap remap = {0};
+    assert(start_vertex <= num_vertices);
+    uint32_t remapped_vertex_count = num_vertices - start_vertex;
 
     VkDeviceAddress output_offset = 0;
 
@@ -2047,8 +2065,11 @@ static VertexBufferRemap remap_unaligned_attributes(PGRAPHState *pg,
         //         remap.map[attr_id].old_stride,
         //         remap.map[attr_id].new_stride);
 
-        output_offset =
-            remap.map[attr_id].offset + remap.map[attr_id].new_stride * num_vertices;
+        assert(remapped_vertex_count <=
+               (UINT64_MAX - remap.map[attr_id].offset) /
+                   remap.map[attr_id].new_stride);
+        output_offset = remap.map[attr_id].offset +
+                        remap.map[attr_id].new_stride * remapped_vertex_count;
         desc->stride = remap.map[attr_id].new_stride;
     }
 
@@ -2111,8 +2132,7 @@ static void copy_remapped_attributes_to_inline_buffer(PGRAPHState *pg,
         size_t old_stride = remap.map[attr_id].old_stride;
         uint32_t copy_count = num_vertices - start_vertex;
 
-        uint8_t *out_ptr = buffer->mapped + attr_buffer_offset +
-                           (size_t)start_vertex * new_stride;
+        uint8_t *out_ptr = buffer->mapped + attr_buffer_offset;
         uint8_t *in_ptr = d->vram_ptr + r->vertex_attribute_offsets[attr_id] +
                           (size_t)start_vertex * old_stride;
 
@@ -2175,7 +2195,9 @@ void pgraph_vk_flush_draw(NV2AState *d)
             max_element = MAX(max_element, pg->draw_arrays_start[i] + pg->draw_arrays_count[i]);
         }
         sync_vertex_ram_buffer(pg);
-        VertexBufferRemap remap = remap_unaligned_attributes(pg, max_element);
+        VertexBufferRemap remap = remap_unaligned_attributes(
+            pg, min_element, max_element);
+        uint32_t base_vertex = remap.attributes ? min_element : 0;
 
         begin_pre_draw(pg);
         copy_remapped_attributes_to_inline_buffer(pg, remap, min_element,
@@ -2183,12 +2205,13 @@ void pgraph_vk_flush_draw(NV2AState *d)
         pgraph_vk_begin_debug_marker(r, r->command_buffer, RGBA_BLUE,
                                      "Draw Arrays");
         begin_draw(pg);
-        bind_vertex_buffer(pg, remap.attributes, 0);
+        bind_vertex_buffer(pg, remap.attributes, 0, base_vertex);
         for (int i = 0; i < pg->draw_arrays_length; i++) {
             uint32_t start = pg->draw_arrays_start[i],
                      count = pg->draw_arrays_count[i];
             NV2A_VK_DPRINTF("- [%d] Start:%d Count:%d", i, start, count);
-            vkCmdDraw(r->command_buffer, count, 1, start, 0);
+            assert(start >= base_vertex);
+            vkCmdDraw(r->command_buffer, count, 1, start - base_vertex, 0);
         }
         end_draw(pg);
         pgraph_vk_end_debug_marker(r, r->command_buffer);
@@ -2216,22 +2239,28 @@ void pgraph_vk_flush_draw(NV2AState *d)
             d, min_element, max_element, false, 0,
             pg->inline_elements[pg->inline_elements_length - 1]);
         sync_vertex_ram_buffer(pg);
-        VertexBufferRemap remap = remap_unaligned_attributes(pg, max_element + 1);
+        assert(max_element < UINT32_MAX);
+        uint32_t base_vertex = pgraph_vk_indexed_base_vertex(min_element);
+        VertexBufferRemap remap = remap_unaligned_attributes(
+            pg, base_vertex, max_element + 1);
+        if (!remap.attributes) {
+            base_vertex = 0;
+        }
 
         begin_pre_draw(pg);
-        copy_remapped_attributes_to_inline_buffer(pg, remap, min_element,
+        copy_remapped_attributes_to_inline_buffer(pg, remap, base_vertex,
                                                   max_element + 1);
         VkDeviceSize buffer_offset = pgraph_vk_update_index_buffer(
             pg, pg->inline_elements, index_data_size);
         pgraph_vk_begin_debug_marker(r, r->command_buffer, RGBA_BLUE,
                                      "Inline Elements");
         begin_draw(pg);
-        bind_vertex_buffer(pg, remap.attributes, 0);
+        bind_vertex_buffer(pg, remap.attributes, 0, base_vertex);
         vkCmdBindIndexBuffer(r->command_buffer,
                              r->storage_buffers[BUFFER_INDEX].buffer,
                              buffer_offset, VK_INDEX_TYPE_UINT32);
-        vkCmdDrawIndexed(r->command_buffer, pg->inline_elements_length, 1, 0, 0,
-                         0);
+        vkCmdDrawIndexed(r->command_buffer, pg->inline_elements_length, 1, 0,
+                         pgraph_vk_indexed_vertex_offset(base_vertex), 0);
         end_draw(pg);
         pgraph_vk_end_debug_marker(r, r->command_buffer);
 

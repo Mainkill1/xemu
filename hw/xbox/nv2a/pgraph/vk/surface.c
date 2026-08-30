@@ -26,15 +26,22 @@
 #include "hw/xbox/nv2a/nv2a_int.h"
 #include "hw/xbox/nv2a/pgraph/swizzle.h"
 #include "qemu/compiler.h"
+#include "qemu/error-report.h"
 #include "ui/xemu-settings.h"
+#include "buffer-layout.h"
 #include "renderer.h"
 
 const int num_invalid_surfaces_to_keep = 10;  // FIXME: Make automatic
 const int max_surface_frame_time_delta = 5;
+static const unsigned int max_surface_scale_factor = 10;
+
+static void ensure_surface_scratch_image(PGRAPHState *pg,
+                                         SurfaceBinding *surface);
 
 void pgraph_vk_set_surface_scale_factor(NV2AState *d, unsigned int scale)
 {
-    g_config.display.quality.surface_scale = scale < 1 ? 1 : scale;
+    g_config.display.quality.surface_scale =
+        CLAMP(scale, 1, max_surface_scale_factor);
 
     qemu_mutex_lock(&d->pfifo.lock);
     qatomic_set(&d->pfifo.halt, true);
@@ -73,7 +80,8 @@ unsigned int pgraph_vk_get_surface_scale_factor(NV2AState *d)
 void pgraph_vk_reload_surface_scale_factor(PGRAPHState *pg)
 {
     int factor = g_config.display.quality.surface_scale;
-    pg->surface_scale_factor = MAX(factor, 1);
+    pg->surface_scale_factor = CLAMP(factor, 1, max_surface_scale_factor);
+    g_config.display.quality.surface_scale = pg->surface_scale_factor;
 }
 
 // FIXME: Move to common
@@ -166,6 +174,65 @@ static void download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
 
     assert(no_conversion_necessary);
 
+    bool downscale = (pg->surface_scale_factor != 1);
+    unsigned int scaled_width = surface->width,
+                 scaled_height = surface->height;
+    pgraph_apply_scaling_factor(pg, &scaled_width, &scaled_height);
+
+    VkDeviceSize staging_size;
+    VkDeviceSize packed_size = 0;
+    VkDeviceSize compute_depth_size = 0;
+    VkDeviceSize compute_stencil_size = 0;
+    VkDeviceSize compute_size = 0;
+    bool valid;
+
+    if (use_compute_to_convert_depth_stencil_format) {
+        valid = pgraph_vk_buffer_image_size(
+                    scaled_width, scaled_height, 4, &compute_depth_size) &&
+                pgraph_vk_buffer_image_size(
+                    scaled_width, scaled_height, 1, &compute_stencil_size) &&
+                pgraph_vk_buffer_checked_align_up(
+                    compute_stencil_size, sizeof(uint32_t),
+                    &compute_stencil_size);
+        if (!valid) {
+            error_report("Vulkan surface download size overflow");
+            return;
+        }
+
+        VkDeviceSize compute_sizes[] = {
+            compute_depth_size,
+            compute_stencil_size,
+        };
+        valid = valid && pgraph_vk_buffer_layout_required_size(
+                             0, compute_sizes, ARRAY_SIZE(compute_sizes),
+                             r->device_props.limits
+                                 .minStorageBufferOffsetAlignment,
+                             &compute_size) &&
+                pgraph_vk_buffer_image_size(surface->width, surface->height,
+                                             4, &packed_size);
+        if (!valid) {
+            error_report("Vulkan surface download layout overflow");
+            return;
+        }
+        compute_size = MAX(compute_size, packed_size);
+        staging_size = packed_size;
+    } else {
+        unsigned int copy_width = downscale ? surface->width : scaled_width;
+        unsigned int copy_height = downscale ? surface->height : scaled_height;
+        valid = pgraph_vk_buffer_image_size(
+            copy_width, copy_height, surface->host_fmt.host_bytes_per_pixel,
+            &staging_size);
+        if (!valid) {
+            error_report("Vulkan surface download staging size overflow");
+            return;
+        }
+    }
+
+    pgraph_vk_prepare_buffer_pair(pg, BUFFER_STAGING_DST, staging_size);
+    if (use_compute_to_convert_depth_stencil_format) {
+        pgraph_vk_prepare_buffer_pair(pg, BUFFER_COMPUTE_DST, compute_size);
+    }
+
     bool compute_needs_finish = (use_compute_to_convert_depth_stencil_format &&
                                  pgraph_vk_compute_needs_finish(r));
 
@@ -184,8 +251,6 @@ static void download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
         pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
     }
 
-    bool downscale = (pg->surface_scale_factor != 1);
-
     trace_nv2a_pgraph_surface_download(
         surface->color ? "COLOR" : "ZETA",
         surface->swizzle ? "sz" : "lin", surface->vram_addr,
@@ -203,9 +268,9 @@ static void download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
         gl_read_buf = swizzle_buf;
     }
 
-    unsigned int scaled_width = surface->width,
-                 scaled_height = surface->height;
-    pgraph_apply_scaling_factor(pg, &scaled_width, &scaled_height);
+    if (downscale && !use_compute_to_convert_depth_stencil_format) {
+        ensure_surface_scratch_image(pg, surface);
+    }
 
     VkCommandBuffer cmd = fold_into_active_command_buffer ?
                               pgraph_vk_begin_nondraw_commands(pg) :
@@ -280,10 +345,9 @@ static void download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
     }
 
     if (surface->host_fmt.aspect & VK_IMAGE_ASPECT_STENCIL_BIT) {
-        size_t depth_size = scaled_width * scaled_height * 4;
         copy_regions[num_copy_regions++] = (VkBufferImageCopy){
             .bufferOffset = ROUND_UP(
-                depth_size,
+                compute_depth_size,
                 r->device_props.limits.minStorageBufferOffsetAlignment),
             .imageSubresource.aspectMask = VK_IMAGE_ASPECT_STENCIL_BIT,
             .imageSubresource.layerCount = 1,
@@ -294,11 +358,6 @@ static void download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
     //
     // Copy image to staging buffer, or to compute_dst if we need to pack it
     //
-
-    size_t downloaded_image_size = surface->host_fmt.host_bytes_per_pixel *
-                                   surface->width * surface->height;
-    assert((downloaded_image_size) <=
-           r->storage_buffers[BUFFER_STAGING_DST].buffer_size);
 
     int copy_buffer_idx = use_compute_to_convert_depth_stencil_format ?
                              BUFFER_COMPUTE_DST :
@@ -333,11 +392,6 @@ static void download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
     // FIXME: Track current layout and only transition when required
 
     if (use_compute_to_convert_depth_stencil_format) {
-        size_t bytes_per_pixel = 4;
-        size_t packed_size =
-            downscale ? (surface->width * surface->height * bytes_per_pixel) :
-                        (scaled_width * scaled_height * bytes_per_pixel);
-
         //
         // Pack the depth-stencil image into compute_src buffer
         //
@@ -470,9 +524,9 @@ static void download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
                           r->storage_buffers[BUFFER_STAGING_DST].allocation,
                           &mapped_memory_ptr));
 
-    vmaInvalidateAllocation(r->allocator,
-                            r->storage_buffers[BUFFER_STAGING_DST].allocation,
-                            0, VK_WHOLE_SIZE);
+    VK_CHECK(vmaInvalidateAllocation(
+        r->allocator, r->storage_buffers[BUFFER_STAGING_DST].allocation, 0,
+        staging_size));
 
     memcpy_image(gl_read_buf, mapped_memory_ptr, surface->pitch,
                  surface->width * surface->fmt.bytes_per_pixel,
@@ -654,12 +708,23 @@ static void invalidate_surface(NV2AState *d, SurfaceBinding *surface)
 
     trace_nv2a_pgraph_surface_invalidated(surface->vram_addr);
 
-    // FIXME: We may be reading from the surface in the current command buffer!
-    // Add a detection to handle it. For now, finish to be safe.
-    pgraph_vk_finish(&d->pgraph, VK_FINISH_REASON_SURFACE_DOWN);
+    /*
+     * Images from older submissions are safe to recycle because finish waits
+     * for every submission and destroys that submission's framebuffers. Only
+     * finish when this command buffer rendered to the surface or recorded a
+     * surface-to-texture read from it.
+     */
+    bool used_in_current_command_buffer =
+        r->in_command_buffer &&
+        (surface->draw_time >= r->command_buffer_start_time ||
+         surface->read_submit_time == r->submit_count);
+    if (used_in_current_command_buffer) {
+        pgraph_vk_finish(&d->pgraph, VK_FINISH_REASON_SURFACE_DOWN);
+    }
 
     assert((!r->in_command_buffer ||
-            surface->draw_time < r->command_buffer_start_time) &&
+            (surface->draw_time < r->command_buffer_start_time &&
+             surface->read_submit_time != r->submit_count)) &&
            "Surface evicted while in use!");
 
     if (surface == r->color_binding) {
@@ -778,6 +843,44 @@ static void set_surface_label(PGRAPHState *pg, SurfaceBinding const *surface)
     }
 }
 
+static void ensure_surface_scratch_image(PGRAPHState *pg,
+                                         SurfaceBinding *surface)
+{
+    if (surface->image_scratch != VK_NULL_HANDLE) {
+        return;
+    }
+
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    unsigned int width = surface->width ? surface->width : 1;
+    unsigned int height = surface->height ? surface->height : 1;
+    pgraph_apply_scaling_factor(pg, &width, &height);
+
+    VkImageCreateInfo image_create_info = {
+        .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+        .imageType = VK_IMAGE_TYPE_2D,
+        .extent = { width, height, 1 },
+        .mipLevels = 1,
+        .arrayLayers = 1,
+        .format = surface->host_fmt.vk_format,
+        .tiling = VK_IMAGE_TILING_OPTIMAL,
+        .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+        .usage = VK_IMAGE_USAGE_SAMPLED_BIT |
+                 VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                 VK_IMAGE_USAGE_TRANSFER_SRC_BIT | surface->host_fmt.usage,
+        .samples = VK_SAMPLE_COUNT_1_BIT,
+        .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+    };
+    VmaAllocationCreateInfo alloc_create_info = {
+        .usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,
+    };
+
+    VK_CHECK(vmaCreateImage(r->allocator, &image_create_info,
+                            &alloc_create_info, &surface->image_scratch,
+                            &surface->allocation_scratch, NULL));
+    surface->image_scratch_current_layout = VK_IMAGE_LAYOUT_UNDEFINED;
+    set_surface_label(pg, surface);
+}
+
 static void create_surface_image(PGRAPHState *pg, SurfaceBinding *surface)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -818,11 +921,6 @@ static void create_surface_image(PGRAPHState *pg, SurfaceBinding *surface)
     VK_CHECK(vmaCreateImage(r->allocator, &image_create_info,
                             &alloc_create_info, &surface->image,
                             &surface->allocation, NULL));
-
-    VK_CHECK(vmaCreateImage(r->allocator, &image_create_info,
-                            &alloc_create_info, &surface->image_scratch,
-                            &surface->allocation_scratch, NULL));
-    surface->image_scratch_current_layout = VK_IMAGE_LAYOUT_UNDEFINED;
 
     VkImageViewCreateInfo image_view_create_info = {
         .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
@@ -878,8 +976,10 @@ static void destroy_surface_image(PGRAPHVkState *r, SurfaceBinding *surface)
     surface->image = VK_NULL_HANDLE;
     surface->allocation = VK_NULL_HANDLE;
 
-    vmaDestroyImage(r->allocator, surface->image_scratch,
-                    surface->allocation_scratch);
+    if (surface->image_scratch != VK_NULL_HANDLE) {
+        vmaDestroyImage(r->allocator, surface->image_scratch,
+                        surface->allocation_scratch);
+    }
     surface->image_scratch = VK_NULL_HANDLE;
     surface->allocation_scratch = VK_NULL_HANDLE;
 }
@@ -990,6 +1090,8 @@ void pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
         return;
     }
 
+    ensure_surface_scratch_image(pg, surface);
+
     uint8_t *data = d->vram_ptr;
     uint8_t *buf = data + surface->vram_addr;
 
@@ -1009,19 +1111,6 @@ void pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
         gl_read_buf = buf;
     }
 
-    //
-    // Upload image data from host to staging buffer
-    //
-
-    StorageBuffer *copy_buffer = &r->storage_buffers[BUFFER_STAGING_SRC];
-    size_t uploaded_image_size = surface->height * surface->width *
-                                 surface->fmt.bytes_per_pixel;
-    assert(uploaded_image_size <= copy_buffer->buffer_size);
-
-    void *mapped_memory_ptr = NULL;
-    VK_CHECK(vmaMapMemory(r->allocator, copy_buffer->allocation,
-                          &mapped_memory_ptr));
-
     bool use_compute_to_convert_depth_stencil_format =
         surface->host_fmt.vk_format == VK_FORMAT_D24_UNORM_S8_UINT ||
         surface->host_fmt.vk_format == VK_FORMAT_D32_SFLOAT_S8_UINT;
@@ -1031,11 +1120,72 @@ void pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
         use_compute_to_convert_depth_stencil_format;
     assert(no_conversion_necessary);
 
+    unsigned int scaled_width = surface->width,
+                 scaled_height = surface->height;
+    pgraph_apply_scaling_factor(pg, &scaled_width, &scaled_height);
+
+    VkDeviceSize uploaded_image_size;
+    bool valid = pgraph_vk_buffer_image_size(
+        surface->width, surface->height, surface->fmt.bytes_per_pixel,
+        &uploaded_image_size);
+    if (!valid) {
+        error_report("Vulkan surface upload size overflow");
+        return;
+    }
+    pgraph_vk_prepare_buffer_pair(pg, BUFFER_STAGING_SRC,
+                                  uploaded_image_size);
+
+    VkDeviceSize unpacked_depth_image_size = 0;
+    VkDeviceSize unpacked_stencil_image_size = 0;
+    VkDeviceSize unpacked_size = 0;
+    if (use_compute_to_convert_depth_stencil_format) {
+        valid = pgraph_vk_buffer_image_size(
+                    scaled_width, scaled_height, 4,
+                    &unpacked_depth_image_size) &&
+                pgraph_vk_buffer_image_size(
+                    scaled_width, scaled_height, 1,
+                    &unpacked_stencil_image_size) &&
+                pgraph_vk_buffer_checked_align_up(
+                    unpacked_stencil_image_size, sizeof(uint32_t),
+                    &unpacked_stencil_image_size);
+        if (!valid) {
+            error_report("Vulkan surface unpack size overflow");
+            return;
+        }
+        VkDeviceSize unpacked_sizes[] = {
+            unpacked_depth_image_size,
+            unpacked_stencil_image_size,
+        };
+        valid = valid && pgraph_vk_buffer_layout_required_size(
+                             0, unpacked_sizes, ARRAY_SIZE(unpacked_sizes),
+                             r->device_props.limits
+                                 .minStorageBufferOffsetAlignment,
+                             &unpacked_size);
+        if (!valid) {
+            error_report("Vulkan surface unpack layout overflow");
+            return;
+        }
+        pgraph_vk_prepare_buffer_pair(
+            pg, BUFFER_COMPUTE_DST,
+            MAX(uploaded_image_size, unpacked_size));
+    }
+
+    //
+    // Upload image data from host to staging buffer
+    //
+
+    StorageBuffer *copy_buffer = &r->storage_buffers[BUFFER_STAGING_SRC];
+
+    void *mapped_memory_ptr = NULL;
+    VK_CHECK(vmaMapMemory(r->allocator, copy_buffer->allocation,
+                          &mapped_memory_ptr));
+
     memcpy_image(mapped_memory_ptr, gl_read_buf,
                  surface->width * surface->fmt.bytes_per_pixel, surface->pitch,
                  surface->height);
 
-    vmaFlushAllocation(r->allocator, copy_buffer->allocation, 0, VK_WHOLE_SIZE);
+    VK_CHECK(vmaFlushAllocation(r->allocator, copy_buffer->allocation, 0,
+                                uploaded_image_size));
     vmaUnmapMemory(r->allocator, copy_buffer->allocation);
 
     VkCommandBuffer cmd = pgraph_vk_begin_single_time_commands(pg);
@@ -1076,28 +1226,18 @@ void pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
     }
 
 
-    unsigned int scaled_width = surface->width, scaled_height = surface->height;
-    pgraph_apply_scaling_factor(pg, &scaled_width, &scaled_height);
-
     if (use_compute_to_convert_depth_stencil_format) {
 
         //
         // Copy packed image buffer to compute_dst for unpacking
         //
 
-        size_t packed_size = uploaded_image_size;
         VkBufferCopy buffer_copy_region = {
-            .size = packed_size,
+            .size = uploaded_image_size,
         };
         vkCmdCopyBuffer(cmd, copy_buffer->buffer,
                         r->storage_buffers[BUFFER_COMPUTE_DST].buffer, 1,
                         &buffer_copy_region);
-
-        size_t num_pixels = scaled_width * scaled_height;
-        size_t unpacked_depth_image_size = num_pixels * 4;
-        size_t unpacked_stencil_image_size = num_pixels;
-        size_t unpacked_size =
-            unpacked_depth_image_size + unpacked_stencil_image_size;
 
         VkBufferMemoryBarrier post_copy_src_barrier = {
             .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
@@ -1384,6 +1524,7 @@ static void populate_surface_binding_target_sized(NV2AState *d, bool color,
     target->dma_len = dma.limit;
     target->frame_time = pg->frame_time;
     target->draw_time = pg->draw_time;
+    target->read_submit_time = r->submit_count - 1;
     target->cleared = false;
 
     target->initialized = false;

@@ -128,6 +128,7 @@ typedef struct SurfaceBinding {
     bool cleared;
     int frame_time;
     int draw_time;
+    uint32_t read_submit_time;
     bool draw_dirty;
     bool download_pending;
     bool upload_pending;
@@ -477,11 +478,17 @@ void pgraph_vk_finalize_buffers(NV2AState *d);
 bool pgraph_vk_buffer_has_space_for(PGRAPHState *pg, int index,
                                     VkDeviceSize size,
                                     VkDeviceAddress alignment);
+bool pgraph_vk_buffer_has_space_for_array(PGRAPHState *pg, int index,
+                                          const VkDeviceSize *sizes,
+                                          size_t count,
+                                          VkDeviceAddress alignment);
 VkDeviceSize pgraph_vk_buffer_required_size(PGRAPHState *pg, int index,
                                             VkDeviceSize size,
                                             VkDeviceAddress alignment);
 void pgraph_vk_ensure_buffer_pair_capacity(PGRAPHState *pg, int index,
-                                           size_t required_size);
+                                           VkDeviceSize required_size);
+void pgraph_vk_prepare_buffer_pair(PGRAPHState *pg, int index,
+                                   VkDeviceSize required_size);
 VkDeviceSize pgraph_vk_append_to_buffer(PGRAPHState *pg, int index, void **data,
                                         VkDeviceSize *sizes, size_t count,
                                         VkDeviceAddress alignment);

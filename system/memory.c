@@ -2320,7 +2320,8 @@ void memory_region_set_client_dirty(MemoryRegion *mr, hwaddr addr,
  * If memory region `mr' is NULL, do global sync.  Otherwise, sync
  * dirty bitmap for the specified memory region.
  */
-static void memory_region_sync_dirty_bitmap(MemoryRegion *mr, bool last_stage)
+static void memory_region_sync_dirty_bitmap_internal(MemoryRegion *mr,
+                                                     bool last_stage)
 {
     MemoryListener *listener;
     AddressSpace *as;
@@ -2356,18 +2357,45 @@ static void memory_region_sync_dirty_bitmap(MemoryRegion *mr, bool last_stage)
     }
 }
 
+void memory_region_sync_dirty_bitmap(MemoryRegion *mr)
+{
+    if (mr && mr->alias) {
+        memory_region_sync_dirty_bitmap(mr->alias);
+        return;
+    }
+
+    memory_region_sync_dirty_bitmap_internal(mr, false);
+}
+
+bool memory_region_test_and_clear_dirty_no_sync(MemoryRegion *mr, hwaddr addr,
+                                                hwaddr size, unsigned client)
+{
+    if (mr->alias) {
+        if (addr > UINT64_MAX - mr->alias_offset) {
+            return false;
+        }
+        return memory_region_test_and_clear_dirty_no_sync(
+            mr->alias, addr + mr->alias_offset, size, client);
+    }
+    assert(mr->terminates);
+    return physical_memory_test_and_clear_dirty(
+        memory_region_get_ram_addr(mr) + addr, size, client);
+}
+
 bool memory_region_test_and_clear_dirty(MemoryRegion *mr, hwaddr addr,
                                         hwaddr size, unsigned client)
 {
     if (mr->alias) {
+        if (addr > UINT64_MAX - mr->alias_offset) {
+            return false;
+        }
         return memory_region_test_and_clear_dirty(mr->alias,
-                                                  addr - mr->alias_offset,
+                                                  addr + mr->alias_offset,
                                                   size, client);
     }
     assert(mr->terminates);
-    memory_region_sync_dirty_bitmap(mr, false);
-    return physical_memory_test_and_clear_dirty(
-            memory_region_get_ram_addr(mr) + addr, size, client);
+    memory_region_sync_dirty_bitmap(mr);
+    return memory_region_test_and_clear_dirty_no_sync(mr, addr, size, client);
 }
 
 void memory_region_clear_dirty_bitmap(MemoryRegion *mr, hwaddr start,
@@ -2432,7 +2460,7 @@ DirtyBitmapSnapshot *memory_region_snapshot_and_clear_dirty(MemoryRegion *mr,
 
     DirtyBitmapSnapshot *snapshot;
     assert(mr->ram_block);
-    memory_region_sync_dirty_bitmap(mr, false);
+    memory_region_sync_dirty_bitmap(mr);
     snapshot = physical_memory_snapshot_and_clear_dirty(mr, addr, size, client);
     memory_global_after_dirty_log_sync();
     return snapshot;
@@ -2995,7 +3023,7 @@ bool memory_region_present(MemoryRegion *container, hwaddr addr)
 
 void memory_global_dirty_log_sync(bool last_stage)
 {
-    memory_region_sync_dirty_bitmap(NULL, last_stage);
+    memory_region_sync_dirty_bitmap_internal(NULL, last_stage);
 }
 
 void memory_global_after_dirty_log_sync(void)

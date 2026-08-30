@@ -20,7 +20,10 @@
 #include "hw/xbox/nv2a/pgraph/pgraph.h"
 #include "qemu/fast-hash.h"
 #include "qemu/lru.h"
+#include "qemu/error-report.h"
+#include "buffer-layout.h"
 #include "renderer.h"
+#include "surface-compute.h"
 #include <vulkan/vulkan_core.h>
 
 // TODO: Swizzle/Unswizzle
@@ -30,7 +33,7 @@
 //        swizzle shader we will need more flexibility.
 
 const char *pack_d24_unorm_s8_uint_to_z24s8_glsl =
-    "layout(push_constant) uniform PushConstants { uint width_in, width_out; };\n"
+    "layout(push_constant) uniform PushConstants { uint width_in, width_out, count_out; };\n"
     "layout(set = 0, binding = 0) buffer DepthIn { uint depth_in[]; };\n"
     "layout(set = 0, binding = 1) buffer StencilIn { uint stencil_in[]; };\n"
     "layout(set = 0, binding = 2) buffer DepthStencilOut { uint depth_stencil_out[]; };\n"
@@ -49,7 +52,7 @@ const char *pack_d24_unorm_s8_uint_to_z24s8_glsl =
     "}\n";
 
 const char *unpack_z24s8_to_d24_unorm_s8_uint_glsl =
-    "layout(push_constant) uniform PushConstants { uint width_in, width_out; };\n"
+    "layout(push_constant) uniform PushConstants { uint width_in, width_out, count_out; };\n"
     "layout(set = 0, binding = 0) buffer DepthOut { uint depth_out[]; };\n"
     "layout(set = 0, binding = 1) buffer StencilOut { uint stencil_out[]; };\n"
     "layout(set = 0, binding = 2) buffer DepthStencilIn { uint depth_stencil_in[]; };\n"
@@ -66,15 +69,17 @@ const char *unpack_z24s8_to_d24_unorm_s8_uint_glsl =
     "    if (idx_out % 4 == 0) {\n"
     "       uint stencil_value = 0;\n"
     "       for (int i = 0; i < 4; i++) {\n" // Include next 3 pixels
-    "           uint v = depth_stencil_in[get_input_idx(idx_out + i)] & 0xff;\n"
-    "           stencil_value |= v << (i * 8);\n"
+    "           if (idx_out + i < count_out) {\n"
+    "               uint v = depth_stencil_in[get_input_idx(idx_out + i)] & 0xff;\n"
+    "               stencil_value |= v << (i * 8);\n"
+    "           }\n"
     "       }\n"
     "       stencil_out[idx_out / 4] = stencil_value;\n"
     "    }\n"
     "}\n";
 
 const char *pack_d32_sfloat_s8_uint_to_z24s8_glsl =
-    "layout(push_constant) uniform PushConstants { uint width_in, width_out; };\n"
+    "layout(push_constant) uniform PushConstants { uint width_in, width_out, count_out; };\n"
     "layout(set = 0, binding = 0) buffer DepthIn { float depth_in[]; };\n"
     "layout(set = 0, binding = 1) buffer StencilIn { uint stencil_in[]; };\n"
     "layout(set = 0, binding = 2) buffer DepthStencilOut { uint depth_stencil_out[]; };\n"
@@ -93,7 +98,7 @@ const char *pack_d32_sfloat_s8_uint_to_z24s8_glsl =
     "}\n";
 
 const char *unpack_z24s8_to_d32_sfloat_s8_uint_glsl =
-    "layout(push_constant) uniform PushConstants { uint width_in, width_out; };\n"
+    "layout(push_constant) uniform PushConstants { uint width_in, width_out, count_out; };\n"
     "layout(set = 0, binding = 0) buffer DepthOut { float depth_out[]; };\n"
     "layout(set = 0, binding = 1) buffer StencilOut { uint stencil_out[]; };\n"
     "layout(set = 0, binding = 2) buffer DepthStencilIn { uint depth_stencil_in[]; };\n"
@@ -111,8 +116,10 @@ const char *unpack_z24s8_to_d32_sfloat_s8_uint_glsl =
     "    if (idx_out % 4 == 0) {\n"
     "       uint stencil_value = 0;\n"
     "       for (int i = 0; i < 4; i++) {\n" // Include next 3 pixels
-    "           uint v = depth_stencil_in[get_input_idx(idx_out + i)] & 0xff;\n"
-    "           stencil_value |= v << (i * 8);\n"
+    "           if (idx_out + i < count_out) {\n"
+    "               uint v = depth_stencil_in[get_input_idx(idx_out + i)] & 0xff;\n"
+    "               stencil_value |= v << (i * 8);\n"
+    "           }\n"
     "       }\n"
     "       stencil_out[idx_out / 4] = stencil_value;\n"
     "    }\n"
@@ -246,7 +253,7 @@ static void create_compute_pipeline_layout(PGRAPHState *pg)
 
     VkPushConstantRange push_constant_range = {
         .stageFlags = VK_SHADER_STAGE_COMPUTE_BIT,
-        .size = 2 * sizeof(uint32_t),
+        .size = 3 * sizeof(uint32_t),
     };
     VkPipelineLayoutCreateInfo pipeline_layout_info = {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
@@ -334,23 +341,12 @@ void pgraph_vk_compute_finish_complete(PGRAPHVkState *r)
 
 static int get_workgroup_size_for_output_units(PGRAPHVkState *r, int output_units)
 {
-    int group_size = 1024;
-
     // FIXME: Smarter workgroup size calculation could factor in multiple
     //        submissions. For now we will just pick the highest number that
     //        evenly divides output_units.
-
-    while (group_size > 1) {
-        if (group_size > r->device_props.limits.maxComputeWorkGroupSize[0]) {
-            continue;
-        }
-        if (output_units % group_size == 0) {
-            break;
-        }
-        group_size /= 2;
-    }
-
-    return group_size;
+    return pgraph_vk_compute_workgroup_size(
+        output_units, r->device_props.limits.maxComputeWorkGroupSize[0],
+        r->device_props.limits.maxComputeWorkGroupInvocations);
 }
 
 static ComputePipeline *get_compute_pipeline(PGRAPHVkState *r, VkFormat host_fmt, bool pack, int output_units)
@@ -391,14 +387,28 @@ void pgraph_vk_pack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
         pgraph_apply_scaling_factor(pg, &output_width, &output_height);
     }
 
-    size_t depth_bytes_per_pixel = 4;
-    size_t depth_size = input_width * input_height * depth_bytes_per_pixel;
-
-    size_t stencil_bytes_per_pixel = 1;
-    size_t stencil_size = input_width * input_height * stencil_bytes_per_pixel;
-
-    size_t output_bytes_per_pixel = 4;
-    size_t output_size = output_width * output_height * output_bytes_per_pixel;
+    VkDeviceSize depth_size;
+    VkDeviceSize stencil_size;
+    VkDeviceSize output_size;
+    VkDeviceSize output_size_in_units;
+    bool valid =
+        pgraph_vk_buffer_image_size(input_width, input_height, 4,
+                                    &depth_size) &&
+        pgraph_vk_buffer_image_size(input_width, input_height, 1,
+                                    &stencil_size) &&
+        pgraph_vk_buffer_checked_align_up(stencil_size, sizeof(uint32_t),
+                                          &stencil_size) &&
+        pgraph_vk_buffer_image_size(output_width, output_height, 4,
+                                    &output_size) &&
+        pgraph_vk_buffer_image_size(output_width, output_height, 1,
+                                    &output_size_in_units);
+    if (!valid || output_size_in_units > UINT32_MAX) {
+        error_report("Vulkan depth/stencil pack buffer size overflow");
+        return;
+    }
+    assert(depth_size <= r->device_props.limits.maxStorageBufferRange);
+    assert(stencil_size <= r->device_props.limits.maxStorageBufferRange);
+    assert(output_size <= r->device_props.limits.maxStorageBufferRange);
 
     VkDescriptorBufferInfo buffers[] = {
         {
@@ -422,9 +432,9 @@ void pgraph_vk_pack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
 
     update_descriptor_sets(pg, buffers, ARRAY_SIZE(buffers));
 
-    size_t output_size_in_units = output_width * output_height;
     ComputePipeline *pipeline = get_compute_pipeline(
-        r, surface->host_fmt.vk_format, true, output_size_in_units);
+        r, surface->host_fmt.vk_format, true,
+        (uint32_t)output_size_in_units);
 
     size_t workgroup_size_in_units = pipeline->key.workgroup_size;
     assert(output_size_in_units % workgroup_size_in_units == 0);
@@ -442,8 +452,9 @@ void pgraph_vk_pack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
         &r->compute.descriptor_sets[r->compute.descriptor_set_index - 1], 0,
         NULL);
 
-    uint32_t push_constants[2] = { input_width, output_width };
-    assert(sizeof(push_constants) == 8);
+    uint32_t push_constants[3] = {
+        input_width, output_width, (uint32_t)output_size_in_units
+    };
     vkCmdPushConstants(cmd, r->compute.pipeline_layout,
                        VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(push_constants),
                        push_constants);
@@ -465,14 +476,28 @@ void pgraph_vk_unpack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
     unsigned int output_width = surface->width, output_height = surface->height;
     pgraph_apply_scaling_factor(pg, &output_width, &output_height);
 
-    size_t depth_bytes_per_pixel = 4;
-    size_t depth_size = output_width * output_height * depth_bytes_per_pixel;
-
-    size_t stencil_bytes_per_pixel = 1;
-    size_t stencil_size = output_width * output_height * stencil_bytes_per_pixel;
-
-    size_t input_bytes_per_pixel = 4;
-    size_t input_size = input_width * input_height * input_bytes_per_pixel;
+    VkDeviceSize depth_size;
+    VkDeviceSize stencil_size;
+    VkDeviceSize input_size;
+    VkDeviceSize output_size_in_units;
+    bool valid =
+        pgraph_vk_buffer_image_size(output_width, output_height, 4,
+                                    &depth_size) &&
+        pgraph_vk_buffer_image_size(output_width, output_height, 1,
+                                    &stencil_size) &&
+        pgraph_vk_buffer_checked_align_up(stencil_size, sizeof(uint32_t),
+                                          &stencil_size) &&
+        pgraph_vk_buffer_image_size(input_width, input_height, 4,
+                                    &input_size) &&
+        pgraph_vk_buffer_image_size(output_width, output_height, 1,
+                                    &output_size_in_units);
+    if (!valid || output_size_in_units > UINT32_MAX) {
+        error_report("Vulkan depth/stencil unpack buffer size overflow");
+        return;
+    }
+    assert(depth_size <= r->device_props.limits.maxStorageBufferRange);
+    assert(stencil_size <= r->device_props.limits.maxStorageBufferRange);
+    assert(input_size <= r->device_props.limits.maxStorageBufferRange);
 
     VkDescriptorBufferInfo buffers[] = {
         {
@@ -495,9 +520,9 @@ void pgraph_vk_unpack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
     };
     update_descriptor_sets(pg, buffers, ARRAY_SIZE(buffers));
 
-    size_t output_size_in_units = output_width * output_height;
     ComputePipeline *pipeline = get_compute_pipeline(
-        r, surface->host_fmt.vk_format, false, output_size_in_units);
+        r, surface->host_fmt.vk_format, false,
+        (uint32_t)output_size_in_units);
 
     size_t workgroup_size_in_units = pipeline->key.workgroup_size;
     assert(output_size_in_units % workgroup_size_in_units == 0);
@@ -516,8 +541,9 @@ void pgraph_vk_unpack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
         NULL);
 
     assert(output_width >= input_width);
-    uint32_t push_constants[2] = { input_width, output_width };
-    assert(sizeof(push_constants) == 8);
+    uint32_t push_constants[3] = {
+        input_width, output_width, (uint32_t)output_size_in_units
+    };
     vkCmdPushConstants(cmd, r->compute.pipeline_layout,
                        VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(push_constants),
                        push_constants);

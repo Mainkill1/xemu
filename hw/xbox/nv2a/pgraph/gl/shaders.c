@@ -29,6 +29,80 @@
 #include "debug.h"
 #include "renderer.h"
 
+enum {
+    SHADER_CACHE_MAX_ENTRIES = 50 * 1024,
+    SHADER_MODULE_CACHE_MAX_ENTRIES = 50 * 1024,
+    SHADER_CACHE_BLOCK_ENTRIES = 256,
+};
+
+static bool lru_contains_key(Lru *lru, uint64_t hash, const void *key)
+{
+    unsigned int bin = lru_hash_to_bin(lru, hash);
+    LruNode *node;
+
+    QTAILQ_FOREACH(node, &lru->bins[bin], next_bin) {
+        if (node->hash == hash && !lru->compare_nodes(lru, node, key)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+static void grow_shader_cache(PGRAPHGLState *r)
+{
+    size_t count = MIN(SHADER_CACHE_BLOCK_ENTRIES,
+                       SHADER_CACHE_MAX_ENTRIES -
+                           r->shader_cache_num_entries);
+    assert(count > 0);
+
+    ShaderBinding *entries = g_new0(ShaderBinding, count);
+    g_ptr_array_add(r->shader_cache_blocks, entries);
+    for (size_t i = 0; i < count; i++) {
+        lru_add_free(&r->shader_cache, &entries[i].node);
+    }
+    r->shader_cache_num_entries += count;
+}
+
+static LruNode *shader_cache_lookup(PGRAPHGLState *r, uint64_t hash,
+                                    const void *key)
+{
+    if (!r->shader_cache.num_free &&
+        r->shader_cache_num_entries < SHADER_CACHE_MAX_ENTRIES &&
+        !lru_contains_key(&r->shader_cache, hash, key)) {
+        grow_shader_cache(r);
+    }
+    return lru_lookup(&r->shader_cache, hash, key);
+}
+
+static void grow_shader_module_cache(PGRAPHGLState *r)
+{
+    size_t count = MIN(SHADER_CACHE_BLOCK_ENTRIES,
+                       SHADER_MODULE_CACHE_MAX_ENTRIES -
+                           r->shader_module_cache_num_entries);
+    assert(count > 0);
+
+    ShaderModuleCacheEntry *entries =
+        g_new0(ShaderModuleCacheEntry, count);
+    g_ptr_array_add(r->shader_module_cache_blocks, entries);
+    for (size_t i = 0; i < count; i++) {
+        lru_add_free(&r->shader_module_cache, &entries[i].node);
+    }
+    r->shader_module_cache_num_entries += count;
+}
+
+static LruNode *shader_module_cache_lookup(PGRAPHGLState *r, uint64_t hash,
+                                           const void *key)
+{
+    if (!r->shader_module_cache.num_free &&
+        r->shader_module_cache_num_entries <
+            SHADER_MODULE_CACHE_MAX_ENTRIES &&
+        !lru_contains_key(&r->shader_module_cache, hash, key)) {
+        grow_shader_module_cache(r);
+    }
+    return lru_lookup(&r->shader_module_cache, hash, key);
+}
+
 static GLenum get_gl_primitive_mode(enum ShaderPolygonMode polygon_mode, enum ShaderPrimitiveMode primitive_mode)
 {
     switch (primitive_mode) {
@@ -183,7 +257,7 @@ static GLuint get_shader_module_for_key(PGRAPHGLState *r,
                                         const ShaderModuleCacheKey *key)
 {
     uint64_t hash = fast_hash((void *)key, sizeof(ShaderModuleCacheKey));
-    LruNode *node = lru_lookup(&r->shader_module_cache, hash, key);
+    LruNode *node = shader_module_cache_lookup(r, hash, key);
     ShaderModuleCacheEntry *module =
         container_of(node, ShaderModuleCacheEntry, node);
     return module->gl_shader;
@@ -266,6 +340,14 @@ static char *shader_get_lru_cache_path(void)
     return g_strdup_printf("%s/shader_cache_list", xemu_settings_get_base_path());
 }
 
+static void shader_join_disk_thread(PGRAPHGLState *r)
+{
+    if (!r->shader_disk_thread_joined) {
+        qemu_thread_join(&r->shader_disk_thread);
+        r->shader_disk_thread_joined = true;
+    }
+}
+
 static void shader_write_lru_list_entry_to_disk(Lru *lru, LruNode *node, void *opaque)
 {
     FILE *lru_list_file = (FILE*) opaque;
@@ -280,19 +362,28 @@ void pgraph_gl_shader_write_cache_reload_list(PGRAPHState *pg)
 {
     PGRAPHGLState *r = pg->gl_renderer_state;
 
+    shader_join_disk_thread(r);
+
+    if (r->shader_cache_writeback_done) {
+        qatomic_set(&r->shader_cache_writeback_pending, false);
+        qemu_event_set(&r->shader_cache_writeback_complete);
+        return;
+    }
+
     if (!g_config.perf.cache_shaders) {
+        r->shader_cache_writeback_done = true;
         qatomic_set(&r->shader_cache_writeback_pending, false);
         qemu_event_set(&r->shader_cache_writeback_complete);
         return;
     }
 
     char *shader_lru_path = shader_get_lru_cache_path();
-    qemu_thread_join(&r->shader_disk_thread);
-
     FILE *lru_list = qemu_fopen(shader_lru_path, "wb");
     g_free(shader_lru_path);
     if (!lru_list) {
         fprintf(stderr, "nv2a: Failed to open shader LRU cache for writing\n");
+        qatomic_set(&r->shader_cache_writeback_pending, false);
+        qemu_event_set(&r->shader_cache_writeback_complete);
         return;
     }
 
@@ -301,6 +392,7 @@ void pgraph_gl_shader_write_cache_reload_list(PGRAPHState *pg)
 
     lru_flush(&r->shader_cache);
 
+    r->shader_cache_writeback_done = true;
     qatomic_set(&r->shader_cache_writeback_pending, false);
     qemu_event_set(&r->shader_cache_writeback_complete);
 }
@@ -462,7 +554,7 @@ static void shader_load_from_disk(PGRAPHState *pg, uint64_t hash)
     g_free(cached_gl_version);
 
     qemu_mutex_lock(&r->shader_cache_lock);
-    LruNode *node = lru_lookup(&r->shader_cache, hash, &state);
+    LruNode *node = shader_cache_lookup(r, hash, &state);
     ShaderBinding *binding = container_of(node, ShaderBinding, node);
 
     /* If we happened to regenerate this shader already, then we may as well use the new one */
@@ -563,31 +655,22 @@ void pgraph_gl_init_shaders(PGRAPHState *pg)
 
     shader_create_cache_folder();
 
-    /* FIXME: Make this configurable */
-    const size_t shader_cache_size = 50*1024;
     lru_init(&r->shader_cache);
-    r->shader_cache_entries = malloc(shader_cache_size * sizeof(ShaderBinding));
-    assert(r->shader_cache_entries != NULL);
-    for (int i = 0; i < shader_cache_size; i++) {
-        lru_add_free(&r->shader_cache, &r->shader_cache_entries[i].node);
-    }
+    r->shader_cache_blocks = g_ptr_array_new_with_free_func(g_free);
+    r->shader_cache_num_entries = 0;
 
     r->shader_cache.init_node = shader_cache_entry_init;
     r->shader_cache.compare_nodes = shader_cache_entry_compare;
     r->shader_cache.post_node_evict = shader_cache_entry_post_evict;
 
+    r->shader_disk_thread_joined = false;
+    r->shader_cache_writeback_done = false;
     qemu_thread_create(&r->shader_disk_thread, "pgraph.renderer_state->shader_cache",
                        shader_reload_lru_from_disk, pg, QEMU_THREAD_JOINABLE);
 
-    /* FIXME: Make this configurable */
-    const size_t shader_module_cache_size = 50*1024;
     lru_init(&r->shader_module_cache);
-    r->shader_module_cache_entries =
-        g_malloc_n(shader_module_cache_size, sizeof(ShaderModuleCacheEntry));
-    assert(r->shader_module_cache_entries != NULL);
-    for (int i = 0; i < shader_module_cache_size; i++) {
-        lru_add_free(&r->shader_module_cache, &r->shader_module_cache_entries[i].node);
-    }
+    r->shader_module_cache_blocks = g_ptr_array_new_with_free_func(g_free);
+    r->shader_module_cache_num_entries = 0;
 
     r->shader_module_cache.init_node = shader_module_cache_entry_init;
     r->shader_module_cache.compare_nodes = shader_module_cache_entry_compare;
@@ -600,12 +683,15 @@ void pgraph_gl_finalize_shaders(PGRAPHState *pg)
 
     // Clear out shader cache
     pgraph_gl_shader_write_cache_reload_list(pg); // FIXME: also flushes, rename for clarity
-    free(r->shader_cache_entries);
-    r->shader_cache_entries = NULL;
+    lru_flush(&r->shader_cache);
+    g_ptr_array_free(r->shader_cache_blocks, true);
+    r->shader_cache_blocks = NULL;
+    r->shader_cache_num_entries = 0;
 
     lru_flush(&r->shader_module_cache);
-    g_free(r->shader_module_cache_entries);
-    r->shader_module_cache_entries = NULL;
+    g_ptr_array_free(r->shader_module_cache_blocks, true);
+    r->shader_module_cache_blocks = NULL;
+    r->shader_module_cache_num_entries = 0;
 
     qemu_mutex_destroy(&r->shader_cache_lock);
 }
@@ -811,7 +897,7 @@ void pgraph_gl_bind_shaders(PGRAPHState *pg)
     uint64_t shader_state_hash =
         fast_hash((uint8_t *)&state, sizeof(ShaderState));
 
-    LruNode *node = lru_lookup(&r->shader_cache, shader_state_hash, &state);
+    LruNode *node = shader_cache_lookup(r, shader_state_hash, &state);
     ShaderBinding *binding = container_of(node, ShaderBinding, node);
 
     if (!binding->initialized && !pgraph_gl_shader_load_from_memory(binding)) {

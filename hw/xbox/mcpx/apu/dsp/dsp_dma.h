@@ -65,9 +65,14 @@ typedef struct DSPDMAState {
     /* DMA completion timer: counts reads of DMA_CONTROL while RUNNING.
      * After 3 reads, transitions RUNNING -> STOPPED. */
     uint32_t dma_read_count;
+
+    /* Host scratch transfer buffer. Not migrated. */
+    uint8_t *scratch_buf;
+    size_t scratch_buf_capacity;
 } DSPDMAState;
 
 uint32_t dsp_dma_read(DSPDMAState *s, DSPDMARegister reg);
 void dsp_dma_write(DSPDMAState *s, DSPDMARegister reg, uint32_t v);
+void dsp_dma_finalize(DSPDMAState *s);
 
 #endif

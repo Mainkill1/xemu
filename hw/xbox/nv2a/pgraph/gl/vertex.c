@@ -235,6 +235,9 @@ unsigned int pgraph_gl_bind_inline_array(NV2AState *d)
 static void vertex_cache_entry_init(Lru *lru, LruNode *node, const void *key)
 {
     VertexLruNode *vnode = container_of(node, VertexLruNode, node);
+    if (!vnode->gl_buffer) {
+        glGenBuffers(1, &vnode->gl_buffer);
+    }
     memcpy(&vnode->key, key, sizeof(struct VertexKey));
     vnode->initialized = false;
 }
@@ -253,12 +256,10 @@ void pgraph_gl_init_buffers(NV2AState *d)
     PGRAPHGLState *r = pg->gl_renderer_state;
 
     lru_init(&r->element_cache);
-    r->element_cache_entries = g_malloc_n(element_cache_size, sizeof(VertexLruNode));
+    r->element_cache_entries =
+        g_new0(VertexLruNode, element_cache_size);
     assert(r->element_cache_entries != NULL);
-    GLuint element_cache_buffers[element_cache_size];
-    glGenBuffers(element_cache_size, element_cache_buffers);
     for (int i = 0; i < element_cache_size; i++) {
-        r->element_cache_entries[i].gl_buffer = element_cache_buffers[i];
         lru_add_free(&r->element_cache, &r->element_cache_entries[i].node);
     }
 
@@ -287,11 +288,18 @@ void pgraph_gl_finalize_buffers(PGRAPHState *pg)
 {
     PGRAPHGLState *r = pg->gl_renderer_state;
 
-    GLuint element_cache_buffers[element_cache_size];
+    GLuint *element_cache_buffers =
+        g_new(GLuint, r->element_cache.num_used);
+    GLsizei num_element_cache_buffers = 0;
     for (int i = 0; i < element_cache_size; i++) {
-        element_cache_buffers[i] = r->element_cache_entries[i].gl_buffer;
+        if (r->element_cache_entries[i].gl_buffer) {
+            element_cache_buffers[num_element_cache_buffers++] =
+                r->element_cache_entries[i].gl_buffer;
+        }
     }
-    glDeleteBuffers(element_cache_size, element_cache_buffers);
+    assert(num_element_cache_buffers == r->element_cache.num_used);
+    glDeleteBuffers(num_element_cache_buffers, element_cache_buffers);
+    g_free(element_cache_buffers);
     lru_flush(&r->element_cache);
 
     g_free(r->element_cache_entries);

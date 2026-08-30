@@ -28,6 +28,7 @@ static void test_capacity(void)
     assert(pgraph_inline_packet_fits(0, 4, 2, 8));
     assert(pgraph_inline_packet_fits(2, 3, 2, 8));
     assert(!pgraph_inline_packet_fits(1, 4, 2, 8));
+    assert(!pgraph_inline_packet_fits(8, 1, 1, 8));
     assert(!pgraph_inline_packet_fits(9, 0, 1, 8));
     assert(!pgraph_inline_packet_fits(0, 1, 0, 8));
     assert(!pgraph_inline_packet_fits(7, SIZE_MAX, 2, 8));
