@@ -113,11 +113,11 @@ void nv2a_profile_init(void)
 
 void nv2a_profile_record_counter(enum NV2A_PROF_COUNTERS_ENUM cnt)
 {
-    nv2a_profile_add_counter(cnt, 1);
+    nv2a_profile_add_telemetry_counter(cnt, 1);
 }
 
-void nv2a_profile_add_counter(enum NV2A_PROF_COUNTERS_ENUM cnt,
-                              uint64_t amount)
+void nv2a_profile_add_telemetry_counter(enum NV2A_PROF_COUNTERS_ENUM cnt,
+                                        uint64_t amount)
 {
     assert(cnt < NV2A_PROF__COUNT);
     if (telemetry.measurement_seen && !telemetry.measurement_active) {
