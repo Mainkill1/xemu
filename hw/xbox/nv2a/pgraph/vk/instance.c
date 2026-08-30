@@ -331,6 +331,10 @@ static void add_optional_device_extension_names(
     r->memory_budget_extension_enabled = add_extension_if_available(
         available_extensions, enabled_extension_names,
         VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
+
+    r->demote_to_helper_extension_enabled = add_extension_if_available(
+        available_extensions, enabled_extension_names,
+        VK_EXT_SHADER_DEMOTE_TO_HELPER_INVOCATION_EXTENSION_NAME);
 }
 
 static bool check_device_support_required_extensions(VkPhysicalDevice device)
@@ -529,6 +533,31 @@ static bool create_logical_device(PGRAPHState *pg, Error **errp)
         next_struct = &custom_border_features;
     }
 
+    VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures demote_features;
+    if (r->device_props.apiVersion >= VK_API_VERSION_1_3 ||
+        r->demote_to_helper_extension_enabled) {
+        VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures supported = {
+            .sType =
+                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DEMOTE_TO_HELPER_INVOCATION_FEATURES,
+        };
+        VkPhysicalDeviceFeatures2 features2 = {
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
+            .pNext = &supported,
+        };
+
+        vkGetPhysicalDeviceFeatures2(r->physical_device, &features2);
+        if (supported.shaderDemoteToHelperInvocation) {
+            demote_features =
+                (VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures){
+                    .sType =
+                        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_DEMOTE_TO_HELPER_INVOCATION_FEATURES,
+                    .shaderDemoteToHelperInvocation = VK_TRUE,
+                    .pNext = next_struct,
+                };
+            next_struct = &demote_features;
+        }
+    }
+
     VkDeviceCreateInfo device_create_info = {
         .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
         .queueCreateInfoCount = 1,
@@ -539,11 +568,6 @@ static bool create_logical_device(PGRAPHState *pg, Error **errp)
             &g_array_index(enabled_extension_names, const char *, 0),
         .pNext = next_struct,
     };
-
-    if (enable_validation) {
-        device_create_info.enabledLayerCount = ARRAY_SIZE(validation_layers);
-        device_create_info.ppEnabledLayerNames = validation_layers;
-    }
 
     result = vkCreateDevice(r->physical_device, &device_create_info, NULL,
                             &r->device);
