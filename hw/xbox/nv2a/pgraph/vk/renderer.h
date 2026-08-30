@@ -220,6 +220,7 @@ typedef struct TextureBinding {
     VkImageView image_view;
     VmaAllocation allocation;
     VkSampler sampler;
+    bool content_valid;
     bool possibly_dirty;
     uint64_t hash;
     unsigned int draw_time;
@@ -227,7 +228,6 @@ typedef struct TextureBinding {
 } TextureBinding;
 
 typedef struct QueryReport {
-    QSIMPLEQ_ENTRY(QueryReport) entry;
     bool clear;
     uint32_t parameter;
     unsigned int query_count;
@@ -424,7 +424,8 @@ typedef struct PGRAPHVkState {
     bool new_query_needed;
     bool query_in_flight;
     uint32_t zpass_pixel_count_result;
-    QSIMPLEQ_HEAD(, QueryReport) report_queue; // FIXME: Statically allocate
+    GArray *report_queue;
+    uint64_t *query_results;
 
     SurfaceFormatInfo kelvin_surface_zeta_vk_map[3];
 
@@ -482,12 +483,13 @@ bool pgraph_vk_buffer_has_space_for_array(PGRAPHState *pg, int index,
                                           const VkDeviceSize *sizes,
                                           size_t count,
                                           VkDeviceAddress alignment);
-VkDeviceSize pgraph_vk_buffer_required_size(PGRAPHState *pg, int index,
-                                            VkDeviceSize size,
-                                            VkDeviceAddress alignment);
-void pgraph_vk_ensure_buffer_pair_capacity(PGRAPHState *pg, int index,
+bool pgraph_vk_buffer_required_size(PGRAPHState *pg, int index,
+                                    VkDeviceSize size,
+                                    VkDeviceAddress alignment,
+                                    VkDeviceSize *required_size);
+bool pgraph_vk_ensure_buffer_pair_capacity(PGRAPHState *pg, int index,
                                            VkDeviceSize required_size);
-void pgraph_vk_prepare_buffer_pair(PGRAPHState *pg, int index,
+bool pgraph_vk_prepare_buffer_pair(PGRAPHState *pg, int index,
                                    VkDeviceSize required_size);
 VkDeviceSize pgraph_vk_append_to_buffer(PGRAPHState *pg, int index, void **data,
                                         VkDeviceSize *sizes, size_t count,

@@ -30,6 +30,7 @@
 #include "ui/xemu-settings.h"
 #include "buffer-layout.h"
 #include "renderer.h"
+#include "surface-compute.h"
 
 const int num_invalid_surfaces_to_keep = 10;  // FIXME: Make automatic
 const int max_surface_frame_time_delta = 5;
@@ -85,17 +86,67 @@ void pgraph_vk_reload_surface_scale_factor(PGRAPHState *pg)
 }
 
 // FIXME: Move to common
-static void get_surface_dimensions(PGRAPHState const *pg, unsigned int *width,
+static bool get_surface_dimensions(PGRAPHState const *pg, unsigned int *width,
                                    unsigned int *height)
 {
     bool swizzle = (pg->surface_type == NV097_SET_SURFACE_FORMAT_TYPE_SWIZZLE);
     if (swizzle) {
-        *width = 1 << pg->surface_shape.log_width;
-        *height = 1 << pg->surface_shape.log_height;
+        if (pg->surface_shape.log_width >= 32 ||
+            pg->surface_shape.log_height >= 32) {
+            return false;
+        }
+        *width = 1u << pg->surface_shape.log_width;
+        *height = 1u << pg->surface_shape.log_height;
     } else {
         *width = pg->surface_shape.clip_width;
         *height = pg->surface_shape.clip_height;
     }
+    return true;
+}
+
+static bool surface_dimensions_supported(PGRAPHState *pg,
+                                         const SurfaceBinding *surface)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    uint64_t width, height;
+
+    if (!pgraph_vk_buffer_checked_mul(
+            MAX(surface->width, 1u), pg->surface_scale_factor, &width) ||
+        !pgraph_vk_buffer_checked_mul(
+            MAX(surface->height, 1u), pg->surface_scale_factor, &height) ||
+        width > r->device_props.limits.maxImageDimension2D ||
+        height > r->device_props.limits.maxImageDimension2D ||
+        width > r->device_props.limits.maxFramebufferWidth ||
+        height > r->device_props.limits.maxFramebufferHeight ||
+        width > UINT32_MAX || height > UINT32_MAX) {
+        return false;
+    }
+
+    if (surface->host_fmt.vk_format == VK_FORMAT_D24_UNORM_S8_UINT ||
+        surface->host_fmt.vk_format == VK_FORMAT_D32_SFLOAT_S8_UINT) {
+        uint64_t pixel_count;
+        uint64_t depth_size;
+        uint64_t stencil_size;
+        if (!pgraph_vk_buffer_checked_mul(width, height, &pixel_count) ||
+            pixel_count > UINT32_MAX ||
+            !pgraph_vk_buffer_image_size(width, height, 4, &depth_size) ||
+            !pgraph_vk_buffer_checked_align_up(pixel_count, sizeof(uint32_t),
+                                                &stencil_size) ||
+            depth_size > r->device_props.limits.maxStorageBufferRange ||
+            stencil_size > r->device_props.limits.maxStorageBufferRange) {
+            return false;
+        }
+        uint32_t workgroup_size = pgraph_vk_compute_workgroup_size(
+            (uint32_t)pixel_count,
+            r->device_props.limits.maxComputeWorkGroupSize[0],
+            r->device_props.limits.maxComputeWorkGroupInvocations);
+        if (!workgroup_size ||
+            pixel_count / workgroup_size >
+                r->device_props.limits.maxComputeWorkGroupCount[0]) {
+            return false;
+        }
+    }
+    return true;
 }
 
 // FIXME: Move to common
@@ -152,14 +203,14 @@ void pgraph_vk_download_surfaces_in_range_if_dirty(PGRAPHState *pg,
     }
 }
 
-static void download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
+static bool download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
                                        uint8_t *pixels)
 {
     PGRAPHState *pg = &d->pgraph;
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     if (!surface->width || !surface->height) {
-        return;
+        return false;
     }
 
     nv2a_profile_inc_counter(NV2A_PROF_SURF_DOWNLOAD);
@@ -196,7 +247,7 @@ static void download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
                     &compute_stencil_size);
         if (!valid) {
             error_report("Vulkan surface download size overflow");
-            return;
+            return false;
         }
 
         VkDeviceSize compute_sizes[] = {
@@ -212,7 +263,7 @@ static void download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
                                              4, &packed_size);
         if (!valid) {
             error_report("Vulkan surface download layout overflow");
-            return;
+            return false;
         }
         compute_size = MAX(compute_size, packed_size);
         staging_size = packed_size;
@@ -224,13 +275,19 @@ static void download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
             &staging_size);
         if (!valid) {
             error_report("Vulkan surface download staging size overflow");
-            return;
+            return false;
         }
     }
 
-    pgraph_vk_prepare_buffer_pair(pg, BUFFER_STAGING_DST, staging_size);
+    if (!pgraph_vk_prepare_buffer_pair(pg, BUFFER_STAGING_DST,
+                                       staging_size)) {
+        return false;
+    }
     if (use_compute_to_convert_depth_stencil_format) {
-        pgraph_vk_prepare_buffer_pair(pg, BUFFER_COMPUTE_DST, compute_size);
+        if (!pgraph_vk_prepare_buffer_pair(pg, BUFFER_COMPUTE_DST,
+                                           compute_size)) {
+            return false;
+        }
     }
 
     bool compute_needs_finish = (use_compute_to_convert_depth_stencil_format &&
@@ -542,6 +599,7 @@ static void download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
         nv2a_profile_inc_counter(NV2A_PROF_SURF_SWIZZLE);
         g_free(swizzle_buf);
     }
+    return true;
 }
 
 static void download_surface(NV2AState *d, SurfaceBinding *surface, bool force)
@@ -553,7 +611,10 @@ static void download_surface(NV2AState *d, SurfaceBinding *surface, bool force)
 
     // FIXME: Respect write enable at last TOU?
 
-    download_surface_to_buffer(d, surface, d->vram_ptr + surface->vram_addr);
+    if (!download_surface_to_buffer(
+            d, surface, d->vram_ptr + surface->vram_addr)) {
+        return;
+    }
 
     memory_region_set_client_dirty(d->vram, surface->vram_addr,
                                    surface->pitch * surface->height,
@@ -1082,10 +1143,9 @@ void pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
                  surface->width, surface->height, surface->pitch,
                  surface->fmt.bytes_per_pixel);
 
-    surface->upload_pending = false;
-    surface->draw_time = pg->draw_time;
-
     if (!surface->width || !surface->height) {
+        surface->upload_pending = false;
+        surface->draw_time = pg->draw_time;
         surface->initialized = true;
         return;
     }
@@ -1132,8 +1192,10 @@ void pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
         error_report("Vulkan surface upload size overflow");
         return;
     }
-    pgraph_vk_prepare_buffer_pair(pg, BUFFER_STAGING_SRC,
-                                  uploaded_image_size);
+    if (!pgraph_vk_prepare_buffer_pair(pg, BUFFER_STAGING_SRC,
+                                       uploaded_image_size)) {
+        return;
+    }
 
     VkDeviceSize unpacked_depth_image_size = 0;
     VkDeviceSize unpacked_stencil_image_size = 0;
@@ -1165,9 +1227,11 @@ void pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
             error_report("Vulkan surface unpack layout overflow");
             return;
         }
-        pgraph_vk_prepare_buffer_pair(
-            pg, BUFFER_COMPUTE_DST,
-            MAX(uploaded_image_size, unpacked_size));
+        if (!pgraph_vk_prepare_buffer_pair(
+                pg, BUFFER_COMPUTE_DST,
+                MAX(uploaded_image_size, unpacked_size))) {
+            return;
+        }
     }
 
     //
@@ -1428,6 +1492,8 @@ void pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
     pgraph_vk_end_debug_marker(r, cmd);
     pgraph_vk_end_single_time_commands(pg, cmd);
 
+    surface->upload_pending = false;
+    surface->draw_time = pg->draw_time;
     surface->initialized = true;
 }
 
@@ -1457,7 +1523,7 @@ static void compare_surfaces(SurfaceBinding const *a, SurfaceBinding const *b)
     #undef DO_CMP
 }
 
-static void populate_surface_binding_target_sized(NV2AState *d, bool color,
+static bool populate_surface_binding_target_sized(NV2AState *d, bool color,
                                                   unsigned int width,
                                                   unsigned int height,
                                                   SurfaceBinding *target)
@@ -1473,37 +1539,53 @@ static void populate_surface_binding_target_sized(NV2AState *d, bool color,
     if (color) {
         surface = &pg->surface_color;
         dma_address = pg->dma_color;
-        assert(pg->surface_shape.color_format != 0);
-        assert(pg->surface_shape.color_format <
-               ARRAY_SIZE(kelvin_surface_color_format_vk_map));
+        if (!pg->surface_shape.color_format ||
+            pg->surface_shape.color_format >=
+                ARRAY_SIZE(kelvin_surface_color_format_vk_map)) {
+            return false;
+        }
         fmt = kelvin_surface_color_format_map[pg->surface_shape.color_format];
         host_fmt = kelvin_surface_color_format_vk_map[pg->surface_shape.color_format];
         if (host_fmt.host_bytes_per_pixel == 0) {
-            fprintf(stderr, "nv2a: unimplemented color surface format 0x%x\n",
-                    pg->surface_shape.color_format);
-            abort();
+            error_report("nv2a: unimplemented color surface format 0x%x",
+                         pg->surface_shape.color_format);
+            return false;
         }
     } else {
         surface = &pg->surface_zeta;
         dma_address = pg->dma_zeta;
-        assert(pg->surface_shape.zeta_format != 0);
-        assert(pg->surface_shape.zeta_format <
-               ARRAY_SIZE(r->kelvin_surface_zeta_vk_map));
+        if (!pg->surface_shape.zeta_format ||
+            pg->surface_shape.zeta_format >=
+                ARRAY_SIZE(r->kelvin_surface_zeta_vk_map)) {
+            return false;
+        }
         fmt = kelvin_surface_zeta_format_map[pg->surface_shape.zeta_format];
         host_fmt = r->kelvin_surface_zeta_vk_map[pg->surface_shape.zeta_format];
         // FIXME: Support float 16,24b float format surface
     }
 
     DMAObject dma = nv_dma_load(d, dma_address);
-    // There's a bunch of bugs that could cause us to hit this function
-    // at the wrong time and get a invalid dma object.
-    // Check that it's sane.
-    assert(dma.dma_class == NV_DMA_IN_MEMORY_CLASS);
-    // assert(dma.address + surface->offset != 0);
-    assert(surface->offset <= dma.limit);
-    assert(surface->offset + surface->pitch * height <= dma.limit + 1);
-    assert(surface->pitch % fmt.bytes_per_pixel == 0);
-    assert((dma.address & ~0x07FFFFFF) == 0);
+    uint64_t row_width;
+    uint64_t surface_size;
+    uint64_t vram_addr;
+    uint64_t vram_size = memory_region_size(d->vram);
+    if (dma.dma_class != NV_DMA_IN_MEMORY_CLASS ||
+        !fmt.bytes_per_pixel ||
+        surface->pitch % fmt.bytes_per_pixel != 0 ||
+        (dma.address & ~0x07FFFFFF) != 0 ||
+        surface->offset > dma.limit ||
+        !pgraph_vk_buffer_checked_mul(width, fmt.bytes_per_pixel,
+                                      &row_width) ||
+        !pgraph_vk_buffer_checked_mul(
+            height, MAX((uint64_t)surface->pitch, row_width),
+            &surface_size) ||
+        surface_size > SIZE_MAX ||
+        (surface_size && surface_size - 1 > dma.limit - surface->offset) ||
+        !pgraph_vk_buffer_checked_add(dma.address, surface->offset,
+                                      &vram_addr) ||
+        vram_addr > vram_size || surface_size > vram_size - vram_addr) {
+        return false;
+    }
 
     target->shape = (color || !r->color_binding) ? pg->surface_shape :
                                                    r->color_binding->shape;
@@ -1512,11 +1594,11 @@ static void populate_surface_binding_target_sized(NV2AState *d, bool color,
     target->color = color;
     target->swizzle =
         (pg->surface_type == NV097_SET_SURFACE_FORMAT_TYPE_SWIZZLE);
-    target->vram_addr = dma.address + surface->offset;
+    target->vram_addr = vram_addr;
     target->width = width;
     target->height = height;
     target->pitch = surface->pitch;
-    target->size = height * MAX(surface->pitch, width * fmt.bytes_per_pixel);
+    target->size = surface_size;
     target->upload_pending = true;
     target->download_pending = false;
     target->draw_dirty = false;
@@ -1528,9 +1610,10 @@ static void populate_surface_binding_target_sized(NV2AState *d, bool color,
     target->cleared = false;
 
     target->initialized = false;
+    return true;
 }
 
-static void populate_surface_binding_target(NV2AState *d, bool color,
+static bool populate_surface_binding_target(NV2AState *d, bool color,
                                             SurfaceBinding *target)
 {
     PGRAPHState *pg = &d->pgraph;
@@ -1539,7 +1622,9 @@ static void populate_surface_binding_target(NV2AState *d, bool color,
     unsigned int width, height;
 
     if (color || !r->color_binding) {
-        get_surface_dimensions(pg, &width, &height);
+        if (!get_surface_dimensions(pg, &width, &height)) {
+            return false;
+        }
         pgraph_apply_anti_aliasing_factor(pg, &width, &height);
 
         // Since we determine surface dimensions based on the clipping
@@ -1553,7 +1638,9 @@ static void populate_surface_binding_target(NV2AState *d, bool color,
         height = r->color_binding->height;
     }
 
-    populate_surface_binding_target_sized(d, color, width, height, target);
+    return populate_surface_binding_target_sized(
+               d, color, width, height, target) &&
+           surface_dimensions_supported(pg, target);
 }
 
 static void update_surface_part(NV2AState *d, bool upload, bool color)
@@ -1563,7 +1650,10 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
 
     SurfaceBinding target;
     memset(&target, 0, sizeof(target));
-    populate_surface_binding_target(d, color, &target);
+    if (!populate_surface_binding_target(d, color, &target)) {
+        error_report("Vulkan surface dimensions exceed renderer limits");
+        return;
+    }
 
     Surface *pg_surface = color ? &pg->surface_color : &pg->surface_zeta;
 
@@ -1644,12 +1734,16 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
             if (is_compatible && color &&
                 !check_surface_compatibility(surface, &target, true)) {
                 SurfaceBinding zeta_entry;
-                populate_surface_binding_target_sized(
+                bool zeta_valid = populate_surface_binding_target_sized(
                     d, !color, surface->width, surface->height, &zeta_entry);
-                hwaddr color_end = surface->vram_addr + surface->size;
-                hwaddr zeta_end = zeta_entry.vram_addr + zeta_entry.size;
-                is_compatible &= surface->vram_addr >= zeta_end ||
-                                 zeta_entry.vram_addr >= color_end;
+                if (zeta_valid) {
+                    hwaddr color_end = surface->vram_addr + surface->size;
+                    hwaddr zeta_end = zeta_entry.vram_addr + zeta_entry.size;
+                    is_compatible &= surface->vram_addr >= zeta_end ||
+                                     zeta_entry.vram_addr >= color_end;
+                } else {
+                    is_compatible = false;
+                }
             }
 
             if (is_compatible && !color && r->color_binding) {

@@ -140,13 +140,11 @@ static void create_pvideo_image(PGRAPHState *pg, int width, int height)
     d->pvideo.height = height;
 }
 
-static void upload_pvideo_image(PGRAPHState *pg, PvideoState state)
+static bool upload_pvideo_image(PGRAPHState *pg, PvideoState state)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
     PGRAPHVkState *r = pg->vk_renderer_state;
     PGRAPHVkDisplayState *disp = &r->display;
-
-    create_pvideo_image(pg, state.in_width, state.in_height);
 
     // FIXME: Dirty tracking. We don't necessarily need to upload so much.
 
@@ -155,9 +153,12 @@ static void upload_pvideo_image(PGRAPHState *pg, PvideoState state)
         state.in_width, state.in_height, 4, &upload_size);
     if (!valid || !upload_size) {
         error_report("Vulkan PVIDEO upload size overflow");
-        return;
+        return false;
     }
-    pgraph_vk_prepare_buffer_pair(pg, BUFFER_STAGING_SRC, upload_size);
+    create_pvideo_image(pg, state.in_width, state.in_height);
+    if (!pgraph_vk_prepare_buffer_pair(pg, BUFFER_STAGING_SRC, upload_size)) {
+        return false;
+    }
 
     // Copy texture data to mapped device buffer
     uint8_t *mapped_memory_ptr;
@@ -218,6 +219,7 @@ static void upload_pvideo_image(PGRAPHState *pg, PvideoState state)
                                       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                       VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     pgraph_vk_end_single_time_commands(pg, cmd);
+    return true;
 }
 
 static const char *display_frag_glsl =
@@ -929,7 +931,9 @@ static void render_display(PGRAPHState *pg, SurfaceBinding *surface)
 
     disp->pvideo.state = get_pvideo_state(pg);
     if (disp->pvideo.state.enabled) {
-        upload_pvideo_image(pg, disp->pvideo.state);
+        if (!upload_pvideo_image(pg, disp->pvideo.state)) {
+            disp->pvideo.state.enabled = false;
+        }
     }
 
     update_uniforms(pg, surface);

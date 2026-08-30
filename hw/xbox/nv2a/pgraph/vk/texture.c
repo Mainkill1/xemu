@@ -502,7 +502,7 @@ static bool check_texture_possibly_dirty(NV2AState *d,
 
 // FIXME: Make sure we update sampler when data matches. Should we add filtering
 // options to the textureshape?
-static void upload_texture_image(PGRAPHState *pg, int texture_idx,
+static bool upload_texture_image(PGRAPHState *pg, int texture_idx,
                                  TextureBinding *binding)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -525,6 +525,8 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
 
     // Calculate decoded texture data size
     VkDeviceSize texture_data_size = 0;
+    bool success = false;
+    g_autofree VkBufferImageCopy *regions = NULL;
     for (int layer_idx = 0; layer_idx < num_layers; layer_idx++) {
         TextureLayer *layer = &layout->layers[layer_idx];
         for (int level_idx = 0; level_idx < state->levels; level_idx++) {
@@ -534,13 +536,15 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
                 texture_data_size, size, &texture_data_size);
             if (!valid) {
                 error_report("Vulkan decoded texture size overflow");
-                return;
+                goto cleanup;
             }
         }
     }
 
-    pgraph_vk_prepare_buffer_pair(pg, BUFFER_STAGING_SRC,
-                                  texture_data_size);
+    if (!pgraph_vk_prepare_buffer_pair(pg, BUFFER_STAGING_SRC,
+                                       texture_data_size)) {
+        goto cleanup;
+    }
 
     // Copy texture data to mapped device buffer
     uint8_t *mapped_memory_ptr;
@@ -550,8 +554,7 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
                           (void *)&mapped_memory_ptr));
 
     int num_regions = num_layers * state->levels;
-    g_autofree VkBufferImageCopy *regions =
-        g_malloc0_n(num_regions, sizeof(VkBufferImageCopy));
+    regions = g_malloc0_n(num_regions, sizeof(VkBufferImageCopy));
 
     VkBufferImageCopy *region = regions;
     VkDeviceSize buffer_offset = 0;
@@ -626,16 +629,21 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
     pgraph_vk_end_debug_marker(r, cmd);
     pgraph_vk_end_single_time_commands(pg, cmd);
 
-    // Release decoded texture data
+    success = true;
+
+cleanup:
+    // Release decoded texture data on both success and recoverable failure.
     for (int layer_idx = 0; layer_idx < num_layers; layer_idx++) {
         TextureLayer *layer = &layout->layers[layer_idx];
         for (int level_idx = 0; level_idx < state->levels; level_idx++) {
             g_free(layer->levels[level_idx].decoded_data);
         }
     }
+    return success;
 }
 
-static void copy_zeta_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surface,
+static bool copy_zeta_surface_to_texture(PGRAPHState *pg,
+                                         SurfaceBinding *surface,
                                          TextureBinding *texture)
 {
     assert(!surface->color);
@@ -668,7 +676,7 @@ static void copy_zeta_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surfac
                     &stencil_buffer_size);
         if (!valid) {
             error_report("Vulkan zeta texture copy size overflow");
-            return;
+            return false;
         }
         VkDeviceSize image_sizes[] = {
             depth_buffer_size,
@@ -681,7 +689,7 @@ static void copy_zeta_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surfac
                              &copied_image_size);
         if (!valid) {
             error_report("Vulkan zeta texture buffer layout overflow");
-            return;
+            return false;
         }
         stencil_buffer_offset = ROUND_UP(
             depth_buffer_size,
@@ -692,7 +700,7 @@ static void copy_zeta_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surfac
             surface->host_fmt.host_bytes_per_pixel, &copied_image_size);
         if (!valid) {
             error_report("Vulkan texture copy size overflow");
-            return;
+            return false;
         }
     }
 
@@ -702,12 +710,14 @@ static void copy_zeta_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surfac
             scaled_width, scaled_height, 4, &packed_image_size);
         if (!valid) {
             error_report("Vulkan packed zeta texture size overflow");
-            return;
+            return false;
         }
     }
-    pgraph_vk_prepare_buffer_pair(
-        pg, BUFFER_COMPUTE_DST,
-        MAX(copied_image_size, packed_image_size));
+    if (!pgraph_vk_prepare_buffer_pair(
+            pg, BUFFER_COMPUTE_DST,
+            MAX(copied_image_size, packed_image_size))) {
+        return false;
+    }
 
     bool compute_needs_finish = use_compute_to_convert_depth_stencil &&
                                 pgraph_vk_compute_needs_finish(r);
@@ -889,15 +899,15 @@ static void copy_zeta_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surfac
     pgraph_vk_end_nondraw_commands(pg, cmd);
 
     texture->draw_time = surface->draw_time;
+    return true;
 }
 
 // FIXME: Should be able to skip the copy and sample the original surface image
-static void copy_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surface,
+static bool copy_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surface,
                                     TextureBinding *texture)
 {
     if (!surface->color) {
-        copy_zeta_surface_to_texture(pg, surface, texture);
-        return;
+        return copy_zeta_surface_to_texture(pg, surface, texture);
     }
 
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -954,6 +964,7 @@ static void copy_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surface,
     pgraph_vk_end_nondraw_commands(pg, cmd);
 
     texture->draw_time = surface->draw_time;
+    return true;
 }
 
 static unsigned int vk_format_texel_size(VkFormat format)
@@ -1068,8 +1079,12 @@ static void create_dummy_texture(PGRAPHState *pg)
     size_t texture_data_size =
         image_create_info.extent.width * image_create_info.extent.height;
 
-    pgraph_vk_prepare_buffer_pair(pg, BUFFER_STAGING_SRC,
-                                  texture_data_size);
+    if (!pgraph_vk_prepare_buffer_pair(pg, BUFFER_STAGING_SRC,
+                                       texture_data_size)) {
+        vkDestroySampler(r->device, texture_sampler, NULL);
+        vmaDestroyImage(r->allocator, texture_image, texture_allocation);
+        return;
+    }
 
     VK_CHECK(vmaMapMemory(r->allocator,
                           r->storage_buffers[BUFFER_STAGING_SRC].allocation,
@@ -1159,7 +1174,7 @@ static bool is_linear_filter_supported_for_format(PGRAPHVkState *r,
            VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT;
 }
 
-static void create_texture(PGRAPHState *pg, int texture_idx)
+static bool create_texture(PGRAPHState *pg, int texture_idx)
 {
     NV2A_VK_DGROUP_BEGIN("Creating texture %d", texture_idx);
 
@@ -1271,13 +1286,27 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
     if (binding_found) {
         if (surface_to_texture) {
             // FIXME: Add draw time tracking
-            if (surface->draw_time != snode->draw_time) {
-                copy_surface_to_texture(pg, surface, snode);
+            if (!snode->content_valid ||
+                surface->draw_time != snode->draw_time) {
+                if (!copy_surface_to_texture(pg, surface, snode)) {
+                    snode->possibly_dirty = true;
+                    r->texture_bindings[texture_idx] = &r->dummy_texture;
+                    NV2A_VK_DGROUP_END();
+                    return false;
+                }
+                snode->content_valid = true;
             }
         } else {
-            if (possibly_dirty && content_hash != snode->hash) {
-                upload_texture_image(pg, texture_idx, snode);
+            if (!snode->content_valid ||
+                (possibly_dirty && content_hash != snode->hash)) {
+                if (!upload_texture_image(pg, texture_idx, snode)) {
+                    snode->possibly_dirty = true;
+                    r->texture_bindings[texture_idx] = &r->dummy_texture;
+                    NV2A_VK_DGROUP_END();
+                    return false;
+                }
                 snode->hash = content_hash;
+                snode->content_valid = true;
             }
         }
 
@@ -1290,15 +1319,15 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
         snode->possibly_dirty = false;
 
         NV2A_VK_DGROUP_END();
-        return;
+        return true;
     }
 
     NV2A_VK_DPRINTF("Cache miss");
 
     memcpy(&snode->key, &key, sizeof(key));
     snode->current_layout = VK_IMAGE_LAYOUT_UNDEFINED;
+    snode->content_valid = false;
     snode->possibly_dirty = false;
-    snode->hash = content_hash;
 
     VkColorFormatInfo vkf = kelvin_color_format_vk_map[state.color_format];
     assert(vkf.vk_format != 0);
@@ -1473,16 +1502,23 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
 
     set_texture_label(pg, snode);
 
-    r->texture_bindings[texture_idx] = snode;
-
+    bool content_valid;
     if (surface_to_texture) {
-        copy_surface_to_texture(pg, surface, snode);
+        content_valid = copy_surface_to_texture(pg, surface, snode);
     } else {
-        upload_texture_image(pg, texture_idx, snode);
-        snode->draw_time = 0;
+        content_valid = upload_texture_image(pg, texture_idx, snode);
+        if (content_valid) {
+            snode->draw_time = 0;
+            snode->hash = content_hash;
+        }
     }
+    snode->content_valid = content_valid;
+    snode->possibly_dirty = !content_valid;
+    r->texture_bindings[texture_idx] =
+        content_valid ? snode : &r->dummy_texture;
 
     NV2A_VK_DGROUP_END();
+    return content_valid;
 }
 
 static bool check_textures_dirty(PGRAPHState *pg)
@@ -1590,9 +1626,9 @@ void pgraph_vk_bind_textures(NV2AState *d)
             continue;
         }
 
-        create_texture(pg, i);
-
-        pg->texture_dirty[i] = false; // FIXME: Move to renderer?
+        if (create_texture(pg, i)) {
+            pg->texture_dirty[i] = false; // FIXME: Move to renderer?
+        }
     }
 
     r->texture_bindings_changed = true;
@@ -1608,6 +1644,7 @@ static void texture_cache_entry_init(Lru *lru, LruNode *node, const void *state)
     snode->allocation = VK_NULL_HANDLE;
     snode->image_view = VK_NULL_HANDLE;
     snode->sampler = VK_NULL_HANDLE;
+    snode->content_valid = false;
 }
 
 static void texture_cache_release_node_resources(PGRAPHVkState *r, TextureBinding *snode)
@@ -1621,6 +1658,7 @@ static void texture_cache_release_node_resources(PGRAPHVkState *r, TextureBindin
     vmaDestroyImage(r->allocator, snode->image, snode->allocation);
     snode->image = VK_NULL_HANDLE;
     snode->allocation = VK_NULL_HANDLE;
+    snode->content_valid = false;
 }
 
 static bool texture_cache_entry_pre_evict(Lru *lru, LruNode *node)

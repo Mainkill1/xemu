@@ -182,7 +182,7 @@ static size_t budget_aware_buffer_pair_growth(PGRAPHState *pg, int index,
     return new_size;
 }
 
-void pgraph_vk_ensure_buffer_pair_capacity(PGRAPHState *pg, int index,
+bool pgraph_vk_ensure_buffer_pair_capacity(PGRAPHState *pg, int index,
                                            VkDeviceSize required_size)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -195,13 +195,13 @@ void pgraph_vk_ensure_buffer_pair_capacity(PGRAPHState *pg, int index,
 
     if (required_size > SIZE_MAX) {
         error_report("Vulkan buffer request exceeds host address space");
-        return;
+        return false;
     }
 
     StorageBuffer *buffer = &r->storage_buffers[index];
     StorageBuffer *paired = &r->storage_buffers[paired_index];
     if (buffer_pair_has_capacity(r, index, required_size)) {
-        return;
+        return true;
     }
 
     size_t new_size = budget_aware_buffer_pair_growth(
@@ -213,9 +213,10 @@ void pgraph_vk_ensure_buffer_pair_capacity(PGRAPHState *pg, int index,
     if (paired->buffer == VK_NULL_HANDLE || paired->buffer_size < new_size) {
         resize_buffer(pg, paired_index, new_size);
     }
+    return true;
 }
 
-void pgraph_vk_prepare_buffer_pair(PGRAPHState *pg, int index,
+bool pgraph_vk_prepare_buffer_pair(PGRAPHState *pg, int index,
                                    VkDeviceSize required_size)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -224,13 +225,13 @@ void pgraph_vk_prepare_buffer_pair(PGRAPHState *pg, int index,
     assert(!r->in_aux_command_buffer);
 
     if (buffer_pair_has_capacity(r, index, required_size)) {
-        return;
+        return true;
     }
 
     if (r->in_command_buffer) {
         pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
     }
-    pgraph_vk_ensure_buffer_pair_capacity(pg, index, required_size);
+    return pgraph_vk_ensure_buffer_pair_capacity(pg, index, required_size);
 }
 
 void pgraph_vk_init_buffers(NV2AState *d)
@@ -359,17 +360,15 @@ void pgraph_vk_finalize_buffers(NV2AState *d)
     r->uploaded_bitmap = NULL;
 }
 
-VkDeviceSize pgraph_vk_buffer_required_size(PGRAPHState *pg, int index,
-                                            VkDeviceSize size,
-                                            VkDeviceAddress alignment)
+bool pgraph_vk_buffer_required_size(PGRAPHState *pg, int index,
+                                    VkDeviceSize size,
+                                    VkDeviceAddress alignment,
+                                    VkDeviceSize *required_size)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     StorageBuffer *b = &r->storage_buffers[index];
-    VkDeviceSize required_size;
-    bool valid = pgraph_vk_buffer_layout_required_size(
-        b->buffer_offset, &size, 1, alignment, &required_size);
-
-    return valid ? required_size : UINT64_MAX;
+    return pgraph_vk_buffer_layout_required_size(
+        b->buffer_offset, &size, 1, alignment, required_size);
 }
 
 bool pgraph_vk_buffer_has_space_for(PGRAPHState *pg, int index,
@@ -378,8 +377,10 @@ bool pgraph_vk_buffer_has_space_for(PGRAPHState *pg, int index,
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     StorageBuffer *b = &r->storage_buffers[index];
-    return pgraph_vk_buffer_required_size(pg, index, size, alignment) <=
-           b->buffer_size;
+    VkDeviceSize required_size;
+    return pgraph_vk_buffer_required_size(
+               pg, index, size, alignment, &required_size) &&
+           required_size <= b->buffer_size;
 }
 
 bool pgraph_vk_buffer_has_space_for_array(PGRAPHState *pg, int index,

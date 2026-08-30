@@ -339,7 +339,8 @@ void pgraph_vk_compute_finish_complete(PGRAPHVkState *r)
     r->compute.descriptor_set_index = 0;
 }
 
-static int get_workgroup_size_for_output_units(PGRAPHVkState *r, int output_units)
+static uint32_t get_workgroup_size_for_output_units(PGRAPHVkState *r,
+                                                     uint32_t output_units)
 {
     // FIXME: Smarter workgroup size calculation could factor in multiple
     //        submissions. For now we will just pick the highest number that
@@ -349,7 +350,9 @@ static int get_workgroup_size_for_output_units(PGRAPHVkState *r, int output_unit
         r->device_props.limits.maxComputeWorkGroupInvocations);
 }
 
-static ComputePipeline *get_compute_pipeline(PGRAPHVkState *r, VkFormat host_fmt, bool pack, int output_units)
+static ComputePipeline *get_compute_pipeline(PGRAPHVkState *r,
+                                             VkFormat host_fmt, bool pack,
+                                             uint32_t output_units)
 {
     int workgroup_size = get_workgroup_size_for_output_units(r, output_units);
 

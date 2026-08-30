@@ -1089,15 +1089,17 @@ static void bind_descriptor_sets(PGRAPHState *pg)
                             NULL);
 }
 
-static void begin_query(PGRAPHVkState *r)
+static void begin_query(PGRAPHState *pg)
 {
+    PGRAPHVkState *r = pg->vk_renderer_state;
     assert(r->in_command_buffer);
     assert(!r->in_render_pass);
     assert(!r->query_in_flight);
 
-    // FIXME: We should handle this. Make the query buffer bigger, but at least
-    // flush current queries.
-    assert(r->num_queries_in_flight < r->max_queries_in_flight);
+    if (r->num_queries_in_flight >= r->max_queries_in_flight) {
+        error_report("Vulkan query pool capacity exhausted");
+        return;
+    }
 
     nv2a_profile_inc_counter(NV2A_PROF_QUERY);
     vkCmdResetQueryPool(r->command_buffer, r->query_pool,
@@ -1397,6 +1399,14 @@ static void begin_pre_draw(PGRAPHState *pg)
     assert(!r->color_binding || r->color_binding->initialized);
     assert(!r->zeta_binding || r->zeta_binding->initialized);
 
+    /* Finish before creating per-command-buffer framebuffers/descriptors when
+     * a report boundary would otherwise need a query beyond the fixed pool. */
+    if (!pg->clearing && pg->zpass_pixel_count_enable &&
+        (r->new_query_needed || !r->query_in_flight) &&
+        r->num_queries_in_flight >= r->max_queries_in_flight) {
+        pgraph_vk_finish(pg, VK_FINISH_REASON_STALLED);
+    }
+
     if (pg->clearing) {
         create_clear_pipeline(pg);
     } else {
@@ -1481,7 +1491,7 @@ static void begin_draw(PGRAPHState *pg)
         }
         if (!r->query_in_flight) {
             end_render_pass(r);
-            begin_query(r);
+            begin_query(pg);
         }
     } else if (r->query_in_flight) {
         end_render_pass(r);
@@ -1946,30 +1956,36 @@ static bool ensure_buffer_space(PGRAPHState *pg, int index, VkDeviceSize size,
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     StorageBuffer *buffer = &r->storage_buffers[index];
-    VkDeviceSize required_size = pgraph_vk_buffer_required_size(
-        pg, index, size, alignment);
-
-    assert(required_size >= size);
+    VkDeviceSize required_size;
+    if (!pgraph_vk_buffer_required_size(
+            pg, index, size, alignment, &required_size)) {
+        error_report("Vulkan stream buffer size overflow");
+        return false;
+    }
 
     if (!pgraph_vk_buffer_has_space_for(pg, index, size, alignment)) {
         pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
-        required_size = pgraph_vk_buffer_required_size(
-            pg, index, size, alignment);
-        pgraph_vk_ensure_buffer_pair_capacity(pg, index, required_size);
-        return true;
+        if (!pgraph_vk_buffer_required_size(
+                pg, index, size, alignment, &required_size)) {
+            return false;
+        }
+        return pgraph_vk_ensure_buffer_pair_capacity(pg, index,
+                                                      required_size);
     }
 
     if (buffer->buffer == VK_NULL_HANDLE || buffer->buffer_size < size) {
         if (r->in_command_buffer || r->in_aux_command_buffer) {
             pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
         }
-        required_size = pgraph_vk_buffer_required_size(
-            pg, index, size, alignment);
-        pgraph_vk_ensure_buffer_pair_capacity(pg, index, required_size);
-        return true;
+        if (!pgraph_vk_buffer_required_size(
+                pg, index, size, alignment, &required_size)) {
+            return false;
+        }
+        return pgraph_vk_ensure_buffer_pair_capacity(pg, index,
+                                                      required_size);
     }
 
-    return false;
+    return true;
 }
 
 static void get_size_and_count_for_format(VkFormat fmt, size_t *size, size_t *count)
@@ -2005,6 +2021,7 @@ static void get_size_and_count_for_format(VkFormat fmt, size_t *size, size_t *co
 }
 
 typedef struct VertexBufferRemap {
+    bool valid;
     uint16_t attributes;
     size_t buffer_space_required;
     struct {
@@ -2023,7 +2040,7 @@ static VertexBufferRemap remap_unaligned_attributes(PGRAPHState *pg,
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
-    VertexBufferRemap remap = {0};
+    VertexBufferRemap remap = { .valid = true };
     assert(start_vertex <= num_vertices);
     uint32_t remapped_vertex_count = num_vertices - start_vertex;
 
@@ -2078,9 +2095,12 @@ static VertexBufferRemap remap_unaligned_attributes(PGRAPHState *pg,
     // reserve space
     if (remap.attributes) {
         StorageBuffer *buffer = &r->storage_buffers[BUFFER_VERTEX_INLINE_STAGING];
-        ensure_buffer_space(pg, BUFFER_VERTEX_INLINE_STAGING,
-                            remap.buffer_space_required,
-                            REMAPPED_VERTEX_BLOCK_ALIGNMENT);
+        if (!ensure_buffer_space(pg, BUFFER_VERTEX_INLINE_STAGING,
+                                 remap.buffer_space_required,
+                                 REMAPPED_VERTEX_BLOCK_ALIGNMENT)) {
+            remap.valid = false;
+            return remap;
+        }
         buffer->buffer_offset = ROUND_UP(buffer->buffer_offset,
                                          REMAPPED_VERTEX_BLOCK_ALIGNMENT);
     }
@@ -2197,6 +2217,10 @@ void pgraph_vk_flush_draw(NV2AState *d)
         sync_vertex_ram_buffer(pg);
         VertexBufferRemap remap = remap_unaligned_attributes(
             pg, min_element, max_element);
+        if (!remap.valid) {
+            NV2A_VK_DGROUP_END();
+            return;
+        }
         uint32_t base_vertex = remap.attributes ? min_element : 0;
 
         begin_pre_draw(pg);
@@ -2227,7 +2251,11 @@ void pgraph_vk_flush_draw(NV2AState *d)
         size_t index_data_size =
             pg->inline_elements_length * sizeof(pg->inline_elements[0]);
 
-        ensure_buffer_space(pg, BUFFER_INDEX_STAGING, index_data_size, 1);
+        if (!ensure_buffer_space(pg, BUFFER_INDEX_STAGING, index_data_size,
+                                 1)) {
+            NV2A_VK_DGROUP_END();
+            return;
+        }
 
         uint32_t min_element = (uint32_t)-1;
         uint32_t max_element = 0;
@@ -2243,6 +2271,10 @@ void pgraph_vk_flush_draw(NV2AState *d)
         uint32_t base_vertex = pgraph_vk_indexed_base_vertex(min_element);
         VertexBufferRemap remap = remap_unaligned_attributes(
             pg, base_vertex, max_element + 1);
+        if (!remap.valid) {
+            NV2A_VK_DGROUP_END();
+            return;
+        }
         if (!remap.attributes) {
             base_vertex = 0;
         }
@@ -2288,7 +2320,11 @@ void pgraph_vk_flush_draw(NV2AState *d)
             attr->inline_buffer_populated = false;
             offset += vertex_data_size;
         }
-        ensure_buffer_space(pg, BUFFER_VERTEX_INLINE_STAGING, offset, 1);
+        if (!ensure_buffer_space(pg, BUFFER_VERTEX_INLINE_STAGING, offset,
+                                 1)) {
+            NV2A_VK_DGROUP_END();
+            return;
+        }
 
         begin_pre_draw(pg);
         VkDeviceSize buffer_offset = pgraph_vk_update_vertex_inline_buffer(
@@ -2307,8 +2343,11 @@ void pgraph_vk_flush_draw(NV2AState *d)
         nv2a_profile_inc_counter(NV2A_PROF_INLINE_ARRAYS);
 
         VkDeviceSize inline_array_data_size = pg->inline_array_length * 4;
-        ensure_buffer_space(pg, BUFFER_VERTEX_INLINE_STAGING,
-                            inline_array_data_size, 1);
+        if (!ensure_buffer_space(pg, BUFFER_VERTEX_INLINE_STAGING,
+                                 inline_array_data_size, 1)) {
+            NV2A_VK_DGROUP_END();
+            return;
+        }
 
         unsigned int offset = 0;
         for (int i = 0; i < NV2A_VERTEXSHADER_ATTRIBUTES; i++) {
