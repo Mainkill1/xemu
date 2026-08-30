@@ -25,6 +25,7 @@ tests = {
   'test-xbox-pgraph-inline-elements': [],
   'test-xbox-vk-blend-constants': [],
   'test-xbox-vk-framebuffer-cache': [],
+  'test-xbox-vk-pipeline-cache-file': [],
   'test-xbox-vk-report-accumulator': [],
   'test-resv-mem': [],
   # all code tested by test-x86-topo is inside topology.h
