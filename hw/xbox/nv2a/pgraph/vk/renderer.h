@@ -38,6 +38,7 @@
 #include <vk_mem_alloc.h>
 
 #include "blend-constants-cache.h"
+#include "descriptor-update.h"
 #include "framebuffer-cache.h"
 #include "debug.h"
 #include "constants.h"
@@ -426,7 +427,7 @@ typedef struct PGRAPHVkState {
     ShaderModuleCacheEntry *shader_module_cache_entries;
 
     // FIXME: Merge these into a structure
-    size_t uniform_buffer_offsets[2];
+    uint32_t uniform_buffer_offsets[2];
     bool uniforms_changed;
 
     VkQueryPool query_pool;

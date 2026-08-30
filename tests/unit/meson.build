@@ -24,6 +24,7 @@ tests = {
   'test-xbox-pgraph-uniform-dirty': [],
   'test-xbox-pgraph-inline-elements': [],
   'test-xbox-vk-blend-constants': [],
+  'test-xbox-vk-descriptor-update': [],
   'test-xbox-vk-framebuffer-cache': [],
   'test-xbox-vk-pipeline-cache-file': [],
   'test-xbox-vk-report-accumulator': [],
