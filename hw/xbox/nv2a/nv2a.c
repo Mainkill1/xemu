@@ -635,6 +635,7 @@ type_init(nv2a_register);
 
 void nv2a_init(PCIBus *bus, int devfn, MemoryRegion *ram)
 {
+    nv2a_profile_init();
     PCIDevice *dev = pci_create_simple(bus, devfn, "nv2a");
     NV2AState *d = NV2A_DEVICE(dev);
     nv2a_init_memory(d, ram);
