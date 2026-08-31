@@ -177,7 +177,8 @@ typedef struct PGRAPHGLState {
     GLenum gl_display_buffer_type;
 
     Lru element_cache;
-    VertexLruNode *element_cache_entries;
+    GPtrArray *element_cache_blocks;
+    size_t element_cache_num_entries;
     GLuint gl_inline_array_buffer;
     GLuint gl_memory_buffer;
     GLuint gl_vertex_array;
@@ -192,7 +193,8 @@ typedef struct PGRAPHGLState {
 
     TextureBinding *texture_binding[NV2A_MAX_TEXTURES];
     Lru texture_cache;
-    TextureLruNode *texture_cache_entries;
+    GPtrArray *texture_cache_blocks;
+    size_t texture_cache_num_entries;
 
     Lru shader_cache;
     GPtrArray *shader_cache_blocks;
@@ -248,6 +250,9 @@ extern GloContext *g_nv2a_context_render;
 extern GloContext *g_nv2a_context_display;
 
 unsigned int pgraph_gl_bind_inline_array(NV2AState *d);
+VertexLruNode *pgraph_gl_element_cache_lookup(PGRAPHGLState *r,
+                                              uint64_t hash,
+                                              const VertexKey *key);
 void pgraph_gl_bind_shaders(PGRAPHState *pg);
 void pgraph_gl_bind_textures(NV2AState *d);
 void pgraph_gl_bind_vertex_attributes(NV2AState *d, unsigned int min_element, unsigned int max_element, bool inline_data, unsigned int inline_stride, unsigned int provoking_element);

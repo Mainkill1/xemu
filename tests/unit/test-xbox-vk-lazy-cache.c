@@ -1,12 +1,12 @@
 /*
- * Vulkan NV2A lazy cache tests
+ * NV2A PGRAPH lazy cache tests
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
 #include "qemu/osdep.h"
 #include "qemu/lru.h"
-#include "hw/xbox/nv2a/pgraph/vk/lazy-cache.h"
+#include "hw/xbox/nv2a/pgraph/lazy-cache.h"
 
 typedef struct TestEntry {
     LruNode node;
@@ -49,7 +49,7 @@ static void test_cache_grow(TestCache *cache, size_t count)
 static TestEntry *test_cache_lookup(TestCache *cache, uint32_t key)
 {
     uint64_t hash = key;
-    size_t count = pgraph_vk_lazy_cache_growth_for_lookup(
+    size_t count = pgraph_lazy_cache_growth_for_lookup(
         &cache->lru,
         cache->num_entries, TEST_MAX_ENTRIES, TEST_BLOCK_ENTRIES,
         hash, &key);
@@ -76,22 +76,30 @@ static void test_cache_destroy(TestCache *cache)
 
 static void test_growth_decision(void)
 {
-    g_assert_cmpuint(pgraph_vk_lazy_cache_growth_count(0, 4, 2, 0, false),
+    g_assert_cmpuint(pgraph_lazy_cache_growth_count(0, 4, 2, 0, false),
                      ==, 2);
-    g_assert_cmpuint(pgraph_vk_lazy_cache_growth_count(2, 4, 2, 1, false),
+    g_assert_cmpuint(pgraph_lazy_cache_growth_count(2, 4, 2, 1, false),
                      ==, 0);
-    g_assert_cmpuint(pgraph_vk_lazy_cache_growth_count(2, 4, 2, 0, true),
+    g_assert_cmpuint(pgraph_lazy_cache_growth_count(2, 4, 2, 0, true),
                      ==, 0);
-    g_assert_cmpuint(pgraph_vk_lazy_cache_growth_count(3, 4, 2, 0, false),
+    g_assert_cmpuint(pgraph_lazy_cache_growth_count(3, 4, 2, 0, false),
                      ==, 1);
-    g_assert_cmpuint(pgraph_vk_lazy_cache_growth_count(4, 4, 2, 0, false),
+    g_assert_cmpuint(pgraph_lazy_cache_growth_count(4, 4, 2, 0, false),
                      ==, 0);
-    g_assert_cmpuint(pgraph_vk_lazy_cache_growth_count(90, 100, 16, 0, false),
+    g_assert_cmpuint(pgraph_lazy_cache_growth_count(90, 100, 16, 0, false),
                      ==, 10);
-    g_assert_cmpuint(pgraph_vk_lazy_cache_growth_count(96, 100, 16, 0, false),
+    g_assert_cmpuint(pgraph_lazy_cache_growth_count(96, 100, 16, 0, false),
                      ==, 4);
-    g_assert_cmpuint(pgraph_vk_lazy_cache_growth_count(0, 100, 0, 0, false),
+    g_assert_cmpuint(pgraph_lazy_cache_growth_count(0, 100, 0, 0, false),
                      ==, 0);
+    g_assert_cmpuint(pgraph_lazy_cache_growth_count(
+                         0, 50 * 1024, 256, 0, false),
+                     ==, 256);
+    g_assert_cmpuint(pgraph_lazy_cache_growth_count(
+                         50 * 1024 - 128, 50 * 1024, 256, 0, false),
+                     ==, 128);
+    g_assert_cmpuint(pgraph_lazy_cache_growth_count(0, 512, 64, 0, false),
+                     ==, 64);
 }
 
 static void test_stable_blocks_and_hits(void)
@@ -123,9 +131,9 @@ static void test_stable_blocks_and_hits(void)
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
-    g_test_add_func("/xbox/vk-lazy-cache/growth-decision",
+    g_test_add_func("/xbox/pgraph-lazy-cache/growth-decision",
                     test_growth_decision);
-    g_test_add_func("/xbox/vk-lazy-cache/stable-blocks-and-hits",
+    g_test_add_func("/xbox/pgraph-lazy-cache/stable-blocks-and-hits",
                     test_stable_blocks_and_hits);
     return g_test_run();
 }

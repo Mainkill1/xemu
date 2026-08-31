@@ -21,6 +21,7 @@
 
 #include "hw/xbox/nv2a/nv2a_regs.h"
 #include <hw/xbox/nv2a/nv2a_int.h>
+#include "hw/xbox/nv2a/pgraph/lazy-cache.h"
 #include "debug.h"
 #include "renderer.h"
 
@@ -248,7 +249,38 @@ static bool vertex_cache_entry_compare(Lru *lru, LruNode *node, const void *key)
     return memcmp(&vnode->key, key, sizeof(VertexKey));
 }
 
-static const size_t element_cache_size = 50*1024;
+enum {
+    ELEMENT_CACHE_MAX_ENTRIES = 50 * 1024,
+    ELEMENT_CACHE_BLOCK_ENTRIES = 256,
+};
+
+static void grow_element_cache(PGRAPHGLState *r, size_t count)
+{
+    assert(count > 0);
+    assert(count <=
+           ELEMENT_CACHE_MAX_ENTRIES - r->element_cache_num_entries);
+
+    VertexLruNode *entries = g_new0(VertexLruNode, count);
+    g_ptr_array_add(r->element_cache_blocks, entries);
+    for (size_t i = 0; i < count; i++) {
+        lru_add_free(&r->element_cache, &entries[i].node);
+    }
+    r->element_cache_num_entries += count;
+}
+
+VertexLruNode *pgraph_gl_element_cache_lookup(PGRAPHGLState *r,
+                                              uint64_t hash,
+                                              const VertexKey *key)
+{
+    size_t count = pgraph_lazy_cache_growth_for_lookup(
+        &r->element_cache, r->element_cache_num_entries,
+        ELEMENT_CACHE_MAX_ENTRIES, ELEMENT_CACHE_BLOCK_ENTRIES, hash, key);
+    if (count) {
+        grow_element_cache(r, count);
+    }
+    LruNode *node = lru_lookup(&r->element_cache, hash, key);
+    return container_of(node, VertexLruNode, node);
+}
 
 void pgraph_gl_init_buffers(NV2AState *d)
 {
@@ -256,12 +288,8 @@ void pgraph_gl_init_buffers(NV2AState *d)
     PGRAPHGLState *r = pg->gl_renderer_state;
 
     lru_init(&r->element_cache);
-    r->element_cache_entries =
-        g_new0(VertexLruNode, element_cache_size);
-    assert(r->element_cache_entries != NULL);
-    for (int i = 0; i < element_cache_size; i++) {
-        lru_add_free(&r->element_cache, &r->element_cache_entries[i].node);
-    }
+    r->element_cache_blocks = g_ptr_array_new_with_free_func(g_free);
+    r->element_cache_num_entries = 0;
 
     r->element_cache.init_node = vertex_cache_entry_init;
     r->element_cache.compare_nodes = vertex_cache_entry_compare;
@@ -289,21 +317,32 @@ void pgraph_gl_finalize_buffers(PGRAPHState *pg)
     PGRAPHGLState *r = pg->gl_renderer_state;
 
     GLuint *element_cache_buffers =
-        g_new(GLuint, r->element_cache.num_used);
+        g_new(GLuint, r->element_cache_num_entries);
     GLsizei num_element_cache_buffers = 0;
-    for (int i = 0; i < element_cache_size; i++) {
-        if (r->element_cache_entries[i].gl_buffer) {
-            element_cache_buffers[num_element_cache_buffers++] =
-                r->element_cache_entries[i].gl_buffer;
+    for (guint block_index = 0;
+         block_index < r->element_cache_blocks->len; block_index++) {
+        VertexLruNode *entries =
+            g_ptr_array_index(r->element_cache_blocks, block_index);
+        size_t entries_in_block = MIN(
+            ELEMENT_CACHE_BLOCK_ENTRIES,
+            r->element_cache_num_entries -
+                (size_t)block_index * ELEMENT_CACHE_BLOCK_ENTRIES);
+        for (size_t i = 0; i < entries_in_block; i++) {
+            if (entries[i].gl_buffer) {
+                element_cache_buffers[num_element_cache_buffers++] =
+                    entries[i].gl_buffer;
+                entries[i].gl_buffer = 0;
+            }
         }
     }
-    assert(num_element_cache_buffers == r->element_cache.num_used);
+    assert(num_element_cache_buffers <= r->element_cache_num_entries);
     glDeleteBuffers(num_element_cache_buffers, element_cache_buffers);
     g_free(element_cache_buffers);
     lru_flush(&r->element_cache);
 
-    g_free(r->element_cache_entries);
-    r->element_cache_entries = NULL;
+    g_ptr_array_free(r->element_cache_blocks, true);
+    r->element_cache_blocks = NULL;
+    r->element_cache_num_entries = 0;
 
     glDeleteBuffers(NV2A_VERTEXSHADER_ATTRIBUTES, r->gl_inline_buffer);
     memset(r->gl_inline_buffer, 0, sizeof(r->gl_inline_buffer));

@@ -25,6 +25,7 @@
 
 #include "xemu-version.h"
 #include "ui/xemu-settings.h"
+#include "hw/xbox/nv2a/pgraph/lazy-cache.h"
 #include "hw/xbox/nv2a/pgraph/util.h"
 #include "debug.h"
 #include "renderer.h"
@@ -35,26 +36,11 @@ enum {
     SHADER_CACHE_BLOCK_ENTRIES = 256,
 };
 
-static bool lru_contains_key(Lru *lru, uint64_t hash, const void *key)
+static void grow_shader_cache(PGRAPHGLState *r, size_t count)
 {
-    unsigned int bin = lru_hash_to_bin(lru, hash);
-    LruNode *node;
-
-    QTAILQ_FOREACH(node, &lru->bins[bin], next_bin) {
-        if (node->hash == hash && !lru->compare_nodes(lru, node, key)) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-static void grow_shader_cache(PGRAPHGLState *r)
-{
-    size_t count = MIN(SHADER_CACHE_BLOCK_ENTRIES,
-                       SHADER_CACHE_MAX_ENTRIES -
-                           r->shader_cache_num_entries);
     assert(count > 0);
+    assert(count <=
+           SHADER_CACHE_MAX_ENTRIES - r->shader_cache_num_entries);
 
     ShaderBinding *entries = g_new0(ShaderBinding, count);
     g_ptr_array_add(r->shader_cache_blocks, entries);
@@ -67,20 +53,20 @@ static void grow_shader_cache(PGRAPHGLState *r)
 static LruNode *shader_cache_lookup(PGRAPHGLState *r, uint64_t hash,
                                     const void *key)
 {
-    if (!r->shader_cache.num_free &&
-        r->shader_cache_num_entries < SHADER_CACHE_MAX_ENTRIES &&
-        !lru_contains_key(&r->shader_cache, hash, key)) {
-        grow_shader_cache(r);
+    size_t count = pgraph_lazy_cache_growth_for_lookup(
+        &r->shader_cache, r->shader_cache_num_entries,
+        SHADER_CACHE_MAX_ENTRIES, SHADER_CACHE_BLOCK_ENTRIES, hash, key);
+    if (count) {
+        grow_shader_cache(r, count);
     }
     return lru_lookup(&r->shader_cache, hash, key);
 }
 
-static void grow_shader_module_cache(PGRAPHGLState *r)
+static void grow_shader_module_cache(PGRAPHGLState *r, size_t count)
 {
-    size_t count = MIN(SHADER_CACHE_BLOCK_ENTRIES,
-                       SHADER_MODULE_CACHE_MAX_ENTRIES -
-                           r->shader_module_cache_num_entries);
     assert(count > 0);
+    assert(count <= SHADER_MODULE_CACHE_MAX_ENTRIES -
+                        r->shader_module_cache_num_entries);
 
     ShaderModuleCacheEntry *entries =
         g_new0(ShaderModuleCacheEntry, count);
@@ -94,11 +80,12 @@ static void grow_shader_module_cache(PGRAPHGLState *r)
 static LruNode *shader_module_cache_lookup(PGRAPHGLState *r, uint64_t hash,
                                            const void *key)
 {
-    if (!r->shader_module_cache.num_free &&
-        r->shader_module_cache_num_entries <
-            SHADER_MODULE_CACHE_MAX_ENTRIES &&
-        !lru_contains_key(&r->shader_module_cache, hash, key)) {
-        grow_shader_module_cache(r);
+    size_t count = pgraph_lazy_cache_growth_for_lookup(
+        &r->shader_module_cache, r->shader_module_cache_num_entries,
+        SHADER_MODULE_CACHE_MAX_ENTRIES, SHADER_CACHE_BLOCK_ENTRIES,
+        hash, key);
+    if (count) {
+        grow_shader_module_cache(r, count);
     }
     return lru_lookup(&r->shader_module_cache, hash, key);
 }

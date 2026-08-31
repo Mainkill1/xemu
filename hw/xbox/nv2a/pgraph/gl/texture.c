@@ -24,11 +24,43 @@
 #include "hw/xbox/nv2a/pgraph/swizzle.h"
 #include "hw/xbox/nv2a/pgraph/s3tc.h"
 #include "hw/xbox/nv2a/pgraph/texture.h"
+#include "hw/xbox/nv2a/pgraph/lazy-cache.h"
 #include "debug.h"
 #include "renderer.h"
 
 static TextureBinding* generate_texture(const TextureShape s, const uint8_t *texture_data, const uint8_t *palette_data);
 static void texture_binding_destroy(gpointer data);
+
+enum {
+    TEXTURE_CACHE_MAX_ENTRIES = 512,
+    TEXTURE_CACHE_BLOCK_ENTRIES = 64,
+};
+
+static void grow_texture_cache(PGRAPHGLState *r, size_t count)
+{
+    assert(count > 0);
+    assert(count <=
+           TEXTURE_CACHE_MAX_ENTRIES - r->texture_cache_num_entries);
+
+    TextureLruNode *entries = g_new0(TextureLruNode, count);
+    g_ptr_array_add(r->texture_cache_blocks, entries);
+    for (size_t i = 0; i < count; i++) {
+        lru_add_free(&r->texture_cache, &entries[i].node);
+    }
+    r->texture_cache_num_entries += count;
+}
+
+static LruNode *texture_cache_lookup(PGRAPHGLState *r, uint64_t hash,
+                                     const void *key)
+{
+    size_t count = pgraph_lazy_cache_growth_for_lookup(
+        &r->texture_cache, r->texture_cache_num_entries,
+        TEXTURE_CACHE_MAX_ENTRIES, TEXTURE_CACHE_BLOCK_ENTRIES, hash, key);
+    if (count) {
+        grow_texture_cache(r, count);
+    }
+    return lru_lookup(&r->texture_cache, hash, key);
+}
 
 struct pgraph_texture_possibly_dirty_struct {
     hwaddr addr, end;
@@ -325,8 +357,7 @@ void pgraph_gl_bind_textures(NV2AState *d)
 
         // Search for existing texture binding in cache
         uint64_t tex_binding_hash = fast_hash((uint8_t*)&key, sizeof(key));
-        LruNode *found = lru_lookup(&r->texture_cache,
-                                     tex_binding_hash, &key);
+        LruNode *found = texture_cache_lookup(r, tex_binding_hash, &key);
         TextureLruNode *key_out = container_of(found, TextureLruNode, node);
         possibly_dirty |= (key_out->binding == NULL) || key_out->possibly_dirty;
 
@@ -800,13 +831,9 @@ void pgraph_gl_init_textures(NV2AState *d)
     PGRAPHState *pg = &d->pgraph;
     PGRAPHGLState *r = pg->gl_renderer_state;
 
-    const size_t texture_cache_size = 512;
     lru_init(&r->texture_cache);
-    r->texture_cache_entries = malloc(texture_cache_size * sizeof(TextureLruNode));
-    assert(r->texture_cache_entries != NULL);
-    for (int i = 0; i < texture_cache_size; i++) {
-        lru_add_free(&r->texture_cache, &r->texture_cache_entries[i].node);
-    }
+    r->texture_cache_blocks = g_ptr_array_new_with_free_func(g_free);
+    r->texture_cache_num_entries = 0;
 
     r->texture_cache.init_node = texture_cache_entry_init;
     r->texture_cache.compare_nodes = texture_cache_entry_compare;
@@ -818,11 +845,14 @@ void pgraph_gl_finalize_textures(PGRAPHState *pg)
     PGRAPHGLState *r = pg->gl_renderer_state;
 
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
+        if (r->texture_binding[i]) {
+            texture_binding_destroy(r->texture_binding[i]);
+        }
         r->texture_binding[i] = NULL;
     }
 
     lru_flush(&r->texture_cache);
-    free(r->texture_cache_entries);
-
-    r->texture_cache_entries = NULL;
+    g_ptr_array_free(r->texture_cache_blocks, true);
+    r->texture_cache_blocks = NULL;
+    r->texture_cache_num_entries = 0;
 }

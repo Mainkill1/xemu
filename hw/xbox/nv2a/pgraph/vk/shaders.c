@@ -21,7 +21,7 @@
 #include "qemu/fast-hash.h"
 #include "qemu/mstring.h"
 #include "renderer.h"
-#include "lazy-cache.h"
+#include "hw/xbox/nv2a/pgraph/lazy-cache.h"
 
 #define VSH_UBO_BINDING 0
 #define PSH_UBO_BINDING 1
@@ -54,7 +54,7 @@ static void grow_shader_module_cache(PGRAPHVkState *r, size_t count)
 static LruNode *shader_module_cache_lookup(PGRAPHVkState *r, uint64_t hash,
                                            const void *key)
 {
-    size_t count = pgraph_vk_lazy_cache_growth_for_lookup(
+    size_t count = pgraph_lazy_cache_growth_for_lookup(
         &r->shader_module_cache,
         r->shader_module_cache_num_entries,
         SHADER_MODULE_CACHE_MAX_ENTRIES,
@@ -387,7 +387,7 @@ static void grow_shader_cache(PGRAPHVkState *r, size_t count)
 static LruNode *shader_cache_lookup(PGRAPHVkState *r, uint64_t hash,
                                     const void *key)
 {
-    size_t count = pgraph_vk_lazy_cache_growth_for_lookup(
+    size_t count = pgraph_lazy_cache_growth_for_lookup(
         &r->shader_cache, r->shader_cache_num_entries,
         SHADER_CACHE_MAX_ENTRIES, SHADER_CACHE_BLOCK_ENTRIES, hash, key);
     if (count) {

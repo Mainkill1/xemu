@@ -429,8 +429,7 @@ void pgraph_gl_flush_draw(NV2AState *d)
         uint64_t h = fast_hash((uint8_t*)pg->inline_elements,
                                pg->inline_elements_length * 4);
 
-        LruNode *node = lru_lookup(&r->element_cache, h, &k);
-        VertexLruNode *found = container_of(node, VertexLruNode, node);
+        VertexLruNode *found = pgraph_gl_element_cache_lookup(r, h, &k);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, found->gl_buffer);
         if (!found->initialized) {
             nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_4);
