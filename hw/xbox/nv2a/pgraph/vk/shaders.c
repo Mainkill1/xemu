@@ -66,11 +66,10 @@ static LruNode *shader_module_cache_lookup(PGRAPHVkState *r, uint64_t hash,
     return lru_lookup(&r->shader_module_cache, hash, key);
 }
 
-static void create_descriptor_pool(PGRAPHState *pg)
+static void create_descriptor_pool(PGRAPHVkState *r,
+                                   PGRAPHVkSubmissionSlot *slot)
 {
-    PGRAPHVkState *r = pg->vk_renderer_state;
-
-    size_t num_sets = ARRAY_SIZE(r->descriptor_sets);
+    size_t num_sets = ARRAY_SIZE(slot->descriptor_sets);
 
     VkDescriptorPoolSize pool_sizes[] = {
         {
@@ -87,19 +86,18 @@ static void create_descriptor_pool(PGRAPHState *pg)
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
         .poolSizeCount = ARRAY_SIZE(pool_sizes),
         .pPoolSizes = pool_sizes,
-        .maxSets = ARRAY_SIZE(r->descriptor_sets),
+        .maxSets = ARRAY_SIZE(slot->descriptor_sets),
         .flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
     };
     VK_CHECK(vkCreateDescriptorPool(r->device, &pool_info, NULL,
-                                    &r->descriptor_pool));
+                                    &slot->descriptor_pool));
 }
 
-static void destroy_descriptor_pool(PGRAPHState *pg)
+static void destroy_descriptor_pool(PGRAPHVkState *r,
+                                    PGRAPHVkSubmissionSlot *slot)
 {
-    PGRAPHVkState *r = pg->vk_renderer_state;
-
-    vkDestroyDescriptorPool(r->device, r->descriptor_pool, NULL);
-    r->descriptor_pool = VK_NULL_HANDLE;
+    vkDestroyDescriptorPool(r->device, slot->descriptor_pool, NULL);
+    slot->descriptor_pool = VK_NULL_HANDLE;
 }
 
 static void create_descriptor_set_layout(PGRAPHState *pg)
@@ -145,46 +143,47 @@ static void destroy_descriptor_set_layout(PGRAPHState *pg)
     r->descriptor_set_layout = VK_NULL_HANDLE;
 }
 
-static void create_descriptor_sets(PGRAPHState *pg)
+static void create_descriptor_sets(PGRAPHVkState *r,
+                                   PGRAPHVkSubmissionSlot *slot)
 {
-    PGRAPHVkState *r = pg->vk_renderer_state;
-
-    VkDescriptorSetLayout layouts[ARRAY_SIZE(r->descriptor_sets)];
+    VkDescriptorSetLayout layouts[ARRAY_SIZE(slot->descriptor_sets)];
     for (int i = 0; i < ARRAY_SIZE(layouts); i++) {
         layouts[i] = r->descriptor_set_layout;
     }
 
     VkDescriptorSetAllocateInfo alloc_info = {
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-        .descriptorPool = r->descriptor_pool,
-        .descriptorSetCount = ARRAY_SIZE(r->descriptor_sets),
+        .descriptorPool = slot->descriptor_pool,
+        .descriptorSetCount = ARRAY_SIZE(slot->descriptor_sets),
         .pSetLayouts = layouts,
     };
     VK_CHECK(
-        vkAllocateDescriptorSets(r->device, &alloc_info, r->descriptor_sets));
+        vkAllocateDescriptorSets(r->device, &alloc_info,
+                                 slot->descriptor_sets));
 }
 
-static void destroy_descriptor_sets(PGRAPHState *pg)
+static void destroy_descriptor_sets(PGRAPHVkState *r,
+                                    PGRAPHVkSubmissionSlot *slot)
 {
-    PGRAPHVkState *r = pg->vk_renderer_state;
-
-    vkFreeDescriptorSets(r->device, r->descriptor_pool,
-                         ARRAY_SIZE(r->descriptor_sets), r->descriptor_sets);
-    for (int i = 0; i < ARRAY_SIZE(r->descriptor_sets); i++) {
-        r->descriptor_sets[i] = VK_NULL_HANDLE;
+    vkFreeDescriptorSets(r->device, slot->descriptor_pool,
+                         ARRAY_SIZE(slot->descriptor_sets),
+                         slot->descriptor_sets);
+    for (int i = 0; i < ARRAY_SIZE(slot->descriptor_sets); i++) {
+        slot->descriptor_sets[i] = VK_NULL_HANDLE;
     }
 }
 
 void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
+    PGRAPHVkSubmissionSlot *slot = pgraph_vk_current_submission_slot(r);
 
     bool need_uniform_write =
         r->uniforms_changed ||
-        !r->storage_buffers[BUFFER_UNIFORM_STAGING].buffer_offset;
+        !pgraph_vk_buffer_get_write_offset(pg, BUFFER_UNIFORM_STAGING);
 
     bool need_descriptor_write = pgraph_vk_descriptor_set_needs_write(
-        r->descriptor_set_index, r->shader_bindings_changed,
+        slot->state.descriptor_set_index, r->shader_bindings_changed,
         r->texture_bindings_changed);
 
     if (!(need_descriptor_write || need_uniform_write)) {
@@ -207,10 +206,12 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
 
     bool need_descriptor_write_reset =
         need_descriptor_write &&
-        (r->descriptor_set_index >= ARRAY_SIZE(r->descriptor_sets));
+        (slot->state.descriptor_set_index >=
+         ARRAY_SIZE(slot->descriptor_sets));
 
     if (need_descriptor_write_reset || need_ubo_staging_buffer_reset) {
         pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+        slot = pgraph_vk_current_submission_slot(r);
         need_uniform_write = true;
         need_descriptor_write = true;
     }
@@ -218,7 +219,8 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
     VkWriteDescriptorSet descriptor_writes[2 + NV2A_MAX_TEXTURES];
 
     assert(!need_descriptor_write ||
-           r->descriptor_set_index < ARRAY_SIZE(r->descriptor_sets));
+           slot->state.descriptor_set_index <
+               ARRAY_SIZE(slot->descriptor_sets));
 
     if (need_uniform_write) {
         for (int i = 0; i < ARRAY_SIZE(layouts); i++) {
@@ -230,7 +232,7 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
             bool valid = pgraph_vk_get_dynamic_uniform_offset(
                 offset,
                 r->device_props.limits.minUniformBufferOffsetAlignment,
-                &r->uniform_buffer_offsets[i]);
+                &slot->state.uniform_buffer_offsets[i]);
             assert(valid);
         }
 
@@ -238,6 +240,9 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
     }
 
     if (need_descriptor_write) {
+        uint32_t descriptor_set_index =
+            pgraph_vk_submission_slot_allocate_descriptor_set(
+                &slot->state, ARRAY_SIZE(slot->descriptor_sets));
         VkDescriptorBufferInfo ubo_buffer_infos[2];
         for (int i = 0; i < ARRAY_SIZE(layouts); i++) {
             ubo_buffer_infos[i] = (VkDescriptorBufferInfo){
@@ -247,7 +252,7 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
             };
             descriptor_writes[i] = (VkWriteDescriptorSet){
                 .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-                .dstSet = r->descriptor_sets[r->descriptor_set_index],
+                .dstSet = slot->descriptor_sets[descriptor_set_index],
                 .dstBinding = i == 0 ? VSH_UBO_BINDING : PSH_UBO_BINDING,
                 .dstArrayElement = 0,
                 .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
@@ -265,7 +270,7 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
             };
             descriptor_writes[2 + i] = (VkWriteDescriptorSet){
                 .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-                .dstSet = r->descriptor_sets[r->descriptor_set_index],
+                .dstSet = slot->descriptor_sets[descriptor_set_index],
                 .dstBinding = PSH_TEX_BINDING + i,
                 .dstArrayElement = 0,
                 .descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
@@ -275,7 +280,6 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
         }
 
         vkUpdateDescriptorSets(r->device, 6, descriptor_writes, 0, NULL);
-        r->descriptor_set_index++;
     }
 }
 
@@ -643,9 +647,11 @@ void pgraph_vk_init_shaders(PGRAPHState *pg)
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     pgraph_vk_init_glsl_compiler();
-    create_descriptor_pool(pg);
     create_descriptor_set_layout(pg);
-    create_descriptor_sets(pg);
+    for (size_t i = 0; i < ARRAY_SIZE(r->submission_slots); i++) {
+        create_descriptor_pool(r, &r->submission_slots[i]);
+        create_descriptor_sets(r, &r->submission_slots[i]);
+    }
     shader_cache_init(pg);
 
     r->use_push_constants_for_uniform_attrs =
@@ -656,9 +662,13 @@ void pgraph_vk_init_shaders(PGRAPHState *pg)
 
 void pgraph_vk_finalize_shaders(PGRAPHState *pg)
 {
+    PGRAPHVkState *r = pg->vk_renderer_state;
+
     shader_cache_finalize(pg);
-    destroy_descriptor_sets(pg);
+    for (size_t i = 0; i < ARRAY_SIZE(r->submission_slots); i++) {
+        destroy_descriptor_sets(r, &r->submission_slots[i]);
+        destroy_descriptor_pool(r, &r->submission_slots[i]);
+    }
     destroy_descriptor_set_layout(pg);
-    destroy_descriptor_pool(pg);
     pgraph_vk_finalize_glsl_compiler();
 }

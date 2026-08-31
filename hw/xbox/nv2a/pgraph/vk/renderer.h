@@ -333,6 +333,7 @@ typedef struct PGRAPHVkComputeState {
 } PGRAPHVkComputeState;
 
 #define PGRAPH_VK_SUBMISSION_SLOT_COUNT 2
+#define PGRAPH_VK_DESCRIPTOR_SETS_PER_SLOT 1024
 
 typedef struct PGRAPHVkSubmissionSlot {
     PGRAPHVkSubmissionSlotState state;
@@ -340,6 +341,8 @@ typedef struct PGRAPHVkSubmissionSlot {
     VkCommandBuffer aux_command_buffer;
     VkSemaphore aux_complete_semaphore;
     VkFence fence;
+    VkDescriptorPool descriptor_pool;
+    VkDescriptorSet descriptor_sets[PGRAPH_VK_DESCRIPTOR_SETS_PER_SLOT];
 } PGRAPHVkSubmissionSlot;
 
 typedef struct PGRAPHVkState {
@@ -395,10 +398,7 @@ typedef struct PGRAPHVkState {
     PipelineBinding *pipeline_binding;
     bool pipeline_binding_changed;
 
-    VkDescriptorPool descriptor_pool;
     VkDescriptorSetLayout descriptor_set_layout;
-    VkDescriptorSet descriptor_sets[1024];
-    int descriptor_set_index;
 
     StorageBuffer storage_buffers[BUFFER_COUNT];
 
@@ -443,8 +443,6 @@ typedef struct PGRAPHVkState {
     GPtrArray *shader_module_cache_blocks;
     size_t shader_module_cache_num_entries;
 
-    // FIXME: Merge these into a structure
-    uint32_t uniform_buffer_offsets[2];
     bool uniforms_changed;
 
     VkQueryPool query_pool;
@@ -463,6 +461,13 @@ typedef struct PGRAPHVkState {
     PGRAPHVkDisplayState display;
     PGRAPHVkComputeState compute;
 } PGRAPHVkState;
+
+static inline PGRAPHVkSubmissionSlot *pgraph_vk_current_submission_slot(
+    PGRAPHVkState *r)
+{
+    assert(r->active_submission_slot < ARRAY_SIZE(r->submission_slots));
+    return &r->submission_slots[r->active_submission_slot];
+}
 
 // renderer.c
 void pgraph_vk_check_memory_budget(PGRAPHState *pg);
@@ -523,6 +528,9 @@ bool pgraph_vk_prepare_buffer_pair(PGRAPHState *pg, int index,
 VkDeviceSize pgraph_vk_append_to_buffer(PGRAPHState *pg, int index, void **data,
                                         VkDeviceSize *sizes, size_t count,
                                         VkDeviceAddress alignment);
+VkDeviceSize pgraph_vk_buffer_get_write_offset(PGRAPHState *pg, int index);
+void pgraph_vk_buffer_set_write_offset(PGRAPHState *pg, int index,
+                                       VkDeviceSize offset);
 
 // command.c
 void pgraph_vk_init_command_buffers(PGRAPHState *pg);

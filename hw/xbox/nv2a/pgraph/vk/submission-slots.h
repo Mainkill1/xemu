@@ -12,6 +12,10 @@
 typedef struct PGRAPHVkSubmissionSlotState {
     bool in_flight;
     uint32_t submission_serial;
+    uint32_t descriptor_set_index;
+    uint32_t uniform_buffer_offsets[2];
+    /* Cursor into shared buffers; backing storage is not yet per-slot. */
+    uint64_t uniform_staging_offset;
 } PGRAPHVkSubmissionSlotState;
 
 static inline uint32_t pgraph_vk_next_submission_slot(uint32_t current,
@@ -35,6 +39,24 @@ static inline void pgraph_vk_submission_slot_mark_retired(
 {
     assert(slot->in_flight);
     slot->in_flight = false;
+}
+
+static inline uint32_t pgraph_vk_submission_slot_allocate_descriptor_set(
+    PGRAPHVkSubmissionSlotState *slot, uint32_t capacity)
+{
+    assert(!slot->in_flight);
+    assert(slot->descriptor_set_index < capacity);
+    return slot->descriptor_set_index++;
+}
+
+static inline void pgraph_vk_submission_slot_reset_transients(
+    PGRAPHVkSubmissionSlotState *slot)
+{
+    assert(!slot->in_flight);
+    slot->descriptor_set_index = 0;
+    slot->uniform_buffer_offsets[0] = 0;
+    slot->uniform_buffer_offsets[1] = 0;
+    slot->uniform_staging_offset = 0;
 }
 
 #endif
