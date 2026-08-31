@@ -620,11 +620,13 @@ static void pgraph_method_inc(MethodFunc handler, uint32_t end,
     *num_words_consumed = count;
 }
 
-static void pgraph_expand_draw_arrays(NV2AState *d);
-static bool pgraph_method_array_bulk(NV2AState *d, PGRAPHState *pg,
-                                     unsigned int method,
-                                     uint32_t *parameters,
-                                     size_t num_words_available);
+static bool pgraph_expand_draw_arrays(NV2AState *d);
+static size_t pgraph_method_array_bulk(NV2AState *d, PGRAPHState *pg,
+                                       unsigned int subchannel,
+                                       unsigned int method,
+                                       uint32_t parameter,
+                                       uint32_t *parameters,
+                                       size_t num_words_available);
 
 static void pgraph_method_non_inc(MethodFunc handler, METHOD_HANDLER_ARG_DECL)
 {
@@ -643,12 +645,16 @@ static void pgraph_method_non_inc(MethodFunc handler, METHOD_HANDLER_ARG_DECL)
         case PGRAPH_INLINE_PACKET_SCALAR_TRACE:
             break;
         case PGRAPH_INLINE_PACKET_BULK:
-            if (pgraph_method_array_bulk(d, pg, method, parameters,
-                                         num_words_available)) {
-                *num_words_consumed = num_words_available;
+        {
+            size_t bulk_words = pgraph_method_array_bulk(
+                d, pg, subchannel, method, parameter, parameters,
+                num_words_available);
+            if (bulk_words) {
+                *num_words_consumed = bulk_words;
                 return;
             }
             break;
+        }
         default:
             g_assert_not_reached();
         }
@@ -2743,7 +2749,33 @@ DEF_METHOD(NV097, SET_TEXTURE_SET_BUMP_ENV_OFFSET)
     pgraph_reg_w(pg, NV_PGRAPH_BUMPOFFSET1 + slot * 4, parameter);
 }
 
-static void pgraph_expand_draw_arrays(NV2AState *d)
+static void pgraph_raise_method_error(NV2AState *d, PGRAPHState *pg,
+                                      unsigned int subchannel,
+                                      unsigned int method,
+                                      uint32_t parameter)
+{
+    unsigned int channel_id =
+        PG_GET_MASK(NV_PGRAPH_CTX_USER, NV_PGRAPH_CTX_USER_CHID);
+
+    PG_SET_MASK(NV_PGRAPH_TRAPPED_ADDR, NV_PGRAPH_TRAPPED_ADDR_CHID,
+                channel_id);
+    PG_SET_MASK(NV_PGRAPH_TRAPPED_ADDR, NV_PGRAPH_TRAPPED_ADDR_SUBCH,
+                subchannel);
+    PG_SET_MASK(NV_PGRAPH_TRAPPED_ADDR, NV_PGRAPH_TRAPPED_ADDR_MTHD,
+                method);
+    pgraph_reg_w(pg, NV_PGRAPH_TRAPPED_DATA_LOW, parameter);
+    pgraph_reg_w(pg, NV_PGRAPH_NSOURCE, NV_PGRAPH_NSOURCE_NOTIFICATION);
+    pg->pending_interrupts |= NV_PGRAPH_INTR_ERROR;
+    qatomic_set(&pg->waiting_for_nop, true);
+
+    qemu_mutex_unlock(&pg->lock);
+    bql_lock();
+    nv2a_update_irq(d);
+    bql_unlock();
+    qemu_mutex_lock(&pg->lock);
+}
+
+static bool pgraph_expand_draw_arrays(NV2AState *d)
 {
     PGRAPHState *pg = &d->pgraph;
     uint32_t start = pg->draw_arrays_start[pg->draw_arrays_length - 1];
@@ -2756,18 +2788,24 @@ static void pgraph_expand_draw_arrays(NV2AState *d)
         d->pgraph.renderer->ops.flush_draw(d);
         pgraph_reset_inline_buffers(pg);
     }
-    assert((pg->inline_elements_length + count) < NV2A_MAX_BATCH_LENGTH);
+    if (!pgraph_inline_packet_fits(pg->inline_elements_length, count, 1,
+                                   NV2A_MAX_BATCH_LENGTH)) {
+        return false;
+    }
     for (unsigned int i = 0; i < count; i++) {
         pg->inline_elements[pg->inline_elements_length++] = start + i;
     }
 
     pgraph_reset_draw_arrays(pg);
+    return true;
 }
 
-static bool pgraph_method_array_bulk(NV2AState *d, PGRAPHState *pg,
-                                     unsigned int method,
-                                     uint32_t *parameters,
-                                     size_t num_words_available)
+static size_t pgraph_method_array_bulk(NV2AState *d, PGRAPHState *pg,
+                                       unsigned int subchannel,
+                                       unsigned int method,
+                                       uint32_t parameter,
+                                       uint32_t *parameters,
+                                       size_t num_words_available)
 {
     size_t values_per_word = method == NV097_ARRAY_ELEMENT16 ? 2 : 1;
     unsigned int *length;
@@ -2781,37 +2819,51 @@ static bool pgraph_method_array_bulk(NV2AState *d, PGRAPHState *pg,
     } else if (method == NV097_ARRAY_ELEMENT16 ||
                method == NV097_ARRAY_ELEMENT32) {
         if (pg->draw_arrays_length) {
-            pgraph_expand_draw_arrays(d);
+            if (!pgraph_expand_draw_arrays(d)) {
+                pgraph_raise_method_error(d, pg, subchannel, method,
+                                          parameter);
+                return 1;
+            }
         }
         length = &pg->inline_elements_length;
         destination = pg->inline_elements;
     } else {
-        return false;
+        return 0;
+    }
+
+    if (!num_words_available) {
+        return 0;
     }
 
     /*
-     * Preflight the whole packet before mutating the destination. In
-     * particular, ARRAY_ELEMENT16 writes two values for every input word.
+     * PFIFO will present unconsumed words again on its next iteration. Copy
+     * only the prefix that fits; once the fixed guest-visible batch is full,
+     * the next word takes the normal PGRAPH method-error path.
      */
-    assert(pgraph_inline_packet_fits(*length, num_words_available,
-                                     values_per_word,
-                                     NV2A_MAX_BATCH_LENGTH));
+    size_t words_to_copy = MIN(
+        num_words_available,
+        pgraph_inline_packet_words_available(*length, values_per_word,
+                                             NV2A_MAX_BATCH_LENGTH));
+    if (!words_to_copy) {
+        pgraph_raise_method_error(d, pg, subchannel, method, parameter);
+        return 1;
+    }
 
     size_t output_length = *length;
     if (method == NV097_ARRAY_ELEMENT16) {
-        for (size_t i = 0; i < num_words_available; i++) {
+        for (size_t i = 0; i < words_to_copy; i++) {
             uint32_t value = ldl_le_p(parameters + i);
             pgraph_inline_element16_store(destination + output_length, value);
             output_length += 2;
         }
     } else {
-        for (size_t i = 0; i < num_words_available; i++) {
+        for (size_t i = 0; i < words_to_copy; i++) {
             destination[output_length++] = ldl_le_p(parameters + i);
         }
     }
 
     *length = output_length;
-    return true;
+    return words_to_copy;
 }
 
 void pgraph_check_within_begin_end_block(PGRAPHState *pg)
@@ -2826,11 +2878,17 @@ DEF_METHOD_NON_INC(NV097, ARRAY_ELEMENT16)
     pgraph_check_within_begin_end_block(pg);
 
     if (pg->draw_arrays_length) {
-        pgraph_expand_draw_arrays(d);
+        if (!pgraph_expand_draw_arrays(d)) {
+            pgraph_raise_method_error(d, pg, subchannel, method, parameter);
+            return;
+        }
     }
 
-    assert(pgraph_inline_packet_fits(pg->inline_elements_length, 1, 2,
-                                     NV2A_MAX_BATCH_LENGTH));
+    if (!pgraph_inline_packet_fits(pg->inline_elements_length, 1, 2,
+                                   NV2A_MAX_BATCH_LENGTH)) {
+        pgraph_raise_method_error(d, pg, subchannel, method, parameter);
+        return;
+    }
     pgraph_inline_element16_store(
         pg->inline_elements + pg->inline_elements_length, parameter);
     pg->inline_elements_length += 2;
@@ -2841,10 +2899,16 @@ DEF_METHOD_NON_INC(NV097, ARRAY_ELEMENT32)
     pgraph_check_within_begin_end_block(pg);
 
     if (pg->draw_arrays_length) {
-        pgraph_expand_draw_arrays(d);
+        if (!pgraph_expand_draw_arrays(d)) {
+            pgraph_raise_method_error(d, pg, subchannel, method, parameter);
+            return;
+        }
     }
 
-    assert(pg->inline_elements_length < NV2A_MAX_BATCH_LENGTH);
+    if (pg->inline_elements_length >= NV2A_MAX_BATCH_LENGTH) {
+        pgraph_raise_method_error(d, pg, subchannel, method, parameter);
+        return;
+    }
     pg->inline_elements[pg->inline_elements_length++] = parameter;
 }
 
@@ -2861,7 +2925,11 @@ DEF_METHOD(NV097, DRAW_ARRAYS)
          * NV2A_MAX_BATCH_LENGTH (which must be larger to accommodate
          * NV097_INLINE_ARRAY anyway)
          */
-        assert((pg->inline_elements_length + count) < NV2A_MAX_BATCH_LENGTH);
+        if (!pgraph_inline_packet_fits(pg->inline_elements_length, count, 1,
+                                       NV2A_MAX_BATCH_LENGTH)) {
+            pgraph_raise_method_error(d, pg, subchannel, method, parameter);
+            return;
+        }
         assert(!pg->draw_arrays_prevent_connect);
 
         for (unsigned int i = 0; i < count; i++) {
@@ -2873,7 +2941,10 @@ DEF_METHOD(NV097, DRAW_ARRAYS)
     pg->draw_arrays_min_start = MIN(pg->draw_arrays_min_start, start);
     pg->draw_arrays_max_count = MAX(pg->draw_arrays_max_count, start + count);
 
-    assert(pg->draw_arrays_length < ARRAY_SIZE(pg->draw_arrays_start));
+    if (pg->draw_arrays_length >= ARRAY_SIZE(pg->draw_arrays_start)) {
+        pgraph_raise_method_error(d, pg, subchannel, method, parameter);
+        return;
+    }
 
     /* Attempt to connect contiguous primitives */
     if (!pg->draw_arrays_prevent_connect && pg->draw_arrays_length > 0) {
@@ -2896,7 +2967,10 @@ DEF_METHOD(NV097, DRAW_ARRAYS)
 DEF_METHOD_NON_INC(NV097, INLINE_ARRAY)
 {
     pgraph_check_within_begin_end_block(pg);
-    assert(pg->inline_array_length < NV2A_MAX_BATCH_LENGTH);
+    if (pg->inline_array_length >= NV2A_MAX_BATCH_LENGTH) {
+        pgraph_raise_method_error(d, pg, subchannel, method, parameter);
+        return;
+    }
     pg->inline_array[pg->inline_array_length++] = parameter;
 }
 

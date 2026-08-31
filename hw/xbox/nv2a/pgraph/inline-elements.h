@@ -43,6 +43,16 @@ static inline bool pgraph_inline_packet_fits(size_t current_length,
            (capacity - current_length) / values_per_word;
 }
 
+static inline size_t pgraph_inline_packet_words_available(
+    size_t current_length, size_t values_per_word, size_t capacity)
+{
+    if (!values_per_word || current_length > capacity) {
+        return 0;
+    }
+
+    return (capacity - current_length) / values_per_word;
+}
+
 static inline void pgraph_inline_element16_store(uint32_t *destination,
                                                  uint32_t parameter)
 {
