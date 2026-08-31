@@ -405,18 +405,6 @@ void pgraph_vk_init_pipelines(PGRAPHState *pg)
     init_clear_shaders(pg);
     init_render_passes(r);
     init_framebuffer_cache(r);
-
-    VkSemaphoreCreateInfo semaphore_info = {
-        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO
-    };
-    VK_CHECK(vkCreateSemaphore(r->device, &semaphore_info, NULL,
-                               &r->command_buffer_semaphore));
-
-    VkFenceCreateInfo fence_info = {
-        .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-    };
-    VK_CHECK(
-        vkCreateFence(r->device, &fence_info, NULL, &r->command_buffer_fence));
 }
 
 void pgraph_vk_finalize_pipelines(PGRAPHState *pg)
@@ -427,9 +415,6 @@ void pgraph_vk_finalize_pipelines(PGRAPHState *pg)
     finalize_pipeline_cache(pg);
     finalize_framebuffer_cache(r);
     finalize_render_passes(r);
-
-    vkDestroyFence(r->device, r->command_buffer_fence, NULL);
-    vkDestroySemaphore(r->device, r->command_buffer_semaphore, NULL);
 }
 
 static void init_render_pass_state(PGRAPHState *pg, RenderPassState *state)
@@ -1547,6 +1532,12 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
     assert(r->debug_depth == 0);
 
     if (r->in_command_buffer) {
+        PGRAPHVkSubmissionSlot *slot =
+            &r->submission_slots[r->active_submission_slot];
+        assert(r->command_buffer == slot->command_buffer);
+        assert(r->aux_command_buffer == slot->aux_command_buffer);
+        assert(!slot->state.in_flight);
+
         nv2a_profile_inc_counter(finish_reason_to_counter_enum[finish_reason]);
 
         if (r->in_render_pass) {
@@ -1574,7 +1565,7 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
                 .commandBufferCount = 1,
                 .pCommandBuffers = &r->aux_command_buffer,
                 .signalSemaphoreCount = 1,
-                .pSignalSemaphores = &r->command_buffer_semaphore,
+                .pSignalSemaphores = &slot->aux_complete_semaphore,
             },
             {
 
@@ -1582,15 +1573,17 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
                 .commandBufferCount = 1,
                 .pCommandBuffers = &r->command_buffer,
                 .waitSemaphoreCount = 1,
-                .pWaitSemaphores = &r->command_buffer_semaphore,
+                .pWaitSemaphores = &slot->aux_complete_semaphore,
                 .pWaitDstStageMask = &wait_stage,
             }
         };
         nv2a_profile_inc_counter(NV2A_PROF_QUEUE_SUBMIT);
-        vkResetFences(r->device, 1, &r->command_buffer_fence);
+        vkResetFences(r->device, 1, &slot->fence);
         VK_CHECK(vkQueueSubmit(r->queue, ARRAY_SIZE(submit_infos), submit_infos,
-                               r->command_buffer_fence));
+                               slot->fence));
         r->submit_count += 1;
+        pgraph_vk_submission_slot_mark_submitted(&slot->state,
+                                                  r->submit_count);
 
         bool check_budget = false;
 
@@ -1606,11 +1599,18 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
             check_budget = true;
         }
 
-        VK_CHECK(vkWaitForFences(r->device, 1, &r->command_buffer_fence,
-                                 VK_TRUE, UINT64_MAX));
+        /*
+         * This phase deliberately remains synchronous. Later phases can
+         * retire this slot when it is selected again after transient
+         * resources and queries have also become slot-owned.
+         */
+        VK_CHECK(vkWaitForFences(r->device, 1, &slot->fence, VK_TRUE,
+                                 UINT64_MAX));
+        pgraph_vk_submission_slot_mark_retired(&slot->state);
 
         r->descriptor_set_index = 0;
         r->in_command_buffer = false;
+        pgraph_vk_advance_submission_slot(pg);
         if (check_budget) {
             pgraph_vk_check_memory_budget(pg);
         }

@@ -40,6 +40,7 @@
 #include "blend-constants-cache.h"
 #include "descriptor-update.h"
 #include "framebuffer-cache.h"
+#include "submission-slots.h"
 #include "debug.h"
 #include "constants.h"
 #include "glsl.h"
@@ -331,6 +332,16 @@ typedef struct PGRAPHVkComputeState {
     size_t pipeline_cache_num_entries;
 } PGRAPHVkComputeState;
 
+#define PGRAPH_VK_SUBMISSION_SLOT_COUNT 2
+
+typedef struct PGRAPHVkSubmissionSlot {
+    PGRAPHVkSubmissionSlotState state;
+    VkCommandBuffer command_buffer;
+    VkCommandBuffer aux_command_buffer;
+    VkSemaphore aux_complete_semaphore;
+    VkFence fence;
+} PGRAPHVkSubmissionSlot;
+
 typedef struct PGRAPHVkState {
     uint32_t vk_api_version;
     VkInstance instance;
@@ -351,11 +362,12 @@ typedef struct PGRAPHVkState {
 
     VkQueue queue;
     VkCommandPool command_pool;
-    VkCommandBuffer command_buffers[2];
+    PGRAPHVkSubmissionSlot
+        submission_slots[PGRAPH_VK_SUBMISSION_SLOT_COUNT];
+    uint32_t active_submission_slot;
 
+    /* Aliases for the active slot while the renderer remains single-flight. */
     VkCommandBuffer command_buffer;
-    VkSemaphore command_buffer_semaphore;
-    VkFence command_buffer_fence;
     unsigned int command_buffer_start_time;
     bool in_command_buffer;
     uint32_t submit_count;
@@ -623,6 +635,7 @@ void pgraph_vk_flush_draw(NV2AState *d);
 void pgraph_vk_invalidate_blend_constants(PGRAPHState *pg);
 void pgraph_vk_begin_command_buffer(PGRAPHState *pg);
 void pgraph_vk_ensure_command_buffer(PGRAPHState *pg);
+void pgraph_vk_advance_submission_slot(PGRAPHState *pg);
 void pgraph_vk_ensure_not_in_render_pass(PGRAPHState *pg);
 
 VkCommandBuffer pgraph_vk_begin_nondraw_commands(PGRAPHState *pg);
