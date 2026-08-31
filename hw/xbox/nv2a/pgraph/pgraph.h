@@ -32,6 +32,7 @@
 #include "surface.h"
 #include "texture.h"
 #include "uniform-dirty.h"
+#include "atomic-state.h"
 #include "util.h"
 #include "vsh_regs.h"
 
@@ -304,16 +305,13 @@ extern NV2AState *g_nv2a;
 static inline uint32_t pgraph_reg_r(PGRAPHState *pg, unsigned int r)
 {
     assert(r % 4 == 0);
-    return pg->regs_[r];
+    return pgraph_atomic_reg_read(pg->regs_, r);
 }
 
 static inline void pgraph_reg_w(PGRAPHState *pg, unsigned int r, uint32_t v)
 {
     assert(r % 4 == 0);
-    if (pg->regs_[r] != v) {
-        bitmap_set(pg->regs_dirty, r / sizeof(uint32_t), 1);
-    }
-    pg->regs_[r] = v;
+    pgraph_atomic_reg_write(pg->regs_, pg->regs_dirty, r, v);
 }
 
 static inline void pgraph_uniform_u32_row_w(PGRAPHState *pg,
@@ -327,19 +325,16 @@ static inline void pgraph_uniform_u32_row_w(PGRAPHState *pg,
 }
 
 /*
- * Variant of pgraph_reg_w for registers that pgraph_read serves without
- * taking pg->lock: the atomic store keeps the compiler from tearing or
- * eliding the write under a concurrent lock-free reader. Writers remain
- * serialized by pg->lock, so the dirty-tracking compare can stay plain.
+ * Kept as a named variant for fence-write ordering call sites. All register
+ * storage accesses are atomic because a small set of registers is polled
+ * without pg->lock. Writers remain serialized by pg->lock, so dirty bitmap
+ * updates still rely on writer-side locking.
  */
 static inline void pgraph_reg_w_atomic(PGRAPHState *pg, unsigned int r,
                                        uint32_t v)
 {
     assert(r % 4 == 0);
-    if (pg->regs_[r] != v) {
-        bitmap_set(pg->regs_dirty, r / sizeof(uint32_t), 1);
-    }
-    qatomic_set(&pg->regs_[r], v);
+    pgraph_atomic_reg_write(pg->regs_, pg->regs_dirty, r, v);
 }
 
 void pgraph_clear_dirty_reg_map(PGRAPHState *pg);

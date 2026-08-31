@@ -320,9 +320,9 @@ static void nv2a_reset(NV2AState *d)
     /* seems to start in color mode */
     d->vga.msr = VGA_MIS_COLOR;
 
-    d->pgraph.waiting_for_nop = false;
-    d->pgraph.waiting_for_flip = false;
-    d->pgraph.waiting_for_context_switch = false;
+    qatomic_set(&d->pgraph.waiting_for_nop, false);
+    qatomic_set(&d->pgraph.waiting_for_flip, false);
+    qatomic_set(&d->pgraph.waiting_for_context_switch, false);
 
     d->pmc.pending_interrupts = 0;
     d->pfifo.pending_interrupts = 0;
