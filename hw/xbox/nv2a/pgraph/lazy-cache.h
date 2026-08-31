@@ -22,27 +22,13 @@ static inline size_t pgraph_lazy_cache_growth_count(
     return remaining < block_entries ? remaining : block_entries;
 }
 
-static inline bool pgraph_lazy_cache_contains_key(
-    Lru *lru, uint64_t hash, const void *key)
-{
-    unsigned int bin = lru_hash_to_bin(lru, hash);
-    LruNode *node;
-
-    QTAILQ_FOREACH(node, &lru->bins[bin], next_bin) {
-        if (node->hash == hash && !lru->compare_nodes(lru, node, key)) {
-            return true;
-        }
-    }
-    return false;
-}
-
 static inline size_t pgraph_lazy_cache_growth_for_lookup(
     Lru *lru, size_t num_entries, size_t max_entries, size_t block_entries,
     uint64_t hash, const void *key)
 {
     bool key_present = false;
     if (!lru->num_free && num_entries < max_entries) {
-        key_present = pgraph_lazy_cache_contains_key(lru, hash, key);
+        key_present = lru_contains_key(lru, hash, key);
     }
     return pgraph_lazy_cache_growth_count(
         num_entries, max_entries, block_entries, lru->num_free, key_present);

@@ -71,6 +71,7 @@ static void test_cache_init(TestCache *cache)
 static void test_cache_destroy(TestCache *cache)
 {
     lru_flush(&cache->lru);
+    g_assert_null(cache->lru.bin_blocks);
     g_ptr_array_free(cache->blocks, true);
 }
 
