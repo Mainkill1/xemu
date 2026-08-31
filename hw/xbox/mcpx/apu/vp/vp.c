@@ -1583,6 +1583,77 @@ static void get_voice_bin_src_dst(MCPXAPUState *d, int v,
     }
 }
 
+static void
+voice_work_clear_mixbins(float mixbins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME],
+                         uint32_t touched_mixbins)
+{
+    if (!touched_mixbins) {
+        return;
+    }
+
+    if (mcpx_apu_voice_work_mixbin_mask_is_full(touched_mixbins)) {
+        memset(mixbins, 0,
+               sizeof(float[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME]));
+        return;
+    }
+
+    if (mcpx_apu_voice_work_mixbin_mask_is_dense(touched_mixbins)) {
+        for (int b = 0; b < NUM_MIXBINS; b++) {
+            if (touched_mixbins & (1U << b)) {
+                memset(mixbins[b], 0, sizeof(mixbins[b]));
+            }
+        }
+        return;
+    }
+
+    uint32_t pending_mixbins = touched_mixbins;
+    while (pending_mixbins) {
+        int b = ctz32(pending_mixbins);
+        memset(mixbins[b], 0, sizeof(mixbins[b]));
+        pending_mixbins &= ~(1U << b);
+    }
+}
+
+static void
+voice_work_reduce_mixbins(float dst[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME],
+                          float src[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME],
+                          uint32_t touched_mixbins)
+{
+    if (!touched_mixbins) {
+        return;
+    }
+
+    if (mcpx_apu_voice_work_mixbin_mask_is_full(touched_mixbins)) {
+        for (int b = 0; b < NUM_MIXBINS; b++) {
+            for (int s = 0; s < NUM_SAMPLES_PER_FRAME; s++) {
+                dst[b][s] += src[b][s];
+            }
+        }
+        return;
+    }
+
+    if (mcpx_apu_voice_work_mixbin_mask_is_dense(touched_mixbins)) {
+        for (int b = 0; b < NUM_MIXBINS; b++) {
+            if (!(touched_mixbins & (1U << b))) {
+                continue;
+            }
+            for (int s = 0; s < NUM_SAMPLES_PER_FRAME; s++) {
+                dst[b][s] += src[b][s];
+            }
+        }
+        return;
+    }
+
+    uint32_t pending_mixbins = touched_mixbins;
+    while (pending_mixbins) {
+        int b = ctz32(pending_mixbins);
+        for (int s = 0; s < NUM_SAMPLES_PER_FRAME; s++) {
+            dst[b][s] += src[b][s];
+        }
+        pending_mixbins &= ~(1U << b);
+    }
+}
+
 static void *voice_worker_thread(void *arg)
 {
     VoiceWorker *self = arg;
@@ -1608,12 +1679,7 @@ static void *voice_worker_thread(void *arg)
         qemu_mutex_unlock(&vwd->lock);
 
         // Process queued voices
-        uint32_t pending_mixbins = touched_mixbins;
-        while (pending_mixbins) {
-            int b = ctz32(pending_mixbins);
-            memset(self->mixbins[b], 0, sizeof(self->mixbins[b]));
-            pending_mixbins &= ~(1U << b);
-        }
+        voice_work_clear_mixbins(self->mixbins, touched_mixbins);
         if (d->monitor.point == MCPX_APU_DEBUG_MON_VP) {
             memset(self->sample_buf, 0, sizeof(self->sample_buf));
         }
@@ -1625,14 +1691,8 @@ static void *voice_worker_thread(void *arg)
         qemu_mutex_lock(&vwd->lock);
 
         // Add voice contributions
-        pending_mixbins = touched_mixbins;
-        while (pending_mixbins) {
-            int b = ctz32(pending_mixbins);
-            for (int s = 0; s < NUM_SAMPLES_PER_FRAME; s++) {
-                vwd->mixbins[b][s] += self->mixbins[b][s];
-            }
-            pending_mixbins &= ~(1U << b);
-        }
+        voice_work_reduce_mixbins(vwd->mixbins, self->mixbins,
+                                  touched_mixbins);
         if (d->monitor.point == MCPX_APU_DEBUG_MON_VP) {
             for (int i = 0; i < NUM_SAMPLES_PER_FRAME; i++) {
                 d->vp.sample_buf[i][0] += self->sample_buf[i][0];
@@ -1710,17 +1770,19 @@ static void voice_work_schedule(MCPXAPUState *d)
 
     for (int i = 0; i < vwd->queue_len; i++) {
         uint32_t src, dst, clr;
+        uint32_t touched_mixbins;
         get_voice_bin_src_dst(d, vwd->queue[i].voice, &src, &dst, &clr);
+        touched_mixbins = mcpx_apu_voice_work_touched_mixbins(src, dst, clr);
 
         // Assign voice to worker
         unsigned int worker_id =
             mcpx_apu_voice_work_schedule_assign_one(&schedule, src, dst, clr);
         VoiceWorker *worker = &vwd->workers[worker_id];
         worker->queue[worker->queue_len++] = vwd->queue[i];
-        worker->touched_mixbins |=
-            mcpx_apu_voice_work_touched_mixbins(src, dst, clr);
+        worker->touched_mixbins |= touched_mixbins;
     }
     vwd->workers_pending = schedule.workers_pending;
+    vwd->touched_mixbins = schedule.touched_mixbins;
 }
 
 static void voice_work_signal_scheduled_workers(VoiceWorkDispatch *vwd)
@@ -1777,22 +1839,20 @@ voice_work_dispatch(MCPXAPUState *d,
             goto out;
         }
 
-        memset(vwd->mixbins, 0, sizeof(vwd->mixbins));
         // Signal workers and wait for completion
         voice_work_schedule(d);
+        uint32_t touched_mixbins = vwd->touched_mixbins;
+        voice_work_clear_mixbins(vwd->mixbins, touched_mixbins);
         voice_work_signal_scheduled_workers(vwd);
         while (vwd->workers_pending) {
             qemu_cond_wait(&vwd->work_finished, &vwd->lock);
         }
         assert(!vwd->workers_pending);
         vwd->queue_len = 0;
+        vwd->touched_mixbins = 0;
 
         // Add voice contributions
-        for (int b = 0; b < NUM_MIXBINS; b++) {
-            for (int s = 0; s < NUM_SAMPLES_PER_FRAME; s++) {
-                mixbins[b][s] += vwd->mixbins[b][s];
-            }
-        }
+        voice_work_reduce_mixbins(mixbins, vwd->mixbins, touched_mixbins);
     }
 
 out:

@@ -73,6 +73,7 @@ typedef struct VoiceWorkDispatch {
     uint64_t workers_pending;
     QemuCond work_finished;
     float mixbins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME];
+    uint32_t touched_mixbins;
     VoiceWorkItem queue[MCPX_HW_MAX_VOICES];
     int queue_len;
 } VoiceWorkDispatch;

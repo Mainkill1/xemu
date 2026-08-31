@@ -38,6 +38,7 @@ static void test_bounded_workers_and_signal_count(void)
                          &schedule, 0, 16, 0),
                      ==, 1);
     g_assert_cmphex(schedule.workers_pending, ==, 0x7);
+    g_assert_cmphex(schedule.touched_mixbins, ==, 0x1f);
     g_assert_cmpuint(mcpx_apu_voice_work_signal_count(
                          schedule.workers_pending),
                      ==, 3);
@@ -60,6 +61,8 @@ static void test_grouped_multipass_affinity(void)
                          &schedule, 0, 2, 0),
                      ==, 1);
     g_assert_cmphex(schedule.workers_pending, ==, 0x3);
+    g_assert_cmphex(schedule.touched_mixbins, ==,
+                    ((uint32_t)MULTIPASS_BIN_MASK) | 0x3);
     g_assert_cmpuint(mcpx_apu_voice_work_signal_count(
                          schedule.workers_pending),
                      ==, 2);
@@ -77,6 +80,7 @@ static void test_independent_distribution(void)
                          ==, i);
     }
     g_assert_cmphex(schedule.workers_pending, ==, 0xf);
+    g_assert_cmphex(schedule.touched_mixbins, ==, 0xf);
     g_assert_cmpuint(mcpx_apu_voice_work_signal_count(
                          schedule.workers_pending),
                      ==, 4);
@@ -97,6 +101,21 @@ static void test_touched_mixbin_mask(void)
                      NUM_MIXBINS);
 }
 
+static void test_mixbin_mask_policy(void)
+{
+    uint32_t sparse = 0x5;
+    uint32_t dense = (1U << (VOICE_WORK_DENSE_MIXBIN_THRESHOLD + 1)) - 1;
+    uint32_t full = mcpx_apu_voice_work_full_mixbin_mask();
+
+    g_assert_cmphex(full, ==, UINT32_MAX);
+    g_assert_false(mcpx_apu_voice_work_mixbin_mask_is_full(sparse));
+    g_assert_false(mcpx_apu_voice_work_mixbin_mask_is_dense(sparse));
+    g_assert_false(mcpx_apu_voice_work_mixbin_mask_is_full(dense));
+    g_assert_true(mcpx_apu_voice_work_mixbin_mask_is_dense(dense));
+    g_assert_true(mcpx_apu_voice_work_mixbin_mask_is_full(full));
+    g_assert_true(mcpx_apu_voice_work_mixbin_mask_is_dense(full));
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -110,5 +129,7 @@ int main(int argc, char **argv)
                     test_independent_distribution);
     g_test_add_func("/xbox/apu/voice-work/touched-mixbin-mask",
                     test_touched_mixbin_mask);
+    g_test_add_func("/xbox/apu/voice-work/mixbin-mask-policy",
+                    test_mixbin_mask_policy);
     return g_test_run();
 }

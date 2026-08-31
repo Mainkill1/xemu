@@ -15,12 +15,14 @@
 #include "hw/xbox/mcpx/apu/apu_regs.h"
 
 #define VOICE_WORK_INLINE_QUEUE_THRESHOLD 2
+#define VOICE_WORK_DENSE_MIXBIN_THRESHOLD (NUM_MIXBINS / 2)
 
 typedef struct MCPXAPUVoiceWorkScheduleState {
     unsigned int num_workers;
     unsigned int next_worker_to_schedule;
     bool group;
     uint32_t dirty;
+    uint32_t touched_mixbins;
     uint64_t workers_pending;
 } MCPXAPUVoiceWorkScheduleState;
 
@@ -48,6 +50,27 @@ static inline uint32_t mcpx_apu_voice_work_touched_mixbins(uint32_t src,
     return src | dst | clr;
 }
 
+static inline uint32_t mcpx_apu_voice_work_full_mixbin_mask(void)
+{
+#if NUM_MIXBINS >= 32
+    return UINT32_MAX;
+#else
+    return (1U << NUM_MIXBINS) - 1;
+#endif
+}
+
+static inline bool mcpx_apu_voice_work_mixbin_mask_is_full(uint32_t mask)
+{
+    return mask == mcpx_apu_voice_work_full_mixbin_mask();
+}
+
+static inline bool mcpx_apu_voice_work_mixbin_mask_is_dense(uint32_t mask)
+{
+    return mcpx_apu_voice_work_mixbin_mask_is_full(mask) ||
+           mcpx_apu_voice_work_signal_count(mask) >
+               VOICE_WORK_DENSE_MIXBIN_THRESHOLD;
+}
+
 static inline void mcpx_apu_voice_work_schedule_init(
     MCPXAPUVoiceWorkScheduleState *state, unsigned int num_workers)
 {
@@ -65,6 +88,8 @@ static inline unsigned int mcpx_apu_voice_work_schedule_assign_one(
     uint32_t clr)
 {
     const uint32_t multipass = MULTIPASS_BIN_MASK;
+    const uint32_t touched_mixbins =
+        mcpx_apu_voice_work_touched_mixbins(src, dst, clr);
     unsigned int worker;
 
     assert(state);
@@ -85,6 +110,7 @@ static inline unsigned int mcpx_apu_voice_work_schedule_assign_one(
 
     worker = state->next_worker_to_schedule;
     state->workers_pending |= 1ULL << worker;
+    state->touched_mixbins |= touched_mixbins;
 
     state->dirty = (state->dirty & ~clr) | dst;
     if (clr & multipass) {
