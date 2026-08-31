@@ -80,6 +80,8 @@ static void record_resources(void *opaque)
     g_assert_cmpuint(recorder->slot->uniform_buffer_offsets[0], ==, 256);
     g_assert_cmpuint(recorder->slot->uniform_buffer_offsets[1], ==, 512);
     g_assert_cmpuint(recorder->slot->uniform_staging_offset, ==, 768);
+    g_assert_cmpuint(recorder->slot->num_queries, ==, 3);
+    g_assert_true(recorder->slot->new_query_needed);
     recorder->events[recorder->num_events++] = RETIRE_EVENT_RESOURCES;
 }
 
@@ -101,6 +103,8 @@ static void record_reset_complete(void *opaque)
     g_assert_cmpuint(recorder->slot->submission_serial, ==, 0);
     g_assert_cmpuint(recorder->slot->descriptor_set_index, ==, 0);
     g_assert_cmpuint(recorder->slot->uniform_staging_offset, ==, 0);
+    g_assert_cmpuint(recorder->slot->num_queries, ==, 0);
+    g_assert_false(recorder->slot->new_query_needed);
     recorder->events[recorder->num_events++] = RETIRE_EVENT_RESET_COMPLETE;
 }
 
@@ -110,6 +114,8 @@ static void test_slot_retire_callback_order(void)
         .descriptor_set_index = 5,
         .uniform_buffer_offsets = { 256, 512 },
         .uniform_staging_offset = 768,
+        .num_queries = 3,
+        .new_query_needed = true,
     };
     RetireRecorder recorder = { .slot = &slot };
     const PGRAPHVkSubmissionSlotRetireCallbacks callbacks = {
@@ -177,6 +183,37 @@ static void test_slot_uniform_staging_offsets_are_independent(void)
         ==, 1024);
 }
 
+static void test_slot_query_state_is_independent(void)
+{
+    PGRAPHVkSubmissionSlotState slots[2] = { 0 };
+    uint32_t query_index;
+
+    pgraph_vk_submission_slot_request_new_query(&slots[0]);
+    g_assert_true(pgraph_vk_submission_slot_query_needs_begin(&slots[0]));
+    g_assert_true(pgraph_vk_submission_slot_query_needs_begin(&slots[1]));
+
+    g_assert_true(pgraph_vk_submission_slot_begin_query(
+        &slots[0], 2, &query_index));
+    g_assert_cmpuint(query_index, ==, 0);
+    g_assert_true(slots[0].query_in_flight);
+    g_assert_false(slots[0].new_query_needed);
+    g_assert_cmpuint(slots[1].num_queries, ==, 0);
+
+    g_assert_cmpuint(pgraph_vk_submission_slot_end_query(&slots[0]), ==, 0);
+    pgraph_vk_submission_slot_request_new_query(&slots[0]);
+    g_assert_true(pgraph_vk_submission_slot_begin_query(
+        &slots[0], 2, &query_index));
+    g_assert_cmpuint(query_index, ==, 1);
+    g_assert_cmpuint(pgraph_vk_submission_slot_end_query(&slots[0]), ==, 1);
+    g_assert_false(pgraph_vk_submission_slot_begin_query(
+        &slots[0], 2, &query_index));
+
+    pgraph_vk_submission_slot_reset_transients(&slots[0]);
+    g_assert_cmpuint(slots[0].num_queries, ==, 0);
+    g_assert_false(slots[0].new_query_needed);
+    g_assert_cmpuint(slots[1].num_queries, ==, 0);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -190,5 +227,7 @@ int main(int argc, char **argv)
                     test_slot_transient_allocation);
     g_test_add_func("/xbox/vk-submission-slots/uniform-staging-isolation",
                     test_slot_uniform_staging_offsets_are_independent);
+    g_test_add_func("/xbox/vk-submission-slots/query-state-isolation",
+                    test_slot_query_state_is_independent);
     return g_test_run();
 }

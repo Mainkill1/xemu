@@ -1404,35 +1404,35 @@ static void bind_descriptor_sets(PGRAPHState *pg)
 static void begin_query(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
+    PGRAPHVkSubmissionSlot *slot = pgraph_vk_current_submission_slot(r);
+    uint32_t query_index;
+
     assert(r->in_command_buffer);
     assert(!r->in_render_pass);
-    assert(!r->query_in_flight);
 
-    if (r->num_queries_in_flight >= r->max_queries_in_flight) {
+    if (!pgraph_vk_submission_slot_begin_query(
+            &slot->state, PGRAPH_VK_QUERIES_PER_SLOT, &query_index)) {
         error_report("Vulkan query pool capacity exhausted");
         return;
     }
 
     nv2a_profile_inc_counter(NV2A_PROF_QUERY);
-    vkCmdResetQueryPool(r->command_buffer, r->query_pool,
-                        r->num_queries_in_flight, 1);
-    vkCmdBeginQuery(r->command_buffer, r->query_pool, r->num_queries_in_flight,
+    vkCmdResetQueryPool(r->command_buffer, slot->query_pool, query_index, 1);
+    vkCmdBeginQuery(r->command_buffer, slot->query_pool, query_index,
                     VK_QUERY_CONTROL_PRECISE_BIT);
-
-    r->query_in_flight = true;
-    r->new_query_needed = false;
-    r->num_queries_in_flight++;
 }
 
-static void end_query(PGRAPHVkState *r)
+static void end_query(PGRAPHState *pg)
 {
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    PGRAPHVkSubmissionSlot *slot = pgraph_vk_current_submission_slot(r);
+
     assert(r->in_command_buffer);
     assert(!r->in_render_pass);
-    assert(r->query_in_flight);
 
-    vkCmdEndQuery(r->command_buffer, r->query_pool,
-                  r->num_queries_in_flight - 1);
-    r->query_in_flight = false;
+    uint32_t query_index =
+        pgraph_vk_submission_slot_end_query(&slot->state);
+    vkCmdEndQuery(r->command_buffer, slot->query_pool, query_index);
 }
 
 static void sync_staging_buffer(PGRAPHState *pg, VkCommandBuffer cmd,
@@ -1584,8 +1584,8 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         if (r->in_render_pass) {
             end_render_pass(r);
         }
-        if (r->query_in_flight) {
-            end_query(r);
+        if (slot->state.query_in_flight) {
+            end_query(pg);
         }
         VK_CHECK(vkEndCommandBuffer(r->command_buffer));
 
@@ -1689,8 +1689,9 @@ void pgraph_vk_ensure_not_in_render_pass(PGRAPHState *pg)
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     end_render_pass(r);
-    if (r->query_in_flight) {
-        end_query(r);
+    PGRAPHVkSubmissionSlot *slot = pgraph_vk_current_submission_slot(r);
+    if (slot->state.query_in_flight) {
+        end_query(pg);
     }
 }
 
@@ -1718,6 +1719,7 @@ void pgraph_vk_end_nondraw_commands(PGRAPHState *pg, VkCommandBuffer cmd)
 static bool begin_pre_draw(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
+    PGRAPHVkSubmissionSlot *slot = pgraph_vk_current_submission_slot(r);
 
     assert(r->color_binding || r->zeta_binding);
     assert(!r->color_binding || r->color_binding->initialized);
@@ -1726,8 +1728,8 @@ static bool begin_pre_draw(PGRAPHState *pg)
     /* Finish before creating per-command-buffer framebuffers/descriptors when
      * a report boundary would otherwise need a query beyond the fixed pool. */
     if (!pg->clearing && pg->zpass_pixel_count_enable &&
-        (r->new_query_needed || !r->query_in_flight) &&
-        r->num_queries_in_flight >= r->max_queries_in_flight) {
+        pgraph_vk_submission_slot_query_needs_begin(&slot->state) &&
+        slot->state.num_queries >= PGRAPH_VK_QUERIES_PER_SLOT) {
         pgraph_vk_finish(pg, VK_FINISH_REASON_STALLED);
     }
 
@@ -1805,22 +1807,23 @@ static void update_blend_constants(PGRAPHState *pg,
 static void begin_draw(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
+    PGRAPHVkSubmissionSlot *slot = pgraph_vk_current_submission_slot(r);
 
     assert(r->in_command_buffer);
 
     // Visibility testing
     if (!pg->clearing && pg->zpass_pixel_count_enable) {
-        if (r->new_query_needed && r->query_in_flight) {
+        if (slot->state.new_query_needed && slot->state.query_in_flight) {
             end_render_pass(r);
-            end_query(r);
+            end_query(pg);
         }
-        if (!r->query_in_flight) {
+        if (!slot->state.query_in_flight) {
             end_render_pass(r);
             begin_query(pg);
         }
-    } else if (r->query_in_flight) {
+    } else if (slot->state.query_in_flight) {
         end_render_pass(r);
-        end_query(r);
+        end_query(pg);
     }
 
     if (pg->clearing) {

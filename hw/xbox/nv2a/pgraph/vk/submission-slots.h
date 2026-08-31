@@ -15,8 +15,11 @@ typedef struct PGRAPHVkSubmissionSlotState {
     uint32_t submission_serial;
     uint32_t descriptor_set_index;
     uint32_t uniform_buffer_offsets[2];
-    /* Cursor into shared buffers; backing storage is not yet per-slot. */
+    /* Cursor into this slot's uniform staging buffer. */
     uint64_t uniform_staging_offset;
+    uint32_t num_queries;
+    bool query_in_flight;
+    bool new_query_needed;
 } PGRAPHVkSubmissionSlotState;
 
 typedef void (*PGRAPHVkSubmissionSlotCallback)(void *opaque);
@@ -84,6 +87,45 @@ static inline void pgraph_vk_submission_slot_set_uniform_staging_offset(
     slot->uniform_staging_offset = offset;
 }
 
+static inline void pgraph_vk_submission_slot_request_new_query(
+    PGRAPHVkSubmissionSlotState *slot)
+{
+    assert(!slot->in_flight);
+    slot->new_query_needed = true;
+}
+
+static inline bool pgraph_vk_submission_slot_query_needs_begin(
+    const PGRAPHVkSubmissionSlotState *slot)
+{
+    return slot->new_query_needed || !slot->query_in_flight;
+}
+
+static inline bool pgraph_vk_submission_slot_begin_query(
+    PGRAPHVkSubmissionSlotState *slot, uint32_t capacity,
+    uint32_t *query_index)
+{
+    assert(!slot->in_flight);
+    assert(!slot->query_in_flight);
+    if (!query_index || slot->num_queries >= capacity) {
+        return false;
+    }
+
+    *query_index = slot->num_queries++;
+    slot->query_in_flight = true;
+    slot->new_query_needed = false;
+    return true;
+}
+
+static inline uint32_t pgraph_vk_submission_slot_end_query(
+    PGRAPHVkSubmissionSlotState *slot)
+{
+    assert(!slot->in_flight);
+    assert(slot->query_in_flight);
+    assert(slot->num_queries > 0);
+    slot->query_in_flight = false;
+    return slot->num_queries - 1;
+}
+
 static inline void pgraph_vk_submission_slot_reset_transients(
     PGRAPHVkSubmissionSlotState *slot)
 {
@@ -92,6 +134,9 @@ static inline void pgraph_vk_submission_slot_reset_transients(
     slot->uniform_buffer_offsets[0] = 0;
     slot->uniform_buffer_offsets[1] = 0;
     slot->uniform_staging_offset = 0;
+    assert(!slot->query_in_flight);
+    slot->num_queries = 0;
+    slot->new_query_needed = false;
 }
 
 /*

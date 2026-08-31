@@ -338,6 +338,7 @@ typedef struct PGRAPHVkComputeState {
 
 #define PGRAPH_VK_SUBMISSION_SLOT_COUNT 2
 #define PGRAPH_VK_DESCRIPTOR_SETS_PER_SLOT 1024
+#define PGRAPH_VK_QUERIES_PER_SLOT 1024
 
 typedef struct PGRAPHVkSubmissionSlot {
     PGRAPHVkSubmissionSlotState state;
@@ -349,6 +350,8 @@ typedef struct PGRAPHVkSubmissionSlot {
     VkDescriptorSet descriptor_sets[PGRAPH_VK_DESCRIPTOR_SETS_PER_SLOT];
     StorageBuffer uniform_buffer;
     StorageBuffer uniform_staging_buffer;
+    VkQueryPool query_pool;
+    GArray *report_queue;
 } PGRAPHVkSubmissionSlot;
 
 typedef struct PGRAPHVkState {
@@ -451,13 +454,7 @@ typedef struct PGRAPHVkState {
 
     bool uniforms_changed;
 
-    VkQueryPool query_pool;
-    int max_queries_in_flight; // FIXME: Move out to constant
-    int num_queries_in_flight;
-    bool new_query_needed;
-    bool query_in_flight;
     uint32_t zpass_pixel_count_result;
-    GArray *report_queue;
     uint64_t *query_results;
 
     SurfaceFormatInfo kelvin_surface_zeta_vk_map[3];
@@ -632,6 +629,8 @@ void pgraph_vk_clear_report_value(NV2AState *d);
 void pgraph_vk_get_report(NV2AState *d, uint32_t parameter);
 void pgraph_vk_process_pending_reports(NV2AState *d);
 void pgraph_vk_process_pending_reports_internal(NV2AState *d);
+void pgraph_vk_process_submission_slot_reports(
+    PGRAPHState *pg, PGRAPHVkSubmissionSlot *slot);
 
 typedef enum FinishReason {
     VK_FINISH_REASON_VERTEX_BUFFER_DIRTY,
