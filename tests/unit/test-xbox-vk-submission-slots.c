@@ -5,7 +5,45 @@
  */
 
 #include "qemu/osdep.h"
+#include "hw/xbox/nv2a/pgraph/vk/resource-pins.h"
 #include "hw/xbox/nv2a/pgraph/vk/submission-slots.h"
+
+typedef struct TestPinnedResource {
+    unsigned int refs;
+    unsigned int retains;
+    unsigned int releases;
+} TestPinnedResource;
+
+typedef struct TestPinCallbacks {
+    unsigned int retains;
+    unsigned int releases;
+} TestPinCallbacks;
+
+static void test_resource_retain(void *opaque, void *resource)
+{
+    TestPinCallbacks *callbacks = opaque;
+    TestPinnedResource *test_resource = resource;
+
+    test_resource->refs++;
+    test_resource->retains++;
+    callbacks->retains++;
+}
+
+static void test_resource_release(void *opaque, void *resource)
+{
+    TestPinCallbacks *callbacks = opaque;
+    TestPinnedResource *test_resource = resource;
+
+    g_assert_cmpuint(test_resource->refs, >, 0);
+    test_resource->refs--;
+    test_resource->releases++;
+    callbacks->releases++;
+}
+
+static void alternate_resource_release(void *opaque, void *resource)
+{
+    test_resource_release(opaque, resource);
+}
 
 static void test_slot_selection(void)
 {
@@ -214,6 +252,153 @@ static void test_slot_query_state_is_independent(void)
     g_assert_cmpuint(slots[1].num_queries, ==, 0);
 }
 
+static void test_resource_pins_coalesce_and_grow(void)
+{
+    PGRAPHVkResourcePinRegistry registry;
+    TestPinnedResource resources[6] = { 0 };
+    TestPinCallbacks callbacks = { 0 };
+
+    g_assert_true(pgraph_vk_resource_pin_registry_init(&registry,
+                                                       G_N_ELEMENTS(resources)));
+    g_assert_cmpint(pgraph_vk_resource_pin_registry_try_pin(
+                        &registry, &resources[0], &resources[0],
+                        test_resource_retain, test_resource_release,
+                        &callbacks),
+                    ==, PGRAPH_VK_RESOURCE_PIN_ADDED);
+    g_assert_cmpint(pgraph_vk_resource_pin_registry_try_pin(
+                        &registry, &resources[0], &resources[0],
+                        test_resource_retain, test_resource_release,
+                        &callbacks),
+                    ==, PGRAPH_VK_RESOURCE_PIN_DUPLICATE);
+    g_assert_cmpuint(resources[0].refs, ==, 1);
+    g_assert_cmpuint(callbacks.retains, ==, 1);
+
+    for (size_t i = 1; i < G_N_ELEMENTS(resources); i++) {
+        g_assert_cmpint(pgraph_vk_resource_pin_registry_try_pin(
+                            &registry, &resources[i], &resources[i],
+                            test_resource_retain, test_resource_release,
+                            &callbacks),
+                        ==, PGRAPH_VK_RESOURCE_PIN_ADDED);
+    }
+    g_assert_cmpuint(registry.count, ==, G_N_ELEMENTS(resources));
+    g_assert_cmpuint(registry.capacity, >=, 16);
+    g_assert_cmpuint(callbacks.retains, ==, G_N_ELEMENTS(resources));
+    for (size_t i = 0; i < G_N_ELEMENTS(resources); i++) {
+        g_assert_cmpint(pgraph_vk_resource_pin_registry_try_pin(
+                            &registry, &resources[i], &resources[i],
+                            test_resource_retain, test_resource_release,
+                            &callbacks),
+                        ==, PGRAPH_VK_RESOURCE_PIN_DUPLICATE);
+    }
+    g_assert_cmpuint(callbacks.retains, ==, G_N_ELEMENTS(resources));
+
+    g_assert_true(pgraph_vk_resource_pin_registry_finalize(&registry));
+    g_assert_cmpuint(callbacks.releases, ==, G_N_ELEMENTS(resources));
+    for (size_t i = 0; i < G_N_ELEMENTS(resources); i++) {
+        g_assert_cmpuint(resources[i].refs, ==, 0);
+    }
+    g_assert_null(registry.pins);
+    g_assert_cmpuint(registry.capacity, ==, 0);
+}
+
+static void test_resource_pins_are_bounded_and_conflicts_fail(void)
+{
+    PGRAPHVkResourcePinRegistry registry;
+    PGRAPHVkResourcePinRegistry invalid_registry;
+    TestPinnedResource resources[3] = { 0 };
+    TestPinCallbacks callbacks = { 0 };
+
+    g_assert_false(pgraph_vk_resource_pin_registry_init(&invalid_registry,
+                                                         SIZE_MAX));
+    g_assert_true(pgraph_vk_resource_pin_registry_init(&registry, 2));
+    for (size_t i = 0; i < 2; i++) {
+        g_assert_cmpint(pgraph_vk_resource_pin_registry_try_pin(
+                            &registry, &resources[i], &resources[i],
+                            test_resource_retain, test_resource_release,
+                            &callbacks),
+                        ==, PGRAPH_VK_RESOURCE_PIN_ADDED);
+    }
+    g_assert_cmpint(pgraph_vk_resource_pin_registry_try_pin(
+                        &registry, &resources[2], &resources[2],
+                        test_resource_retain, test_resource_release,
+                        &callbacks),
+                    ==, PGRAPH_VK_RESOURCE_PIN_FULL);
+    g_assert_cmpint(pgraph_vk_resource_pin_registry_try_pin(
+                        &registry, &resources[0], &resources[1],
+                        test_resource_retain, test_resource_release,
+                        &callbacks),
+                    ==, PGRAPH_VK_RESOURCE_PIN_CONFLICT);
+    g_assert_cmpint(pgraph_vk_resource_pin_registry_try_pin(
+                        &registry, &resources[0], &resources[0],
+                        test_resource_retain, alternate_resource_release,
+                        &callbacks),
+                    ==, PGRAPH_VK_RESOURCE_PIN_CONFLICT);
+    g_assert_cmpuint(registry.count, ==, 2);
+    g_assert_cmpuint(callbacks.retains, ==, 2);
+    g_assert_true(pgraph_vk_resource_pin_registry_finalize(&registry));
+    g_assert_cmpuint(callbacks.releases, ==, 2);
+}
+
+static void test_resource_pin_serial_ownership_wraps_safely(void)
+{
+    PGRAPHVkResourcePinRegistry registry;
+    TestPinnedResource resource = { 0 };
+    TestPinCallbacks callbacks = { 0 };
+
+    g_assert_true(pgraph_vk_resource_pin_registry_init(&registry, 1));
+    g_assert_cmpint(pgraph_vk_resource_pin_registry_try_pin(
+                        &registry, &resource, &resource, test_resource_retain,
+                        test_resource_release, &callbacks),
+                    ==, PGRAPH_VK_RESOURCE_PIN_ADDED);
+    g_assert_true(pgraph_vk_resource_pin_registry_mark_submitted(
+        &registry, UINT32_MAX));
+    g_assert_true(registry.submission_serial_valid);
+    g_assert_cmpuint(registry.submission_serial, ==, UINT32_MAX);
+    g_assert_cmpint(pgraph_vk_resource_pin_registry_try_pin(
+                        &registry, &resource, &resource, test_resource_retain,
+                        test_resource_release, &callbacks),
+                    ==, PGRAPH_VK_RESOURCE_PIN_IN_FLIGHT);
+    g_assert_false(pgraph_vk_resource_pin_registry_retire(&registry, 0));
+    g_assert_cmpuint(resource.refs, ==, 1);
+    g_assert_true(pgraph_vk_resource_pin_registry_retire(&registry,
+                                                         UINT32_MAX));
+    g_assert_false(registry.submission_serial_valid);
+    g_assert_cmpuint(registry.count, ==, 0);
+    g_assert_cmpuint(registry.capacity, ==, 8);
+    g_assert_cmpuint(resource.refs, ==, 0);
+
+    g_assert_cmpint(pgraph_vk_resource_pin_registry_try_pin(
+                        &registry, &resource, &resource, test_resource_retain,
+                        test_resource_release, &callbacks),
+                    ==, PGRAPH_VK_RESOURCE_PIN_ADDED);
+    g_assert_true(pgraph_vk_resource_pin_registry_mark_submitted(&registry, 0));
+    g_assert_true(registry.submission_serial_valid);
+    g_assert_cmpuint(registry.submission_serial, ==, 0);
+    g_assert_true(pgraph_vk_resource_pin_registry_retire(&registry, 0));
+    g_assert_cmpuint(resource.refs, ==, 0);
+    g_assert_true(pgraph_vk_resource_pin_registry_finalize(&registry));
+}
+
+static void test_resource_pin_teardown_rejects_in_flight(void)
+{
+    PGRAPHVkResourcePinRegistry registry;
+    TestPinnedResource resource = { 0 };
+    TestPinCallbacks callbacks = { 0 };
+
+    g_assert_true(pgraph_vk_resource_pin_registry_init(&registry, 1));
+    g_assert_cmpint(pgraph_vk_resource_pin_registry_try_pin(
+                        &registry, &resource, &resource, test_resource_retain,
+                        test_resource_release, &callbacks),
+                    ==, PGRAPH_VK_RESOURCE_PIN_ADDED);
+    g_assert_true(pgraph_vk_resource_pin_registry_mark_submitted(&registry,
+                                                                 17));
+    g_assert_false(pgraph_vk_resource_pin_registry_finalize(&registry));
+    g_assert_cmpuint(resource.refs, ==, 1);
+    g_assert_true(pgraph_vk_resource_pin_registry_retire(&registry, 17));
+    g_assert_true(pgraph_vk_resource_pin_registry_finalize(&registry));
+    g_assert_cmpuint(resource.refs, ==, 0);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -229,5 +414,13 @@ int main(int argc, char **argv)
                     test_slot_uniform_staging_offsets_are_independent);
     g_test_add_func("/xbox/vk-submission-slots/query-state-isolation",
                     test_slot_query_state_is_independent);
+    g_test_add_func("/xbox/vk-submission-slots/resource-pins/coalesce-grow",
+                    test_resource_pins_coalesce_and_grow);
+    g_test_add_func("/xbox/vk-submission-slots/resource-pins/bounds-conflicts",
+                    test_resource_pins_are_bounded_and_conflicts_fail);
+    g_test_add_func("/xbox/vk-submission-slots/resource-pins/serial-wrap",
+                    test_resource_pin_serial_ownership_wraps_safely);
+    g_test_add_func("/xbox/vk-submission-slots/resource-pins/teardown",
+                    test_resource_pin_teardown_rejects_in_flight);
     return g_test_run();
 }

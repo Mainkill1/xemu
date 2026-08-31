@@ -82,6 +82,10 @@ static void retire_submission_slot_resources(void *opaque)
 
     pgraph_vk_process_submission_slot_reports(context->pgraph,
                                                context->slot);
+    bool retired = pgraph_vk_resource_pin_registry_retire(
+        &context->slot->resource_pins,
+        context->slot->state.submission_serial);
+    assert(retired);
 }
 
 bool pgraph_vk_retire_submission_slot(PGRAPHState *pg, uint32_t slot_index)
@@ -140,6 +144,9 @@ void pgraph_vk_submit_current_submission_slot(
                            slot->fence));
     pgraph_vk_submission_slot_mark_submitted(&slot->state,
                                               submission_serial);
+    bool pins_submitted = pgraph_vk_resource_pin_registry_mark_submitted(
+        &slot->resource_pins, submission_serial);
+    assert(pins_submitted);
 }
 
 void pgraph_vk_drain_submission_slots(PGRAPHState *pg)
@@ -175,6 +182,9 @@ static void create_submission_slots(PGRAPHState *pg)
     };
     for (size_t i = 0; i < ARRAY_SIZE(r->submission_slots); i++) {
         PGRAPHVkSubmissionSlot *slot = &r->submission_slots[i];
+        bool initialized = pgraph_vk_resource_pin_registry_init(
+            &slot->resource_pins, PGRAPH_VK_RESOURCE_PINS_PER_SLOT);
+        assert(initialized);
         slot->command_buffer = command_buffers[2 * i];
         slot->aux_command_buffer = command_buffers[2 * i + 1];
         VK_CHECK(vkCreateSemaphore(r->device, &semaphore_info, NULL,
@@ -197,6 +207,9 @@ static void destroy_submission_slots(PGRAPHState *pg)
         PGRAPHVkSubmissionSlot *slot = &r->submission_slots[i];
         assert(!slot->state.in_flight);
         assert(!slot->state.submission_serial_valid);
+        bool finalized = pgraph_vk_resource_pin_registry_finalize(
+            &slot->resource_pins);
+        assert(finalized);
         command_buffers[2 * i] = slot->command_buffer;
         command_buffers[2 * i + 1] = slot->aux_command_buffer;
         vkDestroyFence(r->device, slot->fence, NULL);

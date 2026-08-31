@@ -40,6 +40,7 @@
 #include "blend-constants-cache.h"
 #include "descriptor-update.h"
 #include "framebuffer-cache.h"
+#include "resource-pins.h"
 #include "submission-slots.h"
 #include "debug.h"
 #include "constants.h"
@@ -339,6 +340,7 @@ typedef struct PGRAPHVkComputeState {
 #define PGRAPH_VK_SUBMISSION_SLOT_COUNT 2
 #define PGRAPH_VK_DESCRIPTOR_SETS_PER_SLOT 1024
 #define PGRAPH_VK_QUERIES_PER_SLOT 1024
+#define PGRAPH_VK_RESOURCE_PINS_PER_SLOT 65536
 
 typedef struct PGRAPHVkSubmissionSlot {
     PGRAPHVkSubmissionSlotState state;
@@ -352,6 +354,7 @@ typedef struct PGRAPHVkSubmissionSlot {
     StorageBuffer uniform_staging_buffer;
     VkQueryPool query_pool;
     GArray *report_queue;
+    PGRAPHVkResourcePinRegistry resource_pins;
 } PGRAPHVkSubmissionSlot;
 
 typedef struct PGRAPHVkState {
