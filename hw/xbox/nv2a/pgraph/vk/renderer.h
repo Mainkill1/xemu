@@ -408,6 +408,13 @@ typedef struct PGRAPHVkState {
 
     MemorySyncRequirement vertex_ram_buffer_syncs[NV2A_VERTEXSHADER_ATTRIBUTES];
     size_t num_vertex_ram_buffer_syncs;
+    MemorySyncRequirement active_vertex_ram_buffer_syncs[NV2A_VERTEXSHADER_ATTRIBUTES];
+    size_t num_active_vertex_ram_buffer_syncs;
+    /*
+     * Pages uploaded to or bound/read from BUFFER_VERTEX_RAM by the active
+     * command buffer. A CPU rewrite of any marked page must retire the command
+     * buffer before updating the shared host-visible vertex RAM buffer.
+     */
     unsigned long *uploaded_bitmap;
     size_t bitmap_size;
 
@@ -549,13 +556,13 @@ void pgraph_vk_transition_image_layout(PGRAPHState *pg, VkCommandBuffer cmd,
                                        VkImageLayout newLayout);
 
 // vertex.c
-void pgraph_vk_bind_vertex_attributes(NV2AState *d, unsigned int min_element,
+bool pgraph_vk_bind_vertex_attributes(NV2AState *d, unsigned int min_element,
                                       unsigned int max_element,
                                       bool inline_data,
                                       unsigned int inline_stride,
                                       unsigned int provoking_element);
 void pgraph_vk_bind_vertex_attributes_inline(NV2AState *d);
-void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset, void *data,
+bool pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset, void *data,
                                     VkDeviceSize size);
 VkDeviceSize pgraph_vk_update_index_buffer(PGRAPHState *pg, void *data,
                                            VkDeviceSize size);
