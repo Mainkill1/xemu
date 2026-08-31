@@ -50,8 +50,9 @@ static void grow_shader_cache(PGRAPHGLState *r, size_t count)
     r->shader_cache_num_entries += count;
 }
 
-static LruNode *shader_cache_lookup(PGRAPHGLState *r, uint64_t hash,
-                                    const void *key)
+static bool shader_cache_try_lookup(PGRAPHGLState *r, uint64_t hash,
+                                    const void *key, unsigned int flags,
+                                    LruNode **node)
 {
     size_t count = pgraph_lazy_cache_growth_for_lookup(
         &r->shader_cache, r->shader_cache_num_entries,
@@ -59,7 +60,17 @@ static LruNode *shader_cache_lookup(PGRAPHGLState *r, uint64_t hash,
     if (count) {
         grow_shader_cache(r, count);
     }
-    return lru_lookup(&r->shader_cache, hash, key);
+    return lru_try_lookup(&r->shader_cache, hash, key, flags, node);
+}
+
+static LruNode *shader_cache_lookup(PGRAPHGLState *r, uint64_t hash,
+                                    const void *key)
+{
+    LruNode *node = NULL;
+    bool success = shader_cache_try_lookup(
+        r, hash, key, LRU_LOOKUP_ALLOW_EVICT, &node);
+    assert(success && node);
+    return node;
 }
 
 static void grow_shader_module_cache(PGRAPHGLState *r, size_t count)
@@ -541,12 +552,18 @@ static void shader_load_from_disk(PGRAPHState *pg, uint64_t hash)
     g_free(cached_gl_version);
 
     qemu_mutex_lock(&r->shader_cache_lock);
-    LruNode *node = shader_cache_lookup(r, hash, &state);
+    LruNode *node = NULL;
+    if (!shader_cache_try_lookup(r, hash, &state, 0, &node)) {
+        qemu_mutex_unlock(&r->shader_cache_lock);
+        g_free(program_buffer);
+        return;
+    }
     ShaderBinding *binding = container_of(node, ShaderBinding, node);
 
     /* If we happened to regenerate this shader already, then we may as well use the new one */
     if (binding->initialized) {
         qemu_mutex_unlock(&r->shader_cache_lock);
+        g_free(program_buffer);
         return;
     }
 
