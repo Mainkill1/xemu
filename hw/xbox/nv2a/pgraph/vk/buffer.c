@@ -18,6 +18,7 @@
  */
 
 #include "renderer.h"
+#include "buffer-growth.h"
 
 /*
  * Sustained mixed inline-vertex tests found 8 MiB to be the smallest initial
@@ -122,9 +123,9 @@ void pgraph_vk_ensure_buffer_pair_capacity(PGRAPHState *pg, int index,
         return;
     }
 
-    size_t new_size = MAX(buffer->buffer_size, paired->buffer_size);
-    new_size = MAX(new_size, BUFFER_VERTEX_INLINE_INITIAL_SIZE);
-    new_size = MAX(new_size, required_size);
+    size_t new_size = pgraph_vk_buffer_growth_target(
+        MAX(buffer->buffer_size, paired->buffer_size),
+        BUFFER_VERTEX_INLINE_INITIAL_SIZE, required_size);
 
     if (buffer->buffer == VK_NULL_HANDLE || buffer->buffer_size < new_size) {
         resize_buffer(pg, index, new_size);
@@ -267,13 +268,12 @@ VkDeviceSize pgraph_vk_buffer_required_size(PGRAPHState *pg, int index,
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     StorageBuffer *b = &r->storage_buffers[index];
-    VkDeviceSize aligned_offset;
+    VkDeviceSize required_size;
+    bool valid = pgraph_vk_buffer_required_size_checked(
+        b->buffer_offset, size, alignment, &required_size);
 
-    assert(alignment);
-    aligned_offset = ROUND_UP(b->buffer_offset, alignment);
-    assert(aligned_offset >= b->buffer_offset);
-    assert(size <= UINT64_MAX - aligned_offset);
-    return aligned_offset + size;
+    assert(valid);
+    return required_size;
 }
 
 bool pgraph_vk_buffer_has_space_for(PGRAPHState *pg, int index,
