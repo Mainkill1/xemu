@@ -1354,13 +1354,15 @@ static void push_vertex_attr_values(PGRAPHState *pg)
 static void bind_descriptor_sets(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
-    assert(r->descriptor_set_index >= 1);
+    PGRAPHVkSubmissionSlot *slot = pgraph_vk_current_submission_slot(r);
+    assert(slot->state.descriptor_set_index >= 1);
 
     vkCmdBindDescriptorSets(r->command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                             r->pipeline_binding->layout, 0, 1,
-                            &r->descriptor_sets[r->descriptor_set_index - 1],
-                            ARRAY_SIZE(r->uniform_buffer_offsets),
-                            r->uniform_buffer_offsets);
+                            &slot->descriptor_sets[
+                                slot->state.descriptor_set_index - 1],
+                            ARRAY_SIZE(slot->state.uniform_buffer_offsets),
+                            slot->state.uniform_buffer_offsets);
 }
 
 static void begin_query(PGRAPHState *pg)
@@ -1403,12 +1405,14 @@ static void sync_staging_buffer(PGRAPHState *pg, VkCommandBuffer cmd,
     PGRAPHVkState *r = pg->vk_renderer_state;
     StorageBuffer *b_src = &r->storage_buffers[index_src];
     StorageBuffer *b_dst = &r->storage_buffers[index_dst];
+    VkDeviceSize write_offset =
+        pgraph_vk_buffer_get_write_offset(pg, index_src);
 
-    if (!b_src->buffer_offset) {
+    if (!write_offset) {
         return;
     }
 
-    VkBufferCopy copy_region = { .size = b_src->buffer_offset };
+    VkBufferCopy copy_region = { .size = write_offset };
     vkCmdCopyBuffer(cmd, b_src->buffer, b_dst->buffer, 1, &copy_region);
 
     VkAccessFlags dst_access_mask;
@@ -1439,12 +1443,14 @@ static void sync_staging_buffer(PGRAPHState *pg, VkCommandBuffer cmd,
         .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .buffer = b_dst->buffer,
-        .size = b_src->buffer_offset
+        .size = write_offset,
     };
     vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TRANSFER_BIT, dst_stage_mask, 0,
                          0, NULL, 1, &barrier, 0, NULL);
 
-    b_src->buffer_offset = 0;
+    if (index_src != BUFFER_UNIFORM_STAGING) {
+        pgraph_vk_buffer_set_write_offset(pg, index_src, 0);
+    }
 }
 
 static void flush_memory_buffer(PGRAPHState *pg, VkCommandBuffer cmd)
@@ -1607,8 +1613,8 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         VK_CHECK(vkWaitForFences(r->device, 1, &slot->fence, VK_TRUE,
                                  UINT64_MAX));
         pgraph_vk_submission_slot_mark_retired(&slot->state);
+        pgraph_vk_submission_slot_reset_transients(&slot->state);
 
-        r->descriptor_set_index = 0;
         r->in_command_buffer = false;
         pgraph_vk_advance_submission_slot(pg);
         if (check_budget) {

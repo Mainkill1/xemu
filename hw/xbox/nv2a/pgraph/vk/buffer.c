@@ -106,6 +106,30 @@ static void destroy_buffer(PGRAPHState *pg, StorageBuffer *buffer)
     buffer->allocation = VK_NULL_HANDLE;
 }
 
+VkDeviceSize pgraph_vk_buffer_get_write_offset(PGRAPHState *pg, int index)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+
+    if (index == BUFFER_UNIFORM_STAGING) {
+        return pgraph_vk_current_submission_slot(r)
+            ->state.uniform_staging_offset;
+    }
+    return r->storage_buffers[index].buffer_offset;
+}
+
+void pgraph_vk_buffer_set_write_offset(PGRAPHState *pg, int index,
+                                       VkDeviceSize offset)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+
+    if (index == BUFFER_UNIFORM_STAGING) {
+        pgraph_vk_current_submission_slot(r)->state.uniform_staging_offset =
+            offset;
+        return;
+    }
+    r->storage_buffers[index].buffer_offset = offset;
+}
+
 static void resize_buffer(PGRAPHState *pg, int index, size_t size)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -121,6 +145,12 @@ static void resize_buffer(PGRAPHState *pg, int index, size_t size)
 
     destroy_buffer(pg, buffer);
     buffer->buffer_offset = 0;
+    if (index == BUFFER_UNIFORM_STAGING) {
+        for (size_t i = 0; i < ARRAY_SIZE(r->submission_slots); i++) {
+            assert(!r->submission_slots[i].state.in_flight);
+            r->submission_slots[i].state.uniform_staging_offset = 0;
+        }
+    }
     buffer->buffer_size = size;
     create_buffer(pg, buffer);
 
@@ -365,10 +395,9 @@ bool pgraph_vk_buffer_required_size(PGRAPHState *pg, int index,
                                     VkDeviceAddress alignment,
                                     VkDeviceSize *required_size)
 {
-    PGRAPHVkState *r = pg->vk_renderer_state;
-    StorageBuffer *b = &r->storage_buffers[index];
     return pgraph_vk_buffer_layout_required_size(
-        b->buffer_offset, &size, 1, alignment, required_size);
+        pgraph_vk_buffer_get_write_offset(pg, index), &size, 1, alignment,
+        required_size);
 }
 
 bool pgraph_vk_buffer_has_space_for(PGRAPHState *pg, int index,
@@ -389,12 +418,12 @@ bool pgraph_vk_buffer_has_space_for_array(PGRAPHState *pg, int index,
                                           VkDeviceAddress alignment)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
-    StorageBuffer *b = &r->storage_buffers[index];
     VkDeviceSize required_size;
 
     return pgraph_vk_buffer_layout_required_size(
-               b->buffer_offset, sizes, count, alignment, &required_size) &&
-           required_size <= b->buffer_size;
+               pgraph_vk_buffer_get_write_offset(pg, index), sizes, count,
+               alignment, &required_size) &&
+           required_size <= r->storage_buffers[index].buffer_size;
 }
 
 VkDeviceSize pgraph_vk_append_to_buffer(PGRAPHState *pg, int index, void **data,
@@ -407,15 +436,17 @@ VkDeviceSize pgraph_vk_append_to_buffer(PGRAPHState *pg, int index, void **data,
                                                 alignment));
 
     StorageBuffer *b = &r->storage_buffers[index];
-    VkDeviceSize starting_offset = ROUND_UP(b->buffer_offset, alignment);
+    VkDeviceSize buffer_offset = pgraph_vk_buffer_get_write_offset(pg, index);
+    VkDeviceSize starting_offset = ROUND_UP(buffer_offset, alignment);
 
     assert(b->mapped);
 
     for (int i = 0; i < count; i++) {
-        b->buffer_offset = ROUND_UP(b->buffer_offset, alignment);
-        memcpy(b->mapped + b->buffer_offset, data[i], sizes[i]);
-        b->buffer_offset += sizes[i];
+        buffer_offset = ROUND_UP(buffer_offset, alignment);
+        memcpy(b->mapped + buffer_offset, data[i], sizes[i]);
+        buffer_offset += sizes[i];
     }
+    pgraph_vk_buffer_set_write_offset(pg, index, buffer_offset);
 
     return starting_offset;
 }
