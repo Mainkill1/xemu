@@ -21,6 +21,7 @@
 #include "qemu/fast-hash.h"
 #include "qemu/lru.h"
 #include "renderer.h"
+#include "surface-compute.h"
 #include <vulkan/vulkan_core.h>
 
 // TODO: Swizzle/Unswizzle
@@ -334,23 +335,12 @@ void pgraph_vk_compute_finish_complete(PGRAPHVkState *r)
 
 static int get_workgroup_size_for_output_units(PGRAPHVkState *r, int output_units)
 {
-    int group_size = 1024;
-
     // FIXME: Smarter workgroup size calculation could factor in multiple
     //        submissions. For now we will just pick the highest number that
     //        evenly divides output_units.
-
-    while (group_size > 1) {
-        if (group_size > r->device_props.limits.maxComputeWorkGroupSize[0]) {
-            continue;
-        }
-        if (output_units % group_size == 0) {
-            break;
-        }
-        group_size /= 2;
-    }
-
-    return group_size;
+    return pgraph_vk_compute_workgroup_size(
+        output_units, r->device_props.limits.maxComputeWorkGroupSize[0],
+        r->device_props.limits.maxComputeWorkGroupInvocations);
 }
 
 static ComputePipeline *get_compute_pipeline(PGRAPHVkState *r, VkFormat host_fmt, bool pack, int output_units)
