@@ -1620,12 +1620,9 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
             }
         };
         nv2a_profile_inc_counter(NV2A_PROF_QUEUE_SUBMIT);
-        vkResetFences(r->device, 1, &slot->fence);
-        VK_CHECK(vkQueueSubmit(r->queue, ARRAY_SIZE(submit_infos), submit_infos,
-                               slot->fence));
         r->submit_count += 1;
-        pgraph_vk_submission_slot_mark_submitted(&slot->state,
-                                                  r->submit_count);
+        pgraph_vk_submit_current_submission_slot(
+            pg, ARRAY_SIZE(submit_infos), submit_infos, r->submit_count);
 
         bool check_budget = false;
 
@@ -1646,10 +1643,7 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
          * retire this slot when it is selected again after transient
          * resources and queries have also become slot-owned.
          */
-        VK_CHECK(vkWaitForFences(r->device, 1, &slot->fence, VK_TRUE,
-                                 UINT64_MAX));
-        pgraph_vk_submission_slot_mark_retired(&slot->state);
-        pgraph_vk_submission_slot_reset_transients(&slot->state);
+        pgraph_vk_retire_submission_slot(pg, r->active_submission_slot);
 
         r->in_command_buffer = false;
         pgraph_vk_advance_submission_slot(pg);

@@ -47,10 +47,61 @@ static void select_submission_slot(PGRAPHVkState *r, uint32_t slot_index)
     assert(slot_index < ARRAY_SIZE(r->submission_slots));
     PGRAPHVkSubmissionSlot *slot = &r->submission_slots[slot_index];
     assert(!slot->state.in_flight);
+    assert(!slot->state.submission_serial_valid);
 
     r->active_submission_slot = slot_index;
     r->command_buffer = slot->command_buffer;
     r->aux_command_buffer = slot->aux_command_buffer;
+}
+
+typedef struct PGRAPHVkSubmissionSlotRetireContext {
+    PGRAPHVkState *renderer;
+    PGRAPHVkSubmissionSlot *slot;
+} PGRAPHVkSubmissionSlotRetireContext;
+
+static void wait_for_submission_slot(void *opaque)
+{
+    PGRAPHVkSubmissionSlotRetireContext *context = opaque;
+
+    VK_CHECK(vkWaitForFences(context->renderer->device, 1,
+                             &context->slot->fence, VK_TRUE, UINT64_MAX));
+}
+
+static void reset_submission_slot_fence(void *opaque)
+{
+    PGRAPHVkSubmissionSlotRetireContext *context = opaque;
+
+    VK_CHECK(vkResetFences(context->renderer->device, 1,
+                           &context->slot->fence));
+}
+
+bool pgraph_vk_retire_submission_slot(PGRAPHState *pg, uint32_t slot_index)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    assert(slot_index < ARRAY_SIZE(r->submission_slots));
+
+    PGRAPHVkSubmissionSlot *slot = &r->submission_slots[slot_index];
+    PGRAPHVkSubmissionSlotRetireContext context = {
+        .renderer = r,
+        .slot = slot,
+    };
+    const PGRAPHVkSubmissionSlotRetireCallbacks callbacks = {
+        .wait_for_completion = wait_for_submission_slot,
+        .reset_completion = reset_submission_slot_fence,
+    };
+
+    return pgraph_vk_submission_slot_retire_with_callbacks(
+        &slot->state, &callbacks, &context);
+}
+
+void pgraph_vk_acquire_submission_slot(PGRAPHState *pg, uint32_t slot_index)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+
+    assert(!r->in_command_buffer);
+    assert(!r->in_aux_command_buffer);
+    pgraph_vk_retire_submission_slot(pg, slot_index);
+    select_submission_slot(r, slot_index);
 }
 
 void pgraph_vk_advance_submission_slot(PGRAPHState *pg)
@@ -60,7 +111,35 @@ void pgraph_vk_advance_submission_slot(PGRAPHState *pg)
     assert(!r->in_aux_command_buffer);
     uint32_t next = pgraph_vk_next_submission_slot(
         r->active_submission_slot, ARRAY_SIZE(r->submission_slots));
-    select_submission_slot(r, next);
+    pgraph_vk_acquire_submission_slot(pg, next);
+}
+
+void pgraph_vk_submit_current_submission_slot(
+    PGRAPHState *pg, uint32_t submit_info_count,
+    const VkSubmitInfo *submit_infos, uint32_t submission_serial)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    PGRAPHVkSubmissionSlot *slot = pgraph_vk_current_submission_slot(r);
+
+    assert(submit_info_count > 0);
+    assert(submit_infos);
+    assert(!slot->state.in_flight);
+    assert(!slot->state.submission_serial_valid);
+    VK_CHECK(vkQueueSubmit(r->queue, submit_info_count, submit_infos,
+                           slot->fence));
+    pgraph_vk_submission_slot_mark_submitted(&slot->state,
+                                              submission_serial);
+}
+
+void pgraph_vk_drain_submission_slots(PGRAPHState *pg)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+
+    assert(!r->in_command_buffer);
+    assert(!r->in_aux_command_buffer);
+    for (uint32_t i = 0; i < ARRAY_SIZE(r->submission_slots); i++) {
+        pgraph_vk_retire_submission_slot(pg, i);
+    }
 }
 
 static void create_submission_slots(PGRAPHState *pg)
@@ -92,7 +171,7 @@ static void create_submission_slots(PGRAPHState *pg)
         VK_CHECK(vkCreateFence(r->device, &fence_info, NULL, &slot->fence));
     }
 
-    select_submission_slot(r, 0);
+    pgraph_vk_acquire_submission_slot(pg, 0);
 }
 
 static void destroy_submission_slots(PGRAPHState *pg)
@@ -106,6 +185,7 @@ static void destroy_submission_slots(PGRAPHState *pg)
     for (size_t i = 0; i < ARRAY_SIZE(r->submission_slots); i++) {
         PGRAPHVkSubmissionSlot *slot = &r->submission_slots[i];
         assert(!slot->state.in_flight);
+        assert(!slot->state.submission_serial_valid);
         command_buffers[2 * i] = slot->command_buffer;
         command_buffers[2 * i + 1] = slot->aux_command_buffer;
         vkDestroyFence(r->device, slot->fence, NULL);
@@ -190,6 +270,7 @@ void pgraph_vk_init_command_buffers(PGRAPHState *pg)
 
 void pgraph_vk_finalize_command_buffers(PGRAPHState *pg)
 {
+    pgraph_vk_drain_submission_slots(pg);
     destroy_aux_command_buffer_fence(pg);
     destroy_submission_slots(pg);
     destroy_command_pool(pg);
