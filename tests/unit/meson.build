@@ -28,6 +28,7 @@ tests = {
   'test-xbox-vk-framebuffer-cache': [],
   'test-xbox-vk-lazy-cache': [],
   'test-xbox-vk-pipeline-cache-file': [],
+  'test-xbox-vk-shader-cache-file': [],
   'test-xbox-vk-report-accumulator': [],
   'test-xbox-vk-submission-slots': [],
   'test-resv-mem': [],

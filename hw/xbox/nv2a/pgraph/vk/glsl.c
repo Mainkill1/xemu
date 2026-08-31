@@ -17,12 +17,206 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "qemu/osdep.h"
 #include "ui/xemu-settings.h"
+#include "qemu/error-report.h"
+#include "xemu-version.h"
 #include "renderer.h"
+#include "shader-cache-file.h"
 
 #include <assert.h>
+#include <glib/gstdio.h>
 #include <glslang/Include/glslang_c_interface.h>
 #include <stdio.h>
+
+#define SHADER_CACHE_DIRECTORY "vulkan-shader-cache"
+#define SHADER_CACHE_FILE_PREFIX "shader-"
+#define SHADER_CACHE_FILE_SUFFIX ".bin"
+
+typedef struct ShaderCacheDiskEntry {
+    char *path;
+    uint64_t size;
+    int64_t mtime;
+} ShaderCacheDiskEntry;
+
+typedef struct ShaderCacheDiskState {
+    char *directory;
+    GQueue entries;
+    uint64_t total_size;
+    bool writable;
+} ShaderCacheDiskState;
+
+static ShaderCacheDiskState shader_cache_disk;
+
+static void shader_cache_disk_entry_free(gpointer data)
+{
+    ShaderCacheDiskEntry *entry = data;
+    g_free(entry->path);
+    g_free(entry);
+}
+
+static gint shader_cache_disk_entry_compare(gconstpointer a,
+                                            gconstpointer b,
+                                            gpointer user_data)
+{
+    const ShaderCacheDiskEntry *entry_a = a;
+    const ShaderCacheDiskEntry *entry_b = b;
+
+    if (entry_a->mtime < entry_b->mtime) {
+        return -1;
+    }
+    if (entry_a->mtime > entry_b->mtime) {
+        return 1;
+    }
+    return strcmp(entry_a->path, entry_b->path);
+}
+
+static ShaderCacheDiskEntry *shader_cache_disk_find(const char *path,
+                                                     GList **link_out)
+{
+    for (GList *link = shader_cache_disk.entries.head; link;
+         link = link->next) {
+        ShaderCacheDiskEntry *entry = link->data;
+        if (!strcmp(entry->path, path)) {
+            if (link_out) {
+                *link_out = link;
+            }
+            return entry;
+        }
+    }
+    return NULL;
+}
+
+static void shader_cache_disk_forget_link(GList *link)
+{
+    ShaderCacheDiskEntry *entry = link->data;
+    assert(entry->size <= shader_cache_disk.total_size);
+    shader_cache_disk.total_size -= entry->size;
+    g_queue_delete_link(&shader_cache_disk.entries, link);
+    shader_cache_disk_entry_free(entry);
+}
+
+static bool shader_cache_disk_evict_one(const char *exclude_path)
+{
+    for (GList *link = shader_cache_disk.entries.head; link;
+         link = link->next) {
+        ShaderCacheDiskEntry *entry = link->data;
+        if (exclude_path && !strcmp(entry->path, exclude_path)) {
+            continue;
+        }
+        if (qemu_unlink(entry->path) != 0 && errno != ENOENT) {
+            shader_cache_disk.writable = false;
+            return false;
+        }
+        shader_cache_disk_forget_link(link);
+        return true;
+    }
+    return false;
+}
+
+static void shader_cache_disk_forget_unlinked(const char *path)
+{
+    GList *link = NULL;
+    if (shader_cache_disk_find(path, &link)) {
+        shader_cache_disk_forget_link(link);
+    }
+}
+
+static bool shader_cache_disk_make_room(const char *path, uint64_t new_size)
+{
+    ShaderCacheDiskEntry *existing = shader_cache_disk_find(path, NULL);
+
+    while (!pgraph_vk_shader_cache_budget_allows(
+        shader_cache_disk.entries.length, shader_cache_disk.total_size,
+        existing != NULL, existing ? existing->size : 0, new_size)) {
+        if (!shader_cache_disk_evict_one(path)) {
+            return false;
+        }
+    }
+    return shader_cache_disk.writable;
+}
+
+static void shader_cache_disk_init(void)
+{
+    g_queue_init(&shader_cache_disk.entries);
+    shader_cache_disk.total_size = 0;
+    shader_cache_disk.writable = false;
+
+    if (!g_config.perf.cache_shaders) {
+        return;
+    }
+
+    shader_cache_disk.directory = g_build_filename(
+        xemu_settings_get_base_path(), SHADER_CACHE_DIRECTORY, NULL);
+    if (g_mkdir_with_parents(shader_cache_disk.directory, 0700) != 0) {
+        warn_report("Unable to create Vulkan shader cache directory");
+        return;
+    }
+    shader_cache_disk.writable = true;
+
+    g_autoptr(GError) error = NULL;
+    g_autoptr(GDir) directory =
+        g_dir_open(shader_cache_disk.directory, 0, &error);
+    if (!directory) {
+        warn_report("Unable to scan Vulkan shader cache: %s",
+                    error->message);
+        shader_cache_disk.writable = false;
+        return;
+    }
+
+    const uint64_t max_file_size = sizeof(PGRAPHVkShaderCacheFileHeader) +
+        PGRAPH_VK_SHADER_CACHE_MAX_SOURCE_SIZE +
+        PGRAPH_VK_SHADER_CACHE_MAX_SPIRV_SIZE;
+    const char *name;
+    while ((name = g_dir_read_name(directory))) {
+        if (!shader_cache_disk.writable) {
+            break;
+        }
+        if (!g_str_has_prefix(name, SHADER_CACHE_FILE_PREFIX) ||
+            !g_str_has_suffix(name, SHADER_CACHE_FILE_SUFFIX)) {
+            continue;
+        }
+
+        g_autofree char *path =
+            g_build_filename(shader_cache_disk.directory, name, NULL);
+        GStatBuf stat_buffer;
+        if (g_lstat(path, &stat_buffer) != 0 ||
+            !S_ISREG(stat_buffer.st_mode) || stat_buffer.st_size < 0 ||
+            (uint64_t)stat_buffer.st_size > max_file_size) {
+            qemu_unlink(path);
+            continue;
+        }
+
+        ShaderCacheDiskEntry *entry = g_new0(ShaderCacheDiskEntry, 1);
+        entry->path = g_strdup(path);
+        entry->size = stat_buffer.st_size;
+        entry->mtime = stat_buffer.st_mtime;
+        if (shader_cache_disk.total_size > UINT64_MAX - entry->size) {
+            shader_cache_disk_entry_free(entry);
+            qemu_unlink(path);
+            continue;
+        }
+        shader_cache_disk.total_size += entry->size;
+        g_queue_insert_sorted(&shader_cache_disk.entries, entry,
+                              shader_cache_disk_entry_compare, NULL);
+
+        while ((shader_cache_disk.entries.length >
+                    PGRAPH_VK_SHADER_CACHE_MAX_FILES ||
+                shader_cache_disk.total_size >
+                    PGRAPH_VK_SHADER_CACHE_MAX_TOTAL_SIZE) &&
+               shader_cache_disk_evict_one(NULL)) {
+        }
+    }
+}
+
+static void shader_cache_disk_finalize(void)
+{
+    g_queue_clear_full(&shader_cache_disk.entries,
+                       shader_cache_disk_entry_free);
+    g_clear_pointer(&shader_cache_disk.directory, g_free);
+    shader_cache_disk.total_size = 0;
+    shader_cache_disk.writable = false;
+}
 
 static const glslang_resource_t
     resource_limits = { .max_lights = 32,
@@ -130,19 +324,200 @@ static const glslang_resource_t
                             .general_constant_matrix_vector_indexing = 1,
                         } };
 
+static PGRAPHVkShaderCacheIdentity shader_cache_identity(
+    glslang_stage_t stage)
+{
+    glslang_version_t compiler_version;
+    glslang_get_version(&compiler_version);
+
+    uint64_t build_hash = PGRAPH_VK_SHADER_CACHE_HASH_OFFSET;
+    build_hash = pgraph_vk_shader_cache_hash_update(
+        build_hash, xemu_version, strlen(xemu_version) + 1);
+    build_hash = pgraph_vk_shader_cache_hash_update(
+        build_hash, xemu_commit, strlen(xemu_commit) + 1);
+
+    PGRAPHVkShaderCacheIdentity identity = {
+        .stage = stage,
+        .flags = PGRAPH_VK_SHADER_CACHE_FLAG_VALIDATE |
+                 (g_config.display.vulkan.debug_shaders ?
+                      PGRAPH_VK_SHADER_CACHE_FLAG_DEBUG : 0),
+        .client = GLSLANG_CLIENT_VULKAN,
+        .client_version = GLSLANG_TARGET_VULKAN_1_3,
+        .target_language = GLSLANG_TARGET_SPV,
+        .target_language_version = GLSLANG_TARGET_SPV_1_6,
+        .default_version = 460,
+        .default_profile = GLSLANG_NO_PROFILE,
+        .messages = GLSLANG_MSG_DEFAULT_BIT,
+        .glslang_major = compiler_version.major,
+        .glslang_minor = compiler_version.minor,
+        .glslang_patch = compiler_version.patch,
+        .glslang_flavor_hash = pgraph_vk_shader_cache_hash(
+            compiler_version.flavor ? compiler_version.flavor : "",
+            compiler_version.flavor ? strlen(compiler_version.flavor) : 0),
+        .resource_hash = pgraph_vk_shader_cache_hash(
+            &resource_limits, sizeof(resource_limits)),
+        .build_hash = build_hash,
+    };
+    return identity;
+}
+
+static char *shader_cache_path(
+    const PGRAPHVkShaderCacheIdentity *identity, const char *source,
+    size_t source_size)
+{
+    uint64_t key_hash = pgraph_vk_shader_cache_key_hash(
+        identity, source, source_size);
+    g_autofree char *filename = g_strdup_printf(
+        SHADER_CACHE_FILE_PREFIX "%08x-%016" PRIx64 SHADER_CACHE_FILE_SUFFIX,
+        identity->stage, key_hash);
+    return g_build_filename(shader_cache_disk.directory, filename, NULL);
+}
+
+static void shader_cache_discard_file(const char *path)
+{
+    if (qemu_unlink(path) == 0 || errno == ENOENT) {
+        shader_cache_disk_forget_unlinked(path);
+    }
+}
+
+static GByteArray *shader_cache_load(
+    const PGRAPHVkShaderCacheIdentity *identity, const char *source,
+    size_t source_size)
+{
+    if (!g_config.perf.cache_shaders || !shader_cache_disk.directory ||
+        !source_size || source_size > PGRAPH_VK_SHADER_CACHE_MAX_SOURCE_SIZE) {
+        return NULL;
+    }
+
+    g_autofree char *path = shader_cache_path(identity, source, source_size);
+    GStatBuf stat_buffer;
+    const uint64_t max_file_size = sizeof(PGRAPHVkShaderCacheFileHeader) +
+        PGRAPH_VK_SHADER_CACHE_MAX_SOURCE_SIZE +
+        PGRAPH_VK_SHADER_CACHE_MAX_SPIRV_SIZE;
+    if (g_lstat(path, &stat_buffer) != 0) {
+        return NULL;
+    }
+    if (!S_ISREG(stat_buffer.st_mode) || stat_buffer.st_size < 0 ||
+        (uint64_t)stat_buffer.st_size > max_file_size ||
+        stat_buffer.st_size < sizeof(PGRAPHVkShaderCacheFileHeader)) {
+        shader_cache_discard_file(path);
+        return NULL;
+    }
+
+    size_t file_size = stat_buffer.st_size;
+    g_autofree uint8_t *file_data = g_malloc(file_size);
+    FILE *file = qemu_fopen(path, "rb");
+    if (!file) {
+        return NULL;
+    }
+    bool read_complete = fread(file_data, 1, file_size, file) == file_size &&
+                         fgetc(file) == EOF && !ferror(file);
+    fclose(file);
+
+    const uint8_t *spirv = NULL;
+    size_t spirv_size = 0;
+    if (!read_complete || !pgraph_vk_shader_cache_file_validate(
+                              file_data, file_size, identity, source,
+                              source_size, &spirv, &spirv_size)) {
+        warn_report("Ignoring invalid Vulkan shader artifact");
+        shader_cache_discard_file(path);
+        return NULL;
+    }
+
+    SpvReflectShaderModule probe;
+    SpvReflectResult reflect_result =
+        spvReflectCreateShaderModule(spirv_size, spirv, &probe);
+    if (reflect_result != SPV_REFLECT_RESULT_SUCCESS) {
+        warn_report("Ignoring malformed Vulkan shader artifact");
+        shader_cache_discard_file(path);
+        return NULL;
+    }
+    spvReflectDestroyShaderModule(&probe);
+    return g_byte_array_new_take(g_memdup2(spirv, spirv_size), spirv_size);
+}
+
+static void shader_cache_save(
+    const PGRAPHVkShaderCacheIdentity *identity, const char *source,
+    size_t source_size, const GByteArray *spirv)
+{
+    if (!g_config.perf.cache_shaders || !shader_cache_disk.directory ||
+        !shader_cache_disk.writable) {
+        return;
+    }
+
+    PGRAPHVkShaderCacheFileHeader header;
+    if (!pgraph_vk_shader_cache_header_init(
+            &header, identity, source, source_size, spirv->data, spirv->len)) {
+        return;
+    }
+    size_t file_size = sizeof(header) + source_size + spirv->len;
+    g_autofree uint8_t *file_data = g_malloc(file_size);
+    memcpy(file_data, &header, sizeof(header));
+    memcpy(file_data + sizeof(header), source, source_size);
+    memcpy(file_data + sizeof(header) + source_size,
+           spirv->data, spirv->len);
+    if (!pgraph_vk_shader_cache_file_validate(
+            file_data, file_size, identity, source, source_size, NULL, NULL)) {
+        return;
+    }
+
+    g_autofree char *path = shader_cache_path(identity, source, source_size);
+    if (!shader_cache_disk_make_room(path, file_size)) {
+        return;
+    }
+
+    g_autoptr(GError) error = NULL;
+    if (!g_file_set_contents_full(
+            path, (const char *)file_data, file_size,
+            G_FILE_SET_CONTENTS_CONSISTENT | G_FILE_SET_CONTENTS_DURABLE,
+            0600, &error)) {
+        warn_report("Failed to save Vulkan shader artifact: %s",
+                    error->message);
+        return;
+    }
+
+    GList *old_link = NULL;
+    if (shader_cache_disk_find(path, &old_link)) {
+        shader_cache_disk_forget_link(old_link);
+    }
+    ShaderCacheDiskEntry *entry = g_new0(ShaderCacheDiskEntry, 1);
+    entry->path = g_strdup(path);
+    entry->size = file_size;
+    GStatBuf stat_buffer;
+    if (g_lstat(path, &stat_buffer) == 0 &&
+        S_ISREG(stat_buffer.st_mode)) {
+        entry->mtime = stat_buffer.st_mtime;
+    }
+    assert(shader_cache_disk.total_size <= UINT64_MAX - entry->size);
+    shader_cache_disk.total_size += entry->size;
+    g_queue_insert_sorted(&shader_cache_disk.entries, entry,
+                          shader_cache_disk_entry_compare, NULL);
+}
+
 void pgraph_vk_init_glsl_compiler(void)
 {
     glslang_initialize_process();
+    shader_cache_disk_init();
 }
 
 void pgraph_vk_finalize_glsl_compiler(void)
 {
+    shader_cache_disk_finalize();
     glslang_finalize_process();
 }
 
 GByteArray *pgraph_vk_compile_glsl_to_spv(glslang_stage_t stage,
                                           const char *glsl_source)
 {
+    size_t source_size = strlen(glsl_source);
+    PGRAPHVkShaderCacheIdentity cache_identity =
+        shader_cache_identity(stage);
+    GByteArray *cached = shader_cache_load(
+        &cache_identity, glsl_source, source_size);
+    if (cached) {
+        return cached;
+    }
+
     const glslang_input_t input = {
         .language = GLSLANG_SOURCE_GLSL,
         .stage = stage,
@@ -239,7 +614,9 @@ GByteArray *pgraph_vk_compile_glsl_to_spv(glslang_stage_t stage,
     glslang_program_delete(program);
     glslang_shader_delete(shader);
 
-    return g_byte_array_new_take(data, num_program_bytes);
+    GByteArray *spirv = g_byte_array_new_take(data, num_program_bytes);
+    shader_cache_save(&cache_identity, glsl_source, source_size, spirv);
+    return spirv;
 }
 
 VkShaderModule pgraph_vk_create_shader_module_from_spv(PGRAPHVkState *r, GByteArray *spv)
