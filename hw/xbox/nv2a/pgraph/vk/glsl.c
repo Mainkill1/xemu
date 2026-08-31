@@ -48,6 +48,21 @@ typedef struct ShaderCacheDiskState {
 
 static ShaderCacheDiskState shader_cache_disk;
 
+static uint64_t shader_cache_disk_max_file_size(void)
+{
+    return sizeof(PGRAPHVkShaderCacheFileHeader) +
+           PGRAPH_VK_SHADER_CACHE_MAX_SOURCE_SIZE +
+           PGRAPH_VK_SHADER_CACHE_MAX_SPIRV_SIZE;
+}
+
+static bool shader_cache_disk_stat_is_cache_file(const GStatBuf *stat_buffer)
+{
+    return S_ISREG(stat_buffer->st_mode) && stat_buffer->st_size >= 0 &&
+           (uint64_t)stat_buffer->st_size <=
+               shader_cache_disk_max_file_size() &&
+           stat_buffer->st_size >= sizeof(PGRAPHVkShaderCacheFileHeader);
+}
+
 static void shader_cache_disk_entry_free(gpointer data)
 {
     ShaderCacheDiskEntry *entry = data;
@@ -136,6 +151,63 @@ static bool shader_cache_disk_make_room(const char *path, uint64_t new_size)
     return shader_cache_disk.writable;
 }
 
+static bool shader_cache_disk_directory_is_private(const char *path)
+{
+#ifndef O_NOFOLLOW
+    warn_report("Disabling Vulkan shader cache: no no-follow support");
+    return false;
+#else
+    GStatBuf path_stat;
+
+    if (g_lstat(path, &path_stat) != 0) {
+        warn_report("Unable to inspect Vulkan shader cache directory");
+        return false;
+    }
+    if (!S_ISDIR(path_stat.st_mode)) {
+        warn_report("Ignoring unsafe Vulkan shader cache directory");
+        return false;
+    }
+
+#ifndef _WIN32
+    if (path_stat.st_uid != geteuid()) {
+        warn_report("Ignoring Vulkan shader cache directory with wrong owner");
+        return false;
+    }
+    if (path_stat.st_mode & (S_IRWXG | S_IRWXO)) {
+        warn_report("Ignoring Vulkan shader cache directory with unsafe "
+                    "permissions");
+        return false;
+    }
+#endif
+
+    int flags = O_RDONLY | O_CLOEXEC | O_NOFOLLOW;
+#ifdef O_DIRECTORY
+    flags |= O_DIRECTORY;
+#endif
+    int fd = qemu_open_old(path, flags);
+    if (fd < 0) {
+        warn_report("Unable to open Vulkan shader cache directory safely");
+        return false;
+    }
+
+    GStatBuf fd_stat;
+    bool safe = fstat(fd, &fd_stat) == 0 && S_ISDIR(fd_stat.st_mode) &&
+                fd_stat.st_dev == path_stat.st_dev &&
+                fd_stat.st_ino == path_stat.st_ino;
+#ifndef _WIN32
+    safe = safe && fd_stat.st_uid == path_stat.st_uid &&
+           ((fd_stat.st_mode & (S_IRWXG | S_IRWXO)) == 0);
+#endif
+    qemu_close(fd);
+    if (!safe) {
+        warn_report("Ignoring changed Vulkan shader cache directory");
+        return false;
+    }
+
+    return true;
+#endif
+}
+
 static void shader_cache_disk_init(void)
 {
     g_queue_init(&shader_cache_disk.entries);
@@ -152,6 +224,9 @@ static void shader_cache_disk_init(void)
         warn_report("Unable to create Vulkan shader cache directory");
         return;
     }
+    if (!shader_cache_disk_directory_is_private(shader_cache_disk.directory)) {
+        return;
+    }
     shader_cache_disk.writable = true;
 
     g_autoptr(GError) error = NULL;
@@ -164,9 +239,6 @@ static void shader_cache_disk_init(void)
         return;
     }
 
-    const uint64_t max_file_size = sizeof(PGRAPHVkShaderCacheFileHeader) +
-        PGRAPH_VK_SHADER_CACHE_MAX_SOURCE_SIZE +
-        PGRAPH_VK_SHADER_CACHE_MAX_SPIRV_SIZE;
     const char *name;
     while ((name = g_dir_read_name(directory))) {
         if (!shader_cache_disk.writable) {
@@ -181,8 +253,7 @@ static void shader_cache_disk_init(void)
             g_build_filename(shader_cache_disk.directory, name, NULL);
         GStatBuf stat_buffer;
         if (g_lstat(path, &stat_buffer) != 0 ||
-            !S_ISREG(stat_buffer.st_mode) || stat_buffer.st_size < 0 ||
-            (uint64_t)stat_buffer.st_size > max_file_size) {
+            !shader_cache_disk_stat_is_cache_file(&stat_buffer)) {
             qemu_unlink(path);
             continue;
         }
@@ -380,45 +451,104 @@ static void shader_cache_discard_file(const char *path)
     }
 }
 
+static bool shader_cache_read_file_no_follow(
+    const char *path, uint8_t **file_data_out, size_t *file_size_out,
+    bool *discard_out)
+{
+    *file_data_out = NULL;
+    *file_size_out = 0;
+    *discard_out = false;
+
+    int flags = O_RDONLY | O_BINARY | O_CLOEXEC;
+#ifdef O_NOFOLLOW
+    flags |= O_NOFOLLOW;
+#endif
+    int fd = qemu_open_old(path, flags);
+    if (fd < 0) {
+#ifdef ELOOP
+        *discard_out = errno == ELOOP;
+#endif
+        return false;
+    }
+
+    GStatBuf stat_buffer;
+    if (fstat(fd, &stat_buffer) != 0) {
+        qemu_close(fd);
+        return false;
+    }
+    if (!shader_cache_disk_stat_is_cache_file(&stat_buffer)) {
+        qemu_close(fd);
+        *discard_out = true;
+        return false;
+    }
+
+    size_t file_size = stat_buffer.st_size;
+    uint8_t *file_data = g_malloc(file_size);
+    size_t offset = 0;
+    while (offset < file_size) {
+        ssize_t ret = read(fd, file_data + offset, file_size - offset);
+        if (ret < 0) {
+            if (errno == EINTR) {
+                continue;
+            }
+            g_free(file_data);
+            qemu_close(fd);
+            return false;
+        }
+        if (ret == 0) {
+            g_free(file_data);
+            qemu_close(fd);
+            *discard_out = true;
+            return false;
+        }
+        offset += ret;
+    }
+
+    uint8_t extra_byte;
+    ssize_t ret;
+    do {
+        ret = read(fd, &extra_byte, sizeof(extra_byte));
+    } while (ret < 0 && errno == EINTR);
+
+    qemu_close(fd);
+    if (ret != 0) {
+        g_free(file_data);
+        *discard_out = true;
+        return false;
+    }
+
+    *file_data_out = file_data;
+    *file_size_out = file_size;
+    return true;
+}
+
 static GByteArray *shader_cache_load(
     const PGRAPHVkShaderCacheIdentity *identity, const char *source,
     size_t source_size)
 {
     if (!g_config.perf.cache_shaders || !shader_cache_disk.directory ||
+        !shader_cache_disk.writable ||
         !source_size || source_size > PGRAPH_VK_SHADER_CACHE_MAX_SOURCE_SIZE) {
         return NULL;
     }
 
     g_autofree char *path = shader_cache_path(identity, source, source_size);
-    GStatBuf stat_buffer;
-    const uint64_t max_file_size = sizeof(PGRAPHVkShaderCacheFileHeader) +
-        PGRAPH_VK_SHADER_CACHE_MAX_SOURCE_SIZE +
-        PGRAPH_VK_SHADER_CACHE_MAX_SPIRV_SIZE;
-    if (g_lstat(path, &stat_buffer) != 0) {
+    g_autofree uint8_t *file_data = NULL;
+    size_t file_size = 0;
+    bool discard = false;
+    if (!shader_cache_read_file_no_follow(path, &file_data, &file_size,
+                                          &discard)) {
+        if (discard) {
+            shader_cache_discard_file(path);
+        }
         return NULL;
     }
-    if (!S_ISREG(stat_buffer.st_mode) || stat_buffer.st_size < 0 ||
-        (uint64_t)stat_buffer.st_size > max_file_size ||
-        stat_buffer.st_size < sizeof(PGRAPHVkShaderCacheFileHeader)) {
-        shader_cache_discard_file(path);
-        return NULL;
-    }
-
-    size_t file_size = stat_buffer.st_size;
-    g_autofree uint8_t *file_data = g_malloc(file_size);
-    FILE *file = qemu_fopen(path, "rb");
-    if (!file) {
-        return NULL;
-    }
-    bool read_complete = fread(file_data, 1, file_size, file) == file_size &&
-                         fgetc(file) == EOF && !ferror(file);
-    fclose(file);
 
     const uint8_t *spirv = NULL;
     size_t spirv_size = 0;
-    if (!read_complete || !pgraph_vk_shader_cache_file_validate(
-                              file_data, file_size, identity, source,
-                              source_size, &spirv, &spirv_size)) {
+    if (!pgraph_vk_shader_cache_file_validate(
+            file_data, file_size, identity, source, source_size, &spirv,
+            &spirv_size)) {
         warn_report("Ignoring invalid Vulkan shader artifact");
         shader_cache_discard_file(path);
         return NULL;
