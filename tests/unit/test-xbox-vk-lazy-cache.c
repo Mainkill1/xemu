@@ -36,21 +36,6 @@ static bool test_entry_compare(Lru *lru, LruNode *node, const void *key)
     return entry->key != *(const uint32_t *)key;
 }
 
-static bool test_cache_contains(TestCache *cache, uint64_t hash,
-                                const void *key)
-{
-    unsigned int bin = lru_hash_to_bin(&cache->lru, hash);
-    LruNode *node;
-
-    QTAILQ_FOREACH(node, &cache->lru.bins[bin], next_bin) {
-        if (node->hash == hash &&
-            !cache->lru.compare_nodes(&cache->lru, node, key)) {
-            return true;
-        }
-    }
-    return false;
-}
-
 static void test_cache_grow(TestCache *cache, size_t count)
 {
     TestEntry *entries = g_new0(TestEntry, count);
@@ -64,13 +49,10 @@ static void test_cache_grow(TestCache *cache, size_t count)
 static TestEntry *test_cache_lookup(TestCache *cache, uint32_t key)
 {
     uint64_t hash = key;
-    bool key_present = false;
-    if (!cache->lru.num_free && cache->num_entries < TEST_MAX_ENTRIES) {
-        key_present = test_cache_contains(cache, hash, &key);
-    }
-    size_t count = pgraph_vk_lazy_cache_growth_count(
+    size_t count = pgraph_vk_lazy_cache_growth_for_lookup(
+        &cache->lru,
         cache->num_entries, TEST_MAX_ENTRIES, TEST_BLOCK_ENTRIES,
-        cache->lru.num_free, key_present);
+        hash, &key);
     if (count) {
         test_cache_grow(cache, count);
     }
@@ -103,6 +85,12 @@ static void test_growth_decision(void)
     g_assert_cmpuint(pgraph_vk_lazy_cache_growth_count(3, 4, 2, 0, false),
                      ==, 1);
     g_assert_cmpuint(pgraph_vk_lazy_cache_growth_count(4, 4, 2, 0, false),
+                     ==, 0);
+    g_assert_cmpuint(pgraph_vk_lazy_cache_growth_count(90, 100, 16, 0, false),
+                     ==, 10);
+    g_assert_cmpuint(pgraph_vk_lazy_cache_growth_count(96, 100, 16, 0, false),
+                     ==, 4);
+    g_assert_cmpuint(pgraph_vk_lazy_cache_growth_count(0, 100, 0, 0, false),
                      ==, 0);
 }
 
