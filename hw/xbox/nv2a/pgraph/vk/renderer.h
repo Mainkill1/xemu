@@ -424,7 +424,8 @@ typedef struct PGRAPHVkState {
     bool use_push_constants_for_uniform_attrs;
 
     Lru shader_module_cache;
-    ShaderModuleCacheEntry *shader_module_cache_entries;
+    GPtrArray *shader_module_cache_blocks;
+    size_t shader_module_cache_num_entries;
 
     // FIXME: Merge these into a structure
     uint32_t uniform_buffer_offsets[2];

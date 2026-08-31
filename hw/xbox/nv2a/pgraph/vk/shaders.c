@@ -21,12 +21,70 @@
 #include "qemu/fast-hash.h"
 #include "qemu/mstring.h"
 #include "renderer.h"
+#include "lazy-cache.h"
 
 #define VSH_UBO_BINDING 0
 #define PSH_UBO_BINDING 1
 #define PSH_TEX_BINDING 2
 
+enum {
+    SHADER_MODULE_CACHE_MAX_ENTRIES = 50 * 1024,
+    SHADER_MODULE_CACHE_BLOCK_ENTRIES = 256,
+};
+
 const size_t MAX_UNIFORM_ATTR_VALUES_SIZE = NV2A_VERTEXSHADER_ATTRIBUTES * 4 * sizeof(float);
+
+static bool shader_module_cache_contains_key(Lru *lru, uint64_t hash,
+                                             const void *key)
+{
+    unsigned int bin = lru_hash_to_bin(lru, hash);
+    LruNode *node;
+
+    QTAILQ_FOREACH(node, &lru->bins[bin], next_bin) {
+        if (node->hash == hash && !lru->compare_nodes(lru, node, key)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static void grow_shader_module_cache(PGRAPHVkState *r, size_t count)
+{
+    assert(count > 0);
+    assert(count <= SHADER_MODULE_CACHE_MAX_ENTRIES -
+                        r->shader_module_cache_num_entries);
+
+    ShaderModuleCacheEntry *entries =
+        g_new0(ShaderModuleCacheEntry, count);
+    g_ptr_array_add(r->shader_module_cache_blocks, entries);
+    for (size_t i = 0; i < count; i++) {
+        lru_add_free(&r->shader_module_cache, &entries[i].node);
+    }
+    r->shader_module_cache_num_entries += count;
+}
+
+static LruNode *shader_module_cache_lookup(PGRAPHVkState *r, uint64_t hash,
+                                           const void *key)
+{
+    bool key_present = false;
+    if (!r->shader_module_cache.num_free &&
+        r->shader_module_cache_num_entries <
+            SHADER_MODULE_CACHE_MAX_ENTRIES) {
+        key_present = shader_module_cache_contains_key(
+            &r->shader_module_cache, hash, key);
+    }
+
+    size_t count = pgraph_vk_lazy_cache_growth_count(
+        r->shader_module_cache_num_entries,
+        SHADER_MODULE_CACHE_MAX_ENTRIES,
+        SHADER_MODULE_CACHE_BLOCK_ENTRIES,
+        r->shader_module_cache.num_free, key_present);
+    if (count) {
+        grow_shader_module_cache(r, count);
+    }
+
+    return lru_lookup(&r->shader_module_cache, hash, key);
+}
 
 static void create_descriptor_pool(PGRAPHState *pg)
 {
@@ -259,7 +317,7 @@ get_and_ref_shader_module_for_key(PGRAPHVkState *r,
                                   const ShaderModuleCacheKey *key)
 {
     uint64_t hash = fast_hash((void *)key, sizeof(ShaderModuleCacheKey));
-    LruNode *node = lru_lookup(&r->shader_module_cache, hash, key);
+    LruNode *node = shader_module_cache_lookup(r, hash, key);
     ShaderModuleCacheEntry *module =
         container_of(node, ShaderModuleCacheEntry, node);
     pgraph_vk_ref_shader_module(module->module_info);
@@ -398,16 +456,9 @@ static void shader_cache_init(PGRAPHState *pg)
     r->shader_cache.compare_nodes = shader_cache_entry_compare;
     r->shader_cache.post_node_evict = shader_cache_entry_post_evict;
 
-    /* FIXME: Make this configurable */
-    const size_t shader_module_cache_size = 50 * 1024;
     lru_init(&r->shader_module_cache);
-    r->shader_module_cache_entries =
-        g_malloc_n(shader_module_cache_size, sizeof(ShaderModuleCacheEntry));
-    assert(r->shader_module_cache_entries != NULL);
-    for (int i = 0; i < shader_module_cache_size; i++) {
-        lru_add_free(&r->shader_module_cache,
-                     &r->shader_module_cache_entries[i].node);
-    }
+    r->shader_module_cache_blocks = g_ptr_array_new_with_free_func(g_free);
+    r->shader_module_cache_num_entries = 0;
 
     r->shader_module_cache.init_node = shader_module_cache_entry_init;
     r->shader_module_cache.compare_nodes = shader_module_cache_entry_compare;
@@ -424,8 +475,9 @@ static void shader_cache_finalize(PGRAPHState *pg)
     r->shader_cache_entries = NULL;
 
     lru_flush(&r->shader_module_cache);
-    g_free(r->shader_module_cache_entries);
-    r->shader_module_cache_entries = NULL;
+    g_ptr_array_free(r->shader_module_cache_blocks, true);
+    r->shader_module_cache_blocks = NULL;
+    r->shader_module_cache_num_entries = 0;
 }
 
 static ShaderBinding *get_shader_binding_for_state(PGRAPHVkState *r,
