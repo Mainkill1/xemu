@@ -55,6 +55,7 @@ static void select_submission_slot(PGRAPHVkState *r, uint32_t slot_index)
 }
 
 typedef struct PGRAPHVkSubmissionSlotRetireContext {
+    PGRAPHState *pgraph;
     PGRAPHVkState *renderer;
     PGRAPHVkSubmissionSlot *slot;
 } PGRAPHVkSubmissionSlotRetireContext;
@@ -75,6 +76,14 @@ static void reset_submission_slot_fence(void *opaque)
                            &context->slot->fence));
 }
 
+static void retire_submission_slot_resources(void *opaque)
+{
+    PGRAPHVkSubmissionSlotRetireContext *context = opaque;
+
+    pgraph_vk_process_submission_slot_reports(context->pgraph,
+                                               context->slot);
+}
+
 bool pgraph_vk_retire_submission_slot(PGRAPHState *pg, uint32_t slot_index)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -82,11 +91,13 @@ bool pgraph_vk_retire_submission_slot(PGRAPHState *pg, uint32_t slot_index)
 
     PGRAPHVkSubmissionSlot *slot = &r->submission_slots[slot_index];
     PGRAPHVkSubmissionSlotRetireContext context = {
+        .pgraph = pg,
         .renderer = r,
         .slot = slot,
     };
     const PGRAPHVkSubmissionSlotRetireCallbacks callbacks = {
         .wait_for_completion = wait_for_submission_slot,
+        .retire_resources = retire_submission_slot_resources,
         .reset_completion = reset_submission_slot_fence,
     };
 
