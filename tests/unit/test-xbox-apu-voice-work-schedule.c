@@ -82,6 +82,21 @@ static void test_independent_distribution(void)
                      ==, 4);
 }
 
+static void test_touched_mixbin_mask(void)
+{
+    uint32_t direct = mcpx_apu_voice_work_touched_mixbins(0, 0x5, 0);
+    uint32_t multipass = mcpx_apu_voice_work_touched_mixbins(
+        MULTIPASS_BIN_MASK, 0x3, MULTIPASS_BIN_MASK);
+
+    g_assert_cmphex(direct, ==, 0x5);
+    g_assert_cmpuint(mcpx_apu_voice_work_signal_count(direct), ==, 2);
+
+    g_assert_cmphex(multipass, ==, ((uint32_t)MULTIPASS_BIN_MASK) | 0x3);
+    g_assert_cmpuint(mcpx_apu_voice_work_signal_count(multipass), ==, 3);
+    g_assert_cmpuint(mcpx_apu_voice_work_signal_count(UINT32_MAX), ==,
+                     NUM_MIXBINS);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -93,5 +108,7 @@ int main(int argc, char **argv)
                     test_grouped_multipass_affinity);
     g_test_add_func("/xbox/apu/voice-work/independent-distribution",
                     test_independent_distribution);
+    g_test_add_func("/xbox/apu/voice-work/touched-mixbin-mask",
+                    test_touched_mixbin_mask);
     return g_test_run();
 }

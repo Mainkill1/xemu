@@ -41,6 +41,13 @@ static inline unsigned int mcpx_apu_voice_work_signal_count(uint64_t pending)
     return count;
 }
 
+static inline uint32_t mcpx_apu_voice_work_touched_mixbins(uint32_t src,
+                                                           uint32_t dst,
+                                                           uint32_t clr)
+{
+    return src | dst | clr;
+}
+
 static inline void mcpx_apu_voice_work_schedule_init(
     MCPXAPUVoiceWorkScheduleState *state, unsigned int num_workers)
 {
