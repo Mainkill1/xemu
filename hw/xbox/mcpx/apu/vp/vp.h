@@ -60,6 +60,7 @@ typedef struct VoiceWorker {
     int id;
     float mixbins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME];
     float sample_buf[NUM_SAMPLES_PER_FRAME][2];
+    uint32_t touched_mixbins;
     VoiceWorkItem queue[MCPX_HW_MAX_VOICES];
     int queue_len;
 } VoiceWorker;

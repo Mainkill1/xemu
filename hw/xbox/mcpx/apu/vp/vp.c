@@ -1603,11 +1603,17 @@ static void *voice_worker_thread(void *arg)
 
         int64_t start_time = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
         g_dbg.vp.workers[worker_id].num_voices = self->queue_len;
+        uint32_t touched_mixbins = self->touched_mixbins;
 
         qemu_mutex_unlock(&vwd->lock);
 
         // Process queued voices
-        memset(self->mixbins, 0, sizeof(self->mixbins));
+        uint32_t pending_mixbins = touched_mixbins;
+        while (pending_mixbins) {
+            int b = ctz32(pending_mixbins);
+            memset(self->mixbins[b], 0, sizeof(self->mixbins[b]));
+            pending_mixbins &= ~(1U << b);
+        }
         if (d->monitor.point == MCPX_APU_DEBUG_MON_VP) {
             memset(self->sample_buf, 0, sizeof(self->sample_buf));
         }
@@ -1619,10 +1625,13 @@ static void *voice_worker_thread(void *arg)
         qemu_mutex_lock(&vwd->lock);
 
         // Add voice contributions
-        for (int b = 0; b < NUM_MIXBINS; b++) {
+        pending_mixbins = touched_mixbins;
+        while (pending_mixbins) {
+            int b = ctz32(pending_mixbins);
             for (int s = 0; s < NUM_SAMPLES_PER_FRAME; s++) {
                 vwd->mixbins[b][s] += self->mixbins[b][s];
             }
+            pending_mixbins &= ~(1U << b);
         }
         if (d->monitor.point == MCPX_APU_DEBUG_MON_VP) {
             for (int i = 0; i < NUM_SAMPLES_PER_FRAME; i++) {
@@ -1632,6 +1641,7 @@ static void *voice_worker_thread(void *arg)
         }
 
         self->queue_len = 0;
+        self->touched_mixbins = 0;
         vwd->workers_pending &= ~(1ULL << worker_id);
         if (!vwd->workers_pending) {
             qemu_cond_signal(&vwd->work_finished);
@@ -1709,6 +1719,8 @@ static void voice_work_schedule(MCPXAPUState *d)
             mcpx_apu_voice_work_schedule_assign_one(&schedule, src, dst, clr);
         VoiceWorker *worker = &vwd->workers[worker_id];
         worker->queue[worker->queue_len++] = vwd->queue[i];
+        worker->touched_mixbins |=
+            mcpx_apu_voice_work_touched_mixbins(src, dst, clr);
     }
     vwd->workers_pending = schedule.workers_pending;
 }
