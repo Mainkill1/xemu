@@ -51,8 +51,8 @@ extern int nv2a_vk_dgroup_indent;
         VkResult vk_result = (x);                             \
         if (vk_result != VK_SUCCESS) {                        \
             fprintf(stderr, "vk_result = %d\n", vk_result);   \
+            abort();                                          \
         }                                                     \
-        assert(vk_result == VK_SUCCESS && "vk check failed"); \
     } while (0)
 
 void pgraph_vk_debug_frame_terminator(void);

@@ -29,6 +29,7 @@ tests = {
   'test-xbox-vk-lazy-cache': [],
   'test-xbox-vk-pipeline-cache-file': [],
   'test-xbox-vk-report-accumulator': [],
+  'test-xbox-vk-submission-slots': [],
   'test-resv-mem': [],
   # all code tested by test-x86-topo is inside topology.h
   'test-x86-topo': [],

@@ -42,29 +42,82 @@ static void destroy_command_pool(PGRAPHState *pg)
     vkDestroyCommandPool(r->device, r->command_pool, NULL);
 }
 
-static void create_command_buffers(PGRAPHState *pg)
+static void select_submission_slot(PGRAPHVkState *r, uint32_t slot_index)
+{
+    assert(slot_index < ARRAY_SIZE(r->submission_slots));
+    PGRAPHVkSubmissionSlot *slot = &r->submission_slots[slot_index];
+    assert(!slot->state.in_flight);
+
+    r->active_submission_slot = slot_index;
+    r->command_buffer = slot->command_buffer;
+    r->aux_command_buffer = slot->aux_command_buffer;
+}
+
+void pgraph_vk_advance_submission_slot(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
+    assert(!r->in_command_buffer);
+    assert(!r->in_aux_command_buffer);
+    uint32_t next = pgraph_vk_next_submission_slot(
+        r->active_submission_slot, ARRAY_SIZE(r->submission_slots));
+    select_submission_slot(r, next);
+}
+
+static void create_submission_slots(PGRAPHState *pg)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    VkCommandBuffer command_buffers[2 * PGRAPH_VK_SUBMISSION_SLOT_COUNT];
 
     VkCommandBufferAllocateInfo alloc_info = {
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
         .commandPool = r->command_pool,
         .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-        .commandBufferCount = ARRAY_SIZE(r->command_buffers),
+        .commandBufferCount = ARRAY_SIZE(command_buffers),
     };
     VK_CHECK(
-        vkAllocateCommandBuffers(r->device, &alloc_info, r->command_buffers));
+        vkAllocateCommandBuffers(r->device, &alloc_info, command_buffers));
 
-    r->command_buffer = r->command_buffers[0];
-    r->aux_command_buffer = r->command_buffers[1];
+    VkSemaphoreCreateInfo semaphore_info = {
+        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+    };
+    VkFenceCreateInfo fence_info = {
+        .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+    };
+    for (size_t i = 0; i < ARRAY_SIZE(r->submission_slots); i++) {
+        PGRAPHVkSubmissionSlot *slot = &r->submission_slots[i];
+        slot->command_buffer = command_buffers[2 * i];
+        slot->aux_command_buffer = command_buffers[2 * i + 1];
+        VK_CHECK(vkCreateSemaphore(r->device, &semaphore_info, NULL,
+                                   &slot->aux_complete_semaphore));
+        VK_CHECK(vkCreateFence(r->device, &fence_info, NULL, &slot->fence));
+    }
+
+    select_submission_slot(r, 0);
 }
 
-static void destroy_command_buffers(PGRAPHState *pg)
+static void destroy_submission_slots(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
+    VkCommandBuffer command_buffers[2 * PGRAPH_VK_SUBMISSION_SLOT_COUNT];
+
+    assert(!r->in_command_buffer);
+    assert(!r->in_aux_command_buffer);
+
+    for (size_t i = 0; i < ARRAY_SIZE(r->submission_slots); i++) {
+        PGRAPHVkSubmissionSlot *slot = &r->submission_slots[i];
+        assert(!slot->state.in_flight);
+        command_buffers[2 * i] = slot->command_buffer;
+        command_buffers[2 * i + 1] = slot->aux_command_buffer;
+        vkDestroyFence(r->device, slot->fence, NULL);
+        vkDestroySemaphore(r->device, slot->aux_complete_semaphore, NULL);
+        slot->fence = VK_NULL_HANDLE;
+        slot->aux_complete_semaphore = VK_NULL_HANDLE;
+        slot->command_buffer = VK_NULL_HANDLE;
+        slot->aux_command_buffer = VK_NULL_HANDLE;
+    }
 
     vkFreeCommandBuffers(r->device, r->command_pool,
-                         ARRAY_SIZE(r->command_buffers), r->command_buffers);
+                         ARRAY_SIZE(command_buffers), command_buffers);
 
     r->command_buffer = VK_NULL_HANDLE;
     r->aux_command_buffer = VK_NULL_HANDLE;
@@ -131,13 +184,13 @@ void pgraph_vk_end_single_time_commands(PGRAPHState *pg, VkCommandBuffer cmd)
 void pgraph_vk_init_command_buffers(PGRAPHState *pg)
 {
     create_command_pool(pg);
-    create_command_buffers(pg);
+    create_submission_slots(pg);
     create_aux_command_buffer_fence(pg);
 }
 
 void pgraph_vk_finalize_command_buffers(PGRAPHState *pg)
 {
     destroy_aux_command_buffer_fence(pg);
-    destroy_command_buffers(pg);
+    destroy_submission_slots(pg);
     destroy_command_pool(pg);
 }
