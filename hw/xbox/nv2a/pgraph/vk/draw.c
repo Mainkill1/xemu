@@ -1562,7 +1562,6 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         sync_staging_buffer(pg, cmd, BUFFER_VERTEX_INLINE_STAGING,
                                 BUFFER_VERTEX_INLINE);
         sync_staging_buffer(pg, cmd, BUFFER_UNIFORM_STAGING, BUFFER_UNIFORM);
-        bitmap_clear(r->uploaded_bitmap, 0, r->bitmap_size);
         flush_memory_buffer(pg, cmd);
         VK_CHECK(vkEndCommandBuffer(r->aux_command_buffer));
         r->in_aux_command_buffer = false;
@@ -1608,6 +1607,7 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
 
         VK_CHECK(vkWaitForFences(r->device, 1, &r->command_buffer_fence,
                                  VK_TRUE, UINT64_MAX));
+        bitmap_clear(r->uploaded_bitmap, 0, r->bitmap_size);
 
         r->descriptor_set_index = 0;
         r->in_command_buffer = false;
@@ -1932,13 +1932,71 @@ static int compare_memory_sync_requirement_by_addr(const void *p1,
     return 0;
 }
 
-static void sync_vertex_ram_buffer(PGRAPHState *pg)
+static bool vertex_ram_sync_to_page_requirement(
+    PGRAPHVkState *r, const MemorySyncRequirement *sync,
+    MemorySyncRequirement *page_sync)
+{
+    PGRAPHVkVertexPageRange page_range;
+    uint64_t page_addr, page_size;
+
+    if (!pgraph_vk_vertex_page_range_for_bytes(
+            sync->addr, sync->size,
+            r->storage_buffers[BUFFER_VERTEX_RAM].buffer_size,
+            TARGET_PAGE_SIZE, &page_range) ||
+        !pgraph_vk_vertex_page_range_to_bytes(
+            &page_range, TARGET_PAGE_SIZE, &page_addr, &page_size)) {
+        return false;
+    }
+
+    page_sync->addr = page_addr;
+    page_sync->size = page_size;
+    return true;
+}
+
+static bool track_active_vertex_ram_pages(
+    PGRAPHVkState *r, hwaddr addr, hwaddr size)
+{
+    PGRAPHVkVertexPageRange page_range;
+    size_t start_bit, nbits;
+
+    if (!pgraph_vk_vertex_page_range_for_bytes(
+            addr, size, r->storage_buffers[BUFFER_VERTEX_RAM].buffer_size,
+            TARGET_PAGE_SIZE, &page_range) ||
+        !pgraph_vk_vertex_page_range_to_bitmap(
+            &page_range, r->bitmap_size, &start_bit, &nbits)) {
+        return false;
+    }
+
+    bitmap_set(r->uploaded_bitmap, start_bit, nbits);
+    return true;
+}
+
+static bool mark_active_vertex_ram_pages(PGRAPHState *pg)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+
+    for (size_t i = 0; i < r->num_active_vertex_ram_buffer_syncs; i++) {
+        if (!track_active_vertex_ram_pages(
+                r, r->active_vertex_ram_buffer_syncs[i].addr,
+                r->active_vertex_ram_buffer_syncs[i].size)) {
+            error_report("Vulkan vertex RAM active range overflow");
+            r->num_active_vertex_ram_buffer_syncs = 0;
+            return false;
+        }
+    }
+
+    r->num_active_vertex_ram_buffer_syncs = 0;
+    return true;
+}
+
+static bool sync_vertex_ram_buffer(PGRAPHState *pg)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     if (r->num_vertex_ram_buffer_syncs == 0) {
-        return;
+        r->num_active_vertex_ram_buffer_syncs = 0;
+        return true;
     }
 
     // Align sync requirements to page boundaries
@@ -1950,20 +2008,23 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
                         r->vertex_ram_buffer_syncs[i].addr,
                         r->vertex_ram_buffer_syncs[i].size);
 
-        hwaddr start_addr =
-            r->vertex_ram_buffer_syncs[i].addr & TARGET_PAGE_MASK;
-        hwaddr end_addr = r->vertex_ram_buffer_syncs[i].addr +
-                          r->vertex_ram_buffer_syncs[i].size;
-        end_addr = ROUND_UP(end_addr, TARGET_PAGE_SIZE);
+        MemorySyncRequirement page_sync;
+        if (!vertex_ram_sync_to_page_requirement(
+                r, &r->vertex_ram_buffer_syncs[i], &page_sync)) {
+            error_report("Vulkan vertex RAM sync range overflow");
+            r->num_vertex_ram_buffer_syncs = 0;
+            r->num_active_vertex_ram_buffer_syncs = 0;
+            NV2A_VK_DGROUP_END();
+            return false;
+        }
 
         NV2A_VK_DPRINTF("- %d: %08" HWADDR_PRIx " %zd bytes"
                           " -> %08" HWADDR_PRIx " %zd bytes", i,
                         r->vertex_ram_buffer_syncs[i].addr,
-                        r->vertex_ram_buffer_syncs[i].size, start_addr,
-                        end_addr - start_addr);
+                        r->vertex_ram_buffer_syncs[i].size, page_sync.addr,
+                        page_sync.size);
 
-        r->vertex_ram_buffer_syncs[i].addr = start_addr;
-        r->vertex_ram_buffer_syncs[i].size = end_addr - start_addr;
+        r->vertex_ram_buffer_syncs[i] = page_sync;
     }
 
     // Sort the requirements in increasing order of addresses
@@ -1972,7 +2033,7 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
           compare_memory_sync_requirement_by_addr);
 
     // Merge overlapping/adjacent requests to minimize number of tests
-    MemorySyncRequirement merged[16];
+    MemorySyncRequirement merged[NV2A_VERTEXSHADER_ATTRIBUTES];
     int num_syncs = 1;
 
     merged[0] = r->vertex_ram_buffer_syncs[0];
@@ -2005,14 +2066,24 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
         if (memory_region_test_and_clear_dirty(d->vram, addr, size,
                                                DIRTY_MEMORY_NV2A)) {
             NV2A_VK_DPRINTF("Memory dirty. Synchronizing...");
-            pgraph_vk_update_vertex_ram_buffer(pg, addr, d->vram_ptr + addr,
-                                               size);
+            if (!pgraph_vk_update_vertex_ram_buffer(pg, addr,
+                                                    d->vram_ptr + addr,
+                                                    size)) {
+                r->num_vertex_ram_buffer_syncs = 0;
+                r->num_active_vertex_ram_buffer_syncs = 0;
+                NV2A_VK_DGROUP_END();
+                return false;
+            }
         }
     }
 
+    memcpy(r->active_vertex_ram_buffer_syncs, merged,
+           num_syncs * sizeof(merged[0]));
+    r->num_active_vertex_ram_buffer_syncs = num_syncs;
     r->num_vertex_ram_buffer_syncs = 0;
 
     NV2A_VK_DGROUP_END();
+    return true;
 }
 
 void pgraph_vk_clear_surface(NV2AState *d, uint32_t parameter)
@@ -2175,13 +2246,14 @@ static void pgraph_vk_debug_attrs(NV2AState *d)
 }
 #endif
 
-static void bind_vertex_buffer(PGRAPHState *pg, uint16_t inline_map,
+static bool bind_vertex_buffer(PGRAPHState *pg, uint16_t inline_map,
                                VkDeviceSize offset, uint32_t base_vertex)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     if (r->num_active_vertex_binding_descriptions == 0) {
-        return;
+        r->num_active_vertex_ram_buffer_syncs = 0;
+        return true;
     }
 
     VkBuffer buffers[NV2A_VERTEXSHADER_ATTRIBUTES];
@@ -2199,19 +2271,25 @@ static void bind_vertex_buffer(PGRAPHState *pg, uint16_t inline_map,
                 offsets[i], stride, base_vertex, &offsets[i]);
             if (!valid) {
                 error_report("Vulkan vertex buffer offset overflow");
-                return;
+                r->num_active_vertex_ram_buffer_syncs = 0;
+                return false;
             }
         }
+    }
+
+    if (!mark_active_vertex_ram_pages(pg)) {
+        return false;
     }
 
     vkCmdBindVertexBuffers(r->command_buffer, 0,
                            r->num_active_vertex_binding_descriptions, buffers,
                            offsets);
+    return true;
 }
 
-static void bind_inline_vertex_buffer(PGRAPHState *pg, VkDeviceSize offset)
+static bool bind_inline_vertex_buffer(PGRAPHState *pg, VkDeviceSize offset)
 {
-    bind_vertex_buffer(pg, 0xffff, offset, 0);
+    return bind_vertex_buffer(pg, 0xffff, offset, 0);
 }
 
 void pgraph_vk_set_surface_dirty(PGRAPHState *pg, bool color, bool zeta)
@@ -2485,6 +2563,7 @@ void pgraph_vk_flush_draw(NV2AState *d)
     }
 
     r->num_vertex_ram_buffer_syncs = 0;
+    r->num_active_vertex_ram_buffer_syncs = 0;
 
     if (pg->draw_arrays_length) {
         NV2A_VK_DGROUP_BEGIN("Draw Arrays");
@@ -2494,19 +2573,26 @@ void pgraph_vk_flush_draw(NV2AState *d)
         assert(pg->inline_buffer_length == 0);
         assert(pg->inline_array_length == 0);
 
-        pgraph_vk_bind_vertex_attributes(d, pg->draw_arrays_min_start,
-                                         pg->draw_arrays_max_count - 1, false,
-                                         0, pg->draw_arrays_max_count - 1);
+        if (!pgraph_vk_bind_vertex_attributes(
+                d, pg->draw_arrays_min_start, pg->draw_arrays_max_count - 1,
+                false, 0, pg->draw_arrays_max_count - 1)) {
+            NV2A_VK_DGROUP_END();
+            return;
+        }
         uint32_t min_element = INT_MAX;
         uint32_t max_element = 0;
         for (int i = 0; i < pg->draw_arrays_length; i++) {
             min_element = MIN(pg->draw_arrays_start[i], min_element);
             max_element = MAX(max_element, pg->draw_arrays_start[i] + pg->draw_arrays_count[i]);
         }
-        sync_vertex_ram_buffer(pg);
+        if (!sync_vertex_ram_buffer(pg)) {
+            NV2A_VK_DGROUP_END();
+            return;
+        }
         VertexBufferRemap remap = remap_unaligned_attributes(
             pg, min_element, max_element);
         if (!remap.valid) {
+            r->num_active_vertex_ram_buffer_syncs = 0;
             NV2A_VK_DGROUP_END();
             return;
         }
@@ -2518,7 +2604,12 @@ void pgraph_vk_flush_draw(NV2AState *d)
         pgraph_vk_begin_debug_marker(r, r->command_buffer, RGBA_BLUE,
                                      "Draw Arrays");
         begin_draw(pg);
-        bind_vertex_buffer(pg, remap.attributes, 0, base_vertex);
+        if (!bind_vertex_buffer(pg, remap.attributes, 0, base_vertex)) {
+            end_draw(pg);
+            pgraph_vk_end_debug_marker(r, r->command_buffer);
+            NV2A_VK_DGROUP_END();
+            return;
+        }
         for (int i = 0; i < pg->draw_arrays_length; i++) {
             uint32_t start = pg->draw_arrays_start[i],
                      count = pg->draw_arrays_count[i];
@@ -2552,15 +2643,22 @@ void pgraph_vk_flush_draw(NV2AState *d)
             max_element = MAX(pg->inline_elements[i], max_element);
             min_element = MIN(pg->inline_elements[i], min_element);
         }
-        pgraph_vk_bind_vertex_attributes(
-            d, min_element, max_element, false, 0,
-            pg->inline_elements[pg->inline_elements_length - 1]);
-        sync_vertex_ram_buffer(pg);
+        if (!pgraph_vk_bind_vertex_attributes(
+                d, min_element, max_element, false, 0,
+                pg->inline_elements[pg->inline_elements_length - 1])) {
+            NV2A_VK_DGROUP_END();
+            return;
+        }
+        if (!sync_vertex_ram_buffer(pg)) {
+            NV2A_VK_DGROUP_END();
+            return;
+        }
         assert(max_element < UINT32_MAX);
         uint32_t base_vertex = pgraph_vk_indexed_base_vertex(min_element);
         VertexBufferRemap remap = remap_unaligned_attributes(
             pg, base_vertex, max_element + 1);
         if (!remap.valid) {
+            r->num_active_vertex_ram_buffer_syncs = 0;
             NV2A_VK_DGROUP_END();
             return;
         }
@@ -2576,7 +2674,12 @@ void pgraph_vk_flush_draw(NV2AState *d)
         pgraph_vk_begin_debug_marker(r, r->command_buffer, RGBA_BLUE,
                                      "Inline Elements");
         begin_draw(pg);
-        bind_vertex_buffer(pg, remap.attributes, 0, base_vertex);
+        if (!bind_vertex_buffer(pg, remap.attributes, 0, base_vertex)) {
+            end_draw(pg);
+            pgraph_vk_end_debug_marker(r, r->command_buffer);
+            NV2A_VK_DGROUP_END();
+            return;
+        }
         vkCmdBindIndexBuffer(r->command_buffer,
                              r->storage_buffers[BUFFER_INDEX].buffer,
                              buffer_offset, VK_INDEX_TYPE_UINT32);
@@ -2621,7 +2724,12 @@ void pgraph_vk_flush_draw(NV2AState *d)
         pgraph_vk_begin_debug_marker(r, r->command_buffer, RGBA_BLUE,
                                      "Inline Buffer");
         begin_draw(pg);
-        bind_inline_vertex_buffer(pg, buffer_offset);
+        if (!bind_inline_vertex_buffer(pg, buffer_offset)) {
+            end_draw(pg);
+            pgraph_vk_end_debug_marker(r, r->command_buffer);
+            NV2A_VK_DGROUP_END();
+            return;
+        }
         vkCmdDraw(r->command_buffer, pg->inline_buffer_length, 1, 0, 0);
         end_draw(pg);
         pgraph_vk_end_debug_marker(r, r->command_buffer);
@@ -2658,8 +2766,12 @@ void pgraph_vk_flush_draw(NV2AState *d)
         unsigned int index_count = pg->inline_array_length * 4 / vertex_size;
 
         NV2A_DPRINTF("draw inline array %d, %d\n", vertex_size, index_count);
-        pgraph_vk_bind_vertex_attributes(d, 0, index_count - 1, true,
-                                         vertex_size, index_count - 1);
+        if (!pgraph_vk_bind_vertex_attributes(d, 0, index_count - 1, true,
+                                              vertex_size,
+                                              index_count - 1)) {
+            NV2A_VK_DGROUP_END();
+            return;
+        }
 
         begin_pre_draw(pg);
         void *inline_array_data = pg->inline_array;
@@ -2668,7 +2780,12 @@ void pgraph_vk_flush_draw(NV2AState *d)
         pgraph_vk_begin_debug_marker(r, r->command_buffer, RGBA_BLUE,
                                      "Inline Array");
         begin_draw(pg);
-        bind_inline_vertex_buffer(pg, buffer_offset);
+        if (!bind_inline_vertex_buffer(pg, buffer_offset)) {
+            end_draw(pg);
+            pgraph_vk_end_debug_marker(r, r->command_buffer);
+            NV2A_VK_DGROUP_END();
+            return;
+        }
         vkCmdDraw(r->command_buffer, index_count, 1, 0, 0);
         end_draw(pg);
         pgraph_vk_end_debug_marker(r, r->command_buffer);

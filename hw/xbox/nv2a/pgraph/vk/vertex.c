@@ -24,6 +24,23 @@
  */
 
 #include "renderer.h"
+#include "vertex-range.h"
+
+static bool vertex_page_range_to_bitmap(
+    PGRAPHVkState *r, hwaddr offset, VkDeviceSize size,
+    size_t *start_bit, size_t *nbits)
+{
+    PGRAPHVkVertexPageRange range;
+    if (!pgraph_vk_vertex_page_range_for_bytes(
+            offset, size, r->storage_buffers[BUFFER_VERTEX_RAM].buffer_size,
+            TARGET_PAGE_SIZE, &range) ||
+        !pgraph_vk_vertex_page_range_to_bitmap(
+            &range, r->bitmap_size, start_bit, nbits)) {
+        return false;
+    }
+
+    return true;
+}
 
 VkDeviceSize pgraph_vk_update_index_buffer(PGRAPHState *pg, void *data,
                                            VkDeviceSize size)
@@ -42,21 +59,26 @@ VkDeviceSize pgraph_vk_update_vertex_inline_buffer(PGRAPHState *pg, void **data,
                                       sizes, count, 1);
 }
 
-void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
+bool pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
                                         void *data, VkDeviceSize size)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     pgraph_vk_download_surfaces_in_range_if_dirty(pg, offset, size);
 
-    size_t start_bit = offset / TARGET_PAGE_SIZE;
-    size_t end_bit = TARGET_PAGE_ALIGN(offset + size) / TARGET_PAGE_SIZE;
-    size_t nbits = end_bit - start_bit;
+    size_t start_bit, nbits;
+    if (!vertex_page_range_to_bitmap(r, offset, size, &start_bit, &nbits)) {
+        error_report("Vulkan vertex RAM update range overflow");
+        return false;
+    }
+    size_t end_bit = start_bit + nbits;
 
-    if (find_next_bit(r->uploaded_bitmap, start_bit + nbits, start_bit) <
-        end_bit) {
-        // Vertex data changed while building the draw list. Finish drawing
-        // before updating RAM buffer.
+    if (find_next_bit(r->uploaded_bitmap, end_bit, start_bit) < end_bit) {
+        /*
+         * Vertex data changed while building the draw list, or the active
+         * command buffer has already bound this page. Finish drawing before
+         * updating the shared vertex RAM buffer.
+         */
         pgraph_vk_finish(pg, VK_FINISH_REASON_VERTEX_BUFFER_DIRTY);
     }
 
@@ -64,17 +86,23 @@ void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
     memcpy(r->storage_buffers[BUFFER_VERTEX_RAM].mapped + offset, data, size);
 
     bitmap_set(r->uploaded_bitmap, start_bit, nbits);
+    return true;
 }
 
-static void update_memory_buffer(NV2AState *d, hwaddr addr, hwaddr size)
+static bool update_memory_buffer(NV2AState *d, hwaddr addr, hwaddr size)
 {
     PGRAPHState *pg = &d->pgraph;
     PGRAPHVkState *r = pg->vk_renderer_state;
 
-    assert(r->num_vertex_ram_buffer_syncs <
-           ARRAY_SIZE(r->vertex_ram_buffer_syncs));
+    if (r->num_vertex_ram_buffer_syncs >=
+        ARRAY_SIZE(r->vertex_ram_buffer_syncs)) {
+        error_report("Vulkan vertex RAM sync queue exhausted");
+        return false;
+    }
+
     r->vertex_ram_buffer_syncs[r->num_vertex_ram_buffer_syncs++] =
         (MemorySyncRequirement){ .addr = addr, .size = size };
+    return true;
 }
 
 static const VkFormat float_to_count[] = {
@@ -114,7 +142,7 @@ static char const * const vertex_data_array_format_to_str[] = {
     [NV097_SET_VERTEX_DATA_ARRAY_FORMAT_TYPE_CMP] = "CMP",
 };
 
-void pgraph_vk_bind_vertex_attributes(NV2AState *d, unsigned int min_element,
+bool pgraph_vk_bind_vertex_attributes(NV2AState *d, unsigned int min_element,
                                       unsigned int max_element,
                                       bool inline_data,
                                       unsigned int inline_stride,
@@ -197,25 +225,59 @@ void pgraph_vk_bind_vertex_attributes(NV2AState *d, unsigned int min_element,
         size_t stride;
 
         hwaddr start = 0;
+        hwaddr dma_len = 0;
+        uint64_t read_span = 0;
         if (inline_data) {
             attrib_data_addr = attr->inline_array_offset;
             stride = inline_stride;
         } else {
-            hwaddr dma_len;
             uint8_t *attr_data = (uint8_t *)nv_dma_map(
                 d, attr->dma_select ? pg->dma_vertex_b : pg->dma_vertex_a,
                 &dma_len);
-            assert(attr->offset < dma_len);
-            attrib_data_addr = attr_data + attr->offset - d->vram_ptr;
+            hwaddr dma_base = attr_data - d->vram_ptr;
+            if (attr->offset >= dma_len) {
+                error_report("Vulkan vertex attribute offset outside DMA");
+                NV2A_VK_DGROUP_END();
+                goto fail;
+            }
+            if (attr->offset > UINT64_MAX - dma_base) {
+                error_report("Vulkan vertex attribute address overflow");
+                NV2A_VK_DGROUP_END();
+                goto fail;
+            }
+            attrib_data_addr = dma_base + attr->offset;
             stride = attr->stride;
-            start = attrib_data_addr + min_element * stride;
-            update_memory_buffer(d, start, num_elements * stride);
         }
 
         uint32_t provoking_element_index = provoking_element - min_element;
         size_t element_size = attr->size * attr->count;
         assert(element_size <= sizeof(attr->inline_value));
         const uint8_t *last_entry;
+
+        if (!inline_data) {
+            uint64_t dma_read_start;
+            uint64_t buffer_size =
+                r->storage_buffers[BUFFER_VERTEX_RAM].buffer_size;
+
+            if (!pgraph_vk_vertex_attribute_read_span(
+                    num_elements, stride, element_size, &read_span) ||
+                !pgraph_vk_vertex_base_offset(attr->offset, stride,
+                                              min_element, &dma_read_start) ||
+                dma_read_start >= dma_len ||
+                read_span > dma_len - dma_read_start) {
+                error_report("Vulkan vertex attribute read outside DMA");
+                NV2A_VK_DGROUP_END();
+                goto fail;
+            }
+
+            if (!pgraph_vk_vertex_base_offset(
+                    attrib_data_addr, stride, min_element, &start) ||
+                start >= buffer_size || read_span > buffer_size - start) {
+                error_report("Vulkan vertex RAM read outside buffer");
+                NV2A_VK_DGROUP_END();
+                goto fail;
+            }
+        }
 
         if (inline_data) {
             last_entry =
@@ -233,6 +295,13 @@ void pgraph_vk_bind_vertex_attributes(NV2AState *d, unsigned int min_element,
                             attr->inline_value[2], attr->inline_value[3]);
             NV2A_VK_DGROUP_END();
             continue;
+        }
+
+        if (!inline_data) {
+            if (!update_memory_buffer(d, start, read_span)) {
+                NV2A_VK_DGROUP_END();
+                goto fail;
+            }
         }
 
         NV2A_VK_DPRINTF("offset = %08" HWADDR_PRIx, attrib_data_addr);
@@ -271,6 +340,18 @@ void pgraph_vk_bind_vertex_attributes(NV2AState *d, unsigned int min_element,
     }
 
     NV2A_VK_DGROUP_END();
+    return true;
+
+fail:
+    r->num_active_vertex_attribute_descriptions = 0;
+    r->num_active_vertex_binding_descriptions = 0;
+    r->num_vertex_ram_buffer_syncs = 0;
+    r->num_active_vertex_ram_buffer_syncs = 0;
+    pg->compressed_attrs = 0;
+    pg->uniform_attrs = 0;
+    pg->swizzle_attrs = 0;
+    NV2A_VK_DGROUP_END();
+    return false;
 }
 
 void pgraph_vk_bind_vertex_attributes_inline(NV2AState *d)
