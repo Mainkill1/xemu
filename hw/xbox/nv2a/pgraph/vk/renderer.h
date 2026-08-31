@@ -548,6 +548,14 @@ void pgraph_vk_init_command_buffers(PGRAPHState *pg);
 void pgraph_vk_finalize_command_buffers(PGRAPHState *pg);
 VkCommandBuffer pgraph_vk_begin_single_time_commands(PGRAPHState *pg);
 void pgraph_vk_end_single_time_commands(PGRAPHState *pg, VkCommandBuffer cmd);
+void pgraph_vk_submit_current_submission_slot(PGRAPHState *pg,
+                                              uint32_t submit_info_count,
+                                              const VkSubmitInfo *submit_infos,
+                                              uint32_t submission_serial);
+bool pgraph_vk_retire_submission_slot(PGRAPHState *pg, uint32_t slot_index);
+void pgraph_vk_acquire_submission_slot(PGRAPHState *pg, uint32_t slot_index);
+void pgraph_vk_advance_submission_slot(PGRAPHState *pg);
+void pgraph_vk_drain_submission_slots(PGRAPHState *pg);
 
 // image.c
 void pgraph_vk_transition_image_layout(PGRAPHState *pg, VkCommandBuffer cmd,
@@ -654,7 +662,6 @@ void pgraph_vk_flush_draw(NV2AState *d);
 void pgraph_vk_invalidate_blend_constants(PGRAPHState *pg);
 void pgraph_vk_begin_command_buffer(PGRAPHState *pg);
 void pgraph_vk_ensure_command_buffer(PGRAPHState *pg);
-void pgraph_vk_advance_submission_slot(PGRAPHState *pg);
 void pgraph_vk_ensure_not_in_render_pass(PGRAPHState *pg);
 
 VkCommandBuffer pgraph_vk_begin_nondraw_commands(PGRAPHState *pg);
