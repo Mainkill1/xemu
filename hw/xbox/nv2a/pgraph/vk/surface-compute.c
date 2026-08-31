@@ -22,7 +22,7 @@
 #include "qemu/lru.h"
 #include "qemu/error-report.h"
 #include "buffer-layout.h"
-#include "lazy-cache.h"
+#include "hw/xbox/nv2a/pgraph/lazy-cache.h"
 #include "renderer.h"
 #include "surface-compute.h"
 #include <vulkan/vulkan_core.h>
@@ -373,7 +373,7 @@ static void grow_compute_pipeline_cache(PGRAPHVkState *r, size_t count)
 static LruNode *compute_pipeline_cache_lookup(PGRAPHVkState *r, uint64_t hash,
                                               const void *key)
 {
-    size_t count = pgraph_vk_lazy_cache_growth_for_lookup(
+    size_t count = pgraph_lazy_cache_growth_for_lookup(
         &r->compute.pipeline_cache, r->compute.pipeline_cache_num_entries,
         COMPUTE_PIPELINE_CACHE_MAX_ENTRIES,
         COMPUTE_PIPELINE_CACHE_BLOCK_ENTRIES, hash, key);

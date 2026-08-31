@@ -30,7 +30,7 @@
 #include "qemu/lru.h"
 #include "qemu/error-report.h"
 #include "buffer-layout.h"
-#include "lazy-cache.h"
+#include "hw/xbox/nv2a/pgraph/lazy-cache.h"
 #include "renderer.h"
 
 static void texture_cache_release_node_resources(PGRAPHVkState *r, TextureBinding *snode);
@@ -57,7 +57,7 @@ static void grow_texture_cache(PGRAPHVkState *r, size_t count)
 static LruNode *texture_cache_lookup(PGRAPHVkState *r, uint64_t hash,
                                      const void *key)
 {
-    size_t count = pgraph_vk_lazy_cache_growth_for_lookup(
+    size_t count = pgraph_lazy_cache_growth_for_lookup(
         &r->texture_cache, r->texture_cache_num_entries,
         TEXTURE_CACHE_MAX_ENTRIES, TEXTURE_CACHE_BLOCK_ENTRIES, hash, key);
     if (count) {

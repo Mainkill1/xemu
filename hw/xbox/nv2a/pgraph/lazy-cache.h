@@ -2,14 +2,14 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
-#ifndef HW_XBOX_NV2A_PGRAPH_VK_LAZY_CACHE_H
-#define HW_XBOX_NV2A_PGRAPH_VK_LAZY_CACHE_H
+#ifndef HW_XBOX_NV2A_PGRAPH_LAZY_CACHE_H
+#define HW_XBOX_NV2A_PGRAPH_LAZY_CACHE_H
 
 #include <stdbool.h>
 #include <stddef.h>
 #include "qemu/lru.h"
 
-static inline size_t pgraph_vk_lazy_cache_growth_count(
+static inline size_t pgraph_lazy_cache_growth_count(
     size_t num_entries, size_t max_entries, size_t block_entries,
     size_t num_free, bool key_present)
 {
@@ -22,7 +22,7 @@ static inline size_t pgraph_vk_lazy_cache_growth_count(
     return remaining < block_entries ? remaining : block_entries;
 }
 
-static inline bool pgraph_vk_lazy_cache_contains_key(
+static inline bool pgraph_lazy_cache_contains_key(
     Lru *lru, uint64_t hash, const void *key)
 {
     unsigned int bin = lru_hash_to_bin(lru, hash);
@@ -36,15 +36,15 @@ static inline bool pgraph_vk_lazy_cache_contains_key(
     return false;
 }
 
-static inline size_t pgraph_vk_lazy_cache_growth_for_lookup(
+static inline size_t pgraph_lazy_cache_growth_for_lookup(
     Lru *lru, size_t num_entries, size_t max_entries, size_t block_entries,
     uint64_t hash, const void *key)
 {
     bool key_present = false;
     if (!lru->num_free && num_entries < max_entries) {
-        key_present = pgraph_vk_lazy_cache_contains_key(lru, hash, key);
+        key_present = pgraph_lazy_cache_contains_key(lru, hash, key);
     }
-    return pgraph_vk_lazy_cache_growth_count(
+    return pgraph_lazy_cache_growth_count(
         num_entries, max_entries, block_entries, lru->num_free, key_present);
 }
 

@@ -23,7 +23,7 @@
 #include "xemu-version.h"
 #include "ui/xemu-settings.h"
 #include "renderer.h"
-#include "lazy-cache.h"
+#include "hw/xbox/nv2a/pgraph/lazy-cache.h"
 #include "pipeline-cache-file.h"
 #include "vertex-range.h"
 #include <glib/gstdio.h>
@@ -153,7 +153,7 @@ static void grow_pipeline_cache(PGRAPHVkState *r, size_t count)
 static LruNode *pipeline_cache_lookup(PGRAPHVkState *r, uint64_t hash,
                                       const void *key)
 {
-    size_t count = pgraph_vk_lazy_cache_growth_for_lookup(
+    size_t count = pgraph_lazy_cache_growth_for_lookup(
         &r->pipeline_cache, r->pipeline_cache_num_entries,
         PIPELINE_CACHE_MAX_ENTRIES, PIPELINE_CACHE_BLOCK_ENTRIES, hash, key);
     if (count) {
