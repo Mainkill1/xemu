@@ -319,6 +319,10 @@ typedef struct ComputePipeline {
     LruNode node;
     ComputePipelineKey key;
     VkPipeline pipeline;
+    bool active_in_aux_command_buffer;
+    bool active_in_submission;
+    uint32_t active_submission_slot;
+    uint32_t active_submission_serial;
 } ComputePipeline;
 
 typedef struct PGRAPHVkComputeState {

@@ -332,17 +332,93 @@ static void update_descriptor_sets(PGRAPHState *pg,
     r->compute.descriptor_set_index += 1;
 }
 
+static void compute_pipeline_retire_completed(PGRAPHVkState *r);
+
+static bool compute_pipeline_has_evictable_node(PGRAPHVkState *r)
+{
+    LruNode *node;
+
+    QTAILQ_FOREACH_REVERSE(node, &r->compute.pipeline_cache.global,
+                           next_global) {
+        if (!lru_is_node_in_use(&r->compute.pipeline_cache, node)) {
+            return true;
+        }
+
+        ComputePipeline *pipeline =
+            container_of(node, ComputePipeline, node);
+        if (!pipeline->active_in_aux_command_buffer &&
+            !pipeline->active_in_submission) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool pgraph_vk_compute_needs_finish(PGRAPHVkState *r)
 {
+    compute_pipeline_retire_completed(r);
+
     bool need_descriptor_write_reset = (r->compute.descriptor_set_index >=
                                         ARRAY_SIZE(r->compute.descriptor_sets));
+    if (need_descriptor_write_reset) {
+        return true;
+    }
 
-    return need_descriptor_write_reset;
+    if (r->compute.pipeline_cache.num_free ||
+        r->compute.pipeline_cache_num_entries <
+            COMPUTE_PIPELINE_CACHE_MAX_ENTRIES) {
+        return false;
+    }
+
+    return !compute_pipeline_has_evictable_node(r);
+}
+
+static void compute_pipeline_retire_node(Lru *lru, LruNode *node, void *opaque)
+{
+    PGRAPHVkState *r = opaque;
+    ComputePipeline *pipeline = container_of(node, ComputePipeline, node);
+
+    if (pipeline->active_in_aux_command_buffer && !r->in_aux_command_buffer) {
+        pipeline->active_in_aux_command_buffer = false;
+    }
+
+    if (!pipeline->active_in_submission) {
+        return;
+    }
+
+    bool pending = false;
+    if (pipeline->active_submission_slot <
+        ARRAY_SIZE(r->submission_slots)) {
+        PGRAPHVkSubmissionSlot *slot =
+            &r->submission_slots[pipeline->active_submission_slot];
+        pending = slot->state.in_flight &&
+                  slot->state.submission_serial ==
+                      pipeline->active_submission_serial;
+    }
+
+    bool recorded_in_active_command_buffer =
+        r->in_command_buffer &&
+        pipeline->active_submission_slot == r->active_submission_slot &&
+        pipeline->active_submission_serial == r->submit_count + 1;
+
+    if (!pending && !recorded_in_active_command_buffer) {
+        pipeline->active_in_submission = false;
+        pipeline->active_submission_serial = 0;
+        pipeline->active_submission_slot = 0;
+    }
+}
+
+static void compute_pipeline_retire_completed(PGRAPHVkState *r)
+{
+    lru_visit_active(&r->compute.pipeline_cache,
+                     compute_pipeline_retire_node, r);
 }
 
 void pgraph_vk_compute_finish_complete(PGRAPHVkState *r)
 {
     r->compute.descriptor_set_index = 0;
+    compute_pipeline_retire_completed(r);
 }
 
 static uint32_t get_workgroup_size_for_output_units(PGRAPHVkState *r,
@@ -370,8 +446,9 @@ static void grow_compute_pipeline_cache(PGRAPHVkState *r, size_t count)
     r->compute.pipeline_cache_num_entries += count;
 }
 
-static LruNode *compute_pipeline_cache_lookup(PGRAPHVkState *r, uint64_t hash,
-                                              const void *key)
+static bool compute_pipeline_cache_try_lookup(PGRAPHVkState *r, uint64_t hash,
+                                              const void *key,
+                                              LruNode **node)
 {
     size_t count = pgraph_lazy_cache_growth_for_lookup(
         &r->compute.pipeline_cache, r->compute.pipeline_cache_num_entries,
@@ -380,13 +457,28 @@ static LruNode *compute_pipeline_cache_lookup(PGRAPHVkState *r, uint64_t hash,
     if (count) {
         grow_compute_pipeline_cache(r, count);
     }
-    return lru_lookup(&r->compute.pipeline_cache, hash, key);
+    return lru_try_lookup(&r->compute.pipeline_cache, hash, key,
+                          LRU_LOOKUP_ALLOW_EVICT, node);
 }
 
-static ComputePipeline *get_compute_pipeline(PGRAPHVkState *r,
+static void compute_pipeline_mark_recorded(PGRAPHVkState *r,
+                                           ComputePipeline *pipeline)
+{
+    if (r->in_aux_command_buffer) {
+        pipeline->active_in_aux_command_buffer = true;
+    }
+    if (r->in_command_buffer) {
+        pipeline->active_in_submission = true;
+        pipeline->active_submission_slot = r->active_submission_slot;
+        pipeline->active_submission_serial = r->submit_count + 1;
+    }
+}
+
+static ComputePipeline *get_compute_pipeline(PGRAPHState *pg,
                                              VkFormat host_fmt, bool pack,
                                              uint32_t output_units)
 {
+    PGRAPHVkState *r = pg->vk_renderer_state;
     int workgroup_size = get_workgroup_size_for_output_units(r, output_units);
 
     ComputePipelineKey key;
@@ -397,7 +489,17 @@ static ComputePipeline *get_compute_pipeline(PGRAPHVkState *r,
     key.workgroup_size = workgroup_size;
 
     uint64_t hash = fast_hash((void *)&key, sizeof(key));
-    LruNode *node = compute_pipeline_cache_lookup(r, hash, &key);
+    LruNode *node = NULL;
+    if (!compute_pipeline_cache_try_lookup(r, hash, &key, &node)) {
+        if (!r->in_command_buffer && !r->in_aux_command_buffer) {
+            pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+            compute_pipeline_cache_try_lookup(r, hash, &key, &node);
+        }
+        if (!node) {
+            error_report("Vulkan compute pipeline cache exhausted");
+            abort();
+        }
+    }
     ComputePipeline *pipeline = container_of(node, ComputePipeline, node);
 
     assert(pipeline);
@@ -466,11 +568,14 @@ void pgraph_vk_pack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
         },
     };
 
-    update_descriptor_sets(pg, buffers, ARRAY_SIZE(buffers));
-
     ComputePipeline *pipeline = get_compute_pipeline(
-        r, surface->host_fmt.vk_format, true,
+        pg, surface->host_fmt.vk_format, true,
         (uint32_t)output_size_in_units);
+    if (!pipeline) {
+        return;
+    }
+
+    update_descriptor_sets(pg, buffers, ARRAY_SIZE(buffers));
 
     size_t workgroup_size_in_units = pipeline->key.workgroup_size;
     assert(output_size_in_units % workgroup_size_in_units == 0);
@@ -482,6 +587,7 @@ void pgraph_vk_pack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
     // FIXME: Smarter workgroup scaling
 
     pgraph_vk_begin_debug_marker(r, cmd, RGBA_PINK, __func__);
+    compute_pipeline_mark_recorded(r, pipeline);
     vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline->pipeline);
     vkCmdBindDescriptorSets(
         cmd, VK_PIPELINE_BIND_POINT_COMPUTE, r->compute.pipeline_layout, 0, 1,
@@ -554,11 +660,14 @@ void pgraph_vk_unpack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
             .range = input_size,
         },
     };
-    update_descriptor_sets(pg, buffers, ARRAY_SIZE(buffers));
-
     ComputePipeline *pipeline = get_compute_pipeline(
-        r, surface->host_fmt.vk_format, false,
+        pg, surface->host_fmt.vk_format, false,
         (uint32_t)output_size_in_units);
+    if (!pipeline) {
+        return;
+    }
+
+    update_descriptor_sets(pg, buffers, ARRAY_SIZE(buffers));
 
     size_t workgroup_size_in_units = pipeline->key.workgroup_size;
     assert(output_size_in_units % workgroup_size_in_units == 0);
@@ -570,6 +679,7 @@ void pgraph_vk_unpack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
     // FIXME: Smarter workgroup scaling
 
     pgraph_vk_begin_debug_marker(r, cmd, RGBA_PINK, __func__);
+    compute_pipeline_mark_recorded(r, pipeline);
     vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline->pipeline);
     vkCmdBindDescriptorSets(
         cmd, VK_PIPELINE_BIND_POINT_COMPUTE, r->compute.pipeline_layout, 0, 1,
@@ -611,6 +721,18 @@ static void pipeline_cache_release_node_resources(PGRAPHVkState *r, ComputePipel
 {
     vkDestroyPipeline(r->device, snode->pipeline, NULL);
     snode->pipeline = VK_NULL_HANDLE;
+    snode->active_in_aux_command_buffer = false;
+    snode->active_in_submission = false;
+    snode->active_submission_slot = 0;
+    snode->active_submission_serial = 0;
+}
+
+static bool pipeline_cache_entry_pre_evict(Lru *lru, LruNode *node)
+{
+    ComputePipeline *snode = container_of(node, ComputePipeline, node);
+
+    return !snode->active_in_aux_command_buffer &&
+           !snode->active_in_submission;
 }
 
 static void pipeline_cache_entry_post_evict(Lru *lru, LruNode *node)
@@ -635,11 +757,13 @@ static void pipeline_cache_init(PGRAPHVkState *r)
     r->compute.pipeline_cache_num_entries = 0;
     r->compute.pipeline_cache.init_node = pipeline_cache_entry_init;
     r->compute.pipeline_cache.compare_nodes = pipeline_cache_entry_compare;
+    r->compute.pipeline_cache.pre_node_evict = pipeline_cache_entry_pre_evict;
     r->compute.pipeline_cache.post_node_evict = pipeline_cache_entry_post_evict;
 }
 
 static void pipeline_cache_finalize(PGRAPHVkState *r)
 {
+    pgraph_vk_compute_finish_complete(r);
     lru_flush(&r->compute.pipeline_cache);
     g_ptr_array_free(r->compute.pipeline_cache_blocks, true);
     r->compute.pipeline_cache_blocks = NULL;
