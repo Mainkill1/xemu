@@ -86,7 +86,9 @@ static void get_texture_backing_extent(TextureShape s, unsigned int *width,
     if (!f.linear && s.border) {
         *width = MAX(NV2A_BORDER_TEXTURE_MIN_EXTENT, *width * 2);
         *height = MAX(NV2A_BORDER_TEXTURE_MIN_EXTENT, *height * 2);
-        *depth = MAX(NV2A_BORDER_TEXTURE_MIN_EXTENT, *depth * 2);
+        if (s.dimensionality == 3) {
+            *depth = MAX(NV2A_BORDER_TEXTURE_MIN_EXTENT, *depth * 2);
+        }
     }
 }
 
