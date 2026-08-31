@@ -54,8 +54,8 @@ static void grow_texture_cache(PGRAPHVkState *r, size_t count)
     r->texture_cache_num_entries += count;
 }
 
-static LruNode *texture_cache_lookup(PGRAPHVkState *r, uint64_t hash,
-                                     const void *key)
+static bool texture_cache_try_lookup(PGRAPHVkState *r, uint64_t hash,
+                                     const void *key, LruNode **node)
 {
     size_t count = pgraph_lazy_cache_growth_for_lookup(
         &r->texture_cache, r->texture_cache_num_entries,
@@ -63,7 +63,8 @@ static LruNode *texture_cache_lookup(PGRAPHVkState *r, uint64_t hash,
     if (count) {
         grow_texture_cache(r, count);
     }
-    return lru_lookup(&r->texture_cache, hash, key);
+    return lru_try_lookup(&r->texture_cache, hash, key,
+                          LRU_LOOKUP_ALLOW_EVICT, node);
 }
 
 static const VkImageType dimensionality_to_vk_image_type[] = {
@@ -1285,7 +1286,35 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     }
 
     uint64_t key_hash = fast_hash((void*)&key, sizeof(key));
-    LruNode *node = texture_cache_lookup(r, key_hash, &key);
+    LruNode *node = NULL;
+    bool cache_lookup_succeeded =
+        texture_cache_try_lookup(r, key_hash, &key, &node);
+
+    /* A full cache can temporarily have no evictable entry when every old
+     * texture was used by the command buffer being recorded. Retire that work
+     * once, where pgraph_vk_finish()'s state invariants permit it, then retry.
+     * If no command buffer is open, submitting cannot release that
+     * protection. */
+    bool can_retire_and_retry = r->in_command_buffer && !r->in_draw &&
+                                !r->in_aux_command_buffer &&
+                                r->debug_depth == 0;
+    if (!cache_lookup_succeeded && can_retire_and_retry) {
+        pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+        cache_lookup_succeeded =
+            texture_cache_try_lookup(r, key_hash, &key, &node);
+    }
+
+    if (!cache_lookup_succeeded) {
+        assert(node == NULL);
+        warn_report_once(
+            "Vulkan texture cache is full with no evictable entries; "
+            "using the dummy texture");
+        r->texture_bindings[texture_idx] = &r->dummy_texture;
+        NV2A_VK_DGROUP_END();
+        return false;
+    }
+
+    assert(node != NULL);
     TextureBinding *snode = container_of(node, TextureBinding, node);
     bool binding_found = snode->image != VK_NULL_HANDLE;
 
