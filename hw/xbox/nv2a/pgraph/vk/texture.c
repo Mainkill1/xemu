@@ -29,6 +29,7 @@
 #include "qemu/fast-hash.h"
 #include "qemu/lru.h"
 #include "renderer.h"
+#include "texture-dirty.h"
 
 static void texture_cache_release_node_resources(PGRAPHVkState *r, TextureBinding *snode);
 
@@ -1200,6 +1201,10 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
                 snode->hash = content_hash;
             }
         }
+
+        /* Revalidation applies only to this exact cache binding. Overlapping
+         * aliases were marked independently and must retain their state. */
+        pgraph_vk_texture_binding_revalidated(&snode->possibly_dirty);
 
         NV2A_VK_DGROUP_END();
         return;
