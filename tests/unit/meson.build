@@ -21,6 +21,7 @@ tests = {
   'test-visitor-serialization': [testqapi],
   'test-bitmap': [],
   'test-lru-active': [],
+  'test-xbox-apu-voice-work-schedule': [],
   'test-xbox-pgraph-uniform-dirty': [],
   'test-xbox-pgraph-inline-elements': [],
   'test-xbox-vk-blend-constants': [],
