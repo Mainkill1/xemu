@@ -69,6 +69,27 @@ typedef struct TextureLayout {
     TextureLayer layers[6];
 } TextureLayout;
 
+/* NV2A texture-border storage uses the next doubled backing extent, with a
+ * 16-texel minimum. This is the same storage contract used by the OpenGL
+ * upload path and by the existing Vulkan layout decoder. */
+#define NV2A_BORDER_TEXTURE_MIN_EXTENT 16
+
+static void get_texture_backing_extent(TextureShape s, unsigned int *width,
+                                       unsigned int *height,
+                                       unsigned int *depth)
+{
+    BasicColorFormatInfo f = kelvin_color_format_info_map[s.color_format];
+
+    *width = s.width;
+    *height = s.height;
+    *depth = s.depth;
+    if (!f.linear && s.border) {
+        *width = MAX(NV2A_BORDER_TEXTURE_MIN_EXTENT, *width * 2);
+        *height = MAX(NV2A_BORDER_TEXTURE_MIN_EXTENT, *height * 2);
+        *depth = MAX(NV2A_BORDER_TEXTURE_MIN_EXTENT, *depth * 2);
+    }
+}
+
 // FIXME: Move to common
 static enum S3TC_DECOMPRESS_FORMAT kelvin_format_to_s3tc_format(int color_format)
 {
@@ -105,13 +126,10 @@ static size_t get_cubemap_layer_size(PGRAPHState *pg, TextureShape s)
         pgraph_is_texture_format_compressed(pg, s.color_format);
     unsigned int block_size;
 
-    unsigned int w = s.width, h = s.height;
+    unsigned int w, h, depth;
     size_t length = 0;
 
-    if (!f.linear && s.border) {
-        w = MAX(16, w * 2);
-        h = MAX(16, h * 2);
-    }
+    get_texture_backing_extent(s, &w, &h, &depth);
 
     if (is_compressed) {
         block_size =
@@ -178,14 +196,13 @@ static TextureLayout *get_texture_layout(PGRAPHState *pg, int texture_idx)
                                                     &texture_palette_data_size);
     void *palette_data_ptr = (char *)d->vram_ptr + texture_palette_vram_offset;
 
-    unsigned int adjusted_width = s.width, adjusted_height = s.height,
-                 adjusted_pitch = s.pitch, adjusted_depth = s.depth;
+    unsigned int adjusted_width, adjusted_height, adjusted_depth;
+    unsigned int adjusted_pitch = s.pitch;
 
+    get_texture_backing_extent(s, &adjusted_width, &adjusted_height,
+                               &adjusted_depth);
     if (!f.linear && s.border) {
-        adjusted_width = MAX(16, adjusted_width * 2);
-        adjusted_height = MAX(16, adjusted_height * 2);
         adjusted_pitch = adjusted_width * (s.pitch / s.width);
-        adjusted_depth = MAX(16, s.depth * 2);
     }
 
     TextureLayout *layout = g_malloc0(sizeof(TextureLayout));
@@ -1219,12 +1236,20 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
     assert(state.dimensionality <
            ARRAY_SIZE(dimensionality_to_vk_image_view_type));
 
+    unsigned int image_width = state.width;
+    unsigned int image_height = state.height;
+    unsigned int image_depth = state.depth;
+    if (!state.cubemap) {
+        get_texture_backing_extent(state, &image_width, &image_height,
+                                   &image_depth);
+    }
+
     VkImageCreateInfo image_create_info = {
         .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
         .imageType = dimensionality_to_vk_image_type[state.dimensionality],
-        .extent.width = state.width, // FIXME: Use adjusted size?
-        .extent.height = state.height,
-        .extent.depth = state.depth,
+        .extent.width = image_width,
+        .extent.height = image_height,
+        .extent.depth = image_depth,
         .mipLevels = f_basic.linear ? 1 : state.levels,
         .arrayLayers = state.cubemap ? 6 : 1,
         .format = vkf.vk_format,
