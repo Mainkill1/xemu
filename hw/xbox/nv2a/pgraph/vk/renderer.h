@@ -347,6 +347,8 @@ typedef struct PGRAPHVkSubmissionSlot {
     VkFence fence;
     VkDescriptorPool descriptor_pool;
     VkDescriptorSet descriptor_sets[PGRAPH_VK_DESCRIPTOR_SETS_PER_SLOT];
+    StorageBuffer uniform_buffer;
+    StorageBuffer uniform_staging_buffer;
 } PGRAPHVkSubmissionSlot;
 
 typedef struct PGRAPHVkState {
@@ -535,6 +537,7 @@ VkDeviceSize pgraph_vk_append_to_buffer(PGRAPHState *pg, int index, void **data,
 VkDeviceSize pgraph_vk_buffer_get_write_offset(PGRAPHState *pg, int index);
 void pgraph_vk_buffer_set_write_offset(PGRAPHState *pg, int index,
                                        VkDeviceSize offset);
+StorageBuffer *pgraph_vk_get_storage_buffer(PGRAPHState *pg, int index);
 
 // command.c
 void pgraph_vk_init_command_buffers(PGRAPHState *pg);

@@ -73,6 +73,8 @@ static void pgraph_vk_finalize(NV2AState *d)
     /* Retire any framebuffer and other resources referenced by an open
      * command buffer before cache and render-pass teardown. */
     pgraph_vk_finish(pg, VK_FINISH_REASON_FLUSH);
+    /* Drain every slot before destroying any slot-owned renderer resources. */
+    pgraph_vk_drain_submission_slots(pg);
 
     pgraph_vk_finalize_display(pg);
     pgraph_vk_finalize_compute(pg);

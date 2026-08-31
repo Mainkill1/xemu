@@ -155,6 +155,28 @@ static void test_slot_transient_allocation(void)
     g_assert_cmpuint(slot.uniform_staging_offset, ==, 0);
 }
 
+static void test_slot_uniform_staging_offsets_are_independent(void)
+{
+    PGRAPHVkSubmissionSlotState slots[2] = { 0 };
+
+    pgraph_vk_submission_slot_set_uniform_staging_offset(&slots[0], 256);
+    pgraph_vk_submission_slot_set_uniform_staging_offset(&slots[1], 1024);
+    g_assert_cmpuint(
+        pgraph_vk_submission_slot_get_uniform_staging_offset(&slots[0]),
+        ==, 256);
+    g_assert_cmpuint(
+        pgraph_vk_submission_slot_get_uniform_staging_offset(&slots[1]),
+        ==, 1024);
+
+    pgraph_vk_submission_slot_reset_transients(&slots[0]);
+    g_assert_cmpuint(
+        pgraph_vk_submission_slot_get_uniform_staging_offset(&slots[0]),
+        ==, 0);
+    g_assert_cmpuint(
+        pgraph_vk_submission_slot_get_uniform_staging_offset(&slots[1]),
+        ==, 1024);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -166,5 +188,7 @@ int main(int argc, char **argv)
                     test_slot_retire_callback_order);
     g_test_add_func("/xbox/vk-submission-slots/transient-allocation",
                     test_slot_transient_allocation);
+    g_test_add_func("/xbox/vk-submission-slots/uniform-staging-isolation",
+                    test_slot_uniform_staging_offsets_are_independent);
     return g_test_run();
 }

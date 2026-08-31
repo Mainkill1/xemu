@@ -246,7 +246,7 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
         VkDescriptorBufferInfo ubo_buffer_infos[2];
         for (int i = 0; i < ARRAY_SIZE(layouts); i++) {
             ubo_buffer_infos[i] = (VkDescriptorBufferInfo){
-                .buffer = r->storage_buffers[BUFFER_UNIFORM].buffer,
+                .buffer = slot->uniform_buffer.buffer,
                 .offset = 0,
                 .range = layouts[i]->total_size,
             };
