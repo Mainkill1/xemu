@@ -45,6 +45,10 @@ typedef QTAILQ_HEAD(LruBin, LruNode) LruBin;
 
 typedef struct Lru Lru;
 
+enum {
+	LRU_LOOKUP_ALLOW_EVICT = 1U << 0,
+};
+
 struct Lru {
 	QTAILQ_HEAD(, LruNode) global;
 	LruBin **bin_blocks;
@@ -249,11 +253,15 @@ bool lru_contains_key(Lru *lru, uint64_t hash, const void *key)
 }
 
 static inline
-LruNode *lru_lookup(Lru *lru, uint64_t hash, const void *key)
+bool lru_try_lookup(Lru *lru, uint64_t hash, const void *key,
+                    unsigned int flags, LruNode **out)
 {
 	unsigned int bin = lru_hash_to_bin(lru, hash);
 	LruBin *bin_head = lru_get_bin(lru, bin, false);
 	LruNode *iter, *found = NULL;
+
+	assert(out);
+	*out = NULL;
 
 	if (bin_head) {
 		QTAILQ_FOREACH(iter, bin_head, next_bin) {
@@ -268,7 +276,18 @@ LruNode *lru_lookup(Lru *lru, uint64_t hash, const void *key)
 	if (found) {
 		QTAILQ_REMOVE(bin_head, found, next_bin);
 	} else {
-		found = lru_get_one_free(lru);
+		QTAILQ_FOREACH_REVERSE(found, &lru->global, next_global) {
+			if (!lru_is_node_in_use(lru, found)) {
+				break;
+			}
+		}
+		if (!found && (flags & LRU_LOOKUP_ALLOW_EVICT)) {
+			found = lru_try_evict_one(lru);
+		}
+		if (!found) {
+			return false;
+		}
+
 		found->hash = hash;
 		if (lru->init_node) {
 			lru->init_node(lru, found, key);
@@ -286,6 +305,18 @@ LruNode *lru_lookup(Lru *lru, uint64_t hash, const void *key)
 	QTAILQ_INSERT_HEAD(&lru->global, found, next_global);
 	QTAILQ_INSERT_HEAD(bin_head, found, next_bin);
 
+	*out = found;
+	return true;
+}
+
+static inline
+LruNode *lru_lookup(Lru *lru, uint64_t hash, const void *key)
+{
+	LruNode *found = NULL;
+	bool success = lru_try_lookup(lru, hash, key, LRU_LOOKUP_ALLOW_EVICT,
+	                              &found);
+
+	assert(success && found);
 	return found;
 }
 

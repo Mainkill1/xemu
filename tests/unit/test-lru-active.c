@@ -10,6 +10,8 @@
 typedef struct TestNode {
     LruNode node;
     uint64_t key;
+    bool protected;
+    bool evicted;
 } TestNode;
 
 typedef struct VisitState {
@@ -35,6 +37,20 @@ static bool test_lru_compare_nodes(Lru *lru, LruNode *node, const void *key)
 static bool test_lru_prevent_eviction(Lru *lru, LruNode *node)
 {
     return false;
+}
+
+static bool test_lru_allow_unprotected_eviction(Lru *lru, LruNode *node)
+{
+    TestNode *test_node = container_of(node, TestNode, node);
+
+    return !test_node->protected;
+}
+
+static void test_lru_mark_evicted(Lru *lru, LruNode *node)
+{
+    TestNode *test_node = container_of(node, TestNode, node);
+
+    test_node->evicted = true;
 }
 
 static void test_lru_setup(Lru *lru, TestNode *nodes, size_t count)
@@ -237,6 +253,136 @@ static void test_flush_retains_bins_for_active_nodes(void)
     test_lru_teardown(&lru);
 }
 
+static void test_try_lookup_hit_without_eviction(void)
+{
+    Lru lru;
+    TestNode node = { 0 };
+    uint64_t key = 1;
+    LruNode *first;
+    LruNode *hit = NULL;
+
+    test_lru_setup(&lru, &node, 1);
+    first = lru_lookup(&lru, key, &key);
+    lru.pre_node_evict = test_lru_prevent_eviction;
+
+    g_assert_true(lru_try_lookup(&lru, key, &key, 0, &hit));
+    g_assert_true(hit == first);
+    g_assert_cmpint(lru.num_used, ==, 1);
+    g_assert_cmpint(lru.num_free, ==, 0);
+
+    lru.pre_node_evict = NULL;
+    test_lru_teardown(&lru);
+}
+
+static void test_try_lookup_free_miss_without_eviction(void)
+{
+    Lru lru;
+    TestNode node = { 0 };
+    uint64_t key = 1;
+    LruNode *found = NULL;
+
+    test_lru_setup(&lru, &node, 1);
+
+    g_assert_true(lru_try_lookup(&lru, key, &key, 0, &found));
+    g_assert_nonnull(found);
+    g_assert_cmpuint(node.key, ==, key);
+    g_assert_cmpint(lru.num_used, ==, 1);
+    g_assert_cmpint(lru.num_free, ==, 0);
+    g_assert_true(lru_contains_hash(&lru, key));
+
+    test_lru_teardown(&lru);
+}
+
+static void test_try_lookup_allowed_eviction(void)
+{
+    Lru lru;
+    TestNode nodes[2] = { 0 };
+    uint64_t key1 = 1;
+    uint64_t key2 = 2;
+    uint64_t key3 = 3;
+    LruNode *oldest;
+    TestNode *evicted_node;
+    LruNode *found = NULL;
+
+    test_lru_setup(&lru, nodes, G_N_ELEMENTS(nodes));
+    lru.post_node_evict = test_lru_mark_evicted;
+
+    oldest = lru_lookup(&lru, key1, &key1);
+    lru_lookup(&lru, key2, &key2);
+
+    g_assert_true(lru_try_lookup(&lru, key3, &key3,
+                                 LRU_LOOKUP_ALLOW_EVICT, &found));
+    evicted_node = container_of(oldest, TestNode, node);
+    g_assert_true(found == oldest);
+    g_assert_true(evicted_node->evicted);
+    g_assert_cmpuint(evicted_node->key, ==, key3);
+    g_assert_false(lru_contains_hash(&lru, key1));
+    g_assert_true(lru_contains_hash(&lru, key2));
+    g_assert_true(lru_contains_hash(&lru, key3));
+    g_assert_cmpint(lru.num_used, ==, 2);
+    g_assert_cmpint(lru.num_free, ==, 0);
+
+    test_lru_teardown(&lru);
+}
+
+static void test_try_lookup_no_evict_full_failure(void)
+{
+    Lru lru;
+    TestNode node = { 0 };
+    uint64_t key1 = 1;
+    uint64_t key2 = 2;
+    LruNode *original;
+    LruNode *found = (LruNode *)0x1;
+
+    test_lru_setup(&lru, &node, 1);
+    original = lru_lookup(&lru, key1, &key1);
+
+    g_assert_false(lru_try_lookup(&lru, key2, &key2, 0, &found));
+    g_assert_null(found);
+    g_assert_true(lru_contains_hash(&lru, key1));
+    g_assert_false(lru_contains_hash(&lru, key2));
+    g_assert_cmpuint(node.key, ==, key1);
+    g_assert_true(lru_lookup(&lru, key1, &key1) == original);
+    g_assert_cmpint(lru.num_used, ==, 1);
+    g_assert_cmpint(lru.num_free, ==, 0);
+
+    test_lru_teardown(&lru);
+}
+
+static void test_try_lookup_all_protected_failure(void)
+{
+    Lru lru;
+    TestNode nodes[2] = {
+        { .protected = true },
+        { .protected = true },
+    };
+    uint64_t key1 = 1;
+    uint64_t key2 = 2;
+    uint64_t key3 = 3;
+    LruNode *found = (LruNode *)0x1;
+
+    test_lru_setup(&lru, nodes, G_N_ELEMENTS(nodes));
+    lru.pre_node_evict = test_lru_allow_unprotected_eviction;
+    lru.post_node_evict = test_lru_mark_evicted;
+
+    lru_lookup(&lru, key1, &key1);
+    lru_lookup(&lru, key2, &key2);
+
+    g_assert_false(lru_try_lookup(&lru, key3, &key3,
+                                  LRU_LOOKUP_ALLOW_EVICT, &found));
+    g_assert_null(found);
+    g_assert_false(nodes[0].evicted);
+    g_assert_false(nodes[1].evicted);
+    g_assert_true(lru_contains_hash(&lru, key1));
+    g_assert_true(lru_contains_hash(&lru, key2));
+    g_assert_false(lru_contains_hash(&lru, key3));
+    g_assert_cmpint(lru.num_used, ==, 2);
+    g_assert_cmpint(lru.num_free, ==, 0);
+
+    lru.pre_node_evict = NULL;
+    test_lru_teardown(&lru);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -252,6 +398,16 @@ int main(int argc, char **argv)
                     test_lru_eviction_with_sparse_bins);
     g_test_add_func("/lru/bins/retain-active",
                     test_flush_retains_bins_for_active_nodes);
+    g_test_add_func("/lru/try-lookup/hit-without-eviction",
+                    test_try_lookup_hit_without_eviction);
+    g_test_add_func("/lru/try-lookup/free-miss-without-eviction",
+                    test_try_lookup_free_miss_without_eviction);
+    g_test_add_func("/lru/try-lookup/allowed-eviction",
+                    test_try_lookup_allowed_eviction);
+    g_test_add_func("/lru/try-lookup/no-evict-full-failure",
+                    test_try_lookup_no_evict_full_failure);
+    g_test_add_func("/lru/try-lookup/all-protected-failure",
+                    test_try_lookup_all_protected_failure);
 
     return g_test_run();
 }
