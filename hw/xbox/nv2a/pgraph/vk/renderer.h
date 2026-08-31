@@ -40,6 +40,7 @@
 #include "blend-constants-cache.h"
 #include "descriptor-update.h"
 #include "framebuffer-cache.h"
+#include "texture-cache-key.h"
 #include "debug.h"
 #include "constants.h"
 #include "glsl.h"
@@ -208,10 +209,6 @@ typedef struct TextureKey {
     hwaddr palette_vram_offset;
     hwaddr palette_length;
     float scale;
-    uint32_t filter;
-    uint32_t address;
-    uint32_t border_color;
-    uint32_t max_anisotropy;
 } TextureKey;
 
 typedef struct TextureBinding {
@@ -221,13 +218,19 @@ typedef struct TextureBinding {
     VkImageLayout current_layout;
     VkImageView image_view;
     VmaAllocation allocation;
-    VkSampler sampler;
     bool content_valid;
     bool possibly_dirty;
     uint64_t hash;
     unsigned int draw_time;
     uint32_t submit_time;
 } TextureBinding;
+
+typedef struct TextureSamplerBinding {
+    LruNode node;
+    PGRAPHVkTextureSamplerKey key;
+    VkSampler sampler;
+    uint32_t submit_time;
+} TextureSamplerBinding;
 
 typedef struct QueryReport {
     bool clear;
@@ -416,6 +419,11 @@ typedef struct PGRAPHVkState {
     size_t texture_cache_num_entries;
     TextureBinding *texture_bindings[NV2A_MAX_TEXTURES];
     TextureBinding dummy_texture;
+    Lru texture_sampler_cache;
+    GPtrArray *texture_sampler_cache_blocks;
+    size_t texture_sampler_cache_num_entries;
+    TextureSamplerBinding *texture_sampler_bindings[NV2A_MAX_TEXTURES];
+    TextureSamplerBinding dummy_texture_sampler;
     bool texture_bindings_changed;
     VkFormatProperties *texture_format_properties;
 

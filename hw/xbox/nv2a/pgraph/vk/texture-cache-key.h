@@ -13,6 +13,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include "hw/xbox/nv2a/pgraph/texture-mipmap.h"
+
 /*
  * TextureShape currently also carries sampler LOD clamps.  Keep the storage
  * identity separate so sampler-only state cannot split the image cache.
@@ -83,34 +85,9 @@ static inline uint32_t pgraph_vk_texture_storage_mip_count(
     bool linear, uint32_t dimensionality, uint32_t declared_levels,
     uint32_t log_width, uint32_t log_height)
 {
-    uint32_t levels;
-    uint32_t max_log;
-    uint32_t max_dimension_levels;
-    uint32_t dimensional_limit;
-
-    if (linear) {
-        return 1;
-    }
-
-    max_log = log_width > log_height ? log_width : log_height;
-    max_dimension_levels = max_log == UINT32_MAX ? UINT32_MAX : max_log + 1;
-    levels = declared_levels < max_dimension_levels ? declared_levels :
-                                                     max_dimension_levels;
-    if (levels == 0) {
-        levels = 1;
-    }
-
-    if (dimensionality == 3) {
-        if (log_width < 2 || log_height < 2) {
-            return 1;
-        }
-
-        dimensional_limit =
-            (log_width < log_height ? log_width : log_height) - 1;
-        levels = levels < dimensional_limit ? levels : dimensional_limit;
-    }
-
-    return levels;
+    return pgraph_texture_mip_levels_derive(
+               linear, dimensionality, declared_levels, log_width, log_height,
+               0, UINT32_MAX).storage_levels;
 }
 
 static inline void pgraph_vk_texture_storage_shape_init(
@@ -266,6 +243,20 @@ static inline bool pgraph_vk_texture_sampler_key_equal(
            a->custom_border_format == b->custom_border_format &&
            memcmp(a->custom_border_value, b->custom_border_value,
                   sizeof(a->custom_border_value)) == 0;
+}
+
+/*
+ * Synchronous lifetime rule mirroring the image cache.  A bound object remains
+ * available for the next descriptor write; an object used by the command
+ * buffer being recorded remains alive until that buffer is submitted and
+ * synchronously retired.
+ */
+static inline bool pgraph_vk_texture_sampler_can_evict(
+    bool currently_bound, bool in_command_buffer, uint32_t entry_submit_time,
+    uint32_t current_submit_time)
+{
+    return !currently_bound &&
+           !(in_command_buffer && entry_submit_time == current_submit_time);
 }
 
 #endif

@@ -21,6 +21,7 @@
 
 #include "hw/xbox/nv2a/nv2a_int.h"
 #include "texture.h"
+#include "texture-mipmap.h"
 #include "util.h"
 
 const BasicColorFormatInfo kelvin_color_format_info_map[66] = {
@@ -151,39 +152,41 @@ size_t pgraph_get_texture_length(PGRAPHState *pg, TextureShape *shape)
         length = shape->height * shape->pitch;
     } else {
         if (shape->dimensionality >= 2) {
-            unsigned int w = shape->width, h = shape->height;
-            int level;
-            if (!pgraph_is_texture_format_compressed(pg, shape->color_format)) {
-                for (level = 0; level < shape->levels; level++) {
-                    w = MAX(w, 1);
-                    h = MAX(h, 1);
-                    length += w * h * f.bytes_per_pixel;
-                    w /= 2;
-                    h /= 2;
-                }
-            } else {
-                /* Compressed textures are a bit different */
-                unsigned int block_size =
-                    shape->color_format ==
-                            NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT1_A1R5G5B5 ?
-                        8 : 16;
-                for (level = 0; level < shape->levels; level++) {
-                    w = MAX(w, 1);
-                    h = MAX(h, 1);
-                    unsigned int phys_w = (w + 3) & ~3,
-                                 phys_h = (h + 3) & ~3;
-                    length += phys_w/4 * phys_h/4 * block_size;
-                    w /= 2;
-                    h /= 2;
-                }
+            bool compressed = pgraph_is_texture_format_compressed(
+                pg, shape->color_format);
+            unsigned int block_size = compressed ?
+                (shape->color_format ==
+                         NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT1_A1R5G5B5 ?
+                     8 : 16) : 0;
+            bool valid = pgraph_texture_mip_chain_2d_length(
+                shape->width, shape->height, shape->levels,
+                f.bytes_per_pixel, block_size, &length);
+            assert(valid);
+            if (!valid) {
+                return 0;
             }
             if (shape->cubemap) {
                 assert(shape->dimensionality == 2);
-                length = (length + NV2A_CUBEMAP_FACE_ALIGNMENT - 1) & ~(NV2A_CUBEMAP_FACE_ALIGNMENT - 1);
-                length *= 6;
+                valid = pgraph_texture_size_add(
+                    length, NV2A_CUBEMAP_FACE_ALIGNMENT - 1, &length);
+                assert(valid);
+                if (!valid) {
+                    return 0;
+                }
+                length &= ~(NV2A_CUBEMAP_FACE_ALIGNMENT - 1);
+                valid = pgraph_texture_size_mul(length, 6, &length);
+                assert(valid);
+                if (!valid) {
+                    return 0;
+                }
             }
             if (shape->dimensionality >= 3) {
-                length *= shape->depth;
+                valid = pgraph_texture_size_mul(length, shape->depth,
+                                                &length);
+                assert(valid);
+                if (!valid) {
+                    return 0;
+                }
             }
         }
     }
@@ -227,7 +230,8 @@ TextureShape pgraph_get_texture_shape(PGRAPHState *pg, int texture_idx)
     }
 
     unsigned int color_format = GET_MASK(fmt, NV_PGRAPH_TEXFMT0_COLOR);
-    unsigned int levels = GET_MASK(fmt, NV_PGRAPH_TEXFMT0_MIPMAP_LEVELS);
+    unsigned int declared_levels =
+        GET_MASK(fmt, NV_PGRAPH_TEXFMT0_MIPMAP_LEVELS);
     unsigned int log_width = GET_MASK(fmt, NV_PGRAPH_TEXFMT0_BASE_SIZE_U);
     unsigned int log_height = GET_MASK(fmt, NV_PGRAPH_TEXFMT0_BASE_SIZE_V);
     unsigned int log_depth = GET_MASK(fmt, NV_PGRAPH_TEXFMT0_BASE_SIZE_P);
@@ -255,7 +259,7 @@ TextureShape pgraph_get_texture_shape(PGRAPHState *pg, int texture_idx)
                  cubemap ? "; cubemap" : "",
                  GET_MASK(filter, NV_PGRAPH_TEXFILTER0_MIN),
                  GET_MASK(filter, NV_PGRAPH_TEXFILTER0_MAG),
-                 min_mipmap_level, max_mipmap_level, levels,
+                 min_mipmap_level, max_mipmap_level, declared_levels,
                  lod_bias);
 
     assert(color_format < ARRAY_SIZE(kelvin_color_format_info_map));
@@ -265,6 +269,13 @@ TextureShape pgraph_get_texture_shape(PGRAPHState *pg, int texture_idx)
                 color_format);
         abort();
     }
+
+    PGRAPHTextureMipLevels mip_levels = pgraph_texture_mip_levels_derive(
+        f.linear, dimensionality, declared_levels, log_width, log_height,
+        min_mipmap_level, max_mipmap_level);
+    unsigned int levels = mip_levels.storage_levels;
+    min_mipmap_level = mip_levels.sampler_min_level;
+    max_mipmap_level = mip_levels.sampler_max_level;
 
     unsigned int width, height, depth;
     if (f.linear) {
@@ -278,32 +289,7 @@ TextureShape pgraph_get_texture_shape(PGRAPHState *pg, int texture_idx)
         depth = 1 << log_depth;
         pitch = 0;
 
-        levels = MIN(levels, max_mipmap_level + 1);
-
-        /* Discard mipmap levels that would be smaller than 1x1.
-         * FIXME: Is this actually needed?
-         *
-         * >> Level 0: 32 x 4
-         *    Level 1: 16 x 2
-         *    Level 2: 8 x 1
-         *    Level 3: 4 x 1
-         *    Level 4: 2 x 1
-         *    Level 5: 1 x 1
-         */
-        levels = MIN(levels, MAX(log_width, log_height) + 1);
         assert(levels > 0);
-
-        if (dimensionality == 3) {
-            /* FIXME: What about 3D mipmaps? */
-            if (log_width < 2 || log_height < 2) {
-                /* Base level is smaller than 4x4... */
-                levels = 1;
-            } else {
-                levels = MIN(levels, MIN(log_width, log_height) - 1);
-            }
-        }
-        min_mipmap_level = MIN(levels-1, min_mipmap_level);
-        max_mipmap_level = MIN(levels-1, max_mipmap_level);
     }
 
     TextureShape shape;
