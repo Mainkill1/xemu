@@ -11,6 +11,7 @@
 typedef struct TestEntry {
     LruNode node;
     uint32_t key;
+    bool protected;
 } TestEntry;
 
 typedef struct TestCache {
@@ -36,6 +37,12 @@ static bool test_entry_compare(Lru *lru, LruNode *node, const void *key)
     return entry->key != *(const uint32_t *)key;
 }
 
+static bool test_entry_can_evict(Lru *lru, LruNode *node)
+{
+    TestEntry *entry = container_of(node, TestEntry, node);
+    return !entry->protected;
+}
+
 static void test_cache_grow(TestCache *cache, size_t count)
 {
     TestEntry *entries = g_new0(TestEntry, count);
@@ -57,6 +64,24 @@ static TestEntry *test_cache_lookup(TestCache *cache, uint32_t key)
         test_cache_grow(cache, count);
     }
     return container_of(lru_lookup(&cache->lru, hash, &key), TestEntry, node);
+}
+
+static bool test_cache_try_lookup(TestCache *cache, uint32_t key,
+                                  TestEntry **entry)
+{
+    uint64_t hash = key;
+    size_t count = pgraph_lazy_cache_growth_for_lookup(
+        &cache->lru, cache->num_entries, TEST_MAX_ENTRIES,
+        TEST_BLOCK_ENTRIES, hash, &key);
+    if (count) {
+        test_cache_grow(cache, count);
+    }
+
+    LruNode *node = NULL;
+    bool success = lru_try_lookup(&cache->lru, hash, &key,
+                                  LRU_LOOKUP_ALLOW_EVICT, &node);
+    *entry = success ? container_of(node, TestEntry, node) : NULL;
+    return success;
 }
 
 static void test_cache_init(TestCache *cache)
@@ -129,6 +154,39 @@ static void test_stable_blocks_and_hits(void)
     test_cache_destroy(&cache);
 }
 
+static void test_protected_capacity_retry(void)
+{
+    TestCache cache;
+    TestEntry *entries[TEST_MAX_ENTRIES];
+    TestEntry *found = (TestEntry *)0x1;
+
+    test_cache_init(&cache);
+    for (uint32_t i = 0; i < TEST_MAX_ENTRIES; i++) {
+        entries[i] = test_cache_lookup(&cache, i + 1);
+        entries[i]->protected = true;
+    }
+    cache.lru.pre_node_evict = test_entry_can_evict;
+
+    g_assert_false(test_cache_try_lookup(&cache, 100, &found));
+    g_assert_null(found);
+    g_assert_cmpuint(cache.num_entries, ==, TEST_MAX_ENTRIES);
+    g_assert_cmpint(cache.lru.num_used, ==, TEST_MAX_ENTRIES);
+    for (uint32_t i = 0; i < TEST_MAX_ENTRIES; i++) {
+        g_assert_true(lru_contains_hash(&cache.lru, i + 1));
+    }
+
+    /* Model retirement making one formerly protected entry evictable. */
+    entries[0]->protected = false;
+    g_assert_true(test_cache_try_lookup(&cache, 100, &found));
+    g_assert_true(found == entries[0]);
+    g_assert_false(lru_contains_hash(&cache.lru, 1));
+    g_assert_true(lru_contains_hash(&cache.lru, 100));
+    g_assert_cmpint(cache.lru.num_used, ==, TEST_MAX_ENTRIES);
+
+    cache.lru.pre_node_evict = NULL;
+    test_cache_destroy(&cache);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -136,5 +194,7 @@ int main(int argc, char **argv)
                     test_growth_decision);
     g_test_add_func("/xbox/pgraph-lazy-cache/stable-blocks-and-hits",
                     test_stable_blocks_and_hits);
+    g_test_add_func("/xbox/pgraph-lazy-cache/protected-capacity-retry",
+                    test_protected_capacity_retry);
     return g_test_run();
 }
