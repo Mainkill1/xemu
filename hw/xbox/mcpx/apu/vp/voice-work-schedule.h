@@ -15,7 +15,6 @@
 #include "hw/xbox/mcpx/apu/apu_regs.h"
 
 #define VOICE_WORK_INLINE_QUEUE_THRESHOLD 2
-#define VOICE_WORK_MIN_VOICES_PER_WORKER 2
 
 typedef struct MCPXAPUVoiceWorkScheduleState {
     unsigned int num_workers;
@@ -28,23 +27,6 @@ typedef struct MCPXAPUVoiceWorkScheduleState {
 static inline bool mcpx_apu_voice_work_should_process_inline(size_t queue_len)
 {
     return queue_len <= VOICE_WORK_INLINE_QUEUE_THRESHOLD;
-}
-
-static inline unsigned int mcpx_apu_voice_work_effective_workers(
-    size_t queue_len, unsigned int configured_workers)
-{
-    size_t useful_workers;
-
-    assert(configured_workers > 0);
-    assert(configured_workers <= 64);
-
-    if (mcpx_apu_voice_work_should_process_inline(queue_len)) {
-        return 0;
-    }
-
-    useful_workers = 1 + (queue_len - 1) / VOICE_WORK_MIN_VOICES_PER_WORKER;
-    return useful_workers < configured_workers ? useful_workers :
-                                                 configured_workers;
 }
 
 static inline unsigned int mcpx_apu_voice_work_signal_count(uint64_t pending)

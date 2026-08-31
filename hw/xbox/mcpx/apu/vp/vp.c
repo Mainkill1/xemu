@@ -1696,9 +1696,7 @@ static void voice_work_schedule(MCPXAPUState *d)
      * - MP voice always clears MP bin
      * - MP source voices are ordered consecutively in voice lists
      */
-    mcpx_apu_voice_work_schedule_init(
-        &schedule, mcpx_apu_voice_work_effective_workers(
-                       vwd->queue_len, vwd->num_workers));
+    mcpx_apu_voice_work_schedule_init(&schedule, vwd->num_workers);
 
     for (int i = 0; i < vwd->queue_len; i++) {
         uint32_t src, dst, clr;
