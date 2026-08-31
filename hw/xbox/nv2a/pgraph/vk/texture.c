@@ -30,9 +30,41 @@
 #include "qemu/lru.h"
 #include "qemu/error-report.h"
 #include "buffer-layout.h"
+#include "lazy-cache.h"
 #include "renderer.h"
 
 static void texture_cache_release_node_resources(PGRAPHVkState *r, TextureBinding *snode);
+
+enum {
+    TEXTURE_CACHE_MAX_ENTRIES = 1024,
+    TEXTURE_CACHE_BLOCK_ENTRIES = 64,
+};
+
+static void grow_texture_cache(PGRAPHVkState *r, size_t count)
+{
+    assert(count > 0);
+    assert(count <=
+           TEXTURE_CACHE_MAX_ENTRIES - r->texture_cache_num_entries);
+
+    TextureBinding *entries = g_new0(TextureBinding, count);
+    g_ptr_array_add(r->texture_cache_blocks, entries);
+    for (size_t i = 0; i < count; i++) {
+        lru_add_free(&r->texture_cache, &entries[i].node);
+    }
+    r->texture_cache_num_entries += count;
+}
+
+static LruNode *texture_cache_lookup(PGRAPHVkState *r, uint64_t hash,
+                                     const void *key)
+{
+    size_t count = pgraph_vk_lazy_cache_growth_for_lookup(
+        &r->texture_cache, r->texture_cache_num_entries,
+        TEXTURE_CACHE_MAX_ENTRIES, TEXTURE_CACHE_BLOCK_ENTRIES, hash, key);
+    if (count) {
+        grow_texture_cache(r, count);
+    }
+    return lru_lookup(&r->texture_cache, hash, key);
+}
 
 static const VkImageType dimensionality_to_vk_image_type[] = {
     0,
@@ -1253,7 +1285,7 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     }
 
     uint64_t key_hash = fast_hash((void*)&key, sizeof(key));
-    LruNode *node = lru_lookup(&r->texture_cache, key_hash, &key);
+    LruNode *node = texture_cache_lookup(r, key_hash, &key);
     TextureBinding *snode = container_of(node, TextureBinding, node);
     bool binding_found = snode->image != VK_NULL_HANDLE;
 
@@ -1700,13 +1732,9 @@ static bool texture_cache_entry_compare(Lru *lru, LruNode *node,
 
 static void texture_cache_init(PGRAPHVkState *r)
 {
-    const size_t texture_cache_size = 1024;
     lru_init(&r->texture_cache);
-    r->texture_cache_entries = g_malloc_n(texture_cache_size, sizeof(TextureBinding));
-    assert(r->texture_cache_entries != NULL);
-    for (int i = 0; i < texture_cache_size; i++) {
-        lru_add_free(&r->texture_cache, &r->texture_cache_entries[i].node);
-    }
+    r->texture_cache_blocks = g_ptr_array_new_with_free_func(g_free);
+    r->texture_cache_num_entries = 0;
     r->texture_cache.init_node = texture_cache_entry_init;
     r->texture_cache.compare_nodes = texture_cache_entry_compare;
     r->texture_cache.pre_node_evict = texture_cache_entry_pre_evict;
@@ -1716,8 +1744,9 @@ static void texture_cache_init(PGRAPHVkState *r)
 static void texture_cache_finalize(PGRAPHVkState *r)
 {
     lru_flush(&r->texture_cache);
-    g_free(r->texture_cache_entries);
-    r->texture_cache_entries = NULL;
+    g_ptr_array_free(r->texture_cache_blocks, true);
+    r->texture_cache_blocks = NULL;
+    r->texture_cache_num_entries = 0;
 }
 
 void pgraph_vk_trim_texture_cache(PGRAPHState *pg)

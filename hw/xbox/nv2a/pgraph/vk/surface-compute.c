@@ -22,6 +22,7 @@
 #include "qemu/lru.h"
 #include "qemu/error-report.h"
 #include "buffer-layout.h"
+#include "lazy-cache.h"
 #include "renderer.h"
 #include "surface-compute.h"
 #include <vulkan/vulkan_core.h>
@@ -31,6 +32,11 @@
 
 // FIXME: Below pipeline creation assumes identical 3 buffer setup. For
 //        swizzle shader we will need more flexibility.
+
+enum {
+    COMPUTE_PIPELINE_CACHE_MAX_ENTRIES = 100,
+    COMPUTE_PIPELINE_CACHE_BLOCK_ENTRIES = 16,
+};
 
 const char *pack_d24_unorm_s8_uint_to_z24s8_glsl =
     "layout(push_constant) uniform PushConstants { uint width_in, width_out, count_out; };\n"
@@ -350,6 +356,33 @@ static uint32_t get_workgroup_size_for_output_units(PGRAPHVkState *r,
         r->device_props.limits.maxComputeWorkGroupInvocations);
 }
 
+static void grow_compute_pipeline_cache(PGRAPHVkState *r, size_t count)
+{
+    assert(count > 0);
+    assert(count <= COMPUTE_PIPELINE_CACHE_MAX_ENTRIES -
+                        r->compute.pipeline_cache_num_entries);
+
+    ComputePipeline *entries = g_new0(ComputePipeline, count);
+    g_ptr_array_add(r->compute.pipeline_cache_blocks, entries);
+    for (size_t i = 0; i < count; i++) {
+        lru_add_free(&r->compute.pipeline_cache, &entries[i].node);
+    }
+    r->compute.pipeline_cache_num_entries += count;
+}
+
+static LruNode *compute_pipeline_cache_lookup(PGRAPHVkState *r, uint64_t hash,
+                                              const void *key)
+{
+    size_t count = pgraph_vk_lazy_cache_growth_for_lookup(
+        &r->compute.pipeline_cache, r->compute.pipeline_cache_num_entries,
+        COMPUTE_PIPELINE_CACHE_MAX_ENTRIES,
+        COMPUTE_PIPELINE_CACHE_BLOCK_ENTRIES, hash, key);
+    if (count) {
+        grow_compute_pipeline_cache(r, count);
+    }
+    return lru_lookup(&r->compute.pipeline_cache, hash, key);
+}
+
 static ComputePipeline *get_compute_pipeline(PGRAPHVkState *r,
                                              VkFormat host_fmt, bool pack,
                                              uint32_t output_units)
@@ -363,8 +396,8 @@ static ComputePipeline *get_compute_pipeline(PGRAPHVkState *r,
     key.pack = pack;
     key.workgroup_size = workgroup_size;
 
-    LruNode *node = lru_lookup(&r->compute.pipeline_cache,
-                      fast_hash((void *)&key, sizeof(key)), &key);
+    uint64_t hash = fast_hash((void *)&key, sizeof(key));
+    LruNode *node = compute_pipeline_cache_lookup(r, hash, &key);
     ComputePipeline *pipeline = container_of(node, ComputePipeline, node);
 
     assert(pipeline);
@@ -596,13 +629,10 @@ static bool pipeline_cache_entry_compare(Lru *lru, LruNode *node,
 
 static void pipeline_cache_init(PGRAPHVkState *r)
 {
-    const size_t pipeline_cache_size = 100; // FIXME: Trim
     lru_init(&r->compute.pipeline_cache);
-    r->compute.pipeline_cache_entries = g_malloc_n(pipeline_cache_size, sizeof(ComputePipeline));
-    assert(r->compute.pipeline_cache_entries != NULL);
-    for (int i = 0; i < pipeline_cache_size; i++) {
-        lru_add_free(&r->compute.pipeline_cache, &r->compute.pipeline_cache_entries[i].node);
-    }
+    r->compute.pipeline_cache_blocks =
+        g_ptr_array_new_with_free_func(g_free);
+    r->compute.pipeline_cache_num_entries = 0;
     r->compute.pipeline_cache.init_node = pipeline_cache_entry_init;
     r->compute.pipeline_cache.compare_nodes = pipeline_cache_entry_compare;
     r->compute.pipeline_cache.post_node_evict = pipeline_cache_entry_post_evict;
@@ -611,8 +641,9 @@ static void pipeline_cache_init(PGRAPHVkState *r)
 static void pipeline_cache_finalize(PGRAPHVkState *r)
 {
     lru_flush(&r->compute.pipeline_cache);
-    g_free(r->compute.pipeline_cache_entries);
-    r->compute.pipeline_cache_entries = NULL;
+    g_ptr_array_free(r->compute.pipeline_cache_blocks, true);
+    r->compute.pipeline_cache_blocks = NULL;
+    r->compute.pipeline_cache_num_entries = 0;
 }
 
 void pgraph_vk_init_compute(PGRAPHState *pg)

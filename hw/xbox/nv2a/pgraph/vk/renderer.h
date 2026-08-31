@@ -327,7 +327,8 @@ typedef struct PGRAPHVkComputeState {
     int descriptor_set_index;
     VkPipelineLayout pipeline_layout;
     Lru pipeline_cache;
-    ComputePipeline *pipeline_cache_entries;
+    GPtrArray *pipeline_cache_blocks;
+    size_t pipeline_cache_num_entries;
 } PGRAPHVkComputeState;
 
 typedef struct PGRAPHVkState {
@@ -377,7 +378,8 @@ typedef struct PGRAPHVkState {
 
     Lru pipeline_cache;
     VkPipelineCache vk_pipeline_cache;
-    PipelineBinding *pipeline_cache_entries;
+    GPtrArray *pipeline_cache_blocks;
+    size_t pipeline_cache_num_entries;
     PipelineBinding *pipeline_binding;
     bool pipeline_binding_changed;
 
@@ -410,14 +412,16 @@ typedef struct PGRAPHVkState {
     QemuEvent dirty_surfaces_download_complete; // common
 
     Lru texture_cache;
-    TextureBinding *texture_cache_entries;
+    GPtrArray *texture_cache_blocks;
+    size_t texture_cache_num_entries;
     TextureBinding *texture_bindings[NV2A_MAX_TEXTURES];
     TextureBinding dummy_texture;
     bool texture_bindings_changed;
     VkFormatProperties *texture_format_properties;
 
     Lru shader_cache;
-    ShaderBinding *shader_cache_entries;
+    GPtrArray *shader_cache_blocks;
+    size_t shader_cache_num_entries;
     ShaderBinding *shader_binding;
     ShaderModuleInfo *quad_vert_module, *solid_frag_module;
     bool shader_bindings_changed;

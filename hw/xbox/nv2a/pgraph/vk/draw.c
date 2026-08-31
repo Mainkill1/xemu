@@ -23,6 +23,7 @@
 #include "xemu-version.h"
 #include "ui/xemu-settings.h"
 #include "renderer.h"
+#include "lazy-cache.h"
 #include "pipeline-cache-file.h"
 #include "vertex-range.h"
 #include <glib/gstdio.h>
@@ -30,6 +31,11 @@
 
 static void init_framebuffer_cache(PGRAPHVkState *r);
 static void finalize_framebuffer_cache(PGRAPHVkState *r);
+
+enum {
+    PIPELINE_CACHE_MAX_ENTRIES = 2048,
+    PIPELINE_CACHE_BLOCK_ENTRIES = 64,
+};
 
 void pgraph_vk_draw_begin(NV2AState *d)
 {
@@ -128,6 +134,32 @@ static bool pipeline_cache_entry_compare(Lru *lru, LruNode *node,
 {
     PipelineBinding *snode = container_of(node, PipelineBinding, node);
     return memcmp(&snode->key, key, sizeof(PipelineKey));
+}
+
+static void grow_pipeline_cache(PGRAPHVkState *r, size_t count)
+{
+    assert(count > 0);
+    assert(count <=
+           PIPELINE_CACHE_MAX_ENTRIES - r->pipeline_cache_num_entries);
+
+    PipelineBinding *entries = g_new0(PipelineBinding, count);
+    g_ptr_array_add(r->pipeline_cache_blocks, entries);
+    for (size_t i = 0; i < count; i++) {
+        lru_add_free(&r->pipeline_cache, &entries[i].node);
+    }
+    r->pipeline_cache_num_entries += count;
+}
+
+static LruNode *pipeline_cache_lookup(PGRAPHVkState *r, uint64_t hash,
+                                      const void *key)
+{
+    size_t count = pgraph_vk_lazy_cache_growth_for_lookup(
+        &r->pipeline_cache, r->pipeline_cache_num_entries,
+        PIPELINE_CACHE_MAX_ENTRIES, PIPELINE_CACHE_BLOCK_ENTRIES, hash, key);
+    if (count) {
+        grow_pipeline_cache(r, count);
+    }
+    return lru_lookup(&r->pipeline_cache, hash, key);
 }
 
 static PGRAPHVkPipelineCacheIdentity get_pipeline_cache_identity(
@@ -294,14 +326,9 @@ static void init_pipeline_cache(PGRAPHState *pg)
     }
     VK_CHECK(result);
 
-    const size_t pipeline_cache_size = 2048;
     lru_init(&r->pipeline_cache);
-    r->pipeline_cache_entries =
-        g_malloc_n(pipeline_cache_size, sizeof(PipelineBinding));
-    assert(r->pipeline_cache_entries != NULL);
-    for (int i = 0; i < pipeline_cache_size; i++) {
-        lru_add_free(&r->pipeline_cache, &r->pipeline_cache_entries[i].node);
-    }
+    r->pipeline_cache_blocks = g_ptr_array_new_with_free_func(g_free);
+    r->pipeline_cache_num_entries = 0;
 
     r->pipeline_cache.init_node = pipeline_cache_entry_init;
     r->pipeline_cache.compare_nodes = pipeline_cache_entry_compare;
@@ -313,8 +340,9 @@ static void finalize_pipeline_cache(PGRAPHState *pg)
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     lru_flush(&r->pipeline_cache);
-    g_free(r->pipeline_cache_entries);
-    r->pipeline_cache_entries = NULL;
+    g_ptr_array_free(r->pipeline_cache_blocks, true);
+    r->pipeline_cache_blocks = NULL;
+    r->pipeline_cache_num_entries = 0;
 
     save_pipeline_cache_data(r);
     vkDestroyPipelineCache(r->device, r->vk_pipeline_cache, NULL);
@@ -697,7 +725,7 @@ static void create_clear_pipeline(PGRAPHState *pg)
     key.regs[0] = r->clear_parameter;
 
     uint64_t hash = fast_hash((void *)&key, sizeof(key));
-    LruNode *node = lru_lookup(&r->pipeline_cache, hash, &key);
+    LruNode *node = pipeline_cache_lookup(r, hash, &key);
     PipelineBinding *snode = container_of(node, PipelineBinding, node);
 
     if (snode->pipeline != VK_NULL_HANDLE) {
@@ -1009,7 +1037,7 @@ static void create_pipeline(PGRAPHState *pg)
     init_pipeline_key(pg, &key);
     uint64_t hash = fast_hash((void *)&key, sizeof(key));
 
-    LruNode *node = lru_lookup(&r->pipeline_cache, hash, &key);
+    LruNode *node = pipeline_cache_lookup(r, hash, &key);
     PipelineBinding *snode = container_of(node, PipelineBinding, node);
     if (snode->pipeline != VK_NULL_HANDLE) {
         NV2A_VK_DPRINTF("Cache hit");
