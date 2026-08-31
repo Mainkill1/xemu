@@ -71,6 +71,19 @@ static inline uint32_t pgraph_vk_submission_slot_allocate_descriptor_set(
     return slot->descriptor_set_index++;
 }
 
+static inline uint64_t pgraph_vk_submission_slot_get_uniform_staging_offset(
+    const PGRAPHVkSubmissionSlotState *slot)
+{
+    return slot->uniform_staging_offset;
+}
+
+static inline void pgraph_vk_submission_slot_set_uniform_staging_offset(
+    PGRAPHVkSubmissionSlotState *slot, uint64_t offset)
+{
+    assert(!slot->in_flight);
+    slot->uniform_staging_offset = offset;
+}
+
 static inline void pgraph_vk_submission_slot_reset_transients(
     PGRAPHVkSubmissionSlotState *slot)
 {

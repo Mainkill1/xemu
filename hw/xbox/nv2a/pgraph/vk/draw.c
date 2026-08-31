@@ -1438,9 +1438,8 @@ static void end_query(PGRAPHVkState *r)
 static void sync_staging_buffer(PGRAPHState *pg, VkCommandBuffer cmd,
                                 int index_src, int index_dst)
 {
-    PGRAPHVkState *r = pg->vk_renderer_state;
-    StorageBuffer *b_src = &r->storage_buffers[index_src];
-    StorageBuffer *b_dst = &r->storage_buffers[index_dst];
+    StorageBuffer *b_src = pgraph_vk_get_storage_buffer(pg, index_src);
+    StorageBuffer *b_dst = pgraph_vk_get_storage_buffer(pg, index_dst);
     VkDeviceSize write_offset =
         pgraph_vk_buffer_get_write_offset(pg, index_src);
 
@@ -2363,7 +2362,7 @@ static bool ensure_buffer_space(PGRAPHState *pg, int index, VkDeviceSize size,
                                 VkDeviceAddress alignment)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
-    StorageBuffer *buffer = &r->storage_buffers[index];
+    StorageBuffer *buffer = pgraph_vk_get_storage_buffer(pg, index);
     VkDeviceSize required_size;
     if (!pgraph_vk_buffer_required_size(
             pg, index, size, alignment, &required_size)) {
