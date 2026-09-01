@@ -22,6 +22,7 @@ tests = {
   'test-bitmap': [],
   'test-xbox-pgraph-uniform-dirty': [],
   'test-xbox-vk-blend-constants': [],
+  'test-xbox-vk-pipeline-lifetime': [],
   'test-xbox-nv2a-ptimer': [
     'ptimer-test-stubs.c',
     meson.project_source_root() / 'hw/xbox/nv2a/ptimer.c',
