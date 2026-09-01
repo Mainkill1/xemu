@@ -1652,6 +1652,22 @@ static void gen_movi_f64(DisasContext *s, TCGv_f64 ret, double arg)
     tcg_gen_mov64i_f64(ret, tcg_constant_i64(*(uint64_t *)&arg));
 }
 
+#if defined(XBOX) && defined(__x86_64__)
+static void gen_cached_flcr(TCGv_i32 control)
+{
+    TCGv_i32 cached = tcg_temp_new_i32();
+    TCGLabel *already_loaded = gen_new_label();
+
+    tcg_gen_ld_i32(cached, tcg_env,
+                   offsetof(CPUX86State, hard_fpu_host_control));
+    tcg_gen_brcond_i32(TCG_COND_EQ, cached, control, already_loaded);
+    tcg_gen_flcr(control);
+    tcg_gen_st_i32(control, tcg_env,
+                   offsetof(CPUX86State, hard_fpu_host_control));
+    gen_set_label(already_loaded);
+}
+#endif
+
 static void gen_flcr(DisasContext *s)
 {
     /* TODO: Oversynchronized */
@@ -1664,7 +1680,11 @@ static void gen_flcr(DisasContext *s)
     tcg_gen_andi_i32(v, v, 0xc00);
     tcg_gen_shli_i32(v, v, 3);
     tcg_gen_ori_i32(v, v, 0x1f80);
+#if defined(XBOX) && defined(__x86_64__)
+    gen_cached_flcr(v);
+#else
     tcg_gen_flcr(v);
+#endif
     s->fp_control_source = FP_CONTROL_X87;
 }
 
@@ -1680,7 +1700,7 @@ static void gen_mxcsr_flcr(DisasContext *s)
     v = tcg_temp_new_i32();
     tcg_gen_ld_i32(v, tcg_env, offsetof(CPUX86State, mxcsr));
     tcg_gen_andi_i32(v, v, 0xffff);
-    tcg_gen_flcr(v);
+    gen_cached_flcr(v);
     s->fp_control_source = FP_CONTROL_MXCSR;
 }
 #endif

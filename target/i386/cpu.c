@@ -8737,6 +8737,8 @@ static void x86_cpu_reset_hold(Object *obj, ResetType type)
     cpu_set_fpuc(env, 0x37f);
 
     env->mxcsr = 0x1f80;
+    /* Valid x87/MXCSR host controls use only 16 bits. */
+    env->hard_fpu_host_control = UINT32_MAX;
     /* All units are in INIT state.  */
     env->xstate_bv = 0;
 
