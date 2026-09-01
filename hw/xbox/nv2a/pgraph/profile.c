@@ -21,6 +21,39 @@
 
 NV2AStats g_nv2a_stats;
 
+static void nv2a_profile_write_flip_log(int64_t now)
+{
+    static FILE *file;
+    static int64_t window_start;
+    static uint64_t window_frames;
+
+    if (file == NULL) {
+        const char *path = getenv("XEMU_FLIP_LOG");
+        if (path == NULL || path[0] == '\0') {
+            return;
+        }
+        file = fopen(path, "w");
+        if (file == NULL) {
+            return;
+        }
+        window_start = now;
+    }
+
+    window_frames++;
+    int64_t elapsed_us = now - window_start;
+    if (elapsed_us < 5 * G_USEC_PER_SEC) {
+        return;
+    }
+
+    fprintf(file, "elapsed_us=%" PRId64 " frames=%" PRIu64
+                  " fps=%.3f\n",
+            elapsed_us, window_frames,
+            window_frames * (double)G_USEC_PER_SEC / elapsed_us);
+    fflush(file);
+    window_start = now;
+    window_frames = 0;
+}
+
 void nv2a_profile_increment(void)
 {
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
@@ -29,6 +62,7 @@ void nv2a_profile_increment(void)
 
     static int64_t frame_count = 0;
     frame_count++;
+    nv2a_profile_write_flip_log(now);
 
     static int64_t ts = 0;
     int64_t delta = now - ts;
