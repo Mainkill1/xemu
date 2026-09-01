@@ -110,6 +110,18 @@ static inline uint64_t advance_alarm_epoch(uint64_t reg_time)
     return (reg_time + (1ULL << 32)) & PTIMER_REG_TIME_MASK;
 }
 
+static uint64_t next_alarm_time(uint64_t reg_now, uint32_t alarm_low)
+{
+    uint32_t now_low = PTIMER_REG_TIME_GET_TIME_0(reg_now) & ALARM_MASK;
+    uint64_t target =
+        (reg_now & ~PTIMER_REG_TIME_LOW_MASK) | (alarm_low & ALARM_MASK);
+
+    if ((alarm_low & ALARM_MASK) <= now_low) {
+        target = advance_alarm_epoch(target);
+    }
+    return target & PTIMER_REG_TIME_MASK;
+}
+
 static void schedule_qemu_timer(NV2AState *d)
 {
     uint64_t reg_now = get_reg_time(d);
@@ -139,6 +151,25 @@ static void ptimer_alarm_fired(void *opaque)
     }
 
     schedule_qemu_timer(d);
+}
+
+void ptimer_post_load(NV2AState *d)
+{
+    if (timer_pending(&d->ptimer.timer)) {
+        uint64_t reg_now = get_reg_time(d);
+
+        if (is_alarm_reached(reg_now, d->ptimer.alarm_time)) {
+            d->ptimer.pending_interrupts |= NV_PTIMER_INTR_0_ALARM;
+            d->ptimer.alarm_time = next_alarm_time(
+                reg_now,
+                PTIMER_REG_TIME_GET_TIME_0(d->ptimer.alarm_time));
+        }
+
+        /* Rebuild the redundant host deadline from restored PTIMER state. */
+        schedule_qemu_timer(d);
+    }
+
+    nv2a_update_irq(d);
 }
 
 uint64_t ptimer_read(void *opaque, hwaddr addr, unsigned int size)
@@ -226,13 +257,7 @@ void ptimer_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
         break;
     case NV_PTIMER_ALARM_0: {
         uint64_t reg_now = get_reg_time(d);
-        uint32_t now_low = PTIMER_REG_TIME_GET_TIME_0(reg_now);
-        uint32_t val_low = val & ALARM_MASK;
-        uint64_t target = (reg_now & ~PTIMER_REG_TIME_LOW_MASK) | val_low;
-        if (val_low <= (now_low & ALARM_MASK)) {
-            target = advance_alarm_epoch(target);
-        }
-        d->ptimer.alarm_time = target & PTIMER_REG_TIME_MASK;
+        d->ptimer.alarm_time = next_alarm_time(reg_now, val);
         schedule_qemu_timer(d);
     } break;
     case NV_PTIMER_TIME_0: {

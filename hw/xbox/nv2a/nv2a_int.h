@@ -224,5 +224,6 @@ hwaddr nv_clip_gpu_tile_blit(NV2AState *d, hwaddr blit_base_address,
 
 void ptimer_init(NV2AState *d);
 void ptimer_reset(NV2AState *d);
+void ptimer_post_load(NV2AState *d);
 
 #endif
