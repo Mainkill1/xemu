@@ -48,6 +48,39 @@ typedef struct QueueFamilyIndices {
     int queue_family;
 } QueueFamilyIndices;
 
+typedef enum FinishReason {
+    VK_FINISH_REASON_VERTEX_BUFFER_DIRTY,
+    VK_FINISH_REASON_SURFACE_CREATE,
+    VK_FINISH_REASON_SURFACE_DOWN,
+    VK_FINISH_REASON_NEED_BUFFER_SPACE,
+    VK_FINISH_REASON_FRAMEBUFFER_DIRTY,
+    VK_FINISH_REASON_PRESENTING,
+    VK_FINISH_REASON_FLIP_STALL,
+    VK_FINISH_REASON_FLUSH,
+    VK_FINISH_REASON_STALLED,
+    VK_FINISH_REASON_TEXTURE_DIRTY,
+    VK_FINISH_REASON__COUNT,
+} FinishReason;
+
+typedef struct PGRAPHVkFinishDiagnostic {
+    uint64_t calls;
+    uint64_t submits;
+    uint64_t total_ns;
+    uint64_t prepare_ns;
+    uint64_t submit_ns;
+    uint64_t fence_wait_ns;
+    uint64_t post_ns;
+} PGRAPHVkFinishDiagnostic;
+
+typedef struct PGRAPHVkWaitDiagnostics {
+    int enabled_state;
+    uint64_t frame;
+    PGRAPHVkFinishDiagnostic finish[VK_FINISH_REASON__COUNT];
+    uint64_t aux_submits;
+    uint64_t aux_total_ns;
+    uint64_t aux_queue_wait_ns;
+} PGRAPHVkWaitDiagnostics;
+
 typedef struct MemorySyncRequirement {
     hwaddr addr, size;
 } MemorySyncRequirement;
@@ -365,6 +398,7 @@ typedef struct PGRAPHVkState {
     bool in_command_buffer;
     uint32_t submit_count;
     PGRAPHVkBlendConstantsCache blend_constants;
+    PGRAPHVkWaitDiagnostics wait_diagnostics;
 
     VkCommandBuffer aux_command_buffer;
     bool in_aux_command_buffer;
@@ -511,6 +545,9 @@ void pgraph_vk_init_command_buffers(PGRAPHState *pg);
 void pgraph_vk_finalize_command_buffers(PGRAPHState *pg);
 VkCommandBuffer pgraph_vk_begin_single_time_commands(PGRAPHState *pg);
 void pgraph_vk_end_single_time_commands(PGRAPHState *pg, VkCommandBuffer cmd);
+bool pgraph_vk_wait_diagnostics_enabled(PGRAPHVkState *r);
+void pgraph_vk_record_aux_wait(PGRAPHVkState *r, uint64_t total_ns,
+                               uint64_t queue_wait_ns);
 
 // image.c
 void pgraph_vk_transition_image_layout(PGRAPHState *pg, VkCommandBuffer cmd,
@@ -591,19 +628,6 @@ void pgraph_vk_clear_report_value(NV2AState *d);
 void pgraph_vk_get_report(NV2AState *d, uint32_t parameter);
 void pgraph_vk_process_pending_reports(NV2AState *d);
 void pgraph_vk_process_pending_reports_internal(NV2AState *d);
-
-typedef enum FinishReason {
-    VK_FINISH_REASON_VERTEX_BUFFER_DIRTY,
-    VK_FINISH_REASON_SURFACE_CREATE,
-    VK_FINISH_REASON_SURFACE_DOWN,
-    VK_FINISH_REASON_NEED_BUFFER_SPACE,
-    VK_FINISH_REASON_FRAMEBUFFER_DIRTY,
-    VK_FINISH_REASON_PRESENTING,
-    VK_FINISH_REASON_FLIP_STALL,
-    VK_FINISH_REASON_FLUSH,
-    VK_FINISH_REASON_STALLED,
-    VK_FINISH_REASON_TEXTURE_DIRTY,
-} FinishReason;
 
 // draw.c
 void pgraph_vk_init_pipelines(PGRAPHState *pg);
