@@ -1,0 +1,8 @@
+Status: PENDING
+Focused SSE: PASS; total 17.878 s; median 178755.5 us; exact hash.
+Focused X87: PASS; total 74.774 s; median 748095 us.
+SSE run: C:\xemu-lab\runs\suite\2026-09-01-151537-perf-CpuFloatingPoint-SSEScalar-unknown
+X87 run: C:\xemu-lab\runs\suite\2026-09-01-151608-perf-CpuFloatingPoint-X87Scalar-unknown
+X87 has no same-contract control, so no X87 speed claim is made.
+Retail snapshots and full ISO were not run on this executable.
+

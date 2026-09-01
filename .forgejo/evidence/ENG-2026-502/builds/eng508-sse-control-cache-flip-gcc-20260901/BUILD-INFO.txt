@@ -1,0 +1,8 @@
+Build: eng508-sse-control-cache-flip-gcc-20260901
+Purpose: scalar direct SSE and FP-control cache with guest flip probe
+Base: c0245e2c792b10cda56db8d6712411056ea58329
+Source: bd7f1a0570cfad1c6754f6b6c6dfa1556b0f1ba6
+Toolchain: xemu Windows GCC 16.1 image sha-2881edd; LTO; x86-64-v3
+xemu.exe SHA-256: 6709179cebcfd501d6097d358705f20e4abbf0f31a8345c29aa63e3451e1906e
+xemu.exe bytes: 44191249
+

@@ -1,0 +1,4 @@
+Status: UNVERIFIED
+No retained canonical focused, retail, or full-suite result is attached.
+Superseded by eng502-direct-sse-r2-gcc-20260901.
+

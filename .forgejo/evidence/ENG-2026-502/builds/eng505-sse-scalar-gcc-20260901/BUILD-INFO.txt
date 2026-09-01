@@ -1,0 +1,8 @@
+Build: eng505-sse-scalar-gcc-20260901
+Purpose: retain scalar direct SSE; return packed SSE to compact helpers
+Base: df0a73073655508af1a2bfd5c66019f3e84ea236
+Source: 9b021e16e232333246e918aff032390a99b11747
+Toolchain: xemu Windows GCC 16.1 image sha-2881edd; LTO; x86-64-v3
+xemu.exe SHA-256: 87824bb30b81d8ba7aae231fd03c959b3cedd70ab6579c685be0047c435137e5
+xemu.exe bytes: 44190589
+

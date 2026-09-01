@@ -1,0 +1,6 @@
+Status: PENDING
+Focused SSE: PASS; total 25.984 s; median 259887.5 us; 1.918x control.
+Focused hash: PASS, 6962077c244da325.
+Run: C:\xemu-lab\runs\suite\2026-09-01-152821-perf-CpuFloatingPoint-SSEScalar-unknown
+Retail snapshots and full ISO were not run on this executable.
+

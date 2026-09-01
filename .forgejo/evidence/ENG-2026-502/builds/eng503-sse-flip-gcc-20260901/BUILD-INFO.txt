@@ -1,0 +1,8 @@
+Build: eng503-sse-flip-gcc-20260901
+Purpose: broad SSE candidate plus opt-in guest flip-rate probe
+Base: 25c208cad92da95843bf7daecfdc01826f070fb7
+Source: d7edf49c6048298344bf65501d168ce11ca484ed
+Toolchain: xemu Windows GCC 16.1 image sha-2881edd; LTO; x86-64-v3
+xemu.exe SHA-256: 8642da25d505d84a395b3239ae56e4463658742d3b5ce868553d0bf3d966f0bb
+xemu.exe bytes: 44191179
+

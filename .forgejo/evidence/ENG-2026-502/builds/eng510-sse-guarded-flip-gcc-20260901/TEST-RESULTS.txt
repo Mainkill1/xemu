@@ -1,0 +1,4 @@
+Status: UNVERIFIED
+Build completed. No focused, retail, or full-suite result has been recorded.
+Next gate: Morrowind fixed snapshot against eng504 exact control.
+

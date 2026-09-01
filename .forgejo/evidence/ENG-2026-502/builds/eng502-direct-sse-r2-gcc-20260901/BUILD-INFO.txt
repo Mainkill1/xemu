@@ -1,0 +1,8 @@
+Build: eng502-direct-sse-r2-gcc-20260901
+Purpose: reduce direct scalar/packed SSE translation overhead
+Base: df0a73073655508af1a2bfd5c66019f3e84ea236
+Source: 25c208cad92da95843bf7daecfdc01826f070fb7
+Toolchain: xemu Windows GCC 16.1 image sha-2881edd; LTO; x86-64-v3
+xemu.exe SHA-256: 971a58855edf8d5a6495d10252bc0481bb25fba4fd402ad0ff6934300e054b11
+xemu.exe bytes: 44190582
+

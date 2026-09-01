@@ -1,0 +1,6 @@
+Status: REJECTED; FULL ISO NOT RUN ON THIS BINARY
+PGR2: 26.176977 FPS; run eng503-sse-pgr2-20260901-1450; no focus loss/hang.
+Morrowind: 20.102444 FPS; run eng503-sse-morrowind-20260901-1454; no focus loss/hang.
+Against exact control: PGR2 -1.01%; Morrowind -12.49%.
+Reason: broad direct SSE path caused an unacceptable Morrowind regression.
+

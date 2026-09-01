@@ -1,0 +1,7 @@
+Status: REJECTED; FAILURE LATCHED
+Morrowind first restore FAILED before measurement with a DSP assertion.
+Failure evidence: eng508-cache-morrowind-20260901-1519.
+Morrowind retry: 20.247067 FPS; eng508-cache-morrowind-retry-20260901-1520.
+Against exact control: -11.86%.
+The retry does not erase the first failure. PGR2 and full ISO were not run.
+

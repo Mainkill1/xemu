@@ -1,0 +1,8 @@
+Build: eng502-direct-sse-gcc-20260901
+Purpose: first direct scalar and packed SSE arithmetic prototype
+Base: df0a73073655508af1a2bfd5c66019f3e84ea236
+Source: 249e9b2d48a8a175089c8ed096dbb5009287b8c2
+Toolchain: xemu Windows GCC 16.1 image sha-2881edd; LTO; x86-64-v3
+xemu.exe SHA-256: fe9a237e82efa6bc1d868859845f633198bad57d649f49bf902ce269c5fffdfa
+xemu.exe bytes: 44190582
+

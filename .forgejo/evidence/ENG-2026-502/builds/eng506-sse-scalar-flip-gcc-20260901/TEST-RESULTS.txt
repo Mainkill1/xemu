@@ -1,0 +1,6 @@
+Status: REJECTED; CAMPAIGN INCOMPLETE
+Morrowind: 20.132413 FPS; run eng506-scalar-morrowind-20260901-1508.
+Against exact control: -12.36%.
+Packed direct lowering was not the cause; scalar candidate still regressed.
+PGR2 and full ISO were not run on this executable.
+

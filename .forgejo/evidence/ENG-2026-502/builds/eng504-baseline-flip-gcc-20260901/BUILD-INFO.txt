@@ -1,0 +1,8 @@
+Build: eng504-baseline-flip-gcc-20260901
+Purpose: exact df0 control with only the opt-in guest flip-rate probe
+Base: df0a73073655508af1a2bfd5c66019f3e84ea236
+Source: d6b1fe823fec
+Toolchain: xemu Windows GCC 16.1 image sha-2881edd; LTO; x86-64-v3
+xemu.exe SHA-256: 0793453917d8711f8535521ddf690b4506d3b620baf3fc225af83107e9faacf6
+xemu.exe bytes: 44189295
+

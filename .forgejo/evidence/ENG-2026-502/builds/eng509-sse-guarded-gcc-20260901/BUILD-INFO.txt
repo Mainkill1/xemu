@@ -1,0 +1,8 @@
+Build: eng509-sse-guarded-gcc-20260901
+Purpose: use native scalar SSE only for default MXCSR and normal finite values
+Base: df0a73073655508af1a2bfd5c66019f3e84ea236
+Source: 80dd00b1c628593079c5a0fefc2341f7e126864c
+Toolchain: xemu Windows GCC 16.1 image sha-2881edd; LTO; x86-64-v3
+xemu.exe SHA-256: 97c84dee9fdc0461d2f819fd12e9aed4c0131020a6540b623f57ed729d737c4e
+xemu.exe bytes: 44191950
+

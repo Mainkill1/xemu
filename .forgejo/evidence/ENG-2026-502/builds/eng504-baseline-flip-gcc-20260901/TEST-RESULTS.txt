@@ -1,0 +1,7 @@
+Status: CONTROL; FAILURE LATCHED
+PGR2 first restore FAILED before measurement with dsp_cpu.c:893 assertion.
+Failure evidence: eng504-baseline-pgr2-20260901-1454.
+PGR2 retry: 26.444011 FPS; eng504-baseline-pgr2-retry-20260901-1456.
+Morrowind: 22.971026 FPS; eng504-baseline-morrowind-20260901-1500.
+The retry does not erase the first observed failure.
+

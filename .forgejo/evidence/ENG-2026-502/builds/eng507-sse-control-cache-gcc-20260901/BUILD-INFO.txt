@@ -1,0 +1,8 @@
+Build: eng507-sse-control-cache-gcc-20260901
+Purpose: cache hard-FPU host control loads across translated blocks
+Base: df0a73073655508af1a2bfd5c66019f3e84ea236
+Source: 0bb6afd81124bde73a77e4c0b862b4a7d0500af9
+Toolchain: xemu Windows GCC 16.1 image sha-2881edd; LTO; x86-64-v3
+xemu.exe SHA-256: 6febaa8c7362fb58c5a2ddfbe1e0327b2fcd2ebe524e95e5ddba02afdda99dd1
+xemu.exe bytes: 44191164
+

@@ -1,0 +1,8 @@
+Build: eng510-sse-guarded-flip-gcc-20260901
+Purpose: guarded scalar SSE candidate plus opt-in guest flip-rate probe
+Base: bd7f1a0570cfad1c6754f6b6c6dfa1556b0f1ba6
+Source: 20d92b60fa5b1c5ec371e7b427547a46fc0fb83a
+Toolchain: xemu Windows GCC 16.1 image sha-2881edd; LTO; x86-64-v3
+xemu.exe SHA-256: 2751a2ba54652c5f51383c6a84ec2e757f53b0959423b5a874b4ff30272e6818
+xemu.exe bytes: 45088768
+
