@@ -60,3 +60,11 @@ paired retail run and special-value/MXCSR tests pass.
 - Retail captures: `C:\xemu-lab\captures\pgr2-wpr` and
   `C:\xemu-lab\captures\morrowind-wpr` using the run IDs listed in each build
   record.
+
+## Build-folder audit
+
+The dedicated rig contains 68 build directories. On 2026-09-01 all 68 had
+`BUILD-INFO.txt`, `TEST-RESULTS.txt`, and exactly one AVG status marker after a
+non-destructive reconciliation. Missing proof remains `UNVERIFIED`; existing
+results and failure markers were not overwritten. The reusable reconciler is
+published in Forgejo `main/Tools` at `8f7d39fb88d4c7d2b18717fe372a057e5894392a`.
