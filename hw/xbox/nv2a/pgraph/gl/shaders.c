@@ -266,6 +266,20 @@ static char *shader_get_lru_cache_path(void)
     return g_strdup_printf("%s/shader_cache_list", xemu_settings_get_base_path());
 }
 
+static void shader_join_disk_thread(PGRAPHGLState *r)
+{
+    if (!r->shader_disk_thread_joined) {
+        qemu_thread_join(&r->shader_disk_thread);
+        r->shader_disk_thread_joined = true;
+    }
+}
+
+static void shader_complete_cache_writeback(PGRAPHGLState *r)
+{
+    qatomic_set(&r->shader_cache_writeback_pending, false);
+    qemu_event_set(&r->shader_cache_writeback_complete);
+}
+
 static void shader_write_lru_list_entry_to_disk(Lru *lru, LruNode *node, void *opaque)
 {
     FILE *lru_list_file = (FILE*) opaque;
@@ -280,19 +294,25 @@ void pgraph_gl_shader_write_cache_reload_list(PGRAPHState *pg)
 {
     PGRAPHGLState *r = pg->gl_renderer_state;
 
+    shader_join_disk_thread(r);
+
+    if (r->shader_cache_writeback_done) {
+        shader_complete_cache_writeback(r);
+        return;
+    }
+
     if (!g_config.perf.cache_shaders) {
-        qatomic_set(&r->shader_cache_writeback_pending, false);
-        qemu_event_set(&r->shader_cache_writeback_complete);
+        r->shader_cache_writeback_done = true;
+        shader_complete_cache_writeback(r);
         return;
     }
 
     char *shader_lru_path = shader_get_lru_cache_path();
-    qemu_thread_join(&r->shader_disk_thread);
-
     FILE *lru_list = qemu_fopen(shader_lru_path, "wb");
     g_free(shader_lru_path);
     if (!lru_list) {
         fprintf(stderr, "nv2a: Failed to open shader LRU cache for writing\n");
+        shader_complete_cache_writeback(r);
         return;
     }
 
@@ -301,8 +321,8 @@ void pgraph_gl_shader_write_cache_reload_list(PGRAPHState *pg)
 
     lru_flush(&r->shader_cache);
 
-    qatomic_set(&r->shader_cache_writeback_pending, false);
-    qemu_event_set(&r->shader_cache_writeback_complete);
+    r->shader_cache_writeback_done = true;
+    shader_complete_cache_writeback(r);
 }
 
 bool pgraph_gl_shader_load_from_memory(ShaderBinding *binding)
@@ -462,12 +482,18 @@ static void shader_load_from_disk(PGRAPHState *pg, uint64_t hash)
     g_free(cached_gl_version);
 
     qemu_mutex_lock(&r->shader_cache_lock);
-    LruNode *node = lru_lookup(&r->shader_cache, hash, &state);
+    LruNode *node = NULL;
+    if (!lru_try_lookup(&r->shader_cache, hash, &state, 0, &node)) {
+        qemu_mutex_unlock(&r->shader_cache_lock);
+        g_free(program_buffer);
+        return;
+    }
     ShaderBinding *binding = container_of(node, ShaderBinding, node);
 
     /* If we happened to regenerate this shader already, then we may as well use the new one */
     if (binding->initialized) {
         qemu_mutex_unlock(&r->shader_cache_lock);
+        g_free(program_buffer);
         return;
     }
 
@@ -576,6 +602,8 @@ void pgraph_gl_init_shaders(PGRAPHState *pg)
     r->shader_cache.compare_nodes = shader_cache_entry_compare;
     r->shader_cache.post_node_evict = shader_cache_entry_post_evict;
 
+    r->shader_disk_thread_joined = false;
+    r->shader_cache_writeback_done = false;
     qemu_thread_create(&r->shader_disk_thread, "pgraph.renderer_state->shader_cache",
                        shader_reload_lru_from_disk, pg, QEMU_THREAD_JOINABLE);
 
@@ -600,6 +628,7 @@ void pgraph_gl_finalize_shaders(PGRAPHState *pg)
 
     // Clear out shader cache
     pgraph_gl_shader_write_cache_reload_list(pg); // FIXME: also flushes, rename for clarity
+    lru_flush(&r->shader_cache);
     free(r->shader_cache_entries);
     r->shader_cache_entries = NULL;
 

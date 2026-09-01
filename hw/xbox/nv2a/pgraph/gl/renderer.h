@@ -199,6 +199,8 @@ typedef struct PGRAPHGLState {
     ShaderBinding *shader_binding;
     QemuMutex shader_cache_lock;
     QemuThread shader_disk_thread;
+    bool shader_disk_thread_joined;
+    bool shader_cache_writeback_done;
 
     Lru shader_module_cache;
     ShaderModuleCacheEntry *shader_module_cache_entries;

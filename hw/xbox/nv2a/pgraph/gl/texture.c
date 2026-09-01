@@ -818,6 +818,9 @@ void pgraph_gl_finalize_textures(PGRAPHState *pg)
     PGRAPHGLState *r = pg->gl_renderer_state;
 
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
+        if (r->texture_binding[i]) {
+            texture_binding_destroy(r->texture_binding[i]);
+        }
         r->texture_binding[i] = NULL;
     }
 
