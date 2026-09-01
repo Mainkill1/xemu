@@ -528,8 +528,8 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
         }
     }
 
-    assert(texture_data_size <=
-           r->storage_buffers[BUFFER_STAGING_SRC].buffer_size);
+    pgraph_vk_ensure_buffer_capacity(pg, BUFFER_STAGING_SRC,
+                                     texture_data_size);
 
     // Copy texture data to mapped device buffer
     uint8_t *mapped_memory_ptr;
@@ -648,9 +648,6 @@ static void copy_zeta_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surfac
     trace_nv2a_pgraph_surface_render_to_texture(
         surface->vram_addr, surface->width, surface->height);
 
-    VkCommandBuffer cmd = pgraph_vk_begin_nondraw_commands(pg);
-    pgraph_vk_begin_debug_marker(r, cmd, RGBA_GREEN, __func__);
-
     unsigned int scaled_width = surface->width,
                  scaled_height = surface->height;
     pgraph_apply_scaling_factor(pg, &scaled_width, &scaled_height);
@@ -679,7 +676,7 @@ static void copy_zeta_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surfac
             ROUND_UP(scaled_width * scaled_height * 4,
                      r->device_props.limits.minStorageBufferOffsetAlignment);
         stencil_buffer_size = scaled_width * scaled_height;
-        copied_image_size += stencil_buffer_size;
+        copied_image_size = stencil_buffer_offset + stencil_buffer_size;
 
         regions[num_regions++] = (VkBufferImageCopy){
             .bufferOffset = stencil_buffer_offset,
@@ -694,7 +691,16 @@ static void copy_zeta_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surfac
         };
     }
     StorageBuffer *dst_storage_buffer = &r->storage_buffers[BUFFER_COMPUTE_DST];
-    assert(dst_storage_buffer->buffer_size >= copied_image_size);
+    pgraph_vk_ensure_buffer_capacity(pg, BUFFER_COMPUTE_DST,
+                                     copied_image_size);
+
+    if (use_compute_to_convert_depth_stencil) {
+        pgraph_vk_ensure_buffer_capacity(
+            pg, BUFFER_COMPUTE_SRC, scaled_width * scaled_height * 4ULL);
+    }
+
+    VkCommandBuffer cmd = pgraph_vk_begin_nondraw_commands(pg);
+    pgraph_vk_begin_debug_marker(r, cmd, RGBA_GREEN, __func__);
 
     pgraph_vk_transition_image_layout(
         pg, cmd, surface->image, surface->host_fmt.vk_format,

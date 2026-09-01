@@ -207,6 +207,39 @@ static void download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
                  scaled_height = surface->height;
     pgraph_apply_scaling_factor(pg, &scaled_width, &scaled_height);
 
+    VkDeviceSize downloaded_image_size =
+        (VkDeviceSize)surface->host_fmt.host_bytes_per_pixel *
+        surface->width * surface->height;
+    if (use_compute_to_convert_depth_stencil_format) {
+        VkDeviceSize scaled_pixels =
+            (VkDeviceSize)scaled_width * scaled_height;
+        VkDeviceSize depth_size = scaled_pixels * 4;
+        VkDeviceSize copied_image_size = depth_size;
+        if (surface->host_fmt.aspect & VK_IMAGE_ASPECT_STENCIL_BIT) {
+            copied_image_size =
+                ROUND_UP(depth_size,
+                         r->device_props.limits.minStorageBufferOffsetAlignment) +
+                scaled_pixels;
+        }
+
+        VkDeviceSize packed_size =
+            downscale ? (VkDeviceSize)surface->width * surface->height * 4 :
+                        scaled_pixels * 4;
+        pgraph_vk_ensure_buffer_capacity(pg, BUFFER_COMPUTE_DST,
+                                         copied_image_size);
+        pgraph_vk_ensure_buffer_capacity(pg, BUFFER_COMPUTE_SRC, packed_size);
+        downloaded_image_size = packed_size;
+    }
+    pgraph_vk_ensure_buffer_capacity(pg, BUFFER_STAGING_DST,
+                                     downloaded_image_size);
+
+    /* Capacity growth may have submitted the active command buffer. Recompute
+     * whether this color download can still be folded into it. */
+    fold_into_active_command_buffer =
+        r->in_command_buffer &&
+        surface->draw_time > r->command_buffer_start_time && surface->color &&
+        !use_compute_to_convert_depth_stencil_format;
+
     VkCommandBuffer cmd = fold_into_active_command_buffer ?
                               pgraph_vk_begin_nondraw_commands(pg) :
                               pgraph_vk_begin_single_time_commands(pg);
@@ -294,11 +327,6 @@ static void download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
     //
     // Copy image to staging buffer, or to compute_dst if we need to pack it
     //
-
-    size_t downloaded_image_size = surface->host_fmt.host_bytes_per_pixel *
-                                   surface->width * surface->height;
-    assert((downloaded_image_size) <=
-           r->storage_buffers[BUFFER_STAGING_DST].buffer_size);
 
     int copy_buffer_idx = use_compute_to_convert_depth_stencil_format ?
                              BUFFER_COMPUTE_DST :
@@ -1016,11 +1044,6 @@ void pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
     StorageBuffer *copy_buffer = &r->storage_buffers[BUFFER_STAGING_SRC];
     size_t uploaded_image_size = surface->height * surface->width *
                                  surface->fmt.bytes_per_pixel;
-    assert(uploaded_image_size <= copy_buffer->buffer_size);
-
-    void *mapped_memory_ptr = NULL;
-    VK_CHECK(vmaMapMemory(r->allocator, copy_buffer->allocation,
-                          &mapped_memory_ptr));
 
     bool use_compute_to_convert_depth_stencil_format =
         surface->host_fmt.vk_format == VK_FORMAT_D24_UNORM_S8_UINT ||
@@ -1030,6 +1053,24 @@ void pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
         surface->color || surface->host_fmt.vk_format == VK_FORMAT_D16_UNORM ||
         use_compute_to_convert_depth_stencil_format;
     assert(no_conversion_necessary);
+
+    unsigned int scaled_width = surface->width, scaled_height = surface->height;
+    pgraph_apply_scaling_factor(pg, &scaled_width, &scaled_height);
+
+    pgraph_vk_ensure_buffer_capacity(pg, BUFFER_STAGING_SRC,
+                                     uploaded_image_size);
+    if (use_compute_to_convert_depth_stencil_format) {
+        VkDeviceSize scaled_pixels =
+            (VkDeviceSize)scaled_width * scaled_height;
+        pgraph_vk_ensure_buffer_capacity(pg, BUFFER_COMPUTE_DST,
+                                         uploaded_image_size);
+        pgraph_vk_ensure_buffer_capacity(pg, BUFFER_COMPUTE_SRC,
+                                         scaled_pixels * 5);
+    }
+
+    void *mapped_memory_ptr = NULL;
+    VK_CHECK(vmaMapMemory(r->allocator, copy_buffer->allocation,
+                          &mapped_memory_ptr));
 
     memcpy_image(mapped_memory_ptr, gl_read_buf,
                  surface->width * surface->fmt.bytes_per_pixel, surface->pitch,
@@ -1075,9 +1116,6 @@ void pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
         };
     }
 
-
-    unsigned int scaled_width = surface->width, scaled_height = surface->height;
-    pgraph_apply_scaling_factor(pg, &scaled_width, &scaled_height);
 
     if (use_compute_to_convert_depth_stencil_format) {
 
