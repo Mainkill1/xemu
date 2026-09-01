@@ -83,6 +83,16 @@ void timer_del(QEMUTimer *ts)
     }
 }
 
+bool timer_pending(const QEMUTimer *ts)
+{
+    return ts->expire_time >= 0;
+}
+
+uint64_t timer_expire_time_ns(const QEMUTimer *ts)
+{
+    return timer_pending(ts) ? ts->expire_time : -1;
+}
+
 int64_t qemu_clock_get_ns(QEMUClockType type)
 {
     return ptimer_test_time_ns;

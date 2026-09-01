@@ -20,6 +20,16 @@ tests = {
   'test-string-output-visitor': [testqapi],
   'test-visitor-serialization': [testqapi],
   'test-bitmap': [],
+  'test-xbox-nv2a-ptimer': [
+    'ptimer-test-stubs.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/ptimer.c',
+    declare_dependency(
+      compile_args: [
+        '-include',
+        meson.project_source_root() / 'tests/unit/xbox-nv2a-ptimer-test-shim.h',
+      ],
+    ),
+  ],
   'test-resv-mem': [],
   # all code tested by test-x86-topo is inside topology.h
   'test-x86-topo': [],
