@@ -436,6 +436,8 @@ static int nv2a_post_load(void *opaque, int version_id)
 {
     NV2AState *d = opaque;
 
+    ptimer_post_load(d);
+
     /*
      * Host renderer allocations are not part of VMState. Ensure that the
      * restored guest constants are copied to the active Vulkan allocation.
