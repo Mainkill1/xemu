@@ -1274,14 +1274,71 @@ const enum NV2A_PROF_COUNTERS_ENUM finish_reason_to_counter_enum[] = {
     [VK_FINISH_REASON_TEXTURE_DIRTY] = NV2A_PROF_FINISH_TEXTURE_DIRTY,
 };
 
+static const char *finish_reason_names[VK_FINISH_REASON__COUNT] = {
+    [VK_FINISH_REASON_VERTEX_BUFFER_DIRTY] = "VERTEX_BUFFER_DIRTY",
+    [VK_FINISH_REASON_SURFACE_CREATE] = "SURFACE_CREATE",
+    [VK_FINISH_REASON_SURFACE_DOWN] = "SURFACE_DOWN",
+    [VK_FINISH_REASON_NEED_BUFFER_SPACE] = "NEED_BUFFER_SPACE",
+    [VK_FINISH_REASON_FRAMEBUFFER_DIRTY] = "FRAMEBUFFER_DIRTY",
+    [VK_FINISH_REASON_PRESENTING] = "PRESENTING",
+    [VK_FINISH_REASON_FLIP_STALL] = "FLIP_STALL",
+    [VK_FINISH_REASON_FLUSH] = "FLUSH",
+    [VK_FINISH_REASON_STALLED] = "STALLED",
+    [VK_FINISH_REASON_TEXTURE_DIRTY] = "TEXTURE_DIRTY",
+};
+
+static void report_wait_diagnostics(PGRAPHVkState *r)
+{
+    PGRAPHVkWaitDiagnostics *diag = &r->wait_diagnostics;
+
+    for (unsigned int i = 0; i < VK_FINISH_REASON__COUNT; i++) {
+        PGRAPHVkFinishDiagnostic *reason = &diag->finish[i];
+        if (!reason->calls) {
+            continue;
+        }
+        fprintf(stderr,
+                "XEMU_VK_WAIT frame=%" PRIu64 " reason=%s calls=%" PRIu64
+                " submits=%" PRIu64 " total_ns=%" PRIu64
+                " prepare_ns=%" PRIu64 " submit_ns=%" PRIu64
+                " fence_wait_ns=%" PRIu64 " post_ns=%" PRIu64 "\n",
+                diag->frame, finish_reason_names[i], reason->calls,
+                reason->submits, reason->total_ns, reason->prepare_ns,
+                reason->submit_ns, reason->fence_wait_ns, reason->post_ns);
+    }
+    if (diag->aux_submits) {
+        fprintf(stderr,
+                "XEMU_VK_WAIT frame=%" PRIu64
+                " reason=AUX submits=%" PRIu64 " total_ns=%" PRIu64
+                " queue_wait_ns=%" PRIu64 "\n",
+                diag->frame, diag->aux_submits, diag->aux_total_ns,
+                diag->aux_queue_wait_ns);
+    }
+    memset(diag->finish, 0, sizeof(diag->finish));
+    diag->aux_submits = 0;
+    diag->aux_total_ns = 0;
+    diag->aux_queue_wait_ns = 0;
+    diag->frame++;
+}
+
 void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
+    bool diagnose = pgraph_vk_wait_diagnostics_enabled(r);
+    uint64_t total_start_ns = diagnose ?
+        qemu_clock_get_ns(QEMU_CLOCK_REALTIME) : 0;
+    PGRAPHVkFinishDiagnostic *diag = diagnose ?
+        &r->wait_diagnostics.finish[finish_reason] : NULL;
 
     assert(!r->in_draw);
     assert(r->debug_depth == 0);
 
+    if (diagnose) {
+        diag->calls++;
+    }
+
     if (r->in_command_buffer) {
+        uint64_t prepare_start_ns = diagnose ?
+            qemu_clock_get_ns(QEMU_CLOCK_REALTIME) : 0;
         nv2a_profile_inc_counter(finish_reason_to_counter_enum[finish_reason]);
 
         if (r->in_render_pass) {
@@ -1301,6 +1358,12 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         flush_memory_buffer(pg, cmd);
         VK_CHECK(vkEndCommandBuffer(r->aux_command_buffer));
         r->in_aux_command_buffer = false;
+
+        uint64_t submit_start_ns = diagnose ?
+            qemu_clock_get_ns(QEMU_CLOCK_REALTIME) : 0;
+        if (diagnose) {
+            diag->prepare_ns += submit_start_ns - prepare_start_ns;
+        }
 
         VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
         VkSubmitInfo submit_infos[] = {
@@ -1327,6 +1390,13 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
                                r->command_buffer_fence));
         r->submit_count += 1;
 
+        uint64_t submit_end_ns = diagnose ?
+            qemu_clock_get_ns(QEMU_CLOCK_REALTIME) : 0;
+        if (diagnose) {
+            diag->submits++;
+            diag->submit_ns += submit_end_ns - submit_start_ns;
+        }
+
         bool check_budget = false;
 
         // Periodically check memory budget
@@ -1341,8 +1411,15 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
             check_budget = true;
         }
 
+        uint64_t wait_start_ns = diagnose ?
+            qemu_clock_get_ns(QEMU_CLOCK_REALTIME) : 0;
         VK_CHECK(vkWaitForFences(r->device, 1, &r->command_buffer_fence,
                                  VK_TRUE, UINT64_MAX));
+        uint64_t wait_end_ns = diagnose ?
+            qemu_clock_get_ns(QEMU_CLOCK_REALTIME) : 0;
+        if (diagnose) {
+            diag->fence_wait_ns += wait_end_ns - wait_start_ns;
+        }
 
         r->descriptor_set_index = 0;
         r->in_command_buffer = false;
@@ -1351,12 +1428,24 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         if (check_budget) {
             pgraph_vk_check_memory_budget(pg);
         }
+        if (diagnose) {
+            diag->post_ns +=
+                qemu_clock_get_ns(QEMU_CLOCK_REALTIME) - wait_end_ns;
+        }
     }
 
     NV2AState *d = container_of(pg, NV2AState, pgraph);
     pgraph_vk_process_pending_reports_internal(d);
 
     pgraph_vk_compute_finish_complete(r);
+
+    if (diagnose) {
+        diag->total_ns +=
+            qemu_clock_get_ns(QEMU_CLOCK_REALTIME) - total_start_ns;
+        if (finish_reason == VK_FINISH_REASON_FLIP_STALL) {
+            report_wait_diagnostics(r);
+        }
+    }
 }
 
 void pgraph_vk_begin_command_buffer(PGRAPHState *pg)

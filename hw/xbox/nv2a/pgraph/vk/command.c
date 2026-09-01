@@ -19,6 +19,24 @@
 
 #include "renderer.h"
 
+bool pgraph_vk_wait_diagnostics_enabled(PGRAPHVkState *r)
+{
+    if (unlikely(r->wait_diagnostics.enabled_state == 0)) {
+        const char *value = getenv("XEMU_VK_WAIT_DIAG");
+        r->wait_diagnostics.enabled_state =
+            value && value[0] && strcmp(value, "0") ? 2 : 1;
+    }
+    return r->wait_diagnostics.enabled_state == 2;
+}
+
+void pgraph_vk_record_aux_wait(PGRAPHVkState *r, uint64_t total_ns,
+                               uint64_t queue_wait_ns)
+{
+    r->wait_diagnostics.aux_submits++;
+    r->wait_diagnostics.aux_total_ns += total_ns;
+    r->wait_diagnostics.aux_queue_wait_ns += queue_wait_ns;
+}
+
 static void create_command_pool(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -89,6 +107,9 @@ VkCommandBuffer pgraph_vk_begin_single_time_commands(PGRAPHState *pg)
 void pgraph_vk_end_single_time_commands(PGRAPHState *pg, VkCommandBuffer cmd)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
+    bool diagnose = pgraph_vk_wait_diagnostics_enabled(r);
+    uint64_t total_start_ns = diagnose ?
+        qemu_clock_get_ns(QEMU_CLOCK_REALTIME) : 0;
 
     assert(r->in_aux_command_buffer);
 
@@ -101,7 +122,15 @@ void pgraph_vk_end_single_time_commands(PGRAPHState *pg, VkCommandBuffer cmd)
     };
     VK_CHECK(vkQueueSubmit(r->queue, 1, &submit_info, VK_NULL_HANDLE));
     nv2a_profile_inc_counter(NV2A_PROF_QUEUE_SUBMIT_AUX);
+    uint64_t wait_start_ns = diagnose ?
+        qemu_clock_get_ns(QEMU_CLOCK_REALTIME) : 0;
     VK_CHECK(vkQueueWaitIdle(r->queue));
+
+    if (diagnose) {
+        uint64_t now_ns = qemu_clock_get_ns(QEMU_CLOCK_REALTIME);
+        pgraph_vk_record_aux_wait(r, now_ns - total_start_ns,
+                                 now_ns - wait_start_ns);
+    }
 
     r->in_aux_command_buffer = false;
 }
