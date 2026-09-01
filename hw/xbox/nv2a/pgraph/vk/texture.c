@@ -1199,6 +1199,12 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
                 upload_texture_image(pg, texture_idx, snode);
                 snode->hash = content_hash;
             }
+            if (possibly_dirty) {
+                /* The current binding was fully hashed and, when changed,
+                 * uploaded. Retire its validation hint so unchanged draws do
+                 * not hash the same guest payload again. */
+                snode->possibly_dirty = false;
+            }
         }
 
         NV2A_VK_DGROUP_END();
