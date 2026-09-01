@@ -20,6 +20,15 @@
 #include "renderer.h"
 
 /*
+ * A 4096x4096 four-byte image is the largest unscaled linear guest image the
+ * renderer needs to stage. Internal scaling and depth/stencil conversion can
+ * require more, so those paths grow their scratch buffer before recording the
+ * copy rather than reserving for a hypothetical 10K image at startup.
+ */
+static const VkDeviceSize BUFFER_LINEAR_SCRATCH_INITIAL_SIZE =
+    4096ULL * 4096 * 4;
+
+/*
  * Sustained mixed inline-vertex tests found 8 MiB to be the smallest initial
  * pair with lower final allocation and no measurable loss versus 4, 16, or
  * 32 MiB. Later growth uses the exact required size; Vulkan does not require
@@ -73,9 +82,54 @@ static void destroy_buffer(PGRAPHState *pg, StorageBuffer *buffer)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
+    if (buffer->buffer == VK_NULL_HANDLE) {
+        return;
+    }
+
     vmaDestroyBuffer(r->allocator, buffer->buffer, buffer->allocation);
     buffer->buffer = VK_NULL_HANDLE;
     buffer->allocation = VK_NULL_HANDLE;
+}
+
+static void resize_buffer(PGRAPHState *pg, int index, size_t size);
+
+static VkDeviceSize grow_buffer_size(VkDeviceSize current,
+                                     VkDeviceSize required)
+{
+    VkDeviceSize size = MAX(current, BUFFER_LINEAR_SCRATCH_INITIAL_SIZE);
+
+    /* Keep a power-of-two capacity invariant so repeated scale changes need
+     * at most logarithmically many device allocations. */
+    while (size < required) {
+        assert(size <= UINT64_MAX / 2);
+        size *= 2;
+    }
+
+    return size;
+}
+
+void pgraph_vk_ensure_buffer_capacity(PGRAPHState *pg, int index,
+                                      VkDeviceSize required_size)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    StorageBuffer *buffer = &r->storage_buffers[index];
+
+    assert(required_size);
+    if (buffer->buffer_size >= required_size) {
+        return;
+    }
+
+    /* Buffer objects may still be referenced by an active submission. Finish
+     * it before replacing the allocation; callers invoke this before starting
+     * their auxiliary command buffer. */
+    if (r->in_command_buffer) {
+        pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+    }
+    assert(!r->in_command_buffer);
+    assert(!r->in_aux_command_buffer);
+
+    resize_buffer(pg, index,
+                  grow_buffer_size(buffer->buffer_size, required_size));
 }
 
 static void resize_buffer(PGRAPHState *pg, int index, size_t size)
@@ -154,7 +208,7 @@ void pgraph_vk_init_buffers(NV2AState *d)
     r->storage_buffers[BUFFER_STAGING_DST] = (StorageBuffer){
         .alloc_info = host_alloc_create_info,
         .usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-        .buffer_size = 4096 * 4096 * 4,
+        .buffer_size = BUFFER_LINEAR_SCRATCH_INITIAL_SIZE,
     };
 
     r->storage_buffers[BUFFER_STAGING_SRC] = (StorageBuffer){
@@ -167,7 +221,7 @@ void pgraph_vk_init_buffers(NV2AState *d)
         .alloc_info = device_alloc_create_info,
         .usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT |
                  VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
-        .buffer_size = (1024 * 10) * (1024 * 10) * 8,
+        .buffer_size = BUFFER_LINEAR_SCRATCH_INITIAL_SIZE,
     };
 
     r->storage_buffers[BUFFER_COMPUTE_SRC] = (StorageBuffer){
