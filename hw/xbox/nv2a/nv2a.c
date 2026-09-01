@@ -143,11 +143,28 @@ const NV2ABlockInfo blocktable[NV_NUM_BLOCKS] = {
 };
 #undef ENTRY
 
+static uint64_t pgraph_lockless_probe_total;
+static uint64_t pgraph_lockless_probe_hits;
+
 static bool pgraph_lockless_read(void *opaque, hwaddr addr,
                                  unsigned int size)
 {
+    uint64_t total = qatomic_fetch_inc(&pgraph_lockless_probe_total) + 1;
+    bool accepted = addr == NV_PGRAPH_PATT_COLOR0 &&
+                    size == sizeof(uint32_t);
+
     (void)opaque;
-    return addr == NV_PGRAPH_PATT_COLOR0 && size == sizeof(uint32_t);
+    if (accepted) {
+        qatomic_inc(&pgraph_lockless_probe_hits);
+    }
+    if ((total & (total - 1)) == 0) {
+        fprintf(stderr,
+                "XEMU_BQL_PROBE total=%" PRIu64 " hits=%" PRIu64 "\n",
+                total, qatomic_read(&pgraph_lockless_probe_hits));
+        fflush(stderr);
+    }
+
+    return accepted;
 }
 
 static int nv2a_get_bpp(VGACommonState *s)
