@@ -22,6 +22,14 @@ retained below instead of treating the microbenchmark win as production proof.
 | `eng509-sse-guarded-gcc-20260901` | `80dd00b1c6` | 1.918x SSE throughput; exact hash | not run | pending guarded retail test |
 | `eng510-sse-guarded-flip-gcc-20260901` | `20d92b60fa` | inherited | not run | unverified diagnostic |
 
+## Vulkan/OpenGL control pair
+
+The exact ENG504 control was also captured on both backends. Morrowind measured
+22.97103 FPS on Vulkan and 42.34442 FPS on OpenGL (`+84.34%`). PGR2 measured
+26.44401 FPS on Vulkan and 25.13740 FPS on OpenGL (`-4.94%`). This identifies a
+large scene-specific Vulkan deficit without claiming that OpenGL is universally
+faster. Full report: `J:\xemu-lab-working-set\active\reports\eng511-vulkan-opengl-shared-hotpaths.md`.
+
 ## Exact control and focused proof
 
 - Base: `df0a73073655508af1a2bfd5c66019f3e84ea236`.
@@ -52,4 +60,3 @@ paired retail run and special-value/MXCSR tests pass.
 - Retail captures: `C:\xemu-lab\captures\pgr2-wpr` and
   `C:\xemu-lab\captures\morrowind-wpr` using the run IDs listed in each build
   record.
-

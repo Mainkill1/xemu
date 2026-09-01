@@ -3,5 +3,7 @@ PGR2 first restore FAILED before measurement with dsp_cpu.c:893 assertion.
 Failure evidence: eng504-baseline-pgr2-20260901-1454.
 PGR2 retry: 26.444011 FPS; eng504-baseline-pgr2-retry-20260901-1456.
 Morrowind: 22.971026 FPS; eng504-baseline-morrowind-20260901-1500.
+OpenGL Morrowind: 42.344423 FPS; eng511-baseline-opengl-morrowind-retry-20260901.
+OpenGL PGR2: 25.137403 FPS; eng511-baseline-opengl-pgr2-20260901.
+Backend comparison: Morrowind OpenGL +84.34%; PGR2 OpenGL -4.94% versus Vulkan.
 The retry does not erase the first observed failure.
-
