@@ -613,7 +613,8 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
 
     nv2a_profile_inc_counter(NV2A_PROF_QUEUE_SUBMIT_4);
     pgraph_vk_end_debug_marker(r, cmd);
-    pgraph_vk_end_single_time_commands(pg, cmd);
+    pgraph_vk_end_single_time_commands(pg, cmd,
+                                       VK_AUX_SUBMIT_TEXTURE_UPLOAD);
 
     // Release decoded texture data
     for (int layer_idx = 0; layer_idx < num_layers; layer_idx++) {
@@ -1058,7 +1059,8 @@ static void create_dummy_texture(PGRAPHState *pg)
                                       VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     pgraph_vk_end_debug_marker(r, cmd);
-    pgraph_vk_end_single_time_commands(pg, cmd);
+    pgraph_vk_end_single_time_commands(pg, cmd,
+                                       VK_AUX_SUBMIT_DUMMY_TEXTURE);
 
     r->dummy_texture = (TextureBinding){
         .key.scale = 1.0,

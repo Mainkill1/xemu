@@ -29,12 +29,13 @@ bool pgraph_vk_wait_diagnostics_enabled(PGRAPHVkState *r)
     return r->wait_diagnostics.enabled_state == 2;
 }
 
-void pgraph_vk_record_aux_wait(PGRAPHVkState *r, uint64_t total_ns,
+void pgraph_vk_record_aux_wait(PGRAPHVkState *r, AuxSubmitReason reason,
+                               uint64_t total_ns,
                                uint64_t queue_wait_ns)
 {
-    r->wait_diagnostics.aux_submits++;
-    r->wait_diagnostics.aux_total_ns += total_ns;
-    r->wait_diagnostics.aux_queue_wait_ns += queue_wait_ns;
+    r->wait_diagnostics.aux[reason].submits++;
+    r->wait_diagnostics.aux[reason].total_ns += total_ns;
+    r->wait_diagnostics.aux[reason].queue_wait_ns += queue_wait_ns;
 }
 
 static void create_command_pool(PGRAPHState *pg)
@@ -104,7 +105,8 @@ VkCommandBuffer pgraph_vk_begin_single_time_commands(PGRAPHState *pg)
     return r->aux_command_buffer;
 }
 
-void pgraph_vk_end_single_time_commands(PGRAPHState *pg, VkCommandBuffer cmd)
+void pgraph_vk_end_single_time_commands(PGRAPHState *pg, VkCommandBuffer cmd,
+                                        AuxSubmitReason reason)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     bool diagnose = pgraph_vk_wait_diagnostics_enabled(r);
@@ -128,7 +130,7 @@ void pgraph_vk_end_single_time_commands(PGRAPHState *pg, VkCommandBuffer cmd)
 
     if (diagnose) {
         uint64_t now_ns = qemu_clock_get_ns(QEMU_CLOCK_REALTIME);
-        pgraph_vk_record_aux_wait(r, now_ns - total_start_ns,
+        pgraph_vk_record_aux_wait(r, reason, now_ns - total_start_ns,
                                  now_ns - wait_start_ns);
     }
 

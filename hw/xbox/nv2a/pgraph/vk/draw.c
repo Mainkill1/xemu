@@ -1287,6 +1287,16 @@ static const char *finish_reason_names[VK_FINISH_REASON__COUNT] = {
     [VK_FINISH_REASON_TEXTURE_DIRTY] = "TEXTURE_DIRTY",
 };
 
+static const char *aux_submit_reason_names[VK_AUX_SUBMIT_REASON__COUNT] = {
+    [VK_AUX_SUBMIT_PVIDEO_UPLOAD] = "AUX_PVIDEO_UPLOAD",
+    [VK_AUX_SUBMIT_DISPLAY_COMPOSITION] = "AUX_DISPLAY_COMPOSITION",
+    [VK_AUX_SUBMIT_SURFACE_DOWNLOAD] = "AUX_SURFACE_DOWNLOAD",
+    [VK_AUX_SUBMIT_SURFACE_INITIAL_LAYOUT] = "AUX_SURFACE_INITIAL_LAYOUT",
+    [VK_AUX_SUBMIT_SURFACE_UPLOAD] = "AUX_SURFACE_UPLOAD",
+    [VK_AUX_SUBMIT_TEXTURE_UPLOAD] = "AUX_TEXTURE_UPLOAD",
+    [VK_AUX_SUBMIT_DUMMY_TEXTURE] = "AUX_DUMMY_TEXTURE",
+};
+
 static void report_wait_diagnostics(PGRAPHVkState *r)
 {
     PGRAPHVkWaitDiagnostics *diag = &r->wait_diagnostics;
@@ -1305,18 +1315,19 @@ static void report_wait_diagnostics(PGRAPHVkState *r)
                 reason->submits, reason->total_ns, reason->prepare_ns,
                 reason->submit_ns, reason->fence_wait_ns, reason->post_ns);
     }
-    if (diag->aux_submits) {
+    for (unsigned int i = 0; i < VK_AUX_SUBMIT_REASON__COUNT; i++) {
+        if (!diag->aux[i].submits) {
+            continue;
+        }
         fprintf(stderr,
-                "XEMU_VK_WAIT frame=%" PRIu64
-                " reason=AUX submits=%" PRIu64 " total_ns=%" PRIu64
+                "XEMU_VK_WAIT frame=%" PRIu64 " reason=%s"
+                " submits=%" PRIu64 " total_ns=%" PRIu64
                 " queue_wait_ns=%" PRIu64 "\n",
-                diag->frame, diag->aux_submits, diag->aux_total_ns,
-                diag->aux_queue_wait_ns);
+                diag->frame, aux_submit_reason_names[i], diag->aux[i].submits,
+                diag->aux[i].total_ns, diag->aux[i].queue_wait_ns);
     }
     memset(diag->finish, 0, sizeof(diag->finish));
-    diag->aux_submits = 0;
-    diag->aux_total_ns = 0;
-    diag->aux_queue_wait_ns = 0;
+    memset(diag->aux, 0, sizeof(diag->aux));
     diag->frame++;
 }
 
