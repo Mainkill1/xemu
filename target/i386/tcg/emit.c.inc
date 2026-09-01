@@ -612,8 +612,8 @@ static void gen_##uname(DisasContext *s, X86DecodedInsn *decode)                
 #if defined(XBOX) && defined(__x86_64__)
 typedef void (*TCGGenBinaryF32)(TCGv_f32, TCGv_f32, TCGv_f32);
 
-static void gen_hard_sse_f32(DisasContext *s, X86DecodedInsn *decode,
-                             TCGGenBinaryF32 op, bool scalar)
+static void gen_hard_sse_scalar_f32(DisasContext *s, X86DecodedInsn *decode,
+                                    TCGGenBinaryF32 op)
 {
     TCGv_ptr dst = OP_PTR0;
     TCGv_ptr lhs = OP_PTR1;
@@ -624,25 +624,20 @@ static void gen_hard_sse_f32(DisasContext *s, X86DecodedInsn *decode,
     TCGv_f32 lhs_value = tcg_temp_new_f32();
     TCGv_f32 rhs_value = tcg_temp_new_f32();
     TCGv_f32 result = tcg_temp_new_f32();
-    int arithmetic_lanes = scalar ? 1 : 4;
     int i;
 
     gen_mxcsr_flcr(s);
 
-    for (i = 0; i < arithmetic_lanes; i++) {
-        int offset = offsetof(ZMMReg, ZMM_L(0)) + i * sizeof(uint32_t);
-
-        tcg_gen_ld_i32(lhs_bits, lhs, offset);
-        tcg_gen_ld_i32(rhs_bits, rhs, offset);
-        tcg_gen_mov32i_f32(lhs_value, lhs_bits);
-        tcg_gen_mov32i_f32(rhs_value, rhs_bits);
-        op(result, lhs_value, rhs_value);
-        tcg_gen_mov32f_i32(result_bits, result);
-        tcg_gen_st_i32(result_bits, dst, offset);
-    }
+    tcg_gen_ld_i32(lhs_bits, lhs, offsetof(ZMMReg, ZMM_L(0)));
+    tcg_gen_ld_i32(rhs_bits, rhs, offsetof(ZMMReg, ZMM_L(0)));
+    tcg_gen_mov32i_f32(lhs_value, lhs_bits);
+    tcg_gen_mov32i_f32(rhs_value, rhs_bits);
+    op(result, lhs_value, rhs_value);
+    tcg_gen_mov32f_i32(result_bits, result);
+    tcg_gen_st_i32(result_bits, dst, offsetof(ZMMReg, ZMM_L(0)));
 
     /* Legacy scalar SSE aliases its destination and first source. */
-    if (scalar && decode->op[0].n != decode->op[1].n) {
+    if (decode->op[0].n != decode->op[1].n) {
         TCGv_i32 preserved_bits = tcg_temp_new_i32();
 
         for (i = 1; i < 4; i++) {
@@ -654,6 +649,12 @@ static void gen_hard_sse_f32(DisasContext *s, X86DecodedInsn *decode,
     }
 }
 
+/*
+ * Keep packed arithmetic on the helper path. Expanding one packed guest
+ * instruction into four scalar TCG lanes grows hot translation blocks enough
+ * to regress packed-heavy retail code. Scalar arithmetic avoids a helper call
+ * without multiplying the guest instruction footprint.
+ */
 #define FP_SSE_ARITH(uname, lname, tcg_op)                                         \
 static void gen_##uname(DisasContext *s, X86DecodedInsn *decode)                   \
 {                                                                                  \
@@ -661,11 +662,7 @@ static void gen_##uname(DisasContext *s, X86DecodedInsn *decode)                
                                                                                    \
     if (g_use_hard_fpu && !(s->prefix & PREFIX_VEX) && !s->vex_l) {                \
         if (fp_prefixes == PREFIX_REPZ) {                                          \
-            gen_hard_sse_f32(s, decode, tcg_op, true);                             \
-            return;                                                                \
-        }                                                                          \
-        if (fp_prefixes == 0) {                                                    \
-            gen_hard_sse_f32(s, decode, tcg_op, false);                            \
+            gen_hard_sse_scalar_f32(s, decode, tcg_op);                            \
             return;                                                                \
         }                                                                          \
     }                                                                              \
