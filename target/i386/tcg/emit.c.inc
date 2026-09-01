@@ -613,27 +613,64 @@ static void gen_##uname(DisasContext *s, X86DecodedInsn *decode)                
 typedef void (*TCGGenBinaryF32)(TCGv_f32, TCGv_f32, TCGv_f32);
 
 static void gen_hard_sse_scalar_f32(DisasContext *s, X86DecodedInsn *decode,
-                                    TCGGenBinaryF32 op)
+                                    TCGGenBinaryF32 op,
+                                    SSEFunc_0_eppp slow_path)
 {
+    const uint32_t mxcsr_control_mask = 0xffc0;
+    const uint32_t mxcsr_default_control = 0x1f80;
+    const uint32_t float32_exponent_mask = 0x7f800000;
     TCGv_ptr dst = OP_PTR0;
     TCGv_ptr lhs = OP_PTR1;
     TCGv_ptr rhs = OP_PTR2;
     TCGv_i32 lhs_bits = tcg_temp_new_i32();
     TCGv_i32 rhs_bits = tcg_temp_new_i32();
     TCGv_i32 result_bits = tcg_temp_new_i32();
+    TCGv_i32 classification = tcg_temp_new_i32();
+    TCGv_i32 mxcsr_control = tcg_temp_new_i32();
     TCGv_f32 lhs_value = tcg_temp_new_f32();
     TCGv_f32 rhs_value = tcg_temp_new_f32();
     TCGv_f32 result = tcg_temp_new_f32();
+    TCGLabel *slow = gen_new_label();
+    TCGLabel *done = gen_new_label();
     int i;
-
-    gen_mxcsr_flcr(s);
 
     tcg_gen_ld_i32(lhs_bits, lhs, offsetof(ZMMReg, ZMM_L(0)));
     tcg_gen_ld_i32(rhs_bits, rhs, offsetof(ZMMReg, ZMM_L(0)));
+
+    /*
+     * Use native arithmetic only for the default Xbox MXCSR control and normal
+     * finite operands. Zero, denormal, infinity, and NaN encodings retain the
+     * existing SoftFloat path. The masks are the architectural MXCSR control
+     * field (bits 6..15) and IEEE-754 binary32 exponent field (bits 23..30).
+     */
+    tcg_gen_ld_i32(mxcsr_control, tcg_env, offsetof(CPUX86State, mxcsr));
+    tcg_gen_andi_i32(mxcsr_control, mxcsr_control, mxcsr_control_mask);
+    tcg_gen_brcondi_i32(TCG_COND_NE, mxcsr_control, mxcsr_default_control,
+                        slow);
+
+    tcg_gen_andi_i32(classification, lhs_bits, float32_exponent_mask);
+    tcg_gen_brcondi_i32(TCG_COND_EQ, classification, 0, slow);
+    tcg_gen_brcondi_i32(TCG_COND_EQ, classification, float32_exponent_mask,
+                        slow);
+    tcg_gen_andi_i32(classification, rhs_bits, float32_exponent_mask);
+    tcg_gen_brcondi_i32(TCG_COND_EQ, classification, 0, slow);
+    tcg_gen_brcondi_i32(TCG_COND_EQ, classification, float32_exponent_mask,
+                        slow);
+
+    /* Runtime guards may bypass an earlier direct operation in the same TB. */
+    s->fp_control_source = FP_CONTROL_NONE;
+    gen_mxcsr_flcr(s);
     tcg_gen_mov32i_f32(lhs_value, lhs_bits);
     tcg_gen_mov32i_f32(rhs_value, rhs_bits);
     op(result, lhs_value, rhs_value);
     tcg_gen_mov32f_i32(result_bits, result);
+
+    /* Underflow, overflow, and exact-zero results use the precise slow path. */
+    tcg_gen_andi_i32(classification, result_bits, float32_exponent_mask);
+    tcg_gen_brcondi_i32(TCG_COND_EQ, classification, 0, slow);
+    tcg_gen_brcondi_i32(TCG_COND_EQ, classification, float32_exponent_mask,
+                        slow);
+
     tcg_gen_st_i32(result_bits, dst, offsetof(ZMMReg, ZMM_L(0)));
 
     /* Legacy scalar SSE aliases its destination and first source. */
@@ -647,6 +684,11 @@ static void gen_hard_sse_scalar_f32(DisasContext *s, X86DecodedInsn *decode,
             tcg_gen_st_i32(preserved_bits, dst, offset);
         }
     }
+
+    tcg_gen_br(done);
+    gen_set_label(slow);
+    slow_path(tcg_env, dst, lhs, rhs);
+    gen_set_label(done);
 }
 
 /*
@@ -662,7 +704,8 @@ static void gen_##uname(DisasContext *s, X86DecodedInsn *decode)                
                                                                                    \
     if (g_use_hard_fpu && !(s->prefix & PREFIX_VEX) && !s->vex_l) {                \
         if (fp_prefixes == PREFIX_REPZ) {                                          \
-            gen_hard_sse_scalar_f32(s, decode, tcg_op);                            \
+            gen_hard_sse_scalar_f32(s, decode, tcg_op,                            \
+                                    gen_helper_##lname##ss);                       \
             return;                                                                \
         }                                                                          \
     }                                                                              \
