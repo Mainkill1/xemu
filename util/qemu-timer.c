@@ -349,11 +349,34 @@ int qemu_poll_ns(GPollFD *fds, guint nfds, int64_t timeout)
      */
     #define XBOX_BUSYWAIT_THRESHOLD_NS 1250000
     if ((0 < timeout) && (timeout < XBOX_BUSYWAIT_THRESHOLD_NS)) {
+#ifdef _WIN32
+        LARGE_INTEGER counter;
+        uint64_t timeout_ticks;
+        int64_t end;
+
+        /*
+         * Compare the raw performance counter while spinning. Converting
+         * every counter sample to nanoseconds performs a 128-bit division on
+         * Windows, making the short-deadline path needlessly expensive.
+         * Keep the existing nanosecond threshold and perform that conversion
+         * once when calculating the raw-counter deadline instead.
+         */
+        timeout_ticks = ((__uint128_t)(uint64_t)timeout *
+                         (uint64_t)clock_freq +
+                         NANOSECONDS_PER_SECOND - 1) /
+                        NANOSECONDS_PER_SECOND;
+        QueryPerformanceCounter(&counter);
+        end = counter.QuadPart + timeout_ticks;
+        do {
+            QueryPerformanceCounter(&counter);
+        } while (counter.QuadPart < end);
+#else
         int64_t now = qemu_clock_get_ns(QEMU_CLOCK_REALTIME);
         int64_t end = now + timeout;
         while (now < end) {
             now = qemu_clock_get_ns(QEMU_CLOCK_REALTIME);
         }
+#endif
         timeout = 0;
     }
 #endif
