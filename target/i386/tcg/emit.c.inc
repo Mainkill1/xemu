@@ -618,18 +618,18 @@ static void gen_hard_sse_f32(DisasContext *s, X86DecodedInsn *decode,
     TCGv_ptr dst = OP_PTR0;
     TCGv_ptr lhs = OP_PTR1;
     TCGv_ptr rhs = OP_PTR2;
+    TCGv_i32 lhs_bits = tcg_temp_new_i32();
+    TCGv_i32 rhs_bits = tcg_temp_new_i32();
+    TCGv_i32 result_bits = tcg_temp_new_i32();
+    TCGv_f32 lhs_value = tcg_temp_new_f32();
+    TCGv_f32 rhs_value = tcg_temp_new_f32();
+    TCGv_f32 result = tcg_temp_new_f32();
     int arithmetic_lanes = scalar ? 1 : 4;
     int i;
 
     gen_mxcsr_flcr(s);
 
     for (i = 0; i < arithmetic_lanes; i++) {
-        TCGv_i32 lhs_bits = tcg_temp_new_i32();
-        TCGv_i32 rhs_bits = tcg_temp_new_i32();
-        TCGv_i32 result_bits = tcg_temp_new_i32();
-        TCGv_f32 lhs_value = tcg_temp_new_f32();
-        TCGv_f32 rhs_value = tcg_temp_new_f32();
-        TCGv_f32 result = tcg_temp_new_f32();
         int offset = offsetof(ZMMReg, ZMM_L(0)) + i * sizeof(uint32_t);
 
         tcg_gen_ld_i32(lhs_bits, lhs, offset);
@@ -641,13 +641,16 @@ static void gen_hard_sse_f32(DisasContext *s, X86DecodedInsn *decode,
         tcg_gen_st_i32(result_bits, dst, offset);
     }
 
-    /* Scalar SSE preserves lanes 1 through 3 from its first source. */
-    for (i = arithmetic_lanes; i < 4; i++) {
-        TCGv_i32 value = tcg_temp_new_i32();
-        int offset = offsetof(ZMMReg, ZMM_L(0)) + i * sizeof(uint32_t);
+    /* Legacy scalar SSE aliases its destination and first source. */
+    if (scalar && decode->op[0].n != decode->op[1].n) {
+        TCGv_i32 preserved_bits = tcg_temp_new_i32();
 
-        tcg_gen_ld_i32(value, lhs, offset);
-        tcg_gen_st_i32(value, dst, offset);
+        for (i = 1; i < 4; i++) {
+            int offset = offsetof(ZMMReg, ZMM_L(0)) + i * sizeof(uint32_t);
+
+            tcg_gen_ld_i32(preserved_bits, lhs, offset);
+            tcg_gen_st_i32(preserved_bits, dst, offset);
+        }
     }
 }
 
@@ -656,7 +659,7 @@ static void gen_##uname(DisasContext *s, X86DecodedInsn *decode)                
 {                                                                                  \
     int fp_prefixes = s->prefix & (PREFIX_REPZ | PREFIX_REPNZ | PREFIX_DATA);      \
                                                                                    \
-    if (g_use_hard_fpu && !s->vex_l) {                                             \
+    if (g_use_hard_fpu && !(s->prefix & PREFIX_VEX) && !s->vex_l) {                \
         if (fp_prefixes == PREFIX_REPZ) {                                          \
             gen_hard_sse_f32(s, decode, tcg_op, true);                             \
             return;                                                                \
