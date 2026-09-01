@@ -62,6 +62,17 @@ typedef enum FinishReason {
     VK_FINISH_REASON__COUNT,
 } FinishReason;
 
+typedef enum AuxSubmitReason {
+    VK_AUX_SUBMIT_PVIDEO_UPLOAD,
+    VK_AUX_SUBMIT_DISPLAY_COMPOSITION,
+    VK_AUX_SUBMIT_SURFACE_DOWNLOAD,
+    VK_AUX_SUBMIT_SURFACE_INITIAL_LAYOUT,
+    VK_AUX_SUBMIT_SURFACE_UPLOAD,
+    VK_AUX_SUBMIT_TEXTURE_UPLOAD,
+    VK_AUX_SUBMIT_DUMMY_TEXTURE,
+    VK_AUX_SUBMIT_REASON__COUNT,
+} AuxSubmitReason;
+
 typedef struct PGRAPHVkFinishDiagnostic {
     uint64_t calls;
     uint64_t submits;
@@ -76,9 +87,11 @@ typedef struct PGRAPHVkWaitDiagnostics {
     int enabled_state;
     uint64_t frame;
     PGRAPHVkFinishDiagnostic finish[VK_FINISH_REASON__COUNT];
-    uint64_t aux_submits;
-    uint64_t aux_total_ns;
-    uint64_t aux_queue_wait_ns;
+    struct {
+        uint64_t submits;
+        uint64_t total_ns;
+        uint64_t queue_wait_ns;
+    } aux[VK_AUX_SUBMIT_REASON__COUNT];
 } PGRAPHVkWaitDiagnostics;
 
 typedef struct MemorySyncRequirement {
@@ -544,9 +557,11 @@ VkDeviceSize pgraph_vk_append_to_buffer(PGRAPHState *pg, int index, void **data,
 void pgraph_vk_init_command_buffers(PGRAPHState *pg);
 void pgraph_vk_finalize_command_buffers(PGRAPHState *pg);
 VkCommandBuffer pgraph_vk_begin_single_time_commands(PGRAPHState *pg);
-void pgraph_vk_end_single_time_commands(PGRAPHState *pg, VkCommandBuffer cmd);
+void pgraph_vk_end_single_time_commands(PGRAPHState *pg, VkCommandBuffer cmd,
+                                        AuxSubmitReason reason);
 bool pgraph_vk_wait_diagnostics_enabled(PGRAPHVkState *r);
-void pgraph_vk_record_aux_wait(PGRAPHVkState *r, uint64_t total_ns,
+void pgraph_vk_record_aux_wait(PGRAPHVkState *r, AuxSubmitReason reason,
+                               uint64_t total_ns,
                                uint64_t queue_wait_ns);
 
 // image.c
