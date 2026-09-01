@@ -1935,14 +1935,22 @@ static bool ensure_buffer_space(PGRAPHState *pg, int index, VkDeviceSize size,
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     StorageBuffer *buffer = &r->storage_buffers[index];
-    VkDeviceSize required_size = pgraph_vk_buffer_required_size(
-        pg, index, size, alignment);
-
-    assert(required_size >= size);
 
     if (!pgraph_vk_buffer_has_space_for(pg, index, size, alignment)) {
         pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
-        pgraph_vk_ensure_buffer_pair_capacity(pg, index, required_size);
+
+        /*
+         * Finishing submits the staged data and resets the transient offset.
+         * Reuse that storage unless this individual allocation still exceeds
+         * the empty buffer. Growing from the pre-finish offset needlessly
+         * recreated both buffers on every wrap.
+         */
+        if (!pgraph_vk_buffer_has_space_for(pg, index, size, alignment)) {
+            VkDeviceSize required_size = pgraph_vk_buffer_required_size(
+                pg, index, size, alignment);
+            assert(required_size >= size);
+            pgraph_vk_ensure_buffer_pair_capacity(pg, index, required_size);
+        }
         return true;
     }
 
@@ -1950,6 +1958,9 @@ static bool ensure_buffer_space(PGRAPHState *pg, int index, VkDeviceSize size,
         if (r->in_command_buffer || r->in_aux_command_buffer) {
             pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
         }
+        VkDeviceSize required_size = pgraph_vk_buffer_required_size(
+            pg, index, size, alignment);
+        assert(required_size >= size);
         pgraph_vk_ensure_buffer_pair_capacity(pg, index, required_size);
         return true;
     }
