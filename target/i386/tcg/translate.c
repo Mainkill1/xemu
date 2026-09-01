@@ -37,6 +37,12 @@
 
 static int g_use_hard_fpu;
 
+typedef enum FPControlSource {
+    FP_CONTROL_NONE,
+    FP_CONTROL_X87,
+    FP_CONTROL_MXCSR,
+} FPControlSource;
+
 #if defined(XBOX) && defined(__x86_64__)
 #include "ui/xemu-settings.h"
 #define MAP_GEN_HELPER_SOFT_HARD(name) \
@@ -234,7 +240,7 @@ typedef struct DisasContext {
     TCGOp *prev_insn_end;
 
     /* Floating point */
-    bool flcr_set;
+    FPControlSource fp_control_source;
     int fpstt_delta;
     TCGv_fp fpregs[8];
     TCGv_fp ft0;
@@ -1649,7 +1655,7 @@ static void gen_movi_f64(DisasContext *s, TCGv_f64 ret, double arg)
 static void gen_flcr(DisasContext *s)
 {
     /* TODO: Oversynchronized */
-    if (s->flcr_set) {
+    if (s->fp_control_source == FP_CONTROL_X87) {
         return;
     }
 
@@ -1659,8 +1665,25 @@ static void gen_flcr(DisasContext *s)
     tcg_gen_shli_i32(v, v, 3);
     tcg_gen_ori_i32(v, v, 0x1f80);
     tcg_gen_flcr(v);
-    s->flcr_set = true;
+    s->fp_control_source = FP_CONTROL_X87;
 }
+
+#if defined(XBOX) && defined(__x86_64__)
+static void gen_mxcsr_flcr(DisasContext *s)
+{
+    TCGv_i32 v;
+
+    if (s->fp_control_source == FP_CONTROL_MXCSR) {
+        return;
+    }
+
+    v = tcg_temp_new_i32();
+    tcg_gen_ld_i32(v, tcg_env, offsetof(CPUX86State, mxcsr));
+    tcg_gen_andi_i32(v, v, 0xffff);
+    tcg_gen_flcr(v);
+    s->fp_control_source = FP_CONTROL_MXCSR;
+}
+#endif
 
 static void gen_mov32f_i64(TCGv_i64 ret, TCGv_f32 arg)
 {
@@ -1725,7 +1748,7 @@ static void gen_flush_fp(DisasContext *s)
 {
     fp_pc_wrapper(flush_fp_regs)(s);
     s->fpstt_delta = 0;
-    s->flcr_set = false;
+    s->fp_control_source = FP_CONTROL_NONE;
 }
 
 /*
@@ -4290,7 +4313,7 @@ static void i386_tr_init_disas_context(DisasContextBase *dcbase, CPUState *cpu)
     }
     dc->fpstt_delta = 0;
     dc->ft0 = NULL;
-    dc->flcr_set = false;
+    dc->fp_control_source = FP_CONTROL_NONE;
 }
 
 static void i386_tr_tb_start(DisasContextBase *db, CPUState *cpu)

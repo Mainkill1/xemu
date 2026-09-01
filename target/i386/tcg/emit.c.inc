@@ -608,9 +608,82 @@ static void gen_##uname(DisasContext *s, X86DecodedInsn *decode)                
                gen_helper_##lname##sd,                                             \
                gen_helper_##lname##ss);                                            \
 }
+
+#if defined(XBOX) && defined(__x86_64__)
+typedef void (*TCGGenBinaryF32)(TCGv_f32, TCGv_f32, TCGv_f32);
+
+static void gen_hard_sse_f32(DisasContext *s, X86DecodedInsn *decode,
+                             TCGGenBinaryF32 op, bool scalar)
+{
+    TCGv_ptr dst = OP_PTR0;
+    TCGv_ptr lhs = OP_PTR1;
+    TCGv_ptr rhs = OP_PTR2;
+    int arithmetic_lanes = scalar ? 1 : 4;
+    int i;
+
+    gen_mxcsr_flcr(s);
+
+    for (i = 0; i < arithmetic_lanes; i++) {
+        TCGv_i32 lhs_bits = tcg_temp_new_i32();
+        TCGv_i32 rhs_bits = tcg_temp_new_i32();
+        TCGv_i32 result_bits = tcg_temp_new_i32();
+        TCGv_f32 lhs_value = tcg_temp_new_f32();
+        TCGv_f32 rhs_value = tcg_temp_new_f32();
+        TCGv_f32 result = tcg_temp_new_f32();
+        int offset = offsetof(ZMMReg, ZMM_L(0)) + i * sizeof(uint32_t);
+
+        tcg_gen_ld_i32(lhs_bits, lhs, offset);
+        tcg_gen_ld_i32(rhs_bits, rhs, offset);
+        tcg_gen_mov32i_f32(lhs_value, lhs_bits);
+        tcg_gen_mov32i_f32(rhs_value, rhs_bits);
+        op(result, lhs_value, rhs_value);
+        tcg_gen_mov32f_i32(result_bits, result);
+        tcg_gen_st_i32(result_bits, dst, offset);
+    }
+
+    /* Scalar SSE preserves lanes 1 through 3 from its first source. */
+    for (i = arithmetic_lanes; i < 4; i++) {
+        TCGv_i32 value = tcg_temp_new_i32();
+        int offset = offsetof(ZMMReg, ZMM_L(0)) + i * sizeof(uint32_t);
+
+        tcg_gen_ld_i32(value, lhs, offset);
+        tcg_gen_st_i32(value, dst, offset);
+    }
+}
+
+#define FP_SSE_ARITH(uname, lname, tcg_op)                                         \
+static void gen_##uname(DisasContext *s, X86DecodedInsn *decode)                   \
+{                                                                                  \
+    int fp_prefixes = s->prefix & (PREFIX_REPZ | PREFIX_REPNZ | PREFIX_DATA);      \
+                                                                                   \
+    if (g_use_hard_fpu && !s->vex_l) {                                             \
+        if (fp_prefixes == PREFIX_REPZ) {                                          \
+            gen_hard_sse_f32(s, decode, tcg_op, true);                             \
+            return;                                                                \
+        }                                                                          \
+        if (fp_prefixes == 0) {                                                    \
+            gen_hard_sse_f32(s, decode, tcg_op, false);                            \
+            return;                                                                \
+        }                                                                          \
+    }                                                                              \
+                                                                                   \
+    gen_fp_sse(s, decode,                                                          \
+               gen_helper_##lname##pd_xmm,                                         \
+               gen_helper_##lname##ps_xmm,                                         \
+               gen_helper_##lname##pd_ymm,                                         \
+               gen_helper_##lname##ps_ymm,                                         \
+               gen_helper_##lname##sd,                                             \
+               gen_helper_##lname##ss);                                            \
+}
+
+FP_SSE_ARITH(VADD, add, tcg_gen_add_f32)
+FP_SSE_ARITH(VMUL, mul, tcg_gen_mul_f32)
+FP_SSE_ARITH(VSUB, sub, tcg_gen_sub_f32)
+#else
 FP_SSE(VADD, add)
 FP_SSE(VMUL, mul)
 FP_SSE(VSUB, sub)
+#endif
 FP_SSE(VMIN, min)
 FP_SSE(VDIV, div)
 FP_SSE(VMAX, max)
@@ -2371,6 +2444,9 @@ static void gen_LDMXCSR(DisasContext *s, X86DecodedInsn *decode)
 
     tcg_gen_trunc_tl_i32(tmp, s->T0);
     gen_helper_ldmxcsr(tcg_env, tmp);
+#if defined(XBOX) && defined(__x86_64__)
+    s->fp_control_source = FP_CONTROL_NONE;
+#endif
 }
 
 static void gen_lxx_seg(DisasContext *s, X86DecodedInsn *decode, int seg)
