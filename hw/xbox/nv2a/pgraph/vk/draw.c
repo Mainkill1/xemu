@@ -1287,6 +1287,7 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         if (r->perf.enabled) {
             staged_bytes =
                 r->storage_buffers[BUFFER_INDEX_STAGING].buffer_offset +
+                r->storage_buffers[BUFFER_VERTEX_RAM_STAGING].buffer_offset +
                 r->storage_buffers[BUFFER_VERTEX_INLINE_STAGING].buffer_offset +
                 r->storage_buffers[BUFFER_UNIFORM_STAGING].buffer_offset;
         }
@@ -1305,7 +1306,6 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         sync_staging_buffer(pg, cmd, BUFFER_VERTEX_INLINE_STAGING,
                                 BUFFER_VERTEX_INLINE);
         sync_staging_buffer(pg, cmd, BUFFER_UNIFORM_STAGING, BUFFER_UNIFORM);
-        bitmap_clear(r->uploaded_bitmap, 0, r->bitmap_size);
         flush_memory_buffer(pg, cmd);
         VK_CHECK(vkEndCommandBuffer(r->aux_command_buffer));
         r->in_aux_command_buffer = false;
@@ -1368,6 +1368,7 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         pgraph_vk_perf_record_finish_submit(
             r, finish_reason, time_submit, submit_cpu_us, wait_us, staged_bytes,
             ARRAY_SIZE(submit_infos), 2);
+        r->storage_buffers[BUFFER_VERTEX_RAM_STAGING].buffer_offset = 0;
 
         r->descriptor_set_index = 0;
         r->in_command_buffer = false;

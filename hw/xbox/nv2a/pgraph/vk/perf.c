@@ -77,7 +77,7 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":2"
+            "{\"type\":\"schema\",\"schema_version\":3"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}",
             VK_PERF_INITIAL_TIMED_SUBMITS, VK_PERF_HOT_SAMPLE_STRIDE);
@@ -171,6 +171,29 @@ void pgraph_vk_perf_record_single_time_submit(PGRAPHVkState *r,
     r->perf.newest_submitted_serial = ++r->perf.submission_serial;
 }
 
+void pgraph_vk_perf_record_vertex_staging_copy(PGRAPHVkState *r,
+                                                uint64_t bytes)
+{
+    if (r->perf.enabled) {
+        r->perf.vertex_staged_bytes += bytes;
+        r->perf.vertex_staging_copy_count++;
+    }
+}
+
+void pgraph_vk_perf_record_vertex_staging_growth(PGRAPHVkState *r)
+{
+    if (r->perf.enabled) {
+        r->perf.vertex_staging_capacity_growth_count++;
+    }
+}
+
+void pgraph_vk_perf_record_vertex_staging_fallback(PGRAPHVkState *r)
+{
+    if (r->perf.enabled) {
+        r->perf.vertex_staging_fallback_finish_count++;
+    }
+}
+
 void pgraph_vk_perf_frame(PGRAPHVkState *r)
 {
     PGRAPHVkPerfTelemetry *perf = &r->perf;
@@ -194,7 +217,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":2"
+            "{\"type\":\"frame\",\"schema_version\":3"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
@@ -240,6 +263,11 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"vk_submit_infos_per_guest_frame\":%" PRIu64
             ",\"command_buffers_per_guest_frame\":%" PRIu64
             ",\"staged_bytes_per_guest_frame\":%" PRIu64
+            ",\"vertex_staged_bytes_per_guest_frame\":%" PRIu64
+            ",\"vertex_staging_copies_per_guest_frame\":%" PRIu64
+            ",\"vertex_staging_capacity_bytes\":%zu"
+            ",\"vertex_staging_capacity_growths_per_guest_frame\":%" PRIu64
+            ",\"vertex_staging_fallback_finishes_per_guest_frame\":%" PRIu64
             ",\"staged_bytes_per_submit\":%.3f"
             ",\"submit_infos_per_submit\":%.3f"
             ",\"command_buffers_per_submit\":%.3f"
@@ -250,7 +278,12 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"retirement_queue_objects\":%" PRIu64
             ",\"retirement_queue_bytes\":%" PRIu64 "}\n",
             submit_count, perf->submit_info_count, perf->command_buffer_count,
-            perf->staged_bytes, staged_bytes_per_submit,
+            perf->staged_bytes, perf->vertex_staged_bytes,
+            perf->vertex_staging_copy_count,
+            r->storage_buffers[BUFFER_VERTEX_RAM_STAGING].buffer_size,
+            perf->vertex_staging_capacity_growth_count,
+            perf->vertex_staging_fallback_finish_count,
+            staged_bytes_per_submit,
             submit_infos_per_submit, command_buffers_per_submit,
             perf->in_flight_submission_count,
             perf->peak_in_flight_submission_count,
@@ -267,6 +300,10 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->submit_info_count = 0;
     perf->command_buffer_count = 0;
     perf->staged_bytes = 0;
+    perf->vertex_staged_bytes = 0;
+    perf->vertex_staging_copy_count = 0;
+    perf->vertex_staging_capacity_growth_count = 0;
+    perf->vertex_staging_fallback_finish_count = 0;
     perf->peak_in_flight_submission_count =
         perf->in_flight_submission_count;
     perf->oldest_in_flight_serial = 0;
