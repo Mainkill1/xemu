@@ -289,10 +289,6 @@ static void shader_cache_entry_init(Lru *lru, LruNode *node, const void *state)
     key.kind = VK_SHADER_STAGE_FRAGMENT_BIT;
     key.psh.state = binding->state.psh;
     key.psh.glsl_opts.vulkan = true;
-    const char *peel_window_clip =
-        g_getenv("XEMU_VK_PEEL_WINDOW_CLIP");
-    key.psh.glsl_opts.peel_window_clip_region_zero =
-        peel_window_clip != NULL && peel_window_clip[0] != '\0';
     key.psh.glsl_opts.ubo_binding = PSH_UBO_BINDING;
     key.psh.glsl_opts.tex_binding = PSH_TEX_BINDING;
     binding->psh.module_info = get_and_ref_shader_module_for_key(r, &key);
