@@ -7,6 +7,15 @@
 
 #include "renderer.h"
 
+/*
+ * Morrowind issues about 102 VERTEX_BUFFER_DIRTY submissions per guest frame.
+ * Time the first eight occurrences of every reason so rare paths remain exact,
+ * then one in sixteen hot occurrences. This retains roughly fourteen timing
+ * samples for that hot path while removing about 86% of its clock reads.
+ */
+#define VK_PERF_INITIAL_TIMED_SUBMITS 8
+#define VK_PERF_HOT_SAMPLE_STRIDE 16
+
 static const char *finish_reason_names[VK_FINISH_REASON_COUNT] = {
     [VK_FINISH_REASON_VERTEX_BUFFER_DIRTY] = "vertex_buffer_dirty",
     [VK_FINISH_REASON_SURFACE_CREATE] = "surface_create",
@@ -67,7 +76,11 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     }
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
-    fprintf(r->perf.file, "{\"type\":\"schema\",\"schema_version\":1");
+    fprintf(r->perf.file,
+            "{\"type\":\"schema\",\"schema_version\":2"
+            ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
+            ",\"hot_stride\":%u}",
+            VK_PERF_INITIAL_TIMED_SUBMITS, VK_PERF_HOT_SAMPLE_STRIDE);
     write_names(r->perf.file, "finish_reasons", finish_reason_names,
                 ARRAY_SIZE(finish_reason_names));
     write_names(r->perf.file, "single_time_callers", single_time_reason_names,
@@ -93,8 +106,20 @@ void pgraph_vk_perf_record_finish_call(PGRAPHVkState *r, FinishReason reason)
     }
 }
 
+bool pgraph_vk_perf_should_time_finish(PGRAPHVkState *r, FinishReason reason)
+{
+    if (!r->perf.enabled) {
+        return false;
+    }
+    assert(reason < VK_FINISH_REASON_COUNT);
+    uint64_t occurrence = r->perf.finish[reason].call_count;
+    return occurrence <= VK_PERF_INITIAL_TIMED_SUBMITS ||
+           occurrence % VK_PERF_HOT_SAMPLE_STRIDE == 0;
+}
+
 void pgraph_vk_perf_record_finish_submit(PGRAPHVkState *r,
                                          FinishReason reason,
+                                         bool timed,
                                          uint64_t submit_cpu_us,
                                          uint64_t wait_us,
                                          uint64_t staged_bytes,
@@ -107,9 +132,12 @@ void pgraph_vk_perf_record_finish_submit(PGRAPHVkState *r,
     assert(reason < VK_FINISH_REASON_COUNT);
     PGRAPHVkWaitStats *stats = &r->perf.finish[reason];
     stats->submit_count++;
-    stats->submit_cpu_us += submit_cpu_us;
     stats->wait_count++;
-    stats->wait_us += wait_us;
+    if (timed) {
+        stats->timed_submit_count++;
+        stats->submit_cpu_us += submit_cpu_us;
+        stats->wait_us += wait_us;
+    }
     r->perf.submit_info_count += submit_info_count;
     r->perf.command_buffer_count += command_buffer_count;
     r->perf.staged_bytes += staged_bytes;
@@ -131,6 +159,7 @@ void pgraph_vk_perf_record_single_time_submit(PGRAPHVkState *r,
     PGRAPHVkWaitStats *stats = &r->perf.single_time[reason];
     stats->call_count++;
     stats->submit_count++;
+    stats->timed_submit_count++;
     stats->submit_cpu_us += submit_cpu_us;
     stats->wait_count++;
     stats->wait_us += wait_us;
@@ -165,7 +194,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":1"
+            "{\"type\":\"frame\",\"schema_version\":2"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
@@ -174,31 +203,36 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     write_stat_array(perf->file, "finish_submit_count_per_guest_frame",
                      perf->finish, ARRAY_SIZE(perf->finish),
                      offsetof(PGRAPHVkWaitStats, submit_count));
-    write_stat_array(perf->file, "finish_submit_cpu_us_per_guest_frame",
+    write_stat_array(perf->file, "finish_timed_submit_count_per_guest_frame",
+                     perf->finish, ARRAY_SIZE(perf->finish),
+                     offsetof(PGRAPHVkWaitStats, timed_submit_count));
+    write_stat_array(perf->file,
+                     "finish_sampled_submit_cpu_us_per_guest_frame",
                      perf->finish, ARRAY_SIZE(perf->finish),
                      offsetof(PGRAPHVkWaitStats, submit_cpu_us));
     write_stat_array(perf->file, "fence_wait_count_per_guest_frame",
                      perf->finish, ARRAY_SIZE(perf->finish),
                      offsetof(PGRAPHVkWaitStats, wait_count));
-    write_stat_array(perf->file, "finish_wait_us_per_guest_frame", perf->finish,
-                     ARRAY_SIZE(perf->finish),
-                     offsetof(PGRAPHVkWaitStats, wait_us));
-    write_stat_array(perf->file, "fence_wait_us_per_guest_frame", perf->finish,
+    write_stat_array(perf->file, "finish_sampled_wait_us_per_guest_frame",
+                     perf->finish,
                      ARRAY_SIZE(perf->finish),
                      offsetof(PGRAPHVkWaitStats, wait_us));
     write_stat_array(perf->file, "single_time_submit_count_per_guest_frame",
                      perf->single_time, ARRAY_SIZE(perf->single_time),
                      offsetof(PGRAPHVkWaitStats, submit_count));
-    write_stat_array(perf->file, "single_time_submit_cpu_us_per_guest_frame",
+    write_stat_array(perf->file,
+                     "single_time_timed_submit_count_per_guest_frame",
+                     perf->single_time, ARRAY_SIZE(perf->single_time),
+                     offsetof(PGRAPHVkWaitStats, timed_submit_count));
+    write_stat_array(perf->file,
+                     "single_time_sampled_submit_cpu_us_per_guest_frame",
                      perf->single_time, ARRAY_SIZE(perf->single_time),
                      offsetof(PGRAPHVkWaitStats, submit_cpu_us));
     write_stat_array(perf->file, "queue_wait_idle_count_per_guest_frame",
                      perf->single_time, ARRAY_SIZE(perf->single_time),
                      offsetof(PGRAPHVkWaitStats, wait_count));
-    write_stat_array(perf->file, "single_time_wait_us_per_guest_frame",
-                     perf->single_time, ARRAY_SIZE(perf->single_time),
-                     offsetof(PGRAPHVkWaitStats, wait_us));
-    write_stat_array(perf->file, "queue_wait_idle_us_per_guest_frame",
+    write_stat_array(perf->file,
+                     "single_time_sampled_wait_us_per_guest_frame",
                      perf->single_time, ARRAY_SIZE(perf->single_time),
                      offsetof(PGRAPHVkWaitStats, wait_us));
     fprintf(perf->file,
