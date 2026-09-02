@@ -846,6 +846,7 @@ update_uniforms:
 
 GLuint pgraph_gl_compile_shader(const char *vs_src, const char *fs_src)
 {
+    nv2a_profile_log_event_once("shader_compile");
     GLint status;
     char err_buf[512];
 
