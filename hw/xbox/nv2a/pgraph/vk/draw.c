@@ -1280,8 +1280,16 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
 
     assert(!r->in_draw);
     assert(r->debug_depth == 0);
+    pgraph_vk_perf_record_finish_call(r, finish_reason);
 
     if (r->in_command_buffer) {
+        uint64_t staged_bytes = 0;
+        if (r->perf.enabled) {
+            staged_bytes =
+                r->storage_buffers[BUFFER_INDEX_STAGING].buffer_offset +
+                r->storage_buffers[BUFFER_VERTEX_INLINE_STAGING].buffer_offset +
+                r->storage_buffers[BUFFER_UNIFORM_STAGING].buffer_offset;
+        }
         nv2a_profile_inc_counter(finish_reason_to_counter_enum[finish_reason]);
 
         if (r->in_render_pass) {
@@ -1323,8 +1331,14 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         };
         nv2a_profile_inc_counter(NV2A_PROF_QUEUE_SUBMIT);
         vkResetFences(r->device, 1, &r->command_buffer_fence);
-        VK_CHECK(vkQueueSubmit(r->queue, ARRAY_SIZE(submit_infos), submit_infos,
-                               r->command_buffer_fence));
+        int64_t submit_start = r->perf.enabled ?
+            qemu_clock_get_us(QEMU_CLOCK_REALTIME) : 0;
+        VkResult result = vkQueueSubmit(
+            r->queue, ARRAY_SIZE(submit_infos), submit_infos,
+            r->command_buffer_fence);
+        uint64_t submit_cpu_us = r->perf.enabled ?
+            MAX(qemu_clock_get_us(QEMU_CLOCK_REALTIME) - submit_start, 0) : 0;
+        VK_CHECK(result);
         nv2a_profile_log_event_once("gpu_submit");
         r->submit_count += 1;
 
@@ -1342,8 +1356,16 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
             check_budget = true;
         }
 
-        VK_CHECK(vkWaitForFences(r->device, 1, &r->command_buffer_fence,
-                                 VK_TRUE, UINT64_MAX));
+        int64_t wait_start = r->perf.enabled ?
+            qemu_clock_get_us(QEMU_CLOCK_REALTIME) : 0;
+        result = vkWaitForFences(r->device, 1, &r->command_buffer_fence,
+                                 VK_TRUE, UINT64_MAX);
+        uint64_t wait_us = r->perf.enabled ?
+            MAX(qemu_clock_get_us(QEMU_CLOCK_REALTIME) - wait_start, 0) : 0;
+        VK_CHECK(result);
+        pgraph_vk_perf_record_finish_submit(
+            r, finish_reason, submit_cpu_us, wait_us, staged_bytes,
+            ARRAY_SIZE(submit_infos), 2);
 
         r->descriptor_set_index = 0;
         r->in_command_buffer = false;
