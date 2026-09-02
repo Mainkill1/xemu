@@ -51,6 +51,7 @@ static void pgraph_vk_init(NV2AState *d, Error **errp)
     }
 
     pgraph_vk_perf_init(pg->vk_renderer_state);
+    pgraph_vk_init_draw();
     pgraph_vk_init_command_buffers(pg);
     pgraph_vk_init_buffers(d);
     pgraph_vk_init_surfaces(pg);

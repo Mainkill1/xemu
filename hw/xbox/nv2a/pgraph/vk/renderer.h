@@ -684,6 +684,7 @@ void pgraph_vk_finalize_pipelines(PGRAPHState *pg);
 void pgraph_vk_clear_surface(NV2AState *d, uint32_t parameter);
 void pgraph_vk_draw_begin(NV2AState *d);
 void pgraph_vk_draw_end(NV2AState *d);
+void pgraph_vk_init_draw(void);
 void pgraph_vk_finish(PGRAPHState *pg, FinishReason why);
 void pgraph_vk_flush_draw(NV2AState *d);
 void pgraph_vk_invalidate_blend_constants(PGRAPHState *pg);

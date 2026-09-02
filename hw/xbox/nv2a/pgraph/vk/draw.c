@@ -24,6 +24,14 @@
 #include "pipeline-cache-lifetime.h"
 #include <math.h>
 
+static bool always_stage_vertex_ram;
+
+void pgraph_vk_init_draw(void)
+{
+    const char *value = g_getenv("XEMU_VK_ALWAYS_STAGE_VERTEX_RAM");
+    always_stage_vertex_ram = value != NULL && value[0] != '\0';
+}
+
 void pgraph_vk_draw_begin(NV2AState *d)
 {
     PGRAPHState *pg = &d->pgraph;
@@ -1757,8 +1765,10 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
 
         NV2A_VK_DPRINTF("- %d: %08"HWADDR_PRIx" %zd bytes", i, addr, size);
 
-        if (memory_region_test_and_clear_dirty(d->vram, addr, size,
-                                               DIRTY_MEMORY_NV2A)) {
+        bool needs_upload = always_stage_vertex_ram ||
+            memory_region_test_and_clear_dirty(d->vram, addr, size,
+                                               DIRTY_MEMORY_NV2A);
+        if (needs_upload) {
             NV2A_VK_DPRINTF("Memory dirty. Synchronizing...");
             pgraph_vk_update_vertex_ram_buffer(pg, addr, d->vram_ptr + addr,
                                                size);
