@@ -639,6 +639,7 @@ void pgraph_vk_perf_record_vertex_staging_copy(PGRAPHVkState *r,
                                                 uint64_t bytes);
 void pgraph_vk_perf_record_vertex_staging_growth(PGRAPHVkState *r);
 void pgraph_vk_perf_record_vertex_staging_fallback(PGRAPHVkState *r);
+bool pgraph_vk_window_clip_is_redundant(PGRAPHState *pg);
 void pgraph_vk_perf_begin_shader_query(PGRAPHState *pg,
                                         ShaderModuleInfo *fragment_shader);
 void pgraph_vk_perf_end_shader_query(PGRAPHVkState *r);

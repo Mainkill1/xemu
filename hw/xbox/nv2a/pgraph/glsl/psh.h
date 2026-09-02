@@ -65,6 +65,7 @@ typedef struct PshState {
     enum PshAlphaFunc alpha_func;
 
     bool window_clip_exclusive;
+    bool window_clip_redundant;
 
     bool smooth_shading;
     bool depth_clipping;
