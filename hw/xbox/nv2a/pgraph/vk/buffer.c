@@ -37,6 +37,12 @@ static const VkDeviceSize BUFFER_LINEAR_SCRATCH_INITIAL_SIZE =
 static const size_t BUFFER_VERTEX_INLINE_INITIAL_SIZE = 8 * MiB;
 
 /*
+ * Texture uploads are commonly interleaved with draws. Keep their source data
+ * alive in a bounded ring until the containing command buffer completes.
+ */
+static const VkDeviceSize BUFFER_TEXTURE_STAGING_INITIAL_SIZE = 16 * MiB;
+
+/*
  * Morrowind stages about 4 MiB of vertex RAM updates per guest frame. Keep the
  * default above that measured floor, allow the evidence sweep to select 4, 8,
  * or 16 MiB, and never grow this dedicated per-submission storage past 16 MiB.
@@ -69,6 +75,7 @@ static bool buffer_is_persistently_mapped(int index)
     switch (index) {
     case BUFFER_VERTEX_RAM:
     case BUFFER_VERTEX_RAM_STAGING:
+    case BUFFER_TEXTURE_STAGING:
     case BUFFER_INDEX_STAGING:
     case BUFFER_VERTEX_INLINE_STAGING:
     case BUFFER_UNIFORM_STAGING:
@@ -246,6 +253,12 @@ void pgraph_vk_init_buffers(NV2AState *d)
         .buffer_size = r->storage_buffers[BUFFER_STAGING_DST].buffer_size,
     };
 
+    r->storage_buffers[BUFFER_TEXTURE_STAGING] = (StorageBuffer){
+        .alloc_info = host_alloc_create_info,
+        .usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        .buffer_size = BUFFER_TEXTURE_STAGING_INITIAL_SIZE,
+    };
+
     r->storage_buffers[BUFFER_COMPUTE_DST] = (StorageBuffer){
         .alloc_info = device_alloc_create_info,
         .usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT |
@@ -321,6 +334,7 @@ void pgraph_vk_init_buffers(NV2AState *d)
 
     int buffers_to_map[] = { BUFFER_VERTEX_RAM,
                              BUFFER_VERTEX_RAM_STAGING,
+                             BUFFER_TEXTURE_STAGING,
                              BUFFER_INDEX_STAGING,
                              BUFFER_VERTEX_INLINE_STAGING,
                              BUFFER_UNIFORM_STAGING };
