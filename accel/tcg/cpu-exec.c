@@ -232,6 +232,79 @@ TranslationBlock *inv_tb_htable_lookup(CPUState *cpu, TCGTBCPUState s)
     return tb_htable_lookup_common(cpu, s, &tb_ctx.inv_htable, inv_tb_lookup_cmp);
 }
 
+typedef enum TBLookupProbeResult {
+    TB_LOOKUP_PROBE_DIRECT_HIT,
+    TB_LOOKUP_PROBE_HTABLE_HIT,
+    TB_LOOKUP_PROBE_MISS,
+} TBLookupProbeResult;
+
+/*
+ * Opt-in research telemetry for indirect-TB lookup attribution.  The hot path
+ * performs no clock read or I/O between samples.  XEMU_TCG_TB_LOOKUP_LOG must
+ * name the output file; timings from an instrumented build are not baselines.
+ */
+static void tb_lookup_probe_record(TBLookupProbeResult result)
+{
+    enum { REPORT_INTERVAL = 1 << 22 };
+    static FILE *file;
+    static bool initialized;
+    static uint64_t calls;
+    static uint64_t direct_hits;
+    static uint64_t htable_hits;
+    static uint64_t misses;
+    static int64_t first_us;
+
+    if (unlikely(!initialized)) {
+        const char *path = g_getenv("XEMU_TCG_TB_LOOKUP_LOG");
+
+        initialized = true;
+        if (path != NULL && path[0] != '\0') {
+            file = qemu_fopen(path, "w");
+            if (file == NULL) {
+                fprintf(stderr, "tcg: failed to open TB lookup log '%s'\n",
+                        path);
+            } else {
+                first_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
+                fprintf(file,
+                        "{\"type\":\"schema\",\"schema_version\":1,"
+                        "\"report_interval\":%u}\n",
+                        REPORT_INTERVAL);
+                fflush(file);
+            }
+        }
+    }
+    if (unlikely(file == NULL)) {
+        return;
+    }
+
+    calls++;
+    switch (result) {
+    case TB_LOOKUP_PROBE_DIRECT_HIT:
+        direct_hits++;
+        break;
+    case TB_LOOKUP_PROBE_HTABLE_HIT:
+        htable_hits++;
+        break;
+    case TB_LOOKUP_PROBE_MISS:
+        misses++;
+        break;
+    default:
+        g_assert_not_reached();
+    }
+
+    if (unlikely((calls & (REPORT_INTERVAL - 1)) == 0)) {
+        int64_t now_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
+
+        fprintf(file,
+                "{\"type\":\"sample\",\"elapsed_us\":%" PRId64
+                ",\"calls\":%" PRIu64 ",\"direct_hits\":%" PRIu64
+                ",\"htable_hits\":%" PRIu64 ",\"misses\":%" PRIu64
+                "}\n",
+                now_us - first_us, calls, direct_hits, htable_hits, misses);
+        fflush(file);
+    }
+}
+
 /**
  * tb_lookup:
  * @cpu: CPU that will execute the returned translation block
@@ -246,7 +319,8 @@ TranslationBlock *inv_tb_htable_lookup(CPUState *cpu, TCGTBCPUState s)
  *
  * Returns: an existing translation block or NULL.
  */
-static inline TranslationBlock *tb_lookup(CPUState *cpu, TCGTBCPUState s)
+static inline TranslationBlock *tb_lookup(CPUState *cpu, TCGTBCPUState s,
+                                          TBLookupProbeResult *probe_result)
 {
     TranslationBlock *tb;
     CPUJumpCache *jc;
@@ -264,12 +338,22 @@ static inline TranslationBlock *tb_lookup(CPUState *cpu, TCGTBCPUState s)
                tb->cs_base == s.cs_base &&
                tb->flags == s.flags &&
                tb_cflags(tb) == s.cflags)) {
+        if (probe_result != NULL) {
+            *probe_result = TB_LOOKUP_PROBE_DIRECT_HIT;
+        }
         goto hit;
     }
 
     tb = tb_htable_lookup(cpu, s);
     if (tb == NULL) {
+        if (probe_result != NULL) {
+            *probe_result = TB_LOOKUP_PROBE_MISS;
+        }
         return NULL;
+    }
+
+    if (probe_result != NULL) {
+        *probe_result = TB_LOOKUP_PROBE_HTABLE_HIT;
     }
 
     jc->array[hash].pc = s.pc;
@@ -397,6 +481,7 @@ const void *HELPER(lookup_tb_ptr)(CPUArchState *env)
 {
     CPUState *cpu = env_cpu(env);
     TranslationBlock *tb;
+    TBLookupProbeResult probe_result;
 
     /*
      * By definition we've just finished a TB, so I/O is OK.
@@ -414,7 +499,8 @@ const void *HELPER(lookup_tb_ptr)(CPUArchState *env)
         cpu_loop_exit(cpu);
     }
 
-    tb = tb_lookup(cpu, s);
+    tb = tb_lookup(cpu, s, &probe_result);
+    tb_lookup_probe_record(probe_result);
     if (tb == NULL) {
         return tcg_code_gen_epilogue;
     }
@@ -593,7 +679,7 @@ void cpu_exec_step_atomic(CPUState *cpu)
          * Any breakpoint for this insn will have been recognized earlier.
          */
 
-        tb = tb_lookup(cpu, s);
+        tb = tb_lookup(cpu, s, NULL);
         if (tb == NULL) {
             mmap_lock();
             tb = tb_gen_code(cpu, s);
@@ -985,7 +1071,7 @@ cpu_exec_loop(CPUState *cpu, SyncClocks *sc)
                 break;
             }
 
-            tb = tb_lookup(cpu, s);
+            tb = tb_lookup(cpu, s, NULL);
             if (tb == NULL) {
                 CPUJumpCache *jc;
                 uint32_t h;
