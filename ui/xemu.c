@@ -1368,6 +1368,10 @@ int main(int argc, char **argv)
     while (!qatomic_read(&qemu_exiting)) {
         poll_events(scon);
         gl_render_frame(scon);
+        if (!g_config.display.window.vsync &&
+            g_config.display.window.reduce_host_cpu_usage) {
+            SDL_DelayPrecise(SDL_MS_TO_NS(1));
+        }
     }
     qemu_sem_post(&display_shutdown_sem);
     qemu_thread_join(&thread);
