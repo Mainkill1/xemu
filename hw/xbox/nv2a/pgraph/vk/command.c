@@ -100,6 +100,7 @@ void pgraph_vk_end_single_time_commands(PGRAPHState *pg, VkCommandBuffer cmd)
         .pCommandBuffers = &cmd,
     };
     VK_CHECK(vkQueueSubmit(r->queue, 1, &submit_info, VK_NULL_HANDLE));
+    nv2a_profile_log_event_once("gpu_submit");
     nv2a_profile_inc_counter(NV2A_PROF_QUEUE_SUBMIT_AUX);
     VK_CHECK(vkQueueWaitIdle(r->queue));
 
