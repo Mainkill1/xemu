@@ -601,6 +601,7 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
                                  TextureBinding *binding)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
+    int64_t start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
     TextureShape *state = &binding->key.state;
     VkFormat vk_format = binding->key.vk_format;
 
@@ -737,6 +738,9 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
             }
         }
     }
+    pgraph_vk_perf_record_cpu_region(
+        r, VK_PERF_CPU_TEXTURE_UPLOAD,
+        r->perf.enabled ? g_get_monotonic_time() - start_us : 0);
 }
 
 static void copy_zeta_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surface,
@@ -1624,6 +1628,7 @@ void pgraph_vk_bind_textures(NV2AState *d)
 
     PGRAPHState *pg = &d->pgraph;
     PGRAPHVkState *r = pg->vk_renderer_state;
+    int64_t start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
 
     // FIXME: Mark textures that are sourced from surfaces so we can track them
 
@@ -1634,6 +1639,9 @@ void pgraph_vk_bind_textures(NV2AState *d)
         NV2A_VK_DPRINTF("Not dirty");
         NV2A_VK_DGROUP_END();
         update_timestamps(r);
+        pgraph_vk_perf_record_cpu_region(
+            r, VK_PERF_CPU_BIND_TEXTURES,
+            r->perf.enabled ? g_get_monotonic_time() - start_us : 0);
         return;
     }
 
@@ -1650,6 +1658,9 @@ void pgraph_vk_bind_textures(NV2AState *d)
 
     r->texture_bindings_changed = true;
     update_timestamps(r);
+    pgraph_vk_perf_record_cpu_region(
+        r, VK_PERF_CPU_BIND_TEXTURES,
+        r->perf.enabled ? g_get_monotonic_time() - start_us : 0);
     NV2A_VK_DGROUP_END();
 }
 

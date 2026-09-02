@@ -382,6 +382,21 @@ typedef struct PGRAPHVkWaitStats {
     uint64_t wait_us;
 } PGRAPHVkWaitStats;
 
+typedef enum PerfCpuRegion {
+    VK_PERF_CPU_DRAW_BEGIN_SURFACE_UPDATE,
+    VK_PERF_CPU_DRAW_FLUSH,
+    VK_PERF_CPU_PIPELINE_PREPARE,
+    VK_PERF_CPU_BIND_TEXTURES,
+    VK_PERF_CPU_TEXTURE_UPLOAD,
+    VK_PERF_CPU_UPDATE_DESCRIPTOR_SETS,
+    VK_PERF_CPU_REGION_COUNT,
+} PerfCpuRegion;
+
+typedef struct PGRAPHVkCpuStats {
+    uint64_t call_count;
+    uint64_t cpu_us;
+} PGRAPHVkCpuStats;
+
 typedef struct PGRAPHVkPerfTelemetry {
     FILE *file;
     bool enabled;
@@ -389,6 +404,7 @@ typedef struct PGRAPHVkPerfTelemetry {
     int64_t last_flush_us;
     PGRAPHVkWaitStats finish[VK_FINISH_REASON_COUNT];
     PGRAPHVkWaitStats single_time[VK_SINGLE_TIME_REASON_COUNT];
+    PGRAPHVkCpuStats cpu_regions[VK_PERF_CPU_REGION_COUNT];
     uint64_t submit_info_count;
     uint64_t command_buffer_count;
     uint64_t staged_bytes;
@@ -621,6 +637,8 @@ void pgraph_vk_perf_record_bc_upload(PGRAPHVkState *r, bool native,
                                      uint64_t source_bytes,
                                      uint64_t staged_bytes,
                                      uint64_t prepare_cpu_us);
+void pgraph_vk_perf_record_cpu_region(PGRAPHVkState *r, PerfCpuRegion region,
+                                      uint64_t cpu_us);
 void pgraph_vk_perf_frame(PGRAPHVkState *r);
 
 // image.c

@@ -27,6 +27,7 @@
 void pgraph_vk_draw_begin(NV2AState *d)
 {
     PGRAPHState *pg = &d->pgraph;
+    PGRAPHVkState *r = pg->vk_renderer_state;
 
     NV2A_VK_DPRINTF("NV097_SET_BEGIN_END: 0x%x", d->pgraph.primitive_mode);
 
@@ -41,7 +42,11 @@ void pgraph_vk_draw_begin(NV2AState *d)
         pgraph_reg_r(pg, NV_PGRAPH_CONTROL_1) & NV_PGRAPH_CONTROL_1_STENCIL_TEST_ENABLE;
     bool is_nop_draw = !(color_write || depth_test || stencil_test);
 
+    int64_t start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
     pgraph_vk_surface_update(d, true, true, depth_test || stencil_test);
+    pgraph_vk_perf_record_cpu_region(
+        r, VK_PERF_CPU_DRAW_BEGIN_SURFACE_UPDATE,
+        r->perf.enabled ? g_get_monotonic_time() - start_us : 0);
 
     if (is_nop_draw) {
         NV2A_VK_DPRINTF("nop!");
@@ -1456,7 +1461,11 @@ static void begin_pre_draw(PGRAPHState *pg)
     if (pg->clearing) {
         create_clear_pipeline(pg);
     } else {
+        int64_t start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
         create_pipeline(pg);
+        pgraph_vk_perf_record_cpu_region(
+            r, VK_PERF_CPU_PIPELINE_PREPARE,
+            r->perf.enabled ? g_get_monotonic_time() - start_us : 0);
     }
 
     bool render_pass_dirty = r->pipeline_binding->render_pass != r->render_pass;
@@ -1472,7 +1481,11 @@ static void begin_pre_draw(PGRAPHState *pg)
         r->framebuffer_dirty = false;
     }
     if (!pg->clearing) {
+        int64_t start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
         pgraph_vk_update_descriptor_sets(pg);
+        pgraph_vk_perf_record_cpu_region(
+            r, VK_PERF_CPU_UPDATE_DESCRIPTOR_SETS,
+            r->perf.enabled ? g_get_monotonic_time() - start_us : 0);
     }
     if (r->framebuffer_index == 0) {
         create_frame_buffer(pg);
@@ -1666,7 +1679,11 @@ void pgraph_vk_draw_end(NV2AState *d)
         return;
     }
 
+    int64_t start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
     pgraph_vk_flush_draw(d);
+    pgraph_vk_perf_record_cpu_region(
+        r, VK_PERF_CPU_DRAW_FLUSH,
+        r->perf.enabled ? g_get_monotonic_time() - start_us : 0);
 
     pg->draw_time++;
     if (r->color_binding && pgraph_color_write_enabled(pg)) {
