@@ -24,19 +24,28 @@ NV2AStats g_nv2a_stats;
 static void nv2a_profile_write_flip_log(int64_t now)
 {
     static FILE *file;
+    static bool initialized;
     static int64_t window_start;
     static uint64_t window_frames;
 
-    if (file == NULL) {
-        const char *path = getenv("XEMU_FLIP_LOG");
+    if (!initialized) {
+        const char *path;
+
+        initialized = true;
+        path = g_getenv("XEMU_FLIP_LOG");
         if (path == NULL || path[0] == '\0') {
             return;
         }
-        file = fopen(path, "w");
+        file = qemu_fopen(path, "w");
         if (file == NULL) {
+            fprintf(stderr, "nv2a: failed to open flip log '%s'\n", path);
             return;
         }
         window_start = now;
+    }
+
+    if (file == NULL) {
+        return;
     }
 
     window_frames++;
