@@ -1287,6 +1287,8 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
             pgraph_vk_perf_should_time_finish(r, finish_reason);
         bool gpu_time_submit =
             r->perf.timestamp_query_pool != VK_NULL_HANDLE;
+        bool pipeline_stats_submit =
+            r->perf.pipeline_stats_query_pool != VK_NULL_HANDLE;
         uint64_t staged_bytes = 0;
         if (r->perf.enabled) {
             staged_bytes =
@@ -1303,6 +1305,10 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         if (r->query_in_flight) {
             end_query(r);
         }
+        if (pipeline_stats_submit) {
+            vkCmdEndQuery(r->command_buffer,
+                          r->perf.pipeline_stats_query_pool, 0);
+        }
         if (gpu_time_submit) {
             vkCmdWriteTimestamp(r->command_buffer,
                                 VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
@@ -1315,6 +1321,9 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
             vkCmdResetQueryPool(cmd, r->perf.timestamp_query_pool, 0, 4);
             vkCmdWriteTimestamp(cmd, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                                 r->perf.timestamp_query_pool, 0);
+        }
+        if (pipeline_stats_submit) {
+            vkCmdResetQueryPool(cmd, r->perf.pipeline_stats_query_pool, 0, 1);
         }
         sync_staging_buffer(pg, cmd, BUFFER_INDEX_STAGING, BUFFER_INDEX);
         sync_staging_buffer(pg, cmd, BUFFER_VERTEX_INLINE_STAGING,
@@ -1385,6 +1394,7 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         uint64_t gpu_aux_ns = 0;
         uint64_t gpu_handoff_ns = 0;
         uint64_t gpu_main_ns = 0;
+        uint64_t pipeline_stats[VK_PERF_PIPELINE_STAT_COUNT] = { 0 };
         if (gpu_time_submit) {
             uint64_t timestamps[4];
             result = vkGetQueryPoolResults(
@@ -1406,10 +1416,17 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
             gpu_handoff_ns = handoff_ticks * r->perf.timestamp_period_ns;
             gpu_main_ns = main_ticks * r->perf.timestamp_period_ns;
         }
+        if (pipeline_stats_submit) {
+            result = vkGetQueryPoolResults(
+                r->device, r->perf.pipeline_stats_query_pool, 0, 1,
+                sizeof(pipeline_stats), pipeline_stats,
+                sizeof(pipeline_stats[0]), VK_QUERY_RESULT_64_BIT);
+            VK_CHECK(result);
+        }
         pgraph_vk_perf_record_finish_submit(
             r, finish_reason, time_submit, submit_cpu_us, wait_us,
             gpu_time_submit, gpu_batch_ns, gpu_aux_ns, gpu_handoff_ns,
-            gpu_main_ns, staged_bytes,
+            gpu_main_ns, pipeline_stats_submit, pipeline_stats, staged_bytes,
             ARRAY_SIZE(submit_infos), 2);
         r->storage_buffers[BUFFER_VERTEX_RAM_STAGING].buffer_offset = 0;
 
@@ -1443,6 +1460,10 @@ void pgraph_vk_begin_command_buffer(PGRAPHState *pg)
         vkCmdWriteTimestamp(r->command_buffer,
                             VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                             r->perf.timestamp_query_pool, 2);
+    }
+    if (r->perf.pipeline_stats_query_pool != VK_NULL_HANDLE) {
+        vkCmdBeginQuery(r->command_buffer,
+                        r->perf.pipeline_stats_query_pool, 0, 0);
     }
     pgraph_vk_invalidate_blend_constants(pg);
     r->command_buffer_start_time = pg->draw_time;

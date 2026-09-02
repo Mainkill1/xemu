@@ -362,6 +362,8 @@ typedef enum SingleTimeReason {
     VK_SINGLE_TIME_REASON_COUNT,
 } SingleTimeReason;
 
+#define VK_PERF_PIPELINE_STAT_COUNT 6
+
 typedef struct PGRAPHVkWaitStats {
     uint64_t call_count;
     uint64_t submit_count;
@@ -374,12 +376,14 @@ typedef struct PGRAPHVkWaitStats {
     uint64_t gpu_aux_ns;
     uint64_t gpu_handoff_ns;
     uint64_t gpu_main_ns;
+    uint64_t pipeline_stats[VK_PERF_PIPELINE_STAT_COUNT];
 } PGRAPHVkWaitStats;
 
 typedef struct PGRAPHVkPerfTelemetry {
     FILE *file;
     bool enabled;
     VkQueryPool timestamp_query_pool;
+    VkQueryPool pipeline_stats_query_pool;
     uint32_t timestamp_valid_bits;
     double timestamp_period_ns;
     uint64_t frame;
@@ -597,6 +601,9 @@ void pgraph_vk_perf_record_finish_submit(PGRAPHVkState *r,
                                          uint64_t gpu_aux_ns,
                                          uint64_t gpu_handoff_ns,
                                          uint64_t gpu_main_ns,
+                                         bool pipeline_stats_valid,
+                                         const uint64_t pipeline_stats[
+                                             VK_PERF_PIPELINE_STAT_COUNT],
                                          uint64_t staged_bytes,
                                          uint64_t submit_info_count,
                                          uint64_t command_buffer_count);

@@ -15,7 +15,6 @@
  */
 #define VK_PERF_INITIAL_TIMED_SUBMITS 8
 #define VK_PERF_HOT_SAMPLE_STRIDE 16
-
 static const char *finish_reason_names[VK_FINISH_REASON_COUNT] = {
     [VK_FINISH_REASON_VERTEX_BUFFER_DIRTY] = "vertex_buffer_dirty",
     [VK_FINISH_REASON_SURFACE_CREATE] = "surface_create",
@@ -37,6 +36,15 @@ static const char *single_time_reason_names[VK_SINGLE_TIME_REASON_COUNT] = {
     [VK_SINGLE_TIME_SURFACE_UPLOAD] = "surface_upload",
     [VK_SINGLE_TIME_TEXTURE_UPLOAD] = "texture_upload",
     [VK_SINGLE_TIME_DUMMY_TEXTURE_CREATE] = "dummy_texture_create",
+};
+
+static const char *pipeline_stat_names[VK_PERF_PIPELINE_STAT_COUNT] = {
+    "input_assembly_vertices",
+    "input_assembly_primitives",
+    "vertex_shader_invocations",
+    "clipping_invocations",
+    "clipping_primitives",
+    "fragment_shader_invocations",
 };
 
 static void write_names(FILE *file, const char *key, const char **names,
@@ -90,6 +98,28 @@ static void init_gpu_timestamps(PGRAPHVkState *r)
                                &r->perf.timestamp_query_pool));
 }
 
+static void init_pipeline_stats(PGRAPHVkState *r)
+{
+    if (!r->enabled_physical_device_features.pipelineStatisticsQuery) {
+        return;
+    }
+
+    VkQueryPoolCreateInfo create_info = {
+        .sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO,
+        .queryType = VK_QUERY_TYPE_PIPELINE_STATISTICS,
+        .queryCount = 1,
+        .pipelineStatistics =
+            VK_QUERY_PIPELINE_STATISTIC_INPUT_ASSEMBLY_VERTICES_BIT |
+            VK_QUERY_PIPELINE_STATISTIC_INPUT_ASSEMBLY_PRIMITIVES_BIT |
+            VK_QUERY_PIPELINE_STATISTIC_VERTEX_SHADER_INVOCATIONS_BIT |
+            VK_QUERY_PIPELINE_STATISTIC_CLIPPING_INVOCATIONS_BIT |
+            VK_QUERY_PIPELINE_STATISTIC_CLIPPING_PRIMITIVES_BIT |
+            VK_QUERY_PIPELINE_STATISTIC_FRAGMENT_SHADER_INVOCATIONS_BIT,
+    };
+    VK_CHECK(vkCreateQueryPool(r->device, &create_info, NULL,
+                               &r->perf.pipeline_stats_query_pool));
+}
+
 void pgraph_vk_perf_init(PGRAPHVkState *r)
 {
     const char *path = g_getenv("XEMU_VK_PERF_LOG");
@@ -104,9 +134,10 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     }
     r->perf.enabled = true;
     init_gpu_timestamps(r);
+    init_pipeline_stats(r);
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":3"
+            "{\"type\":\"schema\",\"schema_version\":4"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
             ",\"gpu_batch_timestamps\":{\"supported\":%s"
@@ -115,15 +146,24 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
             VK_PERF_INITIAL_TIMED_SUBMITS, VK_PERF_HOT_SAMPLE_STRIDE,
             r->perf.timestamp_query_pool != VK_NULL_HANDLE ? "true" : "false",
             r->perf.timestamp_valid_bits, r->perf.timestamp_period_ns);
+    fprintf(r->perf.file, ",\"pipeline_statistics\":{\"supported\":%s}",
+            r->perf.pipeline_stats_query_pool != VK_NULL_HANDLE ? "true" :
+                                                                  "false");
     write_names(r->perf.file, "finish_reasons", finish_reason_names,
                 ARRAY_SIZE(finish_reason_names));
     write_names(r->perf.file, "single_time_callers", single_time_reason_names,
                 ARRAY_SIZE(single_time_reason_names));
+    write_names(r->perf.file, "pipeline_statistics_names", pipeline_stat_names,
+                ARRAY_SIZE(pipeline_stat_names));
     fprintf(r->perf.file, "}\n");
 }
 
 void pgraph_vk_perf_finalize(PGRAPHVkState *r)
 {
+    if (r->perf.pipeline_stats_query_pool != VK_NULL_HANDLE) {
+        vkDestroyQueryPool(r->device, r->perf.pipeline_stats_query_pool, NULL);
+        r->perf.pipeline_stats_query_pool = VK_NULL_HANDLE;
+    }
     if (r->perf.timestamp_query_pool != VK_NULL_HANDLE) {
         vkDestroyQueryPool(r->device, r->perf.timestamp_query_pool, NULL);
         r->perf.timestamp_query_pool = VK_NULL_HANDLE;
@@ -165,6 +205,9 @@ void pgraph_vk_perf_record_finish_submit(PGRAPHVkState *r,
                                          uint64_t gpu_aux_ns,
                                          uint64_t gpu_handoff_ns,
                                          uint64_t gpu_main_ns,
+                                         bool pipeline_stats_valid,
+                                         const uint64_t pipeline_stats[
+                                             VK_PERF_PIPELINE_STAT_COUNT],
                                          uint64_t staged_bytes,
                                          uint64_t submit_info_count,
                                          uint64_t command_buffer_count)
@@ -187,6 +230,11 @@ void pgraph_vk_perf_record_finish_submit(PGRAPHVkState *r,
         stats->gpu_aux_ns += gpu_aux_ns;
         stats->gpu_handoff_ns += gpu_handoff_ns;
         stats->gpu_main_ns += gpu_main_ns;
+    }
+    if (pipeline_stats_valid) {
+        for (size_t i = 0; i < VK_PERF_PIPELINE_STAT_COUNT; i++) {
+            stats->pipeline_stats[i] += pipeline_stats[i];
+        }
     }
     r->perf.submit_info_count += submit_info_count;
     r->perf.command_buffer_count += command_buffer_count;
@@ -267,7 +315,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":3"
+            "{\"type\":\"frame\",\"schema_version\":4"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
@@ -310,6 +358,15 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
                      "finish_gpu_main_ns_per_guest_frame",
                      perf->finish, ARRAY_SIZE(perf->finish),
                      offsetof(PGRAPHVkWaitStats, gpu_main_ns));
+    for (size_t i = 0; i < VK_PERF_PIPELINE_STAT_COUNT; i++) {
+        char key[96];
+        snprintf(key, sizeof(key), "finish_%s_per_guest_frame",
+                 pipeline_stat_names[i]);
+        write_stat_array(perf->file, key, perf->finish,
+                         ARRAY_SIZE(perf->finish),
+                         offsetof(PGRAPHVkWaitStats, pipeline_stats) +
+                             i * sizeof(uint64_t));
+    }
     write_stat_array(perf->file, "single_time_submit_count_per_guest_frame",
                      perf->single_time, ARRAY_SIZE(perf->single_time),
                      offsetof(PGRAPHVkWaitStats, submit_count));

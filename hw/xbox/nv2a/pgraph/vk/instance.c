@@ -495,6 +495,7 @@ static bool create_logical_device(PGRAPHState *pg, Error **errp)
         F(fillModeNonSolid, true),
         F(geometryShader, true),
         F(occlusionQueryPrecise, true),
+        F(pipelineStatisticsQuery, false),
         F(samplerAnisotropy, false),
         F(shaderClipDistance, true),
         F(shaderTessellationAndGeometryPointSize, true),
@@ -513,6 +514,11 @@ static bool create_logical_device(PGRAPHState *pg, Error **errp)
             all_required_features_available = false;
         }
         *desired_features[i].enabled = desired_features[i].available;
+    }
+
+    const char *perf_log_path = g_getenv("XEMU_VK_PERF_LOG");
+    if (perf_log_path == NULL || perf_log_path[0] == '\0') {
+        r->enabled_physical_device_features.pipelineStatisticsQuery = VK_FALSE;
     }
 
     if (!all_required_features_available) {
