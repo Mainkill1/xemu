@@ -1250,11 +1250,15 @@ static void setup_nvidia_profile(void)
     }
 
     if (nvapi_init()) {
+        const char *prefer_max =
+            g_getenv("XEMU_NVIDIA_PREFER_MAX_PERFORMANCE");
         nvapi_setup_profile((NvApiProfileOpts){
             .profile_name = L"xemu",
             .executable_name = exe_name,
             .threaded_optimization = false,
             .present_method = OGL_CPL_PREFER_DXPRESENT_PREFER_DISABLED,
+            .prefer_max_performance =
+                prefer_max != NULL && prefer_max[0] != '\0',
         });
         nvapi_finalize();
     }

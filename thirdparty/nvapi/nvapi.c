@@ -164,6 +164,20 @@ bool nvapi_setup_profile(NvApiProfileOpts opts)
         goto cleanup;
     }
 
+    NVDRS_SETTING setting_power = {
+        .version = NVDRS_SETTING_VER,
+        .settingId = PREFERRED_PSTATE_ID,
+        .settingType = NVDRS_DWORD_TYPE,
+        .u32CurrentValue = opts.prefer_max_performance ?
+                               PREFERRED_PSTATE_PREFER_MAX :
+                               PREFERRED_PSTATE_OPTIMAL_POWER,
+    };
+    if (NvAPI_DRS_SetSetting(session, profile, &setting_power)) {
+        LOG("NvAPI_DRS_SetSetting for settingId %x failed",
+            setting_power.settingId);
+        goto cleanup;
+    }
+
     if (NvAPI_DRS_SaveSettings(session)) {
         LOG("NvAPI_DRS_SaveSettings failed");
         goto cleanup;
