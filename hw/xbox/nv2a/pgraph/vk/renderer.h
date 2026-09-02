@@ -90,6 +90,7 @@ enum Buffer {
     BUFFER_INDEX,
     BUFFER_INDEX_STAGING,
     BUFFER_VERTEX_RAM,
+    BUFFER_VERTEX_RAM_STAGING,
     BUFFER_VERTEX_INLINE,
     BUFFER_VERTEX_INLINE_STAGING,
     BUFFER_UNIFORM,
@@ -380,6 +381,10 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t submit_info_count;
     uint64_t command_buffer_count;
     uint64_t staged_bytes;
+    uint64_t vertex_staged_bytes;
+    uint64_t vertex_staging_copy_count;
+    uint64_t vertex_staging_capacity_growth_count;
+    uint64_t vertex_staging_fallback_finish_count;
     uint64_t in_flight_submission_count;
     uint64_t peak_in_flight_submission_count;
     uint64_t oldest_in_flight_serial;
@@ -450,8 +455,6 @@ typedef struct PGRAPHVkState {
 
     MemorySyncRequirement vertex_ram_buffer_syncs[NV2A_VERTEXSHADER_ATTRIBUTES];
     size_t num_vertex_ram_buffer_syncs;
-    unsigned long *uploaded_bitmap;
-    size_t bitmap_size;
 
     VkVertexInputAttributeDescription vertex_attribute_descriptions[NV2A_VERTEXSHADER_ATTRIBUTES];
     int vertex_attribute_to_description_location[NV2A_VERTEXSHADER_ATTRIBUTES];
@@ -550,6 +553,8 @@ void pgraph_vk_finalize_buffers(NV2AState *d);
 bool pgraph_vk_buffer_has_space_for(PGRAPHState *pg, int index,
                                     VkDeviceSize size,
                                     VkDeviceAddress alignment);
+bool pgraph_vk_grow_vertex_ram_staging_buffer(PGRAPHState *pg,
+                                               VkDeviceSize required_size);
 VkDeviceSize pgraph_vk_buffer_required_size(PGRAPHState *pg, int index,
                                             VkDeviceSize size,
                                             VkDeviceAddress alignment);
@@ -587,6 +592,10 @@ void pgraph_vk_perf_record_single_time_submit(PGRAPHVkState *r,
                                                uint64_t submit_cpu_us,
                                                uint64_t wait_us,
                                                uint64_t staged_bytes);
+void pgraph_vk_perf_record_vertex_staging_copy(PGRAPHVkState *r,
+                                                uint64_t bytes);
+void pgraph_vk_perf_record_vertex_staging_growth(PGRAPHVkState *r);
+void pgraph_vk_perf_record_vertex_staging_fallback(PGRAPHVkState *r);
 void pgraph_vk_perf_frame(PGRAPHVkState *r);
 
 // image.c

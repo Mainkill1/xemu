@@ -36,10 +36,39 @@ static const VkDeviceSize BUFFER_LINEAR_SCRATCH_INITIAL_SIZE =
  */
 static const size_t BUFFER_VERTEX_INLINE_INITIAL_SIZE = 8 * MiB;
 
+/*
+ * Morrowind stages about 4 MiB of vertex RAM updates per guest frame. Keep the
+ * default above that measured floor, allow the evidence sweep to select 4, 8,
+ * or 16 MiB, and never grow this dedicated per-submission storage past 16 MiB.
+ */
+static const VkDeviceSize BUFFER_VERTEX_RAM_STAGING_DEFAULT_SIZE = 8 * MiB;
+static const VkDeviceSize BUFFER_VERTEX_RAM_STAGING_MAX_SIZE = 16 * MiB;
+
+static VkDeviceSize vertex_ram_staging_initial_size(void)
+{
+    const char *value = g_getenv("XEMU_VK_VERTEX_STAGING_INITIAL_MIB");
+    if (!value || !value[0]) {
+        return BUFFER_VERTEX_RAM_STAGING_DEFAULT_SIZE;
+    }
+
+    char *end = NULL;
+    uint64_t mib = g_ascii_strtoull(value, &end, 10);
+    if (end == value || *end != '\0' ||
+        (mib != 4 && mib != 8 && mib != 16)) {
+        fprintf(stderr,
+                "nv2a: XEMU_VK_VERTEX_STAGING_INITIAL_MIB must be 4, 8, "
+                "or 16; using 8\n");
+        return BUFFER_VERTEX_RAM_STAGING_DEFAULT_SIZE;
+    }
+
+    return mib * MiB;
+}
+
 static bool buffer_is_persistently_mapped(int index)
 {
     switch (index) {
     case BUFFER_VERTEX_RAM:
+    case BUFFER_VERTEX_RAM_STAGING:
     case BUFFER_INDEX_STAGING:
     case BUFFER_VERTEX_INLINE_STAGING:
     case BUFFER_UNIFORM_STAGING:
@@ -247,13 +276,16 @@ void pgraph_vk_init_buffers(NV2AState *d)
     // FIXME: Don't assume that we can render with host mapped buffer
     r->storage_buffers[BUFFER_VERTEX_RAM] = (StorageBuffer){
         .alloc_info = host_alloc_create_info,
-        .usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+        .usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+                 VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
         .buffer_size = memory_region_size(d->vram),
     };
 
-    r->bitmap_size = memory_region_size(d->vram) / 4096;
-    r->uploaded_bitmap = bitmap_new(r->bitmap_size);
-    bitmap_clear(r->uploaded_bitmap, 0, r->bitmap_size);
+    r->storage_buffers[BUFFER_VERTEX_RAM_STAGING] = (StorageBuffer){
+        .alloc_info = host_alloc_create_info,
+        .usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        .buffer_size = vertex_ram_staging_initial_size(),
+    };
 
     r->storage_buffers[BUFFER_VERTEX_INLINE] = (StorageBuffer){
         .alloc_info = device_alloc_create_info,
@@ -288,6 +320,7 @@ void pgraph_vk_init_buffers(NV2AState *d)
     // FIXME: Add fallback path for device using host mapped memory
 
     int buffers_to_map[] = { BUFFER_VERTEX_RAM,
+                             BUFFER_VERTEX_RAM_STAGING,
                              BUFFER_INDEX_STAGING,
                              BUFFER_VERTEX_INLINE_STAGING,
                              BUFFER_UNIFORM_STAGING };
@@ -310,9 +343,31 @@ void pgraph_vk_finalize_buffers(NV2AState *d)
         }
         destroy_buffer(pg, &r->storage_buffers[i]);
     }
+}
 
-    g_free(r->uploaded_bitmap);
-    r->uploaded_bitmap = NULL;
+bool pgraph_vk_grow_vertex_ram_staging_buffer(PGRAPHState *pg,
+                                               VkDeviceSize required_size)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    StorageBuffer *buffer =
+        &r->storage_buffers[BUFFER_VERTEX_RAM_STAGING];
+
+    assert(!r->in_command_buffer);
+    assert(!r->in_aux_command_buffer);
+    if (required_size > BUFFER_VERTEX_RAM_STAGING_MAX_SIZE ||
+        buffer->buffer_size >= BUFFER_VERTEX_RAM_STAGING_MAX_SIZE) {
+        return false;
+    }
+
+    VkDeviceSize new_size = MIN(buffer->buffer_size * 2,
+                                BUFFER_VERTEX_RAM_STAGING_MAX_SIZE);
+    new_size = MAX(new_size, required_size);
+    if (new_size > BUFFER_VERTEX_RAM_STAGING_MAX_SIZE) {
+        return false;
+    }
+
+    resize_buffer(pg, BUFFER_VERTEX_RAM_STAGING, new_size);
+    return true;
 }
 
 VkDeviceSize pgraph_vk_buffer_required_size(PGRAPHState *pg, int index,
