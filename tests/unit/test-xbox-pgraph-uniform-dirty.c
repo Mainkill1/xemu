@@ -57,6 +57,25 @@ static void test_post_load_invalidation_marks_all_rows_dirty(void)
     }
 }
 
+static void test_sparse_dirty_row_search(void)
+{
+    bool dirty_rows[8] = {
+        false, true, false, false, false, true, false, false,
+    };
+
+    g_assert_cmpuint(pgraph_uniform_dirty_rows_next(
+                         dirty_rows, G_N_ELEMENTS(dirty_rows), 0), ==, 1);
+    g_assert_cmpuint(pgraph_uniform_dirty_rows_next(
+                         dirty_rows, G_N_ELEMENTS(dirty_rows), 2), ==, 5);
+    g_assert_cmpuint(pgraph_uniform_dirty_rows_next(
+                         dirty_rows, G_N_ELEMENTS(dirty_rows), 6), ==,
+                     G_N_ELEMENTS(dirty_rows));
+    g_assert_cmpuint(pgraph_uniform_dirty_rows_next(
+                         dirty_rows, G_N_ELEMENTS(dirty_rows),
+                         G_N_ELEMENTS(dirty_rows)), ==,
+                     G_N_ELEMENTS(dirty_rows));
+}
+
 static ShaderUniformLayout make_test_layout(ShaderUniform *uniform,
                                             uint32_t allocation[][4],
                                             size_t row_count)
@@ -126,6 +145,8 @@ int main(int argc, char **argv)
                     test_identical_value_preserves_prior_dirty);
     g_test_add_func("/xbox/pgraph/uniform-dirty/post-load-invalidate",
                     test_post_load_invalidation_marks_all_rows_dirty);
+    g_test_add_func("/xbox/pgraph/uniform-dirty/sparse-search",
+                    test_sparse_dirty_row_search);
     g_test_add_func("/xbox/vulkan/uniform-copy/change-detection",
                     test_uniform_copy_reports_real_changes);
     g_test_add_func("/xbox/vulkan/uniform-copy/row-scope",

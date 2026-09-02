@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 
 static inline void pgraph_uniform_u32_row_update(uint32_t (*rows)[4],
                                                  bool *dirty_rows,
@@ -28,6 +29,18 @@ static inline void pgraph_uniform_dirty_rows_invalidate(bool *dirty_rows,
     for (unsigned int row = 0; row < row_count; row++) {
         dirty_rows[row] = true;
     }
+}
+
+static inline unsigned int pgraph_uniform_dirty_rows_next(
+    const bool *dirty_rows, unsigned int row_count, unsigned int start)
+{
+    if (start >= row_count) {
+        return row_count;
+    }
+
+    const bool *dirty_row = memchr(dirty_rows + start, true,
+                                   row_count - start);
+    return dirty_row != NULL ? dirty_row - dirty_rows : row_count;
 }
 
 #endif

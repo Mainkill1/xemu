@@ -26,6 +26,8 @@
 #define PSH_UBO_BINDING 1
 #define PSH_TEX_BINDING 2
 
+static bool sparse_uniform_dirty_scan;
+
 const size_t MAX_UNIFORM_ATTR_VALUES_SIZE = NV2A_VERTEXSHADER_ATTRIBUTES * 4 * sizeof(float);
 
 static void create_descriptor_pool(PGRAPHState *pg)
@@ -444,7 +446,8 @@ static bool apply_uniform_updates(ShaderUniformLayout *layout,
 
 static bool update_uniform_rows(ShaderUniformLayout *layout, int loc,
                                 uint32_t values[][4], bool dirty[],
-                                unsigned int row_count, bool full_update)
+                                unsigned int row_count, bool full_update,
+                                bool sparse_scan)
 {
     /*
      * Every source-array writer marks its row dirty. A binding change still
@@ -464,6 +467,19 @@ static bool update_uniform_rows(ShaderUniformLayout *layout, int loc,
     }
 
     bool changed = false;
+    if (sparse_scan) {
+        unsigned int row = pgraph_uniform_dirty_rows_next(
+            dirty, row_count, 0);
+        while (row < row_count) {
+            changed |= uniform_copy_array_element(
+                layout, loc, row, values[row], sizeof(uint32_t));
+            dirty[row] = false;
+            row = pgraph_uniform_dirty_rows_next(
+                dirty, row_count, row + 1);
+        }
+        return changed;
+    }
+
     for (unsigned int row = 0; row < row_count; row++) {
         if (dirty[row]) {
             changed |= uniform_copy_array_element(
@@ -503,16 +519,20 @@ static void update_shader_uniforms(PGRAPHState *pg)
     changed |= update_uniform_rows(
         vsh_layout, binding->vsh.uniform_locs[VshUniform_c],
         pg->vsh_constants, pg->vsh_constants_dirty,
-        NV2A_VERTEXSHADER_CONSTANTS, r->shader_bindings_changed);
+        NV2A_VERTEXSHADER_CONSTANTS, r->shader_bindings_changed,
+        sparse_uniform_dirty_scan);
     changed |= update_uniform_rows(
         vsh_layout, binding->vsh.uniform_locs[VshUniform_ltctxa], pg->ltctxa,
-        pg->ltctxa_dirty, NV2A_LTCTXA_COUNT, r->shader_bindings_changed);
+        pg->ltctxa_dirty, NV2A_LTCTXA_COUNT, r->shader_bindings_changed,
+        sparse_uniform_dirty_scan);
     changed |= update_uniform_rows(
         vsh_layout, binding->vsh.uniform_locs[VshUniform_ltctxb], pg->ltctxb,
-        pg->ltctxb_dirty, NV2A_LTCTXB_COUNT, r->shader_bindings_changed);
+        pg->ltctxb_dirty, NV2A_LTCTXB_COUNT, r->shader_bindings_changed,
+        sparse_uniform_dirty_scan);
     changed |= update_uniform_rows(
         vsh_layout, binding->vsh.uniform_locs[VshUniform_ltc1], pg->ltc1,
-        pg->ltc1_dirty, NV2A_LTC1_COUNT, r->shader_bindings_changed);
+        pg->ltc1_dirty, NV2A_LTC1_COUNT, r->shader_bindings_changed,
+        sparse_uniform_dirty_scan);
 
     PshUniformValues psh_values;
     pgraph_glsl_set_psh_uniform_values(pg, binding->psh.uniform_locs,
@@ -573,6 +593,10 @@ void pgraph_vk_bind_shaders(PGRAPHState *pg)
 void pgraph_vk_init_shaders(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
+    const char *sparse_scan =
+        g_getenv("XEMU_VK_SPARSE_UNIFORM_DIRTY_SCAN");
+
+    sparse_uniform_dirty_scan = sparse_scan != NULL && sparse_scan[0] != '\0';
 
     pgraph_vk_init_glsl_compiler();
     create_descriptor_pool(pg);
