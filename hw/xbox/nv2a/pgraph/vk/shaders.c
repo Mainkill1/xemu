@@ -545,39 +545,6 @@ static void update_shader_uniforms(PGRAPHState *pg)
     NV2A_VK_DGROUP_END();
 }
 
-bool pgraph_vk_window_clip_is_redundant(PGRAPHState *pg)
-{
-    if (pgraph_reg_r(pg, NV_PGRAPH_SETUPRASTER) &
-        NV_PGRAPH_SETUPRASTER_WINDOWCLIPTYPE) {
-        return false;
-    }
-
-    unsigned int scissor_x_min = pg->surface_shape.clip_x;
-    unsigned int scissor_y_min = pg->surface_shape.clip_y;
-    unsigned int scissor_x_max =
-        scissor_x_min + pg->surface_shape.clip_width;
-    unsigned int scissor_y_max =
-        scissor_y_min + pg->surface_shape.clip_height;
-    pgraph_apply_anti_aliasing_factor(pg, &scissor_x_min, &scissor_y_min);
-    pgraph_apply_anti_aliasing_factor(pg, &scissor_x_max, &scissor_y_max);
-    pgraph_apply_scaling_factor(pg, &scissor_x_min, &scissor_y_min);
-    pgraph_apply_scaling_factor(pg, &scissor_x_max, &scissor_y_max);
-
-    uint32_t x = pgraph_reg_r(pg, NV_PGRAPH_WINDOWCLIPX0);
-    uint32_t y = pgraph_reg_r(pg, NV_PGRAPH_WINDOWCLIPY0);
-    unsigned int region_x_min = GET_MASK(x, NV_PGRAPH_WINDOWCLIPX0_XMIN);
-    unsigned int region_x_max = GET_MASK(x, NV_PGRAPH_WINDOWCLIPX0_XMAX) + 1;
-    unsigned int region_y_min = GET_MASK(y, NV_PGRAPH_WINDOWCLIPY0_YMIN);
-    unsigned int region_y_max = GET_MASK(y, NV_PGRAPH_WINDOWCLIPY0_YMAX) + 1;
-    pgraph_apply_anti_aliasing_factor(pg, &region_x_min, &region_y_min);
-    pgraph_apply_anti_aliasing_factor(pg, &region_x_max, &region_y_max);
-    pgraph_apply_scaling_factor(pg, &region_x_min, &region_y_min);
-    pgraph_apply_scaling_factor(pg, &region_x_max, &region_y_max);
-
-    return region_x_min <= scissor_x_min && region_y_min <= scissor_y_min &&
-           region_x_max >= scissor_x_max && region_y_max >= scissor_y_max;
-}
-
 void pgraph_vk_bind_shaders(PGRAPHState *pg)
 {
     NV2A_VK_DGROUP_BEGIN("%s", __func__);
@@ -586,18 +553,9 @@ void pgraph_vk_bind_shaders(PGRAPHState *pg)
 
     r->shader_bindings_changed = false;
 
-    const char *skip_redundant_clip =
-        g_getenv("XEMU_VK_SKIP_REDUNDANT_WINDOW_CLIP");
-    bool window_clip_redundant =
-        skip_redundant_clip != NULL && skip_redundant_clip[0] != '\0' &&
-        pgraph_vk_window_clip_is_redundant(pg);
-
     if (!r->shader_binding ||
-        r->shader_binding->state.psh.window_clip_redundant !=
-            window_clip_redundant ||
         pgraph_glsl_check_shader_state_dirty(pg, &r->shader_binding->state)) {
         ShaderState new_state = pgraph_glsl_get_shader_state(pg);
-        new_state.psh.window_clip_redundant = window_clip_redundant;
         if (!r->shader_binding || memcmp(&r->shader_binding->state, &new_state,
                                          sizeof(ShaderState))) {
             r->shader_binding = get_shader_binding_for_state(r, &new_state);

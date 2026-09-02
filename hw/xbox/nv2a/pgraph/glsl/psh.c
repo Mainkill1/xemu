@@ -976,31 +976,29 @@ static MString* psh_convert(struct PixelShader *ps)
         );
 
     MString *clip = mstring_new();
-    if (!ps->state->window_clip_redundant) {
-        mstring_append_fmt(clip, "/*  Window-clip (%slusive) */\n",
-                           ps->state->window_clip_exclusive ? "Exc" : "Inc");
-        if (!ps->state->window_clip_exclusive) {
-            mstring_append(clip, "bool clipContained = false;\n");
-        }
-        mstring_append(clip, "vec2 coord = gl_FragCoord.xy - 0.5;\n"
-                             "for (int i = 0; i < 8; i++) {\n"
-                             "  bool outside = any(bvec4(\n"
-                             "      lessThan(coord, vec2(clipRegion[i].xy)),\n"
-                             "      greaterThanEqual(coord, vec2(clipRegion[i].zw))));\n"
-                             "  if (!outside) {\n");
-        if (ps->state->window_clip_exclusive) {
-            mstring_append(clip, "    discard;\n");
-        } else {
-            mstring_append(clip, "    clipContained = true;\n"
-                                 "    break;\n");
-        }
-        mstring_append(clip, "  }\n"
+    mstring_append_fmt(clip, "/*  Window-clip (%slusive) */\n",
+                       ps->state->window_clip_exclusive ? "Exc" : "Inc");
+    if (!ps->state->window_clip_exclusive) {
+        mstring_append(clip, "bool clipContained = false;\n");
+    }
+    mstring_append(clip, "vec2 coord = gl_FragCoord.xy - 0.5;\n"
+                         "for (int i = 0; i < 8; i++) {\n"
+                         "  bool outside = any(bvec4(\n"
+                         "      lessThan(coord, vec2(clipRegion[i].xy)),\n"
+                         "      greaterThanEqual(coord, vec2(clipRegion[i].zw))));\n"
+                         "  if (!outside) {\n");
+    if (ps->state->window_clip_exclusive) {
+        mstring_append(clip, "    discard;\n");
+    } else {
+        mstring_append(clip, "    clipContained = true;\n"
+                             "    break;\n");
+    }
+    mstring_append(clip, "  }\n"
+                         "}\n");
+    if (!ps->state->window_clip_exclusive) {
+        mstring_append(clip, "if (!clipContained) {\n"
+                             "  discard;\n"
                              "}\n");
-        if (!ps->state->window_clip_exclusive) {
-            mstring_append(clip, "if (!clipContained) {\n"
-                                 "  discard;\n"
-                                 "}\n");
-        }
     }
 
     if (ps->state->z_perspective) {

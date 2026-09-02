@@ -253,6 +253,39 @@ void pgraph_vk_perf_dump_shader(PGRAPHVkState *r,
     }
 }
 
+static bool clip_region0_covers_scissor(PGRAPHState *pg)
+{
+    if (pgraph_reg_r(pg, NV_PGRAPH_SETUPRASTER) &
+        NV_PGRAPH_SETUPRASTER_WINDOWCLIPTYPE) {
+        return false;
+    }
+
+    unsigned int scissor_x_min = pg->surface_shape.clip_x;
+    unsigned int scissor_y_min = pg->surface_shape.clip_y;
+    unsigned int scissor_x_max =
+        scissor_x_min + pg->surface_shape.clip_width;
+    unsigned int scissor_y_max =
+        scissor_y_min + pg->surface_shape.clip_height;
+    pgraph_apply_anti_aliasing_factor(pg, &scissor_x_min, &scissor_y_min);
+    pgraph_apply_anti_aliasing_factor(pg, &scissor_x_max, &scissor_y_max);
+    pgraph_apply_scaling_factor(pg, &scissor_x_min, &scissor_y_min);
+    pgraph_apply_scaling_factor(pg, &scissor_x_max, &scissor_y_max);
+
+    uint32_t x = pgraph_reg_r(pg, NV_PGRAPH_WINDOWCLIPX0);
+    uint32_t y = pgraph_reg_r(pg, NV_PGRAPH_WINDOWCLIPY0);
+    unsigned int region_x_min = GET_MASK(x, NV_PGRAPH_WINDOWCLIPX0_XMIN);
+    unsigned int region_x_max = GET_MASK(x, NV_PGRAPH_WINDOWCLIPX0_XMAX) + 1;
+    unsigned int region_y_min = GET_MASK(y, NV_PGRAPH_WINDOWCLIPY0_YMIN);
+    unsigned int region_y_max = GET_MASK(y, NV_PGRAPH_WINDOWCLIPY0_YMAX) + 1;
+    pgraph_apply_anti_aliasing_factor(pg, &region_x_min, &region_y_min);
+    pgraph_apply_anti_aliasing_factor(pg, &region_x_max, &region_y_max);
+    pgraph_apply_scaling_factor(pg, &region_x_min, &region_y_min);
+    pgraph_apply_scaling_factor(pg, &region_x_max, &region_y_max);
+
+    return region_x_min <= scissor_x_min && region_y_min <= scissor_y_min &&
+           region_x_max >= scissor_x_max && region_y_max >= scissor_y_max;
+}
+
 void pgraph_vk_perf_begin_shader_query(PGRAPHState *pg,
                                         ShaderModuleInfo *fragment_shader)
 {
@@ -269,7 +302,7 @@ void pgraph_vk_perf_begin_shader_query(PGRAPHState *pg,
     uint32_t query = r->perf.shader_query_count++;
     r->perf.shader_query_hashes[query] = fragment_shader->spirv_hash;
     r->perf.shader_query_clip_region0_covers_scissor[query] =
-        pgraph_vk_window_clip_is_redundant(pg);
+        clip_region0_covers_scissor(pg);
     vkCmdBeginQuery(r->command_buffer, r->perf.shader_stats_query_pool,
                     query, 0);
     r->perf.shader_query_active = true;
