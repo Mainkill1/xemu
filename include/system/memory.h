@@ -2737,6 +2737,19 @@ MemTxResult memory_region_dispatch_read(MemoryRegion *mr,
                                         MemOp op,
                                         MemTxAttrs attrs);
 /**
+ * memory_region_dispatch_read_lockless: perform a proven lockless read.
+ *
+ * This is equivalent to memory_region_dispatch_read(), except the device-wide
+ * reentrancy guard is bypassed for this transaction. The caller must already
+ * have established that the selected device callback is safe without the BQL
+ * and without that guard.
+ */
+MemTxResult memory_region_dispatch_read_lockless(MemoryRegion *mr,
+                                                 hwaddr addr,
+                                                 uint64_t *pval,
+                                                 MemOp op,
+                                                 MemTxAttrs attrs);
+/**
  * memory_region_dispatch_write: perform a write directly to the specified
  * MemoryRegion.
  *
