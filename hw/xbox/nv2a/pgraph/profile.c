@@ -21,6 +21,96 @@
 
 NV2AStats g_nv2a_stats;
 
+static void nv2a_profile_write_frame_log(int64_t now)
+{
+    static FILE *file;
+    static bool initialized;
+    static int64_t previous_frame;
+    static int64_t last_flush;
+    static uint64_t frame;
+
+    if (!initialized) {
+        const char *path;
+
+        initialized = true;
+        path = g_getenv("XEMU_FRAME_LOG");
+        if (path == NULL || path[0] == '\0') {
+            return;
+        }
+        file = qemu_fopen(path, "w");
+        if (file == NULL) {
+            fprintf(stderr, "nv2a: failed to open frame log '%s'\n", path);
+            return;
+        }
+        previous_frame = now;
+        last_flush = now;
+    }
+
+    if (file == NULL) {
+        return;
+    }
+
+    frame++;
+    fprintf(file, "timestamp_us=%" PRId64 " frame=%" PRIu64
+                  " delta_us=%" PRId64 "\n",
+            now, frame, now - previous_frame);
+    previous_frame = now;
+
+    /* Keep live stall detection within one second without forcing a disk
+     * flush on every emulated frame. */
+    if (now - last_flush >= G_USEC_PER_SEC) {
+        fflush(file);
+        last_flush = now;
+    }
+}
+
+void nv2a_profile_log_event_once(const char *event)
+{
+    enum {
+        EVENT_SHADER_COMPILE = 1 << 0,
+        EVENT_GPU_SUBMIT = 1 << 1,
+        EVENT_READBACK = 1 << 2,
+    };
+    static FILE *file;
+    static GMutex lock;
+    static bool initialized;
+    static unsigned int written;
+    unsigned int event_bit = 0;
+
+    if (strcmp(event, "shader_compile") == 0) {
+        event_bit = EVENT_SHADER_COMPILE;
+    } else if (strcmp(event, "gpu_submit") == 0) {
+        event_bit = EVENT_GPU_SUBMIT;
+    } else if (strcmp(event, "readback") == 0) {
+        event_bit = EVENT_READBACK;
+    } else {
+        return;
+    }
+
+    g_mutex_lock(&lock);
+    if (!initialized) {
+        const char *path;
+
+        initialized = true;
+        path = g_getenv("XEMU_PERF_EVENT_LOG");
+        if (path != NULL && path[0] != '\0') {
+            file = qemu_fopen(path, "w");
+            if (file == NULL) {
+                fprintf(stderr, "nv2a: failed to open event log '%s'\n", path);
+            }
+        }
+    }
+
+    if (file != NULL && !(written & event_bit)) {
+        written |= event_bit;
+        fprintf(file, "{\"timestamp_us\":%" PRId64
+                      ",\"event\":\"%s\"}\n",
+                qemu_clock_get_us(QEMU_CLOCK_REALTIME), event);
+        fflush(file);
+    }
+    g_mutex_unlock(&lock);
+}
+
 static void nv2a_profile_write_flip_log(int64_t now)
 {
     static FILE *file;
@@ -72,6 +162,7 @@ void nv2a_profile_increment(void)
     static int64_t frame_count = 0;
     frame_count++;
     nv2a_profile_write_flip_log(now);
+    nv2a_profile_write_frame_log(now);
 
     static int64_t ts = 0;
     int64_t delta = now - ts;
