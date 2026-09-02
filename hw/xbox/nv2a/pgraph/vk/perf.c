@@ -39,6 +39,15 @@ static const char *single_time_reason_names[VK_SINGLE_TIME_REASON_COUNT] = {
     [VK_SINGLE_TIME_DUMMY_TEXTURE_CREATE] = "dummy_texture_create",
 };
 
+static const char *cpu_region_names[VK_PERF_CPU_REGION_COUNT] = {
+    [VK_PERF_CPU_DRAW_BEGIN_SURFACE_UPDATE] = "draw_begin_surface_update",
+    [VK_PERF_CPU_DRAW_FLUSH] = "draw_flush",
+    [VK_PERF_CPU_PIPELINE_PREPARE] = "pipeline_prepare",
+    [VK_PERF_CPU_BIND_TEXTURES] = "bind_textures",
+    [VK_PERF_CPU_TEXTURE_UPLOAD] = "texture_upload",
+    [VK_PERF_CPU_UPDATE_DESCRIPTOR_SETS] = "update_descriptor_sets",
+};
+
 static void write_names(FILE *file, const char *key, const char **names,
                         size_t count)
 {
@@ -62,6 +71,19 @@ static void write_stat_array(FILE *file, const char *key,
     fputc(']', file);
 }
 
+static void write_cpu_stat_array(FILE *file, const char *key,
+                                 const PGRAPHVkCpuStats *stats,
+                                 size_t member_offset)
+{
+    fprintf(file, ",\"%s\":[", key);
+    for (size_t i = 0; i < VK_PERF_CPU_REGION_COUNT; i++) {
+        const uint64_t *value = (const uint64_t *)
+            ((const uint8_t *)&stats[i] + member_offset);
+        fprintf(file, "%s%" PRIu64, i ? "," : "", *value);
+    }
+    fputc(']', file);
+}
+
 void pgraph_vk_perf_init(PGRAPHVkState *r)
 {
     const char *path = g_getenv("XEMU_VK_PERF_LOG");
@@ -77,7 +99,7 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":3"
+            "{\"type\":\"schema\",\"schema_version\":4"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}",
             VK_PERF_INITIAL_TIMED_SUBMITS, VK_PERF_HOT_SAMPLE_STRIDE);
@@ -85,6 +107,8 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
                 ARRAY_SIZE(finish_reason_names));
     write_names(r->perf.file, "single_time_callers", single_time_reason_names,
                 ARRAY_SIZE(single_time_reason_names));
+    write_names(r->perf.file, "cpu_regions", cpu_region_names,
+                ARRAY_SIZE(cpu_region_names));
     fprintf(r->perf.file, "}\n");
 }
 
@@ -194,6 +218,16 @@ void pgraph_vk_perf_record_vertex_staging_fallback(PGRAPHVkState *r)
     }
 }
 
+void pgraph_vk_perf_record_cpu_region(PGRAPHVkState *r, PerfCpuRegion region,
+                                      uint64_t cpu_us)
+{
+    assert(region < VK_PERF_CPU_REGION_COUNT);
+    if (r->perf.enabled) {
+        r->perf.cpu_regions[region].call_count++;
+        r->perf.cpu_regions[region].cpu_us += cpu_us;
+    }
+}
+
 void pgraph_vk_perf_frame(PGRAPHVkState *r)
 {
     PGRAPHVkPerfTelemetry *perf = &r->perf;
@@ -217,7 +251,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":3"
+            "{\"type\":\"frame\",\"schema_version\":4"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
@@ -258,6 +292,12 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
                      "single_time_sampled_wait_us_per_guest_frame",
                      perf->single_time, ARRAY_SIZE(perf->single_time),
                      offsetof(PGRAPHVkWaitStats, wait_us));
+    write_cpu_stat_array(perf->file, "cpu_region_calls_per_guest_frame",
+                         perf->cpu_regions,
+                         offsetof(PGRAPHVkCpuStats, call_count));
+    write_cpu_stat_array(perf->file, "cpu_region_us_per_guest_frame",
+                         perf->cpu_regions,
+                         offsetof(PGRAPHVkCpuStats, cpu_us));
     fprintf(perf->file,
             ",\"vk_queue_submit_calls_per_guest_frame\":%" PRIu64
             ",\"vk_submit_infos_per_guest_frame\":%" PRIu64
@@ -297,6 +337,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
 
     memset(perf->finish, 0, sizeof(perf->finish));
     memset(perf->single_time, 0, sizeof(perf->single_time));
+    memset(perf->cpu_regions, 0, sizeof(perf->cpu_regions));
     perf->submit_info_count = 0;
     perf->command_buffer_count = 0;
     perf->staged_bytes = 0;
