@@ -62,6 +62,7 @@ tests = {
   'test-qapi-util': [],
   'test-interval-tree': [],
   'test-fifo': [],
+  'test-lru-active': [],
 }
 
 if have_system or have_tools
