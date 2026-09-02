@@ -289,10 +289,6 @@ static void shader_cache_entry_init(Lru *lru, LruNode *node, const void *state)
     key.kind = VK_SHADER_STAGE_FRAGMENT_BIT;
     key.psh.state = binding->state.psh;
     key.psh.glsl_opts.vulkan = true;
-    const char *fast_perspective_depth =
-        g_getenv("XEMU_VK_FAST_PERSPECTIVE_DEPTH");
-    key.psh.glsl_opts.use_fragcoord_w_for_perspective_depth =
-        fast_perspective_depth != NULL && fast_perspective_depth[0] != '\0';
     key.psh.glsl_opts.ubo_binding = PSH_UBO_BINDING;
     key.psh.glsl_opts.tex_binding = PSH_TEX_BINDING;
     binding->psh.module_info = get_and_ref_shader_module_for_key(r, &key);

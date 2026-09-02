@@ -1002,35 +1002,24 @@ static MString* psh_convert(struct PixelShader *ps)
     }
 
     if (ps->state->z_perspective) {
-        if (ps->opts.use_fragcoord_w_for_perspective_depth) {
-            /* gl_FragCoord.w is the interpolation denominator sum(lambda/w).
-             * Perspective interpolation of each vertex's w is therefore its
-             * reciprocal. Keep this experimental until full hash validation
-             * proves that host interpolation rounds compatibly with NV2A. */
-            mstring_append(clip,
-                           "precise float zvalue = 1.0 / gl_FragCoord.w;\n");
-        } else {
-            mstring_append(
-                clip,
-                "vec2 unscaled_xy = gl_FragCoord.xy / surfaceScale;\n"
-                "precise float bc0 = area(unscaled_xy, vtxPos1.xy, vtxPos2.xy);\n"
-                "precise float bc1 = area(unscaled_xy, vtxPos2.xy, vtxPos0.xy);\n"
-                "precise float bc2 = area(unscaled_xy, vtxPos0.xy, vtxPos1.xy);\n"
-                "bc0 /= vtxPos0.w;\n"
-                "bc1 /= vtxPos1.w;\n"
-                "bc2 /= vtxPos2.w;\n"
-                "float inv_bcsum = 1.0 / (bc0 + bc1 + bc2);\n"
-                // Denominator can be zero in case the rasterized primitive is
-                // a point or a degenerate line or triangle.
-                "if (isinf(inv_bcsum)) {\n"
-                "  inv_bcsum = 0.0;\n"
-                "}\n"
-                "bc1 *= inv_bcsum;\n"
-                "bc2 *= inv_bcsum;\n"
-                "precise float zvalue = vtxPos0.w + (bc1*(vtxPos1.w - vtxPos0.w) + bc2*(vtxPos2.w - vtxPos0.w));\n");
-        }
         mstring_append(
             clip,
+            "vec2 unscaled_xy = gl_FragCoord.xy / surfaceScale;\n"
+            "precise float bc0 = area(unscaled_xy, vtxPos1.xy, vtxPos2.xy);\n"
+            "precise float bc1 = area(unscaled_xy, vtxPos2.xy, vtxPos0.xy);\n"
+            "precise float bc2 = area(unscaled_xy, vtxPos0.xy, vtxPos1.xy);\n"
+            "bc0 /= vtxPos0.w;\n"
+            "bc1 /= vtxPos1.w;\n"
+            "bc2 /= vtxPos2.w;\n"
+            "float inv_bcsum = 1.0 / (bc0 + bc1 + bc2);\n"
+            // Denominator can be zero in case the rasterized primitive is a
+            // point or a degenerate line or triangle.
+            "if (isinf(inv_bcsum)) {\n"
+            "  inv_bcsum = 0.0;\n"
+            "}\n"
+            "bc1 *= inv_bcsum;\n"
+            "bc2 *= inv_bcsum;\n"
+            "precise float zvalue = vtxPos0.w + (bc1*(vtxPos1.w - vtxPos0.w) + bc2*(vtxPos2.w - vtxPos0.w));\n"
             // If GPU clipping is inaccurate, the point gl_FragCoord.xy might
             // be above the horizon of the plane of a rasterized triangle
             // making the interpolated w-coordinate above zero or negative. We
