@@ -505,15 +505,6 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
 
     nv2a_profile_inc_counter(NV2A_PROF_TEX_UPLOAD);
 
-    /* Draws in the current command buffer may still reference this cached
-     * image. Submit and complete them before an auxiliary upload overwrites
-     * the image contents. */
-    if (r->in_command_buffer &&
-        binding->current_layout != VK_IMAGE_LAYOUT_UNDEFINED &&
-        binding->submit_time == r->submit_count) {
-        pgraph_vk_finish(pg, VK_FINISH_REASON_TEXTURE_DIRTY);
-    }
-
     g_autofree TextureLayout *layout = get_texture_layout(pg, texture_idx);
     const int num_layers = state->cubemap ? 6 : 1;
 
@@ -528,15 +519,28 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
         }
     }
 
-    pgraph_vk_ensure_buffer_capacity(pg, BUFFER_STAGING_SRC,
+    int staging_buffer_index = BUFFER_TEXTURE_STAGING;
+    pgraph_vk_ensure_buffer_capacity(pg, staging_buffer_index,
                                      texture_data_size);
+    StorageBuffer *staging_buffer =
+        &r->storage_buffers[staging_buffer_index];
+    VkDeviceSize staging_alignment = MAX(
+        (VkDeviceSize)4,
+        r->device_props.limits.optimalBufferCopyOffsetAlignment);
 
-    // Copy texture data to mapped device buffer
-    uint8_t *mapped_memory_ptr;
+    if (!pgraph_vk_buffer_has_space_for(pg, staging_buffer_index,
+                                        texture_data_size,
+                                        staging_alignment)) {
+        pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+    }
+    assert(pgraph_vk_buffer_has_space_for(pg, staging_buffer_index,
+                                          texture_data_size,
+                                          staging_alignment));
 
-    VK_CHECK(vmaMapMemory(r->allocator,
-                          r->storage_buffers[BUFFER_STAGING_SRC].allocation,
-                          (void *)&mapped_memory_ptr));
+    VkDeviceSize staging_offset =
+        ROUND_UP(staging_buffer->buffer_offset, staging_alignment);
+    assert(staging_buffer->mapped);
+    uint8_t *mapped_memory_ptr = staging_buffer->mapped + staging_offset;
 
     int num_regions = num_layers * state->levels;
     g_autofree VkBufferImageCopy *regions =
@@ -556,7 +560,7 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
             memcpy(mapped_memory_ptr + buffer_offset, level->decoded_data,
                    level->decoded_size);
             *region = (VkBufferImageCopy){
-                .bufferOffset = buffer_offset,
+                .bufferOffset = staging_offset + buffer_offset,
                 .bufferRowLength = 0, // Tightly packed
                 .bufferImageHeight = 0,
                 .imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
@@ -571,17 +575,13 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
             region++;
         }
     }
-    assert(buffer_offset <= r->storage_buffers[BUFFER_STAGING_SRC].buffer_size);
+    assert(staging_offset + buffer_offset <= staging_buffer->buffer_size);
+    staging_buffer->buffer_offset = staging_offset + buffer_offset;
 
-    vmaFlushAllocation(r->allocator,
-                       r->storage_buffers[BUFFER_STAGING_SRC].allocation, 0,
-                       VK_WHOLE_SIZE);
+    vmaFlushAllocation(r->allocator, staging_buffer->allocation,
+                       staging_offset, texture_data_size);
 
-    vmaUnmapMemory(r->allocator,
-                   r->storage_buffers[BUFFER_STAGING_SRC].allocation);
-
-    // FIXME: Use nondraw. Need to fill and copy tex buffer at once
-    VkCommandBuffer cmd = pgraph_vk_begin_single_time_commands(pg);
+    VkCommandBuffer cmd = pgraph_vk_begin_nondraw_commands(pg);
     pgraph_vk_begin_debug_marker(r, cmd, RGBA_GREEN, __func__);
 
     VkBufferMemoryBarrier host_barrier = {
@@ -590,8 +590,9 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
         .dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT,
         .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-        .buffer = r->storage_buffers[BUFFER_STAGING_SRC].buffer,
-        .size = VK_WHOLE_SIZE
+        .buffer = staging_buffer->buffer,
+        .offset = staging_offset,
+        .size = texture_data_size,
     };
     vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_HOST_BIT,
                          VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, NULL, 1,
@@ -602,7 +603,7 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
                                       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
     binding->current_layout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 
-    vkCmdCopyBufferToImage(cmd, r->storage_buffers[BUFFER_STAGING_SRC].buffer,
+    vkCmdCopyBufferToImage(cmd, staging_buffer->buffer,
                            binding->image, binding->current_layout,
                            num_regions, regions);
 
@@ -611,10 +612,8 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
                                       VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     binding->current_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
-    nv2a_profile_inc_counter(NV2A_PROF_QUEUE_SUBMIT_4);
     pgraph_vk_end_debug_marker(r, cmd);
-    pgraph_vk_end_single_time_commands(
-        pg, cmd, VK_SINGLE_TIME_TEXTURE_UPLOAD, texture_data_size);
+    pgraph_vk_end_nondraw_commands(pg, cmd);
 
     // Release decoded texture data
     for (int layer_idx = 0; layer_idx < num_layers; layer_idx++) {

@@ -85,6 +85,7 @@ typedef struct PipelineBinding {
 enum Buffer {
     BUFFER_STAGING_DST,
     BUFFER_STAGING_SRC,
+    BUFFER_TEXTURE_STAGING,
     BUFFER_COMPUTE_DST,
     BUFFER_COMPUTE_SRC,
     BUFFER_INDEX,

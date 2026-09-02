@@ -1287,6 +1287,7 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         if (r->perf.enabled) {
             staged_bytes =
                 r->storage_buffers[BUFFER_INDEX_STAGING].buffer_offset +
+                r->storage_buffers[BUFFER_TEXTURE_STAGING].buffer_offset +
                 r->storage_buffers[BUFFER_VERTEX_RAM_STAGING].buffer_offset +
                 r->storage_buffers[BUFFER_VERTEX_INLINE_STAGING].buffer_offset +
                 r->storage_buffers[BUFFER_UNIFORM_STAGING].buffer_offset;
@@ -1369,6 +1370,7 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
             r, finish_reason, time_submit, submit_cpu_us, wait_us, staged_bytes,
             ARRAY_SIZE(submit_infos), 2);
         r->storage_buffers[BUFFER_VERTEX_RAM_STAGING].buffer_offset = 0;
+        r->storage_buffers[BUFFER_TEXTURE_STAGING].buffer_offset = 0;
 
         r->descriptor_set_index = 0;
         r->in_command_buffer = false;
