@@ -84,7 +84,7 @@ static void init_gpu_timestamps(PGRAPHVkState *r)
     VkQueryPoolCreateInfo create_info = {
         .sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO,
         .queryType = VK_QUERY_TYPE_TIMESTAMP,
-        .queryCount = 2,
+        .queryCount = 4,
     };
     VK_CHECK(vkCreateQueryPool(r->device, &create_info, NULL,
                                &r->perf.timestamp_query_pool));
@@ -162,6 +162,9 @@ void pgraph_vk_perf_record_finish_submit(PGRAPHVkState *r,
                                          uint64_t wait_us,
                                          bool gpu_timed,
                                          uint64_t gpu_batch_ns,
+                                         uint64_t gpu_aux_ns,
+                                         uint64_t gpu_handoff_ns,
+                                         uint64_t gpu_main_ns,
                                          uint64_t staged_bytes,
                                          uint64_t submit_info_count,
                                          uint64_t command_buffer_count)
@@ -181,6 +184,9 @@ void pgraph_vk_perf_record_finish_submit(PGRAPHVkState *r,
     if (gpu_timed) {
         stats->gpu_timed_submit_count++;
         stats->gpu_batch_ns += gpu_batch_ns;
+        stats->gpu_aux_ns += gpu_aux_ns;
+        stats->gpu_handoff_ns += gpu_handoff_ns;
+        stats->gpu_main_ns += gpu_main_ns;
     }
     r->perf.submit_info_count += submit_info_count;
     r->perf.command_buffer_count += command_buffer_count;
@@ -289,9 +295,21 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
                      perf->finish, ARRAY_SIZE(perf->finish),
                      offsetof(PGRAPHVkWaitStats, gpu_timed_submit_count));
     write_stat_array(perf->file,
-                     "finish_sampled_gpu_batch_ns_per_guest_frame",
+                     "finish_gpu_batch_ns_per_guest_frame",
                      perf->finish, ARRAY_SIZE(perf->finish),
                      offsetof(PGRAPHVkWaitStats, gpu_batch_ns));
+    write_stat_array(perf->file,
+                     "finish_gpu_aux_ns_per_guest_frame",
+                     perf->finish, ARRAY_SIZE(perf->finish),
+                     offsetof(PGRAPHVkWaitStats, gpu_aux_ns));
+    write_stat_array(perf->file,
+                     "finish_gpu_handoff_ns_per_guest_frame",
+                     perf->finish, ARRAY_SIZE(perf->finish),
+                     offsetof(PGRAPHVkWaitStats, gpu_handoff_ns));
+    write_stat_array(perf->file,
+                     "finish_gpu_main_ns_per_guest_frame",
+                     perf->finish, ARRAY_SIZE(perf->finish),
+                     offsetof(PGRAPHVkWaitStats, gpu_main_ns));
     write_stat_array(perf->file, "single_time_submit_count_per_guest_frame",
                      perf->single_time, ARRAY_SIZE(perf->single_time),
                      offsetof(PGRAPHVkWaitStats, submit_count));

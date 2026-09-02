@@ -371,6 +371,9 @@ typedef struct PGRAPHVkWaitStats {
     uint64_t wait_us;
     uint64_t gpu_timed_submit_count;
     uint64_t gpu_batch_ns;
+    uint64_t gpu_aux_ns;
+    uint64_t gpu_handoff_ns;
+    uint64_t gpu_main_ns;
 } PGRAPHVkWaitStats;
 
 typedef struct PGRAPHVkPerfTelemetry {
@@ -591,6 +594,9 @@ void pgraph_vk_perf_record_finish_submit(PGRAPHVkState *r,
                                          uint64_t wait_us,
                                          bool gpu_timed,
                                          uint64_t gpu_batch_ns,
+                                         uint64_t gpu_aux_ns,
+                                         uint64_t gpu_handoff_ns,
+                                         uint64_t gpu_main_ns,
                                          uint64_t staged_bytes,
                                          uint64_t submit_info_count,
                                          uint64_t command_buffer_count);
