@@ -137,7 +137,7 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     init_pipeline_stats(r);
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":4"
+            "{\"type\":\"schema\",\"schema_version\":5"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
             ",\"gpu_batch_timestamps\":{\"supported\":%s"
@@ -315,7 +315,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":4"
+            "{\"type\":\"frame\",\"schema_version\":5"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
