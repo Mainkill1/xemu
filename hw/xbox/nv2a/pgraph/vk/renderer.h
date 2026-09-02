@@ -385,6 +385,8 @@ typedef struct PGRAPHVkWaitStats {
 typedef struct PGRAPHVkShaderStats {
     uint64_t spirv_hash;
     uint64_t draw_count;
+    uint64_t gpu_timed_draw_count;
+    uint64_t gpu_time_ns;
     uint64_t pipeline_stats[VK_PERF_PIPELINE_STAT_COUNT];
     uint64_t clip_region0_covers_scissor_draw_count;
     uint64_t clip_region0_covers_scissor_pipeline_stats[
@@ -397,6 +399,7 @@ typedef struct PGRAPHVkPerfTelemetry {
     VkQueryPool timestamp_query_pool;
     VkQueryPool pipeline_stats_query_pool;
     VkQueryPool shader_stats_query_pool;
+    VkQueryPool shader_timestamp_query_pool;
     char *shader_dump_dir;
     uint64_t shader_query_hashes[VK_PERF_MAX_SHADER_QUERIES];
     bool shader_query_clip_region0_covers_scissor[

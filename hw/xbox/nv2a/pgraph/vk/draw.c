@@ -1292,6 +1292,9 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         bool shader_stats_submit =
             r->perf.shader_stats_query_pool != VK_NULL_HANDLE &&
             r->perf.shader_query_count > 0;
+        bool shader_timestamps_submit =
+            r->perf.shader_timestamp_query_pool != VK_NULL_HANDLE &&
+            r->perf.shader_query_count > 0;
         uint64_t staged_bytes = 0;
         if (r->perf.enabled) {
             staged_bytes =
@@ -1331,6 +1334,10 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         if (shader_stats_submit) {
             vkCmdResetQueryPool(cmd, r->perf.shader_stats_query_pool, 0,
                                 r->perf.shader_query_count);
+        }
+        if (shader_timestamps_submit) {
+            vkCmdResetQueryPool(cmd, r->perf.shader_timestamp_query_pool, 0,
+                                2 * r->perf.shader_query_count);
         }
         sync_staging_buffer(pg, cmd, BUFFER_INDEX_STAGING, BUFFER_INDEX);
         sync_staging_buffer(pg, cmd, BUFFER_VERTEX_INLINE_STAGING,

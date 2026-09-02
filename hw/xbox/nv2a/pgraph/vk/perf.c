@@ -123,6 +123,25 @@ static void init_pipeline_stats(PGRAPHVkState *r)
     VK_CHECK(vkCreateQueryPool(r->device, &create_info, NULL, query_pool));
 }
 
+static void init_shader_timestamps(PGRAPHVkState *r)
+{
+    const char *shader_timestamps =
+        g_getenv("XEMU_VK_PERF_SHADER_TIMESTAMPS");
+    if (shader_timestamps == NULL || shader_timestamps[0] == '\0' ||
+        r->perf.timestamp_valid_bits == 0 ||
+        r->perf.shader_stats_query_pool == VK_NULL_HANDLE) {
+        return;
+    }
+
+    VkQueryPoolCreateInfo create_info = {
+        .sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO,
+        .queryType = VK_QUERY_TYPE_TIMESTAMP,
+        .queryCount = 2 * VK_PERF_MAX_SHADER_QUERIES,
+    };
+    VK_CHECK(vkCreateQueryPool(r->device, &create_info, NULL,
+                               &r->perf.shader_timestamp_query_pool));
+}
+
 void pgraph_vk_perf_init(PGRAPHVkState *r)
 {
     const char *path = g_getenv("XEMU_VK_PERF_LOG");
@@ -138,6 +157,7 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     init_gpu_timestamps(r);
     init_pipeline_stats(r);
+    init_shader_timestamps(r);
     if (r->perf.shader_stats_query_pool != VK_NULL_HANDLE) {
         r->perf.shader_dump_dir = g_strdup_printf("%s.shaders", path);
         if (g_mkdir_with_parents(r->perf.shader_dump_dir, 0755) != 0) {
@@ -148,7 +168,7 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     }
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":7"
+            "{\"type\":\"schema\",\"schema_version\":8"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
             ",\"gpu_batch_timestamps\":{\"supported\":%s"
@@ -169,6 +189,13 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     fprintf(r->perf.file,
             ",\"shader_state_classification\":{"
             "\"clip_region0_covers_scissor\":true}");
+    fprintf(r->perf.file,
+            ",\"shader_gpu_timestamps\":{\"supported\":%s"
+            ",\"mode\":\"top_to_bottom_per_draw\""
+            ",\"max_timed_draws_per_submit\":%u}",
+            r->perf.shader_timestamp_query_pool != VK_NULL_HANDLE ?
+                "true" : "false",
+            VK_PERF_MAX_SHADER_QUERIES);
     write_names(r->perf.file, "finish_reasons", finish_reason_names,
                 ARRAY_SIZE(finish_reason_names));
     write_names(r->perf.file, "single_time_callers", single_time_reason_names,
@@ -180,6 +207,11 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
 
 void pgraph_vk_perf_finalize(PGRAPHVkState *r)
 {
+    if (r->perf.shader_timestamp_query_pool != VK_NULL_HANDLE) {
+        vkDestroyQueryPool(r->device, r->perf.shader_timestamp_query_pool,
+                           NULL);
+        r->perf.shader_timestamp_query_pool = VK_NULL_HANDLE;
+    }
     if (r->perf.shader_stats_query_pool != VK_NULL_HANDLE) {
         vkDestroyQueryPool(r->device, r->perf.shader_stats_query_pool, NULL);
         r->perf.shader_stats_query_pool = VK_NULL_HANDLE;
@@ -303,6 +335,11 @@ void pgraph_vk_perf_begin_shader_query(PGRAPHState *pg,
     r->perf.shader_query_hashes[query] = fragment_shader->spirv_hash;
     r->perf.shader_query_clip_region0_covers_scissor[query] =
         clip_region0_covers_scissor(pg);
+    if (r->perf.shader_timestamp_query_pool != VK_NULL_HANDLE) {
+        vkCmdWriteTimestamp(r->command_buffer,
+                            VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                            r->perf.shader_timestamp_query_pool, 2 * query);
+    }
     vkCmdBeginQuery(r->command_buffer, r->perf.shader_stats_query_pool,
                     query, 0);
     r->perf.shader_query_active = true;
@@ -315,6 +352,12 @@ void pgraph_vk_perf_end_shader_query(PGRAPHVkState *r)
     }
     vkCmdEndQuery(r->command_buffer, r->perf.shader_stats_query_pool,
                   r->perf.shader_query_count - 1);
+    if (r->perf.shader_timestamp_query_pool != VK_NULL_HANDLE) {
+        vkCmdWriteTimestamp(
+            r->command_buffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+            r->perf.shader_timestamp_query_pool,
+            2 * (r->perf.shader_query_count - 1) + 1);
+    }
     r->perf.shader_query_active = false;
 }
 
@@ -354,6 +397,23 @@ void pgraph_vk_perf_collect_shader_queries(PGRAPHVkState *r)
         VK_QUERY_RESULT_64_BIT);
     VK_CHECK(result);
 
+    g_autofree uint64_t *timestamps = NULL;
+    if (perf->shader_timestamp_query_pool != VK_NULL_HANDLE) {
+        uint32_t timestamp_count = 2 * perf->shader_query_count;
+        timestamps = g_new(uint64_t, timestamp_count);
+        result = vkGetQueryPoolResults(
+            r->device, perf->shader_timestamp_query_pool, 0,
+            timestamp_count, timestamp_count * sizeof(*timestamps),
+            timestamps, sizeof(*timestamps), VK_QUERY_RESULT_64_BIT);
+        VK_CHECK(result);
+    }
+
+    uint64_t timestamp_mask = UINT64_MAX;
+    if (perf->timestamp_valid_bits < 64) {
+        timestamp_mask =
+            (UINT64_C(1) << perf->timestamp_valid_bits) - 1;
+    }
+
     for (uint32_t query = 0; query < perf->shader_query_count; query++) {
         PGRAPHVkShaderStats *stats = find_shader_stats(
             perf, perf->shader_query_hashes[query]);
@@ -361,6 +421,14 @@ void pgraph_vk_perf_collect_shader_queries(PGRAPHVkState *r)
             continue;
         }
         stats->draw_count++;
+        if (timestamps != NULL) {
+            uint64_t ticks =
+                (timestamps[2 * query + 1] - timestamps[2 * query]) &
+                timestamp_mask;
+            stats->gpu_timed_draw_count++;
+            stats->gpu_time_ns +=
+                (uint64_t)(ticks * perf->timestamp_period_ns);
+        }
         for (size_t i = 0; i < VK_PERF_PIPELINE_STAT_COUNT; i++) {
             stats->pipeline_stats[i] +=
                 values[query * VK_PERF_PIPELINE_STAT_COUNT + i];
@@ -515,7 +583,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":7"
+            "{\"type\":\"frame\",\"schema_version\":8"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
@@ -626,8 +694,11 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
         fprintf(perf->file,
                 "%s{\"spirv_hash\":\"%016" PRIx64 "\""
                 ",\"draw_count\":%" PRIu64
+                ",\"gpu_timed_draw_count\":%" PRIu64
+                ",\"gpu_time_ns\":%" PRIu64
                 ",\"clip_region0_covers_scissor_draw_count\":%" PRIu64,
                 shader ? "," : "", stats->spirv_hash, stats->draw_count,
+                stats->gpu_timed_draw_count, stats->gpu_time_ns,
                 stats->clip_region0_covers_scissor_draw_count);
         for (size_t stat = 0; stat < VK_PERF_PIPELINE_STAT_COUNT; stat++) {
             fprintf(perf->file, ",\"%s\":%" PRIu64,
