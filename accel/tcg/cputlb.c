@@ -955,19 +955,20 @@ static inline void tlb_set_dirty1_locked(CPUTLBEntry *tlb_entry,
    so that it is no longer dirty */
 static void tlb_set_dirty(CPUState *cpu, vaddr addr)
 {
-    int mmu_idx;
+    MMUIdxMap work;
 
     assert_cpu_is_self(cpu);
 
     addr &= TARGET_PAGE_MASK;
     qemu_spin_lock(&cpu->neg.tlb.c.lock);
-    for (mmu_idx = 0; mmu_idx < NB_MMU_MODES; mmu_idx++) {
-        tlb_set_dirty1_locked(tlb_entry(cpu, mmu_idx, addr), addr);
-    }
+    work = cpu->neg.tlb.c.dirty;
+    while (work) {
+        int mmu_idx = ctz32(work);
 
-    for (mmu_idx = 0; mmu_idx < NB_MMU_MODES; mmu_idx++) {
-        int k;
-        for (k = 0; k < CPU_VTLB_SIZE; k++) {
+        work &= work - 1;
+        tlb_set_dirty1_locked(tlb_entry(cpu, mmu_idx, addr), addr);
+
+        for (int k = 0; k < CPU_VTLB_SIZE; k++) {
             tlb_set_dirty1_locked(&cpu->neg.tlb.d[mmu_idx].vtable[k], addr);
         }
     }
