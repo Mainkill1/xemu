@@ -96,6 +96,7 @@ DECL_UNIFORM_TYPES(PshUniform, PSH_UNIFORM_DECL_X)
 
 typedef struct GenPshGlslOptions {
     bool vulkan;
+    bool use_fragcoord_w_for_perspective_depth;
     int ubo_binding;
     int tex_binding;
 } GenPshGlslOptions;
