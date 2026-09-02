@@ -1289,6 +1289,9 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
             r->perf.timestamp_query_pool != VK_NULL_HANDLE;
         bool pipeline_stats_submit =
             r->perf.pipeline_stats_query_pool != VK_NULL_HANDLE;
+        bool shader_stats_submit =
+            r->perf.shader_stats_query_pool != VK_NULL_HANDLE &&
+            r->perf.shader_query_count > 0;
         uint64_t staged_bytes = 0;
         if (r->perf.enabled) {
             staged_bytes =
@@ -1324,6 +1327,10 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         }
         if (pipeline_stats_submit) {
             vkCmdResetQueryPool(cmd, r->perf.pipeline_stats_query_pool, 0, 1);
+        }
+        if (shader_stats_submit) {
+            vkCmdResetQueryPool(cmd, r->perf.shader_stats_query_pool, 0,
+                                r->perf.shader_query_count);
         }
         sync_staging_buffer(pg, cmd, BUFFER_INDEX_STAGING, BUFFER_INDEX);
         sync_staging_buffer(pg, cmd, BUFFER_VERTEX_INLINE_STAGING,
@@ -1422,6 +1429,9 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
                 sizeof(pipeline_stats), pipeline_stats,
                 sizeof(pipeline_stats[0]), VK_QUERY_RESULT_64_BIT);
             VK_CHECK(result);
+        }
+        if (shader_stats_submit) {
+            pgraph_vk_perf_collect_shader_queries(r);
         }
         pgraph_vk_perf_record_finish_submit(
             r, finish_reason, time_submit, submit_cpu_us, wait_us,
@@ -1687,6 +1697,10 @@ static void begin_draw(PGRAPHState *pg)
         push_vertex_attr_values(pg);
     }
 
+    pgraph_vk_perf_begin_shader_query(
+        r, pg->clearing ? r->solid_frag_module :
+                          r->shader_binding->psh.module_info);
+
     r->in_draw = true;
 }
 
@@ -1696,6 +1710,8 @@ static void end_draw(PGRAPHState *pg)
 
     assert(r->in_command_buffer);
     assert(r->in_render_pass);
+
+    pgraph_vk_perf_end_shader_query(r);
 
     if (pg->clearing) {
         end_render_pass(r);

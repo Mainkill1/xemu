@@ -153,6 +153,7 @@ typedef struct SurfaceBinding {
 
 typedef struct ShaderModuleInfo {
     int refcnt;
+    uint64_t spirv_hash;
     char *glsl;
     GByteArray *spirv;
     VkShaderModule module;
@@ -363,6 +364,8 @@ typedef enum SingleTimeReason {
 } SingleTimeReason;
 
 #define VK_PERF_PIPELINE_STAT_COUNT 6
+#define VK_PERF_MAX_SHADER_QUERIES 4096
+#define VK_PERF_MAX_SHADER_STATS 1024
 
 typedef struct PGRAPHVkWaitStats {
     uint64_t call_count;
@@ -379,11 +382,26 @@ typedef struct PGRAPHVkWaitStats {
     uint64_t pipeline_stats[VK_PERF_PIPELINE_STAT_COUNT];
 } PGRAPHVkWaitStats;
 
+typedef struct PGRAPHVkShaderStats {
+    uint64_t spirv_hash;
+    uint64_t draw_count;
+    uint64_t pipeline_stats[VK_PERF_PIPELINE_STAT_COUNT];
+} PGRAPHVkShaderStats;
+
 typedef struct PGRAPHVkPerfTelemetry {
     FILE *file;
     bool enabled;
     VkQueryPool timestamp_query_pool;
     VkQueryPool pipeline_stats_query_pool;
+    VkQueryPool shader_stats_query_pool;
+    char *shader_dump_dir;
+    uint64_t shader_query_hashes[VK_PERF_MAX_SHADER_QUERIES];
+    uint32_t shader_query_count;
+    bool shader_query_active;
+    PGRAPHVkShaderStats shader_stats[VK_PERF_MAX_SHADER_STATS];
+    uint32_t shader_stats_count;
+    uint64_t shader_query_overflow_count;
+    uint64_t shader_stats_overflow_count;
     uint32_t timestamp_valid_bits;
     double timestamp_period_ns;
     uint64_t frame;
@@ -616,6 +634,13 @@ void pgraph_vk_perf_record_vertex_staging_copy(PGRAPHVkState *r,
                                                 uint64_t bytes);
 void pgraph_vk_perf_record_vertex_staging_growth(PGRAPHVkState *r);
 void pgraph_vk_perf_record_vertex_staging_fallback(PGRAPHVkState *r);
+void pgraph_vk_perf_begin_shader_query(PGRAPHVkState *r,
+                                        ShaderModuleInfo *fragment_shader);
+void pgraph_vk_perf_end_shader_query(PGRAPHVkState *r);
+void pgraph_vk_perf_collect_shader_queries(PGRAPHVkState *r);
+void pgraph_vk_perf_dump_shader(PGRAPHVkState *r,
+                                VkShaderStageFlagBits stage,
+                                ShaderModuleInfo *info);
 void pgraph_vk_perf_frame(PGRAPHVkState *r);
 
 // image.c

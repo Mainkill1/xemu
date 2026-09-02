@@ -19,6 +19,7 @@
 
 #include "ui/xemu-settings.h"
 #include "renderer.h"
+#include "qemu/fast-hash.h"
 
 #include <assert.h>
 #include <glslang/Include/glslang_c_interface.h>
@@ -373,8 +374,10 @@ ShaderModuleInfo *pgraph_vk_create_shader_module_from_glsl(
     info->glsl = strdup(glsl);
     info->spirv = pgraph_vk_compile_glsl_to_spv(
         vk_shader_stage_to_glslang_stage(stage), glsl);
+    info->spirv_hash = fast_hash(info->spirv->data, info->spirv->len);
     info->module = pgraph_vk_create_shader_module_from_spv(r, info->spirv);
     init_layout_from_spv(info);
+    pgraph_vk_perf_dump_shader(r, stage, info);
     return info;
 }
 

@@ -104,10 +104,12 @@ static void init_pipeline_stats(PGRAPHVkState *r)
         return;
     }
 
+    const char *shader_stats = g_getenv("XEMU_VK_PERF_SHADER_STATS");
+    bool per_shader = shader_stats != NULL && shader_stats[0] != '\0';
     VkQueryPoolCreateInfo create_info = {
         .sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO,
         .queryType = VK_QUERY_TYPE_PIPELINE_STATISTICS,
-        .queryCount = 1,
+        .queryCount = per_shader ? VK_PERF_MAX_SHADER_QUERIES : 1,
         .pipelineStatistics =
             VK_QUERY_PIPELINE_STATISTIC_INPUT_ASSEMBLY_VERTICES_BIT |
             VK_QUERY_PIPELINE_STATISTIC_INPUT_ASSEMBLY_PRIMITIVES_BIT |
@@ -116,8 +118,9 @@ static void init_pipeline_stats(PGRAPHVkState *r)
             VK_QUERY_PIPELINE_STATISTIC_CLIPPING_PRIMITIVES_BIT |
             VK_QUERY_PIPELINE_STATISTIC_FRAGMENT_SHADER_INVOCATIONS_BIT,
     };
-    VK_CHECK(vkCreateQueryPool(r->device, &create_info, NULL,
-                               &r->perf.pipeline_stats_query_pool));
+    VkQueryPool *query_pool = per_shader ? &r->perf.shader_stats_query_pool :
+                                          &r->perf.pipeline_stats_query_pool;
+    VK_CHECK(vkCreateQueryPool(r->device, &create_info, NULL, query_pool));
 }
 
 void pgraph_vk_perf_init(PGRAPHVkState *r)
@@ -135,9 +138,17 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     init_gpu_timestamps(r);
     init_pipeline_stats(r);
+    if (r->perf.shader_stats_query_pool != VK_NULL_HANDLE) {
+        r->perf.shader_dump_dir = g_strdup_printf("%s.shaders", path);
+        if (g_mkdir_with_parents(r->perf.shader_dump_dir, 0755) != 0) {
+            fprintf(stderr, "nv2a: failed to create shader dump directory '%s'\n",
+                    r->perf.shader_dump_dir);
+            g_clear_pointer(&r->perf.shader_dump_dir, g_free);
+        }
+    }
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":5"
+            "{\"type\":\"schema\",\"schema_version\":6"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
             ",\"gpu_batch_timestamps\":{\"supported\":%s"
@@ -146,9 +157,15 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
             VK_PERF_INITIAL_TIMED_SUBMITS, VK_PERF_HOT_SAMPLE_STRIDE,
             r->perf.timestamp_query_pool != VK_NULL_HANDLE ? "true" : "false",
             r->perf.timestamp_valid_bits, r->perf.timestamp_period_ns);
-    fprintf(r->perf.file, ",\"pipeline_statistics\":{\"supported\":%s}",
-            r->perf.pipeline_stats_query_pool != VK_NULL_HANDLE ? "true" :
-                                                                  "false");
+    fprintf(r->perf.file,
+            ",\"pipeline_statistics\":{\"supported\":%s"
+            ",\"mode\":\"%s\",\"max_shader_queries_per_submit\":%u}",
+            (r->perf.pipeline_stats_query_pool != VK_NULL_HANDLE ||
+             r->perf.shader_stats_query_pool != VK_NULL_HANDLE) ? "true" :
+                                                                  "false",
+            r->perf.shader_stats_query_pool != VK_NULL_HANDLE ?
+                "per_shader_draw" : "per_finish",
+            VK_PERF_MAX_SHADER_QUERIES);
     write_names(r->perf.file, "finish_reasons", finish_reason_names,
                 ARRAY_SIZE(finish_reason_names));
     write_names(r->perf.file, "single_time_callers", single_time_reason_names,
@@ -160,6 +177,10 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
 
 void pgraph_vk_perf_finalize(PGRAPHVkState *r)
 {
+    if (r->perf.shader_stats_query_pool != VK_NULL_HANDLE) {
+        vkDestroyQueryPool(r->device, r->perf.shader_stats_query_pool, NULL);
+        r->perf.shader_stats_query_pool = VK_NULL_HANDLE;
+    }
     if (r->perf.pipeline_stats_query_pool != VK_NULL_HANDLE) {
         vkDestroyQueryPool(r->device, r->perf.pipeline_stats_query_pool, NULL);
         r->perf.pipeline_stats_query_pool = VK_NULL_HANDLE;
@@ -173,7 +194,140 @@ void pgraph_vk_perf_finalize(PGRAPHVkState *r)
         fclose(r->perf.file);
     }
     r->perf.file = NULL;
+    g_clear_pointer(&r->perf.shader_dump_dir, g_free);
     r->perf.enabled = false;
+}
+
+void pgraph_vk_perf_dump_shader(PGRAPHVkState *r,
+                                VkShaderStageFlagBits stage,
+                                ShaderModuleInfo *info)
+{
+    if (r->perf.shader_dump_dir == NULL) {
+        return;
+    }
+
+    const char *stage_name;
+    switch (stage) {
+    case VK_SHADER_STAGE_VERTEX_BIT:
+        stage_name = "vertex";
+        break;
+    case VK_SHADER_STAGE_GEOMETRY_BIT:
+        stage_name = "geometry";
+        break;
+    case VK_SHADER_STAGE_FRAGMENT_BIT:
+        stage_name = "fragment";
+        break;
+    case VK_SHADER_STAGE_COMPUTE_BIT:
+        stage_name = "compute";
+        break;
+    default:
+        stage_name = "unknown";
+        break;
+    }
+
+    g_autofree char *glsl_name = g_strdup_printf(
+        "%s-%016" PRIx64 ".glsl", stage_name, info->spirv_hash);
+    g_autofree char *spv_name = g_strdup_printf(
+        "%s-%016" PRIx64 ".spv", stage_name, info->spirv_hash);
+    g_autofree char *glsl_path =
+        g_build_filename(r->perf.shader_dump_dir, glsl_name, NULL);
+    g_autofree char *spv_path =
+        g_build_filename(r->perf.shader_dump_dir, spv_name, NULL);
+
+    if (!g_file_test(glsl_path, G_FILE_TEST_EXISTS)) {
+        FILE *file = qemu_fopen(glsl_path, "w");
+        if (file != NULL) {
+            fwrite(info->glsl, 1, strlen(info->glsl), file);
+            fclose(file);
+        }
+    }
+    if (!g_file_test(spv_path, G_FILE_TEST_EXISTS)) {
+        FILE *file = qemu_fopen(spv_path, "wb");
+        if (file != NULL) {
+            fwrite(info->spirv->data, 1, info->spirv->len, file);
+            fclose(file);
+        }
+    }
+}
+
+void pgraph_vk_perf_begin_shader_query(PGRAPHVkState *r,
+                                        ShaderModuleInfo *fragment_shader)
+{
+    assert(!r->perf.shader_query_active);
+    if (r->perf.shader_stats_query_pool == VK_NULL_HANDLE) {
+        return;
+    }
+    if (r->perf.shader_query_count >= VK_PERF_MAX_SHADER_QUERIES) {
+        r->perf.shader_query_overflow_count++;
+        return;
+    }
+
+    uint32_t query = r->perf.shader_query_count++;
+    r->perf.shader_query_hashes[query] = fragment_shader->spirv_hash;
+    vkCmdBeginQuery(r->command_buffer, r->perf.shader_stats_query_pool,
+                    query, 0);
+    r->perf.shader_query_active = true;
+}
+
+void pgraph_vk_perf_end_shader_query(PGRAPHVkState *r)
+{
+    if (!r->perf.shader_query_active) {
+        return;
+    }
+    vkCmdEndQuery(r->command_buffer, r->perf.shader_stats_query_pool,
+                  r->perf.shader_query_count - 1);
+    r->perf.shader_query_active = false;
+}
+
+static PGRAPHVkShaderStats *find_shader_stats(PGRAPHVkPerfTelemetry *perf,
+                                               uint64_t spirv_hash)
+{
+    for (uint32_t i = 0; i < perf->shader_stats_count; i++) {
+        if (perf->shader_stats[i].spirv_hash == spirv_hash) {
+            return &perf->shader_stats[i];
+        }
+    }
+    if (perf->shader_stats_count >= VK_PERF_MAX_SHADER_STATS) {
+        perf->shader_stats_overflow_count++;
+        return NULL;
+    }
+    PGRAPHVkShaderStats *stats =
+        &perf->shader_stats[perf->shader_stats_count++];
+    stats->spirv_hash = spirv_hash;
+    return stats;
+}
+
+void pgraph_vk_perf_collect_shader_queries(PGRAPHVkState *r)
+{
+    PGRAPHVkPerfTelemetry *perf = &r->perf;
+    if (perf->shader_stats_query_pool == VK_NULL_HANDLE ||
+        perf->shader_query_count == 0) {
+        return;
+    }
+
+    size_t value_count =
+        perf->shader_query_count * VK_PERF_PIPELINE_STAT_COUNT;
+    g_autofree uint64_t *values = g_new(uint64_t, value_count);
+    VkResult result = vkGetQueryPoolResults(
+        r->device, perf->shader_stats_query_pool, 0,
+        perf->shader_query_count, value_count * sizeof(*values), values,
+        VK_PERF_PIPELINE_STAT_COUNT * sizeof(*values),
+        VK_QUERY_RESULT_64_BIT);
+    VK_CHECK(result);
+
+    for (uint32_t query = 0; query < perf->shader_query_count; query++) {
+        PGRAPHVkShaderStats *stats = find_shader_stats(
+            perf, perf->shader_query_hashes[query]);
+        if (stats == NULL) {
+            continue;
+        }
+        stats->draw_count++;
+        for (size_t i = 0; i < VK_PERF_PIPELINE_STAT_COUNT; i++) {
+            stats->pipeline_stats[i] +=
+                values[query * VK_PERF_PIPELINE_STAT_COUNT + i];
+        }
+    }
+    perf->shader_query_count = 0;
 }
 
 void pgraph_vk_perf_record_finish_call(PGRAPHVkState *r, FinishReason reason)
@@ -315,7 +469,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":5"
+            "{\"type\":\"frame\",\"schema_version\":6"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
@@ -403,7 +557,9 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"oldest_in_flight_serial\":%" PRIu64
             ",\"newest_submitted_serial\":%" PRIu64
             ",\"retirement_queue_objects\":%" PRIu64
-            ",\"retirement_queue_bytes\":%" PRIu64 "}\n",
+            ",\"retirement_queue_bytes\":%" PRIu64
+            ",\"shader_query_overflows_per_guest_frame\":%" PRIu64
+            ",\"shader_stats_overflows_per_guest_frame\":%" PRIu64,
             submit_count, perf->submit_info_count, perf->command_buffer_count,
             perf->staged_bytes, perf->vertex_staged_bytes,
             perf->vertex_staging_copy_count,
@@ -415,7 +571,23 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->in_flight_submission_count,
             perf->peak_in_flight_submission_count,
             perf->oldest_in_flight_serial, perf->newest_submitted_serial,
-            perf->retirement_queue_objects, perf->retirement_queue_bytes);
+            perf->retirement_queue_objects, perf->retirement_queue_bytes,
+            perf->shader_query_overflow_count,
+            perf->shader_stats_overflow_count);
+    fprintf(perf->file, ",\"fragment_shader_stats_per_guest_frame\":[");
+    for (uint32_t shader = 0; shader < perf->shader_stats_count; shader++) {
+        PGRAPHVkShaderStats *stats = &perf->shader_stats[shader];
+        fprintf(perf->file,
+                "%s{\"spirv_hash\":\"%016" PRIx64 "\""
+                ",\"draw_count\":%" PRIu64,
+                shader ? "," : "", stats->spirv_hash, stats->draw_count);
+        for (size_t stat = 0; stat < VK_PERF_PIPELINE_STAT_COUNT; stat++) {
+            fprintf(perf->file, ",\"%s\":%" PRIu64,
+                    pipeline_stat_names[stat], stats->pipeline_stats[stat]);
+        }
+        fputc('}', perf->file);
+    }
+    fprintf(perf->file, "]}\n");
 
     if (now - perf->last_flush_us >= G_USEC_PER_SEC) {
         fflush(perf->file);
@@ -424,6 +596,10 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
 
     memset(perf->finish, 0, sizeof(perf->finish));
     memset(perf->single_time, 0, sizeof(perf->single_time));
+    memset(perf->shader_stats, 0, sizeof(perf->shader_stats));
+    perf->shader_stats_count = 0;
+    perf->shader_query_overflow_count = 0;
+    perf->shader_stats_overflow_count = 0;
     perf->submit_info_count = 0;
     perf->command_buffer_count = 0;
     perf->staged_bytes = 0;
