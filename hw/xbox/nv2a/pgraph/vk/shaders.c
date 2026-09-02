@@ -36,7 +36,7 @@ static void create_descriptor_pool(PGRAPHState *pg)
 
     VkDescriptorPoolSize pool_sizes[] = {
         {
-            .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+            .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
             .descriptorCount = 2 * num_sets,
         },
         {
@@ -73,13 +73,13 @@ static void create_descriptor_set_layout(PGRAPHState *pg)
     bindings[0] = (VkDescriptorSetLayoutBinding){
         .binding = VSH_UBO_BINDING,
         .descriptorCount = 1,
-        .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+        .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
         .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
     };
     bindings[1] = (VkDescriptorSetLayoutBinding){
         .binding = PSH_UBO_BINDING,
         .descriptorCount = 1,
-        .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+        .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
         .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
     };
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
@@ -144,12 +144,9 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
     bool need_uniform_write =
         r->uniforms_changed ||
         !r->storage_buffers[BUFFER_UNIFORM_STAGING].buffer_offset;
-    bool need_descriptor_write =
-        r->shader_bindings_changed || r->texture_bindings_changed ||
-        r->descriptor_set_index == 0 ||
-        (!r->use_dynamic_uniform_offsets && need_uniform_write);
 
-    if (!need_descriptor_write && !need_uniform_write) {
+    if (!(r->shader_bindings_changed || r->texture_bindings_changed ||
+          (r->descriptor_set_index == 0) || need_uniform_write)) {
         return; // Nothing changed
     }
 
@@ -166,13 +163,12 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
                                         ubo_buffer_total_size,
                                         r->device_props.limits.minUniformBufferOffsetAlignment);
 
-    bool need_descriptor_write_reset = need_descriptor_write &&
-        r->descriptor_set_index >= ARRAY_SIZE(r->descriptor_sets);
+    bool need_descriptor_write_reset =
+        (r->descriptor_set_index >= ARRAY_SIZE(r->descriptor_sets));
 
     if (need_descriptor_write_reset || need_ubo_staging_buffer_reset) {
         pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
         need_uniform_write = true;
-        need_descriptor_write = true;
     }
 
     VkWriteDescriptorSet descriptor_writes[2 + NV2A_MAX_TEXTURES];
@@ -191,16 +187,11 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
         r->uniforms_changed = false;
     }
 
-    if (!need_descriptor_write) {
-        return;
-    }
-
     VkDescriptorBufferInfo ubo_buffer_infos[2];
     for (int i = 0; i < ARRAY_SIZE(layouts); i++) {
         ubo_buffer_infos[i] = (VkDescriptorBufferInfo){
             .buffer = r->storage_buffers[BUFFER_UNIFORM].buffer,
-            .offset = r->use_dynamic_uniform_offsets ?
-                0 : r->uniform_buffer_offsets[i],
+            .offset = r->uniform_buffer_offsets[i],
             .range = layouts[i]->total_size,
         };
         descriptor_writes[i] = (VkWriteDescriptorSet){
@@ -208,7 +199,7 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
             .dstSet = r->descriptor_sets[r->descriptor_set_index],
             .dstBinding = i == 0 ? VSH_UBO_BINDING : PSH_UBO_BINDING,
             .dstArrayElement = 0,
-            .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+            .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
             .descriptorCount = 1,
             .pBufferInfo = &ubo_buffer_infos[i],
         };
@@ -592,10 +583,6 @@ void pgraph_vk_init_shaders(PGRAPHState *pg)
     r->use_push_constants_for_uniform_attrs =
         (r->device_props.limits.maxPushConstantsSize >=
          MAX_UNIFORM_ATTR_VALUES_SIZE);
-    const char *dynamic_uniform_offsets =
-        g_getenv("XEMU_VK_DYNAMIC_UNIFORM_OFFSETS");
-    r->use_dynamic_uniform_offsets =
-        dynamic_uniform_offsets != NULL && dynamic_uniform_offsets[0] != '\0';
 }
 
 void pgraph_vk_finalize_shaders(PGRAPHState *pg)
