@@ -148,7 +148,7 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     }
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":6"
+            "{\"type\":\"schema\",\"schema_version\":7"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
             ",\"gpu_batch_timestamps\":{\"supported\":%s"
@@ -166,6 +166,9 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
             r->perf.shader_stats_query_pool != VK_NULL_HANDLE ?
                 "per_shader_draw" : "per_finish",
             VK_PERF_MAX_SHADER_QUERIES);
+    fprintf(r->perf.file,
+            ",\"shader_state_classification\":{"
+            "\"clip_region0_covers_scissor\":true}");
     write_names(r->perf.file, "finish_reasons", finish_reason_names,
                 ARRAY_SIZE(finish_reason_names));
     write_names(r->perf.file, "single_time_callers", single_time_reason_names,
@@ -250,9 +253,43 @@ void pgraph_vk_perf_dump_shader(PGRAPHVkState *r,
     }
 }
 
-void pgraph_vk_perf_begin_shader_query(PGRAPHVkState *r,
+static bool clip_region0_covers_scissor(PGRAPHState *pg)
+{
+    if (pgraph_reg_r(pg, NV_PGRAPH_SETUPRASTER) &
+        NV_PGRAPH_SETUPRASTER_WINDOWCLIPTYPE) {
+        return false;
+    }
+
+    unsigned int scissor_x_min = pg->surface_shape.clip_x;
+    unsigned int scissor_y_min = pg->surface_shape.clip_y;
+    unsigned int scissor_x_max =
+        scissor_x_min + pg->surface_shape.clip_width;
+    unsigned int scissor_y_max =
+        scissor_y_min + pg->surface_shape.clip_height;
+    pgraph_apply_anti_aliasing_factor(pg, &scissor_x_min, &scissor_y_min);
+    pgraph_apply_anti_aliasing_factor(pg, &scissor_x_max, &scissor_y_max);
+    pgraph_apply_scaling_factor(pg, &scissor_x_min, &scissor_y_min);
+    pgraph_apply_scaling_factor(pg, &scissor_x_max, &scissor_y_max);
+
+    uint32_t x = pgraph_reg_r(pg, NV_PGRAPH_WINDOWCLIPX0);
+    uint32_t y = pgraph_reg_r(pg, NV_PGRAPH_WINDOWCLIPY0);
+    unsigned int region_x_min = GET_MASK(x, NV_PGRAPH_WINDOWCLIPX0_XMIN);
+    unsigned int region_x_max = GET_MASK(x, NV_PGRAPH_WINDOWCLIPX0_XMAX) + 1;
+    unsigned int region_y_min = GET_MASK(y, NV_PGRAPH_WINDOWCLIPY0_YMIN);
+    unsigned int region_y_max = GET_MASK(y, NV_PGRAPH_WINDOWCLIPY0_YMAX) + 1;
+    pgraph_apply_anti_aliasing_factor(pg, &region_x_min, &region_y_min);
+    pgraph_apply_anti_aliasing_factor(pg, &region_x_max, &region_y_max);
+    pgraph_apply_scaling_factor(pg, &region_x_min, &region_y_min);
+    pgraph_apply_scaling_factor(pg, &region_x_max, &region_y_max);
+
+    return region_x_min <= scissor_x_min && region_y_min <= scissor_y_min &&
+           region_x_max >= scissor_x_max && region_y_max >= scissor_y_max;
+}
+
+void pgraph_vk_perf_begin_shader_query(PGRAPHState *pg,
                                         ShaderModuleInfo *fragment_shader)
 {
+    PGRAPHVkState *r = pg->vk_renderer_state;
     assert(!r->perf.shader_query_active);
     if (r->perf.shader_stats_query_pool == VK_NULL_HANDLE) {
         return;
@@ -264,6 +301,8 @@ void pgraph_vk_perf_begin_shader_query(PGRAPHVkState *r,
 
     uint32_t query = r->perf.shader_query_count++;
     r->perf.shader_query_hashes[query] = fragment_shader->spirv_hash;
+    r->perf.shader_query_clip_region0_covers_scissor[query] =
+        clip_region0_covers_scissor(pg);
     vkCmdBeginQuery(r->command_buffer, r->perf.shader_stats_query_pool,
                     query, 0);
     r->perf.shader_query_active = true;
@@ -325,6 +364,13 @@ void pgraph_vk_perf_collect_shader_queries(PGRAPHVkState *r)
         for (size_t i = 0; i < VK_PERF_PIPELINE_STAT_COUNT; i++) {
             stats->pipeline_stats[i] +=
                 values[query * VK_PERF_PIPELINE_STAT_COUNT + i];
+        }
+        if (perf->shader_query_clip_region0_covers_scissor[query]) {
+            stats->clip_region0_covers_scissor_draw_count++;
+            for (size_t i = 0; i < VK_PERF_PIPELINE_STAT_COUNT; i++) {
+                stats->clip_region0_covers_scissor_pipeline_stats[i] +=
+                    values[query * VK_PERF_PIPELINE_STAT_COUNT + i];
+            }
         }
     }
     perf->shader_query_count = 0;
@@ -469,7 +515,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":6"
+            "{\"type\":\"frame\",\"schema_version\":7"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
@@ -579,11 +625,17 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
         PGRAPHVkShaderStats *stats = &perf->shader_stats[shader];
         fprintf(perf->file,
                 "%s{\"spirv_hash\":\"%016" PRIx64 "\""
-                ",\"draw_count\":%" PRIu64,
-                shader ? "," : "", stats->spirv_hash, stats->draw_count);
+                ",\"draw_count\":%" PRIu64
+                ",\"clip_region0_covers_scissor_draw_count\":%" PRIu64,
+                shader ? "," : "", stats->spirv_hash, stats->draw_count,
+                stats->clip_region0_covers_scissor_draw_count);
         for (size_t stat = 0; stat < VK_PERF_PIPELINE_STAT_COUNT; stat++) {
             fprintf(perf->file, ",\"%s\":%" PRIu64,
                     pipeline_stat_names[stat], stats->pipeline_stats[stat]);
+            fprintf(perf->file,
+                    ",\"clip_region0_covers_scissor_%s\":%" PRIu64,
+                    pipeline_stat_names[stat],
+                    stats->clip_region0_covers_scissor_pipeline_stats[stat]);
         }
         fputc('}', perf->file);
     }

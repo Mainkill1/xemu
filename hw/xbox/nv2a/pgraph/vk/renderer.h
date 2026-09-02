@@ -386,6 +386,9 @@ typedef struct PGRAPHVkShaderStats {
     uint64_t spirv_hash;
     uint64_t draw_count;
     uint64_t pipeline_stats[VK_PERF_PIPELINE_STAT_COUNT];
+    uint64_t clip_region0_covers_scissor_draw_count;
+    uint64_t clip_region0_covers_scissor_pipeline_stats[
+        VK_PERF_PIPELINE_STAT_COUNT];
 } PGRAPHVkShaderStats;
 
 typedef struct PGRAPHVkPerfTelemetry {
@@ -396,6 +399,8 @@ typedef struct PGRAPHVkPerfTelemetry {
     VkQueryPool shader_stats_query_pool;
     char *shader_dump_dir;
     uint64_t shader_query_hashes[VK_PERF_MAX_SHADER_QUERIES];
+    bool shader_query_clip_region0_covers_scissor[
+        VK_PERF_MAX_SHADER_QUERIES];
     uint32_t shader_query_count;
     bool shader_query_active;
     PGRAPHVkShaderStats shader_stats[VK_PERF_MAX_SHADER_STATS];
@@ -634,7 +639,7 @@ void pgraph_vk_perf_record_vertex_staging_copy(PGRAPHVkState *r,
                                                 uint64_t bytes);
 void pgraph_vk_perf_record_vertex_staging_growth(PGRAPHVkState *r);
 void pgraph_vk_perf_record_vertex_staging_fallback(PGRAPHVkState *r);
-void pgraph_vk_perf_begin_shader_query(PGRAPHVkState *r,
+void pgraph_vk_perf_begin_shader_query(PGRAPHState *pg,
                                         ShaderModuleInfo *fragment_shader);
 void pgraph_vk_perf_end_shader_query(PGRAPHVkState *r);
 void pgraph_vk_perf_collect_shader_queries(PGRAPHVkState *r);

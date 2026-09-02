@@ -1698,8 +1698,8 @@ static void begin_draw(PGRAPHState *pg)
     }
 
     pgraph_vk_perf_begin_shader_query(
-        r, pg->clearing ? r->solid_frag_module :
-                          r->shader_binding->psh.module_info);
+        pg, pg->clearing ? r->solid_frag_module :
+                           r->shader_binding->psh.module_info);
 
     r->in_draw = true;
 }
