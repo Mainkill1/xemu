@@ -490,7 +490,9 @@ static void download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
         pgraph_vk_finish(pg, VK_FINISH_REASON_SURFACE_DOWN);
     } else {
         assert(cmd == r->aux_command_buffer);
-        pgraph_vk_end_single_time_commands(pg, cmd);
+        pgraph_vk_end_single_time_commands(
+            pg, cmd, VK_SINGLE_TIME_SURFACE_DOWNLOAD,
+            downloaded_image_size);
     }
 
     void *mapped_memory_ptr = NULL;
@@ -883,7 +885,8 @@ static void create_surface_image(PGRAPHState *pg, SurfaceBinding *surface)
 
     nv2a_profile_inc_counter(NV2A_PROF_QUEUE_SUBMIT_3);
     pgraph_vk_end_debug_marker(r, cmd);
-    pgraph_vk_end_single_time_commands(pg, cmd);
+    pgraph_vk_end_single_time_commands(
+        pg, cmd, VK_SINGLE_TIME_SURFACE_CREATE, 0);
     nv2a_profile_inc_counter(NV2A_PROF_SURF_CREATE);
 }
 
@@ -1336,7 +1339,8 @@ void pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
 
     nv2a_profile_inc_counter(NV2A_PROF_QUEUE_SUBMIT_2);
     pgraph_vk_end_debug_marker(r, cmd);
-    pgraph_vk_end_single_time_commands(pg, cmd);
+    pgraph_vk_end_single_time_commands(
+        pg, cmd, VK_SINGLE_TIME_SURFACE_UPLOAD, uploaded_image_size);
 
     surface->initialized = true;
 }

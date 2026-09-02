@@ -50,6 +50,7 @@ static void pgraph_vk_init(NV2AState *d, Error **errp)
         return;
     }
 
+    pgraph_vk_perf_init(pg->vk_renderer_state);
     pgraph_vk_init_command_buffers(pg);
     pgraph_vk_init_buffers(d);
     pgraph_vk_init_surfaces(pg);
@@ -79,6 +80,7 @@ static void pgraph_vk_finalize(NV2AState *d)
     pgraph_vk_finalize_surfaces(pg);
     pgraph_vk_finalize_buffers(d);
     pgraph_vk_finalize_command_buffers(pg);
+    pgraph_vk_perf_finalize(pg->vk_renderer_state);
     pgraph_vk_finalize_instance(pg);
 
     g_free(pg->vk_renderer_state);
@@ -145,6 +147,7 @@ static void pgraph_vk_process_pending(NV2AState *d)
 static void pgraph_vk_flip_stall(NV2AState *d)
 {
     pgraph_vk_finish(&d->pgraph, VK_FINISH_REASON_FLIP_STALL);
+    pgraph_vk_perf_frame(d->pgraph.vk_renderer_state);
     pgraph_vk_debug_frame_terminator();
 }
 

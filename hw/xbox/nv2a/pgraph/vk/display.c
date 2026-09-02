@@ -198,7 +198,9 @@ static void upload_pvideo_image(PGRAPHState *pg, PvideoState state)
                                       VK_FORMAT_R8G8B8A8_UNORM,
                                       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                       VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-    pgraph_vk_end_single_time_commands(pg, cmd);
+    pgraph_vk_end_single_time_commands(
+        pg, cmd, VK_SINGLE_TIME_PVIDEO_UPLOAD,
+        (uint64_t)state.in_width * state.in_height * 4);
 }
 
 static const char *display_frag_glsl =
@@ -1003,7 +1005,8 @@ static void render_display(PGRAPHState *pg, SurfaceBinding *surface,
                                       VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     pgraph_vk_end_debug_marker(r, cmd);
-    pgraph_vk_end_single_time_commands(pg, cmd);
+    pgraph_vk_end_single_time_commands(
+        pg, cmd, VK_SINGLE_TIME_DISPLAY_RENDER, 0);
     nv2a_profile_inc_counter(NV2A_PROF_QUEUE_SUBMIT_5);
 
     disp->draw_time = surface->draw_time;
