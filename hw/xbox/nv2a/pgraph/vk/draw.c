@@ -1331,12 +1331,14 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         };
         nv2a_profile_inc_counter(NV2A_PROF_QUEUE_SUBMIT);
         vkResetFences(r->device, 1, &r->command_buffer_fence);
-        int64_t submit_start = r->perf.enabled ?
+        bool time_submit =
+            pgraph_vk_perf_should_time_finish(r, finish_reason);
+        int64_t submit_start = time_submit ?
             qemu_clock_get_us(QEMU_CLOCK_REALTIME) : 0;
         VkResult result = vkQueueSubmit(
             r->queue, ARRAY_SIZE(submit_infos), submit_infos,
             r->command_buffer_fence);
-        uint64_t submit_cpu_us = r->perf.enabled ?
+        uint64_t submit_cpu_us = time_submit ?
             MAX(qemu_clock_get_us(QEMU_CLOCK_REALTIME) - submit_start, 0) : 0;
         VK_CHECK(result);
         nv2a_profile_log_event_once("gpu_submit");
@@ -1356,15 +1358,15 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
             check_budget = true;
         }
 
-        int64_t wait_start = r->perf.enabled ?
+        int64_t wait_start = time_submit ?
             qemu_clock_get_us(QEMU_CLOCK_REALTIME) : 0;
         result = vkWaitForFences(r->device, 1, &r->command_buffer_fence,
                                  VK_TRUE, UINT64_MAX);
-        uint64_t wait_us = r->perf.enabled ?
+        uint64_t wait_us = time_submit ?
             MAX(qemu_clock_get_us(QEMU_CLOCK_REALTIME) - wait_start, 0) : 0;
         VK_CHECK(result);
         pgraph_vk_perf_record_finish_submit(
-            r, finish_reason, submit_cpu_us, wait_us, staged_bytes,
+            r, finish_reason, time_submit, submit_cpu_us, wait_us, staged_bytes,
             ARRAY_SIZE(submit_infos), 2);
 
         r->descriptor_set_index = 0;

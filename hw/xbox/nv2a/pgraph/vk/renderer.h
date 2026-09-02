@@ -364,6 +364,7 @@ typedef enum SingleTimeReason {
 typedef struct PGRAPHVkWaitStats {
     uint64_t call_count;
     uint64_t submit_count;
+    uint64_t timed_submit_count;
     uint64_t submit_cpu_us;
     uint64_t wait_count;
     uint64_t wait_us;
@@ -572,8 +573,10 @@ void pgraph_vk_end_single_time_commands(PGRAPHState *pg, VkCommandBuffer cmd,
 void pgraph_vk_perf_init(PGRAPHVkState *r);
 void pgraph_vk_perf_finalize(PGRAPHVkState *r);
 void pgraph_vk_perf_record_finish_call(PGRAPHVkState *r, FinishReason reason);
+bool pgraph_vk_perf_should_time_finish(PGRAPHVkState *r, FinishReason reason);
 void pgraph_vk_perf_record_finish_submit(PGRAPHVkState *r,
                                          FinishReason reason,
+                                         bool timed,
                                          uint64_t submit_cpu_us,
                                          uint64_t wait_us,
                                          uint64_t staged_bytes,
