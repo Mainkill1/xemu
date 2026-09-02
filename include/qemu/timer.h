@@ -767,6 +767,15 @@ int qemu_timeout_ns_to_ms(int64_t ns);
 int qemu_poll_ns(GPollFD *fds, guint nfds, int64_t timeout);
 
 /**
+ * qemu_set_timer_busy_wait_enabled:
+ * @enabled: whether short host timer waits may busy-wait
+ *
+ * Enable or disable busy-waiting for short host timer deadlines. Disabling
+ * it reduces host CPU use at the possible cost of timer precision.
+ */
+void qemu_set_timer_busy_wait_enabled(bool enabled);
+
+/**
  * qemu_soonest_timeout:
  * @timeout1: first timeout in nanoseconds (or -1 for infinite)
  * @timeout2: second timeout in nanoseconds (or -1 for infinite)
