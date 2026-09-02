@@ -336,6 +336,58 @@ typedef struct PGRAPHVkComputeState {
     ComputePipeline *pipeline_cache_entries;
 } PGRAPHVkComputeState;
 
+typedef enum FinishReason {
+    VK_FINISH_REASON_VERTEX_BUFFER_DIRTY,
+    VK_FINISH_REASON_SURFACE_CREATE,
+    VK_FINISH_REASON_SURFACE_DOWN,
+    VK_FINISH_REASON_NEED_BUFFER_SPACE,
+    VK_FINISH_REASON_FRAMEBUFFER_DIRTY,
+    VK_FINISH_REASON_PRESENTING,
+    VK_FINISH_REASON_FLIP_STALL,
+    VK_FINISH_REASON_FLUSH,
+    VK_FINISH_REASON_STALLED,
+    VK_FINISH_REASON_TEXTURE_DIRTY,
+    VK_FINISH_REASON_COUNT,
+} FinishReason;
+
+typedef enum SingleTimeReason {
+    VK_SINGLE_TIME_PVIDEO_UPLOAD,
+    VK_SINGLE_TIME_DISPLAY_RENDER,
+    VK_SINGLE_TIME_SURFACE_DOWNLOAD,
+    VK_SINGLE_TIME_SURFACE_CREATE,
+    VK_SINGLE_TIME_SURFACE_UPLOAD,
+    VK_SINGLE_TIME_TEXTURE_UPLOAD,
+    VK_SINGLE_TIME_DUMMY_TEXTURE_CREATE,
+    VK_SINGLE_TIME_REASON_COUNT,
+} SingleTimeReason;
+
+typedef struct PGRAPHVkWaitStats {
+    uint64_t call_count;
+    uint64_t submit_count;
+    uint64_t submit_cpu_us;
+    uint64_t wait_count;
+    uint64_t wait_us;
+} PGRAPHVkWaitStats;
+
+typedef struct PGRAPHVkPerfTelemetry {
+    FILE *file;
+    bool enabled;
+    uint64_t frame;
+    int64_t last_flush_us;
+    PGRAPHVkWaitStats finish[VK_FINISH_REASON_COUNT];
+    PGRAPHVkWaitStats single_time[VK_SINGLE_TIME_REASON_COUNT];
+    uint64_t submit_info_count;
+    uint64_t command_buffer_count;
+    uint64_t staged_bytes;
+    uint64_t in_flight_submission_count;
+    uint64_t peak_in_flight_submission_count;
+    uint64_t oldest_in_flight_serial;
+    uint64_t newest_submitted_serial;
+    uint64_t submission_serial;
+    uint64_t retirement_queue_objects;
+    uint64_t retirement_queue_bytes;
+} PGRAPHVkPerfTelemetry;
+
 typedef struct PGRAPHVkState {
     uint32_t vk_api_version;
     VkInstance instance;
@@ -368,6 +420,8 @@ typedef struct PGRAPHVkState {
 
     VkCommandBuffer aux_command_buffer;
     bool in_aux_command_buffer;
+
+    PGRAPHVkPerfTelemetry perf;
 
     uint64_t next_surface_lifetime_id;
 
@@ -510,7 +564,27 @@ VkDeviceSize pgraph_vk_append_to_buffer(PGRAPHState *pg, int index, void **data,
 void pgraph_vk_init_command_buffers(PGRAPHState *pg);
 void pgraph_vk_finalize_command_buffers(PGRAPHState *pg);
 VkCommandBuffer pgraph_vk_begin_single_time_commands(PGRAPHState *pg);
-void pgraph_vk_end_single_time_commands(PGRAPHState *pg, VkCommandBuffer cmd);
+void pgraph_vk_end_single_time_commands(PGRAPHState *pg, VkCommandBuffer cmd,
+                                        SingleTimeReason reason,
+                                        uint64_t staged_bytes);
+
+// perf.c
+void pgraph_vk_perf_init(PGRAPHVkState *r);
+void pgraph_vk_perf_finalize(PGRAPHVkState *r);
+void pgraph_vk_perf_record_finish_call(PGRAPHVkState *r, FinishReason reason);
+void pgraph_vk_perf_record_finish_submit(PGRAPHVkState *r,
+                                         FinishReason reason,
+                                         uint64_t submit_cpu_us,
+                                         uint64_t wait_us,
+                                         uint64_t staged_bytes,
+                                         uint64_t submit_info_count,
+                                         uint64_t command_buffer_count);
+void pgraph_vk_perf_record_single_time_submit(PGRAPHVkState *r,
+                                               SingleTimeReason reason,
+                                               uint64_t submit_cpu_us,
+                                               uint64_t wait_us,
+                                               uint64_t staged_bytes);
+void pgraph_vk_perf_frame(PGRAPHVkState *r);
 
 // image.c
 void pgraph_vk_transition_image_layout(PGRAPHState *pg, VkCommandBuffer cmd,
@@ -591,19 +665,6 @@ void pgraph_vk_clear_report_value(NV2AState *d);
 void pgraph_vk_get_report(NV2AState *d, uint32_t parameter);
 void pgraph_vk_process_pending_reports(NV2AState *d);
 void pgraph_vk_process_pending_reports_internal(NV2AState *d);
-
-typedef enum FinishReason {
-    VK_FINISH_REASON_VERTEX_BUFFER_DIRTY,
-    VK_FINISH_REASON_SURFACE_CREATE,
-    VK_FINISH_REASON_SURFACE_DOWN,
-    VK_FINISH_REASON_NEED_BUFFER_SPACE,
-    VK_FINISH_REASON_FRAMEBUFFER_DIRTY,
-    VK_FINISH_REASON_PRESENTING,
-    VK_FINISH_REASON_FLIP_STALL,
-    VK_FINISH_REASON_FLUSH,
-    VK_FINISH_REASON_STALLED,
-    VK_FINISH_REASON_TEXTURE_DIRTY,
-} FinishReason;
 
 // draw.c
 void pgraph_vk_init_pipelines(PGRAPHState *pg);
