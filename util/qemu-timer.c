@@ -320,6 +320,13 @@ int qemu_timeout_ns_to_ms(int64_t ns)
 }
 
 
+static bool timer_busy_wait_enabled = true;
+
+void qemu_set_timer_busy_wait_enabled(bool enabled)
+{
+    qatomic_set(&timer_busy_wait_enabled, enabled);
+}
+
 /* qemu implementation of g_poll which uses a nanosecond timeout but is
  * otherwise identical to g_poll
  */
@@ -348,7 +355,8 @@ int qemu_poll_ns(GPollFD *fds, guint nfds, int64_t timeout)
      * near, to avoid missing deadlines due to costly sleeps.
      */
     #define XBOX_BUSYWAIT_THRESHOLD_NS 1250000
-    if ((0 < timeout) && (timeout < XBOX_BUSYWAIT_THRESHOLD_NS)) {
+    if (qatomic_read(&timer_busy_wait_enabled) && (0 < timeout) &&
+        (timeout < XBOX_BUSYWAIT_THRESHOLD_NS)) {
         int64_t now = qemu_clock_get_ns(QEMU_CLOCK_REALTIME);
         int64_t end = now + timeout;
         while (now < end) {
