@@ -525,6 +525,8 @@ static void download_surface(NV2AState *d, SurfaceBinding *surface, bool force)
         return;
     }
 
+    nv2a_profile_log_event_once("readback");
+
     // FIXME: Respect write enable at last TOU?
 
     download_surface_to_buffer(d, surface, d->vram_ptr + surface->vram_addr);

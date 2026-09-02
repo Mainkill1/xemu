@@ -1325,6 +1325,7 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         vkResetFences(r->device, 1, &r->command_buffer_fence);
         VK_CHECK(vkQueueSubmit(r->queue, ARRAY_SIZE(submit_infos), submit_infos,
                                r->command_buffer_fence));
+        nv2a_profile_log_event_once("gpu_submit");
         r->submit_count += 1;
 
         bool check_budget = false;
