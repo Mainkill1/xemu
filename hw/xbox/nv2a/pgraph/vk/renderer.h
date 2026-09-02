@@ -204,6 +204,7 @@ typedef struct ShaderBinding {
 
 typedef struct TextureKey {
     TextureShape state;
+    VkFormat vk_format;
     hwaddr texture_vram_offset;
     hwaddr texture_length;
     hwaddr palette_vram_offset;
@@ -228,6 +229,14 @@ typedef struct TextureBinding {
     unsigned int draw_time;
     uint32_t submit_time;
 } TextureBinding;
+
+#define NV2A_VK_NATIVE_BC_FORMAT_COUNT 3
+
+typedef struct NativeBCFormatSupport {
+    VkFormatProperties format_properties;
+    VkImageFormatProperties image_properties[2];
+    bool image_supported[2];
+} NativeBCFormatSupport;
 
 typedef struct QueryReport {
     QSIMPLEQ_ENTRY(QueryReport) entry;
@@ -385,6 +394,14 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t vertex_staging_copy_count;
     uint64_t vertex_staging_capacity_growth_count;
     uint64_t vertex_staging_fallback_finish_count;
+    uint64_t native_bc_upload_count;
+    uint64_t native_bc_source_bytes;
+    uint64_t native_bc_staged_bytes;
+    uint64_t native_bc_prepare_cpu_us;
+    uint64_t decoded_bc_upload_count;
+    uint64_t decoded_bc_source_bytes;
+    uint64_t decoded_bc_staged_bytes;
+    uint64_t decoded_bc_prepare_cpu_us;
     uint64_t in_flight_submission_count;
     uint64_t peak_in_flight_submission_count;
     uint64_t oldest_in_flight_serial;
@@ -478,6 +495,8 @@ typedef struct PGRAPHVkState {
     TextureBinding dummy_texture;
     bool texture_bindings_changed;
     VkFormatProperties *texture_format_properties;
+    NativeBCFormatSupport
+        native_bc_format_support[NV2A_VK_NATIVE_BC_FORMAT_COUNT];
 
     Lru shader_cache;
     ShaderBinding *shader_cache_entries;
@@ -596,6 +615,10 @@ void pgraph_vk_perf_record_vertex_staging_copy(PGRAPHVkState *r,
                                                 uint64_t bytes);
 void pgraph_vk_perf_record_vertex_staging_growth(PGRAPHVkState *r);
 void pgraph_vk_perf_record_vertex_staging_fallback(PGRAPHVkState *r);
+void pgraph_vk_perf_record_bc_upload(PGRAPHVkState *r, bool native,
+                                     uint64_t source_bytes,
+                                     uint64_t staged_bytes,
+                                     uint64_t prepare_cpu_us);
 void pgraph_vk_perf_frame(PGRAPHVkState *r);
 
 // image.c
