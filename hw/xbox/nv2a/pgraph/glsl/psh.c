@@ -981,20 +981,49 @@ static MString* psh_convert(struct PixelShader *ps)
     if (!ps->state->window_clip_exclusive) {
         mstring_append(clip, "bool clipContained = false;\n");
     }
-    mstring_append(clip, "vec2 coord = gl_FragCoord.xy - 0.5;\n"
-                         "for (int i = 0; i < 8; i++) {\n"
-                         "  bool outside = any(bvec4(\n"
-                         "      lessThan(coord, vec2(clipRegion[i].xy)),\n"
-                         "      greaterThanEqual(coord, vec2(clipRegion[i].zw))));\n"
-                         "  if (!outside) {\n");
-    if (ps->state->window_clip_exclusive) {
-        mstring_append(clip, "    discard;\n");
+    mstring_append(clip, "vec2 coord = gl_FragCoord.xy - 0.5;\n");
+    if (ps->opts.peel_window_clip_region_zero) {
+        mstring_append(clip,
+                       "bool outside0 = any(bvec4(\n"
+                       "    lessThan(coord, vec2(clipRegion[0].xy)),\n"
+                       "    greaterThanEqual(coord, vec2(clipRegion[0].zw))));\n"
+                       "if (!outside0) {\n");
+        if (ps->state->window_clip_exclusive) {
+            mstring_append(clip, "  discard;\n");
+        } else {
+            mstring_append(clip, "  clipContained = true;\n");
+        }
+        mstring_append(clip, "} else {\n"
+                             "  for (int i = 1; i < 8; i++) {\n"
+                             "    bool outside = any(bvec4(\n"
+                             "        lessThan(coord, vec2(clipRegion[i].xy)),\n"
+                             "        greaterThanEqual(coord, vec2(clipRegion[i].zw))));\n"
+                             "    if (!outside) {\n");
     } else {
-        mstring_append(clip, "    clipContained = true;\n"
-                             "    break;\n");
+        mstring_append(clip, "for (int i = 0; i < 8; i++) {\n"
+                             "  bool outside = any(bvec4(\n"
+                             "      lessThan(coord, vec2(clipRegion[i].xy)),\n"
+                             "      greaterThanEqual(coord, vec2(clipRegion[i].zw))));\n"
+                             "  if (!outside) {\n");
     }
-    mstring_append(clip, "  }\n"
-                         "}\n");
+    if (ps->state->window_clip_exclusive) {
+        mstring_append(clip, ps->opts.peel_window_clip_region_zero ?
+                                 "      discard;\n" : "    discard;\n");
+    } else {
+        mstring_append(clip, ps->opts.peel_window_clip_region_zero ?
+                                 "      clipContained = true;\n"
+                                 "      break;\n" :
+                                 "    clipContained = true;\n"
+                                 "    break;\n");
+    }
+    if (ps->opts.peel_window_clip_region_zero) {
+        mstring_append(clip, "    }\n"
+                             "  }\n"
+                             "}\n");
+    } else {
+        mstring_append(clip, "  }\n"
+                             "}\n");
+    }
     if (!ps->state->window_clip_exclusive) {
         mstring_append(clip, "if (!clipContained) {\n"
                              "  discard;\n"
