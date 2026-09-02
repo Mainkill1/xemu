@@ -77,7 +77,7 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":3"
+            "{\"type\":\"schema\",\"schema_version\":4"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}",
             VK_PERF_INITIAL_TIMED_SUBMITS, VK_PERF_HOT_SAMPLE_STRIDE);
@@ -194,6 +194,27 @@ void pgraph_vk_perf_record_vertex_staging_fallback(PGRAPHVkState *r)
     }
 }
 
+void pgraph_vk_perf_record_bc_upload(PGRAPHVkState *r, bool native,
+                                     uint64_t source_bytes,
+                                     uint64_t staged_bytes,
+                                     uint64_t prepare_cpu_us)
+{
+    if (!r->perf.enabled) {
+        return;
+    }
+    if (native) {
+        r->perf.native_bc_upload_count++;
+        r->perf.native_bc_source_bytes += source_bytes;
+        r->perf.native_bc_staged_bytes += staged_bytes;
+        r->perf.native_bc_prepare_cpu_us += prepare_cpu_us;
+    } else {
+        r->perf.decoded_bc_upload_count++;
+        r->perf.decoded_bc_source_bytes += source_bytes;
+        r->perf.decoded_bc_staged_bytes += staged_bytes;
+        r->perf.decoded_bc_prepare_cpu_us += prepare_cpu_us;
+    }
+}
+
 void pgraph_vk_perf_frame(PGRAPHVkState *r)
 {
     PGRAPHVkPerfTelemetry *perf = &r->perf;
@@ -217,7 +238,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":3"
+            "{\"type\":\"frame\",\"schema_version\":4"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
@@ -268,6 +289,14 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"vertex_staging_capacity_bytes\":%zu"
             ",\"vertex_staging_capacity_growths_per_guest_frame\":%" PRIu64
             ",\"vertex_staging_fallback_finishes_per_guest_frame\":%" PRIu64
+            ",\"native_bc_uploads_per_guest_frame\":%" PRIu64
+            ",\"native_bc_source_bytes_per_guest_frame\":%" PRIu64
+            ",\"native_bc_staged_bytes_per_guest_frame\":%" PRIu64
+            ",\"native_bc_prepare_cpu_us_per_guest_frame\":%" PRIu64
+            ",\"decoded_bc_uploads_per_guest_frame\":%" PRIu64
+            ",\"decoded_bc_source_bytes_per_guest_frame\":%" PRIu64
+            ",\"decoded_bc_staged_bytes_per_guest_frame\":%" PRIu64
+            ",\"decoded_bc_prepare_cpu_us_per_guest_frame\":%" PRIu64
             ",\"staged_bytes_per_submit\":%.3f"
             ",\"submit_infos_per_submit\":%.3f"
             ",\"command_buffers_per_submit\":%.3f"
@@ -283,6 +312,10 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             r->storage_buffers[BUFFER_VERTEX_RAM_STAGING].buffer_size,
             perf->vertex_staging_capacity_growth_count,
             perf->vertex_staging_fallback_finish_count,
+            perf->native_bc_upload_count, perf->native_bc_source_bytes,
+            perf->native_bc_staged_bytes, perf->native_bc_prepare_cpu_us,
+            perf->decoded_bc_upload_count, perf->decoded_bc_source_bytes,
+            perf->decoded_bc_staged_bytes, perf->decoded_bc_prepare_cpu_us,
             staged_bytes_per_submit,
             submit_infos_per_submit, command_buffers_per_submit,
             perf->in_flight_submission_count,
@@ -304,6 +337,14 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->vertex_staging_copy_count = 0;
     perf->vertex_staging_capacity_growth_count = 0;
     perf->vertex_staging_fallback_finish_count = 0;
+    perf->native_bc_upload_count = 0;
+    perf->native_bc_source_bytes = 0;
+    perf->native_bc_staged_bytes = 0;
+    perf->native_bc_prepare_cpu_us = 0;
+    perf->decoded_bc_upload_count = 0;
+    perf->decoded_bc_source_bytes = 0;
+    perf->decoded_bc_staged_bytes = 0;
+    perf->decoded_bc_prepare_cpu_us = 0;
     perf->peak_in_flight_submission_count =
         perf->in_flight_submission_count;
     perf->oldest_in_flight_serial = 0;

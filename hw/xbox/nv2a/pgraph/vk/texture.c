@@ -28,6 +28,7 @@
 #include "hw/xbox/nv2a/pgraph/swizzle.h"
 #include "qemu/fast-hash.h"
 #include "qemu/lru.h"
+#include "bc-layout.h"
 #include "renderer.h"
 
 static void texture_cache_release_node_resources(PGRAPHVkState *r, TextureBinding *snode);
@@ -59,6 +60,7 @@ typedef struct TextureLevel {
     hwaddr vram_addr;
     void *decoded_data;
     size_t decoded_size;
+    bool owns_data;
 } TextureLevel;
 
 typedef struct TextureLayer {
@@ -82,6 +84,94 @@ static enum S3TC_DECOMPRESS_FORMAT kelvin_format_to_s3tc_format(int color_format
     default:
         assert(!"Invalid texture color format");
     }
+}
+
+static const VkFormat native_bc_formats[NV2A_VK_NATIVE_BC_FORMAT_COUNT] = {
+    VK_FORMAT_BC1_RGBA_UNORM_BLOCK,
+    VK_FORMAT_BC2_UNORM_BLOCK,
+    VK_FORMAT_BC3_UNORM_BLOCK,
+};
+
+static int kelvin_format_to_native_bc_index(int color_format)
+{
+    switch (color_format) {
+    case NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT1_A1R5G5B5:
+        return 0;
+    case NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT23_A8R8G8B8:
+        return 1;
+    case NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT45_A8R8G8B8:
+        return 2;
+    default:
+        return -1;
+    }
+}
+
+static VkFormat kelvin_format_to_native_bc_format(int color_format)
+{
+    int index = kelvin_format_to_native_bc_index(color_format);
+    return index < 0 ? VK_FORMAT_UNDEFINED : native_bc_formats[index];
+}
+
+static bool texture_filter_requires_linear(uint32_t filter)
+{
+    unsigned int mag_filter =
+        GET_MASK(filter, NV_PGRAPH_TEXFILTER0_MAG);
+    unsigned int min_filter =
+        GET_MASK(filter, NV_PGRAPH_TEXFILTER0_MIN);
+
+    assert(mag_filter < ARRAY_SIZE(pgraph_texture_mag_filter_vk_map));
+    assert(min_filter < ARRAY_SIZE(pgraph_texture_min_filter_vk_map));
+
+    return pgraph_texture_mag_filter_vk_map[mag_filter] == VK_FILTER_LINEAR ||
+           pgraph_texture_min_filter_vk_map[min_filter] == VK_FILTER_LINEAR;
+}
+
+static bool can_upload_native_bc(PGRAPHVkState *r, const TextureShape *state,
+                                 uint32_t filter, VkFormat *format)
+{
+    int bc_index = kelvin_format_to_native_bc_index(state->color_format);
+
+    /*
+     * The guest's bordered and volume layouts cannot be represented by a
+     * direct BC buffer-to-image copy. Surface aliases must also keep using
+     * the decoded format so image-to-image copies remain compatible.
+     */
+    if (bc_index < 0 || state->dimensionality != 2 || state->depth != 1 ||
+        (state->cubemap && state->width != state->height) || state->border ||
+        !r->enabled_physical_device_features.textureCompressionBC) {
+        return false;
+    }
+
+    NativeBCFormatSupport *support = &r->native_bc_format_support[bc_index];
+    bool cube = state->cubemap;
+    if (!support->image_supported[cube]) {
+        return false;
+    }
+
+    VkFormatFeatureFlags required_features =
+        VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT |
+        VK_FORMAT_FEATURE_TRANSFER_DST_BIT;
+    if (texture_filter_requires_linear(filter)) {
+        required_features |= VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT;
+    }
+    VkFormatFeatureFlags available_features =
+        support->format_properties.optimalTilingFeatures;
+    if ((available_features & required_features) != required_features) {
+        return false;
+    }
+
+    VkImageFormatProperties *image_properties =
+        &support->image_properties[cube];
+    if (state->width > image_properties->maxExtent.width ||
+        state->height > image_properties->maxExtent.height ||
+        state->levels > image_properties->maxMipLevels ||
+        (state->cubemap ? 6 : 1) > image_properties->maxArrayLayers ||
+        !(image_properties->sampleCounts & VK_SAMPLE_COUNT_1_BIT)) {
+        return false;
+    }
+
+    *format = native_bc_formats[bc_index];
+    return true;
 }
 
 // FIXME: Move to common
@@ -143,8 +233,10 @@ static size_t get_cubemap_layer_size(PGRAPHState *pg, TextureShape s)
     }
 
     for (int level = 0; level < s.levels; level++) {
+        w = MAX(w, 1);
+        h = MAX(h, 1);
         if (is_compressed) {
-            length += w / 4 * h / 4 * block_size;
+            length += pgraph_vk_bc_mip_size(w, h, block_size);
         } else {
             length += w * h * f.bytes_per_pixel;
         }
@@ -160,7 +252,8 @@ static size_t get_cubemap_layer_size(PGRAPHState *pg, TextureShape s)
 // FIXME: More refactoring
 // FIXME: Possible parallelization of decoding
 // FIXME: Bounds checking
-static TextureLayout *get_texture_layout(PGRAPHState *pg, int texture_idx)
+static TextureLayout *get_texture_layout(PGRAPHState *pg, int texture_idx,
+                                         bool native_bc)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
     TextureShape s = pgraph_get_texture_shape(pg, texture_idx);
@@ -235,6 +328,7 @@ static TextureLayout *get_texture_layout(PGRAPHState *pg, int texture_idx)
             .depth = 1,
             .decoded_size = converted_size,
             .decoded_data = converted,
+            .owns_data = true,
         };
 
         NV2A_VK_DGROUP_END();
@@ -265,14 +359,23 @@ static TextureLayout *get_texture_layout(PGRAPHState *pg, int texture_idx)
                 if (is_compressed) {
                     // https://docs.microsoft.com/en-us/windows/win32/direct3d10/d3d10-graphics-programming-guide-resources-block-compression#virtual-size-versus-physical-size
                     unsigned int tex_width = width, tex_height = height;
-                    unsigned int physical_width = (width + 3) & ~3,
-                                 physical_height = (height + 3) & ~3;
-
-                    size_t converted_size = width * height * 4;
-                    uint8_t *converted = s3tc_decompress_2d(
-                        kelvin_format_to_s3tc_format(s.color_format),
-                        texture_data_ptr, width, height);
-                    assert(converted);
+                    size_t source_size =
+                        pgraph_vk_bc_mip_size(width, height, block_size);
+                    size_t converted_size;
+                    uint8_t *converted;
+                    bool owns_data;
+                    if (native_bc) {
+                        converted_size = source_size;
+                        converted = texture_data_ptr;
+                        owns_data = false;
+                    } else {
+                        converted_size = width * height * 4;
+                        converted = s3tc_decompress_2d(
+                            kelvin_format_to_s3tc_format(s.color_format),
+                            texture_data_ptr, width, height);
+                        assert(converted);
+                        owns_data = true;
+                    }
 
                     if (s.cubemap && adjusted_width != s.width) {
                         // FIXME: Consider preserving the border.
@@ -283,10 +386,6 @@ static TextureLayout *get_texture_layout(PGRAPHState *pg, int texture_idx)
                         // glPixelStorei(GL_UNPACK_SKIP_ROWS, 4);
                         tex_width = s.width;
                         tex_height = s.height;
-                        // if (physical_width == width) {
-                        //     glPixelStorei(GL_UNPACK_ROW_LENGTH, adjusted_width);
-                        // }
-
                         // FIXME: Crop by 4 pixels on each side
                     }
 
@@ -296,10 +395,10 @@ static TextureLayout *get_texture_layout(PGRAPHState *pg, int texture_idx)
                         .depth = 1,
                         .decoded_size = converted_size,
                         .decoded_data = converted,
+                        .owns_data = owns_data,
                     };
 
-                    texture_data_ptr +=
-                        physical_width / 4 * physical_height / 4 * block_size;
+                    texture_data_ptr += source_size;
                 } else {
                     unsigned int pitch = width * f.bytes_per_pixel;
                     unsigned int tex_width = width, tex_height = height;
@@ -337,6 +436,7 @@ static TextureLayout *get_texture_layout(PGRAPHState *pg, int texture_idx)
                         .depth = 1,
                         .decoded_size = converted_size,
                         .decoded_data = converted,
+                        .owns_data = true,
                     };
 
                     texture_data_ptr += width * height * f.bytes_per_pixel;
@@ -355,8 +455,6 @@ static TextureLayout *get_texture_layout(PGRAPHState *pg, int texture_idx)
             if (is_compressed) {
                 width = MAX(width, 1);
                 height = MAX(height, 1);
-                unsigned int physical_width = (width + 3) & ~3,
-                             physical_height = (height + 3) & ~3;
                 depth = MAX(depth, 1);
 
                 size_t converted_size = width * height * depth * 4;
@@ -371,9 +469,11 @@ static TextureLayout *get_texture_layout(PGRAPHState *pg, int texture_idx)
                     .depth = depth,
                     .decoded_size = converted_size,
                     .decoded_data = converted,
+                    .owns_data = true,
                 };
 
-                texture_data_ptr += physical_width / 4 * physical_height / 4 * depth * block_size;
+                texture_data_ptr +=
+                    pgraph_vk_bc_mip_size(width, height, block_size) * depth;
             } else {
                 width = MAX(width, 1);
                 height = MAX(height, 1);
@@ -406,6 +506,7 @@ static TextureLayout *get_texture_layout(PGRAPHState *pg, int texture_idx)
                     .depth = depth,
                     .decoded_size = converted_size,
                     .decoded_data = converted,
+                    .owns_data = true,
                 };
 
                 texture_data_ptr += width * height * depth * f.bytes_per_pixel;
@@ -501,11 +602,17 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     TextureShape *state = &binding->key.state;
-    VkColorFormatInfo vkf = kelvin_color_format_vk_map[state->color_format];
+    VkFormat vk_format = binding->key.vk_format;
 
     nv2a_profile_inc_counter(NV2A_PROF_TEX_UPLOAD);
 
-    g_autofree TextureLayout *layout = get_texture_layout(pg, texture_idx);
+    bool native_bc =
+        vk_format == kelvin_format_to_native_bc_format(state->color_format);
+    bool is_bc = kelvin_format_to_native_bc_index(state->color_format) >= 0;
+    int64_t bc_prepare_start_us =
+        is_bc && r->perf.enabled ? g_get_monotonic_time() : 0;
+    g_autofree TextureLayout *layout =
+        get_texture_layout(pg, texture_idx, native_bc);
     const int num_layers = state->cubemap ? 6 : 1;
 
     // Calculate decoded texture data size
@@ -581,6 +688,12 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
     vmaFlushAllocation(r->allocator, staging_buffer->allocation,
                        staging_offset, texture_data_size);
 
+    if (is_bc) {
+        pgraph_vk_perf_record_bc_upload(
+            r, native_bc, binding->key.texture_length, texture_data_size,
+            r->perf.enabled ? g_get_monotonic_time() - bc_prepare_start_us : 0);
+    }
+
     VkCommandBuffer cmd = pgraph_vk_begin_nondraw_commands(pg);
     pgraph_vk_begin_debug_marker(r, cmd, RGBA_GREEN, __func__);
 
@@ -598,7 +711,7 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
                          VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, NULL, 1,
                          &host_barrier, 0, NULL);
 
-    pgraph_vk_transition_image_layout(pg, cmd, binding->image, vkf.vk_format,
+    pgraph_vk_transition_image_layout(pg, cmd, binding->image, vk_format,
                                       binding->current_layout,
                                       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
     binding->current_layout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
@@ -607,7 +720,7 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
                            binding->image, binding->current_layout,
                            num_regions, regions);
 
-    pgraph_vk_transition_image_layout(pg, cmd, binding->image, vkf.vk_format,
+    pgraph_vk_transition_image_layout(pg, cmd, binding->image, vk_format,
                                       binding->current_layout,
                                       VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     binding->current_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -619,7 +732,9 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
     for (int layer_idx = 0; layer_idx < num_layers; layer_idx++) {
         TextureLayer *layer = &layout->layers[layer_idx];
         for (int level_idx = 0; level_idx < state->levels; level_idx++) {
-            g_free(layer->levels[level_idx].decoded_data);
+            if (layer->levels[level_idx].owns_data) {
+                g_free(layer->levels[level_idx].decoded_data);
+            }
         }
     }
 }
@@ -1100,9 +1215,20 @@ static void set_texture_label(PGRAPHState *pg, TextureBinding *texture)
 }
 
 static bool is_linear_filter_supported_for_format(PGRAPHVkState *r,
-                                                  int kelvin_format)
+                                                  int kelvin_format,
+                                                  VkFormat vk_format)
 {
-    return r->texture_format_properties[kelvin_format].optimalTilingFeatures &
+    VkFormatProperties properties;
+    if (vk_format == kelvin_color_format_vk_map[kelvin_format].vk_format) {
+        properties = r->texture_format_properties[kelvin_format];
+    } else {
+        int bc_index = kelvin_format_to_native_bc_index(kelvin_format);
+        assert(bc_index >= 0 && native_bc_formats[bc_index] == vk_format);
+        properties =
+            r->native_bc_format_support[bc_index].format_properties;
+    }
+
+    return properties.optimalTilingFeatures &
            VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT;
 }
 
@@ -1185,6 +1311,13 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
         key.scale = pg->surface_scale_factor;
     }
 
+    VkColorFormatInfo vkf = kelvin_color_format_vk_map[state.color_format];
+    assert(vkf.vk_format != VK_FORMAT_UNDEFINED);
+    key.vk_format = vkf.vk_format;
+    if (!surface_to_texture) {
+        can_upload_native_bc(r, &state, filter, &key.vk_format);
+    }
+
     uint64_t key_hash = fast_hash((void*)&key, sizeof(key));
     LruNode *node = lru_lookup(&r->texture_cache, key_hash, &key);
     TextureBinding *snode = container_of(node, TextureBinding, node);
@@ -1246,8 +1379,6 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
     snode->possibly_dirty = false;
     snode->hash = content_hash;
 
-    VkColorFormatInfo vkf = kelvin_color_format_vk_map[state.color_format];
-    assert(vkf.vk_format != 0);
     assert(0 < state.dimensionality);
     assert(state.dimensionality < ARRAY_SIZE(dimensionality_to_vk_image_type));
     assert(state.dimensionality <
@@ -1261,7 +1392,7 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
         .extent.depth = state.depth,
         .mipLevels = f_basic.linear ? 1 : state.levels,
         .arrayLayers = state.cubemap ? 6 : 1,
-        .format = vkf.vk_format,
+        .format = key.vk_format,
         .tiling = VK_IMAGE_TILING_OPTIMAL,
         .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
         .usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
@@ -1295,7 +1426,7 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
         .viewType = state.cubemap ?
             VK_IMAGE_VIEW_TYPE_CUBE :
             dimensionality_to_vk_image_view_type[state.dimensionality],
-        .format = vkf.vk_format,
+        .format = key.vk_format,
         .subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
         .subresourceRange.baseMipLevel = 0,
         .subresourceRange.levelCount = image_create_info.mipLevels,
@@ -1313,7 +1444,7 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
     VkSamplerCustomBorderColorCreateInfoEXT custom_border_color_create_info;
     VkBorderColor vk_border_color;
 
-    bool is_integer_type = vkf.vk_format == VK_FORMAT_R32_UINT;
+    bool is_integer_type = key.vk_format == VK_FORMAT_R32_UINT;
 
     if (r->custom_border_color_extension_enabled) {
         vk_border_color = is_integer_type ? VK_BORDER_COLOR_INT_CUSTOM_EXT :
@@ -1367,7 +1498,8 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
     unsigned int min_filter = GET_MASK(filter, NV_PGRAPH_TEXFILTER0_MIN);
     assert(min_filter < ARRAY_SIZE(pgraph_texture_min_filter_vk_map));
 
-    if (is_linear_filter_supported_for_format(r, state.color_format)) {
+    if (is_linear_filter_supported_for_format(r, state.color_format,
+                                              key.vk_format)) {
         vk_mag_filter = pgraph_texture_min_filter_vk_map[mag_filter];
         vk_min_filter = pgraph_texture_min_filter_vk_map[min_filter];
     } else {
@@ -1632,6 +1764,24 @@ void pgraph_vk_init_textures(PGRAPHState *pg)
         vkGetPhysicalDeviceFormatProperties(
             r->physical_device, kelvin_color_format_vk_map[i].vk_format,
             &r->texture_format_properties[i]);
+    }
+
+    for (int i = 0; i < ARRAY_SIZE(native_bc_formats); i++) {
+        NativeBCFormatSupport *support = &r->native_bc_format_support[i];
+        vkGetPhysicalDeviceFormatProperties(r->physical_device,
+                                            native_bc_formats[i],
+                                            &support->format_properties);
+        for (int cube = 0; cube < 2; cube++) {
+            VkImageCreateFlags flags =
+                cube ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0;
+            support->image_supported[cube] =
+                vkGetPhysicalDeviceImageFormatProperties(
+                    r->physical_device, native_bc_formats[i],
+                    VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL,
+                    VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                        VK_IMAGE_USAGE_SAMPLED_BIT,
+                    flags, &support->image_properties[cube]) == VK_SUCCESS;
+        }
     }
 }
 

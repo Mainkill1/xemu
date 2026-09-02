@@ -23,6 +23,7 @@ tests = {
   'test-xbox-pgraph-texture-state': [],
   'test-xbox-pgraph-uniform-dirty': [],
   'test-xbox-vk-blend-constants': [],
+  'test-xbox-vk-bc-layout': [],
   'test-xbox-vk-pipeline-lifetime': [],
   'test-xbox-nv2a-ptimer': [
     'ptimer-test-stubs.c',
