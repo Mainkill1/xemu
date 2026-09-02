@@ -523,6 +523,7 @@ typedef struct PGRAPHVkState {
     ShaderModuleInfo *quad_vert_module, *solid_frag_module;
     bool shader_bindings_changed;
     bool use_push_constants_for_uniform_attrs;
+    bool use_dynamic_uniform_offsets;
 
     Lru shader_module_cache;
     ShaderModuleCacheEntry *shader_module_cache_entries;
