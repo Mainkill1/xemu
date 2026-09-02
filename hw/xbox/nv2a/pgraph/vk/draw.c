@@ -1283,6 +1283,10 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
     pgraph_vk_perf_record_finish_call(r, finish_reason);
 
     if (r->in_command_buffer) {
+        bool time_submit =
+            pgraph_vk_perf_should_time_finish(r, finish_reason);
+        bool gpu_time_submit = time_submit &&
+            r->perf.timestamp_query_pool != VK_NULL_HANDLE;
         uint64_t staged_bytes = 0;
         if (r->perf.enabled) {
             staged_bytes =
@@ -1299,9 +1303,19 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         if (r->query_in_flight) {
             end_query(r);
         }
+        if (gpu_time_submit) {
+            vkCmdWriteTimestamp(r->command_buffer,
+                                VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                                r->perf.timestamp_query_pool, 1);
+        }
         VK_CHECK(vkEndCommandBuffer(r->command_buffer));
 
         VkCommandBuffer cmd = pgraph_vk_begin_single_time_commands(pg); // FIXME: Cleanup
+        if (gpu_time_submit) {
+            vkCmdResetQueryPool(cmd, r->perf.timestamp_query_pool, 0, 2);
+            vkCmdWriteTimestamp(cmd, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                r->perf.timestamp_query_pool, 0);
+        }
         sync_staging_buffer(pg, cmd, BUFFER_INDEX_STAGING, BUFFER_INDEX);
         sync_staging_buffer(pg, cmd, BUFFER_VERTEX_INLINE_STAGING,
                                 BUFFER_VERTEX_INLINE);
@@ -1331,8 +1345,6 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         };
         nv2a_profile_inc_counter(NV2A_PROF_QUEUE_SUBMIT);
         vkResetFences(r->device, 1, &r->command_buffer_fence);
-        bool time_submit =
-            pgraph_vk_perf_should_time_finish(r, finish_reason);
         int64_t submit_start = time_submit ?
             qemu_clock_get_us(QEMU_CLOCK_REALTIME) : 0;
         VkResult result = vkQueueSubmit(
@@ -1365,8 +1377,24 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         uint64_t wait_us = time_submit ?
             MAX(qemu_clock_get_us(QEMU_CLOCK_REALTIME) - wait_start, 0) : 0;
         VK_CHECK(result);
+        uint64_t gpu_batch_ns = 0;
+        if (gpu_time_submit) {
+            uint64_t timestamps[2];
+            result = vkGetQueryPoolResults(
+                r->device, r->perf.timestamp_query_pool, 0,
+                ARRAY_SIZE(timestamps), sizeof(timestamps), timestamps,
+                sizeof(timestamps[0]), VK_QUERY_RESULT_64_BIT);
+            VK_CHECK(result);
+            uint64_t delta_ticks = timestamps[1] - timestamps[0];
+            if (r->perf.timestamp_valid_bits < 64) {
+                delta_ticks &=
+                    (UINT64_C(1) << r->perf.timestamp_valid_bits) - 1;
+            }
+            gpu_batch_ns = delta_ticks * r->perf.timestamp_period_ns;
+        }
         pgraph_vk_perf_record_finish_submit(
-            r, finish_reason, time_submit, submit_cpu_us, wait_us, staged_bytes,
+            r, finish_reason, time_submit, submit_cpu_us, wait_us,
+            gpu_time_submit, gpu_batch_ns, staged_bytes,
             ARRAY_SIZE(submit_infos), 2);
         r->storage_buffers[BUFFER_VERTEX_RAM_STAGING].buffer_offset = 0;
 
