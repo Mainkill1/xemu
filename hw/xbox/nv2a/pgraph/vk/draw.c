@@ -1803,8 +1803,10 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
 
         NV2A_VK_DPRINTF("- %d: %08"HWADDR_PRIx" %zd bytes", i, addr, size);
 
-        if (memory_region_test_and_clear_dirty(d->vram, addr, size,
-                                               DIRTY_MEMORY_NV2A)) {
+        bool dirty = memory_region_test_and_clear_dirty(
+            d->vram, addr, size, DIRTY_MEMORY_NV2A);
+        pgraph_vk_perf_record_vertex_dirty_check(r, addr, size, dirty);
+        if (dirty) {
             NV2A_VK_DPRINTF("Memory dirty. Synchronizing...");
             pgraph_vk_update_vertex_ram_buffer(pg, addr, d->vram_ptr + addr,
                                                size);

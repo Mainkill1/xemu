@@ -425,6 +425,15 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t vertex_staging_copy_count;
     uint64_t vertex_staging_capacity_growth_count;
     uint64_t vertex_staging_fallback_finish_count;
+    uint64_t vertex_dirty_check_count;
+    uint64_t vertex_dirty_pages_checked;
+    uint64_t vertex_dirty_hit_count;
+    uint64_t vertex_dirty_hit_pages;
+    uint64_t vertex_dirty_repeated_range_count;
+    uint64_t vertex_dirty_repeated_range_hit_count;
+    MemorySyncRequirement vertex_dirty_recent_ranges[8];
+    uint8_t vertex_dirty_recent_range_count;
+    uint8_t vertex_dirty_recent_range_next;
     uint64_t native_bc_upload_count;
     uint64_t native_bc_source_bytes;
     uint64_t native_bc_staged_bytes;
@@ -674,6 +683,8 @@ void pgraph_vk_perf_record_vertex_staging_copy(PGRAPHVkState *r,
                                                 uint64_t bytes);
 void pgraph_vk_perf_record_vertex_staging_growth(PGRAPHVkState *r);
 void pgraph_vk_perf_record_vertex_staging_fallback(PGRAPHVkState *r);
+void pgraph_vk_perf_record_vertex_dirty_check(PGRAPHVkState *r, hwaddr addr,
+                                               hwaddr size, bool dirty);
 void pgraph_vk_perf_record_bc_upload(PGRAPHVkState *r, bool native,
                                      uint64_t source_bytes,
                                      uint64_t staged_bytes,

@@ -128,7 +128,7 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":7"
+            "{\"type\":\"schema\",\"schema_version\":9"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
             ",\"tiny_draw_attribution_version\":1",
@@ -246,6 +246,44 @@ void pgraph_vk_perf_record_vertex_staging_fallback(PGRAPHVkState *r)
     if (r->perf.enabled) {
         r->perf.vertex_staging_fallback_finish_count++;
     }
+}
+
+void pgraph_vk_perf_record_vertex_dirty_check(PGRAPHVkState *r, hwaddr addr,
+                                               hwaddr size, bool dirty)
+{
+    PGRAPHVkPerfTelemetry *perf = &r->perf;
+    if (!perf->enabled) {
+        return;
+    }
+
+    bool repeated = false;
+    for (uint8_t i = 0; i < perf->vertex_dirty_recent_range_count; i++) {
+        MemorySyncRequirement *recent = &perf->vertex_dirty_recent_ranges[i];
+        if (recent->addr == addr && recent->size == size) {
+            repeated = true;
+            break;
+        }
+    }
+
+    perf->vertex_dirty_check_count++;
+    perf->vertex_dirty_pages_checked += size / TARGET_PAGE_SIZE;
+    if (dirty) {
+        perf->vertex_dirty_hit_count++;
+        perf->vertex_dirty_hit_pages += size / TARGET_PAGE_SIZE;
+    }
+    if (repeated) {
+        perf->vertex_dirty_repeated_range_count++;
+        perf->vertex_dirty_repeated_range_hit_count += dirty;
+    }
+
+    perf->vertex_dirty_recent_ranges[perf->vertex_dirty_recent_range_next] =
+        (MemorySyncRequirement){ .addr = addr, .size = size };
+    perf->vertex_dirty_recent_range_next =
+        (perf->vertex_dirty_recent_range_next + 1) %
+        ARRAY_SIZE(perf->vertex_dirty_recent_ranges);
+    perf->vertex_dirty_recent_range_count = MIN(
+        perf->vertex_dirty_recent_range_count + 1,
+        ARRAY_SIZE(perf->vertex_dirty_recent_ranges));
 }
 
 void pgraph_vk_perf_record_bc_upload(PGRAPHVkState *r, bool native,
@@ -395,7 +433,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":7"
+            "{\"type\":\"frame\",\"schema_version\":9"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
@@ -452,6 +490,12 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"vertex_staging_capacity_bytes\":%zu"
             ",\"vertex_staging_capacity_growths_per_guest_frame\":%" PRIu64
             ",\"vertex_staging_fallback_finishes_per_guest_frame\":%" PRIu64
+            ",\"vertex_dirty_checks_per_guest_frame\":%" PRIu64
+            ",\"vertex_dirty_pages_checked_per_guest_frame\":%" PRIu64
+            ",\"vertex_dirty_hits_per_guest_frame\":%" PRIu64
+            ",\"vertex_dirty_hit_pages_per_guest_frame\":%" PRIu64
+            ",\"vertex_dirty_repeated_ranges_per_guest_frame\":%" PRIu64
+            ",\"vertex_dirty_repeated_range_hits_per_guest_frame\":%" PRIu64
             ",\"native_bc_uploads_per_guest_frame\":%" PRIu64
             ",\"native_bc_source_bytes_per_guest_frame\":%" PRIu64
             ",\"native_bc_staged_bytes_per_guest_frame\":%" PRIu64
@@ -488,6 +532,12 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             r->storage_buffers[BUFFER_VERTEX_RAM_STAGING].buffer_size,
             perf->vertex_staging_capacity_growth_count,
             perf->vertex_staging_fallback_finish_count,
+            perf->vertex_dirty_check_count,
+            perf->vertex_dirty_pages_checked,
+            perf->vertex_dirty_hit_count,
+            perf->vertex_dirty_hit_pages,
+            perf->vertex_dirty_repeated_range_count,
+            perf->vertex_dirty_repeated_range_hit_count,
             perf->native_bc_upload_count, perf->native_bc_source_bytes,
             perf->native_bc_staged_bytes, perf->native_bc_prepare_cpu_us,
             perf->decoded_bc_upload_count, perf->decoded_bc_source_bytes,
@@ -524,6 +574,14 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->vertex_staging_copy_count = 0;
     perf->vertex_staging_capacity_growth_count = 0;
     perf->vertex_staging_fallback_finish_count = 0;
+    perf->vertex_dirty_check_count = 0;
+    perf->vertex_dirty_pages_checked = 0;
+    perf->vertex_dirty_hit_count = 0;
+    perf->vertex_dirty_hit_pages = 0;
+    perf->vertex_dirty_repeated_range_count = 0;
+    perf->vertex_dirty_repeated_range_hit_count = 0;
+    perf->vertex_dirty_recent_range_count = 0;
+    perf->vertex_dirty_recent_range_next = 0;
     perf->native_bc_upload_count = 0;
     perf->native_bc_source_bytes = 0;
     perf->native_bc_staged_bytes = 0;
