@@ -21,6 +21,7 @@ not replacements for their history.
 | `feature/eng-2026-523-vk-native-bc-on-vertex-staging-u8a09a4ea` | Included, conflict-resolved | Uploads supported BC1/BC2/BC3 textures in native Vulkan block-compressed formats rather than decoding them on the CPU; unsupported layouts retain the decoded fallback. It was merged onto the later ordered texture-upload path and includes BC layout unit coverage. |
 | `xemu-pr-staging: feature/eng-2026-336-stage-local-vulkan-uniforms-v3-uec89c153` | Included, conflict-resolved | Separates vertex- and pixel-shader uniform source generations so unchanged stages do not rewrite or re-upload their UBOs. It preserves exact float bit patterns, tracks effective polygon-offset inputs, and retains Full-Speed's existing VMState-compatible dirty-row handling. |
 | `fix/eng-2026-523-vk-report-dma-ownership` | Included on this branch | Captures the active DMA report context when `GET_REPORT` is queued, so delayed Vulkan report publication cannot be redirected by a later context switch. |
+| `feature/eng-2026-523-vk-texture-pipeline-fastpath-uaad84ed1` | Included on this candidate branch | Avoids rebuilding and looking up an unchanged Vulkan `PipelineKey` when only texture image/sampler descriptor identity changed. Shader-affecting texture state remains covered by `ShaderState`; descriptor refresh remains unchanged. |
 
 ### Build policy by branch type
 
@@ -256,6 +257,42 @@ is automatic on supported Windows NVIDIA systems, and Vulkan telemetry remains
 opt-in through `XEMU_VK_PERF_LOG`, so neither adds a second UI control.
 The combined Vulkan telemetry record uses schema version 5, which includes
 both CPU-region and native-BC upload counters.
+
+## Texture-only Vulkan pipeline lookup fast path
+
+This candidate removes `texture_bindings_changed` as an independent reason to
+rebuild and look up a Vulkan `PipelineKey`. Texture image and sampler identity
+is descriptor-set state and is not present in `PipelineKey`. Texture registers
+that can change generated shaders are still checked by
+`pgraph_glsl_check_shader_state_dirty()` and represented by `ShaderState`;
+`shader_bindings_changed` therefore retains the real pipeline dependency.
+Texture descriptor updates and shader-uniform updates are not skipped.
+
+Opt-in attribution on the Morrowind snapshot measured approximately 788 Vulkan
+draws per guest frame. The candidate converted about 630 pipeline lookups per
+frame into fast reuse, reducing lookups by 79.9% and measured pipeline-prepare
+CPU time from 1.800 to 1.503 ms/frame. A short same-binary fixed-work S3TC
+B-C-C-B test improved average work time by 1.079% and median work time by
+0.977%; both candidate cells beat both baseline cells. This is a confirmed
+small fixed-work saving, not a claim that Vulkan microstutter is solved.
+
+The same-binary Morrowind B-C-C-B comparison was neutral within host variance:
+candidate FPS was 0.220% lower and average frame time was 0.232% higher. The
+50-ms tail remained present in that comparison. At implementation commit
+`adebbf348b45b5344ae9b87bc68e83d4e1a83511`, the release-equivalent GCC
+16.1.0 full-LTO build passed the current 147/147 Vulkan perf-lab catalog with
+zero validation VUIDs. PGR2 and Morrowind saved-state captures also completed
+with matching executable/PDB/source ownership, zero ETW loss, no focus or
+responsiveness failures, and visually correct frames.
+
+The validation media identities are:
+
+```text
+guest source    09f74db4822dbc3d34c3315d9a5cf5341f00416a
+XISO SHA-256    08551d0c0b7bc5efb20a7b36d6d4f0e24ab666b4cee25930232858ccd9872a3e
+catalog SHA-256 027065948624d6aafdbe557bed8123eb6dcaa83353cf242c71d030a109b64578
+catalog records 147 (142 executable leaves and 5 groups)
+```
 
 ## Staging audit
 
