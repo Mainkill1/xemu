@@ -25,7 +25,7 @@ static int64_t last_flip_stall_us;
 static int64_t last_vblank_us;
 static uint64_t flip_stall_serial;
 static uint64_t vblank_serial;
-uint32_t g_nv2a_profile_timing_enabled;
+static uint32_t frame_timing_enabled;
 
 typedef struct NV2AProfilePfifoAtomicStats {
     uint64_t region_calls[NV2A_PROFILE_PFIFO_REGION_COUNT];
@@ -79,7 +79,7 @@ static void nv2a_profile_write_frame_log(
             fprintf(stderr, "nv2a: failed to open frame log '%s'\n", path);
             return;
         }
-        qatomic_set(&g_nv2a_profile_timing_enabled, 1);
+        qatomic_set(&frame_timing_enabled, 1);
         previous_frame = now;
         last_flush = now;
     }
@@ -221,7 +221,7 @@ void nv2a_profile_increment(void)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     const int64_t fps_update_interval = 250000;
     int64_t previous_flip_us = qatomic_read(&g_nv2a_stats.last_flip_time);
-    bool timing_enabled = qatomic_read(&g_nv2a_profile_timing_enabled);
+    bool timing_enabled = qatomic_read(&frame_timing_enabled);
     int64_t flip_stall_us = timing_enabled ?
         qatomic_read(&last_flip_stall_us) : 0;
     int64_t vblank_us = timing_enabled ?
@@ -269,6 +269,11 @@ void nv2a_profile_increment(void)
     }
 }
 
+bool nv2a_profile_timing_enabled(void)
+{
+    return qatomic_read(&frame_timing_enabled);
+}
+
 void nv2a_profile_pfifo_record_region(NV2AProfilePfifoRegion region,
                                        uint64_t elapsed_us)
 {
@@ -297,7 +302,7 @@ void nv2a_profile_flip_stall(void)
     int64_t render_time =
         (now - qatomic_read(&g_nv2a_stats.last_flip_time)) / 1000;
 
-    if (qatomic_read(&g_nv2a_profile_timing_enabled)) {
+    if (qatomic_read(&frame_timing_enabled)) {
         qatomic_set(&last_flip_stall_us, now);
         qatomic_inc(&flip_stall_serial);
     }
@@ -313,7 +318,7 @@ void nv2a_profile_flip_stall(void)
 
 void nv2a_profile_vblank(void)
 {
-    if (!qatomic_read(&g_nv2a_profile_timing_enabled)) {
+    if (!qatomic_read(&frame_timing_enabled)) {
         return;
     }
     qatomic_set(&last_vblank_us, qemu_clock_get_us(QEMU_CLOCK_REALTIME));

@@ -141,7 +141,6 @@ extern "C" {
 #endif
 
 extern NV2AStats g_nv2a_stats;
-extern uint32_t g_nv2a_profile_timing_enabled;
 
 const char *nv2a_profile_get_counter_name(unsigned int cnt);
 int nv2a_profile_get_counter_value(unsigned int cnt);
@@ -149,11 +148,7 @@ void nv2a_profile_increment(void);
 void nv2a_profile_log_event_once(const char *event);
 void nv2a_profile_flip_stall(void);
 void nv2a_profile_vblank(void);
-
-static inline bool nv2a_profile_timing_enabled(void)
-{
-    return qatomic_read(&g_nv2a_profile_timing_enabled);
-}
+bool nv2a_profile_timing_enabled(void);
 
 typedef enum NV2AProfilePfifoRegion {
     NV2A_PROFILE_PFIFO_PENDING,
