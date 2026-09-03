@@ -80,3 +80,20 @@ branches available for A/B comparison rather than closing or deleting them.
 For the new work, also run `test-xbox-nv2a-ptimer`, verify report-query writes
 against the DMA object active at queue time, and compare Vulkan pipeline
 lookups plus draw-preparation CPU time on a texture-heavy saved-state capture.
+
+## Isolated callback-retirement branch
+
+This branch differs from `Full-Speed` only in cached memory-callback
+retirement ordering. Compare `7562148092` against `Full-Speed` at
+`111deac13f`; do not mix it with another candidate during attribution.
+
+The protected rule is that the callback object remains alive until every CPU
+has completed the synchronized TLB flush that can retire references to it.
+Validate release and debug builds with the perf-lab XISO, then run repeated
+reset and memory-callback churn under a multi-vCPU configuration. There should
+be no use-after-free report, crash, stale callback invocation, or unbounded
+callback retention.
+
+This ordering repair is not expected to improve frame time. Record any
+performance change, including a small one, but treat it as a lead until it is
+tied to measured critical-path time.
