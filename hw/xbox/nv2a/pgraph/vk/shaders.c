@@ -662,14 +662,33 @@ void pgraph_vk_bind_shaders(PGRAPHState *pg)
     r->uniform_layout_changed[PGRAPH_UNIFORM_STAGE_VSH] = false;
     r->uniform_layout_changed[PGRAPH_UNIFORM_STAGE_PSH] = false;
 
-    if (!r->shader_binding ||
-        pgraph_glsl_check_shader_state_dirty(pg, &r->shader_binding->state)) {
+    if (r->perf.enabled) {
+        r->perf.shader_bind_call_count++;
+    }
+
+    int64_t state_start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
+    bool shader_state_dirty = !r->shader_binding;
+    if (r->shader_binding) {
+        if (r->perf.enabled) {
+            r->perf.shader_state_check_count++;
+        }
+        shader_state_dirty =
+            pgraph_glsl_check_shader_state_dirty(pg,
+                                                 &r->shader_binding->state);
+    }
+    if (shader_state_dirty) {
+        if (r->perf.enabled) {
+            r->perf.shader_state_dirty_count++;
+        }
         ShaderBinding *old_binding = r->shader_binding;
         ShaderState new_state = pgraph_glsl_get_shader_state(pg);
         if (!old_binding || memcmp(&old_binding->state, &new_state,
                                    sizeof(ShaderState))) {
             r->shader_binding = get_shader_binding_for_state(r, &new_state);
             r->shader_bindings_changed = true;
+            if (r->perf.enabled) {
+                r->perf.shader_binding_change_count++;
+            }
             r->uniform_layout_changed[PGRAPH_UNIFORM_STAGE_VSH] =
                 !old_binding ||
                 old_binding->vsh.module_info !=
@@ -682,21 +701,41 @@ void pgraph_vk_bind_shaders(PGRAPHState *pg)
     } else {
         nv2a_profile_inc_counter(NV2A_PROF_SHADER_BIND_NOTDIRTY);
     }
+    pgraph_vk_perf_record_cpu_region(
+        r, VK_PERF_CPU_SHADER_STATE_PREPARE,
+        r->perf.enabled ? g_get_monotonic_time() - state_start_us : 0);
 
     bool update_stage[PGRAPH_UNIFORM_STAGE_COUNT];
+    int64_t needs_start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
     get_uniform_stage_update_needs(pg, update_stage);
     r->last_uniform_source_epochs.unclassified =
         pg->uniform_source_epochs.unclassified;
     r->last_uniform_source_epochs.total = pg->uniform_source_epochs.total;
+    if (r->perf.enabled) {
+        r->perf.vsh_uniform_update_request_count +=
+            update_stage[PGRAPH_UNIFORM_STAGE_VSH];
+        r->perf.psh_uniform_update_request_count +=
+            update_stage[PGRAPH_UNIFORM_STAGE_PSH];
+    }
+    pgraph_vk_perf_record_cpu_region(
+        r, VK_PERF_CPU_SHADER_UNIFORM_NEEDS,
+        r->perf.enabled ? g_get_monotonic_time() - needs_start_us : 0);
 
     if (!update_stage[PGRAPH_UNIFORM_STAGE_VSH] &&
         !update_stage[PGRAPH_UNIFORM_STAGE_PSH]) {
+        if (r->perf.enabled) {
+            r->perf.shader_uniform_no_update_count++;
+        }
         nv2a_profile_inc_counter(NV2A_PROF_SHADER_UBO_NOTDIRTY);
         NV2A_VK_DGROUP_END();
         return;
     }
 
+    int64_t update_start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
     update_shader_uniforms(pg, update_stage);
+    pgraph_vk_perf_record_cpu_region(
+        r, VK_PERF_CPU_SHADER_UNIFORM_UPDATE,
+        r->perf.enabled ? g_get_monotonic_time() - update_start_us : 0);
     if (update_stage[PGRAPH_UNIFORM_STAGE_PSH]) {
         r->polygon_offset_key = pgraph_polygon_offset_uniform_key(
             pg->primitive_mode, pgraph_reg_r(pg, NV_PGRAPH_SETUPRASTER),

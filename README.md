@@ -498,6 +498,50 @@ debug map                     4f24bedede729710bbe35eb625c0dd2a3e381a6eab8dc0c922
 The build manifests retain the exact release/debug commands, pinned toolchain
 digest, compiler/linker versions, map generation, and all artifact hashes.
 
+## Pipeline-preparation attribution
+
+Telemetry schema 10 at commit
+`277a91da06fb594efec6e08ea9a21164af301a6a` divides the existing pipeline
+preparation CPU region into texture binding, shader binding, and pipeline-state
+lookup without changing renderer behavior. A clean full-LTO capture on
+Morrowind snapshot `vm-20260903021051` measured 571 guest frames at 28.368 FPS,
+35.388-ms mean, 50.015-ms p95, and 50.170-ms p99.
+
+Pipeline preparation cost 2.568 ms/frame. `pgraph_vk_bind_shaders`, including
+shader-state and uniform preparation, owned 1.323 ms/frame (51.5%); texture
+binding owned 0.879 ms/frame (34.2%); and pipeline dirty checking, key/hash
+construction, and cache lookup owned only 0.245 ms/frame (9.6%). Pipeline
+hashing is therefore not the next primary target. The next attribution step is
+inside shader binding: separate shader-state checks and binding changes from
+uniform need checks and actual VSH/PSH updates before changing uniform dirty
+tracking.
+
+The 50-ms frames also carried more work than the 33-ms bucket: dirty hits rose
+from 341.03 to 353.78/frame, draw-flush CPU from 10.882 to 11.769 ms/frame,
+pipeline preparation from 2.560 to 2.689 ms/frame, and surface-download waits
+from 2.600 to 3.005 ms/frame. `stalled` waits decreased from 2.820 to 2.679
+ms/frame, so that wait is not the sole cadence-transition owner. Small constant
+CPU wins still matter because a frame near a 16.7-ms presentation boundary can
+otherwise fall into the next cadence step.
+
+Exact schema-10 release artifact hashes are:
+
+```text
+source commit                 277a91da06fb594efec6e08ea9a21164af301a6a
+release post-cv2pdb xemu.exe 5e6c3dd51e397222d89270602c2119f95abbb008305a54e58de24ddcc2e97e79
+release PDB                   721ed01cb3d2e24ad082a76f9fbecfcf3cda6ad39300f514e55987c7fa0891f4
+release DWARF executable      94c3a23f17ee8e6ec49e242f7d8ad3385c5b16e7561f0b0666a3c347e25eca2b
+release map                   e1ea02ba4703daeac8e8de1cb9fd35a24710102dc1d739584a9b289e5f21cffb
+```
+
+Telemetry schema 11 adds the next diagnostic layer. It times
+`shader_state_prepare`, `shader_uniform_needs`, and
+`shader_uniform_update` separately, and records bind calls, state checks,
+dirty results, binding changes, VSH/PSH update requests, and no-update exits
+per guest frame. These counters remain inactive unless `XEMU_VK_PERF_LOG` is
+set. Schema-10 evidence remains the baseline until a clean schema-11 build is
+captured; diagnostic timing overhead is not treated as a production result.
+
 ## Staging audit
 
 The `xemu-pr-staging` production candidates were compared against this

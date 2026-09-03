@@ -62,6 +62,9 @@ static const char *cpu_region_names[VK_PERF_CPU_REGION_COUNT] = {
     [VK_PERF_CPU_PIPELINE_PREPARE] = "pipeline_prepare",
     [VK_PERF_CPU_BIND_TEXTURES] = "bind_textures",
     [VK_PERF_CPU_BIND_SHADERS] = "bind_shaders",
+    [VK_PERF_CPU_SHADER_STATE_PREPARE] = "shader_state_prepare",
+    [VK_PERF_CPU_SHADER_UNIFORM_NEEDS] = "shader_uniform_needs",
+    [VK_PERF_CPU_SHADER_UNIFORM_UPDATE] = "shader_uniform_update",
     [VK_PERF_CPU_PIPELINE_STATE_LOOKUP] = "pipeline_state_lookup",
     [VK_PERF_CPU_TEXTURE_UPLOAD] = "texture_upload",
     [VK_PERF_CPU_UPDATE_DESCRIPTOR_SETS] = "update_descriptor_sets",
@@ -130,7 +133,7 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":10"
+            "{\"type\":\"schema\",\"schema_version\":11"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
             ",\"tiny_draw_attribution_version\":1",
@@ -435,7 +438,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":10"
+            "{\"type\":\"frame\",\"schema_version\":11"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
@@ -498,6 +501,13 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"vertex_dirty_hit_pages_per_guest_frame\":%" PRIu64
             ",\"vertex_dirty_repeated_ranges_per_guest_frame\":%" PRIu64
             ",\"vertex_dirty_repeated_range_hits_per_guest_frame\":%" PRIu64
+            ",\"shader_bind_calls_per_guest_frame\":%" PRIu64
+            ",\"shader_state_checks_per_guest_frame\":%" PRIu64
+            ",\"shader_state_dirty_per_guest_frame\":%" PRIu64
+            ",\"shader_binding_changes_per_guest_frame\":%" PRIu64
+            ",\"vsh_uniform_update_requests_per_guest_frame\":%" PRIu64
+            ",\"psh_uniform_update_requests_per_guest_frame\":%" PRIu64
+            ",\"shader_uniform_no_updates_per_guest_frame\":%" PRIu64
             ",\"native_bc_uploads_per_guest_frame\":%" PRIu64
             ",\"native_bc_source_bytes_per_guest_frame\":%" PRIu64
             ",\"native_bc_staged_bytes_per_guest_frame\":%" PRIu64
@@ -540,6 +550,13 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->vertex_dirty_hit_pages,
             perf->vertex_dirty_repeated_range_count,
             perf->vertex_dirty_repeated_range_hit_count,
+            perf->shader_bind_call_count,
+            perf->shader_state_check_count,
+            perf->shader_state_dirty_count,
+            perf->shader_binding_change_count,
+            perf->vsh_uniform_update_request_count,
+            perf->psh_uniform_update_request_count,
+            perf->shader_uniform_no_update_count,
             perf->native_bc_upload_count, perf->native_bc_source_bytes,
             perf->native_bc_staged_bytes, perf->native_bc_prepare_cpu_us,
             perf->decoded_bc_upload_count, perf->decoded_bc_source_bytes,
@@ -584,6 +601,13 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->vertex_dirty_repeated_range_hit_count = 0;
     perf->vertex_dirty_recent_range_count = 0;
     perf->vertex_dirty_recent_range_next = 0;
+    perf->shader_bind_call_count = 0;
+    perf->shader_state_check_count = 0;
+    perf->shader_state_dirty_count = 0;
+    perf->shader_binding_change_count = 0;
+    perf->vsh_uniform_update_request_count = 0;
+    perf->psh_uniform_update_request_count = 0;
+    perf->shader_uniform_no_update_count = 0;
     perf->native_bc_upload_count = 0;
     perf->native_bc_source_bytes = 0;
     perf->native_bc_staged_bytes = 0;
