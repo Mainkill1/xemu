@@ -561,6 +561,49 @@ PSH source changes, and forced buffer refreshes retain their existing paths.
 Texture image/sampler descriptor updates are not changed. Unset or `0`
 preserves the previous coarse dependency for same-binary A/B testing.
 
+A clean full-LTO same-binary A-B-B-A run confirmed the direct CPU effect.
+PSH uniform requests fell from 1,132.16 to 594.05/frame (-47.53%), uniform
+update CPU fell from 937.44 to 750.56 us/frame (-19.93%), and total shader
+binding fell from 1,462.24 to 1,273.24 us/frame (-12.93%) by role mean.
+Descriptor-update CPU remained approximately flat. The end-to-end role means
+were directionally positive: FPS rose 1.63% and guest frame time fell 0.490 ms
+(-1.36%). Treat that timing as supporting evidence because host/run variance
+is larger than the causally measured 0.187-ms uniform saving.
+
+This does not fix the Vulkan tail. P95 was 50.0105 ms disabled and 50.0095 ms
+enabled; p99 was 50.0345 ms in both role means. Retain the experiment as a
+bounded opt-in CPU-path win while the separate approximately 50-ms cadence
+investigation continues.
+
+Release and assertion-enabled debug builds each passed the current 147/147
+perf-lab XISO, functional hash validation, active Vulkan validation, and zero
+VUIDs with all retained opt-ins recorded. Both builds rendered the heavier
+Morrowind snapshot correctly. PGR2 was tested as a separate FreshBoot cohort:
+exactly 10 seconds of BIOS allowance, then
+`A-3,A-10,A-2,A-2,F-2,A-2,A-2,A-2,A-2,A-2,A-7`. Release reached a live race
+at 30.000 FPS; debug also reached a visually correct live race after its
+separate 60-second post-input warmup. All retail captures had exact
+executable/PDB/source ownership, zero focus loss, and zero ETW loss.
+
+Exact build identities are:
+
+```text
+source commit                 069e92211c64d56c9309a7d26241c442018e6fdb
+release post-cv2pdb xemu.exe a74ff6e318d1cec6299714c9c4992317dcff825e9f1304b985ba184a799dcf10
+release PDB                   63747f22edef6edbf99aa9ed07cf788cfd10e1f7cbdf3b39cad1c05989750d4b
+release DWARF executable      e93fb85496ef5aee6c21903f8796af83300aba3d6928ba4d9ec37365c3c93a22
+release map                   8556ef76d825727d456486355d24bb86a7e1f3700a68bb32349fd39c7bd68e3a
+debug post-cv2pdb xemu.exe   3e43c3d3ba6fd38cedaa67ba87a3d4f6fcab71a22808793fa6069c3caa3246b5
+debug PDB                     cb4f5be24056009bffd313baa0c2d3d70e73bb6baa839432d04c0d2b4e83f586
+debug DWARF executable        9f320e2be7bb4557223e1f0077ddcdf476572885fbadd00fffce462efce7419c
+debug map                     2ff9b92ae03f7871a870beffa554de37f20f9a6861f90087c9842135747694a2
+```
+
+The release/debug build manifests beside those artifacts record the exact
+commands, checkout, pinned public toolchain digest, compiler/linker/Meson/Ninja
+versions, `cv2pdb` source and hash, map command, and unit-test hashes. No
+private compiler or unrecorded branch-specific build step is required.
+
 ## Staging audit
 
 The `xemu-pr-staging` production candidates were compared against this
