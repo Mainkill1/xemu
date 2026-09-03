@@ -243,6 +243,7 @@ change.
 | `research/eng-2026-523-sparse-uniform-layout-safe-u6299d05f` | Investigated safely skipping clean uniform rows; retained as research pending an independently validated landing. |
 | `research/eng-2026-523-tcg-tb-lookup-attribution-u065f47f7` | Collected indirect TB-lookup evidence that informed the later TCG fast paths. |
 | `research/eng-2026-523-vk-stalled-gpu-timestamps-uf1f85872` | Added diagnostic Vulkan timing experiments and records several reverted candidates; it is intentionally not used as a production rollup branch. |
+| `feature/eng-2026-523-vk-batched-aux-main-submit-u48cab4ee` | Replaced two same-queue submit infos and their internal semaphore with one ordered two-command-buffer submit info. Focused validation passed with zero VUIDs, but a staging-heavy B-C-C-B comparison was neutral/slower (+0.025% median, +0.205% average), so it remains a measured research branch and is not selected for Full-Speed. |
 
 ## Display controls
 
