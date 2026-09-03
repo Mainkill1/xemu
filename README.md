@@ -99,3 +99,32 @@ explicit presentation-deadline policy, with host CPU usage, frame-time
 median/p95/p99, missed presents, audio stability, and guest-timer behavior
 measured together. This removal is a safety baseline, not abandonment of that
 feature.
+
+## Host-load deadline redesign lane
+
+This branch is the dedicated planning base for restoring an opt-in
+`Reduce host load` emulator setting safely. It currently contains no runtime
+behavior beyond the parent removal branch. Future implementation commits must
+remain isolated here until their A/B/C evidence is complete:
+
+```text
+A: Full-Speed 111deac13f with the legacy option disabled
+B: safe-removal parent 4140a916fb
+C: this branch with the redesigned option enabled
+```
+
+The new setting may pace only the presentation/display loop. It must wait on
+an actual presentation deadline, event, or measured adaptive budget; it must
+not change QEMU timer precision, guest clocks, interrupt scheduling, or audio
+pacing, and it must not add an unconditional fixed sleep.
+
+Test both release/LTO and debug builds. Run the perf-lab XISO, fresh-boot PGR2
+and Morrowind, and uncapped idle/menu/gameplay scenarios with the setting off
+and on. Record host CPU package/process use, render-loop wakeups, requested and
+actual wait duration, present cadence, median/p95/p99/max frame time, missed
+presents, input latency, audio underruns, and guest timer ticks. The option is
+acceptable only if it preserves guest-work counts and timing while producing
+a repeatable host-load reduction without worse frame-time tails.
+
+Any later implementation must replace this planning commit rather than
+silently reusing the removed process-global timer API.
