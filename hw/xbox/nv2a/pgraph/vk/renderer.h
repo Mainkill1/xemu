@@ -433,8 +433,10 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t push_constant_bytes;
     uint64_t identical_push_constant_count;
     uint64_t identical_push_constant_bytes;
+    uint64_t skipped_push_constant_count;
+    bool skip_identical_push_constants;
     bool last_push_constant_valid;
-    PipelineBinding *last_push_constant_pipeline;
+    VkPipelineLayout last_push_constant_layout;
     size_t last_push_constant_size;
     float last_push_constant_values[NV2A_VERTEXSHADER_ATTRIBUTES][4];
     uint64_t in_flight_submission_count;
@@ -662,9 +664,10 @@ void pgraph_vk_perf_record_bc_upload(PGRAPHVkState *r, bool native,
 void pgraph_vk_perf_record_index_payload(PGRAPHVkState *r, const void *data,
                                          VkDeviceSize size,
                                          VkDeviceSize staging_offset);
-void pgraph_vk_perf_record_push_constants(PGRAPHVkState *r,
-                                          PipelineBinding *pipeline,
-                                          const float *values, size_t size);
+bool pgraph_vk_perf_should_emit_push_constants(PGRAPHVkState *r,
+                                               VkPipelineLayout layout,
+                                               const float *values,
+                                               size_t size);
 void pgraph_vk_perf_begin_command_buffer(PGRAPHVkState *r);
 void pgraph_vk_perf_record_cpu_region(PGRAPHVkState *r, PerfCpuRegion region,
                                       uint64_t cpu_us);

@@ -86,6 +86,12 @@ static void write_cpu_stat_array(FILE *file, const char *key,
 
 void pgraph_vk_perf_init(PGRAPHVkState *r)
 {
+    const char *skip_push_constants =
+        g_getenv("XEMU_VK_SKIP_IDENTICAL_PUSH_CONSTANTS");
+    r->perf.skip_identical_push_constants =
+        skip_push_constants != NULL && skip_push_constants[0] != '\0' &&
+        strcmp(skip_push_constants, "0") != 0;
+
     const char *path = g_getenv("XEMU_VK_PERF_LOG");
     if (path == NULL || path[0] == '\0') {
         return;
@@ -266,35 +272,43 @@ void pgraph_vk_perf_record_index_payload(PGRAPHVkState *r, const void *data,
     perf->last_index_payload_size = size;
 }
 
-void pgraph_vk_perf_record_push_constants(PGRAPHVkState *r,
-                                          PipelineBinding *pipeline,
-                                          const float *values, size_t size)
+bool pgraph_vk_perf_should_emit_push_constants(PGRAPHVkState *r,
+                                               VkPipelineLayout layout,
+                                               const float *values,
+                                               size_t size)
 {
-    if (!r->perf.enabled) {
-        return;
+    PGRAPHVkPerfTelemetry *perf = &r->perf;
+    if (!(perf->enabled || perf->skip_identical_push_constants)) {
+        return true;
     }
 
-    PGRAPHVkPerfTelemetry *perf = &r->perf;
-    perf->push_constant_count++;
-    perf->push_constant_bytes += size;
-    if (perf->last_push_constant_valid &&
-        perf->last_push_constant_pipeline == pipeline &&
-        perf->last_push_constant_size == size &&
-        memcmp(perf->last_push_constant_values, values, size) == 0) {
-        perf->identical_push_constant_count++;
-        perf->identical_push_constant_bytes += size;
+    bool identical = perf->last_push_constant_valid &&
+                     perf->last_push_constant_layout == layout &&
+                     perf->last_push_constant_size == size &&
+                     memcmp(perf->last_push_constant_values, values, size) == 0;
+    if (perf->enabled) {
+        perf->push_constant_count++;
+        perf->push_constant_bytes += size;
+        if (identical) {
+            perf->identical_push_constant_count++;
+            perf->identical_push_constant_bytes += size;
+            if (perf->skip_identical_push_constants) {
+                perf->skipped_push_constant_count++;
+            }
+        }
     }
 
     assert(size <= sizeof(perf->last_push_constant_values));
     memcpy(perf->last_push_constant_values, values, size);
     perf->last_push_constant_valid = true;
-    perf->last_push_constant_pipeline = pipeline;
+    perf->last_push_constant_layout = layout;
     perf->last_push_constant_size = size;
+    return !(perf->skip_identical_push_constants && identical);
 }
 
 void pgraph_vk_perf_begin_command_buffer(PGRAPHVkState *r)
 {
-    if (r->perf.enabled) {
+    if (r->perf.enabled || r->perf.skip_identical_push_constants) {
         r->perf.last_push_constant_valid = false;
     }
 }
@@ -405,6 +419,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"push_constant_bytes_per_guest_frame\":%" PRIu64
             ",\"identical_push_constant_emits_per_guest_frame\":%" PRIu64
             ",\"identical_push_constant_bytes_per_guest_frame\":%" PRIu64
+            ",\"skipped_push_constant_emits_per_guest_frame\":%" PRIu64
             ",\"staged_bytes_per_submit\":%.3f"
             ",\"submit_infos_per_submit\":%.3f"
             ",\"command_buffers_per_submit\":%.3f"
@@ -430,6 +445,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->push_constant_count, perf->push_constant_bytes,
             perf->identical_push_constant_count,
             perf->identical_push_constant_bytes,
+            perf->skipped_push_constant_count,
             staged_bytes_per_submit,
             submit_infos_per_submit, command_buffers_per_submit,
             perf->in_flight_submission_count,
@@ -468,6 +484,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->push_constant_bytes = 0;
     perf->identical_push_constant_count = 0;
     perf->identical_push_constant_bytes = 0;
+    perf->skipped_push_constant_count = 0;
     perf->peak_in_flight_submission_count =
         perf->in_flight_submission_count;
     perf->oldest_in_flight_serial = 0;
