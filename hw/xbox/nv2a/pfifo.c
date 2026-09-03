@@ -84,13 +84,18 @@ void pfifo_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
         break;
     }
 
-    pfifo_kick(d);
+    pfifo_kick(d, NV2A_PFIFO_KICK_PFIFO_MMIO);
 
     qemu_mutex_unlock(&d->pfifo.lock);
 }
 
-void pfifo_kick(NV2AState *d)
+void pfifo_kick(NV2AState *d, NV2APfifoKickReason reason)
 {
+    assert(reason < NV2A_PFIFO_KICK_REASON_COUNT);
+    if (d->pfifo.fifo_waiting && !d->pfifo.fifo_wake_pending) {
+        d->pfifo.fifo_wake_pending = true;
+        d->pfifo.fifo_wake_reason = reason;
+    }
     d->pfifo.fifo_kick = true;
     qemu_cond_broadcast(&d->pfifo.fifo_cond);
 }
@@ -501,11 +506,17 @@ void *pfifo_thread(void *arg)
             // Both the pusher and puller are waiting for some action
             profile_start_us = profile_timing ?
                 qemu_clock_get_us(QEMU_CLOCK_REALTIME) : 0;
+            if (profile_timing) {
+                d->pfifo.fifo_waiting = true;
+                d->pfifo.fifo_wake_pending = false;
+                d->pfifo.fifo_wake_reason = NV2A_PFIFO_KICK_UNKNOWN;
+            }
             qemu_cond_wait(&d->pfifo.fifo_cond, &d->pfifo.lock);
             if (profile_timing) {
+                d->pfifo.fifo_waiting = false;
                 nv2a_profile_pfifo_record_idle_wait(
                     qemu_clock_get_us(QEMU_CLOCK_REALTIME) -
-                    profile_start_us);
+                    profile_start_us, d->pfifo.fifo_wake_reason);
             }
         }
         if (profile_timing) {

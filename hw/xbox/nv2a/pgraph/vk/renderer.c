@@ -197,7 +197,7 @@ static int pgraph_vk_get_framebuffer_surface(NV2AState *d)
 #if HAVE_EXTERNAL_MEMORY
     qemu_event_reset(&d->pgraph.sync_complete);
     qatomic_set(&pg->sync_pending, true);
-    pfifo_kick(d);
+    pfifo_kick(d, NV2A_PFIFO_KICK_DISPLAY_SYNC);
     qemu_mutex_unlock(&d->pfifo.lock);
     qemu_event_wait(&d->pgraph.sync_complete);
     return r->display.gl_texture_id;

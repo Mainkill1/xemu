@@ -289,7 +289,7 @@ static void nv2a_lock_fifo(NV2AState *d)
 
 static void nv2a_unlock_fifo(NV2AState *d)
 {
-    pfifo_kick(d);
+    pfifo_kick(d, NV2A_PFIFO_KICK_CONTROL);
     qemu_mutex_unlock(&d->pgraph.lock);
     qemu_mutex_unlock(&d->pfifo.lock);
 }

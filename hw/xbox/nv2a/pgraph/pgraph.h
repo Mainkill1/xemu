@@ -41,6 +41,19 @@ typedef struct PGRAPHNullState PGRAPHNullState;
 typedef struct PGRAPHGLState PGRAPHGLState;
 typedef struct PGRAPHVkState PGRAPHVkState;
 
+typedef enum NV2APfifoKickReason {
+    NV2A_PFIFO_KICK_UNKNOWN,
+    NV2A_PFIFO_KICK_USER_DMA_PUT,
+    NV2A_PFIFO_KICK_USER_DMA_OTHER,
+    NV2A_PFIFO_KICK_PGRAPH_INCREMENT,
+    NV2A_PFIFO_KICK_PGRAPH_EVENT,
+    NV2A_PFIFO_KICK_PFIFO_MMIO,
+    NV2A_PFIFO_KICK_DISPLAY_SYNC,
+    NV2A_PFIFO_KICK_SURFACE_REQUEST,
+    NV2A_PFIFO_KICK_CONTROL,
+    NV2A_PFIFO_KICK_REASON_COUNT,
+} NV2APfifoKickReason;
+
 typedef struct VertexAttribute {
     bool dma_select;
     hwaddr offset;
@@ -293,7 +306,7 @@ int pgraph_method(NV2AState *d, unsigned int subchannel, unsigned int method,
 void pgraph_check_within_begin_end_block(PGRAPHState *pg);
 
 void *pfifo_thread(void *arg);
-void pfifo_kick(NV2AState *d);
+void pfifo_kick(NV2AState *d, NV2APfifoKickReason reason);
 
 void pgraph_renderer_register(const PGRAPHRenderer *renderer);
 

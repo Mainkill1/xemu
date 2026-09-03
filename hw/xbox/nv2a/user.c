@@ -73,6 +73,7 @@ uint64_t user_read(void *opaque, hwaddr addr, unsigned int size)
 void user_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
 {
     NV2AState *d = (NV2AState *)opaque;
+    NV2APfifoKickReason kick_reason = NV2A_PFIFO_KICK_USER_DMA_OTHER;
 
     nv2a_reg_log_write(NV_USER, addr, size, val);
 
@@ -92,6 +93,7 @@ void user_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
             switch (addr & 0xFFFF) {
             case NV_USER_DMA_PUT:
                 d->pfifo.regs[NV_PFIFO_CACHE1_DMA_PUT] = val;
+                kick_reason = NV2A_PFIFO_KICK_USER_DMA_PUT;
                 break;
             case NV_USER_DMA_GET:
                 d->pfifo.regs[NV_PFIFO_CACHE1_DMA_GET] = val;
@@ -105,7 +107,7 @@ void user_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
                 break;
             }
 
-            pfifo_kick(d);
+            pfifo_kick(d, kick_reason);
 
         } else {
             /* ramfc */

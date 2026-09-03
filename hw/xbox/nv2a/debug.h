@@ -159,7 +159,8 @@ typedef enum NV2AProfilePfifoRegion {
 
 void nv2a_profile_pfifo_record_region(NV2AProfilePfifoRegion region,
                                        uint64_t elapsed_us);
-void nv2a_profile_pfifo_record_idle_wait(uint64_t elapsed_us);
+void nv2a_profile_pfifo_record_idle_wait(uint64_t elapsed_us,
+                                          unsigned int wake_reason);
 void nv2a_profile_pfifo_record_loop(bool skipped_wait_for_kick);
 
 static inline void nv2a_profile_inc_counter(enum NV2A_PROF_COUNTERS_ENUM cnt)

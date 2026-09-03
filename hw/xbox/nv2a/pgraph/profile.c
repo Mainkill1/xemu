@@ -32,6 +32,8 @@ typedef struct NV2AProfilePfifoAtomicStats {
     uint64_t region_us[NV2A_PROFILE_PFIFO_REGION_COUNT];
     uint64_t idle_wait_count;
     uint64_t idle_wait_us;
+    uint64_t wake_count[NV2A_PFIFO_KICK_REASON_COUNT];
+    uint64_t wake_wait_us[NV2A_PFIFO_KICK_REASON_COUNT];
     uint64_t loop_count;
     uint64_t kick_skip_wait_count;
 } NV2AProfilePfifoAtomicStats;
@@ -48,6 +50,11 @@ static NV2AProfilePfifoAtomicStats nv2a_profile_take_pfifo_stats(void)
     }
     result.idle_wait_count = qatomic_xchg(&pfifo_stats.idle_wait_count, 0);
     result.idle_wait_us = qatomic_xchg(&pfifo_stats.idle_wait_us, 0);
+    for (unsigned int i = 0; i < NV2A_PFIFO_KICK_REASON_COUNT; i++) {
+        result.wake_count[i] = qatomic_xchg(&pfifo_stats.wake_count[i], 0);
+        result.wake_wait_us[i] =
+            qatomic_xchg(&pfifo_stats.wake_wait_us[i], 0);
+    }
     result.loop_count = qatomic_xchg(&pfifo_stats.loop_count, 0);
     result.kick_skip_wait_count =
         qatomic_xchg(&pfifo_stats.kick_skip_wait_count, 0);
@@ -105,7 +112,25 @@ static void nv2a_profile_write_frame_log(
                   " pfifo_reports_calls=%" PRIu64
                   " pfifo_reports_us=%" PRIu64
                   " pfifo_idle_wait_count=%" PRIu64
-                  " pfifo_idle_wait_us=%" PRIu64 "\n",
+                  " pfifo_idle_wait_us=%" PRIu64
+                  " pfifo_wake_unknown_count=%" PRIu64
+                  " pfifo_wake_unknown_us=%" PRIu64
+                  " pfifo_wake_user_dma_put_count=%" PRIu64
+                  " pfifo_wake_user_dma_put_us=%" PRIu64
+                  " pfifo_wake_user_dma_other_count=%" PRIu64
+                  " pfifo_wake_user_dma_other_us=%" PRIu64
+                  " pfifo_wake_pgraph_increment_count=%" PRIu64
+                  " pfifo_wake_pgraph_increment_us=%" PRIu64
+                  " pfifo_wake_pgraph_event_count=%" PRIu64
+                  " pfifo_wake_pgraph_event_us=%" PRIu64
+                  " pfifo_wake_pfifo_mmio_count=%" PRIu64
+                  " pfifo_wake_pfifo_mmio_us=%" PRIu64
+                  " pfifo_wake_display_sync_count=%" PRIu64
+                  " pfifo_wake_display_sync_us=%" PRIu64
+                  " pfifo_wake_surface_request_count=%" PRIu64
+                  " pfifo_wake_surface_request_us=%" PRIu64
+                  " pfifo_wake_control_count=%" PRIu64
+                  " pfifo_wake_control_us=%" PRIu64 "\n",
             now, frame, now - previous_frame, work_to_flip_stall_us,
             flip_stall_to_increment_us, flip_stalls, vblanks,
             increment_after_vblank_us, pfifo->loop_count,
@@ -116,7 +141,25 @@ static void nv2a_profile_write_frame_log(
             pfifo->region_us[NV2A_PROFILE_PFIFO_PUSHER],
             pfifo->region_calls[NV2A_PROFILE_PFIFO_REPORTS],
             pfifo->region_us[NV2A_PROFILE_PFIFO_REPORTS],
-            pfifo->idle_wait_count, pfifo->idle_wait_us);
+            pfifo->idle_wait_count, pfifo->idle_wait_us,
+            pfifo->wake_count[NV2A_PFIFO_KICK_UNKNOWN],
+            pfifo->wake_wait_us[NV2A_PFIFO_KICK_UNKNOWN],
+            pfifo->wake_count[NV2A_PFIFO_KICK_USER_DMA_PUT],
+            pfifo->wake_wait_us[NV2A_PFIFO_KICK_USER_DMA_PUT],
+            pfifo->wake_count[NV2A_PFIFO_KICK_USER_DMA_OTHER],
+            pfifo->wake_wait_us[NV2A_PFIFO_KICK_USER_DMA_OTHER],
+            pfifo->wake_count[NV2A_PFIFO_KICK_PGRAPH_INCREMENT],
+            pfifo->wake_wait_us[NV2A_PFIFO_KICK_PGRAPH_INCREMENT],
+            pfifo->wake_count[NV2A_PFIFO_KICK_PGRAPH_EVENT],
+            pfifo->wake_wait_us[NV2A_PFIFO_KICK_PGRAPH_EVENT],
+            pfifo->wake_count[NV2A_PFIFO_KICK_PFIFO_MMIO],
+            pfifo->wake_wait_us[NV2A_PFIFO_KICK_PFIFO_MMIO],
+            pfifo->wake_count[NV2A_PFIFO_KICK_DISPLAY_SYNC],
+            pfifo->wake_wait_us[NV2A_PFIFO_KICK_DISPLAY_SYNC],
+            pfifo->wake_count[NV2A_PFIFO_KICK_SURFACE_REQUEST],
+            pfifo->wake_wait_us[NV2A_PFIFO_KICK_SURFACE_REQUEST],
+            pfifo->wake_count[NV2A_PFIFO_KICK_CONTROL],
+            pfifo->wake_wait_us[NV2A_PFIFO_KICK_CONTROL]);
     previous_frame = now;
 
     /* Keep live stall detection within one second without forcing a disk
@@ -282,10 +325,14 @@ void nv2a_profile_pfifo_record_region(NV2AProfilePfifoRegion region,
     qatomic_fetch_add(&pfifo_stats.region_us[region], elapsed_us);
 }
 
-void nv2a_profile_pfifo_record_idle_wait(uint64_t elapsed_us)
+void nv2a_profile_pfifo_record_idle_wait(uint64_t elapsed_us,
+                                          unsigned int wake_reason)
 {
+    assert(wake_reason < NV2A_PFIFO_KICK_REASON_COUNT);
     qatomic_fetch_add(&pfifo_stats.idle_wait_count, 1);
     qatomic_fetch_add(&pfifo_stats.idle_wait_us, elapsed_us);
+    qatomic_fetch_add(&pfifo_stats.wake_count[wake_reason], 1);
+    qatomic_fetch_add(&pfifo_stats.wake_wait_us[wake_reason], elapsed_us);
 }
 
 void nv2a_profile_pfifo_record_loop(bool skipped_wait_for_kick)
