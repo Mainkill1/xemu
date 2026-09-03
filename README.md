@@ -243,6 +243,7 @@ change.
 | `research/eng-2026-523-sparse-uniform-layout-safe-u6299d05f` | Investigated safely skipping clean uniform rows; retained as research pending an independently validated landing. |
 | `research/eng-2026-523-tcg-tb-lookup-attribution-u065f47f7` | Collected indirect TB-lookup evidence that informed the later TCG fast paths. |
 | `research/eng-2026-523-vk-stalled-gpu-timestamps-uf1f85872` | Added diagnostic Vulkan timing experiments and records several reverted candidates; it is intentionally not used as a production rollup branch. |
+| `research/eng-2026-523-vk-report-boundary-submit-u688e8e71` | Resolves strict Vulkan ZPASS reports at `GET_REPORT` rather than FIFO idle. All six ReportQuery cases passed with zero VUIDs, but Morrowind STALLED time changed only -0.534%, total waits rose 1.240%, submits rose 6.212%, and p99 worsened 0.712%; retain as rejected measured research. |
 
 ## Display controls
 
