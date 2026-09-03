@@ -64,7 +64,8 @@ The release-equivalent toolchain used by this branch is:
 | Target | `x86_64-w64-mingw32.static` |
 | Compiler | GCC 16.1.0 |
 | Linker | GNU binutils 2.46.0.20260210 |
-| Meson | 1.11.1 |
+| Meson in container | 1.11.1 |
+| Meson selected by xemu's build venv | 1.9.0 |
 | Ninja | 1.13.2 |
 | Python | 3.12.3 |
 | ccache | 3.6 |
@@ -98,21 +99,38 @@ docker run --rm \
   -v "$PWD/.build-cache:/xemu-cache" \
   -w /src \
   ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2 \
-  bash -lc 'mkdir -p "$CCACHE_DIR" "$LTO_CACHE_DIR" && \
+  bash -lc 'apt-get update && apt-get install -qy curl && \
+    mkdir -p "$CCACHE_DIR" "$LTO_CACHE_DIR" && \
     ./build.sh -j"$(nproc)" -p win64-cross \
       --extra-cflags="-flto-incremental=$LTO_CACHE_DIR -flto-partition=cache" \
       -Db_lto=true -Dx86_version=3'
 ```
 
+The `curl` installation is part of xemu's official workflow and is required:
+the pinned toolchain image itself does not provide an executable `curl`, while
+the DSP fallback downloads its versioned binary during configuration.
+
 The unpackaged executable is `build/qemu-system-i386w.exe`. `build.sh` also
 creates the distributable `dist/xemu.exe` and `dist/LICENSE.txt`. Preserve
 `build.log`; it contains the effective configure and compiler invocation.
+The first direct-checkout build needs network access for sources declared by
+the repository's pinned Meson wraps (for example SDL); subsequent builds can
+reuse the populated source/build tree. Release CI instead consumes the source
+archive produced by xemu's archive workflow, which pre-collects build inputs.
 
 For a completely clean confirmation, use a fresh clone or remove only that
 clone's `build`, `dist`, and `.build-cache` directories before rerunning. Do
 not compare hashes from two builds unless source commit, container digest,
 options, and generated version inputs are identical; timestamps and version
 metadata can otherwise make byte-for-byte output differ.
+
+On a rootless Docker installation, verify that the remapped container user can
+write the source's generated `build`, `dist`, and `subprojects` paths plus the
+external cache. If a disposable clean clone appears as `nobody:nogroup` inside
+the container, grant write permission only to that disposable clone and cache
+(the lab used `chmod -R a+rwX` on those two build-only trees). Do not apply that
+workaround to a shared source checkout. Rootful Docker normally needs no
+permission adjustment.
 
 ### Lab incremental builds versus recommended builds
 
