@@ -22,6 +22,7 @@ not replacements for their history.
 | `xemu-pr-staging: feature/eng-2026-336-stage-local-vulkan-uniforms-v3-uec89c153` | Included, conflict-resolved | Separates vertex- and pixel-shader uniform source generations so unchanged stages do not rewrite or re-upload their UBOs. It preserves exact float bit patterns, tracks effective polygon-offset inputs, and retains Full-Speed's existing VMState-compatible dirty-row handling. |
 | `fix/eng-2026-523-vk-report-dma-ownership` | Included on this branch | Captures the active DMA report context when `GET_REPORT` is queued, so delayed Vulkan report publication cannot be redirected by a later context switch. |
 | `feature/eng-2026-523-vk-texture-pipeline-fastpath-uaad84ed1` | Included on this candidate branch | Avoids rebuilding and looking up an unchanged Vulkan `PipelineKey` when only texture image/sampler descriptor identity changed. Shader-affecting texture state remains covered by `ShaderState`; descriptor refresh remains unchanged. |
+| `fix/eng-2026-523-nv2a-ptimer-overdue-catchup-u76925787` | Included on this candidate branch | Advances an overdue NV2A PTIMER alarm directly to its next future epoch, avoiding a repeated immediate-timer/BQL storm after fresh game load while preserving the single hardware pending bit. |
 
 ### Build policy by branch type
 
@@ -243,7 +244,7 @@ change.
 | `research/eng-2026-523-sparse-uniform-layout-safe-u6299d05f` | Investigated safely skipping clean uniform rows; retained as research pending an independently validated landing. |
 | `research/eng-2026-523-tcg-tb-lookup-attribution-u065f47f7` | Collected indirect TB-lookup evidence that informed the later TCG fast paths. |
 | `research/eng-2026-523-vk-stalled-gpu-timestamps-uf1f85872` | Added diagnostic Vulkan timing experiments and records several reverted candidates; it is intentionally not used as a production rollup branch. |
-| `research/eng-2026-523-vk-tiny-draw-reuse-attribution-u42bc13ac` | Measured repeated inline-index and push-constant payloads in Morrowind. The identical push-constant skip was rejected after a same-binary B-C-C-B result of +0.12% average guest time / -0.17% FPS; the smaller inline-index reuse lead remains under test. |
+| `research/eng-2026-523-vk-tiny-draw-reuse-attribution-u42bc13ac` | Measured repeated inline-index and push-constant payloads in Morrowind. The push-constant skip was rejected. Exact consecutive inline-index reuse is retained as a bounded resource win after removing about 283 copies / 114 KiB per frame, but its balanced same-binary timing result was neutral. |
 
 ## Display controls
 
@@ -296,6 +297,77 @@ XISO SHA-256    08551d0c0b7bc5efb20a7b36d6d4f0e24ab666b4cee25930232858ccd9872a3e
 catalog SHA-256 027065948624d6aafdbe557bed8123eb6dcaa83353cf242c71d030a109b64578
 catalog records 147 (142 executable leaves and 5 groups)
 ```
+
+## NV2A PTIMER overdue catch-up
+
+Fresh PGR2 exposed a renderer-independent regression that snapshot restore
+masked. At release-equivalent commit
+`1a5e2aa87f497b89f787023f3a2c098b93697c37`, fresh Vulkan averaged 6.722
+FPS and fresh OpenGL averaged 8.203 FPS while a Vulkan snapshot restored at
+30.000 FPS. Scheduler evidence attributed the fresh-load loss to repeated
+immediate PTIMER callbacks around the big QEMU lock.
+
+Commit `35ebe08da7619a935aaa3a3df75dfb69e0ec949c` retains the single pending
+interrupt bit but calculates the next matching future deadline from current
+PTIMER time rather than advancing only one missed epoch. Its deterministic
+regression case fails against the old implementation and all six PTIMER unit
+cases pass with the fix. The clean full-LTO build recovered fresh PGR2 to
+30.000 FPS on Vulkan and 30.002 FPS on OpenGL. Vulkan p95/p99 were
+33.537/34.329 ms, and its TCG BQL sample share fell from 58.0% to 0.36%.
+
+The fix was revalidated in both full-LTO release and `-O0` non-LTO debug
+builds. The release build passed the current 147-record XISO with functional
+hash validation and active Vulkan validation, and the heavier Morrowind
+snapshot rendered correctly at 28.787 FPS with a 50.005 ms p95. Debug timings
+are diagnostic only.
+
+## Consecutive inline-index reuse
+
+`XEMU_VK_REUSE_IDENTICAL_INDEX_PAYLOADS=1` enables a bounded research
+experiment at commit `c51f5271e26ace1f11dc2bb65507b8bcc107e604`. It reuses
+an index staging offset only when the immediately preceding payload has the
+same size and exact bytes in the same command buffer. The remembered offset is
+invalidated at command-buffer begin, so no cross-command-buffer or in-flight
+memory is reused.
+
+A full-LTO same-binary A-B-B-A run on Morrowind snapshot
+`vm-20260903021051` eliminated 282.84 copies and 113,738 index bytes per guest
+frame. Total staged bytes fell 1.176%. Timing was neutral: enabled versus
+disabled was -0.035% FPS, -0.288% mean frame time, -0.005% p95, and +0.424%
+p99. All four p95 values remained approximately 50 ms. Retain this as a small
+resource/copy reduction, not as a cadence fix.
+
+The release candidate also restored the new PGR2 race at 29.940 FPS and the
+debug build reached live Morrowind plus a PGR2 FreshBoot race. The exact
+current perf-lab gate passed 147/147 with functional hashes, active Vulkan
+validation, zero VUIDs, and the enabled environment recorded in its summary.
+Before production review, extract the index-reuse path from this research
+branch so the rejected push-constant skip is not coupled to the accepted
+resource decision.
+
+PGR2 snapshot restore remains a separate reliability lead: release restore
+hit `dsp_cpu.c:893:read_memory_p` on one of two launches, and debug restore hit
+the same assertion on both attempts before draw measurement began. Debug
+FreshBoot then reached a live race using a 10-second BIOS allowance followed
+by `A-3,A-10,A-2,A-2,F-2,A-2,A-2,A-2,A-2,A-2,A-7`. Do not merge snapshot
+and FreshBoot results into one timing cohort.
+
+Exact build identities for this experiment are:
+
+```text
+source commit                 c51f5271e26ace1f11dc2bb65507b8bcc107e604
+release post-cv2pdb xemu.exe e6863bcdc827a069eb859fec329d7b3efaa0c444612fe1b79ad32af3a87e0311
+release PDB                   dd256c54021332747383cd9ce15c90980afcfe59728cfd002e5af61248d80a60
+release DWARF executable      15e8118e6a11313ea4d56cc8aa587594d41d1cbb890395d554ff0b0610edb86e
+debug post-cv2pdb xemu.exe    6d554667748f9f75bb1e5bd06e27c5d3e4a91e17b42163594d5cc9299d745758
+debug PDB                     9882c3face26ce9f7a6f57368f614181db6e18db743607ec72954de2b47f1e9e
+debug DWARF executable        ad6e356b2aede0281bd644ff064db0b90bc2da88a7b0637acc2228acb287b886
+```
+
+The exact release and debug commands, pinned container digest, compiler,
+linker, Meson, Ninja, `cv2pdb`, map generation, and artifact requirements are
+the common reproducibility contract above. This experiment adds no private
+toolchain or branch-specific compiler flag.
 
 ## Staging audit
 
