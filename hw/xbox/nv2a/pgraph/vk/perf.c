@@ -133,7 +133,7 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":11"
+            "{\"type\":\"schema\",\"schema_version\":12"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
             ",\"tiny_draw_attribution_version\":1",
@@ -438,7 +438,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":11"
+            "{\"type\":\"frame\",\"schema_version\":12"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
@@ -508,6 +508,17 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"vsh_uniform_update_requests_per_guest_frame\":%" PRIu64
             ",\"psh_uniform_update_requests_per_guest_frame\":%" PRIu64
             ",\"shader_uniform_no_updates_per_guest_frame\":%" PRIu64
+            ",\"vsh_uniform_source_changes_per_guest_frame\":%" PRIu64
+            ",\"vsh_uniform_layout_changes_per_guest_frame\":%" PRIu64
+            ",\"vsh_uniform_inline_values_per_guest_frame\":%" PRIu64
+            ",\"vsh_uniform_dirty_rows_per_guest_frame\":%" PRIu64
+            ",\"psh_uniform_source_changes_per_guest_frame\":%" PRIu64
+            ",\"psh_uniform_layout_changes_per_guest_frame\":%" PRIu64
+            ",\"psh_uniform_texture_binding_changes_per_guest_frame\":%" PRIu64
+            ",\"psh_uniform_effective_input_changes_per_guest_frame\":%" PRIu64
+            ",\"shader_uniform_force_full_updates_per_guest_frame\":%" PRIu64
+            ",\"vsh_uniform_value_changes_per_guest_frame\":%" PRIu64
+            ",\"psh_uniform_value_changes_per_guest_frame\":%" PRIu64
             ",\"native_bc_uploads_per_guest_frame\":%" PRIu64
             ",\"native_bc_source_bytes_per_guest_frame\":%" PRIu64
             ",\"native_bc_staged_bytes_per_guest_frame\":%" PRIu64
@@ -557,6 +568,17 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->vsh_uniform_update_request_count,
             perf->psh_uniform_update_request_count,
             perf->shader_uniform_no_update_count,
+            perf->vsh_uniform_source_change_count,
+            perf->vsh_uniform_layout_change_count,
+            perf->vsh_uniform_inline_value_count,
+            perf->vsh_uniform_dirty_row_count,
+            perf->psh_uniform_source_change_count,
+            perf->psh_uniform_layout_change_count,
+            perf->psh_uniform_texture_binding_change_count,
+            perf->psh_uniform_effective_input_change_count,
+            perf->shader_uniform_force_full_update_count,
+            perf->vsh_uniform_value_change_count,
+            perf->psh_uniform_value_change_count,
             perf->native_bc_upload_count, perf->native_bc_source_bytes,
             perf->native_bc_staged_bytes, perf->native_bc_prepare_cpu_us,
             perf->decoded_bc_upload_count, perf->decoded_bc_source_bytes,
@@ -608,6 +630,17 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->vsh_uniform_update_request_count = 0;
     perf->psh_uniform_update_request_count = 0;
     perf->shader_uniform_no_update_count = 0;
+    perf->vsh_uniform_source_change_count = 0;
+    perf->vsh_uniform_layout_change_count = 0;
+    perf->vsh_uniform_inline_value_count = 0;
+    perf->vsh_uniform_dirty_row_count = 0;
+    perf->psh_uniform_source_change_count = 0;
+    perf->psh_uniform_layout_change_count = 0;
+    perf->psh_uniform_texture_binding_change_count = 0;
+    perf->psh_uniform_effective_input_change_count = 0;
+    perf->shader_uniform_force_full_update_count = 0;
+    perf->vsh_uniform_value_change_count = 0;
+    perf->psh_uniform_value_change_count = 0;
     perf->native_bc_upload_count = 0;
     perf->native_bc_source_bytes = 0;
     perf->native_bc_staged_bytes = 0;

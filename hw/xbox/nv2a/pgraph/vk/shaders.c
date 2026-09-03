@@ -81,6 +81,26 @@ static void get_uniform_stage_update_needs(PGRAPHState *pg,
         inputs.layout_changed[stage] = r->uniform_layout_changed[stage];
     }
 
+    if (r->perf.enabled) {
+        r->perf.vsh_uniform_source_change_count +=
+            inputs.source_changed[PGRAPH_UNIFORM_STAGE_VSH];
+        r->perf.vsh_uniform_layout_change_count +=
+            inputs.layout_changed[PGRAPH_UNIFORM_STAGE_VSH];
+        r->perf.vsh_uniform_inline_value_count +=
+            inputs.inline_values_in_vsh_ubo;
+        r->perf.vsh_uniform_dirty_row_count += inputs.vsh_rows_dirty;
+        r->perf.psh_uniform_source_change_count +=
+            inputs.source_changed[PGRAPH_UNIFORM_STAGE_PSH];
+        r->perf.psh_uniform_layout_change_count +=
+            inputs.layout_changed[PGRAPH_UNIFORM_STAGE_PSH];
+        r->perf.psh_uniform_texture_binding_change_count +=
+            inputs.texture_bindings_changed;
+        r->perf.psh_uniform_effective_input_change_count +=
+            inputs.psh_effective_inputs_changed;
+        r->perf.shader_uniform_force_full_update_count +=
+            inputs.force_full_update;
+    }
+
     pgraph_uniform_stage_update_needs(&inputs, update_stage);
 }
 
@@ -643,6 +663,10 @@ static void update_shader_uniforms(PGRAPHState *pg, const bool update_stage[])
         vsh_changed || vsh_layout_changed;
     r->uniform_stage_dirty[PGRAPH_UNIFORM_STAGE_PSH] |=
         psh_changed || psh_layout_changed;
+    if (r->perf.enabled) {
+        r->perf.vsh_uniform_value_change_count += vsh_changed;
+        r->perf.psh_uniform_value_change_count += psh_changed;
+    }
     sync_uniform_dirty_summary(r);
 
     nv2a_profile_inc_counter(r->uniforms_changed ?

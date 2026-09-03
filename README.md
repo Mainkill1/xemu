@@ -534,13 +534,15 @@ release DWARF executable      94c3a23f17ee8e6ec49e242f7d8ad3385c5b16e7561f0b0666
 release map                   e1ea02ba4703daeac8e8de1cb9fd35a24710102dc1d739584a9b289e5f21cffb
 ```
 
-Telemetry schema 11 adds the next diagnostic layer. It times
+Telemetry schema 11 added the first shader-binding diagnostic layer. It times
 `shader_state_prepare`, `shader_uniform_needs`, and
 `shader_uniform_update` separately, and records bind calls, state checks,
 dirty results, binding changes, VSH/PSH update requests, and no-update exits
 per guest frame. These counters remain inactive unless `XEMU_VK_PERF_LOG` is
-set. Schema-10 evidence remains the baseline until a clean schema-11 build is
-captured; diagnostic timing overhead is not treated as a production result.
+set. Schema 12 additionally attributes each VSH/PSH update request to its
+source, layout, texture-binding, effective-input, inline-value, dirty-row, or
+forced-update cause, and records whether the copied VSH/PSH values actually
+changed. Diagnostic timing overhead is not treated as a production result.
 
 ## Staging audit
 

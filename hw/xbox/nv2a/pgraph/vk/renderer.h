@@ -430,6 +430,17 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t vsh_uniform_update_request_count;
     uint64_t psh_uniform_update_request_count;
     uint64_t shader_uniform_no_update_count;
+    uint64_t vsh_uniform_source_change_count;
+    uint64_t vsh_uniform_layout_change_count;
+    uint64_t vsh_uniform_inline_value_count;
+    uint64_t vsh_uniform_dirty_row_count;
+    uint64_t psh_uniform_source_change_count;
+    uint64_t psh_uniform_layout_change_count;
+    uint64_t psh_uniform_texture_binding_change_count;
+    uint64_t psh_uniform_effective_input_change_count;
+    uint64_t shader_uniform_force_full_update_count;
+    uint64_t vsh_uniform_value_change_count;
+    uint64_t psh_uniform_value_change_count;
     uint64_t submit_info_count;
     uint64_t command_buffer_count;
     uint64_t staged_bytes;
