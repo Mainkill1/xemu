@@ -791,12 +791,6 @@ void MainMenuDisplayView::Draw()
     }
     Toggle("Vertical refresh sync", &g_config.display.window.vsync,
            "Sync to screen vertical refresh to reduce tearing artifacts");
-    Toggle("Reduce host CPU usage when VSync is off",
-           &g_config.display.window.reduce_host_cpu_usage,
-           "Use efficient host timer waits and yield between uncapped "
-           "presentation frames; may slightly reduce maximum emulation "
-           "performance");
-
     SectionTitle("Interface");
     Toggle("Show main menu bar", &g_config.display.ui.show_menubar,
            "Show main menu bar when mouse is activated");
