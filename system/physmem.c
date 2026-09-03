@@ -912,7 +912,6 @@ static void do_mem_access_callback_remove_by_ref(CPUState *cpu,
     MemAccessCallback *cb = (MemAccessCallback *)data.host_ptr;
     QTAILQ_REMOVE(&cpu->mem_access_callbacks, cb, entry);
     tlb_flush(cpu);
-    g_free(cb);
 }
 
 void mem_access_callback_remove_by_ref(CPUState *cpu, MemAccessCallback *cb)
@@ -926,6 +925,9 @@ void mem_access_callback_remove_by_ref(CPUState *cpu, MemAccessCallback *cb)
 
     // FIXME: flush only applicable pages
     tlb_flush_all_cpus_synced(cpu);
+
+    /* Every cached TLB reference is invalid before the callback is freed. */
+    g_free(cb);
 }
 
 void mem_check_access_callback_vaddr(CPUState *cpu,
