@@ -70,6 +70,25 @@ static void destroy_command_buffers(PGRAPHState *pg)
     r->aux_command_buffer = VK_NULL_HANDLE;
 }
 
+static void create_aux_command_buffer_fence(PGRAPHState *pg)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    VkFenceCreateInfo create_info = {
+        .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+    };
+
+    VK_CHECK(vkCreateFence(r->device, &create_info, NULL,
+                           &r->aux_command_buffer_fence));
+}
+
+static void destroy_aux_command_buffer_fence(PGRAPHState *pg)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+
+    vkDestroyFence(r->device, r->aux_command_buffer_fence, NULL);
+    r->aux_command_buffer_fence = VK_NULL_HANDLE;
+}
+
 VkCommandBuffer pgraph_vk_begin_single_time_commands(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -103,7 +122,9 @@ void pgraph_vk_end_single_time_commands(PGRAPHState *pg, VkCommandBuffer cmd,
     };
     int64_t submit_start = r->perf.enabled ?
         qemu_clock_get_us(QEMU_CLOCK_REALTIME) : 0;
-    VkResult result = vkQueueSubmit(r->queue, 1, &submit_info, VK_NULL_HANDLE);
+    VK_CHECK(vkResetFences(r->device, 1, &r->aux_command_buffer_fence));
+    VkResult result = vkQueueSubmit(r->queue, 1, &submit_info,
+                                    r->aux_command_buffer_fence);
     uint64_t submit_cpu_us = r->perf.enabled ?
         MAX(qemu_clock_get_us(QEMU_CLOCK_REALTIME) - submit_start, 0) : 0;
     VK_CHECK(result);
@@ -111,7 +132,8 @@ void pgraph_vk_end_single_time_commands(PGRAPHState *pg, VkCommandBuffer cmd,
     nv2a_profile_inc_counter(NV2A_PROF_QUEUE_SUBMIT_AUX);
     int64_t wait_start = r->perf.enabled ?
         qemu_clock_get_us(QEMU_CLOCK_REALTIME) : 0;
-    result = vkQueueWaitIdle(r->queue);
+    result = vkWaitForFences(r->device, 1, &r->aux_command_buffer_fence,
+                             VK_TRUE, UINT64_MAX);
     uint64_t wait_us = r->perf.enabled ?
         MAX(qemu_clock_get_us(QEMU_CLOCK_REALTIME) - wait_start, 0) : 0;
     VK_CHECK(result);
@@ -125,10 +147,12 @@ void pgraph_vk_init_command_buffers(PGRAPHState *pg)
 {
     create_command_pool(pg);
     create_command_buffers(pg);
+    create_aux_command_buffer_fence(pg);
 }
 
 void pgraph_vk_finalize_command_buffers(PGRAPHState *pg)
 {
+    destroy_aux_command_buffer_fence(pg);
     destroy_command_buffers(pg);
     destroy_command_pool(pg);
 }

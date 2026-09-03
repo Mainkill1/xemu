@@ -462,6 +462,7 @@ typedef struct PGRAPHVkState {
     PGRAPHVkBlendConstantsCache blend_constants;
 
     VkCommandBuffer aux_command_buffer;
+    VkFence aux_command_buffer_fence;
     bool in_aux_command_buffer;
 
     PGRAPHVkPerfTelemetry perf;
