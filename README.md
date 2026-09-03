@@ -58,6 +58,17 @@ this investigation number. Each extracted branch must state A/B/C source
 commits, release/debug builds, perf-lab XISO coverage, the relevant retail
 fresh-boot or snapshot workload, and its hypothesis-specific metric.
 
+### Corrective-branch validation to date
+
+The exact behavior head `2ed201fe4fe93e833f6c6b105098d9889be4e765`
+builds successfully in both the pinned release/LTO configuration and the
+assertion-enabled debug configuration documented below. In each build,
+`tests/unit/test-xbox-nv2a-ptimer.exe --tap -k` passed all 9 tests under Wine,
+including callback, post-load, interrupt-read, interrupt-enable, exact
+multi-epoch, and zero-ratio cases. This proves compilation and focused PTIMER
+behavior; it does not replace the pending perf-lab XISO, multi-vCPU callback
+stress, Vulkan synchronization validation, or fresh-boot retail gates.
+
 ## Reproducing the Windows builds
 
 No private compiler, patched SDK, or hidden branch-specific flag is required.
