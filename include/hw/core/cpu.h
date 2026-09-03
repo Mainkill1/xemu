@@ -227,6 +227,7 @@ struct CPUTLBEntryFull {
     struct MemAccessCallback *mem_access_callback;
     unsigned long *code_dirty_word;
     unsigned long code_dirty_mask;
+    uintptr_t ram_host_page;
 #endif
 
     /*

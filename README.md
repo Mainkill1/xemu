@@ -259,9 +259,10 @@ or production-promote the behavior in its current state.
 The setting remains disabled by default. The NVIDIA power preference is
 automatic on supported Windows NVIDIA systems, and Vulkan telemetry remains
 opt-in through `XEMU_VK_PERF_LOG`.
-The combined Vulkan telemetry record uses schema version 7. It includes
+The combined Vulkan telemetry record uses schema version 9. It includes
 CPU-region and native-BC upload counters, disaggregated buffer-space finish
-owners, and descriptor-set capacity/high-water fields.
+owners, descriptor-set capacity/high-water fields, and vertex dirty-check,
+page, hit, and recent-range-reuse counters.
 
 ## Texture-only Vulkan pipeline lookup fast path
 
@@ -383,7 +384,7 @@ Commit `1c35d2e7b6a5c2e1b251c31e42c924858fb6b961` adds the opt-in
 `XEMU_VK_EXPAND_DESCRIPTOR_SETS=1`. Disabled preserves the old 1,024-set pool,
 allocation, and reuse boundary. Enabled allocates a bounded 2,048-set graphics
 pool; it does not allow an in-flight descriptor set to be rewritten. Both
-capacities fit in a fixed 2,048-handle array. Schema-7 telemetry records the
+capacities fit in a fixed 2,048-handle array. Telemetry records the
 selected capacity and per-frame descriptor high-water.
 
 A same-binary full-LTO A-B-B-A run proved the resource mechanism. Both
@@ -417,6 +418,24 @@ debug post-cv2pdb xemu.exe    d4a2f4e106a3c784cf1abf1534962d2cf0a490f27207d4bf0d
 debug PDB                     f6cf2a60df942602c1ac2130ade5d268c4b40546baf9e06541f7586c4ac4974d
 debug DWARF executable        46766cfbfca33975699aa614064c94ccd08257dda5dab5959a9e7ccfd0bddaba
 ```
+
+## TLB dirty host-page prefilter experiment
+
+The heavier Morrowind snapshot averages about 1,116 vertex dirty checks and
+337 ordered vertex staging copies per guest frame. Exact PFIFO ETW attributes
+about 18.2% of resolved PFIFO CPU samples, approximately 1.8 ms/frame, to
+`tlb_reset_dirty_range_all()`. Schema-9 telemetry also shows that only about
+9.8 dirty hit ranges/frame repeat within the recent eight-range window, so an
+exact renderer-range cache is not a useful attack vector.
+
+`XEMU_TCG_TLB_DIRTY_HOST_PAGE_FILTER=1` enables a narrower same-binary
+experiment. Writable RAM translations cache their already-computed host page
+in the full TLB entry. Dirty reset still visits every active MMU mode and
+retains the original flag and range test for every possible match, but rejects
+nonmatching host pages before reading and updating the hot fast-entry state.
+Aliases remain independent entries and therefore remain covered. Unset or `0`
+preserves the prior scan behavior. This is research-only until release/debug,
+perf-lab XISO, retail snapshot, ETW, and memory/correctness gates pass.
 
 The build manifests retain the exact release/debug commands, pinned toolchain
 digest, compiler/linker versions, map generation, and all artifact hashes.

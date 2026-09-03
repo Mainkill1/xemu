@@ -92,6 +92,10 @@ QEMU_BUILD_BUG_ON(sizeof(vaddr) > sizeof(run_on_cpu_data));
 
 #define ALL_MMUIDX_BITS ((1 << NB_MMU_MODES) - 1)
 
+#ifdef XBOX
+static bool tlb_dirty_host_page_filter;
+#endif
+
 static inline size_t tlb_n_entries(CPUTLBDescFast *fast)
 {
     return (fast->mask >> CPU_TLB_ENTRY_BITS) + 1;
@@ -324,6 +328,14 @@ void tlb_init(CPUState *cpu)
     int i;
 
     qemu_spin_init(&cpu->neg.tlb.c.lock);
+
+#ifdef XBOX
+    const char *host_page_filter =
+        g_getenv("XEMU_TCG_TLB_DIRTY_HOST_PAGE_FILTER");
+    tlb_dirty_host_page_filter =
+        host_page_filter != NULL && host_page_filter[0] != '\0' &&
+        strcmp(host_page_filter, "0") != 0;
+#endif
 
     /* All tlbs are initialized flushed. */
     cpu->neg.tlb.c.dirty = 0;
@@ -888,6 +900,12 @@ void tlb_unprotect_code(ram_addr_t ram_addr)
 static void tlb_reset_dirty_range_locked(CPUTLBEntryFull *full, CPUTLBEntry *ent,
                                          uintptr_t start, uintptr_t length)
 {
+#ifdef XBOX
+    if (tlb_dirty_host_page_filter &&
+        (full->ram_host_page - start) >= length) {
+        return;
+    }
+#endif
     const uintptr_t addr = ent->addr_write;
     int flags = addr | full->slow_flags[MMU_DATA_STORE];
 
@@ -1044,6 +1062,7 @@ void tlb_set_page_full(CPUState *cpu, int mmu_idx,
 #ifdef XBOX
     full->code_dirty_word = NULL;
     full->code_dirty_mask = 0;
+    full->ram_host_page = 0;
 #endif
 
     if (full->lg_page_size <= TARGET_PAGE_BITS) {
@@ -1077,6 +1096,11 @@ void tlb_set_page_full(CPUState *cpu, int mmu_idx,
     if (is_ram || is_romd) {
         /* RAM and ROMD both have associated host memory. */
         addend = (uintptr_t)memory_region_get_ram_ptr(section->mr) + xlat;
+#ifdef XBOX
+        if (is_ram) {
+            full->ram_host_page = addend;
+        }
+#endif
     } else {
         /* I/O does not; force the host address to NULL. */
         addend = 0;
