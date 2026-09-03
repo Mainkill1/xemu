@@ -36,7 +36,7 @@ local SDK patch, or branch-specific compiler flag.
 | Included production branch or Full-Speed rollup | Clean exact commit, pinned container digest, `build.sh`, LTO, and `-Dx86_version=3` as documented below | Release-equivalent correctness and performance evidence; eligible for sharing |
 | Telemetry/instrumentation branch | The production recipe for final measurements; a non-LTO build may additionally be retained for symbol ownership | Production timing only comes from the LTO build; non-LTO timing is diagnostic |
 | Research or rejected experiment | Incremental `ninja` is permitted for quick attribution, followed by the production recipe only if the change becomes a candidate | Incremental output is diagnostic and is not a distributable Full-Speed build |
-| Display setting A/B | One production binary with `display.window.reduce_host_cpu_usage` toggled at runtime | Isolates the setting without compiler or source drift |
+| Bug investigation for the host-load option | One diagnostic binary with `display.window.reduce_host_cpu_usage` toggled at runtime | Attribution only; the option is known-bugged and must remain disabled in ordinary performance/correctness runs |
 
 The perf-lab XISO is a separate Xbox guest project built with its own pinned
 NXDK environment. It validates the emulator binary but is not an input to the
@@ -243,18 +243,21 @@ change.
 | `research/eng-2026-523-sparse-uniform-layout-safe-u6299d05f` | Investigated safely skipping clean uniform rows; retained as research pending an independently validated landing. |
 | `research/eng-2026-523-tcg-tb-lookup-attribution-u065f47f7` | Collected indirect TB-lookup evidence that informed the later TCG fast paths. |
 | `research/eng-2026-523-vk-stalled-gpu-timestamps-uf1f85872` | Added diagnostic Vulkan timing experiments and records several reverted candidates; it is intentionally not used as a production rollup branch. |
+| `research/eng-2026-523-vk-tiny-draw-reuse-attribution-u42bc13ac` | Measured repeated inline-index and push-constant payloads in Morrowind. The identical push-constant skip was rejected after a same-binary B-C-C-B result of +0.12% average guest time / -0.17% FPS; the smaller inline-index reuse lead remains under test. |
 
 ## Display controls
 
-The rollup has one display-side CPU-saving preference:
+`Reduce host CPU usage when VSync is off`
+(`display.window.reduce_host_cpu_usage`) is known-bugged as of 2026-09-03. It
+must remain disabled in performance and correctness runs until the defect is
+identified and fixed. Prior measurements showing lower host CPU use are
+diagnostic history, not evidence that the option is safe to use or recommend.
+Preserve the code and evidence for a focused investigation, but do not combine
+or production-promote the behavior in its current state.
 
-`Reduce host CPU usage when VSync is off` (`display.window.reduce_host_cpu_usage`)
-is disabled by default. When enabled while VSync is off, it both uses efficient
-host timer waits and yields briefly between uncapped presentation frames. The
-same setting is declared once in `config_spec.yml` and rendered once in the
-Display menu; no competing toggle was introduced. The NVIDIA power preference
-is automatic on supported Windows NVIDIA systems, and Vulkan telemetry remains
-opt-in through `XEMU_VK_PERF_LOG`, so neither adds a second UI control.
+The setting remains disabled by default. The NVIDIA power preference is
+automatic on supported Windows NVIDIA systems, and Vulkan telemetry remains
+opt-in through `XEMU_VK_PERF_LOG`.
 The combined Vulkan telemetry record uses schema version 5, which includes
 both CPU-region and native-BC upload counters.
 
