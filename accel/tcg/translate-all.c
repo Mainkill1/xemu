@@ -28,6 +28,7 @@
 #include "exec/translation-block.h"
 #include "qemu/cacheinfo.h"
 #include "qemu/target-info.h"
+#include "qemu/timer.h"
 #include "exec/log.h"
 #include "exec/icount.h"
 #include "accel/tcg/cpu-ops.h"
@@ -44,6 +45,58 @@
 #endif
 
 TBContext tb_ctx;
+
+#ifdef _WIN32
+static FILE *tcg_tb_map_file;
+static bool tcg_tb_map_initialized;
+static int64_t tcg_tb_map_last_flush_us;
+
+static void tcg_tb_map_close(void)
+{
+    fclose(tcg_tb_map_file);
+    tcg_tb_map_file = NULL;
+}
+
+static void tcg_tb_map_report(uint64_t guest_pc, const TranslationBlock *tb,
+                              const void *host_start)
+{
+    int64_t now_us;
+
+    if (unlikely(!tcg_tb_map_initialized)) {
+        const char *path = g_getenv("XEMU_TCG_TB_MAP");
+
+        tcg_tb_map_initialized = true;
+        if (path != NULL && path[0] != '\0') {
+            tcg_tb_map_file = qemu_fopen(path, "w");
+            if (tcg_tb_map_file != NULL) {
+                fprintf(tcg_tb_map_file,
+                        "timestamp_us,host_start,host_size,guest_pc,icount\n");
+                atexit(tcg_tb_map_close);
+            }
+        }
+    }
+
+    if (tcg_tb_map_file == NULL) {
+        return;
+    }
+
+    now_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
+    fprintf(tcg_tb_map_file,
+            "%" PRId64 ",0x%" PRIxPTR ",%u,0x%" PRIx64 ",%u\n",
+            now_us, (uintptr_t)host_start, (unsigned int)tb->tc.size, guest_pc,
+            (unsigned int)tb->icount);
+    if (now_us - tcg_tb_map_last_flush_us >= G_USEC_PER_SEC) {
+        fflush(tcg_tb_map_file);
+        tcg_tb_map_last_flush_us = now_us;
+    }
+}
+#else
+static inline void tcg_tb_map_report(uint64_t guest_pc,
+                                     const TranslationBlock *tb,
+                                     const void *host_start)
+{
+}
+#endif
 
 /*
  * Encode VAL as a signed leb128 sequence at P.
@@ -421,6 +474,11 @@ TranslationBlock *tb_gen_code(CPUState *cpu, TCGTBCPUState s)
         goto buffer_overflow;
     }
     tb->tc.size = gen_code_size;
+
+    /* Opt-in Windows ETW companion map for resolving sampled JIT PCs back to
+     * guest translation blocks. This runs only when a TB is generated, never
+     * on each execution of that TB. */
+    tcg_tb_map_report(s.pc, tb, tcg_splitwx_to_rx(gen_code_buf));
 
     /*
      * For CF_PCREL, attribute all executions of the generated code
