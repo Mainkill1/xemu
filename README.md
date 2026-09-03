@@ -22,6 +22,7 @@ not replacements for their history.
 | `xemu-pr-staging: feature/eng-2026-336-stage-local-vulkan-uniforms-v3-uec89c153` | Included, conflict-resolved | Separates vertex- and pixel-shader uniform source generations so unchanged stages do not rewrite or re-upload their UBOs. It preserves exact float bit patterns, tracks effective polygon-offset inputs, and retains Full-Speed's existing VMState-compatible dirty-row handling. |
 | `fix/eng-2026-523-vk-report-dma-ownership` | Included on this branch | Captures the active DMA report context when `GET_REPORT` is queued, so delayed Vulkan report publication cannot be redirected by a later context switch. |
 | `feature/eng-2026-523-vk-texture-pipeline-fastpath-uaad84ed1` | Included on this candidate branch | Avoids rebuilding and looking up an unchanged Vulkan `PipelineKey` when only texture image/sampler descriptor identity changed. Shader-affecting texture state remains covered by `ShaderState`; descriptor refresh remains unchanged. |
+| `feature/eng-2026-523-vk-aux-submit-fence-u70f4e0ef` | Small candidate overlay; not yet selected for the production rollup | Replaces the queue-global idle after auxiliary command submissions with a fence owned by the exact submission. It remains synchronous before command-buffer reuse and requires no special compiler or private SDK. |
 
 ### Build policy by branch type
 
@@ -229,6 +230,26 @@ the matching catalog SHA-256 was
 Because this branch lacks the lab's live-marker interface, the runner's
 explicit compatibility waiver was used: the result is broad correctness/hash
 evidence, not PR-grade timing evidence.
+
+The auxiliary-submission-fence overlay was independently rebuilt on the Linux
+build host with the same pinned command. The clean build-host commit was
+`ddae59bbcd2f5f52cfce7c82b7f0b402e8824822`;
+its complete source tree matched this candidate at tree
+`d22324a551b67ae4bf2ddba9490ba5c9f3ee567f`. The retained artifacts are:
+
+```text
+original DWARF executable SHA-256  15c087500cfb23accdce1b50e32cb5fe26ae1d071d643d3da650af8dc04c8298
+post-cv2pdb executable SHA-256     3ea114a00d3aeee9c5b265fd6a6dbffdd674292ee8be060156543ef5afed54b3
+build.log SHA-256                  36e03ef420f7476707befb5f0c24ab54d1eac98e3e148dd84c6fed1fb95cb5fa
+```
+
+That runtime passed all 147 current perf-lab XISO records, all functional
+hashes, and Vulkan validation with zero VUIDs on the dedicated Windows test
+host. Its direct Morrowind `display_render` wait fell by about 102 us per guest
+frame, while fixed-work and retail throughput were neutral to slightly slower.
+Retain it as a measured small synchronization candidate; do not treat it as a
+microstutter fix until a compatible larger submission/lifetime change or
+additional A/B evidence also improves end-to-end throughput.
 
 ## Reviewed research branches
 
