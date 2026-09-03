@@ -459,21 +459,57 @@ void *pfifo_thread(void *arg)
 
     qemu_mutex_lock(&d->pfifo.lock);
     while (true) {
+        bool profile_timing = nv2a_profile_timing_enabled();
+        int64_t profile_start_us = profile_timing ?
+            qemu_clock_get_us(QEMU_CLOCK_REALTIME) : 0;
+        int64_t profile_now_us;
+
         d->pfifo.fifo_kick = false;
 
         pgraph_process_pending(d);
+        if (profile_timing) {
+            profile_now_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
+            nv2a_profile_pfifo_record_region(
+                NV2A_PROFILE_PFIFO_PENDING,
+                profile_now_us - profile_start_us);
+            profile_start_us = profile_now_us;
+        }
 
         if (!d->pfifo.halt) {
             pfifo_run_pusher(d);
+            if (profile_timing) {
+                profile_now_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
+                nv2a_profile_pfifo_record_region(
+                    NV2A_PROFILE_PFIFO_PUSHER,
+                    profile_now_us - profile_start_us);
+                profile_start_us = profile_now_us;
+            }
         }
 
         pgraph_process_pending_reports(d);
+        if (profile_timing) {
+            profile_now_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
+            nv2a_profile_pfifo_record_region(
+                NV2A_PROFILE_PFIFO_REPORTS,
+                profile_now_us - profile_start_us);
+        }
 
-        if (!d->pfifo.fifo_kick) {
+        bool skipped_wait_for_kick = d->pfifo.fifo_kick;
+        if (!skipped_wait_for_kick) {
             qemu_cond_broadcast(&d->pfifo.fifo_idle_cond);
 
             // Both the pusher and puller are waiting for some action
+            profile_start_us = profile_timing ?
+                qemu_clock_get_us(QEMU_CLOCK_REALTIME) : 0;
             qemu_cond_wait(&d->pfifo.fifo_cond, &d->pfifo.lock);
+            if (profile_timing) {
+                nv2a_profile_pfifo_record_idle_wait(
+                    qemu_clock_get_us(QEMU_CLOCK_REALTIME) -
+                    profile_start_us);
+            }
+        }
+        if (profile_timing) {
+            nv2a_profile_pfifo_record_loop(skipped_wait_for_kick);
         }
 
         if (d->exiting) {

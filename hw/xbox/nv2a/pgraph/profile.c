@@ -25,12 +25,40 @@ static int64_t last_flip_stall_us;
 static int64_t last_vblank_us;
 static uint64_t flip_stall_serial;
 static uint64_t vblank_serial;
-static uint32_t frame_timing_enabled;
+uint32_t g_nv2a_profile_timing_enabled;
+
+typedef struct NV2AProfilePfifoAtomicStats {
+    uint64_t region_calls[NV2A_PROFILE_PFIFO_REGION_COUNT];
+    uint64_t region_us[NV2A_PROFILE_PFIFO_REGION_COUNT];
+    uint64_t idle_wait_count;
+    uint64_t idle_wait_us;
+    uint64_t loop_count;
+    uint64_t kick_skip_wait_count;
+} NV2AProfilePfifoAtomicStats;
+
+static NV2AProfilePfifoAtomicStats pfifo_stats;
+
+static NV2AProfilePfifoAtomicStats nv2a_profile_take_pfifo_stats(void)
+{
+    NV2AProfilePfifoAtomicStats result = { 0 };
+
+    for (unsigned int i = 0; i < NV2A_PROFILE_PFIFO_REGION_COUNT; i++) {
+        result.region_calls[i] = qatomic_xchg(&pfifo_stats.region_calls[i], 0);
+        result.region_us[i] = qatomic_xchg(&pfifo_stats.region_us[i], 0);
+    }
+    result.idle_wait_count = qatomic_xchg(&pfifo_stats.idle_wait_count, 0);
+    result.idle_wait_us = qatomic_xchg(&pfifo_stats.idle_wait_us, 0);
+    result.loop_count = qatomic_xchg(&pfifo_stats.loop_count, 0);
+    result.kick_skip_wait_count =
+        qatomic_xchg(&pfifo_stats.kick_skip_wait_count, 0);
+    return result;
+}
 
 static void nv2a_profile_write_frame_log(
     int64_t now, int64_t work_to_flip_stall_us,
     int64_t flip_stall_to_increment_us, uint64_t flip_stalls,
-    uint64_t vblanks, int64_t increment_after_vblank_us)
+    uint64_t vblanks, int64_t increment_after_vblank_us,
+    const NV2AProfilePfifoAtomicStats *pfifo)
 {
     static FILE *file;
     static bool initialized;
@@ -51,7 +79,7 @@ static void nv2a_profile_write_frame_log(
             fprintf(stderr, "nv2a: failed to open frame log '%s'\n", path);
             return;
         }
-        qatomic_set(&frame_timing_enabled, 1);
+        qatomic_set(&g_nv2a_profile_timing_enabled, 1);
         previous_frame = now;
         last_flush = now;
     }
@@ -67,10 +95,28 @@ static void nv2a_profile_write_frame_log(
                   " flip_stall_to_increment_us=%" PRId64
                   " flip_stalls_since_previous_frame=%" PRIu64
                   " vblanks_since_previous_frame=%" PRIu64
-                  " increment_after_vblank_us=%" PRId64 "\n",
+                  " increment_after_vblank_us=%" PRId64
+                  " pfifo_loop_count=%" PRIu64
+                  " pfifo_kick_skip_wait_count=%" PRIu64
+                  " pfifo_pending_calls=%" PRIu64
+                  " pfifo_pending_us=%" PRIu64
+                  " pfifo_pusher_calls=%" PRIu64
+                  " pfifo_pusher_us=%" PRIu64
+                  " pfifo_reports_calls=%" PRIu64
+                  " pfifo_reports_us=%" PRIu64
+                  " pfifo_idle_wait_count=%" PRIu64
+                  " pfifo_idle_wait_us=%" PRIu64 "\n",
             now, frame, now - previous_frame, work_to_flip_stall_us,
             flip_stall_to_increment_us, flip_stalls, vblanks,
-            increment_after_vblank_us);
+            increment_after_vblank_us, pfifo->loop_count,
+            pfifo->kick_skip_wait_count,
+            pfifo->region_calls[NV2A_PROFILE_PFIFO_PENDING],
+            pfifo->region_us[NV2A_PROFILE_PFIFO_PENDING],
+            pfifo->region_calls[NV2A_PROFILE_PFIFO_PUSHER],
+            pfifo->region_us[NV2A_PROFILE_PFIFO_PUSHER],
+            pfifo->region_calls[NV2A_PROFILE_PFIFO_REPORTS],
+            pfifo->region_us[NV2A_PROFILE_PFIFO_REPORTS],
+            pfifo->idle_wait_count, pfifo->idle_wait_us);
     previous_frame = now;
 
     /* Keep live stall detection within one second without forcing a disk
@@ -175,7 +221,7 @@ void nv2a_profile_increment(void)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     const int64_t fps_update_interval = 250000;
     int64_t previous_flip_us = qatomic_read(&g_nv2a_stats.last_flip_time);
-    bool timing_enabled = qatomic_read(&frame_timing_enabled);
+    bool timing_enabled = qatomic_read(&g_nv2a_profile_timing_enabled);
     int64_t flip_stall_us = timing_enabled ?
         qatomic_read(&last_flip_stall_us) : 0;
     int64_t vblank_us = timing_enabled ?
@@ -197,6 +243,11 @@ void nv2a_profile_increment(void)
         now - flip_stall_us : 0;
     int64_t increment_after_vblank_us =
         vblank_us > 0 && vblank_us <= now ? now - vblank_us : 0;
+    NV2AProfilePfifoAtomicStats current_pfifo_stats = { 0 };
+
+    if (timing_enabled) {
+        current_pfifo_stats = nv2a_profile_take_pfifo_stats();
+    }
 
     previous_flip_stall_serial = current_flip_stall_serial;
     previous_vblank_serial = current_vblank_serial;
@@ -207,7 +258,7 @@ void nv2a_profile_increment(void)
     nv2a_profile_write_flip_log(now);
     nv2a_profile_write_frame_log(
         now, work_to_flip_stall_us, flip_stall_to_increment_us, flip_stalls,
-        vblanks, increment_after_vblank_us);
+        vblanks, increment_after_vblank_us, &current_pfifo_stats);
 
     static int64_t ts = 0;
     int64_t delta = now - ts;
@@ -218,13 +269,35 @@ void nv2a_profile_increment(void)
     }
 }
 
+void nv2a_profile_pfifo_record_region(NV2AProfilePfifoRegion region,
+                                       uint64_t elapsed_us)
+{
+    assert(region < NV2A_PROFILE_PFIFO_REGION_COUNT);
+    qatomic_fetch_add(&pfifo_stats.region_calls[region], 1);
+    qatomic_fetch_add(&pfifo_stats.region_us[region], elapsed_us);
+}
+
+void nv2a_profile_pfifo_record_idle_wait(uint64_t elapsed_us)
+{
+    qatomic_fetch_add(&pfifo_stats.idle_wait_count, 1);
+    qatomic_fetch_add(&pfifo_stats.idle_wait_us, elapsed_us);
+}
+
+void nv2a_profile_pfifo_record_loop(bool skipped_wait_for_kick)
+{
+    qatomic_fetch_add(&pfifo_stats.loop_count, 1);
+    if (skipped_wait_for_kick) {
+        qatomic_fetch_add(&pfifo_stats.kick_skip_wait_count, 1);
+    }
+}
+
 void nv2a_profile_flip_stall(void)
 {
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     int64_t render_time =
         (now - qatomic_read(&g_nv2a_stats.last_flip_time)) / 1000;
 
-    if (qatomic_read(&frame_timing_enabled)) {
+    if (qatomic_read(&g_nv2a_profile_timing_enabled)) {
         qatomic_set(&last_flip_stall_us, now);
         qatomic_inc(&flip_stall_serial);
     }
@@ -240,7 +313,7 @@ void nv2a_profile_flip_stall(void)
 
 void nv2a_profile_vblank(void)
 {
-    if (!qatomic_read(&frame_timing_enabled)) {
+    if (!qatomic_read(&g_nv2a_profile_timing_enabled)) {
         return;
     }
     qatomic_set(&last_vblank_us, qemu_clock_get_us(QEMU_CLOCK_REALTIME));
