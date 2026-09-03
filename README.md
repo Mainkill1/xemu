@@ -80,3 +80,22 @@ branches available for A/B comparison rather than closing or deleting them.
 For the new work, also run `test-xbox-nv2a-ptimer`, verify report-query writes
 against the DMA object active at queue time, and compare Vulkan pipeline
 lookups plus draw-preparation CPU time on a texture-heavy saved-state capture.
+
+## Isolated unsafe-host-load removal branch
+
+This branch differs from `Full-Speed` only by removing the known-bugged
+`display.window.reduce_host_cpu_usage` implementation and its process-wide
+timer-precision side effect. Compare `dd77ab850a` against `Full-Speed` at
+`111deac13f`; the old option must not be enabled as a performance baseline.
+
+Validate release and debug builds with the perf-lab XISO and fresh-boot retail
+tests. Confirm the removed preference is neither accepted nor shown, default
+VSync-off behavior matches the known-safe path, and guest timing does not
+change because of a host-load preference.
+
+The observed host-load reduction remains a valuable feature lead. A
+replacement must be developed on a separate single-variable branch as an
+explicit presentation-deadline policy, with host CPU usage, frame-time
+median/p95/p99, missed presents, audio stability, and guest-timer behavior
+measured together. This removal is a safety baseline, not abandonment of that
+feature.
