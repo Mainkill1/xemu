@@ -244,7 +244,7 @@ change.
 | `research/eng-2026-523-sparse-uniform-layout-safe-u6299d05f` | Investigated safely skipping clean uniform rows; retained as research pending an independently validated landing. |
 | `research/eng-2026-523-tcg-tb-lookup-attribution-u065f47f7` | Collected indirect TB-lookup evidence that informed the later TCG fast paths. |
 | `research/eng-2026-523-vk-stalled-gpu-timestamps-uf1f85872` | Added diagnostic Vulkan timing experiments and records several reverted candidates; it is intentionally not used as a production rollup branch. |
-| `research/eng-2026-523-vk-tiny-draw-reuse-attribution-u42bc13ac` | Measured repeated inline-index and push-constant payloads in Morrowind. The push-constant skip was rejected. Exact consecutive inline-index reuse is retained as a bounded resource win after removing about 283 copies / 114 KiB per frame, but its balanced same-binary timing result was neutral. |
+| `research/eng-2026-523-vk-tiny-draw-reuse-attribution-u42bc13ac` | Measured repeated inline-index and push-constant payloads plus descriptor-pool exhaustion in Morrowind. The push-constant skip was rejected. Exact consecutive inline-index reuse and a bounded opt-in 2,048-set graphics pool are retained as small resource/submission wins; neither fixes the approximately 50-ms cadence tail. |
 
 ## Display controls
 
@@ -259,8 +259,9 @@ or production-promote the behavior in its current state.
 The setting remains disabled by default. The NVIDIA power preference is
 automatic on supported Windows NVIDIA systems, and Vulkan telemetry remains
 opt-in through `XEMU_VK_PERF_LOG`.
-The combined Vulkan telemetry record uses schema version 5, which includes
-both CPU-region and native-BC upload counters.
+The combined Vulkan telemetry record uses schema version 7. It includes
+CPU-region and native-BC upload counters, disaggregated buffer-space finish
+owners, and descriptor-set capacity/high-water fields.
 
 ## Texture-only Vulkan pipeline lookup fast path
 
@@ -368,6 +369,57 @@ The exact release and debug commands, pinned container digest, compiler,
 linker, Meson, Ninja, `cv2pdb`, map generation, and artifact requirements are
 the common reproducibility contract above. This experiment adds no private
 toolchain or branch-specific compiler flag.
+
+## Bounded graphics descriptor-set expansion
+
+Telemetry commit `acedd333e7db82f317ab45bc632031695ca954b1`
+split the old `NEED_BUFFER_SPACE` finish reason into nine call-site owners
+without changing synchronization. On the heavier Morrowind snapshot
+`vm-20260903021051`, `need_buffer_space_uniform_or_descriptor` was the only
+active split owner: 1.002 calls/frame and 5.095 ms/frame, or about 76% of all
+measured Vulkan wait time. The other eight split sites were zero.
+
+Commit `1c35d2e7b6a5c2e1b251c31e42c924858fb6b961` adds the opt-in
+`XEMU_VK_EXPAND_DESCRIPTOR_SETS=1`. Disabled preserves the old 1,024-set pool,
+allocation, and reuse boundary. Enabled allocates a bounded 2,048-set graphics
+pool; it does not allow an in-flight descriptor set to be rewritten. Both
+capacities fit in a fixed 2,048-handle array. Schema-7 telemetry records the
+selected capacity and per-frame descriptor high-water.
+
+A same-binary full-LTO A-B-B-A run proved the resource mechanism. Both
+1,024-set cells reached a high-water of exactly 1,024 and paid 4.973 ms/frame
+to the exhaustion finish. Both 2,048-set cells eliminated that finish and
+reached 1,585--1,586 sets. Vulkan submissions fell from 5.659 to 4.757/frame
+(-15.94%), and total measured wait fell 0.223 ms/frame (-3.23%). The removed
+GPU completion mostly shifted to later required `stalled` and `surface_down`
+boundaries, so end-to-end improvement was small: +0.303% FPS and -0.126
+ms/frame (-0.359%) by role mean. P95 improved 0.009 ms while p99 regressed
+0.040 ms; the approximately 50-ms tail remained. NVIDIA's MiB-granularity
+memory counter was identical across all four cells (762--767 MiB, mean 763.65
+MiB), so no VRAM increase was observable at that resolution.
+
+Retain this as a bounded small submission/wait win, not as a cadence fix. The
+release and debug builds both passed the current 147-record Vulkan perf-lab
+XISO with functional hashes and zero VUIDs. Debug Morrowind reached descriptor
+high-water 1,585 with zero exhaustion finishes. Release PGR2 snapshot
+`vm-20260903022956` completed at 30.000 FPS, and debug PGR2 FreshBoot reached a
+live race using the separately recorded 10-second BIOS allowance and exact
+input sequence.
+
+Exact build identities are:
+
+```text
+source commit                 1c35d2e7b6a5c2e1b251c31e42c924858fb6b961
+release post-cv2pdb xemu.exe 485209f1bd624d6ac25b086521816f86a789839499b280ab2cfa3feb4c2a851c
+release PDB                   d3ad08dbfa45ca723c18533aa903f1353a1edaf60007fe7ab1f4e652b595e0d6
+release DWARF executable      d157d460299683b8843a7ec819ca2eb99426abe276a6e76b526a1149dbcd424a
+debug post-cv2pdb xemu.exe    d4a2f4e106a3c784cf1abf1534962d2cf0a490f27207d4bf0d2fc614ab23b789
+debug PDB                     f6cf2a60df942602c1ac2130ade5d268c4b40546baf9e06541f7586c4ac4974d
+debug DWARF executable        46766cfbfca33975699aa614064c94ccd08257dda5dab5959a9e7ccfd0bddaba
+```
+
+The build manifests retain the exact release/debug commands, pinned toolchain
+digest, compiler/linker versions, map generation, and all artifact hashes.
 
 ## Staging audit
 
