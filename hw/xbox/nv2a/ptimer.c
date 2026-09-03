@@ -49,6 +49,12 @@
 
 static void ptimer_alarm_fired(void *opaque);
 
+static inline bool ptimer_clock_running(const NV2AState *d)
+{
+    return d->ptimer.numerator != 0 && d->ptimer.denominator != 0 &&
+           d->pramdac.core_clock_freq != 0;
+}
+
 void ptimer_reset(NV2AState *d)
 {
     d->ptimer.alarm_time = 0;
@@ -64,6 +70,16 @@ void ptimer_init(NV2AState *d)
 
 static uint64_t ptimer_get_absolute_clock(NV2AState *d)
 {
+    /*
+     * The ratio registers reset to zero and are guest writable. Keep their
+     * raw values guest-visible, but define a stopped clock until the complete
+     * ratio and source clock are non-zero. This avoids guest-triggerable
+     * division by zero without inventing a non-zero register value.
+     */
+    if (!ptimer_clock_running(d)) {
+        return 0;
+    }
+
     return muldiv64(muldiv64(qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL),
                              d->pramdac.core_clock_freq,
                              NANOSECONDS_PER_SECOND),
@@ -84,6 +100,8 @@ static inline uint64_t get_reg_time(NV2AState *d)
 
 static uint64_t ptimer_ticks_to_ns(NV2AState *d, uint64_t internal_ticks)
 {
+    assert(ptimer_clock_running(d));
+
     uint64_t gpu_ticks =
         muldiv64(internal_ticks, d->ptimer.numerator, d->ptimer.denominator);
     return muldiv64(gpu_ticks, NANOSECONDS_PER_SECOND,
@@ -122,8 +140,26 @@ static uint64_t next_alarm_time(uint64_t reg_now, uint32_t alarm_low)
     return target & PTIMER_REG_TIME_MASK;
 }
 
+static bool ptimer_latch_overdue_alarm(NV2AState *d, uint64_t reg_now)
+{
+    if (!is_alarm_reached(reg_now, d->ptimer.alarm_time)) {
+        return false;
+    }
+
+    d->ptimer.pending_interrupts |= NV_PTIMER_INTR_0_ALARM;
+    d->ptimer.alarm_time = next_alarm_time(
+        reg_now, PTIMER_REG_TIME_GET_TIME_0(d->ptimer.alarm_time));
+    return true;
+}
+
 static void schedule_qemu_timer(NV2AState *d)
 {
+    if (!ptimer_clock_running(d)) {
+        /* Keep the alarm armed so programming a valid ratio reschedules it. */
+        timer_mod(&d->ptimer.timer, INT64_MAX);
+        return;
+    }
+
     uint64_t reg_now = get_reg_time(d);
     uint64_t diff_reg_time =
         ptimer_alarm_distance(reg_now, d->ptimer.alarm_time);
@@ -144,9 +180,7 @@ static void ptimer_alarm_fired(void *opaque)
     NV2AState *d = (NV2AState *)opaque;
     uint64_t reg_now = get_reg_time(d);
 
-    if (is_alarm_reached(reg_now, d->ptimer.alarm_time)) {
-        d->ptimer.pending_interrupts |= NV_PTIMER_INTR_0_ALARM;
-        d->ptimer.alarm_time = advance_alarm_epoch(d->ptimer.alarm_time);
+    if (ptimer_latch_overdue_alarm(d, reg_now)) {
         nv2a_update_irq(d);
     }
 
@@ -158,12 +192,7 @@ void ptimer_post_load(NV2AState *d)
     if (timer_pending(&d->ptimer.timer)) {
         uint64_t reg_now = get_reg_time(d);
 
-        if (is_alarm_reached(reg_now, d->ptimer.alarm_time)) {
-            d->ptimer.pending_interrupts |= NV_PTIMER_INTR_0_ALARM;
-            d->ptimer.alarm_time = next_alarm_time(
-                reg_now,
-                PTIMER_REG_TIME_GET_TIME_0(d->ptimer.alarm_time));
-        }
+        ptimer_latch_overdue_alarm(d, reg_now);
 
         /* Rebuild the redundant host deadline from restored PTIMER state. */
         schedule_qemu_timer(d);
@@ -181,10 +210,7 @@ uint64_t ptimer_read(void *opaque, hwaddr addr, unsigned int size)
     case NV_PTIMER_INTR_0:
         if (timer_pending(&d->ptimer.timer)) {
             uint64_t reg_now = get_reg_time(d);
-            if (is_alarm_reached(reg_now, d->ptimer.alarm_time)) {
-                d->ptimer.pending_interrupts |= NV_PTIMER_INTR_0_ALARM;
-                d->ptimer.alarm_time =
-                    advance_alarm_epoch(d->ptimer.alarm_time);
+            if (ptimer_latch_overdue_alarm(d, reg_now)) {
                 nv2a_update_irq(d);
                 schedule_qemu_timer(d);
             }
@@ -234,10 +260,7 @@ void ptimer_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
         d->ptimer.enabled_interrupts = val;
         if (val && timer_pending(&d->ptimer.timer)) {
             uint64_t reg_now = get_reg_time(d);
-            if (is_alarm_reached(reg_now, d->ptimer.alarm_time)) {
-                d->ptimer.pending_interrupts |= NV_PTIMER_INTR_0_ALARM;
-                d->ptimer.alarm_time =
-                    advance_alarm_epoch(d->ptimer.alarm_time);
+            if (ptimer_latch_overdue_alarm(d, reg_now)) {
                 schedule_qemu_timer(d);
             }
         }
