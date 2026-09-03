@@ -396,6 +396,9 @@ typedef enum PerfCpuRegion {
     VK_PERF_CPU_BIND_TEXTURES,
     VK_PERF_CPU_TEXTURE_UPLOAD,
     VK_PERF_CPU_UPDATE_DESCRIPTOR_SETS,
+    VK_PERF_CPU_BIND_SHADERS,
+    VK_PERF_CPU_VERTEX_SYNC,
+    VK_PERF_CPU_BEGIN_DRAW,
     VK_PERF_CPU_REGION_COUNT,
 } PerfCpuRegion;
 
@@ -430,6 +433,24 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t decoded_bc_source_bytes;
     uint64_t decoded_bc_staged_bytes;
     uint64_t decoded_bc_prepare_cpu_us;
+    uint64_t draw_flush_count;
+    uint64_t vk_draw_call_count;
+    uint64_t draw_arrays_flush_count;
+    uint64_t draw_arrays_segment_count;
+    uint64_t draw_arrays_max_segments;
+    uint64_t inline_elements_draw_count;
+    uint64_t inline_buffer_draw_count;
+    uint64_t inline_array_draw_count;
+    uint64_t pipeline_fast_reuse_count;
+    uint64_t pipeline_lookup_count;
+    uint64_t pipeline_cache_hit_count;
+    uint64_t pipeline_generation_count;
+    uint64_t pipeline_binding_change_count;
+    uint64_t descriptor_update_count;
+    uint64_t descriptor_update_noop_count;
+    uint64_t descriptor_uniform_stage_write_count;
+    uint64_t descriptor_uniform_bytes;
+    uint64_t descriptor_texture_refresh_count;
     uint64_t in_flight_submission_count;
     uint64_t peak_in_flight_submission_count;
     uint64_t oldest_in_flight_serial;

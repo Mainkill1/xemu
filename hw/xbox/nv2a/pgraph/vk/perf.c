@@ -15,7 +15,7 @@
  */
 #define VK_PERF_INITIAL_TIMED_SUBMITS 8
 #define VK_PERF_HOT_SAMPLE_STRIDE 16
-#define VK_PERF_SCHEMA_VERSION 6
+#define VK_PERF_SCHEMA_VERSION 7
 
 static const char *finish_reason_names[VK_FINISH_REASON_COUNT] = {
     [VK_FINISH_REASON_VERTEX_BUFFER_DIRTY] = "vertex_buffer_dirty",
@@ -47,6 +47,9 @@ static const char *cpu_region_names[VK_PERF_CPU_REGION_COUNT] = {
     [VK_PERF_CPU_BIND_TEXTURES] = "bind_textures",
     [VK_PERF_CPU_TEXTURE_UPLOAD] = "texture_upload",
     [VK_PERF_CPU_UPDATE_DESCRIPTOR_SETS] = "update_descriptor_sets",
+    [VK_PERF_CPU_BIND_SHADERS] = "bind_shaders",
+    [VK_PERF_CPU_VERTEX_SYNC] = "vertex_sync",
+    [VK_PERF_CPU_BEGIN_DRAW] = "begin_draw",
 };
 
 static void write_names(FILE *file, const char *key, const char **names,
@@ -406,6 +409,24 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"decoded_bc_source_bytes_per_guest_frame\":%" PRIu64
             ",\"decoded_bc_staged_bytes_per_guest_frame\":%" PRIu64
             ",\"decoded_bc_prepare_cpu_us_per_guest_frame\":%" PRIu64
+            ",\"draw_flushes_per_guest_frame\":%" PRIu64
+            ",\"vk_draw_calls_per_guest_frame\":%" PRIu64
+            ",\"draw_arrays_flushes_per_guest_frame\":%" PRIu64
+            ",\"draw_arrays_segments_per_guest_frame\":%" PRIu64
+            ",\"draw_arrays_max_segments_per_flush\":%" PRIu64
+            ",\"inline_elements_draws_per_guest_frame\":%" PRIu64
+            ",\"inline_buffer_draws_per_guest_frame\":%" PRIu64
+            ",\"inline_array_draws_per_guest_frame\":%" PRIu64
+            ",\"pipeline_fast_reuses_per_guest_frame\":%" PRIu64
+            ",\"pipeline_lookups_per_guest_frame\":%" PRIu64
+            ",\"pipeline_cache_hits_per_guest_frame\":%" PRIu64
+            ",\"pipeline_generations_per_guest_frame\":%" PRIu64
+            ",\"pipeline_binding_changes_per_guest_frame\":%" PRIu64
+            ",\"descriptor_updates_per_guest_frame\":%" PRIu64
+            ",\"descriptor_update_noops_per_guest_frame\":%" PRIu64
+            ",\"descriptor_uniform_stage_writes_per_guest_frame\":%" PRIu64
+            ",\"descriptor_uniform_bytes_per_guest_frame\":%" PRIu64
+            ",\"descriptor_texture_refreshes_per_guest_frame\":%" PRIu64
             ",\"staged_bytes_per_submit\":%.3f"
             ",\"submit_infos_per_submit\":%.3f"
             ",\"command_buffers_per_submit\":%.3f"
@@ -425,6 +446,18 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->native_bc_staged_bytes, perf->native_bc_prepare_cpu_us,
             perf->decoded_bc_upload_count, perf->decoded_bc_source_bytes,
             perf->decoded_bc_staged_bytes, perf->decoded_bc_prepare_cpu_us,
+            perf->draw_flush_count, perf->vk_draw_call_count,
+            perf->draw_arrays_flush_count, perf->draw_arrays_segment_count,
+            perf->draw_arrays_max_segments,
+            perf->inline_elements_draw_count, perf->inline_buffer_draw_count,
+            perf->inline_array_draw_count, perf->pipeline_fast_reuse_count,
+            perf->pipeline_lookup_count, perf->pipeline_cache_hit_count,
+            perf->pipeline_generation_count,
+            perf->pipeline_binding_change_count,
+            perf->descriptor_update_count, perf->descriptor_update_noop_count,
+            perf->descriptor_uniform_stage_write_count,
+            perf->descriptor_uniform_bytes,
+            perf->descriptor_texture_refresh_count,
             staged_bytes_per_submit,
             submit_infos_per_submit, command_buffers_per_submit,
             perf->in_flight_submission_count,
@@ -455,6 +488,24 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->decoded_bc_source_bytes = 0;
     perf->decoded_bc_staged_bytes = 0;
     perf->decoded_bc_prepare_cpu_us = 0;
+    perf->draw_flush_count = 0;
+    perf->vk_draw_call_count = 0;
+    perf->draw_arrays_flush_count = 0;
+    perf->draw_arrays_segment_count = 0;
+    perf->draw_arrays_max_segments = 0;
+    perf->inline_elements_draw_count = 0;
+    perf->inline_buffer_draw_count = 0;
+    perf->inline_array_draw_count = 0;
+    perf->pipeline_fast_reuse_count = 0;
+    perf->pipeline_lookup_count = 0;
+    perf->pipeline_cache_hit_count = 0;
+    perf->pipeline_generation_count = 0;
+    perf->pipeline_binding_change_count = 0;
+    perf->descriptor_update_count = 0;
+    perf->descriptor_update_noop_count = 0;
+    perf->descriptor_uniform_stage_write_count = 0;
+    perf->descriptor_uniform_bytes = 0;
+    perf->descriptor_texture_refresh_count = 0;
     perf->peak_in_flight_submission_count =
         perf->in_flight_submission_count;
     perf->oldest_in_flight_serial = 0;

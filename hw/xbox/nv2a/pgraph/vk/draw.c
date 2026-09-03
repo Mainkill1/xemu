@@ -764,7 +764,11 @@ static void create_pipeline(PGRAPHState *pg)
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     pgraph_vk_bind_textures(d);
+    int64_t shader_start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
     pgraph_vk_bind_shaders(pg);
+    pgraph_vk_perf_record_cpu_region(
+        r, VK_PERF_CPU_BIND_SHADERS,
+        r->perf.enabled ? g_get_monotonic_time() - shader_start_us : 0);
 
     // FIXME: If nothing was dirty, don't even try creating the key or hashing.
     //        Just use the same pipeline.
@@ -774,6 +778,9 @@ static void create_pipeline(PGRAPHState *pg)
     // FIXME: We could clear less
 
     if (r->pipeline_binding && !pipeline_dirty) {
+        if (r->perf.enabled) {
+            r->perf.pipeline_fast_reuse_count++;
+        }
         NV2A_VK_DPRINTF("Cache hit");
         NV2A_VK_DGROUP_END();
         return;
@@ -783,8 +790,16 @@ static void create_pipeline(PGRAPHState *pg)
     init_pipeline_key(pg, &key);
     uint64_t hash = fast_hash((void *)&key, sizeof(key));
 
+    if (r->perf.enabled) {
+        r->perf.pipeline_lookup_count++;
+    }
     PipelineBinding *snode = pipeline_cache_lookup(pg, hash, &key);
     if (snode->pipeline != VK_NULL_HANDLE) {
+        if (r->perf.enabled) {
+            r->perf.pipeline_cache_hit_count++;
+            r->perf.pipeline_binding_change_count +=
+                r->pipeline_binding != snode;
+        }
         NV2A_VK_DPRINTF("Cache hit");
         r->pipeline_binding_changed = r->pipeline_binding != snode;
         r->pipeline_binding = snode;
@@ -794,6 +809,10 @@ static void create_pipeline(PGRAPHState *pg)
 
     NV2A_VK_DPRINTF("Cache miss");
     nv2a_profile_inc_counter(NV2A_PROF_PIPELINE_GEN);
+    if (r->perf.enabled) {
+        r->perf.pipeline_generation_count++;
+        r->perf.pipeline_binding_change_count++;
+    }
 
     memcpy(&snode->key, &key, sizeof(key));
 
@@ -1585,6 +1604,7 @@ static void update_blend_constants(PGRAPHState *pg,
 static void begin_draw(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
+    int64_t perf_start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
 
     assert(r->in_command_buffer);
 
@@ -1681,6 +1701,9 @@ static void begin_draw(PGRAPHState *pg)
     }
 
     r->in_draw = true;
+    pgraph_vk_perf_record_cpu_region(
+        r, VK_PERF_CPU_BEGIN_DRAW,
+        r->perf.enabled ? g_get_monotonic_time() - perf_start_us : 0);
 }
 
 static void end_draw(PGRAPHState *pg)
@@ -1761,6 +1784,7 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
     if (r->num_vertex_ram_buffer_syncs == 0) {
         return;
     }
+    int64_t perf_start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
 
     // Align sync requirements to page boundaries
     NV2A_VK_DGROUP_BEGIN("Sync vertex RAM buffer");
@@ -1832,6 +1856,10 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
     }
 
     r->num_vertex_ram_buffer_syncs = 0;
+
+    pgraph_vk_perf_record_cpu_region(
+        r, VK_PERF_CPU_VERTEX_SYNC,
+        r->perf.enabled ? g_get_monotonic_time() - perf_start_us : 0);
 
     NV2A_VK_DGROUP_END();
 }
@@ -2287,10 +2315,21 @@ void pgraph_vk_flush_draw(NV2AState *d)
     }
 
     r->num_vertex_ram_buffer_syncs = 0;
+    if (r->perf.enabled) {
+        r->perf.draw_flush_count++;
+    }
 
     if (pg->draw_arrays_length) {
         NV2A_VK_DGROUP_BEGIN("Draw Arrays");
         nv2a_profile_inc_counter(NV2A_PROF_DRAW_ARRAYS);
+        if (r->perf.enabled) {
+            r->perf.draw_arrays_flush_count++;
+            r->perf.draw_arrays_segment_count += pg->draw_arrays_length;
+            r->perf.draw_arrays_max_segments = MAX(
+                r->perf.draw_arrays_max_segments,
+                (uint64_t)pg->draw_arrays_length);
+            r->perf.vk_draw_call_count += pg->draw_arrays_length;
+        }
 
         assert(pg->inline_elements_length == 0);
         assert(pg->inline_buffer_length == 0);
@@ -2331,6 +2370,10 @@ void pgraph_vk_flush_draw(NV2AState *d)
         assert(pg->inline_array_length == 0);
 
         nv2a_profile_inc_counter(NV2A_PROF_INLINE_ELEMENTS);
+        if (r->perf.enabled) {
+            r->perf.inline_elements_draw_count++;
+            r->perf.vk_draw_call_count++;
+        }
 
         size_t index_data_size =
             pg->inline_elements_length * sizeof(pg->inline_elements[0]);
@@ -2370,6 +2413,10 @@ void pgraph_vk_flush_draw(NV2AState *d)
     } else if (pg->inline_buffer_length) {
         NV2A_VK_DGROUP_BEGIN("Inline Buffer");
         nv2a_profile_inc_counter(NV2A_PROF_INLINE_BUFFERS);
+        if (r->perf.enabled) {
+            r->perf.inline_buffer_draw_count++;
+            r->perf.vk_draw_call_count++;
+        }
         assert(pg->inline_array_length == 0);
 
         size_t vertex_data_size = pg->inline_buffer_length * sizeof(float) * 4;
@@ -2407,6 +2454,10 @@ void pgraph_vk_flush_draw(NV2AState *d)
     } else if (pg->inline_array_length) {
         NV2A_VK_DGROUP_BEGIN("Inline Array");
         nv2a_profile_inc_counter(NV2A_PROF_INLINE_ARRAYS);
+        if (r->perf.enabled) {
+            r->perf.inline_array_draw_count++;
+            r->perf.vk_draw_call_count++;
+        }
 
         VkDeviceSize inline_array_data_size = pg->inline_array_length * 4;
         ensure_buffer_space(pg, BUFFER_VERTEX_INLINE_STAGING,

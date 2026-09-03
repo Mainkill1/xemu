@@ -210,7 +210,16 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
 
     if (!(r->texture_bindings_changed || (r->descriptor_set_index == 0) ||
           any_uniform_write)) {
+        if (r->perf.enabled) {
+            r->perf.descriptor_update_noop_count++;
+        }
         return; // Nothing changed
+    }
+
+    if (r->perf.enabled) {
+        r->perf.descriptor_update_count++;
+        r->perf.descriptor_texture_refresh_count +=
+            r->texture_bindings_changed || (r->descriptor_set_index == 0);
     }
 
     ShaderBinding *binding = r->shader_binding;
@@ -251,6 +260,10 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
             }
             void *data = layouts[i]->allocation;
             VkDeviceSize size = layouts[i]->total_size;
+            if (r->perf.enabled) {
+                r->perf.descriptor_uniform_stage_write_count++;
+                r->perf.descriptor_uniform_bytes += size;
+            }
             r->uniform_buffer_offsets[i] = pgraph_vk_append_to_buffer(
                 pg, BUFFER_UNIFORM_STAGING, &data, &size, 1,
                 r->device_props.limits.minUniformBufferOffsetAlignment);
