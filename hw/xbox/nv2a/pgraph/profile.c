@@ -21,7 +21,16 @@
 
 NV2AStats g_nv2a_stats;
 
-static void nv2a_profile_write_frame_log(int64_t now)
+static int64_t last_flip_stall_us;
+static int64_t last_vblank_us;
+static uint64_t flip_stall_serial;
+static uint64_t vblank_serial;
+static uint32_t frame_timing_enabled;
+
+static void nv2a_profile_write_frame_log(
+    int64_t now, int64_t work_to_flip_stall_us,
+    int64_t flip_stall_to_increment_us, uint64_t flip_stalls,
+    uint64_t vblanks, int64_t increment_after_vblank_us)
 {
     static FILE *file;
     static bool initialized;
@@ -42,6 +51,7 @@ static void nv2a_profile_write_frame_log(int64_t now)
             fprintf(stderr, "nv2a: failed to open frame log '%s'\n", path);
             return;
         }
+        qatomic_set(&frame_timing_enabled, 1);
         previous_frame = now;
         last_flush = now;
     }
@@ -52,8 +62,15 @@ static void nv2a_profile_write_frame_log(int64_t now)
 
     frame++;
     fprintf(file, "timestamp_us=%" PRId64 " frame=%" PRIu64
-                  " delta_us=%" PRId64 "\n",
-            now, frame, now - previous_frame);
+                  " delta_us=%" PRId64
+                  " work_to_flip_stall_us=%" PRId64
+                  " flip_stall_to_increment_us=%" PRId64
+                  " flip_stalls_since_previous_frame=%" PRIu64
+                  " vblanks_since_previous_frame=%" PRIu64
+                  " increment_after_vblank_us=%" PRId64 "\n",
+            now, frame, now - previous_frame, work_to_flip_stall_us,
+            flip_stall_to_increment_us, flip_stalls, vblanks,
+            increment_after_vblank_us);
     previous_frame = now;
 
     /* Keep live stall detection within one second without forcing a disk
@@ -157,12 +174,40 @@ void nv2a_profile_increment(void)
 {
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     const int64_t fps_update_interval = 250000;
-    g_nv2a_stats.last_flip_time = now;
+    int64_t previous_flip_us = qatomic_read(&g_nv2a_stats.last_flip_time);
+    bool timing_enabled = qatomic_read(&frame_timing_enabled);
+    int64_t flip_stall_us = timing_enabled ?
+        qatomic_read(&last_flip_stall_us) : 0;
+    int64_t vblank_us = timing_enabled ?
+        qatomic_read(&last_vblank_us) : 0;
+    static uint64_t previous_flip_stall_serial;
+    static uint64_t previous_vblank_serial;
+    uint64_t current_flip_stall_serial = timing_enabled ?
+        qatomic_read(&flip_stall_serial) : 0;
+    uint64_t current_vblank_serial = timing_enabled ?
+        qatomic_read(&vblank_serial) : 0;
+    uint64_t flip_stalls =
+        current_flip_stall_serial - previous_flip_stall_serial;
+    uint64_t vblanks = current_vblank_serial - previous_vblank_serial;
+    int64_t work_to_flip_stall_us =
+        flip_stall_us >= previous_flip_us && flip_stall_us <= now ?
+        flip_stall_us - previous_flip_us : 0;
+    int64_t flip_stall_to_increment_us =
+        flip_stall_us >= previous_flip_us && flip_stall_us <= now ?
+        now - flip_stall_us : 0;
+    int64_t increment_after_vblank_us =
+        vblank_us > 0 && vblank_us <= now ? now - vblank_us : 0;
+
+    previous_flip_stall_serial = current_flip_stall_serial;
+    previous_vblank_serial = current_vblank_serial;
+    qatomic_set(&g_nv2a_stats.last_flip_time, now);
 
     static int64_t frame_count = 0;
     frame_count++;
     nv2a_profile_write_flip_log(now);
-    nv2a_profile_write_frame_log(now);
+    nv2a_profile_write_frame_log(
+        now, work_to_flip_stall_us, flip_stall_to_increment_us, flip_stalls,
+        vblanks, increment_after_vblank_us);
 
     static int64_t ts = 0;
     int64_t delta = now - ts;
@@ -176,7 +221,13 @@ void nv2a_profile_increment(void)
 void nv2a_profile_flip_stall(void)
 {
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
-    int64_t render_time = (now-g_nv2a_stats.last_flip_time)/1000;
+    int64_t render_time =
+        (now - qatomic_read(&g_nv2a_stats.last_flip_time)) / 1000;
+
+    if (qatomic_read(&frame_timing_enabled)) {
+        qatomic_set(&last_flip_stall_us, now);
+        qatomic_inc(&flip_stall_serial);
+    }
 
     g_nv2a_stats.frame_working.mspf = render_time;
     g_nv2a_stats.frame_history[g_nv2a_stats.frame_ptr] =
@@ -185,6 +236,15 @@ void nv2a_profile_flip_stall(void)
         (g_nv2a_stats.frame_ptr + 1) % NV2A_PROF_NUM_FRAMES;
     g_nv2a_stats.frame_count++;
     memset(&g_nv2a_stats.frame_working, 0, sizeof(g_nv2a_stats.frame_working));
+}
+
+void nv2a_profile_vblank(void)
+{
+    if (!qatomic_read(&frame_timing_enabled)) {
+        return;
+    }
+    qatomic_set(&last_vblank_us, qemu_clock_get_us(QEMU_CLOCK_REALTIME));
+    qatomic_inc(&vblank_serial);
 }
 
 const char *nv2a_profile_get_counter_name(unsigned int cnt)

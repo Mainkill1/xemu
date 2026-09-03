@@ -212,6 +212,7 @@ static void nv2a_vga_gfx_update(void *opaque)
     VGACommonState *vga = opaque;
     vga->hw_ops->gfx_update(vga);
 
+    nv2a_profile_vblank();
     NV2AState *d = container_of(vga, NV2AState, vga);
     d->pcrtc.pending_interrupts |= NV_PCRTC_INTR_0_VBLANK;
     d->pcrtc.raster = 0;
