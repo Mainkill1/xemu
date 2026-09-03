@@ -84,7 +84,7 @@ lookups plus draw-preparation CPU time on a texture-heavy saved-state capture.
 ## Isolated callback-retirement branch
 
 This branch differs from `Full-Speed` only in cached memory-callback
-retirement ordering. Compare `7562148092` against `Full-Speed` at
+retirement ordering. Compare behavior head `b079090b08` against `Full-Speed` at
 `111deac13f`; do not mix it with another candidate during attribution.
 
 The protected rule is that the callback object remains alive until every CPU
@@ -97,3 +97,16 @@ callback retention.
 This ordering repair is not expected to improve frame time. Record any
 performance change, including a small one, but treat it as a lead until it is
 tied to measured critical-path time.
+
+The first repair (`7562148092`) moved `g_free()` out of the asynchronous CPU
+callback. The release perf-lab XISO then failed with `0xC0000005`; exact binary
+RVA `0x10d7bd` resolved to the queued
+`do_mem_access_callback_remove_by_ref()` list removal. The caller had freed the
+object before that asynchronous removal ran. That result is retained as a
+required regression test.
+
+The corrected sequence queues removal, the existing synchronized all-CPU TLB
+flush, and deferred free on the same CPU in FIFO order. The synchronized flush
+is the exclusive-work barrier between removal and free. Promotion remains
+blocked until the corrected release and debug builds pass the full XISO and a
+purpose-built multi-vCPU callback churn test.
