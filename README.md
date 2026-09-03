@@ -60,14 +60,12 @@ fresh-boot or snapshot workload, and its hypothesis-specific metric.
 
 ### Corrective-branch validation to date
 
-The exact behavior head `2ed201fe4fe93e833f6c6b105098d9889be4e765`
-builds successfully in both the pinned release/LTO configuration and the
-assertion-enabled debug configuration documented below. In each build,
+The corrected behavior head `390a00e694` builds successfully in both the
+pinned release/LTO configuration and the assertion-enabled debug configuration
+documented below. In each build,
 `tests/unit/test-xbox-nv2a-ptimer.exe --tap -k` passed all 9 tests under Wine,
 including callback, post-load, interrupt-read, interrupt-enable, exact
-multi-epoch, and zero-ratio cases. This proves compilation and focused PTIMER
-behavior; it does not replace the pending perf-lab XISO, multi-vCPU callback
-stress, Vulkan synchronization validation, or fresh-boot retail gates.
+multi-epoch, and zero-ratio cases.
 
 The first release XISO attempt against behavior head `2ed201fe4f` failed with
 Windows `0xC0000005`. Exact release RVA `0x10d7bd` resolves to
@@ -76,7 +74,22 @@ in the caller before its asynchronous removal executed. Corrective commit
 `390a00e694` now starts the all-CPU flush from inside the exclusive removal
 callback, then queues the source-CPU synchronization barrier and deferred free.
 This also prevents a remote flush from racing ahead of removal. The failed run
-is retained as evidence; all broad gates must be rerun on the corrected head.
+is retained as evidence.
+
+The corrected Windows release/LTO executable SHA-256 is
+`70b3a1236f770d52b62c363b59cc19b747797037a12941da23bbfbd32b5fac00`;
+the debug executable SHA-256 is
+`fd17490bf0ad2abc1ae82ea03d81326c3dbbbf12b758b885394cb6bf1d223dff`.
+Both passed the complete 147-record perf-lab XISO with functional hashes,
+Vulkan validation enabled, and zero VUIDs. The release and debug summary
+SHA-256 values are respectively
+`f463b5d74f7665245d71416fc6a396c5f773cadc8130a4886efc887ab9c05540`
+and
+`550b22e3b769a2cb84aa7435f4067ee89bb5f033d5a217a1b73478376e7b9282`.
+Evidence is retained under
+`evidence/eng523-branch-review/corrected-xiso-ab441f7/` in the lab working set.
+These passes do not replace the purpose-built multi-vCPU callback churn test
+or fresh-boot retail gates.
 
 ## Reproducing the Windows builds
 
