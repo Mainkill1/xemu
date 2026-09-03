@@ -267,7 +267,7 @@ change.
 | `research/eng-2026-523-sparse-uniform-layout-safe-u6299d05f` | Investigated safely skipping clean uniform rows; retained as research pending an independently validated landing. |
 | `research/eng-2026-523-tcg-tb-lookup-attribution-u065f47f7` | Collected indirect TB-lookup evidence that informed the later TCG fast paths. |
 | `research/eng-2026-523-vk-stalled-gpu-timestamps-uf1f85872` | Added diagnostic Vulkan timing experiments and records several reverted candidates; it is intentionally not used as a production rollup branch. |
-| `research/eng-2026-523-vk-tiny-draw-reuse-attribution-u42bc13ac` | Measured repeated inline-index and push-constant payloads plus descriptor-pool exhaustion in Morrowind. The push-constant skip was rejected. Exact consecutive inline-index reuse and a bounded opt-in 2,048-set graphics pool are retained as small resource/submission wins; neither fixes the approximately 50-ms cadence tail. Later commits add phase, vblank, pipeline-creation, and PFIFO wait attribution without changing renderer behavior. |
+| `research/eng-2026-523-vk-tiny-draw-reuse-attribution-u42bc13ac` | Measured repeated inline-index and push-constant payloads plus descriptor-pool exhaustion in Morrowind. The push-constant skip was rejected. Exact consecutive inline-index reuse and a bounded opt-in 2,048-set graphics pool are retained as small resource/submission wins; neither fixes the approximately 50-ms cadence tail. Later commits add phase, vblank, pipeline-creation, PFIFO wait, guest-TB, and dirty-TLB reset attribution. The validated dirty-range helper inlining is also retained as a small CPU-path win. |
 
 ## Display controls
 
@@ -717,11 +717,12 @@ execution. With the variable unset, the only steady-state effect is the
 existing disabled-environment check at TB generation time. This is an
 attribution build, not a production feature.
 
-The exact full-LTO Morrowind capture retained 594 frames: 447 canonical 33-ms
-frames and 89 canonical 50-ms frames. The TB map resolved 97.3% and 98.8% of
-anonymous/JIT samples in those buckets. Title code owned 96.9% and 97.9% of
-mapped samples. Mapped translated-code samples rose from 12.329 to 19.685 per
-frame, but the largest single guest PC (`0x0007a629`) added only 0.336
+The exact full-LTO Morrowind capture retained 594 frames. The corrected
+QPC-bounded slice contains 449 canonical 33-ms frames and 87 canonical 50-ms
+frames. The TB map resolved 97.3% and 98.8% of anonymous/JIT samples in those
+buckets. Title code owned 96.9% and 97.9% of mapped samples. Mapped
+translated-code samples rose from 12.325 to 19.701 per frame, but the largest
+single guest PC (`0x0007a629`) added only 0.339
 sample/frame. Exact XBE section ownership and targeted disassembly showed
 ordinary title geometry/matrix work, linked D3D matrix math, and XGRPH copy
 code rather than a kernel spin or guest MMIO/status poll. The added vCPU work
@@ -735,15 +736,15 @@ woke an already-idle worker, not time spent processing that source; it must not
 be reported as a blocking Vulkan call.
 
 The capture also exposed a measurement-integrity defect in the lab runner:
-`XEMU_FRAME_LOG` is flushed roughly once per second, but the runner uses the
-visible line-count cursor as its exact measured boundary. A newly visible
-group can predate the steady marker by nearly a flush interval. Frame records
-remain valid, but exact ETW joins currently require full-interval clock/phase
-alignment. Tools commit `f4f55c4` corrects the shared runner: it records the
-same Windows QPC clock used by xemu, selects only complete frames contained by
-the marker interval, and joins Vulkan telemetry by exact guest-frame ID. Its
-live validation selected 285/285 matching frame records with zero ETW loss.
-Older cursor-bounded captures still require the documented alignment repair.
+`XEMU_FRAME_LOG` is flushed roughly once per second, while the old runner used
+the visible line-count cursor as its exact measured boundary. A newly visible
+group could predate the steady marker by nearly a flush interval. Tools commit
+`f4f55c4` corrects the shared runner: it records the same Windows QPC clock
+used by xemu, selects only complete frames contained by the marker interval,
+and joins Vulkan telemetry by exact guest-frame ID. Its live validation
+selected 285/285 matching frame records with zero ETW loss. The historical TCG
+capture was re-sliced to the corrected QPC boundary; the updated 449/87 frame
+result above replaces the prior 447/89 cursor-bounded count.
 
 Exact TCG-map build identity:
 
@@ -763,6 +764,61 @@ from the complete source bundle above and built with the same pinned public
 GCC 16.1/MXE container, full-LTO command, symbol map, and cv2pdb 0.52 process
 documented in this README. No unrecorded compiler, SDK, or incremental object
 was used.
+
+## Dirty TLB range inlining
+
+Commit `9fd812fb6473f055d0592ebdd1db3d5d0e9e2144` declares the small
+`tlb_reset_dirty_range_locked` helper `static inline`. It does not change the
+dirty flags, address-range test, atomic load, TLB/VTLB traversal, BQL or dirty
+lock ownership, or any synchronization. The baseline full-LTO image still
+emitted one helper call per entry; the candidate release map no longer contains
+a standalone helper symbol. The assertion-enabled `-O0` image retains the
+symbol as expected.
+
+Corrected PFIFO samples first found about 2.7 samples/frame in the locked range
+helper and its full-range caller. On Morrowind snapshot
+`vm-20260903021051`, a 20-second-warmup/30-second A-B-B-A reduced role-mean
+`draw_flush` CPU from 11.1541 to 9.4594 ms/frame (-1.6947 ms, -15.19%). Guest
+FPS rose 27.6897 to 28.6664 (+3.53%) and mean frame time fell 36.2208 to
+34.9686 ms (-1.2522 ms). Candidate dirty hits were 0.95% higher, while Vulkan
+submits and measured waits were unchanged. P95/p99 remained approximately
+50.00 ms, so retain this as a cumulative CPU-path win, not a microstutter fix.
+
+Both exact release and debug builds passed the current 147/147 perf-lab XISO,
+functional hashes, active Vulkan validation, and zero VUIDs. Release PGR2
+FreshBoot reached a clean race at 30.000 FPS. Debug used its separate
+60-second post-input warmup and reached the same clean race; its timing is not
+compared with release. Both used the 10-second BIOS allowance followed by
+`A-3,A-10,A-2,A-2,F-2,A-2,A-2,A-2,A-2,A-2,A-7`.
+
+Exact dirty-TLB-inline build identity:
+
+```text
+source commit                    9fd812fb6473f055d0592ebdd1db3d5d0e9e2144
+source bundle                    dd064e69de6825c15cdb8bf9e6fff8208161e39bd26a82b1ca31bcf0aa90baf4
+release pre-cv2pdb/DWARF         e68c317014fa773d0b24383b0ea443ad0a0b1ce5cf62f24a5f58aa8c31fd4d15
+release post-cv2pdb xemu.exe     ad9351d525f9fa67aa8ddc01fac6c6843a9b992c21b038b8878864d60e526989
+release PDB                      09c63e03fc4b2bc5c4d72a50e4de066d88bf8b208f0f62a4a464e9644d93c681
+release map                      cce5eec3499eac2915aec0875acbd2cee35b072520dee0121c670bbea9e9102e
+release build log                69c88807fbe2c80ddae824211984c2f3c2edd7c2595b955c9bf03e8bafb65864
+debug pre-cv2pdb/DWARF           c7c7476e928aad41b5ba0aab5de5bb7e716a2ae2936b0e71195af179d7b0b553
+debug post-cv2pdb xemu.exe       a5bb070a5d6ec11047141ee05ce115eb12f33f98fd5b9582e62d95b65c212ea4
+debug PDB                        df1d9dfade3edc46f7814e2abcfe842500ecda36326cc2dde976a64ebc8894d5
+debug map                        5aa121f80a20d17dc954bb7f7a72cbb9d827198d667301eb68c9a374c79dd84e
+debug build log                  8034cfc7525b8438c465b0d1cdcaf3ec115d13422cd1c75e2ee28622faddb008
+```
+
+The Linux build host used exact worktrees
+`/home/codex/xemu-builder/eng523-tlb-inline-9fd812f-release` and
+`/home/codex/xemu-builder/eng523-tlb-inline-9fd812f-debug`. A wrapper rejected
+any source-dirty checkout before invoking the pinned public container and the
+release/debug commands documented above. The only post-build untracked path
+was `.build-cache/`, created after that clean-source check. Generated builds,
+maps, logs, and manifests are under
+`staging/eng523-tlb-inline-9fd812f/`; raw A/B and validation evidence is under
+`evidence/eng523-tlb-inline-morrowind-abba/`,
+`evidence/eng523-tlb-inline-full-xiso/`, and
+`evidence/eng523-tlb-inline-pgr2-freshboot/` in the working set.
 
 ## Staging audit
 
