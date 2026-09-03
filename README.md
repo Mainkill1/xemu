@@ -19,6 +19,7 @@ not replacements for their history.
 | `feature/eng-2026-523-tcg-active-mmu-dirty-reset-ud9e1e15a` | Included | Skips empty MMU modes while resetting code-dirty state. |
 | `feature/eng-2026-523-tcg-x86-static-state-tb-lookup-u3121717e` | Included | Final stacked TCG/Vulkan rollup: reuses known x86 translation state, specializes dirty-memory paths, avoids redundant register clearing, stages texture uploads in the ordered draw stream, targets surface callbacks directly, and clears pipeline-change state after binding. |
 | `feature/eng-2026-523-vk-native-bc-on-vertex-staging-u8a09a4ea` | Included, conflict-resolved | Uploads supported BC1/BC2/BC3 textures in native Vulkan block-compressed formats rather than decoding them on the CPU; unsupported layouts retain the decoded fallback. It was merged onto the later ordered texture-upload path and includes BC layout unit coverage. |
+| `xemu-pr-staging: feature/eng-2026-336-stage-local-vulkan-uniforms-v3-uec89c153` | Included, conflict-resolved | Separates vertex- and pixel-shader uniform source generations so unchanged stages do not rewrite or re-upload their UBOs. It preserves exact float bit patterns, tracks effective polygon-offset inputs, and retains Full-Speed's existing VMState-compatible dirty-row handling. |
 
 ## Reviewed research branches
 
@@ -47,6 +48,15 @@ is automatic on supported Windows NVIDIA systems, and Vulkan telemetry remains
 opt-in through `XEMU_VK_PERF_LOG`, so neither adds a second UI control.
 The combined Vulkan telemetry record uses schema version 5, which includes
 both CPU-region and native-BC upload counters.
+
+## Staging audit
+
+The `xemu-pr-staging` production candidates were compared against this
+rollup. The transient-buffer growth, changed-uniform-row, versioned-vertex,
+dynamic-blend, and texture-dirty branches already have later validated
+successors here. ENG-2026-336 was the remaining distinct production change;
+its seven focused unit tests passed on the Linux dev box under Wine before it
+was reconciled into this branch. Staging source branches remain open.
 
 ## Validation focus
 

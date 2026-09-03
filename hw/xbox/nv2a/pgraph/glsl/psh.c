@@ -29,6 +29,7 @@
 #include "qemu/osdep.h"
 #include "hw/xbox/nv2a/debug.h"
 #include "hw/xbox/nv2a/pgraph/pgraph.h"
+#include "hw/xbox/nv2a/pgraph/polygon-offset.h"
 #include "psh.h"
 
 DEF_UNIFORM_INFO_ARR(PshUniform, PSH_UNIFORM_DECL_X)
@@ -1708,52 +1709,29 @@ void pgraph_glsl_set_psh_uniform_values(PGRAPHState *pg,
         pgraph_glsl_set_clip_range_uniform_value(pg, values->clipRange[0]);
     }
 
-    bool polygon_offset_enabled = false;
-    if (pg->primitive_mode >= PRIM_TYPE_TRIANGLES) {
-        uint32_t raster = pgraph_reg_r(pg, NV_PGRAPH_SETUPRASTER);
-        uint32_t polygon_mode =
-            GET_MASK(raster, NV_PGRAPH_SETUPRASTER_FRONTFACEMODE);
-
-        if ((polygon_mode == NV_PGRAPH_SETUPRASTER_FRONTFACEMODE_FILL &&
-             (raster & NV_PGRAPH_SETUPRASTER_POFFSETFILLENABLE)) ||
-            (polygon_mode == NV_PGRAPH_SETUPRASTER_FRONTFACEMODE_LINE &&
-             (raster & NV_PGRAPH_SETUPRASTER_POFFSETLINEENABLE)) ||
-            (polygon_mode == NV_PGRAPH_SETUPRASTER_FRONTFACEMODE_POINT &&
-             (raster & NV_PGRAPH_SETUPRASTER_POFFSETPOINTENABLE))) {
-            polygon_offset_enabled = true;
-        }
-    }
+    PGRAPHPolygonOffsetUniformKey polygon_offset =
+        pgraph_polygon_offset_uniform_key(
+            pg->primitive_mode, pgraph_reg_r(pg, NV_PGRAPH_SETUPRASTER),
+            pgraph_reg_r(pg, NV_PGRAPH_ZOFFSETBIAS),
+            pgraph_reg_r(pg, NV_PGRAPH_ZOFFSETFACTOR));
 
     if (locs[PshUniform_depthOffset] != -1) {
-        float zbias = 0.0f;
-
-        if (polygon_offset_enabled) {
-            uint32_t zbias_u32 = pgraph_reg_r(pg, NV_PGRAPH_ZOFFSETBIAS);
-            zbias = *(float *)&zbias_u32;
-        }
-
-        values->depthOffset[0] = zbias;
+        values->depthOffset[0] = *(float *)&polygon_offset.offset_bits;
     }
 
     if (locs[PshUniform_depthFactor] != -1) {
-        float zfactor = 0.0f;
-
-        if (polygon_offset_enabled) {
-            uint32_t zfactor_u32 = pgraph_reg_r(pg, NV_PGRAPH_ZOFFSETFACTOR);
-            zfactor = *(float *)&zfactor_u32;
-            if (zfactor != 0.0f &&
-                (pgraph_reg_r(pg, NV_PGRAPH_CONTROL_0) &
-                 NV_PGRAPH_CONTROL_0_Z_PERSPECTIVE_ENABLE)) {
-                /* FIXME: for w-buffering, polygon slope in screen-space is
-                 * computed per-pixel, but Xbox appears to use constant that
-                 * is the polygon slope at the first visible pixel in top-left
-                 * order.
-                 */
-                NV2A_UNIMPLEMENTED("NV_PGRAPH_ZOFFSETFACTOR only partially implemented for w-buffering");
-            }
-        }
-
+        float zfactor = *(float *)&polygon_offset.factor_bits;
         values->depthFactor[0] = zfactor;
+        if (zfactor != 0.0f &&
+            (pgraph_reg_r(pg, NV_PGRAPH_CONTROL_0) &
+             NV_PGRAPH_CONTROL_0_Z_PERSPECTIVE_ENABLE)) {
+            /* FIXME: for w-buffering, polygon slope in screen-space is
+             * computed per-pixel, but Xbox appears to use constant that
+             * is the polygon slope at the first visible pixel in top-left
+             * order.
+             */
+            NV2A_UNIMPLEMENTED("NV_PGRAPH_ZOFFSETFACTOR only partially implemented for w-buffering");
+        }
     }
 
     if (locs[PshUniform_surfaceScale] != -1) {

@@ -22,6 +22,7 @@ tests = {
   'test-bitmap': [],
   'test-xbox-pgraph-texture-state': [],
   'test-xbox-pgraph-uniform-dirty': [],
+  'test-xbox-pgraph-uniform-source': [],
   'test-xbox-vk-blend-constants': [],
   'test-xbox-vk-bc-layout': [],
   'test-xbox-vk-pipeline-lifetime': [],

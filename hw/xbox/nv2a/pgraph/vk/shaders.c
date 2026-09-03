@@ -20,6 +20,7 @@
 #include "qemu/osdep.h"
 #include "qemu/fast-hash.h"
 #include "qemu/mstring.h"
+#include "hw/xbox/nv2a/pgraph/uniform-stage-update.h"
 #include "renderer.h"
 
 #define VSH_UBO_BINDING 0
@@ -27,6 +28,61 @@
 #define PSH_TEX_BINDING 2
 
 const size_t MAX_UNIFORM_ATTR_VALUES_SIZE = NV2A_VERTEXSHADER_ATTRIBUTES * 4 * sizeof(float);
+
+static inline void sync_uniform_dirty_summary(PGRAPHVkState *r)
+{
+    r->uniforms_changed =
+        r->uniform_stage_dirty[PGRAPH_UNIFORM_STAGE_VSH] ||
+        r->uniform_stage_dirty[PGRAPH_UNIFORM_STAGE_PSH];
+}
+
+static bool any_dirty_flag_set(const bool *dirty, size_t count)
+{
+    for (size_t i = 0; i < count; i++) {
+        if (dirty[i]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static void get_uniform_stage_update_needs(PGRAPHState *pg,
+                                           bool update_stage[])
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    PGRAPHPolygonOffsetUniformKey polygon_offset_key =
+        pgraph_polygon_offset_uniform_key(
+            pg->primitive_mode, pgraph_reg_r(pg, NV_PGRAPH_SETUPRASTER),
+            pgraph_reg_r(pg, NV_PGRAPH_ZOFFSETBIAS),
+            pgraph_reg_r(pg, NV_PGRAPH_ZOFFSETFACTOR));
+    PGRAPHUniformStageUpdateInputs inputs = {
+        .texture_bindings_changed = r->texture_bindings_changed,
+        .psh_effective_inputs_changed =
+            pgraph_polygon_offset_uniform_key_changed(
+                r->polygon_offset_key_valid, r->polygon_offset_key,
+                polygon_offset_key),
+        .inline_values_in_vsh_ubo =
+            pg->uniform_attrs && !r->use_push_constants_for_uniform_attrs,
+        .vsh_rows_dirty =
+            any_dirty_flag_set(pg->vsh_constants_dirty,
+                               NV2A_VERTEXSHADER_CONSTANTS) ||
+            any_dirty_flag_set(pg->ltctxa_dirty, NV2A_LTCTXA_COUNT) ||
+            any_dirty_flag_set(pg->ltctxb_dirty, NV2A_LTCTXB_COUNT) ||
+            any_dirty_flag_set(pg->ltc1_dirty, NV2A_LTC1_COUNT),
+        .force_full_update =
+            !r->shader_binding ||
+            !r->storage_buffers[BUFFER_UNIFORM_STAGING].buffer_offset,
+    };
+
+    for (unsigned int stage = 0; stage < PGRAPH_UNIFORM_STAGE_COUNT; stage++) {
+        inputs.source_changed[stage] = pgraph_uniform_source_stage_changed(
+            &pg->uniform_source_epochs, &r->last_uniform_source_epochs,
+            stage);
+        inputs.layout_changed[stage] = r->uniform_layout_changed[stage];
+    }
+
+    pgraph_uniform_stage_update_needs(&inputs, update_stage);
+}
 
 static void create_descriptor_pool(PGRAPHState *pg)
 {
@@ -140,51 +196,68 @@ static void destroy_descriptor_sets(PGRAPHState *pg)
 void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
+    bool need_uniform_write[PGRAPH_UNIFORM_STAGE_COUNT] = {
+        r->uniform_stage_dirty[PGRAPH_UNIFORM_STAGE_VSH],
+        r->uniform_stage_dirty[PGRAPH_UNIFORM_STAGE_PSH],
+    };
+    if (!r->storage_buffers[BUFFER_UNIFORM_STAGING].buffer_offset) {
+        need_uniform_write[PGRAPH_UNIFORM_STAGE_VSH] = true;
+        need_uniform_write[PGRAPH_UNIFORM_STAGE_PSH] = true;
+    }
+    bool any_uniform_write =
+        need_uniform_write[PGRAPH_UNIFORM_STAGE_VSH] ||
+        need_uniform_write[PGRAPH_UNIFORM_STAGE_PSH];
 
-    bool need_uniform_write =
-        r->uniforms_changed ||
-        !r->storage_buffers[BUFFER_UNIFORM_STAGING].buffer_offset;
-
-    if (!(r->shader_bindings_changed || r->texture_bindings_changed ||
-          (r->descriptor_set_index == 0) || need_uniform_write)) {
+    if (!(r->texture_bindings_changed || (r->descriptor_set_index == 0) ||
+          any_uniform_write)) {
         return; // Nothing changed
     }
 
     ShaderBinding *binding = r->shader_binding;
     ShaderUniformLayout *layouts[] = { &binding->vsh.module_info->uniforms,
                                        &binding->psh.module_info->uniforms };
-    VkDeviceSize ubo_buffer_total_size = 0;
+    VkDeviceSize required_end =
+        r->storage_buffers[BUFFER_UNIFORM_STAGING].buffer_offset;
+    VkDeviceSize alignment =
+        r->device_props.limits.minUniformBufferOffsetAlignment;
     for (int i = 0; i < ARRAY_SIZE(layouts); i++) {
-        ubo_buffer_total_size += layouts[i]->total_size;
+        if (need_uniform_write[i]) {
+            required_end = ROUND_UP(required_end, alignment);
+            required_end += layouts[i]->total_size;
+        }
     }
     bool need_ubo_staging_buffer_reset =
-        r->uniforms_changed &&
-        !pgraph_vk_buffer_has_space_for(pg, BUFFER_UNIFORM_STAGING,
-                                        ubo_buffer_total_size,
-                                        r->device_props.limits.minUniformBufferOffsetAlignment);
+        any_uniform_write &&
+        required_end > r->storage_buffers[BUFFER_UNIFORM_STAGING].buffer_size;
 
     bool need_descriptor_write_reset =
         (r->descriptor_set_index >= ARRAY_SIZE(r->descriptor_sets));
 
     if (need_descriptor_write_reset || need_ubo_staging_buffer_reset) {
         pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
-        need_uniform_write = true;
+        need_uniform_write[PGRAPH_UNIFORM_STAGE_VSH] = true;
+        need_uniform_write[PGRAPH_UNIFORM_STAGE_PSH] = true;
+        any_uniform_write = true;
     }
 
     VkWriteDescriptorSet descriptor_writes[2 + NV2A_MAX_TEXTURES];
 
     assert(r->descriptor_set_index < ARRAY_SIZE(r->descriptor_sets));
 
-    if (need_uniform_write) {
+    if (any_uniform_write) {
         for (int i = 0; i < ARRAY_SIZE(layouts); i++) {
+            if (!need_uniform_write[i]) {
+                continue;
+            }
             void *data = layouts[i]->allocation;
             VkDeviceSize size = layouts[i]->total_size;
             r->uniform_buffer_offsets[i] = pgraph_vk_append_to_buffer(
                 pg, BUFFER_UNIFORM_STAGING, &data, &size, 1,
                 r->device_props.limits.minUniformBufferOffsetAlignment);
+            r->uniform_stage_dirty[i] = false;
         }
 
-        r->uniforms_changed = false;
+        sync_uniform_dirty_summary(r);
     }
 
     VkDescriptorBufferInfo ubo_buffer_infos[2];
@@ -474,7 +547,7 @@ static bool update_uniform_rows(ShaderUniformLayout *layout, int loc,
     return changed;
 }
 
-static void update_shader_uniforms(PGRAPHState *pg)
+static void update_shader_uniforms(PGRAPHState *pg, const bool update_stage[])
 {
     NV2A_VK_DGROUP_BEGIN("%s", __func__);
 
@@ -483,60 +556,80 @@ static void update_shader_uniforms(PGRAPHState *pg)
 
     assert(r->shader_binding);
     ShaderBinding *binding = r->shader_binding;
-    VshUniformValues vsh_values;
-    VshUniformLocs vsh_uniform_locs;
-    memcpy(vsh_uniform_locs, binding->vsh.uniform_locs,
-           sizeof(vsh_uniform_locs));
-    vsh_uniform_locs[VshUniform_c] = -1;
-    vsh_uniform_locs[VshUniform_ltctxa] = -1;
-    vsh_uniform_locs[VshUniform_ltctxb] = -1;
-    vsh_uniform_locs[VshUniform_ltc1] = -1;
-    pgraph_glsl_set_vsh_uniform_values(pg, &binding->state.vsh,
-                                       vsh_uniform_locs, &vsh_values);
-    bool changed = apply_uniform_updates(&binding->vsh.module_info->uniforms,
-                                         VshUniformInfo, vsh_uniform_locs,
-                                         &vsh_values, VshUniform__COUNT);
-    ShaderUniformLayout *vsh_layout = &binding->vsh.module_info->uniforms;
+    bool vsh_layout_changed =
+        r->uniform_layout_changed[PGRAPH_UNIFORM_STAGE_VSH];
+    bool psh_layout_changed =
+        r->uniform_layout_changed[PGRAPH_UNIFORM_STAGE_PSH];
+    bool vsh_changed = false;
+    bool psh_changed = false;
 
-    /* Every writer marks its row dirty. A binding change still needs a full
-     * copy because the shared layout may hold another binding's values. */
-    changed |= update_uniform_rows(
-        vsh_layout, binding->vsh.uniform_locs[VshUniform_c],
-        pg->vsh_constants, pg->vsh_constants_dirty,
-        NV2A_VERTEXSHADER_CONSTANTS, r->shader_bindings_changed);
-    changed |= update_uniform_rows(
-        vsh_layout, binding->vsh.uniform_locs[VshUniform_ltctxa], pg->ltctxa,
-        pg->ltctxa_dirty, NV2A_LTCTXA_COUNT, r->shader_bindings_changed);
-    changed |= update_uniform_rows(
-        vsh_layout, binding->vsh.uniform_locs[VshUniform_ltctxb], pg->ltctxb,
-        pg->ltctxb_dirty, NV2A_LTCTXB_COUNT, r->shader_bindings_changed);
-    changed |= update_uniform_rows(
-        vsh_layout, binding->vsh.uniform_locs[VshUniform_ltc1], pg->ltc1,
-        pg->ltc1_dirty, NV2A_LTC1_COUNT, r->shader_bindings_changed);
+    if (update_stage[PGRAPH_UNIFORM_STAGE_VSH]) {
+        VshUniformValues vsh_values;
+        VshUniformLocs vsh_uniform_locs;
+        memcpy(vsh_uniform_locs, binding->vsh.uniform_locs,
+               sizeof(vsh_uniform_locs));
+        vsh_uniform_locs[VshUniform_c] = -1;
+        vsh_uniform_locs[VshUniform_ltctxa] = -1;
+        vsh_uniform_locs[VshUniform_ltctxb] = -1;
+        vsh_uniform_locs[VshUniform_ltc1] = -1;
+        pgraph_glsl_set_vsh_uniform_values(pg, &binding->state.vsh,
+                                           vsh_uniform_locs, &vsh_values);
+        vsh_changed = apply_uniform_updates(
+            &binding->vsh.module_info->uniforms, VshUniformInfo,
+            vsh_uniform_locs, &vsh_values, VshUniform__COUNT);
+        ShaderUniformLayout *vsh_layout = &binding->vsh.module_info->uniforms;
 
-    PshUniformValues psh_values;
-    pgraph_glsl_set_psh_uniform_values(pg, binding->psh.uniform_locs,
-                                       &psh_values);
-    for (int i = 0; i < 4; i++) {
-        assert(r->texture_bindings[i] != NULL);
-        float scale = r->texture_bindings[i]->key.scale;
+        /* A layout change needs a full copy from every source array. */
+        vsh_changed |= update_uniform_rows(
+            vsh_layout, binding->vsh.uniform_locs[VshUniform_c],
+            pg->vsh_constants, pg->vsh_constants_dirty,
+            NV2A_VERTEXSHADER_CONSTANTS, vsh_layout_changed);
+        vsh_changed |= update_uniform_rows(
+            vsh_layout, binding->vsh.uniform_locs[VshUniform_ltctxa],
+            pg->ltctxa, pg->ltctxa_dirty, NV2A_LTCTXA_COUNT,
+            vsh_layout_changed);
+        vsh_changed |= update_uniform_rows(
+            vsh_layout, binding->vsh.uniform_locs[VshUniform_ltctxb],
+            pg->ltctxb, pg->ltctxb_dirty, NV2A_LTCTXB_COUNT,
+            vsh_layout_changed);
+        vsh_changed |= update_uniform_rows(
+            vsh_layout, binding->vsh.uniform_locs[VshUniform_ltc1], pg->ltc1,
+            pg->ltc1_dirty, NV2A_LTC1_COUNT, vsh_layout_changed);
 
-        BasicColorFormatInfo f_basic =
-            kelvin_color_format_info_map[pg->vk_renderer_state
-                                             ->texture_bindings[i]
-                                             ->key.state.color_format];
-        if (!f_basic.linear) {
-            scale = 1.0;
+        r->last_uniform_source_epochs.stage[PGRAPH_UNIFORM_STAGE_VSH] =
+            pg->uniform_source_epochs.stage[PGRAPH_UNIFORM_STAGE_VSH];
+    }
+
+    if (update_stage[PGRAPH_UNIFORM_STAGE_PSH]) {
+        PshUniformValues psh_values;
+        pgraph_glsl_set_psh_uniform_values(pg, binding->psh.uniform_locs,
+                                           &psh_values);
+        for (int i = 0; i < 4; i++) {
+            assert(r->texture_bindings[i] != NULL);
+            float scale = r->texture_bindings[i]->key.scale;
+
+            BasicColorFormatInfo f_basic = kelvin_color_format_info_map[
+                r->texture_bindings[i]->key.state.color_format];
+            if (!f_basic.linear) {
+                scale = 1.0;
+            }
+
+            psh_values.texScale[i] = scale;
         }
 
-        psh_values.texScale[i] = scale;
-    }
-    changed |= apply_uniform_updates(&binding->psh.module_info->uniforms,
-                                     PshUniformInfo,
-                                     binding->psh.uniform_locs, &psh_values,
-                                     PshUniform__COUNT);
+        psh_changed = apply_uniform_updates(
+            &binding->psh.module_info->uniforms, PshUniformInfo,
+            binding->psh.uniform_locs, &psh_values, PshUniform__COUNT);
 
-    r->uniforms_changed |= changed || r->shader_bindings_changed;
+        r->last_uniform_source_epochs.stage[PGRAPH_UNIFORM_STAGE_PSH] =
+            pg->uniform_source_epochs.stage[PGRAPH_UNIFORM_STAGE_PSH];
+    }
+
+    r->uniform_stage_dirty[PGRAPH_UNIFORM_STAGE_VSH] |=
+        vsh_changed || vsh_layout_changed;
+    r->uniform_stage_dirty[PGRAPH_UNIFORM_STAGE_PSH] |=
+        psh_changed || psh_layout_changed;
+    sync_uniform_dirty_summary(r);
 
     nv2a_profile_inc_counter(r->uniforms_changed ?
                                  NV2A_PROF_SHADER_UBO_DIRTY :
@@ -552,20 +645,51 @@ void pgraph_vk_bind_shaders(PGRAPHState *pg)
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     r->shader_bindings_changed = false;
+    r->uniform_layout_changed[PGRAPH_UNIFORM_STAGE_VSH] = false;
+    r->uniform_layout_changed[PGRAPH_UNIFORM_STAGE_PSH] = false;
 
     if (!r->shader_binding ||
         pgraph_glsl_check_shader_state_dirty(pg, &r->shader_binding->state)) {
+        ShaderBinding *old_binding = r->shader_binding;
         ShaderState new_state = pgraph_glsl_get_shader_state(pg);
-        if (!r->shader_binding || memcmp(&r->shader_binding->state, &new_state,
-                                         sizeof(ShaderState))) {
+        if (!old_binding || memcmp(&old_binding->state, &new_state,
+                                   sizeof(ShaderState))) {
             r->shader_binding = get_shader_binding_for_state(r, &new_state);
             r->shader_bindings_changed = true;
+            r->uniform_layout_changed[PGRAPH_UNIFORM_STAGE_VSH] =
+                !old_binding ||
+                old_binding->vsh.module_info !=
+                    r->shader_binding->vsh.module_info;
+            r->uniform_layout_changed[PGRAPH_UNIFORM_STAGE_PSH] =
+                !old_binding ||
+                old_binding->psh.module_info !=
+                    r->shader_binding->psh.module_info;
         }
     } else {
         nv2a_profile_inc_counter(NV2A_PROF_SHADER_BIND_NOTDIRTY);
     }
 
-    update_shader_uniforms(pg);
+    bool update_stage[PGRAPH_UNIFORM_STAGE_COUNT];
+    get_uniform_stage_update_needs(pg, update_stage);
+    r->last_uniform_source_epochs.unclassified =
+        pg->uniform_source_epochs.unclassified;
+    r->last_uniform_source_epochs.total = pg->uniform_source_epochs.total;
+
+    if (!update_stage[PGRAPH_UNIFORM_STAGE_VSH] &&
+        !update_stage[PGRAPH_UNIFORM_STAGE_PSH]) {
+        nv2a_profile_inc_counter(NV2A_PROF_SHADER_UBO_NOTDIRTY);
+        NV2A_VK_DGROUP_END();
+        return;
+    }
+
+    update_shader_uniforms(pg, update_stage);
+    if (update_stage[PGRAPH_UNIFORM_STAGE_PSH]) {
+        r->polygon_offset_key = pgraph_polygon_offset_uniform_key(
+            pg->primitive_mode, pgraph_reg_r(pg, NV_PGRAPH_SETUPRASTER),
+            pgraph_reg_r(pg, NV_PGRAPH_ZOFFSETBIAS),
+            pgraph_reg_r(pg, NV_PGRAPH_ZOFFSETFACTOR));
+        r->polygon_offset_key_valid = true;
+    }
 
     NV2A_VK_DGROUP_END();
 }
