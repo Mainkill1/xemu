@@ -128,7 +128,7 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":6"
+            "{\"type\":\"schema\",\"schema_version\":7"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
             ",\"tiny_draw_attribution_version\":1",
@@ -395,7 +395,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":6"
+            "{\"type\":\"frame\",\"schema_version\":7"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
@@ -460,6 +460,8 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"decoded_bc_source_bytes_per_guest_frame\":%" PRIu64
             ",\"decoded_bc_staged_bytes_per_guest_frame\":%" PRIu64
             ",\"decoded_bc_prepare_cpu_us_per_guest_frame\":%" PRIu64
+            ",\"descriptor_set_capacity\":%u"
+            ",\"descriptor_set_highwater_per_guest_frame\":%" PRIu64
             ",\"index_payloads_per_guest_frame\":%" PRIu64
             ",\"index_payload_bytes_per_guest_frame\":%" PRIu64
             ",\"consecutive_duplicate_index_payloads_per_guest_frame\":%" PRIu64
@@ -490,6 +492,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->native_bc_staged_bytes, perf->native_bc_prepare_cpu_us,
             perf->decoded_bc_upload_count, perf->decoded_bc_source_bytes,
             perf->decoded_bc_staged_bytes, perf->decoded_bc_prepare_cpu_us,
+            r->descriptor_set_capacity, perf->descriptor_set_highwater,
             perf->index_payload_count, perf->index_payload_bytes,
             perf->consecutive_duplicate_index_payload_count,
             perf->consecutive_duplicate_index_payload_bytes,
@@ -529,6 +532,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->decoded_bc_source_bytes = 0;
     perf->decoded_bc_staged_bytes = 0;
     perf->decoded_bc_prepare_cpu_us = 0;
+    perf->descriptor_set_highwater = 0;
     perf->index_payload_count = 0;
     perf->index_payload_bytes = 0;
     perf->consecutive_duplicate_index_payload_count = 0;

@@ -88,7 +88,14 @@ static void create_descriptor_pool(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
-    size_t num_sets = ARRAY_SIZE(r->descriptor_sets);
+    const char *expand_descriptor_sets =
+        g_getenv("XEMU_VK_EXPAND_DESCRIPTOR_SETS");
+    r->descriptor_set_capacity =
+        expand_descriptor_sets != NULL && expand_descriptor_sets[0] != '\0' &&
+                strcmp(expand_descriptor_sets, "0") != 0
+            ? PGRAPH_VK_EXPANDED_DESCRIPTOR_SET_CAPACITY
+            : PGRAPH_VK_DEFAULT_DESCRIPTOR_SET_CAPACITY;
+    uint32_t num_sets = r->descriptor_set_capacity;
 
     VkDescriptorPoolSize pool_sizes[] = {
         {
@@ -105,7 +112,7 @@ static void create_descriptor_pool(PGRAPHState *pg)
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
         .poolSizeCount = ARRAY_SIZE(pool_sizes),
         .pPoolSizes = pool_sizes,
-        .maxSets = ARRAY_SIZE(r->descriptor_sets),
+        .maxSets = num_sets,
         .flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
     };
     VK_CHECK(vkCreateDescriptorPool(r->device, &pool_info, NULL,
@@ -167,15 +174,16 @@ static void create_descriptor_sets(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
-    VkDescriptorSetLayout layouts[ARRAY_SIZE(r->descriptor_sets)];
-    for (int i = 0; i < ARRAY_SIZE(layouts); i++) {
+    VkDescriptorSetLayout
+        layouts[PGRAPH_VK_EXPANDED_DESCRIPTOR_SET_CAPACITY];
+    for (uint32_t i = 0; i < r->descriptor_set_capacity; i++) {
         layouts[i] = r->descriptor_set_layout;
     }
 
     VkDescriptorSetAllocateInfo alloc_info = {
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
         .descriptorPool = r->descriptor_pool,
-        .descriptorSetCount = ARRAY_SIZE(r->descriptor_sets),
+        .descriptorSetCount = r->descriptor_set_capacity,
         .pSetLayouts = layouts,
     };
     VK_CHECK(
@@ -187,8 +195,8 @@ static void destroy_descriptor_sets(PGRAPHState *pg)
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     vkFreeDescriptorSets(r->device, r->descriptor_pool,
-                         ARRAY_SIZE(r->descriptor_sets), r->descriptor_sets);
-    for (int i = 0; i < ARRAY_SIZE(r->descriptor_sets); i++) {
+                         r->descriptor_set_capacity, r->descriptor_sets);
+    for (uint32_t i = 0; i < r->descriptor_set_capacity; i++) {
         r->descriptor_sets[i] = VK_NULL_HANDLE;
     }
 }
@@ -231,7 +239,7 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
         required_end > r->storage_buffers[BUFFER_UNIFORM_STAGING].buffer_size;
 
     bool need_descriptor_write_reset =
-        (r->descriptor_set_index >= ARRAY_SIZE(r->descriptor_sets));
+        (r->descriptor_set_index >= r->descriptor_set_capacity);
 
     if (need_descriptor_write_reset || need_ubo_staging_buffer_reset) {
         pgraph_vk_finish(
@@ -243,7 +251,7 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
 
     VkWriteDescriptorSet descriptor_writes[2 + NV2A_MAX_TEXTURES];
 
-    assert(r->descriptor_set_index < ARRAY_SIZE(r->descriptor_sets));
+    assert(r->descriptor_set_index < r->descriptor_set_capacity);
 
     if (any_uniform_write) {
         for (int i = 0; i < ARRAY_SIZE(layouts); i++) {
@@ -300,6 +308,11 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
     vkUpdateDescriptorSets(r->device, 6, descriptor_writes, 0, NULL);
 
     r->descriptor_set_index++;
+    if (r->perf.enabled) {
+        r->perf.descriptor_set_highwater =
+            MAX(r->perf.descriptor_set_highwater,
+                (uint64_t)r->descriptor_set_index);
+    }
 }
 
 static void update_shader_uniform_locs(ShaderBinding *binding)

@@ -111,6 +111,9 @@ typedef struct StorageBuffer {
     uint8_t *mapped;
 } StorageBuffer;
 
+#define PGRAPH_VK_DEFAULT_DESCRIPTOR_SET_CAPACITY 1024
+#define PGRAPH_VK_EXPANDED_DESCRIPTOR_SET_CAPACITY 2048
+
 typedef struct SurfaceBinding {
     QTAILQ_ENTRY(SurfaceBinding) entry;
     MemAccessCallback *access_cb;
@@ -430,6 +433,7 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t decoded_bc_source_bytes;
     uint64_t decoded_bc_staged_bytes;
     uint64_t decoded_bc_prepare_cpu_us;
+    uint64_t descriptor_set_highwater;
     uint64_t index_payload_count;
     uint64_t index_payload_bytes;
     uint64_t consecutive_duplicate_index_payload_count;
@@ -513,7 +517,9 @@ typedef struct PGRAPHVkState {
 
     VkDescriptorPool descriptor_pool;
     VkDescriptorSetLayout descriptor_set_layout;
-    VkDescriptorSet descriptor_sets[1024];
+    VkDescriptorSet
+        descriptor_sets[PGRAPH_VK_EXPANDED_DESCRIPTOR_SET_CAPACITY];
+    uint32_t descriptor_set_capacity;
     int descriptor_set_index;
 
     StorageBuffer storage_buffers[BUFFER_COUNT];
