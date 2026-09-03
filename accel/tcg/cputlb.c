@@ -902,9 +902,15 @@ static inline void tlb_reset_dirty_range_locked(CPUTLBEntryFull *full,
                                                 uintptr_t start,
                                                 uintptr_t length)
 {
+    /* fulltlb storage for an unused fast entry has no initialized metadata. */
+    if (tlb_entry_is_empty(ent)) {
+        return;
+    }
+
 #ifdef XBOX
     if (tlb_dirty_host_page_filter &&
-        (full->ram_host_page - start) >= length) {
+        (full->ram_host_page == 0 ||
+         (full->ram_host_page - start) >= length)) {
         return;
     }
 #endif
