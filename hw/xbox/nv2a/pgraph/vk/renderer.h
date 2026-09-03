@@ -426,6 +426,9 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t index_payload_bytes;
     uint64_t consecutive_duplicate_index_payload_count;
     uint64_t consecutive_duplicate_index_payload_bytes;
+    uint64_t reused_index_payload_count;
+    uint64_t reused_index_payload_bytes;
+    bool reuse_identical_index_payloads;
     bool last_index_payload_valid;
     VkDeviceSize last_index_payload_offset;
     VkDeviceSize last_index_payload_size;
@@ -661,7 +664,11 @@ void pgraph_vk_perf_record_bc_upload(PGRAPHVkState *r, bool native,
                                      uint64_t source_bytes,
                                      uint64_t staged_bytes,
                                      uint64_t prepare_cpu_us);
-void pgraph_vk_perf_record_index_payload(PGRAPHVkState *r, const void *data,
+bool pgraph_vk_perf_try_reuse_index_payload(PGRAPHVkState *r,
+                                            const void *data,
+                                            VkDeviceSize size,
+                                            VkDeviceSize *staging_offset);
+void pgraph_vk_perf_commit_index_payload(PGRAPHVkState *r,
                                          VkDeviceSize size,
                                          VkDeviceSize staging_offset);
 bool pgraph_vk_perf_should_emit_push_constants(PGRAPHVkState *r,

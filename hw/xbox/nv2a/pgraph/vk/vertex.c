@@ -30,9 +30,13 @@ VkDeviceSize pgraph_vk_update_index_buffer(PGRAPHState *pg, void *data,
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_2);
-    VkDeviceSize offset = pgraph_vk_append_to_buffer(
+    VkDeviceSize offset;
+    if (pgraph_vk_perf_try_reuse_index_payload(r, data, size, &offset)) {
+        return offset;
+    }
+    offset = pgraph_vk_append_to_buffer(
         pg, BUFFER_INDEX_STAGING, &data, &size, 1, 1);
-    pgraph_vk_perf_record_index_payload(r, data, size, offset);
+    pgraph_vk_perf_commit_index_payload(r, size, offset);
     return offset;
 }
 

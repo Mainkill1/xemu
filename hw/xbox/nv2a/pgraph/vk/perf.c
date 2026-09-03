@@ -86,6 +86,12 @@ static void write_cpu_stat_array(FILE *file, const char *key,
 
 void pgraph_vk_perf_init(PGRAPHVkState *r)
 {
+    const char *reuse_index_payloads =
+        g_getenv("XEMU_VK_REUSE_IDENTICAL_INDEX_PAYLOADS");
+    r->perf.reuse_identical_index_payloads =
+        reuse_index_payloads != NULL && reuse_index_payloads[0] != '\0' &&
+        strcmp(reuse_index_payloads, "0") != 0;
+
     const char *skip_push_constants =
         g_getenv("XEMU_VK_SKIP_IDENTICAL_PUSH_CONSTANTS");
     r->perf.skip_identical_push_constants =
@@ -246,27 +252,50 @@ void pgraph_vk_perf_record_bc_upload(PGRAPHVkState *r, bool native,
     }
 }
 
-void pgraph_vk_perf_record_index_payload(PGRAPHVkState *r, const void *data,
+bool pgraph_vk_perf_try_reuse_index_payload(PGRAPHVkState *r,
+                                            const void *data,
+                                            VkDeviceSize size,
+                                            VkDeviceSize *staging_offset)
+{
+    PGRAPHVkPerfTelemetry *perf = &r->perf;
+    if (!(perf->enabled || perf->reuse_identical_index_payloads)) {
+        return false;
+    }
+
+    StorageBuffer *staging = &r->storage_buffers[BUFFER_INDEX_STAGING];
+    bool duplicate = perf->last_index_payload_valid &&
+                     perf->last_index_payload_size == size &&
+                     memcmp(staging->mapped + perf->last_index_payload_offset,
+                            data, size) == 0;
+
+    if (perf->enabled) {
+        perf->index_payload_count++;
+        perf->index_payload_bytes += size;
+        if (duplicate) {
+            perf->consecutive_duplicate_index_payload_count++;
+            perf->consecutive_duplicate_index_payload_bytes += size;
+            if (perf->reuse_identical_index_payloads) {
+                perf->reused_index_payload_count++;
+                perf->reused_index_payload_bytes += size;
+            }
+        }
+    }
+
+    if (perf->reuse_identical_index_payloads && duplicate) {
+        *staging_offset = perf->last_index_payload_offset;
+        return true;
+    }
+    return false;
+}
+
+void pgraph_vk_perf_commit_index_payload(PGRAPHVkState *r,
                                          VkDeviceSize size,
                                          VkDeviceSize staging_offset)
 {
-    if (!r->perf.enabled) {
+    PGRAPHVkPerfTelemetry *perf = &r->perf;
+    if (!(perf->enabled || perf->reuse_identical_index_payloads)) {
         return;
     }
-
-    PGRAPHVkPerfTelemetry *perf = &r->perf;
-    perf->index_payload_count++;
-    perf->index_payload_bytes += size;
-
-    StorageBuffer *staging = &r->storage_buffers[BUFFER_INDEX_STAGING];
-    if (staging_offset != 0 && perf->last_index_payload_valid &&
-        perf->last_index_payload_size == size &&
-        memcmp(staging->mapped + perf->last_index_payload_offset, data,
-               size) == 0) {
-        perf->consecutive_duplicate_index_payload_count++;
-        perf->consecutive_duplicate_index_payload_bytes += size;
-    }
-
     perf->last_index_payload_valid = true;
     perf->last_index_payload_offset = staging_offset;
     perf->last_index_payload_size = size;
@@ -308,6 +337,9 @@ bool pgraph_vk_perf_should_emit_push_constants(PGRAPHVkState *r,
 
 void pgraph_vk_perf_begin_command_buffer(PGRAPHVkState *r)
 {
+    if (r->perf.enabled || r->perf.reuse_identical_index_payloads) {
+        r->perf.last_index_payload_valid = false;
+    }
     if (r->perf.enabled || r->perf.skip_identical_push_constants) {
         r->perf.last_push_constant_valid = false;
     }
@@ -415,6 +447,8 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"index_payload_bytes_per_guest_frame\":%" PRIu64
             ",\"consecutive_duplicate_index_payloads_per_guest_frame\":%" PRIu64
             ",\"consecutive_duplicate_index_payload_bytes_per_guest_frame\":%" PRIu64
+            ",\"reused_index_payloads_per_guest_frame\":%" PRIu64
+            ",\"reused_index_payload_bytes_per_guest_frame\":%" PRIu64
             ",\"push_constant_emits_per_guest_frame\":%" PRIu64
             ",\"push_constant_bytes_per_guest_frame\":%" PRIu64
             ",\"identical_push_constant_emits_per_guest_frame\":%" PRIu64
@@ -442,6 +476,8 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->index_payload_count, perf->index_payload_bytes,
             perf->consecutive_duplicate_index_payload_count,
             perf->consecutive_duplicate_index_payload_bytes,
+            perf->reused_index_payload_count,
+            perf->reused_index_payload_bytes,
             perf->push_constant_count, perf->push_constant_bytes,
             perf->identical_push_constant_count,
             perf->identical_push_constant_bytes,
@@ -480,6 +516,8 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->index_payload_bytes = 0;
     perf->consecutive_duplicate_index_payload_count = 0;
     perf->consecutive_duplicate_index_payload_bytes = 0;
+    perf->reused_index_payload_count = 0;
+    perf->reused_index_payload_bytes = 0;
     perf->push_constant_count = 0;
     perf->push_constant_bytes = 0;
     perf->identical_push_constant_count = 0;
