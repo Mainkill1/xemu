@@ -245,6 +245,21 @@ change.
 | `research/eng-2026-523-vk-stalled-gpu-timestamps-uf1f85872` | Added diagnostic Vulkan timing experiments and records several reverted candidates; it is intentionally not used as a production rollup branch. |
 | `feature/eng-2026-523-vk-batched-aux-main-submit-u48cab4ee` | Replaced two same-queue submit infos and their internal semaphore with one ordered two-command-buffer submit info. Focused validation passed with zero VUIDs, but a staging-heavy B-C-C-B comparison was neutral/slower (+0.025% median, +0.205% average), so it remains a measured research branch and is not selected for Full-Speed. |
 
+Forgejo issue #38 found that removing the semaphore exposed an incomplete
+uniform-buffer dependency: the buffer carries both vertex- and fragment-stage
+UBOs, while the explicit barrier named only the vertex stage. Corrective
+commit `84975084de` uses `VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT` and checks the
+result of `vkResetFences()`.
+
+This branch remains a synchronization-safety repair of a rejected experiment,
+not a performance candidate. Before it can be reconsidered, compare it only
+against its immediate parent `d13650db`, enable Vulkan synchronization
+validation, and exercise VSH-only, PSH-only, combined UBO, index, inline
+vertex, host-written vertex, and repeated staged-PSH reads. Both release and
+debug builds must pass the perf-lab XISO and rendered image hashes must match
+the original two-submit semaphore path. Its earlier neutral/slower result is
+not erased by the safety fix.
+
 ## Display controls
 
 The rollup has one display-side CPU-saving preference:
