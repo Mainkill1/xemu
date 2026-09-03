@@ -33,6 +33,31 @@ listed differential or rendered-output gates.
 | `feature/eng-2026-523-vk-texture-pipeline-fastpath-uaad84ed1` | Included | Keeps texture image/sampler changes on the descriptor path instead of forcing a Vulkan pipeline lookup; shader-affecting texture state still invalidates through `ShaderState`. The recorded Morrowind capture reduced pipeline lookups by 79.9%, and the fixed-work A/B comparison improved average throughput by 1.079%. |
 | `fix/eng-2026-523-nv2a-ptimer-overdue-catchup-u76925787` | Corrected here | Coalesces missed epochs. This corrective branch uses one transition for callback, post-load, interrupt-read, and interrupt-enable paths, asserts exact future epochs, and treats a zero ratio as a stopped clock without changing the raw registers. |
 
+## One-variable review and A/B branches
+
+Do not use this combined corrective branch to attribute a performance change.
+Use the isolated branch that owns the relevant behavior and compare it with
+the exact parent recorded below. Small improvements remain valid findings, but
+they must keep their own confidence level and correctness evidence.
+
+| Concern | Isolated branch/head | Exact control | Purpose |
+| --- | --- | --- | --- |
+| PTIMER reconciliation and zero ratios | `fix/eng-2026-523-ptimer-reconciliation-zero-ratio-u3f16e05d` (`b332c16d6a`) | `Full-Speed` (`111deac13f`) | Correctness isolation; measure timing only as a separately proven lead. |
+| Cached callback retirement | `fix/eng-2026-523-callback-retirement-order-u16a212b2` (`1f0dbd4d5e`) | `Full-Speed` (`111deac13f`) | Prove all CPUs drop cached references before free. |
+| Unsafe host-load option removal | `fix/eng-2026-523-remove-unsafe-host-load-ube3040c6` (`4140a916fb`) | `Full-Speed` (`111deac13f`), legacy option disabled | Establish the safe baseline without global timer changes. |
+| Host-load feature replacement | `research/eng-2026-523-host-load-deadline-redesign-ufaef5c6e` (`676c7f3c84`) | Safe-removal branch (`4140a916fb`) | Preserve the valuable feature as a presentation-deadline-only opt-in design. |
+| NVIDIA persistent PSTATE policy | `fix/eng-2026-523-remove-nvidia-power-policy-u83f2a080` (`ede650cf47`) | `Full-Speed` (`111deac13f`) | Keep driver state outside implicit emulator startup behavior. |
+| Tiny-draw empty-TLB metadata access | `research/eng-2026-523-vk-tiny-draw-reuse-attribution-u42bc13ac` (`45fbf9e10c`) | Its immediate parent | Safety fix inside research history; extract again before performance promotion. |
+| Batched-submit dependencies | `fix/eng-2026-523-vk-batched-submit-safety-u70dcad5c` (`84975084de`) | Rejected batched branch at `d13650db` | Synchronization repair only; neutral/slower result remains rejected. |
+
+Telemetry semantics, each TCG/MMU optimization, vertex staging, texture
+pipeline classification, native BC output, uniform invalidation, and
+equivalent texture-scale suppression remain separate extraction tasks. They
+must not be grouped into a new performance branch merely because they share
+this investigation number. Each extracted branch must state A/B/C source
+commits, release/debug builds, perf-lab XISO coverage, the relevant retail
+fresh-boot or snapshot workload, and its hypothesis-specific metric.
+
 ## Reproducing the Windows builds
 
 No private compiler, patched SDK, or hidden branch-specific flag is required.
