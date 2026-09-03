@@ -43,7 +43,7 @@ they must keep their own confidence level and correctness evidence.
 | Concern | Isolated branch/head | Exact control | Purpose |
 | --- | --- | --- | --- |
 | PTIMER reconciliation and zero ratios | `fix/eng-2026-523-ptimer-reconciliation-zero-ratio-u3f16e05d` (`b332c16d6a`) | `Full-Speed` (`111deac13f`) | Correctness isolation; measure timing only as a separately proven lead. |
-| Cached callback retirement | `fix/eng-2026-523-callback-retirement-order-u16a212b2` (behavior `b079090b08`) | `Full-Speed` (`111deac13f`) | Queue removal, synchronized all-CPU flush, then deferred free; prove all cached references retire first. |
+| Cached callback retirement | `fix/eng-2026-523-callback-retirement-order-u16a212b2` (behavior `82749ab7a6`) | `Full-Speed` (`111deac13f`) | From exclusive removal, queue every CPU's flush, the synchronization barrier, then deferred free. |
 | Unsafe host-load option removal | `fix/eng-2026-523-remove-unsafe-host-load-ube3040c6` (`4140a916fb`) | `Full-Speed` (`111deac13f`), legacy option disabled | Establish the safe baseline without global timer changes. |
 | Host-load feature replacement | `research/eng-2026-523-host-load-deadline-redesign-ufaef5c6e` (`676c7f3c84`) | Safe-removal branch (`4140a916fb`) | Preserve the valuable feature as a presentation-deadline-only opt-in design. |
 | NVIDIA persistent PSTATE policy | `fix/eng-2026-523-remove-nvidia-power-policy-u83f2a080` (`ede650cf47`) | `Full-Speed` (`111deac13f`) | Keep driver state outside implicit emulator startup behavior. |
@@ -73,9 +73,10 @@ The first release XISO attempt against behavior head `2ed201fe4f` failed with
 Windows `0xC0000005`. Exact release RVA `0x10d7bd` resolves to
 `do_mem_access_callback_remove_by_ref()`: the initial repair freed the callback
 in the caller before its asynchronous removal executed. Corrective commit
-`6f13e217d5` now queues removal, the synchronized all-CPU TLB-flush barrier,
-and deferred free in order. The failed run is retained as evidence; all broad
-gates must be rerun on the corrected head.
+`390a00e694` now starts the all-CPU flush from inside the exclusive removal
+callback, then queues the source-CPU synchronization barrier and deferred free.
+This also prevents a remote flush from racing ahead of removal. The failed run
+is retained as evidence; all broad gates must be rerun on the corrected head.
 
 ## Reproducing the Windows builds
 
