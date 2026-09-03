@@ -84,7 +84,7 @@ lookups plus draw-preparation CPU time on a texture-heavy saved-state capture.
 ## Isolated callback-retirement branch
 
 This branch differs from `Full-Speed` only in cached memory-callback
-retirement ordering. Compare behavior head `b079090b08` against `Full-Speed` at
+retirement ordering. Compare behavior head `82749ab7a6` against `Full-Speed` at
 `111deac13f`; do not mix it with another candidate during attribution.
 
 The protected rule is that the callback object remains alive until every CPU
@@ -105,8 +105,10 @@ RVA `0x10d7bd` resolved to the queued
 object before that asynchronous removal ran. That result is retained as a
 required regression test.
 
-The corrected sequence queues removal, the existing synchronized all-CPU TLB
-flush, and deferred free on the same CPU in FIFO order. The synchronized flush
-is the exclusive-work barrier between removal and free. Promotion remains
-blocked until the corrected release and debug builds pass the full XISO and a
+The corrected sequence begins inside the exclusive removal callback: remove
+the object, enqueue every CPU's TLB flush, enqueue the source CPU's exclusive
+flush barrier, and finally enqueue deferred free behind that barrier. Starting
+the flush from the removal callback prevents a remote CPU from completing its
+flush before the callback has actually been removed. Promotion remains blocked
+until the corrected release and debug builds pass the full XISO and a
 purpose-built multi-vCPU callback churn test.
