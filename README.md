@@ -22,6 +22,7 @@ not replacements for their history.
 | `xemu-pr-staging: feature/eng-2026-336-stage-local-vulkan-uniforms-v3-uec89c153` | Included, conflict-resolved | Separates vertex- and pixel-shader uniform source generations so unchanged stages do not rewrite or re-upload their UBOs. It preserves exact float bit patterns, tracks effective polygon-offset inputs, and retains Full-Speed's existing VMState-compatible dirty-row handling. |
 | `fix/eng-2026-523-vk-report-dma-ownership` | Included on this branch | Captures the active DMA report context when `GET_REPORT` is queued, so delayed Vulkan report publication cannot be redirected by a later context switch. |
 | `feature/eng-2026-523-vk-texture-pipeline-fastpath-uaad84ed1` | Included on this candidate branch | Avoids rebuilding and looking up an unchanged Vulkan `PipelineKey` when only texture image/sampler descriptor identity changed. Shader-affecting texture state remains covered by `ShaderState`; descriptor refresh remains unchanged. |
+| `fix/eng-2026-523-nv2a-ptimer-overdue-catchup-u76925787` | Included on this candidate branch | Advances an overdue NV2A PTIMER alarm directly to its next future epoch, avoiding a repeated immediate-timer/BQL storm after a fresh game load while preserving the single hardware pending bit. |
 
 ### Build policy by branch type
 
@@ -36,7 +37,7 @@ local SDK patch, or branch-specific compiler flag.
 | Included production branch or Full-Speed rollup | Clean exact commit, pinned container digest, `build.sh`, LTO, and `-Dx86_version=3` as documented below | Release-equivalent correctness and performance evidence; eligible for sharing |
 | Telemetry/instrumentation branch | The production recipe for final measurements; a non-LTO build may additionally be retained for symbol ownership | Production timing only comes from the LTO build; non-LTO timing is diagnostic |
 | Research or rejected experiment | Incremental `ninja` is permitted for quick attribution, followed by the production recipe only if the change becomes a candidate | Incremental output is diagnostic and is not a distributable Full-Speed build |
-| Display setting A/B | One production binary with `display.window.reduce_host_cpu_usage` toggled at runtime | Isolates the setting without compiler or source drift |
+| Display setting bug investigation | One production binary with `display.window.reduce_host_cpu_usage` disabled for normal validation; enable it only in an explicitly labeled defect-reproduction run | The option is currently quarantined because it is known to be bugged; its implementation and prior host-load evidence remain tracked |
 
 The perf-lab XISO is a separate Xbox guest project built with its own pinned
 NXDK environment. It validates the emulator binary but is not an input to the
@@ -206,6 +207,36 @@ The ARM64 job is a separate LLVM-based path pinned in
 `.github/workflows/build-windows.yml`; do not substitute it for this branch's
 x86-64 GCC performance binaries.
 
+### Diagnostic debug command
+
+Use the same source identity, container digest, target, and `x86_version=3`
+for the assertion-enabled diagnostic build, but invoke xemu's documented
+`--debug` mode and explicitly disable LTO:
+
+```bash
+mkdir -p .build-cache/ccache .build-cache/lto
+
+docker run --rm \
+  -e CROSSPREFIX=x86_64-w64-mingw32.static- \
+  -e CROSSAR=x86_64-w64-mingw32.static-gcc-ar \
+  -e CCACHE_DIR=/xemu-cache/ccache \
+  -e CCACHE_MAXSIZE=512M \
+  -e LTO_CACHE_DIR=/xemu-cache/lto \
+  -v "$PWD:/src" \
+  -v "$PWD/.build-cache:/xemu-cache" \
+  -w /src \
+  ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2 \
+  bash -lc 'apt-get update && apt-get install -qy curl && \
+    mkdir -p "$CCACHE_DIR" "$LTO_CACHE_DIR" && \
+    ./build.sh --debug -j"$(nproc)" -p win64-cross \
+      -Db_lto=false -Dx86_version=3'
+```
+
+This produces `-O0` code with `XEMU_DEBUG_BUILD=1`, QOM/TCG debugging,
+graph-lock debugging, and mutex debugging. It is a correctness and diagnostic
+artifact, not a performance baseline. Label its timings separately from the
+full-LTO release-equivalent build.
+
 ### Verified lab reproduction
 
 The command above was independently exercised on the Linux build host against
@@ -249,12 +280,15 @@ change.
 The rollup has one display-side CPU-saving preference:
 
 `Reduce host CPU usage when VSync is off` (`display.window.reduce_host_cpu_usage`)
-is disabled by default. When enabled while VSync is off, it both uses efficient
-host timer waits and yields briefly between uncapped presentation frames. The
-same setting is declared once in `config_spec.yml` and rendered once in the
-Display menu; no competing toggle was introduced. The NVIDIA power preference
-is automatic on supported Windows NVIDIA systems, and Vulkan telemetry remains
-opt-in through `XEMU_VK_PERF_LOG`, so neither adds a second UI control.
+is disabled by default and is currently known to be bugged. Do not use it for
+performance or correctness validation, and do not recommend enabling it until
+the defect is identified and fixed. The option, implementation, and prior
+host-load measurements remain in the branch so that work is not lost and the
+behavior can be repaired behind the existing opt-in setting. The same setting
+is declared once in `config_spec.yml` and rendered once in the Display menu;
+no competing toggle was introduced. The NVIDIA power preference is automatic
+on supported Windows NVIDIA systems, and Vulkan telemetry remains opt-in
+through `XEMU_VK_PERF_LOG`, so neither adds a second UI control.
 The combined Vulkan telemetry record uses schema version 5, which includes
 both CPU-region and native-BC upload counters.
 
@@ -293,6 +327,48 @@ XISO SHA-256    08551d0c0b7bc5efb20a7b36d6d4f0e24ab666b4cee25930232858ccd9872a3e
 catalog SHA-256 027065948624d6aafdbe557bed8123eb6dcaa83353cf242c71d030a109b64578
 catalog records 147 (142 executable leaves and 5 groups)
 ```
+
+## NV2A PTIMER overdue catch-up
+
+Fresh PGR2 exposed a renderer-independent regression that snapshot restore
+masked. With release-equivalent commit `1a5e2aa87f497b89f787023f3a2c098b93697c37`,
+fresh Vulkan averaged 6.722 FPS and fresh OpenGL averaged 8.203 FPS, while the
+same Vulkan binary restored snapshot `vm-20260903022956` at exactly 30.000
+FPS. In a five-second scheduler slice, fresh TCG spent 2,362 of 4,072 samples
+(58.0%) acquiring the big QEMU lock around MMIO and the main loop switched out
+21,437 times. Snapshot restore already normalizes an overdue alarm in
+`ptimer_post_load()`, which led to the corresponding runtime callback.
+
+Commit `35ebe08da7619a935aaa3a3df75dfb69e0ec949c` changes only the overdue
+runtime reschedule: the alarm still asserts its one pending interrupt bit, but
+its next deadline is calculated from the current PTIMER time and placed in the
+future instead of advancing only one missed epoch. The new deterministic unit
+case fails against the old implementation (exit 3 because the deadline equals
+`now`) and all six PTIMER cases pass with the fix.
+
+The clean GCC 16.1 full-LTO build recovered fresh PGR2 to 30.000 FPS on Vulkan
+and 30.002 FPS on OpenGL. Vulkan p95/p99 were 33.537/34.329 ms with zero
+stalls. Its TCG BQL-lock share fell to 17 of 4,666 samples (0.36%) and main-loop
+switch-outs fell to 1,157 per five seconds. Both captures had zero ETW loss,
+matching PDB/source ownership, the fixed 10-second BIOS allowance, all 11
+timed inputs, and live-race screenshots. A separate `-O0`, non-LTO debug build
+passed the same unit suite and reached live Vulkan gameplay without an
+assertion; its fresh and snapshot controls were both approximately 7 FPS, so
+those timings are correctly classified as diagnostic rather than release
+performance evidence.
+
+The release build also passed the current perf-lab XISO: 147/147 records,
+functional hash validation passed, Vulkan validation active, and zero VUIDs.
+That run used guest source `09f74db4822dbc3d34c3315d9a5cf5341f00416a`,
+XISO SHA-256
+`08551d0c0b7bc5efb20a7b36d6d4f0e24ab666b4cee25930232858ccd9872a3e`,
+and catalog SHA-256
+`027065948624d6aafdbe557bed8123eb6dcaa83353cf242c71d030a109b64578`.
+The heavier Morrowind snapshot `vm-20260903021051` also completed with a
+visually correct live outdoor frame, exact source/PDB ownership, and zero ETW
+loss: 28.787 FPS average, 34.776 ms mean, 50.005 ms p95, 50.027 ms p99, and no
+frames above the 75 ms stall threshold. Combining that result with fresh PGR2
+and the full XISO gate produced `PASS-AVG-29.39`.
 
 ## Staging audit
 
