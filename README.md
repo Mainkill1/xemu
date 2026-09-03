@@ -5,6 +5,40 @@ reviewed after the original Full-Speed baseline (`6234f3606f`). Source
 branches remain open: this branch contains the selected production changes,
 not replacements for their history.
 
+## Isolated dirty-TLB-inline test branch
+
+`feature/eng-2026-523-tcg-dirty-range-inline-u1bfe153e` is a clean,
+one-variable performance-test branch. It starts at the exact `Full-Speed`
+control commit `111deac13f1cd102244726269ad2b5e1b21630ba`; its sole source change is
+to declare `tlb_reset_dirty_range_locked` `static inline`. The behavior commit
+is `4bcf7a95c480453e23ca4547942b703d55550186`. This extracts the change first
+recorded as `9fd812fb6473f055d0592ebdd1db3d5d0e9e2144` from the much larger
+`research/eng-2026-523-vk-tiny-draw-reuse-attribution-u42bc13ac` history so it
+can be built, bisected, and tested without unrelated research changes.
+
+Use `111deac13f1cd102244726269ad2b5e1b21630ba` as A and this branch as B.
+Do not use the old research branch as the control for clean attribution. The
+earlier stacked A-B-B-A result motivates this retest: it reported +3.53% FPS,
+-1.2522 ms mean guest-frame time, and -1.6947 ms (-15.19%) `draw_flush` CPU
+time, with p95/p99 and Vulkan submit/wait counts unchanged. Those numbers are
+not yet evidence for this isolated extraction. This remains a worthwhile
+cumulative CPU-path candidate, not a claimed microstutter or synchronization
+fix.
+
+Build both release/full-LTO and debug variants with the reproducible toolchain
+documented below. In the release map, success should remove the standalone
+`tlb_reset_dirty_range_locked` symbol; the `-O0` debug image may retain it.
+Validate both builds with the current 147-record perf-lab XISO. Performance
+validation must use release A-B-B-A on Morrowind snapshot
+`vm-20260903021051` and PGR2 FreshBoot, not a snapshot-only PGR2 comparison.
+For PGR2, allow 10 seconds for the BIOS, then use
+`A-3,A-10,A-2,A-2,F-2,A-2,A-2,A-2,A-2,A-2,A-7`. Keep
+`display.window.reduce_host_cpu_usage` disabled because the opt-in setting is
+under separate regression investigation. Compare dirty-reset samples,
+`draw_flush` CPU time, guest-frame median/p95/p99/max, Vulkan waits/submits,
+functional hashes, validation errors, and XISO pass counts. Debug validates
+correctness only; do not compare its timing directly with release.
+
 ## Included branches
 
 | Branch | Status in Full-Speed | Change |
