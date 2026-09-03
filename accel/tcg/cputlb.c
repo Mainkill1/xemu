@@ -885,8 +885,10 @@ void tlb_unprotect_code(ram_addr_t ram_addr)
  *
  * Called with tlb_c.lock held.
  */
-static void tlb_reset_dirty_range_locked(CPUTLBEntryFull *full, CPUTLBEntry *ent,
-                                         uintptr_t start, uintptr_t length)
+static inline void tlb_reset_dirty_range_locked(CPUTLBEntryFull *full,
+                                                CPUTLBEntry *ent,
+                                                uintptr_t start,
+                                                uintptr_t length)
 {
     const uintptr_t addr = ent->addr_write;
     int flags = addr | full->slow_flags[MMU_DATA_STORE];
