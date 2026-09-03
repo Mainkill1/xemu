@@ -282,10 +282,11 @@ or production-promote the behavior in its current state.
 The setting remains disabled by default. The NVIDIA power preference is
 automatic on supported Windows NVIDIA systems, and Vulkan telemetry remains
 opt-in through `XEMU_VK_PERF_LOG`.
-The combined Vulkan telemetry record uses schema version 9. It includes
+The combined Vulkan telemetry record uses schema version 10. It includes
 CPU-region and native-BC upload counters, disaggregated buffer-space finish
 owners, descriptor-set capacity/high-water fields, and vertex dirty-check,
-page, hit, and recent-range-reuse counters.
+page, hit, and recent-range-reuse counters. Pipeline preparation is split into
+texture binding, shader binding, and pipeline state/key/cache lookup regions.
 
 ## Texture-only Vulkan pipeline lookup fast path
 

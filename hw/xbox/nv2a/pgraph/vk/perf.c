@@ -61,6 +61,8 @@ static const char *cpu_region_names[VK_PERF_CPU_REGION_COUNT] = {
     [VK_PERF_CPU_DRAW_FLUSH] = "draw_flush",
     [VK_PERF_CPU_PIPELINE_PREPARE] = "pipeline_prepare",
     [VK_PERF_CPU_BIND_TEXTURES] = "bind_textures",
+    [VK_PERF_CPU_BIND_SHADERS] = "bind_shaders",
+    [VK_PERF_CPU_PIPELINE_STATE_LOOKUP] = "pipeline_state_lookup",
     [VK_PERF_CPU_TEXTURE_UPLOAD] = "texture_upload",
     [VK_PERF_CPU_UPDATE_DESCRIPTOR_SETS] = "update_descriptor_sets",
 };
@@ -128,7 +130,7 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":9"
+            "{\"type\":\"schema\",\"schema_version\":10"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
             ",\"tiny_draw_attribution_version\":1",
@@ -433,7 +435,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":9"
+            "{\"type\":\"frame\",\"schema_version\":10"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,

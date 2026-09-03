@@ -770,16 +770,25 @@ static void create_pipeline(PGRAPHState *pg)
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     pgraph_vk_bind_textures(d);
+
+    int64_t shader_start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
     pgraph_vk_bind_shaders(pg);
+    pgraph_vk_perf_record_cpu_region(
+        r, VK_PERF_CPU_BIND_SHADERS,
+        r->perf.enabled ? g_get_monotonic_time() - shader_start_us : 0);
 
     // FIXME: If nothing was dirty, don't even try creating the key or hashing.
     //        Just use the same pipeline.
+    int64_t state_start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
     bool pipeline_dirty = check_pipeline_dirty(pg);
 
     pgraph_clear_dirty_reg_map(pg);
     // FIXME: We could clear less
 
     if (r->pipeline_binding && !pipeline_dirty) {
+        pgraph_vk_perf_record_cpu_region(
+            r, VK_PERF_CPU_PIPELINE_STATE_LOOKUP,
+            r->perf.enabled ? g_get_monotonic_time() - state_start_us : 0);
         NV2A_VK_DPRINTF("Cache hit");
         NV2A_VK_DGROUP_END();
         return;
@@ -790,6 +799,9 @@ static void create_pipeline(PGRAPHState *pg)
     uint64_t hash = fast_hash((void *)&key, sizeof(key));
 
     PipelineBinding *snode = pipeline_cache_lookup(pg, hash, &key);
+    pgraph_vk_perf_record_cpu_region(
+        r, VK_PERF_CPU_PIPELINE_STATE_LOOKUP,
+        r->perf.enabled ? g_get_monotonic_time() - state_start_us : 0);
     if (snode->pipeline != VK_NULL_HANDLE) {
         NV2A_VK_DPRINTF("Cache hit");
         r->pipeline_binding_changed = r->pipeline_binding != snode;
