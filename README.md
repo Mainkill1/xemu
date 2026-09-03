@@ -80,3 +80,21 @@ branches available for A/B comparison rather than closing or deleting them.
 For the new work, also run `test-xbox-nv2a-ptimer`, verify report-query writes
 against the DMA object active at queue time, and compare Vulkan pipeline
 lookups plus draw-preparation CPU time on a texture-heavy saved-state capture.
+
+## Isolated PTIMER review branch
+
+This branch differs from `Full-Speed` only in PTIMER reconciliation and its
+focused unit coverage. Compare this branch at `c36a389bf5` against
+`Full-Speed` at `111deac13f`; do not combine another performance candidate
+in the same A/B run.
+
+Required gates are the release and debug `test-xbox-nv2a-ptimer` binaries,
+the perf-lab XISO, and fresh-boot Morrowind and PGR2 checks. The PTIMER test
+must cover alarms overdue by several epochs through callback, post-load,
+`INTR_0` read, and `INTR_EN_0` write paths. Zero numerator or denominator
+must preserve the raw register value, stop the derived clock without crashing,
+and keep an armed alarm pending until the clock ratio becomes valid.
+
+This is primarily a correctness isolation. Any frame-time movement must be
+reported separately and must not be attributed to PTIMER without a repeatable
+guest event and measured lost time.
