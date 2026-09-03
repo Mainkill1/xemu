@@ -22,6 +22,26 @@ not replacements for their history.
 | `xemu-pr-staging: feature/eng-2026-336-stage-local-vulkan-uniforms-v3-uec89c153` | Included, conflict-resolved | Separates vertex- and pixel-shader uniform source generations so unchanged stages do not rewrite or re-upload their UBOs. It preserves exact float bit patterns, tracks effective polygon-offset inputs, and retains Full-Speed's existing VMState-compatible dirty-row handling. |
 | `fix/eng-2026-523-vk-report-dma-ownership` | Included on this branch | Captures the active DMA report context when `GET_REPORT` is queued, so delayed Vulkan report publication cannot be redirected by a later context switch. |
 
+### Build policy by branch type
+
+The rows above are source-history and review boundaries, not different compiler
+products. Every **included production branch** is compiled and distributed with
+the same pinned x86-64 GCC/MXE release recipe below after it is reconciled onto
+the exact Full-Speed commit. No included branch requires a private compiler,
+local SDK patch, or branch-specific compiler flag.
+
+| Branch type | Permitted build | What it proves |
+| --- | --- | --- |
+| Included production branch or Full-Speed rollup | Clean exact commit, pinned container digest, `build.sh`, LTO, and `-Dx86_version=3` as documented below | Release-equivalent correctness and performance evidence; eligible for sharing |
+| Telemetry/instrumentation branch | The production recipe for final measurements; a non-LTO build may additionally be retained for symbol ownership | Production timing only comes from the LTO build; non-LTO timing is diagnostic |
+| Research or rejected experiment | Incremental `ninja` is permitted for quick attribution, followed by the production recipe only if the change becomes a candidate | Incremental output is diagnostic and is not a distributable Full-Speed build |
+| Display setting A/B | One production binary with `display.window.reduce_host_cpu_usage` toggled at runtime | Isolates the setting without compiler or source drift |
+
+The perf-lab XISO is a separate Xbox guest project built with its own pinned
+NXDK environment. It validates the emulator binary but is not an input to the
+xemu Windows build. Record its source commit and ISO/catalog SHA-256 beside each
+xemu build so another tester can reproduce the same broad gate.
+
 ## Reproducing Windows builds
 
 The authoritative Windows build recipe is
@@ -184,6 +204,30 @@ host OS and architecture
 The ARM64 job is a separate LLVM-based path pinned in
 `.github/workflows/build-windows.yml`; do not substitute it for this branch's
 x86-64 GCC performance binaries.
+
+### Verified lab reproduction
+
+The command above was independently exercised on the Linux build host against
+clean commit `8859c867ef1a34365a63dbebbaa591cb74ef9bc9`. It produced identical
+unpackaged and distributable executables:
+
+```text
+build/qemu-system-i386w.exe  44,211,197 bytes
+dist/xemu.exe                44,211,197 bytes
+SHA-256                      e963e6c13160114634f711953ed69565e626708449f852b0bdb02beaa0d661c8
+build.log SHA-256            f94ee07f448a45ef49b1544b6ff735bf3e65a8a1cbc59494c67348fc328abed0
+```
+
+The effective log reports QEMU 10.2.0, GCC/G++ 16.1.0, and GNU ld
+2.46.0.20260210 for `x86_64-w64-mingw32.static`. On the dedicated Windows test
+host, that exact executable passed all six focused Vulkan report-query cases
+and the complete 147-record Vulkan perf-lab XISO catalog. The XISO SHA-256 was
+`08551d0c0b7bc5efb20a7b36d6d4f0e24ab666b4cee25930232858ccd9872a3e` and
+the matching catalog SHA-256 was
+`027065948624d6aafdbe557bed8123eb6dcaa83353cf242c71d030a109b64578`.
+Because this branch lacks the lab's live-marker interface, the runner's
+explicit compatibility waiver was used: the result is broad correctness/hash
+evidence, not PR-grade timing evidence.
 
 ## Reviewed research branches
 
