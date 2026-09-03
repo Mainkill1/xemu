@@ -112,3 +112,9 @@ the flush from the removal callback prevents a remote CPU from completing its
 flush before the callback has actually been removed. Promotion remains blocked
 until the corrected release and debug builds pass the full XISO and a
 purpose-built multi-vCPU callback churn test.
+
+The combined corrective build containing the same callback behavior at
+`390a00e694` has now passed the complete 147-record perf-lab XISO in both
+release/LTO and assertion-enabled debug modes, with functional hashes and zero
+Vulkan VUIDs. That removes the observed single-vCPU regression but does not
+substitute for building this isolated head or for the multi-vCPU churn gate.
