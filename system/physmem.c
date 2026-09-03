@@ -881,6 +881,9 @@ static void do_mem_access_callback_insert(CPUState *cpu, run_on_cpu_data data)
 {
     MemAccessCallback *cb = (MemAccessCallback *)data.host_ptr;
     QTAILQ_INSERT_TAIL(&cpu->mem_access_callbacks, cb, entry);
+
+    // FIXME: flush only applicable pages
+    tlb_flush_all_cpus_synced(cpu);
 }
 
 MemAccessCallback *mem_access_callback_insert(CPUState *cpu, MemoryRegion *mr,
@@ -900,18 +903,7 @@ MemAccessCallback *mem_access_callback_insert(CPUState *cpu, MemoryRegion *mr,
     async_safe_run_on_cpu(cpu, do_mem_access_callback_insert,
                           RUN_ON_CPU_HOST_PTR(cb));
 
-    // FIXME: flush only applicable pages
-    tlb_flush_all_cpus_synced(cpu);
-
     return cb;
-}
-
-static void do_mem_access_callback_remove_by_ref(CPUState *cpu,
-                                                 run_on_cpu_data data)
-{
-    MemAccessCallback *cb = (MemAccessCallback *)data.host_ptr;
-    QTAILQ_REMOVE(&cpu->mem_access_callbacks, cb, entry);
-    tlb_flush(cpu);
 }
 
 static void do_mem_access_callback_free(CPUState *cpu, run_on_cpu_data data)
@@ -921,6 +913,24 @@ static void do_mem_access_callback_free(CPUState *cpu, run_on_cpu_data data)
     g_free(cb);
 }
 
+static void do_mem_access_callback_remove_by_ref(CPUState *cpu,
+                                                 run_on_cpu_data data)
+{
+    MemAccessCallback *cb = (MemAccessCallback *)data.host_ptr;
+    QTAILQ_REMOVE(&cpu->mem_access_callbacks, cb, entry);
+
+    // FIXME: flush only applicable pages
+    tlb_flush_all_cpus_synced(cpu);
+
+    /*
+     * The source-CPU flush queued above is an exclusive-work barrier: every
+     * earlier remote-CPU flush completes before this later callback frees the
+     * object that those TLB entries may have cached.
+     */
+    async_safe_run_on_cpu(cpu, do_mem_access_callback_free,
+                          RUN_ON_CPU_HOST_PTR(cb));
+}
+
 void mem_access_callback_remove_by_ref(CPUState *cpu, MemAccessCallback *cb)
 {
     if (!cb) {
@@ -928,17 +938,6 @@ void mem_access_callback_remove_by_ref(CPUState *cpu, MemAccessCallback *cb)
     }
 
     async_safe_run_on_cpu(cpu, do_mem_access_callback_remove_by_ref,
-                          RUN_ON_CPU_HOST_PTR(cb));
-
-    // FIXME: flush only applicable pages
-    tlb_flush_all_cpus_synced(cpu);
-
-    /*
-     * All three operations are queued on the same CPU in order.  The synced
-     * flush is an exclusive-work barrier: every earlier remote-CPU flush has
-     * completed before this final callback frees the cached target.
-     */
-    async_safe_run_on_cpu(cpu, do_mem_access_callback_free,
                           RUN_ON_CPU_HOST_PTR(cb));
 }
 
