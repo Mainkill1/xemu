@@ -739,7 +739,11 @@ The capture also exposed a measurement-integrity defect in the lab runner:
 visible line-count cursor as its exact measured boundary. A newly visible
 group can predate the steady marker by nearly a flush interval. Frame records
 remain valid, but exact ETW joins currently require full-interval clock/phase
-alignment. Correct the runner before treating the cursor as an exact marker.
+alignment. Tools commit `f4f55c4` corrects the shared runner: it records the
+same Windows QPC clock used by xemu, selects only complete frames contained by
+the marker interval, and joins Vulkan telemetry by exact guest-frame ID. Its
+live validation selected 285/285 matching frame records with zero ETW loss.
+Older cursor-bounded captures still require the documented alignment repair.
 
 Exact TCG-map build identity:
 
