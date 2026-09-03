@@ -45,6 +45,8 @@ same setting is declared once in `config_spec.yml` and rendered once in the
 Display menu; no competing toggle was introduced. The NVIDIA power preference
 is automatic on supported Windows NVIDIA systems, and Vulkan telemetry remains
 opt-in through `XEMU_VK_PERF_LOG`, so neither adds a second UI control.
+The combined Vulkan telemetry record uses schema version 5, which includes
+both CPU-region and native-BC upload counters.
 
 ## Validation focus
 
