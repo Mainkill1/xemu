@@ -267,7 +267,7 @@ change.
 | `research/eng-2026-523-sparse-uniform-layout-safe-u6299d05f` | Investigated safely skipping clean uniform rows; retained as research pending an independently validated landing. |
 | `research/eng-2026-523-tcg-tb-lookup-attribution-u065f47f7` | Collected indirect TB-lookup evidence that informed the later TCG fast paths. |
 | `research/eng-2026-523-vk-stalled-gpu-timestamps-uf1f85872` | Added diagnostic Vulkan timing experiments and records several reverted candidates; it is intentionally not used as a production rollup branch. |
-| `research/eng-2026-523-vk-tiny-draw-reuse-attribution-u42bc13ac` | Measured repeated inline-index and push-constant payloads plus descriptor-pool exhaustion in Morrowind. The push-constant skip was rejected. Exact consecutive inline-index reuse and a bounded opt-in 2,048-set graphics pool are retained as small resource/submission wins; neither fixes the approximately 50-ms cadence tail. |
+| `research/eng-2026-523-vk-tiny-draw-reuse-attribution-u42bc13ac` | Measured repeated inline-index and push-constant payloads plus descriptor-pool exhaustion in Morrowind. The push-constant skip was rejected. Exact consecutive inline-index reuse and a bounded opt-in 2,048-set graphics pool are retained as small resource/submission wins; neither fixes the approximately 50-ms cadence tail. Later commits add phase, vblank, pipeline-creation, and PFIFO wait attribution without changing renderer behavior. |
 
 ## Display controls
 
@@ -282,11 +282,13 @@ or production-promote the behavior in its current state.
 The setting remains disabled by default. The NVIDIA power preference is
 automatic on supported Windows NVIDIA systems, and Vulkan telemetry remains
 opt-in through `XEMU_VK_PERF_LOG`.
-The combined Vulkan telemetry record uses schema version 10. It includes
+The combined Vulkan telemetry record uses schema version 14. It includes
 CPU-region and native-BC upload counters, disaggregated buffer-space finish
 owners, descriptor-set capacity/high-water fields, and vertex dirty-check,
 page, hit, and recent-range-reuse counters. Pipeline preparation is split into
-texture binding, shader binding, and pipeline state/key/cache lookup regions.
+texture binding, shader binding, uniform causes, pipeline state/key/cache
+lookup, and pipeline creation. Guest-frame phase and PFIFO wait telemetry is
+separately opt-in through `XEMU_FRAME_LOG`.
 
 ## Texture-only Vulkan pipeline lookup fast path
 
@@ -603,6 +605,80 @@ The release/debug build manifests beside those artifacts record the exact
 commands, checkout, pinned public toolchain digest, compiler/linker/Meson/Ninja
 versions, `cv2pdb` source and hash, map command, and unit-test hashes. No
 private compiler or unrecorded branch-specific build step is required.
+
+## Frame cadence and PFIFO wait attribution
+
+Commit `d9587ad3cdb60341abcdc39312687f73ee8a1f13` extends the opt-in
+`XEMU_FRAME_LOG` record with the work-to-`FLIP_STALL`, post-flip, host-vblank,
+and final-vblank-to-guest-increment phases. It does not open a file or collect
+timestamps unless the environment variable names a writable log.
+
+An exact full-LTO Vulkan/OpenGL comparison used the heavier Morrowind snapshot
+`vm-20260903021051`. Vulkan measured 35.352-ms mean, 50.008-ms p95, and
+50.045-ms p99; OpenGL with the same executable measured 30.694-ms mean,
+34.022-ms p95, and 50.016-ms p99. Every canonical Vulkan 33-ms frame observed
+two host vblanks and every canonical 50-ms frame observed three. The guest
+increment followed the final vblank in a median 35 us, ruling out late guest
+IRQ delivery as the cadence owner.
+
+The exact scheduler join classified the mean 16.508-ms difference between
+canonical 33-ms and 50-ms Vulkan frames as +3.079 ms PFIFO Running, +0.052 ms
+Ready, and +13.377 ms Waiting. About +9.458 ms/frame was the Windows
+`WrAlertByThreadId` class whose exact source map resolves to
+`qemu_cond_wait_impl -> pfifo_thread`; +4.027 ms/frame was `UserRequest` wait
+time. Pipeline cache misses and graphics-pipeline creation were both zero in
+the 570-frame steady-state telemetry join, so steady-state pipeline creation
+is not the current tail owner.
+
+Commits `69f8dab4341275832a9875c7a81cf82f8c1fe67a` and
+`34a077210b1bbbfaffb58f21fb239764676c8dfc` add the next opt-in diagnostic:
+per-frame PFIFO condition-wait count/time and wall time in
+`pgraph_process_pending`, `pfifo_run_pusher`, and
+`pgraph_process_pending_reports`. Normal runs retain only the disabled probe
+check.
+
+The exact release-LTO PFIFO capture retained 581 valid frames. Comparing 437
+canonical 33-ms frames with 105 canonical 50-ms frames attributes 15.096 ms of
+the 16.443-ms cadence step (91.8%) to the PFIFO idle `qemu_cond_wait`.
+`pfifo_run_pusher` adds only 0.987 ms, `pgraph_process_pending` adds 0.147 ms,
+and report processing does not increase. The result remains when the 100 slow
+frames with immediate 33-ms neighbors are compared only with those neighbors:
+14.895 ms of a 16.380-ms delta is idle waiting. This confirms that the PFIFO
+worker is starved of producer work across the extra vblank; it does not imply
+that an idle worker should spin. The next diagnostic must attribute actual
+sleeping-worker wakes by `pfifo_kick` source and then follow the controlling
+producer interval.
+
+This is attribution telemetry, not a performance optimization. Any resulting
+behavioral change must pass both release and debug validation, the current
+perf-lab XISO, the heavier retail snapshots, and a PGR2 FreshBoot run using the
+documented 10-second BIOS delay and reset-relative input sequence.
+
+The exact phase-probe build identities are:
+
+```text
+source commit                 d9587ad3cdb60341abcdc39312687f73ee8a1f13
+release post-cv2pdb xemu.exe 519dd977ddfd1a61ab1d5daaa9da79efbb5adcef33ba5d943a9967ad06047bb1
+release PDB                   e61e99f9545c8668bd3309c3b09526accb6cef8442404a0890902ac654d32d57
+release DWARF executable      6ded8dbdf796d533e085531cee676bd07f164e1431e39dd05026e3e9eaf5f985
+release map                   598aaf51f907e049ca7a651cf361b234373d6f9b3c7d9661d60d03cfb857bab2
+source bundle                 798136dfae48ed029d1ce04c20294ad2609ccdcecc620ee62f31a3623f0c889e
+```
+
+The build uses the same clean-checkout, pinned public GCC 16.1.0/MXE
+container, full-LTO command, `cv2pdb` 0.52, and symbol-retention procedure
+documented above; there is no additional private tool or compiler flag.
+
+The exact PFIFO-attribution build identities are:
+
+```text
+source commit                 34a077210b1bbbfaffb58f21fb239764676c8dfc
+release post-cv2pdb xemu.exe a71b84daff024a17552755339eea28e260ca1467619676bed154a56826518a19
+release PDB                   dad55e1d5ecaa86c5231059ee836b3d8f98a494aef078e7a238793cb5e749252
+release DWARF executable      c7a732915b5e272904e3e2cb76d85937b0679c71b246f307f46d37e37de2f98e
+release map                   6b648f053e5e6ea80293453d82216af0108e98731dadf89c0e4c567002132052
+source bundle                 b21aa1eecadafc15dd2c85ee638e8321c223458393f69a0221ae37b5f829e6b4
+```
 
 ## Staging audit
 
