@@ -680,6 +680,86 @@ release map                   6b648f053e5e6ea80293453d82216af0108e98731dadf89c0e
 source bundle                 b21aa1eecadafc15dd2c85ee638e8321c223458393f69a0221ae37b5f829e6b4
 ```
 
+Commit `3139018d317f9078d12123405589b3221decd508` attributes every
+`pfifo_kick` and the preceding PFIFO condition-wait interval to the source that
+ended the sleep. On the first exact release-LTO wake capture, canonical 50-ms
+frames lost 16.461 ms relative to canonical 33-ms frames. The
+`NV_USER_DMA_PUT` producer path owned +14.849 ms/frame and +7.293 actual wakes,
+90.2% of the complete cadence delta. `PGRAPH_INCREMENT` moved in the opposite
+direction and DISPLAY_SYNC added only 0.660 ms in that run. Aggregate integrity
+was exact: 20,661 PFIFO waits equaled the sum of attributed wakes, and
+10,555,368 wait microseconds equaled the sum of attributed wait time.
+
+This means the PFIFO is not losing the interval inside its condition variable:
+it has drained available work and is waiting for the vCPU/guest to advance
+`NV_USER_DMA_PUT`. It does not justify busy-waiting or manufacturing a wake.
+The next exact CSwitch/ReadyThread join showed the controlling vCPU interval as
++15.880 ms Running, +0.013 ms Ready, and +0.691 ms Waiting. Windows scheduling
+therefore does not explain the delayed producer update.
+
+Exact wake-source build identity:
+
+```text
+source commit                 3139018d317f9078d12123405589b3221decd508
+release post-cv2pdb xemu.exe 3d17a392cde6c686c20aa5368eae12c6c28bf885673372016f2a36d2193fe100
+release PDB                   a6bd5f73610f2752fa905cd626aa3c45910889b5cceae59da682787be61d1929
+release DWARF executable      8beebb58cce205e3121f6b97b0cc6933d452e1c8d805f445cab993ae3665543a
+release map                   057da471f954a3f60105095d72e84965f7463610eaab6496f8447e55d68ae0b4
+```
+
+## vCPU guest-block attribution
+
+Commit `72613929def5513190c07fb14829f608cfa1c9be` adds the Windows-only,
+environment-gated `XEMU_TCG_TB_MAP` diagnostic. It writes one record when a
+translation block is generated: QEMU real-time timestamp, host start/size,
+guest PC, and guest instruction count. It does not add a callback to TB
+execution. With the variable unset, the only steady-state effect is the
+existing disabled-environment check at TB generation time. This is an
+attribution build, not a production feature.
+
+The exact full-LTO Morrowind capture retained 594 frames: 447 canonical 33-ms
+frames and 89 canonical 50-ms frames. The TB map resolved 97.3% and 98.8% of
+anonymous/JIT samples in those buckets. Title code owned 96.9% and 97.9% of
+mapped samples. Mapped translated-code samples rose from 12.329 to 19.685 per
+frame, but the largest single guest PC (`0x0007a629`) added only 0.336
+sample/frame. Exact XBE section ownership and targeted disassembly showed
+ordinary title geometry/matrix work, linked D3D matrix math, and XGRPH copy
+code rather than a kernel spin or guest MMIO/status poll. The added vCPU work
+is broad and proportional to the longer interval; there is no isolated guest
+TB that owns the cadence step.
+
+In this capture, PFIFO pusher CPU rose only 0.574 ms between 33- and 50-ms
+frames while PFIFO idle waiting rose 14.881 ms. Wake counts and vCPU samples
+largely scaled with elapsed time. A wake-source duration states what eventually
+woke an already-idle worker, not time spent processing that source; it must not
+be reported as a blocking Vulkan call.
+
+The capture also exposed a measurement-integrity defect in the lab runner:
+`XEMU_FRAME_LOG` is flushed roughly once per second, but the runner uses the
+visible line-count cursor as its exact measured boundary. A newly visible
+group can predate the steady marker by nearly a flush interval. Frame records
+remain valid, but exact ETW joins currently require full-interval clock/phase
+alignment. Correct the runner before treating the cursor as an exact marker.
+
+Exact TCG-map build identity:
+
+```text
+source commit                 72613929def5513190c07fb14829f608cfa1c9be
+release post-cv2pdb xemu.exe ed91591c540e7d33e6e037f7601e8efe5ab007f83fb609ac00d86c234b20d9ed
+release PDB                   d5718b5add54d73d1e2ef6e6268cb4062c7c2d6049ea4cb557528db0d5a62936
+release DWARF executable      2018085569b7881c5ce01dfb6d22b5d5eec04ccffa73a816653c678d934eff9b
+release map                   cf665c6d76c8fb00141d200beb864bad9a33ec63fa78847d58b7960d255c1e4a
+source bundle                 bb6e5580d36bdc6eb201cae9a369c43390ae8f4089aa490c1a297a0e005caab0
+build log                     e85d5e1a8726e273e849e0a9f6157279f662e422eac50086f4956603a32ee1e9
+```
+
+The exact source checkout on the Linux build host was
+`/home/codex/xemu-builder/eng523-tcg-map-7261392-release`; it was populated
+from the complete source bundle above and built with the same pinned public
+GCC 16.1/MXE container, full-LTO command, symbol map, and cv2pdb 0.52 process
+documented in this README. No unrecorded compiler, SDK, or incremental object
+was used.
+
 ## Staging audit
 
 The `xemu-pr-staging` production candidates were compared against this
