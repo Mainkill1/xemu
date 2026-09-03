@@ -36,16 +36,21 @@ static void init_nv2a_ptimer(NV2AState *d)
     ptimer_init(d);
 }
 
-static void expire_alarm(NV2AState *d)
+static void fire_alarm_at(NV2AState *d, int64_t now_ns)
 {
     QEMUTimer *timer = &d->ptimer.timer;
 
     g_assert_true(timer_pending(timer));
-    ptimer_test_time_ns = timer_expire_time_ns(timer);
+    ptimer_test_time_ns = now_ns;
     timer_del(timer);
     timer->next = NULL;
     timer->expire_time = -1;
     timer->cb(timer->opaque);
+}
+
+static void expire_alarm(NV2AState *d)
+{
+    fire_alarm_at(d, timer_expire_time_ns(&d->ptimer.timer));
 }
 
 static void test_alarm_assert_and_ack(void)
@@ -106,6 +111,29 @@ static void test_time_registers_and_future_epoch(void)
     ptimer_reset(&d);
 }
 
+static void test_runtime_overdue_alarm_skips_missed_epochs(void)
+{
+    NV2AState d;
+    int64_t first_expiry_ns;
+
+    init_nv2a_ptimer(&d);
+    d.ptimer.enabled_interrupts = NV_PTIMER_INTR_EN_0_ALARM;
+    ptimer_write(&d, NV_PTIMER_ALARM_0, 0x100, 4);
+    first_expiry_ns = timer_expire_time_ns(&d.ptimer.timer);
+
+    /* At 1 GHz, one 32-bit register epoch is 2^27 internal ticks/ns. */
+    fire_alarm_at(&d, first_expiry_ns + 4 * (1ULL << 27) + 1000);
+
+    g_assert_cmphex(d.ptimer.pending_interrupts, ==,
+                    NV_PTIMER_INTR_0_ALARM);
+    g_assert_true(irq_asserted);
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), >,
+                    ptimer_test_time_ns);
+    g_assert_cmphex(d.ptimer.alarm_time & 0xffffffff, ==, 0x100);
+
+    ptimer_reset(&d);
+}
+
 static void test_post_load_reconciles_overdue_alarm(void)
 {
     NV2AState d;
@@ -162,6 +190,8 @@ int main(int argc, char **argv)
                     test_pending_alarm_asserts_when_enabled);
     g_test_add_func("/xbox/nv2a/ptimer/time-registers-epoch",
                     test_time_registers_and_future_epoch);
+    g_test_add_func("/xbox/nv2a/ptimer/runtime-overdue",
+                    test_runtime_overdue_alarm_skips_missed_epochs);
     g_test_add_func("/xbox/nv2a/ptimer/post-load-overdue",
                     test_post_load_reconciles_overdue_alarm);
     g_test_add_func("/xbox/nv2a/ptimer/post-load-irq",
