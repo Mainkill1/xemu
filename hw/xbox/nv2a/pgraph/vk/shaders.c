@@ -234,7 +234,8 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
         (r->descriptor_set_index >= ARRAY_SIZE(r->descriptor_sets));
 
     if (need_descriptor_write_reset || need_ubo_staging_buffer_reset) {
-        pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+        pgraph_vk_finish(
+            pg, VK_FINISH_REASON_NEED_BUFFER_SPACE_UNIFORM_OR_DESCRIPTOR);
         need_uniform_write[PGRAPH_UNIFORM_STAGE_VSH] = true;
         need_uniform_write[PGRAPH_UNIFORM_STAGE_PSH] = true;
         any_uniform_write = true;

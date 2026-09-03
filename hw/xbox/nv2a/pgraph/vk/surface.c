@@ -186,7 +186,8 @@ static void download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
         !fold_into_active_command_buffer) {
         pgraph_vk_finish(pg, VK_FINISH_REASON_SURFACE_DOWN);
     } else if (!fold_into_active_command_buffer && compute_needs_finish) {
-        pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+        pgraph_vk_finish(
+            pg, VK_FINISH_REASON_NEED_BUFFER_SPACE_SURFACE_COMPUTE);
     }
 
     bool downscale = (pg->surface_scale_factor != 1);

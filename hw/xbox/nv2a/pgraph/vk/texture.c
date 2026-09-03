@@ -639,7 +639,8 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
     if (!pgraph_vk_buffer_has_space_for(pg, staging_buffer_index,
                                         texture_data_size,
                                         staging_alignment)) {
-        pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+        pgraph_vk_finish(
+            pg, VK_FINISH_REASON_NEED_BUFFER_SPACE_TEXTURE_STAGING);
     }
     assert(pgraph_vk_buffer_has_space_for(pg, staging_buffer_index,
                                           texture_data_size,
@@ -759,7 +760,8 @@ static void copy_zeta_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surfac
     bool compute_needs_finish = use_compute_to_convert_depth_stencil &&
                                 pgraph_vk_compute_needs_finish(r);
     if (compute_needs_finish) {
-        pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+        pgraph_vk_finish(
+            pg, VK_FINISH_REASON_NEED_BUFFER_SPACE_TEXTURE_COMPUTE);
     }
 
     nv2a_profile_inc_counter(NV2A_PROF_SURF_TO_TEX);

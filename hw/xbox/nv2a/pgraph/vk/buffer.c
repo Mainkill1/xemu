@@ -159,7 +159,8 @@ void pgraph_vk_ensure_buffer_capacity(PGRAPHState *pg, int index,
      * it before replacing the allocation; callers invoke this before starting
      * their auxiliary command buffer. */
     if (r->in_command_buffer) {
-        pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+        pgraph_vk_finish(
+            pg, VK_FINISH_REASON_NEED_BUFFER_SPACE_BUFFER_RESIZE);
     }
     assert(!r->in_command_buffer);
     assert(!r->in_aux_command_buffer);

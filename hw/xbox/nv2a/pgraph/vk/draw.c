@@ -175,7 +175,8 @@ static PipelineBinding *pipeline_cache_lookup(PGRAPHState *pg, uint64_t hash,
     LruNode *node = lru_try_lookup(&r->pipeline_cache, hash, key);
 
     if (!node) {
-        pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+        pgraph_vk_finish(
+            pg, VK_FINISH_REASON_NEED_BUFFER_SPACE_PIPELINE_CACHE);
         node = lru_try_lookup(&r->pipeline_cache, hash, key);
     }
     if (!node) {
@@ -417,7 +418,8 @@ static void create_frame_buffer(PGRAPHState *pg)
     assert(r->color_binding || r->zeta_binding);
 
     if (r->framebuffer_index >= ARRAY_SIZE(r->framebuffers)) {
-        pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+        pgraph_vk_finish(
+            pg, VK_FINISH_REASON_NEED_BUFFER_SPACE_FRAMEBUFFER_SLOTS);
     }
 
     VkImageView attachments[2];
@@ -1276,7 +1278,24 @@ const enum NV2A_PROF_COUNTERS_ENUM finish_reason_to_counter_enum[] = {
     [VK_FINISH_REASON_VERTEX_BUFFER_DIRTY] = NV2A_PROF_FINISH_VERTEX_BUFFER_DIRTY,
     [VK_FINISH_REASON_SURFACE_CREATE] = NV2A_PROF_FINISH_SURFACE_CREATE,
     [VK_FINISH_REASON_SURFACE_DOWN] = NV2A_PROF_FINISH_SURFACE_DOWN,
-    [VK_FINISH_REASON_NEED_BUFFER_SPACE] = NV2A_PROF_FINISH_NEED_BUFFER_SPACE,
+    [VK_FINISH_REASON_NEED_BUFFER_SPACE_PIPELINE_CACHE] =
+        NV2A_PROF_FINISH_NEED_BUFFER_SPACE,
+    [VK_FINISH_REASON_NEED_BUFFER_SPACE_FRAMEBUFFER_SLOTS] =
+        NV2A_PROF_FINISH_NEED_BUFFER_SPACE,
+    [VK_FINISH_REASON_NEED_BUFFER_SPACE_STORAGE_CAPACITY] =
+        NV2A_PROF_FINISH_NEED_BUFFER_SPACE,
+    [VK_FINISH_REASON_NEED_BUFFER_SPACE_STORAGE_RECREATE] =
+        NV2A_PROF_FINISH_NEED_BUFFER_SPACE,
+    [VK_FINISH_REASON_NEED_BUFFER_SPACE_UNIFORM_OR_DESCRIPTOR] =
+        NV2A_PROF_FINISH_NEED_BUFFER_SPACE,
+    [VK_FINISH_REASON_NEED_BUFFER_SPACE_BUFFER_RESIZE] =
+        NV2A_PROF_FINISH_NEED_BUFFER_SPACE,
+    [VK_FINISH_REASON_NEED_BUFFER_SPACE_SURFACE_COMPUTE] =
+        NV2A_PROF_FINISH_NEED_BUFFER_SPACE,
+    [VK_FINISH_REASON_NEED_BUFFER_SPACE_TEXTURE_STAGING] =
+        NV2A_PROF_FINISH_NEED_BUFFER_SPACE,
+    [VK_FINISH_REASON_NEED_BUFFER_SPACE_TEXTURE_COMPUTE] =
+        NV2A_PROF_FINISH_NEED_BUFFER_SPACE,
     [VK_FINISH_REASON_FRAMEBUFFER_DIRTY] = NV2A_PROF_FINISH_FRAMEBUFFER_DIRTY,
     [VK_FINISH_REASON_PRESENTING] = NV2A_PROF_FINISH_PRESENTING,
     [VK_FINISH_REASON_FLIP_STALL] = NV2A_PROF_FINISH_FLIP_STALL,
@@ -2024,7 +2043,8 @@ static bool ensure_buffer_space(PGRAPHState *pg, int index, VkDeviceSize size,
     assert(required_size >= size);
 
     if (!pgraph_vk_buffer_has_space_for(pg, index, size, alignment)) {
-        pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+        pgraph_vk_finish(
+            pg, VK_FINISH_REASON_NEED_BUFFER_SPACE_STORAGE_CAPACITY);
         /*
          * Finishing submits the accumulated staging data and resets its
          * offset. Size the next allocation for the request at that reset
@@ -2038,7 +2058,8 @@ static bool ensure_buffer_space(PGRAPHState *pg, int index, VkDeviceSize size,
 
     if (buffer->buffer == VK_NULL_HANDLE || buffer->buffer_size < size) {
         if (r->in_command_buffer || r->in_aux_command_buffer) {
-            pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+            pgraph_vk_finish(
+                pg, VK_FINISH_REASON_NEED_BUFFER_SPACE_STORAGE_RECREATE);
             required_size =
                 pgraph_vk_buffer_required_size(pg, index, size, alignment);
         }

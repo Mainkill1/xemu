@@ -20,7 +20,24 @@ static const char *finish_reason_names[VK_FINISH_REASON_COUNT] = {
     [VK_FINISH_REASON_VERTEX_BUFFER_DIRTY] = "vertex_buffer_dirty",
     [VK_FINISH_REASON_SURFACE_CREATE] = "surface_create",
     [VK_FINISH_REASON_SURFACE_DOWN] = "surface_down",
-    [VK_FINISH_REASON_NEED_BUFFER_SPACE] = "need_buffer_space",
+    [VK_FINISH_REASON_NEED_BUFFER_SPACE_PIPELINE_CACHE] =
+        "need_buffer_space_pipeline_cache",
+    [VK_FINISH_REASON_NEED_BUFFER_SPACE_FRAMEBUFFER_SLOTS] =
+        "need_buffer_space_framebuffer_slots",
+    [VK_FINISH_REASON_NEED_BUFFER_SPACE_STORAGE_CAPACITY] =
+        "need_buffer_space_storage_capacity",
+    [VK_FINISH_REASON_NEED_BUFFER_SPACE_STORAGE_RECREATE] =
+        "need_buffer_space_storage_recreate",
+    [VK_FINISH_REASON_NEED_BUFFER_SPACE_UNIFORM_OR_DESCRIPTOR] =
+        "need_buffer_space_uniform_or_descriptor",
+    [VK_FINISH_REASON_NEED_BUFFER_SPACE_BUFFER_RESIZE] =
+        "need_buffer_space_buffer_resize",
+    [VK_FINISH_REASON_NEED_BUFFER_SPACE_SURFACE_COMPUTE] =
+        "need_buffer_space_surface_compute",
+    [VK_FINISH_REASON_NEED_BUFFER_SPACE_TEXTURE_STAGING] =
+        "need_buffer_space_texture_staging",
+    [VK_FINISH_REASON_NEED_BUFFER_SPACE_TEXTURE_COMPUTE] =
+        "need_buffer_space_texture_compute",
     [VK_FINISH_REASON_FRAMEBUFFER_DIRTY] = "framebuffer_dirty",
     [VK_FINISH_REASON_PRESENTING] = "presenting",
     [VK_FINISH_REASON_FLIP_STALL] = "flip_stall",
@@ -111,7 +128,7 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":5"
+            "{\"type\":\"schema\",\"schema_version\":6"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
             ",\"tiny_draw_attribution_version\":1",
@@ -378,7 +395,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":5"
+            "{\"type\":\"frame\",\"schema_version\":6"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
