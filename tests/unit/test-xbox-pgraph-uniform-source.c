@@ -169,6 +169,27 @@ static void test_stage_update_decisions(void)
     g_assert_true(update_stage[PGRAPH_UNIFORM_STAGE_PSH]);
 }
 
+static void test_effective_texture_scale_changes(void)
+{
+    float previous[] = { 1.0f, 2.0f, 3.0f, 4.0f };
+    float current[] = { 1.0f, 2.0f, 3.0f, 4.0f };
+
+    g_assert_true(pgraph_uniform_texture_scales_changed(
+        false, previous, current, G_N_ELEMENTS(current)));
+    g_assert_false(pgraph_uniform_texture_scales_changed(
+        true, previous, current, G_N_ELEMENTS(current)));
+
+    current[2] = 5.0f;
+    g_assert_true(pgraph_uniform_texture_scales_changed(
+        true, previous, current, G_N_ELEMENTS(current)));
+
+    current[2] = previous[2];
+    uint32_t negative_zero = 0x80000000;
+    memcpy(&current[0], &negative_zero, sizeof(negative_zero));
+    g_assert_true(pgraph_uniform_texture_scales_changed(
+        true, previous, current, G_N_ELEMENTS(current)));
+}
+
 static uint32_t setup_raster(uint32_t mode, uint32_t enable)
 {
     return (mode & NV_PGRAPH_SETUPRASTER_FRONTFACEMODE) | enable;
@@ -247,6 +268,8 @@ int main(int argc, char **argv)
                     test_register_stage_classification);
     g_test_add_func("/xbox/pgraph/uniform-source/stage-update-decisions",
                     test_stage_update_decisions);
+    g_test_add_func("/xbox/pgraph/uniform-source/texture-scale-changes",
+                    test_effective_texture_scale_changes);
     g_test_add_func("/xbox/pgraph/uniform-source/effective-polygon-offset",
                     test_effective_polygon_offset);
 

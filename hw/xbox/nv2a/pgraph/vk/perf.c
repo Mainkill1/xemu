@@ -120,6 +120,13 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
         skip_push_constants != NULL && skip_push_constants[0] != '\0' &&
         strcmp(skip_push_constants, "0") != 0;
 
+    const char *skip_equivalent_texture_scales =
+        g_getenv("XEMU_VK_SKIP_EQUIVALENT_TEXTURE_SCALE_UPDATES");
+    r->perf.skip_equivalent_texture_scale_updates =
+        skip_equivalent_texture_scales != NULL &&
+        skip_equivalent_texture_scales[0] != '\0' &&
+        strcmp(skip_equivalent_texture_scales, "0") != 0;
+
     const char *path = g_getenv("XEMU_VK_PERF_LOG");
     if (path == NULL || path[0] == '\0') {
         return;
@@ -133,11 +140,13 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":12"
+            "{\"type\":\"schema\",\"schema_version\":13"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
+            ",\"skip_equivalent_texture_scale_updates\":%s"
             ",\"tiny_draw_attribution_version\":1",
-            VK_PERF_INITIAL_TIMED_SUBMITS, VK_PERF_HOT_SAMPLE_STRIDE);
+            VK_PERF_INITIAL_TIMED_SUBMITS, VK_PERF_HOT_SAMPLE_STRIDE,
+            r->perf.skip_equivalent_texture_scale_updates ? "true" : "false");
     write_names(r->perf.file, "finish_reasons", finish_reason_names,
                 ARRAY_SIZE(finish_reason_names));
     write_names(r->perf.file, "single_time_callers", single_time_reason_names,
@@ -438,7 +447,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":12"
+            "{\"type\":\"frame\",\"schema_version\":13"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
@@ -519,6 +528,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"shader_uniform_force_full_updates_per_guest_frame\":%" PRIu64
             ",\"vsh_uniform_value_changes_per_guest_frame\":%" PRIu64
             ",\"psh_uniform_value_changes_per_guest_frame\":%" PRIu64
+            ",\"equivalent_texture_scale_skips_per_guest_frame\":%" PRIu64
             ",\"native_bc_uploads_per_guest_frame\":%" PRIu64
             ",\"native_bc_source_bytes_per_guest_frame\":%" PRIu64
             ",\"native_bc_staged_bytes_per_guest_frame\":%" PRIu64
@@ -579,6 +589,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->shader_uniform_force_full_update_count,
             perf->vsh_uniform_value_change_count,
             perf->psh_uniform_value_change_count,
+            perf->equivalent_texture_scale_skip_count,
             perf->native_bc_upload_count, perf->native_bc_source_bytes,
             perf->native_bc_staged_bytes, perf->native_bc_prepare_cpu_us,
             perf->decoded_bc_upload_count, perf->decoded_bc_source_bytes,
@@ -641,6 +652,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->shader_uniform_force_full_update_count = 0;
     perf->vsh_uniform_value_change_count = 0;
     perf->psh_uniform_value_change_count = 0;
+    perf->equivalent_texture_scale_skip_count = 0;
     perf->native_bc_upload_count = 0;
     perf->native_bc_source_bytes = 0;
     perf->native_bc_staged_bytes = 0;

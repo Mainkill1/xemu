@@ -46,6 +46,18 @@ static bool any_dirty_flag_set(const bool *dirty, size_t count)
     return false;
 }
 
+static void get_psh_texture_scales(PGRAPHVkState *r,
+                                   float scales[NV2A_MAX_TEXTURES])
+{
+    for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
+        assert(r->texture_bindings[i] != NULL);
+        float scale = r->texture_bindings[i]->key.scale;
+        BasicColorFormatInfo f_basic = kelvin_color_format_info_map[
+            r->texture_bindings[i]->key.state.color_format];
+        scales[i] = f_basic.linear ? scale : 1.0f;
+    }
+}
+
 static void get_uniform_stage_update_needs(PGRAPHState *pg,
                                            bool update_stage[])
 {
@@ -79,6 +91,20 @@ static void get_uniform_stage_update_needs(PGRAPHState *pg,
             &pg->uniform_source_epochs, &r->last_uniform_source_epochs,
             stage);
         inputs.layout_changed[stage] = r->uniform_layout_changed[stage];
+    }
+
+    if (r->perf.skip_equivalent_texture_scale_updates &&
+        inputs.texture_bindings_changed) {
+        float texture_scales[NV2A_MAX_TEXTURES];
+        get_psh_texture_scales(r, texture_scales);
+        bool texture_scales_changed = pgraph_uniform_texture_scales_changed(
+            r->perf.last_psh_texture_scales_valid,
+            r->perf.last_psh_texture_scales, texture_scales,
+            ARRAY_SIZE(texture_scales));
+        if (!texture_scales_changed && r->perf.enabled) {
+            r->perf.equivalent_texture_scale_skip_count++;
+        }
+        inputs.texture_bindings_changed = texture_scales_changed;
     }
 
     if (r->perf.enabled) {
@@ -638,22 +664,17 @@ static void update_shader_uniforms(PGRAPHState *pg, const bool update_stage[])
         PshUniformValues psh_values;
         pgraph_glsl_set_psh_uniform_values(pg, binding->psh.uniform_locs,
                                            &psh_values);
-        for (int i = 0; i < 4; i++) {
-            assert(r->texture_bindings[i] != NULL);
-            float scale = r->texture_bindings[i]->key.scale;
-
-            BasicColorFormatInfo f_basic = kelvin_color_format_info_map[
-                r->texture_bindings[i]->key.state.color_format];
-            if (!f_basic.linear) {
-                scale = 1.0;
-            }
-
-            psh_values.texScale[i] = scale;
-        }
+        get_psh_texture_scales(r, psh_values.texScale);
 
         psh_changed = apply_uniform_updates(
             &binding->psh.module_info->uniforms, PshUniformInfo,
             binding->psh.uniform_locs, &psh_values, PshUniform__COUNT);
+
+        if (r->perf.skip_equivalent_texture_scale_updates) {
+            memcpy(r->perf.last_psh_texture_scales, psh_values.texScale,
+                   sizeof(r->perf.last_psh_texture_scales));
+            r->perf.last_psh_texture_scales_valid = true;
+        }
 
         r->last_uniform_source_epochs.stage[PGRAPH_UNIFORM_STAGE_PSH] =
             pg->uniform_source_epochs.stage[PGRAPH_UNIFORM_STAGE_PSH];

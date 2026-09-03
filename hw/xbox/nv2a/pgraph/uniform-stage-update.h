@@ -6,6 +6,8 @@
 #define HW_XBOX_NV2A_PGRAPH_UNIFORM_STAGE_UPDATE_H
 
 #include <stdbool.h>
+#include <stddef.h>
+#include <string.h>
 
 #include "uniform-source.h"
 
@@ -18,6 +20,14 @@ typedef struct PGRAPHUniformStageUpdateInputs {
     bool vsh_rows_dirty;
     bool force_full_update;
 } PGRAPHUniformStageUpdateInputs;
+
+static inline bool pgraph_uniform_texture_scales_changed(
+    bool previous_valid, const float *previous, const float *current,
+    size_t count)
+{
+    return !previous_valid ||
+           memcmp(previous, current, count * sizeof(*current)) != 0;
+}
 
 static inline void pgraph_uniform_stage_update_needs(
     const PGRAPHUniformStageUpdateInputs *inputs,

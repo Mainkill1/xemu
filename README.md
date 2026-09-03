@@ -544,6 +544,23 @@ source, layout, texture-binding, effective-input, inline-value, dirty-row, or
 forced-update cause, and records whether the copied VSH/PSH values actually
 changed. Diagnostic timing overhead is not treated as a production result.
 
+Schema-11 measured actual uniform preparation at 0.925 ms/frame and its
+update-needs scan at only 0.098 ms/frame. Schema-12 then showed the actionable
+false dependency: Morrowind reported texture bindings changed on all
+1,133.83 draws/frame and therefore requested a PSH uniform update on every
+draw, while the resulting PSH uniform bytes changed only 0.01085 times/frame.
+Texture descriptor writes remain independently guarded by
+`texture_bindings_changed` and must not be skipped.
+
+`XEMU_VK_SKIP_EQUIVALENT_TEXTURE_SCALE_UPDATES=1` enables the bounded
+schema-13 experiment. When a texture binding changes, it derives the four
+effective PSH `texScale` values and compares their exact float bits with the
+last values sent through PSH uniform preparation. Equivalent values no longer
+force that uniform update; changed values, first use, shader-layout changes,
+PSH source changes, and forced buffer refreshes retain their existing paths.
+Texture image/sampler descriptor updates are not changed. Unset or `0`
+preserves the previous coarse dependency for same-binary A/B testing.
+
 ## Staging audit
 
 The `xemu-pr-staging` production candidates were compared against this

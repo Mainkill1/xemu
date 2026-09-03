@@ -441,6 +441,7 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t shader_uniform_force_full_update_count;
     uint64_t vsh_uniform_value_change_count;
     uint64_t psh_uniform_value_change_count;
+    uint64_t equivalent_texture_scale_skip_count;
     uint64_t submit_info_count;
     uint64_t command_buffer_count;
     uint64_t staged_bytes;
@@ -486,6 +487,9 @@ typedef struct PGRAPHVkPerfTelemetry {
     VkPipelineLayout last_push_constant_layout;
     size_t last_push_constant_size;
     float last_push_constant_values[NV2A_VERTEXSHADER_ATTRIBUTES][4];
+    bool skip_equivalent_texture_scale_updates;
+    bool last_psh_texture_scales_valid;
+    float last_psh_texture_scales[NV2A_MAX_TEXTURES];
     uint64_t in_flight_submission_count;
     uint64_t peak_in_flight_submission_count;
     uint64_t oldest_in_flight_serial;
