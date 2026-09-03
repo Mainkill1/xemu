@@ -162,6 +162,7 @@ typedef struct TextureLruNode {
 typedef struct QueryReport {
     QSIMPLEQ_ENTRY(QueryReport) entry;
     bool clear;
+    hwaddr dma_report;
     uint32_t parameter;
     unsigned int query_count;
     GLuint *queries;
