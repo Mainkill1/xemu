@@ -70,7 +70,6 @@ static void assert_alarm_caught_up(const NV2AState *d)
     g_assert_cmpint(timer_expire_time_ns(&d->ptimer.timer), >,
                     ptimer_test_time_ns);
 }
-
 static void test_alarm_assert_and_ack(void)
 {
     NV2AState d;
@@ -134,7 +133,6 @@ static void test_time_registers_and_future_epoch(void)
 static void test_runtime_overdue_alarm_skips_missed_epochs(void)
 {
     NV2AState d;
-
     init_nv2a_ptimer(&d);
     d.ptimer.enabled_interrupts = NV_PTIMER_INTR_EN_0_ALARM;
     ptimer_write(&d, NV_PTIMER_ALARM_0, TEST_ALARM_LOW, 4);
