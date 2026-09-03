@@ -257,9 +257,6 @@ display:
     vsync:
       type: bool
       default: true
-    reduce_host_cpu_usage:
-      type: bool
-      default: false
   ui:
     show_menubar:
       type: bool

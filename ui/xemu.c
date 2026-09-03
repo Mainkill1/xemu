@@ -32,7 +32,6 @@
 #include "qemu/thread.h"
 #include "qemu/main-loop.h"
 #include "qemu/rcu.h"
-#include "qemu/timer.h"
 #include "qemu-version.h"
 #include "qapi/error.h"
 #include "qapi/qapi-commands-block.h"
@@ -1342,11 +1341,6 @@ int main(int argc, char **argv)
 
     display_very_early_init(NULL);
 
-    bool reduce_host_cpu_usage =
-        !g_config.display.window.vsync &&
-        g_config.display.window.reduce_host_cpu_usage;
-    qemu_set_timer_busy_wait_enabled(!reduce_host_cpu_usage);
-
     qemu_sem_init(&display_init_sem, 0);
     qemu_sem_init(&display_shutdown_sem, 0);
     qemu_thread_create(&thread, "qemu_main", qemu_main,
@@ -1374,16 +1368,6 @@ int main(int argc, char **argv)
     while (!qatomic_read(&qemu_exiting)) {
         poll_events(scon);
         gl_render_frame(scon);
-        bool new_reduce_host_cpu_usage =
-            !g_config.display.window.vsync &&
-            g_config.display.window.reduce_host_cpu_usage;
-        if (new_reduce_host_cpu_usage != reduce_host_cpu_usage) {
-            reduce_host_cpu_usage = new_reduce_host_cpu_usage;
-            qemu_set_timer_busy_wait_enabled(!reduce_host_cpu_usage);
-        }
-        if (reduce_host_cpu_usage) {
-            SDL_DelayPrecise(SDL_MS_TO_NS(1));
-        }
     }
     qemu_sem_post(&display_shutdown_sem);
     qemu_thread_join(&thread);
