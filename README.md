@@ -775,6 +775,14 @@ emitted one helper call per entry; the candidate release map no longer contains
 a standalone helper symbol. The assertion-enabled `-O0` image retains the
 symbol as expected.
 
+Forgejo issue #38 subsequently identified that the preceding host-page
+prefilter could read `CPUTLBEntryFull.ram_host_page` for an unused fast-TLB
+slot. Commit `45fbf9e10c` now rejects empty entries before reading any full-TLB
+metadata and explicitly rejects the zero sentinel used for valid non-RAM
+entries. The `eng523-tlb-inline-9fd812f` release remains available as a labeled
+research artifact for reproducing the earlier measurement, but it predates
+this correctness fix and must not be promoted as a production candidate.
+
 Corrected PFIFO samples first found about 2.7 samples/frame in the locked range
 helper and its full-range caller. On Morrowind snapshot
 `vm-20260903021051`, a 20-second-warmup/30-second A-B-B-A reduced role-mean
