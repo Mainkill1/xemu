@@ -66,6 +66,12 @@ static const char *cpu_region_names[VK_PERF_CPU_REGION_COUNT] = {
     [VK_PERF_CPU_SHADER_UNIFORM_NEEDS] = "shader_uniform_needs",
     [VK_PERF_CPU_SHADER_UNIFORM_UPDATE] = "shader_uniform_update",
     [VK_PERF_CPU_PIPELINE_STATE_LOOKUP] = "pipeline_state_lookup",
+    [VK_PERF_CPU_DRAW_PIPELINE_MISS_BUILD] = "draw_pipeline_miss_build",
+    [VK_PERF_CPU_DRAW_PIPELINE_GRAPHICS_CREATE] =
+        "draw_pipeline_graphics_create",
+    [VK_PERF_CPU_CLEAR_PIPELINE_MISS_BUILD] = "clear_pipeline_miss_build",
+    [VK_PERF_CPU_CLEAR_PIPELINE_GRAPHICS_CREATE] =
+        "clear_pipeline_graphics_create",
     [VK_PERF_CPU_TEXTURE_UPLOAD] = "texture_upload",
     [VK_PERF_CPU_UPDATE_DESCRIPTOR_SETS] = "update_descriptor_sets",
 };
@@ -140,7 +146,7 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":13"
+            "{\"type\":\"schema\",\"schema_version\":14"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
             ",\"skip_equivalent_texture_scale_updates\":%s"
@@ -447,7 +453,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":13"
+            "{\"type\":\"frame\",\"schema_version\":14"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
@@ -529,6 +535,13 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"vsh_uniform_value_changes_per_guest_frame\":%" PRIu64
             ",\"psh_uniform_value_changes_per_guest_frame\":%" PRIu64
             ",\"equivalent_texture_scale_skips_per_guest_frame\":%" PRIu64
+            ",\"draw_pipeline_fast_reuses_per_guest_frame\":%" PRIu64
+            ",\"draw_pipeline_key_lookups_per_guest_frame\":%" PRIu64
+            ",\"draw_pipeline_cache_hits_per_guest_frame\":%" PRIu64
+            ",\"draw_pipeline_cache_misses_per_guest_frame\":%" PRIu64
+            ",\"draw_pipeline_binding_changes_per_guest_frame\":%" PRIu64
+            ",\"clear_pipeline_cache_hits_per_guest_frame\":%" PRIu64
+            ",\"clear_pipeline_cache_misses_per_guest_frame\":%" PRIu64
             ",\"native_bc_uploads_per_guest_frame\":%" PRIu64
             ",\"native_bc_source_bytes_per_guest_frame\":%" PRIu64
             ",\"native_bc_staged_bytes_per_guest_frame\":%" PRIu64
@@ -590,6 +603,13 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->vsh_uniform_value_change_count,
             perf->psh_uniform_value_change_count,
             perf->equivalent_texture_scale_skip_count,
+            perf->draw_pipeline_fast_reuse_count,
+            perf->draw_pipeline_key_lookup_count,
+            perf->draw_pipeline_cache_hit_count,
+            perf->draw_pipeline_cache_miss_count,
+            perf->draw_pipeline_binding_change_count,
+            perf->clear_pipeline_cache_hit_count,
+            perf->clear_pipeline_cache_miss_count,
             perf->native_bc_upload_count, perf->native_bc_source_bytes,
             perf->native_bc_staged_bytes, perf->native_bc_prepare_cpu_us,
             perf->decoded_bc_upload_count, perf->decoded_bc_source_bytes,
@@ -653,6 +673,13 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->vsh_uniform_value_change_count = 0;
     perf->psh_uniform_value_change_count = 0;
     perf->equivalent_texture_scale_skip_count = 0;
+    perf->draw_pipeline_fast_reuse_count = 0;
+    perf->draw_pipeline_key_lookup_count = 0;
+    perf->draw_pipeline_cache_hit_count = 0;
+    perf->draw_pipeline_cache_miss_count = 0;
+    perf->draw_pipeline_binding_change_count = 0;
+    perf->clear_pipeline_cache_hit_count = 0;
+    perf->clear_pipeline_cache_miss_count = 0;
     perf->native_bc_upload_count = 0;
     perf->native_bc_source_bytes = 0;
     perf->native_bc_staged_bytes = 0;

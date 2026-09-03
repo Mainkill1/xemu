@@ -477,6 +477,9 @@ static void create_clear_pipeline(PGRAPHState *pg)
     PipelineBinding *snode = pipeline_cache_lookup(pg, hash, &key);
 
     if (snode->pipeline != VK_NULL_HANDLE) {
+        if (r->perf.enabled) {
+            r->perf.clear_pipeline_cache_hit_count++;
+        }
         NV2A_VK_DPRINTF("Cache hit");
         r->pipeline_binding_changed = r->pipeline_binding != snode;
         r->pipeline_binding = snode;
@@ -485,6 +488,10 @@ static void create_clear_pipeline(PGRAPHState *pg)
     }
 
     NV2A_VK_DPRINTF("Cache miss");
+    int64_t miss_start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
+    if (r->perf.enabled) {
+        r->perf.clear_pipeline_cache_miss_count++;
+    }
     nv2a_profile_inc_counter(NV2A_PROF_PIPELINE_GEN);
     memcpy(&snode->key, &key, sizeof(key));
 
@@ -635,8 +642,13 @@ static void create_clear_pipeline(PGRAPHState *pg)
     };
 
     VkPipeline pipeline;
+    int64_t create_start_us =
+        r->perf.enabled ? g_get_monotonic_time() : 0;
     VK_CHECK(vkCreateGraphicsPipelines(r->device, r->vk_pipeline_cache, 1,
                                        &pipeline_info, NULL, &pipeline));
+    pgraph_vk_perf_record_cpu_region(
+        r, VK_PERF_CPU_CLEAR_PIPELINE_GRAPHICS_CREATE,
+        r->perf.enabled ? g_get_monotonic_time() - create_start_us : 0);
 
     snode->pipeline = pipeline;
     snode->layout = layout;
@@ -645,6 +657,9 @@ static void create_clear_pipeline(PGRAPHState *pg)
 
     r->pipeline_binding = snode;
     r->pipeline_binding_changed = true;
+    pgraph_vk_perf_record_cpu_region(
+        r, VK_PERF_CPU_CLEAR_PIPELINE_MISS_BUILD,
+        r->perf.enabled ? g_get_monotonic_time() - miss_start_us : 0);
 
     NV2A_VK_DGROUP_END();
 }
@@ -786,6 +801,9 @@ static void create_pipeline(PGRAPHState *pg)
     // FIXME: We could clear less
 
     if (r->pipeline_binding && !pipeline_dirty) {
+        if (r->perf.enabled) {
+            r->perf.draw_pipeline_fast_reuse_count++;
+        }
         pgraph_vk_perf_record_cpu_region(
             r, VK_PERF_CPU_PIPELINE_STATE_LOOKUP,
             r->perf.enabled ? g_get_monotonic_time() - state_start_us : 0);
@@ -795,6 +813,9 @@ static void create_pipeline(PGRAPHState *pg)
     }
 
     PipelineKey key;
+    if (r->perf.enabled) {
+        r->perf.draw_pipeline_key_lookup_count++;
+    }
     init_pipeline_key(pg, &key);
     uint64_t hash = fast_hash((void *)&key, sizeof(key));
 
@@ -803,14 +824,24 @@ static void create_pipeline(PGRAPHState *pg)
         r, VK_PERF_CPU_PIPELINE_STATE_LOOKUP,
         r->perf.enabled ? g_get_monotonic_time() - state_start_us : 0);
     if (snode->pipeline != VK_NULL_HANDLE) {
+        bool binding_changed = r->pipeline_binding != snode;
+        if (r->perf.enabled) {
+            r->perf.draw_pipeline_cache_hit_count++;
+            r->perf.draw_pipeline_binding_change_count += binding_changed;
+        }
         NV2A_VK_DPRINTF("Cache hit");
-        r->pipeline_binding_changed = r->pipeline_binding != snode;
+        r->pipeline_binding_changed = binding_changed;
         r->pipeline_binding = snode;
         NV2A_VK_DGROUP_END();
         return;
     }
 
     NV2A_VK_DPRINTF("Cache miss");
+    int64_t miss_start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
+    if (r->perf.enabled) {
+        r->perf.draw_pipeline_cache_miss_count++;
+        r->perf.draw_pipeline_binding_change_count++;
+    }
     nv2a_profile_inc_counter(NV2A_PROF_PIPELINE_GEN);
 
     memcpy(&snode->key, &key, sizeof(key));
@@ -1090,8 +1121,13 @@ static void create_pipeline(PGRAPHState *pg)
         .basePipelineHandle = VK_NULL_HANDLE,
     };
     VkPipeline pipeline;
+    int64_t create_start_us =
+        r->perf.enabled ? g_get_monotonic_time() : 0;
     VK_CHECK(vkCreateGraphicsPipelines(r->device, r->vk_pipeline_cache, 1,
                                        &pipeline_create_info, NULL, &pipeline));
+    pgraph_vk_perf_record_cpu_region(
+        r, VK_PERF_CPU_DRAW_PIPELINE_GRAPHICS_CREATE,
+        r->perf.enabled ? g_get_monotonic_time() - create_start_us : 0);
 
     snode->pipeline = pipeline;
     snode->layout = layout;
@@ -1101,6 +1137,9 @@ static void create_pipeline(PGRAPHState *pg)
 
     r->pipeline_binding = snode;
     r->pipeline_binding_changed = true;
+    pgraph_vk_perf_record_cpu_region(
+        r, VK_PERF_CPU_DRAW_PIPELINE_MISS_BUILD,
+        r->perf.enabled ? g_get_monotonic_time() - miss_start_us : 0);
 
     NV2A_VK_DGROUP_END();
 }

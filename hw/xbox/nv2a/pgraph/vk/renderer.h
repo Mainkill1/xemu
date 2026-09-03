@@ -405,6 +405,10 @@ typedef enum PerfCpuRegion {
     VK_PERF_CPU_SHADER_UNIFORM_NEEDS,
     VK_PERF_CPU_SHADER_UNIFORM_UPDATE,
     VK_PERF_CPU_PIPELINE_STATE_LOOKUP,
+    VK_PERF_CPU_DRAW_PIPELINE_MISS_BUILD,
+    VK_PERF_CPU_DRAW_PIPELINE_GRAPHICS_CREATE,
+    VK_PERF_CPU_CLEAR_PIPELINE_MISS_BUILD,
+    VK_PERF_CPU_CLEAR_PIPELINE_GRAPHICS_CREATE,
     VK_PERF_CPU_TEXTURE_UPLOAD,
     VK_PERF_CPU_UPDATE_DESCRIPTOR_SETS,
     VK_PERF_CPU_REGION_COUNT,
@@ -442,6 +446,13 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t vsh_uniform_value_change_count;
     uint64_t psh_uniform_value_change_count;
     uint64_t equivalent_texture_scale_skip_count;
+    uint64_t draw_pipeline_fast_reuse_count;
+    uint64_t draw_pipeline_key_lookup_count;
+    uint64_t draw_pipeline_cache_hit_count;
+    uint64_t draw_pipeline_cache_miss_count;
+    uint64_t draw_pipeline_binding_change_count;
+    uint64_t clear_pipeline_cache_hit_count;
+    uint64_t clear_pipeline_cache_miss_count;
     uint64_t submit_info_count;
     uint64_t command_buffer_count;
     uint64_t staged_bytes;
