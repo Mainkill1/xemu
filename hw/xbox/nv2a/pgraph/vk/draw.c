@@ -689,6 +689,22 @@ static uint32_t pipeline_dynamic_blend_constant_mask(PGRAPHState *pg)
                pgraph_blend_factor_vk_map[dfactor]);
 }
 
+static bool texture_pipeline_fastpath_enabled(void)
+{
+    static int enabled = -1;
+
+    /*
+     * Texture object identity belongs to descriptor sets, not PipelineKey.
+     * Texture state that affects generated code is already represented by
+     * ShaderState and therefore by shader_bindings_changed above.
+     */
+    if (enabled < 0) {
+        enabled = g_strcmp0(
+            g_getenv("XEMU_VK_TEXTURE_PIPELINE_FASTPATH"), "1") == 0;
+    }
+    return enabled;
+}
+
 // Quickly check for any state changes that would require more analysis
 static bool check_pipeline_dirty(PGRAPHState *pg)
 {
@@ -696,7 +712,9 @@ static bool check_pipeline_dirty(PGRAPHState *pg)
 
     if (!r->pipeline_binding || r->pipeline_binding->key.clear ||
         r->shader_bindings_changed ||
-        r->texture_bindings_changed || check_render_pass_dirty(pg)) {
+        (r->texture_bindings_changed &&
+         !texture_pipeline_fastpath_enabled()) ||
+        check_render_pass_dirty(pg)) {
         return true;
     }
 
