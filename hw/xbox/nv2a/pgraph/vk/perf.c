@@ -15,6 +15,7 @@
  */
 #define VK_PERF_INITIAL_TIMED_SUBMITS 8
 #define VK_PERF_HOT_SAMPLE_STRIDE 16
+#define VK_PERF_SCHEMA_VERSION 6
 
 static const char *finish_reason_names[VK_FINISH_REASON_COUNT] = {
     [VK_FINISH_REASON_VERTEX_BUFFER_DIRTY] = "vertex_buffer_dirty",
@@ -129,13 +130,14 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     init_gpu_timestamps(r);
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":6"
+            "{\"type\":\"schema\",\"schema_version\":%u"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
             ",\"gpu_batch_timestamps\":{\"supported\":%s"
             ",\"timestamp_valid_bits\":%u"
             ",\"timestamp_period_ns\":%.9g}",
-            VK_PERF_INITIAL_TIMED_SUBMITS, VK_PERF_HOT_SAMPLE_STRIDE,
+            VK_PERF_SCHEMA_VERSION, VK_PERF_INITIAL_TIMED_SUBMITS,
+            VK_PERF_HOT_SAMPLE_STRIDE,
             r->perf.timestamp_query_pool != VK_NULL_HANDLE ? "true" : "false",
             r->perf.timestamp_valid_bits, r->perf.timestamp_period_ns);
     write_names(r->perf.file, "finish_reasons", finish_reason_names,
@@ -323,9 +325,9 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":5"
+            "{\"type\":\"frame\",\"schema_version\":%u"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
-            now, ++perf->frame);
+            VK_PERF_SCHEMA_VERSION, now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
                      ARRAY_SIZE(perf->finish),
                      offsetof(PGRAPHVkWaitStats, call_count));
