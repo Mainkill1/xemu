@@ -132,6 +132,19 @@ The `curl` installation is part of xemu's official workflow and is required:
 the pinned toolchain image itself does not provide an executable `curl`, while
 the DSP fallback downloads its versioned binary during configuration.
 
+For an assertion-enabled diagnostic build, use the same clean source commit,
+container digest, target, environment, and mounts, but replace the `build.sh`
+invocation above with:
+
+```bash
+./build.sh -j"$(nproc)" -p win64-cross \
+  --debug -Db_lto=false -Dx86_version=3
+```
+
+That command produces the lab's `-O0`, `--enable-debug`, log-trace build. It is
+required for debug correctness coverage, but its timings are not compared with
+the full-LTO performance build.
+
 The unpackaged executable is `build/qemu-system-i386w.exe`. `build.sh` also
 creates the distributable `dist/xemu.exe` and `dist/LICENSE.txt`. Preserve
 `build.log`; it contains the effective configure and compiler invocation.
@@ -185,6 +198,16 @@ cv2pdb64.exe xemu.exe
 symbol artifacts when collecting ETW evidence: the original DWARF-bearing
 executable, the post-`cv2pdb` executable, and the matching PDB. Record SHA-256
 hashes for each; never resolve an address with symbols from another build.
+The lab's `cv2pdb64.exe` SHA-256 is
+`93b9033f24a9d671544c885bea29f825920199fb929cff9f1ae877b141f49184`.
+
+Generate the sorted GNU symbol map from the original DWARF executable before
+running `cv2pdb`. The `nm` binary comes from the same pinned MXE container:
+
+```bash
+x86_64-w64-mingw32.static-nm -n \
+  build/qemu-system-i386w.exe > xemu.map
+```
 
 ### Minimum build manifest
 
@@ -434,8 +457,42 @@ in the full TLB entry. Dirty reset still visits every active MMU mode and
 retains the original flag and range test for every possible match, but rejects
 nonmatching host pages before reading and updating the hot fast-entry state.
 Aliases remain independent entries and therefore remain covered. Unset or `0`
-preserves the prior scan behavior. This is research-only until release/debug,
-perf-lab XISO, retail snapshot, ETW, and memory/correctness gates pass.
+preserves the prior scan behavior.
+
+A full-LTO same-binary A-B-B-A run on Morrowind snapshot
+`vm-20260903021051` measured +0.431% FPS and -0.084 ms/frame (-0.236%) by role
+mean. P95 and the approximately 50-ms cadence were unchanged. The more direct
+CPU measurement was stronger: `draw_flush` fell from about 12,046 to 10,983
+us/frame (-8.82%), and its normalized cost fell from about 10.663 to 9.722
+us/draw. Exact PFIFO stacks independently showed the complete
+`tlb_reset_dirty_range_all` chain falling from 2,487 to 1,908 weighted samples
+(-23.28%) even though candidate dirty hits/frame were slightly higher. Treat
+this as a causally confirmed small CPU-path win, not a cadence fix.
+
+Release and debug builds both passed the current 147-record Vulkan perf-lab
+XISO with functional hashes, active validation, and zero VUIDs. Because the
+new PGR2 snapshot reproduced the existing DSP restore assertion, retail
+coverage used an independent FreshBoot cohort. Release reached a visually
+verified live Hong Kong race at 30.000 FPS (33.333-ms mean, 33.456-ms p95);
+debug also reached the live race after its deliberately longer 60-second
+post-input warmup. Both runs recorded a 10-second BIOS allowance followed by
+`A-3,A-10,A-2,A-2,F-2,A-2,A-2,A-2,A-2,A-2,A-7`, exact executable/PDB/source
+ownership, zero focus loss, and zero ETW loss. Snapshot and FreshBoot results
+remain separate cohorts.
+
+Exact build identities are:
+
+```text
+source commit                 93d099ac92fd706743c869d1c2cdc421aa036f38
+release post-cv2pdb xemu.exe d98148685abbc21d6c5d66f307e20eb17bbb593a43c2cf7472fac972b38737f4
+release PDB                   f5ff29e41303e7702ae931cb330c00e8cbfda9629bd8399e003d8090ccd69752
+release DWARF executable      d74a1cf1d15fdebd62bea91eaa9eb57992890024cc872a0a1298a6809bb3f984
+release map                   108db08877e02ccf8559ef43debf06f87dc536682ab491475a9225f7683bcdae
+debug post-cv2pdb xemu.exe   ad984c9158f1bfb2bb093e3333ee2b403e12218b5a26b3a3bf964dcc2bcbb6a6
+debug PDB                     64ae29effb524bfdd65e53f48d8a94b2b8715d12aef837d310a62f64b73b9d11
+debug DWARF executable        f92af1dce9e401aa800a2655cc8cdf261d6ac9f661bafc3efc4312aeca1e1337
+debug map                     4f24bedede729710bbe35eb625c0dd2a3e381a6eab8dc0c9222ed733f7bb3e39
+```
 
 The build manifests retain the exact release/debug commands, pinned toolchain
 digest, compiler/linker versions, map generation, and all artifact hashes.
