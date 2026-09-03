@@ -101,7 +101,8 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     fprintf(r->perf.file,
             "{\"type\":\"schema\",\"schema_version\":5"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
-            ",\"hot_stride\":%u}",
+            ",\"hot_stride\":%u}"
+            ",\"tiny_draw_attribution_version\":1",
             VK_PERF_INITIAL_TIMED_SUBMITS, VK_PERF_HOT_SAMPLE_STRIDE);
     write_names(r->perf.file, "finish_reasons", finish_reason_names,
                 ARRAY_SIZE(finish_reason_names));
@@ -239,6 +240,65 @@ void pgraph_vk_perf_record_bc_upload(PGRAPHVkState *r, bool native,
     }
 }
 
+void pgraph_vk_perf_record_index_payload(PGRAPHVkState *r, const void *data,
+                                         VkDeviceSize size,
+                                         VkDeviceSize staging_offset)
+{
+    if (!r->perf.enabled) {
+        return;
+    }
+
+    PGRAPHVkPerfTelemetry *perf = &r->perf;
+    perf->index_payload_count++;
+    perf->index_payload_bytes += size;
+
+    StorageBuffer *staging = &r->storage_buffers[BUFFER_INDEX_STAGING];
+    if (staging_offset != 0 && perf->last_index_payload_valid &&
+        perf->last_index_payload_size == size &&
+        memcmp(staging->mapped + perf->last_index_payload_offset, data,
+               size) == 0) {
+        perf->consecutive_duplicate_index_payload_count++;
+        perf->consecutive_duplicate_index_payload_bytes += size;
+    }
+
+    perf->last_index_payload_valid = true;
+    perf->last_index_payload_offset = staging_offset;
+    perf->last_index_payload_size = size;
+}
+
+void pgraph_vk_perf_record_push_constants(PGRAPHVkState *r,
+                                          PipelineBinding *pipeline,
+                                          const float *values, size_t size)
+{
+    if (!r->perf.enabled) {
+        return;
+    }
+
+    PGRAPHVkPerfTelemetry *perf = &r->perf;
+    perf->push_constant_count++;
+    perf->push_constant_bytes += size;
+    if (perf->last_push_constant_valid &&
+        perf->last_push_constant_pipeline == pipeline &&
+        perf->last_push_constant_size == size &&
+        memcmp(perf->last_push_constant_values, values, size) == 0) {
+        perf->identical_push_constant_count++;
+        perf->identical_push_constant_bytes += size;
+    }
+
+    assert(size <= sizeof(perf->last_push_constant_values));
+    memcpy(perf->last_push_constant_values, values, size);
+    perf->last_push_constant_valid = true;
+    perf->last_push_constant_pipeline = pipeline;
+    perf->last_push_constant_size = size;
+}
+
+void pgraph_vk_perf_begin_command_buffer(PGRAPHVkState *r)
+{
+    if (r->perf.enabled) {
+        r->perf.last_push_constant_valid = false;
+    }
+}
+
 void pgraph_vk_perf_record_cpu_region(PGRAPHVkState *r, PerfCpuRegion region,
                                       uint64_t cpu_us)
 {
@@ -337,6 +397,14 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"decoded_bc_source_bytes_per_guest_frame\":%" PRIu64
             ",\"decoded_bc_staged_bytes_per_guest_frame\":%" PRIu64
             ",\"decoded_bc_prepare_cpu_us_per_guest_frame\":%" PRIu64
+            ",\"index_payloads_per_guest_frame\":%" PRIu64
+            ",\"index_payload_bytes_per_guest_frame\":%" PRIu64
+            ",\"consecutive_duplicate_index_payloads_per_guest_frame\":%" PRIu64
+            ",\"consecutive_duplicate_index_payload_bytes_per_guest_frame\":%" PRIu64
+            ",\"push_constant_emits_per_guest_frame\":%" PRIu64
+            ",\"push_constant_bytes_per_guest_frame\":%" PRIu64
+            ",\"identical_push_constant_emits_per_guest_frame\":%" PRIu64
+            ",\"identical_push_constant_bytes_per_guest_frame\":%" PRIu64
             ",\"staged_bytes_per_submit\":%.3f"
             ",\"submit_infos_per_submit\":%.3f"
             ",\"command_buffers_per_submit\":%.3f"
@@ -356,6 +424,12 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->native_bc_staged_bytes, perf->native_bc_prepare_cpu_us,
             perf->decoded_bc_upload_count, perf->decoded_bc_source_bytes,
             perf->decoded_bc_staged_bytes, perf->decoded_bc_prepare_cpu_us,
+            perf->index_payload_count, perf->index_payload_bytes,
+            perf->consecutive_duplicate_index_payload_count,
+            perf->consecutive_duplicate_index_payload_bytes,
+            perf->push_constant_count, perf->push_constant_bytes,
+            perf->identical_push_constant_count,
+            perf->identical_push_constant_bytes,
             staged_bytes_per_submit,
             submit_infos_per_submit, command_buffers_per_submit,
             perf->in_flight_submission_count,
@@ -386,6 +460,14 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->decoded_bc_source_bytes = 0;
     perf->decoded_bc_staged_bytes = 0;
     perf->decoded_bc_prepare_cpu_us = 0;
+    perf->index_payload_count = 0;
+    perf->index_payload_bytes = 0;
+    perf->consecutive_duplicate_index_payload_count = 0;
+    perf->consecutive_duplicate_index_payload_bytes = 0;
+    perf->push_constant_count = 0;
+    perf->push_constant_bytes = 0;
+    perf->identical_push_constant_count = 0;
+    perf->identical_push_constant_bytes = 0;
     perf->peak_in_flight_submission_count =
         perf->in_flight_submission_count;
     perf->oldest_in_flight_serial = 0;

@@ -1108,10 +1108,12 @@ static void push_vertex_attr_values(PGRAPHState *pg)
                              values, &num_uniform_attrs);
 
     if (num_uniform_attrs > 0) {
+        size_t size = num_uniform_attrs * 4 * sizeof(float);
+        pgraph_vk_perf_record_push_constants(
+            r, r->pipeline_binding, &values[0][0], size);
         vkCmdPushConstants(r->command_buffer, r->pipeline_binding->layout,
                            VK_SHADER_STAGE_VERTEX_BIT, 0,
-                           num_uniform_attrs * 4 * sizeof(float),
-                           &values);
+                           size, &values);
     }
 }
 
@@ -1407,6 +1409,7 @@ void pgraph_vk_begin_command_buffer(PGRAPHState *pg)
     };
     VK_CHECK(vkBeginCommandBuffer(r->command_buffer,
                                   &command_buffer_begin_info));
+    pgraph_vk_perf_begin_command_buffer(r);
     pgraph_vk_invalidate_blend_constants(pg);
     r->command_buffer_start_time = pg->draw_time;
     r->in_command_buffer = true;
