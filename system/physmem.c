@@ -914,6 +914,13 @@ static void do_mem_access_callback_remove_by_ref(CPUState *cpu,
     tlb_flush(cpu);
 }
 
+static void do_mem_access_callback_free(CPUState *cpu, run_on_cpu_data data)
+{
+    MemAccessCallback *cb = (MemAccessCallback *)data.host_ptr;
+    (void)cpu;
+    g_free(cb);
+}
+
 void mem_access_callback_remove_by_ref(CPUState *cpu, MemAccessCallback *cb)
 {
     if (!cb) {
@@ -926,8 +933,13 @@ void mem_access_callback_remove_by_ref(CPUState *cpu, MemAccessCallback *cb)
     // FIXME: flush only applicable pages
     tlb_flush_all_cpus_synced(cpu);
 
-    /* Every cached TLB reference is invalid before the callback is freed. */
-    g_free(cb);
+    /*
+     * All three operations are queued on the same CPU in order.  The synced
+     * flush is an exclusive-work barrier: every earlier remote-CPU flush has
+     * completed before this final callback frees the cached target.
+     */
+    async_safe_run_on_cpu(cpu, do_mem_access_callback_free,
+                          RUN_ON_CPU_HOST_PTR(cb));
 }
 
 void mem_check_access_callback_vaddr(CPUState *cpu,
