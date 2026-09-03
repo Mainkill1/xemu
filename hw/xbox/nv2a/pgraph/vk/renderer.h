@@ -382,6 +382,11 @@ typedef struct PGRAPHVkWaitStats {
     uint64_t submit_cpu_us;
     uint64_t wait_count;
     uint64_t wait_us;
+    uint64_t gpu_timed_submit_count;
+    uint64_t gpu_batch_ns;
+    uint64_t gpu_aux_ns;
+    uint64_t gpu_handoff_ns;
+    uint64_t gpu_main_ns;
 } PGRAPHVkWaitStats;
 
 typedef enum PerfCpuRegion {
@@ -402,6 +407,9 @@ typedef struct PGRAPHVkCpuStats {
 typedef struct PGRAPHVkPerfTelemetry {
     FILE *file;
     bool enabled;
+    VkQueryPool timestamp_query_pool;
+    uint32_t timestamp_valid_bits;
+    double timestamp_period_ns;
     uint64_t frame;
     int64_t last_flush_us;
     PGRAPHVkWaitStats finish[VK_FINISH_REASON_COUNT];
@@ -628,6 +636,11 @@ void pgraph_vk_perf_record_finish_submit(PGRAPHVkState *r,
                                          bool timed,
                                          uint64_t submit_cpu_us,
                                          uint64_t wait_us,
+                                         bool gpu_timed,
+                                         uint64_t gpu_batch_ns,
+                                         uint64_t gpu_aux_ns,
+                                         uint64_t gpu_handoff_ns,
+                                         uint64_t gpu_main_ns,
                                          uint64_t staged_bytes,
                                          uint64_t submit_info_count,
                                          uint64_t command_buffer_count);
