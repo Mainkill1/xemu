@@ -80,3 +80,21 @@ branches available for A/B comparison rather than closing or deleting them.
 For the new work, also run `test-xbox-nv2a-ptimer`, verify report-query writes
 against the DMA object active at queue time, and compare Vulkan pipeline
 lookups plus draw-preparation CPU time on a texture-heavy saved-state capture.
+
+## Isolated NVIDIA-policy removal branch
+
+This branch differs from `Full-Speed` only by removing the automatic
+persistent NVIDIA maximum-performance PSTATE mutation. Compare
+`f3f99c9334` against `Full-Speed` at `111deac13f`; keep driver settings
+identical before every A/B run.
+
+Validate release and debug builds with the perf-lab XISO and fresh-boot retail
+tests. Confirm startup does not change the user's NVIDIA PSTATE policy, does
+not prevent unrelated supported profile settings from being saved, and
+remains harmless when NVAPI or its optional settings are unavailable.
+
+GPU power policy may still be documented as a manual test control, but an
+emulator-owned persistent change requires explicit consent and reliable
+rollback. Report any performance delta instead of discarding it, while keeping
+the driver state in the run manifest so it cannot be confused with an emulator
+code improvement.
