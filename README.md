@@ -47,8 +47,8 @@ they must keep their own confidence level and correctness evidence.
 | Unsafe host-load option removal | `fix/eng-2026-523-remove-unsafe-host-load-ube3040c6` (`4140a916fb`) | `Full-Speed` (`111deac13f`), legacy option disabled | Establish the safe baseline without global timer changes. |
 | Host-load feature replacement | `research/eng-2026-523-host-load-deadline-redesign-ufaef5c6e` (`676c7f3c84`) | Safe-removal branch (`4140a916fb`) | Preserve the valuable feature as a presentation-deadline-only opt-in design. |
 | NVIDIA persistent PSTATE policy | `fix/eng-2026-523-remove-nvidia-power-policy-u83f2a080` (`ede650cf47`) | `Full-Speed` (`111deac13f`) | Keep driver state outside implicit emulator startup behavior. |
-| Tiny-draw empty-TLB metadata access | `research/eng-2026-523-vk-tiny-draw-reuse-attribution-u42bc13ac` (`45fbf9e10c`) | Its immediate parent | Safety fix inside research history; extract again before performance promotion. |
-| Batched-submit dependencies | `fix/eng-2026-523-vk-batched-submit-safety-u70dcad5c` (`84975084de`) | Rejected batched branch at `d13650db` | Synchronization repair only; neutral/slower result remains rejected. |
+| Tiny-draw empty-TLB metadata access | `research/eng-2026-523-vk-tiny-draw-reuse-attribution-u42bc13ac` (`091dc945fd`; behavior `45fbf9e10c`) | Its behavior commit's immediate parent | Safety fix inside research history; extract again before performance promotion. |
+| Batched-submit dependencies | `fix/eng-2026-523-vk-batched-submit-safety-u70dcad5c` (`2991e35eea`; behavior `84975084de`) | Rejected batched branch at `d13650db` | Synchronization repair only; neutral/slower result remains rejected. |
 
 Telemetry semantics, each TCG/MMU optimization, vertex staging, texture
 pipeline classification, native BC output, uniform invalidation, and
