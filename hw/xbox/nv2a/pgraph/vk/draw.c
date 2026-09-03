@@ -1179,7 +1179,8 @@ static void sync_staging_buffer(PGRAPHState *pg, VkCommandBuffer cmd,
         break;
     case BUFFER_UNIFORM:
         dst_access_mask = VK_ACCESS_UNIFORM_READ_BIT;
-        dst_stage_mask = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+        /* The destination stores both vertex- and fragment-stage UBOs. */
+        dst_stage_mask = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
         break;
     default:
         assert(0);
@@ -1327,7 +1328,7 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
             .pCommandBuffers = command_buffers,
         };
         nv2a_profile_inc_counter(NV2A_PROF_QUEUE_SUBMIT);
-        vkResetFences(r->device, 1, &r->command_buffer_fence);
+        VK_CHECK(vkResetFences(r->device, 1, &r->command_buffer_fence));
         bool time_submit =
             pgraph_vk_perf_should_time_finish(r, finish_reason);
         int64_t submit_start = time_submit ?
