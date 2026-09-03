@@ -694,9 +694,13 @@ static bool check_pipeline_dirty(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
+    /*
+     * Texture image/sampler identity belongs to descriptor sets, not
+     * PipelineKey. Texture state that affects generated code is already part
+     * of ShaderState and is covered by shader_bindings_changed.
+     */
     if (!r->pipeline_binding || r->pipeline_binding->key.clear ||
-        r->shader_bindings_changed ||
-        r->texture_bindings_changed || check_render_pass_dirty(pg)) {
+        r->shader_bindings_changed || check_render_pass_dirty(pg)) {
         return true;
     }
 

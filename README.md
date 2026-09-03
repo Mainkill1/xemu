@@ -20,6 +20,9 @@ not replacements for their history.
 | `feature/eng-2026-523-tcg-x86-static-state-tb-lookup-u3121717e` | Included | Final stacked TCG/Vulkan rollup: reuses known x86 translation state, specializes dirty-memory paths, avoids redundant register clearing, stages texture uploads in the ordered draw stream, targets surface callbacks directly, and clears pipeline-change state after binding. |
 | `feature/eng-2026-523-vk-native-bc-on-vertex-staging-u8a09a4ea` | Included, conflict-resolved | Uploads supported BC1/BC2/BC3 textures in native Vulkan block-compressed formats rather than decoding them on the CPU; unsupported layouts retain the decoded fallback. It was merged onto the later ordered texture-upload path and includes BC layout unit coverage. |
 | `xemu-pr-staging: feature/eng-2026-336-stage-local-vulkan-uniforms-v3-uec89c153` | Included, conflict-resolved | Separates vertex- and pixel-shader uniform source generations so unchanged stages do not rewrite or re-upload their UBOs. It preserves exact float bit patterns, tracks effective polygon-offset inputs, and retains Full-Speed's existing VMState-compatible dirty-row handling. |
+| `fix/eng-2026-523-vk-report-dma-ownership` | Included | Captures the report DMA object when a GL, Vulkan, or null-renderer query is queued, preventing a later context switch from writing the completed report through the wrong DMA mapping. |
+| `feature/eng-2026-523-vk-texture-pipeline-fastpath-uaad84ed1` | Included | Keeps texture image/sampler changes on the descriptor path instead of forcing a Vulkan pipeline lookup; shader-affecting texture state still invalidates through `ShaderState`. The recorded Morrowind capture reduced pipeline lookups by 79.9%, and the fixed-work A/B comparison improved average throughput by 1.079%. |
+| `fix/eng-2026-523-nv2a-ptimer-overdue-catchup-u76925787` | Included | Coalesces missed runtime PTIMER alarm epochs into the next future alarm instead of repeatedly scheduling already-expired alarms. Includes a deterministic overdue-alarm unit test. |
 
 ## Reviewed research branches
 
@@ -34,6 +37,10 @@ change.
 | `research/eng-2026-523-sparse-uniform-layout-safe-u6299d05f` | Investigated safely skipping clean uniform rows; retained as research pending an independently validated landing. |
 | `research/eng-2026-523-tcg-tb-lookup-attribution-u065f47f7` | Collected indirect TB-lookup evidence that informed the later TCG fast paths. |
 | `research/eng-2026-523-vk-stalled-gpu-timestamps-uf1f85872` | Added diagnostic Vulkan timing experiments and records several reverted candidates; it is intentionally not used as a production rollup branch. |
+| `feature/eng-2026-523-vk-aux-submit-fence-u70f4e0ef` | Replaces a queue-wide idle wait with an auxiliary-command-buffer fence. It passed focused validation, but its recorded end-to-end A/B result was neutral to slightly slower; it remains a candidate, not a rollup change. |
+| `feature/eng-2026-523-vk-batched-aux-main-submit-u48cab4ee` | Batches the auxiliary and draw command buffers into one ordered submit. Its measured A/B result was neutral/slower, so it remains research. |
+| `research/eng-2026-523-vk-report-boundary-submit-u688e8e71` | Records report-boundary submission experiments and remains open pending a reproducible end-to-end improvement. |
+| `research/eng-2026-523-vk-tiny-draw-reuse-attribution-u42bc13ac` | Contains further tiny-draw and cache-attribution experiments; it is deliberately not merged wholesale. |
 
 ## Display controls
 
@@ -48,6 +55,11 @@ is automatic on supported Windows NVIDIA systems, and Vulkan telemetry remains
 opt-in through `XEMU_VK_PERF_LOG`, so neither adds a second UI control.
 The combined Vulkan telemetry record uses schema version 5, which includes
 both CPU-region and native-BC upload counters.
+
+The PTIMER validation branch identified a workload-specific regression when
+that opt-in CPU-reduction preference is enabled. It remains disabled by
+default; retain it as an opt-in control and revalidate it separately before
+claiming a general uncapped-performance benefit.
 
 ## Staging audit
 
@@ -65,3 +77,6 @@ the baseline. Compare guest-event median, p95, p99, and maximum duration;
 Vulkan finish/wait time; ordered texture-upload and vertex-staging counters;
 native-versus-decoded BC upload counters; and TCG CPU time. Keep the source
 branches available for A/B comparison rather than closing or deleting them.
+For the new work, also run `test-xbox-nv2a-ptimer`, verify report-query writes
+against the DMA object active at queue time, and compare Vulkan pipeline
+lookups plus draw-preparation CPU time on a texture-heavy saved-state capture.

@@ -146,7 +146,17 @@ static void ptimer_alarm_fired(void *opaque)
 
     if (is_alarm_reached(reg_now, d->ptimer.alarm_time)) {
         d->ptimer.pending_interrupts |= NV_PTIMER_INTR_0_ALARM;
-        d->ptimer.alarm_time = advance_alarm_epoch(d->ptimer.alarm_time);
+        /*
+         * The alarm register describes one low-32-bit position in every
+         * PTIMER epoch. If virtual time advanced across multiple epochs,
+         * coalesce the missed occurrences into the single hardware pending
+         * bit and schedule the next future occurrence directly. Advancing
+         * only one epoch leaves the timer immediately expired and can spin
+         * the main loop until it catches up one epoch at a time.
+         */
+        d->ptimer.alarm_time = next_alarm_time(
+            reg_now,
+            PTIMER_REG_TIME_GET_TIME_0(d->ptimer.alarm_time));
         nv2a_update_irq(d);
     }
 
