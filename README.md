@@ -72,6 +72,17 @@ SHA-256 of `xemu.exe`, `LICENSE.txt`, and the matching symbol artifacts.
 
 General project information is available at [xemu.app](https://xemu.app).
 
+## Report finish attribution and Vulkan result validation
+
+This correctness child resolves Forgejo issue #40. Vulkan GET_REPORT and the
+idle pending-report drain use a dedicated `REPORT` finish/profile reason rather
+than the generic `STALLED` bucket. Fence reset and query-result return values
+are checked before submission or result consumption.
+
+The synchronous report boundary is retained for correctness. Its cost must be
+reported separately in the later per-feature retail campaign; this commit does
+not claim that the wait is free or that it should be removed.
+
 ## Report DMA snapshot and bounds repair
 
 This correctness child resolves Forgejo issue #39. GL and Vulkan report queues
