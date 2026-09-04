@@ -76,7 +76,7 @@ void pgraph_vk_get_report(NV2AState *d, uint32_t parameter)
 
     QueryReport *report = g_malloc(sizeof(QueryReport)); // FIXME: Pre-allocate
     report->clear = false;
-    report->dma_report = pg->dma_report;
+    report->dma_report = nv_dma_load(d, pg->dma_report);
     report->parameter = parameter;
     report->query_count = r->num_queries_in_flight;
     QSIMPLEQ_INSERT_TAIL(&r->report_queue, report, entry);
@@ -137,7 +137,7 @@ void pgraph_vk_process_pending_reports_internal(NV2AState *d)
             r->zpass_pixel_count_result = 0;
         } else {
             pgraph_write_zpass_pixel_cnt_report(
-                d, report->dma_report, report->parameter,
+                d, &report->dma_report, report->parameter,
                 r->zpass_pixel_count_result / result_divisor);
         }
 

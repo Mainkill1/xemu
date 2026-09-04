@@ -35,6 +35,7 @@
 #include "vsh_regs.h"
 
 typedef struct NV2AState NV2AState;
+typedef struct DMAObject DMAObject;
 typedef struct PGRAPHNullState PGRAPHNullState;
 typedef struct PGRAPHGLState PGRAPHGLState;
 typedef struct PGRAPHVkState PGRAPHVkState;
@@ -414,7 +415,8 @@ static inline void pgraph_argb_pack32_to_rgba_float(uint32_t argb, float *rgba)
     rgba[3] = ((argb >> 24) & 0xFF) / 255.0f; /* alpha */
 }
 
-void pgraph_write_zpass_pixel_cnt_report(NV2AState *d, hwaddr dma_report,
+void pgraph_write_zpass_pixel_cnt_report(NV2AState *d,
+                                         const DMAObject *dma_report,
                                          uint32_t parameter, uint32_t result);
 
 #endif

@@ -71,3 +71,15 @@ source SHA, clean-tree result, container digest, full command, build log, and
 SHA-256 of `xemu.exe`, `LICENSE.txt`, and the matching symbol artifacts.
 
 General project information is available at [xemu.app](https://xemu.app).
+
+## Report DMA snapshot and bounds repair
+
+This correctness child resolves Forgejo issue #39. GL and Vulkan report queues
+now retain the resolved DMA descriptor at GET_REPORT time rather than only its
+mutable RAMIN address. Report publication validates the complete 16-byte record
+against the descriptor's inclusive limit and the final masked VRAM range using
+subtraction-based checks. Invalid guest ranges are rejected and logged instead
+of relying on assertions or writing beyond mapped VRAM.
+
+This branch adds no performance candidate. It must become part of the common
+correctness foundation before any per-feature A/B is release-valid.
