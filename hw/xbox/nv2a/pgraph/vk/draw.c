@@ -1234,7 +1234,6 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         sync_staging_buffer(pg, cmd, BUFFER_VERTEX_INLINE_STAGING,
                                 BUFFER_VERTEX_INLINE);
         sync_staging_buffer(pg, cmd, BUFFER_UNIFORM_STAGING, BUFFER_UNIFORM);
-        bitmap_clear(r->uploaded_bitmap, 0, r->bitmap_size);
         flush_memory_buffer(pg, cmd);
         VK_CHECK(vkEndCommandBuffer(r->aux_command_buffer));
         r->in_aux_command_buffer = false;
@@ -1280,6 +1279,7 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
 
         VK_CHECK(vkWaitForFences(r->device, 1, &r->command_buffer_fence,
                                  VK_TRUE, UINT64_MAX));
+        r->storage_buffers[BUFFER_VERTEX_RAM_STAGING].buffer_offset = 0;
 
         r->descriptor_set_index = 0;
         r->in_command_buffer = false;

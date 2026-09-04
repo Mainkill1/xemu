@@ -88,6 +88,7 @@ enum Buffer {
     BUFFER_INDEX,
     BUFFER_INDEX_STAGING,
     BUFFER_VERTEX_RAM,
+    BUFFER_VERTEX_RAM_STAGING,
     BUFFER_VERTEX_INLINE,
     BUFFER_VERTEX_INLINE_STAGING,
     BUFFER_UNIFORM,
@@ -375,8 +376,6 @@ typedef struct PGRAPHVkState {
 
     MemorySyncRequirement vertex_ram_buffer_syncs[NV2A_VERTEXSHADER_ATTRIBUTES];
     size_t num_vertex_ram_buffer_syncs;
-    unsigned long *uploaded_bitmap;
-    size_t bitmap_size;
 
     VkVertexInputAttributeDescription vertex_attribute_descriptions[NV2A_VERTEXSHADER_ATTRIBUTES];
     int vertex_attribute_to_description_location[NV2A_VERTEXSHADER_ATTRIBUTES];
@@ -473,6 +472,8 @@ void pgraph_vk_destroy_shader_module(PGRAPHVkState *r, ShaderModuleInfo *info);
 // buffer.c
 void pgraph_vk_init_buffers(NV2AState *d);
 void pgraph_vk_finalize_buffers(NV2AState *d);
+bool pgraph_vk_grow_vertex_ram_staging_buffer(PGRAPHState *pg,
+                                               VkDeviceSize required_size);
 bool pgraph_vk_buffer_has_space_for(PGRAPHState *pg, int index,
                                     VkDeviceSize size,
                                     VkDeviceAddress alignment);

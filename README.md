@@ -71,3 +71,18 @@ source SHA, clean-tree result, container digest, full command, build log, and
 SHA-256 of `xemu.exe`, `LICENSE.txt`, and the matching symbol artifacts.
 
 General project information is available at [xemu.app](https://xemu.app).
+
+## This candidate: ordered vertex staging
+
+This branch is the one-variable B for common foundation
+`60464efb92c9e39028cd825a43ba361ec59a9476`. It replaces repeated synchronous
+`VERTEX_BUFFER_DIRTY` finishes with command-buffer-ordered copies from a
+persistently mapped, bounded vertex staging allocation into the device-visible
+vertex buffer. Direct writes remain for idle/reset paths. If the staging range
+is exhausted, xemu completes the active submission before reuse; the allocation
+can grow only from 4/8 MiB to a hard 16 MiB cap.
+
+No wait telemetry, texture staging, submission batching, TCG change, or other
+performance candidate is included in the production delta. The same opt-in
+retail telemetry and live XISO marker overlay will be applied to A and B only
+for measurement.
