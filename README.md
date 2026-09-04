@@ -50,8 +50,13 @@ The initial controlled A/B used the same batched-submit candidate and changed
 only this boundary behavior.  The unfixed executable failed
 `report_query.clear_boundary` in 3/3 Release runs.  The repaired executable
 passed the complete 147-record XISO catalog in 3/3 Release and 3/3 Debug runs.
-Those runs prove the change on that stressed candidate; this clean branch still
-requires its own exact-head Release and Debug gate before publication.
+The clean branch was then tested through the opt-in marker-only overlay
+`717250bf0171e3a8074a3a2e6d7dda341fb05aa7`: all 147 records passed in 3/3
+Release and 3/3 Debug runs, with no guest failure or unexpected marker.  The
+Release and Debug executable SHA-256 values were respectively
+`b38e0e58c654bc58c89893ae163e0a68b05d7aafd343c78c03192b0fe59f9e36`
+and `882166f0eca25abc2da38faa399489932e1008a05bbd5e6edc808d728e464bfd`.
+The overlay is test infrastructure and is not part of this production branch.
 
 ### Build policy by branch type
 
