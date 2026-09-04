@@ -72,6 +72,29 @@ this step.  It must pass its own Release and Debug XISO gate before the next
 correctness repair is stacked on it.  The old opt-in host-load option remains
 disabled and is removed in a later, separately tested step.
 
+Validation completed against production commit
+`dd3b90b107cbada76e9bbd8db2637c3086fd28e7` through the marker-only test
+overlay `fe1baa953c2b52bb9c16d263be2c445fa566e061`.  The complete 147-record
+catalog passed in 3/3 Release and 3/3 Debug runs, with every process returning
+zero and every suite summary reporting `PASSED`.  The Release executable
+SHA-256 is
+`c98a54f7df8d9532f2b81424d4afb601b7fe5ccda8e48bddce63ce169ac3c26a`;
+the Debug executable SHA-256 is
+`94ec6a2148ba5e88373aea606549fb4e3e9e3ce6139ea10d1914ab1cfbc4757e`.
+The guest ISO and catalog SHA-256 values are respectively
+`1df5f10c49c106ef073e9446916d0e7858665e60fcbcb578d630fa83ea271263`
+and `027065948624d6aafdbe557bed8123eb6dcaa83353cf242c71d030a109b64578`.
+
+The retained Windows campaigns are:
+
+```text
+C:\xemu-lab\runs\campaign-foundation-nvidia-removal-release-xiso3-20260903-222000
+C:\xemu-lab\runs\campaign-foundation-nvidia-removal-debug-xiso3-20260903-222552
+```
+
+The overlay exists solely to obtain fail-fast guest markers and is not part of
+this production branch.
+
 ### Build policy by branch type
 
 The rows above are source-history and review boundaries, not different compiler
