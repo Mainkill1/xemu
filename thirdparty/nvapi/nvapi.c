@@ -142,8 +142,14 @@ bool nvapi_setup_profile(NvApiProfileOpts opts)
         NVDRS_SETTING old_pstate = {
             .version = NVDRS_SETTING_VER,
         };
-        if (!NvAPI_DRS_GetSetting(session, profile, PREFERRED_PSTATE_ID,
-                                  &old_pstate) &&
+        int status = NvAPI_DRS_GetSetting(session, profile,
+                                          PREFERRED_PSTATE_ID, &old_pstate);
+        if (status != NVAPI_OK && status != NVAPI_SETTING_NOT_FOUND) {
+            LOG("NvAPI_DRS_GetSetting for settingId %x failed with status %d",
+                PREFERRED_PSTATE_ID, status);
+            goto cleanup;
+        }
+        if (status == NVAPI_OK &&
             old_pstate.settingLocation == NVDRS_CURRENT_PROFILE_LOCATION &&
             old_pstate.settingType == NVDRS_DWORD_TYPE &&
             old_pstate.u32CurrentValue == PREFERRED_PSTATE_PREFER_MAX) {

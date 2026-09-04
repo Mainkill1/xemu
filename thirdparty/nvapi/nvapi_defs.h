@@ -51,6 +51,11 @@ typedef uint32_t NvU32;
 typedef uint16_t NvU16;
 typedef uint8_t NvU8;
 
+enum NvApiStatus {
+    NVAPI_OK = 0,
+    NVAPI_SETTING_NOT_FOUND = -160,
+};
+
 #define MAKE_NVAPI_VERSION(typeName,ver) (NvU32)(sizeof(typeName) | ((ver)<<16))
 
 #define NV_DECLARE_HANDLE(name) struct name##__ { int unused; }; typedef struct name##__ *name
