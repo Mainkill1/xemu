@@ -58,6 +58,108 @@ Each release and debug package must retain its exact source SHA, branch name,
 container digest, build command, build log, executable hash, and test result.
 Do not use a combined result to mark an individual branch passed.
 
+## Reproducing the Windows build matrix
+
+The 2026-09-03 matrix was built on an x86-64 Linux host with 32 build jobs.
+Every row above was checked out at its exact commit in a separate clean Git
+worktree, followed by:
+
+```bash
+git submodule update --init --recursive
+test -z "$(git status --porcelain=v1)"
+```
+
+The build used xemu's public Windows cross-toolchain image from the xemu GitHub
+Container Registry, pinned by digest rather than a moving tag:
+
+```text
+ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2
+```
+
+That image supplies the GCC 16.1/MXE static Windows toolchain. Docker or a
+compatible OCI runtime obtains it directly from `ghcr.io`; no private compiler
+is required. The lab installed `curl` inside the ephemeral container because
+the pinned image does not include it and xemu's DSP fallback downloads a
+versioned input while configuring.
+
+### Release/full-LTO command
+
+Run this from the clean source root. The cache changes build time only and is
+not source input:
+
+```bash
+mkdir -p .build-cache/ccache .build-cache/lto
+
+docker run --rm \
+  -e CROSSPREFIX=x86_64-w64-mingw32.static- \
+  -e CROSSAR=x86_64-w64-mingw32.static-gcc-ar \
+  -e CCACHE_DIR=/xemu-cache/ccache \
+  -e CCACHE_MAXSIZE=512M \
+  -e LTO_CACHE_DIR=/xemu-cache/lto \
+  -e BUILD_JOBS=32 \
+  -v "$PWD:/src" \
+  -v "$PWD/.build-cache:/xemu-cache" \
+  -w /src \
+  ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2 \
+  bash -lc 'apt-get update && apt-get install -qy curl && \
+    ./build.sh -j"$BUILD_JOBS" -p win64-cross \
+      --extra-cflags="-flto-incremental=$LTO_CACHE_DIR -flto-partition=cache" \
+      -Db_lto=true -Dx86_version=3'
+```
+
+Use `x86_64-w64-mingw32.static-gcc-ar` exactly as shown. Plain `ar` does not
+carry the GCC LTO plugin and caused unresolved LTO symbols in earlier lab
+attempts.
+
+### Debug/assertion command
+
+Use a separate clean checkout or worktree and the same pinned image:
+
+```bash
+mkdir -p .build-cache/ccache
+
+docker run --rm \
+  -e CROSSPREFIX=x86_64-w64-mingw32.static- \
+  -e CROSSAR=x86_64-w64-mingw32.static-gcc-ar \
+  -e CCACHE_DIR=/xemu-cache/ccache \
+  -e CCACHE_MAXSIZE=512M \
+  -e BUILD_JOBS=32 \
+  -v "$PWD:/src" \
+  -v "$PWD/.build-cache:/xemu-cache" \
+  -w /src \
+  ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2 \
+  bash -lc 'apt-get update && apt-get install -qy curl && \
+    ./build.sh --debug -j"$BUILD_JOBS" -p win64-cross \
+      -Db_lto=false -Dx86_version=3'
+```
+
+The release build follows xemu's normal `build.sh -p win64-cross` route but
+adds the lab's explicit x86-64-v3 target and incremental full-LTO cache. The
+debug matrix follows xemu's `--debug` route and explicitly records LTO as off.
+Release and debug timings are compared only with the same build flavor.
+
+`build.sh` produces `dist/xemu.exe` and `dist/LICENSE.txt`. The exact matrix
+executables retain DWARF sections. For Windows PDB generation, use public
+`cv2pdb` 0.52 from
+`https://github.com/rainers/cv2pdb/releases/download/v0.52/cv2pdb-0.52.zip`;
+the lab's `cv2pdb64.exe` SHA-256 is
+`93b9033f24a9d671544c885bea29f825920199fb929cff9f1ae877b141f49184`.
+Keep a copy of the pre-conversion executable as `xemu-dwarf.exe`, and never
+resolve an address with a PDB or DWARF image from another executable.
+
+Package hashes must be written with relative names so that they verify after
+transfer:
+
+```bash
+(cd package && sha256sum xemu.exe LICENSE.txt build.log build-info.txt \
+  > SHA256SUMS.txt)
+```
+
+The matrix source bundle used by the lab has SHA-256
+`29622888208379d53f794ae7420c2ed88e98335395eeaf8a5cda9d249178bb88`.
+It is retained as build evidence; an independent builder may instead fetch the
+documented branches and check out the exact commits above.
+
 ## Reviewed research branches
 
 These branches remain open and are recorded here for traceability. They were
