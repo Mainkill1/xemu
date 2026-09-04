@@ -85,7 +85,8 @@ not claim that the wait is free or that it should be removed.
 
 ## Report DMA snapshot and bounds repair
 
-This correctness child resolves Forgejo issue #39. GL and Vulkan report queues
+This correctness child addresses the two original blockers in Forgejo issue
+#39. GL and Vulkan report queues
 now retain the resolved DMA descriptor at GET_REPORT time rather than only its
 mutable RAMIN address. Report publication validates the complete 16-byte record
 against the descriptor's inclusive limit and the final masked VRAM range using
@@ -93,7 +94,10 @@ subtraction-based checks. Invalid guest ranges are rejected and logged instead
 of relying on assertions or writing beyond mapped VRAM.
 
 This branch adds no performance candidate. It must become part of the common
-correctness foundation before any per-feature A/B is release-valid.
+correctness foundation before any per-feature A/B is release-valid. Release
+promotion also requires a checked complete RAMIN descriptor load and explicit
+DMA class/target validation; those remaining hardening gates stay tracked on
+issue #39.
 
 ## NVIDIA preferred-P-state migration
 
@@ -107,3 +111,24 @@ The migration version is saved to `xemu.toml` only after the NVIDIA profile
 transaction succeeds. Later user changes are therefore left alone on normal
 startup. Launching with NVIDIA profile setup disabled performs no migration or
 other driver-profile writes.
+
+`NvAPI_DRS_GetSetting` has three explicit outcomes. Success inspects the
+current-profile value, official `NVAPI_SETTING_NOT_FOUND` (`-160`) confirms
+that no migration is needed, and every other status aborts the transaction so
+version 1 is not consumed and the next launch retries. This closes the
+failure-path defect found during external branch review.
+
+Exact commit `cab67c70daf2141a7657565036fe026cd9f551d1` builds cleanly with
+the pinned GCC 16.1/MXE commands above. Artifact SHA-256 values are:
+
+```text
+Release  986e87224f5ce4b675d4f8cf96a0382e536629afb1524fc484b406eacd6fd1b4
+Debug    ed21a9b198e4dffaa3348cc5da768c3c190f3da1d884e3d73fcc4d2a081a4733
+```
+
+Both builds passed injected-host failure tests on Windows 10.0.7.1: status
+`-1` logged the query failure and preserved migration version 0, while status
+`-160` saved the profile and migration version 1. The complete 149-record XISO
+gate is not claimed here because the shared correctness foundation currently
+hits decoded-BC2 device-loss issue #42; this branch remains focused-validated
+and globally release-blocked until that common defect is repaired.
