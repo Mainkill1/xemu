@@ -21,8 +21,8 @@
 
 #include <math.h>
 
-#include "qemu/log.h"
 #include "hw/xbox/nv2a/nv2a_int.h"
+#include "qemu/log.h"
 #include "ui/xemu-notifications.h"
 #include "ui/xemu-settings.h"
 #include "util.h"
