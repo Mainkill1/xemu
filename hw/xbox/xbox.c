@@ -278,8 +278,16 @@ static bool xemu_perf_event_receive_byte(uint8_t value)
         return false;
     }
 
+    /* A new preamble safely restarts a truncated nibble-encoded frame. */
+    if (value == XEMU_PERF_EVENT_PREAMBLE) {
+        receiver->byte_count = 0;
+        receiver->have_high_nibble = false;
+        return true;
+    }
+
     if (value < XEMU_PERF_EVENT_NIBBLE_BASE ||
         value >= XEMU_PERF_EVENT_NIBBLE_BASE + 16) {
+        xemu_perf_event_append_protocol_error("invalid_encoding");
         xemu_perf_event_reset();
         return false;
     }
