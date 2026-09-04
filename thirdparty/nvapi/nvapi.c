@@ -138,6 +138,25 @@ bool nvapi_setup_profile(NvApiProfileOpts opts)
         LOG("Added application to profile");
     }
 
+    if (opts.migrate_preferred_pstate) {
+        NVDRS_SETTING old_pstate = {
+            .version = NVDRS_SETTING_VER,
+        };
+        if (!NvAPI_DRS_GetSetting(session, profile, PREFERRED_PSTATE_ID,
+                                  &old_pstate) &&
+            old_pstate.settingLocation == NVDRS_CURRENT_PROFILE_LOCATION &&
+            old_pstate.settingType == NVDRS_DWORD_TYPE &&
+            old_pstate.u32CurrentValue == PREFERRED_PSTATE_PREFER_MAX) {
+            if (NvAPI_DRS_DeleteProfileSetting(session, profile,
+                                               PREFERRED_PSTATE_ID)) {
+                LOG("NvAPI_DRS_DeleteProfileSetting for settingId %x failed",
+                    PREFERRED_PSTATE_ID);
+                goto cleanup;
+            }
+            LOG("Removed legacy preferred P-state override");
+        }
+    }
+
     NVDRS_SETTING setting = {
         .version = NVDRS_SETTING_VER,
         .settingId = OGL_THREAD_CONTROL_ID,

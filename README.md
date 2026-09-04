@@ -24,7 +24,7 @@ part of this production branch and does not alter normal emulator behavior.
 The foundation and every isolated candidate use the same test inputs and xemu
 configuration:
 
-1. Full 147-record perf-lab XISO, including normal 10-second splash/autostart,
+1. Full 149-record perf-lab XISO, including normal 10-second splash/autostart,
    three independent Release runs and three independent Debug runs.
 2. Morrowind heavy snapshot, one 60-second Release run and one 60-second Debug
    run.
@@ -94,3 +94,16 @@ of relying on assertions or writing beyond mapped VRAM.
 
 This branch adds no performance candidate. It must become part of the common
 correctness foundation before any per-feature A/B is release-valid.
+
+## NVIDIA preferred-P-state migration
+
+This correctness child resolves Forgejo issue #41. The Windows NVIDIA profile
+setup performs a versioned, one-time migration. It queries the xemu profile's
+legacy preferred-P-state setting and deletes it only when the value is the
+previously forced `Prefer maximum performance` value and the setting is owned
+by the current xemu profile. Inherited global/default policy is not changed.
+
+The migration version is saved to `xemu.toml` only after the NVIDIA profile
+transaction succeeds. Later user changes are therefore left alone on normal
+startup. Launching with NVIDIA profile setup disabled performs no migration or
+other driver-profile writes.
