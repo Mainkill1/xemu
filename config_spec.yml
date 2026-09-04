@@ -307,6 +307,9 @@ display:
   setup_nvidia_profile:
     type: bool
     default: true
+  nvidia_profile_migration_version:
+    type: integer
+    default: 0
 
 audio:
   vp:

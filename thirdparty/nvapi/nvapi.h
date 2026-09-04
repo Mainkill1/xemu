@@ -40,6 +40,7 @@ typedef struct NvApiProfileOpts {
     const wchar_t *executable_name;
     bool threaded_optimization;
     enum EValues_OGL_CPL_PREFER_DXPRESENT present_method;
+    bool migrate_preferred_pstate;
 } NvApiProfileOpts;
 
 bool nvapi_init(void);

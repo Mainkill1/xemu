@@ -1243,6 +1243,7 @@ static const wchar_t *get_executable_name(void)
 
 static void setup_nvidia_profile(void)
 {
+    static const int kNvidiaProfileMigrationVersion = 1;
     const wchar_t *exe_name = get_executable_name();
     if (exe_name == NULL) {
         fprintf(stderr, "Failed to get current executable name\n");
@@ -1250,13 +1251,22 @@ static void setup_nvidia_profile(void)
     }
 
     if (nvapi_init()) {
-        nvapi_setup_profile((NvApiProfileOpts){
+        bool migrate_preferred_pstate =
+            g_config.display.nvidia_profile_migration_version <
+            kNvidiaProfileMigrationVersion;
+        bool profile_saved = nvapi_setup_profile((NvApiProfileOpts){
             .profile_name = L"xemu",
             .executable_name = exe_name,
             .threaded_optimization = false,
             .present_method = OGL_CPL_PREFER_DXPRESENT_PREFER_DISABLED,
+            .migrate_preferred_pstate = migrate_preferred_pstate,
         });
         nvapi_finalize();
+        if (profile_saved && migrate_preferred_pstate) {
+            g_config.display.nvidia_profile_migration_version =
+                kNvidiaProfileMigrationVersion;
+            xemu_settings_save();
+        }
     }
 }
 #endif

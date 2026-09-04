@@ -33,6 +33,11 @@
 enum ESetting {
     OGL_THREAD_CONTROL_ID = 0x20C1221E,
     OGL_CPL_PREFER_DXPRESENT_ID = 0x20D690F8,
+    PREFERRED_PSTATE_ID = 0x1057EB71,
+};
+
+enum EValues_PREFERRED_PSTATE {
+    PREFERRED_PSTATE_PREFER_MAX = 0x00000001,
 };
 
 enum EValues_OGL_THREAD_CONTROL {
@@ -221,8 +226,10 @@ typedef NVDRS_PROFILE_V1         NVDRS_PROFILE;
     FUNC(NvAPI_DRS_DestroySession, 0xDAD9CFF8)     \
     FUNC(NvAPI_DRS_FindProfileByName, 0x7E4A9A0B)  \
     FUNC(NvAPI_DRS_GetApplicationInfo, 0xED1F8C69) \
+    FUNC(NvAPI_DRS_GetSetting, 0x73BF8338)         \
     FUNC(NvAPI_DRS_LoadSettings, 0x375DBD6B)       \
     FUNC(NvAPI_DRS_SaveSettings, 0xFCBC7E14)       \
+    FUNC(NvAPI_DRS_DeleteProfileSetting, 0xE4A26362) \
     FUNC(NvAPI_DRS_SetSetting, 0x577DD202)         \
     FUNC(NvAPI_Initialize, 0x0150E828)             \
     FUNC(NvAPI_Unload, 0xD22BDD7E)
@@ -233,8 +240,10 @@ typedef int(__cdecl *NvAPI_DRS_CreateSession_t)(NvDRSSessionHandle *);
 typedef int(__cdecl *NvAPI_DRS_DestroySession_t)(NvDRSSessionHandle);
 typedef int(__cdecl *NvAPI_DRS_FindProfileByName_t)(NvDRSSessionHandle, NvAPI_UnicodeString, NvDRSProfileHandle *);
 typedef int(__cdecl *NvAPI_DRS_GetApplicationInfo_t)(NvDRSSessionHandle, NvDRSProfileHandle, NvAPI_UnicodeString, NVDRS_APPLICATION *);
+typedef int(__cdecl *NvAPI_DRS_GetSetting_t)(NvDRSSessionHandle, NvDRSProfileHandle, NvU32, NVDRS_SETTING *);
 typedef int(__cdecl *NvAPI_DRS_LoadSettings_t)(NvDRSSessionHandle);
 typedef int(__cdecl *NvAPI_DRS_SaveSettings_t)(NvDRSSessionHandle);
+typedef int(__cdecl *NvAPI_DRS_DeleteProfileSetting_t)(NvDRSSessionHandle, NvDRSProfileHandle, NvU32);
 typedef int(__cdecl *NvAPI_DRS_SetSetting_t)(NvDRSSessionHandle, NvDRSProfileHandle, NVDRS_SETTING *);
 typedef int(__cdecl *NvAPI_Initialize_t)(void);
 typedef int(__cdecl *NvAPI_Unload_t)(void);
