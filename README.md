@@ -22,6 +22,37 @@ not replacements for their history.
 | `xemu-pr-staging: feature/eng-2026-336-stage-local-vulkan-uniforms-v3-uec89c153` | Included, conflict-resolved | Separates vertex- and pixel-shader uniform source generations so unchanged stages do not rewrite or re-upload their UBOs. It preserves exact float bit patterns, tracks effective polygon-offset inputs, and retains Full-Speed's existing VMState-compatible dirty-row handling. |
 | `fix/eng-2026-523-vk-report-dma-ownership` | Included on this branch | Captures the active DMA report context when `GET_REPORT` is queued, so delayed Vulkan report publication cannot be redirected by a later context switch. |
 
+## This branch: guest-visible Vulkan report boundary
+
+`fix/eng-2026-523-vk-report-visible-boundary-ud54b59a7` is a correctness-only
+child of the report-DMA branch at `16a555238a1f7d3adffa9cbd4c369550c1d5e934`.
+It adds no texture-pipeline or batched-submit performance work.  Vulkan now
+submits and resolves the query prefix when the guest issues `GET_REPORT`, so a
+later clear cannot be appended ahead of publication of the earlier report.
+The finish remains synchronous and the queued report continues to own the DMA
+target captured by its parent branch.
+
+This is the second step in the cumulative correctness foundation:
+
+```text
+16a55523  report DMA ownership
+    + this branch: guest-visible report boundary
+        + later independently validated correctness repairs
+            + one isolated performance candidate per child branch
+```
+
+Performance branches must all start from the same final correctness-foundation
+SHA.  A performance branch carries only its own candidate delta; it must not
+inherit another performance candidate.  The combined `Full-Speed` branch is
+tested only after the isolated children.
+
+The initial controlled A/B used the same batched-submit candidate and changed
+only this boundary behavior.  The unfixed executable failed
+`report_query.clear_boundary` in 3/3 Release runs.  The repaired executable
+passed the complete 147-record XISO catalog in 3/3 Release and 3/3 Debug runs.
+Those runs prove the change on that stressed candidate; this clean branch still
+requires its own exact-head Release and Debug gate before publication.
+
 ### Build policy by branch type
 
 The rows above are source-history and review boundaries, not different compiler
