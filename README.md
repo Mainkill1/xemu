@@ -95,6 +95,46 @@ C:\xemu-lab\runs\campaign-foundation-nvidia-removal-debug-xiso3-20260903-222552
 The overlay exists solely to obtain fail-fast guest markers and is not part of
 this production branch.
 
+## This cumulative step: remove unsafe host-load timing control
+
+`fix/eng-2026-523-foundation-remove-unsafe-host-load-u7f1ff143` is a
+correctness/safety-only child of the validated NVIDIA-policy-removal branch at
+`54c4327d691157ffcbd10273ec9b657942f70faa`. It removes the broken
+`display.window.reduce_host_cpu_usage` configuration field and menu item, the
+uncapped-presentation `SDL_DelayPrecise` call, and the process-wide switch that
+disabled QEMU's short-deadline timer busy wait. The normal timer path is
+restored unconditionally.
+
+This does not discard the measured host-load opportunity. The replacement is
+tracked separately as an explicit presentation-deadline/event-based design;
+it must not return as a blind fixed sleep or a global reduction in timer
+precision. This branch adds no performance candidate and must pass its own
+Release and Debug XISO gates before it becomes the final common correctness
+parent for isolated performance branches.
+
+Validation completed against production commit
+`98a16c2ca429bf986de51cc3b2834b93350351c7` through the marker-only test
+overlay `d8ed940b6fadb342be9a961b05dfefb385e0b744`. The complete 147-record
+catalog passed in 3/3 Release and 3/3 Debug runs, with every process returning
+zero and every suite summary reporting `PASSED`. The Release executable
+SHA-256 is
+`0634d4b43b33d5f4f2f22fa49d78f371c75ef5b88175d87ad101b81a1725aad1`;
+the Debug executable SHA-256 is
+`e2e7883884117e1cd13dd2d0ca8a7ac8c63b95a67ee61ac93dbdd537b448ace4`.
+The guest ISO and catalog SHA-256 values are respectively
+`1df5f10c49c106ef073e9446916d0e7858665e60fcbcb578d630fa83ea271263`
+and `027065948624d6aafdbe557bed8123eb6dcaa83353cf242c71d030a109b64578`.
+
+The retained Windows campaigns are:
+
+```text
+C:\xemu-lab\runs\campaign-foundation-host-load-removal-release-xiso3-20260903-230049
+C:\xemu-lab\runs\campaign-foundation-host-load-removal-debug-xiso3-20260903-230643
+```
+
+The overlay exists solely to obtain fail-fast guest markers and is not part of
+this production branch.
+
 ### Build policy by branch type
 
 The rows above are source-history and review boundaries, not different compiler
