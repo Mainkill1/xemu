@@ -51,7 +51,7 @@ static void process_pending_report(NV2AState *d, QueryReport *report)
         g_free(report->queries);
     }
 
-    pgraph_write_zpass_pixel_cnt_report(d, report->dma_report,
+    pgraph_write_zpass_pixel_cnt_report(d, &report->dma_report,
                                         report->parameter,
                                         r->zpass_pixel_count_result);
 }
@@ -103,7 +103,7 @@ void pgraph_gl_get_report(NV2AState *d, uint32_t parameter)
 
     QueryReport *report = g_malloc(sizeof(QueryReport));
     report->clear = false;
-    report->dma_report = pg->dma_report;
+    report->dma_report = nv_dma_load(d, pg->dma_report);
     report->parameter = parameter;
     report->query_count = r->gl_zpass_pixel_count_query_count;
     report->queries = r->gl_zpass_pixel_count_queries;
