@@ -24,6 +24,11 @@
 
 #include <stdint.h>
 
+#define XEMU_PERF_MARKER_IO_PORT 0xE9
+#define XEMU_PERF_MARKER_READBACK 0x58
+#define XEMU_PERF_MARKER_MEASURE_BEGIN 0xF0
+#define XEMU_PERF_MARKER_MEASURE_END 0xF1
+
 #define NV2A_XPRINTF(x, ...) do { \
     if (x) { \
         fprintf(stderr, "nv2a: " __VA_ARGS__); \
