@@ -101,6 +101,12 @@ issue #39.
 
 ## NVIDIA preferred-P-state migration
 
+> **Disabled for the performance project.** This dedicated lane is retained
+> only as an archived engineering record. Do not schedule it, include it in a
+> performance A/B, or integrate it into Full-Speed. The lab always sets
+> `display.setup_nvidia_profile = false`, so xemu must not create, update,
+> migrate, or delete NVIDIA profiles during testing.
+
 This correctness child resolves Forgejo issue #41. The Windows NVIDIA profile
 setup performs a versioned, one-time migration. It queries the xemu profile's
 legacy preferred-P-state setting and deletes it only when the value is the
