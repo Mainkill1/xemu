@@ -58,6 +58,20 @@ Release and Debug executable SHA-256 values were respectively
 and `882166f0eca25abc2da38faa399489932e1008a05bbd5e6edc808d728e464bfd`.
 The overlay is test infrastructure and is not part of this production branch.
 
+## This cumulative step: remove persistent NVIDIA policy mutation
+
+`fix/eng-2026-523-foundation-remove-nvidia-policy-u97e94552` is a
+correctness/safety-only child of the validated report foundation at
+`0d81ec5bbf440f1d6e7c336fb2973dc6e4e982a1`.  It removes xemu's automatic
+NVAPI write of `PREFERRED_PSTATE_ID=Prefer Maximum Performance`.  Launching a
+test build must not persistently change the host's driver profile; GPU power
+policy remains under the operator's control.
+
+No renderer algorithm, guest timing path, or performance candidate is added by
+this step.  It must pass its own Release and Debug XISO gate before the next
+correctness repair is stacked on it.  The old opt-in host-load option remains
+disabled and is removed in a later, separately tested step.
+
 ### Build policy by branch type
 
 The rows above are source-history and review boundaries, not different compiler
