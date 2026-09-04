@@ -326,3 +326,18 @@ the baseline. Compare guest-event median, p95, p99, and maximum duration;
 Vulkan finish/wait time; ordered texture-upload and vertex-staging counters;
 native-versus-decoded BC upload counters; and TCG CPU time. Keep the source
 branches available for A/B comparison rather than closing or deleting them.
+
+## ENG-2026-523 XISO live-marker test harness
+
+This test overlay adds an opt-in guest-event receiver used only by the
+performance lab. It is inactive unless both `XEMU_PERF_GUEST_MARKERS=1` and a
+non-empty `XEMU_PERF_LIVE_MARKER_PATH` are present. When enabled, I/O port
+`0xE9` advertises marker protocol support, writes F0/F1 measurement boundaries,
+and decodes the version-1 framed CONTEXT, HEARTBEAT, FAIL, and PASS events
+expected by `xemu-perf-lab`.
+
+The overlay does not add renderer telemetry, queue waits, GPU-completion calls,
+or production settings. Apply the same harness commit to both sides of every
+matched A/B test so it cannot be mistaken for the feature under test. Release
+and Debug builds use the same pinned commands and compiler matrix documented
+above; this overlay changes no build flags.
