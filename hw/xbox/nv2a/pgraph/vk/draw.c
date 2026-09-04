@@ -1279,6 +1279,7 @@ const enum NV2A_PROF_COUNTERS_ENUM finish_reason_to_counter_enum[] = {
     [VK_FINISH_REASON_PRESENTING] = NV2A_PROF_FINISH_PRESENTING,
     [VK_FINISH_REASON_FLIP_STALL] = NV2A_PROF_FINISH_FLIP_STALL,
     [VK_FINISH_REASON_FLUSH] = NV2A_PROF_FINISH_FLUSH,
+    [VK_FINISH_REASON_REPORT] = NV2A_PROF_FINISH_REPORT,
     [VK_FINISH_REASON_STALLED] = NV2A_PROF_FINISH_STALLED,
     [VK_FINISH_REASON_TEXTURE_DIRTY] = NV2A_PROF_FINISH_TEXTURE_DIRTY,
 };
@@ -1340,7 +1341,7 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
             }
         };
         nv2a_profile_inc_counter(NV2A_PROF_QUEUE_SUBMIT);
-        vkResetFences(r->device, 1, &r->command_buffer_fence);
+        VK_CHECK(vkResetFences(r->device, 1, &r->command_buffer_fence));
         bool time_submit =
             pgraph_vk_perf_should_time_finish(r, finish_reason);
         int64_t submit_start = time_submit ?

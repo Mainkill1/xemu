@@ -25,6 +25,7 @@ static const char *finish_reason_names[VK_FINISH_REASON_COUNT] = {
     [VK_FINISH_REASON_PRESENTING] = "presenting",
     [VK_FINISH_REASON_FLIP_STALL] = "flip_stall",
     [VK_FINISH_REASON_FLUSH] = "flush",
+    [VK_FINISH_REASON_REPORT] = "report",
     [VK_FINISH_REASON_STALLED] = "stalled",
     [VK_FINISH_REASON_TEXTURE_DIRTY] = "texture_dirty",
 };

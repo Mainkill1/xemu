@@ -82,6 +82,14 @@ void pgraph_vk_get_report(NV2AState *d, uint32_t parameter)
     QSIMPLEQ_INSERT_TAIL(&r->report_queue, report, entry);
 
     r->new_query_needed = true;
+
+    /*
+     * GET_REPORT is a guest-visible completion boundary. Submit and resolve
+     * the query prefix here instead of allowing the PFIFO pusher to append
+     * unrelated later work before its idle-time report drain. The finish is
+     * still synchronous, so report ordering and DMA visibility are unchanged.
+     */
+    pgraph_vk_finish(pg, VK_FINISH_REASON_REPORT);
 }
 
 void pgraph_vk_process_pending_reports_internal(NV2AState *d)
@@ -107,6 +115,7 @@ void pgraph_vk_process_pending_reports_internal(NV2AState *d)
                 size_of_results, query_results, sizeof(uint64_t),
                 VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT);
         } while (result == VK_NOT_READY);
+        VK_CHECK(result);
     }
 
     // Write out queries
@@ -156,6 +165,6 @@ void pgraph_vk_process_pending_reports(NV2AState *d)
 
     if (*dma_get == *dma_put && r->in_command_buffer &&
         !QSIMPLEQ_EMPTY(&r->report_queue)) {
-        pgraph_vk_finish(pg, VK_FINISH_REASON_STALLED);
+        pgraph_vk_finish(pg, VK_FINISH_REASON_REPORT);
     }
 }
