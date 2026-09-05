@@ -95,6 +95,8 @@ static void test_report_object_support(void)
     dma.dma_target = GET_MASK(NV_DMA_TARGET_NVM_TILED, NV_DMA_TARGET);
     g_assert_false(nv_dma_report_object_supported(&dma));
     dma.dma_target = GET_MASK(NV_DMA_TARGET_PCI, NV_DMA_TARGET);
+    g_assert_true(nv_dma_report_object_supported(&dma));
+    dma.dma_target = GET_MASK(NV_DMA_TARGET_AGP, NV_DMA_TARGET);
     g_assert_false(nv_dma_report_object_supported(&dma));
     dma.dma_target = GET_MASK(NV_DMA_TARGET_NVM, NV_DMA_TARGET);
 
@@ -132,6 +134,42 @@ static void test_report_record_bounds(void)
                                                 &address));
 }
 
+static void test_retail_pci_report_bounds(void)
+{
+    /* Exact class/target/base observed at Halo's frozen main menu. */
+    DMAObject dma = {
+        .dma_class = NV_DMA_IN_MEMORY_CLASS,
+        .dma_target = GET_MASK(NV_DMA_TARGET_PCI, NV_DMA_TARGET),
+        .address = 0,
+        .limit = 0x03ffffff,
+    };
+    hwaddr address = HWADDR_MAX;
+    const hwaddr ram_size = 64 * 1024 * 1024;
+
+    g_assert_true(nv_dma_report_record_address(
+        &dma, 0x100, 16, ram_size, &address));
+    g_assert_cmphex(address, ==, 0x100);
+    g_assert_true(nv_dma_report_record_address(
+        &dma, ram_size - 16, 16, ram_size, &address));
+    g_assert_cmphex(address, ==, ram_size - 16);
+
+    /* Accepting PCI must not relax either the DMA or the RAM end guard. */
+    address = HWADDR_MAX;
+    g_assert_false(nv_dma_report_record_address(
+        &dma, ram_size - 15, 16, ram_size, &address));
+    g_assert_cmphex(address, ==, HWADDR_MAX);
+    dma.limit = 0x10e;
+    g_assert_false(nv_dma_report_record_address(
+        &dma, 0x100, 16, ram_size, &address));
+    dma.limit = 0x03ffffff;
+    g_assert_false(nv_dma_report_record_address(
+        &dma, 0x100, 16, 0x10f, &address));
+    dma.address = 0x08000000;
+    g_assert_false(nv_dma_report_record_address(
+        &dma, 0, 16, ram_size, &address));
+    g_assert_cmphex(address, ==, HWADDR_MAX);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -144,6 +182,8 @@ int main(int argc, char **argv)
                     test_report_object_support);
     g_test_add_func("/xbox/nv2a/dma/report-record-bounds",
                     test_report_record_bounds);
+    g_test_add_func("/xbox/nv2a/dma/retail-pci-report-bounds",
+                    test_retail_pci_report_bounds);
 
     return g_test_run();
 }

@@ -64,8 +64,19 @@ DMAObject nv_dma_load(NV2AState *d, hwaddr dma_obj_address)
 
 bool nv_dma_report_object_supported(const DMAObject *dma)
 {
+    /*
+     * Retail titles also address Xbox unified RAM through PCI-target DMA
+     * objects (Halo uses class 0x3d, target PCI, base zero for reports).
+     * These use the same bounded RAM mapping as NVM. Rejecting PCI here
+     * drops the completion record and leaves the guest waiting forever.
+     * Keep tiled, AGP, unknown classes and out-of-range addresses rejected.
+     */
+    bool ram_target =
+        dma->dma_target == GET_MASK(NV_DMA_TARGET_NVM, NV_DMA_TARGET) ||
+        dma->dma_target == GET_MASK(NV_DMA_TARGET_PCI, NV_DMA_TARGET);
+
     return dma->dma_class == NV_DMA_IN_MEMORY_CLASS &&
-           dma->dma_target == GET_MASK(NV_DMA_TARGET_NVM, NV_DMA_TARGET) &&
+           ram_target &&
            (dma->address & ~NV2A_VRAM_ADDRESS_MASK) == 0;
 }
 
