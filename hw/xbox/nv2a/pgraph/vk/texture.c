@@ -27,6 +27,7 @@
 #include "hw/xbox/nv2a/pgraph/s3tc.h"
 #include "hw/xbox/nv2a/pgraph/swizzle.h"
 #include "qemu/fast-hash.h"
+#include "qemu/log.h"
 #include "qemu/lru.h"
 #include "renderer.h"
 
