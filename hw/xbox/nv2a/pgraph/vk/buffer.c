@@ -48,7 +48,8 @@ static const VkDeviceSize BUFFER_TEXTURE_STAGING_INITIAL_SIZE = 16 * MiB;
  * or 16 MiB, and never grow this dedicated per-submission storage past 16 MiB.
  */
 static const VkDeviceSize BUFFER_VERTEX_RAM_STAGING_DEFAULT_SIZE = 8 * MiB;
-static const VkDeviceSize BUFFER_VERTEX_RAM_STAGING_MAX_SIZE = 16 * MiB;
+static const VkDeviceSize BUFFER_VERTEX_RAM_STAGING_MAX_SIZE =
+    PGRAPH_VK_VERTEX_RAM_STAGING_MAX_SIZE;
 
 static VkDeviceSize vertex_ram_staging_initial_size(void)
 {
@@ -366,17 +367,13 @@ bool pgraph_vk_grow_vertex_ram_staging_buffer(PGRAPHState *pg,
     StorageBuffer *buffer =
         &r->storage_buffers[BUFFER_VERTEX_RAM_STAGING];
 
-    assert(!r->in_command_buffer);
-    assert(!r->in_aux_command_buffer);
-    if (required_size > BUFFER_VERTEX_RAM_STAGING_MAX_SIZE ||
-        buffer->buffer_size >= BUFFER_VERTEX_RAM_STAGING_MAX_SIZE) {
+    if (r->in_command_buffer || r->in_aux_command_buffer) {
         return false;
     }
 
-    VkDeviceSize new_size = MIN(buffer->buffer_size * 2,
-                                BUFFER_VERTEX_RAM_STAGING_MAX_SIZE);
-    new_size = MAX(new_size, required_size);
-    if (new_size > BUFFER_VERTEX_RAM_STAGING_MAX_SIZE) {
+    VkDeviceSize new_size;
+    if (!pgraph_vk_vertex_staging_growth_size(buffer->buffer_size,
+                                              required_size, &new_size)) {
         return false;
     }
 
@@ -390,13 +387,14 @@ VkDeviceSize pgraph_vk_buffer_required_size(PGRAPHState *pg, int index,
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     StorageBuffer *b = &r->storage_buffers[index];
-    VkDeviceSize aligned_offset;
+    VkDeviceSize start, end;
 
-    assert(alignment);
-    aligned_offset = ROUND_UP(b->buffer_offset, alignment);
-    assert(aligned_offset >= b->buffer_offset);
-    assert(size <= UINT64_MAX - aligned_offset);
-    return aligned_offset + size;
+    if (!pgraph_vk_vertex_staging_plan_append(
+            b->buffer_offset, &size, 1, UINT64_MAX, alignment, &start,
+            &end)) {
+        return VK_WHOLE_SIZE;
+    }
+    return end;
 }
 
 bool pgraph_vk_buffer_has_space_for(PGRAPHState *pg, int index,
@@ -405,8 +403,9 @@ bool pgraph_vk_buffer_has_space_for(PGRAPHState *pg, int index,
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     StorageBuffer *b = &r->storage_buffers[index];
-    return pgraph_vk_buffer_required_size(pg, index, size, alignment) <=
-           b->buffer_size;
+    VkDeviceSize start, end;
+    return pgraph_vk_vertex_staging_plan_append(
+        b->buffer_offset, &size, 1, b->buffer_size, alignment, &start, &end);
 }
 
 VkDeviceSize pgraph_vk_append_to_buffer(PGRAPHState *pg, int index, void **data,
@@ -414,23 +413,32 @@ VkDeviceSize pgraph_vk_append_to_buffer(PGRAPHState *pg, int index, void **data,
                                         VkDeviceAddress alignment)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
-
-    VkDeviceSize total_size = 0;
-    for (int i = 0; i < count; i++) {
-        total_size += sizes[i];
-    }
-    assert(pgraph_vk_buffer_has_space_for(pg, index, total_size, alignment));
-
     StorageBuffer *b = &r->storage_buffers[index];
-    VkDeviceSize starting_offset = ROUND_UP(b->buffer_offset, alignment);
 
-    assert(b->mapped);
+    VkDeviceSize starting_offset, ending_offset;
+    if (count && (!sizes || !data)) {
+        return VK_WHOLE_SIZE;
+    }
+    for (size_t i = 0; i < count; i++) {
+        if (sizes[i] && !data[i]) {
+            return VK_WHOLE_SIZE;
+        }
+    }
+    if (!pgraph_vk_vertex_staging_plan_append(
+            b->buffer_offset, sizes, count, b->buffer_size, alignment,
+            &starting_offset, &ending_offset) ||
+        !b->mapped) {
+        return VK_WHOLE_SIZE;
+    }
 
-    for (int i = 0; i < count; i++) {
+    for (size_t i = 0; i < count; i++) {
         b->buffer_offset = ROUND_UP(b->buffer_offset, alignment);
         memcpy(b->mapped + b->buffer_offset, data[i], sizes[i]);
         b->buffer_offset += sizes[i];
     }
+
+    /* Keep this invariant explicit for checked callers and future changes. */
+    b->buffer_offset = ending_offset;
 
     return starting_offset;
 }

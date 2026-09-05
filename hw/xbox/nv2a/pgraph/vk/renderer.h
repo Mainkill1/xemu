@@ -42,6 +42,7 @@
 #include "debug.h"
 #include "constants.h"
 #include "glsl.h"
+#include "vertex-staging.h"
 
 #define HAVE_EXTERNAL_MEMORY 1
 
@@ -608,6 +609,7 @@ bool pgraph_vk_buffer_has_space_for(PGRAPHState *pg, int index,
                                     VkDeviceAddress alignment);
 bool pgraph_vk_grow_vertex_ram_staging_buffer(PGRAPHState *pg,
                                                VkDeviceSize required_size);
+/* Returns VK_WHOLE_SIZE on rejected input or failed capacity preflight. */
 VkDeviceSize pgraph_vk_buffer_required_size(PGRAPHState *pg, int index,
                                             VkDeviceSize size,
                                             VkDeviceAddress alignment);

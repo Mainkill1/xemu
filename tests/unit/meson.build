@@ -42,6 +42,7 @@ tests = {
     meson.project_source_root() / 'hw/xbox/nv2a/dma.c',
     declare_dependency(compile_args: ['-DNV2A_DMA_HELPERS_ONLY']),
   ],
+  'test-xbox-nv2a-vertex': [],
   'test-resv-mem': [],
   # all code tested by test-x86-topo is inside topology.h
   'test-x86-topo': [],

@@ -19,6 +19,7 @@
 
 #include "qemu/osdep.h"
 #include "qemu/fast-hash.h"
+#include "qemu/log.h"
 #include "qemu/mstring.h"
 #include "hw/xbox/nv2a/pgraph/uniform-stage-update.h"
 #include "renderer.h"
@@ -254,6 +255,11 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
             r->uniform_buffer_offsets[i] = pgraph_vk_append_to_buffer(
                 pg, BUFFER_UNIFORM_STAGING, &data, &size, 1,
                 r->device_props.limits.minUniformBufferOffsetAlignment);
+            if (r->uniform_buffer_offsets[i] == VK_WHOLE_SIZE) {
+                qemu_log_mask(LOG_GUEST_ERROR,
+                              "nv2a: uniform staging append failed\n");
+                return;
+            }
             r->uniform_stage_dirty[i] = false;
         }
 

@@ -23,6 +23,8 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "qemu/osdep.h"
+#include "qemu/log.h"
 #include "renderer.h"
 
 VkDeviceSize pgraph_vk_update_index_buffer(PGRAPHState *pg, void *data,
@@ -53,35 +55,64 @@ void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
     if (!size) {
         return;
     }
-    assert(offset <= vertex->buffer_size);
-    assert(size <= vertex->buffer_size - offset);
+    if (!pgraph_vk_vertex_staging_range_valid(offset, size,
+                                              vertex->buffer_size)) {
+        qemu_log_mask(LOG_GUEST_ERROR,
+                      "nv2a: rejecting out-of-range vertex update "
+                      "offset=0x%" HWADDR_PRIx " size=%" PRIu64
+                      " vram_size=%" PRIu64 "\n",
+                      offset, size, vertex->buffer_size);
+        return;
+    }
+    if (!data || !vertex->mapped) {
+        qemu_log_mask(LOG_GUEST_ERROR,
+                      "nv2a: vertex update has no mapped source\n");
+        return;
+    }
+
+    bool copy_compatible = !(offset & 3) && !(size & 3);
+    PgraphVkVertexUpdatePlan plan = pgraph_vk_vertex_update_plan(
+        r->in_command_buffer, copy_compatible, offset, size,
+        vertex->buffer_size, staging->buffer_offset, staging->buffer_size);
 
     pgraph_vk_download_surfaces_in_range_if_dirty(pg, offset, size);
 
     /* With no recorded draws, direct mapped writes cannot race the GPU. This
      * also keeps the full-VRAM initialization and reset paths out of bounded
      * per-submission staging storage. */
-    if (!r->in_command_buffer) {
+    if (plan == PGRAPH_VK_VERTEX_UPDATE_DIRECT) {
         nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_1);
         memcpy(vertex->mapped + offset, data, size);
         return;
     }
 
-    if (!pgraph_vk_buffer_has_space_for(
-            pg, BUFFER_VERTEX_RAM_STAGING, size, 4)) {
+    if (plan == PGRAPH_VK_VERTEX_UPDATE_FINISH_RETRY ||
+        plan == PGRAPH_VK_VERTEX_UPDATE_FINISH_DIRECT) {
         /* The staging allocation may still be referenced by commands recorded
          * in this submission. Wait before reusing or replacing it. */
         pgraph_vk_perf_record_vertex_staging_fallback(r);
         pgraph_vk_finish(pg, VK_FINISH_REASON_VERTEX_BUFFER_DIRTY);
-        if (pgraph_vk_grow_vertex_ram_staging_buffer(pg, size)) {
+
+        bool grew = false;
+        if (plan == PGRAPH_VK_VERTEX_UPDATE_FINISH_RETRY &&
+            !pgraph_vk_buffer_has_space_for(
+                pg, BUFFER_VERTEX_RAM_STAGING, size, 4)) {
+            grew = pgraph_vk_grow_vertex_ram_staging_buffer(pg, size);
+        }
+        if (grew) {
             pgraph_vk_perf_record_vertex_staging_growth(r);
         }
 
-        /* The finish made the direct path safe. A single update larger than
-         * the hard staging cap is handled here without unbounded allocation. */
-        nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_1);
-        memcpy(vertex->mapped + offset, data, size);
-        return;
+        if (plan == PGRAPH_VK_VERTEX_UPDATE_FINISH_DIRECT ||
+            !pgraph_vk_buffer_has_space_for(
+                pg, BUFFER_VERTEX_RAM_STAGING, size, 4)) {
+            /* Finishing made a mapped write safe. Oversize and unaligned
+             * updates use this bounded fallback instead of relying on Vulkan
+             * copy-alignment assertions or unbounded staging growth. */
+            nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_1);
+            memcpy(vertex->mapped + offset, data, size);
+            return;
+        }
     }
 
     VkCommandBuffer cmd = pgraph_vk_begin_nondraw_commands(pg);
@@ -89,9 +120,15 @@ void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
     VkDeviceSize copy_sizes[] = { size };
     VkDeviceSize staging_offset = pgraph_vk_append_to_buffer(
         pg, BUFFER_VERTEX_RAM_STAGING, copy_data, copy_sizes, 1, 4);
-    assert((staging_offset & 3) == 0);
-    assert((offset & 3) == 0);
-    assert((size & 3) == 0);
+    if (staging_offset == VK_WHOLE_SIZE) {
+        /* Keep Release builds safe if allocator state ever diverges from the
+         * checked reservation. Finish before falling back to a mapped write. */
+        pgraph_vk_perf_record_vertex_staging_fallback(r);
+        pgraph_vk_finish(pg, VK_FINISH_REASON_VERTEX_BUFFER_DIRTY);
+        nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_1);
+        memcpy(vertex->mapped + offset, data, size);
+        return;
+    }
 
     VK_CHECK(vmaFlushAllocation(r->allocator, staging->allocation,
                                 staging_offset, size));
