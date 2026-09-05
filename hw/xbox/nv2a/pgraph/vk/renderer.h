@@ -435,6 +435,8 @@ typedef struct PGRAPHVkState {
     VkQueryPool query_pool;
     int max_queries_in_flight; // FIXME: Move out to constant
     int num_queries_in_flight;
+    uint64_t query_budget_finishes;
+    uint64_t draw_preparation_failures;
     bool new_query_needed;
     bool query_in_flight;
     uint32_t zpass_pixel_count_result;
@@ -581,7 +583,7 @@ void pgraph_vk_trim_texture_cache(PGRAPHState *pg);
 // shaders.c
 void pgraph_vk_init_shaders(PGRAPHState *pg);
 void pgraph_vk_finalize_shaders(PGRAPHState *pg);
-void pgraph_vk_update_descriptor_sets(PGRAPHState *pg);
+bool pgraph_vk_update_descriptor_sets(PGRAPHState *pg);
 void pgraph_vk_bind_shaders(PGRAPHState *pg);
 
 // reports.c

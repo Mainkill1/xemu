@@ -22,6 +22,7 @@
 #include "qemu/log.h"
 #include "qemu/mstring.h"
 #include "renderer.h"
+#include "vertex-staging.h"
 
 #define VSH_UBO_BINDING 0
 #define PSH_UBO_BINDING 1
@@ -138,66 +139,74 @@ static void destroy_descriptor_sets(PGRAPHState *pg)
     }
 }
 
-void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
+bool pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
-
-    bool need_uniform_write =
-        r->uniforms_changed ||
-        !r->storage_buffers[BUFFER_UNIFORM_STAGING].buffer_offset;
-
-    if (!(r->shader_bindings_changed || r->texture_bindings_changed ||
-          (r->descriptor_set_index == 0) || need_uniform_write)) {
-        return; // Nothing changed
-    }
-
+    StorageBuffer *staging = &r->storage_buffers[BUFFER_UNIFORM_STAGING];
     ShaderBinding *binding = r->shader_binding;
     ShaderUniformLayout *layouts[] = { &binding->vsh.module_info->uniforms,
                                        &binding->psh.module_info->uniforms };
-    VkDeviceSize ubo_buffer_total_size = 0;
-    for (int i = 0; i < ARRAY_SIZE(layouts); i++) {
-        ubo_buffer_total_size += layouts[i]->total_size;
+    bool need_uniform_write = r->uniforms_changed || !staging->buffer_offset;
+
+    if (!(r->shader_bindings_changed || r->texture_bindings_changed ||
+          r->descriptor_set_index == 0 || need_uniform_write)) {
+        return true;
     }
-    bool need_ubo_staging_buffer_reset =
-        r->uniforms_changed &&
-        !pgraph_vk_buffer_has_space_for(pg, BUFFER_UNIFORM_STAGING,
-                                        ubo_buffer_total_size,
-                                        r->device_props.limits.minUniformBufferOffsetAlignment);
 
-    bool need_descriptor_write_reset =
-        (r->descriptor_set_index >= ARRAY_SIZE(r->descriptor_sets));
+    void *data[ARRAY_SIZE(layouts)];
+    VkDeviceSize sizes[ARRAY_SIZE(layouts)];
+    VkDeviceSize offsets[ARRAY_SIZE(layouts)];
+    VkDeviceSize alignment =
+        r->device_props.limits.minUniformBufferOffsetAlignment;
+    uint64_t start_offset, end_offset;
 
-    if (need_descriptor_write_reset || need_ubo_staging_buffer_reset) {
+    /* A finish invalidates both stages. Preflight the complete pair before
+     * copying either stage or publishing offsets into the new generation. */
+    for (int attempt = 0; attempt < 2; attempt++) {
+        bool fits = true;
+        if (need_uniform_write) {
+            for (int i = 0; i < ARRAY_SIZE(layouts); i++) {
+                data[i] = layouts[i]->allocation;
+                sizes[i] = layouts[i]->total_size;
+            }
+            fits = pgraph_vk_vertex_staging_plan_append(
+                staging->buffer_offset, sizes, ARRAY_SIZE(sizes),
+                staging->buffer_size, alignment, &start_offset, &end_offset);
+        }
+        if (fits && r->descriptor_set_index < ARRAY_SIZE(r->descriptor_sets)) {
+            break;
+        }
+        if (attempt != 0) {
+            qemu_log_mask(LOG_GUEST_ERROR,
+                          "nv2a: uniform staging transaction does not fit\n");
+            return false;
+        }
         pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
         need_uniform_write = true;
     }
 
-    VkWriteDescriptorSet descriptor_writes[2 + NV2A_MAX_TEXTURES];
-
-    assert(r->descriptor_set_index < ARRAY_SIZE(r->descriptor_sets));
-
     if (need_uniform_write) {
+        uint64_t cursor = staging->buffer_offset;
         for (int i = 0; i < ARRAY_SIZE(layouts); i++) {
-            void *data = layouts[i]->allocation;
-            VkDeviceSize size = layouts[i]->total_size;
-            r->uniform_buffer_offsets[i] = pgraph_vk_append_to_buffer(
-                pg, BUFFER_UNIFORM_STAGING, &data, &size, 1,
-                r->device_props.limits.minUniformBufferOffsetAlignment);
-            if (r->uniform_buffer_offsets[i] == VK_WHOLE_SIZE) {
-                qemu_log_mask(LOG_GUEST_ERROR,
-                              "nv2a: uniform staging append failed\n");
-                pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
-                r->uniform_buffer_offsets[i] = pgraph_vk_append_to_buffer(
-                    pg, BUFFER_UNIFORM_STAGING, &data, &size, 1,
-                    r->device_props.limits.minUniformBufferOffsetAlignment);
-                if (r->uniform_buffer_offsets[i] == VK_WHOLE_SIZE) {
-                    return;
-                }
+            if (!pgraph_vk_vertex_staging_reserve(
+                    cursor, sizes[i], staging->buffer_size, alignment,
+                    &offsets[i])) {
+                return false;
             }
+            cursor = offsets[i] + sizes[i];
         }
-
+        if (pgraph_vk_append_to_buffer(
+                pg, BUFFER_UNIFORM_STAGING, data, sizes, ARRAY_SIZE(sizes),
+                alignment) == VK_WHOLE_SIZE) {
+            return false;
+        }
+        for (int i = 0; i < ARRAY_SIZE(layouts); i++) {
+            r->uniform_buffer_offsets[i] = offsets[i];
+        }
         r->uniforms_changed = false;
     }
+
+    VkWriteDescriptorSet descriptor_writes[2 + NV2A_MAX_TEXTURES];
 
     VkDescriptorBufferInfo ubo_buffer_infos[2];
     for (int i = 0; i < ARRAY_SIZE(layouts); i++) {
@@ -238,6 +247,7 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
     vkUpdateDescriptorSets(r->device, 6, descriptor_writes, 0, NULL);
 
     r->descriptor_set_index++;
+    return true;
 }
 
 static void update_shader_uniform_locs(ShaderBinding *binding)

@@ -57,8 +57,6 @@ static int paired_buffer_index(int index)
  * 16 MiB, and never grow this per-submission storage past 16 MiB.
  */
 static const VkDeviceSize BUFFER_VERTEX_RAM_STAGING_DEFAULT_SIZE = 8 * MiB;
-static const VkDeviceSize BUFFER_VERTEX_RAM_STAGING_MAX_SIZE =
-    PGRAPH_VK_VERTEX_RAM_STAGING_MAX_SIZE;
 
 static VkDeviceSize vertex_ram_staging_initial_size(void)
 {

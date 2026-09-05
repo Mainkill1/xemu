@@ -1355,9 +1355,18 @@ void pgraph_vk_end_nondraw_commands(PGRAPHState *pg, VkCommandBuffer cmd)
 // buffer. For other reasons though (like descriptor set amount, surface
 // changes, etc) we do flush often.
 
-static void begin_pre_draw(PGRAPHState *pg)
+static bool begin_pre_draw(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
+
+    /* Ordered vertex uploads can end one query per draw without filling any
+     * staging buffer. Drain the query pool before preparing submission-local
+     * descriptors/framebuffers; finishing inside begin_query is too late. */
+    if (!pg->clearing && pg->zpass_pixel_count_enable &&
+        r->num_queries_in_flight >= r->max_queries_in_flight) {
+        pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
+        r->query_budget_finishes++;
+    }
 
     assert(r->color_binding || r->zeta_binding);
     assert(!r->color_binding || r->color_binding->initialized);
@@ -1382,13 +1391,16 @@ static void begin_pre_draw(PGRAPHState *pg)
         r->framebuffer_dirty = false;
     }
     if (!pg->clearing) {
-        pgraph_vk_update_descriptor_sets(pg);
+        if (!pgraph_vk_update_descriptor_sets(pg)) {
+            return false;
+        }
     }
     if (r->framebuffer_index == 0) {
         create_frame_buffer(pg);
     }
 
     pgraph_vk_ensure_command_buffer(pg);
+    return true;
 }
 
 static float clamp_line_width_to_device_limits(PGRAPHState *pg, float width)
@@ -1507,6 +1519,17 @@ static void end_draw(PGRAPHState *pg)
     r->in_draw = false;
 }
 
+static bool flush_draw_checked(NV2AState *d);
+
+static void report_draw_preparation_failure(PGRAPHVkState *r)
+{
+    r->draw_preparation_failures++;
+    /* Unconditional stderr evidence, even when guest-error logging and perf
+     * telemetry are disabled. An incomplete render must invalidate a test. */
+    error_report("nv2a: Vulkan draw preparation failed; rendering incomplete "
+                 "(total=%" PRIu64 ")", r->draw_preparation_failures);
+}
+
 void pgraph_vk_draw_end(NV2AState *d)
 {
     PGRAPHState *pg = &d->pgraph;
@@ -1535,7 +1558,12 @@ void pgraph_vk_draw_end(NV2AState *d)
         return;
     }
 
-    pgraph_vk_flush_draw(d);
+    bool recorded = flush_draw_checked(d);
+
+    if (!recorded) {
+        report_draw_preparation_failure(r);
+        return;
+    }
 
     pg->draw_time++;
     if (r->color_binding && pgraph_color_write_enabled(pg)) {
@@ -1680,7 +1708,12 @@ void pgraph_vk_clear_surface(NV2AState *d, uint32_t parameter)
                          ymax, write_color ? " color" : "",
                          write_zeta ? " zeta" : "");
 
-    begin_pre_draw(pg);
+    if (!begin_pre_draw(pg)) {
+        pg->clearing = false;
+        NV2A_VK_DGROUP_END();
+        report_draw_preparation_failure(r);
+        return;
+    }
     pgraph_vk_begin_debug_marker(r, r->command_buffer,
         RGBA_BLUE, "Clear %08" HWADDR_PRIx,
         binding->vram_addr);
@@ -2072,14 +2105,14 @@ static void copy_remapped_attributes_to_inline_buffer(PGRAPHState *pg,
     buffer->buffer_offset += remap.buffer_space_required;
 }
 
-void pgraph_vk_flush_draw(NV2AState *d)
+static bool flush_draw_checked(NV2AState *d)
 {
     PGRAPHState *pg = &d->pgraph;
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     if (!(r->color_binding || r->zeta_binding)) {
         NV2A_VK_DPRINTF("No binding present!!!\n");
-        return;
+        return true;
     }
 
     r->num_vertex_ram_buffer_syncs = 0;
@@ -2104,7 +2137,10 @@ void pgraph_vk_flush_draw(NV2AState *d)
         sync_vertex_ram_buffer(pg);
         VertexBufferRemap remap = remap_unaligned_attributes(pg, max_element);
 
-        begin_pre_draw(pg);
+        if (!begin_pre_draw(pg)) {
+            NV2A_VK_DGROUP_END();
+            return false;
+        }
         copy_remapped_attributes_to_inline_buffer(pg, remap, min_element,
                                                   max_element);
         pgraph_vk_begin_debug_marker(r, r->command_buffer, RGBA_BLUE,
@@ -2145,7 +2181,10 @@ void pgraph_vk_flush_draw(NV2AState *d)
         sync_vertex_ram_buffer(pg);
         VertexBufferRemap remap = remap_unaligned_attributes(pg, max_element + 1);
 
-        begin_pre_draw(pg);
+        if (!begin_pre_draw(pg)) {
+            NV2A_VK_DGROUP_END();
+            return false;
+        }
         copy_remapped_attributes_to_inline_buffer(pg, remap, min_element,
                                                   max_element + 1);
         VkDeviceSize buffer_offset = pgraph_vk_update_index_buffer(
@@ -2154,7 +2193,7 @@ void pgraph_vk_flush_draw(NV2AState *d)
             qemu_log_mask(LOG_GUEST_ERROR,
                           "nv2a: index staging append failed\n");
             NV2A_VK_DGROUP_END();
-            return;
+            return false;
         }
         pgraph_vk_begin_debug_marker(r, r->command_buffer, RGBA_BLUE,
                                      "Inline Elements");
@@ -2194,14 +2233,17 @@ void pgraph_vk_flush_draw(NV2AState *d)
         }
         ensure_buffer_space(pg, BUFFER_VERTEX_INLINE_STAGING, offset, 1);
 
-        begin_pre_draw(pg);
+        if (!begin_pre_draw(pg)) {
+            NV2A_VK_DGROUP_END();
+            return false;
+        }
         VkDeviceSize buffer_offset = pgraph_vk_update_vertex_inline_buffer(
             pg, data, sizes, r->num_active_vertex_attribute_descriptions);
         if (buffer_offset == VK_WHOLE_SIZE) {
             qemu_log_mask(LOG_GUEST_ERROR,
                           "nv2a: inline vertex staging append failed\n");
             NV2A_VK_DGROUP_END();
-            return;
+            return false;
         }
         pgraph_vk_begin_debug_marker(r, r->command_buffer, RGBA_BLUE,
                                      "Inline Buffer");
@@ -2243,7 +2285,10 @@ void pgraph_vk_flush_draw(NV2AState *d)
         pgraph_vk_bind_vertex_attributes(d, 0, index_count - 1, true,
                                          vertex_size, index_count - 1);
 
-        begin_pre_draw(pg);
+        if (!begin_pre_draw(pg)) {
+            NV2A_VK_DGROUP_END();
+            return false;
+        }
         void *inline_array_data = pg->inline_array;
         VkDeviceSize buffer_offset = pgraph_vk_update_vertex_inline_buffer(
             pg, &inline_array_data, &inline_array_data_size, 1);
@@ -2251,7 +2296,7 @@ void pgraph_vk_flush_draw(NV2AState *d)
             qemu_log_mask(LOG_GUEST_ERROR,
                           "nv2a: inline array staging append failed\n");
             NV2A_VK_DGROUP_END();
-            return;
+            return false;
         }
         pgraph_vk_begin_debug_marker(r, r->command_buffer, RGBA_BLUE,
                                      "Inline Array");
@@ -2264,5 +2309,13 @@ void pgraph_vk_flush_draw(NV2AState *d)
     } else {
         NV2A_VK_DPRINTF("EMPTY NV097_SET_BEGIN_END");
         NV2A_UNCONFIRMED("EMPTY NV097_SET_BEGIN_END");
+    }
+    return true;
+}
+
+void pgraph_vk_flush_draw(NV2AState *d)
+{
+    if (!flush_draw_checked(d)) {
+        report_draw_preparation_failure(d->pgraph.vk_renderer_state);
     }
 }
