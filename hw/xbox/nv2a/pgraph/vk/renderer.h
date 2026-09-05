@@ -613,7 +613,7 @@ bool pgraph_vk_grow_vertex_ram_staging_buffer(PGRAPHState *pg,
 VkDeviceSize pgraph_vk_buffer_required_size(PGRAPHState *pg, int index,
                                             VkDeviceSize size,
                                             VkDeviceAddress alignment);
-void pgraph_vk_ensure_buffer_capacity(PGRAPHState *pg, int index,
+bool pgraph_vk_ensure_buffer_capacity(PGRAPHState *pg, int index,
                                       VkDeviceSize required_size);
 void pgraph_vk_ensure_buffer_pair_capacity(PGRAPHState *pg, int index,
                                            size_t required_size);

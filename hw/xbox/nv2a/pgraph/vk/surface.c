@@ -28,6 +28,7 @@
 #include "qemu/compiler.h"
 #include "ui/xemu-settings.h"
 #include "renderer.h"
+#include "buffer-size.h"
 
 const int num_invalid_surfaces_to_keep = 10;  // FIXME: Make automatic
 const int max_surface_frame_time_delta = 5;
@@ -149,14 +150,14 @@ void pgraph_vk_download_surfaces_in_range_if_dirty(PGRAPHState *pg,
     }
 }
 
-static void download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
+static bool download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
                                        uint8_t *pixels)
 {
     PGRAPHState *pg = &d->pgraph;
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     if (!surface->width || !surface->height) {
-        return;
+        return true;
     }
 
     nv2a_profile_inc_counter(NV2A_PROF_SURF_DOWNLOAD);
@@ -200,11 +201,13 @@ static void download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
     // Read surface into memory
     uint8_t *gl_read_buf = pixels;
 
+    g_autofree uint8_t *allocated_swizzle_buf = NULL;
     uint8_t *swizzle_buf = pixels;
     if (surface->swizzle) {
         // FIXME: Swizzle in shader
         assert(pg->surface_scale_factor == 1 || downscale);
-        swizzle_buf = (uint8_t *)g_malloc(surface->size);
+        allocated_swizzle_buf = g_malloc(surface->size);
+        swizzle_buf = allocated_swizzle_buf;
         gl_read_buf = swizzle_buf;
     }
 
@@ -212,31 +215,60 @@ static void download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
                  scaled_height = surface->height;
     pgraph_apply_scaling_factor(pg, &scaled_width, &scaled_height);
 
-    VkDeviceSize downloaded_image_size =
-        (VkDeviceSize)surface->host_fmt.host_bytes_per_pixel *
-        surface->width * surface->height;
+    VkDeviceSize downloaded_image_size;
+    if (!pgraph_vk_size_mul3(surface->host_fmt.host_bytes_per_pixel,
+                             surface->width, surface->height,
+                             &downloaded_image_size)) {
+        error_report("nv2a: surface-download scratch size overflow");
+        return false;
+    }
+    VkDeviceSize scaled_pixels = 0;
+    VkDeviceSize depth_size = 0;
+    VkDeviceSize stencil_offset = 0;
+    VkDeviceSize packed_image_size = downloaded_image_size;
     if (use_compute_to_convert_depth_stencil_format) {
-        VkDeviceSize scaled_pixels =
-            (VkDeviceSize)scaled_width * scaled_height;
-        VkDeviceSize depth_size = scaled_pixels * 4;
-        VkDeviceSize copied_image_size = depth_size;
+        VkDeviceSize copied_image_size;
+
+        if (!pgraph_vk_size_mul(scaled_width, scaled_height,
+                                &scaled_pixels) ||
+            !pgraph_vk_size_mul(scaled_pixels, 4, &depth_size)) {
+            error_report("nv2a: scaled surface-download size overflow");
+            return false;
+        }
+        copied_image_size = depth_size;
         if (surface->host_fmt.aspect & VK_IMAGE_ASPECT_STENCIL_BIT) {
-            copied_image_size =
-                ROUND_UP(depth_size,
-                         r->device_props.limits.minStorageBufferOffsetAlignment) +
-                scaled_pixels;
+            if (!pgraph_vk_size_align_up(
+                    depth_size,
+                    r->device_props.limits.minStorageBufferOffsetAlignment,
+                    &stencil_offset) ||
+                !pgraph_vk_size_add(stencil_offset, scaled_pixels,
+                                    &copied_image_size)) {
+                error_report("nv2a: depth/stencil download size overflow");
+                return false;
+            }
         }
 
-        VkDeviceSize packed_size =
-            downscale ? (VkDeviceSize)surface->width * surface->height * 4 :
-                        scaled_pixels * 4;
-        pgraph_vk_ensure_buffer_capacity(pg, BUFFER_COMPUTE_DST,
-                                         copied_image_size);
-        pgraph_vk_ensure_buffer_capacity(pg, BUFFER_COMPUTE_SRC, packed_size);
-        downloaded_image_size = packed_size;
+        if (downscale) {
+            if (!pgraph_vk_size_mul3(surface->width, surface->height, 4,
+                                     &packed_image_size)) {
+                error_report("nv2a: packed surface-download size overflow");
+                return false;
+            }
+        } else {
+            packed_image_size = depth_size;
+        }
+        if (!pgraph_vk_ensure_buffer_capacity(pg, BUFFER_COMPUTE_DST,
+                                              copied_image_size) ||
+            !pgraph_vk_ensure_buffer_capacity(pg, BUFFER_COMPUTE_SRC,
+                                              packed_image_size)) {
+            return false;
+        }
+        downloaded_image_size = packed_image_size;
     }
-    pgraph_vk_ensure_buffer_capacity(pg, BUFFER_STAGING_DST,
-                                     downloaded_image_size);
+    if (!pgraph_vk_ensure_buffer_capacity(pg, BUFFER_STAGING_DST,
+                                          downloaded_image_size)) {
+        return false;
+    }
 
     /* Capacity growth may have submitted the active command buffer. Recompute
      * whether this color download can still be folded into it. */
@@ -318,11 +350,8 @@ static void download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
     }
 
     if (surface->host_fmt.aspect & VK_IMAGE_ASPECT_STENCIL_BIT) {
-        size_t depth_size = scaled_width * scaled_height * 4;
         copy_regions[num_copy_regions++] = (VkBufferImageCopy){
-            .bufferOffset = ROUND_UP(
-                depth_size,
-                r->device_props.limits.minStorageBufferOffsetAlignment),
+            .bufferOffset = stencil_offset,
             .imageSubresource.aspectMask = VK_IMAGE_ASPECT_STENCIL_BIT,
             .imageSubresource.layerCount = 1,
             .imageExtent = (VkExtent3D){ scaled_width, scaled_height, 1 },
@@ -366,10 +395,7 @@ static void download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
     // FIXME: Track current layout and only transition when required
 
     if (use_compute_to_convert_depth_stencil_format) {
-        size_t bytes_per_pixel = 4;
-        size_t packed_size =
-            downscale ? (surface->width * surface->height * bytes_per_pixel) :
-                        (scaled_width * scaled_height * bytes_per_pixel);
+        VkDeviceSize packed_size = packed_image_size;
 
         //
         // Pack the depth-stencil image into compute_src buffer
@@ -521,8 +547,8 @@ static void download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
         swizzle_rect(swizzle_buf, surface->width, surface->height, pixels,
                      surface->pitch, surface->fmt.bytes_per_pixel);
         nv2a_profile_inc_counter(NV2A_PROF_SURF_SWIZZLE);
-        g_free(swizzle_buf);
     }
+    return true;
 }
 
 static void download_surface(NV2AState *d, SurfaceBinding *surface, bool force)
@@ -536,7 +562,10 @@ static void download_surface(NV2AState *d, SurfaceBinding *surface, bool force)
 
     // FIXME: Respect write enable at last TOU?
 
-    download_surface_to_buffer(d, surface, d->vram_ptr + surface->vram_addr);
+    if (!download_surface_to_buffer(d, surface,
+                                    d->vram_ptr + surface->vram_addr)) {
+        return;
+    }
 
     memory_region_set_client_dirty(d->vram, surface->vram_addr,
                                    surface->pitch * surface->height,
@@ -1030,10 +1059,9 @@ void pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
                  surface->width, surface->height, surface->pitch,
                  surface->fmt.bytes_per_pixel);
 
-    surface->upload_pending = false;
-    surface->draw_time = pg->draw_time;
-
     if (!surface->width || !surface->height) {
+        surface->upload_pending = false;
+        surface->draw_time = pg->draw_time;
         surface->initialized = true;
         return;
     }
@@ -1062,8 +1090,7 @@ void pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
     //
 
     StorageBuffer *copy_buffer = &r->storage_buffers[BUFFER_STAGING_SRC];
-    size_t uploaded_image_size = surface->height * surface->width *
-                                 surface->fmt.bytes_per_pixel;
+    VkDeviceSize uploaded_image_size;
 
     bool use_compute_to_convert_depth_stencil_format =
         surface->host_fmt.vk_format == VK_FORMAT_D24_UNORM_S8_UINT ||
@@ -1077,16 +1104,45 @@ void pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
     unsigned int scaled_width = surface->width, scaled_height = surface->height;
     pgraph_apply_scaling_factor(pg, &scaled_width, &scaled_height);
 
-    pgraph_vk_ensure_buffer_capacity(pg, BUFFER_STAGING_SRC,
-                                     uploaded_image_size);
-    if (use_compute_to_convert_depth_stencil_format) {
-        VkDeviceSize scaled_pixels =
-            (VkDeviceSize)scaled_width * scaled_height;
-        pgraph_vk_ensure_buffer_capacity(pg, BUFFER_COMPUTE_DST,
-                                         uploaded_image_size);
-        pgraph_vk_ensure_buffer_capacity(pg, BUFFER_COMPUTE_SRC,
-                                         scaled_pixels * 5);
+    if (!pgraph_vk_size_mul3(surface->height, surface->width,
+                             surface->fmt.bytes_per_pixel,
+                             &uploaded_image_size)) {
+        error_report("nv2a: surface-upload scratch size overflow");
+        return;
     }
+    if (!pgraph_vk_ensure_buffer_capacity(pg, BUFFER_STAGING_SRC,
+                                          uploaded_image_size)) {
+        return;
+    }
+
+    VkDeviceSize scaled_pixels = 0;
+    VkDeviceSize unpacked_depth_image_size = 0;
+    VkDeviceSize unpacked_stencil_offset = 0;
+    VkDeviceSize unpacked_size = 0;
+    if (use_compute_to_convert_depth_stencil_format) {
+        if (!pgraph_vk_size_mul(scaled_width, scaled_height,
+                                &scaled_pixels) ||
+            !pgraph_vk_size_mul(scaled_pixels, 4,
+                                &unpacked_depth_image_size) ||
+            !pgraph_vk_size_align_up(
+                unpacked_depth_image_size,
+                r->device_props.limits.minStorageBufferOffsetAlignment,
+                &unpacked_stencil_offset) ||
+            !pgraph_vk_size_add(unpacked_stencil_offset, scaled_pixels,
+                                &unpacked_size)) {
+            error_report("nv2a: scaled surface-upload size overflow");
+            return;
+        }
+        if (!pgraph_vk_ensure_buffer_capacity(pg, BUFFER_COMPUTE_DST,
+                                              uploaded_image_size) ||
+            !pgraph_vk_ensure_buffer_capacity(pg, BUFFER_COMPUTE_SRC,
+                                              unpacked_size)) {
+            return;
+        }
+    }
+
+    surface->upload_pending = false;
+    surface->draw_time = pg->draw_time;
 
     void *mapped_memory_ptr = NULL;
     VK_CHECK(vmaMapMemory(r->allocator, copy_buffer->allocation,
@@ -1143,19 +1199,13 @@ void pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
         // Copy packed image buffer to compute_dst for unpacking
         //
 
-        size_t packed_size = uploaded_image_size;
+        VkDeviceSize packed_size = uploaded_image_size;
         VkBufferCopy buffer_copy_region = {
             .size = packed_size,
         };
         vkCmdCopyBuffer(cmd, copy_buffer->buffer,
                         r->storage_buffers[BUFFER_COMPUTE_DST].buffer, 1,
                         &buffer_copy_region);
-
-        size_t num_pixels = scaled_width * scaled_height;
-        size_t unpacked_depth_image_size = num_pixels * 4;
-        size_t unpacked_stencil_image_size = num_pixels;
-        size_t unpacked_size =
-            unpacked_depth_image_size + unpacked_stencil_image_size;
 
         VkBufferMemoryBarrier post_copy_src_barrier = {
             .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
@@ -1235,9 +1285,7 @@ void pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
         // Already scaled during compute. Adjust copy regions.
         regions[0].imageExtent = (VkExtent3D){ scaled_width, scaled_height, 1 };
         regions[1].imageExtent = regions[0].imageExtent;
-        regions[1].bufferOffset =
-            ROUND_UP(unpacked_depth_image_size,
-                     r->device_props.limits.minStorageBufferOffsetAlignment);
+        regions[1].bufferOffset = unpacked_stencil_offset;
 
         copy_buffer = unpack_buffer;
     }

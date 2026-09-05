@@ -18,6 +18,7 @@
  */
 
 #include "renderer.h"
+#include "buffer-size.h"
 
 /*
  * A 4096x4096 four-byte image is the largest unscaled linear guest image the
@@ -48,8 +49,6 @@ static const VkDeviceSize BUFFER_TEXTURE_STAGING_INITIAL_SIZE = 16 * MiB;
  * or 16 MiB, and never grow this dedicated per-submission storage past 16 MiB.
  */
 static const VkDeviceSize BUFFER_VERTEX_RAM_STAGING_DEFAULT_SIZE = 8 * MiB;
-static const VkDeviceSize BUFFER_VERTEX_RAM_STAGING_MAX_SIZE =
-    PGRAPH_VK_VERTEX_RAM_STAGING_MAX_SIZE;
 
 static VkDeviceSize vertex_ram_staging_initial_size(void)
 {
@@ -130,30 +129,35 @@ static void destroy_buffer(PGRAPHState *pg, StorageBuffer *buffer)
 
 static void resize_buffer(PGRAPHState *pg, int index, size_t size);
 
-static VkDeviceSize grow_buffer_size(VkDeviceSize current,
-                                     VkDeviceSize required)
+static bool grow_buffer_size(VkDeviceSize current, VkDeviceSize required,
+                             VkDeviceSize *result)
 {
-    VkDeviceSize size = MAX(current, BUFFER_LINEAR_SCRATCH_INITIAL_SIZE);
-
     /* Keep a power-of-two capacity invariant so repeated scale changes need
      * at most logarithmically many device allocations. */
-    while (size < required) {
-        assert(size <= UINT64_MAX / 2);
-        size *= 2;
-    }
-
-    return size;
+    return pgraph_vk_size_grow_geometric(
+        current, required, BUFFER_LINEAR_SCRATCH_INITIAL_SIZE, result);
 }
 
-void pgraph_vk_ensure_buffer_capacity(PGRAPHState *pg, int index,
+bool pgraph_vk_ensure_buffer_capacity(PGRAPHState *pg, int index,
                                       VkDeviceSize required_size)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     StorageBuffer *buffer = &r->storage_buffers[index];
+    VkDeviceSize new_size;
 
-    assert(required_size);
+    if (required_size == 0) {
+        error_report("nv2a: refusing zero-sized Vulkan scratch reservation");
+        return false;
+    }
     if (buffer->buffer_size >= required_size) {
-        return;
+        return true;
+    }
+    if (!grow_buffer_size(buffer->buffer_size, required_size, &new_size)) {
+        error_report("nv2a: Vulkan scratch-buffer capacity overflow "
+                     "(current=%" PRIu64 ", required=%" PRIu64 ")",
+                     (uint64_t)buffer->buffer_size,
+                     (uint64_t)required_size);
+        return false;
     }
 
     /* Buffer objects may still be referenced by an active submission. Finish
@@ -162,11 +166,13 @@ void pgraph_vk_ensure_buffer_capacity(PGRAPHState *pg, int index,
     if (r->in_command_buffer) {
         pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
     }
-    assert(!r->in_command_buffer);
-    assert(!r->in_aux_command_buffer);
+    if (r->in_command_buffer || r->in_aux_command_buffer) {
+        error_report("nv2a: cannot resize an in-use Vulkan scratch buffer");
+        return false;
+    }
 
-    resize_buffer(pg, index,
-                  grow_buffer_size(buffer->buffer_size, required_size));
+    resize_buffer(pg, index, new_size);
+    return true;
 }
 
 static void resize_buffer(PGRAPHState *pg, int index, size_t size)
@@ -387,14 +393,15 @@ VkDeviceSize pgraph_vk_buffer_required_size(PGRAPHState *pg, int index,
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     StorageBuffer *b = &r->storage_buffers[index];
-    VkDeviceSize start, end;
+    VkDeviceSize aligned_offset;
+    VkDeviceSize required_size;
 
-    if (!pgraph_vk_vertex_staging_plan_append(
-            b->buffer_offset, &size, 1, UINT64_MAX, alignment, &start,
-            &end)) {
+    if (!pgraph_vk_size_align_up(b->buffer_offset, alignment,
+                                 &aligned_offset) ||
+        !pgraph_vk_size_add(aligned_offset, size, &required_size)) {
         return VK_WHOLE_SIZE;
     }
-    return end;
+    return required_size;
 }
 
 bool pgraph_vk_buffer_has_space_for(PGRAPHState *pg, int index,
@@ -403,9 +410,11 @@ bool pgraph_vk_buffer_has_space_for(PGRAPHState *pg, int index,
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     StorageBuffer *b = &r->storage_buffers[index];
-    VkDeviceSize start, end;
-    return pgraph_vk_vertex_staging_plan_append(
-        b->buffer_offset, &size, 1, b->buffer_size, alignment, &start, &end);
+    VkDeviceSize required_size =
+        pgraph_vk_buffer_required_size(pg, index, size, alignment);
+
+    return required_size != VK_WHOLE_SIZE &&
+           required_size <= b->buffer_size;
 }
 
 VkDeviceSize pgraph_vk_append_to_buffer(PGRAPHState *pg, int index, void **data,
@@ -414,8 +423,9 @@ VkDeviceSize pgraph_vk_append_to_buffer(PGRAPHState *pg, int index, void **data,
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     StorageBuffer *b = &r->storage_buffers[index];
+    VkDeviceSize starting_offset = b->buffer_offset;
+    VkDeviceSize ending_offset = b->buffer_offset;
 
-    VkDeviceSize starting_offset, ending_offset;
     if (count && (!sizes || !data)) {
         return VK_WHOLE_SIZE;
     }
@@ -423,21 +433,34 @@ VkDeviceSize pgraph_vk_append_to_buffer(PGRAPHState *pg, int index, void **data,
         if (sizes[i] && !data[i]) {
             return VK_WHOLE_SIZE;
         }
+        VkDeviceSize item_offset;
+        if (!pgraph_vk_size_align_up(ending_offset, alignment, &item_offset) ||
+            !pgraph_vk_size_add(item_offset, sizes[i], &ending_offset)) {
+            error_report("nv2a: Vulkan buffer append size overflow");
+            return VK_WHOLE_SIZE;
+        }
+        if (i == 0) {
+            starting_offset = item_offset;
+        }
     }
-    if (!pgraph_vk_vertex_staging_plan_append(
-            b->buffer_offset, sizes, count, b->buffer_size, alignment,
-            &starting_offset, &ending_offset) ||
-        !b->mapped) {
+    if (ending_offset > b->buffer_size || !b->mapped) {
+        error_report("nv2a: Vulkan buffer append exceeds mapped capacity");
         return VK_WHOLE_SIZE;
     }
 
+    VkDeviceSize cursor = b->buffer_offset;
     for (size_t i = 0; i < count; i++) {
-        b->buffer_offset = ROUND_UP(b->buffer_offset, alignment);
-        memcpy(b->mapped + b->buffer_offset, data[i], sizes[i]);
-        b->buffer_offset += sizes[i];
+        if (!pgraph_vk_size_align_up(cursor, alignment, &cursor)) {
+            error_report("nv2a: Vulkan buffer append changed after preflight");
+            return VK_WHOLE_SIZE;
+        }
+        memcpy(b->mapped + cursor, data[i], sizes[i]);
+        if (!pgraph_vk_size_add(cursor, sizes[i], &cursor)) {
+            error_report("nv2a: Vulkan buffer append changed after preflight");
+            return VK_WHOLE_SIZE;
+        }
     }
 
-    /* Keep this invariant explicit for checked callers and future changes. */
     b->buffer_offset = ending_offset;
 
     return starting_offset;

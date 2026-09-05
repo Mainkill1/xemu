@@ -31,6 +31,7 @@
 #include "qemu/lru.h"
 #include "bc-layout.h"
 #include "renderer.h"
+#include "buffer-size.h"
 
 static void texture_cache_release_node_resources(PGRAPHVkState *r, TextureBinding *snode);
 
@@ -556,7 +557,7 @@ static bool check_texture_possibly_dirty(NV2AState *d,
 
 // FIXME: Make sure we update sampler when data matches. Should we add filtering
 // options to the textureshape?
-static void upload_texture_image(PGRAPHState *pg, int texture_idx,
+static bool upload_texture_image(PGRAPHState *pg, int texture_idx,
                                  TextureBinding *binding)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -582,19 +583,25 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
     const int num_layers = state->cubemap ? 6 : 1;
 
     // Calculate decoded texture data size
-    size_t texture_data_size = 0;
+    VkDeviceSize texture_data_size = 0;
     for (int layer_idx = 0; layer_idx < num_layers; layer_idx++) {
         TextureLayer *layer = &layout->layers[layer_idx];
         for (int level_idx = 0; level_idx < state->levels; level_idx++) {
-            size_t size = layer->levels[level_idx].decoded_size;
-            assert(size);
-            texture_data_size += size;
+            VkDeviceSize size = layer->levels[level_idx].decoded_size;
+            if (size == 0 ||
+                !pgraph_vk_size_add(texture_data_size, size,
+                                    &texture_data_size)) {
+                error_report("nv2a: decoded texture staging size overflow");
+                return false;
+            }
         }
     }
 
     int staging_buffer_index = BUFFER_TEXTURE_STAGING;
-    pgraph_vk_ensure_buffer_capacity(pg, staging_buffer_index,
-                                     texture_data_size);
+    if (!pgraph_vk_ensure_buffer_capacity(pg, staging_buffer_index,
+                                          texture_data_size)) {
+        return false;
+    }
     StorageBuffer *staging_buffer =
         &r->storage_buffers[staging_buffer_index];
     VkDeviceSize staging_alignment = MAX(
@@ -606,12 +613,19 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
                                         staging_alignment)) {
         pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
     }
-    assert(pgraph_vk_buffer_has_space_for(pg, staging_buffer_index,
-                                          texture_data_size,
-                                          staging_alignment));
+    if (!pgraph_vk_buffer_has_space_for(pg, staging_buffer_index,
+                                        texture_data_size,
+                                        staging_alignment)) {
+        error_report("nv2a: texture staging reservation exceeds capacity");
+        return false;
+    }
 
-    VkDeviceSize staging_offset =
-        ROUND_UP(staging_buffer->buffer_offset, staging_alignment);
+    VkDeviceSize staging_offset;
+    if (!pgraph_vk_size_align_up(staging_buffer->buffer_offset,
+                                 staging_alignment, &staging_offset)) {
+        error_report("nv2a: texture staging offset overflow");
+        return false;
+    }
     assert(staging_buffer->mapped);
     uint8_t *mapped_memory_ptr = staging_buffer->mapped + staging_offset;
 
@@ -627,13 +641,20 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
         NV2A_VK_DPRINTF("Layer %d", layer_idx);
         for (int level_idx = 0; level_idx < state->levels; level_idx++) {
             TextureLevel *level = &layer->levels[level_idx];
+            VkDeviceSize region_offset;
+
+            if (!pgraph_vk_size_add(staging_offset, buffer_offset,
+                                    &region_offset)) {
+                error_report("nv2a: texture copy-region offset overflow");
+                return false;
+            }
             NV2A_VK_DPRINTF(" - Level %d, w=%d h=%d d=%d @ %08" HWADDR_PRIx,
                             level_idx, level->width, level->height,
                             level->depth, buffer_offset);
             memcpy(mapped_memory_ptr + buffer_offset, level->decoded_data,
                    level->decoded_size);
             *region = (VkBufferImageCopy){
-                .bufferOffset = staging_offset + buffer_offset,
+                .bufferOffset = region_offset,
                 .bufferRowLength = 0, // Tightly packed
                 .bufferImageHeight = 0,
                 .imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
@@ -644,12 +665,20 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
                 .imageExtent =
                     (VkExtent3D){ level->width, level->height, level->depth },
             };
-            buffer_offset += level->decoded_size;
+            if (!pgraph_vk_size_add(buffer_offset, level->decoded_size,
+                                    &buffer_offset)) {
+                error_report("nv2a: decoded texture offset overflow");
+                return false;
+            }
             region++;
         }
     }
-    assert(staging_offset + buffer_offset <= staging_buffer->buffer_size);
-    staging_buffer->buffer_offset = staging_offset + buffer_offset;
+    if (!pgraph_vk_size_add(staging_offset, buffer_offset,
+                            &staging_buffer->buffer_offset) ||
+        staging_buffer->buffer_offset > staging_buffer->buffer_size) {
+        error_report("nv2a: decoded texture exceeds staging reservation");
+        return false;
+    }
 
     vmaFlushAllocation(r->allocator, staging_buffer->allocation,
                        staging_offset, texture_data_size);
@@ -706,6 +735,7 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
     pgraph_vk_perf_record_cpu_region(
         r, VK_PERF_CPU_TEXTURE_UPLOAD,
         r->perf.enabled ? g_get_monotonic_time() - start_us : 0);
+    return true;
 }
 
 static void copy_zeta_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surface,
@@ -736,10 +766,20 @@ static void copy_zeta_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surfac
                  scaled_height = surface->height;
     pgraph_apply_scaling_factor(pg, &scaled_width, &scaled_height);
 
-    size_t copied_image_size =
-        scaled_width * scaled_height * surface->host_fmt.host_bytes_per_pixel;
-    size_t stencil_buffer_offset = 0;
-    size_t stencil_buffer_size = 0;
+    VkDeviceSize scaled_pixels;
+    VkDeviceSize copied_image_size;
+    VkDeviceSize packed_image_size;
+    VkDeviceSize stencil_buffer_offset = 0;
+    VkDeviceSize stencil_buffer_size = 0;
+
+    if (!pgraph_vk_size_mul(scaled_width, scaled_height, &scaled_pixels) ||
+        !pgraph_vk_size_mul(scaled_pixels,
+                            surface->host_fmt.host_bytes_per_pixel,
+                            &copied_image_size) ||
+        !pgraph_vk_size_mul(scaled_pixels, 4, &packed_image_size)) {
+        error_report("nv2a: zeta-to-texture scratch size overflow");
+        return;
+    }
 
     int num_regions = 0;
     VkBufferImageCopy regions[2];
@@ -756,11 +796,16 @@ static void copy_zeta_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surfac
     };
 
     if (surface->host_fmt.aspect & VK_IMAGE_ASPECT_STENCIL_BIT) {
-        stencil_buffer_offset =
-            ROUND_UP(scaled_width * scaled_height * 4,
-                     r->device_props.limits.minStorageBufferOffsetAlignment);
-        stencil_buffer_size = scaled_width * scaled_height;
-        copied_image_size = stencil_buffer_offset + stencil_buffer_size;
+        stencil_buffer_size = scaled_pixels;
+        if (!pgraph_vk_size_align_up(
+                packed_image_size,
+                r->device_props.limits.minStorageBufferOffsetAlignment,
+                &stencil_buffer_offset) ||
+            !pgraph_vk_size_add(stencil_buffer_offset, stencil_buffer_size,
+                                &copied_image_size)) {
+            error_report("nv2a: zeta stencil scratch size overflow");
+            return;
+        }
 
         regions[num_regions++] = (VkBufferImageCopy){
             .bufferOffset = stencil_buffer_offset,
@@ -775,12 +820,16 @@ static void copy_zeta_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surfac
         };
     }
     StorageBuffer *dst_storage_buffer = &r->storage_buffers[BUFFER_COMPUTE_DST];
-    pgraph_vk_ensure_buffer_capacity(pg, BUFFER_COMPUTE_DST,
-                                     copied_image_size);
+    if (!pgraph_vk_ensure_buffer_capacity(pg, BUFFER_COMPUTE_DST,
+                                          copied_image_size)) {
+        return;
+    }
 
     if (use_compute_to_convert_depth_stencil) {
-        pgraph_vk_ensure_buffer_capacity(
-            pg, BUFFER_COMPUTE_SRC, scaled_width * scaled_height * 4ULL);
+        if (!pgraph_vk_ensure_buffer_capacity(pg, BUFFER_COMPUTE_SRC,
+                                              packed_image_size)) {
+            return;
+        }
     }
 
     VkCommandBuffer cmd = pgraph_vk_begin_nondraw_commands(pg);
@@ -804,8 +853,6 @@ static void copy_zeta_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surfac
     VkBuffer texture_source_buffer;
 
     if (use_compute_to_convert_depth_stencil) {
-        size_t packed_image_size = scaled_width * scaled_height * 4;
-
         VkBufferMemoryBarrier pre_pack_src_barrier = {
             .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
             .srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
@@ -1387,15 +1434,20 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
                 copy_surface_to_texture(pg, surface, snode);
             }
         } else {
-            if (possibly_dirty && content_hash != snode->hash) {
-                upload_texture_image(pg, texture_idx, snode);
-                snode->hash = content_hash;
-            }
             if (possibly_dirty) {
+                if (content_hash != snode->hash) {
+                    if (upload_texture_image(pg, texture_idx, snode)) {
+                        snode->hash = content_hash;
+                        snode->possibly_dirty = false;
+                    } else {
+                        snode->possibly_dirty = true;
+                    }
+                } else {
+                    snode->possibly_dirty = false;
+                }
                 /* The current binding was fully hashed and, when changed,
                  * uploaded. Retire its validation hint so unchanged draws do
                  * not hash the same guest payload again. */
-                snode->possibly_dirty = false;
             }
         }
 
@@ -1408,7 +1460,7 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     memcpy(&snode->key, &key, sizeof(key));
     snode->current_layout = VK_IMAGE_LAYOUT_UNDEFINED;
     snode->possibly_dirty = false;
-    snode->hash = content_hash;
+    snode->hash = content_hash ^ UINT64_MAX;
 
     assert(0 < state.dimensionality);
     assert(state.dimensionality < ARRAY_SIZE(dimensionality_to_vk_image_type));
@@ -1580,7 +1632,11 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     if (surface_to_texture) {
         copy_surface_to_texture(pg, surface, snode);
     } else {
-        upload_texture_image(pg, texture_idx, snode);
+        if (upload_texture_image(pg, texture_idx, snode)) {
+            snode->hash = content_hash;
+        } else {
+            snode->possibly_dirty = true;
+        }
         snode->draw_time = 0;
     }
 
