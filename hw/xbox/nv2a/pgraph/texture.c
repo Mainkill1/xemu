@@ -97,14 +97,8 @@ static bool pgraph_get_dma_vram_addr_checked(NV2AState *d,
     DMAObject dma = nv_dma_load(d, dma_obj_address);
     hwaddr base = dma.address & 0x07FFFFFF;
 
-    /* DMAObject.limit is an inclusive maximum offset. */
-    if (required_length &&
-        (object_offset > dma.limit ||
-         required_length - 1 > dma.limit - object_offset)) {
-        return false;
-    }
-    if (base > vram_size || object_offset > vram_size - base ||
-        required_length > vram_size - base - object_offset) {
+    if (!pgraph_texture_dma_range_valid(base, object_offset, required_length,
+                                        dma.limit, vram_size)) {
         return false;
     }
 

@@ -93,6 +93,19 @@ static void test_cubemap_face_alignment(void)
                      ROUND_UP(64, NV2A_CUBEMAP_FACE_ALIGNMENT) * 6);
 }
 
+static void test_dma_range_boundaries(void)
+{
+    /* Last source byte equals the inclusive DMA limit and the exclusive
+     * VRAM end. */
+    g_assert_true(pgraph_texture_dma_range_valid(
+        0x1000, 0x10, 0xff0, 0xfff, 0x2000));
+
+    g_assert_false(pgraph_texture_dma_range_valid(
+        0x1000, 0x10, 0xff1, 0x1000, 0x2000));
+    g_assert_false(pgraph_texture_dma_range_valid(
+        0x1000, 0x10, 0xff0, 0xffe, 0x2000));
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -103,5 +116,7 @@ int main(int argc, char **argv)
     g_test_add_func("/xbox/nv2a/texture/overflow", test_overflow_rejected);
     g_test_add_func("/xbox/nv2a/texture/cubemap-alignment",
                     test_cubemap_face_alignment);
+    g_test_add_func("/xbox/nv2a/texture/dma-range-boundaries",
+                    test_dma_range_boundaries);
     return g_test_run();
 }
