@@ -30,7 +30,11 @@ tests = {
       ],
     ),
   ],
-  'test-xbox-nv2a-texture': [],
+  'test-xbox-nv2a-texture': [
+    declare_dependency(
+      include_directories: include_directories('../../target/i386'),
+    ),
+  ],
   'test-resv-mem': [],
   # all code tested by test-x86-topo is inside topology.h
   'test-x86-topo': [],
