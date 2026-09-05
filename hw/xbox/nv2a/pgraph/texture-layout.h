@@ -37,6 +37,25 @@ typedef struct BasicColorFormatInfo {
 
 extern const BasicColorFormatInfo kelvin_color_format_info_map[66];
 
+/* DMAObject.limit is inclusive; vram_size is an exclusive upper bound. */
+static inline bool pgraph_texture_dma_range_valid(uint64_t base,
+                                                  uint64_t object_offset,
+                                                  size_t required_length,
+                                                  uint64_t dma_limit,
+                                                  uint64_t vram_size)
+{
+    if (required_length &&
+        (object_offset > dma_limit ||
+         required_length - 1 > dma_limit - object_offset)) {
+        return false;
+    }
+    if (base > vram_size || object_offset > vram_size - base ||
+        required_length > vram_size - base - object_offset) {
+        return false;
+    }
+    return true;
+}
+
 /* Return the physical dimensions occupied by a texture in guest memory. */
 static inline bool pgraph_get_texture_storage_extent(TextureShape shape,
                                                      unsigned int *width,
