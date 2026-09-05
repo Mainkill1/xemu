@@ -1,93 +1,116 @@
-# Full Speed
+# xemu Full-Speed
 
-`Full-Speed` is the consolidated, reviewable performance branch. It starts
-from the original Full-Speed baseline (`6234f3606f`) and includes the current
-validated performance work plus the recent correctness/safety repairs required
-to test it safely. Source branches remain open so every change can still be
-built and tested alone.
+`Full-Speed` is the cumulative xemu performance and correctness candidate. It
+is an append-only upgrade of the existing Full-Speed branch at
+`e2c77c38a5d403da10f75df329f356f754aeb1c2`; it was not rebuilt by squashing,
+rebasing, or replacing that history.
 
-This branch is the combined candidate. It is not evidence that every component
-improves a workload on its own. The branch matrix below is the required A/B
-order: build the upstream baseline and each exact branch head separately, then
-test the combined branch after each component has a clean result.
+The release executable is built from the frozen code commit
+`ccdb31d508c2c929d839b05a1d2717b5b59868c4`. The later README commit changes
+documentation only. The exact executable and package hashes are published in
+the release manifest so another tester can prove that they have the same
+binary.
 
-## Included branches
+This branch is a combined candidate, not a claim that every retained component
+improves every game. Correctness repairs are accepted on correctness evidence;
+performance changes still require the A/B protocol below.
 
-| Branch | Status in Full-Speed | Change |
-| --- | --- | --- |
-| `feature/eng-2026-520-perf-etw-event-telemetry` | Included | Adds opt-in NV2A retail-capture telemetry so CPU, OpenGL, and Vulkan work can be aligned with ETW captures without changing normal runtime behavior. |
-| `feature/eng-2026-525-vk-wait-telemetry-u524a4d5b` | Superseded by v2 | Introduced per-reason Vulkan submit/wait attribution. Its functional changes are retained through the v2 branch. |
-| `feature/eng-2026-525-vk-wait-telemetry-v2` | Included | Reduces telemetry overhead by timing the first occurrences and periodic hot occurrences of each Vulkan wait reason. |
-| `feature/eng-2026-523-vk-vertex-upload-staging` | Included | Stages ordered vertex-RAM updates in persistent Vulkan buffers, avoiding unnecessary finish/wait work while retaining bounded capacity behavior. |
-| `feature/eng-2026-523-vk-cpu-hotpath-attribution` | Included | Attributes Vulkan draw-preparation CPU work in the opt-in telemetry output. |
-| `feature/eng-2026-523-win-qpc-clock-fastpath` | Included | Avoids an unnecessary 128-bit divide in exact Windows QPC scaling. |
-| `feature/eng-2026-523-win-nvidia-prefer-max-performance-u90829d4e` | Superseded by removal | The old automatic NVIDIA power-policy request is deliberately removed below. It changed persistent host policy and is not part of the final rollup. |
-| `feature/eng-2026-523-tcg-active-mmu-dirty-reset-ud9e1e15a` | Included | Skips empty MMU modes while resetting code-dirty state. |
-| `feature/eng-2026-523-tcg-x86-static-state-tb-lookup-u3121717e` | Included | Final stacked TCG/Vulkan rollup: reuses known x86 translation state, specializes dirty-memory paths, avoids redundant register clearing, stages texture uploads in the ordered draw stream, targets surface callbacks directly, and clears pipeline-change state after binding. |
-| `feature/eng-2026-523-vk-native-bc-on-vertex-staging-u8a09a4ea` | Included, conflict-resolved | Uploads supported BC1/BC2/BC3 textures in native Vulkan block-compressed formats rather than decoding them on the CPU; unsupported layouts retain the decoded fallback. It was merged onto the later ordered texture-upload path and includes BC layout unit coverage. |
-| `xemu-pr-staging: feature/eng-2026-336-stage-local-vulkan-uniforms-v3-uec89c153` | Included, conflict-resolved | Separates vertex- and pixel-shader uniform source generations so unchanged stages do not rewrite or re-upload their UBOs. It preserves exact float bit patterns, tracks effective polygon-offset inputs, and retains Full-Speed's existing VMState-compatible dirty-row handling. |
-| `fix/eng-2026-523-vk-report-dma-ownership` | Included | Captures the report DMA object when a GL, Vulkan, or null-renderer query is queued, preventing a later context switch from writing the completed report through the wrong DMA mapping. |
-| `feature/eng-2026-523-vk-texture-pipeline-fastpath-uaad84ed1` | Included | Keeps texture image/sampler changes on the descriptor path instead of forcing a Vulkan pipeline lookup; shader-affecting texture state still invalidates through `ShaderState`. The recorded Morrowind capture reduced pipeline lookups by 79.9%, and the fixed-work A/B comparison improved average throughput by 1.079%. |
-| `fix/eng-2026-523-nv2a-ptimer-overdue-catchup-u76925787` | Included | Coalesces missed runtime PTIMER alarm epochs into the next future alarm instead of repeatedly scheduling already-expired alarms. Includes a deterministic overdue-alarm unit test. |
-| `fix/eng-2026-523-vk-batched-submit-safety-u70dcad5c` | Included | Batches compatible auxiliary and draw command buffers only when their ordering dependencies are preserved. The safety repair keeps the required dependency edges. |
-| `fix/eng-2026-523-ptimer-reconciliation-zero-ratio-u3f16e05d` | Included | Treats zero PTIMER ratios as a stopped clock and rebuilds the host deadline from restored guest state. The overdue-alarm behavior is represented by the same shared latch/next-alarm logic. |
-| `fix/eng-2026-523-callback-retirement-order-u16a212b2` | Included | Defers cached memory-callback release until the exclusive-removal flush barrier completes, preventing a callback from being freed while it can still be observed. |
-| `fix/eng-2026-523-remove-nvidia-power-policy-u83f2a080` | Included | Removes the persistent NVIDIA policy mutation. Performance capture must not change a user's driver profile. |
-| `fix/eng-2026-523-remove-unsafe-host-load-ube3040c6` | Included | Removes the unsafe host-load/timer control rather than masking its timing side effects. |
+## Reference baselines
 
-## Current independent build matrix
+Do not use an unnamed local executable as “baseline.” Record both the source
+commit and executable SHA-256.
 
-Build every row below from its exact head, alongside the upstream baseline. Do
-not merge another review branch into an individual build. A branch can contain
-its documented historical prerequisites; that is part of the branch identity,
-not an extra integration by the tester.
-
-| Build ID | Exact branch | Why it is tested alone | Full-Speed state |
+| ID | Purpose | Source commit | `xemu.exe` SHA-256 |
 | --- | --- | --- | --- |
-| `baseline-upstream-main` | upstream `d73326b62199c6dd952ef512947710e1333a49d3` | Reference for correctness, performance, and packaging. | Reference only |
-| `fix-branch-review-blockers-8718ad8b` | `fix/eng-2026-523-branch-review-blockers-u486f523e` | Aggregate blocker head used to cross-check the isolated repairs. | Documentation/evidence aggregate; unique runtime work is represented below |
-| `fix-callback-retirement-order-85383466` | `fix/eng-2026-523-callback-retirement-order-u16a212b2` | Tests callback lifetime and exclusive-flush ordering. | Included |
-| `fix-nv2a-ptimer-overdue-catchup-d74e82d1` | `fix/eng-2026-523-nv2a-ptimer-overdue-catchup-u76925787` | Tests missed-epoch alarm coalescing. | Included through shared PTIMER latch logic |
-| `fix-ptimer-reconciliation-zero-ratio-b332c16d` | `fix/eng-2026-523-ptimer-reconciliation-zero-ratio-u3f16e05d` | Tests zero-ratio clock handling and restored-deadline reconciliation. | Included |
-| `fix-remove-nvidia-power-policy-ede650cf` | `fix/eng-2026-523-remove-nvidia-power-policy-u83f2a080` | Confirms a test build does not persistently mutate NVIDIA policy. | Included |
-| `fix-remove-unsafe-host-load-4140a916` | `fix/eng-2026-523-remove-unsafe-host-load-ube3040c6` | Confirms host-load control cannot contaminate capture timing. | Included |
-| `fix-vk-batched-submit-safety-2991e35e` | `fix/eng-2026-523-vk-batched-submit-safety-u70dcad5c` | Tests batched-submit ordering and command-buffer dependencies. | Included |
-| `fix-vk-report-dma-ownership-16a55523` | `fix/eng-2026-523-vk-report-dma-ownership` | Tests report publication after DMA/context changes. | Included |
+| Official U | Unmodified [xemu-project/xemu](https://github.com/xemu-project/xemu) reference | `fc24584ce88f0915ad7f04775bb7712c2e3f49ee` | `7da537938ea2ac09f894186ba793c9ae51dff37c95903b0002273b8d363818b7` |
+| Stable S | Current 100%-passing correctness baseline, published as [eng523-pr126-texture-contract-v2](https://github.com/Mainkill1/xemu-full-speed/releases/tag/eng523-pr126-texture-contract-v2) | `bc60883c4ef05912c5b4b29051ba64341f576b15` | `9cfc03ebfa7bf3ba727c48dd90782a455381c0ae09341f76a7a08d82cc6f3606` |
+| Full-Speed candidate | This combined code candidate | `ccdb31d508c2c929d839b05a1d2717b5b59868c4` | See the matching release `SHA256SUMS.txt` |
 
-Each release and debug package must retain its exact source SHA, branch name,
-container digest, build command, build log, executable hash, and test result.
-Do not use a combined result to mark an individual branch passed.
+After the combined candidate passes the complete release gate, its packaged
+executable becomes the next Stable S. Until then, Stable S remains the
+performance-patch control.
 
-## Reproducing the Windows build matrix
+## What is included
 
-The 2026-09-03 matrix was built on an x86-64 Linux host with 32 build jobs.
-Every row above was checked out at its exact commit in a separate clean Git
-worktree, followed by:
+The ongoing branch already contained the following reviewed production work.
+The listed commits identify the functional branch lineage; later conflict or
+correctness repairs in Full-Speed take precedence.
 
-```bash
-git submodule update --init --recursive
-test -z "$(git status --porcelain=v1)"
-```
+| Area | Functional source | State in Full-Speed |
+| --- | --- | --- |
+| Active-node LRU visitation | `a9c0cd70d089e29e5787de1dbcfe75bbd388bcaa` | Retained |
+| Selective atomic-fence/BQL fast path with reentrancy repair | `418425b6ba6bb24a596740ea87bd4a2e87d13f1c` | Retained repaired form |
+| Dynamic Vulkan blend state and transition fixes | `f0757df626f2a1fbfdd3dd217fdf8cc5f60feae4` | Retained |
+| Native Vulkan BC1/BC2/BC3 upload with fallback | `d651faf545c5db86d0c33e3be021eedef34fa4eb` | Retained |
+| Ordered texture staging | `82d125226d34218fb7d8b766809bb38cd3267439` | Retained and reconciled with texture fixes |
+| Stage-local Vulkan uniforms | `b1133ae032d2a6dcabc5307bf1e5fa666a59cead` | Retained conflict-resolved form |
+| Corrected surface-download scheduling | `f15a7da673d78ebb889a197cefdbd3b7904e0a6f` | Retained corrected successor |
+| Active-MMU dirty reset | `93a4d66ac6ed3f01cacc80e2a1fc88daec26f2fa` | Retained |
+| Texture pipeline fast path | `1a5e2aa87f497b89f787023f3a2c098b93697c37` | Retained |
+| Corrected transient-buffer growth | `629411e183d382963bfcec5b21c3d6e31fd2358d` | Retained corrected successor |
+| Uniform-row deduplication and VMState repair | `c67e2f4666a56701075c60d34853784bc04cb4ec` | Retained repaired form |
+| Vertex upload-range reduction | `a62558309466b572ba1b797de3bf0a99602fc468` | Retained |
+| Vulkan display conversion reuse | `8e4fa91858861c760afb51a71b5fa396a9a7b768` | Retained |
+| Exact Windows QPC scaling fast path | `abb8a82485faa096d1e168ca67b6302b0816d59c` | Retained |
+| PTIMER zero-ratio, post-load, and overdue-alarm reconciliation | Existing Full-Speed lineage | Retained |
+| Callback retirement and exclusive-flush ordering | Existing Full-Speed lineage | Retained |
+| Opt-in retail/CPU/Vulkan attribution | `e9e9e5d08df79a88162610042f3024a040964e7d` and existing telemetry lineage | Retained as diagnostic-only code |
 
-The build used xemu's public Windows cross-toolchain image from the xemu GitHub
-Container Registry, pinned by digest rather than a moving tag:
+This upgrade adds or repairs the following code on top of that existing head:
+
+| Upgrade | Full-Speed commit | Result |
+| --- | --- | --- |
+| DSP snapshot-load quiescence | `ae9b0877a8` | Worker is idle before VMState replacement and resumes only after restored state reaches the backend |
+| Bordered texture storage contract | `c35349365a` through `7b6a3216e5` | Source footprint, cache identity, image extent, route selection, copy bounds, mip layouts, and inclusive DMA bounds agree |
+| Report DMA ownership and finish validation | `131748e96d` through `93d01dc984` | Immutable queue-time descriptor, complete descriptor/report bounds, supported class/target checks, and dedicated REPORT wait attribution |
+| PFIFO inline capacity hardening | `7a253ece09` | Guest-controlled appends use Release-safe checks, reject atomically, and raise DATA_ERROR instead of relying on assertions |
+| Ordered vertex staging v2 | `4dae5a9b71` | Ordered copies replace repeated vertex-dirty finishes when safe, with checked capacity and direct-copy fallback |
+| Vulkan scratch arithmetic hardening | `3e5f370fce` | Checked add/multiply/alignment/growth and failure-safe texture/surface reservations |
+| Combined texture integration build fix | `ccdb31d508` | Restores the boolean upload failure contract and removes a duplicate format declaration exposed by the exact rollup build |
+
+Ordered vertex staging is the main current performance target: replace roughly
+102 `VERTEX_BUFFER_DIRTY` waits in a representative Morrowind frame with copies
+ordered in the draw command stream, while retaining a bounded 16 MiB staging
+limit and an idle-safe fallback for incompatible or oversized updates.
+
+## Deliberately excluded or reverted
+
+Known-bad or unproven refs were not pulled in merely because they had a
+`validate/` or feature name.
+
+| Candidate | Disposition |
+| --- | --- |
+| PFIFO bulk method batching | Reverted; its guest-controlled fixed arrays relied on assertions. The scalar path is retained and hardened. |
+| OpenGL native S3TC fast path | Reverted; bordered cubemap mip fallback used incorrect dimensions. OpenGL keeps the known decoded path. |
+| Batched auxiliary/main Vulkan submit | Reverted; dependency repair was sound but the experiment measured neutral to slower. |
+| Persistent NVIDIA P-state policy and migration | Excluded. Full-Speed adds no P-state mutation or migration, and lab runs disable xemu's separate generic NVIDIA profile setup. |
+| “Reduce host load” timing option | Removed and excluded because it changed timing behavior and was identified as unsafe. |
+| Stale transient-growth and surface-download refs | Excluded; the corrected successors listed above are already present. |
+| Contaminated static-TCG validation stack | Not imported as a branch; only the already-reviewed isolated functionality in the ongoing lineage is retained. |
+| Ordered-vertex v3 marker overlay | Excluded from production; v2 contains the functional change and tests. |
+| TCG dirty-range inline experiment | Deferred until its isolated performance gate is complete. |
+| Synchronous ETW/file telemetry as performance evidence | Telemetry remains opt-in for attribution, but enabled runs are diagnostic and are not used as unbiased A/B timing results. |
+
+## Reproducible Windows Release build
+
+The release is built on an x86-64 Linux host with Docker or another compatible
+OCI runtime. Source comes from this Git repository and its pinned submodules.
+The only package installed into the ephemeral container is `curl`, required by
+xemu's versioned DSP dependency download during configuration.
+
+Use this public xemu toolchain image by immutable digest:
 
 ```text
 ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2
 ```
 
-That image supplies the GCC 16.1/MXE static Windows toolchain. Docker or a
-compatible OCI runtime obtains it directly from `ghcr.io`; no private compiler
-is required. The lab installed `curl` inside the ephemeral container because
-the pinned image does not include it and xemu's DSP fallback downloads a
-versioned input while configuring.
-
-### Release/full-LTO command
-
-Run this from the clean source root. The cache changes build time only and is
-not source input:
+It supplies GCC 16.1 and the static MXE Windows toolchain. The Full-Speed
+release uses 32 jobs, x86-64-v3, and full LTO. Check out the exact source commit
+from the release manifest, then run:
 
 ```bash
+git submodule update --init --recursive
+test -z "$(git status --porcelain=v1)"
 mkdir -p .build-cache/ccache .build-cache/lto
 
 docker run --rm \
@@ -107,104 +130,103 @@ docker run --rm \
       -Db_lto=true -Dx86_version=3'
 ```
 
-Use `x86_64-w64-mingw32.static-gcc-ar` exactly as shown. Plain `ar` does not
-carry the GCC LTO plugin and caused unresolved LTO symbols in earlier lab
-attempts.
+`x86_64-w64-mingw32.static-gcc-ar` is intentional. Plain `ar` does not load
+the GCC LTO plugin and caused unresolved LTO symbols in earlier builds.
 
-### Debug/assertion command
+The release ZIP contains the complete packaged build folder, including:
 
-Use a separate clean checkout or worktree and the same pinned image:
-
-```bash
-mkdir -p .build-cache/ccache
-
-docker run --rm \
-  -e CROSSPREFIX=x86_64-w64-mingw32.static- \
-  -e CROSSAR=x86_64-w64-mingw32.static-gcc-ar \
-  -e CCACHE_DIR=/xemu-cache/ccache \
-  -e CCACHE_MAXSIZE=512M \
-  -e BUILD_JOBS=32 \
-  -v "$PWD:/src" \
-  -v "$PWD/.build-cache:/xemu-cache" \
-  -w /src \
-  ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2 \
-  bash -lc 'apt-get update && apt-get install -qy curl && \
-    ./build.sh --debug -j"$BUILD_JOBS" -p win64-cross \
-      -Db_lto=false -Dx86_version=3'
+```text
+xemu.exe
+LICENSE.txt
+build.log
+build-info.txt
+source-status.txt
+SHA256SUMS.txt
+focused-tests/
 ```
 
-The release build follows xemu's normal `build.sh -p win64-cross` route but
-adds the lab's explicit x86-64-v3 target and incremental full-LTO cache. The
-debug matrix follows xemu's `--debug` route and explicitly records LTO as off.
-Release and debug timings are compared only with the same build flavor.
-
-`build.sh` produces `dist/xemu.exe` and `dist/LICENSE.txt`. The exact matrix
-executables retain DWARF sections. For Windows PDB generation, use public
-`cv2pdb` 0.52 from
-`https://github.com/rainers/cv2pdb/releases/download/v0.52/cv2pdb-0.52.zip`;
-the lab's `cv2pdb64.exe` SHA-256 is
-`93b9033f24a9d671544c885bea29f825920199fb929cff9f1ae877b141f49184`.
-Keep a copy of the pre-conversion executable as `xemu-dwarf.exe`, and never
-resolve an address with a PDB or DWARF image from another executable.
-
-Package hashes must be written with relative names so that they verify after
-transfer:
+`build-info.txt` records the exact source commit, branch, toolchain digest,
+compiler, build command, job count, CPU target, LTO mode, and source-bundle
+hash. `SHA256SUMS.txt` uses relative paths and must verify after download:
 
 ```bash
-(cd package && sha256sum xemu.exe LICENSE.txt build.log build-info.txt \
-  > SHA256SUMS.txt)
+sha256sum -c SHA256SUMS.txt
 ```
 
-The matrix source bundle used by the lab has SHA-256
-`29622888208379d53f794ae7420c2ed88e98335395eeaf8a5cda9d249178bb88`.
-It is retained as build evidence; an independent builder may instead fetch the
-documented branches and check out the exact commits above.
+The executable retains DWARF information. If a PDB is needed, use public
+[`cv2pdb` 0.52](https://github.com/rainers/cv2pdb/releases/tag/v0.52). Never
+resolve an address with symbols from a different executable.
 
-## Reviewed research branches
+## Validation completed before publication
 
-These branches remain open and are recorded here for traceability. They were
-not merged wholesale because they are measurements, experiments, or contain
-explicitly reverted experiments rather than an additional validated production
-change.
+The combined source passed a clean-tree and whole-range `git diff --check`.
+Its component repairs also have the following focused evidence:
 
-| Branch | Result |
+| Area | Evidence |
 | --- | --- |
-| `research/eng-2026-523-always-stage-vertex-layout-safe-ue4c43cdc` | Evaluated staging vertex RAM without layout changes; the validated production staging work is represented by the vertex-upload branch above. |
-| `research/eng-2026-523-sparse-uniform-layout-safe-u6299d05f` | Investigated safely skipping clean uniform rows; retained as research pending an independently validated landing. |
-| `research/eng-2026-523-tcg-tb-lookup-attribution-u065f47f7` | Collected indirect TB-lookup evidence that informed the later TCG fast paths. |
-| `research/eng-2026-523-vk-stalled-gpu-timestamps-uf1f85872` | Added diagnostic Vulkan timing experiments and records several reverted candidates; it is intentionally not used as a production rollup branch. |
-| `feature/eng-2026-523-vk-aux-submit-fence-u70f4e0ef` | Replaces a queue-wide idle wait with an auxiliary-command-buffer fence. It passed focused validation, but its recorded end-to-end A/B result was neutral to slightly slower; it remains a candidate, not a rollup change. |
-| `feature/eng-2026-523-vk-batched-aux-main-submit-u48cab4ee` | Its ordered batching implementation is now included through the explicit safety-fix branch above. The isolated branch still needs its own test result. |
-| `research/eng-2026-523-vk-report-boundary-submit-u688e8e71` | Records report-boundary submission experiments and remains open pending a reproducible end-to-end improvement. |
-| `research/eng-2026-523-vk-tiny-draw-reuse-attribution-u42bc13ac` | Contains further tiny-draw and cache-attribution experiments; it is deliberately not merged wholesale. |
+| Report DMA | 4/4 focused tests and a complete Linux `qemu-system-i386` build |
+| PFIFO capacities | Normal, `-DNDEBUG -O2`, and ASan/UBSan focused suites; exact-capacity, capacity+1, overflow, and atomic rejection |
+| Ordered vertex | Modified renderer objects compiled with GCC 16.1/x86-v3/LTO; vertex 5/5, texture 6/6, Vulkan BC 3/3, uniform 6/6 under Wine |
+| Vulkan scratch | Complete Win64 full-LTO/x86-v3 component build and 3/3 checked-arithmetic tests under `-DNDEBUG` |
+| Texture contract | Swizzled mip, cache/source-layout, and inclusive DMA-boundary regression coverage retained in-tree |
 
-## Capture controls and safety
+The exact combined Release build is a separate gate. Runtime OpenGL/Vulkan
+campaigns are not claimed here until the lab disk/snapshot isolation review is
+complete; earlier runs were invalidated after a test tool touched shared HDD
+state. This prevents infrastructure faults from being reported as emulator
+performance.
 
-Vulkan telemetry remains opt-in through `XEMU_VK_PERF_LOG`. It records work
-but must not alter presentation policy, persistent NVIDIA driver policy, or
-guest timer semantics. The NVIDIA policy request and the unsafe host-load
-timing control are both removed by this branch.
+## Required runtime campaign
 
-PTIMER now has explicit zero-ratio, post-load, and overdue-alarm coverage.
-These paths are correctness gates: a timing improvement is rejected if it
-changes the guest-visible alarm, interrupt, report, readback, or reset result.
+Testing is Release-only and is walked one branch at a time. Both renderers are
+required because the XISO is a multi-renderer correctness tool.
 
-## Staging audit
+For each candidate:
 
-The `xemu-pr-staging` production candidates were compared against this
-rollup. The transient-buffer growth, changed-uniform-row, versioned-vertex,
-dynamic-blend, and texture-dirty branches already have later validated
-successors here. ENG-2026-336 was the remaining distinct production change;
-its seven focused unit tests passed on the Linux dev box under Wine before it
-was reconciled into this branch. Staging source branches remain open.
+1. Run the 149-result performance-test XISO twice in OpenGL and twice in
+   Vulkan; preserve each run and report the average without hiding soft fails.
+2. Run Morrowind for one marker-bounded 60-second window from the backed-up
+   heavy-area snapshot in OpenGL and Vulkan.
+3. Run PGR2 for one marker-bounded 60-second window from a fresh reset in
+   OpenGL and Vulkan. Do not use the snapshot as the performance control.
+4. Record FPS change versus the named control, median/p95/p99/max frame time,
+   CPU use, process RAM, GPU use, and VRAM use.
+5. Keep xemu foreground and unobscured. Monitoring windows must not steal
+   focus or cover the game window.
+6. Set `display.setup_nvidia_profile=false`; testing must not alter NVIDIA
+   profiles.
+7. Store the exact executable/source hashes, configuration, XISO hash, HDD and
+   snapshot identities, renderer, driver, OS, host hardware, and marker bounds
+   with the results.
 
-## Validation focus
+PGR2 automation starts after an emulator reset. If the BIOS animation is
+allowed to play, wait 10 seconds first, then issue this sequence with the delay
+after each key shown in seconds:
 
-Validate this rollup with the same snapshot and emulator configuration used by
-the baseline. Compare guest-event median, p95, p99, and maximum duration;
-Vulkan finish/wait time; ordered texture-upload and vertex-staging counters;
-native-versus-decoded BC upload counters; and TCG CPU time. Keep the source
-branches available for A/B comparison rather than closing or deleting them.
-For the new work, also run `test-xbox-nv2a-ptimer`, verify report-query writes
-against the DMA object active at queue time, and compare Vulkan pipeline
-lookups plus draw-preparation CPU time on a texture-heavy saved-state capture.
+```text
+A-3, A-10, A-2, A-2, F-2, A-2, A-2, A-2, A-2, A-2, A-7
+```
+
+The comparison order is:
+
+```text
+Official U -> correctness fix 1 -> correctness fix 2 -> ...
+Stable S   -> performance patch 1
+Stable S   -> performance patch 2
+...
+Official U -> final combined correctness branch
+Stable S   -> final combined Full-Speed branch
+```
+
+The baseline need not be resampled between every isolated candidate, but it is
+rerun at the end to detect host drift. A branch that crashes or fails a gate is
+marked for repair and testing proceeds to the next independent candidate. No
+combined result is used to claim that an isolated patch improved performance.
+
+## Evidence standard
+
+Counts and samples are leads. A performance finding must identify the guest
+event, repeatable lost milliseconds, responsible running/ready/waiting path,
+frequency, control comparison, required correctness invariant, and the metric
+that should change. Small wins remain useful, but they are recorded at their
+actual size and are not promoted without repeatable evidence.
