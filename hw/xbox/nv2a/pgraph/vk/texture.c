@@ -528,7 +528,7 @@ static bool check_texture_dirty(NV2AState *d, hwaddr addr, hwaddr size)
 {
     hwaddr end = TARGET_PAGE_ALIGN(addr + size);
     addr &= TARGET_PAGE_MASK;
-    assert(end < memory_region_size(d->vram));
+    assert(end <= memory_region_size(d->vram));
     return memory_region_test_and_clear_dirty(d->vram, addr, end - addr,
                                               DIRTY_MEMORY_NV2A_TEX);
 }
@@ -1593,7 +1593,9 @@ static bool check_textures_dirty(PGRAPHState *pg)
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
-        if (!r->texture_bindings[i] || pg->texture_dirty[i]) {
+        if (!r->texture_bindings[i] || pg->texture_dirty[i] ||
+            (pgraph_is_texture_enabled(pg, i) &&
+             r->texture_bindings[i] == &r->dummy_texture)) {
             return true;
         }
     }
@@ -1663,14 +1665,18 @@ void pgraph_vk_bind_textures(NV2AState *d)
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
         if (!pgraph_is_texture_enabled(pg, i)) {
             r->texture_bindings[i] = &r->dummy_texture;
+            pg->texture_dirty[i] = false;
             continue;
         }
 
-        if (!create_texture(pg, i)) {
+        bool created = create_texture(pg, i);
+        if (!created) {
             r->texture_bindings[i] = &r->dummy_texture;
         }
 
-        pg->texture_dirty[i] = false; // FIXME: Move to renderer?
+        /* Invalid guest state may be repaired without another texture method.
+         * Keep failed bindings dirty so the next bind retries the source. */
+        pg->texture_dirty[i] = !created; // FIXME: Move to renderer?
     }
 
     r->texture_bindings_changed = true;
