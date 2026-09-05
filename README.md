@@ -78,11 +78,24 @@ xemu.exe SHA-256: 7da537938ea2ac09f894186ba793c9ae51dff37c95903b0002273b8d363818
 ```
 
 A locally rebuilt source head or telemetry overlay is not interchangeable with
-that official binary. After this correctness stack passes 100%, its complete
-Release package will be published as a new immutable test baseline. This
-section will then record both public asset URLs, the production source SHA,
-the package SHA-256, and the `xemu.exe` SHA-256 before performance branches use
-it as their control.
+that official binary. The completed correctness stack is immutable patched
+baseline `S`:
+
+```text
+production source: bc60883c4ef05912c5b4b29051ba64341f576b15
+tag: eng523-pr126-texture-contract-v2
+GitHub release: https://github.com/Mainkill1/xemu/releases/tag/eng523-pr126-texture-contract-v2
+GitHub asset: https://github.com/Mainkill1/xemu/releases/download/eng523-pr126-texture-contract-v2/eng523-pr126-texture-contract-v2-release.zip
+ZIP SHA-256: c1d13d83f18c9dd4e30a8c5c6c640d34417cb5b9a2200061e0198bc2c26bda70
+xemu.exe SHA-256: 9cfc03ebfa7bf3ba727c48dd90782a455381c0ae09341f76a7a08d82cc6f3606
+```
+
+Both public copies were downloaded after publication and reproduced the ZIP
+and inner executable hashes. Performance candidates compare with this exact
+`S` artifact. Whole-stack correctness reports continue to compare with exact
+official upstream `U`. A successor baseline requires a new immutable tag,
+asset URL, production source SHA, package hash, and executable hash; a moving
+branch name or local rebuild never replaces either control.
 
 ## Reproducible Windows builds
 
