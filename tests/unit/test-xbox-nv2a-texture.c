@@ -1,6 +1,6 @@
 /* Focused tests for the NV2A encoded texture source layout. */
 #include "qemu/osdep.h"
-#include "hw/xbox/nv2a/pgraph/texture.h"
+#include "hw/xbox/nv2a/pgraph/texture-layout.h"
 
 const BasicColorFormatInfo kelvin_color_format_info_map[66] = {
     [NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT1_A1R5G5B5] = { 4, false },
