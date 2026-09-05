@@ -64,6 +64,26 @@ without regressing the common baseline. A performance candidate must also show
 a positive, workload-attributable result in Morrowind and/or PGR2. Small wins
 are retained when repeatable; neutral or negative candidates remain research.
 
+## Baseline artifact identities
+
+The current no-patch baseline is the official upstream v0.8.136 Windows
+x86-64 Release artifact:
+
+```text
+release: https://github.com/xemu-project/xemu/releases/tag/v0.8.136
+asset: https://github.com/xemu-project/xemu/releases/download/v0.8.136/xemu-win-x86_64-release.zip
+source commit: fc24584ce88f0915ad7f04775bb7712c2e3f49ee
+asset SHA-256: b25a6c24a2c2c36a0843a153cd9ee59ca6833ef87bdcd855ba0824930e4ddd1d
+xemu.exe SHA-256: 7da537938ea2ac09f894186ba793c9ae51dff37c95903b0002273b8d363818b7
+```
+
+A locally rebuilt source head or telemetry overlay is not interchangeable with
+that official binary. After this correctness stack passes 100%, its complete
+Release package will be published as a new immutable test baseline. This
+section will then record both public asset URLs, the production source SHA,
+the package SHA-256, and the `xemu.exe` SHA-256 before performance branches use
+it as their control.
+
 ## Reproducible Windows builds
 
 The qualified build was produced on a dedicated Linux build host from a clean
