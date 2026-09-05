@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "xemu_sha256": "4585b1f02e7b7ca1d4a6badf3c3ea9653df0f77ca93aeff141eeb5194d0faae7",
+  "sample_interval_ms": 1000,
+  "process_sample_count": 60,
+  "device_sample_count": 30,
+  "process": {
+    "cpu_percent_host_capacity_mean": 15.157839245151585,
+    "cpu_percent_host_capacity_peak": 19.67640758720988,
+    "cpu_percent_one_core_mean": 242.52542792242537,
+    "cpu_percent_one_core_peak": 314.8225213953581,
+    "working_set_bytes_mean": 2256069700.266667,
+    "working_set_bytes_peak": 2319056896.0,
+    "private_bytes_mean": 7236818534.4,
+    "private_bytes_peak": 7430807552.0,
+    "gpu_engine_percent_sum_mean": 58.96822927179609,
+    "gpu_engine_percent_sum_peak": 71.95506624590553,
+    "gpu_dedicated_bytes_mean": 3422029004.8,
+    "gpu_dedicated_bytes_peak": 3562205184.0,
+    "gpu_shared_bytes_mean": 1820512256.0,
+    "gpu_shared_bytes_peak": 1829949440.0
+  },
+  "device": {
+    "gpu_percent_mean": 38.53333333333333,
+    "gpu_percent_peak": 48.0,
+    "memory_percent_mean": 4.166666666666667,
+    "memory_percent_peak": 5.0,
+    "memory_used_mib_mean": 3565.5,
+    "memory_used_mib_peak": 3704.0
+  },
+  "errors": []
+}

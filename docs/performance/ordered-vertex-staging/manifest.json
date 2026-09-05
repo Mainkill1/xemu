@@ -1,0 +1,82 @@
+[
+  {
+    "file": "inputs/baseline-opengl-r1.json",
+    "published_sha256": "cbedf84623d8c844b12dc5edbf218b146504a68c9bc8fc55e76fdc10163c8571",
+    "original_summary_sha256": "8a054e62c8047b83127e0a6eb8d0103479296a263580e04e51c05c15697b19f4"
+  },
+  {
+    "file": "inputs/baseline-opengl-r1-resources.json",
+    "published_sha256": "5549aa4e44130e498038bb3d7f1343f0a94b38b6724d5511bb37df8987bfb117",
+    "original_summary_sha256": "ce94627da4cc7b4a46a1df471d62af8b5a5e1f57f3c5e9d7f999dc89d1ba349b"
+  },
+  {
+    "file": "inputs/baseline-opengl-r2.json",
+    "published_sha256": "0e84e6190790d3a036c75e90ad1366b1f2142eb5a8f5aa418c54e27bb0057311",
+    "original_summary_sha256": "27c498b3871e7aeb5e74da508f0c68efccabab37f6e0009f46b3a609cc83429c"
+  },
+  {
+    "file": "inputs/baseline-opengl-r2-resources.json",
+    "published_sha256": "29b8b0dee16509d09f2a984b3d6a67257ad9f4eeafa00b5ebdc9202b2aca81a6",
+    "original_summary_sha256": "5cca0db79fb825de679eaf1a33bfa5cd9aa47189873526f9a623f4a3b7239935"
+  },
+  {
+    "file": "inputs/candidate-opengl-r1.json",
+    "published_sha256": "652ff8ce9fd23b0653382155623aabfdc6f2e0e29211c3821b13e2349ea07543",
+    "original_summary_sha256": "2ba705a85c8825b8f454e41d00a081c0e9099a07a5313ae2550c407f6a7e0ab5"
+  },
+  {
+    "file": "inputs/candidate-opengl-r1-resources.json",
+    "published_sha256": "4731300e2b9db1089c9f505ca2675c3aa5079e3d2923a8c070578bf0c6e0d115",
+    "original_summary_sha256": "9cb7878678c4c4055a05404adf75d9980d8580e32ce7e62740cff9cee565d3ff"
+  },
+  {
+    "file": "inputs/candidate-opengl-r2.json",
+    "published_sha256": "25e0c44b4a11221d30595866c5541632d82e450eb688bb9719b5e95e79e377ee",
+    "original_summary_sha256": "c81da6d1b49402df56725fdc690448d14cbd51728c9be5a9d9d4478f8cc713b1"
+  },
+  {
+    "file": "inputs/candidate-opengl-r2-resources.json",
+    "published_sha256": "df06d22c203e8492ebaae13d229e3700c46a9f9922a216ea0cc3db446a2c6217",
+    "original_summary_sha256": "5541d23e16e57f3f5042a567001449b840e395c7864b5b1ef22ee51c148becc2"
+  },
+  {
+    "file": "inputs/baseline-vulkan-r1.json",
+    "published_sha256": "853c10cb7505f9176c661b15a95bd1188c633a9adddaa36daef25c92706392e3",
+    "original_summary_sha256": "be9daea98f6d647bb0503d02e19d8094dcff0f7710a8e462f5d8f17d4cffa38f"
+  },
+  {
+    "file": "inputs/baseline-vulkan-r1-resources.json",
+    "published_sha256": "e1509a647e7fe72a3545331dfc6de37f061a5a01a9043c3ace00082b1a149847",
+    "original_summary_sha256": "9841b7ee981011fc51df1049e88b6001e776505543786fe685b275247e11277b"
+  },
+  {
+    "file": "inputs/baseline-vulkan-r2.json",
+    "published_sha256": "aa0949328a3b5ed180941051f0c35cd63c58f5fcf2eab732cdd69f9a22e4e6c1",
+    "original_summary_sha256": "74e076a5ecb6d644745bf17e13b59d0dbec292cf1f7c8c5e49ba7ff88d2869d5"
+  },
+  {
+    "file": "inputs/baseline-vulkan-r2-resources.json",
+    "published_sha256": "9fb9020f7acab84e174dba9cb2ef1d56579565f726b9629dfd29449df9c1989e",
+    "original_summary_sha256": "83c6ab5c1f408f2ed1fd9391e59a82b3cbe0f833a36530d87dac90adcac711a5"
+  },
+  {
+    "file": "inputs/candidate-vulkan-r1.json",
+    "published_sha256": "ff743cf7380f9df9216af8f7e3223005e6ae9fc8b9fc176f549f16be3b745086",
+    "original_summary_sha256": "7953609f79b3116c01df9f0f8e7ce4cf56e7b000b3a84e70316e8e4a3c762447"
+  },
+  {
+    "file": "inputs/candidate-vulkan-r1-resources.json",
+    "published_sha256": "cca9708840d6b77c8ff6bfdfbabe6a96c89dbcab870f7738d47a484920f452b4",
+    "original_summary_sha256": "97f5e7bf8c77406b2c474c50f61520ce174bca64f528ba380ccb0724ca513bdd"
+  },
+  {
+    "file": "inputs/candidate-vulkan-r2.json",
+    "published_sha256": "15c41b3153074d0e9b97bce777a710d12f16524d0bdaaf6f9672160d36d2dcb0",
+    "original_summary_sha256": "9d31bc8158ce6c7a6e991d4d6b75013b4381a17bb5b42bfdd345e82966af911e"
+  },
+  {
+    "file": "inputs/candidate-vulkan-r2-resources.json",
+    "published_sha256": "c3708709fcc4b1b50e577b3984a8fe666344bb2bf8d31104e1ce5d2f2a3c66b2",
+    "original_summary_sha256": "3b6aca5b73c7e4c22f6490726ebc34d328276b8458eff0b115304c672ac73819"
+  }
+]

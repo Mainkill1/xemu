@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "xemu_sha256": "38464bdbe1b9e3f230e479a63736d022d93842a5d27fd9e47a4c09f7e8b4f008",
+  "sample_interval_ms": 1000,
+  "process_sample_count": 61,
+  "device_sample_count": 31,
+  "process": {
+    "cpu_percent_host_capacity_mean": 15.198064349016741,
+    "cpu_percent_host_capacity_peak": 18.932743892784863,
+    "cpu_percent_one_core_mean": 243.16902958426786,
+    "cpu_percent_one_core_peak": 302.9239022845578,
+    "working_set_bytes_mean": 2232210146.622951,
+    "working_set_bytes_peak": 2329268224.0,
+    "private_bytes_mean": 7132982691.672132,
+    "private_bytes_peak": 7443816448.0,
+    "gpu_engine_percent_sum_mean": 58.8694681413675,
+    "gpu_engine_percent_sum_peak": 64.81070706562845,
+    "gpu_dedicated_bytes_mean": 3421909196.8,
+    "gpu_dedicated_bytes_peak": 3562221568.0,
+    "gpu_shared_bytes_mean": 1830753348.2666667,
+    "gpu_shared_bytes_peak": 1838338048.0
+  },
+  "device": {
+    "gpu_percent_mean": 37.58064516129032,
+    "gpu_percent_peak": 44.0,
+    "memory_percent_mean": 4.064516129032258,
+    "memory_percent_peak": 5.0,
+    "memory_used_mib_mean": 3466.6774193548385,
+    "memory_used_mib_peak": 3707.0
+  },
+  "errors": [
+    "GPU process-memory counter failed: The data in one of the performance counter samples is not valid. View the Status property for each PerformanceCounterSample object to make sure it contains valid data."
+  ]
+}
