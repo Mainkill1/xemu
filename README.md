@@ -24,7 +24,7 @@ commit and executable SHA-256.
 | --- | --- | --- | --- |
 | Official U | Unmodified [xemu-project/xemu](https://github.com/xemu-project/xemu) reference | `fc24584ce88f0915ad7f04775bb7712c2e3f49ee` | `7da537938ea2ac09f894186ba793c9ae51dff37c95903b0002273b8d363818b7` |
 | Stable S | Current 100%-passing correctness baseline, published as [eng523-pr126-texture-contract-v2](https://github.com/Mainkill1/xemu-full-speed/releases/tag/eng523-pr126-texture-contract-v2) | `bc60883c4ef05912c5b4b29051ba64341f576b15` | `9cfc03ebfa7bf3ba727c48dd90782a455381c0ae09341f76a7a08d82cc6f3606` |
-| Full-Speed candidate | This combined code candidate | `ccdb31d508c2c929d839b05a1d2717b5b59868c4` | See the matching release `SHA256SUMS.txt` |
+| Full-Speed candidate | This combined code candidate | `ccdb31d508c2c929d839b05a1d2717b5b59868c4` | `43e037d9bafc464486cdbee59fac8468a10ac41e91852eaf851a22e677b07b13` |
 
 After the combined candidate passes the complete release gate, its packaged
 executable becomes the next Stable S. Until then, Stable S remains the
@@ -157,6 +157,16 @@ The executable retains DWARF information. If a PDB is needed, use public
 [`cv2pdb` 0.52](https://github.com/rainers/cv2pdb/releases/tag/v0.52). Never
 resolve an address with symbols from a different executable.
 
+The current candidate build identity is:
+
+```text
+production source: ccdb31d508c2c929d839b05a1d2717b5b59868c4
+xemu.exe SHA-256: 43e037d9bafc464486cdbee59fac8468a10ac41e91852eaf851a22e677b07b13
+Full-Speed-ccdb31d508-Release.zip SHA-256: fbe0a7245d66c8d7941ff6cc989b25cc79045780031a094d4c0752bada7c3b0d
+build result: PASS (Win64 Release, full LTO, x86-64-v3)
+runtime result: BLOCKED pending test-runner HDD safety repair and re-audit
+```
+
 ## Validation completed before publication
 
 The combined source passed a clean-tree and whole-range `git diff --check`.
@@ -170,11 +180,11 @@ Its component repairs also have the following focused evidence:
 | Vulkan scratch | Complete Win64 full-LTO/x86-v3 component build and 3/3 checked-arithmetic tests under `-DNDEBUG` |
 | Texture contract | Swizzled mip, cache/source-layout, and inclusive DMA-boundary regression coverage retained in-tree |
 
-The exact combined Release build is a separate gate. Runtime OpenGL/Vulkan
-campaigns are not claimed here until the lab disk/snapshot isolation review is
-complete; earlier runs were invalidated after a test tool touched shared HDD
-state. This prevents infrastructure faults from being reported as emulator
-performance.
+The exact combined Release build passed. Runtime OpenGL/Vulkan campaigns are
+not claimed here: the independent lab disk/snapshot isolation review found
+remaining safety blockers after an earlier runner overwrote shared HDD state.
+This prevents infrastructure faults or destructive execution from being
+reported as emulator performance.
 
 ## Required runtime campaign
 
