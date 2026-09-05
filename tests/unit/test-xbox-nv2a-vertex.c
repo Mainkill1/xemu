@@ -50,6 +50,31 @@ static void test_staging_multi_element_padding(void)
     }
 }
 
+static void test_uniform_pair_alignment_boundary(void)
+{
+    const uint64_t sizes[] = { 272, 240 };
+    uint64_t start, end, second;
+
+    /* The unpadded sum fits, but the fragment block needs its own alignment. */
+    g_assert_cmpuint(512 + sizes[0] + sizes[1], ==, 1024);
+    g_assert_false(pgraph_vk_vertex_staging_plan_append(
+        512, sizes, ARRAY_SIZE(sizes), 1024, 256, &start, &end));
+    g_assert_true(pgraph_vk_vertex_staging_plan_append(
+        0, sizes, ARRAY_SIZE(sizes), 1024, 256, &start, &end));
+    g_assert_cmpuint(start, ==, 0);
+    g_assert_cmpuint(end, ==, 752);
+    g_assert_true(pgraph_vk_vertex_staging_reserve(
+        sizes[0], sizes[1], 1024, 256, &second));
+    g_assert_cmpuint(second, ==, 512);
+
+    /* A reset cannot rescue a pair that is larger than the whole buffer. */
+    g_assert_false(pgraph_vk_vertex_staging_plan_append(
+        0, sizes, ARRAY_SIZE(sizes), 751, 256, &start, &end));
+    g_assert_false(pgraph_vk_vertex_staging_plan_append(
+        UINT64_MAX - 127, sizes, ARRAY_SIZE(sizes), UINT64_MAX,
+        256, &start, &end));
+}
+
 static void test_vertex_update_plans(void)
 {
     const uint64_t cap = PGRAPH_VK_VERTEX_RAM_STAGING_MAX_SIZE;
@@ -119,5 +144,7 @@ int main(int argc, char **argv)
     g_test_add_func("/xbox/nv2a/vertex/staging-vram-end-boundary",
                     test_staging_vram_end_boundary);
     g_test_add_func("/xbox/nv2a/vertex/update-plans", test_vertex_update_plans);
+    g_test_add_func("/xbox/nv2a/vertex/uniform-pair-alignment",
+                    test_uniform_pair_alignment_boundary);
     return g_test_run();
 }

@@ -321,6 +321,10 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
                          perf->cpu_regions,
                          offsetof(PGRAPHVkCpuStats, cpu_us));
     fprintf(perf->file,
+            ",\"query_budget_finishes_total\":%" PRIu64
+            ",\"draw_preparation_failures_total\":%" PRIu64,
+            r->query_budget_finishes, r->draw_preparation_failures);
+    fprintf(perf->file,
             ",\"vk_queue_submit_calls_per_guest_frame\":%" PRIu64
             ",\"vk_submit_infos_per_guest_frame\":%" PRIu64
             ",\"command_buffers_per_guest_frame\":%" PRIu64
