@@ -227,9 +227,17 @@ including every small signed delta and retained transient counter warning, is
 in `performance-analysis.md` in the validation evidence bundle.
 
 The first frozen upstream PGR2 cells captured a different pacing state and are
-not used for per-patch attribution. A final upstream rerun remains queued, as
-does the matched pre-DSP foundation campaign needed to isolate the DSP repair.
-Those follow-ups do not weaken the deterministic Issue 42 correctness result.
+not used for per-patch attribution. A final upstream rerun remains queued.
+
+The matched pre-DSP F0 campaign is now complete. Its OpenGL lane passed XISO
+149/149 twice and both retail runs. Relative to F0, the DSP repair changed
+Morrowind FPS/p95/p99 by -2.22%/+3.34%/+1.25% and PGR2 by
+-0.39%/-1.56%/+0.31%, which is neutral within current one-run variance. F0's
+Vulkan Morrowind snapshot then reproduced the exact `dsp_cpu.c:893` assertion
+before measurement, so no unsafe-control Vulkan performance percentage is
+invented. The crash itself closes the matched correctness comparison for the
+DSP fix. This follow-up strengthens rather than weakens the deterministic
+Issue 42 and Issue 44 results.
 
 ## Evidence identity
 
