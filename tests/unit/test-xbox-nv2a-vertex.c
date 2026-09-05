@@ -63,8 +63,8 @@ static void test_vertex_update_plans(void)
     g_assert_cmpint(pgraph_vk_vertex_update_plan(true, true, 0, cap, cap, 0,
                                                  cap / 2), ==,
                     PGRAPH_VK_VERTEX_UPDATE_FINISH_RETRY);
-    g_assert_cmpint(pgraph_vk_vertex_update_plan(true, true, 0, cap + 1, cap,
-                                                 0, cap), ==,
+    g_assert_cmpint(pgraph_vk_vertex_update_plan(true, true, 0, cap + 1,
+                                                 cap + 1, 0, cap), ==,
                     PGRAPH_VK_VERTEX_UPDATE_FINISH_DIRECT);
     g_assert_cmpint(pgraph_vk_vertex_update_plan(true, false, 0, 4, cap, 0,
                                                  cap), ==,
