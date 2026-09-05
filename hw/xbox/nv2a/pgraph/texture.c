@@ -78,31 +78,53 @@ const BasicColorFormatInfo kelvin_color_format_info_map[66] = {
     [NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_R8G8B8A8] = { 4, true },
 };
 
-hwaddr pgraph_get_texture_phys_addr(PGRAPHState *pg, int texture_idx)
+static bool pgraph_get_dma_vram_addr_checked(NV2AState *d,
+                                             hwaddr dma_obj_address,
+                                             hwaddr object_offset,
+                                             size_t required_length,
+                                             hwaddr *offset)
+{
+    hwaddr ramin_size = memory_region_size(&d->ramin);
+    hwaddr vram_size = memory_region_size(d->vram);
+
+    /* nv_dma_load() historically asserts these conditions. Texture data is
+     * guest-controlled, so validate them before loading the descriptor. */
+    if (dma_obj_address > ramin_size ||
+        sizeof(uint32_t) * 3 > ramin_size - dma_obj_address) {
+        return false;
+    }
+
+    DMAObject dma = nv_dma_load(d, dma_obj_address);
+    hwaddr base = dma.address & 0x07FFFFFF;
+
+    if (!pgraph_texture_dma_range_valid(base, object_offset, required_length,
+                                        dma.limit, vram_size)) {
+        return false;
+    }
+
+    if (offset) {
+        *offset = base + object_offset;
+    }
+    return true;
+}
+
+bool pgraph_get_texture_phys_addr_checked(PGRAPHState *pg, int texture_idx,
+                                          size_t required_length,
+                                          hwaddr *offset)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
     int i = texture_idx;
-
-    uint32_t fmt = pgraph_reg_r(pg, NV_PGRAPH_TEXFMT0 + i*4);
+    uint32_t fmt = pgraph_reg_r(pg, NV_PGRAPH_TEXFMT0 + i * 4);
     unsigned int dma_select =
         GET_MASK(fmt, NV_PGRAPH_TEXFMT0_CONTEXT_DMA);
-
-    hwaddr offset = pgraph_reg_r(pg, NV_PGRAPH_TEXOFFSET0 + i*4);
-
-    hwaddr dma_len;
-    uint8_t *texture_data;
-    if (dma_select) {
-        texture_data = (uint8_t*)nv_dma_map(d, pg->dma_b, &dma_len);
-    } else {
-        texture_data = (uint8_t*)nv_dma_map(d, pg->dma_a, &dma_len);
-    }
-    assert(offset < dma_len);
-    texture_data += offset;
-
-    return texture_data - d->vram_ptr;
+    hwaddr dma_obj_address = dma_select ? pg->dma_b : pg->dma_a;
+    hwaddr texture_offset = pgraph_reg_r(pg, NV_PGRAPH_TEXOFFSET0 + i * 4);
+    return pgraph_get_dma_vram_addr_checked(d, dma_obj_address, texture_offset,
+                                            required_length, offset);
 }
 
-hwaddr pgraph_get_texture_palette_phys_addr_length(PGRAPHState *pg, int texture_idx, size_t *length)
+bool pgraph_get_texture_palette_phys_addr_length_checked(
+    PGRAPHState *pg, int texture_idx, hwaddr *offset, size_t *length)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
     int i = texture_idx;
@@ -121,74 +143,43 @@ hwaddr pgraph_get_texture_palette_phys_addr_length(PGRAPHState *pg, int texture_
     case NV_PGRAPH_TEXPALETTE0_LENGTH_128: palette_length = 128; break;
     case NV_PGRAPH_TEXPALETTE0_LENGTH_64: palette_length = 64; break;
     case NV_PGRAPH_TEXPALETTE0_LENGTH_32: palette_length = 32; break;
-    default: assert(!"Invalid palette length"); break;
+    default:
+        return false;
     }
     if (length) {
         *length = palette_length * 4;
     }
 
-    hwaddr palette_dma_len;
-    uint8_t *palette_data;
-    if (palette_dma_select) {
-        palette_data = (uint8_t*)nv_dma_map(d, pg->dma_b, &palette_dma_len);
-    } else {
-        palette_data = (uint8_t*)nv_dma_map(d, pg->dma_a, &palette_dma_len);
-    }
-    assert(palette_offset < palette_dma_len);
-    palette_data += palette_offset;
-
-    return palette_data - d->vram_ptr;
+    hwaddr palette_dma_address = palette_dma_select ? pg->dma_b : pg->dma_a;
+    size_t palette_size = palette_length * 4;
+    return pgraph_get_dma_vram_addr_checked(d, palette_dma_address,
+                                            palette_offset, palette_size,
+                                            offset);
 }
 
-size_t pgraph_get_texture_length(PGRAPHState *pg, TextureShape *shape)
+bool pgraph_get_texture_length_checked(PGRAPHState *pg,
+                                       const TextureShape *shape,
+                                       size_t *length)
 {
-    BasicColorFormatInfo f = kelvin_color_format_info_map[shape->color_format];
-    size_t length = 0;
-
-    if (f.linear) {
-        assert(shape->cubemap == false);
-        assert(shape->dimensionality == 2);
-        length = shape->height * shape->pitch;
-    } else {
-        if (shape->dimensionality >= 2) {
-            unsigned int w = shape->width, h = shape->height;
-            int level;
-            if (!pgraph_is_texture_format_compressed(pg, shape->color_format)) {
-                for (level = 0; level < shape->levels; level++) {
-                    w = MAX(w, 1);
-                    h = MAX(h, 1);
-                    length += w * h * f.bytes_per_pixel;
-                    w /= 2;
-                    h /= 2;
-                }
-            } else {
-                /* Compressed textures are a bit different */
-                unsigned int block_size =
-                    shape->color_format ==
-                            NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT1_A1R5G5B5 ?
-                        8 : 16;
-                for (level = 0; level < shape->levels; level++) {
-                    w = MAX(w, 1);
-                    h = MAX(h, 1);
-                    unsigned int phys_w = (w + 3) & ~3,
-                                 phys_h = (h + 3) & ~3;
-                    length += phys_w/4 * phys_h/4 * block_size;
-                    w /= 2;
-                    h /= 2;
-                }
-            }
-            if (shape->cubemap) {
-                assert(shape->dimensionality == 2);
-                length = (length + NV2A_CUBEMAP_FACE_ALIGNMENT - 1) & ~(NV2A_CUBEMAP_FACE_ALIGNMENT - 1);
-                length *= 6;
-            }
-            if (shape->dimensionality >= 3) {
-                length *= shape->depth;
-            }
-        }
+    if (!shape || !length || shape->color_format >=
+                                  ARRAY_SIZE(kelvin_color_format_info_map)) {
+        return false;
     }
 
-    return length;
+    BasicColorFormatInfo f = kelvin_color_format_info_map[shape->color_format];
+    if (f.linear) {
+        if (!shape->width || !shape->height || shape->cubemap ||
+            shape->dimensionality != 2 ||
+            (shape->height && shape->pitch > SIZE_MAX / shape->height)) {
+            return false;
+        }
+        *length = (size_t)shape->height * shape->pitch;
+        return true;
+    }
+
+    return pgraph_calculate_texture_encoded_size(
+        *shape, pgraph_is_texture_format_compressed(pg, shape->color_format),
+        f.bytes_per_pixel, length);
 }
 
 TextureShape pgraph_get_texture_shape(PGRAPHState *pg, int texture_idx)

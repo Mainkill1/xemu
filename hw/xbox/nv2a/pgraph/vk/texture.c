@@ -27,6 +27,7 @@
 #include "hw/xbox/nv2a/pgraph/s3tc.h"
 #include "hw/xbox/nv2a/pgraph/swizzle.h"
 #include "qemu/fast-hash.h"
+#include "qemu/log.h"
 #include "qemu/lru.h"
 #include "renderer.h"
 
@@ -97,51 +98,35 @@ static void memcpy_image(void *dst, void *src, int min_stride, int dst_stride, i
     }
 }
 
-// FIXME: Move to common
 static size_t get_cubemap_layer_size(PGRAPHState *pg, TextureShape s)
 {
     BasicColorFormatInfo f = kelvin_color_format_info_map[s.color_format];
     bool is_compressed =
         pgraph_is_texture_format_compressed(pg, s.color_format);
-    unsigned int block_size;
+    size_t total_size;
 
-    unsigned int w = s.width, h = s.height;
-    size_t length = 0;
-
-    if (!f.linear && s.border) {
-        w = MAX(16, w * 2);
-        h = MAX(16, h * 2);
+    if (!s.cubemap ||
+        !pgraph_calculate_texture_encoded_size(s, is_compressed,
+                                               f.bytes_per_pixel,
+                                               &total_size) ||
+        total_size % 6) {
+        return 0;
     }
-
-    if (is_compressed) {
-        block_size =
-            s.color_format == NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT1_A1R5G5B5 ?
-                8 :
-                16;
-    }
-
-    for (int level = 0; level < s.levels; level++) {
-        if (is_compressed) {
-            length += w / 4 * h / 4 * block_size;
-        } else {
-            length += w * h * f.bytes_per_pixel;
-        }
-
-        w /= 2;
-        h /= 2;
-    }
-
-    return ROUND_UP(length, NV2A_CUBEMAP_FACE_ALIGNMENT);
+    return total_size / 6;
 }
 
 // FIXME: Move to common
 // FIXME: More refactoring
 // FIXME: Possible parallelization of decoding
 // FIXME: Bounds checking
-static TextureLayout *get_texture_layout(PGRAPHState *pg, int texture_idx)
+static TextureLayout *get_texture_layout(PGRAPHState *pg, int texture_idx,
+                                         const TextureShape *shape,
+                                         hwaddr texture_vram_offset,
+                                         hwaddr texture_palette_vram_offset,
+                                         size_t texture_palette_data_size)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
-    TextureShape s = pgraph_get_texture_shape(pg, texture_idx);
+    TextureShape s = *shape;
     BasicColorFormatInfo f = kelvin_color_format_info_map[s.color_format];
 
     NV2A_VK_DGROUP_BEGIN("Texture %d: cubemap=%d, dimensionality=%d, color_format=0x%x, levels=%d, width=%d, height=%d, depth=%d border=%d, min_mipmap_level=%d, max_mipmap_level=%d, pitch=%d",
@@ -169,23 +154,21 @@ static TextureLayout *get_texture_layout(PGRAPHState *pg, int texture_idx)
     }
     assert(s.dimensionality > 1);
 
-    const hwaddr texture_vram_offset = pgraph_get_texture_phys_addr(pg, texture_idx);
     void *texture_data_ptr = (char *)d->vram_ptr + texture_vram_offset;
 
-    size_t texture_palette_data_size;
-    const hwaddr texture_palette_vram_offset =
-        pgraph_get_texture_palette_phys_addr_length(pg, texture_idx,
-                                                    &texture_palette_data_size);
     void *palette_data_ptr = (char *)d->vram_ptr + texture_palette_vram_offset;
 
-    unsigned int adjusted_width = s.width, adjusted_height = s.height,
-                 adjusted_pitch = s.pitch, adjusted_depth = s.depth;
+    unsigned int adjusted_width, adjusted_height, adjusted_depth;
+    if (!pgraph_get_texture_storage_extent(s, &adjusted_width,
+                                           &adjusted_height,
+                                           &adjusted_depth)) {
+        NV2A_VK_DGROUP_END();
+        return NULL;
+    }
+    unsigned int adjusted_pitch = s.pitch;
 
     if (!f.linear && s.border) {
-        adjusted_width = MAX(16, adjusted_width * 2);
-        adjusted_height = MAX(16, adjusted_height * 2);
         adjusted_pitch = adjusted_width * (s.pitch / s.width);
-        adjusted_depth = MAX(16, s.depth * 2);
     }
 
     TextureLayout *layout = g_malloc0(sizeof(TextureLayout));
@@ -447,7 +430,7 @@ static bool check_texture_dirty(NV2AState *d, hwaddr addr, hwaddr size)
 {
     hwaddr end = TARGET_PAGE_ALIGN(addr + size);
     addr &= TARGET_PAGE_MASK;
-    assert(end < memory_region_size(d->vram));
+    assert(end <= memory_region_size(d->vram));
     return memory_region_test_and_clear_dirty(d->vram, addr, end - addr,
                                               DIRTY_MEMORY_NV2A_TEX);
 }
@@ -493,7 +476,14 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
         pgraph_vk_finish(pg, VK_FINISH_REASON_TEXTURE_DIRTY);
     }
 
-    g_autofree TextureLayout *layout = get_texture_layout(pg, texture_idx);
+    g_autofree TextureLayout *layout = get_texture_layout(
+        pg, texture_idx, state, binding->key.texture_vram_offset,
+        binding->key.palette_vram_offset, binding->key.palette_length);
+    if (!layout) {
+        qemu_log_mask(LOG_GUEST_ERROR,
+                      "nv2a: failed to construct texture source layout\n");
+        return;
+    }
     const int num_layers = state->cubemap ? 6 : 1;
 
     // Calculate decoded texture data size
@@ -898,6 +888,15 @@ static unsigned int vk_format_texel_size(VkFormat format)
 static bool check_surface_to_texture_compatiblity(const SurfaceBinding *surface,
                                                   const TextureShape *shape)
 {
+    BasicColorFormatInfo f = kelvin_color_format_info_map[shape->color_format];
+
+    /* Bordered non-linear textures occupy an expanded source extent. A
+     * render target only represents the logical extent and cannot safely
+     * share that image allocation. */
+    if (shape->border && !f.linear) {
+        return false;
+    }
+
     if ((!surface->swizzle && surface->pitch != shape->pitch) ||
         surface->width != shape->width ||
         surface->height != shape->height ||
@@ -1078,17 +1077,39 @@ static bool is_linear_filter_supported_for_format(PGRAPHVkState *r,
            VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT;
 }
 
-static void create_texture(PGRAPHState *pg, int texture_idx)
+static bool create_texture(PGRAPHState *pg, int texture_idx)
 {
     NV2A_VK_DGROUP_BEGIN("Creating texture %d", texture_idx);
 
     NV2AState *d = container_of(pg, NV2AState, pgraph);
     PGRAPHVkState *r = pg->vk_renderer_state;
     TextureShape state = pgraph_get_texture_shape(pg, texture_idx); // FIXME: Check for pad issues
+    if (state.color_format >= ARRAY_SIZE(kelvin_color_format_info_map) ||
+        state.color_format >= ARRAY_SIZE(kelvin_color_format_vk_map)) {
+        qemu_log_mask(LOG_GUEST_ERROR,
+                      "nv2a: rejected texture with invalid color format\n");
+        NV2A_VK_DGROUP_END();
+        return false;
+    }
     BasicColorFormatInfo f_basic = kelvin_color_format_info_map[state.color_format];
+    VkColorFormatInfo vkf = kelvin_color_format_vk_map[state.color_format];
+    if (!vkf.vk_format) {
+        qemu_log_mask(LOG_GUEST_ERROR,
+                      "nv2a: rejected texture with unsupported Vulkan format\n");
+        NV2A_VK_DGROUP_END();
+        return false;
+    }
 
-    const hwaddr texture_vram_offset = pgraph_get_texture_phys_addr(pg, texture_idx);
-    size_t texture_length = pgraph_get_texture_length(pg, &state);
+    hwaddr texture_vram_offset;
+    size_t texture_length;
+    if (!pgraph_get_texture_length_checked(pg, &state, &texture_length) ||
+        !pgraph_get_texture_phys_addr_checked(pg, texture_idx, texture_length,
+                                              &texture_vram_offset)) {
+        qemu_log_mask(LOG_GUEST_ERROR,
+                      "nv2a: rejected texture with invalid source range\n");
+        NV2A_VK_DGROUP_END();
+        return false;
+    }
     hwaddr texture_palette_vram_offset = 0;
     size_t texture_palette_data_size = 0;
 
@@ -1110,9 +1131,14 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
     key.texture_vram_offset = texture_vram_offset;
     key.texture_length = texture_length;
     if (is_indexed) {
-        texture_palette_vram_offset =
-            pgraph_get_texture_palette_phys_addr_length(
-                pg, texture_idx, &texture_palette_data_size);
+        if (!pgraph_get_texture_palette_phys_addr_length_checked(
+                pg, texture_idx, &texture_palette_vram_offset,
+                &texture_palette_data_size)) {
+            qemu_log_mask(LOG_GUEST_ERROR,
+                          "nv2a: rejected texture with invalid palette range\n");
+            NV2A_VK_DGROUP_END();
+            return false;
+        }
         key.palette_vram_offset = texture_palette_vram_offset;
         key.palette_length = texture_palette_data_size;
     }
@@ -1156,6 +1182,32 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
     if (surface_to_texture && pg->surface_scale_factor > 1) {
         key.scale = pg->surface_scale_factor;
     }
+
+    VkExtent3D image_extent = {
+        .width = state.width,
+        .height = state.height,
+        .depth = state.depth,
+    };
+    if (!surface_to_texture && !state.cubemap &&
+        !pgraph_get_texture_storage_extent(state, &image_extent.width,
+                                           &image_extent.height,
+                                           &image_extent.depth)) {
+        qemu_log_mask(LOG_GUEST_ERROR,
+                      "nv2a: texture storage extent overflows\n");
+        NV2A_VK_DGROUP_END();
+        return false;
+    }
+    if (surface_to_texture) {
+        pgraph_apply_scaling_factor(pg, &image_extent.width,
+                                    &image_extent.height);
+    }
+    key.surface_to_texture = surface_to_texture;
+    key.image_width = image_extent.width;
+    key.image_height = image_extent.height;
+    key.image_depth = image_extent.depth;
+    key.image_mip_levels = f_basic.linear ? 1 : state.levels;
+    key.image_array_layers = state.cubemap ? 6 : 1;
+    key.image_format = vkf.vk_format;
 
     uint64_t key_hash = fast_hash((void*)&key, sizeof(key));
     LruNode *node = lru_lookup(&r->texture_cache, key_hash, &key);
@@ -1202,7 +1254,7 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
         }
 
         NV2A_VK_DGROUP_END();
-        return;
+        return true;
     }
 
     NV2A_VK_DPRINTF("Cache miss");
@@ -1212,8 +1264,6 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
     snode->possibly_dirty = false;
     snode->hash = content_hash;
 
-    VkColorFormatInfo vkf = kelvin_color_format_vk_map[state.color_format];
-    assert(vkf.vk_format != 0);
     assert(0 < state.dimensionality);
     assert(state.dimensionality < ARRAY_SIZE(dimensionality_to_vk_image_type));
     assert(state.dimensionality <
@@ -1222,11 +1272,9 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
     VkImageCreateInfo image_create_info = {
         .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
         .imageType = dimensionality_to_vk_image_type[state.dimensionality],
-        .extent.width = state.width, // FIXME: Use adjusted size?
-        .extent.height = state.height,
-        .extent.depth = state.depth,
-        .mipLevels = f_basic.linear ? 1 : state.levels,
-        .arrayLayers = state.cubemap ? 6 : 1,
+        .extent = image_extent,
+        .mipLevels = key.image_mip_levels,
+        .arrayLayers = key.image_array_layers,
         .format = vkf.vk_format,
         .tiling = VK_IMAGE_TILING_OPTIMAL,
         .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
@@ -1235,11 +1283,6 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
         .flags = (state.cubemap ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0),
     };
-
-    if (surface_to_texture) {
-        pgraph_apply_scaling_factor(pg, &image_create_info.extent.width,
-                                        &image_create_info.extent.height);
-    }
 
     VmaAllocationCreateInfo alloc_create_info = {
         .usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,
@@ -1395,6 +1438,7 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
     }
 
     NV2A_VK_DGROUP_END();
+    return true;
 }
 
 static bool check_textures_dirty(PGRAPHState *pg)
@@ -1402,7 +1446,9 @@ static bool check_textures_dirty(PGRAPHState *pg)
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
-        if (!r->texture_bindings[i] || pg->texture_dirty[i]) {
+        if (!r->texture_bindings[i] || pg->texture_dirty[i] ||
+            (pgraph_is_texture_enabled(pg, i) &&
+             r->texture_bindings[i] == &r->dummy_texture)) {
             return true;
         }
     }
@@ -1440,12 +1486,18 @@ void pgraph_vk_bind_textures(NV2AState *d)
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
         if (!pgraph_is_texture_enabled(pg, i)) {
             r->texture_bindings[i] = &r->dummy_texture;
+            pg->texture_dirty[i] = false;
             continue;
         }
 
-        create_texture(pg, i);
+        bool created = create_texture(pg, i);
+        if (!created) {
+            r->texture_bindings[i] = &r->dummy_texture;
+        }
 
-        pg->texture_dirty[i] = false; // FIXME: Move to renderer?
+        /* Invalid guest state may be repaired without another texture method.
+         * Keep failed bindings dirty so the next bind retries the source. */
+        pg->texture_dirty[i] = !created; // FIXME: Move to renderer?
     }
 
     r->texture_bindings_changed = true;
