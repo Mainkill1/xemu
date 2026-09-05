@@ -1,4 +1,4 @@
-# ENG-2026-523 DSP-before-Issue42 release candidate
+# ENG-2026-523 DSP and bordered-texture contract candidate
 
 This branch is the clean dependency-ordered candidate for the DSP snapshot
 resume repair and Issue 42 Vulkan bordered-texture copy-extent repair. It is a
@@ -26,7 +26,8 @@ The exact production/test order for this branch is:
     |
 d6cd4fe10ae85bf35f375bc3036c5caaf0e6de26  quiesce DSP before snapshot VMState load
     |
-1d0488ac46bbbd8b44f0fdaa08a33bc130ea7a74  Issue 42 Vulkan copy-extent repair (production head)
+1d0488ac46bbbd8b44f0fdaa08a33bc130ea7a74  initial Issue 42 Vulkan copy-extent repair
+branch head                                      reviewed texture-contract repair
     |
 62f1f95043010f583dcc153cd267c1b0c9d83974  opt-in XISO markers
 0656c3c0e76c054235611d1aa9a6382c64f45939  opt-in flip probe
@@ -65,8 +66,8 @@ are retained when repeatable; neutral or negative candidates remain research.
 
 ## Reproducible Windows builds
 
-The qualified build was produced on the dedicated Linux build host
-`10.0.100.1` from a clean detached checkout of the tested source commit. The
+The qualified build was produced on a dedicated Linux build host from a clean
+detached checkout of the tested source commit. The
 only required external compiler environment is the public xemu Windows
 cross-toolchain image from GitHub Container Registry, pinned by digest:
 
@@ -104,11 +105,14 @@ Set `CROSSPREFIX=x86_64-w64-mingw32.static-` and
 source SHA, clean-tree result, container digest, full command, build log, and
 SHA-256 of `xemu.exe`, `LICENSE.txt`, and the matching symbol artifacts.
 
-For the qualified Release package, `BUILD_JOBS=32`, `CCACHE_MAXSIZE=512M`, and
-the incremental LTO cache was mounted at `/xemu-cache/lto`. The resulting
-`xemu.exe` SHA-256 is
+For the previously tested precursor package, `BUILD_JOBS=32`,
+`CCACHE_MAXSIZE=512M`, and the incremental LTO cache was mounted at
+`/xemu-cache/lto`. Its `xemu.exe` SHA-256 was
 `9589dc107db324e14bf55045dd6c5c439ed6bf4de254d42ea42f73882002cbee`.
-Run `sha256sum -c SHA256SUMS.txt` in the package directory before testing.
+That binary predates the review repairs in this head and is not evidence for
+them. Record the replacement package and SHA-256 only after the repaired head
+completes the full gate. Run `sha256sum -c SHA256SUMS.txt` in every package
+directory before testing.
 
 General project information is available at [xemu.app](https://xemu.app).
 
@@ -138,24 +142,28 @@ correctness foundation before any per-feature A/B is release-valid.
 ## DSP snapshot-resume repair
 
 Snapshot VMState load now quiesces the DSP worker before restoring DSP memory
-and registers, then resumes it after the load completes. This prevents the
-worker from executing a partially restored PRAM image. The repair preserves
+and registers, then resumes it after the load completes. This prevents a DSP
+backend from executing before restored VMState has been synchronized into
+that backend. The repair preserves
 the required BQL-to-DSP lock order; the superseded first attempt that waited
 while holding the BQL is not part of this branch.
 
 This is a prerequisite correctness fix for Issue 42 validation. The Issue 42
 binary-layout change exposed the pre-existing race, but the Vulkan-only texture
 change did not directly cause DSP corruption. A full WER dump captured the DSP
-worker executing the `0xCACACACA` restored-memory sentinel, and the corrected
-quiesce order removed that failure from the repeated snapshot gate.
+worker executing the backend's `0xCACACACA` initialization sentinel, and the
+corrected quiesce order removed that failure from the repeated snapshot gate.
 
 ## Issue 42 bordered decoded-BC2 extent repair
 
-Vulkan texture layout, image allocation, staging size, and image-copy extent
-now use one shared physical storage extent for bordered swizzled textures.
-The guest's logical texture dimensions remain unchanged. This removes the
-validation error caused when decoded BC2 border storage was larger than the
-destination image extent.
+Vulkan texture layout, image allocation, staging size, image-copy extent,
+encoded-source hashing, and dirty coverage now derive from one physical
+storage contract for supported bordered swizzled textures. The guest's logical
+texture dimensions remain unchanged. Bordered swizzled textures are rejected
+from the render-surface shortcut because that logical-sized source does not
+provide the expanded border storage. Cache identity also records the actual
+image contract and source route, so a cache hit cannot silently reuse an image
+created under incompatible dimensions.
 
 ```text
 guest logical texture shape
@@ -166,16 +174,21 @@ derive NV2A physical border-storage extent once
           +--> decode/staging dimensions
           +--> VkImage allocation dimensions
           +--> VkBufferImageCopy extent
+          +--> encoded-source hash/dirty range
+          +--> checked DMA and VRAM source interval
 ```
 
-The patch is deliberately local to Vulkan texture storage. OpenGL is retained
-as a negative control, and native compressed-texture work remains a separate
-later performance candidate.
+The image-allocation and route repair is deliberately local to Vulkan. The
+shared encoded-footprint calculation is also used by OpenGL so both renderers
+observe every byte their decoders consume. OpenGL remains a required control,
+and native compressed-texture work remains a separate later performance
+candidate. Bordered cubemap crop and mip handling is inherited, is not changed
+by this branch, and remains tracked separately.
 
-## Qualified Release results
+## Pre-review Release results (superseded)
 
-The exact executable identified above passed the entire current Release gate
-in the visible Windows Session 1 GUI on `10.0.7.1`. NVIDIA profile setup was
+The precursor executable identified above passed the then-current Release gate
+in the visible Windows Session 1 GUI on the dedicated test host. NVIDIA profile setup was
 disabled and no host-load timing option was enabled.
 
 | Backend | XISO run 1 | XISO run 2 | Functional hashes | Vulkan VUIDs |
@@ -195,6 +208,11 @@ warmup. Screenshots were inspected for the intended playable state, PGR2's
 complete input log was verified, source ownership matched the executable, and
 all four traces reported zero ETW lost events and buffers.
 
+These results do not qualify the review-repaired branch head. The repaired
+head must repeat both 149-record XISO runs on both backends, the two retail
+workloads on both backends, focused texture regressions, Vulkan validation,
+and resource monitoring before promotion.
+
 The matched-parent Vulkan XISO control containing the DSP repair but not Issue
 42 stopped after 35 boundaries in 2/2 runs. Adding Issue 42 changed that result
 to 149/149 in 2/2 runs with zero VUIDs. That deterministic boundary transition
@@ -212,11 +230,13 @@ Issue 42). Positive FPS is faster; negative p95/p99 is better.
 | Morrowind heavy snapshot | Vulkan | -4.77% | -0.28% | -0.18% |
 | PGR2 true fresh boot | Vulkan | -0.01% | +0.83% | +2.04% |
 
-The code change is Vulkan-only, so the OpenGL movement is a negative-control
-estimate of run variance. PGR2 Vulkan is unchanged. Morrowind Vulkan's flip
-rate moved down while p95, p99, and stall count improved, so the one retail
-sample does not support a causal speed regression or improvement. This branch
-is accepted as a performance-neutral correctness repair.
+The original image-allocation change was Vulkan-only, so the OpenGL movement
+is a negative-control estimate of run variance. Morrowind Vulkan's flip rate
+moved down while p95, p99, and stall count improved, so the one retail sample
+does not support a causal speed regression or improvement. The available
+single-window comparisons do not establish a performance gain, regression, or
+equivalence bound. The correctness repair is not described as
+performance-neutral.
 
 CPU, working set, private bytes, process GPU, dedicated/shared GPU memory,
 device GPU, and resident VRAM were sampled throughout every lane. F1-to-F2
@@ -226,13 +246,18 @@ spike or unbounded lifetime growth was observed. The complete mean/peak table,
 including every small signed delta and retained transient counter warning, is
 in `performance-analysis.md` in the validation evidence bundle.
 
-The first frozen upstream PGR2 cells captured a different pacing state and are
-not used for per-patch attribution. A final upstream rerun remains queued.
+The PGR2 cells in this table are raw observations only. A closing upstream
+rerun did not reproduce the same pacing state seen in the earlier baseline.
+Until an exclusive rerun proves identical executable, configuration, guest
+state, input completion, measurement interval, and host conditions, no PGR2
+percentage from this campaign is valid for patch attribution or release
+claims.
 
 The matched pre-DSP F0 campaign is now complete. Its OpenGL lane passed XISO
 149/149 twice and both retail runs. Relative to F0, the DSP repair changed
 Morrowind FPS/p95/p99 by -2.22%/+3.34%/+1.25% and PGR2 by
--0.39%/-1.56%/+0.31%, which is neutral within current one-run variance. F0's
+-0.39%/-1.56%/+0.31%; those PGR2 values are withheld from attribution pending
+the exclusive pacing-state investigation. F0's
 Vulkan Morrowind snapshot then reproduced the exact `dsp_cpu.c:893` assertion
 before measurement, so no unsafe-control Vulkan performance percentage is
 invented. The crash itself closes the matched correctness comparison for the
@@ -241,9 +266,8 @@ Issue 42 and Issue 44 results.
 
 ## Evidence identity
 
-The accepted evidence root is
-`active/release-validation/evidence/2026-09-04/clean-dsp-before-issue42` in the
-lab working set. Important SHA-256 identities are:
+The accepted precursor evidence is preserved in the release-validation bundle.
+Important SHA-256 identities are:
 
 - OpenGL worker report:
   `4d5af2fee0089c8cee0a6083f31edf7a376f90c1cd2f5169153b9477cf429155`;
