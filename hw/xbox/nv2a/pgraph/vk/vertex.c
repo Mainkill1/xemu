@@ -50,12 +50,28 @@ void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
     StorageBuffer *staging =
         &r->storage_buffers[BUFFER_VERTEX_RAM_STAGING];
 
-    if (!size || !data || !vertex->mapped ||
-        !pgraph_vk_vertex_staging_range_valid(offset, size,
+    if (!size) {
+        return;
+    }
+    if (!pgraph_vk_vertex_staging_range_valid(offset, size,
                                               vertex->buffer_size)) {
+        qemu_log_mask(LOG_GUEST_ERROR,
+                      "nv2a: rejecting out-of-range vertex update "
+                      "offset=0x%" HWADDR_PRIx " size=%" PRIu64
+                      " vram_size=%zu\n",
+                      offset, size, vertex->buffer_size);
+        return;
+    }
+    if (!data || !vertex->mapped) {
+        qemu_log_mask(LOG_GUEST_ERROR,
+                      "nv2a: vertex update has no mapped source\n");
         return;
     }
 
+    bool copy_compatible = !(offset & 3) && !(size & 3);
+    PgraphVkVertexUpdatePlan plan = pgraph_vk_vertex_update_plan(
+        r->in_command_buffer, copy_compatible, offset, size,
+        vertex->buffer_size, staging->buffer_offset, staging->buffer_size);
     pgraph_vk_download_surfaces_in_range_if_dirty(pg, offset, size);
 
     /* With no recorded draws, direct mapped writes cannot race the GPU. This
@@ -66,15 +82,13 @@ void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
         return;
     }
 
-    bool copy_compatible = !(offset & 3) && !(size & 3);
-    if (!copy_compatible ||
-        !pgraph_vk_buffer_has_space_for(
-            pg, BUFFER_VERTEX_RAM_STAGING, size, 4)) {
+    if (plan == PGRAPH_VK_VERTEX_UPDATE_FINISH_RETRY ||
+        plan == PGRAPH_VK_VERTEX_UPDATE_FINISH_DIRECT) {
         /* The allocation can still be referenced by recorded commands. Wait
          * before reusing or replacing it. */
         pgraph_vk_finish(pg, VK_FINISH_REASON_VERTEX_BUFFER_DIRTY);
 
-        if (!copy_compatible || size > PGRAPH_VK_VERTEX_RAM_STAGING_MAX_SIZE ||
+        if (plan == PGRAPH_VK_VERTEX_UPDATE_FINISH_DIRECT ||
             (!pgraph_vk_buffer_has_space_for(
                  pg, BUFFER_VERTEX_RAM_STAGING, size, 4) &&
              !pgraph_vk_grow_vertex_ram_staging_buffer(pg, size)) ||

@@ -501,6 +501,7 @@ bool pgraph_vk_ensure_buffer_capacity(PGRAPHState *pg, int index,
                                       VkDeviceSize required_size);
 void pgraph_vk_ensure_buffer_pair_capacity(PGRAPHState *pg, int index,
                                            size_t required_size);
+/* Returns VK_WHOLE_SIZE on rejected input or failed capacity preflight. */
 VkDeviceSize pgraph_vk_append_to_buffer(PGRAPHState *pg, int index, void **data,
                                         VkDeviceSize *sizes, size_t count,
                                         VkDeviceAddress alignment);
