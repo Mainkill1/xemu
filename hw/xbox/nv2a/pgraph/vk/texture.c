@@ -578,7 +578,7 @@ static bool upload_texture_image(PGRAPHState *pg, int texture_idx,
     if (!layout) {
         qemu_log_mask(LOG_GUEST_ERROR,
                       "nv2a: failed to construct texture source layout\n");
-        return;
+        return false;
     }
     const int num_layers = state->cubemap ? 6 : 1;
 
@@ -1363,8 +1363,6 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
         key.scale = pg->surface_scale_factor;
     }
 
-    VkColorFormatInfo vkf = kelvin_color_format_vk_map[state.color_format];
-    assert(vkf.vk_format != VK_FORMAT_UNDEFINED);
     key.vk_format = vkf.vk_format;
     if (!surface_to_texture) {
         can_upload_native_bc(r, &state, filter, &key.vk_format);
