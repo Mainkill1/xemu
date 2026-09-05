@@ -19,6 +19,7 @@
 
 #include "qemu/osdep.h"
 #include "qemu/fast-hash.h"
+#include "qemu/log.h"
 #include "renderer.h"
 #include <math.h>
 
