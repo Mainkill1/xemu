@@ -19,6 +19,7 @@
 
 #include "qemu/osdep.h"
 #include "qemu/fast-hash.h"
+#include "qemu/log.h"
 #include "renderer.h"
 #include <math.h>
 
@@ -1235,7 +1236,6 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         sync_staging_buffer(pg, cmd, BUFFER_VERTEX_INLINE_STAGING,
                                 BUFFER_VERTEX_INLINE);
         sync_staging_buffer(pg, cmd, BUFFER_UNIFORM_STAGING, BUFFER_UNIFORM);
-        bitmap_clear(r->uploaded_bitmap, 0, r->bitmap_size);
         flush_memory_buffer(pg, cmd);
         VK_CHECK(vkEndCommandBuffer(r->aux_command_buffer));
         r->in_aux_command_buffer = false;
@@ -1281,6 +1281,7 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
 
         VK_CHECK(vkWaitForFences(r->device, 1, &r->command_buffer_fence,
                                  VK_TRUE, UINT64_MAX));
+        r->storage_buffers[BUFFER_VERTEX_RAM_STAGING].buffer_offset = 0;
 
         r->descriptor_set_index = 0;
         r->in_command_buffer = false;
@@ -2096,6 +2097,12 @@ void pgraph_vk_flush_draw(NV2AState *d)
         copy_remapped_attributes_to_inline_buffer(pg, remap, 0, max_element + 1);
         VkDeviceSize buffer_offset = pgraph_vk_update_index_buffer(
             pg, pg->inline_elements, index_data_size);
+        if (buffer_offset == VK_WHOLE_SIZE) {
+            qemu_log_mask(LOG_GUEST_ERROR,
+                          "nv2a: index staging append failed\n");
+            NV2A_VK_DGROUP_END();
+            return;
+        }
         pgraph_vk_begin_debug_marker(r, r->command_buffer, RGBA_BLUE,
                                      "Inline Elements");
         begin_draw(pg);
@@ -2137,6 +2144,12 @@ void pgraph_vk_flush_draw(NV2AState *d)
         begin_pre_draw(pg);
         VkDeviceSize buffer_offset = pgraph_vk_update_vertex_inline_buffer(
             pg, data, sizes, r->num_active_vertex_attribute_descriptions);
+        if (buffer_offset == VK_WHOLE_SIZE) {
+            qemu_log_mask(LOG_GUEST_ERROR,
+                          "nv2a: inline vertex staging append failed\n");
+            NV2A_VK_DGROUP_END();
+            return;
+        }
         pgraph_vk_begin_debug_marker(r, r->command_buffer, RGBA_BLUE,
                                      "Inline Buffer");
         begin_draw(pg);
@@ -2181,6 +2194,12 @@ void pgraph_vk_flush_draw(NV2AState *d)
         void *inline_array_data = pg->inline_array;
         VkDeviceSize buffer_offset = pgraph_vk_update_vertex_inline_buffer(
             pg, &inline_array_data, &inline_array_data_size, 1);
+        if (buffer_offset == VK_WHOLE_SIZE) {
+            qemu_log_mask(LOG_GUEST_ERROR,
+                          "nv2a: inline array staging append failed\n");
+            NV2A_VK_DGROUP_END();
+            return;
+        }
         pgraph_vk_begin_debug_marker(r, r->command_buffer, RGBA_BLUE,
                                      "Inline Array");
         begin_draw(pg);
