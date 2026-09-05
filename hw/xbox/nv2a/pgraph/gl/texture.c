@@ -237,18 +237,30 @@ void pgraph_gl_bind_textures(NV2AState *d)
         if (filter & NV_PGRAPH_TEXFILTER0_BSIGNED) NV2A_UNIMPLEMENTED("NV_PGRAPH_TEXFILTER0_BSIGNED");
 
         TextureShape state = pgraph_get_texture_shape(pg, i);
-        hwaddr texture_vram_offset, palette_vram_offset;
-        size_t length, palette_length;
-
-        length = pgraph_get_texture_length(pg, &state);
-        texture_vram_offset = pgraph_get_texture_phys_addr(pg, i);
-        palette_vram_offset = pgraph_get_texture_palette_phys_addr_length(pg, i, &palette_length);
-
-        assert((texture_vram_offset + length) < memory_region_size(d->vram));
-        assert((palette_vram_offset + palette_length)
-               < memory_region_size(d->vram));
         bool is_indexed = (state.color_format ==
                 NV097_SET_TEXTURE_FORMAT_COLOR_SZ_I8_A8R8G8B8);
+        hwaddr texture_vram_offset, palette_vram_offset = 0;
+        size_t length, palette_length = 0;
+
+        bool source_valid =
+            pgraph_get_texture_length_checked(pg, &state, &length) &&
+            pgraph_get_texture_phys_addr_checked(pg, i, length,
+                                                 &texture_vram_offset);
+        if (source_valid && is_indexed) {
+            source_valid =
+                pgraph_get_texture_palette_phys_addr_length_checked(
+                    pg, i, &palette_vram_offset, &palette_length);
+        }
+        if (!source_valid) {
+            qemu_log_mask(LOG_GUEST_ERROR,
+                          "nv2a: rejected texture with invalid source range\n");
+            glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+            glBindTexture(GL_TEXTURE_1D, 0);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glBindTexture(GL_TEXTURE_3D, 0);
+            continue;
+        }
+
         bool possibly_dirty = false;
         bool possibly_dirty_checked = false;
 
@@ -429,15 +441,18 @@ static void upload_gl_texture(GLenum gl_target,
     ColorFormatInfo f = kelvin_color_format_gl_map[s.color_format];
     nv2a_profile_inc_counter(NV2A_PROF_TEX_UPLOAD);
 
-    unsigned int adjusted_width = s.width;
-    unsigned int adjusted_height = s.height;
+    unsigned int adjusted_width;
+    unsigned int adjusted_height;
     unsigned int adjusted_pitch = s.pitch;
-    unsigned int adjusted_depth = s.depth;
+    unsigned int adjusted_depth;
+    if (!pgraph_get_texture_storage_extent(
+            s, &adjusted_width, &adjusted_height, &adjusted_depth)) {
+        qemu_log_mask(LOG_GUEST_ERROR,
+                      "nv2a: texture storage extent overflows\n");
+        return;
+    }
     if (!f.linear && s.border) {
-        adjusted_width = MAX(16, adjusted_width * 2);
-        adjusted_height = MAX(16, adjusted_height * 2);
         adjusted_pitch = adjusted_width * (s.pitch / s.width);
-        adjusted_depth = MAX(16, s.depth * 2);
     }
 
     switch(gl_target) {
