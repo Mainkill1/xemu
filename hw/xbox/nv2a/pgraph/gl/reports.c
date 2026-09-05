@@ -101,9 +101,14 @@ void pgraph_gl_get_report(NV2AState *d, uint32_t parameter)
     PGRAPHState *pg = &d->pgraph;
     PGRAPHGLState *r = pg->gl_renderer_state;
 
+    DMAObject dma_report;
+    if (!pgraph_snapshot_dma_report(d, &dma_report)) {
+        return;
+    }
+
     QueryReport *report = g_malloc(sizeof(QueryReport));
     report->clear = false;
-    report->dma_report = nv_dma_load(d, pg->dma_report);
+    report->dma_report = dma_report;
     report->parameter = parameter;
     report->query_count = r->gl_zpass_pixel_count_query_count;
     report->queries = r->gl_zpass_pixel_count_queries;

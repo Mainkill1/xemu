@@ -3220,6 +3220,31 @@ void pgraph_get_clear_depth_stencil_value(PGRAPHState *pg, float *depth,
     }
 }
 
+bool pgraph_snapshot_dma_report(NV2AState *d, DMAObject *dma_report)
+{
+    PGRAPHState *pg = &d->pgraph;
+
+    if (!nv_dma_load_checked(d, pg->dma_report, dma_report)) {
+        qemu_log_mask(LOG_GUEST_ERROR,
+                      "nv2a: rejected report DMA descriptor outside RAMIN "
+                      "(address=0x%" HWADDR_PRIx ")\n",
+                      pg->dma_report);
+        return false;
+    }
+
+    if (!nv_dma_report_object_supported(dma_report)) {
+        qemu_log_mask(LOG_GUEST_ERROR,
+                      "nv2a: rejected unsupported report DMA object "
+                      "(class=0x%x, target=0x%x, address=0x%" HWADDR_PRIx
+                      ")\n",
+                      dma_report->dma_class, dma_report->dma_target,
+                      dma_report->address);
+        return false;
+    }
+
+    return true;
+}
+
 void pgraph_write_zpass_pixel_cnt_report(NV2AState *d,
                                          const DMAObject *dma_report,
                                          uint32_t parameter, uint32_t result)
@@ -3228,27 +3253,20 @@ void pgraph_write_zpass_pixel_cnt_report(NV2AState *d,
     uint64_t timestamp = 0x0011223344556677; /* FIXME: Update timestamp?! */
     uint32_t done = 0; // FIXME: Check
     hwaddr offset = GET_MASK(parameter, NV097_GET_REPORT_OFFSET);
-    hwaddr base = dma_report->address & 0x07FFFFFF;
     hwaddr vram_size = memory_region_size(d->vram);
+    hwaddr report_address;
 
-    /* DMAObject.limit is an inclusive maximum offset. Validate the complete
-     * 16-byte record with subtraction so neither the DMA extent nor the VRAM
-     * address calculation can wrap. */
-    bool dma_range_valid = offset <= dma_report->limit &&
-        report_size - 1 <= dma_report->limit - offset;
-    bool vram_range_valid = base <= vram_size &&
-        offset <= vram_size - base &&
-        report_size <= vram_size - base - offset;
-    if (!dma_range_valid || !vram_range_valid) {
+    if (!nv_dma_report_record_address(dma_report, offset, report_size,
+                                      vram_size, &report_address)) {
         qemu_log_mask(LOG_GUEST_ERROR,
                       "nv2a: rejected ZPASS report outside DMA/VRAM range "
                       "(base=0x%" HWADDR_PRIx ", limit=0x%" HWADDR_PRIx
                       ", offset=0x%" HWADDR_PRIx ")\n",
-                      base, dma_report->limit, offset);
+                      dma_report->address, dma_report->limit, offset);
         return;
     }
 
-    uint8_t *report_data = d->vram_ptr + base + offset;
+    uint8_t *report_data = d->vram_ptr + report_address;
 
     stq_le_p((uint64_t *)&report_data[0], timestamp);
     stl_le_p((uint32_t *)&report_data[8], result);

@@ -60,23 +60,6 @@ void nv2a_update_irq(NV2AState *d)
     }
 }
 
-DMAObject nv_dma_load(NV2AState *d, hwaddr dma_obj_address)
-{
-    assert(dma_obj_address < memory_region_size(&d->ramin));
-
-    uint32_t *dma_obj = (uint32_t *)(d->ramin_ptr + dma_obj_address);
-    uint32_t flags = ldl_le_p(dma_obj);
-    uint32_t limit = ldl_le_p(dma_obj + 1);
-    uint32_t frame = ldl_le_p(dma_obj + 2);
-
-    return (DMAObject){
-        .dma_class  = GET_MASK(flags, NV_DMA_CLASS),
-        .dma_target = GET_MASK(flags, NV_DMA_TARGET),
-        .address    = (frame & NV_DMA_ADDRESS) | GET_MASK(flags, NV_DMA_ADJUST),
-        .limit      = limit,
-    };
-}
-
 void *nv_dma_map(NV2AState *d, hwaddr dma_obj_address, hwaddr *len)
 {
     DMAObject dma = nv_dma_load(d, dma_obj_address);

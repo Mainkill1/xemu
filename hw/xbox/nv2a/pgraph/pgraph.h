@@ -466,5 +466,6 @@ static inline void pgraph_argb_pack32_to_rgba_float(uint32_t argb, float *rgba)
 void pgraph_write_zpass_pixel_cnt_report(NV2AState *d,
                                          const DMAObject *dma_report,
                                          uint32_t parameter, uint32_t result);
+bool pgraph_snapshot_dma_report(NV2AState *d, DMAObject *dma_report);
 
 #endif

@@ -74,9 +74,14 @@ void pgraph_vk_get_report(NV2AState *d, uint32_t parameter)
     uint8_t type = GET_MASK(parameter, NV097_GET_REPORT_TYPE);
     assert(type == NV097_GET_REPORT_TYPE_ZPASS_PIXEL_CNT);
 
+    DMAObject dma_report;
+    if (!pgraph_snapshot_dma_report(d, &dma_report)) {
+        return;
+    }
+
     QueryReport *report = g_malloc(sizeof(QueryReport)); // FIXME: Pre-allocate
     report->clear = false;
-    report->dma_report = nv_dma_load(d, pg->dma_report);
+    report->dma_report = dma_report;
     report->parameter = parameter;
     report->query_count = r->num_queries_in_flight;
     QSIMPLEQ_INSERT_TAIL(&r->report_queue, report, entry);

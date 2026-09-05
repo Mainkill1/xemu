@@ -48,6 +48,7 @@
 #include "trace.h"
 
 #include "nv2a.h"
+#include "dma.h"
 #include "pgraph/pgraph.h"
 #include "debug.h"
 #include "nv2a_regs.h"
@@ -59,13 +60,6 @@ enum FIFOEngine {
     ENGINE_GRAPHICS = 1,
     ENGINE_DVD = 2,
 };
-
-typedef struct DMAObject {
-    unsigned int dma_class;
-    unsigned int dma_target;
-    hwaddr address;
-    hwaddr limit;
-} DMAObject;
 
 typedef struct NV2AState {
     /*< private >*/
@@ -210,7 +204,6 @@ DEFINE_PROTO(prmdio)
 DEFINE_PROTO(user)
 #undef DEFINE_PROTO
 
-DMAObject nv_dma_load(NV2AState *d, hwaddr dma_obj_address);
 void *nv_dma_map(NV2AState *d, hwaddr dma_obj_address, hwaddr *len);
 
 /**
