@@ -37,19 +37,6 @@ static const VkDeviceSize BUFFER_LINEAR_SCRATCH_INITIAL_SIZE =
  */
 static const size_t BUFFER_VERTEX_INLINE_INITIAL_SIZE = 8 * MiB;
 
-static bool buffer_is_persistently_mapped(int index)
-{
-    switch (index) {
-    case BUFFER_VERTEX_RAM:
-    case BUFFER_INDEX_STAGING:
-    case BUFFER_VERTEX_INLINE_STAGING:
-    case BUFFER_UNIFORM_STAGING:
-        return true;
-    default:
-        return false;
-    }
-}
-
 static int paired_buffer_index(int index)
 {
     switch (index) {
@@ -61,6 +48,49 @@ static int paired_buffer_index(int index)
         return BUFFER_UNIFORM;
     default:
         return -1;
+    }
+}
+
+/*
+ * Morrowind stages about 4 MiB of vertex RAM updates per guest frame. Keep the
+ * default above that measured floor, allow evidence sweeps to select 4, 8, or
+ * 16 MiB, and never grow this per-submission storage past 16 MiB.
+ */
+static const VkDeviceSize BUFFER_VERTEX_RAM_STAGING_DEFAULT_SIZE = 8 * MiB;
+static const VkDeviceSize BUFFER_VERTEX_RAM_STAGING_MAX_SIZE =
+    PGRAPH_VK_VERTEX_RAM_STAGING_MAX_SIZE;
+
+static VkDeviceSize vertex_ram_staging_initial_size(void)
+{
+    const char *value = g_getenv("XEMU_VK_VERTEX_STAGING_INITIAL_MIB");
+    if (!value || !value[0]) {
+        return BUFFER_VERTEX_RAM_STAGING_DEFAULT_SIZE;
+    }
+
+    char *end = NULL;
+    uint64_t mib = g_ascii_strtoull(value, &end, 10);
+    if (end == value || *end != '\0' ||
+        (mib != 4 && mib != 8 && mib != 16)) {
+        fprintf(stderr,
+                "nv2a: XEMU_VK_VERTEX_STAGING_INITIAL_MIB must be 4, 8, "
+                "or 16; using 8\n");
+        return BUFFER_VERTEX_RAM_STAGING_DEFAULT_SIZE;
+    }
+
+    return mib * MiB;
+}
+
+static bool buffer_is_persistently_mapped(int index)
+{
+    switch (index) {
+    case BUFFER_VERTEX_RAM:
+    case BUFFER_VERTEX_RAM_STAGING:
+    case BUFFER_INDEX_STAGING:
+    case BUFFER_VERTEX_INLINE_STAGING:
+    case BUFFER_UNIFORM_STAGING:
+        return true;
+    default:
+        return false;
     }
 }
 
@@ -92,7 +122,7 @@ static void destroy_buffer(PGRAPHState *pg, StorageBuffer *buffer)
     buffer->allocation = VK_NULL_HANDLE;
 }
 
-static void resize_buffer(PGRAPHState *pg, int index, size_t size);
+static bool resize_buffer(PGRAPHState *pg, int index, VkDeviceSize size);
 
 static bool grow_buffer_size(VkDeviceSize current, VkDeviceSize required,
                              VkDeviceSize *result)
@@ -136,17 +166,17 @@ bool pgraph_vk_ensure_buffer_capacity(PGRAPHState *pg, int index,
         return false;
     }
 
-    resize_buffer(pg, index, new_size);
-    return true;
+    return resize_buffer(pg, index, new_size);
 }
 
-static void resize_buffer(PGRAPHState *pg, int index, size_t size)
+static bool resize_buffer(PGRAPHState *pg, int index, VkDeviceSize size)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     StorageBuffer *buffer = &r->storage_buffers[index];
 
-    assert(!r->in_command_buffer);
-    assert(!r->in_aux_command_buffer);
+    if (r->in_command_buffer || r->in_aux_command_buffer || !size) {
+        return false;
+    }
 
     if (buffer->mapped) {
         vmaUnmapMemory(r->allocator, buffer->allocation);
@@ -162,6 +192,7 @@ static void resize_buffer(PGRAPHState *pg, int index, size_t size)
         VK_CHECK(vmaMapMemory(r->allocator, buffer->allocation,
                               (void **)&buffer->mapped));
     }
+    return true;
 }
 
 void pgraph_vk_ensure_buffer_pair_capacity(PGRAPHState *pg, int index,
@@ -258,13 +289,16 @@ void pgraph_vk_init_buffers(NV2AState *d)
     // FIXME: Don't assume that we can render with host mapped buffer
     r->storage_buffers[BUFFER_VERTEX_RAM] = (StorageBuffer){
         .alloc_info = host_alloc_create_info,
-        .usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+        .usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+                 VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
         .buffer_size = memory_region_size(d->vram),
     };
 
-    r->bitmap_size = memory_region_size(d->vram) / 4096;
-    r->uploaded_bitmap = bitmap_new(r->bitmap_size);
-    bitmap_clear(r->uploaded_bitmap, 0, r->bitmap_size);
+    r->storage_buffers[BUFFER_VERTEX_RAM_STAGING] = (StorageBuffer){
+        .alloc_info = host_alloc_create_info,
+        .usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        .buffer_size = vertex_ram_staging_initial_size(),
+    };
 
     r->storage_buffers[BUFFER_VERTEX_INLINE] = (StorageBuffer){
         .alloc_info = device_alloc_create_info,
@@ -299,6 +333,7 @@ void pgraph_vk_init_buffers(NV2AState *d)
     // FIXME: Add fallback path for device using host mapped memory
 
     int buffers_to_map[] = { BUFFER_VERTEX_RAM,
+                             BUFFER_VERTEX_RAM_STAGING,
                              BUFFER_INDEX_STAGING,
                              BUFFER_VERTEX_INLINE_STAGING,
                              BUFFER_UNIFORM_STAGING };
@@ -321,9 +356,29 @@ void pgraph_vk_finalize_buffers(NV2AState *d)
         }
         destroy_buffer(pg, &r->storage_buffers[i]);
     }
+}
 
-    g_free(r->uploaded_bitmap);
-    r->uploaded_bitmap = NULL;
+bool pgraph_vk_grow_vertex_ram_staging_buffer(PGRAPHState *pg,
+                                               VkDeviceSize required_size)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    StorageBuffer *buffer =
+        &r->storage_buffers[BUFFER_VERTEX_RAM_STAGING];
+
+    if (required_size > BUFFER_VERTEX_RAM_STAGING_MAX_SIZE ||
+        buffer->buffer_size >= BUFFER_VERTEX_RAM_STAGING_MAX_SIZE ||
+        r->in_command_buffer || r->in_aux_command_buffer) {
+        return false;
+    }
+
+    VkDeviceSize new_size = MIN(buffer->buffer_size * 2,
+                                BUFFER_VERTEX_RAM_STAGING_MAX_SIZE);
+    new_size = MAX(new_size, required_size);
+    if (new_size > BUFFER_VERTEX_RAM_STAGING_MAX_SIZE) {
+        return false;
+    }
+
+    return resize_buffer(pg, BUFFER_VERTEX_RAM_STAGING, new_size);
 }
 
 VkDeviceSize pgraph_vk_buffer_required_size(PGRAPHState *pg, int index,
@@ -347,8 +402,14 @@ bool pgraph_vk_buffer_has_space_for(PGRAPHState *pg, int index,
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     StorageBuffer *b = &r->storage_buffers[index];
-    return pgraph_vk_buffer_required_size(pg, index, size, alignment) <=
-           b->buffer_size;
+    if (!alignment || (alignment & (alignment - 1)) ||
+        b->buffer_offset > b->buffer_size ||
+        b->buffer_offset > UINT64_MAX - (alignment - 1)) {
+        return false;
+    }
+
+    VkDeviceSize aligned = ROUND_UP(b->buffer_offset, alignment);
+    return aligned <= b->buffer_size && size <= b->buffer_size - aligned;
 }
 
 VkDeviceSize pgraph_vk_append_to_buffer(PGRAPHState *pg, int index, void **data,
@@ -359,14 +420,22 @@ VkDeviceSize pgraph_vk_append_to_buffer(PGRAPHState *pg, int index, void **data,
 
     VkDeviceSize total_size = 0;
     for (int i = 0; i < count; i++) {
+        if (!sizes || !data || (sizes[i] && !data[i]) ||
+            sizes[i] > UINT64_MAX - total_size) {
+            return VK_WHOLE_SIZE;
+        }
         total_size += sizes[i];
     }
-    assert(pgraph_vk_buffer_has_space_for(pg, index, total_size, alignment));
+    if (!pgraph_vk_buffer_has_space_for(pg, index, total_size, alignment)) {
+        return VK_WHOLE_SIZE;
+    }
 
     StorageBuffer *b = &r->storage_buffers[index];
     VkDeviceSize starting_offset = ROUND_UP(b->buffer_offset, alignment);
 
-    assert(b->mapped);
+    if (!b->mapped || !data) {
+        return VK_WHOLE_SIZE;
+    }
 
     for (int i = 0; i < count; i++) {
         b->buffer_offset = ROUND_UP(b->buffer_offset, alignment);
