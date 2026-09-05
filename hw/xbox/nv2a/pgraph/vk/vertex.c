@@ -23,6 +23,8 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "qemu/osdep.h"
+#include "qemu/log.h"
 #include "renderer.h"
 
 VkDeviceSize pgraph_vk_update_index_buffer(PGRAPHState *pg, void *data,
@@ -46,24 +48,121 @@ void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
                                         void *data, VkDeviceSize size)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
+    StorageBuffer *vertex = &r->storage_buffers[BUFFER_VERTEX_RAM];
+    StorageBuffer *staging =
+        &r->storage_buffers[BUFFER_VERTEX_RAM_STAGING];
 
-    pgraph_vk_download_surfaces_in_range_if_dirty(pg, offset, size);
-
-    size_t start_bit = offset / TARGET_PAGE_SIZE;
-    size_t end_bit = TARGET_PAGE_ALIGN(offset + size) / TARGET_PAGE_SIZE;
-    size_t nbits = end_bit - start_bit;
-
-    if (find_next_bit(r->uploaded_bitmap, start_bit + nbits, start_bit) <
-        end_bit) {
-        // Vertex data changed while building the draw list. Finish drawing
-        // before updating RAM buffer.
-        pgraph_vk_finish(pg, VK_FINISH_REASON_VERTEX_BUFFER_DIRTY);
+    if (!size) {
+        return;
+    }
+    if (!pgraph_vk_vertex_staging_range_valid(offset, size,
+                                              vertex->buffer_size)) {
+        qemu_log_mask(LOG_GUEST_ERROR,
+                      "nv2a: rejecting out-of-range vertex update "
+                      "offset=0x%" HWADDR_PRIx " size=%" PRIu64
+                      " vram_size=%zu\n",
+                      offset, size, vertex->buffer_size);
+        return;
+    }
+    if (!data || !vertex->mapped) {
+        qemu_log_mask(LOG_GUEST_ERROR,
+                      "nv2a: vertex update has no mapped source\n");
+        return;
     }
 
-    nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_1);
-    memcpy(r->storage_buffers[BUFFER_VERTEX_RAM].mapped + offset, data, size);
+    bool copy_compatible = !(offset & 3) && !(size & 3);
+    PgraphVkVertexUpdatePlan plan = pgraph_vk_vertex_update_plan(
+        r->in_command_buffer, copy_compatible, offset, size,
+        vertex->buffer_size, staging->buffer_offset, staging->buffer_size);
+    pgraph_vk_download_surfaces_in_range_if_dirty(pg, offset, size);
 
-    bitmap_set(r->uploaded_bitmap, start_bit, nbits);
+    /* With no recorded draws, direct mapped writes cannot race the GPU. This
+     * also keeps full-VRAM initialization out of bounded staging storage. */
+    if (!r->in_command_buffer) {
+        nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_1);
+        memcpy(vertex->mapped + offset, data, size);
+        return;
+    }
+
+    if (plan == PGRAPH_VK_VERTEX_UPDATE_FINISH_RETRY ||
+        plan == PGRAPH_VK_VERTEX_UPDATE_FINISH_DIRECT) {
+        /* The allocation can still be referenced by recorded commands. Wait
+         * before reusing or replacing it. */
+        pgraph_vk_finish(pg, VK_FINISH_REASON_VERTEX_BUFFER_DIRTY);
+
+        if (plan == PGRAPH_VK_VERTEX_UPDATE_FINISH_DIRECT ||
+            (!pgraph_vk_buffer_has_space_for(
+                 pg, BUFFER_VERTEX_RAM_STAGING, size, 4) &&
+             !pgraph_vk_grow_vertex_ram_staging_buffer(pg, size)) ||
+            !pgraph_vk_buffer_has_space_for(
+                pg, BUFFER_VERTEX_RAM_STAGING, size, 4)) {
+            /* The finish made the direct path safe. A single update larger
+             * than the hard staging cap is handled without unbounded
+             * allocation. Unaligned updates also use this path because
+             * vkCmdCopyBuffer requires four-byte granularity. */
+            nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_1);
+            memcpy(vertex->mapped + offset, data, size);
+            return;
+        }
+
+        /* Finish/reset/grow completed; retry reservation on the new ring. */
+    }
+
+    VkCommandBuffer cmd = pgraph_vk_begin_nondraw_commands(pg);
+    void *copy_data[] = { data };
+    VkDeviceSize copy_sizes[] = { size };
+    VkDeviceSize staging_offset = pgraph_vk_append_to_buffer(
+        pg, BUFFER_VERTEX_RAM_STAGING, copy_data, copy_sizes, 1, 4);
+    if (staging_offset == VK_WHOLE_SIZE) {
+        /* Keep Release builds safe if a future allocator change violates the
+         * reservation contract. The command buffer was not reused here, so
+         * finish before touching the mapped vertex allocation. */
+        pgraph_vk_finish(pg, VK_FINISH_REASON_VERTEX_BUFFER_DIRTY);
+        nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_1);
+        memcpy(vertex->mapped + offset, data, size);
+        return;
+    }
+
+    VK_CHECK(vmaFlushAllocation(r->allocator, staging->allocation,
+                                staging_offset, size));
+
+    VkBufferMemoryBarrier before_copy = {
+        .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+        .srcAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT,
+        .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .buffer = vertex->buffer,
+        .offset = offset,
+        .size = size,
+    };
+    vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT,
+                         VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, NULL, 1,
+                         &before_copy, 0, NULL);
+
+    VkBufferCopy copy = {
+        .srcOffset = staging_offset,
+        .dstOffset = offset,
+        .size = size,
+    };
+    vkCmdCopyBuffer(cmd, staging->buffer, vertex->buffer, 1, &copy);
+
+    VkBufferMemoryBarrier after_copy = {
+        .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+        .srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+        .dstAccessMask = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .buffer = vertex->buffer,
+        .offset = offset,
+        .size = size,
+    };
+    vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TRANSFER_BIT,
+                         VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, 0, 0, NULL, 1,
+                         &after_copy, 0, NULL);
+    pgraph_vk_end_nondraw_commands(pg, cmd);
+
+    nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_1);
 }
 
 static void update_memory_buffer(NV2AState *d, hwaddr addr, hwaddr size)
