@@ -30,6 +30,7 @@ tests = {
       ],
     ),
   ],
+  'test-xbox-nv2a-texture': [],
   'test-resv-mem': [],
   # all code tested by test-x86-topo is inside topology.h
   'test-x86-topo': [],

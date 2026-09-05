@@ -207,6 +207,14 @@ typedef struct TextureKey {
     uint32_t address;
     uint32_t border_color;
     uint32_t max_anisotropy;
+    /* The route and physical image contract are part of cache identity. */
+    bool surface_to_texture;
+    uint32_t image_width;
+    uint32_t image_height;
+    uint32_t image_depth;
+    uint32_t image_mip_levels;
+    uint32_t image_array_layers;
+    uint32_t image_format;
 } TextureKey;
 
 typedef struct TextureBinding {
