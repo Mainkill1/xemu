@@ -5,6 +5,7 @@
 const BasicColorFormatInfo kelvin_color_format_info_map[66] = {
     [NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT1_A1R5G5B5] = { 4, false },
     [NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT23_A8R8G8B8] = { 4, false },
+    [NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8R8G8B8] = { 4, false },
     [NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_A8R8G8B8] = { 4, true },
 };
 
@@ -29,7 +30,7 @@ static void test_ordinary_mips(void)
 {
     TextureShape shape = {
         .dimensionality = 2,
-        .color_format = NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_A8R8G8B8,
+        .color_format = NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8R8G8B8,
         .levels = 3,
         .width = 8,
         .height = 8,
@@ -45,7 +46,7 @@ static void test_3d_depth_halves(void)
 {
     TextureShape shape = {
         .dimensionality = 3,
-        .color_format = NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_A8R8G8B8,
+        .color_format = NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8R8G8B8,
         .levels = 3,
         .width = 8,
         .height = 8,
