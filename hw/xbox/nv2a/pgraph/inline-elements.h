@@ -16,16 +16,20 @@ typedef enum PGRAPHInlinePacketMode {
     PGRAPH_INLINE_PACKET_BULK,
     PGRAPH_INLINE_PACKET_SCALAR_INCREMENTING,
     PGRAPH_INLINE_PACKET_SCALAR_TRACE,
+    PGRAPH_INLINE_PACKET_SCALAR_SHORT,
 } PGRAPHInlinePacketMode;
 
 static inline PGRAPHInlinePacketMode pgraph_inline_packet_mode(
-    bool incrementing, bool tracing)
+    bool incrementing, bool tracing, size_t packet_words)
 {
     if (incrementing) {
         return PGRAPH_INLINE_PACKET_SCALAR_INCREMENTING;
     }
     if (tracing) {
         return PGRAPH_INLINE_PACKET_SCALAR_TRACE;
+    }
+    if (packet_words < 2) {
+        return PGRAPH_INLINE_PACKET_SCALAR_SHORT;
     }
     return PGRAPH_INLINE_PACKET_BULK;
 }
