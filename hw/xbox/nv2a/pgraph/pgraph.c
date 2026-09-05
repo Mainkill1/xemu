@@ -25,6 +25,7 @@
 #include "qemu/log.h"
 #include "ui/xemu-notifications.h"
 #include "ui/xemu-settings.h"
+#include "inline-capacity.h"
 #include "texture-state.h"
 #include "util.h"
 #include "swizzle.h"
@@ -447,10 +448,11 @@ unsigned int nv2a_get_surface_scale_factor(void)
     NV2AState *d, PGRAPHState *pg, \
     unsigned int subchannel, unsigned int method, \
     uint32_t parameter, uint32_t *parameters, \
-    size_t num_words_available, size_t *num_words_consumed, bool inc
+    size_t num_words_available, size_t *num_words_consumed, bool inc, \
+    bool *method_faulted
 #define METHOD_HANDLER_ARGS \
     d, pg, subchannel, method, parameter, parameters, \
-    num_words_available, num_words_consumed, inc
+    num_words_available, num_words_consumed, inc, method_faulted
 #define DEF_METHOD_PROTO(gclass, name) \
     static void METHOD_FUNC_NAME(gclass, name)(METHOD_HANDLER_ARG_DECL)
 
@@ -633,6 +635,10 @@ static void pgraph_method_non_inc(MethodFunc handler, METHOD_HANDLER_ARG_DECL)
                               parameter);
         }
         handler(METHOD_HANDLER_ARGS);
+        if (*method_faulted) {
+            *num_words_consumed = i + 1;
+            return;
+        }
     }
     *num_words_consumed = num_words_available;
 }
@@ -826,15 +832,18 @@ int pgraph_method(NV2AState *d, unsigned int subchannel,
             goto unhandled;
         }
         size_t num_words_consumed = 1;
+        bool method_faulted = false;
         handler(d, pg, subchannel, method, parameter, parameters,
-                num_words_available, &num_words_consumed, inc);
+                num_words_available, &num_words_consumed, inc,
+                &method_faulted);
 
         /* Squash repeated BEGIN,DRAW_ARRAYS,END */
         #define LAM(i, mthd) ((parameters[i*2+1] & 0x31fff) == (mthd))
         #define LAP(i, prm) (parameters[i*2+2] == (prm))
         #define LAMP(i, mthd, prm) (LAM(i, mthd) && LAP(i, prm))
 
-        if (method == NV097_DRAW_ARRAYS && (max_lookahead_words >= 7) &&
+        if (!method_faulted && method == NV097_DRAW_ARRAYS &&
+            (max_lookahead_words >= 7) &&
             pg->inline_elements_length == 0 &&
             pg->draw_arrays_length <
                 (ARRAY_SIZE(pg->draw_arrays_start) - 1) &&
@@ -862,6 +871,42 @@ unhandled:
     trace_nv2a_pgraph_method_unhandled(subchannel, graphics_class,
                                            method, parameter);
     return num_processed;
+}
+
+static void pgraph_raise_method_data_error(NV2AState *d, PGRAPHState *pg,
+                                           unsigned int subchannel,
+                                           unsigned int method,
+                                           uint32_t parameter,
+                                           bool *method_faulted)
+{
+    unsigned channel_id =
+        PG_GET_MASK(NV_PGRAPH_CTX_USER, NV_PGRAPH_CTX_USER_CHID);
+
+    *method_faulted = true;
+
+    /* Preserve the first trapped method until the guest acknowledges it. */
+    if (pg->pending_interrupts & NV_PGRAPH_INTR_ERROR) {
+        return;
+    }
+
+    PG_SET_MASK(NV_PGRAPH_TRAPPED_ADDR, NV_PGRAPH_TRAPPED_ADDR_CHID,
+                channel_id);
+    PG_SET_MASK(NV_PGRAPH_TRAPPED_ADDR, NV_PGRAPH_TRAPPED_ADDR_SUBCH,
+                subchannel);
+    PG_SET_MASK(NV_PGRAPH_TRAPPED_ADDR, NV_PGRAPH_TRAPPED_ADDR_MTHD, method);
+    pgraph_reg_w(pg, NV_PGRAPH_TRAPPED_DATA_LOW, parameter);
+    pgraph_reg_w(pg, NV_PGRAPH_NSOURCE,
+                 NV_PGRAPH_NSOURCE_DATA_ERROR_PENDING);
+    pg->pending_interrupts |= NV_PGRAPH_INTR_ERROR;
+
+    /* Reuse the existing error-acknowledgement stall cleared by INTR_ERROR. */
+    pg->waiting_for_nop = true;
+
+    qemu_mutex_unlock(&pg->lock);
+    bql_lock();
+    nv2a_update_irq(d);
+    bql_unlock();
+    qemu_mutex_lock(&pg->lock);
 }
 
 DEF_METHOD(NV097, SET_OBJECT)
@@ -2737,11 +2782,46 @@ DEF_METHOD(NV097, SET_TEXTURE_SET_BUMP_ENV_OFFSET)
     pgraph_reg_w(pg, NV_PGRAPH_BUMPOFFSET1 + slot * 4, parameter);
 }
 
-static void pgraph_expand_draw_arrays(NV2AState *d)
+static bool pgraph_prepare_inline_elements(NV2AState *d,
+                                           uint32_t additional_count)
 {
     PGRAPHState *pg = &d->pgraph;
-    uint32_t start = pg->draw_arrays_start[pg->draw_arrays_length - 1];
-    uint32_t count = pg->draw_arrays_count[pg->draw_arrays_length - 1];
+
+    if (pg->draw_arrays_length == 0) {
+        return pgraph_inline_has_capacity(pg->inline_elements_length,
+                                          additional_count,
+                                          NV2A_MAX_BATCH_LENGTH);
+    }
+
+    if (pg->draw_arrays_length > ARRAY_SIZE(pg->draw_arrays_start)) {
+        return false;
+    }
+
+    int32_t signed_start =
+        pg->draw_arrays_start[pg->draw_arrays_length - 1];
+    int32_t signed_count =
+        pg->draw_arrays_count[pg->draw_arrays_length - 1];
+    if (signed_start < 0 || signed_count <= 0) {
+        return false;
+    }
+
+    uint32_t start = signed_start;
+    uint32_t count = signed_count;
+    uint32_t unused_end;
+    size_t prepared_length = pg->draw_arrays_length > 1 ? 0 :
+                             pg->inline_elements_length;
+
+    /* Preflight all mutation, including the element following expansion. */
+    if (!pgraph_inline_has_capacity(prepared_length, count,
+                                    NV2A_MAX_BATCH_LENGTH) ||
+        !pgraph_u32_add_checked(start, count, &unused_end)) {
+        return false;
+    }
+    prepared_length += count;
+    if (!pgraph_inline_has_capacity(prepared_length, additional_count,
+                                    NV2A_MAX_BATCH_LENGTH)) {
+        return false;
+    }
 
     /* Render any previously squashed DRAW_ARRAYS calls. This case would be
      * triggered if a set of BEGIN+DA+END triplets is followed by the
@@ -2750,12 +2830,15 @@ static void pgraph_expand_draw_arrays(NV2AState *d)
         d->pgraph.renderer->ops.flush_draw(d);
         pgraph_reset_inline_buffers(pg);
     }
-    assert((pg->inline_elements_length + count) < NV2A_MAX_BATCH_LENGTH);
-    for (unsigned int i = 0; i < count; i++) {
-        pg->inline_elements[pg->inline_elements_length++] = start + i;
+
+    if (!pgraph_inline_append_sequence(pg->inline_elements,
+                                       &pg->inline_elements_length,
+                                       NV2A_MAX_BATCH_LENGTH, start, count)) {
+        return false;
     }
 
     pgraph_reset_draw_arrays(pg);
+    return true;
 }
 
 void pgraph_check_within_begin_end_block(PGRAPHState *pg)
@@ -2769,25 +2852,26 @@ DEF_METHOD_NON_INC(NV097, ARRAY_ELEMENT16)
 {
     pgraph_check_within_begin_end_block(pg);
 
-    if (pg->draw_arrays_length) {
-        pgraph_expand_draw_arrays(d);
+    if (!pgraph_prepare_inline_elements(d, 2) ||
+        !pgraph_inline_append_element16(pg->inline_elements,
+                                        &pg->inline_elements_length,
+                                        NV2A_MAX_BATCH_LENGTH, parameter)) {
+        pgraph_raise_method_data_error(d, pg, subchannel, method, parameter,
+                                       method_faulted);
     }
-
-    assert(pg->inline_elements_length < NV2A_MAX_BATCH_LENGTH);
-    pg->inline_elements[pg->inline_elements_length++] = parameter & 0xFFFF;
-    pg->inline_elements[pg->inline_elements_length++] = parameter >> 16;
 }
 
 DEF_METHOD_NON_INC(NV097, ARRAY_ELEMENT32)
 {
     pgraph_check_within_begin_end_block(pg);
 
-    if (pg->draw_arrays_length) {
-        pgraph_expand_draw_arrays(d);
+    if (!pgraph_prepare_inline_elements(d, 1) ||
+        !pgraph_inline_append_element32(pg->inline_elements,
+                                        &pg->inline_elements_length,
+                                        NV2A_MAX_BATCH_LENGTH, parameter)) {
+        pgraph_raise_method_data_error(d, pg, subchannel, method, parameter,
+                                       method_faulted);
     }
-
-    assert(pg->inline_elements_length < NV2A_MAX_BATCH_LENGTH);
-    pg->inline_elements[pg->inline_elements_length++] = parameter;
 }
 
 DEF_METHOD(NV097, DRAW_ARRAYS)
@@ -2798,36 +2882,58 @@ DEF_METHOD(NV097, DRAW_ARRAYS)
     int32_t count = GET_MASK(parameter, NV097_DRAW_ARRAYS_COUNT) + 1;
 
     if (pg->inline_elements_length) {
-        /* FIXME: HW throws an exception if the start index is > 0xFFFF. This
-         * would prevent this assert from firing for any reasonable choice of
-         * NV2A_MAX_BATCH_LENGTH (which must be larger to accommodate
-         * NV097_INLINE_ARRAY anyway)
-         */
-        assert((pg->inline_elements_length + count) < NV2A_MAX_BATCH_LENGTH);
-        assert(!pg->draw_arrays_prevent_connect);
-
-        for (unsigned int i = 0; i < count; i++) {
-            pg->inline_elements[pg->inline_elements_length++] = start + i;
+        if (pg->draw_arrays_prevent_connect ||
+            !pgraph_inline_append_sequence(pg->inline_elements,
+                                           &pg->inline_elements_length,
+                                           NV2A_MAX_BATCH_LENGTH,
+                                           start, count)) {
+            pgraph_raise_method_data_error(d, pg, subchannel, method,
+                                           parameter, method_faulted);
         }
         return;
     }
 
-    pg->draw_arrays_min_start = MIN(pg->draw_arrays_min_start, start);
-    pg->draw_arrays_max_count = MAX(pg->draw_arrays_max_count, start + count);
+    uint32_t range_end;
+    if (!pgraph_u32_add_checked(start, count, &range_end)) {
+        pgraph_raise_method_data_error(d, pg, subchannel, method, parameter,
+                                       method_faulted);
+        return;
+    }
 
-    assert(pg->draw_arrays_length < ARRAY_SIZE(pg->draw_arrays_start));
+    if (pg->draw_arrays_length > ARRAY_SIZE(pg->draw_arrays_start)) {
+        pgraph_raise_method_data_error(d, pg, subchannel, method, parameter,
+                                       method_faulted);
+        return;
+    }
 
     /* Attempt to connect contiguous primitives */
     if (!pg->draw_arrays_prevent_connect && pg->draw_arrays_length > 0) {
-        unsigned int last_start =
+        int32_t last_start =
             pg->draw_arrays_start[pg->draw_arrays_length - 1];
         int32_t *last_count =
             &pg->draw_arrays_count[pg->draw_arrays_length - 1];
-        if (start == (last_start + *last_count)) {
+        uint32_t last_end;
+        if (last_start >= 0 && *last_count > 0 &&
+            pgraph_u32_add_checked(last_start, *last_count, &last_end) &&
+            start == last_end && count <= INT32_MAX - *last_count) {
             *last_count += count;
+            pg->draw_arrays_min_start =
+                MIN(pg->draw_arrays_min_start, start);
+            pg->draw_arrays_max_count =
+                MAX(pg->draw_arrays_max_count, range_end);
             return;
         }
     }
+
+    if (!pgraph_inline_has_capacity(pg->draw_arrays_length, 1,
+                                    ARRAY_SIZE(pg->draw_arrays_start))) {
+        pgraph_raise_method_data_error(d, pg, subchannel, method, parameter,
+                                       method_faulted);
+        return;
+    }
+
+    pg->draw_arrays_min_start = MIN(pg->draw_arrays_min_start, start);
+    pg->draw_arrays_max_count = MAX(pg->draw_arrays_max_count, range_end);
 
     pg->draw_arrays_start[pg->draw_arrays_length] = start;
     pg->draw_arrays_count[pg->draw_arrays_length] = count;
@@ -2838,8 +2944,12 @@ DEF_METHOD(NV097, DRAW_ARRAYS)
 DEF_METHOD_NON_INC(NV097, INLINE_ARRAY)
 {
     pgraph_check_within_begin_end_block(pg);
-    assert(pg->inline_array_length < NV2A_MAX_BATCH_LENGTH);
-    pg->inline_array[pg->inline_array_length++] = parameter;
+    if (!pgraph_inline_append_element32(pg->inline_array,
+                                        &pg->inline_array_length,
+                                        NV2A_MAX_BATCH_LENGTH, parameter)) {
+        pgraph_raise_method_data_error(d, pg, subchannel, method, parameter,
+                                       method_faulted);
+    }
 }
 
 DEF_METHOD_INC(NV097, SET_EYE_VECTOR)

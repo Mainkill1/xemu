@@ -204,6 +204,7 @@
 #   define NV_PGRAPH_INTR_SINGLE_STEP                        (1 << 24)
 #define NV_PGRAPH_NSOURCE                                0x00000108
 #   define NV_PGRAPH_NSOURCE_NOTIFICATION                     (1 << 0)
+#   define NV_PGRAPH_NSOURCE_DATA_ERROR_PENDING                (1 << 1)
 #define NV_PGRAPH_INTR_EN                                0x00000140
 #   define NV_PGRAPH_INTR_EN_NOTIFY                           (1 << 0)
 #   define NV_PGRAPH_INTR_EN_MISSING_HW                       (1 << 4)

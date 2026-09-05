@@ -21,6 +21,7 @@ tests = {
   'test-visitor-serialization': [testqapi],
   'test-bitmap': [],
   'test-xbox-pgraph-texture-state': [],
+  'test-xbox-pgraph-inline-capacity': [],
   'test-xbox-pgraph-uniform-dirty': [],
   'test-xbox-pgraph-uniform-source': [],
   'test-xbox-vk-blend-constants': [],
