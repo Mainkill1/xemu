@@ -20,6 +20,7 @@
  */
 
 #include "qemu/fast-hash.h"
+#include "qemu/log.h"
 #include "hw/xbox/nv2a/nv2a_int.h"
 #include "hw/xbox/nv2a/pgraph/swizzle.h"
 #include "hw/xbox/nv2a/pgraph/s3tc.h"
