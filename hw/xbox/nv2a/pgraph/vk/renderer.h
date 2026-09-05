@@ -486,6 +486,7 @@ bool pgraph_vk_grow_vertex_ram_staging_buffer(PGRAPHState *pg,
 bool pgraph_vk_buffer_has_space_for(PGRAPHState *pg, int index,
                                     VkDeviceSize size,
                                     VkDeviceAddress alignment);
+/* Returns VK_WHOLE_SIZE on rejected input or failed capacity preflight. */
 VkDeviceSize pgraph_vk_append_to_buffer(PGRAPHState *pg, int index, void **data,
                                         VkDeviceSize *sizes, size_t count,
                                         VkDeviceAddress alignment);

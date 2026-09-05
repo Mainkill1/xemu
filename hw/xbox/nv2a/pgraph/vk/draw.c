@@ -2096,6 +2096,12 @@ void pgraph_vk_flush_draw(NV2AState *d)
         copy_remapped_attributes_to_inline_buffer(pg, remap, 0, max_element + 1);
         VkDeviceSize buffer_offset = pgraph_vk_update_index_buffer(
             pg, pg->inline_elements, index_data_size);
+        if (buffer_offset == VK_WHOLE_SIZE) {
+            qemu_log_mask(LOG_GUEST_ERROR,
+                          "nv2a: index staging append failed\n");
+            NV2A_VK_DGROUP_END();
+            return;
+        }
         pgraph_vk_begin_debug_marker(r, r->command_buffer, RGBA_BLUE,
                                      "Inline Elements");
         begin_draw(pg);
@@ -2137,6 +2143,12 @@ void pgraph_vk_flush_draw(NV2AState *d)
         begin_pre_draw(pg);
         VkDeviceSize buffer_offset = pgraph_vk_update_vertex_inline_buffer(
             pg, data, sizes, r->num_active_vertex_attribute_descriptions);
+        if (buffer_offset == VK_WHOLE_SIZE) {
+            qemu_log_mask(LOG_GUEST_ERROR,
+                          "nv2a: inline vertex staging append failed\n");
+            NV2A_VK_DGROUP_END();
+            return;
+        }
         pgraph_vk_begin_debug_marker(r, r->command_buffer, RGBA_BLUE,
                                      "Inline Buffer");
         begin_draw(pg);
@@ -2181,6 +2193,12 @@ void pgraph_vk_flush_draw(NV2AState *d)
         void *inline_array_data = pg->inline_array;
         VkDeviceSize buffer_offset = pgraph_vk_update_vertex_inline_buffer(
             pg, &inline_array_data, &inline_array_data_size, 1);
+        if (buffer_offset == VK_WHOLE_SIZE) {
+            qemu_log_mask(LOG_GUEST_ERROR,
+                          "nv2a: inline array staging append failed\n");
+            NV2A_VK_DGROUP_END();
+            return;
+        }
         pgraph_vk_begin_debug_marker(r, r->command_buffer, RGBA_BLUE,
                                      "Inline Array");
         begin_draw(pg);
