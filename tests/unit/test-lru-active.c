@@ -49,6 +49,12 @@ static void record_visit(Lru *lru, LruNode *node, void *opaque)
     result->mask |= 1U << entry->index;
 }
 
+static void evict_visit(Lru *lru, LruNode *node, void *opaque)
+{
+    record_visit(lru, node, opaque);
+    lru_evict_node(lru, node);
+}
+
 int main(void)
 {
     Lru lru;
@@ -58,6 +64,8 @@ int main(void)
         { .index = 2 },
     };
     VisitResult active = { 0 };
+    VisitResult evicted = { 0 };
+    VisitResult after_evict = { 0 };
     VisitResult flushed = { 0 };
     LruNode *node0;
     LruNode *node1;
@@ -78,17 +86,30 @@ int main(void)
         1U << TEST_CONTAINER_OF(node0, TestEntry, node)->index |
         1U << TEST_CONTAINER_OF(node1, TestEntry, node)->index;
     lru_visit_active(&lru, record_visit, &active);
+    lru_visit_active(&lru, evict_visit, &evicted);
+    lru_visit_active(&lru, record_visit, &after_evict);
+
+    (void)lru_lookup(&lru, key0, &key0);
+    (void)lru_lookup(&lru, key1, &key1);
     lru_flush(&lru);
     lru_visit_active(&lru, record_visit, &flushed);
 
     puts("TAP version 13");
-    puts("1..2");
+    puts("1..4");
     printf("%s 1 - visit includes every active node and no free node\n",
            active.count == 2 && active.mask == expected_mask ?
            "ok" : "not ok");
-    printf("%s 2 - visit excludes nodes after flush\n",
+    printf("%s 2 - visitor may evict each active node during traversal\n",
+           evicted.count == 2 && evicted.mask == expected_mask ?
+           "ok" : "not ok");
+    printf("%s 3 - visit excludes nodes evicted by the visitor\n",
+           after_evict.count == 0 && after_evict.mask == 0 ?
+           "ok" : "not ok");
+    printf("%s 4 - visit excludes nodes after flush\n",
            flushed.count == 0 && flushed.mask == 0 ? "ok" : "not ok");
 
     return active.count == 2 && active.mask == expected_mask &&
+           evicted.count == 2 && evicted.mask == expected_mask &&
+           after_evict.count == 0 && after_evict.mask == 0 &&
            flushed.count == 0 && flushed.mask == 0 ? 0 : 1;
 }
