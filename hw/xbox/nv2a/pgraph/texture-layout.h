@@ -29,6 +29,41 @@ typedef struct TextureShape {
     unsigned int pitch;
 } TextureShape;
 
+typedef struct PGRAPHTextureMipCrop {
+    unsigned int width;
+    unsigned int height;
+    unsigned int skip_pixels;
+    unsigned int skip_rows;
+} PGRAPHTextureMipCrop;
+
+static inline PGRAPHTextureMipCrop pgraph_bordered_texture_mip_crop(
+    unsigned int base_width, unsigned int base_height,
+    unsigned int stored_width, unsigned int stored_height,
+    unsigned int level)
+{
+    unsigned int width = base_width;
+    unsigned int height = base_height;
+    unsigned int mip_level = level;
+
+    while (level--) {
+        width = width > 1 ? width / 2 : 1;
+        height = height > 1 ? height / 2 : 1;
+    }
+
+    width = MIN(width, stored_width);
+    height = MIN(height, stored_height);
+    unsigned int border = mip_level < 3 ? 4U >> mip_level : 0;
+    unsigned int skip_pixels = MIN(border, stored_width - width);
+    unsigned int skip_rows = MIN(border, stored_height - height);
+
+    return (PGRAPHTextureMipCrop) {
+        .width = width,
+        .height = height,
+        .skip_pixels = skip_pixels,
+        .skip_rows = skip_rows,
+    };
+}
+
 typedef struct BasicColorFormatInfo {
     unsigned int bytes_per_pixel;
     bool linear;

@@ -26,6 +26,47 @@ static void test_bordered_bc2(void)
     g_assert_cmpuint(size, ==, 256);
 }
 
+static void test_bordered_mip_crop_tracks_logical_extent(void)
+{
+    const unsigned int stored[] = { 16, 8, 4, 2, 1 };
+    const unsigned int logical[] = { 8, 4, 2, 1, 1 };
+    const unsigned int skip[] = { 4, 2, 1, 0, 0 };
+
+    for (unsigned int level = 0; level < ARRAY_SIZE(stored); level++) {
+        PGRAPHTextureMipCrop crop = pgraph_bordered_texture_mip_crop(
+            8, 8, stored[level], stored[level], level);
+
+        g_assert_cmpuint(crop.width, ==, logical[level]);
+        g_assert_cmpuint(crop.height, ==, logical[level]);
+        g_assert_cmpuint(crop.skip_pixels, ==, skip[level]);
+        g_assert_cmpuint(crop.skip_rows, ==, skip[level]);
+    }
+}
+
+static void test_bordered_mip_crop_clamps_sub_block_tails(void)
+{
+    const unsigned int base[] = { 1, 2, 4 };
+    const unsigned int levels[] = { 1, 2, 3 };
+
+    for (unsigned int i = 0; i < ARRAY_SIZE(base); i++) {
+        unsigned int stored = 16;
+        unsigned int logical = base[i];
+
+        for (unsigned int level = 0; level < levels[i]; level++) {
+            PGRAPHTextureMipCrop crop = pgraph_bordered_texture_mip_crop(
+                base[i], base[i], stored, stored, level);
+            unsigned int skip = level < 3 ? 4U >> level : 0;
+
+            g_assert_cmpuint(crop.width, ==, logical);
+            g_assert_cmpuint(crop.height, ==, logical);
+            g_assert_cmpuint(crop.skip_pixels, ==, skip);
+            g_assert_cmpuint(crop.skip_rows, ==, skip);
+            stored /= 2;
+            logical = MAX(logical / 2, 1U);
+        }
+    }
+}
+
 static void test_ordinary_mips(void)
 {
     TextureShape shape = {
@@ -110,6 +151,10 @@ int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
     g_test_add_func("/xbox/nv2a/texture/bordered-bc2", test_bordered_bc2);
+    g_test_add_func("/xbox/nv2a/texture/bordered-mip-crop",
+                    test_bordered_mip_crop_tracks_logical_extent);
+    g_test_add_func("/xbox/nv2a/texture/bordered-mip-sub-block",
+                    test_bordered_mip_crop_clamps_sub_block_tails);
     g_test_add_func("/xbox/nv2a/texture/ordinary-mips", test_ordinary_mips);
     g_test_add_func("/xbox/nv2a/texture/3d-depth-halves",
                     test_3d_depth_halves);
