@@ -88,10 +88,14 @@ void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
         return;
     }
 
+    bool embedded_update =
+        pgraph_vk_vertex_embedded_update_compatible(offset, size);
     bool copy_compatible = !(offset & 3) && !(size & 3);
-    PgraphVkVertexUpdatePlan plan = pgraph_vk_vertex_update_plan(
-        r->in_command_buffer, copy_compatible, offset, size,
-        vertex->buffer_size, staging->buffer_offset, staging->buffer_size);
+    PgraphVkVertexUpdatePlan plan = embedded_update ?
+        PGRAPH_VK_VERTEX_UPDATE_STAGE : pgraph_vk_vertex_update_plan(
+            r->in_command_buffer, copy_compatible, offset, size,
+            vertex->buffer_size, staging->buffer_offset,
+            staging->buffer_size);
     if (plan == PGRAPH_VK_VERTEX_UPDATE_FINISH_RETRY ||
         plan == PGRAPH_VK_VERTEX_UPDATE_FINISH_DIRECT) {
         /* The allocation can still be referenced by recorded commands. Wait
@@ -117,22 +121,25 @@ void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
     }
 
     VkCommandBuffer cmd = pgraph_vk_begin_nondraw_commands(pg);
-    void *copy_data[] = { data };
-    VkDeviceSize copy_sizes[] = { size };
-    VkDeviceSize staging_offset = pgraph_vk_append_to_buffer(
-        pg, BUFFER_VERTEX_RAM_STAGING, copy_data, copy_sizes, 1, 4);
-    if (staging_offset == VK_WHOLE_SIZE) {
-        /* Keep Release builds safe if a future allocator change violates the
-         * reservation contract. The command buffer was not reused here, so
-         * finish before touching the mapped vertex allocation. */
-        pgraph_vk_finish(pg, VK_FINISH_REASON_VERTEX_BUFFER_DIRTY);
-        nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_1);
-        memcpy(vertex->mapped + offset, data, size);
-        return;
-    }
+    VkDeviceSize staging_offset = VK_WHOLE_SIZE;
+    if (!embedded_update) {
+        void *copy_data[] = { data };
+        VkDeviceSize copy_sizes[] = { size };
+        staging_offset = pgraph_vk_append_to_buffer(
+            pg, BUFFER_VERTEX_RAM_STAGING, copy_data, copy_sizes, 1, 4);
+        if (staging_offset == VK_WHOLE_SIZE) {
+            /* Keep Release builds safe if a future allocator change violates
+             * the reservation contract. Finish before touching the mapped
+             * vertex allocation referenced by recorded commands. */
+            pgraph_vk_finish(pg, VK_FINISH_REASON_VERTEX_BUFFER_DIRTY);
+            nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_1);
+            memcpy(vertex->mapped + offset, data, size);
+            return;
+        }
 
-    VK_CHECK(vmaFlushAllocation(r->allocator, staging->allocation,
-                                staging_offset, size));
+        VK_CHECK(vmaFlushAllocation(r->allocator, staging->allocation,
+                                    staging_offset, size));
+    }
 
     VkBufferMemoryBarrier before_copy = {
         .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
@@ -148,12 +155,16 @@ void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
                          VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, NULL, 1,
                          &before_copy, 0, NULL);
 
-    VkBufferCopy copy = {
-        .srcOffset = staging_offset,
-        .dstOffset = offset,
-        .size = size,
-    };
-    vkCmdCopyBuffer(cmd, staging->buffer, vertex->buffer, 1, &copy);
+    if (embedded_update) {
+        vkCmdUpdateBuffer(cmd, vertex->buffer, offset, size, data);
+    } else {
+        VkBufferCopy copy = {
+            .srcOffset = staging_offset,
+            .dstOffset = offset,
+            .size = size,
+        };
+        vkCmdCopyBuffer(cmd, staging->buffer, vertex->buffer, 1, &copy);
+    }
 
     VkBufferMemoryBarrier after_copy = {
         .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,

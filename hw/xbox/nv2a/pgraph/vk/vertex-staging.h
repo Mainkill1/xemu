@@ -9,6 +9,7 @@
 #include "qemu/osdep.h"
 
 #define PGRAPH_VK_VERTEX_RAM_STAGING_MAX_SIZE (UINT64_C(16) * 1024 * 1024)
+#define PGRAPH_VK_VERTEX_EMBEDDED_UPDATE_MAX_SIZE UINT64_C(65536)
 
 typedef enum PgraphVkVertexUpdatePlan {
     PGRAPH_VK_VERTEX_UPDATE_REJECT,
@@ -17,6 +18,13 @@ typedef enum PgraphVkVertexUpdatePlan {
     PGRAPH_VK_VERTEX_UPDATE_FINISH_RETRY,
     PGRAPH_VK_VERTEX_UPDATE_FINISH_DIRECT,
 } PgraphVkVertexUpdatePlan;
+
+static inline bool pgraph_vk_vertex_embedded_update_compatible(
+    uint64_t offset, uint64_t size)
+{
+    return size && size <= PGRAPH_VK_VERTEX_EMBEDDED_UPDATE_MAX_SIZE &&
+           !(offset & 3) && !(size & 3);
+}
 
 /* Ranges use an exclusive end, so the last valid byte is capacity - 1. */
 static inline bool pgraph_vk_vertex_staging_range_valid(uint64_t offset,

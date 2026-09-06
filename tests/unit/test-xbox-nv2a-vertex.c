@@ -102,6 +102,18 @@ static void test_vertex_update_plans(void)
                     PGRAPH_VK_VERTEX_UPDATE_REJECT);
 }
 
+static void test_embedded_update_boundaries(void)
+{
+    const uint64_t cap = PGRAPH_VK_VERTEX_EMBEDDED_UPDATE_MAX_SIZE;
+
+    g_assert_true(pgraph_vk_vertex_embedded_update_compatible(0, 4));
+    g_assert_true(pgraph_vk_vertex_embedded_update_compatible(4, cap));
+    g_assert_false(pgraph_vk_vertex_embedded_update_compatible(2, cap));
+    g_assert_false(pgraph_vk_vertex_embedded_update_compatible(4, cap - 2));
+    g_assert_false(pgraph_vk_vertex_embedded_update_compatible(0, cap + 4));
+    g_assert_false(pgraph_vk_vertex_embedded_update_compatible(0, 0));
+}
+
 static void test_staging_aggregate_exhaustion_and_reset(void)
 {
     const uint64_t cap = PGRAPH_VK_VERTEX_RAM_STAGING_MAX_SIZE;
@@ -144,6 +156,8 @@ int main(int argc, char **argv)
     g_test_add_func("/xbox/nv2a/vertex/staging-vram-end-boundary",
                     test_staging_vram_end_boundary);
     g_test_add_func("/xbox/nv2a/vertex/update-plans", test_vertex_update_plans);
+    g_test_add_func("/xbox/nv2a/vertex/embedded-update-boundaries",
+                    test_embedded_update_boundaries);
     g_test_add_func("/xbox/nv2a/vertex/uniform-pair-alignment",
                     test_uniform_pair_alignment_boundary);
     return g_test_run();
