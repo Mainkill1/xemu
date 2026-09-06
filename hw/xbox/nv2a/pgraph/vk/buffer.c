@@ -292,6 +292,10 @@ void pgraph_vk_init_buffers(NV2AState *d)
         .buffer_size = memory_region_size(d->vram),
     };
 
+    r->bitmap_size = memory_region_size(d->vram) / TARGET_PAGE_SIZE;
+    r->uploaded_bitmap = bitmap_new(r->bitmap_size);
+    bitmap_clear(r->uploaded_bitmap, 0, r->bitmap_size);
+
     r->storage_buffers[BUFFER_VERTEX_RAM_STAGING] = (StorageBuffer){
         .alloc_info = host_alloc_create_info,
         .usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
@@ -354,6 +358,9 @@ void pgraph_vk_finalize_buffers(NV2AState *d)
         }
         destroy_buffer(pg, &r->storage_buffers[i]);
     }
+
+    g_free(r->uploaded_bitmap);
+    r->uploaded_bitmap = NULL;
 }
 
 bool pgraph_vk_grow_vertex_ram_staging_buffer(PGRAPHState *pg,

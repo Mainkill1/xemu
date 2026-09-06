@@ -70,20 +70,29 @@ void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
         return;
     }
 
+    pgraph_vk_download_surfaces_in_range_if_dirty(pg, offset, size);
+
+    size_t start_bit = offset / TARGET_PAGE_SIZE;
+    size_t end_bit = TARGET_PAGE_ALIGN(offset + size) / TARGET_PAGE_SIZE;
+    size_t nbits = end_bit - start_bit;
+    bool overlaps_recorded_vertex_data =
+        find_next_bit(r->uploaded_bitmap, start_bit + nbits, start_bit) <
+        end_bit;
+
+    /* A page not referenced by this submission can still use the cheaper
+     * direct mapped write. Keep ordered staging for true write-after-read
+     * overlap, where the old path had to submit and wait. */
+    if (!r->in_command_buffer || !overlaps_recorded_vertex_data) {
+        nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_1);
+        memcpy(vertex->mapped + offset, data, size);
+        bitmap_set(r->uploaded_bitmap, start_bit, nbits);
+        return;
+    }
+
     bool copy_compatible = !(offset & 3) && !(size & 3);
     PgraphVkVertexUpdatePlan plan = pgraph_vk_vertex_update_plan(
         r->in_command_buffer, copy_compatible, offset, size,
         vertex->buffer_size, staging->buffer_offset, staging->buffer_size);
-    pgraph_vk_download_surfaces_in_range_if_dirty(pg, offset, size);
-
-    /* With no recorded draws, direct mapped writes cannot race the GPU. This
-     * also keeps full-VRAM initialization out of bounded staging storage. */
-    if (!r->in_command_buffer) {
-        nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_1);
-        memcpy(vertex->mapped + offset, data, size);
-        return;
-    }
-
     if (plan == PGRAPH_VK_VERTEX_UPDATE_FINISH_RETRY ||
         plan == PGRAPH_VK_VERTEX_UPDATE_FINISH_DIRECT) {
         /* The allocation can still be referenced by recorded commands. Wait
@@ -102,6 +111,7 @@ void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
              * vkCmdCopyBuffer requires four-byte granularity. */
             nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_1);
             memcpy(vertex->mapped + offset, data, size);
+            bitmap_set(r->uploaded_bitmap, start_bit, nbits);
             return;
         }
 
@@ -120,6 +130,7 @@ void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
         pgraph_vk_finish(pg, VK_FINISH_REASON_VERTEX_BUFFER_DIRTY);
         nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_1);
         memcpy(vertex->mapped + offset, data, size);
+        bitmap_set(r->uploaded_bitmap, start_bit, nbits);
         return;
     }
 
@@ -163,6 +174,7 @@ void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
     pgraph_vk_end_nondraw_commands(pg, cmd);
 
     nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_1);
+    bitmap_set(r->uploaded_bitmap, start_bit, nbits);
 }
 
 static void update_memory_buffer(NV2AState *d, hwaddr addr, hwaddr size)
