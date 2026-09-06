@@ -394,7 +394,8 @@ typedef struct PGRAPHVkState {
     MemorySyncRequirement vertex_ram_buffer_syncs[NV2A_VERTEXSHADER_ATTRIBUTES];
     size_t num_vertex_ram_buffer_syncs;
     unsigned long *uploaded_bitmap;
-    unsigned long *pending_vertex_bitmap;
+    MemorySyncRequirement pending_vertex_ram_buffer_syncs[NV2A_VERTEXSHADER_ATTRIBUTES];
+    size_t num_pending_vertex_ram_buffer_syncs;
     size_t bitmap_size;
 
     VkVertexInputAttributeDescription vertex_attribute_descriptions[NV2A_VERTEXSHADER_ATTRIBUTES];

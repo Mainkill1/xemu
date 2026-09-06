@@ -1236,8 +1236,14 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         sync_staging_buffer(pg, cmd, BUFFER_VERTEX_INLINE_STAGING,
                                 BUFFER_VERTEX_INLINE);
         sync_staging_buffer(pg, cmd, BUFFER_UNIFORM_STAGING, BUFFER_UNIFORM);
-        bitmap_copy(r->uploaded_bitmap, r->pending_vertex_bitmap,
-                    r->bitmap_size);
+        bitmap_clear(r->uploaded_bitmap, 0, r->bitmap_size);
+        for (size_t i = 0; i < r->num_pending_vertex_ram_buffer_syncs; i++) {
+            MemorySyncRequirement *pending =
+                &r->pending_vertex_ram_buffer_syncs[i];
+            bitmap_set(r->uploaded_bitmap,
+                       pending->addr / TARGET_PAGE_SIZE,
+                       pending->size / TARGET_PAGE_SIZE);
+        }
         flush_memory_buffer(pg, cmd);
         VK_CHECK(vkEndCommandBuffer(r->aux_command_buffer));
         r->in_aux_command_buffer = false;
@@ -1394,7 +1400,7 @@ static bool begin_pre_draw(PGRAPHState *pg)
     }
     if (!pg->clearing) {
         if (!pgraph_vk_update_descriptor_sets(pg)) {
-            bitmap_clear(r->pending_vertex_bitmap, 0, r->bitmap_size);
+            r->num_pending_vertex_ram_buffer_syncs = 0;
             return false;
         }
     }
@@ -1403,7 +1409,7 @@ static bool begin_pre_draw(PGRAPHState *pg)
     }
 
     pgraph_vk_ensure_command_buffer(pg);
-    bitmap_clear(r->pending_vertex_bitmap, 0, r->bitmap_size);
+    r->num_pending_vertex_ram_buffer_syncs = 0;
     return true;
 }
 
@@ -1596,7 +1602,7 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
     NV2AState *d = container_of(pg, NV2AState, pgraph);
     PGRAPHVkState *r = pg->vk_renderer_state;
 
-    bitmap_clear(r->pending_vertex_bitmap, 0, r->bitmap_size);
+    r->num_pending_vertex_ram_buffer_syncs = 0;
     if (r->num_vertex_ram_buffer_syncs == 0) {
         return;
     }
@@ -1656,6 +1662,11 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
         NV2A_VK_DPRINTF("Reduced to %d sync checks", num_syncs);
     }
 
+    assert(num_syncs <= ARRAY_SIZE(r->pending_vertex_ram_buffer_syncs));
+    memcpy(r->pending_vertex_ram_buffer_syncs, merged,
+           num_syncs * sizeof(merged[0]));
+    r->num_pending_vertex_ram_buffer_syncs = num_syncs;
+
     for (int i = 0; i < num_syncs; i++) {
         hwaddr addr = merged[i].addr;
         VkDeviceSize size = merged[i].size;
@@ -1669,10 +1680,12 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
                                                size);
         }
 
-        size_t start_bit = addr / TARGET_PAGE_SIZE;
-        size_t nbits = size / TARGET_PAGE_SIZE;
-        bitmap_set(r->pending_vertex_bitmap, start_bit, nbits);
-        bitmap_set(r->uploaded_bitmap, start_bit, nbits);
+    }
+
+    for (int i = 0; i < num_syncs; i++) {
+        bitmap_set(r->uploaded_bitmap,
+                   merged[i].addr / TARGET_PAGE_SIZE,
+                   merged[i].size / TARGET_PAGE_SIZE);
     }
 
     r->num_vertex_ram_buffer_syncs = 0;
