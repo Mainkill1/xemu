@@ -1236,7 +1236,8 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         sync_staging_buffer(pg, cmd, BUFFER_VERTEX_INLINE_STAGING,
                                 BUFFER_VERTEX_INLINE);
         sync_staging_buffer(pg, cmd, BUFFER_UNIFORM_STAGING, BUFFER_UNIFORM);
-        bitmap_clear(r->uploaded_bitmap, 0, r->bitmap_size);
+        bitmap_copy(r->uploaded_bitmap, r->pending_vertex_bitmap,
+                    r->bitmap_size);
         flush_memory_buffer(pg, cmd);
         VK_CHECK(vkEndCommandBuffer(r->aux_command_buffer));
         r->in_aux_command_buffer = false;
@@ -1393,6 +1394,7 @@ static bool begin_pre_draw(PGRAPHState *pg)
     }
     if (!pg->clearing) {
         if (!pgraph_vk_update_descriptor_sets(pg)) {
+            bitmap_clear(r->pending_vertex_bitmap, 0, r->bitmap_size);
             return false;
         }
     }
@@ -1401,6 +1403,7 @@ static bool begin_pre_draw(PGRAPHState *pg)
     }
 
     pgraph_vk_ensure_command_buffer(pg);
+    bitmap_clear(r->pending_vertex_bitmap, 0, r->bitmap_size);
     return true;
 }
 
@@ -1593,6 +1596,7 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
     NV2AState *d = container_of(pg, NV2AState, pgraph);
     PGRAPHVkState *r = pg->vk_renderer_state;
 
+    bitmap_clear(r->pending_vertex_bitmap, 0, r->bitmap_size);
     if (r->num_vertex_ram_buffer_syncs == 0) {
         return;
     }
@@ -1664,6 +1668,11 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
             pgraph_vk_update_vertex_ram_buffer(pg, addr, d->vram_ptr + addr,
                                                size);
         }
+
+        size_t start_bit = addr / TARGET_PAGE_SIZE;
+        size_t nbits = size / TARGET_PAGE_SIZE;
+        bitmap_set(r->pending_vertex_bitmap, start_bit, nbits);
+        bitmap_set(r->uploaded_bitmap, start_bit, nbits);
     }
 
     r->num_vertex_ram_buffer_syncs = 0;

@@ -85,7 +85,6 @@ void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
     if (!r->in_command_buffer || !overlaps_recorded_vertex_data) {
         nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_1);
         memcpy(vertex->mapped + offset, data, size);
-        bitmap_set(r->uploaded_bitmap, start_bit, nbits);
         return;
     }
 
@@ -111,7 +110,6 @@ void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
              * vkCmdCopyBuffer requires four-byte granularity. */
             nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_1);
             memcpy(vertex->mapped + offset, data, size);
-            bitmap_set(r->uploaded_bitmap, start_bit, nbits);
             return;
         }
 
@@ -130,7 +128,6 @@ void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
         pgraph_vk_finish(pg, VK_FINISH_REASON_VERTEX_BUFFER_DIRTY);
         nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_1);
         memcpy(vertex->mapped + offset, data, size);
-        bitmap_set(r->uploaded_bitmap, start_bit, nbits);
         return;
     }
 
@@ -174,7 +171,6 @@ void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
     pgraph_vk_end_nondraw_commands(pg, cmd);
 
     nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_1);
-    bitmap_set(r->uploaded_bitmap, start_bit, nbits);
 }
 
 static void update_memory_buffer(NV2AState *d, hwaddr addr, hwaddr size)

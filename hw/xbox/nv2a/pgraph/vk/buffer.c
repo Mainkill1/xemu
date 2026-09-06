@@ -294,7 +294,9 @@ void pgraph_vk_init_buffers(NV2AState *d)
 
     r->bitmap_size = memory_region_size(d->vram) / TARGET_PAGE_SIZE;
     r->uploaded_bitmap = bitmap_new(r->bitmap_size);
+    r->pending_vertex_bitmap = bitmap_new(r->bitmap_size);
     bitmap_clear(r->uploaded_bitmap, 0, r->bitmap_size);
+    bitmap_clear(r->pending_vertex_bitmap, 0, r->bitmap_size);
 
     r->storage_buffers[BUFFER_VERTEX_RAM_STAGING] = (StorageBuffer){
         .alloc_info = host_alloc_create_info,
@@ -361,6 +363,8 @@ void pgraph_vk_finalize_buffers(NV2AState *d)
 
     g_free(r->uploaded_bitmap);
     r->uploaded_bitmap = NULL;
+    g_free(r->pending_vertex_bitmap);
+    r->pending_vertex_bitmap = NULL;
 }
 
 bool pgraph_vk_grow_vertex_ram_staging_buffer(PGRAPHState *pg,
