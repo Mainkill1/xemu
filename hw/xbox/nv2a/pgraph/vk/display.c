@@ -535,7 +535,7 @@ static void destroy_current_display_image(PGRAPHState *pg)
     PGRAPHVkState *r = pg->vk_renderer_state;
     PGRAPHVkDisplayState *d = &r->display;
 
-    d->reuse.valid = false;
+    pgraph_vk_display_reuse_reset(&d->reuse);
 
     if (d->image == VK_NULL_HANDLE) {
         return;
@@ -1009,48 +1009,6 @@ static void render_display(PGRAPHState *pg, SurfaceBinding *surface,
     disp->draw_time = surface->draw_time;
 }
 
-static bool display_reuse_key_matches(PGRAPHVkDisplayState *disp,
-                                      SurfaceBinding *surface,
-                                      int guest_frame_time,
-                                      hwaddr scanout_address,
-                                      uint32_t vga_line_offset,
-                                      uint32_t width, uint32_t height,
-                                      uint32_t surface_scale_factor,
-                                      uint8_t interlace_mode)
-{
-    return disp->reuse.valid &&
-           disp->reuse.surface_lifetime_id == surface->lifetime_id &&
-           disp->reuse.surface_draw_time == surface->draw_time &&
-           disp->reuse.guest_frame_time == guest_frame_time &&
-           disp->reuse.scanout_address == scanout_address &&
-           disp->reuse.vga_line_offset == vga_line_offset &&
-           disp->reuse.display_width == width &&
-           disp->reuse.display_height == height &&
-           disp->reuse.surface_scale_factor == surface_scale_factor &&
-           disp->reuse.interlace_mode == interlace_mode;
-}
-
-static void publish_display_reuse_key(PGRAPHVkDisplayState *disp,
-                                      SurfaceBinding *surface,
-                                      int guest_frame_time,
-                                      hwaddr scanout_address,
-                                      uint32_t vga_line_offset,
-                                      uint32_t width, uint32_t height,
-                                      uint32_t surface_scale_factor,
-                                      uint8_t interlace_mode)
-{
-    disp->reuse.surface_lifetime_id = surface->lifetime_id;
-    disp->reuse.surface_draw_time = surface->draw_time;
-    disp->reuse.guest_frame_time = guest_frame_time;
-    disp->reuse.scanout_address = scanout_address;
-    disp->reuse.vga_line_offset = vga_line_offset;
-    disp->reuse.display_width = width;
-    disp->reuse.display_height = height;
-    disp->reuse.surface_scale_factor = surface_scale_factor;
-    disp->reuse.interlace_mode = interlace_mode;
-    disp->reuse.valid = true;
-}
-
 static void create_surface_sampler(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -1144,23 +1102,26 @@ void pgraph_vk_render_display(PGRAPHState *pg)
     }
 
     bool pvideo_enabled = is_pvideo_enabled(pg);
-    bool reusable = tcg_enabled() && !pvideo_enabled &&
-                    !surface->upload_pending && !recreated;
-    if (reusable && display_reuse_key_matches(
-                        disp, surface, pg->frame_time, scanout_address,
+    bool reusable = pgraph_vk_display_reuse_allowed(
+        tcg_enabled(), pvideo_enabled, surface->upload_pending, recreated);
+    if (reusable && pgraph_vk_display_reuse_key_matches(
+                        &disp->reuse, surface->lifetime_id,
+                        surface->draw_time, pg->frame_time, scanout_address,
                         vga_display_params.line_offset, width, height,
                         pg->surface_scale_factor, interlace_mode)) {
         return;
     }
 
-    disp->reuse.valid = false;
+    pgraph_vk_display_reuse_reset(&disp->reuse);
     render_display(pg, surface, vga_display_params.line_offset);
 
     /* render_display waits for the display image to be externally usable. */
-    if (tcg_enabled() && !disp->pvideo.state.enabled &&
-        !surface->upload_pending) {
-        publish_display_reuse_key(
-            disp, surface, pg->frame_time, scanout_address,
+    if (pgraph_vk_display_reuse_allowed(
+            tcg_enabled(), disp->pvideo.state.enabled,
+            surface->upload_pending, false)) {
+        pgraph_vk_display_reuse_publish(
+            &disp->reuse, surface->lifetime_id, surface->draw_time,
+            pg->frame_time, scanout_address,
             vga_display_params.line_offset, width, height,
             pg->surface_scale_factor, interlace_mode);
     }

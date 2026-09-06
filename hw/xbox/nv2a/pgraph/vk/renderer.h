@@ -39,6 +39,7 @@
 
 #include "debug.h"
 #include "constants.h"
+#include "display-reuse.h"
 #include "glsl.h"
 
 #define HAVE_EXTERNAL_MEMORY 1
@@ -298,18 +299,7 @@ typedef struct PGRAPHVkDisplayState {
     int width, height;
     int draw_time;
 
-    struct {
-        bool valid;
-        uint64_t surface_lifetime_id;
-        int surface_draw_time;
-        int guest_frame_time;
-        hwaddr scanout_address;
-        uint32_t vga_line_offset;
-        uint32_t display_width;
-        uint32_t display_height;
-        uint32_t surface_scale_factor;
-        uint8_t interlace_mode;
-    } reuse;
+    PGRAPHVkDisplayReuseKey reuse;
 
     // OpenGL Interop
 #ifdef WIN32
