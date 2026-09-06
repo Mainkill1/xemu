@@ -22,6 +22,7 @@ typedef struct TextureShape {
     unsigned int dimensionality;
     unsigned int color_format;
     unsigned int levels;
+    unsigned int storage_levels;
     unsigned int width, height, depth;
     bool border;
 
@@ -160,6 +161,7 @@ static inline bool pgraph_calculate_texture_encoded_size(
     size_t *length)
 {
     unsigned int width, height, depth;
+    unsigned int level_count = shape.levels;
     size_t total = 0;
     uint64_t level_size, blocks;
     const uint64_t block_size =
@@ -183,7 +185,10 @@ static inline bool pgraph_calculate_texture_encoded_size(
         *length = (size_t)shape.height * shape.pitch;
         return true;
     }
-    if (shape.levels == 0 || shape.dimensionality < 2 ||
+    if (shape.cubemap && shape.storage_levels) {
+        level_count = shape.storage_levels;
+    }
+    if (level_count == 0 || shape.dimensionality < 2 ||
         shape.dimensionality > 3 || !bytes_per_pixel) {
         return false;
     }
@@ -191,7 +196,7 @@ static inline bool pgraph_calculate_texture_encoded_size(
         return false;
     }
 
-    for (unsigned int level = 0; level < shape.levels; level++) {
+    for (unsigned int level = 0; level < level_count; level++) {
         uint64_t w = MAX(width, 1u);
         uint64_t h = MAX(height, 1u);
         uint64_t d = shape.dimensionality >= 3 ? MAX(depth, 1u) : 1;

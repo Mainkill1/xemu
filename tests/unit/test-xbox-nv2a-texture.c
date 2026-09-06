@@ -134,6 +134,25 @@ static void test_cubemap_face_alignment(void)
                      ROUND_UP(64, NV2A_CUBEMAP_FACE_ALIGNMENT) * 6);
 }
 
+static void test_cubemap_face_stride_uses_declared_storage_levels(void)
+{
+    TextureShape shape = {
+        .cubemap = true,
+        .dimensionality = 2,
+        .color_format = NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT1_A1R5G5B5,
+        .levels = 1,
+        .storage_levels = 4,
+        .width = 8,
+        .height = 8,
+        .border = true,
+    };
+    size_t size;
+
+    g_assert_true(pgraph_calculate_texture_encoded_size(shape, true, 4,
+                                                        &size));
+    g_assert_cmpuint(size, ==, 256 * 6);
+}
+
 static void test_dma_range_boundaries(void)
 {
     /* Last source byte equals the inclusive DMA limit and the exclusive
@@ -161,6 +180,8 @@ int main(int argc, char **argv)
     g_test_add_func("/xbox/nv2a/texture/overflow", test_overflow_rejected);
     g_test_add_func("/xbox/nv2a/texture/cubemap-alignment",
                     test_cubemap_face_alignment);
+    g_test_add_func("/xbox/nv2a/texture/cubemap-storage-level-stride",
+                    test_cubemap_face_stride_uses_declared_storage_levels);
     g_test_add_func("/xbox/nv2a/texture/dma-range-boundaries",
                     test_dma_range_boundaries);
     return g_test_run();

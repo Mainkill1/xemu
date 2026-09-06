@@ -746,7 +746,7 @@ static TextureBinding* generate_texture(const TextureShape s,
         }
 
         int level;
-        for (level = 0; level < s.levels; level++) {
+        for (level = 0; level < s.storage_levels; level++) {
             if (f.gl_format == 0) {
                 length += w/4 * h/4 * block_size;
             } else {
