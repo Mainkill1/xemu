@@ -263,19 +263,28 @@ static TextureLayout *get_texture_layout(PGRAPHState *pg, int texture_idx,
                     assert(converted);
 
                     if (s.cubemap && adjusted_width != s.width) {
-                        // FIXME: Consider preserving the border.
-                        // There does not seem to be a way to reference the border
-                        // texels in a cubemap, so they are discarded.
+                        PGRAPHTextureMipCrop crop =
+                            pgraph_bordered_texture_mip_crop(
+                                s.width, s.height, width, height, level);
+                        unsigned int row_bytes = crop.width * 4;
+                        uint8_t *cropped = g_malloc_n(crop.height, row_bytes);
+                        uint8_t *source = converted +
+                            ((size_t)crop.skip_rows * width +
+                             crop.skip_pixels) * 4;
 
-                        // glPixelStorei(GL_UNPACK_SKIP_PIXELS, 4);
-                        // glPixelStorei(GL_UNPACK_SKIP_ROWS, 4);
-                        tex_width = s.width;
-                        tex_height = s.height;
-                        // if (physical_width == width) {
-                        //     glPixelStorei(GL_UNPACK_ROW_LENGTH, adjusted_width);
-                        // }
-
-                        // FIXME: Crop by 4 pixels on each side
+                        /*
+                         * Vulkan buffer-image copies cannot express a source
+                         * pixel offset for this tightly packed decoded upload.
+                         * Discard the cubemap border into a compact buffer so
+                         * every copy extent matches its destination mip.
+                         */
+                        memcpy_image(cropped, source, row_bytes, row_bytes,
+                                     width * 4, crop.height);
+                        g_free(converted);
+                        converted = cropped;
+                        converted_size = (size_t)crop.height * row_bytes;
+                        tex_width = crop.width;
+                        tex_height = crop.height;
                     }
 
                     layout->layers[layer].levels[level] = (TextureLevel){
