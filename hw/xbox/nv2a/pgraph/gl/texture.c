@@ -547,13 +547,14 @@ static void upload_gl_texture(GLenum gl_target,
                     // FIXME: Consider preserving the border.
                     // There does not seem to be a way to reference the border
                     // texels in a cubemap, so they are discarded.
-                    glPixelStorei(GL_UNPACK_SKIP_PIXELS, 4);
-                    glPixelStorei(GL_UNPACK_SKIP_ROWS, 4);
-                    tex_width = s.width;
-                    tex_height = s.height;
-                    if (physical_width == width) {
-                        glPixelStorei(GL_UNPACK_ROW_LENGTH, adjusted_width);
-                    }
+                    PGRAPHTextureMipCrop crop =
+                        pgraph_bordered_texture_mip_crop(
+                            s.width, s.height, width, height, level);
+                    glPixelStorei(GL_UNPACK_SKIP_PIXELS, crop.skip_pixels);
+                    glPixelStorei(GL_UNPACK_SKIP_ROWS, crop.skip_rows);
+                    glPixelStorei(GL_UNPACK_ROW_LENGTH, width);
+                    tex_width = crop.width;
+                    tex_height = crop.height;
                 }
 
                 glTexImage2D(gl_target, level, GL_RGBA, tex_width, tex_height, 0,
@@ -562,9 +563,7 @@ static void upload_gl_texture(GLenum gl_target,
                 if (s.cubemap && adjusted_width != s.width) {
                     glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
                     glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
-                    if (physical_width == width) {
-                        glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-                    }
+                    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
                 }
                 texture_data +=
                     physical_width / 4 * physical_height / 4 * block_size;
