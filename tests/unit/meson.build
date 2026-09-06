@@ -20,6 +20,7 @@ tests = {
   'test-string-output-visitor': [testqapi],
   'test-visitor-serialization': [testqapi],
   'test-bitmap': [],
+  'test-xbox-vk-buffer-size': [],
   'test-xbox-nv2a-ptimer': [
     'ptimer-test-stubs.c',
     meson.project_source_root() / 'hw/xbox/nv2a/ptimer.c',

@@ -18,6 +18,7 @@
  */
 
 #include "renderer.h"
+#include "buffer-size.h"
 
 /*
  * A 4096x4096 four-byte image is the largest unscaled linear guest image the
@@ -93,30 +94,35 @@ static void destroy_buffer(PGRAPHState *pg, StorageBuffer *buffer)
 
 static void resize_buffer(PGRAPHState *pg, int index, size_t size);
 
-static VkDeviceSize grow_buffer_size(VkDeviceSize current,
-                                     VkDeviceSize required)
+static bool grow_buffer_size(VkDeviceSize current, VkDeviceSize required,
+                             VkDeviceSize *result)
 {
-    VkDeviceSize size = MAX(current, BUFFER_LINEAR_SCRATCH_INITIAL_SIZE);
-
     /* Keep a power-of-two capacity invariant so repeated scale changes need
      * at most logarithmically many device allocations. */
-    while (size < required) {
-        assert(size <= UINT64_MAX / 2);
-        size *= 2;
-    }
-
-    return size;
+    return pgraph_vk_size_grow_geometric(
+        current, required, BUFFER_LINEAR_SCRATCH_INITIAL_SIZE, result);
 }
 
-void pgraph_vk_ensure_buffer_capacity(PGRAPHState *pg, int index,
+bool pgraph_vk_ensure_buffer_capacity(PGRAPHState *pg, int index,
                                       VkDeviceSize required_size)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     StorageBuffer *buffer = &r->storage_buffers[index];
+    VkDeviceSize new_size;
 
-    assert(required_size);
+    if (required_size == 0) {
+        error_report("nv2a: refusing zero-sized Vulkan scratch reservation");
+        return false;
+    }
     if (buffer->buffer_size >= required_size) {
-        return;
+        return true;
+    }
+    if (!grow_buffer_size(buffer->buffer_size, required_size, &new_size)) {
+        error_report("nv2a: Vulkan scratch-buffer capacity overflow "
+                     "(current=%" PRIu64 ", required=%" PRIu64 ")",
+                     (uint64_t)buffer->buffer_size,
+                     (uint64_t)required_size);
+        return false;
     }
 
     /* Buffer objects may still be referenced by an active submission. Finish
@@ -125,11 +131,13 @@ void pgraph_vk_ensure_buffer_capacity(PGRAPHState *pg, int index,
     if (r->in_command_buffer) {
         pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
     }
-    assert(!r->in_command_buffer);
-    assert(!r->in_aux_command_buffer);
+    if (r->in_command_buffer || r->in_aux_command_buffer) {
+        error_report("nv2a: cannot resize an in-use Vulkan scratch buffer");
+        return false;
+    }
 
-    resize_buffer(pg, index,
-                  grow_buffer_size(buffer->buffer_size, required_size));
+    resize_buffer(pg, index, new_size);
+    return true;
 }
 
 static void resize_buffer(PGRAPHState *pg, int index, size_t size)
