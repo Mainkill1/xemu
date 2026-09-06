@@ -73,6 +73,18 @@ typedef struct BasicColorFormatInfo {
 
 extern const BasicColorFormatInfo kelvin_color_format_info_map[66];
 
+/*
+ * NV097 texture and palette contexts use an in-memory DMA object backed by
+ * NV2A memory. Other classes describe directional DMA engines, and the
+ * current texture mapping does not implement alternate target apertures.
+ */
+static inline bool pgraph_texture_dma_object_valid(unsigned int dma_class,
+                                                   unsigned int dma_target)
+{
+    return dma_class == NV_DMA_IN_MEMORY_CLASS &&
+           dma_target == (NV_DMA_TARGET_NVM >> 16);
+}
+
 /* DMAObject.limit is inclusive; vram_size is an exclusive upper bound. */
 static inline bool pgraph_texture_dma_range_valid(uint64_t base,
                                                   uint64_t object_offset,

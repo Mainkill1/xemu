@@ -199,6 +199,32 @@ static void test_dma_range_boundaries(void)
         0x1000, 0x10, 0xff0, 0xffe, 0x2000));
 }
 
+static void test_dma_object_contract(void)
+{
+    g_assert_true(pgraph_texture_dma_object_valid(
+        NV_DMA_IN_MEMORY_CLASS,
+        NV_DMA_TARGET_NVM >> 16));
+
+    g_assert_false(pgraph_texture_dma_object_valid(
+        NV_DMA_FROM_MEMORY_CLASS,
+        NV_DMA_TARGET_NVM >> 16));
+    g_assert_false(pgraph_texture_dma_object_valid(
+        NV_DMA_TO_MEMORY_CLASS,
+        NV_DMA_TARGET_NVM >> 16));
+    g_assert_false(pgraph_texture_dma_object_valid(
+        0xff, NV_DMA_TARGET_NVM >> 16));
+
+    g_assert_false(pgraph_texture_dma_object_valid(
+        NV_DMA_IN_MEMORY_CLASS,
+        NV_DMA_TARGET_NVM_TILED >> 16));
+    g_assert_false(pgraph_texture_dma_object_valid(
+        NV_DMA_IN_MEMORY_CLASS,
+        NV_DMA_TARGET_PCI >> 16));
+    g_assert_false(pgraph_texture_dma_object_valid(
+        NV_DMA_IN_MEMORY_CLASS,
+        NV_DMA_TARGET_AGP >> 16));
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -219,5 +245,7 @@ int main(int argc, char **argv)
                     test_compressed_subblock_cubemap_face_stride);
     g_test_add_func("/xbox/nv2a/texture/dma-range-boundaries",
                     test_dma_range_boundaries);
+    g_test_add_func("/xbox/nv2a/texture/dma-object-contract",
+                    test_dma_object_contract);
     return g_test_run();
 }

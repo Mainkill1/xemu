@@ -95,6 +95,11 @@ static bool pgraph_get_dma_vram_addr_checked(NV2AState *d,
     }
 
     DMAObject dma = nv_dma_load(d, dma_obj_address);
+
+    if (!pgraph_texture_dma_object_valid(dma.dma_class, dma.dma_target)) {
+        return false;
+    }
+
     hwaddr base = dma.address & 0x07FFFFFF;
 
     if (!pgraph_texture_dma_range_valid(base, object_offset, required_length,
