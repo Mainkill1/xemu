@@ -711,7 +711,7 @@ static void invalidate_surface(NV2AState *d, SurfaceBinding *surface)
 
     if (r->display.reuse.valid &&
         r->display.reuse.surface_lifetime_id == surface->lifetime_id) {
-        r->display.reuse.valid = false;
+        pgraph_vk_display_reuse_reset(&r->display.reuse);
     }
 
     trace_nv2a_pgraph_surface_invalidated(surface->vram_addr);
@@ -1036,7 +1036,7 @@ void pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
 
     if (r->display.reuse.valid &&
         r->display.reuse.surface_lifetime_id == surface->lifetime_id) {
-        r->display.reuse.valid = false;
+        pgraph_vk_display_reuse_reset(&r->display.reuse);
     }
 
     nv2a_profile_inc_counter(NV2A_PROF_SURF_UPLOAD);
