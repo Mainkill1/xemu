@@ -1,0 +1,31 @@
+test_group,renderer,tests,runs,passed_checks,expected_checks,failed_checks,status
+BusyPfifo,OPENGL,2,2,4,4,0,PASS
+BusyPfifo,VULKAN,2,2,4,4,0,PASS
+CpuFloatingPoint,OPENGL,2,2,4,4,0,PASS
+CpuFloatingPoint,VULKAN,2,2,4,4,0,PASS
+CpuTranslationBlocks,OPENGL,3,2,6,6,0,PASS
+CpuTranslationBlocks,VULKAN,3,2,6,6,0,PASS
+FillRate,OPENGL,2,2,4,4,0,PASS
+FillRate,VULKAN,2,2,4,4,0,PASS
+GameLoadComposite,OPENGL,52,2,104,104,0,PASS
+GameLoadComposite,VULKAN,52,2,104,104,0,PASS
+High vertex count,OPENGL,4,2,8,8,0,PASS
+High vertex count,VULKAN,4,2,8,8,0,PASS
+PFIFOArrayElements,OPENGL,3,2,6,6,0,PASS
+PFIFOArrayElements,VULKAN,3,2,6,6,0,PASS
+PipelineTextureSwitch,OPENGL,4,2,8,8,0,PASS
+PipelineTextureSwitch,VULKAN,4,2,8,8,0,PASS
+PrimitiveType,OPENGL,20,2,40,40,0,PASS
+PrimitiveType,VULKAN,20,2,40,40,0,PASS
+ReportQuery,OPENGL,8,2,16,16,0,PASS
+ReportQuery,VULKAN,8,2,16,16,0,PASS
+SurfaceRendering,OPENGL,26,2,52,52,0,PASS
+SurfaceRendering,VULKAN,26,2,52,52,0,PASS
+TextureCubemapFallback,OPENGL,3,2,6,6,0,PASS
+TextureCubemapFallback,VULKAN,3,2,6,6,0,PASS
+TinyDraw,OPENGL,8,2,16,16,0,PASS
+TinyDraw,VULKAN,8,2,16,16,0,PASS
+UniformThrash,OPENGL,1,2,2,2,0,PASS
+UniformThrash,VULKAN,1,2,2,2,0,PASS
+Vertex buffer allocation,OPENGL,9,2,18,18,0,PASS
+Vertex buffer allocation,VULKAN,9,2,18,18,0,PASS
