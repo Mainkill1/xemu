@@ -43,6 +43,100 @@
 #include <sys/prctl.h>
 #endif
 
+#ifdef XBOX
+typedef struct XboxPollSpinProfile {
+    bool initialized;
+    bool enabled;
+    uint64_t entries;
+    uint64_t timeout_buckets[6];
+    uint64_t requested_ns;
+    uint64_t spin_ns;
+    uint64_t iterations;
+    uint64_t ready_exits;
+    uint64_t errors;
+    uint64_t late_ns;
+    uint64_t max_late_ns;
+    uint64_t max_fds;
+    int64_t last_report_ns;
+} XboxPollSpinProfile;
+
+static __thread XboxPollSpinProfile xbox_poll_spin_profile;
+
+static bool xbox_poll_spin_profile_enabled(XboxPollSpinProfile *profile)
+{
+    if (!profile->initialized) {
+        const char *value = getenv("XEMU_QEMU_POLL_PROFILE");
+
+        profile->enabled = value && strcmp(value, "0");
+        profile->initialized = true;
+    }
+    return profile->enabled;
+}
+
+static void xbox_poll_spin_profile_record(int64_t requested_ns,
+                                          int64_t spin_ns,
+                                          uint64_t iterations,
+                                          int64_t late_ns,
+                                          guint nfds,
+                                          int poll_ret,
+                                          int64_t now_ns)
+{
+    XboxPollSpinProfile *profile = &xbox_poll_spin_profile;
+    unsigned int bucket;
+
+    if (!xbox_poll_spin_profile_enabled(profile)) {
+        return;
+    }
+
+    if (requested_ns < 100000) {
+        bucket = 0;
+    } else if (requested_ns < 250000) {
+        bucket = 1;
+    } else if (requested_ns < 500000) {
+        bucket = 2;
+    } else if (requested_ns < 750000) {
+        bucket = 3;
+    } else if (requested_ns < 1000000) {
+        bucket = 4;
+    } else {
+        bucket = 5;
+    }
+
+    profile->entries++;
+    profile->timeout_buckets[bucket]++;
+    profile->requested_ns += (uint64_t)requested_ns;
+    profile->spin_ns += (uint64_t)spin_ns;
+    profile->iterations += iterations;
+    profile->ready_exits += poll_ret > 0;
+    profile->errors += poll_ret < 0;
+    profile->late_ns += (uint64_t)late_ns;
+    profile->max_late_ns = MAX(profile->max_late_ns, (uint64_t)late_ns);
+    profile->max_fds = MAX(profile->max_fds, (uint64_t)nfds);
+
+    if (!profile->last_report_ns) {
+        profile->last_report_ns = now_ns;
+    } else if (now_ns - profile->last_report_ns >= NANOSECONDS_PER_SECOND) {
+        fprintf(stderr,
+                "XEMU_QEMU_POLL_PROFILE v=1 tid=%d entries=%" PRIu64
+                " buckets=%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64
+                ",%" PRIu64 ",%" PRIu64 " requested_ns=%" PRIu64
+                " spin_ns=%" PRIu64 " iterations=%" PRIu64
+                " ready_exits=%" PRIu64 " errors=%" PRIu64
+                " late_ns=%" PRIu64
+                " max_late_ns=%" PRIu64 " max_fds=%" PRIu64 "\n",
+                qemu_get_thread_id(), profile->entries,
+                profile->timeout_buckets[0], profile->timeout_buckets[1],
+                profile->timeout_buckets[2], profile->timeout_buckets[3],
+                profile->timeout_buckets[4], profile->timeout_buckets[5],
+                profile->requested_ns, profile->spin_ns, profile->iterations,
+                profile->ready_exits, profile->errors, profile->late_ns,
+                profile->max_late_ns, profile->max_fds);
+        fflush(stderr);
+        profile->last_report_ns = now_ns;
+    }
+}
+#endif
+
 /***********************************************************/
 /* timers */
 
@@ -350,11 +444,19 @@ int qemu_poll_ns(GPollFD *fds, guint nfds, int64_t timeout)
     #define XBOX_BUSYWAIT_THRESHOLD_NS 1250000
     if ((0 < timeout) && (timeout < XBOX_BUSYWAIT_THRESHOLD_NS)) {
         int64_t now = qemu_clock_get_ns(QEMU_CLOCK_REALTIME);
+        int64_t start = now;
         int64_t end = now + timeout;
+        uint64_t iterations = 0;
+        int ret;
+
         while (now < end) {
             now = qemu_clock_get_ns(QEMU_CLOCK_REALTIME);
+            iterations++;
         }
-        timeout = 0;
+        ret = g_poll(fds, nfds, 0);
+        xbox_poll_spin_profile_record(timeout, now - start, iterations,
+                                      MAX(now - end, 0), nfds, ret, now);
+        return ret;
     }
 #endif
 
