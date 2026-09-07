@@ -173,13 +173,12 @@ bool pgraph_get_texture_length_checked(PGRAPHState *pg,
 
     BasicColorFormatInfo f = kelvin_color_format_info_map[shape->color_format];
     if (f.linear) {
-        if (!shape->width || !shape->height || shape->cubemap ||
-            shape->dimensionality != 2 ||
-            (shape->height && shape->pitch > SIZE_MAX / shape->height)) {
+        if (shape->cubemap || shape->dimensionality != 2) {
             return false;
         }
-        *length = (size_t)shape->height * shape->pitch;
-        return true;
+        return pgraph_calculate_linear_texture_span(
+            shape->width, shape->height, shape->pitch, f.bytes_per_pixel,
+            length);
     }
 
     return pgraph_calculate_texture_encoded_size(

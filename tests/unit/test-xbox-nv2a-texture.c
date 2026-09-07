@@ -225,6 +225,43 @@ static void test_dma_object_contract(void)
         NV_DMA_TARGET_AGP >> 16));
 }
 
+static void test_linear_texture_source_span(void)
+{
+    size_t length;
+
+    g_assert_false(pgraph_calculate_linear_texture_span(
+        64, 2, 0, 4, &length));
+    g_assert_false(pgraph_calculate_linear_texture_span(
+        64, 2, 128, 4, &length));
+
+    g_assert_true(pgraph_calculate_linear_texture_span(
+        64, 2, 256, 4, &length));
+    g_assert_cmpuint(length, ==, 512);
+
+    g_assert_true(pgraph_calculate_linear_texture_span(
+        64, 2, 272, 4, &length));
+    g_assert_cmpuint(length, ==, 528);
+
+    g_assert_false(pgraph_calculate_linear_texture_span(
+        64, 2, 258, 4, &length));
+    g_assert_false(pgraph_calculate_linear_texture_span(
+        UINT_MAX, UINT_MAX, UINT_MAX, UINT_MAX, &length));
+}
+
+static void test_linear_texture_span_dma_boundaries(void)
+{
+    size_t length;
+
+    g_assert_true(pgraph_calculate_linear_texture_span(
+        64, 2, 272, 4, &length));
+    g_assert_true(pgraph_texture_dma_range_valid(
+        0x1000, 0, length, length - 1, 0x1000 + length));
+    g_assert_false(pgraph_texture_dma_range_valid(
+        0x1000, 0, length, length - 2, 0x1000 + length));
+    g_assert_false(pgraph_texture_dma_range_valid(
+        0x1000, 0, length, length - 1, 0x1000 + length - 1));
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -247,5 +284,9 @@ int main(int argc, char **argv)
                     test_dma_range_boundaries);
     g_test_add_func("/xbox/nv2a/texture/dma-object-contract",
                     test_dma_object_contract);
+    g_test_add_func("/xbox/nv2a/texture/linear-source-span",
+                    test_linear_texture_source_span);
+    g_test_add_func("/xbox/nv2a/texture/linear-source-dma-boundaries",
+                    test_linear_texture_span_dma_boundaries);
     return g_test_run();
 }
