@@ -167,6 +167,28 @@ static inline bool pgraph_texture_size_mul(uint64_t a, uint64_t b,
     return true;
 }
 
+/* Return the source span consumed by a supported linear 2D texture. */
+static inline bool pgraph_calculate_linear_texture_span(
+    unsigned int width, unsigned int height, unsigned int pitch,
+    unsigned int bytes_per_pixel, size_t *length)
+{
+    uint64_t row_bytes, row_prefix;
+    size_t total = 0;
+
+    if (!length || !width || !height || !bytes_per_pixel ||
+        !pgraph_texture_size_mul(width, bytes_per_pixel, &row_bytes) ||
+        row_bytes > SIZE_MAX || pitch < row_bytes ||
+        pitch % bytes_per_pixel != 0 ||
+        !pgraph_texture_size_mul(height - 1, pitch, &row_prefix) ||
+        !pgraph_texture_size_add(&total, row_prefix) ||
+        !pgraph_texture_size_add(&total, row_bytes)) {
+        return false;
+    }
+
+    *length = total;
+    return true;
+}
+
 /* Calculate the encoded guest-memory footprint consumed by the decoder. */
 static inline bool pgraph_calculate_texture_encoded_size(
     TextureShape shape, bool compressed, unsigned int bytes_per_pixel,
@@ -190,12 +212,11 @@ static inline bool pgraph_calculate_texture_encoded_size(
         return false;
     }
     if (kelvin_color_format_info_map[shape.color_format].linear) {
-        if (shape.cubemap || shape.dimensionality != 2 ||
-            (shape.height && shape.pitch > SIZE_MAX / shape.height)) {
+        if (shape.cubemap || shape.dimensionality != 2) {
             return false;
         }
-        *length = (size_t)shape.height * shape.pitch;
-        return true;
+        return pgraph_calculate_linear_texture_span(
+            shape.width, shape.height, shape.pitch, bytes_per_pixel, length);
     }
     if (shape.cubemap && shape.storage_levels) {
         level_count = shape.storage_levels;
