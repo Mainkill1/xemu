@@ -30,6 +30,7 @@
 #include "qemu/log.h"
 #include "qemu/lru.h"
 #include "renderer.h"
+#include "texture-state.h"
 
 static void texture_cache_release_node_resources(PGRAPHVkState *r, TextureBinding *snode);
 
@@ -458,7 +459,7 @@ static bool check_texture_possibly_dirty(NV2AState *d,
 
 // FIXME: Make sure we update sampler when data matches. Should we add filtering
 // options to the textureshape?
-static void upload_texture_image(PGRAPHState *pg, int texture_idx,
+static bool upload_texture_image(PGRAPHState *pg, int texture_idx,
                                  TextureBinding *binding)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -482,7 +483,7 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
     if (!layout) {
         qemu_log_mask(LOG_GUEST_ERROR,
                       "nv2a: failed to construct texture source layout\n");
-        return;
+        return false;
     }
     const int num_layers = state->cubemap ? 6 : 1;
 
@@ -591,6 +592,7 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
             g_free(layer->levels[level_idx].decoded_data);
         }
     }
+    return true;
 }
 
 static void copy_zeta_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surface,
@@ -1217,7 +1219,8 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     if (binding_found) {
         NV2A_VK_DPRINTF("Cache hit");
         r->texture_bindings[texture_idx] = snode;
-        possibly_dirty |= snode->possibly_dirty;
+        possibly_dirty = pgraph_vk_texture_needs_revalidation(
+            snode->possibly_dirty, possibly_dirty);
     } else {
         possibly_dirty = true;
     }
@@ -1247,9 +1250,18 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
                 copy_surface_to_texture(pg, surface, snode);
             }
         } else {
-            if (possibly_dirty && content_hash != snode->hash) {
-                upload_texture_image(pg, texture_idx, snode);
-                snode->hash = content_hash;
+            if (possibly_dirty) {
+                bool content_changed = content_hash != snode->hash;
+                bool upload_succeeded =
+                    !content_changed ||
+                    upload_texture_image(pg, texture_idx, snode);
+
+                if (!pgraph_vk_texture_complete_revalidation(
+                        content_changed, upload_succeeded, content_hash,
+                        &snode->hash, &snode->possibly_dirty)) {
+                    NV2A_VK_DGROUP_END();
+                    return false;
+                }
             }
         }
 
@@ -1262,7 +1274,7 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     memcpy(&snode->key, &key, sizeof(key));
     snode->current_layout = VK_IMAGE_LAYOUT_UNDEFINED;
     snode->possibly_dirty = false;
-    snode->hash = content_hash;
+    snode->hash = content_hash ^ UINT64_MAX;
 
     assert(0 < state.dimensionality);
     assert(state.dimensionality < ARRAY_SIZE(dimensionality_to_vk_image_type));
@@ -1433,7 +1445,12 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     if (surface_to_texture) {
         copy_surface_to_texture(pg, surface, snode);
     } else {
-        upload_texture_image(pg, texture_idx, snode);
+        if (!upload_texture_image(pg, texture_idx, snode)) {
+            snode->possibly_dirty = true;
+            NV2A_VK_DGROUP_END();
+            return false;
+        }
+        snode->hash = content_hash;
         snode->draw_time = 0;
     }
 
