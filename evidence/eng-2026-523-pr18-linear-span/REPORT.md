@@ -31,6 +31,47 @@ Status: **PASS**
 - Vulkan validation: zero VUIDs in every Vulkan cell.
 - Process cleanup: complete; host was not quarantined.
 
+## Matched XISO group timing
+
+The 147-record parent/candidate comparison ran once per renderer. Group sums use each leaf record’s average and median time. A context flag requires both sums to move at least 5% in the same direction; these markerless microbenchmarks do not determine acceptance.
+
+| Test group | Renderer | Tests | Baseline average sum | Candidate average sum | Average delta | Baseline median sum | Candidate median sum | Median delta | Result |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---|
+| BusyPfifo | OPENGL | 2 | 4,646,918 us | 4,666,413 us | +0.42% | 4,646,954 us | 4,667,159 us | +0.43% | Neutral/context |
+| BusyPfifo | VULKAN | 2 | 4,884,505 us | 4,932,566 us | +0.98% | 4,883,961 us | 4,932,374 us | +0.99% | Neutral/context |
+| CpuFloatingPoint | OPENGL | 2 | 1,258,310 us | 1,240,720 us | -1.40% | 1,257,971 us | 1,241,779 us | -1.29% | Neutral/context |
+| CpuFloatingPoint | VULKAN | 2 | 1,246,201 us | 1,246,047 us | -0.01% | 1,244,393 us | 1,242,076 us | -0.19% | Neutral/context |
+| CpuTranslationBlocks | OPENGL | 3 | 518,606 us | 519,179 us | +0.11% | 517,506 us | 517,368 us | -0.03% | Neutral/context |
+| CpuTranslationBlocks | VULKAN | 3 | 519,477 us | 525,357 us | +1.13% | 519,386 us | 525,470 us | +1.17% | Neutral/context |
+| FillRate | OPENGL | 2 | 3,244 us | 2,790 us | -14.00% | 2,761 us | 2,508 us | -9.16% | Improve flag |
+| FillRate | VULKAN | 2 | 3,788 us | 3,552 us | -6.23% | 2,031 us | 1,929 us | -5.02% | Improve flag |
+| GameLoadComposite | OPENGL | 52 | 10,788,823 us | 10,703,190 us | -0.79% | 10,777,302 us | 10,704,364 us | -0.68% | Neutral/context |
+| GameLoadComposite | VULKAN | 52 | 7,324,029 us | 7,318,564 us | -0.07% | 7,306,795 us | 7,318,697 us | +0.16% | Neutral/context |
+| High vertex count | OPENGL | 4 | 205,923 us | 206,938 us | +0.49% | 205,011 us | 206,758 us | +0.85% | Neutral/context |
+| High vertex count | VULKAN | 4 | 224,615 us | 223,177 us | -0.64% | 222,663 us | 221,667 us | -0.45% | Neutral/context |
+| PFIFOArrayElements | OPENGL | 3 | 3,974 us | 3,688 us | -7.20% | 3,833 us | 3,813 us | -0.52% | Neutral/context |
+| PFIFOArrayElements | VULKAN | 3 | 2,789 us | 2,820 us | +1.11% | 1,934 us | 1,949 us | +0.78% | Neutral/context |
+| PipelineTextureSwitch | OPENGL | 4 | 56,039 us | 56,178 us | +0.25% | 55,651 us | 55,670 us | +0.03% | Neutral/context |
+| PipelineTextureSwitch | VULKAN | 4 | 82,239 us | 84,821 us | +3.14% | 80,427 us | 82,495 us | +2.57% | Neutral/context |
+| PrimitiveType | OPENGL | 20 | 18,224 us | 17,522 us | -3.85% | 16,991 us | 16,471 us | -3.06% | Neutral/context |
+| PrimitiveType | VULKAN | 20 | 16,983 us | 16,687 us | -1.74% | 12,694 us | 12,589 us | -0.83% | Neutral/context |
+| ReportQuery | OPENGL | 6 | 3,628 us | 3,425 us | -5.60% | 3,458 us | 3,420 us | -1.10% | Neutral/context |
+| ReportQuery | VULKAN | 6 | 16,587 us | 16,882 us | +1.78% | 15,840 us | 16,066 us | +1.43% | Neutral/context |
+| SurfaceRendering | OPENGL | 26 | 343,579 us | 342,729 us | -0.25% | 326,385 us | 326,990 us | +0.19% | Neutral/context |
+| SurfaceRendering | VULKAN | 26 | 1,056,803 us | 995,857 us | -5.77% | 1,014,650 us | 953,746 us | -6.00% | Improve flag |
+| TinyDraw | OPENGL | 8 | 340,195 us | 330,142 us | -2.96% | 340,316 us | 329,293 us | -3.24% | Neutral/context |
+| TinyDraw | VULKAN | 8 | 179,021 us | 176,943 us | -1.16% | 178,188 us | 176,436 us | -0.98% | Neutral/context |
+| UniformThrash | OPENGL | 1 | 1,701 us | 1,772 us | +4.17% | 1,695 us | 1,695 us | +0.00% | Neutral/context |
+| UniformThrash | VULKAN | 1 | 2,872 us | 2,740 us | -4.60% | 2,050 us | 2,036 us | -0.68% | Neutral/context |
+| Vertex buffer allocation | OPENGL | 9 | 845,211 us | 841,314 us | -0.46% | 847,925 us | 843,262 us | -0.55% | Neutral/context |
+| Vertex buffer allocation | VULKAN | 9 | 881,252 us | 878,273 us | -0.34% | 887,191 us | 882,600 us | -0.52% | Neutral/context |
+
+Context improvement flags: FillRate OPENGL (-14.00% avg, -9.16% median), FillRate VULKAN (-6.23% avg, -5.02% median), SurfaceRendering VULKAN (-5.77% avg, -6.00% median)
+
+Context regression flags: None.
+
+Full group rows are in `xiso-group-summary.csv`.
+
 ## Performance summary
 
 Values are arithmetic means of the sealed runs. Morrowind has one run per cell; PGR2 has two runs per build/renderer in ABBA order. Signed changes are descriptive and do not establish a regression or improvement by themselves.
