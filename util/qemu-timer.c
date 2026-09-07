@@ -79,6 +79,33 @@ static bool xbox_poll_spin_profile_enabled(XboxPollSpinProfile *profile)
     return profile->enabled;
 }
 
+static void xbox_poll_profile_emit(XboxPollSpinProfile *profile)
+{
+    fprintf(stderr,
+            "XEMU_QEMU_POLL_PROFILE v=3 tid=%d all_calls=%" PRIu64
+            " negative_calls=%" PRIu64 " zero_calls=%" PRIu64
+            " long_calls=%" PRIu64 " entries=%" PRIu64
+            " buckets=%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64
+            ",%" PRIu64 ",%" PRIu64 " requested_ns=%" PRIu64
+            " spin_ns=%" PRIu64 " iterations=%" PRIu64
+            " ready_exits=%" PRIu64 " errors=%" PRIu64
+            " nonspin_ready_exits=%" PRIu64
+            " nonspin_errors=%" PRIu64
+            " late_ns=%" PRIu64
+            " max_late_ns=%" PRIu64 " max_fds=%" PRIu64 "\n",
+            qemu_get_thread_id(), profile->all_calls,
+            profile->negative_calls, profile->zero_calls,
+            profile->long_calls, profile->entries,
+            profile->timeout_buckets[0], profile->timeout_buckets[1],
+            profile->timeout_buckets[2], profile->timeout_buckets[3],
+            profile->timeout_buckets[4], profile->timeout_buckets[5],
+            profile->requested_ns, profile->spin_ns, profile->iterations,
+            profile->ready_exits, profile->errors,
+            profile->nonspin_ready_exits, profile->nonspin_errors,
+            profile->late_ns, profile->max_late_ns, profile->max_fds);
+    fflush(stderr);
+}
+
 static void xbox_poll_spin_profile_record(int64_t requested_ns,
                                           int64_t spin_ns,
                                           uint64_t iterations,
@@ -123,30 +150,7 @@ static void xbox_poll_spin_profile_record(int64_t requested_ns,
     if (!profile->last_report_ns) {
         profile->last_report_ns = now_ns;
     } else if (now_ns - profile->last_report_ns >= NANOSECONDS_PER_SECOND) {
-        fprintf(stderr,
-                "XEMU_QEMU_POLL_PROFILE v=2 tid=%d all_calls=%" PRIu64
-                " negative_calls=%" PRIu64 " zero_calls=%" PRIu64
-                " long_calls=%" PRIu64 " entries=%" PRIu64
-                " buckets=%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64
-                ",%" PRIu64 ",%" PRIu64 " requested_ns=%" PRIu64
-                " spin_ns=%" PRIu64 " iterations=%" PRIu64
-                " ready_exits=%" PRIu64 " errors=%" PRIu64
-                " nonspin_ready_exits=%" PRIu64
-                " nonspin_errors=%" PRIu64
-                " late_ns=%" PRIu64
-                " max_late_ns=%" PRIu64 " max_fds=%" PRIu64 "\n",
-                qemu_get_thread_id(), profile->all_calls,
-                profile->negative_calls, profile->zero_calls,
-                profile->long_calls, profile->entries,
-                profile->timeout_buckets[0], profile->timeout_buckets[1],
-                profile->timeout_buckets[2], profile->timeout_buckets[3],
-                profile->timeout_buckets[4], profile->timeout_buckets[5],
-                profile->requested_ns, profile->spin_ns, profile->iterations,
-                profile->ready_exits, profile->errors,
-                profile->nonspin_ready_exits, profile->nonspin_errors,
-                profile->late_ns,
-                profile->max_late_ns, profile->max_fds);
-        fflush(stderr);
+        xbox_poll_profile_emit(profile);
         profile->last_report_ns = now_ns;
     }
 }
@@ -169,6 +173,11 @@ static void xbox_poll_profile_record_nonspin(int64_t timeout, int poll_ret)
     }
     profile->nonspin_ready_exits += poll_ret > 0;
     profile->nonspin_errors += poll_ret < 0;
+
+    /* Capture a zero-timeout-only tail without another clock read. */
+    if (!(profile->all_calls & 4095)) {
+        xbox_poll_profile_emit(profile);
+    }
 }
 #endif
 
