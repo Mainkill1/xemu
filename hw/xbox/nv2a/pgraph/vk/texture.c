@@ -31,6 +31,7 @@
 #include "qemu/lru.h"
 #include "renderer.h"
 #include "buffer-size.h"
+#include "failure-state.h"
 
 static void texture_cache_release_node_resources(PGRAPHVkState *r, TextureBinding *snode);
 
@@ -70,6 +71,23 @@ typedef struct TextureLayer {
 typedef struct TextureLayout {
     TextureLayer layers[6];
 } TextureLayout;
+
+static void texture_layout_free(TextureLayout *layout)
+{
+    if (!layout) {
+        return;
+    }
+
+    for (size_t layer = 0; layer < ARRAY_SIZE(layout->layers); layer++) {
+        for (size_t level = 0;
+             level < ARRAY_SIZE(layout->layers[layer].levels); level++) {
+            g_free(layout->layers[layer].levels[level].decoded_data);
+        }
+    }
+    g_free(layout);
+}
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(TextureLayout, texture_layout_free)
 
 // FIXME: Move to common
 static enum S3TC_DECOMPRESS_FORMAT kelvin_format_to_s3tc_format(int color_format)
@@ -477,7 +495,7 @@ static bool upload_texture_image(PGRAPHState *pg, int texture_idx,
         pgraph_vk_finish(pg, VK_FINISH_REASON_TEXTURE_DIRTY);
     }
 
-    g_autofree TextureLayout *layout = get_texture_layout(
+    g_autoptr(TextureLayout) layout = get_texture_layout(
         pg, texture_idx, state, binding->key.texture_vram_offset,
         binding->key.palette_vram_offset, binding->key.palette_length);
     if (!layout) {
@@ -507,13 +525,6 @@ static bool upload_texture_image(PGRAPHState *pg, int texture_idx,
         return false;
     }
 
-    // Copy texture data to mapped device buffer
-    uint8_t *mapped_memory_ptr;
-
-    VK_CHECK(vmaMapMemory(r->allocator,
-                          r->storage_buffers[BUFFER_STAGING_SRC].allocation,
-                          (void *)&mapped_memory_ptr));
-
     int num_regions = num_layers * state->levels;
     g_autofree VkBufferImageCopy *regions =
         g_malloc0_n(num_regions, sizeof(VkBufferImageCopy));
@@ -529,8 +540,6 @@ static bool upload_texture_image(PGRAPHState *pg, int texture_idx,
             NV2A_VK_DPRINTF(" - Level %d, w=%d h=%d d=%d @ %08" HWADDR_PRIx,
                             level_idx, level->width, level->height,
                             level->depth, buffer_offset);
-            memcpy(mapped_memory_ptr + buffer_offset, level->decoded_data,
-                   level->decoded_size);
             *region = (VkBufferImageCopy){
                 .bufferOffset = buffer_offset,
                 .bufferRowLength = 0, // Tightly packed
@@ -555,6 +564,23 @@ static bool upload_texture_image(PGRAPHState *pg, int texture_idx,
         buffer_offset > r->storage_buffers[BUFFER_STAGING_SRC].buffer_size) {
         error_report("nv2a: decoded texture exceeds staging reservation");
         return false;
+    }
+
+    /* Map only after every recoverable validation has succeeded. */
+    uint8_t *mapped_memory_ptr;
+    VK_CHECK(vmaMapMemory(r->allocator,
+                          r->storage_buffers[BUFFER_STAGING_SRC].allocation,
+                          (void *)&mapped_memory_ptr));
+
+    region = regions;
+    for (int layer_idx = 0; layer_idx < num_layers; layer_idx++) {
+        TextureLayer *layer = &layout->layers[layer_idx];
+        for (int level_idx = 0; level_idx < state->levels; level_idx++) {
+            TextureLevel *level = &layer->levels[level_idx];
+            memcpy(mapped_memory_ptr + region->bufferOffset,
+                   level->decoded_data, level->decoded_size);
+            region++;
+        }
     }
 
     vmaFlushAllocation(r->allocator,
@@ -599,13 +625,6 @@ static bool upload_texture_image(PGRAPHState *pg, int texture_idx,
     pgraph_vk_end_debug_marker(r, cmd);
     pgraph_vk_end_single_time_commands(pg, cmd);
 
-    // Release decoded texture data
-    for (int layer_idx = 0; layer_idx < num_layers; layer_idx++) {
-        TextureLayer *layer = &layout->layers[layer_idx];
-        for (int level_idx = 0; level_idx < state->levels; level_idx++) {
-            g_free(layer->levels[level_idx].decoded_data);
-        }
-    }
     return true;
 }
 
@@ -1214,8 +1233,12 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
         // FIXME: Restructure to support rendering surfaces to cubemap faces
 
         // Writeback any surfaces which this texture may index
-        pgraph_vk_download_surfaces_in_range_if_dirty(
-            pg, texture_vram_offset, texture_length);
+        if (!pgraph_vk_download_surfaces_in_range_if_dirty(
+                pg, texture_vram_offset, texture_length)) {
+            error_report("nv2a: failed to download a surface backing a "
+                         "texture");
+            return false;
+        }
     }
 
     if (surface_to_texture && pg->surface_scale_factor > 1) {
@@ -1288,11 +1311,12 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
         } else {
             if (possibly_dirty) {
                 if (content_hash != snode->hash) {
-                    if (upload_texture_image(pg, texture_idx, snode)) {
-                        snode->hash = content_hash;
-                        snode->possibly_dirty = false;
-                    } else {
-                        snode->possibly_dirty = true;
+                    if (!pgraph_vk_complete_texture_upload(
+                            upload_texture_image(pg, texture_idx, snode),
+                            content_hash, &snode->hash,
+                            &snode->possibly_dirty)) {
+                        NV2A_VK_DGROUP_END();
+                        return false;
                     }
                 } else {
                     snode->possibly_dirty = false;
@@ -1483,10 +1507,11 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     if (surface_to_texture) {
         copy_surface_to_texture(pg, surface, snode);
     } else {
-        if (upload_texture_image(pg, texture_idx, snode)) {
-            snode->hash = content_hash;
-        } else {
-            snode->possibly_dirty = true;
+        if (!pgraph_vk_complete_texture_upload(
+                upload_texture_image(pg, texture_idx, snode), content_hash,
+                &snode->hash, &snode->possibly_dirty)) {
+            NV2A_VK_DGROUP_END();
+            return false;
         }
         snode->draw_time = 0;
     }

@@ -410,6 +410,7 @@ typedef struct PGRAPHVkState {
     QTAILQ_HEAD(, SurfaceBinding) invalid_surfaces;
     SurfaceBinding *color_binding, *zeta_binding;
     bool downloads_pending;
+    bool downloads_succeeded;
     QemuEvent downloads_complete;
     bool download_dirty_surfaces_pending;
     QemuEvent dirty_surfaces_download_complete; // common
@@ -544,11 +545,14 @@ void pgraph_vk_init_surfaces(PGRAPHState *pg);
 void pgraph_vk_finalize_surfaces(PGRAPHState *pg);
 void pgraph_vk_surface_flush(NV2AState *d);
 void pgraph_vk_process_pending_downloads(NV2AState *d);
-void pgraph_vk_surface_download_if_dirty(NV2AState *d, SurfaceBinding *surface);
+bool pgraph_vk_surface_download_if_dirty(NV2AState *d,
+                                         SurfaceBinding *surface);
 SurfaceBinding *pgraph_vk_surface_get_within(NV2AState *d, hwaddr addr);
-void pgraph_vk_wait_for_surface_download(SurfaceBinding *e);
+bool pgraph_vk_wait_for_surface_download(SurfaceBinding *e);
 void pgraph_vk_download_dirty_surfaces(NV2AState *d);
-void pgraph_vk_download_surfaces_in_range_if_dirty(PGRAPHState *pg, hwaddr start, hwaddr size);
+bool pgraph_vk_download_surfaces_in_range_if_dirty(PGRAPHState *pg,
+                                                    hwaddr start,
+                                                    hwaddr size);
 void pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
                                    bool force);
 void pgraph_vk_surface_update(NV2AState *d, bool upload, bool color_write,

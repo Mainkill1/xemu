@@ -29,6 +29,7 @@
 #include "ui/xemu-settings.h"
 #include "renderer.h"
 #include "buffer-size.h"
+#include "failure-state.h"
 
 const int num_invalid_surfaces_to_keep = 10;  // FIXME: Make automatic
 const int max_surface_frame_time_delta = 5;
@@ -131,18 +132,20 @@ static bool check_surface_overlaps_range(const SurfaceBinding *surface,
     return !(surface->vram_addr >= range_end || range_start >= surface_end);
 }
 
-void pgraph_vk_download_surfaces_in_range_if_dirty(PGRAPHState *pg,
+bool pgraph_vk_download_surfaces_in_range_if_dirty(PGRAPHState *pg,
                                                    hwaddr start, hwaddr size)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     SurfaceBinding *surface;
+    bool success = true;
 
     QTAILQ_FOREACH(surface, &r->surfaces, entry) {
         if (check_surface_overlaps_range(surface, start, size)) {
-            pgraph_vk_surface_download_if_dirty(
+            success &= pgraph_vk_surface_download_if_dirty(
                 container_of(pg, NV2AState, pgraph), surface);
         }
     }
+    return success;
 }
 
 static bool download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
@@ -544,18 +547,20 @@ static bool download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
     return true;
 }
 
-static void download_surface(NV2AState *d, SurfaceBinding *surface, bool force)
+static bool download_surface(NV2AState *d, SurfaceBinding *surface, bool force)
 {
     if (!(surface->download_pending || force) || !surface->width ||
         !surface->height) {
-        return;
+        return true;
     }
 
     // FIXME: Respect write enable at last TOU?
 
-    if (!download_surface_to_buffer(d, surface,
-                                    d->vram_ptr + surface->vram_addr)) {
-        return;
+    if (!pgraph_vk_complete_surface_download(
+            download_surface_to_buffer(d, surface,
+                                       d->vram_ptr + surface->vram_addr),
+            &surface->download_pending, &surface->draw_dirty)) {
+        return false;
     }
 
     memory_region_set_client_dirty(d->vram, surface->vram_addr,
@@ -565,34 +570,41 @@ static void download_surface(NV2AState *d, SurfaceBinding *surface, bool force)
                                    surface->pitch * surface->height,
                                    DIRTY_MEMORY_NV2A_TEX);
 
-    surface->download_pending = false;
-    surface->draw_dirty = false;
+    return true;
 }
 
-void pgraph_vk_wait_for_surface_download(SurfaceBinding *surface)
+bool pgraph_vk_wait_for_surface_download(SurfaceBinding *surface)
 {
     NV2AState *d = g_nv2a;
+    PGRAPHVkState *r = d->pgraph.vk_renderer_state;
 
     if (qatomic_read(&surface->draw_dirty)) {
         qemu_mutex_lock(&d->pfifo.lock);
-        qemu_event_reset(&d->pgraph.vk_renderer_state->downloads_complete);
+        if (!qatomic_read(&r->downloads_pending)) {
+            qemu_event_reset(&r->downloads_complete);
+            qatomic_set(&r->downloads_succeeded, true);
+        }
         qatomic_set(&surface->download_pending, true);
-        qatomic_set(&d->pgraph.vk_renderer_state->downloads_pending, true);
+        qatomic_set(&r->downloads_pending, true);
         pfifo_kick(d);
         qemu_mutex_unlock(&d->pfifo.lock);
-        qemu_event_wait(&d->pgraph.vk_renderer_state->downloads_complete);
+        qemu_event_wait(&r->downloads_complete);
+        return qatomic_read(&r->downloads_succeeded);
     }
+    return true;
 }
 
 void pgraph_vk_process_pending_downloads(NV2AState *d)
 {
     PGRAPHVkState *r = d->pgraph.vk_renderer_state;
     SurfaceBinding *surface;
+    bool success = true;
 
     QTAILQ_FOREACH(surface, &r->surfaces, entry) {
-        download_surface(d, surface, false);
+        success &= download_surface(d, surface, false);
     }
 
+    qatomic_set(&r->downloads_succeeded, success);
     qatomic_set(&r->downloads_pending, false);
     qemu_event_set(&r->downloads_complete);
 }
@@ -600,10 +612,15 @@ void pgraph_vk_process_pending_downloads(NV2AState *d)
 void pgraph_vk_download_dirty_surfaces(NV2AState *d)
 {
     PGRAPHVkState *r = d->pgraph.vk_renderer_state;
+    bool success = true;
 
     SurfaceBinding *surface;
     QTAILQ_FOREACH(surface, &r->surfaces, entry) {
-        pgraph_vk_surface_download_if_dirty(d, surface);
+        success &= pgraph_vk_surface_download_if_dirty(d, surface);
+    }
+    if (!success) {
+        error_report("nv2a: one or more dirty surfaces could not be "
+                     "downloaded");
     }
 
     qatomic_set(&r->download_dirty_surfaces_pending, false);
@@ -647,11 +664,19 @@ static void surface_access_callback(void *opaque, MemoryRegion *mr, hwaddr addr,
 
     if (wait_for_downloads) {
         qemu_mutex_lock(&d->pfifo.lock);
-        qemu_event_reset(&r->downloads_complete);
+        if (!qatomic_read(&r->downloads_pending)) {
+            qemu_event_reset(&r->downloads_complete);
+            qatomic_set(&r->downloads_succeeded, true);
+        }
         qatomic_set(&r->downloads_pending, true);
         pfifo_kick(d);
         qemu_mutex_unlock(&d->pfifo.lock);
         qemu_event_wait(&r->downloads_complete);
+        if (!qatomic_read(&r->downloads_succeeded)) {
+            error_report("nv2a: surface download failed during CPU memory "
+                         "access; refusing stale VRAM access");
+            abort();
+        }
     }
 }
 
@@ -746,7 +771,7 @@ static bool check_surfaces_overlap(const SurfaceBinding *surface,
                                         other_surface->size);
 }
 
-static void invalidate_overlapping_surfaces(NV2AState *d,
+static bool invalidate_overlapping_surfaces(NV2AState *d,
                                             SurfaceBinding const *surface)
 {
     PGRAPHVkState *r = d->pgraph.vk_renderer_state;
@@ -757,22 +782,28 @@ static void invalidate_overlapping_surfaces(NV2AState *d,
             trace_nv2a_pgraph_surface_evict_overlapping(
                 other_surface->vram_addr, other_surface->width,
                 other_surface->height, other_surface->pitch);
-            pgraph_vk_surface_download_if_dirty(d, other_surface);
+            if (!pgraph_vk_surface_download_if_dirty(d, other_surface)) {
+                return false;
+            }
             invalidate_surface(d, other_surface);
         }
     }
+    return true;
 }
 
-static void surface_put(NV2AState *d, SurfaceBinding *surface)
+static bool surface_put(NV2AState *d, SurfaceBinding *surface)
 {
     PGRAPHVkState *r = d->pgraph.vk_renderer_state;
 
     assert(pgraph_vk_surface_get(d, surface->vram_addr) == NULL);
 
-    invalidate_overlapping_surfaces(d, surface);
+    if (!invalidate_overlapping_surfaces(d, surface)) {
+        return false;
+    }
     register_cpu_access_callback(d, surface);
 
     QTAILQ_INSERT_HEAD(&r->surfaces, surface, entry);
+    return true;
 }
 
 SurfaceBinding *pgraph_vk_surface_get(NV2AState *d, hwaddr addr)
@@ -993,8 +1024,9 @@ static void expire_old_surfaces(NV2AState *d)
         int last_used = d->pgraph.frame_time - s->frame_time;
         if (last_used >= max_surface_frame_time_delta) {
             trace_nv2a_pgraph_surface_evict_reason("old", s->vram_addr);
-            pgraph_vk_surface_download_if_dirty(d, s);
-            invalidate_surface(d, s);
+            if (pgraph_vk_surface_download_if_dirty(d, s)) {
+                invalidate_surface(d, s);
+            }
         }
     }
 }
@@ -1017,11 +1049,13 @@ static bool check_surface_compatibility(SurfaceBinding const *s1,
     }
 }
 
-void pgraph_vk_surface_download_if_dirty(NV2AState *d, SurfaceBinding *surface)
+bool pgraph_vk_surface_download_if_dirty(NV2AState *d,
+                                         SurfaceBinding *surface)
 {
     if (surface->draw_dirty) {
-        download_surface(d, surface, true);
+        return download_surface(d, surface, true);
     }
+    return true;
 }
 
 void pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
@@ -1511,7 +1545,7 @@ static void populate_surface_binding_target(NV2AState *d, bool color,
     populate_surface_binding_target_sized(d, color, width, height, target);
 }
 
-static void update_surface_part(NV2AState *d, bool upload, bool color)
+static bool update_surface_part(NV2AState *d, bool upload, bool color)
 {
     PGRAPHState *pg = &d->pgraph;
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -1627,7 +1661,9 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
                 trace_nv2a_pgraph_surface_evict_reason(
                     "incompatible", surface->vram_addr);
                 compare_surfaces(surface, &target);
-                pgraph_vk_surface_download_if_dirty(d, surface);
+                if (!pgraph_vk_surface_download_if_dirty(d, surface)) {
+                    return false;
+                }
                 invalidate_surface(d, surface);
             }
         }
@@ -1647,7 +1683,10 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
                 surface->lifetime_id = ++r->next_surface_lifetime_id;
             }
             set_surface_label(pg, surface);
-            surface_put(d, surface);
+            if (!surface_put(d, surface)) {
+                QTAILQ_INSERT_HEAD(&r->invalid_surfaces, surface, entry);
+                return false;
+            }
 
             // FIXME: Refactor
             pg->surface_binding_dim.width = target.width;
@@ -1684,13 +1723,18 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
     if (!upload && pg_surface->draw_dirty) {
         if (!tcg_enabled()) {
             // FIXME: Cannot monitor for reads/writes; flush now
-            download_surface(d, color ? r->color_binding : r->zeta_binding,
-                             true);
+            if (!download_surface(
+                    d, color ? r->color_binding : r->zeta_binding, true)) {
+                error_report("nv2a: failed to flush a surface before "
+                             "disabling writes");
+                return false;
+            }
         }
 
         pg_surface->write_enabled_cache = false;
         pg_surface->draw_dirty = false;
     }
+    return true;
 }
 
 // FIXME: Move to common?
@@ -1722,7 +1766,10 @@ void pgraph_vk_surface_update(NV2AState *d, bool upload, bool color_write,
         }
 
         if (color_write) {
-            update_surface_part(d, true, true);
+            if (!update_surface_part(d, true, true)) {
+                error_report("nv2a: color-surface preparation failed");
+                abort();
+            }
         }
 
         if (pg->surface_zeta.buffer_dirty) {
@@ -1730,16 +1777,25 @@ void pgraph_vk_surface_update(NV2AState *d, bool upload, bool color_write,
         }
 
         if (zeta_write) {
-            update_surface_part(d, true, false);
+            if (!update_surface_part(d, true, false)) {
+                error_report("nv2a: zeta-surface preparation failed");
+                abort();
+            }
         }
     } else {
         if ((color_write || pg->surface_color.write_enabled_cache)
             && pg->surface_color.draw_dirty) {
-            update_surface_part(d, false, true);
+            if (!update_surface_part(d, false, true)) {
+                error_report("nv2a: color-surface download failed");
+                abort();
+            }
         }
         if ((zeta_write || pg->surface_zeta.write_enabled_cache)
             && pg->surface_zeta.draw_dirty) {
-            update_surface_part(d, false, false);
+            if (!update_surface_part(d, false, false)) {
+                error_report("nv2a: zeta-surface download failed");
+                abort();
+            }
         }
     }
 
@@ -1839,6 +1895,7 @@ void pgraph_vk_init_surfaces(PGRAPHState *pg)
     QTAILQ_INIT(&r->invalid_surfaces);
 
     r->downloads_pending = false;
+    r->downloads_succeeded = true;
     qemu_event_init(&r->downloads_complete, false);
     qemu_event_init(&r->dirty_surfaces_download_complete, false);
 
@@ -1870,8 +1927,9 @@ void pgraph_vk_surface_flush(NV2AState *d)
     QTAILQ_FOREACH_SAFE(s, &r->surfaces, entry, next) {
         // FIXME: We should download all surfaces to ram, but need to
         //        investigate corruption issue
-        pgraph_vk_surface_download_if_dirty(d, s);
-        invalidate_surface(d, s);
+        if (pgraph_vk_surface_download_if_dirty(d, s)) {
+            invalidate_surface(d, s);
+        }
     }
     prune_invalid_surfaces(r, 0);
 
