@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "github_pr": 11,
+  "status": "PASS_WITH_KNOWN_PARENT_FAILURE_AND_BOUNDED_RETRY",
+  "source": {
+    "baseline": "208e4596832a1f949bd63822d5ddd962c4575067",
+    "candidate": "021bc7293ab534c10d311761ca975985ab50a48c",
+    "baseline_xemu_sha256": "6c41b50acb94fc71442ae6f217c8c236ffcc3fda12ce81e7553cb391b1fd2527",
+    "candidate_xemu_sha256": "431d42576e31ec2a8d21ba31feed4ccce283b57c4d515b9801b8e8c32ef40f43"
+  },
+  "inputs": {
+    "expanded_iso_sha256": "1426632c6c37005a724184329ed0de4a3cf7dc75a9102c0e9ba255380a93a31f",
+    "expanded_catalog_sha256": "a0007a04191d6900b861e227f9110ba856857e68847bb683452b50ec7d2b50f2",
+    "matched_iso_sha256": "08551d0c0b7bc5efb20a7b36d6d4f0e24ab666b4cee25930232858ccd9872a3e",
+    "matched_catalog_sha256": "027065948624d6aafdbe557bed8123eb6dcaa83353cf242c71d030a109b64578"
+  },
+  "recipe": {
+    "expanded_xiso": {
+      "records": 153,
+      "renderers": [
+        "OPENGL",
+        "VULKAN"
+      ],
+      "candidate_runs_collected": 1,
+      "vulkan_known_failure_from_prior_attempt": true
+    },
+    "matched_xiso": {
+      "records": 147,
+      "runs_per_build_renderer": 1
+    },
+    "morrowind": {
+      "seconds": 10,
+      "runs_per_build_renderer": 1,
+      "bounded_retry_used": true
+    },
+    "pgr2": {
+      "seconds": 60,
+      "order": "baseline-candidate-candidate-baseline",
+      "runs_per_build_renderer": 2
+    }
+  },
+  "stage_script_sha256": {
+    "xiso-opengl-153-known-failure": "695f2f63a002747565ed860b9b79fcfb0da954510286d9b7b11992165095babf",
+    "xiso-comparison-147": "5002e914d75954525538825572ab0ec65672b24a25e7b5bdd0fdd7f34efe451b",
+    "morrowind": "57bf9189c3715d8771359bd48795a6cf6a06cb5d556c1f6e603032dad77341ad",
+    "pgr2": "2bd90f128b08ed7064099a52d104c687533c430310da70a7eac7a3a083ee2d5e"
+  },
+  "selected_morrowind_runner_sha256": [
+    "9994bd2d823e8557d39aef582fef8d7f37965d54caa52eaa09514e5d256307ed"
+  ],
+  "host_quarantined": false
+}

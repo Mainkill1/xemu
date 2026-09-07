@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "github_pr": 11,
+  "original_stage_status": "FAIL",
+  "failed_cells": [
+    {
+      "label": "baseline-vulkan",
+      "build": "baseline",
+      "renderer": "VULKAN",
+      "source_commit": "208e4596832a1f949bd63822d5ddd962c4575067",
+      "xemu_sha256": "6c41b50acb94fc71442ae6f217c8c236ffcc3fda12ce81e7553cb391b1fd2527",
+      "status": "failed",
+      "error": "Fewer than two display-write events in measurement window"
+    }
+  ],
+  "cleanup_recovery": {
+    "status": "PASS",
+    "failed_result_sha256": "419729279cb9ed0765bbcdf8b0c4d924ae5e3f1d6ad3a9ec448954443b01b5de",
+    "original_error": "Fewer than two display-write events in measurement window",
+    "matching_processes": [],
+    "private_hdd_deleted": true
+  },
+  "bounded_retry": {
+    "status": "PASS",
+    "cells": 4,
+    "runner_sha256": [
+      "9994bd2d823e8557d39aef582fef8d7f37965d54caa52eaa09514e5d256307ed"
+    ]
+  }
+}

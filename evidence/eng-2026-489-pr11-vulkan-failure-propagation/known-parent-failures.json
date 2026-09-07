@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "github_pr": 11,
+  "failures": [
+    {
+      "renderer": "VULKAN",
+      "suite_records": 153,
+      "status": "KNOWN_PARENT_FAILURE",
+      "signature": "6x VUID-vkCmdCopyBufferToImage-imageSubresource-07971, device loss",
+      "fixed_downstream_by": "PR 15"
+    },
+    {
+      "renderer": "OPENGL",
+      "suite_records": 153,
+      "status": "KNOWN_PARENT_FAILURE",
+      "signature": "3 bordered-mip cubemap leaves failed 23/24 samples each; unbordered sub-block face-stride leaf failed 10/12 samples",
+      "fixed_downstream_by": "PR 14"
+    }
+  ]
+}
