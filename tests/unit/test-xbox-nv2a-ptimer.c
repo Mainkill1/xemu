@@ -75,8 +75,9 @@ static void test_alarm_assert_and_ack(void)
     NV2AState d;
 
     init_nv2a_ptimer(&d);
-    ptimer_write(&d, NV_PTIMER_INTR_EN_0, NV_PTIMER_INTR_EN_0_ALARM, 4);
     ptimer_write(&d, NV_PTIMER_ALARM_0, 0x100, 4);
+    g_assert_false(timer_pending(&d.ptimer.timer));
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, NV_PTIMER_INTR_EN_0_ALARM, 4);
 
     g_assert_false(irq_asserted);
     expire_alarm(&d);
@@ -102,11 +103,15 @@ static void test_pending_alarm_asserts_when_enabled(void)
 
     init_nv2a_ptimer(&d);
     ptimer_write(&d, NV_PTIMER_ALARM_0, 0x100, 4);
-    expire_alarm(&d);
+    g_assert_false(timer_pending(&d.ptimer.timer));
+    ptimer_test_time_ns = 1000;
     g_assert_false(irq_asserted);
 
     ptimer_write(&d, NV_PTIMER_INTR_EN_0, NV_PTIMER_INTR_EN_0_ALARM, 4);
     g_assert_true(irq_asserted);
+    g_assert_true(timer_pending(&d.ptimer.timer));
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), >,
+                    ptimer_test_time_ns);
 
     ptimer_reset(&d);
 }
@@ -123,6 +128,8 @@ static void test_time_registers_and_future_epoch(void)
     g_assert_cmphex(ptimer_read(&d, NV_PTIMER_TIME_0, 4), ==, 0x345678e0);
 
     ptimer_write(&d, NV_PTIMER_ALARM_0, 0x345678c0, 4);
+    g_assert_false(timer_pending(&d.ptimer.timer));
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, NV_PTIMER_INTR_EN_0_ALARM, 4);
     g_assert_true(timer_pending(&d.ptimer.timer));
     g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), >,
                     ptimer_test_time_ns);
@@ -193,7 +200,8 @@ static void test_intr_enable_reconciles_overdue_alarm(void)
 
     init_nv2a_ptimer(&d);
     ptimer_write(&d, NV_PTIMER_ALARM_0, TEST_ALARM_LOW, 4);
-    make_alarm_four_epochs_overdue(&d);
+    g_assert_false(timer_pending(&d.ptimer.timer));
+    ptimer_test_time_ns = 4 * PTIMER_REG_EPOCH_NS + 1000;
 
     ptimer_write(&d, NV_PTIMER_INTR_EN_0, NV_PTIMER_INTR_EN_0_ALARM, 4);
 
@@ -218,7 +226,9 @@ static void test_zero_ratio_stops_clock_without_division(void)
 
     g_assert_cmphex(ptimer_read(&d, NV_PTIMER_TIME_0, 4), ==, 0);
     g_assert_cmphex(ptimer_read(&d, NV_PTIMER_TIME_1, 4), ==, 0);
+    g_assert_cmphex(ptimer_read(&d, NV_PTIMER_INTR_0, 4), ==, 0);
 
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, NV_PTIMER_INTR_EN_0_ALARM, 4);
     ptimer_write(&d, NV_PTIMER_ALARM_0, TEST_ALARM_LOW, 4);
     g_assert_true(timer_pending(&d.ptimer.timer));
     g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, INT64_MAX);
@@ -243,6 +253,64 @@ static void test_zero_ratio_stops_clock_without_division(void)
     ptimer_write(&d, NV_PTIMER_DENOMINATOR, 0, 4);
     ptimer_post_load(&d);
     g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, INT64_MAX);
+
+    ptimer_reset(&d);
+}
+
+static void test_rounds_alarm_deadline_up(void)
+{
+    NV2AState d;
+
+    init_nv2a_ptimer(&d);
+    d.pramdac.core_clock_freq = 233333333;
+    ptimer_write(&d, NV_PTIMER_ALARM_0, 1 << 5, 4);
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, NV_PTIMER_INTR_EN_0_ALARM, 4);
+
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, 5);
+    expire_alarm(&d);
+    g_assert_cmphex(d.ptimer.pending_interrupts & NV_PTIMER_INTR_0_ALARM,
+                    ==, NV_PTIMER_INTR_0_ALARM);
+
+    ptimer_reset(&d);
+}
+
+static void test_masked_alarm_is_disarmed_and_polled(void)
+{
+    NV2AState d;
+
+    init_nv2a_ptimer(&d);
+    ptimer_write(&d, NV_PTIMER_ALARM_0, TEST_ALARM_LOW, 4);
+    g_assert_false(timer_pending(&d.ptimer.timer));
+
+    ptimer_test_time_ns = 1000;
+    g_assert_cmphex(ptimer_read(&d, NV_PTIMER_INTR_0, 4), ==,
+                    NV_PTIMER_INTR_0_ALARM);
+    g_assert_false(timer_pending(&d.ptimer.timer));
+    g_assert_false(irq_asserted);
+
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, NV_PTIMER_INTR_EN_0_ALARM, 4);
+    g_assert_true(timer_pending(&d.ptimer.timer));
+    g_assert_true(irq_asserted);
+
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, 0, 4);
+    g_assert_false(timer_pending(&d.ptimer.timer));
+
+    ptimer_reset(&d);
+}
+
+static void test_reached_alarm_reschedules_in_future(void)
+{
+    NV2AState d;
+
+    init_nv2a_ptimer(&d);
+    d.ptimer.alarm_time = 0;
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, NV_PTIMER_INTR_EN_0_ALARM, 4);
+
+    g_assert_cmphex(d.ptimer.pending_interrupts & NV_PTIMER_INTR_0_ALARM,
+                    ==, NV_PTIMER_INTR_0_ALARM);
+    g_assert_true(timer_pending(&d.ptimer.timer));
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), >,
+                    ptimer_test_time_ns);
 
     ptimer_reset(&d);
 }
@@ -289,6 +357,12 @@ int main(int argc, char **argv)
                     test_intr_enable_reconciles_overdue_alarm);
     g_test_add_func("/xbox/nv2a/ptimer/zero-ratio",
                     test_zero_ratio_stops_clock_without_division);
+    g_test_add_func("/xbox/nv2a/ptimer/round-deadline-up",
+                    test_rounds_alarm_deadline_up);
+    g_test_add_func("/xbox/nv2a/ptimer/masked-alarm",
+                    test_masked_alarm_is_disarmed_and_polled);
+    g_test_add_func("/xbox/nv2a/ptimer/reached-alarm-future",
+                    test_reached_alarm_reschedules_in_future);
     g_test_add_func("/xbox/nv2a/ptimer/post-load-irq",
                     test_post_load_rebuilds_irq_without_timer);
 
