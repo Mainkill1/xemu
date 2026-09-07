@@ -35,6 +35,7 @@ tests = {
   'test-xbox-nv2a-texture': [],
   'test-xbox-nv2a-vertex': [],
   'test-xbox-vk-texture-state': [],
+  'test-xbox-vk-failure-state': [],
   'test-resv-mem': [],
   # all code tested by test-x86-topo is inside topology.h
   'test-x86-topo': [],
