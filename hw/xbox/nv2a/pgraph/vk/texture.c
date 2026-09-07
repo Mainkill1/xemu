@@ -31,6 +31,7 @@
 #include "qemu/lru.h"
 #include "renderer.h"
 #include "buffer-size.h"
+#include "texture-state.h"
 
 static void texture_cache_release_node_resources(PGRAPHVkState *r, TextureBinding *snode);
 
@@ -1256,7 +1257,8 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     if (binding_found) {
         NV2A_VK_DPRINTF("Cache hit");
         r->texture_bindings[texture_idx] = snode;
-        possibly_dirty |= snode->possibly_dirty;
+        possibly_dirty = pgraph_vk_texture_needs_revalidation(
+            snode->possibly_dirty, possibly_dirty);
     } else {
         possibly_dirty = true;
     }
@@ -1287,19 +1289,17 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
             }
         } else {
             if (possibly_dirty) {
-                if (content_hash != snode->hash) {
-                    if (upload_texture_image(pg, texture_idx, snode)) {
-                        snode->hash = content_hash;
-                        snode->possibly_dirty = false;
-                    } else {
-                        snode->possibly_dirty = true;
-                    }
-                } else {
-                    snode->possibly_dirty = false;
+                bool content_changed = content_hash != snode->hash;
+                bool upload_succeeded =
+                    !content_changed ||
+                    upload_texture_image(pg, texture_idx, snode);
+
+                if (!pgraph_vk_texture_complete_revalidation(
+                        content_changed, upload_succeeded, content_hash,
+                        &snode->hash, &snode->possibly_dirty)) {
+                    NV2A_VK_DGROUP_END();
+                    return false;
                 }
-                /* The current binding was fully hashed and, when changed,
-                 * uploaded. Retire its validation hint so unchanged draws do
-                 * not hash the same guest payload again. */
             }
         }
 
@@ -1483,11 +1483,12 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     if (surface_to_texture) {
         copy_surface_to_texture(pg, surface, snode);
     } else {
-        if (upload_texture_image(pg, texture_idx, snode)) {
-            snode->hash = content_hash;
-        } else {
+        if (!upload_texture_image(pg, texture_idx, snode)) {
             snode->possibly_dirty = true;
+            NV2A_VK_DGROUP_END();
+            return false;
         }
+        snode->hash = content_hash;
         snode->draw_time = 0;
     }
 
