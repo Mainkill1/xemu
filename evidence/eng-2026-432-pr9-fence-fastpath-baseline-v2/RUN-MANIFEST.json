@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-09-07T11:11:00Z",
+  "baseline": {
+    "commit": "d03cc91c0d5ee82ea10c9b4782042aeec0299ee1",
+    "tree": "78737c40c982b8fb7ace9fd7a06f539c4f497dc7",
+    "xemu_sha256": "29f25f9057b23f2bf539c43da469f202ae79924146036600676468d33873278c",
+    "definition": "validated cumulative baseline-v2 tree with the fence fastpath removed"
+  },
+  "candidate": {
+    "commit": "67178d0af1e9b7e4a4019dd5c2c77e9045ae8b3b",
+    "tree": "3d7eeb113b81f449e31d9b8d713696d72c7b36d2",
+    "xemu_sha256": "8bdb01e0bcc932364f522d73e5b11cb9dc94c94203150230d8d1a6ff15a3b1a2",
+    "definition": "baseline plus the reviewed fence fastpath only"
+  },
+  "validated_cumulative_reference": {
+    "commit": "208e4596832a1f949bd63822d5ddd962c4575067",
+    "tree": "3d7eeb113b81f449e31d9b8d713696d72c7b36d2"
+  },
+  "build_profile": "Official xemu Windows Release: build.sh without --debug; full LTO; x86-64-v3",
+  "morrowind": {
+    "snapshot": "vm-20260905015459",
+    "input": "QMP running; wait 5s; Start; wait 2s; B; wait 2s; measure 10s",
+    "cells": 4
+  },
+  "pgr2": {
+    "route": "fixed fresh boot",
+    "order": "baseline-candidate-candidate-baseline per renderer",
+    "duration_seconds": 60,
+    "cells": 8
+  },
+  "xiso": {
+    "records_per_cell": 147,
+    "cells": 4,
+    "iso_sha256": "08551d0c0b7bc5efb20a7b36d6d4f0e24ab666b4cee25930232858ccd9872a3e",
+    "catalog_sha256": "027065948624d6aafdbe557bed8123eb6dcaa83353cf242c71d030a109b64578"
+  }
+}

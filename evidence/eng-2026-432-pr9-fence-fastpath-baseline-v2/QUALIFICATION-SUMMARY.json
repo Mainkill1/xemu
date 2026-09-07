@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "baseline": {
+    "commit": "d03cc91c0d5ee82ea10c9b4782042aeec0299ee1",
+    "tree": "78737c40c982b8fb7ace9fd7a06f539c4f497dc7",
+    "xemu_sha256": "29f25f9057b23f2bf539c43da469f202ae79924146036600676468d33873278c",
+    "definition": "validated cumulative baseline-v2 tree with the fence fastpath removed"
+  },
+  "candidate": {
+    "commit": "67178d0af1e9b7e4a4019dd5c2c77e9045ae8b3b",
+    "tree": "3d7eeb113b81f449e31d9b8d713696d72c7b36d2",
+    "xemu_sha256": "8bdb01e0bcc932364f522d73e5b11cb9dc94c94203150230d8d1a6ff15a3b1a2",
+    "definition": "baseline plus the reviewed fence fastpath only"
+  },
+  "morrowind": [
+    {
+      "renderer": "VULKAN",
+      "role": "baseline",
+      "source_commit": "d03cc91c0d5ee82ea10c9b4782042aeec0299ee1",
+      "xemu_sha256": "29f25f9057b23f2bf539c43da469f202ae79924146036600676468d33873278c",
+      "average_fps_proxy": 27.37985883426189,
+      "p95_ms": 43.683,
+      "p99_ms": 51.62,
+      "final_image_sha256": "ed7cf313e69621761cb1dea1637a263df0dec68c69eb78e072a543dde1d076ed",
+      "private_hdd_deleted": true
+    },
+    {
+      "renderer": "VULKAN",
+      "role": "candidate",
+      "source_commit": "67178d0af1e9b7e4a4019dd5c2c77e9045ae8b3b",
+      "xemu_sha256": "8bdb01e0bcc932364f522d73e5b11cb9dc94c94203150230d8d1a6ff15a3b1a2",
+      "average_fps_proxy": 27.181950863658844,
+      "p95_ms": 43.623,
+      "p99_ms": 52.068,
+      "final_image_sha256": "086714d865283b48ca84bd242892c2df4d8364464f12abbda87c7a1fc2fb6391",
+      "private_hdd_deleted": true
+    },
+    {
+      "renderer": "OPENGL",
+      "role": "baseline",
+      "source_commit": "d03cc91c0d5ee82ea10c9b4782042aeec0299ee1",
+      "xemu_sha256": "29f25f9057b23f2bf539c43da469f202ae79924146036600676468d33873278c",
+      "average_fps_proxy": 38.39461970079063,
+      "p95_ms": 32.58,
+      "p99_ms": 37.631,
+      "final_image_sha256": "64333da16b054f30f3c6dd4ca49445cf37443f3587348c0f2390926126179cb3",
+      "private_hdd_deleted": true
+    },
+    {
+      "renderer": "OPENGL",
+      "role": "candidate",
+      "source_commit": "67178d0af1e9b7e4a4019dd5c2c77e9045ae8b3b",
+      "xemu_sha256": "8bdb01e0bcc932364f522d73e5b11cb9dc94c94203150230d8d1a6ff15a3b1a2",
+      "average_fps_proxy": 38.348188333459824,
+      "p95_ms": 32.637,
+      "p99_ms": 37.114,
+      "final_image_sha256": "967b5f4698b532fd0c3ead94575d149b89e198e6eed1f7655844a6da613d1f0a",
+      "private_hdd_deleted": true
+    }
+  ],
+  "pgr2_aggregates": {
+    "opengl_baseline": {
+      "guest_fps": 24.925871257232398,
+      "guest_p95_ms": 50.759,
+      "guest_p99_ms": 65.506,
+      "host_fps": 59.98983504188719
+    },
+    "opengl_candidate": {
+      "guest_fps": 30.018592599815108,
+      "guest_p95_ms": 39.3435,
+      "guest_p99_ms": 42.3805,
+      "host_fps": 60.000682578160266
+    },
+    "vulkan_baseline": {
+      "guest_fps": 23.640646374558926,
+      "guest_p95_ms": 55.5225,
+      "guest_p99_ms": 62.1515,
+      "host_fps": 59.99996172285019
+    },
+    "vulkan_candidate": {
+      "guest_fps": 30.00359449218232,
+      "guest_p95_ms": 39.426500000000004,
+      "guest_p99_ms": 41.9645,
+      "host_fps": 60.00251387063642
+    }
+  },
+  "xiso": {
+    "cases": [
+      {
+        "label": "pr08-baseline-v2-parent-vulkan-1",
+        "candidate": "pr08-baseline-v2-parent",
+        "source_commit": "d03cc91c0d5ee82ea10c9b4782042aeec0299ee1",
+        "xemu_sha256": "29f25f9057b23f2bf539c43da469f202ae79924146036600676468d33873278c",
+        "backend": "vulkan",
+        "iteration": 1,
+        "status": "complete",
+        "started_utc": "2026-09-07T11:00:08.5189295+00:00",
+        "exit_code": 0,
+        "run": "C:\\xemu-lab\\runs\\suite\\2026-09-07-040008-perf-full-suite-unknown",
+        "record_count": 147,
+        "functional_hash_status": "PASSED",
+        "vuid_count": 0,
+        "process_wall_seconds": 140.3834962,
+        "remaining_xemu_pids": [],
+        "completed_utc": "2026-09-07T11:02:30.5843782+00:00"
+      },
+      {
+        "label": "pr08-baseline-v2-parent-opengl-1",
+        "candidate": "pr08-baseline-v2-parent",
+        "source_commit": "d03cc91c0d5ee82ea10c9b4782042aeec0299ee1",
+        "xemu_sha256": "29f25f9057b23f2bf539c43da469f202ae79924146036600676468d33873278c",
+        "backend": "opengl",
+        "iteration": 1,
+        "status": "complete",
+        "started_utc": "2026-09-07T11:02:30.5864782+00:00",
+        "exit_code": 0,
+        "run": "C:\\xemu-lab\\runs\\suite\\2026-09-07-040230-perf-full-suite-unknown",
+        "record_count": 147,
+        "functional_hash_status": "PASSED",
+        "vuid_count": null,
+        "process_wall_seconds": 183.0435619,
+        "remaining_xemu_pids": [],
+        "completed_utc": "2026-09-07T11:05:34.5622558+00:00"
+      },
+      {
+        "label": "pr08-baseline-v2-candidate-vulkan-1",
+        "candidate": "pr08-baseline-v2-candidate",
+        "source_commit": "67178d0af1e9b7e4a4019dd5c2c77e9045ae8b3b",
+        "xemu_sha256": "8bdb01e0bcc932364f522d73e5b11cb9dc94c94203150230d8d1a6ff15a3b1a2",
+        "backend": "vulkan",
+        "iteration": 1,
+        "status": "complete",
+        "started_utc": "2026-09-07T11:05:34.5645602+00:00",
+        "exit_code": 0,
+        "run": "C:\\xemu-lab\\runs\\suite\\2026-09-07-040534-perf-full-suite-unknown",
+        "record_count": 147,
+        "functional_hash_status": "PASSED",
+        "vuid_count": 0,
+        "process_wall_seconds": 140.5689932,
+        "remaining_xemu_pids": [],
+        "completed_utc": "2026-09-07T11:07:56.5116318+00:00"
+      },
+      {
+        "label": "pr08-baseline-v2-candidate-opengl-1",
+        "candidate": "pr08-baseline-v2-candidate",
+        "source_commit": "67178d0af1e9b7e4a4019dd5c2c77e9045ae8b3b",
+        "xemu_sha256": "8bdb01e0bcc932364f522d73e5b11cb9dc94c94203150230d8d1a6ff15a3b1a2",
+        "backend": "opengl",
+        "iteration": 1,
+        "status": "complete",
+        "started_utc": "2026-09-07T11:07:56.5137082+00:00",
+        "exit_code": 0,
+        "run": "C:\\xemu-lab\\runs\\suite\\2026-09-07-040756-perf-full-suite-unknown",
+        "record_count": 147,
+        "functional_hash_status": "PASSED",
+        "vuid_count": null,
+        "process_wall_seconds": 168.0518781,
+        "remaining_xemu_pids": [],
+        "completed_utc": "2026-09-07T11:10:45.4442992+00:00"
+      }
+    ],
+    "aggregates": {
+      "opengl_baseline": {
+        "leaf_average_sum_us": 24169082.0,
+        "leaf_median_sum_us": 24158829.0,
+        "tests": 142
+      },
+      "opengl_candidate": {
+        "leaf_average_sum_us": 18645325.0,
+        "leaf_median_sum_us": 18632200.0,
+        "tests": 142
+      },
+      "vulkan_baseline": {
+        "leaf_average_sum_us": 16921891.0,
+        "leaf_median_sum_us": 16858484.0,
+        "tests": 142
+      },
+      "vulkan_candidate": {
+        "leaf_average_sum_us": 16510808.0,
+        "leaf_median_sum_us": 16462672.0,
+        "tests": 142
+      }
+    }
+  },
+  "resource_aggregates": {
+    "opengl_baseline": {
+      "Host CPU mean (%)": 20.70353187477329,
+      "Working set mean (MiB)": 674.90703125,
+      "Private bytes mean (MiB)": 2336.4837890625,
+      "Process GPU engines mean (%)": 43.7201057562562,
+      "Dedicated GPU memory mean (MiB)": 210.1529296875,
+      "Device GPU mean (%)": 37.25,
+      "Device memory mean (MiB)": 588.0
+    },
+    "opengl_candidate": {
+      "Host CPU mean (%)": 22.12091278706328,
+      "Working set mean (MiB)": 677.9125616776316,
+      "Private bytes mean (MiB)": 2338.6845703125,
+      "Process GPU engines mean (%)": 44.50590825318641,
+      "Dedicated GPU memory mean (MiB)": 209.16036184210526,
+      "Device GPU mean (%)": 38.75,
+      "Device memory mean (MiB)": 587.0
+    },
+    "vulkan_baseline": {
+      "Host CPU mean (%)": 17.609399767526035,
+      "Working set mean (MiB)": 992.8349609375,
+      "Private bytes mean (MiB)": 3101.3205078125,
+      "Process GPU engines mean (%)": 44.37944762020307,
+      "Dedicated GPU memory mean (MiB)": 674.0857421875,
+      "Device GPU mean (%)": 35.5,
+      "Device memory mean (MiB)": 1028.0
+    },
+    "vulkan_candidate": {
+      "Host CPU mean (%)": 21.662183644611126,
+      "Working set mean (MiB)": 1001.0869140625,
+      "Private bytes mean (MiB)": 3112.43359375,
+      "Process GPU engines mean (%)": 42.73223825071332,
+      "Dedicated GPU memory mean (MiB)": 674.93828125,
+      "Device GPU mean (%)": 35.9,
+      "Device memory mean (MiB)": 1028.65
+    }
+  }
+}
