@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "github_pr": 14,
+  "name": "small-cubemap-face-stride",
+  "status": "PASS_WITH_KNOWN_PARENT_FAILURE",
+  "source": {
+    "baseline": "330cb0d86fe946b795330b629c3e0844c2c10d51",
+    "candidate": "eb338262714ef0b1e23fd60a2c168300443377ac",
+    "baseline_xemu_sha256": "ee73b71288ebc30f8a5bb65f1d81cdb7dcb1edfb99c6352997fd16bcd411ab46",
+    "candidate_xemu_sha256": "4aca1e0b02526a2205d6c85d6d78415328dc60e62578cd02157f37fda1323a61"
+  },
+  "build_and_unit": {
+    "official_release": "PASS",
+    "unit": "10/10 PASS",
+    "unit_sha256": "783812f347a286fdafaac081c0ec7732462619fd0b311b32737812f0e94b75e5"
+  },
+  "xiso": {
+    "expanded_suite_records": 153,
+    "expanded_iso_sha256": "1426632c6c37005a724184329ed0de4a3cf7dc75a9102c0e9ba255380a93a31f",
+    "expanded_catalog_sha256": "a0007a04191d6900b861e227f9110ba856857e68847bb683452b50ec7d2b50f2",
+    "opengl": "PASS",
+    "vulkan": "KNOWN_PARENT_FAILURE",
+    "matched_status": "PASS",
+    "matched_records": 147,
+    "matched_iso_sha256": "08551d0c0b7bc5efb20a7b36d6d4f0e24ab666b4cee25930232858ccd9872a3e",
+    "matched_catalog_sha256": "027065948624d6aafdbe557bed8123eb6dcaa83353cf242c71d030a109b64578",
+    "matched_cells": 4
+  },
+  "known_parent_failures": [
+    {
+      "renderer": "VULKAN",
+      "suite_records": 153,
+      "status": "KNOWN_PARENT_FAILURE",
+      "signature": "6x VUID-vkCmdCopyBufferToImage-imageSubresource-07971, device loss",
+      "fixed_downstream_by": "PR 15"
+    }
+  ],
+  "morrowind": "PASS",
+  "pgr2": "PASS",
+  "host_quarantined": false,
+  "aggregates": [
+    {
+      "game": "Morrowind",
+      "renderer": "OPENGL",
+      "baseline": {
+        "n": 1,
+        "average_fps": 35.112683624287065,
+        "p95_ms": 35.815,
+        "p99_ms": 40.133,
+        "host_fps": null,
+        "cpu_host_percent": null,
+        "process_gpu_percent": null,
+        "device_gpu_percent": null,
+        "private_mib": null,
+        "dedicated_gpu_mib": null,
+        "shared_gpu_mib": null,
+        "power_watts": null
+      },
+      "candidate": {
+        "n": 1,
+        "average_fps": 38.547614012828646,
+        "p95_ms": 32.581,
+        "p99_ms": 37.787,
+        "host_fps": null,
+        "cpu_host_percent": null,
+        "process_gpu_percent": null,
+        "device_gpu_percent": null,
+        "private_mib": null,
+        "dedicated_gpu_mib": null,
+        "shared_gpu_mib": null,
+        "power_watts": null
+      },
+      "delta_percent": {
+        "average_fps": 9.782591456967626,
+        "p95_ms": -9.029736144073697,
+        "p99_ms": -5.845563501357997,
+        "host_fps": null,
+        "cpu_host_percent": null,
+        "process_gpu_percent": null,
+        "device_gpu_percent": null,
+        "private_mib": null,
+        "dedicated_gpu_mib": null,
+        "shared_gpu_mib": null,
+        "power_watts": null
+      }
+    },
+    {
+      "game": "Morrowind",
+      "renderer": "VULKAN",
+      "baseline": {
+        "n": 1,
+        "average_fps": 27.58218387507417,
+        "p95_ms": 42.173,
+        "p99_ms": 51.164,
+        "host_fps": null,
+        "cpu_host_percent": null,
+        "process_gpu_percent": null,
+        "device_gpu_percent": null,
+        "private_mib": null,
+        "dedicated_gpu_mib": null,
+        "shared_gpu_mib": null,
+        "power_watts": null
+      },
+      "candidate": {
+        "n": 1,
+        "average_fps": 27.34478516851023,
+        "p95_ms": 44.595,
+        "p99_ms": 51.077,
+        "host_fps": null,
+        "cpu_host_percent": null,
+        "process_gpu_percent": null,
+        "device_gpu_percent": null,
+        "private_mib": null,
+        "dedicated_gpu_mib": null,
+        "shared_gpu_mib": null,
+        "power_watts": null
+      },
+      "delta_percent": {
+        "average_fps": -0.8606958304649415,
+        "p95_ms": 5.743010931164472,
+        "p99_ms": -0.17004143538426053,
+        "host_fps": null,
+        "cpu_host_percent": null,
+        "process_gpu_percent": null,
+        "device_gpu_percent": null,
+        "private_mib": null,
+        "dedicated_gpu_mib": null,
+        "shared_gpu_mib": null,
+        "power_watts": null
+      }
+    },
+    {
+      "game": "PGR2",
+      "renderer": "OPENGL",
+      "baseline": {
+        "n": 2,
+        "average_fps": 30.005777310701763,
+        "p95_ms": 40.104,
+        "p99_ms": 43.1205,
+        "host_fps": 60.00109253521037,
+        "cpu_host_percent": 22.57884574356377,
+        "process_gpu_percent": 44.443171669457044,
+        "device_gpu_percent": 38.15,
+        "private_mib": 2289.6751953125,
+        "dedicated_gpu_mib": 163.115234375,
+        "shared_gpu_mib": 41.625,
+        "power_watts": 23.904
+      },
+      "candidate": {
+        "n": 2,
+        "average_fps": 29.992806661724593,
+        "p95_ms": 39.772999999999996,
+        "p99_ms": 42.331,
+        "host_fps": 59.99423730946617,
+        "cpu_host_percent": 22.51324983880692,
+        "process_gpu_percent": 44.523200845303066,
+        "device_gpu_percent": 39.0,
+        "private_mib": 2286.1982421875,
+        "dedicated_gpu_mib": 161.2341796875,
+        "shared_gpu_mib": 42.525,
+        "power_watts": 23.9275
+      },
+      "delta_percent": {
+        "average_fps": -0.04322717203044668,
+        "p95_ms": -0.825354079393581,
+        "p99_ms": -1.830915689753121,
+        "host_fps": -0.011425168200351887,
+        "cpu_host_percent": -0.29051930068457743,
+        "process_gpu_percent": 0.18007080241984053,
+        "device_gpu_percent": 2.2280471821756187,
+        "private_mib": -0.1518535525090181,
+        "dedicated_gpu_mib": -1.1532060108962572,
+        "shared_gpu_mib": 2.1621621621621623,
+        "power_watts": 0.0983099062918269
+      }
+    },
+    {
+      "game": "PGR2",
+      "renderer": "VULKAN",
+      "baseline": {
+        "n": 2,
+        "average_fps": 30.011021679123434,
+        "p95_ms": 39.8905,
+        "p99_ms": 41.7505,
+        "host_fps": 60.00743943845682,
+        "cpu_host_percent": 21.64193329447167,
+        "process_gpu_percent": 45.674945838407616,
+        "device_gpu_percent": 34.55,
+        "private_mib": 3112.29072265625,
+        "dedicated_gpu_mib": 674.337109375,
+        "shared_gpu_mib": 468.39052734375,
+        "power_watts": 21.3755
+      },
+      "candidate": {
+        "n": 2,
+        "average_fps": 30.007188122601328,
+        "p95_ms": 38.585,
+        "p99_ms": 41.204499999999996,
+        "host_fps": 59.99632404224204,
+        "cpu_host_percent": 22.05209640715909,
+        "process_gpu_percent": 44.6271900167802,
+        "device_gpu_percent": 33.3,
+        "private_mib": 3112.2681640624996,
+        "dedicated_gpu_mib": 674.3046875,
+        "shared_gpu_mib": 468.3525390625,
+        "power_watts": 21.75
+      },
+      "delta_percent": {
+        "average_fps": -0.012773828772294493,
+        "p95_ms": -3.272709040999744,
+        "p99_ms": -1.3077687692363171,
+        "host_fps": -0.018523363634248557,
+        "cpu_host_percent": 1.8952239945781324,
+        "process_gpu_percent": -2.2939399322645104,
+        "device_gpu_percent": -3.61794500723589,
+        "private_mib": -0.0007248228318212924,
+        "dedicated_gpu_mib": -0.004807962449226988,
+        "shared_gpu_mib": -0.008110386319182261,
+        "power_watts": 1.7520058010338957
+      }
+    }
+  ]
+}

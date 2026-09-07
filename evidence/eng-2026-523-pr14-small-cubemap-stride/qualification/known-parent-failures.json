@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "github_pr": 14,
+  "failures": [
+    {
+      "renderer": "VULKAN",
+      "suite_records": 153,
+      "status": "KNOWN_PARENT_FAILURE",
+      "signature": "6x VUID-vkCmdCopyBufferToImage-imageSubresource-07971, device loss",
+      "fixed_downstream_by": "PR 15"
+    }
+  ]
+}
