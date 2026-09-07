@@ -1,0 +1,13 @@
+workload,build,renderer,average_fps,p95_ms,p99_ms,host_fps,gpu_mean_percent,gpu_peak_percent,cpu_host_mean_percent,working_set_mean_mib,gpu_dedicated_mean_mib,run
+Morrowind,baseline,opengl,37.51599947036236,33.578,38.725,,,,,,,baseline-opengl
+Morrowind,baseline,vulkan,26.74547801080958,43.417,53.636,,,,,,,baseline-vulkan
+Morrowind,candidate,opengl,36.996279116773486,32.609,40.198,,,,,,,candidate-opengl
+Morrowind,candidate,vulkan,27.502532190258503,43.59,51.768,,,,,,,candidate-vulkan
+PGR2,baseline,opengl,30.012682633110533,40.019,42.465,60.00009932200975,38.7,40.0,22.413046316469757,675.3060546875,165.3759765625,eng523-issue42-vulkan-cubemap-copy-baseline-1-pgr2-opengl
+PGR2,baseline,vulkan,30.008263125707085,39.547,41.848,60.005444885396585,36.1,42.0,21.91042699456624,996.3361328125,674.33046875,eng523-issue42-vulkan-cubemap-copy-baseline-1-pgr2-vulkan
+PGR2,baseline,opengl,29.995149060376097,39.384,42.623,60.00089515930982,38.0,39.0,23.22235197540079,679.7515625,159.6099609375,eng523-issue42-vulkan-cubemap-copy-baseline-4-pgr2-opengl
+PGR2,baseline,vulkan,29.999420730248875,38.733,40.782,60.00704528768248,36.9,51.0,21.685527929374736,1007.76171875,674.26875,eng523-issue42-vulkan-cubemap-copy-baseline-4-pgr2-vulkan
+PGR2,candidate,opengl,30.010049136409375,40.237,43.151,59.99991331863563,37.4,41.0,22.406540725900914,676.1939453125,161.6171875,eng523-issue42-vulkan-cubemap-copy-candidate-2-pgr2-opengl
+PGR2,candidate,vulkan,30.00622332084011,38.882,40.788,59.99852693271805,33.2,38.0,22.160653055618127,1007.2673828125,674.2875,eng523-issue42-vulkan-cubemap-copy-candidate-2-pgr2-vulkan
+PGR2,candidate,opengl,30.002475204204348,40.131,42.0,59.99899287762248,38.0,40.0,22.390515788805725,675.683203125,161.62890625,eng523-issue42-vulkan-cubemap-copy-candidate-3-pgr2-opengl
+PGR2,candidate,vulkan,30.003749481389455,40.479,42.435,60.00427518780233,33.3,39.0,21.76344951786773,994.9763671875,674.30859375,eng523-issue42-vulkan-cubemap-copy-candidate-3-pgr2-vulkan

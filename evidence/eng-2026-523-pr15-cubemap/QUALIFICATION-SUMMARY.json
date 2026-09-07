@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "issue": 42,
+  "status": "PASS",
+  "source": {
+    "parent_commit": "330cb0d86fe946b795330b629c3e0844c2c10d51",
+    "candidate_commit": "b33b33c38e434df8dbb71a67837f1ecb210f8479",
+    "candidate_tree": "a35aee6abe4004c4df1a048a0c46f08d37f96680"
+  },
+  "build": {
+    "parent_release_sha256": "ee73b71288ebc30f8a5bb65f1d81cdb7dcb1edfb99c6352997fd16bcd411ab46",
+    "candidate_release_sha256": "d1c014b2f07d0ecf62d6f7259493244f5b8fddae81092ecff6647ec21e1fc7ed",
+    "candidate_debug_sha256": "1766137312cd75edd04123cbc4ecdde1947cd26f73f22585f403abc7bd40d2b7"
+  },
+  "focused": {
+    "parent_known_failures": 3,
+    "parent_vuids_per_format": 6,
+    "candidate_release_passes": 3,
+    "candidate_debug_passes": 3,
+    "candidate_vuids": 0,
+    "framebuffer_fnv1a64": "6a84a3194415b625"
+  },
+  "xiso_new": {
+    "record_count_per_cell": 152,
+    "cells": 4,
+    "passes": 4,
+    "vulkan_vuids": 0,
+    "leaf_csv_rows": 588
+  },
+  "xiso_comparison": {
+    "record_count_per_cell": 147,
+    "cells": 4,
+    "passes": 4,
+    "timing_leaf_rows": 284,
+    "geometric_mean_delta_percent": {
+      "vulkan": -1.2585340774764475,
+      "opengl": -1.7110031519177005
+    },
+    "timing_limitation": [
+      "Live markers are unavailable; timing is not PR-grade performance evidence."
+    ]
+  },
+  "retail": {
+    "morrowind": {
+      "vulkan": {
+        "baseline": {
+          "average_fps": 26.74547801080958,
+          "p95_ms": 43.417,
+          "p99_ms": 53.636
+        },
+        "candidate": {
+          "average_fps": 27.502532190258503,
+          "p95_ms": 43.59,
+          "p99_ms": 51.768
+        }
+      },
+      "opengl": {
+        "baseline": {
+          "average_fps": 37.51599947036236,
+          "p95_ms": 33.578,
+          "p99_ms": 38.725
+        },
+        "candidate": {
+          "average_fps": 36.996279116773486,
+          "p95_ms": 32.609,
+          "p99_ms": 40.198
+        }
+      }
+    },
+    "pgr2": {
+      "vulkan": {
+        "baseline": {
+          "average_fps": 30.00384192797798,
+          "p95_ms": 39.14,
+          "p99_ms": 41.315,
+          "host_fps": 60.006245086539536,
+          "gpu_mean_percent": 36.5,
+          "gpu_peak_percent": 46.5,
+          "cpu_host_mean_percent": 21.79797746197049,
+          "working_set_mean_mib": 1002.04892578125,
+          "gpu_dedicated_mean_mib": 674.299609375
+        },
+        "candidate": {
+          "average_fps": 30.004986401114785,
+          "p95_ms": 39.680499999999995,
+          "p99_ms": 41.6115,
+          "host_fps": 60.00140106026019,
+          "gpu_mean_percent": 33.25,
+          "gpu_peak_percent": 38.5,
+          "cpu_host_mean_percent": 21.962051286742927,
+          "working_set_mean_mib": 1001.121875,
+          "gpu_dedicated_mean_mib": 674.298046875
+        }
+      },
+      "opengl": {
+        "baseline": {
+          "average_fps": 30.003915846743315,
+          "p95_ms": 39.701499999999996,
+          "p99_ms": 42.544,
+          "host_fps": 60.00049724065978,
+          "gpu_mean_percent": 38.35,
+          "gpu_peak_percent": 39.5,
+          "cpu_host_mean_percent": 22.817699145935272,
+          "working_set_mean_mib": 677.52880859375,
+          "gpu_dedicated_mean_mib": 162.49296875
+        },
+        "candidate": {
+          "average_fps": 30.00626217030686,
+          "p95_ms": 40.184,
+          "p99_ms": 42.575500000000005,
+          "host_fps": 59.99945309812905,
+          "gpu_mean_percent": 37.7,
+          "gpu_peak_percent": 40.5,
+          "cpu_host_mean_percent": 22.39852825735332,
+          "working_set_mean_mib": 675.93857421875,
+          "gpu_dedicated_mean_mib": 161.623046875
+        }
+      }
+    }
+  },
+  "host_quarantined": false
+}
