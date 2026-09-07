@@ -47,6 +47,10 @@
 typedef struct XboxPollSpinProfile {
     bool initialized;
     bool enabled;
+    uint64_t all_calls;
+    uint64_t negative_calls;
+    uint64_t zero_calls;
+    uint64_t long_calls;
     uint64_t entries;
     uint64_t timeout_buckets[6];
     uint64_t requested_ns;
@@ -54,6 +58,8 @@ typedef struct XboxPollSpinProfile {
     uint64_t iterations;
     uint64_t ready_exits;
     uint64_t errors;
+    uint64_t nonspin_ready_exits;
+    uint64_t nonspin_errors;
     uint64_t late_ns;
     uint64_t max_late_ns;
     uint64_t max_fds;
@@ -103,6 +109,7 @@ static void xbox_poll_spin_profile_record(int64_t requested_ns,
     }
 
     profile->entries++;
+    profile->all_calls++;
     profile->timeout_buckets[bucket]++;
     profile->requested_ns += (uint64_t)requested_ns;
     profile->spin_ns += (uint64_t)spin_ns;
@@ -117,23 +124,51 @@ static void xbox_poll_spin_profile_record(int64_t requested_ns,
         profile->last_report_ns = now_ns;
     } else if (now_ns - profile->last_report_ns >= NANOSECONDS_PER_SECOND) {
         fprintf(stderr,
-                "XEMU_QEMU_POLL_PROFILE v=1 tid=%d entries=%" PRIu64
+                "XEMU_QEMU_POLL_PROFILE v=2 tid=%d all_calls=%" PRIu64
+                " negative_calls=%" PRIu64 " zero_calls=%" PRIu64
+                " long_calls=%" PRIu64 " entries=%" PRIu64
                 " buckets=%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64
                 ",%" PRIu64 ",%" PRIu64 " requested_ns=%" PRIu64
                 " spin_ns=%" PRIu64 " iterations=%" PRIu64
                 " ready_exits=%" PRIu64 " errors=%" PRIu64
+                " nonspin_ready_exits=%" PRIu64
+                " nonspin_errors=%" PRIu64
                 " late_ns=%" PRIu64
                 " max_late_ns=%" PRIu64 " max_fds=%" PRIu64 "\n",
-                qemu_get_thread_id(), profile->entries,
+                qemu_get_thread_id(), profile->all_calls,
+                profile->negative_calls, profile->zero_calls,
+                profile->long_calls, profile->entries,
                 profile->timeout_buckets[0], profile->timeout_buckets[1],
                 profile->timeout_buckets[2], profile->timeout_buckets[3],
                 profile->timeout_buckets[4], profile->timeout_buckets[5],
                 profile->requested_ns, profile->spin_ns, profile->iterations,
-                profile->ready_exits, profile->errors, profile->late_ns,
+                profile->ready_exits, profile->errors,
+                profile->nonspin_ready_exits, profile->nonspin_errors,
+                profile->late_ns,
                 profile->max_late_ns, profile->max_fds);
         fflush(stderr);
         profile->last_report_ns = now_ns;
     }
+}
+
+static void xbox_poll_profile_record_nonspin(int64_t timeout, int poll_ret)
+{
+    XboxPollSpinProfile *profile = &xbox_poll_spin_profile;
+
+    if (!xbox_poll_spin_profile_enabled(profile)) {
+        return;
+    }
+
+    profile->all_calls++;
+    if (timeout < 0) {
+        profile->negative_calls++;
+    } else if (timeout == 0) {
+        profile->zero_calls++;
+    } else {
+        profile->long_calls++;
+    }
+    profile->nonspin_ready_exits += poll_ret > 0;
+    profile->nonspin_errors += poll_ret < 0;
 }
 #endif
 
@@ -460,7 +495,16 @@ int qemu_poll_ns(GPollFD *fds, guint nfds, int64_t timeout)
     }
 #endif
 
+#ifdef XBOX
+    {
+        int ret = g_poll(fds, nfds, qemu_timeout_ns_to_ms(timeout));
+
+        xbox_poll_profile_record_nonspin(timeout, ret);
+        return ret;
+    }
+#else
     return g_poll(fds, nfds, qemu_timeout_ns_to_ms(timeout));
+#endif
 #endif
 }
 
