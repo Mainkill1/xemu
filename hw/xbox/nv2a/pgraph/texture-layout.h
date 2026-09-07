@@ -246,4 +246,22 @@ static inline bool pgraph_calculate_texture_encoded_size(
     return true;
 }
 
+/* Return the aligned source stride between cubemap faces. */
+static inline bool pgraph_calculate_texture_cubemap_face_stride(
+    TextureShape shape, bool compressed, unsigned int bytes_per_pixel,
+    size_t *stride)
+{
+    size_t total;
+
+    if (!stride || !shape.cubemap ||
+        !pgraph_calculate_texture_encoded_size(
+            shape, compressed, bytes_per_pixel, &total) ||
+        total % 6) {
+        return false;
+    }
+
+    *stride = total / 6;
+    return true;
+}
+
 #endif

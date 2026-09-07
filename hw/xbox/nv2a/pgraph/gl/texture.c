@@ -730,34 +730,14 @@ static TextureBinding* generate_texture(const TextureShape s,
                    s.width, s.height, s.depth);
 
     if (gl_target == GL_TEXTURE_CUBE_MAP) {
-        unsigned int block_size;
-        if (f.gl_internal_format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) {
-            block_size = 8;
-        } else {
-            block_size = 16;
+        size_t length;
+        if (!pgraph_calculate_texture_cubemap_face_stride(
+                s, f.gl_format == 0, f.bytes_per_pixel, &length)) {
+            qemu_log_mask(LOG_GUEST_ERROR,
+                          "nv2a: invalid OpenGL cubemap source layout\n");
+            glDeleteTextures(1, &gl_texture);
+            return NULL;
         }
-
-        size_t length = 0;
-        unsigned int w = s.width;
-        unsigned int h = s.height;
-        if (!f.linear && s.border) {
-            w = MAX(16, w * 2);
-            h = MAX(16, h * 2);
-        }
-
-        int level;
-        for (level = 0; level < s.storage_levels; level++) {
-            if (f.gl_format == 0) {
-                length += w/4 * h/4 * block_size;
-            } else {
-                length += w * h * f.bytes_per_pixel;
-            }
-
-            w /= 2;
-            h /= 2;
-        }
-
-        length = (length + NV2A_CUBEMAP_FACE_ALIGNMENT - 1) & ~(NV2A_CUBEMAP_FACE_ALIGNMENT - 1);
 
         upload_gl_texture(GL_TEXTURE_CUBE_MAP_POSITIVE_X,
                           s, texture_data + 0 * length, palette_data);

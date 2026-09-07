@@ -153,6 +153,39 @@ static void test_cubemap_face_stride_uses_declared_storage_levels(void)
     g_assert_cmpuint(size, ==, 256 * 6);
 }
 
+static void test_compressed_subblock_cubemap_face_stride(void)
+{
+    const unsigned int dimensions[] = { 1, 2 };
+
+    for (unsigned int i = 0; i < ARRAY_SIZE(dimensions); i++) {
+        TextureShape shape = {
+            .cubemap = true,
+            .dimensionality = 2,
+            .color_format = NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT1_A1R5G5B5,
+            .levels = 1,
+            .storage_levels = 1,
+            .width = dimensions[i],
+            .height = dimensions[i],
+        };
+        size_t total, stride;
+
+        g_assert_true(pgraph_calculate_texture_encoded_size(
+            shape, true, 4, &total));
+        g_assert_true(pgraph_calculate_texture_cubemap_face_stride(
+            shape, true, 4, &stride));
+        g_assert_cmpuint(stride, ==, NV2A_CUBEMAP_FACE_ALIGNMENT);
+        g_assert_cmpuint(total, ==, stride * 6);
+
+        g_autofree uint8_t *source = g_malloc0(total);
+        for (unsigned int face = 0; face < 6; face++) {
+            source[face * stride] = face + 1;
+        }
+        for (unsigned int face = 0; face < 6; face++) {
+            g_assert_cmpuint(source[face * stride], ==, face + 1);
+        }
+    }
+}
+
 static void test_dma_range_boundaries(void)
 {
     /* Last source byte equals the inclusive DMA limit and the exclusive
@@ -182,6 +215,8 @@ int main(int argc, char **argv)
                     test_cubemap_face_alignment);
     g_test_add_func("/xbox/nv2a/texture/cubemap-storage-level-stride",
                     test_cubemap_face_stride_uses_declared_storage_levels);
+    g_test_add_func("/xbox/nv2a/texture/cubemap-subblock-face-stride",
+                    test_compressed_subblock_cubemap_face_stride);
     g_test_add_func("/xbox/nv2a/texture/dma-range-boundaries",
                     test_dma_range_boundaries);
     return g_test_run();
