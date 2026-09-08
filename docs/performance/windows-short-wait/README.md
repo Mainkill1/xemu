@@ -5,6 +5,46 @@ not an accepted XISO speedup or a complete PGR2 lag fix. Related work:
 [issue 19](https://github.com/Mainkill1/xemu/issues/19) and
 [PR 24](https://github.com/Mainkill1/xemu/pull/24).
 
+## Latest strict Vulkan XISO comparison
+
+Frozen S plus the shared marker harness `653e03a7f15500d3420de44af4d12cfc490558a7`
+versus wait-only plus that same harness `8eeb3e48f9aedd0ca932c23802318f1b3e645fce`.
+Each completed two full runs: 149/149 records, comprising 144 leaves and five
+aggregates. All four receipts validate live markers without a waiver. Both
+candidate runs match the two-run baseline regression consensus for 149 records;
+this establishes agreement with S, not hardware correctness. Timing mode does
+not enable Vulkan validation layers.
+
+| Measurement | Baseline | Candidate | Observation |
+|---|---:|---:|---|
+| Sum of leaf mean test times | 93,964.545 ms | 96,072.835 ms | +2.24% slower |
+| Process CPU, host capacity | 17.787% | 13.020% | Lower CPU use |
+| Process GPU utilization | 81.297% | 82.398% | Higher |
+| Device GPU utilization | 36.925% | 35.100% | Lower |
+
+These are two-run descriptive measurements, not confidence intervals. The CPU
+saving does not establish a suite speedup. Unfavorable individual observations
+include TinyAlloc-inlineelements +27.34%, PipelineStateChurn +10.61%, and
+Dxt1DirtyOnceRedraw +9.42%. See [all test rows](marker-vulkan/per-test.csv),
+[group results](marker-vulkan/groups.md), [oracle comparison](marker-vulkan/oracle-comparison.json),
+and [baseline](marker-vulkan/frozen-s-vulkan-resource-usage-lanes.csv)/[candidate resources](marker-vulkan/wait-only-vulkan-resource-usage-lanes.csv).
+Resource samples cover process execution, not only individual marked tests.
+OpenGL comparison remains pending collection.
+
+The next implementation, `0edb216c23ab071042bb26005267d0c3816337cd`, makes the wait
+an optional **Tweaks → Reduce CPU usage while waiting** setting, off by default.
+Its Release executable is built (SHA-256
+`caeb70731620b16e85cb5fb92564a2346180edf92bdf353c8aae86c0a164d1da`), but native
+qualification is pending. Earlier measurements do not qualify this new build.
+The intended comparison uses this single executable with the setting off/on.
+
+Historical uninstrumented OpenGL output comparison has a separate limitation:
+the two S reports differ in the internal count (15 versus 14) for the
+unsynchronized same-address S3TC test. That record already excludes framebuffer
+and tile-center observations because per-draw source generation is undefined.
+The count's semantics still need checking; a full OpenGL consensus pass is not
+claimed, and this difference is not attributed to the wait candidate.
+
 ## Change and integration scope
 
 The Windows short-wait path used to repeatedly read the clock until its timeout.

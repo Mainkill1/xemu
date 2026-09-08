@@ -1,0 +1,17 @@
+{
+  "status": "PASSED",
+  "oracle_id": "f0988d846190049e461180652aef0c1957f63a1ef3d6eaf0e99917cc46e76bac",
+  "records": 149,
+  "candidate_results": [
+    {
+      "status": "PASSED",
+      "oracle_id": "f0988d846190049e461180652aef0c1957f63a1ef3d6eaf0e99917cc46e76bac",
+      "oracle_provenance": "REGRESSION_CONSENSUS"
+    },
+    {
+      "status": "PASSED",
+      "oracle_id": "f0988d846190049e461180652aef0c1957f63a1ef3d6eaf0e99917cc46e76bac",
+      "oracle_provenance": "REGRESSION_CONSENSUS"
+    }
+  ]
+}
