@@ -2,6 +2,7 @@
 url = https://github.com/libsdl-org/SDL
 revision = fa2c02bb6e21974a89ea9824bc53c9932abe5f9c
 depth = 1
+diff_files = 0001-sdl3-windows-guard-partial-clipboard-window.patch
 method = cmake
 
 [provide]

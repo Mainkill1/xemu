@@ -22,8 +22,11 @@
 #include <math.h>
 
 #include "hw/xbox/nv2a/nv2a_int.h"
+#include "qemu/log.h"
 #include "ui/xemu-notifications.h"
 #include "ui/xemu-settings.h"
+#include "ui/xemu-tweaks.h"
+#include "inline-elements.h"
 #include "util.h"
 #include "swizzle.h"
 #include "nv2a_vsh_emulator.h"
@@ -43,6 +46,29 @@ uint64_t pgraph_read(void *opaque, hwaddr addr, unsigned int size)
 {
     NV2AState *d = (NV2AState *)opaque;
     PGRAPHState *pg = &d->pgraph;
+
+    /*
+     * Lock-free fast path for the GPU fence register the guest busy-polls.
+     * The Xbox D3D runtime polls NV_PGRAPH_PATT_COLOR0 for its fence value;
+     * taking pg->lock for each poll convoys with the FIFO puller, which
+     * needs the same lock to advance the fence being polled for. A
+     * momentarily stale read is what real hardware gives a CPU polling an
+     * asynchronously updated register. The write side is serialized: the
+     * fence method runs under pg->lock, and guest MMIO writes to this
+     * register are issued by the same single vCPU that polls it.
+     */
+    if (addr == NV_PGRAPH_PATT_COLOR0 && size == 4 &&
+        xemu_tweak_enabled(XEMU_TWEAK_PGRAPH_FENCE_FASTPATH)) {
+        uint64_t fr = qatomic_read(&pg->regs_[NV_PGRAPH_PATT_COLOR0]);
+        /*
+         * Pairs with the smp_wmb at the fence write site in pgraph_method,
+         * so that the pgraph effects preceding the fence are visible once
+         * the new fence value is.
+         */
+        smp_rmb();
+        nv2a_reg_log_read(NV_PGRAPH, addr, size, fr);
+        return fr;
+    }
 
     qemu_mutex_lock(&pg->lock);
 
@@ -514,13 +540,33 @@ static const struct {
 #undef DEF_METHOD_CASE_4_OFFSET
 #undef DEF_METHOD_CASE_4
 
+static bool pgraph_method_trace_enabled(void)
+{
+    return trace_event_get_state_backends(TRACE_NV2A_PGRAPH_METHOD) ||
+           trace_event_get_state_backends(TRACE_NV2A_PGRAPH_METHOD_ABBREV);
+}
+
 static void pgraph_method_log(unsigned int subchannel,
                               unsigned int graphics_class,
                               unsigned int method, uint32_t parameter)
 {
-    const char *method_name = "?";
     static unsigned int last = 0;
     static unsigned int count = 0;
+    static bool tracing = false;
+
+    bool enabled = pgraph_method_trace_enabled();
+    if (!enabled) {
+        tracing = false;
+        return;
+    }
+
+    if (!tracing) {
+        last = 0;
+        count = 0;
+        tracing = true;
+    }
+
+    const char *method_name = "?";
 
     if (last == NV097_ARRAY_ELEMENT16 && method != last) {
         method_name = "NV097_ARRAY_ELEMENT16";
@@ -577,9 +623,91 @@ static void pgraph_method_inc(MethodFunc handler, uint32_t end,
     *num_words_consumed = count;
 }
 
+static void pgraph_expand_draw_arrays(NV2AState *d);
+static bool pgraph_method_array_bulk(NV2AState *d, PGRAPHState *pg,
+                                     unsigned int method,
+                                     uint32_t *parameters,
+                                     size_t num_words_available);
+
+static bool pgraph_method_array_packet_fits(PGRAPHState *pg,
+                                            unsigned int method,
+                                            size_t packet_words)
+{
+    size_t current_length;
+    size_t pending_values = 0;
+    size_t values_per_word = method == NV097_ARRAY_ELEMENT16 ? 2 : 1;
+
+    if (method == NV097_INLINE_ARRAY) {
+        current_length = pg->inline_array_length;
+    } else {
+        current_length = pg->inline_elements_length;
+        if (pg->draw_arrays_length) {
+            /* pgraph_expand_draw_arrays() flushes earlier entries first. */
+            if (pg->draw_arrays_length > 1) {
+                current_length = 0;
+            }
+            pending_values =
+                pg->draw_arrays_count[pg->draw_arrays_length - 1];
+        }
+    }
+
+    return pgraph_inline_packet_plan_length(
+        current_length, pending_values, packet_words, values_per_word,
+        NV2A_MAX_BATCH_LENGTH, NULL);
+}
+
+static void pgraph_drop_oversized_array_packet(unsigned int method,
+                                                size_t packet_words)
+{
+    qemu_log_mask(LOG_GUEST_ERROR,
+                  "NV2A PGRAPH: dropping oversized method 0x%04x "
+                  "packet (%zu words)\n",
+                  method, packet_words);
+}
+
 static void pgraph_method_non_inc(MethodFunc handler, METHOD_HANDLER_ARG_DECL)
 {
-    if (inc) {
+    bool array_packet = method == NV097_ARRAY_ELEMENT16 ||
+                        method == NV097_ARRAY_ELEMENT32 ||
+                        method == NV097_INLINE_ARRAY;
+
+    if (array_packet) {
+        size_t packet_words = inc ? 1 : num_words_available;
+        if (!pgraph_method_array_packet_fits(pg, method, packet_words)) {
+            pgraph_drop_oversized_array_packet(method, packet_words);
+            if (!inc && pgraph_method_trace_enabled()) {
+                for (size_t i = 1; i < packet_words; i++) {
+                    pgraph_method_log(subchannel, NV_KELVIN_PRIMITIVE,
+                                      method, ldl_le_p(parameters + i));
+                }
+            }
+            *num_words_consumed = packet_words;
+            return;
+        }
+
+    }
+
+    if (array_packet && xemu_tweak_enabled(XEMU_TWEAK_PGRAPH_BULK_PACKETS)) {
+        PGRAPHInlinePacketMode mode = pgraph_inline_packet_mode(
+            inc, pgraph_method_trace_enabled());
+
+        switch (mode) {
+        case PGRAPH_INLINE_PACKET_SCALAR_INCREMENTING:
+            handler(METHOD_HANDLER_ARGS);
+            return;
+        case PGRAPH_INLINE_PACKET_SCALAR_TRACE:
+            break;
+        case PGRAPH_INLINE_PACKET_BULK:
+            if (pgraph_method_array_bulk(d, pg, method, parameters,
+                                         num_words_available)) {
+                *num_words_consumed = num_words_available;
+                return;
+            }
+            break;
+        default:
+            g_assert_not_reached();
+        }
+    } else if (inc) {
         handler(METHOD_HANDLER_ARGS);
         return;
     }
@@ -702,7 +830,14 @@ int pgraph_method(NV2AState *d, unsigned int subchannel,
     case NV_CONTEXT_PATTERN: {
         switch (method) {
         case NV044_SET_MONOCHROME_COLOR0:
-            pgraph_reg_w(pg, NV_PGRAPH_PATT_COLOR0, parameter);
+            /*
+             * Xbox D3D GPU fence value, busy-polled by the guest CPU; see
+             * the lock-free read path in pgraph_read. The barrier orders
+             * the pgraph effects of preceding methods before the fence
+             * store becomes visible to the polling vCPU.
+             */
+            smp_wmb();
+            pgraph_reg_w_atomic(pg, NV_PGRAPH_PATT_COLOR0, parameter);
             break;
         default:
             goto unhandled;
@@ -2676,6 +2811,56 @@ static void pgraph_expand_draw_arrays(NV2AState *d)
     pgraph_reset_draw_arrays(pg);
 }
 
+static bool pgraph_method_array_bulk(NV2AState *d, PGRAPHState *pg,
+                                     unsigned int method,
+                                     uint32_t *parameters,
+                                     size_t num_words_available)
+{
+    size_t values_per_word = method == NV097_ARRAY_ELEMENT16 ? 2 : 1;
+    unsigned int *length;
+    uint32_t *destination;
+
+    pgraph_check_within_begin_end_block(pg);
+
+    if (method == NV097_INLINE_ARRAY) {
+        length = &pg->inline_array_length;
+        destination = pg->inline_array;
+    } else if (method == NV097_ARRAY_ELEMENT16 ||
+               method == NV097_ARRAY_ELEMENT32) {
+        if (pg->draw_arrays_length) {
+            pgraph_expand_draw_arrays(d);
+        }
+        length = &pg->inline_elements_length;
+        destination = pg->inline_elements;
+    } else {
+        return false;
+    }
+
+    /*
+     * Preflight the whole packet before mutating the destination. In
+     * particular, ARRAY_ELEMENT16 writes two values for every input word.
+     */
+    assert(pgraph_inline_packet_fits(*length, num_words_available,
+                                     values_per_word,
+                                     NV2A_MAX_BATCH_LENGTH));
+
+    size_t output_length = *length;
+    if (method == NV097_ARRAY_ELEMENT16) {
+        for (size_t i = 0; i < num_words_available; i++) {
+            uint32_t value = ldl_le_p(parameters + i);
+            pgraph_inline_element16_store(destination + output_length, value);
+            output_length += 2;
+        }
+    } else {
+        for (size_t i = 0; i < num_words_available; i++) {
+            destination[output_length++] = ldl_le_p(parameters + i);
+        }
+    }
+
+    *length = output_length;
+    return true;
+}
+
 void pgraph_check_within_begin_end_block(PGRAPHState *pg)
 {
     if (pg->primitive_mode == PRIM_TYPE_INVALID) {
@@ -2691,9 +2876,11 @@ DEF_METHOD_NON_INC(NV097, ARRAY_ELEMENT16)
         pgraph_expand_draw_arrays(d);
     }
 
-    assert(pg->inline_elements_length < NV2A_MAX_BATCH_LENGTH);
-    pg->inline_elements[pg->inline_elements_length++] = parameter & 0xFFFF;
-    pg->inline_elements[pg->inline_elements_length++] = parameter >> 16;
+    assert(pgraph_inline_packet_fits(pg->inline_elements_length, 1, 2,
+                                     NV2A_MAX_BATCH_LENGTH));
+    pgraph_inline_element16_store(
+        pg->inline_elements + pg->inline_elements_length, parameter);
+    pg->inline_elements_length += 2;
 }
 
 DEF_METHOD_NON_INC(NV097, ARRAY_ELEMENT32)
@@ -3138,21 +3325,35 @@ void pgraph_get_clear_depth_stencil_value(PGRAPHState *pg, float *depth,
     }
 }
 
-void pgraph_write_zpass_pixel_cnt_report(NV2AState *d, uint32_t parameter,
-                                         uint32_t result)
+void pgraph_write_zpass_pixel_cnt_report(NV2AState *d,
+                                         const DMAObject *dma_report,
+                                         uint32_t parameter, uint32_t result)
 {
-    PGRAPHState *pg = &d->pgraph;
-
+    static const hwaddr report_size = 16;
     uint64_t timestamp = 0x0011223344556677; /* FIXME: Update timestamp?! */
     uint32_t done = 0; // FIXME: Check
-
-    hwaddr report_dma_len;
-    uint8_t *report_data =
-        (uint8_t *)nv_dma_map(d, pg->dma_report, &report_dma_len);
-
     hwaddr offset = GET_MASK(parameter, NV097_GET_REPORT_OFFSET);
-    assert(offset < report_dma_len);
-    report_data += offset;
+    hwaddr base = dma_report->address & 0x07FFFFFF;
+    hwaddr vram_size = memory_region_size(d->vram);
+
+    /* DMAObject.limit is an inclusive maximum offset. Validate the complete
+     * 16-byte record with subtraction so neither the DMA extent nor the VRAM
+     * address calculation can wrap. */
+    bool dma_range_valid = offset <= dma_report->limit &&
+        report_size - 1 <= dma_report->limit - offset;
+    bool vram_range_valid = base <= vram_size &&
+        offset <= vram_size - base &&
+        report_size <= vram_size - base - offset;
+    if (!dma_range_valid || !vram_range_valid) {
+        qemu_log_mask(LOG_GUEST_ERROR,
+                      "nv2a: rejected ZPASS report outside DMA/VRAM range "
+                      "(base=0x%" HWADDR_PRIx ", limit=0x%" HWADDR_PRIx
+                      ", offset=0x%" HWADDR_PRIx ")\n",
+                      base, dma_report->limit, offset);
+        return;
+    }
+
+    uint8_t *report_data = d->vram_ptr + base + offset;
 
     stq_le_p((uint64_t *)&report_data[0], timestamp);
     stl_le_p((uint32_t *)&report_data[8], result);

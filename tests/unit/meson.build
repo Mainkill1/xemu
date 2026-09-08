@@ -20,6 +20,23 @@ tests = {
   'test-string-output-visitor': [testqapi],
   'test-visitor-serialization': [testqapi],
   'test-bitmap': [],
+  'test-xbox-vk-buffer-size': [],
+  'test-xbox-vk-display-reuse': [],
+  'test-xbox-nv2a-ptimer': [
+    'ptimer-test-stubs.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/ptimer.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/pramdac.c',
+    declare_dependency(
+      compile_args: [
+        '-include',
+        meson.project_source_root() / 'tests/unit/xbox-nv2a-ptimer-test-shim.h',
+      ],
+    ),
+  ],
+  'test-xbox-nv2a-texture': [],
+  'test-xbox-nv2a-vertex': [],
+  'test-xbox-vk-texture-state': [],
+  'test-xbox-vk-failure-state': [],
   'test-resv-mem': [],
   # all code tested by test-x86-topo is inside topology.h
   'test-x86-topo': [],
@@ -48,7 +65,26 @@ tests = {
   'test-qapi-util': [],
   'test-interval-tree': [],
   'test-fifo': [],
+  'test-lru-active': [],
+  'test-lru-full': [],
 }
+
+# This real graphics lifecycle test skips unless explicitly enabled on a host
+# with an interactive SDL/OpenGL session.
+if sdl.found() and epoxy.found()
+  tests += {
+    'test-xbox-gloffscreen': [
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/thirdparty/gloffscreen/sdl.c',
+      sdl, epoxy,
+    ],
+  }
+endif
+
+if host_os == 'windows'
+  tests += {
+    'test-xbox-qemu-poll': [],
+  }
+endif
 
 if have_system or have_tools
   tests += {
@@ -175,6 +211,21 @@ slow_tests = {
   'test-crypto-tlssession': 90,
   'test-replication': 60,
 }
+
+xemu_tweaks_test = executable('test-xemu-tweaks-config',
+  files('test-xemu-tweaks-config.cc', '../../ui/xemu-tweaks.c'), genh,
+  dependencies: [qemuutil, genconfig, tomlplusplus])
+test('test-xemu-tweaks-config', xemu_tweaks_test, suite: ['unit'])
+
+# This driver compiles small native API doubles, even during a cross build.
+if build_machine.system() in ['linux', 'darwin']
+  tweak_test_cc = find_program('cc', native: true, required: false)
+  if tweak_test_cc.found()
+    test('test-xemu-tweak-paths', python,
+      args: [files('test-xemu-tweak-paths.py'), '--cc', tweak_test_cc.full_path()],
+      suite: ['unit'])
+  endif
+endif
 
 foreach test_name, extra: tests
   src = [test_name + '.c']

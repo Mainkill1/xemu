@@ -74,6 +74,10 @@ typedef struct NV2AState {
 
     qemu_irq irq;
     bool exiting;
+    /* Host-only snapshot ownership; never serialized. */
+    bool savevm_locked;
+    bool savevm_explicit;
+    bool savevm_previous_halt;
 
     VGACommonState vga;
     GraphicHwOps hw_ops;
@@ -116,6 +120,7 @@ typedef struct NV2AState {
         uint32_t denominator;
         uint64_t alarm_time;
         uint64_t time_offset;
+        bool alarm_armed;
         QEMUTimer timer;
     } ptimer;
 
@@ -224,5 +229,7 @@ hwaddr nv_clip_gpu_tile_blit(NV2AState *d, hwaddr blit_base_address,
 
 void ptimer_init(NV2AState *d);
 void ptimer_reset(NV2AState *d);
+void ptimer_post_load(NV2AState *d, int version_id);
+void ptimer_set_core_clock(NV2AState *d, uint64_t frequency);
 
 #endif

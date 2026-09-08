@@ -25,6 +25,7 @@ xemu_ss.add(files(
   'xemu-monitor.c',
   'xemu-net.c',
   'xemu-settings.cc',
+  'xemu-tweaks.c',
   'xemu-controllers.cc',
 
   'xemu.c',

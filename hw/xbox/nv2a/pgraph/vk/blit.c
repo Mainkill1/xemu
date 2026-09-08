@@ -120,8 +120,9 @@ void pgraph_vk_image_blit(NV2AState *d)
     hwaddr dest_addr = dest - d->vram_ptr;
 
     SurfaceBinding *surf_src = pgraph_vk_surface_get(d, source_addr);
-    if (surf_src) {
-        pgraph_vk_surface_download_if_dirty(d, surf_src);
+    if (surf_src && !pgraph_vk_surface_download_if_dirty(d, surf_src)) {
+        error_report("nv2a: failed to download blit source surface");
+        return;
     }
 
     hwaddr source_offset = image_blit->in_y * context_surfaces->source_pitch +
@@ -158,7 +159,11 @@ void pgraph_vk_image_blit(NV2AState *d)
     if (surf_dest) {
         if (adjusted_height < surf_dest->height ||
             row_pixels < surf_dest->width) {
-            pgraph_vk_surface_download_if_dirty(d, surf_dest);
+            if (!pgraph_vk_surface_download_if_dirty(d, surf_dest)) {
+                error_report("nv2a: failed to download partial blit "
+                             "destination surface");
+                return;
+            }
         } else {
             // The blit will completely replace the surface so any pending
             // download should be discarded.

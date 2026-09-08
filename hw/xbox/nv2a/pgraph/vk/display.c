@@ -535,6 +535,8 @@ static void destroy_current_display_image(PGRAPHState *pg)
     PGRAPHVkState *r = pg->vk_renderer_state;
     PGRAPHVkDisplayState *d = &r->display;
 
+    pgraph_vk_display_reuse_reset(&d->reuse);
+
     if (d->image == VK_NULL_HANDLE) {
         return;
     }
@@ -774,10 +776,9 @@ static void update_descriptor_set(PGRAPHState *pg, SurfaceBinding *surface)
                            descriptor_writes, 0, NULL);
 }
 
-static PvideoState get_pvideo_state(PGRAPHState *pg)
+static bool is_pvideo_enabled(PGRAPHState *pg)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
-    PvideoState state;
 
     // FIXME: This check against PVIDEO_SIZE_IN does not match HW behavior.
     // Many games seem to pass this value when initializing or tearing down
@@ -788,8 +789,16 @@ static PvideoState get_pvideo_state(PGRAPHState *pg)
     // Since the value seems to be set to 0xFFFFFFFF only in cases where the
     // content is not valid, it is probably good enough to treat it as an
     // implicit stop.
-    state.enabled = (d->pvideo.regs[NV_PVIDEO_BUFFER] & NV_PVIDEO_BUFFER_0_USE)
-        && d->pvideo.regs[NV_PVIDEO_SIZE_IN] != 0xFFFFFFFF;
+    return (d->pvideo.regs[NV_PVIDEO_BUFFER] & NV_PVIDEO_BUFFER_0_USE) &&
+           d->pvideo.regs[NV_PVIDEO_SIZE_IN] != 0xFFFFFFFF;
+}
+
+static PvideoState get_pvideo_state(PGRAPHState *pg)
+{
+    NV2AState *d = container_of(pg, NV2AState, pgraph);
+    PvideoState state = { 0 };
+
+    state.enabled = is_pvideo_enabled(pg);
     if (!state.enabled) {
         return state;
     }
@@ -859,19 +868,17 @@ static PvideoState get_pvideo_state(PGRAPHState *pg)
     return state;
 }
 
-static void update_uniforms(PGRAPHState *pg, SurfaceBinding *surface)
+static void update_uniforms(PGRAPHState *pg, SurfaceBinding *surface,
+                            uint32_t vga_line_offset)
 {
-    NV2AState *d = container_of(pg, NV2AState, pgraph);
     PGRAPHVkState *r = pg->vk_renderer_state;
     ShaderUniformLayout *l = &r->display.display_frag->push_constants;
 
     int display_size_loc = uniform_index(l, "display_size");  // FIXME: Cache
     uniform2f(l, display_size_loc, r->display.width, r->display.height);
 
-    VGADisplayParams vga_display_params;
-    d->vga.get_params(&d->vga, &vga_display_params);
-    int line_offset = vga_display_params.line_offset ?
-                          surface->pitch / vga_display_params.line_offset :
+    int line_offset = vga_line_offset ?
+                          surface->pitch / vga_line_offset :
                           1;
     int line_offset_loc = uniform_index(l, "line_offset");
     uniform1f(l, line_offset_loc, line_offset);
@@ -895,7 +902,8 @@ static void update_uniforms(PGRAPHState *pg, SurfaceBinding *surface)
     }
 }
 
-static void render_display(PGRAPHState *pg, SurfaceBinding *surface)
+static void render_display(PGRAPHState *pg, SurfaceBinding *surface,
+                           uint32_t vga_line_offset)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -913,7 +921,7 @@ static void render_display(PGRAPHState *pg, SurfaceBinding *surface)
         upload_pvideo_image(pg, disp->pvideo.state);
     }
 
-    update_uniforms(pg, surface);
+    update_uniforms(pg, surface, vga_line_offset);
     update_descriptor_set(pg, surface);
 
     VkCommandBuffer cmd = pgraph_vk_begin_single_time_commands(pg);
@@ -1067,8 +1075,9 @@ void pgraph_vk_render_display(PGRAPHState *pg)
     VGADisplayParams vga_display_params;
     d->vga.get_params(&d->vga, &vga_display_params);
 
-    SurfaceBinding *surface = pgraph_vk_surface_get_within(
-        d, d->pcrtc.start + vga_display_params.line_offset);
+    hwaddr scanout_address =
+        d->pcrtc.start + vga_display_params.line_offset;
+    SurfaceBinding *surface = pgraph_vk_surface_get_within(d, scanout_address);
     if (surface == NULL || !surface->color || !surface->width ||
         !surface->height) {
         return;
@@ -1078,16 +1087,42 @@ void pgraph_vk_render_display(PGRAPHState *pg)
     d->vga.get_resolution(&d->vga, (int *)&width, (int *)&height);
 
     /* Adjust viewport height for interlaced mode, used only in 1080i */
-    if (d->vga.cr[NV_PRMCIO_INTERLACE_MODE] != NV_PRMCIO_INTERLACE_MODE_DISABLED) {
+    uint8_t interlace_mode = d->vga.cr[NV_PRMCIO_INTERLACE_MODE];
+    if (interlace_mode != NV_PRMCIO_INTERLACE_MODE_DISABLED) {
         height *= 2;
     }
 
     pgraph_apply_scaling_factor(pg, &width, &height);
 
     PGRAPHVkDisplayState *disp = &r->display;
+    bool recreated = false;
     if (!disp->image || disp->width != width || disp->height != height) {
         create_display_image(pg, width, height);
+        recreated = true;
     }
 
-    render_display(pg, surface);
+    bool pvideo_enabled = is_pvideo_enabled(pg);
+    bool reusable = pgraph_vk_display_reuse_allowed(
+        tcg_enabled(), pvideo_enabled, surface->upload_pending, recreated);
+    if (reusable && pgraph_vk_display_reuse_key_matches(
+                        &disp->reuse, surface->lifetime_id,
+                        surface->draw_time, pg->frame_time, scanout_address,
+                        vga_display_params.line_offset, width, height,
+                        pg->surface_scale_factor, interlace_mode)) {
+        return;
+    }
+
+    pgraph_vk_display_reuse_reset(&disp->reuse);
+    render_display(pg, surface, vga_display_params.line_offset);
+
+    /* render_display waits for the display image to be externally usable. */
+    if (pgraph_vk_display_reuse_allowed(
+            tcg_enabled(), disp->pvideo.state.enabled,
+            surface->upload_pending, false)) {
+        pgraph_vk_display_reuse_publish(
+            &disp->reuse, surface->lifetime_id, surface->draw_time,
+            pg->frame_time, scanout_address,
+            vga_display_params.line_offset, width, height,
+            pg->surface_scale_factor, interlace_mode);
+    }
 }

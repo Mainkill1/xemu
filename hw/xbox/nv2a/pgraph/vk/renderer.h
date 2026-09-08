@@ -39,7 +39,9 @@
 
 #include "debug.h"
 #include "constants.h"
+#include "display-reuse.h"
 #include "glsl.h"
+#include "vertex-staging.h"
 
 #define HAVE_EXTERNAL_MEMORY 1
 
@@ -88,6 +90,7 @@ enum Buffer {
     BUFFER_INDEX,
     BUFFER_INDEX_STAGING,
     BUFFER_VERTEX_RAM,
+    BUFFER_VERTEX_RAM_STAGING,
     BUFFER_VERTEX_INLINE,
     BUFFER_VERTEX_INLINE_STAGING,
     BUFFER_UNIFORM,
@@ -143,6 +146,9 @@ typedef struct SurfaceBinding {
     VmaAllocation allocation_scratch;
 
     bool initialized;
+
+    /* Identifies this logical binding even when its allocation is recycled. */
+    uint64_t lifetime_id;
 } SurfaceBinding;
 
 typedef struct ShaderModuleInfo {
@@ -207,6 +213,14 @@ typedef struct TextureKey {
     uint32_t address;
     uint32_t border_color;
     uint32_t max_anisotropy;
+    /* The route and physical image contract are part of cache identity. */
+    bool surface_to_texture;
+    uint32_t image_width;
+    uint32_t image_height;
+    uint32_t image_depth;
+    uint32_t image_mip_levels;
+    uint32_t image_array_layers;
+    uint32_t image_format;
 } TextureKey;
 
 typedef struct TextureBinding {
@@ -226,6 +240,7 @@ typedef struct TextureBinding {
 typedef struct QueryReport {
     QSIMPLEQ_ENTRY(QueryReport) entry;
     bool clear;
+    DMAObject dma_report;
     uint32_t parameter;
     unsigned int query_count;
 } QueryReport;
@@ -286,6 +301,8 @@ typedef struct PGRAPHVkDisplayState {
     int width, height;
     int draw_time;
 
+    PGRAPHVkDisplayReuseKey reuse;
+
     // OpenGL Interop
 #ifdef WIN32
     HANDLE handle;
@@ -327,6 +344,7 @@ typedef struct PGRAPHVkState {
     bool debug_utils_extension_enabled;
     bool custom_border_color_extension_enabled;
     bool memory_budget_extension_enabled;
+    bool demote_to_helper_extension_enabled;
 
     VkPhysicalDevice physical_device;
     VkPhysicalDeviceFeatures enabled_physical_device_features;
@@ -348,6 +366,8 @@ typedef struct PGRAPHVkState {
 
     VkCommandBuffer aux_command_buffer;
     bool in_aux_command_buffer;
+
+    uint64_t next_surface_lifetime_id;
 
     VkFramebuffer framebuffers[50];
     int framebuffer_index;
@@ -374,6 +394,8 @@ typedef struct PGRAPHVkState {
     MemorySyncRequirement vertex_ram_buffer_syncs[NV2A_VERTEXSHADER_ATTRIBUTES];
     size_t num_vertex_ram_buffer_syncs;
     unsigned long *uploaded_bitmap;
+    MemorySyncRequirement pending_vertex_ram_buffer_syncs[NV2A_VERTEXSHADER_ATTRIBUTES];
+    size_t num_pending_vertex_ram_buffer_syncs;
     size_t bitmap_size;
 
     VkVertexInputAttributeDescription vertex_attribute_descriptions[NV2A_VERTEXSHADER_ATTRIBUTES];
@@ -388,6 +410,7 @@ typedef struct PGRAPHVkState {
     QTAILQ_HEAD(, SurfaceBinding) invalid_surfaces;
     SurfaceBinding *color_binding, *zeta_binding;
     bool downloads_pending;
+    bool downloads_succeeded;
     QemuEvent downloads_complete;
     bool download_dirty_surfaces_pending;
     QemuEvent dirty_surfaces_download_complete; // common
@@ -417,6 +440,8 @@ typedef struct PGRAPHVkState {
     VkQueryPool query_pool;
     int max_queries_in_flight; // FIXME: Move out to constant
     int num_queries_in_flight;
+    uint64_t query_budget_finishes;
+    uint64_t draw_preparation_failures;
     bool new_query_needed;
     bool query_in_flight;
     uint32_t zpass_pixel_count_result;
@@ -471,9 +496,19 @@ void pgraph_vk_destroy_shader_module(PGRAPHVkState *r, ShaderModuleInfo *info);
 // buffer.c
 void pgraph_vk_init_buffers(NV2AState *d);
 void pgraph_vk_finalize_buffers(NV2AState *d);
+bool pgraph_vk_grow_vertex_ram_staging_buffer(PGRAPHState *pg,
+                                               VkDeviceSize required_size);
 bool pgraph_vk_buffer_has_space_for(PGRAPHState *pg, int index,
                                     VkDeviceSize size,
                                     VkDeviceAddress alignment);
+VkDeviceSize pgraph_vk_buffer_required_size(PGRAPHState *pg, int index,
+                                            VkDeviceSize size,
+                                            VkDeviceAddress alignment);
+bool pgraph_vk_ensure_buffer_capacity(PGRAPHState *pg, int index,
+                                      VkDeviceSize required_size);
+void pgraph_vk_ensure_buffer_pair_capacity(PGRAPHState *pg, int index,
+                                           size_t required_size);
+/* Returns VK_WHOLE_SIZE on rejected input or failed capacity preflight. */
 VkDeviceSize pgraph_vk_append_to_buffer(PGRAPHState *pg, int index, void **data,
                                         VkDeviceSize *sizes, size_t count,
                                         VkDeviceAddress alignment);
@@ -510,11 +545,14 @@ void pgraph_vk_init_surfaces(PGRAPHState *pg);
 void pgraph_vk_finalize_surfaces(PGRAPHState *pg);
 void pgraph_vk_surface_flush(NV2AState *d);
 void pgraph_vk_process_pending_downloads(NV2AState *d);
-void pgraph_vk_surface_download_if_dirty(NV2AState *d, SurfaceBinding *surface);
+bool pgraph_vk_surface_download_if_dirty(NV2AState *d,
+                                         SurfaceBinding *surface);
 SurfaceBinding *pgraph_vk_surface_get_within(NV2AState *d, hwaddr addr);
-void pgraph_vk_wait_for_surface_download(SurfaceBinding *e);
+bool pgraph_vk_wait_for_surface_download(SurfaceBinding *e);
 void pgraph_vk_download_dirty_surfaces(NV2AState *d);
-void pgraph_vk_download_surfaces_in_range_if_dirty(PGRAPHState *pg, hwaddr start, hwaddr size);
+bool pgraph_vk_download_surfaces_in_range_if_dirty(PGRAPHState *pg,
+                                                    hwaddr start,
+                                                    hwaddr size);
 void pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
                                    bool force);
 void pgraph_vk_surface_update(NV2AState *d, bool upload, bool color_write,
@@ -553,7 +591,7 @@ void pgraph_vk_trim_texture_cache(PGRAPHState *pg);
 // shaders.c
 void pgraph_vk_init_shaders(PGRAPHState *pg);
 void pgraph_vk_finalize_shaders(PGRAPHState *pg);
-void pgraph_vk_update_descriptor_sets(PGRAPHState *pg);
+bool pgraph_vk_update_descriptor_sets(PGRAPHState *pg);
 void pgraph_vk_bind_shaders(PGRAPHState *pg);
 
 // reports.c
@@ -573,7 +611,9 @@ typedef enum FinishReason {
     VK_FINISH_REASON_PRESENTING,
     VK_FINISH_REASON_FLIP_STALL,
     VK_FINISH_REASON_FLUSH,
+    VK_FINISH_REASON_REPORT,
     VK_FINISH_REASON_STALLED,
+    VK_FINISH_REASON_TEXTURE_DIRTY,
 } FinishReason;
 
 // draw.c

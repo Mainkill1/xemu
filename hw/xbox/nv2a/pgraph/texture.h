@@ -24,33 +24,9 @@
 
 #include "qemu/osdep.h"
 #include "cpu.h"
-
-#include <stdbool.h>
-#include <stdint.h>
-
-#include "hw/xbox/nv2a/nv2a_regs.h"
+#include "hw/xbox/nv2a/pgraph/texture-layout.h"
 
 typedef struct PGRAPHState PGRAPHState;
-
-typedef struct TextureShape {
-    bool cubemap;
-    unsigned int dimensionality;
-    unsigned int color_format;
-    unsigned int levels;
-    unsigned int width, height, depth;
-    bool border;
-
-    unsigned int min_mipmap_level, max_mipmap_level;
-    unsigned int pitch;
-} TextureShape;
-
-typedef struct BasicColorFormatInfo {
-    unsigned int bytes_per_pixel;
-    bool linear;
-    bool depth;
-} BasicColorFormatInfo;
-
-extern const BasicColorFormatInfo kelvin_color_format_info_map[66];
 
 uint8_t *pgraph_convert_texture_data(const TextureShape s, const uint8_t *data,
                                      const uint8_t *palette_data,
@@ -59,10 +35,15 @@ uint8_t *pgraph_convert_texture_data(const TextureShape s, const uint8_t *data,
                                      unsigned int slice_pitch,
                                      size_t *converted_size);
 
-hwaddr pgraph_get_texture_phys_addr(PGRAPHState *pg, int texture_idx);
-hwaddr pgraph_get_texture_palette_phys_addr_length(PGRAPHState *pg, int texture_idx, size_t *length);
+bool pgraph_get_texture_phys_addr_checked(PGRAPHState *pg, int texture_idx,
+                                          size_t required_length,
+                                          hwaddr *offset);
+bool pgraph_get_texture_palette_phys_addr_length_checked(
+    PGRAPHState *pg, int texture_idx, hwaddr *offset, size_t *length);
 TextureShape pgraph_get_texture_shape(PGRAPHState *pg, int texture_idx);
-size_t pgraph_get_texture_length(PGRAPHState *pg, TextureShape *shape);
+bool pgraph_get_texture_length_checked(PGRAPHState *pg,
+                                       const TextureShape *shape,
+                                       size_t *length);
 
 static inline float pgraph_convert_lod_bias_to_float(uint32_t lod_bias)
 {

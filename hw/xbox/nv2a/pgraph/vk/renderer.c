@@ -199,7 +199,9 @@ static int pgraph_vk_get_framebuffer_surface(NV2AState *d)
     return r->display.gl_texture_id;
 #else
     qemu_mutex_unlock(&d->pfifo.lock);
-    pgraph_vk_wait_for_surface_download(surface);
+    if (!pgraph_vk_wait_for_surface_download(surface)) {
+        error_report("nv2a: failed to download display surface");
+    }
     return 0;
 #endif
 }

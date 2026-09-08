@@ -73,6 +73,9 @@
 #include "options.h"
 
 #include "ui/xemu-snapshots.h"
+#ifdef XBOX
+#include "hw/xbox/nv2a/nv2a.h"
+#endif
 
 const unsigned int postcopy_ram_discard_version;
 
@@ -3259,6 +3262,9 @@ bool save_snapshot(const char *name, bool overwrite, const char *vmstate,
 
     global_state_store();
     vm_stop(RUN_STATE_SAVE_VM);
+#ifdef XBOX
+    nv2a_savevm_prepare();
+#endif
 
     bdrv_drain_all_begin();
 
@@ -3309,6 +3315,10 @@ bool save_snapshot(const char *name, bool overwrite, const char *vmstate,
 
  the_end:
     bdrv_drain_all_end();
+#ifdef XBOX
+    /* Includes open/write/close/create failures before the NV2A section. */
+    nv2a_savevm_finish();
+#endif
 
     vm_resume(saved_state);
     return ret == 0;
@@ -3320,7 +3330,7 @@ void qmp_xen_save_devices_state(const char *filename, bool has_live, bool live,
     QEMUFile *f;
     QIOChannelFile *ioc;
     int saved_vm_running;
-    int ret;
+    int ret, close_ret;
 
     if (!has_live) {
         /* live default to true so old version of Xen tool stack can have a
@@ -3330,6 +3340,9 @@ void qmp_xen_save_devices_state(const char *filename, bool has_live, bool live,
 
     saved_vm_running = runstate_is_running();
     vm_stop(RUN_STATE_SAVE_VM);
+#ifdef XBOX
+    nv2a_savevm_prepare();
+#endif
     global_state_store_running();
 
     ioc = qio_channel_file_new_path(filename, O_WRONLY | O_CREAT | O_TRUNC,
@@ -3341,7 +3354,8 @@ void qmp_xen_save_devices_state(const char *filename, bool has_live, bool live,
     f = qemu_file_new_output(QIO_CHANNEL(ioc));
     object_unref(OBJECT(ioc));
     ret = qemu_save_device_state(f);
-    if (ret < 0 || qemu_fclose(f) < 0) {
+    close_ret = qemu_fclose(f);
+    if (ret < 0 || close_ret < 0) {
         error_setg(errp, "saving Xen device state failed");
     } else {
         /* libxl calls the QMP command "stop" before calling
@@ -3356,6 +3370,9 @@ void qmp_xen_save_devices_state(const char *filename, bool has_live, bool live,
     }
 
  the_end:
+#ifdef XBOX
+    nv2a_savevm_finish();
+#endif
     if (saved_vm_running) {
         vm_start();
     }

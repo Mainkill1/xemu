@@ -1,0 +1,186 @@
+{
+  "upstream_repository": "xemu-project/xemu",
+  "upstream_branch": "master",
+  "upstream_commit": "fdfb5a8f481b2f870c57080e74ec8d3a31a47053",
+  "shared_fork_base": "d73326b62199c6dd952ef512947710e1333a49d3",
+  "branch": "integration/upstream-open-prs",
+  "requested_open_prs": [
+    {
+      "baseRefName": "main",
+      "headRefName": "release/eng-2026-523-stable-v2-final",
+      "headRefOid": "dce89f5c12125cfb4a9416a666c84994da0981e2",
+      "isDraft": true,
+      "number": 51,
+      "title": "Prepare the S-based release tree while preserving main history",
+      "base_sha": "586de4f32c11001c0abe072c3530236f1571b372",
+      "merge_base": "586de4f32c11001c0abe072c3530236f1571b372"
+    },
+    {
+      "baseRefName": "release/eng-2026-523-stable-v2-final",
+      "headRefName": "fix/ptimer-future-deadlines",
+      "headRefOid": "cd5af56967f6d4e5c521de3d98bfe64a6872b7f9",
+      "isDraft": true,
+      "number": 48,
+      "title": "nv2a: correct PTIMER deadlines, masked alarms and PLL transitions",
+      "base_sha": "5151c3887a3fb8b401d3cf6940c59be77ee4a088",
+      "merge_base": "5151c3887a3fb8b401d3cf6940c59be77ee4a088"
+    },
+    {
+      "baseRefName": "validate/eng-2026-523-wait-xiso-markers",
+      "headRefName": "feature/performance-tweak-sliders",
+      "headRefOid": "1636d1ef9ffee4a1734a5187760e5805dea7c232",
+      "isDraft": true,
+      "number": 37,
+      "title": "Add performance toggles to Settings \u2192 Advance",
+      "base_sha": "a2a444a85f29dab215bbd646ce1a32a690a9fd1b",
+      "merge_base": "a2a444a85f29dab215bbd646ce1a32a690a9fd1b"
+    },
+    {
+      "baseRefName": "integration/eng-2026-523-stable-next-acceptance",
+      "headRefName": "validate/eng-2026-523-wait-xiso-markers",
+      "headRefOid": "a2a444a85f29dab215bbd646ce1a32a690a9fd1b",
+      "isDraft": false,
+      "number": 25,
+      "title": "ENG-2026-523: Qualify optional Windows CPU-saving waits on S",
+      "base_sha": "208e4596832a1f949bd63822d5ddd962c4575067",
+      "merge_base": "208e4596832a1f949bd63822d5ddd962c4575067"
+    },
+    {
+      "baseRefName": "fix/eng-2026-523-texture-dma-contract-ue7eb6770",
+      "headRefName": "fix/eng-2026-523-linear-texture-source-span",
+      "headRefOid": "2e801ab07c4a8d0a87defd2ba70ddad3b3e1041c",
+      "isDraft": false,
+      "number": 18,
+      "title": "ENG-2026-523: Validate linear texture source spans",
+      "base_sha": "37823ccf18263764c82ceb6698201330a22a6c65",
+      "merge_base": "37823ccf18263764c82ceb6698201330a22a6c65"
+    },
+    {
+      "baseRefName": "fix/eng-2026-523-cumulative-s-vulkan-bordered-cubemap-copy-ueda1ccde",
+      "headRefName": "fix/eng-2026-523-texture-dma-contract-ue7eb6770",
+      "headRefOid": "37823ccf18263764c82ceb6698201330a22a6c65",
+      "isDraft": false,
+      "number": 16,
+      "title": "ENG-2026-523: Validate texture DMA class and target",
+      "base_sha": "cb89434e45a5191eda85abba25812192fe1c9b21",
+      "merge_base": "cb89434e45a5191eda85abba25812192fe1c9b21"
+    },
+    {
+      "baseRefName": "fix/eng-2026-523-cumulative-s-native-gl-s3tc-border-mips-u393db700",
+      "headRefName": "fix/eng-2026-523-cumulative-s-vulkan-bordered-cubemap-copy-ueda1ccde",
+      "headRefOid": "cb89434e45a5191eda85abba25812192fe1c9b21",
+      "isDraft": false,
+      "number": 15,
+      "title": "ENG-2026-523: Fix Vulkan bordered cubemap mip copy extents",
+      "base_sha": "eb338262714ef0b1e23fd60a2c168300443377ac",
+      "merge_base": "eb338262714ef0b1e23fd60a2c168300443377ac"
+    },
+    {
+      "baseRefName": "integration/eng-2026-523-stable-next-acceptance",
+      "headRefName": "fix/eng-2026-523-cumulative-s-native-gl-s3tc-border-mips-u393db700",
+      "headRefOid": "eb338262714ef0b1e23fd60a2c168300443377ac",
+      "isDraft": false,
+      "number": 14,
+      "title": "ENG-2026-523 Fix: Repair bordered cubemap S3TC mips on cumulative S",
+      "base_sha": "208e4596832a1f949bd63822d5ddd962c4575067",
+      "merge_base": "208e4596832a1f949bd63822d5ddd962c4575067"
+    },
+    {
+      "baseRefName": "integration/eng-2026-523-stable-next-acceptance",
+      "headRefName": "feature/eng-2026-489-s-bounded-vulkan-scratch-u0400e31f",
+      "headRefOid": "a6533fd5726761f0561e0a810f691f87ad3bb93b",
+      "isDraft": false,
+      "number": 11,
+      "title": "ENG-2026-489: Propagate Vulkan preparation failures on cumulative S",
+      "base_sha": "208e4596832a1f949bd63822d5ddd962c4575067",
+      "merge_base": "208e4596832a1f949bd63822d5ddd962c4575067"
+    },
+    {
+      "baseRefName": "integration/eng-2026-433-s-pr09-reviewed-parent",
+      "headRefName": "feature/eng-2026-433-s-pr09-pfifo-bulk-uc037deed",
+      "headRefOid": "c4a57d4c675eba26b2132184b3dd33754217932c",
+      "isDraft": false,
+      "number": 10,
+      "title": "ENG-2026-433: Bulk inline vertex and index packets on Stable S",
+      "base_sha": "0fdf1f9d57c6447bd97be5b3a95edfc8c039d913",
+      "merge_base": "0fdf1f9d57c6447bd97be5b3a95edfc8c039d913"
+    },
+    {
+      "baseRefName": "integration/eng-2026-432-s-pr08-reviewed-parent",
+      "headRefName": "feature/eng-2026-432-s-pr08-fence-fastpath-u215c1e13",
+      "headRefOid": "67178d0af1e9b7e4a4019dd5c2c77e9045ae8b3b",
+      "isDraft": false,
+      "number": 9,
+      "title": "ENG-2026-432: Narrow atomic PGRAPH fence read",
+      "base_sha": "d03cc91c0d5ee82ea10c9b4782042aeec0299ee1",
+      "merge_base": "d03cc91c0d5ee82ea10c9b4782042aeec0299ee1"
+    },
+    {
+      "baseRefName": "integration/eng-2026-450-s-pr07-reviewed-parent",
+      "headRefName": "feature/eng-2026-450-s-pr07-buffer-growth-ubb8eb96f",
+      "headRefOid": "33151b41fda28dc318da777fac12568cffa550c7",
+      "isDraft": false,
+      "number": 8,
+      "title": "ENG-2026-450: Grow Vulkan transient vertex buffers on demand",
+      "base_sha": "54e557d4dcb88d72b687ee578c4247e86350f81b",
+      "merge_base": "54e557d4dcb88d72b687ee578c4247e86350f81b"
+    },
+    {
+      "baseRefName": "integration/eng-2026-430-s-pr06-reviewed-parent",
+      "headRefName": "feature/eng-2026-430-s-pr06-vertex-ranges-ud8087b2e",
+      "headRefOid": "2c292414a8eac2f147deb997b12ff8bd1a6b3685",
+      "isDraft": false,
+      "number": 7,
+      "title": "ENG-2026-430: Bound Vulkan remapped vertex uploads",
+      "base_sha": "c07094a5cfd2f72527cd7232be16356e34a467c6",
+      "merge_base": "c07094a5cfd2f72527cd7232be16356e34a467c6"
+    },
+    {
+      "baseRefName": "integration/eng-2026-425-s-pr03-reviewed-parent",
+      "headRefName": "feature/eng-2026-425-s-pr03-texture-coherence-u1b7aa862",
+      "headRefOid": "c1462ad7d88a1d9d20c42ee70ed3661276039aba",
+      "isDraft": false,
+      "number": 6,
+      "title": "ENG-2026-425 Correctness: revalidate bound Vulkan texture memory on S",
+      "base_sha": "46c4ed6647a4d72cff4f85a42a8d6bef897a5061",
+      "merge_base": "46c4ed6647a4d72cff4f85a42a8d6bef897a5061"
+    },
+    {
+      "baseRefName": "integration/eng-2026-523-stable-correctness-baseline",
+      "headRefName": "feature/eng-2026-523-s-pr02-color-download-ua6011d65",
+      "headRefOid": "3f9e6b6fa379420d159a3286d5ce3b3279268540",
+      "isDraft": false,
+      "number": 5,
+      "title": "ENG-2026-523: Port Vulkan color-download submission folding onto Stable S",
+      "base_sha": "49a5328eb748fb2617c3720cca9b29f9e0770ec2",
+      "merge_base": "bc60883c4ef05912c5b4b29051ba64341f576b15"
+    },
+    {
+      "baseRefName": "integration/eng-2026-523-stable-next-acceptance",
+      "headRefName": "fix/eng-2026-523-gloffscreen-owned-resources-u39e70992",
+      "headRefOid": "d7223fb8a65a20488c60d86cd689dfa2a833f189",
+      "isDraft": false,
+      "number": 2,
+      "title": "ENG-2026-523 Fix: release owned SDL context and hidden window",
+      "base_sha": "208e4596832a1f949bd63822d5ddd962c4575067",
+      "merge_base": "208e4596832a1f949bd63822d5ddd962c4575067"
+    }
+  ],
+  "requested_merged_prs": [
+    {
+      "baseRefName": "release/eng-2026-523-stable-v2-final",
+      "headRefOid": "bab07eb3892052c5a0ff74245587f9c7e012c113",
+      "mergedAt": "2026-09-08T21:01:57Z",
+      "number": 50,
+      "title": "NV2A: balance paused snapshot saves and failure cleanup"
+    },
+    {
+      "baseRefName": "release/eng-2026-523-stable-v2-final",
+      "headRefOid": "ff9625dddb32e9c5e60f548c5c19015f4d0a6f54",
+      "mergedAt": "2026-09-08T19:17:16Z",
+      "number": 47,
+      "title": "lru: skip free-node scans when the cache is full"
+    }
+  ],
+  "qualification": "pending; previous-parent results are not upstream qualification"
+}
