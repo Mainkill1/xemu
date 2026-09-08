@@ -79,8 +79,13 @@ Historical uninstrumented OpenGL output comparison has a separate limitation:
 the two S reports differ in the internal count (15 versus 14) for the
 unsynchronized same-address S3TC test. That record already excludes framebuffer
 and tile-center observations because per-draw source generation is undefined.
-The count's semantics still need checking; a full OpenGL consensus pass is not
-claimed, and this difference is not attributed to the wait candidate.
+Source review at guest revision `baf221e339f40801fee9ddd3abf1e1a6d21a1f0a`
+confirmed that the count is derived from the same excluded framebuffer readback.
+The comparison tool retains that diagnostic count despite the declared
+inapplicability. [Issue #26](https://github.com/Mainkill1/xemu/issues/26) records
+source locations and required regression tests. A full OpenGL consensus pass
+is still not claimed: the recorded tool failure remains until a separately
+validated comparison repair is applied to the sealed evidence.
 
 ## Profiling-stall repair: native follow-up
 
