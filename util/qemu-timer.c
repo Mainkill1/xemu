@@ -89,7 +89,6 @@ typedef struct XboxPollSpinProfile {
     XboxPollDeadlineSource context_source;
     XboxTimerDeadlineInfo context_timer;
     XboxPollOwnerProfile owners[XBOX_POLL_PROFILE_OWNER_MAX];
-    int64_t last_report_ns;
 #ifdef _WIN32
     HANDLE reset_event;
     HANDLE reset_ack_event;
@@ -443,8 +442,7 @@ static void xbox_poll_spin_profile_record(int64_t requested_ns,
                                           uint64_t iterations,
                                           int64_t late_ns,
                                           guint nfds,
-                                          int poll_ret,
-                                          int64_t now_ns)
+                                          int poll_ret)
 {
     XboxPollSpinProfile *profile = &xbox_poll_spin_profile;
     unsigned int bucket;
@@ -480,12 +478,10 @@ static void xbox_poll_spin_profile_record(int64_t requested_ns,
     profile->max_fds = MAX(profile->max_fds, (uint64_t)nfds);
     xbox_poll_profile_record_context(profile, requested_ns, spin_ns);
 
-    if (!profile->last_report_ns) {
-        profile->last_report_ns = now_ns;
-    } else if (now_ns - profile->last_report_ns >= NANOSECONDS_PER_SECOND) {
-        xbox_poll_profile_emit(profile, "periodic");
-        profile->last_report_ns = now_ns;
-    }
+    /*
+     * Emit only through the explicit flush control after measurement.
+     * Synchronous diagnostic output here stalls the emulation loop.
+     */
 }
 
 static void xbox_poll_profile_record_nonspin(int64_t timeout, int poll_ret)
@@ -507,11 +503,6 @@ static void xbox_poll_profile_record_nonspin(int64_t timeout, int poll_ret)
     profile->nonspin_ready_exits += poll_ret > 0;
     profile->nonspin_errors += poll_ret < 0;
     xbox_poll_profile_record_context(profile, timeout, 0);
-
-    /* Capture a zero-timeout-only tail without another clock read. */
-    if (!(profile->all_calls & 4095)) {
-        xbox_poll_profile_emit(profile, "zero-tail");
-    }
 }
 #endif
 
@@ -1033,7 +1024,7 @@ int qemu_poll_ns(GPollFD *fds, guint nfds, int64_t timeout)
         }
         ret = g_poll(fds, nfds, 0);
         xbox_poll_spin_profile_record(timeout, now - start, iterations,
-                                      MAX(now - end, 0), nfds, ret, now);
+                                      MAX(now - end, 0), nfds, ret);
         return ret;
     }
 #endif
