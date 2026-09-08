@@ -1,11 +1,19 @@
 # Windows short-wait investigation
 
-Status: **held; qualification incomplete**. This records completed diagnostics,
-not an accepted XISO speedup or a complete PGR2 lag fix. Related work:
+Status: **qualified as an optional, default-off CPU-efficiency tweak**. This is
+not an XISO speedup or a complete PGR2 lag fix. Related work:
 [issue 19](https://github.com/Mainkill1/xemu/issues/19) and
 [active PR 25](https://github.com/Mainkill1/xemu/pull/25).
 Historical research remains in [PR 24](https://github.com/Mainkill1/xemu/pull/24).
 [Branch archive and consolidation record](branch-archive.md).
+
+The final production-scoped head is `a0bb1187b4f49e7a790c770b0ced487d32eca99a`.
+Its Windows Release/full-LTO/x86-64-v3 executable is SHA-256
+`9df0a0f15d596c9e04ba2581ad4567271ac8679e4640b9d4328149beae320e60`.
+The native Windows poll suite passed 10/10. The measured wait, UI, configuration,
+and focused-test files are byte-identical to qualified implementation
+`0edb216c23ab071042bb26005267d0c3816337cd`; the final commit removes only the
+validation-only XISO marker receiver from shipping source.
 
 ## Retail: same executable, setting off/on
 
@@ -157,7 +165,7 @@ configuration also copied its read-only attribute, preventing the runner's
 private-config update. Those failure packets remain. One retry used writable
 private inputs with identical bytes/hashes; original templates, runner and
 button sequence were unchanged. Morrowind was not rerun for this repair.
-Retail CPU-thread/GPU-resource comparison from these traces is not yet compiled;
+Retail CPU-thread/GPU-resource comparison from these traces is published above.
 XISO resource measurements remain separate from these cadence measurements.
 
 ## Optional setting: same-build Vulkan comparison
@@ -235,24 +243,12 @@ internal count differs (14 versus 15), as in the historical production pair.
 The remaining normalized record fields match. This is a qualification limitation,
 not a demonstrated candidate regression; it is preserved in the oracle report.
 
-The next implementation, `0edb216c23ab071042bb26005267d0c3816337cd`, makes the wait
-an optional **Tweaks → Reduce CPU usage while waiting** setting, off by default.
-Its Release executable is built (SHA-256
-`caeb70731620b16e85cb5fb92564a2346180edf92bdf353c8aae86c0a164d1da`), but native
-qualification is pending. Earlier measurements do not qualify this new build.
-The intended comparison uses this single executable with the setting off/on.
-
-Historical uninstrumented OpenGL output comparison has a separate limitation:
-the two S reports differ in the internal count (15 versus 14) for the
-unsynchronized same-address S3TC test. That record already excludes framebuffer
-and tile-center observations because per-draw source generation is undefined.
-Source review at guest revision `baf221e339f40801fee9ddd3abf1e1a6d21a1f0a`
-confirmed that the count is derived from the same excluded framebuffer readback.
-The comparison tool retains that diagnostic count despite the declared
-inapplicability. [Issue #26](https://github.com/Mainkill1/xemu/issues/26) records
-source locations and required regression tests. A full OpenGL consensus pass
-is still not claimed: the recorded tool failure remains until a separately
-validated comparison repair is applied to the sealed evidence.
+Implementation `0edb216c23ab071042bb26005267d0c3816337cd` makes the wait an
+optional **Tweaks → Reduce CPU usage while waiting** setting, off by default.
+The same executable completed off/on XISO, Morrowind, fresh-start PGR2, and the
+PGR2 lag snapshot on both renderers. OpenGL output consensus passes after the
+separately tested comparator repair tracked and closed in
+[issue #26](https://github.com/Mainkill1/xemu/issues/26).
 
 ## Profiling-stall repair: native follow-up
 
@@ -344,8 +340,9 @@ this configuration. The recording paths synchronously emitted diagnostic
 batches during emulation. Research repair
 `172c4bd80a2e4583e39b83190a4a6807d8ab9115` removes automatic emission and
 retains explicit reset/flush controls. A compiled source test failed before
-that repair and passes after it under ASan/UBSan; native repair validation is
-still pending. This does not establish the cause of every earlier freeze.
+that repair and passes after it under ASan/UBSan; the native follow-up above
+removed the recurring long-gap pattern. This does not establish the cause of
+every earlier freeze.
 
 [Full measurements](morrowind-profile-on-off.csv),
 [every long interval](morrowind-profile-on-off-gaps.csv).
@@ -454,18 +451,20 @@ FillRate +10.73%, TinyDraw +3.81%, and SurfaceRendering +3.43%.
 Host wall time and guest measured time have different boundaries and even
 move in opposite directions here; do not substitute one for the other.
 
-## Exclusions and remaining gates
+## Exclusions and final disposition
 
 Two PGR2 captures were falsely marked complete while still in menus:
 the research control/OpenGL at Select Transmission (56.981 FPS), and a later
 research candidate/OpenGL at Start Race (58.907 FPS). Both are excluded from
 race comparisons. Menu animation and successful key injection are not proof
 that the target gameplay state was reached. The original PFIFOSaturation stall
-also remains unexplained despite successful later reproduction attempts.
+was not reproduced in the completed later campaigns and is not attributed to
+the wait option.
 
-Required before acceptance: finish both-renderer XISO comparisons with valid
-marker timing, inspect unfavorable per-test results, qualify the repaired
-profiling head natively, verify full-start PGR2 gameplay, and complete repeated
-production CPU/frame-time comparisons. The previous large CPU savings from a
-different research head do not qualify this extraction or prove faster XISO
-completion. Keep the lane held until these requirements are satisfied.
+The timer lane is accepted for its demonstrated CPU reduction with the setting
+off by default. Same-build XISO, Morrowind, fresh-start PGR2, PGR2 end images,
+the actual lag snapshot, configuration checks, and native poll tests are
+complete. The option does not materially improve XISO test time and does not
+remove the underlying Vulkan lag snapshot limit, so neither claim is made.
+Remaining non-timer vCPU, APU, and PFIFO work belongs to separate performance
+work and does not block this optional host-wait choice.
