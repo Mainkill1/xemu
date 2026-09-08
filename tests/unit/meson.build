@@ -65,6 +65,7 @@ tests = {
   'test-interval-tree': [],
   'test-fifo': [],
   'test-lru-active': [],
+  'test-lru-full': [],
 }
 
 # This real graphics lifecycle test skips unless explicitly enabled on a host
