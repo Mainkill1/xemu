@@ -1,5 +1,9 @@
 # PTIMER future deadlines
 
+Current follow-up: [acknowledgment and stopped-clock reconciliation](RECONCILIATION.md).
+The arithmetic results below qualify the earlier identified implementation;
+the follow-up records its own source identity and 19-test result.
+
 Issue #39 concerns device deadline arithmetic, independently of the Windows host
 wait and masked-alarm scheduling in #40. The parent rounds both inverse clock
 conversions down and adds the result to a later clock sample. Positive alarm

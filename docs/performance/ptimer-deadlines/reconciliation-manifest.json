@@ -1,0 +1,16 @@
+{
+  "source_commit": "8f85f6b3edd5ef3ecd4b8305af818efc4bc197f9",
+  "parent_commit": "d29e1ca90642d46d33a14df69bd99344e20f2639",
+  "unit_sha256": "6947d00261d8064df09ddcde5736ab84aa253e293f6a05c819093b4ae3f12e29",
+  "inputs": {
+    "hw/xbox/nv2a/ptimer.c": "deb691347017c900b6b7a605529a5564355b1d8fdd1e7365eef0523624115a27",
+    "tests/unit/test-xbox-nv2a-ptimer.c": "f1032c02b9a8397282abf1d78a6ef10799937a98f489f457aa35e71c04396841",
+    "tests/unit/ptimer-test-stubs.c": "cb742a6dd64547c510a582f4c2c09708fc00906d61953126151dec4e237e754a",
+    "tests/unit/xbox-nv2a-ptimer-test-shim.h": "72f115849e6492781d1bac53d5a8da3795f87fd1187ad50cb934b3c586684f37"
+  },
+  "execution": "Windows-target production-TU unit under Wine, -O2, CONFIG_INT128",
+  "tests_passed": 19,
+  "forward_oracle_cases": 34560,
+  "parent_negative_controls": 3,
+  "native_emulator_qualification": "pending"
+}
