@@ -99,6 +99,8 @@ typedef struct XboxPollSpinProfile {
 static __thread XboxPollSpinProfile xbox_poll_spin_profile;
 
 #ifdef _WIN32
+static LONG xbox_poll_profile_control_tid;
+
 static HANDLE xbox_poll_profile_named_event(const wchar_t *operation,
                                             const wchar_t *suffix)
 {
@@ -117,6 +119,15 @@ static void xbox_poll_profile_init_controls(XboxPollSpinProfile *profile)
     profile->flush_event = xbox_poll_profile_named_event(L"Flush", L"");
     profile->flush_ack_event = xbox_poll_profile_named_event(L"Flush", L"-Ack");
 }
+
+static bool xbox_poll_profile_control_thread(void)
+{
+    LONG tid = GetCurrentThreadId();
+    LONG control_tid = InterlockedCompareExchange(
+        &xbox_poll_profile_control_tid, tid, 0);
+
+    return control_tid == 0 || control_tid == tid;
+}
 #endif
 
 static bool xbox_poll_spin_profile_enabled(XboxPollSpinProfile *profile)
@@ -126,11 +137,6 @@ static bool xbox_poll_spin_profile_enabled(XboxPollSpinProfile *profile)
 
         profile->enabled = value && strcmp(value, "0");
         profile->initialized = true;
-#ifdef _WIN32
-        if (profile->enabled) {
-            xbox_poll_profile_init_controls(profile);
-        }
-#endif
     }
     return profile->enabled;
 }
@@ -261,6 +267,11 @@ void xbox_poll_profile_set_context(XboxPollDeadlineSource source,
     if (!xbox_poll_spin_profile_enabled(profile)) {
         return;
     }
+#ifdef _WIN32
+    if (xbox_poll_profile_control_thread() && !profile->reset_event) {
+        xbox_poll_profile_init_controls(profile);
+    }
+#endif
     xbox_poll_profile_apply_controls(profile);
 
     profile->context_source = source;
