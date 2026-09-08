@@ -141,7 +141,8 @@ static bool xbox_poll_spin_profile_enabled(XboxPollSpinProfile *profile)
     return profile->enabled;
 }
 
-static void xbox_poll_profile_emit(XboxPollSpinProfile *profile);
+static void xbox_poll_profile_emit(XboxPollSpinProfile *profile,
+                                   const char *reason);
 
 static void xbox_poll_profile_reset(XboxPollSpinProfile *profile)
 {
@@ -177,7 +178,7 @@ static void xbox_poll_profile_apply_controls(XboxPollSpinProfile *profile)
     }
     if (profile->flush_event &&
         WaitForSingleObject(profile->flush_event, 0) == WAIT_OBJECT_0) {
-        xbox_poll_profile_emit(profile);
+        xbox_poll_profile_emit(profile, "flush");
         if (profile->flush_ack_event) {
             SetEvent(profile->flush_ack_event);
         }
@@ -312,12 +313,14 @@ static void xbox_poll_profile_record_callback(QEMUTimerCB *callback,
     owner->callback_max_late_ns = MAX(owner->callback_max_late_ns, late_ns);
 }
 
-static void xbox_poll_profile_emit(XboxPollSpinProfile *profile)
+static void xbox_poll_profile_emit(XboxPollSpinProfile *profile,
+                                   const char *reason)
 {
     unsigned int i;
 
     fprintf(stderr,
             "XEMU_QEMU_POLL_PROFILE v=5 tid=%d phase=%" PRIu64
+            " reason=%s"
             " all_calls=%" PRIu64
             " negative_calls=%" PRIu64 " zero_calls=%" PRIu64
             " long_calls=%" PRIu64 " entries=%" PRIu64
@@ -334,7 +337,8 @@ static void xbox_poll_profile_emit(XboxPollSpinProfile *profile)
             ",%" PRIu64 ",%" PRIu64 " source_spins=%" PRIu64 ",%" PRIu64
             ",%" PRIu64 ",%" PRIu64 ",%" PRIu64
             " owner_overflow=%" PRIu64 "\n",
-            qemu_get_thread_id(), profile->phase, profile->all_calls,
+            qemu_get_thread_id(), profile->phase, reason,
+            profile->all_calls,
             profile->negative_calls, profile->zero_calls,
             profile->long_calls, profile->entries,
             profile->timeout_buckets[0], profile->timeout_buckets[1],
@@ -423,7 +427,7 @@ static void xbox_poll_spin_profile_record(int64_t requested_ns,
     if (!profile->last_report_ns) {
         profile->last_report_ns = now_ns;
     } else if (now_ns - profile->last_report_ns >= NANOSECONDS_PER_SECOND) {
-        xbox_poll_profile_emit(profile);
+        xbox_poll_profile_emit(profile, "periodic");
         profile->last_report_ns = now_ns;
     }
 }
@@ -450,7 +454,7 @@ static void xbox_poll_profile_record_nonspin(int64_t timeout, int poll_ret)
 
     /* Capture a zero-timeout-only tail without another clock read. */
     if (!(profile->all_calls & 4095)) {
-        xbox_poll_profile_emit(profile);
+        xbox_poll_profile_emit(profile, "zero-tail");
     }
 }
 #endif
