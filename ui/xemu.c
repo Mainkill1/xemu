@@ -30,6 +30,7 @@
 #include "qemu/osdep.h"
 #include "qemu/module.h"
 #include "qemu/thread.h"
+#include "qemu/timer.h"
 #include "qemu/main-loop.h"
 #include "qemu/rcu.h"
 #include "qemu-version.h"
@@ -1331,6 +1332,7 @@ int main(int argc, char **argv)
         SDL_Quit();
         exit(1);
     }
+    qemu_poll_set_cpu_saving(g_config.tweaks.cpu_saving_wait);
     atexit(xemu_settings_save);
 
 #ifdef _WIN32

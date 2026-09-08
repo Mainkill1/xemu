@@ -321,6 +321,19 @@ int qemu_timeout_ns_to_ms(int64_t ns)
 }
 
 
+/* Changed by the UI; read by polling threads at the next wait. */
+static bool qemu_poll_cpu_saving;
+
+void qemu_poll_set_cpu_saving(bool enabled)
+{
+    qatomic_set(&qemu_poll_cpu_saving, enabled);
+}
+
+bool qemu_poll_get_cpu_saving(void)
+{
+    return qatomic_read(&qemu_poll_cpu_saving);
+}
+
 #if defined(XBOX) && defined(_WIN32)
 #ifndef CREATE_WAITABLE_TIMER_HIGH_RESOLUTION
 #define CREATE_WAITABLE_TIMER_HIGH_RESOLUTION 0x00000002
@@ -538,10 +551,12 @@ int qemu_poll_ns(GPollFD *fds, guint nfds, int64_t timeout)
     #define XBOX_BUSYWAIT_THRESHOLD_NS 1250000
     if ((0 < timeout) && (timeout < XBOX_BUSYWAIT_THRESHOLD_NS)) {
 #ifdef _WIN32
-        int ret = xbox_high_resolution_poll_ns(fds, nfds, timeout);
+        if (qemu_poll_get_cpu_saving()) {
+            int ret = xbox_high_resolution_poll_ns(fds, nfds, timeout);
 
-        if (ret != INT_MIN) {
-            return ret;
+            if (ret != INT_MIN) {
+                return ret;
+            }
         }
 #endif
         int64_t now = qemu_clock_get_ns(QEMU_CLOCK_REALTIME);
