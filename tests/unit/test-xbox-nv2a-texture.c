@@ -1,12 +1,20 @@
 /* Focused tests for the NV2A encoded texture source layout. */
 #include "qemu/osdep.h"
 #include "hw/xbox/nv2a/pgraph/texture-layout.h"
+#include "hw/xbox/nv2a/pgraph/util.h"
+
+#define TEST_YUY2_FORMAT \
+    NV097_SET_TEXTURE_FORMAT_COLOR_LC_IMAGE_CR8YB8CB8YA8
+#define TEST_UYVY_FORMAT \
+    NV097_SET_TEXTURE_FORMAT_COLOR_LC_IMAGE_YB8CR8YA8CB8
 
 const BasicColorFormatInfo kelvin_color_format_info_map[66] = {
     [NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT1_A1R5G5B5] = { 4, false },
     [NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT23_A8R8G8B8] = { 4, false },
     [NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8R8G8B8] = { 4, false },
     [NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_A8R8G8B8] = { 4, true },
+    [TEST_YUY2_FORMAT] = { 2, true },
+    [TEST_UYVY_FORMAT] = { 2, true },
 };
 
 static void test_bordered_bc2(void)
@@ -262,6 +270,108 @@ static void test_linear_texture_span_dma_boundaries(void)
         0x1000, 0, length, length - 1, 0x1000 + length - 1));
 }
 
+static void test_packed_yuv_linear_texture_source_span(void)
+{
+    const unsigned int formats[] = {
+        TEST_YUY2_FORMAT,
+        TEST_UYVY_FORMAT,
+    };
+
+    for (unsigned int i = 0; i < ARRAY_SIZE(formats); i++) {
+        TextureShape shape = {
+            .dimensionality = 2,
+            .color_format = formats[i],
+            .levels = 1,
+            .height = 1,
+        };
+        size_t length;
+
+        shape.width = 1;
+        shape.pitch = 2;
+        g_assert_false(pgraph_calculate_texture_encoded_size(
+            shape, false, 2, &length));
+        shape.pitch = 4;
+        g_assert_true(pgraph_calculate_texture_encoded_size(
+            shape, false, 2, &length));
+        g_assert_cmpuint(length, ==, 4);
+
+        shape.width = 2;
+        g_assert_true(pgraph_calculate_texture_encoded_size(
+            shape, false, 2, &length));
+        g_assert_cmpuint(length, ==, 4);
+
+        shape.width = 3;
+        shape.pitch = 6;
+        g_assert_false(pgraph_calculate_texture_encoded_size(
+            shape, false, 2, &length));
+        shape.pitch = 8;
+        g_assert_true(pgraph_calculate_texture_encoded_size(
+            shape, false, 2, &length));
+        g_assert_cmpuint(length, ==, 8);
+
+        shape.width = 4;
+        g_assert_true(pgraph_calculate_texture_encoded_size(
+            shape, false, 2, &length));
+        g_assert_cmpuint(length, ==, 8);
+
+        shape.width = 3;
+        shape.height = 2;
+        shape.pitch = 12;
+        g_assert_true(pgraph_calculate_texture_encoded_size(
+            shape, false, 2, &length));
+        g_assert_cmpuint(length, ==, 20);
+    }
+}
+
+static void test_packed_yuv_decode_stays_within_approved_span(void)
+{
+    const unsigned int formats[] = {
+        TEST_YUY2_FORMAT,
+        TEST_UYVY_FORMAT,
+    };
+
+    for (unsigned int i = 0; i < ARRAY_SIZE(formats); i++) {
+        for (unsigned int width = 1; width <= 4; width++) {
+            for (unsigned int padding = 0; padding <= 4; padding += 4) {
+                TextureShape shape = {
+                    .dimensionality = 2,
+                    .color_format = formats[i],
+                    .levels = 1,
+                    .width = width,
+                    .height = 2,
+                    .pitch = ROUND_UP(width, 2) * 2 + padding,
+                };
+                size_t length;
+
+                g_assert_true(pgraph_calculate_texture_encoded_size(
+                    shape, false, 2, &length));
+                g_autofree uint8_t *source = g_malloc0(length);
+
+                for (unsigned int y = 0; y < shape.height; y++) {
+                    const uint8_t *line = source + y * shape.pitch;
+                    for (unsigned int x = 0; x < shape.width; x++) {
+                        uint8_t r, g, b;
+
+                        if (formats[i] == TEST_YUY2_FORMAT) {
+                            convert_yuy2_to_rgb(line, x, &r, &g, &b);
+                        } else {
+                            convert_uyvy_to_rgb(line, x, &r, &g, &b);
+                        }
+                    }
+                }
+
+                g_assert_true(pgraph_texture_dma_range_valid(
+                    0x1000, 0, length, length - 1, 0x1000 + length));
+                g_assert_false(pgraph_texture_dma_range_valid(
+                    0x1000, 0, length, length - 2, 0x1000 + length));
+                g_assert_false(pgraph_texture_dma_range_valid(
+                    0x1000, 0, length, length - 1,
+                    0x1000 + length - 1));
+            }
+        }
+    }
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -288,5 +398,9 @@ int main(int argc, char **argv)
                     test_linear_texture_source_span);
     g_test_add_func("/xbox/nv2a/texture/linear-source-dma-boundaries",
                     test_linear_texture_span_dma_boundaries);
+    g_test_add_func("/xbox/nv2a/texture/packed-yuv-source-span",
+                    test_packed_yuv_linear_texture_source_span);
+    g_test_add_func("/xbox/nv2a/texture/packed-yuv-decode-span",
+                    test_packed_yuv_decode_stays_within_approved_span);
     return g_test_run();
 }

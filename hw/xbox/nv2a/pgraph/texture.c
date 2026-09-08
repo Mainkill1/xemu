@@ -176,9 +176,9 @@ bool pgraph_get_texture_length_checked(PGRAPHState *pg,
         if (shape->cubemap || shape->dimensionality != 2) {
             return false;
         }
-        return pgraph_calculate_linear_texture_span(
-            shape->width, shape->height, shape->pitch, f.bytes_per_pixel,
-            length);
+        return pgraph_calculate_linear_texture_span_for_format(
+            shape->color_format, shape->width, shape->height, shape->pitch,
+            f.bytes_per_pixel, length);
     }
 
     return pgraph_calculate_texture_encoded_size(
