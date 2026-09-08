@@ -1,7 +1,25 @@
 tweaks:
   cpu_saving_wait:
     type: bool
-    default: false
+    default: true
+  pgraph_bulk_packets:
+    type: bool
+    default: true
+  pgraph_fence_fastpath:
+    type: bool
+    default: true
+  vk_color_download_folding:
+    type: bool
+    default: true
+  vk_bounded_vertex_uploads:
+    type: bool
+    default: true
+  vk_transient_buffer_growth:
+    type: bool
+    default: true
+  gl_native_s3tc:
+    type: bool
+    default: true
 
 general:
   show_welcome:

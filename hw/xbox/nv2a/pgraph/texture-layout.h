@@ -22,12 +22,48 @@ typedef struct TextureShape {
     unsigned int dimensionality;
     unsigned int color_format;
     unsigned int levels;
+    unsigned int storage_levels;
     unsigned int width, height, depth;
     bool border;
 
     unsigned int min_mipmap_level, max_mipmap_level;
     unsigned int pitch;
 } TextureShape;
+
+typedef struct PGRAPHTextureMipCrop {
+    unsigned int width;
+    unsigned int height;
+    unsigned int skip_pixels;
+    unsigned int skip_rows;
+} PGRAPHTextureMipCrop;
+
+static inline PGRAPHTextureMipCrop pgraph_bordered_texture_mip_crop(
+    unsigned int base_width, unsigned int base_height,
+    unsigned int stored_width, unsigned int stored_height,
+    unsigned int level)
+{
+    unsigned int width = base_width;
+    unsigned int height = base_height;
+    unsigned int mip_level = level;
+
+    while (level--) {
+        width = width > 1 ? width / 2 : 1;
+        height = height > 1 ? height / 2 : 1;
+    }
+
+    width = MIN(width, stored_width);
+    height = MIN(height, stored_height);
+    unsigned int border = mip_level < 3 ? 4U >> mip_level : 0;
+    unsigned int skip_pixels = MIN(border, stored_width - width);
+    unsigned int skip_rows = MIN(border, stored_height - height);
+
+    return (PGRAPHTextureMipCrop) {
+        .width = width,
+        .height = height,
+        .skip_pixels = skip_pixels,
+        .skip_rows = skip_rows,
+    };
+}
 
 typedef struct BasicColorFormatInfo {
     unsigned int bytes_per_pixel;
@@ -125,6 +161,7 @@ static inline bool pgraph_calculate_texture_encoded_size(
     size_t *length)
 {
     unsigned int width, height, depth;
+    unsigned int level_count = shape.levels;
     size_t total = 0;
     uint64_t level_size, blocks;
     const uint64_t block_size =
@@ -148,7 +185,10 @@ static inline bool pgraph_calculate_texture_encoded_size(
         *length = (size_t)shape.height * shape.pitch;
         return true;
     }
-    if (shape.levels == 0 || shape.dimensionality < 2 ||
+    if (shape.cubemap && shape.storage_levels) {
+        level_count = shape.storage_levels;
+    }
+    if (level_count == 0 || shape.dimensionality < 2 ||
         shape.dimensionality > 3 || !bytes_per_pixel) {
         return false;
     }
@@ -156,7 +196,7 @@ static inline bool pgraph_calculate_texture_encoded_size(
         return false;
     }
 
-    for (unsigned int level = 0; level < shape.levels; level++) {
+    for (unsigned int level = 0; level < level_count; level++) {
         uint64_t w = MAX(width, 1u);
         uint64_t h = MAX(height, 1u);
         uint64_t d = shape.dimensionality >= 3 ? MAX(depth, 1u) : 1;
@@ -203,6 +243,24 @@ static inline bool pgraph_calculate_texture_encoded_size(
     }
 
     *length = total;
+    return true;
+}
+
+/* Return the aligned source stride between cubemap faces. */
+static inline bool pgraph_calculate_texture_cubemap_face_stride(
+    TextureShape shape, bool compressed, unsigned int bytes_per_pixel,
+    size_t *stride)
+{
+    size_t total;
+
+    if (!stride || !shape.cubemap ||
+        !pgraph_calculate_texture_encoded_size(
+            shape, compressed, bytes_per_pixel, &total) ||
+        total % 6) {
+        return false;
+    }
+
+    *stride = total / 6;
     return true;
 }
 

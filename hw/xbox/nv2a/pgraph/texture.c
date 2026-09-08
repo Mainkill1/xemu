@@ -219,6 +219,7 @@ TextureShape pgraph_get_texture_shape(PGRAPHState *pg, int texture_idx)
 
     unsigned int color_format = GET_MASK(fmt, NV_PGRAPH_TEXFMT0_COLOR);
     unsigned int levels = GET_MASK(fmt, NV_PGRAPH_TEXFMT0_MIPMAP_LEVELS);
+    unsigned int storage_levels = levels;
     unsigned int log_width = GET_MASK(fmt, NV_PGRAPH_TEXFMT0_BASE_SIZE_U);
     unsigned int log_height = GET_MASK(fmt, NV_PGRAPH_TEXFMT0_BASE_SIZE_V);
     unsigned int log_depth = GET_MASK(fmt, NV_PGRAPH_TEXFMT0_BASE_SIZE_P);
@@ -269,8 +270,6 @@ TextureShape pgraph_get_texture_shape(PGRAPHState *pg, int texture_idx)
         depth = 1 << log_depth;
         pitch = 0;
 
-        levels = MIN(levels, max_mipmap_level + 1);
-
         /* Discard mipmap levels that would be smaller than 1x1.
          * FIXME: Is this actually needed?
          *
@@ -293,6 +292,8 @@ TextureShape pgraph_get_texture_shape(PGRAPHState *pg, int texture_idx)
                 levels = MIN(levels, MIN(log_width, log_height) - 1);
             }
         }
+        storage_levels = levels;
+        levels = MIN(levels, max_mipmap_level + 1);
         min_mipmap_level = MIN(levels-1, min_mipmap_level);
         max_mipmap_level = MIN(levels-1, max_mipmap_level);
     }
@@ -306,6 +307,7 @@ TextureShape pgraph_get_texture_shape(PGRAPHState *pg, int texture_idx)
     shape.dimensionality = dimensionality;
     shape.color_format = color_format;
     shape.levels = levels;
+    shape.storage_levels = storage_levels;
     shape.width = width;
     shape.height = height;
     shape.depth = depth;

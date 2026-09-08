@@ -28,6 +28,7 @@
 #include "qemu/compiler.h"
 #include "ui/xemu-settings.h"
 #include "renderer.h"
+#include "ui/xemu-tweaks.h"
 #include "buffer-size.h"
 
 const int num_invalid_surfaces_to_keep = 10;  // FIXME: Make automatic
@@ -174,6 +175,7 @@ static bool download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
         r->in_command_buffer &&
         surface->draw_time >= r->command_buffer_start_time;
     bool fold_into_active_command_buffer =
+        xemu_tweak_enabled(XEMU_TWEAK_VK_COLOR_DOWNLOAD_FOLDING) &&
         r->in_command_buffer &&
         surface->draw_time > r->command_buffer_start_time && surface->color &&
         !use_compute_to_convert_depth_stencil_format;

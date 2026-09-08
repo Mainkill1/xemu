@@ -26,6 +26,47 @@ static void test_bordered_bc2(void)
     g_assert_cmpuint(size, ==, 256);
 }
 
+static void test_bordered_mip_crop_tracks_logical_extent(void)
+{
+    const unsigned int stored[] = { 16, 8, 4, 2, 1 };
+    const unsigned int logical[] = { 8, 4, 2, 1, 1 };
+    const unsigned int skip[] = { 4, 2, 1, 0, 0 };
+
+    for (unsigned int level = 0; level < ARRAY_SIZE(stored); level++) {
+        PGRAPHTextureMipCrop crop = pgraph_bordered_texture_mip_crop(
+            8, 8, stored[level], stored[level], level);
+
+        g_assert_cmpuint(crop.width, ==, logical[level]);
+        g_assert_cmpuint(crop.height, ==, logical[level]);
+        g_assert_cmpuint(crop.skip_pixels, ==, skip[level]);
+        g_assert_cmpuint(crop.skip_rows, ==, skip[level]);
+    }
+}
+
+static void test_bordered_mip_crop_clamps_sub_block_tails(void)
+{
+    const unsigned int base[] = { 1, 2, 4 };
+    const unsigned int levels[] = { 1, 2, 3 };
+
+    for (unsigned int i = 0; i < ARRAY_SIZE(base); i++) {
+        unsigned int stored = 16;
+        unsigned int logical = base[i];
+
+        for (unsigned int level = 0; level < levels[i]; level++) {
+            PGRAPHTextureMipCrop crop = pgraph_bordered_texture_mip_crop(
+                base[i], base[i], stored, stored, level);
+            unsigned int skip = level < 3 ? 4U >> level : 0;
+
+            g_assert_cmpuint(crop.width, ==, logical);
+            g_assert_cmpuint(crop.height, ==, logical);
+            g_assert_cmpuint(crop.skip_pixels, ==, skip);
+            g_assert_cmpuint(crop.skip_rows, ==, skip);
+            stored /= 2;
+            logical = MAX(logical / 2, 1U);
+        }
+    }
+}
+
 static void test_ordinary_mips(void)
 {
     TextureShape shape = {
@@ -93,6 +134,58 @@ static void test_cubemap_face_alignment(void)
                      ROUND_UP(64, NV2A_CUBEMAP_FACE_ALIGNMENT) * 6);
 }
 
+static void test_cubemap_face_stride_uses_declared_storage_levels(void)
+{
+    TextureShape shape = {
+        .cubemap = true,
+        .dimensionality = 2,
+        .color_format = NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT1_A1R5G5B5,
+        .levels = 1,
+        .storage_levels = 4,
+        .width = 8,
+        .height = 8,
+        .border = true,
+    };
+    size_t size;
+
+    g_assert_true(pgraph_calculate_texture_encoded_size(shape, true, 4,
+                                                        &size));
+    g_assert_cmpuint(size, ==, 256 * 6);
+}
+
+static void test_compressed_subblock_cubemap_face_stride(void)
+{
+    const unsigned int dimensions[] = { 1, 2 };
+
+    for (unsigned int i = 0; i < ARRAY_SIZE(dimensions); i++) {
+        TextureShape shape = {
+            .cubemap = true,
+            .dimensionality = 2,
+            .color_format = NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT1_A1R5G5B5,
+            .levels = 1,
+            .storage_levels = 1,
+            .width = dimensions[i],
+            .height = dimensions[i],
+        };
+        size_t total, stride;
+
+        g_assert_true(pgraph_calculate_texture_encoded_size(
+            shape, true, 4, &total));
+        g_assert_true(pgraph_calculate_texture_cubemap_face_stride(
+            shape, true, 4, &stride));
+        g_assert_cmpuint(stride, ==, NV2A_CUBEMAP_FACE_ALIGNMENT);
+        g_assert_cmpuint(total, ==, stride * 6);
+
+        g_autofree uint8_t *source = g_malloc0(total);
+        for (unsigned int face = 0; face < 6; face++) {
+            source[face * stride] = face + 1;
+        }
+        for (unsigned int face = 0; face < 6; face++) {
+            g_assert_cmpuint(source[face * stride], ==, face + 1);
+        }
+    }
+}
+
 static void test_dma_range_boundaries(void)
 {
     /* Last source byte equals the inclusive DMA limit and the exclusive
@@ -110,12 +203,20 @@ int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
     g_test_add_func("/xbox/nv2a/texture/bordered-bc2", test_bordered_bc2);
+    g_test_add_func("/xbox/nv2a/texture/bordered-mip-crop",
+                    test_bordered_mip_crop_tracks_logical_extent);
+    g_test_add_func("/xbox/nv2a/texture/bordered-mip-sub-block",
+                    test_bordered_mip_crop_clamps_sub_block_tails);
     g_test_add_func("/xbox/nv2a/texture/ordinary-mips", test_ordinary_mips);
     g_test_add_func("/xbox/nv2a/texture/3d-depth-halves",
                     test_3d_depth_halves);
     g_test_add_func("/xbox/nv2a/texture/overflow", test_overflow_rejected);
     g_test_add_func("/xbox/nv2a/texture/cubemap-alignment",
                     test_cubemap_face_alignment);
+    g_test_add_func("/xbox/nv2a/texture/cubemap-storage-level-stride",
+                    test_cubemap_face_stride_uses_declared_storage_levels);
+    g_test_add_func("/xbox/nv2a/texture/cubemap-subblock-face-stride",
+                    test_compressed_subblock_cubemap_face_stride);
     g_test_add_func("/xbox/nv2a/texture/dma-range-boundaries",
                     test_dma_range_boundaries);
     return g_test_run();
