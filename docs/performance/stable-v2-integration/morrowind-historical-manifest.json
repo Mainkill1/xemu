@@ -1,0 +1,26 @@
+{
+  "scope": "Historical recorded qualification, not rerun; provenance and metric semantics must not be confused with current exact-head proof",
+  "receipts": [
+    {
+      "qualification": "2026-09-06 S3TC",
+      "receipt_sha256": "ecd11999f8aeb8ea570f45fa62e4f329a85b2addd558fd2d12de18b516afb859",
+      "reported_status": "PASS",
+      "started_utc": "2026-09-06T19:30:50.9118003+00:00",
+      "completed_utc": "2026-09-06T19:33:42.1431434+00:00"
+    },
+    {
+      "qualification": "2026-09-06 cubemap crop",
+      "receipt_sha256": "839fc8d2f8fed6904701ee6540682c13c3055069a461e89ed55d19c7ea5e9733",
+      "reported_status": "PASS",
+      "started_utc": "2026-09-06T20:41:05.0619042+00:00",
+      "completed_utc": "2026-09-06T20:43:56.2686943+00:00"
+    },
+    {
+      "qualification": "2026-09-06 DMA validation",
+      "receipt_sha256": "06ddbbf97e09d100067889c134ea0d6d848fd4a4a7e2c8662703ab3c4922d9e4",
+      "reported_status": "PASS",
+      "started_utc": "2026-09-06T22:31:16.5893204+00:00",
+      "completed_utc": "2026-09-06T22:34:06.6357849+00:00"
+    }
+  ]
+}
