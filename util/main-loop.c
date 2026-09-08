@@ -559,6 +559,9 @@ static int os_host_main_loop_wait(int64_t timeout)
         select_ret = select(nfds + 1, &rfds, &wfds, &xfds, &tv0);
         if (select_ret != 0) {
             timeout = 0;
+#ifdef XBOX
+            xbox_poll_profile_override_context(XBOX_POLL_DEADLINE_SELECT);
+#endif
         }
         if (select_ret > 0) {
             pollfds_poll(gpollfds, nfds, &rfds, &wfds, &xfds);
@@ -581,6 +584,12 @@ static int os_host_main_loop_wait(int64_t timeout)
         poll_timeout_ns = (int64_t)poll_timeout * (int64_t)SCALE_MS;
     }
 
+#ifdef XBOX
+    if (poll_timeout_ns >= 0 &&
+        (timeout < 0 || poll_timeout_ns < timeout)) {
+        xbox_poll_profile_override_context(XBOX_POLL_DEADLINE_GLIB);
+    }
+#endif
     poll_timeout_ns = qemu_soonest_timeout(poll_timeout_ns, timeout);
 
     bql_unlock();
@@ -651,6 +660,11 @@ void main_loop_wait(int nonblocking)
     };
     int ret;
     int64_t timeout_ns;
+#ifdef XBOX
+    XboxTimerDeadlineInfo timer_info;
+    int64_t timer_timeout_ns;
+    XboxPollDeadlineSource timeout_source;
+#endif
 
     if (nonblocking) {
         mlpoll.timeout = 0;
@@ -667,9 +681,24 @@ void main_loop_wait(int nonblocking)
         timeout_ns = (uint64_t)mlpoll.timeout * (int64_t)(SCALE_MS);
     }
 
+#ifdef XBOX
+    timer_timeout_ns =
+        xbox_timerlistgroup_deadline_ns(&main_loop_tlg, &timer_info);
+    timeout_source = timeout_ns >= 0 ? XBOX_POLL_DEADLINE_NOTIFIER :
+                                      XBOX_POLL_DEADLINE_UNKNOWN;
+    if (timer_timeout_ns >= 0 &&
+        (timeout_ns < 0 || timer_timeout_ns < timeout_ns)) {
+        timeout_ns = timer_timeout_ns;
+        timeout_source = XBOX_POLL_DEADLINE_TIMER;
+    }
+    xbox_poll_profile_set_context(timeout_source,
+                                  timeout_source == XBOX_POLL_DEADLINE_TIMER ?
+                                  &timer_info : NULL);
+#else
     timeout_ns = qemu_soonest_timeout(timeout_ns,
                                       timerlistgroup_deadline_ns(
                                           &main_loop_tlg));
+#endif
 
     ret = os_host_main_loop_wait(timeout_ns);
     mlpoll.state = ret < 0 ? MAIN_LOOP_POLL_ERR : MAIN_LOOP_POLL_OK;

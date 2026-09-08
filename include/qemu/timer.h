@@ -81,6 +81,25 @@ struct QEMUTimerListGroup {
 typedef void QEMUTimerCB(void *opaque);
 typedef void QEMUTimerListNotifyCB(void *opaque, QEMUClockType type);
 
+#ifdef XBOX
+typedef enum XboxPollDeadlineSource {
+    XBOX_POLL_DEADLINE_UNKNOWN,
+    XBOX_POLL_DEADLINE_NOTIFIER,
+    XBOX_POLL_DEADLINE_TIMER,
+    XBOX_POLL_DEADLINE_GLIB,
+    XBOX_POLL_DEADLINE_SELECT,
+    XBOX_POLL_DEADLINE_SOURCE_COUNT,
+} XboxPollDeadlineSource;
+
+typedef struct XboxTimerDeadlineInfo {
+    int64_t deadline_ns;
+    int64_t expire_time_ns;
+    QEMUTimerCB *callback;
+    QEMUClockType clock_type;
+    uint32_t tied_deadlines;
+} XboxTimerDeadlineInfo;
+#endif
+
 struct QEMUTimer {
     int64_t expire_time;        /* in nanoseconds */
     QEMUTimerList *timer_list;
@@ -387,6 +406,14 @@ bool timerlistgroup_run_timers(QEMUTimerListGroup *tlg);
  * timers are to expire.
  */
 int64_t timerlistgroup_deadline_ns(QEMUTimerListGroup *tlg);
+
+#ifdef XBOX
+int64_t xbox_timerlistgroup_deadline_ns(QEMUTimerListGroup *tlg,
+                                        XboxTimerDeadlineInfo *info);
+void xbox_poll_profile_set_context(XboxPollDeadlineSource source,
+                                   const XboxTimerDeadlineInfo *timer_info);
+void xbox_poll_profile_override_context(XboxPollDeadlineSource source);
+#endif
 
 /*
  * QEMUTimer

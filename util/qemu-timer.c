@@ -44,6 +44,22 @@
 #endif
 
 #ifdef XBOX
+#define XBOX_POLL_PROFILE_OWNER_MAX 32
+
+typedef struct XboxPollOwnerProfile {
+    QEMUTimerCB *callback;
+    QEMUClockType clock_type;
+    uint64_t selected_calls;
+    uint64_t selected_zero_calls;
+    uint64_t selected_spin_calls;
+    uint64_t selected_requested_ns;
+    uint64_t selected_spin_ns;
+    uint64_t tied_deadlines;
+    uint64_t callback_calls;
+    uint64_t callback_late_ns;
+    uint64_t callback_max_late_ns;
+} XboxPollOwnerProfile;
+
 typedef struct XboxPollSpinProfile {
     bool initialized;
     bool enabled;
@@ -63,6 +79,13 @@ typedef struct XboxPollSpinProfile {
     uint64_t late_ns;
     uint64_t max_late_ns;
     uint64_t max_fds;
+    uint64_t source_calls[XBOX_POLL_DEADLINE_SOURCE_COUNT];
+    uint64_t source_zero_calls[XBOX_POLL_DEADLINE_SOURCE_COUNT];
+    uint64_t source_spin_calls[XBOX_POLL_DEADLINE_SOURCE_COUNT];
+    uint64_t owner_overflow;
+    XboxPollDeadlineSource context_source;
+    XboxTimerDeadlineInfo context_timer;
+    XboxPollOwnerProfile owners[XBOX_POLL_PROFILE_OWNER_MAX];
     int64_t last_report_ns;
 } XboxPollSpinProfile;
 
@@ -79,10 +102,133 @@ static bool xbox_poll_spin_profile_enabled(XboxPollSpinProfile *profile)
     return profile->enabled;
 }
 
+static uint64_t xbox_poll_profile_callback_id(QEMUTimerCB *callback)
+{
+#ifdef _WIN32
+    return (uintptr_t)callback - (uintptr_t)GetModuleHandleW(NULL);
+#else
+    return (uintptr_t)callback;
+#endif
+}
+
+static XboxPollOwnerProfile *xbox_poll_profile_owner(
+    XboxPollSpinProfile *profile, QEMUTimerCB *callback,
+    QEMUClockType clock_type)
+{
+    XboxPollOwnerProfile *empty = NULL;
+    unsigned int i;
+
+    if (!callback) {
+        return NULL;
+    }
+
+    for (i = 0; i < ARRAY_SIZE(profile->owners); i++) {
+        if (profile->owners[i].callback == callback &&
+            profile->owners[i].clock_type == clock_type) {
+            return &profile->owners[i];
+        }
+        if (!empty && !profile->owners[i].callback) {
+            empty = &profile->owners[i];
+        }
+    }
+
+    if (!empty) {
+        profile->owner_overflow++;
+        return NULL;
+    }
+
+    empty->callback = callback;
+    empty->clock_type = clock_type;
+    return empty;
+}
+
+static void xbox_poll_profile_record_context(XboxPollSpinProfile *profile,
+                                             int64_t timeout,
+                                             int64_t spin_ns)
+{
+    XboxPollOwnerProfile *owner;
+    XboxPollDeadlineSource source = profile->context_source;
+
+    if (source >= XBOX_POLL_DEADLINE_SOURCE_COUNT) {
+        source = XBOX_POLL_DEADLINE_UNKNOWN;
+    }
+
+    profile->source_calls[source]++;
+    profile->source_zero_calls[source] += timeout == 0;
+    profile->source_spin_calls[source] += spin_ns > 0;
+
+    if (source == XBOX_POLL_DEADLINE_TIMER) {
+        owner = xbox_poll_profile_owner(profile,
+                                        profile->context_timer.callback,
+                                        profile->context_timer.clock_type);
+        if (owner) {
+            owner->selected_calls++;
+            owner->selected_zero_calls += timeout == 0;
+            owner->selected_spin_calls += spin_ns > 0;
+            owner->selected_requested_ns += timeout > 0 ? timeout : 0;
+            owner->selected_spin_ns += spin_ns > 0 ? spin_ns : 0;
+            owner->tied_deadlines +=
+                profile->context_timer.tied_deadlines;
+        }
+    }
+
+    profile->context_source = XBOX_POLL_DEADLINE_UNKNOWN;
+    memset(&profile->context_timer, 0, sizeof(profile->context_timer));
+}
+
+void xbox_poll_profile_set_context(XboxPollDeadlineSource source,
+                                   const XboxTimerDeadlineInfo *timer_info)
+{
+    XboxPollSpinProfile *profile = &xbox_poll_spin_profile;
+
+    if (!xbox_poll_spin_profile_enabled(profile)) {
+        return;
+    }
+
+    profile->context_source = source;
+    if (timer_info) {
+        profile->context_timer = *timer_info;
+    } else {
+        memset(&profile->context_timer, 0, sizeof(profile->context_timer));
+    }
+}
+
+void xbox_poll_profile_override_context(XboxPollDeadlineSource source)
+{
+    xbox_poll_profile_set_context(source, NULL);
+}
+
+static void xbox_poll_profile_record_callback(QEMUTimerCB *callback,
+                                              QEMUClockType clock_type,
+                                              int64_t expire_time_ns,
+                                              int64_t callback_start_ns)
+{
+    XboxPollSpinProfile *profile = &xbox_poll_spin_profile;
+    XboxPollOwnerProfile *owner;
+    uint64_t late_ns;
+
+    if (!xbox_poll_spin_profile_enabled(profile)) {
+        return;
+    }
+
+    owner = xbox_poll_profile_owner(profile, callback, clock_type);
+    if (!owner) {
+        return;
+    }
+
+    late_ns = callback_start_ns > expire_time_ns ?
+              callback_start_ns - expire_time_ns : 0;
+    owner->callback_calls++;
+    owner->callback_late_ns += late_ns;
+    owner->callback_max_late_ns = MAX(owner->callback_max_late_ns, late_ns);
+}
+
 static void xbox_poll_profile_emit(XboxPollSpinProfile *profile)
 {
+    unsigned int i;
+
     fprintf(stderr,
-            "XEMU_QEMU_POLL_PROFILE v=3 tid=%d all_calls=%" PRIu64
+            "XEMU_QEMU_POLL_PROFILE v=4 tid=%d all_calls=%" PRIu64
             " negative_calls=%" PRIu64 " zero_calls=%" PRIu64
             " long_calls=%" PRIu64 " entries=%" PRIu64
             " buckets=%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64
@@ -92,7 +238,12 @@ static void xbox_poll_profile_emit(XboxPollSpinProfile *profile)
             " nonspin_ready_exits=%" PRIu64
             " nonspin_errors=%" PRIu64
             " late_ns=%" PRIu64
-            " max_late_ns=%" PRIu64 " max_fds=%" PRIu64 "\n",
+            " max_late_ns=%" PRIu64 " max_fds=%" PRIu64
+            " sources=%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64
+            ",%" PRIu64 " source_zeros=%" PRIu64 ",%" PRIu64 ",%" PRIu64
+            ",%" PRIu64 ",%" PRIu64 " source_spins=%" PRIu64 ",%" PRIu64
+            ",%" PRIu64 ",%" PRIu64 ",%" PRIu64
+            " owner_overflow=%" PRIu64 "\n",
             qemu_get_thread_id(), profile->all_calls,
             profile->negative_calls, profile->zero_calls,
             profile->long_calls, profile->entries,
@@ -102,7 +253,38 @@ static void xbox_poll_profile_emit(XboxPollSpinProfile *profile)
             profile->requested_ns, profile->spin_ns, profile->iterations,
             profile->ready_exits, profile->errors,
             profile->nonspin_ready_exits, profile->nonspin_errors,
-            profile->late_ns, profile->max_late_ns, profile->max_fds);
+            profile->late_ns, profile->max_late_ns, profile->max_fds,
+            profile->source_calls[0], profile->source_calls[1],
+            profile->source_calls[2], profile->source_calls[3],
+            profile->source_calls[4], profile->source_zero_calls[0],
+            profile->source_zero_calls[1], profile->source_zero_calls[2],
+            profile->source_zero_calls[3], profile->source_zero_calls[4],
+            profile->source_spin_calls[0], profile->source_spin_calls[1],
+            profile->source_spin_calls[2], profile->source_spin_calls[3],
+            profile->source_spin_calls[4], profile->owner_overflow);
+
+    for (i = 0; i < ARRAY_SIZE(profile->owners); i++) {
+        XboxPollOwnerProfile *owner = &profile->owners[i];
+
+        if (!owner->callback) {
+            continue;
+        }
+        fprintf(stderr,
+                "XEMU_QEMU_TIMER_OWNER_PROFILE v=1 tid=%d"
+                " callback_id=0x%" PRIx64
+                " clock=%d selected=%" PRIu64 " selected_zero=%" PRIu64
+                " selected_spin=%" PRIu64 " selected_requested_ns=%" PRIu64
+                " selected_spin_ns=%" PRIu64 " tied=%" PRIu64
+                " callbacks=%" PRIu64 " callback_late_ns=%" PRIu64
+                " callback_max_late_ns=%" PRIu64 "\n",
+                qemu_get_thread_id(),
+                xbox_poll_profile_callback_id(owner->callback),
+                owner->clock_type, owner->selected_calls,
+                owner->selected_zero_calls, owner->selected_spin_calls,
+                owner->selected_requested_ns, owner->selected_spin_ns,
+                owner->tied_deadlines, owner->callback_calls,
+                owner->callback_late_ns, owner->callback_max_late_ns);
+    }
     fflush(stderr);
 }
 
@@ -146,6 +328,7 @@ static void xbox_poll_spin_profile_record(int64_t requested_ns,
     profile->late_ns += (uint64_t)late_ns;
     profile->max_late_ns = MAX(profile->max_late_ns, (uint64_t)late_ns);
     profile->max_fds = MAX(profile->max_fds, (uint64_t)nfds);
+    xbox_poll_profile_record_context(profile, requested_ns, spin_ns);
 
     if (!profile->last_report_ns) {
         profile->last_report_ns = now_ns;
@@ -173,6 +356,7 @@ static void xbox_poll_profile_record_nonspin(int64_t timeout, int poll_ret)
     }
     profile->nonspin_ready_exits += poll_ret > 0;
     profile->nonspin_errors += poll_ret < 0;
+    xbox_poll_profile_record_context(profile, timeout, 0);
 
     /* Capture a zero-timeout-only tail without another clock read. */
     if (!(profile->all_calls & 4095)) {
@@ -660,6 +844,7 @@ bool timerlist_run_timers(QEMUTimerList *timer_list)
 {
     QEMUTimer *ts;
     int64_t current_time;
+    int64_t expire_time;
     bool progress = false;
     QEMUTimerCB *cb;
     void *opaque;
@@ -725,12 +910,22 @@ bool timerlist_run_timers(QEMUTimerList *timer_list)
         /* remove timer from the list before calling the callback */
         timer_list->active_timers = ts->next;
         ts->next = NULL;
+        expire_time = ts->expire_time;
         ts->expire_time = -1;
         cb = ts->cb;
         opaque = ts->opaque;
 
         /* run the callback (the timer list can be modified) */
         qemu_mutex_unlock(&timer_list->active_timers_lock);
+#ifdef XBOX
+        if (xbox_poll_spin_profile_enabled(&xbox_poll_spin_profile)) {
+            int64_t callback_start =
+                qemu_clock_get_ns(timer_list->clock->type);
+
+            xbox_poll_profile_record_callback(cb, timer_list->clock->type,
+                                              expire_time, callback_start);
+        }
+#endif
         cb(opaque);
         qemu_mutex_lock(&timer_list->active_timers_lock);
 
@@ -787,6 +982,69 @@ int64_t timerlistgroup_deadline_ns(QEMUTimerListGroup *tlg)
     }
     return deadline;
 }
+
+#ifdef XBOX
+static int64_t xbox_timerlist_deadline_ns(QEMUTimerList *timer_list,
+                                          XboxTimerDeadlineInfo *info)
+{
+    QEMUTimer *timer;
+    int64_t delta;
+
+    if (!qatomic_read(&timer_list->active_timers) ||
+        !timer_list->clock->enabled) {
+        return -1;
+    }
+
+    WITH_QEMU_LOCK_GUARD(&timer_list->active_timers_lock) {
+        timer = timer_list->active_timers;
+        if (!timer) {
+            return -1;
+        }
+        info->expire_time_ns = timer->expire_time;
+        info->callback = timer->cb;
+        info->clock_type = timer_list->clock->type;
+    }
+
+    delta = info->expire_time_ns -
+            qemu_clock_get_ns(timer_list->clock->type);
+    info->deadline_ns = MAX(delta, 0);
+    return info->deadline_ns;
+}
+
+int64_t xbox_timerlistgroup_deadline_ns(QEMUTimerListGroup *tlg,
+                                        XboxTimerDeadlineInfo *info)
+{
+    XboxTimerDeadlineInfo candidate;
+    int64_t candidate_deadline;
+    int64_t deadline = -1;
+    QEMUClockType type;
+
+    memset(info, 0, sizeof(*info));
+    info->deadline_ns = -1;
+    info->expire_time_ns = -1;
+
+    for (type = 0; type < QEMU_CLOCK_MAX; type++) {
+        if (!qemu_clock_use_for_deadline(type)) {
+            continue;
+        }
+
+        memset(&candidate, 0, sizeof(candidate));
+        candidate_deadline =
+            xbox_timerlist_deadline_ns(tlg->tl[type], &candidate);
+        if (candidate_deadline < 0) {
+            continue;
+        }
+        if (deadline < 0 || candidate_deadline < deadline) {
+            *info = candidate;
+            deadline = candidate_deadline;
+        } else if (candidate_deadline == deadline) {
+            info->tied_deadlines++;
+        }
+    }
+
+    return deadline;
+}
+#endif
 
 int64_t qemu_clock_get_ns(QEMUClockType type)
 {
