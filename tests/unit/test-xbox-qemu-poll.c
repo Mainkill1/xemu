@@ -292,6 +292,8 @@ static void test_concurrent_thread_lifetimes(void)
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
+    g_assert_false(qemu_poll_get_cpu_saving());
+    qemu_poll_set_cpu_saving(true);
     g_test_add_func("/xbox/qemu-poll/timeout-only", test_timeout_only);
     g_test_add_func("/xbox/qemu-poll/ready-then-timeout",
                     test_ready_handle_then_timeout);

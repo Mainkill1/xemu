@@ -29,6 +29,10 @@
 #include "update.hh"
 #include "../xemu-os-utils.h"
 
+extern "C" {
+#include "qemu/timer.h"
+}
+
 extern float g_main_menu_height; // FIXME
 
 #ifdef CONFIG_RENDERDOC
@@ -214,6 +218,19 @@ void ShowMainMenu()
 
             ImGui::EndMenu();
         }
+
+#ifdef _WIN32
+        if (ImGui::BeginMenu("Tweaks")) {
+            if (ImGui::MenuItem("Reduce CPU usage while waiting", NULL,
+                                &g_config.tweaks.cpu_saving_wait)) {
+                qemu_poll_set_cpu_saving(g_config.tweaks.cpu_saving_wait);
+                xemu_settings_save();
+            }
+            HelpMarker("Uses interruptible Windows waits to reduce CPU usage. "
+                       "May affect game timing. Disable if stuttering increases.");
+            ImGui::EndMenu();
+        }
+#endif
 
         if (ImGui::BeginMenu("Debug"))
         {
