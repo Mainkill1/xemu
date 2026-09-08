@@ -27,7 +27,7 @@ candidate eviction visits and callbacks. No instrumentation is added to producti
 | Counter and membership invariants during churn | Pass | Pass |
 | Zero-free-search requirement | Fail | Pass |
 
-The old-header negative control reaches the scan-bound assertion and aborts;
+The old-header negative control reaches the zero-free-visit assertion and aborts;
 the repaired header passes. The test also covers partial caches, hash collisions,
 lookup hits, veto order, nullable exhaustion, flush, reuse, and callback ordering.
 On POSIX hosts a subprocess verifies that mandatory allocation still aborts when
@@ -66,5 +66,5 @@ cc -std=gnu11 -O2 -Iinclude tests/unit/test-lru-active.c -o ./build-lru-checks/t
 For the negative control, put the parent's `include/qemu/lru.h` into a temporary
 `qemu/lru.h`, add that temporary directory before `-Iinclude`, and compile the
 same regression source. This exercises the old production header without
-changing the checkout. Expect 4,194,304 free visits and the scan-bound assertion.
+changing the checkout. Expect 4,194,304 free visits and the zero-free-visit assertion.
 See [counts.csv](counts.csv) for the compact comparison.
