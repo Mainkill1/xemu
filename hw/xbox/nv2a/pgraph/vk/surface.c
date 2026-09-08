@@ -30,6 +30,12 @@
 #include "renderer.h"
 #include "buffer-size.h"
 #include "failure-state.h"
+#include "mapped-memory.h"
+
+static void pgraph_vk_surface_unmap(void *allocator, void *allocation)
+{
+    vmaUnmapMemory(allocator, allocation);
+}
 
 const int num_invalid_surfaces_to_keep = 10;  // FIXME: Make automatic
 const int max_surface_frame_time_delta = 5;
@@ -522,21 +528,34 @@ static bool download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
         pgraph_vk_end_single_time_commands(pg, cmd);
     }
 
+    VmaAllocation staging_allocation =
+        r->storage_buffers[BUFFER_STAGING_DST].allocation;
+    g_auto(PGRAPHVkMapGuard) map_guard = { 0 };
     void *mapped_memory_ptr = NULL;
-    VK_CHECK(vmaMapMemory(r->allocator,
-                          r->storage_buffers[BUFFER_STAGING_DST].allocation,
-                          &mapped_memory_ptr));
+    VkResult result =
+        vmaMapMemory(r->allocator, staging_allocation, &mapped_memory_ptr);
+    if (!pgraph_vk_map_guard_complete_map(
+            &map_guard, result == VK_SUCCESS, r->allocator,
+            staging_allocation, pgraph_vk_surface_unmap)) {
+        error_report("nv2a: failed to map surface-download staging memory "
+                     "(%d)", result);
+        return false;
+    }
 
-    vmaInvalidateAllocation(r->allocator,
-                            r->storage_buffers[BUFFER_STAGING_DST].allocation,
-                            0, VK_WHOLE_SIZE);
+    result = vmaInvalidateAllocation(r->allocator, staging_allocation, 0,
+                                     VK_WHOLE_SIZE);
+    if (!pgraph_vk_map_guard_complete_coherency(
+            &map_guard, result == VK_SUCCESS)) {
+        error_report("nv2a: failed to invalidate surface-download staging "
+                     "memory (%d)", result);
+        return false;
+    }
 
     memcpy_image(gl_read_buf, mapped_memory_ptr, surface->pitch,
                  surface->width * surface->fmt.bytes_per_pixel,
                  surface->height);
 
-    vmaUnmapMemory(r->allocator,
-                   r->storage_buffers[BUFFER_STAGING_DST].allocation);
+    pgraph_vk_map_guard_clear(&map_guard);
 
     if (surface->swizzle) {
         // FIXME: Swizzle in shader
