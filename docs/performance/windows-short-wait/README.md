@@ -3,7 +3,9 @@
 Status: **held; qualification incomplete**. This records completed diagnostics,
 not an accepted XISO speedup or a complete PGR2 lag fix. Related work:
 [issue 19](https://github.com/Mainkill1/xemu/issues/19) and
-[PR 24](https://github.com/Mainkill1/xemu/pull/24).
+[active PR 25](https://github.com/Mainkill1/xemu/pull/25).
+Historical research remains in [PR 24](https://github.com/Mainkill1/xemu/pull/24).
+[Branch archive and consolidation record](branch-archive.md).
 
 ## Latest strict Vulkan XISO comparison
 
