@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "xemu_path": "C:\\xemu-lab\\test-builds\\pr2-s-b16291b631\\xemu.exe",
+  "xemu_sha256": "643b17cb84dad2ecc4708a10694349cfb88d526d3f4571ed230080cf4ab5eb1f",
+  "sample_interval_ms": 1000,
+  "xemu_seen": true,
+  "process_sample_count": 20,
+  "device_sample_count": 10,
+  "process": {
+    "cpu_percent_host_capacity_mean": 22.979925056903717,
+    "cpu_percent_host_capacity_peak": 26.595011652547942,
+    "cpu_percent_one_core_mean": 367.6788009104595,
+    "cpu_percent_one_core_peak": 425.5201864407671,
+    "working_set_bytes_mean": 717693542.4,
+    "working_set_bytes_peak": 720703488.0,
+    "private_bytes_mean": 2446480793.6,
+    "private_bytes_peak": 2447097856.0,
+    "gpu_engine_percent_sum_mean": 44.79675867160404,
+    "gpu_engine_percent_sum_peak": 46.71542198801811,
+    "gpu_dedicated_bytes_mean": 216424448.0,
+    "gpu_dedicated_bytes_peak": 216424448.0,
+    "gpu_shared_bytes_mean": 43634688.0,
+    "gpu_shared_bytes_peak": 43634688.0
+  },
+  "device": {
+    "gpu_percent_mean": 37.9,
+    "gpu_percent_peak": 40.0,
+    "memory_percent_mean": 1.0,
+    "memory_percent_peak": 1.0,
+    "memory_used_mib_mean": 598.0,
+    "memory_used_mib_peak": 598.0
+  },
+  "errors": []
+}
