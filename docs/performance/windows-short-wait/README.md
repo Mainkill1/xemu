@@ -36,6 +36,33 @@ runner.** They cannot establish visual correctness for every later frame.
 [All results and image phases](retail-toggle/results.csv),
 [Morrowind intervals](retail-toggle/morrowind-summary.csv).
 
+### PGR2 resource evidence from the same captures
+
+Context-switch CPU accounting was exported from the sealed ETLs, limited to
+each recorded 60-second measurement window. These are scheduled CPU-seconds,
+not elapsed spin time. Thread totals agree with process totals within 3 microseconds.
+
+| Renderer | Process CPU seconds off → on | Observed change | Device GPU % off → on | Device power W off → on |
+|---|---:|---:|---:|---:|
+| Vulkan | 245.666 → 193.474 | −21.25% | 34.144 → 34.076 | 20.854 → 21.425 |
+| OpenGL | 260.328 → 202.783 | −22.10% | 38.185 → 37.615 | 23.925 → 23.750 |
+
+The Vulkan power observation is unfavorable despite lower CPU time. These single
+captures demonstrate observed CPU savings, not a confidence interval or universal
+power improvement. GPU figures are device-wide, not xemu-only. NVIDIA timestamps
+were mapped with the recorded Pacific daylight offset (UTC−07:00); only samples
+within the measurement window were included. Each stream ended with one incomplete
+row when its collector stopped; those rows are explicitly excluded (117–119 valid
+samples per run). Thread IDs are reported without inferred role attribution.
+Morrowind resource telemetry was not collected in its earlier captures.
+
+[CPU summary](retail-toggle/pgr2-cpu-summary.csv),
+[all xemu thread CPU times](retail-toggle/pgr2-thread-cpu.csv),
+[device GPU, VRAM, power and exclusions](retail-toggle/pgr2-device-gpu.csv).
+The first exporter receipt reported a missing exit code despite emitting CSVs;
+it remains retained. A corrected process-lifetime wrapper repeated only the offline
+export into a new directory, with all four exit codes checked successfully.
+
 <details><summary>Inspected images by workload and renderer</summary>
 
 - [morrowind-off-opengl (measurement-end)](retail-toggle/morrowind-off-opengl.png)
@@ -90,9 +117,13 @@ GPU utilization was 81.187% → 80.533%; device GPU was 45.107% → 43.550%.
 [Groups](toggle-opengl/groups.md), [per-test rows](toggle-opengl/per-test.csv),
 [audit](toggle-opengl/audit.json),
 [off](toggle-opengl/off-opengl-resource-usage-lanes.csv)/[on resources](toggle-opengl/on-opengl-resource-usage-lanes.csv).
-OpenGL baseline output consensus still fails solely on the explicitly
-inapplicable S3TC diagnostic count (14 versus 13), tracked in issue #26;
-a full output-consensus pass is not claimed. Retail captures are complete; see their evidence and remaining limits above.
+OpenGL baseline consensus and both candidate comparisons now pass after the
+separately tested [host-comparator repair](https://github.com/Mainkill1/xemu-perf-tests/blob/88a0f0cc34c67ac2f76e66efd4ffe2a53b6555ee/docs/oracle-revalidation.md).
+The original failure concerned the explicitly inapplicable S3TC diagnostic count
+(14 versus 13). Revalidation preserved all eight raw Vulkan/OpenGL report files
+and their hashes; it did not rerun the emulator or change timing measurements.
+Issue #26 is closed. Historical earlier pairs below have not been revalidated
+by this packet.
 The default remains off.
 
 ## Historical strict Vulkan XISO comparison
