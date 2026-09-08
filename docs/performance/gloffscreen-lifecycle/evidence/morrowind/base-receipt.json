@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "started_utc": "2026-09-08T12:29:43.5970295+00:00",
+  "evidence_root": "C:\\xemu-lab\\runs\\github-pr2-morrowind-base-20260908-052943",
+  "cells": [
+    {
+      "label": "baseline-vulkan",
+      "build": "baseline",
+      "renderer": "VULKAN",
+      "source_commit": "208e4596832a1f949bd63822d5ddd962c4575067",
+      "xemu_sha256": "6c41b50acb94fc71442ae6f217c8c236ffcc3fda12ce81e7553cb391b1fd2527",
+      "present_interval": 0,
+      "status": "complete",
+      "average_fps_proxy": 27.46237127013467,
+      "frame_interval_p95_ms": 44.833,
+      "frame_interval_p99_ms": 51.057,
+      "final_image_sha256": "50b8a92f5075e44aeb941be3746a456cded2a506287d7f4fbb8ce05a87a62ef7",
+      "remaining_xemu_pids": [],
+      "private_hdd_deleted": true,
+      "runner_sha256": "9994bd2d823e8557d39aef582fef8d7f37965d54caa52eaa09514e5d256307ed"
+    },
+    {
+      "label": "baseline-opengl",
+      "build": "baseline",
+      "renderer": "OPENGL",
+      "source_commit": "208e4596832a1f949bd63822d5ddd962c4575067",
+      "xemu_sha256": "6c41b50acb94fc71442ae6f217c8c236ffcc3fda12ce81e7553cb391b1fd2527",
+      "present_interval": 0,
+      "status": "complete",
+      "average_fps_proxy": 37.47240417935535,
+      "frame_interval_p95_ms": 33.447,
+      "frame_interval_p99_ms": 37.708,
+      "final_image_sha256": "1b7916377f3a8d670405cb1c5770761704f3e71215d3b09e71333d69e2ffc95c",
+      "remaining_xemu_pids": [],
+      "private_hdd_deleted": true,
+      "runner_sha256": "9994bd2d823e8557d39aef582fef8d7f37965d54caa52eaa09514e5d256307ed"
+    }
+  ],
+  "host_quarantined": false,
+  "completed_utc": "2026-09-08T12:31:08.9587112+00:00"
+}

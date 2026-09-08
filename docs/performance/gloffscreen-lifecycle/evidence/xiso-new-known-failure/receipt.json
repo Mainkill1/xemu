@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "status": "FAIL",
+  "started_utc": "2026-09-08T12:02:39.5312862+00:00",
+  "evidence_root": "C:\\xemu-lab\\runs\\github-pr2-full-xiso-new-20260908-050239",
+  "suite_root": "C:\\xemu-lab\\suite-eng523-9ff9af9",
+  "iso_sha256": "94c78f0f25a9344b62f684ac7ef09b4f023ecb06c204262f47c64072e717a1f4",
+  "catalog_sha256": "6cd068401980a6ccb9abf502e905828cf3ffa9f3a2bc47bc49ddbea614839e02",
+  "cases": [
+    {
+      "label": "github-pr2-sdl-lifecycle-vulkan-1",
+      "candidate": "github-pr2-sdl-lifecycle",
+      "source_commit": "b16291b63157f1550f92f34725369f3c091e0108",
+      "xemu_sha256": "643b17cb84dad2ecc4708a10694349cfb88d526d3f4571ed230080cf4ab5eb1f",
+      "backend": "vulkan",
+      "iteration": 1,
+      "status": "failed",
+      "started_utc": "2026-09-08T12:02:39.5327337+00:00",
+      "exit_code": 1,
+      "run": "C:\\xemu-lab\\runs\\suite\\2026-09-08-050239-perf-full-suite-unknown",
+      "error": "github-pr2-sdl-lifecycle-vulkan-1 exited 1",
+      "remaining_xemu_pids": [],
+      "completed_utc": "2026-09-08T12:04:47.8446770+00:00"
+    }
+  ],
+  "host_quarantined": false,
+  "completed_utc": "2026-09-08T12:04:47.8462672+00:00"
+}

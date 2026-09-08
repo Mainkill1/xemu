@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "source_sha": "b16291b63157f1550f92f34725369f3c091e0108",
+  "source_tree": "b0d4b43ff963710ee5da5103de0470f6a2885bb7",
+  "source_state": "clean",
+  "build_type": "Release",
+  "build_profile": "win64-cross-LTO-x86-64-v3",
+  "toolchain_image": "ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
+  "xemu_sha256": "643b17cb84dad2ecc4708a10694349cfb88d526d3f4571ed230080cf4ab5eb1f",
+  "unit_sha256": "53a396c613b9cc9b3908ed583411765408452a79fee22b4a10a8465641cd5efd"
+}

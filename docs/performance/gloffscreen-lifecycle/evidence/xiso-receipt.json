@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "started_utc": "2026-09-08T12:06:17.9258689+00:00",
+  "evidence_root": "C:\\xemu-lab\\runs\\github-pr2-full-xiso-matched-20260908-050617",
+  "suite_root": "C:\\xemu-lab\\suite-eng523-9ff9af9",
+  "iso_sha256": "08551d0c0b7bc5efb20a7b36d6d4f0e24ab666b4cee25930232858ccd9872a3e",
+  "catalog_sha256": "027065948624d6aafdbe557bed8123eb6dcaa83353cf242c71d030a109b64578",
+  "cases": [
+    {
+      "label": "github-pr2-sdl-lifecycle-vulkan-1",
+      "candidate": "github-pr2-sdl-lifecycle",
+      "source_commit": "b16291b63157f1550f92f34725369f3c091e0108",
+      "xemu_sha256": "643b17cb84dad2ecc4708a10694349cfb88d526d3f4571ed230080cf4ab5eb1f",
+      "backend": "vulkan",
+      "iteration": 1,
+      "status": "complete",
+      "started_utc": "2026-09-08T12:06:17.9272607+00:00",
+      "exit_code": 0,
+      "run": "C:\\xemu-lab\\runs\\suite\\2026-09-08-050618-perf-full-suite-unknown",
+      "record_count": 147,
+      "functional_hash_status": "PASSED",
+      "vuid_count": 0,
+      "process_wall_seconds": 137.8045315,
+      "remaining_xemu_pids": [],
+      "completed_utc": "2026-09-08T12:08:36.8431552+00:00"
+    },
+    {
+      "label": "github-pr2-sdl-lifecycle-opengl-1",
+      "candidate": "github-pr2-sdl-lifecycle",
+      "source_commit": "b16291b63157f1550f92f34725369f3c091e0108",
+      "xemu_sha256": "643b17cb84dad2ecc4708a10694349cfb88d526d3f4571ed230080cf4ab5eb1f",
+      "backend": "opengl",
+      "iteration": 1,
+      "status": "complete",
+      "started_utc": "2026-09-08T12:08:36.8452160+00:00",
+      "exit_code": 0,
+      "run": "C:\\xemu-lab\\runs\\suite\\2026-09-08-050837-perf-full-suite-unknown",
+      "record_count": 147,
+      "functional_hash_status": "PASSED",
+      "vuid_count": null,
+      "process_wall_seconds": 172.5695697,
+      "remaining_xemu_pids": [],
+      "completed_utc": "2026-09-08T12:11:30.8033137+00:00"
+    }
+  ],
+  "host_quarantined": false,
+  "completed_utc": "2026-09-08T12:11:30.8050467+00:00"
+}

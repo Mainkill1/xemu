@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "started_utc": "2026-09-08T12:24:19.2613479+00:00",
+  "evidence_root": "C:\\xemu-lab\\runs\\github-pr2-pgr2-base-20260908-052419",
+  "duration_seconds": 60,
+  "cells": [
+    {
+      "campaign": "github-pr2-exact-s-base",
+      "sequence": 1,
+      "build": "baseline",
+      "renderer": "VULKAN",
+      "run_id": "eng523-github-pr2-exact-s-base-baseline-1-pgr2-vulkan",
+      "source_commit": "208e4596832a1f949bd63822d5ddd962c4575067",
+      "xemu_sha256": "6c41b50acb94fc71442ae6f217c8c236ffcc3fda12ce81e7553cb391b1fd2527",
+      "config_sha256": "da01fd8a6aa2b5c2703005afeb1e0c49bc428d81bb5649d0d8224f7cef9c474a",
+      "present_interval": 1,
+      "status": "complete",
+      "guest_fps": 30.010256641585475,
+      "guest_p95_ms": 38.495,
+      "guest_p99_ms": 41.343,
+      "host_fps": 59.930658227407214,
+      "end_image_sha256": "7b57382d7f49d17ed2fc0f9054900062b1c55cd1e960589ee553fb049a336037",
+      "remaining_processes": [],
+      "private_hdd_deleted": true
+    },
+    {
+      "campaign": "github-pr2-exact-s-base",
+      "sequence": 1,
+      "build": "baseline",
+      "renderer": "OPENGL",
+      "run_id": "eng523-github-pr2-exact-s-base-baseline-1-pgr2-opengl",
+      "source_commit": "208e4596832a1f949bd63822d5ddd962c4575067",
+      "xemu_sha256": "6c41b50acb94fc71442ae6f217c8c236ffcc3fda12ce81e7553cb391b1fd2527",
+      "config_sha256": "8a64aab830882a8939f57bc981e3c1e6f970f4c0cad5eae8373c97ff2fe0946c",
+      "present_interval": 1,
+      "status": "complete",
+      "guest_fps": 30.010376749387543,
+      "guest_p95_ms": 39.948,
+      "guest_p99_ms": 42.795,
+      "host_fps": 59.99924317885435,
+      "end_image_sha256": "0dc8255d4cd32d2f53f2512ac142dd0d62b5703490371e8ab387543e5d48a8b1",
+      "remaining_processes": [],
+      "private_hdd_deleted": true
+    }
+  ],
+  "host_quarantined": false,
+  "completed_utc": "2026-09-08T12:29:32.2669529+00:00"
+}
