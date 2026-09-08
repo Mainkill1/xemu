@@ -29,7 +29,10 @@ API retains its legacy initialization behavior until xemu applies its selection.
 ## Open PR audit
 
 Reviewed all 16 open PRs on 2026-09-08, including their changed-file patches.
-The implementation extends PR #25 at `09d5c165fcded5801297c6033d6519bb35899f8e`,
+The implementation extends PR #25 and is reconciled with parent
+`a2a444a85f29dab215bbd646ce1a32a690a9fd1b`. This preserves the production
+marker-receiver cleanup from `a0bb1187b4f49e7a790c770b0ced487d32eca99a`.
+The original slider implementation used parent `09d5c165fcded5801297c6033d6519bb35899f8e`,
 which contains the menu introduced by `0edb216c23ab071042bb26005267d0c3816337cd`.
 It is a follow-up to that branch, not a merge of the different PR base branches.
 
@@ -59,6 +62,22 @@ texture-layout tests are retained. Other correctness PRs are not imported or
 reverted by these controls.
 
 ## Validation
+
+### Parent reconciliation (#45)
+
+The updated parent removes 289 lines of validation-only marker definitions,
+receiver, and registration from `hw/xbox/xbox.c` and `hw/xbox/nv2a/debug.h`.
+Both files match the cleaned parent exactly; no tweak implementation is changed
+by the reconciliation. The merged parent also supplies its published reports.
+
+After reconciliation, the production packet/reservation driver passed all 24
+packet modes and On/Off reservation fallbacks. The Windows-wait API-double
+failure/ownership tests and default/enable/disable interruption checks passed.
+These are host-side functional checks, not native Windows gameplay or timing
+qualification. A new full application build and native qualification remain
+pending. Earlier build and performance evidence does not qualify this head.
+
+### Original slider implementation (`ca94054f`)
 
 - `test-xemu-tweaks-config`: actual generated configuration and runtime adapter;
   default On, saved Off round-trip, old configuration migration, live switching,

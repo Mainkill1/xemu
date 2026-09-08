@@ -1,11 +1,19 @@
 # Windows short-wait investigation
 
-Status: **held; qualification incomplete**. This records completed diagnostics,
-not an accepted XISO speedup or a complete PGR2 lag fix. Related work:
+Status: **qualified as an optional, default-off CPU-efficiency tweak**. This is
+not an XISO speedup or a complete PGR2 lag fix. Related work:
 [issue 19](https://github.com/Mainkill1/xemu/issues/19) and
 [active PR 25](https://github.com/Mainkill1/xemu/pull/25).
 Historical research remains in [PR 24](https://github.com/Mainkill1/xemu/pull/24).
 [Branch archive and consolidation record](branch-archive.md).
+
+The final production-scoped head is `a0bb1187b4f49e7a790c770b0ced487d32eca99a`.
+Its Windows Release/full-LTO/x86-64-v3 executable is SHA-256
+`9df0a0f15d596c9e04ba2581ad4567271ac8679e4640b9d4328149beae320e60`.
+The native Windows poll suite passed 10/10. The measured wait, UI, configuration,
+and focused-test files are byte-identical to qualified implementation
+`0edb216c23ab071042bb26005267d0c3816337cd`; the final commit removes only the
+validation-only XISO marker receiver from shipping source.
 
 ## Retail: same executable, setting off/on
 
@@ -36,6 +44,109 @@ runner.** They cannot establish visual correctness for every later frame.
 [All results and image phases](retail-toggle/results.csv),
 [Morrowind intervals](retail-toggle/morrowind-summary.csv).
 
+### PGR2 end-image follow-up
+
+A separate four-cell follow-up completed on the same Release executable, with
+the same fresh-start key sequence, 10-second warmup and 60-second measurement.
+A byte-verified runner derivative adds an end image only after measurement and
+WPR stop, plus receipt fields. The original runner remains unchanged.
+
+| Mode | Cadence FPS | p95 ms | p99 ms |
+|---|---:|---:|---:|
+| Vulkan off | 30.002 | 38.282 | 41.245 |
+| Vulkan on | 29.992 | 39.328 | 41.008 |
+| OpenGL off | 30.004 | 38.870 | 42.534 |
+| OpenGL on | 30.003 | 40.779 | 43.309 |
+
+All four end images show the race scene without a pause/reconnect menu or
+apparent corruption. Guest stalls and ETW losses were zero, cleanup completed,
+and the immutable seed remained unchanged. Higher enabled-mode p95 values in
+this pair remain visible; these observations are not a statistical regression
+verdict. This follow-up adds end-image coverage without relabeling the earlier
+capture-start images or pooling per-run percentiles.
+
+[Results and image hashes](retail-end-followup/results.csv),
+[Vulkan off](retail-end-followup/pgr2-off-vulkan.png),
+[Vulkan on](retail-end-followup/pgr2-on-vulkan.png),
+[OpenGL off](retail-end-followup/pgr2-off-opengl.png),
+[OpenGL on](retail-end-followup/pgr2-on-opengl.png).
+
+Runner input SHA-256: `c6b259cabfdc8ab5f31129ddd9adfff585d09b0474ba40d9afef391781bf7b38`;
+derivative: `894252baf94d44faadcb2fe6583e799fb39af0fa0e5169ee203c6f1b2a0b657c`.
+These fresh-start captures do not qualify the distinct lag-snapshot route.
+
+### PGR2 lag-snapshot qualification
+
+The actual lag-objective snapshot completed an off/on/on/off sequence on each
+renderer using the same Release executable. The snapshot was restored with the
+keyboard connected, followed by the fixed `B-3` input route and three-second
+warmup. Each cell measured 60 seconds. No profiling-output mode was enabled.
+
+| Renderer / metric | Off mean | On mean | Observed change |
+|---|---:|---:|---:|
+| Vulkan cadence | 26.264 FPS | 26.428 FPS | +0.62% |
+| Vulkan p95 | 46.187 ms | 46.130 ms | -0.12% |
+| Vulkan p99 | 51.553 ms | 51.281 ms | -0.53% |
+| OpenGL cadence | 29.471 FPS | 29.777 FPS | +1.04% |
+| OpenGL p95 | 41.192 ms | 40.345 ms | -2.06% |
+| OpenGL p99 | 45.788 ms | 44.810 ms | -2.14% |
+
+These are means of two run-level values per mode, not pooled percentiles or a
+confidence interval. Vulkan remains close to neutral; this test does not show
+that the wait option fixes the underlying 26 FPS Vulkan lag objective.
+
+All eight pre-measurement and post-measurement state checks admitted gameplay.
+The end images show the same active race location, the lap timer advanced, and
+all eight image hashes differ. ETW loss was zero. Every private HDD cleanup
+completed and the immutable seed hash remained unchanged. Vulkan recorded one
+interval over the runner's stall threshold in every run, off and on; OpenGL
+recorded zero. The host finished with no xemu, PresentMon, or WPR process.
+
+[All per-run results and image hashes](lag-toggle/results.csv),
+[Vulkan off 1](lag-toggle/vulkan-1-off.png),
+[Vulkan on 1](lag-toggle/vulkan-2-on.png),
+[Vulkan on 2](lag-toggle/vulkan-3-on.png),
+[Vulkan off 2](lag-toggle/vulkan-4-off.png),
+[OpenGL off 1](lag-toggle/opengl-1-off.png),
+[OpenGL on 1](lag-toggle/opengl-2-on.png),
+[OpenGL on 2](lag-toggle/opengl-3-on.png), and
+[OpenGL off 2](lag-toggle/opengl-4-off.png).
+
+This closes the current-build gameplay and delivery check for the lag snapshot.
+It supports the option as a CPU-efficiency choice with no observed delivery
+regression in this sequence. It does not establish a lag cure or a universal
+performance improvement.
+
+### PGR2 resource evidence from the same captures
+
+Context-switch CPU accounting was exported from the sealed ETLs, limited to
+each recorded 60-second measurement window. These are scheduled CPU-seconds,
+not elapsed spin time. Thread totals agree with process totals within 3 microseconds.
+
+| Renderer | Process CPU seconds off → on | Observed change | Device GPU % off → on | Device power W off → on |
+|---|---:|---:|---:|---:|
+| Vulkan | 245.666 → 193.474 | −21.25% | 34.144 → 34.076 | 20.854 → 21.425 |
+| OpenGL | 260.328 → 202.783 | −22.10% | 38.185 → 37.615 | 23.925 → 23.750 |
+
+Power must be interpreted relative to completed work and frame delivery. Both
+modes delivered approximately 30 guest frames/second in these captures, so the
+higher Vulkan power reading is not explained by higher measured cadence. It
+remains a single-pair observation, not an established power regression. These
+captures show observed CPU savings, not a confidence interval or universal
+energy-efficiency improvement. GPU figures are device-wide, not xemu-only. NVIDIA timestamps
+were mapped with the recorded Pacific daylight offset (UTC−07:00); only samples
+within the measurement window were included. Each stream ended with one incomplete
+row when its collector stopped; those rows are explicitly excluded (117–119 valid
+samples per run). Thread IDs are reported without inferred role attribution.
+Morrowind resource telemetry was not collected in its earlier captures.
+
+[CPU summary](retail-toggle/pgr2-cpu-summary.csv),
+[all xemu thread CPU times](retail-toggle/pgr2-thread-cpu.csv),
+[device GPU, VRAM, power and exclusions](retail-toggle/pgr2-device-gpu.csv).
+The first exporter receipt reported a missing exit code despite emitting CSVs;
+it remains retained. A corrected process-lifetime wrapper repeated only the offline
+export into a new directory, with all four exit codes checked successfully.
+
 <details><summary>Inspected images by workload and renderer</summary>
 
 - [morrowind-off-opengl (measurement-end)](retail-toggle/morrowind-off-opengl.png)
@@ -54,7 +165,7 @@ configuration also copied its read-only attribute, preventing the runner's
 private-config update. Those failure packets remain. One retry used writable
 private inputs with identical bytes/hashes; original templates, runner and
 button sequence were unchanged. Morrowind was not rerun for this repair.
-Retail CPU-thread/GPU-resource comparison from these traces is not yet compiled;
+Retail CPU-thread/GPU-resource comparison from these traces is published above.
 XISO resource measurements remain separate from these cadence measurements.
 
 ## Optional setting: same-build Vulkan comparison
@@ -90,9 +201,13 @@ GPU utilization was 81.187% → 80.533%; device GPU was 45.107% → 43.550%.
 [Groups](toggle-opengl/groups.md), [per-test rows](toggle-opengl/per-test.csv),
 [audit](toggle-opengl/audit.json),
 [off](toggle-opengl/off-opengl-resource-usage-lanes.csv)/[on resources](toggle-opengl/on-opengl-resource-usage-lanes.csv).
-OpenGL baseline output consensus still fails solely on the explicitly
-inapplicable S3TC diagnostic count (14 versus 13), tracked in issue #26;
-a full output-consensus pass is not claimed. Retail captures are complete; see their evidence and remaining limits above.
+OpenGL baseline consensus and both candidate comparisons now pass after the
+separately tested [host-comparator repair](https://github.com/Mainkill1/xemu-perf-tests/blob/88a0f0cc34c67ac2f76e66efd4ffe2a53b6555ee/docs/oracle-revalidation.md).
+The original failure concerned the explicitly inapplicable S3TC diagnostic count
+(14 versus 13). Revalidation preserved all eight raw Vulkan/OpenGL report files
+and their hashes; it did not rerun the emulator or change timing measurements.
+Issue #26 is closed. Historical earlier pairs below have not been revalidated
+by this packet.
 The default remains off.
 
 ## Historical strict Vulkan XISO comparison
@@ -128,24 +243,12 @@ internal count differs (14 versus 15), as in the historical production pair.
 The remaining normalized record fields match. This is a qualification limitation,
 not a demonstrated candidate regression; it is preserved in the oracle report.
 
-The next implementation, `0edb216c23ab071042bb26005267d0c3816337cd`, makes the wait
-an optional **Tweaks → Reduce CPU usage while waiting** setting, off by default.
-Its Release executable is built (SHA-256
-`caeb70731620b16e85cb5fb92564a2346180edf92bdf353c8aae86c0a164d1da`), but native
-qualification is pending. Earlier measurements do not qualify this new build.
-The intended comparison uses this single executable with the setting off/on.
-
-Historical uninstrumented OpenGL output comparison has a separate limitation:
-the two S reports differ in the internal count (15 versus 14) for the
-unsynchronized same-address S3TC test. That record already excludes framebuffer
-and tile-center observations because per-draw source generation is undefined.
-Source review at guest revision `baf221e339f40801fee9ddd3abf1e1a6d21a1f0a`
-confirmed that the count is derived from the same excluded framebuffer readback.
-The comparison tool retains that diagnostic count despite the declared
-inapplicability. [Issue #26](https://github.com/Mainkill1/xemu/issues/26) records
-source locations and required regression tests. A full OpenGL consensus pass
-is still not claimed: the recorded tool failure remains until a separately
-validated comparison repair is applied to the sealed evidence.
+Implementation `0edb216c23ab071042bb26005267d0c3816337cd` makes the wait an
+optional **Tweaks → Reduce CPU usage while waiting** setting, off by default.
+The same executable completed off/on XISO, Morrowind, fresh-start PGR2, and the
+PGR2 lag snapshot on both renderers. OpenGL output consensus passes after the
+separately tested comparator repair tracked and closed in
+[issue #26](https://github.com/Mainkill1/xemu/issues/26).
 
 ## Profiling-stall repair: native follow-up
 
@@ -237,8 +340,9 @@ this configuration. The recording paths synchronously emitted diagnostic
 batches during emulation. Research repair
 `172c4bd80a2e4583e39b83190a4a6807d8ab9115` removes automatic emission and
 retains explicit reset/flush controls. A compiled source test failed before
-that repair and passes after it under ASan/UBSan; native repair validation is
-still pending. This does not establish the cause of every earlier freeze.
+that repair and passes after it under ASan/UBSan; the native follow-up above
+removed the recurring long-gap pattern. This does not establish the cause of
+every earlier freeze.
 
 [Full measurements](morrowind-profile-on-off.csv),
 [every long interval](morrowind-profile-on-off-gaps.csv).
@@ -347,18 +451,20 @@ FillRate +10.73%, TinyDraw +3.81%, and SurfaceRendering +3.43%.
 Host wall time and guest measured time have different boundaries and even
 move in opposite directions here; do not substitute one for the other.
 
-## Exclusions and remaining gates
+## Exclusions and final disposition
 
 Two PGR2 captures were falsely marked complete while still in menus:
 the research control/OpenGL at Select Transmission (56.981 FPS), and a later
 research candidate/OpenGL at Start Race (58.907 FPS). Both are excluded from
 race comparisons. Menu animation and successful key injection are not proof
 that the target gameplay state was reached. The original PFIFOSaturation stall
-also remains unexplained despite successful later reproduction attempts.
+was not reproduced in the completed later campaigns and is not attributed to
+the wait option.
 
-Required before acceptance: finish both-renderer XISO comparisons with valid
-marker timing, inspect unfavorable per-test results, qualify the repaired
-profiling head natively, verify full-start PGR2 gameplay, and complete repeated
-production CPU/frame-time comparisons. The previous large CPU savings from a
-different research head do not qualify this extraction or prove faster XISO
-completion. Keep the lane held until these requirements are satisfied.
+The timer lane is accepted for its demonstrated CPU reduction with the setting
+off by default. Same-build XISO, Morrowind, fresh-start PGR2, PGR2 end images,
+the actual lag snapshot, configuration checks, and native poll tests are
+complete. The option does not materially improve XISO test time and does not
+remove the underlying Vulkan lag snapshot limit, so neither claim is made.
+Remaining non-timer vCPU, APU, and PFIFO work belongs to separate performance
+work and does not block this optional host-wait choice.
