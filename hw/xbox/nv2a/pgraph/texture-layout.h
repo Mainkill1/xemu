@@ -189,6 +189,27 @@ static inline bool pgraph_calculate_linear_texture_span(
     return true;
 }
 
+/* Packed 4:2:2 formats store chroma for complete two-pixel macropixels. */
+static inline bool pgraph_calculate_linear_texture_span_for_format(
+    unsigned int color_format, unsigned int width, unsigned int height,
+    unsigned int pitch, unsigned int bytes_per_pixel, size_t *length)
+{
+    uint64_t source_width = width;
+
+    if (color_format ==
+            NV097_SET_TEXTURE_FORMAT_COLOR_LC_IMAGE_CR8YB8CB8YA8 ||
+        color_format ==
+            NV097_SET_TEXTURE_FORMAT_COLOR_LC_IMAGE_YB8CR8YA8CB8) {
+        source_width += width & 1;
+        if (source_width > UINT_MAX) {
+            return false;
+        }
+    }
+
+    return pgraph_calculate_linear_texture_span(
+        source_width, height, pitch, bytes_per_pixel, length);
+}
+
 /* Calculate the encoded guest-memory footprint consumed by the decoder. */
 static inline bool pgraph_calculate_texture_encoded_size(
     TextureShape shape, bool compressed, unsigned int bytes_per_pixel,
@@ -215,8 +236,9 @@ static inline bool pgraph_calculate_texture_encoded_size(
         if (shape.cubemap || shape.dimensionality != 2) {
             return false;
         }
-        return pgraph_calculate_linear_texture_span(
-            shape.width, shape.height, shape.pitch, bytes_per_pixel, length);
+        return pgraph_calculate_linear_texture_span_for_format(
+            shape.color_format, shape.width, shape.height, shape.pitch,
+            bytes_per_pixel, length);
     }
     if (shape.cubemap && shape.storage_levels) {
         level_count = shape.storage_levels;
