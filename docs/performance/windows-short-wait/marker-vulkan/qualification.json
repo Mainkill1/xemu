@@ -1,0 +1,8 @@
+{
+  "campaign_mode": "timing",
+  "renderer": "vulkan",
+  "live_marker_contract_required": true,
+  "baseline_campaign": "pr24-frozen-s-vulkan-8eeb",
+  "candidate_campaign": "pr24-wait-only-vulkan-8eeb",
+  "statistical_improvement_established": false
+}
