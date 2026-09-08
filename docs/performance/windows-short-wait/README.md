@@ -7,6 +7,56 @@ not an accepted XISO speedup or a complete PGR2 lag fix. Related work:
 Historical research remains in [PR 24](https://github.com/Mainkill1/xemu/pull/24).
 [Branch archive and consolidation record](branch-archive.md).
 
+## Retail: same executable, setting off/on
+
+All eight runtime cells completed on Release implementation `0edb216c23`:
+one 60-second capture per workload/mode/renderer. Morrowind used the fixed
+snapshot and unchanged Start/B sequence; PGR2 used the existing full fresh-start
+sequence. Seeds remained unchanged and private-HDD cleanup passed. These single
+captures do not establish statistical non-inferiority or a broad lag fix.
+
+| Workload / mode | Cadence FPS | p95 ms | p99 ms |
+|---|---:|---:|---:|
+| morrowind-off-opengl | 38.543 | 32.023 | 36.845 |
+| morrowind-off-vulkan | 27.919 | 42.710 | 49.049 |
+| morrowind-on-opengl | 38.544 | 31.768 | 36.909 |
+| morrowind-on-vulkan | 28.328 | 41.735 | 48.173 |
+| pgr2-off-opengl | 30.001 | 40.760 | 43.309 |
+| pgr2-off-vulkan | 30.003 | 39.608 | 42.080 |
+| pgr2-on-opengl | 30.004 | 40.409 | 43.188 |
+| pgr2-on-vulkan | 30.006 | 39.389 | 41.282 |
+
+FPS here is guest frame/display-write cadence, not the host presentation counter.
+No Morrowind interval exceeded 75 ms. PGR2 reported no guest-frame stalls,
+no focus-loss/unresponsive samples, and no lost ETW events in any run.
+All eight images were inspected: Morrowind shows the resumed town, PGR2 the car
+on track with its race HUD, without apparent corruption. **PGR2 images are
+capture-start images; no end-of-run PGR2 image was produced by the existing
+runner.** They cannot establish visual correctness for every later frame.
+[All results and image phases](retail-toggle/results.csv),
+[Morrowind intervals](retail-toggle/morrowind-summary.csv).
+
+<details><summary>Inspected images by workload and renderer</summary>
+
+- [morrowind-off-opengl (measurement-end)](retail-toggle/morrowind-off-opengl.png)
+- [morrowind-off-vulkan (measurement-end)](retail-toggle/morrowind-off-vulkan.png)
+- [morrowind-on-opengl (measurement-end)](retail-toggle/morrowind-on-opengl.png)
+- [morrowind-on-vulkan (measurement-end)](retail-toggle/morrowind-on-vulkan.png)
+- [pgr2-off-opengl (capture-start)](retail-toggle/pgr2-off-opengl.png)
+- [pgr2-off-vulkan (capture-start)](retail-toggle/pgr2-off-vulkan.png)
+- [pgr2-on-opengl (capture-start)](retail-toggle/pgr2-on-opengl.png)
+- [pgr2-on-vulkan (capture-start)](retail-toggle/pgr2-on-vulkan.png)
+
+</details>
+
+The first four PGR2 attempts failed before emulator launch: copying a read-only
+configuration also copied its read-only attribute, preventing the runner's
+private-config update. Those failure packets remain. One retry used writable
+private inputs with identical bytes/hashes; original templates, runner and
+button sequence were unchanged. Morrowind was not rerun for this repair.
+Retail CPU-thread/GPU-resource comparison from these traces is not yet compiled;
+XISO resource measurements remain separate from these cadence measurements.
+
 ## Optional setting: same-build Vulkan comparison
 
 Implementation `0edb216c23ab071042bb26005267d0c3816337cd`, executable SHA-256
@@ -42,7 +92,7 @@ GPU utilization was 81.187% → 80.533%; device GPU was 45.107% → 43.550%.
 [off](toggle-opengl/off-opengl-resource-usage-lanes.csv)/[on resources](toggle-opengl/on-opengl-resource-usage-lanes.csv).
 OpenGL baseline output consensus still fails solely on the explicitly
 inapplicable S3TC diagnostic count (14 versus 13), tracked in issue #26;
-a full output-consensus pass is not claimed. Retail qualification is running.
+a full output-consensus pass is not claimed. Retail captures are complete; see their evidence and remaining limits above.
 The default remains off.
 
 ## Historical strict Vulkan XISO comparison
