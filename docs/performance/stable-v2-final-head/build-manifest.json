@@ -1,0 +1,52 @@
+{
+  "source_commit": "dfe9aadf158af5e8808c109e5a48802377f23a7e",
+  "source_tree": "354f00baffb8e5bacbfb7a1ac024228c7709bd1e",
+  "xemu_sha256": "bf50e1005f122c43b1a6845f72b3e39c0cd1ed912192e0a9cc992a95bfcc9116",
+  "build_exit_code": 0,
+  "toolchain_image": "ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
+  "build_options": {
+    "buildtype": "debug",
+    "debug": true,
+    "optimization": "2",
+    "b_ndebug": "false",
+    "b_lto": true,
+    "x86_version": "3",
+    "lto_partition": "cache",
+    "incremental_lto_cache": true,
+    "wrapper_debug_flag": false
+  },
+  "native_unit_programs": [
+    {
+      "sha256": "b44195444003250db34d837d5835b895b1ef6c26aabb6967b68a40fc58570dc0",
+      "name": "test-lru-full.exe",
+      "exit_code": 0,
+      "timeout": false
+    },
+    {
+      "sha256": "520d1d7cd57ee4546b766fb625fe64ca3e49e3ad5603e79a19f53523294d89d0",
+      "name": "test-xbox-qemu-poll.exe",
+      "exit_code": 0,
+      "timeout": false
+    },
+    {
+      "sha256": "06efc1cd1da83dfb2765a7be4482dac0d3dcc33555aae7eee73f27acd9e10765",
+      "name": "test-xbox-vk-failure-state.exe",
+      "exit_code": 0,
+      "timeout": false
+    },
+    {
+      "sha256": "4530a0071c11b9578c66a08356c057ca9e3d097545b04481ca907356cabad550",
+      "name": "test-xbox-vk-texture-state.exe",
+      "exit_code": 0,
+      "timeout": false
+    }
+  ],
+  "native_unit_cases": {
+    "lru": 4,
+    "polling": 10,
+    "vk_failure_state": 7,
+    "vk_texture_state": 5
+  },
+  "snapshot_lifecycle_attempts": 150,
+  "snapshot_lifecycle_status": "PASS"
+}

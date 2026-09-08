@@ -1,0 +1,125 @@
+{
+  "source_commit": "dfe9aadf158af5e8808c109e5a48802377f23a7e",
+  "source_tree": "354f00baffb8e5bacbfb7a1ac024228c7709bd1e",
+  "xemu_sha256": "bf50e1005f122c43b1a6845f72b3e39c0cd1ed912192e0a9cc992a95bfcc9116",
+  "campaign_status": "PASS",
+  "started_utc": "2026-09-08T22:38:17.3849795+00:00",
+  "completed_utc": "2026-09-08T23:12:28.6235175+00:00",
+  "acceptance": "HELD: unresolved Morrowind performance flag; no statistical improvement claim",
+  "input_receipts": [
+    {
+      "file": "receipt.json",
+      "sha256": "3deb5363b40b8a92fd11d1e69ce01baa780f6d9cb97356b18c31971202299c0c"
+    },
+    {
+      "file": "xiso/receipt.json",
+      "sha256": "5a60934021beaa58edca780d0284bc0911ae38a522519cbba1886805d515f743"
+    },
+    {
+      "file": "morrowind/receipt.json",
+      "sha256": "6e62336b7b0fbac328b77f2d4e5f5a71a45fb0bba57ca1d78ba4e84e1aea5e25"
+    },
+    {
+      "file": "pgr2/receipt.json",
+      "sha256": "abb0876ed07db218759c4ad50bfcce99891616677d0f8a0386f88f37d88a8c65"
+    }
+  ],
+  "outputs": [
+    {
+      "file": "REPORT.md",
+      "sha256": "0d807b70e194abfb9c84a0d556042bd9256ac4db554f37237c8026e77c685578"
+    },
+    {
+      "file": "analyze-morrowind.py",
+      "sha256": "c44365feffb7f4840605107bfe193516ce22b3f41ab36af5a74f543f7043d3df"
+    },
+    {
+      "file": "build-manifest.json",
+      "sha256": "937ef107faeed317bfd09c60a357a50bb79a233fca93ca14af012f2458c50b15"
+    },
+    {
+      "file": "images/morrowind-baseline-opengl.png",
+      "sha256": "9bc5ccd5d6d07b9f8e41b697cbf014c9cf0deb2e86f395f0857019cba4bf917c"
+    },
+    {
+      "file": "images/morrowind-baseline-vulkan.png",
+      "sha256": "4509505a9f269f903584a80b094cd1195e5ea1ade21b2aac4571293ca2e55757"
+    },
+    {
+      "file": "images/morrowind-candidate-opengl.png",
+      "sha256": "db8dc7eb1d592bc6deaab6442d7759964e656eddb1208bda81e72ba7ad379c1f"
+    },
+    {
+      "file": "images/morrowind-candidate-vulkan.png",
+      "sha256": "f48b697572e7fd9f5106ac9f1cfe68b8459052cb10983973d3dbdaffb4299177"
+    },
+    {
+      "file": "images/pgr2-eng523-stable-v2-final-baseline-1-pgr2-opengl.png",
+      "sha256": "b3d9e2f4c8d39e8606f1a146a78c9ced208e6c4de40e124d098aaaa23d82d861"
+    },
+    {
+      "file": "images/pgr2-eng523-stable-v2-final-baseline-1-pgr2-vulkan.png",
+      "sha256": "19d50e0d811e65a15a5a678a0aa225c9a7eebe0c45bdc954bde187216e92aed9"
+    },
+    {
+      "file": "images/pgr2-eng523-stable-v2-final-baseline-4-pgr2-opengl.png",
+      "sha256": "c918837c21c43c06c27f7978c832f425f399215cba0c89f30044a0ff89ba5732"
+    },
+    {
+      "file": "images/pgr2-eng523-stable-v2-final-baseline-4-pgr2-vulkan.png",
+      "sha256": "266e3f18f194e80ce2b73b22d8bf59c54ccd590a8eb73732e69841970bfda949"
+    },
+    {
+      "file": "images/pgr2-eng523-stable-v2-final-candidate-2-pgr2-opengl.png",
+      "sha256": "fc80dd27ca9d8fb2aeca900d51333e29d1d01d0126810daf1f7557f211d9c013"
+    },
+    {
+      "file": "images/pgr2-eng523-stable-v2-final-candidate-2-pgr2-vulkan.png",
+      "sha256": "507bc81528f539f2b6d8b25b15831ec5996cba834e32c3b54caa0c2e707c62da"
+    },
+    {
+      "file": "images/pgr2-eng523-stable-v2-final-candidate-3-pgr2-opengl.png",
+      "sha256": "8aa951c22277796df32c5abc28209643a35cbf0987051a99eefe42d5ec9e143d"
+    },
+    {
+      "file": "images/pgr2-eng523-stable-v2-final-candidate-3-pgr2-vulkan.png",
+      "sha256": "e96e84d87c9f1828aebb62d9afb80b15f86b2fc6d2d6adc31df26d8a919c2e6c"
+    },
+    {
+      "file": "morrowind-event-times.csv",
+      "sha256": "ff4186960d30a3d5c620d7eca8207e45a9d9f07198a9cd78a8c252b241bb4d38"
+    },
+    {
+      "file": "morrowind-review-manifest.json",
+      "sha256": "c627f8de38fb39980961424063830e210397b0be5b570e0a789257dc004f06cb"
+    },
+    {
+      "file": "performance-summary.csv",
+      "sha256": "8ba6f4d0c0078f7fc6ae421e8746e6e1b016cbc2f6db281f15085b8e0490d289"
+    },
+    {
+      "file": "resources-per-run.csv",
+      "sha256": "6122a13ca3f1cfdb9713b7dc1f7ddcf66f2751b2253012d31eb7883fccaada4f"
+    },
+    {
+      "file": "retail-per-run.csv",
+      "sha256": "751ef916e48466e1a4e0688fa337f5b10ff6bd06214e6d8fd729049e76f03d6c"
+    },
+    {
+      "file": "visual-review.json",
+      "sha256": "0422879d767897b1ec4becafeab5d61f84c93424b5dbf4852314f9be3f783cf8"
+    },
+    {
+      "file": "visual-review.md",
+      "sha256": "79e07c6725ce55a1000d2255f422ad40102fd81234d759c564d66835a023dfc0"
+    },
+    {
+      "file": "xiso-groups.csv",
+      "sha256": "195ed3f04c506c4e188d665cd1dcc6083f94ad057a17c029cf154b84e155dfe1"
+    },
+    {
+      "file": "xiso-per-test.csv",
+      "sha256": "02bd83ebbab3a1c43212cbc8caa3c0762d980b0500ac42c68092e9a1fe770e95"
+    }
+  ]
+}

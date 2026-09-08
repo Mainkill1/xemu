@@ -1,0 +1,98 @@
+[
+  {
+    "workload": "morrowind",
+    "run": "baseline-vulkan",
+    "file": "images/morrowind-baseline-vulkan.png",
+    "sha256": "4509505a9f269f903584a80b094cd1195e5ea1ade21b2aac4571293ca2e55757",
+    "review": "Expected fixed scene; no pause/reconnect overlay or obvious visual corruption",
+    "scope": "End image only; not proof of every intermediate frame"
+  },
+  {
+    "workload": "morrowind",
+    "run": "candidate-vulkan",
+    "file": "images/morrowind-candidate-vulkan.png",
+    "sha256": "f48b697572e7fd9f5106ac9f1cfe68b8459052cb10983973d3dbdaffb4299177",
+    "review": "Expected fixed scene; no pause/reconnect overlay or obvious visual corruption",
+    "scope": "End image only; not proof of every intermediate frame"
+  },
+  {
+    "workload": "morrowind",
+    "run": "baseline-opengl",
+    "file": "images/morrowind-baseline-opengl.png",
+    "sha256": "9bc5ccd5d6d07b9f8e41b697cbf014c9cf0deb2e86f395f0857019cba4bf917c",
+    "review": "Expected fixed scene; no pause/reconnect overlay or obvious visual corruption",
+    "scope": "End image only; not proof of every intermediate frame"
+  },
+  {
+    "workload": "morrowind",
+    "run": "candidate-opengl",
+    "file": "images/morrowind-candidate-opengl.png",
+    "sha256": "db8dc7eb1d592bc6deaab6442d7759964e656eddb1208bda81e72ba7ad379c1f",
+    "review": "Expected fixed scene; no pause/reconnect overlay or obvious visual corruption",
+    "scope": "End image only; not proof of every intermediate frame"
+  },
+  {
+    "workload": "pgr2",
+    "run": "eng523-stable-v2-final-baseline-1-pgr2-vulkan",
+    "file": "images/pgr2-eng523-stable-v2-final-baseline-1-pgr2-vulkan.png",
+    "sha256": "19d50e0d811e65a15a5a678a0aa225c9a7eebe0c45bdc954bde187216e92aed9",
+    "review": "Expected fixed scene; no pause/reconnect overlay or obvious visual corruption",
+    "scope": "End image only; not proof of every intermediate frame"
+  },
+  {
+    "workload": "pgr2",
+    "run": "eng523-stable-v2-final-candidate-2-pgr2-vulkan",
+    "file": "images/pgr2-eng523-stable-v2-final-candidate-2-pgr2-vulkan.png",
+    "sha256": "507bc81528f539f2b6d8b25b15831ec5996cba834e32c3b54caa0c2e707c62da",
+    "review": "Expected fixed scene; no pause/reconnect overlay or obvious visual corruption",
+    "scope": "End image only; not proof of every intermediate frame"
+  },
+  {
+    "workload": "pgr2",
+    "run": "eng523-stable-v2-final-candidate-3-pgr2-vulkan",
+    "file": "images/pgr2-eng523-stable-v2-final-candidate-3-pgr2-vulkan.png",
+    "sha256": "e96e84d87c9f1828aebb62d9afb80b15f86b2fc6d2d6adc31df26d8a919c2e6c",
+    "review": "Expected fixed scene; no pause/reconnect overlay or obvious visual corruption",
+    "scope": "End image only; not proof of every intermediate frame"
+  },
+  {
+    "workload": "pgr2",
+    "run": "eng523-stable-v2-final-baseline-4-pgr2-vulkan",
+    "file": "images/pgr2-eng523-stable-v2-final-baseline-4-pgr2-vulkan.png",
+    "sha256": "266e3f18f194e80ce2b73b22d8bf59c54ccd590a8eb73732e69841970bfda949",
+    "review": "Expected fixed scene; no pause/reconnect overlay or obvious visual corruption",
+    "scope": "End image only; not proof of every intermediate frame"
+  },
+  {
+    "workload": "pgr2",
+    "run": "eng523-stable-v2-final-baseline-1-pgr2-opengl",
+    "file": "images/pgr2-eng523-stable-v2-final-baseline-1-pgr2-opengl.png",
+    "sha256": "b3d9e2f4c8d39e8606f1a146a78c9ced208e6c4de40e124d098aaaa23d82d861",
+    "review": "Expected fixed scene; no pause/reconnect overlay or obvious visual corruption",
+    "scope": "End image only; not proof of every intermediate frame"
+  },
+  {
+    "workload": "pgr2",
+    "run": "eng523-stable-v2-final-candidate-2-pgr2-opengl",
+    "file": "images/pgr2-eng523-stable-v2-final-candidate-2-pgr2-opengl.png",
+    "sha256": "fc80dd27ca9d8fb2aeca900d51333e29d1d01d0126810daf1f7557f211d9c013",
+    "review": "Expected fixed scene; no pause/reconnect overlay or obvious visual corruption",
+    "scope": "End image only; not proof of every intermediate frame"
+  },
+  {
+    "workload": "pgr2",
+    "run": "eng523-stable-v2-final-candidate-3-pgr2-opengl",
+    "file": "images/pgr2-eng523-stable-v2-final-candidate-3-pgr2-opengl.png",
+    "sha256": "8aa951c22277796df32c5abc28209643a35cbf0987051a99eefe42d5ec9e143d",
+    "review": "Expected fixed scene; no pause/reconnect overlay or obvious visual corruption",
+    "scope": "End image only; not proof of every intermediate frame"
+  },
+  {
+    "workload": "pgr2",
+    "run": "eng523-stable-v2-final-baseline-4-pgr2-opengl",
+    "file": "images/pgr2-eng523-stable-v2-final-baseline-4-pgr2-opengl.png",
+    "sha256": "c918837c21c43c06c27f7978c832f425f399215cba0c89f30044a0ff89ba5732",
+    "review": "Expected fixed scene; no pause/reconnect overlay or obvious visual corruption",
+    "scope": "End image only; not proof of every intermediate frame"
+  }
+]

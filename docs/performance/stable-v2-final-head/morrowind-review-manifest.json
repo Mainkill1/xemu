@@ -1,0 +1,48 @@
+{
+  "cells": [
+    {
+      "cell": "baseline-vulkan",
+      "source_commit": "3caf5d85423298c62344f8fe44fe9a1176b8ae81",
+      "executable_sha256": "fe8047f60181672170524cf40b2151f335f0e232d749b569b60fd5bc2cb5d6ba",
+      "measurement_started_utc": "2026-09-08T22:49:12.1156233Z",
+      "measurement_ended_utc": "2026-09-08T22:49:22.1160284Z",
+      "events": 276,
+      "average_fps_proxy": 27.685267038494906,
+      "frame_interval_p95_ms": 44.614,
+      "frame_interval_p99_ms": 47.996
+    },
+    {
+      "cell": "candidate-vulkan",
+      "source_commit": "dfe9aadf158af5e8808c109e5a48802377f23a7e",
+      "executable_sha256": "bf50e1005f122c43b1a6845f72b3e39c0cd1ed912192e0a9cc992a95bfcc9116",
+      "measurement_started_utc": "2026-09-08T22:49:55.2280957Z",
+      "measurement_ended_utc": "2026-09-08T22:50:05.2421925Z",
+      "events": 268,
+      "average_fps_proxy": 26.745453898901182,
+      "frame_interval_p95_ms": 43.884,
+      "frame_interval_p99_ms": 50.301
+    },
+    {
+      "cell": "baseline-opengl",
+      "source_commit": "3caf5d85423298c62344f8fe44fe9a1176b8ae81",
+      "executable_sha256": "fe8047f60181672170524cf40b2151f335f0e232d749b569b60fd5bc2cb5d6ba",
+      "measurement_started_utc": "2026-09-08T22:50:37.8501478Z",
+      "measurement_ended_utc": "2026-09-08T22:50:47.8595001Z",
+      "events": 387,
+      "average_fps_proxy": 38.628674064758265,
+      "frame_interval_p95_ms": 32.6,
+      "frame_interval_p99_ms": 36.615
+    },
+    {
+      "cell": "candidate-opengl",
+      "source_commit": "dfe9aadf158af5e8808c109e5a48802377f23a7e",
+      "executable_sha256": "bf50e1005f122c43b1a6845f72b3e39c0cd1ed912192e0a9cc992a95bfcc9116",
+      "measurement_started_utc": "2026-09-08T22:51:20.4455951Z",
+      "measurement_ended_utc": "2026-09-08T22:51:30.4580354Z",
+      "events": 374,
+      "average_fps_proxy": 37.38062252666551,
+      "frame_interval_p95_ms": 34.001,
+      "frame_interval_p99_ms": 39.965
+    }
+  ]
+}
