@@ -1,0 +1,127 @@
+diff --git a/hw/xbox/nv2a/pgraph/pgraph.c b/hw/xbox/nv2a/pgraph/pgraph.c
+index 55242f3ba1..77e1901acf 100644
+--- a/hw/xbox/nv2a/pgraph/pgraph.c
++++ b/hw/xbox/nv2a/pgraph/pgraph.c
+@@ -627,6 +627,47 @@ static bool pgraph_method_array_bulk(NV2AState *d, PGRAPHState *pg,
+                                      uint32_t *parameters,
+                                      size_t num_words_available);
+ 
++#ifdef XEMU_PFIFO_PACKET_TEST
++static size_t pgraph_packet_test_length(PGRAPHState *pg, unsigned int method)
++{
++    return method == NV097_INLINE_ARRAY ? pg->inline_array_length
++                                        : pg->inline_elements_length;
++}
++
++static void pgraph_packet_test_event(PGRAPHState *pg, unsigned int method,
++                                     bool inc, bool tracing, const char *mode,
++                                     const char *action,
++                                     size_t num_words_available,
++                                     size_t num_words_consumed,
++                                     size_t length_before,
++                                     size_t draw_arrays_before)
++{
++    static FILE *output;
++    static uint64_t sequence;
++    const char *path = getenv("XEMU_PFIFO_PACKET_TEST_OUTPUT");
++
++    if (!path || !*path) {
++        return;
++    }
++    if (!output) {
++        output = fopen(path, "w");
++        if (!output) {
++            return;
++        }
++        fprintf(output,
++                "sequence,method,inc,tracing,mode,action,available_words,"
++                "consumed_words,length_before,length_after,"
++                "draw_arrays_before,draw_arrays_after\n");
++    }
++    fprintf(output, "%" PRIu64 ",0x%04x,%d,%d,%s,%s,%zu,%zu,%zu,%zu,%zu,%u\n",
++            ++sequence, method, inc, tracing, mode, action,
++            num_words_available, num_words_consumed, length_before,
++            pgraph_packet_test_length(pg, method), draw_arrays_before,
++            pg->draw_arrays_length);
++    fflush(output);
++}
++#endif
++
+ static bool pgraph_method_array_packet_fits(PGRAPHState *pg,
+                                             unsigned int method,
+                                             size_t packet_words)
+@@ -668,9 +709,17 @@ static void pgraph_method_non_inc(MethodFunc handler, METHOD_HANDLER_ARG_DECL)
+     bool array_packet = method == NV097_ARRAY_ELEMENT16 ||
+                         method == NV097_ARRAY_ELEMENT32 ||
+                         method == NV097_INLINE_ARRAY;
++#ifdef XEMU_PFIFO_PACKET_TEST
++    size_t test_length_before = 0;
++    size_t test_draw_arrays_before = 0;
++#endif
+ 
+     if (array_packet) {
+         size_t packet_words = inc ? 1 : num_words_available;
++#ifdef XEMU_PFIFO_PACKET_TEST
++        test_length_before = pgraph_packet_test_length(pg, method);
++        test_draw_arrays_before = pg->draw_arrays_length;
++#endif
+         if (!pgraph_method_array_packet_fits(pg, method, packet_words)) {
+             pgraph_drop_oversized_array_packet(method, packet_words);
+             if (!inc && pgraph_method_trace_enabled()) {
+@@ -680,6 +729,14 @@ static void pgraph_method_non_inc(MethodFunc handler, METHOD_HANDLER_ARG_DECL)
+                 }
+             }
+             *num_words_consumed = packet_words;
++#ifdef XEMU_PFIFO_PACKET_TEST
++            bool tracing = pgraph_method_trace_enabled();
++            pgraph_packet_test_event(
++                pg, method, inc, tracing,
++                inc ? "scalar_incrementing" : tracing ? "scalar_trace" : "bulk",
++                "rejected", num_words_available, *num_words_consumed,
++                test_length_before, test_draw_arrays_before);
++#endif
+             return;
+         }
+ 
+@@ -689,6 +746,13 @@ static void pgraph_method_non_inc(MethodFunc handler, METHOD_HANDLER_ARG_DECL)
+         switch (mode) {
+         case PGRAPH_INLINE_PACKET_SCALAR_INCREMENTING:
+             handler(METHOD_HANDLER_ARGS);
++#ifdef XEMU_PFIFO_PACKET_TEST
++            pgraph_packet_test_event(
++                pg, method, inc, pgraph_method_trace_enabled(),
++                "scalar_incrementing", "accepted", num_words_available,
++                *num_words_consumed, test_length_before,
++                test_draw_arrays_before);
++#endif
+             return;
+         case PGRAPH_INLINE_PACKET_SCALAR_TRACE:
+             break;
+@@ -696,6 +760,12 @@ static void pgraph_method_non_inc(MethodFunc handler, METHOD_HANDLER_ARG_DECL)
+             if (pgraph_method_array_bulk(d, pg, method, parameters,
+                                          num_words_available)) {
+                 *num_words_consumed = num_words_available;
++#ifdef XEMU_PFIFO_PACKET_TEST
++                pgraph_packet_test_event(
++                    pg, method, inc, pgraph_method_trace_enabled(), "bulk",
++                    "accepted", num_words_available, *num_words_consumed,
++                    test_length_before, test_draw_arrays_before);
++#endif
+                 return;
+             }
+             break;
+@@ -716,6 +786,14 @@ static void pgraph_method_non_inc(MethodFunc handler, METHOD_HANDLER_ARG_DECL)
+         handler(METHOD_HANDLER_ARGS);
+     }
+     *num_words_consumed = num_words_available;
++#ifdef XEMU_PFIFO_PACKET_TEST
++    if (array_packet) {
++        pgraph_packet_test_event(
++            pg, method, inc, pgraph_method_trace_enabled(), "scalar_trace",
++            "accepted", num_words_available, *num_words_consumed,
++            test_length_before, test_draw_arrays_before);
++    }
++#endif
+ }
+ 
+ #define METHOD_FUNC_NAME_INT(gclass, name) METHOD_FUNC_NAME(gclass, name##_int)

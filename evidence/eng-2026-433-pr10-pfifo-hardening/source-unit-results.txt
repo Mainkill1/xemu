@@ -1,0 +1,4 @@
+Command: make CFLAGS='-O2 -Wall -Wextra -Werror -fsanitize=address,undefined' check
+Scope: tests/xbox/pgraph-inline-elements
+Result: PASS
+Checks include valid capacity boundaries, overflow-safe planning, unchanged output on rejection, ARRAY_ELEMENT16 ordering, and scalar/bulk mode selection.

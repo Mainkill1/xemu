@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "started_utc": "2026-09-08T15:53:39Z",
+  "completed_utc": "2026-09-08T15:55:48Z",
+  "old_source": "52e806ab30f5664c2814fa9038f0f7c8bca2f2de",
+  "repaired_source": "fa95400e158e1849f5ee80f16345c52968e1c44e",
+  "test_source": "aade4293b8d031217b1ba459b21213985bee152c",
+  "old_executable_sha256": "29e603601effd9d5b25bce1064faf8f317cbb222ccbd0f5a904f0ded4c79d101",
+  "repaired_executable_sha256": "1228279477fd56d4f0a5328e9e20d58ca3d77fed017807a9a23f37f4e0607946",
+  "probe_executable_sha256": "e8e9f9b890ec3eee6ea75c67ce46398fa6cd8c31c1406c1f341356dfb72f2ea0",
+  "xiso_sha256": "930e7424e1ce7a98da75ce970ea9691bc7650f34d18af6017e936992c8d110fd",
+  "toolchain_image": "ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
+  "cells": {"expected_fail": 1, "pass": 17, "total": 18},
+  "repaired_production_cells": {"pass": 14, "fail": 0},
+  "probe_cells": {"pass": 3, "fail": 0},
+  "vulkan_vuid_count": 0
+}

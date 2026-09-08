@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "problem": "Oversized inline PFIFO/PGRAPH packets terminated supported Release builds through assertions and could mutate pending draw state before rejection.",
+  "repair": "Preflight the complete packet at dispatch, include pending draw-array expansion, consume malformed packets atomically, and preserve trace/scalar dispatch semantics.",
+  "old_negative_control": "PASS: assertion reproduced",
+  "repaired_vulkan": "8/8 boundary-path cells passed with 0 VUIDs",
+  "repaired_opengl": "4/4 bulk boundary cells passed",
+  "representative_equivalence": "PASS: PGR2 scalar/bulk framebuffer hashes identical",
+  "production_probe": "PASS: bulk, scalar-trace, and incrementing consumption/state transitions verified",
+  "performance_scope": "Existing exact original-head performance proof retained; boundary timings are correctness-only."
+}
