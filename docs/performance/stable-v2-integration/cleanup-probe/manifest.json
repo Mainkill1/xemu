@@ -1,0 +1,25 @@
+{
+  "source_commit": "57cf3f0a4b443e8074c79710139d2b8aaf6ac0aa",
+  "emulator_sha256": "aa3c7d0f8d0dc0b4e6156ad0840a7d0a5ce621ae2ad42bd121a3d9126d18e7de",
+  "benchmark_sha256": "9dad9b629a8cc490f527f7710f65adfa2514f5e0e244b61c4ff5f93e2d149941",
+  "benchmark_exit_code": 0,
+  "execution": "Native Windows x86-64; extracted cleanup and proposed null-guard variant, not patched emulator",
+  "toolchain": "ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
+  "cflags": [
+    "-O2",
+    "-march=x86-64-v3",
+    "-flto"
+  ],
+  "input_sha256": {
+    "bench.c": "a72951f45520ede18f047cba46936b1a4c61b2390ba2c001c9896d309f0ec38c",
+    "cleanup-functions.h": "99ff1f0a465dd073a1b4b88801120b05675e41b7c01397d4f2c95178c43f783f"
+  },
+  "per_batch_layouts": 25000,
+  "rounds_per_shape": 8,
+  "populated_slots": [
+    1,
+    8,
+    96
+  ],
+  "emulator_code_changed": false
+}
