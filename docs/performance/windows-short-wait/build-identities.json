@@ -1,0 +1,22 @@
+{
+  "production": {
+    "frozen-s": {
+      "source": "208e4596832a1f949bd63822d5ddd962c4575067",
+      "sha256": "dd87baca92b74fce22a5e8d5c26e5a17890395c74a1ba4ac6c20d21d18548c86"
+    },
+    "wait-only": {
+      "source": "1945c40dd7d0c501949f3ab8820f0202f0fe6bd4",
+      "sha256": "9d3d2373bd5bec7a84c177781fddf8bad8cc6b86777877879977684e8e285c65"
+    }
+  },
+  "marker_validation": {
+    "frozen-s": {
+      "source": "653e03a7f15500d3420de44af4d12cfc490558a7",
+      "sha256": "bac5e99a370acde0723015326cff8cdf7752d5db9a9b4a5727e61db30a24d8e2"
+    },
+    "wait-only": {
+      "source": "8eeb3e48f9aedd0ca932c23802318f1b3e645fce",
+      "sha256": "955cd87e3e789275f3e8fbde745f8b84ac3d61330bc6af56dc6ac8ff2dcd2d7b"
+    }
+  }
+}
