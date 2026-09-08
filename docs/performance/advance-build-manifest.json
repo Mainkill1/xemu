@@ -1,0 +1,28 @@
+{
+  "source_commit": "b8cafd6d2e2ec651a1708b80c6e571bc15f64212",
+  "source_tree": "44ef8117b776b44558052bf9565f5843f62b8d1c",
+  "xemu_sha256": "b2aac86bb56f50ec030b711cb0e8ba0cd6f147145fe5b7c81d4c81ca2a011ae2",
+  "toolchain_image": "ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
+  "build_exit_code": 0,
+  "meson_options": {
+    "buildtype": "debug",
+    "debug": true,
+    "optimization": "2",
+    "b_lto": true,
+    "x86_version": "3"
+  },
+  "native_configuration_test": {
+    "source": "b8cafd6d2e2ec651a1708b80c6e571bc15f64212",
+    "unit_sha256": "a8032ff49036b93a2059eaa346520d8f5df5cdfef295fb893d480bda4900d09a",
+    "exit_code": 0,
+    "output": [
+      "PASS: defaults, persistence, migration, live changes and restart policy"
+    ],
+    "completed_utc": "2026-09-08T21:54:39.2477368+00:00"
+  },
+  "packet_reservation_test": "PASS: 24 modes and On/Off reservation fallbacks",
+  "source_ui_checks": "Seven unchanged setting/flag mappings; matching sidebar/view order; About index 8; no top-bar controls",
+  "marker_files_match_clean_parent": "a2a444a85f29dab215bbd646ce1a32a690a9fd1b",
+  "native_game_ui_qualification": "pending",
+  "performance_comparison": false
+}

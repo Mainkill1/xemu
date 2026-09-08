@@ -64,6 +64,28 @@ reverted by these controls.
 
 ## Validation
 
+### Advance settings relocation (`b8cafd6d2e`)
+
+All seven controls moved from the top menu into Settings -> Advance, using the
+normal Settings Toggle widget and Performance/Vulkan/OpenGL section headings.
+The sidebar inserts Advance before About; About navigation now selects index 8.
+Configuration keys, defaults, atomic runtime state, and restart policy are
+unchanged. No backend implementation changed in this relocation.
+
+The full Windows application cross-build passed. The exact build's generated
+configuration/runtime test passed natively on Windows: defaults, saved Off
+round-trip, old-config migration, live switching, and restart policy. The
+production packet/reservation driver passed its 24-mode checks. Source checks
+confirmed the seven unchanged configuration/runtime mappings, sidebar/view
+alignment, single user-facing location, and preserved marker cleanup.
+
+[Build and validation identities](advance-build-manifest.json). The optimized
+recipe records Meson `buildtype=debug`, `debug=true`, `optimization=2`, full LTO,
+and x86-64-v3; it is not an unoptimized build. These checks do not establish
+native menu rendering, game behavior with every option, or performance.
+Interactive UI and retail qualification remain pending; the PR stays draft.
+
+
 ### Parent reconciliation (#45)
 
 The updated parent removes 289 lines of validation-only marker definitions,
@@ -75,8 +97,9 @@ After reconciliation, the production packet/reservation driver passed all 24
 packet modes and On/Off reservation fallbacks. The Windows-wait API-double
 failure/ownership tests and default/enable/disable interruption checks passed.
 These are host-side functional checks, not native Windows gameplay or timing
-qualification. A new full application build and native qualification remain
-pending. Earlier build and performance evidence does not qualify this head.
+qualification. The later Advance build above supersedes the pending build
+step; full native game/UI qualification remains pending. Earlier performance
+evidence does not qualify the combined head.
 
 ### Original slider implementation (`ca94054f`)
 
@@ -96,6 +119,6 @@ The configuration/runtime test plus 10 texture-layout, 7 vertex-staging,
 driver and existing Windows-wait API-double tests passed with ASan/UBSan.
 
 These controls are not a performance qualification. Native Windows game captures,
-both renderers, live slider interaction, repeated texture-cache use, and all
+both renderers, live toggle interaction, repeated texture-cache use, and all
 seven options individually Off still need game testing before release. PR #25's
 earlier measurements are context, not measurements of this combined build.
