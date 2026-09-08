@@ -26,6 +26,7 @@
 #include "qemu/main-loop.h"
 #include "qemu/timer.h"
 #include "qemu/lockable.h"
+#include "qemu/error-report.h"
 #include "system/cpu-timers.h"
 #include "exec/icount.h"
 #include "system/replay.h"
@@ -800,6 +801,10 @@ typedef struct XboxHighResolutionPoll {
     GPollFD *poll_fds;
     guint poll_fds_capacity;
     bool in_use;
+    bool unavailable;
+    bool fallback_reported;
+    bool cleanup_registered;
+    int64_t retry_after_ns;
     Notifier cleanup_notifier;
 } XboxHighResolutionPoll;
 
@@ -816,6 +821,27 @@ static void xbox_high_resolution_poll_cleanup(Notifier *notifier, void *opaque)
     memset(poll, 0, sizeof(*poll));
 }
 
+static void xbox_high_resolution_poll_failure(XboxHighResolutionPoll *poll,
+                                              DWORD error,
+                                              const char *operation)
+{
+    int64_t now = qemu_clock_get_ns(QEMU_CLOCK_REALTIME);
+
+    /* Unsupported hosts cannot benefit from retrying every short wait. */
+    poll->unavailable = error == ERROR_INVALID_PARAMETER ||
+                        error == ERROR_NOT_SUPPORTED ||
+                        error == ERROR_CALL_NOT_IMPLEMENTED;
+    poll->retry_after_ns = now > INT64_MAX - 1000000000 ? INT64_MAX :
+                           now + 1000000000;
+    if (!poll->fallback_reported) {
+        warn_report("Windows high-resolution timer %s failed (error %lu); "
+                    "using compatibility polling", operation,
+                    (unsigned long)error);
+        poll->fallback_reported = true;
+    }
+    SetLastError(error);
+}
+
 static bool xbox_high_resolution_poll_init(XboxHighResolutionPoll *poll)
 {
     if (poll->timer) {
@@ -826,17 +852,29 @@ static bool xbox_high_resolution_poll_init(XboxHighResolutionPoll *poll)
         NULL, NULL, CREATE_WAITABLE_TIMER_HIGH_RESOLUTION,
         TIMER_MODIFY_STATE | SYNCHRONIZE);
     if (!poll->timer) {
+        xbox_high_resolution_poll_failure(poll, GetLastError(), "creation");
         return false;
     }
 
-    poll->cleanup_notifier.notify = xbox_high_resolution_poll_cleanup;
-    qemu_thread_atexit_add(&poll->cleanup_notifier);
+    if (!poll->cleanup_registered) {
+        poll->cleanup_notifier.notify = xbox_high_resolution_poll_cleanup;
+        qemu_thread_atexit_add(&poll->cleanup_notifier);
+        poll->cleanup_registered = true;
+    }
     return true;
 }
 
 static void xbox_high_resolution_poll_cancel(XboxHighResolutionPoll *poll)
 {
-    CancelWaitableTimer(poll->timer);
+    if (!CancelWaitableTimer(poll->timer)) {
+        DWORD error = GetLastError();
+
+        /* Do not reuse a timer whose cancellation outcome is unknown. */
+        CloseHandle(poll->timer);
+        poll->timer = NULL;
+        xbox_high_resolution_poll_failure(poll, error, "cancellation");
+        return;
+    }
 
     /*
      * CancelWaitableTimer() stops future signaling but does not clear an
@@ -866,6 +904,10 @@ static int xbox_high_resolution_poll_ns(GPollFD *fds, guint nfds,
     poll->in_use = true;
 
     deadline = qemu_clock_get_ns(QEMU_CLOCK_REALTIME);
+    if (poll->unavailable || deadline < poll->retry_after_ns) {
+        poll->in_use = false;
+        return INT_MIN;
+    }
     deadline = timeout > INT64_MAX - deadline ? INT64_MAX :
                deadline + timeout;
 
@@ -902,7 +944,7 @@ static int xbox_high_resolution_poll_ns(GPollFD *fds, guint nfds,
 
         xbox_high_resolution_poll_cancel(poll);
         poll->in_use = false;
-        SetLastError(timer_error);
+        xbox_high_resolution_poll_failure(poll, timer_error, "arming");
         return INT_MIN;
     }
 
