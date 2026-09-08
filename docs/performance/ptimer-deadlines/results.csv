@@ -1,0 +1,5 @@
+control,parent_ns,candidate_ns,outcome
+fractional_ratio_1_1,4,5,parent_fail_candidate_pass
+fractional_ratio_1_2,0,5,parent_fail_candidate_pass
+clock_phase_9ns,19,10,parent_fail_candidate_pass
+signed_deadline_horizon,0,9223372036854775807,parent_fail_candidate_pass
