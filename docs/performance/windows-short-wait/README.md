@@ -67,6 +67,48 @@ Runner input SHA-256: `c6b259cabfdc8ab5f31129ddd9adfff585d09b0474ba40d9afef39178
 derivative: `894252baf94d44faadcb2fe6583e799fb39af0fa0e5169ee203c6f1b2a0b657c`.
 These fresh-start captures do not qualify the distinct lag-snapshot route.
 
+### PGR2 lag-snapshot qualification
+
+The actual lag-objective snapshot completed an off/on/on/off sequence on each
+renderer using the same Release executable. The snapshot was restored with the
+keyboard connected, followed by the fixed `B-3` input route and three-second
+warmup. Each cell measured 60 seconds. No profiling-output mode was enabled.
+
+| Renderer / metric | Off mean | On mean | Observed change |
+|---|---:|---:|---:|
+| Vulkan cadence | 26.264 FPS | 26.428 FPS | +0.62% |
+| Vulkan p95 | 46.187 ms | 46.130 ms | -0.12% |
+| Vulkan p99 | 51.553 ms | 51.281 ms | -0.53% |
+| OpenGL cadence | 29.471 FPS | 29.777 FPS | +1.04% |
+| OpenGL p95 | 41.192 ms | 40.345 ms | -2.06% |
+| OpenGL p99 | 45.788 ms | 44.810 ms | -2.14% |
+
+These are means of two run-level values per mode, not pooled percentiles or a
+confidence interval. Vulkan remains close to neutral; this test does not show
+that the wait option fixes the underlying 26 FPS Vulkan lag objective.
+
+All eight pre-measurement and post-measurement state checks admitted gameplay.
+The end images show the same active race location, the lap timer advanced, and
+all eight image hashes differ. ETW loss was zero. Every private HDD cleanup
+completed and the immutable seed hash remained unchanged. Vulkan recorded one
+interval over the runner's stall threshold in every run, off and on; OpenGL
+recorded zero. The host finished with no xemu, PresentMon, or WPR process.
+
+[All per-run results and image hashes](lag-toggle/results.csv),
+[Vulkan off 1](lag-toggle/vulkan-1-off.png),
+[Vulkan on 1](lag-toggle/vulkan-2-on.png),
+[Vulkan on 2](lag-toggle/vulkan-3-on.png),
+[Vulkan off 2](lag-toggle/vulkan-4-off.png),
+[OpenGL off 1](lag-toggle/opengl-1-off.png),
+[OpenGL on 1](lag-toggle/opengl-2-on.png),
+[OpenGL on 2](lag-toggle/opengl-3-on.png), and
+[OpenGL off 2](lag-toggle/opengl-4-off.png).
+
+This closes the current-build gameplay and delivery check for the lag snapshot.
+It supports the option as a CPU-efficiency choice with no observed delivery
+regression in this sequence. It does not establish a lag cure or a universal
+performance improvement.
+
 ### PGR2 resource evidence from the same captures
 
 Context-switch CPU accounting was exported from the sealed ETLs, limited to
