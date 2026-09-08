@@ -264,6 +264,161 @@ static void test_post_load_rebuilds_irq_without_timer(void)
     ptimer_reset(&d);
 }
 
+static void test_fractional_deadline(gconstpointer opaque)
+{
+    NV2AState d;
+
+    init_nv2a_ptimer(&d);
+    d.pramdac.core_clock_freq = 233333333;
+    d.ptimer.denominator = GPOINTER_TO_UINT(opaque);
+    ptimer_write(&d, NV_PTIMER_ALARM_0, 1 << 5, 4);
+    /* Both ratios need the first GPU tick, which occurs at 5 ns. */
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, 5);
+    expire_alarm(&d);
+    g_assert_cmphex(d.ptimer.pending_interrupts, ==, NV_PTIMER_INTR_0_ALARM);
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), >,
+                   ptimer_test_time_ns);
+    ptimer_reset(&d);
+}
+
+static void test_deadline_preserves_clock_phase(void)
+{
+    NV2AState d;
+
+    init_nv2a_ptimer(&d);
+    d.pramdac.core_clock_freq = 100000000;
+    ptimer_test_time_ns = 9;
+    ptimer_write(&d, NV_PTIMER_ALARM_0, 1 << 5, 4);
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, 10);
+    ptimer_reset(&d);
+
+    init_nv2a_ptimer(&d);
+    d.pramdac.core_clock_freq = 100000000;
+    d.ptimer.numerator = 3;
+    d.ptimer.denominator = 2;
+    ptimer_test_time_ns = 19; /* G=1, P=0: preserve both remainders. */
+    ptimer_write(&d, NV_PTIMER_ALARM_0, 1 << 5, 4);
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, 20);
+    ptimer_reset(&d);
+}
+
+static void test_deadline_range(void)
+{
+    NV2AState d;
+
+    init_nv2a_ptimer(&d);
+    d.pramdac.core_clock_freq = 1;
+    d.ptimer.numerator = UINT32_MAX;
+    ptimer_write(&d, NV_PTIMER_ALARM_0, 0xffffffe0, 4);
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, INT64_MAX);
+    ptimer_reset(&d);
+
+    init_nv2a_ptimer(&d);
+    ptimer_test_time_ns = INT64_MAX - 1;
+    ptimer_write(&d, NV_PTIMER_ALARM_0, 0x100, 4);
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, INT64_MAX);
+    ptimer_reset(&d);
+}
+
+static uint64_t reference_ticks(uint64_t ns, uint64_t frequency,
+                                unsigned numerator, unsigned denominator)
+{
+    /* Test domain keeps these products in 64 bits; no inverse/helper reuse. */
+    return ((ns * frequency / 1000000000) * denominator) / numerator;
+}
+
+static void test_deadline_forward_oracle(void)
+{
+    const uint64_t frequencies[] = { 100000000, 233333333, 1000000000 };
+    const uint64_t phases[] = { 0, 1, 9, 19, 1234 };
+    NV2AState d;
+    unsigned cases = 0;
+
+    for (unsigned f = 0; f < G_N_ELEMENTS(frequencies); f++) {
+        for (unsigned n = 1; n <= 6; n++) {
+            for (unsigned den = 1; den <= 6; den++) {
+                for (unsigned p = 0; p < G_N_ELEMENTS(phases); p++) {
+                    uint64_t now = phases[p];
+                    uint64_t initial = reference_ticks(now, frequencies[f], n, den);
+                    for (unsigned distance = 1; distance <= 64; distance++) {
+                        uint64_t target = initial + distance;
+                        uint64_t expected = now + 1;
+                        while (reference_ticks(expected, frequencies[f], n, den)
+                               < target) {
+                            expected++;
+                        }
+                        init_nv2a_ptimer(&d);
+                        d.pramdac.core_clock_freq = frequencies[f];
+                        d.ptimer.numerator = n;
+                        d.ptimer.denominator = den;
+                        ptimer_test_time_ns = now;
+                        ptimer_write(&d, NV_PTIMER_ALARM_0, target << 5, 4);
+                        g_assert_cmpuint(timer_expire_time_ns(&d.ptimer.timer),
+                                         ==, expected);
+                        expire_alarm(&d);
+                        g_assert_cmphex(d.ptimer.pending_interrupts, ==,
+                                        NV_PTIMER_INTR_0_ALARM);
+                        g_assert_cmpuint(timer_expire_time_ns(&d.ptimer.timer),
+                                         >, expected);
+                        ptimer_reset(&d);
+                        cases++;
+                    }
+                }
+            }
+        }
+    }
+    g_assert_cmpuint(cases, ==, 34560);
+}
+
+static void test_deadline_wrap_and_stopped_source(void)
+{
+    NV2AState d;
+
+    init_nv2a_ptimer(&d);
+    /* Preserve guest offset and the full 61-bit register wrap. */
+    ptimer_write(&d, NV_PTIMER_TIME_1, 0x1fffffff, 4);
+    ptimer_write(&d, NV_PTIMER_TIME_0, 0xffffffe0, 4);
+    ptimer_write(&d, NV_PTIMER_ALARM_0, 0, 4);
+    g_assert_cmpuint(timer_expire_time_ns(&d.ptimer.timer), ==, 1);
+    expire_alarm(&d);
+    g_assert_cmphex(ptimer_read(&d, NV_PTIMER_TIME_1, 4), ==, 0);
+    g_assert_cmphex(ptimer_read(&d, NV_PTIMER_TIME_0, 4), ==, 0);
+    g_assert_cmphex(d.ptimer.pending_interrupts, ==, NV_PTIMER_INTR_0_ALARM);
+    ptimer_reset(&d);
+
+    init_nv2a_ptimer(&d);
+    d.pramdac.core_clock_freq = 0;
+    ptimer_write(&d, NV_PTIMER_ALARM_0, 0x100, 4);
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, INT64_MAX);
+    d.pramdac.core_clock_freq = 1000000000;
+    ptimer_write(&d, NV_PTIMER_NUMERATOR, 1, 4);
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, 8);
+    ptimer_reset(&d);
+}
+
+static void test_wide_deadline_reconciles_source_wrap(void)
+{
+    NV2AState d;
+
+    init_nv2a_ptimer(&d);
+    d.pramdac.core_clock_freq = UINT32_MAX;
+    d.ptimer.numerator = UINT32_MAX;
+    ptimer_write(&d, NV_PTIMER_ALARM_0, 0x100, 4);
+    /* A restored distant epoch requires a >64-bit GPU-tick quotient. The
+     * forward model wraps GPU ticks first, before the alarm can be reached.
+     * ceil(2^64 * 1e9 / (2^32 - 1)) = 4294967297000000001.
+     */
+    d.ptimer.alarm_time = 1ULL << 38;
+    ptimer_post_load(&d);
+    g_assert_cmpuint(timer_expire_time_ns(&d.ptimer.timer), ==,
+                     UINT64_C(4294967297000000001));
+    expire_alarm(&d);
+    g_assert_cmphex(d.ptimer.pending_interrupts, ==, 0);
+    g_assert_cmpuint(timer_expire_time_ns(&d.ptimer.timer), >,
+                     UINT64_C(4294967297000000001));
+    ptimer_reset(&d);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -291,6 +446,19 @@ int main(int argc, char **argv)
                     test_zero_ratio_stops_clock_without_division);
     g_test_add_func("/xbox/nv2a/ptimer/post-load-irq",
                     test_post_load_rebuilds_irq_without_timer);
+    g_test_add_data_func("/xbox/nv2a/ptimer/fractional-deadline/ratio-1-1",
+                         GUINT_TO_POINTER(1), test_fractional_deadline);
+    g_test_add_data_func("/xbox/nv2a/ptimer/fractional-deadline/ratio-1-2",
+                         GUINT_TO_POINTER(2), test_fractional_deadline);
+    g_test_add_func("/xbox/nv2a/ptimer/deadline-phase",
+                    test_deadline_preserves_clock_phase);
+    g_test_add_func("/xbox/nv2a/ptimer/deadline-range", test_deadline_range);
+    g_test_add_func("/xbox/nv2a/ptimer/deadline-forward-oracle",
+                    test_deadline_forward_oracle);
+    g_test_add_func("/xbox/nv2a/ptimer/deadline-wrap-stopped-source",
+                    test_deadline_wrap_and_stopped_source);
+    g_test_add_func("/xbox/nv2a/ptimer/deadline-wide-source-wrap",
+                    test_wide_deadline_reconciles_source_wrap);
 
     return g_test_run();
 }

@@ -98,14 +98,64 @@ static inline uint64_t get_reg_time(NV2AState *d)
     return PTIMER_INTERNAL_TO_REG_TIME(internal_clock);
 }
 
-static uint64_t ptimer_ticks_to_ns(NV2AState *d, uint64_t internal_ticks)
+static void ptimer_div_ceil(uint64_t *lo, uint64_t *hi, uint64_t divisor)
 {
-    assert(ptimer_clock_running(d));
+    if (divu128(lo, hi, divisor) && ++*lo == 0) {
+        ++*hi;
+    }
+}
 
-    uint64_t gpu_ticks =
-        muldiv64(internal_ticks, d->ptimer.numerator, d->ptimer.denominator);
-    return muldiv64(gpu_ticks, NANOSECONDS_PER_SECOND,
-                    d->pramdac.core_clock_freq);
+static uint64_t ptimer_sample_clock(NV2AState *d, int64_t now_ns,
+                                   uint64_t *gpu_clock, uint64_t *gpu_phase,
+                                   uint64_t *timer_phase)
+{
+    uint64_t lo, hi;
+
+    /* Match both truncations in ptimer_get_absolute_clock(). */
+    mulu64(&lo, &hi, now_ns, d->pramdac.core_clock_freq);
+    *gpu_phase = divu128(&lo, &hi, NANOSECONDS_PER_SECOND);
+    *gpu_clock = lo;
+    mulu64(&lo, &hi, lo, d->ptimer.denominator);
+    *timer_phase = divu128(&lo, &hi, d->ptimer.numerator);
+    return PTIMER_INTERNAL_TO_REG_TIME(get_internal_clock(d, lo));
+}
+
+static uint64_t ptimer_ticks_to_ns(NV2AState *d, uint64_t internal_ticks,
+                                  uint64_t gpu_clock, uint64_t gpu_phase,
+                                  uint64_t timer_phase)
+{
+    uint64_t lo, hi;
+    bool overflow;
+
+    assert(ptimer_clock_running(d) && internal_ticks > 0);
+
+    /* Invert each quantization using its phase at the same clock sample:
+     * delta_gpu = ceil((ticks * numerator - timer_phase) / denominator)
+     * delta_ns  = ceil((delta_gpu * 1e9 - gpu_phase) / core_clock_freq)
+     * The products fit in 128 bits (56-bit ticks, 32-bit ratio, 30-bit 1e9).
+     * Do not truncate a wide quotient before checking the source-clock wrap.
+     */
+    mulu64(&lo, &hi, internal_ticks, d->ptimer.numerator);
+    hi -= lo < timer_phase;
+    lo -= timer_phase;
+    ptimer_div_ceil(&lo, &hi, d->ptimer.denominator);
+
+    /* The existing forward model truncates GPU ticks to 64 bits. Reconcile at
+     * that discontinuity rather than extrapolating the ratio through it.
+     * For gpu_clock == 0, the distance to wrap is exactly 2^64.
+     */
+    uint64_t until_wrap = -gpu_clock;
+    if (hi || (gpu_clock && lo > until_wrap)) {
+        lo = until_wrap;
+        hi = !gpu_clock;
+    }
+    overflow = mulu128(&lo, &hi, NANOSECONDS_PER_SECOND);
+    assert(!overflow);
+    hi -= lo < gpu_phase;
+    lo -= gpu_phase;
+    ptimer_div_ceil(&lo, &hi, d->pramdac.core_clock_freq);
+
+    return hi ? UINT64_MAX : lo;
 }
 
 static inline uint64_t ptimer_alarm_distance(uint64_t reg_now,
@@ -160,7 +210,10 @@ static void schedule_qemu_timer(NV2AState *d)
         return;
     }
 
-    uint64_t reg_now = get_reg_time(d);
+    int64_t now_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+    uint64_t gpu_clock, gpu_phase, timer_phase;
+    uint64_t reg_now = ptimer_sample_clock(d, now_ns, &gpu_clock,
+                                         &gpu_phase, &timer_phase);
     uint64_t diff_reg_time =
         ptimer_alarm_distance(reg_now, d->ptimer.alarm_time);
     uint64_t diff_ns = 0;
@@ -168,11 +221,14 @@ static void schedule_qemu_timer(NV2AState *d)
     if (diff_reg_time > 0) {
         uint64_t internal_diff_ticks =
             PTIMER_REG_TO_INTERNAL_TIME(diff_reg_time);
-        diff_ns = ptimer_ticks_to_ns(d, internal_diff_ticks);
+        diff_ns = ptimer_ticks_to_ns(d, internal_diff_ticks,
+                                     gpu_clock, gpu_phase, timer_phase);
     }
 
-    timer_mod(&d->ptimer.timer,
-              qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) + diff_ns);
+    /* A distant alarm must not wrap into an immediate signed deadline. */
+    int64_t deadline = diff_ns > (uint64_t)INT64_MAX - (uint64_t)now_ns ?
+                       INT64_MAX : now_ns + diff_ns;
+    timer_mod(&d->ptimer.timer, deadline);
 }
 
 static void ptimer_alarm_fired(void *opaque)
