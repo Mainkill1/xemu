@@ -87,9 +87,37 @@ typedef struct XboxPollSpinProfile {
     XboxTimerDeadlineInfo context_timer;
     XboxPollOwnerProfile owners[XBOX_POLL_PROFILE_OWNER_MAX];
     int64_t last_report_ns;
+#ifdef _WIN32
+    HANDLE reset_event;
+    HANDLE reset_ack_event;
+    HANDLE flush_event;
+    HANDLE flush_ack_event;
+#endif
+    uint64_t phase;
 } XboxPollSpinProfile;
 
 static __thread XboxPollSpinProfile xbox_poll_spin_profile;
+
+#ifdef _WIN32
+static HANDLE xbox_poll_profile_named_event(const wchar_t *operation,
+                                            const wchar_t *suffix)
+{
+    wchar_t name[128];
+
+    swprintf(name, ARRAY_SIZE(name),
+             L"Local\\XemuQemuPollProfile%ls-%lu%ls", operation,
+             GetCurrentProcessId(), suffix);
+    return CreateEventW(NULL, FALSE, FALSE, name);
+}
+
+static void xbox_poll_profile_init_controls(XboxPollSpinProfile *profile)
+{
+    profile->reset_event = xbox_poll_profile_named_event(L"Reset", L"");
+    profile->reset_ack_event = xbox_poll_profile_named_event(L"Reset", L"-Ack");
+    profile->flush_event = xbox_poll_profile_named_event(L"Flush", L"");
+    profile->flush_ack_event = xbox_poll_profile_named_event(L"Flush", L"-Ack");
+}
+#endif
 
 static bool xbox_poll_spin_profile_enabled(XboxPollSpinProfile *profile)
 {
@@ -98,8 +126,57 @@ static bool xbox_poll_spin_profile_enabled(XboxPollSpinProfile *profile)
 
         profile->enabled = value && strcmp(value, "0");
         profile->initialized = true;
+#ifdef _WIN32
+        if (profile->enabled) {
+            xbox_poll_profile_init_controls(profile);
+        }
+#endif
     }
     return profile->enabled;
+}
+
+static void xbox_poll_profile_emit(XboxPollSpinProfile *profile);
+
+static void xbox_poll_profile_reset(XboxPollSpinProfile *profile)
+{
+#ifdef _WIN32
+    HANDLE reset_event = profile->reset_event;
+    HANDLE reset_ack_event = profile->reset_ack_event;
+    HANDLE flush_event = profile->flush_event;
+    HANDLE flush_ack_event = profile->flush_ack_event;
+#endif
+    uint64_t phase = profile->phase + 1;
+
+    memset(profile, 0, sizeof(*profile));
+    profile->initialized = true;
+    profile->enabled = true;
+    profile->phase = phase;
+#ifdef _WIN32
+    profile->reset_event = reset_event;
+    profile->reset_ack_event = reset_ack_event;
+    profile->flush_event = flush_event;
+    profile->flush_ack_event = flush_ack_event;
+#endif
+}
+
+static void xbox_poll_profile_apply_controls(XboxPollSpinProfile *profile)
+{
+#ifdef _WIN32
+    if (profile->reset_event &&
+        WaitForSingleObject(profile->reset_event, 0) == WAIT_OBJECT_0) {
+        xbox_poll_profile_reset(profile);
+        if (profile->reset_ack_event) {
+            SetEvent(profile->reset_ack_event);
+        }
+    }
+    if (profile->flush_event &&
+        WaitForSingleObject(profile->flush_event, 0) == WAIT_OBJECT_0) {
+        xbox_poll_profile_emit(profile);
+        if (profile->flush_ack_event) {
+            SetEvent(profile->flush_ack_event);
+        }
+    }
+#endif
 }
 
 static uint64_t xbox_poll_profile_callback_id(QEMUTimerCB *callback)
@@ -184,6 +261,7 @@ void xbox_poll_profile_set_context(XboxPollDeadlineSource source,
     if (!xbox_poll_spin_profile_enabled(profile)) {
         return;
     }
+    xbox_poll_profile_apply_controls(profile);
 
     profile->context_source = source;
     if (timer_info) {
@@ -228,7 +306,8 @@ static void xbox_poll_profile_emit(XboxPollSpinProfile *profile)
     unsigned int i;
 
     fprintf(stderr,
-            "XEMU_QEMU_POLL_PROFILE v=4 tid=%d all_calls=%" PRIu64
+            "XEMU_QEMU_POLL_PROFILE v=5 tid=%d phase=%" PRIu64
+            " all_calls=%" PRIu64
             " negative_calls=%" PRIu64 " zero_calls=%" PRIu64
             " long_calls=%" PRIu64 " entries=%" PRIu64
             " buckets=%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64
@@ -244,7 +323,7 @@ static void xbox_poll_profile_emit(XboxPollSpinProfile *profile)
             ",%" PRIu64 ",%" PRIu64 " source_spins=%" PRIu64 ",%" PRIu64
             ",%" PRIu64 ",%" PRIu64 ",%" PRIu64
             " owner_overflow=%" PRIu64 "\n",
-            qemu_get_thread_id(), profile->all_calls,
+            qemu_get_thread_id(), profile->phase, profile->all_calls,
             profile->negative_calls, profile->zero_calls,
             profile->long_calls, profile->entries,
             profile->timeout_buckets[0], profile->timeout_buckets[1],
@@ -270,14 +349,14 @@ static void xbox_poll_profile_emit(XboxPollSpinProfile *profile)
             continue;
         }
         fprintf(stderr,
-                "XEMU_QEMU_TIMER_OWNER_PROFILE v=1 tid=%d"
+                "XEMU_QEMU_TIMER_OWNER_PROFILE v=2 tid=%d phase=%" PRIu64
                 " callback_id=0x%" PRIx64
                 " clock=%d selected=%" PRIu64 " selected_zero=%" PRIu64
                 " selected_spin=%" PRIu64 " selected_requested_ns=%" PRIu64
                 " selected_spin_ns=%" PRIu64 " tied=%" PRIu64
                 " callbacks=%" PRIu64 " callback_late_ns=%" PRIu64
                 " callback_max_late_ns=%" PRIu64 "\n",
-                qemu_get_thread_id(),
+                qemu_get_thread_id(), profile->phase,
                 xbox_poll_profile_callback_id(owner->callback),
                 owner->clock_type, owner->selected_calls,
                 owner->selected_zero_calls, owner->selected_spin_calls,
