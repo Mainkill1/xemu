@@ -31,7 +31,14 @@ Dxt1DirtyOnceRedraw +9.42%. See [all test rows](marker-vulkan/per-test.csv),
 [group results](marker-vulkan/groups.md), [oracle comparison](marker-vulkan/oracle-comparison.json),
 and [baseline](marker-vulkan/frozen-s-vulkan-resource-usage-lanes.csv)/[candidate resources](marker-vulkan/wait-only-vulkan-resource-usage-lanes.csv).
 Resource samples cover process execution, not only individual marked tests.
-OpenGL comparison remains pending collection.
+OpenGL also completed 149/149 records twice per build. Its leaf mean total was
+126,587.891 ms baseline versus 128,010.199 ms candidate (+1.12%).
+[Grouped results](marker-opengl/groups.md), [all test rows](marker-opengl/per-test.csv),
+and [baseline](marker-opengl/frozen-s-opengl-resource-usage-lanes.csv)/[candidate resources](marker-opengl/wait-only-opengl-resource-usage-lanes.csv).
+OpenGL baseline consensus did not pass: the same unsynchronized S3TC record's
+internal count differs (14 versus 15), as in the historical production pair.
+The remaining normalized record fields match. This is a qualification limitation,
+not a demonstrated candidate regression; it is preserved in the oracle report.
 
 The next implementation, `0edb216c23ab071042bb26005267d0c3816337cd`, makes the wait
 an optional **Tweaks → Reduce CPU usage while waiting** setting, off by default.
@@ -46,6 +53,30 @@ unsynchronized same-address S3TC test. That record already excludes framebuffer
 and tile-center observations because per-draw source generation is undefined.
 The count's semantics still need checking; a full OpenGL consensus pass is not
 claimed, and this difference is not attributed to the wait candidate.
+
+## Profiling-stall repair: native follow-up
+
+The archived research head `172c4bd80a2e4583e39b83190a4a6807d8ab9115` removes
+periodic profiling output while retaining explicit flush/reset controls. With
+profiling enabled, four 60-second captures completed using the unchanged
+snapshot/Start/B route. End images were inspected: all show the resumed town
+scene, with no reconnect or pause prompt. Seed and private-HDD cleanup checks
+passed. Single captures do not establish statistical non-inferiority.
+
+| Renderer / build | Display-write cadence FPS | p95 ms | p99 ms | Intervals >150 ms |
+|---|---:|---:|---:|---:|
+| Vulkan busy control | 28.517 | 40.694 | 46.693 | 0 |
+| Vulkan wait candidate | 28.111 | 42.016 | 48.121 | 0 |
+| OpenGL busy control | 38.870 | 31.275 | 36.600 | 0 |
+| OpenGL wait candidate | 38.746 | 31.624 | 36.770 | 0 |
+
+The previous profiling-on controls had 27–28 intervals above 150 ms per minute.
+The periodic pattern was absent in these follow-ups; one candidate Vulkan gap
+was 76.645 ms. This supports the research profiling repair on this workload,
+not qualification of the later optional-wait implementation or all freeze reports.
+[Exact sources, executable hashes and measurements](profile-repair/summary.csv),
+[long intervals](profile-repair/gaps.csv). The CSV's automated gameplay field
+remains NOT_ESTABLISHED; the end-image inspection above is a separate observation.
 
 ## Change and integration scope
 
