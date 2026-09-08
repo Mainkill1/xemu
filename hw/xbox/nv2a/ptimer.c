@@ -57,6 +57,7 @@ static inline bool ptimer_clock_running(const NV2AState *d)
 
 void ptimer_reset(NV2AState *d)
 {
+    d->ptimer.alarm_armed = false;
     d->ptimer.alarm_time = 0;
     d->ptimer.time_offset = 0;
     timer_del(&d->ptimer.timer);
@@ -192,7 +193,7 @@ static uint64_t next_alarm_time(uint64_t reg_now, uint32_t alarm_low)
 
 static bool ptimer_latch_overdue_alarm(NV2AState *d, uint64_t reg_now)
 {
-    if (!ptimer_clock_running(d) ||
+    if (!d->ptimer.alarm_armed || !ptimer_clock_running(d) ||
         !is_alarm_reached(reg_now, d->ptimer.alarm_time)) {
         return false;
     }
@@ -205,9 +206,10 @@ static bool ptimer_latch_overdue_alarm(NV2AState *d, uint64_t reg_now)
 
 static void schedule_qemu_timer(NV2AState *d)
 {
-    if (!ptimer_clock_running(d)) {
-        /* Keep the alarm armed so programming a valid ratio reschedules it. */
-        timer_mod(&d->ptimer.timer, INT64_MAX);
+    if (!d->ptimer.alarm_armed || !ptimer_clock_running(d) ||
+        !(d->ptimer.enabled_interrupts & NV_PTIMER_INTR_EN_0_ALARM)) {
+        /* Guest alarm state survives without a redundant host callback. */
+        timer_del(&d->ptimer.timer);
         return;
     }
 
@@ -244,17 +246,26 @@ static void ptimer_alarm_fired(void *opaque)
     schedule_qemu_timer(d);
 }
 
-void ptimer_post_load(NV2AState *d)
+void ptimer_post_load(NV2AState *d, int version_id)
 {
-    if (timer_pending(&d->ptimer.timer)) {
-        uint64_t reg_now = get_reg_time(d);
-
-        ptimer_latch_overdue_alarm(d, reg_now);
-
-        /* Rebuild the redundant host deadline from restored PTIMER state. */
-        schedule_qemu_timer(d);
+    if (version_id < 5) {
+        /* v4 stored armed state implicitly in the host timer. Earlier streams
+         * stored no alarm state; pre-load clears the previous guest's timer. */
+        d->ptimer.alarm_armed = version_id == 4 &&
+                               timer_pending(&d->ptimer.timer);
     }
+    ptimer_latch_overdue_alarm(d, get_reg_time(d));
+    schedule_qemu_timer(d);
+    nv2a_update_irq(d);
+}
 
+void ptimer_set_core_clock(NV2AState *d, uint64_t frequency)
+{
+    /* Preserve the existing absolute-time counter model on rate changes.
+     * First materialize elapsed state using the old frequency. */
+    ptimer_latch_overdue_alarm(d, get_reg_time(d));
+    d->pramdac.core_clock_freq = frequency;
+    schedule_qemu_timer(d);
     nv2a_update_irq(d);
 }
 
@@ -265,7 +276,7 @@ uint64_t ptimer_read(void *opaque, hwaddr addr, unsigned int size)
     uint64_t r = 0;
     switch (addr) {
     case NV_PTIMER_INTR_0:
-        if (timer_pending(&d->ptimer.timer)) {
+        if (d->ptimer.alarm_armed) {
             uint64_t reg_now = get_reg_time(d);
             if (ptimer_latch_overdue_alarm(d, reg_now)) {
                 nv2a_update_irq(d);
@@ -308,42 +319,47 @@ void ptimer_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
 
     nv2a_reg_log_write(NV_PTIMER, addr, size, val);
 
+    /* Reconcile under the old state before acknowledgment, reprogramming,
+     * clock-ratio changes or guest time writes. Publish the final IRQ once. */
     switch (addr) {
     case NV_PTIMER_INTR_0:
-        /* Acknowledge elapsed guest state even if its callback has not run.
-         * Otherwise unmasking can resurrect the epoch just acknowledged. */
-        if (timer_pending(&d->ptimer.timer) &&
-            ptimer_latch_overdue_alarm(d, get_reg_time(d))) {
-            schedule_qemu_timer(d);
-        }
+    case NV_PTIMER_INTR_EN_0:
+    case NV_PTIMER_NUMERATOR:
+    case NV_PTIMER_DENOMINATOR:
+    case NV_PTIMER_ALARM_0:
+    case NV_PTIMER_TIME_0:
+    case NV_PTIMER_TIME_1:
+        ptimer_latch_overdue_alarm(d, get_reg_time(d));
+        break;
+    default:
+        break;
+    }
+
+    switch (addr) {
+    case NV_PTIMER_INTR_0:
         d->ptimer.pending_interrupts &= ~val;
-        nv2a_update_irq(d);
+        schedule_qemu_timer(d);
         break;
     case NV_PTIMER_INTR_EN_0:
         d->ptimer.enabled_interrupts = val;
-        if (val && timer_pending(&d->ptimer.timer)) {
-            uint64_t reg_now = get_reg_time(d);
-            if (ptimer_latch_overdue_alarm(d, reg_now)) {
-                schedule_qemu_timer(d);
-            }
-        }
-        nv2a_update_irq(d);
+        schedule_qemu_timer(d);
         break;
     case NV_PTIMER_DENOMINATOR:
         d->ptimer.denominator = val;
-        if (timer_pending(&d->ptimer.timer)) {
+        if (d->ptimer.alarm_armed) {
             schedule_qemu_timer(d);
         }
         break;
     case NV_PTIMER_NUMERATOR:
         d->ptimer.numerator = val;
-        if (timer_pending(&d->ptimer.timer)) {
+        if (d->ptimer.alarm_armed) {
             schedule_qemu_timer(d);
         }
         break;
     case NV_PTIMER_ALARM_0: {
         uint64_t reg_now = get_reg_time(d);
         d->ptimer.alarm_time = next_alarm_time(reg_now, val);
+        d->ptimer.alarm_armed = true;
         schedule_qemu_timer(d);
     } break;
     case NV_PTIMER_TIME_0: {
@@ -352,7 +368,7 @@ void ptimer_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
             PTIMER_REG_TIME_GET_TIME_1(current_reg_time), val & ALARM_MASK);
         uint64_t target_internal = PTIMER_REG_TO_INTERNAL_TIME(target_reg_time);
         d->ptimer.time_offset = target_internal - ptimer_get_absolute_clock(d);
-        if (timer_pending(&d->ptimer.timer)) {
+        if (d->ptimer.alarm_armed) {
             schedule_qemu_timer(d);
         }
     } break;
@@ -362,11 +378,12 @@ void ptimer_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
             val, PTIMER_REG_TIME_GET_TIME_0(current_reg_time));
         uint64_t target_internal = PTIMER_REG_TO_INTERNAL_TIME(target_reg_time);
         d->ptimer.time_offset = target_internal - ptimer_get_absolute_clock(d);
-        if (timer_pending(&d->ptimer.timer)) {
+        if (d->ptimer.alarm_armed) {
             schedule_qemu_timer(d);
         }
     } break;
     default:
         break;
     }
+    nv2a_update_irq(d);
 }

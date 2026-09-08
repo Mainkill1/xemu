@@ -35,6 +35,7 @@ static void init_nv2a_ptimer(NV2AState *d)
     d->pramdac.core_clock_freq = NANOSECONDS_PER_SECOND;
     d->ptimer.numerator = 1;
     d->ptimer.denominator = 1;
+    d->ptimer.enabled_interrupts = NV_PTIMER_INTR_EN_0_ALARM;
     d->pmc.enabled_interrupts = NV_PMC_INTR_EN_0_HARDWARE;
     ptimer_init(d);
 }
@@ -46,8 +47,7 @@ static void fire_alarm_at(NV2AState *d, int64_t now_ns)
     g_assert_true(timer_pending(timer));
     ptimer_test_time_ns = now_ns;
     timer_del(timer);
-    timer->next = NULL;
-    timer->expire_time = -1;
+    g_assert_false(timer_pending(timer));
     timer->cb(timer->opaque);
 }
 
@@ -58,7 +58,7 @@ static void expire_alarm(NV2AState *d)
 
 static void make_alarm_four_epochs_overdue(NV2AState *d)
 {
-    int64_t first_expiry_ns = timer_expire_time_ns(&d->ptimer.timer);
+    int64_t first_expiry_ns = 8; /* TEST_ALARM_LOW at the 1 GHz 1:1 ratio. */
 
     ptimer_test_time_ns = first_expiry_ns + 4 * PTIMER_REG_EPOCH_NS + 1000;
 }
@@ -101,8 +101,10 @@ static void test_pending_alarm_asserts_when_enabled(void)
     NV2AState d;
 
     init_nv2a_ptimer(&d);
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, 0, 4);
     ptimer_write(&d, NV_PTIMER_ALARM_0, 0x100, 4);
-    expire_alarm(&d);
+    ptimer_test_time_ns = 8;
+    ptimer_read(&d, NV_PTIMER_INTR_0, 4);
     g_assert_false(irq_asserted);
 
     ptimer_write(&d, NV_PTIMER_INTR_EN_0, NV_PTIMER_INTR_EN_0_ALARM, 4);
@@ -160,7 +162,7 @@ static void test_post_load_reconciles_overdue_alarm(void)
     g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), <,
                     ptimer_test_time_ns);
 
-    ptimer_post_load(&d);
+    ptimer_post_load(&d, 5);
 
     g_assert_cmphex(d.ptimer.pending_interrupts, ==,
                     NV_PTIMER_INTR_0_ALARM);
@@ -192,6 +194,7 @@ static void test_intr_enable_reconciles_overdue_alarm(void)
     NV2AState d;
 
     init_nv2a_ptimer(&d);
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, 0, 4);
     ptimer_write(&d, NV_PTIMER_ALARM_0, TEST_ALARM_LOW, 4);
     make_alarm_four_epochs_overdue(&d);
 
@@ -215,22 +218,23 @@ static void test_zero_ratio_stops_clock_without_division(void)
     d.pramdac.core_clock_freq = NANOSECONDS_PER_SECOND;
     d.pmc.enabled_interrupts = NV_PMC_INTR_EN_0_HARDWARE;
     ptimer_init(&d);
+    d.ptimer.enabled_interrupts = NV_PTIMER_INTR_EN_0_ALARM;
 
     g_assert_cmphex(ptimer_read(&d, NV_PTIMER_TIME_0, 4), ==, 0);
     g_assert_cmphex(ptimer_read(&d, NV_PTIMER_TIME_1, 4), ==, 0);
 
     ptimer_write(&d, NV_PTIMER_ALARM_0, TEST_ALARM_LOW, 4);
-    g_assert_true(timer_pending(&d.ptimer.timer));
-    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, INT64_MAX);
+    g_assert_true(d.ptimer.alarm_armed);
+    g_assert_false(timer_pending(&d.ptimer.timer));
 
     ptimer_write(&d, NV_PTIMER_DENOMINATOR, 1, 4);
-    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, INT64_MAX);
+    g_assert_false(timer_pending(&d.ptimer.timer));
 
     ptimer_write(&d, NV_PTIMER_NUMERATOR, 1, 4);
     g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), <, INT64_MAX);
 
     ptimer_write(&d, NV_PTIMER_NUMERATOR, 0, 4);
-    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, INT64_MAX);
+    g_assert_false(timer_pending(&d.ptimer.timer));
     g_assert_cmphex(ptimer_read(&d, NV_PTIMER_NUMERATOR, 4), ==, 0);
 
     ptimer_write(&d, NV_PTIMER_NUMERATOR, UINT32_MAX, 4);
@@ -241,8 +245,8 @@ static void test_zero_ratio_stops_clock_without_division(void)
                     UINT32_MAX);
 
     ptimer_write(&d, NV_PTIMER_DENOMINATOR, 0, 4);
-    ptimer_post_load(&d);
-    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, INT64_MAX);
+    ptimer_post_load(&d, 5);
+    g_assert_false(timer_pending(&d.ptimer.timer));
 
     ptimer_reset(&d);
 }
@@ -255,7 +259,7 @@ static void test_post_load_rebuilds_irq_without_timer(void)
     d.ptimer.pending_interrupts = NV_PTIMER_INTR_0_ALARM;
     d.ptimer.enabled_interrupts = NV_PTIMER_INTR_EN_0_ALARM;
 
-    ptimer_post_load(&d);
+    ptimer_post_load(&d, 5);
 
     g_assert_true(irq_asserted);
     g_assert_cmphex(d.pmc.pending_interrupts & NV_PMC_INTR_0_PTIMER, ==,
@@ -389,7 +393,7 @@ static void test_deadline_wrap_and_stopped_source(void)
     init_nv2a_ptimer(&d);
     d.pramdac.core_clock_freq = 0;
     ptimer_write(&d, NV_PTIMER_ALARM_0, 0x100, 4);
-    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, INT64_MAX);
+    g_assert_false(timer_pending(&d.ptimer.timer));
     d.pramdac.core_clock_freq = 1000000000;
     ptimer_write(&d, NV_PTIMER_NUMERATOR, 1, 4);
     g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, 8);
@@ -409,7 +413,7 @@ static void test_wide_deadline_reconciles_source_wrap(void)
      * ceil(2^64 * 1e9 / (2^32 - 1)) = 4294967297000000001.
      */
     d.ptimer.alarm_time = 1ULL << 38;
-    ptimer_post_load(&d);
+    ptimer_post_load(&d, 5);
     g_assert_cmpuint(timer_expire_time_ns(&d.ptimer.timer), ==,
                      UINT64_C(4294967297000000001));
     expire_alarm(&d);
@@ -424,6 +428,7 @@ static void test_masked_ack_reconciles_elapsed_alarm(void)
     NV2AState d;
 
     init_nv2a_ptimer(&d);
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, 0, 4);
     ptimer_write(&d, NV_PTIMER_ALARM_0, TEST_ALARM_LOW, 4);
     /* Advance without dispatch: acknowledgment must consume this epoch even
      * when no callback materialized its pending bit. */
@@ -448,19 +453,131 @@ static void test_stopped_clock_does_not_latch(gconstpointer restore)
      * pending state; equality alone is not an elapsed running-clock event. */
     d.ptimer.numerator = 0;
     d.ptimer.alarm_time = 0;
+    d.ptimer.alarm_armed = true;
     d.ptimer.enabled_interrupts = NV_PTIMER_INTR_EN_0_ALARM;
     timer_mod(&d.ptimer.timer, INT64_MAX);
     if (GPOINTER_TO_INT(restore)) {
-        ptimer_post_load(&d);
+        ptimer_post_load(&d, 5);
     } else {
         ptimer_read(&d, NV_PTIMER_INTR_0, 4);
     }
     g_assert_cmphex(d.ptimer.pending_interrupts, ==, 0);
     g_assert_false(irq_asserted);
     d.ptimer.pending_interrupts = NV_PTIMER_INTR_0_ALARM;
-    ptimer_post_load(&d);
+    ptimer_post_load(&d, 5);
     g_assert_cmphex(d.ptimer.pending_interrupts, ==, NV_PTIMER_INTR_0_ALARM);
     g_assert_true(irq_asserted);
+    ptimer_reset(&d);
+}
+
+static void test_masked_alarm_has_no_callback(void)
+{
+    NV2AState d;
+
+    init_nv2a_ptimer(&d);
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, 0, 4);
+    ptimer_write(&d, NV_PTIMER_ALARM_0, TEST_ALARM_LOW, 4);
+    g_assert_false(timer_pending(&d.ptimer.timer));
+    ptimer_test_time_ns = 4 * PTIMER_REG_EPOCH_NS + 1008;
+    g_assert_cmphex(ptimer_read(&d, NV_PTIMER_INTR_0, 4), ==,
+                   NV_PTIMER_INTR_0_ALARM);
+    g_assert_false(timer_pending(&d.ptimer.timer));
+    g_assert_false(irq_asserted);
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, NV_PTIMER_INTR_EN_0_ALARM, 4);
+    g_assert_true(irq_asserted);
+    assert_alarm_caught_up(&d);
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, 0, 4);
+    g_assert_false(timer_pending(&d.ptimer.timer));
+    ptimer_reset(&d);
+}
+
+static void test_rate_changes_keep_masked_state(void)
+{
+    NV2AState d;
+
+    init_nv2a_ptimer(&d);
+    ptimer_write(&d, NV_PTIMER_ALARM_0, TEST_ALARM_LOW, 4);
+    ptimer_test_time_ns = 4;
+    ptimer_set_core_clock(&d, 500000000);
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, 16);
+    ptimer_set_core_clock(&d, 0);
+    g_assert_false(timer_pending(&d.ptimer.timer));
+    g_assert_true(d.ptimer.alarm_armed);
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, 0, 4);
+    ptimer_test_time_ns = 20;
+    ptimer_set_core_clock(&d, 1000000000);
+    g_assert_false(timer_pending(&d.ptimer.timer));
+    ptimer_write(&d, NV_PTIMER_INTR_0, NV_PTIMER_INTR_0_ALARM, 4);
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, NV_PTIMER_INTR_EN_0_ALARM, 4);
+    g_assert_false(irq_asserted);
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), >, 20);
+    ptimer_reset(&d);
+    g_assert_false(d.ptimer.alarm_armed);
+    g_assert_false(timer_pending(&d.ptimer.timer));
+}
+
+static void test_restore_alarm_versions(void)
+{
+    NV2AState d;
+
+    /* v4: the serialized timer represented armed state even while masked. */
+    init_nv2a_ptimer(&d);
+    d.ptimer.enabled_interrupts = 0;
+    d.ptimer.alarm_time = TEST_ALARM_LOW;
+    timer_mod(&d.ptimer.timer, 8);
+    ptimer_test_time_ns = 10;
+    ptimer_post_load(&d, 4);
+    g_assert_true(d.ptimer.alarm_armed);
+    g_assert_false(timer_pending(&d.ptimer.timer));
+    g_assert_cmphex(d.ptimer.pending_interrupts, ==, NV_PTIMER_INTR_0_ALARM);
+    ptimer_write(&d, NV_PTIMER_INTR_0, NV_PTIMER_INTR_0_ALARM, 4);
+
+    /* v5: no timer is queued, but the serialized armed bit survives. */
+    ptimer_post_load(&d, 5);
+    g_assert_true(d.ptimer.alarm_armed);
+    g_assert_false(timer_pending(&d.ptimer.timer));
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, NV_PTIMER_INTR_EN_0_ALARM, 4);
+    g_assert_true(timer_pending(&d.ptimer.timer));
+    g_assert_false(irq_asserted);
+
+    /* Pre-load resets fields absent from v1-v3 before reading the stream. */
+    ptimer_reset(&d);
+    d.ptimer.pending_interrupts = NV_PTIMER_INTR_0_ALARM;
+    ptimer_post_load(&d, 3);
+    g_assert_false(d.ptimer.alarm_armed);
+    g_assert_false(timer_pending(&d.ptimer.timer));
+    g_assert_true(irq_asserted);
+    ptimer_reset(&d);
+
+    /* An unarmed v4 timer must not arm the reset-zero comparator. */
+    init_nv2a_ptimer(&d);
+    ptimer_post_load(&d, 4);
+    g_assert_false(d.ptimer.alarm_armed);
+    g_assert_false(irq_asserted);
+    ptimer_reset(&d);
+}
+
+static void test_pll_register_reschedules_alarm(void)
+{
+    NV2AState d;
+
+    init_nv2a_ptimer(&d);
+    ptimer_write(&d, NV_PTIMER_ALARM_0, TEST_ALARM_LOW, 4);
+    pramdac_write(&d, NV_PRAMDAC_NVPLL_COEFF, 0x601, 4);
+    g_assert_cmpuint(pramdac_read(&d, NV_PRAMDAC_NVPLL_COEFF, 4), ==, 0x601);
+    g_assert_cmpuint(d.pramdac.core_clock_freq, ==, 99999996);
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, 81);
+    ptimer_test_time_ns = 20;
+    pramdac_write(&d, NV_PRAMDAC_NVPLL_COEFF, 0x301, 4);
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, 161);
+    ptimer_test_time_ns = 161;
+    pramdac_write(&d, NV_PRAMDAC_NVPLL_COEFF, 0, 4);
+    g_assert_false(timer_pending(&d.ptimer.timer));
+    g_assert_true(irq_asserted); /* Elapsed under the old rate before stopping. */
+    ptimer_write(&d, NV_PTIMER_INTR_0, NV_PTIMER_INTR_0_ALARM, 4);
+    pramdac_write(&d, NV_PRAMDAC_NVPLL_COEFF, 0x601, 4);
+    g_assert_false(irq_asserted);
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), >, 161);
     ptimer_reset(&d);
 }
 
@@ -511,5 +628,13 @@ int main(int argc, char **argv)
                         GINT_TO_POINTER(0), test_stopped_clock_does_not_latch);
     g_test_add_data_func("/xbox/nv2a/ptimer/stopped-restore",
                         GINT_TO_POINTER(1), test_stopped_clock_does_not_latch);
+    g_test_add_func("/xbox/nv2a/ptimer/masked-no-callback",
+                    test_masked_alarm_has_no_callback);
+    g_test_add_func("/xbox/nv2a/ptimer/rate-changes-masked",
+                    test_rate_changes_keep_masked_state);
+    g_test_add_func("/xbox/nv2a/ptimer/restore-versions",
+                    test_restore_alarm_versions);
+    g_test_add_func("/xbox/nv2a/ptimer/pll-register",
+                    test_pll_register_reschedules_alarm);
     return g_test_run();
 }
