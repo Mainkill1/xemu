@@ -45,7 +45,7 @@ coverage before acceptance.
 | Control | Before | After |
 | --- | --- | --- |
 | Program masked comparator | Host timer remains queued | No queued timer; guest alarm remains armed |
-| Poll after multiple masked epochs, then unmask | Callback required by old scheduling policy | Pending alarm observed; IRQ delivered; next deadline future |
+| Poll after multiple masked epochs, then unmask | Host timer remains queued during polling | Pending alarm observed; IRQ delivered; next deadline future |
 | PLL register changes 1 GHz to 99,999,996 Hz | Old 8 ns deadline retained | Correct 81 ns deadline |
 | PLL slows again, stops after expiry, restarts | No PLL-to-PTIMER reschedule hook | 161 ns deadline; old-rate pending preserved; stop cancels; restart schedules |
 | Restore v4/v5 masked alarm state | Implicit host-timer dependency | Guest armed state survives canceled callback |
