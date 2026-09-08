@@ -1,0 +1,22 @@
+{
+  "source_commit": "e1b2e635def0d66a2911b94e005a988a3987e8b0",
+  "exe_sha256": "c69d221d85aff9d9b8d9f9c94f63a11145ec93a4d1962c79f4cef3b0d2e671d4",
+  "unit_sha256": "e0837cb85e96f21c74f69d3b594cb7330f349f612d83493012cb35dada8db505",
+  "native_unit_tests": 23,
+  "toolchain_image": "ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
+  "build_options": {
+    "buildtype": "debug",
+    "debug": true,
+    "optimization": "2",
+    "b_lto": true,
+    "x86_version": "3"
+  },
+  "native_stream_versions": [
+    5,
+    4
+  ],
+  "gameplay_qualification": "FAIL: controller reconnect symptom also observed on baseline",
+  "paused_save": "FAIL: issue49",
+  "seed_sha256": "d178ecc4154abad5fc7cb9e428f380a1c8d49d20cbed66ba552eaaa6ed7514ad",
+  "field_trace_sha256": "997c2ab37a2733155e40631b0f3ac0e469884a828d947a0dbda6a31f2b15443a"
+}

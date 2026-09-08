@@ -1,0 +1,9 @@
+attempt,source,stage,outcome,display_write_events,qualification
+candidate_paused_save,e1b2e635de,initial_resume,PASS,276,activity_only
+candidate_paused_save,e1b2e635de,continue_after_save,TIMEOUT,,blocked_issue49
+candidate_normal_save,e1b2e635de,save_v5_return,PASS,,command_success_only
+candidate_normal_save,e1b2e635de,load_v5_stream,PASS,,serialization_only
+candidate_normal_save,e1b2e635de,load_v4_stream,PASS,,serialization_only
+candidate_normal_save,e1b2e635de,initial_resume,FAIL,0,controller_reconnect_screen
+candidate_normal_save,e1b2e635de,overall,FAIL,,no_gameplay_qualification
+baseline_existing_cell,3caf5d8542,resume,FAIL,,fewer_than_two_display_writes

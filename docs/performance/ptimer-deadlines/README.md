@@ -1,5 +1,9 @@
 # PTIMER future deadlines
 
+Current qualification: [native stream results and failures](NATIVE-STREAMS.md).
+Real v4/v5 streams loaded and the native unit passed; gameplay qualification
+failed. PR48 remains draft. Earlier reports below retain their original scope.
+
 Latest implementation: [masked alarms and PLL transitions](MASKED-ALARMS.md),
 with its own source identity and 23-test results. Real stream/native qualification
 remains pending. Earlier reports below retain their original scope and identities.
