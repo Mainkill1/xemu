@@ -48,5 +48,25 @@
   "selected_morrowind_runner_sha256": [
     "9994bd2d823e8557d39aef582fef8d7f37965d54caa52eaa09514e5d256307ed"
   ],
-  "host_quarantined": false
+  "host_quarantined": false,
+  "production_path_oracle": {
+    "status": "PASS",
+    "source_candidate": "c1462ad7d88a1d9d20c42ee70ed3661276039aba",
+    "instrumented_xemu_sha256": {
+      "baseline": "74a0f697f22c9d7f1e368db46ae3607295d657a2b6edf750e9e9827bfd9a2090",
+      "candidate": "46510847767f5c7e282261766166bd9bd6692b3526c21c224b83995bd41879d7"
+    },
+    "probe_overlay_sha256": {
+      "baseline": "aff31449d94bfe8f323b36b9cbcfc519efc2e92cff81d5e67cc76cf54ab7440f",
+      "candidate": "3bf0fe23f4cc77dcb99c76d7d3b60ba350d3cd2f6de24193a92f5dc7e3b5a80b"
+    },
+    "records_per_build": 147,
+    "renderer": "VULKAN",
+    "raw_event_log_sha256": {
+      "baseline": "ff977efebea64c1aff754efac2f1d698129d0902a1bfd3b344d8b4b2f5ea20ee",
+      "candidate": "a22545f9ea515414eef7137db79932dc1c70c1845f08012b9fdc3b1714e7e39f"
+    },
+    "timing_eligible": false,
+    "source_baseline": "88fc5c9bef5663f075fb514a7ceef904be3a49e8"
+  }
 }

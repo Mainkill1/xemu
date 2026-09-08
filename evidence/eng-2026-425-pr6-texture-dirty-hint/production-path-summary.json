@@ -1,0 +1,88 @@
+{
+  "baseline": {
+    "changed_successfully": 13512,
+    "completed_successfully": 438850,
+    "event_counts": {
+      "bound-dirty": 348785,
+      "complete": 438850,
+      "fast-path": 205943,
+      "hash": 439138
+    },
+    "expectation": "broken",
+    "failed_completions": 0,
+    "failed_completions_retaining_dirty_hint": 0,
+    "failures": [],
+    "status": "PASS",
+    "successful_completions_retaining_dirty_hint": 438850,
+    "successful_palette_revalidations": 0,
+    "successful_retries": 0,
+    "texture_start_pages_with_multiple_bindings": 33,
+    "unchanged_successfully": 425338
+  },
+  "candidate": {
+    "changed_successfully": 13458,
+    "completed_successfully": 19392,
+    "event_counts": {
+      "bound-dirty": 1354,
+      "complete": 19392,
+      "fast-path": 553374,
+      "hash": 19680
+    },
+    "expectation": "fixed",
+    "failed_completions": 0,
+    "failed_completions_retaining_dirty_hint": 0,
+    "failures": [],
+    "status": "PASS",
+    "successful_completions_retaining_dirty_hint": 0,
+    "successful_palette_revalidations": 0,
+    "successful_retries": 0,
+    "texture_start_pages_with_multiple_bindings": 33,
+    "unchanged_successfully": 5934
+  },
+  "conclusion": "The repaired production path retires every successfully handled hint, preserves changed-payload work, and returns repeated unchanged draws to the fast path.",
+  "delta_percent": {
+    "bound-dirty": -99.61179523201973,
+    "complete": -95.5811780790703,
+    "fast-path": 168.7025050620803,
+    "hash": -95.51849304774353
+  },
+  "raw_event_logs": {
+    "baseline": {
+      "bytes": 134619094,
+      "lines": 1432716,
+      "sha256": "ff977efebea64c1aff754efac2f1d698129d0902a1bfd3b344d8b4b2f5ea20ee"
+    },
+    "candidate": {
+      "bytes": 40448258,
+      "lines": 593800,
+      "sha256": "a22545f9ea515414eef7137db79932dc1c70c1845f08012b9fdc3b1714e7e39f"
+    }
+  },
+  "recipe": {
+    "baseline_result": "PASS",
+    "candidate_result": "PASS",
+    "reason": "Test-only event logging performs synchronous file writes.",
+    "renderer": "Vulkan",
+    "suite_records": 147,
+    "timing_eligible": false
+  },
+  "schema_version": 1,
+  "source": {
+    "baseline": "88fc5c9bef5663f075fb514a7ceef904be3a49e8",
+    "baseline_instrumented_xemu_sha256": "74a0f697f22c9d7f1e368db46ae3607295d657a2b6edf750e9e9827bfd9a2090",
+    "candidate": "c1462ad7d88a1d9d20c42ee70ed3661276039aba",
+    "candidate_instrumented_xemu_sha256": "46510847767f5c7e282261766166bd9bd6692b3526c21c224b83995bd41879d7"
+  },
+  "status": "PASS",
+  "unit": {
+    "cases": [
+      "unchanged-payload retirement",
+      "changed payload upload",
+      "upload failure/retry state",
+      "palette-only hash transition",
+      "shared-page independent retirement"
+    ],
+    "sha256": "99afac7e1a63666074728e37f1373a4ca33e03a6d8e2d8a0ea3331593deaeba2",
+    "status": "5/5 PASS"
+  }
+}

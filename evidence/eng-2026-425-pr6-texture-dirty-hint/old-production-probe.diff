@@ -1,0 +1,102 @@
+diff --git a/hw/xbox/nv2a/pgraph/vk/texture.c b/hw/xbox/nv2a/pgraph/vk/texture.c
+index 9b716633a6b7..343c49584806 100644
+--- a/hw/xbox/nv2a/pgraph/vk/texture.c
++++ b/hw/xbox/nv2a/pgraph/vk/texture.c
+@@ -31,6 +31,41 @@
+ #include "qemu/lru.h"
+ #include "renderer.h"
+
++#ifdef XEMU_TEXTURE_REVALIDATION_TEST
++static void pgraph_vk_texture_revalidation_test_event(
++    const char *event, unsigned int texture_idx, const void *binding,
++    uint64_t texture_offset, uint64_t texture_length,
++    uint64_t palette_offset, uint64_t palette_length, uint64_t content_hash,
++    uint64_t stored_hash, int content_changed, int upload_succeeded,
++    int dirty_hint)
++{
++    static FILE *output;
++    static uint64_t sequence;
++    const char *path = getenv("XEMU_TEXTURE_REVALIDATION_TEST_OUTPUT");
++
++    if (!path || !*path) {
++        return;
++    }
++    if (!output) {
++        output = fopen(path, "a");
++        if (!output) {
++            return;
++        }
++    }
++
++    fprintf(output,
++            "%" PRIu64 ",%s,%u,%p,%" PRIu64 ",%" PRIu64 ",%" PRIu64
++            ",%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%d,%d,%d\n",
++            ++sequence, event, texture_idx, binding, texture_offset,
++            texture_length, palette_offset, palette_length, content_hash,
++            stored_hash, content_changed, upload_succeeded, dirty_hint);
++    fflush(output);
++}
++
++#define PGRAPH_VK_TEXTURE_REVALIDATION_TEST_EVENT(...) \
++    pgraph_vk_texture_revalidation_test_event(__VA_ARGS__)
++#endif
++
+ static void texture_cache_release_node_resources(PGRAPHVkState *r, TextureBinding *snode);
+
+ static const VkImageType dimensionality_to_vk_image_type[] = {
+@@ -1238,6 +1273,11 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
+         if (is_indexed) {
+             content_hash ^= fast_hash(palette_data, texture_palette_data_size);
+         }
++        PGRAPH_VK_TEXTURE_REVALIDATION_TEST_EVENT(
++            "hash", texture_idx, snode, texture_vram_offset, texture_length,
++            texture_palette_vram_offset, texture_palette_data_size,
++            content_hash, binding_found ? snode->hash : 0, -1, -1,
++            binding_found ? snode->possibly_dirty : 0);
+     }
+
+     if (binding_found) {
+@@ -1247,9 +1287,17 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
+                 copy_surface_to_texture(pg, surface, snode);
+             }
+         } else {
+-            if (possibly_dirty && content_hash != snode->hash) {
+-                upload_texture_image(pg, texture_idx, snode);
+-                snode->hash = content_hash;
++            if (possibly_dirty) {
++                bool content_changed = content_hash != snode->hash;
++                if (content_changed) {
++                    upload_texture_image(pg, texture_idx, snode);
++                    snode->hash = content_hash;
++                }
++                PGRAPH_VK_TEXTURE_REVALIDATION_TEST_EVENT(
++                    "complete", texture_idx, snode, texture_vram_offset,
++                    texture_length, texture_palette_vram_offset,
++                    texture_palette_data_size, content_hash, snode->hash,
++                    content_changed, true, snode->possibly_dirty);
+             }
+         }
+
+@@ -1476,6 +1524,13 @@ static bool check_bound_texture_memory_dirty(NV2AState *d)
+                 binding->key.texture_length,
+                 binding->key.palette_vram_offset,
+                 binding->key.palette_length)) {
++            PGRAPH_VK_TEXTURE_REVALIDATION_TEST_EVENT(
++                "bound-dirty", i, binding,
++                binding->key.texture_vram_offset,
++                binding->key.texture_length,
++                binding->key.palette_vram_offset,
++                binding->key.palette_length, 0, binding->hash, -1, -1,
++                binding->possibly_dirty);
+             return true;
+         }
+     }
+@@ -1505,6 +1560,8 @@ void pgraph_vk_bind_textures(NV2AState *d)
+
+     if (!check_textures_dirty(pg) &&
+         !check_bound_texture_memory_dirty(d)) {
++        PGRAPH_VK_TEXTURE_REVALIDATION_TEST_EVENT(
++            "fast-path", UINT_MAX, NULL, 0, 0, 0, 0, 0, 0, -1, -1, 0);
+         NV2A_VK_DPRINTF("Not dirty");
+         NV2A_VK_DGROUP_END();
+         update_timestamps(r);

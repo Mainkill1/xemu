@@ -19,6 +19,25 @@ Status: **PASS_WITH_KNOWN_PARENT_FAILURE**
 - Morrowind: PASS, 4/4 cells.
 - PGR2: PASS, 8/8 ABBA cells.
 - Cleanup: PASS; host not quarantined.
+- Production-path dirty-hint oracle: PASS.
+
+## Production-path dirty-hint oracle
+
+The same compile-time test probe was applied to pre-repair `88fc5c9b` and repaired `c1462ad7`. It records the real `check_bound_texture_memory_dirty()` to `pgraph_vk_bind_textures()` to `create_texture()` route and is absent from ordinary Release builds. Both instrumented Vulkan runs passed all 147 XISO records. Probe-build timing is ineligible because each event is flushed to disk.
+
+| Production event | Pre-repair | Repaired | Change |
+|---|---:|---:|---:|
+| Texture hash | 439,138 | 19,680 | -95.52% |
+| Completed revalidation | 438,850 | 19,392 | -95.58% |
+| Bound-dirty gate | 348,785 | 1,354 | -99.61% |
+| Fast-path bind | 205,943 | 553,374 | +168.70% |
+| Successful completion retaining dirty hint | 438,850 | 0 | eliminated |
+| Successful changed-payload completion | 13,512 | 13,458 | -0.40% |
+| Texture start pages observed with multiple bindings | 33 | 33 | preserved |
+
+The DXT1 and RGBA8 dirty-once records each passed 128 no-write redraws per build with identical work/result/tile-center KATs. Changed-payload completion stayed effectively constant while redundant hashes fell by 95.52%, proving that the repair retires handled hints rather than skipping legitimate uploads. The focused 5/5 unit executable independently covers unchanged payload, changed payload, upload failure/retry state, palette-only hash change, and two bindings sharing a page.
+
+Compact evidence: `production-path-summary.json`, `production-path-xiso-records.csv`, `production-path-unit.txt`, both probe diffs, and `verify-texture-revalidation-probe.py`. Raw event streams remain sealed by SHA-256 in the structured summary; they are 134.6 MB and 40.4 MB and are not added to Git history.
 
 ### Expanded 153-record groups
 

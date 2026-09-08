@@ -1,0 +1,7 @@
+build,name,outcome,iterations,guest_average_us,guest_median_us,work_checksum,result_checksum,tile_center_kat,oracle_status,no_write_redraws,texture_writes,draws
+old,GameLoadComposite::10-S3tcSyncFactor-01-Dxt1SameAddressWait,PASS,8,16610,16414.0,03211c25,1a4ff923,acc7c6b0,PASS,0,128,128
+old,GameLoadComposite::10-S3tcSyncFactor-04-Dxt1DirtyOnceRedraw,PASS,8,16655,16726.0,f0976e48,fede69d6,7981b305,PASS,128,16,136
+old,GameLoadComposite::10-S3tcSyncFactor-08-Rgba8DirtyOnceRedraw,PASS,8,16615,16797.5,011baa8a,fede69d6,7981b305,PASS,128,16,136
+current,GameLoadComposite::10-S3tcSyncFactor-01-Dxt1SameAddressWait,PASS,8,16758,16763.0,03211c25,1a4ff923,acc7c6b0,PASS,0,128,128
+current,GameLoadComposite::10-S3tcSyncFactor-04-Dxt1DirtyOnceRedraw,PASS,8,16703,16704.5,f0976e48,fede69d6,7981b305,PASS,128,16,136
+current,GameLoadComposite::10-S3tcSyncFactor-08-Rgba8DirtyOnceRedraw,PASS,8,16677,16713.5,011baa8a,fede69d6,7981b305,PASS,128,16,136

@@ -1,0 +1,121 @@
+diff --git a/hw/xbox/nv2a/pgraph/vk/texture-state.h b/hw/xbox/nv2a/pgraph/vk/texture-state.h
+index 883b63f1fca6..8726287e1321 100644
+--- a/hw/xbox/nv2a/pgraph/vk/texture-state.h
++++ b/hw/xbox/nv2a/pgraph/vk/texture-state.h
+@@ -10,6 +10,14 @@
+ #include <stdbool.h>
+ #include <stdint.h>
+
++/*
++ * Validation builds may define this before including the header to observe
++ * the real renderer path. Release builds compile every event out.
++ */
++#ifndef PGRAPH_VK_TEXTURE_REVALIDATION_TEST_EVENT
++#define PGRAPH_VK_TEXTURE_REVALIDATION_TEST_EVENT(...) do { } while (0)
++#endif
++
+ static inline bool pgraph_vk_texture_needs_revalidation(bool dirty_hint,
+                                                          bool dirty_pages)
+ {
+diff --git a/hw/xbox/nv2a/pgraph/vk/texture.c b/hw/xbox/nv2a/pgraph/vk/texture.c
+index 7e48f7009fa5..79977e3f2daf 100644
+--- a/hw/xbox/nv2a/pgraph/vk/texture.c
++++ b/hw/xbox/nv2a/pgraph/vk/texture.c
+@@ -30,6 +30,42 @@
+ #include "qemu/log.h"
+ #include "qemu/lru.h"
+ #include "renderer.h"
++
++#ifdef XEMU_TEXTURE_REVALIDATION_TEST
++static void pgraph_vk_texture_revalidation_test_event(
++    const char *event, unsigned int texture_idx, const void *binding,
++    uint64_t texture_offset, uint64_t texture_length,
++    uint64_t palette_offset, uint64_t palette_length, uint64_t content_hash,
++    uint64_t stored_hash, int content_changed, int upload_succeeded,
++    int dirty_hint)
++{
++    static FILE *output;
++    static uint64_t sequence;
++    const char *path = getenv("XEMU_TEXTURE_REVALIDATION_TEST_OUTPUT");
++
++    if (!path || !*path) {
++        return;
++    }
++    if (!output) {
++        output = fopen(path, "a");
++        if (!output) {
++            return;
++        }
++    }
++
++    fprintf(output,
++            "%" PRIu64 ",%s,%u,%p,%" PRIu64 ",%" PRIu64 ",%" PRIu64
++            ",%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%d,%d,%d\n",
++            ++sequence, event, texture_idx, binding, texture_offset,
++            texture_length, palette_offset, palette_length, content_hash,
++            stored_hash, content_changed, upload_succeeded, dirty_hint);
++    fflush(output);
++}
++
++#define PGRAPH_VK_TEXTURE_REVALIDATION_TEST_EVENT(...) \
++    pgraph_vk_texture_revalidation_test_event(__VA_ARGS__)
++#endif
++
+ #include "texture-state.h"
+
+ static void texture_cache_release_node_resources(PGRAPHVkState *r, TextureBinding *snode);
+@@ -1241,6 +1277,11 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
+         if (is_indexed) {
+             content_hash ^= fast_hash(palette_data, texture_palette_data_size);
+         }
++        PGRAPH_VK_TEXTURE_REVALIDATION_TEST_EVENT(
++            "hash", texture_idx, snode, texture_vram_offset, texture_length,
++            texture_palette_vram_offset, texture_palette_data_size,
++            content_hash, binding_found ? snode->hash : 0, -1, -1,
++            binding_found ? snode->possibly_dirty : 0);
+     }
+
+     if (binding_found) {
+@@ -1256,9 +1297,17 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
+                     !content_changed ||
+                     upload_texture_image(pg, texture_idx, snode);
+
+-                if (!pgraph_vk_texture_complete_revalidation(
++                bool revalidation_succeeded =
++                    pgraph_vk_texture_complete_revalidation(
+                         content_changed, upload_succeeded, content_hash,
+-                        &snode->hash, &snode->possibly_dirty)) {
++                        &snode->hash, &snode->possibly_dirty);
++                PGRAPH_VK_TEXTURE_REVALIDATION_TEST_EVENT(
++                    "complete", texture_idx, snode, texture_vram_offset,
++                    texture_length, texture_palette_vram_offset,
++                    texture_palette_data_size, content_hash, snode->hash,
++                    content_changed, upload_succeeded,
++                    snode->possibly_dirty);
++                if (!revalidation_succeeded) {
+                     NV2A_VK_DGROUP_END();
+                     return false;
+                 }
+@@ -1493,6 +1542,13 @@ static bool check_bound_texture_memory_dirty(NV2AState *d)
+                 binding->key.texture_length,
+                 binding->key.palette_vram_offset,
+                 binding->key.palette_length)) {
++            PGRAPH_VK_TEXTURE_REVALIDATION_TEST_EVENT(
++                "bound-dirty", i, binding,
++                binding->key.texture_vram_offset,
++                binding->key.texture_length,
++                binding->key.palette_vram_offset,
++                binding->key.palette_length, 0, binding->hash, -1, -1,
++                binding->possibly_dirty);
+             return true;
+         }
+     }
+@@ -1522,6 +1578,8 @@ void pgraph_vk_bind_textures(NV2AState *d)
+
+     if (!check_textures_dirty(pg) &&
+         !check_bound_texture_memory_dirty(d)) {
++        PGRAPH_VK_TEXTURE_REVALIDATION_TEST_EVENT(
++            "fast-path", UINT_MAX, NULL, 0, 0, 0, 0, 0, 0, -1, -1, 0);
+         NV2A_VK_DPRINTF("Not dirty");
+         NV2A_VK_DGROUP_END();
+         update_timestamps(r);

@@ -228,5 +228,23 @@
         "power_watts": -0.3305867915550209
       }
     }
-  ]
+  ],
+  "production_path_oracle": {
+    "status": "PASS",
+    "baseline_instrumented_xemu_sha256": "74a0f697f22c9d7f1e368db46ae3607295d657a2b6edf750e9e9827bfd9a2090",
+    "candidate_instrumented_xemu_sha256": "46510847767f5c7e282261766166bd9bd6692b3526c21c224b83995bd41879d7",
+    "xiso_records_per_build": 147,
+    "baseline_successful_completions_retaining_dirty_hint": 438850,
+    "candidate_successful_completions_retaining_dirty_hint": 0,
+    "baseline_hash_events": 439138,
+    "candidate_hash_events": 19680,
+    "hash_event_delta_percent": -95.51849304774353,
+    "baseline_fast_path_events": 205943,
+    "candidate_fast_path_events": 553374,
+    "changed_successfully_baseline": 13512,
+    "changed_successfully_candidate": 13458,
+    "shared_texture_start_pages_with_multiple_bindings": 33,
+    "timing_eligible": false
+  },
+  "decision": "READY"
 }
