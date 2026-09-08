@@ -78,6 +78,12 @@ if sdl.found() and epoxy.found()
   }
 endif
 
+if host_os == 'windows'
+  tests += {
+    'test-xbox-qemu-poll': [],
+  }
+endif
+
 if have_system or have_tools
   tests += {
     'test-qmp-event': [testqapi],
