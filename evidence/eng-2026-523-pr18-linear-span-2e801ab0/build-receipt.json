@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "failed_or_final_stage": "complete",
+  "exit_code": 0,
+  "source_commit": "2e801ab07c4a8d0a87defd2ba70ddad3b3e1041c",
+  "parent_commit": "12022674a6e5119965005d3c58d373fcbcec93fe",
+  "toolchain_image": "ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
+  "completed_utc": "2026-09-08T10:05:52.356724+00:00"
+}

@@ -1,0 +1,17 @@
+PASS format=0x24 width=1 pitch=4 span=8
+PASS format=0x24 width=1 pitch=8 span=12
+PASS format=0x24 width=2 pitch=4 span=8
+PASS format=0x24 width=2 pitch=8 span=12
+PASS format=0x24 width=3 pitch=8 span=16
+PASS format=0x24 width=3 pitch=12 span=20
+PASS format=0x24 width=4 pitch=8 span=16
+PASS format=0x24 width=4 pitch=12 span=20
+PASS format=0x25 width=1 pitch=4 span=8
+PASS format=0x25 width=1 pitch=8 span=12
+PASS format=0x25 width=2 pitch=4 span=8
+PASS format=0x25 width=2 pitch=8 span=12
+PASS format=0x25 width=3 pitch=8 span=16
+PASS format=0x25 width=3 pitch=12 span=20
+PASS format=0x25 width=4 pitch=8 span=16
+PASS format=0x25 width=4 pitch=12 span=20
+Process exit code: 0

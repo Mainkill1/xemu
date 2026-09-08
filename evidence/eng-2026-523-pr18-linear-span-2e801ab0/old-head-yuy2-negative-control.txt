@@ -1,0 +1,15 @@
+approved span=6; last YUY2 pixel reads offset 7
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+==95281==ERROR: AddressSanitizer: SEGV on unknown address 0x7f9736aed001 (pc 0x5b1a2a80e2d1 bp 0x7fffd89e5e80 sp 0x7fffd89e5e30 T0)
+==95281==The signal is caused by a READ memory access.
+    #0 0x5b1a2a80e2d1 in convert_yuy2_to_rgb source/hw/xbox/nv2a/pgraph/util.h:62
+    #1 0x5b1a2a80f3ea in pgraph_convert_texture_data test/probe.c:52
+    #2 0x5b1a2a8100e9 in main test/probe.c:93
+    #3 0x7f9735a35ca7  (/lib/x86_64-linux-gnu/libc.so.6+0x29ca7) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)
+    #4 0x7f9735a35d64 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x29d64) (BuildId: c495b62edadd6c356265942ec1282d98058a7b41)
+    #5 0x5b1a2a80c250 in _start (test/probe+0x6250) (BuildId: f88d56d1acb24c8a85a963bf21486866939a644f)
+
+AddressSanitizer can not provide additional info.
+SUMMARY: AddressSanitizer: SEGV source/hw/xbox/nv2a/pgraph/util.h:62 in convert_yuy2_to_rgb
+==95281==ABORTING
