@@ -74,6 +74,10 @@ typedef struct NV2AState {
 
     qemu_irq irq;
     bool exiting;
+    /* Host-only snapshot ownership; never serialized. */
+    bool savevm_locked;
+    bool savevm_explicit;
+    bool savevm_previous_halt;
 
     VGACommonState vga;
     GraphicHwOps hw_ops;
