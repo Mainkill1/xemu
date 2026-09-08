@@ -141,7 +141,7 @@ static int qemu_save_device_state(QEMUFile *f) { return qemu_savevm_state(f, NUL
 static void migration_block_inactivate(void) { assert(held && device.pfifo.halt); }
 static void vm_start(void) { vm_resume(RUN_STATE_RUNNING); }
 '''
-writer = r''' 
+writer = r'''
 static int qemu_savevm_state(QEMUFile *f, Error **e) {
     /* RAM serialization must not begin before the asynchronous GPU is quiet. */
     assert(preparations == 1 && held && device.pfifo.halt);
