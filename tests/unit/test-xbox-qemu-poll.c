@@ -109,7 +109,10 @@ static void test_poll_error_clears_revents(void)
 
     fd = pollfd_from_handle(restricted_event);
     fd.revents = G_IO_IN;
+    g_test_expect_message("GLib", G_LOG_LEVEL_WARNING,
+                          "*WaitForMultipleObjectsEx failed*");
     result = qemu_poll_ns(&fd, 1, SHORT_TIMEOUT_NS);
+    g_test_assert_expected_messages();
     g_assert_cmpint(result, <, 0);
     g_assert_cmpint(fd.revents, ==, 0);
     CloseHandle(restricted_event);
