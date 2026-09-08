@@ -1,0 +1,34 @@
+{
+  "source_commit": "37e0968cbf0492451edd71ce2728d32c3098086f",
+  "xemu_sha256": "f460a1fd8126a435f091b0d371e1444513ea83f197f3c3652a60661b6f8d1383",
+  "controller_sha256": "94fbbbd95a48f1e7b2c66f8e58fc0f02458d308cdde467be706b4d6f96f7a799",
+  "job_sha256": "51c4742a28acb9753df4430ce40ce15331fe4bd525b6aa0890c474564b44688f",
+  "renderer": "VULKAN",
+  "started_utc": "2026-09-08T20:54:27.0759885+00:00",
+  "completed_utc": "2026-09-08T20:55:57.0799959+00:00",
+  "status": "PASS",
+  "command_lifecycle": "PASS",
+  "nv2a_versions": [
+    4
+  ],
+  "seed_sha256_after": "d178ecc4154abad5fc7cb9e428f380a1c8d49d20cbed66ba552eaaa6ed7514ad",
+  "private_hdd_deleted": true,
+  "host_quarantined": false,
+  "remaining_xemu_pids": [],
+  "base_commit": "bac2cae991a2d359eddfc6836dec3db60fba5618",
+  "unit_attempts": 150,
+  "toolchain_image": "ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
+  "build_options": [
+    "-p win64-cross",
+    "-Db_lto=true",
+    "-Dx86_version=3"
+  ],
+  "performance_comparison": false,
+  "meson_options": {
+    "buildtype": "debug",
+    "debug": true,
+    "optimization": "2",
+    "b_lto": true,
+    "x86_version": "3"
+  }
+}

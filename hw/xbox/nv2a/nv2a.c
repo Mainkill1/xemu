@@ -385,21 +385,59 @@ static void nv2a_reset_hold(Object *obj, ResetType type)
     nv2a_reset(s);
 }
 
-// Note: This is handled as a VM state change and not as a `pre_save` callback
-// because we want to halt the FIFO before any VM state is saved/restored to
-// avoid corruption.
+/* Snapshot saving owns this scope explicitly, even if the VM was already
+ * paused and vm_stop() did not send a SAVE_VM notification. Quiesce before
+ * any VM state (including RAM) is serialized, not at the NV2A section. */
+static void nv2a_savevm_quiesce(NV2AState *d)
+{
+    assert(!d->savevm_locked);
+    nv2a_lock_fifo(d);
+    d->savevm_previous_halt = qatomic_read(&d->pfifo.halt);
+    qatomic_set(&d->pfifo.halt, true);
+    pgraph_pre_savevm_trigger(d);
+    nv2a_unlock_fifo(d);
+    bql_unlock();
+    pgraph_pre_savevm_wait(d);
+    bql_lock();
+    nv2a_lock_fifo(d);
+    d->savevm_locked = true;
+}
+
+/* vm_stop() may already have quiesced a running VM through its notifier.
+ * Explicit save callers own cleanup until the whole operation finishes. */
+void nv2a_savevm_prepare(void)
+{
+    NV2AState *d = g_nv2a;
+    if (!d) {
+        return;
+    }
+
+    assert(!d->savevm_explicit);
+    if (!d->savevm_locked) {
+        nv2a_savevm_quiesce(d);
+    }
+    d->savevm_explicit = true;
+}
+
+void nv2a_savevm_finish(void)
+{
+    NV2AState *d = g_nv2a;
+    if (!d) {
+        return;
+    }
+
+    assert(d->savevm_locked && d->savevm_explicit);
+    d->savevm_explicit = false;
+    qatomic_set(&d->pfifo.halt, d->savevm_previous_halt);
+    d->savevm_locked = false;
+    nv2a_unlock_fifo(d);
+}
+
 static void nv2a_vm_state_change(void *opaque, bool running, RunState state)
 {
     NV2AState *d = opaque;
     if (state == RUN_STATE_SAVE_VM) {
-        nv2a_lock_fifo(d);
-        qatomic_set(&d->pfifo.halt, true);
-        pgraph_pre_savevm_trigger(d);
-        nv2a_unlock_fifo(d);
-        bql_unlock();
-        pgraph_pre_savevm_wait(d);
-        bql_lock();
-        nv2a_lock_fifo(d);
+        nv2a_savevm_quiesce(d);
     } else if (state == RUN_STATE_RESTORE_VM) {
         nv2a_lock_fifo(d);
         qatomic_set(&d->pfifo.halt, true);
@@ -421,7 +459,13 @@ static void nv2a_vm_state_change(void *opaque, bool running, RunState state)
 static int nv2a_post_save(void *opaque)
 {
     NV2AState *d = opaque;
-    nv2a_unlock_fifo(d);
+    if (!d->savevm_explicit) {
+        /* Preserve notifier-owned serialization for other save callers.
+         * Explicit scopes release only after all sections and I/O finish. */
+        assert(d->savevm_locked);
+        d->savevm_locked = false;
+        nv2a_unlock_fifo(d);
+    }
     return 0;
 }
 
@@ -459,9 +503,9 @@ static const VMStateDescription vmstate_nv2a = {
     .name = "nv2a",
     .version_id = 5,
     .minimum_version_id = 1,
-    .post_save = nv2a_post_save,
     .post_load = nv2a_post_load,
     .pre_load = nv2a_pre_load,
+    .post_save = nv2a_post_save,
     .fields = (VMStateField[]) {
         // FIXME: Split this up into subsections
         VMSTATE_PCI_DEVICE(parent_obj, NV2AState),
