@@ -77,11 +77,13 @@ still pending. This does not establish the cause of every earlier freeze.
 [Full measurements](morrowind-profile-on-off.csv),
 [every long interval](morrowind-profile-on-off-gaps.csv).
 
-## XISO production Vulkan: diagnostic comparison
+## XISO production: diagnostic comparison
 
-Both sides passed all 149 records in two full passes. No records were dropped.
+Both sides passed all 149 records in two full passes on each renderer. No records were dropped.
 The 144 leaf records contribute to time sums; five aggregate records contribute
 to correctness counts but are excluded from sums to prevent double counting.
+
+Vulkan results:
 
 | Measurement | S | Wait-only | Observation |
 |---|---:|---:|---|
@@ -91,6 +93,17 @@ to correctness counts but are excluded from sums to prevent double counting.
 | Mean process GPU engine sum | 72.59% | 73.42% | Higher |
 | Mean device GPU utilization | 32.00% | 34.76% | Higher |
 | Mean process private bytes | 3,025,643,985 | 3,045,234,981 | Higher |
+
+OpenGL results:
+
+| Measurement | S | Wait-only | Observation |
+|---|---:|---:|---|
+| Sum of mean leaf test times | 127.578 s | 129.123 s | 1.21% higher |
+| Mean host wall time | 175.762 s | 173.243 s | Includes runner/startup overhead |
+| Mean host CPU capacity used | 16.47% | 10.96% | Lower CPU use |
+| Mean process GPU engine sum | 80.87% | 80.98% | Higher |
+| Mean device GPU utilization | 44.61% | 43.82% | Lower |
+| Mean process private bytes | 2,286,598,963 | 2,287,487,953 | Slightly higher |
 
 These production binaries lack live timing boundaries. The measurements are
 **diagnostic, not a qualified speedup**. Resource samples cover the launch/run,
@@ -107,6 +120,66 @@ these runs; no sign-only improvement/regression classification is applied.
 [candidate full timing rows](xiso-vulkan-production-candidate.csv),
 [baseline resources](xiso-vulkan-production-baseline-resources.csv),
 [candidate resources](xiso-vulkan-production-candidate-resources.csv).
+
+## Test suite groups
+
+All rows below are diagnostic correctness-mode timings. Full leaf CSVs retain
+each measured test; aggregate records are not double-counted in time totals.
+
+<details>
+<summary>Vulkan groups</summary>
+
+| XISO group | Records B/C pass | Leaf records | Baseline leaf total (ms) | Candidate leaf total (ms) | Observed change |
+|---|---:|---:|---:|---:|---:|
+| BusyPfifo | 2/2; 2/2 | 2 | 5674.524 | 5531.187 | -2.53% |
+| CpuFloatingPoint | 2/2; 2/2 | 2 | 12388.019 | 12419.027 | +0.25% |
+| CpuTranslationBlocks | 3/3; 3/3 | 3 | 5338.291 | 5208.588 | -2.43% |
+| FillRate | 2/2; 2/2 | 2 | 38.488 | 37.246 | -3.23% |
+| GameLoadComposite | 55/55; 55/55 | 52 | 57588.194 | 57271.450 | -0.55% |
+| High vertex count | 4/4; 4/4 | 4 | 1521.659 | 1462.883 | -3.86% |
+| PFIFOArrayElements | 3/3; 3/3 | 3 | 22.520 | 22.280 | -1.07% |
+| PipelineTextureSwitch | 4/4; 4/4 | 4 | 684.713 | 687.595 | +0.42% |
+| PrimitiveType | 20/20; 20/20 | 20 | 171.927 | 167.753 | -2.43% |
+| ReportQuery | 8/8; 8/8 | 8 | 77.714 | 75.761 | -2.51% |
+| SurfaceRendering | 28/28; 28/28 | 26 | 5897.260 | 5932.146 | +0.59% |
+| TinyDraw | 8/8; 8/8 | 8 | 1978.951 | 1994.270 | +0.77% |
+| UniformThrash | 1/1; 1/1 | 1 | 27.488 | 29.612 | +7.73% |
+| Vertex buffer allocation | 9/9; 9/9 | 9 | 9232.476 | 8944.146 | -3.12% |
+
+</details>
+
+<details>
+<summary>Opengl groups</summary>
+
+| XISO group | Records B/C pass | Leaf records | Baseline leaf total (ms) | Candidate leaf total (ms) | Observed change |
+|---|---:|---:|---:|---:|---:|
+| BusyPfifo | 2/2; 2/2 | 2 | 5251.213 | 5292.408 | +0.78% |
+| CpuFloatingPoint | 2/2; 2/2 | 2 | 12496.594 | 12571.088 | +0.60% |
+| CpuTranslationBlocks | 3/3; 3/3 | 3 | 5276.760 | 5237.404 | -0.75% |
+| FillRate | 2/2; 2/2 | 2 | 29.662 | 32.844 | +10.73% |
+| GameLoadComposite | 55/55; 55/55 | 52 | 87575.230 | 88649.539 | +1.23% |
+| High vertex count | 4/4; 4/4 | 4 | 1393.168 | 1382.920 | -0.74% |
+| PFIFOArrayElements | 3/3; 3/3 | 3 | 35.115 | 31.299 | -10.87% |
+| PipelineTextureSwitch | 4/4; 4/4 | 4 | 492.555 | 489.668 | -0.59% |
+| PrimitiveType | 20/20; 20/20 | 20 | 183.837 | 187.494 | +1.99% |
+| ReportQuery | 8/8; 8/8 | 8 | 16.797 | 17.059 | +1.56% |
+| SurfaceRendering | 28/28; 28/28 | 26 | 2380.736 | 2462.485 | +3.43% |
+| TinyDraw | 8/8; 8/8 | 8 | 3611.197 | 3748.657 | +3.81% |
+| UniformThrash | 1/1; 1/1 | 1 | 16.316 | 18.700 | +14.61% |
+| Vertex buffer allocation | 9/9; 9/9 | 9 | 8818.447 | 9001.552 | +2.08% |
+
+</details>
+
+OpenGL [per-test comparison](xiso-opengl-production-per-test.csv),
+[baseline rows](xiso-opengl-production-baseline.csv),
+[candidate rows](xiso-opengl-production-candidate.csv),
+[baseline resources](xiso-opengl-production-baseline-resources.csv), and
+[candidate resources](xiso-opengl-production-candidate-resources.csv).
+
+OpenGL unfavorable group observations include UniformThrash +14.61%,
+FillRate +10.73%, TinyDraw +3.81%, and SurfaceRendering +3.43%.
+Host wall time and guest measured time have different boundaries and even
+move in opposite directions here; do not substitute one for the other.
 
 ## Exclusions and remaining gates
 
