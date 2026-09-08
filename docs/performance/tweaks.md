@@ -1,6 +1,7 @@
-# Performance tweaks
+# Advance settings
 
-The Tweaks menu exposes independent Off/On sliders. New configurations enable
+Settings -> Advance exposes independent boolean toggles. There is no top-bar
+menu for these options. New configurations enable
 all options. Explicitly saved Off values are preserved. Graphics options are
 grouped by backend; Windows CPU-saving waits are shown only on Windows.
 

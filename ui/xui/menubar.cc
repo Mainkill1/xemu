@@ -29,10 +29,6 @@
 #include "update.hh"
 #include "../xemu-os-utils.h"
 
-extern "C" {
-#include "ui/xemu-tweaks.h"
-}
-
 extern float g_main_menu_height; // FIXME
 
 #ifdef CONFIG_RENDERDOC
@@ -44,30 +40,6 @@ bool g_capture_renderdoc_frame = false;
 #else
 #define SHORTCUT_MENU_TEXT(c) "Ctrl+" #c
 #endif
-
-static void TweakSlider(const char *label, bool *selected, XemuTweak tweak,
-                        const char *help)
-{
-    int value = *selected ? 1 : 0;
-    ImGui::PushID(label);
-    ImGui::SetNextItemWidth(5.5f * ImGui::GetFontSize());
-    if (ImGui::SliderInt("##value", &value, 0, 1,
-                         value ? "On" : "Off",
-                         ImGuiSliderFlags_NoInput)) {
-        *selected = value != 0;
-        xemu_tweaks_apply(false);
-        xemu_settings_save();
-    }
-    ImGui::SameLine();
-    ImGui::TextUnformatted(label);
-    ImGui::SameLine();
-    HelpMarker(help);
-    if (xemu_tweak_requires_restart(tweak) &&
-        *selected != xemu_tweak_enabled(tweak)) {
-        ImGui::TextDisabled("Restart xemu to apply this change.");
-    }
-    ImGui::PopID();
-}
 
 void ProcessKeyboardShortcuts(void)
 {
@@ -240,51 +212,6 @@ void ShowMainMenu()
                 xemu_toggle_fullscreen();
             }
 
-            ImGui::EndMenu();
-        }
-
-        if (ImGui::BeginMenu("Tweaks")) {
-            ImGui::TextDisabled("Performance options");
-#ifdef _WIN32
-            TweakSlider("Reduce CPU usage while waiting",
-                &g_config.tweaks.cpu_saving_wait, XEMU_TWEAK_CPU_SAVING_WAIT,
-                "Uses interruptible Windows waits to reduce CPU usage. "
-                "May affect game timing. Disable if stuttering increases.");
-#endif
-            TweakSlider("Process vertex packets in bulk",
-                &g_config.tweaks.pgraph_bulk_packets,
-                XEMU_TWEAK_PGRAPH_BULK_PACKETS,
-                "Processes vertex and index packets in batches. "
-                "Off processes one word at a time. Applies to both renderers.");
-            TweakSlider("Fast GPU fence polling",
-                &g_config.tweaks.pgraph_fence_fastpath,
-                XEMU_TWEAK_PGRAPH_FENCE_FASTPATH,
-                "Reduces contention while games wait for GPU work. "
-                "Off uses locked reads. Applies to both renderers.");
-            ImGui::Separator();
-            ImGui::TextDisabled("Vulkan");
-            TweakSlider("Combine color downloads with rendering",
-                &g_config.tweaks.vk_color_download_folding,
-                XEMU_TWEAK_VK_COLOR_DOWNLOAD_FOLDING,
-                "Reduces GPU submissions for eligible color downloads. "
-                "Off submits downloads separately.");
-            TweakSlider("Upload only used vertex ranges",
-                &g_config.tweaks.vk_bounded_vertex_uploads,
-                XEMU_TWEAK_VK_BOUNDED_VERTEX_UPLOADS,
-                "Skips unused leading vertices when repacking attributes. "
-                "Off copies from vertex zero.");
-            TweakSlider("Grow transient buffers to fit batches",
-                &g_config.tweaks.vk_transient_buffer_growth,
-                XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH,
-                "Grows transient buffers to reduce flushes in later batches. "
-                "Off reuses drained storage; large single draws can still grow it. "
-                "Requires restarting xemu.");
-            ImGui::Separator();
-            ImGui::TextDisabled("OpenGL");
-            TweakSlider("Upload compressed textures directly",
-                &g_config.tweaks.gl_native_s3tc, XEMU_TWEAK_GL_NATIVE_S3TC,
-                "Lets the GPU decode eligible S3TC textures. "
-                "Off decodes them on the CPU. Requires restarting xemu.");
             ImGui::EndMenu();
         }
 
