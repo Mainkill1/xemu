@@ -791,7 +791,8 @@ int qemu_timeout_ns_to_ms(int64_t ns)
     return MIN(ms, INT32_MAX);
 }
 
-#if defined(XBOX) && defined(_WIN32)
+#if defined(XBOX) && defined(_WIN32) && \
+    !defined(XEMU_QEMU_POLL_BUSY_CONTROL)
 #ifndef CREATE_WAITABLE_TIMER_HIGH_RESOLUTION
 #define CREATE_WAITABLE_TIMER_HIGH_RESOLUTION 0x00000002
 #endif
@@ -1010,7 +1011,8 @@ int qemu_poll_ns(GPollFD *fds, guint nfds, int64_t timeout)
      */
     #define XBOX_BUSYWAIT_THRESHOLD_NS 1250000
     if ((0 < timeout) && (timeout < XBOX_BUSYWAIT_THRESHOLD_NS)) {
-#ifdef _WIN32
+/* Research-only build control: keep identical attribution on the old wait. */
+#if defined(_WIN32) && !defined(XEMU_QEMU_POLL_BUSY_CONTROL)
         int high_resolution_ret =
             xbox_high_resolution_poll_ns(fds, nfds, timeout);
 
