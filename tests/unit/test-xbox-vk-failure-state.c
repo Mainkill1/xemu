@@ -83,6 +83,46 @@ static void test_success_unmaps_once(void)
     g_assert_cmpuint(unmap_count, ==, 1);
 }
 
+static void test_surface_invalidate_failure_preserves_state(void)
+{
+    bool download_pending = true;
+    bool draw_dirty = true;
+    unmap_count = 0;
+
+    {
+        g_auto(PGRAPHVkMapGuard) guard = { 0 };
+        g_assert_true(pgraph_vk_map_guard_complete_map(
+            &guard, true, (void *)0x1111, (void *)0x2222, count_unmap));
+        bool downloaded = pgraph_vk_map_guard_complete_coherency(&guard, false);
+        g_assert_false(pgraph_vk_complete_surface_download(
+            downloaded, &download_pending, &draw_dirty));
+    }
+
+    g_assert_cmpuint(unmap_count, ==, 1);
+    g_assert_true(download_pending);
+    g_assert_true(draw_dirty);
+}
+
+static void test_texture_flush_failure_preserves_retry_state(void)
+{
+    uint64_t stored_hash = 0x1111;
+    bool possibly_dirty = false;
+    unmap_count = 0;
+
+    {
+        g_auto(PGRAPHVkMapGuard) guard = { 0 };
+        g_assert_true(pgraph_vk_map_guard_complete_map(
+            &guard, true, (void *)0x1111, (void *)0x2222, count_unmap));
+        bool uploaded = pgraph_vk_map_guard_complete_coherency(&guard, false);
+        g_assert_false(pgraph_vk_complete_texture_upload(
+            uploaded, 0x2222, &stored_hash, &possibly_dirty));
+    }
+
+    g_assert_cmpuint(unmap_count, ==, 1);
+    g_assert_cmpuint(stored_hash, ==, 0x1111);
+    g_assert_true(possibly_dirty);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -96,5 +136,9 @@ int main(int argc, char **argv)
                     test_post_map_failure_unmaps_once);
     g_test_add_func("/xbox/vk/failure/map-success-unmap",
                     test_success_unmaps_once);
+    g_test_add_func("/xbox/vk/failure/surface-invalidate-contract",
+                    test_surface_invalidate_failure_preserves_state);
+    g_test_add_func("/xbox/vk/failure/texture-flush-contract",
+                    test_texture_flush_failure_preserves_retry_state);
     return g_test_run();
 }
