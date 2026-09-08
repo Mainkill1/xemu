@@ -1,6 +1,16 @@
 /* SPDX-License-Identifier: LGPL-2.1-or-later */
 #include "qemu/osdep.h"
 #include "hw/xbox/nv2a/pgraph/vk/failure-state.h"
+#include "hw/xbox/nv2a/pgraph/vk/mapped-memory.h"
+
+static unsigned int unmap_count;
+
+static void count_unmap(void *allocator, void *allocation)
+{
+    g_assert_true(allocator == (void *)0x1111);
+    g_assert_true(allocation == (void *)0x2222);
+    unmap_count++;
+}
 
 static void test_failed_surface_download_preserves_authoritative_state(void)
 {
@@ -34,6 +44,45 @@ static void test_failed_texture_upload_remains_retryable(void)
     g_assert_false(possibly_dirty);
 }
 
+static void test_map_failure_does_not_unmap(void)
+{
+    unmap_count = 0;
+    {
+        g_auto(PGRAPHVkMapGuard) guard = { 0 };
+        g_assert_false(pgraph_vk_map_guard_complete_map(
+            &guard, false, (void *)0x1111, (void *)0x2222, count_unmap));
+        g_assert_false(guard.mapped);
+    }
+    g_assert_cmpuint(unmap_count, ==, 0);
+}
+
+static void test_post_map_failure_unmaps_once(void)
+{
+    unmap_count = 0;
+    {
+        g_auto(PGRAPHVkMapGuard) guard = { 0 };
+        g_assert_true(pgraph_vk_map_guard_complete_map(
+            &guard, true, (void *)0x1111, (void *)0x2222, count_unmap));
+        g_assert_true(guard.mapped);
+        g_assert_false(pgraph_vk_map_guard_complete_coherency(&guard, false));
+    }
+    g_assert_cmpuint(unmap_count, ==, 1);
+}
+
+static void test_success_unmaps_once(void)
+{
+    unmap_count = 0;
+    {
+        g_auto(PGRAPHVkMapGuard) guard = { 0 };
+        g_assert_true(pgraph_vk_map_guard_complete_map(
+            &guard, true, (void *)0x1111, (void *)0x2222, count_unmap));
+        g_assert_true(pgraph_vk_map_guard_complete_coherency(&guard, true));
+        pgraph_vk_map_guard_clear(&guard);
+        g_assert_false(guard.mapped);
+    }
+    g_assert_cmpuint(unmap_count, ==, 1);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -41,5 +90,11 @@ int main(int argc, char **argv)
                     test_failed_surface_download_preserves_authoritative_state);
     g_test_add_func("/xbox/vk/failure/texture-upload-state",
                     test_failed_texture_upload_remains_retryable);
+    g_test_add_func("/xbox/vk/failure/map-failure-no-unmap",
+                    test_map_failure_does_not_unmap);
+    g_test_add_func("/xbox/vk/failure/post-map-failure-unmap",
+                    test_post_map_failure_unmaps_once);
+    g_test_add_func("/xbox/vk/failure/map-success-unmap",
+                    test_success_unmaps_once);
     return g_test_run();
 }

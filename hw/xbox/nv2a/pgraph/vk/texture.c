@@ -32,6 +32,12 @@
 #include "renderer.h"
 #include "buffer-size.h"
 #include "failure-state.h"
+#include "mapped-memory.h"
+
+static void pgraph_vk_texture_unmap(void *allocator, void *allocation)
+{
+    vmaUnmapMemory(allocator, allocation);
+}
 
 static void texture_cache_release_node_resources(PGRAPHVkState *r, TextureBinding *snode);
 
@@ -567,10 +573,19 @@ static bool upload_texture_image(PGRAPHState *pg, int texture_idx,
     }
 
     /* Map only after every recoverable validation has succeeded. */
-    uint8_t *mapped_memory_ptr;
-    VK_CHECK(vmaMapMemory(r->allocator,
-                          r->storage_buffers[BUFFER_STAGING_SRC].allocation,
-                          (void *)&mapped_memory_ptr));
+    VmaAllocation staging_allocation =
+        r->storage_buffers[BUFFER_STAGING_SRC].allocation;
+    g_auto(PGRAPHVkMapGuard) map_guard = { 0 };
+    uint8_t *mapped_memory_ptr = NULL;
+    VkResult result = vmaMapMemory(r->allocator, staging_allocation,
+                                   (void *)&mapped_memory_ptr);
+    if (!pgraph_vk_map_guard_complete_map(
+            &map_guard, result == VK_SUCCESS, r->allocator,
+            staging_allocation, pgraph_vk_texture_unmap)) {
+        error_report("nv2a: failed to map texture-upload staging memory (%d)",
+                     result);
+        return false;
+    }
 
     region = regions;
     for (int layer_idx = 0; layer_idx < num_layers; layer_idx++) {
@@ -583,12 +598,16 @@ static bool upload_texture_image(PGRAPHState *pg, int texture_idx,
         }
     }
 
-    vmaFlushAllocation(r->allocator,
-                       r->storage_buffers[BUFFER_STAGING_SRC].allocation, 0,
-                       VK_WHOLE_SIZE);
+    result = vmaFlushAllocation(r->allocator, staging_allocation, 0,
+                                VK_WHOLE_SIZE);
+    if (!pgraph_vk_map_guard_complete_coherency(
+            &map_guard, result == VK_SUCCESS)) {
+        error_report("nv2a: failed to flush texture-upload staging memory "
+                     "(%d)", result);
+        return false;
+    }
 
-    vmaUnmapMemory(r->allocator,
-                   r->storage_buffers[BUFFER_STAGING_SRC].allocation);
+    pgraph_vk_map_guard_clear(&map_guard);
 
     // FIXME: Use nondraw. Need to fill and copy tex buffer at once
     VkCommandBuffer cmd = pgraph_vk_begin_single_time_commands(pg);
