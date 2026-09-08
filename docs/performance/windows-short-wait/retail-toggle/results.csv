@@ -1,0 +1,9 @@
+case,source,exe_sha256,cadence_fps,p95_ms,p99_ms,cleanup_passed,image_phase,image_review
+morrowind-off-opengl,0edb216c23ab071042bb26005267d0c3816337cd,caeb70731620b16e85cb5fb92564a2346180edf92bdf353c8aae86c0a164d1da,38.543135495075326,32.023,36.845,True,measurement-end,resumed town scene; no pause/reconnect prompt
+morrowind-off-vulkan,0edb216c23ab071042bb26005267d0c3816337cd,caeb70731620b16e85cb5fb92564a2346180edf92bdf353c8aae86c0a164d1da,27.91879819213607,42.71,49.049,True,measurement-end,resumed town scene; no pause/reconnect prompt
+morrowind-on-opengl,0edb216c23ab071042bb26005267d0c3816337cd,caeb70731620b16e85cb5fb92564a2346180edf92bdf353c8aae86c0a164d1da,38.544211152123985,31.768,36.909,True,measurement-end,resumed town scene; no pause/reconnect prompt
+morrowind-on-vulkan,0edb216c23ab071042bb26005267d0c3816337cd,caeb70731620b16e85cb5fb92564a2346180edf92bdf353c8aae86c0a164d1da,28.328307712582692,41.735,48.173,True,measurement-end,resumed town scene; no pause/reconnect prompt
+pgr2-off-opengl,0edb216c23ab071042bb26005267d0c3816337cd,caeb70731620b16e85cb5fb92564a2346180edf92bdf353c8aae86c0a164d1da,30.001445433326094,40.76,43.309,True,capture-start,car on track with race HUD; no menu
+pgr2-off-vulkan,0edb216c23ab071042bb26005267d0c3816337cd,caeb70731620b16e85cb5fb92564a2346180edf92bdf353c8aae86c0a164d1da,30.00321222619738,39.608,42.08,True,capture-start,car on track with race HUD; no menu
+pgr2-on-opengl,0edb216c23ab071042bb26005267d0c3816337cd,caeb70731620b16e85cb5fb92564a2346180edf92bdf353c8aae86c0a164d1da,30.00383098915352,40.409,43.188,True,capture-start,car on track with race HUD; no menu
+pgr2-on-vulkan,0edb216c23ab071042bb26005267d0c3816337cd,caeb70731620b16e85cb5fb92564a2346180edf92bdf353c8aae86c0a164d1da,30.00552961425814,39.389,41.282,True,capture-start,car on track with race HUD; no menu
