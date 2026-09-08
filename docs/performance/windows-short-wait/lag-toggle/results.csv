@@ -1,0 +1,9 @@
+renderer,run_order,mode,guest_cadence_fps,p95_ms,p99_ms,guest_stalls,etl_lost_events,end_state,cleanup,seed_unchanged,end_image_sha256
+vulkan,1,off,26.452871,45.751,50.755,1,0,gameplay,complete,true,e315a5aa916cdda04dd4e06cde59ea856f48b8871963e8ac7c764b88699b0145
+vulkan,2,on,26.527806,46.191,51.143,1,0,gameplay,complete,true,0f0ebc5bf1e5b140a60891ac7aaca4e1ede45dc188f5d67fe72b68853bb00b39
+vulkan,3,on,26.327983,46.069,51.418,1,0,gameplay,complete,true,00db52f39bb470e609a6fe82c2153512193e35741613794957e7eb6ea6105317
+vulkan,4,off,26.075422,46.623,52.352,1,0,gameplay,complete,true,c4ef1fdb3909f7c3737b2885a10e1a873a99d77e76b087de02cd69da747fe7dd
+opengl,1,off,29.313231,41.736,47.444,0,0,gameplay,complete,true,fd54d6f5aae2cfe7070fb32ce71001e2ce2748f52ae3dac878cd222fb3638d8a
+opengl,2,on,29.785720,40.288,44.209,0,0,gameplay,complete,true,99b66e3b78d7b3136883dd6b35ff8cb64de731c23764727e60161139acfffb76
+opengl,3,on,29.768541,40.402,45.410,0,0,gameplay,complete,true,8049c535bd720d97bf6f03165c27e59df33744ac0d794c285118a40f9d970dba
+opengl,4,off,29.628151,40.648,44.132,0,0,gameplay,complete,true,2da01c2bd3e5e18e0c1629457456e3b8d9473ff7222aa8888f8de3f9d82c16f3
