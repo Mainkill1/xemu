@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 /* Focused Windows tests for xemu's short-deadline polling path. */
 #include "qemu/osdep.h"
+#include "qemu/thread.h"
 #include "qemu/timer.h"
 
 #include <windows.h>
@@ -262,7 +263,7 @@ static void test_nested_alertable_wait(void)
     }
 }
 
-static gpointer concurrent_timeout_thread(gpointer opaque)
+static void *concurrent_timeout_thread(void *opaque)
 {
     unsigned int count = GPOINTER_TO_UINT(opaque);
 
@@ -276,15 +277,15 @@ static gpointer concurrent_timeout_thread(gpointer opaque)
 
 static void test_concurrent_thread_lifetimes(void)
 {
-    GThread *threads[4];
+    QemuThread threads[4];
 
     for (unsigned int i = 0; i < G_N_ELEMENTS(threads); i++) {
-        threads[i] = g_thread_new("qemu-poll-test",
-                                  concurrent_timeout_thread,
-                                  GUINT_TO_POINTER(32));
+        qemu_thread_create(&threads[i], "qemu-poll-test",
+                           concurrent_timeout_thread,
+                           GUINT_TO_POINTER(32), QEMU_THREAD_JOINABLE);
     }
     for (unsigned int i = 0; i < G_N_ELEMENTS(threads); i++) {
-        g_assert_null(g_thread_join(threads[i]));
+        g_assert_null(qemu_thread_join(&threads[i]));
     }
 }
 
