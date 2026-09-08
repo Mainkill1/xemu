@@ -744,6 +744,7 @@ typedef struct XboxHighResolutionPoll {
     HANDLE timer;
     GPollFD *poll_fds;
     guint poll_fds_capacity;
+    bool in_use;
     Notifier cleanup_notifier;
 } XboxHighResolutionPoll;
 
@@ -784,8 +785,8 @@ static void xbox_high_resolution_poll_cancel(XboxHighResolutionPoll *poll)
 
     /*
      * CancelWaitableTimer() stops future signaling but does not clear an
-     * already-signaled timer. Drain a signal that raced with an original
-     * handle wake so it cannot satisfy the next poll immediately.
+     * already-signaled timer. Drain that state as lifecycle hygiene even
+     * though a successful subsequent SetWaitableTimerEx() also resets it.
      */
     WaitForSingleObject(poll->timer, 0);
 }
@@ -797,10 +798,24 @@ static int xbox_high_resolution_poll_ns(GPollFD *fds, guint nfds,
     LARGE_INTEGER due_time;
     guint required_capacity = nfds + 1;
     guint i;
+    int64_t deadline;
+    int64_t remaining;
     int poll_ret;
+    int poll_errno;
     int ready = 0;
 
+    /* TLS separates threads, but an alertable Windows wait can re-enter. */
+    if (poll->in_use) {
+        return INT_MIN;
+    }
+    poll->in_use = true;
+
+    deadline = qemu_clock_get_ns(QEMU_CLOCK_REALTIME);
+    deadline = timeout > INT64_MAX - deadline ? INT64_MAX :
+               deadline + timeout;
+
     if (!xbox_high_resolution_poll_init(poll)) {
+        poll->in_use = false;
         return INT_MIN;
     }
 
@@ -816,19 +831,35 @@ static int xbox_high_resolution_poll_ns(GPollFD *fds, guint nfds,
         .events = G_IO_IN,
     };
 
+    remaining = deadline - qemu_clock_get_ns(QEMU_CLOCK_REALTIME);
+    if (remaining <= 0) {
+        poll->in_use = false;
+        return g_poll(fds, nfds, 0);
+    }
+
     /*
      * Relative waitable-timer deadlines use negative 100 ns units. Round up
      * so the host timer cannot expire before the requested QEMU deadline.
      */
-    due_time.QuadPart = -DIV_ROUND_UP(timeout, 100);
+    due_time.QuadPart = -DIV_ROUND_UP(remaining, 100);
     if (!SetWaitableTimerEx(poll->timer, &due_time, 0, NULL, NULL, NULL, 0)) {
+        DWORD timer_error = GetLastError();
+
         xbox_high_resolution_poll_cancel(poll);
+        poll->in_use = false;
+        SetLastError(timer_error);
         return INT_MIN;
     }
 
     poll_ret = g_poll(poll->poll_fds, required_capacity, -1);
     if (poll_ret < 0) {
+        poll_errno = errno;
         xbox_high_resolution_poll_cancel(poll);
+        for (i = 0; i < nfds; i++) {
+            fds[i].revents = 0;
+        }
+        poll->in_use = false;
+        errno = poll_errno;
         return poll_ret;
     }
 
@@ -844,6 +875,7 @@ static int xbox_high_resolution_poll_ns(GPollFD *fds, guint nfds,
     if (!poll->poll_fds[nfds].revents) {
         xbox_high_resolution_poll_cancel(poll);
     }
+    poll->in_use = false;
     return ready;
 }
 #endif
