@@ -1,0 +1,4 @@
+{
+  "status": "FAILED",
+  "error": "same-backend reports disagree on framebuffer/work/result hashes"
+}
