@@ -36,6 +36,37 @@ runner.** They cannot establish visual correctness for every later frame.
 [All results and image phases](retail-toggle/results.csv),
 [Morrowind intervals](retail-toggle/morrowind-summary.csv).
 
+### PGR2 end-image follow-up
+
+A separate four-cell follow-up completed on the same Release executable, with
+the same fresh-start key sequence, 10-second warmup and 60-second measurement.
+A byte-verified runner derivative adds an end image only after measurement and
+WPR stop, plus receipt fields. The original runner remains unchanged.
+
+| Mode | Cadence FPS | p95 ms | p99 ms |
+|---|---:|---:|---:|
+| Vulkan off | 30.002 | 38.282 | 41.245 |
+| Vulkan on | 29.992 | 39.328 | 41.008 |
+| OpenGL off | 30.004 | 38.870 | 42.534 |
+| OpenGL on | 30.003 | 40.779 | 43.309 |
+
+All four end images show the race scene without a pause/reconnect menu or
+apparent corruption. Guest stalls and ETW losses were zero, cleanup completed,
+and the immutable seed remained unchanged. Higher enabled-mode p95 values in
+this pair remain visible; these observations are not a statistical regression
+verdict. This follow-up adds end-image coverage without relabeling the earlier
+capture-start images or pooling per-run percentiles.
+
+[Results and image hashes](retail-end-followup/results.csv),
+[Vulkan off](retail-end-followup/pgr2-off-vulkan.png),
+[Vulkan on](retail-end-followup/pgr2-on-vulkan.png),
+[OpenGL off](retail-end-followup/pgr2-off-opengl.png),
+[OpenGL on](retail-end-followup/pgr2-on-opengl.png).
+
+Runner input SHA-256: `c6b259cabfdc8ab5f31129ddd9adfff585d09b0474ba40d9afef391781bf7b38`;
+derivative: `894252baf94d44faadcb2fe6583e799fb39af0fa0e5169ee203c6f1b2a0b657c`.
+These fresh-start captures do not qualify the distinct lag-snapshot route.
+
 ### PGR2 resource evidence from the same captures
 
 Context-switch CPU accounting was exported from the sealed ETLs, limited to
@@ -47,9 +78,12 @@ not elapsed spin time. Thread totals agree with process totals within 3 microsec
 | Vulkan | 245.666 → 193.474 | −21.25% | 34.144 → 34.076 | 20.854 → 21.425 |
 | OpenGL | 260.328 → 202.783 | −22.10% | 38.185 → 37.615 | 23.925 → 23.750 |
 
-The Vulkan power observation is unfavorable despite lower CPU time. These single
-captures demonstrate observed CPU savings, not a confidence interval or universal
-power improvement. GPU figures are device-wide, not xemu-only. NVIDIA timestamps
+Power must be interpreted relative to completed work and frame delivery. Both
+modes delivered approximately 30 guest frames/second in these captures, so the
+higher Vulkan power reading is not explained by higher measured cadence. It
+remains a single-pair observation, not an established power regression. These
+captures show observed CPU savings, not a confidence interval or universal
+energy-efficiency improvement. GPU figures are device-wide, not xemu-only. NVIDIA timestamps
 were mapped with the recorded Pacific daylight offset (UTC−07:00); only samples
 within the measurement window were included. Each stream ended with one incomplete
 row when its collector stopped; those rows are explicitly excluded (117–119 valid
