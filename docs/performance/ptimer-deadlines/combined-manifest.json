@@ -1,0 +1,24 @@
+{
+  "source_commit": "45c773a22fdcdbf9a28e8be78dfb3f5aae9c8c7d",
+  "xemu_sha256": "cc7c9aa3bfc04415b2b06a899123b1321d75049f7795006993a11ac9b8a3062f",
+  "controller_sha256": "94fbbbd95a48f1e7b2c66f8e58fc0f02458d308cdde467be706b4d6f96f7a799",
+  "job_sha256": "9d18ed43e83497d08819330933765334ffc82c76ee5b4e6949efaa434a18ba3d",
+  "unit_sha256": "f2cf490bda460ec0b16b2a5a0263216f31bcc66c0e141fbd886498f3452dcbaf",
+  "unit_exit_code": 0,
+  "renderer": "VULKAN",
+  "status": "FAIL",
+  "error": "No guest display-write activity: old-reloaded",
+  "nv2a_versions": [
+    5,
+    4
+  ],
+  "private_hdd_retained": true,
+  "host_quarantined": false,
+  "remaining_xemu_pids": [],
+  "started_utc": "2026-09-08T21:12:17.7258589+00:00",
+  "completed_utc": "2026-09-08T21:13:34.7408383+00:00",
+  "native_unit_pass_count": 23,
+  "base_release": "5151c3887a3fb8b401d3cf6940c59be77ee4a088",
+  "snapshot_lifecycle_attempts": 150,
+  "performance_comparison": false
+}

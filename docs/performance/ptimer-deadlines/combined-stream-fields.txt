@@ -1,0 +1,5 @@
+2026-09-08T21:12:56.099036Z vmstate_load_state nv2a v5
+2026-09-08T21:12:56.111067Z vmstate_load_state_field nv2a:ptimer.alarm_armed exists=1
+2026-09-08T21:12:56.111067Z vmstate_load_state usb-xbox-gamepad v1
+2026-09-08T21:13:07.657687Z vmstate_load_state nv2a v4
+2026-09-08T21:13:07.670720Z vmstate_load_state_field nv2a:ptimer.alarm_armed exists=0
