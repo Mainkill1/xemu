@@ -1,0 +1,52 @@
+{
+  "configs": [
+    {
+      "case": "off-opengl",
+      "run": "run-01",
+      "status": "PASSED",
+      "effective_cpu_saving_wait": false,
+      "default_cpu_saving_wait": false
+    },
+    {
+      "case": "off-opengl",
+      "run": "run-02",
+      "status": "PASSED",
+      "effective_cpu_saving_wait": false,
+      "default_cpu_saving_wait": false
+    },
+    {
+      "case": "on-opengl",
+      "run": "run-01",
+      "status": "PASSED",
+      "effective_cpu_saving_wait": true,
+      "default_cpu_saving_wait": false
+    },
+    {
+      "case": "on-opengl",
+      "run": "run-02",
+      "status": "PASSED",
+      "effective_cpu_saving_wait": true,
+      "default_cpu_saving_wait": false
+    }
+  ],
+  "oracle": {
+    "status": "FAILED",
+    "error": "same-backend reports disagree on framebuffer/work/result hashes"
+  },
+  "leaf_total_ms": {
+    "off": 127419.523,
+    "on": 129058.4795,
+    "delta_percent": 1.2862679606797878
+  },
+  "off-opengl": {
+    "cpu_host_percent_mean": "16.486441352494744",
+    "process_gpu_percent_mean": "81.18709792957108",
+    "device_gpu_percent_mean": "45.10714285714286"
+  },
+  "on-opengl": {
+    "cpu_host_percent_mean": "10.97024424642246",
+    "process_gpu_percent_mean": "80.5332124779114",
+    "device_gpu_percent_mean": "43.54960317460318"
+  },
+  "receipt_correction": "Original off-mode wrapper failure retained; corrected verifier accounts for delta-TOML default false. Sealed campaigns and tests unchanged."
+}

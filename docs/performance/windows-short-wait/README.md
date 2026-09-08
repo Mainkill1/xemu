@@ -33,7 +33,17 @@ defaults, so false is omitted. A TOML/default-aware verifier passed both retaine
 off receipts and both explicit-true on receipts. The original failure remains;
 no test or sealed campaign was rerun or rewritten to correct this bookkeeping.
 This configuration check does not independently prove backend availability.
-OpenGL and retail qualification remain in progress. The default remains off.
+OpenGL also completed 149/149 records twice per mode with required live markers
+and verified off/on configuration. CPU usage fell 16.486% → 10.970% of host
+capacity; leaf-test totals rose 127,419.523 → 129,058.480 ms (+1.29%). Process
+GPU utilization was 81.187% → 80.533%; device GPU was 45.107% → 43.550%.
+[Groups](toggle-opengl/groups.md), [per-test rows](toggle-opengl/per-test.csv),
+[audit](toggle-opengl/audit.json),
+[off](toggle-opengl/off-opengl-resource-usage-lanes.csv)/[on resources](toggle-opengl/on-opengl-resource-usage-lanes.csv).
+OpenGL baseline output consensus still fails solely on the explicitly
+inapplicable S3TC diagnostic count (14 versus 13), tracked in issue #26;
+a full output-consensus pass is not claimed. Retail qualification is running.
+The default remains off.
 
 ## Historical strict Vulkan XISO comparison
 
