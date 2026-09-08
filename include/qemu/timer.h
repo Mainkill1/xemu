@@ -413,6 +413,8 @@ int64_t xbox_timerlistgroup_deadline_ns(QEMUTimerListGroup *tlg,
 void xbox_poll_profile_set_context(XboxPollDeadlineSource source,
                                    const XboxTimerDeadlineInfo *timer_info);
 void xbox_poll_profile_override_context(XboxPollDeadlineSource source);
+void xbox_poll_profile_record_aio_zero(const char *source, const char *reason,
+                                       bool handle_ready);
 #endif
 
 /*

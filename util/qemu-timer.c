@@ -58,6 +58,7 @@ typedef struct XboxPollOwnerProfile {
     uint64_t callback_calls;
     uint64_t callback_late_ns;
     uint64_t callback_max_late_ns;
+    uint64_t callback_lateness[9];
 } XboxPollOwnerProfile;
 
 typedef struct XboxPollSpinProfile {
@@ -83,6 +84,7 @@ typedef struct XboxPollSpinProfile {
     uint64_t source_zero_calls[XBOX_POLL_DEADLINE_SOURCE_COUNT];
     uint64_t source_spin_calls[XBOX_POLL_DEADLINE_SOURCE_COUNT];
     uint64_t owner_overflow;
+    uint64_t aio_zero_reasons[3][4];
     XboxPollDeadlineSource context_source;
     XboxTimerDeadlineInfo context_timer;
     XboxPollOwnerProfile owners[XBOX_POLL_PROFILE_OWNER_MAX];
@@ -288,6 +290,26 @@ void xbox_poll_profile_override_context(XboxPollDeadlineSource source)
     xbox_poll_profile_set_context(source, NULL);
 }
 
+void xbox_poll_profile_record_aio_zero(const char *source, const char *reason,
+                                       bool handle_ready)
+{
+    XboxPollSpinProfile *profile = &xbox_poll_spin_profile;
+    unsigned int context = source && !strcmp(source, "aio-context") ? 0 :
+                           source && !strcmp(source, "io-handler") ? 1 : 2;
+
+    if (!xbox_poll_spin_profile_enabled(profile)) {
+        return;
+    }
+    if (reason) {
+        unsigned int kind = !strcmp(reason, "notify_event_cb") ? 0 :
+                            !strcmp(reason, "aio-timer") ? 2 : 1;
+        profile->aio_zero_reasons[context][kind]++;
+    }
+    if (handle_ready) {
+        profile->aio_zero_reasons[context][3]++;
+    }
+}
+
 static void xbox_poll_profile_record_callback(QEMUTimerCB *callback,
                                               QEMUClockType clock_type,
                                               int64_t expire_time_ns,
@@ -308,6 +330,15 @@ static void xbox_poll_profile_record_callback(QEMUTimerCB *callback,
 
     late_ns = callback_start_ns > expire_time_ns ?
               callback_start_ns - expire_time_ns : 0;
+    static const uint64_t bounds[] = {
+        1000, 10000, 50000, 100000, 250000, 500000, 1000000, 5000000,
+    };
+    unsigned int bucket = 0;
+
+    while (bucket < ARRAY_SIZE(bounds) && late_ns > bounds[bucket]) {
+        bucket++;
+    }
+    owner->callback_lateness[bucket]++;
     owner->callback_calls++;
     owner->callback_late_ns += late_ns;
     owner->callback_max_late_ns = MAX(owner->callback_max_late_ns, late_ns);
@@ -357,12 +388,36 @@ static void xbox_poll_profile_emit(XboxPollSpinProfile *profile,
             profile->source_spin_calls[2], profile->source_spin_calls[3],
             profile->source_spin_calls[4], profile->owner_overflow);
 
+    for (i = 0; i < ARRAY_SIZE(profile->aio_zero_reasons); i++) {
+        fprintf(stderr,
+                "XEMU_AIO_ZERO tid=%d phase=%" PRIu64 " context=%u"
+                " notify_bh=%" PRIu64 " other_bh=%" PRIu64
+                " timer=%" PRIu64 " handles=%" PRIu64 "\n",
+                qemu_get_thread_id(), profile->phase, i,
+                profile->aio_zero_reasons[i][0],
+                profile->aio_zero_reasons[i][1],
+                profile->aio_zero_reasons[i][2],
+                profile->aio_zero_reasons[i][3]);
+    }
+
     for (i = 0; i < ARRAY_SIZE(profile->owners); i++) {
         XboxPollOwnerProfile *owner = &profile->owners[i];
 
         if (!owner->callback) {
             continue;
         }
+        fprintf(stderr,
+                "XEMU_TIMER_LATENCY tid=%d phase=%" PRIu64 " callback=%p"
+                " counts=%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64
+                ",%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64
+                ",%" PRIu64 "\n",
+                qemu_get_thread_id(), profile->phase, (void *)owner->callback,
+                owner->callback_lateness[0], owner->callback_lateness[1],
+                owner->callback_lateness[2], owner->callback_lateness[3],
+                owner->callback_lateness[4], owner->callback_lateness[5],
+                owner->callback_lateness[6], owner->callback_lateness[7],
+                owner->callback_lateness[8]);
+
         fprintf(stderr,
                 "XEMU_QEMU_TIMER_OWNER_PROFILE v=2 tid=%d phase=%" PRIu64
                 " callback_id=0x%" PRIx64

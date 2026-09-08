@@ -251,7 +251,8 @@ void qemu_bh_delete(QEMUBH *bh)
     aio_bh_enqueue(bh, BH_DELETED);
 }
 
-static int64_t aio_compute_bh_timeout(BHList *head, int timeout)
+static int64_t aio_compute_bh_timeout(BHList *head, int timeout,
+                                      const char **reason)
 {
     QEMUBH *bh;
 
@@ -265,6 +266,9 @@ static int64_t aio_compute_bh_timeout(BHList *head, int timeout)
             } else {
                 /* non-idle bottom halves will be executed
                  * immediately */
+                if (reason) {
+                    *reason = bh->name;
+                }
                 return 0;
             }
         }
@@ -273,20 +277,20 @@ static int64_t aio_compute_bh_timeout(BHList *head, int timeout)
     return timeout;
 }
 
-int64_t
-aio_compute_timeout(AioContext *ctx)
+static int64_t aio_compute_timeout_reason(AioContext *ctx,
+                                           const char **reason)
 {
     BHListSlice *s;
     int64_t deadline;
     int timeout = -1;
 
-    timeout = aio_compute_bh_timeout(&ctx->bh_list, timeout);
+    timeout = aio_compute_bh_timeout(&ctx->bh_list, timeout, reason);
     if (timeout == 0) {
         return 0;
     }
 
     QSIMPLEQ_FOREACH(s, &ctx->bh_slice_list, next) {
-        timeout = aio_compute_bh_timeout(&s->bh_list, timeout);
+        timeout = aio_compute_bh_timeout(&s->bh_list, timeout, reason);
         if (timeout == 0) {
             return 0;
         }
@@ -294,16 +298,26 @@ aio_compute_timeout(AioContext *ctx)
 
     deadline = timerlistgroup_deadline_ns(&ctx->tlg);
     if (deadline == 0) {
+        if (reason) {
+            *reason = "aio-timer";
+        }
         return 0;
     } else {
         return qemu_soonest_timeout(timeout, deadline);
     }
 }
 
+int64_t aio_compute_timeout(AioContext *ctx)
+{
+    return aio_compute_timeout_reason(ctx, NULL);
+}
+
 static gboolean
 aio_ctx_prepare(GSource *source, gint    *timeout)
 {
     AioContext *ctx = (AioContext *) source;
+    const char *reason = NULL;
+    bool handle_ready;
 
     qatomic_set(&ctx->notify_me, qatomic_read(&ctx->notify_me) | 1);
 
@@ -315,12 +329,18 @@ aio_ctx_prepare(GSource *source, gint    *timeout)
     smp_mb();
 
     /* We assume there is no timeout already supplied */
-    *timeout = qemu_timeout_ns_to_ms(aio_compute_timeout(ctx));
+    *timeout = qemu_timeout_ns_to_ms(aio_compute_timeout_reason(ctx, &reason));
 
-    if (aio_prepare(ctx)) {
+    handle_ready = aio_prepare(ctx);
+    if (handle_ready) {
         *timeout = 0;
     }
-
+#ifdef XBOX
+    if (*timeout == 0) {
+        xbox_poll_profile_record_aio_zero(g_source_get_name(source), reason,
+                                          handle_ready);
+    }
+#endif
     return *timeout == 0;
 }
 
