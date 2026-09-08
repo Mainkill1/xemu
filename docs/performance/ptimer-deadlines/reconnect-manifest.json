@@ -1,0 +1,31 @@
+{
+  "source_commit": "45c773a22fdcdbf9a28e8be78dfb3f5aae9c8c7d",
+  "xemu_sha256": "cc7c9aa3bfc04415b2b06a899123b1321d75049f7795006993a11ac9b8a3062f",
+  "renderer": "VULKAN",
+  "started_utc": "2026-09-08T21:40:19.6713023+00:00",
+  "completed_utc": "2026-09-08T21:41:58.6440002+00:00",
+  "status": "PASS",
+  "job_sha256": "c1998dd7b6ca95afde42a638b5801032420789422941b14534afbf84cb059735",
+  "controller_sha256": "94fbbbd95a48f1e7b2c66f8e58fc0f02458d308cdde467be706b4d6f96f7a799",
+  "nv2a_versions": [
+    5,
+    4
+  ],
+  "private_hdd_deleted": true,
+  "host_quarantined": false,
+  "remaining_xemu_pids": [],
+  "scope": "native snapshot streams and guest activity, not performance qualification",
+  "keyboard_reconnect": {
+    "before_ids": [
+      "gamepad_0"
+    ],
+    "after_ids": [
+      "gamepad_1"
+    ],
+    "utc": "2026-09-08T21:41:25.2205360+00:00"
+  },
+  "performance_comparison": false,
+  "immutable_seed_unchanged": true,
+  "final_capture_sha256": "3833948ec7eb4d8be0249913de93799a133b18538c4f90634f04f37ffd44cbd3",
+  "final_capture_review": "Gameplay scene visible; no reconnect or pause overlay. Does not establish frame rate."
+}
