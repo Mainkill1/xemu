@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "source": "a6533fd5726761f0561e0a810f691f87ad3bb93b",
+  "xemu_sha256": "a8671f73923a8f0ed1a5e4beee80821f0421d01ff1dff048c4fc126f62a707aa",
+  "unit_sha256": "f070ecd4553aea01268975591c537274290c5de2ebfe98556aa664b58e1941dc",
+  "unit": {
+    "passed": 7,
+    "failed": 0,
+    "map_failure_no_unmap": "PASS",
+    "post_map_failure_unmap_once": "PASS",
+    "surface_invalidate_state": "PASS",
+    "texture_flush_retry_state": "PASS"
+  },
+  "production": [
+    {
+      "test": "SurfaceRendering::XemuSurfaceDownloadPath",
+      "renderer": "VULKAN",
+      "status": "PASS",
+      "framebuffer_fnv1a64": "64a30332bf7ebd84",
+      "vuid_count": 0
+    },
+    {
+      "test": "PipelineTextureSwitch::pipeline.texture-switch",
+      "renderer": "VULKAN",
+      "status": "PASS",
+      "framebuffer_fnv1a64": "8ae05d31fb00c325",
+      "vuid_count": 0
+    }
+  ],
+  "timing_eligible": false
+}

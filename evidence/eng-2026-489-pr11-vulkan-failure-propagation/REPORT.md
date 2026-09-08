@@ -1,6 +1,8 @@
 # GitHub PR 11 qualification
 
-Status: **PASS_WITH_KNOWN_PARENT_FAILURE_AND_BOUNDED_RETRY**
+Status: **PASS_WITH_KNOWN_PARENT_FAILURE_AND_BOUNDED_RETRY; FINAL FAILURE CONTRACT ACCEPTED**
+
+Final follow-up: source `a6533fd5726761f0561e0a810f691f87ad3bb93b` now checks VMA map, invalidate, and flush results in the surface-download and texture-upload paths. A scoped guard provides exactly-once unmapping on every post-map return. Seven deterministic injected contract cases passed, followed by exact-head Vulkan surface-download and texture-switch production tests with zero VUIDs. See [the mapped-failure follow-up](MAPPED-FAILURE-FOLLOWUP.md). This supersedes the earlier **Revise** decision below; the historical ordinary-path tables and known parent failures remain unchanged.
 
 - Baseline: `208e4596832a1f949bd63822d5ddd962c4575067`
 - Candidate: `021bc7293ab534c10d311761ca975985ab50a48c`

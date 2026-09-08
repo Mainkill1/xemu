@@ -1,0 +1,16 @@
+TAP version 14
+# random seed: R02S3a21325b731c9281aa95a8bbc934e090
+1..7
+# Start of xbox tests
+# Start of vk tests
+# Start of failure tests
+ok 1 /xbox/vk/failure/surface-download-state
+ok 2 /xbox/vk/failure/texture-upload-state
+ok 3 /xbox/vk/failure/map-failure-no-unmap
+ok 4 /xbox/vk/failure/post-map-failure-unmap
+ok 5 /xbox/vk/failure/map-success-unmap
+ok 6 /xbox/vk/failure/surface-invalidate-contract
+ok 7 /xbox/vk/failure/texture-flush-contract
+# End of failure tests
+# End of vk tests
+# End of xbox tests
