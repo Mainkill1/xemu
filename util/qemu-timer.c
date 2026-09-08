@@ -778,6 +778,18 @@ static bool xbox_high_resolution_poll_init(XboxHighResolutionPoll *poll)
     return true;
 }
 
+static void xbox_high_resolution_poll_cancel(XboxHighResolutionPoll *poll)
+{
+    CancelWaitableTimer(poll->timer);
+
+    /*
+     * CancelWaitableTimer() stops future signaling but does not clear an
+     * already-signaled timer. Drain a signal that raced with an original
+     * handle wake so it cannot satisfy the next poll immediately.
+     */
+    WaitForSingleObject(poll->timer, 0);
+}
+
 static int xbox_high_resolution_poll_ns(GPollFD *fds, guint nfds,
                                         int64_t timeout)
 {
@@ -810,12 +822,13 @@ static int xbox_high_resolution_poll_ns(GPollFD *fds, guint nfds,
      */
     due_time.QuadPart = -DIV_ROUND_UP(timeout, 100);
     if (!SetWaitableTimerEx(poll->timer, &due_time, 0, NULL, NULL, NULL, 0)) {
+        xbox_high_resolution_poll_cancel(poll);
         return INT_MIN;
     }
 
     poll_ret = g_poll(poll->poll_fds, required_capacity, -1);
     if (poll_ret < 0) {
-        CancelWaitableTimer(poll->timer);
+        xbox_high_resolution_poll_cancel(poll);
         return poll_ret;
     }
 
@@ -829,7 +842,7 @@ static int xbox_high_resolution_poll_ns(GPollFD *fds, guint nfds,
      * from remaining signaled for the next call.
      */
     if (!poll->poll_fds[nfds].revents) {
-        CancelWaitableTimer(poll->timer);
+        xbox_high_resolution_poll_cancel(poll);
     }
     return ready;
 }
