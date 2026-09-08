@@ -1,0 +1,16 @@
+{
+  "catalog_check": "PASS",
+  "catalog_id": "sha256:20f7c5e5797c3c4ac33117ac0bc793d86c064305b9a7404226484b765ed9178c",
+  "completed_utc": "2026-09-08T14:25:16.519903+00:00",
+  "full_suite_expected_records": 150,
+  "host_tests": "PASS",
+  "nxdk_commit": "73c95900965a16be3a3e34b8d4d5d41bc18498be",
+  "schema_version": 1,
+  "source_bundle_sha256": "e480d74ab60d7555964911025dee277fe53ccaf8679b05bd4d1fad66cfc0f31a",
+  "source_commit": "613ddbcf362c18c1380ca858185dc9fefeef5e4a",
+  "status": "PASS",
+  "xiso": {
+    "sha256": "7f6fe704418f3d321e94aefbb07de4c0a2b92b569d64d2d00dd46a7c170fd6c4",
+    "size": 3604480
+  }
+}

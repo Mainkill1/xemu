@@ -1,0 +1,180 @@
+diff --git a/hw/xbox/nv2a/pgraph/vk/buffer.c b/hw/xbox/nv2a/pgraph/vk/buffer.c
+index e62d3e9628..8aad441fac 100644
+--- a/hw/xbox/nv2a/pgraph/vk/buffer.c
++++ b/hw/xbox/nv2a/pgraph/vk/buffer.c
+@@ -54,6 +54,70 @@ static int paired_buffer_index(int index)
+     }
+ }
+ 
++#ifdef XEMU_TRANSIENT_BUFFER_GROWTH_TEST
++static int related_buffer_index(int index)
++{
++    switch (index) {
++    case BUFFER_INDEX_STAGING:
++        return BUFFER_INDEX;
++    case BUFFER_INDEX:
++        return BUFFER_INDEX_STAGING;
++    case BUFFER_VERTEX_INLINE_STAGING:
++        return BUFFER_VERTEX_INLINE;
++    case BUFFER_VERTEX_INLINE:
++        return BUFFER_VERTEX_INLINE_STAGING;
++    case BUFFER_UNIFORM_STAGING:
++        return BUFFER_UNIFORM;
++    case BUFFER_UNIFORM:
++        return BUFFER_UNIFORM_STAGING;
++    default:
++        return -1;
++    }
++}
++
++void pgraph_vk_transient_buffer_growth_test_event(PGRAPHState *pg,
++                                                   const char *event,
++                                                   int index,
++                                                   VkDeviceSize required_size)
++{
++    PGRAPHVkState *r = pg->vk_renderer_state;
++    static FILE *output;
++    static uint64_t sequence;
++    const char *path = getenv("XEMU_TRANSIENT_BUFFER_GROWTH_TEST_OUTPUT");
++    int related_index = related_buffer_index(index);
++
++    if (!path || !*path || related_index < 0) {
++        return;
++    }
++    if (!output) {
++        output = fopen(path, "w");
++        if (!output) {
++            return;
++        }
++        fprintf(output,
++                "sequence,event,submit_count,index,required_size,"
++                "buffer_offset,buffer_size,paired_offset,paired_size,"
++                "buffer_mapped,paired_mapped,buffer_present,paired_present,"
++                "in_command_buffer,in_aux_command_buffer\n");
++    }
++
++    StorageBuffer *buffer = &r->storage_buffers[index];
++    StorageBuffer *related = &r->storage_buffers[related_index];
++    fprintf(output,
++            "%" PRIu64 ",%s,%" PRIu64 ",%d,%" PRIu64 ",%" PRIu64
++            ",%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%d,%d,%d,%d,%d,%d\n",
++            ++sequence, event, (uint64_t)r->submit_count, index,
++            (uint64_t)required_size, (uint64_t)buffer->buffer_offset,
++            (uint64_t)buffer->buffer_size,
++            (uint64_t)related->buffer_offset,
++            (uint64_t)related->buffer_size, buffer->mapped != NULL,
++            related->mapped != NULL, buffer->buffer != VK_NULL_HANDLE,
++            related->buffer != VK_NULL_HANDLE, r->in_command_buffer,
++            r->in_aux_command_buffer);
++    fflush(output);
++}
++#endif
++
+ static void create_buffer(PGRAPHState *pg, StorageBuffer *buffer)
+ {
+     PGRAPHVkState *r = pg->vk_renderer_state;
+@@ -86,6 +150,11 @@ static void resize_buffer(PGRAPHState *pg, int index, size_t size)
+     assert(!r->in_command_buffer);
+     assert(!r->in_aux_command_buffer);
+ 
++#ifdef XEMU_TRANSIENT_BUFFER_GROWTH_TEST
++    pgraph_vk_transient_buffer_growth_test_event(pg, "resize-before", index,
++                                                  size);
++#endif
++
+     if (buffer->mapped) {
+         vmaUnmapMemory(r->allocator, buffer->allocation);
+         buffer->mapped = NULL;
+@@ -100,6 +169,11 @@ static void resize_buffer(PGRAPHState *pg, int index, size_t size)
+         VK_CHECK(vmaMapMemory(r->allocator, buffer->allocation,
+                               (void **)&buffer->mapped));
+     }
++
++#ifdef XEMU_TRANSIENT_BUFFER_GROWTH_TEST
++    pgraph_vk_transient_buffer_growth_test_event(pg, "resize-after", index,
++                                                  size);
++#endif
+ }
+ 
+ void pgraph_vk_ensure_buffer_pair_capacity(PGRAPHState *pg, int index,
+@@ -115,10 +189,18 @@ void pgraph_vk_ensure_buffer_pair_capacity(PGRAPHState *pg, int index,
+ 
+     StorageBuffer *buffer = &r->storage_buffers[index];
+     StorageBuffer *paired = &r->storage_buffers[paired_index];
++#ifdef XEMU_TRANSIENT_BUFFER_GROWTH_TEST
++    pgraph_vk_transient_buffer_growth_test_event(pg, "ensure-enter", index,
++                                                  required_size);
++#endif
+     if (buffer->buffer != VK_NULL_HANDLE &&
+         paired->buffer != VK_NULL_HANDLE &&
+         buffer->buffer_size >= required_size &&
+         paired->buffer_size >= required_size) {
++#ifdef XEMU_TRANSIENT_BUFFER_GROWTH_TEST
++        pgraph_vk_transient_buffer_growth_test_event(pg, "ensure-noop", index,
++                                                      required_size);
++#endif
+         return;
+     }
+ 
+@@ -132,6 +214,10 @@ void pgraph_vk_ensure_buffer_pair_capacity(PGRAPHState *pg, int index,
+     if (paired->buffer == VK_NULL_HANDLE || paired->buffer_size < new_size) {
+         resize_buffer(pg, paired_index, new_size);
+     }
++#ifdef XEMU_TRANSIENT_BUFFER_GROWTH_TEST
++    pgraph_vk_transient_buffer_growth_test_event(pg, "ensure-complete", index,
++                                                  required_size);
++#endif
+ }
+ 
+ void pgraph_vk_init_buffers(NV2AState *d)
+@@ -243,6 +329,11 @@ void pgraph_vk_init_buffers(NV2AState *d)
+             r->allocator, r->storage_buffers[buffers_to_map[i]].allocation,
+             (void **)&r->storage_buffers[buffers_to_map[i]].mapped));
+     }
++#ifdef XEMU_TRANSIENT_BUFFER_GROWTH_TEST
++    pgraph_vk_transient_buffer_growth_test_event(
++        pg, "initial", BUFFER_VERTEX_INLINE_STAGING,
++        r->storage_buffers[BUFFER_VERTEX_INLINE_STAGING].buffer_size);
++#endif
+ }
+ 
+ void pgraph_vk_finalize_buffers(NV2AState *d)
+diff --git a/hw/xbox/nv2a/pgraph/vk/draw.c b/hw/xbox/nv2a/pgraph/vk/draw.c
+index b000895b93..fb91a299fc 100644
+--- a/hw/xbox/nv2a/pgraph/vk/draw.c
++++ b/hw/xbox/nv2a/pgraph/vk/draw.c
+@@ -1866,8 +1866,17 @@ static bool ensure_buffer_space(PGRAPHState *pg, int index, VkDeviceSize size,
+ 
+     assert(required_size >= size);
+ 
++#ifdef XEMU_TRANSIENT_BUFFER_GROWTH_TEST
++    pgraph_vk_transient_buffer_growth_test_event(pg, "request", index,
++                                                  required_size);
++#endif
++
+     if (!pgraph_vk_buffer_has_space_for(pg, index, size, alignment)) {
+         pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
++#ifdef XEMU_TRANSIENT_BUFFER_GROWTH_TEST
++        pgraph_vk_transient_buffer_growth_test_event(pg, "post-finish", index,
++                                                      required_size);
++#endif
+         pgraph_vk_ensure_buffer_pair_capacity(pg, index, required_size);
+         return true;
+     }
+diff --git a/hw/xbox/nv2a/pgraph/vk/renderer.h b/hw/xbox/nv2a/pgraph/vk/renderer.h
+index 538166d087..424c6d41ce 100644
+--- a/hw/xbox/nv2a/pgraph/vk/renderer.h
++++ b/hw/xbox/nv2a/pgraph/vk/renderer.h
+@@ -489,6 +489,12 @@ VkDeviceSize pgraph_vk_buffer_required_size(PGRAPHState *pg, int index,
+                                             VkDeviceAddress alignment);
+ void pgraph_vk_ensure_buffer_pair_capacity(PGRAPHState *pg, int index,
+                                            size_t required_size);
++#ifdef XEMU_TRANSIENT_BUFFER_GROWTH_TEST
++void pgraph_vk_transient_buffer_growth_test_event(PGRAPHState *pg,
++                                                   const char *event,
++                                                   int index,
++                                                   VkDeviceSize required_size);
++#endif
+ VkDeviceSize pgraph_vk_append_to_buffer(PGRAPHState *pg, int index, void **data,
+                                         VkDeviceSize *sizes, size_t count,
+                                         VkDeviceAddress alignment);

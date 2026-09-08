@@ -1,0 +1,6 @@
+role,renderer,outcome,average_us,framebuffer_fnv1a64,work_checksum,result_checksum,tile_center_kat,unique_vuids
+candidate,opengl,PASS,887701,377e6c029807f325,7ecc995e,f36e0ec5,f36e0ec5,
+candidate-probe,vulkan,PASS,896847,377e6c029807f325,7ecc995e,f36e0ec5,f36e0ec5,0
+candidate,vulkan,PASS,939981,377e6c029807f325,7ecc995e,f36e0ec5,f36e0ec5,0
+parent,opengl,PASS,836334,377e6c029807f325,7ecc995e,f36e0ec5,f36e0ec5,
+parent,vulkan,PASS,877253,377e6c029807f325,7ecc995e,f36e0ec5,f36e0ec5,0

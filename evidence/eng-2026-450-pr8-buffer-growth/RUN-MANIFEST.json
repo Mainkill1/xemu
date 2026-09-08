@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "started_utc": "2026-09-08T14:48:49.9989542+00:00",
+  "completed_utc": "2026-09-08T14:49:20.8972993+00:00",
+  "xiso_source": "613ddbcf362c18c1380ca858185dc9fefeef5e4a",
+  "parent_source": "54e557d4dcb88d72b687ee578c4247e86350f81b",
+  "candidate_source": "33151b41fda28dc318da777fac12568cffa550c7",
+  "cells": [
+    {
+      "role": "candidate",
+      "renderer": "opengl",
+      "status": "PASS"
+    },
+    {
+      "role": "candidate-probe",
+      "renderer": "vulkan",
+      "status": "PASS"
+    },
+    {
+      "role": "candidate",
+      "renderer": "vulkan",
+      "status": "PASS"
+    },
+    {
+      "role": "parent",
+      "renderer": "opengl",
+      "status": "PASS"
+    },
+    {
+      "role": "parent",
+      "renderer": "vulkan",
+      "status": "PASS"
+    }
+  ]
+}

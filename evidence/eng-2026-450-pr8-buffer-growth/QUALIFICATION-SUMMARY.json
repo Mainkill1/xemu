@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "parent": {
+    "commit": "54e557d4dcb88d72b687ee578c4247e86350f81b",
+    "tree": "4ef6c439901ac17f75cbf05b2200b135c49e3416",
+    "executable_sha256": "3794899fbb9d3d1cfaafeaab8947dc13301ae7b9cc145892b73522621271653f"
+  },
+  "candidate": {
+    "commit": "33151b41fda28dc318da777fac12568cffa550c7",
+    "tree": "5117f2afb39a2c2c8ffafc03903989a2977d1707",
+    "executable_sha256": "e76244cb7fa6b3a6e0779caeb1ab41224e4325e3b95802f0eb4f1f44742349f1"
+  },
+  "probe": {
+    "base_commit": "33151b41fda28dc318da777fac12568cffa550c7",
+    "executable_sha256": "390a597a6db8ec7cc9326b6c5cacb9856285210a012968b3ce900509186e9517",
+    "overlay_sha256": "f1b01483ad0cf4103d034b14684978eaa9d6053591114172ad6df36927bb0db4"
+  },
+  "test": {
+    "commit": "613ddbcf362c18c1380ca858185dc9fefeef5e4a",
+    "pull_request": "https://github.com/Mainkill1/xemu-perf-tests/pull/5",
+    "id": "vertex_buffer_allocation.rising_transient_growth",
+    "nxdk_commit": "73c95900965a16be3a3e34b8d4d5d41bc18498be",
+    "xiso_sha256": "7f6fe704418f3d321e94aefbb07de4c0a2b92b569d64d2d00dd46a7c170fd6c4"
+  },
+  "functional": {
+    "cells_passed": 5,
+    "cells_total": 5,
+    "framebuffer_fnv1a64": "377e6c029807f325",
+    "work_checksum": "7ecc995e",
+    "result_checksum": "f36e0ec5",
+    "tile_center_kat": "f36e0ec5",
+    "vulkan_unique_vuids": 0
+  },
+  "production_growth": {
+    "event_count": 2689,
+    "exact_capacity_observed": true,
+    "failures": [],
+    "growth_capacities": [
+      8388736,
+      8388864,
+      8388992,
+      10486016
+    ],
+    "growth_submit_counts": [
+      47,
+      48,
+      49,
+      50
+    ],
+    "initial_capacity": 8388608,
+    "just_below_capacity_observed": true,
+    "mapping_restored_after_every_growth": true,
+    "paired_capacity_consistent_after_every_growth": true,
+    "resize_count": 8,
+    "schema_version": 1,
+    "status": "PASS"
+  },
+  "timing_eligibility": "context_only_single_iteration_forced_completion"
+}
