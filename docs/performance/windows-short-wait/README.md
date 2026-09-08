@@ -7,7 +7,35 @@ not an accepted XISO speedup or a complete PGR2 lag fix. Related work:
 Historical research remains in [PR 24](https://github.com/Mainkill1/xemu/pull/24).
 [Branch archive and consolidation record](branch-archive.md).
 
-## Latest strict Vulkan XISO comparison
+## Optional setting: same-build Vulkan comparison
+
+Implementation `0edb216c23ab071042bb26005267d0c3816337cd`, executable SHA-256
+`caeb70731620b16e85cb5fb92564a2346180edf92bdf353c8aae86c0a164d1da`, both modes.
+Two full runs per mode, 149/149 records each; all live-marker checks passed.
+Both on-mode runs match the off-mode regression consensus. This does not
+establish hardware correctness. Native poll unit tests passed before the suite.
+
+| Measurement | Off | On | Observation |
+|---|---:|---:|---|
+| Sum of leaf mean test times | 94,000.433 ms | 94,733.571 ms | +0.78% slower |
+| Process CPU, host capacity | 17.486% | 13.056% | Lower CPU use |
+| Process GPU utilization | 81.101% | 82.113% | Higher |
+| Device GPU utilization | 35.449% | 36.454% | Higher |
+
+Two-run observations, not a statistically established performance improvement.
+[Groups](toggle-vulkan/groups.md), [full per-test rows](toggle-vulkan/per-test.csv),
+[configuration and oracle audit](toggle-vulkan/audit.json),
+[off](toggle-vulkan/off-vulkan-resource-usage-lanes.csv)/[on resources](toggle-vulkan/on-vulkan-resource-usage-lanes.csv).
+
+The initial wrapper marked off-mode configuration verification failed because
+it expected an explicit false key after exit. xemu saves only deviations from
+defaults, so false is omitted. A TOML/default-aware verifier passed both retained
+off receipts and both explicit-true on receipts. The original failure remains;
+no test or sealed campaign was rerun or rewritten to correct this bookkeeping.
+This configuration check does not independently prove backend availability.
+OpenGL and retail qualification remain in progress. The default remains off.
+
+## Historical strict Vulkan XISO comparison
 
 Frozen S plus the shared marker harness `653e03a7f15500d3420de44af4d12cfc490558a7`
 versus wait-only plus that same harness `8eeb3e48f9aedd0ca932c23802318f1b3e645fce`.

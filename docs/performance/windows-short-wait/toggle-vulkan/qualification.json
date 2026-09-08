@@ -1,0 +1,8 @@
+{
+  "campaign_mode": "timing",
+  "renderer": "vulkan",
+  "live_marker_contract_required": true,
+  "baseline_campaign": "pr24-off-vulkan-0edb",
+  "candidate_campaign": "pr24-on-vulkan-0edb",
+  "statistical_improvement_established": false
+}
