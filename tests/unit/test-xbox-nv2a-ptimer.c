@@ -419,6 +419,51 @@ static void test_wide_deadline_reconciles_source_wrap(void)
     ptimer_reset(&d);
 }
 
+static void test_masked_ack_reconciles_elapsed_alarm(void)
+{
+    NV2AState d;
+
+    init_nv2a_ptimer(&d);
+    ptimer_write(&d, NV_PTIMER_ALARM_0, TEST_ALARM_LOW, 4);
+    /* Advance without dispatch: acknowledgment must consume this epoch even
+     * when no callback materialized its pending bit. */
+    ptimer_test_time_ns = 8;
+    ptimer_write(&d, NV_PTIMER_INTR_0, NV_PTIMER_INTR_0_ALARM, 4);
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, NV_PTIMER_INTR_EN_0_ALARM, 4);
+    g_assert_cmphex(d.ptimer.pending_interrupts, ==, 0);
+    g_assert_false(irq_asserted);
+    g_assert_cmphex(d.ptimer.alarm_time, ==,
+                   (1ULL << 32) | TEST_ALARM_LOW);
+    expire_alarm(&d);
+    g_assert_true(irq_asserted);
+    ptimer_reset(&d);
+}
+
+static void test_stopped_clock_does_not_latch(gconstpointer restore)
+{
+    NV2AState d;
+
+    init_nv2a_ptimer(&d);
+    /* Restore an armed comparator at zero with the source stopped. Preserve
+     * pending state; equality alone is not an elapsed running-clock event. */
+    d.ptimer.numerator = 0;
+    d.ptimer.alarm_time = 0;
+    d.ptimer.enabled_interrupts = NV_PTIMER_INTR_EN_0_ALARM;
+    timer_mod(&d.ptimer.timer, INT64_MAX);
+    if (GPOINTER_TO_INT(restore)) {
+        ptimer_post_load(&d);
+    } else {
+        ptimer_read(&d, NV_PTIMER_INTR_0, 4);
+    }
+    g_assert_cmphex(d.ptimer.pending_interrupts, ==, 0);
+    g_assert_false(irq_asserted);
+    d.ptimer.pending_interrupts = NV_PTIMER_INTR_0_ALARM;
+    ptimer_post_load(&d);
+    g_assert_cmphex(d.ptimer.pending_interrupts, ==, NV_PTIMER_INTR_0_ALARM);
+    g_assert_true(irq_asserted);
+    ptimer_reset(&d);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -460,5 +505,11 @@ int main(int argc, char **argv)
     g_test_add_func("/xbox/nv2a/ptimer/deadline-wide-source-wrap",
                     test_wide_deadline_reconciles_source_wrap);
 
+    g_test_add_func("/xbox/nv2a/ptimer/masked-ack",
+                    test_masked_ack_reconciles_elapsed_alarm);
+    g_test_add_data_func("/xbox/nv2a/ptimer/stopped-read",
+                        GINT_TO_POINTER(0), test_stopped_clock_does_not_latch);
+    g_test_add_data_func("/xbox/nv2a/ptimer/stopped-restore",
+                        GINT_TO_POINTER(1), test_stopped_clock_does_not_latch);
     return g_test_run();
 }

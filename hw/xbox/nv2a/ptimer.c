@@ -192,7 +192,8 @@ static uint64_t next_alarm_time(uint64_t reg_now, uint32_t alarm_low)
 
 static bool ptimer_latch_overdue_alarm(NV2AState *d, uint64_t reg_now)
 {
-    if (!is_alarm_reached(reg_now, d->ptimer.alarm_time)) {
+    if (!ptimer_clock_running(d) ||
+        !is_alarm_reached(reg_now, d->ptimer.alarm_time)) {
         return false;
     }
 
@@ -309,6 +310,12 @@ void ptimer_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
 
     switch (addr) {
     case NV_PTIMER_INTR_0:
+        /* Acknowledge elapsed guest state even if its callback has not run.
+         * Otherwise unmasking can resurrect the epoch just acknowledged. */
+        if (timer_pending(&d->ptimer.timer) &&
+            ptimer_latch_overdue_alarm(d, get_reg_time(d))) {
+            schedule_qemu_timer(d);
+        }
         d->ptimer.pending_interrupts &= ~val;
         nv2a_update_irq(d);
         break;
