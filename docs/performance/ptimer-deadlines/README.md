@@ -18,7 +18,10 @@ callback need not assert an alarm; the existing alarm predicate decides that.
 
 ## Source and scope
 
-Parent: `d9bf8e1dcfd4ee72813c9f9f5572b780fc65cc76`.
+Test parent: `d9bf8e1dcfd4ee72813c9f9f5572b780fc65cc76`.
+The PR is reconciled onto integration parent
+`bac2cae991a2d359eddfc6836dec3db60fba5618`, which adds the separately reviewed
+LRU repair. PTIMER production and test inputs remain unchanged by that merge.
 Tested implementation: `1dade3e92678b70d9114a3756b51f7e7d4007c41`.
 Only `hw/xbox/nv2a/ptimer.c` and its existing translation-unit regression test
 change in that implementation commit. The production file is compiled directly;
