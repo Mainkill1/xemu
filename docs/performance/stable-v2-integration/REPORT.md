@@ -90,3 +90,7 @@ These findings rule out an observed mismatch in the listed compiler settings and
 [Retail per-run measurements](retail-per-run.csv) · [XISO run receipts](xiso-runs.csv). These compact exports preserve the measured numbers; complete raw evidence remains retained with the completed worker campaign.
 
 Repository issue: [#38](https://github.com/Mainkill1/xemu/issues/38). Current main and S have divergent history; a release must explicitly review the resulting tree rather than assuming an ordinary merge removes deferred Full-Speed changes. Draft #37 was excluded.
+
+## Follow-up: Morrowind trace review and bounded repeat
+
+[Offline trace reanalysis and separate repeat results](MORROWIND-TRACE-REVIEW.md) preserve the original table above. The Vulkan cadence flag repeated; OpenGL reversed direction. Release integration remains held.

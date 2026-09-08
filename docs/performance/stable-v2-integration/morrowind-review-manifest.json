@@ -1,0 +1,69 @@
+{
+  "scope": "Offline reanalysis of the existing four Morrowind cells; no new emulator execution",
+  "cells": [
+    {
+      "source_commit": "3caf5d85423298c62344f8fe44fe9a1176b8ae81",
+      "executable_sha256": "fe8047f60181672170524cf40b2151f335f0e232d749b569b60fd5bc2cb5d6ba",
+      "renderer": "OPENGL",
+      "runner_sha256": "9994bd2d823e8557d39aef582fef8d7f37965d54caa52eaa09514e5d256307ed",
+      "measurement_started_utc": "2026-09-08T17:24:31.6021408Z",
+      "measurement_ended_utc": "2026-09-08T17:24:41.6106137Z",
+      "average_fps_proxy": 38.76813499725768,
+      "frame_interval_p95_ms": 31.761,
+      "frame_interval_p99_ms": 36.907,
+      "cell": "baseline-opengl",
+      "start_capture_sha256": "ba1eebbeb907d5535836c9dd0b800b92549e3bac008d0e30e08c987738c0f263",
+      "end_capture_sha256": "1ce27b45d89f3158901e6bc81b2bc2327b77b523bccaf8814b18d37046559faf",
+      "trace_sha256": "f1ca96ab86f612081c25f1768b91f4ec848077538698c4d36f7042ebb8580bf8",
+      "image_review": "Start and end show expected gameplay scene; no pause or reconnect overlay. Not continuous video or proof of equal host load."
+    },
+    {
+      "source_commit": "3caf5d85423298c62344f8fe44fe9a1176b8ae81",
+      "executable_sha256": "fe8047f60181672170524cf40b2151f335f0e232d749b569b60fd5bc2cb5d6ba",
+      "renderer": "VULKAN",
+      "runner_sha256": "9994bd2d823e8557d39aef582fef8d7f37965d54caa52eaa09514e5d256307ed",
+      "measurement_started_utc": "2026-09-08T17:23:06.4835909Z",
+      "measurement_ended_utc": "2026-09-08T17:23:16.4972631Z",
+      "average_fps_proxy": 28.545524402316815,
+      "frame_interval_p95_ms": 44.22,
+      "frame_interval_p99_ms": 51.314,
+      "cell": "baseline-vulkan",
+      "start_capture_sha256": "c41ec5f805f444aa67d835cad65b7987e258884d73a6c2914015a306e5b46ca2",
+      "end_capture_sha256": "3a0d1a99a941afecae1ae7bdab48d654c93fc43fc25d44c5f7d71fdc72bfe490",
+      "trace_sha256": "9fd7b5b92aa4571c0b4f1a626a652d76cc19047db6a207b8f964ca0c8b6ceef2",
+      "image_review": "Start and end show expected gameplay scene; no pause or reconnect overlay. Not continuous video or proof of equal host load."
+    },
+    {
+      "source_commit": "57cf3f0a4b443e8074c79710139d2b8aaf6ac0aa",
+      "executable_sha256": "aa3c7d0f8d0dc0b4e6156ad0840a7d0a5ce621ae2ad42bd121a3d9126d18e7de",
+      "renderer": "OPENGL",
+      "runner_sha256": "9994bd2d823e8557d39aef582fef8d7f37965d54caa52eaa09514e5d256307ed",
+      "measurement_started_utc": "2026-09-08T17:25:14.1166158Z",
+      "measurement_ended_utc": "2026-09-08T17:25:24.1197644Z",
+      "average_fps_proxy": 37.6402211157224,
+      "frame_interval_p95_ms": 33.902,
+      "frame_interval_p99_ms": 38.08,
+      "cell": "candidate-opengl",
+      "start_capture_sha256": "4dce2d42c0bfaadf06fe011c467dbf1a267cd175f80d879e5b7a1ce19431e491",
+      "end_capture_sha256": "1b462126a5a9cbc5e37a033307fe0062aa2bd985f2e569cc5cd21dcc713352bc",
+      "trace_sha256": "4c991e2d499dc70523926d79d5e610d184701f26cdb2032d8d7b7558ea4132b1",
+      "image_review": "Start and end show expected gameplay scene; no pause or reconnect overlay. Not continuous video or proof of equal host load."
+    },
+    {
+      "source_commit": "57cf3f0a4b443e8074c79710139d2b8aaf6ac0aa",
+      "executable_sha256": "aa3c7d0f8d0dc0b4e6156ad0840a7d0a5ce621ae2ad42bd121a3d9126d18e7de",
+      "renderer": "VULKAN",
+      "runner_sha256": "9994bd2d823e8557d39aef582fef8d7f37965d54caa52eaa09514e5d256307ed",
+      "measurement_started_utc": "2026-09-08T17:23:49.2410445Z",
+      "measurement_ended_utc": "2026-09-08T17:23:59.2476579Z",
+      "average_fps_proxy": 26.792925904916018,
+      "frame_interval_p95_ms": 44.188,
+      "frame_interval_p99_ms": 50.392,
+      "cell": "candidate-vulkan",
+      "start_capture_sha256": "0dec096f9856faac1c2d21eacd2ec825562170ece6b9d16247a14b62a2dec1d7",
+      "end_capture_sha256": "f10a24a5544a6c466110bc0a4b37efc5ffd1bd11d6c38eec3024b928d07327b6",
+      "trace_sha256": "61da6f76dd5478ac4fe6066d7be08ef15910ab741dc3a02c1c6a1a2ec089dae1",
+      "image_review": "Start and end show expected gameplay scene; no pause or reconnect overlay. Not continuous video or proof of equal host load."
+    }
+  ]
+}
