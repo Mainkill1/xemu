@@ -1,0 +1,60 @@
+{
+  "configs": [
+    {
+      "case": "off-vulkan",
+      "run": "run-01",
+      "status": "PASSED",
+      "effective_cpu_saving_wait": false,
+      "default_cpu_saving_wait": false
+    },
+    {
+      "case": "off-vulkan",
+      "run": "run-02",
+      "status": "PASSED",
+      "effective_cpu_saving_wait": false,
+      "default_cpu_saving_wait": false
+    },
+    {
+      "case": "on-vulkan",
+      "run": "run-01",
+      "status": "PASSED",
+      "effective_cpu_saving_wait": true,
+      "default_cpu_saving_wait": false
+    },
+    {
+      "case": "on-vulkan",
+      "run": "run-02",
+      "status": "PASSED",
+      "effective_cpu_saving_wait": true,
+      "default_cpu_saving_wait": false
+    }
+  ],
+  "oracle": [
+    {
+      "status": "PASSED",
+      "oracle_id": "81ce8374b535f01de1d5e57be5a33cdd2b0aba0b88ad0df180fbf306b4233f38",
+      "oracle_provenance": "REGRESSION_CONSENSUS"
+    },
+    {
+      "status": "PASSED",
+      "oracle_id": "81ce8374b535f01de1d5e57be5a33cdd2b0aba0b88ad0df180fbf306b4233f38",
+      "oracle_provenance": "REGRESSION_CONSENSUS"
+    }
+  ],
+  "leaf_total_ms": {
+    "off": 94000.433,
+    "on": 94733.5705,
+    "delta_percent": 0.7799299179823915
+  },
+  "off-vulkan": {
+    "cpu_host_percent_mean": "17.485774400155606",
+    "process_gpu_percent_mean": "81.10120955714174",
+    "device_gpu_percent_mean": "35.44880952380953"
+  },
+  "on-vulkan": {
+    "cpu_host_percent_mean": "13.056112609773574",
+    "process_gpu_percent_mean": "82.113244103353",
+    "device_gpu_percent_mean": "36.453947368421055"
+  },
+  "receipt_correction": "Original off-vulkan wrapper failure retained; corrected verifier accounts for xemu delta-TOML default false. Sealed campaign and tests unchanged."
+}
