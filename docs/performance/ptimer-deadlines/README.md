@@ -1,5 +1,9 @@
 # PTIMER future deadlines
 
+Latest implementation: [masked alarms and PLL transitions](MASKED-ALARMS.md),
+with its own source identity and 23-test results. Real stream/native qualification
+remains pending. Earlier reports below retain their original scope and identities.
+
 Current follow-up: [acknowledgment and stopped-clock reconciliation](RECONCILIATION.md).
 The arithmetic results below qualify the earlier identified implementation;
 the follow-up records its own source identity and 19-test result.

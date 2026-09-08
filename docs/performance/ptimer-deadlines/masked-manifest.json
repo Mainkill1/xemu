@@ -1,0 +1,28 @@
+{
+  "source_commit": "a48b8304db16bbf5eaa48e7d13bd4e3c734e40d7",
+  "parent_commit": "f4edc971fd3bc5dce645c8f06ce76ff17dd2db17",
+  "inputs": {
+    "hw/xbox/nv2a/nv2a.c": "df9c6a9311ac944a7c38e4403d7abe4cd7bddfe292a985fd25fbd328a9fc838e",
+    "hw/xbox/nv2a/nv2a_int.h": "a8c0af8ec2d668889c39604968c7019b6aa54dfe9daffea5db25bd85b471867b",
+    "hw/xbox/nv2a/pramdac.c": "1db990327eb7b1933c5f6e7b24245f6e4145c82f3f8993b64c108ea6cd2221b6",
+    "hw/xbox/nv2a/ptimer.c": "b193913493e2ab30c7be6a4c757e5854f2507d1180011ca5a7dc7c396295b94c",
+    "tests/unit/meson.build": "1dee61967f40b233acd71f8148f62ad6da5edabbd2e7f691118bb1abd7649a73",
+    "tests/unit/ptimer-test-stubs.c": "e45e2a1a50509d51d6b0848739cd9ffb671ff909da8403c5defe372b8520f7da",
+    "tests/unit/test-xbox-nv2a-ptimer.c": "dc96f45806439c8c24fd7aa4c3274e59f3631d7777d21331408896bf3847f91d",
+    "tests/unit/xbox-nv2a-ptimer-test-shim.h": "5db758ed0333c3874de09271bb3ecea131956a9e6be626ba9980578c9502e087"
+  },
+  "unit_sha256": {
+    "compiler128": "df8dda244f75711415efdbd3a39525ace69af67493770350e46699236f16b839",
+    "software128": "b8fd3cb2d4da268addb6dac0cfd73b9235be1f88b25b04a60effa3ad676b069d"
+  },
+  "execution": "Windows-target units under Wine, -O2",
+  "tests_per_variant": 23,
+  "forward_cases_per_variant": 34560,
+  "shared_fixture_core_tests": 576,
+  "negative_controls": [
+    "masked-no-callback: parent PTIMER retains queued timer",
+    "pll-register: parent PRAMDAC retains8ns instead of81ns"
+  ],
+  "real_vmstate_stream_test": "pending",
+  "native_emulator_qualification": "pending"
+}
