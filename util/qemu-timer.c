@@ -735,6 +735,106 @@ int qemu_timeout_ns_to_ms(int64_t ns)
     return MIN(ms, INT32_MAX);
 }
 
+#if defined(XBOX) && defined(_WIN32)
+#ifndef CREATE_WAITABLE_TIMER_HIGH_RESOLUTION
+#define CREATE_WAITABLE_TIMER_HIGH_RESOLUTION 0x00000002
+#endif
+
+typedef struct XboxHighResolutionPoll {
+    HANDLE timer;
+    GPollFD *poll_fds;
+    guint poll_fds_capacity;
+    Notifier cleanup_notifier;
+} XboxHighResolutionPoll;
+
+static __thread XboxHighResolutionPoll xbox_high_resolution_poll;
+
+static void xbox_high_resolution_poll_cleanup(Notifier *notifier, void *opaque)
+{
+    XboxHighResolutionPoll *poll = &xbox_high_resolution_poll;
+
+    if (poll->timer) {
+        CloseHandle(poll->timer);
+    }
+    g_free(poll->poll_fds);
+    memset(poll, 0, sizeof(*poll));
+}
+
+static bool xbox_high_resolution_poll_init(XboxHighResolutionPoll *poll)
+{
+    if (poll->timer) {
+        return true;
+    }
+
+    poll->timer = CreateWaitableTimerExW(
+        NULL, NULL, CREATE_WAITABLE_TIMER_HIGH_RESOLUTION,
+        TIMER_MODIFY_STATE | SYNCHRONIZE);
+    if (!poll->timer) {
+        return false;
+    }
+
+    poll->cleanup_notifier.notify = xbox_high_resolution_poll_cleanup;
+    qemu_thread_atexit_add(&poll->cleanup_notifier);
+    return true;
+}
+
+static int xbox_high_resolution_poll_ns(GPollFD *fds, guint nfds,
+                                        int64_t timeout)
+{
+    XboxHighResolutionPoll *poll = &xbox_high_resolution_poll;
+    LARGE_INTEGER due_time;
+    guint required_capacity = nfds + 1;
+    guint i;
+    int poll_ret;
+    int ready = 0;
+
+    if (!xbox_high_resolution_poll_init(poll)) {
+        return INT_MIN;
+    }
+
+    if (required_capacity > poll->poll_fds_capacity) {
+        poll->poll_fds = g_renew(GPollFD, poll->poll_fds,
+                                 required_capacity);
+        poll->poll_fds_capacity = required_capacity;
+    }
+
+    memcpy(poll->poll_fds, fds, nfds * sizeof(*fds));
+    poll->poll_fds[nfds] = (GPollFD) {
+        .fd = (gintptr)poll->timer,
+        .events = G_IO_IN,
+    };
+
+    /*
+     * Relative waitable-timer deadlines use negative 100 ns units. Round up
+     * so the host timer cannot expire before the requested QEMU deadline.
+     */
+    due_time.QuadPart = -DIV_ROUND_UP(timeout, 100);
+    if (!SetWaitableTimerEx(poll->timer, &due_time, 0, NULL, NULL, NULL, 0)) {
+        return INT_MIN;
+    }
+
+    poll_ret = g_poll(poll->poll_fds, required_capacity, -1);
+    if (poll_ret < 0) {
+        CancelWaitableTimer(poll->timer);
+        return poll_ret;
+    }
+
+    for (i = 0; i < nfds; i++) {
+        fds[i].revents = poll->poll_fds[i].revents;
+        ready += fds[i].revents != 0;
+    }
+
+    /*
+     * An original event may win before the timer. Prevent that armed timer
+     * from remaining signaled for the next call.
+     */
+    if (!poll->poll_fds[nfds].revents) {
+        CancelWaitableTimer(poll->timer);
+    }
+    return ready;
+}
+#endif
+
 
 /* qemu implementation of g_poll which uses a nanosecond timeout but is
  * otherwise identical to g_poll
@@ -760,11 +860,23 @@ int qemu_poll_ns(GPollFD *fds, guint nfds, int64_t timeout)
 #else
 
 #ifdef XBOX
-    /* Timers are facilitated by this function. Busy-wait if the deadline is
-     * near, to avoid missing deadlines due to costly sleeps.
+    /*
+     * Timers are facilitated by this function. On Windows, include a private
+     * high-resolution timer in the existing GLib wait set so original handles
+     * can interrupt a short deadline without consuming a core. Retain the
+     * existing spin as a compatibility fallback if the timer is unavailable.
      */
     #define XBOX_BUSYWAIT_THRESHOLD_NS 1250000
     if ((0 < timeout) && (timeout < XBOX_BUSYWAIT_THRESHOLD_NS)) {
+#ifdef _WIN32
+        int high_resolution_ret =
+            xbox_high_resolution_poll_ns(fds, nfds, timeout);
+
+        if (high_resolution_ret != INT_MIN) {
+            xbox_poll_profile_record_nonspin(timeout, high_resolution_ret);
+            return high_resolution_ret;
+        }
+#endif
         int64_t now = qemu_clock_get_ns(QEMU_CLOCK_REALTIME);
         int64_t start = now;
         int64_t end = now + timeout;
