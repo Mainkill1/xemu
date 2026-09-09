@@ -18,6 +18,7 @@
  */
 
 #include "qemu/osdep.h"
+#include "exec/cause-counters.h"
 #include <math.h>
 #include "cpu.h"
 #include "tcg-cpu.h"
@@ -994,6 +995,9 @@ void update_fp_status(CPUX86State *env)
 
 void helper_fldcw(CPUX86State *env, uint32_t val)
 {
+    cause_add(CAUSE_FLDCW, 1);
+    cause_add(CAUSE_FLDCW_SAME, env->fpuc == (uint16_t)val);
+    cause_add(CAUSE_FLDCW_PC_CHANGE, ((env->fpuc ^ val) & (1 << 9)) != 0);
     cpu_set_fpuc(env, val);
 }
 
@@ -1030,6 +1034,7 @@ static void do_fninit(CPUX86State *env)
 
 void helper_fninit(CPUX86State *env)
 {
+    cause_add(CAUSE_FNINIT, 1);
     do_fninit(env);
 }
 
@@ -2732,6 +2737,7 @@ void helper_fldenv(CPUX86State *env, target_ulong ptr, int data32)
 {
     X86Access ac;
 
+    cause_add(CAUSE_FLDENV, 1);
     access_prepare(&ac, env, ptr, 14 << data32, MMU_DATA_STORE, GETPC());
     do_fldenv(&ac, ptr, data32);
 }

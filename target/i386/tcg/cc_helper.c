@@ -18,6 +18,7 @@
  */
 
 #include "qemu/osdep.h"
+#include "exec/cause-counters.h"
 #include "cpu.h"
 #include "exec/helper-proto.h"
 #include "helper-tcg.h"
@@ -321,6 +322,12 @@ target_ulong helper_cc_compute_c(target_ulong dst, target_ulong src1,
 void helper_write_eflags(CPUX86State *env, target_ulong t0,
                          uint32_t update_mask)
 {
+    uint32_t changed = (env->eflags ^ t0) & update_mask;
+
+    cause_add(CAUSE_WRITE_EFLAGS, 1);
+    cause_add(CAUSE_EFLAGS_IF_CHANGE, (changed & IF_MASK) != 0);
+    cause_add(CAUSE_EFLAGS_TB_CHANGE,
+              (changed & (IOPL_MASK | TF_MASK | RF_MASK | VM_MASK | AC_MASK)) != 0);
     cpu_load_eflags(env, t0, update_mask);
 }
 
@@ -328,6 +335,7 @@ target_ulong helper_read_eflags(CPUX86State *env)
 {
     uint32_t eflags;
 
+    cause_add(CAUSE_READ_EFLAGS, 1);
     eflags = cpu_cc_compute_all(env);
     eflags |= (env->df & DF_MASK);
     eflags |= env->eflags & ~(VM_MASK | RF_MASK);

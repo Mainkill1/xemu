@@ -60,6 +60,20 @@ void cause_poll(void)
     static const char *const names[CAUSE_COUNT_MAX] = {
         [CAUSE_HELPER_DYNAMIC] = "helper_dynamic",
         [CAUSE_HELPER_STATIC] = "helper_static",
+        [CAUSE_RETURN_NULL] = "return_null",
+        [CAUSE_HELPER_EPILOGUE] = "helper_epilogue",
+        [CAUSE_HELPER_CODE] = "helper_code",
+        [CAUSE_CF_NO_GOTO_TB] = "cf_no_goto_tb",
+        [CAUSE_CF_NO_GOTO_PTR] = "cf_no_goto_ptr",
+        [CAUSE_FLDCW] = "fldcw",
+        [CAUSE_FLDCW_SAME] = "fldcw_same",
+        [CAUSE_FLDCW_PC_CHANGE] = "fldcw_pc_change",
+        [CAUSE_FLDENV] = "fldenv",
+        [CAUSE_FNINIT] = "fninit",
+        [CAUSE_WRITE_EFLAGS] = "write_eflags",
+        [CAUSE_EFLAGS_IF_CHANGE] = "eflags_if_change",
+        [CAUSE_EFLAGS_TB_CHANGE] = "eflags_tb_change",
+        [CAUSE_READ_EFLAGS] = "read_eflags",
         [CAUSE_MAIN_CALL] = "main_call",
         [CAUSE_MAIN_HIT] = "main_hit",
         [CAUSE_MAIN_EMPTY] = "main_empty",
@@ -520,8 +534,10 @@ static const void *lookup_tb_ptr_common(CPUState *cpu, TCGTBCPUState s)
     cause_poll();
     tb = tb_lookup(cpu, s, CAUSE_HELPER_CALL);
     if (tb == NULL) {
+        cause_add(CAUSE_HELPER_EPILOGUE, 1);
         return tcg_code_gen_epilogue;
     }
+    cause_add(CAUSE_HELPER_CODE, 1);
 
     if (qemu_loglevel_mask(CPU_LOG_TB_CPU | CPU_LOG_EXEC)) {
         log_cpu_exec(s.pc, cpu, tb);
@@ -602,6 +618,7 @@ cpu_tb_exec(CPUState *cpu, TranslationBlock *itb, int *tb_exit)
 
     qemu_thread_jit_execute();
     ret = tcg_qemu_tb_exec(cpu_env(cpu), tb_ptr);
+    cause_add(CAUSE_RETURN_NULL, ret == 0);
     cpu->neg.can_do_io = true;
     qemu_plugin_disable_mem_helpers(cpu);
     /*
@@ -1132,6 +1149,8 @@ cpu_exec_loop(CPUState *cpu, SyncClocks *sc)
             cause_add(CAUSE_LOOP, 1);
             cause_add(CAUSE_CF_ONE, (s.cflags & CF_COUNT_MASK) == 1);
             cause_add(CAUSE_CF_NOIRQ, (s.cflags & CF_NOIRQ) != 0);
+            cause_add(CAUSE_CF_NO_GOTO_TB, (s.cflags & CF_NO_GOTO_TB) != 0);
+            cause_add(CAUSE_CF_NO_GOTO_PTR, (s.cflags & CF_NO_GOTO_PTR) != 0);
             cause_poll();
             tb = tb_lookup(cpu, s, CAUSE_MAIN_CALL);
             if (tb == NULL) {
