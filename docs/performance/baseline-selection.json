@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "selection_status": "pending_qualification_decision",
+  "cycle_id": null,
+  "baseline_commit": null,
+  "upstream_snapshot": {
+    "commit": "75650bd8cd91945f7b79774e2cee0b200ca373ff",
+    "tree": "56aaf5dc309b48a24776af9ddeb4d9234a5926ea",
+    "repository": "https://github.com/xemu-project/xemu",
+    "branch": "master"
+  },
+  "retained_legacy_comparator": {
+    "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+    "comparison_main_commit": "bd1fecb93353272dda2a810991e28945de35b665",
+    "tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+    "exe_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+    "archive_tag": "archive/2026-09-09/main-before-normalization",
+    "release": "https://github.com/Mainkill1/xemu/releases/tag/baseline-bd1fecb9-20260909",
+    "validated_scope": "Isolated APU repair and retained Morrowind GL/VK cells; additional campaign results retain their own acceptance status",
+    "evidence": "https://github.com/Mainkill1/xemu-perf-tests/blob/a87e934/docs/evidence/baseline-campaign-20260909/REPORT.md"
+  },
+  "unaccepted_candidates": [
+    "https://github.com/Mainkill1/xemu/pull/51",
+    "https://github.com/Mainkill1/xemu/pull/59"
+  ],
+  "policy": "Do not infer an active validated baseline from the legacy comparator or release name. Preserve valid historical comparisons under their original test and artifact identities."
+}

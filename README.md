@@ -1,3 +1,5 @@
+> Repository normalization is in progress. Read the [branch and baseline workflow](docs/repository-workflow.md) and [preservation inventory](docs/repository-normalization.md). The historical Full-Speed description below remains intact; it does not certify the current tree as a validated optimization baseline.
+
 # Full Speed
 
 `Full-Speed` is the consolidated research-integration branch for the xemu
