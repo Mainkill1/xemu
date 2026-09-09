@@ -76,11 +76,13 @@ void timer_del(QEMUTimer *ts)
     while (t->next != NULL) {
         if (t->next == ts) {
             t->next = ts->next;
-            return;
+            break;
         }
 
         t = t->next;
     }
+    ts->next = NULL;
+    ts->expire_time = -1;
 }
 
 bool timer_pending(const QEMUTimer *ts)

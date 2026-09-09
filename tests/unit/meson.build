@@ -29,6 +29,7 @@ tests = {
   'test-xbox-nv2a-ptimer': [
     'ptimer-test-stubs.c',
     meson.project_source_root() / 'hw/xbox/nv2a/ptimer.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/pramdac.c',
     declare_dependency(
       compile_args: [
         '-include',
