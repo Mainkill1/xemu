@@ -52,6 +52,46 @@
 #ifdef XEMU_CAUSE_COUNTERS
 __thread uint64_t cause_totals[CAUSE_COUNT_MAX];
 
+typedef struct CauseReturnSite {
+    uint64_t pc;
+    uint32_t flags;
+    uint64_t count;
+    uint64_t first_tb_pc;
+    uint32_t first_tb_size;
+} CauseReturnSite;
+
+static __thread CauseReturnSite cause_return_sites[512];
+static __thread unsigned cause_return_used;
+static __thread uint64_t cause_return_overflow;
+
+/* Periodic address sampling, not an unbiased statistical profiler. */
+static void cause_sample_return(CPUState *cpu, TranslationBlock *first_tb)
+{
+    TCGTBCPUState state;
+    CauseReturnSite *site;
+
+    if (cause_totals[CAUSE_RETURN_NULL] % 4093 != 0) {
+        return;
+    }
+    state = cpu->cc->tcg_ops->get_tb_cpu_state(cpu);
+    for (unsigned i = 0; i < cause_return_used; i++) {
+        site = &cause_return_sites[i];
+        if (site->pc == state.pc && site->flags == state.flags) {
+            site->count++;
+            return;
+        }
+    }
+    if (cause_return_used == ARRAY_SIZE(cause_return_sites)) {
+        cause_return_overflow++;
+        return;
+    }
+    site = &cause_return_sites[cause_return_used++];
+    *site = (CauseReturnSite) {
+        .pc = state.pc, .flags = state.flags, .count = 1,
+        .first_tb_pc = first_tb->pc, .first_tb_size = first_tb->size,
+    };
+}
+
 /* Per-host-thread totals: no shared writes or per-event clock reads. */
 void cause_poll(void)
 {
@@ -155,6 +195,29 @@ void cause_poll(void)
     g_string_append(line, "}");
     fprintf(stderr, "%s\n", line->str);
     g_string_free(line, true);
+    if (cause_return_used) {
+        line = g_string_new("XEMU_RETURN {");
+        g_string_append_printf(line, "\"utc_us\":%" PRId64
+                               ",\"mono_us\":%" PRId64 ",\"tid\":%d"
+                               ",\"sample_period\":4093,\"overflow\":%" PRIu64
+                               ",\"sites\":[",
+                               (int64_t)g_get_real_time(), now,
+                               qemu_get_thread_id(), cause_return_overflow);
+        for (unsigned i = 0; i < cause_return_used; i++) {
+            CauseReturnSite *site = &cause_return_sites[i];
+
+            g_string_append_printf(line, "%s{\"pc\":%" PRIu64
+                                   ",\"flags\":%u,\"count\":%" PRIu64
+                                   ",\"first_tb_pc\":%" PRIu64
+                                   ",\"first_tb_size\":%u}",
+                                   i ? "," : "", site->pc, site->flags,
+                                   site->count, site->first_tb_pc,
+                                   site->first_tb_size);
+        }
+        g_string_append(line, "]}");
+        fprintf(stderr, "%s\n", line->str);
+        g_string_free(line, true);
+    }
 }
 #endif
 
@@ -619,6 +682,9 @@ cpu_tb_exec(CPUState *cpu, TranslationBlock *itb, int *tb_exit)
     qemu_thread_jit_execute();
     ret = tcg_qemu_tb_exec(cpu_env(cpu), tb_ptr);
     cause_add(CAUSE_RETURN_NULL, ret == 0);
+    if (ret == 0) {
+        cause_sample_return(cpu, itb);
+    }
     cpu->neg.can_do_io = true;
     qemu_plugin_disable_mem_helpers(cpu);
     /*
