@@ -253,6 +253,12 @@ typedef struct DisasContext {
 #define DISAS_EOB_INHIBIT_IRQ  DISAS_TARGET_1
 
 /*
+ * STI enters an interrupt shadow like MOV/POP SS, but may dynamically
+ * chain to the shadow TB after the new hflags have been committed.
+ */
+#define DISAS_EOB_INHIBIT_IRQ_STI  DISAS_TARGET_6
+
+/*
  * Return to the main loop; EIP might have already been updated
  * but even in that case do not use lookup_and_goto_ptr().
  */
@@ -2777,7 +2783,8 @@ gen_eob(DisasContext *s, int mode)
     if (s->flags & HF_INHIBIT_IRQ_MASK) {
         gen_reset_hflag(s, HF_INHIBIT_IRQ_MASK);
         inhibit_reset = true;
-    } else if (mode == DISAS_EOB_INHIBIT_IRQ) {
+    } else if (mode == DISAS_EOB_INHIBIT_IRQ ||
+               mode == DISAS_EOB_INHIBIT_IRQ_STI) {
         gen_set_hflag(s, HF_INHIBIT_IRQ_MASK);
     }
 
@@ -2789,7 +2796,8 @@ gen_eob(DisasContext *s, int mode)
         tcg_gen_exit_tb(NULL, 0);
     } else if (s->flags & HF_TF_MASK) {
         gen_helper_single_step(tcg_env);
-    } else if ((mode == DISAS_JUMP || mode == DISAS_JUMP_STATIC) &&
+    } else if ((mode == DISAS_JUMP || mode == DISAS_JUMP_STATIC ||
+                mode == DISAS_EOB_INHIBIT_IRQ_STI) &&
                /* give irqs a chance to happen */
                !inhibit_reset) {
         if (mode == DISAS_JUMP_STATIC) {
@@ -4408,6 +4416,7 @@ static void i386_tr_tb_stop(DisasContextBase *dcbase, CPUState *cpu)
         break;
     case DISAS_EOB_NEXT:
     case DISAS_EOB_INHIBIT_IRQ:
+    case DISAS_EOB_INHIBIT_IRQ_STI:
         assert(dc->base.pc_next == dc->pc);
         gen_update_eip_cur(dc);
         /* fall through */
