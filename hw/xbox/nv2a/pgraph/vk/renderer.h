@@ -429,6 +429,9 @@ typedef struct PGRAPHVkPerfFrame {
     uint64_t newest_submitted_serial;
     uint64_t retirement_queue_objects;
     uint64_t retirement_queue_bytes;
+    uint64_t need_buffer_space_descriptor_only_count;
+    uint64_t need_buffer_space_ubo_only_count;
+    uint64_t need_buffer_space_both_count;
 } PGRAPHVkPerfFrame;
 
 typedef struct PGRAPHVkPerfTelemetry {
@@ -467,6 +470,9 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t submission_serial;
     uint64_t retirement_queue_objects;
     uint64_t retirement_queue_bytes;
+    uint64_t need_buffer_space_descriptor_only_count;
+    uint64_t need_buffer_space_ubo_only_count;
+    uint64_t need_buffer_space_both_count;
 } PGRAPHVkPerfTelemetry;
 
 typedef struct PGRAPHVkState {
@@ -684,6 +690,8 @@ void pgraph_vk_perf_record_bc_upload(PGRAPHVkState *r, bool native,
                                      uint64_t prepare_cpu_us);
 void pgraph_vk_perf_record_cpu_region(PGRAPHVkState *r, PerfCpuRegion region,
                                       uint64_t cpu_us);
+void pgraph_vk_perf_record_need_buffer_space_capacity(
+    PGRAPHVkState *r, bool descriptor_capacity, bool ubo_staging_capacity);
 void pgraph_vk_perf_frame(PGRAPHVkState *r);
 
 // image.c

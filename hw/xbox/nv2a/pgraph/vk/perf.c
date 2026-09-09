@@ -116,7 +116,7 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     }
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":5"
+            "{\"type\":\"schema\",\"schema_version\":6"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u",
             VK_PERF_INITIAL_TIMED_SUBMITS, VK_PERF_HOT_SAMPLE_STRIDE);
@@ -137,6 +137,11 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
                 ARRAY_SIZE(single_time_reason_names));
     write_names(r->perf.file, "cpu_regions", cpu_region_names,
                 ARRAY_SIZE(cpu_region_names));
+    fprintf(r->perf.file,
+            ",\"need_buffer_space_capacity_triggers\":{\"schema_version\":1"
+            ",\"descriptor_only\":\"need_descriptor_write_reset && !need_ubo_staging_buffer_reset\""
+            ",\"ubo_staging_only\":\"!need_descriptor_write_reset && need_ubo_staging_buffer_reset\""
+            ",\"both\":\"need_descriptor_write_reset && need_ubo_staging_buffer_reset\"}");
     fprintf(r->perf.file, "}\n");
 }
 
@@ -150,7 +155,7 @@ void pgraph_vk_perf_finalize(PGRAPHVkState *r)
                 write_perf_frame(perf->file, &perf->deferred_frames[i]);
             }
             fprintf(perf->file,
-                    "{\"type\":\"deferred_capture\",\"schema_version\":5"
+                    "{\"type\":\"deferred_capture\",\"schema_version\":6"
                     ",\"capacity\":%u,\"stored_frames\":%u"
                     ",\"dropped_frames\":%u,\"overflow\":%s"
                     ",\"incomplete\":%s}\n",
@@ -303,6 +308,24 @@ void pgraph_vk_perf_record_cpu_region(PGRAPHVkState *r, PerfCpuRegion region,
     }
 }
 
+void pgraph_vk_perf_record_need_buffer_space_capacity(
+    PGRAPHVkState *r, bool descriptor_capacity, bool ubo_staging_capacity)
+{
+    if (!r->perf.enabled) {
+        return;
+    }
+    assert(descriptor_capacity || ubo_staging_capacity);
+    if (descriptor_capacity) {
+        if (ubo_staging_capacity) {
+            r->perf.need_buffer_space_both_count++;
+        } else {
+            r->perf.need_buffer_space_descriptor_only_count++;
+        }
+    } else {
+        r->perf.need_buffer_space_ubo_only_count++;
+    }
+}
+
 static void capture_perf_frame(PGRAPHVkState *r, PGRAPHVkPerfFrame *frame)
 {
     PGRAPHVkPerfTelemetry *perf = &r->perf;
@@ -336,6 +359,11 @@ static void capture_perf_frame(PGRAPHVkState *r, PGRAPHVkPerfFrame *frame)
         .newest_submitted_serial = perf->newest_submitted_serial,
         .retirement_queue_objects = perf->retirement_queue_objects,
         .retirement_queue_bytes = perf->retirement_queue_bytes,
+        .need_buffer_space_descriptor_only_count =
+            perf->need_buffer_space_descriptor_only_count,
+        .need_buffer_space_ubo_only_count =
+            perf->need_buffer_space_ubo_only_count,
+        .need_buffer_space_both_count = perf->need_buffer_space_both_count,
     };
     memcpy(frame->finish, perf->finish, sizeof(frame->finish));
     memcpy(frame->single_time, perf->single_time, sizeof(frame->single_time));
@@ -359,7 +387,7 @@ static void write_perf_frame(FILE *file, const PGRAPHVkPerfFrame *frame)
         (double)frame->command_buffer_count / submit_count : 0.0;
 
     fprintf(file,
-            "{\"type\":\"frame\",\"schema_version\":5"
+            "{\"type\":\"frame\",\"schema_version\":6"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             frame->timestamp_us, frame->guest_frame);
     write_stat_array(file, "finish_count_per_guest_frame", frame->finish,
@@ -428,7 +456,10 @@ static void write_perf_frame(FILE *file, const PGRAPHVkPerfFrame *frame)
             ",\"oldest_in_flight_serial\":%" PRIu64
             ",\"newest_submitted_serial\":%" PRIu64
             ",\"retirement_queue_objects\":%" PRIu64
-            ",\"retirement_queue_bytes\":%" PRIu64 "}\n",
+            ",\"retirement_queue_bytes\":%" PRIu64
+            ",\"need_buffer_space_capacity_triggers_per_guest_frame\":{\"descriptor_only\":%" PRIu64
+            ",\"ubo_staging_only\":%" PRIu64
+            ",\"both\":%" PRIu64 "}}\n",
             submit_count, frame->submit_info_count, frame->command_buffer_count,
             frame->staged_bytes, frame->vertex_staged_bytes,
             frame->vertex_staging_copy_count, frame->vertex_staging_capacity,
@@ -442,7 +473,10 @@ static void write_perf_frame(FILE *file, const PGRAPHVkPerfFrame *frame)
             command_buffers_per_submit, frame->in_flight_submission_count,
             frame->peak_in_flight_submission_count,
             frame->oldest_in_flight_serial, frame->newest_submitted_serial,
-            frame->retirement_queue_objects, frame->retirement_queue_bytes);
+            frame->retirement_queue_objects, frame->retirement_queue_bytes,
+            frame->need_buffer_space_descriptor_only_count,
+            frame->need_buffer_space_ubo_only_count,
+            frame->need_buffer_space_both_count);
 }
 
 static void reset_perf_frame(PGRAPHVkPerfTelemetry *perf)
@@ -469,6 +503,9 @@ static void reset_perf_frame(PGRAPHVkPerfTelemetry *perf)
     perf->oldest_in_flight_serial = 0;
     perf->retirement_queue_objects = 0;
     perf->retirement_queue_bytes = 0;
+    perf->need_buffer_space_descriptor_only_count = 0;
+    perf->need_buffer_space_ubo_only_count = 0;
+    perf->need_buffer_space_both_count = 0;
 }
 
 void pgraph_vk_perf_frame(PGRAPHVkState *r)
