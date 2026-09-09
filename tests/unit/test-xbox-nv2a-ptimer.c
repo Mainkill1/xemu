@@ -493,6 +493,33 @@ static void test_masked_alarm_has_no_callback(void)
     ptimer_reset(&d);
 }
 
+static void test_mask_unmask_before_expiry_requeues_alarm(void)
+{
+    NV2AState d;
+
+    init_nv2a_ptimer(&d);
+    ptimer_write(&d, NV_PTIMER_ALARM_0, TEST_ALARM_LOW, 4);
+    g_assert_true(timer_pending(&d.ptimer.timer));
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, 8);
+
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, 0, 4);
+    g_assert_false(timer_pending(&d.ptimer.timer));
+    g_assert_cmphex(d.ptimer.pending_interrupts, ==, 0);
+
+    ptimer_test_time_ns = 4;
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, NV_PTIMER_INTR_EN_0_ALARM, 4);
+    g_assert_true(timer_pending(&d.ptimer.timer));
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, 8);
+    g_assert_cmphex(d.ptimer.pending_interrupts, ==, 0);
+    g_assert_false(irq_asserted);
+
+    expire_alarm(&d);
+    g_assert_cmphex(d.ptimer.pending_interrupts, ==,
+                    NV_PTIMER_INTR_0_ALARM);
+    g_assert_true(irq_asserted);
+    ptimer_reset(&d);
+}
+
 static void test_rate_changes_keep_masked_state(void)
 {
     NV2AState d;
@@ -632,6 +659,8 @@ int main(int argc, char **argv)
                         GINT_TO_POINTER(1), test_stopped_clock_does_not_latch);
     g_test_add_func("/xbox/nv2a/ptimer/masked-no-callback",
                     test_masked_alarm_has_no_callback);
+    g_test_add_func("/xbox/nv2a/ptimer/mask-unmask-before-expiry",
+                    test_mask_unmask_before_expiry_requeues_alarm);
     g_test_add_func("/xbox/nv2a/ptimer/rate-changes-masked",
                     test_rate_changes_keep_masked_state);
     g_test_add_func("/xbox/nv2a/ptimer/restore-versions",
