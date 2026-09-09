@@ -1,0 +1,74 @@
+[
+  {
+    "run": "eng523-upstream-pr52-baseline-1-pgr2-opengl",
+    "image_sha256": "f1c5ec017720cac47b7a932df0e37c7de660ad54bad536481ac1c61b23d37db6",
+    "review": "expected stationary-car race scene; no pause/controller overlay; no obvious visual corruption",
+    "scope": "end capture only; not continuous visual validation"
+  },
+  {
+    "run": "eng523-upstream-pr52-baseline-1-pgr2-vulkan",
+    "image_sha256": "c325d2db5dd3619cd5b1d1f80d5050ac4a6e9358acb49387f9bbb20a4479aefe",
+    "review": "expected stationary-car race scene; no pause/controller overlay; no obvious visual corruption",
+    "scope": "end capture only; not continuous visual validation"
+  },
+  {
+    "run": "eng523-upstream-pr52-baseline-4-pgr2-opengl",
+    "image_sha256": "924ac1d4f5720abc50962afecc631ec769299f9cc29648459db3871aa3f865cc",
+    "review": "expected stationary-car race scene; no pause/controller overlay; no obvious visual corruption",
+    "scope": "end capture only; not continuous visual validation"
+  },
+  {
+    "run": "eng523-upstream-pr52-baseline-4-pgr2-vulkan",
+    "image_sha256": "6a917638172a50bcbe8beb1d90bdc6f6014d1b217db2e9db689c72f6a3009d19",
+    "review": "expected stationary-car race scene; no pause/controller overlay; no obvious visual corruption",
+    "scope": "end capture only; not continuous visual validation"
+  },
+  {
+    "run": "eng523-upstream-pr52-candidate-2-pgr2-opengl",
+    "image_sha256": "9bc6eb12740447b0b4c03c5dcdd6db1fad795112f210016bef54ce2a247ce15b",
+    "review": "expected stationary-car race scene; no pause/controller overlay; no obvious visual corruption",
+    "scope": "end capture only; not continuous visual validation"
+  },
+  {
+    "run": "eng523-upstream-pr52-candidate-2-pgr2-vulkan",
+    "image_sha256": "b1520551dbe9690de694aa2ae8e14dc38e13c8be89d0b5b4e10f946906530235",
+    "review": "expected stationary-car race scene; no pause/controller overlay; no obvious visual corruption",
+    "scope": "end capture only; not continuous visual validation"
+  },
+  {
+    "run": "eng523-upstream-pr52-candidate-3-pgr2-opengl",
+    "image_sha256": "a6c9b904eab2f934522dcdf29d0e5e159324392966e68b97f347e2f483167dff",
+    "review": "expected stationary-car race scene; no pause/controller overlay; no obvious visual corruption",
+    "scope": "end capture only; not continuous visual validation"
+  },
+  {
+    "run": "eng523-upstream-pr52-candidate-3-pgr2-vulkan",
+    "image_sha256": "97322c51ed8743c1a95ceabe8a1c1135328fe49e347abd3cecf8f9b06aab0bf3",
+    "review": "expected stationary-car race scene; no pause/controller overlay; no obvious visual corruption",
+    "scope": "end capture only; not continuous visual validation"
+  },
+  {
+    "run": "baseline-opengl",
+    "image_sha256": "d425d044b322a4baf6f1dc1682666415c63ad0aa45b6bf082d9fc7165fed400c",
+    "review": "expected unpaused snapshot scene; no controller/pause overlay; no obvious corruption",
+    "scope": "end capture only; not continuous visual validation"
+  },
+  {
+    "run": "baseline-vulkan",
+    "image_sha256": "7b5d47e6652c073b29cb3fea42abea48507351ed9666099701990851bd765f88",
+    "review": "expected unpaused snapshot scene; no controller/pause overlay; no obvious corruption",
+    "scope": "end capture only; not continuous visual validation"
+  },
+  {
+    "run": "candidate-opengl",
+    "image_sha256": "482626d5cb4665be168edaf86ee03f815a661611d81baf5b9478839cbf3be6bb",
+    "review": "expected unpaused snapshot scene; no controller/pause overlay; no obvious corruption",
+    "scope": "end capture only; not continuous visual validation"
+  },
+  {
+    "run": "candidate-vulkan",
+    "image_sha256": "994d4663b10ccf64f4b10463026ac5f4b93207671e2579af3fb94ec5f6c23bff",
+    "review": "expected unpaused snapshot scene; no controller/pause overlay; no obvious corruption",
+    "scope": "end capture only; not continuous visual validation"
+  }
+]

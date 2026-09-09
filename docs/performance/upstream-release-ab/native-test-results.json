@@ -1,0 +1,78 @@
+{
+  "results": [
+    {
+      "name": "test-lru-active.exe",
+      "timeout": false,
+      "exit_code": 0,
+      "sha256": "60a8e40c7e1233b15974286854316bd3e08dbc943dcfa88d8b76076c51cdb169"
+    },
+    {
+      "name": "test-lru-full.exe",
+      "timeout": false,
+      "exit_code": 0,
+      "sha256": "1a6034335b17bad96b844bbafeaf6f4e801b40546ba2cb039dc0e9a8ce669b53"
+    },
+    {
+      "name": "test-xbox-gloffscreen.exe",
+      "timeout": false,
+      "exit_code": 0,
+      "sha256": "eddcc763e0cf2ef0841eea052234d2ef502022fa9afd996d495cbbace25c4a0e"
+    },
+    {
+      "name": "test-xbox-nv2a-ptimer.exe",
+      "timeout": false,
+      "exit_code": 0,
+      "sha256": "deb6af889afe3e7d050ac574cd2f6473341e6f92c1db34cd2ad76c35b8e19078"
+    },
+    {
+      "name": "test-xbox-nv2a-texture.exe",
+      "timeout": false,
+      "exit_code": 0,
+      "sha256": "9c9cfd90a10dfe2db1191c570ff0f82d7ed8d9377616e3f9aeb43a248d80e5e2"
+    },
+    {
+      "name": "test-xbox-nv2a-vertex.exe",
+      "timeout": false,
+      "exit_code": 0,
+      "sha256": "1c76dce767b18b56cab1a98107c63d4cb1c820c3bf03cd3e29766898aef37d09"
+    },
+    {
+      "name": "test-xbox-qemu-poll.exe",
+      "timeout": false,
+      "exit_code": 0,
+      "sha256": "5edd09f21425a13bb93d4e7325cc5b73e0679488a9890b619eaf67e4d8170443"
+    },
+    {
+      "name": "test-xbox-vk-buffer-size.exe",
+      "timeout": false,
+      "exit_code": 0,
+      "sha256": "850d03dd2171269997be83fd805d189ee73ce94e77c504f00b7e79e2794cc3af"
+    },
+    {
+      "name": "test-xbox-vk-display-reuse.exe",
+      "timeout": false,
+      "exit_code": 0,
+      "sha256": "06cb3d03b8bc4c9f9193455a6ccc31b9303a74f9b5a1e7909c574a08ac58f7b1"
+    },
+    {
+      "name": "test-xbox-vk-failure-state.exe",
+      "timeout": false,
+      "exit_code": 0,
+      "sha256": "cbf07f55ed4c0fe4a3a946c706cd0026d2ed279b2bd0246c3aa3aba10281b1bb"
+    },
+    {
+      "name": "test-xbox-vk-texture-state.exe",
+      "timeout": false,
+      "exit_code": 0,
+      "sha256": "a12209c20126e28c46cc25b30387fb591b63c1104bec1fd5b7defc6915133544"
+    },
+    {
+      "name": "test-xemu-tweaks-config.exe",
+      "timeout": false,
+      "exit_code": 0,
+      "sha256": "d8bb75f0bee7157f990881b4d62ecd9aa531dba5f9c5d404b924818c7ce709b6"
+    }
+  ],
+  "host_quarantined": false,
+  "status": "PASS"
+}

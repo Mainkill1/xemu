@@ -1,0 +1,69 @@
+{
+  "candidate_source": "2af783f2a49774fd7477f6f1124916418390f259",
+  "candidate_exe_sha256": "c82380034a6e5a134cf1f0c20f76cbb8db3bef813cd55a29324ea07112de18c9",
+  "campaign_status": "PASS",
+  "started_utc": "2026-09-09T01:15:21.6279155+00:00",
+  "completed_utc": "2026-09-09T02:07:58.8258032+00:00",
+  "interpretation": "Observed A/B performance review, not release qualification; N/A rows retained; no statistical improvement claim",
+  "input_receipts": [
+    {
+      "file": "receipt.json",
+      "sha256": "eac4595cabf5c98f324e7e03e90ee44b772775df9172a5fc33d4e3107c13a8fa"
+    },
+    {
+      "file": "xiso/receipt.json",
+      "sha256": "c3e8052bcc8b93b0ebcd417ea4af8a7db0dfc1f1e68d74ce70585365318eba76"
+    },
+    {
+      "file": "morrowind/receipt.json",
+      "sha256": "9e256692b9efe88373d6fcae037335c54c0fb3166da5b0a82975ebe5daa8927b"
+    },
+    {
+      "file": "pgr2/receipt.json",
+      "sha256": "ead8d14fc48573feb99994f1298d4bed70034903a7367b56f213b80178e59051"
+    }
+  ],
+  "outputs": [
+    {
+      "file": "README.md",
+      "sha256": "aef0ceadae0bf3232e355cbc832046f30e190e3c113ba2b8194ce86bf1b2baee"
+    },
+    {
+      "file": "build-manifest.json",
+      "sha256": "1a1f5fd92e5a6df38647a6bbe3941a9e44d7e6c1bbd5ed5d44368178a6bd3082"
+    },
+    {
+      "file": "native-test-results.json",
+      "sha256": "1c5a60cf810eb6af3f275f646bb291e6d8df76c43f1d045d14afbc45745a5397"
+    },
+    {
+      "file": "performance-summary.csv",
+      "sha256": "e19504113ac5636391c66469e78eec3b0c015c0a3bab5b398cd3a5140cf818c0"
+    },
+    {
+      "file": "resources-per-run.csv",
+      "sha256": "d8d1a8565c852294478b39316a29e5cc991c107101c65892885476bab6d75503"
+    },
+    {
+      "file": "retail-per-run.csv",
+      "sha256": "c104207b4b9588b2bc8bf9741ba78f5874eedc07bdbea8b1db6c940218ad675c"
+    },
+    {
+      "file": "scene-review.json",
+      "sha256": "7e7ef912bbd5fe95c8d028f7336bb748ee2617a0747a6d37adffd920d1053665"
+    },
+    {
+      "file": "xiso-attempts.csv",
+      "sha256": "0f002b325e4d8454212b9bd362d5338262667f765ebc0936a82a982ff11b5b96"
+    },
+    {
+      "file": "xiso-groups.csv",
+      "sha256": "a56e21f56172a297531a4292764ca849440969c94db5e9b58b56f71fa4945941"
+    },
+    {
+      "file": "xiso-per-test.csv",
+      "sha256": "39ae3f23e3c9ffa590b961ab435c0962f133389e8b43c0112d1726ac26023e2e"
+    }
+  ],
+  "private_evidence_archive_sha256": "da40882ea271610aa75a311609fde8cf2da1b2a2e1139fc7dd4088d5ce95e01a"
+}

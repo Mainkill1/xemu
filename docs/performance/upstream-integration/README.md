@@ -39,7 +39,8 @@ This testing branch starts at upstream `master` commit `fdfb5a8f481b2f870c57080e
 - Local production packet/reservation harness: 24 valid modes, 48 capacity refusals, and On/Off reservation fallback cases pass under AddressSanitizer/UndefinedBehaviorSanitizer.
 - Negative control: moving capacity admission under the bulk switch fails the dropped-packet assertion with the switch Off.
 - Actual save/NV2A lifecycle harness: 150 attempts pass, including running/paused repeated saves and failure cleanup.
-- Full optimized Windows build, native units, XISO, PGR2, Morrowind and option-specific qualification are pending. No performance or merge-readiness claim.
+- The explicit Release A/B campaign is complete: 12 native tests, eight PGR2 runs, four Morrowind snapshot runs, and all 30 XISO renderer/group comparisons. [Full numerical report, build identities and CSVs](../upstream-release-ab/README.md).
+- Integration remains draft: eight OpenGL output-hash differences need review, several XISO timings worsened, and individual tweak On/Off combinations are not qualified. The report distinguishes successful execution from performance/correctness acceptance.
 
 ## Upstream overlaps
 

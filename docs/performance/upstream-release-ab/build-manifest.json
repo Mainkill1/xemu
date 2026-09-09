@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "purpose": "current upstream versus requested combined fork PRs",
+  "builds": {
+    "baseline": {
+      "source": "fdfb5a8f481b2f870c57080e74ec8d3a31a47053",
+      "toolchain": "ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
+      "options": {
+        "buildtype": "release",
+        "optimization": "3",
+        "debug": false,
+        "qom_cast_debug": false,
+        "b_ndebug": "false",
+        "strip": true,
+        "b_lto": true,
+        "x86_version": "3"
+      },
+      "exe_bytes": 30977024,
+      "exe_sha256": "2be4252b8e08cf0459c5de760fac35b9078761e5d75339ce64b7a071026fbbe1",
+      "packaging_status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "source": "fdfb5a8f481b2f870c57080e74ec8d3a31a47053",
+        "stage": "packaging-only-recovery"
+      }
+    },
+    "candidate": {
+      "source": "2af783f2a49774fd7477f6f1124916418390f259",
+      "toolchain": "ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
+      "options": {
+        "buildtype": "release",
+        "optimization": "3",
+        "debug": false,
+        "qom_cast_debug": false,
+        "b_ndebug": "false",
+        "strip": true,
+        "b_lto": true,
+        "x86_version": "3"
+      },
+      "exe_bytes": 30985728,
+      "exe_sha256": "c82380034a6e5a134cf1f0c20f76cbb8db3bef813cd55a29324ea07112de18c9",
+      "packaging_status": {
+        "state": "terminal",
+        "exit_code": 0,
+        "source": "2af783f2a49774fd7477f6f1124916418390f259",
+        "stage": "packaging-only-recovery"
+      }
+    }
+  },
+  "recipe": {
+    "pgr2": {
+      "route": "existing fresh-boot keyboard automation",
+      "order": [
+        "baseline",
+        "candidate",
+        "candidate",
+        "baseline"
+      ],
+      "renderers": [
+        "VULKAN",
+        "OPENGL"
+      ],
+      "measurement_seconds": 60
+    },
+    "morrowind": {
+      "route": "immutable snapshot; wait 5s; Start; wait 2s; B; wait 2s",
+      "measurement_seconds": 10,
+      "renderers": [
+        "VULKAN",
+        "OPENGL"
+      ]
+    },
+    "xiso": {
+      "groups": 15,
+      "leaf_records_per_renderer": 147,
+      "group_records_per_renderer": 5,
+      "mode": "paired groups; single paired target isolation after group failure",
+      "warmup_iterations": 0,
+      "iteration_multiplier": 1,
+      "resolution_scale": 1,
+      "vulkan_validation": false,
+      "formal_performance_eligibility": false,
+      "eligibility_reason": "production binaries lack required live marker evidence"
+    }
+  },
+  "recipe_files": [
+    {
+      "name": "busy_pfifo.json",
+      "sha256": "b43a5db6324aa4280c6dfed1ac24c69fda5d6f44e61e85ee2f22d9dfb65d4b32"
+    },
+    {
+      "name": "cpu_floating_point.json",
+      "sha256": "6f831a7f540b3c36adafcb2164de96b7f6ffac0d4e1c0f5bb91e9f8b86fbaff5"
+    },
+    {
+      "name": "cpu_translation_blocks.json",
+      "sha256": "1cf996787955dc895e980de3c115bab9cf213a3adc6dd7ece660a2048e9d1ab9"
+    },
+    {
+      "name": "fill_rate.json",
+      "sha256": "0395090aed04e1fc728f014e748bd0bf1e7c324f67c22a64923e22126473b51e"
+    },
+    {
+      "name": "game_load.json",
+      "sha256": "9dfa7c7616aed3168441d94f4e1abe64e0845cc4c7a1b6e762aa5f44040d1b2f"
+    },
+    {
+      "name": "groups.json",
+      "sha256": "ad88ca0cfadcfa38fbce6097ade2ea26a0144bfa51222152b6e676d5c4e59e72"
+    },
+    {
+      "name": "high_vertex_count.json",
+      "sha256": "f19fd3392a7b2111f042b3ed3de3230e3b5c564d245557173d18eda0f4d592c9"
+    },
+    {
+      "name": "native-units.json",
+      "sha256": "04e7a04ebf0dccd5c3abc011eda792e0557512cfc1318248a7a888b74e9e5de3"
+    },
+    {
+      "name": "pfifo_array_elements.json",
+      "sha256": "0393286fcde187fae8d703a72b2317ff053b5c01d50ee21df8e11c4caa338e96"
+    },
+    {
+      "name": "pipeline_texture_switch.json",
+      "sha256": "e028d0b25c9b5754afd896c1d3f4d9523c27a4fc7182e18813fc966d4685bf62"
+    },
+    {
+      "name": "primitive_type.json",
+      "sha256": "cee15e1a3f57e58c2d59dfcf14efbe6fa1632c109587f9587faefaefea4e8508"
+    },
+    {
+      "name": "report_query.json",
+      "sha256": "98533f68734289e35927cea0d60c3bebc298b76e6f68f16366bb077304d388a9"
+    },
+    {
+      "name": "run-upstream-pr52-morrowind.ps1",
+      "sha256": "c68a75a36328d902f53be8cd3b0a142231e48160dc2000243c861c7b65a8a12d"
+    },
+    {
+      "name": "run-upstream-pr52-pgr2.ps1",
+      "sha256": "e5bca425a5631a80d1f0e4ac25bc8f74e7a3926f41372794faf15ac625f774e7"
+    },
+    {
+      "name": "run-upstream-pr52-qualification.ps1",
+      "sha256": "bdef8876270d3a2512b19b7fa57c1d1421f4fe3765b7f26380a5e7ea8718127f"
+    },
+    {
+      "name": "run-upstream-pr52-units.ps1",
+      "sha256": "063f469e82f27eb56cf47d0d1d9cae20a8ce87c2acbc3aea574afd767f831374"
+    },
+    {
+      "name": "run-upstream-pr52-xiso.ps1",
+      "sha256": "6b998389a6c404ca899beee11f273ead17748f805490ad12920dc4619827c44a"
+    },
+    {
+      "name": "run-xiso-selection.py",
+      "sha256": "46304f9e92ea9c617658fb4b77c5f1e42d700130049105d8fc401625cffa5331"
+    },
+    {
+      "name": "surface.json",
+      "sha256": "a687e5d1e618c5b4e5c291aeebca3d80f86c5289144cab57b592d5448543445c"
+    },
+    {
+      "name": "texture_cubemap_fallback.json",
+      "sha256": "93ce55bb329a6ff8be8d5502ebe4b2e19cb4fcf4f3ccc46bd7e2c6436175d79c"
+    },
+    {
+      "name": "tiny_draw.json",
+      "sha256": "40e9db2de37e3a81997f935609c4ea84e255b126bcbbaa40a87310e1779da072"
+    },
+    {
+      "name": "uniform_thrash.json",
+      "sha256": "4cf2930d30c33f1c9cfac21f2f3c3395f51f28dfa850d9deb761d25cc7ba0c80"
+    },
+    {
+      "name": "vertex_buffer_allocation.json",
+      "sha256": "290eb89903b041539307ba70866094e01f0356331f06817eae72122af1f20438"
+    }
+  ]
+}
