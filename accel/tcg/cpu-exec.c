@@ -18,6 +18,7 @@
  */
 
 #include "qemu/osdep.h"
+#include "exec/cause-counters.h"
 #include "qemu/qemu-print.h"
 #include "qapi/error.h"
 #include "qapi/type-helpers.h"
@@ -47,6 +48,101 @@
 #include "tb-context.h"
 #include "tb-internal.h"
 #include "internal-common.h"
+
+#ifdef XEMU_CAUSE_COUNTERS
+__thread uint64_t cause_totals[CAUSE_COUNT_MAX];
+
+/* Per-host-thread totals: no shared writes or per-event clock reads. */
+void cause_poll(void)
+{
+    static __thread unsigned poll_budget;
+    static __thread int64_t previous_us;
+    static const char *const names[CAUSE_COUNT_MAX] = {
+        [CAUSE_HELPER_DYNAMIC] = "helper_dynamic",
+        [CAUSE_HELPER_STATIC] = "helper_static",
+        [CAUSE_MAIN_CALL] = "main_call",
+        [CAUSE_MAIN_HIT] = "main_hit",
+        [CAUSE_MAIN_EMPTY] = "main_empty",
+        [CAUSE_MAIN_PC] = "main_pc",
+        [CAUSE_MAIN_CS] = "main_cs",
+        [CAUSE_MAIN_FLAGS] = "main_flags",
+        [CAUSE_MAIN_CFLAGS] = "main_cflags",
+        [CAUSE_MAIN_QHT_HIT] = "main_qht_hit",
+        [CAUSE_MAIN_QHT_MISS] = "main_qht_miss",
+        [CAUSE_HELPER_CALL] = "helper_call",
+        [CAUSE_HELPER_HIT] = "helper_hit",
+        [CAUSE_HELPER_EMPTY] = "helper_empty",
+        [CAUSE_HELPER_PC] = "helper_pc",
+        [CAUSE_HELPER_CS] = "helper_cs",
+        [CAUSE_HELPER_FLAGS] = "helper_flags",
+        [CAUSE_HELPER_CFLAGS] = "helper_cflags",
+        [CAUSE_HELPER_QHT_HIT] = "helper_qht_hit",
+        [CAUSE_HELPER_QHT_MISS] = "helper_qht_miss",
+        [CAUSE_OTHER_CALL] = "other_call",
+        [CAUSE_OTHER_HIT] = "other_hit",
+        [CAUSE_OTHER_EMPTY] = "other_empty",
+        [CAUSE_OTHER_PC] = "other_pc",
+        [CAUSE_OTHER_CS] = "other_cs",
+        [CAUSE_OTHER_FLAGS] = "other_flags",
+        [CAUSE_OTHER_CFLAGS] = "other_cflags",
+        [CAUSE_OTHER_QHT_HIT] = "other_qht_hit",
+        [CAUSE_OTHER_QHT_MISS] = "other_qht_miss",
+        [CAUSE_LOOP] = "loop",
+        [CAUSE_GENERATE] = "generate",
+        [CAUSE_EXIT_0] = "exit_0",
+        [CAUSE_EXIT_1] = "exit_1",
+        [CAUSE_EXIT_2] = "exit_2",
+        [CAUSE_EXIT_3] = "exit_3",
+        [CAUSE_CF_ONE] = "cf_one",
+        [CAUSE_CF_NOIRQ] = "cf_noirq",
+        [CAUSE_TWO_PAGE] = "two_page",
+        [CAUSE_LINK_ATTEMPT] = "link_attempt",
+        [CAUSE_INVALIDATE_RANGE] = "invalidate_range",
+        [CAUSE_INVALIDATE_TB] = "invalidate_tb",
+        [CAUSE_CURRENT_TB] = "current_tb",
+        [CAUSE_CURRENT_OVERLAP] = "current_overlap",
+        [CAUSE_FORCED_RESTART] = "forced_restart",
+        [CAUSE_NOTDIRTY] = "notdirty",
+        [CAUSE_NOTDIRTY_CODE] = "notdirty_code",
+        [CAUSE_NOTDIRTY_UNPROTECT] = "notdirty_unprotect",
+        [CAUSE_DIRTY_RESET] = "dirty_reset",
+        [CAUSE_DIRTY_ZERO_ARM] = "dirty_zero_arm",
+        [CAUSE_DIRTY_MODES] = "dirty_modes",
+        [CAUSE_DIRTY_ENTRIES] = "dirty_entries",
+        [CAUSE_DIRTY_ARMED] = "dirty_armed",
+        [CAUSE_DIRTY_ALREADY] = "dirty_already",
+        [CAUSE_DIRTY_CLEAR_NV2A] = "dirty_clear_nv2a",
+        [CAUSE_DIRTY_CLEAR_TEX] = "dirty_clear_tex",
+        [CAUSE_DIRTY_CLEAR_OTHER] = "dirty_clear_other",
+        [CAUSE_DIRTY_PAGES_NV2A] = "dirty_pages_nv2a",
+        [CAUSE_DIRTY_PAGES_TEX] = "dirty_pages_tex",
+        [CAUSE_DIRTY_PAGES_OTHER] = "dirty_pages_other",
+    };
+    int64_t now;
+    GString *line;
+
+    if ((++poll_budget & 4095) != 0) {
+        return;
+    }
+    now = g_get_monotonic_time();
+    if (now - previous_us < G_USEC_PER_SEC) {
+        return;
+    }
+    previous_us = now;
+    line = g_string_new("XEMU_CAUSE {");
+    g_string_append_printf(line, "\"utc_us\":%" PRId64
+                           ",\"mono_us\":%" PRId64 ",\"tid\":%d",
+                           (int64_t)g_get_real_time(), now,
+                           qemu_get_thread_id());
+    for (int i = 0; i < CAUSE_COUNT_MAX; i++) {
+        g_string_append_printf(line, ",\"%s\":%" PRIu64,
+                               names[i], cause_totals[i]);
+    }
+    g_string_append(line, "}");
+    fprintf(stderr, "%s\n", line->str);
+    g_string_free(line, true);
+}
+#endif
 
 /* -icount align implementation. */
 
@@ -246,12 +342,14 @@ TranslationBlock *inv_tb_htable_lookup(CPUState *cpu, TCGTBCPUState s)
  *
  * Returns: an existing translation block or NULL.
  */
-static inline TranslationBlock *tb_lookup(CPUState *cpu, TCGTBCPUState s)
+static inline TranslationBlock *tb_lookup(CPUState *cpu, TCGTBCPUState s,
+                                         CauseEvent origin)
 {
     TranslationBlock *tb;
     CPUJumpCache *jc;
     uint32_t hash;
 
+    cause_add(origin, 1);
     /* we should never be trying to look up an INVALID tb */
     tcg_debug_assert(!(s.cflags & CF_INVALID));
 
@@ -264,13 +362,30 @@ static inline TranslationBlock *tb_lookup(CPUState *cpu, TCGTBCPUState s)
                tb->cs_base == s.cs_base &&
                tb->flags == s.flags &&
                tb_cflags(tb) == s.cflags)) {
+        cause_add(origin + CAUSE_MAIN_HIT, 1);
         goto hit;
     }
 
+#ifdef XEMU_CAUSE_COUNTERS
+    /* Mutually exclusive first failed cache predicate, not total mismatches. */
+    if (!tb) {
+        cause_add(origin + CAUSE_MAIN_EMPTY, 1);
+    } else if (jc->array[hash].pc != s.pc) {
+        cause_add(origin + CAUSE_MAIN_PC, 1);
+    } else if (tb->cs_base != s.cs_base) {
+        cause_add(origin + CAUSE_MAIN_CS, 1);
+    } else if (tb->flags != s.flags) {
+        cause_add(origin + CAUSE_MAIN_FLAGS, 1);
+    } else {
+        cause_add(origin + CAUSE_MAIN_CFLAGS, 1);
+    }
+#endif
     tb = tb_htable_lookup(cpu, s);
     if (tb == NULL) {
+        cause_add(origin + CAUSE_MAIN_QHT_MISS, 1);
         return NULL;
     }
+    cause_add(origin + CAUSE_MAIN_QHT_HIT, 1);
 
     jc->array[hash].pc = s.pc;
     qatomic_set(&jc->array[hash].tb, tb);
@@ -402,7 +517,8 @@ static const void *lookup_tb_ptr_common(CPUState *cpu, TCGTBCPUState s)
         cpu_loop_exit(cpu);
     }
 
-    tb = tb_lookup(cpu, s);
+    cause_poll();
+    tb = tb_lookup(cpu, s, CAUSE_HELPER_CALL);
     if (tb == NULL) {
         return tcg_code_gen_epilogue;
     }
@@ -424,6 +540,7 @@ static const void *lookup_tb_ptr_common(CPUState *cpu, TCGTBCPUState s)
  */
 const void *HELPER(lookup_tb_ptr)(CPUArchState *env)
 {
+    cause_add(CAUSE_HELPER_DYNAMIC, 1);
     CPUState *cpu = env_cpu(env);
     TCGTBCPUState s = cpu->cc->tcg_ops->get_tb_cpu_state(cpu);
 
@@ -440,6 +557,7 @@ const void *QEMU_SKIP_ZERO_CALL_USED_REGS
 HELPER(lookup_tb_ptr_i32)(CPUArchState *env, uint32_t eip,
                           uint64_t cs_base, uint32_t flags)
 {
+    cause_add(CAUSE_HELPER_STATIC, 1);
     CPUState *cpu = env_cpu(env);
     TCGTBCPUState s = {
         .pc = (uint32_t)(cs_base + eip),
@@ -496,6 +614,7 @@ cpu_tb_exec(CPUState *cpu, TranslationBlock *itb, int *tb_exit)
      */
     last_tb = tcg_splitwx_to_rw((void *)(ret & ~TB_EXIT_MASK));
     *tb_exit = ret & TB_EXIT_MASK;
+    cause_add(CAUSE_EXIT_0 + *tb_exit, 1);
 
     trace_exec_tb_exit(last_tb, *tb_exit);
 
@@ -618,7 +737,7 @@ void cpu_exec_step_atomic(CPUState *cpu)
          * Any breakpoint for this insn will have been recognized earlier.
          */
 
-        tb = tb_lookup(cpu, s);
+        tb = tb_lookup(cpu, s, CAUSE_OTHER_CALL);
         if (tb == NULL) {
             mmap_lock();
             tb = tb_gen_code(cpu, s);
@@ -1010,12 +1129,17 @@ cpu_exec_loop(CPUState *cpu, SyncClocks *sc)
                 break;
             }
 
-            tb = tb_lookup(cpu, s);
+            cause_add(CAUSE_LOOP, 1);
+            cause_add(CAUSE_CF_ONE, (s.cflags & CF_COUNT_MASK) == 1);
+            cause_add(CAUSE_CF_NOIRQ, (s.cflags & CF_NOIRQ) != 0);
+            cause_poll();
+            tb = tb_lookup(cpu, s, CAUSE_MAIN_CALL);
             if (tb == NULL) {
                 CPUJumpCache *jc;
                 uint32_t h;
 
                 mmap_lock();
+                cause_add(CAUSE_GENERATE, 1);
                 tb = tb_gen_code(cpu, s);
                 mmap_unlock();
 
@@ -1037,11 +1161,13 @@ cpu_exec_loop(CPUState *cpu, SyncClocks *sc)
              * for the second page can change.
              */
             if (tb_page_addr1(tb) != -1) {
+                cause_add(CAUSE_TWO_PAGE, 1);
                 last_tb = NULL;
             }
 #endif
             /* See if we can patch the calling TB. */
             if (last_tb) {
+                cause_add(CAUSE_LINK_ATTEMPT, 1);
                 tb_add_jump(last_tb, tb_exit, tb);
             }
 

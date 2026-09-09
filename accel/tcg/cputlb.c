@@ -18,6 +18,7 @@
  */
 
 #include "qemu/osdep.h"
+#include "exec/cause-counters.h"
 #include "qemu/main-loop.h"
 #include "qemu/target-info.h"
 #include "accel/tcg/cpu-ops.h"
@@ -892,9 +893,16 @@ static void tlb_reset_dirty_range_locked(CPUTLBEntryFull *full, CPUTLBEntry *ent
     int flags = addr | full->slow_flags[MMU_DATA_STORE];
 
     flags &= TLB_INVALID_MASK | TLB_MMIO | TLB_DISCARD_WRITE | TLB_NOTDIRTY;
+#ifdef XEMU_CAUSE_COUNTERS
+    if (flags == TLB_NOTDIRTY) {
+        uintptr_t host = (addr & TARGET_PAGE_MASK) + ent->addend;
+        cause_add(CAUSE_DIRTY_ALREADY, (host - start) < length);
+    }
+#endif
     if (flags == 0) {
         uintptr_t host = (addr & TARGET_PAGE_MASK) + ent->addend;
         if ((host - start) < length) {
+            cause_add(CAUSE_DIRTY_ARMED, 1);
             qatomic_set(&ent->addr_write, addr | TLB_NOTDIRTY);
         }
     }
@@ -918,6 +926,11 @@ void tlb_reset_dirty(CPUState *cpu, uintptr_t start, uintptr_t length)
 {
     MMUIdxMap work;
 
+#ifdef XEMU_CAUSE_COUNTERS
+    uint64_t armed_before = cause_totals[CAUSE_DIRTY_ARMED];
+#endif
+    cause_add(CAUSE_DIRTY_RESET, 1);
+
     qemu_spin_lock(&cpu->neg.tlb.c.lock);
     work = cpu->neg.tlb.c.dirty;
     while (work) {
@@ -928,7 +941,8 @@ void tlb_reset_dirty(CPUState *cpu, uintptr_t start, uintptr_t length)
         unsigned int i;
 
         work &= work - 1;
-
+        cause_add(CAUSE_DIRTY_MODES, 1);
+        cause_add(CAUSE_DIRTY_ENTRIES, n + CPU_VTLB_SIZE);
         for (i = 0; i < n; i++) {
             tlb_reset_dirty_range_locked(&desc->fulltlb[i], &fast->table[i],
                                          start, length);
@@ -940,6 +954,11 @@ void tlb_reset_dirty(CPUState *cpu, uintptr_t start, uintptr_t length)
         }
     }
     qemu_spin_unlock(&cpu->neg.tlb.c.lock);
+#ifdef XEMU_CAUSE_COUNTERS
+    cause_add(CAUSE_DIRTY_ZERO_ARM,
+              cause_totals[CAUSE_DIRTY_ARMED] == armed_before);
+#endif
+    cause_poll();
 }
 
 /* Called with tlb_c.lock held */
@@ -1362,11 +1381,13 @@ static void notdirty_write(CPUState *cpu, vaddr mem_vaddr, unsigned size,
     ram_addr_t ram_addr = mem_vaddr + full->xlat_section;
     bool code_dirty;
 
+    cause_add(CAUSE_NOTDIRTY, 1);
     trace_memory_notdirty_write_access(mem_vaddr, ram_addr, size);
 
     assert(full->code_dirty_word != NULL);
     code_dirty = qatomic_read(full->code_dirty_word) & full->code_dirty_mask;
     if (!code_dirty) {
+        cause_add(CAUSE_NOTDIRTY_CODE, 1);
         tb_invalidate_phys_range_fast(cpu, ram_addr, size, retaddr);
     }
 
@@ -1383,6 +1404,7 @@ static void notdirty_write(CPUState *cpu, vaddr mem_vaddr, unsigned size,
      */
     code_dirty = qatomic_read(full->code_dirty_word) & full->code_dirty_mask;
     if (code_dirty) {
+        cause_add(CAUSE_NOTDIRTY_UNPROTECT, 1);
         trace_memory_notdirty_set_dirty(mem_vaddr);
         tlb_set_dirty(cpu, mem_vaddr);
     }

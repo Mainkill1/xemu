@@ -18,6 +18,7 @@
  */
 
 #include "qemu/osdep.h"
+#include "exec/cause-counters.h"
 #include "exec/page-vary.h"
 #include "hw/core/cpu.h"
 #include "qapi/error.h"
@@ -1348,6 +1349,14 @@ bool physical_memory_test_and_clear_dirty(ram_addr_t start,
     }
 
     if (dirty) {
+#ifdef XEMU_CAUSE_COUNTERS
+        CauseEvent clear = client == DIRTY_MEMORY_NV2A ? CAUSE_DIRTY_CLEAR_NV2A :
+                           client == DIRTY_MEMORY_NV2A_TEX ? CAUSE_DIRTY_CLEAR_TEX :
+                           CAUSE_DIRTY_CLEAR_OTHER;
+        cause_add(clear, 1);
+        cause_add(clear + CAUSE_DIRTY_PAGES_NV2A - CAUSE_DIRTY_CLEAR_NV2A,
+                  end - start_page);
+#endif
         physical_memory_dirty_bits_cleared(start, length);
     }
 

@@ -1,0 +1,89 @@
+/* Temporary diagnostic counters; not a performance-qualified implementation. */
+#ifndef EXEC_CAUSE_COUNTERS_H
+#define EXEC_CAUSE_COUNTERS_H
+
+/* This isolated source is diagnostic-only. */
+#define XEMU_CAUSE_COUNTERS
+
+#include <stdint.h>
+
+typedef enum CauseEvent {
+    CAUSE_MAIN_CALL,
+    CAUSE_MAIN_HIT,
+    CAUSE_MAIN_EMPTY,
+    CAUSE_MAIN_PC,
+    CAUSE_MAIN_CS,
+    CAUSE_MAIN_FLAGS,
+    CAUSE_MAIN_CFLAGS,
+    CAUSE_MAIN_QHT_HIT,
+    CAUSE_MAIN_QHT_MISS,
+    CAUSE_HELPER_CALL,
+    CAUSE_HELPER_HIT,
+    CAUSE_HELPER_EMPTY,
+    CAUSE_HELPER_PC,
+    CAUSE_HELPER_CS,
+    CAUSE_HELPER_FLAGS,
+    CAUSE_HELPER_CFLAGS,
+    CAUSE_HELPER_QHT_HIT,
+    CAUSE_HELPER_QHT_MISS,
+    CAUSE_OTHER_CALL,
+    CAUSE_OTHER_HIT,
+    CAUSE_OTHER_EMPTY,
+    CAUSE_OTHER_PC,
+    CAUSE_OTHER_CS,
+    CAUSE_OTHER_FLAGS,
+    CAUSE_OTHER_CFLAGS,
+    CAUSE_OTHER_QHT_HIT,
+    CAUSE_OTHER_QHT_MISS,
+    CAUSE_LOOP,
+    CAUSE_GENERATE,
+    CAUSE_EXIT_0,
+    CAUSE_EXIT_1,
+    CAUSE_EXIT_2,
+    CAUSE_EXIT_3,
+    CAUSE_CF_ONE,
+    CAUSE_CF_NOIRQ,
+    CAUSE_TWO_PAGE,
+    CAUSE_LINK_ATTEMPT,
+    CAUSE_INVALIDATE_RANGE,
+    CAUSE_INVALIDATE_TB,
+    CAUSE_CURRENT_TB,
+    CAUSE_CURRENT_OVERLAP,
+    CAUSE_FORCED_RESTART,
+    CAUSE_NOTDIRTY,
+    CAUSE_NOTDIRTY_CODE,
+    CAUSE_NOTDIRTY_UNPROTECT,
+    CAUSE_DIRTY_RESET,
+    CAUSE_DIRTY_ZERO_ARM,
+    CAUSE_DIRTY_MODES,
+    CAUSE_DIRTY_ENTRIES,
+    CAUSE_DIRTY_ARMED,
+    CAUSE_DIRTY_ALREADY,
+    CAUSE_DIRTY_CLEAR_NV2A,
+    CAUSE_DIRTY_CLEAR_TEX,
+    CAUSE_DIRTY_CLEAR_OTHER,
+    CAUSE_DIRTY_PAGES_NV2A,
+    CAUSE_DIRTY_PAGES_TEX,
+    CAUSE_DIRTY_PAGES_OTHER,
+    CAUSE_HELPER_DYNAMIC,
+    CAUSE_HELPER_STATIC,
+    CAUSE_COUNT_MAX
+} CauseEvent;
+
+#ifdef XEMU_CAUSE_COUNTERS
+extern __thread uint64_t cause_totals[CAUSE_COUNT_MAX];
+void cause_poll(void);
+static inline void cause_add(CauseEvent event, uint64_t count)
+{
+    cause_totals[event] += count;
+}
+#else
+static inline void cause_poll(void)
+{
+}
+static inline void cause_add(CauseEvent event, uint64_t count)
+{
+}
+#endif
+
+#endif

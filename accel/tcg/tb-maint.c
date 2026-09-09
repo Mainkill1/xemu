@@ -18,6 +18,7 @@
  */
 
 #include "qemu/osdep.h"
+#include "exec/cause-counters.h"
 #include "qemu/interval-tree.h"
 #include "qemu/qtree.h"
 #include "exec/cputlb.h"
@@ -1132,6 +1133,7 @@ tb_invalidate_phys_page_range__locked(CPUState *cpu,
     bool current_tb_modified = false;
     TranslationBlock *current_tb = NULL;
 
+    cause_add(CAUSE_INVALIDATE_RANGE, 1);
     /* Range may not cross a page. */
     tcg_debug_assert(((start ^ last) & TARGET_PAGE_MASK) == 0);
 
@@ -1144,6 +1146,21 @@ tb_invalidate_phys_page_range__locked(CPUState *cpu,
      * XXX: see if in some cases it could be faster to invalidate all the code
      */
     PAGE_FOR_EACH_TB(start, last, p, tb, n) {
+        cause_add(CAUSE_INVALIDATE_TB, 1);
+#ifdef XEMU_CAUSE_COUNTERS
+        if (current_tb == tb) {
+            tb_page_addr_t first = tb_page_addr0(tb);
+            tb_page_addr_t end = first + tb->size - 1;
+            if (n == 0) {
+                end = MIN(end, first | ~TARGET_PAGE_MASK);
+            } else {
+                first = tb_page_addr1(tb);
+                end = first + (end & ~TARGET_PAGE_MASK);
+            }
+            cause_add(CAUSE_CURRENT_TB, 1);
+            cause_add(CAUSE_CURRENT_OVERLAP, !(end < start || first > last));
+        }
+#endif
 #ifndef XBOX
         tb_page_addr_t tb_start, tb_last;
 
@@ -1182,6 +1199,7 @@ tb_invalidate_phys_page_range__locked(CPUState *cpu,
     }
 
     if (unlikely(current_tb_modified)) {
+        cause_add(CAUSE_FORCED_RESTART, 1);
         page_collection_unlock(pages);
         /* Force execution of one insn next time.  */
         cpu->cflags_next_tb = 1 | CF_NOIRQ | curr_cflags(cpu);
