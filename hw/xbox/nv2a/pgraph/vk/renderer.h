@@ -399,11 +399,49 @@ typedef struct PGRAPHVkCpuStats {
     uint64_t cpu_us;
 } PGRAPHVkCpuStats;
 
+#define VK_PERF_DEFERRED_FRAME_CAPACITY 8192
+
+typedef struct PGRAPHVkPerfFrame {
+    int64_t timestamp_us;
+    uint64_t guest_frame;
+    PGRAPHVkWaitStats finish[VK_FINISH_REASON_COUNT];
+    PGRAPHVkWaitStats single_time[VK_SINGLE_TIME_REASON_COUNT];
+    PGRAPHVkCpuStats cpu_regions[VK_PERF_CPU_REGION_COUNT];
+    uint64_t submit_info_count;
+    uint64_t command_buffer_count;
+    uint64_t staged_bytes;
+    uint64_t vertex_staged_bytes;
+    uint64_t vertex_staging_copy_count;
+    size_t vertex_staging_capacity;
+    uint64_t vertex_staging_capacity_growth_count;
+    uint64_t vertex_staging_fallback_finish_count;
+    uint64_t native_bc_upload_count;
+    uint64_t native_bc_source_bytes;
+    uint64_t native_bc_staged_bytes;
+    uint64_t native_bc_prepare_cpu_us;
+    uint64_t decoded_bc_upload_count;
+    uint64_t decoded_bc_source_bytes;
+    uint64_t decoded_bc_staged_bytes;
+    uint64_t decoded_bc_prepare_cpu_us;
+    uint64_t in_flight_submission_count;
+    uint64_t peak_in_flight_submission_count;
+    uint64_t oldest_in_flight_serial;
+    uint64_t newest_submitted_serial;
+    uint64_t retirement_queue_objects;
+    uint64_t retirement_queue_bytes;
+} PGRAPHVkPerfFrame;
+
 typedef struct PGRAPHVkPerfTelemetry {
     FILE *file;
     bool enabled;
+    bool full_timing;
+    bool deferred;
+    bool deferred_allocation_failed;
     uint64_t frame;
     int64_t last_flush_us;
+    PGRAPHVkPerfFrame *deferred_frames;
+    uint32_t deferred_frame_count;
+    uint32_t deferred_frame_dropped;
     PGRAPHVkWaitStats finish[VK_FINISH_REASON_COUNT];
     PGRAPHVkWaitStats single_time[VK_SINGLE_TIME_REASON_COUNT];
     PGRAPHVkCpuStats cpu_regions[VK_PERF_CPU_REGION_COUNT];
