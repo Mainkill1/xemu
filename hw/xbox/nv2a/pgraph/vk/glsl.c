@@ -242,16 +242,6 @@ GByteArray *pgraph_vk_compile_glsl_to_spv(glslang_stage_t stage,
     return g_byte_array_new_take(data, num_program_bytes);
 }
 
-static void discard_uniform_layout(ShaderUniformLayout *layout)
-{
-    for (size_t i = 0; i < layout->num_uniforms; i++) {
-        free((void *)layout->uniforms[i].name);
-    }
-    g_free(layout->uniforms);
-    g_free(layout->allocation);
-    *layout = (ShaderUniformLayout) { 0 };
-}
-
 static bool block_to_uniforms(const SpvReflectBlockVariable *block,
                               ShaderUniformLayout *layout, bool *block_seen)
 {
@@ -296,7 +286,7 @@ static bool block_to_uniforms(const SpvReflectBlockVariable *block,
     layout->allocation = g_try_malloc0(block->size);
     if ((block->member_count && !layout->uniforms) ||
         (block->size && !layout->allocation)) {
-        discard_uniform_layout(layout);
+        shader_uniform_layout_clear(layout);
         return false;
     }
 
@@ -318,12 +308,12 @@ static bool block_to_uniforms(const SpvReflectBlockVariable *block,
         PGRAPHVkSpirvLayoutDimensions dimensions;
         if (!pgraph_vk_spirv_layout_validate_member(
                 block->size, &reflected_member, &dimensions)) {
-            discard_uniform_layout(layout);
+            shader_uniform_layout_clear(layout);
             return false;
         }
         char *name = strdup(member->name);
         if (!name) {
-            discard_uniform_layout(layout);
+            shader_uniform_layout_clear(layout);
             return false;
         }
         layout->uniforms[k] = (ShaderUniform) {
@@ -432,8 +422,8 @@ static bool init_layout_from_spv(ShaderModuleInfo *info,
     return true;
 
 fail:
-    discard_uniform_layout(&info->uniforms);
-    discard_uniform_layout(&info->push_constants);
+    shader_uniform_layout_clear(&info->uniforms);
+    shader_uniform_layout_clear(&info->push_constants);
     g_free(info->descriptor_sets);
     info->descriptor_sets = NULL;
     spvReflectDestroyShaderModule(&info->reflect_module);
@@ -491,8 +481,8 @@ ShaderModuleInfo *pgraph_vk_create_shader_module_from_spirv(
     };
     if (vkCreateShaderModule(r->device, &create_info, NULL, &info->module) !=
         VK_SUCCESS) {
-        discard_uniform_layout(&info->uniforms);
-        discard_uniform_layout(&info->push_constants);
+        shader_uniform_layout_clear(&info->uniforms);
+        shader_uniform_layout_clear(&info->push_constants);
         g_free(info->descriptor_sets);
         spvReflectDestroyShaderModule(&info->reflect_module);
         free(info->glsl);
@@ -501,16 +491,6 @@ ShaderModuleInfo *pgraph_vk_create_shader_module_from_spirv(
         return NULL;
     }
     return info;
-}
-
-static void finalize_uniform_layout(ShaderUniformLayout *layout)
-{
-    for (int i = 0; i < layout->num_uniforms; i++) {
-        free((void*)layout->uniforms[i].name);
-    }
-    if (layout->uniforms) {
-        g_free(layout->uniforms);
-    }
 }
 
 void pgraph_vk_ref_shader_module(ShaderModuleInfo *info)
@@ -534,8 +514,8 @@ void pgraph_vk_destroy_shader_module(PGRAPHVkState *r, ShaderModuleInfo *info)
     if (info->glsl) {
         free(info->glsl);
     }
-    finalize_uniform_layout(&info->uniforms);
-    finalize_uniform_layout(&info->push_constants);
+    shader_uniform_layout_clear(&info->uniforms);
+    shader_uniform_layout_clear(&info->push_constants);
     free(info->descriptor_sets);
     spvReflectDestroyShaderModule(&info->reflect_module);
     vkDestroyShaderModule(r->device, info->module, NULL);

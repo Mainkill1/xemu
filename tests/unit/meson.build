@@ -33,6 +33,7 @@ tests = {
     ),
   ],
   'test-xbox-vk-pipeline-lifetime': [],
+  'test-xbox-vk-uniform-layout': [],
   'test-xbox-vk-spirv-prewarm': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/spirv-prewarm.c',
   ],
