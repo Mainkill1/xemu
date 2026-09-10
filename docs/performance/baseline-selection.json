@@ -16,8 +16,8 @@
     "exe_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
     "archive_tag": "archive/2026-09-09/main-before-normalization",
     "release": "https://github.com/Mainkill1/xemu/releases/tag/baseline-bd1fecb9-20260909",
-    "validated_scope": "Isolated APU repair and retained Morrowind GL/VK cells; additional campaign results retain their own acceptance status",
-    "evidence": "https://github.com/Mainkill1/xemu-perf-tests/blob/a87e934/docs/evidence/baseline-campaign-20260909/REPORT.md"
+    "validated_scope": "Isolated APU repair and retained Morrowind GL/VK cells; PGR2 snapshot/fresh GL/VK automated capture gates with race-UI-only visual scope; full-XISO acceptance remains unsuccessful",
+    "evidence": "https://github.com/Mainkill1/xemu-perf-tests/blob/1f5cc9d8629df9a9157d676c39545595e799a37a/docs/evidence/baseline-campaign-20260909/REPORT.md"
   },
   "unaccepted_candidates": [
     "https://github.com/Mainkill1/xemu/pull/51",
