@@ -21,11 +21,28 @@
 #include "qemu/fast-hash.h"
 #include "qemu/mstring.h"
 #include "hw/xbox/nv2a/pgraph/uniform-stage-update.h"
+#include "ui/xemu-settings.h"
 #include "renderer.h"
+
+#include <glib/gstdio.h>
 
 #define VSH_UBO_BINDING 0
 #define PSH_UBO_BINDING 1
 #define PSH_TEX_BINDING 2
+
+/* Bump when shader generation or any fixed glslang input policy changes. */
+#define SPIRV_CACHE_GENERATOR_ABI 1U
+#define SPIRV_POLICY_VALIDATE             (1U << 0)
+#define SPIRV_POLICY_GLSL_460             (1U << 1)
+#define SPIRV_POLICY_PROFILE_NONE         (1U << 2)
+#define SPIRV_POLICY_MESSAGES_DEFAULT     (1U << 3)
+#define SPIRV_POLICY_SPV_RULES            (1U << 4)
+#define SPIRV_POLICY_VULKAN_RULES         (1U << 5)
+#define SPIRV_POLICY_DEBUG                (1U << 6)
+#define SPIRV_POLICY_DISABLE_OPTIMIZER    (1U << 7)
+#define SPIRV_POLICY_DEBUG_INFO           (1U << 8)
+#define SPIRV_POLICY_NONSEMANTIC_DEBUG    (1U << 9)
+#define SPIRV_POLICY_NONSEMANTIC_SOURCE   (1U << 10)
 
 const size_t MAX_UNIFORM_ATTR_VALUES_SIZE = NV2A_VERTEXSHADER_ATTRIBUTES * 4 * sizeof(float);
 
@@ -392,6 +409,178 @@ static bool shader_cache_entry_compare(Lru *lru, LruNode *node, const void *key)
     return memcmp(&snode->state, key, sizeof(ShaderState));
 }
 
+static uint32_t shader_spirv_compiler_policy(void)
+{
+    uint32_t policy = SPIRV_POLICY_VALIDATE | SPIRV_POLICY_GLSL_460 |
+                      SPIRV_POLICY_PROFILE_NONE |
+                      SPIRV_POLICY_MESSAGES_DEFAULT |
+                      SPIRV_POLICY_SPV_RULES | SPIRV_POLICY_VULKAN_RULES;
+    if (g_config.display.vulkan.debug_shaders) {
+        policy |= SPIRV_POLICY_DEBUG | SPIRV_POLICY_DISABLE_OPTIMIZER |
+                  SPIRV_POLICY_DEBUG_INFO |
+                  SPIRV_POLICY_NONSEMANTIC_DEBUG |
+                  SPIRV_POLICY_NONSEMANTIC_SOURCE;
+    }
+    return policy;
+}
+
+static void shader_spirv_cache_init(PGRAPHVkState *r)
+{
+    const char *base = xemu_settings_get_base_path();
+    if (!base || !base[0]) {
+        return;
+    }
+    glslang_version_t compiler_version;
+    glslang_get_version(&compiler_version);
+    const char *flavor = compiler_version.flavor && compiler_version.flavor[0] ?
+                             compiler_version.flavor : "unknown";
+    PGRAPHVkSpirvCachePolicy policy = {
+        .generator_abi = SPIRV_CACHE_GENERATOR_ABI,
+        .compiler_major = compiler_version.major,
+        .compiler_minor = compiler_version.minor,
+        .compiler_patch = compiler_version.patch,
+        .client_target = GLSLANG_TARGET_VULKAN_1_3,
+        .spirv_target = GLSLANG_TARGET_SPV_1_6,
+        .compiler_flags = shader_spirv_compiler_policy(),
+        .compiler_flavor = flavor,
+        .compiler_flavor_size = strlen(flavor),
+    };
+    if (!pgraph_vk_spirv_cache_init(&r->spirv_cache, &policy)) {
+        return;
+    }
+
+    r->spirv_cache_directory =
+        g_build_filename(base, "cache", "vulkan", NULL);
+    r->spirv_cache_path =
+        g_build_filename(r->spirv_cache_directory, "spirv-v1.bin", NULL);
+    r->spirv_cache_initialized = true;
+    r->spirv_cache_session_eligible = g_config.perf.cache_shaders;
+    qemu_event_init(&r->spirv_cache_writeback_complete, false);
+    r->spirv_cache_writeback_complete_initialized = true;
+
+    if (!r->spirv_cache_session_eligible) {
+        return;
+    }
+
+    GStatBuf stat_buf;
+    if (g_stat(r->spirv_cache_path, &stat_buf)) {
+        if (errno != ENOENT) {
+            pgraph_vk_spirv_cache_note_rejection(&r->spirv_cache);
+        }
+        return;
+    }
+    if (stat_buf.st_size <= 0 ||
+        (uint64_t)stat_buf.st_size > PGRAPH_VK_SPIRV_CACHE_MAX_FILE_SIZE) {
+        pgraph_vk_spirv_cache_note_rejection(&r->spirv_cache);
+        return;
+    }
+    size_t contents_size = (size_t)stat_buf.st_size;
+    uint8_t *contents = g_try_malloc(contents_size);
+    FILE *file = qemu_fopen(r->spirv_cache_path, "rb");
+    if (!contents || !file ||
+        fread(contents, 1, contents_size, file) != contents_size ||
+        fgetc(file) != EOF) {
+        pgraph_vk_spirv_cache_note_rejection(&r->spirv_cache);
+        if (file) {
+            fclose(file);
+        }
+        g_free(contents);
+        return;
+    }
+    fclose(file);
+    pgraph_vk_spirv_cache_load(&r->spirv_cache,
+                               contents, contents_size);
+    g_free(contents);
+}
+
+static bool shader_spirv_write(void *opaque, const char *path,
+                               const uint8_t *data, size_t size)
+{
+    (void)opaque;
+    return g_file_set_contents(path, (const char *)data, (gssize)size, NULL);
+}
+
+static bool shader_spirv_replace(void *opaque, const char *temporary,
+                                 const char *published)
+{
+    (void)opaque;
+    return g_rename(temporary, published) == 0;
+}
+
+static void shader_spirv_remove(void *opaque, const char *path)
+{
+    (void)opaque;
+    g_unlink(path);
+}
+
+void pgraph_vk_process_spirv_cache_writeback(PGRAPHState *pg)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    bool was_dirty = pgraph_vk_spirv_cache_is_dirty(&r->spirv_cache);
+    bool active = r->spirv_cache_initialized &&
+                  pgraph_vk_spirv_cache_is_active(
+                      &r->spirv_cache, r->spirv_cache_session_eligible,
+                      g_config.perf.cache_shaders);
+    bool written = !was_dirty || !active;
+
+    if (active && was_dirty &&
+        !g_mkdir_with_parents(r->spirv_cache_directory, 0700)) {
+        char *temporary = g_strdup_printf("%s.tmp.%08x",
+                                          r->spirv_cache_path,
+                                          g_random_int());
+        const PGRAPHVkSpirvCacheFileOps ops = {
+            .write = shader_spirv_write,
+            .replace = shader_spirv_replace,
+            .remove = shader_spirv_remove,
+        };
+        written = pgraph_vk_spirv_cache_publish(
+            &r->spirv_cache, temporary, r->spirv_cache_path, &ops, NULL);
+        g_free(temporary);
+    }
+    if (active && was_dirty && !written) {
+        pgraph_vk_spirv_cache_note_rejection(&r->spirv_cache);
+    }
+
+    const PGRAPHVkSpirvCacheStats *stats =
+        pgraph_vk_spirv_cache_stats(&r->spirv_cache);
+    fprintf(stderr,
+            "nv2a/vk: SPIR-V prewarm hits=%" PRIu64
+            " misses=%" PRIu64 " rejections=%" PRIu64
+            " fallbacks=%" PRIu64 " records=%zu source_bytes=%zu"
+            " spirv_bytes=%zu loaded_bytes=%" PRIu64
+            " queued_bytes=%" PRIu64 " write=%s\n",
+            stats->hits, stats->misses, stats->rejections,
+            stats->fallbacks, stats->records, stats->source_bytes,
+            stats->spirv_bytes, stats->loaded_bytes, stats->queued_bytes,
+            !active ? "disabled" :
+            (written ? (was_dirty ? "published" : "clean") : "failed"));
+}
+
+static void shader_spirv_cache_finalize(PGRAPHVkState *r)
+{
+    if (r->spirv_cache_writeback_complete_initialized) {
+        qatomic_set(&r->spirv_cache_writeback_pending, false);
+        r->spirv_cache_writeback_requested = false;
+        qemu_event_destroy(&r->spirv_cache_writeback_complete);
+        r->spirv_cache_writeback_complete_initialized = false;
+    }
+    pgraph_vk_spirv_cache_destroy(&r->spirv_cache);
+    g_free(r->spirv_cache_directory);
+    g_free(r->spirv_cache_path);
+    r->spirv_cache_directory = NULL;
+    r->spirv_cache_path = NULL;
+    r->spirv_cache_initialized = false;
+    r->spirv_cache_session_eligible = false;
+}
+
+static bool shader_spirv_cache_active(PGRAPHVkState *r)
+{
+    return r->spirv_cache_initialized &&
+           pgraph_vk_spirv_cache_is_active(
+               &r->spirv_cache, r->spirv_cache_session_eligible,
+               g_config.perf.cache_shaders);
+}
+
 static void shader_module_cache_entry_init(Lru *lru, LruNode *node,
                                            const void *key)
 {
@@ -420,8 +609,43 @@ static void shader_module_cache_entry_init(Lru *lru, LruNode *node,
         code = NULL;
     }
 
-    module->module_info = pgraph_vk_create_shader_module_from_glsl(
-        r, module->key.kind, mstring_get_str(code));
+    const char *glsl = mstring_get_str(code);
+    size_t glsl_size = 0;
+    bool glsl_size_known = false;
+    ShaderModuleInfo *module_info = NULL;
+    if (shader_spirv_cache_active(r)) {
+        glsl_size = strlen(glsl);
+        glsl_size_known = true;
+        const uint8_t *cached_spirv = NULL;
+        size_t cached_spirv_size = 0;
+        if (pgraph_vk_spirv_cache_lookup(
+                &r->spirv_cache, module->key.kind, glsl, glsl_size,
+                &cached_spirv, &cached_spirv_size) ==
+            PGRAPH_VK_SPIRV_CACHE_HIT) {
+            GByteArray *spirv = g_byte_array_sized_new(cached_spirv_size);
+            g_byte_array_append(spirv, cached_spirv, cached_spirv_size);
+            module_info = pgraph_vk_create_shader_module_from_spirv(
+                r, module->key.kind, glsl, spirv);
+            g_byte_array_unref(spirv);
+            if (!module_info) {
+                pgraph_vk_spirv_cache_reject_hit(
+                    &r->spirv_cache, module->key.kind, glsl, glsl_size);
+            }
+        }
+    }
+    if (!module_info) {
+        module_info = pgraph_vk_create_shader_module_from_glsl(
+            r, module->key.kind, glsl);
+        if (shader_spirv_cache_active(r)) {
+            if (!glsl_size_known) {
+                glsl_size = strlen(glsl);
+            }
+            pgraph_vk_spirv_cache_add(
+                &r->spirv_cache, module->key.kind, glsl, glsl_size,
+                module_info->spirv->data, module_info->spirv->len);
+        }
+    }
+    module->module_info = module_info;
     pgraph_vk_ref_shader_module(module->module_info);
     mstring_unref(code);
 }
@@ -473,6 +697,8 @@ static void shader_cache_init(PGRAPHState *pg)
     r->shader_module_cache.compare_nodes = shader_module_cache_entry_compare;
     r->shader_module_cache.post_node_evict =
         shader_module_cache_entry_post_evict;
+
+    shader_spirv_cache_init(r);
 }
 
 static void shader_cache_finalize(PGRAPHState *pg)
@@ -486,6 +712,11 @@ static void shader_cache_finalize(PGRAPHState *pg)
     lru_flush(&r->shader_module_cache);
     g_free(r->shader_module_cache_entries);
     r->shader_module_cache_entries = NULL;
+    if (shader_spirv_cache_active(r) &&
+        pgraph_vk_spirv_cache_is_dirty(&r->spirv_cache)) {
+        pgraph_vk_process_spirv_cache_writeback(pg);
+    }
+    shader_spirv_cache_finalize(r);
 }
 
 static ShaderBinding *get_shader_binding_for_state(PGRAPHVkState *r,

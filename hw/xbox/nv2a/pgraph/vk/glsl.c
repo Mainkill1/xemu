@@ -242,51 +242,96 @@ GByteArray *pgraph_vk_compile_glsl_to_spv(glslang_stage_t stage,
     return g_byte_array_new_take(data, num_program_bytes);
 }
 
-VkShaderModule pgraph_vk_create_shader_module_from_spv(PGRAPHVkState *r, GByteArray *spv)
+static void discard_uniform_layout(ShaderUniformLayout *layout)
 {
-    VkShaderModuleCreateInfo create_info = {
-        .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-        .codeSize = spv->len,
-        .pCode = (uint32_t *)spv->data,
-    };
-    VkShaderModule module;
-    VK_CHECK(
-        vkCreateShaderModule(r->device, &create_info, NULL, &module));
-    return module;
+    for (size_t i = 0; i < layout->num_uniforms; i++) {
+        free((void *)layout->uniforms[i].name);
+    }
+    g_free(layout->uniforms);
+    g_free(layout->allocation);
+    *layout = (ShaderUniformLayout) { 0 };
 }
 
-static void block_to_uniforms(const SpvReflectBlockVariable *block, ShaderUniformLayout *layout)
+static bool block_to_uniforms(const SpvReflectBlockVariable *block,
+                              ShaderUniformLayout *layout, bool *block_seen)
 {
-    assert(!layout->uniforms);
+    if (!pgraph_vk_spirv_layout_claim_block(block_seen, block->size,
+                                            block->member_count) ||
+        (block->member_count && !block->members)) {
+        return false;
+    }
+
+    for (uint32_t k = 0; k < block->member_count; k++) {
+        const SpvReflectBlockVariable *member = &block->members[k];
+        if (!member->name ||
+            strnlen(member->name,
+                    PGRAPH_VK_SPIRV_LAYOUT_MAX_NAME_SIZE + 1) >
+                PGRAPH_VK_SPIRV_LAYOUT_MAX_NAME_SIZE) {
+            return false;
+        }
+        PGRAPHVkSpirvLayoutMember reflected_member = {
+            .offset = member->offset,
+            .size = member->size,
+            .array_dims_count = member->array.dims_count,
+            .array_elements = member->array.dims_count ?
+                                  member->array.dims[0] : 1,
+            .array_stride = member->array.stride,
+            .matrix_columns = member->numeric.matrix.column_count,
+            .matrix_rows = member->numeric.matrix.row_count,
+            .matrix_stride = member->numeric.matrix.stride,
+            .vector_components = member->numeric.vector.component_count,
+            .scalar_width = member->numeric.scalar.width,
+        };
+        PGRAPHVkSpirvLayoutDimensions dimensions;
+        if (!pgraph_vk_spirv_layout_validate_member(
+                block->size, &reflected_member, &dimensions)) {
+            return false;
+        }
+    }
 
     layout->num_uniforms = block->member_count;
-    layout->uniforms = g_malloc0_n(block->member_count, sizeof(ShaderUniform));
+    layout->uniforms =
+        g_try_malloc0_n(block->member_count, sizeof(ShaderUniform));
     layout->total_size = block->size;
-    layout->allocation = g_malloc0(block->size);
+    layout->allocation = g_try_malloc0(block->size);
+    if ((block->member_count && !layout->uniforms) ||
+        (block->size && !layout->allocation)) {
+        discard_uniform_layout(layout);
+        return false;
+    }
 
     for (uint32_t k = 0; k < block->member_count; ++k) {
         const SpvReflectBlockVariable *member = &block->members[k];
-
-        assert(member->array.dims_count < 2);
-
-        int dim = 1;
-        for (int i = 0; i < member->array.dims_count; i++) {
-            dim *= member->array.dims[i];
-        }
-        int stride = MAX(member->array.stride, member->numeric.matrix.stride);
-        if (member->numeric.matrix.column_count) {
-            dim *= member->numeric.matrix.column_count;
-            if (member->array.stride) {
-                stride =
-                    member->array.stride / member->numeric.matrix.column_count;
-            }
-        }
-        layout->uniforms[k] = (ShaderUniform){
-            .name = strdup(member->name),
+        PGRAPHVkSpirvLayoutMember reflected_member = {
             .offset = member->offset,
-            .dim_v = MAX(1, member->numeric.vector.component_count),
-            .dim_a = dim,
-            .stride = stride,
+            .size = member->size,
+            .array_dims_count = member->array.dims_count,
+            .array_elements = member->array.dims_count ?
+                                  member->array.dims[0] : 1,
+            .array_stride = member->array.stride,
+            .matrix_columns = member->numeric.matrix.column_count,
+            .matrix_rows = member->numeric.matrix.row_count,
+            .matrix_stride = member->numeric.matrix.stride,
+            .vector_components = member->numeric.vector.component_count,
+            .scalar_width = member->numeric.scalar.width,
+        };
+        PGRAPHVkSpirvLayoutDimensions dimensions;
+        if (!pgraph_vk_spirv_layout_validate_member(
+                block->size, &reflected_member, &dimensions)) {
+            discard_uniform_layout(layout);
+            return false;
+        }
+        char *name = strdup(member->name);
+        if (!name) {
+            discard_uniform_layout(layout);
+            return false;
+        }
+        layout->uniforms[k] = (ShaderUniform) {
+            .name = name,
+            .offset = member->offset,
+            .dim_v = dimensions.vector_components,
+            .dim_a = dimensions.element_count,
+            .stride = dimensions.stride,
         };
 
         // fprintf(stderr, "<%s offset=%zd dim_v=%zd dim_a=%zd stride=%zd>\n",
@@ -298,54 +343,101 @@ static void block_to_uniforms(const SpvReflectBlockVariable *block, ShaderUnifor
         //     );
     }
     // fprintf(stderr, "--\n");
+    return true;
 }
 
-static void init_layout_from_spv(ShaderModuleInfo *info)
+static bool init_layout_from_spv(ShaderModuleInfo *info,
+                                 VkShaderStageFlagBits expected_stage)
 {
     SpvReflectResult result = spvReflectCreateShaderModule(
         info->spirv->len, info->spirv->data, &info->reflect_module);
-    assert(result == SPV_REFLECT_RESULT_SUCCESS &&
-           "Failed to create SPIR-V shader module");
+    if (result != SPV_REFLECT_RESULT_SUCCESS) {
+        return false;
+    }
+    if (!pgraph_vk_spirv_stage_matches(
+            expected_stage, info->reflect_module.shader_stage) ||
+        info->reflect_module.entry_point_count != 1 ||
+        !info->reflect_module.entry_point_name ||
+        strcmp(info->reflect_module.entry_point_name, "main")) {
+        goto fail;
+    }
 
     uint32_t descriptor_set_count = 0;
     result = spvReflectEnumerateDescriptorSets(&info->reflect_module,
                                                &descriptor_set_count, NULL);
-    assert(result == SPV_REFLECT_RESULT_SUCCESS &&
-           "Failed to enumerate descriptor sets");
+    if (result != SPV_REFLECT_RESULT_SUCCESS ||
+        descriptor_set_count > PGRAPH_VK_SPIRV_LAYOUT_MAX_DESCRIPTOR_SETS) {
+        goto fail;
+    }
 
-    info->descriptor_sets =
-        g_malloc_n(descriptor_set_count, sizeof(SpvReflectDescriptorSet *));
+    info->descriptor_sets = g_try_malloc_n(
+        descriptor_set_count, sizeof(SpvReflectDescriptorSet *));
+    if (descriptor_set_count && !info->descriptor_sets) {
+        goto fail;
+    }
     result = spvReflectEnumerateDescriptorSets(
         &info->reflect_module, &descriptor_set_count, info->descriptor_sets);
-    assert(result == SPV_REFLECT_RESULT_SUCCESS &&
-           "Failed to enumerate descriptor sets");
+    if (result != SPV_REFLECT_RESULT_SUCCESS) {
+        goto fail;
+    }
 
     info->uniforms.num_uniforms = 0;
     info->uniforms.uniforms = NULL;
 
+    bool uniform_block_seen = false;
+    uint32_t total_binding_count = 0;
     for (uint32_t i = 0; i < descriptor_set_count; ++i) {
         const SpvReflectDescriptorSet *descriptor_set =
             info->descriptor_sets[i];
+        if (!descriptor_set ||
+            descriptor_set->binding_count >
+                PGRAPH_VK_SPIRV_LAYOUT_MAX_BINDINGS - total_binding_count ||
+            (descriptor_set->binding_count && !descriptor_set->bindings)) {
+            goto fail;
+        }
+        total_binding_count += descriptor_set->binding_count;
         for (uint32_t j = 0; j < descriptor_set->binding_count; ++j) {
             const SpvReflectDescriptorBinding *binding =
                 descriptor_set->bindings[j];
+            if (!binding) {
+                goto fail;
+            }
             if (binding->descriptor_type !=
                 SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER) {
                 continue;
             }
 
             const SpvReflectBlockVariable *block = &binding->block;
-            block_to_uniforms(block, &info->uniforms);
+            if (!block_to_uniforms(block, &info->uniforms,
+                                   &uniform_block_seen)) {
+                goto fail;
+            }
         }
     }
 
     info->push_constants.num_uniforms = 0;
     info->push_constants.uniforms = NULL;
-    assert(info->reflect_module.push_constant_block_count < 2);
-    if (info->reflect_module.push_constant_block_count) {
-        block_to_uniforms(&info->reflect_module.push_constant_blocks[0],
-                          &info->push_constants);
+    if (info->reflect_module.push_constant_block_count > 1 ||
+        (info->reflect_module.push_constant_block_count &&
+         !info->reflect_module.push_constant_blocks)) {
+        goto fail;
     }
+    if (info->reflect_module.push_constant_block_count) {
+        bool push_block_seen = false;
+        if (!block_to_uniforms(&info->reflect_module.push_constant_blocks[0],
+                               &info->push_constants, &push_block_seen)) {
+            goto fail;
+        }
+    }
+    return true;
+
+fail:
+    discard_uniform_layout(&info->uniforms);
+    discard_uniform_layout(&info->push_constants);
+    g_free(info->descriptor_sets);
+    info->descriptor_sets = NULL;
+    spvReflectDestroyShaderModule(&info->reflect_module);
+    return false;
 }
 
 static glslang_stage_t vk_shader_stage_to_glslang_stage(VkShaderStageFlagBits stage)
@@ -368,13 +460,46 @@ ShaderModuleInfo *pgraph_vk_create_shader_module_from_glsl(
     PGRAPHVkState *r, VkShaderStageFlagBits stage, const char *glsl)
 {
     nv2a_profile_log_event_once("shader_compile");
+    GByteArray *spirv = pgraph_vk_compile_glsl_to_spv(
+        vk_shader_stage_to_glslang_stage(stage), glsl);
+    ShaderModuleInfo *info = pgraph_vk_create_shader_module_from_spirv(
+        r, stage, glsl, spirv);
+    g_byte_array_unref(spirv);
+    assert(info && "Failed to construct freshly compiled shader module");
+    return info;
+}
+
+ShaderModuleInfo *pgraph_vk_create_shader_module_from_spirv(
+    PGRAPHVkState *r, VkShaderStageFlagBits expected_stage, const char *glsl,
+    GByteArray *spirv)
+{
     ShaderModuleInfo *info = g_malloc0(sizeof(*info));
     info->refcnt = 0;
     info->glsl = strdup(glsl);
-    info->spirv = pgraph_vk_compile_glsl_to_spv(
-        vk_shader_stage_to_glslang_stage(stage), glsl);
-    info->module = pgraph_vk_create_shader_module_from_spv(r, info->spirv);
-    init_layout_from_spv(info);
+    info->spirv = g_byte_array_ref(spirv);
+    if (!info->glsl || !init_layout_from_spv(info, expected_stage)) {
+        free(info->glsl);
+        g_byte_array_unref(info->spirv);
+        g_free(info);
+        return NULL;
+    }
+
+    VkShaderModuleCreateInfo create_info = {
+        .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+        .codeSize = spirv->len,
+        .pCode = (uint32_t *)spirv->data,
+    };
+    if (vkCreateShaderModule(r->device, &create_info, NULL, &info->module) !=
+        VK_SUCCESS) {
+        discard_uniform_layout(&info->uniforms);
+        discard_uniform_layout(&info->push_constants);
+        g_free(info->descriptor_sets);
+        spvReflectDestroyShaderModule(&info->reflect_module);
+        free(info->glsl);
+        g_byte_array_unref(info->spirv);
+        g_free(info);
+        return NULL;
+    }
     return info;
 }
 

@@ -1,8 +1,8 @@
 # feature/vulkan-spirv-prewarm
 
-**Status:** Investigating  
-**Stable baseline:** `9f618d6d8c4c446ef023955f3d4de22f661f61a4` / retained product executable `3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b`  
-**Previous main:** `e18ba8d6274cf227cc9e5ae1b5684f28ed911a99`  
+**Status:** Investigating
+**Stable baseline:** `9f618d6d8c4c446ef023955f3d4de22f661f61a4` / retained product executable `3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b`
+**Previous main:** `e18ba8d6274cf227cc9e5ae1b5684f28ed911a99`
 **Current candidate:** Pending implementation on this branch
 
 ## Summary
@@ -89,22 +89,63 @@ flowchart LR
 | Memory | In-process modules only | Bounded validated artifact index | Measured and capped increase |
 | Failure | Compilation failure is visible | Invalid/missing cache falls back to the same compiler path | Preserve current behavior |
 
-## Planned code changes
+## Code changes
 
-- Add a small cache format with checked sizes, record counts, integrity, and a
-  compatibility identity that is deliberately invalidated when generation or
-  compiler policy changes.
-- Split GLSL-to-SPIR-V compilation from Vulkan module construction so cached
-  bytes and freshly compiled bytes use the same creation/reflection path.
-- Load and validate cache data before gameplay; perform only in-memory lookup
-  after GLSL generation.
-- Queue new immutable artifacts in memory and persist them once during clean,
-  producer-quiesced shutdown using temporary-file replacement.
-- Expose hit, miss, rejection, byte, and fallback counters for qualification
-  without synchronous hot-path logging.
+- A single little-endian `spirv-v1.bin` file under the settings-owned
+  `cache/vulkan` directory carries an explicit cache ABI, shader-generator
+  policy revision, glslang semantic version and flavor, Vulkan/SPIR-V targets,
+  every effective debug/compiler-policy flag, and per-record stage plus exact
+  GLSL bytes. Hashes accelerate comparison and validate payload integrity;
+  exact bytes remain authoritative.
+- The cache independently caps records at 4,096, one source and one SPIR-V
+  module at 1 MiB each, aggregate source bytes at 16 MiB, aggregate SPIR-V
+  bytes at 32 MiB, and the complete file at 64 MiB. SPIR-V length, word
+  alignment, magic, and version are checked before an entry becomes visible.
+- Vulkan initialization reads and transactionally validates the file once.
+  Graphics module misses generate GLSL as before and perform only an in-memory
+  lookup. Missing, incompatible, truncated, corrupt, or oversized input leaves
+  the empty/current store usable and falls through to glslang.
+- Cached and freshly compiled bytes enter one fallible module-construction
+  path that creates device-owned `VkShaderModule` and SPIRV-Reflect state once.
+  A cached construction failure removes that entry, fully unwinds its partial
+  resources, compiles normally, and queues the successful immutable artifact.
+- Clean shutdown queues one producer-thread write after rendering mutations
+  quiesce. The complete replacement is serialized in memory, written to a
+  uniquely named temporary file, and atomically renamed. Write or rename
+  failure leaves the previous cache intact and remains retryable. Renderer
+  switches synchronously publish dirty entries from the quiesced producer
+  before destroying the renderer-local store.
+- The live shader-cache toggle gates lookup, queuing, and writeback. Turning it
+  off stops cache work immediately. A Vulkan renderer created while caching is
+  disabled remains ineligible for cache use and publication, so enabling takes
+  effect after a renderer restart and cannot replace an unseen cache file.
+- One deferred shutdown line reports aggregate hits, misses, rejections,
+  fallbacks, records, source/SPIR-V bytes, loaded/queued bytes, and write
+  outcome. Shader misses do not log.
 
 **Main code path:** `hw/xbox/nv2a/pgraph/vk/glsl.c`, `shaders.c`, Vulkan
 renderer lifecycle, and a focused cache-format module.
+
+## Known limitations
+
+- GLSL generation, Vulkan module creation, and reflection remain synchronous;
+  this candidate targets the measured glslang region only.
+- Concurrent xemu processes use unique temporary files and always publish a
+  valid bounded file, but the last clean shutdown wins; their in-memory record
+  sets are not merged.
+- A renderer that starts with shader caching disabled does not preload the file
+  and cannot use or publish its empty store. This avoids module-miss file I/O
+  and preserves an existing cache, at the cost of requiring renderer
+  reinitialization after enabling the setting.
+- SPIRV-Reflect is the available parser; this tree does not expose SPIRV-Tools
+  validation. Cache inputs are size-, integrity-, stage-, entry-point-, and
+  layout-checked, with bounded descriptor/member counts and checked uniform
+  address arithmetic before Vulkan creation, but this is structural validation
+  rather than a complete `spirv-val` pass.
+- The inherited successful-layout allocation leak remains tracked by issue
+  #69. This change frees only partial allocations created by a rejected cached
+  module; eviction and renderer-switch resource qualification still depend on
+  resolving or explicitly accepting that separate gate.
 
 ## Profiling
 

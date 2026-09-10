@@ -42,6 +42,7 @@
 #include "debug.h"
 #include "constants.h"
 #include "glsl.h"
+#include "spirv-prewarm.h"
 
 #define HAVE_EXTERNAL_MEMORY 1
 
@@ -528,6 +529,15 @@ typedef struct PGRAPHVkState {
 
     Lru shader_module_cache;
     ShaderModuleCacheEntry *shader_module_cache_entries;
+    PGRAPHVkSpirvCache spirv_cache;
+    char *spirv_cache_directory;
+    char *spirv_cache_path;
+    bool spirv_cache_initialized;
+    bool spirv_cache_session_eligible;
+    bool spirv_cache_writeback_pending;
+    bool spirv_cache_writeback_requested;
+    bool spirv_cache_writeback_complete_initialized;
+    QemuEvent spirv_cache_writeback_complete;
 
     // FIXME: Merge these into a structure
     size_t uniform_buffer_offsets[2];
@@ -584,10 +594,11 @@ void pgraph_vk_init_glsl_compiler(void);
 void pgraph_vk_finalize_glsl_compiler(void);
 GByteArray *pgraph_vk_compile_glsl_to_spv(glslang_stage_t stage,
                                           const char *glsl_source);
-VkShaderModule pgraph_vk_create_shader_module_from_spv(PGRAPHVkState *r,
-                                                       GByteArray *spv);
 ShaderModuleInfo *pgraph_vk_create_shader_module_from_glsl(
     PGRAPHVkState *r, VkShaderStageFlagBits stage, const char *glsl);
+ShaderModuleInfo *pgraph_vk_create_shader_module_from_spirv(
+    PGRAPHVkState *r, VkShaderStageFlagBits expected_stage, const char *glsl,
+    GByteArray *spirv);
 void pgraph_vk_ref_shader_module(ShaderModuleInfo *info);
 void pgraph_vk_unref_shader_module(PGRAPHVkState *r, ShaderModuleInfo *info);
 void pgraph_vk_destroy_shader_module(PGRAPHVkState *r, ShaderModuleInfo *info);
@@ -719,6 +730,7 @@ void pgraph_vk_trim_texture_cache(PGRAPHState *pg);
 // shaders.c
 void pgraph_vk_init_shaders(PGRAPHState *pg);
 void pgraph_vk_finalize_shaders(PGRAPHState *pg);
+void pgraph_vk_process_spirv_cache_writeback(PGRAPHState *pg);
 void pgraph_vk_update_descriptor_sets(PGRAPHState *pg);
 void pgraph_vk_bind_shaders(PGRAPHState *pg);
 
