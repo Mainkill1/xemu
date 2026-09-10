@@ -1,6 +1,6 @@
 # Repository workflow
 
-The table below defines the target branch roles. Normalization is still in progress: retained Full-Speed `main` has not yet been established as an accepted-only tree, and `baseline` is unselected. The [current inventory](repository-normalization.md) records that gap. A merged branch, a passing test, and an accepted performance change are separate facts.
+The owner selected existing `main` at `bd1fecb93353272dda2a810991e28945de35b665` as the stable, accepted foundation for cycle 01. `baseline` pins that source; `main` carries it forward through reviewed PRs. Its existing known fixes and testing addons remain included. The [inventory](repository-normalization.md) records exact source and evidence identities.
 
 | Branch | Purpose | Update rule |
 | --- | --- | --- |
@@ -19,7 +19,7 @@ Understand the intended correctness state before choosing the reference. A known
 
 Re-baseline only for an explicit reason: adopting a new upstream foundation, closing a defined optimization cycle, or accepting a correctness repair that changes the valid reference. Before moving `baseline`, archive the old commit and results, record the reason and new qualification scope, and start a new cycle entry. Do not move it after every optimization.
 
-The machine-readable [baseline selection record](performance/baseline-selection.json) is authoritative for whether a baseline has actually been selected. An unset baseline is an unresolved gate, not an implicit alias for `main`.
+The machine-readable [baseline selection record](performance/baseline-selection.json) is authoritative for whether a baseline has actually been selected. It records the owner-selected cycle 01 source and retained binary/results; `baseline` is not a moving alias for `main`.
 
 ## Record both comparisons for accepted changes
 
@@ -32,7 +32,7 @@ Use the same test revision, configuration, workload and measurement method for e
 
 Summaries use clean tables. Include per-test outcomes, guest work completed, timing/tails, measured CPU/GPU/memory resources, correctness/visual checks, unfavorable results, and uncertainty. Distinguish guest cadence from rendered FPS. Keep diagnostic timing separate from production timing. Correctness-only tests remain acceptance gates without becoming performance scores. Missing or inconclusive measurements are not an improvement claim.
 
-The [accepted-change ledger](performance/accepted-changes.json) records source/evidence identities and explicitly missing comparisons. Historical patches without matched measurements remain unknown; normalization does not reconstruct causal speedups from unrelated tables.
+The [accepted-change ledger](performance/accepted-changes.json) records source/evidence identities and explicitly missing comparisons. Historical patches are part of the accepted initial foundation; their individual performance effects without matched measurements remain unknown; normalization does not reconstruct causal speedups from unrelated tables.
 
 ## Preserve tests, diagnostics and evidence
 
@@ -48,7 +48,7 @@ See the [preservation inventory](repository-normalization.md) for exact archive 
 
 ## Current normalization status
 
-The initial audit preserved current main, pre-APU Full-Speed history, frozen S, the blocked release proposal and significant PR heads. The existing [diagnostic baseline release](https://github.com/Mainkill1/xemu/releases/tag/baseline-bd1fecb9-20260909) reuses its original binary; the release title does not prove full qualification for a new cycle.
+The initial audit preserved current main, pre-APU Full-Speed history, frozen S, the blocked release proposal and significant PR heads. The owner then explicitly selected current main as the stable baseline. The [baseline release](https://github.com/Mainkill1/xemu/releases/tag/baseline-bd1fecb9-20260909) supplies the retained binary, source and diagnostic symbols. No upstream adoption or Stable-tree replacement occurs in this normalization.
 
 PR [#59](https://github.com/Mainkill1/xemu/pull/59) remains a blocked current-main PTIMER candidate. Its native timer controls pass and old-code failures are reproduced, but remaining compatibility/performance gates are not complete. PR [#51](https://github.com/Mainkill1/xemu/pull/51) remains a blocked release-tree proposal with unresolved concerns. Neither is included by normalization.
 
@@ -56,7 +56,7 @@ Known current-reference gates are tracked in [report bounds #60](https://github.
 
 ```mermaid
 flowchart LR
-    U[upstream: exact upstream master] -->|deliberate foundation adoption| M[main: accepted changes after carry-forward review]
+    U[upstream: exact upstream master] -->|deliberate foundation adoption| M[main: accepted foundation and reviewed changes]
     M -->|branch at an exact commit| C[feature / fix / research PR]
     C -->|review and acceptance| M
     M -.->|deliberate qualified selection| B[baseline: fixed cycle reference]
@@ -66,4 +66,4 @@ flowchart LR
     B -->|preserve before re-baseline| A
 ```
 
-This graph describes the workflow; it does not imply that every arrow has already been executed or that the pending baseline is qualified.
+Cycle 01 begins with identical product source in `main` and `baseline`; this normalization adds documentation only. Upstream adoption is a future deliberate action, not part of this cycle setup.

@@ -1,4 +1,20 @@
-> Repository normalization is in progress. Read the [branch and baseline workflow](docs/repository-workflow.md) and [preservation inventory](docs/repository-normalization.md). The historical Full-Speed description below remains intact; it does not certify the current tree as a validated optimization baseline.
+# xemu
+
+This fork uses the existing stable main tree as its accepted baseline foundation, including its known fixes and testing addons.
+
+| Branch | Role |
+| --- | --- |
+| `upstream` | Exact mirror of `xemu-project/xemu:master` |
+| `baseline` | Fixed cycle 01 reference at `bd1fecb93353272dda2a810991e28945de35b665` |
+| `main` | Accepted foundation plus changes admitted through PRs |
+| `feature/*`, `fix/*`, `research/*` | Focused working branches from main |
+
+Read the [repository workflow](docs/repository-workflow.md), [baseline/results identity](docs/performance/baseline-selection.json), and [preservation inventory](docs/repository-normalization.md). Each accepted optimization is compared with both previous main and the fixed baseline. The [baseline release](https://github.com/Mainkill1/xemu/releases/tag/baseline-bd1fecb9-20260909) retains the existing binary and diagnostic symbols.
+
+Full-Speed historically gathered performance experiments; Stable was intended to remove accidentally integrated performance work and recover a baseline. Those histories and their evidence remain preserved. Their names and earlier review descriptions do not override the owner's selection of the current main tree.
+
+<details>
+<summary>Historical Full-Speed report from baseline bd1fecb9 (preserved verbatim)</summary>
 
 # Full Speed
 
@@ -276,3 +292,5 @@ branches available for A/B comparison rather than closing or deleting them.
 For the new work, also run `test-xbox-nv2a-ptimer`, verify report-query writes
 against the DMA object active at queue time, and compare Vulkan pipeline
 lookups plus draw-preparation CPU time on a texture-heavy saved-state capture.
+
+</details>
