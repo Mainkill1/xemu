@@ -1,10 +1,11 @@
 # PR #70 evidence index
 
-**Decision: HOLD.** Warm SPIR-V reuse works in the exercised cases. Automated PGR2 full-start tails exceed the acceptance limit; the manual race is exploratory and several qualification gates remain open.
+**Decision: HOLD.** Current cleanup repair `01028d6d` requires its own Windows build/runtime qualification; the results linked below describe the older executable. Warm SPIR-V reuse works in the exercised cases. Automated PGR2 full-start tails exceed the acceptance limit; the manual race is exploratory and several qualification gates remain open.
 
-**Tested source:** `b14bfb745870faae500a1ecb0ff49d2143ba8bd1`\
+**Historical tested source:** `b14bfb745870faae500a1ecb0ff49d2143ba8bd1`\
 **Executable SHA-256:** `d6c0762fd672932667537b7152bf4068a7c313d2980d4b545e020e852064bc9d`\
-**Evidence revision:** `303c381f6e7891101996f95f7e2c009b3abc559b`
+**Dedicated evidence PR:** https://github.com/Mainkill1/xemu-perf-tests/pull/25\
+**Original evidence revision (preserved):** `303c381f6e7891101996f95f7e2c009b3abc559b`
 
 | Evidence | Location |
 | --- | --- |

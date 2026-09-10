@@ -1,6 +1,6 @@
 # feature/vulkan-spirv-prewarm
 
-**Status:** Testing — automated correctness passed; PGR2 full-start performance HOLD; exploratory manual race complete; lifecycle/resource gates pending\
+**Status:** Draft — cleanup and structural tests pass; repaired-head Windows build/runtime retest pending; historical performance HOLD\
 **PR:** https://github.com/Mainkill1/xemu/pull/70\
 **Cause diagnostic:** https://github.com/Mainkill1/xemu/pull/68\
 **Post-integration ubershader design:** https://github.com/Mainkill1/xemu/pull/71 — blocked until #70 is qualified and merged\
@@ -8,21 +8,36 @@
 **Stable baseline:** `9f618d6d8c4c446ef023955f3d4de22f661f61a4` / retained product executable SHA-256 `3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b`\
 **Previous main:** `e18ba8d6274cf227cc9e5ae1b5684f28ed911a99` / tree `3826f39bafd751596436958da355ca87e5b98c87`\
 **Reused previous-main binary:** built from `19944268d97ecd92f2dcd820d6e151107833795b` / tree `e4d305254f64b92d1c374413bda12567874d7c14` / executable SHA-256 `13f61e7655a7b37ea51c282335b7540b48e92dc5980af0877be2e968eb571d9a`. Its only source-tree difference from previous main is the performance PR template; runtime source is equivalent.\
-**Tested candidate runtime:** `b14bfb745870faae500a1ecb0ff49d2143ba8bd1` / tree `3a79dd692d9e7f1089fa0b138d07fc4269fbd704` / `xemu.exe` SHA-256 `d6c0762fd672932667537b7152bf4068a7c313d2980d4b545e020e852064bc9d`
+**Historical tested runtime:** `b14bfb745870faae500a1ecb0ff49d2143ba8bd1` / tree `3a79dd692d9e7f1089fa0b138d07fc4269fbd704` / `xemu.exe` SHA-256 `d6c0762fd672932667537b7152bf4068a7c313d2980d4b545e020e852064bc9d`
 
-**Build and test manifest:** [Pinned identities, protocols, and metadata gaps](https://github.com/Mainkill1/xemu-perf-tests/blob/303c381f6e7891101996f95f7e2c009b3abc559b/docs/evidence/pr70-spirv-prewarm-20260910/full-qualification/manifest.json). The later documentation update changes this report and its evidence index only; all runtime results qualify `b14bfb74`.
+**Current repair source:** `01028d6db68c454e502f89b93383797e7a367553`, including lifecycle fix `ee00a1d21c`. All gameplay and performance tables below describe the older `b14bfb74` executable. They do not qualify the repaired head.
+
+**Evidence:** [Dedicated PR70 evidence PR](https://github.com/Mainkill1/xemu-perf-tests/pull/25) and [historical run manifest](https://github.com/Mainkill1/xemu-perf-tests/blob/e669ec45b41722cab93d5e7fd061c2012d84993d/docs/evidence/pr70-spirv-prewarm-20260910/full-qualification/manifest.json).
+
+## Review repairs and current gates
+
+| Review item | Current disposition | Remaining validation |
+| --- | --- | --- |
+| Partial uniform cleanup | One guarded cleanup routine handles missing metadata and partial names | Native failed-construction/recovery path |
+| Successful destruction / #69 | Same routine now frees names, metadata, and backing storage for uniforms and push constants | Native module-cache eviction and renderer recreation |
+| Structural cache tests | Valid enclosing checksums; positive control and transactional rejection; coverage reaches deeper guards | Native cache fallback and lifecycle matrix |
+| Focused host checks | Six ownership cases and 13 cache test groups pass under ASan/UBSan/LSan; repeated cleanup included | Exact Windows build and gameplay retest |
+| Evidence isolation | PR70 evidence copied byte-identically into its own branch/PR; source history retained | Keep all subsequent PR70 results on that branch |
+| Performance | Prior full-start tail movements remain unresolved | Paired repetitions with glslang, reflection, module creation, and pipeline creation timed separately |
+
+These tests exercise the production cleanup helper and cache implementation. They are not full-emulator allocation-failure injection, Windows/GPU qualification, or a measured lifecycle performance improvement. Issue #69 remains open until the broader lifecycle gate is satisfied.
 
 ---
 
 ## Summary
 
-**Current result:** The exact `b14bfb74` Windows executable passed the focused native admission, 157-record XISO runs on OpenGL and Vulkan cold/warm with the documented inherited non-pass cases, and candidate gameplay admission for PGR2 and Morrowind. Every accepted warm Vulkan cell loaded its cold cache, reported zero misses/rejections/fallbacks, queued no new bytes, and left the cache file byte-identical within that profile. A completed exploratory 120-second user-driven PGR2 race expanded the cold cache to 221 records and then served 484 warm hits with zero misses.
+**Historical result:** The exact `b14bfb74` Windows executable passed the focused native admission, 157-record XISO runs on OpenGL and Vulkan cold/warm with the documented inherited non-pass cases, and candidate gameplay admission for PGR2 and Morrowind. Every accepted warm Vulkan cell loaded its cold cache, reported zero misses/rejections/fallbacks, queued no new bytes, and left the cache file byte-identical within that profile. A completed exploratory 120-second user-driven PGR2 race expanded the cold cache to 221 records and then served 484 warm hits with zero misses.
 
 Performance qualification is still **on HOLD**. Across two automated PGR2 full-start Vulkan captures, candidate warm p95, p99, and maximum intervals regressed **-5.833%**, **-14.241%**, and **-18.744%** against the mean of two previous-main controls. Cold p95, p99, and maximum also regressed **-2.432%**, **-11.432%**, and **-17.136%**. These fixed-route captures are variable and do not establish cache causality, but they exceed the >2% hold threshold and cannot be discarded.
 
 **Headline:** The persistent cache demonstrably converts known-source warm launches to in-memory SPIR-V hits: automated PGR2 full start reported `338/0` and `341/0` hits/misses in two runs, the broader manual race `484/0`, PGR2 snapshot `141/0`, Morrowind snapshot `49/0`, and full XISO `71/0`. This proves reuse; it does not yet prove an end-to-end performance improvement or eliminate other stall sources.
 
-**Next:** Reproduce or attribute the controlled PGR2 full-start tail regression and finish the pending native UI lifecycle/failure and complete resource gates. No matching 60-second Morrowind control exists in the retained evidence; the available 20-second controls remain historical context, and a same-duration comparison remains pending. The completed manual race is exploratory broader-route shader coverage: user driving is less repeatable, and one previous-main → cold → warm sequence cannot clear the controlled HOLD or prove coverage of the whole map.
+**Next:** Build and test the repaired head, then reproduce or attribute the controlled PGR2 full-start tail regression and finish the pending native UI lifecycle/failure and complete resource gates. No matching 60-second Morrowind control exists in the retained evidence; the available 20-second controls remain historical context, and a same-duration comparison remains pending. The completed manual race is exploratory broader-route shader coverage: user driving is less repeatable, and one previous-main → cold → warm sequence cannot clear the controlled HOLD or prove coverage of the whole map.
 
 ---
 
@@ -32,7 +47,7 @@ Performance qualification is still **on HOLD**. Across two automated PGR2 full-s
 
 The completed PR #68 diagnostic recorded 141 Vulkan stage-module misses and 463.419 ms of glslang work during one PGR2 snapshot run. The primary hitch at guest frame 673 contained two vertex and two fragment misses. All four were first-seen generated sources in that process and consumed 18.217 ms in glslang.
 
-Twenty other misses regenerated stage/source identities already seen under a different state key, costing another 68.200 ms. State-key normalization is separate follow-up work; it cannot remove the four first-seen compilations in the primary hitch.
+Twenty other misses regenerated stage/source identities already seen under a different state key, costing another 68.200 ms in the PR68 diagnostic. PR70 cold admission recorded 121 misses and 20 hits, consistent with avoiding those same-process duplicate-source compilations. Warm admission recorded zero misses and 140 hits. Thus the artifact store provides both same-process deduplication and cross-run reuse. The 68.200 ms is a historical attribution, not a directly measured PR70 saving; the 140/141 lookup difference also means the runs are not identical event streams.
 
 ## Patch Hypothesis
 
@@ -58,7 +73,7 @@ Eligible Vulkan renderer initialization reads and validates the bounded cache on
 
 | Area | Current | Candidate | Expected Effect |
 | --- | --- | --- | --- |
-| Draw-path compilation | glslang on every process-first source | In-memory lookup on a valid warm hit | Remove measured compiler stall |
+| Draw-path compilation | glslang on every process-first source | In-memory lookup on a previously compiled exact source, within or across runs | Remove measured compiler stall |
 | File I/O | None | Initialization read and shutdown write | No module-miss/gameplay-path file I/O |
 | GPU work | Create a Vulkan module from fresh SPIR-V | Create a Vulkan module from accepted cached or fresh SPIR-V through one path | Equivalent device-local construction |
 | Memory/disk | In-process modules only | Bounded renderer-local artifact index and one bounded file | Controlled persistence cost |
