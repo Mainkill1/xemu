@@ -26,9 +26,12 @@
 #include "qemu/osdep.h"
 #include "hw/xbox/nv2a/pgraph/s3tc.h"
 #include "hw/xbox/nv2a/pgraph/swizzle.h"
+#include "qemu/error-report.h"
 #include "qemu/fast-hash.h"
 #include "qemu/lru.h"
 #include "bc-layout.h"
+#include "failpoint.h"
+#include "failure-state.h"
 #include "renderer.h"
 
 static void texture_cache_release_node_resources(PGRAPHVkState *r, TextureBinding *snode);
@@ -70,6 +73,28 @@ typedef struct TextureLayer {
 typedef struct TextureLayout {
     TextureLayer layers[6];
 } TextureLayout;
+
+static void texture_layout_free(TextureLayout *layout)
+{
+    if (!layout) {
+        return;
+    }
+
+    for (size_t layer_idx = 0; layer_idx < ARRAY_SIZE(layout->layers);
+         layer_idx++) {
+        for (size_t level_idx = 0;
+             level_idx < ARRAY_SIZE(layout->layers[layer_idx].levels);
+             level_idx++) {
+            TextureLevel *level = &layout->layers[layer_idx].levels[level_idx];
+
+            pgraph_vk_owned_payload_cleanup(
+                level->owns_data, &level->decoded_data, g_free);
+        }
+    }
+    g_free(layout);
+}
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(TextureLayout, texture_layout_free)
 
 // FIXME: Move to common
 static enum S3TC_DECOMPRESS_FORMAT kelvin_format_to_s3tc_format(int color_format)
@@ -597,7 +622,7 @@ static bool check_texture_possibly_dirty(NV2AState *d,
 
 // FIXME: Make sure we update sampler when data matches. Should we add filtering
 // options to the textureshape?
-static void upload_texture_image(PGRAPHState *pg, int texture_idx,
+static bool upload_texture_image(PGRAPHState *pg, int texture_idx,
                                  TextureBinding *binding)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -612,7 +637,7 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
     bool is_bc = kelvin_format_to_native_bc_index(state->color_format) >= 0;
     int64_t bc_prepare_start_us =
         is_bc && r->perf.enabled ? g_get_monotonic_time() : 0;
-    g_autofree TextureLayout *layout =
+    g_autoptr(TextureLayout) layout =
         get_texture_layout(pg, texture_idx, native_bc);
     const int num_layers = state->cubemap ? 6 : 1;
 
@@ -645,6 +670,7 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
                                           texture_data_size,
                                           staging_alignment));
 
+    VkDeviceSize old_staging_offset = staging_buffer->buffer_offset;
     VkDeviceSize staging_offset =
         ROUND_UP(staging_buffer->buffer_offset, staging_alignment);
     assert(staging_buffer->mapped);
@@ -686,8 +712,16 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
     assert(staging_offset + buffer_offset <= staging_buffer->buffer_size);
     staging_buffer->buffer_offset = staging_offset + buffer_offset;
 
-    vmaFlushAllocation(r->allocator, staging_buffer->allocation,
-                       staging_offset, texture_data_size);
+    VkResult flush_result = pgraph_vk_failpoint_should_fail(
+                                PGRAPH_VK_FAILPOINT_TEXTURE_STAGING_FLUSH) ?
+        VK_ERROR_MEMORY_MAP_FAILED :
+        vmaFlushAllocation(r->allocator, staging_buffer->allocation,
+                           staging_offset, texture_data_size);
+    if (flush_result != VK_SUCCESS) {
+        error_report("Vulkan texture staging flush failed: %d", flush_result);
+        staging_buffer->buffer_offset = old_staging_offset;
+        return false;
+    }
 
     if (is_bc) {
         pgraph_vk_perf_record_bc_upload(
@@ -729,18 +763,10 @@ static void upload_texture_image(PGRAPHState *pg, int texture_idx,
     pgraph_vk_end_debug_marker(r, cmd);
     pgraph_vk_end_nondraw_commands(pg, cmd);
 
-    // Release decoded texture data
-    for (int layer_idx = 0; layer_idx < num_layers; layer_idx++) {
-        TextureLayer *layer = &layout->layers[layer_idx];
-        for (int level_idx = 0; level_idx < state->levels; level_idx++) {
-            if (layer->levels[level_idx].owns_data) {
-                g_free(layer->levels[level_idx].decoded_data);
-            }
-        }
-    }
     pgraph_vk_perf_record_cpu_region(
         r, VK_PERF_CPU_TEXTURE_UPLOAD,
         r->perf.enabled ? g_get_monotonic_time() - start_us : 0);
+    return true;
 }
 
 static void copy_zeta_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surface,
@@ -1236,7 +1262,7 @@ static bool is_linear_filter_supported_for_format(PGRAPHVkState *r,
            VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT;
 }
 
-static void create_texture(PGRAPHState *pg, int texture_idx)
+static bool create_texture(PGRAPHState *pg, int texture_idx)
 {
     NV2A_VK_DGROUP_BEGIN("Creating texture %d", texture_idx);
 
@@ -1299,7 +1325,10 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
         }
 
         if (surface_to_texture && surface->upload_pending) {
-            pgraph_vk_upload_surface_data(d, surface, false);
+            if (!pgraph_vk_upload_surface_data(d, surface, false)) {
+                NV2A_VK_DGROUP_END();
+                return false;
+            }
         }
     }
 
@@ -1307,8 +1336,11 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
         // FIXME: Restructure to support rendering surfaces to cubemap faces
 
         // Writeback any surfaces which this texture may index
-        pgraph_vk_download_surfaces_in_range_if_dirty(
-            pg, texture_vram_offset, texture_length);
+        if (!pgraph_vk_download_surfaces_in_range_if_dirty(
+                pg, texture_vram_offset, texture_length)) {
+            NV2A_VK_DGROUP_END();
+            return false;
+        }
     }
 
     if (surface_to_texture && pg->surface_scale_factor > 1) {
@@ -1360,11 +1392,14 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
                 copy_surface_to_texture(pg, surface, snode);
             }
         } else {
-            if (possibly_dirty && content_hash != snode->hash) {
-                upload_texture_image(pg, texture_idx, snode);
-                snode->hash = content_hash;
+            if (possibly_dirty && content_hash != snode->hash &&
+                !pgraph_vk_texture_upload_complete(
+                    upload_texture_image(pg, texture_idx, snode), content_hash,
+                    &snode->hash, &snode->possibly_dirty)) {
+                NV2A_VK_DGROUP_END();
+                return false;
             }
-            if (possibly_dirty) {
+            if (possibly_dirty && content_hash == snode->hash) {
                 /* The current binding was fully hashed and, when changed,
                  * uploaded. Retire its validation hint so unchanged draws do
                  * not hash the same guest payload again. */
@@ -1373,15 +1408,16 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
         }
 
         NV2A_VK_DGROUP_END();
-        return;
+        return true;
     }
 
     NV2A_VK_DPRINTF("Cache miss");
 
     memcpy(&snode->key, &key, sizeof(key));
     snode->current_layout = VK_IMAGE_LAYOUT_UNDEFINED;
-    snode->possibly_dirty = false;
-    snode->hash = content_hash;
+    snode->possibly_dirty = !surface_to_texture;
+    /* Do not treat an allocated image as validated until its first upload. */
+    snode->hash = ~content_hash;
 
     assert(0 < state.dimensionality);
     assert(state.dimensionality < ARRAY_SIZE(dimensionality_to_vk_image_type));
@@ -1566,11 +1602,17 @@ static void create_texture(PGRAPHState *pg, int texture_idx)
     if (surface_to_texture) {
         copy_surface_to_texture(pg, surface, snode);
     } else {
-        upload_texture_image(pg, texture_idx, snode);
+        if (!pgraph_vk_texture_upload_complete(
+                upload_texture_image(pg, texture_idx, snode), content_hash,
+                &snode->hash, &snode->possibly_dirty)) {
+            NV2A_VK_DGROUP_END();
+            return false;
+        }
         snode->draw_time = 0;
     }
 
     NV2A_VK_DGROUP_END();
+    return true;
 }
 
 static bool check_textures_dirty(PGRAPHState *pg)
@@ -1622,7 +1664,7 @@ static void update_timestamps(PGRAPHVkState *r)
     }
 }
 
-void pgraph_vk_bind_textures(NV2AState *d)
+bool pgraph_vk_bind_textures(NV2AState *d)
 {
     NV2A_VK_DGROUP_BEGIN("%s", __func__);
 
@@ -1642,18 +1684,25 @@ void pgraph_vk_bind_textures(NV2AState *d)
         pgraph_vk_perf_record_cpu_region(
             r, VK_PERF_CPU_BIND_TEXTURES,
             r->perf.enabled ? g_get_monotonic_time() - start_us : 0);
-        return;
+        return true;
     }
 
+    bool succeeded = true;
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
         if (!pgraph_is_texture_enabled(pg, i)) {
             r->texture_bindings[i] = &r->dummy_texture;
             continue;
         }
 
-        create_texture(pg, i);
-
-        pg->texture_dirty[i] = false; // FIXME: Move to renderer?
+        if (create_texture(pg, i)) {
+            pg->texture_dirty[i] = false; // FIXME: Move to renderer?
+        } else {
+            /* A partial staging operation must never reach the draw. Keep the
+             * guest state dirty so the next draw retries preparation. */
+            r->texture_bindings[i] = &r->dummy_texture;
+            pg->texture_dirty[i] = true;
+            succeeded = false;
+        }
     }
 
     r->texture_bindings_changed = true;
@@ -1662,6 +1711,7 @@ void pgraph_vk_bind_textures(NV2AState *d)
         r, VK_PERF_CPU_BIND_TEXTURES,
         r->perf.enabled ? g_get_monotonic_time() - start_us : 0);
     NV2A_VK_DGROUP_END();
+    return succeeded;
 }
 
 static void texture_cache_entry_init(Lru *lru, LruNode *node, const void *state)

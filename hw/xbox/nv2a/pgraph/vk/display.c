@@ -17,6 +17,8 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "qemu/osdep.h"
+#include "qemu/error-report.h"
 #include "renderer.h"
 #include <math.h>
 
@@ -916,7 +918,10 @@ static void render_display(PGRAPHState *pg, SurfaceBinding *surface,
         pgraph_vk_finish(pg, VK_FINISH_REASON_PRESENTING);
     }
 
-    pgraph_vk_upload_surface_data(d, surface, !tcg_enabled());
+    if (!pgraph_vk_upload_surface_data(d, surface, !tcg_enabled())) {
+        error_report("Vulkan display surface upload failed");
+        abort();
+    }
 
     disp->pvideo.state = get_pvideo_state(pg);
     if (disp->pvideo.state.enabled) {

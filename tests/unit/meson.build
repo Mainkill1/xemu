@@ -25,6 +25,13 @@ tests = {
   'test-xbox-pgraph-uniform-source': [],
   'test-xbox-vk-blend-constants': [],
   'test-xbox-vk-bc-layout': [],
+  'test-xbox-vk-failure-state': [],
+  'test-xbox-vk-failpoint': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/failpoint.c',
+    declare_dependency(
+      compile_args: ['-DXEMU_VK_DIAGNOSTIC_FAILURES'],
+    ),
+  ],
   'test-xbox-vk-pipeline-lifetime': [],
   'test-xbox-nv2a-ptimer': [
     'ptimer-test-stubs.c',
