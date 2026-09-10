@@ -41,6 +41,7 @@ regression remains a failure.
 | Full XISO | Complete catalog and output oracle on Vulkan and OpenGL |
 | PGR2 full start | Vulkan and OpenGL |
 | PGR2 snapshot | Vulkan and OpenGL, including the eight-pipeline burst |
+| Morrowind full start | Vulkan and OpenGL with verified gameplay progression |
 | Morrowind snapshot | Vulkan and OpenGL with verified Start/B, image transition, and guest progress |
 | Performance | Average, p95, p99, maximum, and stalls |
 | Resources | CPU, GPU, memory/cache growth, lifecycle, and process/private-disk cleanup |
