@@ -530,13 +530,14 @@ static void upload_gl_texture(GLenum gl_target,
                     // FIXME: Consider preserving the border.
                     // There does not seem to be a way to reference the border
                     // texels in a cubemap, so they are discarded.
-                    glPixelStorei(GL_UNPACK_SKIP_PIXELS, 4);
-                    glPixelStorei(GL_UNPACK_SKIP_ROWS, 4);
-                    tex_width = s.width;
-                    tex_height = s.height;
-                    if (physical_width == width) {
-                        glPixelStorei(GL_UNPACK_ROW_LENGTH, adjusted_width);
-                    }
+                    PGRAPHTextureMipCrop crop =
+                        pgraph_bordered_texture_mip_crop(
+                            s.width, s.height, width, height, level);
+                    glPixelStorei(GL_UNPACK_SKIP_PIXELS, crop.skip_pixels);
+                    glPixelStorei(GL_UNPACK_SKIP_ROWS, crop.skip_rows);
+                    glPixelStorei(GL_UNPACK_ROW_LENGTH, width);
+                    tex_width = crop.width;
+                    tex_height = crop.height;
                 }
 
                 glTexImage2D(gl_target, level, GL_RGBA, tex_width, tex_height, 0,
@@ -545,9 +546,7 @@ static void upload_gl_texture(GLenum gl_target,
                 if (s.cubemap && adjusted_width != s.width) {
                     glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
                     glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
-                    if (physical_width == width) {
-                        glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-                    }
+                    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
                 }
                 texture_data +=
                     physical_width / 4 * physical_height / 4 * block_size;
@@ -714,34 +713,10 @@ static TextureBinding* generate_texture(const TextureShape s,
                    s.width, s.height, s.depth);
 
     if (gl_target == GL_TEXTURE_CUBE_MAP) {
-        unsigned int block_size;
-        if (f.gl_internal_format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) {
-            block_size = 8;
-        } else {
-            block_size = 16;
-        }
-
-        size_t length = 0;
-        unsigned int w = s.width;
-        unsigned int h = s.height;
-        if (!f.linear && s.border) {
-            w = MAX(16, w * 2);
-            h = MAX(16, h * 2);
-        }
-
-        int level;
-        for (level = 0; level < s.levels; level++) {
-            if (f.gl_format == 0) {
-                length += w/4 * h/4 * block_size;
-            } else {
-                length += w * h * f.bytes_per_pixel;
-            }
-
-            w /= 2;
-            h /= 2;
-        }
-
-        length = (length + NV2A_CUBEMAP_FACE_ALIGNMENT - 1) & ~(NV2A_CUBEMAP_FACE_ALIGNMENT - 1);
+        size_t length;
+        bool valid = pgraph_calculate_texture_cubemap_face_stride(
+            &s, f.gl_format == 0, f.bytes_per_pixel, &length);
+        assert(valid);
 
         upload_gl_texture(GL_TEXTURE_CUBE_MAP_POSITIVE_X,
                           s, texture_data + 0 * length, palette_data);

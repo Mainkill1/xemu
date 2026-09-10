@@ -29,28 +29,9 @@
 #include <stdint.h>
 
 #include "hw/xbox/nv2a/nv2a_regs.h"
+#include "hw/xbox/nv2a/pgraph/texture-layout.h"
 
 typedef struct PGRAPHState PGRAPHState;
-
-typedef struct TextureShape {
-    bool cubemap;
-    unsigned int dimensionality;
-    unsigned int color_format;
-    unsigned int levels;
-    unsigned int width, height, depth;
-    bool border;
-
-    unsigned int min_mipmap_level, max_mipmap_level;
-    unsigned int pitch;
-} TextureShape;
-
-typedef struct BasicColorFormatInfo {
-    unsigned int bytes_per_pixel;
-    bool linear;
-    bool depth;
-} BasicColorFormatInfo;
-
-extern const BasicColorFormatInfo kelvin_color_format_info_map[66];
 
 uint8_t *pgraph_convert_texture_data(const TextureShape s, const uint8_t *data,
                                      const uint8_t *palette_data,

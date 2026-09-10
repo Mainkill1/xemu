@@ -243,34 +243,11 @@ static size_t get_cubemap_layer_size(PGRAPHState *pg, TextureShape s)
     BasicColorFormatInfo f = kelvin_color_format_info_map[s.color_format];
     bool is_compressed =
         pgraph_is_texture_format_compressed(pg, s.color_format);
-    unsigned int block_size;
+    size_t length;
 
-    unsigned int w, h;
-    size_t length = 0;
-
-    get_texture_storage_extent(s, &w, &h, NULL);
-
-    if (is_compressed) {
-        block_size =
-            s.color_format == NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT1_A1R5G5B5 ?
-                8 :
-                16;
-    }
-
-    for (int level = 0; level < s.levels; level++) {
-        w = MAX(w, 1);
-        h = MAX(h, 1);
-        if (is_compressed) {
-            length += pgraph_vk_bc_mip_size(w, h, block_size);
-        } else {
-            length += w * h * f.bytes_per_pixel;
-        }
-
-        w /= 2;
-        h /= 2;
-    }
-
-    return ROUND_UP(length, NV2A_CUBEMAP_FACE_ALIGNMENT);
+    assert(pgraph_calculate_texture_cubemap_face_stride(
+        &s, is_compressed, f.bytes_per_pixel, &length));
+    return length;
 }
 
 // FIXME: Move to common
