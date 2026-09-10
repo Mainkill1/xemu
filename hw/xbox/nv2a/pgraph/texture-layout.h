@@ -34,6 +34,14 @@ typedef struct PGRAPHTextureMipCrop {
     unsigned int skip_rows;
 } PGRAPHTextureMipCrop;
 
+typedef struct PGRAPHTextureCubemapSpan {
+    size_t storage_face_stride;
+    size_t sampled_face_stride;
+    size_t storage_span;
+    size_t sampled_span;
+    size_t extra_span;
+} PGRAPHTextureCubemapSpan;
+
 static inline PGRAPHTextureMipCrop pgraph_bordered_texture_mip_crop(
     unsigned int base_width, unsigned int base_height,
     unsigned int stored_width, unsigned int stored_height,
@@ -143,6 +151,41 @@ static inline bool pgraph_calculate_texture_cubemap_face_stride(
         return false;
     }
     *stride = total;
+    return true;
+}
+
+/* Report the aligned declared-storage and sampled-level cubemap spans. */
+static inline bool pgraph_calculate_texture_cubemap_span(
+    const TextureShape *shape, bool compressed, unsigned int bytes_per_pixel,
+    PGRAPHTextureCubemapSpan *span)
+{
+    TextureShape sampled_shape;
+    size_t storage_face_stride;
+    size_t sampled_face_stride;
+
+    if (!shape || !span ||
+        !pgraph_calculate_texture_cubemap_face_stride(
+            shape, compressed, bytes_per_pixel, &storage_face_stride)) {
+        return false;
+    }
+
+    sampled_shape = *shape;
+    sampled_shape.storage_levels = sampled_shape.levels;
+    if (!pgraph_calculate_texture_cubemap_face_stride(
+            &sampled_shape, compressed, bytes_per_pixel,
+            &sampled_face_stride) || sampled_face_stride > storage_face_stride) {
+        return false;
+    }
+
+    assert(storage_face_stride <= SIZE_MAX / 6);
+    assert(sampled_face_stride <= SIZE_MAX / 6);
+    *span = (PGRAPHTextureCubemapSpan) {
+        .storage_face_stride = storage_face_stride,
+        .sampled_face_stride = sampled_face_stride,
+        .storage_span = storage_face_stride * 6,
+        .sampled_span = sampled_face_stride * 6,
+        .extra_span = storage_face_stride * 6 - sampled_face_stride * 6,
+    };
     return true;
 }
 
