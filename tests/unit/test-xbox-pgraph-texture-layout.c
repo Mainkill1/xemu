@@ -149,6 +149,41 @@ static void test_face_stride_uses_declared_storage_levels(void)
     g_assert_cmpuint(stride, ==, 2 * NV2A_CUBEMAP_FACE_ALIGNMENT);
 }
 
+static void test_cubemap_span_info_separates_sampled_levels(void)
+{
+    TextureShape shape = {
+        .cubemap = true,
+        .dimensionality = 2,
+        .color_format = NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT1_A1R5G5B5,
+        .levels = 1,
+        .storage_levels = 4,
+        .width = 8,
+        .height = 8,
+        .border = true,
+    };
+    PGRAPHTextureCubemapSpan span = { 0 };
+
+    g_assert_true(pgraph_calculate_texture_cubemap_span(
+        &shape, true, 4, &span));
+    g_assert_cmpuint(span.storage_face_stride, ==,
+                     2 * NV2A_CUBEMAP_FACE_ALIGNMENT);
+    g_assert_cmpuint(span.sampled_face_stride, ==,
+                     NV2A_CUBEMAP_FACE_ALIGNMENT);
+    g_assert_cmpuint(span.storage_span, ==,
+                     12 * NV2A_CUBEMAP_FACE_ALIGNMENT);
+    g_assert_cmpuint(span.sampled_span, ==,
+                     6 * NV2A_CUBEMAP_FACE_ALIGNMENT);
+    g_assert_cmpuint(span.extra_span, ==,
+                     6 * NV2A_CUBEMAP_FACE_ALIGNMENT);
+
+    shape.levels = shape.storage_levels;
+    g_assert_true(pgraph_calculate_texture_cubemap_span(
+        &shape, true, 4, &span));
+    g_assert_cmpuint(span.storage_face_stride, ==, span.sampled_face_stride);
+    g_assert_cmpuint(span.storage_span, ==, span.sampled_span);
+    g_assert_cmpuint(span.extra_span, ==, 0);
+}
+
 static void test_face_stride_rejects_invalid_shapes(void)
 {
     TextureShape shape = {
@@ -197,6 +232,8 @@ int main(int argc, char **argv)
                     test_other_cubemap_formats);
     g_test_add_func("/xbox/nv2a/texture-layout/storage-level-stride",
                     test_face_stride_uses_declared_storage_levels);
+    g_test_add_func("/xbox/nv2a/texture-layout/cubemap-span-info",
+                    test_cubemap_span_info_separates_sampled_levels);
     g_test_add_func("/xbox/nv2a/texture-layout/invalid-shapes",
                     test_face_stride_rejects_invalid_shapes);
     return g_test_run();
