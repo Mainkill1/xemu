@@ -18,6 +18,8 @@
  */
 
 #include "hw/xbox/nv2a/nv2a_int.h"
+#include "qemu/error-report.h"
+#include "failpoint.h"
 #include "renderer.h"
 
 #include "gloffscreen.h"
@@ -38,6 +40,7 @@ static void pgraph_vk_init(NV2AState *d, Error **errp)
     PGRAPHState *pg = &d->pgraph;
 
     pg->vk_renderer_state = (PGRAPHVkState *)g_malloc0(sizeof(PGRAPHVkState));
+    pgraph_vk_failpoint_init();
 
 #if HAVE_EXTERNAL_MEMORY
     glo_set_current(g_gl_context);
@@ -82,6 +85,7 @@ static void pgraph_vk_finalize(NV2AState *d)
     pgraph_vk_finalize_command_buffers(pg);
     pgraph_vk_perf_finalize(pg->vk_renderer_state);
     pgraph_vk_finalize_instance(pg);
+    pgraph_vk_failpoint_report();
 
     g_free(pg->vk_renderer_state);
     pg->vk_renderer_state = NULL;
@@ -203,7 +207,10 @@ static int pgraph_vk_get_framebuffer_surface(NV2AState *d)
     return r->display.gl_texture_id;
 #else
     qemu_mutex_unlock(&d->pfifo.lock);
-    pgraph_vk_wait_for_surface_download(surface);
+    if (!pgraph_vk_wait_for_surface_download(surface)) {
+        error_report("Vulkan framebuffer readback failed");
+        abort();
+    }
     return 0;
 #endif
 }

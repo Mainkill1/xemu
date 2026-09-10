@@ -23,6 +23,8 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "qemu/osdep.h"
+#include "qemu/error-report.h"
 #include "renderer.h"
 
 VkDeviceSize pgraph_vk_update_index_buffer(PGRAPHState *pg, void *data,
@@ -45,6 +47,7 @@ VkDeviceSize pgraph_vk_update_vertex_inline_buffer(PGRAPHState *pg, void **data,
 void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
                                         void *data, VkDeviceSize size)
 {
+    NV2AState *d = container_of(pg, NV2AState, pgraph);
     PGRAPHVkState *r = pg->vk_renderer_state;
     StorageBuffer *vertex = &r->storage_buffers[BUFFER_VERTEX_RAM];
     StorageBuffer *staging =
@@ -56,7 +59,14 @@ void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
     assert(offset <= vertex->buffer_size);
     assert(size <= vertex->buffer_size - offset);
 
-    pgraph_vk_download_surfaces_in_range_if_dirty(pg, offset, size);
+    if (!pgraph_vk_download_surfaces_in_range_if_dirty(pg, offset, size)) {
+        /* draw.c has already retired this range's NV2A dirty bit. Re-arm it
+         * before refusing to consume stale guest memory. */
+        memory_region_set_client_dirty(d->vram, offset, size,
+                                       DIRTY_MEMORY_NV2A);
+        error_report("Vulkan surface readback failed before vertex upload");
+        abort();
+    }
 
     /* With no recorded draws, direct mapped writes cannot race the GPU. This
      * also keeps the full-VRAM initialization and reset paths out of bounded
