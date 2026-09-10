@@ -54,6 +54,8 @@ PR #68 measured a repeatable PGR2 Vulkan hitch. At the primary frame, four
 first-seen stage sources spent 18.217 ms in glslang inside 43.738 ms of pipeline
 preparation. Across the diagnostic run, 121 first-seen stage/source identities
 and 20 different-key/same-source repeats consumed 463.419 ms of glslang time.
+The 43.738 ms value is aggregate pipeline preparation across 4,808 calls. It is
+not a direct measurement of `vkCreateGraphicsPipelines()` or driver compilation.
 
 | Measured work | Observed result | Design implication |
 | --- | ---: | --- |
@@ -148,17 +150,28 @@ time moves into a packed, versioned control block.
 | Textures | Enabled stage, coordinates, scale, border metadata, shadow compare mode, bump constants | 2D, 3D, cube, and unsigned depth sampling need compatible statically declared image types; unsupported signatures stay specialized |
 | Fixed pipeline | Blend constants, stencil reference/masks, viewport, scissor, line width, and every supported dynamically enabled state | Render-pass/attachment compatibility and any state not made dynamic remain in the fallback-pipeline family key |
 
-After PR #70 is merged, the first feasibility prototype should admit only
-signatures for which a ready fallback pipeline was created before gameplay.
+After PR #70 is merged, the first runtime prototype should admit only signatures
+for which a ready fallback pipeline was created before gameplay.
 Expanding coverage is a later, measured step. A state outside the admitted set
 follows the current synchronous specialization path, preserving output at the
 cost of the existing stall.
+
+Before runtime selection, start the feasibility oracle with the fragment
+combiner. Embed a runtime combiner interpreter in the current generated texture,
+clipping, depth, and alpha-test shell and keep ready specialized vertex and
+geometry stages. This gives a bounded semantic oracle before attempting a
+complete vertex/geometry/fragment fallback. It remains a partially specialized
+experiment and cannot remove a cold draw dependency until every shell-changing
+field has an admitted precreated family.
 
 ### Stable fallback data and descriptor ownership
 
 Define a renderer-owned `FallbackDrawState` with an explicit schema version.
 Pack it from the same decoded NV2A semantics used by the specialized generator;
 do not maintain an unrelated interpretation of the raw registers.
+Do not upload raw C state structures: booleans, enums, padding, and host layout
+are not a stable shader ABI. Define explicit-width fields, offsets, bounds, and
+endianness, then validate the C and shader layouts against the same schema.
 
 The control record includes:
 
@@ -191,22 +204,37 @@ control slices, and sampled images remain alive through GPU completion.
 
 ### Miss, worker, and publication flow
 
-When lookup finds no ready specialized binding or pipeline:
+The miss decision requires a read-only, non-creating exact-key probe. The
+current `lru_try_lookup()` is not that probe: on a miss it may allocate or evict
+a node and invoke initialization. A readiness check must not compile, allocate,
+evict, change recency, or publish a partial entry.
+
+When that probe finds no ready specialized binding or pipeline:
 
 1. Snapshot the complete specialization key, generator/compiler options,
-   effective pipeline key, and renderer generation into an immutable job.
+   effective pipeline key, and renderer generation into an immutable job. The
+   job deep-owns all pointed-to arrays and create-info data and does not read
+   mutable `PGRAPHState`, live uniforms, cache nodes, or `g_config`.
 2. Check the fallback coverage predicate. It must prove that an already-created
    fallback module/pipeline family supports the shader interfaces, samplers,
    vertex input, render targets, and fixed state for this draw.
 3. If covered, upload one immutable fallback control record and issue the draw
-   through that fallback. Enqueue specialization without waiting.
+   through that fallback. Enqueue specialization without waiting. If the
+   bounded queue is full, keep using the ready fallback and defer another
+   enqueue attempt; queue pressure must not force synchronous compilation for
+   an otherwise covered draw.
 4. If uncovered, use the current synchronous path. Never call an uncovered
    fallback and never skip the draw.
 5. A bounded worker pool generates/loads SPIR-V and creates the specialized
-   Vulkan objects. It publishes only a complete successful result.
+   Vulkan objects. It publishes only a complete successful result carrying the
+   full key, renderer generation, and a unique request ticket.
 6. The PGRAPH thread drains completed jobs at a draw boundary, checks renderer
-   generation and exact key identity, and inserts the result into the existing
-   cache. The next matching draw uses the specialization.
+   generation, request ticket, and exact key identity, then adopts the result
+   through a path that cannot invoke the cache's synchronous miss initializer.
+   Publication advances a shader-selection epoch and invalidates the affected
+   descriptor, uniform, pipeline-layout, and pipeline binding state so the next
+   matching draw actually selects the specialization even when no guest
+   register changed.
 
 Do not expose the current mutable `ShaderModuleInfo` to workers. Separate an
 immutable compiled artifact from renderer-owned uniform storage and cache
@@ -215,9 +243,12 @@ using one worker-local cache per compiler and merging at a controlled point is
 another valid prototype. Shutdown stops intake, joins workers, destroys
 unpublished device objects, and then tears down published cache entries.
 
-Recorded fallback commands retain their pipeline, modules, descriptor set,
-buffers, images, and samplers until the submission fence retires. Publishing a
-specialized result never mutates a command already recorded with a fallback.
+Recorded fallback commands retain their pipeline, descriptor set, buffers,
+images, and samplers until the submission fence retires. A shader module needs
+to survive outstanding pipeline creation and any chosen cache-retention policy,
+but Vulkan permits destroying it after successful pipeline creation even while
+that pipeline is in use. Publishing a specialized result never mutates a
+command already recorded with a fallback.
 
 ### Pipeline strategy by capability
 
@@ -228,6 +259,13 @@ specialized result never mutates a command already recorded with a fallback.
 | Extended dynamic state and dynamic vertex input | Reduce fallback pipeline permutations by moving supported raster, depth/stencil, blend, topology, and vertex-input state to commands | Set every required dynamic state before each admitted draw and after command-buffer resets |
 | Graphics pipeline library | Prebuild reusable vertex-input, pre-raster, fragment-shader, and fragment-output portions; fast-link only when the device property supports the intended latency | Measure link time and GPU cost; retain monolithic fallback |
 | Shader objects plus dynamic rendering | Long-term pipeline-free binding experiment for capable hosts | This is a backend restructuring, not the first prototype; current render-pass and state management must be qualified separately |
+
+Before implementing a capability tier, reconcile the accepted device contract
+with compiler output. The reviewed source accepts Vulkan 1.1 devices while its
+glslang wrapper targets Vulkan 1.3 and SPIR-V 1.6. The implementation must
+either prove that every supported device accepts the emitted environment or
+negotiate compatible targets and features; an ubershader cannot assume a newer
+target solely because the build compiler supports it.
 
 Vulkan's pipeline cache reduces repeated driver work but does not guarantee a
 nonblocking creation. Pipeline-creation cache control can return
@@ -296,8 +334,8 @@ the current design branch.
 | Stage | Intended scope | Exit condition |
 | --- | --- | --- |
 | 0. PR #70 dependency | Qualify and merge bounded warm artifact reuse and its renderer lifecycle | PR #70 is accepted in `main`; future work records the exact post-merge base |
-| 1. State corpus and packer | Pure conversion from current decoded shader state into a versioned fallback control record | Stable encoding, bounds tests, and captured-state round trips pass |
-| 2. Oracle-only interpreters | Fixed/programmed vertex interpreter, bounded geometry family, and fragment combiner/texture interpreter in test-only replay | Specialized and fallback images plus depth/stencil/query effects match for admitted corpus |
+| 1. Combiner oracle and packer | Extract the current fragment shell, encode combiner controls with a fixed ABI, and run an interpreter inside the otherwise specialized shell | Independent combiner arithmetic vectors and old-generator differential output pass without changing runtime selection |
+| 2. Family-boundary oracle | Inventory shell-changing texture/clip/depth/alpha state plus fixed/programmed vertex and geometry interfaces in test-only replay | Specialized and fallback images plus depth/stencil/query effects match for an explicitly admitted corpus |
 | 3. Precreated fallback family | Renderer-owned modules, layouts, descriptors, dynamic-state setup, and family coverage predicate behind an off-by-default experiment | No runtime compilation is needed to draw any admitted signature |
 | 4. Background specialization | Immutable jobs, bounded workers, Vulkan object construction, publication, cancellation, and shutdown | Covered misses never wait; uncovered states remain correct and synchronous |
 | 5. Coverage and capability expansion | Typed sampler strategy, dynamic-state path, pipeline libraries, or shader objects, each measured separately | Coverage increases without exceeding resource or performance gates |
@@ -330,6 +368,11 @@ through both specialized and fallback paths. It must compare pixels and the
 depth/stencil/query effects, not only generated source or pipeline creation
 counts. Current unimplemented NV2A behavior is not silently broadened by this
 work; the first fallback admits only currently supported specialization cases.
+Keep the existing specialized generator as an independent reference during the
+first oracle stage. Sharing decoded semantics is useful, but sharing the final
+evaluator would allow one defect to make both outputs agree. Preserve the
+current combiner rule that RGB and alpha results for a stage are computed from
+the same pre-stage inputs before either destination write is committed.
 
 ## Profiling
 
@@ -411,7 +454,8 @@ in-game navigation.
 Caps must be fixed before runtime testing: worker count, queued jobs, control
 ring bytes, fallback descriptors, module/pipeline count, artifact memory, and
 startup preparation time. Saturation must be observable and must fall back to
-the synchronous correct path.
+the ready fallback when the draw is covered. Only an uncovered draw, or one
+without a ready compatible fallback, uses the synchronous correct path.
 
 ## Validation status
 
@@ -419,6 +463,7 @@ the synchronous correct path.
 | --- | --- | --- |
 | PR #70 qualification and merge | Not needed | BLOCKED — must complete before runtime work starts |
 | Targeted state-packer tests | Not needed | Not run — design only |
+| Non-creating lookup and ready-entry adoption | Not needed | Not run — design only |
 | Specialized/fallback differential corpus | Not needed | Not run — design only |
 | Cold, warm, and same-process specialization | Not needed | Not run — design only |
 | Unsupported capability/state fallback | Not needed | Not run — design only |
@@ -447,7 +492,9 @@ p95, p99, maximum, stalls, CPU, GPU, RAM, or VRAM, keeps the candidate on hold.
 | Pipeline permutation explosion | Separate runtime state from compile-time family identity; cap family and refuse uncovered states |
 | Optional extensions fragment support | Capability tiers never alter correctness; unsupported hosts retain current path |
 | Mutable state races | Immutable jobs and control slices, renderer generation checks, render-thread publication |
-| Vulkan lifetime violation | Retain all recorded objects until GPU completion; join workers before device teardown |
+| Published result is not selected | Advance a selection epoch and invalidate descriptor/uniform/layout/pipeline binding state on adoption |
+| Vulkan lifetime violation | Retain draw-referenced objects until GPU completion; retain modules through pipeline creation; join workers before device teardown |
+| Compiler target exceeds admitted device | Negotiate target environment from the supported device contract and validate emitted SPIR-V on every capability tier |
 | Repeated failed compilation | Observable error state with bounded retry/backoff; fallback remains available only when correct |
 | Descriptor limit or type mismatch | Query limits, use type-correct bindings/dummies, and reject an unsupported signature |
 | Cold launch improves while warm launch worsens | Report cold, warm, and same-process results separately from PR #70 |
