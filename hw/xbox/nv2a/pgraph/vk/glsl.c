@@ -19,6 +19,7 @@
 
 #include "ui/xemu-settings.h"
 #include "renderer.h"
+#include "qemu/timer.h"
 
 #include <assert.h>
 #include <glslang/Include/glslang_c_interface.h>
@@ -364,18 +365,51 @@ static glslang_stage_t vk_shader_stage_to_glslang_stage(VkShaderStageFlagBits st
     }
 }
 
-ShaderModuleInfo *pgraph_vk_create_shader_module_from_glsl(
-    PGRAPHVkState *r, VkShaderStageFlagBits stage, const char *glsl)
+static ShaderModuleInfo *create_shader_module_from_glsl(
+    PGRAPHVkState *r, VkShaderStageFlagBits stage, const char *glsl,
+    PGRAPHVkShaderModuleTimings *timings)
 {
     nv2a_profile_log_event_once("shader_compile");
     ShaderModuleInfo *info = g_malloc0(sizeof(*info));
     info->refcnt = 0;
     info->glsl = strdup(glsl);
+
+    int64_t start_us =
+        timings ? qemu_clock_get_us(QEMU_CLOCK_REALTIME) : 0;
     info->spirv = pgraph_vk_compile_glsl_to_spv(
         vk_shader_stage_to_glslang_stage(stage), glsl);
+    if (timings) {
+        int64_t end_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
+        timings->compile_us = end_us - start_us;
+        start_us = end_us;
+    }
     info->module = pgraph_vk_create_shader_module_from_spv(r, info->spirv);
+    if (timings) {
+        int64_t end_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
+        timings->module_create_us = end_us - start_us;
+        start_us = end_us;
+    }
     init_layout_from_spv(info);
+    if (timings) {
+        timings->reflection_us =
+            qemu_clock_get_us(QEMU_CLOCK_REALTIME) - start_us;
+    }
     return info;
+}
+
+ShaderModuleInfo *pgraph_vk_create_shader_module_from_glsl(
+    PGRAPHVkState *r, VkShaderStageFlagBits stage, const char *glsl)
+{
+    return create_shader_module_from_glsl(r, stage, glsl, NULL);
+}
+
+ShaderModuleInfo *pgraph_vk_create_shader_module_from_glsl_timed(
+    PGRAPHVkState *r, VkShaderStageFlagBits stage, const char *glsl,
+    PGRAPHVkShaderModuleTimings *timings)
+{
+    assert(timings);
+    *timings = (PGRAPHVkShaderModuleTimings) { 0 };
+    return create_shader_module_from_glsl(r, stage, glsl, timings);
 }
 
 static void finalize_uniform_layout(ShaderUniformLayout *layout)

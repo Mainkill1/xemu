@@ -20,6 +20,7 @@
 #include "qemu/osdep.h"
 #include "qemu/fast-hash.h"
 #include "qemu/mstring.h"
+#include "qemu/timer.h"
 #include "hw/xbox/nv2a/pgraph/uniform-stage-update.h"
 #include "renderer.h"
 
@@ -392,6 +393,63 @@ static bool shader_cache_entry_compare(Lru *lru, LruNode *node, const void *key)
     return memcmp(&snode->state, key, sizeof(ShaderState));
 }
 
+static bool shader_identity_trace_enabled(void)
+{
+    static gsize initialized;
+    static bool enabled;
+
+    if (g_once_init_enter(&initialized)) {
+        enabled = g_getenv("XEMU_VK_SHADER_IDENTITY_TRACE") != NULL;
+        g_once_init_leave(&initialized, 1);
+    }
+    return enabled;
+}
+
+static const char *shader_source_class_name(PGRAPHVkShaderSourceClass class)
+{
+    switch (class) {
+    case PGRAPH_VK_SHADER_SOURCE_FIRST:
+        return "first";
+    case PGRAPH_VK_SHADER_SOURCE_REPEAT:
+        return "repeat";
+    case PGRAPH_VK_SHADER_SOURCE_SATURATED:
+        return "saturated";
+    }
+    g_assert_not_reached();
+}
+
+static void shader_identity_trace_flush(
+    const PGRAPHVkShaderIdentityTracker *tracker)
+{
+    size_t record_count = 0;
+    const PGRAPHVkShaderIdentityRecord *records =
+        pgraph_vk_shader_identity_records(tracker, &record_count);
+    for (size_t i = 0; i < record_count; i++) {
+        fprintf(stderr,
+                "nv2a/vk: shader-module-miss profile_frame=%u stage=%u "
+                "key=%016" PRIx64
+                " source=%016" PRIx64 " source_class=%s"
+                " generation_us=%" PRId64
+                " compile_us=%" PRId64
+                " module_create_us=%" PRId64
+                " reflection_us=%" PRId64 "\n",
+                records[i].profile_frame, records[i].stage,
+                records[i].key_hash,
+                records[i].source_hash,
+                shader_source_class_name(records[i].source_class),
+                records[i].generation_us, records[i].compile_us,
+                records[i].module_create_us, records[i].reflection_us);
+    }
+    if (records) {
+        fprintf(stderr,
+                "nv2a/vk: shader-identity-summary records=%zu "
+                "records_saturated=%u unique_sources=%zu source_bytes=%zu\n",
+                record_count,
+                pgraph_vk_shader_identity_records_saturated(tracker),
+                tracker->count, tracker->source_bytes);
+    }
+}
+
 static void shader_module_cache_entry_init(Lru *lru, LruNode *node,
                                            const void *key)
 {
@@ -399,6 +457,15 @@ static void shader_module_cache_entry_init(Lru *lru, LruNode *node,
     ShaderModuleCacheEntry *module =
         container_of(node, ShaderModuleCacheEntry, node);
     memcpy(&module->key, key, sizeof(ShaderModuleCacheKey));
+    nv2a_profile_inc_counter(NV2A_PROF_SHADER_MODULE_MISS);
+
+    bool trace = r->shader_identity_tracker.entries != NULL;
+    uint32_t profile_frame = 0;
+    int64_t generation_start_us = 0;
+    if (trace) {
+        profile_frame = g_nv2a_stats.frame_count;
+        generation_start_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
+    }
 
     MString *code;
 
@@ -420,8 +487,40 @@ static void shader_module_cache_entry_init(Lru *lru, LruNode *node,
         code = NULL;
     }
 
-    module->module_info = pgraph_vk_create_shader_module_from_glsl(
-        r, module->key.kind, mstring_get_str(code));
+    const char *glsl = mstring_get_str(code);
+    nv2a_profile_inc_counter(NV2A_PROF_SHADER_COMPILER_INVOCATION);
+    if (trace) {
+        int64_t compile_start_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
+        PGRAPHVkShaderModuleTimings timings;
+        module->module_info = pgraph_vk_create_shader_module_from_glsl_timed(
+            r, module->key.kind, glsl, &timings);
+        int64_t generation_us = compile_start_us - generation_start_us;
+        size_t glsl_size = strlen(glsl);
+        uint64_t source_hash =
+            fast_hash((const uint8_t *)glsl, glsl_size);
+        uint64_t key_hash = fast_hash((const uint8_t *)&module->key,
+                                      sizeof(module->key));
+        PGRAPHVkShaderSourceClass source_class =
+            pgraph_vk_shader_identity_observe(
+                &r->shader_identity_tracker, module->key.kind, glsl,
+                glsl_size, source_hash, key_hash, profile_frame, generation_us,
+                timings.compile_us, timings.module_create_us,
+                timings.reflection_us);
+        switch (source_class) {
+        case PGRAPH_VK_SHADER_SOURCE_FIRST:
+            nv2a_profile_inc_counter(NV2A_PROF_SHADER_SOURCE_FIRST);
+            break;
+        case PGRAPH_VK_SHADER_SOURCE_REPEAT:
+            nv2a_profile_inc_counter(NV2A_PROF_SHADER_SOURCE_REPEAT);
+            break;
+        case PGRAPH_VK_SHADER_SOURCE_SATURATED:
+            nv2a_profile_inc_counter(NV2A_PROF_SHADER_SOURCE_SATURATED);
+            break;
+        }
+    } else {
+        module->module_info = pgraph_vk_create_shader_module_from_glsl(
+            r, module->key.kind, glsl);
+    }
     pgraph_vk_ref_shader_module(module->module_info);
     mstring_unref(code);
 }
@@ -473,6 +572,17 @@ static void shader_cache_init(PGRAPHState *pg)
     r->shader_module_cache.compare_nodes = shader_module_cache_entry_compare;
     r->shader_module_cache.post_node_evict =
         shader_module_cache_entry_post_evict;
+
+    if (shader_identity_trace_enabled() &&
+        !pgraph_vk_shader_identity_tracker_init(
+            &r->shader_identity_tracker,
+            PGRAPH_VK_SHADER_IDENTITY_MAX_ENTRIES,
+            PGRAPH_VK_SHADER_IDENTITY_MAX_RECORDS,
+            PGRAPH_VK_SHADER_IDENTITY_MAX_BYTES)) {
+        fprintf(stderr,
+                "nv2a/vk: shader identity trace unavailable: allocation "
+                "failed\n");
+    }
 }
 
 static void shader_cache_finalize(PGRAPHState *pg)
@@ -486,6 +596,8 @@ static void shader_cache_finalize(PGRAPHState *pg)
     lru_flush(&r->shader_module_cache);
     g_free(r->shader_module_cache_entries);
     r->shader_module_cache_entries = NULL;
+    shader_identity_trace_flush(&r->shader_identity_tracker);
+    pgraph_vk_shader_identity_tracker_destroy(&r->shader_identity_tracker);
 }
 
 static ShaderBinding *get_shader_binding_for_state(PGRAPHVkState *r,

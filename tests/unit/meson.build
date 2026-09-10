@@ -33,6 +33,9 @@ tests = {
     ),
   ],
   'test-xbox-vk-pipeline-lifetime': [],
+  'test-xbox-vk-shader-identity': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/shader-identity.c',
+  ],
   'test-xbox-nv2a-ptimer': [
     'ptimer-test-stubs.c',
     meson.project_source_root() / 'hw/xbox/nv2a/ptimer.c',

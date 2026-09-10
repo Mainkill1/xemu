@@ -42,6 +42,7 @@
 #include "debug.h"
 #include "constants.h"
 #include "glsl.h"
+#include "shader-identity.h"
 
 #define HAVE_EXTERNAL_MEMORY 1
 
@@ -164,6 +165,12 @@ typedef struct ShaderModuleInfo {
     ShaderUniformLayout uniforms;
     ShaderUniformLayout push_constants;
 } ShaderModuleInfo;
+
+typedef struct PGRAPHVkShaderModuleTimings {
+    int64_t compile_us;
+    int64_t module_create_us;
+    int64_t reflection_us;
+} PGRAPHVkShaderModuleTimings;
 
 typedef struct ShaderModuleCacheKey {
     VkShaderStageFlagBits kind;
@@ -528,6 +535,7 @@ typedef struct PGRAPHVkState {
 
     Lru shader_module_cache;
     ShaderModuleCacheEntry *shader_module_cache_entries;
+    PGRAPHVkShaderIdentityTracker shader_identity_tracker;
 
     // FIXME: Merge these into a structure
     size_t uniform_buffer_offsets[2];
@@ -588,6 +596,9 @@ VkShaderModule pgraph_vk_create_shader_module_from_spv(PGRAPHVkState *r,
                                                        GByteArray *spv);
 ShaderModuleInfo *pgraph_vk_create_shader_module_from_glsl(
     PGRAPHVkState *r, VkShaderStageFlagBits stage, const char *glsl);
+ShaderModuleInfo *pgraph_vk_create_shader_module_from_glsl_timed(
+    PGRAPHVkState *r, VkShaderStageFlagBits stage, const char *glsl,
+    PGRAPHVkShaderModuleTimings *timings);
 void pgraph_vk_ref_shader_module(ShaderModuleInfo *info);
 void pgraph_vk_unref_shader_module(PGRAPHVkState *r, ShaderModuleInfo *info);
 void pgraph_vk_destroy_shader_module(PGRAPHVkState *r, ShaderModuleInfo *info);
