@@ -134,6 +134,31 @@ static void store_u32_le(uint8_t *dst, uint32_t value)
     dst[3] = (uint8_t)(value >> 24);
 }
 
+static void store_u64_le(uint8_t *dst, uint64_t value)
+{
+    store_u32_le(dst, (uint32_t)value);
+    store_u32_le(dst + 4, (uint32_t)(value >> 32));
+}
+
+/* Independent file-format checksum, never the loader's private helper. */
+static uint64_t fixture_hash(const uint8_t *data, size_t size)
+{
+    uint64_t value = UINT64_C(0xcbf29ce484222325);
+    for (size_t i = 0; i < size; i++) {
+        value ^= data[i];
+        value *= UINT64_C(0x100000001b3);
+    }
+    return value;
+}
+
+static void refresh_payload_checksum(uint8_t *data, size_t size)
+{
+    assert(size >= PGRAPH_VK_SPIRV_CACHE_HEADER_SIZE);
+    store_u64_le(data + 64,
+                 fixture_hash(data + PGRAPH_VK_SPIRV_CACHE_HEADER_SIZE,
+                              size - PGRAPH_VK_SPIRV_CACHE_HEADER_SIZE));
+}
+
 static void test_corruption_truncation_version_and_bounds_reject(void)
 {
     PGRAPHVkSpirvCacheBlob valid = serialize_vertex_cache();
@@ -163,6 +188,7 @@ static void test_corruption_truncation_version_and_bounds_reject(void)
             store_u32_le(data + PGRAPH_VK_SPIRV_CACHE_HEADER_SIZE +
                                     sizeof(test_flavor) - 1 + 4,
                          PGRAPH_VK_SPIRV_CACHE_MAX_SOURCE_SIZE + 1);
+            refresh_payload_checksum(data, size);
             break;
         case 5:
             store_u32_le(data + 48,
@@ -181,6 +207,96 @@ static void test_corruption_truncation_version_and_bounds_reject(void)
                PGRAPH_VK_SPIRV_CACHE_LOAD_INVALID);
         assert(pgraph_vk_spirv_cache_stats(&cache)->records == 0);
         assert(pgraph_vk_spirv_cache_stats(&cache)->rejections == 1);
+        pgraph_vk_spirv_cache_destroy(&cache);
+        free(data);
+    }
+    free(valid.data);
+}
+
+static void test_structural_rejection_after_valid_outer_checksum(void)
+{
+    enum {
+        RESERVED_FIELD, SPIRV_SIZE_LIMIT, RECORD_HEADER_EXTENT,
+        RECORD_PAYLOAD_EXTENT, SOURCE_TOTAL, SPIRV_TOTAL,
+        SOURCE_CHECKSUM, SPIRV_CHECKSUM, SPIRV_MAGIC, EMPTY_SOURCE,
+        NUM_CASES,
+    };
+    PGRAPHVkSpirvCacheBlob valid = serialize_vertex_cache();
+    PGRAPHVkSpirvCachePolicy policy = test_policy();
+    const size_t record = PGRAPH_VK_SPIRV_CACHE_HEADER_SIZE +
+                          sizeof(test_flavor) - 1;
+    const size_t spv = record + 32 + sizeof(vertex_source) - 1;
+
+    assert(fixture_hash((const uint8_t *)"a", 1) ==
+           UINT64_C(0xaf63dc4c8601ec8c));
+    /* Recomputed checksums must also admit the untouched positive control. */
+    refresh_payload_checksum(valid.data, valid.size);
+    PGRAPHVkSpirvCache control = { 0 };
+    assert(pgraph_vk_spirv_cache_init(&control, &policy));
+    assert(pgraph_vk_spirv_cache_load(&control, valid.data, valid.size) ==
+           PGRAPH_VK_SPIRV_CACHE_LOAD_OK);
+    pgraph_vk_spirv_cache_destroy(&control);
+
+    for (unsigned int variant = 0; variant < NUM_CASES; variant++) {
+        PGRAPHVkSpirvCache cache = { 0 };
+        uint8_t *data = malloc(valid.size);
+        assert(data);
+        memcpy(data, valid.data, valid.size);
+        size_t size = valid.size;
+        switch (variant) {
+        case RESERVED_FIELD:
+            store_u32_le(data + record + 12, 1);
+            break;
+        case SPIRV_SIZE_LIMIT:
+            store_u32_le(data + record + 8,
+                         PGRAPH_VK_SPIRV_CACHE_MAX_SPIRV_SIZE + 4);
+            break;
+        case RECORD_HEADER_EXTENT:
+            size = record + 31;
+            break;
+        case RECORD_PAYLOAD_EXTENT:
+            size--;
+            break;
+        case SOURCE_TOTAL:
+            store_u64_le(data + 48, sizeof(vertex_source) - 2);
+            break;
+        case SPIRV_TOTAL:
+            store_u64_le(data + 56, sizeof(test_spirv) - 4);
+            break;
+        case SOURCE_CHECKSUM:
+            data[record + 16] ^= 1;
+            break;
+        case SPIRV_CHECKSUM:
+            data[record + 24] ^= 1;
+            break;
+        case SPIRV_MAGIC:
+            store_u32_le(data + spv, 0);
+            store_u64_le(data + record + 24,
+                         fixture_hash(data + spv, sizeof(test_spirv)));
+            break;
+        case EMPTY_SOURCE:
+            store_u32_le(data + record + 4, 0);
+            break;
+        default:
+            assert(false);
+        }
+        refresh_payload_checksum(data, size);
+
+        assert(pgraph_vk_spirv_cache_init(&cache, &policy));
+        assert(pgraph_vk_spirv_cache_add(
+            &cache, 16, fragment_source, sizeof(fragment_source) - 1,
+            test_spirv, sizeof(test_spirv)));
+        assert(pgraph_vk_spirv_cache_load(&cache, data, size) ==
+               PGRAPH_VK_SPIRV_CACHE_LOAD_INVALID);
+        assert(pgraph_vk_spirv_cache_stats(&cache)->records == 1);
+        assert(pgraph_vk_spirv_cache_stats(&cache)->rejections == 1);
+        const uint8_t *spirv = NULL;
+        size_t spirv_size = 0;
+        assert(pgraph_vk_spirv_cache_lookup(
+                   &cache, 16, fragment_source, sizeof(fragment_source) - 1,
+                   &spirv, &spirv_size) == PGRAPH_VK_SPIRV_CACHE_HIT);
+        assert(spirv_size == sizeof(test_spirv));
+        assert(!memcmp(spirv, test_spirv, sizeof(test_spirv)));
         pgraph_vk_spirv_cache_destroy(&cache);
         free(data);
     }
@@ -522,6 +638,7 @@ int main(void)
     test_round_trip_and_exact_identity();
     test_policy_mismatch_is_rejected_transactionally();
     test_corruption_truncation_version_and_bounds_reject();
+    test_structural_rejection_after_valid_outer_checksum();
     test_failed_load_keeps_existing_store_visible();
     test_spirv_and_aggregate_bounds();
     test_rejected_hit_falls_back_and_can_be_replaced();
