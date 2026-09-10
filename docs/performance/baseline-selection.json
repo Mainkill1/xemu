@@ -1,8 +1,7 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "selection_status": "selected",
   "cycle_id": "baseline-bd1fecb9-cycle-01",
-  "baseline_commit": "bd1fecb93353272dda2a810991e28945de35b665",
   "upstream_snapshot": {
     "commit": "75650bd8cd91945f7b79774e2cee0b200ca373ff",
     "tree": "56aaf5dc309b48a24776af9ddeb4d9234a5926ea",
@@ -14,8 +13,6 @@
     "https://github.com/Mainkill1/xemu/pull/59"
   ],
   "policy": "Keep this baseline fixed during cycle 01. Preserve and reuse results under their original identities. Owner acceptance of the existing foundation does not turn failed or incomplete test records into passes; run new tests on this baseline and candidates. Deliberate re-baselining requires preserving the previous source and results.",
-  "baseline_tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
-  "main_at_cycle_start": "bd1fecb93353272dda2a810991e28945de35b665",
   "selection_authority": "Repository owner explicitly confirmed existing main as the stable known-good baseline, including its known fixes and testing addons; retain it as main.",
   "selection_basis": "Existing main is the accepted foundation. Full-Speed was experimental aggregation; Stable was an effort to remove accidentally integrated performance work. No replacement with upstream or the historical Stable release proposal is selected.",
   "reference": {
@@ -39,5 +36,11 @@
     "https://github.com/Mainkill1/xemu-perf-tests/issues/11"
   ],
   "selection_record": "https://github.com/Mainkill1/xemu/issues/38#issuecomment-5610949330",
-  "baseline_tag": "baseline/cycle-01-bd1fecb9"
+  "baseline_ref": "refs/tags/baseline/cycle-01-start",
+  "main_at_cycle_start_ref": "refs/tags/baseline/cycle-01-start",
+  "qualified_product_source_commit": "bd1fecb93353272dda2a810991e28945de35b665",
+  "qualified_product_source_tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+  "pre_alignment_tag": "baseline/cycle-01-bd1fecb9",
+  "resolved_cycle_manifest": "https://github.com/Mainkill1/xemu/releases/download/archive/2026-09-09/main-before-normalization/cycle-01-start.json",
+  "alignment": "At cycle setup main and baseline point to the same immutable cycle-start commit, including workflow documentation. Subsequent accepted PRs advance main only. Resolve baseline_ref for the exact cycle commit; the qualified product source and retained binary identities remain separately pinned."
 }

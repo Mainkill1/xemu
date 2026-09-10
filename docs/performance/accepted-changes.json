@@ -15,8 +15,8 @@
         "performance": "unavailable: old baseline failed readiness; no causal timing percentage established"
       },
       "cumulative": {
-        "baseline_commit": "bd1fecb93353272dda2a810991e28945de35b665",
-        "performance": "Included in the initial baseline. No separate cumulative optimization gain claimed."
+        "performance": "Included in the initial baseline. No separate cumulative optimization gain claimed.",
+        "baseline_ref": "refs/tags/baseline/cycle-01-start"
       }
     }
   ],
@@ -26,13 +26,16 @@
     "disposition": "accepted_by_owner_as_existing_stable_baseline",
     "includes": "All existing main source, fixes, tests and diagnostics at this exact commit",
     "historical_attribution": "Preserved commit/PR/evidence inventory; no inferred per-patch performance gain",
-    "cycle_start_delta": "Same source and binary for main versus baseline: no implementation delta, not a newly measured 0% benchmark"
+    "cycle_start_delta": "Same source and binary for main versus baseline: no implementation delta, not a newly measured 0% benchmark",
+    "cycle_start_ref": "refs/tags/baseline/cycle-01-start"
   },
   "normalization": {
     "pr": "https://github.com/Mainkill1/xemu/pull/62",
     "previous_main": "bd1fecb93353272dda2a810991e28945de35b665",
     "change_class": "documentation_only",
     "incremental": "No product source, build, test or runtime-setting change",
-    "cumulative": "Product source remains identical to baseline; no new measured performance percentage"
-  }
+    "cumulative": "Product source remains identical to baseline; no new measured performance percentage",
+    "cycle_alignment": "Initial main and baseline are identical at baseline/cycle-01-start. Future accepted PRs advance main without moving baseline."
+  },
+  "cycle_baseline_ref": "refs/tags/baseline/cycle-01-start"
 }

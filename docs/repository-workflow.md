@@ -1,6 +1,6 @@
 # Repository workflow
 
-The owner selected existing `main` at `bd1fecb93353272dda2a810991e28945de35b665` as the stable, accepted foundation for cycle 01. `baseline` pins that source; `main` carries it forward through reviewed PRs. Its existing known fixes and testing addons remain included. The [inventory](repository-normalization.md) records exact source and evidence identities.
+The owner selected existing `main` at `bd1fecb93353272dda2a810991e28945de35b665` as the stable, accepted foundation for cycle 01. The immutable tag `baseline/cycle-01-start` pins the complete initial commit, including workflow documentation: both `main` and `baseline` start there. Accepted PRs and patches then advance `main` only; `baseline` stays fixed until a deliberate, infrequent re-baseline. Its existing known fixes and testing addons remain included. The [inventory](repository-normalization.md) records exact source and evidence identities.
 
 | Branch | Purpose | Update rule |
 | --- | --- | --- |
@@ -19,7 +19,7 @@ Understand the intended correctness state before choosing the reference. A known
 
 Re-baseline only for an explicit reason: adopting a new upstream foundation, closing a defined optimization cycle, or accepting a correctness repair that changes the valid reference. Before moving `baseline`, archive the old commit and results, record the reason and new qualification scope, and start a new cycle entry. Do not move it after every optimization.
 
-The machine-readable [baseline selection record](performance/baseline-selection.json) is authoritative for whether a baseline has actually been selected. It records the owner-selected cycle 01 source and retained binary/results; `baseline` is not a moving alias for `main`.
+The machine-readable [baseline selection record](performance/baseline-selection.json) is authoritative for whether a baseline has actually been selected. It records the immutable cycle-start ref and the separately pinned qualified product source and retained binary/results. The linked external cycle manifest supplies the resolved commit/tree SHAs; a commit cannot embed its own hash. `baseline` is not a moving alias for `main`.
 
 ## Record both comparisons for accepted changes
 
@@ -66,4 +66,4 @@ flowchart LR
     B -->|preserve before re-baseline| A
 ```
 
-Cycle 01 begins with identical product source in `main` and `baseline`; this normalization adds documentation only. Upstream adoption is a future deliberate action, not part of this cycle setup.
+Cycle 01 begins with the exact same commit in `main` and `baseline`, including documentation. Later accepted fixes and performance PRs change main; they do not automatically move baseline. Upstream adoption is a future deliberate action, not part of this cycle setup.
