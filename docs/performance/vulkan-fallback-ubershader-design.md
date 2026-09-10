@@ -12,6 +12,10 @@
 
 **Cause diagnostic:** [PR #68](https://github.com/Mainkill1/xemu/pull/68)
 
+**Exact trace build:** `1ba2c59ee69c6c909bd48b63290fa753ff5fe868` / executable `bf4a3908bcba4d3f6f891ad3562ff1f45a2042feca6c0a244072f1b0a7df4663`
+
+**PR #68 parent:** `f738796284d374f1cf22b05a6f5f643268fc8ab0`
+
 ## Summary
 
 **Current result:** The design audit supports a bounded hybrid ubershader
@@ -313,7 +317,13 @@ work; the first fallback admits only currently supported specialization cases.
 
 ### Baseline bottleneck
 
-| Measurement | Stable baseline | PR #68 diagnostic on `f738796284d374f1cf22b05a6f5f643268fc8ab0` | Design candidate |
+The measurements below came from PR #68 head
+`1ba2c59ee69c6c909bd48b63290fa753ff5fe868`, using xemu executable SHA-256
+`bf4a3908bcba4d3f6f891ad3562ff1f45a2042feca6c0a244072f1b0a7df4663`.
+That diagnostic head was based on `f738796284d374f1cf22b05a6f5f643268fc8ab0`;
+the parent alone is not the measured build identity.
+
+| Measurement | Stable baseline | Exact PR #68 diagnostic | Design candidate |
 | --- | ---: | ---: | ---: |
 | Primary-frame glslang | Not instrumented in retained baseline | 18.217 ms | N/A — no runtime code |
 | Primary-frame pipeline preparation | Not instrumented in retained baseline | 43.738 ms | N/A — no runtime code |
