@@ -50,6 +50,8 @@ static void test_exact_source_classification(void)
     assert(records[1].key_hash == 12 &&
            records[1].source_class == PGRAPH_VK_SHADER_SOURCE_REPEAT);
     assert(!pgraph_vk_shader_identity_records_saturated(&tracker));
+    assert(pgraph_vk_shader_identity_begin_flush(&tracker));
+    assert(!pgraph_vk_shader_identity_begin_flush(&tracker));
     pgraph_vk_shader_identity_tracker_destroy(&tracker);
 }
 
@@ -89,6 +91,7 @@ static void test_disabled_tracker_does_not_record(void)
            PGRAPH_VK_SHADER_SOURCE_SATURATED);
     assert(!pgraph_vk_shader_identity_records(&tracker, &record_count));
     assert(record_count == 0);
+    assert(!pgraph_vk_shader_identity_begin_flush(&tracker));
 }
 
 int main(void)

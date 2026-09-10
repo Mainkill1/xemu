@@ -139,3 +139,13 @@ bool pgraph_vk_shader_identity_records_saturated(
 {
     return tracker && tracker->records_saturated;
 }
+
+bool pgraph_vk_shader_identity_begin_flush(
+    PGRAPHVkShaderIdentityTracker *tracker)
+{
+    if (!tracker || !tracker->records || tracker->flushed) {
+        return false;
+    }
+    tracker->flushed = true;
+    return true;
+}

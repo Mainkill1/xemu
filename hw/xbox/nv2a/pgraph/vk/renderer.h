@@ -536,6 +536,9 @@ typedef struct PGRAPHVkState {
     Lru shader_module_cache;
     ShaderModuleCacheEntry *shader_module_cache_entries;
     PGRAPHVkShaderIdentityTracker shader_identity_tracker;
+    bool shader_identity_flush_pending;
+    bool shader_identity_flush_event_initialized;
+    QemuEvent shader_identity_flush_complete;
 
     // FIXME: Merge these into a structure
     size_t uniform_buffer_offsets[2];
@@ -730,6 +733,7 @@ void pgraph_vk_trim_texture_cache(PGRAPHState *pg);
 // shaders.c
 void pgraph_vk_init_shaders(PGRAPHState *pg);
 void pgraph_vk_finalize_shaders(PGRAPHState *pg);
+void pgraph_vk_flush_shader_identity_trace(PGRAPHState *pg);
 void pgraph_vk_update_descriptor_sets(PGRAPHState *pg);
 void pgraph_vk_bind_shaders(PGRAPHState *pg);
 

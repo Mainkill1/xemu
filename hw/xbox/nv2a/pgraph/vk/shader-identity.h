@@ -43,6 +43,7 @@ typedef struct PGRAPHVkShaderIdentityTracker {
     size_t record_capacity;
     size_t record_count;
     bool records_saturated;
+    bool flushed;
 } PGRAPHVkShaderIdentityTracker;
 
 bool pgraph_vk_shader_identity_tracker_init(
@@ -59,5 +60,7 @@ const PGRAPHVkShaderIdentityRecord *pgraph_vk_shader_identity_records(
     const PGRAPHVkShaderIdentityTracker *tracker, size_t *record_count);
 bool pgraph_vk_shader_identity_records_saturated(
     const PGRAPHVkShaderIdentityTracker *tracker);
+bool pgraph_vk_shader_identity_begin_flush(
+    PGRAPHVkShaderIdentityTracker *tracker);
 
 #endif

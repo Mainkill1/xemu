@@ -127,7 +127,8 @@ static void pgraph_vk_process_pending(NV2AState *d)
     if (qatomic_read(&r->downloads_pending) ||
         qatomic_read(&r->download_dirty_surfaces_pending) ||
         qatomic_read(&d->pgraph.sync_pending) ||
-        qatomic_read(&d->pgraph.flush_pending)
+        qatomic_read(&d->pgraph.flush_pending) ||
+        qatomic_read(&r->shader_identity_flush_pending)
     ) {
         qemu_mutex_unlock(&d->pfifo.lock);
         qemu_mutex_lock(&d->pgraph.lock);
@@ -142,6 +143,11 @@ static void pgraph_vk_process_pending(NV2AState *d)
         }
         if (qatomic_read(&d->pgraph.flush_pending)) {
             pgraph_vk_flush(d);
+        }
+        if (qatomic_read(&r->shader_identity_flush_pending)) {
+            pgraph_vk_flush_shader_identity_trace(&d->pgraph);
+            qatomic_set(&r->shader_identity_flush_pending, false);
+            qemu_event_set(&r->shader_identity_flush_complete);
         }
         qemu_mutex_unlock(&d->pgraph.lock);
         qemu_mutex_lock(&d->pfifo.lock);
@@ -168,13 +174,25 @@ static void pgraph_vk_pre_savevm_wait(NV2AState *d)
 
 static void pgraph_vk_pre_shutdown_trigger(NV2AState *d)
 {
-    // qatomic_set(&d->pgraph.vk_renderer_state->shader_cache_writeback_pending, true);
-    // qemu_event_reset(&d->pgraph.vk_renderer_state->shader_cache_writeback_complete);
+    PGRAPHVkState *r = d->pgraph.vk_renderer_state;
+
+    if (!r->shader_identity_flush_event_initialized) {
+        return;
+    }
+    qemu_event_reset(&r->shader_identity_flush_complete);
+    qatomic_set(&r->shader_identity_flush_pending, true);
 }
 
 static void pgraph_vk_pre_shutdown_wait(NV2AState *d)
 {
-    // qemu_event_wait(&d->pgraph.vk_renderer_state->shader_cache_writeback_complete);   
+    PGRAPHVkState *r = d->pgraph.vk_renderer_state;
+
+    if (!r->shader_identity_flush_event_initialized) {
+        return;
+    }
+    qemu_event_wait(&r->shader_identity_flush_complete);
+    qemu_event_destroy(&r->shader_identity_flush_complete);
+    r->shader_identity_flush_event_initialized = false;
 }
 
 static int pgraph_vk_get_framebuffer_surface(NV2AState *d)

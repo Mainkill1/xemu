@@ -419,8 +419,12 @@ static const char *shader_source_class_name(PGRAPHVkShaderSourceClass class)
 }
 
 static void shader_identity_trace_flush(
-    const PGRAPHVkShaderIdentityTracker *tracker)
+    PGRAPHVkShaderIdentityTracker *tracker)
 {
+    if (!pgraph_vk_shader_identity_begin_flush(tracker)) {
+        return;
+    }
+
     size_t record_count = 0;
     const PGRAPHVkShaderIdentityRecord *records =
         pgraph_vk_shader_identity_records(tracker, &record_count);
@@ -448,6 +452,12 @@ static void shader_identity_trace_flush(
                 pgraph_vk_shader_identity_records_saturated(tracker),
                 tracker->count, tracker->source_bytes);
     }
+}
+
+void pgraph_vk_flush_shader_identity_trace(PGRAPHState *pg)
+{
+    shader_identity_trace_flush(
+        &pg->vk_renderer_state->shader_identity_tracker);
 }
 
 static void shader_module_cache_entry_init(Lru *lru, LruNode *node,
@@ -573,15 +583,19 @@ static void shader_cache_init(PGRAPHState *pg)
     r->shader_module_cache.post_node_evict =
         shader_module_cache_entry_post_evict;
 
-    if (shader_identity_trace_enabled() &&
-        !pgraph_vk_shader_identity_tracker_init(
-            &r->shader_identity_tracker,
-            PGRAPH_VK_SHADER_IDENTITY_MAX_ENTRIES,
-            PGRAPH_VK_SHADER_IDENTITY_MAX_RECORDS,
-            PGRAPH_VK_SHADER_IDENTITY_MAX_BYTES)) {
-        fprintf(stderr,
-                "nv2a/vk: shader identity trace unavailable: allocation "
-                "failed\n");
+    if (shader_identity_trace_enabled()) {
+        if (pgraph_vk_shader_identity_tracker_init(
+                &r->shader_identity_tracker,
+                PGRAPH_VK_SHADER_IDENTITY_MAX_ENTRIES,
+                PGRAPH_VK_SHADER_IDENTITY_MAX_RECORDS,
+                PGRAPH_VK_SHADER_IDENTITY_MAX_BYTES)) {
+            qemu_event_init(&r->shader_identity_flush_complete, false);
+            r->shader_identity_flush_event_initialized = true;
+        } else {
+            fprintf(stderr,
+                    "nv2a/vk: shader identity trace unavailable: allocation "
+                    "failed\n");
+        }
     }
 }
 
@@ -596,8 +610,13 @@ static void shader_cache_finalize(PGRAPHState *pg)
     lru_flush(&r->shader_module_cache);
     g_free(r->shader_module_cache_entries);
     r->shader_module_cache_entries = NULL;
-    shader_identity_trace_flush(&r->shader_identity_tracker);
+    pgraph_vk_flush_shader_identity_trace(pg);
     pgraph_vk_shader_identity_tracker_destroy(&r->shader_identity_tracker);
+    qatomic_set(&r->shader_identity_flush_pending, false);
+    if (r->shader_identity_flush_event_initialized) {
+        qemu_event_destroy(&r->shader_identity_flush_complete);
+        r->shader_identity_flush_event_initialized = false;
+    }
 }
 
 static ShaderBinding *get_shader_binding_for_state(PGRAPHVkState *r,
