@@ -343,6 +343,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"texture_cache_lookups_per_guest_frame\":%" PRIu64
             ",\"texture_cache_lookup_cpu_us_per_guest_frame\":%" PRIu64
             ",\"texture_cache_saturated_lookups_per_guest_frame\":%" PRIu64
+            ",\"texture_cache_saturated_misses_per_guest_frame\":%" PRIu64
             ",\"texture_cache_hits_per_guest_frame\":%" PRIu64
             ",\"texture_cache_misses_per_guest_frame\":%" PRIu64
             ",\"cubemap_prepares_per_guest_frame\":%" PRIu64
@@ -422,6 +423,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->texture_lookup.lookup_count,
             perf->texture_lookup.lookup_cpu_us,
             perf->texture_lookup.saturated_lookup_count,
+            perf->texture_lookup.saturated_miss_count,
             perf->texture_lookup.hit_count,
             perf->texture_lookup.miss_count,
             perf->cubemap.prepare_count,

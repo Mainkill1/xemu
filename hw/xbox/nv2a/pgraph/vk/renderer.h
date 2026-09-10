@@ -443,6 +443,7 @@ typedef struct PGRAPHVkTextureLookupStats {
     uint64_t lookup_count;
     uint64_t lookup_cpu_us;
     uint64_t saturated_lookup_count;
+    uint64_t saturated_miss_count;
     uint64_t hit_count;
     uint64_t miss_count;
 } PGRAPHVkTextureLookupStats;

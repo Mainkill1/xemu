@@ -1405,11 +1405,12 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
         r->perf.texture_lookup.key_hash_cpu_us +=
             g_get_monotonic_time() - key_hash_start_us;
     }
+    bool cache_saturated = track_texture_lookup &&
+                           r->texture_cache.num_free == 0;
     int64_t lookup_start_us = track_texture_lookup ?
         g_get_monotonic_time() : 0;
     if (track_texture_lookup) {
-        r->perf.texture_lookup.saturated_lookup_count +=
-            r->texture_cache.num_free == 0;
+        r->perf.texture_lookup.saturated_lookup_count += cache_saturated;
     }
     LruNode *node = lru_lookup(&r->texture_cache, key_hash, &key);
     if (track_texture_lookup) {
@@ -1423,6 +1424,8 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     if (track_texture_lookup) {
         r->perf.texture_lookup.hit_count += binding_found;
         r->perf.texture_lookup.miss_count += !binding_found;
+        r->perf.texture_lookup.saturated_miss_count +=
+            cache_saturated && !binding_found;
     }
 
     if (binding_found) {
