@@ -65,15 +65,6 @@ Replace the examples below with the actual affected path.
 
 ## Current
 
-```mermaid
-flowchart LR
-    A[Input / guest request]
-    --> B[Current processing]
-    --> C[Repeated / expensive work]
-    --> D[Synchronization or copy]
-    --> E[Renderer / output]
-```
-
 ### Current behavior
 
 1. `<what arrives>`
@@ -83,17 +74,6 @@ flowchart LR
 5. `<final output/state>`
 
 ## Candidate
-
-```mermaid
-flowchart LR
-    A[Input / guest request]
-    --> B[Candidate processing]
-    --> C{Work actually required?}
-    C -->|Yes| D[Reduced / batched / cached work]
-    C -->|No| E[Reuse / skip redundant host work]
-    D --> F[Renderer / output]
-    E --> F
-```
 
 ### Candidate behavior
 
@@ -158,14 +138,31 @@ Remove rows that do not apply.
 
 # Performance Results
 
+## Improvement Convention
+
+Every percentage comparison in this report is **Improvement %**: positive is
+good and negative is bad. The `Raw +` cell declares how a larger raw value is
+treated so the sign cannot be misread.
+
+| Raw + | Raw metric direction | Improvement % |
+| --- | --- | --- |
+| `+good` | Higher is better, such as FPS or completed work | `100 × (candidate / reference - 1)` |
+| `+bad` | Lower is better, such as duration, frame time, CPU time, or memory use | `100 × (reference - candidate) / reference` |
+| `N/A` | Context only or no desired direction | `N/A` with the tradeoff explained below the table |
+
+Use the stable baseline or prior candidate named by the comparison as the
+reference. Keep the raw reference and candidate values beside the normalized
+percentage. If the reference is zero, report `N/A` unless the metric has a
+documented domain-specific rule.
+
 ## Headline Results
 
-| Workload | Renderer | Stable | Prior | Candidate | vs Stable | vs Prior |
-| --- | --- | ---: | ---: | ---: | ---: | ---: |
-| `<main workload>` | Vulkan | | | | | |
-| `<main workload>` | OpenGL | | | | | |
-| `<second workload>` | Vulkan | | | | | |
-| `<second workload>` | OpenGL | | | | | |
+| Workload | Renderer | Metric | Raw + | Stable | Prior | Candidate | Improvement vs Stable (+ good / - bad) | Improvement vs Prior (+ good / - bad) |
+| --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: |
+| `<main workload>` | Vulkan | | `+good` / `+bad` | | | | | |
+| `<main workload>` | OpenGL | | `+good` / `+bad` | | | | | |
+| `<second workload>` | Vulkan | | `+good` / `+bad` | | | | | |
+| `<second workload>` | OpenGL | | `+good` / `+bad` | | | | | |
 
 **Overall:**  
 `<Example: Vulkan improves 8.4% vs Stable and 3.1% vs Prior. OpenGL is within run variance.>`
@@ -176,22 +173,22 @@ Remove rows that do not apply.
 
 Use when applicable.
 
-| Workload | Renderer | Metric | Stable | Prior | Candidate | vs Stable |
-| --- | --- | --- | ---: | ---: | ---: | ---: |
-| PGR2-snapshot | Vulkan | FPS / cadence | | | | |
-| PGR2-snapshot | Vulkan | p95 | | | | |
-| PGR2-snapshot | Vulkan | p99 | | | | |
-| PGR2-snapshot | OpenGL | FPS / cadence | | | | |
-| PGR2-fullstart | Vulkan | FPS / cadence | | | | |
-| PGR2-fullstart | Vulkan | p95 | | | | |
-| PGR2-fullstart | Vulkan | p99 | | | | |
-| PGR2-fullstart | OpenGL | FPS / cadence | | | | |
-| Morrowind | Vulkan | FPS / cadence | | | | |
-| Morrowind | Vulkan | p95 | | | | |
-| Morrowind | Vulkan | p99 | | | | |
-| Morrowind | OpenGL | FPS / cadence | | | | |
+| Workload | Renderer | Metric | Raw + | Stable | Prior | Candidate | Improvement vs Stable (+ good / - bad) | Improvement vs Prior (+ good / - bad) |
+| --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: |
+| PGR2-snapshot | Vulkan | FPS / cadence | `+good` | | | | | |
+| PGR2-snapshot | Vulkan | interval p95 | `+bad` | | | | | |
+| PGR2-snapshot | Vulkan | interval p99 | `+bad` | | | | | |
+| PGR2-snapshot | OpenGL | FPS / cadence | `+good` | | | | | |
+| PGR2-fullstart | Vulkan | FPS / cadence | `+good` | | | | | |
+| PGR2-fullstart | Vulkan | interval p95 | `+bad` | | | | | |
+| PGR2-fullstart | Vulkan | interval p99 | `+bad` | | | | | |
+| PGR2-fullstart | OpenGL | FPS / cadence | `+good` | | | | | |
+| Morrowind | Vulkan | FPS / cadence | `+good` | | | | | |
+| Morrowind | Vulkan | interval p95 | `+bad` | | | | | |
+| Morrowind | Vulkan | interval p99 | `+bad` | | | | | |
+| Morrowind | OpenGL | FPS / cadence | `+good` | | | | | |
 
-Mark unused rows as N/A if needed, reason goes below it why tests were not ran
+Mark unused rows as N/A if needed; explain below why the tests were not run.
 
 ---
 
@@ -201,24 +198,24 @@ Mark unused rows as N/A if needed, reason goes below it why tests were not ran
 **Repeats:** `<count>`  
 **Cases:** `<passed>/<total>`
 
-| Group / Family | Renderer | Stable | Prior | Candidate | vs Stable | vs Prior |
-| --- | --- | ---: | ---: | ---: | ---: | ---: |
-| `<group>` | Vulkan | | | | | |
-| `<group>` | OpenGL | | | | | |
+| Group / Family | Renderer | Metric | Raw + | Stable | Prior | Candidate | Improvement vs Stable (+ good / - bad) | Improvement vs Prior (+ good / - bad) |
+| --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: |
+| `<group>` | Vulkan | Duration | `+bad` | | | | | |
+| `<group>` | OpenGL | Duration | `+bad` | | | | | |
 
 **Full per-test results:** `<CSV/raw evidence link>`
 
 ### Largest Improvements
 
-| Test | Renderer | Stable | Candidate | Delta |
-| --- | --- | ---: | ---: | ---: |
-| | | | | |
+| Test | Renderer | Metric | Raw + | Stable | Candidate | Improvement % (+ good / - bad) |
+| --- | --- | --- | --- | ---: | ---: | ---: |
+| | | Duration | `+bad` | | | |
 
 ### Largest Regressions
 
-| Test | Renderer | Stable | Candidate | Delta |
-| --- | --- | ---: | ---: | ---: |
-| | | | | |
+| Test | Renderer | Metric | Raw + | Stable | Candidate | Improvement % (+ good / - bad) |
+| --- | --- | --- | --- | ---: | ---: | ---: |
+| | | Duration | `+bad` | | | |
 
 **Unstable / excluded:**  
 `<tests and reason / None>`
@@ -229,16 +226,16 @@ Mark unused rows as N/A if needed, reason goes below it why tests were not ran
 
 Use when collected or when the patch specifically targets host efficiency.
 
-| Metric | Renderer | Stable | Prior | Candidate | Delta |
-| --- | --- | ---: | ---: | ---: | ---: |
-| Host CPU | Vulkan | | | | |
-| Host GPU | Vulkan | | | | |
-| RAM | Vulkan | | | | |
-| VRAM | Vulkan | | | | |
-| Host CPU | OpenGL | | | | |
-| Host GPU | OpenGL | | | | |
-| RAM | OpenGL | | | | |
-| VRAM | OpenGL | | | | |
+| Metric | Renderer | Raw + | Stable | Prior | Candidate | Improvement vs Stable (+ good / - bad) | Improvement vs Prior (+ good / - bad) |
+| --- | --- | --- | ---: | ---: | ---: | ---: | ---: |
+| Host CPU time per fixed work | Vulkan | `+bad` | | | | | |
+| Host GPU time per fixed work | Vulkan | `+bad` | | | | | |
+| RAM | Vulkan | `+bad` | | | | | |
+| VRAM | Vulkan | `+bad` | | | | | |
+| Host CPU time per fixed work | OpenGL | `+bad` | | | | | |
+| Host GPU time per fixed work | OpenGL | `+bad` | | | | | |
+| RAM | OpenGL | `+bad` | | | | | |
+| VRAM | OpenGL | `+bad` | | | | | |
 
 **Resource result:**  
 `<Important efficiency improvement/regression/tradeoff.>`
