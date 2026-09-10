@@ -606,6 +606,11 @@ static bool upload_texture_image(PGRAPHState *pg, int texture_idx,
     int64_t start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
     TextureShape *state = &binding->key.state;
     VkFormat vk_format = binding->key.vk_format;
+    bool track_cubemap = r->perf.enabled && state->cubemap;
+
+    if (track_cubemap) {
+        r->perf.cubemap.upload_count++;
+    }
 
     nv2a_profile_inc_counter(NV2A_PROF_TEX_UPLOAD);
 
@@ -614,8 +619,14 @@ static bool upload_texture_image(PGRAPHState *pg, int texture_idx,
     bool is_bc = kelvin_format_to_native_bc_index(state->color_format) >= 0;
     int64_t bc_prepare_start_us =
         is_bc && r->perf.enabled ? g_get_monotonic_time() : 0;
+    int64_t layout_start_us = track_cubemap ? g_get_monotonic_time() : 0;
     g_autoptr(TextureLayout) layout =
         get_texture_layout(pg, texture_idx, native_bc);
+    if (track_cubemap) {
+        r->perf.cubemap.layout_count++;
+        r->perf.cubemap.layout_cpu_us +=
+            g_get_monotonic_time() - layout_start_us;
+    }
     const int num_layers = state->cubemap ? 6 : 1;
 
     // Calculate decoded texture data size
@@ -697,6 +708,10 @@ static bool upload_texture_image(PGRAPHState *pg, int texture_idx,
     if (flush_result != VK_SUCCESS) {
         error_report("Vulkan texture staging flush failed: %d", flush_result);
         staging_buffer->buffer_offset = old_staging_offset;
+        if (track_cubemap) {
+            r->perf.cubemap.upload_cpu_us +=
+                g_get_monotonic_time() - start_us;
+        }
         return false;
     }
 
@@ -740,9 +755,13 @@ static bool upload_texture_image(PGRAPHState *pg, int texture_idx,
     pgraph_vk_end_debug_marker(r, cmd);
     pgraph_vk_end_nondraw_commands(pg, cmd);
 
-    pgraph_vk_perf_record_cpu_region(
-        r, VK_PERF_CPU_TEXTURE_UPLOAD,
-        r->perf.enabled ? g_get_monotonic_time() - start_us : 0);
+    int64_t upload_cpu_us =
+        r->perf.enabled ? g_get_monotonic_time() - start_us : 0;
+    if (track_cubemap) {
+        r->perf.cubemap.upload_cpu_us += upload_cpu_us;
+    }
+    pgraph_vk_perf_record_cpu_region(r, VK_PERF_CPU_TEXTURE_UPLOAD,
+                                     upload_cpu_us);
     return true;
 }
 
@@ -1245,13 +1264,24 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
 
     NV2AState *d = container_of(pg, NV2AState, pgraph);
     PGRAPHVkState *r = pg->vk_renderer_state;
+    bool track_texture_lookup = r->perf.enabled;
+
+    if (track_texture_lookup) {
+        r->perf.texture_lookup.create_count++;
+    }
     TextureShape state = pgraph_get_texture_shape(pg, texture_idx); // FIXME: Check for pad issues
     BasicColorFormatInfo f_basic = kelvin_color_format_info_map[state.color_format];
     PGRAPHTextureCubemapSpan cubemap_span = { 0 };
+    bool track_cubemap = r->perf.enabled && state.cubemap;
     bool track_clamped_cubemap = false;
 
-    if (r->perf.enabled && state.cubemap &&
-        state.storage_levels > state.levels) {
+    if (track_cubemap) {
+        r->perf.cubemap.prepare_count++;
+        r->perf.cubemap.same_level_prepare_count +=
+            state.storage_levels == state.levels;
+    }
+
+    if (track_cubemap && state.storage_levels > state.levels) {
         bool compressed =
             pgraph_is_texture_format_compressed(pg, state.color_format);
 
@@ -1269,7 +1299,14 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     }
 
     const hwaddr texture_vram_offset = pgraph_get_texture_phys_addr(pg, texture_idx);
+    int64_t texture_length_start_us = track_cubemap ?
+        g_get_monotonic_time() : 0;
     size_t texture_length = pgraph_get_texture_length(pg, &state);
+    if (track_cubemap) {
+        r->perf.cubemap.texture_length_count++;
+        r->perf.cubemap.texture_length_cpu_us +=
+            g_get_monotonic_time() - texture_length_start_us;
+    }
     hwaddr texture_palette_vram_offset = 0;
     size_t texture_palette_data_size = 0;
 
@@ -1360,10 +1397,33 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
         can_upload_native_bc(r, &state, filter, &key.vk_format);
     }
 
+    int64_t key_hash_start_us = track_texture_lookup ?
+        g_get_monotonic_time() : 0;
     uint64_t key_hash = fast_hash((void*)&key, sizeof(key));
+    if (track_texture_lookup) {
+        r->perf.texture_lookup.key_hash_count++;
+        r->perf.texture_lookup.key_hash_cpu_us +=
+            g_get_monotonic_time() - key_hash_start_us;
+    }
+    int64_t lookup_start_us = track_texture_lookup ?
+        g_get_monotonic_time() : 0;
+    if (track_texture_lookup) {
+        r->perf.texture_lookup.saturated_lookup_count +=
+            r->texture_cache.num_free == 0;
+    }
     LruNode *node = lru_lookup(&r->texture_cache, key_hash, &key);
+    if (track_texture_lookup) {
+        r->perf.texture_lookup.lookup_count++;
+        r->perf.texture_lookup.lookup_cpu_us +=
+            g_get_monotonic_time() - lookup_start_us;
+    }
     TextureBinding *snode = container_of(node, TextureBinding, node);
     bool binding_found = snode->image != VK_NULL_HANDLE;
+
+    if (track_texture_lookup) {
+        r->perf.texture_lookup.hit_count += binding_found;
+        r->perf.texture_lookup.miss_count += !binding_found;
+    }
 
     if (binding_found) {
         NV2A_VK_DPRINTF("Cache hit");

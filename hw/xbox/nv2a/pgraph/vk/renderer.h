@@ -425,6 +425,28 @@ typedef struct PGRAPHVkClampedCubemapStats {
     uint64_t upload_cpu_us;
 } PGRAPHVkClampedCubemapStats;
 
+typedef struct PGRAPHVkCubemapStats {
+    uint64_t prepare_count;
+    uint64_t same_level_prepare_count;
+    uint64_t texture_length_count;
+    uint64_t texture_length_cpu_us;
+    uint64_t layout_count;
+    uint64_t layout_cpu_us;
+    uint64_t upload_count;
+    uint64_t upload_cpu_us;
+} PGRAPHVkCubemapStats;
+
+typedef struct PGRAPHVkTextureLookupStats {
+    uint64_t create_count;
+    uint64_t key_hash_count;
+    uint64_t key_hash_cpu_us;
+    uint64_t lookup_count;
+    uint64_t lookup_cpu_us;
+    uint64_t saturated_lookup_count;
+    uint64_t hit_count;
+    uint64_t miss_count;
+} PGRAPHVkTextureLookupStats;
+
 typedef struct PGRAPHVkPerfTelemetry {
     FILE *file;
     bool enabled;
@@ -448,6 +470,8 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t decoded_bc_source_bytes;
     uint64_t decoded_bc_staged_bytes;
     uint64_t decoded_bc_prepare_cpu_us;
+    PGRAPHVkTextureLookupStats texture_lookup;
+    PGRAPHVkCubemapStats cubemap;
     PGRAPHVkClampedCubemapStats clamped_cubemap;
     uint64_t in_flight_submission_count;
     uint64_t peak_in_flight_submission_count;

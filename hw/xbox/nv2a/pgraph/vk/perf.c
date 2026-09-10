@@ -99,7 +99,7 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":6"
+            "{\"type\":\"schema\",\"schema_version\":7"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}",
             VK_PERF_INITIAL_TIMED_SUBMITS, VK_PERF_HOT_SAMPLE_STRIDE);
@@ -272,7 +272,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":6"
+            "{\"type\":\"frame\",\"schema_version\":7"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
@@ -337,6 +337,22 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"decoded_bc_source_bytes_per_guest_frame\":%" PRIu64
             ",\"decoded_bc_staged_bytes_per_guest_frame\":%" PRIu64
             ",\"decoded_bc_prepare_cpu_us_per_guest_frame\":%" PRIu64
+            ",\"texture_creates_per_guest_frame\":%" PRIu64
+            ",\"texture_key_hashes_per_guest_frame\":%" PRIu64
+            ",\"texture_key_hash_cpu_us_per_guest_frame\":%" PRIu64
+            ",\"texture_cache_lookups_per_guest_frame\":%" PRIu64
+            ",\"texture_cache_lookup_cpu_us_per_guest_frame\":%" PRIu64
+            ",\"texture_cache_saturated_lookups_per_guest_frame\":%" PRIu64
+            ",\"texture_cache_hits_per_guest_frame\":%" PRIu64
+            ",\"texture_cache_misses_per_guest_frame\":%" PRIu64
+            ",\"cubemap_prepares_per_guest_frame\":%" PRIu64
+            ",\"cubemap_same_level_prepares_per_guest_frame\":%" PRIu64
+            ",\"cubemap_texture_length_calls_per_guest_frame\":%" PRIu64
+            ",\"cubemap_texture_length_cpu_us_per_guest_frame\":%" PRIu64
+            ",\"cubemap_layouts_per_guest_frame\":%" PRIu64
+            ",\"cubemap_layout_cpu_us_per_guest_frame\":%" PRIu64
+            ",\"cubemap_uploads_per_guest_frame\":%" PRIu64
+            ",\"cubemap_upload_cpu_us_per_guest_frame\":%" PRIu64
             ",\"clamped_cubemap_prepares_per_guest_frame\":%" PRIu64
             ",\"clamped_cubemap_sampled_levels_"
             "per_guest_frame\":%" PRIu64
@@ -400,6 +416,22 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->native_bc_staged_bytes, perf->native_bc_prepare_cpu_us,
             perf->decoded_bc_upload_count, perf->decoded_bc_source_bytes,
             perf->decoded_bc_staged_bytes, perf->decoded_bc_prepare_cpu_us,
+            perf->texture_lookup.create_count,
+            perf->texture_lookup.key_hash_count,
+            perf->texture_lookup.key_hash_cpu_us,
+            perf->texture_lookup.lookup_count,
+            perf->texture_lookup.lookup_cpu_us,
+            perf->texture_lookup.saturated_lookup_count,
+            perf->texture_lookup.hit_count,
+            perf->texture_lookup.miss_count,
+            perf->cubemap.prepare_count,
+            perf->cubemap.same_level_prepare_count,
+            perf->cubemap.texture_length_count,
+            perf->cubemap.texture_length_cpu_us,
+            perf->cubemap.layout_count,
+            perf->cubemap.layout_cpu_us,
+            perf->cubemap.upload_count,
+            perf->cubemap.upload_cpu_us,
             perf->clamped_cubemap.prepare_count,
             perf->clamped_cubemap.sampled_levels,
             perf->clamped_cubemap.storage_levels,
@@ -453,6 +485,8 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->decoded_bc_source_bytes = 0;
     perf->decoded_bc_staged_bytes = 0;
     perf->decoded_bc_prepare_cpu_us = 0;
+    memset(&perf->texture_lookup, 0, sizeof(perf->texture_lookup));
+    memset(&perf->cubemap, 0, sizeof(perf->cubemap));
     memset(&perf->clamped_cubemap, 0, sizeof(perf->clamped_cubemap));
     perf->peak_in_flight_submission_count =
         perf->in_flight_submission_count;
