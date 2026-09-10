@@ -1,6 +1,6 @@
 # research/vulkan-ubershader-design
 
-**Status:** Investigating — design only
+**Status:** BLOCKED — design only; runtime work waits for PR #70 qualification and merge
 
 **Stable baseline:** `9f618d6d8c4c446ef023955f3d4de22f661f61a4` / retained product executable `3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b`
 
@@ -16,21 +16,31 @@
 
 **PR #68 parent:** `f738796284d374f1cf22b05a6f5f643268fc8ab0`
 
+## Blocking dependency
+
+**PR #71 must not start runtime ubershader implementation in parallel with PR
+#70.** First qualify and merge PR #70's warm shader-management solution into
+`main`. Any later ubershader implementation must branch from that post-#70
+`main` and reuse or extend PR #70's artifact identity, bounded storage,
+renderer ownership, failure fallback, and producer-quiesced persistence
+lifecycle. This branch remains design documentation until that gate is met.
+
 ## Summary
 
-**Current result:** The design audit supports a bounded hybrid ubershader
-family as a possible cold-cache fallback. It does not support treating one
-monolithic shader as a complete replacement for xemu's current generated
-shader and graphics-pipeline path.
+**Current result:** Blocked on PR #70 qualification and merge. The design audit
+supports a bounded hybrid ubershader family as a possible later cold-cache
+fallback. It does not support treating one monolithic shader as a complete
+replacement for xemu's current generated shader and graphics-pipeline path.
 
 **Headline:** A precompiled interpreter can render a previously unseen NV2A
 state while its specialized shader and pipeline compile in the background, but
 the fallback must respect compile-time geometry interfaces, sampler types,
 vertex input, attachment formats, and host Vulkan capabilities.
 
-**Next:** First complete and qualify PR #70's direct warm-run SPIR-V reuse.
-Separately build an oracle-only interpreter prototype, determine the smallest
-correct fallback family from shader-state and pipeline-state corpora, and do
+**Next:** Complete, qualify, and merge PR #70's direct warm-run SPIR-V reuse.
+No runtime ubershader branch may start before that merge. The future
+oracle/interpreter branch starts from post-#70 `main`, integrates its warm
+artifact lifecycle, determines the smallest correct fallback family, and does
 not enable runtime fallback until specialized-versus-fallback output matches.
 
 This PR contains research documentation only. It changes no runtime code, was
@@ -55,7 +65,8 @@ and 20 different-key/same-source repeats consumed 463.419 ms of glslang time.
 
 PR #70 addresses the first practical case: load previously validated SPIR-V
 outside gameplay and reuse it on a warm run. This design asks how to handle a
-genuinely unseen shader without pausing the draw.
+genuinely unseen shader without pausing the draw. It is a subsequent layer on
+PR #70's shader management rather than a parallel replacement.
 
 ### What can be compiled before seeing a game state
 
@@ -118,6 +129,10 @@ copied into NV2A unchanged.
 
 ## Recommended architecture
 
+This section describes work that may begin only after PR #70 is accepted into
+`main`. The implementation branch must use that post-merge commit as its base
+and preserve the qualified warm-cache behavior and lifecycle.
+
 ### Boundary: a bounded family, not one universal pipeline
 
 Use a finite set of precompiled fallback modules and compatible pipeline
@@ -133,10 +148,11 @@ time moves into a packed, versioned control block.
 | Textures | Enabled stage, coordinates, scale, border metadata, shadow compare mode, bump constants | 2D, 3D, cube, and unsigned depth sampling need compatible statically declared image types; unsupported signatures stay specialized |
 | Fixed pipeline | Blend constants, stencil reference/masks, viewport, scissor, line width, and every supported dynamically enabled state | Render-pass/attachment compatibility and any state not made dynamic remain in the fallback-pipeline family key |
 
-The first feasibility prototype should admit only signatures for which a ready
-fallback pipeline was created before gameplay. Expanding coverage is a later,
-measured step. A state outside the admitted set follows the current synchronous
-specialization path, preserving output at the cost of the existing stall.
+After PR #70 is merged, the first feasibility prototype should admit only
+signatures for which a ready fallback pipeline was created before gameplay.
+Expanding coverage is a later, measured step. A state outside the admitted set
+follows the current synchronous specialization path, preserving output at the
+cost of the existing stall.
 
 ### Stable fallback data and descriptor ownership
 
@@ -272,12 +288,14 @@ flowchart LR
 
 ## Planned code scope
 
-No files outside this document change in the design PR. A later prototype would
-be split into separately reviewable changes rather than implemented as one
-large patch.
+No files outside this document change in the design PR. After PR #70 is
+qualified and merged, a new branch from the resulting `main` may implement the
+stages below as separately reviewable changes. No runtime prototype belongs on
+the current design branch.
 
 | Stage | Intended scope | Exit condition |
 | --- | --- | --- |
+| 0. PR #70 dependency | Qualify and merge bounded warm artifact reuse and its renderer lifecycle | PR #70 is accepted in `main`; future work records the exact post-merge base |
 | 1. State corpus and packer | Pure conversion from current decoded shader state into a versioned fallback control record | Stable encoding, bounds tests, and captured-state round trips pass |
 | 2. Oracle-only interpreters | Fixed/programmed vertex interpreter, bounded geometry family, and fragment combiner/texture interpreter in test-only replay | Specialized and fallback images plus depth/stencil/query effects match for admitted corpus |
 | 3. Precreated fallback family | Renderer-owned modules, layouts, descriptors, dynamic-state setup, and family coverage predicate behind an off-by-default experiment | No runtime compilation is needed to draw any admitted signature |
@@ -399,6 +417,7 @@ the synchronous correct path.
 
 | Test | OpenGL | Vulkan |
 | --- | --- | --- |
+| PR #70 qualification and merge | Not needed | BLOCKED — must complete before runtime work starts |
 | Targeted state-packer tests | Not needed | Not run — design only |
 | Specialized/fallback differential corpus | Not needed | Not run — design only |
 | Cold, warm, and same-process specialization | Not needed | Not run — design only |
@@ -435,19 +454,20 @@ p95, p99, maximum, stalls, CPU, GPU, RAM, or VRAM, keeps the candidate on hold.
 
 ## Decision
 
-**Result:** Continue research; do not implement one monolithic pipeline.
+**Result:** BLOCKED on PR #70 qualification and merge.
 
 The recommended architecture is a bounded hybrid interpreter family with an
 explicit coverage predicate and background specialization. It directly targets
 the cold first-seen case that PR #70 cannot know in advance, while PR #70
-remains the simpler broad warm-run repair. A worker that is immediately waited
-on provides no benefit, and draw skipping is not an acceptable correctness
-result.
+remains the first broad warm-run repair and the lifecycle foundation this work
+must reuse. A worker that is immediately waited on provides no benefit, and
+draw skipping is not an acceptable correctness result.
 
-The first implementation PR should contain only the state packer and
-differential oracle. Runtime fallback belongs in a later draft after the oracle
-defines a proven admitted set. Capability expansions such as dynamic state,
-pipeline libraries, and shader objects remain separate measured changes.
+After PR #70 is accepted, the first implementation PR should branch from the
+post-merge `main` and contain only the integrated state packer and differential
+oracle. Runtime fallback belongs in a later draft after the oracle defines a
+proven admitted set. Capability expansions such as dynamic state, pipeline
+libraries, and shader objects remain separate measured changes.
 
 ## Evidence and primary references
 
@@ -468,5 +488,7 @@ their vertex tokens, combiner state, texture signatures, and pipeline state.
 A precompiled general interpreter can cover unseen work, but xemu needs a
 bounded family because several Vulkan interfaces remain compile-time or
 pipeline-time decisions. This design changes no runtime behavior and claims no
-improvement. It recommends qualifying PR #70 first, then proving a fallback
-state packer and differential oracle before any hybrid runtime path is enabled.
+improvement. Runtime work is blocked until PR #70 is qualified and merged; the
+later branch must start from post-#70 `main`, reuse its shader artifact
+lifecycle, and prove a fallback state packer and differential oracle before any
+hybrid path is enabled.
