@@ -178,18 +178,20 @@ Use when applicable.
 
 | Workload | Renderer | Metric | Stable | Prior | Candidate | vs Stable |
 | --- | --- | --- | ---: | ---: | ---: | ---: |
-| PGR2 | Vulkan | FPS / cadence | | | | |
-| PGR2 | Vulkan | p95 | | | | |
-| PGR2 | Vulkan | p99 | | | | |
-| PGR2 | OpenGL | FPS / cadence | | | | |
-| Morrowind | Vulkan | display-write cadence | | | | |
+| PGR2-snapshot | Vulkan | FPS / cadence | | | | |
+| PGR2-snapshot | Vulkan | p95 | | | | |
+| PGR2-snapshot | Vulkan | p99 | | | | |
+| PGR2-snapshot | OpenGL | FPS / cadence | | | | |
+| PGR2-fullstart | Vulkan | FPS / cadence | | | | |
+| PGR2-fullstart | Vulkan | p95 | | | | |
+| PGR2-fullstart | Vulkan | p99 | | | | |
+| PGR2-fullstart | OpenGL | FPS / cadence | | | | |
+| Morrowind | Vulkan | FPS / cadence | | | | |
 | Morrowind | Vulkan | p95 | | | | |
 | Morrowind | Vulkan | p99 | | | | |
-| Morrowind | OpenGL | display-write cadence | | | | |
+| Morrowind | OpenGL | FPS / cadence | | | | |
 
-Remove unused rows.
-
-Morrowind snapshot FPS values are **guest display-write cadence**, not host-presented FPS.
+Mark unused rows as N/A if needed, reason goes below it why tests were not ran
 
 ---
 
