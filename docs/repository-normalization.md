@@ -7,8 +7,8 @@
 | Branch | Commit | Meaning now |
 | --- | --- | --- |
 | `upstream` | `75650bd8cd91945f7b79774e2cee0b200ca373ff` | Exact `xemu-project/xemu:master` at the audit snapshot; no local patches. Native behavior at this exact head has not been qualified here. |
-| `baseline` | `bd1fecb93353272dda2a810991e28945de35b665` | Fixed owner-selected cycle 01 reference with retained binary/results in the [selection record](performance/baseline-selection.json). |
-| `main` before this documentation PR | `bd1fecb93353272dda2a810991e28945de35b665` | Owner-accepted stable foundation in its entirety, including known fixes and testing addons. PR #62 adds documentation only; resolve the resulting main SHA from that PR after integration. |
+| `baseline` | Tag `baseline/cycle-01-start` | Exact cycle-start commit, initially shared with main. Resolved SHA/tree are in the linked [cycle manifest](https://github.com/Mainkill1/xemu/releases/download/archive/2026-09-09/main-before-normalization/cycle-01-start.json). |
+| `main` at switchover | Tag `baseline/cycle-01-start` | Same complete commit as baseline; subsequent accepted PRs and patches advance main only. |
 
 The [preservation release](https://github.com/Mainkill1/xemu/releases/tag/archive/2026-09-09/main-before-normalization) retains a complete Git bundle and checksum, with the captured branches, tags and PR-head histories. Existing PR discussions, release assets and external captures are separate from the bundle and remain preserved at their existing locations. No working branch is being removed.
 
@@ -28,7 +28,7 @@ All tags below begin with `archive/2026-09-09/`. They are immutable historical a
 | [pr48-ptimer-future-deadlines](https://github.com/Mainkill1/xemu/tree/archive/2026-09-09/pr48-ptimer-future-deadlines) | `cd5af56967f6d4e5c521de3d98bfe64a6872b7f9` |
 | [pr59-ptimer-main-unvalidated](https://github.com/Mainkill1/xemu/tree/archive/2026-09-09/pr59-ptimer-main-unvalidated) | `8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b` |
 
-Cycle pin `baseline/cycle-01-bd1fecb9` additionally preserves the selected baseline at `bd1fecb93353272dda2a810991e28945de35b665`. The [owner decision](https://github.com/Mainkill1/xemu/issues/38#issuecomment-5610949330) supersedes earlier pending-selection statements.
+Pre-alignment pin `baseline/cycle-01-bd1fecb9` preserves the original selected product snapshot at `bd1fecb93353272dda2a810991e28945de35b665`. The [owner decision](https://github.com/Mainkill1/xemu/issues/38#issuecomment-5610949330) supersedes earlier pending-selection statements.
 
 The pre-existing `archive/full-speed-e7bf825d` tag preserves `e7bf825d9cf073b38c52f7fba73efd08509913af`. The bundle also retains older archive tags, review parents and closed-PR heads.
 
@@ -61,7 +61,7 @@ The source inventory remains useful: main and pinned upstream have common ancest
 
 The exact baseline binary is SHA-256 `3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b`, compiled from `c17591d59c270b352b72e648f5ed65e4b2a3e77e`, whose tree is identical to `bd1fecb9`. Reuse that binary and matching results. The [pinned campaign](https://github.com/Mainkill1/xemu-perf-tests/blob/1f5cc9d8629df9a9157d676c39545595e799a37a/docs/evidence/baseline-campaign-20260909/REPORT.md) retains both completed observations and failed/incomplete tests. Its known gaps remain follow-ups; they do not erase the owner's baseline selection or valid older comparisons.
 
-The cycle starts with the same product source and binary in main and baseline. No optimization delta has accumulated through normalization. Documentation changes do not require rebuilding the baseline; their lack of source changes is checked directly. This is an identity statement, not a newly measured zero-percent result.
+The cycle starts with the exact same commit in main and baseline, including the completed workflow documentation. Immutable tag `baseline/cycle-01-start` preserves that point. The older product snapshot and its binary/results remain the qualification identity; aligning documentation does not change product source. No optimization delta has accumulated through normalization. Documentation changes do not require rebuilding the baseline; their lack of source changes is checked directly. This is an identity statement, not a newly measured zero-percent result.
 
 ## Preserved upstream comparison for a future re-baseline
 
@@ -82,8 +82,8 @@ The accepted APU ordering releases the BQL, takes the APU lock, waits for the wo
 | Question | Current answer / remaining gate |
 | --- | --- |
 | What does untouched upstream do? | Source is pinned above. Exact-head native behavior remains unmeasured here. |
-| What exact state is the cycle baseline? | `bd1fecb93353272dda2a810991e28945de35b665`, tree `6824a5aa4d9ca288ac96092dc9244684e995b08d`; retained binary and results pinned in the selection record. |
-| What accepted changes are in main? | The complete owner-selected baseline foundation plus documentation PR #62; no later optimization merged by normalization. The source ledger inventories that foundation. |
+| What exact state is the cycle baseline? | Immutable `baseline/cycle-01-start`; resolved commit/tree in the cycle manifest, with retained binary/results pinned in the selection record. |
+| What accepted changes are in main? | The complete owner-selected baseline foundation plus normalization documentation; no later optimization merged by normalization. The source ledger inventories that foundation. |
 | What did each optimization change from previous main? | Record both source identities and matched results; historical missing comparisons remain explicitly unavailable. |
 | What is the cumulative change versus baseline? | No product-source delta at cycle setup. Future accepted patches require matched cumulative measurements; historical per-patch gaps remain explicit. |
 | Where does evidence survive branch deletion? | Immutable source tags/bundle, existing PR discussions, releases and pinned [test evidence](https://github.com/Mainkill1/xemu-perf-tests/pull/7); verify all links before any deletion. |

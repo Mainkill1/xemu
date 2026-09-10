@@ -5,9 +5,11 @@ This fork uses the existing stable main tree as its accepted baseline foundation
 | Branch | Role |
 | --- | --- |
 | `upstream` | Exact mirror of `xemu-project/xemu:master` |
-| `baseline` | Fixed cycle 01 reference at `bd1fecb93353272dda2a810991e28945de35b665` |
+| `baseline` | Fixed cycle 01 reference at tag `baseline/cycle-01-start` |
 | `main` | Accepted foundation plus changes admitted through PRs |
 | `feature/*`, `fix/*`, `research/*` | Focused working branches from main |
+
+At switchover, `main` and `baseline` point to the exact same commit. After that, accepted PRs and patches advance `main`; `baseline` advances only through a deliberate, infrequent re-baseline.
 
 Read the [repository workflow](docs/repository-workflow.md), [baseline/results identity](docs/performance/baseline-selection.json), and [preservation inventory](docs/repository-normalization.md). Each accepted optimization is compared with both previous main and the fixed baseline. The [baseline release](https://github.com/Mainkill1/xemu/releases/tag/baseline-bd1fecb9-20260909) retains the existing binary and diagnostic symbols.
 
