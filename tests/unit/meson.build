@@ -67,6 +67,17 @@ tests = {
   'test-lru-active': [],
 }
 
+# This real graphics lifecycle test skips unless explicitly enabled on a host
+# with an interactive SDL/OpenGL session.
+if sdl.found() and epoxy.found()
+  tests += {
+    'test-xbox-gloffscreen': [
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/thirdparty/gloffscreen/sdl.c',
+      sdl, epoxy,
+    ],
+  }
+endif
+
 if have_system or have_tools
   tests += {
     'test-qmp-event': [testqapi],
