@@ -1,6 +1,6 @@
 # feature/vulkan-spirv-prewarm
 
-**Status:** Draft — cleanup and structural tests pass; repaired-head Windows build/runtime retest pending; historical performance HOLD\
+**Status:** Draft — repaired-head Windows build and focused native/sanitizer tests pass; gameplay/profiling retest pending; performance HOLD\
 **PR:** https://github.com/Mainkill1/xemu/pull/70\
 **Cause diagnostic:** https://github.com/Mainkill1/xemu/pull/68\
 **Post-integration ubershader design:** https://github.com/Mainkill1/xemu/pull/71 — blocked until #70 is qualified and merged\
@@ -10,7 +10,7 @@
 **Reused previous-main binary:** built from `19944268d97ecd92f2dcd820d6e151107833795b` / tree `e4d305254f64b92d1c374413bda12567874d7c14` / executable SHA-256 `13f61e7655a7b37ea51c282335b7540b48e92dc5980af0877be2e968eb571d9a`. Its only source-tree difference from previous main is the performance PR template; runtime source is equivalent.\
 **Historical tested runtime:** `b14bfb745870faae500a1ecb0ff49d2143ba8bd1` / tree `3a79dd692d9e7f1089fa0b138d07fc4269fbd704` / `xemu.exe` SHA-256 `d6c0762fd672932667537b7152bf4068a7c313d2980d4b545e020e852064bc9d`
 
-**Current repair source:** `01028d6db68c454e502f89b93383797e7a367553`, including lifecycle fix `ee00a1d21c`. All gameplay and performance tables below describe the older `b14bfb74` executable. They do not qualify the repaired head.
+**Tested repair build source:** `b111a9612911c9c170d661974852a46f3ad336b8` (tree `ae2cf13138c75cb2a63d5357561ad2800db92670`); **repair source:** `01028d6db68c454e502f89b93383797e7a367553`, including lifecycle fix `ee00a1d21c`. **Repaired executable SHA-256:** `e28c88fc44c5454f93d6af0a46010b562ba50dd2bb8ab77d8208514785d22ae6`. [Build, symbols and focused test receipts](https://github.com/Mainkill1/xemu-perf-tests/blob/251663c919f047d41129767c395d70c8a0fd5fdd/docs/evidence/pr70-spirv-prewarm-20260910/review-repair/README.md). All gameplay and performance tables below describe the older `b14bfb74` executable. They do not qualify the repaired head.
 
 **Evidence:** [Dedicated PR70 evidence PR](https://github.com/Mainkill1/xemu-perf-tests/pull/25) and [historical run manifest](https://github.com/Mainkill1/xemu-perf-tests/blob/e669ec45b41722cab93d5e7fd061c2012d84993d/docs/evidence/pr70-spirv-prewarm-20260910/full-qualification/manifest.json).
 
@@ -21,11 +21,11 @@
 | Partial uniform cleanup | One guarded cleanup routine handles missing metadata and partial names | Native failed-construction/recovery path |
 | Successful destruction / #69 | Same routine now frees names, metadata, and backing storage for uniforms and push constants | Native module-cache eviction and renderer recreation |
 | Structural cache tests | Valid enclosing checksums; positive control and transactional rejection; coverage reaches deeper guards | Native cache fallback and lifecycle matrix |
-| Focused host checks | Six ownership cases and 13 cache test groups pass under ASan/UBSan/LSan; repeated cleanup included | Exact Windows build and gameplay retest |
+| Focused checks | Six ownership cases and 13 cache groups pass under ASan/UBSan/LSan; exact Windows build and both native units pass | Full-emulator gameplay and lifecycle retest |
 | Evidence isolation | PR70 evidence copied byte-identically into its own branch/PR; source history retained | Keep all subsequent PR70 results on that branch |
 | Performance | Prior full-start tail movements remain unresolved | Paired repetitions with glslang, reflection, module creation, and pipeline creation timed separately |
 
-These tests exercise the production cleanup helper and cache implementation. They are not full-emulator allocation-failure injection, Windows/GPU qualification, or a measured lifecycle performance improvement. Issue #69 remains open until the broader lifecycle gate is satisfied.
+These tests exercise the production cleanup helper and cache implementation. They are not full-emulator allocation-failure injection, GPU/gameplay qualification, or a measured lifecycle performance improvement. Issue #69 remains open until the broader lifecycle gate is satisfied.
 
 ---
 
@@ -37,7 +37,7 @@ Performance qualification is still **on HOLD**. Across two automated PGR2 full-s
 
 **Headline:** The persistent cache demonstrably converts known-source warm launches to in-memory SPIR-V hits: automated PGR2 full start reported `338/0` and `341/0` hits/misses in two runs, the broader manual race `484/0`, PGR2 snapshot `141/0`, Morrowind snapshot `49/0`, and full XISO `71/0`. This proves reuse; it does not yet prove an end-to-end performance improvement or eliminate other stall sources.
 
-**Next:** Build and test the repaired head, then reproduce or attribute the controlled PGR2 full-start tail regression and finish the pending native UI lifecycle/failure and complete resource gates. No matching 60-second Morrowind control exists in the retained evidence; the available 20-second controls remain historical context, and a same-duration comparison remains pending. The completed manual race is exploratory broader-route shader coverage: user driving is less repeatable, and one previous-main → cold → warm sequence cannot clear the controlled HOLD or prove coverage of the whole map.
+**Next:** Run the repaired-head gameplay matrix, then reproduce or attribute the controlled PGR2 full-start tail regression and finish the pending native UI lifecycle/failure and complete resource gates. No matching 60-second Morrowind control exists in the retained evidence; the available 20-second controls remain historical context, and a same-duration comparison remains pending. The completed manual race is exploratory broader-route shader coverage: user driving is less repeatable, and one previous-main → cold → warm sequence cannot clear the controlled HOLD or prove coverage of the whole map.
 
 ---
 
