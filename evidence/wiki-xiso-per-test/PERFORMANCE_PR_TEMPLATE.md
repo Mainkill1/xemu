@@ -32,16 +32,16 @@
 ## Why This Patch Exists
 
 **Observed problem:**  
-<What is slow, wasteful, stalled, duplicated, over-synchronized, allocation-heavy, etc.?>
+<What is slow, wasteful, stalled, duplicated, over-synchronized, allocation-heavy, incorrect, etc.?>
 
 **Profiling evidence:**  
-<What measurement led here? Include hot path, percentage, call rate, wait time, allocation count, GPU stall, trace finding, etc.>
+<What measurement led here? Include hot path, percentage, call rate, wait time, allocation count, GPU stall, trace finding, correctness oracle, etc.>
 
 **Suspected cause:**  
-<What is actually causing the measured cost?>
+<What is actually causing the measured cost or incorrect behavior?>
 
 **Why this is worth investigating:**  
-<Why this path matters to Vulkan/xiso/game performance or host efficiency.>
+<Why this path matters to Vulkan/xiso/game performance, correctness, or host efficiency.>
 
 ## Patch Hypothesis
 
@@ -49,10 +49,10 @@
 <Describe the code/behavior change clearly.>
 
 **Why it should be faster:**  
-<Explain what work becomes cheaper, disappears, moves, batches, caches, becomes asynchronous, avoids synchronization, etc.>
+<Explain what work becomes cheaper, disappears, moves, batches, caches, becomes asynchronous, avoids synchronization, etc. If this is a correctness patch with no speed hypothesis, say that directly and state the required performance-neutral gate.>
 
 **Expected result:**  
-<What measurement should improve if the hypothesis is correct?>
+<What measurement or correctness result should improve if the hypothesis is correct?>
 
 **Possible risks:**  
 <Correctness, ordering, synchronization, OpenGL behavior, memory use, visual differences, edge cases, etc.>
@@ -61,27 +61,38 @@
 
 # Processing Flow
 
-Replace the examples below with the actual affected path.
+This section explains the behavioral/data path **before and after the patch** so a reviewer can understand the change without reading the diff first.
 
-## Current
+Use **two Mermaid flowcharts** whenever the patch changes how work or data moves through the system:
 
-### Current behavior
+1. **Current / Before** — show the existing path and identify where the problem, repeated work, wait, copy, allocation, cache miss, or incorrect behavior occurs.
+2. **Candidate / After** — show the proposed path using the same start/end points and the same node names for unchanged stages where possible. Make the removed, reused, batched, deferred, cached, or corrected work obvious.
 
-1. `<what arrives>`
-2. `<what processing occurs>`
-3. `<where unnecessary/repeated work occurs>`
-4. `<where CPU/GPU/memory/synchronization cost occurs>`
-5. `<final output/state>`
+Do not replace a real processing flow with a numbered list. Keep the charts focused on behavior rather than every function call. Show CPU/GPU boundaries, synchronization, copies, allocations, hashing/cache work, or data ownership when they are relevant. If processing flow truly does not apply, write `Not needed — <reason>`.
 
-## Candidate
+## Current / Before
 
-### Candidate behavior
+```mermaid
+flowchart LR
+    A[Input / state] --> B[Existing processing]
+    B --> C[Repeated, expensive, or incorrect work]
+    C --> D[CPU / GPU / memory / synchronization cost]
+    D --> E[Output / state]
+```
 
-1. `<what remains unchanged>`
-2. `<what changes>`
-3. `<what work is removed/reused/batched/deferred>`
-4. `<how synchronization/copies/allocations change>`
-5. `<why output should remain equivalent>`
+The **Current / Before** chart should make it possible to point at the exact stage being investigated.
+
+## Candidate / After
+
+```mermaid
+flowchart LR
+    A[Input / state] --> B[Unchanged processing]
+    B --> C[New / reused / batched / corrected path]
+    C --> D[Reduced or corrected work]
+    D --> E[Equivalent intended output / state]
+```
+
+The **Candidate / After** chart should show what changed and why the output remains equivalent or becomes correct.
 
 ### Processing Difference
 
@@ -95,7 +106,7 @@ Replace the examples below with the actual affected path.
 | Memory / VRAM | | | |
 | Repeated work | | | |
 
-Remove rows that do not apply.
+Remove rows that do not apply. The table summarizes the two diagrams; it does not replace them.
 
 ---
 
@@ -171,7 +182,7 @@ documented domain-specific rule.
 
 ## Frame Performance
 
-Use when applicable.
+Use when applicable. Keep this table to the metrics needed to understand the decision; put the complete machine-generated row set in the linked CSV/raw evidence instead of flooding the PR body.
 
 | Workload | Renderer | Metric | Raw + | Stable | Prior | Candidate | Improvement vs Stable (+ good / - bad) | Improvement vs Prior (+ good / - bad) |
 | --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: |
@@ -188,7 +199,7 @@ Use when applicable.
 | Morrowind | Vulkan | interval p99 | `+bad` | | | | | |
 | Morrowind | OpenGL | FPS / cadence | `+good` | | | | | |
 
-Mark unused rows as N/A if needed; explain below why the tests were not run.
+Add maximum interval / stall rows when tail latency is part of the gate. Mark unused rows as N/A if needed; explain below why the tests were not run.
 
 ---
 
