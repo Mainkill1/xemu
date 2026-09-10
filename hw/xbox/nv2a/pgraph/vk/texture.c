@@ -1247,6 +1247,26 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     PGRAPHVkState *r = pg->vk_renderer_state;
     TextureShape state = pgraph_get_texture_shape(pg, texture_idx); // FIXME: Check for pad issues
     BasicColorFormatInfo f_basic = kelvin_color_format_info_map[state.color_format];
+    PGRAPHTextureCubemapSpan cubemap_span = { 0 };
+    bool track_clamped_cubemap = false;
+
+    if (r->perf.enabled && state.cubemap &&
+        state.storage_levels > state.levels) {
+        bool compressed =
+            pgraph_is_texture_format_compressed(pg, state.color_format);
+
+        assert(pgraph_calculate_texture_cubemap_span(
+            &state, compressed, f_basic.bytes_per_pixel, &cubemap_span));
+        track_clamped_cubemap = true;
+        r->perf.clamped_cubemap.prepare_count++;
+        r->perf.clamped_cubemap.sampled_levels += state.levels;
+        r->perf.clamped_cubemap.storage_levels += state.storage_levels;
+        r->perf.clamped_cubemap.storage_span_bytes +=
+            cubemap_span.storage_span;
+        r->perf.clamped_cubemap.sampled_span_bytes +=
+            cubemap_span.sampled_span;
+        r->perf.clamped_cubemap.extra_span_bytes += cubemap_span.extra_span;
+    }
 
     const hwaddr texture_vram_offset = pgraph_get_texture_phys_addr(pg, texture_idx);
     size_t texture_length = pgraph_get_texture_length(pg, &state);
@@ -1313,8 +1333,17 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
         // FIXME: Restructure to support rendering surfaces to cubemap faces
 
         // Writeback any surfaces which this texture may index
-        if (!pgraph_vk_download_surfaces_in_range_if_dirty(
-                pg, texture_vram_offset, texture_length)) {
+        int64_t surface_range_start_us = track_clamped_cubemap ?
+            g_get_monotonic_time() : 0;
+        bool surfaces_downloaded =
+            pgraph_vk_download_surfaces_in_range_if_dirty(
+                pg, texture_vram_offset, texture_length);
+        if (track_clamped_cubemap) {
+            r->perf.clamped_cubemap.surface_range_check_count++;
+            r->perf.clamped_cubemap.surface_range_check_cpu_us +=
+                g_get_monotonic_time() - surface_range_start_us;
+        }
+        if (!surfaces_downloaded) {
             NV2A_VK_DGROUP_END();
             return false;
         }
@@ -1345,9 +1374,18 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     }
 
     if (!surface_to_texture && !possibly_dirty_checked) {
-        possibly_dirty |= check_texture_possibly_dirty(
+        int64_t dirty_check_start_us = track_clamped_cubemap ?
+            g_get_monotonic_time() : 0;
+        bool texture_dirty = check_texture_possibly_dirty(
             d, texture_vram_offset, texture_length, texture_palette_vram_offset,
             texture_palette_data_size);
+        if (track_clamped_cubemap) {
+            r->perf.clamped_cubemap.prepare_dirty_check_count++;
+            r->perf.clamped_cubemap.prepare_dirty_hit_count += texture_dirty;
+            r->perf.clamped_cubemap.prepare_dirty_check_cpu_us +=
+                g_get_monotonic_time() - dirty_check_start_us;
+        }
+        possibly_dirty |= texture_dirty;
     }
 
     // Calculate hash of texture data, if necessary
@@ -1356,7 +1394,18 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
 
     uint64_t content_hash = 0;
     if (!surface_to_texture && possibly_dirty) {
+        int64_t hash_start_us = track_clamped_cubemap ?
+            g_get_monotonic_time() : 0;
         content_hash = fast_hash(texture_data, texture_length);
+        if (track_clamped_cubemap) {
+            r->perf.clamped_cubemap.content_hash_count++;
+            r->perf.clamped_cubemap.content_hash_texture_bytes +=
+                texture_length;
+            r->perf.clamped_cubemap.content_hash_extra_texture_bytes +=
+                cubemap_span.extra_span;
+            r->perf.clamped_cubemap.content_hash_cpu_us +=
+                g_get_monotonic_time() - hash_start_us;
+        }
         if (is_indexed) {
             content_hash ^= fast_hash(palette_data, texture_palette_data_size);
         }
@@ -1369,12 +1418,22 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
                 copy_surface_to_texture(pg, surface, snode);
             }
         } else {
-            if (possibly_dirty && content_hash != snode->hash &&
-                !pgraph_vk_texture_upload_complete(
-                    upload_texture_image(pg, texture_idx, snode), content_hash,
-                    &snode->hash, &snode->possibly_dirty)) {
-                NV2A_VK_DGROUP_END();
-                return false;
+            if (possibly_dirty && content_hash != snode->hash) {
+                int64_t upload_start_us = track_clamped_cubemap ?
+                    g_get_monotonic_time() : 0;
+                bool upload_succeeded =
+                    upload_texture_image(pg, texture_idx, snode);
+                if (track_clamped_cubemap) {
+                    r->perf.clamped_cubemap.upload_count++;
+                    r->perf.clamped_cubemap.upload_cpu_us +=
+                        g_get_monotonic_time() - upload_start_us;
+                }
+                if (!pgraph_vk_texture_upload_complete(
+                        upload_succeeded, content_hash, &snode->hash,
+                        &snode->possibly_dirty)) {
+                    NV2A_VK_DGROUP_END();
+                    return false;
+                }
             }
             if (possibly_dirty && content_hash == snode->hash) {
                 /* The current binding was fully hashed and, when changed,
@@ -1579,9 +1638,17 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     if (surface_to_texture) {
         copy_surface_to_texture(pg, surface, snode);
     } else {
+        int64_t upload_start_us = track_clamped_cubemap ?
+            g_get_monotonic_time() : 0;
+        bool upload_succeeded = upload_texture_image(pg, texture_idx, snode);
+        if (track_clamped_cubemap) {
+            r->perf.clamped_cubemap.upload_count++;
+            r->perf.clamped_cubemap.upload_cpu_us +=
+                g_get_monotonic_time() - upload_start_us;
+        }
         if (!pgraph_vk_texture_upload_complete(
-                upload_texture_image(pg, texture_idx, snode), content_hash,
-                &snode->hash, &snode->possibly_dirty)) {
+                upload_succeeded, content_hash, &snode->hash,
+                &snode->possibly_dirty)) {
             NV2A_VK_DGROUP_END();
             return false;
         }
@@ -1619,12 +1686,48 @@ static bool check_bound_texture_memory_dirty(NV2AState *d)
             continue;
         }
 
-        if (binding->possibly_dirty ||
-            check_texture_possibly_dirty(
+        if (binding->possibly_dirty) {
+            return true;
+        }
+
+        bool texture_dirty;
+        TextureShape *state = &binding->key.state;
+        bool track_clamped_cubemap =
+            r->perf.enabled && state->cubemap &&
+            state->storage_levels > state->levels;
+        if (track_clamped_cubemap) {
+            BasicColorFormatInfo format =
+                kelvin_color_format_info_map[state->color_format];
+            bool compressed = pgraph_is_texture_format_compressed(
+                pg, state->color_format);
+            PGRAPHTextureCubemapSpan cubemap_span;
+
+            assert(pgraph_calculate_texture_cubemap_span(
+                state, compressed, format.bytes_per_pixel, &cubemap_span));
+            int64_t dirty_check_start_us = g_get_monotonic_time();
+            texture_dirty = check_texture_possibly_dirty(
                 d, binding->key.texture_vram_offset,
                 binding->key.texture_length,
                 binding->key.palette_vram_offset,
-                binding->key.palette_length)) {
+                binding->key.palette_length);
+            r->perf.clamped_cubemap.bound_dirty_check_count++;
+            r->perf.clamped_cubemap.bound_dirty_hit_count += texture_dirty;
+            r->perf.clamped_cubemap.bound_dirty_storage_span_bytes +=
+                cubemap_span.storage_span;
+            r->perf.clamped_cubemap.bound_dirty_sampled_span_bytes +=
+                cubemap_span.sampled_span;
+            r->perf.clamped_cubemap.bound_dirty_extra_span_bytes +=
+                cubemap_span.extra_span;
+            r->perf.clamped_cubemap.bound_dirty_check_cpu_us +=
+                g_get_monotonic_time() - dirty_check_start_us;
+        } else {
+            texture_dirty = check_texture_possibly_dirty(
+                d, binding->key.texture_vram_offset,
+                binding->key.texture_length,
+                binding->key.palette_vram_offset,
+                binding->key.palette_length);
+        }
+        if (texture_dirty) {
             return true;
         }
     }

@@ -99,7 +99,7 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":5"
+            "{\"type\":\"schema\",\"schema_version\":6"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}",
             VK_PERF_INITIAL_TIMED_SUBMITS, VK_PERF_HOT_SAMPLE_STRIDE);
@@ -272,7 +272,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":5"
+            "{\"type\":\"frame\",\"schema_version\":6"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
@@ -337,6 +337,50 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"decoded_bc_source_bytes_per_guest_frame\":%" PRIu64
             ",\"decoded_bc_staged_bytes_per_guest_frame\":%" PRIu64
             ",\"decoded_bc_prepare_cpu_us_per_guest_frame\":%" PRIu64
+            ",\"clamped_cubemap_prepares_per_guest_frame\":%" PRIu64
+            ",\"clamped_cubemap_sampled_levels_"
+            "per_guest_frame\":%" PRIu64
+            ",\"clamped_cubemap_storage_levels_"
+            "per_guest_frame\":%" PRIu64
+            ",\"clamped_cubemap_storage_span_bytes_"
+            "per_guest_frame\":%" PRIu64
+            ",\"clamped_cubemap_sampled_span_bytes_"
+            "per_guest_frame\":%" PRIu64
+            ",\"clamped_cubemap_extra_span_bytes_"
+            "per_guest_frame\":%" PRIu64
+            ",\"clamped_cubemap_surface_range_checks_"
+            "per_guest_frame\":%" PRIu64
+            ",\"clamped_cubemap_surface_range_check_cpu_us_"
+            "per_guest_frame\":%" PRIu64
+            ",\"clamped_cubemap_prepare_dirty_checks_"
+            "per_guest_frame\":%" PRIu64
+            ",\"clamped_cubemap_prepare_dirty_hits_"
+            "per_guest_frame\":%" PRIu64
+            ",\"clamped_cubemap_prepare_dirty_check_cpu_us_"
+            "per_guest_frame\":%" PRIu64
+            ",\"clamped_cubemap_bound_dirty_checks_"
+            "per_guest_frame\":%" PRIu64
+            ",\"clamped_cubemap_bound_dirty_hits_"
+            "per_guest_frame\":%" PRIu64
+            ",\"clamped_cubemap_bound_dirty_storage_span_bytes_"
+            "per_guest_frame\":%" PRIu64
+            ",\"clamped_cubemap_bound_dirty_sampled_span_bytes_"
+            "per_guest_frame\":%" PRIu64
+            ",\"clamped_cubemap_bound_dirty_extra_span_bytes_"
+            "per_guest_frame\":%" PRIu64
+            ",\"clamped_cubemap_bound_dirty_check_cpu_us_"
+            "per_guest_frame\":%" PRIu64
+            ",\"clamped_cubemap_content_hashes_"
+            "per_guest_frame\":%" PRIu64
+            ",\"clamped_cubemap_content_hash_texture_bytes_"
+            "per_guest_frame\":%" PRIu64
+            ",\"clamped_cubemap_content_hash_extra_texture_bytes_"
+            "per_guest_frame\":%" PRIu64
+            ",\"clamped_cubemap_content_hash_cpu_us_"
+            "per_guest_frame\":%" PRIu64
+            ",\"clamped_cubemap_uploads_per_guest_frame\":%" PRIu64
+            ",\"clamped_cubemap_upload_cpu_us_"
+            "per_guest_frame\":%" PRIu64
             ",\"staged_bytes_per_submit\":%.3f"
             ",\"submit_infos_per_submit\":%.3f"
             ",\"command_buffers_per_submit\":%.3f"
@@ -356,6 +400,29 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->native_bc_staged_bytes, perf->native_bc_prepare_cpu_us,
             perf->decoded_bc_upload_count, perf->decoded_bc_source_bytes,
             perf->decoded_bc_staged_bytes, perf->decoded_bc_prepare_cpu_us,
+            perf->clamped_cubemap.prepare_count,
+            perf->clamped_cubemap.sampled_levels,
+            perf->clamped_cubemap.storage_levels,
+            perf->clamped_cubemap.storage_span_bytes,
+            perf->clamped_cubemap.sampled_span_bytes,
+            perf->clamped_cubemap.extra_span_bytes,
+            perf->clamped_cubemap.surface_range_check_count,
+            perf->clamped_cubemap.surface_range_check_cpu_us,
+            perf->clamped_cubemap.prepare_dirty_check_count,
+            perf->clamped_cubemap.prepare_dirty_hit_count,
+            perf->clamped_cubemap.prepare_dirty_check_cpu_us,
+            perf->clamped_cubemap.bound_dirty_check_count,
+            perf->clamped_cubemap.bound_dirty_hit_count,
+            perf->clamped_cubemap.bound_dirty_storage_span_bytes,
+            perf->clamped_cubemap.bound_dirty_sampled_span_bytes,
+            perf->clamped_cubemap.bound_dirty_extra_span_bytes,
+            perf->clamped_cubemap.bound_dirty_check_cpu_us,
+            perf->clamped_cubemap.content_hash_count,
+            perf->clamped_cubemap.content_hash_texture_bytes,
+            perf->clamped_cubemap.content_hash_extra_texture_bytes,
+            perf->clamped_cubemap.content_hash_cpu_us,
+            perf->clamped_cubemap.upload_count,
+            perf->clamped_cubemap.upload_cpu_us,
             staged_bytes_per_submit,
             submit_infos_per_submit, command_buffers_per_submit,
             perf->in_flight_submission_count,
@@ -386,6 +453,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->decoded_bc_source_bytes = 0;
     perf->decoded_bc_staged_bytes = 0;
     perf->decoded_bc_prepare_cpu_us = 0;
+    memset(&perf->clamped_cubemap, 0, sizeof(perf->clamped_cubemap));
     perf->peak_in_flight_submission_count =
         perf->in_flight_submission_count;
     perf->oldest_in_flight_serial = 0;

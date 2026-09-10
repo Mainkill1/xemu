@@ -399,6 +399,32 @@ typedef struct PGRAPHVkCpuStats {
     uint64_t cpu_us;
 } PGRAPHVkCpuStats;
 
+typedef struct PGRAPHVkClampedCubemapStats {
+    uint64_t prepare_count;
+    uint64_t sampled_levels;
+    uint64_t storage_levels;
+    uint64_t storage_span_bytes;
+    uint64_t sampled_span_bytes;
+    uint64_t extra_span_bytes;
+    uint64_t surface_range_check_count;
+    uint64_t surface_range_check_cpu_us;
+    uint64_t prepare_dirty_check_count;
+    uint64_t prepare_dirty_hit_count;
+    uint64_t prepare_dirty_check_cpu_us;
+    uint64_t bound_dirty_check_count;
+    uint64_t bound_dirty_hit_count;
+    uint64_t bound_dirty_storage_span_bytes;
+    uint64_t bound_dirty_sampled_span_bytes;
+    uint64_t bound_dirty_extra_span_bytes;
+    uint64_t bound_dirty_check_cpu_us;
+    uint64_t content_hash_count;
+    uint64_t content_hash_texture_bytes;
+    uint64_t content_hash_extra_texture_bytes;
+    uint64_t content_hash_cpu_us;
+    uint64_t upload_count;
+    uint64_t upload_cpu_us;
+} PGRAPHVkClampedCubemapStats;
+
 typedef struct PGRAPHVkPerfTelemetry {
     FILE *file;
     bool enabled;
@@ -422,6 +448,7 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t decoded_bc_source_bytes;
     uint64_t decoded_bc_staged_bytes;
     uint64_t decoded_bc_prepare_cpu_us;
+    PGRAPHVkClampedCubemapStats clamped_cubemap;
     uint64_t in_flight_submission_count;
     uint64_t peak_in_flight_submission_count;
     uint64_t oldest_in_flight_serial;
