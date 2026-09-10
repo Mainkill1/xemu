@@ -1,238 +1,376 @@
 # feature/vulkan-spirv-prewarm
 
-**Status:** Investigating
-**Stable baseline:** `9f618d6d8c4c446ef023955f3d4de22f661f61a4` / retained product executable `3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b`
-**Previous main:** `e18ba8d6274cf227cc9e5ae1b5684f28ed911a99`
-**Current candidate:** Pending implementation on this branch
+**Status:** Testing — automated correctness passed; PGR2 full-start performance HOLD; exploratory manual race complete; lifecycle/resource gates pending\
+**PR:** https://github.com/Mainkill1/xemu/pull/70\
+**Cause diagnostic:** https://github.com/Mainkill1/xemu/pull/68\
+**Post-integration ubershader design:** https://github.com/Mainkill1/xemu/pull/71 — blocked until #70 is qualified and merged\
+
+**Stable baseline:** `9f618d6d8c4c446ef023955f3d4de22f661f61a4` / retained product executable SHA-256 `3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b`\
+**Previous main:** `e18ba8d6274cf227cc9e5ae1b5684f28ed911a99` / tree `3826f39bafd751596436958da355ca87e5b98c87`\
+**Reused previous-main binary:** built from `19944268d97ecd92f2dcd820d6e151107833795b` / tree `e4d305254f64b92d1c374413bda12567874d7c14` / executable SHA-256 `13f61e7655a7b37ea51c282335b7540b48e92dc5980af0877be2e968eb571d9a`. Its only source-tree difference from previous main is the performance PR template; runtime source is equivalent.\
+**Tested candidate runtime:** `b14bfb745870faae500a1ecb0ff49d2143ba8bd1` / tree `3a79dd692d9e7f1089fa0b138d07fc4269fbd704` / `xemu.exe` SHA-256 `d6c0762fd672932667537b7152bf4068a7c313d2980d4b545e020e852064bc9d`
+
+**Build and test manifest:** [Pinned identities, protocols, and metadata gaps](https://github.com/Mainkill1/xemu-perf-tests/blob/303c381f6e7891101996f95f7e2c009b3abc559b/docs/evidence/pr70-spirv-prewarm-20260910/full-qualification/manifest.json). The later documentation update changes this report and its evidence index only; all runtime results qualify `b14bfb74`.
+
+---
 
 ## Summary
 
-**Current result:** Cause confirmed; behavioral implementation and testing are pending.
+**Current result:** The exact `b14bfb74` Windows executable passed the focused native admission, 157-record XISO runs on OpenGL and Vulkan cold/warm with the documented inherited non-pass cases, and candidate gameplay admission for PGR2 and Morrowind. Every accepted warm Vulkan cell loaded its cold cache, reported zero misses/rejections/fallbacks, queued no new bytes, and left the cache file byte-identical within that profile. A completed exploratory 120-second user-driven PGR2 race expanded the cold cache to 221 records and then served 484 warm hits with zero misses.
 
-**Headline:** The measured PGR2 hitch compiled four first-seen shaders and spent
-18.217 ms in glslang. Reusing validated SPIR-V loaded before gameplay can
-remove that compilation from a warm run without changing shader state.
+Performance qualification is still **on HOLD**. Across two automated PGR2 full-start Vulkan captures, candidate warm p95, p99, and maximum intervals regressed **-5.833%**, **-14.241%**, and **-18.744%** against the mean of two previous-main controls. Cold p95, p99, and maximum also regressed **-2.432%**, **-11.432%**, and **-17.136%**. These fixed-route captures are variable and do not establish cache causality, but they exceed the >2% hold threshold and cannot be discarded.
 
-**Next:** Implement a bounded, versioned cache with no gameplay-path file I/O,
-then compare cold, warm, and same-process runs before starting the complete
-product matrix.
+**Headline:** The persistent cache demonstrably converts known-source warm launches to in-memory SPIR-V hits: automated PGR2 full start reported `338/0` and `341/0` hits/misses in two runs, the broader manual race `484/0`, PGR2 snapshot `141/0`, Morrowind snapshot `49/0`, and full XISO `71/0`. This proves reuse; it does not yet prove an end-to-end performance improvement or eliminate other stall sources.
 
-## Investigation
+**Next:** Reproduce or attribute the controlled PGR2 full-start tail regression and finish the pending native UI lifecycle/failure and complete resource gates. No matching 60-second Morrowind control exists in the retained evidence; the available 20-second controls remain historical context, and a same-duration comparison remains pending. The completed manual race is exploratory broader-route shader coverage: user driving is less repeatable, and one previous-main → cold → warm sequence cannot clear the controlled HOLD or prove coverage of the whole map.
 
-### Why this patch exists
+---
 
-The completed PR #68 diagnostic recorded 141 Vulkan stage-module misses and
-463.419 ms of glslang work during one PGR2 snapshot run. The primary hitch at
-guest frame 673 contained two vertex and two fragment misses. All four were
-new generated sources in that process and consumed 18.217 ms in glslang.
+# Investigation
 
-Twenty other misses regenerated stage/source identities already seen under a
-different state key, costing another 68.200 ms. Key normalization is useful
-follow-up work, but it cannot remove the four first-seen compilations in the
-primary hitch.
+## Why This Patch Exists
 
-### Patch hypothesis
+The completed PR #68 diagnostic recorded 141 Vulkan stage-module misses and 463.419 ms of glslang work during one PGR2 snapshot run. The primary hitch at guest frame 673 contained two vertex and two fragment misses. All four were first-seen generated sources in that process and consumed 18.217 ms in glslang.
 
-Load a bounded SPIR-V artifact index during Vulkan renderer initialization.
-On a module-cache miss, generate the exact GLSL as today and look up a record
-identified by stage, exact source bytes, shader-generator/cache schema, target
-environment, and compiler options. A validated hit supplies SPIR-V from
-memory; a miss uses glslang and queues the resulting artifact for a single
-producer-quiesced, atomic write outside gameplay.
+Twenty other misses regenerated stage/source identities already seen under a different state key, costing another 68.200 ms. State-key normalization is separate follow-up work; it cannot remove the four first-seen compilations in the primary hitch.
 
-The first candidate intentionally retains GLSL generation, Vulkan module
-creation, and reflection. The measured primary frame spent 0.797 ms generating
-GLSL, 0.043 ms creating modules, and 1.269 ms reflecting them, compared with
-18.217 ms compiling. Precreating complete modules is a later step if warm-run
-tail measurements show the remaining work matters.
+## Patch Hypothesis
 
-Risks include accepting stale or corrupt cache data, confusing compiler and
-generator identities, unbounded disk/RAM growth, file I/O on the draw path,
-incorrect SPIR-V lifetime, and failed-cache behavior that prevents the normal
-compiler fallback.
+Load a bounded SPIR-V artifact index during Vulkan renderer initialization. On a graphics shader-module cache miss, generate the exact GLSL as before and look up a record identified by stage, exact source bytes, shader-generator/cache ABI, target environment, and effective compiler/debug options. A validated hit supplies SPIR-V from memory. A miss uses glslang and queues an immutable artifact for one producer-quiesced atomic write outside gameplay.
 
-## Processing flow
+The candidate retains synchronous GLSL generation, Vulkan module creation, and reflection. In the diagnostic primary frame those regions took 0.797 ms, 0.043 ms, and 1.269 ms respectively, compared with 18.217 ms in glslang. The expected warm-run benefit is removal of that compilation work for exact artifact hits.
 
-### Current / before
+Risks include corrupt or stale input, mismatched stage/compiler identity, unbounded storage, draw-path file I/O, partial Vulkan/reflection state, destructive live-toggle behavior, shutdown data loss, and persistent-cache resource growth.
 
-```mermaid
-flowchart LR
-    A[Shader module state-key miss] --> B[Generate exact GLSL]
-    B --> C[Run glslang synchronously]
-    C --> D[Create Vulkan module and reflect uniforms]
-    D --> E[Resume the blocked draw]
-```
+---
 
-### Candidate / after
+# Processing Flow
 
-```mermaid
-flowchart LR
-    P[Renderer initialization] --> Q[Read and validate bounded cache once]
-    A[Shader module state-key miss] --> B[Generate exact GLSL]
-    B --> C{Exact in-memory artifact hit?}
-    Q --> C
-    C -->|Yes| D[Reuse validated SPIR-V]
-    C -->|No| F[Run glslang and queue artifact]
-    D --> G[Create Vulkan module and reflect uniforms]
-    F --> G
-    G --> E[Resume the draw]
-    E --> H[Producer-quiesced atomic cache write at shutdown]
-```
+## Current / Before
 
-### Processing difference
+On every process-first shader source, a graphics shader-module state-key miss generates exact GLSL, runs glslang synchronously, creates the Vulkan module, reflects uniforms, and then resumes the blocked draw.
 
-| Area | Current | Candidate | Expected effect |
+## Candidate / After
+
+Eligible Vulkan renderer initialization reads and validates the bounded cache once. A graphics shader-module state-key miss still generates exact GLSL, then checks the in-memory artifact index. An exact hit reuses validated SPIR-V; a miss runs glslang and queues the artifact. Both paths share Vulkan module creation and reflection. Dirty cache state is written atomically after producer mutations quiesce.
+
+### Processing Difference
+
+| Area | Current | Candidate | Expected Effect |
 | --- | --- | --- | --- |
-| Draw-path compilation | glslang on every process-first source | Memory lookup on a valid warm hit | Remove measured compiler stall |
-| File I/O | None | Initialization read and shutdown write | No gameplay-path file I/O |
-| GPU work | Create the same Vulkan module | Create the same Vulkan module from identical SPIR-V | Equivalent GPU input |
-| Memory | In-process modules only | Bounded validated artifact index | Measured and capped increase |
-| Failure | Compilation failure is visible | Invalid/missing cache falls back to the same compiler path | Preserve current behavior |
+| Draw-path compilation | glslang on every process-first source | In-memory lookup on a valid warm hit | Remove measured compiler stall |
+| File I/O | None | Initialization read and shutdown write | No module-miss/gameplay-path file I/O |
+| GPU work | Create a Vulkan module from fresh SPIR-V | Create a Vulkan module from accepted cached or fresh SPIR-V through one path | Equivalent device-local construction |
+| Memory/disk | In-process modules only | Bounded renderer-local artifact index and one bounded file | Controlled persistence cost |
+| Failure | Compile on the current path | Reject invalid cache data and compile through the same path | Preserve rendering fallback |
 
-## Code changes
+---
 
-- A single little-endian `spirv-v1.bin` file under the settings-owned
-  `cache/vulkan` directory carries an explicit cache ABI, shader-generator
-  policy revision, glslang semantic version and flavor, Vulkan/SPIR-V targets,
-  every effective debug/compiler-policy flag, and per-record stage plus exact
-  GLSL bytes. Hashes accelerate comparison and validate payload integrity;
-  exact bytes remain authoritative.
-- The cache independently caps records at 4,096, one source and one SPIR-V
-  module at 1 MiB each, aggregate source bytes at 16 MiB, aggregate SPIR-V
-  bytes at 32 MiB, and the complete file at 64 MiB. SPIR-V length, word
-  alignment, magic, and version are checked before an entry becomes visible.
-- Vulkan initialization reads and transactionally validates the file once.
-  Graphics module misses generate GLSL as before and perform only an in-memory
-  lookup. Missing, incompatible, truncated, corrupt, or oversized input leaves
-  the empty/current store usable and falls through to glslang.
-- Cached and freshly compiled bytes enter one fallible module-construction
-  path that creates device-owned `VkShaderModule` and SPIRV-Reflect state once.
-  A cached construction failure removes that entry, fully unwinds its partial
-  resources, compiles normally, and queues the successful immutable artifact.
-- Clean shutdown queues one producer-thread write after rendering mutations
-  quiesce. The complete replacement is serialized in memory, written to a
-  uniquely named temporary file, and atomically renamed. Write or rename
-  failure leaves the previous cache intact and remains retryable. Renderer
-  switches synchronously publish dirty entries from the quiesced producer
-  before destroying the renderer-local store.
-- The live shader-cache toggle gates lookup, queuing, and writeback. Turning it
-  off stops cache work immediately. A Vulkan renderer created while caching is
-  disabled remains ineligible for cache use and publication, so enabling takes
-  effect after a renderer restart and cannot replace an unseen cache file.
-- One deferred shutdown line reports aggregate hits, misses, rejections,
-  fallbacks, records, source/SPIR-V bytes, loaded/queued bytes, and write
-  outcome. Shader misses do not log.
+# Code Changes
 
-**Main code path:** `hw/xbox/nv2a/pgraph/vk/glsl.c`, `shaders.c`, Vulkan
-renderer lifecycle, and a focused cache-format module.
+- Add one little-endian `spirv-v1.bin` under the settings-owned `cache/vulkan` directory. Its identity includes an explicit cache ABI and generator-policy revision, glslang semantic version/flavor, Vulkan and SPIR-V targets, every effective debug/compiler-policy flag, shader stage, and exact GLSL bytes. Hashes accelerate lookup and protect integrity; full bytes remain authoritative.
+- Independently cap the cache at 4,096 records, 1 MiB per source, 1 MiB per SPIR-V module, 16 MiB aggregate source, 32 MiB aggregate SPIR-V, and 64 MiB for the complete file. Validate SPIR-V length, word alignment, magic, version, stage, entry point, descriptor/member counts, and checked layout arithmetic before an entry becomes usable.
+- Read and transactionally validate once during eligible Vulkan renderer initialization. Graphics module misses generate GLSL as before and perform only an in-memory artifact lookup.
+- Route cached and freshly compiled SPIR-V through one fallible Vulkan-module/reflection constructor. A cached construction failure removes the entry, unwinds partial state, compiles normally, and queues the successful artifact.
+- Serialize the replacement in memory and publish through a unique temporary file plus atomic rename only after producer mutations quiesce. Write/rename failure preserves the old cache and remains retryable. Renderer switch/finalize synchronously flushes dirty state before destruction.
+- Gate lookup, add, and writeback on the live shader-cache setting. Turning the setting off stops cache activity immediately. A renderer created while caching is disabled remains ineligible until renderer reinitialization, preventing an unseeded store from replacing an unseen existing cache.
+- Emit one bounded aggregate summary after producer quiescence. Shader-module misses perform no synchronous logging.
 
-## Known limitations
+**Main code path:** `hw/xbox/nv2a/pgraph/vk/glsl.c`, `shaders.c`, `spirv-prewarm.c`, and Vulkan renderer initialization/shutdown.
 
-- GLSL generation, Vulkan module creation, and reflection remain synchronous;
-  this candidate targets the measured glslang region only.
-- Concurrent xemu processes use unique temporary files and always publish a
-  valid bounded file, but the last clean shutdown wins; their in-memory record
-  sets are not merged.
-- A renderer that starts with shader caching disabled does not preload the file
-  and cannot use or publish its empty store. This avoids module-miss file I/O
-  and preserves an existing cache, at the cost of requiring renderer
-  reinitialization after enabling the setting.
-- SPIRV-Reflect is the available parser; this tree does not expose SPIRV-Tools
-  validation. Cache inputs are size-, integrity-, stage-, entry-point-, and
-  layout-checked, with bounded descriptor/member counts and checked uniform
-  address arithmetic before Vulkan creation, but this is structural validation
-  rather than a complete `spirv-val` pass.
-- The inherited successful-layout allocation leak remains tracked by issue
-  #69. This change frees only partial allocations created by a rejected cached
-  module; eviction and renderer-switch resource qualification still depend on
-  resolving or explicitly accepting that separate gate.
+**Implementation commit:** `b14bfb745870faae500a1ecb0ff49d2143ba8bd1`
 
-## Profiling
+---
 
-| Measurement | Stable baseline | Previous main | Current candidate |
+# Profiling
+
+## Baseline Bottleneck
+
+| Measurement | Stable Baseline | Previous Main Diagnostic | Current Candidate |
 | --- | ---: | ---: | ---: |
-| PGR2 primary-frame glslang | Retained run does not contain this diagnostic | 18.217 ms diagnostic target | Pending |
-| Full-run glslang | Retained run does not contain this diagnostic | 463.419 ms diagnostic target | Pending |
-| First stage/source identities | Not recorded | 121 | Pending |
-| Different-key/same-source compiles | Not recorded | 20 | Pending |
+| PGR2 primary-frame glslang | Not recorded | 18.217 ms | No direct region timing in qualification build |
+| PGR2 diagnostic-run glslang | Not recorded | 463.419 ms | No direct region timing in qualification build |
+| First stage/source identities | Not recorded | 121 | Persisted as reusable artifacts in exercised snapshot route |
+| Different-key/same-source compiles | Not recorded | 20 | Exact source identity permits reuse |
 
-The instrumentation result identifies the cause; it is not a baseline or
-candidate performance qualification.
+## Exact-Head Warm Reuse
 
-## Performance results
+| Workload | Cache file | Warm hits | Warm misses | Rejects | Fallbacks | Queued bytes | Warm file result |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| PGR2 full start, run 1 | 4,839,817 B | 338 | 0 | 0 | 0 | 0 | Byte-identical |
+| PGR2 full start, run 2 | 4,839,817 B | 341 | 0 | 0 | 0 | 0 | Byte-identical |
+| PGR2 exploratory manual race | 5,418,200 B | 484 | 0 | 0 | 0 | 0 | Byte-identical |
+| PGR2 snapshot | 3,042,552 B | 141 | 0 | 0 | 0 | 0 | Byte-identical |
+| Morrowind snapshot | 1,307,654 B | 49 | 0 | 0 | 0 | 0 | Byte-identical |
+| Full XISO | 1,146,671 B | 71 | 0 | 0 | 0 | 0 | Byte-identical |
 
-Every percentage is Improvement %: positive is favorable and negative is
-unfavorable. Interval, CPU-time, memory, and stall metrics are `+bad`; FPS and
-completed work are `+good`.
+**Bottleneck status:** The exact-head aggregate counters prove that accepted warm hits bypassed cache misses for the exercised source sets. They do not time glslang directly and do not establish an end-to-end frame-time win.
 
-| Workload | Renderer | Metric | Raw + | Stable | Previous main | Candidate | Improvement vs stable | Improvement vs previous main |
-| --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: |
-| PGR2 snapshot warm | Vulkan | maximum interval | `+bad` | Pending reuse | Pending reuse | Pending | N/A | N/A |
-| PGR2 snapshot warm | Vulkan | primary-frame glslang | `+bad` | N/A | 18.217 ms diagnostic | Pending | N/A | N/A |
-| PGR2 full start | Vulkan/OpenGL | average, p95, p99, maximum, stalls | `+bad` | Pending reuse | Pending | Pending | N/A | N/A |
-| Morrowind snapshot | Vulkan/OpenGL | average, p95, p99, maximum, stalls | `+bad` | Pending reuse | Pending | Pending | N/A | N/A |
+**New limiting path:** GLSL generation, hash/lookup, Vulkan module creation, reflection, and other renderer/game timing remain synchronous or unchanged.
 
-## XISO results
+---
 
-| Gate | OpenGL | Vulkan |
+# Performance Results
+
+## Improvement Convention
+
+Every percentage below is **Improvement %**: positive is favorable and negative is unfavorable.
+
+| Raw + | Raw metric direction | Improvement % |
 | --- | --- | --- |
-| Focused cache format and failure injection | Not needed | Not run |
-| Full catalog and output oracle | Not run | Not run |
-| Validation errors | Not needed | Not run |
+| `+good` | Higher is better, such as FPS | `100 × (candidate / reference - 1)` |
+| `+bad` | Lower is better, such as frame interval | `100 × (reference - candidate) / reference` |
+| `N/A` | Context only or zero reference | No percentage claim |
 
-## Resource results
+The accepted automated package does not contain a same-session stable-baseline cell. For matching 60-second PGR2 protocols only, the stable columns reuse published fixed-baseline values as **historical context** from `ptimer-main-qualification/pgr2-fresh-baseline` and `ptimer-main-qualification/pgr2-snapshot-baseline`. Previous-main comparisons use controls from the accepted automated campaign. The 120-second manual campaign has no fixed-baseline reference, and no 20-second Morrowind result is compared with the current 60-second capture.
 
-| Metric | Raw + | Stable | Previous main | Candidate | Improvement vs stable | Improvement vs previous main |
-| --- | --- | ---: | ---: | ---: | ---: | ---: |
-| Cache RAM bytes | `+bad` | 0 | 0 | Pending | N/A | N/A |
-| Cache disk bytes | `+bad` | 0 | 0 | Pending | N/A | N/A |
-| Startup cache-read time | `+bad` | 0 | 0 | Pending | N/A | N/A |
-| Shutdown cache-write time | `+bad` | 0 | 0 | Pending | N/A | N/A |
+## PGR2 Full Start — Automated 60-Second Fixed Route
 
-## Correctness
+The reference is the arithmetic mean of previous-main controls B3 and B4. Candidate values are means of two independent cold or warm captures. Averaging the repeated percentile observations is used only to summarize this small campaign; the raw ranges are retained below.
 
-The same GLSL must produce byte-identical accepted SPIR-V on cache miss and
-subsequent hit for the pinned compiler policy. Corrupt, truncated, oversized,
-unknown-version, incompatible, and unwritable cache cases must fall back to
-normal compilation without losing a draw or leaving partial state. OpenGL must
-remain unchanged.
+| Phase | Metric | Raw + | Stable | Previous-main mean | Candidate mean | Improvement vs Stable | Improvement vs Previous Main |
+| --- | --- | --- | ---: | ---: | ---: | ---: | ---: |
+| Cold | FPS | `+good` | 30.000 | 30.000 | 29.928 | -0.241% historical | **-0.241%** |
+| Cold | average interval | `+bad` | 33.333 ms | 33.333 ms | 33.408 ms | -0.223% historical | **-0.223%** |
+| Cold | p95 interval | `+bad` | 33.412 ms | 33.431 ms | 34.244 ms | **-2.489% historical** | **-2.432%** |
+| Cold | p99 interval | `+bad` | 34.497 ms | 34.211 ms | 38.122 ms | **-10.508% historical** | **-11.432%** |
+| Cold | maximum interval | `+bad` | N/A | 36.347 ms | 42.576 ms | N/A | **-17.136%** |
+| Cold | ≥75 ms stalls | `N/A` | N/A | 0 | 0 | N/A | N/A — both zero |
+| Warm | FPS | `+good` | 30.000 | 30.000 | 29.864 | -0.454% historical | **-0.454%** |
+| Warm | average interval | `+bad` | 33.333 ms | 33.333 ms | 33.473 ms | -0.420% historical | **-0.420%** |
+| Warm | p95 interval | `+bad` | 33.412 ms | 33.431 ms | 35.381 ms | **-5.892% historical** | **-5.833%** |
+| Warm | p99 interval | `+bad` | 34.497 ms | 34.211 ms | 39.083 ms | **-13.294% historical** | **-14.241%** |
+| Warm | maximum interval | `+bad` | N/A | 36.347 ms | 43.160 ms | N/A | **-18.744%** |
+| Warm | ≥75 ms stalls | `N/A` | N/A | 0 | 0 | N/A | N/A — both zero |
 
-## Validation status
+Raw repeat ranges:
 
-| Test | OpenGL | Vulkan |
+| Phase | p95 | p99 | Maximum |
+| --- | ---: | ---: | ---: |
+| Previous main B3/B4 | 33.425–33.436 ms | 34.174–34.248 ms | 34.368–38.326 ms |
+| Candidate cold 1/2 | 33.652–34.835 ms | 34.341–41.903 ms | 35.063–50.088 ms |
+| Candidate warm 1/2 | 33.403–37.358 ms | 34.257–43.909 ms | 35.691–50.629 ms |
+
+**Result:** **HOLD.** Both cold and warm means cross the >2% unfavorable threshold in p95, p99, and maximum interval. The large between-run variance prevents a causal attribution to SPIR-V reuse, but it does not permit a performance-pass claim.
+
+The published stable values above are historical 60-second context and have no maximum/stall samples. They do not replace same-session controls.
+
+## PGR2 Exploratory Manual Race — 120 Seconds
+
+This was one user-driven sequence in the order previous main → candidate cold → candidate warm. Measurement began after the final automated race-confirmation input and a fixed seven-second delay; there was no guest-event race-start detector. It exercised a broader route and produced 221 cached shader records, 25 more than either 196-record automated full-start cold profile. Driving line, speed, traffic, and track position differed across cells, so its favorable sample is exploratory coverage rather than a controlled performance qualification or proof that the whole map is covered. Its only direct performance reference is the 120-second previous-main cell from this sequence; the published 60-second fixed baseline is `N/A`.
+
+| Phase | Metric | Raw + | Previous main | Candidate | Improvement vs Previous Main |
+| --- | --- | --- | ---: | ---: | ---: |
+| Cold | FPS | `+good` | 29.155 | 29.463 | +1.054% |
+| Cold | average interval | `+bad` | 34.262 ms | 33.944 ms | +0.928% |
+| Cold | p95 interval | `+bad` | 41.817 ms | 39.741 ms | +4.964% |
+| Cold | p99 interval | `+bad` | 49.569 ms | 46.010 ms | +7.180% |
+| Cold | maximum interval | `+bad` | 182.864 ms | 74.022 ms | +59.521% |
+| Cold | ≥75 ms stalls | `+bad` | 1 | 0 | +100.000% |
+| Warm | FPS | `+good` | 29.155 | 29.600 | +1.525% |
+| Warm | average interval | `+bad` | 34.262 ms | 33.776 ms | +1.420% |
+| Warm | p95 interval | `+bad` | 41.817 ms | 37.773 ms | +9.671% |
+| Warm | p99 interval | `+bad` | 49.569 ms | 46.694 ms | +5.800% |
+| Warm | maximum interval | `+bad` | 182.864 ms | 76.365 ms | +58.239% |
+| Warm | ≥75 ms stalls | `+bad` | 1 | 1 | +0.000% |
+
+The warm cell loaded the exact 5,418,200-byte cold cache and reported 484 hits, zero misses, zero rejections, zero fallbacks, and no queued bytes. It nevertheless recorded a 76.365 ms maximum and one ≥75 ms stall. Reuse works, but other stalls remain; this untraced sample cannot attribute them to the driver, scheduler, or another subsystem. The favorable manual comparison does not erase the controlled automated full-start HOLD.
+
+## PGR2 Snapshot — Automated Bracketed Route
+
+The reference is the mean of previous-main B1 and B2 surrounding the candidate cold/warm cells.
+
+| Phase | Metric | Raw + | Stable | Previous-main mean | Candidate | Improvement vs Stable | Improvement vs Previous Main |
+| --- | --- | --- | ---: | ---: | ---: | ---: | ---: |
+| Cold | FPS | `+good` | 29.012 | 28.905 | 28.889 | -0.425% historical | -0.055% |
+| Cold | average interval | `+bad` | 34.484 ms | 34.627 ms | 34.588 ms | -0.303% historical | +0.113% |
+| Cold | p95 interval | `+bad` | 40.910 ms | 41.668 ms | 41.358 ms | -1.095% historical | +0.744% |
+| Cold | p99 interval | `+bad` | 45.186 ms | 46.253 ms | 45.182 ms | +0.009% historical | +2.316% |
+| Cold | maximum interval | `+bad` | N/A | 68.522 ms | 69.208 ms | N/A | -1.001% |
+| Cold | ≥75 ms stalls | `N/A` | N/A | 0 | 0 | N/A | N/A — both zero |
+| Warm | FPS | `+good` | 29.012 | 28.905 | 28.904 | -0.374% historical | -0.003% |
+| Warm | average interval | `+bad` | 34.484 ms | 34.627 ms | 34.591 ms | -0.312% historical | +0.104% |
+| Warm | p95 interval | `+bad` | 40.910 ms | 41.668 ms | 41.361 ms | -1.102% historical | +0.737% |
+| Warm | p99 interval | `+bad` | 45.186 ms | 46.253 ms | 47.149 ms | **-4.344% historical** | **-1.937%** |
+| Warm | maximum interval | `+bad` | N/A | 68.522 ms | 58.829 ms | N/A | +14.146% |
+| Warm | ≥75 ms stalls | `N/A` | N/A | 0 | 0 | N/A | N/A — both zero |
+
+**Result:** Against the same-campaign previous-main bracket, results are mixed and within the 2% unfavorable band; cold p99 improved +2.316%, warm maximum improved +14.146%, and warm p99 moved -1.937%. Against the reused historical stable reference, warm p99 is -4.344%. The historical comparison lacks same-session control and maximum/stall data, but the unfavorable result is retained as context. This single bracket does not override the full-start HOLD.
+
+## Morrowind Snapshot — Candidate Coverage
+
+The accepted package contains candidate OpenGL, Vulkan cold, and Vulkan warm 60-second cells, but no matching previous-main or stable comparator. The retained PR11/PR14 Morrowind controls are 20 seconds and therefore protocol-incompatible. No retained matching 60-second control exists, and no additional capture was authorized. These values establish snapshot coverage and cache behavior only.
+
+| Phase | Renderer | FPS proxy | Average | p95 | p99 | Maximum | ≥75 ms stalls |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Candidate | OpenGL | 33.619 | 29.745 ms | 36.461 ms | 41.635 ms | 47.183 ms | 0 |
+| Candidate cold | Vulkan | 24.353 | 41.063 ms | 47.940 ms | 54.050 ms | 61.224 ms | 0 |
+| Candidate warm | Vulkan | 24.168 | 41.376 ms | 47.762 ms | 53.696 ms | 61.169 ms | 0 |
+
+Warm versus cold is diagnostic context only: FPS proxy **-0.756%**, average **-0.762%**, p95 **+0.371%**, p99 **+0.655%**, and maximum **+0.090%** under positive-good semantics. Cross-renderer comparison is not valid, and no baseline qualification is claimed.
+
+## Candidate OpenGL Context
+
+The accepted package has candidate-only OpenGL cells. Matching 60-second PGR2 fixed-baseline values are reused as historical context; there is no same-session previous-main control. The retained Morrowind reference is 20 seconds and remains excluded from qualification.
+
+| Workload | Metric | Raw + | Historical stable | Candidate | Improvement |
+| --- | --- | --- | ---: | ---: | ---: |
+| PGR2 full start | FPS | `+good` | 29.991 | 30.000 | +0.030% |
+| PGR2 full start | average interval | `+bad` | 33.343 ms | 33.333 ms | +0.028% |
+| PGR2 full start | p95 interval | `+bad` | 33.822 ms | 33.381 ms | +1.304% |
+| PGR2 full start | p99 interval | `+bad` | 36.059 ms | 34.316 ms | +4.834% |
+| PGR2 full start | maximum interval | `N/A` | N/A | 36.763 ms | N/A |
+| PGR2 full start | ≥75 ms stalls | `N/A` | 0 | 0 | N/A — both zero |
+| PGR2 snapshot | FPS | `+good` | 28.519 | 28.481 | -0.134% |
+| PGR2 snapshot | average interval | `+bad` | 35.122 ms | 35.117 ms | +0.015% |
+| PGR2 snapshot | p95 interval | `+bad` | 42.308 ms | 42.686 ms | -0.893% |
+| PGR2 snapshot | p99 interval | `+bad` | 46.086 ms | 46.169 ms | -0.180% |
+| PGR2 snapshot | maximum interval | `N/A` | N/A | 60.825 ms | N/A |
+| PGR2 snapshot | ≥75 ms stalls | `N/A` | 0 | 0 | N/A — both zero |
+
+All reported historical PGR2 OpenGL comparisons are within 2% or favorable. They remain historical context because the fixed baseline was reused, not rerun.
+
+---
+
+# XISO Results
+
+**Scope:** Full 157-record correctness catalog\
+**Candidate executable:** SHA-256 `d6c0762fd672932667537b7152bf4068a7c313d2980d4b545e020e852064bc9d`\
+**Test source:** commit `61012b4e702fbb46a02d813e71f2159a109a1c29`, tree `f5499b106caba6edf79ab3f7445a46503708121c`, nxdk `73c95900965a16be3a3e34b8d4d5d41bc18498be`, catalog `sha256:a0d41d33c1f5da2ba60db7102b094847df048d489ee2a7d7c72d9c6d0048a86e`\
+**Image SHA-256:** `6b2161f1b4abab94648f3fa0ca8da893092bab1b63d7e139a2358eb0319d05ac`
+
+| Cell | Records | Functional hash | Cubemap oracle | Vulkan validation | Cache result | Receipt status |
+| --- | ---: | --- | --- | --- | --- | --- |
+| Candidate OpenGL | 157 | PASS | Expected OpenGL FAIL, framebuffer `0a68f0aa371576a5` | Disabled | N/A | PASS with admitted expected non-pass records |
+| Candidate Vulkan cold | 157 | PASS | PASS, framebuffer `be0f2013c1997ca5` | Active; 0 unique VUIDs | Published 61 records / 1,146,671 B | PASS with admitted expected non-pass record |
+| Candidate Vulkan warm | 157 | PASS | PASS, framebuffer `be0f2013c1997ca5` | Active; 0 unique VUIDs | 71 hits / 0 misses; exact file unchanged | PASS with admitted expected non-pass record |
+
+The runner returned exit code `1` for all three cells because the admitted catalog still records expected non-pass outcomes. OpenGL recorded `report_query.dma_range_guard` plus the known expected `texture_cubemap_fallback.unbordered_subblock_dxt1` failure. Vulkan cold/warm recorded only `report_query.dma_range_guard`; their cubemap oracle passed. The overall exact-head receipt status is `passed`, and every cell cleanup passed.
+
+The retained previous-main same-suite receipt used the same 157-record test revision. It records the same inherited query-range failure, zero Vulkan VUIDs, and the expected renderer-specific cubemap result. This supplies a correctness comparator; its duration data remains context-only.
+
+XISO durations are correctness context only. The ordinary Release binary lacked live markers, so the generated duration tables do not support a PR-grade performance comparison and are excluded from the performance decision.
+
+---
+
+# Resource Results
+
+| Workload | Records | Source + SPIR-V payload | File bytes | Cold write | Warm loaded bytes | Warm write |
+| --- | ---: | ---: | ---: | --- | ---: | --- |
+| PGR2 full start, run 1 | 196 | 4,833,466 B | 4,839,817 B | Published | 4,839,817 B | Clean |
+| PGR2 full start, run 2 | 196 | 4,833,466 B | 4,839,817 B | Published | 4,839,817 B | Clean |
+| PGR2 exploratory manual race | 221 | 5,411,049 B | 5,418,200 B | Published | 5,418,200 B | Clean |
+| PGR2 snapshot | 121 | 3,038,601 B | 3,042,552 B | Published | 3,042,552 B | Clean |
+| Morrowind snapshot | 48 | 1,306,039 B | 1,307,654 B | Published | 1,307,654 B | Clean |
+| Full XISO | 61 | 1,144,640 B | 1,146,671 B | Published | 1,146,671 B | Clean |
+
+The manual receipt includes process CPU and memory samples. Positive is favorable; all resource metrics are `+bad`.
+
+| Manual 120-second resource metric | Previous main | Candidate cold | Cold improvement | Candidate warm | Warm improvement |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Samples | 207 | 208 | N/A | 208 | N/A |
+| Normalized host CPU | 21.920% | 22.185% | -1.208% | 22.015% | -0.429% |
+| Working-set average | 1,011.860 MiB | 1,011.753 MiB | +0.011% | 997.964 MiB | +1.373% |
+| Working-set peak | 1,027.652 MiB | 1,022.934 MiB | +0.459% | 1,026.125 MiB | +0.149% |
+| Private bytes average | 2,968.419 MiB | 2,972.078 MiB | -0.123% | 2,969.173 MiB | -0.025% |
+| Private bytes peak | 2,979.383 MiB | 2,980.160 MiB | -0.026% | 2,993.980 MiB | -0.490% |
+
+These one-cell resource observations are exploratory and route-sensitive. GPU telemetry was `null` in the original campaign receipt. A separately recovered sampler fragment provides the following raw context:
+
+| Manual cell | Sampler coverage | GPU average / peak | VRAM average / peak | Power average / peak | Temperature average / peak |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Previous main | 83.359% | 29.985% / 51% | 882.015 / 885 MiB | 22.270 / 24.52 W | 47.455 / 49 °C |
+| Candidate cold | 83.183% | 33.273% / 51% | 882.015 / 885 MiB | 22.151 / 26.14 W | 49.449 / 50 °C |
+| Candidate warm | 83.250% | 30.955% / 53% | 882.015 / 885 MiB | 22.809 / 24.19 W | 50.460 / 51 °C |
+
+These rows cover only about 83% of each 120-second window. The runner force-stops the sampler; lost buffered output is a suspected mechanism that still needs confirmation. GPU utilization, VRAM, power, and temperature are partial context and unavailable as completed qualification metrics; no Improvement % is assigned. Startup cache-read time and shutdown cache-write time are also unavailable.
+
+The manual cold cache SHA-256 was `a20d080c3e26ebc0384b93fd7910c4a4b64a3fcd99aacf2ae4d0c0f4e329f07f`, and warm preserved it exactly. The two independent automated PGR2 full-start profiles produced files with the same byte count and record/payload totals but different SHA-256 values. Each paired warm run preserved its own cold file exactly. Cross-run serialization determinism is therefore not established.
+
+---
+
+# Correctness and Lifecycle
+
+| Check | OpenGL | Vulkan |
 | --- | --- | --- |
-| Targeted patch and corruption/failure tests | Not needed | Not run |
-| Cold/warm/same-process shader corpus | Not needed | Not run |
-| Profiling comparison | Not needed | Not run |
-| Resource comparison | Not needed | Not run |
-| Morrowind snapshot | Not run | Not run |
-| PGR2 full start | Not run | Not run |
-| PGR2 snapshot | Not run | Not run |
-| Full XISO | Not run | Not run |
-| Final visual validation | Not run | Not run |
+| Focused cache-format/failure test | Not applicable | PASS in exact Windows build |
+| Full 157-record XISO functional hashes | PASS | PASS cold and warm |
+| Previous-main same-suite XISO comparator | PASS | PASS; same inherited query-range failure and 0 VUIDs |
+| Full XISO cubemap oracle | Known expected OpenGL failure | PASS cold and warm |
+| Validation errors | Validation disabled | 0 unique VUIDs cold and warm |
+| PGR2 gameplay admission | PASS candidate full/snapshot cells | PASS cold/warm full and snapshot cells |
+| Morrowind snapshot admission | PASS | PASS cold and warm |
+| Warm cache use | Not applicable | Zero misses/rejections/fallbacks in every accepted warm cell |
+| Normal close and private-HDD cleanup | PASS | PASS |
+| 120-second exploratory manual race | Previous-main cell admitted | Cold/warm admitted; 221 records, warm `484/0`; one warm ≥75 ms stall remains |
+| Native toggle off/on/reinitialize behavior | Not applicable | Pending explicit runtime exercise |
+| Renderer-switch dirty flush | Not applicable | Pending explicit runtime exercise |
+| Write/rename failure preservation and retry | Not applicable | Focused/pure coverage exists; native runtime exercise pending |
+| Multiple normal shutdown cycles | PASS | PASS |
+| Shutdown-pause/resume writeback | Not applicable | Pending explicit runtime exercise |
+| RAM/VRAM and renderer-switch resource qualification | Pending | Pending; [Mainkill1/xemu#69](https://github.com/Mainkill1/xemu/issues/69) remains a gate |
+| Visual/gameplay admission | PASS for accepted cells | PASS for accepted cells; proprietary images excluded from portable package |
 
-A single valid unexplained regression over 2%, including p95, p99, maximum,
-or stalls, keeps the candidate on hold.
+All accepted retail cells closed normally, deleted their writable HDD clone, and left the immutable seed unchanged. Final cleanup reported no xemu, PresentMon, WPR/WPA/xperf, owned trace session, or private HDD. No WPR trace was started. Cold publication, exact warm loading, byte-identical clean shutdown, truncated-cache rejection/replacement, multiple normal shutdown cycles, and OpenGL sessions producing no SPIR-V file were exercised.
 
-## Tradeoffs and decision
+---
 
-**Result:** Continue investigation.
+# Known Limitations and Unresolved Results
 
-No performance improvement is claimed. The initial focused gate must prove
-that a warm hit removes glslang work, cache failures preserve output, and
-startup/shutdown costs and storage remain bounded. Only then does the exact
-candidate proceed to the full XISO, PGR2 full-start and snapshot, and
-Morrowind snapshot matrix on both renderers.
+- GLSL generation, Vulkan module creation, and reflection remain synchronous. This candidate targets glslang compilation only.
+- A renderer initialized while shader caching is disabled remains ineligible. Enabling the setting requires renderer reinitialization before cache use can begin; this preserves an unseen existing cache and keeps file I/O out of module misses.
+- Concurrent xemu processes use unique temporary files, but their in-memory record sets are not merged. The last clean shutdown wins.
+- The available validation is structural SPIRV-Reflect validation, not a complete `spirv-val` pass.
+- The inherited successful-layout allocation leak remains tracked by [Mainkill1/xemu#69](https://github.com/Mainkill1/xemu/issues/69). Eviction and renderer-switch resource qualification still require resolution or explicit acceptance of that separate gate.
+- The accepted PGR2 full-start fixed-route data is unfavorable and variable. The warm-cache hit result does not explain or dismiss the p95/p99/maximum regressions.
+- The Morrowind snapshot has candidate OpenGL/cold/warm 60-second coverage but no matching previous-main or stable comparison. The retained 20-second results are historical context only and are not substituted; no same-duration capture was authorized.
+- The exploratory manual race is a single less-repeatable driving sequence. Its favorable sample does not establish a controlled speedup, cover the whole map, or clear the automated HOLD. The miss-free warm run still contained a 76.365 ms maximum and one ≥75 ms stall without trace attribution.
+- XISO timing is context-only because the ordinary Release run used a live-marker waiver.
+- Cross-run cache-file byte determinism is not demonstrated, although every warm seed was unchanged within its own profile.
 
-## Evidence
+---
 
-- [Complete shader identity report](https://github.com/Mainkill1/xemu-perf-tests/blob/e77436eb3f7084bd8e406e07ede7ec5f318d1e66/docs/evidence/pr68-shader-identity-20260910/classification/REPORT.md)
-- [Repository workflow](../repository-workflow.md)
-- [Performance PR template](../../evidence/wiki-xiso-per-test/PERFORMANCE_PR_TEMPLATE.md)
+# Validation Status
 
-## Final summary
+| Gate | Status |
+| --- | --- |
+| Exact `b14bfb74` Windows executable identity | PASS |
+| Focused native cold/warm/corrupt admission | PASS |
+| Full XISO OpenGL correctness | PASS with documented expected non-pass records |
+| Full XISO Vulkan cold/warm correctness and validation | PASS; 0 unique VUIDs |
+| PGR2 snapshot automated comparison | COMPLETE; same-campaign comparison mixed; historical stable warm p99 is -4.344% context |
+| Morrowind snapshot OpenGL/Vulkan cold/warm coverage | COMPLETE; no matching 60-second comparator exists; 20-second history is context only |
+| PGR2 full-start automated comparison | **HOLD — repeated tail metrics exceed -2%** |
+| 120-second user-driven full-race campaign | COMPLETE as exploratory coverage; favorable single sample does not clear HOLD |
+| Native lifecycle/failure matrix | PARTIAL; accepted shutdown/cache cycles pass, three UI paths and native write-failure retry remain pending |
+| Resource comparison | PARTIAL; exploratory CPU/process memory and incomplete ~83% GPU sampling only |
+| Visual/manual admission | Active-scene checks passed for accepted cells; images remain private. This does not independently qualify every frame. |
 
-The diagnostic proves the primary PGR2 hitch spends 18.217 ms compiling four
-first-seen shaders. This branch will test bounded, validated, preloaded SPIR-V
-reuse as one focused behavioral change. Implementation, correctness, resource,
-and performance results are pending.
+A single valid unexplained regression over 2%, including p95, p99, maximum, or stalls, keeps the candidate on hold. This branch has not met the qualification gate.
+
+---
+
+# Tradeoffs and Decision
+
+**Result:** Keep the PR as a draft and retain the **PGR2 full-start HOLD**.
+
+The implementation has passed substantial exact-head correctness coverage and the persisted warm path is active, bounded, and miss-free in the accepted workloads. The controlled automated full-start performance evidence remains unfavorable. The broader manual route is favorable but less repeatable and still contains a miss-free warm stall. Several native lifecycle/resource gates remain open. No merge or performance-improvement claim is supported yet.
+
+---
+
+# Evidence
+
+- [Complete shader-identity diagnostic](https://github.com/Mainkill1/xemu-perf-tests/blob/e77436eb3f7084bd8e406e07ede7ec5f318d1e66/docs/evidence/pr68-shader-identity-20260910/classification/REPORT.md)
+- [Focused PR70 admission](https://github.com/Mainkill1/xemu-perf-tests/blob/59f5b5171daf8c42dd394b295ada4c66fbc2c7ab/docs/evidence/pr70-spirv-prewarm-20260910/focused-admission/REPORT.md)
+- [Full automated/manual report](https://github.com/Mainkill1/xemu-perf-tests/blob/303c381f6e7891101996f95f7e2c009b3abc559b/docs/evidence/pr70-spirv-prewarm-20260910/full-qualification/REPORT.md)
+- [Machine-readable comparisons and result rows](https://github.com/Mainkill1/xemu-perf-tests/blob/303c381f6e7891101996f95f7e2c009b3abc559b/docs/evidence/pr70-spirv-prewarm-20260910/full-qualification/automated)
+- [Manual race procedure and results](https://github.com/Mainkill1/xemu-perf-tests/blob/303c381f6e7891101996f95f7e2c009b3abc559b/docs/evidence/pr70-spirv-prewarm-20260910/full-qualification/manual-race/RECIPE.md)
+- [Evidence checksums](https://github.com/Mainkill1/xemu-perf-tests/blob/303c381f6e7891101996f95f7e2c009b3abc559b/docs/evidence/pr70-spirv-prewarm-20260910/full-qualification/SHA256SUMS.txt)
+
+---
+
+## Final Summary
+
+Exact-head tests prove bounded persistent SPIR-V reuse works across warm launches and retains normal compilation fallback in the exercised corrupt-cache case. Full XISO correctness passed on OpenGL and Vulkan cold/warm, and Morrowind snapshot coverage is complete for candidate OpenGL/Vulkan.
+
+The candidate is not performance-qualified. Repeated controlled PGR2 full-start tail measurements are materially worse than previous main. The favorable exploratory 120-second race expands shader coverage but cannot clear that result, and its miss-free warm cell still records one ≥75 ms stall. Three native UI lifecycle paths, native write-failure retry, complete GPU/resource evidence, [Mainkill1/xemu#69](https://github.com/Mainkill1/xemu/issues/69) disposition, and a same-duration Morrowind comparator remain open. PR #70 remains draft on HOLD.
