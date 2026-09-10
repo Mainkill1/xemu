@@ -448,6 +448,23 @@ typedef struct PGRAPHVkTextureLookupStats {
     uint64_t miss_count;
 } PGRAPHVkTextureLookupStats;
 
+typedef struct PGRAPHVkPipelineStats {
+    uint64_t shader_bind_count;
+    uint64_t shader_bind_cpu_us;
+    uint64_t key_init_count;
+    uint64_t key_init_cpu_us;
+    uint64_t key_hash_count;
+    uint64_t key_hash_cpu_us;
+    uint64_t cache_lookup_count;
+    uint64_t cache_lookup_cpu_us;
+    uint64_t cache_hit_count;
+    uint64_t cache_miss_count;
+    uint64_t layout_create_count;
+    uint64_t layout_create_cpu_us;
+    uint64_t graphics_create_count;
+    uint64_t graphics_create_cpu_us;
+} PGRAPHVkPipelineStats;
+
 typedef struct PGRAPHVkPerfTelemetry {
     FILE *file;
     bool enabled;
@@ -471,6 +488,7 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t decoded_bc_source_bytes;
     uint64_t decoded_bc_staged_bytes;
     uint64_t decoded_bc_prepare_cpu_us;
+    PGRAPHVkPipelineStats pipeline;
     PGRAPHVkTextureLookupStats texture_lookup;
     PGRAPHVkCubemapStats cubemap;
     PGRAPHVkClampedCubemapStats clamped_cubemap;

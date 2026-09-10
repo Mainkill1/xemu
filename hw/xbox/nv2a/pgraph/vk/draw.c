@@ -768,12 +768,20 @@ static bool create_pipeline(PGRAPHState *pg)
 
     NV2AState *d = container_of(pg, NV2AState, pgraph);
     PGRAPHVkState *r = pg->vk_renderer_state;
+    bool track_pipeline = r->perf.enabled;
 
     if (!pgraph_vk_bind_textures(d)) {
         NV2A_VK_DGROUP_END();
         return false;
     }
+    int64_t shader_bind_start_us = track_pipeline ?
+        g_get_monotonic_time() : 0;
     pgraph_vk_bind_shaders(pg);
+    if (track_pipeline) {
+        r->perf.pipeline.shader_bind_count++;
+        r->perf.pipeline.shader_bind_cpu_us +=
+            g_get_monotonic_time() - shader_bind_start_us;
+    }
 
     // FIXME: If nothing was dirty, don't even try creating the key or hashing.
     //        Just use the same pipeline.
@@ -789,11 +797,35 @@ static bool create_pipeline(PGRAPHState *pg)
     }
 
     PipelineKey key;
+    int64_t key_init_start_us = track_pipeline ?
+        g_get_monotonic_time() : 0;
     init_pipeline_key(pg, &key);
+    if (track_pipeline) {
+        r->perf.pipeline.key_init_count++;
+        r->perf.pipeline.key_init_cpu_us +=
+            g_get_monotonic_time() - key_init_start_us;
+    }
+    int64_t key_hash_start_us = track_pipeline ?
+        g_get_monotonic_time() : 0;
     uint64_t hash = fast_hash((void *)&key, sizeof(key));
+    if (track_pipeline) {
+        r->perf.pipeline.key_hash_count++;
+        r->perf.pipeline.key_hash_cpu_us +=
+            g_get_monotonic_time() - key_hash_start_us;
+    }
 
+    int64_t cache_lookup_start_us = track_pipeline ?
+        g_get_monotonic_time() : 0;
     PipelineBinding *snode = pipeline_cache_lookup(pg, hash, &key);
+    if (track_pipeline) {
+        r->perf.pipeline.cache_lookup_count++;
+        r->perf.pipeline.cache_lookup_cpu_us +=
+            g_get_monotonic_time() - cache_lookup_start_us;
+    }
     if (snode->pipeline != VK_NULL_HANDLE) {
+        if (track_pipeline) {
+            r->perf.pipeline.cache_hit_count++;
+        }
         NV2A_VK_DPRINTF("Cache hit");
         r->pipeline_binding_changed = r->pipeline_binding != snode;
         r->pipeline_binding = snode;
@@ -801,6 +833,9 @@ static bool create_pipeline(PGRAPHState *pg)
         return true;
     }
 
+    if (track_pipeline) {
+        r->perf.pipeline.cache_miss_count++;
+    }
     NV2A_VK_DPRINTF("Cache miss");
     nv2a_profile_inc_counter(NV2A_PROF_PIPELINE_GEN);
 
@@ -1060,8 +1095,15 @@ static bool create_pipeline(PGRAPHState *pg)
     }
 
     VkPipelineLayout layout;
+    int64_t layout_create_start_us = track_pipeline ?
+        g_get_monotonic_time() : 0;
     VK_CHECK(vkCreatePipelineLayout(r->device, &pipeline_layout_info, NULL,
                                     &layout));
+    if (track_pipeline) {
+        r->perf.pipeline.layout_create_count++;
+        r->perf.pipeline.layout_create_cpu_us +=
+            g_get_monotonic_time() - layout_create_start_us;
+    }
 
     VkGraphicsPipelineCreateInfo pipeline_create_info = {
         .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
@@ -1081,8 +1123,15 @@ static bool create_pipeline(PGRAPHState *pg)
         .basePipelineHandle = VK_NULL_HANDLE,
     };
     VkPipeline pipeline;
+    int64_t graphics_create_start_us = track_pipeline ?
+        g_get_monotonic_time() : 0;
     VK_CHECK(vkCreateGraphicsPipelines(r->device, r->vk_pipeline_cache, 1,
                                        &pipeline_create_info, NULL, &pipeline));
+    if (track_pipeline) {
+        r->perf.pipeline.graphics_create_count++;
+        r->perf.pipeline.graphics_create_cpu_us +=
+            g_get_monotonic_time() - graphics_create_start_us;
+    }
 
     snode->pipeline = pipeline;
     snode->layout = layout;

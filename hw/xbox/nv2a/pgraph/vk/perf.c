@@ -99,7 +99,7 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":7"
+            "{\"type\":\"schema\",\"schema_version\":8"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}",
             VK_PERF_INITIAL_TIMED_SUBMITS, VK_PERF_HOT_SAMPLE_STRIDE);
@@ -272,7 +272,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":7"
+            "{\"type\":\"frame\",\"schema_version\":8"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
@@ -337,6 +337,20 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"decoded_bc_source_bytes_per_guest_frame\":%" PRIu64
             ",\"decoded_bc_staged_bytes_per_guest_frame\":%" PRIu64
             ",\"decoded_bc_prepare_cpu_us_per_guest_frame\":%" PRIu64
+            ",\"pipeline_shader_binds_per_guest_frame\":%" PRIu64
+            ",\"pipeline_shader_bind_cpu_us_per_guest_frame\":%" PRIu64
+            ",\"pipeline_key_inits_per_guest_frame\":%" PRIu64
+            ",\"pipeline_key_init_cpu_us_per_guest_frame\":%" PRIu64
+            ",\"pipeline_key_hashes_per_guest_frame\":%" PRIu64
+            ",\"pipeline_key_hash_cpu_us_per_guest_frame\":%" PRIu64
+            ",\"pipeline_cache_lookups_per_guest_frame\":%" PRIu64
+            ",\"pipeline_cache_lookup_cpu_us_per_guest_frame\":%" PRIu64
+            ",\"pipeline_cache_hits_per_guest_frame\":%" PRIu64
+            ",\"pipeline_cache_misses_per_guest_frame\":%" PRIu64
+            ",\"pipeline_layout_creates_per_guest_frame\":%" PRIu64
+            ",\"pipeline_layout_create_cpu_us_per_guest_frame\":%" PRIu64
+            ",\"graphics_pipeline_creates_per_guest_frame\":%" PRIu64
+            ",\"graphics_pipeline_create_cpu_us_per_guest_frame\":%" PRIu64
             ",\"texture_creates_per_guest_frame\":%" PRIu64
             ",\"texture_key_hashes_per_guest_frame\":%" PRIu64
             ",\"texture_key_hash_cpu_us_per_guest_frame\":%" PRIu64
@@ -417,6 +431,20 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->native_bc_staged_bytes, perf->native_bc_prepare_cpu_us,
             perf->decoded_bc_upload_count, perf->decoded_bc_source_bytes,
             perf->decoded_bc_staged_bytes, perf->decoded_bc_prepare_cpu_us,
+            perf->pipeline.shader_bind_count,
+            perf->pipeline.shader_bind_cpu_us,
+            perf->pipeline.key_init_count,
+            perf->pipeline.key_init_cpu_us,
+            perf->pipeline.key_hash_count,
+            perf->pipeline.key_hash_cpu_us,
+            perf->pipeline.cache_lookup_count,
+            perf->pipeline.cache_lookup_cpu_us,
+            perf->pipeline.cache_hit_count,
+            perf->pipeline.cache_miss_count,
+            perf->pipeline.layout_create_count,
+            perf->pipeline.layout_create_cpu_us,
+            perf->pipeline.graphics_create_count,
+            perf->pipeline.graphics_create_cpu_us,
             perf->texture_lookup.create_count,
             perf->texture_lookup.key_hash_count,
             perf->texture_lookup.key_hash_cpu_us,
@@ -487,6 +515,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->decoded_bc_source_bytes = 0;
     perf->decoded_bc_staged_bytes = 0;
     perf->decoded_bc_prepare_cpu_us = 0;
+    memset(&perf->pipeline, 0, sizeof(perf->pipeline));
     memset(&perf->texture_lookup, 0, sizeof(perf->texture_lookup));
     memset(&perf->cubemap, 0, sizeof(perf->cubemap));
     memset(&perf->clamped_cubemap, 0, sizeof(perf->clamped_cubemap));
