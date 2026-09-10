@@ -58,6 +58,20 @@ GitHub's commit-to-PR associations identify #53 as the only merged current-main 
 
 The retained diagnostic release and prior measurements remain useful for their exact source/test identities. They are not discarded because newer tests expose failures. Neither a historical report for a different binary nor an incomplete new campaign selects the next baseline automatically.
 
+## Foundation prerequisites checked after preservation
+
+These are source comparisons, not a foundation selection or native qualification.
+
+| Item | Current upstream at `75650bd8` | Consequence |
+| --- | --- | --- |
+| Accepted APU repair #53 | Absent. Upstream's APU file is byte-identical to #53's pre-fix file (`1ee6dc42529f257de412855f955c8737a6c0df18`); the repair is a 19-line preload change. | An upstream-based accepted tree needs a reviewed carry-forward decision and focused snapshot checks for its resulting binary. There is no source-text conflict in that file. |
+| PTIMER rounding and masked scheduling | Upstream already has rounded conversions, a positive minimum host delay, an interrupt-mask scheduling guard, and 20 registered timer tests. Those tests were inspected, not executed by this audit. | Do not describe upstream as the old fork timer or automatically overlay #59. |
+| PTIMER fork-specific contract in #59 | Differs in phase-aware arithmetic, stopped-clock/register-reset handling, explicit armed state and VMState version 5; upstream remains at version 4. | Neither source's test evidence qualifies the other source or an untested combination. #59 remains unaccepted. |
+
+Source anchors: [upstream APU preload](https://github.com/xemu-project/xemu/blob/75650bd8cd91945f7b79774e2cee0b200ca373ff/hw/xbox/mcpx/apu/apu.c#L377), [accepted #53 change](https://github.com/Mainkill1/xemu/commit/c17591d59c270b352b72e648f5ed65e4b2a3e77e), [upstream PTIMER](https://github.com/xemu-project/xemu/blob/75650bd8cd91945f7b79774e2cee0b200ca373ff/hw/xbox/nv2a/ptimer.c), and [#59 timer source](https://github.com/Mainkill1/xemu/blob/8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b/hw/xbox/nv2a/ptimer.c).
+
+The accepted APU ordering releases the BQL, takes the APU lock, waits for the worker to become idle, resets while it remains paused, unlocks, and restores the BQL. Its old regression inputs and oracle can be reused; old binary results cannot become a pass for an upstream-derived binary. No source transplant, build or new emulator test was performed for these checks.
+
 ## Answers the final normalization must provide
 
 | Question | Current answer / remaining gate |
