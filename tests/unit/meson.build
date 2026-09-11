@@ -86,11 +86,13 @@ if 'i386-softmmu' in target_dirs
     '-fdata-sections',
   )
   if host_os == 'darwin'
-    nv2a_report_gc_link_args =
-      cc.get_supported_link_arguments('-Wl,-dead_strip')
+    nv2a_report_gc_link_args = cc.get_supported_link_arguments(
+      '-Wl,-dead_strip',
+    )
   else
-    nv2a_report_gc_link_args =
-      cc.get_supported_link_arguments('-Wl,--gc-sections')
+    nv2a_report_gc_link_args = cc.get_supported_link_arguments(
+      '-Wl,--gc-sections',
+    )
   endif
 
   if nv2a_report_section_args.length() == 2 and \
