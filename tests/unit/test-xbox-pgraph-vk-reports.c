@@ -17,6 +17,7 @@
 #define CANARY 0xa5
 
 typedef enum BoundaryEvent {
+    BOUNDARY_END_QUERY,
     BOUNDARY_END_MAIN,
     BOUNDARY_BEGIN_AUX,
     BOUNDARY_FLUSH,
@@ -25,6 +26,7 @@ typedef enum BoundaryEvent {
     BOUNDARY_RESET_FENCE,
     BOUNDARY_SUBMIT,
     BOUNDARY_WAIT,
+    BOUNDARY_QUERY_RESULTS,
 } BoundaryEvent;
 
 typedef struct BoundaryTrace {
@@ -32,6 +34,7 @@ typedef struct BoundaryTrace {
     size_t event_count;
     const uint8_t *watched_report;
     bool wait_saw_unpublished_report;
+    bool query_saw_unpublished_report;
     bool valid;
 } BoundaryTrace;
 
@@ -192,13 +195,13 @@ test_vk_noop_cmd_copy_buffer(VkCommandBuffer command_buffer, VkBuffer src,
 }
 
 static VKAPI_ATTR void VKAPI_CALL
-test_vk_noop_cmd_end_query(VkCommandBuffer command_buffer, VkQueryPool pool,
-                           uint32_t query)
+test_vk_cmd_end_query(VkCommandBuffer command_buffer, VkQueryPool pool,
+                      uint32_t query)
 {
-    (void)command_buffer;
-    (void)pool;
-    (void)query;
-    boundary_trace.valid = false;
+    boundary_trace.valid &= command_buffer == main_command_buffer;
+    boundary_trace.valid &= pool == (VkQueryPool)(uintptr_t)8;
+    boundary_trace.valid &= query == 0;
+    record_boundary(BOUNDARY_END_QUERY);
 }
 
 static VKAPI_ATTR void VKAPI_CALL
@@ -219,22 +222,23 @@ test_vk_noop_destroy_framebuffer(VkDevice device, VkFramebuffer framebuffer,
 }
 
 static VKAPI_ATTR VkResult VKAPI_CALL
-test_vk_noop_get_query_pool_results(VkDevice device, VkQueryPool query_pool,
-                                    uint32_t first_query, uint32_t query_count,
-                                    size_t data_size, void *data,
-                                    VkDeviceSize stride,
-                                    VkQueryResultFlags flags)
+test_vk_get_query_pool_results(VkDevice device, VkQueryPool query_pool,
+                               uint32_t first_query, uint32_t query_count,
+                               size_t data_size, void *data,
+                               VkDeviceSize stride, VkQueryResultFlags flags)
 {
     (void)device;
-    (void)query_pool;
-    (void)first_query;
-    (void)query_count;
-    (void)data_size;
-    (void)data;
-    (void)stride;
-    (void)flags;
-    boundary_trace.valid = false;
-    return VK_ERROR_UNKNOWN;
+    boundary_trace.valid &= query_pool == (VkQueryPool)(uintptr_t)8;
+    boundary_trace.valid &= first_query == 0 && query_count == 1;
+    boundary_trace.valid &= data_size == sizeof(uint64_t);
+    boundary_trace.valid &= data != NULL && stride == sizeof(uint64_t);
+    boundary_trace.valid &=
+        flags == (VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT);
+    boundary_trace.query_saw_unpublished_report =
+        buffer_is_value(boundary_trace.watched_report, REPORT_SIZE, CANARY);
+    *(uint64_t *)data = 11;
+    record_boundary(BOUNDARY_QUERY_RESULTS);
+    return VK_SUCCESS;
 }
 
 VkResult vmaFlushAllocation(VmaAllocator allocator, VmaAllocation allocation,
@@ -268,12 +272,12 @@ static void install_vulkan_boundaries(void)
 {
     vkBeginCommandBuffer = test_vk_begin_command_buffer;
     vkCmdCopyBuffer = test_vk_noop_cmd_copy_buffer;
-    vkCmdEndQuery = test_vk_noop_cmd_end_query;
+    vkCmdEndQuery = test_vk_cmd_end_query;
     vkCmdEndRenderPass = test_vk_noop_cmd_end_render_pass;
     vkCmdPipelineBarrier = test_vk_cmd_pipeline_barrier;
     vkDestroyFramebuffer = test_vk_noop_destroy_framebuffer;
     vkEndCommandBuffer = test_vk_end_command_buffer;
-    vkGetQueryPoolResults = test_vk_noop_get_query_pool_results;
+    vkGetQueryPoolResults = test_vk_get_query_pool_results;
     vkQueueSubmit = test_vk_queue_submit;
     vkResetFences = test_vk_reset_fences;
     vkWaitForFences = test_vk_wait_for_fences;
@@ -320,6 +324,7 @@ static void fixture_init(ReportFixture *fixture)
     fixture->renderer.queue = (VkQueue)(uintptr_t)5;
     fixture->renderer.device = (VkDevice)(uintptr_t)6;
     fixture->renderer.allocator = (VmaAllocator)(uintptr_t)7;
+    fixture->renderer.query_pool = (VkQueryPool)(uintptr_t)8;
     QSIMPLEQ_INIT(&fixture->renderer.report_queue);
     memset(fixture->vram, CANARY, sizeof(fixture->vram));
     memset(&boundary_trace, 0, sizeof(boundary_trace));
@@ -468,6 +473,7 @@ static bool test_descriptor_words_are_decoded_at_retirement(void)
 static bool test_active_command_buffer_waits_before_publication(void)
 {
     static const BoundaryEvent expected[] = {
+        BOUNDARY_END_QUERY,
         BOUNDARY_END_MAIN,
         BOUNDARY_BEGIN_AUX,
         BOUNDARY_FLUSH,
@@ -476,6 +482,7 @@ static bool test_active_command_buffer_waits_before_publication(void)
         BOUNDARY_RESET_FENCE,
         BOUNDARY_SUBMIT,
         BOUNDARY_WAIT,
+        BOUNDARY_QUERY_RESULTS,
     };
     ReportFixture fixture;
     const PGRAPHVkWaitStats *finish_stats;
@@ -485,6 +492,8 @@ static bool test_active_command_buffer_waits_before_publication(void)
     write_dma_descriptor(fixture.ramin, 0, REPORT_SIZE - 1);
     fixture.d.pgraph.dma_report = 0;
     fixture.renderer.in_command_buffer = true;
+    fixture.renderer.query_in_flight = true;
+    fixture.renderer.num_queries_in_flight = 1;
     fixture.renderer.zpass_pixel_count_result = 7;
     boundary_trace.watched_report = fixture.vram;
     pgraph_vk_get_report(&fixture.d, report_parameter(0));
@@ -493,11 +502,14 @@ static bool test_active_command_buffer_waits_before_publication(void)
     finish_stats = &fixture.renderer.perf.finish[VK_FINISH_REASON_STALLED];
     return boundary_trace.valid &&
            boundary_trace.wait_saw_unpublished_report &&
+           boundary_trace.query_saw_unpublished_report &&
            boundary_trace.event_count == ARRAY_SIZE(expected) &&
            !memcmp(boundary_trace.events, expected, sizeof(expected)) &&
-           report_matches(fixture.vram, 7) && queue_is_empty(&fixture) &&
+           report_matches(fixture.vram, 18) && queue_is_empty(&fixture) &&
            !fixture.renderer.in_command_buffer &&
            !fixture.renderer.in_aux_command_buffer &&
+           !fixture.renderer.query_in_flight &&
+           fixture.renderer.num_queries_in_flight == 0 &&
            fixture.renderer.submit_count == 1 &&
            finish_stats->call_count == 1 && finish_stats->submit_count == 1 &&
            finish_stats->wait_count == 1;
