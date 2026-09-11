@@ -45,9 +45,12 @@ void xemu_gpu_info_record_inventory(const PGRAPHVkDeviceRecord *devices,
                                     size_t count);
 const PGRAPHVkDeviceRecord *xemu_gpu_info_get_inventory(size_t *count);
 const PGRAPHVkDeviceRecord *xemu_gpu_info_get_actual_device(void);
+void xemu_gpu_info_set_actual_device(const PGRAPHVkDeviceRecord *device);
 bool xemu_gpu_info_record_initialized(const PGRAPHVkDeviceRecord *device,
                                       const char *actual_backend,
-                                      XemuGpuPresentationMode mode);
+                                      XemuGpuPresentationMode mode,
+                                      bool fallback_used,
+                                      const char *fallback_reason);
 bool xemu_gpu_info_record_failure(const char *actual_backend,
                                   const char *message, bool fallback_used,
                                   const char *fallback_reason);

@@ -18,6 +18,7 @@
  */
 
 #include "qemu/osdep.h"
+#include "qemu/cutils.h"
 #include "ui/xemu-gpu-info.h"
 #include "ui/xemu-gpu-launch.h"
 #include "ui/xemu-settings.h"
@@ -784,8 +785,7 @@ void pgraph_vk_init_instance(PGRAPHState *pg, Error **errp)
         create_logical_device(pg, errp) &&
         init_allocator(pg, errp)) {
         PGRAPHVkState *r = pg->vk_renderer_state;
-        xemu_gpu_info_record_initialized(&r->selected_device, "Vulkan",
-                                         XEMU_GPU_PRESENTATION_UNKNOWN);
+        xemu_gpu_info_set_actual_device(&r->selected_device);
         return;
     }
 

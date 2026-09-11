@@ -1284,8 +1284,11 @@ static int run_gpu_inventory_only(const XemuGpuLaunchRequest *request)
     size_t count = 0;
     Error *error = NULL;
     if (!pgraph_vk_probe_device_inventory(&devices, &count, &error)) {
+        const char *message = error ? error_get_pretty(error) :
+                                      "unknown error";
         fprintf(stderr, "GPU inventory failed: %s\n",
-                error ? error_get_pretty(error) : "unknown error");
+                message);
+        xemu_gpu_info_record_failure(NULL, message, false, NULL);
         error_free(error);
         return 1;
     }
@@ -1378,6 +1381,7 @@ int main(int argc, char **argv)
                 xemu_gpu_launch_parse_status_string(gpu_parse_status));
         return 2;
     }
+    xemu_gpu_launch_request_set_current(&gpu_request);
     if (gpu_request.list_gpus) {
         return run_gpu_inventory_only(&gpu_request);
     }

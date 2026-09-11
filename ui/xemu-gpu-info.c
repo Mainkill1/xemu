@@ -373,6 +373,9 @@ void xemu_gpu_info_record_inventory(const PGRAPHVkDeviceRecord *devices,
 {
     PGRAPHVkDeviceRecord *copy = NULL;
     if (count != 0) {
+        if (count > SIZE_MAX / sizeof(*copy)) {
+            return;
+        }
         copy = malloc(sizeof(*copy) * count);
         if (copy == NULL) {
             return;
@@ -395,6 +398,14 @@ const PGRAPHVkDeviceRecord *xemu_gpu_info_get_inventory(size_t *count)
 const PGRAPHVkDeviceRecord *xemu_gpu_info_get_actual_device(void)
 {
     return has_actual_device ? &last_actual_device : NULL;
+}
+
+void xemu_gpu_info_set_actual_device(const PGRAPHVkDeviceRecord *device)
+{
+    has_actual_device = device != NULL;
+    if (device != NULL) {
+        last_actual_device = *device;
+    }
 }
 
 static bool write_runtime_document(XemuGpuInfoState state,
@@ -439,14 +450,14 @@ static bool write_runtime_document(XemuGpuInfoState state,
 
 bool xemu_gpu_info_record_initialized(const PGRAPHVkDeviceRecord *device,
                                       const char *actual_backend,
-                                      XemuGpuPresentationMode mode)
+                                      XemuGpuPresentationMode mode,
+                                      bool fallback_used,
+                                      const char *fallback_reason)
 {
-    has_actual_device = device != NULL;
-    if (device != NULL) {
-        last_actual_device = *device;
-    }
+    xemu_gpu_info_set_actual_device(device);
     return write_runtime_document(XEMU_GPU_INFO_INITIALIZED, device,
-                                  actual_backend, mode, NULL, false, NULL);
+                                  actual_backend, mode, NULL, fallback_used,
+                                  fallback_reason);
 }
 
 bool xemu_gpu_info_record_failure(const char *actual_backend,

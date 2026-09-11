@@ -327,7 +327,7 @@ void nv2a_context_init(void)
     }
 }
 
-static bool attempt_renderer_init(PGRAPHState *pg)
+static bool attempt_renderer_init(PGRAPHState *pg, bool fallback)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
 
@@ -354,12 +354,19 @@ static bool attempt_renderer_init(PGRAPHState *pg)
         return false;
     }
 
+    const PGRAPHVkDeviceRecord *device =
+        pg->renderer->type == CONFIG_DISPLAY_RENDERER_VULKAN ?
+            xemu_gpu_info_get_actual_device() : NULL;
+    xemu_gpu_info_record_initialized(
+        device, pg->renderer->name, XEMU_GPU_PRESENTATION_UNKNOWN,
+        fallback, fallback ? "requested renderer failed to initialize" : NULL);
+
     return true;
 }
 
 static void init_renderer(PGRAPHState *pg)
 {
-    if (attempt_renderer_init(pg)) {
+    if (attempt_renderer_init(pg, false)) {
         return;  // Success
     }
 
@@ -372,7 +379,7 @@ static void init_renderer(PGRAPHState *pg)
     CONFIG_DISPLAY_RENDERER default_renderer = get_default_renderer();
     if (default_renderer != g_config.display.renderer) {
         g_config.display.renderer = default_renderer;
-        if (attempt_renderer_init(pg)) {
+        if (attempt_renderer_init(pg, true)) {
             g_autofree gchar *msg = g_strdup_printf(
                 "Switched to default renderer: %s", pg->renderer->name);
             xemu_queue_notification(msg);
