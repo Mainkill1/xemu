@@ -7,7 +7,8 @@
 #ifndef XBOX_NV2A_REPORT_TEST_SHIM_H
 #define XBOX_NV2A_REPORT_TEST_SHIM_H
 
-/* Import the normal module definitions before overriding only this root. */
+/* Establish normal QEMU config/types before overriding only this root. */
+#include "qemu/osdep.h"
 #include "qemu/module.h"
 
 #undef type_init
