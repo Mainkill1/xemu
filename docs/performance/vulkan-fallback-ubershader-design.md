@@ -12,6 +12,8 @@
 
 **Stage 1 contracts:** [PR #77](https://github.com/Mainkill1/xemu/pull/77), draft head `1801ac7dd01691502a56cbd944b2977c85e9e670`
 
+**Stage 2 finite combiner oracle:** [PR #78](https://github.com/Mainkill1/xemu/pull/78), stacked draft head `7865142b1066b003b87d1f19e088887fc9d94370`
+
 **Cause diagnostic:** [PR #68](https://github.com/Mainkill1/xemu/pull/68)
 
 **Exact trace build:** `1ba2c59ee69c6c909bd48b63290fa753ff5fe868` / executable `bf4a3908bcba4d3f6f891ad3562ff1f45a2042feca6c0a244072f1b0a7df4663`
