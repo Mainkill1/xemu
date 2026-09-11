@@ -766,6 +766,10 @@ int qemu_timeout_ns_to_ms(int64_t ns);
  */
 int qemu_poll_ns(GPollFD *fds, guint nfds, int64_t timeout);
 
+/* Optional Windows short-wait backend; defaults off. Thread-safe. */
+void qemu_poll_set_cpu_saving(bool enabled);
+bool qemu_poll_get_cpu_saving(void);
+
 /**
  * qemu_soonest_timeout:
  * @timeout1: first timeout in nanoseconds (or -1 for infinite)

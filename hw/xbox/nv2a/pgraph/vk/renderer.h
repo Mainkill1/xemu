@@ -39,6 +39,7 @@
 #include <vk_mem_alloc.h>
 
 #include "blend-constants-cache.h"
+#include "device-selection.h"
 #include "debug.h"
 #include "constants.h"
 #include "glsl.h"
@@ -444,6 +445,7 @@ typedef struct PGRAPHVkState {
     bool demote_to_helper_extension_enabled;
 
     VkPhysicalDevice physical_device;
+    PGRAPHVkDeviceRecord selected_device;
     VkPhysicalDeviceFeatures enabled_physical_device_features;
     VkPhysicalDeviceProperties device_props;
     VkDevice device;
@@ -592,7 +594,8 @@ uint32_t pgraph_vk_get_memory_type(PGRAPHState *pg, uint32_t type_bits,
 // glsl.c
 void pgraph_vk_init_glsl_compiler(void);
 void pgraph_vk_finalize_glsl_compiler(void);
-GByteArray *pgraph_vk_compile_glsl_to_spv(glslang_stage_t stage,
+GByteArray *pgraph_vk_compile_glsl_to_spv(PGRAPHVkState *r,
+                                          glslang_stage_t stage,
                                           const char *glsl_source);
 ShaderModuleInfo *pgraph_vk_create_shader_module_from_glsl(
     PGRAPHVkState *r, VkShaderStageFlagBits stage, const char *glsl);

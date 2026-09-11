@@ -19,6 +19,7 @@
 
 #include "qemu/osdep.h"
 #include "qemu/error-report.h"
+#include "ui/xemu-gpu-info.h"
 #include "renderer.h"
 #include <math.h>
 
@@ -718,6 +719,11 @@ static void create_display_image(PGRAPHState *pg, int width, int height)
                          image_create_info.extent.width,
                          image_create_info.extent.height, d->gl_memory_obj, 0);
     assert(glGetError() == GL_NO_ERROR);
+
+    xemu_gpu_info_record_presentation(
+        XEMU_GPU_PRESENTATION_SHARED,
+        (const char *)glGetString(GL_VENDOR),
+        (const char *)glGetString(GL_RENDERER));
 
 #endif // HAVE_EXTERNAL_MEMORY
 

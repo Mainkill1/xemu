@@ -1,0 +1,57 @@
+# Advance performance settings
+
+**Machine → Settings → Advance** exposes independent performance controls.
+Every control defaults to On so a fresh configuration preserves the accepted
+`main` behavior. A saved Off value remains Off after restart.
+
+| Setting | On | Off | Apply |
+| --- | --- | --- | --- |
+| Reduce CPU usage while waiting | Interruptible Windows short waits | Existing short busy-wait path | Next wait |
+| Process vertex packets in bulk | Batch eligible non-incrementing packets | Scalar packet processing | Next packet |
+| Fast GPU fence polling | Atomic exact 32-bit fence read | Existing locked register read | Next read |
+| Combine color downloads with rendering | Fold eligible downloads into the active submission | Submit the download separately | Next download |
+| Upload only used vertex ranges | Skip unused leading remapped vertices | Copy from vertex zero | Next repack |
+| Grow transient buffers to fit batches | Retain the pre-flush batch requirement while growing | Reuse drained storage; still grow for a large single draw | Restart xemu |
+| Upload compressed textures directly | Native OpenGL S3TC upload where eligible | CPU S3TC decode | Restart xemu |
+
+The controls publish one atomic active-options snapshot. Renderer and FIFO
+workers do not read the UI-owned configuration directly. Restart-only choices
+stay pending until the next process so texture-cache and buffer-growth policies
+cannot change halfway through their lifetime.
+
+Turning a control Off selects its maintained fallback. It does not disable
+size checks, dirty tracking, failure propagation, layout validation, or other
+correctness behavior around the optimized operation.
+
+The Windows wait control uses a per-thread high-resolution waitable timer for
+short waits. When that facility is unavailable or fails, xemu reports the
+failure once and retains the compatibility polling path. This integration also
+retains `main`'s optimized QueryPerformanceCounter conversion.
+
+## Current-main integration
+
+PR #37 was originally stacked on a historical validation branch. Before
+integration, that head was preserved by tag
+`archive/pr-37-pre-main-integration-1636d1ef9f`. The active branch was then
+rebuilt from the `main` containing PR #75 so it cannot merge the historical S
+stack, validation-only marker receiver, raw evidence, or rejected branch
+history into the product branch.
+
+The reconciled change adds controls around the implementations already present
+in `main`, plus the retained optional Windows short-wait implementation. It does
+not replace the current texture layout, transient-buffer management, guarded
+packet handling, Vulkan failure handling, or GPU-selector work.
+
+## Validation scope
+
+`test-xemu-tweaks-config` exercises generated defaults, saved Off values,
+migration, independent choices, live controls, and restart-only publication.
+
+`test-xemu-tweak-paths.py` compiles the current production packet dispatcher
+and buffer reservation function with small API doubles. It covers 24 packet
+modes and both buffer-growth policies, including mandatory capacity for a
+single draw.
+
+The Windows polling tests exercise enable/disable behavior, event readiness,
+timer failures, cleanup, and compatibility fallback. These focused tests do not
+replace final game and performance qualification.

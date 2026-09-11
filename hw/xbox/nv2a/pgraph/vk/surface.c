@@ -28,6 +28,7 @@
 #include "qemu/compiler.h"
 #include "qemu/error-report.h"
 #include "ui/xemu-settings.h"
+#include "ui/xemu-tweaks.h"
 #include "failpoint.h"
 #include "failure-state.h"
 #include "renderer.h"
@@ -199,6 +200,7 @@ static bool download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
         r->in_command_buffer &&
         surface->draw_time >= r->command_buffer_start_time;
     bool fold_into_active_command_buffer =
+        xemu_tweak_enabled(XEMU_TWEAK_VK_COLOR_DOWNLOAD_FOLDING) &&
         r->in_command_buffer &&
         surface->draw_time > r->command_buffer_start_time && surface->color &&
         !use_compute_to_convert_depth_stencil_format;

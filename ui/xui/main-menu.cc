@@ -32,6 +32,7 @@
 #include "actions.hh"
 
 #include "../xemu-input.h"
+#include "../xemu-gpu-info.h"
 #include "../xemu-notifications.h"
 #include "../xemu-settings.h"
 #include "../xemu-monitor.h"
@@ -41,6 +42,10 @@
 #include "../xemu-xbe.h"
 
 #include "../thirdparty/fatx/fatx.h"
+
+extern "C" {
+#include "ui/xemu-tweaks.h"
+}
 
 #define DEFAULT_XMU_SIZE 8388608
 
@@ -82,6 +87,62 @@ void MainMenuGeneralView::Draw()
                });
     // toggle("Throttle DVD/HDD speeds", &g_config.general.throttle_io,
     //        "Limit DVD/HDD throughput to approximate Xbox load times");
+}
+
+static void PerformanceToggle(const char *label, bool *selected,
+                              XemuTweak tweak, const char *help)
+{
+    if (Toggle(label, selected, help)) {
+        xemu_tweaks_apply(false);
+        xemu_settings_save();
+    }
+    if (xemu_tweak_requires_restart(tweak) &&
+        *selected != xemu_tweak_enabled(tweak)) {
+        ImGui::TextDisabled("Restart xemu to apply this change.");
+    }
+}
+
+void MainMenuAdvanceView::Draw()
+{
+    SectionTitle("Performance");
+#ifdef _WIN32
+    PerformanceToggle("Reduce CPU usage while waiting",
+        &g_config.tweaks.cpu_saving_wait, XEMU_TWEAK_CPU_SAVING_WAIT,
+        "Uses interruptible Windows waits to reduce CPU usage. "
+        "Disable if stuttering increases.");
+#endif
+    PerformanceToggle("Process vertex packets in bulk",
+        &g_config.tweaks.pgraph_bulk_packets,
+        XEMU_TWEAK_PGRAPH_BULK_PACKETS,
+        "Processes vertex and index packets in batches. "
+        "Off processes one word at a time. Applies to both renderers.");
+    PerformanceToggle("Fast GPU fence polling",
+        &g_config.tweaks.pgraph_fence_fastpath,
+        XEMU_TWEAK_PGRAPH_FENCE_FASTPATH,
+        "Reduces contention while games wait for GPU work. "
+        "Off uses locked reads. Applies to both renderers.");
+    SectionTitle("Vulkan");
+    PerformanceToggle("Combine color downloads with rendering",
+        &g_config.tweaks.vk_color_download_folding,
+        XEMU_TWEAK_VK_COLOR_DOWNLOAD_FOLDING,
+        "Reduces GPU submissions for eligible color downloads. "
+        "Off submits downloads separately.");
+    PerformanceToggle("Upload only used vertex ranges",
+        &g_config.tweaks.vk_bounded_vertex_uploads,
+        XEMU_TWEAK_VK_BOUNDED_VERTEX_UPLOADS,
+        "Skips unused leading vertices when repacking attributes. "
+        "Off copies from vertex zero.");
+    PerformanceToggle("Grow transient buffers to fit batches",
+        &g_config.tweaks.vk_transient_buffer_growth,
+        XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH,
+        "Grows transient buffers to reduce flushes in later batches. "
+        "Off reuses drained storage; large single draws can still grow it. "
+        "Requires restarting xemu.");
+    SectionTitle("OpenGL");
+    PerformanceToggle("Upload compressed textures directly",
+        &g_config.tweaks.gl_native_s3tc, XEMU_TWEAK_GL_NATIVE_S3TC,
+        "Lets the GPU decode eligible S3TC textures. "
+        "Off decodes them on the CPU. Requires restarting xemu.");
 }
 
 bool MainMenuInputView::ConsumeRebindEvent(SDL_Event *event)
@@ -749,6 +810,83 @@ void MainMenuDisplayView::Draw()
 #endif
                  ,
                  "Select desired renderer implementation");
+
+    if (g_config.display.renderer == CONFIG_DISPLAY_RENDERER_VULKAN) {
+        struct GpuChoices {
+            std::vector<std::string> labels;
+            std::vector<std::string> uuids;
+        } choices;
+        choices.labels.emplace_back("Automatic");
+        choices.uuids.emplace_back("");
+
+        size_t device_count = 0;
+        const PGRAPHVkDeviceRecord *devices =
+          xemu_gpu_info_get_inventory(&device_count);
+        for (size_t i = 0; i < device_count; i++) {
+            if (!devices[i].renderer_supported) {
+                continue;
+            }
+            char uuid[PGRAPH_VK_DEVICE_UUID_STRING_SIZE];
+            pgraph_vk_device_uuid_format(devices[i].device_uuid, uuid);
+            choices.labels.emplace_back(std::string(devices[i].name) +
+                                        " (" + std::string(uuid, 8) + ")");
+            choices.uuids.emplace_back(uuid);
+        }
+
+        int selected = 0;
+        const char *saved_uuid = g_config.display.vulkan.device_uuid;
+        if (saved_uuid != nullptr && saved_uuid[0] != '\0') {
+            bool found = false;
+            for (size_t i = 1; i < choices.uuids.size(); i++) {
+                if (choices.uuids[i] == saved_uuid) {
+                    selected = static_cast<int>(i);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                choices.labels.emplace_back("Saved adapter unavailable");
+                choices.uuids.emplace_back(saved_uuid);
+                selected = static_cast<int>(choices.labels.size() - 1);
+            }
+        }
+        auto item_getter = [](void *data, int index, const char **text) {
+            auto *values = static_cast<GpuChoices *>(data);
+            if (index < 0 || static_cast<size_t>(index) >=
+                             values->labels.size()) {
+                return false;
+            }
+            *text = values->labels[index].c_str();
+            return true;
+        };
+        if (ChevronCombo("Adapter", &selected, item_getter, &choices,
+                         static_cast<int>(choices.labels.size()),
+                         "Select the Vulkan adapter used after restarting "
+                         "xemu")) {
+            xemu_settings_set_string(&g_config.display.vulkan.device_uuid,
+                                     choices.uuids[selected].c_str());
+            xemu_settings_set_string(
+              &g_config.display.vulkan.preferred_physical_device, "");
+            xemu_queue_notification(
+              "Renderer adapter changed. Restart xemu to apply it.");
+        }
+
+        const PGRAPHVkDeviceRecord *actual =
+          xemu_gpu_info_get_actual_device();
+        if (actual != nullptr) {
+            ImGui::TextDisabled("Active adapter: %s", actual->name);
+        } else {
+            ImGui::TextDisabled("Active adapter: unavailable");
+        }
+    } else if (g_config.display.renderer == CONFIG_DISPLAY_RENDERER_OPENGL) {
+        int selected = 0;
+        ImGui::BeginDisabled();
+        ChevronCombo("Adapter", &selected, "OS / driver controlled\0",
+                     "OpenGL adapter selection is controlled by the host "
+                     "operating system and graphics driver");
+        ImGui::EndDisabled();
+    }
+
     int rendering_scale = nv2a_get_surface_scale_factor() - 1;
     if (ChevronCombo("Internal resolution scale", &rendering_scale,
                      "1x\0"
@@ -1714,6 +1852,7 @@ MainMenuScene::MainMenuScene()
       m_network_button("Network", ICON_FA_NETWORK_WIRED),
       m_snapshots_button("Snapshots", ICON_FA_CLOCK_ROTATE_LEFT),
       m_system_button("System", ICON_FA_MICROCHIP),
+      m_advance_button("Advance", ICON_FA_GEARS),
       m_about_button("About", ICON_FA_CIRCLE_INFO)
 {
     m_had_focus_last_frame = false;
@@ -1725,6 +1864,7 @@ MainMenuScene::MainMenuScene()
     m_tabs.push_back(&m_network_button);
     m_tabs.push_back(&m_snapshots_button);
     m_tabs.push_back(&m_system_button);
+    m_tabs.push_back(&m_advance_button);
     m_tabs.push_back(&m_about_button);
 
     m_views.push_back(&m_general_view);
@@ -1734,6 +1874,7 @@ MainMenuScene::MainMenuScene()
     m_views.push_back(&m_network_view);
     m_views.push_back(&m_snapshots_view);
     m_views.push_back(&m_system_view);
+    m_views.push_back(&m_advance_view);
     m_views.push_back(&m_about_view);
 
     m_current_view_index = 0;
@@ -1757,7 +1898,7 @@ void MainMenuScene::ShowSystem()
 
 void MainMenuScene::ShowAbout()
 {
-    SetNextViewIndexWithFocus(7);
+    SetNextViewIndexWithFocus(8);
 }
 
 void MainMenuScene::SetNextViewIndexWithFocus(int i)

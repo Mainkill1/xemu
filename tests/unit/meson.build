@@ -24,6 +24,21 @@ tests = {
   'test-xbox-pgraph-uniform-dirty': [],
   'test-xbox-pgraph-uniform-source': [],
   'test-xbox-vk-blend-constants': [],
+  'test-xbox-vk-device-selection': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/device-selection.c',
+  ],
+  'test-xbox-vk-device-inventory': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/device-inventory.c',
+  ],
+  'test-xemu-gpu-launch': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/device-selection.c',
+    meson.project_source_root() / 'ui/xemu-gpu-launch.c',
+  ],
+  'test-xemu-gpu-info': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/device-selection.c',
+    meson.project_source_root() / 'ui/xemu-gpu-launch.c',
+    meson.project_source_root() / 'ui/xemu-gpu-info.c',
+  ],
   'test-xbox-vk-bc-layout': [],
   'test-xbox-vk-failure-state': [],
   'test-xbox-vk-failpoint': [
@@ -77,6 +92,12 @@ tests = {
   'test-fifo': [],
   'test-lru-active': [],
 }
+
+if host_os == 'windows'
+  tests += {
+    'test-xbox-qemu-poll': [],
+  }
+endif
 
 # This real graphics lifecycle test skips unless explicitly enabled on a host
 # with an interactive SDL/OpenGL session.
@@ -214,6 +235,21 @@ slow_tests = {
   'test-crypto-tlssession': 90,
   'test-replication': 60,
 }
+
+xemu_tweaks_test = executable('test-xemu-tweaks-config',
+  files('test-xemu-tweaks-config.cc', '../../ui/xemu-tweaks.c'), genh,
+  dependencies: [qemuutil, genconfig, tomlplusplus])
+test('test-xemu-tweaks-config', xemu_tweaks_test, suite: ['unit'])
+
+# This driver compiles small native API doubles, even during a cross build.
+if build_machine.system() in ['linux', 'darwin']
+  tweak_test_cc = find_program('cc', native: true, required: false)
+  if tweak_test_cc.found()
+    test('test-xemu-tweak-paths', python,
+      args: [files('test-xemu-tweak-paths.py'), '--cc', tweak_test_cc.full_path()],
+      suite: ['unit'])
+  endif
+endif
 
 foreach test_name, extra: tests
   src = [test_name + '.c']
