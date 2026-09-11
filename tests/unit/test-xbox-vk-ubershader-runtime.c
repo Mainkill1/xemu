@@ -39,6 +39,27 @@ static void test_dynamic_control_binding_matches_packet_abi(void)
     g_assert_cmpuint(_Alignof(PGRAPHUberControls), ==, 16);
 }
 
+static void test_control_only_upload_does_not_require_descriptor_update(void)
+{
+    bool descriptor_update =
+        pgraph_vk_descriptor_update_needed(false, false, false);
+
+    g_assert_false(descriptor_update);
+    g_assert_true(pgraph_vk_reuses_descriptor_set_for_control_update(
+        true, descriptor_update));
+    g_assert_true(pgraph_vk_descriptor_update_needed(true, false, false));
+    g_assert_true(pgraph_vk_descriptor_update_needed(false, true, false));
+    g_assert_true(pgraph_vk_descriptor_update_needed(false, false, true));
+}
+
+static void test_disabled_runtime_uses_baseline_descriptor_layout(void)
+{
+    g_assert_cmpuint(pgraph_vk_descriptor_layout_binding_count(false), ==, 6);
+    g_assert_cmpuint(pgraph_vk_descriptor_layout_binding_count(true), ==, 7);
+    g_assert_cmpuint(pgraph_vk_descriptor_dynamic_offset_count(false), ==, 0);
+    g_assert_cmpuint(pgraph_vk_descriptor_dynamic_offset_count(true), ==, 1);
+}
+
 static void test_shader_binding_key_equality_requires_route_and_full_state(void)
 {
     ShaderBindingKey a = {
@@ -140,6 +161,10 @@ int main(int argc, char **argv)
     g_test_init(&argc, &argv, NULL);
     g_test_add_func("/xbox/vk/ubershader/runtime/control-abi",
                     test_dynamic_control_binding_matches_packet_abi);
+    g_test_add_func("/xbox/vk/ubershader/runtime/control-only-upload",
+                    test_control_only_upload_does_not_require_descriptor_update);
+    g_test_add_func("/xbox/vk/ubershader/runtime/baseline-layout",
+                    test_disabled_runtime_uses_baseline_descriptor_layout);
     g_test_add_func("/xbox/vk/ubershader/runtime/shader-binding-key",
                     test_shader_binding_key_equality_requires_route_and_full_state);
     g_test_add_func("/xbox/vk/ubershader/runtime/canonical-key",

@@ -116,6 +116,14 @@ endif
 
 if vulkan.found()
   tests += {
+    'test-xbox-vk-ubershader-glsl-integration': [
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/common.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/psh.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/psh-uber.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/glsl.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/spirv-prewarm.c',
+      volk, libglslang, vma, vulkan, spirv_reflect,
+    ],
     'test-xbox-vk-ubershader-runtime': [volk, libglslang, vma, vulkan,
                                          spirv_reflect],
   }

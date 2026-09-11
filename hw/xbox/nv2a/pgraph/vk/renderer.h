@@ -72,6 +72,7 @@ typedef enum PGRAPHVkFragmentRoute {
 } PGRAPHVkFragmentRoute;
 
 #define PGRAPH_VK_PSH_UBER_UBO_BINDING 6
+#define PGRAPH_VK_BASE_DESCRIPTOR_BINDING_COUNT (2 + NV2A_MAX_TEXTURES)
 
 /*
  * The fragment interpreter consumes these words from its dynamic UBO.  The
@@ -252,6 +253,31 @@ static inline bool pgraph_vk_shader_binding_key_different(
     const ShaderBindingKey *a, const ShaderBindingKey *b)
 {
     return !pgraph_vk_shader_binding_key_equal(a, b);
+}
+
+static inline uint32_t pgraph_vk_descriptor_layout_binding_count(
+    bool runtime_enabled)
+{
+    return PGRAPH_VK_BASE_DESCRIPTOR_BINDING_COUNT + runtime_enabled;
+}
+
+static inline uint32_t pgraph_vk_descriptor_dynamic_offset_count(
+    bool runtime_enabled)
+{
+    return runtime_enabled;
+}
+
+static inline bool pgraph_vk_descriptor_update_needed(bool textures_changed,
+                                                       bool force_reupload,
+                                                       bool uniforms_changed)
+{
+    return textures_changed || force_reupload || uniforms_changed;
+}
+
+static inline bool pgraph_vk_reuses_descriptor_set_for_control_update(
+    bool controls_changed, bool descriptor_update_needed)
+{
+    return controls_changed && !descriptor_update_needed;
 }
 
 typedef struct TextureKey {
@@ -587,6 +613,7 @@ typedef struct PGRAPHVkState {
     ShaderModuleInfo *quad_vert_module, *solid_frag_module;
     bool shader_bindings_changed;
     bool use_push_constants_for_uniform_attrs;
+    bool ubershader_runtime_enabled;
 
     Lru shader_module_cache;
     ShaderModuleCacheEntry *shader_module_cache_entries;
@@ -664,6 +691,11 @@ void pgraph_vk_glsl_target_versions(
 GByteArray *pgraph_vk_compile_glsl_to_spv(PGRAPHVkState *r,
                                           glslang_stage_t stage,
                                           const char *glsl_source);
+bool pgraph_vk_uber_controls_block_matches_abi(
+    const SpvReflectBlockVariable *block);
+bool pgraph_vk_init_shader_module_layout_from_spv(
+    ShaderModuleInfo *info, VkShaderStageFlagBits expected_stage);
+void pgraph_vk_clear_shader_module_layout(ShaderModuleInfo *info);
 ShaderModuleInfo *pgraph_vk_create_shader_module_from_glsl(
     PGRAPHVkState *r, VkShaderStageFlagBits stage, const char *glsl);
 ShaderModuleInfo *pgraph_vk_create_shader_module_from_spirv(

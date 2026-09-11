@@ -367,7 +367,7 @@ static bool block_to_uniforms(const SpvReflectBlockVariable *block,
     return true;
 }
 
-static bool validate_uber_controls_block(
+bool pgraph_vk_uber_controls_block_matches_abi(
     const SpvReflectBlockVariable *block)
 {
     static const struct {
@@ -424,9 +424,28 @@ static bool validate_uber_controls_block(
     return true;
 }
 
-static bool init_layout_from_spv(ShaderModuleInfo *info,
-                                 VkShaderStageFlagBits expected_stage)
+void pgraph_vk_clear_shader_module_layout(ShaderModuleInfo *info)
 {
+    if (!info) {
+        return;
+    }
+    shader_uniform_layout_clear(&info->uniforms);
+    shader_uniform_layout_clear(&info->push_constants);
+    g_free(info->descriptor_sets);
+    info->descriptor_sets = NULL;
+    if (info->reflect_module_initialized) {
+        spvReflectDestroyShaderModule(&info->reflect_module);
+        info->reflect_module_initialized = false;
+    }
+    info->uses_uber_controls = false;
+}
+
+bool pgraph_vk_init_shader_module_layout_from_spv(
+    ShaderModuleInfo *info, VkShaderStageFlagBits expected_stage)
+{
+    if (!info || !info->spirv) {
+        return false;
+    }
     SpvReflectResult result = spvReflectCreateShaderModule(
         info->spirv->len, info->spirv->data, &info->reflect_module);
     if (result != SPV_REFLECT_RESULT_SUCCESS) {
@@ -488,7 +507,8 @@ static bool init_layout_from_spv(ShaderModuleInfo *info,
                     binding->descriptor_type !=
                         SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER ||
                     uber_block_seen ||
-                    !validate_uber_controls_block(&binding->block)) {
+                    !pgraph_vk_uber_controls_block_matches_abi(
+                        &binding->block)) {
                     goto fail;
                 }
                 uber_block_seen = true;
@@ -525,12 +545,7 @@ static bool init_layout_from_spv(ShaderModuleInfo *info,
     return true;
 
 fail:
-    shader_uniform_layout_clear(&info->uniforms);
-    shader_uniform_layout_clear(&info->push_constants);
-    g_free(info->descriptor_sets);
-    info->descriptor_sets = NULL;
-    spvReflectDestroyShaderModule(&info->reflect_module);
-    info->reflect_module_initialized = false;
+    pgraph_vk_clear_shader_module_layout(info);
     return false;
 }
 
@@ -542,12 +557,7 @@ static void shader_module_info_free(PGRAPHVkState *r, ShaderModuleInfo *info)
     if (info->module != VK_NULL_HANDLE) {
         vkDestroyShaderModule(r->device, info->module, NULL);
     }
-    if (info->reflect_module_initialized) {
-        spvReflectDestroyShaderModule(&info->reflect_module);
-    }
-    shader_uniform_layout_clear(&info->uniforms);
-    shader_uniform_layout_clear(&info->push_constants);
-    g_free(info->descriptor_sets);
+    pgraph_vk_clear_shader_module_layout(info);
     free(info->glsl);
     if (info->spirv) {
         g_byte_array_unref(info->spirv);
@@ -604,7 +614,8 @@ ShaderModuleInfo *pgraph_vk_create_shader_module_from_spirv(
     info->refcnt = 0;
     info->glsl = strdup(glsl);
     info->spirv = g_byte_array_ref(spirv);
-    if (!info->glsl || !init_layout_from_spv(info, expected_stage)) {
+    if (!info->glsl || !pgraph_vk_init_shader_module_layout_from_spv(
+                           info, expected_stage)) {
         shader_module_info_free(r, info);
         return NULL;
     }

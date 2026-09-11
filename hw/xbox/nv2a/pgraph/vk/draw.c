@@ -1133,11 +1133,14 @@ static void bind_descriptor_sets(PGRAPHState *pg)
     uint32_t uber_control_offset =
         r->shader_binding->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER ?
             r->uber_control_offset : 0;
+    uint32_t dynamic_offset_count = pgraph_vk_descriptor_dynamic_offset_count(
+        r->ubershader_runtime_enabled);
 
     vkCmdBindDescriptorSets(r->command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                             r->pipeline_binding->layout, 0, 1,
-                            &r->descriptor_sets[r->descriptor_set_index - 1], 1,
-                            &uber_control_offset);
+                            &r->descriptor_sets[r->descriptor_set_index - 1],
+                            dynamic_offset_count,
+                            dynamic_offset_count ? &uber_control_offset : NULL);
 }
 
 static void begin_query(PGRAPHVkState *r)

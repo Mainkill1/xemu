@@ -116,18 +116,20 @@ static void create_descriptor_pool(PGRAPHState *pg)
             .descriptorCount = 2 * num_sets,
         },
         {
+            .type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+            .descriptorCount = NV2A_MAX_TEXTURES * num_sets,
+        },
+        {
             .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
             .descriptorCount = num_sets,
         },
-        {
-            .type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-            .descriptorCount = NV2A_MAX_TEXTURES * num_sets,
-        }
     };
+    uint32_t pool_size_count = ARRAY_SIZE(pool_sizes) -
+                               !r->ubershader_runtime_enabled;
 
     VkDescriptorPoolCreateInfo pool_info = {
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
-        .poolSizeCount = ARRAY_SIZE(pool_sizes),
+        .poolSizeCount = pool_size_count,
         .pPoolSizes = pool_sizes,
         .maxSets = ARRAY_SIZE(r->descriptor_sets),
         .flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
@@ -149,6 +151,8 @@ static void create_descriptor_set_layout(PGRAPHState *pg)
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     VkDescriptorSetLayoutBinding bindings[3 + NV2A_MAX_TEXTURES];
+    uint32_t binding_count = pgraph_vk_descriptor_layout_binding_count(
+        r->ubershader_runtime_enabled);
 
     bindings[0] = (VkDescriptorSetLayoutBinding){
         .binding = VSH_UBO_BINDING,
@@ -170,15 +174,18 @@ static void create_descriptor_set_layout(PGRAPHState *pg)
             .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
         };
     }
-    bindings[2 + NV2A_MAX_TEXTURES] = (VkDescriptorSetLayoutBinding){
-        .binding = PGRAPH_VK_PSH_UBER_UBO_BINDING,
-        .descriptorCount = 1,
-        .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
-        .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
-    };
+    if (r->ubershader_runtime_enabled) {
+        bindings[PGRAPH_VK_PSH_UBER_UBO_BINDING] =
+            (VkDescriptorSetLayoutBinding) {
+            .binding = PGRAPH_VK_PSH_UBER_UBO_BINDING,
+            .descriptorCount = 1,
+            .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+            .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+        };
+    }
     VkDescriptorSetLayoutCreateInfo layout_info = {
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-        .bindingCount = ARRAY_SIZE(bindings),
+        .bindingCount = binding_count,
         .pBindings = bindings,
     };
     VK_CHECK(vkCreateDescriptorSetLayout(r->device, &layout_info, NULL,
@@ -229,6 +236,7 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
     ShaderBinding *binding = r->shader_binding;
     bool force_reupload = r->descriptor_set_index == 0;
     bool uses_uber_controls =
+        r->ubershader_runtime_enabled &&
         binding->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER;
     assert(!uses_uber_controls || r->uber_controls_valid);
     bool need_uniform_write[PGRAPH_UNIFORM_STAGE_COUNT] = {
@@ -247,9 +255,10 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
         (force_reupload || !r->uploaded_uber_controls_valid ||
          memcmp(&r->uploaded_uber_controls, &r->uber_controls,
                 sizeof(r->uber_controls)) != 0);
+    bool need_descriptor_update = pgraph_vk_descriptor_update_needed(
+        r->texture_bindings_changed, force_reupload, any_uniform_write);
 
-    if (!(r->texture_bindings_changed || force_reupload || any_uniform_write ||
-          need_uber_control_write)) {
+    if (!need_descriptor_update && !need_uber_control_write) {
         return; // Nothing changed
     }
 
@@ -273,7 +282,7 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
         (any_uniform_write || need_uber_control_write) &&
         required_end > r->storage_buffers[BUFFER_UNIFORM_STAGING].buffer_size;
 
-    bool need_descriptor_write_reset =
+    bool need_descriptor_write_reset = need_descriptor_update &&
         (r->descriptor_set_index >= ARRAY_SIZE(r->descriptor_sets));
 
     if (need_descriptor_write_reset || need_ubo_staging_buffer_reset) {
@@ -282,6 +291,7 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
         need_uniform_write[PGRAPH_UNIFORM_STAGE_PSH] = true;
         any_uniform_write = true;
         need_uber_control_write = uses_uber_controls;
+        need_descriptor_update = true;
     }
 
     VkWriteDescriptorSet descriptor_writes[3 + NV2A_MAX_TEXTURES];
@@ -316,7 +326,14 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
         assert(r->uber_control_offset <= UINT32_MAX);
     }
 
+    /* A control-only upload reuses the last descriptor set and its UBO. */
+    if (pgraph_vk_reuses_descriptor_set_for_control_update(
+            need_uber_control_write, need_descriptor_update)) {
+        return;
+    }
+
     VkDescriptorBufferInfo ubo_buffer_infos[3];
+    uint32_t descriptor_write_count = 2 + NV2A_MAX_TEXTURES;
     for (int i = 0; i < ARRAY_SIZE(layouts); i++) {
         ubo_buffer_infos[i] = (VkDescriptorBufferInfo){
             .buffer = r->storage_buffers[BUFFER_UNIFORM].buffer,
@@ -333,20 +350,22 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
             .pBufferInfo = &ubo_buffer_infos[i],
         };
     }
-    ubo_buffer_infos[2] = (VkDescriptorBufferInfo){
-        .buffer = r->storage_buffers[BUFFER_UNIFORM].buffer,
-        .offset = 0,
-        .range = sizeof(r->uber_controls),
-    };
-    descriptor_writes[2 + NV2A_MAX_TEXTURES] = (VkWriteDescriptorSet){
-        .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-        .dstSet = r->descriptor_sets[r->descriptor_set_index],
-        .dstBinding = PGRAPH_VK_PSH_UBER_UBO_BINDING,
-        .dstArrayElement = 0,
-        .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
-        .descriptorCount = 1,
-        .pBufferInfo = &ubo_buffer_infos[2],
-    };
+    if (r->ubershader_runtime_enabled) {
+        ubo_buffer_infos[2] = (VkDescriptorBufferInfo){
+            .buffer = r->storage_buffers[BUFFER_UNIFORM].buffer,
+            .offset = 0,
+            .range = sizeof(r->uber_controls),
+        };
+        descriptor_writes[descriptor_write_count++] = (VkWriteDescriptorSet){
+            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+            .dstSet = r->descriptor_sets[r->descriptor_set_index],
+            .dstBinding = PGRAPH_VK_PSH_UBER_UBO_BINDING,
+            .dstArrayElement = 0,
+            .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+            .descriptorCount = 1,
+            .pBufferInfo = &ubo_buffer_infos[2],
+        };
+    }
 
     VkDescriptorImageInfo image_infos[NV2A_MAX_TEXTURES];
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
@@ -366,7 +385,7 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
         };
     }
 
-    vkUpdateDescriptorSets(r->device, ARRAY_SIZE(descriptor_writes),
+    vkUpdateDescriptorSets(r->device, descriptor_write_count,
                            descriptor_writes, 0, NULL);
 
     r->descriptor_set_index++;
@@ -859,7 +878,7 @@ static PGRAPHVkFragmentRoute select_fragment_route(PGRAPHState *pg,
     PGRAPHUberControlSource source;
 
     r->uber_controls_valid = false;
-    if (!xemu_tweak_enabled(XEMU_TWEAK_VK_HYBRID_UBERSHADERS)) {
+    if (!r->ubershader_runtime_enabled) {
         return PGRAPH_VK_FRAGMENT_SPECIALIZED;
     }
 
@@ -1089,6 +1108,8 @@ void pgraph_vk_init_shaders(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
+    r->ubershader_runtime_enabled =
+        xemu_tweak_enabled(XEMU_TWEAK_VK_HYBRID_UBERSHADERS);
     pgraph_vk_init_glsl_compiler();
     create_descriptor_pool(pg);
     create_descriptor_set_layout(pg);
