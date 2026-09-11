@@ -130,6 +130,7 @@ if vulkan.found()
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/common.c',
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/psh.c',
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/psh-uber.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/device-inventory.c',
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/glsl.c',
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/spirv-prewarm.c',
       xbox_i386_target_headers,
