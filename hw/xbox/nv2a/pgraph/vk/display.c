@@ -546,18 +546,38 @@ static void destroy_current_display_image(PGRAPHState *pg)
         return;
     }
 
+    if (d->host_copy.gl_texture_id) {
+        glDeleteTextures(1, &d->host_copy.gl_texture_id);
+        d->host_copy.gl_texture_id = 0;
+        d->host_copy.gl_texture_width = 0;
+        d->host_copy.gl_texture_height = 0;
+    }
+
+    if (d->host_copy.buffer != VK_NULL_HANDLE) {
+        vmaDestroyBuffer(r->allocator, d->host_copy.buffer,
+                         d->host_copy.allocation);
+        d->host_copy.buffer = VK_NULL_HANDLE;
+        d->host_copy.allocation = VK_NULL_HANDLE;
+        d->host_copy.mapped = NULL;
+        d->host_copy.size = 0;
+    }
+
     destroy_frame_buffer(pg);
 
 #if HAVE_EXTERNAL_MEMORY
     glDeleteTextures(1, &d->gl_texture_id);
     d->gl_texture_id = 0;
 
-    glDeleteMemoryObjectsEXT(1, &d->gl_memory_obj);
-    d->gl_memory_obj = 0;
+    if (d->gl_memory_obj) {
+        glDeleteMemoryObjectsEXT(1, &d->gl_memory_obj);
+        d->gl_memory_obj = 0;
+    }
 
 #ifdef WIN32
-    CloseHandle(d->handle);
-    d->handle = 0;
+    if (d->handle) {
+        CloseHandle(d->handle);
+        d->handle = 0;
+    }
 #endif
 #endif
 
@@ -571,6 +591,32 @@ static void destroy_current_display_image(PGRAPHState *pg)
     d->memory = VK_NULL_HANDLE;
 
     d->draw_time = 0;
+}
+
+static void create_host_copy_buffer(PGRAPHState *pg, int width, int height)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    PGRAPHVkDisplayState *d = &r->display;
+    size_t size = (size_t)width * height * 4;
+    VkBufferCreateInfo buffer_info = {
+        .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
+        .size = size,
+        .usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+        .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+    };
+    VmaAllocationCreateInfo allocation_info = {
+        .flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT |
+                 VMA_ALLOCATION_CREATE_MAPPED_BIT,
+        .usage = VMA_MEMORY_USAGE_AUTO_PREFER_HOST,
+    };
+    VmaAllocationInfo result = { 0 };
+
+    VK_CHECK(vmaCreateBuffer(r->allocator, &buffer_info, &allocation_info,
+                             &d->host_copy.buffer,
+                             &d->host_copy.allocation, &result));
+    assert(result.pMappedData != NULL);
+    d->host_copy.mapped = result.pMappedData;
+    d->host_copy.size = size;
 }
 
 // FIXME: We may need to use two images. One for actually rendering display,
@@ -589,20 +635,23 @@ static void create_display_image(PGRAPHState *pg, int width, int height)
     bool use_optimal_tiling = true;
 
 #if HAVE_EXTERNAL_MEMORY
-    GLint num_tiling_types;
-    glGetInternalformativ(GL_TEXTURE_2D, gl_internal_format,
-                          GL_NUM_TILING_TYPES_EXT, 1, &num_tiling_types);
-    // XXX: Apparently on AMD GL_OPTIMAL_TILING_EXT is reported to be
-    // supported, but doesn't work? On nVidia, GL_LINEAR_TILING_EXT may not
-    // be supported so we must use optimal. Default to optimal unless
-    // linear is explicitly specified...
-    GLint tiling_types[num_tiling_types];
-    glGetInternalformativ(GL_TEXTURE_2D, gl_internal_format,
-                          GL_TILING_TYPES_EXT, num_tiling_types, tiling_types);
-    for (int i = 0; i < num_tiling_types; i++) {
-        if (tiling_types[i] == GL_LINEAR_TILING_EXT) {
-            use_optimal_tiling = false;
-            break;
+    if (d->shared_presentation) {
+        GLint num_tiling_types;
+        glGetInternalformativ(GL_TEXTURE_2D, gl_internal_format,
+                              GL_NUM_TILING_TYPES_EXT, 1, &num_tiling_types);
+        // XXX: Apparently on AMD GL_OPTIMAL_TILING_EXT is reported to be
+        // supported, but doesn't work? On nVidia, GL_LINEAR_TILING_EXT may
+        // not be supported so we must use optimal. Default to optimal unless
+        // linear is explicitly specified...
+        GLint tiling_types[num_tiling_types];
+        glGetInternalformativ(GL_TEXTURE_2D, gl_internal_format,
+                              GL_TILING_TYPES_EXT, num_tiling_types,
+                              tiling_types);
+        for (int i = 0; i < num_tiling_types; i++) {
+            if (tiling_types[i] == GL_LINEAR_TILING_EXT) {
+                use_optimal_tiling = false;
+                break;
+            }
         }
     }
 #endif
@@ -619,7 +668,10 @@ static void create_display_image(PGRAPHState *pg, int width, int height)
         .format = VK_FORMAT_R8G8B8A8_UNORM,
         .tiling = use_optimal_tiling ? VK_IMAGE_TILING_OPTIMAL : VK_IMAGE_TILING_LINEAR,
         .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-        .usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+        .usage = VK_IMAGE_USAGE_SAMPLED_BIT |
+                 VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+                 (d->shared_presentation ? 0 :
+                  VK_IMAGE_USAGE_TRANSFER_SRC_BIT),
         .samples = VK_SAMPLE_COUNT_1_BIT,
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
     };
@@ -632,7 +684,9 @@ static void create_display_image(PGRAPHState *pg, int width, int height)
         .handleTypes = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_FD_BIT_KHR,
 #endif
     };
-    image_create_info.pNext = &external_memory_image_create_info;
+    if (d->shared_presentation) {
+        image_create_info.pNext = &external_memory_image_create_info;
+    }
 
     VK_CHECK(vkCreateImage(r->device, &image_create_info, NULL, &d->image));
 
@@ -658,7 +712,9 @@ static void create_display_image(PGRAPHState *pg, int width, int height)
 #endif
             ,
     };
-    alloc_info.pNext = &export_memory_alloc_info;
+    if (d->shared_presentation) {
+        alloc_info.pNext = &export_memory_alloc_info;
+    }
 
     VK_CHECK(vkAllocateMemory(r->device, &alloc_info, NULL, &d->memory));
     VK_CHECK(vkBindImageMemory(r->device, d->image, d->memory, 0));
@@ -677,6 +733,8 @@ static void create_display_image(PGRAPHState *pg, int width, int height)
                                &d->image_view));
 
 #if HAVE_EXTERNAL_MEMORY
+
+    if (d->shared_presentation) {
 
 #ifdef WIN32
 
@@ -724,6 +782,10 @@ static void create_display_image(PGRAPHState *pg, int width, int height)
         XEMU_GPU_PRESENTATION_SHARED,
         (const char *)glGetString(GL_VENDOR),
         (const char *)glGetString(GL_RENDERER));
+    d->presentation_reported = true;
+    } else {
+        create_host_copy_buffer(pg, width, height);
+    }
 
 #endif // HAVE_EXTERNAL_MEMORY
 
@@ -1010,14 +1072,61 @@ static void render_display(PGRAPHState *pg, SurfaceBinding *surface,
                                       VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                                       VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
+#if HAVE_EXTERNAL_MEMORY
+    if (disp->shared_presentation) {
+        pgraph_vk_transition_image_layout(
+            pg, cmd, disp->image, VK_FORMAT_R8G8B8_UNORM,
+            VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    } else {
+        pgraph_vk_transition_image_layout(
+            pg, cmd, disp->image, VK_FORMAT_R8G8B8_UNORM,
+            VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+
+        VkBufferImageCopy region = {
+            .imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+            .imageSubresource.layerCount = 1,
+            .imageExtent = {
+                .width = disp->width,
+                .height = disp->height,
+                .depth = 1,
+            },
+        };
+        vkCmdCopyImageToBuffer(cmd, disp->image,
+                               VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+                               disp->host_copy.buffer, 1, &region);
+
+        VkBufferMemoryBarrier barrier = {
+            .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+            .srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+            .dstAccessMask = VK_ACCESS_HOST_READ_BIT,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .buffer = disp->host_copy.buffer,
+            .size = disp->host_copy.size,
+        };
+        vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TRANSFER_BIT,
+                             VK_PIPELINE_STAGE_HOST_BIT, 0, 0, NULL, 1,
+                             &barrier, 0, NULL);
+    }
+#else
     pgraph_vk_transition_image_layout(pg, cmd, disp->image,
                                       VK_FORMAT_R8G8B8_UNORM,
                                       VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
                                       VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+#endif
 
     pgraph_vk_end_debug_marker(r, cmd);
     pgraph_vk_end_single_time_commands(
         pg, cmd, VK_SINGLE_TIME_DISPLAY_RENDER, 0);
+#if HAVE_EXTERNAL_MEMORY
+    if (!disp->shared_presentation) {
+        VK_CHECK(vmaInvalidateAllocation(r->allocator,
+                                         disp->host_copy.allocation, 0,
+                                         disp->host_copy.size));
+    }
+#endif
     nv2a_profile_inc_counter(NV2A_PROF_QUEUE_SUBMIT_5);
 
     disp->draw_time = surface->draw_time;

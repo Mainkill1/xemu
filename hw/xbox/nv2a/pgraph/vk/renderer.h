@@ -307,6 +307,18 @@ typedef struct PGRAPHVkDisplayState {
 
     int width, height;
     int draw_time;
+    bool shared_presentation;
+    bool presentation_reported;
+
+    struct {
+        VkBuffer buffer;
+        VmaAllocation allocation;
+        void *mapped;
+        size_t size;
+        GLuint gl_texture_id;
+        int gl_texture_width;
+        int gl_texture_height;
+    } host_copy;
 
     struct {
         bool valid;

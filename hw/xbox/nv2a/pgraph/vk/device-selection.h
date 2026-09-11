@@ -74,6 +74,13 @@ void pgraph_vk_device_uuid_format(
 PGRAPHVkSelectionResult pgraph_vk_resolve_device(
     const PGRAPHVkDeviceRecord *devices, size_t count,
     const PGRAPHVkSelectionRequest *request);
+bool pgraph_vk_shared_presentation_supported(
+    const PGRAPHVkDeviceRecord *device,
+    bool has_external_memory,
+    bool has_platform_handle,
+    const uint8_t (*context_device_uuids)[PGRAPH_VK_DEVICE_UUID_SIZE],
+    size_t context_device_count,
+    const uint8_t context_driver_uuid[PGRAPH_VK_DEVICE_UUID_SIZE]);
 const char *pgraph_vk_selection_status_string(PGRAPHVkSelectionStatus status);
 
 #ifdef __cplusplus

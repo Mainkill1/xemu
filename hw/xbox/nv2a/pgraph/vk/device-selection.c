@@ -168,6 +168,31 @@ PGRAPHVkSelectionResult pgraph_vk_resolve_device(
     }
 }
 
+bool pgraph_vk_shared_presentation_supported(
+    const PGRAPHVkDeviceRecord *device,
+    bool has_external_memory,
+    bool has_platform_handle,
+    const uint8_t (*context_device_uuids)[PGRAPH_VK_DEVICE_UUID_SIZE],
+    size_t context_device_count,
+    const uint8_t context_driver_uuid[PGRAPH_VK_DEVICE_UUID_SIZE])
+{
+    if (!has_external_memory || !has_platform_handle || device == NULL ||
+        context_device_uuids == NULL ||
+        context_driver_uuid == NULL || context_device_count == 0 ||
+        memcmp(device->driver_uuid, context_driver_uuid,
+               PGRAPH_VK_DEVICE_UUID_SIZE)) {
+        return false;
+    }
+
+    for (size_t i = 0; i < context_device_count; i++) {
+        if (!memcmp(device->device_uuid, context_device_uuids[i],
+                    PGRAPH_VK_DEVICE_UUID_SIZE)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 const char *pgraph_vk_selection_status_string(PGRAPHVkSelectionStatus status)
 {
     switch (status) {
