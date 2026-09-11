@@ -62,6 +62,9 @@ static void json_append(JsonBuffer *buffer, const char *text)
     json_append_n(buffer, text, strlen(text));
 }
 
+#ifdef __GNUC__
+__attribute__((format(printf, 2, 3)))
+#endif
 static void json_append_format(JsonBuffer *buffer, const char *format, ...)
 {
     va_list args;

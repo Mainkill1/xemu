@@ -507,17 +507,17 @@ static bool collect_device_inventory(PGRAPHVkState *r,
 bool pgraph_vk_probe_device_inventory(PGRAPHVkDeviceRecord **records,
                                       size_t *count, Error **errp)
 {
-    PGRAPHState pg = { 0 };
-    PGRAPHVkState renderer = { 0 };
+    g_autofree PGRAPHState *pg = g_new0(PGRAPHState, 1);
+    g_autofree PGRAPHVkState *renderer = g_new0(PGRAPHVkState, 1);
     g_autofree VkPhysicalDevice *devices = NULL;
 
-    pg.vk_renderer_state = &renderer;
+    pg->vk_renderer_state = renderer;
     *records = NULL;
     *count = 0;
 
-    bool success = create_instance(&pg, errp) &&
-        collect_device_inventory(&renderer, records, &devices, count, errp);
-    pgraph_vk_finalize_instance(&pg);
+    bool success = create_instance(pg, errp) &&
+        collect_device_inventory(renderer, records, &devices, count, errp);
+    pgraph_vk_finalize_instance(pg);
     return success;
 }
 
