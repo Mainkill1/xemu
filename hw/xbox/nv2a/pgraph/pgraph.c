@@ -23,8 +23,11 @@
 
 #include "hw/xbox/nv2a/nv2a_int.h"
 #include "qemu/log.h"
+#include "ui/xemu-gpu-info.h"
+#include "ui/xemu-gpu-launch.h"
 #include "ui/xemu-notifications.h"
 #include "ui/xemu-settings.h"
+#include "ui/xemu-tweaks.h"
 #include "inline-elements.h"
 #include "texture-state.h"
 #include "util.h"
@@ -57,7 +60,8 @@ uint64_t pgraph_read(void *opaque, hwaddr addr, unsigned int size)
      * fence method runs under pg->lock, and guest MMIO writes to this
      * register are issued by the same single vCPU that polls it.
      */
-    if (addr == NV_PGRAPH_PATT_COLOR0 && size == 4) {
+    if (addr == NV_PGRAPH_PATT_COLOR0 && size == 4 &&
+        xemu_tweak_enabled(XEMU_TWEAK_PGRAPH_FENCE_FASTPATH)) {
         uint64_t fr = qatomic_read(&pg->regs_[NV_PGRAPH_PATT_COLOR0]);
         /*
          * Pairs with the smp_wmb at the fence write site in pgraph_method,
@@ -297,6 +301,14 @@ static CONFIG_DISPLAY_RENDERER get_default_renderer(void)
 void nv2a_context_init(void)
 {
     if (!renderers[g_config.display.renderer]) {
+        if (xemu_gpu_strict_mode()) {
+            fprintf(stderr, "Fatal error: configured renderer unavailable "
+                            "in strict GPU mode\n");
+            xemu_gpu_info_record_failure(NULL,
+                                         "configured renderer unavailable",
+                                         false, NULL);
+            exit(1);
+        }
         g_config.display.renderer = get_default_renderer();
         fprintf(stderr,
                 "Warning: Configured renderer unavailable. Switching to %s.\n",
@@ -317,7 +329,7 @@ void nv2a_context_init(void)
     }
 }
 
-static bool attempt_renderer_init(PGRAPHState *pg)
+static bool attempt_renderer_init(PGRAPHState *pg, bool fallback)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
 
@@ -333,25 +345,43 @@ static bool attempt_renderer_init(PGRAPHState *pg)
     }
     if (local_err) {
         const char *msg = error_get_pretty(local_err);
-        xemu_queue_error_message(msg);
+        xemu_gpu_info_record_failure(pg->renderer->name, msg, false, NULL);
+        if (xemu_gpu_strict_mode()) {
+            fprintf(stderr, "Renderer initialization failed: %s\n", msg);
+        } else {
+            xemu_queue_error_message(msg);
+        }
         error_free(local_err);
         local_err = NULL;
         return false;
     }
+
+    const PGRAPHVkDeviceRecord *device =
+        pg->renderer->type == CONFIG_DISPLAY_RENDERER_VULKAN ?
+            xemu_gpu_info_get_actual_device() : NULL;
+    xemu_gpu_info_record_initialized(
+        device, pg->renderer->name, XEMU_GPU_PRESENTATION_UNKNOWN,
+        fallback, fallback ? "requested renderer failed to initialize" : NULL);
 
     return true;
 }
 
 static void init_renderer(PGRAPHState *pg)
 {
-    if (attempt_renderer_init(pg)) {
+    if (attempt_renderer_init(pg, false)) {
         return;  // Success
+    }
+
+    if (xemu_gpu_strict_mode()) {
+        fprintf(stderr, "Fatal error: strict GPU request could not be "
+                        "initialized\n");
+        exit(1);
     }
 
     CONFIG_DISPLAY_RENDERER default_renderer = get_default_renderer();
     if (default_renderer != g_config.display.renderer) {
         g_config.display.renderer = default_renderer;
-        if (attempt_renderer_init(pg)) {
+        if (attempt_renderer_init(pg, true)) {
             g_autofree gchar *msg = g_strdup_printf(
                 "Switched to default renderer: %s", pg->renderer->name);
             xemu_queue_notification(msg);
@@ -672,7 +702,7 @@ static void pgraph_method_non_inc(MethodFunc handler, METHOD_HANDLER_ARG_DECL)
                         method == NV097_ARRAY_ELEMENT32 ||
                         method == NV097_INLINE_ARRAY;
 
-    if (array_packet) {
+    if (array_packet && xemu_tweak_enabled(XEMU_TWEAK_PGRAPH_BULK_PACKETS)) {
         size_t packet_words = inc ? 1 : num_words_available;
         if (!pgraph_method_array_packet_fits(pg, method, packet_words)) {
             pgraph_drop_oversized_array_packet(method, packet_words);

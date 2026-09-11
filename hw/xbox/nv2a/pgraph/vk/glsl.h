@@ -25,21 +25,7 @@
 #include <assert.h>
 #include <string.h>
 
-typedef struct ShaderUniform {
-	const char *name;
-	size_t dim_v;
-	size_t dim_a;
-	size_t align;
-	size_t stride;
-	size_t offset;
-} ShaderUniform;
-
-typedef struct ShaderUniformLayout {
-	ShaderUniform *uniforms;
-	size_t num_uniforms;
-	size_t total_size;
-	void *allocation;
-} ShaderUniformLayout;
+#include "uniform-layout.h"
 
 static inline void uniform_std140(ShaderUniformLayout *layout)
 {
