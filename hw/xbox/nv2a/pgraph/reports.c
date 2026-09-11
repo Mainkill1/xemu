@@ -11,6 +11,7 @@
 
 enum {
     ZPASS_REPORT_SIZE = 16,
+    /* nv_dma_load currently reads flags, limit, and frame. */
     DMA_DESCRIPTOR_SIZE = 3 * sizeof(uint32_t),
 };
 

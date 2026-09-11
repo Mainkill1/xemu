@@ -3365,6 +3365,10 @@ void pgraph_write_zpass_pixel_cnt_report(NV2AState *d, hwaddr dma_report,
     const hwaddr offset = GET_MASK(parameter, NV097_GET_REPORT_OFFSET);
 
     if (!pgraph_zpass_report_descriptor_fits(ramin_size, dma_report)) {
+        /*
+         * This is emulator-side containment.  Hardware behavior for an
+         * incomplete report descriptor has not been established.
+         */
         qemu_log_mask(LOG_GUEST_ERROR,
                       "PGRAPH: rejected report DMA descriptor @%" HWADDR_PRIx
                       "\n", dma_report);
@@ -3378,6 +3382,7 @@ void pgraph_write_zpass_pixel_cnt_report(NV2AState *d, hwaddr dma_report,
     const hwaddr base = dma.address & 0x07FFFFFF;
     if (!pgraph_zpass_report_write(d->vram_ptr, base, dma.limit, offset,
                                    vram_size, result)) {
+        /* Hardware behavior for an invalid report destination is unknown. */
         qemu_log_mask(LOG_GUEST_ERROR,
                       "PGRAPH: rejected report span: dma=%" HWADDR_PRIx
                       " base=%" HWADDR_PRIx " offset=%" HWADDR_PRIx

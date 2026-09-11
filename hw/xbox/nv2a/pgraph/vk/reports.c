@@ -76,6 +76,7 @@ void pgraph_vk_get_report(NV2AState *d, uint32_t parameter)
 
     QueryReport *report = g_malloc(sizeof(QueryReport)); // FIXME: Pre-allocate
     report->clear = false;
+    /* Capture the handle now; its three descriptor words are decoded later. */
     report->dma_report = pg->dma_report;
     report->parameter = parameter;
     report->query_count = r->num_queries_in_flight;
