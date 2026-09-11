@@ -18,6 +18,7 @@
  */
 
 #include "qemu/osdep.h"
+#include "qemu/error-report.h"
 #include "qemu/fast-hash.h"
 #include "qemu/mstring.h"
 #include "hw/xbox/nv2a/pgraph/uniform-stage-update.h"
@@ -424,6 +425,18 @@ static uint32_t shader_spirv_compiler_policy(void)
     return policy;
 }
 
+static const char *shader_spirv_cache_filename(uint32_t api_version)
+{
+    switch (pgraph_vk_shader_target_for_api(api_version)) {
+    case PGRAPH_VK_SHADER_TARGET_VULKAN_1_3:
+        return "spirv-v1-vk13-spv16.bin";
+    case PGRAPH_VK_SHADER_TARGET_VULKAN_1_2:
+        return "spirv-v1-vk12-spv15.bin";
+    default:
+        return "spirv-v1-vk11-spv13.bin";
+    }
+}
+
 static void shader_spirv_cache_init(PGRAPHVkState *r)
 {
     const char *base = xemu_settings_get_base_path();
@@ -456,7 +469,8 @@ static void shader_spirv_cache_init(PGRAPHVkState *r)
     r->spirv_cache_directory =
         g_build_filename(base, "cache", "vulkan", NULL);
     r->spirv_cache_path =
-        g_build_filename(r->spirv_cache_directory, "spirv-v1.bin", NULL);
+        g_build_filename(r->spirv_cache_directory,
+                         shader_spirv_cache_filename(r->vk_api_version), NULL);
     r->spirv_cache_initialized = true;
     r->spirv_cache_session_eligible = g_config.perf.cache_shaders;
     qemu_event_init(&r->spirv_cache_writeback_complete, false);
@@ -640,7 +654,7 @@ static void shader_module_cache_entry_init(Lru *lru, LruNode *node,
     if (!module_info) {
         module_info = pgraph_vk_create_shader_module_from_glsl(
             r, module->key.kind, glsl);
-        if (shader_spirv_cache_active(r)) {
+        if (module_info && shader_spirv_cache_active(r)) {
             if (!glsl_size_known) {
                 glsl_size = strlen(glsl);
             }
@@ -648,6 +662,11 @@ static void shader_module_cache_entry_init(Lru *lru, LruNode *node,
                 &r->spirv_cache, module->key.kind, glsl, glsl_size,
                 module_info->spirv->data, module_info->spirv->len);
         }
+    }
+    if (!module_info) {
+        mstring_unref(code);
+        error_report("nv2a/vk: failed to construct generated shader module");
+        abort();
     }
     module->module_info = module_info;
     pgraph_vk_ref_shader_module(module->module_info);

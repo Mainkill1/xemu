@@ -372,6 +372,7 @@ static bool init_layout_from_spv(ShaderModuleInfo *info,
     if (result != SPV_REFLECT_RESULT_SUCCESS) {
         return false;
     }
+    info->reflect_module_initialized = true;
     if (!pgraph_vk_spirv_stage_matches(
             expected_stage, info->reflect_module.shader_stage) ||
         info->reflect_module.entry_point_count != 1 ||
@@ -455,7 +456,29 @@ fail:
     g_free(info->descriptor_sets);
     info->descriptor_sets = NULL;
     spvReflectDestroyShaderModule(&info->reflect_module);
+    info->reflect_module_initialized = false;
     return false;
+}
+
+static void shader_module_info_free(PGRAPHVkState *r, ShaderModuleInfo *info)
+{
+    if (!info) {
+        return;
+    }
+    if (info->module != VK_NULL_HANDLE) {
+        vkDestroyShaderModule(r->device, info->module, NULL);
+    }
+    if (info->reflect_module_initialized) {
+        spvReflectDestroyShaderModule(&info->reflect_module);
+    }
+    shader_uniform_layout_clear(&info->uniforms);
+    shader_uniform_layout_clear(&info->push_constants);
+    g_free(info->descriptor_sets);
+    free(info->glsl);
+    if (info->spirv) {
+        g_byte_array_unref(info->spirv);
+    }
+    g_free(info);
 }
 
 static glslang_stage_t vk_shader_stage_to_glslang_stage(VkShaderStageFlagBits stage)
@@ -480,10 +503,12 @@ ShaderModuleInfo *pgraph_vk_create_shader_module_from_glsl(
     nv2a_profile_log_event_once("shader_compile");
     GByteArray *spirv = pgraph_vk_compile_glsl_to_spv(
         r, vk_shader_stage_to_glslang_stage(stage), glsl);
+    if (!spirv) {
+        return NULL;
+    }
     ShaderModuleInfo *info = pgraph_vk_create_shader_module_from_spirv(
         r, stage, glsl, spirv);
     g_byte_array_unref(spirv);
-    assert(info && "Failed to construct freshly compiled shader module");
     return info;
 }
 
@@ -491,14 +516,18 @@ ShaderModuleInfo *pgraph_vk_create_shader_module_from_spirv(
     PGRAPHVkState *r, VkShaderStageFlagBits expected_stage, const char *glsl,
     GByteArray *spirv)
 {
-    ShaderModuleInfo *info = g_malloc0(sizeof(*info));
+    if (!r || !glsl || !spirv) {
+        return NULL;
+    }
+    ShaderModuleInfo *info = g_try_malloc0(sizeof(*info));
+    if (!info) {
+        return NULL;
+    }
     info->refcnt = 0;
     info->glsl = strdup(glsl);
     info->spirv = g_byte_array_ref(spirv);
     if (!info->glsl || !init_layout_from_spv(info, expected_stage)) {
-        free(info->glsl);
-        g_byte_array_unref(info->spirv);
-        g_free(info);
+        shader_module_info_free(r, info);
         return NULL;
     }
 
@@ -509,13 +538,7 @@ ShaderModuleInfo *pgraph_vk_create_shader_module_from_spirv(
     };
     if (vkCreateShaderModule(r->device, &create_info, NULL, &info->module) !=
         VK_SUCCESS) {
-        shader_uniform_layout_clear(&info->uniforms);
-        shader_uniform_layout_clear(&info->push_constants);
-        g_free(info->descriptor_sets);
-        spvReflectDestroyShaderModule(&info->reflect_module);
-        free(info->glsl);
-        g_byte_array_unref(info->spirv);
-        g_free(info);
+        shader_module_info_free(r, info);
         return NULL;
     }
     return info;
@@ -539,14 +562,5 @@ void pgraph_vk_unref_shader_module(PGRAPHVkState *r, ShaderModuleInfo *info)
 void pgraph_vk_destroy_shader_module(PGRAPHVkState *r, ShaderModuleInfo *info)
 {
     assert(info->refcnt == 0);
-    if (info->glsl) {
-        free(info->glsl);
-    }
-    shader_uniform_layout_clear(&info->uniforms);
-    shader_uniform_layout_clear(&info->push_constants);
-    free(info->descriptor_sets);
-    spvReflectDestroyShaderModule(&info->reflect_module);
-    vkDestroyShaderModule(r->device, info->module, NULL);
-    g_byte_array_unref(info->spirv);
-    g_free(info);
+    shader_module_info_free(r, info);
 }

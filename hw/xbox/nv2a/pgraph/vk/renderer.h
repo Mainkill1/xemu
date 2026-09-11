@@ -162,6 +162,7 @@ typedef struct ShaderModuleInfo {
     GByteArray *spirv;
     VkShaderModule module;
     SpvReflectShaderModule reflect_module;
+    bool reflect_module_initialized;
     SpvReflectDescriptorSet **descriptor_sets;
     ShaderUniformLayout uniforms;
     ShaderUniformLayout push_constants;
