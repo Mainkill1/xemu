@@ -100,8 +100,7 @@ static void test_normal_generation_remains_specialized(void)
     PshState a = base_state();
     PshState b = a;
 
-    a.rgb_inputs[0] = 0x04040404;
-    b.rgb_inputs[0] = 0x05050505;
+    b.combiner_control = 2 | (PS_COMBINERCOUNT_MUX_MSB << 8);
 
     g_autofree char *source_a = generate(&a, false);
     g_autofree char *source_b = generate(&b, false);
