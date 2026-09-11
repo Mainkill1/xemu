@@ -4,7 +4,9 @@
 #include "xemu-settings.h"
 #include "xemu-tweaks.h"
 
-unsigned int xemu_tweaks_active = (1u << XEMU_TWEAK_COUNT) - 1;
+unsigned int xemu_tweaks_active =
+    ((1u << XEMU_TWEAK_COUNT) - 1) &
+    ~(1u << XEMU_TWEAK_VK_HYBRID_UBERSHADERS);
 
 void xemu_tweaks_apply(bool startup)
 {
@@ -20,6 +22,8 @@ void xemu_tweaks_apply(bool startup)
         [XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH] =
             g_config.tweaks.vk_transient_buffer_growth,
         [XEMU_TWEAK_GL_NATIVE_S3TC] = g_config.tweaks.gl_native_s3tc,
+        [XEMU_TWEAK_VK_HYBRID_UBERSHADERS] =
+            g_config.tweaks.vk_hybrid_ubershaders,
     };
     unsigned int active = qatomic_read(&xemu_tweaks_active);
 

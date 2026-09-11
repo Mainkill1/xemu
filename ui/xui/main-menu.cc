@@ -70,10 +70,6 @@ void MainMenuGeneralView::Draw()
            "Use hardware-accelerated floating point emulation (requires restart)");
 #endif
 
-    Toggle("Cache shaders to disk", &g_config.perf.cache_shaders,
-           "Reduce stutter in games by caching previously generated shaders "
-           "(Vulkan enabling takes effect after a renderer restart)");
-
     SectionTitle("Miscellaneous");
     Toggle("Skip startup animation", &g_config.general.skip_boot_anim,
            "Skip the full Xbox boot animation sequence");
@@ -121,7 +117,15 @@ void MainMenuAdvanceView::Draw()
         XEMU_TWEAK_PGRAPH_FENCE_FASTPATH,
         "Reduces contention while games wait for GPU work. "
         "Off uses locked reads. Applies to both renderers.");
+    if (Toggle("Cache shaders", &g_config.perf.cache_shaders,
+               "Reuse compiled shaders.")) {
+        xemu_settings_save();
+    }
     SectionTitle("Vulkan");
+    PerformanceToggle("Hybrid ubershaders",
+        &g_config.tweaks.vk_hybrid_ubershaders,
+        XEMU_TWEAK_VK_HYBRID_UBERSHADERS,
+        "Reduce shader variants.");
     PerformanceToggle("Combine color downloads with rendering",
         &g_config.tweaks.vk_color_download_folding,
         XEMU_TWEAK_VK_COLOR_DOWNLOAD_FOLDING,

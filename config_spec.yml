@@ -17,6 +17,9 @@ tweaks:
   vk_transient_buffer_growth:
     type: bool
     default: true
+  vk_hybrid_ubershaders:
+    type: bool
+    default: false
   gl_native_s3tc:
     type: bool
     default: true
