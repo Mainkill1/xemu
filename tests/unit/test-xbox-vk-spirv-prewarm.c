@@ -68,9 +68,11 @@ static void test_round_trip_and_exact_identity(void)
     assert(pgraph_vk_spirv_cache_init(&cache, &policy));
     assert(pgraph_vk_spirv_cache_load(&cache, blob.data, blob.size) ==
            PGRAPH_VK_SPIRV_CACHE_LOAD_OK);
+    assert(!pgraph_vk_spirv_cache_is_dirty(&cache));
     assert(pgraph_vk_spirv_cache_lookup(
                &cache, 1, vertex_source, sizeof(vertex_source) - 1, &spirv,
                &spirv_size) == PGRAPH_VK_SPIRV_CACHE_HIT);
+    assert(pgraph_vk_spirv_cache_is_dirty(&cache));
     assert(spirv_size == sizeof(test_spirv));
     assert(!memcmp(spirv, test_spirv, sizeof(test_spirv)));
 

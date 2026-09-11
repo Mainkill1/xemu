@@ -426,15 +426,19 @@ static uint32_t shader_spirv_compiler_policy(void)
     return policy;
 }
 
-static const char *shader_spirv_cache_filename(uint32_t api_version)
+static const char *shader_spirv_cache_filename(uint32_t api_version,
+                                               bool debug_shaders)
 {
     switch (pgraph_vk_shader_target_for_api(api_version)) {
     case PGRAPH_VK_SHADER_TARGET_VULKAN_1_3:
-        return "spirv-v1-vk13-spv16.bin";
+        return debug_shaders ? "spirv-v1-vk13-spv16-debug.bin" :
+                               "spirv-v1-vk13-spv16.bin";
     case PGRAPH_VK_SHADER_TARGET_VULKAN_1_2:
-        return "spirv-v1-vk12-spv15.bin";
+        return debug_shaders ? "spirv-v1-vk12-spv15-debug.bin" :
+                               "spirv-v1-vk12-spv15.bin";
     default:
-        return "spirv-v1-vk11-spv13.bin";
+        return debug_shaders ? "spirv-v1-vk11-spv13-debug.bin" :
+                               "spirv-v1-vk11-spv13.bin";
     }
 }
 
@@ -471,7 +475,10 @@ static void shader_spirv_cache_init(PGRAPHVkState *r)
         g_build_filename(base, "cache", "vulkan", NULL);
     r->spirv_cache_path =
         g_build_filename(r->spirv_cache_directory,
-                         shader_spirv_cache_filename(r->vk_api_version), NULL);
+                         shader_spirv_cache_filename(
+                             r->vk_api_version,
+                             g_config.display.vulkan.debug_shaders),
+                         NULL);
     r->spirv_cache_initialized = true;
     r->spirv_cache_session_eligible = g_config.perf.cache_shaders;
     qemu_event_init(&r->spirv_cache_writeback_complete, false);

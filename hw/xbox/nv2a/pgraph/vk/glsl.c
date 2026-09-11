@@ -17,6 +17,7 @@
  * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "qemu/error-report.h"
 #include "ui/xemu-settings.h"
 #include "device-inventory.h"
 #include "renderer.h"
@@ -24,6 +25,7 @@
 #include <assert.h>
 #include <glslang/Include/glslang_c_interface.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 static const glslang_resource_t
     resource_limits = { .max_lights = 32,
@@ -509,6 +511,10 @@ ShaderModuleInfo *pgraph_vk_create_shader_module_from_glsl(
     ShaderModuleInfo *info = pgraph_vk_create_shader_module_from_spirv(
         r, stage, glsl, spirv);
     g_byte_array_unref(spirv);
+    if (!info) {
+        error_report("nv2a/vk: failed to construct freshly compiled shader");
+        abort();
+    }
     return info;
 }
 

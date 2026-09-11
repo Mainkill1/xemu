@@ -261,6 +261,7 @@ static PGRAPHVkSpirvCacheEntry *find_entry(PGRAPHVkSpirvCache *cache,
             !memcmp(entry->source, source, source_size)) {
             if (touch) {
                 entry->last_used = next_access(cache);
+                cache->dirty = true;
             }
             return entry;
         }
