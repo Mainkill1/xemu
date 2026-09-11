@@ -1,5 +1,5 @@
 /*
- * Geforce NV2A PGRAPH Vulkan hybrid specialization policy
+ * Geforce NV2A PGRAPH Vulkan hybrid specialization metadata policy
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
@@ -10,18 +10,18 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define PGRAPH_VK_HYBRID_KEY_WORDS 4U
-
-typedef struct PGRAPHVkHybridKey {
-    uint64_t words[PGRAPH_VK_HYBRID_KEY_WORDS];
-} PGRAPHVkHybridKey;
-
-typedef enum PGRAPHVkHybridStatus {
-    PGRAPH_VK_HYBRID_ABSENT,
-    PGRAPH_VK_HYBRID_PENDING,
-    PGRAPH_VK_HYBRID_READY,
-    PGRAPH_VK_HYBRID_FAILED_BACKOFF,
-} PGRAPHVkHybridStatus;
+/*
+ * This policy deliberately does not define a shader or pipeline key. The
+ * renderer owns the complete recipe and uses lru_find_existing() to identify
+ * its exact LRU node before passing that node's metadata to these helpers.
+ */
+typedef enum PGRAPHVkHybridWorkStatus {
+    PGRAPH_VK_HYBRID_WORK_ABSENT,
+    PGRAPH_VK_HYBRID_WORK_QUEUE_BACKOFF,
+    PGRAPH_VK_HYBRID_WORK_PENDING,
+    PGRAPH_VK_HYBRID_WORK_FAILED_BACKOFF,
+    PGRAPH_VK_HYBRID_WORK_FAILED_PERMANENT,
+} PGRAPHVkHybridWorkStatus;
 
 typedef enum PGRAPHVkHybridRoute {
     PGRAPH_VK_HYBRID_USE_SPECIALIZED,
@@ -33,28 +33,30 @@ typedef enum PGRAPHVkHybridReason {
     PGRAPH_VK_HYBRID_REASON_SPECIALIZATION_READY,
     PGRAPH_VK_HYBRID_REASON_FALLBACK_AND_ENQUEUE,
     PGRAPH_VK_HYBRID_REASON_SPECIALIZATION_PENDING,
+    PGRAPH_VK_HYBRID_REASON_QUEUE_BACKOFF,
     PGRAPH_VK_HYBRID_REASON_FAILURE_BACKOFF,
+    PGRAPH_VK_HYBRID_REASON_FAILURE_PERMANENT,
     PGRAPH_VK_HYBRID_REASON_QUEUE_FULL,
     PGRAPH_VK_HYBRID_REASON_NO_FALLBACK_PIPELINE,
     PGRAPH_VK_HYBRID_REASON_NO_DRAW_RESOURCES,
 } PGRAPHVkHybridReason;
 
-typedef struct PGRAPHVkHybridEntry {
-    PGRAPHVkHybridKey key;
-    uint64_t generation;
-    uint64_t ticket;
-    uint64_t retry_after_epoch;
-    PGRAPHVkHybridStatus status;
-} PGRAPHVkHybridEntry;
-
-typedef struct PGRAPHVkHybridRequest {
-    PGRAPHVkHybridKey key;
-    uint64_t generation;
+/*
+ * matching_status and its retry metadata are valid only after the caller has
+ * found the exact key and confirmed that its node belongs to the current
+ * renderer generation. Otherwise matching_status must be WORK_ABSENT.
+ */
+typedef struct PGRAPHVkHybridRouteInput {
+    bool specialized_ready;
+    PGRAPHVkHybridWorkStatus matching_status;
     uint64_t epoch;
+    uint64_t retry_after_epoch;
+    unsigned int attempts;
+    unsigned int max_attempts;
     bool fallback_pipeline_ready;
     bool fallback_draw_resources_ready;
     bool queue_has_capacity;
-} PGRAPHVkHybridRequest;
+} PGRAPHVkHybridRouteInput;
 
 typedef struct PGRAPHVkHybridDecision {
     PGRAPHVkHybridRoute route;
@@ -62,52 +64,65 @@ typedef struct PGRAPHVkHybridDecision {
     bool request_specialization;
 } PGRAPHVkHybridDecision;
 
-enum {
-    PGRAPH_VK_HYBRID_ARTIFACT_SHADERS = 1U << 0,
-    PGRAPH_VK_HYBRID_ARTIFACT_REFLECTION = 1U << 1,
-    PGRAPH_VK_HYBRID_ARTIFACT_LAYOUT = 1U << 2,
-    PGRAPH_VK_HYBRID_ARTIFACT_PIPELINE = 1U << 3,
-    PGRAPH_VK_HYBRID_ARTIFACT_COMPLETE =
-        PGRAPH_VK_HYBRID_ARTIFACT_SHADERS |
-        PGRAPH_VK_HYBRID_ARTIFACT_REFLECTION |
-        PGRAPH_VK_HYBRID_ARTIFACT_LAYOUT |
-        PGRAPH_VK_HYBRID_ARTIFACT_PIPELINE,
-};
-
-typedef struct PGRAPHVkHybridCompletion {
-    PGRAPHVkHybridKey key;
+/* Metadata stored beside the caller-owned exact recipe/key. */
+typedef struct PGRAPHVkHybridWork {
     uint64_t generation;
     uint64_t ticket;
-    uint32_t artifact_parts;
-} PGRAPHVkHybridCompletion;
+    uint64_t retry_after_epoch;
+    unsigned int attempts;
+    unsigned int max_attempts;
+    PGRAPHVkHybridWorkStatus status;
+} PGRAPHVkHybridWork;
 
-typedef enum PGRAPHVkHybridPublishResult {
-    PGRAPH_VK_HYBRID_PUBLISH_ACCEPTED,
-    PGRAPH_VK_HYBRID_PUBLISH_NOT_PENDING,
-    PGRAPH_VK_HYBRID_PUBLISH_INCOMPLETE,
-    PGRAPH_VK_HYBRID_PUBLISH_KEY_MISMATCH,
-    PGRAPH_VK_HYBRID_PUBLISH_GENERATION_MISMATCH,
-    PGRAPH_VK_HYBRID_PUBLISH_INVALID_TICKET,
-    PGRAPH_VK_HYBRID_PUBLISH_TICKET_MISMATCH,
-} PGRAPHVkHybridPublishResult;
+typedef struct PGRAPHVkHybridTicketAllocator {
+    uint64_t last_ticket;
+} PGRAPHVkHybridTicketAllocator;
+
+typedef enum PGRAPHVkHybridCompletionMetadataResult {
+    PGRAPH_VK_HYBRID_COMPLETION_METADATA_MATCH,
+    PGRAPH_VK_HYBRID_COMPLETION_NOT_PENDING,
+    PGRAPH_VK_HYBRID_COMPLETION_GENERATION_MISMATCH,
+    PGRAPH_VK_HYBRID_COMPLETION_INVALID_TICKET,
+    PGRAPH_VK_HYBRID_COMPLETION_TICKET_MISMATCH,
+} PGRAPHVkHybridCompletionMetadataResult;
 
 PGRAPHVkHybridDecision pgraph_vk_hybrid_choose(
-    const PGRAPHVkHybridEntry *entry, const PGRAPHVkHybridRequest *request);
-bool pgraph_vk_hybrid_mark_pending(PGRAPHVkHybridEntry *entry,
-                                   const PGRAPHVkHybridKey *key,
-                                   uint64_t generation, uint64_t ticket);
-bool pgraph_vk_hybrid_mark_failed(PGRAPHVkHybridEntry *entry,
-                                  uint64_t epoch, uint64_t backoff);
-bool pgraph_vk_hybrid_defer_queue_full(PGRAPHVkHybridEntry *entry,
-                                       const PGRAPHVkHybridKey *key,
-                                       uint64_t generation, uint64_t epoch,
-                                       uint64_t backoff);
-PGRAPHVkHybridPublishResult pgraph_vk_hybrid_publish(
-    PGRAPHVkHybridEntry *entry, const PGRAPHVkHybridCompletion *completion,
-    uint64_t current_generation, uint64_t *selection_epoch);
+    const PGRAPHVkHybridRouteInput *input);
+
+bool pgraph_vk_hybrid_work_init(PGRAPHVkHybridWork *work,
+                                unsigned int max_attempts);
+bool pgraph_vk_hybrid_mark_pending(PGRAPHVkHybridWork *work,
+                                   bool specialized_ready,
+                                   uint64_t generation, uint64_t ticket,
+                                   uint64_t epoch);
+bool pgraph_vk_hybrid_note_queue_deferral(PGRAPHVkHybridWork *work,
+                                          bool specialized_ready,
+                                          uint64_t current_generation,
+                                          uint64_t epoch, uint64_t backoff);
+bool pgraph_vk_hybrid_note_compile_failure(PGRAPHVkHybridWork *work,
+                                           uint64_t completion_generation,
+                                           uint64_t completion_ticket,
+                                           uint64_t current_generation,
+                                           uint64_t epoch,
+                                           uint64_t backoff);
+
+/* Returns zero for NULL or exhausted session state; zero is never a ticket. */
+uint64_t pgraph_vk_hybrid_allocate_ticket(
+    PGRAPHVkHybridTicketAllocator *allocator);
+
+/*
+ * Validate only asynchronous completion metadata. A match does not establish
+ * that an executable shader/pipeline bundle is complete and does not publish
+ * or mark the caller-owned LRU entry ready.
+ */
+PGRAPHVkHybridCompletionMetadataResult
+pgraph_vk_hybrid_validate_completion_metadata(
+    const PGRAPHVkHybridWork *work, uint64_t completion_generation,
+    uint64_t completion_ticket, uint64_t current_generation);
+
+/* Call this only after the renderer actually adopts relevant new state. */
+uint64_t pgraph_vk_hybrid_next_selection_epoch(uint64_t current_epoch);
 bool pgraph_vk_hybrid_selection_changed(uint64_t bound_epoch,
                                         uint64_t selection_epoch);
-bool pgraph_vk_hybrid_entry_equal(const PGRAPHVkHybridEntry *a,
-                                  const PGRAPHVkHybridEntry *b);
 
 #endif
