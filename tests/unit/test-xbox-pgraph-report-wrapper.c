@@ -51,22 +51,22 @@ static bool test_incomplete_descriptor_stops_before_guarded_read(void)
 {
     ReportTestGuardedBuffer guarded = { 0 };
     MemoryRegion vram_region;
-    NV2AState d = { 0 };
+    g_autofree NV2AState *d = g_new0(NV2AState, 1);
     uint8_t vram[VRAM_SIZE];
     bool pass;
 
     if (!report_test_guarded_buffer_init(&guarded)) {
         return false;
     }
-    d.ramin_ptr = guarded.guard - 8;
-    memset(d.ramin_ptr, 0, 8);
-    report_test_memory_region_set_size(&d.ramin, 8);
+    d->ramin_ptr = guarded.guard - 8;
+    memset(d->ramin_ptr, 0, 8);
+    report_test_memory_region_set_size(&d->ramin, 8);
     report_test_memory_region_set_size(&vram_region, sizeof(vram));
-    d.vram = &vram_region;
-    d.vram_ptr = vram;
+    d->vram = &vram_region;
+    d->vram_ptr = vram;
     memset(vram, CANARY, sizeof(vram));
 
-    pgraph_write_zpass_pixel_cnt_report(&d, 0, 0, 1);
+    pgraph_write_zpass_pixel_cnt_report(d, 0, 0, 1);
     pass = buffer_is_value(vram, sizeof(vram), CANARY);
     report_test_guarded_buffer_destroy(&guarded);
     return pass;
@@ -76,7 +76,7 @@ static bool test_exact_descriptor_decodes_and_serializes(void)
 {
     ReportTestGuardedBuffer guarded = { 0 };
     MemoryRegion vram_region;
-    NV2AState d = { 0 };
+    g_autofree NV2AState *d = g_new0(NV2AState, 1);
     uint8_t vram[VRAM_SIZE];
     uint8_t *ramin;
     bool pass;
@@ -86,14 +86,14 @@ static bool test_exact_descriptor_decodes_and_serializes(void)
     }
     ramin = guarded.guard - 12;
     write_dma_descriptor(ramin, VRAM_SIZE - REPORT_SIZE, REPORT_SIZE - 1);
-    d.ramin_ptr = ramin;
-    report_test_memory_region_set_size(&d.ramin, 12);
+    d->ramin_ptr = ramin;
+    report_test_memory_region_set_size(&d->ramin, 12);
     report_test_memory_region_set_size(&vram_region, sizeof(vram));
-    d.vram = &vram_region;
-    d.vram_ptr = vram;
+    d->vram = &vram_region;
+    d->vram_ptr = vram;
     memset(vram, CANARY, sizeof(vram));
 
-    pgraph_write_zpass_pixel_cnt_report(&d, 0, 0,
+    pgraph_write_zpass_pixel_cnt_report(d, 0, 0,
                                         UINT32_C(0x78563412));
     pass = buffer_is_value(vram, VRAM_SIZE - REPORT_SIZE, CANARY) &&
            report_matches(vram + VRAM_SIZE - REPORT_SIZE,

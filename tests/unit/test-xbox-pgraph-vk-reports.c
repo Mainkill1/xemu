@@ -46,6 +46,19 @@ typedef struct ReportFixture {
     uint8_t ramin[RAMIN_SIZE];
 } ReportFixture;
 
+static void fixture_free(ReportFixture *fixture)
+{
+    QueryReport *report;
+
+    while ((report = QSIMPLEQ_FIRST(&fixture->renderer.report_queue))) {
+        QSIMPLEQ_REMOVE_HEAD(&fixture->renderer.report_queue, entry);
+        g_free(report);
+    }
+    g_free(fixture);
+}
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(ReportFixture, fixture_free)
+
 int nv2a_vk_dgroup_indent;
 
 PFN_vkBeginCommandBuffer vkBeginCommandBuffer;
@@ -344,130 +357,130 @@ static bool no_command_buffer_boundaries_called(void)
 
 static bool test_idle_no_command_buffer_publishes_accumulated_count(void)
 {
-    ReportFixture fixture;
+    g_autoptr(ReportFixture) fixture = g_new0(ReportFixture, 1);
 
-    fixture_init(&fixture);
-    write_dma_descriptor(fixture.ramin, 0, REPORT_SIZE - 1);
-    fixture.d.pgraph.dma_report = 0;
-    fixture.renderer.zpass_pixel_count_result = UINT32_C(0x2345);
-    fixture.renderer.compute.descriptor_set_index = 3;
-    pgraph_vk_get_report(&fixture.d, report_parameter(0));
+    fixture_init(fixture);
+    write_dma_descriptor(fixture->ramin, 0, REPORT_SIZE - 1);
+    fixture->d.pgraph.dma_report = 0;
+    fixture->renderer.zpass_pixel_count_result = UINT32_C(0x2345);
+    fixture->renderer.compute.descriptor_set_index = 3;
+    pgraph_vk_get_report(&fixture->d, report_parameter(0));
 
-    pgraph_vk_process_pending_reports(&fixture.d);
-    return report_matches(fixture.vram, UINT32_C(0x2345)) &&
-           buffer_is_value(fixture.vram + REPORT_SIZE,
+    pgraph_vk_process_pending_reports(&fixture->d);
+    return report_matches(fixture->vram, UINT32_C(0x2345)) &&
+           buffer_is_value(fixture->vram + REPORT_SIZE,
                            VRAM_SIZE - REPORT_SIZE, CANARY) &&
-           queue_is_empty(&fixture) &&
-           !fixture.renderer.in_command_buffer &&
-           fixture.renderer.num_queries_in_flight == 0 &&
-           fixture.renderer.compute.descriptor_set_index == 0 &&
-           fixture.renderer.perf.finish[VK_FINISH_REASON_STALLED].call_count ==
+           queue_is_empty(fixture) &&
+           !fixture->renderer.in_command_buffer &&
+           fixture->renderer.num_queries_in_flight == 0 &&
+           fixture->renderer.compute.descriptor_set_index == 0 &&
+           fixture->renderer.perf.finish[VK_FINISH_REASON_STALLED].call_count ==
                1 &&
            no_command_buffer_boundaries_called();
 }
 
 static bool test_clear_then_report_publishes_zero(void)
 {
-    ReportFixture fixture;
+    g_autoptr(ReportFixture) fixture = g_new0(ReportFixture, 1);
 
-    fixture_init(&fixture);
-    write_dma_descriptor(fixture.ramin, 0, REPORT_SIZE - 1);
-    fixture.d.pgraph.dma_report = 0;
-    fixture.renderer.zpass_pixel_count_result = UINT32_C(0x3456);
-    pgraph_vk_clear_report_value(&fixture.d);
-    pgraph_vk_get_report(&fixture.d, report_parameter(0));
+    fixture_init(fixture);
+    write_dma_descriptor(fixture->ramin, 0, REPORT_SIZE - 1);
+    fixture->d.pgraph.dma_report = 0;
+    fixture->renderer.zpass_pixel_count_result = UINT32_C(0x3456);
+    pgraph_vk_clear_report_value(&fixture->d);
+    pgraph_vk_get_report(&fixture->d, report_parameter(0));
 
-    pgraph_vk_process_pending_reports(&fixture.d);
-    return report_matches(fixture.vram, 0) && queue_is_empty(&fixture) &&
-           fixture.renderer.zpass_pixel_count_result == 0 &&
-           fixture.renderer.perf.finish[VK_FINISH_REASON_STALLED].call_count ==
+    pgraph_vk_process_pending_reports(&fixture->d);
+    return report_matches(fixture->vram, 0) && queue_is_empty(fixture) &&
+           fixture->renderer.zpass_pixel_count_result == 0 &&
+           fixture->renderer.perf.finish[VK_FINISH_REASON_STALLED].call_count ==
                1 &&
            no_command_buffer_boundaries_called();
 }
 
 static bool test_rejection_retires_before_dma_switch_and_valid_report(void)
 {
-    ReportFixture fixture;
+    g_autoptr(ReportFixture) fixture = g_new0(ReportFixture, 1);
     uint8_t after_valid[VRAM_SIZE];
     uint64_t finish_calls;
 
-    fixture_init(&fixture);
-    write_dma_descriptor(fixture.ramin, 0, REPORT_SIZE - 2);
-    write_dma_descriptor(fixture.ramin + 12, 32, REPORT_SIZE - 1);
+    fixture_init(fixture);
+    write_dma_descriptor(fixture->ramin, 0, REPORT_SIZE - 2);
+    write_dma_descriptor(fixture->ramin + 12, 32, REPORT_SIZE - 1);
 
-    fixture.d.pgraph.dma_report = 0;
-    fixture.renderer.zpass_pixel_count_result = 9;
-    pgraph_vk_get_report(&fixture.d, report_parameter(0));
-    pgraph_vk_process_pending_reports(&fixture.d);
-    if (!buffer_is_value(fixture.vram, sizeof(fixture.vram), CANARY) ||
-        !queue_is_empty(&fixture)) {
+    fixture->d.pgraph.dma_report = 0;
+    fixture->renderer.zpass_pixel_count_result = 9;
+    pgraph_vk_get_report(&fixture->d, report_parameter(0));
+    pgraph_vk_process_pending_reports(&fixture->d);
+    if (!buffer_is_value(fixture->vram, sizeof(fixture->vram), CANARY) ||
+        !queue_is_empty(fixture)) {
         return false;
     }
 
     /* SET_CONTEXT_DMA_REPORT drains before assigning the new DMA handle. */
-    fixture.d.pgraph.dma_report = 12;
-    pgraph_vk_get_report(&fixture.d, report_parameter(0));
-    pgraph_vk_process_pending_reports(&fixture.d);
-    if (!buffer_is_value(fixture.vram, 32, CANARY) ||
-        !report_matches(fixture.vram + 32, 9) ||
-        !buffer_is_value(fixture.vram + 48, 16, CANARY) ||
-        !queue_is_empty(&fixture)) {
+    fixture->d.pgraph.dma_report = 12;
+    pgraph_vk_get_report(&fixture->d, report_parameter(0));
+    pgraph_vk_process_pending_reports(&fixture->d);
+    if (!buffer_is_value(fixture->vram, 32, CANARY) ||
+        !report_matches(fixture->vram + 32, 9) ||
+        !buffer_is_value(fixture->vram + 48, 16, CANARY) ||
+        !queue_is_empty(fixture)) {
         return false;
     }
 
-    memcpy(after_valid, fixture.vram, sizeof(after_valid));
-    finish_calls = fixture.renderer
+    memcpy(after_valid, fixture->vram, sizeof(after_valid));
+    finish_calls = fixture->renderer
                        .perf.finish[VK_FINISH_REASON_STALLED]
                        .call_count;
-    pgraph_vk_process_pending_reports(&fixture.d);
+    pgraph_vk_process_pending_reports(&fixture->d);
     return finish_calls == 2 &&
-           fixture.renderer.perf.finish[VK_FINISH_REASON_STALLED].call_count ==
+           fixture->renderer.perf.finish[VK_FINISH_REASON_STALLED].call_count ==
                finish_calls &&
-           !memcmp(after_valid, fixture.vram, sizeof(after_valid)) &&
+           !memcmp(after_valid, fixture->vram, sizeof(after_valid)) &&
            no_command_buffer_boundaries_called();
 }
 
 static bool test_nonidle_fifo_defers_queue(void)
 {
-    ReportFixture fixture;
+    g_autoptr(ReportFixture) fixture = g_new0(ReportFixture, 1);
 
-    fixture_init(&fixture);
-    write_dma_descriptor(fixture.ramin, 0, REPORT_SIZE - 1);
-    fixture.d.pgraph.dma_report = 0;
-    fixture.d.pfifo.regs[NV_PFIFO_CACHE1_DMA_PUT] = 4;
-    pgraph_vk_get_report(&fixture.d, report_parameter(0));
+    fixture_init(fixture);
+    write_dma_descriptor(fixture->ramin, 0, REPORT_SIZE - 1);
+    fixture->d.pgraph.dma_report = 0;
+    fixture->d.pfifo.regs[NV_PFIFO_CACHE1_DMA_PUT] = 4;
+    pgraph_vk_get_report(&fixture->d, report_parameter(0));
 
-    pgraph_vk_process_pending_reports(&fixture.d);
-    if (queue_is_empty(&fixture) ||
-        !buffer_is_value(fixture.vram, sizeof(fixture.vram), CANARY) ||
-        fixture.renderer.perf.finish[VK_FINISH_REASON_STALLED].call_count !=
+    pgraph_vk_process_pending_reports(&fixture->d);
+    if (queue_is_empty(fixture) ||
+        !buffer_is_value(fixture->vram, sizeof(fixture->vram), CANARY) ||
+        fixture->renderer.perf.finish[VK_FINISH_REASON_STALLED].call_count !=
             0) {
         return false;
     }
 
-    fixture.d.pfifo.regs[NV_PFIFO_CACHE1_DMA_PUT] = 0;
-    pgraph_vk_process_pending_reports(&fixture.d);
-    return queue_is_empty(&fixture) && report_matches(fixture.vram, 0) &&
-           fixture.renderer.perf.finish[VK_FINISH_REASON_STALLED].call_count ==
+    fixture->d.pfifo.regs[NV_PFIFO_CACHE1_DMA_PUT] = 0;
+    pgraph_vk_process_pending_reports(&fixture->d);
+    return queue_is_empty(fixture) && report_matches(fixture->vram, 0) &&
+           fixture->renderer.perf.finish[VK_FINISH_REASON_STALLED].call_count ==
                1 &&
            no_command_buffer_boundaries_called();
 }
 
 static bool test_descriptor_words_are_decoded_at_retirement(void)
 {
-    ReportFixture fixture;
+    g_autoptr(ReportFixture) fixture = g_new0(ReportFixture, 1);
 
-    fixture_init(&fixture);
-    write_dma_descriptor(fixture.ramin, 0, REPORT_SIZE - 1);
-    fixture.d.pgraph.dma_report = 0;
-    pgraph_vk_get_report(&fixture.d, report_parameter(0));
+    fixture_init(fixture);
+    write_dma_descriptor(fixture->ramin, 0, REPORT_SIZE - 1);
+    fixture->d.pgraph.dma_report = 0;
+    pgraph_vk_get_report(&fixture->d, report_parameter(0));
 
-    write_dma_descriptor(fixture.ramin, 16, REPORT_SIZE - 1);
-    pgraph_vk_process_pending_reports(&fixture.d);
-    return buffer_is_value(fixture.vram, 16, CANARY) &&
-           report_matches(fixture.vram + 16, 0) &&
-           buffer_is_value(fixture.vram + 32, 32, CANARY) &&
-           queue_is_empty(&fixture) && no_command_buffer_boundaries_called();
+    write_dma_descriptor(fixture->ramin, 16, REPORT_SIZE - 1);
+    pgraph_vk_process_pending_reports(&fixture->d);
+    return buffer_is_value(fixture->vram, 16, CANARY) &&
+           report_matches(fixture->vram + 16, 0) &&
+           buffer_is_value(fixture->vram + 32, 32, CANARY) &&
+           queue_is_empty(fixture) && no_command_buffer_boundaries_called();
 }
 
 static bool test_active_command_buffer_waits_before_publication(void)
@@ -484,33 +497,33 @@ static bool test_active_command_buffer_waits_before_publication(void)
         BOUNDARY_WAIT,
         BOUNDARY_QUERY_RESULTS,
     };
-    ReportFixture fixture;
+    g_autoptr(ReportFixture) fixture = g_new0(ReportFixture, 1);
     const PGRAPHVkWaitStats *finish_stats;
 
-    fixture_init(&fixture);
+    fixture_init(fixture);
     install_vulkan_boundaries();
-    write_dma_descriptor(fixture.ramin, 0, REPORT_SIZE - 1);
-    fixture.d.pgraph.dma_report = 0;
-    fixture.renderer.in_command_buffer = true;
-    fixture.renderer.query_in_flight = true;
-    fixture.renderer.num_queries_in_flight = 1;
-    fixture.renderer.zpass_pixel_count_result = 7;
-    boundary_trace.watched_report = fixture.vram;
-    pgraph_vk_get_report(&fixture.d, report_parameter(0));
+    write_dma_descriptor(fixture->ramin, 0, REPORT_SIZE - 1);
+    fixture->d.pgraph.dma_report = 0;
+    fixture->renderer.in_command_buffer = true;
+    fixture->renderer.query_in_flight = true;
+    fixture->renderer.num_queries_in_flight = 1;
+    fixture->renderer.zpass_pixel_count_result = 7;
+    boundary_trace.watched_report = fixture->vram;
+    pgraph_vk_get_report(&fixture->d, report_parameter(0));
 
-    pgraph_vk_process_pending_reports(&fixture.d);
-    finish_stats = &fixture.renderer.perf.finish[VK_FINISH_REASON_STALLED];
+    pgraph_vk_process_pending_reports(&fixture->d);
+    finish_stats = &fixture->renderer.perf.finish[VK_FINISH_REASON_STALLED];
     return boundary_trace.valid &&
            boundary_trace.wait_saw_unpublished_report &&
            boundary_trace.query_saw_unpublished_report &&
            boundary_trace.event_count == ARRAY_SIZE(expected) &&
            !memcmp(boundary_trace.events, expected, sizeof(expected)) &&
-           report_matches(fixture.vram, 18) && queue_is_empty(&fixture) &&
-           !fixture.renderer.in_command_buffer &&
-           !fixture.renderer.in_aux_command_buffer &&
-           !fixture.renderer.query_in_flight &&
-           fixture.renderer.num_queries_in_flight == 0 &&
-           fixture.renderer.submit_count == 1 &&
+           report_matches(fixture->vram, 18) && queue_is_empty(fixture) &&
+           !fixture->renderer.in_command_buffer &&
+           !fixture->renderer.in_aux_command_buffer &&
+           !fixture->renderer.query_in_flight &&
+           fixture->renderer.num_queries_in_flight == 0 &&
+           fixture->renderer.submit_count == 1 &&
            finish_stats->call_count == 1 && finish_stats->submit_count == 1 &&
            finish_stats->wait_count == 1;
 }
