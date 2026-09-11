@@ -12,6 +12,9 @@
 
 struct config g_config;
 
+/* This compiler test does not exercise texture-format classification. */
+const BasicColorFormatInfo kelvin_color_format_info_map[66] = { 0 };
+
 void nv2a_profile_log_event_once(const char *event)
 {
     (void)event;
