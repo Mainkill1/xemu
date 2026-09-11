@@ -29,6 +29,19 @@ must reuse PR #70's artifact identity, bounded storage, renderer ownership,
 failure fallback, and producer-quiesced persistence lifecycle. No runtime
 result is inherited from this documentation branch.
 
+The [external implementation review](https://github.com/Mainkill1/xemu/pull/71#issuecomment-5638411943)
+is the detailed implementation appendix for this plan. Its concrete 448-byte
+combiner/control ABI, binding-6 layout, ownership, queue, publication, teardown,
+and default-off requirements remain inputs to the focused implementation PRs.
+The packet covers the combiner body and its 18 constants; it does not replace
+the current fragment shell or its ordinary reflected uniforms. Later runtime
+work must choose one explicit control-buffer addressing model, provide an
+owned-copy synchronized facade over PR #70's artifact cache, and stop workers
+independently of whether disk caching is enabled. Qualification must identify
+the selected GPU UUID, driver/API/features, and PR #76 presentation transport.
+The explicit default-off mask is a defensive startup contract, not a reproduced
+default-on failure in current `main`.
+
 ## Summary
 
 **Current result:** The prerequisite warm shader-management layer is merged.
@@ -43,11 +56,12 @@ state while its specialized shader and pipeline compile in the background, but
 the fallback must respect compile-time geometry interfaces, sampler types,
 vertex input, attachment formats, and host Vulkan capabilities.
 
-**Next:** Start Stage 1 from current `main`: implement the explicit combiner
-control ABI, validated packer, route/key/ticket policy tests, and an oracle-only
-combiner interpreter inside the existing fragment shell. Runtime fallback stays
-disabled until specialized-versus-interpreter output and guest-visible side
-effects match for an explicit admitted set.
+**Next:** Stage 1 from current `main` defines the explicit combiner control ABI,
+validated packer, route/key/ticket policy, and a non-creating exact LRU probe.
+The following focused stage adds an oracle-only combiner interpreter inside the
+existing fragment shell. Runtime fallback stays disabled until
+specialized-versus-interpreter output and guest-visible side effects match for
+an explicit admitted set.
 
 This PR contains research documentation only. It changes no runtime code, was
 not built or executed, and makes no performance claim.
@@ -266,12 +280,12 @@ command already recorded with a fallback.
 | Graphics pipeline library | Prebuild reusable vertex-input, pre-raster, fragment-shader, and fragment-output portions; fast-link only when the device property supports the intended latency | Measure link time and GPU cost; retain monolithic fallback |
 | Shader objects plus dynamic rendering | Long-term pipeline-free binding experiment for capable hosts | This is a backend restructuring, not the first prototype; current render-pass and state management must be qualified separately |
 
-Before implementing a capability tier, reconcile the accepted device contract
-with compiler output. The reviewed source accepts Vulkan 1.1 devices while its
-glslang wrapper targets Vulkan 1.3 and SPIR-V 1.6. The implementation must
-either prove that every supported device accepts the emitted environment or
-negotiate compatible targets and features; an ubershader cannot assume a newer
-target solely because the build compiler supports it.
+Before implementing a capability tier, preserve PR #70's corrected compiler
+target policy. Current `main` derives the glslang client and SPIR-V targets from
+the renderer's selected `vk_api_version`; an immutable compilation job must
+freeze that resolved policy rather than reread mutable renderer or global
+configuration. Every fallback tier still needs validation on each admitted API
+and feature set.
 
 Vulkan's pipeline cache reduces repeated driver work but does not guarantee a
 nonblocking creation. Pipeline-creation cache control can return
@@ -516,11 +530,11 @@ is immediately waited on provides no benefit, and draw skipping is not an
 acceptable correctness result.
 
 The first implementation PR branches from current `main` and contains the
-explicit state ABI, validated packer, selection/key/ticket policy tests, and the
-oracle-only combiner interpreter. Runtime fallback belongs in a later draft
-after the oracle defines a proven admitted set. Capability expansions such as
-dynamic state, pipeline libraries, and shader objects remain separate measured
-changes.
+explicit state ABI, validated packer, selection/key/ticket policy tests, and a
+non-creating exact cache probe. The next focused PR adds the oracle-only
+combiner interpreter. Runtime fallback belongs in a later draft after the
+oracle defines a proven admitted set. Capability expansions such as dynamic
+state, pipeline libraries, and shader objects remain separate measured changes.
 
 ## Evidence and primary references
 
@@ -541,6 +555,8 @@ their vertex tokens, combiner state, texture signatures, and pipeline state.
 A precompiled general interpreter can cover unseen work, but xemu needs a
 bounded family because several Vulkan interfaces remain compile-time or
 pipeline-time decisions. This design changes no runtime behavior and claims no
-improvement. The PR #70 ordering dependency is complete. Stage 1 starts from current `main`, reuses its
-shader artifact lifecycle, and proves the fallback state ABI, packer, policy,
-and differential combiner oracle before any hybrid path is enabled.
+improvement. The PR #70 ordering dependency is complete. Stage 1 starts from
+current `main`, reuses its shader artifact lifecycle, and proves the fallback
+state ABI, packer, policy, and non-creating cache query. The differential
+combiner oracle follows as its own reviewable stage before any hybrid path is
+enabled.
