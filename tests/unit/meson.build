@@ -266,6 +266,7 @@ slow_tests = {
 foreach test_name, extra: tests
   src = [test_name + '.c']
   deps = [qemuutil]
+  test_override_options = []
   if extra.length() > 0
     # use a sourceset to quickly separate sources and deps
     test_ss = ss.source_set()
@@ -273,7 +274,16 @@ foreach test_name, extra: tests
     src += test_ss.all_sources()
     deps += test_ss.all_dependencies()
   endif
-  exe = executable(test_name, src, genh, dependencies: deps)
+  if test_name in [
+    'test-xbox-pgraph-report-wrapper',
+    'test-xbox-pgraph-vk-reports',
+  ]
+    # LTO merges the production translation units before section GC, retaining
+    # unrelated device/VMState closure.  Keep these integration links bounded.
+    test_override_options = ['b_lto=false']
+  endif
+  exe = executable(test_name, src, genh, dependencies: deps,
+                   override_options: test_override_options)
 
   test(test_name, exe,
        depends: test_deps.get(test_name, []),
