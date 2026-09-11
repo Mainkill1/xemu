@@ -432,6 +432,10 @@ static void shader_spirv_cache_init(PGRAPHVkState *r)
     }
     glslang_version_t compiler_version;
     glslang_get_version(&compiler_version);
+    glslang_target_client_version_t client_target;
+    glslang_target_language_version_t spirv_target;
+    pgraph_vk_glsl_target_versions(r->vk_api_version, &client_target,
+                                   &spirv_target);
     const char *flavor = compiler_version.flavor && compiler_version.flavor[0] ?
                              compiler_version.flavor : "unknown";
     PGRAPHVkSpirvCachePolicy policy = {
@@ -439,8 +443,8 @@ static void shader_spirv_cache_init(PGRAPHVkState *r)
         .compiler_major = compiler_version.major,
         .compiler_minor = compiler_version.minor,
         .compiler_patch = compiler_version.patch,
-        .client_target = GLSLANG_TARGET_VULKAN_1_3,
-        .spirv_target = GLSLANG_TARGET_SPV_1_6,
+        .client_target = client_target,
+        .spirv_target = spirv_target,
         .compiler_flags = shader_spirv_compiler_policy(),
         .compiler_flavor = flavor,
         .compiler_flavor_size = strlen(flavor),

@@ -141,28 +141,36 @@ void pgraph_vk_finalize_glsl_compiler(void)
     glslang_finalize_process();
 }
 
+void pgraph_vk_glsl_target_versions(
+    uint32_t api_version, glslang_target_client_version_t *client_version,
+    glslang_target_language_version_t *language_version)
+{
+    PGRAPHVkShaderTarget shader_target =
+        pgraph_vk_shader_target_for_api(api_version);
+    switch (shader_target) {
+    case PGRAPH_VK_SHADER_TARGET_VULKAN_1_3:
+        *client_version = GLSLANG_TARGET_VULKAN_1_3;
+        *language_version = GLSLANG_TARGET_SPV_1_6;
+        break;
+    case PGRAPH_VK_SHADER_TARGET_VULKAN_1_2:
+        *client_version = GLSLANG_TARGET_VULKAN_1_2;
+        *language_version = GLSLANG_TARGET_SPV_1_5;
+        break;
+    default:
+        *client_version = GLSLANG_TARGET_VULKAN_1_1;
+        *language_version = GLSLANG_TARGET_SPV_1_3;
+        break;
+    }
+}
+
 GByteArray *pgraph_vk_compile_glsl_to_spv(PGRAPHVkState *r,
                                           glslang_stage_t stage,
                                           const char *glsl_source)
 {
-    PGRAPHVkShaderTarget shader_target =
-        pgraph_vk_shader_target_for_api(r->vk_api_version);
     glslang_target_client_version_t client_version;
     glslang_target_language_version_t language_version;
-    switch (shader_target) {
-    case PGRAPH_VK_SHADER_TARGET_VULKAN_1_3:
-        client_version = GLSLANG_TARGET_VULKAN_1_3;
-        language_version = GLSLANG_TARGET_SPV_1_6;
-        break;
-    case PGRAPH_VK_SHADER_TARGET_VULKAN_1_2:
-        client_version = GLSLANG_TARGET_VULKAN_1_2;
-        language_version = GLSLANG_TARGET_SPV_1_5;
-        break;
-    default:
-        client_version = GLSLANG_TARGET_VULKAN_1_1;
-        language_version = GLSLANG_TARGET_SPV_1_3;
-        break;
-    }
+    pgraph_vk_glsl_target_versions(r->vk_api_version, &client_version,
+                                   &language_version);
     const glslang_input_t input = {
         .language = GLSLANG_SOURCE_GLSL,
         .stage = stage,

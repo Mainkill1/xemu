@@ -594,6 +594,9 @@ uint32_t pgraph_vk_get_memory_type(PGRAPHState *pg, uint32_t type_bits,
 // glsl.c
 void pgraph_vk_init_glsl_compiler(void);
 void pgraph_vk_finalize_glsl_compiler(void);
+void pgraph_vk_glsl_target_versions(
+    uint32_t api_version, glslang_target_client_version_t *client_version,
+    glslang_target_language_version_t *language_version);
 GByteArray *pgraph_vk_compile_glsl_to_spv(PGRAPHVkState *r,
                                           glslang_stage_t stage,
                                           const char *glsl_source);
