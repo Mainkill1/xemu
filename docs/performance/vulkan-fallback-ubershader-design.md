@@ -1,14 +1,14 @@
 # research/vulkan-ubershader-design
 
-**Status:** BLOCKED — design only; runtime work waits for PR #70 qualification and merge
+**Status:** READY FOR STAGED IMPLEMENTATION — design umbrella; runtime remains experimental and unqualified
 
 **Stable baseline:** `9f618d6d8c4c446ef023955f3d4de22f661f61a4` / retained product executable `3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b`
 
-**Previous main:** `e18ba8d6274cf227cc9e5ae1b5684f28ed911a99`
+**Implementation base / current main:** `5edff26383c6440da35bc92b9fca35f4a404b03b` / tree `11981a736703553349357cd89926b443901cadb9`
 
 **Current candidate:** Design-only PR head; no executable exists
 
-**Direct-fix lane:** [PR #70](https://github.com/Mainkill1/xemu/pull/70)
+**Warm-artifact foundation:** [PR #70](https://github.com/Mainkill1/xemu/pull/70), merged as `fc8c5dec9c1aa18883e74b57937d7ec90fdea074`
 
 **Cause diagnostic:** [PR #68](https://github.com/Mainkill1/xemu/pull/68)
 
@@ -16,32 +16,38 @@
 
 **PR #68 parent:** `f738796284d374f1cf22b05a6f5f643268fc8ab0`
 
-## Blocking dependency
+## Dependency status and implementation boundary
 
-**PR #71 must not start runtime ubershader implementation in parallel with PR
-#70.** First qualify and merge PR #70's warm shader-management solution into
-`main`. Any later ubershader implementation must branch from that post-#70
-`main` and reuse or extend PR #70's artifact identity, bounded storage,
-renderer ownership, failure fallback, and producer-quiesced persistence
-lifecycle. This branch remains design documentation until that gate is met.
+**The PR #70 ordering dependency is satisfied.** Its warm shader-management
+solution is merged and qualified. Current `main` at `5edff26383c` also includes
+PR #76's presentation repair, which does not alter the shader fallback design.
+
+PR #71 remains the design umbrella. Runtime stages use focused implementation
+branches from current `main` so the combiner oracle, interpreter semantics,
+worker ownership, and production selection can be reviewed independently. They
+must reuse PR #70's artifact identity, bounded storage, renderer ownership,
+failure fallback, and producer-quiesced persistence lifecycle. No runtime
+result is inherited from this documentation branch.
 
 ## Summary
 
-**Current result:** Blocked on PR #70 qualification and merge. The design audit
-supports a bounded hybrid ubershader family as a possible later cold-cache
-fallback. It does not support treating one monolithic shader as a complete
-replacement for xemu's current generated shader and graphics-pipeline path.
+**Current result:** The prerequisite warm shader-management layer is merged.
+The design audit supports a bounded hybrid ubershader family as a later
+cold-cache fallback. It does not support treating one monolithic shader as a
+complete replacement for xemu's generated shader and graphics-pipeline path.
+Runtime implementation and performance qualification have not started on this
+branch.
 
 **Headline:** A precompiled interpreter can render a previously unseen NV2A
 state while its specialized shader and pipeline compile in the background, but
 the fallback must respect compile-time geometry interfaces, sampler types,
 vertex input, attachment formats, and host Vulkan capabilities.
 
-**Next:** Complete, qualify, and merge PR #70's direct warm-run SPIR-V reuse.
-No runtime ubershader branch may start before that merge. The future
-oracle/interpreter branch starts from post-#70 `main`, integrates its warm
-artifact lifecycle, determines the smallest correct fallback family, and does
-not enable runtime fallback until specialized-versus-fallback output matches.
+**Next:** Start Stage 1 from current `main`: implement the explicit combiner
+control ABI, validated packer, route/key/ticket policy tests, and an oracle-only
+combiner interpreter inside the existing fragment shell. Runtime fallback stays
+disabled until specialized-versus-interpreter output and guest-visible side
+effects match for an explicit admitted set.
 
 This PR contains research documentation only. It changes no runtime code, was
 not built or executed, and makes no performance claim.
@@ -88,8 +94,8 @@ textures, and register writes.
 
 ### Current source path
 
-The source audit used current `main` at
-`e18ba8d6274cf227cc9e5ae1b5684f28ed911a99`.
+The source audit was reconciled with current `main` at
+`5edff26383c6440da35bc92b9fca35f4a404b03b`.
 
 | Area | Current behavior | Consequence for an ubershader |
 | --- | --- | --- |
@@ -106,12 +112,12 @@ The source audit used current `main` at
 
 Source references:
 
-- [Vulkan shader binding and module caches](https://github.com/Mainkill1/xemu/blob/e18ba8d6274cf227cc9e5ae1b5684f28ed911a99/hw/xbox/nv2a/pgraph/vk/shaders.c)
-- [Graphics pipeline construction](https://github.com/Mainkill1/xemu/blob/e18ba8d6274cf227cc9e5ae1b5684f28ed911a99/hw/xbox/nv2a/pgraph/vk/draw.c)
-- [Vertex generator state](https://github.com/Mainkill1/xemu/blob/e18ba8d6274cf227cc9e5ae1b5684f28ed911a99/hw/xbox/nv2a/pgraph/glsl/vsh.h)
-- [Pixel-combiner and texture state](https://github.com/Mainkill1/xemu/blob/e18ba8d6274cf227cc9e5ae1b5684f28ed911a99/hw/xbox/nv2a/pgraph/glsl/psh.c)
-- [Geometry execution-mode generation](https://github.com/Mainkill1/xemu/blob/e18ba8d6274cf227cc9e5ae1b5684f28ed911a99/hw/xbox/nv2a/pgraph/glsl/geom.c)
-- [Vulkan device capability selection](https://github.com/Mainkill1/xemu/blob/e18ba8d6274cf227cc9e5ae1b5684f28ed911a99/hw/xbox/nv2a/pgraph/vk/instance.c)
+- [Vulkan shader binding and module caches](https://github.com/Mainkill1/xemu/blob/5edff26383c6440da35bc92b9fca35f4a404b03b/hw/xbox/nv2a/pgraph/vk/shaders.c)
+- [Graphics pipeline construction](https://github.com/Mainkill1/xemu/blob/5edff26383c6440da35bc92b9fca35f4a404b03b/hw/xbox/nv2a/pgraph/vk/draw.c)
+- [Vertex generator state](https://github.com/Mainkill1/xemu/blob/5edff26383c6440da35bc92b9fca35f4a404b03b/hw/xbox/nv2a/pgraph/glsl/vsh.h)
+- [Pixel-combiner and texture state](https://github.com/Mainkill1/xemu/blob/5edff26383c6440da35bc92b9fca35f4a404b03b/hw/xbox/nv2a/pgraph/glsl/psh.c)
+- [Geometry execution-mode generation](https://github.com/Mainkill1/xemu/blob/5edff26383c6440da35bc92b9fca35f4a404b03b/hw/xbox/nv2a/pgraph/glsl/geom.c)
+- [Vulkan device capability selection](https://github.com/Mainkill1/xemu/blob/5edff26383c6440da35bc92b9fca35f4a404b03b/hw/xbox/nv2a/pgraph/vk/instance.c)
 
 ## Options considered
 
@@ -131,9 +137,9 @@ copied into NV2A unchanged.
 
 ## Recommended architecture
 
-This section describes work that may begin only after PR #70 is accepted into
-`main`. The implementation branch must use that post-merge commit as its base
-and preserve the qualified warm-cache behavior and lifecycle.
+This section describes work that now proceeds in stages from current `main`.
+Each implementation branch preserves PR #70's qualified warm-cache behavior
+and lifecycle and records its exact base.
 
 ### Boundary: a bounded family, not one universal pipeline
 
@@ -150,7 +156,7 @@ time moves into a packed, versioned control block.
 | Textures | Enabled stage, coordinates, scale, border metadata, shadow compare mode, bump constants | 2D, 3D, cube, and unsigned depth sampling need compatible statically declared image types; unsupported signatures stay specialized |
 | Fixed pipeline | Blend constants, stencil reference/masks, viewport, scissor, line width, and every supported dynamically enabled state | Render-pass/attachment compatibility and any state not made dynamic remain in the fallback-pipeline family key |
 
-After PR #70 is merged, the first runtime prototype should admit only signatures
+The first runtime prototype should admit only signatures
 for which a ready fallback pipeline was created before gameplay.
 Expanding coverage is a later, measured step. A state outside the admitted set
 follows the current synchronous specialization path, preserving output at the
@@ -326,14 +332,13 @@ flowchart LR
 
 ## Planned code scope
 
-No files outside this document change in the design PR. After PR #70 is
-qualified and merged, a new branch from the resulting `main` may implement the
-stages below as separately reviewable changes. No runtime prototype belongs on
-the current design branch.
+No files outside this document change in the design PR. Focused branches from
+current `main` implement the stages below as separately reviewable changes. No
+runtime prototype belongs on this design branch.
 
 | Stage | Intended scope | Exit condition |
 | --- | --- | --- |
-| 0. PR #70 dependency | Qualify and merge bounded warm artifact reuse and its renderer lifecycle | PR #70 is accepted in `main`; future work records the exact post-merge base |
+| 0. PR #70 dependency | Bounded warm artifact reuse and renderer lifecycle | **Complete** — merged as `fc8c5dec9c`; implementation work records current `main` as its base |
 | 1. Combiner oracle and packer | Extract the current fragment shell, encode combiner controls with a fixed ABI, and run an interpreter inside the otherwise specialized shell | Independent combiner arithmetic vectors and old-generator differential output pass without changing runtime selection |
 | 2. Family-boundary oracle | Inventory shell-changing texture/clip/depth/alpha state plus fixed/programmed vertex and geometry interfaces in test-only replay | Specialized and fallback images plus depth/stencil/query effects match for an explicitly admitted corpus |
 | 3. Precreated fallback family | Renderer-owned modules, layouts, descriptors, dynamic-state setup, and family coverage predicate behind an off-by-default experiment | No runtime compilation is needed to draw any admitted signature |
@@ -461,7 +466,7 @@ without a ready compatible fallback, uses the synchronous correct path.
 
 | Test | OpenGL | Vulkan |
 | --- | --- | --- |
-| PR #70 qualification and merge | Not needed | BLOCKED — must complete before runtime work starts |
+| PR #70 qualification and merge | Not needed | PASS — merged and qualified |
 | Targeted state-packer tests | Not needed | Not run — design only |
 | Non-creating lookup and ready-entry adoption | Not needed | Not run — design only |
 | Specialized/fallback differential corpus | Not needed | Not run — design only |
@@ -501,20 +506,21 @@ p95, p99, maximum, stalls, CPU, GPU, RAM, or VRAM, keeps the candidate on hold.
 
 ## Decision
 
-**Result:** BLOCKED on PR #70 qualification and merge.
+**Result:** READY FOR STAGED IMPLEMENTATION; runtime remains unqualified.
 
 The recommended architecture is a bounded hybrid interpreter family with an
 explicit coverage predicate and background specialization. It directly targets
 the cold first-seen case that PR #70 cannot know in advance, while PR #70
-remains the first broad warm-run repair and the lifecycle foundation this work
-must reuse. A worker that is immediately waited on provides no benefit, and
-draw skipping is not an acceptable correctness result.
+remains the qualified warm-run repair and lifecycle foundation. A worker that
+is immediately waited on provides no benefit, and draw skipping is not an
+acceptable correctness result.
 
-After PR #70 is accepted, the first implementation PR should branch from the
-post-merge `main` and contain only the integrated state packer and differential
-oracle. Runtime fallback belongs in a later draft after the oracle defines a
-proven admitted set. Capability expansions such as dynamic state, pipeline
-libraries, and shader objects remain separate measured changes.
+The first implementation PR branches from current `main` and contains the
+explicit state ABI, validated packer, selection/key/ticket policy tests, and the
+oracle-only combiner interpreter. Runtime fallback belongs in a later draft
+after the oracle defines a proven admitted set. Capability expansions such as
+dynamic state, pipeline libraries, and shader objects remain separate measured
+changes.
 
 ## Evidence and primary references
 
@@ -535,7 +541,6 @@ their vertex tokens, combiner state, texture signatures, and pipeline state.
 A precompiled general interpreter can cover unseen work, but xemu needs a
 bounded family because several Vulkan interfaces remain compile-time or
 pipeline-time decisions. This design changes no runtime behavior and claims no
-improvement. Runtime work is blocked until PR #70 is qualified and merged; the
-later branch must start from post-#70 `main`, reuse its shader artifact
-lifecycle, and prove a fallback state packer and differential oracle before any
-hybrid path is enabled.
+improvement. The PR #70 ordering dependency is complete. Stage 1 starts from current `main`, reuses its
+shader artifact lifecycle, and proves the fallback state ABI, packer, policy,
+and differential combiner oracle before any hybrid path is enabled.
