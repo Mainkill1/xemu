@@ -26,6 +26,7 @@
 #include "ui/xemu-notifications.h"
 #include "ui/xemu-settings.h"
 #include "inline-elements.h"
+#include "reports.h"
 #include "texture-state.h"
 #include "util.h"
 #include "swizzle.h"
@@ -3359,20 +3360,31 @@ void pgraph_get_clear_depth_stencil_value(PGRAPHState *pg, float *depth,
 void pgraph_write_zpass_pixel_cnt_report(NV2AState *d, hwaddr dma_report,
                                          uint32_t parameter, uint32_t result)
 {
-    uint64_t timestamp = 0x0011223344556677; /* FIXME: Update timestamp?! */
-    uint32_t done = 0; // FIXME: Check
+    const hwaddr ramin_size = memory_region_size(&d->ramin);
+    const hwaddr vram_size = memory_region_size(d->vram);
+    const hwaddr offset = GET_MASK(parameter, NV097_GET_REPORT_OFFSET);
 
-    hwaddr report_dma_len;
-    uint8_t *report_data =
-        (uint8_t *)nv_dma_map(d, dma_report, &report_dma_len);
+    if (!pgraph_zpass_report_descriptor_fits(ramin_size, dma_report)) {
+        qemu_log_mask(LOG_GUEST_ERROR,
+                      "PGRAPH: rejected report DMA descriptor @%" HWADDR_PRIx
+                      "\n", dma_report);
+        return;
+    }
 
-    hwaddr offset = GET_MASK(parameter, NV097_GET_REPORT_OFFSET);
-    assert(offset < report_dma_len);
-    report_data += offset;
+    DMAObject dma = nv_dma_load(d, dma_report);
+    trace_nv2a_dma_map(dma_report, dma.dma_class, dma.dma_target,
+                       dma.address, dma.limit);
 
-    stq_le_p((uint64_t *)&report_data[0], timestamp);
-    stl_le_p((uint32_t *)&report_data[8], result);
-    stl_le_p((uint32_t *)&report_data[12], done);
+    const hwaddr base = dma.address & 0x07FFFFFF;
+    if (!pgraph_zpass_report_write(d->vram_ptr, base, dma.limit, offset,
+                                   vram_size, result)) {
+        qemu_log_mask(LOG_GUEST_ERROR,
+                      "PGRAPH: rejected report span: dma=%" HWADDR_PRIx
+                      " base=%" HWADDR_PRIx " offset=%" HWADDR_PRIx
+                      " limit=%" HWADDR_PRIx " vram_size=%" HWADDR_PRIx
+                      "\n", dma_report, base, offset, dma.limit, vram_size);
+        return;
+    }
 
     NV2A_DPRINTF("Report result %d @%" HWADDR_PRIx, result, offset);
 }
