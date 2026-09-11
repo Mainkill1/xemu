@@ -18,6 +18,7 @@
  */
 
 #include "renderer.h"
+#include "reports.h"
 
 void pgraph_vk_init_reports(PGRAPHState *pg)
 {
@@ -154,8 +155,8 @@ void pgraph_vk_process_pending_reports(NV2AState *d)
     uint32_t *dma_get = &d->pfifo.regs[NV_PFIFO_CACHE1_DMA_GET];
     uint32_t *dma_put = &d->pfifo.regs[NV_PFIFO_CACHE1_DMA_PUT];
 
-    if (*dma_get == *dma_put && r->in_command_buffer &&
-        !QSIMPLEQ_EMPTY(&r->report_queue)) {
+    if (pgraph_vk_report_queue_needs_finish(
+            *dma_get == *dma_put, !QSIMPLEQ_EMPTY(&r->report_queue))) {
         pgraph_vk_finish(pg, VK_FINISH_REASON_STALLED);
     }
 }

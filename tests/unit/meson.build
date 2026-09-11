@@ -28,6 +28,7 @@ tests = {
   ],
   'test-xbox-vk-blend-constants': [],
   'test-xbox-vk-bc-layout': [],
+  'test-xbox-vk-reports': [],
   'test-xbox-vk-failure-state': [],
   'test-xbox-vk-failpoint': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/failpoint.c',
