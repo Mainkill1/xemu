@@ -4,6 +4,9 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
+#include "qemu/osdep.h"
+#include "qemu/bswap.h"
+
 #include "reports.h"
 
 enum {
@@ -31,16 +34,9 @@ bool pgraph_zpass_report_write(uint8_t *vram, uint64_t base, uint64_t limit,
     uint8_t *report = vram + base + offset;
     const uint64_t timestamp = UINT64_C(0x0011223344556677);
 
-    for (unsigned int i = 0; i < sizeof(timestamp); i++) {
-        report[i] = timestamp >> (i * 8);
-    }
-    for (unsigned int i = 0; i < sizeof(result); i++) {
-        report[sizeof(timestamp) + i] = result >> (i * 8);
-    }
-    for (unsigned int i = sizeof(timestamp) + sizeof(result);
-         i < ZPASS_REPORT_SIZE; i++) {
-        report[i] = 0;
-    }
+    stq_le_p(report + 0, timestamp);
+    stl_le_p(report + 8, result);
+    stl_le_p(report + 12, 0);
 
     return true;
 }
