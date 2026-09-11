@@ -181,6 +181,23 @@ bool lru_contains_hash(Lru *lru, uint64_t hash)
 	return false;
 }
 
+/* Exact lookup without creation, eviction, or recency changes. */
+static inline
+LruNode *lru_find_existing(Lru *lru, uint64_t hash, const void *key)
+{
+    unsigned int bin = lru_hash_to_bin(lru, hash);
+    LruNode *iter;
+
+    QTAILQ_FOREACH(iter, &lru->bins[bin], next_bin) {
+        if (iter->hash == hash &&
+            !lru->compare_nodes(lru, iter, key)) {
+            return iter;
+        }
+    }
+
+    return NULL;
+}
+
 static inline
 LruNode *lru_try_lookup(Lru *lru, uint64_t hash, const void *key)
 {
