@@ -477,7 +477,8 @@ bool pgraph_vk_spirv_cache_add(PGRAPHVkSpirvCache *cache, uint32_t stage,
                                const void *source, size_t source_size,
                                const void *spirv, size_t spirv_size)
 {
-    if (!cache || !cache->compiler_flavor || !persistent_stage_valid(stage) ||
+    if (!cache || !cache->compiler_flavor || !cache->index_buckets ||
+        !cache->index_bucket_count || !persistent_stage_valid(stage) ||
         !source_valid(source, source_size) ||
         !spirv_valid(&cache->policy, spirv, spirv_size)) {
         if (cache) {
