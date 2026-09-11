@@ -26,6 +26,8 @@ xemu_ss.add(files(
   'xemu-net.c',
   'xemu-settings.cc',
   'xemu-controllers.cc',
+  'xemu-gpu-launch.c',
+  'xemu-gpu-info.c',
 
   'xemu.c',
   'xemu-data.c',

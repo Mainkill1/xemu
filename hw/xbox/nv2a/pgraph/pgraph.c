@@ -23,6 +23,8 @@
 
 #include "hw/xbox/nv2a/nv2a_int.h"
 #include "qemu/log.h"
+#include "ui/xemu-gpu-info.h"
+#include "ui/xemu-gpu-launch.h"
 #include "ui/xemu-notifications.h"
 #include "ui/xemu-settings.h"
 #include "inline-elements.h"
@@ -297,6 +299,14 @@ static CONFIG_DISPLAY_RENDERER get_default_renderer(void)
 void nv2a_context_init(void)
 {
     if (!renderers[g_config.display.renderer]) {
+        if (xemu_gpu_strict_mode()) {
+            fprintf(stderr, "Fatal error: configured renderer unavailable "
+                            "in strict GPU mode\n");
+            xemu_gpu_info_record_failure(NULL,
+                                         "configured renderer unavailable",
+                                         false, NULL);
+            exit(1);
+        }
         g_config.display.renderer = get_default_renderer();
         fprintf(stderr,
                 "Warning: Configured renderer unavailable. Switching to %s.\n",
@@ -317,7 +327,7 @@ void nv2a_context_init(void)
     }
 }
 
-static bool attempt_renderer_init(PGRAPHState *pg)
+static bool attempt_renderer_init(PGRAPHState *pg, bool fallback)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
 
@@ -333,25 +343,43 @@ static bool attempt_renderer_init(PGRAPHState *pg)
     }
     if (local_err) {
         const char *msg = error_get_pretty(local_err);
-        xemu_queue_error_message(msg);
+        xemu_gpu_info_record_failure(pg->renderer->name, msg, false, NULL);
+        if (xemu_gpu_strict_mode()) {
+            fprintf(stderr, "Renderer initialization failed: %s\n", msg);
+        } else {
+            xemu_queue_error_message(msg);
+        }
         error_free(local_err);
         local_err = NULL;
         return false;
     }
+
+    const PGRAPHVkDeviceRecord *device =
+        pg->renderer->type == CONFIG_DISPLAY_RENDERER_VULKAN ?
+            xemu_gpu_info_get_actual_device() : NULL;
+    xemu_gpu_info_record_initialized(
+        device, pg->renderer->name, XEMU_GPU_PRESENTATION_UNKNOWN,
+        fallback, fallback ? "requested renderer failed to initialize" : NULL);
 
     return true;
 }
 
 static void init_renderer(PGRAPHState *pg)
 {
-    if (attempt_renderer_init(pg)) {
+    if (attempt_renderer_init(pg, false)) {
         return;  // Success
+    }
+
+    if (xemu_gpu_strict_mode()) {
+        fprintf(stderr, "Fatal error: strict GPU request could not be "
+                        "initialized\n");
+        exit(1);
     }
 
     CONFIG_DISPLAY_RENDERER default_renderer = get_default_renderer();
     if (default_renderer != g_config.display.renderer) {
         g_config.display.renderer = default_renderer;
-        if (attempt_renderer_init(pg)) {
+        if (attempt_renderer_init(pg, true)) {
             g_autofree gchar *msg = g_strdup_printf(
                 "Switched to default renderer: %s", pg->renderer->name);
             xemu_queue_notification(msg);

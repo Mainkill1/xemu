@@ -233,6 +233,7 @@ display:
     debug_shaders: bool
     assert_on_validation_msg: bool
     preferred_physical_device: string
+    device_uuid: string
   quality:
     surface_scale:
       type: integer
