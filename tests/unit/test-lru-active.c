@@ -107,7 +107,8 @@ static bool test_find_existing_is_exact(void)
 
     return lru_find_existing(&lru, colliding_hash, &key0) == node0 &&
            lru_find_existing(&lru, colliding_hash, &key1) == node1 &&
-           lru_find_existing(&lru, colliding_hash, &missing_key) == NULL;
+           lru_find_existing(&lru, colliding_hash, &missing_key) == NULL &&
+           lru_find_existing(&lru, colliding_hash + 1, &key0) == NULL;
 }
 
 static bool test_find_existing_does_not_mutate(void)
@@ -147,6 +148,7 @@ static bool test_find_existing_does_not_mutate(void)
 
     lru_find_existing(&lru, colliding_hash, &key0);
     lru_find_existing(&lru, colliding_hash, &missing_key);
+    lru_find_existing(&lru, colliding_hash + 1, &key0);
 
     after_count = snapshot_global_order(&lru, after, 3);
     return before_count == 3 && after_count == before_count &&

@@ -181,7 +181,11 @@ bool lru_contains_hash(Lru *lru, uint64_t hash)
 	return false;
 }
 
-/* Exact lookup without creation, eviction, or recency changes. */
+/*
+ * Exact lookup without creation, eviction, or recency changes.
+ * The returned node is borrowed. Callers must provide synchronization and
+ * prevent concurrent mutation or eviction while using it.
+ */
 static inline
 LruNode *lru_find_existing(Lru *lru, uint64_t hash, const void *key)
 {
