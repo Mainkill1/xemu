@@ -8,6 +8,12 @@ A performance branch stays active only when it either preserves the accepted per
 
 Archiving does **not** mean the investigation was worthless or that the code was necessarily incorrect. It means the branch does not satisfy the current performance objective and should not occupy an active PR lane.
 
+## Cleanup status — 2026-09-11
+
+PR cleanup is complete. All 15 rejected PRs listed below are closed and unmerged. Associated dead-end xemu issues #38, #40, #56, #60, and #61 are closed as not planned; #39 was already closed and remains closed. The active exceptions were verified after cleanup: PRs #37, #70, and #71 remain open, and issues #69 and #72 remain open.
+
+Branch packaging and deletion are intentionally still pending. The available GitHub connector cannot create/upload binary ZIP archives or delete remote branch refs. Every `ZIP PENDING` row must be archived and verified by the follow-up Git-capable agent before its branch is deleted.
+
 ## Active lanes — do not archive
 
 | Item | Purpose | Status |
@@ -37,21 +43,21 @@ The `Archive` column intentionally remains `ZIP PENDING` until the branch has be
 | #58 | `research/vk-descriptor-capacity` | #40 | REJECT | One non-interleaved pair did not establish benefit; Vulkan p95 moved unfavorably and resource/driver cost remained unknown. | Preserve descriptor-capacity hypothesis only. | ZIP PENDING |
 | #59 | `fix/ptimer-main-qualification` | #39, #40, #61 | REJECT | Repeated paired measurements remained mixed/adverse: Vulkan median p99 -2.249%, OpenGL maximum median -4.201%, with multiple >2% adverse pairs. | PTIMER correctness evidence remains historical; performance lane is closed. | ZIP PENDING |
 | #67 | `research/pr14-tail-counters` | — | RESEARCH COMPLETE | Diagnostic-only attribution; no performance candidate and no speed claim. | Finding led to shader/pipeline investigations. | ZIP PENDING |
-| #68 | PR #68 head branch — resolve exact head name from PR metadata during ZIP step | — | RESEARCH COMPLETE | Shader-miss classification completed; instrumentation is not a merge candidate and makes no speed claim. | **Behavioral work continues only in kept PR #70.** | ZIP PENDING |
+| #68 | `feature/vulkan-shader-binding-cache` | — | RESEARCH COMPLETE | Shader-miss classification completed; instrumentation is not a merge candidate and makes no speed claim. | **Behavioral work continues only in kept PR #70.** | ZIP PENDING |
 | #74 | `fix/pgraph-report-bounds-progress` | #60 | REJECT | Correctness repair makes no speed claim and failed the performance-neutral gate; matched PGR2 OpenGL maximum was 88.478 ms vs 43.501 ms previous main. | Preserve report-query findings/tests as historical evidence. | ZIP PENDING |
 
 ## Issue disposition
 
-Issues owned exclusively by rejected branches should be closed as `not planned` after their PR findings are linked here. Issues that feed an active lane stay open.
+Issues owned exclusively by rejected branches are closed as `not planned`. Issues that feed an active lane stay open.
 
 | Issue | Disposition | Reason |
 | --- | --- | --- |
-| #38 | CLOSE | Historical S-release integration lane rejected/superseded. |
-| #39 | CLOSE | PTIMER repair lanes #48/#59 archived. |
-| #40 | CLOSE | PTIMER/descriptor experiments using this performance gate are archived. |
-| #56 | CLOSE | STI-shadow candidate #55 rejected. |
-| #60 | CLOSE | Report-bounds candidate #74 archived after correctness/performance investigation. |
-| #61 | CLOSE | Compatibility gate belonged to rejected PTIMER #59. |
+| #38 | CLOSED / NOT PLANNED | Historical S-release integration lane rejected/superseded. |
+| #39 | CLOSED | PTIMER repair lanes #48/#59 archived; issue was already closed before this cleanup. |
+| #40 | CLOSED / NOT PLANNED | PTIMER/descriptor experiments using this performance gate are archived. |
+| #56 | CLOSED / NOT PLANNED | STI-shadow candidate #55 rejected. |
+| #60 | CLOSED / NOT PLANNED | Report-bounds candidate #74 archived after correctness/performance investigation. |
+| #61 | CLOSED / NOT PLANNED | Compatibility gate belonged to rejected PTIMER #59. |
 | #69 | KEEP OPEN | Required by active SPIR-V #70 lifecycle/resource work. |
 | #72 | KEEP OPEN | User-requested GPU/video-card selection feature. |
 
