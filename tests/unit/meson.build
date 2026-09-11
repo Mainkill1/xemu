@@ -30,6 +30,10 @@ tests = {
   'test-xbox-vk-device-inventory': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/device-inventory.c',
   ],
+  'test-xemu-gpu-launch': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/device-selection.c',
+    meson.project_source_root() / 'ui/xemu-gpu-launch.c',
+  ],
   'test-xbox-vk-bc-layout': [],
   'test-xbox-vk-failure-state': [],
   'test-xbox-vk-failpoint': [

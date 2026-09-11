@@ -80,11 +80,11 @@
 - Consumes saved `device_uuid` and legacy preferred name only after settings load; CLI fields take precedence without mutating `g_config`.
 - Removes recognized arguments from the argv array using the existing NULL convention.
 
-- [ ] Write failing tests for `-gpu auto`, exact UUID, malformed UUID, missing argument, repeated conflicting options, `-gpu-strict`, `-list-gpus`, `-gpu-info`, and CLI precedence.
-- [ ] Add `device_uuid` to the generated configuration schema and implement minimal parser/request ownership.
-- [ ] Write failing persistence tests showing CLI values do not enter `g_config` and runtime actual values do not overwrite either saved field.
-- [ ] Implement saved/CLI resolution and cleanup, then rerun focused tests.
-- [ ] Commit launch request and configuration migration.
+- [x] Write failing tests for `-gpu auto`, exact UUID, malformed UUID, missing argument, repeated conflicting options, `-gpu-strict`, `-list-gpus`, `-gpu-info`, and CLI precedence.
+- [x] Add `device_uuid` to the generated configuration schema and implement minimal parser/request ownership.
+- [x] Write tests around the const saved-value boundary showing CLI precedence without mutating saved UUID/name inputs. End-to-end file preservation remains in Task 5.
+- [x] Implement saved/CLI resolution and cleanup, then rerun focused tests.
+- [x] Commit launch request and configuration migration.
 
 ### Task 4: Inventory-only command and atomic JSON output
 
