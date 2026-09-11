@@ -122,10 +122,10 @@ void MainMenuAdvanceView::Draw()
         xemu_settings_save();
     }
     SectionTitle("Vulkan");
-    PerformanceToggle("Hybrid ubershaders",
+    PerformanceToggle("Vulkan ubershader",
         &g_config.tweaks.vk_hybrid_ubershaders,
         XEMU_TWEAK_VK_HYBRID_UBERSHADERS,
-        "Reduce shader variants.");
+        "Reduce shader stalls.");
     PerformanceToggle("Combine color downloads with rendering",
         &g_config.tweaks.vk_color_download_folding,
         XEMU_TWEAK_VK_COLOR_DOWNLOAD_FOLDING,

@@ -1,7 +1,7 @@
 # Advance performance settings
 
 **Machine → Settings → Advance** exposes independent performance controls.
-Hybrid ubershaders default to Off; the accepted controls already in `main`
+Vulkan ubershader defaults to Off; the accepted controls already in `main`
 default to On. Saved choices remain after restart.
 
 | Setting | On | Off | Apply |
@@ -10,7 +10,7 @@ default to On. Saved choices remain after restart.
 | Process vertex packets in bulk | Batch eligible non-incrementing packets | Scalar packet processing | Next packet |
 | Fast GPU fence polling | Atomic exact 32-bit fence read | Existing locked register read | Next read |
 | Cache shaders | Reuse compiled shaders | Compile without disk reuse | Renderer-defined |
-| Hybrid ubershaders | Use a compatible runtime combiner to reduce shader variants | Use specialized shaders | Restart xemu |
+| Vulkan ubershader | Interpret admitted fragment combiners at runtime | Specialize fragment combiners | Restart xemu |
 | Combine color downloads with rendering | Fold eligible downloads into the active submission | Submit the download separately | Next download |
 | Upload only used vertex ranges | Skip unused leading remapped vertices | Copy from vertex zero | Next repack |
 | Grow transient buffers to fit batches | Retain the pre-flush batch requirement while growing | Reuse drained storage; still grow for a large single draw | Restart xemu |
