@@ -23,6 +23,7 @@
 #include "qemu/mstring.h"
 #include "hw/xbox/nv2a/pgraph/uniform-stage-update.h"
 #include "ui/xemu-settings.h"
+#include "device-inventory.h"
 #include "renderer.h"
 
 #include <glib/gstdio.h>
