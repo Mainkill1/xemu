@@ -35,13 +35,13 @@
 - Produces `PGRAPHVkDeviceRecord`, `PGRAPHVkSelectionRequest`, `PGRAPHVkSelectionResult`, `pgraph_vk_device_uuid_parse()`, `pgraph_vk_device_uuid_format()`, and `pgraph_vk_resolve_device()`.
 - Resolver consumes copied records only and returns a record index plus a typed outcome; it performs no Vulkan calls and does not access `g_config`.
 
-- [ ] Write literal table tests for UUID formatting/parsing, including mixed-case input normalization and malformed length/characters.
-- [ ] Run `meson test -C build test-xbox-vk-device-selection --print-errorlogs` and verify the test cannot compile because the interface is absent.
-- [ ] Add the minimal UUID helpers and rerun until those tests pass.
-- [ ] Add failing resolver tests for automatic hardware selection, exact UUID, missing UUID, duplicate UUID, unsupported exact match, duplicate legacy name, reordered records, and software-only inventory.
-- [ ] Implement the minimal pure resolver and typed error strings; rerun the focused target.
-- [ ] Mutation-check wrong index, name-only UUID resolution, fallback after an unsupported exact match, and software selection under a hardware requirement.
-- [ ] Commit the resolver and tests.
+- [x] Write literal table tests for UUID formatting/parsing, including mixed-case input normalization and malformed length/characters.
+- [x] Compile the focused test and verify it fails because the selection interface is absent. The full Meson target remains part of Task 6's pinned build verification.
+- [x] Add the minimal UUID helpers and rerun until those tests pass.
+- [x] Add failing resolver tests for automatic hardware selection, exact UUID, missing UUID, duplicate UUID, unsupported exact match, duplicate legacy name, reordered records, and software-only inventory.
+- [x] Implement the minimal pure resolver and typed error strings; rerun the focused target.
+- [x] Mutation-check wrong index, name-only UUID resolution, fallback after an unsupported exact match, and software selection under a hardware requirement.
+- [x] Commit the resolver and tests.
 
 ### Task 2: Checked Vulkan inventory and capability evaluation
 
