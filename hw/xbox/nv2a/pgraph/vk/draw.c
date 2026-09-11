@@ -742,7 +742,11 @@ static void init_pipeline_key(PGRAPHState *pg, PipelineKey *key)
 
     memset(key, 0, sizeof(*key));
     init_render_pass_state(pg, &key->render_pass_state);
+    key->fragment_route = r->shader_binding->fragment_route;
     memcpy(&key->shader_state, &r->shader_binding->state, sizeof(ShaderState));
+    if (key->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER) {
+        pgraph_vk_canonicalize_uber_combiner_state(&key->shader_state.psh);
+    }
     memcpy(key->binding_descriptions, r->vertex_binding_descriptions,
            sizeof(key->binding_descriptions[0]) *
                r->num_active_vertex_binding_descriptions);
@@ -1126,11 +1130,14 @@ static void bind_descriptor_sets(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     assert(r->descriptor_set_index >= 1);
+    uint32_t uber_control_offset =
+        r->shader_binding->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER ?
+            r->uber_control_offset : 0;
 
     vkCmdBindDescriptorSets(r->command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
                             r->pipeline_binding->layout, 0, 1,
-                            &r->descriptor_sets[r->descriptor_set_index - 1], 0,
-                            NULL);
+                            &r->descriptor_sets[r->descriptor_set_index - 1], 1,
+                            &uber_control_offset);
 }
 
 static void begin_query(PGRAPHVkState *r)
@@ -1193,7 +1200,8 @@ static void sync_staging_buffer(PGRAPHState *pg, VkCommandBuffer cmd,
         break;
     case BUFFER_UNIFORM:
         dst_access_mask = VK_ACCESS_UNIFORM_READ_BIT;
-        dst_stage_mask = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
+        dst_stage_mask = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT |
+                         VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
         break;
     default:
         assert(0);

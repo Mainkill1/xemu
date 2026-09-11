@@ -23,6 +23,7 @@
 #include "qemu/mstring.h"
 #include "hw/xbox/nv2a/pgraph/uniform-stage-update.h"
 #include "ui/xemu-settings.h"
+#include "ui/xemu-tweaks.h"
 #include "device-inventory.h"
 #include "renderer.h"
 
@@ -115,6 +116,10 @@ static void create_descriptor_pool(PGRAPHState *pg)
             .descriptorCount = 2 * num_sets,
         },
         {
+            .type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+            .descriptorCount = num_sets,
+        },
+        {
             .type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
             .descriptorCount = NV2A_MAX_TEXTURES * num_sets,
         }
@@ -143,7 +148,7 @@ static void create_descriptor_set_layout(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
-    VkDescriptorSetLayoutBinding bindings[2 + NV2A_MAX_TEXTURES];
+    VkDescriptorSetLayoutBinding bindings[3 + NV2A_MAX_TEXTURES];
 
     bindings[0] = (VkDescriptorSetLayoutBinding){
         .binding = VSH_UBO_BINDING,
@@ -165,6 +170,12 @@ static void create_descriptor_set_layout(PGRAPHState *pg)
             .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
         };
     }
+    bindings[2 + NV2A_MAX_TEXTURES] = (VkDescriptorSetLayoutBinding){
+        .binding = PGRAPH_VK_PSH_UBER_UBO_BINDING,
+        .descriptorCount = 1,
+        .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+        .stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
+    };
     VkDescriptorSetLayoutCreateInfo layout_info = {
         .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
         .bindingCount = ARRAY_SIZE(bindings),
@@ -215,9 +226,14 @@ static void destroy_descriptor_sets(PGRAPHState *pg)
 void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
+    ShaderBinding *binding = r->shader_binding;
+    bool force_reupload = r->descriptor_set_index == 0;
+    bool uses_uber_controls =
+        binding->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER;
+    assert(!uses_uber_controls || r->uber_controls_valid);
     bool need_uniform_write[PGRAPH_UNIFORM_STAGE_COUNT] = {
-        r->uniform_stage_dirty[PGRAPH_UNIFORM_STAGE_VSH],
-        r->uniform_stage_dirty[PGRAPH_UNIFORM_STAGE_PSH],
+        force_reupload || r->uniform_stage_dirty[PGRAPH_UNIFORM_STAGE_VSH],
+        force_reupload || r->uniform_stage_dirty[PGRAPH_UNIFORM_STAGE_PSH],
     };
     if (!r->storage_buffers[BUFFER_UNIFORM_STAGING].buffer_offset) {
         need_uniform_write[PGRAPH_UNIFORM_STAGE_VSH] = true;
@@ -226,13 +242,17 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
     bool any_uniform_write =
         need_uniform_write[PGRAPH_UNIFORM_STAGE_VSH] ||
         need_uniform_write[PGRAPH_UNIFORM_STAGE_PSH];
+    bool need_uber_control_write =
+        uses_uber_controls &&
+        (force_reupload || !r->uploaded_uber_controls_valid ||
+         memcmp(&r->uploaded_uber_controls, &r->uber_controls,
+                sizeof(r->uber_controls)) != 0);
 
-    if (!(r->texture_bindings_changed || (r->descriptor_set_index == 0) ||
-          any_uniform_write)) {
+    if (!(r->texture_bindings_changed || force_reupload || any_uniform_write ||
+          need_uber_control_write)) {
         return; // Nothing changed
     }
 
-    ShaderBinding *binding = r->shader_binding;
     ShaderUniformLayout *layouts[] = { &binding->vsh.module_info->uniforms,
                                        &binding->psh.module_info->uniforms };
     VkDeviceSize required_end =
@@ -245,8 +265,12 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
             required_end += layouts[i]->total_size;
         }
     }
+    if (need_uber_control_write) {
+        required_end = ROUND_UP(required_end, alignment);
+        required_end += sizeof(r->uber_controls);
+    }
     bool need_ubo_staging_buffer_reset =
-        any_uniform_write &&
+        (any_uniform_write || need_uber_control_write) &&
         required_end > r->storage_buffers[BUFFER_UNIFORM_STAGING].buffer_size;
 
     bool need_descriptor_write_reset =
@@ -257,9 +281,10 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
         need_uniform_write[PGRAPH_UNIFORM_STAGE_VSH] = true;
         need_uniform_write[PGRAPH_UNIFORM_STAGE_PSH] = true;
         any_uniform_write = true;
+        need_uber_control_write = uses_uber_controls;
     }
 
-    VkWriteDescriptorSet descriptor_writes[2 + NV2A_MAX_TEXTURES];
+    VkWriteDescriptorSet descriptor_writes[3 + NV2A_MAX_TEXTURES];
 
     assert(r->descriptor_set_index < ARRAY_SIZE(r->descriptor_sets));
 
@@ -279,7 +304,19 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
         sync_uniform_dirty_summary(r);
     }
 
-    VkDescriptorBufferInfo ubo_buffer_infos[2];
+    if (need_uber_control_write) {
+        void *data = &r->uber_controls;
+        VkDeviceSize size = sizeof(r->uber_controls);
+        r->uber_control_offset = pgraph_vk_append_to_buffer(
+            pg, BUFFER_UNIFORM_STAGING, &data, &size, 1,
+            r->device_props.limits.minUniformBufferOffsetAlignment);
+        memcpy(&r->uploaded_uber_controls, &r->uber_controls,
+               sizeof(r->uploaded_uber_controls));
+        r->uploaded_uber_controls_valid = true;
+        assert(r->uber_control_offset <= UINT32_MAX);
+    }
+
+    VkDescriptorBufferInfo ubo_buffer_infos[3];
     for (int i = 0; i < ARRAY_SIZE(layouts); i++) {
         ubo_buffer_infos[i] = (VkDescriptorBufferInfo){
             .buffer = r->storage_buffers[BUFFER_UNIFORM].buffer,
@@ -296,6 +333,20 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
             .pBufferInfo = &ubo_buffer_infos[i],
         };
     }
+    ubo_buffer_infos[2] = (VkDescriptorBufferInfo){
+        .buffer = r->storage_buffers[BUFFER_UNIFORM].buffer,
+        .offset = 0,
+        .range = sizeof(r->uber_controls),
+    };
+    descriptor_writes[2 + NV2A_MAX_TEXTURES] = (VkWriteDescriptorSet){
+        .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+        .dstSet = r->descriptor_sets[r->descriptor_set_index],
+        .dstBinding = PGRAPH_VK_PSH_UBER_UBO_BINDING,
+        .dstArrayElement = 0,
+        .descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+        .descriptorCount = 1,
+        .pBufferInfo = &ubo_buffer_infos[2],
+    };
 
     VkDescriptorImageInfo image_infos[NV2A_MAX_TEXTURES];
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
@@ -315,7 +366,8 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
         };
     }
 
-    vkUpdateDescriptorSets(r->device, 6, descriptor_writes, 0, NULL);
+    vkUpdateDescriptorSets(r->device, ARRAY_SIZE(descriptor_writes),
+                           descriptor_writes, 0, NULL);
 
     r->descriptor_set_index++;
 }
@@ -345,11 +397,13 @@ get_and_ref_shader_module_for_key(PGRAPHVkState *r,
     return module->module_info;
 }
 
-static void shader_cache_entry_init(Lru *lru, LruNode *node, const void *state)
+static void shader_cache_entry_init(Lru *lru, LruNode *node, const void *key)
 {
     PGRAPHVkState *r = container_of(lru, PGRAPHVkState, shader_cache);
     ShaderBinding *binding = container_of(node, ShaderBinding, node);
-    memcpy(&binding->state, state, sizeof(ShaderState));
+    const ShaderBindingKey *binding_key = key;
+    binding->state = binding_key->state;
+    binding->fragment_route = binding_key->fragment_route;
 
     NV2A_VK_DPRINTF("cache miss");
     nv2a_profile_inc_counter(NV2A_PROF_SHADER_GEN);
@@ -379,11 +433,20 @@ static void shader_cache_entry_init(Lru *lru, LruNode *node, const void *state)
 
     memset(&key, 0, sizeof(key));
     key.kind = VK_SHADER_STAGE_FRAGMENT_BIT;
+    key.fragment_route = binding->fragment_route;
     key.psh.state = binding->state.psh;
+    if (binding->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER) {
+        pgraph_vk_canonicalize_uber_combiner_state(&key.psh.state);
+    }
     key.psh.glsl_opts.vulkan = true;
     key.psh.glsl_opts.ubo_binding = PSH_UBO_BINDING;
     key.psh.glsl_opts.tex_binding = PSH_TEX_BINDING;
+    key.psh.glsl_opts.ubershader =
+        binding->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER;
+    key.psh.glsl_opts.uber_binding = PGRAPH_VK_PSH_UBER_UBO_BINDING;
     binding->psh.module_info = get_and_ref_shader_module_for_key(r, &key);
+    assert(binding->psh.module_info->uses_uber_controls ==
+           (binding->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER));
 
     update_shader_uniform_locs(binding);
 }
@@ -408,7 +471,14 @@ static void shader_cache_entry_post_evict(Lru *lru, LruNode *node)
 static bool shader_cache_entry_compare(Lru *lru, LruNode *node, const void *key)
 {
     ShaderBinding *snode = container_of(node, ShaderBinding, node);
-    return memcmp(&snode->state, key, sizeof(ShaderState));
+    const ShaderBindingKey *binding_key = key;
+
+    ShaderBindingKey snode_key = {
+        .state = snode->state,
+        .fragment_route = snode->fragment_route,
+    };
+
+    return pgraph_vk_shader_binding_key_different(&snode_key, binding_key);
 }
 
 static uint32_t shader_spirv_compiler_policy(void)
@@ -750,14 +820,53 @@ static void shader_cache_finalize(PGRAPHState *pg)
     shader_spirv_cache_finalize(r);
 }
 
-static ShaderBinding *get_shader_binding_for_state(PGRAPHVkState *r,
-                                                   const ShaderState *state)
+static ShaderBinding *get_shader_binding_for_key(PGRAPHVkState *r,
+                                                 const ShaderBindingKey *key)
 {
-    uint64_t hash = fast_hash((void *)state, sizeof(*state));
-    LruNode *node = lru_lookup(&r->shader_cache, hash, state);
+    uint64_t hash = fast_hash((void *)key, sizeof(*key));
+    LruNode *node = lru_lookup(&r->shader_cache, hash, key);
     ShaderBinding *binding = container_of(node, ShaderBinding, node);
     NV2A_VK_DPRINTF("shader state hash: %016" PRIx64 " %p", hash, binding);
     return binding;
+}
+
+static void get_uber_control_source(PGRAPHState *pg, const PshState *state,
+                                    PGRAPHUberControlSource *source)
+{
+    memset(source, 0, sizeof(*source));
+    source->combiner_control = state->combiner_control;
+    memcpy(source->rgb_inputs, state->rgb_inputs, sizeof(source->rgb_inputs));
+    memcpy(source->alpha_inputs, state->alpha_inputs,
+           sizeof(source->alpha_inputs));
+    memcpy(source->rgb_outputs, state->rgb_outputs,
+           sizeof(source->rgb_outputs));
+    memcpy(source->alpha_outputs, state->alpha_outputs,
+           sizeof(source->alpha_outputs));
+    source->final_inputs_0 = state->final_inputs_0;
+    source->final_inputs_1 = state->final_inputs_1;
+
+    pgraph_glsl_get_psh_combiner_constants(pg, source->constants);
+}
+
+static PGRAPHVkFragmentRoute select_fragment_route(PGRAPHState *pg,
+                                                    const PshState *state)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    PGRAPHUberControlSource source;
+
+    r->uber_controls_valid = false;
+    if (!xemu_tweak_enabled(XEMU_TWEAK_VK_HYBRID_UBERSHADERS)) {
+        return PGRAPH_VK_FRAGMENT_SPECIALIZED;
+    }
+
+    get_uber_control_source(pg, state, &source);
+    if (!pgraph_vk_pack_ubershader_controls(&r->uber_controls, &source,
+                                             NULL)) {
+        return PGRAPH_VK_FRAGMENT_SPECIALIZED;
+    }
+
+    r->uber_controls_valid = true;
+    return PGRAPH_VK_FRAGMENT_UBERSHADER;
 }
 
 static bool apply_uniform_updates(ShaderUniformLayout *layout,
@@ -910,13 +1019,29 @@ void pgraph_vk_bind_shaders(PGRAPHState *pg)
     r->uniform_layout_changed[PGRAPH_UNIFORM_STAGE_VSH] = false;
     r->uniform_layout_changed[PGRAPH_UNIFORM_STAGE_PSH] = false;
 
-    if (!r->shader_binding ||
-        pgraph_glsl_check_shader_state_dirty(pg, &r->shader_binding->state)) {
+    bool shader_state_dirty =
+        !r->shader_binding ||
+        pgraph_glsl_check_shader_state_dirty(pg, &r->shader_binding->state);
+    ShaderState new_state;
+    if (shader_state_dirty) {
+        new_state = pgraph_glsl_get_shader_state(pg);
+    } else {
+        new_state = r->shader_binding->state;
+    }
+    PGRAPHVkFragmentRoute fragment_route =
+        select_fragment_route(pg, &new_state.psh);
+
+    if (shader_state_dirty ||
+        r->shader_binding->fragment_route != fragment_route) {
         ShaderBinding *old_binding = r->shader_binding;
-        ShaderState new_state = pgraph_glsl_get_shader_state(pg);
-        if (!old_binding || memcmp(&old_binding->state, &new_state,
-                                   sizeof(ShaderState))) {
-            r->shader_binding = get_shader_binding_for_state(r, &new_state);
+        if (!old_binding ||
+            old_binding->fragment_route != fragment_route ||
+            memcmp(&old_binding->state, &new_state, sizeof(ShaderState))) {
+            ShaderBindingKey key = {
+                .state = new_state,
+                .fragment_route = fragment_route,
+            };
+            r->shader_binding = get_shader_binding_for_key(r, &key);
             r->shader_bindings_changed = true;
             r->uniform_layout_changed[PGRAPH_UNIFORM_STAGE_VSH] =
                 !old_binding ||

@@ -1632,30 +1632,35 @@ MString *pgraph_glsl_gen_psh(const PshState *state, GenPshGlslOptions opts)
     return psh_convert(&ps);
 }
 
+void pgraph_glsl_get_psh_combiner_constants(PGRAPHState *pg,
+                                             float constants[18][4])
+{
+    for (int i = 0; i < 9; i++) {
+        uint32_t packed[2];
+        if (i == 8) {
+            /* final combiner */
+            packed[0] = pgraph_reg_r(pg, NV_PGRAPH_SPECFOGFACTOR0);
+            packed[1] = pgraph_reg_r(pg, NV_PGRAPH_SPECFOGFACTOR1);
+        } else {
+            packed[0] = pgraph_reg_r(pg,
+                                     NV_PGRAPH_COMBINEFACTOR0 + i * 4);
+            packed[1] = pgraph_reg_r(pg,
+                                     NV_PGRAPH_COMBINEFACTOR1 + i * 4);
+        }
+
+        for (int j = 0; j < 2; j++) {
+            pgraph_argb_pack32_to_rgba_float(packed[j],
+                                             constants[i * 2 + j]);
+        }
+    }
+}
+
 void pgraph_glsl_set_psh_uniform_values(PGRAPHState *pg,
                                         const PshUniformLocs locs,
                                         PshUniformValues *values)
 {
     if (locs[PshUniform_consts] != -1) {
-        for (int i = 0; i < 9; i++) {
-            uint32_t constant[2];
-            if (i == 8) {
-                /* final combiner */
-                constant[0] = pgraph_reg_r(pg, NV_PGRAPH_SPECFOGFACTOR0);
-                constant[1] = pgraph_reg_r(pg, NV_PGRAPH_SPECFOGFACTOR1);
-            } else {
-                constant[0] =
-                    pgraph_reg_r(pg, NV_PGRAPH_COMBINEFACTOR0 + i * 4);
-                constant[1] =
-                    pgraph_reg_r(pg, NV_PGRAPH_COMBINEFACTOR1 + i * 4);
-            }
-
-            for (int j = 0; j < 2; j++) {
-                int idx = i * 2 + j;
-                pgraph_argb_pack32_to_rgba_float(constant[j],
-                                                 values->consts[idx]);
-            }
-        }
+        pgraph_glsl_get_psh_combiner_constants(pg, values->consts);
     }
     if (locs[PshUniform_alphaRef] != -1) {
         int alpha_ref = GET_MASK(pgraph_reg_r(pg, NV_PGRAPH_CONTROL_0),

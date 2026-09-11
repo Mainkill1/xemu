@@ -114,6 +114,13 @@ if host_os == 'windows'
   }
 endif
 
+if vulkan.found()
+  tests += {
+    'test-xbox-vk-ubershader-runtime': [volk, libglslang, vma, vulkan,
+                                         spirv_reflect],
+  }
+endif
+
 # This real graphics lifecycle test skips unless explicitly enabled on a host
 # with an interactive SDL/OpenGL session.
 if sdl.found() and epoxy.found()

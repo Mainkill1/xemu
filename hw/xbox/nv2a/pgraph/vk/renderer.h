@@ -44,6 +44,7 @@
 #include "constants.h"
 #include "glsl.h"
 #include "spirv-prewarm.h"
+#include "ubershader-controls.h"
 
 #define HAVE_EXTERNAL_MEMORY 1
 
@@ -65,8 +66,32 @@ typedef struct RenderPass {
     VkRenderPass render_pass;
 } RenderPass;
 
+typedef enum PGRAPHVkFragmentRoute {
+    PGRAPH_VK_FRAGMENT_SPECIALIZED,
+    PGRAPH_VK_FRAGMENT_UBERSHADER,
+} PGRAPHVkFragmentRoute;
+
+#define PGRAPH_VK_PSH_UBER_UBO_BINDING 6
+
+/*
+ * The fragment interpreter consumes these words from its dynamic UBO.  The
+ * remaining PshState fields describe the generated fragment shell and must
+ * continue to participate in shader and pipeline cache identity.
+ */
+static inline void pgraph_vk_canonicalize_uber_combiner_state(PshState *state)
+{
+    state->combiner_control = 0;
+    memset(state->rgb_inputs, 0, sizeof(state->rgb_inputs));
+    memset(state->rgb_outputs, 0, sizeof(state->rgb_outputs));
+    memset(state->alpha_inputs, 0, sizeof(state->alpha_inputs));
+    memset(state->alpha_outputs, 0, sizeof(state->alpha_outputs));
+    state->final_inputs_0 = 0;
+    state->final_inputs_1 = 0;
+}
+
 typedef struct PipelineKey {
     bool clear;
+    PGRAPHVkFragmentRoute fragment_route;
     RenderPassState render_pass_state;
     ShaderState shader_state;
     uint32_t regs[8];
@@ -166,10 +191,12 @@ typedef struct ShaderModuleInfo {
     SpvReflectDescriptorSet **descriptor_sets;
     ShaderUniformLayout uniforms;
     ShaderUniformLayout push_constants;
+    bool uses_uber_controls;
 } ShaderModuleInfo;
 
 typedef struct ShaderModuleCacheKey {
     VkShaderStageFlagBits kind;
+    PGRAPHVkFragmentRoute fragment_route;
     union {
         struct {
             VshState state;
@@ -195,6 +222,7 @@ typedef struct ShaderModuleCacheEntry {
 typedef struct ShaderBinding {
     LruNode node;
     ShaderState state;
+    PGRAPHVkFragmentRoute fragment_route;
     struct {
         ShaderModuleInfo *module_info;
         VshUniformLocs uniform_locs;
@@ -207,6 +235,24 @@ typedef struct ShaderBinding {
         PshUniformLocs uniform_locs;
     } psh;
 } ShaderBinding;
+
+typedef struct ShaderBindingKey {
+    ShaderState state;
+    PGRAPHVkFragmentRoute fragment_route;
+} ShaderBindingKey;
+
+static inline bool pgraph_vk_shader_binding_key_equal(
+    const ShaderBindingKey *a, const ShaderBindingKey *b)
+{
+    return a->fragment_route == b->fragment_route &&
+           memcmp(&a->state, &b->state, sizeof(a->state)) == 0;
+}
+
+static inline bool pgraph_vk_shader_binding_key_different(
+    const ShaderBindingKey *a, const ShaderBindingKey *b)
+{
+    return !pgraph_vk_shader_binding_key_equal(a, b);
+}
 
 typedef struct TextureKey {
     TextureShape state;
@@ -562,6 +608,11 @@ typedef struct PGRAPHVkState {
     PGRAPHUniformSourceEpochs last_uniform_source_epochs;
     bool polygon_offset_key_valid;
     PGRAPHPolygonOffsetUniformKey polygon_offset_key;
+    PGRAPHUberControls uber_controls;
+    PGRAPHUberControls uploaded_uber_controls;
+    VkDeviceSize uber_control_offset;
+    bool uber_controls_valid;
+    bool uploaded_uber_controls_valid;
 
     VkQueryPool query_pool;
     int max_queries_in_flight; // FIXME: Move out to constant

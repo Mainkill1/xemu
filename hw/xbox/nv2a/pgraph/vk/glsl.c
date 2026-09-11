@@ -367,6 +367,63 @@ static bool block_to_uniforms(const SpvReflectBlockVariable *block,
     return true;
 }
 
+static bool validate_uber_controls_block(
+    const SpvReflectBlockVariable *block)
+{
+    static const struct {
+        const char *name;
+        uint32_t offset;
+        uint32_t size;
+        uint32_t array_elements;
+        uint32_t array_stride;
+        uint32_t vector_components;
+        SpvReflectTypeFlags scalar_type;
+        bool unsigned_integer;
+    } expected[] = {
+        { "uberHeader", 0, 16, 1, 0, 4, SPV_REFLECT_TYPE_FLAG_INT, true },
+        { "uberStage", 16, 128, 8, 16, 4, SPV_REFLECT_TYPE_FLAG_INT, true },
+        { "uberFinal", 144, 16, 1, 0, 4, SPV_REFLECT_TYPE_FLAG_INT, true },
+        { "uberConstants", 160, 288, 18, 16, 4,
+          SPV_REFLECT_TYPE_FLAG_FLOAT, false },
+    };
+
+    if (!block || block->size != sizeof(PGRAPHUberControls) ||
+        block->member_count != ARRAY_SIZE(expected) || !block->members) {
+        return false;
+    }
+
+    for (uint32_t i = 0; i < ARRAY_SIZE(expected); i++) {
+        const SpvReflectBlockVariable *member = &block->members[i];
+        const SpvReflectTypeDescription *type = member->type_description;
+        uint32_t array_elements = member->array.dims_count ?
+                                      member->array.dims[0] : 1;
+
+        if (!member->name || strcmp(member->name, expected[i].name) ||
+            !type ||
+            (type->type_flags & (SPV_REFLECT_TYPE_FLAG_INT |
+                                 SPV_REFLECT_TYPE_FLAG_FLOAT |
+                                 SPV_REFLECT_TYPE_FLAG_VECTOR)) !=
+                (expected[i].scalar_type | SPV_REFLECT_TYPE_FLAG_VECTOR) ||
+            member->offset != expected[i].offset ||
+            member->size != expected[i].size ||
+            member->array.dims_count !=
+                (expected[i].array_elements == 1 ? 0 : 1) ||
+            array_elements != expected[i].array_elements ||
+            member->array.stride != expected[i].array_stride ||
+            member->numeric.vector.component_count !=
+                expected[i].vector_components ||
+            member->numeric.scalar.width != 32 ||
+            (expected[i].unsigned_integer &&
+             member->numeric.scalar.signedness != 0) ||
+            member->numeric.matrix.column_count != 0 ||
+            member->numeric.matrix.row_count != 0) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 static bool init_layout_from_spv(ShaderModuleInfo *info,
                                  VkShaderStageFlagBits expected_stage)
 {
@@ -407,6 +464,7 @@ static bool init_layout_from_spv(ShaderModuleInfo *info,
     info->uniforms.uniforms = NULL;
 
     bool uniform_block_seen = false;
+    bool uber_block_seen = false;
     uint32_t total_binding_count = 0;
     for (uint32_t i = 0; i < descriptor_set_count; ++i) {
         const SpvReflectDescriptorSet *descriptor_set =
@@ -424,6 +482,18 @@ static bool init_layout_from_spv(ShaderModuleInfo *info,
             if (!binding) {
                 goto fail;
             }
+            if (binding->binding == PGRAPH_VK_PSH_UBER_UBO_BINDING) {
+                if (expected_stage != VK_SHADER_STAGE_FRAGMENT_BIT ||
+                    descriptor_set->set != 0 ||
+                    binding->descriptor_type !=
+                        SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER ||
+                    uber_block_seen ||
+                    !validate_uber_controls_block(&binding->block)) {
+                    goto fail;
+                }
+                uber_block_seen = true;
+                continue;
+            }
             if (binding->descriptor_type !=
                 SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER) {
                 continue;
@@ -436,6 +506,7 @@ static bool init_layout_from_spv(ShaderModuleInfo *info,
             }
         }
     }
+    info->uses_uber_controls = uber_block_seen;
 
     info->push_constants.num_uniforms = 0;
     info->push_constants.uniforms = NULL;
