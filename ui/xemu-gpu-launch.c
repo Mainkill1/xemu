@@ -150,3 +150,8 @@ const XemuGpuLaunchRequest *xemu_gpu_launch_request_get(void)
 {
     return &current_request;
 }
+
+bool xemu_gpu_strict_mode(void)
+{
+    return current_request.strict;
+}

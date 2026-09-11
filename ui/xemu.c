@@ -44,6 +44,8 @@
 #include "system/system.h"
 #include "xui/xemu-hud.h"
 #include "xemu-input.h"
+#include "xemu-gpu-info.h"
+#include "xemu-gpu-launch.h"
 #include "xemu-settings.h"
 #include "xemu-snapshots.h"
 #include "xemu-version.h"
@@ -53,6 +55,9 @@
 
 #include "hw/xbox/smbus.h" // For eject, drive tray
 #include "hw/xbox/nv2a/nv2a.h"
+#ifdef CONFIG_VULKAN
+#include "hw/xbox/nv2a/pgraph/vk/device-inventory.h"
+#endif
 #include "ui/xemu-notifications.h"
 
 #include <stb_image.h>
@@ -1272,6 +1277,61 @@ static void init_sdl_app_metadata(void)
                                "https://xemu.app");
 }
 
+static int run_gpu_inventory_only(const XemuGpuLaunchRequest *request)
+{
+#ifdef CONFIG_VULKAN
+    g_autofree PGRAPHVkDeviceRecord *devices = NULL;
+    size_t count = 0;
+    Error *error = NULL;
+    if (!pgraph_vk_probe_device_inventory(&devices, &count, &error)) {
+        fprintf(stderr, "GPU inventory failed: %s\n",
+                error ? error_get_pretty(error) : "unknown error");
+        error_free(error);
+        return 1;
+    }
+
+    printf("Vulkan adapters (%zu):\n", count);
+    for (size_t i = 0; i < count; i++) {
+        char uuid[PGRAPH_VK_DEVICE_UUID_STRING_SIZE];
+        pgraph_vk_device_uuid_format(devices[i].device_uuid, uuid);
+        printf("%zu: %s\n"
+               "    uuid: %s\n"
+               "    vendor: 0x%04x device: 0x%04x\n"
+               "    renderer: %s%s%s\n",
+               i, devices[i].name, uuid, devices[i].vendor_id,
+               devices[i].device_id,
+               devices[i].renderer_supported ? "compatible" : "unsupported",
+               devices[i].rejection_reason ? " - " : "",
+               devices[i].rejection_reason ?: "");
+    }
+
+    if (request->info_path != NULL) {
+        XemuGpuInfoDocument document = {
+            .state = XEMU_GPU_INFO_INVENTORY,
+            .request = request,
+            .devices = devices,
+            .device_count = count,
+            .requested_backend = "Vulkan",
+            .presentation_mode = XEMU_GPU_PRESENTATION_UNKNOWN,
+        };
+        g_autofree char *json = xemu_gpu_info_render_json(&document);
+        char file_error[512] = { 0 };
+        if (json == NULL ||
+            !xemu_gpu_info_write_atomic(request->info_path, json,
+                                        file_error, sizeof(file_error))) {
+            fprintf(stderr, "GPU inventory output failed: %s\n",
+                    json == NULL ? "could not allocate JSON document" :
+                                   file_error);
+            return 1;
+        }
+    }
+    return 0;
+#else
+    fprintf(stderr, "GPU inventory unavailable: Vulkan is not compiled in\n");
+    return 1;
+#endif
+}
+
 int main(int argc, char **argv)
 {
     QemuThread thread;
@@ -1306,10 +1366,23 @@ int main(int argc, char **argv)
     fprintf(stderr, "xemu_commit: %s\n", xemu_commit);
     fprintf(stderr, "xemu_date: %s\n", xemu_date);
 
-    init_sdl_app_metadata();
-
     gArgc = argc;
     gArgv = argv;
+
+    XemuGpuLaunchRequest gpu_request;
+    xemu_gpu_launch_request_init(&gpu_request);
+    XemuGpuLaunchParseStatus gpu_parse_status =
+        xemu_gpu_launch_parse_early(argc, argv, &gpu_request);
+    if (gpu_parse_status != XEMU_GPU_LAUNCH_PARSE_OK) {
+        fprintf(stderr, "Invalid GPU option: %s\n",
+                xemu_gpu_launch_parse_status_string(gpu_parse_status));
+        return 2;
+    }
+    if (gpu_request.list_gpus) {
+        return run_gpu_inventory_only(&gpu_request);
+    }
+
+    init_sdl_app_metadata();
 
     for (int i = 1; i < argc; i++) {
         if (argv[i] && strcmp(argv[i], "-config_path") == 0) {
@@ -1331,6 +1404,17 @@ int main(int argc, char **argv)
         SDL_Quit();
         exit(1);
     }
+
+    gpu_parse_status = xemu_gpu_launch_apply_saved(
+        &gpu_request, g_config.display.vulkan.device_uuid,
+        g_config.display.vulkan.preferred_physical_device);
+    if (gpu_parse_status != XEMU_GPU_LAUNCH_PARSE_OK) {
+        fprintf(stderr, "Invalid saved GPU selection: %s\n",
+                xemu_gpu_launch_parse_status_string(gpu_parse_status));
+        SDL_Quit();
+        return 2;
+    }
+    xemu_gpu_launch_request_set_current(&gpu_request);
     atexit(xemu_settings_save);
 
 #ifdef _WIN32

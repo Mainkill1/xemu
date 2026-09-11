@@ -23,6 +23,8 @@
 
 #include "hw/xbox/nv2a/nv2a_int.h"
 #include "qemu/log.h"
+#include "ui/xemu-gpu-info.h"
+#include "ui/xemu-gpu-launch.h"
 #include "ui/xemu-notifications.h"
 #include "ui/xemu-settings.h"
 #include "inline-elements.h"
@@ -297,6 +299,14 @@ static CONFIG_DISPLAY_RENDERER get_default_renderer(void)
 void nv2a_context_init(void)
 {
     if (!renderers[g_config.display.renderer]) {
+        if (xemu_gpu_strict_mode()) {
+            fprintf(stderr, "Fatal error: configured renderer unavailable "
+                            "in strict GPU mode\n");
+            xemu_gpu_info_record_failure(NULL,
+                                         "configured renderer unavailable",
+                                         false, NULL);
+            exit(1);
+        }
         g_config.display.renderer = get_default_renderer();
         fprintf(stderr,
                 "Warning: Configured renderer unavailable. Switching to %s.\n",
@@ -333,7 +343,12 @@ static bool attempt_renderer_init(PGRAPHState *pg)
     }
     if (local_err) {
         const char *msg = error_get_pretty(local_err);
-        xemu_queue_error_message(msg);
+        xemu_gpu_info_record_failure(pg->renderer->name, msg, false, NULL);
+        if (xemu_gpu_strict_mode()) {
+            fprintf(stderr, "Renderer initialization failed: %s\n", msg);
+        } else {
+            xemu_queue_error_message(msg);
+        }
         error_free(local_err);
         local_err = NULL;
         return false;
@@ -346,6 +361,12 @@ static void init_renderer(PGRAPHState *pg)
 {
     if (attempt_renderer_init(pg)) {
         return;  // Success
+    }
+
+    if (xemu_gpu_strict_mode()) {
+        fprintf(stderr, "Fatal error: strict GPU request could not be "
+                        "initialized\n");
+        exit(1);
     }
 
     CONFIG_DISPLAY_RENDERER default_renderer = get_default_renderer();

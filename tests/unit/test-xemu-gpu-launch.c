@@ -129,6 +129,21 @@ static void test_invalid_saved_uuid_is_reported(void)
            XEMU_GPU_LAUNCH_PARSE_INVALID_DEVICE);
 }
 
+static void test_current_request_exposes_strict_policy(void)
+{
+    XemuGpuLaunchRequest request;
+    xemu_gpu_launch_request_init(&request);
+    assert(!xemu_gpu_strict_mode());
+
+    request.strict = true;
+    xemu_gpu_launch_request_set_current(&request);
+    assert(xemu_gpu_launch_request_get()->strict);
+    assert(xemu_gpu_strict_mode());
+
+    request.strict = false;
+    xemu_gpu_launch_request_set_current(&request);
+}
+
 int main(void)
 {
     test_cli_uuid_is_process_local_and_removed();
@@ -138,5 +153,6 @@ int main(void)
     test_saved_legacy_and_automatic_migration();
     test_cli_precedence_ignores_saved_values();
     test_invalid_saved_uuid_is_reported();
+    test_current_request_exposes_strict_policy();
     return 0;
 }

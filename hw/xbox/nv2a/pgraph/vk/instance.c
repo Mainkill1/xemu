@@ -18,6 +18,8 @@
  */
 
 #include "qemu/osdep.h"
+#include "ui/xemu-gpu-info.h"
+#include "ui/xemu-gpu-launch.h"
 #include "ui/xemu-settings.h"
 #include "renderer.h"
 #include "device-inventory.h"
@@ -501,6 +503,23 @@ static bool collect_device_inventory(PGRAPHVkState *r,
     return true;
 }
 
+bool pgraph_vk_probe_device_inventory(PGRAPHVkDeviceRecord **records,
+                                      size_t *count, Error **errp)
+{
+    PGRAPHState pg = { 0 };
+    PGRAPHVkState renderer = { 0 };
+    g_autofree VkPhysicalDevice *devices = NULL;
+
+    pg.vk_renderer_state = &renderer;
+    *records = NULL;
+    *count = 0;
+
+    bool success = create_instance(&pg, errp) &&
+        collect_device_inventory(&renderer, records, &devices, count, errp);
+    pgraph_vk_finalize_instance(&pg);
+    return success;
+}
+
 static bool select_physical_device(PGRAPHState *pg, Error **errp)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -511,14 +530,11 @@ static bool select_physical_device(PGRAPHState *pg, Error **errp)
         return false;
     }
 
-    const char *preferred_device = g_config.display.vulkan.preferred_physical_device;
-    PGRAPHVkSelectionRequest request = {
-        .kind = preferred_device && preferred_device[0] ?
-                    PGRAPH_VK_SELECTION_LEGACY_NAME :
-                    PGRAPH_VK_SELECTION_AUTOMATIC,
-        .legacy_name = preferred_device,
-        .allow_software = true,
-    };
+    xemu_gpu_info_record_inventory(records, count);
+
+    const XemuGpuLaunchRequest *launch_request =
+        xemu_gpu_launch_request_get();
+    PGRAPHVkSelectionRequest request = launch_request->selection;
 
     fprintf(stderr, "Available physical devices:\n");
     for (size_t i = 0; i < count; i++) {
@@ -532,10 +548,11 @@ static bool select_physical_device(PGRAPHState *pg, Error **errp)
     PGRAPHVkSelectionResult selected =
         pgraph_vk_resolve_device(records, count, &request);
     if (selected.status != PGRAPH_VK_SELECTION_OK &&
-        request.kind == PGRAPH_VK_SELECTION_LEGACY_NAME) {
+        request.kind == PGRAPH_VK_SELECTION_LEGACY_NAME &&
+        !launch_request->strict) {
         warn_report("Configured Vulkan device '%s' cannot be selected: %s; "
                     "using automatic selection",
-                    preferred_device,
+                    request.legacy_name,
                     pgraph_vk_selection_status_string(selected.status));
         request = (PGRAPHVkSelectionRequest) {
             .kind = PGRAPH_VK_SELECTION_AUTOMATIC,
@@ -766,6 +783,9 @@ void pgraph_vk_init_instance(PGRAPHState *pg, Error **errp)
         select_physical_device(pg, errp) &&
         create_logical_device(pg, errp) &&
         init_allocator(pg, errp)) {
+        PGRAPHVkState *r = pg->vk_renderer_state;
+        xemu_gpu_info_record_initialized(&r->selected_device, "Vulkan",
+                                         XEMU_GPU_PRESENTATION_UNKNOWN);
         return;
     }
 

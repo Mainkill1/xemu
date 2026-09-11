@@ -5,6 +5,10 @@
 #ifndef UI_XEMU_GPU_LAUNCH_H
 #define UI_XEMU_GPU_LAUNCH_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "hw/xbox/nv2a/pgraph/vk/device-selection.h"
 
 typedef enum XemuGpuSelectionSource {
@@ -42,5 +46,10 @@ const char *xemu_gpu_launch_parse_status_string(
 void xemu_gpu_launch_request_set_current(
     const XemuGpuLaunchRequest *request);
 const XemuGpuLaunchRequest *xemu_gpu_launch_request_get(void);
+bool xemu_gpu_strict_mode(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

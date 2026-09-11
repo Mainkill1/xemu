@@ -34,6 +34,11 @@ tests = {
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/device-selection.c',
     meson.project_source_root() / 'ui/xemu-gpu-launch.c',
   ],
+  'test-xemu-gpu-info': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/device-selection.c',
+    meson.project_source_root() / 'ui/xemu-gpu-launch.c',
+    meson.project_source_root() / 'ui/xemu-gpu-info.c',
+  ],
   'test-xbox-vk-bc-layout': [],
   'test-xbox-vk-failure-state': [],
   'test-xbox-vk-failpoint': [

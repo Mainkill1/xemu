@@ -5,11 +5,17 @@
 #ifndef HW_XBOX_NV2A_PGRAPH_VK_DEVICE_INVENTORY_H
 #define HW_XBOX_NV2A_PGRAPH_VK_DEVICE_INVENTORY_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
 #include "device-selection.h"
+
+typedef struct Error Error;
 
 #define PGRAPH_VK_MAKE_API_VERSION(major, minor, patch) \
     (((major) << 22) | ((minor) << 12) | (patch))
@@ -64,5 +70,11 @@ PGRAPHVkEnumerationResult pgraph_vk_enumerate_device_tokens(
 void pgraph_vk_device_record_check_renderer_support(
     PGRAPHVkDeviceRecord *record,
     const PGRAPHVkDeviceCapabilities *capabilities);
+bool pgraph_vk_probe_device_inventory(PGRAPHVkDeviceRecord **records,
+                                      size_t *count, Error **errp);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

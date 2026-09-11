@@ -5,6 +5,10 @@
 #ifndef HW_XBOX_NV2A_PGRAPH_VK_DEVICE_SELECTION_H
 #define HW_XBOX_NV2A_PGRAPH_VK_DEVICE_SELECTION_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -71,5 +75,9 @@ PGRAPHVkSelectionResult pgraph_vk_resolve_device(
     const PGRAPHVkDeviceRecord *devices, size_t count,
     const PGRAPHVkSelectionRequest *request);
 const char *pgraph_vk_selection_status_string(PGRAPHVkSelectionStatus status);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
