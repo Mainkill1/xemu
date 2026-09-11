@@ -1,18 +1,16 @@
 # research/vulkan-ubershader-design
 
-**Status:** READY FOR STAGED IMPLEMENTATION — design umbrella; runtime remains experimental and unqualified
+**Status:** IMPLEMENTATION IN PROGRESS — contracts and CPU oracle included; runtime fallback remains disabled
 
 **Stable baseline:** `9f618d6d8c4c446ef023955f3d4de22f661f61a4` / retained product executable `3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b`
 
 **Implementation base / current main:** `5edff26383c6440da35bc92b9fca35f4a404b03b` / tree `11981a736703553349357cd89926b443901cadb9`
 
-**Current candidate:** Design-only PR head; no executable exists
+**Current candidate:** PR #71 combines the design, control/policy contracts, and finite combiner CPU oracle; no product executable changes
 
 **Warm-artifact foundation:** [PR #70](https://github.com/Mainkill1/xemu/pull/70), merged as `fc8c5dec9c1aa18883e74b57937d7ec90fdea074`
 
-**Stage 1 contracts:** [PR #77](https://github.com/Mainkill1/xemu/pull/77), draft head `1801ac7dd01691502a56cbd944b2977c85e9e670`
-
-**Stage 2 finite combiner oracle:** [PR #78](https://github.com/Mainkill1/xemu/pull/78), stacked draft head `7865142b10cd8a603384cd503a4714dd0243c5de`
+**Stage 1 contracts and Stage 2 finite combiner oracle:** included directly in this PR as focused commits
 
 **Cause diagnostic:** [PR #68](https://github.com/Mainkill1/xemu/pull/68)
 
@@ -26,12 +24,12 @@
 solution is merged and qualified. Current `main` at `5edff26383c` also includes
 PR #76's presentation repair, which does not alter the shader fallback design.
 
-PR #71 remains the design umbrella. Runtime stages use focused implementation
-branches from current `main` so the combiner oracle, interpreter semantics,
-worker ownership, and production selection can be reviewed independently. They
-must reuse PR #70's artifact identity, bounded storage, renderer ownership,
-failure fallback, and producer-quiesced persistence lifecycle. No runtime
-result is inherited from this documentation branch.
+PR #71 is the single feature PR. Its implementation remains divided into
+focused commits so the combiner oracle, interpreter semantics, worker
+ownership, and production selection can be reviewed independently without
+splitting the feature across multiple PRs. The implementation must reuse PR
+#70's artifact identity, bounded storage, renderer ownership, failure fallback,
+and producer-quiesced persistence lifecycle.
 
 The [external implementation review](https://github.com/Mainkill1/xemu/pull/71#issuecomment-5638411943)
 is the detailed implementation appendix for this plan. Its concrete 448-byte
@@ -49,28 +47,28 @@ default-on failure in current `main`.
 ## Summary
 
 **Current result:** The prerequisite warm shader-management layer is merged.
-The design audit supports a bounded hybrid ubershader family as a later
-cold-cache fallback. It does not support treating one monolithic shader as a
-complete replacement for xemu's generated shader and graphics-pipeline path.
-Runtime implementation and performance qualification have not started on this
-branch.
+This PR now includes the fixed 448-byte control ABI, fail-closed admission,
+hybrid route metadata, non-creating exact LRU lookup, and a finite CPU combiner
+oracle with literal goldens and broad differential coverage. These sources are
+linked only into focused tests. Runtime fallback and performance qualification
+have not started.
 
 **Headline:** A precompiled interpreter can render a previously unseen NV2A
 state while its specialized shader and pipeline compile in the background, but
 the fallback must respect compile-time geometry interfaces, sampler types,
 vertex input, attachment formats, and host Vulkan capabilities.
 
-**Next:** Stage 1 from current `main` defines the explicit combiner control ABI,
-validated packer, route/ticket metadata policy, and a non-creating exact LRU
-probe. It deliberately leaves the complete shader/family/executable key with
-the later owned pipeline recipe instead of treating a digest as identity.
-The following focused stage adds an oracle-only combiner interpreter inside the
-existing fragment shell. Runtime fallback stays disabled until
-specialized-versus-interpreter output and guest-visible side effects match for
-an explicit admitted set.
+**Next:** Generate and execute the GLSL combiner interpreter against the CPU
+oracle and the current specialized generator. Runtime fallback stays disabled
+until specialized-versus-interpreter output and guest-visible side effects
+match for an explicit admitted set. The complete shader/family/executable key
+remains owned by the later pipeline recipe rather than a digest standing in for
+identity.
 
-This PR contains research documentation only. It changes no runtime code, was
-not built or executed, and makes no performance claim.
+This PR contains research documentation and test-linked implementation
+contracts/oracles. The focused tests were built and executed, but the product
+renderer does not compile or call these sources. It makes no performance claim
+yet.
 
 ## Investigation
 
@@ -352,18 +350,19 @@ flowchart LR
 
 ## Planned code scope
 
-No files outside this document change in the design PR. Focused branches from
-current `main` implement the stages below as separately reviewable changes. No
-runtime prototype belongs on this design branch.
+The feature stays in this PR. Each stage remains a focused commit with its own
+tests and exit condition. Runtime selection cannot be enabled until the earlier
+proof stages pass.
 
 | Stage | Intended scope | Exit condition |
 | --- | --- | --- |
 | 0. PR #70 dependency | Bounded warm artifact reuse and renderer lifecycle | **Complete** — merged as `fc8c5dec9c`; implementation work records current `main` as its base |
-| 1. Combiner oracle and packer | Extract the current fragment shell, encode combiner controls with a fixed ABI, and run an interpreter inside the otherwise specialized shell | Independent combiner arithmetic vectors and old-generator differential output pass without changing runtime selection |
-| 2. Family-boundary oracle | Inventory shell-changing texture/clip/depth/alpha state plus fixed/programmed vertex and geometry interfaces in test-only replay | Specialized and fallback images plus depth/stencil/query effects match for an explicitly admitted corpus |
-| 3. Precreated fallback family | Renderer-owned modules, layouts, descriptors, dynamic-state setup, and family coverage predicate behind an off-by-default experiment | No runtime compilation is needed to draw any admitted signature |
-| 4. Background specialization | Immutable jobs, bounded workers, Vulkan object construction, publication, cancellation, and shutdown | Covered misses never wait; uncovered states remain correct and synchronous |
-| 5. Coverage and capability expansion | Typed sampler strategy, dynamic-state path, pipeline libraries, or shader objects, each measured separately | Coverage increases without exceeding resource or performance gates |
+| 1. Control and policy contracts | Fixed control ABI, fail-closed admission, non-creating lookup, and bounded route/ticket metadata | **Complete in this PR** — focused strict and sanitizer tests pass |
+| 2. Finite combiner CPU oracle | Interpret the admitted packed controls and compare with literal goldens plus an unpacked reference | **Complete in this PR** — zero-to-eight-stage semantic coverage passes without runtime selection |
+| 3. Generated GLSL and family-boundary oracle | Execute the interpreter and specialized shaders, then inventory shell-changing texture/clip/depth/alpha and vertex/geometry interfaces | Specialized and fallback images plus depth/stencil/query effects match for an explicitly admitted corpus |
+| 4. Precreated fallback family | Renderer-owned modules, layouts, descriptors, dynamic-state setup, and family coverage predicate behind an off-by-default experiment | No runtime compilation is needed to draw any admitted signature |
+| 5. Background specialization | Immutable jobs, bounded workers, Vulkan object construction, publication, cancellation, and shutdown | Covered misses never wait; uncovered states remain correct and synchronous |
+| 6. Coverage and capability expansion | Typed sampler strategy, dynamic-state path, pipeline libraries, or shader objects, each measured separately | Coverage increases without exceeding resource or performance gates |
 
 Expected implementation areas are `vk/shaders.c`, `vk/draw.c`, `vk/renderer.c`,
 `vk/renderer.h`, `vk/instance.c`, and new focused fallback state/interpreter
@@ -562,9 +561,8 @@ Specific game shaders cannot generally be specialized before the guest exposes
 their vertex tokens, combiner state, texture signatures, and pipeline state.
 A precompiled general interpreter can cover unseen work, but xemu needs a
 bounded family because several Vulkan interfaces remain compile-time or
-pipeline-time decisions. This design changes no runtime behavior and claims no
-improvement. The PR #70 ordering dependency is complete. Stage 1 starts from
-current `main`, reuses its shader artifact lifecycle, and proves the fallback
-state ABI, packer, policy, and non-creating cache query. The differential
-combiner oracle follows as its own reviewable stage before any hybrid path is
-enabled.
+pipeline-time decisions. The current contracts and CPU oracle change no runtime behavior and claim no
+improvement. The PR #70 ordering dependency is complete. PR #71 now proves the
+fallback state ABI, packer, policy, non-creating cache query, and finite combiner
+semantics in one feature PR. Generated-GLSL/GPU comparison remains the next gate
+before any hybrid path is enabled.
