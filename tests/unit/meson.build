@@ -138,6 +138,8 @@ if 'i386-softmmu' in target_dirs
         ] + nv2a_vk_report_test_headers,
       }
     endif
+  else
+    message('Skipping NV2A report integration tests: section GC unsupported')
   endif
 endif
 
