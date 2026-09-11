@@ -27,6 +27,7 @@
 #include "ui/xemu-gpu-launch.h"
 #include "ui/xemu-notifications.h"
 #include "ui/xemu-settings.h"
+#include "ui/xemu-tweaks.h"
 #include "inline-elements.h"
 #include "texture-state.h"
 #include "util.h"
@@ -59,7 +60,8 @@ uint64_t pgraph_read(void *opaque, hwaddr addr, unsigned int size)
      * fence method runs under pg->lock, and guest MMIO writes to this
      * register are issued by the same single vCPU that polls it.
      */
-    if (addr == NV_PGRAPH_PATT_COLOR0 && size == 4) {
+    if (addr == NV_PGRAPH_PATT_COLOR0 && size == 4 &&
+        xemu_tweak_enabled(XEMU_TWEAK_PGRAPH_FENCE_FASTPATH)) {
         uint64_t fr = qatomic_read(&pg->regs_[NV_PGRAPH_PATT_COLOR0]);
         /*
          * Pairs with the smp_wmb at the fence write site in pgraph_method,
@@ -700,7 +702,7 @@ static void pgraph_method_non_inc(MethodFunc handler, METHOD_HANDLER_ARG_DECL)
                         method == NV097_ARRAY_ELEMENT32 ||
                         method == NV097_INLINE_ARRAY;
 
-    if (array_packet) {
+    if (array_packet && xemu_tweak_enabled(XEMU_TWEAK_PGRAPH_BULK_PACKETS)) {
         size_t packet_words = inc ? 1 : num_words_available;
         if (!pgraph_method_array_packet_fits(pg, method, packet_words)) {
             pgraph_drop_oversized_array_packet(method, packet_words);

@@ -22,6 +22,7 @@
 #include "qemu/fast-hash.h"
 #include "renderer.h"
 #include "pipeline-cache-lifetime.h"
+#include "ui/xemu-tweaks.h"
 #include <math.h>
 
 static bool pgraph_vk_flush_draw_internal(NV2AState *d);
@@ -2043,8 +2044,10 @@ static bool ensure_buffer_space(PGRAPHState *pg, int index, VkDeviceSize size,
          * offset. Size the next allocation for the request at that reset
          * offset, not for the stale end of the previous command buffer.
          */
-        required_size =
-            pgraph_vk_buffer_required_size(pg, index, size, alignment);
+        if (!xemu_tweak_enabled(XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH)) {
+            required_size =
+                pgraph_vk_buffer_required_size(pg, index, size, alignment);
+        }
         pgraph_vk_ensure_buffer_pair_capacity(pg, index, required_size);
         return true;
     }
@@ -2214,12 +2217,15 @@ static void copy_remapped_attributes_to_inline_buffer(PGRAPHState *pg,
 
         size_t new_stride = remap.map[attr_id].new_stride;
         size_t old_stride = remap.map[attr_id].old_stride;
-        uint32_t copy_count = num_vertices - start_vertex;
+        uint32_t first_vertex =
+            xemu_tweak_enabled(XEMU_TWEAK_VK_BOUNDED_VERTEX_UPLOADS) ?
+                start_vertex : 0;
+        uint32_t copy_count = num_vertices - first_vertex;
 
         uint8_t *out_ptr = buffer->mapped + attr_buffer_offset +
-                           (size_t)start_vertex * new_stride;
+                           (size_t)first_vertex * new_stride;
         uint8_t *in_ptr = d->vram_ptr + r->vertex_attribute_offsets[attr_id] +
-                          (size_t)start_vertex * old_stride;
+                          (size_t)first_vertex * old_stride;
 
         switch (new_stride) {
         case 4:
