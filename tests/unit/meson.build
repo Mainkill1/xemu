@@ -98,6 +98,7 @@ if 'i386-softmmu' in target_dirs
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/pgraph.c',
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/reports.c',
     nv2a_report_test,
+    nv2a_vsh_cpu.partial_dependency(compile_args: true, includes: true),
   ]
 
   tests += {
