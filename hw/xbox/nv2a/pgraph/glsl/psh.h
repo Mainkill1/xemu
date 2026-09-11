@@ -98,6 +98,8 @@ typedef struct GenPshGlslOptions {
     bool vulkan;
     int ubo_binding;
     int tex_binding;
+    bool ubershader;
+    int uber_binding;
 } GenPshGlslOptions;
 
 MString *pgraph_glsl_gen_psh(const PshState *state, GenPshGlslOptions opts);

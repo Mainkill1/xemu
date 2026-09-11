@@ -55,6 +55,11 @@ tests = {
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/ubershader-controls.c',
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/ubershader-combiner-oracle.c',
   ],
+  'test-xbox-vk-ubershader-glsl': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/common.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/psh.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/psh-uber.c',
+  ],
   'test-xbox-vk-hybrid-policy': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-policy.c',
   ],
