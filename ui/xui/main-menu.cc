@@ -32,6 +32,7 @@
 #include "actions.hh"
 
 #include "../xemu-input.h"
+#include "../xemu-gpu-info.h"
 #include "../xemu-notifications.h"
 #include "../xemu-settings.h"
 #include "../xemu-monitor.h"
@@ -748,6 +749,83 @@ void MainMenuDisplayView::Draw()
 #endif
                  ,
                  "Select desired renderer implementation");
+
+    if (g_config.display.renderer == CONFIG_DISPLAY_RENDERER_VULKAN) {
+        struct GpuChoices {
+            std::vector<std::string> labels;
+            std::vector<std::string> uuids;
+        } choices;
+        choices.labels.emplace_back("Automatic");
+        choices.uuids.emplace_back("");
+
+        size_t device_count = 0;
+        const PGRAPHVkDeviceRecord *devices =
+          xemu_gpu_info_get_inventory(&device_count);
+        for (size_t i = 0; i < device_count; i++) {
+            if (!devices[i].renderer_supported) {
+                continue;
+            }
+            char uuid[PGRAPH_VK_DEVICE_UUID_STRING_SIZE];
+            pgraph_vk_device_uuid_format(devices[i].device_uuid, uuid);
+            choices.labels.emplace_back(std::string(devices[i].name) +
+                                        " (" + std::string(uuid, 8) + ")");
+            choices.uuids.emplace_back(uuid);
+        }
+
+        int selected = 0;
+        const char *saved_uuid = g_config.display.vulkan.device_uuid;
+        if (saved_uuid != nullptr && saved_uuid[0] != '\0') {
+            bool found = false;
+            for (size_t i = 1; i < choices.uuids.size(); i++) {
+                if (choices.uuids[i] == saved_uuid) {
+                    selected = static_cast<int>(i);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                choices.labels.emplace_back("Saved adapter unavailable");
+                choices.uuids.emplace_back(saved_uuid);
+                selected = static_cast<int>(choices.labels.size() - 1);
+            }
+        }
+        auto item_getter = [](void *data, int index, const char **text) {
+            auto *values = static_cast<GpuChoices *>(data);
+            if (index < 0 || static_cast<size_t>(index) >=
+                             values->labels.size()) {
+                return false;
+            }
+            *text = values->labels[index].c_str();
+            return true;
+        };
+        if (ChevronCombo("Adapter", &selected, item_getter, &choices,
+                         static_cast<int>(choices.labels.size()),
+                         "Select the Vulkan adapter used after restarting "
+                         "xemu")) {
+            xemu_settings_set_string(&g_config.display.vulkan.device_uuid,
+                                     choices.uuids[selected].c_str());
+            xemu_settings_set_string(
+              &g_config.display.vulkan.preferred_physical_device, "");
+            xemu_queue_notification(
+              "Renderer adapter changed. Restart xemu to apply it.");
+        }
+
+        const PGRAPHVkDeviceRecord *actual =
+          xemu_gpu_info_get_actual_device();
+        if (actual != nullptr) {
+            ImGui::TextDisabled("Active adapter: %s", actual->name);
+        } else {
+            ImGui::TextDisabled("Active adapter: unavailable");
+        }
+    } else if (g_config.display.renderer == CONFIG_DISPLAY_RENDERER_OPENGL) {
+        int selected = 0;
+        ImGui::BeginDisabled();
+        ChevronCombo("Adapter", &selected, "OS / driver controlled\0",
+                     "OpenGL adapter selection is controlled by the host "
+                     "operating system and graphics driver");
+        ImGui::EndDisabled();
+    }
+
     int rendering_scale = nv2a_get_surface_scale_factor() - 1;
     if (ChevronCombo("Internal resolution scale", &rendering_scale,
                      "1x\0"
