@@ -408,43 +408,47 @@ static void shader_cache_entry_init(Lru *lru, LruNode *node, const void *key)
     NV2A_VK_DPRINTF("cache miss");
     nv2a_profile_inc_counter(NV2A_PROF_SHADER_GEN);
 
-    ShaderModuleCacheKey key;
+    ShaderModuleCacheKey module_key;
 
     bool need_geometry_shader = pgraph_glsl_need_geom(&binding->state.geom);
     if (need_geometry_shader) {
-        memset(&key, 0, sizeof(key));
-        key.kind = VK_SHADER_STAGE_GEOMETRY_BIT;
-        key.geom.state = binding->state.geom;
-        key.geom.glsl_opts.vulkan = true;
-        binding->geom.module_info = get_and_ref_shader_module_for_key(r, &key);
+        memset(&module_key, 0, sizeof(module_key));
+        module_key.kind = VK_SHADER_STAGE_GEOMETRY_BIT;
+        module_key.geom.state = binding->state.geom;
+        module_key.geom.glsl_opts.vulkan = true;
+        binding->geom.module_info =
+            get_and_ref_shader_module_for_key(r, &module_key);
     } else {
         binding->geom.module_info = NULL;
     }
 
-    memset(&key, 0, sizeof(key));
-    key.kind = VK_SHADER_STAGE_VERTEX_BIT;
-    key.vsh.state = binding->state.vsh;
-    key.vsh.glsl_opts.vulkan = true;
-    key.vsh.glsl_opts.prefix_outputs = need_geometry_shader;
-    key.vsh.glsl_opts.use_push_constants_for_uniform_attrs =
+    memset(&module_key, 0, sizeof(module_key));
+    module_key.kind = VK_SHADER_STAGE_VERTEX_BIT;
+    module_key.vsh.state = binding->state.vsh;
+    module_key.vsh.glsl_opts.vulkan = true;
+    module_key.vsh.glsl_opts.prefix_outputs = need_geometry_shader;
+    module_key.vsh.glsl_opts.use_push_constants_for_uniform_attrs =
         r->use_push_constants_for_uniform_attrs;
-    key.vsh.glsl_opts.ubo_binding = VSH_UBO_BINDING;
-    binding->vsh.module_info = get_and_ref_shader_module_for_key(r, &key);
+    module_key.vsh.glsl_opts.ubo_binding = VSH_UBO_BINDING;
+    binding->vsh.module_info =
+        get_and_ref_shader_module_for_key(r, &module_key);
 
-    memset(&key, 0, sizeof(key));
-    key.kind = VK_SHADER_STAGE_FRAGMENT_BIT;
-    key.fragment_route = binding->fragment_route;
-    key.psh.state = binding->state.psh;
+    memset(&module_key, 0, sizeof(module_key));
+    module_key.kind = VK_SHADER_STAGE_FRAGMENT_BIT;
+    module_key.fragment_route = binding->fragment_route;
+    module_key.psh.state = binding->state.psh;
     if (binding->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER) {
-        pgraph_vk_canonicalize_uber_combiner_state(&key.psh.state);
+        pgraph_vk_canonicalize_uber_combiner_state(&module_key.psh.state);
     }
-    key.psh.glsl_opts.vulkan = true;
-    key.psh.glsl_opts.ubo_binding = PSH_UBO_BINDING;
-    key.psh.glsl_opts.tex_binding = PSH_TEX_BINDING;
-    key.psh.glsl_opts.ubershader =
+    module_key.psh.glsl_opts.vulkan = true;
+    module_key.psh.glsl_opts.ubo_binding = PSH_UBO_BINDING;
+    module_key.psh.glsl_opts.tex_binding = PSH_TEX_BINDING;
+    module_key.psh.glsl_opts.ubershader =
         binding->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER;
-    key.psh.glsl_opts.uber_binding = PGRAPH_VK_PSH_UBER_UBO_BINDING;
-    binding->psh.module_info = get_and_ref_shader_module_for_key(r, &key);
+    module_key.psh.glsl_opts.uber_binding =
+        PGRAPH_VK_PSH_UBER_UBO_BINDING;
+    binding->psh.module_info =
+        get_and_ref_shader_module_for_key(r, &module_key);
     assert(binding->psh.module_info->uses_uber_controls ==
            (binding->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER));
 
