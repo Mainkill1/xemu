@@ -79,3 +79,14 @@ void pgraph_vk_device_record_check_renderer_support(
         record->rejection_reason = NULL;
     }
 }
+
+PGRAPHVkShaderTarget pgraph_vk_shader_target_for_api(uint32_t api_version)
+{
+    if (api_version >= PGRAPH_VK_MAKE_API_VERSION(1, 3, 0)) {
+        return PGRAPH_VK_SHADER_TARGET_VULKAN_1_3;
+    }
+    if (api_version >= PGRAPH_VK_MAKE_API_VERSION(1, 2, 0)) {
+        return PGRAPH_VK_SHADER_TARGET_VULKAN_1_2;
+    }
+    return PGRAPH_VK_SHADER_TARGET_VULKAN_1_1;
+}

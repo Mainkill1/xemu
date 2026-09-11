@@ -18,6 +18,7 @@
  */
 
 #include "ui/xemu-settings.h"
+#include "device-inventory.h"
 #include "renderer.h"
 
 #include <assert.h>
@@ -140,16 +141,35 @@ void pgraph_vk_finalize_glsl_compiler(void)
     glslang_finalize_process();
 }
 
-GByteArray *pgraph_vk_compile_glsl_to_spv(glslang_stage_t stage,
+GByteArray *pgraph_vk_compile_glsl_to_spv(PGRAPHVkState *r,
+                                          glslang_stage_t stage,
                                           const char *glsl_source)
 {
+    PGRAPHVkShaderTarget shader_target =
+        pgraph_vk_shader_target_for_api(r->vk_api_version);
+    glslang_target_client_version_t client_version;
+    glslang_target_language_version_t language_version;
+    switch (shader_target) {
+    case PGRAPH_VK_SHADER_TARGET_VULKAN_1_3:
+        client_version = GLSLANG_TARGET_VULKAN_1_3;
+        language_version = GLSLANG_TARGET_SPV_1_6;
+        break;
+    case PGRAPH_VK_SHADER_TARGET_VULKAN_1_2:
+        client_version = GLSLANG_TARGET_VULKAN_1_2;
+        language_version = GLSLANG_TARGET_SPV_1_5;
+        break;
+    default:
+        client_version = GLSLANG_TARGET_VULKAN_1_1;
+        language_version = GLSLANG_TARGET_SPV_1_3;
+        break;
+    }
     const glslang_input_t input = {
         .language = GLSLANG_SOURCE_GLSL,
         .stage = stage,
         .client = GLSLANG_CLIENT_VULKAN,
-        .client_version = GLSLANG_TARGET_VULKAN_1_3,
+        .client_version = client_version,
         .target_language = GLSLANG_TARGET_SPV,
-        .target_language_version = GLSLANG_TARGET_SPV_1_6,
+        .target_language_version = language_version,
         .code = glsl_source,
         .default_version = 460,
         .default_profile = GLSLANG_NO_PROFILE,
@@ -372,6 +392,7 @@ ShaderModuleInfo *pgraph_vk_create_shader_module_from_glsl(
     info->refcnt = 0;
     info->glsl = strdup(glsl);
     info->spirv = pgraph_vk_compile_glsl_to_spv(
+        r,
         vk_shader_stage_to_glslang_stage(stage), glsl);
     info->module = pgraph_vk_create_shader_module_from_spv(r, info->spirv);
     init_layout_from_spv(info);

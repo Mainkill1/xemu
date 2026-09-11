@@ -31,6 +31,12 @@ typedef enum PGRAPHVkRequiredFeature {
     PGRAPH_VK_FEATURE_GEOMETRY_POINT_SIZE = 1 << 5,
 } PGRAPHVkRequiredFeature;
 
+typedef enum PGRAPHVkShaderTarget {
+    PGRAPH_VK_SHADER_TARGET_VULKAN_1_1,
+    PGRAPH_VK_SHADER_TARGET_VULKAN_1_2,
+    PGRAPH_VK_SHADER_TARGET_VULKAN_1_3,
+} PGRAPHVkShaderTarget;
+
 #define PGRAPH_VK_REQUIRED_FEATURES \
     (PGRAPH_VK_FEATURE_DEPTH_CLAMP | \
      PGRAPH_VK_FEATURE_FILL_MODE_NON_SOLID | \
@@ -70,6 +76,7 @@ PGRAPHVkEnumerationResult pgraph_vk_enumerate_device_tokens(
 void pgraph_vk_device_record_check_renderer_support(
     PGRAPHVkDeviceRecord *record,
     const PGRAPHVkDeviceCapabilities *capabilities);
+PGRAPHVkShaderTarget pgraph_vk_shader_target_for_api(uint32_t api_version);
 bool pgraph_vk_probe_device_inventory(PGRAPHVkDeviceRecord **records,
                                       size_t *count, Error **errp);
 

@@ -584,7 +584,8 @@ uint32_t pgraph_vk_get_memory_type(PGRAPHState *pg, uint32_t type_bits,
 // glsl.c
 void pgraph_vk_init_glsl_compiler(void);
 void pgraph_vk_finalize_glsl_compiler(void);
-GByteArray *pgraph_vk_compile_glsl_to_spv(glslang_stage_t stage,
+GByteArray *pgraph_vk_compile_glsl_to_spv(PGRAPHVkState *r,
+                                          glslang_stage_t stage,
                                           const char *glsl_source);
 VkShaderModule pgraph_vk_create_shader_module_from_spv(PGRAPHVkState *r,
                                                        GByteArray *spv);

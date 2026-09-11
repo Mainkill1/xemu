@@ -243,5 +243,17 @@ int main(void)
     test_repeated_incomplete_is_bounded();
     test_capabilities_accept_complete_renderer_support();
     test_capabilities_reject_each_required_boundary();
+    assert(pgraph_vk_shader_target_for_api(
+               PGRAPH_VK_MAKE_API_VERSION(1, 1, 0)) ==
+           PGRAPH_VK_SHADER_TARGET_VULKAN_1_1);
+    assert(pgraph_vk_shader_target_for_api(
+               PGRAPH_VK_MAKE_API_VERSION(1, 2, 0)) ==
+           PGRAPH_VK_SHADER_TARGET_VULKAN_1_2);
+    assert(pgraph_vk_shader_target_for_api(
+               PGRAPH_VK_MAKE_API_VERSION(1, 3, 0)) ==
+           PGRAPH_VK_SHADER_TARGET_VULKAN_1_3);
+    assert(pgraph_vk_shader_target_for_api(
+               PGRAPH_VK_MAKE_API_VERSION(1, 4, 0)) ==
+           PGRAPH_VK_SHADER_TARGET_VULKAN_1_3);
     return 0;
 }
