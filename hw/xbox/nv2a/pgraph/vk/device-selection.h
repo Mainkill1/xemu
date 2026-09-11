@@ -1,5 +1,5 @@
 /*
- * SPDX-License-Identifier: LGPL-2.0-or-later
+ * SPDX-License-Identifier: LGPL-2.1-or-later
  */
 
 #ifndef HW_XBOX_NV2A_PGRAPH_VK_DEVICE_SELECTION_H

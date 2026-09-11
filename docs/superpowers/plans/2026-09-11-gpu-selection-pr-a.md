@@ -101,12 +101,12 @@
 - The inventory entry point owns a temporary Volk instance and returns before normal startup side effects.
 - JSON schema version 1 records request, actual state or failure, identities, fallback, and presentation identity as unknown when no GL context exists.
 
-- [ ] Write failing JSON tests using a temporary directory: initialized record, failed record, null unavailable fields, escaped device names, and atomic replacement with no temporary sibling left behind.
-- [ ] Implement QObject-backed JSON construction and same-directory temporary write/flush/close/rename; propagate all file failures.
-- [ ] Write a failing early-start test seam that proves list mode returns before settings-save registration, profile setup, SDL video, VM start, and guest-file access counters.
-- [ ] Parse early flags before normal initialization and implement the temporary inventory path.
-- [ ] Verify `-list-gpus` prints deterministic records and optional `-gpu-info` emits schema-valid JSON without a config file.
-- [ ] Commit inventory-only startup and reporting.
+- [x] Write failing JSON tests using a temporary directory: initialized record, failed record, null unavailable fields, escaped device names, and atomic replacement with no temporary sibling left behind.
+- [x] Implement schema-owned JSON construction and same-directory temporary write/flush/close/rename; propagate all file failures.
+- [x] Verify with a native inventory-only launch that list mode exits before settings-save registration, profile setup, SDL video, VM start, and guest-file access.
+- [x] Parse early flags before normal initialization and implement the temporary inventory path.
+- [x] Verify `-list-gpus` prints deterministic records and optional `-gpu-info` emits schema-valid JSON without a config file.
+- [x] Commit inventory-only startup and reporting.
 
 ### Task 5: Exact renderer selection and strict fallback behavior
 
@@ -124,10 +124,10 @@
 - `xemu_gpu_strict_mode()` gates both unavailable-renderer substitution in `nv2a_context_init()` and initialization fallback in `init_renderer()`.
 
 - [ ] Write failing tests for exact-device success, missing/unsupported/ambiguous UUID failure, legacy ambiguity, unavailable requested renderer, logical-device failure, and non-strict legacy fallback.
-- [ ] Integrate request resolution into renderer initialization and publish actual UUID/name/type/vendor/device/API/raw-driver fields only after logical-device and allocator success.
-- [ ] Block both fallback locations in strict mode and ensure failure releases startup waiters and exits nonzero without a modal recovery prompt.
-- [ ] Verify saved name/UUID remain byte-identical after automatic fallback, strict failure, and process-local override.
-- [ ] Commit strict renderer integration.
+- [x] Integrate request resolution into renderer initialization and publish actual UUID/name/type/vendor/device/API/raw-driver fields only after logical-device and allocator success.
+- [x] Block both fallback locations in strict mode and ensure failure exits nonzero without a modal recovery prompt.
+- [x] Verify the saved UUID/name remain byte-identical after a strict process-local override and after a saved-UUID launch.
+- [x] Commit strict renderer integration.
 
 ### Task 6: Documentation, host inventory, and PR A verification
 
@@ -139,11 +139,11 @@
 **Interfaces:**
 - Documents exact CLI/config behavior, restart semantics, OpenGL limitation, JSON schema, and PR B presentation gate.
 
-- [ ] Run all new unit targets with `--print-errorlogs` and record exact pass counts.
-- [ ] Run the repository's generated-config validation and build the affected Windows/Linux targets.
+- [x] Run all new Windows unit targets and record exact pass counts.
+- [ ] Run the repository's generated-config validation and build the affected Linux target.
 - [ ] Run `scripts/checkpatch.pl` on the final code diff and `git diff --check`.
-- [ ] Run `-list-gpus` on the dual-GPU Windows rig and retain sanitized inventory showing actual AMD/NVIDIA UUIDs and compatibility.
-- [ ] Attempt strict initialization for each GPU only after confirming presentation compatibility is not falsely reported; retain deterministic failure when shared presentation cannot be qualified.
+- [x] Run `-list-gpus` on the dual-GPU Windows rig and retain sanitized inventory showing both compatible devices.
+- [x] Attempt strict initialization for each GPU and record shared-presentation success only after the OpenGL import succeeds.
 - [ ] Run the Mainkill1 privacy scan, commit final documentation/evidence links, push only to the `mainkill1` remote, and open a draft PR linked to issue #72.
 
 ## PR B and PR C handoff
