@@ -35,6 +35,8 @@ typedef struct XemuGpuInfoDocument {
     bool fallback_used;
     const char *fallback_reason;
     XemuGpuPresentationMode presentation_mode;
+    const char *presentation_vendor;
+    const char *presentation_renderer;
     const char *error_message;
 } XemuGpuInfoDocument;
 
@@ -51,6 +53,9 @@ bool xemu_gpu_info_record_initialized(const PGRAPHVkDeviceRecord *device,
                                       XemuGpuPresentationMode mode,
                                       bool fallback_used,
                                       const char *fallback_reason);
+bool xemu_gpu_info_record_presentation(XemuGpuPresentationMode mode,
+                                       const char *vendor,
+                                       const char *renderer);
 bool xemu_gpu_info_record_failure(const char *actual_backend,
                                   const char *message, bool fallback_used,
                                   const char *fallback_reason);

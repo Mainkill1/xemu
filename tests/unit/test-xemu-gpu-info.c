@@ -63,6 +63,8 @@ static void test_inventory_json(void)
     assert_contains(json, "\"rejection_reason\":null");
     assert_contains(json, "missing required feature");
     assert_contains(json, "\"mode\":\"unknown\"");
+    assert_contains(json, "\"gl_vendor\":null");
+    assert_contains(json, "\"gl_renderer\":null");
     free(json);
 }
 
@@ -86,6 +88,8 @@ static void test_initialized_json(void)
         .requested_backend = "Vulkan",
         .actual_backend = "Vulkan",
         .presentation_mode = XEMU_GPU_PRESENTATION_SHARED,
+        .presentation_vendor = "NVIDIA Corporation",
+        .presentation_renderer = "NVIDIA GPU",
     };
     char *json = xemu_gpu_info_render_json(&document);
     assert(json != NULL);
@@ -96,6 +100,8 @@ static void test_initialized_json(void)
     assert_contains(json, "\"strict\":true");
     assert_contains(json, "\"actual_device\":{");
     assert_contains(json, "\"mode\":\"shared\"");
+    assert_contains(json, "\"gl_vendor\":\"NVIDIA Corporation\"");
+    assert_contains(json, "\"gl_renderer\":\"NVIDIA GPU\"");
     assert_contains(json, "\"error\":null");
     free(json);
 }

@@ -7,6 +7,11 @@
 
 #include <stdarg.h>
 
+#ifndef G_GNUC_PRINTF
+#define G_GNUC_PRINTF(format_index, first_arg) \
+    __attribute__((format(printf, format_index, first_arg)))
+#endif
+
 typedef struct JsonBuffer {
     char *data;
     size_t length;
@@ -62,9 +67,9 @@ static void json_append(JsonBuffer *buffer, const char *text)
     json_append_n(buffer, text, strlen(text));
 }
 
-#ifdef __GNUC__
-__attribute__((format(printf, 2, 3)))
-#endif
+static void json_append_format(JsonBuffer *buffer, const char *format, ...)
+    G_GNUC_PRINTF(2, 3);
+
 static void json_append_format(JsonBuffer *buffer, const char *format, ...)
 {
     va_list args;
@@ -277,6 +282,10 @@ char *xemu_gpu_info_render_json(const XemuGpuInfoDocument *document)
     json_append(&buffer, "},\"presentation\":{\"mode\":");
     json_append_string(&buffer,
                        presentation_mode_name(document->presentation_mode));
+    json_append(&buffer, ",\"gl_vendor\":");
+    json_append_string(&buffer, document->presentation_vendor);
+    json_append(&buffer, ",\"gl_renderer\":");
+    json_append_string(&buffer, document->presentation_renderer);
     json_append(&buffer, "},\"error\":");
     json_append_string(&buffer, document->error_message);
     json_append(&buffer, "}\n");
@@ -461,6 +470,41 @@ bool xemu_gpu_info_record_initialized(const PGRAPHVkDeviceRecord *device,
     return write_runtime_document(XEMU_GPU_INFO_INITIALIZED, device,
                                   actual_backend, mode, NULL, fallback_used,
                                   fallback_reason);
+}
+
+bool xemu_gpu_info_record_presentation(XemuGpuPresentationMode mode,
+                                       const char *vendor,
+                                       const char *renderer)
+{
+    const XemuGpuLaunchRequest *request = xemu_gpu_launch_request_get();
+    if (request->info_path == NULL) {
+        return true;
+    }
+    XemuGpuInfoDocument document = {
+        .state = XEMU_GPU_INFO_INITIALIZED,
+        .request = request,
+        .devices = last_inventory,
+        .device_count = last_inventory_count,
+        .actual_device = xemu_gpu_info_get_actual_device(),
+        .requested_backend = "Vulkan",
+        .actual_backend = "Vulkan",
+        .presentation_mode = mode,
+        .presentation_vendor = vendor,
+        .presentation_renderer = renderer,
+    };
+    char *json = xemu_gpu_info_render_json(&document);
+    if (json == NULL) {
+        return false;
+    }
+    char file_error[512] = { 0 };
+    bool success = xemu_gpu_info_write_atomic(request->info_path, json,
+                                              file_error,
+                                              sizeof(file_error));
+    free(json);
+    if (!success) {
+        fprintf(stderr, "GPU presentation output failed: %s\n", file_error);
+    }
+    return success;
 }
 
 bool xemu_gpu_info_record_failure(const char *actual_backend,
