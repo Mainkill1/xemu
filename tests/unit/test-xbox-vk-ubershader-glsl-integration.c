@@ -7,6 +7,7 @@
 #include "qemu/osdep.h"
 
 #include "hw/xbox/nv2a/pgraph/glsl/psh.h"
+#include "hw/xbox/nv2a/pgraph/texture.h"
 #include "hw/xbox/nv2a/pgraph/vk/renderer.h"
 #include "ui/xemu-settings.h"
 

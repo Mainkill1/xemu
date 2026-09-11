@@ -8,6 +8,7 @@
 #include "qemu/mstring.h"
 
 #include "hw/xbox/nv2a/pgraph/glsl/psh.h"
+#include "hw/xbox/nv2a/pgraph/texture.h"
 
 /* This generator test does not exercise texture-format classification. */
 const BasicColorFormatInfo kelvin_color_format_info_map[66] = { 0 };
