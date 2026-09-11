@@ -81,48 +81,63 @@ tests = {
 # large target-specific translation units.  Section GC keeps their test link
 # closure bounded without copying the wrapper, decoder, finish, or drainer.
 if 'i386-softmmu' in target_dirs
-  nv2a_report_test = declare_dependency(
-    sources: config_target_h['i386-softmmu'],
-    compile_args: [
-      '-DCOMPILING_PER_TARGET',
-      '-DCONFIG_TARGET="i386-softmmu-config-target.h"',
-      '-ffunction-sections',
-      '-fdata-sections',
-    ],
-    link_args: ['-Wl,--gc-sections'],
-    include_directories: include_directories('../../target/i386'),
+  nv2a_report_section_args = cc.get_supported_arguments(
+    '-ffunction-sections',
+    '-fdata-sections',
   )
-  nv2a_report_sources = [
-    'xbox-pgraph-report-test-support.c',
-    meson.project_source_root() / 'hw/xbox/nv2a/nv2a.c',
-    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/pgraph.c',
-    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/reports.c',
-    nv2a_report_test,
-    nv2a_vsh_cpu.partial_dependency(compile_args: true, includes: true),
-  ]
+  if host_os == 'darwin'
+    nv2a_report_gc_link_args =
+      cc.get_supported_link_arguments('-Wl,-dead_strip')
+  else
+    nv2a_report_gc_link_args =
+      cc.get_supported_link_arguments('-Wl,--gc-sections')
+  endif
 
-  tests += {
-    'test-xbox-pgraph-report-wrapper': nv2a_report_sources,
-  }
-
-  if vulkan.found()
-    nv2a_vk_report_test_headers = [
-      volk.partial_dependency(compile_args: true, includes: true),
-      libglslang.partial_dependency(compile_args: true, includes: true),
-      vma.partial_dependency(compile_args: true, includes: true),
-      vulkan.partial_dependency(compile_args: true, includes: true),
-      spirv_reflect.partial_dependency(compile_args: true, includes: true),
+  if nv2a_report_section_args.length() == 2 and \
+     nv2a_report_gc_link_args.length() == 1
+    nv2a_report_test = declare_dependency(
+      sources: config_target_h['i386-softmmu'],
+      compile_args: [
+        '-DCOMPILING_PER_TARGET',
+        '-DCONFIG_TARGET="i386-softmmu-config-target.h"',
+        '-include',
+        meson.project_source_root() / 'tests/unit/xbox-nv2a-report-test-shim.h',
+      ] + nv2a_report_section_args,
+      link_args: nv2a_report_gc_link_args,
+      include_directories: include_directories('../../target/i386'),
+    )
+    nv2a_report_sources = [
+      'xbox-pgraph-report-test-support.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/nv2a.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/pgraph.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/reports.c',
+      nv2a_report_test,
+      nv2a_vsh_cpu.partial_dependency(compile_args: true, includes: true),
     ]
+
     tests += {
-      'test-xbox-pgraph-vk-reports': nv2a_report_sources + [
-      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/command.c',
-      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/draw.c',
-      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/perf.c',
-      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/reports.c',
-      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/surface-compute.c',
-      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/profile.c',
-      ] + nv2a_vk_report_test_headers,
+      'test-xbox-pgraph-report-wrapper': nv2a_report_sources,
     }
+
+    if vulkan.found()
+      nv2a_vk_report_test_headers = [
+        volk.partial_dependency(compile_args: true, includes: true),
+        libglslang.partial_dependency(compile_args: true, includes: true),
+        vma.partial_dependency(compile_args: true, includes: true),
+        vulkan.partial_dependency(compile_args: true, includes: true),
+        spirv_reflect.partial_dependency(compile_args: true, includes: true),
+      ]
+      tests += {
+        'test-xbox-pgraph-vk-reports': nv2a_report_sources + [
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/command.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/draw.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/perf.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/reports.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/surface-compute.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/profile.c',
+        ] + nv2a_vk_report_test_headers,
+      }
+    endif
   endif
 endif
 
@@ -266,7 +281,6 @@ slow_tests = {
 foreach test_name, extra: tests
   src = [test_name + '.c']
   deps = [qemuutil]
-  test_override_options = []
   if extra.length() > 0
     # use a sourceset to quickly separate sources and deps
     test_ss = ss.source_set()
@@ -274,16 +288,7 @@ foreach test_name, extra: tests
     src += test_ss.all_sources()
     deps += test_ss.all_dependencies()
   endif
-  if test_name in [
-    'test-xbox-pgraph-report-wrapper',
-    'test-xbox-pgraph-vk-reports',
-  ]
-    # LTO merges the production translation units before section GC, retaining
-    # unrelated device/VMState closure.  Keep these integration links bounded.
-    test_override_options = ['b_lto=false']
-  endif
-  exe = executable(test_name, src, genh, dependencies: deps,
-                   override_options: test_override_options)
+  exe = executable(test_name, src, genh, dependencies: deps)
 
   test(test_name, exe,
        depends: test_deps.get(test_name, []),
