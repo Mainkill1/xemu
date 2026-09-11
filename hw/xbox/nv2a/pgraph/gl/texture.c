@@ -24,6 +24,7 @@
 #include "hw/xbox/nv2a/pgraph/swizzle.h"
 #include "hw/xbox/nv2a/pgraph/s3tc.h"
 #include "hw/xbox/nv2a/pgraph/texture.h"
+#include "ui/xemu-tweaks.h"
 #include "debug.h"
 #include "renderer.h"
 
@@ -506,7 +507,8 @@ static void upload_gl_texture(GLenum gl_target,
                  */
                 bool needs_border_fixup =
                     s.cubemap && adjusted_width != s.width;
-                if (!needs_border_fixup) {
+                if (!needs_border_fixup &&
+                    xemu_tweak_enabled(XEMU_TWEAK_GL_NATIVE_S3TC)) {
                     unsigned int image_size = (physical_width / 4) *
                                               (physical_height / 4) *
                                               block_size;

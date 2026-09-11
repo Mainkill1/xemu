@@ -47,6 +47,7 @@
 #include "xemu-gpu-info.h"
 #include "xemu-gpu-launch.h"
 #include "xemu-settings.h"
+#include "xemu-tweaks.h"
 #include "xemu-snapshots.h"
 #include "xemu-version.h"
 #include "xemu-os-utils.h"
@@ -1419,6 +1420,7 @@ int main(int argc, char **argv)
         return 2;
     }
     xemu_gpu_launch_request_set_current(&gpu_request);
+    xemu_tweaks_apply(true);
     atexit(xemu_settings_save);
 
 #ifdef _WIN32

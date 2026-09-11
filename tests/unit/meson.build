@@ -89,6 +89,12 @@ tests = {
   'test-lru-active': [],
 }
 
+if host_os == 'windows'
+  tests += {
+    'test-xbox-qemu-poll': [],
+  }
+endif
+
 # This real graphics lifecycle test skips unless explicitly enabled on a host
 # with an interactive SDL/OpenGL session.
 if sdl.found() and epoxy.found()
@@ -225,6 +231,21 @@ slow_tests = {
   'test-crypto-tlssession': 90,
   'test-replication': 60,
 }
+
+xemu_tweaks_test = executable('test-xemu-tweaks-config',
+  files('test-xemu-tweaks-config.cc', '../../ui/xemu-tweaks.c'), genh,
+  dependencies: [qemuutil, genconfig, tomlplusplus])
+test('test-xemu-tweaks-config', xemu_tweaks_test, suite: ['unit'])
+
+# This driver compiles small native API doubles, even during a cross build.
+if build_machine.system() in ['linux', 'darwin']
+  tweak_test_cc = find_program('cc', native: true, required: false)
+  if tweak_test_cc.found()
+    test('test-xemu-tweak-paths', python,
+      args: [files('test-xemu-tweak-paths.py'), '--cc', tweak_test_cc.full_path()],
+      suite: ['unit'])
+  endif
+endif
 
 foreach test_name, extra: tests
   src = [test_name + '.c']
