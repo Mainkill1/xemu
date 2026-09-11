@@ -19,6 +19,16 @@ static const uint8_t uuid_b[PGRAPH_VK_DEVICE_UUID_SIZE] = {
     0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x00,
 };
 
+static const uint8_t driver_a[PGRAPH_VK_DEVICE_UUID_SIZE] = {
+    0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+    0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
+};
+
+static const uint8_t driver_b[PGRAPH_VK_DEVICE_UUID_SIZE] = {
+    0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
+    0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f,
+};
+
 static PGRAPHVkDeviceRecord make_device(const char *name, const uint8_t *uuid,
                                         PGRAPHVkDeviceType type,
                                         bool supported)
@@ -169,6 +179,43 @@ static void test_software_requires_explicit_permission(void)
            PGRAPH_VK_SELECTION_OK);
 }
 
+static void test_shared_presentation_requires_extensions_device_and_driver(void)
+{
+    PGRAPHVkDeviceRecord device =
+        make_device("Vulkan GPU", uuid_a, PGRAPH_VK_DEVICE_TYPE_INTEGRATED,
+                    true);
+    memcpy(device.driver_uuid, driver_a, sizeof(device.driver_uuid));
+
+    uint8_t matching_devices[][PGRAPH_VK_DEVICE_UUID_SIZE] = {
+        { 0 },
+        { 0 },
+    };
+    memcpy(matching_devices[0], uuid_b, sizeof(uuid_b));
+    memcpy(matching_devices[1], uuid_a, sizeof(uuid_a));
+
+    assert(pgraph_vk_shared_presentation_supported(
+        &device, true, true, matching_devices, ARRAY_SIZE(matching_devices),
+        driver_a));
+    assert(!pgraph_vk_shared_presentation_supported(
+        &device, false, true, matching_devices, ARRAY_SIZE(matching_devices),
+        driver_a));
+    assert(!pgraph_vk_shared_presentation_supported(
+        &device, true, false, matching_devices, ARRAY_SIZE(matching_devices),
+        driver_a));
+    assert(!pgraph_vk_shared_presentation_supported(
+        &device, true, true, matching_devices, ARRAY_SIZE(matching_devices),
+        driver_b));
+
+    uint8_t other_device[][PGRAPH_VK_DEVICE_UUID_SIZE] = {
+        { 0 },
+    };
+    memcpy(other_device[0], uuid_b, sizeof(uuid_b));
+    assert(!pgraph_vk_shared_presentation_supported(
+        &device, true, true, other_device, ARRAY_SIZE(other_device), driver_a));
+    assert(!pgraph_vk_shared_presentation_supported(
+        &device, true, true, NULL, 0, driver_a));
+}
+
 int main(void)
 {
     test_uuid_round_trip();
@@ -179,5 +226,6 @@ int main(void)
     test_exact_uuid_rejects_missing_and_duplicate_matches();
     test_legacy_name_rejects_ambiguity();
     test_software_requires_explicit_permission();
+    test_shared_presentation_requires_extensions_device_and_driver();
     return 0;
 }

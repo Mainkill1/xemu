@@ -19,6 +19,7 @@
 
 #include "hw/xbox/nv2a/nv2a_int.h"
 #include "qemu/error-report.h"
+#include "ui/xemu-gpu-info.h"
 #include "ui/xemu-settings.h"
 #include "failpoint.h"
 #include "renderer.h"
@@ -27,6 +28,49 @@
 
 #if HAVE_EXTERNAL_MEMORY
 static GloContext *g_gl_context;
+
+static bool current_gl_context_matches_device(
+    const PGRAPHVkDeviceRecord *device)
+{
+    GLint device_count = 0;
+    uint8_t driver_uuid[PGRAPH_VK_DEVICE_UUID_SIZE];
+    bool has_external_memory =
+        epoxy_has_gl_extension("GL_EXT_memory_object");
+#ifdef WIN32
+    bool has_platform_handle =
+        epoxy_has_gl_extension("GL_EXT_memory_object_win32");
+#else
+    bool has_platform_handle =
+        epoxy_has_gl_extension("GL_EXT_memory_object_fd");
+#endif
+
+    if (!has_external_memory || !has_platform_handle) {
+        return false;
+    }
+
+    while (glGetError() != GL_NO_ERROR) {
+    }
+    glGetIntegerv(GL_NUM_DEVICE_UUIDS_EXT, &device_count);
+    if (glGetError() != GL_NO_ERROR || device_count <= 0 ||
+        device_count > 32) {
+        return false;
+    }
+
+    uint8_t (*device_uuids)[PGRAPH_VK_DEVICE_UUID_SIZE] =
+        g_malloc_n(device_count, sizeof(*device_uuids));
+    for (GLint i = 0; i < device_count; i++) {
+        glGetUnsignedBytei_vEXT(GL_DEVICE_UUID_EXT, i, device_uuids[i]);
+    }
+    glGetUnsignedBytevEXT(GL_DRIVER_UUID_EXT, driver_uuid);
+
+    bool query_succeeded = glGetError() == GL_NO_ERROR;
+    bool matches = query_succeeded &&
+        pgraph_vk_shared_presentation_supported(
+            device, has_external_memory, has_platform_handle,
+            device_uuids, device_count, driver_uuid);
+    g_free(device_uuids);
+    return matches;
+}
 #endif
 
 static void early_context_init(void)
@@ -53,6 +97,15 @@ static void pgraph_vk_init(NV2AState *d, Error **errp)
     if (*errp) {
         return;
     }
+
+#if HAVE_EXTERNAL_MEMORY
+    pg->vk_renderer_state->display.shared_presentation =
+        current_gl_context_matches_device(
+            &pg->vk_renderer_state->selected_device);
+    fprintf(stderr, "Vulkan presentation transport: %s\n",
+            pg->vk_renderer_state->display.shared_presentation ?
+                "shared external memory" : "host copy");
+#endif
 
     pgraph_vk_perf_init(pg->vk_renderer_state);
     pgraph_vk_init_command_buffers(pg);
@@ -221,15 +274,76 @@ static int pgraph_vk_get_framebuffer_surface(NV2AState *d)
 
     surface->frame_time = pg->frame_time;
 
-#if HAVE_EXTERNAL_MEMORY
     qemu_event_reset(&d->pgraph.sync_complete);
     qatomic_set(&pg->sync_pending, true);
     pfifo_kick(d);
     qemu_mutex_unlock(&d->pfifo.lock);
     qemu_event_wait(&d->pgraph.sync_complete);
-    return r->display.gl_texture_id;
+
+#if HAVE_EXTERNAL_MEMORY
+    if (r->display.shared_presentation) {
+        return r->display.gl_texture_id;
+    }
+
+    PGRAPHVkDisplayState *display = &r->display;
+    if (!display->host_copy.gl_texture_id) {
+        glGenTextures(1, &display->host_copy.gl_texture_id);
+        glBindTexture(GL_TEXTURE_2D, display->host_copy.gl_texture_id);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    } else {
+        glBindTexture(GL_TEXTURE_2D, display->host_copy.gl_texture_id);
+    }
+    GLint unpack_alignment;
+    GLint unpack_row_length;
+    GLint unpack_skip_rows;
+    GLint unpack_skip_pixels;
+    GLint unpack_image_height;
+    GLint unpack_skip_images;
+    GLint unpack_buffer_binding;
+    glGetIntegerv(GL_UNPACK_ALIGNMENT, &unpack_alignment);
+    glGetIntegerv(GL_UNPACK_ROW_LENGTH, &unpack_row_length);
+    glGetIntegerv(GL_UNPACK_SKIP_ROWS, &unpack_skip_rows);
+    glGetIntegerv(GL_UNPACK_SKIP_PIXELS, &unpack_skip_pixels);
+    glGetIntegerv(GL_UNPACK_IMAGE_HEIGHT, &unpack_image_height);
+    glGetIntegerv(GL_UNPACK_SKIP_IMAGES, &unpack_skip_images);
+    glGetIntegerv(GL_PIXEL_UNPACK_BUFFER_BINDING, &unpack_buffer_binding);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+    glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+    glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+    glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, 0);
+    glPixelStorei(GL_UNPACK_SKIP_IMAGES, 0);
+    if (display->host_copy.gl_texture_width != display->width ||
+        display->host_copy.gl_texture_height != display->height) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, display->width,
+                     display->height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                     display->host_copy.mapped);
+        display->host_copy.gl_texture_width = display->width;
+        display->host_copy.gl_texture_height = display->height;
+    } else {
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, display->width,
+                        display->height, GL_RGBA, GL_UNSIGNED_BYTE,
+                        display->host_copy.mapped);
+    }
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, unpack_buffer_binding);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, unpack_alignment);
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, unpack_row_length);
+    glPixelStorei(GL_UNPACK_SKIP_ROWS, unpack_skip_rows);
+    glPixelStorei(GL_UNPACK_SKIP_PIXELS, unpack_skip_pixels);
+    glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, unpack_image_height);
+    glPixelStorei(GL_UNPACK_SKIP_IMAGES, unpack_skip_images);
+    assert(glGetError() == GL_NO_ERROR);
+    if (!r->display.presentation_reported) {
+        xemu_gpu_info_record_presentation(
+            XEMU_GPU_PRESENTATION_HOST_COPY,
+            (const char *)glGetString(GL_VENDOR),
+            (const char *)glGetString(GL_RENDERER));
+        r->display.presentation_reported = true;
+    }
+    return display->host_copy.gl_texture_id;
 #else
-    qemu_mutex_unlock(&d->pfifo.lock);
     if (!pgraph_vk_wait_for_surface_download(surface)) {
         error_report("Vulkan framebuffer readback failed");
         abort();
