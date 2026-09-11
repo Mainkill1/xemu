@@ -14,9 +14,12 @@
 #define PGRAPH_VK_SPIRV_CACHE_ABI              1U
 #define PGRAPH_VK_SPIRV_CACHE_HEADER_SIZE       72U
 #define PGRAPH_VK_SPIRV_CACHE_MAX_RECORDS       4096U
+#define PGRAPH_VK_SPIRV_CACHE_INDEX_BUCKETS      8192U
 #define PGRAPH_VK_SPIRV_CACHE_MAX_FLAVOR_SIZE   256U
 #define PGRAPH_VK_SPIRV_CACHE_MAX_SOURCE_SIZE   (1024U * 1024U)
 #define PGRAPH_VK_SPIRV_CACHE_MAX_SPIRV_SIZE    (1024U * 1024U)
+#define PGRAPH_VK_SPIRV_CACHE_MAX_ID_BOUND      \
+    (PGRAPH_VK_SPIRV_CACHE_MAX_SPIRV_SIZE / sizeof(uint32_t))
 #define PGRAPH_VK_SPIRV_CACHE_MAX_SOURCE_BYTES  (16U * 1024U * 1024U)
 #define PGRAPH_VK_SPIRV_CACHE_MAX_SPIRV_BYTES   (32U * 1024U * 1024U)
 #define PGRAPH_VK_SPIRV_CACHE_MAX_FILE_SIZE      (64U * 1024U * 1024U)
@@ -55,6 +58,9 @@ typedef struct PGRAPHVkSpirvCacheStats {
 typedef struct PGRAPHVkSpirvCache {
     void *entries;
     size_t capacity;
+    void *index_buckets;
+    size_t index_bucket_count;
+    uint64_t access_clock;
     PGRAPHVkSpirvCachePolicy policy;
     void *compiler_flavor;
     PGRAPHVkSpirvCacheStats stats;

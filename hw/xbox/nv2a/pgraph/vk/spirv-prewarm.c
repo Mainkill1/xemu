@@ -13,6 +13,7 @@
 #define SPIRV_CACHE_RECORD_SIZE 32U
 #define SPIRV_MAGIC_WORD        0x07230203U
 #define SPIRV_MIN_MODULE_SIZE   20U
+#define SPIRV_CACHE_INDEX_NONE UINT32_MAX
 
 enum {
     HEADER_MAGIC = 0,
@@ -34,12 +35,48 @@ enum {
 
 typedef struct PGRAPHVkSpirvCacheEntry {
     uint64_t source_hash;
+    uint64_t last_used;
     uint32_t stage;
+    uint32_t index_next;
     size_t source_size;
     size_t spirv_size;
     uint8_t *source;
     uint8_t *spirv;
 } PGRAPHVkSpirvCacheEntry;
+
+static uint32_t index_bucket(const PGRAPHVkSpirvCache *cache,
+                             uint64_t source_hash, uint32_t stage)
+{
+    uint64_t mixed =
+        source_hash ^ ((uint64_t)stage * UINT64_C(0x9e3779b97f4a7c15));
+    return (uint32_t)(mixed & (cache->index_bucket_count - 1));
+}
+
+static void rebuild_index(PGRAPHVkSpirvCache *cache)
+{
+    uint32_t *buckets = cache->index_buckets;
+    PGRAPHVkSpirvCacheEntry *entries = cache->entries;
+
+    memset(buckets, 0xff, cache->index_bucket_count * sizeof(*buckets));
+    for (uint32_t i = 0; i < cache->stats.records; i++) {
+        uint32_t bucket = index_bucket(cache, entries[i].source_hash,
+                                       entries[i].stage);
+        entries[i].index_next = buckets[bucket];
+        buckets[bucket] = i;
+    }
+}
+
+static uint64_t next_access(PGRAPHVkSpirvCache *cache)
+{
+    if (cache->access_clock == UINT64_MAX) {
+        PGRAPHVkSpirvCacheEntry *entries = cache->entries;
+        for (size_t i = 0; i < cache->stats.records; i++) {
+            entries[i].last_used = i + 1;
+        }
+        cache->access_clock = cache->stats.records;
+    }
+    return ++cache->access_clock;
+}
 
 static uint32_t load_u32_le(const uint8_t *src)
 {
@@ -87,7 +124,15 @@ static bool policy_valid(const PGRAPHVkSpirvCachePolicy *policy)
                PGRAPH_VK_SPIRV_CACHE_MAX_FLAVOR_SIZE;
 }
 
-static bool spirv_valid(const void *data, size_t size)
+static bool persistent_stage_valid(uint32_t stage)
+{
+    return stage == 1U ||  /* VK_SHADER_STAGE_VERTEX_BIT */
+           stage == 8U ||  /* VK_SHADER_STAGE_GEOMETRY_BIT */
+           stage == 16U;   /* VK_SHADER_STAGE_FRAGMENT_BIT */
+}
+
+static bool spirv_valid(const PGRAPHVkSpirvCachePolicy *policy,
+                        const void *data, size_t size)
 {
     if (!data || size < SPIRV_MIN_MODULE_SIZE ||
         size > PGRAPH_VK_SPIRV_CACHE_MAX_SPIRV_SIZE ||
@@ -96,9 +141,26 @@ static bool spirv_valid(const void *data, size_t size)
     }
 
     const uint8_t *bytes = data;
+    size_t word_count = size / sizeof(uint32_t);
     uint32_t version = load_u32_le(bytes + sizeof(uint32_t));
-    return load_u32_le(bytes) == SPIRV_MAGIC_WORD &&
-           version >= 0x00010000U && version <= 0x00010600U;
+    uint32_t id_bound = load_u32_le(bytes + 3 * sizeof(uint32_t));
+    if (!policy || load_u32_le(bytes) != SPIRV_MAGIC_WORD ||
+        version < 0x00010000U || version > 0x00010600U ||
+        version != policy->spirv_target || !id_bound ||
+        id_bound > PGRAPH_VK_SPIRV_CACHE_MAX_ID_BOUND ||
+        load_u32_le(bytes + 4 * sizeof(uint32_t)) != 0) {
+        return false;
+    }
+
+    for (size_t word = 5; word < word_count;) {
+        uint32_t instruction = load_u32_le(bytes + word * sizeof(uint32_t));
+        uint32_t instruction_words = instruction >> 16;
+        if (!instruction_words || instruction_words > word_count - word) {
+            return false;
+        }
+        word += instruction_words;
+    }
+    return true;
 }
 
 static bool source_valid(const void *data, size_t size)
@@ -158,7 +220,9 @@ static bool append_entry(PGRAPHVkSpirvCache *cache, uint32_t stage,
     PGRAPHVkSpirvCacheEntry *entries = cache->entries;
     entries[cache->stats.records++] = (PGRAPHVkSpirvCacheEntry) {
         .source_hash = cache_hash(source, source_size),
+        .last_used = next_access(cache),
         .stage = stage,
+        .index_next = SPIRV_CACHE_INDEX_NONE,
         .source_size = source_size,
         .spirv_size = spirv_size,
         .source = source_copy,
@@ -166,25 +230,41 @@ static bool append_entry(PGRAPHVkSpirvCache *cache, uint32_t stage,
     };
     cache->stats.source_bytes += source_size;
     cache->stats.spirv_bytes += spirv_size;
+    uint32_t index = (uint32_t)(cache->stats.records - 1);
+    uint32_t bucket = index_bucket(cache, entries[index].source_hash, stage);
+    uint32_t *buckets = cache->index_buckets;
+    entries[index].index_next = buckets[bucket];
+    buckets[bucket] = index;
     return true;
 }
 
 static PGRAPHVkSpirvCacheEntry *find_entry(PGRAPHVkSpirvCache *cache,
                                            uint32_t stage,
                                            const void *source,
-                                           size_t source_size)
+                                           size_t source_size, bool touch)
 {
-    if (!source_valid(source, source_size)) {
+    if (!persistent_stage_valid(stage) || !source_valid(source, source_size) ||
+        !cache->index_buckets || !cache->index_bucket_count) {
         return NULL;
     }
     uint64_t hash = cache_hash(source, source_size);
     PGRAPHVkSpirvCacheEntry *entries = cache->entries;
-    for (size_t i = 0; i < cache->stats.records; i++) {
-        if (entries[i].source_hash == hash && entries[i].stage == stage &&
-            entries[i].source_size == source_size &&
-            !memcmp(entries[i].source, source, source_size)) {
-            return &entries[i];
+    uint32_t *buckets = cache->index_buckets;
+    uint32_t index = buckets[index_bucket(cache, hash, stage)];
+    while (index != SPIRV_CACHE_INDEX_NONE) {
+        if (index >= cache->stats.records) {
+            return NULL;
         }
+        PGRAPHVkSpirvCacheEntry *entry = &entries[index];
+        if (entry->source_hash == hash && entry->stage == stage &&
+            entry->source_size == source_size &&
+            !memcmp(entry->source, source, source_size)) {
+            if (touch) {
+                entry->last_used = next_access(cache);
+            }
+            return entry;
+        }
+        index = entry->index_next;
     }
     return NULL;
 }
@@ -196,15 +276,22 @@ bool pgraph_vk_spirv_cache_init(PGRAPHVkSpirvCache *cache,
         return false;
     }
     void *flavor = malloc(policy->compiler_flavor_size);
-    if (!flavor) {
+    uint32_t *buckets =
+        malloc(PGRAPH_VK_SPIRV_CACHE_INDEX_BUCKETS * sizeof(*buckets));
+    if (!flavor || !buckets) {
+        free(flavor);
+        free(buckets);
         return false;
     }
     memcpy(flavor, policy->compiler_flavor, policy->compiler_flavor_size);
     *cache = (PGRAPHVkSpirvCache) {
         .policy = *policy,
         .compiler_flavor = flavor,
+        .index_buckets = buckets,
+        .index_bucket_count = PGRAPH_VK_SPIRV_CACHE_INDEX_BUCKETS,
     };
     cache->policy.compiler_flavor = flavor;
+    rebuild_index(cache);
     return true;
 }
 
@@ -214,6 +301,7 @@ void pgraph_vk_spirv_cache_destroy(PGRAPHVkSpirvCache *cache)
         return;
     }
     free_entries(cache->entries, cache->stats.records);
+    free(cache->index_buckets);
     free(cache->compiler_flavor);
     *cache = (PGRAPHVkSpirvCache) { 0 };
 }
@@ -321,12 +409,13 @@ PGRAPHVkSpirvCacheLoadResult pgraph_vk_spirv_cache_load(
                 cache_hash(source, record_source_size) ||
             load_u64_le(record + 24) !=
                 cache_hash(spirv, record_spirv_size) ||
-            !spirv_valid(spirv, record_spirv_size) ||
+            !persistent_stage_valid(stage) ||
+            !spirv_valid(&temporary.policy, spirv, record_spirv_size) ||
             temporary.stats.source_bytes + record_source_size >
                 PGRAPH_VK_SPIRV_CACHE_MAX_SOURCE_BYTES ||
             temporary.stats.spirv_bytes + record_spirv_size >
                 PGRAPH_VK_SPIRV_CACHE_MAX_SPIRV_BYTES ||
-            find_entry(&temporary, stage, source, record_source_size) ||
+            find_entry(&temporary, stage, source, record_source_size, false) ||
             !append_entry(&temporary, stage, source, record_source_size, spirv,
                           record_spirv_size)) {
             valid = false;
@@ -345,13 +434,18 @@ PGRAPHVkSpirvCacheLoadResult pgraph_vk_spirv_cache_load(
     }
 
     free_entries(cache->entries, cache->stats.records);
+    free(cache->index_buckets);
     cache->entries = temporary.entries;
     cache->capacity = temporary.capacity;
+    cache->index_buckets = temporary.index_buckets;
+    cache->index_bucket_count = temporary.index_bucket_count;
+    cache->access_clock = temporary.access_clock;
     cache->stats.records = temporary.stats.records;
     cache->stats.source_bytes = temporary.stats.source_bytes;
     cache->stats.spirv_bytes = temporary.stats.spirv_bytes;
     cache->stats.loaded_bytes = size;
     temporary.entries = NULL;
+    temporary.index_buckets = NULL;
     temporary.stats.records = 0;
     pgraph_vk_spirv_cache_destroy(&temporary);
     return PGRAPH_VK_SPIRV_CACHE_LOAD_OK;
@@ -362,7 +456,7 @@ PGRAPHVkSpirvCacheLookupResult pgraph_vk_spirv_cache_lookup(
     size_t source_size, const uint8_t **spirv, size_t *spirv_size)
 {
     PGRAPHVkSpirvCacheEntry *entry =
-        cache ? find_entry(cache, stage, source, source_size) : NULL;
+        cache ? find_entry(cache, stage, source, source_size, true) : NULL;
     if (!entry) {
         if (cache) {
             cache->stats.misses++;
@@ -383,25 +477,40 @@ bool pgraph_vk_spirv_cache_add(PGRAPHVkSpirvCache *cache, uint32_t stage,
                                const void *source, size_t source_size,
                                const void *spirv, size_t spirv_size)
 {
-    if (!cache || !cache->compiler_flavor ||
-        !source_valid(source, source_size) || !spirv_valid(spirv, spirv_size)) {
+    if (!cache || !cache->compiler_flavor || !persistent_stage_valid(stage) ||
+        !source_valid(source, source_size) ||
+        !spirv_valid(&cache->policy, spirv, spirv_size)) {
         if (cache) {
             cache->stats.rejections++;
         }
         return false;
     }
-    if (find_entry(cache, stage, source, source_size)) {
+    if (find_entry(cache, stage, source, source_size, true)) {
         return true;
     }
-    if (cache->stats.records >= PGRAPH_VK_SPIRV_CACHE_MAX_RECORDS ||
-        cache->stats.source_bytes + source_size >
-            PGRAPH_VK_SPIRV_CACHE_MAX_SOURCE_BYTES ||
-        cache->stats.spirv_bytes + spirv_size >
-            PGRAPH_VK_SPIRV_CACHE_MAX_SPIRV_BYTES) {
-        if (cache) {
-            cache->stats.rejections++;
+    while (cache->stats.records >= PGRAPH_VK_SPIRV_CACHE_MAX_RECORDS ||
+           cache->stats.source_bytes + source_size >
+               PGRAPH_VK_SPIRV_CACHE_MAX_SOURCE_BYTES ||
+           cache->stats.spirv_bytes + spirv_size >
+               PGRAPH_VK_SPIRV_CACHE_MAX_SPIRV_BYTES) {
+        PGRAPHVkSpirvCacheEntry *entries = cache->entries;
+        size_t victim = 0;
+        for (size_t i = 1; i < cache->stats.records; i++) {
+            if (entries[i].last_used < entries[victim].last_used) {
+                victim = i;
+            }
         }
-        return false;
+        cache->stats.source_bytes -= entries[victim].source_size;
+        cache->stats.spirv_bytes -= entries[victim].spirv_size;
+        free(entries[victim].source);
+        free(entries[victim].spirv);
+        if (victim + 1 < cache->stats.records) {
+            memmove(&entries[victim], &entries[victim + 1],
+                    (cache->stats.records - victim - 1) * sizeof(*entries));
+        }
+        cache->stats.records--;
+        cache->dirty = true;
+        rebuild_index(cache);
     }
     if (!append_entry(cache, stage, source, source_size, spirv, spirv_size)) {
         cache->stats.rejections++;
@@ -420,7 +529,7 @@ bool pgraph_vk_spirv_cache_reject_hit(PGRAPHVkSpirvCache *cache,
         return false;
     }
     PGRAPHVkSpirvCacheEntry *entry =
-        find_entry(cache, stage, source, source_size);
+        find_entry(cache, stage, source, source_size, false);
     if (!entry) {
         return false;
     }
@@ -438,7 +547,40 @@ bool pgraph_vk_spirv_cache_reject_hit(PGRAPHVkSpirvCache *cache,
     cache->stats.rejections++;
     cache->stats.fallbacks++;
     cache->dirty = true;
+    rebuild_index(cache);
     return true;
+}
+
+static int compare_entry_recency(const void *left, const void *right)
+{
+    const PGRAPHVkSpirvCacheEntry *const *a = left;
+    const PGRAPHVkSpirvCacheEntry *const *b = right;
+
+    if ((*a)->last_used < (*b)->last_used) {
+        return -1;
+    }
+    if ((*a)->last_used > (*b)->last_used) {
+        return 1;
+    }
+    if ((*a)->stage < (*b)->stage) {
+        return -1;
+    }
+    if ((*a)->stage > (*b)->stage) {
+        return 1;
+    }
+    if ((*a)->source_hash < (*b)->source_hash) {
+        return -1;
+    }
+    if ((*a)->source_hash > (*b)->source_hash) {
+        return 1;
+    }
+    if ((*a)->source_size < (*b)->source_size) {
+        return -1;
+    }
+    if ((*a)->source_size > (*b)->source_size) {
+        return 1;
+    }
+    return memcmp((*a)->source, (*b)->source, (*a)->source_size);
 }
 
 bool pgraph_vk_spirv_cache_serialize(const PGRAPHVkSpirvCache *cache,
@@ -458,6 +600,20 @@ bool pgraph_vk_spirv_cache_serialize(const PGRAPHVkSpirvCache *cache,
     uint8_t *data = calloc(1, size);
     if (!data) {
         return false;
+    }
+    const PGRAPHVkSpirvCacheEntry **ordered = NULL;
+    if (cache->stats.records) {
+        ordered = malloc(cache->stats.records * sizeof(*ordered));
+        if (!ordered) {
+            free(data);
+            return false;
+        }
+        const PGRAPHVkSpirvCacheEntry *entries = cache->entries;
+        for (size_t i = 0; i < cache->stats.records; i++) {
+            ordered[i] = &entries[i];
+        }
+        qsort(ordered, cache->stats.records, sizeof(*ordered),
+              compare_entry_recency);
     }
 
     store_u32_le(data + HEADER_MAGIC, SPIRV_CACHE_MAGIC);
@@ -480,26 +636,27 @@ bool pgraph_vk_spirv_cache_serialize(const PGRAPHVkSpirvCache *cache,
     memcpy(data + offset, cache->policy.compiler_flavor,
            cache->policy.compiler_flavor_size);
     offset += cache->policy.compiler_flavor_size;
-    const PGRAPHVkSpirvCacheEntry *entries = cache->entries;
     for (size_t i = 0; i < cache->stats.records; i++) {
+        const PGRAPHVkSpirvCacheEntry *entry = ordered[i];
         uint8_t *record = data + offset;
-        store_u32_le(record, entries[i].stage);
-        store_u32_le(record + 4, (uint32_t)entries[i].source_size);
-        store_u32_le(record + 8, (uint32_t)entries[i].spirv_size);
-        store_u64_le(record + 16, entries[i].source_hash);
+        store_u32_le(record, entry->stage);
+        store_u32_le(record + 4, (uint32_t)entry->source_size);
+        store_u32_le(record + 8, (uint32_t)entry->spirv_size);
+        store_u64_le(record + 16, entry->source_hash);
         store_u64_le(record + 24,
-                     cache_hash(entries[i].spirv, entries[i].spirv_size));
+                     cache_hash(entry->spirv, entry->spirv_size));
         offset += SPIRV_CACHE_RECORD_SIZE;
-        memcpy(data + offset, entries[i].source, entries[i].source_size);
-        offset += entries[i].source_size;
-        memcpy(data + offset, entries[i].spirv, entries[i].spirv_size);
-        offset += entries[i].spirv_size;
+        memcpy(data + offset, entry->source, entry->source_size);
+        offset += entry->source_size;
+        memcpy(data + offset, entry->spirv, entry->spirv_size);
+        offset += entry->spirv_size;
     }
     store_u64_le(data + HEADER_PAYLOAD_HASH,
                  cache_hash(data + PGRAPH_VK_SPIRV_CACHE_HEADER_SIZE,
                             size - PGRAPH_VK_SPIRV_CACHE_HEADER_SIZE));
     blob->data = data;
     blob->size = size;
+    free(ordered);
     return true;
 }
 
