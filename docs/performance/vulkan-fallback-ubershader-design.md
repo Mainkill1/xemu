@@ -57,7 +57,9 @@ the fallback must respect compile-time geometry interfaces, sampler types,
 vertex input, attachment formats, and host Vulkan capabilities.
 
 **Next:** Stage 1 from current `main` defines the explicit combiner control ABI,
-validated packer, route/key/ticket policy, and a non-creating exact LRU probe.
+validated packer, route/ticket metadata policy, and a non-creating exact LRU
+probe. It deliberately leaves the complete shader/family/executable key with
+the later owned pipeline recipe instead of treating a digest as identity.
 The following focused stage adds an oracle-only combiner interpreter inside the
 existing fragment shell. Runtime fallback stays disabled until
 specialized-versus-interpreter output and guest-visible side effects match for
@@ -530,11 +532,13 @@ is immediately waited on provides no benefit, and draw skipping is not an
 acceptable correctness result.
 
 The first implementation PR branches from current `main` and contains the
-explicit state ABI, validated packer, selection/key/ticket policy tests, and a
-non-creating exact cache probe. The next focused PR adds the oracle-only
-combiner interpreter. Runtime fallback belongs in a later draft after the
-oracle defines a proven admitted set. Capability expansions such as dynamic
-state, pipeline libraries, and shader objects remain separate measured changes.
+explicit state ABI, validated packer, selection/ticket metadata policy tests,
+and a non-creating exact cache probe. It does not define a placeholder digest
+as the full key and does not treat metadata validation as proof that a Vulkan
+executable bundle is ready. The next focused PR adds the oracle-only combiner
+interpreter. Runtime fallback belongs in a later draft after the oracle defines
+a proven admitted set. Capability expansions such as dynamic state, pipeline
+libraries, and shader objects remain separate measured changes.
 
 ## Evidence and primary references
 
