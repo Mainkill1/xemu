@@ -39,6 +39,7 @@
 #include <vk_mem_alloc.h>
 
 #include "blend-constants-cache.h"
+#include "device-selection.h"
 #include "debug.h"
 #include "constants.h"
 #include "glsl.h"
@@ -443,6 +444,7 @@ typedef struct PGRAPHVkState {
     bool demote_to_helper_extension_enabled;
 
     VkPhysicalDevice physical_device;
+    PGRAPHVkDeviceRecord selected_device;
     VkPhysicalDeviceFeatures enabled_physical_device_features;
     VkPhysicalDeviceProperties device_props;
     VkDevice device;

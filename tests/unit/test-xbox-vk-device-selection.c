@@ -24,10 +24,11 @@ static PGRAPHVkDeviceRecord make_device(const char *name, const uint8_t *uuid,
                                         bool supported)
 {
     PGRAPHVkDeviceRecord record = {
-        .name = name,
         .type = type,
         .renderer_supported = supported,
     };
+    assert(strlen(name) < sizeof(record.name));
+    strcpy(record.name, name);
     memcpy(record.device_uuid, uuid, PGRAPH_VK_DEVICE_UUID_SIZE);
     return record;
 }

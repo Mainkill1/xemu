@@ -10,6 +10,7 @@
 #include <stdint.h>
 
 #define PGRAPH_VK_DEVICE_UUID_SIZE 16
+#define PGRAPH_VK_DEVICE_NAME_SIZE 256
 #define PGRAPH_VK_DEVICE_UUID_STRING_SIZE \
     (PGRAPH_VK_DEVICE_UUID_SIZE * 2 + 1)
 
@@ -22,8 +23,13 @@ typedef enum PGRAPHVkDeviceType {
 } PGRAPHVkDeviceType;
 
 typedef struct PGRAPHVkDeviceRecord {
-    const char *name;
+    char name[PGRAPH_VK_DEVICE_NAME_SIZE];
     uint8_t device_uuid[PGRAPH_VK_DEVICE_UUID_SIZE];
+    uint8_t driver_uuid[PGRAPH_VK_DEVICE_UUID_SIZE];
+    uint32_t vendor_id;
+    uint32_t device_id;
+    uint32_t api_version;
+    uint32_t driver_version;
     PGRAPHVkDeviceType type;
     bool renderer_supported;
     const char *rejection_reason;

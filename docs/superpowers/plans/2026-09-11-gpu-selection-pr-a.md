@@ -57,13 +57,13 @@
 - Produces `pgraph_vk_enumerate_device_handles()` with injectable enumeration callbacks for unit tests, `pgraph_vk_collect_device_inventory()`, and `pgraph_vk_device_record_check_renderer_support()`.
 - Returns owned arrays of copied records paired with live handles only for the caller's current instance.
 
-- [ ] Write failing enumeration tests for zero devices, first-call failure, second-call failure, count growth, count shrink, repeated `VK_INCOMPLETE`, and bounded retry exhaustion.
-- [ ] Implement bounded two-call enumeration and verify focused tests pass.
-- [ ] Write failing capability tests proving required features, combined graphics/compute queue, Vulkan 1.1, and required external-memory/semaphore extensions affect the same compatibility record used by selection.
-- [ ] Implement properties2/ID-property copying and unified capability evaluation; preserve raw driver version.
-- [ ] Replace `select_physical_device()` enumeration with inventory plus pure resolution while retaining renderer-owned handles.
-- [ ] Remove runtime `preferred_physical_device` write-back and verify a focused test catches its reintroduction through an unchanged request fixture.
-- [ ] Commit checked inventory integration.
+- [x] Write failing enumeration tests for zero devices, first-call failure, second-call failure, count growth, count shrink, repeated `VK_INCOMPLETE`, and bounded retry exhaustion.
+- [x] Implement bounded two-call enumeration and verify focused tests pass.
+- [x] Write failing capability tests proving required features, combined graphics/compute queue, Vulkan 1.1, and required external-memory/semaphore extensions affect the same compatibility record used by selection.
+- [x] Implement properties2/ID-property copying and unified capability evaluation; preserve raw driver version.
+- [x] Replace `select_physical_device()` enumeration with inventory plus pure resolution while retaining renderer-owned handles.
+- [x] Remove runtime `preferred_physical_device` write-back; configuration-preservation integration coverage is completed in Task 5.
+- [x] Commit checked inventory integration.
 
 ### Task 3: Launch request and configuration migration
 

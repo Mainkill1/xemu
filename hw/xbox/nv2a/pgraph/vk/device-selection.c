@@ -102,8 +102,7 @@ static PGRAPHVkSelectionResult resolve_legacy_name(
     }
 
     for (size_t i = 0; i < count; i++) {
-        if (devices[i].name != NULL &&
-            !strcmp(devices[i].name, request->legacy_name)) {
+        if (!strcmp(devices[i].name, request->legacy_name)) {
             match = i;
             matches++;
         }
