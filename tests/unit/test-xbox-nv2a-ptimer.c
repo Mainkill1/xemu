@@ -610,6 +610,152 @@ static void test_pll_register_reschedules_alarm(void)
     ptimer_reset(&d);
 }
 
+enum TimebaseChange {
+    CHANGE_CORE,
+    CHANGE_NUMERATOR,
+    CHANGE_DENOMINATOR,
+    CHANGE_TIME_LOW,
+    CHANGE_TIME_HIGH,
+    CHANGE_CORE_RESTART,
+    CHANGE_PLL,
+    CHANGE_NUMERATOR_RESTART,
+    CHANGE_DENOMINATOR_RESTART,
+    TIMEBASE_CHANGE_COUNT,
+};
+
+enum TimebaseObservation {
+    OBSERVE_POLL,
+    OBSERVE_CALLBACK,
+    OBSERVE_MASKED_POLL,
+    OBSERVE_ALREADY_PENDING,
+    OBSERVE_MASKED_ACK,
+    TIMEBASE_OBSERVATION_COUNT,
+};
+
+/* Characterize the current absolute-time mapping and observation order.
+ * A due-now timer after crossing an alarm is already overdue; this is not the
+ * positive-future-distance rounding bug. These assertions do not establish
+ * whether Xbox hardware publishes an IRQ synchronously on a timebase write.
+ */
+static void test_timebase_crosses_alarm_characterization(gconstpointer opaque)
+{
+    unsigned int scenario = GPOINTER_TO_UINT(opaque);
+    enum TimebaseChange change = scenario / TIMEBASE_OBSERVATION_COUNT;
+    enum TimebaseObservation observation = scenario % TIMEBASE_OBSERVATION_COUNT;
+    bool masked = observation == OBSERVE_MASKED_POLL ||
+                  observation == OBSERVE_MASKED_ACK;
+    uint32_t initial_pending = observation == OBSERVE_ALREADY_PENDING ?
+                              NV_PTIMER_INTR_0_ALARM : 0;
+    NV2AState d;
+
+    init_nv2a_ptimer(&d);
+    d.pramdac.core_clock_freq = 100000000;
+    if (change == CHANGE_NUMERATOR || change == CHANGE_NUMERATOR_RESTART) {
+        d.pramdac.core_clock_freq = 1000000000;
+        d.ptimer.numerator = 10;
+    }
+    ptimer_test_time_ns = 100;
+    ptimer_write(&d, NV_PTIMER_ALARM_0, 0x1e0, 4);
+    g_assert_cmphex(ptimer_read(&d, NV_PTIMER_TIME_0, 4), ==, 0x140);
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, 150);
+    if (masked) {
+        ptimer_write(&d, NV_PTIMER_INTR_EN_0, 0, 4);
+    }
+    d.ptimer.pending_interrupts = initial_pending;
+    nv2a_update_irq(&d);
+
+    switch (change) {
+    case CHANGE_CORE:
+        ptimer_set_core_clock(&d, 1000000000);
+        break;
+    case CHANGE_NUMERATOR:
+        ptimer_write(&d, NV_PTIMER_NUMERATOR, 1, 4);
+        break;
+    case CHANGE_DENOMINATOR:
+        ptimer_write(&d, NV_PTIMER_DENOMINATOR, 10, 4);
+        break;
+    case CHANGE_TIME_LOW:
+        ptimer_write(&d, NV_PTIMER_TIME_0, 0xc80, 4);
+        break;
+    case CHANGE_TIME_HIGH:
+        ptimer_write(&d, NV_PTIMER_TIME_1, 1, 4);
+        break;
+    case CHANGE_CORE_RESTART:
+        ptimer_set_core_clock(&d, 0);
+        g_assert_false(timer_pending(&d.ptimer.timer));
+        ptimer_set_core_clock(&d, 1000000000);
+        break;
+    case CHANGE_PLL:
+        pramdac_write(&d, NV_PRAMDAC_NVPLL_COEFF, 0x3c01, 4);
+        g_assert_cmpuint(d.pramdac.core_clock_freq, ==, 999999960);
+        break;
+    case CHANGE_NUMERATOR_RESTART:
+        ptimer_write(&d, NV_PTIMER_NUMERATOR, 0, 4);
+        g_assert_false(timer_pending(&d.ptimer.timer));
+        ptimer_write(&d, NV_PTIMER_NUMERATOR, 1, 4);
+        break;
+    case CHANGE_DENOMINATOR_RESTART:
+        ptimer_write(&d, NV_PTIMER_DENOMINATOR, 0, 4);
+        g_assert_false(timer_pending(&d.ptimer.timer));
+        ptimer_write(&d, NV_PTIMER_DENOMINATOR, 10, 4);
+        break;
+    default:
+        g_assert_not_reached();
+    }
+
+    /* The mapping changed, but no callback has run and no status was polled. */
+    g_assert_true(d.ptimer.alarm_armed);
+    g_assert_cmphex(d.ptimer.alarm_time, ==, 0x1e0);
+    g_assert_cmphex(d.ptimer.pending_interrupts, ==, initial_pending);
+    g_assert_cmpint(timer_pending(&d.ptimer.timer), ==, !masked);
+    g_assert_cmpint(irq_asserted, ==, initial_pending != 0);
+    if (!masked) {
+        g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, 100);
+    }
+
+    if (observation == OBSERVE_MASKED_ACK) {
+        /* Reconcile before write-one-to-clear, then do not resurrect it. */
+        ptimer_write(&d, NV_PTIMER_INTR_0, NV_PTIMER_INTR_0_ALARM, 4);
+        g_assert_cmphex(ptimer_read(&d, NV_PTIMER_INTR_0, 4), ==, 0);
+        g_assert_false(irq_asserted);
+    } else {
+        if (observation == OBSERVE_CALLBACK) {
+            fire_alarm_at(&d, ptimer_test_time_ns);
+        }
+        g_assert_cmphex(ptimer_read(&d, NV_PTIMER_INTR_0, 4), ==,
+                        NV_PTIMER_INTR_0_ALARM);
+        g_assert_cmpint(irq_asserted, ==, !masked);
+    }
+    g_assert_cmphex(d.ptimer.alarm_time, >, 0x1e0);
+    if (masked) {
+        g_assert_false(timer_pending(&d.ptimer.timer));
+        ptimer_write(&d, NV_PTIMER_INTR_EN_0, NV_PTIMER_INTR_EN_0_ALARM, 4);
+        g_assert_cmpint(irq_asserted, ==, observation != OBSERVE_MASKED_ACK);
+    }
+    g_assert_true(timer_pending(&d.ptimer.timer));
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), >,
+                    ptimer_test_time_ns);
+    ptimer_reset(&d);
+}
+
+static void test_timebase_backward_characterization(void)
+{
+    NV2AState d;
+
+    init_nv2a_ptimer(&d);
+    d.pramdac.core_clock_freq = 100000000;
+    ptimer_test_time_ns = 100;
+    ptimer_write(&d, NV_PTIMER_ALARM_0, 0x1e0, 4);
+    ptimer_write(&d, NV_PTIMER_TIME_0, 0x80, 4);
+    g_assert_cmphex(ptimer_read(&d, NV_PTIMER_TIME_0, 4), ==, 0x80);
+    g_assert_cmphex(ptimer_read(&d, NV_PTIMER_INTR_0, 4), ==, 0);
+    g_assert_false(irq_asserted);
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, 210);
+    expire_alarm(&d);
+    g_assert_true(irq_asserted);
+    ptimer_reset(&d);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -667,5 +813,25 @@ int main(int argc, char **argv)
                     test_restore_alarm_versions);
     g_test_add_func("/xbox/nv2a/ptimer/pll-register",
                     test_pll_register_reschedules_alarm);
+    const char *changes[TIMEBASE_CHANGE_COUNT] = {
+        "core", "numerator", "denominator", "time-low", "time-high",
+        "core-restart", "pll-register", "numerator-restart", "denominator-restart",
+    };
+    const char *observations[TIMEBASE_OBSERVATION_COUNT] = {
+        "poll", "callback", "masked-poll", "already-pending", "masked-ack",
+    };
+    for (unsigned int change = 0; change < TIMEBASE_CHANGE_COUNT; change++) {
+        for (unsigned int observation = 0; observation < TIMEBASE_OBSERVATION_COUNT;
+             observation++) {
+            g_autofree char *path = g_strdup_printf(
+                "/xbox/nv2a/ptimer/timebase-characterization/%s/%s",
+                changes[change], observations[observation]);
+            g_test_add_data_func(path,
+                GUINT_TO_POINTER(change * TIMEBASE_OBSERVATION_COUNT + observation),
+                test_timebase_crosses_alarm_characterization);
+        }
+    }
+    g_test_add_func("/xbox/nv2a/ptimer/timebase-characterization/backward",
+                    test_timebase_backward_characterization);
     return g_test_run();
 }
