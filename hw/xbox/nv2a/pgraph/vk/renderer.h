@@ -53,6 +53,7 @@ typedef struct QueueFamilyIndices {
 
 typedef struct MemorySyncRequirement {
     hwaddr addr, size;
+    bool surface_overlap;
 } MemorySyncRequirement;
 
 typedef struct RenderPassState {
@@ -694,7 +695,8 @@ void pgraph_vk_bind_vertex_attributes(NV2AState *d, unsigned int min_element,
                                       unsigned int provoking_element);
 void pgraph_vk_bind_vertex_attributes_inline(NV2AState *d);
 void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset, void *data,
-                                    VkDeviceSize size);
+                                        VkDeviceSize size,
+                                        bool download_surfaces);
 VkDeviceSize pgraph_vk_update_index_buffer(PGRAPHState *pg, void *data,
                                            VkDeviceSize size);
 VkDeviceSize pgraph_vk_update_vertex_inline_buffer(PGRAPHState *pg, void **data,

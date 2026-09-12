@@ -1740,25 +1740,33 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
     NV2A_VK_DGROUP_BEGIN("Sync vertex RAM buffer");
 
     for (int i = 0; i < r->num_vertex_ram_buffer_syncs; i++) {
+        MemorySyncRequirement *sync = &r->vertex_ram_buffer_syncs[i];
         NV2A_VK_DPRINTF("Need to sync vertex memory @%" HWADDR_PRIx
                         ", %" HWADDR_PRIx " bytes",
-                        r->vertex_ram_buffer_syncs[i].addr,
-                        r->vertex_ram_buffer_syncs[i].size);
+                        sync->addr, sync->size);
 
-        hwaddr start_addr =
-            r->vertex_ram_buffer_syncs[i].addr & TARGET_PAGE_MASK;
-        hwaddr end_addr = r->vertex_ram_buffer_syncs[i].addr +
-                          r->vertex_ram_buffer_syncs[i].size;
+        /* Page alignment is needed for dirty tracking and buffer uploads,
+         * but it must not turn adjacent vertices into a surface readback. */
+        sync->surface_overlap = sync->size &&
+            pgraph_vk_surface_overlaps_range(pg, sync->addr, sync->size);
+        if (sync->surface_overlap &&
+            !pgraph_vk_download_surfaces_in_range_if_dirty(
+                pg, sync->addr, sync->size)) {
+            error_report("Vulkan surface readback failed before vertex upload");
+            abort();
+        }
+
+        hwaddr start_addr = sync->addr & TARGET_PAGE_MASK;
+        hwaddr end_addr = sync->addr + sync->size;
         end_addr = ROUND_UP(end_addr, TARGET_PAGE_SIZE);
 
         NV2A_VK_DPRINTF("- %d: %08" HWADDR_PRIx " %zd bytes"
                           " -> %08" HWADDR_PRIx " %zd bytes", i,
-                        r->vertex_ram_buffer_syncs[i].addr,
-                        r->vertex_ram_buffer_syncs[i].size, start_addr,
+                        sync->addr, sync->size, start_addr,
                         end_addr - start_addr);
 
-        r->vertex_ram_buffer_syncs[i].addr = start_addr;
-        r->vertex_ram_buffer_syncs[i].size = end_addr - start_addr;
+        sync->addr = start_addr;
+        sync->size = end_addr - start_addr;
     }
 
     // Sort the requirements in increasing order of addresses
@@ -1782,6 +1790,7 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
             hwaddr t_end_addr = t->addr + t->size;
             hwaddr new_end_addr = MAX(p_end_addr, t_end_addr);
             p->size = new_end_addr - p->addr;
+            p->surface_overlap |= t->surface_overlap;
         } else {
             merged[num_syncs++] = *t;
         }
@@ -1797,11 +1806,12 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
 
         NV2A_VK_DPRINTF("- %d: %08"HWADDR_PRIx" %zd bytes", i, addr, size);
 
-        if (memory_region_test_and_clear_dirty(d->vram, addr, size,
-                                               DIRTY_MEMORY_NV2A)) {
+        bool memory_dirty = memory_region_test_and_clear_dirty(
+            d->vram, addr, size, DIRTY_MEMORY_NV2A);
+        if (memory_dirty || merged[i].surface_overlap) {
             NV2A_VK_DPRINTF("Memory dirty. Synchronizing...");
             pgraph_vk_update_vertex_ram_buffer(pg, addr, d->vram_ptr + addr,
-                                               size);
+                                               size, false);
         }
     }
 
