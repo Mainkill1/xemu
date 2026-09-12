@@ -1076,8 +1076,9 @@ static bool update_uber_controls(PGRAPHState *pg, const PshState *state)
     return r->uber_controls_valid;
 }
 
-static PGRAPHVkFragmentRoute select_fragment_route(PGRAPHState *pg,
-                                                    const ShaderState *state)
+static PGRAPHVkFragmentRoute select_fragment_route(
+    PGRAPHState *pg, const ShaderState *state,
+    ShaderBinding **cached_specialized_binding)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     ShaderModuleCacheKey module_key;
@@ -1092,20 +1093,22 @@ static PGRAPHVkFragmentRoute select_fragment_route(PGRAPHState *pg,
         return PGRAPH_VK_FRAGMENT_SPECIALIZED;
     }
 
-    if (!update_uber_controls(pg, &state->psh)) {
-        return PGRAPH_VK_FRAGMENT_SPECIALIZED;
-    }
-
     ShaderBindingKey binding_key = {
         .state = *state,
         .fragment_route = PGRAPH_VK_FRAGMENT_SPECIALIZED,
     };
-    if (find_shader_binding_for_key(r, &binding_key)) {
+    ShaderBinding *cached = find_shader_binding_for_key(r, &binding_key);
+    if (cached) {
+        *cached_specialized_binding = cached;
         return PGRAPH_VK_FRAGMENT_SPECIALIZED;
     }
     init_fragment_module_key(&module_key, &state->psh,
                              PGRAPH_VK_FRAGMENT_SPECIALIZED);
     if (find_shader_module_for_key(r, &module_key)) {
+        return PGRAPH_VK_FRAGMENT_SPECIALIZED;
+    }
+    /* Existing specialized output needs no fallback controls this draw. */
+    if (!update_uber_controls(pg, &state->psh)) {
         return PGRAPH_VK_FRAGMENT_SPECIALIZED;
     }
 
@@ -1392,13 +1395,15 @@ void pgraph_vk_bind_shaders(PGRAPHState *pg)
     } else {
         new_state = r->shader_binding->state;
     }
+    ShaderBinding *cached_specialized_binding = NULL;
     PGRAPHVkFragmentRoute fragment_route;
     if (!shader_state_dirty &&
         r->shader_binding->fragment_route ==
             PGRAPH_VK_FRAGMENT_SPECIALIZED) {
         fragment_route = PGRAPH_VK_FRAGMENT_SPECIALIZED;
     } else {
-        fragment_route = select_fragment_route(pg, &new_state);
+        fragment_route = select_fragment_route(
+            pg, &new_state, &cached_specialized_binding);
     }
     r->hybrid_bound_selection_epoch = r->hybrid_selection_epoch;
 
@@ -1412,7 +1417,16 @@ void pgraph_vk_bind_shaders(PGRAPHState *pg)
                 .state = new_state,
                 .fragment_route = fragment_route,
             };
-            r->shader_binding = get_shader_binding_for_key(r, &key);
+            if (cached_specialized_binding) {
+                /* A probe hit is borrowed. Match the ordinary LRU hit's
+                 * recency update before retaining the binding. */
+                assert(fragment_route == PGRAPH_VK_FRAGMENT_SPECIALIZED);
+                lru_touch_existing(&r->shader_cache,
+                                   &cached_specialized_binding->node);
+                r->shader_binding = cached_specialized_binding;
+            } else {
+                r->shader_binding = get_shader_binding_for_key(r, &key);
+            }
             r->shader_bindings_changed = true;
             r->uniform_layout_changed[PGRAPH_UNIFORM_STAGE_VSH] =
                 !old_binding ||

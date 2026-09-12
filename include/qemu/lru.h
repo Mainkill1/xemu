@@ -202,6 +202,20 @@ LruNode *lru_find_existing(Lru *lru, uint64_t hash, const void *key)
     return NULL;
 }
 
+/* Refresh a borrowed exact hit while it remains in use under the caller's lock. */
+static inline
+void lru_touch_existing(Lru *lru, LruNode *node)
+{
+    unsigned int bin;
+
+    assert(lru_is_node_in_use(lru, node));
+    bin = lru_get_node_bin(lru, node);
+    QTAILQ_REMOVE(&lru->global, node, next_global);
+    QTAILQ_INSERT_HEAD(&lru->global, node, next_global);
+    QTAILQ_REMOVE(&lru->bins[bin], node, next_bin);
+    QTAILQ_INSERT_HEAD(&lru->bins[bin], node, next_bin);
+}
+
 static inline
 LruNode *lru_try_lookup(Lru *lru, uint64_t hash, const void *key)
 {

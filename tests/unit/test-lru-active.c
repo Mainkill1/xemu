@@ -159,6 +159,51 @@ static bool test_find_existing_does_not_mutate(void)
            callback_counts.post_evict == 0;
 }
 
+static bool test_touch_existing_updates_recency_without_lookup(void)
+{
+    Lru lru;
+    TestEntry entries[3] = { 0 };
+    uint64_t keys[3] = { 10, 20, 30 };
+    const uint64_t hash = 0x1234;
+    LruNode *nodes[3];
+    LruNode *borrowed;
+
+    lru_init(&lru);
+    lru.init_node = entry_init;
+    lru.compare_nodes = entry_compare;
+    lru.pre_node_evict = entry_pre_evict;
+    lru.post_node_evict = entry_post_evict;
+    for (size_t i = 0; i < 3; i++) {
+        lru_add_free(&lru, &entries[i].node);
+        nodes[i] = lru_lookup(&lru, hash, &keys[i]);
+    }
+
+    borrowed = lru_find_existing(&lru, hash, &keys[0]);
+    if (borrowed != nodes[0]) {
+        return false;
+    }
+    callback_counts = (CallbackCounts) { 0 };
+    lru_touch_existing(&lru, borrowed);
+    lru_touch_existing(&lru, borrowed);
+
+    if (QTAILQ_FIRST(&lru.global) != nodes[0] ||
+        QTAILQ_NEXT(nodes[0], next_global) != nodes[2] ||
+        QTAILQ_NEXT(nodes[2], next_global) != nodes[1] ||
+        QTAILQ_FIRST(&lru.bins[lru_hash_to_bin(&lru, hash)]) != nodes[0] ||
+        QTAILQ_NEXT(nodes[0], next_bin) != nodes[2] ||
+        QTAILQ_NEXT(nodes[2], next_bin) != nodes[1] ||
+        lru.num_used != 3 || lru.num_free != 0 ||
+        callback_counts.init != 0 || callback_counts.pre_evict != 0 ||
+        callback_counts.post_evict != 0) {
+        return false;
+    }
+
+    /* The untouched oldest entry, not the borrowed hit, is evicted. */
+    return lru_try_evict_one(&lru) == nodes[1] &&
+           callback_counts.pre_evict == 1 &&
+           callback_counts.post_evict == 1;
+}
+
 static void record_visit(Lru *lru, LruNode *node, void *opaque)
 {
     TestEntry *entry = TEST_CONTAINER_OF(node, TestEntry, node);
@@ -202,7 +247,7 @@ int main(void)
     lru_visit_active(&lru, record_visit, &flushed);
 
     puts("TAP version 13");
-    puts("1..4");
+    puts("1..5");
     printf("%s 1 - visit includes every active node and no free node\n",
            active.count == 2 && active.mask == expected_mask ?
            "ok" : "not ok");
@@ -211,12 +256,16 @@ int main(void)
 
     bool exact = test_find_existing_is_exact();
     bool immutable = test_find_existing_does_not_mutate();
+    bool touched = test_touch_existing_updates_recency_without_lookup();
     printf("%s 3 - noncreating lookup resolves exact keys through collisions\n",
            exact ? "ok" : "not ok");
     printf("%s 4 - noncreating lookup preserves LRU state and callbacks\n",
            immutable ? "ok" : "not ok");
+    printf("%s 5 - touching a borrowed hit updates recency without eviction\n",
+           touched ? "ok" : "not ok");
 
     return active.count == 2 && active.mask == expected_mask &&
-           flushed.count == 0 && flushed.mask == 0 && exact && immutable ?
+           flushed.count == 0 && flushed.mask == 0 && exact && immutable &&
+           touched ?
            0 : 1;
 }
