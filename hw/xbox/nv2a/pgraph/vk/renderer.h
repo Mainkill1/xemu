@@ -515,6 +515,9 @@ typedef struct PGRAPHVkState {
     size_t num_pending_vertex_ram_reads;
     uint8_t *vertex_ram_read_pages;
     size_t num_vertex_ram_read_pages;
+    bool vertex_ram_read_tracking_active;
+    bool vertex_ram_updated_in_batch;
+    unsigned int vertex_ram_read_tracking_idle_batches;
 
     VkVertexInputAttributeDescription vertex_attribute_descriptions[NV2A_VERTEXSHADER_ATTRIBUTES];
     int vertex_attribute_to_description_location[NV2A_VERTEXSHADER_ATTRIBUTES];
