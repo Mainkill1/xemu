@@ -1797,9 +1797,15 @@ bool pgraph_vk_bind_textures(NV2AState *d)
             (!binding->key.palette_length ||
              !pgraph_vk_surface_overlaps_range(
                  pg, binding->key.palette_vram_offset,
-                 binding->key.palette_length))) {
+                 binding->key.palette_length)) &&
+            pgraph_get_texture_phys_addr(pg, i) ==
+                binding->key.texture_vram_offset &&
+            (!binding->key.palette_length ||
+             pgraph_get_texture_palette_phys_addr_length(pg, i, NULL) ==
+                 binding->key.palette_vram_offset)) {
             /* Another stage caused this slow bind. This stage's source and
-             * effective state have no pending work; keep its cached binding. */
+             * effective state have no pending work. Recheck DMA mapping here:
+             * RAMIN may change a descriptor without a texture-state write. */
             continue;
         }
 
