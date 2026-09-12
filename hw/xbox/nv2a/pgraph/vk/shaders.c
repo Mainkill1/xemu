@@ -1395,9 +1395,15 @@ void pgraph_vk_bind_shaders(PGRAPHState *pg)
     } else {
         new_state = r->shader_binding->state;
     }
+    /* Register-dirty hints often leave the effective shader state intact.
+     * An already-bound specialized shader needs no route/cache probe then. */
+    bool bound_state_equal = r->shader_binding &&
+        (!shader_state_dirty ||
+         memcmp(&r->shader_binding->state, &new_state,
+                sizeof(ShaderState)) == 0);
     ShaderBinding *cached_specialized_binding = NULL;
     PGRAPHVkFragmentRoute fragment_route;
-    if (!shader_state_dirty &&
+    if (bound_state_equal &&
         r->shader_binding->fragment_route ==
             PGRAPH_VK_FRAGMENT_SPECIALIZED) {
         fragment_route = PGRAPH_VK_FRAGMENT_SPECIALIZED;
@@ -1412,7 +1418,7 @@ void pgraph_vk_bind_shaders(PGRAPHState *pg)
         ShaderBinding *old_binding = r->shader_binding;
         if (!old_binding ||
             old_binding->fragment_route != fragment_route ||
-            memcmp(&old_binding->state, &new_state, sizeof(ShaderState))) {
+            !bound_state_equal) {
             ShaderBindingKey key = {
                 .state = new_state,
                 .fragment_route = fragment_route,
