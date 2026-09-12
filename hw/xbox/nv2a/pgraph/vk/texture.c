@@ -1320,6 +1320,9 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     // Check active surfaces to see if this texture was a render target
     detail_start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
     SurfaceBinding *surface = pgraph_vk_surface_get(d, texture_vram_offset);
+    pgraph_vk_perf_record_cpu_region(
+        r, surface ? VK_PERF_CPU_TEXTURE_CREATE_EXACT_SURFACE
+                   : VK_PERF_CPU_TEXTURE_CREATE_NO_EXACT_SURFACE, 0);
     if (surface && state.levels == 1) {
         surface_to_texture =
             check_surface_to_texture_compatiblity(surface, &state);
@@ -1776,6 +1779,9 @@ bool pgraph_vk_bind_textures(NV2AState *d)
             continue;
         }
 
+        pgraph_vk_perf_record_cpu_region(
+            r, pg->texture_dirty[i] ? VK_PERF_CPU_TEXTURE_PREPARE_DIRTY_STAGE
+                                 : VK_PERF_CPU_TEXTURE_PREPARE_CLEAN_STAGE, 0);
         if (create_texture(pg, i)) {
             pg->texture_dirty[i] = false; // FIXME: Move to renderer?
         } else {
