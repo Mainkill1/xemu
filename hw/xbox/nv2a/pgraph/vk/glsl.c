@@ -166,13 +166,16 @@ void pgraph_vk_glsl_target_versions(
     }
 }
 
-GByteArray *pgraph_vk_compile_glsl_to_spv(PGRAPHVkState *r,
-                                          glslang_stage_t stage,
-                                          const char *glsl_source)
+GByteArray *pgraph_vk_compile_glsl_to_spv_config(
+    const PGRAPHVkGlslCompileConfig *config, glslang_stage_t stage,
+    const char *glsl_source)
 {
+    g_return_val_if_fail(config != NULL, NULL);
+    g_return_val_if_fail(glsl_source != NULL, NULL);
+
     glslang_target_client_version_t client_version;
     glslang_target_language_version_t language_version;
-    pgraph_vk_glsl_target_versions(r->vk_api_version, &client_version,
+    pgraph_vk_glsl_target_versions(config->api_version, &client_version,
                                    &language_version);
     const glslang_input_t input = {
         .language = GLSLANG_SOURCE_GLSL,
@@ -240,7 +243,7 @@ GByteArray *pgraph_vk_compile_glsl_to_spv(PGRAPHVkState *r,
         .validate = true,
     };
 
-    if (g_config.display.vulkan.debug_shaders) {
+    if (config->debug_shaders) {
         spv_options.disable_optimizer = true;
         spv_options.generate_debug_info = true;
         spv_options.emit_nonsemantic_shader_debug_info = true;
@@ -271,6 +274,47 @@ GByteArray *pgraph_vk_compile_glsl_to_spv(PGRAPHVkState *r,
     glslang_shader_delete(shader);
 
     return g_byte_array_new_take(data, num_program_bytes);
+}
+
+GByteArray *pgraph_vk_compile_glsl_to_spv(PGRAPHVkState *r,
+                                          glslang_stage_t stage,
+                                          const char *glsl_source)
+{
+    g_return_val_if_fail(r != NULL, NULL);
+
+    PGRAPHVkGlslCompileConfig config = {
+        .api_version = r->vk_api_version,
+        .debug_shaders = g_config.display.vulkan.debug_shaders,
+    };
+    if (r->hybrid_compiler_initialized) {
+        uint64_t ticket = pgraph_vk_hybrid_allocate_ticket(
+            &r->hybrid_ticket_allocator);
+        PGRAPHVkHybridCompileResult result = { 0 };
+        PGRAPHVkHybridCompileRequest request = {
+            .generation = r->hybrid_generation,
+            .ticket = ticket,
+            .stage = stage,
+            .glsl = glsl_source,
+            .glsl_size = strlen(glsl_source) + 1,
+            .config = &config,
+            .config_size = sizeof(config),
+        };
+        if (!ticket || !pgraph_vk_hybrid_compiler_submit_blocking(
+                           &r->hybrid_compiler, &request, &result) ||
+            !result.success || result.generation != request.generation ||
+            result.ticket != request.ticket || result.stage != request.stage) {
+            pgraph_vk_hybrid_compile_result_destroy(&result);
+            return NULL;
+        }
+
+        GByteArray *spirv = g_byte_array_new_take(result.spirv,
+                                                   result.spirv_size);
+        result.spirv = NULL;
+        result.spirv_size = 0;
+        pgraph_vk_hybrid_compile_result_destroy(&result);
+        return spirv;
+    }
+    return pgraph_vk_compile_glsl_to_spv_config(&config, stage, glsl_source);
 }
 
 static bool block_to_uniforms(const SpvReflectBlockVariable *block,

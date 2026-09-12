@@ -43,6 +43,8 @@
 #include "debug.h"
 #include "constants.h"
 #include "glsl.h"
+#include "hybrid-compiler.h"
+#include "hybrid-policy.h"
 #include "spirv-prewarm.h"
 #include "ubershader-controls.h"
 
@@ -219,6 +221,18 @@ typedef struct ShaderModuleCacheEntry {
     ShaderModuleCacheKey key;
     ShaderModuleInfo *module_info;
 } ShaderModuleCacheEntry;
+
+#define PGRAPH_VK_HYBRID_MAX_WORK 64
+
+typedef struct PGRAPHVkHybridShaderWork {
+    bool in_use;
+    uint64_t last_epoch;
+    PGRAPHVkHybridWork metadata;
+    ShaderModuleCacheKey module_key;
+    char *glsl;
+    /* PR70/cache identity length; glsl[glsl_size] is the owned NUL. */
+    size_t glsl_size;
+} PGRAPHVkHybridShaderWork;
 
 typedef struct ShaderBinding {
     LruNode node;
@@ -614,6 +628,20 @@ typedef struct PGRAPHVkState {
     bool shader_bindings_changed;
     bool use_push_constants_for_uniform_attrs;
     bool ubershader_runtime_enabled;
+    bool hybrid_compiler_initialized;
+    uint64_t hybrid_generation;
+    uint64_t hybrid_route_epoch;
+    uint64_t hybrid_selection_epoch;
+    uint64_t hybrid_bound_selection_epoch;
+    size_t hybrid_pending_jobs;
+    PGRAPHVkHybridTicketAllocator hybrid_ticket_allocator;
+    PGRAPHVkHybridCompiler hybrid_compiler;
+    PGRAPHVkHybridShaderWork
+        hybrid_work[PGRAPH_VK_HYBRID_MAX_WORK];
+    const ShaderModuleCacheKey *hybrid_materializing_key;
+    const char *hybrid_materializing_glsl;
+    size_t hybrid_materializing_glsl_size;
+    GByteArray *hybrid_materializing_spirv;
 
     Lru shader_module_cache;
     ShaderModuleCacheEntry *shader_module_cache_entries;
@@ -683,6 +711,12 @@ uint32_t pgraph_vk_get_memory_type(PGRAPHState *pg, uint32_t type_bits,
                                    VkMemoryPropertyFlags properties);
 
 // glsl.c
+typedef struct PGRAPHVkGlslCompileConfig {
+    uint32_t api_version;
+    /* Fixed-width fields keep bytewise worker-job identity deterministic. */
+    uint32_t debug_shaders;
+} PGRAPHVkGlslCompileConfig;
+
 void pgraph_vk_init_glsl_compiler(void);
 void pgraph_vk_finalize_glsl_compiler(void);
 void pgraph_vk_glsl_target_versions(
@@ -691,6 +725,9 @@ void pgraph_vk_glsl_target_versions(
 GByteArray *pgraph_vk_compile_glsl_to_spv(PGRAPHVkState *r,
                                           glslang_stage_t stage,
                                           const char *glsl_source);
+GByteArray *pgraph_vk_compile_glsl_to_spv_config(
+    const PGRAPHVkGlslCompileConfig *config, glslang_stage_t stage,
+    const char *glsl_source);
 bool pgraph_vk_uber_controls_block_matches_abi(
     const SpvReflectBlockVariable *block);
 bool pgraph_vk_init_shader_module_layout_from_spv(
@@ -832,6 +869,8 @@ void pgraph_vk_trim_texture_cache(PGRAPHState *pg);
 // shaders.c
 void pgraph_vk_init_shaders(PGRAPHState *pg);
 void pgraph_vk_finalize_shaders(PGRAPHState *pg);
+void pgraph_vk_process_hybrid_completions(PGRAPHState *pg);
+void pgraph_vk_stop_hybrid_compiler(PGRAPHState *pg);
 void pgraph_vk_process_spirv_cache_writeback(PGRAPHState *pg);
 void pgraph_vk_update_descriptor_sets(PGRAPHState *pg);
 void pgraph_vk_bind_shaders(PGRAPHState *pg);

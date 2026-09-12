@@ -8,6 +8,7 @@
 #define HW_XBOX_NV2A_PGRAPH_VK_HYBRID_POLICY_H
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 /*
@@ -124,5 +125,13 @@ pgraph_vk_hybrid_validate_completion_metadata(
 uint64_t pgraph_vk_hybrid_next_selection_epoch(uint64_t current_epoch);
 bool pgraph_vk_hybrid_selection_changed(uint64_t bound_epoch,
                                         uint64_t selection_epoch);
+bool pgraph_vk_hybrid_source_matches(uint32_t first_stage,
+                                     const void *first_source,
+                                     size_t first_size,
+                                     uint32_t second_stage,
+                                     const void *second_source,
+                                     size_t second_size);
+bool pgraph_vk_hybrid_key_matches(const void *first_key, size_t first_size,
+                                  const void *second_key, size_t second_size);
 
 #endif

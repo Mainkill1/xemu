@@ -62,15 +62,16 @@ static void test_real_compiler_and_reflection_accept_uber_abi(void)
         .ubershader = true,
         .uber_binding = PGRAPH_VK_PSH_UBER_UBO_BINDING,
     };
-    PGRAPHVkState renderer = {
-        .vk_api_version = VK_API_VERSION_1_1,
+    PGRAPHVkGlslCompileConfig compile_config = {
+        .api_version = VK_API_VERSION_1_1,
+        .debug_shaders = false,
     };
     ShaderModuleInfo info = { 0 };
     MString *source = pgraph_glsl_gen_psh(&state, opts);
 
     pgraph_vk_init_glsl_compiler();
-    info.spirv = pgraph_vk_compile_glsl_to_spv(
-        &renderer, GLSLANG_STAGE_FRAGMENT, mstring_get_str(source));
+    info.spirv = pgraph_vk_compile_glsl_to_spv_config(
+        &compile_config, GLSLANG_STAGE_FRAGMENT, mstring_get_str(source));
     g_assert_nonnull(info.spirv);
     g_assert_true(pgraph_vk_init_shader_module_layout_from_spv(
         &info, VK_SHADER_STAGE_FRAGMENT_BIT));

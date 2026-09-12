@@ -182,7 +182,9 @@ static void pgraph_vk_process_pending(NV2AState *d)
         qatomic_read(&r->download_dirty_surfaces_pending) ||
         qatomic_read(&d->pgraph.sync_pending) ||
         qatomic_read(&d->pgraph.flush_pending) ||
-        qatomic_read(&r->spirv_cache_writeback_pending)
+        qatomic_read(&r->spirv_cache_writeback_pending) ||
+        (r->hybrid_compiler_initialized &&
+         pgraph_vk_hybrid_compiler_has_result(&r->hybrid_compiler))
     ) {
         qemu_mutex_unlock(&d->pfifo.lock);
         qemu_mutex_lock(&d->pgraph.lock);
@@ -197,6 +199,10 @@ static void pgraph_vk_process_pending(NV2AState *d)
         }
         if (qatomic_read(&d->pgraph.flush_pending)) {
             pgraph_vk_flush(d);
+        }
+        if (r->hybrid_compiler_initialized &&
+            pgraph_vk_hybrid_compiler_has_result(&r->hybrid_compiler)) {
+            pgraph_vk_process_hybrid_completions(&d->pgraph);
         }
         if (qatomic_read(&r->spirv_cache_writeback_pending)) {
             pgraph_vk_process_spirv_cache_writeback(&d->pgraph);
@@ -229,6 +235,11 @@ static void pgraph_vk_pre_savevm_wait(NV2AState *d)
 static void pgraph_vk_pre_shutdown_trigger(NV2AState *d)
 {
     PGRAPHVkState *r = d->pgraph.vk_renderer_state;
+
+    if (r->hybrid_compiler_initialized) {
+        /* The worker owns no Vulkan objects and cannot publish after stop. */
+        pgraph_vk_hybrid_compiler_stop(&r->hybrid_compiler);
+    }
 
     if (!r->spirv_cache_writeback_complete_initialized ||
         !r->spirv_cache_session_eligible ||

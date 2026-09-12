@@ -303,6 +303,41 @@ static void test_selection_epoch_is_pure_and_skips_zero(void)
     assert(!pgraph_vk_hybrid_selection_changed(20, 20));
 }
 
+static void test_source_identity_uses_stage_size_and_exact_bytes(void)
+{
+    static const char source[] = "void main(){}";
+    static const char other[] = "void main(){ }";
+
+    assert(pgraph_vk_hybrid_source_matches(1, source, sizeof(source) - 1,
+                                           1, source,
+                                           sizeof(source) - 1));
+    assert(!pgraph_vk_hybrid_source_matches(1, source, sizeof(source) - 1,
+                                            2, source,
+                                            sizeof(source) - 1));
+    assert(!pgraph_vk_hybrid_source_matches(1, source, sizeof(source) - 1,
+                                            1, source,
+                                            sizeof(source) - 2));
+    assert(!pgraph_vk_hybrid_source_matches(1, source, sizeof(source) - 1,
+                                            1, other,
+                                            sizeof(other) - 1));
+    assert(!pgraph_vk_hybrid_source_matches(1, NULL, 0, 1, source,
+                                            sizeof(source) - 1));
+}
+
+static void test_recipe_key_identity_uses_size_and_exact_bytes(void)
+{
+    static const uint32_t key[] = { 1, 2, 3, 4 };
+    static const uint32_t other[] = { 1, 2, 3, 5 };
+
+    assert(pgraph_vk_hybrid_key_matches(key, sizeof(key), key,
+                                        sizeof(key)));
+    assert(!pgraph_vk_hybrid_key_matches(key, sizeof(key), other,
+                                         sizeof(other)));
+    assert(!pgraph_vk_hybrid_key_matches(key, sizeof(key), key,
+                                         sizeof(key) - 1));
+    assert(!pgraph_vk_hybrid_key_matches(NULL, 0, key, sizeof(key)));
+}
+
 int main(void)
 {
     test_eight_readiness_combinations();
@@ -316,6 +351,8 @@ int main(void)
     test_ticket_allocator_is_nonzero_monotonic_and_fails_closed();
     test_completion_metadata_requires_current_matching_ticket();
     test_selection_epoch_is_pure_and_skips_zero();
+    test_source_identity_uses_stage_size_and_exact_bytes();
+    test_recipe_key_identity_uses_size_and_exact_bytes();
     puts("hybrid policy metadata tests passed");
     return 0;
 }

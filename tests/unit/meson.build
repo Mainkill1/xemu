@@ -73,6 +73,9 @@ tests = {
   'test-xbox-vk-hybrid-policy': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-policy.c',
   ],
+  'test-xbox-vk-hybrid-compiler': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-compiler.c',
+  ],
   'test-xbox-vk-uniform-layout': [],
   'test-xbox-vk-spirv-prewarm': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/spirv-prewarm.c',
@@ -132,6 +135,8 @@ if vulkan.found()
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/psh-uber.c',
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/device-inventory.c',
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/glsl.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-compiler.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-policy.c',
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/spirv-prewarm.c',
       xbox_i386_target_headers,
       volk, libglslang, vma, vulkan, spirv_reflect,

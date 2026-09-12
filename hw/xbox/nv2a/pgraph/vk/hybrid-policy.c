@@ -7,6 +7,7 @@
 #include "hw/xbox/nv2a/pgraph/vk/hybrid-policy.h"
 
 #include <limits.h>
+#include <string.h>
 
 static PGRAPHVkHybridDecision decision(PGRAPHVkHybridRoute route,
                                        PGRAPHVkHybridReason reason,
@@ -212,4 +213,23 @@ bool pgraph_vk_hybrid_selection_changed(uint64_t bound_epoch,
                                         uint64_t selection_epoch)
 {
     return bound_epoch != selection_epoch;
+}
+
+bool pgraph_vk_hybrid_source_matches(uint32_t first_stage,
+                                     const void *first_source,
+                                     size_t first_size,
+                                     uint32_t second_stage,
+                                     const void *second_source,
+                                     size_t second_size)
+{
+    return first_source && second_source && first_stage == second_stage &&
+           first_size == second_size &&
+           memcmp(first_source, second_source, first_size) == 0;
+}
+
+bool pgraph_vk_hybrid_key_matches(const void *first_key, size_t first_size,
+                                  const void *second_key, size_t second_size)
+{
+    return first_key && second_key && first_size == second_size &&
+           memcmp(first_key, second_key, first_size) == 0;
 }
