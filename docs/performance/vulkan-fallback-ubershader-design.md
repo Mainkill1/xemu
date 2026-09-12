@@ -1,12 +1,12 @@
 # research/vulkan-ubershader-design
 
-**Status:** IMPLEMENTATION IN PROGRESS — contracts and CPU oracle included; runtime fallback remains disabled
+**Status:** IMPLEMENTATION IN PROGRESS — optional runtime fragment combiner included; default Off; native qualification pending
 
 **Stable baseline:** `9f618d6d8c4c446ef023955f3d4de22f661f61a4` / retained product executable `3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b`
 
 **Implementation base / current main:** `5edff26383c6440da35bc92b9fca35f4a404b03b` / tree `11981a736703553349357cd89926b443901cadb9`
 
-**Current candidate:** PR #71 combines the design, control/policy contracts, and finite combiner CPU oracle; no product executable changes
+**Current candidate:** `faf00196956d8ec5a8fbaf88bec76b5052aa33bd` / tree `73152f635e02fa2e315ccd5c4a095abbb1a41ae2`; optional runtime fragment-combiner and bounded compiler worker, exact Windows build pending
 
 **Warm-artifact foundation:** [PR #70](https://github.com/Mainkill1/xemu/pull/70), merged as `fc8c5dec9c1aa18883e74b57937d7ec90fdea074`
 
@@ -34,41 +34,47 @@ and producer-quiesced persistence lifecycle.
 The [external implementation review](https://github.com/Mainkill1/xemu/pull/71#issuecomment-5638411943)
 is the detailed implementation appendix for this plan. Its concrete 448-byte
 combiner/control ABI, binding-6 layout, ownership, queue, publication, teardown,
-and default-off requirements remain inputs to the focused implementation PRs.
+and default-off requirements remain inputs to this feature PR.
 The packet covers the combiner body and its 18 constants; it does not replace
-the current fragment shell or its ordinary reflected uniforms. Later runtime
-work must choose one explicit control-buffer addressing model, provide an
-owned-copy synchronized facade over PR #70's artifact cache, and stop workers
-independently of whether disk caching is enabled. Qualification must identify
-the selected GPU UUID, driver/API/features, and PR #76 presentation transport.
-The explicit default-off mask is a defensive startup contract, not a reproduced
-default-on failure in current `main`.
+the current fragment shell or its ordinary reflected uniforms. The current
+runtime path uses a dynamic uniform-buffer binding for the packed controls and
+keeps vertex, geometry, texture, alpha, depth, clip, and other fragment-shell
+state specialized. The background compiler uses deep-owned immutable inputs, is independent of
+PR #70's disk-cache toggle, and stops before glslang and renderer teardown.
+Qualification must identify the selected GPU UUID, driver/API/features, and PR
+#76 presentation transport. The explicit
+default-off mask is a defensive startup contract, not a reproduced default-on
+failure in current `main`.
 
 ## Summary
 
 **Current result:** The prerequisite warm shader-management layer is merged.
-This PR now includes the fixed 448-byte control ABI, fail-closed admission,
-hybrid route metadata, non-creating exact LRU lookup, and a finite CPU combiner
-oracle with literal goldens and broad differential coverage. These sources are
-linked only into focused tests. Runtime fallback and performance qualification
-have not started.
+This PR includes the fixed 448-byte control ABI, fail-closed admission, hybrid
+route metadata, non-creating exact LRU lookup, finite CPU combiner oracle, GLSL
+runtime combiner, reflected dynamic control binding, descriptor/control upload,
+and an optional renderer route. Enabling the restart-only setting runs admitted
+fragment combiners through that runtime route while other shader and pipeline
+state remains specialized. Native output and performance qualification have
+not been completed.
 
-**Headline:** A precompiled interpreter can render a previously unseen NV2A
-state while its specialized shader and pipeline compile in the background, but
-the fallback must respect compile-time geometry interfaces, sampler types,
-vertex input, attachment formats, and host Vulkan capabilities.
+**Headline:** The interpreter can render an admitted unseen combiner while its
+specialized fragment shader compiles in the background. Graphics-pipeline
+creation remains synchronous, and the fallback must respect geometry
+interfaces, sampler types, vertex input, attachment formats, and host Vulkan
+capabilities.
 
-**Next:** Generate and execute the GLSL combiner interpreter against the CPU
-oracle and the current specialized generator. Runtime fallback stays disabled
-until specialized-versus-interpreter output and guest-visible side effects
-match for an explicit admitted set. The complete shader/family/executable key
-remains owned by the later pipeline recipe rather than a digest standing in for
-identity.
+**Next:** Build and execute the exact worker, compiler/reflection, and renderer
+tests, then compare the optional runtime combiner with specialized output on a
+native Vulkan device, including guest-visible depth, stencil, query, and
+render-to-texture effects. The worker publishes SPIR-V and shader modules on the
+renderer thread. Graphics-pipeline creation remains synchronous on first
+specialized selection and must be measured separately.
 
-This PR contains research documentation and test-linked implementation
-contracts/oracles. The focused tests were built and executed, but the product
-renderer does not compile or call these sources. It makes no performance claim
-yet.
+Earlier focused CPU, GLSL-generation, compiler/reflection, configuration, and
+runtime-key tests passed on the preceding implementation. Their exact-head
+rerun plus the new worker tests remain pending. The product renderer calls the
+runtime fragment-combiner path only when the default-off setting is enabled. No
+native game or performance result is claimed yet.
 
 ## Investigation
 
@@ -302,38 +308,18 @@ none replaces a correct portable fallback decision.
 
 ### Current / before
 
-```mermaid
-flowchart LR
-    A[Draw reaches PGRAPH] --> B[Build exact shader state]
-    B --> C{Stage modules cached?}
-    C -->|No| D[Generate GLSL and run glslang]
-    C -->|Yes| E[Use cached stage modules]
-    D --> F[Create modules and reflect layouts]
-    E --> G{Graphics pipeline cached?}
-    F --> G
-    G -->|No| H[Create pipeline synchronously]
-    G -->|Yes| I[Bind pipeline]
-    H --> I
-    I --> J[Issue draw]
-```
+The draw builds exact shader state and reuses cached stage modules when
+available. A module miss generates GLSL, runs glslang, creates modules, and
+reflects layouts synchronously. A graphics-pipeline miss is also resolved
+synchronously before the draw is issued.
 
-### Candidate / after
+### Planned background-specialization flow
 
-```mermaid
-flowchart LR
-    A[Draw reaches PGRAPH] --> B{Specialization ready?}
-    B -->|Yes| C[Bind specialized pipeline]
-    B -->|No| D{Precreated fallback covers state?}
-    D -->|No| E[Use current synchronous specialization]
-    D -->|Yes| F[Snapshot immutable job and control data]
-    F --> G[Bind compatible fallback family]
-    G --> H[Issue complete draw]
-    F --> I[Compile specialization in bounded worker]
-    I --> J[Publish complete result at draw boundary]
-    J --> C
-    C --> H
-    E --> H
-```
+A ready specialization remains the preferred route. A covered miss would pack
+immutable control and job data, issue the draw through a compatible precreated
+fallback, and compile the specialization in a bounded worker. Completed work
+would be published at a later draw boundary. Uncovered state would retain the
+current synchronous specialization path.
 
 ### Processing difference
 
@@ -351,22 +337,23 @@ flowchart LR
 ## Planned code scope
 
 The feature stays in this PR. Each stage remains a focused commit with its own
-tests and exit condition. Runtime selection cannot be enabled until the earlier
-proof stages pass.
+tests and exit condition. The current default-off runtime route interprets the
+fragment combiner and sends eligible specialization to one bounded worker. It
+does not move Vulkan graphics-pipeline creation off the renderer thread.
 
 | Stage | Intended scope | Exit condition |
 | --- | --- | --- |
 | 0. PR #70 dependency | Bounded warm artifact reuse and renderer lifecycle | **Complete** — merged as `fc8c5dec9c`; implementation work records current `main` as its base |
 | 1. Control and policy contracts | Fixed control ABI, fail-closed admission, non-creating lookup, and bounded route/ticket metadata | **Complete in this PR** — focused strict and sanitizer tests pass |
 | 2. Finite combiner CPU oracle | Interpret the admitted packed controls and compare with literal goldens plus an unpacked reference | **Complete in this PR** — zero-to-eight-stage semantic coverage passes without runtime selection |
-| 3. Generated GLSL and family-boundary oracle | Execute the interpreter and specialized shaders, then inventory shell-changing texture/clip/depth/alpha and vertex/geometry interfaces | Specialized and fallback images plus depth/stencil/query effects match for an explicitly admitted corpus |
-| 4. Precreated fallback family | Renderer-owned modules, layouts, descriptors, dynamic-state setup, and family coverage predicate behind an off-by-default experiment | No runtime compilation is needed to draw any admitted signature |
-| 5. Background specialization | Immutable jobs, bounded workers, Vulkan object construction, publication, cancellation, and shutdown | Covered misses never wait; uncovered states remain correct and synchronous |
+| 3. Generated GLSL and family-boundary oracle | Execute the interpreter and specialized shaders, then inventory shell-changing texture/clip/depth/alpha and vertex/geometry interfaces | **Partial in this PR** — GLSL generation and real compiler/reflection checks pass; native output and side-effect comparison remains pending |
+| 4. Precreated fallback family | Renderer-owned modules, layouts, descriptors, dynamic-state setup, and family coverage predicate behind an off-by-default experiment | **Partial prototype in this PR** — optional fragment route, dynamic controls, descriptors, and isolated cache keys exist; shell-specific modules and pipelines are still created synchronously |
+| 5. Background specialization | Immutable jobs, one bounded worker, renderer-thread module publication, cancellation, and shutdown | **Implemented; exact build/test pending** — eligible glslang work leaves the draw path, while first specialized graphics-pipeline creation remains synchronous |
 | 6. Coverage and capability expansion | Typed sampler strategy, dynamic-state path, pipeline libraries, or shader objects, each measured separately | Coverage increases without exceeding resource or performance gates |
 
-Expected implementation areas are `vk/shaders.c`, `vk/draw.c`, `vk/renderer.c`,
-`vk/renderer.h`, `vk/instance.c`, and new focused fallback state/interpreter
-modules. Existing GLSL semantic helpers should be shared or mechanically
+Current implementation areas are `vk/shaders.c`, `vk/glsl.c`,
+`vk/renderer.c`, `vk/renderer.h`, the hybrid worker/policy modules, and the
+focused fallback state/interpreter modules. Existing GLSL semantic helpers should be shared or mechanically
 cross-checked rather than copied into a second drifting implementation.
 
 ## Correctness contract
@@ -408,12 +395,12 @@ The measurements below came from PR #68 head
 That diagnostic head was based on `f738796284d374f1cf22b05a6f5f643268fc8ab0`;
 the parent alone is not the measured build identity.
 
-| Measurement | Stable baseline | Exact PR #68 diagnostic | Design candidate |
+| Measurement | Stable baseline | Exact PR #68 diagnostic | PR #71 candidate |
 | --- | ---: | ---: | ---: |
-| Primary-frame glslang | Not instrumented in retained baseline | 18.217 ms | N/A — no runtime code |
-| Primary-frame pipeline preparation | Not instrumented in retained baseline | 43.738 ms | N/A — no runtime code |
-| Full-run glslang | Not instrumented in retained baseline | 463.419 ms | N/A — no runtime code |
-| First-seen stage/source identities | Not instrumented in retained baseline | 121 | N/A — no runtime code |
+| Primary-frame glslang | Not instrumented in retained baseline | 18.217 ms | Not measured — runtime candidate unqualified |
+| Primary-frame pipeline preparation | Not instrumented in retained baseline | 43.738 ms | Not measured — runtime candidate unqualified |
+| Full-run glslang | Not instrumented in retained baseline | 463.419 ms | Not measured — runtime candidate unqualified |
+| First-seen stage/source identities | Not instrumented in retained baseline | 121 | Not measured — runtime candidate unqualified |
 
 **Profile evidence:** [PR #68 classification report](https://github.com/Mainkill1/xemu-perf-tests/blob/e77436eb3f7084bd8e406e07ede7ec5f318d1e66/docs/evidence/pr68-shader-identity-20260910/classification/REPORT.md)
 
@@ -460,9 +447,9 @@ in-game navigation.
 
 | Gate | OpenGL | Vulkan |
 | --- | --- | --- |
-| Targeted fallback shader corpus | Not needed — Vulkan-only feature | Not run — design only |
-| Full catalog and output oracle | Not run — design only | Not run — design only |
-| Validation errors | Not needed — Vulkan-only feature | Not run — design only |
+| Targeted fallback shader corpus | Not needed — Vulkan-only feature | Not run — runtime candidate unqualified |
+| Full catalog and output oracle | Not run — runtime candidate unqualified | Not run — runtime candidate unqualified |
+| Validation errors | Not needed — Vulkan-only feature | Not run — runtime candidate unqualified |
 
 ## Resource results
 
@@ -486,20 +473,22 @@ without a ready compatible fallback, uses the synchronous correct path.
 | Test | OpenGL | Vulkan |
 | --- | --- | --- |
 | PR #70 qualification and merge | Not needed | PASS — merged and qualified |
-| Targeted state-packer tests | Not needed | Not run — design only |
-| Non-creating lookup and ready-entry adoption | Not needed | Not run — design only |
-| Specialized/fallback differential corpus | Not needed | Not run — design only |
-| Cold, warm, and same-process specialization | Not needed | Not run — design only |
-| Unsupported capability/state fallback | Not needed | Not run — design only |
-| Worker saturation, failure, cancellation, and shutdown | Not needed | Not run — design only |
-| Representative/partial XISO | Not run — design only | Not run — design only |
-| Profiling comparison | Not needed | Not run — design only |
-| Resource comparison | Not run — design only | Not run — design only |
-| Morrowind snapshot | Not run — design only | Not run — design only |
-| PGR2 full start | Not run — design only | Not run — design only |
-| PGR2 snapshot | Not run — design only | Not run — design only |
-| Full XISO | Not run — design only | Not run — design only |
-| Final visual validation | Not run — design only | Not run — design only |
+| Config default, persistence, and restart publication | Not needed | PASS — focused configuration test |
+| Control packer and finite CPU combiner oracle | Not needed | PASS — focused unit and sanitizer tests |
+| Generated GLSL and real compiler/reflection ABI | Not needed | PASS — focused host tests |
+| Runtime route, key isolation, and control upload helpers | Not needed | PASS — focused host tests |
+| Specialized/runtime-combiner GPU differential corpus | Not needed | Not run — native oracle pending |
+| Cold, warm, and same-process specialization | Not needed | Not run — PR #71 candidate pending |
+| Unsupported capability/state fallback | Not needed | Not run — native candidate pending |
+| Worker saturation, failure, cancellation, and shutdown | Not needed | Source/checkpatch PASS; exact compiled unit run pending |
+| Representative/partial XISO | Not run — Vulkan-only feature | Not run — runtime candidate unqualified |
+| Profiling comparison | Not needed | Not run — runtime candidate unqualified |
+| Resource comparison | Not run — Vulkan-only feature | Not run — runtime candidate unqualified |
+| Morrowind snapshot | Not run — Vulkan-only feature | Not run — runtime candidate unqualified |
+| PGR2 full start | Not run — Vulkan-only feature | Not run — runtime candidate unqualified |
+| PGR2 snapshot | Not run — Vulkan-only feature | Not run — runtime candidate unqualified |
+| Full XISO | Not run — runtime candidate unqualified | Not run — runtime candidate unqualified |
+| Final visual validation | Not run — runtime candidate unqualified | Not run — runtime candidate unqualified |
 
 The eventual behavioral candidate must compare its exact binary with both the
 immediately previous `main` and fixed baseline. Reuse the existing baseline
@@ -525,7 +514,7 @@ p95, p99, maximum, stalls, CPU, GPU, RAM, or VRAM, keeps the candidate on hold.
 
 ## Decision
 
-**Result:** READY FOR STAGED IMPLEMENTATION; runtime remains unqualified.
+**Result:** OPTIONAL HYBRID RUNTIME IMPLEMENTED; exact build, native behavior, and performance remain unqualified.
 
 The recommended architecture is a bounded hybrid interpreter family with an
 explicit coverage predicate and background specialization. It directly targets
@@ -534,14 +523,14 @@ remains the qualified warm-run repair and lifecycle foundation. A worker that
 is immediately waited on provides no benefit, and draw skipping is not an
 acceptable correctness result.
 
-The first implementation PR branches from current `main` and contains the
-explicit state ABI, validated packer, selection/ticket metadata policy tests,
-and a non-creating exact cache probe. It does not define a placeholder digest
-as the full key and does not treat metadata validation as proof that a Vulkan
-executable bundle is ready. The next focused PR adds the oracle-only combiner
-interpreter. Runtime fallback belongs in a later draft after the oracle defines
-a proven admitted set. Capability expansions such as dynamic state, pipeline
-libraries, and shader objects remain separate measured changes.
+This PR contains the explicit state ABI, validated packer, selection/ticket
+metadata policy tests, non-creating exact cache probe, CPU oracle, generated
+GLSL interpreter, dynamic control upload, and optional renderer route. It does
+not define a placeholder digest as the full key and does not treat metadata
+validation as proof that a Vulkan executable bundle is ready. Bounded background specialization and renderer-thread module publication are
+in this draft. Graphics-pipeline creation is still synchronous and remains a
+measured limitation. Capability expansions such as dynamic state, pipeline libraries, and
+shader objects remain separately measured stages.
 
 ## Evidence and primary references
 
@@ -561,8 +550,13 @@ Specific game shaders cannot generally be specialized before the guest exposes
 their vertex tokens, combiner state, texture signatures, and pipeline state.
 A precompiled general interpreter can cover unseen work, but xemu needs a
 bounded family because several Vulkan interfaces remain compile-time or
-pipeline-time decisions. The current contracts and CPU oracle change no runtime behavior and claim no
-improvement. The PR #70 ordering dependency is complete. PR #71 now proves the
-fallback state ABI, packer, policy, non-creating cache query, and finite combiner
-semantics in one feature PR. Generated-GLSL/GPU comparison remains the next gate
-before any hybrid path is enabled.
+pipeline-time decisions. The current optional path interprets admitted fragment
+combiner state at runtime while retaining the specialized fragment shell,
+vertex and geometry stages. It compiles eligible specialized fragment SPIR-V on
+one worker and publishes shader modules on the renderer thread; graphics
+pipeline creation and a new fallback shell can still be synchronous. It claims
+no improvement. The PR #70 ordering dependency is complete. PR #71 now includes
+the fallback state ABI, packer, policy, non-creating cache query, finite combiner
+semantics, generated GLSL, and opt-in renderer route in one feature PR. Native specialized-versus-runtime output, worker execution, and performance
+qualification remain the next gates. First fallback and specialized
+graphics-pipeline creation remain synchronous and must be reported separately.
