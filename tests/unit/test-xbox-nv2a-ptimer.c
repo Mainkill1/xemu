@@ -792,6 +792,7 @@ static void test_masked_ack_keeps_absent_schedule(void)
     NV2AState d;
 
     init_nv2a_ptimer(&d);
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, 0, 4);
     ptimer_write(&d, NV_PTIMER_ALARM_0, TEST_ALARM_LOW, 4);
     uint64_t dels = ptimer_test_timer_del_calls;
 

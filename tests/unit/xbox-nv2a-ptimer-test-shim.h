@@ -9,6 +9,7 @@
 
 #include "qemu/osdep.h"
 #include "qemu/host-utils.h"
+#include "qemu/main-loop.h"
 #include "qemu/timer.h"
 #include "qemu/units.h"
 #include "exec/hwaddr.h"
@@ -79,6 +80,5 @@ void ptimer_init(NV2AState *d);
 void ptimer_reset(NV2AState *d);
 void ptimer_post_load(NV2AState *d, int version_id);
 void ptimer_set_core_clock(NV2AState *d, uint64_t frequency);
-bool ptimer_test_bql_locked(void);
 
 #endif
