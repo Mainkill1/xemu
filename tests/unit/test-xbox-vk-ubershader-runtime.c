@@ -79,6 +79,44 @@ static void test_shader_binding_key_equality_requires_route_and_full_state(void)
     g_assert_true(pgraph_vk_shader_binding_key_different(&a, &b));
 }
 
+static void test_shader_module_key_uses_only_active_stage(void)
+{
+    ShaderModuleCacheKey a = { 0 };
+    ShaderModuleCacheKey b;
+    size_t active_size;
+
+    a.kind = VK_SHADER_STAGE_GEOMETRY_BIT;
+    a.fragment_route = PGRAPH_VK_FRAGMENT_SPECIALIZED;
+    a.geom.glsl_opts.vulkan = true;
+    b = a;
+    active_size = pgraph_vk_shader_module_key_active_size(&a);
+    g_assert_cmpuint(active_size, <, sizeof(a));
+    ((uint8_t *)&b)[sizeof(b) - 1] = 0x5a;
+    g_assert_true(pgraph_vk_shader_module_key_equal(&a, &b));
+    b.geom.glsl_opts.vulkan = false;
+    g_assert_false(pgraph_vk_shader_module_key_equal(&a, &b));
+
+    a.kind = VK_SHADER_STAGE_VERTEX_BIT;
+    a.vsh.glsl_opts.ubo_binding = 4;
+    b = a;
+    g_assert_true(pgraph_vk_shader_module_key_equal(&a, &b));
+    b.vsh.glsl_opts.ubo_binding = 5;
+    g_assert_false(pgraph_vk_shader_module_key_equal(&a, &b));
+
+    a.kind = VK_SHADER_STAGE_FRAGMENT_BIT;
+    a.psh.glsl_opts.uber_binding = 6;
+    b = a;
+    g_assert_true(pgraph_vk_shader_module_key_equal(&a, &b));
+    b.psh.glsl_opts.uber_binding = 7;
+    g_assert_false(pgraph_vk_shader_module_key_equal(&a, &b));
+    b = a;
+    b.fragment_route = PGRAPH_VK_FRAGMENT_UBERSHADER;
+    g_assert_false(pgraph_vk_shader_module_key_equal(&a, &b));
+    b = a;
+    b.kind = VK_SHADER_STAGE_VERTEX_BIT;
+    g_assert_false(pgraph_vk_shader_module_key_equal(&a, &b));
+}
+
 static void test_uber_pipeline_key_ignores_only_combiner_words(void)
 {
     ShaderState a = base_state();
@@ -167,6 +205,8 @@ int main(int argc, char **argv)
                     test_disabled_runtime_uses_baseline_descriptor_layout);
     g_test_add_func("/xbox/vk/ubershader/runtime/shader-binding-key",
                     test_shader_binding_key_equality_requires_route_and_full_state);
+    g_test_add_func("/xbox/vk/ubershader/runtime/shader-module-key",
+                    test_shader_module_key_uses_only_active_stage);
     g_test_add_func("/xbox/vk/ubershader/runtime/canonical-key",
                     test_uber_pipeline_key_ignores_only_combiner_words);
     g_test_add_func("/xbox/vk/ubershader/runtime/route-isolation",

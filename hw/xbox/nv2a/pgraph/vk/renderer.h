@@ -216,6 +216,28 @@ typedef struct ShaderModuleCacheKey {
     };
 } ShaderModuleCacheKey;
 
+static inline size_t pgraph_vk_shader_module_key_active_size(
+    const ShaderModuleCacheKey *key)
+{
+    switch (key->kind) {
+    case VK_SHADER_STAGE_VERTEX_BIT:
+        return offsetof(ShaderModuleCacheKey, vsh) + sizeof(key->vsh);
+    case VK_SHADER_STAGE_GEOMETRY_BIT:
+        return offsetof(ShaderModuleCacheKey, geom) + sizeof(key->geom);
+    case VK_SHADER_STAGE_FRAGMENT_BIT:
+        return offsetof(ShaderModuleCacheKey, psh) + sizeof(key->psh);
+    default:
+        g_assert_not_reached();
+    }
+}
+
+static inline bool pgraph_vk_shader_module_key_equal(
+    const ShaderModuleCacheKey *a, const ShaderModuleCacheKey *b)
+{
+    return a->kind == b->kind &&
+           memcmp(a, b, pgraph_vk_shader_module_key_active_size(a)) == 0;
+}
+
 typedef struct ShaderModuleCacheEntry {
     LruNode node;
     ShaderModuleCacheKey key;

@@ -423,11 +423,17 @@ static void init_fragment_module_key(ShaderModuleCacheKey *key,
     key->psh.glsl_opts.uber_binding = PGRAPH_VK_PSH_UBER_UBO_BINDING;
 }
 
+static uint64_t shader_module_key_hash(const ShaderModuleCacheKey *key)
+{
+    return fast_hash((const uint8_t *)key,
+                     pgraph_vk_shader_module_key_active_size(key));
+}
+
 static ShaderModuleInfo *
 get_and_ref_shader_module_for_key(PGRAPHVkState *r,
                                   const ShaderModuleCacheKey *key)
 {
-    uint64_t hash = fast_hash((void *)key, sizeof(ShaderModuleCacheKey));
+    uint64_t hash = shader_module_key_hash(key);
     LruNode *node = lru_lookup(&r->shader_module_cache, hash, key);
     ShaderModuleCacheEntry *module =
         container_of(node, ShaderModuleCacheEntry, node);
@@ -503,12 +509,9 @@ static bool shader_cache_entry_compare(Lru *lru, LruNode *node, const void *key)
     ShaderBinding *snode = container_of(node, ShaderBinding, node);
     const ShaderBindingKey *binding_key = key;
 
-    ShaderBindingKey snode_key = {
-        .state = snode->state,
-        .fragment_route = snode->fragment_route,
-    };
-
-    return pgraph_vk_shader_binding_key_different(&snode_key, binding_key);
+    return snode->fragment_route != binding_key->fragment_route ||
+           memcmp(&snode->state, &binding_key->state,
+                  sizeof(snode->state)) != 0;
 }
 
 static uint32_t shader_spirv_compiler_policy(void)
@@ -802,7 +805,7 @@ static PGRAPHVkHybridShaderWork *hybrid_allocate_work(PGRAPHVkState *r)
 static ShaderModuleCacheEntry *find_shader_module_for_key(
     PGRAPHVkState *r, const ShaderModuleCacheKey *key)
 {
-    uint64_t hash = fast_hash((void *)key, sizeof(*key));
+    uint64_t hash = shader_module_key_hash(key);
     LruNode *node = lru_find_existing(&r->shader_module_cache, hash, key);
 
     return node ? container_of(node, ShaderModuleCacheEntry, node) : NULL;
@@ -852,8 +855,7 @@ void pgraph_vk_process_hybrid_completions(PGRAPHState *pg)
             r->hybrid_materializing_glsl = work->glsl;
             r->hybrid_materializing_glsl_size = work->glsl_size;
             r->hybrid_materializing_spirv = spirv;
-            uint64_t hash = fast_hash((const uint8_t *)&work->module_key,
-                                      sizeof(work->module_key));
+            uint64_t hash = shader_module_key_hash(&work->module_key);
             LruNode *node = lru_lookup(&r->shader_module_cache, hash,
                                        &work->module_key);
             ShaderModuleCacheEntry *entry = container_of(
@@ -982,7 +984,7 @@ static bool shader_module_cache_entry_compare(Lru *lru, LruNode *node,
 {
     ShaderModuleCacheEntry *module =
         container_of(node, ShaderModuleCacheEntry, node);
-    return memcmp(&module->key, key, sizeof(ShaderModuleCacheKey));
+    return !pgraph_vk_shader_module_key_equal(&module->key, key);
 }
 
 static void shader_cache_init(PGRAPHState *pg)
@@ -1146,8 +1148,7 @@ static PGRAPHVkFragmentRoute select_fragment_route(
             &r->spirv_cache, module_key.kind, glsl, glsl_size,
             &cached_spirv, &cached_spirv_size) ==
         PGRAPH_VK_SPIRV_CACHE_HIT) {
-        uint64_t hash = fast_hash((const uint8_t *)&module_key,
-                                  sizeof(module_key));
+        uint64_t hash = shader_module_key_hash(&module_key);
         lru_lookup(&r->shader_module_cache, hash, &module_key);
         mstring_unref(code);
         return PGRAPH_VK_FRAGMENT_SPECIALIZED;
