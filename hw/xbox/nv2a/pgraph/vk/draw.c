@@ -22,6 +22,7 @@
 #include "qemu/fast-hash.h"
 #include "renderer.h"
 #include "pipeline-cache-lifetime.h"
+#include "vertex-version-policy.h"
 #include "ui/xemu-tweaks.h"
 #include <math.h>
 
@@ -1760,18 +1761,85 @@ static int compare_memory_sync_requirement_by_addr(const void *p1,
     return 0;
 }
 
-static void sync_vertex_ram_buffer(PGRAPHState *pg)
+static void get_size_and_count_for_format(VkFormat fmt, size_t *size,
+                                          size_t *count);
+
+/* Version only small, non-overlapping, DMA/VRAM-bounded draws. The inline
+ * staging pair is copied before the recorded draw batch executes, so older
+ * draws keep seeing their earlier fixed-buffer contents. */
+static bool can_version_vertex_draw(PGRAPHState *pg, uint32_t num_vertices)
+{
+    NV2AState *d = container_of(pg, NV2AState, pgraph);
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    uint64_t budget = 64 * 1024 - 256;
+    uint64_t vram_size = memory_region_size(d->vram);
+
+    if (!r->vertex_ram_read_tracking_active || !num_vertices ||
+        num_vertices > 256 || !r->num_active_vertex_binding_descriptions) {
+        return false;
+    }
+
+    for (int i = 0; i < r->num_active_vertex_binding_descriptions; i++) {
+        int attr_id = r->vertex_attribute_descriptions[i].location;
+        VertexAttribute *attr = &pg->vertex_attributes[attr_id];
+        size_t element_size, element_count;
+        get_size_and_count_for_format(
+            r->vertex_attribute_descriptions[i].format,
+            &element_size, &element_count);
+        uint64_t element_bytes = element_size * element_count;
+        uint64_t stride = r->vertex_binding_descriptions[i].stride;
+        uint64_t addr = r->vertex_attribute_offsets[attr_id];
+        hwaddr dma_len = 0;
+        uint8_t *dma = nv_dma_map(
+            d, attr->dma_select ? pg->dma_vertex_b : pg->dma_vertex_a,
+            &dma_len);
+
+        if (!dma || addr > vram_size || attr->offset > dma_len ||
+            !pgraph_vk_vertex_version_span_fits(
+                num_vertices, stride, element_bytes, vram_size - addr) ||
+            !pgraph_vk_vertex_version_span_fits(
+                num_vertices, stride, element_bytes, dma_len - attr->offset) ||
+            !pgraph_vk_vertex_version_copy_fits(
+                num_vertices, element_bytes, budget)) {
+            return false;
+        }
+        budget -= (uint64_t)num_vertices * element_bytes;
+    }
+    return true;
+}
+
+static void set_vertex_ram_stale_pages(PGRAPHVkState *r, size_t first_page,
+                                       size_t page_count, bool stale)
+{
+    assert(first_page <= r->num_vertex_ram_read_pages);
+    assert(page_count <= r->num_vertex_ram_read_pages - first_page);
+    for (size_t page = first_page; page < first_page + page_count; page++) {
+        if (r->vertex_ram_stale_pages[page] == stale) {
+            continue;
+        }
+        r->vertex_ram_stale_pages[page] = stale;
+        if (stale) {
+            r->vertex_ram_stale_page_count++;
+        } else {
+            assert(r->vertex_ram_stale_page_count);
+            r->vertex_ram_stale_page_count--;
+        }
+    }
+}
+
+static bool sync_vertex_ram_buffer(PGRAPHState *pg, uint32_t num_vertices)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     if (r->num_vertex_ram_buffer_syncs == 0) {
-        return;
+        return false;
     }
 
     // Align sync requirements to page boundaries
     NV2A_VK_DGROUP_BEGIN("Sync vertex RAM buffer");
 
+    bool any_surface_overlap = false;
     for (int i = 0; i < r->num_vertex_ram_buffer_syncs; i++) {
         MemorySyncRequirement *sync = &r->vertex_ram_buffer_syncs[i];
         NV2A_VK_DPRINTF("Need to sync vertex memory @%" HWADDR_PRIx
@@ -1782,6 +1850,7 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
          * but it must not turn adjacent vertices into a surface readback. */
         sync->surface_overlap = sync->size &&
             pgraph_vk_surface_overlaps_range(pg, sync->addr, sync->size);
+        any_surface_overlap |= sync->surface_overlap;
         if (sync->surface_overlap &&
             !pgraph_vk_download_surfaces_in_range_if_dirty(
                 pg, sync->addr, sync->size)) {
@@ -1833,6 +1902,9 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
         NV2A_VK_DPRINTF("Reduced to %d sync checks", num_syncs);
     }
 
+    bool version_policy_checked = false;
+    bool version_eligible = false;
+    bool versioned = false;
     for (int i = 0; i < num_syncs; i++) {
         hwaddr addr = merged[i].addr;
         VkDeviceSize size = merged[i].size;
@@ -1841,11 +1913,13 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
 
         bool memory_dirty = memory_region_test_and_clear_dirty(
             d->vram, addr, size, DIRTY_MEMORY_NV2A);
-        if (memory_dirty || merged[i].surface_overlap) {
-            size_t first_page = addr / TARGET_PAGE_SIZE;
-            size_t page_count = size / TARGET_PAGE_SIZE;
-            assert(first_page <= r->num_vertex_ram_read_pages);
-            assert(page_count <= r->num_vertex_ram_read_pages - first_page);
+        size_t first_page = addr / TARGET_PAGE_SIZE;
+        size_t page_count = size / TARGET_PAGE_SIZE;
+        assert(first_page <= r->num_vertex_ram_read_pages);
+        assert(page_count <= r->num_vertex_ram_read_pages - first_page);
+        bool mirror_stale = r->vertex_ram_stale_page_count &&
+            memchr(r->vertex_ram_stale_pages + first_page, 1, page_count);
+        if (memory_dirty || merged[i].surface_overlap || mirror_stale) {
             /* A byte-per-page conservative footprint keeps direct host
              * writes away from vertex data already captured by this batch. */
             bool can_write_directly = r->vertex_ram_read_tracking_active;
@@ -1861,9 +1935,26 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
             if (r->in_command_buffer) {
                 r->vertex_ram_updated_in_batch = true;
             }
+            if (!can_write_directly && !any_surface_overlap) {
+                if (!version_policy_checked) {
+                    version_eligible = can_version_vertex_draw(
+                        pg, num_vertices);
+                    version_policy_checked = true;
+                }
+                if (version_eligible) {
+                    set_vertex_ram_stale_pages(r, first_page, page_count,
+                                               true);
+                    if (r->perf.enabled) {
+                        r->perf.vertex_version_skipped_uploads++;
+                    }
+                    versioned = true;
+                    continue;
+                }
+            }
             NV2A_VK_DPRINTF("Memory dirty. Synchronizing...");
             pgraph_vk_update_vertex_ram_buffer(pg, addr, d->vram_ptr + addr,
                                                size, false, can_write_directly);
+            set_vertex_ram_stale_pages(r, first_page, page_count, false);
         }
     }
 
@@ -1874,6 +1965,7 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
     r->num_vertex_ram_buffer_syncs = 0;
 
     NV2A_VK_DGROUP_END();
+    return versioned;
 }
 
 void pgraph_vk_clear_surface(NV2AState *d, uint32_t parameter)
@@ -2177,7 +2269,8 @@ typedef struct VertexBufferRemap {
 static const VkDeviceSize REMAPPED_VERTEX_BLOCK_ALIGNMENT = 4 * sizeof(float);
 
 static VertexBufferRemap remap_unaligned_attributes(PGRAPHState *pg,
-                                                    uint32_t num_vertices)
+                                                    uint32_t num_vertices,
+                                                    bool version_vertex_data)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
@@ -2203,7 +2296,7 @@ static VertexBufferRemap remap_unaligned_attributes(PGRAPHState *pg,
             (r->vertex_attribute_offsets[attr_id] % element_size == 0);
         bool stride_valid = (desc->stride % element_size == 0);
 
-        if (offset_valid && stride_valid) {
+        if (offset_valid && stride_valid && !version_vertex_data) {
             continue;
         }
 
@@ -2356,10 +2449,11 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
             min_element = MIN(pg->draw_arrays_start[i], min_element);
             max_element = MAX(max_element, pg->draw_arrays_start[i] + pg->draw_arrays_count[i]);
         }
-        sync_vertex_ram_buffer(pg);
+        bool version_vertex_data = sync_vertex_ram_buffer(pg, max_element);
         pgraph_vk_refresh_vertex_inline_values(
             pg, pg->draw_arrays_max_count - 1);
-        VertexBufferRemap remap = remap_unaligned_attributes(pg, max_element);
+        VertexBufferRemap remap = remap_unaligned_attributes(
+            pg, max_element, version_vertex_data);
 
         if (!begin_pre_draw(pg)) {
             NV2A_VK_DGROUP_END();
@@ -2367,6 +2461,10 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
         }
         copy_remapped_attributes_to_inline_buffer(pg, remap, min_element,
                                                   max_element);
+        if (version_vertex_data && r->perf.enabled) {
+            r->perf.vertex_version_draw_count++;
+            r->perf.vertex_version_bytes += remap.buffer_space_required;
+        }
         pgraph_vk_begin_debug_marker(r, r->command_buffer, RGBA_BLUE,
                                      "Draw Arrays");
         begin_draw(pg);
@@ -2407,9 +2505,11 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
             NV2A_VK_DGROUP_END();
             return false;
         }
-        sync_vertex_ram_buffer(pg);
+        bool version_vertex_data = sync_vertex_ram_buffer(pg,
+                                                          max_element + 1);
         pgraph_vk_refresh_vertex_inline_values(pg, provoking_element);
-        VertexBufferRemap remap = remap_unaligned_attributes(pg, max_element + 1);
+        VertexBufferRemap remap = remap_unaligned_attributes(
+            pg, max_element + 1, version_vertex_data);
 
         if (!begin_pre_draw(pg)) {
             NV2A_VK_DGROUP_END();
@@ -2417,6 +2517,10 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
         }
         copy_remapped_attributes_to_inline_buffer(pg, remap, min_element,
                                                   max_element + 1);
+        if (version_vertex_data && r->perf.enabled) {
+            r->perf.vertex_version_draw_count++;
+            r->perf.vertex_version_bytes += remap.buffer_space_required;
+        }
         VkDeviceSize buffer_offset = pgraph_vk_update_index_buffer(
             pg, pg->inline_elements, index_data_size);
         pgraph_vk_begin_debug_marker(r, r->command_buffer, RGBA_BLUE,

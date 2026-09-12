@@ -347,6 +347,8 @@ void pgraph_vk_init_buffers(NV2AState *d)
     r->num_vertex_ram_read_pages =
         DIV_ROUND_UP(memory_region_size(d->vram), TARGET_PAGE_SIZE);
     r->vertex_ram_read_pages = g_malloc0(r->num_vertex_ram_read_pages);
+    r->vertex_ram_stale_pages = g_malloc0(r->num_vertex_ram_read_pages);
+    r->vertex_ram_stale_page_count = 0;
     r->vertex_ram_read_tracking_active = false;
     r->vertex_ram_updated_in_batch = false;
     r->vertex_ram_read_tracking_idle_batches = 0;
@@ -359,6 +361,9 @@ void pgraph_vk_finalize_buffers(NV2AState *d)
 
     g_free(r->vertex_ram_read_pages);
     r->vertex_ram_read_pages = NULL;
+    g_free(r->vertex_ram_stale_pages);
+    r->vertex_ram_stale_pages = NULL;
+    r->vertex_ram_stale_page_count = 0;
     r->vertex_ram_read_tracking_active = false;
     r->vertex_ram_updated_in_batch = false;
     r->vertex_ram_read_tracking_idle_batches = 0;
