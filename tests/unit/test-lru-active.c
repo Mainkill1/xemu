@@ -82,7 +82,7 @@ static size_t snapshot_global_order(Lru *lru, LruNode **nodes,
 
 static bool test_find_existing_is_exact(void)
 {
-    Lru lru;
+    static Lru lru;
     TestEntry entries[3] = {
         { .index = 0 },
         { .index = 1 },
@@ -113,7 +113,7 @@ static bool test_find_existing_is_exact(void)
 
 static bool test_find_existing_does_not_mutate(void)
 {
-    Lru lru;
+    static Lru lru;
     TestEntry entries[3] = {
         { .index = 0 },
         { .index = 1 },
@@ -161,7 +161,7 @@ static bool test_find_existing_does_not_mutate(void)
 
 static bool test_touch_existing_updates_recency_without_lookup(void)
 {
-    Lru lru;
+    static Lru lru;
     TestEntry entries[3] = { 0 };
     uint64_t keys[3] = { 10, 20, 30 };
     const uint64_t hash = 0x1234;
@@ -216,7 +216,7 @@ static void record_visit(Lru *lru, LruNode *node, void *opaque)
 
 int main(void)
 {
-    Lru lru;
+    static Lru lru;
     TestEntry entries[3] = {
         { .index = 0 },
         { .index = 1 },
