@@ -46,6 +46,12 @@ static const char *cpu_region_names[VK_PERF_CPU_REGION_COUNT] = {
     [VK_PERF_CPU_BIND_TEXTURES] = "bind_textures",
     [VK_PERF_CPU_TEXTURE_UPLOAD] = "texture_upload",
     [VK_PERF_CPU_UPDATE_DESCRIPTOR_SETS] = "update_descriptor_sets",
+    [VK_PERF_CPU_TEXTURE_STATE_CHECK] = "texture_state_check",
+    [VK_PERF_CPU_TEXTURE_MEMORY_CHECK] = "texture_memory_check",
+    [VK_PERF_CPU_TEXTURE_IDENTITY_BEFORE] = "texture_identity_before",
+    [VK_PERF_CPU_TEXTURE_PREPARE] = "texture_prepare",
+    [VK_PERF_CPU_TEXTURE_IDENTITY_AFTER] = "texture_identity_after",
+    [VK_PERF_CPU_TEXTURE_TIMESTAMPS] = "texture_timestamps",
 };
 
 static void write_names(FILE *file, const char *key, const char **names,
@@ -99,7 +105,7 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":5"
+            "{\"type\":\"schema\",\"schema_version\":6"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}",
             VK_PERF_INITIAL_TIMED_SUBMITS, VK_PERF_HOT_SAMPLE_STRIDE);
@@ -272,7 +278,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":5"
+            "{\"type\":\"frame\",\"schema_version\":6"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
