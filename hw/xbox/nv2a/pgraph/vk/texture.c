@@ -1428,6 +1428,8 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
             }
         }
 
+        r->texture_binding_source_is_surface[texture_idx] =
+            surface_to_texture;
         NV2A_VK_DGROUP_END();
         return true;
     }
@@ -1633,6 +1635,7 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
         snode->draw_time = 0;
     }
 
+    r->texture_binding_source_is_surface[texture_idx] = surface_to_texture;
     NV2A_VK_DGROUP_END();
     return true;
 }
@@ -1776,6 +1779,27 @@ bool pgraph_vk_bind_textures(NV2AState *d)
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
         if (!pgraph_is_texture_enabled(pg, i)) {
             r->texture_bindings[i] = &r->dummy_texture;
+            continue;
+        }
+
+        TextureBinding *binding = r->texture_bindings[i];
+        if (!pg->texture_dirty[i] && binding &&
+            binding != &r->dummy_texture && !binding->possibly_dirty &&
+            !r->texture_binding_source_is_surface[i] &&
+            !check_texture_possibly_dirty(
+                d, binding->key.texture_vram_offset,
+                binding->key.texture_length,
+                binding->key.palette_vram_offset,
+                binding->key.palette_length) &&
+            !pgraph_vk_surface_overlaps_range(
+                pg, binding->key.texture_vram_offset,
+                binding->key.texture_length) &&
+            (!binding->key.palette_length ||
+             !pgraph_vk_surface_overlaps_range(
+                 pg, binding->key.palette_vram_offset,
+                 binding->key.palette_length))) {
+            /* Another stage caused this slow bind. This stage's source and
+             * effective state have no pending work; keep its cached binding. */
             continue;
         }
 
