@@ -56,8 +56,11 @@ tests = {
   'test-xbox-nv2a-ptimer': [
     'ptimer-test-stubs.c',
     meson.project_source_root() / 'hw/xbox/nv2a/ptimer.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/pramdac.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/ptimer_core.c',
     declare_dependency(
       compile_args: [
+        '-Dbql_locked=ptimer_test_bql_locked',
         '-include',
         meson.project_source_root() / 'tests/unit/xbox-nv2a-ptimer-test-shim.h',
       ],
