@@ -99,7 +99,7 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":5"
+            "{\"type\":\"schema\",\"schema_version\":6"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}",
             VK_PERF_INITIAL_TIMED_SUBMITS, VK_PERF_HOT_SAMPLE_STRIDE);
@@ -204,6 +204,15 @@ void pgraph_vk_perf_record_vertex_staging_copy(PGRAPHVkState *r,
     }
 }
 
+void pgraph_vk_perf_record_vertex_direct_copy(PGRAPHVkState *r,
+                                               uint64_t bytes)
+{
+    if (r->perf.enabled) {
+        r->perf.vertex_direct_bytes += bytes;
+        r->perf.vertex_direct_copy_count++;
+    }
+}
+
 void pgraph_vk_perf_record_vertex_staging_growth(PGRAPHVkState *r)
 {
     if (r->perf.enabled) {
@@ -272,7 +281,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":5"
+            "{\"type\":\"frame\",\"schema_version\":6"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
@@ -326,6 +335,8 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"staged_bytes_per_guest_frame\":%" PRIu64
             ",\"vertex_staged_bytes_per_guest_frame\":%" PRIu64
             ",\"vertex_staging_copies_per_guest_frame\":%" PRIu64
+            ",\"vertex_direct_bytes_per_guest_frame\":%" PRIu64
+            ",\"vertex_direct_copies_per_guest_frame\":%" PRIu64
             ",\"vertex_staging_capacity_bytes\":%zu"
             ",\"vertex_staging_capacity_growths_per_guest_frame\":%" PRIu64
             ",\"vertex_staging_fallback_finishes_per_guest_frame\":%" PRIu64
@@ -349,6 +360,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             submit_count, perf->submit_info_count, perf->command_buffer_count,
             perf->staged_bytes, perf->vertex_staged_bytes,
             perf->vertex_staging_copy_count,
+            perf->vertex_direct_bytes, perf->vertex_direct_copy_count,
             r->storage_buffers[BUFFER_VERTEX_RAM_STAGING].buffer_size,
             perf->vertex_staging_capacity_growth_count,
             perf->vertex_staging_fallback_finish_count,
@@ -376,6 +388,8 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->staged_bytes = 0;
     perf->vertex_staged_bytes = 0;
     perf->vertex_staging_copy_count = 0;
+    perf->vertex_direct_bytes = 0;
+    perf->vertex_direct_copy_count = 0;
     perf->vertex_staging_capacity_growth_count = 0;
     perf->vertex_staging_fallback_finish_count = 0;
     perf->native_bc_upload_count = 0;

@@ -46,7 +46,8 @@ VkDeviceSize pgraph_vk_update_vertex_inline_buffer(PGRAPHState *pg, void **data,
 
 void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
                                         void *data, VkDeviceSize size,
-                                        bool download_surfaces)
+                                        bool download_surfaces,
+                                        bool allow_mapped_write)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -70,11 +71,15 @@ void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
         abort();
     }
 
-    /* With no recorded draws, direct mapped writes cannot race the GPU. This
-     * also keeps the full-VRAM initialization and reset paths out of bounded
-     * per-submission staging storage. */
-    if (!r->in_command_buffer) {
+    /* Direct writes are safe before recording, or when draw.c proves this
+     * page range has not been read by an earlier draw in the active command
+     * buffer. Later draws see the write through finish's host-write barrier.
+     * Rewritten pages already read in this batch still need an ordered copy. */
+    if (!r->in_command_buffer || allow_mapped_write) {
         nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_1);
+        if (r->in_command_buffer) {
+            pgraph_vk_perf_record_vertex_direct_copy(r, size);
+        }
         memcpy(vertex->mapped + offset, data, size);
         return;
     }
