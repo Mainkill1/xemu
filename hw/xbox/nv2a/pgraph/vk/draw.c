@@ -1434,6 +1434,7 @@ void pgraph_vk_begin_command_buffer(PGRAPHState *pg)
     VK_CHECK(vkBeginCommandBuffer(r->command_buffer,
                                   &command_buffer_begin_info));
     pgraph_vk_invalidate_blend_constants(pg);
+    pgraph_vk_draw_state_reset(&r->draw_command_state);
     r->command_buffer_start_time = pg->draw_time;
     r->in_command_buffer = true;
 }
@@ -1597,12 +1598,16 @@ static void begin_draw(PGRAPHState *pg)
         end_render_pass(r);
     }
 
-    bool must_bind_pipeline = r->pipeline_binding_changed;
-
-    if (!r->in_render_pass) {
+    bool starting_render_pass = !r->in_render_pass;
+    if (starting_render_pass) {
         begin_render_pass(pg);
-        must_bind_pipeline = true;
     }
+
+    if (r->pipeline_binding_changed) {
+        pgraph_vk_draw_state_reset(&r->draw_command_state);
+    }
+    bool must_bind_pipeline = pgraph_vk_draw_state_bind_pipeline(
+        &r->draw_command_state, r->pipeline_binding->pipeline);
 
     if (must_bind_pipeline) {
         nv2a_profile_inc_counter(NV2A_PROF_PIPELINE_BIND);
@@ -1611,8 +1616,12 @@ static void begin_draw(PGRAPHState *pg)
         pgraph_vk_blend_constants_cache_pipeline_bound(
             &r->blend_constants,
             r->pipeline_binding->dynamic_blend_constant_mask != 0);
-        r->pipeline_binding->draw_time = pg->draw_time;
+    }
+    /* A skipped bind still uses this cached pipeline for the current draw. */
+    r->pipeline_binding->draw_time = pg->draw_time;
 
+    if (starting_render_pass || must_bind_pipeline ||
+        !r->draw_command_state.scissor_valid) {
         unsigned int vp_width = pg->surface_binding_dim.width,
                      vp_height = pg->surface_binding_dim.height;
         pgraph_apply_scaling_factor(pg, &vp_width, &vp_height);
@@ -1623,7 +1632,10 @@ static void begin_draw(PGRAPHState *pg)
             .minDepth = 0.0,
             .maxDepth = 1.0,
         };
-        vkCmdSetViewport(r->command_buffer, 0, 1, &viewport);
+        if (pgraph_vk_draw_state_set_viewport(&r->draw_command_state,
+                                              &viewport)) {
+            vkCmdSetViewport(r->command_buffer, 0, 1, &viewport);
+        }
 
         /* Surface clip */
         /* FIXME: Consider moving to PSH w/ window clip */
@@ -1645,15 +1657,21 @@ static void begin_draw(PGRAPHState *pg)
             .extent.width = scissor_width,
             .extent.height = scissor_height,
         };
-        vkCmdSetScissor(r->command_buffer, 0, 1, &scissor);
+        if (pgraph_vk_draw_state_set_scissor(&r->draw_command_state,
+                                             &scissor)) {
+            vkCmdSetScissor(r->command_buffer, 0, 1, &scissor);
+        }
 
         if (r->pipeline_binding->has_dynamic_line_width) {
             float line_width =
                 clamp_line_width_to_device_limits(pg, pg->surface_scale_factor);
-            vkCmdSetLineWidth(r->command_buffer, line_width);
+            if (pgraph_vk_draw_state_set_line_width(&r->draw_command_state,
+                                                    line_width)) {
+                vkCmdSetLineWidth(r->command_buffer, line_width);
+            }
         }
-        r->pipeline_binding_changed = false;
     }
+    r->pipeline_binding_changed = false;
 
     if (!pg->clearing) {
         /*
@@ -1967,6 +1985,7 @@ void pgraph_vk_clear_surface(NV2AState *d, uint32_t parameter)
             float blend_constants[4];
             pgraph_get_clear_color(pg, blend_constants);
             vkCmdSetScissor(r->command_buffer, 0, 1, &clear_rect.rect);
+            pgraph_vk_draw_state_scissor_overridden(&r->draw_command_state);
             vkCmdSetBlendConstants(r->command_buffer, blend_constants);
             pgraph_vk_invalidate_blend_constants(pg);
             vkCmdDraw(r->command_buffer, 3, 1, 0, 0);

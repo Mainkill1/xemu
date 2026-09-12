@@ -33,6 +33,7 @@
 #include "hw/xbox/nv2a/pgraph/glsl/shaders.h"
 
 #include <vulkan/vulkan.h>
+#include "hw/xbox/nv2a/pgraph/vk/draw-command-state.h"
 #include <glslang/Include/glslang_c_interface.h>
 #include <volk.h>
 #include <spirv_reflect.h>
@@ -501,6 +502,7 @@ typedef struct PGRAPHVkState {
     PipelineBinding *pipeline_cache_entries;
     PipelineBinding *pipeline_binding;
     bool pipeline_binding_changed;
+    PGRAPHVkDrawCommandState draw_command_state;
 
     VkDescriptorPool descriptor_pool;
     VkDescriptorSetLayout descriptor_set_layout;
