@@ -59,6 +59,7 @@ typedef struct QueueFamilyIndices {
 
 typedef struct MemorySyncRequirement {
     hwaddr addr, size;
+    bool surface_overlap;
 } MemorySyncRequirement;
 
 typedef struct RenderPassState {
@@ -574,6 +575,9 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t vertex_staging_copy_count;
     uint64_t vertex_direct_bytes;
     uint64_t vertex_direct_copy_count;
+    uint64_t vertex_version_draw_count;
+    uint64_t vertex_version_bytes;
+    uint64_t vertex_version_skipped_uploads;
     uint64_t vertex_staging_capacity_growth_count;
     uint64_t vertex_staging_fallback_finish_count;
     uint64_t native_bc_upload_count;
@@ -669,6 +673,9 @@ typedef struct PGRAPHVkState {
     MemorySyncRequirement pending_vertex_ram_reads[NV2A_VERTEXSHADER_ATTRIBUTES];
     size_t num_pending_vertex_ram_reads;
     uint8_t *vertex_ram_read_pages;
+    /* Pages left stale in the fixed mirror when a draw uses an inline slice. */
+    uint8_t *vertex_ram_stale_pages;
+    size_t vertex_ram_stale_page_count;
     size_t num_vertex_ram_read_pages;
     bool vertex_ram_read_tracking_active;
     bool vertex_ram_updated_in_batch;
