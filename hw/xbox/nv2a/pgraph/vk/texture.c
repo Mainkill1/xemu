@@ -32,6 +32,7 @@
 #include "bc-layout.h"
 #include "failpoint.h"
 #include "failure-state.h"
+#include "texture-binding-state.h"
 #include "renderer.h"
 
 static void texture_cache_release_node_resources(PGRAPHVkState *r, TextureBinding *snode);
@@ -1620,7 +1621,10 @@ static bool check_textures_dirty(PGRAPHState *pg)
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
-        if (!r->texture_bindings[i] || pg->texture_dirty[i]) {
+        TextureBinding *binding = r->texture_bindings[i];
+        if (pgraph_vk_texture_stage_needs_rebind(
+                pgraph_is_texture_enabled(pg, i), pg->texture_dirty[i],
+                binding != NULL, binding == &r->dummy_texture)) {
             return true;
         }
     }
@@ -1664,6 +1668,34 @@ static void update_timestamps(PGRAPHVkState *r)
     }
 }
 
+typedef struct TextureBindingIdentity {
+    TextureBinding *binding;
+    VkImageView image_view;
+    VkSampler sampler;
+    float uniform_scale;
+} TextureBindingIdentity;
+
+static TextureBindingIdentity texture_binding_identity(PGRAPHVkState *r,
+                                                       TextureBinding *binding)
+{
+    if (!binding) {
+        return (TextureBindingIdentity){ 0 };
+    }
+
+    float scale = 1.0f;
+    if (binding != &r->dummy_texture &&
+        kelvin_color_format_info_map[binding->key.state.color_format].linear) {
+        scale = binding->key.scale;
+    }
+
+    return (TextureBindingIdentity){
+        .binding = binding,
+        .image_view = binding->image_view,
+        .sampler = binding->sampler,
+        .uniform_scale = scale,
+    };
+}
+
 bool pgraph_vk_bind_textures(NV2AState *d)
 {
     NV2A_VK_DGROUP_BEGIN("%s", __func__);
@@ -1675,6 +1707,7 @@ bool pgraph_vk_bind_textures(NV2AState *d)
     // FIXME: Mark textures that are sourced from surfaces so we can track them
 
     r->texture_bindings_changed = false;
+    r->texture_uniform_scale_changed = false;
 
     if (!check_textures_dirty(pg) &&
         !check_bound_texture_memory_dirty(d)) {
@@ -1685,6 +1718,11 @@ bool pgraph_vk_bind_textures(NV2AState *d)
             r, VK_PERF_CPU_BIND_TEXTURES,
             r->perf.enabled ? g_get_monotonic_time() - start_us : 0);
         return true;
+    }
+
+    TextureBindingIdentity old_identity[NV2A_MAX_TEXTURES];
+    for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
+        old_identity[i] = texture_binding_identity(r, r->texture_bindings[i]);
     }
 
     bool succeeded = true;
@@ -1705,7 +1743,20 @@ bool pgraph_vk_bind_textures(NV2AState *d)
         }
     }
 
-    r->texture_bindings_changed = true;
+    /* Image contents can change in place without changing the descriptor or
+     * texScale. Signal only the consumers whose effective inputs changed. */
+    for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
+        TextureBindingIdentity current =
+            texture_binding_identity(r, r->texture_bindings[i]);
+        if (old_identity[i].binding != current.binding ||
+            old_identity[i].image_view != current.image_view ||
+            old_identity[i].sampler != current.sampler) {
+            r->texture_bindings_changed = true;
+        }
+        if (old_identity[i].uniform_scale != current.uniform_scale) {
+            r->texture_uniform_scale_changed = true;
+        }
+    }
     update_timestamps(r);
     pgraph_vk_perf_record_cpu_region(
         r, VK_PERF_CPU_BIND_TEXTURES,
