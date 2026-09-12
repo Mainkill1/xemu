@@ -48,6 +48,11 @@ typedef struct PGRAPHVkGraphicsPipelineRecipe {
     bool has_dynamic_line_width;
 } PGRAPHVkGraphicsPipelineRecipe;
 
+/* Keep a short read-tracking window after a batch uses updated vertex data.
+ * Quiet workloads keep the existing ordered upload path without paying for
+ * page bookkeeping on every draw. */
+#define VERTEX_READ_TRACKING_IDLE_BATCHES 16
+
 void pgraph_vk_draw_begin(NV2AState *d)
 {
     PGRAPHState *pg = &d->pgraph;
@@ -2273,6 +2278,16 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
             memset(r->vertex_ram_read_pages, 0,
                    r->num_vertex_ram_read_pages);
         }
+        if (r->vertex_ram_updated_in_batch) {
+            r->vertex_ram_read_tracking_active = true;
+            r->vertex_ram_read_tracking_idle_batches = 0;
+        } else if (r->vertex_ram_read_tracking_active &&
+                   ++r->vertex_ram_read_tracking_idle_batches >=
+                       VERTEX_READ_TRACKING_IDLE_BATCHES) {
+            r->vertex_ram_read_tracking_active = false;
+            r->vertex_ram_read_tracking_idle_batches = 0;
+        }
+        r->vertex_ram_updated_in_batch = false;
         destroy_framebuffers(pg);
 
         if (check_budget) {
@@ -2542,7 +2557,7 @@ static void begin_draw(PGRAPHState *pg)
 
     /* Preparation may finish the old batch; mark only the draw actually
      * recorded in the current command buffer. */
-    if (!pg->clearing) {
+    if (!pg->clearing && r->vertex_ram_read_tracking_active) {
         for (size_t i = 0; i < r->num_pending_vertex_ram_reads; i++) {
             const MemorySyncRequirement *read =
                 &r->pending_vertex_ram_reads[i];
@@ -2717,20 +2732,25 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
             assert(page_count <= r->num_vertex_ram_read_pages - first_page);
             /* A byte-per-page conservative footprint keeps direct host
              * writes away from vertex data already captured by this batch. */
-            bool previously_read = false;
-            for (size_t page = first_page;
-                 page < first_page + page_count; page++) {
-                if (r->vertex_ram_read_pages[page]) {
-                    previously_read = true;
-                    break;
+            bool can_write_directly = r->vertex_ram_read_tracking_active;
+            if (can_write_directly) {
+                for (size_t page = first_page;
+                     page < first_page + page_count; page++) {
+                    if (r->vertex_ram_read_pages[page]) {
+                        can_write_directly = false;
+                        break;
+                    }
                 }
             }
+            if (r->in_command_buffer) {
+                r->vertex_ram_updated_in_batch = true;
+            }
             NV2A_VK_DPRINTF("Memory dirty. Synchronizing...");
-            if (previously_read) {
-                pgraph_vk_update_vertex_ram_buffer_after_surface_readback(
+            if (can_write_directly) {
+                pgraph_vk_update_unread_vertex_ram_buffer_after_surface_readback(
                     pg, addr, d->vram_ptr + addr, size);
             } else {
-                pgraph_vk_update_unread_vertex_ram_buffer_after_surface_readback(
+                pgraph_vk_update_vertex_ram_buffer_after_surface_readback(
                     pg, addr, d->vram_ptr + addr, size);
             }
         }
