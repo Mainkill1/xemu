@@ -1390,6 +1390,10 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
 
         r->descriptor_set_index = 0;
         r->in_command_buffer = false;
+        if (r->vertex_ram_read_pages) {
+            memset(r->vertex_ram_read_pages, 0,
+                   r->num_vertex_ram_read_pages);
+        }
         destroy_framebuffers(pg);
 
         if (check_budget) {
@@ -1651,6 +1655,20 @@ static void begin_draw(PGRAPHState *pg)
         push_vertex_attr_values(pg);
     }
 
+    /* Preparation may finish the old batch; mark only the draw actually
+     * recorded in the current command buffer. */
+    if (!pg->clearing) {
+        for (size_t i = 0; i < r->num_pending_vertex_ram_reads; i++) {
+            const MemorySyncRequirement *read =
+                &r->pending_vertex_ram_reads[i];
+            size_t first_page = read->addr / TARGET_PAGE_SIZE;
+            size_t page_count = read->size / TARGET_PAGE_SIZE;
+            assert(first_page <= r->num_vertex_ram_read_pages);
+            assert(page_count <= r->num_vertex_ram_read_pages - first_page);
+            memset(r->vertex_ram_read_pages + first_page, 1, page_count);
+        }
+    }
+    r->num_pending_vertex_ram_reads = 0;
     r->in_draw = true;
 }
 
@@ -1809,12 +1827,30 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
         bool memory_dirty = memory_region_test_and_clear_dirty(
             d->vram, addr, size, DIRTY_MEMORY_NV2A);
         if (memory_dirty || merged[i].surface_overlap) {
+            size_t first_page = addr / TARGET_PAGE_SIZE;
+            size_t page_count = size / TARGET_PAGE_SIZE;
+            assert(first_page <= r->num_vertex_ram_read_pages);
+            assert(page_count <= r->num_vertex_ram_read_pages - first_page);
+            /* A byte-per-page conservative footprint keeps direct host
+             * writes away from vertex data already captured by this batch. */
+            bool previously_read = false;
+            for (size_t page = first_page;
+                 page < first_page + page_count; page++) {
+                if (r->vertex_ram_read_pages[page]) {
+                    previously_read = true;
+                    break;
+                }
+            }
             NV2A_VK_DPRINTF("Memory dirty. Synchronizing...");
             pgraph_vk_update_vertex_ram_buffer(pg, addr, d->vram_ptr + addr,
-                                               size, false);
+                                               size, false, !previously_read);
         }
     }
 
+    assert(num_syncs <= ARRAY_SIZE(r->pending_vertex_ram_reads));
+    memcpy(r->pending_vertex_ram_reads, merged,
+           num_syncs * sizeof(merged[0]));
+    r->num_pending_vertex_ram_reads = num_syncs;
     r->num_vertex_ram_buffer_syncs = 0;
 
     NV2A_VK_DGROUP_END();
@@ -2277,6 +2313,7 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
     }
 
     r->num_vertex_ram_buffer_syncs = 0;
+    r->num_pending_vertex_ram_reads = 0;
 
     if (pg->draw_arrays_length) {
         NV2A_VK_DGROUP_BEGIN("Draw Arrays");
