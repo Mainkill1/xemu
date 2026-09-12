@@ -1269,7 +1269,6 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
 
     NV2AState *d = container_of(pg, NV2AState, pgraph);
     PGRAPHVkState *r = pg->vk_renderer_state;
-    int64_t detail_start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
     TextureShape state = pgraph_get_texture_shape(pg, texture_idx); // FIXME: Check for pad issues
     BasicColorFormatInfo f_basic = kelvin_color_format_info_map[state.color_format];
 
@@ -1309,16 +1308,12 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     key.address = address;
     key.border_color = border_color_pack32;
     key.max_anisotropy = max_anisotropy;
-    pgraph_vk_perf_record_cpu_region(
-        r, VK_PERF_CPU_TEXTURE_CREATE_KEY,
-        r->perf.enabled ? g_get_monotonic_time() - detail_start_us : 0);
 
     bool possibly_dirty = false;
     bool possibly_dirty_checked = false;
     bool surface_to_texture = false;
 
     // Check active surfaces to see if this texture was a render target
-    detail_start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
     SurfaceBinding *surface = pgraph_vk_surface_get(d, texture_vram_offset);
     if (surface && state.levels == 1) {
         surface_to_texture =
@@ -1348,11 +1343,7 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
             return false;
         }
     }
-    pgraph_vk_perf_record_cpu_region(
-        r, VK_PERF_CPU_TEXTURE_CREATE_SURFACE,
-        r->perf.enabled ? g_get_monotonic_time() - detail_start_us : 0);
 
-    detail_start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
     if (surface_to_texture && pg->surface_scale_factor > 1) {
         key.scale = pg->surface_scale_factor;
     }
@@ -1368,9 +1359,6 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     LruNode *node = lru_lookup(&r->texture_cache, key_hash, &key);
     TextureBinding *snode = container_of(node, TextureBinding, node);
     bool binding_found = snode->image != VK_NULL_HANDLE;
-    pgraph_vk_perf_record_cpu_region(
-        r, VK_PERF_CPU_TEXTURE_CREATE_LOOKUP,
-        r->perf.enabled ? g_get_monotonic_time() - detail_start_us : 0);
 
     if (binding_found) {
         NV2A_VK_DPRINTF("Cache hit");
@@ -1380,7 +1368,6 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
         possibly_dirty = true;
     }
 
-    detail_start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
     if (!surface_to_texture && !possibly_dirty_checked) {
         possibly_dirty |= check_texture_possibly_dirty(
             d, texture_vram_offset, texture_length, texture_palette_vram_offset,
@@ -1398,12 +1385,8 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
             content_hash ^= fast_hash(palette_data, texture_palette_data_size);
         }
     }
-    pgraph_vk_perf_record_cpu_region(
-        r, VK_PERF_CPU_TEXTURE_CREATE_HASH,
-        r->perf.enabled ? g_get_monotonic_time() - detail_start_us : 0);
 
     if (binding_found) {
-        pgraph_vk_perf_record_cpu_region(r, VK_PERF_CPU_TEXTURE_CREATE_CACHE_HIT, 0);
         if (surface_to_texture) {
             // FIXME: Add draw time tracking
             if (surface->draw_time != snode->draw_time) {
@@ -1432,7 +1415,6 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     }
 
     NV2A_VK_DPRINTF("Cache miss");
-    pgraph_vk_perf_record_cpu_region(r, VK_PERF_CPU_TEXTURE_CREATE_CACHE_MISS, 0);
 
     memcpy(&snode->key, &key, sizeof(key));
     snode->current_layout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -1643,14 +1625,9 @@ static bool check_textures_dirty(PGRAPHState *pg)
 
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
         TextureBinding *binding = r->texture_bindings[i];
-        bool enabled = pgraph_is_texture_enabled(pg, i);
         if (pgraph_vk_texture_stage_needs_rebind(
-                enabled, pg->texture_dirty[i],
+                pgraph_is_texture_enabled(pg, i), pg->texture_dirty[i],
                 binding != NULL, binding == &r->dummy_texture)) {
-            pgraph_vk_perf_record_cpu_region(
-                r, enabled && !pg->texture_dirty[i]
-                       ? VK_PERF_CPU_TEXTURE_REBIND_DUMMY
-                       : VK_PERF_CPU_TEXTURE_REBIND_DIRTY, 0);
             return true;
         }
     }

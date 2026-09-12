@@ -52,14 +52,6 @@ static const char *cpu_region_names[VK_PERF_CPU_REGION_COUNT] = {
     [VK_PERF_CPU_TEXTURE_PREPARE] = "texture_prepare",
     [VK_PERF_CPU_TEXTURE_IDENTITY_AFTER] = "texture_identity_after",
     [VK_PERF_CPU_TEXTURE_TIMESTAMPS] = "texture_timestamps",
-    [VK_PERF_CPU_TEXTURE_REBIND_DIRTY] = "texture_rebind_dirty",
-    [VK_PERF_CPU_TEXTURE_REBIND_DUMMY] = "texture_rebind_dummy",
-    [VK_PERF_CPU_TEXTURE_CREATE_KEY] = "texture_create_key",
-    [VK_PERF_CPU_TEXTURE_CREATE_SURFACE] = "texture_create_surface",
-    [VK_PERF_CPU_TEXTURE_CREATE_LOOKUP] = "texture_create_lookup",
-    [VK_PERF_CPU_TEXTURE_CREATE_HASH] = "texture_create_hash",
-    [VK_PERF_CPU_TEXTURE_CREATE_CACHE_HIT] = "texture_create_cache_hit",
-    [VK_PERF_CPU_TEXTURE_CREATE_CACHE_MISS] = "texture_create_cache_miss",
 };
 
 static void write_names(FILE *file, const char *key, const char **names,
@@ -113,7 +105,7 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":7"
+            "{\"type\":\"schema\",\"schema_version\":6"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}",
             VK_PERF_INITIAL_TIMED_SUBMITS, VK_PERF_HOT_SAMPLE_STRIDE);
