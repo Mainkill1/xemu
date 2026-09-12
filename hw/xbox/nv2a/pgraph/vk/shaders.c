@@ -75,7 +75,7 @@ static void get_uniform_stage_update_needs(PGRAPHState *pg,
             pgraph_reg_r(pg, NV_PGRAPH_ZOFFSETBIAS),
             pgraph_reg_r(pg, NV_PGRAPH_ZOFFSETFACTOR));
     PGRAPHUniformStageUpdateInputs inputs = {
-        .texture_uniform_scale_changed = r->texture_uniform_scale_changed,
+        .texture_bindings_changed = r->texture_bindings_changed,
         .psh_effective_inputs_changed =
             pgraph_polygon_offset_uniform_key_changed(
                 r->polygon_offset_key_valid, r->polygon_offset_key,
