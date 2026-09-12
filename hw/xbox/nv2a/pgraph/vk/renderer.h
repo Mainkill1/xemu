@@ -502,7 +502,7 @@ typedef struct PGRAPHVkState {
 
     VkDescriptorPool descriptor_pool;
     VkDescriptorSetLayout descriptor_set_layout;
-    VkDescriptorSet descriptor_sets[1024];
+    VkDescriptorSet descriptor_sets[2048];
     int descriptor_set_index;
 
     StorageBuffer storage_buffers[BUFFER_COUNT];
