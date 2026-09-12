@@ -1945,7 +1945,7 @@ static bool sync_vertex_ram_buffer(PGRAPHState *pg, uint32_t num_vertices)
                     set_vertex_ram_stale_pages(r, first_page, page_count,
                                                true);
                     if (r->perf.enabled) {
-                        r->perf.vertex_version_skipped_uploads++;
+                        r->perf.vertex_version_selected_ranges++;
                     }
                     versioned = true;
                     continue;

@@ -432,7 +432,7 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t vertex_direct_copy_count;
     uint64_t vertex_version_draw_count;
     uint64_t vertex_version_bytes;
-    uint64_t vertex_version_skipped_uploads;
+    uint64_t vertex_version_selected_ranges;
     uint64_t vertex_staging_capacity_growth_count;
     uint64_t vertex_staging_fallback_finish_count;
     uint64_t native_bc_upload_count;
