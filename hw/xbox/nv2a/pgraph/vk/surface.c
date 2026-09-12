@@ -604,6 +604,11 @@ static bool download_surface(NV2AState *d, SurfaceBinding *surface, bool force)
     memory_region_set_client_dirty(d->vram, surface->vram_addr,
                                    surface->pitch * surface->height,
                                    DIRTY_MEMORY_NV2A_TEX);
+    /* The GPU-to-RAM copy also makes the vertex mirror stale. A later draw
+     * may reference these bytes after this surface binding has been evicted. */
+    memory_region_set_client_dirty(d->vram, surface->vram_addr,
+                                   surface->pitch * surface->height,
+                                   DIRTY_MEMORY_NV2A);
 
     return true;
 }

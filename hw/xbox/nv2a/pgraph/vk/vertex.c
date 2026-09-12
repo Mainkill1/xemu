@@ -45,7 +45,8 @@ VkDeviceSize pgraph_vk_update_vertex_inline_buffer(PGRAPHState *pg, void **data,
 }
 
 void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
-                                        void *data, VkDeviceSize size)
+                                        void *data, VkDeviceSize size,
+                                        bool download_surfaces)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -59,7 +60,8 @@ void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
     assert(offset <= vertex->buffer_size);
     assert(size <= vertex->buffer_size - offset);
 
-    if (!pgraph_vk_download_surfaces_in_range_if_dirty(pg, offset, size)) {
+    if (download_surfaces &&
+        !pgraph_vk_download_surfaces_in_range_if_dirty(pg, offset, size)) {
         /* draw.c has already retired this range's NV2A dirty bit. Re-arm it
          * before refusing to consume stale guest memory. */
         memory_region_set_client_dirty(d->vram, offset, size,
