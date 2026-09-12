@@ -1625,7 +1625,9 @@ static bool check_textures_dirty(PGRAPHState *pg)
 
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
         TextureBinding *binding = r->texture_bindings[i];
-        if (!binding || pg->texture_dirty[i]) {
+        if (pgraph_vk_texture_stage_needs_rebind(
+                pgraph_is_texture_enabled(pg, i), pg->texture_dirty[i],
+                binding != NULL, binding == &r->dummy_texture)) {
             return true;
         }
     }

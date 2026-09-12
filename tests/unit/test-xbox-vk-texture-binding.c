@@ -23,7 +23,7 @@ static bool test_disabled_stage_keeps_dirty_for_reenable(void)
     /* The first disabled bind selects the dummy without retiring guest state. */
     bound = true;
     dummy = true;
-    if (pgraph_vk_texture_stage_needs_rebind(enabled, dirty, bound, dummy) ||
+    if (!pgraph_vk_texture_stage_needs_rebind(enabled, dirty, bound, dummy) ||
         !dirty) {
         return false;
     }
