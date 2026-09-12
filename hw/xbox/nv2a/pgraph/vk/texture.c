@@ -1841,6 +1841,10 @@ bool pgraph_vk_bind_textures(NV2AState *d)
             r->texture_uniform_scale_changed = true;
         }
     }
+    /* Issue #79 diagnostic: restore previous-main's slow-bind update cadence
+     * to isolate its effect on the following synchronous surface readback. */
+    r->texture_bindings_changed = true;
+    r->texture_uniform_scale_changed = true;
     pgraph_vk_perf_record_cpu_region(
         r, VK_PERF_CPU_TEXTURE_IDENTITY_AFTER,
         r->perf.enabled ? g_get_monotonic_time() - detail_start_us : 0);
