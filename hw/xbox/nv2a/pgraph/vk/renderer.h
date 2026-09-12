@@ -572,6 +572,8 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t staged_bytes;
     uint64_t vertex_staged_bytes;
     uint64_t vertex_staging_copy_count;
+    uint64_t vertex_direct_bytes;
+    uint64_t vertex_direct_copy_count;
     uint64_t vertex_staging_capacity_growth_count;
     uint64_t vertex_staging_fallback_finish_count;
     uint64_t native_bc_upload_count;
@@ -664,6 +666,10 @@ typedef struct PGRAPHVkState {
 
     MemorySyncRequirement vertex_ram_buffer_syncs[NV2A_VERTEXSHADER_ATTRIBUTES];
     size_t num_vertex_ram_buffer_syncs;
+    MemorySyncRequirement pending_vertex_ram_reads[NV2A_VERTEXSHADER_ATTRIBUTES];
+    size_t num_pending_vertex_ram_reads;
+    uint8_t *vertex_ram_read_pages;
+    size_t num_vertex_ram_read_pages;
 
     VkVertexInputAttributeDescription vertex_attribute_descriptions[NV2A_VERTEXSHADER_ATTRIBUTES];
     int vertex_attribute_to_description_location[NV2A_VERTEXSHADER_ATTRIBUTES];
@@ -864,6 +870,8 @@ void pgraph_vk_perf_record_single_time_submit(PGRAPHVkState *r,
                                                uint64_t staged_bytes);
 void pgraph_vk_perf_record_vertex_staging_copy(PGRAPHVkState *r,
                                                 uint64_t bytes);
+void pgraph_vk_perf_record_vertex_direct_copy(PGRAPHVkState *r,
+                                               uint64_t bytes);
 void pgraph_vk_perf_record_vertex_staging_growth(PGRAPHVkState *r);
 void pgraph_vk_perf_record_vertex_staging_fallback(PGRAPHVkState *r);
 void pgraph_vk_perf_record_bc_upload(PGRAPHVkState *r, bool native,
@@ -898,6 +906,8 @@ void pgraph_vk_bind_vertex_attributes_inline(NV2AState *d);
 void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset, void *data,
                                         VkDeviceSize size);
 void pgraph_vk_update_vertex_ram_buffer_after_surface_readback(
+    PGRAPHState *pg, hwaddr offset, void *data, VkDeviceSize size);
+void pgraph_vk_update_unread_vertex_ram_buffer_after_surface_readback(
     PGRAPHState *pg, hwaddr offset, void *data, VkDeviceSize size);
 VkDeviceSize pgraph_vk_update_index_buffer(PGRAPHState *pg, void *data,
                                            VkDeviceSize size);
