@@ -43,7 +43,10 @@
 #include "debug.h"
 #include "constants.h"
 #include "glsl.h"
+#include "hybrid-compiler.h"
+#include "hybrid-policy.h"
 #include "spirv-prewarm.h"
+#include "ubershader-controls.h"
 
 #define HAVE_EXTERNAL_MEMORY 1
 
@@ -65,8 +68,33 @@ typedef struct RenderPass {
     VkRenderPass render_pass;
 } RenderPass;
 
+typedef enum PGRAPHVkFragmentRoute {
+    PGRAPH_VK_FRAGMENT_SPECIALIZED,
+    PGRAPH_VK_FRAGMENT_UBERSHADER,
+} PGRAPHVkFragmentRoute;
+
+#define PGRAPH_VK_PSH_UBER_UBO_BINDING 6
+#define PGRAPH_VK_BASE_DESCRIPTOR_BINDING_COUNT (2 + NV2A_MAX_TEXTURES)
+
+/*
+ * The fragment interpreter consumes these words from its dynamic UBO.  The
+ * remaining PshState fields describe the generated fragment shell and must
+ * continue to participate in shader and pipeline cache identity.
+ */
+static inline void pgraph_vk_canonicalize_uber_combiner_state(PshState *state)
+{
+    state->combiner_control = 0;
+    memset(state->rgb_inputs, 0, sizeof(state->rgb_inputs));
+    memset(state->rgb_outputs, 0, sizeof(state->rgb_outputs));
+    memset(state->alpha_inputs, 0, sizeof(state->alpha_inputs));
+    memset(state->alpha_outputs, 0, sizeof(state->alpha_outputs));
+    state->final_inputs_0 = 0;
+    state->final_inputs_1 = 0;
+}
+
 typedef struct PipelineKey {
     bool clear;
+    PGRAPHVkFragmentRoute fragment_route;
     RenderPassState render_pass_state;
     ShaderState shader_state;
     uint32_t regs[8];
@@ -166,10 +194,12 @@ typedef struct ShaderModuleInfo {
     SpvReflectDescriptorSet **descriptor_sets;
     ShaderUniformLayout uniforms;
     ShaderUniformLayout push_constants;
+    bool uses_uber_controls;
 } ShaderModuleInfo;
 
 typedef struct ShaderModuleCacheKey {
     VkShaderStageFlagBits kind;
+    PGRAPHVkFragmentRoute fragment_route;
     union {
         struct {
             VshState state;
@@ -186,15 +216,50 @@ typedef struct ShaderModuleCacheKey {
     };
 } ShaderModuleCacheKey;
 
+static inline size_t pgraph_vk_shader_module_key_active_size(
+    const ShaderModuleCacheKey *key)
+{
+    switch (key->kind) {
+    case VK_SHADER_STAGE_VERTEX_BIT:
+        return offsetof(ShaderModuleCacheKey, vsh) + sizeof(key->vsh);
+    case VK_SHADER_STAGE_GEOMETRY_BIT:
+        return offsetof(ShaderModuleCacheKey, geom) + sizeof(key->geom);
+    case VK_SHADER_STAGE_FRAGMENT_BIT:
+        return offsetof(ShaderModuleCacheKey, psh) + sizeof(key->psh);
+    default:
+        g_assert_not_reached();
+    }
+}
+
+static inline bool pgraph_vk_shader_module_key_equal(
+    const ShaderModuleCacheKey *a, const ShaderModuleCacheKey *b)
+{
+    return a->kind == b->kind &&
+           memcmp(a, b, pgraph_vk_shader_module_key_active_size(a)) == 0;
+}
+
 typedef struct ShaderModuleCacheEntry {
     LruNode node;
     ShaderModuleCacheKey key;
     ShaderModuleInfo *module_info;
 } ShaderModuleCacheEntry;
 
+#define PGRAPH_VK_HYBRID_MAX_WORK 64
+
+typedef struct PGRAPHVkHybridShaderWork {
+    bool in_use;
+    uint64_t last_epoch;
+    PGRAPHVkHybridWork metadata;
+    ShaderModuleCacheKey module_key;
+    char *glsl;
+    /* PR70/cache identity length; glsl[glsl_size] is the owned NUL. */
+    size_t glsl_size;
+} PGRAPHVkHybridShaderWork;
+
 typedef struct ShaderBinding {
     LruNode node;
     ShaderState state;
+    PGRAPHVkFragmentRoute fragment_route;
     struct {
         ShaderModuleInfo *module_info;
         VshUniformLocs uniform_locs;
@@ -207,6 +272,49 @@ typedef struct ShaderBinding {
         PshUniformLocs uniform_locs;
     } psh;
 } ShaderBinding;
+
+typedef struct ShaderBindingKey {
+    ShaderState state;
+    PGRAPHVkFragmentRoute fragment_route;
+} ShaderBindingKey;
+
+static inline bool pgraph_vk_shader_binding_key_equal(
+    const ShaderBindingKey *a, const ShaderBindingKey *b)
+{
+    return a->fragment_route == b->fragment_route &&
+           memcmp(&a->state, &b->state, sizeof(a->state)) == 0;
+}
+
+static inline bool pgraph_vk_shader_binding_key_different(
+    const ShaderBindingKey *a, const ShaderBindingKey *b)
+{
+    return !pgraph_vk_shader_binding_key_equal(a, b);
+}
+
+static inline uint32_t pgraph_vk_descriptor_layout_binding_count(
+    bool runtime_enabled)
+{
+    return PGRAPH_VK_BASE_DESCRIPTOR_BINDING_COUNT + runtime_enabled;
+}
+
+static inline uint32_t pgraph_vk_descriptor_dynamic_offset_count(
+    bool runtime_enabled)
+{
+    return runtime_enabled;
+}
+
+static inline bool pgraph_vk_descriptor_update_needed(bool textures_changed,
+                                                       bool force_reupload,
+                                                       bool uniforms_changed)
+{
+    return textures_changed || force_reupload || uniforms_changed;
+}
+
+static inline bool pgraph_vk_reuses_descriptor_set_for_control_update(
+    bool controls_changed, bool descriptor_update_needed)
+{
+    return controls_changed && !descriptor_update_needed;
+}
 
 typedef struct TextureKey {
     TextureShape state;
@@ -541,6 +649,21 @@ typedef struct PGRAPHVkState {
     ShaderModuleInfo *quad_vert_module, *solid_frag_module;
     bool shader_bindings_changed;
     bool use_push_constants_for_uniform_attrs;
+    bool ubershader_runtime_enabled;
+    bool hybrid_compiler_initialized;
+    uint64_t hybrid_generation;
+    uint64_t hybrid_route_epoch;
+    uint64_t hybrid_selection_epoch;
+    uint64_t hybrid_bound_selection_epoch;
+    size_t hybrid_pending_jobs;
+    PGRAPHVkHybridTicketAllocator hybrid_ticket_allocator;
+    PGRAPHVkHybridCompiler hybrid_compiler;
+    PGRAPHVkHybridShaderWork
+        hybrid_work[PGRAPH_VK_HYBRID_MAX_WORK];
+    const ShaderModuleCacheKey *hybrid_materializing_key;
+    const char *hybrid_materializing_glsl;
+    size_t hybrid_materializing_glsl_size;
+    GByteArray *hybrid_materializing_spirv;
 
     Lru shader_module_cache;
     ShaderModuleCacheEntry *shader_module_cache_entries;
@@ -562,6 +685,11 @@ typedef struct PGRAPHVkState {
     PGRAPHUniformSourceEpochs last_uniform_source_epochs;
     bool polygon_offset_key_valid;
     PGRAPHPolygonOffsetUniformKey polygon_offset_key;
+    PGRAPHUberControls uber_controls;
+    PGRAPHUberControls uploaded_uber_controls;
+    VkDeviceSize uber_control_offset;
+    bool uber_controls_valid;
+    bool uploaded_uber_controls_valid;
 
     VkQueryPool query_pool;
     int max_queries_in_flight; // FIXME: Move out to constant
@@ -605,6 +733,12 @@ uint32_t pgraph_vk_get_memory_type(PGRAPHState *pg, uint32_t type_bits,
                                    VkMemoryPropertyFlags properties);
 
 // glsl.c
+typedef struct PGRAPHVkGlslCompileConfig {
+    uint32_t api_version;
+    /* Fixed-width fields keep bytewise worker-job identity deterministic. */
+    uint32_t debug_shaders;
+} PGRAPHVkGlslCompileConfig;
+
 void pgraph_vk_init_glsl_compiler(void);
 void pgraph_vk_finalize_glsl_compiler(void);
 void pgraph_vk_glsl_target_versions(
@@ -613,6 +747,14 @@ void pgraph_vk_glsl_target_versions(
 GByteArray *pgraph_vk_compile_glsl_to_spv(PGRAPHVkState *r,
                                           glslang_stage_t stage,
                                           const char *glsl_source);
+GByteArray *pgraph_vk_compile_glsl_to_spv_config(
+    const PGRAPHVkGlslCompileConfig *config, glslang_stage_t stage,
+    const char *glsl_source);
+bool pgraph_vk_uber_controls_block_matches_abi(
+    const SpvReflectBlockVariable *block);
+bool pgraph_vk_init_shader_module_layout_from_spv(
+    ShaderModuleInfo *info, VkShaderStageFlagBits expected_stage);
+void pgraph_vk_clear_shader_module_layout(ShaderModuleInfo *info);
 ShaderModuleInfo *pgraph_vk_create_shader_module_from_glsl(
     PGRAPHVkState *r, VkShaderStageFlagBits stage, const char *glsl);
 ShaderModuleInfo *pgraph_vk_create_shader_module_from_spirv(
@@ -749,6 +891,8 @@ void pgraph_vk_trim_texture_cache(PGRAPHState *pg);
 // shaders.c
 void pgraph_vk_init_shaders(PGRAPHState *pg);
 void pgraph_vk_finalize_shaders(PGRAPHState *pg);
+void pgraph_vk_process_hybrid_completions(PGRAPHState *pg);
+void pgraph_vk_stop_hybrid_compiler(PGRAPHState *pg);
 void pgraph_vk_process_spirv_cache_writeback(PGRAPHState *pg);
 void pgraph_vk_update_descriptor_sets(PGRAPHState *pg);
 void pgraph_vk_bind_shaders(PGRAPHState *pg);

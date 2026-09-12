@@ -166,13 +166,16 @@ void pgraph_vk_glsl_target_versions(
     }
 }
 
-GByteArray *pgraph_vk_compile_glsl_to_spv(PGRAPHVkState *r,
-                                          glslang_stage_t stage,
-                                          const char *glsl_source)
+GByteArray *pgraph_vk_compile_glsl_to_spv_config(
+    const PGRAPHVkGlslCompileConfig *config, glslang_stage_t stage,
+    const char *glsl_source)
 {
+    g_return_val_if_fail(config != NULL, NULL);
+    g_return_val_if_fail(glsl_source != NULL, NULL);
+
     glslang_target_client_version_t client_version;
     glslang_target_language_version_t language_version;
-    pgraph_vk_glsl_target_versions(r->vk_api_version, &client_version,
+    pgraph_vk_glsl_target_versions(config->api_version, &client_version,
                                    &language_version);
     const glslang_input_t input = {
         .language = GLSLANG_SOURCE_GLSL,
@@ -240,7 +243,7 @@ GByteArray *pgraph_vk_compile_glsl_to_spv(PGRAPHVkState *r,
         .validate = true,
     };
 
-    if (g_config.display.vulkan.debug_shaders) {
+    if (config->debug_shaders) {
         spv_options.disable_optimizer = true;
         spv_options.generate_debug_info = true;
         spv_options.emit_nonsemantic_shader_debug_info = true;
@@ -271,6 +274,47 @@ GByteArray *pgraph_vk_compile_glsl_to_spv(PGRAPHVkState *r,
     glslang_shader_delete(shader);
 
     return g_byte_array_new_take(data, num_program_bytes);
+}
+
+GByteArray *pgraph_vk_compile_glsl_to_spv(PGRAPHVkState *r,
+                                          glslang_stage_t stage,
+                                          const char *glsl_source)
+{
+    g_return_val_if_fail(r != NULL, NULL);
+
+    PGRAPHVkGlslCompileConfig config = {
+        .api_version = r->vk_api_version,
+        .debug_shaders = g_config.display.vulkan.debug_shaders,
+    };
+    if (r->hybrid_compiler_initialized) {
+        uint64_t ticket = pgraph_vk_hybrid_allocate_ticket(
+            &r->hybrid_ticket_allocator);
+        PGRAPHVkHybridCompileResult result = { 0 };
+        PGRAPHVkHybridCompileRequest request = {
+            .generation = r->hybrid_generation,
+            .ticket = ticket,
+            .stage = stage,
+            .glsl = glsl_source,
+            .glsl_size = strlen(glsl_source) + 1,
+            .config = &config,
+            .config_size = sizeof(config),
+        };
+        if (!ticket || !pgraph_vk_hybrid_compiler_submit_blocking(
+                           &r->hybrid_compiler, &request, &result) ||
+            !result.success || result.generation != request.generation ||
+            result.ticket != request.ticket || result.stage != request.stage) {
+            pgraph_vk_hybrid_compile_result_destroy(&result);
+            return NULL;
+        }
+
+        GByteArray *spirv = g_byte_array_new_take(result.spirv,
+                                                   result.spirv_size);
+        result.spirv = NULL;
+        result.spirv_size = 0;
+        pgraph_vk_hybrid_compile_result_destroy(&result);
+        return spirv;
+    }
+    return pgraph_vk_compile_glsl_to_spv_config(&config, stage, glsl_source);
 }
 
 static bool block_to_uniforms(const SpvReflectBlockVariable *block,
@@ -367,9 +411,85 @@ static bool block_to_uniforms(const SpvReflectBlockVariable *block,
     return true;
 }
 
-static bool init_layout_from_spv(ShaderModuleInfo *info,
-                                 VkShaderStageFlagBits expected_stage)
+bool pgraph_vk_uber_controls_block_matches_abi(
+    const SpvReflectBlockVariable *block)
 {
+    static const struct {
+        const char *name;
+        uint32_t offset;
+        uint32_t size;
+        uint32_t array_elements;
+        uint32_t array_stride;
+        uint32_t vector_components;
+        SpvReflectTypeFlags scalar_type;
+        bool unsigned_integer;
+    } expected[] = {
+        { "uberHeader", 0, 16, 1, 0, 4, SPV_REFLECT_TYPE_FLAG_INT, true },
+        { "uberStage", 16, 128, 8, 16, 4, SPV_REFLECT_TYPE_FLAG_INT, true },
+        { "uberFinal", 144, 16, 1, 0, 4, SPV_REFLECT_TYPE_FLAG_INT, true },
+        { "uberConstants", 160, 288, 18, 16, 4,
+          SPV_REFLECT_TYPE_FLAG_FLOAT, false },
+    };
+
+    if (!block || block->size != sizeof(PGRAPHUberControls) ||
+        block->member_count != ARRAY_SIZE(expected) || !block->members) {
+        return false;
+    }
+
+    for (uint32_t i = 0; i < ARRAY_SIZE(expected); i++) {
+        const SpvReflectBlockVariable *member = &block->members[i];
+        const SpvReflectTypeDescription *type = member->type_description;
+        uint32_t array_elements = member->array.dims_count ?
+                                      member->array.dims[0] : 1;
+
+        if (!member->name || strcmp(member->name, expected[i].name) ||
+            !type ||
+            (type->type_flags & (SPV_REFLECT_TYPE_FLAG_INT |
+                                 SPV_REFLECT_TYPE_FLAG_FLOAT |
+                                 SPV_REFLECT_TYPE_FLAG_VECTOR)) !=
+                (expected[i].scalar_type | SPV_REFLECT_TYPE_FLAG_VECTOR) ||
+            member->offset != expected[i].offset ||
+            member->size != expected[i].size ||
+            member->array.dims_count !=
+                (expected[i].array_elements == 1 ? 0 : 1) ||
+            array_elements != expected[i].array_elements ||
+            member->array.stride != expected[i].array_stride ||
+            member->numeric.vector.component_count !=
+                expected[i].vector_components ||
+            member->numeric.scalar.width != 32 ||
+            (expected[i].unsigned_integer &&
+             member->numeric.scalar.signedness != 0) ||
+            member->numeric.matrix.column_count != 0 ||
+            member->numeric.matrix.row_count != 0) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void pgraph_vk_clear_shader_module_layout(ShaderModuleInfo *info)
+{
+    if (!info) {
+        return;
+    }
+    shader_uniform_layout_clear(&info->uniforms);
+    shader_uniform_layout_clear(&info->push_constants);
+    g_free(info->descriptor_sets);
+    info->descriptor_sets = NULL;
+    if (info->reflect_module_initialized) {
+        spvReflectDestroyShaderModule(&info->reflect_module);
+        info->reflect_module_initialized = false;
+    }
+    info->uses_uber_controls = false;
+}
+
+bool pgraph_vk_init_shader_module_layout_from_spv(
+    ShaderModuleInfo *info, VkShaderStageFlagBits expected_stage)
+{
+    if (!info || !info->spirv) {
+        return false;
+    }
     SpvReflectResult result = spvReflectCreateShaderModule(
         info->spirv->len, info->spirv->data, &info->reflect_module);
     if (result != SPV_REFLECT_RESULT_SUCCESS) {
@@ -407,6 +527,7 @@ static bool init_layout_from_spv(ShaderModuleInfo *info,
     info->uniforms.uniforms = NULL;
 
     bool uniform_block_seen = false;
+    bool uber_block_seen = false;
     uint32_t total_binding_count = 0;
     for (uint32_t i = 0; i < descriptor_set_count; ++i) {
         const SpvReflectDescriptorSet *descriptor_set =
@@ -424,6 +545,19 @@ static bool init_layout_from_spv(ShaderModuleInfo *info,
             if (!binding) {
                 goto fail;
             }
+            if (binding->binding == PGRAPH_VK_PSH_UBER_UBO_BINDING) {
+                if (expected_stage != VK_SHADER_STAGE_FRAGMENT_BIT ||
+                    descriptor_set->set != 0 ||
+                    binding->descriptor_type !=
+                        SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER ||
+                    uber_block_seen ||
+                    !pgraph_vk_uber_controls_block_matches_abi(
+                        &binding->block)) {
+                    goto fail;
+                }
+                uber_block_seen = true;
+                continue;
+            }
             if (binding->descriptor_type !=
                 SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER) {
                 continue;
@@ -436,6 +570,7 @@ static bool init_layout_from_spv(ShaderModuleInfo *info,
             }
         }
     }
+    info->uses_uber_controls = uber_block_seen;
 
     info->push_constants.num_uniforms = 0;
     info->push_constants.uniforms = NULL;
@@ -454,12 +589,7 @@ static bool init_layout_from_spv(ShaderModuleInfo *info,
     return true;
 
 fail:
-    shader_uniform_layout_clear(&info->uniforms);
-    shader_uniform_layout_clear(&info->push_constants);
-    g_free(info->descriptor_sets);
-    info->descriptor_sets = NULL;
-    spvReflectDestroyShaderModule(&info->reflect_module);
-    info->reflect_module_initialized = false;
+    pgraph_vk_clear_shader_module_layout(info);
     return false;
 }
 
@@ -471,12 +601,7 @@ static void shader_module_info_free(PGRAPHVkState *r, ShaderModuleInfo *info)
     if (info->module != VK_NULL_HANDLE) {
         vkDestroyShaderModule(r->device, info->module, NULL);
     }
-    if (info->reflect_module_initialized) {
-        spvReflectDestroyShaderModule(&info->reflect_module);
-    }
-    shader_uniform_layout_clear(&info->uniforms);
-    shader_uniform_layout_clear(&info->push_constants);
-    g_free(info->descriptor_sets);
+    pgraph_vk_clear_shader_module_layout(info);
     free(info->glsl);
     if (info->spirv) {
         g_byte_array_unref(info->spirv);
@@ -533,7 +658,8 @@ ShaderModuleInfo *pgraph_vk_create_shader_module_from_spirv(
     info->refcnt = 0;
     info->glsl = strdup(glsl);
     info->spirv = g_byte_array_ref(spirv);
-    if (!info->glsl || !init_layout_from_spv(info, expected_stage)) {
+    if (!info->glsl || !pgraph_vk_init_shader_module_layout_from_spv(
+                           info, expected_stage)) {
         shader_module_info_free(r, info);
         return NULL;
     }

@@ -181,6 +181,41 @@ bool lru_contains_hash(Lru *lru, uint64_t hash)
 	return false;
 }
 
+/*
+ * Exact lookup without creation, eviction, or recency changes.
+ * The returned node is borrowed. Callers must provide synchronization and
+ * prevent concurrent mutation or eviction while using it.
+ */
+static inline
+LruNode *lru_find_existing(Lru *lru, uint64_t hash, const void *key)
+{
+    unsigned int bin = lru_hash_to_bin(lru, hash);
+    LruNode *iter;
+
+    QTAILQ_FOREACH(iter, &lru->bins[bin], next_bin) {
+        if (iter->hash == hash &&
+            !lru->compare_nodes(lru, iter, key)) {
+            return iter;
+        }
+    }
+
+    return NULL;
+}
+
+/* Refresh a borrowed exact hit while it remains in use under the caller's lock. */
+static inline
+void lru_touch_existing(Lru *lru, LruNode *node)
+{
+    unsigned int bin;
+
+    assert(lru_is_node_in_use(lru, node));
+    bin = lru_get_node_bin(lru, node);
+    QTAILQ_REMOVE(&lru->global, node, next_global);
+    QTAILQ_INSERT_HEAD(&lru->global, node, next_global);
+    QTAILQ_REMOVE(&lru->bins[bin], node, next_bin);
+    QTAILQ_INSERT_HEAD(&lru->bins[bin], node, next_bin);
+}
+
 static inline
 LruNode *lru_try_lookup(Lru *lru, uint64_t hash, const void *key)
 {

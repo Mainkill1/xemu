@@ -31,6 +31,7 @@
 #include "hw/xbox/nv2a/pgraph/pgraph.h"
 #include "hw/xbox/nv2a/pgraph/polygon-offset.h"
 #include "psh.h"
+#include "psh-uber.h"
 
 DEF_UNIFORM_INFO_ARR(PshUniform, PSH_UNIFORM_DECL_X)
 
@@ -848,6 +849,10 @@ static MString* psh_convert(struct PixelShader *ps)
     if (ps->opts.vulkan) {
         mstring_append(preflight, "};\n");
     }
+    if (ps->opts.ubershader) {
+        pgraph_glsl_append_psh_uber_declarations(
+            preflight, ps->opts.uber_binding);
+    }
 
     const char *dotmap_funcs[] = {
         "dotmap_zero_to_one",
@@ -1436,19 +1441,24 @@ static MString* psh_convert(struct PixelShader *ps)
         }
     }
 
-    for (int i = 0; i < ps->num_stages; i++) {
-        ps->cur_stage = i;
-        mstring_append_fmt(ps->code, "// Stage %d\n", i);
-        MString* color = add_stage_code(ps, ps->stage[i].rgb_input, ps->stage[i].rgb_output, "rgb", false);
-        MString* alpha = add_stage_code(ps, ps->stage[i].alpha_input, ps->stage[i].alpha_output, "a", true);
+    if (ps->opts.ubershader) {
+        pgraph_glsl_append_psh_uber_body(
+            ps->code, ps->tex_modes[0] != PS_TEXTUREMODES_NONE);
+    } else {
+        for (int i = 0; i < ps->num_stages; i++) {
+            ps->cur_stage = i;
+            mstring_append_fmt(ps->code, "// Stage %d\n", i);
+            MString* color = add_stage_code(ps, ps->stage[i].rgb_input, ps->stage[i].rgb_output, "rgb", false);
+            MString* alpha = add_stage_code(ps, ps->stage[i].alpha_input, ps->stage[i].alpha_output, "a", true);
 
-        mstring_append(ps->code, mstring_get_str(color));
-        mstring_append(ps->code, mstring_get_str(alpha));
-        mstring_unref(color);
-        mstring_unref(alpha);
+            mstring_append(ps->code, mstring_get_str(color));
+            mstring_append(ps->code, mstring_get_str(alpha));
+            mstring_unref(color);
+            mstring_unref(alpha);
+        }
     }
 
-    if (ps->final_input.enabled) {
+    if (!ps->opts.ubershader && ps->final_input.enabled) {
         ps->cur_stage = 8;
         mstring_append(ps->code, "// Final Combiner\n");
         add_final_stage_code(ps, ps->final_input);
@@ -1572,6 +1582,8 @@ MString *pgraph_glsl_gen_psh(const PshState *state, GenPshGlslOptions opts)
     struct PixelShader ps;
     memset(&ps, 0, sizeof(ps));
 
+    assert(!opts.ubershader || opts.vulkan);
+
     ps.opts = opts;
     ps.state = state;
 
@@ -1620,30 +1632,35 @@ MString *pgraph_glsl_gen_psh(const PshState *state, GenPshGlslOptions opts)
     return psh_convert(&ps);
 }
 
+void pgraph_glsl_get_psh_combiner_constants(PGRAPHState *pg,
+                                             float constants[18][4])
+{
+    for (int i = 0; i < 9; i++) {
+        uint32_t packed[2];
+        if (i == 8) {
+            /* final combiner */
+            packed[0] = pgraph_reg_r(pg, NV_PGRAPH_SPECFOGFACTOR0);
+            packed[1] = pgraph_reg_r(pg, NV_PGRAPH_SPECFOGFACTOR1);
+        } else {
+            packed[0] = pgraph_reg_r(pg,
+                                     NV_PGRAPH_COMBINEFACTOR0 + i * 4);
+            packed[1] = pgraph_reg_r(pg,
+                                     NV_PGRAPH_COMBINEFACTOR1 + i * 4);
+        }
+
+        for (int j = 0; j < 2; j++) {
+            pgraph_argb_pack32_to_rgba_float(packed[j],
+                                             constants[i * 2 + j]);
+        }
+    }
+}
+
 void pgraph_glsl_set_psh_uniform_values(PGRAPHState *pg,
                                         const PshUniformLocs locs,
                                         PshUniformValues *values)
 {
     if (locs[PshUniform_consts] != -1) {
-        for (int i = 0; i < 9; i++) {
-            uint32_t constant[2];
-            if (i == 8) {
-                /* final combiner */
-                constant[0] = pgraph_reg_r(pg, NV_PGRAPH_SPECFOGFACTOR0);
-                constant[1] = pgraph_reg_r(pg, NV_PGRAPH_SPECFOGFACTOR1);
-            } else {
-                constant[0] =
-                    pgraph_reg_r(pg, NV_PGRAPH_COMBINEFACTOR0 + i * 4);
-                constant[1] =
-                    pgraph_reg_r(pg, NV_PGRAPH_COMBINEFACTOR1 + i * 4);
-            }
-
-            for (int j = 0; j < 2; j++) {
-                int idx = i * 2 + j;
-                pgraph_argb_pack32_to_rgba_float(constant[j],
-                                                 values->consts[idx]);
-            }
-        }
+        pgraph_glsl_get_psh_combiner_constants(pg, values->consts);
     }
     if (locs[PshUniform_alphaRef] != -1) {
         int alpha_ref = GET_MASK(pgraph_reg_r(pg, NV_PGRAPH_CONTROL_0),

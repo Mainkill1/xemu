@@ -1,6 +1,15 @@
 
 testblock = declare_dependency(dependencies: [block], sources: 'iothread.c')
 
+xbox_i386_target_headers = declare_dependency(
+  include_directories: include_directories('../../target/i386'),
+  compile_args: [
+    '-DCOMPILING_PER_TARGET',
+    '-DCONFIG_TARGET="i386-softmmu-config-target.h"',
+    '-DCONFIG_DEVICES="i386-softmmu-config-devices.h"',
+  ],
+)
+
 tests = {
   'check-block-qdict': [],
   'check-qdict': [],
@@ -48,6 +57,25 @@ tests = {
     ),
   ],
   'test-xbox-vk-pipeline-lifetime': [],
+  'test-xbox-vk-ubershader-controls': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/ubershader-controls.c',
+  ],
+  'test-xbox-vk-ubershader-combiner': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/ubershader-controls.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/ubershader-combiner-oracle.c',
+  ],
+  'test-xbox-vk-ubershader-glsl': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/common.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/psh.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/psh-uber.c',
+    xbox_i386_target_headers,
+  ],
+  'test-xbox-vk-hybrid-policy': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-policy.c',
+  ],
+  'test-xbox-vk-hybrid-compiler': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-compiler.c',
+  ],
   'test-xbox-vk-uniform-layout': [],
   'test-xbox-vk-spirv-prewarm': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/spirv-prewarm.c',
@@ -96,6 +124,26 @@ tests = {
 if host_os == 'windows'
   tests += {
     'test-xbox-qemu-poll': [],
+  }
+endif
+
+if vulkan.found()
+  tests += {
+    'test-xbox-vk-ubershader-glsl-integration': [
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/common.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/psh.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/psh-uber.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/device-inventory.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/glsl.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-compiler.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-policy.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/spirv-prewarm.c',
+      xbox_i386_target_headers,
+      volk, libglslang, vma, vulkan, spirv_reflect,
+    ],
+    'test-xbox-vk-ubershader-runtime': [xbox_i386_target_headers, volk,
+                                         libglslang, vma, vulkan,
+                                         spirv_reflect],
   }
 endif
 
