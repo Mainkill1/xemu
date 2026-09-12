@@ -14,6 +14,7 @@
 #include "exec/hwaddr.h"
 
 #include "hw/xbox/nv2a/nv2a_regs.h"
+#include "hw/xbox/nv2a/ptimer_core.h"
 
 #ifndef NV_PMC_INTR_0_PTIMER
 #define NV_PMC_INTR_0_PTIMER (1 << 20)
@@ -35,15 +36,23 @@ typedef struct NV2AState {
         uint32_t denominator;
         uint64_t alarm_time;
         uint64_t time_offset;
+        bool alarm_armed;
         QEMUTimer timer;
+        PtimerHostSchedule host;
     } ptimer;
 
     struct {
         uint64_t core_clock_freq;
+        uint32_t core_clock_coeff, memory_clock_coeff, video_clock_coeff;
+        uint32_t general_control, fp_vdisplay_end, fp_vcrtc;
+        uint32_t fp_vsync_end, fp_vvalid_end;
+        uint32_t fp_hdisplay_end, fp_hcrtc, fp_hvalid_end;
     } pramdac;
 } NV2AState;
 
 void nv2a_update_irq(NV2AState *d);
+uint64_t pramdac_read(void *opaque, hwaddr addr, unsigned int size);
+void pramdac_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size);
 
 static inline void nv2a_reg_log_read(int block, hwaddr addr,
                                      unsigned int size, uint64_t val)
@@ -68,6 +77,8 @@ void ptimer_write(void *opaque, hwaddr addr, uint64_t val,
                   unsigned int size);
 void ptimer_init(NV2AState *d);
 void ptimer_reset(NV2AState *d);
-void ptimer_post_load(NV2AState *d);
+void ptimer_post_load(NV2AState *d, int version_id);
+void ptimer_set_core_clock(NV2AState *d, uint64_t frequency);
+bool ptimer_test_bql_locked(void);
 
 #endif
