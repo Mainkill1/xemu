@@ -1712,43 +1712,22 @@ bool pgraph_vk_bind_textures(NV2AState *d)
     r->texture_bindings_changed = false;
     r->texture_uniform_scale_changed = false;
 
-    int64_t detail_start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
-    bool state_dirty = check_textures_dirty(pg);
-    pgraph_vk_perf_record_cpu_region(
-        r, VK_PERF_CPU_TEXTURE_STATE_CHECK,
-        r->perf.enabled ? g_get_monotonic_time() - detail_start_us : 0);
-    bool memory_dirty = false;
-    if (!state_dirty) {
-        detail_start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
-        memory_dirty = check_bound_texture_memory_dirty(d);
-        pgraph_vk_perf_record_cpu_region(
-            r, VK_PERF_CPU_TEXTURE_MEMORY_CHECK,
-            r->perf.enabled ? g_get_monotonic_time() - detail_start_us : 0);
-    }
-    if (!state_dirty && !memory_dirty) {
+    if (!check_textures_dirty(pg) &&
+        !check_bound_texture_memory_dirty(d)) {
         NV2A_VK_DPRINTF("Not dirty");
         NV2A_VK_DGROUP_END();
-        detail_start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
         update_timestamps(r);
-        pgraph_vk_perf_record_cpu_region(
-            r, VK_PERF_CPU_TEXTURE_TIMESTAMPS,
-            r->perf.enabled ? g_get_monotonic_time() - detail_start_us : 0);
         pgraph_vk_perf_record_cpu_region(
             r, VK_PERF_CPU_BIND_TEXTURES,
             r->perf.enabled ? g_get_monotonic_time() - start_us : 0);
         return true;
     }
 
-    detail_start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
     TextureBindingIdentity old_identity[NV2A_MAX_TEXTURES];
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
         old_identity[i] = texture_binding_identity(r, r->texture_bindings[i]);
     }
-    pgraph_vk_perf_record_cpu_region(
-        r, VK_PERF_CPU_TEXTURE_IDENTITY_BEFORE,
-        r->perf.enabled ? g_get_monotonic_time() - detail_start_us : 0);
 
-    detail_start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
     bool succeeded = true;
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
         if (!pgraph_is_texture_enabled(pg, i)) {
@@ -1793,13 +1772,9 @@ bool pgraph_vk_bind_textures(NV2AState *d)
             succeeded = false;
         }
     }
-    pgraph_vk_perf_record_cpu_region(
-        r, VK_PERF_CPU_TEXTURE_PREPARE,
-        r->perf.enabled ? g_get_monotonic_time() - detail_start_us : 0);
 
     /* Image contents can change in place without changing the descriptor or
      * texScale. Signal only the consumers whose effective inputs changed. */
-    detail_start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
         TextureBindingIdentity current =
             texture_binding_identity(r, r->texture_bindings[i]);
@@ -1816,14 +1791,7 @@ bool pgraph_vk_bind_textures(NV2AState *d)
      * to isolate its effect on the following synchronous surface readback. */
     r->texture_bindings_changed = true;
     r->texture_uniform_scale_changed = true;
-    pgraph_vk_perf_record_cpu_region(
-        r, VK_PERF_CPU_TEXTURE_IDENTITY_AFTER,
-        r->perf.enabled ? g_get_monotonic_time() - detail_start_us : 0);
-    detail_start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
     update_timestamps(r);
-    pgraph_vk_perf_record_cpu_region(
-        r, VK_PERF_CPU_TEXTURE_TIMESTAMPS,
-        r->perf.enabled ? g_get_monotonic_time() - detail_start_us : 0);
     pgraph_vk_perf_record_cpu_region(
         r, VK_PERF_CPU_BIND_TEXTURES,
         r->perf.enabled ? g_get_monotonic_time() - start_us : 0);
