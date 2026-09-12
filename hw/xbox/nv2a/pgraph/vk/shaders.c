@@ -852,7 +852,7 @@ void pgraph_vk_process_hybrid_completions(PGRAPHState *pg)
             r->hybrid_materializing_glsl = work->glsl;
             r->hybrid_materializing_glsl_size = work->glsl_size;
             r->hybrid_materializing_spirv = spirv;
-            uint64_t hash = fast_hash(&work->module_key,
+            uint64_t hash = fast_hash((const uint8_t *)&work->module_key,
                                       sizeof(work->module_key));
             LruNode *node = lru_lookup(&r->shader_module_cache, hash,
                                        &work->module_key);
@@ -1143,7 +1143,8 @@ static PGRAPHVkFragmentRoute select_fragment_route(PGRAPHState *pg,
             &r->spirv_cache, module_key.kind, glsl, glsl_size,
             &cached_spirv, &cached_spirv_size) ==
         PGRAPH_VK_SPIRV_CACHE_HIT) {
-        uint64_t hash = fast_hash(&module_key, sizeof(module_key));
+        uint64_t hash = fast_hash((const uint8_t *)&module_key,
+                                  sizeof(module_key));
         lru_lookup(&r->shader_module_cache, hash, &module_key);
         mstring_unref(code);
         return PGRAPH_VK_FRAGMENT_SPECIALIZED;
