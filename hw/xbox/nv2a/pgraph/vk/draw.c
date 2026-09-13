@@ -1740,25 +1740,31 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
     NV2A_VK_DGROUP_BEGIN("Sync vertex RAM buffer");
 
     for (int i = 0; i < r->num_vertex_ram_buffer_syncs; i++) {
+        MemorySyncRequirement *sync = &r->vertex_ram_buffer_syncs[i];
         NV2A_VK_DPRINTF("Need to sync vertex memory @%" HWADDR_PRIx
                         ", %" HWADDR_PRIx " bytes",
-                        r->vertex_ram_buffer_syncs[i].addr,
-                        r->vertex_ram_buffer_syncs[i].size);
+                        sync->addr, sync->size);
 
-        hwaddr start_addr =
-            r->vertex_ram_buffer_syncs[i].addr & TARGET_PAGE_MASK;
-        hwaddr end_addr = r->vertex_ram_buffer_syncs[i].addr +
-                          r->vertex_ram_buffer_syncs[i].size;
+        /* Page alignment is needed for dirty tracking and buffer uploads,
+         * but it must not turn adjacent vertices into a surface readback. */
+        if (sync->size &&
+            !pgraph_vk_download_surfaces_in_range_if_dirty(
+                pg, sync->addr, sync->size)) {
+            error_report("Vulkan surface readback failed before vertex upload");
+            abort();
+        }
+
+        hwaddr start_addr = sync->addr & TARGET_PAGE_MASK;
+        hwaddr end_addr = sync->addr + sync->size;
         end_addr = ROUND_UP(end_addr, TARGET_PAGE_SIZE);
 
         NV2A_VK_DPRINTF("- %d: %08" HWADDR_PRIx " %zd bytes"
                           " -> %08" HWADDR_PRIx " %zd bytes", i,
-                        r->vertex_ram_buffer_syncs[i].addr,
-                        r->vertex_ram_buffer_syncs[i].size, start_addr,
+                        sync->addr, sync->size, start_addr,
                         end_addr - start_addr);
 
-        r->vertex_ram_buffer_syncs[i].addr = start_addr;
-        r->vertex_ram_buffer_syncs[i].size = end_addr - start_addr;
+        sync->addr = start_addr;
+        sync->size = end_addr - start_addr;
     }
 
     // Sort the requirements in increasing order of addresses
@@ -1797,11 +1803,14 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
 
         NV2A_VK_DPRINTF("- %d: %08"HWADDR_PRIx" %zd bytes", i, addr, size);
 
-        if (memory_region_test_and_clear_dirty(d->vram, addr, size,
-                                               DIRTY_MEMORY_NV2A)) {
+        bool memory_dirty = memory_region_test_and_clear_dirty(
+            d->vram, addr, size, DIRTY_MEMORY_NV2A);
+        /* A successful GPU readback marks this range NV2A-dirty. An overlap
+         * with a clean surface needs neither readback nor mirror upload. */
+        if (memory_dirty) {
             NV2A_VK_DPRINTF("Memory dirty. Synchronizing...");
             pgraph_vk_update_vertex_ram_buffer(pg, addr, d->vram_ptr + addr,
-                                               size);
+                                               size, false);
         }
     }
 
@@ -2276,9 +2285,13 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
         assert(pg->inline_buffer_length == 0);
         assert(pg->inline_array_length == 0);
 
-        pgraph_vk_bind_vertex_attributes(d, pg->draw_arrays_min_start,
-                                         pg->draw_arrays_max_count - 1, false,
-                                         0, pg->draw_arrays_max_count - 1);
+        if (!pgraph_vk_bind_vertex_attributes(
+                d, pg->draw_arrays_min_start,
+                pg->draw_arrays_max_count - 1, false, 0,
+                pg->draw_arrays_max_count - 1)) {
+            NV2A_VK_DGROUP_END();
+            return false;
+        }
         uint32_t min_element = INT_MAX;
         uint32_t max_element = 0;
         for (int i = 0; i < pg->draw_arrays_length; i++) {
@@ -2286,6 +2299,8 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
             max_element = MAX(max_element, pg->draw_arrays_start[i] + pg->draw_arrays_count[i]);
         }
         sync_vertex_ram_buffer(pg);
+        pgraph_vk_refresh_vertex_inline_values(
+            pg, pg->draw_arrays_max_count - 1);
         VertexBufferRemap remap = remap_unaligned_attributes(pg, max_element);
 
         if (!begin_pre_draw(pg)) {
@@ -2326,10 +2341,16 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
             max_element = MAX(pg->inline_elements[i], max_element);
             min_element = MIN(pg->inline_elements[i], min_element);
         }
-        pgraph_vk_bind_vertex_attributes(
-            d, min_element, max_element, false, 0,
-            pg->inline_elements[pg->inline_elements_length - 1]);
+        uint32_t provoking_element =
+            pg->inline_elements[pg->inline_elements_length - 1];
+        if (!pgraph_vk_bind_vertex_attributes(
+                d, min_element, max_element, false, 0,
+                provoking_element)) {
+            NV2A_VK_DGROUP_END();
+            return false;
+        }
         sync_vertex_ram_buffer(pg);
+        pgraph_vk_refresh_vertex_inline_values(pg, provoking_element);
         VertexBufferRemap remap = remap_unaligned_attributes(pg, max_element + 1);
 
         if (!begin_pre_draw(pg)) {
@@ -2421,8 +2442,11 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
         unsigned int index_count = pg->inline_array_length * 4 / vertex_size;
 
         NV2A_DPRINTF("draw inline array %d, %d\n", vertex_size, index_count);
-        pgraph_vk_bind_vertex_attributes(d, 0, index_count - 1, true,
-                                         vertex_size, index_count - 1);
+        if (!pgraph_vk_bind_vertex_attributes(d, 0, index_count - 1, true,
+                                              vertex_size, index_count - 1)) {
+            NV2A_VK_DGROUP_END();
+            return false;
+        }
 
         if (!begin_pre_draw(pg)) {
             NV2A_VK_DGROUP_END();
