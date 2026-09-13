@@ -784,6 +784,54 @@ static void init_pipeline_key_for_state(
     }
 }
 
+static void trace_execution_candidates(PGRAPHState *pg)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    if (!r->hybrid_trace || !r->ubershader_runtime_enabled) {
+        return;
+    }
+
+    /* The state extractor clears this hint; a diagnostic probe must not
+     * consume it before the ordinary shader-binding path sees the draw. */
+    bool program_data_dirty = pg->program_data_dirty;
+    ShaderState state = pgraph_glsl_get_shader_state(pg);
+    pg->program_data_dirty = program_data_dirty;
+    uint64_t state_hash = fast_hash((const uint8_t *)&state, sizeof(state));
+    const PGRAPHVkFragmentRoute routes[] = {
+        PGRAPH_VK_FRAGMENT_SPECIALIZED,
+        PGRAPH_VK_FRAGMENT_UBERSHADER,
+    };
+    for (size_t i = 0; i < ARRAY_SIZE(routes); i++) {
+        PGRAPHVkFragmentRoute route = routes[i];
+        ShaderBindingKey shader_key = {
+            .state = state,
+            .fragment_route = route,
+        };
+        uint64_t shader_key_hash = fast_hash(
+            (const uint8_t *)&shader_key, sizeof(shader_key));
+        LruNode *shader_node = lru_find_existing(
+            &r->shader_cache, shader_key_hash, &shader_key);
+        ShaderBinding *shader = pgraph_vk_shader_binding_find_ready(
+            &r->shader_cache, shader_key_hash, &shader_key,
+            pgraph_glsl_need_geom(&state.geom));
+        PipelineKey pipeline_key;
+        init_pipeline_key_for_state(pg, &state, route, &pipeline_key);
+        uint64_t pipeline_hash = fast_hash(
+            (const uint8_t *)&pipeline_key, sizeof(pipeline_key));
+        PipelineBinding *pipeline = pipeline_cache_find_ready(
+            r, pipeline_hash, &pipeline_key);
+
+        pgraph_vk_hybrid_trace_record(
+            r->hybrid_trace, VK_HYBRID_TRACE_SHADER_BINDING_PROBE,
+            route, pipeline_hash, state_hash, 0,
+            shader_node != NULL, shader != NULL, shader_key_hash, 1);
+        pgraph_vk_hybrid_trace_record(
+            r->hybrid_trace, VK_HYBRID_TRACE_PIPELINE_PROBE,
+            route, pipeline_hash, state_hash, 0,
+            pipeline != NULL, 0, shader != NULL, 1);
+    }
+}
+
 static bool create_pipeline(PGRAPHState *pg)
 {
     NV2A_VK_DGROUP_BEGIN("Creating pipeline");
@@ -796,6 +844,7 @@ static bool create_pipeline(PGRAPHState *pg)
         NV2A_VK_DGROUP_END();
         return false;
     }
+    trace_execution_candidates(pg);
     pgraph_vk_bind_shaders(pg);
 
     // FIXME: If nothing was dirty, don't even try creating the key or hashing.
