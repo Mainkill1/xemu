@@ -688,11 +688,13 @@ void pgraph_vk_transition_image_layout(PGRAPHState *pg, VkCommandBuffer cmd,
                                        VkImageLayout newLayout);
 
 // vertex.c
-void pgraph_vk_bind_vertex_attributes(NV2AState *d, unsigned int min_element,
+bool pgraph_vk_bind_vertex_attributes(NV2AState *d, unsigned int min_element,
                                       unsigned int max_element,
                                       bool inline_data,
                                       unsigned int inline_stride,
                                       unsigned int provoking_element);
+void pgraph_vk_refresh_vertex_inline_values(PGRAPHState *pg,
+                                             unsigned int provoking_element);
 void pgraph_vk_bind_vertex_attributes_inline(NV2AState *d);
 void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset, void *data,
                                         VkDeviceSize size,
