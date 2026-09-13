@@ -414,9 +414,30 @@ static void nv2a_vm_state_change(void *opaque, bool running, RunState state)
         bql_lock();
         nv2a_lock_fifo(d);
     } else if (state == RUN_STATE_RESTORE_VM) {
+        bool reinit_renderer =
+            g_strcmp0(g_getenv("XEMU_SNAPSHOT_RENDERER_REINIT"), "1") == 0;
         nv2a_lock_fifo(d);
         qatomic_set(&d->pfifo.halt, true);
+
+        /* Research toggle: discard the old host renderer before VMState
+         * replaces RAM. The existing renderer-switch path drains its GPU
+         * surfaces into the old RAM and then creates fresh host resources.
+         * This must finish before the snapshot loader writes restored RAM.
+         */
+        if (reinit_renderer) {
+            assert(d->pgraph.renderer_switch_phase ==
+                   PGRAPH_RENDERER_SWITCH_PHASE_IDLE);
+            qemu_event_reset(&d->pgraph.renderer_switch_complete);
+            d->pgraph.renderer_switch_phase =
+                PGRAPH_RENDERER_SWITCH_PHASE_CPU_WAITING;
+        }
         nv2a_unlock_fifo(d);
+
+        if (reinit_renderer) {
+            bql_unlock();
+            qemu_event_wait(&d->pgraph.renderer_switch_complete);
+            bql_lock();
+        }
     } else if (state == RUN_STATE_RUNNING) {
         nv2a_lock_fifo(d);
         qatomic_set(&d->pfifo.halt, false);
