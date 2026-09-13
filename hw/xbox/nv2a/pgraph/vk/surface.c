@@ -144,22 +144,12 @@ bool pgraph_vk_surface_overlaps_range(PGRAPHState *pg, hwaddr start,
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     SurfaceBinding *surface;
-    bool overlap;
-
-    if (pgraph_vk_surface_overlap_cache_lookup(&r->surface_overlap_cache,
-                                               start, size, &overlap)) {
-        return overlap;
-    }
 
     QTAILQ_FOREACH(surface, &r->surfaces, entry) {
         if (check_surface_overlaps_range(surface, start, size)) {
-            pgraph_vk_surface_overlap_cache_store(&r->surface_overlap_cache,
-                                                  start, size, true);
             return true;
         }
     }
-    pgraph_vk_surface_overlap_cache_store(&r->surface_overlap_cache,
-                                          start, size, false);
     return false;
 }
 
@@ -837,7 +827,6 @@ static void invalidate_surface(NV2AState *d, SurfaceBinding *surface)
     unregister_cpu_access_callback(d, surface);
 
     QTAILQ_REMOVE(&r->surfaces, surface, entry);
-    pgraph_vk_surface_overlap_cache_invalidate(&r->surface_overlap_cache);
     QTAILQ_INSERT_HEAD(&r->invalid_surfaces, surface, entry);
 }
 
@@ -878,7 +867,6 @@ static void surface_put(NV2AState *d, SurfaceBinding *surface)
     register_cpu_access_callback(d, surface);
 
     QTAILQ_INSERT_HEAD(&r->surfaces, surface, entry);
-    pgraph_vk_surface_overlap_cache_invalidate(&r->surface_overlap_cache);
 }
 
 SurfaceBinding *pgraph_vk_surface_get(NV2AState *d, hwaddr addr)
