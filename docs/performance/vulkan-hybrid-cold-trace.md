@@ -22,9 +22,17 @@ type,frame,draw,time_us,route,pipeline_hash,shader_hash,ticket,a,b,c,d
 | 8 | Route transition | previous route | selected route | selection epoch changed | shader state dirty |
 | 9 | Renderer finish | finish reason | fence wait | queue-submit CPU | command buffer active |
 | 10 | Resource shortage | shortage kind | index or requested size | capacity | route-specific detail |
+| 11 | Uncovered route | specialized binding ready | specialized pipeline ready | fallback binding ready | bit 0: fallback pipeline; bit 1: fallback resources; bit 2: controls supported |
+| 12 | Background pipeline submit | submit status | free pipeline-cache entries | reserved | reserved |
+| 13 | Background pipeline adoption | submitted time | worker start | worker finish | adopted |
+| 14 | Warm SPIR-V module materialization | call start | call end | cached SPIR-V bytes | module-key hash |
+| 15 | Pipeline-layout creation | call start | call end | reserved | reserved |
+| 16 | Render-pass lookup or creation | call start | call end | color format | depth/stencil format |
 
-For type 1, queue wait is `b-a`, compilation is `c-b`, and caller wait is `d-a`. Required/speculative overlap is the intersection of their `[b,c]` intervals, summed per required job. Pipeline creation time is `b-a` for type 7. The route decision still occurs before complete-pipeline readiness is established at this diagnostic head; probe rows measure the current behavior and do not claim that route selection is fixed.
+For type 1, queue wait is `b-a`, compilation is `c-b`, and caller wait is `d-a`. Required/speculative overlap is the intersection of their `[b,c]` intervals, summed per required job. Pipeline creation time is `b-a` for type 7.
 
-Each traced Hybrid On draw probes both exact candidates before the current route selector runs; a `d=1` probe row is that pre-route check. `d=0` rows observe the ordinary selected-route lookup. These probes borrow cache entries and do not create or touch them. A pre-route fallback pipeline hit with `c=0` is not an executable fallback because its shader-binding metadata is absent.
+Current Hybrid On routing requires both the exact shader binding and the complete graphics pipeline. A `d=2` probe row records the current candidate check; `d=1` identifies the older diagnostic-only pre-route check. A fallback pipeline hit with missing shader metadata or resources is not an executable fallback. A module completion alone cannot cause a specialized takeover.
 
-This format is intended for cold attribution before changing route policy. Compare equal guest work and matched cache state; the act of serializing a slow frame can affect the following interval, so separate diagnostic builds from normal timing runs.
+The first uncovered draw currently constructs one fallback route synchronously when its controls can be packed. A warm SPIR-V hit can still materialize a shader module on the renderer thread, and preparing a background pipeline still creates its layout and may create a render pass there. Types 14–16 attribute those costs separately from the worker's graphics-pipeline creation. A full pipeline cache can defer background adoption without evicting a live entry.
+
+Compare equal guest work and matched cache state; serializing a slow frame can affect the following interval, so use a trace-disabled build for timing acceptance.
