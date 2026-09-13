@@ -1835,15 +1835,14 @@ static bool sync_vertex_ram_buffer(PGRAPHState *pg, uint32_t num_vertices)
 
         /* Page alignment is needed for dirty tracking and buffer uploads,
          * but it must not turn adjacent vertices into a surface readback. */
-        sync->surface_overlap = sync->size &&
-            pgraph_vk_surface_overlaps_range(pg, sync->addr, sync->size);
-        any_surface_overlap |= sync->surface_overlap;
-        if (sync->surface_overlap &&
+        bool surface_overlap = false;
+        if (sync->size &&
             !pgraph_vk_download_surfaces_in_range_if_dirty(
-                pg, sync->addr, sync->size)) {
+                pg, sync->addr, sync->size, &surface_overlap)) {
             error_report("Vulkan surface readback failed before vertex upload");
             abort();
         }
+        any_surface_overlap |= surface_overlap;
 
         hwaddr start_addr = sync->addr & TARGET_PAGE_MASK;
         hwaddr end_addr = sync->addr + sync->size;
@@ -1879,7 +1878,6 @@ static bool sync_vertex_ram_buffer(PGRAPHState *pg, uint32_t num_vertices)
             hwaddr t_end_addr = t->addr + t->size;
             hwaddr new_end_addr = MAX(p_end_addr, t_end_addr);
             p->size = new_end_addr - p->addr;
-            p->surface_overlap |= t->surface_overlap;
         } else {
             merged[num_syncs++] = *t;
         }
@@ -1906,7 +1904,9 @@ static bool sync_vertex_ram_buffer(PGRAPHState *pg, uint32_t num_vertices)
         assert(page_count <= r->num_vertex_ram_read_pages - first_page);
         bool mirror_stale = r->vertex_ram_stale_page_count &&
             memchr(r->vertex_ram_stale_pages + first_page, 1, page_count);
-        if (memory_dirty || merged[i].surface_overlap || mirror_stale) {
+        /* A successful GPU readback marks this range NV2A-dirty. An overlap
+         * with a clean surface needs neither readback nor mirror upload. */
+        if (memory_dirty || mirror_stale) {
             /* A byte-per-page conservative footprint keeps direct host
              * writes away from vertex data already captured by this batch. */
             bool can_write_directly = r->vertex_ram_read_tracking_active;

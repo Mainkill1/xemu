@@ -53,7 +53,6 @@ typedef struct QueueFamilyIndices {
 
 typedef struct MemorySyncRequirement {
     hwaddr addr, size;
-    bool surface_overlap;
 } MemorySyncRequirement;
 
 typedef struct RenderPassState {
@@ -736,7 +735,7 @@ SurfaceBinding *pgraph_vk_surface_get_within(NV2AState *d, hwaddr addr);
 bool pgraph_vk_wait_for_surface_download(SurfaceBinding *e);
 void pgraph_vk_download_dirty_surfaces(NV2AState *d);
 bool pgraph_vk_download_surfaces_in_range_if_dirty(PGRAPHState *pg, hwaddr start,
-                                                    hwaddr size);
+                                                    hwaddr size, bool *overlap);
 bool pgraph_vk_surface_overlaps_range(PGRAPHState *pg, hwaddr start,
                                       hwaddr size);
 bool pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,

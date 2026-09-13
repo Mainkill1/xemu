@@ -154,14 +154,22 @@ bool pgraph_vk_surface_overlaps_range(PGRAPHState *pg, hwaddr start,
 }
 
 bool pgraph_vk_download_surfaces_in_range_if_dirty(PGRAPHState *pg,
-                                                   hwaddr start, hwaddr size)
+                                                   hwaddr start, hwaddr size,
+                                                   bool *overlap)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     SurfaceBinding *surface;
     bool succeeded = true;
 
+    if (overlap) {
+        *overlap = false;
+    }
+
     QTAILQ_FOREACH(surface, &r->surfaces, entry) {
         if (check_surface_overlaps_range(surface, start, size)) {
+            if (overlap) {
+                *overlap = true;
+            }
             succeeded &= pgraph_vk_surface_download_if_dirty(
                 container_of(pg, NV2AState, pgraph), surface);
         }

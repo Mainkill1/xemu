@@ -63,7 +63,8 @@ void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
     assert(size <= vertex->buffer_size - offset);
 
     if (download_surfaces &&
-        !pgraph_vk_download_surfaces_in_range_if_dirty(pg, offset, size)) {
+        !pgraph_vk_download_surfaces_in_range_if_dirty(pg, offset, size,
+                                                       NULL)) {
         /* draw.c has already retired this range's NV2A dirty bit. Re-arm it
          * before refusing to consume stale guest memory. */
         memory_region_set_client_dirty(d->vram, offset, size,
