@@ -53,7 +53,6 @@ typedef struct QueueFamilyIndices {
 
 typedef struct MemorySyncRequirement {
     hwaddr addr, size;
-    bool surface_overlap;
 } MemorySyncRequirement;
 
 typedef struct RenderPassState {
