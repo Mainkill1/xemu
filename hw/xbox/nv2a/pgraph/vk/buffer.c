@@ -344,6 +344,12 @@ void pgraph_vk_init_buffers(NV2AState *d)
             r->allocator, r->storage_buffers[buffers_to_map[i]].allocation,
             (void **)&r->storage_buffers[buffers_to_map[i]].mapped));
     }
+    r->num_vertex_ram_read_pages =
+        DIV_ROUND_UP(memory_region_size(d->vram), TARGET_PAGE_SIZE);
+    r->vertex_ram_read_pages = g_malloc0(r->num_vertex_ram_read_pages);
+    r->vertex_ram_read_tracking_active = false;
+    r->vertex_ram_updated_in_batch = false;
+    r->vertex_ram_read_tracking_idle_batches = 0;
 }
 
 void pgraph_vk_finalize_buffers(NV2AState *d)
@@ -351,6 +357,11 @@ void pgraph_vk_finalize_buffers(NV2AState *d)
     PGRAPHState *pg = &d->pgraph;
     PGRAPHVkState *r = pg->vk_renderer_state;
 
+    g_free(r->vertex_ram_read_pages);
+    r->vertex_ram_read_pages = NULL;
+    r->vertex_ram_read_tracking_active = false;
+    r->vertex_ram_updated_in_batch = false;
+    r->vertex_ram_read_tracking_idle_batches = 0;
     for (int i = 0; i < BUFFER_COUNT; i++) {
         if (r->storage_buffers[i].mapped) {
             vmaUnmapMemory(r->allocator, r->storage_buffers[i].allocation);
