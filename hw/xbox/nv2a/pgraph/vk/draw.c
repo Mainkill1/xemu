@@ -1945,10 +1945,17 @@ static bool sync_vertex_ram_buffer(PGRAPHState *pg, uint32_t num_vertices)
         }
     }
 
-    assert(num_syncs <= ARRAY_SIZE(r->pending_vertex_ram_reads));
-    memcpy(r->pending_vertex_ram_reads, merged,
-           num_syncs * sizeof(merged[0]));
-    r->num_pending_vertex_ram_reads = num_syncs;
+    /* Versioned draws bind every active attribute from the private inline
+     * slice. They do not read the fixed vertex mirror, so these ranges must
+     * not make later writes look like conflicts with an earlier mirror draw. */
+    if (versioned) {
+        r->num_pending_vertex_ram_reads = 0;
+    } else {
+        assert(num_syncs <= ARRAY_SIZE(r->pending_vertex_ram_reads));
+        memcpy(r->pending_vertex_ram_reads, merged,
+               num_syncs * sizeof(merged[0]));
+        r->num_pending_vertex_ram_reads = num_syncs;
+    }
     r->num_vertex_ram_buffer_syncs = 0;
 
     NV2A_VK_DGROUP_END();
