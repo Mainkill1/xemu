@@ -520,6 +520,8 @@ typedef struct PGRAPHVkState {
     /* Pages left stale in the fixed mirror when a draw uses an inline slice. */
     uint8_t *vertex_ram_stale_pages;
     size_t vertex_ram_stale_page_count;
+    /* Captures one bounded version before any pre-draw finish can wait. */
+    uint8_t *vertex_version_scratch;
     size_t num_vertex_ram_read_pages;
     bool vertex_ram_read_tracking_active;
     bool vertex_ram_updated_in_batch;
@@ -641,6 +643,7 @@ void pgraph_vk_destroy_shader_module(PGRAPHVkState *r, ShaderModuleInfo *info);
 
 // buffer.c
 void pgraph_vk_init_buffers(NV2AState *d);
+void pgraph_vk_clear_vertex_ram_stale(PGRAPHVkState *r);
 void pgraph_vk_finalize_buffers(NV2AState *d);
 bool pgraph_vk_buffer_has_space_for(PGRAPHState *pg, int index,
                                     VkDeviceSize size,
