@@ -279,6 +279,13 @@ typedef struct ShaderBindingKey {
     PGRAPHVkFragmentRoute fragment_route;
 } ShaderBindingKey;
 
+typedef struct PGRAPHVkShaderPreparation {
+    ShaderState state;
+    bool shader_state_dirty;
+    bool bound_state_equal;
+    bool selection_changed;
+} PGRAPHVkShaderPreparation;
+
 static inline bool pgraph_vk_shader_binding_key_equal(
     const ShaderBindingKey *a, const ShaderBindingKey *b)
 {
@@ -897,6 +904,15 @@ void pgraph_vk_process_hybrid_completions(PGRAPHState *pg);
 void pgraph_vk_stop_hybrid_compiler(PGRAPHState *pg);
 void pgraph_vk_process_spirv_cache_writeback(PGRAPHState *pg);
 void pgraph_vk_update_descriptor_sets(PGRAPHState *pg);
+bool pgraph_vk_pack_fallback_controls(PGRAPHState *pg,
+                                     const PshState *state,
+                                     PGRAPHUberControls *packet);
+void pgraph_vk_prepare_shaders(PGRAPHState *pg,
+                              PGRAPHVkShaderPreparation *preparation);
+void pgraph_vk_activate_shaders(PGRAPHState *pg,
+                               const PGRAPHVkShaderPreparation *preparation,
+                               PGRAPHVkFragmentRoute route,
+                               ShaderBinding *ready_binding);
 void pgraph_vk_bind_shaders(PGRAPHState *pg);
 
 // reports.c

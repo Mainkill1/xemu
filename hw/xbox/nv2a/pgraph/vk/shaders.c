@@ -1132,14 +1132,22 @@ static void get_uber_control_source(PGRAPHState *pg, const PshState *state,
     pgraph_glsl_get_psh_combiner_constants(pg, source->constants);
 }
 
-static bool update_uber_controls(PGRAPHState *pg, const PshState *state)
+bool pgraph_vk_pack_fallback_controls(PGRAPHState *pg,
+                                     const PshState *state,
+                                     PGRAPHUberControls *packet)
 {
-    PGRAPHVkState *r = pg->vk_renderer_state;
     PGRAPHUberControlSource source;
 
     get_uber_control_source(pg, state, &source);
-    r->uber_controls_valid = pgraph_vk_pack_ubershader_controls(
-        &r->uber_controls, &source, NULL);
+    return pgraph_vk_pack_ubershader_controls(packet, &source, NULL);
+}
+
+static bool update_uber_controls(PGRAPHState *pg, const PshState *state)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+
+    r->uber_controls_valid = pgraph_vk_pack_fallback_controls(
+        pg, state, &r->uber_controls);
     return r->uber_controls_valid;
 }
 
@@ -1438,10 +1446,9 @@ static void update_shader_uniforms(PGRAPHState *pg, const bool update_stage[])
     NV2A_VK_DGROUP_END();
 }
 
-void pgraph_vk_bind_shaders(PGRAPHState *pg)
+void pgraph_vk_prepare_shaders(PGRAPHState *pg,
+                              PGRAPHVkShaderPreparation *preparation)
 {
-    NV2A_VK_DGROUP_BEGIN("%s", __func__);
-
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     pgraph_vk_process_hybrid_completions(pg);
@@ -1450,33 +1457,41 @@ void pgraph_vk_bind_shaders(PGRAPHState *pg)
     r->uniform_layout_changed[PGRAPH_UNIFORM_STAGE_VSH] = false;
     r->uniform_layout_changed[PGRAPH_UNIFORM_STAGE_PSH] = false;
 
-    bool selection_changed = pgraph_vk_hybrid_selection_changed(
+    preparation->selection_changed = pgraph_vk_hybrid_selection_changed(
         r->hybrid_bound_selection_epoch, r->hybrid_selection_epoch);
-    bool shader_state_dirty = selection_changed ||
+    preparation->shader_state_dirty = preparation->selection_changed ||
         !r->shader_binding ||
         pgraph_glsl_check_shader_state_dirty(pg, &r->shader_binding->state);
-    ShaderState new_state;
-    if (shader_state_dirty) {
-        new_state = pgraph_glsl_get_shader_state(pg);
+    if (preparation->shader_state_dirty) {
+        preparation->state = pgraph_glsl_get_shader_state(pg);
     } else {
-        new_state = r->shader_binding->state;
+        preparation->state = r->shader_binding->state;
     }
     /* Register-dirty hints often leave the effective shader state intact.
      * An already-bound specialized shader needs no route/cache probe then. */
-    bool bound_state_equal = r->shader_binding &&
-        (!shader_state_dirty ||
-         memcmp(&r->shader_binding->state, &new_state,
+    preparation->bound_state_equal = r->shader_binding &&
+        (!preparation->shader_state_dirty ||
+         memcmp(&r->shader_binding->state, &preparation->state,
                 sizeof(ShaderState)) == 0);
-    ShaderBinding *cached_specialized_binding = NULL;
-    PGRAPHVkFragmentRoute fragment_route;
-    if (bound_state_equal &&
-        r->shader_binding->fragment_route ==
-            PGRAPH_VK_FRAGMENT_SPECIALIZED) {
-        fragment_route = PGRAPH_VK_FRAGMENT_SPECIALIZED;
-    } else {
-        fragment_route = select_fragment_route(
-            pg, &new_state, &cached_specialized_binding);
+}
+
+void pgraph_vk_activate_shaders(PGRAPHState *pg,
+                               const PGRAPHVkShaderPreparation *preparation,
+                               PGRAPHVkFragmentRoute fragment_route,
+                               ShaderBinding *ready_binding)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    ShaderState new_state = preparation->state;
+    bool shader_state_dirty = preparation->shader_state_dirty;
+    bool bound_state_equal = preparation->bound_state_equal;
+    bool selection_changed = preparation->selection_changed;
+
+    if (ready_binding) {
+        assert(ready_binding->fragment_route == fragment_route);
+        assert(memcmp(&ready_binding->state, &new_state,
+                      sizeof(new_state)) == 0);
     }
+
     if (r->hybrid_trace &&
         (!r->shader_binding ||
          r->shader_binding->fragment_route != fragment_route)) {
@@ -1501,13 +1516,11 @@ void pgraph_vk_bind_shaders(PGRAPHState *pg)
                 .state = new_state,
                 .fragment_route = fragment_route,
             };
-            if (cached_specialized_binding) {
+            if (ready_binding) {
                 /* A probe hit is borrowed. Match the ordinary LRU hit's
                  * recency update before retaining the binding. */
-                assert(fragment_route == PGRAPH_VK_FRAGMENT_SPECIALIZED);
-                lru_touch_existing(&r->shader_cache,
-                                   &cached_specialized_binding->node);
-                r->shader_binding = cached_specialized_binding;
+                lru_touch_existing(&r->shader_cache, &ready_binding->node);
+                r->shader_binding = ready_binding;
             } else {
                 r->shader_binding = get_shader_binding_for_key(r, &key);
             }
@@ -1534,7 +1547,6 @@ void pgraph_vk_bind_shaders(PGRAPHState *pg)
     if (!update_stage[PGRAPH_UNIFORM_STAGE_VSH] &&
         !update_stage[PGRAPH_UNIFORM_STAGE_PSH]) {
         nv2a_profile_inc_counter(NV2A_PROF_SHADER_UBO_NOTDIRTY);
-        NV2A_VK_DGROUP_END();
         return;
     }
 
@@ -1546,6 +1558,28 @@ void pgraph_vk_bind_shaders(PGRAPHState *pg)
             pgraph_reg_r(pg, NV_PGRAPH_ZOFFSETFACTOR));
         r->polygon_offset_key_valid = true;
     }
+}
+
+void pgraph_vk_bind_shaders(PGRAPHState *pg)
+{
+    NV2A_VK_DGROUP_BEGIN("%s", __func__);
+
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    PGRAPHVkShaderPreparation preparation;
+    pgraph_vk_prepare_shaders(pg, &preparation);
+
+    ShaderBinding *cached_specialized_binding = NULL;
+    PGRAPHVkFragmentRoute fragment_route;
+    if (preparation.bound_state_equal &&
+        r->shader_binding->fragment_route ==
+            PGRAPH_VK_FRAGMENT_SPECIALIZED) {
+        fragment_route = PGRAPH_VK_FRAGMENT_SPECIALIZED;
+    } else {
+        fragment_route = select_fragment_route(
+            pg, &preparation.state, &cached_specialized_binding);
+    }
+    pgraph_vk_activate_shaders(pg, &preparation, fragment_route,
+                              cached_specialized_binding);
 
     NV2A_VK_DGROUP_END();
 }
