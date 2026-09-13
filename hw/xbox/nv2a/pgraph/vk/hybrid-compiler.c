@@ -27,14 +27,17 @@ typedef struct HybridCompilerJob {
 typedef struct HybridCompilerState {
     QemuMutex lock;
     QemuCond work_ready;
+    QemuCond blocking_ready;
     QemuCond blocking_done;
     QemuThread worker;
+    QemuThread blocking_worker;
     PGRAPHVkHybridCompilerConfig config;
     HybridCompilerJob *async_head;
     HybridCompilerJob *async_tail;
     HybridCompilerJob *result_head;
     HybridCompilerJob *result_tail;
     HybridCompilerJob *active;
+    HybridCompilerJob *active_blocking;
     HybridCompilerJob *blocking;
     size_t async_jobs;
     size_t async_bytes;
@@ -193,18 +196,14 @@ static void *hybrid_compiler_worker(void *opaque)
         bool success;
 
         qemu_mutex_lock(&state->lock);
-        while (!state->stopping && !state->blocking && !state->async_head) {
+        while (!state->stopping && !state->async_head) {
             qemu_cond_wait(&state->work_ready, &state->lock);
         }
         if (state->stopping) {
             qemu_mutex_unlock(&state->lock);
             break;
         }
-        if (state->blocking) {
-            job = state->blocking;
-        } else {
-            job = async_pop(state);
-        }
+        job = async_pop(state);
         state->active = job;
         qemu_mutex_unlock(&state->lock);
 
@@ -222,16 +221,64 @@ static void *hybrid_compiler_worker(void *opaque)
         job->success = success;
         job->spirv = spirv;
         job->spirv_size = spirv_size;
-        if (job->blocking) {
-            state->blocking = NULL;
-            job->done = true;
-            qemu_cond_broadcast(&state->blocking_done);
-        } else if (state->stopping) {
+        if (state->stopping) {
             async_account_release(state, job);
             job_destroy(job);
         } else {
             result_append(state, job);
         }
+        bool stopping = state->stopping;
+        qemu_mutex_unlock(&state->lock);
+        if (stopping) {
+            break;
+        }
+    }
+
+    return NULL;
+}
+
+/* Required draw dependencies must not wait for an active speculative
+ * compilation. This lane has no asynchronous work and is independent of
+ * the bounded background queue. */
+static void *hybrid_compiler_blocking_worker(void *opaque)
+{
+    HybridCompilerState *state = opaque;
+
+    for (;;) {
+        HybridCompilerJob *job;
+        uint8_t *spirv = NULL;
+        size_t spirv_size = 0;
+        bool success;
+
+        qemu_mutex_lock(&state->lock);
+        while (!state->stopping && !state->blocking) {
+            qemu_cond_wait(&state->blocking_ready, &state->lock);
+        }
+        if (state->stopping) {
+            qemu_mutex_unlock(&state->lock);
+            break;
+        }
+        job = state->blocking;
+        state->active_blocking = job;
+        qemu_mutex_unlock(&state->lock);
+
+        success = state->config.compile(state->config.opaque, &job->request,
+                                        &spirv, &spirv_size);
+        if (!success || !spirv || !spirv_size) {
+            g_free(spirv);
+            spirv = NULL;
+            spirv_size = 0;
+            success = false;
+        }
+
+        qemu_mutex_lock(&state->lock);
+        state->active_blocking = NULL;
+        state->blocking = NULL;
+        job->success = success;
+        job->spirv = spirv;
+        job->spirv_size = spirv_size;
+        job->done = true;
+        qemu_cond_broadcast(&state->blocking_done);
         bool stopping = state->stopping;
         qemu_mutex_unlock(&state->lock);
         if (stopping) {
@@ -257,9 +304,13 @@ bool pgraph_vk_hybrid_compiler_init(
     state->config = *config;
     qemu_mutex_init(&state->lock);
     qemu_cond_init(&state->work_ready);
+    qemu_cond_init(&state->blocking_ready);
     qemu_cond_init(&state->blocking_done);
     qemu_thread_create(&state->worker, "vk-hybrid-compiler",
                        hybrid_compiler_worker, state, QEMU_THREAD_JOINABLE);
+    qemu_thread_create(&state->blocking_worker, "vk-hybrid-required",
+                       hybrid_compiler_blocking_worker, state,
+                       QEMU_THREAD_JOINABLE);
     compiler->state = state;
     return true;
 }
@@ -370,7 +421,7 @@ bool pgraph_vk_hybrid_compiler_submit_blocking(
         return false;
     }
     state->blocking = job;
-    qemu_cond_signal(&state->work_ready);
+    qemu_cond_signal(&state->blocking_ready);
     while (!job->done) {
         qemu_cond_wait(&state->blocking_done, &state->lock);
     }
@@ -464,13 +515,14 @@ void pgraph_vk_hybrid_compiler_stop(PGRAPHVkHybridCompiler *compiler)
         async_list_destroy(state, &state->async_head, &state->async_tail);
         async_list_destroy(state, &state->result_head, &state->result_tail);
         qatomic_set(&state->result_available, false);
-        if (state->blocking && state->blocking != state->active) {
+        if (state->blocking && state->blocking != state->active_blocking) {
             HybridCompilerJob *job = state->blocking;
             state->blocking = NULL;
             job->cancelled = true;
             job->done = true;
         }
         qemu_cond_broadcast(&state->work_ready);
+        qemu_cond_broadcast(&state->blocking_ready);
         qemu_cond_broadcast(&state->blocking_done);
     }
     qemu_mutex_unlock(&state->lock);
@@ -485,6 +537,7 @@ void pgraph_vk_hybrid_compiler_join(PGRAPHVkHybridCompiler *compiler)
     }
     pgraph_vk_hybrid_compiler_stop(compiler);
     qemu_thread_join(&state->worker);
+    qemu_thread_join(&state->blocking_worker);
     state->joined = true;
 }
 
@@ -500,9 +553,11 @@ void pgraph_vk_hybrid_compiler_destroy(PGRAPHVkHybridCompiler *compiler)
     async_list_destroy(state, &state->async_head, &state->async_tail);
     async_list_destroy(state, &state->result_head, &state->result_tail);
     assert(!state->active);
+    assert(!state->active_blocking);
     assert(!state->blocking);
     qemu_mutex_unlock(&state->lock);
     qemu_cond_destroy(&state->blocking_done);
+    qemu_cond_destroy(&state->blocking_ready);
     qemu_cond_destroy(&state->work_ready);
     qemu_mutex_destroy(&state->lock);
     g_free(state);

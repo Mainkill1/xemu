@@ -315,6 +315,46 @@ static void test_blocking_slot_is_reserved_from_async_limits(void)
     test_compiler_destroy(&test);
 }
 
+static void test_required_compile_starts_while_async_is_active(void)
+{
+    TestCompiler test;
+    PGRAPHVkHybridCompiler compiler = { 0 };
+    BlockingSubmit blocking = { 0 };
+    QemuThread thread;
+    PGRAPHVkHybridCompileResult result;
+    bool started;
+
+    test_compiler_init(&test, true);
+    g_assert_true(init_compiler(&compiler, &test, 1, 64));
+    g_assert_cmpint(submit_async(&compiler, 1, 1, "background", "config",
+                                 NULL),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
+    test_wait_for_calls(&test, 1);
+
+    blocking.compiler = &compiler;
+    blocking.request = test_request(1, 2, "required", "config");
+    qemu_thread_create(&thread, "hybrid-compiler-required-test",
+                       test_submit_blocking, &blocking, QEMU_THREAD_JOINABLE);
+
+    qemu_mutex_lock(&test.lock);
+    while (test.calls < 2 &&
+           qemu_cond_timedwait(&test.started, &test.lock, 1000)) {
+    }
+    started = test.calls >= 2;
+    qemu_mutex_unlock(&test.lock);
+
+    test_release(&test);
+    g_assert_null(qemu_thread_join(&thread));
+    g_assert_true(blocking.submitted);
+    g_assert_true(blocking.result.success);
+    pgraph_vk_hybrid_compile_result_destroy(&blocking.result);
+    g_assert_true(take_result(&compiler, &result));
+    pgraph_vk_hybrid_compile_result_destroy(&result);
+    pgraph_vk_hybrid_compiler_destroy(&compiler);
+    test_compiler_destroy(&test);
+    g_assert_true(started);
+}
+
 static void test_compile_failure_is_returned_with_owned_empty_artifact(void)
 {
     TestCompiler test;
@@ -362,6 +402,30 @@ static void test_stop_join_releases_idle_busy_and_full_queues(void)
     test_compiler_destroy(&test);
 }
 
+static void test_stop_waits_for_active_required_compile(void)
+{
+    TestCompiler test;
+    PGRAPHVkHybridCompiler compiler = { 0 };
+    BlockingSubmit blocking = { 0 };
+    QemuThread thread;
+
+    test_compiler_init(&test, true);
+    g_assert_true(init_compiler(&compiler, &test, 1, 64));
+    blocking.compiler = &compiler;
+    blocking.request = test_request(1, 2, "required", "config");
+    qemu_thread_create(&thread, "hybrid-compiler-stop-test",
+                       test_submit_blocking, &blocking, QEMU_THREAD_JOINABLE);
+    test_wait_for_calls(&test, 1);
+
+    pgraph_vk_hybrid_compiler_stop(&compiler);
+    test_release(&test);
+    g_assert_null(qemu_thread_join(&thread));
+    g_assert_false(blocking.submitted);
+    g_assert_null(blocking.result.spirv);
+    pgraph_vk_hybrid_compiler_destroy(&compiler);
+    test_compiler_destroy(&test);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -375,9 +439,13 @@ int main(int argc, char **argv)
                     test_async_matching_blocking_work_keeps_its_own_result);
     g_test_add_func("/xbox/vk/hybrid-compiler/reserved-blocking",
                     test_blocking_slot_is_reserved_from_async_limits);
+    g_test_add_func("/xbox/vk/hybrid-compiler/required-starts-before-async-finishes",
+                    test_required_compile_starts_while_async_is_active);
     g_test_add_func("/xbox/vk/hybrid-compiler/failure-result",
                     test_compile_failure_is_returned_with_owned_empty_artifact);
     g_test_add_func("/xbox/vk/hybrid-compiler/stop-join",
                     test_stop_join_releases_idle_busy_and_full_queues);
+    g_test_add_func("/xbox/vk/hybrid-compiler/stop-active-required",
+                    test_stop_waits_for_active_required_compile);
     return g_test_run();
 }
