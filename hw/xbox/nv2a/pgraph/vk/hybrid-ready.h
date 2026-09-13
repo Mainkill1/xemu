@@ -48,4 +48,27 @@ static inline ShaderBinding *pgraph_vk_shader_binding_find_ready(
            binding : NULL;
 }
 
+typedef enum PGRAPHVkExecutionRoute {
+    PGRAPH_VK_EXECUTION_SPECIALIZED,
+    PGRAPH_VK_EXECUTION_UBERSHADER,
+    PGRAPH_VK_EXECUTION_UNCOVERED,
+} PGRAPHVkExecutionRoute;
+
+/* Module presence or an isolated pipeline hit is insufficient for a draw.
+ * A ready fallback remains usable even when the speculative queue is full. */
+static inline PGRAPHVkExecutionRoute pgraph_vk_hybrid_choose_execution_route(
+    bool specialized_shader_ready, bool specialized_pipeline_ready,
+    bool fallback_shader_ready, bool fallback_pipeline_ready,
+    bool fallback_resources_ready)
+{
+    if (specialized_shader_ready && specialized_pipeline_ready) {
+        return PGRAPH_VK_EXECUTION_SPECIALIZED;
+    }
+    if (fallback_shader_ready && fallback_pipeline_ready &&
+        fallback_resources_ready) {
+        return PGRAPH_VK_EXECUTION_UBERSHADER;
+    }
+    return PGRAPH_VK_EXECUTION_UNCOVERED;
+}
+
 #endif

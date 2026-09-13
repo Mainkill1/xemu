@@ -143,6 +143,25 @@ static void test_shader_ready_probe_requires_runtime_metadata(void)
     g_assert_cmpuint(probe_evictions, ==, 0);
 }
 
+static void test_execution_route_requires_complete_candidate(void)
+{
+    g_assert_cmpint(pgraph_vk_hybrid_choose_execution_route(
+                        true, true, true, true, true),
+                    ==, PGRAPH_VK_EXECUTION_SPECIALIZED);
+    g_assert_cmpint(pgraph_vk_hybrid_choose_execution_route(
+                        true, false, true, true, true),
+                    ==, PGRAPH_VK_EXECUTION_UBERSHADER);
+    g_assert_cmpint(pgraph_vk_hybrid_choose_execution_route(
+                        false, false, true, true, true),
+                    ==, PGRAPH_VK_EXECUTION_UBERSHADER);
+    g_assert_cmpint(pgraph_vk_hybrid_choose_execution_route(
+                        true, false, true, false, true),
+                    ==, PGRAPH_VK_EXECUTION_UNCOVERED);
+    g_assert_cmpint(pgraph_vk_hybrid_choose_execution_route(
+                        false, false, true, true, false),
+                    ==, PGRAPH_VK_EXECUTION_UNCOVERED);
+}
+
 static ShaderState base_state(void)
 {
     ShaderState state = { 0 };
@@ -348,5 +367,7 @@ int main(int argc, char **argv)
                     test_pipeline_ready_probe_is_side_effect_free);
     g_test_add_func("/xbox/vk/ubershader/runtime/shader-ready-probe",
                     test_shader_ready_probe_requires_runtime_metadata);
+    g_test_add_func("/xbox/vk/ubershader/runtime/complete-route",
+                    test_execution_route_requires_complete_candidate);
     return g_test_run();
 }
