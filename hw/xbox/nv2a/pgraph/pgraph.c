@@ -3428,7 +3428,16 @@ static void do_wait_for_renderer_switch(CPUState *cpu, run_on_cpu_data data)
 void pgraph_process_pending(NV2AState *d)
 {
     PGRAPHState *pg = &d->pgraph;
+    bool snapshot_reinit_trace =
+        pg->renderer_switch_phase == PGRAPH_RENDERER_SWITCH_PHASE_CPU_WAITING &&
+        g_strcmp0(g_getenv("XEMU_SNAPSHOT_RENDERER_REINIT"), "1") == 0;
+    if (snapshot_reinit_trace) {
+        fprintf(stderr, "Snapshot renderer reinit: entering pending work\n");
+    }
     pg->renderer->ops.process_pending(d);
+    if (snapshot_reinit_trace) {
+        fprintf(stderr, "Snapshot renderer reinit: pending work done\n");
+    }
 
     if (g_config.display.renderer != pg->renderer->type &&
         pg->renderer_switch_phase == PGRAPH_RENDERER_SWITCH_PHASE_IDLE) {
@@ -3439,9 +3448,15 @@ void pgraph_process_pending(NV2AState *d)
     }
 
     if (pg->renderer_switch_phase == PGRAPH_RENDERER_SWITCH_PHASE_CPU_WAITING) {
+        if (snapshot_reinit_trace) {
+            fprintf(stderr, "Snapshot renderer reinit: taking renderer locks\n");
+        }
         qemu_mutex_lock(&d->pgraph.renderer_lock);
         qemu_mutex_unlock(&d->pfifo.lock);
         qemu_mutex_lock(&d->pgraph.lock);
+        if (snapshot_reinit_trace) {
+            fprintf(stderr, "Snapshot renderer reinit: renderer locks held\n");
+        }
 
         if (pg->renderer) {
             qemu_event_reset(&pg->flush_complete);
@@ -3451,19 +3466,31 @@ void pgraph_process_pending(NV2AState *d)
             qemu_mutex_unlock(&d->pgraph.lock);
 
             pg->renderer->ops.process_pending(d);
+            if (snapshot_reinit_trace) {
+                fprintf(stderr, "Snapshot renderer reinit: renderer flush done\n");
+            }
 
             qemu_mutex_unlock(&d->pfifo.lock);
             qemu_mutex_lock(&d->pgraph.lock);
             while (pg->framebuffer_in_use) {
+                if (snapshot_reinit_trace) {
+                    fprintf(stderr, "Snapshot renderer reinit: waiting for framebuffer\n");
+                }
                 qemu_cond_wait(&d->pgraph.framebuffer_released,
                                &d->pgraph.renderer_lock);
             }
 
             if (pg->renderer->ops.finalize) {
+                if (snapshot_reinit_trace) {
+                    fprintf(stderr, "Snapshot renderer reinit: finalizing renderer\n");
+                }
                 pg->renderer->ops.finalize(d);
             }
         }
 
+        if (snapshot_reinit_trace) {
+            fprintf(stderr, "Snapshot renderer reinit: initializing renderer\n");
+        }
         init_renderer(pg);
 
         qemu_mutex_unlock(&d->pgraph.renderer_lock);
