@@ -159,11 +159,7 @@ static PipelineKey pipeline_key(PGRAPHVkFragmentRoute route,
 {
     PipelineKey key = { 0 };
 
-    key.fragment_route = route;
-    key.shader_state = *state;
-    if (route == PGRAPH_VK_FRAGMENT_UBERSHADER) {
-        pgraph_vk_canonicalize_uber_combiner_state(&key.shader_state.psh);
-    }
+    pgraph_vk_pipeline_key_set_shader(&key, state, route);
     return key;
 }
 

@@ -755,17 +755,15 @@ static bool check_pipeline_dirty(PGRAPHState *pg)
     return false;
 }
 
-static void init_pipeline_key(PGRAPHState *pg, PipelineKey *key)
+static void init_pipeline_key_for_state(
+    PGRAPHState *pg, const ShaderState *shader_state,
+    PGRAPHVkFragmentRoute route, PipelineKey *key)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     memset(key, 0, sizeof(*key));
     init_render_pass_state(pg, &key->render_pass_state);
-    key->fragment_route = r->shader_binding->fragment_route;
-    memcpy(&key->shader_state, &r->shader_binding->state, sizeof(ShaderState));
-    if (key->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER) {
-        pgraph_vk_canonicalize_uber_combiner_state(&key->shader_state.psh);
-    }
+    pgraph_vk_pipeline_key_set_shader(key, shader_state, route);
     memcpy(key->binding_descriptions, r->vertex_binding_descriptions,
            sizeof(key->binding_descriptions[0]) *
                r->num_active_vertex_binding_descriptions);
@@ -824,7 +822,8 @@ static bool create_pipeline(PGRAPHState *pg)
     }
 
     PipelineKey key;
-    init_pipeline_key(pg, &key);
+    init_pipeline_key_for_state(pg, &r->shader_binding->state,
+                                r->shader_binding->fragment_route, &key);
     uint64_t hash = fast_hash((void *)&key, sizeof(key));
     if (r->hybrid_trace) {
         PipelineBinding *ready = pipeline_cache_find_ready(r, hash, &key);
