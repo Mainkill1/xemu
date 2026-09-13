@@ -22,6 +22,10 @@ typedef struct HybridCompilerJob {
     bool success;
     uint8_t *spirv;
     size_t spirv_size;
+    uint64_t submitted_us;
+    uint64_t started_us;
+    uint64_t finished_us;
+    bool speculative_active_at_start;
 } HybridCompilerJob;
 
 typedef struct HybridCompilerState {
@@ -77,6 +81,7 @@ static HybridCompilerJob *job_new(const PGRAPHVkHybridCompileRequest *request,
     job->request.config = job->config;
     job->bytes = request->glsl_size + request->config_size;
     job->blocking = blocking;
+    job->submitted_us = g_get_monotonic_time();
     return job;
 }
 
@@ -205,6 +210,7 @@ static void *hybrid_compiler_worker(void *opaque)
         }
         job = async_pop(state);
         state->active = job;
+        job->started_us = g_get_monotonic_time();
         qemu_mutex_unlock(&state->lock);
 
         success = state->config.compile(state->config.opaque, &job->request,
@@ -217,6 +223,7 @@ static void *hybrid_compiler_worker(void *opaque)
         }
 
         qemu_mutex_lock(&state->lock);
+        job->finished_us = g_get_monotonic_time();
         state->active = NULL;
         job->success = success;
         job->spirv = spirv;
@@ -260,6 +267,8 @@ static void *hybrid_compiler_blocking_worker(void *opaque)
         }
         job = state->blocking;
         state->active_blocking = job;
+        job->started_us = g_get_monotonic_time();
+        job->speculative_active_at_start = state->active != NULL;
         qemu_mutex_unlock(&state->lock);
 
         success = state->config.compile(state->config.opaque, &job->request,
@@ -272,6 +281,7 @@ static void *hybrid_compiler_blocking_worker(void *opaque)
         }
 
         qemu_mutex_lock(&state->lock);
+        job->finished_us = g_get_monotonic_time();
         state->active_blocking = NULL;
         state->blocking = NULL;
         job->success = success;
@@ -434,6 +444,12 @@ bool pgraph_vk_hybrid_compiler_submit_blocking(
             .success = job->success,
             .spirv = job->spirv,
             .spirv_size = job->spirv_size,
+            .submitted_us = job->submitted_us,
+            .started_us = job->started_us,
+            .finished_us = job->finished_us,
+            .caller_return_us = g_get_monotonic_time(),
+            .speculative_active_at_start =
+                job->speculative_active_at_start,
         };
         job->spirv = NULL;
         job->spirv_size = 0;
@@ -476,6 +492,9 @@ bool pgraph_vk_hybrid_compiler_take_result(
         .success = job->success,
         .spirv = job->spirv,
         .spirv_size = job->spirv_size,
+        .submitted_us = job->submitted_us,
+        .started_us = job->started_us,
+        .finished_us = job->finished_us,
     };
     job->spirv = NULL;
     job->spirv_size = 0;

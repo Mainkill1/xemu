@@ -33,6 +33,11 @@ typedef struct PGRAPHVkHybridCompileResult {
     bool success;
     uint8_t *spirv;
     size_t spirv_size;
+    uint64_t submitted_us;
+    uint64_t started_us;
+    uint64_t finished_us;
+    uint64_t caller_return_us;
+    bool speculative_active_at_start;
 } PGRAPHVkHybridCompileResult;
 
 typedef struct PGRAPHVkHybridCompileIdentity {
@@ -41,7 +46,7 @@ typedef struct PGRAPHVkHybridCompileIdentity {
 } PGRAPHVkHybridCompileIdentity;
 
 /*
- * The callback executes only on the queue's worker. It receives deep-owned
+ * The callback executes on a compiler worker. It receives deep-owned
  * immutable input valid for the duration of the call and transfers an
  * allocator-compatible artifact to the queue on success.
  */
@@ -87,8 +92,8 @@ PGRAPHVkHybridCompilerSubmitResult pgraph_vk_hybrid_compiler_submit_async(
     PGRAPHVkHybridCompileIdentity *owner);
 
 /*
- * Blocking work uses one dedicated slot and waits for the sole worker. It is
- * therefore admitted independently of the asynchronous count and byte caps.
+ * Blocking work uses one dedicated slot and worker. It is admitted
+ * independently of the asynchronous count and byte caps.
  */
 bool pgraph_vk_hybrid_compiler_submit_blocking(
     PGRAPHVkHybridCompiler *compiler,
@@ -104,7 +109,7 @@ bool pgraph_vk_hybrid_compiler_has_result(
 void pgraph_vk_hybrid_compile_result_destroy(
     PGRAPHVkHybridCompileResult *result);
 
-/* Stop intake, discard unpublished async work, then join the one worker. */
+/* Stop intake, discard unpublished async work, then join both workers. */
 void pgraph_vk_hybrid_compiler_stop(PGRAPHVkHybridCompiler *compiler);
 void pgraph_vk_hybrid_compiler_join(PGRAPHVkHybridCompiler *compiler);
 void pgraph_vk_hybrid_compiler_destroy(PGRAPHVkHybridCompiler *compiler);

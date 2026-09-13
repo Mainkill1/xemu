@@ -26,6 +26,7 @@
 #include "ui/xemu-tweaks.h"
 #include "device-inventory.h"
 #include "renderer.h"
+#include "hybrid-ready.h"
 
 #include <glib/gstdio.h>
 
@@ -286,6 +287,25 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
         (r->descriptor_set_index >= ARRAY_SIZE(r->descriptor_sets));
 
     if (need_descriptor_write_reset || need_ubo_staging_buffer_reset) {
+        if (r->hybrid_trace) {
+            if (need_descriptor_write_reset) {
+                pgraph_vk_hybrid_trace_record(
+                    r->hybrid_trace, VK_HYBRID_TRACE_RESOURCE_SHORTAGE,
+                    binding->fragment_route, 0, 0, 0,
+                    VK_HYBRID_SHORTAGE_DESCRIPTOR_SET,
+                    r->descriptor_set_index,
+                    ARRAY_SIZE(r->descriptor_sets), 0);
+            }
+            if (need_ubo_staging_buffer_reset) {
+                pgraph_vk_hybrid_trace_record(
+                    r->hybrid_trace, VK_HYBRID_TRACE_RESOURCE_SHORTAGE,
+                    binding->fragment_route, 0, 0, 0,
+                    VK_HYBRID_SHORTAGE_UNIFORM_STAGING,
+                    required_end,
+                    r->storage_buffers[BUFFER_UNIFORM_STAGING].buffer_size,
+                    uses_uber_controls);
+            }
+        }
         pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
         need_uniform_write[PGRAPH_UNIFORM_STAGE_VSH] = true;
         need_uniform_write[PGRAPH_UNIFORM_STAGE_PSH] = true;
@@ -816,29 +836,62 @@ static ShaderBinding *find_shader_binding_for_key(
 {
     uint64_t hash = fast_hash((void *)key, sizeof(*key));
     LruNode *node = lru_find_existing(&r->shader_cache, hash, key);
+    ShaderBinding *binding = node ?
+        container_of(node, ShaderBinding, node) : NULL;
 
-    return node ? container_of(node, ShaderBinding, node) : NULL;
+    if (r->hybrid_trace) {
+        bool ready = pgraph_vk_shader_binding_find_ready(
+            &r->shader_cache, hash, key,
+            pgraph_glsl_need_geom(&key->state.geom)) != NULL;
+        pgraph_vk_hybrid_trace_record(
+            r->hybrid_trace, VK_HYBRID_TRACE_SHADER_BINDING_PROBE,
+            key->fragment_route, 0,
+            fast_hash((const uint8_t *)&key->state, sizeof(key->state)),
+            0, binding != NULL, ready, hash, 0);
+    }
+    return binding;
 }
 
 void pgraph_vk_process_hybrid_completions(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     PGRAPHVkHybridCompileResult result;
+    uint64_t batch_start_us;
+    uint64_t batch_count = 0;
 
     if (!r->hybrid_compiler_initialized ||
         !pgraph_vk_hybrid_compiler_has_result(&r->hybrid_compiler)) {
         return;
     }
+    batch_start_us = r->hybrid_trace ? g_get_monotonic_time() : 0;
 
     while (pgraph_vk_hybrid_compiler_take_result(&r->hybrid_compiler,
                                                   &result)) {
+        uint64_t result_start_us = r->hybrid_trace ?
+            g_get_monotonic_time() : 0;
+        batch_count++;
         PGRAPHVkHybridShaderWork *work = hybrid_find_work_by_completion(
             r, result.generation, result.ticket);
+        if (r->hybrid_trace) {
+            pgraph_vk_hybrid_trace_record(
+                r->hybrid_trace, VK_HYBRID_TRACE_SPECULATIVE_COMPILE,
+                PGRAPH_VK_FRAGMENT_SPECIALIZED, result.stage,
+                work ? fast_hash((const uint8_t *)work->glsl,
+                                 work->glsl_size) : 0,
+                result.ticket, result.submitted_us, result.started_us,
+                result.finished_us, result.success);
+        }
         if (!work || result.stage != GLSLANG_STAGE_FRAGMENT ||
             pgraph_vk_hybrid_validate_completion_metadata(
                 work ? &work->metadata : NULL, result.generation,
                 result.ticket, r->hybrid_generation) !=
                 PGRAPH_VK_HYBRID_COMPLETION_METADATA_MATCH) {
+            if (r->hybrid_trace) {
+                pgraph_vk_hybrid_trace_record(
+                    r->hybrid_trace, VK_HYBRID_TRACE_COMPLETION,
+                    PGRAPH_VK_FRAGMENT_SPECIALIZED, 0, 0, result.ticket,
+                    result_start_us, g_get_monotonic_time(), 0, 0);
+            }
             pgraph_vk_hybrid_compile_result_destroy(&result);
             continue;
         }
@@ -877,7 +930,19 @@ void pgraph_vk_process_hybrid_completions(PGRAPHState *pg)
                 r->hybrid_generation, r->hybrid_route_epoch, 32);
             work->last_epoch = r->hybrid_route_epoch;
         }
+        if (r->hybrid_trace) {
+            pgraph_vk_hybrid_trace_record(
+                r->hybrid_trace, VK_HYBRID_TRACE_COMPLETION,
+                PGRAPH_VK_FRAGMENT_SPECIALIZED, 0, 0, result.ticket,
+                result_start_us, g_get_monotonic_time(), published, 1);
+        }
         pgraph_vk_hybrid_compile_result_destroy(&result);
+    }
+    if (r->hybrid_trace) {
+        pgraph_vk_hybrid_trace_record(
+            r->hybrid_trace, VK_HYBRID_TRACE_COMPLETION_BATCH,
+            0, 0, 0, 0, batch_count, batch_start_us,
+            g_get_monotonic_time(), 0);
     }
 }
 
@@ -1411,6 +1476,18 @@ void pgraph_vk_bind_shaders(PGRAPHState *pg)
     } else {
         fragment_route = select_fragment_route(
             pg, &new_state, &cached_specialized_binding);
+    }
+    if (r->hybrid_trace &&
+        (!r->shader_binding ||
+         r->shader_binding->fragment_route != fragment_route)) {
+        pgraph_vk_hybrid_trace_record(
+            r->hybrid_trace, VK_HYBRID_TRACE_ROUTE_TRANSITION,
+            fragment_route, 0,
+            fast_hash((const uint8_t *)&new_state, sizeof(new_state)),
+            0,
+            r->shader_binding ? r->shader_binding->fragment_route :
+                                UINT32_MAX,
+            fragment_route, selection_changed, shader_state_dirty);
     }
     r->hybrid_bound_selection_epoch = r->hybrid_selection_epoch;
 

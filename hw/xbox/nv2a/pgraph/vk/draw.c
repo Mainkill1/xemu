@@ -21,6 +21,7 @@
 #include "qemu/error-report.h"
 #include "qemu/fast-hash.h"
 #include "renderer.h"
+#include "hybrid-ready.h"
 #include "pipeline-cache-lifetime.h"
 #include "ui/xemu-tweaks.h"
 #include <math.h>
@@ -171,13 +172,26 @@ static void init_pipeline_cache(PGRAPHState *pg)
     r->pipeline_cache.post_node_evict = pipeline_cache_entry_post_evict;
 }
 
-static PipelineBinding *pipeline_cache_lookup(PGRAPHState *pg, uint64_t hash,
-                                              const PipelineKey *key)
+static PipelineBinding *pipeline_cache_find_ready(PGRAPHVkState *r,
+                                                  uint64_t hash,
+                                                  const PipelineKey *key)
+{
+    return pgraph_vk_pipeline_cache_find_ready(&r->pipeline_cache,
+                                                hash, key);
+}
+
+static PipelineBinding *pipeline_cache_get_or_create(
+    PGRAPHState *pg, uint64_t hash, const PipelineKey *key)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     LruNode *node = lru_try_lookup(&r->pipeline_cache, hash, key);
 
     if (!node) {
+        pgraph_vk_hybrid_trace_record(
+            r->hybrid_trace, VK_HYBRID_TRACE_RESOURCE_SHORTAGE,
+            key->fragment_route, hash, 0, 0,
+            VK_HYBRID_SHORTAGE_PIPELINE_CACHE,
+            r->pipeline_cache.num_used, r->pipeline_cache.num_free, 0);
         pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
         node = lru_try_lookup(&r->pipeline_cache, hash, key);
     }
@@ -420,6 +434,11 @@ static void create_frame_buffer(PGRAPHState *pg)
     assert(r->color_binding || r->zeta_binding);
 
     if (r->framebuffer_index >= ARRAY_SIZE(r->framebuffers)) {
+        pgraph_vk_hybrid_trace_record(
+            r->hybrid_trace, VK_HYBRID_TRACE_RESOURCE_SHORTAGE,
+            r->shader_binding ? r->shader_binding->fragment_route : 0,
+            0, 0, 0, VK_HYBRID_SHORTAGE_FRAMEBUFFER,
+            r->framebuffer_index, ARRAY_SIZE(r->framebuffers), 0);
         pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
     }
 
@@ -475,7 +494,7 @@ static void create_clear_pipeline(PGRAPHState *pg)
     key.regs[0] = r->clear_parameter;
 
     uint64_t hash = fast_hash((void *)&key, sizeof(key));
-    PipelineBinding *snode = pipeline_cache_lookup(pg, hash, &key);
+    PipelineBinding *snode = pipeline_cache_get_or_create(pg, hash, &key);
 
     if (snode->pipeline != VK_NULL_HANDLE) {
         NV2A_VK_DPRINTF("Cache hit");
@@ -773,6 +792,7 @@ static bool create_pipeline(PGRAPHState *pg)
 
     NV2AState *d = container_of(pg, NV2AState, pgraph);
     PGRAPHVkState *r = pg->vk_renderer_state;
+    pgraph_vk_hybrid_trace_draw(r->hybrid_trace);
 
     if (!pgraph_vk_bind_textures(d)) {
         NV2A_VK_DGROUP_END();
@@ -788,6 +808,16 @@ static bool create_pipeline(PGRAPHState *pg)
     // FIXME: We could clear less
 
     if (r->pipeline_binding && !pipeline_dirty) {
+        if (r->hybrid_trace) {
+            PipelineKey *ready_key = &r->pipeline_binding->key;
+            pgraph_vk_hybrid_trace_record(
+                r->hybrid_trace, VK_HYBRID_TRACE_PIPELINE_PROBE,
+                ready_key->fragment_route,
+                fast_hash((const uint8_t *)ready_key, sizeof(*ready_key)),
+                fast_hash((const uint8_t *)&ready_key->shader_state,
+                          sizeof(ready_key->shader_state)),
+                0, 1, 1, 0, 0);
+        }
         NV2A_VK_DPRINTF("Cache hit");
         NV2A_VK_DGROUP_END();
         return true;
@@ -796,8 +826,17 @@ static bool create_pipeline(PGRAPHState *pg)
     PipelineKey key;
     init_pipeline_key(pg, &key);
     uint64_t hash = fast_hash((void *)&key, sizeof(key));
+    if (r->hybrid_trace) {
+        PipelineBinding *ready = pipeline_cache_find_ready(r, hash, &key);
+        pgraph_vk_hybrid_trace_record(
+            r->hybrid_trace, VK_HYBRID_TRACE_PIPELINE_PROBE,
+            key.fragment_route, hash,
+            fast_hash((const uint8_t *)&key.shader_state,
+                      sizeof(key.shader_state)),
+            0, ready != NULL, 0, 0, 0);
+    }
 
-    PipelineBinding *snode = pipeline_cache_lookup(pg, hash, &key);
+    PipelineBinding *snode = pipeline_cache_get_or_create(pg, hash, &key);
     if (snode->pipeline != VK_NULL_HANDLE) {
         NV2A_VK_DPRINTF("Cache hit");
         r->pipeline_binding_changed = r->pipeline_binding != snode;
@@ -1086,8 +1125,18 @@ static bool create_pipeline(PGRAPHState *pg)
         .basePipelineHandle = VK_NULL_HANDLE,
     };
     VkPipeline pipeline;
+    int64_t pipeline_start_us = r->hybrid_trace ?
+        g_get_monotonic_time() : 0;
     VK_CHECK(vkCreateGraphicsPipelines(r->device, r->vk_pipeline_cache, 1,
                                        &pipeline_create_info, NULL, &pipeline));
+    if (r->hybrid_trace) {
+        pgraph_vk_hybrid_trace_record(
+            r->hybrid_trace, VK_HYBRID_TRACE_PIPELINE_CREATE,
+            key.fragment_route, hash,
+            fast_hash((const uint8_t *)&key.shader_state,
+                      sizeof(key.shader_state)),
+            0, pipeline_start_us, g_get_monotonic_time(), 0, 0);
+    }
 
     snode->pipeline = pipeline;
     snode->layout = layout;
@@ -1304,6 +1353,9 @@ const enum NV2A_PROF_COUNTERS_ENUM finish_reason_to_counter_enum[] = {
 void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
+    bool trace_had_command_buffer = r->in_command_buffer;
+    uint64_t trace_submit_us = 0;
+    uint64_t trace_wait_us = 0;
 
     assert(!r->in_draw);
     assert(r->debug_depth == 0);
@@ -1360,7 +1412,8 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         nv2a_profile_inc_counter(NV2A_PROF_QUEUE_SUBMIT);
         vkResetFences(r->device, 1, &r->command_buffer_fence);
         bool time_submit =
-            pgraph_vk_perf_should_time_finish(r, finish_reason);
+            pgraph_vk_perf_should_time_finish(r, finish_reason) ||
+            r->hybrid_trace != NULL;
         int64_t submit_start = time_submit ?
             qemu_clock_get_us(QEMU_CLOCK_REALTIME) : 0;
         VkResult result = vkQueueSubmit(
@@ -1368,6 +1421,7 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
             r->command_buffer_fence);
         uint64_t submit_cpu_us = time_submit ?
             MAX(qemu_clock_get_us(QEMU_CLOCK_REALTIME) - submit_start, 0) : 0;
+        trace_submit_us = submit_cpu_us;
         VK_CHECK(result);
         nv2a_profile_log_event_once("gpu_submit");
         r->submit_count += 1;
@@ -1392,6 +1446,7 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
                                  VK_TRUE, UINT64_MAX);
         uint64_t wait_us = time_submit ?
             MAX(qemu_clock_get_us(QEMU_CLOCK_REALTIME) - wait_start, 0) : 0;
+        trace_wait_us = wait_us;
         VK_CHECK(result);
         pgraph_vk_perf_record_finish_submit(
             r, finish_reason, time_submit, submit_cpu_us, wait_us, staged_bytes,
@@ -1412,6 +1467,11 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
     pgraph_vk_process_pending_reports_internal(d);
 
     pgraph_vk_compute_finish_complete(r);
+    pgraph_vk_hybrid_trace_record(
+        r->hybrid_trace, VK_HYBRID_TRACE_FINISH,
+        r->shader_binding ? r->shader_binding->fragment_route : 0,
+        0, 0, 0, finish_reason, trace_wait_us, trace_submit_us,
+        trace_had_command_buffer);
 }
 
 void pgraph_vk_begin_command_buffer(PGRAPHState *pg)
@@ -2049,6 +2109,11 @@ static bool ensure_buffer_space(PGRAPHState *pg, int index, VkDeviceSize size,
     assert(required_size >= size);
 
     if (!pgraph_vk_buffer_has_space_for(pg, index, size, alignment)) {
+        pgraph_vk_hybrid_trace_record(
+            r->hybrid_trace, VK_HYBRID_TRACE_RESOURCE_SHORTAGE,
+            r->shader_binding ? r->shader_binding->fragment_route : 0,
+            0, 0, 0, VK_HYBRID_SHORTAGE_BUFFER, index,
+            required_size, buffer->buffer_size);
         pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
         /*
          * Finishing submits the accumulated staging data and resets its
@@ -2065,6 +2130,11 @@ static bool ensure_buffer_space(PGRAPHState *pg, int index, VkDeviceSize size,
 
     if (buffer->buffer == VK_NULL_HANDLE || buffer->buffer_size < size) {
         if (r->in_command_buffer || r->in_aux_command_buffer) {
+            pgraph_vk_hybrid_trace_record(
+                r->hybrid_trace, VK_HYBRID_TRACE_RESOURCE_SHORTAGE,
+                r->shader_binding ? r->shader_binding->fragment_route : 0,
+                0, 0, 0, VK_HYBRID_SHORTAGE_BUFFER, index,
+                required_size, buffer->buffer_size);
             pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
             required_size =
                 pgraph_vk_buffer_required_size(pg, index, size, alignment);

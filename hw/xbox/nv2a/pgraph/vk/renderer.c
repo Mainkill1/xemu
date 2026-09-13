@@ -108,6 +108,14 @@ static void pgraph_vk_init(NV2AState *d, Error **errp)
 #endif
 
     pgraph_vk_perf_init(pg->vk_renderer_state);
+    const char *hybrid_trace_path = g_getenv("XEMU_VK_HYBRID_TRACE");
+    if (hybrid_trace_path && hybrid_trace_path[0]) {
+        pg->vk_renderer_state->hybrid_trace =
+            pgraph_vk_hybrid_trace_open(hybrid_trace_path, 50000);
+        if (!pg->vk_renderer_state->hybrid_trace) {
+            error_report("nv2a/vk: could not open hybrid trace output");
+        }
+    }
     pgraph_vk_init_command_buffers(pg);
     pgraph_vk_init_buffers(d);
     pgraph_vk_init_surfaces(pg);
@@ -138,6 +146,7 @@ static void pgraph_vk_finalize(NV2AState *d)
     pgraph_vk_finalize_buffers(d);
     pgraph_vk_finalize_command_buffers(pg);
     pgraph_vk_perf_finalize(pg->vk_renderer_state);
+    pgraph_vk_hybrid_trace_close(pg->vk_renderer_state->hybrid_trace);
     pgraph_vk_finalize_instance(pg);
     pgraph_vk_failpoint_report();
 
@@ -218,6 +227,8 @@ static void pgraph_vk_flip_stall(NV2AState *d)
 {
     pgraph_vk_finish(&d->pgraph, VK_FINISH_REASON_FLIP_STALL);
     pgraph_vk_perf_frame(d->pgraph.vk_renderer_state);
+    pgraph_vk_hybrid_trace_frame(
+        d->pgraph.vk_renderer_state->hybrid_trace);
     pgraph_vk_debug_frame_terminator();
 }
 

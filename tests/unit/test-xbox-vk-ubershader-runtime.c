@@ -7,6 +7,141 @@
 #include "qemu/osdep.h"
 
 #include "hw/xbox/nv2a/pgraph/vk/renderer.h"
+#include "hw/xbox/nv2a/pgraph/vk/hybrid-ready.h"
+
+static unsigned int probe_inits;
+static unsigned int probe_evictions;
+
+static void probe_pipeline_init(Lru *cache, LruNode *node, const void *key)
+{
+    PipelineBinding *binding = container_of(node, PipelineBinding, node);
+
+    (void)cache;
+    probe_inits++;
+    binding->key = *(const PipelineKey *)key;
+    binding->pipeline = VK_NULL_HANDLE;
+}
+
+static bool probe_pipeline_different(Lru *cache, LruNode *node,
+                                     const void *key)
+{
+    PipelineBinding *binding = container_of(node, PipelineBinding, node);
+
+    (void)cache;
+    return memcmp(&binding->key, key, sizeof(binding->key)) != 0;
+}
+
+static void probe_post_evict(Lru *cache, LruNode *node)
+{
+    (void)cache;
+    (void)node;
+    probe_evictions++;
+}
+
+static void test_pipeline_ready_probe_is_side_effect_free(void)
+{
+    static Lru cache;
+    PipelineBinding entries[2] = { 0 };
+    PipelineKey first = { .fragment_route = PGRAPH_VK_FRAGMENT_SPECIALIZED };
+    PipelineKey second = { .fragment_route = PGRAPH_VK_FRAGMENT_UBERSHADER };
+    PipelineKey missing = first;
+    const uint64_t first_hash = 17;
+    const uint64_t second_hash = 18;
+
+    missing.regs[0] = 1;
+    probe_inits = probe_evictions = 0;
+    lru_init(&cache);
+    cache.init_node = probe_pipeline_init;
+    cache.compare_nodes = probe_pipeline_different;
+    cache.post_node_evict = probe_post_evict;
+    for (size_t i = 0; i < ARRAY_SIZE(entries); i++) {
+        lru_add_free(&cache, &entries[i].node);
+    }
+    LruNode *first_node = lru_lookup(&cache, first_hash, &first);
+    LruNode *second_node = lru_lookup(&cache, second_hash, &second);
+    PipelineBinding *first_binding =
+        container_of(first_node, PipelineBinding, node);
+
+    g_assert_null(pgraph_vk_pipeline_cache_find_ready(
+        &cache, first_hash, &first));
+    first_binding->pipeline = (VkPipeline)(uintptr_t)1;
+    g_assert_true(pgraph_vk_pipeline_cache_find_ready(
+        &cache, first_hash, &first) == first_binding);
+    g_assert_null(pgraph_vk_pipeline_cache_find_ready(
+        &cache, first_hash, &missing));
+    g_assert_true(QTAILQ_FIRST(&cache.global) == second_node);
+    g_assert_cmpint(cache.num_used, ==, 2);
+    g_assert_cmpint(cache.num_free, ==, 0);
+    g_assert_cmpuint(probe_inits, ==, 2);
+    g_assert_cmpuint(probe_evictions, ==, 0);
+}
+
+static void probe_shader_init(Lru *cache, LruNode *node, const void *key)
+{
+    ShaderBinding *binding = container_of(node, ShaderBinding, node);
+    const ShaderBindingKey *shader_key = key;
+
+    (void)cache;
+    probe_inits++;
+    binding->state = shader_key->state;
+    binding->fragment_route = shader_key->fragment_route;
+}
+
+static bool probe_shader_different(Lru *cache, LruNode *node,
+                                   const void *key)
+{
+    ShaderBinding *binding = container_of(node, ShaderBinding, node);
+    const ShaderBindingKey *shader_key = key;
+
+    (void)cache;
+    return binding->fragment_route != shader_key->fragment_route ||
+           memcmp(&binding->state, &shader_key->state,
+                  sizeof(binding->state)) != 0;
+}
+
+static void test_shader_ready_probe_requires_runtime_metadata(void)
+{
+    static Lru cache;
+    ShaderBinding entry = { 0 };
+    static ShaderModuleInfo vertex;
+    static ShaderModuleInfo fragment;
+    static ShaderModuleInfo geometry;
+    ShaderBindingKey key = {
+        .fragment_route = PGRAPH_VK_FRAGMENT_UBERSHADER,
+    };
+    ShaderBindingKey other = key;
+    const uint64_t hash = 29;
+
+    other.fragment_route = PGRAPH_VK_FRAGMENT_SPECIALIZED;
+    probe_inits = probe_evictions = 0;
+    lru_init(&cache);
+    cache.init_node = probe_shader_init;
+    cache.compare_nodes = probe_shader_different;
+    cache.post_node_evict = probe_post_evict;
+    lru_add_free(&cache, &entry.node);
+    ShaderBinding *binding = container_of(
+        lru_lookup(&cache, hash, &key), ShaderBinding, node);
+
+    g_assert_null(pgraph_vk_shader_binding_find_ready(
+        &cache, hash, &key, false));
+    binding->vsh.module_info = &vertex;
+    g_assert_null(pgraph_vk_shader_binding_find_ready(
+        &cache, hash, &key, false));
+    binding->psh.module_info = &fragment;
+    g_assert_true(pgraph_vk_shader_binding_find_ready(
+        &cache, hash, &key, false) == binding);
+    g_assert_null(pgraph_vk_shader_binding_find_ready(
+        &cache, hash, &key, true));
+    binding->geom.module_info = &geometry;
+    g_assert_true(pgraph_vk_shader_binding_find_ready(
+        &cache, hash, &key, true) == binding);
+    g_assert_null(pgraph_vk_shader_binding_find_ready(
+        &cache, hash, &other, false));
+    g_assert_cmpint(cache.num_used, ==, 1);
+    g_assert_cmpint(cache.num_free, ==, 0);
+    g_assert_cmpuint(probe_inits, ==, 1);
+    g_assert_cmpuint(probe_evictions, ==, 0);
+}
 
 static ShaderState base_state(void)
 {
@@ -213,5 +348,9 @@ int main(int argc, char **argv)
                     test_fragment_route_keeps_pipeline_keys_isolated);
     g_test_add_func("/xbox/vk/ubershader/runtime/shell-state",
                     test_canonicalization_preserves_fragment_shell_state);
+    g_test_add_func("/xbox/vk/ubershader/runtime/pipeline-ready-probe",
+                    test_pipeline_ready_probe_is_side_effect_free);
+    g_test_add_func("/xbox/vk/ubershader/runtime/shader-ready-probe",
+                    test_shader_ready_probe_requires_runtime_metadata);
     return g_test_run();
 }

@@ -76,6 +76,9 @@ tests = {
   'test-xbox-vk-hybrid-compiler': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-compiler.c',
   ],
+  'test-xbox-vk-hybrid-trace': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-trace.c',
+  ],
   'test-xbox-vk-uniform-layout': [],
   'test-xbox-vk-spirv-prewarm': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/spirv-prewarm.c',

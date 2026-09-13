@@ -19,6 +19,7 @@
 
 #include "qemu/osdep.h"
 #include "qemu/error-report.h"
+#include "qemu/fast-hash.h"
 #include "ui/xemu-settings.h"
 #include "device-inventory.h"
 #include "renderer.h"
@@ -299,8 +300,18 @@ GByteArray *pgraph_vk_compile_glsl_to_spv(PGRAPHVkState *r,
             .config = &config,
             .config_size = sizeof(config),
         };
-        if (!ticket || !pgraph_vk_hybrid_compiler_submit_blocking(
-                           &r->hybrid_compiler, &request, &result) ||
+        bool submitted = ticket && pgraph_vk_hybrid_compiler_submit_blocking(
+            &r->hybrid_compiler, &request, &result);
+        if (r->hybrid_trace && submitted) {
+            pgraph_vk_hybrid_trace_record(
+                r->hybrid_trace, VK_HYBRID_TRACE_REQUIRED_COMPILE,
+                result.speculative_active_at_start, stage,
+                fast_hash((const uint8_t *)glsl_source,
+                          request.glsl_size - 1),
+                ticket, result.submitted_us, result.started_us,
+                result.finished_us, result.caller_return_us);
+        }
+        if (!submitted ||
             !result.success || result.generation != request.generation ||
             result.ticket != request.ticket || result.stage != request.stage) {
             pgraph_vk_hybrid_compile_result_destroy(&result);

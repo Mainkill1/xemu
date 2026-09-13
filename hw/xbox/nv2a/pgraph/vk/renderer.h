@@ -44,6 +44,7 @@
 #include "constants.h"
 #include "glsl.h"
 #include "hybrid-compiler.h"
+#include "hybrid-trace.h"
 #include "hybrid-policy.h"
 #include "spirv-prewarm.h"
 #include "ubershader-controls.h"
@@ -658,6 +659,7 @@ typedef struct PGRAPHVkState {
     size_t hybrid_pending_jobs;
     PGRAPHVkHybridTicketAllocator hybrid_ticket_allocator;
     PGRAPHVkHybridCompiler hybrid_compiler;
+    PGRAPHVkHybridTrace *hybrid_trace;
     PGRAPHVkHybridShaderWork
         hybrid_work[PGRAPH_VK_HYBRID_MAX_WORK];
     const ShaderModuleCacheKey *hybrid_materializing_key;
