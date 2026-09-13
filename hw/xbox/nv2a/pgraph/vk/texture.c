@@ -1338,7 +1338,7 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
 
         // Writeback any surfaces which this texture may index
         if (!pgraph_vk_download_surfaces_in_range_if_dirty(
-                pg, texture_vram_offset, texture_length)) {
+                pg, texture_vram_offset, texture_length, NULL)) {
             NV2A_VK_DGROUP_END();
             return false;
         }

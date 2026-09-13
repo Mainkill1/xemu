@@ -429,6 +429,9 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t vertex_staging_copy_count;
     uint64_t vertex_direct_bytes;
     uint64_t vertex_direct_copy_count;
+    uint64_t vertex_version_draw_count;
+    uint64_t vertex_version_bytes;
+    uint64_t vertex_version_selected_ranges;
     uint64_t vertex_staging_capacity_growth_count;
     uint64_t vertex_staging_fallback_finish_count;
     uint64_t native_bc_upload_count;
@@ -513,6 +516,11 @@ typedef struct PGRAPHVkState {
     MemorySyncRequirement pending_vertex_ram_reads[NV2A_VERTEXSHADER_ATTRIBUTES];
     size_t num_pending_vertex_ram_reads;
     uint8_t *vertex_ram_read_pages;
+    /* Pages left stale in the fixed mirror when a draw uses an inline slice. */
+    uint8_t *vertex_ram_stale_pages;
+    size_t vertex_ram_stale_page_count;
+    /* Captures one bounded version before any pre-draw finish can wait. */
+    uint8_t *vertex_version_scratch;
     size_t num_vertex_ram_read_pages;
     bool vertex_ram_read_tracking_active;
     bool vertex_ram_updated_in_batch;
@@ -634,6 +642,7 @@ void pgraph_vk_destroy_shader_module(PGRAPHVkState *r, ShaderModuleInfo *info);
 
 // buffer.c
 void pgraph_vk_init_buffers(NV2AState *d);
+void pgraph_vk_clear_vertex_ram_stale(PGRAPHVkState *r);
 void pgraph_vk_finalize_buffers(NV2AState *d);
 bool pgraph_vk_buffer_has_space_for(PGRAPHState *pg, int index,
                                     VkDeviceSize size,
@@ -726,7 +735,7 @@ SurfaceBinding *pgraph_vk_surface_get_within(NV2AState *d, hwaddr addr);
 bool pgraph_vk_wait_for_surface_download(SurfaceBinding *e);
 void pgraph_vk_download_dirty_surfaces(NV2AState *d);
 bool pgraph_vk_download_surfaces_in_range_if_dirty(PGRAPHState *pg, hwaddr start,
-                                                    hwaddr size);
+                                                    hwaddr size, bool *overlap);
 bool pgraph_vk_surface_overlaps_range(PGRAPHState *pg, hwaddr start,
                                       hwaddr size);
 bool pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,

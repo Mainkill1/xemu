@@ -121,6 +121,7 @@ static void pgraph_vk_init(NV2AState *d, Error **errp)
     pgraph_vk_update_vertex_ram_buffer(&d->pgraph, 0, d->vram_ptr,
                                        memory_region_size(d->vram), true,
                                        false);
+    pgraph_vk_clear_vertex_ram_stale(pg->vk_renderer_state);
 
     pgraph_vk_determine_gpu_properties(d);
 }
@@ -157,6 +158,7 @@ static void pgraph_vk_flush(NV2AState *d)
     pgraph_vk_update_vertex_ram_buffer(&d->pgraph, 0, d->vram_ptr,
                                        memory_region_size(d->vram), true,
                                        false);
+    pgraph_vk_clear_vertex_ram_stale(pg->vk_renderer_state);
     for (int i = 0; i < 4; i++) {
         pg->texture_dirty[i] = true;
     }

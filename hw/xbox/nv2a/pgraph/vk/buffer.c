@@ -18,6 +18,7 @@
  */
 
 #include "renderer.h"
+#include "vertex-version-policy.h"
 
 /*
  * A 4096x4096 four-byte image is the largest unscaled linear guest image the
@@ -347,6 +348,10 @@ void pgraph_vk_init_buffers(NV2AState *d)
     r->num_vertex_ram_read_pages =
         DIV_ROUND_UP(memory_region_size(d->vram), TARGET_PAGE_SIZE);
     r->vertex_ram_read_pages = g_malloc0(r->num_vertex_ram_read_pages);
+    r->vertex_ram_stale_pages = g_malloc0(r->num_vertex_ram_read_pages);
+    r->vertex_ram_stale_page_count = 0;
+    r->vertex_version_scratch =
+        g_malloc(PGRAPH_VK_VERTEX_VERSION_SCRATCH_SIZE);
     r->vertex_ram_read_tracking_active = false;
     r->vertex_ram_updated_in_batch = false;
     r->vertex_ram_read_tracking_idle_batches = 0;
@@ -359,6 +364,11 @@ void pgraph_vk_finalize_buffers(NV2AState *d)
 
     g_free(r->vertex_ram_read_pages);
     r->vertex_ram_read_pages = NULL;
+    g_free(r->vertex_ram_stale_pages);
+    r->vertex_ram_stale_pages = NULL;
+    r->vertex_ram_stale_page_count = 0;
+    g_free(r->vertex_version_scratch);
+    r->vertex_version_scratch = NULL;
     r->vertex_ram_read_tracking_active = false;
     r->vertex_ram_updated_in_batch = false;
     r->vertex_ram_read_tracking_idle_batches = 0;
@@ -368,6 +378,14 @@ void pgraph_vk_finalize_buffers(NV2AState *d)
         }
         destroy_buffer(pg, &r->storage_buffers[i]);
     }
+}
+
+void pgraph_vk_clear_vertex_ram_stale(PGRAPHVkState *r)
+{
+    assert(r->vertex_ram_stale_pages);
+    pgraph_vk_vertex_version_clear_stale(
+        r->vertex_ram_stale_pages, r->num_vertex_ram_read_pages,
+        &r->vertex_ram_stale_page_count);
 }
 
 bool pgraph_vk_grow_vertex_ram_staging_buffer(PGRAPHState *pg,
