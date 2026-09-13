@@ -425,6 +425,7 @@ static void nv2a_vm_state_change(void *opaque, bool running, RunState state)
          * This must finish before the snapshot loader writes restored RAM.
          */
         if (reinit_renderer) {
+            fprintf(stderr, "Snapshot renderer reinit: requested before VM load\n");
             assert(d->pgraph.renderer_switch_phase ==
                    PGRAPH_RENDERER_SWITCH_PHASE_IDLE);
             qemu_event_reset(&d->pgraph.renderer_switch_complete);
@@ -437,6 +438,7 @@ static void nv2a_vm_state_change(void *opaque, bool running, RunState state)
             bql_unlock();
             qemu_event_wait(&d->pgraph.renderer_switch_complete);
             bql_lock();
+            fprintf(stderr, "Snapshot renderer reinit: completed before VM load\n");
         }
     } else if (state == RUN_STATE_RUNNING) {
         nv2a_lock_fifo(d);
