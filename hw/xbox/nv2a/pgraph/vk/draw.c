@@ -1395,10 +1395,7 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
 
         r->descriptor_set_index = 0;
         r->in_command_buffer = false;
-        /* The bitmap is zero while tracking is idle: it starts zeroed, and
-         * the last active finish clears it before retiring tracking. Avoid
-         * scanning every VRAM page on unrelated command-buffer finishes. */
-        if (r->vertex_ram_read_tracking_active && r->vertex_ram_read_pages) {
+        if (r->vertex_ram_read_pages) {
             memset(r->vertex_ram_read_pages, 0,
                    r->num_vertex_ram_read_pages);
         }
