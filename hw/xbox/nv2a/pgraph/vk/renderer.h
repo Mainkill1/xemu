@@ -44,6 +44,7 @@
 #include "constants.h"
 #include "glsl.h"
 #include "spirv-prewarm.h"
+#include "surface-overlap-cache.h"
 
 #define HAVE_EXTERNAL_MEMORY 1
 
@@ -520,6 +521,7 @@ typedef struct PGRAPHVkState {
 
     QTAILQ_HEAD(, SurfaceBinding) surfaces;
     QTAILQ_HEAD(, SurfaceBinding) invalid_surfaces;
+    PGRAPHVkSurfaceOverlapCache surface_overlap_cache;
     SurfaceBinding *color_binding, *zeta_binding;
     bool downloads_pending;
     bool downloads_succeeded;
