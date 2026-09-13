@@ -2632,9 +2632,7 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
 
         /* Page alignment is needed for dirty tracking and buffer uploads,
          * but it must not turn adjacent vertices into a surface readback. */
-        sync->surface_overlap = sync->size &&
-            pgraph_vk_surface_overlaps_range(pg, sync->addr, sync->size);
-        if (sync->surface_overlap &&
+        if (sync->size &&
             !pgraph_vk_download_surfaces_in_range_if_dirty(
                 pg, sync->addr, sync->size)) {
             error_report("Vulkan surface readback failed before vertex upload");
@@ -2675,7 +2673,6 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
             hwaddr t_end_addr = t->addr + t->size;
             hwaddr new_end_addr = MAX(p_end_addr, t_end_addr);
             p->size = new_end_addr - p->addr;
-            p->surface_overlap |= t->surface_overlap;
         } else {
             merged[num_syncs++] = *t;
         }
@@ -2693,7 +2690,9 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
 
         bool memory_dirty = memory_region_test_and_clear_dirty(
             d->vram, addr, size, DIRTY_MEMORY_NV2A);
-        if (memory_dirty || merged[i].surface_overlap) {
+        /* A successful GPU readback marks this range NV2A-dirty. An overlap
+         * with a clean surface needs neither readback nor mirror upload. */
+        if (memory_dirty) {
             NV2A_VK_DPRINTF("Memory dirty. Synchronizing...");
             pgraph_vk_update_vertex_ram_buffer(pg, addr, d->vram_ptr + addr,
                                                size, false);
