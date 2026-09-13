@@ -76,6 +76,33 @@ static void test_pipeline_ready_probe_is_side_effect_free(void)
     g_assert_cmpuint(probe_evictions, ==, 0);
 }
 
+static void test_pipeline_key_distinguishes_vertex_input_counts(void)
+{
+    static Lru cache;
+    PipelineBinding entry = { 0 };
+    PipelineKey one = { .binding_description_count = 1,
+                        .attribute_description_count = 1 };
+    PipelineKey two = one;
+    const uint64_t forced_collision = 31;
+
+    /* The unused array entries can remain byte-identical. Count is still
+     * part of the Vulkan vertex-input recipe and must change identity. */
+    two.binding_description_count = 2;
+    two.attribute_description_count = 2;
+    lru_init(&cache);
+    cache.init_node = probe_pipeline_init;
+    cache.compare_nodes = probe_pipeline_different;
+    lru_add_free(&cache, &entry.node);
+    PipelineBinding *binding = container_of(
+        lru_lookup(&cache, forced_collision, &one), PipelineBinding, node);
+    binding->pipeline = (VkPipeline)(uintptr_t)1;
+
+    g_assert_true(pgraph_vk_pipeline_cache_find_ready(
+        &cache, forced_collision, &one) == binding);
+    g_assert_null(pgraph_vk_pipeline_cache_find_ready(
+        &cache, forced_collision, &two));
+}
+
 static void probe_shader_init(Lru *cache, LruNode *node, const void *key)
 {
     ShaderBinding *binding = container_of(node, ShaderBinding, node);
@@ -365,6 +392,8 @@ int main(int argc, char **argv)
                     test_canonicalization_preserves_fragment_shell_state);
     g_test_add_func("/xbox/vk/ubershader/runtime/pipeline-ready-probe",
                     test_pipeline_ready_probe_is_side_effect_free);
+    g_test_add_func("/xbox/vk/ubershader/runtime/vertex-input-count-key",
+                    test_pipeline_key_distinguishes_vertex_input_counts);
     g_test_add_func("/xbox/vk/ubershader/runtime/shader-ready-probe",
                     test_shader_ready_probe_requires_runtime_metadata);
     g_test_add_func("/xbox/vk/ubershader/runtime/complete-route",

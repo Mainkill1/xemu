@@ -28,6 +28,25 @@
 
 static bool pgraph_vk_flush_draw_internal(NV2AState *d);
 
+typedef struct PGRAPHVkGraphicsPipelineRecipe {
+    VkGraphicsPipelineCreateInfo info;
+    VkPipelineShaderStageCreateInfo stages[3];
+    VkPipelineVertexInputStateCreateInfo vertex;
+    VkPipelineInputAssemblyStateCreateInfo assembly;
+    VkPipelineViewportStateCreateInfo viewport;
+    VkPipelineRasterizationStateCreateInfo raster;
+    VkPipelineMultisampleStateCreateInfo multisample;
+    VkPipelineDepthStencilStateCreateInfo depth_stencil;
+    VkPipelineColorBlendStateCreateInfo blend;
+    VkPipelineColorBlendAttachmentState color_attachment;
+    VkPipelineDynamicStateCreateInfo dynamic;
+    VkDynamicState dynamic_states[4];
+    VkPipelineLayout layout;
+    VkRenderPass render_pass;
+    uint32_t dynamic_blend_constant_mask;
+    bool has_dynamic_line_width;
+} PGRAPHVkGraphicsPipelineRecipe;
+
 void pgraph_vk_draw_begin(NV2AState *d)
 {
     PGRAPHState *pg = &d->pgraph;
@@ -58,12 +77,10 @@ void pgraph_vk_draw_begin(NV2AState *d)
     }
 }
 
-static VkPrimitiveTopology get_primitive_topology(PGRAPHState *pg)
+static VkPrimitiveTopology get_primitive_topology(const ShaderState *state)
 {
-    PGRAPHVkState *r = pg->vk_renderer_state;
-
-    int polygon_mode = r->shader_binding->state.geom.polygon_front_mode;
-    int primitive_mode = r->shader_binding->state.geom.primitive_mode;
+    int polygon_mode = state->geom.polygon_front_mode;
+    int primitive_mode = state->geom.primitive_mode;
 
     // FIXME: Replace with LUT
     switch (primitive_mode) {
@@ -214,6 +231,50 @@ static void finalize_pipeline_cache(PGRAPHState *pg)
     vkDestroyPipelineCache(r->device, r->vk_pipeline_cache, NULL);
 }
 
+static VkResult hybrid_pipeline_create(void *opaque, VkDevice device,
+    VkPipelineCache cache, const VkGraphicsPipelineCreateInfo *info,
+    VkPipeline *pipeline)
+{
+    return vkCreateGraphicsPipelines(device, cache, 1, info, NULL, pipeline);
+}
+
+static void hybrid_pipeline_destroy(void *opaque, VkDevice device,
+    VkPipeline pipeline)
+{
+    vkDestroyPipeline(device, pipeline, NULL);
+}
+
+static void hybrid_pipeline_work_clear(PGRAPHVkState *r,
+    PGRAPHVkHybridPipelineWork *work)
+{
+    for (size_t i = 0; i < ARRAY_SIZE(work->modules); i++) {
+        if (work->modules[i]) {
+            pgraph_vk_unref_shader_module(r, work->modules[i]);
+        }
+    }
+    if (work->layout != VK_NULL_HANDLE) {
+        vkDestroyPipelineLayout(r->device, work->layout, NULL);
+    }
+    memset(work, 0, sizeof(*work));
+}
+
+static void finalize_hybrid_pipeline_builder(PGRAPHVkState *r)
+{
+    if (!r->hybrid_pipeline_builder_initialized) {
+        return;
+    }
+
+    /* Join while cache, render passes, layout, modules, and device still live.
+     * The builder destroys untaken pipelines during stop. */
+    pgraph_vk_hybrid_pipeline_builder_destroy(&r->hybrid_pipeline_builder);
+    r->hybrid_pipeline_builder_initialized = false;
+    for (size_t i = 0; i < ARRAY_SIZE(r->hybrid_pipeline_work); i++) {
+        if (r->hybrid_pipeline_work[i].in_use) {
+            hybrid_pipeline_work_clear(r, &r->hybrid_pipeline_work[i]);
+        }
+    }
+}
+
 static char const *const quad_glsl =
     "#version 450\n"
     "void main()\n"
@@ -271,6 +332,18 @@ void pgraph_vk_init_pipelines(PGRAPHState *pg)
     init_clear_shaders(pg);
     init_render_passes(r);
 
+    if (r->ubershader_runtime_enabled) {
+        const PGRAPHVkHybridPipelineBuilderConfig config = {
+            .max_jobs = PGRAPH_VK_HYBRID_MAX_PIPELINE_JOBS,
+            .create = hybrid_pipeline_create,
+            .destroy = hybrid_pipeline_destroy,
+            .opaque = r,
+        };
+        r->hybrid_pipeline_builder_initialized =
+            pgraph_vk_hybrid_pipeline_builder_init(
+                &r->hybrid_pipeline_builder, &config);
+    }
+
     VkSemaphoreCreateInfo semaphore_info = {
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO
     };
@@ -288,6 +361,7 @@ void pgraph_vk_finalize_pipelines(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
+    finalize_hybrid_pipeline_builder(r);
     finalize_clear_shaders(pg);
     finalize_pipeline_cache(pg);
     finalize_render_passes(r);
@@ -307,7 +381,8 @@ static void init_render_pass_state(PGRAPHState *pg, RenderPassState *state)
                                            VK_FORMAT_UNDEFINED;
 }
 
-static VkRenderPass create_render_pass(PGRAPHVkState *r, RenderPassState *state)
+static VkRenderPass create_render_pass(PGRAPHVkState *r,
+                                       const RenderPassState *state)
 {
     NV2A_VK_DPRINTF("Creating render pass");
 
@@ -405,7 +480,8 @@ static VkRenderPass create_render_pass(PGRAPHVkState *r, RenderPassState *state)
     return render_pass;
 }
 
-static VkRenderPass add_new_render_pass(PGRAPHVkState *r, RenderPassState *state)
+static VkRenderPass add_new_render_pass(PGRAPHVkState *r,
+                                        const RenderPassState *state)
 {
     RenderPass new_pass;
     memcpy(&new_pass.state, state, sizeof(*state));
@@ -414,7 +490,8 @@ static VkRenderPass add_new_render_pass(PGRAPHVkState *r, RenderPassState *state
     return new_pass.render_pass;
 }
 
-static VkRenderPass get_render_pass(PGRAPHVkState *r, RenderPassState *state)
+static VkRenderPass get_render_pass(PGRAPHVkState *r,
+                                    const RenderPassState *state)
 {
     for (int i = 0; i < r->render_passes->len; i++) {
         RenderPass *p = &g_array_index(r->render_passes, RenderPass, i);
@@ -694,9 +771,8 @@ static uint32_t blend_factor_constant_component_mask(VkBlendFactor factor)
     return 0;
 }
 
-static uint32_t pipeline_dynamic_blend_constant_mask(PGRAPHState *pg)
+static uint32_t pipeline_dynamic_blend_constant_mask(uint32_t blend)
 {
-    uint32_t blend = pgraph_reg_r(pg, NV_PGRAPH_BLEND);
     if (!(blend & NV_PGRAPH_BLEND_EN)) {
         return 0;
     }
@@ -739,7 +815,11 @@ static bool check_pipeline_dirty(PGRAPHState *pg)
     }
 
     // FIXME: Use dirty bits instead
-    if (memcmp(r->vertex_attribute_descriptions,
+    if (r->num_active_vertex_attribute_descriptions !=
+            r->pipeline_binding->key.attribute_description_count ||
+        r->num_active_vertex_binding_descriptions !=
+            r->pipeline_binding->key.binding_description_count ||
+        memcmp(r->vertex_attribute_descriptions,
                r->pipeline_binding->key.attribute_descriptions,
                r->num_active_vertex_attribute_descriptions *
                    sizeof(r->vertex_attribute_descriptions[0])) ||
@@ -764,6 +844,10 @@ static void init_pipeline_key_for_state(
     memset(key, 0, sizeof(*key));
     init_render_pass_state(pg, &key->render_pass_state);
     pgraph_vk_pipeline_key_set_shader(key, shader_state, route);
+    key->binding_description_count =
+        r->num_active_vertex_binding_descriptions;
+    key->attribute_description_count =
+        r->num_active_vertex_attribute_descriptions;
     memcpy(key->binding_descriptions, r->vertex_binding_descriptions,
            sizeof(key->binding_descriptions[0]) *
                r->num_active_vertex_binding_descriptions);
@@ -832,94 +916,101 @@ static void trace_execution_candidates(PGRAPHState *pg)
     }
 }
 
-static bool create_pipeline(PGRAPHState *pg)
-{
-    NV2A_VK_DGROUP_BEGIN("Creating pipeline");
-
-    NV2AState *d = container_of(pg, NV2AState, pgraph);
-    PGRAPHVkState *r = pg->vk_renderer_state;
-    pgraph_vk_hybrid_trace_draw(r->hybrid_trace);
-
-    if (!pgraph_vk_bind_textures(d)) {
-        NV2A_VK_DGROUP_END();
-        return false;
-    }
-    trace_execution_candidates(pg);
-    pgraph_vk_bind_shaders(pg);
-
-    // FIXME: If nothing was dirty, don't even try creating the key or hashing.
-    //        Just use the same pipeline.
-    bool pipeline_dirty = check_pipeline_dirty(pg);
-
-    pgraph_clear_dirty_reg_map(pg);
-    // FIXME: We could clear less
-
-    if (r->pipeline_binding && !pipeline_dirty) {
-        if (r->hybrid_trace) {
-            PipelineKey *ready_key = &r->pipeline_binding->key;
-            pgraph_vk_hybrid_trace_record(
-                r->hybrid_trace, VK_HYBRID_TRACE_PIPELINE_PROBE,
-                ready_key->fragment_route,
-                fast_hash((const uint8_t *)ready_key, sizeof(*ready_key)),
-                fast_hash((const uint8_t *)&ready_key->shader_state,
-                          sizeof(ready_key->shader_state)),
-                0, 1, 1, 0, 0);
-        }
-        NV2A_VK_DPRINTF("Cache hit");
-        NV2A_VK_DGROUP_END();
-        return true;
-    }
-
+typedef struct PGRAPHVkReadyDrawCandidate {
+    ShaderBinding *shader;
+    PipelineBinding *pipeline;
     PipelineKey key;
-    init_pipeline_key_for_state(pg, &r->shader_binding->state,
-                                r->shader_binding->fragment_route, &key);
-    uint64_t hash = fast_hash((void *)&key, sizeof(key));
+    uint64_t hash;
+} PGRAPHVkReadyDrawCandidate;
+
+static PGRAPHVkReadyDrawCandidate probe_ready_draw_candidate(
+    PGRAPHState *pg, const ShaderState *state, PGRAPHVkFragmentRoute route)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    ShaderBindingKey shader_key = {
+        .state = *state,
+        .fragment_route = route,
+    };
+    uint64_t shader_hash = fast_hash((const uint8_t *)&shader_key,
+                                     sizeof(shader_key));
+    PGRAPHVkReadyDrawCandidate candidate = { 0 };
+    candidate.shader = pgraph_vk_shader_binding_find_ready(
+        &r->shader_cache, shader_hash, &shader_key,
+        pgraph_glsl_need_geom(&state->geom));
+    init_pipeline_key_for_state(pg, state, route, &candidate.key);
+    candidate.hash = fast_hash((const uint8_t *)&candidate.key,
+                               sizeof(candidate.key));
+    candidate.pipeline = pipeline_cache_find_ready(r, candidate.hash,
+                                                    &candidate.key);
     if (r->hybrid_trace) {
-        PipelineBinding *ready = pipeline_cache_find_ready(r, hash, &key);
+        uint64_t state_hash = fast_hash((const uint8_t *)state,
+                                        sizeof(*state));
+        pgraph_vk_hybrid_trace_record(
+            r->hybrid_trace, VK_HYBRID_TRACE_SHADER_BINDING_PROBE,
+            route, candidate.hash, state_hash, 0,
+            candidate.shader != NULL, 0, shader_hash, 2);
         pgraph_vk_hybrid_trace_record(
             r->hybrid_trace, VK_HYBRID_TRACE_PIPELINE_PROBE,
-            key.fragment_route, hash,
-            fast_hash((const uint8_t *)&key.shader_state,
-                      sizeof(key.shader_state)),
-            0, ready != NULL, 0, 0, 0);
+            route, candidate.hash, state_hash, 0,
+            candidate.pipeline != NULL, 0, candidate.shader != NULL, 2);
     }
+    return candidate;
+}
 
-    PipelineBinding *snode = pipeline_cache_get_or_create(pg, hash, &key);
-    if (snode->pipeline != VK_NULL_HANDLE) {
-        NV2A_VK_DPRINTF("Cache hit");
-        r->pipeline_binding_changed = r->pipeline_binding != snode;
-        r->pipeline_binding = snode;
-        NV2A_VK_DGROUP_END();
-        return true;
+static bool prepare_graphics_pipeline_recipe(PGRAPHState *pg,
+    const PipelineKey *key, ShaderBinding *binding,
+    PGRAPHVkGraphicsPipelineRecipe *recipe)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    ShaderState effective_state;
+    if (!binding || !binding->vsh.module_info ||
+        !binding->psh.module_info ||
+        binding->fragment_route != key->fragment_route) {
+        return false;
     }
+    effective_state = binding->state;
+    if (key->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER) {
+        pgraph_vk_canonicalize_uber_combiner_state(&effective_state.psh);
+    }
+    if (memcmp(&effective_state, &key->shader_state,
+               sizeof(effective_state)) != 0 ||
+        (pgraph_glsl_need_geom(&binding->state.geom) &&
+         !binding->geom.module_info)) {
+        return false;
+    }
+    bool has_dynamic_line_width;
+    const uint32_t blend_reg = key->regs[0];
+    const uint32_t control_0_reg = key->regs[1];
+    const uint32_t control_1_reg = key->regs[2];
+    const uint32_t control_2_reg = key->regs[3];
+    const uint32_t setup_raster_reg = key->regs[5];
+    const bool has_color =
+        key->render_pass_state.color_format != VK_FORMAT_UNDEFINED;
+    const bool has_zeta =
+        key->render_pass_state.zeta_format != VK_FORMAT_UNDEFINED;
 
-    NV2A_VK_DPRINTF("Cache miss");
-    nv2a_profile_inc_counter(NV2A_PROF_PIPELINE_GEN);
-
-    memcpy(&snode->key, &key, sizeof(key));
-
-    uint32_t control_0 = pgraph_reg_r(pg, NV_PGRAPH_CONTROL_0);
+    uint32_t control_0 = control_0_reg;
     bool depth_test = control_0 & NV_PGRAPH_CONTROL_0_ZENABLE;
     bool depth_write = !!(control_0 & NV_PGRAPH_CONTROL_0_ZWRITEENABLE);
     bool stencil_test =
-        pgraph_reg_r(pg, NV_PGRAPH_CONTROL_1) & NV_PGRAPH_CONTROL_1_STENCIL_TEST_ENABLE;
+        control_1_reg & NV_PGRAPH_CONTROL_1_STENCIL_TEST_ENABLE;
 
     int num_active_shader_stages = 0;
-    VkPipelineShaderStageCreateInfo shader_stages[3];
+    VkPipelineShaderStageCreateInfo shader_stages[3] = { 0 };
 
     shader_stages[num_active_shader_stages++] =
         (VkPipelineShaderStageCreateInfo){
             .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
             .stage = VK_SHADER_STAGE_VERTEX_BIT,
-            .module = r->shader_binding->vsh.module_info->module,
+            .module = binding->vsh.module_info->module,
             .pName = "main",
         };
-    if (r->shader_binding->geom.module_info) {
+    if (binding->geom.module_info) {
         shader_stages[num_active_shader_stages++] =
             (VkPipelineShaderStageCreateInfo){
                 .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
                 .stage = VK_SHADER_STAGE_GEOMETRY_BIT,
-                .module = r->shader_binding->geom.module_info->module,
+                .module = binding->geom.module_info->module,
                 .pName = "main",
             };
     }
@@ -927,23 +1018,23 @@ static bool create_pipeline(PGRAPHState *pg)
         (VkPipelineShaderStageCreateInfo){
             .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
             .stage = VK_SHADER_STAGE_FRAGMENT_BIT,
-            .module = r->shader_binding->psh.module_info->module,
+            .module = binding->psh.module_info->module,
             .pName = "main",
         };
 
     VkPipelineVertexInputStateCreateInfo vertex_input = {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
         .vertexBindingDescriptionCount =
-            r->num_active_vertex_binding_descriptions,
-        .pVertexBindingDescriptions = r->vertex_binding_descriptions,
+            key->binding_description_count,
+        .pVertexBindingDescriptions = key->binding_descriptions,
         .vertexAttributeDescriptionCount =
-            r->num_active_vertex_attribute_descriptions,
-        .pVertexAttributeDescriptions = r->vertex_attribute_descriptions,
+            key->attribute_description_count,
+        .pVertexAttributeDescriptions = key->attribute_descriptions,
     };
 
     VkPipelineInputAssemblyStateCreateInfo input_assembly = {
         .sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
-        .topology = get_primitive_topology(pg),
+        .topology = get_primitive_topology(&binding->state),
         .primitiveRestartEnable = VK_FALSE,
     };
 
@@ -959,10 +1050,10 @@ static bool create_pipeline(PGRAPHState *pg)
         .sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
         .depthClampEnable = VK_TRUE,
         .rasterizerDiscardEnable = VK_FALSE,
-        .polygonMode = pgraph_polygon_mode_vk_map[r->shader_binding->state
+        .polygonMode = pgraph_polygon_mode_vk_map[binding->state
                                                       .geom.polygon_front_mode],
         .lineWidth = 1.0f,
-        .frontFace = (pgraph_reg_r(pg, NV_PGRAPH_SETUPRASTER) &
+        .frontFace = (setup_raster_reg &
                       NV_PGRAPH_SETUPRASTER_FRONTFACE) ?
                          VK_FRONT_FACE_COUNTER_CLOCKWISE :
                          VK_FRONT_FACE_CLOCKWISE,
@@ -970,8 +1061,8 @@ static bool create_pipeline(PGRAPHState *pg)
         .pNext = rasterizer_next_struct,
     };
 
-    if (pgraph_reg_r(pg, NV_PGRAPH_SETUPRASTER) & NV_PGRAPH_SETUPRASTER_CULLENABLE) {
-        uint32_t cull_face = GET_MASK(pgraph_reg_r(pg, NV_PGRAPH_SETUPRASTER),
+    if (setup_raster_reg & NV_PGRAPH_SETUPRASTER_CULLENABLE) {
+        uint32_t cull_face = GET_MASK(setup_raster_reg,
                                       NV_PGRAPH_SETUPRASTER_CULLCTRL);
         assert(cull_face < ARRAY_SIZE(pgraph_cull_face_vk_map));
         rasterizer.cullMode = pgraph_cull_face_vk_map[cull_face];
@@ -993,26 +1084,26 @@ static bool create_pipeline(PGRAPHState *pg)
     if (depth_test) {
         depth_stencil.depthTestEnable = VK_TRUE;
         uint32_t depth_func =
-            GET_MASK(pgraph_reg_r(pg, NV_PGRAPH_CONTROL_0), NV_PGRAPH_CONTROL_0_ZFUNC);
+            GET_MASK(control_0_reg, NV_PGRAPH_CONTROL_0_ZFUNC);
         assert(depth_func < ARRAY_SIZE(pgraph_depth_func_vk_map));
         depth_stencil.depthCompareOp = pgraph_depth_func_vk_map[depth_func];
     }
 
     if (stencil_test) {
         depth_stencil.stencilTestEnable = VK_TRUE;
-        uint32_t stencil_func = GET_MASK(pgraph_reg_r(pg, NV_PGRAPH_CONTROL_1),
+        uint32_t stencil_func = GET_MASK(control_1_reg,
                                          NV_PGRAPH_CONTROL_1_STENCIL_FUNC);
-        uint32_t stencil_ref = GET_MASK(pgraph_reg_r(pg, NV_PGRAPH_CONTROL_1),
+        uint32_t stencil_ref = GET_MASK(control_1_reg,
                                         NV_PGRAPH_CONTROL_1_STENCIL_REF);
-        uint32_t mask_read = GET_MASK(pgraph_reg_r(pg, NV_PGRAPH_CONTROL_1),
+        uint32_t mask_read = GET_MASK(control_1_reg,
                                       NV_PGRAPH_CONTROL_1_STENCIL_MASK_READ);
-        uint32_t mask_write = GET_MASK(pgraph_reg_r(pg, NV_PGRAPH_CONTROL_1),
+        uint32_t mask_write = GET_MASK(control_1_reg,
                                        NV_PGRAPH_CONTROL_1_STENCIL_MASK_WRITE);
-        uint32_t op_fail = GET_MASK(pgraph_reg_r(pg, NV_PGRAPH_CONTROL_2),
+        uint32_t op_fail = GET_MASK(control_2_reg,
                                     NV_PGRAPH_CONTROL_2_STENCIL_OP_FAIL);
-        uint32_t op_zfail = GET_MASK(pgraph_reg_r(pg, NV_PGRAPH_CONTROL_2),
+        uint32_t op_zfail = GET_MASK(control_2_reg,
                                      NV_PGRAPH_CONTROL_2_STENCIL_OP_ZFAIL);
-        uint32_t op_zpass = GET_MASK(pgraph_reg_r(pg, NV_PGRAPH_CONTROL_2),
+        uint32_t op_zpass = GET_MASK(control_2_reg,
                                      NV_PGRAPH_CONTROL_2_STENCIL_OP_ZPASS);
 
         assert(stencil_func < ARRAY_SIZE(pgraph_stencil_func_vk_map));
@@ -1047,13 +1138,13 @@ static bool create_pipeline(PGRAPHState *pg)
 
     uint32_t dynamic_blend_constant_mask = 0;
 
-    if (pgraph_reg_r(pg, NV_PGRAPH_BLEND) & NV_PGRAPH_BLEND_EN) {
+    if (blend_reg & NV_PGRAPH_BLEND_EN) {
         color_blend_attachment.blendEnable = VK_TRUE;
 
         uint32_t sfactor =
-            GET_MASK(pgraph_reg_r(pg, NV_PGRAPH_BLEND), NV_PGRAPH_BLEND_SFACTOR);
+            GET_MASK(blend_reg, NV_PGRAPH_BLEND_SFACTOR);
         uint32_t dfactor =
-            GET_MASK(pgraph_reg_r(pg, NV_PGRAPH_BLEND), NV_PGRAPH_BLEND_DFACTOR);
+            GET_MASK(blend_reg, NV_PGRAPH_BLEND_DFACTOR);
         assert(sfactor < ARRAY_SIZE(pgraph_blend_factor_vk_map));
         assert(dfactor < ARRAY_SIZE(pgraph_blend_factor_vk_map));
         color_blend_attachment.srcColorBlendFactor =
@@ -1066,7 +1157,7 @@ static bool create_pipeline(PGRAPHState *pg)
             pgraph_blend_factor_vk_map[dfactor];
 
         uint32_t equation =
-            GET_MASK(pgraph_reg_r(pg, NV_PGRAPH_BLEND), NV_PGRAPH_BLEND_EQN);
+            GET_MASK(blend_reg, NV_PGRAPH_BLEND_EQN);
         assert(equation < ARRAY_SIZE(pgraph_blend_equation_vk_map));
 
         color_blend_attachment.colorBlendOp =
@@ -1074,9 +1165,9 @@ static bool create_pipeline(PGRAPHState *pg)
         color_blend_attachment.alphaBlendOp =
             pgraph_blend_equation_vk_map[equation];
 
-        if (r->color_binding) {
+        if (has_color) {
             dynamic_blend_constant_mask =
-                pipeline_dynamic_blend_constant_mask(pg);
+                pipeline_dynamic_blend_constant_mask(blend_reg);
         }
     }
 
@@ -1084,8 +1175,8 @@ static bool create_pipeline(PGRAPHState *pg)
         .sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
         .logicOpEnable = VK_FALSE,
         .logicOp = VK_LOGIC_OP_COPY,
-        .attachmentCount = r->color_binding ? 1 : 0,
-        .pAttachments = r->color_binding ? &color_blend_attachment : NULL,
+        .attachmentCount = has_color ? 1 : 0,
+        .pAttachments = has_color ? &color_blend_attachment : NULL,
     };
 
     VkDynamicState dynamic_states[4] = { VK_DYNAMIC_STATE_VIEWPORT,
@@ -1095,13 +1186,13 @@ static bool create_pipeline(PGRAPHState *pg)
         dynamic_states[num_dynamic_states++] = VK_DYNAMIC_STATE_BLEND_CONSTANTS;
     }
 
-    snode->has_dynamic_line_width =
+    has_dynamic_line_width =
         (r->enabled_physical_device_features.wideLines == VK_TRUE) &&
-        (r->shader_binding->state.geom.polygon_front_mode == POLY_MODE_LINE ||
-         r->shader_binding->state.geom.primitive_mode == PRIM_TYPE_LINES ||
-         r->shader_binding->state.geom.primitive_mode == PRIM_TYPE_LINE_LOOP ||
-         r->shader_binding->state.geom.primitive_mode == PRIM_TYPE_LINE_STRIP);
-    if (snode->has_dynamic_line_width) {
+        (binding->state.geom.polygon_front_mode == POLY_MODE_LINE ||
+         binding->state.geom.primitive_mode == PRIM_TYPE_LINES ||
+         binding->state.geom.primitive_mode == PRIM_TYPE_LINE_LOOP ||
+         binding->state.geom.primitive_mode == PRIM_TYPE_LINE_STRIP);
+    if (has_dynamic_line_width) {
         dynamic_states[num_dynamic_states++] = VK_DYNAMIC_STATE_LINE_WIDTH;
     }
 
@@ -1112,18 +1203,18 @@ static bool create_pipeline(PGRAPHState *pg)
     };
 
     // FIXME: Dither
-    // if (pgraph_reg_r(pg, NV_PGRAPH_CONTROL_0) &
+    // if (control_0_reg &
     //         NV_PGRAPH_CONTROL_0_DITHERENABLE))
     // FIXME: point size
     // FIXME: Edge Antialiasing
     // bool anti_aliasing = GET_MASK(pgraph_reg_r(pg, NV_PGRAPH_ANTIALIASING),
     // NV_PGRAPH_ANTIALIASING_ENABLE);
-    // if (!anti_aliasing && pgraph_reg_r(pg, NV_PGRAPH_SETUPRASTER) &
+    // if (!anti_aliasing && setup_raster_reg &
     //                           NV_PGRAPH_SETUPRASTER_LINESMOOTHENABLE) {
     // FIXME: VK_EXT_line_rasterization
     // }
 
-    // if (!anti_aliasing && pgraph_reg_r(pg, NV_PGRAPH_SETUPRASTER) &
+    // if (!anti_aliasing && setup_raster_reg &
     //                           NV_PGRAPH_SETUPRASTER_POLYSMOOTHENABLE) {
     // FIXME: No direct analog. Just do it with MSAA.
     // }
@@ -1138,7 +1229,7 @@ static bool create_pipeline(PGRAPHState *pg)
     VkPushConstantRange push_constant_range;
     if (r->use_push_constants_for_uniform_attrs) {
         int num_uniform_attributes =
-            __builtin_popcount(r->shader_binding->state.vsh.uniform_attrs);
+            __builtin_popcount(binding->state.vsh.uniform_attrs);
         if (num_uniform_attributes) {
             push_constant_range = (VkPushConstantRange){
                 .stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
@@ -1152,8 +1243,32 @@ static bool create_pipeline(PGRAPHState *pg)
     }
 
     VkPipelineLayout layout;
+    int64_t layout_start_us = r->hybrid_trace ?
+        g_get_monotonic_time() : 0;
     VK_CHECK(vkCreatePipelineLayout(r->device, &pipeline_layout_info, NULL,
                                     &layout));
+    if (r->hybrid_trace) {
+        pgraph_vk_hybrid_trace_record(
+            r->hybrid_trace, VK_HYBRID_TRACE_LAYOUT_CREATE,
+            key->fragment_route,
+            fast_hash((const uint8_t *)key, sizeof(*key)),
+            fast_hash((const uint8_t *)&key->shader_state,
+                      sizeof(key->shader_state)), 0,
+            layout_start_us, g_get_monotonic_time(), 0, 0);
+    }
+
+    int64_t render_pass_start_us = r->hybrid_trace ?
+        g_get_monotonic_time() : 0;
+    VkRenderPass render_pass = get_render_pass(r, &key->render_pass_state);
+    if (r->hybrid_trace) {
+        pgraph_vk_hybrid_trace_record(
+            r->hybrid_trace, VK_HYBRID_TRACE_RENDER_PASS_LOOKUP,
+            key->fragment_route,
+            fast_hash((const uint8_t *)key, sizeof(*key)),
+            0, 0, render_pass_start_us, g_get_monotonic_time(),
+            key->render_pass_state.color_format,
+            key->render_pass_state.zeta_format);
+    }
 
     VkGraphicsPipelineCreateInfo pipeline_create_info = {
         .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
@@ -1164,19 +1279,448 @@ static bool create_pipeline(PGRAPHState *pg)
         .pViewportState = &viewport_state,
         .pRasterizationState = &rasterizer,
         .pMultisampleState = &multisampling,
-        .pDepthStencilState = r->zeta_binding ? &depth_stencil : NULL,
+        .pDepthStencilState = has_zeta ? &depth_stencil : NULL,
         .pColorBlendState = &color_blending,
         .pDynamicState = &dynamic_state,
         .layout = layout,
-        .renderPass = get_render_pass(r, &key.render_pass_state),
+        .renderPass = render_pass,
         .subpass = 0,
         .basePipelineHandle = VK_NULL_HANDLE,
     };
+    /* The worker copies the complete recipe at submission. Repoint every
+     * stack-backed create-info field before either creation path uses it. */
+    memset(recipe, 0, sizeof(*recipe));
+    recipe->layout = layout;
+    recipe->render_pass = pipeline_create_info.renderPass;
+    recipe->dynamic_blend_constant_mask = dynamic_blend_constant_mask;
+    recipe->has_dynamic_line_width = has_dynamic_line_width;
+    memcpy(recipe->stages, shader_stages, sizeof(recipe->stages));
+    recipe->vertex = vertex_input;
+    recipe->assembly = input_assembly;
+    recipe->viewport = viewport_state;
+    recipe->raster = rasterizer;
+    recipe->multisample = multisampling;
+    recipe->depth_stencil = depth_stencil;
+    recipe->color_attachment = color_blend_attachment;
+    recipe->blend = color_blending;
+    recipe->blend.pAttachments = color_blending.attachmentCount ?
+        &recipe->color_attachment : NULL;
+    memcpy(recipe->dynamic_states, dynamic_states,
+           sizeof(recipe->dynamic_states));
+    recipe->dynamic = dynamic_state;
+    recipe->dynamic.pDynamicStates = recipe->dynamic_states;
+    recipe->info = pipeline_create_info;
+    recipe->info.pStages = recipe->stages;
+    recipe->info.pVertexInputState = &recipe->vertex;
+    recipe->info.pInputAssemblyState = &recipe->assembly;
+    recipe->info.pViewportState = &recipe->viewport;
+    recipe->info.pRasterizationState = &recipe->raster;
+    recipe->info.pMultisampleState = &recipe->multisample;
+    recipe->info.pDepthStencilState = pipeline_create_info.pDepthStencilState ?
+        &recipe->depth_stencil : NULL;
+    recipe->info.pColorBlendState = &recipe->blend;
+    recipe->info.pDynamicState = &recipe->dynamic;
+    return true;
+}
+
+PGRAPHVkHybridPipelineSubmitResult pgraph_vk_request_hybrid_pipeline(
+    PGRAPHState *pg, const PipelineKey *key, ShaderBinding *ready_binding)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    if (!r->hybrid_pipeline_builder_initialized || !key || !ready_binding ||
+        key->clear || key->fragment_route != PGRAPH_VK_FRAGMENT_SPECIALIZED) {
+        return PGRAPH_VK_HYBRID_PIPELINE_STOPPED;
+    }
+
+    /* A recipe is only valid for the live fixed-function and vertex-input
+     * state from which this exact key was made. Do not submit stale work. */
+    PipelineKey current_key;
+    init_pipeline_key_for_state(pg, &ready_binding->state,
+                                PGRAPH_VK_FRAGMENT_SPECIALIZED, &current_key);
+    if (memcmp(key, &current_key, sizeof(*key)) != 0) {
+        return PGRAPH_VK_HYBRID_PIPELINE_UNSUPPORTED_RECIPE;
+    }
+
+    uint64_t hash = fast_hash((const uint8_t *)key, sizeof(*key));
+    if (pipeline_cache_find_ready(r, hash, key)) {
+        return PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED;
+    }
+    PGRAPHVkHybridPipelineWork *work = NULL;
+    for (size_t i = 0; i < ARRAY_SIZE(r->hybrid_pipeline_work); i++) {
+        PGRAPHVkHybridPipelineWork *candidate = &r->hybrid_pipeline_work[i];
+        if (candidate->in_use &&
+            candidate->generation == r->hybrid_generation &&
+            candidate->key_hash == hash &&
+            memcmp(&candidate->key, key, sizeof(*key)) == 0) {
+            return PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED;
+        }
+        if (!candidate->in_use && !work) {
+            work = candidate;
+        }
+    }
+    /* Completion admission cannot evict or finish. Avoid a speculative
+     * driver compile that has no cache slot in which to publish its result. */
+    if (r->pipeline_cache.num_free == 0) {
+        return PGRAPH_VK_HYBRID_PIPELINE_QUEUE_FULL;
+    }
+    if (!work) {
+        return PGRAPH_VK_HYBRID_PIPELINE_QUEUE_FULL;
+    }
+
+    PGRAPHVkGraphicsPipelineRecipe recipe;
+    if (!prepare_graphics_pipeline_recipe(pg, key, ready_binding, &recipe)) {
+        return PGRAPH_VK_HYBRID_PIPELINE_UNSUPPORTED_RECIPE;
+    }
+
+    work->in_use = true;
+    work->generation = r->hybrid_generation;
+    work->ticket = ++r->hybrid_pipeline_next_ticket;
+    if (!work->ticket) {
+        work->ticket = ++r->hybrid_pipeline_next_ticket;
+    }
+    work->key_hash = hash;
+    work->key = *key;
+    work->layout = recipe.layout;
+    work->render_pass = recipe.render_pass;
+    work->dynamic_blend_constant_mask =
+        recipe.dynamic_blend_constant_mask;
+    work->has_dynamic_line_width = recipe.has_dynamic_line_width;
+    work->modules[0] = ready_binding->vsh.module_info;
+    work->modules[1] = ready_binding->geom.module_info;
+    work->modules[2] = ready_binding->psh.module_info;
+    for (size_t i = 0; i < ARRAY_SIZE(work->modules); i++) {
+        if (work->modules[i]) {
+            pgraph_vk_ref_shader_module(work->modules[i]);
+        }
+    }
+
+    PGRAPHVkHybridPipelineBuildRequest request = {
+        .generation = work->generation,
+        .ticket = work->ticket,
+        .key_hash = hash,
+        .device = r->device,
+        .cache = r->vk_pipeline_cache,
+        .create_info = &recipe.info,
+    };
+    PGRAPHVkHybridPipelineSubmitResult status =
+        pgraph_vk_hybrid_pipeline_builder_submit(
+            &r->hybrid_pipeline_builder, &request);
+    if (r->hybrid_trace) {
+        pgraph_vk_hybrid_trace_record(
+            r->hybrid_trace, VK_HYBRID_TRACE_PIPELINE_SUBMIT,
+            key->fragment_route, hash,
+            fast_hash((const uint8_t *)&key->shader_state,
+                      sizeof(key->shader_state)), work->ticket,
+            status, r->pipeline_cache.num_free, 0, 0);
+    }
+    if (status != PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED) {
+        hybrid_pipeline_work_clear(r, work);
+    }
+    return status;
+}
+
+void pgraph_vk_process_hybrid_pipeline_completions(PGRAPHState *pg)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    if (!r->hybrid_pipeline_builder_initialized) {
+        return;
+    }
+
+    /* A result already owns the expensive object. Publication may only
+     * perform a cache insertion or discard; it must never compile or finish. */
+    PGRAPHVkHybridPipelineBuildResult result;
+    unsigned int published = 0;
+    while (published < 2 && pgraph_vk_hybrid_pipeline_builder_take_result(
+                                &r->hybrid_pipeline_builder, &result)) {
+        published++;
+        bool adopted = false;
+        PGRAPHVkHybridPipelineWork *work = NULL;
+        for (size_t i = 0; i < ARRAY_SIZE(r->hybrid_pipeline_work); i++) {
+            PGRAPHVkHybridPipelineWork *candidate =
+                &r->hybrid_pipeline_work[i];
+            if (candidate->in_use &&
+                candidate->generation == result.generation &&
+                candidate->ticket == result.ticket &&
+                candidate->key_hash == result.key_hash) {
+                work = candidate;
+                break;
+            }
+        }
+        if (work && result.generation == r->hybrid_generation &&
+            result.vk_result == VK_SUCCESS &&
+            result.pipeline != VK_NULL_HANDLE &&
+            !pipeline_cache_find_ready(r, work->key_hash, &work->key)) {
+            /* Publication must not evict an in-flight pipeline or finish a
+             * command buffer. A full cache leaves this result unadopted. */
+            LruNode *node = r->pipeline_cache.num_free > 0 ?
+                lru_try_lookup(&r->pipeline_cache,
+                               work->key_hash, &work->key) : NULL;
+            if (node) {
+                PipelineBinding *binding =
+                    container_of(node, PipelineBinding, node);
+                if (binding->pipeline == VK_NULL_HANDLE) {
+                    binding->key = work->key;
+                    binding->pipeline = result.pipeline;
+                    binding->layout = work->layout;
+                    binding->render_pass = work->render_pass;
+                    binding->dynamic_blend_constant_mask =
+                        work->dynamic_blend_constant_mask;
+                    binding->has_dynamic_line_width =
+                        work->has_dynamic_line_width;
+                    binding->draw_time = 0;
+                    result.pipeline = VK_NULL_HANDLE;
+                    work->layout = VK_NULL_HANDLE;
+                    adopted = true;
+                    r->hybrid_selection_epoch =
+                        pgraph_vk_hybrid_next_selection_epoch(
+                            r->hybrid_selection_epoch);
+                }
+            }
+        }
+        if (r->hybrid_trace) {
+            pgraph_vk_hybrid_trace_record(
+                r->hybrid_trace, VK_HYBRID_TRACE_PIPELINE_ADOPT,
+                PGRAPH_VK_FRAGMENT_SPECIALIZED, result.key_hash,
+                work ? fast_hash((const uint8_t *)&work->key.shader_state,
+                                 sizeof(work->key.shader_state)) : 0,
+                result.ticket, result.submitted_us, result.started_us,
+                result.finished_us, adopted);
+        }
+        pgraph_vk_hybrid_pipeline_build_result_destroy(
+            &r->hybrid_pipeline_builder, &result);
+        if (work) {
+            hybrid_pipeline_work_clear(r, work);
+        }
+    }
+}
+
+static void request_complete_specialization(PGRAPHState *pg,
+                                            const ShaderState *state)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    if (!r->shader_binding || !r->pipeline_binding ||
+        r->shader_binding->fragment_route !=
+            PGRAPH_VK_FRAGMENT_UBERSHADER ||
+        r->pipeline_binding->pipeline == VK_NULL_HANDLE ||
+        !r->uber_controls_valid) {
+        return;
+    }
+    PipelineKey fallback_key;
+    init_pipeline_key_for_state(pg, state, PGRAPH_VK_FRAGMENT_UBERSHADER,
+                                &fallback_key);
+    bool fallback_pipeline_ready =
+        memcmp(&r->pipeline_binding->key, &fallback_key,
+               sizeof(fallback_key)) == 0;
+    bool fallback_resources_ready =
+        pgraph_vk_fallback_draw_resources_ready(pg, r->shader_binding);
+    if (!fallback_pipeline_ready || !fallback_resources_ready) {
+        return;
+    }
+    pgraph_vk_enqueue_specialized_fragment(pg, state,
+                                           fallback_pipeline_ready,
+                                           fallback_resources_ready);
+    ShaderBinding *binding = pgraph_vk_prepare_binding_from_ready_modules(
+        pg, state, PGRAPH_VK_FRAGMENT_SPECIALIZED);
+    if (!binding) {
+        return;
+    }
+    PipelineKey key;
+    init_pipeline_key_for_state(pg, state, PGRAPH_VK_FRAGMENT_SPECIALIZED,
+                                &key);
+    (void)pgraph_vk_request_hybrid_pipeline(pg, &key, binding);
+}
+
+static bool create_pipeline(PGRAPHState *pg)
+{
+    NV2A_VK_DGROUP_BEGIN("Creating pipeline");
+
+    NV2AState *d = container_of(pg, NV2AState, pgraph);
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    pgraph_vk_hybrid_trace_draw(r->hybrid_trace);
+
+    if (!pgraph_vk_bind_textures(d)) {
+        NV2A_VK_DGROUP_END();
+        return false;
+    }
+    bool hybrid = r->ubershader_runtime_enabled &&
+                  r->hybrid_compiler_initialized;
+    bool schedule_specialization = false;
+    ShaderState requested_state;
+    if (hybrid) {
+        pgraph_vk_process_hybrid_pipeline_completions(pg);
+        PGRAPHVkShaderPreparation preparation;
+        pgraph_vk_prepare_shaders(pg, &preparation);
+        requested_state = preparation.state;
+
+        /* Most draws reuse the current specialized executable. Preserve the
+         * original cheap dirty path and still update uniforms on every draw
+         * that needs them. A fallback must continue probing for promotion. */
+        if (preparation.bound_state_equal && r->shader_binding &&
+            r->shader_binding->fragment_route ==
+                PGRAPH_VK_FRAGMENT_SPECIALIZED &&
+            r->pipeline_binding && !r->pipeline_binding->key.clear &&
+            r->pipeline_binding->key.fragment_route ==
+                PGRAPH_VK_FRAGMENT_SPECIALIZED &&
+            !check_pipeline_dirty(pg)) {
+            pgraph_vk_activate_shaders(pg, &preparation,
+                                       PGRAPH_VK_FRAGMENT_SPECIALIZED,
+                                       r->shader_binding);
+            pgraph_clear_dirty_reg_map(pg);
+            NV2A_VK_DGROUP_END();
+            return true;
+        }
+
+        PGRAPHVkReadyDrawCandidate specialized =
+            probe_ready_draw_candidate(pg, &requested_state,
+                                       PGRAPH_VK_FRAGMENT_SPECIALIZED);
+        PGRAPHVkReadyDrawCandidate fallback =
+            probe_ready_draw_candidate(pg, &requested_state,
+                                       PGRAPH_VK_FRAGMENT_UBERSHADER);
+        PGRAPHUberControls controls;
+        bool controls_supported = pgraph_vk_pack_fallback_controls(
+            pg, &requested_state.psh, &controls);
+        bool fallback_resources_ready = controls_supported &&
+            pgraph_vk_fallback_draw_resources_ready(pg, fallback.shader);
+        PGRAPHVkExecutionRoute selected =
+            pgraph_vk_hybrid_choose_execution_route(
+                specialized.shader != NULL, specialized.pipeline != NULL,
+                fallback.shader != NULL, fallback.pipeline != NULL,
+                fallback_resources_ready);
+
+        PGRAPHVkFragmentRoute route;
+        ShaderBinding *ready_shader;
+        PipelineBinding *ready_pipeline;
+        if (selected == PGRAPH_VK_EXECUTION_SPECIALIZED) {
+            route = PGRAPH_VK_FRAGMENT_SPECIALIZED;
+            ready_shader = specialized.shader;
+            ready_pipeline = specialized.pipeline;
+        } else if (selected == PGRAPH_VK_EXECUTION_UBERSHADER) {
+            route = PGRAPH_VK_FRAGMENT_UBERSHADER;
+            ready_shader = fallback.shader;
+            ready_pipeline = fallback.pipeline;
+            schedule_specialization = true;
+        } else {
+            /* The first encounter has no complete executable candidate.
+             * Build one route synchronously and make the fallback family
+             * available to subsequent combiner states. */
+            bool fallback_blocked = fallback.shader && fallback.pipeline &&
+                                    !fallback_resources_ready;
+            route = controls_supported && !fallback_blocked ?
+                        PGRAPH_VK_FRAGMENT_UBERSHADER :
+                        PGRAPH_VK_FRAGMENT_SPECIALIZED;
+            ready_shader = NULL;
+            ready_pipeline = NULL;
+            schedule_specialization =
+                route == PGRAPH_VK_FRAGMENT_UBERSHADER;
+            if (r->hybrid_trace) {
+                pgraph_vk_hybrid_trace_record(
+                    r->hybrid_trace, VK_HYBRID_TRACE_UNCOVERED,
+                    route, specialized.hash,
+                    fast_hash((const uint8_t *)&requested_state,
+                              sizeof(requested_state)), 0,
+                    specialized.shader != NULL,
+                    specialized.pipeline != NULL,
+                    fallback.shader != NULL,
+                    (uint64_t)(fallback.pipeline != NULL) |
+                        ((uint64_t)fallback_resources_ready << 1) |
+                        ((uint64_t)controls_supported << 2));
+            }
+        }
+        r->uber_controls_valid = route == PGRAPH_VK_FRAGMENT_UBERSHADER &&
+                                 controls_supported;
+        if (r->uber_controls_valid) {
+            r->uber_controls = controls;
+        }
+        pgraph_vk_activate_shaders(pg, &preparation, route, ready_shader);
+
+        if (ready_pipeline) {
+            /* The borrowed probes did not affect LRU order. Only the chosen
+             * executable is touched, and its key is already exact. */
+            lru_touch_existing(&r->pipeline_cache, &ready_pipeline->node);
+            r->pipeline_binding_changed =
+                r->pipeline_binding != ready_pipeline;
+            r->pipeline_binding = ready_pipeline;
+            pgraph_clear_dirty_reg_map(pg);
+
+            if (schedule_specialization) {
+                request_complete_specialization(pg, &requested_state);
+            }
+            NV2A_VK_DGROUP_END();
+            return true;
+        }
+    } else {
+        trace_execution_candidates(pg);
+        pgraph_vk_bind_shaders(pg);
+    }
+
+    // FIXME: If nothing was dirty, don't even try creating the key or hashing.
+    //        Just use the same pipeline.
+    bool pipeline_dirty = check_pipeline_dirty(pg);
+
+    pgraph_clear_dirty_reg_map(pg);
+    // FIXME: We could clear less
+
+    if (r->pipeline_binding && !pipeline_dirty) {
+        if (r->hybrid_trace) {
+            PipelineKey *ready_key = &r->pipeline_binding->key;
+            pgraph_vk_hybrid_trace_record(
+                r->hybrid_trace, VK_HYBRID_TRACE_PIPELINE_PROBE,
+                ready_key->fragment_route,
+                fast_hash((const uint8_t *)ready_key, sizeof(*ready_key)),
+                fast_hash((const uint8_t *)&ready_key->shader_state,
+                          sizeof(ready_key->shader_state)),
+                0, 1, 1, 0, 0);
+        }
+        NV2A_VK_DPRINTF("Cache hit");
+        if (schedule_specialization) {
+            request_complete_specialization(pg, &requested_state);
+        }
+        NV2A_VK_DGROUP_END();
+        return true;
+    }
+
+    PipelineKey key;
+    init_pipeline_key_for_state(pg, &r->shader_binding->state,
+                                r->shader_binding->fragment_route, &key);
+    uint64_t hash = fast_hash((void *)&key, sizeof(key));
+    if (r->hybrid_trace) {
+        PipelineBinding *ready = pipeline_cache_find_ready(r, hash, &key);
+        pgraph_vk_hybrid_trace_record(
+            r->hybrid_trace, VK_HYBRID_TRACE_PIPELINE_PROBE,
+            key.fragment_route, hash,
+            fast_hash((const uint8_t *)&key.shader_state,
+                      sizeof(key.shader_state)),
+            0, ready != NULL, 0, 0, 0);
+    }
+
+    PipelineBinding *snode = pipeline_cache_get_or_create(pg, hash, &key);
+    if (snode->pipeline != VK_NULL_HANDLE) {
+        NV2A_VK_DPRINTF("Cache hit");
+        r->pipeline_binding_changed = r->pipeline_binding != snode;
+        r->pipeline_binding = snode;
+        if (schedule_specialization) {
+            request_complete_specialization(pg, &requested_state);
+        }
+        NV2A_VK_DGROUP_END();
+        return true;
+    }
+
+    NV2A_VK_DPRINTF("Cache miss");
+    nv2a_profile_inc_counter(NV2A_PROF_PIPELINE_GEN);
+
+    memcpy(&snode->key, &key, sizeof(key));
+
+    PGRAPHVkGraphicsPipelineRecipe recipe;
+    if (!prepare_graphics_pipeline_recipe(pg, &key, r->shader_binding,
+                                          &recipe)) {
+        NV2A_VK_DGROUP_END();
+        return false;
+    }
     VkPipeline pipeline;
     int64_t pipeline_start_us = r->hybrid_trace ?
         g_get_monotonic_time() : 0;
     VK_CHECK(vkCreateGraphicsPipelines(r->device, r->vk_pipeline_cache, 1,
-                                       &pipeline_create_info, NULL, &pipeline));
+                                       &recipe.info, NULL, &pipeline));
     if (r->hybrid_trace) {
         pgraph_vk_hybrid_trace_record(
             r->hybrid_trace, VK_HYBRID_TRACE_PIPELINE_CREATE,
@@ -1187,13 +1731,18 @@ static bool create_pipeline(PGRAPHState *pg)
     }
 
     snode->pipeline = pipeline;
-    snode->layout = layout;
-    snode->render_pass = pipeline_create_info.renderPass;
+    snode->has_dynamic_line_width = recipe.has_dynamic_line_width;
+    snode->layout = recipe.layout;
+    snode->render_pass = recipe.render_pass;
     snode->draw_time = pg->draw_time;
-    snode->dynamic_blend_constant_mask = dynamic_blend_constant_mask;
+    snode->dynamic_blend_constant_mask = recipe.dynamic_blend_constant_mask;
 
     r->pipeline_binding = snode;
     r->pipeline_binding_changed = true;
+
+    if (schedule_specialization) {
+        request_complete_specialization(pg, &requested_state);
+    }
 
     NV2A_VK_DGROUP_END();
     return true;

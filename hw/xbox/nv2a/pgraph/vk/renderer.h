@@ -44,6 +44,7 @@
 #include "constants.h"
 #include "glsl.h"
 #include "hybrid-compiler.h"
+#include "hybrid-pipeline-builder.h"
 #include "hybrid-trace.h"
 #include "hybrid-policy.h"
 #include "spirv-prewarm.h"
@@ -99,6 +100,8 @@ typedef struct PipelineKey {
     RenderPassState render_pass_state;
     ShaderState shader_state;
     uint32_t regs[8];
+    uint32_t binding_description_count;
+    uint32_t attribute_description_count;
     VkVertexInputBindingDescription binding_descriptions[NV2A_VERTEXSHADER_ATTRIBUTES];
     VkVertexInputAttributeDescription attribute_descriptions[NV2A_VERTEXSHADER_ATTRIBUTES];
 } PipelineKey;
@@ -113,6 +116,21 @@ typedef struct PipelineBinding {
     bool has_dynamic_line_width;
     uint32_t dynamic_blend_constant_mask;
 } PipelineBinding;
+
+#define PGRAPH_VK_HYBRID_MAX_PIPELINE_JOBS 16
+
+typedef struct PGRAPHVkHybridPipelineWork {
+    bool in_use;
+    uint64_t generation;
+    uint64_t ticket;
+    uint64_t key_hash;
+    PipelineKey key;
+    VkPipelineLayout layout;
+    VkRenderPass render_pass;
+    uint32_t dynamic_blend_constant_mask;
+    bool has_dynamic_line_width;
+    struct ShaderModuleInfo *modules[3];
+} PGRAPHVkHybridPipelineWork;
 
 enum Buffer {
     BUFFER_STAGING_DST,
@@ -614,6 +632,11 @@ typedef struct PGRAPHVkState {
     PipelineBinding *pipeline_cache_entries;
     PipelineBinding *pipeline_binding;
     bool pipeline_binding_changed;
+    PGRAPHVkHybridPipelineBuilder hybrid_pipeline_builder;
+    bool hybrid_pipeline_builder_initialized;
+    uint64_t hybrid_pipeline_next_ticket;
+    PGRAPHVkHybridPipelineWork
+        hybrid_pipeline_work[PGRAPH_VK_HYBRID_MAX_PIPELINE_JOBS];
 
     VkDescriptorPool descriptor_pool;
     VkDescriptorSetLayout descriptor_set_layout;
@@ -670,9 +693,7 @@ typedef struct PGRAPHVkState {
     PGRAPHVkHybridShaderWork
         hybrid_work[PGRAPH_VK_HYBRID_MAX_WORK];
     const ShaderModuleCacheKey *hybrid_materializing_key;
-    const char *hybrid_materializing_glsl;
-    size_t hybrid_materializing_glsl_size;
-    GByteArray *hybrid_materializing_spirv;
+    ShaderModuleInfo *hybrid_materialized_module_info;
 
     Lru shader_module_cache;
     ShaderModuleCacheEntry *shader_module_cache_entries;
@@ -907,6 +928,14 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg);
 bool pgraph_vk_pack_fallback_controls(PGRAPHState *pg,
                                      const PshState *state,
                                      PGRAPHUberControls *packet);
+bool pgraph_vk_fallback_draw_resources_ready(PGRAPHState *pg,
+                                              ShaderBinding *binding);
+void pgraph_vk_enqueue_specialized_fragment(PGRAPHState *pg,
+                                            const ShaderState *state,
+                                            bool fallback_pipeline_ready,
+                                            bool fallback_resources_ready);
+ShaderBinding *pgraph_vk_prepare_binding_from_ready_modules(
+    PGRAPHState *pg, const ShaderState *state, PGRAPHVkFragmentRoute route);
 void pgraph_vk_prepare_shaders(PGRAPHState *pg,
                               PGRAPHVkShaderPreparation *preparation);
 void pgraph_vk_activate_shaders(PGRAPHState *pg,
@@ -926,6 +955,9 @@ void pgraph_vk_process_pending_reports_internal(NV2AState *d);
 // draw.c
 void pgraph_vk_init_pipelines(PGRAPHState *pg);
 void pgraph_vk_finalize_pipelines(PGRAPHState *pg);
+PGRAPHVkHybridPipelineSubmitResult pgraph_vk_request_hybrid_pipeline(
+    PGRAPHState *pg, const PipelineKey *key, ShaderBinding *ready_binding);
+void pgraph_vk_process_hybrid_pipeline_completions(PGRAPHState *pg);
 void pgraph_vk_clear_surface(NV2AState *d, uint32_t parameter);
 void pgraph_vk_draw_begin(NV2AState *d);
 void pgraph_vk_draw_end(NV2AState *d);
