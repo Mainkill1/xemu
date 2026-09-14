@@ -40,6 +40,7 @@
 
 #include "blend-constants-cache.h"
 #include "device-selection.h"
+#include "display-output-state.h"
 #include "debug.h"
 #include "constants.h"
 #include "glsl.h"
@@ -453,6 +454,7 @@ typedef struct PGRAPHVkDisplayState {
     int draw_time;
     bool shared_presentation;
     bool presentation_reported;
+    uint64_t completed_output_generation;
 
     struct {
         VkBuffer buffer;
@@ -460,8 +462,7 @@ typedef struct PGRAPHVkDisplayState {
         void *mapped;
         size_t size;
         GLuint gl_texture_id;
-        int gl_texture_width;
-        int gl_texture_height;
+        PGRAPHVkHostCopyUploadState upload;
     } host_copy;
 
     struct {
@@ -588,6 +589,12 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t submission_serial;
     uint64_t retirement_queue_objects;
     uint64_t retirement_queue_bytes;
+    /* Cumulative UI-thread totals, read by the renderer-thread perf writer. */
+    uint64_t framebuffer_acquire_calls_total QEMU_ALIGNED(8);
+    uint64_t valid_sync_requests_total QEMU_ALIGNED(8);
+    uint64_t host_copy_uploads_total QEMU_ALIGNED(8);
+    uint64_t host_copy_upload_skips_total QEMU_ALIGNED(8);
+    uint64_t host_copy_uploaded_bytes_total QEMU_ALIGNED(8);
 } PGRAPHVkPerfTelemetry;
 
 typedef struct PGRAPHVkState {
@@ -865,6 +872,10 @@ void pgraph_vk_perf_record_bc_upload(PGRAPHVkState *r, bool native,
                                      uint64_t prepare_cpu_us);
 void pgraph_vk_perf_record_cpu_region(PGRAPHVkState *r, PerfCpuRegion region,
                                       uint64_t cpu_us);
+void pgraph_vk_perf_record_framebuffer_acquire(PGRAPHVkState *r);
+void pgraph_vk_perf_record_valid_sync_request(PGRAPHVkState *r);
+void pgraph_vk_perf_record_host_copy_result(PGRAPHVkState *r, bool skipped,
+                                            uint64_t uploaded_bytes);
 void pgraph_vk_perf_frame(PGRAPHVkState *r);
 
 // image.c

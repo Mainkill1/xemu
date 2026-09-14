@@ -99,9 +99,10 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":5"
+            "{\"type\":\"schema\",\"schema_version\":6"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
-            ",\"hot_stride\":%u}",
+            ",\"hot_stride\":%u}"
+            ",\"presentation_counters\":\"cumulative_totals\"",
             VK_PERF_INITIAL_TIMED_SUBMITS, VK_PERF_HOT_SAMPLE_STRIDE);
     write_names(r->perf.file, "finish_reasons", finish_reason_names,
                 ARRAY_SIZE(finish_reason_names));
@@ -249,6 +250,36 @@ void pgraph_vk_perf_record_cpu_region(PGRAPHVkState *r, PerfCpuRegion region,
     }
 }
 
+void pgraph_vk_perf_record_framebuffer_acquire(PGRAPHVkState *r)
+{
+    if (r->perf.enabled) {
+        qatomic_fetch_add(&r->perf.framebuffer_acquire_calls_total, 1);
+    }
+}
+
+void pgraph_vk_perf_record_valid_sync_request(PGRAPHVkState *r)
+{
+    if (r->perf.enabled) {
+        qatomic_fetch_add(&r->perf.valid_sync_requests_total, 1);
+    }
+}
+
+void pgraph_vk_perf_record_host_copy_result(PGRAPHVkState *r, bool skipped,
+                                            uint64_t uploaded_bytes)
+{
+    if (!r->perf.enabled) {
+        return;
+    }
+
+    if (skipped) {
+        qatomic_fetch_add(&r->perf.host_copy_upload_skips_total, 1);
+    } else {
+        qatomic_fetch_add(&r->perf.host_copy_uploads_total, 1);
+        qatomic_fetch_add(&r->perf.host_copy_uploaded_bytes_total,
+                          uploaded_bytes);
+    }
+}
+
 void pgraph_vk_perf_frame(PGRAPHVkState *r)
 {
     PGRAPHVkPerfTelemetry *perf = &r->perf;
@@ -272,7 +303,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":5"
+            "{\"type\":\"frame\",\"schema_version\":6"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
@@ -345,7 +376,12 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"oldest_in_flight_serial\":%" PRIu64
             ",\"newest_submitted_serial\":%" PRIu64
             ",\"retirement_queue_objects\":%" PRIu64
-            ",\"retirement_queue_bytes\":%" PRIu64 "}\n",
+            ",\"retirement_queue_bytes\":%" PRIu64
+            ",\"framebuffer_acquire_calls_total\":%" PRIu64
+            ",\"valid_sync_requests_total\":%" PRIu64
+            ",\"host_copy_uploads_total\":%" PRIu64
+            ",\"host_copy_upload_skips_total\":%" PRIu64
+            ",\"host_copy_uploaded_bytes_total\":%" PRIu64 "}\n",
             submit_count, perf->submit_info_count, perf->command_buffer_count,
             perf->staged_bytes, perf->vertex_staged_bytes,
             perf->vertex_staging_copy_count,
@@ -361,7 +397,12 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->in_flight_submission_count,
             perf->peak_in_flight_submission_count,
             perf->oldest_in_flight_serial, perf->newest_submitted_serial,
-            perf->retirement_queue_objects, perf->retirement_queue_bytes);
+            perf->retirement_queue_objects, perf->retirement_queue_bytes,
+            qatomic_read_u64(&perf->framebuffer_acquire_calls_total),
+            qatomic_read_u64(&perf->valid_sync_requests_total),
+            qatomic_read_u64(&perf->host_copy_uploads_total),
+            qatomic_read_u64(&perf->host_copy_upload_skips_total),
+            qatomic_read_u64(&perf->host_copy_uploaded_bytes_total));
 
     if (now - perf->last_flush_us >= G_USEC_PER_SEC) {
         fflush(perf->file);
