@@ -1,4 +1,4 @@
-name: Wiki research export
+name: Wiki researcher update
 
 on:
   push:
@@ -6,22 +6,173 @@ on:
       - .github/workflows/wiki-research-export.yml
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  export-wiki:
+  update-wiki:
     runs-on: ubuntu-latest
     steps:
+      - name: Check out staged pages
+        uses: actions/checkout@v4
+
       - name: Clone wiki repository
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          git clone --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.wiki.git" wiki
-      - name: Upload wiki Markdown
-        uses: actions/upload-artifact@v4
-        with:
-          name: xemu-wiki-markdown
-          path: wiki/*.md
-          if-no-files-found: error
-          retention-days: 1
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.wiki.git" wiki
+
+      - name: Apply staged pages
+        run: |
+          set -euo pipefail
+          cp .github/wiki-research-staging/Home.md wiki/Home.md
+          cp .github/wiki-research-staging/_Sidebar.md wiki/_Sidebar.md
+          cp .github/wiki-research-staging/Hybrid-Shader-Research-Guide.md wiki/Hybrid-Shader-Research-Guide.md
+          cp .github/wiki-research-staging/Vulkan-Shader-Binding-and-Compilation.md wiki/Vulkan-Shader-Binding-and-Compilation.md
+          cp .github/wiki-research-staging/Vulkan-Ubershader-and-Hybrid-Specialization.md wiki/Vulkan-Ubershader-and-Hybrid-Specialization.md
+
+      - name: Update development and performance indexes
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          development = Path('wiki/Development.md')
+          text = development.read_text()
+          old = '''## Active Vulkan research
+
+          ### PR #71 — Ubershader & hybrid specialization
+
+          **State:** open draft / HOLD.
+
+          [PR #71](https://github.com/Mainkill1/xemu/pull/71) researches how to hide genuinely unseen fragment specialization behind an already compiled runtime fallback while a specialized shader is prepared in the background.
+
+          Key concepts:
+
+          - Fail-closed ubershader admission.
+          - Fixed control ABI for runtime combiner state.
+          - Background speculative compiler lane.
+          - Independent required/blocking compiler lane.
+          - Generation/ticket checks before publishing asynchronous results.
+          - Fast-path avoidance of redundant route selection.
+          - Specialized path remains authoritative when ready.
+
+          The architecture is implemented on the PR branch, but exact-current-head retail qualification remains incomplete and prior cold-tail regressions remain a HOLD condition. Do not describe the feature as an established performance win.
+
+          Read: [[Ubershader & Hybrid Specialization|Vulkan-Ubershader-and-Hybrid-Specialization]].
+          '''
+          new = '''## Active Vulkan research
+
+          ### PR #71 — Ubershader & hybrid specialization
+
+          **State:** open draft / HOLD.  
+          **Documented head:** `8a280999ed782af6ffe26158aff9718ac3426d94`; product-code change `f3716a5a5cc5da14d12d644582f7755b12f87ef5`.
+
+          [PR #71](https://github.com/Mainkill1/xemu/pull/71) researches how to execute an admitted fragment-combiner state through an already executable fallback while the exact specialized graphics pipeline is prepared asynchronously.
+
+          Implemented concepts:
+
+          - Fail-closed runtime-combiner admission and a fixed 448-byte control ABI.
+          - Side-effect-free shader-binding and graphics-pipeline readiness probes.
+          - Specialized selection only when the exact binding **and** graphics pipeline are ready.
+          - Separate speculative and draw-required GLSL compiler lanes.
+          - Bounded graphics-pipeline worker with deeply owned Vulkan recipe inputs.
+          - Module completion that does not promote by itself.
+          - Generation, ticket and exact-key checks before renderer publication.
+          - Opt-in slow-frame attribution for compiler, module, layout, render-pass, pipeline and resource events.
+
+          Current limitations under investigation:
+
+          - fallback resource rollover is still represented too conservatively and can redirect a usable fallback to the synchronous specialized path;
+          - stable fallback draws still need a cheaper reuse path and more aggressive specialized-first short circuiting;
+          - pipeline-layout creation, render-pass lookup and some module materialization remain on the renderer thread;
+          - pipeline jobs do not yet reserve future cache-publication capacity;
+          - pipeline failures do not yet have the same retained retry/backoff policy as shader work;
+          - exact-head gameplay, full XISO, Vulkan validation and retail performance remain unqualified.
+
+          The earlier module-first promotion model is superseded. A specialized module is not an executable draw route; promotion requires the complete exact specialized graphics pipeline.
+
+          Do not describe the feature as an established performance win. Earlier tested heads retained adverse cold tails, including isolated >80 ms events whose owner has not been proven on the current code.
+
+          Read: [[Ubershader & Hybrid Specialization|Vulkan-Ubershader-and-Hybrid-Specialization]] and [[Hybrid Shader Research Guide|Hybrid-Shader-Research-Guide]].
+          '''
+          old = old.replace('\n          ', '\n').lstrip()
+          new = new.replace('\n          ', '\n').lstrip()
+          if old not in text:
+              raise SystemExit('Development.md PR #71 block did not match')
+          development.write_text(text.replace(old, new))
+
+          performance = Path('wiki/Performance.md')
+          text = performance.read_text()
+          old = '''1. [[Shader Binding & Compilation|Vulkan-Shader-Binding-and-Compilation]] — classify synchronous shader/module/pipeline work.
+          2. [[Ubershader & Hybrid Specialization|Vulkan-Ubershader-and-Hybrid-Specialization]] — research a fallback path for genuinely unseen specialization.
+          3. [[Vertex Uploads & Render-Pass Lifetime|Vulkan-Vertex-Uploads-and-Render-Pass-Lifetime]] — reason about buffer freshness, ordered copies, pass splitting, and synchronization.
+          '''
+          new = '''1. [[Shader Binding & Compilation|Vulkan-Shader-Binding-and-Compilation]] — classify source, module, binding and complete-pipeline work independently.
+          2. [[Ubershader & Hybrid Specialization|Vulkan-Ubershader-and-Hybrid-Specialization]] — document xemu's current complete-pipeline fallback architecture and limitations.
+          3. [[Hybrid Shader Research Guide|Hybrid-Shader-Research-Guide]] — apply the same measurement, ownership and hot-path ordering principles to another emulator or renderer.
+          4. [[Vertex Uploads & Render-Pass Lifetime|Vulkan-Vertex-Uploads-and-Render-Pass-Lifetime]] — reason about buffer freshness, ordered copies, pass splitting, and synchronization.
+          '''
+          old = old.replace('\n          ', '\n').lstrip()
+          new = new.replace('\n          ', '\n').lstrip()
+          if old not in text:
+              raise SystemExit('Performance.md research list did not match')
+          performance.write_text(text.replace(old, new))
+          PY
+
+      - name: Validate Markdown structure and internal links
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          root = Path('wiki')
+          pages = {path.stem for path in root.glob('*.md')}
+          changed = [
+              'Home.md',
+              '_Sidebar.md',
+              'Development.md',
+              'Performance.md',
+              'Hybrid-Shader-Research-Guide.md',
+              'Vulkan-Shader-Binding-and-Compilation.md',
+              'Vulkan-Ubershader-and-Hybrid-Specialization.md',
+          ]
+
+          failures = []
+          for name in changed:
+              text = (root / name).read_text()
+              if text.count('```') % 2:
+                  failures.append(f'{name}: unbalanced fenced code block')
+              if re.search(r'\b(TBD|TODO|PLACEHOLDER)\b', text):
+                  failures.append(f'{name}: unresolved placeholder')
+              for match in re.finditer(r'\[\[([^\]]+)\]\]', text):
+                  target = match.group(1).split('|')[-1]
+                  if target not in pages:
+                      failures.append(f'{name}: missing wiki target {target}')
+
+          if failures:
+              raise SystemExit('\n'.join(failures))
+          print('Validated changed wiki pages and internal links.')
+          PY
+
+      - name: Commit and push wiki
+        run: |
+          set -euo pipefail
+          cd wiki
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- \
+            Home.md \
+            _Sidebar.md \
+            Development.md \
+            Performance.md \
+            Hybrid-Shader-Research-Guide.md \
+            Vulkan-Shader-Binding-and-Compilation.md \
+            Vulkan-Ubershader-and-Hybrid-Specialization.md
+          if git diff --cached --quiet; then
+            echo "Wiki already matches the requested researcher documentation."
+            exit 0
+          fi
+          git commit -m "docs: update hybrid shader research guidance"
+          git push origin HEAD
