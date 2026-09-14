@@ -68,6 +68,8 @@ static void test_real_compiler_and_reflection_accept_uber_abi(void)
     };
     ShaderModuleInfo info = { 0 };
     MString *source = pgraph_glsl_gen_psh(&state, opts);
+    g_assert_nonnull(strstr(mstring_get_str(source),
+        "uint uberStageCount = min(uberHeader.y, 8u);"));
 
     pgraph_vk_init_glsl_compiler();
     info.spirv = pgraph_vk_compile_glsl_to_spv_config(
