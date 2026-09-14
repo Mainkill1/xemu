@@ -193,7 +193,10 @@ static void pgraph_vk_process_pending(NV2AState *d)
         qatomic_read(&d->pgraph.flush_pending) ||
         qatomic_read(&r->spirv_cache_writeback_pending) ||
         (r->hybrid_compiler_initialized &&
-         pgraph_vk_hybrid_compiler_has_result(&r->hybrid_compiler))
+         pgraph_vk_hybrid_compiler_has_result(&r->hybrid_compiler)) ||
+        (r->hybrid_pipeline_builder_initialized &&
+         pgraph_vk_hybrid_pipeline_builder_has_result(
+             &r->hybrid_pipeline_builder))
     ) {
         qemu_mutex_unlock(&d->pfifo.lock);
         qemu_mutex_lock(&d->pgraph.lock);
@@ -212,6 +215,11 @@ static void pgraph_vk_process_pending(NV2AState *d)
         if (r->hybrid_compiler_initialized &&
             pgraph_vk_hybrid_compiler_has_result(&r->hybrid_compiler)) {
             pgraph_vk_process_hybrid_completions(&d->pgraph);
+        }
+        if (r->hybrid_pipeline_builder_initialized &&
+            pgraph_vk_hybrid_pipeline_builder_has_result(
+                &r->hybrid_pipeline_builder)) {
+            pgraph_vk_process_hybrid_pipeline_completions(&d->pgraph);
         }
         if (qatomic_read(&r->spirv_cache_writeback_pending)) {
             pgraph_vk_process_spirv_cache_writeback(&d->pgraph);

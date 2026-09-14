@@ -271,6 +271,41 @@ static void test_deep_owned_recipe(void)
     fake_fini(&driver);
 }
 
+static void test_result_flag_tracks_empty_and_completed_queue(void)
+{
+    FakeDriver driver;
+    TestRecipe recipe;
+    PGRAPHVkHybridPipelineBuilder builder = { 0 };
+    fake_init(&driver);
+    recipe_init(&recipe);
+    driver.block = true;
+    PGRAPHVkHybridPipelineBuilderConfig cfg = config(&driver);
+    g_assert_true(pgraph_vk_hybrid_pipeline_builder_init(&builder, &cfg));
+    g_assert_false(pgraph_vk_hybrid_pipeline_builder_has_result(&builder));
+    PGRAPHVkHybridPipelineBuildRequest req = request(&recipe, 1, 31);
+    g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_submit(&builder, &req),
+                    ==, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED);
+    fake_wait_entered(&driver);
+    g_assert_false(pgraph_vk_hybrid_pipeline_builder_has_result(&builder));
+    fake_release(&driver);
+    bool available = false;
+    for (unsigned int i = 0; i < 5000; i++) {
+        available = pgraph_vk_hybrid_pipeline_builder_has_result(&builder);
+        if (available) {
+            break;
+        }
+        g_usleep(1000);
+    }
+    g_assert_true(available);
+    PGRAPHVkHybridPipelineBuildResult result;
+    g_assert_true(pgraph_vk_hybrid_pipeline_builder_take_result(
+        &builder, &result));
+    g_assert_false(pgraph_vk_hybrid_pipeline_builder_has_result(&builder));
+    pgraph_vk_hybrid_pipeline_build_result_destroy(&builder, &result);
+    pgraph_vk_hybrid_pipeline_builder_destroy(&builder);
+    fake_fini(&driver);
+}
+
 static void test_reject_unsupported_chain(void)
 {
     FakeDriver driver;
@@ -420,6 +455,8 @@ int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
     g_test_add_func("/vk/hybrid-pipeline/deep-owned-recipe", test_deep_owned_recipe);
+    g_test_add_func("/vk/hybrid-pipeline/result-flag",
+                    test_result_flag_tracks_empty_and_completed_queue);
     g_test_add_func("/vk/hybrid-pipeline/reject-unsupported-chain", test_reject_unsupported_chain);
     g_test_add_func("/vk/hybrid-pipeline/stale-result-destroyed", test_stale_result_destroyed);
     g_test_add_func("/vk/hybrid-pipeline/driver-failure-returned", test_driver_failure_is_returned);

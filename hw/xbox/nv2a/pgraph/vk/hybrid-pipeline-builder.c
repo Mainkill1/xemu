@@ -54,6 +54,7 @@ typedef struct PipelineBuilderState {
     PipelineJob *pending_tail;
     PipelineJob *result_head;
     PipelineJob *result_tail;
+    int result_available;
     PipelineJob *active;
     size_t outstanding;
     uint64_t min_generation;
@@ -278,6 +279,7 @@ static void *pipeline_worker(void *opaque)
                 state->result_head = job;
             }
             state->result_tail = job;
+            qatomic_set(&state->result_available, 1);
         }
         qemu_mutex_unlock(&state->lock);
         if (stale) {
@@ -368,6 +370,7 @@ bool pgraph_vk_hybrid_pipeline_builder_take_result(
         state->result_head = job->next;
         if (!state->result_head) {
             state->result_tail = NULL;
+            qatomic_set(&state->result_available, 0);
         }
         state->outstanding--;
         *result = job->result;
@@ -377,6 +380,13 @@ bool pgraph_vk_hybrid_pipeline_builder_take_result(
     qemu_mutex_unlock(&state->lock);
     g_free(job);
     return found;
+}
+
+bool pgraph_vk_hybrid_pipeline_builder_has_result(
+    const PGRAPHVkHybridPipelineBuilder *builder)
+{
+    const PipelineBuilderState *state = builder ? builder->state : NULL;
+    return state && qatomic_read(&state->result_available);
 }
 
 void pgraph_vk_hybrid_pipeline_builder_cancel_before_generation(
@@ -409,6 +419,7 @@ void pgraph_vk_hybrid_pipeline_builder_cancel_before_generation(
             }
         }
     }
+    qatomic_set(&state->result_available, state->result_head != NULL);
     qemu_mutex_unlock(&state->lock);
     list_destroy(state, discard);
 }
@@ -442,6 +453,7 @@ void pgraph_vk_hybrid_pipeline_builder_stop(
         results = state->result_head;
         state->pending_head = state->pending_tail = NULL;
         state->result_head = state->result_tail = NULL;
+        qatomic_set(&state->result_available, 0);
         for (PipelineJob *job = pending; job; job = job->next) {
             state->outstanding--;
         }

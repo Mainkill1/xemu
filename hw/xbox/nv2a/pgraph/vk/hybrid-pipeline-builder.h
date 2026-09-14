@@ -70,6 +70,9 @@ PGRAPHVkHybridPipelineSubmitResult pgraph_vk_hybrid_pipeline_builder_submit(
 bool pgraph_vk_hybrid_pipeline_builder_take_result(
     PGRAPHVkHybridPipelineBuilder *builder,
     PGRAPHVkHybridPipelineBuildResult *result);
+/* Lock-free empty-queue hint. A true result still requires take_result(). */
+bool pgraph_vk_hybrid_pipeline_builder_has_result(
+    const PGRAPHVkHybridPipelineBuilder *builder);
 /* Superseded results are destroyed, including a result produced by an active
  * job after the generation changes. */
 void pgraph_vk_hybrid_pipeline_builder_cancel_before_generation(
