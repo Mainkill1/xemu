@@ -2158,11 +2158,14 @@ static void sync_staging_buffer(PGRAPHState *pg, VkCommandBuffer cmd,
     StorageBuffer *b_src = &r->storage_buffers[index_src];
     StorageBuffer *b_dst = &r->storage_buffers[index_dst];
 
-    if (!b_src->buffer_offset) {
+    VkDeviceSize bytes = b_src->buffer_offset;
+    if (!bytes) {
         return;
     }
 
-    VkBufferCopy copy_region = { .size = b_src->buffer_offset };
+    VK_CHECK(vmaFlushAllocation(r->allocator, b_src->allocation, 0, bytes));
+
+    VkBufferCopy copy_region = { .size = bytes };
     vkCmdCopyBuffer(cmd, b_src->buffer, b_dst->buffer, 1, &copy_region);
 
     VkAccessFlags dst_access_mask;
