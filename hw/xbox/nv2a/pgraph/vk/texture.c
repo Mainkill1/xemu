@@ -32,6 +32,7 @@
 #include "bc-layout.h"
 #include "failpoint.h"
 #include "failure-state.h"
+#include "texture-binding-state.h"
 #include "renderer.h"
 
 static void texture_cache_release_node_resources(PGRAPHVkState *r, TextureBinding *snode);
@@ -1407,6 +1408,8 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
             }
         }
 
+        r->texture_binding_source_is_surface[texture_idx] =
+            surface_to_texture;
         NV2A_VK_DGROUP_END();
         return true;
     }
@@ -1611,6 +1614,7 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
         snode->draw_time = 0;
     }
 
+    r->texture_binding_source_is_surface[texture_idx] = surface_to_texture;
     NV2A_VK_DGROUP_END();
     return true;
 }
@@ -1620,7 +1624,10 @@ static bool check_textures_dirty(PGRAPHState *pg)
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
-        if (!r->texture_bindings[i] || pg->texture_dirty[i]) {
+        TextureBinding *binding = r->texture_bindings[i];
+        if (pgraph_vk_texture_stage_needs_rebind(
+                pgraph_is_texture_enabled(pg, i), pg->texture_dirty[i],
+                binding != NULL, binding == &r->dummy_texture)) {
             return true;
         }
     }
@@ -1691,6 +1698,33 @@ bool pgraph_vk_bind_textures(NV2AState *d)
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
         if (!pgraph_is_texture_enabled(pg, i)) {
             r->texture_bindings[i] = &r->dummy_texture;
+            continue;
+        }
+
+        TextureBinding *binding = r->texture_bindings[i];
+        if (!pg->texture_dirty[i] && binding &&
+            binding != &r->dummy_texture && !binding->possibly_dirty &&
+            !r->texture_binding_source_is_surface[i] &&
+            !check_texture_possibly_dirty(
+                d, binding->key.texture_vram_offset,
+                binding->key.texture_length,
+                binding->key.palette_vram_offset,
+                binding->key.palette_length) &&
+            !pgraph_vk_surface_overlaps_range(
+                pg, binding->key.texture_vram_offset,
+                binding->key.texture_length) &&
+            (!binding->key.palette_length ||
+             !pgraph_vk_surface_overlaps_range(
+                 pg, binding->key.palette_vram_offset,
+                 binding->key.palette_length)) &&
+            pgraph_get_texture_phys_addr(pg, i) ==
+                binding->key.texture_vram_offset &&
+            (!binding->key.palette_length ||
+             pgraph_get_texture_palette_phys_addr_length(pg, i, NULL) ==
+                 binding->key.palette_vram_offset)) {
+            /* Another stage caused this slow bind. This stage's source and
+             * effective state have no pending work. Recheck DMA mapping here:
+             * RAMIN may change a descriptor without a texture-state write. */
             continue;
         }
 

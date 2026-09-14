@@ -1080,11 +1080,18 @@ DEF_METHOD(NV097, SET_CONTEXT_DMA_NOTIFIES)
 
 DEF_METHOD(NV097, SET_CONTEXT_DMA_A)
 {
+    if (pg->dma_a != parameter) {
+        /* Texture and palette source addresses can depend on this handle. */
+        memset(pg->texture_dirty, true, sizeof(pg->texture_dirty));
+    }
     pg->dma_a = parameter;
 }
 
 DEF_METHOD(NV097, SET_CONTEXT_DMA_B)
 {
+    if (pg->dma_b != parameter) {
+        memset(pg->texture_dirty, true, sizeof(pg->texture_dirty));
+    }
     pg->dma_b = parameter;
 }
 
