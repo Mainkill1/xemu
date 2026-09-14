@@ -8,6 +8,7 @@
 
 #include "hw/xbox/nv2a/pgraph/vk/renderer.h"
 #include "hw/xbox/nv2a/pgraph/vk/hybrid-ready.h"
+#include "hw/xbox/nv2a/pgraph/vk/fastpath-verify.h"
 
 static unsigned int probe_inits;
 static unsigned int probe_evictions;
@@ -497,6 +498,64 @@ static void test_canonicalization_preserves_fragment_shell_state(void)
     g_assert_cmpint(state.alpha_func, ==, ALPHA_FUNC_GREATER);
 }
 
+static void test_fastpath_identity_ignores_uniform_values(void)
+{
+    ShaderState bound_state = { 0 };
+    ShaderState expected_state = { 0 };
+    PipelineKey bound_key = { 0 };
+    PipelineKey expected_key = { 0 };
+
+    bound_state.vsh.specular_power = 2.0f;
+    expected_state.vsh.specular_power = 9.0f;
+    bound_state.vsh.specular_power_back = 3.0f;
+    expected_state.vsh.specular_power_back = 7.0f;
+    bound_state.vsh.point_params[0] = 1.0f;
+    expected_state.vsh.point_params[0] = 5.0f;
+    bound_key.shader_state = bound_state;
+    expected_key.shader_state = expected_state;
+
+    g_assert_cmpint(pgraph_vk_fastpath_compare_identity(
+        &expected_state, &bound_state, &expected_key, &bound_key,
+        NULL, NULL, PGRAPH_VK_FRAGMENT_SPECIALIZED), ==,
+        PGRAPH_VK_FASTPATH_MATCH);
+
+    expected_state.psh.shader_stage_program = 1;
+    expected_key.shader_state = expected_state;
+    g_assert_cmpint(pgraph_vk_fastpath_compare_identity(
+        &expected_state, &bound_state, &expected_key, &bound_key,
+        NULL, NULL, PGRAPH_VK_FRAGMENT_SPECIALIZED), ==,
+        PGRAPH_VK_FASTPATH_MISMATCH_SHADER_KEY);
+
+    expected_state = bound_state;
+    expected_key = bound_key;
+    expected_key.regs[0] = 1;
+    g_assert_cmpint(pgraph_vk_fastpath_compare_identity(
+        &expected_state, &bound_state, &expected_key, &bound_key,
+        NULL, NULL, PGRAPH_VK_FRAGMENT_SPECIALIZED), ==,
+        PGRAPH_VK_FASTPATH_MISMATCH_PIPELINE_KEY);
+}
+
+static void test_fastpath_rejects_stale_fallback_controls(void)
+{
+    ShaderState state = { 0 };
+    PipelineKey key = { .fragment_route = PGRAPH_VK_FRAGMENT_UBERSHADER };
+    PGRAPHUberControls expected = { 0 };
+    PGRAPHUberControls bound = { 0 };
+
+    expected.header[1] = 2;
+    bound.header[1] = 1;
+    g_assert_cmpint(pgraph_vk_fastpath_compare_identity(
+        &state, &state, &key, &key, &expected, &bound,
+        PGRAPH_VK_FRAGMENT_UBERSHADER), ==,
+        PGRAPH_VK_FASTPATH_MISMATCH_UBER_CONTROLS);
+
+    bound = expected;
+    g_assert_cmpint(pgraph_vk_fastpath_compare_identity(
+        &state, &state, &key, &key, &expected, &bound,
+        PGRAPH_VK_FRAGMENT_UBERSHADER), ==,
+        PGRAPH_VK_FASTPATH_MATCH);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -536,5 +595,9 @@ int main(int argc, char **argv)
                     test_changed_register_marks_shortcut_dirty);
     g_test_add_func("/xbox/vk/ubershader/runtime/snapshot-invalidation",
                     test_snapshot_restore_invalidates_execution_hints);
+    g_test_add_func("/xbox/vk/ubershader/runtime/fastpath-identity",
+                    test_fastpath_identity_ignores_uniform_values);
+    g_test_add_func("/xbox/vk/ubershader/runtime/fastpath-control-mismatch",
+                    test_fastpath_rejects_stale_fallback_controls);
     return g_test_run();
 }

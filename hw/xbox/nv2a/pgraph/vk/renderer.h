@@ -697,6 +697,10 @@ typedef struct PGRAPHVkState {
     uint64_t hybrid_route_epoch;
     uint64_t hybrid_selection_epoch;
     uint64_t hybrid_bound_selection_epoch;
+    unsigned int shader_fastpath_verify_draws_left;
+    bool shader_fastpath_poisoned;
+    uint64_t shader_fastpath_verifications;
+    uint64_t shader_fastpath_shortcut_hits;
     uint32_t uber_constant_regs[18];
     bool uber_constant_regs_valid;
     size_t hybrid_pending_jobs;

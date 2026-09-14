@@ -22,6 +22,7 @@
 #include "qemu/fast-hash.h"
 #include "renderer.h"
 #include "hybrid-ready.h"
+#include "fastpath-verify.h"
 #include "pipeline-cache-lifetime.h"
 #include "ui/xemu-tweaks.h"
 #include <math.h>
@@ -1643,6 +1644,89 @@ static void maybe_request_complete_specialization(PGRAPHState *pg,
     request_complete_specialization(pg, state);
 }
 
+static void pgraph_vk_fastpath_snapshot(
+    PGRAPHVkState *r, const ShaderState *state, const PipelineKey *key,
+    const PGRAPHUberControls *controls, PGRAPHVkFragmentRoute route,
+    uint64_t selection_epoch, PGRAPHVkFastpathSnapshot *snapshot)
+{
+    ShaderBindingKey shader_key = {
+        .state = *state,
+        .fragment_route = route,
+    };
+    PipelineKey pipeline_key = *key;
+    pgraph_vk_fastpath_normalize_shader_state(&shader_key.state);
+    pgraph_vk_fastpath_normalize_shader_state(&pipeline_key.shader_state);
+    *snapshot = (PGRAPHVkFastpathSnapshot) {
+        .shader_key_hash = fast_hash((const uint8_t *)&shader_key,
+                                     sizeof(shader_key)),
+        .pipeline_key_hash = fast_hash((const uint8_t *)&pipeline_key,
+                                       sizeof(pipeline_key)),
+        .control_packet_hash = controls ?
+            fast_hash((const uint8_t *)controls, sizeof(*controls)) : 0,
+        .route = route,
+        .selection_epoch = selection_epoch,
+        .descriptor_set_index = r->descriptor_set_index,
+        .uber_control_offset = r->uber_control_offset,
+        .command_buffer_start_time = r->command_buffer_start_time,
+    };
+}
+
+static bool pgraph_vk_verify_fastpath_state(
+    PGRAPHState *pg, PGRAPHVkState *r, PGRAPHVkFastpathMismatch *mismatch)
+{
+    PGRAPHVkFragmentRoute route = r->shader_binding->fragment_route;
+    bool program_data_dirty = pg->program_data_dirty;
+    ShaderState expected_state = pgraph_glsl_get_shader_state(pg);
+    pg->program_data_dirty = program_data_dirty;
+    PipelineKey expected_key;
+    init_pipeline_key_for_state(pg, &expected_state, route, &expected_key);
+
+    PGRAPHUberControls expected_controls;
+    const PGRAPHUberControls *expected_packet = NULL;
+    const PGRAPHUberControls *bound_packet = NULL;
+    if (route == PGRAPH_VK_FRAGMENT_UBERSHADER) {
+        if (pgraph_vk_pack_fallback_controls(
+                pg, &expected_state.psh, &expected_controls)) {
+            expected_packet = &expected_controls;
+        }
+        bound_packet = &r->uber_controls;
+    }
+
+    pgraph_vk_fastpath_snapshot(
+        r, &expected_state, &expected_key, expected_packet, route,
+        r->hybrid_selection_epoch, &mismatch->expected);
+    pgraph_vk_fastpath_snapshot(
+        r, &r->shader_binding->state, &r->pipeline_binding->key,
+        bound_packet, route, r->hybrid_bound_selection_epoch,
+        &mismatch->bound);
+    mismatch->kind = pgraph_vk_fastpath_compare_identity(
+        &expected_state, &r->shader_binding->state, &expected_key,
+        &r->pipeline_binding->key, expected_packet, bound_packet, route);
+    return mismatch->kind == PGRAPH_VK_FASTPATH_MATCH;
+}
+
+static void pgraph_vk_log_fastpath_mismatch(
+    PGRAPHState *pg, const PGRAPHVkFastpathMismatch *mismatch)
+{
+    const PGRAPHVkFastpathSnapshot *expected = &mismatch->expected;
+    const PGRAPHVkFastpathSnapshot *bound = &mismatch->bound;
+    error_report("nv2a/vk: shader shortcut poisoned: kind=%u draw=%u "
+                 "route=%u shader=%016" PRIx64 "/%016" PRIx64 " "
+                 "pipeline=%016" PRIx64 "/%016" PRIx64 " "
+                 "controls=%016" PRIx64 "/%016" PRIx64 " "
+                 "epoch=%" PRIu64 "/%" PRIu64 " descriptors=%u "
+                 "control_offset=%" PRIu64 " command_buffer_start=%u",
+                 (unsigned int)mismatch->kind, pg->draw_time,
+                 (unsigned int)expected->route,
+                 expected->shader_key_hash, bound->shader_key_hash,
+                 expected->pipeline_key_hash, bound->pipeline_key_hash,
+                 expected->control_packet_hash, bound->control_packet_hash,
+                 expected->selection_epoch, bound->selection_epoch,
+                 bound->descriptor_set_index,
+                 (uint64_t)bound->uber_control_offset,
+                 bound->command_buffer_start_time);
+}
+
 static bool create_pipeline(PGRAPHState *pg)
 {
     NV2A_VK_DGROUP_BEGIN("Creating pipeline");
@@ -1659,6 +1743,11 @@ static bool create_pipeline(PGRAPHState *pg)
     }
     bool hybrid = r->ubershader_runtime_enabled &&
                   r->hybrid_compiler_initialized;
+    bool verify_fastpath_this_draw = false;
+    if (hybrid && r->shader_fastpath_verify_draws_left > 0) {
+        verify_fastpath_this_draw = true;
+        r->shader_fastpath_verify_draws_left--;
+    }
     bool schedule_specialization = false;
     bool queue_fallback_family = false;
     ShaderState requested_state;
@@ -1675,7 +1764,8 @@ static bool create_pipeline(PGRAPHState *pg)
         /* Optional conservative shortcut: no register value changed, the
          * non-register shader inputs still match, and the complete current
          * executable is usable. Dynamic uniforms and controls still update. */
-        if (xemu_tweak_enabled(XEMU_TWEAK_VK_SHADER_FASTPATH) &&
+        if (!r->shader_fastpath_poisoned &&
+            xemu_tweak_enabled(XEMU_TWEAK_VK_SHADER_FASTPATH) &&
             !pg->regs_written_since_draw && !pg->program_data_dirty &&
             r->shader_binding && r->pipeline_binding &&
             r->pipeline_binding->pipeline != VK_NULL_HANDLE &&
@@ -1692,26 +1782,39 @@ static bool create_pipeline(PGRAPHState *pg)
                  PGRAPH_VK_FRAGMENT_UBERSHADER ||
              pgraph_vk_refresh_fallback_controls(
                  pg, &r->shader_binding->state.psh))) {
-            PGRAPHVkShaderPreparation unchanged = {
+            PGRAPHVkFastpathMismatch mismatch = { 0 };
+            bool verified = !verify_fastpath_this_draw;
+            if (verify_fastpath_this_draw) {
+                r->shader_fastpath_verifications++;
+                verified = pgraph_vk_verify_fastpath_state(pg, r,
+                                                          &mismatch);
+            }
+            if (!verified) {
+                r->shader_fastpath_poisoned = true;
+                pgraph_vk_log_fastpath_mismatch(pg, &mismatch);
+            } else {
+                r->shader_fastpath_shortcut_hits++;
+                PGRAPHVkShaderPreparation unchanged = {
                 .state = r->shader_binding->state,
                 .bound_state_equal = true,
-            };
-            /* Match the ordinary preparation path's per-draw reset before
-             * updating dynamic uniforms on the retained binding. */
-            r->shader_bindings_changed = false;
-            r->uniform_layout_changed[PGRAPH_UNIFORM_STAGE_VSH] = false;
-            r->uniform_layout_changed[PGRAPH_UNIFORM_STAGE_PSH] = false;
-            pgraph_vk_activate_shaders(
-                pg, &unchanged, r->shader_binding->fragment_route,
-                r->shader_binding);
-            if (r->shader_binding->fragment_route ==
-                PGRAPH_VK_FRAGMENT_UBERSHADER) {
-                maybe_request_complete_specialization(
-                    pg, &unchanged.state);
+                };
+                /* Match the ordinary preparation path's per-draw reset
+                 * before updating dynamic uniforms on the retained binding. */
+                r->shader_bindings_changed = false;
+                r->uniform_layout_changed[PGRAPH_UNIFORM_STAGE_VSH] = false;
+                r->uniform_layout_changed[PGRAPH_UNIFORM_STAGE_PSH] = false;
+                pgraph_vk_activate_shaders(
+                    pg, &unchanged, r->shader_binding->fragment_route,
+                    r->shader_binding);
+                if (r->shader_binding->fragment_route ==
+                    PGRAPH_VK_FRAGMENT_UBERSHADER) {
+                    maybe_request_complete_specialization(
+                        pg, &unchanged.state);
+                }
+                pgraph_clear_dirty_reg_map(pg);
+                NV2A_VK_DGROUP_END();
+                return true;
             }
-            pgraph_clear_dirty_reg_map(pg);
-            NV2A_VK_DGROUP_END();
-            return true;
         }
 
         PGRAPHVkShaderPreparation preparation;
@@ -2271,6 +2374,13 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
             MAX(qemu_clock_get_us(QEMU_CLOCK_REALTIME) - wait_start, 0) : 0;
         trace_wait_us = wait_us;
         if (unlikely(result != VK_SUCCESS)) {
+            error_report("nv2a/vk: shader shortcut diagnostic: "
+                         "verified=%" PRIu64 " hits=%" PRIu64
+                         " poisoned=%u verify_draws_left=%u",
+                         r->shader_fastpath_verifications,
+                         r->shader_fastpath_shortcut_hits,
+                         r->shader_fastpath_poisoned,
+                         r->shader_fastpath_verify_draws_left);
             pgraph_vk_hybrid_trace_failure(r->hybrid_trace, result,
                                             finish_reason);
         }

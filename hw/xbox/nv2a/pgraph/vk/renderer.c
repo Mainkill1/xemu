@@ -148,6 +148,14 @@ static void pgraph_vk_finalize(NV2AState *d)
     pgraph_vk_finalize_buffers(d);
     pgraph_vk_finalize_command_buffers(pg);
     pgraph_vk_perf_finalize(pg->vk_renderer_state);
+    if (pg->vk_renderer_state->hybrid_trace) {
+        fprintf(stderr,
+                "nv2a/vk: shader shortcut diagnostic: verified=%" PRIu64
+                " hits=%" PRIu64 " poisoned=%u\n",
+                pg->vk_renderer_state->shader_fastpath_verifications,
+                pg->vk_renderer_state->shader_fastpath_shortcut_hits,
+                pg->vk_renderer_state->shader_fastpath_poisoned);
+    }
     pgraph_vk_hybrid_trace_close(pg->vk_renderer_state->hybrid_trace);
     pgraph_vk_finalize_instance(pg);
     pgraph_vk_failpoint_report();

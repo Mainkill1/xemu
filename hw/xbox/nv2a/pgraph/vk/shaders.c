@@ -1756,9 +1756,14 @@ void pgraph_vk_activate_shaders(PGRAPHState *pg,
                       sizeof(new_state)) == 0);
     }
 
-    if (r->hybrid_trace &&
-        (!r->shader_binding ||
-         r->shader_binding->fragment_route != fragment_route)) {
+    bool route_changed = !r->shader_binding ||
+                         r->shader_binding->fragment_route != fragment_route;
+    if (route_changed) {
+        /* Verify only the first draws after a route transition. A mismatch
+         * disables the optional shortcut for the rest of this renderer. */
+        r->shader_fastpath_verify_draws_left = 1024;
+    }
+    if (r->hybrid_trace && route_changed) {
         pgraph_vk_hybrid_trace_record(
             r->hybrid_trace, VK_HYBRID_TRACE_ROUTE_TRANSITION,
             fragment_route, 0,
