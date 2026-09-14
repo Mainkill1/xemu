@@ -208,7 +208,7 @@ static void test_uncovered_build_uses_closer_binding(void)
                     ==, PGRAPH_VK_FRAGMENT_UBERSHADER);
     g_assert_cmpint(pgraph_vk_hybrid_choose_uncovered_route(
                         false, false, true),
-                    ==, PGRAPH_VK_FRAGMENT_SPECIALIZED);
+                    ==, PGRAPH_VK_FRAGMENT_UBERSHADER);
     g_assert_cmpint(pgraph_vk_hybrid_choose_uncovered_route(
                         true, true, true),
                     ==, PGRAPH_VK_FRAGMENT_SPECIALIZED);

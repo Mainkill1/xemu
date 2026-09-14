@@ -195,46 +195,37 @@ GByteArray *pgraph_vk_compile_glsl_to_spv_config(
     };
 
     glslang_shader_t *shader = glslang_shader_create(&input);
+    if (!shader) {
+        error_report("nv2a/vk: failed to create GLSL shader compiler object");
+        return NULL;
+    }
 
     if (!glslang_shader_preprocess(shader, &input)) {
-        fprintf(stderr,
-                "GLSL preprocessing failed\n"
-                "[INFO]: %s\n"
-                "[DEBUG]: %s\n"
-                "%s\n",
-                glslang_shader_get_info_log(shader),
-                glslang_shader_get_info_debug_log(shader), input.code);
-        assert(!"glslang preprocess failed");
+        error_report("nv2a/vk: GLSL preprocessing failed: %s",
+                     glslang_shader_get_info_log(shader));
         glslang_shader_delete(shader);
         return NULL;
     }
 
     if (!glslang_shader_parse(shader, &input)) {
-        fprintf(stderr,
-                "GLSL parsing failed\n"
-                "[INFO]: %s\n"
-                "[DEBUG]: %s\n"
-                "%s\n",
-                glslang_shader_get_info_log(shader),
-                glslang_shader_get_info_debug_log(shader),
-                glslang_shader_get_preprocessed_code(shader));
-        assert(!"glslang parse failed");
+        error_report("nv2a/vk: GLSL parsing failed: %s",
+                     glslang_shader_get_info_log(shader));
         glslang_shader_delete(shader);
         return NULL;
     }
 
     glslang_program_t *program = glslang_program_create();
+    if (!program) {
+        error_report("nv2a/vk: failed to create GLSL program compiler object");
+        glslang_shader_delete(shader);
+        return NULL;
+    }
     glslang_program_add_shader(program, shader);
 
     if (!glslang_program_link(program, GLSLANG_MSG_SPV_RULES_BIT |
                                            GLSLANG_MSG_VULKAN_RULES_BIT)) {
-        fprintf(stderr,
-                "GLSL linking failed\n"
-                "[INFO]: %s\n"
-                "[DEBUG]: %s\n",
-                glslang_program_get_info_log(program),
-                glslang_program_get_info_debug_log(program));
-        assert(!"glslang link failed");
+        error_report("nv2a/vk: GLSL linking failed: %s",
+                     glslang_program_get_info_log(program));
         glslang_program_delete(program);
         glslang_shader_delete(shader);
         return NULL;

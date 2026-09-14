@@ -282,6 +282,7 @@ typedef struct ShaderBinding {
     LruNode node;
     ShaderState state;
     PGRAPHVkFragmentRoute fragment_route;
+    int64_t next_promotion_probe_us;
     struct {
         ShaderModuleInfo *module_info;
         VshUniformLocs uniform_locs;
@@ -689,7 +690,6 @@ typedef struct PGRAPHVkState {
     uint64_t hybrid_route_epoch;
     uint64_t hybrid_selection_epoch;
     uint64_t hybrid_bound_selection_epoch;
-    int64_t hybrid_next_promotion_probe_us;
     uint32_t uber_constant_regs[18];
     bool uber_constant_regs_valid;
     size_t hybrid_pending_jobs;

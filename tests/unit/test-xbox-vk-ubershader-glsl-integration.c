@@ -106,10 +106,26 @@ static void test_real_compiler_and_reflection_accept_uber_abi(void)
     mstring_unref(source);
 }
 
+static void test_invalid_glsl_returns_failure(void)
+{
+    PGRAPHVkGlslCompileConfig config = {
+        .api_version = VK_API_VERSION_1_1,
+    };
+
+    pgraph_vk_init_glsl_compiler();
+    GByteArray *spirv = pgraph_vk_compile_glsl_to_spv_config(
+        &config, GLSLANG_STAGE_FRAGMENT,
+        "#version 460\nvoid main() { this is invalid GLSL; }\n");
+    g_assert_null(spirv);
+    pgraph_vk_finalize_glsl_compiler();
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
     g_test_add_func("/xbox/vk/ubershader/glsl/compile-reflect-abi",
                     test_real_compiler_and_reflection_accept_uber_abi);
+    g_test_add_func("/xbox/vk/ubershader/glsl/invalid-source",
+                    test_invalid_glsl_returns_failure);
     return g_test_run();
 }

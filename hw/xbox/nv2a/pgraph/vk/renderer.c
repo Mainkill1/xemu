@@ -136,6 +136,8 @@ static void pgraph_vk_finalize(NV2AState *d)
 {
     PGRAPHState *pg = &d->pgraph;
 
+    /* Finish recorded draws before destroying their cached pipelines. */
+    pgraph_vk_finish(pg, VK_FINISH_REASON_FLUSH);
     pgraph_vk_finalize_display(pg);
     pgraph_vk_finalize_compute(pg);
     pgraph_vk_finalize_reports(pg);

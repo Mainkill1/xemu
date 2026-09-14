@@ -81,9 +81,11 @@ static inline PGRAPHVkFragmentRoute pgraph_vk_hybrid_choose_uncovered_route(
     bool specialized_shader_ready, bool fallback_shader_ready,
     bool fallback_controls_supported)
 {
-    return fallback_controls_supported && fallback_shader_ready &&
-           !specialized_shader_ready ? PGRAPH_VK_FRAGMENT_UBERSHADER :
-                                      PGRAPH_VK_FRAGMENT_SPECIALIZED;
+    if (specialized_shader_ready) {
+        return PGRAPH_VK_FRAGMENT_SPECIALIZED;
+    }
+    return fallback_controls_supported ? PGRAPH_VK_FRAGMENT_UBERSHADER :
+                                         PGRAPH_VK_FRAGMENT_SPECIALIZED;
 }
 
 static inline bool pgraph_vk_hybrid_promotion_due(int64_t now_us,

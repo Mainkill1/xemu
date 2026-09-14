@@ -469,6 +469,7 @@ static void shader_cache_entry_init(Lru *lru, LruNode *node, const void *key)
     const ShaderBindingKey *binding_key = key;
     binding->state = binding_key->state;
     binding->fragment_route = binding_key->fragment_route;
+    binding->next_promotion_probe_us = 0;
 
     NV2A_VK_DPRINTF("cache miss");
     nv2a_profile_inc_counter(NV2A_PROF_SHADER_GEN);
@@ -523,6 +524,14 @@ static void shader_cache_entry_post_evict(Lru *lru, LruNode *node)
             pgraph_vk_unref_shader_module(r, modules[i]);
         }
     }
+}
+
+static bool shader_cache_entry_pre_evict(Lru *lru, LruNode *node)
+{
+    PGRAPHVkState *r = container_of(lru, PGRAPHVkState, shader_cache);
+    ShaderBinding *binding = container_of(node, ShaderBinding, node);
+
+    return binding != r->shader_binding;
 }
 
 static bool shader_cache_entry_compare(Lru *lru, LruNode *node, const void *key)
@@ -1084,6 +1093,7 @@ static void shader_cache_init(PGRAPHState *pg)
     }
     r->shader_cache.init_node = shader_cache_entry_init;
     r->shader_cache.compare_nodes = shader_cache_entry_compare;
+    r->shader_cache.pre_node_evict = shader_cache_entry_pre_evict;
     r->shader_cache.post_node_evict = shader_cache_entry_post_evict;
 
     /* FIXME: Make this configurable */
@@ -1109,7 +1119,9 @@ static void shader_cache_finalize(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
+    r->shader_binding = NULL;
     lru_flush(&r->shader_cache);
+    assert(r->shader_cache.num_used == 0);
     g_free(r->shader_cache_entries);
     r->shader_cache_entries = NULL;
 
@@ -1452,10 +1464,6 @@ ShaderBinding *pgraph_vk_prepare_binding_from_ready_modules(
     if (binding) {
         return binding;
     }
-    if (r->shader_cache.num_free == 0) {
-        return NULL;
-    }
-
     bool need_geom = pgraph_glsl_need_geom(&state->geom);
     ShaderModuleCacheKey module_key;
     if (need_geom) {
@@ -1487,7 +1495,9 @@ ShaderBinding *pgraph_vk_prepare_binding_from_ready_modules(
     if (!entry || !entry->module_info) {
         return NULL;
     }
-    return get_shader_binding_for_key(r, &binding_key);
+    uint64_t hash = fast_hash((void *)&binding_key, sizeof(binding_key));
+    LruNode *node = lru_try_lookup(&r->shader_cache, hash, &binding_key);
+    return node ? container_of(node, ShaderBinding, node) : NULL;
 }
 
 static bool apply_uniform_updates(ShaderUniformLayout *layout,

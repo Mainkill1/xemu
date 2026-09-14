@@ -231,7 +231,13 @@ static void finalize_pipeline_cache(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
+    assert(!r->in_command_buffer);
+    assert(!r->in_aux_command_buffer);
+    /* The active binding is pinned during rendering, not during teardown. */
+    r->pipeline_binding = NULL;
+    r->pipeline_binding_changed = true;
     lru_flush(&r->pipeline_cache);
+    assert(r->pipeline_cache.num_used == 0);
     g_free(r->pipeline_cache_entries);
     r->pipeline_cache_entries = NULL;
 
@@ -1555,14 +1561,19 @@ static void maybe_request_complete_specialization(PGRAPHState *pg,
                                                    const ShaderState *state)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
+    ShaderBinding *binding = r->shader_binding;
+    if (!binding ||
+        binding->fragment_route != PGRAPH_VK_FRAGMENT_UBERSHADER) {
+        return;
+    }
     int64_t now_us = g_get_monotonic_time();
     if (!pgraph_vk_hybrid_promotion_due(
-            now_us, r->hybrid_next_promotion_probe_us)) {
+            now_us, binding->next_promotion_probe_us)) {
         return;
     }
     /* A pending shader or pipeline is checked at most once per short time
      * window, rather than being rediscovered for every fallback draw. */
-    r->hybrid_next_promotion_probe_us = now_us + 16000;
+    binding->next_promotion_probe_us = now_us + 16000;
     request_complete_specialization(pg, state);
 }
 
@@ -1676,8 +1687,7 @@ static bool create_pipeline(PGRAPHState *pg)
             route = PGRAPH_VK_FRAGMENT_UBERSHADER;
             ready_shader = fallback.shader;
             ready_pipeline = fallback.pipeline;
-            schedule_specialization =
-                selected == PGRAPH_VK_EXECUTION_UBERSHADER;
+            schedule_specialization = true;
         } else {
             /* Preserve first-family fallback construction when neither
              * binding exists. When one binding is prepared, construct only
@@ -1685,10 +1695,6 @@ static bool create_pipeline(PGRAPHState *pg)
             route = pgraph_vk_hybrid_choose_uncovered_route(
                 specialized.shader != NULL, fallback.shader != NULL,
                 controls_supported);
-            if (!specialized.shader && !fallback.shader &&
-                controls_supported) {
-                route = PGRAPH_VK_FRAGMENT_UBERSHADER;
-            }
             ready_shader = NULL;
             ready_pipeline = NULL;
             schedule_specialization =
