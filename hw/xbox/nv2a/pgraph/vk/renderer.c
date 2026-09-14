@@ -157,6 +157,7 @@ static void pgraph_vk_finalize(NV2AState *d)
                 pg->vk_renderer_state->shader_fastpath_poisoned);
     }
     pgraph_vk_hybrid_trace_close(pg->vk_renderer_state->hybrid_trace);
+    g_free(pg->vk_renderer_state->submitted_draws.records);
     pgraph_vk_finalize_instance(pg);
     pgraph_vk_failpoint_report();
 

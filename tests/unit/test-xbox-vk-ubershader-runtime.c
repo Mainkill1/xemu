@@ -9,6 +9,7 @@
 #include "hw/xbox/nv2a/pgraph/vk/renderer.h"
 #include "hw/xbox/nv2a/pgraph/vk/hybrid-ready.h"
 #include "hw/xbox/nv2a/pgraph/vk/fastpath-verify.h"
+#include "hw/xbox/nv2a/pgraph/vk/submitted-draw.h"
 
 static unsigned int probe_inits;
 static unsigned int probe_evictions;
@@ -556,6 +557,30 @@ static void test_fastpath_rejects_stale_fallback_controls(void)
         PGRAPH_VK_FASTPATH_MATCH);
 }
 
+static void test_submitted_draw_manifest_is_current_command_buffer(void)
+{
+    PGRAPHVkSubmittedDrawRing ring = {
+        .records = g_new0(PGRAPHVkSubmittedDraw,
+                          PGRAPH_VK_SUBMITTED_DRAW_CAPACITY),
+    };
+    for (uint32_t i = 0; i <= PGRAPH_VK_SUBMITTED_DRAW_CAPACITY; i++) {
+        PGRAPHVkSubmittedDraw draw = { .draw_time = i };
+        pgraph_vk_submitted_draw_add(&ring, &draw);
+    }
+    g_assert_cmpuint(ring.count, ==, PGRAPH_VK_SUBMITTED_DRAW_CAPACITY);
+    g_assert_cmpuint(ring.dropped, ==, 1);
+    g_assert_cmpuint(ring.records[ring.head].draw_time, ==, 1);
+
+    pgraph_vk_submitted_draw_reset(&ring);
+    g_assert_cmpuint(ring.count, ==, 0);
+    g_assert_cmpuint(ring.dropped, ==, 0);
+    PGRAPHVkSubmittedDraw next = { .draw_time = 99 };
+    pgraph_vk_submitted_draw_add(&ring, &next);
+    g_assert_cmpuint(ring.count, ==, 1);
+    g_assert_cmpuint(ring.records[ring.head].draw_time, ==, 99);
+    g_free(ring.records);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -599,5 +624,7 @@ int main(int argc, char **argv)
                     test_fastpath_identity_ignores_uniform_values);
     g_test_add_func("/xbox/vk/ubershader/runtime/fastpath-control-mismatch",
                     test_fastpath_rejects_stale_fallback_controls);
+    g_test_add_func("/xbox/vk/ubershader/runtime/submitted-draw-manifest",
+                    test_submitted_draw_manifest_is_current_command_buffer);
     return g_test_run();
 }

@@ -46,6 +46,7 @@
 #include "hybrid-compiler.h"
 #include "hybrid-pipeline-builder.h"
 #include "hybrid-trace.h"
+#include "submitted-draw.h"
 #include "hybrid-policy.h"
 #include "spirv-prewarm.h"
 #include "ubershader-controls.h"
@@ -600,6 +601,7 @@ typedef struct PGRAPHVkState {
     bool custom_border_color_extension_enabled;
     bool memory_budget_extension_enabled;
     bool demote_to_helper_extension_enabled;
+    bool device_fault_extension_enabled;
 
     VkPhysicalDevice physical_device;
     PGRAPHVkDeviceRecord selected_device;
@@ -619,6 +621,8 @@ typedef struct PGRAPHVkState {
     unsigned int command_buffer_start_time;
     bool in_command_buffer;
     uint32_t submit_count;
+    PGRAPHVkSubmittedDrawRing submitted_draws;
+    bool submitted_draw_capture_attempted;
     PGRAPHVkBlendConstantsCache blend_constants;
 
     VkCommandBuffer aux_command_buffer;

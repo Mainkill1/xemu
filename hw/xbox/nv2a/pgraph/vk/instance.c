@@ -607,12 +607,6 @@ static bool create_logical_device(PGRAPHState *pg, Error **errp)
     add_optional_device_extension_names(pg, available_extensions,
                                         enabled_extension_names);
 
-    fprintf(stderr, "Enabled device extensions:\n");
-    for (int i = 0; i < enabled_extension_names->len; i++) {
-        fprintf(stderr, "- %s\n",
-                g_array_index(enabled_extension_names, char *, i));
-    }
-
     float queuePriority = 1.0f;
 
     VkDeviceQueueCreateInfo queue_create_info = {
@@ -706,6 +700,38 @@ static bool create_logical_device(PGRAPHState *pg, Error **errp)
                 };
             next_struct = &demote_features;
         }
+    }
+
+    /* This draft's fault report is optional. Only request the extension and
+     * feature when the selected driver advertises both. */
+    VkPhysicalDeviceFaultFeaturesEXT fault_features;
+    if (is_extension_available(available_extensions,
+                               VK_EXT_DEVICE_FAULT_EXTENSION_NAME)) {
+        VkPhysicalDeviceFaultFeaturesEXT supported = {
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FAULT_FEATURES_EXT,
+        };
+        VkPhysicalDeviceFeatures2 features2 = {
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
+            .pNext = &supported,
+        };
+        vkGetPhysicalDeviceFeatures2(r->physical_device, &features2);
+        if (supported.deviceFault) {
+            const char *name = VK_EXT_DEVICE_FAULT_EXTENSION_NAME;
+            g_array_append_val(enabled_extension_names, name);
+            fault_features = (VkPhysicalDeviceFaultFeaturesEXT) {
+                .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FAULT_FEATURES_EXT,
+                .pNext = next_struct,
+                .deviceFault = VK_TRUE,
+            };
+            next_struct = &fault_features;
+            r->device_fault_extension_enabled = true;
+        }
+    }
+
+    fprintf(stderr, "Enabled device extensions:\n");
+    for (int i = 0; i < enabled_extension_names->len; i++) {
+        fprintf(stderr, "- %s\n",
+                g_array_index(enabled_extension_names, char *, i));
     }
 
     VkDeviceCreateInfo device_create_info = {

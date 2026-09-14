@@ -2263,6 +2263,152 @@ static void end_render_pass(PGRAPHVkState *r)
     }
 }
 
+static void pgraph_vk_capture_submitted_draw(
+    PGRAPHState *pg, PGRAPHVkSubmittedDrawKind kind,
+    uint32_t first, uint32_t count)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    if (!r->submitted_draws.records) {
+        return;
+    }
+    PipelineBinding *pipeline = r->pipeline_binding;
+    ShaderBinding *shader = r->shader_binding;
+    bool fallback = pipeline && !pipeline->key.clear && shader &&
+                    shader->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER;
+    PGRAPHVkSubmittedDraw draw = {
+        .pipeline_key_hash = pipeline ? pipeline->node.hash : 0,
+        .shader_key_hash = shader ? shader->node.hash : 0,
+        .uber_controls_hash = fallback ?
+            fast_hash((const uint8_t *)&r->uber_controls,
+                      sizeof(r->uber_controls)) : 0,
+        .uber_control_offset = r->uber_control_offset,
+        .draw_time = pg->draw_time,
+        .descriptor_set_index = r->descriptor_set_index,
+        .first = first,
+        .count = count,
+        .route = pipeline && pipeline->key.clear ? UINT8_MAX :
+                 shader ? shader->fragment_route : UINT8_MAX,
+        .kind = kind,
+    };
+    pgraph_vk_submitted_draw_add(&r->submitted_draws, &draw);
+}
+
+static void pgraph_vk_dump_submitted_draws(PGRAPHVkState *r,
+                                            VkResult result,
+                                            FinishReason reason)
+{
+    PGRAPHVkSubmittedDrawRing *ring = &r->submitted_draws;
+    fprintf(stderr, "nv2a/vk: submitted-draw-manifest result=%d reason=%u "
+            "command_buffer_start=%u retained=%u dropped=%" PRIu64 "\n",
+            result, reason, r->command_buffer_start_time, ring->count,
+            ring->dropped);
+    for (uint32_t i = 0; i < ring->count; i++) {
+        const PGRAPHVkSubmittedDraw *draw =
+            &ring->records[(ring->head + i) &
+                           (PGRAPH_VK_SUBMITTED_DRAW_CAPACITY - 1)];
+        fprintf(stderr,
+                "nv2a/vk: submitted-draw %u,%u,%u,%u,%u,%u,%u,%" PRIu64
+                ",%016" PRIx64 ",%016" PRIx64 ",%016" PRIx64 "\n",
+                i, draw->draw_time, draw->kind, draw->route,
+                draw->first, draw->count, draw->descriptor_set_index,
+                draw->uber_control_offset, draw->pipeline_key_hash,
+                draw->shader_key_hash, draw->uber_controls_hash);
+    }
+    fflush(stderr);
+}
+
+static void pgraph_vk_report_device_fault(PGRAPHVkState *r)
+{
+    if (!r->device_fault_extension_enabled) {
+        fprintf(stderr, "nv2a/vk: VK_EXT_device_fault unavailable\n");
+        return;
+    }
+    PFN_vkGetDeviceFaultInfoEXT get_fault =
+        (PFN_vkGetDeviceFaultInfoEXT)vkGetDeviceProcAddr(
+            r->device, "vkGetDeviceFaultInfoEXT");
+    if (!get_fault) {
+        fprintf(stderr, "nv2a/vk: vkGetDeviceFaultInfoEXT unavailable\n");
+        return;
+    }
+
+    VkDeviceFaultCountsEXT counts = {
+        .sType = VK_STRUCTURE_TYPE_DEVICE_FAULT_COUNTS_EXT,
+    };
+    VkResult result = get_fault(r->device, &counts, NULL);
+    if (result != VK_SUCCESS) {
+        fprintf(stderr, "nv2a/vk: device-fault count query result=%d\n",
+                result);
+        return;
+    }
+    uint32_t address_count = MIN(counts.addressInfoCount, 64u);
+    uint32_t vendor_count = MIN(counts.vendorInfoCount, 64u);
+    fprintf(stderr, "nv2a/vk: device-fault available addresses=%u "
+            "vendor_records=%u binary_bytes=%" PRIu64 "\n",
+            counts.addressInfoCount, counts.vendorInfoCount,
+            (uint64_t)counts.vendorBinarySize);
+
+    VkDeviceFaultAddressInfoEXT *addresses =
+        g_try_new0(VkDeviceFaultAddressInfoEXT, address_count);
+    VkDeviceFaultVendorInfoEXT *vendors =
+        g_try_new0(VkDeviceFaultVendorInfoEXT, vendor_count);
+    if ((address_count && !addresses) || (vendor_count && !vendors)) {
+        fprintf(stderr, "nv2a/vk: device-fault record allocation failed\n");
+        g_free(addresses);
+        g_free(vendors);
+        return;
+    }
+    counts.addressInfoCount = address_count;
+    counts.vendorInfoCount = vendor_count;
+    counts.vendorBinarySize = 0;
+    VkDeviceFaultInfoEXT info = {
+        .sType = VK_STRUCTURE_TYPE_DEVICE_FAULT_INFO_EXT,
+        .pAddressInfos = addresses,
+        .pVendorInfos = vendors,
+    };
+    result = get_fault(r->device, &counts, &info);
+    fprintf(stderr, "nv2a/vk: device-fault result=%d description=%.255s\n",
+            result, info.description);
+    if (result == VK_SUCCESS || result == VK_INCOMPLETE) {
+        for (uint32_t i = 0; i < counts.addressInfoCount; i++) {
+            fprintf(stderr,
+                    "nv2a/vk: fault-address %u type=%u address=%016" PRIx64
+                    " precision=%" PRIu64 "\n", i,
+                    addresses[i].addressType,
+                    (uint64_t)addresses[i].reportedAddress,
+                    (uint64_t)addresses[i].addressPrecision);
+        }
+        for (uint32_t i = 0; i < counts.vendorInfoCount; i++) {
+            fprintf(stderr,
+                    "nv2a/vk: fault-vendor %u code=%016" PRIx64
+                    " data=%016" PRIx64 " description=%.255s\n", i,
+                    vendors[i].vendorFaultCode,
+                    vendors[i].vendorFaultData,
+                    vendors[i].description);
+        }
+    }
+    g_free(addresses);
+    g_free(vendors);
+    fflush(stderr);
+}
+
+static void pgraph_vk_report_gpu_failure(PGRAPHState *pg, VkResult result,
+                                          FinishReason reason)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    error_report("nv2a/vk: shader shortcut diagnostic: "
+                 "verified=%" PRIu64 " hits=%" PRIu64
+                 " poisoned=%u verify_draws_left=%u",
+                 r->shader_fastpath_verifications,
+                 r->shader_fastpath_shortcut_hits,
+                 r->shader_fastpath_poisoned,
+                 r->shader_fastpath_verify_draws_left);
+    pgraph_vk_dump_submitted_draws(r, result, reason);
+    pgraph_vk_hybrid_trace_failure(r->hybrid_trace, result, reason);
+    if (result == VK_ERROR_DEVICE_LOST) {
+        pgraph_vk_report_device_fault(r);
+    }
+}
+
 const enum NV2A_PROF_COUNTERS_ENUM finish_reason_to_counter_enum[] = {
     [VK_FINISH_REASON_VERTEX_BUFFER_DIRTY] = NV2A_PROF_FINISH_VERTEX_BUFFER_DIRTY,
     [VK_FINISH_REASON_SURFACE_CREATE] = NV2A_PROF_FINISH_SURFACE_CREATE,
@@ -2348,6 +2494,9 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         uint64_t submit_cpu_us = time_submit ?
             MAX(qemu_clock_get_us(QEMU_CLOCK_REALTIME) - submit_start, 0) : 0;
         trace_submit_us = submit_cpu_us;
+        if (unlikely(result != VK_SUCCESS)) {
+            pgraph_vk_report_gpu_failure(pg, result, finish_reason);
+        }
         VK_CHECK(result);
         nv2a_profile_log_event_once("gpu_submit");
         r->submit_count += 1;
@@ -2374,15 +2523,7 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
             MAX(qemu_clock_get_us(QEMU_CLOCK_REALTIME) - wait_start, 0) : 0;
         trace_wait_us = wait_us;
         if (unlikely(result != VK_SUCCESS)) {
-            error_report("nv2a/vk: shader shortcut diagnostic: "
-                         "verified=%" PRIu64 " hits=%" PRIu64
-                         " poisoned=%u verify_draws_left=%u",
-                         r->shader_fastpath_verifications,
-                         r->shader_fastpath_shortcut_hits,
-                         r->shader_fastpath_poisoned,
-                         r->shader_fastpath_verify_draws_left);
-            pgraph_vk_hybrid_trace_failure(r->hybrid_trace, result,
-                                            finish_reason);
+            pgraph_vk_report_gpu_failure(pg, result, finish_reason);
         }
         VK_CHECK(result);
         pgraph_vk_perf_record_finish_submit(
@@ -2423,6 +2564,17 @@ void pgraph_vk_begin_command_buffer(PGRAPHState *pg)
     };
     VK_CHECK(vkBeginCommandBuffer(r->command_buffer,
                                   &command_buffer_begin_info));
+    if (!r->submitted_draw_capture_attempted &&
+        r->ubershader_runtime_enabled &&
+        xemu_tweak_enabled(XEMU_TWEAK_VK_SHADER_FASTPATH)) {
+        r->submitted_draw_capture_attempted = true;
+        r->submitted_draws.records = g_try_new0(
+            PGRAPHVkSubmittedDraw, PGRAPH_VK_SUBMITTED_DRAW_CAPACITY);
+        if (!r->submitted_draws.records) {
+            error_report("nv2a/vk: submitted-draw manifest unavailable");
+        }
+    }
+    pgraph_vk_submitted_draw_reset(&r->submitted_draws);
     pgraph_vk_invalidate_blend_constants(pg);
     r->command_buffer_start_time = pg->draw_time;
     r->in_command_buffer = true;
@@ -2912,6 +3064,8 @@ void pgraph_vk_clear_surface(NV2AState *d, uint32_t parameter)
             vkCmdSetScissor(r->command_buffer, 0, 1, &clear_rect.rect);
             vkCmdSetBlendConstants(r->command_buffer, blend_constants);
             pgraph_vk_invalidate_blend_constants(pg);
+            pgraph_vk_capture_submitted_draw(
+                pg, PGRAPH_VK_SUBMITTED_DRAW_CLEAR, 0, 3);
             vkCmdDraw(r->command_buffer, 3, 1, 0, 0);
         }
     }
@@ -3321,6 +3475,8 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
             uint32_t start = pg->draw_arrays_start[i],
                      count = pg->draw_arrays_count[i];
             NV2A_VK_DPRINTF("- [%d] Start:%d Count:%d", i, start, count);
+            pgraph_vk_capture_submitted_draw(
+                pg, PGRAPH_VK_SUBMITTED_DRAW_ARRAY, start, count);
             vkCmdDraw(r->command_buffer, count, 1, start, 0);
         }
         end_draw(pg);
@@ -3366,6 +3522,9 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
         vkCmdBindIndexBuffer(r->command_buffer,
                              r->storage_buffers[BUFFER_INDEX].buffer,
                              buffer_offset, VK_INDEX_TYPE_UINT32);
+        pgraph_vk_capture_submitted_draw(
+            pg, PGRAPH_VK_SUBMITTED_DRAW_INDEXED, 0,
+            pg->inline_elements_length);
         vkCmdDrawIndexed(r->command_buffer, pg->inline_elements_length, 1, 0, 0,
                          0);
         end_draw(pg);
@@ -3407,6 +3566,9 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
                                      "Inline Buffer");
         begin_draw(pg);
         bind_inline_vertex_buffer(pg, buffer_offset);
+        pgraph_vk_capture_submitted_draw(
+            pg, PGRAPH_VK_SUBMITTED_DRAW_INLINE, 0,
+            pg->inline_buffer_length);
         vkCmdDraw(r->command_buffer, pg->inline_buffer_length, 1, 0, 0);
         end_draw(pg);
         pgraph_vk_end_debug_marker(r, r->command_buffer);
@@ -3454,6 +3616,8 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
                                      "Inline Array");
         begin_draw(pg);
         bind_inline_vertex_buffer(pg, buffer_offset);
+        pgraph_vk_capture_submitted_draw(
+            pg, PGRAPH_VK_SUBMITTED_DRAW_INLINE, 0, index_count);
         vkCmdDraw(r->command_buffer, index_count, 1, 0, 0);
         end_draw(pg);
         pgraph_vk_end_debug_marker(r, r->command_buffer);
