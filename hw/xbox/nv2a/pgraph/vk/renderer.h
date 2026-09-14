@@ -111,8 +111,6 @@ typedef struct PipelineBinding {
     PipelineKey key;
     VkPipelineLayout layout;
     VkPipeline pipeline;
-    /* Pinned while an exact background build owns this cache entry. */
-    bool hybrid_pending;
     VkRenderPass render_pass;
     unsigned int draw_time;
     bool has_dynamic_line_width;
@@ -120,6 +118,13 @@ typedef struct PipelineBinding {
 } PipelineBinding;
 
 #define PGRAPH_VK_HYBRID_MAX_PIPELINE_JOBS 16
+#define PGRAPH_VK_HYBRID_MAX_FALLBACK_FAMILIES 16
+
+typedef struct PGRAPHVkFallbackFamilyRequest {
+    bool in_use;
+    ShaderState state;
+    PipelineKey key;
+} PGRAPHVkFallbackFamilyRequest;
 
 typedef struct PGRAPHVkHybridPipelineWork {
     bool in_use;
@@ -127,7 +132,8 @@ typedef struct PGRAPHVkHybridPipelineWork {
     uint64_t ticket;
     uint64_t key_hash;
     PipelineKey key;
-    PipelineBinding *reserved_binding;
+    /* A completed result waits here if every LRU entry is still in use. */
+    VkPipeline completed_pipeline;
     VkPipelineLayout layout;
     VkRenderPass render_pass;
     uint32_t dynamic_blend_constant_mask;
@@ -698,6 +704,9 @@ typedef struct PGRAPHVkState {
     PGRAPHVkHybridTrace *hybrid_trace;
     PGRAPHVkHybridShaderWork
         hybrid_work[PGRAPH_VK_HYBRID_MAX_WORK];
+    PGRAPHVkFallbackFamilyRequest fallback_family_requests[
+        PGRAPH_VK_HYBRID_MAX_FALLBACK_FAMILIES];
+    unsigned int fallback_family_cursor;
     const ShaderModuleCacheKey *hybrid_materializing_key;
     ShaderModuleInfo *hybrid_materialized_module_info;
 
@@ -947,6 +956,9 @@ void pgraph_vk_enqueue_specialized_fragment(PGRAPHState *pg,
                                             const ShaderState *state,
                                             bool fallback_pipeline_ready,
                                             bool fallback_resources_ready);
+bool pgraph_vk_enqueue_fallback_fragment(PGRAPHState *pg,
+                                        const ShaderState *state);
+void pgraph_vk_process_fallback_families(PGRAPHState *pg);
 ShaderBinding *pgraph_vk_prepare_binding_from_ready_modules(
     PGRAPHState *pg, const ShaderState *state, PGRAPHVkFragmentRoute route);
 void pgraph_vk_prepare_shaders(PGRAPHState *pg,

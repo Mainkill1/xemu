@@ -30,6 +30,8 @@ int main()
     }
     assert(!g_config.tweaks.vk_hybrid_ubershaders);
     assert(!xemu_tweak_enabled(XEMU_TWEAK_VK_HYBRID_UBERSHADERS));
+    assert(!g_config.tweaks.vk_shader_fastpath);
+    assert(!xemu_tweak_enabled(XEMU_TWEAK_VK_SHADER_FASTPATH));
     assert(g_config.perf.cache_shaders);
     auto tweaks = config_tree.child("tweaks");
     for (const char *key : default_on_keys) {
@@ -103,6 +105,12 @@ int main()
     xemu_tweaks_apply(false);
     assert(xemu_tweak_enabled(XEMU_TWEAK_PGRAPH_BULK_PACKETS));
     assert(!xemu_tweak_enabled(XEMU_TWEAK_VK_HYBRID_UBERSHADERS));
+    g_config.tweaks.vk_shader_fastpath = true;
+    xemu_tweaks_apply(false);
+    assert(xemu_tweak_enabled(XEMU_TWEAK_VK_SHADER_FASTPATH));
+    g_config.tweaks.vk_shader_fastpath = false;
+    xemu_tweaks_apply(false);
+    assert(!xemu_tweak_enabled(XEMU_TWEAK_VK_SHADER_FASTPATH));
     config_tree.free_allocations(&g_config);
     puts("PASS: defaults, persistence, migration, live changes and restart policy");
 }

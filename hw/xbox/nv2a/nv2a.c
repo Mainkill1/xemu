@@ -465,6 +465,7 @@ static int nv2a_post_load(void *opaque, int version_id)
                                          NV2A_LTC1_COUNT);
     pgraph_uniform_input_touch_stages(
         &d->pgraph, PGRAPH_UNIFORM_STAGE_MASK_BOTH);
+    pgraph_invalidate_all_register_hints(&d->pgraph);
     qatomic_set(&d->pgraph.flush_pending, true);
     nv2a_unlock_fifo(d);
     return 0;

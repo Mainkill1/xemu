@@ -84,8 +84,9 @@ static inline PGRAPHVkFragmentRoute pgraph_vk_hybrid_choose_uncovered_route(
     if (specialized_shader_ready) {
         return PGRAPH_VK_FRAGMENT_SPECIALIZED;
     }
-    return fallback_controls_supported ? PGRAPH_VK_FRAGMENT_UBERSHADER :
-                                         PGRAPH_VK_FRAGMENT_SPECIALIZED;
+    return fallback_shader_ready && fallback_controls_supported ?
+           PGRAPH_VK_FRAGMENT_UBERSHADER :
+           PGRAPH_VK_FRAGMENT_SPECIALIZED;
 }
 
 static inline bool pgraph_vk_hybrid_promotion_due(int64_t now_us,
@@ -94,22 +95,37 @@ static inline bool pgraph_vk_hybrid_promotion_due(int64_t now_us,
     return next_probe_us <= 0 || now_us >= next_probe_us;
 }
 
-/* Admission mutates the renderer-owned LRU and pins exact publication
- * capacity before submitting expensive driver work. */
-static inline PipelineBinding *pgraph_vk_pipeline_cache_reserve(
+/* Call only after a speculative pipeline is complete. A miss with no safely
+ * evictable node leaves the existing executable cache unchanged. */
+static inline PipelineBinding *pgraph_vk_pipeline_cache_publish_slot(
     Lru *cache, uint64_t hash, const PipelineKey *key)
 {
     LruNode *node = lru_try_lookup(cache, hash, key);
-    if (!node) {
-        return NULL;
+    return node ? container_of(node, PipelineBinding, node) : NULL;
+}
+
+/* Capture an exact family without preparing it on the current draw. */
+static inline bool pgraph_vk_fallback_family_enqueue(
+    PGRAPHVkFallbackFamilyRequest *requests, size_t capacity,
+    const PipelineKey *key, const ShaderState *state)
+{
+    PGRAPHVkFallbackFamilyRequest *free_request = NULL;
+    for (size_t i = 0; i < capacity; i++) {
+        if (requests[i].in_use &&
+            memcmp(&requests[i].key, key, sizeof(*key)) == 0) {
+            return true;
+        }
+        if (!requests[i].in_use && !free_request) {
+            free_request = &requests[i];
+        }
     }
-    PipelineBinding *binding = container_of(node, PipelineBinding, node);
-    if (binding->pipeline != VK_NULL_HANDLE || binding->hybrid_pending) {
-        return NULL;
+    if (!free_request) {
+        return false;
     }
-    binding->key = *key;
-    binding->hybrid_pending = true;
-    return binding;
+    free_request->key = *key;
+    free_request->state = *state;
+    free_request->in_use = true;
+    return true;
 }
 
 #endif

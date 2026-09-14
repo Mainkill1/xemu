@@ -208,7 +208,7 @@ static void test_uncovered_build_uses_closer_binding(void)
                     ==, PGRAPH_VK_FRAGMENT_UBERSHADER);
     g_assert_cmpint(pgraph_vk_hybrid_choose_uncovered_route(
                         false, false, true),
-                    ==, PGRAPH_VK_FRAGMENT_UBERSHADER);
+                    ==, PGRAPH_VK_FRAGMENT_SPECIALIZED);
     g_assert_cmpint(pgraph_vk_hybrid_choose_uncovered_route(
                         true, true, true),
                     ==, PGRAPH_VK_FRAGMENT_SPECIALIZED);
@@ -225,44 +225,94 @@ static void test_fallback_promotion_probe_has_time_gate(void)
     g_assert_true(pgraph_vk_hybrid_promotion_due(117, 116));
 }
 
-static bool reservation_pre_evict(Lru *cache, LruNode *node)
+static bool publication_allow_evict;
+
+static bool publication_pre_evict(Lru *cache, LruNode *node)
 {
-    PipelineBinding *binding = container_of(node, PipelineBinding, node);
     (void)cache;
-    return !binding->hybrid_pending;
+    (void)node;
+    return publication_allow_evict;
 }
 
-static void test_pipeline_reservation_uses_safe_eviction(void)
+static void test_pipeline_publication_eviction_is_late(void)
 {
     static Lru cache;
     PipelineBinding entry = { 0 };
     PipelineKey old_key = { .regs[0] = 1 };
     PipelineKey new_key = { .regs[0] = 2 };
-    PipelineKey third_key = { .regs[0] = 3 };
 
     lru_init(&cache);
     cache.init_node = probe_pipeline_init;
     cache.compare_nodes = probe_pipeline_different;
-    cache.pre_node_evict = reservation_pre_evict;
+    cache.pre_node_evict = publication_pre_evict;
     lru_add_free(&cache, &entry.node);
     PipelineBinding *old = container_of(
         lru_lookup(&cache, 1, &old_key), PipelineBinding, node);
     old->pipeline = (VkPipeline)(uintptr_t)1;
     g_assert_cmpint(cache.num_free, ==, 0);
 
-    PipelineBinding *reserved = pgraph_vk_pipeline_cache_reserve(
+    /* Work may compile while the old executable remains in the LRU. */
+    publication_allow_evict = false;
+    g_assert_true(pgraph_vk_pipeline_cache_find_ready(
+        &cache, 1, &old_key) == old);
+    g_assert_null(pgraph_vk_pipeline_cache_publish_slot(
+        &cache, 2, &new_key));
+    g_assert_true(pgraph_vk_pipeline_cache_find_ready(
+        &cache, 1, &old_key) == old);
+
+    publication_allow_evict = true;
+    PipelineBinding *published = pgraph_vk_pipeline_cache_publish_slot(
         &cache, 2, &new_key);
-    g_assert_true(reserved == old);
-    g_assert_true(reserved->hybrid_pending);
-    g_assert_null(pgraph_vk_pipeline_cache_reserve(
-        &cache, 3, &third_key));
+    g_assert_true(published == old);
+    g_assert_null(pgraph_vk_pipeline_cache_find_ready(
+        &cache, 1, &old_key));
+    g_assert_cmpuint(published->key.regs[0], ==, 2);
     g_assert_cmpint(cache.num_used, ==, 1);
     g_assert_cmpint(cache.num_free, ==, 0);
+}
 
-    reserved->hybrid_pending = false;
-    lru_evict_node(&cache, &reserved->node);
-    g_assert_cmpint(cache.num_used, ==, 0);
-    g_assert_cmpint(cache.num_free, ==, 1);
+static void test_fallback_family_queue_deduplicates_and_bounds(void)
+{
+    PGRAPHVkFallbackFamilyRequest requests[2] = { 0 };
+    ShaderState state = { 0 };
+    PipelineKey a = { .regs[0] = 1 };
+    PipelineKey b = { .regs[0] = 2 };
+    PipelineKey c = { .regs[0] = 3 };
+
+    g_assert_true(pgraph_vk_fallback_family_enqueue(
+        requests, G_N_ELEMENTS(requests), &a, &state));
+    g_assert_true(pgraph_vk_fallback_family_enqueue(
+        requests, G_N_ELEMENTS(requests), &a, &state));
+    g_assert_true(pgraph_vk_fallback_family_enqueue(
+        requests, G_N_ELEMENTS(requests), &b, &state));
+    g_assert_false(pgraph_vk_fallback_family_enqueue(
+        requests, G_N_ELEMENTS(requests), &c, &state));
+    g_assert_cmpuint(requests[0].key.regs[0], ==, 1);
+    g_assert_cmpuint(requests[1].key.regs[0], ==, 2);
+}
+
+static void test_changed_register_marks_shortcut_dirty(void)
+{
+    PGRAPHState *pg = g_new0(PGRAPHState, 1);
+
+    g_assert_false(pg->regs_written_since_draw);
+    pgraph_reg_w(pg, NV_PGRAPH_CONTROL_0, 0);
+    g_assert_false(pg->regs_written_since_draw);
+    pgraph_reg_w(pg, NV_PGRAPH_CONTROL_0, 1);
+    g_assert_true(pg->regs_written_since_draw);
+    g_free(pg);
+}
+
+static void test_snapshot_restore_invalidates_execution_hints(void)
+{
+    PGRAPHState *pg = g_new0(PGRAPHState, 1);
+
+    pgraph_invalidate_all_register_hints(pg);
+    g_assert_true(pg->regs_written_since_draw);
+    g_assert_true(pg->program_data_dirty);
+    g_assert_true(pgraph_is_reg_dirty(pg, NV_PGRAPH_CONTROL_0));
+    g_assert_true(pgraph_is_reg_dirty(pg, NV_PGRAPH_ZOFFSETFACTOR));
+    g_free(pg);
 }
 
 static ShaderState base_state(void)
@@ -478,7 +528,13 @@ int main(int argc, char **argv)
                     test_uncovered_build_uses_closer_binding);
     g_test_add_func("/xbox/vk/ubershader/runtime/promotion-time-gate",
                     test_fallback_promotion_probe_has_time_gate);
-    g_test_add_func("/xbox/vk/ubershader/runtime/pipeline-reservation",
-                    test_pipeline_reservation_uses_safe_eviction);
+    g_test_add_func("/xbox/vk/ubershader/runtime/pipeline-late-publication",
+                    test_pipeline_publication_eviction_is_late);
+    g_test_add_func("/xbox/vk/ubershader/runtime/fallback-family-queue",
+                    test_fallback_family_queue_deduplicates_and_bounds);
+    g_test_add_func("/xbox/vk/ubershader/runtime/register-shortcut-dirty",
+                    test_changed_register_marks_shortcut_dirty);
+    g_test_add_func("/xbox/vk/ubershader/runtime/snapshot-invalidation",
+                    test_snapshot_restore_invalidates_execution_hints);
     return g_test_run();
 }

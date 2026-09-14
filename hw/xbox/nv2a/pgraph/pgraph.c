@@ -280,6 +280,7 @@ void pgraph_init(NV2AState *d)
 void pgraph_clear_dirty_reg_map(PGRAPHState *pg)
 {
     memset(pg->regs_dirty, 0, sizeof(pg->regs_dirty));
+    pg->regs_written_since_draw = false;
 }
 
 static CONFIG_DISPLAY_RENDERER get_default_renderer(void)

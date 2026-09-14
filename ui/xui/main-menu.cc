@@ -126,6 +126,10 @@ void MainMenuAdvanceView::Draw()
         &g_config.tweaks.vk_hybrid_ubershaders,
         XEMU_TWEAK_VK_HYBRID_UBERSHADERS,
         "Reduce shader stalls.");
+    PerformanceToggle("Skip unchanged shader work",
+        &g_config.tweaks.vk_shader_fastpath,
+        XEMU_TWEAK_VK_SHADER_FASTPATH,
+        "Skip checks on unchanged hybrid draws.");
     PerformanceToggle("Combine color downloads with rendering",
         &g_config.tweaks.vk_color_download_folding,
         XEMU_TWEAK_VK_COLOR_DOWNLOAD_FOLDING,

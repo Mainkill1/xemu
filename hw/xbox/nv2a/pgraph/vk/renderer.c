@@ -236,6 +236,7 @@ static void pgraph_vk_process_pending(NV2AState *d)
 static void pgraph_vk_flip_stall(NV2AState *d)
 {
     pgraph_vk_finish(&d->pgraph, VK_FINISH_REASON_FLIP_STALL);
+    pgraph_vk_process_fallback_families(&d->pgraph);
     pgraph_vk_perf_frame(d->pgraph.vk_renderer_state);
     pgraph_vk_hybrid_trace_frame(
         d->pgraph.vk_renderer_state->hybrid_trace);

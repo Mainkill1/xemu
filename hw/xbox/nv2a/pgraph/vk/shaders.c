@@ -883,10 +883,14 @@ void pgraph_vk_process_hybrid_completions(PGRAPHState *pg)
         batch_count++;
         PGRAPHVkHybridShaderWork *work = hybrid_find_work_by_completion(
             r, result.generation, result.ticket);
+        PGRAPHVkFragmentRoute completed_route =
+            work && work->module_key.psh.glsl_opts.ubershader ?
+                PGRAPH_VK_FRAGMENT_UBERSHADER :
+                PGRAPH_VK_FRAGMENT_SPECIALIZED;
         if (r->hybrid_trace) {
             pgraph_vk_hybrid_trace_record(
                 r->hybrid_trace, VK_HYBRID_TRACE_SPECULATIVE_COMPILE,
-                PGRAPH_VK_FRAGMENT_SPECIALIZED, result.stage,
+                completed_route, result.stage,
                 work ? fast_hash((const uint8_t *)work->glsl,
                                  work->glsl_size) : 0,
                 result.ticket, result.submitted_us, result.started_us,
@@ -900,7 +904,7 @@ void pgraph_vk_process_hybrid_completions(PGRAPHState *pg)
             if (r->hybrid_trace) {
                 pgraph_vk_hybrid_trace_record(
                     r->hybrid_trace, VK_HYBRID_TRACE_COMPLETION,
-                    PGRAPH_VK_FRAGMENT_SPECIALIZED, 0, 0, result.ticket,
+                    completed_route, 0, 0, result.ticket,
                     result_start_us, g_get_monotonic_time(), 0, 0);
             }
             pgraph_vk_hybrid_compile_result_destroy(&result);
@@ -961,7 +965,7 @@ void pgraph_vk_process_hybrid_completions(PGRAPHState *pg)
         if (r->hybrid_trace) {
             pgraph_vk_hybrid_trace_record(
                 r->hybrid_trace, VK_HYBRID_TRACE_COMPLETION,
-                PGRAPH_VK_FRAGMENT_SPECIALIZED, 0, 0, result.ticket,
+                completed_route, 0, 0, result.ticket,
                 result_start_us, g_get_monotonic_time(), published, 1);
         }
         pgraph_vk_hybrid_compile_result_destroy(&result);
@@ -1446,6 +1450,72 @@ void pgraph_vk_enqueue_specialized_fragment(PGRAPHState *pg,
                                 fallback_resources_ready);
     r->uber_controls = controls;
     r->uber_controls_valid = controls_valid;
+}
+
+/* Frame-boundary work: compile a missing fallback fragment without making
+ * its first specialized draw wait for a fallback that did not exist. */
+bool pgraph_vk_enqueue_fallback_fragment(PGRAPHState *pg,
+                                        const ShaderState *state)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    ShaderModuleCacheKey key;
+    init_fragment_module_key(&key, &state->psh,
+                             PGRAPH_VK_FRAGMENT_UBERSHADER);
+    if (find_shader_module_for_key(r, &key)) {
+        return true;
+    }
+    PGRAPHVkHybridShaderWork *existing = hybrid_find_work_by_key(r, &key);
+    if (existing) {
+        /* The family has no executable fallback after a permanent compile
+         * failure. Drop the request instead of probing it every frame. */
+        return existing->metadata.status !=
+               PGRAPH_VK_HYBRID_WORK_FAILED_PERMANENT;
+    }
+    PGRAPHVkHybridShaderWork *work = hybrid_allocate_work(r);
+    if (!work) {
+        return true;
+    }
+
+    MString *code = pgraph_glsl_gen_psh(&key.psh.state, key.psh.glsl_opts);
+    const char *glsl = mstring_get_str(code);
+    size_t glsl_size = strlen(glsl);
+    work->in_use = true;
+    work->module_key = key;
+    work->glsl = g_strndup(glsl, glsl_size);
+    work->glsl_size = glsl_size;
+    pgraph_vk_hybrid_work_init(&work->metadata, 1);
+
+    PGRAPHVkGlslCompileConfig config = {
+        .api_version = r->vk_api_version,
+        .debug_shaders = g_config.display.vulkan.debug_shaders,
+    };
+    uint64_t ticket = pgraph_vk_hybrid_allocate_ticket(
+        &r->hybrid_ticket_allocator);
+    PGRAPHVkHybridCompileRequest request = {
+        .generation = r->hybrid_generation,
+        .ticket = ticket,
+        .stage = GLSLANG_STAGE_FRAGMENT,
+        .glsl = glsl,
+        .glsl_size = glsl_size + 1,
+        .config = &config,
+        .config_size = sizeof(config),
+    };
+    PGRAPHVkHybridCompileIdentity owner = { 0 };
+    PGRAPHVkHybridCompilerSubmitResult status = ticket ?
+        pgraph_vk_hybrid_compiler_submit_async(
+            &r->hybrid_compiler, &request, &owner) :
+        PGRAPH_VK_HYBRID_COMPILER_STOPPED;
+    if (status == PGRAPH_VK_HYBRID_COMPILER_ACCEPTED) {
+        bool marked = pgraph_vk_hybrid_mark_pending(
+            &work->metadata, false, owner.generation, owner.ticket,
+            r->hybrid_route_epoch);
+        assert(marked);
+        r->hybrid_pending_jobs++;
+    } else {
+        hybrid_work_clear(work);
+    }
+    mstring_unref(code);
+    return true;
 }
 
 /* Preparing a binding from already-materialized modules is cheap and cannot

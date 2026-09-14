@@ -6,7 +6,8 @@
 
 unsigned int xemu_tweaks_active =
     ((1u << XEMU_TWEAK_COUNT) - 1) &
-    ~(1u << XEMU_TWEAK_VK_HYBRID_UBERSHADERS);
+    ~((1u << XEMU_TWEAK_VK_HYBRID_UBERSHADERS) |
+      (1u << XEMU_TWEAK_VK_SHADER_FASTPATH));
 
 void xemu_tweaks_apply(bool startup)
 {
@@ -24,6 +25,8 @@ void xemu_tweaks_apply(bool startup)
         [XEMU_TWEAK_GL_NATIVE_S3TC] = g_config.tweaks.gl_native_s3tc,
         [XEMU_TWEAK_VK_HYBRID_UBERSHADERS] =
             g_config.tweaks.vk_hybrid_ubershaders,
+        [XEMU_TWEAK_VK_SHADER_FASTPATH] =
+            g_config.tweaks.vk_shader_fastpath,
     };
     unsigned int active = qatomic_read(&xemu_tweaks_active);
 

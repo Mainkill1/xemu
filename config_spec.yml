@@ -20,6 +20,9 @@ tweaks:
   vk_hybrid_ubershaders:
     type: bool
     default: false
+  vk_shader_fastpath:
+    type: bool
+    default: false
   gl_native_s3tc:
     type: bool
     default: true

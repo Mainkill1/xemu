@@ -1,5 +1,21 @@
 # research/vulkan-ubershader-design
 
+## Current implementation note (2026-09-13)
+
+The historical design and early measurements below describe earlier PR heads.
+The current PR #71 implementation requires a complete shader binding and
+graphics pipeline before choosing a ready route. A completely cold draw builds
+the normal specialized route; it queues compatible fallback-family preparation
+after that draw. Speculative pipeline creation retains its completed result
+outside the main LRU until it can publish, so admission cannot evict an old
+ready pipeline before the replacement exists. The optional, default-Off
+`Skip unchanged shader work` switch bypasses route selection on unchanged
+draws while preserving dynamic uniform and fallback-control updates.
+
+Focused Win64 build and unit checks cover these policies. This note does not
+qualify gameplay, GPU output, or performance; PR #71 remains Draft / HOLD
+until exact-head XISO and paired retail checks pass.
+
 **Status:** IMPLEMENTATION IN PROGRESS — optional runtime fragment combiner included; default Off; native qualification pending
 
 **Stable baseline:** `9f618d6d8c4c446ef023955f3d4de22f661f61a4` / retained product executable `3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b`
