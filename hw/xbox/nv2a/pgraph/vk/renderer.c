@@ -108,6 +108,14 @@ static void pgraph_vk_init(NV2AState *d, Error **errp)
 #endif
 
     pgraph_vk_perf_init(pg->vk_renderer_state);
+    const char *hybrid_trace_path = g_getenv("XEMU_VK_HYBRID_TRACE");
+    if (hybrid_trace_path && hybrid_trace_path[0]) {
+        pg->vk_renderer_state->hybrid_trace =
+            pgraph_vk_hybrid_trace_open(hybrid_trace_path, 50000);
+        if (!pg->vk_renderer_state->hybrid_trace) {
+            error_report("nv2a/vk: could not open hybrid trace output");
+        }
+    }
     pgraph_vk_init_command_buffers(pg);
     pgraph_vk_init_buffers(d);
     pgraph_vk_init_surfaces(pg);
@@ -128,6 +136,8 @@ static void pgraph_vk_finalize(NV2AState *d)
 {
     PGRAPHState *pg = &d->pgraph;
 
+    /* Finish recorded draws before destroying their cached pipelines. */
+    pgraph_vk_finish(pg, VK_FINISH_REASON_FLUSH);
     pgraph_vk_finalize_display(pg);
     pgraph_vk_finalize_compute(pg);
     pgraph_vk_finalize_reports(pg);
@@ -138,6 +148,7 @@ static void pgraph_vk_finalize(NV2AState *d)
     pgraph_vk_finalize_buffers(d);
     pgraph_vk_finalize_command_buffers(pg);
     pgraph_vk_perf_finalize(pg->vk_renderer_state);
+    pgraph_vk_hybrid_trace_close(pg->vk_renderer_state->hybrid_trace);
     pgraph_vk_finalize_instance(pg);
     pgraph_vk_failpoint_report();
 
@@ -182,7 +193,12 @@ static void pgraph_vk_process_pending(NV2AState *d)
         qatomic_read(&r->download_dirty_surfaces_pending) ||
         qatomic_read(&d->pgraph.sync_pending) ||
         qatomic_read(&d->pgraph.flush_pending) ||
-        qatomic_read(&r->spirv_cache_writeback_pending)
+        qatomic_read(&r->spirv_cache_writeback_pending) ||
+        (r->hybrid_compiler_initialized &&
+         pgraph_vk_hybrid_compiler_has_result(&r->hybrid_compiler)) ||
+        (r->hybrid_pipeline_builder_initialized &&
+         pgraph_vk_hybrid_pipeline_builder_has_result(
+             &r->hybrid_pipeline_builder))
     ) {
         qemu_mutex_unlock(&d->pfifo.lock);
         qemu_mutex_lock(&d->pgraph.lock);
@@ -198,6 +214,15 @@ static void pgraph_vk_process_pending(NV2AState *d)
         if (qatomic_read(&d->pgraph.flush_pending)) {
             pgraph_vk_flush(d);
         }
+        if (r->hybrid_compiler_initialized &&
+            pgraph_vk_hybrid_compiler_has_result(&r->hybrid_compiler)) {
+            pgraph_vk_process_hybrid_completions(&d->pgraph);
+        }
+        if (r->hybrid_pipeline_builder_initialized &&
+            pgraph_vk_hybrid_pipeline_builder_has_result(
+                &r->hybrid_pipeline_builder)) {
+            pgraph_vk_process_hybrid_pipeline_completions(&d->pgraph);
+        }
         if (qatomic_read(&r->spirv_cache_writeback_pending)) {
             pgraph_vk_process_spirv_cache_writeback(&d->pgraph);
             qatomic_set(&r->spirv_cache_writeback_pending, false);
@@ -211,7 +236,10 @@ static void pgraph_vk_process_pending(NV2AState *d)
 static void pgraph_vk_flip_stall(NV2AState *d)
 {
     pgraph_vk_finish(&d->pgraph, VK_FINISH_REASON_FLIP_STALL);
+    pgraph_vk_process_fallback_families(&d->pgraph);
     pgraph_vk_perf_frame(d->pgraph.vk_renderer_state);
+    pgraph_vk_hybrid_trace_frame(
+        d->pgraph.vk_renderer_state->hybrid_trace);
     pgraph_vk_debug_frame_terminator();
 }
 
@@ -229,6 +257,11 @@ static void pgraph_vk_pre_savevm_wait(NV2AState *d)
 static void pgraph_vk_pre_shutdown_trigger(NV2AState *d)
 {
     PGRAPHVkState *r = d->pgraph.vk_renderer_state;
+
+    if (r->hybrid_compiler_initialized) {
+        /* The worker owns no Vulkan objects and cannot publish after stop. */
+        pgraph_vk_hybrid_compiler_stop(&r->hybrid_compiler);
+    }
 
     if (!r->spirv_cache_writeback_complete_initialized ||
         !r->spirv_cache_session_eligible ||

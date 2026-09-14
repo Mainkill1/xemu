@@ -242,6 +242,7 @@ typedef struct PGRAPHState {
 
     uint32_t regs_[0x2000];
     DECLARE_BITMAP(regs_dirty, 0x2000 / sizeof(uint32_t));
+    bool regs_written_since_draw;
 
     bool clearing; // FIXME: Internal
     bool waiting_for_nop;
@@ -317,6 +318,7 @@ static inline void pgraph_reg_w(PGRAPHState *pg, unsigned int r, uint32_t v)
     }
 
     bitmap_set(pg->regs_dirty, r / sizeof(uint32_t), 1);
+    pg->regs_written_since_draw = true;
     PGRAPHUniformStageMask uniform_stages =
         pgraph_reg_uniform_stage_mask(r, pg->regs_[r] ^ v);
     if (uniform_stages) {
@@ -359,8 +361,17 @@ static inline void pgraph_reg_w_atomic(PGRAPHState *pg, unsigned int r,
     assert(r % 4 == 0);
     if (pg->regs_[r] != v) {
         bitmap_set(pg->regs_dirty, r / sizeof(uint32_t), 1);
+        pg->regs_written_since_draw = true;
     }
     qatomic_set(&pg->regs_[r], v);
+}
+
+/* VMState restores register storage directly, bypassing pgraph_reg_w(). */
+static inline void pgraph_invalidate_all_register_hints(PGRAPHState *pg)
+{
+    bitmap_set(pg->regs_dirty, 0, 0x2000 / sizeof(uint32_t));
+    pg->regs_written_since_draw = true;
+    pg->program_data_dirty = true;
 }
 
 void pgraph_clear_dirty_reg_map(PGRAPHState *pg);

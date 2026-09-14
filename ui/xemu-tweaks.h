@@ -17,6 +17,8 @@ typedef enum XemuTweak {
     XEMU_TWEAK_VK_BOUNDED_VERTEX_UPLOADS,
     XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH,
     XEMU_TWEAK_GL_NATIVE_S3TC,
+    XEMU_TWEAK_VK_HYBRID_UBERSHADERS,
+    XEMU_TWEAK_VK_SHADER_FASTPATH,
     XEMU_TWEAK_COUNT,
 } XemuTweak;
 
@@ -31,7 +33,8 @@ static inline bool xemu_tweak_enabled(XemuTweak tweak)
 static inline bool xemu_tweak_requires_restart(XemuTweak tweak)
 {
     return tweak == XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH ||
-           tweak == XEMU_TWEAK_GL_NATIVE_S3TC;
+           tweak == XEMU_TWEAK_GL_NATIVE_S3TC ||
+           tweak == XEMU_TWEAK_VK_HYBRID_UBERSHADERS;
 }
 
 /* UI thread only. startup=true is only valid before workers are created. */

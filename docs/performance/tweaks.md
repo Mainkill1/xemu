@@ -1,23 +1,34 @@
 # Advance performance settings
 
 **Machine → Settings → Advance** exposes independent performance controls.
-Every control defaults to On so a fresh configuration preserves the accepted
-`main` behavior. A saved Off value remains Off after restart.
+Vulkan ubershader and its shader-work shortcut default to Off; the accepted
+controls already in `main` default to On. Saved choices remain after restart.
 
 | Setting | On | Off | Apply |
 | --- | --- | --- | --- |
 | Reduce CPU usage while waiting | Interruptible Windows short waits | Existing short busy-wait path | Next wait |
 | Process vertex packets in bulk | Batch eligible non-incrementing packets | Scalar packet processing | Next packet |
 | Fast GPU fence polling | Atomic exact 32-bit fence read | Existing locked register read | Next read |
+| Cache shaders | Reuse compiled shaders | Compile without disk reuse | Renderer-defined |
+| Vulkan ubershader | Interpret admitted fragment combiners at runtime | Specialize fragment combiners | Restart xemu |
+| Skip unchanged shader work | Reuse the current hybrid executable when shader state is unchanged | Repeat hybrid route checks | Next draw |
 | Combine color downloads with rendering | Fold eligible downloads into the active submission | Submit the download separately | Next download |
 | Upload only used vertex ranges | Skip unused leading remapped vertices | Copy from vertex zero | Next repack |
 | Grow transient buffers to fit batches | Retain the pre-flush batch requirement while growing | Reuse drained storage; still grow for a large single draw | Restart xemu |
 | Upload compressed textures directly | Native OpenGL S3TC upload where eligible | CPU S3TC decode | Restart xemu |
 
-The controls publish one atomic active-options snapshot. Renderer and FIFO
-workers do not read the UI-owned configuration directly. Restart-only choices
-stay pending until the next process so texture-cache and buffer-growth policies
-cannot change halfway through their lifetime.
+The tweak controls publish one atomic active-options snapshot. Renderer and
+FIFO workers do not read the UI-owned configuration directly. Restart-only
+choices stay pending until the next process so texture-cache and buffer-growth
+policies cannot change halfway through their lifetime.
+
+Cache shaders retains its existing `perf.cache_shaders` setting and renderer
+behavior. Its menu choice is saved immediately.
+
+The Vulkan ubershader is available only with the Vulkan renderer. Its design
+history and diagnostic trace format are preserved in the [project wiki](https://github.com/Mainkill1/xemu/wiki/PR-0071-feature-add-optional-Vulkan-ubershader);
+the [PR #71 test evidence](https://github.com/Mainkill1/xemu-perf-tests/tree/tooling/pr71-native-qualification/docs/evidence/pr71-native-qualification-20260913)
+records the exact build and measured workloads.
 
 Turning a control Off selects its maintained fallback. It does not disable
 size checks, dirty tracking, failure propagation, layout validation, or other
