@@ -2270,6 +2270,10 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         uint64_t wait_us = time_submit ?
             MAX(qemu_clock_get_us(QEMU_CLOCK_REALTIME) - wait_start, 0) : 0;
         trace_wait_us = wait_us;
+        if (unlikely(result != VK_SUCCESS)) {
+            pgraph_vk_hybrid_trace_failure(r->hybrid_trace, result,
+                                            finish_reason);
+        }
         VK_CHECK(result);
         pgraph_vk_perf_record_finish_submit(
             r, finish_reason, time_submit, submit_cpu_us, wait_us, staged_bytes,

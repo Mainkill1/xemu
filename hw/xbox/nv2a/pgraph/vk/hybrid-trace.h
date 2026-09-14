@@ -50,5 +50,8 @@ void pgraph_vk_hybrid_trace_record(PGRAPHVkHybridTrace *trace,
                                    uint64_t a, uint64_t b, uint64_t c,
                                    uint64_t d);
 void pgraph_vk_hybrid_trace_frame(PGRAPHVkHybridTrace *trace);
+/* Persist the current bounded ring before a fatal Vulkan wait assertion. */
+void pgraph_vk_hybrid_trace_failure(PGRAPHVkHybridTrace *trace,
+                                    int32_t result, uint32_t finish_reason);
 
 #endif

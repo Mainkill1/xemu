@@ -102,6 +102,37 @@ void pgraph_vk_hybrid_trace_record(PGRAPHVkHybridTrace *trace,
     };
 }
 
+static void pgraph_vk_hybrid_trace_write_records(PGRAPHVkHybridTrace *trace)
+{
+    for (size_t i = 0; i < trace->count; i++) {
+        const PGRAPHVkHybridTraceRecord *record =
+            &trace->records[(trace->head + i) % HYBRID_TRACE_CAPACITY];
+        fprintf(trace->file,
+                "%u,%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%u,"
+                "%016" PRIx64 ",%016" PRIx64 ",%" PRIu64 ","
+                "%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64
+                "\n", record->type, record->frame, record->draw,
+                record->timestamp_us, record->route,
+                record->pipeline_hash, record->shader_hash,
+                record->ticket, record->data[0], record->data[1],
+                record->data[2], record->data[3]);
+    }
+}
+
+void pgraph_vk_hybrid_trace_failure(PGRAPHVkHybridTrace *trace,
+                                    int32_t result, uint32_t finish_reason)
+{
+    if (!trace) {
+        return;
+    }
+    fprintf(trace->file, "failure,%" PRIu64 ",%" PRIu64 ",%" PRId32
+            ",%" PRIu32 ",%zu,%" PRIu64 "\n",
+            trace->frame, trace->draw, result, finish_reason,
+            trace->count, trace->dropped);
+    pgraph_vk_hybrid_trace_write_records(trace);
+    fflush(trace->file);
+}
+
 void pgraph_vk_hybrid_trace_frame(PGRAPHVkHybridTrace *trace)
 {
     if (!trace) {
@@ -113,19 +144,7 @@ void pgraph_vk_hybrid_trace_frame(PGRAPHVkHybridTrace *trace)
         fprintf(trace->file, "frame,%" PRIu64 ",%" PRIu64 ",%zu,%" PRIu64
                 "\n", trace->frame, duration_us, trace->count,
                 trace->dropped);
-        for (size_t i = 0; i < trace->count; i++) {
-            const PGRAPHVkHybridTraceRecord *record =
-                &trace->records[(trace->head + i) % HYBRID_TRACE_CAPACITY];
-            fprintf(trace->file,
-                    "%u,%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%u,"
-                    "%016" PRIx64 ",%016" PRIx64 ",%" PRIu64 ","
-                    "%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64
-                    "\n", record->type, record->frame, record->draw,
-                    record->timestamp_us, record->route,
-                    record->pipeline_hash, record->shader_hash,
-                    record->ticket, record->data[0], record->data[1],
-                    record->data[2], record->data[3]);
-        }
+        pgraph_vk_hybrid_trace_write_records(trace);
     }
     trace->frame++;
     trace->draw = 0;
