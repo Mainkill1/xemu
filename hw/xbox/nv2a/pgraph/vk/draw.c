@@ -24,6 +24,7 @@
 #include "hybrid-ready.h"
 #include "fastpath-verify.h"
 #include "pipeline-cache-lifetime.h"
+#include "ui/xemu-settings.h"
 #include "ui/xemu-tweaks.h"
 #include <math.h>
 
@@ -2340,8 +2341,11 @@ static void pgraph_vk_report_device_fault(PGRAPHVkState *r)
                 result);
         return;
     }
-    uint32_t address_count = MIN(counts.addressInfoCount, 64u);
-    uint32_t vendor_count = MIN(counts.vendorInfoCount, 64u);
+    uint32_t address_count = MIN(counts.addressInfoCount, 4096u);
+    uint32_t vendor_count = MIN(counts.vendorInfoCount, 4096u);
+    /* Bound diagnostics if a driver reports unusually large fault data. */
+    VkDeviceSize binary_size = MIN(counts.vendorBinarySize,
+                                   16u * 1024u * 1024u);
     fprintf(stderr, "nv2a/vk: device-fault available addresses=%u "
             "vendor_records=%u binary_bytes=%" PRIu64 "\n",
             counts.addressInfoCount, counts.vendorInfoCount,
@@ -2351,19 +2355,23 @@ static void pgraph_vk_report_device_fault(PGRAPHVkState *r)
         g_try_new0(VkDeviceFaultAddressInfoEXT, address_count);
     VkDeviceFaultVendorInfoEXT *vendors =
         g_try_new0(VkDeviceFaultVendorInfoEXT, vendor_count);
-    if ((address_count && !addresses) || (vendor_count && !vendors)) {
+    void *binary = binary_size ? g_try_malloc0(binary_size) : NULL;
+    if ((address_count && !addresses) || (vendor_count && !vendors) ||
+        (binary_size && !binary)) {
         fprintf(stderr, "nv2a/vk: device-fault record allocation failed\n");
         g_free(addresses);
         g_free(vendors);
+        g_free(binary);
         return;
     }
     counts.addressInfoCount = address_count;
     counts.vendorInfoCount = vendor_count;
-    counts.vendorBinarySize = 0;
+    counts.vendorBinarySize = binary_size;
     VkDeviceFaultInfoEXT info = {
         .sType = VK_STRUCTURE_TYPE_DEVICE_FAULT_INFO_EXT,
         .pAddressInfos = addresses,
         .pVendorInfos = vendors,
+        .pVendorBinaryData = binary,
     };
     result = get_fault(r->device, &counts, &info);
     fprintf(stderr, "nv2a/vk: device-fault result=%d description=%.255s\n",
@@ -2385,9 +2393,34 @@ static void pgraph_vk_report_device_fault(PGRAPHVkState *r)
                     vendors[i].vendorFaultData,
                     vendors[i].description);
         }
+        if (binary && counts.vendorBinarySize > 0) {
+            g_autofree char *name = g_strdup_printf(
+                "vk-device-fault-%" PRId64 ".bin", g_get_real_time());
+            g_autofree char *path = g_build_filename(
+                xemu_settings_get_base_path(), name, NULL);
+            FILE *file = qemu_fopen(path, "wb");
+            size_t written = file ?
+                fwrite(binary, 1, counts.vendorBinarySize, file) : 0;
+            if (file && fclose(file) != 0) {
+                written = 0;
+            }
+            if (written == counts.vendorBinarySize) {
+                g_autofree char *sha = g_compute_checksum_for_data(
+                    G_CHECKSUM_SHA256, binary, written);
+                fprintf(stderr,
+                        "nv2a/vk: device-fault binary path=%s bytes=%zu "
+                        "sha256=%s\n", path, written, sha);
+            } else {
+                fprintf(stderr,
+                        "nv2a/vk: device-fault binary write failed "
+                        "path=%s written=%zu expected=%" PRIu64 "\n",
+                        path, written, (uint64_t)counts.vendorBinarySize);
+            }
+        }
     }
     g_free(addresses);
     g_free(vendors);
+    g_free(binary);
     fflush(stderr);
 }
 
