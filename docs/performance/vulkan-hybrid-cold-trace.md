@@ -22,7 +22,7 @@ type,frame,draw,time_us,route,pipeline_hash,shader_hash,ticket,a,b,c,d
 | 8 | Route transition | previous route | selected route | selection epoch changed | shader state dirty |
 | 9 | Renderer finish | finish reason | fence wait | queue-submit CPU | command buffer active |
 | 10 | Resource shortage | shortage kind | index or requested size | capacity | route-specific detail |
-| 11 | Uncovered route | specialized binding ready | specialized pipeline ready | fallback binding ready | bit 0: fallback pipeline; bit 1: fallback resources; bit 2: controls supported |
+| 11 | Uncovered route | specialized binding ready | specialized pipeline ready | fallback binding ready | bit 0: fallback pipeline; bits 1–2: fallback resources (0 ready, 1 rollover, 2 unavailable); bit 3: controls supported |
 | 12 | Background pipeline submit | submit status | free pipeline-cache entries | reserved | reserved |
 | 13 | Background pipeline adoption | submitted time | worker start | worker finish | adopted |
 | 14 | Warm SPIR-V module materialization | call start | call end | cached SPIR-V bytes | module-key hash |
@@ -33,6 +33,6 @@ For type 1, queue wait is `b-a`, compilation is `c-b`, and caller wait is `d-a`.
 
 Current Hybrid On routing requires both the exact shader binding and the complete graphics pipeline. A `d=2` probe row records the current candidate check; `d=1` identifies the older diagnostic-only pre-route check. A fallback pipeline hit with missing shader metadata or resources is not an executable fallback. A module completion alone cannot cause a specialized takeover.
 
-The first uncovered draw currently constructs one fallback route synchronously when its controls can be packed. A warm SPIR-V hit can still materialize a shader module on the renderer thread, and preparing a background pipeline still creates its layout and may create a render pass there. Types 14–16 attribute those costs separately from the worker's graphics-pipeline creation. A full pipeline cache can defer background adoption without evicting a live entry.
+An uncovered draw builds the route whose shader binding is already prepared. When neither binding exists and controls are supported, it still builds one fallback synchronously to seed the family; this first-use cost remains unqualified. A complete fallback stays selected through temporary descriptor or staging rollover. Stable fallback draws reuse the current executable, compare only raw combiner constants, and revisit promotion at most once per 16 ms. Pipeline-result polling checks an atomic empty-queue hint before acquiring the worker lock. Background pipeline admission reserves a cache node, allowing safe old-entry eviction even when the cache has no never-used slots; publication cannot evict or finish. A warm SPIR-V hit can still materialize a shader module on the renderer thread, and preparing a background pipeline still creates its layout and may create a render pass there. Types 14–16 attribute those costs separately from the worker's graphics-pipeline creation.
 
 Compare equal guest work and matched cache state; serializing a slow frame can affect the following interval, so use a trace-disabled build for timing acceptance.
