@@ -1,0 +1,27 @@
+name: Wiki research export
+
+on:
+  push:
+    paths:
+      - .github/workflows/wiki-research-export.yml
+
+permissions:
+  contents: read
+
+jobs:
+  export-wiki:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone wiki repository
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git clone --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.wiki.git" wiki
+      - name: Upload wiki Markdown
+        uses: actions/upload-artifact@v4
+        with:
+          name: xemu-wiki-markdown
+          path: wiki/*.md
+          if-no-files-found: error
+          retention-days: 1
