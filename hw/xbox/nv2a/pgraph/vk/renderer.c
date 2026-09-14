@@ -291,6 +291,7 @@ static int pgraph_vk_get_framebuffer_surface(NV2AState *d)
     PGRAPHState *pg = &d->pgraph;
     PGRAPHVkState *r = pg->vk_renderer_state;
 
+    pgraph_vk_perf_record_framebuffer_acquire(r);
     qemu_mutex_lock(&d->pfifo.lock);
 
     VGADisplayParams vga_display_params;
@@ -307,6 +308,7 @@ static int pgraph_vk_get_framebuffer_surface(NV2AState *d)
 
     surface->frame_time = pg->frame_time;
 
+    pgraph_vk_perf_record_valid_sync_request(r);
     qemu_event_reset(&d->pgraph.sync_complete);
     qatomic_set(&pg->sync_pending, true);
     pfifo_kick(d);
@@ -319,6 +321,15 @@ static int pgraph_vk_get_framebuffer_surface(NV2AState *d)
     }
 
     PGRAPHVkDisplayState *display = &r->display;
+    PGRAPHVkHostCopyUploadState *upload = &display->host_copy.upload;
+    if (display->host_copy.gl_texture_id &&
+        !pgraph_vk_host_copy_upload_needed(
+            upload, display->completed_output_generation,
+            display->width, display->height)) {
+        pgraph_vk_perf_record_host_copy_result(r, true, 0);
+        return display->host_copy.gl_texture_id;
+    }
+
     if (!display->host_copy.gl_texture_id) {
         glGenTextures(1, &display->host_copy.gl_texture_id);
         glBindTexture(GL_TEXTURE_2D, display->host_copy.gl_texture_id);
@@ -348,13 +359,11 @@ static int pgraph_vk_get_framebuffer_surface(NV2AState *d)
     glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
     glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, 0);
     glPixelStorei(GL_UNPACK_SKIP_IMAGES, 0);
-    if (display->host_copy.gl_texture_width != display->width ||
-        display->host_copy.gl_texture_height != display->height) {
+    if (!upload->valid || upload->width != display->width ||
+        upload->height != display->height) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, display->width,
                      display->height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
                      display->host_copy.mapped);
-        display->host_copy.gl_texture_width = display->width;
-        display->host_copy.gl_texture_height = display->height;
     } else {
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, display->width,
                         display->height, GL_RGBA, GL_UNSIGNED_BYTE,
@@ -368,6 +377,11 @@ static int pgraph_vk_get_framebuffer_surface(NV2AState *d)
     glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, unpack_image_height);
     glPixelStorei(GL_UNPACK_SKIP_IMAGES, unpack_skip_images);
     assert(glGetError() == GL_NO_ERROR);
+    pgraph_vk_host_copy_mark_uploaded(
+        upload, display->completed_output_generation,
+        display->width, display->height);
+    pgraph_vk_perf_record_host_copy_result(
+        r, false, (uint64_t)display->width * display->height * 4);
     if (!r->display.presentation_reported) {
         xemu_gpu_info_record_presentation(
             XEMU_GPU_PRESENTATION_HOST_COPY,
