@@ -111,6 +111,8 @@ typedef struct PipelineBinding {
     PipelineKey key;
     VkPipelineLayout layout;
     VkPipeline pipeline;
+    /* Pinned while an exact background build owns this cache entry. */
+    bool hybrid_pending;
     VkRenderPass render_pass;
     unsigned int draw_time;
     bool has_dynamic_line_width;
@@ -125,6 +127,7 @@ typedef struct PGRAPHVkHybridPipelineWork {
     uint64_t ticket;
     uint64_t key_hash;
     PipelineKey key;
+    PipelineBinding *reserved_binding;
     VkPipelineLayout layout;
     VkRenderPass render_pass;
     uint32_t dynamic_blend_constant_mask;
@@ -686,6 +689,9 @@ typedef struct PGRAPHVkState {
     uint64_t hybrid_route_epoch;
     uint64_t hybrid_selection_epoch;
     uint64_t hybrid_bound_selection_epoch;
+    int64_t hybrid_next_promotion_probe_us;
+    uint32_t uber_constant_regs[18];
+    bool uber_constant_regs_valid;
     size_t hybrid_pending_jobs;
     PGRAPHVkHybridTicketAllocator hybrid_ticket_allocator;
     PGRAPHVkHybridCompiler hybrid_compiler;
@@ -928,8 +934,15 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg);
 bool pgraph_vk_pack_fallback_controls(PGRAPHState *pg,
                                      const PshState *state,
                                      PGRAPHUberControls *packet);
-bool pgraph_vk_fallback_draw_resources_ready(PGRAPHState *pg,
-                                              ShaderBinding *binding);
+bool pgraph_vk_refresh_fallback_controls(PGRAPHState *pg,
+                                        const PshState *state);
+typedef enum PGRAPHVkFallbackResourceState {
+    PGRAPH_VK_FALLBACK_RESOURCES_READY,
+    PGRAPH_VK_FALLBACK_RESOURCES_NEED_ROLLOVER,
+    PGRAPH_VK_FALLBACK_RESOURCES_UNAVAILABLE,
+} PGRAPHVkFallbackResourceState;
+PGRAPHVkFallbackResourceState pgraph_vk_fallback_draw_resource_state(
+    PGRAPHState *pg, ShaderBinding *binding);
 void pgraph_vk_enqueue_specialized_fragment(PGRAPHState *pg,
                                             const ShaderState *state,
                                             bool fallback_pipeline_ready,

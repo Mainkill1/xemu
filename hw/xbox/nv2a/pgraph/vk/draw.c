@@ -123,6 +123,7 @@ static void pipeline_cache_entry_init(Lru *lru, LruNode *node,
     PipelineBinding *snode = container_of(node, PipelineBinding, node);
     snode->layout = VK_NULL_HANDLE;
     snode->pipeline = VK_NULL_HANDLE;
+    snode->hybrid_pending = false;
     snode->draw_time = 0;
 }
 
@@ -131,9 +132,10 @@ static void pipeline_cache_entry_post_evict(Lru *lru, LruNode *node)
     PGRAPHVkState *r = container_of(lru, PGRAPHVkState, pipeline_cache);
     PipelineBinding *snode = container_of(node, PipelineBinding, node);
 
-    assert(pgraph_vk_graphics_pipeline_can_evict(
-               r->in_command_buffer, snode->draw_time,
-               r->command_buffer_start_time) &&
+    assert((snode->pipeline == VK_NULL_HANDLE ||
+            pgraph_vk_graphics_pipeline_can_evict(
+                r->in_command_buffer, snode->draw_time,
+                r->command_buffer_start_time)) &&
            "Pipeline evicted while in use!");
 
     vkDestroyPipeline(r->device, snode->pipeline, NULL);
@@ -141,6 +143,10 @@ static void pipeline_cache_entry_post_evict(Lru *lru, LruNode *node)
 
     vkDestroyPipelineLayout(r->device, snode->layout, NULL);
     snode->layout = VK_NULL_HANDLE;
+    if (r->pipeline_binding == snode) {
+        r->pipeline_binding = NULL;
+        r->pipeline_binding_changed = true;
+    }
 }
 
 static bool pipeline_cache_entry_pre_evict(Lru *lru, LruNode *node)
@@ -148,7 +154,8 @@ static bool pipeline_cache_entry_pre_evict(Lru *lru, LruNode *node)
     PGRAPHVkState *r = container_of(lru, PGRAPHVkState, pipeline_cache);
     PipelineBinding *snode = container_of(node, PipelineBinding, node);
 
-    return pgraph_vk_graphics_pipeline_can_evict(
+    return snode != r->pipeline_binding && !snode->hybrid_pending &&
+           pgraph_vk_graphics_pipeline_can_evict(
         r->in_command_buffer, snode->draw_time,
         r->command_buffer_start_time);
 }
@@ -245,8 +252,14 @@ static void hybrid_pipeline_destroy(void *opaque, VkDevice device,
 }
 
 static void hybrid_pipeline_work_clear(PGRAPHVkState *r,
-    PGRAPHVkHybridPipelineWork *work)
+                                       PGRAPHVkHybridPipelineWork *work)
 {
+    PipelineBinding *reserved = work->reserved_binding;
+    if (reserved && reserved->hybrid_pending &&
+        memcmp(&reserved->key, &work->key, sizeof(work->key)) == 0) {
+        reserved->hybrid_pending = false;
+        lru_evict_node(&r->pipeline_cache, &reserved->node);
+    }
     for (size_t i = 0; i < ARRAY_SIZE(work->modules); i++) {
         if (work->modules[i]) {
             pgraph_vk_unref_shader_module(r, work->modules[i]);
@@ -937,11 +950,13 @@ static PGRAPHVkReadyDrawCandidate probe_ready_draw_candidate(
     candidate.shader = pgraph_vk_shader_binding_find_ready(
         &r->shader_cache, shader_hash, &shader_key,
         pgraph_glsl_need_geom(&state->geom));
-    init_pipeline_key_for_state(pg, state, route, &candidate.key);
-    candidate.hash = fast_hash((const uint8_t *)&candidate.key,
-                               sizeof(candidate.key));
-    candidate.pipeline = pipeline_cache_find_ready(r, candidate.hash,
-                                                    &candidate.key);
+    if (candidate.shader) {
+        init_pipeline_key_for_state(pg, state, route, &candidate.key);
+        candidate.hash = fast_hash((const uint8_t *)&candidate.key,
+                                   sizeof(candidate.key));
+        candidate.pipeline = pipeline_cache_find_ready(r, candidate.hash,
+                                                        &candidate.key);
+    }
     if (r->hybrid_trace) {
         uint64_t state_hash = fast_hash((const uint8_t *)state,
                                         sizeof(*state));
@@ -1358,17 +1373,22 @@ PGRAPHVkHybridPipelineSubmitResult pgraph_vk_request_hybrid_pipeline(
             work = candidate;
         }
     }
-    /* Completion admission cannot evict or finish. Avoid a speculative
-     * driver compile that has no cache slot in which to publish its result. */
-    if (r->pipeline_cache.num_free == 0) {
+    if (!work) {
         return PGRAPH_VK_HYBRID_PIPELINE_QUEUE_FULL;
     }
-    if (!work) {
+
+    /* Reserve an exact LRU node before submitting driver work. This may
+     * safely evict an old entry, but cannot finish an active command buffer. */
+    PipelineBinding *reserved = pgraph_vk_pipeline_cache_reserve(
+        &r->pipeline_cache, hash, key);
+    if (!reserved) {
         return PGRAPH_VK_HYBRID_PIPELINE_QUEUE_FULL;
     }
 
     PGRAPHVkGraphicsPipelineRecipe recipe;
     if (!prepare_graphics_pipeline_recipe(pg, key, ready_binding, &recipe)) {
+        reserved->hybrid_pending = false;
+        lru_evict_node(&r->pipeline_cache, &reserved->node);
         return PGRAPH_VK_HYBRID_PIPELINE_UNSUPPORTED_RECIPE;
     }
 
@@ -1380,6 +1400,7 @@ PGRAPHVkHybridPipelineSubmitResult pgraph_vk_request_hybrid_pipeline(
     }
     work->key_hash = hash;
     work->key = *key;
+    work->reserved_binding = reserved;
     work->layout = recipe.layout;
     work->render_pass = recipe.render_pass;
     work->dynamic_blend_constant_mask =
@@ -1450,14 +1471,12 @@ void pgraph_vk_process_hybrid_pipeline_completions(PGRAPHState *pg)
             result.vk_result == VK_SUCCESS &&
             result.pipeline != VK_NULL_HANDLE &&
             !pipeline_cache_find_ready(r, work->key_hash, &work->key)) {
-            /* Publication must not evict an in-flight pipeline or finish a
-             * command buffer. A full cache leaves this result unadopted. */
-            LruNode *node = r->pipeline_cache.num_free > 0 ?
-                lru_try_lookup(&r->pipeline_cache,
-                               work->key_hash, &work->key) : NULL;
-            if (node) {
-                PipelineBinding *binding =
-                    container_of(node, PipelineBinding, node);
+            /* The exact node was reserved before the worker started. Never
+             * evict or allocate during publication. */
+            PipelineBinding *binding = work->reserved_binding;
+            if (binding && binding->hybrid_pending &&
+                memcmp(&binding->key, &work->key,
+                       sizeof(work->key)) == 0) {
                 if (binding->pipeline == VK_NULL_HANDLE) {
                     binding->key = work->key;
                     binding->pipeline = result.pipeline;
@@ -1468,6 +1487,7 @@ void pgraph_vk_process_hybrid_pipeline_completions(PGRAPHState *pg)
                     binding->has_dynamic_line_width =
                         work->has_dynamic_line_width;
                     binding->draw_time = 0;
+                    binding->hybrid_pending = false;
                     result.pipeline = VK_NULL_HANDLE;
                     work->layout = VK_NULL_HANDLE;
                     adopted = true;
@@ -1512,7 +1532,8 @@ static void request_complete_specialization(PGRAPHState *pg,
         memcmp(&r->pipeline_binding->key, &fallback_key,
                sizeof(fallback_key)) == 0;
     bool fallback_resources_ready =
-        pgraph_vk_fallback_draw_resources_ready(pg, r->shader_binding);
+        pgraph_vk_fallback_draw_resource_state(pg, r->shader_binding) !=
+        PGRAPH_VK_FALLBACK_RESOURCES_UNAVAILABLE;
     if (!fallback_pipeline_ready || !fallback_resources_ready) {
         return;
     }
@@ -1530,13 +1551,30 @@ static void request_complete_specialization(PGRAPHState *pg,
     (void)pgraph_vk_request_hybrid_pipeline(pg, &key, binding);
 }
 
+static void maybe_request_complete_specialization(PGRAPHState *pg,
+                                                   const ShaderState *state)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    int64_t now_us = g_get_monotonic_time();
+    if (!pgraph_vk_hybrid_promotion_due(
+            now_us, r->hybrid_next_promotion_probe_us)) {
+        return;
+    }
+    /* A pending shader or pipeline is checked at most once per short time
+     * window, rather than being rediscovered for every fallback draw. */
+    r->hybrid_next_promotion_probe_us = now_us + 16000;
+    request_complete_specialization(pg, state);
+}
+
 static bool create_pipeline(PGRAPHState *pg)
 {
     NV2A_VK_DGROUP_BEGIN("Creating pipeline");
 
     NV2AState *d = container_of(pg, NV2AState, pgraph);
     PGRAPHVkState *r = pg->vk_renderer_state;
-    pgraph_vk_hybrid_trace_draw(r->hybrid_trace);
+    if (unlikely(r->hybrid_trace)) {
+        pgraph_vk_hybrid_trace_draw(r->hybrid_trace);
+    }
 
     if (!pgraph_vk_bind_textures(d)) {
         NV2A_VK_DGROUP_END();
@@ -1547,18 +1585,22 @@ static bool create_pipeline(PGRAPHState *pg)
     bool schedule_specialization = false;
     ShaderState requested_state;
     if (hybrid) {
-        pgraph_vk_process_hybrid_pipeline_completions(pg);
+        if (unlikely(pgraph_vk_hybrid_pipeline_builder_has_result(
+                &r->hybrid_pipeline_builder))) {
+            pgraph_vk_process_hybrid_pipeline_completions(pg);
+        }
         PGRAPHVkShaderPreparation preparation;
         pgraph_vk_prepare_shaders(pg, &preparation);
         requested_state = preparation.state;
 
         /* Most draws reuse the current specialized executable. Preserve the
-         * original cheap dirty path and still update uniforms on every draw
-         * that needs them. A fallback must continue probing for promotion. */
+         * original cheap dirty path and still update uniforms as needed. */
         if (preparation.bound_state_equal && r->shader_binding &&
             r->shader_binding->fragment_route ==
                 PGRAPH_VK_FRAGMENT_SPECIALIZED &&
-            r->pipeline_binding && !r->pipeline_binding->key.clear &&
+            r->pipeline_binding &&
+            r->pipeline_binding->pipeline != VK_NULL_HANDLE &&
+            !r->pipeline_binding->key.clear &&
             r->pipeline_binding->key.fragment_route ==
                 PGRAPH_VK_FRAGMENT_SPECIALIZED &&
             !check_pipeline_dirty(pg)) {
@@ -1570,22 +1612,57 @@ static bool create_pipeline(PGRAPHState *pg)
             return true;
         }
 
+        /* A stable fallback remains executable while specialization is
+         * pending. Update only its dynamic inputs and retry promotion on a
+         * timed gate; completion publication changes the selection epoch. */
+        if (preparation.bound_state_equal &&
+            !preparation.selection_changed && r->shader_binding &&
+            r->shader_binding->fragment_route ==
+                PGRAPH_VK_FRAGMENT_UBERSHADER &&
+            r->pipeline_binding &&
+            r->pipeline_binding->pipeline != VK_NULL_HANDLE &&
+            !r->pipeline_binding->key.clear &&
+            r->pipeline_binding->key.fragment_route ==
+                PGRAPH_VK_FRAGMENT_UBERSHADER &&
+            !check_pipeline_dirty(pg) &&
+            pgraph_vk_refresh_fallback_controls(
+                pg, &requested_state.psh)) {
+            pgraph_vk_activate_shaders(pg, &preparation,
+                                       PGRAPH_VK_FRAGMENT_UBERSHADER,
+                                       r->shader_binding);
+            maybe_request_complete_specialization(pg, &requested_state);
+            pgraph_clear_dirty_reg_map(pg);
+            NV2A_VK_DGROUP_END();
+            return true;
+        }
+
         PGRAPHVkReadyDrawCandidate specialized =
             probe_ready_draw_candidate(pg, &requested_state,
                                        PGRAPH_VK_FRAGMENT_SPECIALIZED);
-        PGRAPHVkReadyDrawCandidate fallback =
-            probe_ready_draw_candidate(pg, &requested_state,
-                                       PGRAPH_VK_FRAGMENT_UBERSHADER);
-        PGRAPHUberControls controls;
-        bool controls_supported = pgraph_vk_pack_fallback_controls(
-            pg, &requested_state.psh, &controls);
-        bool fallback_resources_ready = controls_supported &&
-            pgraph_vk_fallback_draw_resources_ready(pg, fallback.shader);
-        PGRAPHVkExecutionRoute selected =
-            pgraph_vk_hybrid_choose_execution_route(
+        PGRAPHVkReadyDrawCandidate fallback = { 0 };
+        PGRAPHUberControls controls = { 0 };
+        bool controls_supported = false;
+        PGRAPHVkFallbackResourceState fallback_resources =
+            PGRAPH_VK_FALLBACK_RESOURCES_UNAVAILABLE;
+        PGRAPHVkExecutionRoute selected = PGRAPH_VK_EXECUTION_SPECIALIZED;
+        if (!specialized.shader || !specialized.pipeline) {
+            fallback = probe_ready_draw_candidate(
+                pg, &requested_state, PGRAPH_VK_FRAGMENT_UBERSHADER);
+            /* The first cold state may need a fallback binding constructed.
+             * Its controls are validated only after the ready-route probes. */
+            if (fallback.shader || !specialized.shader) {
+                controls_supported = pgraph_vk_pack_fallback_controls(
+                    pg, &requested_state.psh, &controls);
+            }
+            if (controls_supported && fallback.shader && fallback.pipeline) {
+                fallback_resources = pgraph_vk_fallback_draw_resource_state(
+                    pg, fallback.shader);
+            }
+            selected = pgraph_vk_hybrid_choose_execution_route(
                 specialized.shader != NULL, specialized.pipeline != NULL,
                 fallback.shader != NULL, fallback.pipeline != NULL,
-                fallback_resources_ready);
+                fallback_resources);
+        }
 
         PGRAPHVkFragmentRoute route;
         ShaderBinding *ready_shader;
@@ -1594,20 +1671,24 @@ static bool create_pipeline(PGRAPHState *pg)
             route = PGRAPH_VK_FRAGMENT_SPECIALIZED;
             ready_shader = specialized.shader;
             ready_pipeline = specialized.pipeline;
-        } else if (selected == PGRAPH_VK_EXECUTION_UBERSHADER) {
+        } else if (selected == PGRAPH_VK_EXECUTION_UBERSHADER ||
+                   selected == PGRAPH_VK_EXECUTION_UBERSHADER_AFTER_ROLLOVER) {
             route = PGRAPH_VK_FRAGMENT_UBERSHADER;
             ready_shader = fallback.shader;
             ready_pipeline = fallback.pipeline;
-            schedule_specialization = true;
+            schedule_specialization =
+                selected == PGRAPH_VK_EXECUTION_UBERSHADER;
         } else {
-            /* The first encounter has no complete executable candidate.
-             * Build one route synchronously and make the fallback family
-             * available to subsequent combiner states. */
-            bool fallback_blocked = fallback.shader && fallback.pipeline &&
-                                    !fallback_resources_ready;
-            route = controls_supported && !fallback_blocked ?
-                        PGRAPH_VK_FRAGMENT_UBERSHADER :
-                        PGRAPH_VK_FRAGMENT_SPECIALIZED;
+            /* Preserve first-family fallback construction when neither
+             * binding exists. When one binding is prepared, construct only
+             * its missing pipeline instead of a colder alternate route. */
+            route = pgraph_vk_hybrid_choose_uncovered_route(
+                specialized.shader != NULL, fallback.shader != NULL,
+                controls_supported);
+            if (!specialized.shader && !fallback.shader &&
+                controls_supported) {
+                route = PGRAPH_VK_FRAGMENT_UBERSHADER;
+            }
             ready_shader = NULL;
             ready_pipeline = NULL;
             schedule_specialization =
@@ -1622,8 +1703,8 @@ static bool create_pipeline(PGRAPHState *pg)
                     specialized.pipeline != NULL,
                     fallback.shader != NULL,
                     (uint64_t)(fallback.pipeline != NULL) |
-                        ((uint64_t)fallback_resources_ready << 1) |
-                        ((uint64_t)controls_supported << 2));
+                        ((uint64_t)fallback_resources << 1) |
+                        ((uint64_t)controls_supported << 3));
             }
         }
         r->uber_controls_valid = route == PGRAPH_VK_FRAGMENT_UBERSHADER &&
@@ -1643,7 +1724,7 @@ static bool create_pipeline(PGRAPHState *pg)
             pgraph_clear_dirty_reg_map(pg);
 
             if (schedule_specialization) {
-                request_complete_specialization(pg, &requested_state);
+                maybe_request_complete_specialization(pg, &requested_state);
             }
             NV2A_VK_DGROUP_END();
             return true;
@@ -1673,7 +1754,7 @@ static bool create_pipeline(PGRAPHState *pg)
         }
         NV2A_VK_DPRINTF("Cache hit");
         if (schedule_specialization) {
-            request_complete_specialization(pg, &requested_state);
+            maybe_request_complete_specialization(pg, &requested_state);
         }
         NV2A_VK_DGROUP_END();
         return true;
@@ -1699,7 +1780,7 @@ static bool create_pipeline(PGRAPHState *pg)
         r->pipeline_binding_changed = r->pipeline_binding != snode;
         r->pipeline_binding = snode;
         if (schedule_specialization) {
-            request_complete_specialization(pg, &requested_state);
+            maybe_request_complete_specialization(pg, &requested_state);
         }
         NV2A_VK_DGROUP_END();
         return true;
@@ -1731,6 +1812,7 @@ static bool create_pipeline(PGRAPHState *pg)
     }
 
     snode->pipeline = pipeline;
+    snode->hybrid_pending = false;
     snode->has_dynamic_line_width = recipe.has_dynamic_line_width;
     snode->layout = recipe.layout;
     snode->render_pass = recipe.render_pass;
@@ -1741,7 +1823,7 @@ static bool create_pipeline(PGRAPHState *pg)
     r->pipeline_binding_changed = true;
 
     if (schedule_specialization) {
-        request_complete_specialization(pg, &requested_state);
+        maybe_request_complete_specialization(pg, &requested_state);
     }
 
     NV2A_VK_DGROUP_END();

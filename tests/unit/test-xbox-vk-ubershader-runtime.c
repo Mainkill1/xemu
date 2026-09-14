@@ -173,20 +173,96 @@ static void test_shader_ready_probe_requires_runtime_metadata(void)
 static void test_execution_route_requires_complete_candidate(void)
 {
     g_assert_cmpint(pgraph_vk_hybrid_choose_execution_route(
-                        true, true, true, true, true),
+                        true, true, true, true,
+                        PGRAPH_VK_FALLBACK_RESOURCES_READY),
                     ==, PGRAPH_VK_EXECUTION_SPECIALIZED);
     g_assert_cmpint(pgraph_vk_hybrid_choose_execution_route(
-                        true, false, true, true, true),
+                        true, false, true, true,
+                        PGRAPH_VK_FALLBACK_RESOURCES_READY),
                     ==, PGRAPH_VK_EXECUTION_UBERSHADER);
     g_assert_cmpint(pgraph_vk_hybrid_choose_execution_route(
-                        false, false, true, true, true),
+                        false, false, true, true,
+                        PGRAPH_VK_FALLBACK_RESOURCES_READY),
                     ==, PGRAPH_VK_EXECUTION_UBERSHADER);
     g_assert_cmpint(pgraph_vk_hybrid_choose_execution_route(
-                        true, false, true, false, true),
+                        true, false, true, false,
+                        PGRAPH_VK_FALLBACK_RESOURCES_READY),
                     ==, PGRAPH_VK_EXECUTION_UNCOVERED);
     g_assert_cmpint(pgraph_vk_hybrid_choose_execution_route(
-                        false, false, true, true, false),
+                        false, false, true, true,
+                        PGRAPH_VK_FALLBACK_RESOURCES_NEED_ROLLOVER),
+                    ==, PGRAPH_VK_EXECUTION_UBERSHADER_AFTER_ROLLOVER);
+    g_assert_cmpint(pgraph_vk_hybrid_choose_execution_route(
+                        false, false, true, true,
+                        PGRAPH_VK_FALLBACK_RESOURCES_UNAVAILABLE),
                     ==, PGRAPH_VK_EXECUTION_UNCOVERED);
+}
+
+static void test_uncovered_build_uses_closer_binding(void)
+{
+    g_assert_cmpint(pgraph_vk_hybrid_choose_uncovered_route(
+                        true, false, true),
+                    ==, PGRAPH_VK_FRAGMENT_SPECIALIZED);
+    g_assert_cmpint(pgraph_vk_hybrid_choose_uncovered_route(
+                        false, true, true),
+                    ==, PGRAPH_VK_FRAGMENT_UBERSHADER);
+    g_assert_cmpint(pgraph_vk_hybrid_choose_uncovered_route(
+                        false, false, true),
+                    ==, PGRAPH_VK_FRAGMENT_SPECIALIZED);
+    g_assert_cmpint(pgraph_vk_hybrid_choose_uncovered_route(
+                        true, true, true),
+                    ==, PGRAPH_VK_FRAGMENT_SPECIALIZED);
+    g_assert_cmpint(pgraph_vk_hybrid_choose_uncovered_route(
+                        false, true, false),
+                    ==, PGRAPH_VK_FRAGMENT_SPECIALIZED);
+}
+
+static void test_fallback_promotion_probe_has_time_gate(void)
+{
+    g_assert_true(pgraph_vk_hybrid_promotion_due(100, 0));
+    g_assert_false(pgraph_vk_hybrid_promotion_due(115, 116));
+    g_assert_true(pgraph_vk_hybrid_promotion_due(116, 116));
+    g_assert_true(pgraph_vk_hybrid_promotion_due(117, 116));
+}
+
+static bool reservation_pre_evict(Lru *cache, LruNode *node)
+{
+    PipelineBinding *binding = container_of(node, PipelineBinding, node);
+    (void)cache;
+    return !binding->hybrid_pending;
+}
+
+static void test_pipeline_reservation_uses_safe_eviction(void)
+{
+    static Lru cache;
+    PipelineBinding entry = { 0 };
+    PipelineKey old_key = { .regs[0] = 1 };
+    PipelineKey new_key = { .regs[0] = 2 };
+    PipelineKey third_key = { .regs[0] = 3 };
+
+    lru_init(&cache);
+    cache.init_node = probe_pipeline_init;
+    cache.compare_nodes = probe_pipeline_different;
+    cache.pre_node_evict = reservation_pre_evict;
+    lru_add_free(&cache, &entry.node);
+    PipelineBinding *old = container_of(
+        lru_lookup(&cache, 1, &old_key), PipelineBinding, node);
+    old->pipeline = (VkPipeline)(uintptr_t)1;
+    g_assert_cmpint(cache.num_free, ==, 0);
+
+    PipelineBinding *reserved = pgraph_vk_pipeline_cache_reserve(
+        &cache, 2, &new_key);
+    g_assert_true(reserved == old);
+    g_assert_true(reserved->hybrid_pending);
+    g_assert_null(pgraph_vk_pipeline_cache_reserve(
+        &cache, 3, &third_key));
+    g_assert_cmpint(cache.num_used, ==, 1);
+    g_assert_cmpint(cache.num_free, ==, 0);
+
+    reserved->hybrid_pending = false;
+    lru_evict_node(&cache, &reserved->node);
+    g_assert_cmpint(cache.num_used, ==, 0);
+    g_assert_cmpint(cache.num_free, ==, 1);
 }
 
 static ShaderState base_state(void)
@@ -398,5 +474,11 @@ int main(int argc, char **argv)
                     test_shader_ready_probe_requires_runtime_metadata);
     g_test_add_func("/xbox/vk/ubershader/runtime/complete-route",
                     test_execution_route_requires_complete_candidate);
+    g_test_add_func("/xbox/vk/ubershader/runtime/uncovered-choice",
+                    test_uncovered_build_uses_closer_binding);
+    g_test_add_func("/xbox/vk/ubershader/runtime/promotion-time-gate",
+                    test_fallback_promotion_probe_has_time_gate);
+    g_test_add_func("/xbox/vk/ubershader/runtime/pipeline-reservation",
+                    test_pipeline_reservation_uses_safe_eviction);
     return g_test_run();
 }

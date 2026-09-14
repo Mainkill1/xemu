@@ -316,8 +316,6 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
 
     VkWriteDescriptorSet descriptor_writes[3 + NV2A_MAX_TEXTURES];
 
-    assert(r->descriptor_set_index < ARRAY_SIZE(r->descriptor_sets));
-
     if (any_uniform_write) {
         for (int i = 0; i < ARRAY_SIZE(layouts); i++) {
             if (!need_uniform_write[i]) {
@@ -349,8 +347,11 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
     /* A control-only upload reuses the last descriptor set and its UBO. */
     if (pgraph_vk_reuses_descriptor_set_for_control_update(
             need_uber_control_write, need_descriptor_update)) {
+        assert(r->descriptor_set_index > 0);
         return;
     }
+
+    assert(r->descriptor_set_index < ARRAY_SIZE(r->descriptor_sets));
 
     VkDescriptorBufferInfo ubo_buffer_infos[3];
     uint32_t descriptor_write_count = 2 + NV2A_MAX_TEXTURES;
@@ -1160,13 +1161,41 @@ bool pgraph_vk_pack_fallback_controls(PGRAPHState *pg,
     return pgraph_vk_pack_ubershader_controls(packet, &source, NULL);
 }
 
-/* A ready fallback must be drawable without a descriptor or uniform-buffer
- * rollover.  Reserve for both stage uniforms and the control packet: shader
- * activation can make either stage dirty even when the guest state is stable.
- * This deliberately conservative probe does not change buffer or cache state.
- */
-bool pgraph_vk_fallback_draw_resources_ready(PGRAPHState *pg,
-                                             ShaderBinding *binding)
+/* The admitted program is unchanged on a stable fallback binding. Compare
+ * the raw constant registers so snapshot/restoration or direct state writes
+ * cannot rely on a dirty hint to refresh the 448-byte control packet. */
+bool pgraph_vk_refresh_fallback_controls(PGRAPHState *pg,
+                                        const PshState *state)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    uint32_t current[18];
+    for (unsigned int i = 0; i < 8; i++) {
+        current[i * 2] = pgraph_reg_r(pg, NV_PGRAPH_COMBINEFACTOR0 + i * 4);
+        current[i * 2 + 1] =
+            pgraph_reg_r(pg, NV_PGRAPH_COMBINEFACTOR1 + i * 4);
+    }
+    current[16] = pgraph_reg_r(pg, NV_PGRAPH_SPECFOGFACTOR0);
+    current[17] = pgraph_reg_r(pg, NV_PGRAPH_SPECFOGFACTOR1);
+    if (r->uber_controls_valid && r->uber_constant_regs_valid &&
+        memcmp(current, r->uber_constant_regs, sizeof(current)) == 0) {
+        return true;
+    }
+    r->uber_controls_valid = pgraph_vk_pack_fallback_controls(
+        pg, state, &r->uber_controls);
+    if (r->uber_controls_valid) {
+        memcpy(r->uber_constant_regs, current, sizeof(current));
+        r->uber_constant_regs_valid = true;
+    } else {
+        r->uber_constant_regs_valid = false;
+    }
+    return r->uber_controls_valid;
+}
+
+/* The probe is conservative because activation may dirty either uniform
+ * stage. Temporary rollover is distinct from an unsupported fallback:
+ * the descriptor update path can finish/reset and continue using it. */
+PGRAPHVkFallbackResourceState pgraph_vk_fallback_draw_resource_state(
+    PGRAPHState *pg, ShaderBinding *binding)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     StorageBuffer *staging = &r->storage_buffers[BUFFER_UNIFORM_STAGING];
@@ -1177,16 +1206,18 @@ bool pgraph_vk_fallback_draw_resources_ready(PGRAPHState *pg,
 
     if (!binding ||
         binding->fragment_route != PGRAPH_VK_FRAGMENT_UBERSHADER ||
-        !binding->vsh.module_info || !binding->psh.module_info ||
-        r->descriptor_set_index >= ARRAY_SIZE(r->descriptor_sets)) {
-        return false;
+        !binding->vsh.module_info || !binding->psh.module_info) {
+        return PGRAPH_VK_FALLBACK_RESOURCES_UNAVAILABLE;
     }
 
     ShaderUniformLayout *vsh = &binding->vsh.module_info->uniforms;
     ShaderUniformLayout *psh = &binding->psh.module_info->uniforms;
     if ((vsh->total_size && !vsh->allocation) ||
         (psh->total_size && !psh->allocation)) {
-        return false;
+        return PGRAPH_VK_FALLBACK_RESOURCES_UNAVAILABLE;
+    }
+    if (r->descriptor_set_index >= ARRAY_SIZE(r->descriptor_sets)) {
+        return PGRAPH_VK_FALLBACK_RESOURCES_NEED_ROLLOVER;
     }
     sizes[0] = vsh->total_size;
     sizes[1] = psh->total_size;
@@ -1194,15 +1225,17 @@ bool pgraph_vk_fallback_draw_resources_ready(PGRAPHState *pg,
 
     for (size_t i = 0; i < ARRAY_SIZE(sizes); i++) {
         if (end > UINT64_MAX - (alignment - 1)) {
-            return false;
+            return PGRAPH_VK_FALLBACK_RESOURCES_UNAVAILABLE;
         }
         end = ROUND_UP(end, alignment);
         if (sizes[i] > UINT64_MAX - end) {
-            return false;
+            return PGRAPH_VK_FALLBACK_RESOURCES_UNAVAILABLE;
         }
         end += sizes[i];
     }
-    return end <= staging->buffer_size;
+    return end <= staging->buffer_size ?
+               PGRAPH_VK_FALLBACK_RESOURCES_READY :
+               PGRAPH_VK_FALLBACK_RESOURCES_NEED_ROLLOVER;
 }
 
 static bool update_uber_controls(PGRAPHState *pg, const PshState *state)
