@@ -303,6 +303,9 @@ if build_machine.system() in ['linux', 'darwin']
     test('test-xemu-tweak-paths', python,
       args: [files('test-xemu-tweak-paths.py'), '--cc', tweak_test_cc.full_path()],
       suite: ['unit'])
+    test('test-xbox-vk-staging-flush', python,
+      args: [files('test-xbox-vk-staging-flush.py'), '--cc', tweak_test_cc.full_path()],
+      suite: ['unit'])
   endif
 endif
 
