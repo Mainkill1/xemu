@@ -63,27 +63,19 @@ static void test_packet_abi_and_dynamic_combiner_are_emitted(void)
     g_assert_nonnull(strstr(source, "fragColor.a = uberG.a;"));
 }
 
-static void test_stage_count_is_bounded_in_generated_source(void)
+static void test_stage_count_bound_is_emitted(void)
 {
     PshState state = base_state();
     g_autofree char *source = generate(&state, true);
     const char *bound = strstr(source,
         "uint uberStageCount = min(uberHeader.y, ");
     unsigned int maximum = 0;
-    const uint32_t counts[] = { 0, 1, 8, 9, UINT32_MAX };
-    const uint32_t expected[] = { 0, 1, 8, 8, 8 };
 
+    /* This checks emitted source identity; the integration test compiles it. */
     g_assert_nonnull(bound);
     g_assert_cmpint(sscanf(bound,
         "uint uberStageCount = min(uberHeader.y, %uu);", &maximum), ==, 1);
     g_assert_cmpuint(maximum, ==, 8);
-    for (size_t i = 0; i < G_N_ELEMENTS(counts); i++) {
-        uint32_t iterations = 0;
-        while (iterations < MIN(counts[i], maximum)) {
-            iterations++;
-        }
-        g_assert_cmpuint(iterations, ==, expected[i]);
-    }
 }
 
 static void test_combiner_state_does_not_specialize_uber_source(void)
@@ -156,7 +148,7 @@ int main(int argc, char **argv)
     g_test_add_func("/xbox/vk/ubershader/glsl/packet-abi",
                     test_packet_abi_and_dynamic_combiner_are_emitted);
     g_test_add_func("/xbox/vk/ubershader/glsl/stage-count-bound",
-                    test_stage_count_is_bounded_in_generated_source);
+                    test_stage_count_bound_is_emitted);
     g_test_add_func("/xbox/vk/ubershader/glsl/combiner-not-specialized",
                     test_combiner_state_does_not_specialize_uber_source);
     g_test_add_func("/xbox/vk/ubershader/glsl/shell-specialized",
