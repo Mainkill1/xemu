@@ -1,0 +1,159 @@
+name: Retry PFIFO PGRAPH wiki publication
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/wiki-performance-c04-retry.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: xemu-wiki-c04-sync
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: contains(github.event.head_commit.message, '[wiki-c04-retry]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out source repository with inspected parent
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 3
+
+      - name: Verify source and extract reviewed payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          base=5cf180b290ea0fd71c45035df103e44b68c2d9ca
+          git cat-file -e "$base^{commit}"
+          git diff --quiet "$base" HEAD -- \
+            hw/xbox/nv2a/pfifo.c \
+            hw/xbox/nv2a/nv2a_int.h \
+            hw/xbox/nv2a/pgraph/pgraph.c \
+            hw/xbox/nv2a/pgraph/pgraph.h \
+            hw/xbox/nv2a/pgraph/inline-elements.h \
+            hw/xbox/nv2a/debug.h \
+            hw/xbox/nv2a/pgraph/profile.c
+
+          python3 - <<'PY'
+          from pathlib import Path
+
+          source = Path('.github/workflows/wiki-performance-c04-sync.yml')
+          text = source.read_text(encoding='utf-8')
+
+          def extract(start_token: str, end_token: str) -> str:
+              start = text.index(start_token) + len(start_token)
+              end = text.index(end_token, start)
+              block = text[start:end]
+              lines = []
+              for line in block.splitlines():
+                  if line.startswith('          '):
+                      line = line[10:]
+                  lines.append(line)
+              while lines and not lines[0]:
+                  lines.pop(0)
+              while lines and not lines[-1]:
+                  lines.pop()
+              return '\n'.join(lines) + '\n'
+
+          page = extract(
+              "cat > /tmp/C04.md <<'WIKI_C04_PAGE'\n",
+              "\n          WIKI_C04_PAGE",
+          )
+          updater = extract(
+              "cat > /tmp/update_wiki_c04.py <<'PYTHON_UPDATER'\n",
+              "\n          PYTHON_UPDATER",
+          )
+          Path('/tmp/C04.md').write_text(page, encoding='utf-8')
+          Path('/tmp/update_wiki_c04.py').write_text(updater, encoding='utf-8')
+
+          if page.count('<!-- xemu-research:2026-09-15:C04:begin -->') != 1:
+              raise SystemExit('extracted C04 begin marker is invalid')
+          if page.count('<!-- xemu-research:2026-09-15:C04:end -->') != 1:
+              raise SystemExit('extracted C04 end marker is invalid')
+          if len(page.splitlines()) < 350:
+              raise SystemExit('extracted C04 page is unexpectedly short')
+          print(f'extracted reviewed C04 payload: {len(page.splitlines())} lines')
+          PY
+
+      - name: Clone xemu wiki
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.wiki.git" wiki
+          echo "WIKI_BEFORE=$(git -C wiki rev-parse HEAD)"
+
+      - name: Apply and validate C04
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 /tmp/update_wiki_c04.py wiki /tmp/C04.md
+          python3 /tmp/update_wiki_c04.py wiki /tmp/C04.md
+          git -C wiki diff --check
+
+          python3 - <<'PY'
+          from pathlib import Path
+
+          wiki = Path('wiki')
+          page = (wiki / 'Performance-Research-C04-PFIFO-PGRAPH-Dispatch-Handoffs.md').read_text(encoding='utf-8')
+          index = (wiki / 'Performance-Unproven.md').read_text(encoding='utf-8')
+          sidebar = (wiki / '_Sidebar.md').read_text(encoding='utf-8')
+
+          required = [
+              '## Why this vector merits measurement',
+              '## Phase 0 — attribution before behavior changes',
+              '## Recommended first code change: behavior-preserving handoff helper',
+              '## Phase 1 candidate — bounded safe dispatch epoch',
+              '## Files to change',
+              '## Focused tests',
+              '## Acceptance and rejection criteria',
+          ]
+          missing = [heading for heading in required if heading not in page]
+          if missing:
+              raise SystemExit(f'missing C04 sections: {missing}')
+          if page.count('xemu-research:2026-09-15:C04:begin') != 1:
+              raise SystemExit('C04 page marker missing or duplicated')
+          if index.count('#research-c04') != 1:
+              raise SystemExit('C04 index link missing or duplicated')
+          if sidebar.count('#research-c04') != 1:
+              raise SystemExit('C04 sidebar link missing or duplicated')
+          if 'preserves 27 workstreams' not in index:
+              raise SystemExit('index count is not 27')
+          print(f'validated C04 page: {len(page.splitlines())} lines, {len(page.encode())} bytes')
+          PY
+
+          git -C wiki status --short
+          git -C wiki diff --stat
+
+      - name: Commit, push, and verify remote wiki
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C wiki config user.name "github-actions[bot]"
+          git -C wiki config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C wiki add -- '*.md'
+
+          if git -C wiki diff --cached --quiet; then
+            echo 'Wiki already contains the reviewed C04 update.'
+          else
+            git -C wiki diff --cached --check
+            git -C wiki diff --cached --stat
+            git -C wiki commit -m 'docs: add PFIFO PGRAPH dispatch research'
+            git -C wiki push origin HEAD
+          fi
+
+          local_head="$(git -C wiki rev-parse HEAD)"
+          remote_head="$(git -C wiki ls-remote origin HEAD | awk '{print $1}')"
+          test -n "$remote_head"
+          test "$local_head" = "$remote_head"
+          test -z "$(git -C wiki status --porcelain)"
+          echo "WIKI_COMMIT=$local_head"
+          echo "WIKI_REMOTE_HEAD=$remote_head"
