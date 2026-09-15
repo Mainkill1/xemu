@@ -29,6 +29,8 @@ struct QEMUBH {
 QEMUTimerListGroup main_loop_tlg;
 
 int64_t ptimer_test_time_ns;
+uint64_t ptimer_test_timer_mod_calls;
+uint64_t ptimer_test_timer_del_calls;
 
 /* under qtest_enabled(), will not artificially limit period - see hw/core/ptimer.c. */
 int use_icount;
@@ -52,6 +54,7 @@ void timer_init_full(QEMUTimer *ts,
 
 void timer_mod(QEMUTimer *ts, int64_t expire_time)
 {
+    ptimer_test_timer_mod_calls++;
     QEMUTimerList *timer_list = ts->timer_list;
     QEMUTimer *t = &timer_list->active_timers;
 
@@ -70,17 +73,20 @@ void timer_mod(QEMUTimer *ts, int64_t expire_time)
 
 void timer_del(QEMUTimer *ts)
 {
+    ptimer_test_timer_del_calls++;
     QEMUTimerList *timer_list = ts->timer_list;
     QEMUTimer *t = &timer_list->active_timers;
 
     while (t->next != NULL) {
         if (t->next == ts) {
             t->next = ts->next;
-            return;
+            break;
         }
 
         t = t->next;
     }
+    ts->next = NULL;
+    ts->expire_time = -1;
 }
 
 bool timer_pending(const QEMUTimer *ts)
