@@ -658,10 +658,14 @@ static bool upload_texture_image(PGRAPHState *pg, int texture_idx,
                                      texture_data_size);
     StorageBuffer *staging_buffer =
         &r->storage_buffers[staging_buffer_index];
+    VkDeviceSize copy_block_size = 4;
+    if (native_bc) {
+        copy_block_size =
+            vk_format == VK_FORMAT_BC1_RGBA_UNORM_BLOCK ? 8 : 16;
+    }
     VkDeviceSize staging_alignment = pgraph_vk_bc_staging_alignment(
         r->device_props.limits.optimalBufferCopyOffsetAlignment,
-        native_bc ?
-            (vk_format == VK_FORMAT_BC1_RGBA_UNORM_BLOCK ? 8 : 16) : 4);
+        copy_block_size);
 
     if (!pgraph_vk_buffer_has_space_for(pg, staging_buffer_index,
                                         texture_data_size,
