@@ -112,21 +112,6 @@ static void create_buffer(PGRAPHState *pg, StorageBuffer *buffer)
     VK_CHECK(vmaCreateBuffer(r->allocator, &buffer_create_info,
                              &buffer->alloc_info, &buffer->buffer,
                              &buffer->allocation, NULL));
-#ifdef XEMU_VK_DIAGNOSTIC_STAGING_MEMORY
-    int index = buffer - r->storage_buffers;
-    if (index == BUFFER_INDEX_STAGING ||
-        index == BUFFER_VERTEX_INLINE_STAGING ||
-        index == BUFFER_UNIFORM_STAGING) {
-        VkMemoryPropertyFlags properties = 0;
-        vmaGetAllocationMemoryProperties(r->allocator, buffer->allocation,
-                                         &properties);
-        error_report("nv2a/vk: staging allocation index=%d allocation=%p "
-                     "properties=0x%08x visible=%d coherent=%d",
-                     index, (void *)buffer->allocation, properties,
-                     !!(properties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT),
-                     !!(properties & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
-    }
-#endif
 }
 
 static void destroy_buffer(PGRAPHState *pg, StorageBuffer *buffer)
