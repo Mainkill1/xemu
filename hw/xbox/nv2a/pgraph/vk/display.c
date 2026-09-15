@@ -541,6 +541,7 @@ static void destroy_current_display_image(PGRAPHState *pg)
     PGRAPHVkDisplayState *d = &r->display;
 
     d->reuse.valid = false;
+    pgraph_vk_host_copy_invalidate_upload(&d->host_copy.upload);
 
     if (d->image == VK_NULL_HANDLE) {
         return;
@@ -549,8 +550,6 @@ static void destroy_current_display_image(PGRAPHState *pg)
     if (d->host_copy.gl_texture_id) {
         glDeleteTextures(1, &d->host_copy.gl_texture_id);
         d->host_copy.gl_texture_id = 0;
-        d->host_copy.gl_texture_width = 0;
-        d->host_copy.gl_texture_height = 0;
     }
 
     if (d->host_copy.buffer != VK_NULL_HANDLE) {
@@ -1278,6 +1277,10 @@ void pgraph_vk_render_display(PGRAPHState *pg)
 
     disp->reuse.valid = false;
     render_display(pg, surface, vga_display_params.line_offset);
+
+    /* The display submission and host-copy invalidation have completed. */
+    pgraph_vk_host_copy_publish_completed(
+        &disp->completed_output_generation, &disp->host_copy.upload);
 
     /* render_display waits for the display image to be externally usable. */
     if (tcg_enabled() && !disp->pvideo.state.enabled &&
