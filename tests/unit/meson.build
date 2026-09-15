@@ -136,6 +136,7 @@ endif
 
 if vulkan.found()
   tests += {
+    'test-xbox-vk-staging-flush': [volk, vma],
     'test-xbox-vk-ubershader-glsl-integration': [
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/common.c',
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/psh.c',

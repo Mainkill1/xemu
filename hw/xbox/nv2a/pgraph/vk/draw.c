@@ -23,6 +23,7 @@
 #include "renderer.h"
 #include "hybrid-ready.h"
 #include "pipeline-cache-lifetime.h"
+#include "staging-copy.h"
 #include "ui/xemu-tweaks.h"
 #include <math.h>
 
@@ -2058,9 +2059,6 @@ static void sync_staging_buffer(PGRAPHState *pg, VkCommandBuffer cmd,
         return;
     }
 
-    VkBufferCopy copy_region = { .size = b_src->buffer_offset };
-    vkCmdCopyBuffer(cmd, b_src->buffer, b_dst->buffer, 1, &copy_region);
-
     VkAccessFlags dst_access_mask;
     VkPipelineStageFlags dst_stage_mask;
 
@@ -2083,17 +2081,9 @@ static void sync_staging_buffer(PGRAPHState *pg, VkCommandBuffer cmd,
         break;
     }
 
-    VkBufferMemoryBarrier barrier = {
-        .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
-        .srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
-        .dstAccessMask = dst_access_mask,
-        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-        .buffer = b_dst->buffer,
-        .size = b_src->buffer_offset
-    };
-    vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TRANSFER_BIT, dst_stage_mask, 0,
-                         0, NULL, 1, &barrier, 0, NULL);
+    VK_CHECK(pgraph_vk_record_staging_copy(
+        r->allocator, b_src->allocation, cmd, b_src->buffer, b_dst->buffer,
+        b_src->buffer_offset, dst_access_mask, dst_stage_mask));
 
     b_src->buffer_offset = 0;
 }

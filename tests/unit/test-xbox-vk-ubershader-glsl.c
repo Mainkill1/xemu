@@ -53,10 +53,29 @@ static void test_packet_abi_and_dynamic_combiner_are_emitted(void)
     g_assert_nonnull(strstr(source, "uvec4 uberFinal;"));
     g_assert_nonnull(strstr(source, "vec4 uberConstants[18];"));
     g_assert_nonnull(strstr(source,
-        "for (uint uberIndex = 0u; uberIndex < uberHeader.y; uberIndex++)"));
+        "uint uberStageCount = min(uberHeader.y, 8u);"));
+    g_assert_nonnull(strstr(source,
+        "for (uint uberIndex = 0u; uberIndex < uberStageCount; uberIndex++)"));
+    g_assert_null(strstr(source,
+        "uberIndex < uberHeader.y"));
     g_assert_nonnull(strstr(source, "uberOldR0.a >= 0.5"));
     g_assert_nonnull(strstr(source, "fragColor.rgb = uberD.rgb + mix("));
     g_assert_nonnull(strstr(source, "fragColor.a = uberG.a;"));
+}
+
+static void test_stage_count_bound_is_emitted(void)
+{
+    PshState state = base_state();
+    g_autofree char *source = generate(&state, true);
+    const char *bound = strstr(source,
+        "uint uberStageCount = min(uberHeader.y, ");
+    unsigned int maximum = 0;
+
+    /* This checks emitted source identity; the integration test compiles it. */
+    g_assert_nonnull(bound);
+    g_assert_cmpint(sscanf(bound,
+        "uint uberStageCount = min(uberHeader.y, %uu);", &maximum), ==, 1);
+    g_assert_cmpuint(maximum, ==, 8);
 }
 
 static void test_combiner_state_does_not_specialize_uber_source(void)
@@ -128,6 +147,8 @@ int main(int argc, char **argv)
     g_test_init(&argc, &argv, NULL);
     g_test_add_func("/xbox/vk/ubershader/glsl/packet-abi",
                     test_packet_abi_and_dynamic_combiner_are_emitted);
+    g_test_add_func("/xbox/vk/ubershader/glsl/stage-count-bound",
+                    test_stage_count_bound_is_emitted);
     g_test_add_func("/xbox/vk/ubershader/glsl/combiner-not-specialized",
                     test_combiner_state_does_not_specialize_uber_source);
     g_test_add_func("/xbox/vk/ubershader/glsl/shell-specialized",
