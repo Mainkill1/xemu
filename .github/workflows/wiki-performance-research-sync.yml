@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Check out source repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Reconstruct and verify update package
         shell: bash
@@ -31,12 +31,12 @@ jobs:
 
           cat .github/wiki-sync/payload.part-* > /tmp/wiki-update.tar.xz.b64
           printf '%s  %s\n' \
-            'a0a83b39dd8cd2a93081c84ac190aaf487ed703defacc333bce3d5ec83cde616' \
+            'bc6a5b3b15510dd2e1b8b5c1381d6ab8ed7c7cacd55c46ceadf2add64df1aa4b' \
             '/tmp/wiki-update.tar.xz.b64' | sha256sum -c -
 
           base64 --decode /tmp/wiki-update.tar.xz.b64 > /tmp/wiki-update.tar.xz
           printf '%s  %s\n' \
-            '1463888548d045c7af87d03e1712e00f1a9ba51f96e383040918a14d9b437776' \
+            '3ebd6aecfbfbc7e2d5aeb16f3a322e05540375fd1ff81e88e17809055b7bd710' \
             '/tmp/wiki-update.tar.xz' | sha256sum -c -
 
           mkdir -p /tmp/wiki-update
