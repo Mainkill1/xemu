@@ -598,12 +598,16 @@ static bool download_surface(NV2AState *d, SurfaceBinding *surface, bool force)
         return false;
     }
 
+    /* Swizzled writes can cover more than pitch * height. The binding size
+     * is the extent used for overlap checks and the destination buffer. */
     memory_region_set_client_dirty(d->vram, surface->vram_addr,
-                                   surface->pitch * surface->height,
-                                   DIRTY_MEMORY_VGA);
+                                   surface->size, DIRTY_MEMORY_VGA);
     memory_region_set_client_dirty(d->vram, surface->vram_addr,
-                                   surface->pitch * surface->height,
-                                   DIRTY_MEMORY_NV2A_TEX);
+                                   surface->size, DIRTY_MEMORY_NV2A_TEX);
+    /* The GPU-to-RAM copy also makes the vertex mirror stale. A later draw
+     * may reference these bytes after this surface binding has been evicted. */
+    memory_region_set_client_dirty(d->vram, surface->vram_addr,
+                                   surface->size, DIRTY_MEMORY_NV2A);
 
     return true;
 }
