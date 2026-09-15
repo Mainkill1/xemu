@@ -1,0 +1,163 @@
+name: One-time xemu wiki research sync
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/wiki-performance-research-sync.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: xemu-wiki-research-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: contains(github.event.head_commit.message, '[wiki-sync-run]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v4
+
+      - name: Reconstruct and verify update package
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cat .github/wiki-sync/payload.part-* > /tmp/wiki-update.tar.xz.b64
+          printf '%s  %s\n' \
+            'a0a83b39dd8cd2a93081c84ac190aaf487ed703defacc333bce3d5ec83cde616' \
+            '/tmp/wiki-update.tar.xz.b64' | sha256sum -c -
+
+          base64 --decode /tmp/wiki-update.tar.xz.b64 > /tmp/wiki-update.tar.xz
+          printf '%s  %s\n' \
+            '1463888548d045c7af87d03e1712e00f1a9ba51f96e383040918a14d9b437776' \
+            '/tmp/wiki-update.tar.xz' | sha256sum -c -
+
+          mkdir -p /tmp/wiki-update
+          tar -xJf /tmp/wiki-update.tar.xz -C /tmp/wiki-update
+          test -f /tmp/wiki-update/wiki-sync-payload/apply_wiki_updates.py
+          test -f /tmp/wiki-update/wiki-sync-payload/manifest.json
+
+      - name: Clone the xemu wiki Git repository
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          auth_header="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic ${auth_header}" \
+            clone "https://github.com/${GITHUB_REPOSITORY}.wiki.git" /tmp/xemu-wiki
+
+          test "$(git -C /tmp/xemu-wiki remote get-url origin)" = \
+            "https://github.com/${GITHUB_REPOSITORY}.wiki.git"
+          echo "WIKI_BEFORE=$(git -C /tmp/xemu-wiki rev-parse HEAD)"
+          git -C /tmp/xemu-wiki status --short
+
+      - name: Apply and validate the research pages
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          package=/tmp/wiki-update/wiki-sync-payload
+          wiki=/tmp/xemu-wiki
+
+          python3 "$package/apply_wiki_updates.py" --wiki "$wiki"
+          python3 "$package/apply_wiki_updates.py" --wiki "$wiki" --apply
+          git -C "$wiki" diff --check
+
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          package = Path('/tmp/wiki-update/wiki-sync-payload')
+          wiki = Path('/tmp/xemu-wiki')
+          manifest = json.loads((package / 'manifest.json').read_text(encoding='utf-8'))
+          entries = manifest['topics'] + manifest['support']
+          pages = list(wiki.glob('*.md'))
+          all_text = '\n'.join(page.read_text(encoding='utf-8') for page in pages)
+
+          missing = []
+          for entry in entries:
+              marker = f"<!-- xemu-research:2026-09-15:{entry['id']}:begin -->"
+              if all_text.count(marker) != 1:
+                  missing.append(entry['id'])
+
+          for key in ('INDEX', 'SIDEBAR'):
+              marker = f'<!-- xemu-research:2026-09-15:{key}:begin -->'
+              if all_text.count(marker) != 1:
+                  missing.append(key)
+
+          if missing:
+              raise SystemExit(f'missing or duplicate managed sections: {missing}')
+
+          index_path = wiki / 'Performance-Unproven.md'
+          sidebar_path = wiki / '_Sidebar.md'
+          if not index_path.is_file() or not sidebar_path.is_file():
+              raise SystemExit('required index or sidebar page is missing')
+
+          index = index_path.read_text(encoding='utf-8')
+          for topic in manifest['topics']:
+              anchor = f'#research-{topic["id"].lower()}'
+              if anchor not in index:
+                  raise SystemExit(f'index is missing {topic["id"]}: {anchor}')
+
+          print(
+              f"validated {len(manifest['topics'])} topic sections, "
+              f"{len(manifest['support'])} support sections, index, and sidebar"
+          )
+          PY
+
+          changed_non_markdown="$(git -C "$wiki" status --porcelain | awk '{print $2}' | grep -Ev '\.md$' || true)"
+          if [[ -n "$changed_non_markdown" ]]; then
+            echo "Unexpected non-Markdown changes:" >&2
+            printf '%s\n' "$changed_non_markdown" >&2
+            exit 1
+          fi
+
+          git -C "$wiki" status --short
+          git -C "$wiki" diff --stat
+
+      - name: Commit, push, and verify the wiki update
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          wiki=/tmp/xemu-wiki
+          before="$(git -C "$wiki" rev-parse HEAD)"
+          git -C "$wiki" config user.name 'github-actions[bot]'
+          git -C "$wiki" config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C "$wiki" add -- '*.md'
+
+          if git -C "$wiki" diff --cached --quiet; then
+            echo 'No wiki changes were needed; the managed sections already match.'
+          else
+            git -C "$wiki" diff --cached --check
+            git -C "$wiki" diff --cached --stat
+            git -C "$wiki" commit -m 'docs: expand unproven performance research'
+
+            auth_header="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+            git -C "$wiki" \
+              -c "http.https://github.com/.extraheader=AUTHORIZATION: basic ${auth_header}" \
+              push origin HEAD
+          fi
+
+          after="$(git -C "$wiki" rev-parse HEAD)"
+          remote="$(git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)" \
+            ls-remote "https://github.com/${GITHUB_REPOSITORY}.wiki.git" HEAD | awk '{print $1}')"
+
+          test -n "$remote"
+          test "$after" = "$remote"
+          test -z "$(git -C "$wiki" status --porcelain)"
+
+          echo "WIKI_BEFORE=$before"
+          echo "WIKI_COMMIT=$after"
+          echo "WIKI_REMOTE_HEAD=$remote"
