@@ -133,6 +133,7 @@ jobs:
 
           wiki=/tmp/xemu-wiki
           before="$(git -C "$wiki" rev-parse HEAD)"
+          auth_header="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
           git -C "$wiki" config user.name 'github-actions[bot]'
           git -C "$wiki" config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git -C "$wiki" add -- '*.md'
@@ -143,16 +144,15 @@ jobs:
             git -C "$wiki" diff --cached --check
             git -C "$wiki" diff --cached --stat
             git -C "$wiki" commit -m 'docs: expand unproven performance research'
-
-            auth_header="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
             git -C "$wiki" \
               -c "http.https://github.com/.extraheader=AUTHORIZATION: basic ${auth_header}" \
               push origin HEAD
           fi
 
           after="$(git -C "$wiki" rev-parse HEAD)"
-          remote="$(git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)" \
-            ls-remote "https://github.com/${GITHUB_REPOSITORY}.wiki.git" HEAD | awk '{print $1}')"
+          remote="$(git -C "$wiki" \
+            -c "http.https://github.com/.extraheader=AUTHORIZATION: basic ${auth_header}" \
+            ls-remote origin HEAD | awk '{print $1}')"
 
           test -n "$remote"
           test "$after" = "$remote"
