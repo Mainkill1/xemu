@@ -136,6 +136,7 @@ endif
 
 if vulkan.found()
   tests += {
+    'test-xbox-vk-staging-flush': [volk, vma],
     'test-xbox-vk-ubershader-glsl-integration': [
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/common.c',
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/psh.c',
@@ -302,9 +303,6 @@ if build_machine.system() in ['linux', 'darwin']
   if tweak_test_cc.found()
     test('test-xemu-tweak-paths', python,
       args: [files('test-xemu-tweak-paths.py'), '--cc', tweak_test_cc.full_path()],
-      suite: ['unit'])
-    test('test-xbox-vk-staging-flush', python,
-      args: [files('test-xbox-vk-staging-flush.py'), '--cc', tweak_test_cc.full_path()],
       suite: ['unit'])
   endif
 endif
