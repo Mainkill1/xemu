@@ -9,6 +9,12 @@
 
 #include "qemu/osdep.h"
 
+static inline size_t pgraph_vk_bc_staging_alignment(
+    size_t device_alignment, size_t block_size)
+{
+    return MAX(MAX((size_t)4, device_alignment), block_size);
+}
+
 static inline size_t pgraph_vk_bc_mip_size(unsigned int width,
                                            unsigned int height,
                                            unsigned int block_size)
