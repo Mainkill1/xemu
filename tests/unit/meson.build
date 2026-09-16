@@ -166,6 +166,70 @@ if vulkan.found()
   }
 endif
 
+# This integration unit retains only the production pending-report, finish,
+# and report-publication call chains from large target-specific translation
+# units. Section GC keeps the test link closure bounded without replacing the
+# queue or retirement logic with test-only helpers.
+if 'i386-softmmu' in target_dirs and vulkan.found()
+  nv2a_vk_report_section_args = cc.get_supported_arguments(
+    '-ffunction-sections',
+    '-fdata-sections',
+  )
+  if host_os == 'darwin'
+    nv2a_vk_report_gc_link_args = cc.get_supported_link_arguments(
+      '-Wl,-dead_strip',
+    )
+  else
+    nv2a_vk_report_gc_link_args = cc.get_supported_link_arguments(
+      '-Wl,--gc-sections',
+    )
+  endif
+
+  if nv2a_vk_report_section_args.length() == 2 and \
+     nv2a_vk_report_gc_link_args.length() == 1
+    nv2a_vk_report_test = declare_dependency(
+      sources: config_target_h['i386-softmmu'],
+      compile_args: [
+        '-DCOMPILING_PER_TARGET',
+        '-DCONFIG_TARGET="i386-softmmu-config-target.h"',
+        '-DXBOX_PGRAPH_REPORT_TEST_USE_PRODUCTION_DMA_LOAD',
+        '-include',
+        meson.project_source_root() / 'tests/unit/xbox-nv2a-report-test-shim.h',
+      ] + nv2a_vk_report_section_args,
+      link_args: nv2a_vk_report_gc_link_args,
+      include_directories: include_directories('../../target/i386'),
+    )
+    nv2a_vk_report_test_headers = [
+      volk.partial_dependency(compile_args: true, includes: true),
+      libglslang.partial_dependency(compile_args: true, includes: true),
+      vma.partial_dependency(compile_args: true, includes: true),
+      vulkan.partial_dependency(compile_args: true, includes: true),
+      spirv_reflect,
+    ]
+    tests += {
+      'test-xbox-pgraph-vk-reports': [
+        'xbox-pgraph-report-test-support.c',
+        meson.project_source_root() / 'hw/xbox/nv2a/nv2a.c',
+        meson.project_source_root() / 'hw/xbox/nv2a/pgraph/pgraph.c',
+        meson.project_source_root() / 'hw/xbox/nv2a/pgraph/reports.c',
+        meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/command.c',
+        meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/draw.c',
+        meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/glsl.c',
+        meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-policy.c',
+        meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-trace.c',
+        meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/perf.c',
+        meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/reports.c',
+        meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/surface-compute.c',
+        meson.project_source_root() / 'hw/xbox/nv2a/pgraph/profile.c',
+        nv2a_vk_report_test,
+        nv2a_vsh_cpu.partial_dependency(compile_args: true, includes: true),
+      ] + nv2a_vk_report_test_headers,
+    }
+  else
+    message('Skipping NV2A Vulkan report integration test: section GC unsupported')
+  endif
+endif
+
 # This real graphics lifecycle test skips unless explicitly enabled on a host
 # with an interactive SDL/OpenGL session.
 if sdl.found() and epoxy.found()

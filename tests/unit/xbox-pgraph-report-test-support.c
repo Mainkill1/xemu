@@ -13,7 +13,9 @@
 #include "xbox-pgraph-report-test-support.h"
 #include "hw/xbox/nv2a/nv2a_int.h"
 
+#ifndef XBOX_PGRAPH_REPORT_TEST_USE_PRODUCTION_DMA_LOAD
 static unsigned int dma_load_count;
+#endif
 
 bool report_test_guarded_buffer_init(ReportTestGuardedBuffer *buffer)
 {
@@ -75,6 +77,7 @@ uint64_t memory_region_size(MemoryRegion *region)
     return int128_get64(region->size);
 }
 
+#ifndef XBOX_PGRAPH_REPORT_TEST_USE_PRODUCTION_DMA_LOAD
 DMAObject nv_dma_load(NV2AState *d, hwaddr dma_obj_address)
 {
     const uint32_t *dma_obj =
@@ -101,3 +104,4 @@ void report_test_reset_dma_load_count(void)
 {
     dma_load_count = 0;
 }
+#endif
