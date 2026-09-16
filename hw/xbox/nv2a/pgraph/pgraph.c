@@ -703,7 +703,7 @@ static void pgraph_method_non_inc(MethodFunc handler, METHOD_HANDLER_ARG_DECL)
                         method == NV097_ARRAY_ELEMENT32 ||
                         method == NV097_INLINE_ARRAY;
 
-    if (array_packet && xemu_tweak_enabled(XEMU_TWEAK_PGRAPH_BULK_PACKETS)) {
+    if (array_packet) {
         size_t packet_words = inc ? 1 : num_words_available;
         if (!pgraph_method_array_packet_fits(pg, method, packet_words)) {
             pgraph_drop_oversized_array_packet(method, packet_words);
@@ -717,26 +717,30 @@ static void pgraph_method_non_inc(MethodFunc handler, METHOD_HANDLER_ARG_DECL)
             return;
         }
 
-        PGRAPHInlinePacketMode mode = pgraph_inline_packet_mode(
-            inc, pgraph_method_trace_enabled());
+        if (xemu_tweak_enabled(XEMU_TWEAK_PGRAPH_BULK_PACKETS)) {
+            PGRAPHInlinePacketMode mode = pgraph_inline_packet_mode(
+                inc, pgraph_method_trace_enabled());
 
-        switch (mode) {
-        case PGRAPH_INLINE_PACKET_SCALAR_INCREMENTING:
-            handler(METHOD_HANDLER_ARGS);
-            return;
-        case PGRAPH_INLINE_PACKET_SCALAR_TRACE:
-            break;
-        case PGRAPH_INLINE_PACKET_BULK:
-            if (pgraph_method_array_bulk(d, pg, method, parameters,
-                                         num_words_available)) {
-                *num_words_consumed = num_words_available;
+            switch (mode) {
+            case PGRAPH_INLINE_PACKET_SCALAR_INCREMENTING:
+                handler(METHOD_HANDLER_ARGS);
                 return;
+            case PGRAPH_INLINE_PACKET_SCALAR_TRACE:
+                break;
+            case PGRAPH_INLINE_PACKET_BULK:
+                if (pgraph_method_array_bulk(d, pg, method, parameters,
+                                             num_words_available)) {
+                    *num_words_consumed = num_words_available;
+                    return;
+                }
+                break;
+            default:
+                g_assert_not_reached();
             }
-            break;
-        default:
-            g_assert_not_reached();
         }
-    } else if (inc) {
+    }
+
+    if (inc) {
         handler(METHOD_HANDLER_ARGS);
         return;
     }
