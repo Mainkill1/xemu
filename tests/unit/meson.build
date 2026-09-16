@@ -61,7 +61,7 @@ tests = {
     meson.project_source_root() / 'ui/xemu-gpu-info.c',
   ],
   'test-xbox-vk-bc-layout': [],
-  'test-xbox-vk-vertex-fetch-span': [],
+  'test-xbox-pgraph-vertex-fetch-span': [],
   'test-xbox-vk-failure-state': [],
   'test-xbox-vk-surface-coherence': [],
   'test-xbox-vk-failpoint': [

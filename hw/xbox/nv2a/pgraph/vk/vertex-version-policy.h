@@ -11,7 +11,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
-#include "hw/xbox/nv2a/pgraph/vk/vertex-fetch-span.h"
+#include "hw/xbox/nv2a/pgraph/vertex-fetch-span.h"
 
 /* Versioned draws are intentionally bounded. The copy budget leaves enough
  * room for worst-case per-attribute alignment (16 attributes at 16 bytes),
@@ -30,19 +30,19 @@ static inline bool pgraph_vk_vertex_version_source_fits(
 {
     uint64_t relative_start, span_bytes;
     if (!vertices || stride < element_bytes ||
-        !pgraph_vk_vertex_fetch_span(0, vertices - 1, stride,
-                                      element_bytes, &relative_start,
-                                      &span_bytes)) {
+        !pgraph_vertex_fetch_span(0, vertices - 1, stride,
+                                  element_bytes, &relative_start,
+                                  &span_bytes)) {
         return false;
     }
     return dma_offset <= dma_inclusive_limit &&
            relative_start <= dma_inclusive_limit - dma_offset &&
            vram_addr <= vram_size &&
            relative_start <= vram_size - vram_addr &&
-           pgraph_vk_vertex_span_fits_dma(
+           pgraph_vertex_span_fits_dma(
                dma_offset + relative_start, span_bytes,
                dma_inclusive_limit) &&
-           pgraph_vk_vertex_span_fits_vram(
+           pgraph_vertex_span_fits_vram(
                vram_addr + relative_start, span_bytes, vram_size);
 }
 
