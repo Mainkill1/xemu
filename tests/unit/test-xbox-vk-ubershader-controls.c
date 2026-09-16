@@ -158,7 +158,8 @@ static void test_zero_stage_count_and_inactive_rows_are_supported(void)
     PGRAPHUberControlSource state = valid_state();
     PGRAPHUberControls packet;
     PGRAPHUberControlRejectReason reason;
-    state.combiner_control &= ~UINT32_C(0xff);
+    state.combiner_control &=
+        ~(UINT32_C(0xff) | (PS_COMBINERCOUNT_MUX_MSB << 8));
     for (unsigned int i = 0; i < PGRAPH_UBER_STAGE_COUNT; i++) {
         state.rgb_inputs[i] = UINT32_MAX;
         state.alpha_inputs[i] = UINT32_MAX;
@@ -172,6 +173,20 @@ static void test_zero_stage_count_and_inactive_rows_are_supported(void)
         assert(!memcmp(packet.stage[i], (uint32_t[4]) { 0 },
                        sizeof(packet.stage[i])));
     }
+}
+
+static void test_lsb_selector_is_irrelevant_without_active_mux(void)
+{
+    PGRAPHUberControlSource state = valid_state();
+    PGRAPHUberControls packet;
+    PGRAPHUberControlRejectReason reason;
+
+    state.combiner_control &= ~(PS_COMBINERCOUNT_MUX_MSB << 8);
+    state.alpha_outputs[0] &=
+        ~((uint32_t)PS_COMBINEROUTPUT_AB_CD_MUX << 12);
+    assert(pgraph_vk_pack_ubershader_controls(&packet, &state, &reason));
+    assert(reason == PGRAPH_UBER_CONTROL_REJECT_NONE);
+    assert(packet.header[2] == state.combiner_control);
 }
 
 static void test_maximum_stage_count_is_supported(void)
@@ -325,6 +340,7 @@ int main(void)
 {
     test_packet_layout_and_active_state();
     test_zero_stage_count_and_inactive_rows_are_supported();
+    test_lsb_selector_is_irrelevant_without_active_mux();
     test_maximum_stage_count_is_supported();
     test_rejections_zero_the_entire_packet();
     test_null_inputs_are_reported_and_output_is_zero();

@@ -161,6 +161,9 @@ bool pgraph_vk_pack_ubershader_controls(
 {
     unsigned int stages;
     uint32_t flags;
+    bool uses_mux = false;
+    const uint32_t mux_mask =
+        (uint32_t)PS_COMBINEROUTPUT_AB_CD_MUX << 12;
 
     if (!packet) {
         return reject(reason, PGRAPH_UBER_CONTROL_REJECT_NULL_OUTPUT);
@@ -174,9 +177,6 @@ bool pgraph_vk_pack_ubershader_controls(
     flags = source->combiner_control >> COMBINER_FLAG_SHIFT;
     if (stages > PGRAPH_UBER_STAGE_COUNT) {
         return reject(reason, PGRAPH_UBER_CONTROL_REJECT_STAGE_COUNT);
-    }
-    if (!(flags & PS_COMBINERCOUNT_MUX_MSB)) {
-        return reject(reason, PGRAPH_UBER_CONTROL_REJECT_LSB_MUX);
     }
     if (flags & ~COMBINER_ALLOWED_FLAGS) {
         return reject(reason, PGRAPH_UBER_CONTROL_REJECT_CONTROL_BITS);
@@ -195,6 +195,11 @@ bool pgraph_vk_pack_ubershader_controls(
         if (!valid_stage_output(source->alpha_outputs[i], true)) {
             return reject(reason, PGRAPH_UBER_CONTROL_REJECT_ALPHA_OUTPUT);
         }
+        uses_mux |= ((source->rgb_outputs[i] |
+                      source->alpha_outputs[i]) & mux_mask) != 0;
+    }
+    if (uses_mux && !(flags & PS_COMBINERCOUNT_MUX_MSB)) {
+        return reject(reason, PGRAPH_UBER_CONTROL_REJECT_LSB_MUX);
     }
 
     if (!source->final_inputs_0 && !source->final_inputs_1) {
