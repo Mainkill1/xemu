@@ -2694,8 +2694,8 @@ static void sync_vertex_ram_buffer(PGRAPHState *pg)
          * with a clean surface needs neither readback nor mirror upload. */
         if (memory_dirty) {
             NV2A_VK_DPRINTF("Memory dirty. Synchronizing...");
-            pgraph_vk_update_vertex_ram_buffer(pg, addr, d->vram_ptr + addr,
-                                               size, false);
+            pgraph_vk_update_vertex_ram_buffer_after_surface_readback(
+                pg, addr, d->vram_ptr + addr, size);
         }
     }
 
@@ -3194,7 +3194,7 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
             max_element = MAX(max_element, pg->draw_arrays_start[i] + pg->draw_arrays_count[i]);
         }
         sync_vertex_ram_buffer(pg);
-        pgraph_vk_refresh_vertex_inline_values(
+        pgraph_vk_refresh_vertex_inline_values_after_sync(
             pg, pg->draw_arrays_max_count - 1);
         VertexBufferRemap remap = remap_unaligned_attributes(pg, max_element);
 
@@ -3245,7 +3245,8 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
             return false;
         }
         sync_vertex_ram_buffer(pg);
-        pgraph_vk_refresh_vertex_inline_values(pg, provoking_element);
+        pgraph_vk_refresh_vertex_inline_values_after_sync(pg,
+                                                          provoking_element);
         VertexBufferRemap remap = remap_unaligned_attributes(pg, max_element + 1);
 
         if (!begin_pre_draw(pg)) {

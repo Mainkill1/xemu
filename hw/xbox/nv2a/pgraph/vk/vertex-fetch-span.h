@@ -49,4 +49,53 @@ static inline bool pgraph_vk_vertex_span_fits_vram(uint64_t start,
            span_bytes <= vram_size - start;
 }
 
+typedef struct PGRAPHVkVertexFetchRange {
+    uint64_t attribute_base;
+    uint64_t fetch_start;
+    uint64_t fetch_size;
+} PGRAPHVkVertexFetchRange;
+
+/* Resolve a strided fetch from DMA-relative coordinates into absolute VRAM.
+ * dma_limit is inclusive; vram_size is exclusive. */
+static inline bool pgraph_vk_vertex_resolve_fetch_range(
+    uint64_t dma_base, uint64_t dma_limit, uint64_t attribute_offset,
+    uint64_t vram_size, uint64_t first_vertex, uint64_t last_vertex,
+    uint64_t stride, uint64_t element_bytes,
+    PGRAPHVkVertexFetchRange *range)
+{
+    uint64_t relative_start, fetch_size;
+    if (!pgraph_vk_vertex_fetch_span(first_vertex, last_vertex, stride,
+                                     element_bytes, &relative_start,
+                                     &fetch_size) ||
+        attribute_offset > dma_limit ||
+        relative_start > dma_limit - attribute_offset) {
+        return false;
+    }
+
+    uint64_t dma_fetch_start = attribute_offset + relative_start;
+    if (!pgraph_vk_vertex_span_fits_dma(dma_fetch_start, fetch_size,
+                                        dma_limit) ||
+        dma_base > vram_size ||
+        attribute_offset > vram_size - dma_base) {
+        return false;
+    }
+
+    uint64_t attribute_base = dma_base + attribute_offset;
+    if (relative_start > vram_size - attribute_base) {
+        return false;
+    }
+
+    uint64_t fetch_start = attribute_base + relative_start;
+    if (!pgraph_vk_vertex_span_fits_vram(fetch_start, fetch_size, vram_size)) {
+        return false;
+    }
+
+    *range = (PGRAPHVkVertexFetchRange) {
+        .attribute_base = attribute_base,
+        .fetch_start = fetch_start,
+        .fetch_size = fetch_size,
+    };
+    return true;
+}
+
 #endif

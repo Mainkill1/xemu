@@ -45,9 +45,9 @@ VkDeviceSize pgraph_vk_update_vertex_inline_buffer(PGRAPHState *pg, void **data,
                                       sizes, count, 1);
 }
 
-void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
-                                        void *data, VkDeviceSize size,
-                                        bool download_surfaces)
+static void update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
+                                     void *data, VkDeviceSize size,
+                                     bool surface_readback_complete)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -61,7 +61,7 @@ void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
     assert(offset <= vertex->buffer_size);
     assert(size <= vertex->buffer_size - offset);
 
-    if (download_surfaces &&
+    if (!surface_readback_complete &&
         !pgraph_vk_download_surfaces_in_range_if_dirty(pg, offset, size)) {
         /* draw.c has already retired this range's NV2A dirty bit. Re-arm it
          * before refusing to consume stale guest memory. */
@@ -147,6 +147,18 @@ void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
 
     nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_1);
     pgraph_vk_perf_record_vertex_staging_copy(r, size);
+}
+
+void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
+                                        void *data, VkDeviceSize size)
+{
+    update_vertex_ram_buffer(pg, offset, data, size, false);
+}
+
+void pgraph_vk_update_vertex_ram_buffer_after_surface_readback(
+    PGRAPHState *pg, hwaddr offset, void *data, VkDeviceSize size)
+{
+    update_vertex_ram_buffer(pg, offset, data, size, true);
 }
 
 static void update_memory_buffer(NV2AState *d, hwaddr addr, hwaddr size)
@@ -284,43 +296,32 @@ bool pgraph_vk_bind_vertex_attributes(NV2AState *d, unsigned int min_element,
         hwaddr attrib_data_addr;
         size_t stride;
 
-        hwaddr start = 0;
         size_t element_size = attr->size * attr->count;
         assert(element_size <= sizeof(attr->inline_value));
         if (inline_data) {
             attrib_data_addr = attr->inline_array_offset;
             stride = inline_stride;
         } else {
-            hwaddr dma_len = 0;
+            hwaddr dma_limit = 0;
             uint8_t *attr_data = (uint8_t *)nv_dma_map(
                 d, attr->dma_select ? pg->dma_vertex_b : pg->dma_vertex_a,
-                &dma_len);
+                &dma_limit);
             stride = attr->stride;
-            uint64_t relative_start, span_bytes;
-            uint64_t dma_base = attr_data - d->vram_ptr;
+            uint64_t dma_base = (uintptr_t)attr_data -
+                                (uintptr_t)d->vram_ptr;
             uint64_t vram_size = memory_region_size(d->vram);
-            if (!pgraph_vk_vertex_fetch_span(
-                    min_element, max_element, stride, element_size,
-                    &relative_start, &span_bytes) ||
-                attr->offset > dma_len ||
-                relative_start > dma_len - attr->offset ||
-                !pgraph_vk_vertex_span_fits_dma(
-                    attr->offset + relative_start, span_bytes, dma_len) ||
-                dma_base > vram_size ||
-                attr->offset > vram_size - dma_base ||
-                relative_start > vram_size - dma_base - attr->offset ||
-                !pgraph_vk_vertex_span_fits_vram(
-                    dma_base + attr->offset + relative_start,
-                    span_bytes, vram_size)) {
+            PGRAPHVkVertexFetchRange range;
+            if (!pgraph_vk_vertex_resolve_fetch_range(
+                    dma_base, dma_limit, attr->offset, vram_size,
+                    min_element, max_element, stride, element_size, &range)) {
                 error_report("Vulkan vertex attribute %d exceeds DMA or VRAM",
                              i);
                 NV2A_VK_DGROUP_END();
                 NV2A_VK_DGROUP_END();
                 return false;
             }
-            attrib_data_addr = dma_base + attr->offset;
-            start = attrib_data_addr + relative_start;
-            update_memory_buffer(d, start, span_bytes);
+            attrib_data_addr = range.attribute_base;
+            update_memory_buffer(d, range.fetch_start, range.fetch_size);
             r->vertex_attribute_offsets[i] = attrib_data_addr;
         }
 
@@ -383,8 +384,8 @@ bool pgraph_vk_bind_vertex_attributes(NV2AState *d, unsigned int min_element,
 }
 
 /* A surface readback must complete before these CPU-side values are decoded. */
-void pgraph_vk_refresh_vertex_inline_values(PGRAPHState *pg,
-                                             unsigned int provoking_element)
+void pgraph_vk_refresh_vertex_inline_values_after_sync(
+    PGRAPHState *pg, unsigned int provoking_element)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
     PGRAPHVkState *r = pg->vk_renderer_state;

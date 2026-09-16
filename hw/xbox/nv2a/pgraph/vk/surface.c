@@ -135,9 +135,15 @@ static void memcpy_image(void *dst, void const *src, int dst_stride,
 static bool check_surface_overlaps_range(const SurfaceBinding *surface,
                                          hwaddr range_start, hwaddr range_len)
 {
-    hwaddr surface_end = surface->vram_addr + surface->size;
-    hwaddr range_end = range_start + range_len;
-    return !(surface->vram_addr >= range_end || range_start >= surface_end);
+    if (!surface->size || !range_len) {
+        return false;
+    }
+
+    /* Compare half-open ranges without forming potentially overflowing ends. */
+    if (surface->vram_addr <= range_start) {
+        return range_start - surface->vram_addr < surface->size;
+    }
+    return surface->vram_addr - range_start < range_len;
 }
 
 bool pgraph_vk_surface_overlaps_range(PGRAPHState *pg, hwaddr start,
