@@ -51,25 +51,25 @@ typedef struct PGRAPHVkState {
 typedef struct PGRAPHState {
     unsigned int inline_elements_length, inline_array_length, draw_arrays_length;
     uint32_t inline_elements[16], inline_array[16];
+    uint32_t draw_arrays_count[16];
     PGRAPHVkState *vk_renderer_state;
 } PGRAPHState;
 typedef struct NV2AState { int unused; } NV2AState;
 unsigned int xemu_tweaks_active;
 static bool tracing;
 static unsigned scalar_calls;
+static unsigned drop_calls;
+static unsigned log_calls;
 static uint32_t scalar_values[16];
 static bool pgraph_method_trace_enabled(void) { return tracing; }
-static void pgraph_method_log(unsigned s, unsigned c, unsigned m, uint32_t p) {}
+static void pgraph_method_log(unsigned s, unsigned c, unsigned m, uint32_t p) {
+    log_calls++;
+}
 static void pgraph_check_within_begin_end_block(PGRAPHState *pg) {}
 static void pgraph_expand_draw_arrays(NV2AState *d) { assert(false); }
-static bool pgraph_method_array_packet_fits(PGRAPHState *pg,
-                                             unsigned int method,
-                                             size_t packet_words) {
-    return true;
-}
 static void pgraph_drop_oversized_array_packet(unsigned int method,
                                                 size_t packet_words) {
-    assert(false);
+    drop_calls++;
 }
 static uint32_t ldl_le_p(const uint32_t *p) {
     const uint8_t *b = (const uint8_t *)p;
@@ -79,6 +79,7 @@ typedef uint64_t VkDeviceSize;
 typedef uint64_t VkDeviceAddress;
 #define VK_NULL_HANDLE 0
 #define VK_FINISH_REASON_NEED_BUFFER_SPACE 0
+#define pgraph_vk_hybrid_trace_record(...) ((void)0)
 static unsigned finishes;
 static uint64_t reservation;
 static uint64_t pgraph_vk_buffer_required_size(PGRAPHState *pg, int i,
@@ -112,6 +113,7 @@ static void scalar(METHOD_HANDLER_ARG_DECL) {
     *num_words_consumed = 1;
 }
 ''' + function(bulk, bulk_signature)
+code += function(pgraph, "static bool pgraph_method_array_packet_fits(")
 code += function(pgraph, "static void pgraph_method_non_inc(")
 code += function(draw, "static bool ensure_buffer_space(")
 code += r'''
@@ -154,6 +156,57 @@ int main(void) {
             }
         }
     }
+    for (unsigned m = 0; m < 3; m++) {
+        const size_t values_per_word = m == 0 ? 2 : 1;
+        PGRAPHState exact = {0};
+        PGRAPHState over = {0};
+        unsigned int *exact_length = m == 2 ?
+            &exact.inline_array_length : &exact.inline_elements_length;
+        unsigned int *over_length = m == 2 ?
+            &over.inline_array_length : &over.inline_elements_length;
+        if (m == 2) {
+            *exact_length = NV2A_MAX_BATCH_LENGTH - 2 * values_per_word;
+            *over_length = *exact_length + 1;
+        } else {
+            *exact_length = 7;
+            *over_length = 7;
+            exact.draw_arrays_length = 1;
+            over.draw_arrays_length = 1;
+            exact.draw_arrays_count[0] =
+                NV2A_MAX_BATCH_LENGTH - *exact_length -
+                2 * values_per_word;
+            over.draw_arrays_count[0] = exact.draw_arrays_count[0] + 1;
+        }
+        assert(pgraph_method_array_packet_fits(&exact, methods[m], 2));
+        assert(!pgraph_method_array_packet_fits(&over, methods[m], 2));
+
+        for (unsigned on = 0; on < 2; on++) {
+            for (unsigned trace = 0; trace < 2; trace++) {
+                PGRAPHState pg = over;
+                size_t consumed = 0;
+                unsigned inline_before = pg.inline_elements_length;
+                unsigned array_before = pg.inline_array_length;
+                unsigned pending_before = pg.draw_arrays_length;
+                uint32_t pending_count_before = pg.draw_arrays_count[0];
+                scalar_calls = 0;
+                drop_calls = 0;
+                log_calls = 0;
+                tracing = trace;
+                xemu_tweaks_active =
+                    on << XEMU_TWEAK_PGRAPH_BULK_PACKETS;
+                pgraph_method_non_inc(scalar, &d, &pg, 0, methods[m],
+                    0x56781234, words, 2, &consumed, false);
+                assert(consumed == 2);
+                assert(drop_calls == 1);
+                assert(scalar_calls == 0);
+                assert(pg.inline_elements_length == inline_before);
+                assert(pg.inline_array_length == array_before);
+                assert(pg.draw_arrays_length == pending_before);
+                assert(pg.draw_arrays_count[0] == pending_count_before);
+                assert(log_calls == trace);
+            }
+        }
+    }
     for (unsigned on = 0; on < 2; on++) {
         PGRAPHVkState r = { .storage_buffers = {{1, 128, 120}},
                             .in_command_buffer = true };
@@ -170,7 +223,7 @@ int main(void) {
         r.storage_buffers[0].buffer_offset = 0;
         assert(!ensure_buffer_space(&pg, 0, 16, 16));
     }
-    puts("PASS: 24 packet modes and On/Off buffer reservation fallbacks");
+    puts("PASS: 24 valid packet modes, 12 atomic oversized rejections, and On/Off buffer reservation fallbacks");
 }
 '''
 with tempfile.TemporaryDirectory(prefix="xemu-tweak-paths-") as tmp:
