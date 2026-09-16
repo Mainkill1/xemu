@@ -22,6 +22,7 @@
 #include "qemu/fast-hash.h"
 #include "renderer.h"
 #include "hybrid-ready.h"
+#include "pipeline-key.h"
 #include "pipeline-cache-lifetime.h"
 #include "staging-copy.h"
 #include "vertex-version-policy.h"

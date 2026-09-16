@@ -8,6 +8,7 @@
 
 #include "hw/xbox/nv2a/pgraph/vk/renderer.h"
 #include "hw/xbox/nv2a/pgraph/vk/hybrid-ready.h"
+#include "hw/xbox/nv2a/pgraph/vk/pipeline-key.h"
 #include "hw/xbox/nv2a/pgraph/polygon-offset.h"
 
 static unsigned int probe_inits;

@@ -8,29 +8,6 @@
 
 #include "hw/xbox/nv2a/pgraph/vk/renderer.h"
 
-/* A pipeline key can be derived before a shader binding is selected. */
-static inline void pgraph_vk_pipeline_key_set_shader(
-    PipelineKey *key, const ShaderState *state,
-    PGRAPHVkFragmentRoute route)
-{
-    key->fragment_route = route;
-    key->shader_state = *state;
-    if (route == PGRAPH_VK_FRAGMENT_UBERSHADER) {
-        pgraph_vk_canonicalize_uber_combiner_state(
-            &key->shader_state.psh);
-    }
-}
-
-/* These register values are consumed through fragment uniforms and do not
- * change the generated shader or fixed Vulkan pipeline recipe. */
-static inline void pgraph_vk_pipeline_key_canonicalize_uniform_regs(
-    PipelineKey *key)
-{
-    key->regs[1] &= ~(uint32_t)NV_PGRAPH_CONTROL_0_ALPHAREF;
-    key->regs[6] = 0;
-    key->regs[7] = 0;
-}
-
 /* Borrowed exact hits. These functions neither reserve entries nor refresh
  * LRU order. The renderer must keep cache mutation on its owning thread. */
 static inline PipelineBinding *pgraph_vk_pipeline_cache_find_ready(
