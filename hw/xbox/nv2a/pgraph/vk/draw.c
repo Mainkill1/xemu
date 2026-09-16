@@ -2279,7 +2279,10 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
             memset(r->vertex_ram_read_pages, 0,
                    r->num_vertex_ram_read_pages);
         }
-        if (r->vertex_ram_updated_in_batch) {
+        if (!xemu_tweak_enabled(XEMU_TWEAK_VK_VERTEX_COPY_SHORTCUTS)) {
+            r->vertex_ram_read_tracking_active = false;
+            r->vertex_ram_read_tracking_idle_batches = 0;
+        } else if (r->vertex_ram_updated_in_batch) {
             r->vertex_ram_read_tracking_active = true;
             r->vertex_ram_read_tracking_idle_batches = 0;
         } else if (r->vertex_ram_read_tracking_active &&
@@ -2558,7 +2561,9 @@ static void begin_draw(PGRAPHState *pg)
 
     /* Preparation may finish the old batch; mark only the draw actually
      * recorded in the current command buffer. */
-    if (!pg->clearing && r->vertex_ram_read_tracking_active) {
+    if (!pg->clearing &&
+        xemu_tweak_enabled(XEMU_TWEAK_VK_VERTEX_COPY_SHORTCUTS) &&
+        r->vertex_ram_read_tracking_active) {
         for (size_t i = 0; i < r->num_pending_vertex_ram_reads; i++) {
             const MemorySyncRequirement *read =
                 &r->pending_vertex_ram_reads[i];
@@ -2659,7 +2664,8 @@ static bool can_version_vertex_draw(PGRAPHState *pg, uint32_t num_vertices)
     uint64_t budget = PGRAPH_VK_VERTEX_VERSION_COPY_BUDGET;
     uint64_t vram_size = memory_region_size(d->vram);
 
-    if (!r->vertex_ram_read_tracking_active || !num_vertices ||
+    if (!xemu_tweak_enabled(XEMU_TWEAK_VK_VERTEX_COPY_SHORTCUTS) ||
+        !r->vertex_ram_read_tracking_active || !num_vertices ||
         num_vertices > PGRAPH_VK_VERTEX_VERSION_MAX_VERTICES ||
         !r->num_active_vertex_binding_descriptions) {
         return false;
@@ -2804,7 +2810,10 @@ static PGRAPHVkVertexBacking prepare_vertex_ram_backing(
         if (memory_dirty || mirror_stale) {
             /* A byte-per-page conservative footprint keeps direct host
              * writes away from vertex data already captured by this batch. */
-            bool can_write_directly = r->vertex_ram_read_tracking_active;
+            bool shortcuts_enabled = xemu_tweak_enabled(
+                XEMU_TWEAK_VK_VERTEX_COPY_SHORTCUTS);
+            bool can_write_directly = shortcuts_enabled &&
+                                      r->vertex_ram_read_tracking_active;
             if (can_write_directly) {
                 for (size_t page = first_page;
                      page < first_page + page_count; page++) {
@@ -2814,10 +2823,11 @@ static PGRAPHVkVertexBacking prepare_vertex_ram_backing(
                     }
                 }
             }
-            if (r->in_command_buffer) {
+            if (shortcuts_enabled && r->in_command_buffer) {
                 r->vertex_ram_updated_in_batch = true;
             }
-            if (!can_write_directly && !any_surface_overlap) {
+            if (shortcuts_enabled && !can_write_directly &&
+                !any_surface_overlap) {
                 if (!version_policy_checked) {
                     version_eligible = can_version_vertex_draw(
                         pg, num_vertices);

@@ -14,6 +14,9 @@ tweaks:
   vk_bounded_vertex_uploads:
     type: bool
     default: true
+  vk_vertex_copy_shortcuts:
+    type: bool
+    default: true
   vk_transient_buffer_growth:
     type: bool
     default: true
