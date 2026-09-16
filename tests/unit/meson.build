@@ -32,6 +32,16 @@ tests = {
   'test-xbox-pgraph-texture-state': [],
   'test-xbox-pgraph-uniform-dirty': [],
   'test-xbox-pgraph-uniform-source': [],
+  'test-xbox-pgraph-reports': [
+    'xbox-pgraph-report-test-support.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/reports.c',
+    xbox_i386_target_headers,
+  ],
+  'test-xbox-pgraph-report-wrapper': [
+    'xbox-pgraph-report-test-support.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/reports.c',
+    xbox_i386_target_headers,
+  ],
   'test-xbox-vk-blend-constants': [],
   'test-xbox-vk-texture-binding': [],
   'test-xbox-vk-device-selection': [

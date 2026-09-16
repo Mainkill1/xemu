@@ -3394,27 +3394,6 @@ void pgraph_get_clear_depth_stencil_value(PGRAPHState *pg, float *depth,
     }
 }
 
-void pgraph_write_zpass_pixel_cnt_report(NV2AState *d, hwaddr dma_report,
-                                         uint32_t parameter, uint32_t result)
-{
-    uint64_t timestamp = 0x0011223344556677; /* FIXME: Update timestamp?! */
-    uint32_t done = 0; // FIXME: Check
-
-    hwaddr report_dma_len;
-    uint8_t *report_data =
-        (uint8_t *)nv_dma_map(d, dma_report, &report_dma_len);
-
-    hwaddr offset = GET_MASK(parameter, NV097_GET_REPORT_OFFSET);
-    assert(offset < report_dma_len);
-    report_data += offset;
-
-    stq_le_p((uint64_t *)&report_data[0], timestamp);
-    stl_le_p((uint32_t *)&report_data[8], result);
-    stl_le_p((uint32_t *)&report_data[12], done);
-
-    NV2A_DPRINTF("Report result %d @%" HWADDR_PRIx, result, offset);
-}
-
 static void do_wait_for_renderer_switch(CPUState *cpu, run_on_cpu_data data)
 {
     NV2AState *d = (NV2AState *)data.host_ptr;
