@@ -26,6 +26,7 @@
 #include "qemu/osdep.h"
 #include "qemu/error-report.h"
 #include "renderer.h"
+#include "hw/xbox/nv2a/pgraph/vk/vertex-fetch-span.h"
 
 VkDeviceSize pgraph_vk_update_index_buffer(PGRAPHState *pg, void *data,
                                            VkDeviceSize size)
@@ -44,8 +45,9 @@ VkDeviceSize pgraph_vk_update_vertex_inline_buffer(PGRAPHState *pg, void **data,
                                       sizes, count, 1);
 }
 
-void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
-                                        void *data, VkDeviceSize size)
+static void update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
+                                     void *data, VkDeviceSize size,
+                                     bool surface_readback_complete)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -59,7 +61,8 @@ void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
     assert(offset <= vertex->buffer_size);
     assert(size <= vertex->buffer_size - offset);
 
-    if (!pgraph_vk_download_surfaces_in_range_if_dirty(pg, offset, size)) {
+    if (!surface_readback_complete &&
+        !pgraph_vk_download_surfaces_in_range_if_dirty(pg, offset, size)) {
         /* draw.c has already retired this range's NV2A dirty bit. Re-arm it
          * before refusing to consume stale guest memory. */
         memory_region_set_client_dirty(d->vram, offset, size,
@@ -146,6 +149,18 @@ void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
     pgraph_vk_perf_record_vertex_staging_copy(r, size);
 }
 
+void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
+                                        void *data, VkDeviceSize size)
+{
+    update_vertex_ram_buffer(pg, offset, data, size, false);
+}
+
+void pgraph_vk_update_vertex_ram_buffer_after_surface_readback(
+    PGRAPHState *pg, hwaddr offset, void *data, VkDeviceSize size)
+{
+    update_vertex_ram_buffer(pg, offset, data, size, true);
+}
+
 static void update_memory_buffer(NV2AState *d, hwaddr addr, hwaddr size)
 {
     PGRAPHState *pg = &d->pgraph;
@@ -194,7 +209,7 @@ static char const * const vertex_data_array_format_to_str[] = {
     [NV097_SET_VERTEX_DATA_ARRAY_FORMAT_TYPE_CMP] = "CMP",
 };
 
-void pgraph_vk_bind_vertex_attributes(NV2AState *d, unsigned int min_element,
+bool pgraph_vk_bind_vertex_attributes(NV2AState *d, unsigned int min_element,
                                       unsigned int max_element,
                                       bool inline_data,
                                       unsigned int inline_stride,
@@ -203,6 +218,11 @@ void pgraph_vk_bind_vertex_attributes(NV2AState *d, unsigned int min_element,
     PGRAPHState *pg = &d->pgraph;
     PGRAPHVkState *r = pg->vk_renderer_state;
 
+    if (max_element < min_element || provoking_element < min_element ||
+        provoking_element > max_element) {
+        error_report("Vulkan vertex draw has an invalid element range");
+        return false;
+    }
     unsigned int num_elements = max_element - min_element + 1;
 
     if (inline_data) {
@@ -276,38 +296,45 @@ void pgraph_vk_bind_vertex_attributes(NV2AState *d, unsigned int min_element,
         hwaddr attrib_data_addr;
         size_t stride;
 
-        hwaddr start = 0;
+        size_t element_size = attr->size * attr->count;
+        assert(element_size <= sizeof(attr->inline_value));
         if (inline_data) {
             attrib_data_addr = attr->inline_array_offset;
             stride = inline_stride;
         } else {
-            hwaddr dma_len;
+            hwaddr dma_limit = 0;
             uint8_t *attr_data = (uint8_t *)nv_dma_map(
                 d, attr->dma_select ? pg->dma_vertex_b : pg->dma_vertex_a,
-                &dma_len);
-            assert(attr->offset < dma_len);
-            attrib_data_addr = attr_data + attr->offset - d->vram_ptr;
+                &dma_limit);
             stride = attr->stride;
-            start = attrib_data_addr + min_element * stride;
-            update_memory_buffer(d, start, num_elements * stride);
+            uint64_t dma_base = (uintptr_t)attr_data -
+                                (uintptr_t)d->vram_ptr;
+            uint64_t vram_size = memory_region_size(d->vram);
+            PGRAPHVkVertexFetchRange range;
+            if (!pgraph_vk_vertex_resolve_fetch_range(
+                    dma_base, dma_limit, attr->offset, vram_size,
+                    min_element, max_element, stride, element_size, &range)) {
+                error_report("Vulkan vertex attribute %d exceeds DMA or VRAM",
+                             i);
+                NV2A_VK_DGROUP_END();
+                NV2A_VK_DGROUP_END();
+                return false;
+            }
+            attrib_data_addr = range.attribute_base;
+            update_memory_buffer(d, range.fetch_start, range.fetch_size);
+            r->vertex_attribute_offsets[i] = attrib_data_addr;
         }
 
         uint32_t provoking_element_index = provoking_element - min_element;
-        size_t element_size = attr->size * attr->count;
-        assert(element_size <= sizeof(attr->inline_value));
-        const uint8_t *last_entry;
-
-        if (inline_data) {
-            last_entry =
-                (uint8_t *)pg->inline_array + attr->inline_array_offset;
-        } else {
-            last_entry = d->vram_ptr + start;
-        }
+        const uint8_t *last_entry = inline_data ?
+            (uint8_t *)pg->inline_array + attr->inline_array_offset : NULL;
         if (!stride) {
             // Stride of 0 indicates that only the first element should be
             // used.
             pg->uniform_attrs |= 1 << i;
-            pgraph_update_inline_value(attr, last_entry);
+            if (inline_data) {
+                pgraph_update_inline_value(attr, last_entry);
+            }
             NV2A_VK_DPRINTF("inline_value = {%f, %f, %f, %f}",
                             attr->inline_value[0], attr->inline_value[1],
                             attr->inline_value[2], attr->inline_value[3]);
@@ -316,8 +343,10 @@ void pgraph_vk_bind_vertex_attributes(NV2AState *d, unsigned int min_element,
         }
 
         NV2A_VK_DPRINTF("offset = %08" HWADDR_PRIx, attrib_data_addr);
-        last_entry += stride * provoking_element_index;
-        pgraph_update_inline_value(attr, last_entry);
+        if (inline_data) {
+            pgraph_update_inline_value(
+                attr, last_entry + stride * provoking_element_index);
+        }
 
         r->vertex_attribute_to_description_location[i] =
             r->num_active_vertex_binding_descriptions;
@@ -351,6 +380,25 @@ void pgraph_vk_bind_vertex_attributes(NV2AState *d, unsigned int min_element,
     }
 
     NV2A_VK_DGROUP_END();
+    return true;
+}
+
+/* A surface readback must complete before these CPU-side values are decoded. */
+void pgraph_vk_refresh_vertex_inline_values_after_sync(
+    PGRAPHState *pg, unsigned int provoking_element)
+{
+    NV2AState *d = container_of(pg, NV2AState, pgraph);
+    PGRAPHVkState *r = pg->vk_renderer_state;
+
+    for (int i = 0; i < NV2A_VERTEXSHADER_ATTRIBUTES; i++) {
+        VertexAttribute *attr = &pg->vertex_attributes[i];
+        if (!attr->count) {
+            continue;
+        }
+        const uint8_t *entry = d->vram_ptr + r->vertex_attribute_offsets[i] +
+            (size_t)attr->stride * provoking_element;
+        pgraph_update_inline_value(attr, entry);
+    }
 }
 
 void pgraph_vk_bind_vertex_attributes_inline(NV2AState *d)

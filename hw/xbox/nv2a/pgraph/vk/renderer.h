@@ -885,14 +885,20 @@ void pgraph_vk_transition_image_layout(PGRAPHState *pg, VkCommandBuffer cmd,
                                        VkImageLayout newLayout);
 
 // vertex.c
-void pgraph_vk_bind_vertex_attributes(NV2AState *d, unsigned int min_element,
+bool pgraph_vk_bind_vertex_attributes(NV2AState *d, unsigned int min_element,
                                       unsigned int max_element,
                                       bool inline_data,
                                       unsigned int inline_stride,
                                       unsigned int provoking_element);
+/* Non-inline vertex draws must validate/bind their fetch ranges and complete
+ * sync_vertex_ram_buffer() before decoding values from CPU-visible VRAM. */
+void pgraph_vk_refresh_vertex_inline_values_after_sync(
+    PGRAPHState *pg, unsigned int provoking_element);
 void pgraph_vk_bind_vertex_attributes_inline(NV2AState *d);
 void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset, void *data,
-                                    VkDeviceSize size);
+                                        VkDeviceSize size);
+void pgraph_vk_update_vertex_ram_buffer_after_surface_readback(
+    PGRAPHState *pg, hwaddr offset, void *data, VkDeviceSize size);
 VkDeviceSize pgraph_vk_update_index_buffer(PGRAPHState *pg, void *data,
                                            VkDeviceSize size);
 VkDeviceSize pgraph_vk_update_vertex_inline_buffer(PGRAPHState *pg, void **data,
