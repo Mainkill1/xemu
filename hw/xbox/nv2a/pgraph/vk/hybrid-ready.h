@@ -21,6 +21,16 @@ static inline void pgraph_vk_pipeline_key_set_shader(
     }
 }
 
+/* These register values are consumed through fragment uniforms and do not
+ * change the generated shader or fixed Vulkan pipeline recipe. */
+static inline void pgraph_vk_pipeline_key_canonicalize_uniform_regs(
+    PipelineKey *key)
+{
+    key->regs[1] &= ~(uint32_t)NV_PGRAPH_CONTROL_0_ALPHAREF;
+    key->regs[6] = 0;
+    key->regs[7] = 0;
+}
+
 /* Borrowed exact hits. These functions neither reserve entries nor refresh
  * LRU order. The renderer must keep cache mutation on its owning thread. */
 static inline PipelineBinding *pgraph_vk_pipeline_cache_find_ready(
