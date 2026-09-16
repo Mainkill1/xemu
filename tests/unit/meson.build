@@ -71,6 +71,7 @@ tests = {
     ),
   ],
   'test-xbox-vk-pipeline-lifetime': [],
+  'test-xbox-vk-vertex-version-policy': [],
   'test-xbox-vk-ubershader-controls': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/ubershader-controls.c',
   ],

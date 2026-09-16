@@ -18,6 +18,7 @@ int main()
     const char *default_on_keys[] = {
         "cpu_saving_wait", "pgraph_bulk_packets", "pgraph_fence_fastpath",
         "vk_color_download_folding", "vk_bounded_vertex_uploads",
+        "vk_vertex_copy_shortcuts",
         "vk_transient_buffer_growth", "gl_native_s3tc",
     };
     assert(!xemu_tweak_enabled(XEMU_TWEAK_VK_HYBRID_UBERSHADERS));

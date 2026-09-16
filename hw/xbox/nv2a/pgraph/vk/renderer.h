@@ -59,6 +59,7 @@ typedef struct QueueFamilyIndices {
 
 typedef struct MemorySyncRequirement {
     hwaddr addr, size;
+    bool surface_overlap;
 } MemorySyncRequirement;
 
 typedef struct RenderPassState {
@@ -572,6 +573,11 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t staged_bytes;
     uint64_t vertex_staged_bytes;
     uint64_t vertex_staging_copy_count;
+    uint64_t vertex_direct_bytes;
+    uint64_t vertex_direct_copy_count;
+    uint64_t vertex_version_draw_count;
+    uint64_t vertex_version_bytes;
+    uint64_t vertex_version_selected_ranges;
     uint64_t vertex_staging_capacity_growth_count;
     uint64_t vertex_staging_fallback_finish_count;
     uint64_t native_bc_upload_count;
@@ -664,6 +670,18 @@ typedef struct PGRAPHVkState {
 
     MemorySyncRequirement vertex_ram_buffer_syncs[NV2A_VERTEXSHADER_ATTRIBUTES];
     size_t num_vertex_ram_buffer_syncs;
+    MemorySyncRequirement pending_vertex_ram_reads[NV2A_VERTEXSHADER_ATTRIBUTES];
+    size_t num_pending_vertex_ram_reads;
+    uint8_t *vertex_ram_read_pages;
+    /* Pages left stale in the fixed mirror when a draw uses an inline slice. */
+    uint8_t *vertex_ram_stale_pages;
+    size_t vertex_ram_stale_page_count;
+    /* Captures one bounded version before any pre-draw finish can wait. */
+    uint8_t *vertex_version_scratch;
+    size_t num_vertex_ram_read_pages;
+    bool vertex_ram_read_tracking_active;
+    bool vertex_ram_updated_in_batch;
+    unsigned int vertex_ram_read_tracking_idle_batches;
 
     VkVertexInputAttributeDescription vertex_attribute_descriptions[NV2A_VERTEXSHADER_ATTRIBUTES];
     int vertex_attribute_to_description_location[NV2A_VERTEXSHADER_ATTRIBUTES];
@@ -819,6 +837,7 @@ void pgraph_vk_destroy_shader_module(PGRAPHVkState *r, ShaderModuleInfo *info);
 
 // buffer.c
 void pgraph_vk_init_buffers(NV2AState *d);
+void pgraph_vk_clear_vertex_ram_stale(PGRAPHVkState *r);
 void pgraph_vk_finalize_buffers(NV2AState *d);
 bool pgraph_vk_buffer_has_space_for(PGRAPHState *pg, int index,
                                     VkDeviceSize size,
@@ -864,6 +883,8 @@ void pgraph_vk_perf_record_single_time_submit(PGRAPHVkState *r,
                                                uint64_t staged_bytes);
 void pgraph_vk_perf_record_vertex_staging_copy(PGRAPHVkState *r,
                                                 uint64_t bytes);
+void pgraph_vk_perf_record_vertex_direct_copy(PGRAPHVkState *r,
+                                               uint64_t bytes);
 void pgraph_vk_perf_record_vertex_staging_growth(PGRAPHVkState *r);
 void pgraph_vk_perf_record_vertex_staging_fallback(PGRAPHVkState *r);
 void pgraph_vk_perf_record_bc_upload(PGRAPHVkState *r, bool native,
@@ -891,13 +912,15 @@ bool pgraph_vk_bind_vertex_attributes(NV2AState *d, unsigned int min_element,
                                       unsigned int inline_stride,
                                       unsigned int provoking_element);
 /* Non-inline vertex draws must validate/bind their fetch ranges and complete
- * sync_vertex_ram_buffer() before decoding values from CPU-visible VRAM. */
+ * vertex-backing preparation before decoding values from CPU-visible VRAM. */
 void pgraph_vk_refresh_vertex_inline_values_after_sync(
     PGRAPHState *pg, unsigned int provoking_element);
 void pgraph_vk_bind_vertex_attributes_inline(NV2AState *d);
 void pgraph_vk_update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset, void *data,
                                         VkDeviceSize size);
 void pgraph_vk_update_vertex_ram_buffer_after_surface_readback(
+    PGRAPHState *pg, hwaddr offset, void *data, VkDeviceSize size);
+void pgraph_vk_update_unread_vertex_ram_buffer_after_surface_readback(
     PGRAPHState *pg, hwaddr offset, void *data, VkDeviceSize size);
 VkDeviceSize pgraph_vk_update_index_buffer(PGRAPHState *pg, void *data,
                                            VkDeviceSize size);

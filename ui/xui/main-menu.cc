@@ -140,6 +140,10 @@ void MainMenuAdvanceView::Draw()
         XEMU_TWEAK_VK_BOUNDED_VERTEX_UPLOADS,
         "Skips unused leading vertices when repacking attributes. "
         "Off copies from vertex zero.");
+    PerformanceToggle("Avoid ordered vertex copies",
+        &g_config.tweaks.vk_vertex_copy_shortcuts,
+        XEMU_TWEAK_VK_VERTEX_COPY_SHORTCUTS,
+        "Uses safe direct writes or private copies for changed vertices.");
     PerformanceToggle("Grow transient buffers to fit batches",
         &g_config.tweaks.vk_transient_buffer_growth,
         XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH,

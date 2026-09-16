@@ -20,6 +20,8 @@ void xemu_tweaks_apply(bool startup)
             g_config.tweaks.vk_color_download_folding,
         [XEMU_TWEAK_VK_BOUNDED_VERTEX_UPLOADS] =
             g_config.tweaks.vk_bounded_vertex_uploads,
+        [XEMU_TWEAK_VK_VERTEX_COPY_SHORTCUTS] =
+            g_config.tweaks.vk_vertex_copy_shortcuts,
         [XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH] =
             g_config.tweaks.vk_transient_buffer_growth,
         [XEMU_TWEAK_GL_NATIVE_S3TC] = g_config.tweaks.gl_native_s3tc,
