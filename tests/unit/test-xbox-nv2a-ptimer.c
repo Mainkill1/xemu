@@ -103,9 +103,10 @@ static void test_pending_alarm_asserts_when_enabled(void)
 
     init_nv2a_ptimer(&d);
     ptimer_write(&d, NV_PTIMER_ALARM_0, 0x100, 4);
-    expire_alarm(&d);
+    g_assert_false(timer_pending(&d.ptimer.timer));
     g_assert_false(irq_asserted);
 
+    ptimer_test_time_ns = 8;
     ptimer_write(&d, NV_PTIMER_INTR_EN_0, NV_PTIMER_INTR_EN_0_ALARM, 4);
     g_assert_true(irq_asserted);
 
@@ -123,6 +124,7 @@ static void test_time_registers_and_future_epoch(void)
     g_assert_cmphex(ptimer_read(&d, NV_PTIMER_TIME_1, 4), ==, 0x12);
     g_assert_cmphex(ptimer_read(&d, NV_PTIMER_TIME_0, 4), ==, 0x345678e0);
 
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, NV_PTIMER_INTR_EN_0_ALARM, 4);
     ptimer_write(&d, NV_PTIMER_ALARM_0, 0x345678c0, 4);
     g_assert_true(timer_pending(&d.ptimer.timer));
     g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), >,
@@ -221,6 +223,7 @@ static void test_zero_ratio_stops_clock_without_division(void)
     g_assert_cmphex(ptimer_read(&d, NV_PTIMER_TIME_0, 4), ==, 0);
     g_assert_cmphex(ptimer_read(&d, NV_PTIMER_TIME_1, 4), ==, 0);
 
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, NV_PTIMER_INTR_EN_0_ALARM, 4);
     ptimer_write(&d, NV_PTIMER_ALARM_0, TEST_ALARM_LOW, 4);
     g_assert_true(timer_pending(&d.ptimer.timer));
     g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, INT64_MAX);
