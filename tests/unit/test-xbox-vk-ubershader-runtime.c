@@ -8,6 +8,8 @@
 
 #include "hw/xbox/nv2a/pgraph/vk/renderer.h"
 #include "hw/xbox/nv2a/pgraph/vk/hybrid-ready.h"
+#include "hw/xbox/nv2a/pgraph/vk/pipeline-key.h"
+#include "hw/xbox/nv2a/pgraph/polygon-offset.h"
 
 static unsigned int probe_inits;
 static unsigned int probe_evictions;
@@ -101,6 +103,45 @@ static void test_pipeline_key_distinguishes_vertex_input_counts(void)
         &cache, forced_collision, &one) == binding);
     g_assert_null(pgraph_vk_pipeline_cache_find_ready(
         &cache, forced_collision, &two));
+}
+
+static void test_pipeline_key_ignores_uniform_only_register_values(void)
+{
+    PipelineKey a = { 0 };
+    PipelineKey b = { 0 };
+    const uint32_t setup_raster =
+        NV_PGRAPH_SETUPRASTER_FRONTFACEMODE_FILL |
+        NV_PGRAPH_SETUPRASTER_POFFSETFILLENABLE;
+
+    a.regs[0] = b.regs[0] = NV_PGRAPH_BLEND_EN;
+    a.regs[1] = 0x12000011;
+    b.regs[1] = 0x120000ee;
+    a.regs[6] = 0x3f800000;
+    b.regs[6] = 0x40000000;
+    a.regs[7] = 0x40400000;
+    b.regs[7] = 0x40800000;
+
+    g_assert_cmpuint(GET_MASK(a.regs[1], NV_PGRAPH_CONTROL_0_ALPHAREF),
+                     !=,
+                     GET_MASK(b.regs[1], NV_PGRAPH_CONTROL_0_ALPHAREF));
+    PGRAPHPolygonOffsetUniformKey offset_a =
+        pgraph_polygon_offset_uniform_key(
+            NV097_SET_BEGIN_END_OP_TRIANGLES, setup_raster,
+            a.regs[6], a.regs[7]);
+    PGRAPHPolygonOffsetUniformKey offset_b =
+        pgraph_polygon_offset_uniform_key(
+            NV097_SET_BEGIN_END_OP_TRIANGLES, setup_raster,
+            b.regs[6], b.regs[7]);
+    g_assert_false(pgraph_polygon_offset_uniform_key_equal(
+        offset_a, offset_b));
+
+    pgraph_vk_pipeline_key_canonicalize_uniform_regs(&a);
+    pgraph_vk_pipeline_key_canonicalize_uniform_regs(&b);
+    g_assert_cmpmem(&a, sizeof(a), &b, sizeof(b));
+
+    b.regs[1] ^= NV_PGRAPH_CONTROL_0_Z_PERSPECTIVE_ENABLE;
+    pgraph_vk_pipeline_key_canonicalize_uniform_regs(&b);
+    g_assert_cmpint(memcmp(&a, &b, sizeof(a)), !=, 0);
 }
 
 static void probe_shader_init(Lru *cache, LruNode *node, const void *key)
@@ -520,6 +561,8 @@ int main(int argc, char **argv)
                     test_pipeline_ready_probe_is_side_effect_free);
     g_test_add_func("/xbox/vk/ubershader/runtime/vertex-input-count-key",
                     test_pipeline_key_distinguishes_vertex_input_counts);
+    g_test_add_func("/xbox/vk/ubershader/runtime/uniform-register-key",
+                    test_pipeline_key_ignores_uniform_only_register_values);
     g_test_add_func("/xbox/vk/ubershader/runtime/shader-ready-probe",
                     test_shader_ready_probe_requires_runtime_metadata);
     g_test_add_func("/xbox/vk/ubershader/runtime/complete-route",

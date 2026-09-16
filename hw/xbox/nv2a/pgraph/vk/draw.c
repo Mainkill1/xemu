@@ -22,6 +22,7 @@
 #include "qemu/fast-hash.h"
 #include "renderer.h"
 #include "hybrid-ready.h"
+#include "pipeline-key.h"
 #include "pipeline-cache-lifetime.h"
 #include "staging-copy.h"
 #include "vertex-version-policy.h"
@@ -888,6 +889,7 @@ static void init_pipeline_key_for_state(
     for (int i = 0; i < ARRAY_SIZE(regs); i++) {
         key->regs[i] = pgraph_reg_r(pg, regs[i]);
     }
+    pgraph_vk_pipeline_key_canonicalize_uniform_regs(key);
 }
 
 static void trace_execution_candidates(PGRAPHState *pg)
