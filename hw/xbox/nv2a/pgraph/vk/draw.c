@@ -2656,11 +2656,12 @@ static bool can_version_vertex_draw(PGRAPHState *pg, uint32_t num_vertices)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
     PGRAPHVkState *r = pg->vk_renderer_state;
-    uint64_t budget = 64 * 1024 - 256;
+    uint64_t budget = PGRAPH_VK_VERTEX_VERSION_COPY_BUDGET;
     uint64_t vram_size = memory_region_size(d->vram);
 
     if (!r->vertex_ram_read_tracking_active || !num_vertices ||
-        num_vertices > 256 || !r->num_active_vertex_binding_descriptions) {
+        num_vertices > PGRAPH_VK_VERTEX_VERSION_MAX_VERTICES ||
+        !r->num_active_vertex_binding_descriptions) {
         return false;
     }
 
@@ -2699,13 +2700,19 @@ static void set_vertex_ram_stale_pages(PGRAPHVkState *r, size_t first_page,
         &r->vertex_ram_stale_page_count, first_page, page_count, stale);
 }
 
-static bool sync_vertex_ram_buffer(PGRAPHState *pg, uint32_t num_vertices)
+typedef enum PGRAPHVkVertexBacking {
+    PGRAPH_VK_VERTEX_BACKING_FIXED,
+    PGRAPH_VK_VERTEX_BACKING_PRIVATE,
+} PGRAPHVkVertexBacking;
+
+static PGRAPHVkVertexBacking prepare_vertex_ram_backing(
+    PGRAPHState *pg, uint32_t num_vertices)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     if (r->num_vertex_ram_buffer_syncs == 0) {
-        return false;
+        return PGRAPH_VK_VERTEX_BACKING_FIXED;
     }
 
     // Align sync requirements to page boundaries
@@ -2852,7 +2859,8 @@ static bool sync_vertex_ram_buffer(PGRAPHState *pg, uint32_t num_vertices)
     r->num_vertex_ram_buffer_syncs = 0;
 
     NV2A_VK_DGROUP_END();
-    return versioned;
+    return versioned ? PGRAPH_VK_VERTEX_BACKING_PRIVATE :
+                       PGRAPH_VK_VERTEX_BACKING_FIXED;
 }
 
 void pgraph_vk_clear_surface(NV2AState *d, uint32_t parameter)
@@ -3165,9 +3173,9 @@ typedef struct VertexBufferRemap {
 /* Maximum NV2A vertex attribute width: four 32-bit components. */
 static const VkDeviceSize REMAPPED_VERTEX_BLOCK_ALIGNMENT = 4 * sizeof(float);
 
-static VertexBufferRemap remap_unaligned_attributes(PGRAPHState *pg,
-                                                    uint32_t num_vertices,
-                                                    bool version_vertex_data)
+static VertexBufferRemap prepare_vertex_attribute_layout(
+    PGRAPHState *pg, uint32_t num_vertices,
+    PGRAPHVkVertexBacking backing)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
@@ -3193,7 +3201,8 @@ static VertexBufferRemap remap_unaligned_attributes(PGRAPHState *pg,
             (r->vertex_attribute_offsets[attr_id] % element_size == 0);
         bool stride_valid = (desc->stride % element_size == 0);
 
-        if (offset_valid && stride_valid && !version_vertex_data) {
+        if (offset_valid && stride_valid &&
+            backing == PGRAPH_VK_VERTEX_BACKING_FIXED) {
             continue;
         }
 
@@ -3300,11 +3309,45 @@ static void pack_remapped_attributes(PGRAPHState *pg, VertexBufferRemap remap,
     }
 }
 
+typedef struct PGRAPHVkPreparedVertexData {
+    PGRAPHVkVertexBacking backing;
+    VertexBufferRemap remap;
+} PGRAPHVkPreparedVertexData;
+
+/* Resolve mirror ownership, refresh CPU-decoded values, and capture a private
+ * generation before buffer reservation or descriptor preparation can finish
+ * the command buffer containing earlier draws. */
+static PGRAPHVkPreparedVertexData prepare_vertex_data(
+    PGRAPHState *pg, uint32_t start_vertex, uint32_t num_vertices,
+    uint32_t provoking_vertex)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    PGRAPHVkPreparedVertexData prepared = {
+        .backing = prepare_vertex_ram_backing(pg, num_vertices),
+    };
+
+    pgraph_vk_refresh_vertex_inline_values_after_sync(pg, provoking_vertex);
+    prepared.remap = prepare_vertex_attribute_layout(
+        pg, num_vertices, prepared.backing);
+
+    if (prepared.backing == PGRAPH_VK_VERTEX_BACKING_PRIVATE) {
+        assert(prepared.remap.buffer_space_required <=
+               PGRAPH_VK_VERTEX_VERSION_SCRATCH_SIZE);
+        memset(r->vertex_version_scratch, 0,
+               prepared.remap.buffer_space_required);
+        pack_remapped_attributes(pg, prepared.remap, start_vertex,
+                                 num_vertices, r->vertex_version_scratch);
+    }
+
+    reserve_remapped_attributes(pg, prepared.remap);
+    return prepared;
+}
+
 static void copy_remapped_attributes_to_inline_buffer(PGRAPHState *pg,
                                                       VertexBufferRemap remap,
                                                       uint32_t start_vertex,
                                                       uint32_t num_vertices,
-                                                      bool version_vertex_data)
+                                                      PGRAPHVkVertexBacking backing)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     StorageBuffer *buffer = &r->storage_buffers[BUFFER_VERTEX_INLINE_STAGING];
@@ -3319,7 +3362,7 @@ static void copy_remapped_attributes_to_inline_buffer(PGRAPHState *pg,
     assert(buffer->mapped);
 
     uint8_t *destination = buffer->mapped + buffer->buffer_offset;
-    if (version_vertex_data) {
+    if (backing == PGRAPH_VK_VERTEX_BACKING_PRIVATE) {
         /* The guest bytes were captured before reservation or descriptor
          * preparation could finish the earlier command buffer. */
         memcpy(destination, r->vertex_version_scratch,
@@ -3337,6 +3380,22 @@ static void copy_remapped_attributes_to_inline_buffer(PGRAPHState *pg,
     }
 
     buffer->buffer_offset += remap.buffer_space_required;
+}
+
+static void publish_prepared_vertex_data(PGRAPHState *pg,
+                                         PGRAPHVkPreparedVertexData prepared,
+                                         uint32_t start_vertex,
+                                         uint32_t num_vertices)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+
+    copy_remapped_attributes_to_inline_buffer(
+        pg, prepared.remap, start_vertex, num_vertices, prepared.backing);
+    if (prepared.backing == PGRAPH_VK_VERTEX_BACKING_PRIVATE &&
+        r->perf.enabled) {
+        r->perf.vertex_version_draw_count++;
+        r->perf.vertex_version_bytes += prepared.remap.buffer_space_required;
+    }
 }
 
 static bool pgraph_vk_flush_draw_internal(NV2AState *d)
@@ -3373,36 +3432,19 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
             min_element = MIN(pg->draw_arrays_start[i], min_element);
             max_element = MAX(max_element, pg->draw_arrays_start[i] + pg->draw_arrays_count[i]);
         }
-        bool version_vertex_data = sync_vertex_ram_buffer(pg, max_element);
-        pgraph_vk_refresh_vertex_inline_values_after_sync(
-            pg, pg->draw_arrays_max_count - 1);
-        VertexBufferRemap remap = remap_unaligned_attributes(
-            pg, max_element, version_vertex_data);
-        if (version_vertex_data) {
-            assert(remap.buffer_space_required <=
-                   PGRAPH_VK_VERTEX_VERSION_SCRATCH_SIZE);
-            memset(r->vertex_version_scratch, 0,
-                   remap.buffer_space_required);
-            pack_remapped_attributes(pg, remap, min_element, max_element,
-                                     r->vertex_version_scratch);
-        }
-        reserve_remapped_attributes(pg, remap);
+        PGRAPHVkPreparedVertexData vertex_data = prepare_vertex_data(
+            pg, min_element, max_element, pg->draw_arrays_max_count - 1);
 
         if (!begin_pre_draw(pg)) {
             NV2A_VK_DGROUP_END();
             return false;
         }
-        copy_remapped_attributes_to_inline_buffer(pg, remap, min_element,
-                                                  max_element,
-                                                  version_vertex_data);
-        if (version_vertex_data && r->perf.enabled) {
-            r->perf.vertex_version_draw_count++;
-            r->perf.vertex_version_bytes += remap.buffer_space_required;
-        }
+        publish_prepared_vertex_data(pg, vertex_data, min_element,
+                                     max_element);
         pgraph_vk_begin_debug_marker(r, r->command_buffer, RGBA_BLUE,
                                      "Draw Arrays");
         begin_draw(pg);
-        bind_vertex_buffer(pg, remap.attributes, 0);
+        bind_vertex_buffer(pg, vertex_data.remap.attributes, 0);
         for (int i = 0; i < pg->draw_arrays_length; i++) {
             uint32_t start = pg->draw_arrays_start[i],
                      count = pg->draw_arrays_count[i];
@@ -3439,39 +3481,21 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
             NV2A_VK_DGROUP_END();
             return false;
         }
-        bool version_vertex_data = sync_vertex_ram_buffer(pg,
-                                                          max_element + 1);
-        pgraph_vk_refresh_vertex_inline_values_after_sync(pg,
-                                                          provoking_element);
-        VertexBufferRemap remap = remap_unaligned_attributes(
-            pg, max_element + 1, version_vertex_data);
-        if (version_vertex_data) {
-            assert(remap.buffer_space_required <=
-                   PGRAPH_VK_VERTEX_VERSION_SCRATCH_SIZE);
-            memset(r->vertex_version_scratch, 0,
-                   remap.buffer_space_required);
-            pack_remapped_attributes(pg, remap, min_element, max_element + 1,
-                                     r->vertex_version_scratch);
-        }
-        reserve_remapped_attributes(pg, remap);
+        PGRAPHVkPreparedVertexData vertex_data = prepare_vertex_data(
+            pg, min_element, max_element + 1, provoking_element);
 
         if (!begin_pre_draw(pg)) {
             NV2A_VK_DGROUP_END();
             return false;
         }
-        copy_remapped_attributes_to_inline_buffer(pg, remap, min_element,
-                                                  max_element + 1,
-                                                  version_vertex_data);
-        if (version_vertex_data && r->perf.enabled) {
-            r->perf.vertex_version_draw_count++;
-            r->perf.vertex_version_bytes += remap.buffer_space_required;
-        }
+        publish_prepared_vertex_data(pg, vertex_data, min_element,
+                                     max_element + 1);
         VkDeviceSize buffer_offset = pgraph_vk_update_index_buffer(
             pg, pg->inline_elements, index_data_size);
         pgraph_vk_begin_debug_marker(r, r->command_buffer, RGBA_BLUE,
                                      "Inline Elements");
         begin_draw(pg);
-        bind_vertex_buffer(pg, remap.attributes, 0);
+        bind_vertex_buffer(pg, vertex_data.remap.attributes, 0);
         vkCmdBindIndexBuffer(r->command_buffer,
                              r->storage_buffers[BUFFER_INDEX].buffer,
                              buffer_offset, VK_INDEX_TYPE_UINT32);

@@ -912,7 +912,7 @@ bool pgraph_vk_bind_vertex_attributes(NV2AState *d, unsigned int min_element,
                                       unsigned int inline_stride,
                                       unsigned int provoking_element);
 /* Non-inline vertex draws must validate/bind their fetch ranges and complete
- * sync_vertex_ram_buffer() before decoding values from CPU-visible VRAM. */
+ * vertex-backing preparation before decoding values from CPU-visible VRAM. */
 void pgraph_vk_refresh_vertex_inline_values_after_sync(
     PGRAPHState *pg, unsigned int provoking_element);
 void pgraph_vk_bind_vertex_attributes_inline(NV2AState *d);

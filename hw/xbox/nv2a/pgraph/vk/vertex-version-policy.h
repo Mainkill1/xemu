@@ -13,7 +13,15 @@
 #include <string.h>
 #include "hw/xbox/nv2a/pgraph/vk/vertex-fetch-span.h"
 
+/* Versioned draws are intentionally bounded. The copy budget leaves enough
+ * room for worst-case per-attribute alignment (16 attributes at 16 bytes),
+ * independently of the maximum supported vertex span. */
 #define PGRAPH_VK_VERTEX_VERSION_SCRATCH_SIZE (64U * 1024U)
+#define PGRAPH_VK_VERTEX_VERSION_ALIGNMENT_SLACK (16U * 16U)
+#define PGRAPH_VK_VERTEX_VERSION_COPY_BUDGET \
+    (PGRAPH_VK_VERTEX_VERSION_SCRATCH_SIZE - \
+     PGRAPH_VK_VERTEX_VERSION_ALIGNMENT_SLACK)
+#define PGRAPH_VK_VERTEX_VERSION_MAX_VERTICES 256U
 
 static inline bool pgraph_vk_vertex_version_source_fits(
     uint64_t vertices, uint64_t stride, uint64_t element_bytes,

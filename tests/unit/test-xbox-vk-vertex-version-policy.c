@@ -24,6 +24,8 @@ static void test_source_bounds(void)
 
 static void test_budget(void)
 {
+    g_assert_cmpuint(PGRAPH_VK_VERTEX_VERSION_COPY_BUDGET, ==,
+                     PGRAPH_VK_VERTEX_VERSION_SCRATCH_SIZE - 256);
     g_assert_true(pgraph_vk_vertex_version_copy_fits(256, 16, 4096));
     g_assert_false(pgraph_vk_vertex_version_copy_fits(257, 16, 4096));
     g_assert_false(pgraph_vk_vertex_version_copy_fits(0, 16, 4096));
