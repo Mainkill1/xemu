@@ -395,10 +395,12 @@ void pgraph_gl_flush_draw(NV2AState *d)
         assert(pg->inline_buffer_length == 0);
         assert(pg->inline_array_length == 0);
 
-        pgraph_gl_bind_vertex_attributes(d, pg->draw_arrays_min_start,
-                                      pg->draw_arrays_max_count - 1,
-                                      false, 0,
-                                      pg->draw_arrays_max_count - 1);
+        if (!pgraph_gl_bind_vertex_attributes(
+                d, pg->draw_arrays_min_start,
+                pg->draw_arrays_max_count - 1, false, 0,
+                pg->draw_arrays_max_count - 1)) {
+            return;
+        }
         glMultiDrawArrays(r->shader_binding->gl_primitive_mode,
                           pg->draw_arrays_start,
                           pg->draw_arrays_count,
@@ -416,9 +418,11 @@ void pgraph_gl_flush_draw(NV2AState *d)
             min_element = MIN(pg->inline_elements[i], min_element);
         }
 
-        pgraph_gl_bind_vertex_attributes(
+        if (!pgraph_gl_bind_vertex_attributes(
                 d, min_element, max_element, false, 0,
-                pg->inline_elements[pg->inline_elements_length - 1]);
+                pg->inline_elements[pg->inline_elements_length - 1])) {
+            return;
+        }
 
         VertexKey k;
         memset(&k, 0, sizeof(VertexKey));
@@ -481,6 +485,9 @@ void pgraph_gl_flush_draw(NV2AState *d)
         nv2a_profile_inc_counter(NV2A_PROF_INLINE_ARRAYS);
 
         unsigned int index_count = pgraph_gl_bind_inline_array(d);
+        if (!index_count) {
+            return;
+        }
         glDrawArrays(r->shader_binding->gl_primitive_mode,
                      0, index_count);
     } else {

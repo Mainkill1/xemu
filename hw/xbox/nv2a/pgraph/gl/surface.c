@@ -23,6 +23,7 @@
 #include "ui/xemu-settings.h"
 #include "hw/xbox/nv2a/nv2a_int.h"
 #include "hw/xbox/nv2a/pgraph/swizzle.h"
+#include "hw/xbox/nv2a/pgraph/vertex-fetch-span.h"
 #include "debug.h"
 #include "renderer.h"
 
@@ -416,9 +417,8 @@ bool pgraph_gl_check_surface_to_texture_compatibility(
 static bool check_surface_overlaps_range(const SurfaceBinding *surface,
                                          hwaddr range_start, hwaddr range_len)
 {
-    hwaddr surface_end = surface->vram_addr + surface->size;
-    hwaddr range_end = range_start + range_len;
-    return !(surface->vram_addr >= range_end || range_start >= surface_end);
+    return pgraph_ranges_overlap(surface->vram_addr, surface->size,
+                                 range_start, range_len);
 }
 
 static void surface_access_callback(void *opaque, MemoryRegion *mr, hwaddr addr,
@@ -630,6 +630,28 @@ void pgraph_gl_surface_download_if_dirty(NV2AState *d,
     if (surface->draw_dirty) {
         surface_download(d, surface, true);
     }
+}
+
+bool pgraph_gl_download_surfaces_in_range_if_dirty(NV2AState *d,
+                                                   hwaddr start, hwaddr size)
+{
+    PGRAPHGLState *r = d->pgraph.gl_renderer_state;
+    SurfaceBinding *surface;
+    bool downloaded = false;
+
+    QTAILQ_FOREACH(surface, &r->surfaces, entry) {
+        if (!surface->draw_dirty ||
+            !check_surface_overlaps_range(surface, start, size)) {
+            continue;
+        }
+
+        pgraph_gl_surface_download_if_dirty(d, surface);
+        memory_region_set_client_dirty(d->vram, surface->vram_addr,
+                                       surface->size, DIRTY_MEMORY_NV2A);
+        downloaded = true;
+    }
+
+    return downloaded;
 }
 
 static void bind_current_surface(NV2AState *d)

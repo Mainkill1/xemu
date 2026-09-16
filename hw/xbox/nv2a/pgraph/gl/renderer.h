@@ -247,7 +247,12 @@ extern GloContext *g_nv2a_context_display;
 unsigned int pgraph_gl_bind_inline_array(NV2AState *d);
 void pgraph_gl_bind_shaders(PGRAPHState *pg);
 void pgraph_gl_bind_textures(NV2AState *d);
-void pgraph_gl_bind_vertex_attributes(NV2AState *d, unsigned int min_element, unsigned int max_element, bool inline_data, unsigned int inline_stride, unsigned int provoking_element);
+bool pgraph_gl_bind_vertex_attributes(NV2AState *d,
+                                      unsigned int min_element,
+                                      unsigned int max_element,
+                                      bool inline_data,
+                                      unsigned int inline_stride,
+                                      unsigned int provoking_element);
 bool pgraph_gl_check_surface_to_texture_compatibility(const SurfaceBinding *surface, const TextureShape *shape);
 GLuint pgraph_gl_compile_shader(const char *vs_src, const char *fs_src);
 void pgraph_gl_download_dirty_surfaces(NV2AState *d);
@@ -281,6 +286,9 @@ void pgraph_gl_reload_surface_scale_factor(PGRAPHState *pg);
 void pgraph_gl_render_surface_to_texture(NV2AState *d, SurfaceBinding *surface, TextureBinding *texture, TextureShape *texture_shape, int texture_unit);
 void pgraph_gl_set_surface_dirty(PGRAPHState *pg, bool color, bool zeta);
 void pgraph_gl_surface_download_if_dirty(NV2AState *d, SurfaceBinding *surface);
+bool pgraph_gl_download_surfaces_in_range_if_dirty(NV2AState *d,
+                                                   hwaddr start,
+                                                   hwaddr size);
 SurfaceBinding *pgraph_gl_surface_get(NV2AState *d, hwaddr addr);
 SurfaceBinding *pgraph_gl_surface_get_within(NV2AState *d, hwaddr addr);
 void pgraph_gl_surface_invalidate(NV2AState *d, SurfaceBinding *e);
