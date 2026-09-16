@@ -1667,6 +1667,40 @@ static bool check_bound_texture_memory_dirty(NV2AState *d)
     return false;
 }
 
+static bool bound_texture_sources_match(PGRAPHState *pg)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+
+    for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
+        bool enabled = pgraph_is_texture_enabled(pg, i);
+        TextureBinding *binding = r->texture_bindings[i];
+        bool valid = binding != NULL;
+        bool dummy = binding == &r->dummy_texture;
+        bool surface = r->texture_binding_source_is_surface[i];
+
+        if (!enabled || !valid || dummy || surface) {
+            continue;
+        }
+
+        hwaddr current_texture = pgraph_get_texture_phys_addr(pg, i);
+        hwaddr current_palette = 0;
+        if (binding->key.palette_length) {
+            current_palette =
+                pgraph_get_texture_palette_phys_addr_length(pg, i, NULL);
+        }
+
+        if (!pgraph_vk_texture_source_identity_matches(
+                enabled, valid, dummy, surface, current_texture,
+                binding->key.texture_vram_offset,
+                binding->key.palette_length, current_palette,
+                binding->key.palette_vram_offset)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 static void update_timestamps(PGRAPHVkState *r)
 {
     for (int i = 0; i < ARRAY_SIZE(r->texture_bindings); i++) {
@@ -1689,7 +1723,8 @@ bool pgraph_vk_bind_textures(NV2AState *d)
     r->texture_bindings_changed = false;
 
     if (!check_textures_dirty(pg) &&
-        !check_bound_texture_memory_dirty(d)) {
+        !check_bound_texture_memory_dirty(d) &&
+        bound_texture_sources_match(pg)) {
         NV2A_VK_DPRINTF("Not dirty");
         NV2A_VK_DGROUP_END();
         update_timestamps(r);
