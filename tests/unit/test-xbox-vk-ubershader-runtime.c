@@ -5,14 +5,23 @@
  */
 
 #include "qemu/osdep.h"
+#include "qemu/fast-hash.h"
 
 #include "hw/xbox/nv2a/pgraph/vk/renderer.h"
 #include "hw/xbox/nv2a/pgraph/vk/hybrid-ready.h"
 #include "hw/xbox/nv2a/pgraph/vk/pipeline-key.h"
 #include "hw/xbox/nv2a/pgraph/polygon-offset.h"
+#include "hw/xbox/nv2a/pgraph/psh_regs.h"
 
 static unsigned int probe_inits;
 static unsigned int probe_evictions;
+static bool probe_shader_populate_modules;
+static ShaderModuleInfo probe_vertex_module;
+static ShaderModuleInfo probe_fragment_module;
+
+static ShaderState base_state(void);
+static PipelineKey pipeline_key(PGRAPHVkFragmentRoute route,
+                                const ShaderState *state);
 
 static void probe_pipeline_init(Lru *cache, LruNode *node, const void *key)
 {
@@ -153,6 +162,10 @@ static void probe_shader_init(Lru *cache, LruNode *node, const void *key)
     probe_inits++;
     binding->state = shader_key->state;
     binding->fragment_route = shader_key->fragment_route;
+    if (probe_shader_populate_modules) {
+        binding->vsh.module_info = &probe_vertex_module;
+        binding->psh.module_info = &probe_fragment_module;
+    }
 }
 
 static bool probe_shader_different(Lru *cache, LruNode *node,
@@ -165,6 +178,27 @@ static bool probe_shader_different(Lru *cache, LruNode *node,
     return binding->fragment_route != shader_key->fragment_route ||
            memcmp(&binding->state, &shader_key->state,
                   sizeof(binding->state)) != 0;
+}
+
+static void probe_module_init(Lru *cache, LruNode *node, const void *key)
+{
+    ShaderModuleCacheEntry *entry =
+        container_of(node, ShaderModuleCacheEntry, node);
+
+    (void)cache;
+    entry->key = *(const ShaderModuleCacheKey *)key;
+    entry->module_info = entry->key.kind == VK_SHADER_STAGE_VERTEX_BIT ?
+        &probe_vertex_module : &probe_fragment_module;
+}
+
+static bool probe_module_different(Lru *cache, LruNode *node,
+                                   const void *key)
+{
+    ShaderModuleCacheEntry *entry =
+        container_of(node, ShaderModuleCacheEntry, node);
+
+    (void)cache;
+    return !pgraph_vk_shader_module_key_equal(&entry->key, key);
 }
 
 static void test_shader_ready_probe_requires_runtime_metadata(void)
@@ -237,6 +271,29 @@ static void test_execution_route_requires_complete_candidate(void)
                         false, false, true, true,
                         PGRAPH_VK_FALLBACK_RESOURCES_UNAVAILABLE),
                     ==, PGRAPH_VK_EXECUTION_UNCOVERED);
+}
+
+static void test_ready_fallback_pipeline_requests_missing_binding(void)
+{
+    g_assert_true(pgraph_vk_hybrid_should_prepare_fallback_binding(
+        true, false, false, true, true));
+    g_assert_false(pgraph_vk_hybrid_should_prepare_fallback_binding(
+        true, true, false, true, true));
+    g_assert_false(pgraph_vk_hybrid_should_prepare_fallback_binding(
+        true, false, false, false, true));
+    g_assert_false(pgraph_vk_hybrid_should_prepare_fallback_binding(
+        true, false, false, true, false));
+    g_assert_false(pgraph_vk_hybrid_should_prepare_fallback_binding(
+        false, false, true, true, true));
+
+    g_assert_true(pgraph_vk_fallback_family_learning_needed(
+        true, PGRAPH_VK_FAMILY_UNCHECKED));
+    g_assert_false(pgraph_vk_fallback_family_learning_needed(
+        true, PGRAPH_VK_FAMILY_TRACKED));
+    g_assert_false(pgraph_vk_fallback_family_learning_needed(
+        true, PGRAPH_VK_FAMILY_READY));
+    g_assert_false(pgraph_vk_fallback_family_learning_needed(
+        true, PGRAPH_VK_FAMILY_REJECTED));
 }
 
 static void test_uncovered_build_uses_closer_binding(void)
@@ -330,6 +387,204 @@ static void test_fallback_family_queue_deduplicates_and_bounds(void)
         requests, G_N_ELEMENTS(requests), &c, &state));
     g_assert_cmpuint(requests[0].key.regs[0], ==, 1);
     g_assert_cmpuint(requests[1].key.regs[0], ==, 2);
+    g_assert_cmpint(requests[0].status, ==,
+                    PGRAPH_VK_FAMILY_WAITING_FOR_SHADER);
+    g_assert_cmpuint(requests[0].attempts, ==, 0);
+}
+
+static void test_fallback_family_tracks_pipeline_until_ready(void)
+{
+    PGRAPHVkFallbackFamilyRequest request = {
+        .in_use = true,
+        .status = PGRAPH_VK_FAMILY_WAITING_FOR_SHADER,
+    };
+
+    g_assert_true(pgraph_vk_fallback_family_note_pipeline_submit(
+        &request, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED, 1000));
+    g_assert_true(request.in_use);
+    g_assert_cmpint(request.status, ==,
+                    PGRAPH_VK_FAMILY_PIPELINE_PENDING);
+    g_assert_cmpuint(request.attempts, ==, 0);
+
+    g_assert_true(pgraph_vk_fallback_family_note_pipeline_failure(
+        &request, 2000));
+    g_assert_true(request.in_use);
+    g_assert_cmpint(request.status, ==,
+                    PGRAPH_VK_FAMILY_PIPELINE_RETRY_BACKOFF);
+    g_assert_cmpuint(request.attempts, ==, 1);
+    g_assert_cmpint(request.retry_after_us, >, 2000);
+    g_assert_false(pgraph_vk_fallback_family_retry_due(
+        &request, request.retry_after_us - 1));
+    g_assert_true(pgraph_vk_fallback_family_retry_due(
+        &request, request.retry_after_us));
+}
+
+static void test_fallback_family_deferral_and_failure_are_bounded(void)
+{
+    PGRAPHVkFallbackFamilyRequest request = {
+        .in_use = true,
+        .status = PGRAPH_VK_FAMILY_WAITING_FOR_SHADER,
+    };
+
+    g_assert_true(pgraph_vk_fallback_family_note_pipeline_submit(
+        &request, PGRAPH_VK_HYBRID_PIPELINE_QUEUE_FULL, 1000));
+    g_assert_true(request.in_use);
+    g_assert_cmpint(request.status, ==,
+                    PGRAPH_VK_FAMILY_QUEUE_DEFERRED);
+    g_assert_cmpuint(request.attempts, ==, 0);
+    g_assert_cmpint(request.retry_after_us, >, 1000);
+
+    for (unsigned int attempt = 1;
+         attempt < PGRAPH_VK_FAMILY_MAX_PIPELINE_ATTEMPTS; attempt++) {
+        request.status = PGRAPH_VK_FAMILY_PIPELINE_PENDING;
+        g_assert_true(pgraph_vk_fallback_family_note_pipeline_failure(
+            &request, 2000 + attempt));
+        g_assert_cmpuint(request.attempts, ==, attempt);
+    }
+    request.status = PGRAPH_VK_FAMILY_PIPELINE_PENDING;
+    g_assert_false(pgraph_vk_fallback_family_note_pipeline_failure(
+        &request, 3000));
+    g_assert_false(request.in_use);
+    g_assert_cmpint(request.status, ==,
+                    PGRAPH_VK_FAMILY_REQUEST_REJECTED);
+
+    request = (PGRAPHVkFallbackFamilyRequest) {
+        .in_use = true,
+        .status = PGRAPH_VK_FAMILY_WAITING_FOR_SHADER,
+    };
+    g_assert_false(pgraph_vk_fallback_family_note_pipeline_submit(
+        &request, PGRAPH_VK_HYBRID_PIPELINE_UNSUPPORTED_RECIPE, 4000));
+    g_assert_false(request.in_use);
+    g_assert_cmpint(request.status, ==,
+                    PGRAPH_VK_FAMILY_REQUEST_REJECTED);
+}
+
+static void test_fallback_family_wake_is_shader_specific(void)
+{
+    ShaderModuleCacheKey requested = {
+        .kind = VK_SHADER_STAGE_FRAGMENT_BIT,
+        .fragment_route = PGRAPH_VK_FRAGMENT_UBERSHADER,
+    };
+    ShaderModuleCacheKey unrelated = requested;
+    PGRAPHVkFallbackFamilyRequest request = {
+        .in_use = true,
+        .status = PGRAPH_VK_FAMILY_WAITING_FOR_SHADER,
+        .retry_after_us = 5000,
+    };
+
+    unrelated.psh.state.shader_stage_program = 1;
+    g_assert_false(pgraph_vk_fallback_family_wake_for_module(
+        &request, &requested, &unrelated));
+    g_assert_cmpint(request.retry_after_us, ==, 5000);
+    g_assert_true(pgraph_vk_fallback_family_wake_for_module(
+        &request, &requested, &requested));
+    g_assert_cmpint(request.retry_after_us, ==, 0);
+
+    request.status = PGRAPH_VK_FAMILY_PIPELINE_RETRY_BACKOFF;
+    request.retry_after_us = 9000;
+    g_assert_false(pgraph_vk_fallback_family_wake_for_module(
+        &request, &requested, &requested));
+    g_assert_cmpint(request.retry_after_us, ==, 9000);
+}
+
+static void test_fallback_family_production_lifecycle(void)
+{
+    PGRAPHVkState *r = g_new0(PGRAPHVkState, 1);
+    PipelineBinding entries[2] = { 0 };
+    ShaderState first_state = base_state();
+    ShaderState second_state = first_state;
+    PipelineKey first_key;
+    PipelineKey second_key;
+    PipelineKey family_key;
+
+    first_state.psh.combiner_control = 1;
+    second_state.psh.combiner_control = 2;
+    first_key = pipeline_key(PGRAPH_VK_FRAGMENT_SPECIALIZED, &first_state);
+    second_key = pipeline_key(PGRAPH_VK_FRAGMENT_SPECIALIZED, &second_state);
+    family_key = pipeline_key(PGRAPH_VK_FRAGMENT_UBERSHADER, &first_state);
+
+    lru_init(&r->pipeline_cache);
+    r->pipeline_cache.init_node = probe_pipeline_init;
+    r->pipeline_cache.compare_nodes = probe_pipeline_different;
+    r->pipeline_cache_entries = entries;
+    for (size_t i = 0; i < ARRAY_SIZE(entries); i++) {
+        lru_add_free(&r->pipeline_cache, &entries[i].node);
+    }
+    PipelineBinding *first = container_of(
+        lru_lookup(&r->pipeline_cache, 101, &first_key),
+        PipelineBinding, node);
+    PipelineBinding *second = container_of(
+        lru_lookup(&r->pipeline_cache, 102, &second_key),
+        PipelineBinding, node);
+    first->pipeline = second->pipeline = (VkPipeline)(uintptr_t)1;
+    pgraph_vk_pipeline_family_set_state(
+        r, first, PGRAPH_VK_FAMILY_RETRY_PENDING);
+    pgraph_vk_pipeline_family_set_state(
+        r, second, PGRAPH_VK_FAMILY_RETRY_PENDING);
+    g_assert_cmpuint(r->fallback_family_retry_count, ==, 2);
+
+    /* A full request table retains both owners for a later bounded pass. */
+    for (size_t i = 0; i < ARRAY_SIZE(r->fallback_family_requests); i++) {
+        r->fallback_family_requests[i].in_use = true;
+        r->fallback_family_requests[i].key.regs[0] = i + 1;
+    }
+    pgraph_vk_enqueue_retained_fallback_families(r);
+    g_assert_cmpint(first->family_learn_state, ==,
+                    PGRAPH_VK_FAMILY_RETRY_PENDING);
+    g_assert_cmpint(second->family_learn_state, ==,
+                    PGRAPH_VK_FAMILY_RETRY_PENDING);
+    g_assert_cmpuint(r->fallback_family_retry_count, ==, 2);
+
+    /* Once capacity exists, the exact family is admitted once and both
+     * matching specialized owners transfer to TRACKED. */
+    r->fallback_family_requests[0].in_use = false;
+    pgraph_vk_enqueue_retained_fallback_families(r);
+    PGRAPHVkFallbackFamilyRequest *request = NULL;
+    for (size_t i = 0; i < ARRAY_SIZE(r->fallback_family_requests); i++) {
+        if (r->fallback_family_requests[i].in_use &&
+            memcmp(&r->fallback_family_requests[i].key, &family_key,
+                   sizeof(family_key)) == 0) {
+            request = &r->fallback_family_requests[i];
+            break;
+        }
+    }
+    g_assert_nonnull(request);
+    g_assert_cmpint(first->family_learn_state, ==,
+                    PGRAPH_VK_FAMILY_TRACKED);
+    g_assert_cmpint(second->family_learn_state, ==,
+                    PGRAPH_VK_FAMILY_TRACKED);
+    g_assert_cmpuint(r->fallback_family_retry_count, ==, 0);
+
+    g_assert_true(pgraph_vk_fallback_family_note_pipeline_submit(
+        request, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED, 1000));
+    pgraph_vk_fallback_family_note_pipeline_failure_at(
+        r, &family_key, 2000);
+    g_assert_true(request->in_use);
+    g_assert_cmpint(request->status, ==,
+                    PGRAPH_VK_FAMILY_PIPELINE_RETRY_BACKOFF);
+    int64_t retry_after_us = request->retry_after_us;
+    ShaderModuleCacheKey requested_module = {
+        .kind = VK_SHADER_STAGE_FRAGMENT_BIT,
+        .fragment_route = PGRAPH_VK_FRAGMENT_UBERSHADER,
+    };
+    g_assert_false(pgraph_vk_fallback_family_wake_for_module(
+        request, &requested_module, &requested_module));
+    g_assert_cmpint(request->retry_after_us, ==, retry_after_us);
+
+    request->status = PGRAPH_VK_FAMILY_PIPELINE_PENDING;
+    pgraph_vk_fallback_family_note_pipeline_ready(r, &family_key);
+    g_assert_false(request->in_use);
+    g_assert_cmpint(first->family_learn_state, ==,
+                    PGRAPH_VK_FAMILY_READY);
+    g_assert_cmpint(second->family_learn_state, ==,
+                    PGRAPH_VK_FAMILY_READY);
+
+    pgraph_vk_pipeline_family_set_state(
+        r, first, PGRAPH_VK_FAMILY_RETRY_PENDING);
+    g_assert_cmpuint(r->fallback_family_retry_count, ==, 1);
+    pgraph_vk_pipeline_family_owner_evict(r, first);
+    g_assert_cmpuint(r->fallback_family_retry_count, ==, 0);
+    g_free(r);
 }
 
 static void test_changed_register_marks_shortcut_dirty(void)
@@ -374,6 +629,132 @@ static PipelineKey pipeline_key(PGRAPHVkFragmentRoute route,
 
     pgraph_vk_pipeline_key_set_shader(&key, state, route);
     return key;
+}
+
+static uint32_t control_input_word(uint8_t a, uint8_t b,
+                                   uint8_t c, uint8_t d)
+{
+    return (uint32_t)a << 24 | (uint32_t)b << 16 |
+           (uint32_t)c << 8 | d;
+}
+
+static void test_production_resolver_materializes_hidden_fallback(void)
+{
+    PGRAPHState *pg = g_new0(PGRAPHState, 1);
+    PGRAPHVkState *r = g_new0(PGRAPHVkState, 1);
+    ShaderBinding shader_entries[2] = { 0 };
+    ShaderModuleCacheEntry module_entries[2] = { 0 };
+    PipelineBinding pipeline_entries[2] = { 0 };
+    ShaderState state = { 0 };
+
+    pg->vk_renderer_state = r;
+    state.psh.combiner_control = PS_COMBINERCOUNT_MUX_MSB << 8;
+    state.psh.final_inputs_0 = control_input_word(
+        PS_REGISTER_V0 | PS_INPUTMAPPING_UNSIGNED_IDENTITY,
+        PS_REGISTER_V1 | PS_INPUTMAPPING_UNSIGNED_IDENTITY,
+        PS_REGISTER_V1R0_SUM | PS_INPUTMAPPING_UNSIGNED_IDENTITY,
+        PS_REGISTER_EF_PROD | PS_INPUTMAPPING_UNSIGNED_IDENTITY);
+    state.psh.final_inputs_1 = control_input_word(
+        PS_REGISTER_C0 | PS_INPUTMAPPING_UNSIGNED_IDENTITY,
+        PS_REGISTER_C1 | PS_INPUTMAPPING_UNSIGNED_IDENTITY,
+        PS_REGISTER_R0 | PS_CHANNEL_ALPHA,
+        0);
+
+    lru_init(&r->shader_cache);
+    r->shader_cache.init_node = probe_shader_init;
+    r->shader_cache.compare_nodes = probe_shader_different;
+    for (size_t i = 0; i < ARRAY_SIZE(shader_entries); i++) {
+        lru_add_free(&r->shader_cache, &shader_entries[i].node);
+    }
+    lru_init(&r->shader_module_cache);
+    r->shader_module_cache.init_node = probe_module_init;
+    r->shader_module_cache.compare_nodes = probe_module_different;
+    for (size_t i = 0; i < ARRAY_SIZE(module_entries); i++) {
+        lru_add_free(&r->shader_module_cache, &module_entries[i].node);
+    }
+    lru_init(&r->pipeline_cache);
+    r->pipeline_cache.init_node = probe_pipeline_init;
+    r->pipeline_cache.compare_nodes = probe_pipeline_different;
+    for (size_t i = 0; i < ARRAY_SIZE(pipeline_entries); i++) {
+        lru_add_free(&r->pipeline_cache, &pipeline_entries[i].node);
+    }
+
+    probe_shader_populate_modules = true;
+    ShaderBindingKey specialized_key = {
+        .state = state,
+        .fragment_route = PGRAPH_VK_FRAGMENT_SPECIALIZED,
+    };
+    uint64_t specialized_hash = fast_hash(
+        (const uint8_t *)&specialized_key, sizeof(specialized_key));
+    ShaderBinding *specialized = container_of(
+        lru_lookup(&r->shader_cache, specialized_hash, &specialized_key),
+        ShaderBinding, node);
+
+    ShaderModuleCacheKey vertex_key = { 0 };
+    vertex_key.kind = VK_SHADER_STAGE_VERTEX_BIT;
+    vertex_key.vsh.state = state.vsh;
+    vertex_key.vsh.glsl_opts.vulkan = true;
+    vertex_key.vsh.glsl_opts.ubo_binding = 0;
+    uint64_t vertex_hash = fast_hash(
+        (const uint8_t *)&vertex_key,
+        pgraph_vk_shader_module_key_active_size(&vertex_key));
+    lru_lookup(&r->shader_module_cache, vertex_hash, &vertex_key);
+
+    ShaderModuleCacheKey fragment_key = { 0 };
+    fragment_key.kind = VK_SHADER_STAGE_FRAGMENT_BIT;
+    fragment_key.fragment_route = PGRAPH_VK_FRAGMENT_UBERSHADER;
+    fragment_key.psh.state = state.psh;
+    pgraph_vk_canonicalize_uber_combiner_state(&fragment_key.psh.state);
+    fragment_key.psh.glsl_opts.vulkan = true;
+    fragment_key.psh.glsl_opts.ubo_binding = 1;
+    fragment_key.psh.glsl_opts.tex_binding = 2;
+    fragment_key.psh.glsl_opts.ubershader = true;
+    fragment_key.psh.glsl_opts.uber_binding =
+        PGRAPH_VK_PSH_UBER_UBO_BINDING;
+    uint64_t fragment_hash = fast_hash(
+        (const uint8_t *)&fragment_key,
+        pgraph_vk_shader_module_key_active_size(&fragment_key));
+    lru_lookup(&r->shader_module_cache, fragment_hash, &fragment_key);
+
+    PipelineKey fallback_key =
+        pipeline_key(PGRAPH_VK_FRAGMENT_UBERSHADER, &state);
+    uint64_t fallback_hash = fast_hash(
+        (const uint8_t *)&fallback_key, sizeof(fallback_key));
+    PipelineBinding *fallback_pipeline = container_of(
+        lru_lookup(&r->pipeline_cache, fallback_hash, &fallback_key),
+        PipelineBinding, node);
+    fallback_pipeline->pipeline = (VkPipeline)(uintptr_t)1;
+
+    PGRAPHVkReadyExecutionCandidates candidates;
+    pgraph_vk_resolve_ready_execution_candidates(pg, &state, &candidates);
+    g_assert_true(candidates.specialized.shader == specialized);
+    g_assert_null(candidates.specialized.pipeline);
+    g_assert_true(candidates.controls_checked);
+    g_assert_true(candidates.controls_supported);
+    g_assert_nonnull(candidates.fallback.shader);
+    g_assert_true(candidates.fallback.pipeline == fallback_pipeline);
+
+    /* Once specialization is complete, the production resolver returns before
+     * fallback probing, packet packing, or metadata construction. */
+    PipelineKey specialized_pipeline_key =
+        pipeline_key(PGRAPH_VK_FRAGMENT_SPECIALIZED, &state);
+    uint64_t specialized_pipeline_hash = fast_hash(
+        (const uint8_t *)&specialized_pipeline_key,
+        sizeof(specialized_pipeline_key));
+    PipelineBinding *specialized_pipeline = container_of(
+        lru_lookup(&r->pipeline_cache, specialized_pipeline_hash,
+                   &specialized_pipeline_key), PipelineBinding, node);
+    specialized_pipeline->pipeline = (VkPipeline)(uintptr_t)2;
+    pgraph_vk_resolve_ready_execution_candidates(pg, &state, &candidates);
+    g_assert_true(candidates.specialized.shader == specialized);
+    g_assert_true(candidates.specialized.pipeline == specialized_pipeline);
+    g_assert_false(candidates.controls_checked);
+    g_assert_null(candidates.fallback.shader);
+    g_assert_null(candidates.fallback.pipeline);
+
+    probe_shader_populate_modules = false;
+    g_free(r);
+    g_free(pg);
 }
 
 static void test_dynamic_control_binding_matches_packet_abi(void)
@@ -557,6 +938,8 @@ int main(int argc, char **argv)
                     test_fragment_route_keeps_pipeline_keys_isolated);
     g_test_add_func("/xbox/vk/ubershader/runtime/shell-state",
                     test_canonicalization_preserves_fragment_shell_state);
+    g_test_add_func("/xbox/vk/ubershader/runtime/production-resolver",
+                    test_production_resolver_materializes_hidden_fallback);
     g_test_add_func("/xbox/vk/ubershader/runtime/pipeline-ready-probe",
                     test_pipeline_ready_probe_is_side_effect_free);
     g_test_add_func("/xbox/vk/ubershader/runtime/vertex-input-count-key",
@@ -567,6 +950,8 @@ int main(int argc, char **argv)
                     test_shader_ready_probe_requires_runtime_metadata);
     g_test_add_func("/xbox/vk/ubershader/runtime/complete-route",
                     test_execution_route_requires_complete_candidate);
+    g_test_add_func("/xbox/vk/ubershader/runtime/hidden-fallback-binding",
+                    test_ready_fallback_pipeline_requests_missing_binding);
     g_test_add_func("/xbox/vk/ubershader/runtime/uncovered-choice",
                     test_uncovered_build_uses_closer_binding);
     g_test_add_func("/xbox/vk/ubershader/runtime/promotion-time-gate",
@@ -575,6 +960,14 @@ int main(int argc, char **argv)
                     test_pipeline_publication_eviction_is_late);
     g_test_add_func("/xbox/vk/ubershader/runtime/fallback-family-queue",
                     test_fallback_family_queue_deduplicates_and_bounds);
+    g_test_add_func("/xbox/vk/ubershader/runtime/fallback-family-tracked",
+                    test_fallback_family_tracks_pipeline_until_ready);
+    g_test_add_func("/xbox/vk/ubershader/runtime/fallback-family-retry",
+                    test_fallback_family_deferral_and_failure_are_bounded);
+    g_test_add_func("/xbox/vk/ubershader/runtime/fallback-family-wake",
+                    test_fallback_family_wake_is_shader_specific);
+    g_test_add_func("/xbox/vk/ubershader/runtime/fallback-family-production",
+                    test_fallback_family_production_lifecycle);
     g_test_add_func("/xbox/vk/ubershader/runtime/register-shortcut-dirty",
                     test_changed_register_marks_shortcut_dirty);
     g_test_add_func("/xbox/vk/ubershader/runtime/snapshot-invalidation",

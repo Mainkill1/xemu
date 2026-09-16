@@ -163,10 +163,52 @@ if vulkan.found()
       xbox_i386_target_headers,
       volk, libglslang, vma, vulkan, spirv_reflect,
     ],
-    'test-xbox-vk-ubershader-runtime': [xbox_i386_target_headers, volk,
-                                         libglslang, vma, vulkan,
-                                         spirv_reflect],
   }
+
+  # Retain the production candidate resolver and fallback-family ownership
+  # call chains while allowing the linker to discard the rest of the large
+  # renderer translation units.
+  if 'i386-softmmu' in target_dirs
+    nv2a_vk_runtime_section_args = cc.get_supported_arguments(
+      '-ffunction-sections',
+      '-fdata-sections',
+    )
+    if host_os == 'darwin'
+      nv2a_vk_runtime_gc_link_args = cc.get_supported_link_arguments(
+        '-Wl,-dead_strip',
+      )
+    else
+      nv2a_vk_runtime_gc_link_args = cc.get_supported_link_arguments(
+        '-Wl,--gc-sections',
+      )
+    endif
+    if nv2a_vk_runtime_section_args.length() == 2 and \
+       nv2a_vk_runtime_gc_link_args.length() == 1
+      nv2a_vk_runtime_prod = declare_dependency(
+        sources: config_target_h['i386-softmmu'],
+        compile_args: [
+          '-DCOMPILING_PER_TARGET',
+          '-DCONFIG_TARGET="i386-softmmu-config-target.h"',
+        ] + nv2a_vk_runtime_section_args,
+        link_args: nv2a_vk_runtime_gc_link_args,
+        include_directories: include_directories('../../target/i386'),
+      )
+      tests += {
+        'test-xbox-vk-ubershader-runtime': [
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/common.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/geom.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-family.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-trace.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/ubershader-controls.c',
+          nv2a_vk_runtime_prod,
+          xbox_i386_target_headers, volk, libglslang, vma, vulkan,
+          spirv_reflect,
+        ],
+      }
+    else
+      message('Skipping NV2A Vulkan runtime integration test: section GC unsupported')
+    endif
+  endif
 endif
 
 # This integration unit retains only the production pending-report, finish,

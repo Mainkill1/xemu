@@ -30,10 +30,6 @@
 
 #include <glib/gstdio.h>
 
-#define VSH_UBO_BINDING 0
-#define PSH_UBO_BINDING 1
-#define PSH_TEX_BINDING 2
-
 /* Bump when shader generation or any fixed glslang input policy changes. */
 #define SPIRV_CACHE_GENERATOR_ABI 1U
 #define SPIRV_POLICY_VALIDATE             (1U << 0)
@@ -862,6 +858,29 @@ static ShaderBinding *find_shader_binding_for_key(
     return binding;
 }
 
+static void wake_fallback_families_for_module(
+    PGRAPHVkState *r, const ShaderModuleCacheKey *published_key)
+{
+    if (published_key->kind != VK_SHADER_STAGE_FRAGMENT_BIT ||
+        published_key->fragment_route != PGRAPH_VK_FRAGMENT_UBERSHADER) {
+        return;
+    }
+
+    for (size_t i = 0; i < ARRAY_SIZE(r->fallback_family_requests); i++) {
+        PGRAPHVkFallbackFamilyRequest *request =
+            &r->fallback_family_requests[i];
+        if (!request->in_use ||
+            request->status != PGRAPH_VK_FAMILY_WAITING_FOR_SHADER) {
+            continue;
+        }
+        ShaderModuleCacheKey requested_key;
+        init_fragment_module_key(&requested_key, &request->state.psh,
+                                 PGRAPH_VK_FRAGMENT_UBERSHADER);
+        pgraph_vk_fallback_family_wake_for_module(
+            request, &requested_key, published_key);
+    }
+}
+
 void pgraph_vk_process_hybrid_completions(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -955,6 +974,7 @@ void pgraph_vk_process_hybrid_completions(PGRAPHState *pg)
         if (published) {
             /* A module is not an executable draw. The selection epoch moves
              * only when its exact graphics pipeline is published. */
+            wake_fallback_families_for_module(r, &work->module_key);
             hybrid_work_clear(work);
         } else {
             pgraph_vk_hybrid_note_compile_failure(
@@ -1147,34 +1167,6 @@ static ShaderBinding *get_shader_binding_for_key(PGRAPHVkState *r,
     ShaderBinding *binding = container_of(node, ShaderBinding, node);
     NV2A_VK_DPRINTF("shader state hash: %016" PRIx64 " %p", hash, binding);
     return binding;
-}
-
-static void get_uber_control_source(PGRAPHState *pg, const PshState *state,
-                                    PGRAPHUberControlSource *source)
-{
-    memset(source, 0, sizeof(*source));
-    source->combiner_control = state->combiner_control;
-    memcpy(source->rgb_inputs, state->rgb_inputs, sizeof(source->rgb_inputs));
-    memcpy(source->alpha_inputs, state->alpha_inputs,
-           sizeof(source->alpha_inputs));
-    memcpy(source->rgb_outputs, state->rgb_outputs,
-           sizeof(source->rgb_outputs));
-    memcpy(source->alpha_outputs, state->alpha_outputs,
-           sizeof(source->alpha_outputs));
-    source->final_inputs_0 = state->final_inputs_0;
-    source->final_inputs_1 = state->final_inputs_1;
-
-    pgraph_glsl_get_psh_combiner_constants(pg, source->constants);
-}
-
-bool pgraph_vk_pack_fallback_controls(PGRAPHState *pg,
-                                     const PshState *state,
-                                     PGRAPHUberControls *packet)
-{
-    PGRAPHUberControlSource source;
-
-    get_uber_control_source(pg, state, &source);
-    return pgraph_vk_pack_ubershader_controls(packet, &source, NULL);
 }
 
 /* The admitted program is unchanged on a stable fallback binding. Compare
@@ -1516,58 +1508,6 @@ bool pgraph_vk_enqueue_fallback_fragment(PGRAPHState *pg,
     }
     mstring_unref(code);
     return true;
-}
-
-/* Preparing a binding from already-materialized modules is cheap and cannot
- * enter glslang or VkShaderModule creation. Do this after selecting fallback,
- * so the new binding does not count as route readiness for the current draw.
- */
-ShaderBinding *pgraph_vk_prepare_binding_from_ready_modules(
-    PGRAPHState *pg, const ShaderState *state, PGRAPHVkFragmentRoute route)
-{
-    PGRAPHVkState *r = pg->vk_renderer_state;
-    ShaderBindingKey binding_key = {
-        .state = *state,
-        .fragment_route = route,
-    };
-    ShaderBinding *binding = find_shader_binding_for_key(r, &binding_key);
-    if (binding) {
-        return binding;
-    }
-    bool need_geom = pgraph_glsl_need_geom(&state->geom);
-    ShaderModuleCacheKey module_key;
-    if (need_geom) {
-        memset(&module_key, 0, sizeof(module_key));
-        module_key.kind = VK_SHADER_STAGE_GEOMETRY_BIT;
-        module_key.geom.state = state->geom;
-        module_key.geom.glsl_opts.vulkan = true;
-        ShaderModuleCacheEntry *entry =
-            find_shader_module_for_key(r, &module_key);
-        if (!entry || !entry->module_info) {
-            return NULL;
-        }
-    }
-    memset(&module_key, 0, sizeof(module_key));
-    module_key.kind = VK_SHADER_STAGE_VERTEX_BIT;
-    module_key.vsh.state = state->vsh;
-    module_key.vsh.glsl_opts.vulkan = true;
-    module_key.vsh.glsl_opts.prefix_outputs = need_geom;
-    module_key.vsh.glsl_opts.use_push_constants_for_uniform_attrs =
-        r->use_push_constants_for_uniform_attrs;
-    module_key.vsh.glsl_opts.ubo_binding = VSH_UBO_BINDING;
-    ShaderModuleCacheEntry *entry =
-        find_shader_module_for_key(r, &module_key);
-    if (!entry || !entry->module_info) {
-        return NULL;
-    }
-    init_fragment_module_key(&module_key, &state->psh, route);
-    entry = find_shader_module_for_key(r, &module_key);
-    if (!entry || !entry->module_info) {
-        return NULL;
-    }
-    uint64_t hash = fast_hash((void *)&binding_key, sizeof(binding_key));
-    LruNode *node = lru_try_lookup(&r->shader_cache, hash, &binding_key);
-    return node ? container_of(node, ShaderBinding, node) : NULL;
 }
 
 static bool apply_uniform_updates(ShaderUniformLayout *layout,
