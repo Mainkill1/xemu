@@ -453,6 +453,7 @@ static void test_zero_stage_hand_calculated_final(void)
     for (unsigned int i = 0; i < 4; i++) {
         source.constants[16][i] = 0.5f;
     }
+    source.combiner_control &= ~(PS_COMBINERCOUNT_MUX_MSB << 8);
     source.final_inputs_0 = inputs_word(half, v1, v0, v0);
     source.final_inputs_1 = inputs_word(v0, v1, g, 0);
     packet = pack(&source);
@@ -1124,6 +1125,7 @@ static void test_all_admitted_final_registers(void)
 static void test_rejects_invalid_packet_without_partial_result(void)
 {
     PGRAPHUberControlSource source = base_source(0);
+    PGRAPHUberControlSource mux_source;
     PGRAPHUberControls packet = pack(&source);
     PGRAPHUberCombinerInputs inputs = base_inputs();
     PGRAPHUberCombinerResult result;
@@ -1140,7 +1142,11 @@ static void test_rejects_invalid_packet_without_partial_result(void)
     assert(!pgraph_vk_eval_ubershader_combiner(&packet, &inputs, &result));
     assert(!memcmp(&result, &sentinel, sizeof(result)));
 
-    packet = pack(&source);
+    mux_source = base_source(1);
+    mux_source.alpha_outputs[0] =
+        output_word(PS_REGISTER_DISCARD, PS_REGISTER_DISCARD,
+                    PS_REGISTER_DISCARD, PS_COMBINEROUTPUT_AB_CD_MUX);
+    packet = pack(&mux_source);
     packet.header[2] &= ~(PS_COMBINERCOUNT_MUX_MSB << 8);
     assert(!pgraph_vk_eval_ubershader_combiner(&packet, &inputs, &result));
     assert(!memcmp(&result, &sentinel, sizeof(result)));
