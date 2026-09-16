@@ -51,6 +51,7 @@ tests = {
   ],
   'test-xbox-vk-bc-layout': [],
   'test-xbox-vk-failure-state': [],
+  'test-xbox-vk-surface-coherence': [],
   'test-xbox-vk-failpoint': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/failpoint.c',
     declare_dependency(

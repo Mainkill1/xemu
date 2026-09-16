@@ -32,6 +32,7 @@
 #include "failpoint.h"
 #include "failure-state.h"
 #include "renderer.h"
+#include "surface-coherence.h"
 
 const int num_invalid_surfaces_to_keep = 10;  // FIXME: Make automatic
 const int max_surface_frame_time_delta = 5;
@@ -156,14 +157,29 @@ bool pgraph_vk_surface_overlaps_range(PGRAPHState *pg, hwaddr start,
 bool pgraph_vk_download_surfaces_in_range_if_dirty(PGRAPHState *pg,
                                                    hwaddr start, hwaddr size)
 {
+    NV2AState *d = container_of(pg, NV2AState, pgraph);
     PGRAPHVkState *r = pg->vk_renderer_state;
     SurfaceBinding *surface;
     bool succeeded = true;
 
     QTAILQ_FOREACH(surface, &r->surfaces, entry) {
         if (check_surface_overlaps_range(surface, start, size)) {
-            succeeded &= pgraph_vk_surface_download_if_dirty(
-                container_of(pg, NV2AState, pgraph), surface);
+            hwaddr overlap_start = MAX(surface->vram_addr, start);
+            hwaddr overlap_end = MIN(surface->vram_addr + surface->size,
+                                     start + size);
+            /* This client is cleared when a surface consumes guest memory and
+             * is independent from vertex and texture cache validation. */
+            bool guest_memory_dirty = memory_region_test_and_clear_dirty(
+                d->vram, overlap_start, overlap_end - overlap_start,
+                DIRTY_MEMORY_NV2A_SURFACE);
+
+            if (pgraph_vk_surface_resolve_guest_write(
+                    guest_memory_dirty, &surface->download_pending,
+                    &surface->draw_dirty, &surface->upload_pending)) {
+                continue;
+            }
+
+            succeeded &= pgraph_vk_surface_download_if_dirty(d, surface);
         }
     }
     return succeeded;
@@ -1612,9 +1628,9 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
 
     Surface *pg_surface = color ? &pg->surface_color : &pg->surface_zeta;
 
-    bool mem_dirty = !tcg_enabled() && memory_region_test_and_clear_dirty(
-                                           d->vram, target.vram_addr,
-                                           target.size, DIRTY_MEMORY_NV2A);
+    bool mem_dirty = memory_region_test_and_clear_dirty(
+        d->vram, target.vram_addr, target.size,
+        DIRTY_MEMORY_NV2A_SURFACE);
 
     SurfaceBinding *current_binding = color ? r->color_binding
                                             : r->zeta_binding;
