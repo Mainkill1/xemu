@@ -99,6 +99,14 @@ static bool test_descriptor_identity_changes_only_for_visible_binding(void)
         .image_view = 3,
         .sampler = 4,
     };
+    const PGRAPHVkTextureDescriptorIdentity view_only = {
+        .image_view = 5,
+        .sampler = 4,
+    };
+    const PGRAPHVkTextureDescriptorIdentity sampler_only = {
+        .image_view = 3,
+        .sampler = 6,
+    };
     const PGRAPHVkTextureDescriptorIdentity real_b = {
         .image_view = 5,
         .sampler = 6,
@@ -109,8 +117,40 @@ static bool test_descriptor_identity_changes_only_for_visible_binding(void)
            pgraph_vk_texture_descriptor_identity_changed(dummy, real_a) &&
            !pgraph_vk_texture_descriptor_identity_changed(
                real_a, real_a_content_update) &&
+           pgraph_vk_texture_descriptor_identity_changed(real_a, view_only) &&
+           pgraph_vk_texture_descriptor_identity_changed(real_a,
+                                                          sampler_only) &&
            pgraph_vk_texture_descriptor_identity_changed(real_a, real_b) &&
            pgraph_vk_texture_descriptor_identity_changed(real_b, dummy);
+}
+
+static bool test_failed_multistage_bind_publishes_on_recovery(void)
+{
+    const PGRAPHVkTextureDescriptorIdentity real_a = {
+        .image_view = 3,
+        .sampler = 4,
+    };
+    const PGRAPHVkTextureDescriptorIdentity real_b = {
+        .image_view = 5,
+        .sampler = 6,
+    };
+    const PGRAPHVkTextureDescriptorIdentity dummy = {
+        .image_view = 1,
+        .sampler = 2,
+    };
+
+    /* An earlier stage changes before a later stage fails to the dummy. The
+     * draw is skipped, so the per-call change is not published. On retry the
+     * recovered stage still changes from dummy to real and requires a fresh
+     * descriptor publication. */
+    bool failed_attempt_changed =
+        pgraph_vk_texture_descriptor_identity_changed(real_a, real_b) ||
+        pgraph_vk_texture_descriptor_identity_changed(real_a, dummy);
+    bool recovery_attempt_changed =
+        !pgraph_vk_texture_descriptor_identity_changed(real_b, real_b) &&
+        pgraph_vk_texture_descriptor_identity_changed(dummy, real_a);
+
+    return failed_attempt_changed && recovery_attempt_changed;
 }
 
 int main(void)
@@ -120,9 +160,11 @@ int main(void)
     bool identity = test_texture_source_identity();
     bool descriptor_identity =
         test_descriptor_identity_changes_only_for_visible_binding();
+    bool recovery_publication =
+        test_failed_multistage_bind_publishes_on_recovery();
 
     puts("TAP version 13");
-    puts("1..4");
+    puts("1..5");
     printf("%s 1 - disabled dirty state waits for re-enable\n",
            disabled ? "ok" : "not ok");
     printf("%s 2 - failed active bind remains retryable\n",
@@ -131,5 +173,8 @@ int main(void)
            identity ? "ok" : "not ok");
     printf("%s 4 - descriptor identity changes only for visible binding\n",
            descriptor_identity ? "ok" : "not ok");
-    return disabled && retry && identity && descriptor_identity ? 0 : 1;
+    printf("%s 5 - failed multistage bind publishes after recovery\n",
+           recovery_publication ? "ok" : "not ok");
+    return (disabled && retry && identity && descriptor_identity &&
+            recovery_publication) ? 0 : 1;
 }

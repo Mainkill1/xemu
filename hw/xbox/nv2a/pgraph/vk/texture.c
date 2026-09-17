@@ -1698,6 +1698,16 @@ static void update_timestamps(PGRAPHVkState *r)
 static PGRAPHVkTextureDescriptorIdentity texture_descriptor_identity(
     const TextureBinding *binding)
 {
+    _Static_assert(sizeof(uintptr_t) >= sizeof(VkImageView),
+                   "texture descriptor handles must fit in uintptr_t");
+    _Static_assert(sizeof(uintptr_t) >= sizeof(VkSampler),
+                   "texture sampler handles must fit in uintptr_t");
+
+    /* Every image descriptor declares SHADER_READ_ONLY_OPTIMAL, and successful
+     * preparation restores that sampling layout. texScale and format are
+     * immutable properties of the binding key, so changing either selects a
+     * different binding. Content-only changes still run their upload and
+     * barriers before this final descriptor-identity comparison. */
     return (PGRAPHVkTextureDescriptorIdentity) {
         .image_view = binding ? (uintptr_t)binding->image_view : 0,
         .sampler = binding ? (uintptr_t)binding->sampler : 0,
