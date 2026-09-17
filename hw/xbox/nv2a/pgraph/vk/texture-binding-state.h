@@ -12,6 +12,8 @@
 #include <stdint.h>
 
 typedef struct PGRAPHVkTextureDescriptorIdentity {
+    /* Process-local Vulkan handles only. The renderer requires a host pointer
+     * width that can retain every non-dispatchable handle without loss. */
     uintptr_t image_view;
     uintptr_t sampler;
 } PGRAPHVkTextureDescriptorIdentity;
