@@ -1,0 +1,19 @@
+name: Issue 86 qualification
+
+on:
+  push:
+    branches:
+      - research/issue86-report-latency
+
+jobs:
+  unit:
+    name: Vulkan report lifecycle test
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
+      - run: |
+          sudo apt-get -qy update
+          sudo apt-get -qy build-dep .
+      - run: ./configure --target-list=i386-softmmu --disable-werror
+      - run: ninja -C build tests/unit/test-xbox-pgraph-vk-reports
+      - run: build/tests/unit/test-xbox-pgraph-vk-reports
