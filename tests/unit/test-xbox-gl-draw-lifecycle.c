@@ -69,6 +69,84 @@ static void test_empty_draw_does_not_publish_surface_generation(void)
     g_assert_cmpuint(dirty_calls, ==, 0);
 }
 
+static void test_submitted_segment_survives_rejected_final_segment(void)
+{
+    PGRAPHGLDrawLifecycle lifecycle;
+    PGRAPHState pg = { 0 };
+    PGRAPHGLState renderer = { 0 };
+    SurfaceBinding color = { 0 };
+    SurfaceBinding zeta = { 0 };
+
+    pg.gl_renderer_state = &renderer;
+    renderer.color_binding = &color;
+    renderer.zeta_binding = &zeta;
+    dirty_calls = 0;
+
+    pgraph_gl_draw_lifecycle_reset(&lifecycle);
+    pgraph_gl_draw_lifecycle_prepare(
+        &lifecycle, true, true, true, true, true);
+    pgraph_gl_draw_lifecycle_record(
+        &lifecycle, PGRAPH_GL_DRAW_SUBMITTED);
+    pgraph_gl_draw_lifecycle_record(
+        &lifecycle, PGRAPH_GL_DRAW_REJECTED);
+
+    g_assert_cmpint(lifecycle.result, ==, PGRAPH_GL_DRAW_SUBMITTED);
+    g_assert_true(pgraph_gl_draw_lifecycle_take_query(&lifecycle));
+    g_assert_false(pgraph_gl_draw_lifecycle_take_query(&lifecycle));
+    pgraph_gl_complete_draw_lifecycle(
+        &pg, &renderer, lifecycle.result,
+        lifecycle.color_write, lifecycle.zeta_write,
+        lifecycle.color_dirty, lifecycle.zeta_dirty);
+    g_assert_cmpuint(pg.draw_time, ==, 1);
+    g_assert_cmpuint(dirty_calls, ==, 1);
+}
+
+static void test_submitted_segment_survives_empty_final_segment(void)
+{
+    PGRAPHGLDrawLifecycle lifecycle;
+
+    pgraph_gl_draw_lifecycle_reset(&lifecycle);
+    pgraph_gl_draw_lifecycle_prepare(
+        &lifecycle, true, true, false, true, false);
+    pgraph_gl_draw_lifecycle_record(
+        &lifecycle, PGRAPH_GL_DRAW_SUBMITTED);
+    pgraph_gl_draw_lifecycle_record(&lifecycle, PGRAPH_GL_DRAW_EMPTY);
+
+    g_assert_cmpint(lifecycle.result, ==, PGRAPH_GL_DRAW_SUBMITTED);
+    g_assert_true(lifecycle.color_write);
+    g_assert_false(lifecycle.zeta_write);
+}
+
+static void test_rejected_scope_without_submission_stays_rejected(void)
+{
+    PGRAPHGLDrawLifecycle lifecycle;
+    PGRAPHState pg = { 0 };
+    PGRAPHGLState renderer = { 0 };
+
+    pg.gl_renderer_state = &renderer;
+    dirty_calls = 0;
+
+    pgraph_gl_draw_lifecycle_reset(&lifecycle);
+    pgraph_gl_draw_lifecycle_prepare(
+        &lifecycle, true, true, true, true, true);
+    pgraph_gl_draw_lifecycle_record(
+        &lifecycle, PGRAPH_GL_DRAW_REJECTED);
+    pgraph_gl_draw_lifecycle_record(&lifecycle, PGRAPH_GL_DRAW_EMPTY);
+
+    g_assert_cmpint(lifecycle.result, ==, PGRAPH_GL_DRAW_REJECTED);
+    g_assert_true(pgraph_gl_draw_lifecycle_take_query(&lifecycle));
+    pgraph_gl_complete_draw_lifecycle(
+        &pg, &renderer, lifecycle.result,
+        lifecycle.color_write, lifecycle.zeta_write,
+        lifecycle.color_dirty, lifecycle.zeta_dirty);
+    g_assert_cmpuint(pg.draw_time, ==, 0);
+    g_assert_cmpuint(dirty_calls, ==, 0);
+
+    pgraph_gl_draw_lifecycle_reset(&lifecycle);
+    g_assert_cmpint(lifecycle.result, ==, PGRAPH_GL_DRAW_EMPTY);
+    g_assert_false(pgraph_gl_draw_lifecycle_take_query(&lifecycle));
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -76,5 +154,11 @@ int main(int argc, char **argv)
                     test_rejected_draw_does_not_publish_surface_generation);
     g_test_add_func("/xbox/gl/draw-lifecycle/empty",
                     test_empty_draw_does_not_publish_surface_generation);
+    g_test_add_func("/xbox/gl/draw-lifecycle/submitted-then-rejected",
+                    test_submitted_segment_survives_rejected_final_segment);
+    g_test_add_func("/xbox/gl/draw-lifecycle/submitted-then-empty",
+                    test_submitted_segment_survives_empty_final_segment);
+    g_test_add_func("/xbox/gl/draw-lifecycle/rejected-without-submit",
+                    test_rejected_scope_without_submission_stays_rejected);
     return g_test_run();
 }

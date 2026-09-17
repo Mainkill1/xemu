@@ -37,6 +37,7 @@
 
 #include "gloffscreen.h"
 #include "constants.h"
+#include "draw-lifecycle.h"
 
 typedef struct SurfaceBinding {
     QTAILQ_ENTRY(SurfaceBinding) entry;
@@ -207,6 +208,7 @@ typedef struct PGRAPHGLState {
     unsigned int zpass_pixel_count_result;
     unsigned int gl_zpass_pixel_count_query_count;
     GLuint *gl_zpass_pixel_count_queries;
+    PGRAPHGLDrawLifecycle draw_lifecycle;
     QSIMPLEQ_HEAD(, QueryReport) report_queue;
 
     bool shader_cache_writeback_pending;
