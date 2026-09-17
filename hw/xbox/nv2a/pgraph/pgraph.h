@@ -257,6 +257,8 @@ typedef struct PGRAPHState {
 
     bool framebuffer_in_use;
     QemuCond framebuffer_released;
+    QemuEvent renderer_switch_progress;
+    int renderer_switch_handoff_pending;
 
     enum {
         PGRAPH_RENDERER_SWITCH_PHASE_IDLE,

@@ -33,6 +33,9 @@ tests = {
   'test-xbox-pgraph-texture-layout': [],
   'test-xbox-pgraph-uniform-dirty': [],
   'test-xbox-pgraph-uniform-source': [],
+  'test-xbox-pgraph-renderer-switch-locking': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/renderer-switch.c',
+  ],
   'test-xbox-pgraph-reports': [
     'xbox-pgraph-report-test-support.c',
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/reports.c',
