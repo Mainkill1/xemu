@@ -219,6 +219,9 @@ static void pgraph_vk_process_pending(NV2AState *d)
         if (r->hybrid_compiler_initialized &&
             pgraph_vk_hybrid_compiler_has_result(&r->hybrid_compiler)) {
             pgraph_vk_process_hybrid_completions(&d->pgraph);
+            /* A published fallback module may unblock a retained family.
+             * Give it one bounded service pass without waiting for a flip. */
+            pgraph_vk_process_fallback_families(&d->pgraph);
         }
         if (r->hybrid_pipeline_builder_initialized &&
             pgraph_vk_hybrid_pipeline_builder_has_result(

@@ -63,6 +63,25 @@ static inline PGRAPHVkExecutionRoute pgraph_vk_hybrid_choose_execution_route(
     return PGRAPH_VK_EXECUTION_UNCOVERED;
 }
 
+/* A family pipeline can already be executable even when no full-state
+ * fallback binding has been encountered. Materialize only the missing
+ * metadata, and only when specialization is not already complete. */
+static inline bool pgraph_vk_hybrid_should_prepare_fallback_binding(
+    bool specialized_shader_ready, bool specialized_pipeline_ready,
+    bool fallback_shader_ready, bool fallback_pipeline_ready,
+    bool fallback_controls_supported)
+{
+    return !(specialized_shader_ready && specialized_pipeline_ready) &&
+           !fallback_shader_ready && fallback_pipeline_ready &&
+           fallback_controls_supported;
+}
+
+static inline bool pgraph_vk_fallback_family_learning_needed(
+    bool specialized_complete, PGRAPHVkFamilyLearnState state)
+{
+    return specialized_complete && state == PGRAPH_VK_FAMILY_UNCHECKED;
+}
+
 /* A partially prepared specialized route is closer than a cold fallback. */
 static inline PGRAPHVkFragmentRoute pgraph_vk_hybrid_choose_uncovered_route(
     bool specialized_shader_ready, bool fallback_shader_ready,
@@ -112,6 +131,74 @@ static inline bool pgraph_vk_fallback_family_enqueue(
     free_request->key = *key;
     free_request->state = *state;
     free_request->in_use = true;
+    free_request->status = PGRAPH_VK_FAMILY_WAITING_FOR_SHADER;
+    free_request->attempts = 0;
+    free_request->retry_after_us = 0;
+    return true;
+}
+
+#define PGRAPH_VK_FAMILY_MAX_PIPELINE_ATTEMPTS 3
+#define PGRAPH_VK_FAMILY_RETRY_BASE_US 16000
+
+static inline bool pgraph_vk_fallback_family_retry_due(
+    const PGRAPHVkFallbackFamilyRequest *request, int64_t now_us)
+{
+    return request->in_use &&
+           request->status != PGRAPH_VK_FAMILY_PIPELINE_PENDING &&
+           now_us >= request->retry_after_us;
+}
+
+static inline bool pgraph_vk_fallback_family_wake_for_module(
+    PGRAPHVkFallbackFamilyRequest *request,
+    const ShaderModuleCacheKey *requested_key,
+    const ShaderModuleCacheKey *published_key)
+{
+    if (!request->in_use ||
+        request->status != PGRAPH_VK_FAMILY_WAITING_FOR_SHADER ||
+        !pgraph_vk_shader_module_key_equal(requested_key, published_key)) {
+        return false;
+    }
+    request->retry_after_us = 0;
+    return true;
+}
+
+/* ACCEPTED means queued, in flight, or already present. Keep the family
+ * owner until the exact executable is observed or completion reports a
+ * failure. Queue pressure is a deferral and does not consume an attempt. */
+static inline bool pgraph_vk_fallback_family_note_pipeline_submit(
+    PGRAPHVkFallbackFamilyRequest *request,
+    PGRAPHVkHybridPipelineSubmitResult result, int64_t now_us)
+{
+    switch (result) {
+    case PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED:
+        request->status = PGRAPH_VK_FAMILY_PIPELINE_PENDING;
+        request->retry_after_us = 0;
+        return true;
+    case PGRAPH_VK_HYBRID_PIPELINE_QUEUE_FULL:
+        request->status = PGRAPH_VK_FAMILY_QUEUE_DEFERRED;
+        request->retry_after_us = now_us + PGRAPH_VK_FAMILY_RETRY_BASE_US;
+        return true;
+    case PGRAPH_VK_HYBRID_PIPELINE_STOPPED:
+    case PGRAPH_VK_HYBRID_PIPELINE_UNSUPPORTED_RECIPE:
+        request->status = PGRAPH_VK_FAMILY_REQUEST_REJECTED;
+        request->in_use = false;
+        return false;
+    }
+    g_assert_not_reached();
+}
+
+static inline bool pgraph_vk_fallback_family_note_pipeline_failure(
+    PGRAPHVkFallbackFamilyRequest *request, int64_t now_us)
+{
+    request->attempts++;
+    if (request->attempts >= PGRAPH_VK_FAMILY_MAX_PIPELINE_ATTEMPTS) {
+        request->status = PGRAPH_VK_FAMILY_REQUEST_REJECTED;
+        request->in_use = false;
+        return false;
+    }
+    request->status = PGRAPH_VK_FAMILY_PIPELINE_RETRY_BACKOFF;
+    request->retry_after_us = now_us +
+        (int64_t)PGRAPH_VK_FAMILY_RETRY_BASE_US * request->attempts;
     return true;
 }
 

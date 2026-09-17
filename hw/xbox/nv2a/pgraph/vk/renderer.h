@@ -52,6 +52,9 @@
 #include "ubershader-controls.h"
 
 #define HAVE_EXTERNAL_MEMORY 1
+#define VSH_UBO_BINDING 0
+#define PSH_UBO_BINDING 1
+#define PSH_TEX_BINDING 2
 
 typedef struct QueueFamilyIndices {
     int queue_family;
@@ -108,6 +111,23 @@ typedef struct PipelineKey {
     VkVertexInputAttributeDescription attribute_descriptions[NV2A_VERTEXSHADER_ATTRIBUTES];
 } PipelineKey;
 
+typedef enum PGRAPHVkFamilyLearnState {
+    PGRAPH_VK_FAMILY_UNCHECKED,
+    PGRAPH_VK_FAMILY_RETRY_PENDING,
+    PGRAPH_VK_FAMILY_TRACKED,
+    PGRAPH_VK_FAMILY_READY,
+    PGRAPH_VK_FAMILY_REJECTED,
+} PGRAPHVkFamilyLearnState;
+
+typedef enum PGRAPHVkFallbackFamilyStatus {
+    PGRAPH_VK_FAMILY_WAITING_FOR_SHADER,
+    PGRAPH_VK_FAMILY_QUEUE_DEFERRED,
+    PGRAPH_VK_FAMILY_PIPELINE_PENDING,
+    PGRAPH_VK_FAMILY_PIPELINE_RETRY_BACKOFF,
+    PGRAPH_VK_FAMILY_REQUEST_READY,
+    PGRAPH_VK_FAMILY_REQUEST_REJECTED,
+} PGRAPHVkFallbackFamilyStatus;
+
 typedef struct PipelineBinding {
     LruNode node;
     PipelineKey key;
@@ -117,6 +137,7 @@ typedef struct PipelineBinding {
     unsigned int draw_time;
     bool has_dynamic_line_width;
     uint32_t dynamic_blend_constant_mask;
+    PGRAPHVkFamilyLearnState family_learn_state;
 } PipelineBinding;
 
 #define PGRAPH_VK_HYBRID_MAX_PIPELINE_JOBS 16
@@ -126,6 +147,9 @@ typedef struct PGRAPHVkFallbackFamilyRequest {
     bool in_use;
     ShaderState state;
     PipelineKey key;
+    PGRAPHVkFallbackFamilyStatus status;
+    unsigned int attempts;
+    int64_t retry_after_us;
 } PGRAPHVkFallbackFamilyRequest;
 
 typedef struct PGRAPHVkHybridPipelineWork {
@@ -315,6 +339,21 @@ typedef struct PGRAPHVkShaderPreparation {
     bool bound_state_equal;
     bool selection_changed;
 } PGRAPHVkShaderPreparation;
+
+typedef struct PGRAPHVkReadyDrawCandidate {
+    ShaderBinding *shader;
+    PipelineBinding *pipeline;
+    PipelineKey key;
+    uint64_t hash;
+} PGRAPHVkReadyDrawCandidate;
+
+typedef struct PGRAPHVkReadyExecutionCandidates {
+    PGRAPHVkReadyDrawCandidate specialized;
+    PGRAPHVkReadyDrawCandidate fallback;
+    PGRAPHUberControls controls;
+    bool controls_checked;
+    bool controls_supported;
+} PGRAPHVkReadyExecutionCandidates;
 
 static inline bool pgraph_vk_shader_binding_key_equal(
     const ShaderBindingKey *a, const ShaderBindingKey *b)
@@ -733,6 +772,8 @@ typedef struct PGRAPHVkState {
     PGRAPHVkFallbackFamilyRequest fallback_family_requests[
         PGRAPH_VK_HYBRID_MAX_FALLBACK_FAMILIES];
     unsigned int fallback_family_cursor;
+    unsigned int fallback_family_pipeline_cursor;
+    size_t fallback_family_retry_count;
     const ShaderModuleCacheKey *hybrid_materializing_key;
     ShaderModuleInfo *hybrid_materialized_module_info;
 
@@ -1002,6 +1043,35 @@ void pgraph_vk_enqueue_specialized_fragment(PGRAPHState *pg,
 bool pgraph_vk_enqueue_fallback_fragment(PGRAPHState *pg,
                                         const ShaderState *state);
 void pgraph_vk_process_fallback_families(PGRAPHState *pg);
+
+// hybrid-family.c
+void pgraph_vk_resolve_ready_execution_candidates(
+    PGRAPHState *pg, const ShaderState *state,
+    PGRAPHVkReadyExecutionCandidates *candidates);
+void pgraph_vk_init_pipeline_key_for_state(
+    PGRAPHState *pg, const ShaderState *shader_state,
+    PGRAPHVkFragmentRoute route, PipelineKey *key);
+void pgraph_vk_pipeline_family_set_state(
+    PGRAPHVkState *r, PipelineBinding *binding,
+    PGRAPHVkFamilyLearnState state);
+void pgraph_vk_track_specialized_fallback_family(
+    PGRAPHVkState *r, PipelineBinding *owner,
+    bool controls_supported, bool fallback_pipeline_ready);
+void pgraph_vk_enqueue_retained_fallback_families(PGRAPHVkState *r);
+void pgraph_vk_fallback_family_note_pipeline_ready(
+    PGRAPHVkState *r, const PipelineKey *key);
+void pgraph_vk_fallback_family_note_pipeline_failure_at(
+    PGRAPHVkState *r, const PipelineKey *key, int64_t now_us);
+void pgraph_vk_pipeline_family_owner_evict(
+    PGRAPHVkState *r, PipelineBinding *binding);
+void pgraph_vk_fallback_family_key_from_specialized(
+    const PipelineBinding *binding, PipelineKey *key);
+void pgraph_vk_fallback_family_mark_pipeline_owners(
+    PGRAPHVkState *r, const PipelineKey *family_key,
+    PGRAPHVkFamilyLearnState state);
+void pgraph_vk_fallback_family_finish_request(
+    PGRAPHVkState *r, PGRAPHVkFallbackFamilyRequest *request,
+    PGRAPHVkFamilyLearnState state);
 ShaderBinding *pgraph_vk_prepare_binding_from_ready_modules(
     PGRAPHState *pg, const ShaderState *state, PGRAPHVkFragmentRoute route);
 void pgraph_vk_prepare_shaders(PGRAPHState *pg,
