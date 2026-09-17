@@ -413,7 +413,9 @@ static bool test_rejection_retires_before_dma_switch_and_valid_report(void)
     pgraph_vk_get_report(&fixture->d, report_parameter(0));
     pgraph_vk_process_pending_reports(&fixture->d);
     if (!buffer_is_value(fixture->vram, sizeof(fixture->vram), CANARY) ||
-        !queue_is_empty(fixture)) {
+        !queue_is_empty(fixture) ||
+        fixture->renderer.perf.report_retirements != 1 ||
+        fixture->renderer.perf.report_write_attempts != 1) {
         return false;
     }
 
@@ -435,6 +437,8 @@ static bool test_rejection_retires_before_dma_switch_and_valid_report(void)
     return finish_calls == 2 &&
            fixture->renderer.perf.finish[VK_FINISH_REASON_STALLED].call_count ==
                finish_calls &&
+           fixture->renderer.perf.report_retirements == 2 &&
+           fixture->renderer.perf.report_write_attempts == 2 &&
            !memcmp(after_valid, fixture->vram, sizeof(after_valid)) &&
            no_command_buffer_boundaries_called();
 }
@@ -519,7 +523,7 @@ static bool test_active_command_buffer_waits_before_publication(void)
            fixture->renderer.report_queue_depth == 0 &&
            fixture->renderer.perf.report_stalled_finish_calls == 1 &&
            fixture->renderer.perf.report_retirements == 1 &&
-           fixture->renderer.perf.report_publications == 1 &&
+           fixture->renderer.perf.report_write_attempts == 1 &&
            fixture->renderer.perf.report_query_result_calls == 1 &&
            fixture->renderer.perf.report_query_results_waited == 1 &&
            fixture->renderer.perf.report_cpu_only_retirements == 0 &&
@@ -527,7 +531,7 @@ static bool test_active_command_buffer_waits_before_publication(void)
            finish_stats->wait_count == 1;
 }
 
-static bool test_report_lifecycle_telemetry_tracks_queue_and_publication(void)
+static bool test_report_lifecycle_telemetry_tracks_queue_and_retirement(void)
 {
     g_autoptr(ReportFixture) fixture = g_new0(ReportFixture, 1);
     QueryReport *clear_report;
@@ -545,15 +549,11 @@ static bool test_report_lifecycle_telemetry_tracks_queue_and_publication(void)
     clear_report = QSIMPLEQ_FIRST(&fixture->renderer.report_queue);
     value_report = QSIMPLEQ_NEXT(clear_report, entry);
     if (fixture->renderer.report_queue_depth != 2 ||
-        fixture->renderer.perf.report_enqueued != 2 ||
+        fixture->renderer.perf.report_entries_enqueued != 2 ||
         fixture->renderer.perf.report_clears_enqueued != 1 ||
         fixture->renderer.perf.report_max_queue_depth != 2 ||
-        clear_report->telemetry_id != 1 ||
         clear_report->enqueue_frame != 7 ||
-        clear_report->enqueue_submit_serial != 3 ||
-        clear_report->enqueue_queue_depth != 1 ||
-        value_report->telemetry_id != 2 ||
-        value_report->enqueue_queue_depth != 2) {
+        value_report->enqueue_frame != 7) {
         return false;
     }
 
@@ -563,12 +563,33 @@ static bool test_report_lifecycle_telemetry_tracks_queue_and_publication(void)
     return queue_is_empty(fixture) &&
            fixture->renderer.report_queue_depth == 0 &&
            fixture->renderer.perf.report_stalled_finish_calls == 1 &&
-           fixture->renderer.perf.report_publications == 1 &&
+           fixture->renderer.perf.report_write_attempts == 1 &&
            fixture->renderer.perf.report_cpu_only_retirements == 2 &&
            fixture->renderer.perf.report_query_result_calls == 0 &&
            fixture->renderer.perf.report_query_results_waited == 0 &&
-           fixture->renderer.perf.report_enqueue_to_publish_frames_total == 4 &&
-           fixture->renderer.perf.report_enqueue_to_publish_frames_max == 2;
+           fixture->renderer.perf.report_enqueue_to_retire_frames_total == 4 &&
+           fixture->renderer.perf.report_enqueue_to_retire_frames_max == 2;
+}
+
+static bool test_disabled_telemetry_preserves_report_behavior(void)
+{
+    g_autoptr(ReportFixture) fixture = g_new0(ReportFixture, 1);
+
+    fixture_init(fixture);
+    fixture->renderer.perf.enabled = false;
+    write_dma_descriptor(fixture->ramin, 0, REPORT_SIZE - 1);
+    fixture->d.pgraph.dma_report = 0;
+    fixture->renderer.zpass_pixel_count_result = UINT32_C(0x4567);
+
+    pgraph_vk_get_report(&fixture->d, report_parameter(0));
+    pgraph_vk_process_pending_reports(&fixture->d);
+
+    return report_matches(fixture->vram, UINT32_C(0x4567)) &&
+           queue_is_empty(fixture) &&
+           fixture->renderer.perf.report_entries_enqueued == 0 &&
+           fixture->renderer.perf.report_retirements == 0 &&
+           fixture->renderer.perf.report_write_attempts == 0 &&
+           no_command_buffer_boundaries_called();
 }
 
 int main(void)
@@ -580,10 +601,11 @@ int main(void)
     bool delayed = test_descriptor_words_are_decoded_at_retirement();
     bool active = test_active_command_buffer_waits_before_publication();
     bool telemetry =
-        test_report_lifecycle_telemetry_tracks_queue_and_publication();
+        test_report_lifecycle_telemetry_tracks_queue_and_retirement();
+    bool disabled = test_disabled_telemetry_preserves_report_behavior();
 
     puts("TAP version 13");
-    puts("1..7");
+    puts("1..8");
     printf("%s 1 - idle no-CB queue publishes accumulated count\n",
            idle ? "ok" : "not ok");
     printf("%s 2 - clear then report publishes zero\n",
@@ -596,10 +618,12 @@ int main(void)
            delayed ? "ok" : "not ok");
     printf("%s 6 - active CB completion precedes publication\n",
            active ? "ok" : "not ok");
-    printf("%s 7 - report lifecycle telemetry tracks queue and publication\n",
+    printf("%s 7 - report lifecycle telemetry tracks queue and retirement\n",
            telemetry ? "ok" : "not ok");
+    printf("%s 8 - disabled telemetry preserves report behavior\n",
+           disabled ? "ok" : "not ok");
     return idle && clear && reject && nonidle && delayed && active &&
-                   telemetry ?
+                   telemetry && disabled ?
                0 :
                1;
 }

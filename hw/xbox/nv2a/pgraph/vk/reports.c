@@ -23,11 +23,8 @@ static void report_queue_insert(PGRAPHVkState *r, QueryReport *report)
 {
     r->report_queue_depth++;
     if (r->perf.enabled) {
-        report->telemetry_id = ++r->perf.report_next_id;
         report->enqueue_frame = r->perf.frame;
-        report->enqueue_submit_serial = r->perf.submission_serial;
-        report->enqueue_queue_depth = r->report_queue_depth;
-        r->perf.report_enqueued++;
+        r->perf.report_entries_enqueued++;
         r->perf.report_clears_enqueued += report->clear;
         r->perf.report_max_queue_depth = MAX(
             r->perf.report_max_queue_depth, r->report_queue_depth);
@@ -169,10 +166,10 @@ void pgraph_vk_process_pending_reports_internal(NV2AState *d)
         if (r->perf.enabled) {
             uint64_t age_frames = r->perf.frame - report->enqueue_frame;
             r->perf.report_retirements++;
-            r->perf.report_publications += !report->clear;
-            r->perf.report_enqueue_to_publish_frames_total += age_frames;
-            r->perf.report_enqueue_to_publish_frames_max = MAX(
-                r->perf.report_enqueue_to_publish_frames_max, age_frames);
+            r->perf.report_write_attempts += !report->clear;
+            r->perf.report_enqueue_to_retire_frames_total += age_frames;
+            r->perf.report_enqueue_to_retire_frames_max = MAX(
+                r->perf.report_enqueue_to_retire_frames_max, age_frames);
         }
 
         QSIMPLEQ_REMOVE_HEAD(&r->report_queue, entry);
