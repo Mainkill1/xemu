@@ -100,7 +100,8 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
             "{\"type\":\"schema\",\"schema_version\":8"
-            ",\"features\":[\"report_lifecycle\"]"
+            ",\"features\":[\"report_lifecycle\","
+            "\"descriptor_publication\",\"surface_upload\"]"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
             ",\"presentation_counters\":\"cumulative_totals\"",
@@ -456,14 +457,15 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"uniform_capacity_requests_per_guest_frame\":%" PRIu64
             ",\"uniform_vsh_writes_per_guest_frame\":%" PRIu64
             ",\"uniform_psh_writes_per_guest_frame\":%" PRIu64
-            ",\"surface_upload_calls_per_guest_frame\":%" PRIu64
-            ",\"surface_upload_color_calls_per_guest_frame\":%" PRIu64
-            ",\"surface_upload_depth_calls_per_guest_frame\":%" PRIu64
-            ",\"surface_upload_force_calls_per_guest_frame\":%" PRIu64
-            ",\"surface_upload_bytes_per_guest_frame\":%" PRIu64
+            ",\"surface_upload_attempts_per_guest_frame\":%" PRIu64
+            ",\"surface_upload_color_attempts_per_guest_frame\":%" PRIu64
+            ",\"surface_upload_depth_attempts_per_guest_frame\":%" PRIu64
+            ",\"surface_upload_force_attempts_per_guest_frame\":%" PRIu64
+            ",\"surface_upload_requested_bytes_per_guest_frame\":%" PRIu64
             ",\"surface_upload_new_causes_per_guest_frame\":%" PRIu64
             ",\"surface_upload_guest_write_causes_per_guest_frame\":%" PRIu64
             ",\"surface_upload_dirty_memory_causes_per_guest_frame\":%" PRIu64
+            ",\"surface_upload_overlap_guest_write_causes_per_guest_frame\":%" PRIu64
             "}\n",
             perf->descriptor_update_calls,
             perf->descriptor_reuse_returns,
@@ -476,14 +478,15 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->uniform_capacity_requests,
             perf->uniform_stage_writes[PGRAPH_UNIFORM_STAGE_VSH],
             perf->uniform_stage_writes[PGRAPH_UNIFORM_STAGE_PSH],
-            perf->surface_upload_calls,
-            perf->surface_upload_color_calls,
-            perf->surface_upload_depth_calls,
-            perf->surface_upload_force_calls,
-            perf->surface_upload_bytes,
+            perf->surface_upload_attempts,
+            perf->surface_upload_color_attempts,
+            perf->surface_upload_depth_attempts,
+            perf->surface_upload_force_attempts,
+            perf->surface_upload_requested_bytes,
             perf->surface_upload_new_causes,
             perf->surface_upload_guest_write_causes,
-            perf->surface_upload_dirty_memory_causes);
+            perf->surface_upload_dirty_memory_causes,
+            perf->surface_upload_overlap_guest_write_causes);
 
     if (now - perf->last_flush_us >= G_USEC_PER_SEC) {
         fflush(perf->file);
@@ -524,14 +527,15 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->uniform_capacity_requests = 0;
     memset(perf->uniform_stage_writes, 0,
            sizeof(perf->uniform_stage_writes));
-    perf->surface_upload_calls = 0;
-    perf->surface_upload_color_calls = 0;
-    perf->surface_upload_depth_calls = 0;
-    perf->surface_upload_force_calls = 0;
-    perf->surface_upload_bytes = 0;
+    perf->surface_upload_attempts = 0;
+    perf->surface_upload_color_attempts = 0;
+    perf->surface_upload_depth_attempts = 0;
+    perf->surface_upload_force_attempts = 0;
+    perf->surface_upload_requested_bytes = 0;
     perf->surface_upload_new_causes = 0;
     perf->surface_upload_guest_write_causes = 0;
     perf->surface_upload_dirty_memory_causes = 0;
+    perf->surface_upload_overlap_guest_write_causes = 0;
     perf->peak_in_flight_submission_count =
         perf->in_flight_submission_count;
     perf->oldest_in_flight_serial = 0;
