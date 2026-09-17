@@ -85,19 +85,51 @@ static bool test_texture_source_identity(void)
                texture, texture, 32, palette + 1, palette);
 }
 
+static bool test_descriptor_identity_changes_only_for_visible_binding(void)
+{
+    const PGRAPHVkTextureDescriptorIdentity dummy = {
+        .image_view = 1,
+        .sampler = 2,
+    };
+    const PGRAPHVkTextureDescriptorIdentity real_a = {
+        .image_view = 3,
+        .sampler = 4,
+    };
+    const PGRAPHVkTextureDescriptorIdentity real_a_content_update = {
+        .image_view = 3,
+        .sampler = 4,
+    };
+    const PGRAPHVkTextureDescriptorIdentity real_b = {
+        .image_view = 5,
+        .sampler = 6,
+    };
+
+    return !pgraph_vk_texture_descriptor_identity_changed(dummy, dummy) &&
+           pgraph_vk_texture_descriptor_identity_changed(real_a, dummy) &&
+           pgraph_vk_texture_descriptor_identity_changed(dummy, real_a) &&
+           !pgraph_vk_texture_descriptor_identity_changed(
+               real_a, real_a_content_update) &&
+           pgraph_vk_texture_descriptor_identity_changed(real_a, real_b) &&
+           pgraph_vk_texture_descriptor_identity_changed(real_b, dummy);
+}
+
 int main(void)
 {
     bool disabled = test_disabled_stage_keeps_dirty_for_reenable();
     bool retry = test_failed_active_bind_remains_retryable();
     bool identity = test_texture_source_identity();
+    bool descriptor_identity =
+        test_descriptor_identity_changes_only_for_visible_binding();
 
     puts("TAP version 13");
-    puts("1..3");
+    puts("1..4");
     printf("%s 1 - disabled dirty state waits for re-enable\n",
            disabled ? "ok" : "not ok");
     printf("%s 2 - failed active bind remains retryable\n",
            retry ? "ok" : "not ok");
     printf("%s 3 - texture source identity gates clean reuse\n",
            identity ? "ok" : "not ok");
-    return disabled && retry && identity ? 0 : 1;
+    printf("%s 4 - descriptor identity changes only for visible binding\n",
+           descriptor_identity ? "ok" : "not ok");
+    return disabled && retry && identity && descriptor_identity ? 0 : 1;
 }

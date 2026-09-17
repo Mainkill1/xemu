@@ -11,6 +11,19 @@
 #include <stddef.h>
 #include <stdint.h>
 
+typedef struct PGRAPHVkTextureDescriptorIdentity {
+    uintptr_t image_view;
+    uintptr_t sampler;
+} PGRAPHVkTextureDescriptorIdentity;
+
+static inline bool pgraph_vk_texture_descriptor_identity_changed(
+    PGRAPHVkTextureDescriptorIdentity before,
+    PGRAPHVkTextureDescriptorIdentity after)
+{
+    return before.image_view != after.image_view ||
+           before.sampler != after.sampler;
+}
+
 /* A disabled stage retains its guest dirtiness until it is re-enabled. */
 static inline bool pgraph_vk_texture_stage_needs_rebind(bool enabled,
                                                        bool dirty, bool bound,
