@@ -19,11 +19,28 @@
 
 #include "renderer.h"
 
+static void report_queue_insert(PGRAPHVkState *r, QueryReport *report)
+{
+    r->report_queue_depth++;
+    if (r->perf.enabled) {
+        report->telemetry_id = ++r->perf.report_next_id;
+        report->enqueue_frame = r->perf.frame;
+        report->enqueue_submit_serial = r->perf.submission_serial;
+        report->enqueue_queue_depth = r->report_queue_depth;
+        r->perf.report_enqueued++;
+        r->perf.report_clears_enqueued += report->clear;
+        r->perf.report_max_queue_depth = MAX(
+            r->perf.report_max_queue_depth, r->report_queue_depth);
+    }
+    QSIMPLEQ_INSERT_TAIL(&r->report_queue, report, entry);
+}
+
 void pgraph_vk_init_reports(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     QSIMPLEQ_INIT(&r->report_queue);
+    r->report_queue_depth = 0;
     r->num_queries_in_flight = 0;
     r->max_queries_in_flight = 1024;
     r->new_query_needed = false;
@@ -46,8 +63,11 @@ void pgraph_vk_finalize_reports(PGRAPHState *pg)
     QueryReport *report;
     while ((report = QSIMPLEQ_FIRST(&r->report_queue)) != NULL) {
         QSIMPLEQ_REMOVE_HEAD(&r->report_queue, entry);
+        assert(r->report_queue_depth > 0);
+        r->report_queue_depth--;
         g_free(report);
     }
+    assert(r->report_queue_depth == 0);
 
     vkDestroyQueryPool(r->device, r->query_pool, NULL);
 }
@@ -61,7 +81,7 @@ void pgraph_vk_clear_report_value(NV2AState *d)
     report->clear = true;
     report->parameter = 0;
     report->query_count = r->num_queries_in_flight;
-    QSIMPLEQ_INSERT_TAIL(&r->report_queue, report, entry);
+    report_queue_insert(r, report);
 
     r->new_query_needed = true;
 }
@@ -79,7 +99,7 @@ void pgraph_vk_get_report(NV2AState *d, uint32_t parameter)
     report->dma_report = pg->dma_report;
     report->parameter = parameter;
     report->query_count = r->num_queries_in_flight;
-    QSIMPLEQ_INSERT_TAIL(&r->report_queue, report, entry);
+    report_queue_insert(r, report);
 
     r->new_query_needed = true;
 }
@@ -101,12 +121,25 @@ void pgraph_vk_process_pending_reports_internal(NV2AState *d)
         query_results = g_malloc_n(r->num_queries_in_flight,
                                    sizeof(uint64_t)); // FIXME: Pre-allocate
         VkResult result;
+        int64_t query_start_us = r->perf.enabled ?
+            qemu_clock_get_us(QEMU_CLOCK_REALTIME) : 0;
         do {
             result = vkGetQueryPoolResults(
                 r->device, r->query_pool, 0, r->num_queries_in_flight,
                 size_of_results, query_results, sizeof(uint64_t),
                 VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT);
+            if (r->perf.enabled) {
+                r->perf.report_query_result_calls++;
+            }
         } while (result == VK_NOT_READY);
+        if (r->perf.enabled) {
+            r->perf.report_query_result_wait_us += MAX(
+                qemu_clock_get_us(QEMU_CLOCK_REALTIME) - query_start_us, 0);
+            if (result == VK_SUCCESS) {
+                r->perf.report_query_results_waited +=
+                    r->num_queries_in_flight;
+            }
+        }
     }
 
     // Write out queries
@@ -133,7 +166,18 @@ void pgraph_vk_process_pending_reports_internal(NV2AState *d)
                 r->zpass_pixel_count_result / result_divisor);
         }
 
+        if (r->perf.enabled) {
+            uint64_t age_frames = r->perf.frame - report->enqueue_frame;
+            r->perf.report_retirements++;
+            r->perf.report_publications += !report->clear;
+            r->perf.report_enqueue_to_publish_frames_total += age_frames;
+            r->perf.report_enqueue_to_publish_frames_max = MAX(
+                r->perf.report_enqueue_to_publish_frames_max, age_frames);
+        }
+
         QSIMPLEQ_REMOVE_HEAD(&r->report_queue, entry);
+        assert(r->report_queue_depth > 0);
+        r->report_queue_depth--;
         g_free(report);
     }
 
@@ -155,6 +199,9 @@ void pgraph_vk_process_pending_reports(NV2AState *d)
     uint32_t *dma_put = &d->pfifo.regs[NV_PFIFO_CACHE1_DMA_PUT];
 
     if (*dma_get == *dma_put && !QSIMPLEQ_EMPTY(&r->report_queue)) {
+        if (r->perf.enabled) {
+            r->perf.report_stalled_finish_calls++;
+        }
         pgraph_vk_finish(pg, VK_FINISH_REASON_STALLED);
     }
 }

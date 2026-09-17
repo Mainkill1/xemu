@@ -2272,6 +2272,9 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
     }
 
     NV2AState *d = container_of(pg, NV2AState, pgraph);
+    if (r->perf.enabled && !trace_had_command_buffer) {
+        r->perf.report_cpu_only_retirements += r->report_queue_depth;
+    }
     pgraph_vk_process_pending_reports_internal(d);
 
     pgraph_vk_compute_finish_complete(r);

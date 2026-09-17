@@ -435,6 +435,10 @@ typedef struct QueryReport {
     hwaddr dma_report;
     uint32_t parameter;
     unsigned int query_count;
+    uint64_t telemetry_id;
+    uint64_t enqueue_frame;
+    uint64_t enqueue_submit_serial;
+    uint32_t enqueue_queue_depth;
 } QueryReport;
 
 typedef struct PvideoState {
@@ -634,6 +638,19 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t submission_serial;
     uint64_t retirement_queue_objects;
     uint64_t retirement_queue_bytes;
+    uint64_t report_next_id;
+    uint64_t report_enqueued;
+    uint64_t report_clears_enqueued;
+    uint64_t report_max_queue_depth;
+    uint64_t report_stalled_finish_calls;
+    uint64_t report_retirements;
+    uint64_t report_publications;
+    uint64_t report_query_result_calls;
+    uint64_t report_query_results_waited;
+    uint64_t report_query_result_wait_us;
+    uint64_t report_cpu_only_retirements;
+    uint64_t report_enqueue_to_publish_frames_total;
+    uint64_t report_enqueue_to_publish_frames_max;
     /* Cumulative UI-thread totals, read by the renderer-thread perf writer. */
     uint64_t framebuffer_acquire_calls_total QEMU_ALIGNED(8);
     uint64_t valid_sync_requests_total QEMU_ALIGNED(8);
@@ -809,6 +826,7 @@ typedef struct PGRAPHVkState {
     bool new_query_needed;
     bool query_in_flight;
     uint32_t zpass_pixel_count_result;
+    uint32_t report_queue_depth;
     QSIMPLEQ_HEAD(, QueryReport) report_queue; // FIXME: Statically allocate
 
     SurfaceFormatInfo kelvin_surface_zeta_vk_map[3];

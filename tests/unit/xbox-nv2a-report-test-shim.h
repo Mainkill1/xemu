@@ -14,4 +14,7 @@
 #undef type_init
 #define type_init(function)
 
+/* renderer.h stores the opaque callback pointer but the fixture never uses it. */
+typedef struct MemAccessCallback MemAccessCallback;
+
 #endif

@@ -506,6 +506,13 @@ static bool test_active_command_buffer_waits_before_publication(void)
            !fixture->renderer.query_in_flight &&
            fixture->renderer.num_queries_in_flight == 0 &&
            fixture->renderer.submit_count == 1 &&
+           fixture->renderer.report_queue_depth == 0 &&
+           fixture->renderer.perf.report_stalled_finish_calls == 1 &&
+           fixture->renderer.perf.report_retirements == 1 &&
+           fixture->renderer.perf.report_publications == 1 &&
+           fixture->renderer.perf.report_query_result_calls == 1 &&
+           fixture->renderer.perf.report_query_results_waited == 1 &&
+           fixture->renderer.perf.report_cpu_only_retirements == 0 &&
            finish_stats->call_count == 1 && finish_stats->submit_count == 1 &&
            finish_stats->wait_count == 1;
 }
