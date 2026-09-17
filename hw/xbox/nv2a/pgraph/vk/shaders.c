@@ -231,6 +231,9 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     ShaderBinding *binding = r->shader_binding;
+    if (r->perf.enabled) {
+        r->perf.descriptor_update_calls++;
+    }
     bool force_reupload = r->descriptor_set_index == 0;
     bool uses_uber_controls =
         r->ubershader_runtime_enabled &&
@@ -255,7 +258,17 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
     bool need_descriptor_update = pgraph_vk_descriptor_update_needed(
         r->texture_bindings_changed, force_reupload, any_uniform_write);
 
+    if (r->perf.enabled) {
+        r->perf.descriptor_texture_change_requests +=
+            r->texture_bindings_changed;
+        r->perf.descriptor_force_reupload_requests += force_reupload;
+        r->perf.descriptor_uniform_write_requests += any_uniform_write;
+    }
+
     if (!need_descriptor_update && !need_uber_control_write) {
+        if (r->perf.enabled) {
+            r->perf.descriptor_reuse_returns++;
+        }
         return; // Nothing changed
     }
 
@@ -281,6 +294,11 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
 
     bool need_descriptor_write_reset = need_descriptor_update &&
         (r->descriptor_set_index >= ARRAY_SIZE(r->descriptor_sets));
+
+    if (r->perf.enabled) {
+        r->perf.descriptor_capacity_requests += need_descriptor_write_reset;
+        r->perf.uniform_capacity_requests += need_ubo_staging_buffer_reset;
+    }
 
     if (need_descriptor_write_reset || need_ubo_staging_buffer_reset) {
         if (r->hybrid_trace) {
@@ -323,6 +341,9 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
                 pg, BUFFER_UNIFORM_STAGING, &data, &size, 1,
                 r->device_props.limits.minUniformBufferOffsetAlignment);
             r->uniform_stage_dirty[i] = false;
+            if (r->perf.enabled) {
+                r->perf.uniform_stage_writes[i]++;
+            }
         }
 
         sync_uniform_dirty_summary(r);
@@ -344,6 +365,9 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
     if (pgraph_vk_reuses_descriptor_set_for_control_update(
             need_uber_control_write, need_descriptor_update)) {
         assert(r->descriptor_set_index > 0);
+        if (r->perf.enabled) {
+            r->perf.descriptor_control_only_reuses++;
+        }
         return;
     }
 
@@ -404,6 +428,10 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
 
     vkUpdateDescriptorSets(r->device, descriptor_write_count,
                            descriptor_writes, 0, NULL);
+
+    if (r->perf.enabled) {
+        r->perf.descriptor_set_writes++;
+    }
 
     r->descriptor_set_index++;
 }
