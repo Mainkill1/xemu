@@ -710,6 +710,43 @@ void pgraph_vk_download_dirty_surfaces(NV2AState *d)
     qemu_event_set(&r->dirty_surfaces_download_complete);
 }
 
+typedef enum SurfaceUploadPendingCause {
+    SURFACE_UPLOAD_PENDING_NEW,
+    SURFACE_UPLOAD_PENDING_GUEST_WRITE,
+    SURFACE_UPLOAD_PENDING_DIRTY_MEMORY,
+} SurfaceUploadPendingCause;
+
+static void record_surface_upload_pending_cause(
+    PGRAPHVkState *r, SurfaceUploadPendingCause cause)
+{
+    if (!r->perf.enabled) {
+        return;
+    }
+    switch (cause) {
+    case SURFACE_UPLOAD_PENDING_NEW:
+        r->perf.surface_upload_new_causes++;
+        break;
+    case SURFACE_UPLOAD_PENDING_GUEST_WRITE:
+        r->perf.surface_upload_guest_write_causes++;
+        break;
+    case SURFACE_UPLOAD_PENDING_DIRTY_MEMORY:
+        r->perf.surface_upload_dirty_memory_causes++;
+        break;
+    }
+}
+
+static void mark_surface_upload_pending(SurfaceBinding *surface,
+                                        SurfaceUploadPendingCause cause)
+{
+    /* Attribute only the transition that made an upload necessary. Repeated
+     * visits while it is already pending are not additional upload causes. */
+    if (!surface->upload_pending) {
+        PGRAPHVkState *r = surface->d->pgraph.vk_renderer_state;
+        record_surface_upload_pending_cause(r, cause);
+    }
+    surface->upload_pending = true;
+}
+
 static bool surface_access_one(SurfaceBinding *surface, hwaddr addr, bool write)
 {
     hwaddr offset = addr - surface->vram_addr;
@@ -721,7 +758,8 @@ static bool surface_access_one(SurfaceBinding *surface, hwaddr addr, bool write)
     }
 
     if (write) {
-        surface->upload_pending = true;
+        mark_surface_upload_pending(surface,
+                                    SURFACE_UPLOAD_PENDING_GUEST_WRITE);
     }
 
     return surface->draw_dirty;
@@ -1153,6 +1191,16 @@ bool pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
 
     if (!(surface->upload_pending || force)) {
         return true;
+    }
+
+    if (r->perf.enabled) {
+        r->perf.surface_upload_calls++;
+        r->perf.surface_upload_color_calls += surface->color;
+        r->perf.surface_upload_depth_calls += !surface->color;
+        r->perf.surface_upload_force_calls += force;
+        r->perf.surface_upload_bytes +=
+            (uint64_t)surface->height * surface->width *
+            surface->fmt.bytes_per_pixel;
     }
 
     if (r->display.reuse.valid &&
@@ -1747,7 +1795,10 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
                 pg->surface_binding_dim.height = surface->height;
                 pg->surface_binding_dim.clip_y = surface->shape.clip_y;
                 pg->surface_binding_dim.clip_height = surface->shape.clip_height;
-                surface->upload_pending |= mem_dirty;
+                if (mem_dirty) {
+                    mark_surface_upload_pending(
+                        surface, SURFACE_UPLOAD_PENDING_DIRTY_MEMORY);
+                }
                 pg->surface_zeta.buffer_dirty |= color;
                 should_create = false;
             } else {
@@ -1772,6 +1823,8 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
             }
 
             *surface = target;
+            record_surface_upload_pending_cause(
+                r, SURFACE_UPLOAD_PENDING_NEW);
             surface->lifetime_id = ++r->next_surface_lifetime_id;
             if (surface->lifetime_id == 0) {
                 surface->lifetime_id = ++r->next_surface_lifetime_id;
