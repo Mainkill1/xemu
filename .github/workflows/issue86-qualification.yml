@@ -20,7 +20,7 @@ jobs:
 
   source:
     name: Package exact source
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     outputs:
       pkg_version: ${{ steps.version.outputs.pkg_version }}
     steps:
