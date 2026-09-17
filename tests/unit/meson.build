@@ -240,6 +240,7 @@ if sdl.found() and epoxy.found()
   tests += {
     'test-xbox-gloffscreen': [
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/thirdparty/gloffscreen/sdl.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/gl/texture-stage.c',
       sdl, epoxy,
     ],
   }

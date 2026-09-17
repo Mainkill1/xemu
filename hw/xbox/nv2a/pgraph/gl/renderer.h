@@ -36,6 +36,7 @@
 #include "hw/xbox/nv2a/pgraph/glsl/shaders.h"
 
 #include "gloffscreen.h"
+#include "texture-stage.h"
 #include "constants.h"
 
 typedef struct SurfaceBinding {
@@ -65,23 +66,6 @@ typedef struct SurfaceBinding {
     GLuint gl_buffer;
     SurfaceFormatInfo fmt;
 } SurfaceBinding;
-
-typedef struct TextureBinding {
-    unsigned int refcnt;
-    int draw_time;
-    uint64_t data_hash;
-    unsigned int scale;
-    unsigned int min_filter;
-    unsigned int mag_filter;
-    uint32_t lod_bias;
-    unsigned int addru;
-    unsigned int addrv;
-    unsigned int addrp;
-    uint32_t border_color;
-    bool border_color_set;
-    GLenum gl_target;
-    GLuint gl_texture;
-} TextureBinding;
 
 typedef struct ShaderModuleCacheKey {
     GLenum kind;

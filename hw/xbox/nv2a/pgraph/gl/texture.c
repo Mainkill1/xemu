@@ -31,7 +31,6 @@
 #include "renderer.h"
 
 static TextureBinding* generate_texture(const TextureShape s, const uint8_t *texture_data, const uint8_t *palette_data);
-static void texture_binding_destroy(gpointer data);
 
 struct pgraph_texture_possibly_dirty_struct {
     hwaddr addr, end;
@@ -246,10 +245,8 @@ void pgraph_gl_bind_textures(NV2AState *d)
         length = pgraph_get_texture_length(pg, &state);
         if (!length) {
             error_report("Invalid texture source layout");
-            glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-            glBindTexture(GL_TEXTURE_1D, 0);
-            glBindTexture(GL_TEXTURE_2D, 0);
-            glBindTexture(GL_TEXTURE_3D, 0);
+            pgraph_gl_reset_texture_stage(&r->texture_binding[i]);
+            pg->texture_dirty[i] = true;
             continue;
         }
         texture_vram_offset = pgraph_get_texture_phys_addr(pg, i);
@@ -367,7 +364,7 @@ void pgraph_gl_bind_textures(NV2AState *d)
                             && possibly_dirty
                             && (key_out->binding->data_hash != tex_data_hash);
         if (must_destroy) {
-            texture_binding_destroy(key_out->binding);
+            pgraph_gl_texture_binding_destroy(key_out->binding);
             key_out->binding = NULL;
         }
 
@@ -376,6 +373,8 @@ void pgraph_gl_bind_textures(NV2AState *d)
             key_out->binding = generate_texture(state, texture_data, palette_data);
             if (!key_out->binding) {
                 key_out->possibly_dirty = true;
+                pgraph_gl_reset_texture_stage(&r->texture_binding[i]);
+                pg->texture_dirty[i] = true;
                 continue;
             }
             key_out->binding->data_hash = tex_data_hash;
@@ -413,7 +412,7 @@ void pgraph_gl_bind_textures(NV2AState *d)
             if (r->texture_binding[i]->gl_target != binding->gl_target) {
                 glBindTexture(r->texture_binding[i]->gl_target, 0);
             }
-            texture_binding_destroy(r->texture_binding[i]);
+            pgraph_gl_texture_binding_destroy(r->texture_binding[i]);
         }
         r->texture_binding[i] = binding;
         pg->texture_dirty[i] = false;
@@ -785,17 +784,6 @@ static TextureBinding* generate_texture(const TextureShape s,
     return ret;
 }
 
-static void texture_binding_destroy(gpointer data)
-{
-    TextureBinding *binding = (TextureBinding *)data;
-    assert(binding->refcnt > 0);
-    binding->refcnt--;
-    if (binding->refcnt == 0) {
-        glDeleteTextures(1, &binding->gl_texture);
-        g_free(binding);
-    }
-}
-
 /* functions for texture LRU cache */
 static void texture_cache_entry_init(Lru *lru, LruNode *node, const void *key)
 {
@@ -810,7 +798,7 @@ static void texture_cache_entry_post_evict(Lru *lru, LruNode *node)
 {
     TextureLruNode *tnode = container_of(node, TextureLruNode, node);
     if (tnode->binding) {
-        texture_binding_destroy(tnode->binding);
+        pgraph_gl_texture_binding_destroy(tnode->binding);
         tnode->binding = NULL;
         tnode->possibly_dirty = false;
     }
