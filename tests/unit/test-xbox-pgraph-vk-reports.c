@@ -60,6 +60,7 @@ static void fixture_free(ReportFixture *fixture)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(ReportFixture, fixture_free)
 
 int nv2a_vk_dgroup_indent;
+unsigned int xemu_tweaks_active;
 
 PFN_vkBeginCommandBuffer vkBeginCommandBuffer;
 PFN_vkCmdCopyBuffer vkCmdCopyBuffer;
@@ -270,6 +271,15 @@ void pgraph_vk_check_memory_budget(PGRAPHState *pg)
      * Keep this as a failing link-closure guard rather than a success stub.
      */
     (void)pg;
+    boundary_trace.valid = false;
+}
+
+void pgraph_vk_fallback_family_note_pipeline_ready(
+    PGRAPHVkState *r, const PipelineKey *specialized_key)
+{
+    /* No hybrid pipeline publication is valid in this report-only fixture. */
+    (void)r;
+    (void)specialized_key;
     boundary_trace.valid = false;
 }
 
