@@ -30,6 +30,7 @@ tests = {
   'test-visitor-serialization': [testqapi],
   'test-bitmap': [],
   'test-xbox-pgraph-texture-state': [],
+  'test-xbox-pgraph-texture-layout': [],
   'test-xbox-pgraph-uniform-dirty': [],
   'test-xbox-pgraph-uniform-source': [],
   'test-xbox-pgraph-reports': [
@@ -285,6 +286,7 @@ if sdl.found() and epoxy.found()
   tests += {
     'test-xbox-gloffscreen': [
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/thirdparty/gloffscreen/sdl.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/gl/texture-stage.c',
       sdl, epoxy,
     ],
   }

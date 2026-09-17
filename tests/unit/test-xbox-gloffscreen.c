@@ -7,8 +7,10 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <glib.h>
 #include <SDL3/SDL.h>
 #include "hw/xbox/nv2a/pgraph/thirdparty/gloffscreen/gloffscreen.h"
+#include "hw/xbox/nv2a/pgraph/gl/texture-stage.h"
 
 #define CHECK(condition) do { \
     if (!(condition)) { \
@@ -69,13 +71,46 @@ int main(int argc, char **argv)
         CHECK(actual == pixel);
     }
 
+    GLuint old_2d;
+    GLuint unrelated_cube;
+    glGenTextures(1, &old_2d);
+    glGenTextures(1, &unrelated_cube);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, old_2d);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, unrelated_cube);
+    TextureBinding *active = g_new0(TextureBinding, 1);
+    active->refcnt = 1;
+    active->gl_target = GL_TEXTURE_2D;
+    active->gl_texture = old_2d;
+
+    pgraph_gl_reset_texture_stage(&active);
+
+    GLint bound = -1;
+    CHECK(active == NULL);
+    glGetIntegerv(GL_TEXTURE_BINDING_1D, &bound);
+    CHECK(bound == 0);
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &bound);
+    CHECK(bound == 0);
+    glGetIntegerv(GL_TEXTURE_BINDING_3D, &bound);
+    CHECK(bound == 0);
+    glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP, &bound);
+    CHECK(bound == 0);
+    CHECK(!glIsTexture(old_2d));
+
+    GLuint retry_cube;
+    glGenTextures(1, &retry_cube);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, retry_cube);
+    glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP, &bound);
+    CHECK(bound == (GLint)retry_cube);
+    glDeleteTextures(1, &retry_cube);
+    glDeleteTextures(1, &unrelated_cube);
+
     glDeleteTextures(1, &texture);
     glo_context_destroy(anchor);
     SDL_PumpEvents();
     CHECK(window_count() == baseline);
     CHECK(SDL_GL_GetCurrentContext() == NULL);
     SDL_Quit();
-    puts("PASS: 64 shared-context cycles, preserved texture, "
-         "zero added windows");
+    puts("PASS: shared contexts and failed-stage reset lifecycle");
     return EXIT_SUCCESS;
 }

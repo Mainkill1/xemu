@@ -24,12 +24,13 @@
 #include "hw/xbox/nv2a/pgraph/swizzle.h"
 #include "hw/xbox/nv2a/pgraph/s3tc.h"
 #include "hw/xbox/nv2a/pgraph/texture.h"
+#include "hw/xbox/nv2a/pgraph/texture-layout.h"
+#include "qemu/error-report.h"
 #include "ui/xemu-tweaks.h"
 #include "debug.h"
 #include "renderer.h"
 
 static TextureBinding* generate_texture(const TextureShape s, const uint8_t *texture_data, const uint8_t *palette_data);
-static void texture_binding_destroy(gpointer data);
 
 struct pgraph_texture_possibly_dirty_struct {
     hwaddr addr, end;
@@ -242,6 +243,12 @@ void pgraph_gl_bind_textures(NV2AState *d)
         size_t length, palette_length;
 
         length = pgraph_get_texture_length(pg, &state);
+        if (!length) {
+            error_report("Invalid texture source layout");
+            pgraph_gl_reset_texture_stage(&r->texture_binding[i]);
+            pg->texture_dirty[i] = true;
+            continue;
+        }
         texture_vram_offset = pgraph_get_texture_phys_addr(pg, i);
         palette_vram_offset = pgraph_get_texture_palette_phys_addr_length(pg, i, &palette_length);
 
@@ -357,13 +364,19 @@ void pgraph_gl_bind_textures(NV2AState *d)
                             && possibly_dirty
                             && (key_out->binding->data_hash != tex_data_hash);
         if (must_destroy) {
-            texture_binding_destroy(key_out->binding);
+            pgraph_gl_texture_binding_destroy(key_out->binding);
             key_out->binding = NULL;
         }
 
         if (key_out->binding == NULL) {
             // Must create the texture
             key_out->binding = generate_texture(state, texture_data, palette_data);
+            if (!key_out->binding) {
+                key_out->possibly_dirty = true;
+                pgraph_gl_reset_texture_stage(&r->texture_binding[i]);
+                pg->texture_dirty[i] = true;
+                continue;
+            }
             key_out->binding->data_hash = tex_data_hash;
             key_out->binding->scale = 1;
         } else {
@@ -399,7 +412,7 @@ void pgraph_gl_bind_textures(NV2AState *d)
             if (r->texture_binding[i]->gl_target != binding->gl_target) {
                 glBindTexture(r->texture_binding[i]->gl_target, 0);
             }
-            texture_binding_destroy(r->texture_binding[i]);
+            pgraph_gl_texture_binding_destroy(r->texture_binding[i]);
         }
         r->texture_binding[i] = binding;
         pg->texture_dirty[i] = false;
@@ -716,34 +729,14 @@ static TextureBinding* generate_texture(const TextureShape s,
                    s.width, s.height, s.depth);
 
     if (gl_target == GL_TEXTURE_CUBE_MAP) {
-        unsigned int block_size;
-        if (f.gl_internal_format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) {
-            block_size = 8;
-        } else {
-            block_size = 16;
+        size_t length;
+        if (!pgraph_calculate_texture_cubemap_face_stride(
+                &s, f.gl_format == 0, f.bytes_per_pixel, &length)) {
+            error_report("Invalid cubemap source layout");
+            glBindTexture(gl_target, 0);
+            glDeleteTextures(1, &gl_texture);
+            return NULL;
         }
-
-        size_t length = 0;
-        unsigned int w = s.width;
-        unsigned int h = s.height;
-        if (!f.linear && s.border) {
-            w = MAX(16, w * 2);
-            h = MAX(16, h * 2);
-        }
-
-        int level;
-        for (level = 0; level < s.levels; level++) {
-            if (f.gl_format == 0) {
-                length += w/4 * h/4 * block_size;
-            } else {
-                length += w * h * f.bytes_per_pixel;
-            }
-
-            w /= 2;
-            h /= 2;
-        }
-
-        length = (length + NV2A_CUBEMAP_FACE_ALIGNMENT - 1) & ~(NV2A_CUBEMAP_FACE_ALIGNMENT - 1);
 
         upload_gl_texture(GL_TEXTURE_CUBE_MAP_POSITIVE_X,
                           s, texture_data + 0 * length, palette_data);
@@ -791,17 +784,6 @@ static TextureBinding* generate_texture(const TextureShape s,
     return ret;
 }
 
-static void texture_binding_destroy(gpointer data)
-{
-    TextureBinding *binding = (TextureBinding *)data;
-    assert(binding->refcnt > 0);
-    binding->refcnt--;
-    if (binding->refcnt == 0) {
-        glDeleteTextures(1, &binding->gl_texture);
-        g_free(binding);
-    }
-}
-
 /* functions for texture LRU cache */
 static void texture_cache_entry_init(Lru *lru, LruNode *node, const void *key)
 {
@@ -816,7 +798,7 @@ static void texture_cache_entry_post_evict(Lru *lru, LruNode *node)
 {
     TextureLruNode *tnode = container_of(node, TextureLruNode, node);
     if (tnode->binding) {
-        texture_binding_destroy(tnode->binding);
+        pgraph_gl_texture_binding_destroy(tnode->binding);
         tnode->binding = NULL;
         tnode->possibly_dirty = false;
     }
