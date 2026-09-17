@@ -18,6 +18,18 @@ typedef struct PGRAPHVkTextureDescriptorIdentity {
     uintptr_t sampler;
 } PGRAPHVkTextureDescriptorIdentity;
 
+typedef struct PGRAPHVkTextureShaderInputIdentity {
+    uint32_t tex_scale_bits;
+} PGRAPHVkTextureShaderInputIdentity;
+
+static inline PGRAPHVkTextureShaderInputIdentity
+pgraph_vk_texture_shader_input_identity(uint32_t scale_bits, bool linear)
+{
+    return (PGRAPHVkTextureShaderInputIdentity) {
+        .tex_scale_bits = linear ? scale_bits : UINT32_C(0x3f800000),
+    };
+}
+
 static inline bool pgraph_vk_texture_descriptor_identity_changed(
     PGRAPHVkTextureDescriptorIdentity before,
     PGRAPHVkTextureDescriptorIdentity after)
@@ -36,6 +48,27 @@ static inline void pgraph_vk_texture_descriptor_publication_observe(
 }
 
 static inline void pgraph_vk_texture_descriptor_publication_complete(
+    bool *pending)
+{
+    *pending = false;
+}
+
+static inline bool pgraph_vk_texture_shader_input_identity_changed(
+    PGRAPHVkTextureShaderInputIdentity before,
+    PGRAPHVkTextureShaderInputIdentity after)
+{
+    return before.tex_scale_bits != after.tex_scale_bits;
+}
+
+static inline void pgraph_vk_texture_shader_inputs_observe(
+    bool *pending, PGRAPHVkTextureShaderInputIdentity before,
+    PGRAPHVkTextureShaderInputIdentity after)
+{
+    *pending |=
+        pgraph_vk_texture_shader_input_identity_changed(before, after);
+}
+
+static inline void pgraph_vk_texture_shader_inputs_reconciled(
     bool *pending)
 {
     *pending = false;

@@ -194,6 +194,50 @@ static bool test_failed_bind_retains_unpublished_descriptor_change(void)
     return !publication_pending;
 }
 
+static bool test_shader_input_identity_is_independent_of_descriptor_identity(
+    void)
+{
+    const PGRAPHVkTextureDescriptorIdentity descriptor_a = {
+        .image_view = 3,
+        .sampler = 4,
+    };
+    const PGRAPHVkTextureDescriptorIdentity descriptor_b = {
+        .image_view = 5,
+        .sampler = 6,
+    };
+    const PGRAPHVkTextureShaderInputIdentity scale_one =
+        pgraph_vk_texture_shader_input_identity(
+            UINT32_C(0x3f800000), true);
+    const PGRAPHVkTextureShaderInputIdentity scale_two =
+        pgraph_vk_texture_shader_input_identity(
+            UINT32_C(0x40000000), true);
+    const PGRAPHVkTextureShaderInputIdentity nonlinear_scale_two =
+        pgraph_vk_texture_shader_input_identity(
+            UINT32_C(0x40000000), false);
+    bool shader_inputs_pending = false;
+
+    if (!pgraph_vk_texture_descriptor_identity_changed(descriptor_a,
+                                                        descriptor_b) ||
+        pgraph_vk_texture_shader_input_identity_changed(scale_one,
+                                                        scale_one) ||
+        pgraph_vk_texture_shader_input_identity_changed(
+            scale_one, nonlinear_scale_two)) {
+        return false;
+    }
+
+    pgraph_vk_texture_shader_inputs_observe(
+        &shader_inputs_pending, scale_one, scale_two);
+    pgraph_vk_texture_shader_inputs_observe(
+        &shader_inputs_pending, scale_two, scale_two);
+    if (!shader_inputs_pending) {
+        return false;
+    }
+
+    pgraph_vk_texture_shader_inputs_reconciled(
+        &shader_inputs_pending);
+    return !shader_inputs_pending;
+}
+
 int main(void)
 {
     bool disabled = test_disabled_stage_keeps_dirty_for_reenable();
@@ -205,9 +249,11 @@ int main(void)
         test_failed_multistage_bind_detects_recovery_changes();
     bool retained_publication =
         test_failed_bind_retains_unpublished_descriptor_change();
+    bool independent_shader_inputs =
+        test_shader_input_identity_is_independent_of_descriptor_identity();
 
     puts("TAP version 13");
-    puts("1..6");
+    puts("1..7");
     printf("%s 1 - disabled dirty state waits for re-enable\n",
            disabled ? "ok" : "not ok");
     printf("%s 2 - failed active bind remains retryable\n",
@@ -220,6 +266,9 @@ int main(void)
            recovery_changes ? "ok" : "not ok");
     printf("%s 6 - failed bind retains unpublished descriptor change\n",
            retained_publication ? "ok" : "not ok");
+    printf("%s 7 - shader input identity is independent of descriptors\n",
+           independent_shader_inputs ? "ok" : "not ok");
     return (disabled && retry && identity && descriptor_identity &&
-            recovery_changes && retained_publication) ? 0 : 1;
+            recovery_changes && retained_publication &&
+            independent_shader_inputs) ? 0 : 1;
 }

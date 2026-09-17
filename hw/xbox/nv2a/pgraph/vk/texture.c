@@ -1714,6 +1714,28 @@ static PGRAPHVkTextureDescriptorIdentity texture_descriptor_identity(
     };
 }
 
+static PGRAPHVkTextureShaderInputIdentity texture_shader_input_identity(
+    const TextureBinding *binding)
+{
+    _Static_assert(sizeof(binding->key.scale) == sizeof(uint32_t),
+                   "texture scale identity must preserve every float bit");
+
+    uint32_t scale_bits = UINT32_C(0x3f800000);
+    bool linear = true;
+
+    if (binding) {
+        memcpy(&scale_bits, &binding->key.scale, sizeof(scale_bits));
+        BasicColorFormatInfo format = kelvin_color_format_info_map[
+            binding->key.state.color_format];
+        linear = format.linear;
+    }
+
+    /* texScale is the only binding-derived fragment-uniform input. Nonlinear
+     * formats always publish the same effective value, regardless of the
+     * immutable scale stored in their texture-cache key. */
+    return pgraph_vk_texture_shader_input_identity(scale_bits, linear);
+}
+
 bool pgraph_vk_bind_textures(NV2AState *d)
 {
     NV2A_VK_DGROUP_BEGIN("%s", __func__);
@@ -1740,6 +1762,8 @@ bool pgraph_vk_bind_textures(NV2AState *d)
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
         PGRAPHVkTextureDescriptorIdentity before =
             texture_descriptor_identity(r->texture_bindings[i]);
+        PGRAPHVkTextureShaderInputIdentity shader_input_before =
+            texture_shader_input_identity(r->texture_bindings[i]);
 
         if (!pgraph_is_texture_enabled(pg, i)) {
             r->texture_bindings[i] = &r->dummy_texture;
@@ -1785,6 +1809,11 @@ bool pgraph_vk_bind_textures(NV2AState *d)
             texture_descriptor_identity(r->texture_bindings[i]);
         pgraph_vk_texture_descriptor_publication_observe(
             &r->texture_descriptor_publication_pending, before, after);
+        PGRAPHVkTextureShaderInputIdentity shader_input_after =
+            texture_shader_input_identity(r->texture_bindings[i]);
+        pgraph_vk_texture_shader_inputs_observe(
+            &r->texture_shader_inputs_pending,
+            shader_input_before, shader_input_after);
     }
 
     update_timestamps(r);

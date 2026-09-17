@@ -74,8 +74,8 @@ static void get_uniform_stage_update_needs(PGRAPHState *pg,
             pgraph_reg_r(pg, NV_PGRAPH_ZOFFSETBIAS),
             pgraph_reg_r(pg, NV_PGRAPH_ZOFFSETFACTOR));
     PGRAPHUniformStageUpdateInputs inputs = {
-        .texture_bindings_changed =
-            r->texture_descriptor_publication_pending,
+        .texture_shader_inputs_changed =
+            r->texture_shader_inputs_pending,
         .psh_effective_inputs_changed =
             pgraph_polygon_offset_uniform_key_changed(
                 r->polygon_offset_key_valid, r->polygon_offset_key,
@@ -1668,6 +1668,11 @@ static void update_shader_uniforms(PGRAPHState *pg, const bool update_stage[])
 
         r->last_uniform_source_epochs.stage[PGRAPH_UNIFORM_STAGE_PSH] =
             pg->uniform_source_epochs.stage[PGRAPH_UNIFORM_STAGE_PSH];
+        /* The CPU-side layout now reflects the effective texture inputs. If
+         * this changed bytes, uniform_stage_dirty retains the later staging
+         * and descriptor-publication obligation. */
+        pgraph_vk_texture_shader_inputs_reconciled(
+            &r->texture_shader_inputs_pending);
     }
 
     r->uniform_stage_dirty[PGRAPH_UNIFORM_STAGE_VSH] |=
