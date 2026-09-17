@@ -490,7 +490,7 @@ static void test_fallback_family_wake_is_shader_specific(void)
 static void test_fallback_family_production_lifecycle(void)
 {
     PGRAPHVkState *r = g_new0(PGRAPHVkState, 1);
-    PipelineBinding entries[2] = { 0 };
+    PipelineBinding entries[4] = { 0 };
     ShaderState first_state = base_state();
     ShaderState second_state = first_state;
     PipelineKey first_key;
@@ -516,7 +516,16 @@ static void test_fallback_family_production_lifecycle(void)
     PipelineBinding *second = container_of(
         lru_lookup(&r->pipeline_cache, 102, &second_key),
         PipelineBinding, node);
-    first->pipeline = second->pipeline = (VkPipeline)(uintptr_t)1;
+    PipelineBinding *unchecked = container_of(
+        lru_lookup(&r->pipeline_cache, 103, &first_key),
+        PipelineBinding, node);
+    PipelineBinding *rejected = container_of(
+        lru_lookup(&r->pipeline_cache, 104, &second_key),
+        PipelineBinding, node);
+    first->pipeline = second->pipeline = unchecked->pipeline =
+        rejected->pipeline = (VkPipeline)(uintptr_t)1;
+    pgraph_vk_pipeline_family_set_state(
+        r, rejected, PGRAPH_VK_FAMILY_REJECTED);
     pgraph_vk_pipeline_family_set_state(
         r, first, PGRAPH_VK_FAMILY_RETRY_PENDING);
     pgraph_vk_pipeline_family_set_state(
@@ -578,6 +587,10 @@ static void test_fallback_family_production_lifecycle(void)
                     PGRAPH_VK_FAMILY_READY);
     g_assert_cmpint(second->family_learn_state, ==,
                     PGRAPH_VK_FAMILY_READY);
+    g_assert_cmpint(unchecked->family_learn_state, ==,
+                    PGRAPH_VK_FAMILY_UNCHECKED);
+    g_assert_cmpint(rejected->family_learn_state, ==,
+                    PGRAPH_VK_FAMILY_REJECTED);
 
     pgraph_vk_pipeline_family_set_state(
         r, first, PGRAPH_VK_FAMILY_RETRY_PENDING);
@@ -585,6 +598,30 @@ static void test_fallback_family_production_lifecycle(void)
     pgraph_vk_pipeline_family_owner_evict(r, first);
     g_assert_cmpuint(r->fallback_family_retry_count, ==, 0);
     g_free(r);
+}
+
+static void test_fallback_family_owner_observation_requires_admission(void)
+{
+    PGRAPHVkState r = { 0 };
+    ShaderState state = base_state();
+    PipelineBinding unsupported = {
+        .pipeline = (VkPipeline)(uintptr_t)1,
+        .key = pipeline_key(PGRAPH_VK_FRAGMENT_SPECIALIZED, &state),
+    };
+    PipelineBinding supported = {
+        .pipeline = (VkPipeline)(uintptr_t)1,
+        .key = pipeline_key(PGRAPH_VK_FRAGMENT_SPECIALIZED, &state),
+    };
+
+    pgraph_vk_track_specialized_fallback_family(
+        &r, &unsupported, false, true);
+    g_assert_cmpint(unsupported.family_learn_state, ==,
+                    PGRAPH_VK_FAMILY_REJECTED);
+
+    pgraph_vk_track_specialized_fallback_family(
+        &r, &supported, true, true);
+    g_assert_cmpint(supported.family_learn_state, ==,
+                    PGRAPH_VK_FAMILY_READY);
 }
 
 static void test_changed_register_marks_shortcut_dirty(void)
@@ -968,6 +1005,8 @@ int main(int argc, char **argv)
                     test_fallback_family_wake_is_shader_specific);
     g_test_add_func("/xbox/vk/ubershader/runtime/fallback-family-production",
                     test_fallback_family_production_lifecycle);
+    g_test_add_func("/xbox/vk/ubershader/runtime/fallback-family-admission",
+                    test_fallback_family_owner_observation_requires_admission);
     g_test_add_func("/xbox/vk/ubershader/runtime/register-shortcut-dirty",
                     test_changed_register_marks_shortcut_dirty);
     g_test_add_func("/xbox/vk/ubershader/runtime/snapshot-invalidation",

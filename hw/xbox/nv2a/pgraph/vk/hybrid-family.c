@@ -265,6 +265,26 @@ void pgraph_vk_pipeline_family_owner_evict(PGRAPHVkState *r,
     }
 }
 
+void pgraph_vk_track_specialized_fallback_family(
+    PGRAPHVkState *r, PipelineBinding *owner,
+    bool controls_supported, bool fallback_pipeline_ready)
+{
+    if (!owner || owner->pipeline == VK_NULL_HANDLE || owner->key.clear ||
+        owner->key.fragment_route != PGRAPH_VK_FRAGMENT_SPECIALIZED) {
+        return;
+    }
+
+    if (!controls_supported) {
+        pgraph_vk_pipeline_family_set_state(
+            r, owner, PGRAPH_VK_FAMILY_REJECTED);
+    } else if (fallback_pipeline_ready) {
+        pgraph_vk_pipeline_family_set_state(r, owner, PGRAPH_VK_FAMILY_READY);
+    } else if (owner->family_learn_state == PGRAPH_VK_FAMILY_UNCHECKED) {
+        pgraph_vk_pipeline_family_set_state(
+            r, owner, PGRAPH_VK_FAMILY_RETRY_PENDING);
+    }
+}
+
 void pgraph_vk_fallback_family_key_from_specialized(
     const PipelineBinding *binding, PipelineKey *key)
 {
@@ -285,6 +305,10 @@ void pgraph_vk_fallback_family_mark_pipeline_owners(
         if (!lru_is_node_in_use(&r->pipeline_cache, &binding->node) ||
             binding->key.clear ||
             binding->key.fragment_route != PGRAPH_VK_FRAGMENT_SPECIALIZED) {
+            continue;
+        }
+        if (binding->family_learn_state != PGRAPH_VK_FAMILY_RETRY_PENDING &&
+            binding->family_learn_state != PGRAPH_VK_FAMILY_TRACKED) {
             continue;
         }
         PipelineKey candidate;

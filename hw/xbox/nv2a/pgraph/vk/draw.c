@@ -1370,29 +1370,6 @@ PGRAPHVkHybridPipelineSubmitResult pgraph_vk_request_hybrid_pipeline(
     return status;
 }
 
-static void track_specialized_fallback_family(
-    PGRAPHVkState *r, PipelineBinding *specialized,
-    bool controls_supported, bool fallback_pipeline_ready)
-{
-    if (!specialized || specialized->pipeline == VK_NULL_HANDLE ||
-        specialized->key.clear ||
-        specialized->key.fragment_route !=
-            PGRAPH_VK_FRAGMENT_SPECIALIZED) {
-        return;
-    }
-    if (fallback_pipeline_ready) {
-        pgraph_vk_pipeline_family_set_state(r, specialized,
-                                  PGRAPH_VK_FAMILY_READY);
-    } else if (!controls_supported) {
-        pgraph_vk_pipeline_family_set_state(r, specialized,
-                                  PGRAPH_VK_FAMILY_REJECTED);
-    } else if (specialized->family_learn_state ==
-               PGRAPH_VK_FAMILY_UNCHECKED) {
-        pgraph_vk_pipeline_family_set_state(r, specialized,
-                                  PGRAPH_VK_FAMILY_RETRY_PENDING);
-    }
-}
-
 void pgraph_vk_process_fallback_families(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -1841,7 +1818,7 @@ static bool create_pipeline(PGRAPHState *pg)
             r->pipeline_binding = ready_pipeline;
             if (route == PGRAPH_VK_FRAGMENT_SPECIALIZED &&
                 track_specialized_family) {
-                track_specialized_fallback_family(
+                pgraph_vk_track_specialized_fallback_family(
                     r, ready_pipeline, family_controls_supported,
                     family_fallback_pipeline_ready);
             }
@@ -1880,7 +1857,7 @@ static bool create_pipeline(PGRAPHState *pg)
         if (hybrid && track_specialized_family &&
             r->shader_binding->fragment_route ==
                 PGRAPH_VK_FRAGMENT_SPECIALIZED) {
-            track_specialized_fallback_family(
+            pgraph_vk_track_specialized_fallback_family(
                 r, r->pipeline_binding, family_controls_supported,
                 family_fallback_pipeline_ready);
         }
@@ -1914,7 +1891,7 @@ static bool create_pipeline(PGRAPHState *pg)
         if (hybrid && track_specialized_family &&
             r->shader_binding->fragment_route ==
                 PGRAPH_VK_FRAGMENT_SPECIALIZED) {
-            track_specialized_fallback_family(
+            pgraph_vk_track_specialized_fallback_family(
                 r, snode, family_controls_supported,
                 family_fallback_pipeline_ready);
         }
@@ -1963,7 +1940,7 @@ static bool create_pipeline(PGRAPHState *pg)
     if (hybrid && track_specialized_family &&
         r->shader_binding->fragment_route ==
             PGRAPH_VK_FRAGMENT_SPECIALIZED) {
-        track_specialized_fallback_family(
+        pgraph_vk_track_specialized_fallback_family(
             r, snode, family_controls_supported,
             family_fallback_pipeline_ready);
     }
