@@ -1724,8 +1724,6 @@ bool pgraph_vk_bind_textures(NV2AState *d)
 
     // FIXME: Mark textures that are sourced from surfaces so we can track them
 
-    r->texture_bindings_changed = false;
-
     if (!check_textures_dirty(pg) &&
         !check_bound_texture_memory_dirty(d) &&
         bound_texture_sources_match(pg)) {
@@ -1785,8 +1783,8 @@ bool pgraph_vk_bind_textures(NV2AState *d)
 
         PGRAPHVkTextureDescriptorIdentity after =
             texture_descriptor_identity(r->texture_bindings[i]);
-        r->texture_bindings_changed |=
-            pgraph_vk_texture_descriptor_identity_changed(before, after);
+        pgraph_vk_texture_descriptor_publication_observe(
+            &r->texture_descriptor_publication_pending, before, after);
     }
 
     update_timestamps(r);

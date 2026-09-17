@@ -26,6 +26,21 @@ static inline bool pgraph_vk_texture_descriptor_identity_changed(
            before.sampler != after.sampler;
 }
 
+/* Descriptor-visible changes remain pending across abandoned draws. Only the
+ * descriptor writer may retire them after publishing the current bindings. */
+static inline void pgraph_vk_texture_descriptor_publication_observe(
+    bool *pending, PGRAPHVkTextureDescriptorIdentity before,
+    PGRAPHVkTextureDescriptorIdentity after)
+{
+    *pending |= pgraph_vk_texture_descriptor_identity_changed(before, after);
+}
+
+static inline void pgraph_vk_texture_descriptor_publication_complete(
+    bool *pending)
+{
+    *pending = false;
+}
+
 /* A disabled stage retains its guest dirtiness until it is re-enabled. */
 static inline bool pgraph_vk_texture_stage_needs_rebind(bool enabled,
                                                        bool dirty, bool bound,

@@ -27,6 +27,7 @@
 #include "device-inventory.h"
 #include "renderer.h"
 #include "hybrid-ready.h"
+#include "texture-binding-state.h"
 
 #include <glib/gstdio.h>
 
@@ -73,7 +74,8 @@ static void get_uniform_stage_update_needs(PGRAPHState *pg,
             pgraph_reg_r(pg, NV_PGRAPH_ZOFFSETBIAS),
             pgraph_reg_r(pg, NV_PGRAPH_ZOFFSETFACTOR));
     PGRAPHUniformStageUpdateInputs inputs = {
-        .texture_bindings_changed = r->texture_bindings_changed,
+        .texture_bindings_changed =
+            r->texture_descriptor_publication_pending,
         .psh_effective_inputs_changed =
             pgraph_polygon_offset_uniform_key_changed(
                 r->polygon_offset_key_valid, r->polygon_offset_key,
@@ -256,11 +258,12 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
          memcmp(&r->uploaded_uber_controls, &r->uber_controls,
                 sizeof(r->uber_controls)) != 0);
     bool need_descriptor_update = pgraph_vk_descriptor_update_needed(
-        r->texture_bindings_changed, force_reupload, any_uniform_write);
+        r->texture_descriptor_publication_pending, force_reupload,
+        any_uniform_write);
 
     if (r->perf.enabled) {
         r->perf.descriptor_texture_change_requests +=
-            r->texture_bindings_changed;
+            r->texture_descriptor_publication_pending;
         r->perf.descriptor_force_reupload_requests += force_reupload;
         r->perf.descriptor_uniform_write_requests += any_uniform_write;
     }
@@ -428,6 +431,8 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
 
     vkUpdateDescriptorSets(r->device, descriptor_write_count,
                            descriptor_writes, 0, NULL);
+    pgraph_vk_texture_descriptor_publication_complete(
+        &r->texture_descriptor_publication_pending);
 
     if (r->perf.enabled) {
         r->perf.descriptor_set_writes++;
