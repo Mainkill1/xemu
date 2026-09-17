@@ -2,6 +2,7 @@ specific_ss.add([sdl, gloffscreen, files(
 	'blit.c',
 	'debug.c',
 	'display.c',
+	'draw-lifecycle.c',
 	'draw.c',
 	'gpuprops.c',
 	'renderer.c',

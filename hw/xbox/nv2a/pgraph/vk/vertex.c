@@ -26,7 +26,7 @@
 #include "qemu/osdep.h"
 #include "qemu/error-report.h"
 #include "renderer.h"
-#include "hw/xbox/nv2a/pgraph/vk/vertex-fetch-span.h"
+#include "hw/xbox/nv2a/pgraph/vertex-fetch-span.h"
 
 VkDeviceSize pgraph_vk_update_index_buffer(PGRAPHState *pg, void *data,
                                            VkDeviceSize size)
@@ -321,8 +321,8 @@ bool pgraph_vk_bind_vertex_attributes(NV2AState *d, unsigned int min_element,
             uint64_t dma_base = (uintptr_t)attr_data -
                                 (uintptr_t)d->vram_ptr;
             uint64_t vram_size = memory_region_size(d->vram);
-            PGRAPHVkVertexFetchRange range;
-            if (!pgraph_vk_vertex_resolve_fetch_range(
+            PGRAPHVertexFetchRange range;
+            if (!pgraph_vertex_resolve_fetch_range(
                     dma_base, dma_limit, attr->offset, vram_size,
                     min_element, max_element, stride, element_size, &range)) {
                 error_report("Vulkan vertex attribute %d exceeds DMA or VRAM",
