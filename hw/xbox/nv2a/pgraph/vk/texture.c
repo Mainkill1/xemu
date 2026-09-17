@@ -1695,6 +1695,15 @@ static void update_timestamps(PGRAPHVkState *r)
     }
 }
 
+static PGRAPHVkTextureDescriptorIdentity texture_descriptor_identity(
+    const TextureBinding *binding)
+{
+    return (PGRAPHVkTextureDescriptorIdentity) {
+        .image_view = binding ? (uintptr_t)binding->image_view : 0,
+        .sampler = binding ? (uintptr_t)binding->sampler : 0,
+    };
+}
+
 bool pgraph_vk_bind_textures(NV2AState *d)
 {
     NV2A_VK_DGROUP_BEGIN("%s", __func__);
@@ -1721,50 +1730,55 @@ bool pgraph_vk_bind_textures(NV2AState *d)
 
     bool succeeded = true;
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
+        PGRAPHVkTextureDescriptorIdentity before =
+            texture_descriptor_identity(r->texture_bindings[i]);
+
         if (!pgraph_is_texture_enabled(pg, i)) {
             r->texture_bindings[i] = &r->dummy_texture;
-            continue;
-        }
-
-        TextureBinding *binding = r->texture_bindings[i];
-        if (!pg->texture_dirty[i] && binding &&
-            binding != &r->dummy_texture && !binding->possibly_dirty &&
-            !r->texture_binding_source_is_surface[i] &&
-            !check_texture_possibly_dirty(
-                d, binding->key.texture_vram_offset,
-                binding->key.texture_length,
-                binding->key.palette_vram_offset,
-                binding->key.palette_length) &&
-            !pgraph_vk_surface_overlaps_range(
-                pg, binding->key.texture_vram_offset,
-                binding->key.texture_length) &&
-            (!binding->key.palette_length ||
-             !pgraph_vk_surface_overlaps_range(
-                 pg, binding->key.palette_vram_offset,
-                 binding->key.palette_length)) &&
-            pgraph_get_texture_phys_addr(pg, i) ==
-                binding->key.texture_vram_offset &&
-            (!binding->key.palette_length ||
-             pgraph_get_texture_palette_phys_addr_length(pg, i, NULL) ==
-                 binding->key.palette_vram_offset)) {
-            /* Another stage caused this slow bind. This stage's source and
-             * effective state have no pending work. Recheck DMA mapping here:
-             * RAMIN may change a descriptor without a texture-state write. */
-            continue;
-        }
-
-        if (create_texture(pg, i)) {
-            pg->texture_dirty[i] = false; // FIXME: Move to renderer?
         } else {
-            /* A partial staging operation must never reach the draw. Keep the
-             * guest state dirty so the next draw retries preparation. */
-            r->texture_bindings[i] = &r->dummy_texture;
-            pg->texture_dirty[i] = true;
-            succeeded = false;
+            TextureBinding *binding = r->texture_bindings[i];
+            bool stage_clean =
+                !pg->texture_dirty[i] && binding &&
+                binding != &r->dummy_texture && !binding->possibly_dirty &&
+                !r->texture_binding_source_is_surface[i] &&
+                !check_texture_possibly_dirty(
+                    d, binding->key.texture_vram_offset,
+                    binding->key.texture_length,
+                    binding->key.palette_vram_offset,
+                    binding->key.palette_length) &&
+                !pgraph_vk_surface_overlaps_range(
+                    pg, binding->key.texture_vram_offset,
+                    binding->key.texture_length) &&
+                (!binding->key.palette_length ||
+                 !pgraph_vk_surface_overlaps_range(
+                     pg, binding->key.palette_vram_offset,
+                     binding->key.palette_length)) &&
+                pgraph_get_texture_phys_addr(pg, i) ==
+                    binding->key.texture_vram_offset &&
+                (!binding->key.palette_length ||
+                 pgraph_get_texture_palette_phys_addr_length(pg, i, NULL) ==
+                     binding->key.palette_vram_offset);
+
+            if (!stage_clean) {
+                if (create_texture(pg, i)) {
+                    pg->texture_dirty[i] = false; // FIXME: Move to renderer?
+                } else {
+                    /* A partial staging operation must never reach the draw.
+                     * Keep the guest state dirty so the next draw retries
+                     * preparation. */
+                    r->texture_bindings[i] = &r->dummy_texture;
+                    pg->texture_dirty[i] = true;
+                    succeeded = false;
+                }
+            }
         }
+
+        PGRAPHVkTextureDescriptorIdentity after =
+            texture_descriptor_identity(r->texture_bindings[i]);
+        r->texture_bindings_changed |=
+            pgraph_vk_texture_descriptor_identity_changed(before, after);
     }
 
-    r->texture_bindings_changed = true;
     update_timestamps(r);
     pgraph_vk_perf_record_cpu_region(
         r, VK_PERF_CPU_BIND_TEXTURES,
