@@ -316,6 +316,7 @@ static int pgraph_vk_get_framebuffer_surface(NV2AState *d)
     pgraph_vk_perf_record_valid_sync_request(r);
     qemu_event_reset(&d->pgraph.sync_complete);
     qatomic_set(&pg->sync_pending, true);
+    qemu_event_set(&pg->renderer_switch_progress);
     pfifo_kick(d);
     qemu_mutex_unlock(&d->pfifo.lock);
     qemu_event_wait(&d->pgraph.sync_complete);

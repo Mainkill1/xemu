@@ -29,6 +29,7 @@
 #include "ui/xemu-settings.h"
 #include "ui/xemu-tweaks.h"
 #include "inline-elements.h"
+#include "renderer-switch.h"
 #include "texture-state.h"
 #include "util.h"
 #include "swizzle.h"
@@ -254,7 +255,9 @@ void pgraph_init(NV2AState *d)
     qemu_event_init(&pg->sync_complete, false);
     qemu_event_init(&pg->flush_complete, false);
     qemu_cond_init(&pg->framebuffer_released);
+    qemu_event_init(&pg->renderer_switch_progress, false);
     qemu_event_init(&pg->renderer_switch_complete, false);
+    pg->renderer_switch_handoff_pending = 0;
     pg->renderer_switch_phase = PGRAPH_RENDERER_SWITCH_PHASE_IDLE;
 
     pg->frame_time = 0;
@@ -409,22 +412,38 @@ void pgraph_destroy(PGRAPHState *pg)
        pg->renderer->ops.finalize(d);
     }
 
+    qemu_event_destroy(&pg->renderer_switch_progress);
     qemu_mutex_destroy(&pg->lock);
+}
+
+static PGRAPHRendererSwitchCoordinator renderer_switch_coordinator(
+    NV2AState *d)
+{
+    return (PGRAPHRendererSwitchCoordinator) {
+        .pfifo_lock = &d->pfifo.lock,
+        .pgraph_lock = &d->pgraph.lock,
+        .renderer_lock = &d->pgraph.renderer_lock,
+        .framebuffer_released = &d->pgraph.framebuffer_released,
+        .switch_progress = &d->pgraph.renderer_switch_progress,
+        .switch_complete = &d->pgraph.renderer_switch_complete,
+        .framebuffer_in_use = &d->pgraph.framebuffer_in_use,
+        .handoff_pending = &d->pgraph.renderer_switch_handoff_pending,
+    };
 }
 
 int nv2a_get_framebuffer_surface(void)
 {
     NV2AState *d = g_nv2a;
     PGRAPHState *pg = &d->pgraph;
+    PGRAPHRendererSwitchCoordinator coordinator =
+        renderer_switch_coordinator(d);
     int s = 0;
 
-    qemu_mutex_lock(&pg->renderer_lock);
-    assert(!pg->framebuffer_in_use);
-    pg->framebuffer_in_use = true;
+    pgraph_renderer_switch_framebuffer_acquire_begin(&coordinator);
     if (pg->renderer->ops.get_framebuffer_surface) {
         s = pg->renderer->ops.get_framebuffer_surface(d);
     }
-    qemu_mutex_unlock(&pg->renderer_lock);
+    pgraph_renderer_switch_framebuffer_acquire_end(&coordinator);
 
     return s;
 }
@@ -432,11 +451,10 @@ int nv2a_get_framebuffer_surface(void)
 void nv2a_release_framebuffer_surface(void)
 {
     NV2AState *d = g_nv2a;
-    PGRAPHState *pg = &d->pgraph;
-    qemu_mutex_lock(&pg->renderer_lock);
-    pg->framebuffer_in_use = false;
-    qemu_cond_broadcast(&pg->framebuffer_released);
-    qemu_mutex_unlock(&pg->renderer_lock);
+    PGRAPHRendererSwitchCoordinator coordinator =
+        renderer_switch_coordinator(d);
+
+    pgraph_renderer_switch_framebuffer_release(&coordinator);
 }
 
 void nv2a_set_surface_scale_factor(unsigned int scale)
@@ -449,6 +467,7 @@ void nv2a_set_surface_scale_factor(unsigned int scale)
         d->pgraph.renderer->ops.set_surface_scale_factor(d, scale);
     }
     qemu_mutex_unlock(&d->pgraph.renderer_lock);
+    qemu_event_set(&d->pgraph.renderer_switch_progress);
     bql_lock();
 }
 
@@ -463,6 +482,7 @@ unsigned int nv2a_get_surface_scale_factor(void)
         s = d->pgraph.renderer->ops.get_surface_scale_factor(d);
     }
     qemu_mutex_unlock(&d->pgraph.renderer_lock);
+    qemu_event_set(&d->pgraph.renderer_switch_progress);
     bql_lock();
 
     return s;
@@ -3409,9 +3429,70 @@ static void do_wait_for_renderer_switch(CPUState *cpu, run_on_cpu_data data)
     qemu_event_wait(&d->pgraph.renderer_switch_complete);
 }
 
+static void renderer_switch_publish_flush(void *opaque)
+{
+    NV2AState *d = opaque;
+    PGRAPHState *pg = &d->pgraph;
+
+    if (pg->renderer) {
+        qemu_event_reset(&pg->flush_complete);
+        qatomic_set(&pg->flush_pending, true);
+    }
+}
+
+static bool renderer_switch_flush_is_pending(void *opaque)
+{
+    NV2AState *d = opaque;
+
+    return d->pgraph.renderer && qatomic_read(&d->pgraph.flush_pending);
+}
+
+static void renderer_switch_process_pending(void *opaque)
+{
+    NV2AState *d = opaque;
+
+    d->pgraph.renderer->ops.process_pending(d);
+}
+
+static void renderer_switch_finalize_renderer(void *opaque)
+{
+    NV2AState *d = opaque;
+    PGRAPHState *pg = &d->pgraph;
+
+    if (pg->renderer && pg->renderer->ops.finalize) {
+        pg->renderer->ops.finalize(d);
+    }
+}
+
+static void renderer_switch_init_renderer(void *opaque)
+{
+    NV2AState *d = opaque;
+    PGRAPHState *pg = &d->pgraph;
+
+    init_renderer(pg);
+}
+
+static void renderer_switch_complete(void *opaque)
+{
+    NV2AState *d = opaque;
+
+    d->pgraph.renderer_switch_phase = PGRAPH_RENDERER_SWITCH_PHASE_IDLE;
+}
+
+static const PGRAPHRendererSwitchOps renderer_switch_ops = {
+    .publish_flush = renderer_switch_publish_flush,
+    .flush_is_pending = renderer_switch_flush_is_pending,
+    .process_pending = renderer_switch_process_pending,
+    .finalize_renderer = renderer_switch_finalize_renderer,
+    .init_renderer = renderer_switch_init_renderer,
+    .complete = renderer_switch_complete,
+};
+
 void pgraph_process_pending(NV2AState *d)
 {
     PGRAPHState *pg = &d->pgraph;
+
+    /* The PFIFO thread enters here with pfifo.lock held. */
     pg->renderer->ops.process_pending(d);
 
     if (g_config.display.renderer != pg->renderer->type &&
@@ -3423,39 +3504,10 @@ void pgraph_process_pending(NV2AState *d)
     }
 
     if (pg->renderer_switch_phase == PGRAPH_RENDERER_SWITCH_PHASE_CPU_WAITING) {
-        qemu_mutex_lock(&d->pgraph.renderer_lock);
-        qemu_mutex_unlock(&d->pfifo.lock);
-        qemu_mutex_lock(&d->pgraph.lock);
+        PGRAPHRendererSwitchCoordinator coordinator =
+            renderer_switch_coordinator(d);
 
-        if (pg->renderer) {
-            qemu_event_reset(&pg->flush_complete);
-            pg->flush_pending = true;
-
-            qemu_mutex_lock(&d->pfifo.lock);
-            qemu_mutex_unlock(&d->pgraph.lock);
-
-            pg->renderer->ops.process_pending(d);
-
-            qemu_mutex_unlock(&d->pfifo.lock);
-            qemu_mutex_lock(&d->pgraph.lock);
-            while (pg->framebuffer_in_use) {
-                qemu_cond_wait(&d->pgraph.framebuffer_released,
-                               &d->pgraph.renderer_lock);
-            }
-
-            if (pg->renderer->ops.finalize) {
-                pg->renderer->ops.finalize(d);
-            }
-        }
-
-        init_renderer(pg);
-
-        qemu_mutex_unlock(&d->pgraph.renderer_lock);
-        qemu_mutex_unlock(&d->pgraph.lock);
-        qemu_mutex_lock(&d->pfifo.lock);
-
-        pg->renderer_switch_phase = PGRAPH_RENDERER_SWITCH_PHASE_IDLE;
-        qemu_event_set(&pg->renderer_switch_complete);
+        pgraph_renderer_switch_run(&coordinator, &renderer_switch_ops, d);
     }
 }
 
