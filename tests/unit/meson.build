@@ -62,6 +62,10 @@ tests = {
   ],
   'test-xbox-vk-bc-layout': [],
   'test-xbox-pgraph-vertex-fetch-span': [],
+  'test-xbox-gl-draw-lifecycle': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/gl/draw-lifecycle.c',
+    xbox_i386_target_headers, gloffscreen, epoxy,
+  ],
   'test-xbox-vk-failure-state': [],
   'test-xbox-vk-surface-coherence': [],
   'test-xbox-vk-failpoint': [

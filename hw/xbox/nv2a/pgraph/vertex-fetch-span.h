@@ -49,7 +49,11 @@ static inline bool pgraph_vertex_span_fits_vram(uint64_t start,
            span_bytes <= vram_size - start;
 }
 
-/* Compare half-open ranges without forming potentially overflowing ends. */
+/*
+ * Compare half-open ranges without forming potentially overflowing ends.
+ * Callers normally pass validated ranges; malformed overflowing ranges are
+ * treated as non-overlapping rather than wrapped into an apparent match.
+ */
 static inline bool pgraph_ranges_overlap(uint64_t first_start,
                                          uint64_t first_size,
                                          uint64_t second_start,

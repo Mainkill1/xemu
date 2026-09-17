@@ -22,7 +22,10 @@
 #include "qemu/fast-hash.h"
 #include "hw/xbox/nv2a/nv2a_int.h"
 #include "debug.h"
+#include "draw-lifecycle.h"
 #include "renderer.h"
+
+static PGRAPHGLDrawResult pgraph_gl_flush_draw_internal(NV2AState *d);
 
 void pgraph_gl_clear_surface(NV2AState *d, uint32_t parameter)
 {
@@ -358,7 +361,7 @@ void pgraph_gl_draw_end(NV2AState *d)
         return;
     }
 
-    pgraph_gl_flush_draw(d);
+    PGRAPHGLDrawResult result = pgraph_gl_flush_draw_internal(d);
 
     /* End of visibility testing */
     if (pg->zpass_pixel_count_enable) {
@@ -366,25 +369,20 @@ void pgraph_gl_draw_end(NV2AState *d)
         glEndQuery(GL_SAMPLES_PASSED);
     }
 
-    pg->draw_time++;
-    if (r->color_binding && pgraph_color_write_enabled(pg)) {
-        r->color_binding->draw_time = pg->draw_time;
-    }
-    if (r->zeta_binding && pgraph_zeta_write_enabled(pg)) {
-        r->zeta_binding->draw_time = pg->draw_time;
-    }
-
-    pgraph_gl_set_surface_dirty(pg, color_write, depth_test || stencil_test);
+    pgraph_gl_complete_draw_lifecycle(
+        pg, r, result, pgraph_color_write_enabled(pg),
+        pgraph_zeta_write_enabled(pg), color_write,
+        depth_test || stencil_test);
     NV2A_GL_DGROUP_END();
 }
 
-void pgraph_gl_flush_draw(NV2AState *d)
+static PGRAPHGLDrawResult pgraph_gl_flush_draw_internal(NV2AState *d)
 {
     PGRAPHState *pg = &d->pgraph;
     PGRAPHGLState *r = pg->gl_renderer_state;
 
     if (!(r->color_binding || r->zeta_binding)) {
-        return;
+        return PGRAPH_GL_DRAW_EMPTY;
     }
     assert(r->shader_binding);
 
@@ -399,12 +397,13 @@ void pgraph_gl_flush_draw(NV2AState *d)
                 d, pg->draw_arrays_min_start,
                 pg->draw_arrays_max_count - 1, false, 0,
                 pg->draw_arrays_max_count - 1)) {
-            return;
+            return PGRAPH_GL_DRAW_REJECTED;
         }
         glMultiDrawArrays(r->shader_binding->gl_primitive_mode,
                           pg->draw_arrays_start,
                           pg->draw_arrays_count,
                           pg->draw_arrays_length);
+        return PGRAPH_GL_DRAW_SUBMITTED;
     } else if (pg->inline_elements_length) {
         NV2A_GL_DPRINTF(false, "Inline Elements");
         nv2a_profile_inc_counter(NV2A_PROF_INLINE_ELEMENTS);
@@ -421,7 +420,7 @@ void pgraph_gl_flush_draw(NV2AState *d)
         if (!pgraph_gl_bind_vertex_attributes(
                 d, min_element, max_element, false, 0,
                 pg->inline_elements[pg->inline_elements_length - 1])) {
-            return;
+            return PGRAPH_GL_DRAW_REJECTED;
         }
 
         VertexKey k;
@@ -448,6 +447,7 @@ void pgraph_gl_flush_draw(NV2AState *d)
         glDrawElements(r->shader_binding->gl_primitive_mode,
                        pg->inline_elements_length, GL_UNSIGNED_INT,
                        (void *)0);
+        return PGRAPH_GL_DRAW_SUBMITTED;
     } else if (pg->inline_buffer_length) {
         NV2A_GL_DPRINTF(false, "Inline Buffer");
         nv2a_profile_inc_counter(NV2A_PROF_INLINE_BUFFERS);
@@ -480,18 +480,26 @@ void pgraph_gl_flush_draw(NV2AState *d)
 
         glDrawArrays(r->shader_binding->gl_primitive_mode,
                      0, pg->inline_buffer_length);
+        return PGRAPH_GL_DRAW_SUBMITTED;
     } else if (pg->inline_array_length) {
         NV2A_GL_DPRINTF(false, "Inline Array");
         nv2a_profile_inc_counter(NV2A_PROF_INLINE_ARRAYS);
 
         unsigned int index_count = pgraph_gl_bind_inline_array(d);
         if (!index_count) {
-            return;
+            return PGRAPH_GL_DRAW_REJECTED;
         }
         glDrawArrays(r->shader_binding->gl_primitive_mode,
                      0, index_count);
+        return PGRAPH_GL_DRAW_SUBMITTED;
     } else {
         NV2A_GL_DPRINTF(true, "EMPTY NV097_SET_BEGIN_END");
         NV2A_UNCONFIRMED("EMPTY NV097_SET_BEGIN_END");
+        return PGRAPH_GL_DRAW_EMPTY;
     }
+}
+
+void pgraph_gl_flush_draw(NV2AState *d)
+{
+    (void)pgraph_gl_flush_draw_internal(d);
 }
