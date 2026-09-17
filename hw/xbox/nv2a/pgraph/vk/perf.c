@@ -99,7 +99,8 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":7"
+            "{\"type\":\"schema\",\"schema_version\":8"
+            ",\"features\":[\"report_lifecycle\"]"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
             ",\"presentation_counters\":\"cumulative_totals\"",
@@ -312,7 +313,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":7"
+            "{\"type\":\"frame\",\"schema_version\":8"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
@@ -391,6 +392,19 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"newest_submitted_serial\":%" PRIu64
             ",\"retirement_queue_objects\":%" PRIu64
             ",\"retirement_queue_bytes\":%" PRIu64
+            ",\"report_queue_depth\":%" PRIu32
+            ",\"report_entries_enqueued_per_guest_frame\":%" PRIu64
+            ",\"report_clears_enqueued_per_guest_frame\":%" PRIu64
+            ",\"report_max_queue_depth_per_guest_frame\":%" PRIu64
+            ",\"report_stalled_finish_calls_per_guest_frame\":%" PRIu64
+            ",\"report_retirements_per_guest_frame\":%" PRIu64
+            ",\"report_write_attempts_per_guest_frame\":%" PRIu64
+            ",\"report_query_result_calls_per_guest_frame\":%" PRIu64
+            ",\"report_query_results_waited_per_guest_frame\":%" PRIu64
+            ",\"report_query_result_wait_us_per_guest_frame\":%" PRIu64
+            ",\"report_cpu_only_retirements_per_guest_frame\":%" PRIu64
+            ",\"report_enqueue_to_retire_frames_total_per_guest_frame\":%" PRIu64
+            ",\"report_enqueue_to_retire_frames_max_per_guest_frame\":%" PRIu64
             ",\"framebuffer_acquire_calls_total\":%" PRIu64
             ",\"valid_sync_requests_total\":%" PRIu64
             ",\"host_copy_uploads_total\":%" PRIu64
@@ -415,6 +429,15 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->peak_in_flight_submission_count,
             perf->oldest_in_flight_serial, perf->newest_submitted_serial,
             perf->retirement_queue_objects, perf->retirement_queue_bytes,
+            r->report_queue_depth, perf->report_entries_enqueued,
+            perf->report_clears_enqueued, perf->report_max_queue_depth,
+            perf->report_stalled_finish_calls, perf->report_retirements,
+            perf->report_write_attempts, perf->report_query_result_calls,
+            perf->report_query_results_waited,
+            perf->report_query_result_wait_us,
+            perf->report_cpu_only_retirements,
+            perf->report_enqueue_to_retire_frames_total,
+            perf->report_enqueue_to_retire_frames_max,
             qatomic_read_u64(&perf->framebuffer_acquire_calls_total),
             qatomic_read_u64(&perf->valid_sync_requests_total),
             qatomic_read_u64(&perf->host_copy_uploads_total),
@@ -454,4 +477,16 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->oldest_in_flight_serial = 0;
     perf->retirement_queue_objects = 0;
     perf->retirement_queue_bytes = 0;
+    perf->report_entries_enqueued = 0;
+    perf->report_clears_enqueued = 0;
+    perf->report_max_queue_depth = r->report_queue_depth;
+    perf->report_stalled_finish_calls = 0;
+    perf->report_retirements = 0;
+    perf->report_write_attempts = 0;
+    perf->report_query_result_calls = 0;
+    perf->report_query_results_waited = 0;
+    perf->report_query_result_wait_us = 0;
+    perf->report_cpu_only_retirements = 0;
+    perf->report_enqueue_to_retire_frames_total = 0;
+    perf->report_enqueue_to_retire_frames_max = 0;
 }
