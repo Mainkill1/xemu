@@ -470,6 +470,74 @@ static void test_rejected_hit_falls_back_and_can_be_replaced(void)
     pgraph_vk_spirv_cache_destroy(&cache);
 }
 
+typedef struct AdoptFixture {
+    unsigned int calls;
+    PGRAPHVkSpirvCacheArtifactResult result;
+} AdoptFixture;
+
+static PGRAPHVkSpirvCacheArtifactResult adopt_cached_spirv(
+    void *opaque, const uint8_t *spirv, size_t spirv_size)
+{
+    AdoptFixture *fixture = opaque;
+
+    fixture->calls++;
+    assert(spirv_size == sizeof(test_spirv));
+    assert(!memcmp(spirv, test_spirv, sizeof(test_spirv)));
+    return fixture->result;
+}
+
+static void test_cached_artifact_adoption_controls_compile_fallback(void)
+{
+    PGRAPHVkSpirvCachePolicy policy = test_policy();
+    PGRAPHVkSpirvCache cache = { 0 };
+    AdoptFixture fixture = {
+        .result = PGRAPH_VK_SPIRV_CACHE_ARTIFACT_ACCEPTED,
+    };
+
+    assert(pgraph_vk_spirv_cache_init(&cache, &policy));
+    add_vertex(&cache);
+    assert(pgraph_vk_spirv_cache_adopt_hit(
+               &cache, 1, vertex_source, sizeof(vertex_source) - 1,
+               adopt_cached_spirv, &fixture) ==
+           PGRAPH_VK_SPIRV_CACHE_ADOPTED);
+    assert(!pgraph_vk_spirv_cache_adoption_needs_compile(
+        PGRAPH_VK_SPIRV_CACHE_ADOPTED));
+    assert(fixture.calls == 1);
+    assert(pgraph_vk_spirv_cache_stats(&cache)->fallbacks == 0);
+    assert(pgraph_vk_spirv_cache_stats(&cache)->records == 1);
+
+    fixture.result = PGRAPH_VK_SPIRV_CACHE_ARTIFACT_DEFERRED;
+    assert(pgraph_vk_spirv_cache_adopt_hit(
+               &cache, 1, vertex_source, sizeof(vertex_source) - 1,
+               adopt_cached_spirv, &fixture) ==
+           PGRAPH_VK_SPIRV_CACHE_DEFERRED);
+    assert(!pgraph_vk_spirv_cache_adoption_needs_compile(
+        PGRAPH_VK_SPIRV_CACHE_DEFERRED));
+    assert(fixture.calls == 2);
+    assert(pgraph_vk_spirv_cache_stats(&cache)->fallbacks == 0);
+    assert(pgraph_vk_spirv_cache_stats(&cache)->records == 1);
+
+    fixture.result = PGRAPH_VK_SPIRV_CACHE_ARTIFACT_REJECTED;
+    assert(pgraph_vk_spirv_cache_adopt_hit(
+               &cache, 1, vertex_source, sizeof(vertex_source) - 1,
+               adopt_cached_spirv, &fixture) ==
+           PGRAPH_VK_SPIRV_CACHE_REJECTED);
+    assert(pgraph_vk_spirv_cache_adoption_needs_compile(
+        PGRAPH_VK_SPIRV_CACHE_REJECTED));
+    assert(fixture.calls == 3);
+    assert(pgraph_vk_spirv_cache_stats(&cache)->fallbacks == 1);
+    assert(pgraph_vk_spirv_cache_stats(&cache)->records == 0);
+
+    assert(pgraph_vk_spirv_cache_adopt_hit(
+               &cache, 1, vertex_source, sizeof(vertex_source) - 1,
+               adopt_cached_spirv, &fixture) ==
+           PGRAPH_VK_SPIRV_CACHE_NOT_FOUND);
+    assert(pgraph_vk_spirv_cache_adoption_needs_compile(
+        PGRAPH_VK_SPIRV_CACHE_NOT_FOUND));
+    assert(fixture.calls == 3);
+    pgraph_vk_spirv_cache_destroy(&cache);
+}
+
 static void make_source(char *source, size_t size, const char *prefix,
                         uint32_t index)
 {
@@ -932,6 +1000,7 @@ int main(void)
     test_failed_load_keeps_existing_store_visible();
     test_spirv_and_aggregate_bounds();
     test_rejected_hit_falls_back_and_can_be_replaced();
+    test_cached_artifact_adoption_controls_compile_fallback();
     test_persistence_accepts_only_graphics_stages();
     test_hash_index_collision_keeps_exact_sources_distinct();
     test_full_cache_evicts_lru_and_learns_new_titles();

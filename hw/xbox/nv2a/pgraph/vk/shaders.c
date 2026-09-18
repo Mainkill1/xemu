@@ -914,6 +914,37 @@ static void wake_fallback_families_for_module(
     }
 }
 
+static PGRAPHVkSpirvCacheArtifactResult materialize_hybrid_shader_module(
+    PGRAPHVkState *r, const ShaderModuleCacheKey *key, const char *glsl,
+    GByteArray *spirv)
+{
+    ShaderModuleInfo *info = pgraph_vk_create_shader_module_from_spirv(
+        r, key->kind, glsl, spirv);
+    if (!info) {
+        return PGRAPH_VK_SPIRV_CACHE_ARTIFACT_REJECTED;
+    }
+
+    /* The creating cache callback may only retain this completed module. */
+    r->hybrid_materializing_key = key;
+    r->hybrid_materialized_module_info = info;
+    uint64_t hash = shader_module_key_hash(key);
+    LruNode *node = lru_try_lookup(&r->shader_module_cache, hash, key);
+    r->hybrid_materializing_key = NULL;
+    r->hybrid_materialized_module_info = NULL;
+    if (!node) {
+        pgraph_vk_destroy_shader_module(r, info);
+        return PGRAPH_VK_SPIRV_CACHE_ARTIFACT_DEFERRED;
+    }
+
+    ShaderModuleCacheEntry *entry = container_of(
+        node, ShaderModuleCacheEntry, node);
+    if (entry->module_info != info) {
+        pgraph_vk_destroy_shader_module(r, info);
+    }
+    wake_fallback_families_for_module(r, key);
+    return PGRAPH_VK_SPIRV_CACHE_ARTIFACT_ACCEPTED;
+}
+
 void pgraph_vk_process_hybrid_completions(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -965,49 +996,26 @@ void pgraph_vk_process_hybrid_completions(PGRAPHState *pg)
         assert(r->hybrid_pending_jobs > 0);
         r->hybrid_pending_jobs--;
 
-        bool published = result.success && result.spirv && result.spirv_size;
-        if (published) {
+        bool published = false;
+        if (result.success && result.spirv && result.spirv_size) {
             GByteArray *spirv = g_byte_array_new_take(result.spirv,
                                                        result.spirv_size);
             result.spirv = NULL;
             result.spirv_size = 0;
-            ShaderModuleInfo *info = pgraph_vk_create_shader_module_from_spirv(
-                r, work->module_key.kind, work->glsl, spirv);
-            published = info != NULL;
-            if (info) {
-                /* Adoption can reserve an LRU entry, but its init callback
-                 * must only retain this finished module. It cannot generate
-                 * source or fall through to synchronous compilation. */
-                r->hybrid_materializing_key = &work->module_key;
-                r->hybrid_materialized_module_info = info;
-                uint64_t hash = shader_module_key_hash(&work->module_key);
-                LruNode *node = lru_try_lookup(&r->shader_module_cache, hash,
-                                               &work->module_key);
-                r->hybrid_materializing_key = NULL;
-                r->hybrid_materialized_module_info = NULL;
-                published = node != NULL;
-                if (published) {
-                    ShaderModuleCacheEntry *entry = container_of(
-                        node, ShaderModuleCacheEntry, node);
-                    if (entry->module_info != info) {
-                        pgraph_vk_destroy_shader_module(r, info);
-                    }
-                    if (shader_spirv_cache_active(r)) {
-                        pgraph_vk_spirv_cache_add(
-                            &r->spirv_cache, work->module_key.kind,
-                            work->glsl, work->glsl_size,
-                            spirv->data, spirv->len);
-                    }
-                } else {
-                    pgraph_vk_destroy_shader_module(r, info);
-                }
+            published = materialize_hybrid_shader_module(
+                            r, &work->module_key, work->glsl, spirv) ==
+                        PGRAPH_VK_SPIRV_CACHE_ARTIFACT_ACCEPTED;
+            if (published && shader_spirv_cache_active(r)) {
+                pgraph_vk_spirv_cache_add(
+                    &r->spirv_cache, work->module_key.kind,
+                    work->glsl, work->glsl_size,
+                    spirv->data, spirv->len);
             }
             g_byte_array_unref(spirv);
         }
         if (published) {
             /* A module is not an executable draw. The selection epoch moves
              * only when its exact graphics pipeline is published. */
-            wake_fallback_families_for_module(r, &work->module_key);
             hybrid_work_clear(work);
         } else {
             pgraph_vk_hybrid_note_compile_failure(
@@ -1477,7 +1485,26 @@ void pgraph_vk_enqueue_specialized_fragment(PGRAPHState *pg,
     r->uber_controls_valid = controls_valid;
 }
 
-/* Frame-boundary work: compile a missing fallback fragment without making
+typedef struct PGRAPHVkCachedShaderAdoption {
+    PGRAPHVkState *renderer;
+    const ShaderModuleCacheKey *key;
+    const char *glsl;
+} PGRAPHVkCachedShaderAdoption;
+
+static PGRAPHVkSpirvCacheArtifactResult adopt_cached_hybrid_shader(
+    void *opaque, const uint8_t *spirv_data, size_t spirv_size)
+{
+    PGRAPHVkCachedShaderAdoption *adoption = opaque;
+    GByteArray *spirv = g_byte_array_sized_new(spirv_size);
+    g_byte_array_append(spirv, spirv_data, spirv_size);
+    PGRAPHVkSpirvCacheArtifactResult result =
+        materialize_hybrid_shader_module(
+            adoption->renderer, adoption->key, adoption->glsl, spirv);
+    g_byte_array_unref(spirv);
+    return result;
+}
+
+/* Frame-boundary work: prepare a missing fallback fragment without making
  * its first specialized draw wait for a fallback that did not exist. */
 bool pgraph_vk_enqueue_fallback_fragment(PGRAPHState *pg,
                                         const ShaderState *state)
@@ -1496,14 +1523,31 @@ bool pgraph_vk_enqueue_fallback_fragment(PGRAPHState *pg,
         return existing->metadata.status !=
                PGRAPH_VK_HYBRID_WORK_FAILED_PERMANENT;
     }
-    PGRAPHVkHybridShaderWork *work = hybrid_allocate_work(r);
-    if (!work) {
-        return true;
-    }
-
     MString *code = pgraph_glsl_gen_psh(&key.psh.state, key.psh.glsl_opts);
     const char *glsl = mstring_get_str(code);
     size_t glsl_size = strlen(glsl);
+    PGRAPHVkSpirvCacheAdoptResult cache_result =
+        PGRAPH_VK_SPIRV_CACHE_NOT_FOUND;
+    if (shader_spirv_cache_active(r)) {
+        PGRAPHVkCachedShaderAdoption adoption = {
+            .renderer = r,
+            .key = &key,
+            .glsl = glsl,
+        };
+        cache_result = pgraph_vk_spirv_cache_adopt_hit(
+            &r->spirv_cache, key.kind, glsl, glsl_size,
+            adopt_cached_hybrid_shader, &adoption);
+        if (!pgraph_vk_spirv_cache_adoption_needs_compile(cache_result)) {
+            mstring_unref(code);
+            return true;
+        }
+    }
+
+    PGRAPHVkHybridShaderWork *work = hybrid_allocate_work(r);
+    if (!work) {
+        mstring_unref(code);
+        return true;
+    }
     work->in_use = true;
     work->module_key = key;
     work->glsl = g_strndup(glsl, glsl_size);

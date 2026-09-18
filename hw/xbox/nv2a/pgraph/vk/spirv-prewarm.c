@@ -474,6 +474,30 @@ PGRAPHVkSpirvCacheLookupResult pgraph_vk_spirv_cache_lookup(
     return PGRAPH_VK_SPIRV_CACHE_HIT;
 }
 
+PGRAPHVkSpirvCacheAdoptResult pgraph_vk_spirv_cache_adopt_hit(
+    PGRAPHVkSpirvCache *cache, uint32_t stage, const void *source,
+    size_t source_size, PGRAPHVkSpirvCacheAdoptFunc adopt, void *opaque)
+{
+    const uint8_t *spirv = NULL;
+    size_t spirv_size = 0;
+
+    if (!adopt || pgraph_vk_spirv_cache_lookup(
+                      cache, stage, source, source_size, &spirv,
+                      &spirv_size) != PGRAPH_VK_SPIRV_CACHE_HIT) {
+        return PGRAPH_VK_SPIRV_CACHE_NOT_FOUND;
+    }
+    PGRAPHVkSpirvCacheArtifactResult result =
+        adopt(opaque, spirv, spirv_size);
+    if (result == PGRAPH_VK_SPIRV_CACHE_ARTIFACT_ACCEPTED) {
+        return PGRAPH_VK_SPIRV_CACHE_ADOPTED;
+    }
+    if (result == PGRAPH_VK_SPIRV_CACHE_ARTIFACT_DEFERRED) {
+        return PGRAPH_VK_SPIRV_CACHE_DEFERRED;
+    }
+    pgraph_vk_spirv_cache_reject_hit(cache, stage, source, source_size);
+    return PGRAPH_VK_SPIRV_CACHE_REJECTED;
+}
+
 bool pgraph_vk_spirv_cache_add(PGRAPHVkSpirvCache *cache, uint32_t stage,
                                const void *source, size_t source_size,
                                const void *spirv, size_t spirv_size)
