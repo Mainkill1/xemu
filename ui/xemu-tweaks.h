@@ -32,6 +32,7 @@ typedef enum XemuVulkanUbershaderMode {
 
 typedef struct XemuVulkanUbershaderRuntimeState {
     XemuVulkanUbershaderMode requested;
+    XemuVulkanUbershaderMode policy;
     XemuVulkanUbershaderMode active;
     bool available;
     bool restart_pending;
@@ -62,6 +63,9 @@ bool xemu_vulkan_ubershader_mode_selectable(
     XemuVulkanUbershaderMode mode);
 XemuVulkanUbershaderRuntimeState
 xemu_vulkan_ubershader_runtime_state(void);
+/* Renderer lifecycle publication; never called from the draw path. */
+void xemu_vulkan_ubershader_publish_runtime(
+    bool vulkan_installed, bool fallback_operational);
 
 #ifdef __cplusplus
 }

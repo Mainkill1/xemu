@@ -366,6 +366,9 @@ static bool attempt_renderer_init(PGRAPHState *pg, bool fallback)
     xemu_gpu_info_record_initialized(
         device, pg->renderer->name, XEMU_GPU_PRESENTATION_UNKNOWN,
         fallback, fallback ? "requested renderer failed to initialize" : NULL);
+    if (pg->renderer->type != CONFIG_DISPLAY_RENDERER_VULKAN) {
+        xemu_vulkan_ubershader_publish_runtime(false, false);
+    }
 
     return true;
 }
@@ -411,6 +414,7 @@ void pgraph_destroy(PGRAPHState *pg)
     if (pg->renderer->ops.finalize) {
        pg->renderer->ops.finalize(d);
     }
+    xemu_vulkan_ubershader_publish_runtime(false, false);
 
     qemu_event_destroy(&pg->renderer_switch_progress);
     qemu_mutex_destroy(&pg->lock);
@@ -3462,6 +3466,7 @@ static void renderer_switch_finalize_renderer(void *opaque)
     if (pg->renderer && pg->renderer->ops.finalize) {
         pg->renderer->ops.finalize(d);
     }
+    xemu_vulkan_ubershader_publish_runtime(false, false);
 }
 
 static void renderer_switch_init_renderer(void *opaque)

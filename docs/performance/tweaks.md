@@ -21,13 +21,15 @@ Vulkan ubershader mode is a restart-latched selection:
 | Mode | Behavior |
 | --- | --- |
 | Off | Use specialized fragment pipelines only. |
-| Fallback | Use the fragment-combiner interpreter until an exact specialized pipeline is ready. |
+| Fallback | Use an already-ready fragment-combiner fallback while specialization is prepared. Uncovered states can still wait. |
 | Prewarm | Planned: prepare learned fallback families before first use. |
 | Always | Planned diagnostic mode: prefer the interpreter for supported draws. |
 
-Prewarm and Always remain visible but disabled until their renderer policies
-are implemented. The menu reports both requested and active modes so a saved
-restart-only change is not presented as already active.
+Mode changes require restarting xemu. Prewarm and Always remain visible but
+disabled until their renderer policies are implemented. The menu reports both
+requested and active modes so a saved restart-only change is not presented as
+already active. Runtime status comes from the installed renderer, so an OpenGL
+fallback or live backend switch cannot be mistaken for active Vulkan fallback.
 
 The tweak controls publish one atomic active-options snapshot. Renderer and
 FIFO workers do not read the UI-owned configuration directly. Restart-only

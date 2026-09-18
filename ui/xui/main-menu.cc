@@ -109,7 +109,7 @@ static const char *VulkanUbershaderModeName(
     case XEMU_VK_UBERSHADER_PREWARM:
         return "Prewarm";
     case XEMU_VK_UBERSHADER_ALWAYS:
-        return "Always";
+        return "Always (diagnostic)";
     default:
         return "Unknown";
     }
@@ -128,11 +128,12 @@ static XemuVulkanUbershaderRuntimeState VulkanUbershaderModeCombo()
                      "Off\0"
                      "Fallback\0"
                      "Prewarm (planned)\0"
-                     "Always (planned)\0",
-                     "Off waits for specialized fragment pipelines. Fallback "
-                     "uses the fragment-combiner interpreter until an exact "
-                     "specialized pipeline is ready, reducing first-use "
-                     "stalls. Prewarm and Always are planned and disabled.",
+                     "Always (diagnostic, planned)\0",
+                     "Off uses specialized shaders. Fallback uses an "
+                     "already-ready fragment-combiner fallback while "
+                     "specialization is prepared. Uncovered states can still "
+                     "wait. Mode changes require restarting xemu. Prewarm and "
+                     "Always are not implemented in this build.",
                      VulkanUbershaderModeSelectable)) {
         xemu_tweaks_apply(false);
         xemu_settings_save();
@@ -147,6 +148,9 @@ static XemuVulkanUbershaderRuntimeState VulkanUbershaderModeCombo()
         ImGui::PushTextWrapPos();
         ImGui::TextDisabled("%s", state.reason);
         ImGui::PopTextWrapPos();
+    }
+    if (state.restart_pending) {
+        ImGui::TextDisabled("Restart xemu to activate the selected mode.");
     }
 
     return state;

@@ -33,6 +33,7 @@
 
 #include "xemu-controllers.h"
 #include "xemu-settings.h"
+#include "xemu-settings-migration.hh"
 #include "xemu-tweaks.h"
 
 #define DEFINE_CONFIG_TREE
@@ -179,21 +180,8 @@ bool xemu_settings_load(void)
 
                 try {
                     toml::table table = toml::parse(buf);
-                    const toml::table *tweaks_table =
-                        table["tweaks"].as_table();
-                    bool mode_present = tweaks_table &&
-                        tweaks_table->contains("vk_ubershader_mode");
-                    config_tree.update_from_table(table);
-                    CNode *tweaks = config_tree.child("tweaks");
-                    CNode *mode = tweaks->child("vk_ubershader_mode");
-                    CNode *legacy = tweaks->child("vk_hybrid_ubershaders");
-                    mode->set_enum_by_index(static_cast<int>(
-                        xemu_vulkan_ubershader_migrate_mode(
-                            mode_present,
-                            static_cast<XemuVulkanUbershaderMode>(
-                                mode->data_enum.val),
-                            legacy->data.boolean.val)));
-                    legacy->data.boolean.val = false;
+                    xemu_settings_apply_ubershader_migration(config_tree,
+                                                             table);
                     success = true;
                 } catch (const toml::parse_error& err) {
                    std::ostringstream oss;
