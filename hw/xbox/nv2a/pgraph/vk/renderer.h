@@ -777,6 +777,7 @@ typedef struct PGRAPHVkState {
     bool texture_binding_source_is_surface[NV2A_MAX_TEXTURES];
     TextureBinding dummy_texture;
     bool texture_descriptor_publication_pending;
+    bool texture_scale_reconciliation_pending;
     VkFormatProperties *texture_format_properties;
     NativeBCFormatSupport
         native_bc_format_support[NV2A_VK_NATIVE_BC_FORMAT_COUNT];
