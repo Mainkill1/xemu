@@ -81,12 +81,6 @@ static void get_uniform_stage_update_needs(PGRAPHState *pg,
                 polygon_offset_key),
         .inline_values_in_vsh_ubo =
             pg->uniform_attrs && !r->use_push_constants_for_uniform_attrs,
-        .vsh_rows_dirty =
-            any_dirty_flag_set(pg->vsh_constants_dirty,
-                               NV2A_VERTEXSHADER_CONSTANTS) ||
-            any_dirty_flag_set(pg->ltctxa_dirty, NV2A_LTCTXA_COUNT) ||
-            any_dirty_flag_set(pg->ltctxb_dirty, NV2A_LTCTXB_COUNT) ||
-            any_dirty_flag_set(pg->ltc1_dirty, NV2A_LTC1_COUNT),
         .force_full_update =
             !r->shader_binding ||
             !r->storage_buffers[BUFFER_UNIFORM_STAGING].buffer_offset,
@@ -97,6 +91,15 @@ static void get_uniform_stage_update_needs(PGRAPHState *pg,
             &pg->uniform_source_epochs, &r->last_uniform_source_epochs,
             stage);
         inputs.layout_changed[stage] = r->uniform_layout_changed[stage];
+    }
+
+    if (pgraph_uniform_vsh_dirty_rows_scan_needed(&inputs)) {
+        inputs.vsh_rows_dirty =
+            any_dirty_flag_set(pg->vsh_constants_dirty,
+                               NV2A_VERTEXSHADER_CONSTANTS) ||
+            any_dirty_flag_set(pg->ltctxa_dirty, NV2A_LTCTXA_COUNT) ||
+            any_dirty_flag_set(pg->ltctxb_dirty, NV2A_LTCTXB_COUNT) ||
+            any_dirty_flag_set(pg->ltc1_dirty, NV2A_LTC1_COUNT);
     }
 
     pgraph_uniform_stage_update_needs(&inputs, update_stage);

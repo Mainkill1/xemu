@@ -163,6 +163,33 @@ static void test_stage_update_decisions(void)
     g_assert_true(update_stage[PGRAPH_UNIFORM_STAGE_PSH]);
 }
 
+static void test_vsh_dirty_rows_are_scanned_only_when_needed(void)
+{
+    PGRAPHUniformStageUpdateInputs inputs = { 0 };
+
+    g_assert_true(pgraph_uniform_vsh_dirty_rows_scan_needed(&inputs));
+
+    inputs.source_changed[PGRAPH_UNIFORM_STAGE_VSH] = true;
+    g_assert_false(pgraph_uniform_vsh_dirty_rows_scan_needed(&inputs));
+    inputs = (PGRAPHUniformStageUpdateInputs) {
+        .layout_changed[PGRAPH_UNIFORM_STAGE_VSH] = true,
+    };
+    g_assert_false(pgraph_uniform_vsh_dirty_rows_scan_needed(&inputs));
+    inputs = (PGRAPHUniformStageUpdateInputs) {
+        .force_full_update = true,
+    };
+    g_assert_false(pgraph_uniform_vsh_dirty_rows_scan_needed(&inputs));
+    inputs = (PGRAPHUniformStageUpdateInputs) {
+        .inline_values_in_vsh_ubo = true,
+    };
+    g_assert_false(pgraph_uniform_vsh_dirty_rows_scan_needed(&inputs));
+
+    inputs = (PGRAPHUniformStageUpdateInputs) {
+        .source_changed[PGRAPH_UNIFORM_STAGE_PSH] = true,
+    };
+    g_assert_true(pgraph_uniform_vsh_dirty_rows_scan_needed(&inputs));
+}
+
 static uint32_t setup_raster(uint32_t mode, uint32_t enable)
 {
     return (mode & NV_PGRAPH_SETUPRASTER_FRONTFACEMODE) | enable;
@@ -241,6 +268,8 @@ int main(int argc, char **argv)
                     test_register_stage_classification);
     g_test_add_func("/xbox/pgraph/uniform-source/stage-update-decisions",
                     test_stage_update_decisions);
+    g_test_add_func("/xbox/pgraph/uniform-source/vsh-row-scan-admission",
+                    test_vsh_dirty_rows_are_scanned_only_when_needed);
     g_test_add_func("/xbox/pgraph/uniform-source/effective-polygon-offset",
                     test_effective_polygon_offset);
 
