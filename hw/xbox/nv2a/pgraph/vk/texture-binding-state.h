@@ -24,6 +24,23 @@ static inline float pgraph_vk_texture_effective_scale(float scale,
     return linear ? scale : 1.0f;
 }
 
+static inline void pgraph_vk_texture_scale_reconciliation_observe(
+    bool *pending, float before_scale, bool before_linear,
+    float after_scale, bool after_linear)
+{
+    float before = pgraph_vk_texture_effective_scale(before_scale,
+                                                     before_linear);
+    float after = pgraph_vk_texture_effective_scale(after_scale,
+                                                    after_linear);
+    *pending |= before != after;
+}
+
+static inline void pgraph_vk_texture_scale_reconciliation_complete(
+    bool *pending)
+{
+    *pending = false;
+}
+
 static inline bool pgraph_vk_texture_descriptor_identity_changed(
     PGRAPHVkTextureDescriptorIdentity before,
     PGRAPHVkTextureDescriptorIdentity after)
