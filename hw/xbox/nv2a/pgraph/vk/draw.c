@@ -1638,6 +1638,7 @@ static bool create_pipeline(PGRAPHState *pg)
     }
     bool hybrid = r->ubershader_runtime_enabled &&
                   r->hybrid_compiler_initialized;
+    bool force_ubershader = r->ubershader_force_interpreter;
     bool schedule_specialization = false;
     bool track_specialized_family = false;
     bool family_controls_supported = false;
@@ -1669,6 +1670,8 @@ static bool create_pipeline(PGRAPHState *pg)
             !pgraph_glsl_nonregister_shader_state_changed(
                 pg, &r->shader_binding->state) &&
             !check_pipeline_dirty(pg) &&
+            pgraph_vk_hybrid_fastpath_route_allowed(
+                force_ubershader, r->shader_binding->fragment_route) &&
             (r->shader_binding->fragment_route !=
                  PGRAPH_VK_FRAGMENT_UBERSHADER ||
              pgraph_vk_refresh_fallback_controls(
@@ -1685,8 +1688,9 @@ static bool create_pipeline(PGRAPHState *pg)
             pgraph_vk_activate_shaders(
                 pg, &unchanged, r->shader_binding->fragment_route,
                 r->shader_binding);
-            if (r->shader_binding->fragment_route ==
-                PGRAPH_VK_FRAGMENT_UBERSHADER) {
+            if (pgraph_vk_hybrid_should_schedule_specialization(
+                    force_ubershader,
+                    r->shader_binding->fragment_route)) {
                 maybe_request_complete_specialization(
                     pg, &unchanged.state);
             }
@@ -1701,7 +1705,8 @@ static bool create_pipeline(PGRAPHState *pg)
 
         /* Most draws reuse the current specialized executable. Preserve the
          * original cheap dirty path and still update uniforms as needed. */
-        if (preparation.bound_state_equal && r->shader_binding &&
+        if (!force_ubershader && preparation.bound_state_equal &&
+            r->shader_binding &&
             r->shader_binding->fragment_route ==
                 PGRAPH_VK_FRAGMENT_SPECIALIZED &&
             r->pipeline_binding &&
@@ -1718,9 +1723,8 @@ static bool create_pipeline(PGRAPHState *pg)
             return true;
         }
 
-        /* A stable fallback remains executable while specialization is
-         * pending. Update only its dynamic inputs and retry promotion on a
-         * timed gate; completion publication changes the selection epoch. */
+        /* A stable fallback updates only its dynamic inputs. Fallback mode
+         * retries promotion on a timed gate; Always keeps the interpreter. */
         if (preparation.bound_state_equal &&
             !preparation.selection_changed && r->shader_binding &&
             r->shader_binding->fragment_route ==
@@ -1736,7 +1740,11 @@ static bool create_pipeline(PGRAPHState *pg)
             pgraph_vk_activate_shaders(pg, &preparation,
                                        PGRAPH_VK_FRAGMENT_UBERSHADER,
                                        r->shader_binding);
-            maybe_request_complete_specialization(pg, &requested_state);
+            if (pgraph_vk_hybrid_should_schedule_specialization(
+                    force_ubershader,
+                    PGRAPH_VK_FRAGMENT_UBERSHADER)) {
+                maybe_request_complete_specialization(pg, &requested_state);
+            }
             pgraph_clear_dirty_reg_map(pg);
             NV2A_VK_DGROUP_END();
             return true;
@@ -1744,7 +1752,7 @@ static bool create_pipeline(PGRAPHState *pg)
 
         PGRAPHVkReadyExecutionCandidates candidates;
         pgraph_vk_resolve_ready_execution_candidates(
-            pg, &requested_state, &candidates);
+            pg, &requested_state, force_ubershader, &candidates);
         PGRAPHVkReadyDrawCandidate specialized = candidates.specialized;
         PGRAPHVkReadyDrawCandidate fallback = candidates.fallback;
         PGRAPHUberControls controls = candidates.controls;
@@ -1760,7 +1768,8 @@ static bool create_pipeline(PGRAPHState *pg)
             /* Warm specialized draws do no fallback work after their one-time
              * family eligibility decision. The family pipeline probe does not
              * require full-state fallback binding metadata. */
-            if (pgraph_vk_fallback_family_learning_needed(
+            if (!force_ubershader &&
+                pgraph_vk_fallback_family_learning_needed(
                     specialized_complete,
                     specialized.pipeline->family_learn_state)) {
                 PipelineKey family_key;
@@ -1782,12 +1791,13 @@ static bool create_pipeline(PGRAPHState *pg)
                     pg, fallback.shader);
             }
             selected = pgraph_vk_hybrid_choose_execution_route(
+                force_ubershader && controls_supported,
                 specialized.shader != NULL, specialized.pipeline != NULL,
                 fallback.shader != NULL, fallback.pipeline != NULL,
                 fallback_resources);
             family_controls_supported = controls_supported;
             family_fallback_pipeline_ready = fallback.pipeline != NULL;
-            track_specialized_family = true;
+            track_specialized_family = !force_ubershader;
         }
 
         PGRAPHVkFragmentRoute route;
@@ -1802,18 +1812,23 @@ static bool create_pipeline(PGRAPHState *pg)
             route = PGRAPH_VK_FRAGMENT_UBERSHADER;
             ready_shader = fallback.shader;
             ready_pipeline = fallback.pipeline;
-            schedule_specialization = true;
+            schedule_specialization =
+                pgraph_vk_hybrid_should_schedule_specialization(
+                    force_ubershader, route);
         } else {
             /* Preserve first-family fallback construction when neither
              * binding exists. When one binding is prepared, construct only
              * its missing pipeline instead of a colder alternate route. */
             route = pgraph_vk_hybrid_choose_uncovered_route(
+                force_ubershader && controls_supported,
                 specialized.shader != NULL, fallback.shader != NULL,
-                controls_supported);
+                fallback.pipeline != NULL, controls_supported,
+                fallback_resources);
             ready_shader = NULL;
             ready_pipeline = NULL;
             schedule_specialization =
-                route == PGRAPH_VK_FRAGMENT_UBERSHADER;
+                pgraph_vk_hybrid_should_schedule_specialization(
+                    force_ubershader, route);
             if (r->hybrid_trace) {
                 pgraph_vk_hybrid_trace_record(
                     r->hybrid_trace, VK_HYBRID_TRACE_UNCOVERED,

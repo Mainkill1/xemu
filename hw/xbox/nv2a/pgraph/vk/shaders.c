@@ -1870,8 +1870,12 @@ void pgraph_vk_init_shaders(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
+    XemuVulkanUbershaderMode ubershader_policy =
+        xemu_vulkan_ubershader_policy();
     r->ubershader_runtime_enabled =
-        xemu_tweak_enabled(XEMU_TWEAK_VK_HYBRID_UBERSHADERS);
+        ubershader_policy != XEMU_VK_UBERSHADER_OFF;
+    r->ubershader_force_interpreter =
+        ubershader_policy == XEMU_VK_UBERSHADER_ALWAYS;
     pgraph_vk_init_glsl_compiler();
     create_descriptor_pool(pg);
     create_descriptor_set_layout(pg);
