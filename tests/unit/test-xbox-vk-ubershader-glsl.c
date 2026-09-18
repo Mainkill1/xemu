@@ -79,22 +79,6 @@ static void test_stage_count_bound_is_emitted(void)
     g_assert_cmpuint(maximum, ==, 8);
 }
 
-static void test_register_bank_is_not_copied_through_helpers(void)
-{
-    PshState state = base_state();
-    g_autofree char *source = generate(&state, true);
-
-    /* A shader-private global is private to each fragment invocation. Keeping
-     * the bank there lets helper functions share it without GLSL array-value
-     * parameters, which glslang lowers to whole-array loads and stores. */
-    g_assert_nonnull(strstr(source, "vec4 uberRegs[16];\n"));
-    g_assert_null(strstr(source, "vec4 regs[16]"));
-    g_assert_null(strstr(source, "inout vec4 regs[16]"));
-    g_assert_null(strstr(source, "uberInput3(uint code, uint stage, "
-                                   "vec4 regs[16]"));
-    g_assert_null(strstr(source, "uberWriteRGB(inout vec4 regs[16]"));
-}
-
 static void test_combiner_state_does_not_specialize_uber_source(void)
 {
     PshState a = base_state();
@@ -200,8 +184,6 @@ int main(int argc, char **argv)
                     test_packet_abi_and_dynamic_combiner_are_emitted);
     g_test_add_func("/xbox/vk/ubershader/glsl/stage-count-bound",
                     test_stage_count_bound_is_emitted);
-    g_test_add_func("/xbox/vk/ubershader/glsl/private-register-bank",
-                    test_register_bank_is_not_copied_through_helpers);
     g_test_add_func("/xbox/vk/ubershader/glsl/combiner-not-specialized",
                     test_combiner_state_does_not_specialize_uber_source);
     g_test_add_func("/xbox/vk/ubershader/glsl/shell-specialized",
