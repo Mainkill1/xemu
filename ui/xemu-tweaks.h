@@ -61,11 +61,12 @@ XemuVulkanUbershaderMode xemu_vulkan_ubershader_migrate_mode(
     bool legacy_enabled);
 bool xemu_vulkan_ubershader_mode_selectable(
     XemuVulkanUbershaderMode mode);
+XemuVulkanUbershaderMode xemu_vulkan_ubershader_policy(void);
 XemuVulkanUbershaderRuntimeState
 xemu_vulkan_ubershader_runtime_state(void);
 /* Renderer lifecycle publication; never called from the draw path. */
 void xemu_vulkan_ubershader_publish_runtime(
-    bool vulkan_installed, bool fallback_operational);
+    bool vulkan_installed, bool ubershader_operational);
 
 #ifdef __cplusplus
 }

@@ -794,6 +794,7 @@ typedef struct PGRAPHVkState {
     bool shader_bindings_changed;
     bool use_push_constants_for_uniform_attrs;
     bool ubershader_runtime_enabled;
+    bool ubershader_force_interpreter;
     bool hybrid_compiler_initialized;
     uint64_t hybrid_generation;
     uint64_t hybrid_route_epoch;
@@ -1085,7 +1086,7 @@ void pgraph_vk_process_fallback_families(PGRAPHState *pg);
 
 // hybrid-family.c
 void pgraph_vk_resolve_ready_execution_candidates(
-    PGRAPHState *pg, const ShaderState *state,
+    PGRAPHState *pg, const ShaderState *state, bool force_ubershader,
     PGRAPHVkReadyExecutionCandidates *candidates);
 void pgraph_vk_init_pipeline_key_for_state(
     PGRAPHState *pg, const ShaderState *shader_state,

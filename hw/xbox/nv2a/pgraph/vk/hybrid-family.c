@@ -233,10 +233,34 @@ bool pgraph_vk_pack_fallback_controls(PGRAPHState *pg,
 }
 
 void pgraph_vk_resolve_ready_execution_candidates(
-    PGRAPHState *pg, const ShaderState *state,
+    PGRAPHState *pg, const ShaderState *state, bool force_ubershader,
     PGRAPHVkReadyExecutionCandidates *candidates)
 {
     memset(candidates, 0, sizeof(*candidates));
+    if (force_ubershader) {
+        candidates->controls_checked = true;
+        candidates->controls_supported = pgraph_vk_pack_fallback_controls(
+            pg, &state->psh, &candidates->controls);
+        if (candidates->controls_supported) {
+            candidates->fallback = probe_ready_draw_candidate(
+                pg, state, PGRAPH_VK_FRAGMENT_UBERSHADER);
+            if (!candidates->fallback.shader &&
+                candidates->fallback.pipeline &&
+                pgraph_vk_prepare_binding_from_ready_modules(
+                    pg, state, PGRAPH_VK_FRAGMENT_UBERSHADER)) {
+                candidates->fallback = probe_ready_draw_candidate(
+                    pg, state, PGRAPH_VK_FRAGMENT_UBERSHADER);
+            }
+            return;
+        }
+
+        /* The interpreter rejected this state. Keep the emulator usable by
+         * resolving the normal specialized executable as a safety path. */
+        candidates->specialized = probe_ready_draw_candidate(
+            pg, state, PGRAPH_VK_FRAGMENT_SPECIALIZED);
+        return;
+    }
+
     candidates->specialized = probe_ready_draw_candidate(
         pg, state, PGRAPH_VK_FRAGMENT_SPECIALIZED);
     if (candidates->specialized.shader &&
