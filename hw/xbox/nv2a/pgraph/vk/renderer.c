@@ -21,6 +21,7 @@
 #include "qemu/error-report.h"
 #include "ui/xemu-gpu-info.h"
 #include "ui/xemu-settings.h"
+#include "ui/xemu-tweaks.h"
 #include "failpoint.h"
 #include "renderer.h"
 
@@ -131,6 +132,11 @@ static void pgraph_vk_init(NV2AState *d, Error **errp)
     pgraph_vk_clear_vertex_ram_stale(pg->vk_renderer_state);
 
     pgraph_vk_determine_gpu_properties(d);
+    xemu_vulkan_ubershader_publish_runtime(
+        true,
+        !pg->vk_renderer_state->ubershader_runtime_enabled ||
+        (pg->vk_renderer_state->hybrid_compiler_initialized &&
+         pg->vk_renderer_state->hybrid_pipeline_builder_initialized));
 }
 
 static void pgraph_vk_finalize(NV2AState *d)

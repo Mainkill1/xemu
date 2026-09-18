@@ -422,7 +422,8 @@ slow_tests = {
 }
 
 xemu_tweaks_test = executable('test-xemu-tweaks-config',
-  files('test-xemu-tweaks-config.cc', '../../ui/xemu-tweaks.c'), genh,
+  files('test-xemu-tweaks-config.cc', '../../ui/xemu-tweaks.c',
+        '../../ui/xemu-settings-migration.cc'), genh,
   dependencies: [qemuutil, genconfig, tomlplusplus])
 test('test-xemu-tweaks-config', xemu_tweaks_test, suite: ['unit'])
 

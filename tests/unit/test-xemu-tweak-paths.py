@@ -28,6 +28,24 @@ def function(source, signature):
 
 pgraph = (repo / "hw/xbox/nv2a/pgraph/pgraph.c").read_text()
 draw = (repo / "hw/xbox/nv2a/pgraph/vk/draw.c").read_text()
+widgets = (repo / "ui/xui/widgets.cc").read_text()
+main_menu = (repo / "ui/xui/main-menu.cc").read_text()
+settings = (repo / "ui/xemu-settings.cc").read_text()
+migration = (repo / "ui/xemu-settings-migration.cc").read_text()
+
+assert "CalcTextSize(description, nullptr, false, wrap_width)" in widgets
+assert "wrap_width" in widgets[widgets.index("void WidgetTitleDescription("):
+                               widgets.index("void WidgetTitleDescriptionItem(")]
+assert 'ChevronCombo("Vulkan ubershader mode"' in main_menu
+assert "ChevronComboItemEnabled" in widgets
+assert "ImGui::BeginDisabled(!enabled)" in widgets
+assert "xemu_vulkan_ubershader_mode_selectable" in main_menu
+assert '"Selected: %s   Active: %s"' in main_menu
+assert "ubershader_state.active ==" in main_menu
+assert "xemu_settings_apply_ubershader_migration" in settings
+assert 'contains("vk_ubershader_mode")' in migration
+assert "xemu_vulkan_ubershader_migrate_mode" in migration
+assert "g_config.tweaks.vk_hybrid_ubershaders = false" in settings
 macros = pgraph[pgraph.index("#define METHOD_HANDLER_ARG_DECL"):
                 pgraph.index("#define DEF_METHOD_PROTO")]
 preamble = r'''
