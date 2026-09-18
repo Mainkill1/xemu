@@ -1714,21 +1714,6 @@ static PGRAPHVkTextureDescriptorIdentity texture_descriptor_identity(
     };
 }
 
-static void texture_scale_identity(const PGRAPHVkState *r,
-                                   const TextureBinding *binding,
-                                   float *scale, bool *linear)
-{
-    if (!binding || binding == &r->dummy_texture) {
-        *scale = 1.0f;
-        *linear = true;
-        return;
-    }
-
-    *scale = binding->key.scale;
-    *linear = kelvin_color_format_info_map[
-        binding->key.state.color_format].linear;
-}
-
 bool pgraph_vk_bind_textures(NV2AState *d)
 {
     NV2A_VK_DGROUP_BEGIN("%s", __func__);
@@ -1790,10 +1775,6 @@ bool pgraph_vk_bind_textures(NV2AState *d)
 
         PGRAPHVkTextureDescriptorIdentity before =
             texture_descriptor_identity(binding);
-        float scale_before, scale_after;
-        bool linear_before, linear_after;
-        texture_scale_identity(r, binding, &scale_before, &linear_before);
-
         if (!enabled) {
             r->texture_bindings[i] = &r->dummy_texture;
         } else if (create_texture(pg, i)) {
@@ -1811,11 +1792,6 @@ bool pgraph_vk_bind_textures(NV2AState *d)
             texture_descriptor_identity(r->texture_bindings[i]);
         pgraph_vk_texture_descriptor_publication_observe(
             &r->texture_descriptor_publication_pending, before, after);
-        texture_scale_identity(r, r->texture_bindings[i],
-                               &scale_after, &linear_after);
-        pgraph_vk_texture_scale_reconciliation_observe(
-            &r->texture_scale_reconciliation_pending,
-            scale_before, linear_before, scale_after, linear_after);
     }
 
     update_timestamps(r);
