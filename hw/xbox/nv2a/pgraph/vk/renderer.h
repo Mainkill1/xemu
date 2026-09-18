@@ -128,6 +128,12 @@ typedef enum PGRAPHVkFallbackFamilyStatus {
     PGRAPH_VK_FAMILY_REQUEST_REJECTED,
 } PGRAPHVkFallbackFamilyStatus;
 
+typedef enum PGRAPHVkFallbackShaderPreparation {
+    PGRAPH_VK_FALLBACK_SHADER_REJECTED,
+    PGRAPH_VK_FALLBACK_SHADER_WAITING,
+    PGRAPH_VK_FALLBACK_SHADER_READY,
+} PGRAPHVkFallbackShaderPreparation;
+
 typedef struct PipelineBinding {
     LruNode node;
     PipelineKey key;
@@ -1105,6 +1111,13 @@ void pgraph_vk_fallback_family_mark_pipeline_owners(
 void pgraph_vk_fallback_family_finish_request(
     PGRAPHVkState *r, PGRAPHVkFallbackFamilyRequest *request,
     PGRAPHVkFamilyLearnState state);
+typedef ShaderBinding *(*PGRAPHVkFallbackBindingProbeFunc)(void *opaque);
+typedef bool (*PGRAPHVkFallbackFragmentPrepareFunc)(void *opaque);
+PGRAPHVkFallbackShaderPreparation
+pgraph_vk_fallback_family_prepare_shader(
+    void *opaque, PGRAPHVkFallbackBindingProbeFunc probe_binding,
+    PGRAPHVkFallbackFragmentPrepareFunc prepare_fragment,
+    ShaderBinding **binding);
 ShaderBinding *pgraph_vk_prepare_binding_from_ready_modules(
     PGRAPHState *pg, const ShaderState *state, PGRAPHVkFragmentRoute route);
 void pgraph_vk_prepare_shaders(PGRAPHState *pg,

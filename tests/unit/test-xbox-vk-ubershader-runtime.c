@@ -487,6 +487,93 @@ static void test_fallback_family_wake_is_shader_specific(void)
     g_assert_cmpint(request.retry_after_us, ==, 9000);
 }
 
+typedef struct FallbackBindingPrepareFixture {
+    ShaderBinding binding;
+    unsigned int probes;
+    unsigned int preparations;
+    bool initial_binding_ready;
+    bool preparation_succeeds;
+    bool binding_ready_after_preparation;
+} FallbackBindingPrepareFixture;
+
+static ShaderBinding *fallback_binding_probe(void *opaque)
+{
+    FallbackBindingPrepareFixture *fixture = opaque;
+
+    fixture->probes++;
+    if (fixture->initial_binding_ready ||
+        (fixture->preparations &&
+         fixture->binding_ready_after_preparation)) {
+        return &fixture->binding;
+    }
+
+    return NULL;
+}
+
+static bool fallback_fragment_prepare(void *opaque)
+{
+    FallbackBindingPrepareFixture *fixture = opaque;
+
+    fixture->preparations++;
+    return fixture->preparation_succeeds;
+}
+
+static void test_fallback_family_shader_preparation_outcomes(void)
+{
+    FallbackBindingPrepareFixture fixture = {
+        .initial_binding_ready = true,
+    };
+    ShaderBinding *binding = NULL;
+
+    PGRAPHVkFallbackShaderPreparation result =
+        pgraph_vk_fallback_family_prepare_shader(
+            &fixture, fallback_binding_probe, fallback_fragment_prepare,
+            &binding);
+
+    g_assert_cmpint(result, ==, PGRAPH_VK_FALLBACK_SHADER_READY);
+    g_assert_true(binding == &fixture.binding);
+    g_assert_cmpuint(fixture.probes, ==, 1);
+    g_assert_cmpuint(fixture.preparations, ==, 0);
+
+    fixture = (FallbackBindingPrepareFixture) {
+        .preparation_succeeds = false,
+    };
+    binding = NULL;
+    result = pgraph_vk_fallback_family_prepare_shader(
+        &fixture, fallback_binding_probe, fallback_fragment_prepare, &binding);
+
+    g_assert_cmpint(result, ==, PGRAPH_VK_FALLBACK_SHADER_REJECTED);
+    g_assert_null(binding);
+    g_assert_cmpuint(fixture.probes, ==, 1);
+    g_assert_cmpuint(fixture.preparations, ==, 1);
+
+    fixture = (FallbackBindingPrepareFixture) {
+        .preparation_succeeds = true,
+        .binding_ready_after_preparation = false,
+    };
+    binding = NULL;
+    result = pgraph_vk_fallback_family_prepare_shader(
+        &fixture, fallback_binding_probe, fallback_fragment_prepare, &binding);
+
+    g_assert_cmpint(result, ==, PGRAPH_VK_FALLBACK_SHADER_WAITING);
+    g_assert_null(binding);
+    g_assert_cmpuint(fixture.probes, ==, 2);
+    g_assert_cmpuint(fixture.preparations, ==, 1);
+
+    fixture = (FallbackBindingPrepareFixture) {
+        .preparation_succeeds = true,
+        .binding_ready_after_preparation = true,
+    };
+    binding = NULL;
+    result = pgraph_vk_fallback_family_prepare_shader(
+        &fixture, fallback_binding_probe, fallback_fragment_prepare, &binding);
+
+    g_assert_cmpint(result, ==, PGRAPH_VK_FALLBACK_SHADER_READY);
+    g_assert_true(binding == &fixture.binding);
+    g_assert_cmpuint(fixture.probes, ==, 2);
+    g_assert_cmpuint(fixture.preparations, ==, 1);
+}
+
 static void test_fallback_family_production_lifecycle(void)
 {
     PGRAPHVkState *r = g_new0(PGRAPHVkState, 1);
@@ -1003,6 +1090,9 @@ int main(int argc, char **argv)
                     test_fallback_family_deferral_and_failure_are_bounded);
     g_test_add_func("/xbox/vk/ubershader/runtime/fallback-family-wake",
                     test_fallback_family_wake_is_shader_specific);
+    g_test_add_func(
+        "/xbox/vk/ubershader/runtime/fallback-family-shader-preparation",
+        test_fallback_family_shader_preparation_outcomes);
     g_test_add_func("/xbox/vk/ubershader/runtime/fallback-family-production",
                     test_fallback_family_production_lifecycle);
     g_test_add_func("/xbox/vk/ubershader/runtime/fallback-family-admission",

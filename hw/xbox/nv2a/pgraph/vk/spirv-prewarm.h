@@ -110,6 +110,29 @@ typedef struct PGRAPHVkSpirvLayoutDimensions {
     size_t stride;
 } PGRAPHVkSpirvLayoutDimensions;
 
+typedef enum PGRAPHVkSpirvCacheArtifactResult {
+    PGRAPH_VK_SPIRV_CACHE_ARTIFACT_ACCEPTED,
+    PGRAPH_VK_SPIRV_CACHE_ARTIFACT_DEFERRED,
+    PGRAPH_VK_SPIRV_CACHE_ARTIFACT_REJECTED,
+} PGRAPHVkSpirvCacheArtifactResult;
+
+typedef PGRAPHVkSpirvCacheArtifactResult (*PGRAPHVkSpirvCacheAdoptFunc)(
+    void *opaque, const uint8_t *spirv, size_t spirv_size);
+
+typedef enum PGRAPHVkSpirvCacheAdoptResult {
+    PGRAPH_VK_SPIRV_CACHE_NOT_FOUND,
+    PGRAPH_VK_SPIRV_CACHE_ADOPTED,
+    PGRAPH_VK_SPIRV_CACHE_DEFERRED,
+    PGRAPH_VK_SPIRV_CACHE_REJECTED,
+} PGRAPHVkSpirvCacheAdoptResult;
+
+static inline bool pgraph_vk_spirv_cache_adoption_needs_compile(
+    PGRAPHVkSpirvCacheAdoptResult result)
+{
+    return result == PGRAPH_VK_SPIRV_CACHE_NOT_FOUND ||
+           result == PGRAPH_VK_SPIRV_CACHE_REJECTED;
+}
+
 bool pgraph_vk_spirv_cache_init(PGRAPHVkSpirvCache *cache,
                                 const PGRAPHVkSpirvCachePolicy *policy);
 void pgraph_vk_spirv_cache_destroy(PGRAPHVkSpirvCache *cache);
@@ -118,6 +141,9 @@ PGRAPHVkSpirvCacheLoadResult pgraph_vk_spirv_cache_load(
 PGRAPHVkSpirvCacheLookupResult pgraph_vk_spirv_cache_lookup(
     PGRAPHVkSpirvCache *cache, uint32_t stage, const void *source,
     size_t source_size, const uint8_t **spirv, size_t *spirv_size);
+PGRAPHVkSpirvCacheAdoptResult pgraph_vk_spirv_cache_adopt_hit(
+    PGRAPHVkSpirvCache *cache, uint32_t stage, const void *source,
+    size_t source_size, PGRAPHVkSpirvCacheAdoptFunc adopt, void *opaque);
 bool pgraph_vk_spirv_cache_add(PGRAPHVkSpirvCache *cache, uint32_t stage,
                                const void *source, size_t source_size,
                                const void *spirv, size_t spirv_size);
