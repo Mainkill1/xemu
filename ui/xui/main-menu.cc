@@ -132,8 +132,12 @@ static XemuVulkanUbershaderRuntimeState VulkanUbershaderModeCombo()
                      "Off uses specialized shaders. Fallback uses an "
                      "already-ready fragment-combiner fallback while "
                      "specialization is prepared. Uncovered states can still "
-                     "wait. Always forces the interpreter for every supported "
-                     "draw and does not prepare specialized fragment shaders. "
+                     "wait. Always forces the fragment-combiner interpreter "
+                     "for supported draws and does not prepare specialized "
+                     "fragment shaders. Missing interpreter executables may "
+                     "compile synchronously, GPU performance may be lower, "
+                     "and unsupported states or rejected interpreter resources "
+                     "use specialization. This build does not prewarm families. "
                      "Mode changes require restarting xemu. Prewarm is not "
                      "implemented in this build.",
                      VulkanUbershaderModeSelectable)) {

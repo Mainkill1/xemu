@@ -106,9 +106,10 @@ static inline PGRAPHVkFragmentRoute pgraph_vk_hybrid_choose_uncovered_route(
     bool complete_fallback_unavailable =
         fallback_shader_ready && fallback_pipeline_ready &&
         fallback_resources == PGRAPH_VK_FALLBACK_RESOURCES_UNAVAILABLE;
-    if (force_ubershader && fallback_controls_supported &&
-        !complete_fallback_unavailable) {
-        return PGRAPH_VK_FRAGMENT_UBERSHADER;
+    if (force_ubershader && fallback_controls_supported) {
+        return complete_fallback_unavailable ?
+               PGRAPH_VK_FRAGMENT_SPECIALIZED :
+               PGRAPH_VK_FRAGMENT_UBERSHADER;
     }
     if (specialized_shader_ready) {
         return PGRAPH_VK_FRAGMENT_SPECIALIZED;

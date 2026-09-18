@@ -23,7 +23,7 @@ Vulkan ubershader mode is a restart-latched selection:
 | Off | Use specialized fragment pipelines only. |
 | Fallback | Use an already-ready fragment-combiner fallback while specialization is prepared. Uncovered states can still wait. |
 | Prewarm | Planned: prepare learned fallback families before first use. |
-| Always | Diagnostic mode: force the interpreter for supported draws without preparing specialized fragment shaders. |
+| Always | Diagnostic mode: force the fragment-combiner interpreter for supported draws without preparing specialized fragment shaders. Missing interpreter executables may compile synchronously, GPU performance may be lower, and unsupported states or rejected interpreter resources use specialization. This build does not prewarm families. |
 
 Mode changes require restarting xemu. Prewarm remains visible but disabled
 until its renderer policy is implemented. The menu reports both
