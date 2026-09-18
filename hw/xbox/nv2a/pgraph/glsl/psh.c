@@ -1680,6 +1680,19 @@ void pgraph_glsl_set_psh_uniform_values(PGRAPHState *pg,
         }
     }
 
+    /* Bump luminance is only defined for texture stages 1 through 3. The
+     * reflected arrays still include stage 0, so initialize those bytes before
+     * the renderer compares or copies the complete uniform arrays. */
+    if (locs[PshUniform_bumpMat] != -1) {
+        memset(values->bumpMat[0], 0, sizeof(values->bumpMat[0]));
+    }
+    if (locs[PshUniform_bumpScale] != -1) {
+        values->bumpScale[0] = 0.0f;
+    }
+    if (locs[PshUniform_bumpOffset] != -1) {
+        values->bumpOffset[0] = 0.0f;
+    }
+
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
         /* Bump luminance only during stages 1 - 3 */
         if (i > 0) {
