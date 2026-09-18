@@ -351,6 +351,13 @@ static void test_uncovered_build_uses_closer_binding(void)
                         true, true, true, true, true,
                         PGRAPH_VK_FALLBACK_RESOURCES_UNAVAILABLE),
                     ==, PGRAPH_VK_FRAGMENT_SPECIALIZED);
+    /* The forced resolver normally has no specialized binding. A complete
+     * fallback whose draw resources are unavailable must still escape to the
+     * synchronous specialized path instead of reselecting that fallback. */
+    g_assert_cmpint(pgraph_vk_hybrid_choose_uncovered_route(
+                        true, false, true, true, true,
+                        PGRAPH_VK_FALLBACK_RESOURCES_UNAVAILABLE),
+                    ==, PGRAPH_VK_FRAGMENT_SPECIALIZED);
 }
 
 static void test_fallback_promotion_probe_has_time_gate(void)
