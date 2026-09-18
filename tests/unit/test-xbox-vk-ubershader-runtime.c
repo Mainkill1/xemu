@@ -487,6 +487,47 @@ static void test_fallback_family_wake_is_shader_specific(void)
     g_assert_cmpint(request.retry_after_us, ==, 9000);
 }
 
+typedef struct FallbackBindingPrepareFixture {
+    ShaderBinding binding;
+    unsigned int probes;
+    unsigned int preparations;
+    unsigned int compiler_submissions;
+} FallbackBindingPrepareFixture;
+
+static ShaderBinding *fallback_binding_probe_after_cached_adoption(
+    void *opaque)
+{
+    FallbackBindingPrepareFixture *fixture = opaque;
+
+    fixture->probes++;
+    return fixture->preparations ? &fixture->binding : NULL;
+}
+
+static bool fallback_fragment_adopt_cached(void *opaque)
+{
+    FallbackBindingPrepareFixture *fixture = opaque;
+
+    fixture->preparations++;
+    return true;
+}
+
+static void test_cached_fallback_adoption_prepares_pipeline_same_pass(void)
+{
+    FallbackBindingPrepareFixture fixture = { 0 };
+    ShaderBinding *binding = NULL;
+
+    PGRAPHVkFallbackShaderPreparation result =
+        pgraph_vk_fallback_family_prepare_shader(
+            &fixture, fallback_binding_probe_after_cached_adoption,
+            fallback_fragment_adopt_cached, &binding);
+
+    g_assert_cmpint(result, ==, PGRAPH_VK_FALLBACK_SHADER_READY);
+    g_assert_true(binding == &fixture.binding);
+    g_assert_cmpuint(fixture.probes, ==, 2);
+    g_assert_cmpuint(fixture.preparations, ==, 1);
+    g_assert_cmpuint(fixture.compiler_submissions, ==, 0);
+}
+
 static void test_fallback_family_production_lifecycle(void)
 {
     PGRAPHVkState *r = g_new0(PGRAPHVkState, 1);
@@ -1003,6 +1044,9 @@ int main(int argc, char **argv)
                     test_fallback_family_deferral_and_failure_are_bounded);
     g_test_add_func("/xbox/vk/ubershader/runtime/fallback-family-wake",
                     test_fallback_family_wake_is_shader_specific);
+    g_test_add_func(
+        "/xbox/vk/ubershader/runtime/fallback-family-cached-adoption",
+        test_cached_fallback_adoption_prepares_pipeline_same_pass);
     g_test_add_func("/xbox/vk/ubershader/runtime/fallback-family-production",
                     test_fallback_family_production_lifecycle);
     g_test_add_func("/xbox/vk/ubershader/runtime/fallback-family-admission",

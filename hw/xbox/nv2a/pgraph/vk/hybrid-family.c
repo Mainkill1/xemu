@@ -167,6 +167,31 @@ ShaderBinding *pgraph_vk_prepare_binding_from_ready_modules(
     return node ? container_of(node, ShaderBinding, node) : NULL;
 }
 
+PGRAPHVkFallbackShaderPreparation
+pgraph_vk_fallback_family_prepare_shader(
+    void *opaque, PGRAPHVkFallbackBindingProbeFunc probe_binding,
+    PGRAPHVkFallbackFragmentPrepareFunc prepare_fragment,
+    ShaderBinding **binding)
+{
+    assert(probe_binding);
+    assert(prepare_fragment);
+    assert(binding);
+
+    *binding = probe_binding(opaque);
+    if (*binding) {
+        return PGRAPH_VK_FALLBACK_SHADER_READY;
+    }
+    if (!prepare_fragment(opaque)) {
+        return PGRAPH_VK_FALLBACK_SHADER_REJECTED;
+    }
+
+    /* A persistent SPIR-V hit publishes the missing module synchronously.
+     * Re-probe once so this service pass can submit its graphics pipeline. */
+    *binding = probe_binding(opaque);
+    return *binding ? PGRAPH_VK_FALLBACK_SHADER_READY :
+                      PGRAPH_VK_FALLBACK_SHADER_WAITING;
+}
+
 static void get_uber_control_source(PGRAPHState *pg, const PshState *state,
                                     PGRAPHUberControlSource *source)
 {

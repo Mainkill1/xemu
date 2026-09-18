@@ -1370,6 +1370,26 @@ PGRAPHVkHybridPipelineSubmitResult pgraph_vk_request_hybrid_pipeline(
     return status;
 }
 
+typedef struct PGRAPHVkFallbackShaderPreparationContext {
+    PGRAPHState *pg;
+    const ShaderState *state;
+} PGRAPHVkFallbackShaderPreparationContext;
+
+static ShaderBinding *fallback_family_probe_ready_binding(void *opaque)
+{
+    PGRAPHVkFallbackShaderPreparationContext *context = opaque;
+
+    return pgraph_vk_prepare_binding_from_ready_modules(
+        context->pg, context->state, PGRAPH_VK_FRAGMENT_UBERSHADER);
+}
+
+static bool fallback_family_prepare_fragment(void *opaque)
+{
+    PGRAPHVkFallbackShaderPreparationContext *context = opaque;
+
+    return pgraph_vk_enqueue_fallback_fragment(context->pg, context->state);
+}
+
 void pgraph_vk_process_fallback_families(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -1405,21 +1425,27 @@ void pgraph_vk_process_fallback_families(PGRAPHState *pg)
             continue;
         }
         processed++;
-        ShaderBinding *binding =
-            pgraph_vk_prepare_binding_from_ready_modules(
-                pg, &request->state, PGRAPH_VK_FRAGMENT_UBERSHADER);
-        if (!binding) {
-            if (!pgraph_vk_enqueue_fallback_fragment(pg,
-                                                    &request->state)) {
-                pgraph_vk_fallback_family_finish_request(
-                    r, request, PGRAPH_VK_FAMILY_REJECTED);
-            } else {
-                request->status = PGRAPH_VK_FAMILY_WAITING_FOR_SHADER;
-                request->retry_after_us =
-                    now_us + PGRAPH_VK_FAMILY_RETRY_BASE_US;
-            }
+        PGRAPHVkFallbackShaderPreparationContext context = {
+            .pg = pg,
+            .state = &request->state,
+        };
+        ShaderBinding *binding = NULL;
+        PGRAPHVkFallbackShaderPreparation preparation =
+            pgraph_vk_fallback_family_prepare_shader(
+                &context, fallback_family_probe_ready_binding,
+                fallback_family_prepare_fragment, &binding);
+        if (preparation == PGRAPH_VK_FALLBACK_SHADER_REJECTED) {
+            pgraph_vk_fallback_family_finish_request(
+                r, request, PGRAPH_VK_FAMILY_REJECTED);
             continue;
         }
+        if (preparation == PGRAPH_VK_FALLBACK_SHADER_WAITING) {
+            request->status = PGRAPH_VK_FAMILY_WAITING_FOR_SHADER;
+            request->retry_after_us =
+                now_us + PGRAPH_VK_FAMILY_RETRY_BASE_US;
+            continue;
+        }
+        assert(binding);
         PGRAPHVkHybridPipelineSubmitResult status =
             pgraph_vk_request_hybrid_pipeline(pg, &request->key, binding);
         if (!pgraph_vk_fallback_family_note_pipeline_submit(
