@@ -16,6 +16,15 @@ typedef struct PGRAPHVkTextureScaleInput {
     bool linear;
 } PGRAPHVkTextureScaleInput;
 
+/* Effective scale is part of immutable texture-binding identity. A binding
+ * transition already retains a descriptor-publication obligation, so that
+ * same obligation is sufficient to request scale reconciliation. */
+static inline bool pgraph_vk_texture_scale_uniform_update_needed(
+    bool full_psh_update_needed, bool descriptor_publication_pending)
+{
+    return !full_psh_update_needed && descriptor_publication_pending;
+}
+
 static inline bool pgraph_vk_texture_scale_uniform_update(
     ShaderUniformLayout *layout, int loc,
     const PGRAPHVkTextureScaleInput inputs[NV2A_MAX_TEXTURES])

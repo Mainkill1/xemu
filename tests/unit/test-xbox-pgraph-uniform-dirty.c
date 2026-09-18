@@ -308,12 +308,21 @@ static void test_texture_scale_uniform_ignores_descriptor_only_change(void)
     pgraph_vk_texture_descriptor_publication_observe(
         &descriptor_pending, before, after);
     g_assert_true(descriptor_pending);
+    g_assert_true(pgraph_vk_texture_scale_uniform_update_needed(
+        false, descriptor_pending));
     g_assert_false(pgraph_vk_texture_scale_uniform_update(
         &layout, 1, inputs));
     g_assert_true(descriptor_pending);
 
     pgraph_vk_texture_descriptor_publication_complete(&descriptor_pending);
     g_assert_false(descriptor_pending);
+}
+
+static void test_texture_scale_full_update_supersedes_descriptor_trigger(void)
+{
+    g_assert_false(pgraph_vk_texture_scale_uniform_update_needed(true, true));
+    g_assert_false(pgraph_vk_texture_scale_uniform_update_needed(false,
+                                                                 false));
 }
 
 static void test_texture_scale_uniform_reconciles_final_bindings(void)
@@ -343,32 +352,6 @@ static void test_texture_scale_uniform_reconciles_final_bindings(void)
         &layout, -1, inputs));
 }
 
-static void test_texture_scale_reconciliation_obligation_is_effective(void)
-{
-    bool pending = false;
-
-    pgraph_vk_texture_scale_reconciliation_observe(
-        &pending, 1.0f, true, 2.0f, true);
-    g_assert_true(pending);
-
-    /* A later unchanged stage cannot retire another stage's obligation. */
-    pgraph_vk_texture_scale_reconciliation_observe(
-        &pending, 1.0f, true, 1.0f, true);
-    g_assert_true(pending);
-    pgraph_vk_texture_scale_reconciliation_complete(&pending);
-    g_assert_false(pending);
-
-    /* Raw scale changes on nonlinear textures remain an effective 1.0. */
-    pgraph_vk_texture_scale_reconciliation_observe(
-        &pending, 2.0f, false, 4.0f, false);
-    g_assert_false(pending);
-
-    /* A descriptor-only transition with identical effective scale is clean. */
-    pgraph_vk_texture_scale_reconciliation_observe(
-        &pending, 1.0f, true, 8.0f, false);
-    g_assert_false(pending);
-}
-
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -394,10 +377,9 @@ int main(int argc, char **argv)
                     test_texture_scale_uniform_updates_only_changed_values);
     g_test_add_func("/xbox/vulkan/texture-scale/descriptor-independence",
                     test_texture_scale_uniform_ignores_descriptor_only_change);
+    g_test_add_func("/xbox/vulkan/texture-scale/full-update-supersedes",
+                    test_texture_scale_full_update_supersedes_descriptor_trigger);
     g_test_add_func("/xbox/vulkan/texture-scale/final-bindings",
                     test_texture_scale_uniform_reconciles_final_bindings);
-    g_test_add_func("/xbox/vulkan/texture-scale/reconciliation-obligation",
-                    test_texture_scale_reconciliation_obligation_is_effective);
-
     return g_test_run();
 }
