@@ -8,6 +8,7 @@
 #include "qemu/mstring.h"
 
 #include "hw/xbox/nv2a/pgraph/glsl/psh.h"
+#include "hw/xbox/nv2a/pgraph/pgraph.h"
 #include "hw/xbox/nv2a/pgraph/texture.h"
 
 /* This generator test does not exercise texture-format classification. */
@@ -142,6 +143,40 @@ static void test_generation_option_discriminates_module_key_bytes(void)
     g_assert_cmpint(memcmp(&specialized, &uber, sizeof(uber)), !=, 0);
 }
 
+static void test_uniform_values_do_not_depend_on_prior_storage(void)
+{
+    g_autofree PGRAPHState *pg = g_new0(PGRAPHState, 1);
+    PshUniformLocs locs;
+    PshUniformValues first;
+    PshUniformValues second;
+
+    pg->surface_shape.anti_aliasing =
+        NV097_SET_SURFACE_FORMAT_ANTI_ALIASING_CENTER_1;
+    pg->surface_shape.zeta_format = NV097_SET_SURFACE_FORMAT_ZETA_Z16;
+    pg->surface_scale_factor = 1;
+    memset(locs, 0, sizeof(locs));
+    memset(&first, 0xa5, sizeof(first));
+    memset(&second, 0x5a, sizeof(second));
+
+    pgraph_glsl_set_psh_uniform_values(pg, locs, &first);
+    pgraph_glsl_set_psh_uniform_values(pg, locs, &second);
+
+    /* Both renderers replace the producer's placeholder texture scales. */
+    for (unsigned int i = 0; i < NV2A_MAX_TEXTURES; i++) {
+        first.texScale[i] = 1.0f;
+        second.texScale[i] = 1.0f;
+    }
+
+    for (unsigned int i = 0; i < PshUniform__COUNT; i++) {
+        const UniformInfo *info = &PshUniformInfo[i];
+        const uint8_t *first_value = (const uint8_t *)&first + info->val_offs;
+        const uint8_t *second_value = (const uint8_t *)&second + info->val_offs;
+
+        g_assert_cmpmem(first_value, info->size * info->count,
+                        second_value, info->size * info->count);
+    }
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -157,5 +192,7 @@ int main(int argc, char **argv)
                     test_normal_generation_remains_specialized);
     g_test_add_func("/xbox/vk/ubershader/glsl/key-discriminator",
                     test_generation_option_discriminates_module_key_bytes);
+    g_test_add_func("/xbox/pgraph/psh-uniforms/deterministic-construction",
+                    test_uniform_values_do_not_depend_on_prior_storage);
     return g_test_run();
 }
