@@ -1878,6 +1878,8 @@ static void update_shader_uniforms(PGRAPHState *pg, const bool update_stage[])
         psh_changed = apply_uniform_updates(
             &binding->psh.module_info->uniforms, PshUniformInfo,
             binding->psh.uniform_locs, &psh_values, PshUniform__COUNT);
+        pgraph_vk_texture_scale_reconciliation_complete(
+            &r->texture_scale_reconciliation_pending);
 
         r->last_uniform_source_epochs.stage[PGRAPH_UNIFORM_STAGE_PSH] =
             pg->uniform_source_epochs.stage[PGRAPH_UNIFORM_STAGE_PSH];
@@ -2021,7 +2023,7 @@ void pgraph_vk_activate_shaders(PGRAPHState *pg,
 
     bool texture_scale_only =
         !update_stage[PGRAPH_UNIFORM_STAGE_PSH] &&
-        r->texture_descriptor_publication_pending;
+        r->texture_scale_reconciliation_pending;
 
     if (!update_stage[PGRAPH_UNIFORM_STAGE_VSH] &&
         !update_stage[PGRAPH_UNIFORM_STAGE_PSH] && !texture_scale_only) {
@@ -2036,6 +2038,8 @@ void pgraph_vk_activate_shaders(PGRAPHState *pg,
     }
     if (texture_scale_only) {
         bool changed = update_texture_scale_only(r);
+        pgraph_vk_texture_scale_reconciliation_complete(
+            &r->texture_scale_reconciliation_pending);
         r->uniform_stage_dirty[PGRAPH_UNIFORM_STAGE_PSH] |= changed;
         sync_uniform_dirty_summary(r);
         if (!full_update) {
