@@ -9,6 +9,14 @@
 
 #include <stdbool.h>
 
+/* Return true only for the transition that first makes an upload necessary. */
+static inline bool pgraph_vk_surface_mark_upload_pending(bool *upload_pending)
+{
+    bool newly_pending = !*upload_pending;
+    *upload_pending = true;
+    return newly_pending;
+}
+
 /*
  * Accelerated guest writes are observed after they reach VRAM.  At that
  * point a cached surface may no longer write its older GPU contents back over
@@ -25,7 +33,7 @@ static inline bool pgraph_vk_surface_resolve_guest_write(
 
     *download_pending = false;
     *draw_dirty = false;
-    *upload_pending = true;
+    pgraph_vk_surface_mark_upload_pending(upload_pending);
     return true;
 }
 

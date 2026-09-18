@@ -100,7 +100,8 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
             "{\"type\":\"schema\",\"schema_version\":8"
-            ",\"features\":[\"report_lifecycle\"]"
+            ",\"features\":[\"report_lifecycle\","
+            "\"descriptor_publication\",\"surface_upload\"]"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
             ",\"presentation_counters\":\"cumulative_totals\"",
@@ -409,7 +410,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"valid_sync_requests_total\":%" PRIu64
             ",\"host_copy_uploads_total\":%" PRIu64
             ",\"host_copy_upload_skips_total\":%" PRIu64
-            ",\"host_copy_uploaded_bytes_total\":%" PRIu64 "}\n",
+            ",\"host_copy_uploaded_bytes_total\":%" PRIu64,
             submit_count, perf->submit_info_count, perf->command_buffer_count,
             perf->staged_bytes, perf->vertex_staged_bytes,
             perf->vertex_staging_copy_count,
@@ -444,6 +445,49 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             qatomic_read_u64(&perf->host_copy_upload_skips_total),
             qatomic_read_u64(&perf->host_copy_uploaded_bytes_total));
 
+    fprintf(perf->file,
+            ",\"descriptor_update_calls_per_guest_frame\":%" PRIu64
+            ",\"descriptor_reuse_returns_per_guest_frame\":%" PRIu64
+            ",\"descriptor_set_writes_per_guest_frame\":%" PRIu64
+            ",\"descriptor_control_only_reuses_per_guest_frame\":%" PRIu64
+            ",\"descriptor_texture_change_requests_per_guest_frame\":%" PRIu64
+            ",\"descriptor_force_reupload_requests_per_guest_frame\":%" PRIu64
+            ",\"descriptor_uniform_write_requests_per_guest_frame\":%" PRIu64
+            ",\"descriptor_capacity_requests_per_guest_frame\":%" PRIu64
+            ",\"uniform_capacity_requests_per_guest_frame\":%" PRIu64
+            ",\"uniform_vsh_writes_per_guest_frame\":%" PRIu64
+            ",\"uniform_psh_writes_per_guest_frame\":%" PRIu64
+            ",\"surface_upload_attempts_per_guest_frame\":%" PRIu64
+            ",\"surface_upload_color_attempts_per_guest_frame\":%" PRIu64
+            ",\"surface_upload_depth_attempts_per_guest_frame\":%" PRIu64
+            ",\"surface_upload_force_attempts_per_guest_frame\":%" PRIu64
+            ",\"surface_upload_requested_bytes_per_guest_frame\":%" PRIu64
+            ",\"surface_upload_new_causes_per_guest_frame\":%" PRIu64
+            ",\"surface_upload_guest_write_causes_per_guest_frame\":%" PRIu64
+            ",\"surface_upload_dirty_memory_causes_per_guest_frame\":%" PRIu64
+            ",\"surface_upload_overlap_guest_write_causes_per_guest_frame\":%" PRIu64
+            "}\n",
+            perf->descriptor_update_calls,
+            perf->descriptor_reuse_returns,
+            perf->descriptor_set_writes,
+            perf->descriptor_control_only_reuses,
+            perf->descriptor_texture_change_requests,
+            perf->descriptor_force_reupload_requests,
+            perf->descriptor_uniform_write_requests,
+            perf->descriptor_capacity_requests,
+            perf->uniform_capacity_requests,
+            perf->uniform_stage_writes[PGRAPH_UNIFORM_STAGE_VSH],
+            perf->uniform_stage_writes[PGRAPH_UNIFORM_STAGE_PSH],
+            perf->surface_upload_attempts,
+            perf->surface_upload_color_attempts,
+            perf->surface_upload_depth_attempts,
+            perf->surface_upload_force_attempts,
+            perf->surface_upload_requested_bytes,
+            perf->surface_upload_new_causes,
+            perf->surface_upload_guest_write_causes,
+            perf->surface_upload_dirty_memory_causes,
+            perf->surface_upload_overlap_guest_write_causes);
+
     if (now - perf->last_flush_us >= G_USEC_PER_SEC) {
         fflush(perf->file);
         perf->last_flush_us = now;
@@ -472,6 +516,26 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->decoded_bc_source_bytes = 0;
     perf->decoded_bc_staged_bytes = 0;
     perf->decoded_bc_prepare_cpu_us = 0;
+    perf->descriptor_update_calls = 0;
+    perf->descriptor_reuse_returns = 0;
+    perf->descriptor_set_writes = 0;
+    perf->descriptor_control_only_reuses = 0;
+    perf->descriptor_texture_change_requests = 0;
+    perf->descriptor_force_reupload_requests = 0;
+    perf->descriptor_uniform_write_requests = 0;
+    perf->descriptor_capacity_requests = 0;
+    perf->uniform_capacity_requests = 0;
+    memset(perf->uniform_stage_writes, 0,
+           sizeof(perf->uniform_stage_writes));
+    perf->surface_upload_attempts = 0;
+    perf->surface_upload_color_attempts = 0;
+    perf->surface_upload_depth_attempts = 0;
+    perf->surface_upload_force_attempts = 0;
+    perf->surface_upload_requested_bytes = 0;
+    perf->surface_upload_new_causes = 0;
+    perf->surface_upload_guest_write_causes = 0;
+    perf->surface_upload_dirty_memory_causes = 0;
+    perf->surface_upload_overlap_guest_write_causes = 0;
     perf->peak_in_flight_submission_count =
         perf->in_flight_submission_count;
     perf->oldest_in_flight_serial = 0;

@@ -628,6 +628,25 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t decoded_bc_source_bytes;
     uint64_t decoded_bc_staged_bytes;
     uint64_t decoded_bc_prepare_cpu_us;
+    uint64_t descriptor_update_calls;
+    uint64_t descriptor_reuse_returns;
+    uint64_t descriptor_set_writes;
+    uint64_t descriptor_control_only_reuses;
+    uint64_t descriptor_texture_change_requests;
+    uint64_t descriptor_force_reupload_requests;
+    uint64_t descriptor_uniform_write_requests;
+    uint64_t descriptor_capacity_requests;
+    uint64_t uniform_capacity_requests;
+    uint64_t uniform_stage_writes[PGRAPH_UNIFORM_STAGE_COUNT];
+    uint64_t surface_upload_attempts;
+    uint64_t surface_upload_color_attempts;
+    uint64_t surface_upload_depth_attempts;
+    uint64_t surface_upload_force_attempts;
+    uint64_t surface_upload_requested_bytes;
+    uint64_t surface_upload_new_causes;
+    uint64_t surface_upload_guest_write_causes;
+    uint64_t surface_upload_dirty_memory_causes;
+    uint64_t surface_upload_overlap_guest_write_causes;
     uint64_t in_flight_submission_count;
     uint64_t peak_in_flight_submission_count;
     uint64_t oldest_in_flight_serial;
@@ -757,7 +776,7 @@ typedef struct PGRAPHVkState {
     TextureBinding *texture_bindings[NV2A_MAX_TEXTURES];
     bool texture_binding_source_is_surface[NV2A_MAX_TEXTURES];
     TextureBinding dummy_texture;
-    bool texture_bindings_changed;
+    bool texture_descriptor_publication_pending;
     VkFormatProperties *texture_format_properties;
     NativeBCFormatSupport
         native_bc_format_support[NV2A_VK_NATIVE_BC_FORMAT_COUNT];
