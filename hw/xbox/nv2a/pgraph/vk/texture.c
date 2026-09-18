@@ -1738,13 +1738,14 @@ bool pgraph_vk_bind_textures(NV2AState *d)
 
     bool succeeded = true;
     for (int i = 0; i < NV2A_MAX_TEXTURES; i++) {
-        PGRAPHVkTextureDescriptorIdentity before =
-            texture_descriptor_identity(r->texture_bindings[i]);
+        TextureBinding *binding = r->texture_bindings[i];
+        bool enabled = pgraph_is_texture_enabled(pg, i);
 
-        if (!pgraph_is_texture_enabled(pg, i)) {
-            r->texture_bindings[i] = &r->dummy_texture;
+        if (!enabled) {
+            if (binding == &r->dummy_texture) {
+                continue;
+            }
         } else {
-            TextureBinding *binding = r->texture_bindings[i];
             bool stage_clean =
                 !pg->texture_dirty[i] && binding &&
                 binding != &r->dummy_texture && !binding->possibly_dirty &&
@@ -1767,18 +1768,25 @@ bool pgraph_vk_bind_textures(NV2AState *d)
                  pgraph_get_texture_palette_phys_addr_length(pg, i, NULL) ==
                      binding->key.palette_vram_offset);
 
-            if (!stage_clean) {
-                if (create_texture(pg, i)) {
-                    pg->texture_dirty[i] = false; // FIXME: Move to renderer?
-                } else {
-                    /* A partial staging operation must never reach the draw.
-                     * Keep the guest state dirty so the next draw retries
-                     * preparation. */
-                    r->texture_bindings[i] = &r->dummy_texture;
-                    pg->texture_dirty[i] = true;
-                    succeeded = false;
-                }
+            if (stage_clean) {
+                continue;
             }
+        }
+
+        PGRAPHVkTextureDescriptorIdentity before =
+            texture_descriptor_identity(binding);
+
+        if (!enabled) {
+            r->texture_bindings[i] = &r->dummy_texture;
+        } else if (create_texture(pg, i)) {
+            pg->texture_dirty[i] = false; // FIXME: Move to renderer?
+        } else {
+            /* A partial staging operation must never reach the draw.
+             * Keep the guest state dirty so the next draw retries
+             * preparation. */
+            r->texture_bindings[i] = &r->dummy_texture;
+            pg->texture_dirty[i] = true;
+            succeeded = false;
         }
 
         PGRAPHVkTextureDescriptorIdentity after =

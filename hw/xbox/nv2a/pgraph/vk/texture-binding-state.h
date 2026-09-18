@@ -47,7 +47,7 @@ static inline bool pgraph_vk_texture_stage_needs_rebind(bool enabled,
                                                        bool bound_dummy)
 {
     if (!enabled) {
-        return !bound_dummy || dirty;
+        return !bound_dummy;
     }
 
     return !bound || bound_dummy || dirty;
