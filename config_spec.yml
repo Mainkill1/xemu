@@ -23,6 +23,10 @@ tweaks:
   vk_hybrid_ubershaders:
     type: bool
     default: false
+  vk_ubershader_mode:
+    type: enum
+    values: ["off", fallback, prewarm, always]
+    default: "off"
   vk_shader_fastpath:
     type: bool
     default: false

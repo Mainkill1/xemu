@@ -35,6 +35,34 @@ int main()
     assert(!xemu_tweak_enabled(XEMU_TWEAK_VK_SHADER_FASTPATH));
     assert(g_config.perf.cache_shaders);
     auto tweaks = config_tree.child("tweaks");
+    auto ubershader_mode = tweaks->child("vk_ubershader_mode");
+    assert(ubershader_mode && ubershader_mode->type == CNodeType::Enum);
+    assert(ubershader_mode->data_enum.values.size() == 4);
+    assert(ubershader_mode->data_enum.values[0] == "off");
+    assert(ubershader_mode->data_enum.values[1] == "fallback");
+    assert(ubershader_mode->data_enum.values[2] == "prewarm");
+    assert(ubershader_mode->data_enum.values[3] == "always");
+    assert(ubershader_mode->data_enum.val == 0);
+    assert(xemu_vulkan_ubershader_migrate_mode(
+               false, XEMU_VK_UBERSHADER_OFF, false) ==
+           XEMU_VK_UBERSHADER_OFF);
+    assert(xemu_vulkan_ubershader_migrate_mode(
+               false, XEMU_VK_UBERSHADER_OFF, true) ==
+           XEMU_VK_UBERSHADER_FALLBACK);
+    assert(xemu_vulkan_ubershader_migrate_mode(
+               true, XEMU_VK_UBERSHADER_OFF, true) ==
+           XEMU_VK_UBERSHADER_OFF);
+    assert(xemu_vulkan_ubershader_migrate_mode(
+               true, XEMU_VK_UBERSHADER_PREWARM, false) ==
+           XEMU_VK_UBERSHADER_PREWARM);
+    assert(xemu_vulkan_ubershader_mode_selectable(
+        XEMU_VK_UBERSHADER_OFF));
+    assert(xemu_vulkan_ubershader_mode_selectable(
+        XEMU_VK_UBERSHADER_FALLBACK));
+    assert(!xemu_vulkan_ubershader_mode_selectable(
+        XEMU_VK_UBERSHADER_PREWARM));
+    assert(!xemu_vulkan_ubershader_mode_selectable(
+        XEMU_VK_UBERSHADER_ALWAYS));
     for (const char *key : default_on_keys) {
         auto node = tweaks->child(key);
         assert(node && node->data.boolean.val);
@@ -42,12 +70,14 @@ int main()
     }
     auto hybrid = tweaks->child("vk_hybrid_ubershaders");
     assert(hybrid && !hybrid->data.boolean.val);
-    hybrid->data.boolean.val = true;
+    ubershader_mode->set_enum_by_index(
+        CONFIG_TWEAKS_VK_UBERSHADER_MODE_FALLBACK);
     auto cache_shaders = config_tree.child("perf")->child("cache_shaders");
     assert(cache_shaders && cache_shaders->data.boolean.val);
     cache_shaders->data.boolean.val = false;
     config_tree.free_allocations(&g_config);
     config_tree.store_to_struct(&g_config);
+    g_config.display.renderer = CONFIG_DISPLAY_RENDERER_VULKAN;
     xemu_tweaks_apply(false);
     assert(!qemu_poll_get_cpu_saving());
     for (unsigned i = 0; i < XEMU_TWEAK_COUNT; i++) {
@@ -65,14 +95,27 @@ int main()
         assert(!xemu_tweak_enabled(static_cast<XemuTweak>(i)));
     }
     assert(xemu_tweak_enabled(XEMU_TWEAK_VK_HYBRID_UBERSHADERS));
+    XemuVulkanUbershaderRuntimeState ubershader_state =
+        xemu_vulkan_ubershader_runtime_state();
+    assert(ubershader_state.requested ==
+           XEMU_VK_UBERSHADER_FALLBACK);
+    assert(ubershader_state.active ==
+           XEMU_VK_UBERSHADER_FALLBACK);
+    assert(ubershader_state.available);
+    assert(!ubershader_state.restart_pending);
     config_tree.update_from_struct(&g_config);
     auto saved = config_tree.generate_delta_toml();
+    assert(saved.find("vk_ubershader_mode = 'fallback'") !=
+           std::string::npos);
+    assert(saved.find("vk_hybrid_ubershaders") == std::string::npos);
     config_tree.reset_to_defaults();
     config_tree.update_from_table(toml::parse(saved));
     for (const char *key : default_on_keys) {
         assert(!tweaks->child(key)->data.boolean.val);
     }
-    assert(tweaks->child("vk_hybrid_ubershaders")->data.boolean.val);
+    assert(!tweaks->child("vk_hybrid_ubershaders")->data.boolean.val);
+    assert(tweaks->child("vk_ubershader_mode")->data_enum.val ==
+           CONFIG_TWEAKS_VK_UBERSHADER_MODE_FALLBACK);
     assert(!config_tree.child("perf")->child("cache_shaders")
                 ->data.boolean.val);
     // A config written before the other tweaks existed keeps its saved choice.
@@ -97,6 +140,54 @@ int main()
         assert(xemu_tweak_enabled(static_cast<XemuTweak>(i)));
     }
     assert(!xemu_tweak_enabled(XEMU_TWEAK_VK_HYBRID_UBERSHADERS));
+    g_config.display.renderer = CONFIG_DISPLAY_RENDERER_VULKAN;
+    xemu_tweaks_apply(true);
+    g_config.tweaks.vk_ubershader_mode =
+        CONFIG_TWEAKS_VK_UBERSHADER_MODE_FALLBACK;
+    xemu_tweaks_apply(false);
+    ubershader_state = xemu_vulkan_ubershader_runtime_state();
+    assert(ubershader_state.active ==
+           XEMU_VK_UBERSHADER_OFF);
+    assert(ubershader_state.restart_pending);
+    assert(!xemu_tweak_enabled(XEMU_TWEAK_VK_HYBRID_UBERSHADERS));
+    xemu_tweaks_apply(true);
+    ubershader_state = xemu_vulkan_ubershader_runtime_state();
+    assert(ubershader_state.active ==
+           XEMU_VK_UBERSHADER_FALLBACK);
+    assert(!ubershader_state.restart_pending);
+    assert(xemu_tweak_enabled(XEMU_TWEAK_VK_HYBRID_UBERSHADERS));
+    g_config.tweaks.vk_ubershader_mode =
+        CONFIG_TWEAKS_VK_UBERSHADER_MODE_OFF;
+    xemu_tweaks_apply(false);
+    ubershader_state = xemu_vulkan_ubershader_runtime_state();
+    assert(ubershader_state.active ==
+           XEMU_VK_UBERSHADER_FALLBACK);
+    assert(ubershader_state.restart_pending);
+    assert(xemu_tweak_enabled(XEMU_TWEAK_VK_HYBRID_UBERSHADERS));
+    g_config.tweaks.vk_ubershader_mode =
+        CONFIG_TWEAKS_VK_UBERSHADER_MODE_ALWAYS;
+    xemu_tweaks_apply(true);
+    ubershader_state = xemu_vulkan_ubershader_runtime_state();
+    assert(ubershader_state.requested ==
+           XEMU_VK_UBERSHADER_ALWAYS);
+    assert(ubershader_state.active ==
+           XEMU_VK_UBERSHADER_OFF);
+    assert(!ubershader_state.available);
+    assert(!ubershader_state.restart_pending);
+    assert(ubershader_state.reason && ubershader_state.reason[0]);
+    assert(!xemu_tweak_enabled(XEMU_TWEAK_VK_HYBRID_UBERSHADERS));
+    g_config.tweaks.vk_ubershader_mode =
+        CONFIG_TWEAKS_VK_UBERSHADER_MODE_FALLBACK;
+    g_config.display.renderer = CONFIG_DISPLAY_RENDERER_OPENGL;
+    xemu_tweaks_apply(true);
+    ubershader_state = xemu_vulkan_ubershader_runtime_state();
+    assert(ubershader_state.requested ==
+           XEMU_VK_UBERSHADER_FALLBACK);
+    assert(ubershader_state.active ==
+           XEMU_VK_UBERSHADER_OFF);
+    assert(!ubershader_state.available);
+    assert(!ubershader_state.restart_pending);
+    assert(ubershader_state.reason && ubershader_state.reason[0]);
     // Toggling one live option does not change any other option.
     g_config.tweaks.pgraph_bulk_packets = false;
     xemu_tweaks_apply(false);

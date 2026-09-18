@@ -1,8 +1,8 @@
 # Advance performance settings
 
 **Machine → Settings → Advance** exposes independent performance controls.
-Vulkan ubershader and its shader-work shortcut default to Off; the accepted
-controls already in `main` default to On. Saved choices remain after restart.
+Vulkan ubershader mode and its shader-work shortcut default to Off; the other
+accepted controls default to On. Saved choices remain after restart.
 
 | Setting | On | Off | Apply |
 | --- | --- | --- | --- |
@@ -10,12 +10,24 @@ controls already in `main` default to On. Saved choices remain after restart.
 | Process vertex packets in bulk | Batch eligible non-incrementing packets | Scalar packet processing | Next packet |
 | Fast GPU fence polling | Atomic exact 32-bit fence read | Existing locked register read | Next read |
 | Cache shaders | Reuse compiled shaders | Compile without disk reuse | Renderer-defined |
-| Vulkan ubershader | Interpret admitted fragment combiners at runtime | Specialize fragment combiners | Restart xemu |
 | Skip unchanged shader work | Reuse the current hybrid executable when shader state is unchanged | Repeat hybrid route checks | Next draw |
 | Combine color downloads with rendering | Fold eligible downloads into the active submission | Submit the download separately | Next download |
 | Upload only used vertex ranges | Skip unused leading remapped vertices | Copy from vertex zero | Next repack |
 | Grow transient buffers to fit batches | Retain the pre-flush batch requirement while growing | Reuse drained storage; still grow for a large single draw | Restart xemu |
 | Upload compressed textures directly | Native OpenGL S3TC upload where eligible | CPU S3TC decode | Restart xemu |
+
+Vulkan ubershader mode is a restart-latched selection:
+
+| Mode | Behavior |
+| --- | --- |
+| Off | Use specialized fragment pipelines only. |
+| Fallback | Use the fragment-combiner interpreter until an exact specialized pipeline is ready. |
+| Prewarm | Planned: prepare learned fallback families before first use. |
+| Always | Planned diagnostic mode: prefer the interpreter for supported draws. |
+
+Prewarm and Always remain visible but disabled until their renderer policies
+are implemented. The menu reports both requested and active modes so a saved
+restart-only change is not presented as already active.
 
 The tweak controls publish one atomic active-options snapshot. Renderer and
 FIFO workers do not read the UI-owned configuration directly. Restart-only
@@ -25,8 +37,10 @@ policies cannot change halfway through their lifetime.
 Cache shaders retains its existing `perf.cache_shaders` setting and renderer
 behavior. Its menu choice is saved immediately.
 
-The Vulkan ubershader is available only with the Vulkan renderer. Its design
-history and diagnostic trace format are preserved in the [project wiki](https://github.com/Mainkill1/xemu/wiki/PR-0071-feature-add-optional-Vulkan-ubershader);
+The Vulkan ubershader is available only with the Vulkan renderer. It interprets
+the fragment combiner while retaining specialized vertex, geometry, and
+pipeline state. Its design history and diagnostic trace format are preserved
+in the [project wiki](https://github.com/Mainkill1/xemu/wiki/PR-0071-feature-add-optional-Vulkan-ubershader);
 the [PR #71 test evidence](https://github.com/Mainkill1/xemu-perf-tests/tree/tooling/pr71-native-qualification/docs/evidence/pr71-native-qualification-20260913)
 records the exact build and measured workloads.
 

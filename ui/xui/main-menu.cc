@@ -98,63 +98,128 @@ static void PerformanceToggle(const char *label, bool *selected,
     }
 }
 
+static const char *VulkanUbershaderModeName(
+    XemuVulkanUbershaderMode mode)
+{
+    switch (mode) {
+    case XEMU_VK_UBERSHADER_OFF:
+        return "Off";
+    case XEMU_VK_UBERSHADER_FALLBACK:
+        return "Fallback";
+    case XEMU_VK_UBERSHADER_PREWARM:
+        return "Prewarm";
+    case XEMU_VK_UBERSHADER_ALWAYS:
+        return "Always";
+    default:
+        return "Unknown";
+    }
+}
+
+static bool VulkanUbershaderModeSelectable(int mode)
+{
+    return xemu_vulkan_ubershader_mode_selectable(
+        static_cast<XemuVulkanUbershaderMode>(mode));
+}
+
+static XemuVulkanUbershaderRuntimeState VulkanUbershaderModeCombo()
+{
+    if (ChevronCombo("Vulkan ubershader mode",
+                     &g_config.tweaks.vk_ubershader_mode,
+                     "Off\0"
+                     "Fallback\0"
+                     "Prewarm (planned)\0"
+                     "Always (planned)\0",
+                     "Off waits for specialized fragment pipelines. Fallback "
+                     "uses the fragment-combiner interpreter until an exact "
+                     "specialized pipeline is ready, reducing first-use "
+                     "stalls. Prewarm and Always are planned and disabled.",
+                     VulkanUbershaderModeSelectable)) {
+        xemu_tweaks_apply(false);
+        xemu_settings_save();
+    }
+
+    XemuVulkanUbershaderRuntimeState state =
+        xemu_vulkan_ubershader_runtime_state();
+    ImGui::TextDisabled("Selected: %s   Active: %s",
+                        VulkanUbershaderModeName(state.requested),
+                        VulkanUbershaderModeName(state.active));
+    if (state.reason && strcmp(state.reason, "Active.") != 0) {
+        ImGui::PushTextWrapPos();
+        ImGui::TextDisabled("%s", state.reason);
+        ImGui::PopTextWrapPos();
+    }
+
+    return state;
+}
+
 void MainMenuAdvanceView::Draw()
 {
     SectionTitle("Performance");
 #ifdef _WIN32
     PerformanceToggle("Reduce CPU usage while waiting",
         &g_config.tweaks.cpu_saving_wait, XEMU_TWEAK_CPU_SAVING_WAIT,
-        "Uses interruptible Windows waits to reduce CPU usage. "
-        "Disable if stuttering increases.");
+        "Uses interruptible Windows waits instead of busy polling. This "
+        "reduces idle CPU use, but may add stutter on some systems.");
 #endif
     PerformanceToggle("Process vertex packets in bulk",
         &g_config.tweaks.pgraph_bulk_packets,
         XEMU_TWEAK_PGRAPH_BULK_PACKETS,
-        "Processes vertex and index packets in batches. "
-        "Off processes one word at a time. Applies to both renderers.");
+        "Processes compatible vertex and index commands in batches to "
+        "reduce command overhead. Applies to both renderers.");
     PerformanceToggle("Fast GPU fence polling",
         &g_config.tweaks.pgraph_fence_fastpath,
         XEMU_TWEAK_PGRAPH_FENCE_FASTPATH,
-        "Reduces contention while games wait for GPU work. "
-        "Off uses locked reads. Applies to both renderers.");
+        "Uses lock-free reads for completed GPU fences to reduce contention "
+        "in games that poll them frequently. Applies to both renderers.");
     if (Toggle("Cache shaders", &g_config.perf.cache_shaders,
-               "Reuse compiled shaders.")) {
+               "Stores compiled shaders on disk and reuses them on later "
+               "runs. Disable this when diagnosing first-use shader stalls.")) {
         xemu_settings_save();
     }
     SectionTitle("Vulkan");
-    PerformanceToggle("Vulkan ubershader",
-        &g_config.tweaks.vk_hybrid_ubershaders,
-        XEMU_TWEAK_VK_HYBRID_UBERSHADERS,
-        "Reduce shader stalls.");
+    XemuVulkanUbershaderRuntimeState ubershader_state =
+        VulkanUbershaderModeCombo();
+    ImGui::BeginDisabled(
+        ubershader_state.active == XEMU_VK_UBERSHADER_OFF);
     PerformanceToggle("Skip unchanged shader work",
         &g_config.tweaks.vk_shader_fastpath,
         XEMU_TWEAK_VK_SHADER_FASTPATH,
-        "Skip checks on unchanged hybrid draws.");
+        "Reuses the current shader and pipeline when their identity has not "
+        "changed. Dynamic uniforms and ubershader controls still update.");
+    ImGui::EndDisabled();
+    if (ubershader_state.active == XEMU_VK_UBERSHADER_OFF) {
+        ImGui::PushTextWrapPos();
+        ImGui::TextDisabled(
+            "Requires an active Vulkan ubershader mode. The saved choice is "
+            "preserved.");
+        ImGui::PopTextWrapPos();
+    }
     PerformanceToggle("Combine color downloads with rendering",
         &g_config.tweaks.vk_color_download_folding,
         XEMU_TWEAK_VK_COLOR_DOWNLOAD_FOLDING,
-        "Reduces GPU submissions for eligible color downloads. "
-        "Off submits downloads separately.");
+        "Combines eligible color-surface downloads with rendering to avoid "
+        "an extra GPU submission. Unsupported downloads stay separate.");
     PerformanceToggle("Upload only used vertex ranges",
         &g_config.tweaks.vk_bounded_vertex_uploads,
         XEMU_TWEAK_VK_BOUNDED_VERTEX_UPLOADS,
-        "Skips unused leading vertices when repacking attributes. "
-        "Off copies from vertex zero.");
+        "Uploads only the vertex range referenced by the draw when attributes "
+        "must be repacked. This avoids copying unused leading vertices.");
     PerformanceToggle("Avoid ordered vertex copies",
         &g_config.tweaks.vk_vertex_copy_shortcuts,
         XEMU_TWEAK_VK_VERTEX_COPY_SHORTCUTS,
-        "Uses safe direct writes or private copies for changed vertices.");
+        "Uses direct writes or private versions when changed vertex data can "
+        "avoid an ordered GPU copy. Unsafe cases keep the ordered path.");
     PerformanceToggle("Grow transient buffers to fit batches",
         &g_config.tweaks.vk_transient_buffer_growth,
         XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH,
-        "Grows transient buffers to reduce flushes in later batches. "
-        "Off reuses drained storage; large single draws can still grow it. "
+        "Keeps larger transient buffers after a workload needs them, reducing "
+        "later capacity flushes. Large single draws may still force growth. "
         "Requires restarting xemu.");
     SectionTitle("OpenGL");
     PerformanceToggle("Upload compressed textures directly",
         &g_config.tweaks.gl_native_s3tc, XEMU_TWEAK_GL_NATIVE_S3TC,
-        "Lets the GPU decode eligible S3TC textures. "
-        "Off decodes them on the CPU. Requires restarting xemu.");
+        "Uploads eligible S3TC textures in compressed form for the GPU to "
+        "decode. Disable to use CPU decoding. Requires restarting xemu.");
 }
 
 bool MainMenuInputView::ConsumeRebindEvent(SDL_Event *event)

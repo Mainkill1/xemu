@@ -33,6 +33,7 @@
 
 #include "xemu-controllers.h"
 #include "xemu-settings.h"
+#include "xemu-tweaks.h"
 
 #define DEFINE_CONFIG_TREE
 #include "xemu-config.h"
@@ -177,7 +178,22 @@ bool xemu_settings_load(void)
                 setlocale(LC_NUMERIC, "C");
 
                 try {
-                    config_tree.update_from_table(toml::parse(buf));
+                    toml::table table = toml::parse(buf);
+                    const toml::table *tweaks_table =
+                        table["tweaks"].as_table();
+                    bool mode_present = tweaks_table &&
+                        tweaks_table->contains("vk_ubershader_mode");
+                    config_tree.update_from_table(table);
+                    CNode *tweaks = config_tree.child("tweaks");
+                    CNode *mode = tweaks->child("vk_ubershader_mode");
+                    CNode *legacy = tweaks->child("vk_hybrid_ubershaders");
+                    mode->set_enum_by_index(static_cast<int>(
+                        xemu_vulkan_ubershader_migrate_mode(
+                            mode_present,
+                            static_cast<XemuVulkanUbershaderMode>(
+                                mode->data_enum.val),
+                            legacy->data.boolean.val)));
+                    legacy->data.boolean.val = false;
                     success = true;
                 } catch (const toml::parse_error& err) {
                    std::ostringstream oss;
@@ -226,6 +242,7 @@ void xemu_settings_save(void)
     // xemu_settings_load_gamepad_mapping should have migrated that setting to any connected
     // controller, so we can set it to true (default) now to remove it from the user config.
     g_config.input.allow_vibration = true;
+    g_config.tweaks.vk_hybrid_ubershaders = false;
 
     config_tree.update_from_struct(&g_config);
     fprintf(fd, "%s", config_tree.generate_delta_toml().c_str());
