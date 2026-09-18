@@ -18,6 +18,12 @@ typedef struct PGRAPHVkTextureDescriptorIdentity {
     uintptr_t sampler;
 } PGRAPHVkTextureDescriptorIdentity;
 
+static inline float pgraph_vk_texture_effective_scale(float scale,
+                                                      bool linear)
+{
+    return linear ? scale : 1.0f;
+}
+
 static inline bool pgraph_vk_texture_descriptor_identity_changed(
     PGRAPHVkTextureDescriptorIdentity before,
     PGRAPHVkTextureDescriptorIdentity after)

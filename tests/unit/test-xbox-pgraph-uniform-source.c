@@ -145,12 +145,6 @@ static void test_stage_update_decisions(void)
     g_assert_true(update_stage[PGRAPH_UNIFORM_STAGE_PSH]);
 
     inputs = (PGRAPHUniformStageUpdateInputs){ 0 };
-    inputs.texture_bindings_changed = true;
-    pgraph_uniform_stage_update_needs(&inputs, update_stage);
-    g_assert_false(update_stage[PGRAPH_UNIFORM_STAGE_VSH]);
-    g_assert_true(update_stage[PGRAPH_UNIFORM_STAGE_PSH]);
-
-    inputs = (PGRAPHUniformStageUpdateInputs){ 0 };
     inputs.psh_effective_inputs_changed = true;
     pgraph_uniform_stage_update_needs(&inputs, update_stage);
     g_assert_false(update_stage[PGRAPH_UNIFORM_STAGE_VSH]);

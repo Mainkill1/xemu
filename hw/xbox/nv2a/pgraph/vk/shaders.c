@@ -28,6 +28,7 @@
 #include "renderer.h"
 #include "hybrid-ready.h"
 #include "texture-binding-state.h"
+#include "texture-uniform.h"
 
 #include <glib/gstdio.h>
 
@@ -74,8 +75,6 @@ static void get_uniform_stage_update_needs(PGRAPHState *pg,
             pgraph_reg_r(pg, NV_PGRAPH_ZOFFSETBIAS),
             pgraph_reg_r(pg, NV_PGRAPH_ZOFFSETFACTOR));
     PGRAPHUniformStageUpdateInputs inputs = {
-        .texture_bindings_changed =
-            r->texture_descriptor_publication_pending,
         .psh_effective_inputs_changed =
             pgraph_polygon_offset_uniform_key_changed(
                 r->polygon_offset_key_valid, r->polygon_offset_key,
@@ -1883,15 +1882,10 @@ static void update_shader_uniforms(PGRAPHState *pg, const bool update_stage[])
                                            &psh_values);
         for (int i = 0; i < 4; i++) {
             assert(r->texture_bindings[i] != NULL);
-            float scale = r->texture_bindings[i]->key.scale;
-
             BasicColorFormatInfo f_basic = kelvin_color_format_info_map[
                 r->texture_bindings[i]->key.state.color_format];
-            if (!f_basic.linear) {
-                scale = 1.0;
-            }
-
-            psh_values.texScale[i] = scale;
+            psh_values.texScale[i] = pgraph_vk_texture_effective_scale(
+                r->texture_bindings[i]->key.scale, f_basic.linear);
         }
 
         psh_changed = apply_uniform_updates(
@@ -1913,6 +1907,31 @@ static void update_shader_uniforms(PGRAPHState *pg, const bool update_stage[])
                                  NV2A_PROF_SHADER_UBO_NOTDIRTY);
 
     NV2A_VK_DGROUP_END();
+}
+
+static bool update_texture_scale_only(PGRAPHVkState *r)
+{
+    ShaderBinding *binding = r->shader_binding;
+    PGRAPHVkTextureScaleInput inputs[NV2A_MAX_TEXTURES];
+    int loc;
+
+    assert(binding);
+    loc = binding->psh.uniform_locs[PshUniform_texScale];
+    if (loc == -1) {
+        return false;
+    }
+
+    for (unsigned int i = 0; i < NV2A_MAX_TEXTURES; i++) {
+        const TextureBinding *texture = r->texture_bindings[i];
+        assert(texture);
+
+        inputs[i].scale = texture->key.scale;
+        inputs[i].linear = kelvin_color_format_info_map[
+            texture->key.state.color_format].linear;
+    }
+
+    return pgraph_vk_texture_scale_uniform_update(
+        &binding->psh.module_info->uniforms, loc, inputs);
 }
 
 void pgraph_vk_prepare_shaders(PGRAPHState *pg,
@@ -2013,13 +2032,32 @@ void pgraph_vk_activate_shaders(PGRAPHState *pg,
         pg->uniform_source_epochs.unclassified;
     r->last_uniform_source_epochs.total = pg->uniform_source_epochs.total;
 
+    bool texture_scale_only =
+        !update_stage[PGRAPH_UNIFORM_STAGE_PSH] &&
+        r->texture_descriptor_publication_pending;
+
     if (!update_stage[PGRAPH_UNIFORM_STAGE_VSH] &&
-        !update_stage[PGRAPH_UNIFORM_STAGE_PSH]) {
+        !update_stage[PGRAPH_UNIFORM_STAGE_PSH] && !texture_scale_only) {
         nv2a_profile_inc_counter(NV2A_PROF_SHADER_UBO_NOTDIRTY);
         return;
     }
 
-    update_shader_uniforms(pg, update_stage);
+    bool full_update = update_stage[PGRAPH_UNIFORM_STAGE_VSH] ||
+                       update_stage[PGRAPH_UNIFORM_STAGE_PSH];
+    if (full_update) {
+        update_shader_uniforms(pg, update_stage);
+    }
+    if (texture_scale_only) {
+        bool changed = update_texture_scale_only(r);
+        r->uniform_stage_dirty[PGRAPH_UNIFORM_STAGE_PSH] |= changed;
+        sync_uniform_dirty_summary(r);
+        if (!full_update) {
+            nv2a_profile_inc_counter(NV2A_PROF_SHADER_BIND);
+            nv2a_profile_inc_counter(
+                changed ? NV2A_PROF_SHADER_UBO_DIRTY :
+                          NV2A_PROF_SHADER_UBO_NOTDIRTY);
+        }
+    }
     if (update_stage[PGRAPH_UNIFORM_STAGE_PSH]) {
         r->polygon_offset_key = pgraph_polygon_offset_uniform_key(
             pg->primitive_mode, pgraph_reg_r(pg, NV_PGRAPH_SETUPRASTER),
