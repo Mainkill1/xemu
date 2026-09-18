@@ -18,6 +18,15 @@ typedef struct PGRAPHUniformStageUpdateInputs {
     bool force_full_update;
 } PGRAPHUniformStageUpdateInputs;
 
+static inline bool pgraph_uniform_vsh_dirty_rows_scan_needed(
+    const PGRAPHUniformStageUpdateInputs *inputs)
+{
+    return !inputs->source_changed[PGRAPH_UNIFORM_STAGE_VSH] &&
+           !inputs->layout_changed[PGRAPH_UNIFORM_STAGE_VSH] &&
+           !inputs->force_full_update &&
+           !inputs->inline_values_in_vsh_ubo;
+}
+
 static inline void pgraph_uniform_stage_update_needs(
     const PGRAPHUniformStageUpdateInputs *inputs,
     bool update_stage[PGRAPH_UNIFORM_STAGE_COUNT])
