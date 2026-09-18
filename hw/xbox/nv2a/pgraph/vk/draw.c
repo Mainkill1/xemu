@@ -1846,7 +1846,7 @@ static bool create_pipeline(PGRAPHState *pg)
         r->uber_controls_valid = route == PGRAPH_VK_FRAGMENT_UBERSHADER &&
                                  controls_supported;
         if (r->uber_controls_valid) {
-            r->uber_controls = controls;
+            pgraph_vk_publish_fallback_controls(r, &controls);
         }
         pgraph_vk_activate_shaders(pg, &preparation, route, ready_shader);
 

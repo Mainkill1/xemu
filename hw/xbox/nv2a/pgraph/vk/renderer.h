@@ -1067,8 +1067,10 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg);
 bool pgraph_vk_pack_fallback_controls(PGRAPHState *pg,
                                      const PshState *state,
                                      PGRAPHUberControls *packet);
+void pgraph_vk_publish_fallback_controls(PGRAPHVkState *r,
+                                         const PGRAPHUberControls *packet);
 bool pgraph_vk_refresh_fallback_controls(PGRAPHState *pg,
-                                        const PshState *state);
+                                         const PshState *state);
 typedef enum PGRAPHVkFallbackResourceState {
     PGRAPH_VK_FALLBACK_RESOURCES_READY,
     PGRAPH_VK_FALLBACK_RESOURCES_NEED_ROLLOVER,

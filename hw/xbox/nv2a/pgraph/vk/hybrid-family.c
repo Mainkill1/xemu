@@ -232,6 +232,46 @@ bool pgraph_vk_pack_fallback_controls(PGRAPHState *pg,
     return pgraph_vk_pack_ubershader_controls(packet, &source, NULL);
 }
 
+void pgraph_vk_publish_fallback_controls(PGRAPHVkState *r,
+                                         const PGRAPHUberControls *packet)
+{
+    r->uber_controls = *packet;
+    r->uber_controls_valid = true;
+    /* This path publishes a packet without its raw constant-register key.
+     * Force the next stable-binding refresh to associate the two again. */
+    r->uber_constant_regs_valid = false;
+}
+
+/* The admitted program is unchanged on a stable fallback binding. Compare
+ * the raw constant registers so snapshot/restoration or direct state writes
+ * cannot rely on a dirty hint to refresh the 448-byte control packet. */
+bool pgraph_vk_refresh_fallback_controls(PGRAPHState *pg,
+                                         const PshState *state)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    uint32_t current[18];
+    for (unsigned int i = 0; i < 8; i++) {
+        current[i * 2] = pgraph_reg_r(pg, NV_PGRAPH_COMBINEFACTOR0 + i * 4);
+        current[i * 2 + 1] =
+            pgraph_reg_r(pg, NV_PGRAPH_COMBINEFACTOR1 + i * 4);
+    }
+    current[16] = pgraph_reg_r(pg, NV_PGRAPH_SPECFOGFACTOR0);
+    current[17] = pgraph_reg_r(pg, NV_PGRAPH_SPECFOGFACTOR1);
+    if (r->uber_controls_valid && r->uber_constant_regs_valid &&
+        memcmp(current, r->uber_constant_regs, sizeof(current)) == 0) {
+        return true;
+    }
+    r->uber_controls_valid = pgraph_vk_pack_fallback_controls(
+        pg, state, &r->uber_controls);
+    if (r->uber_controls_valid) {
+        memcpy(r->uber_constant_regs, current, sizeof(current));
+        r->uber_constant_regs_valid = true;
+    } else {
+        r->uber_constant_regs_valid = false;
+    }
+    return r->uber_controls_valid;
+}
+
 void pgraph_vk_resolve_ready_execution_candidates(
     PGRAPHState *pg, const ShaderState *state, bool force_ubershader,
     PGRAPHVkReadyExecutionCandidates *candidates)

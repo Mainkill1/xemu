@@ -807,6 +807,72 @@ static uint32_t control_input_word(uint8_t a, uint8_t b,
            (uint32_t)c << 8 | d;
 }
 
+static void set_uber_constant_registers(PGRAPHState *pg, uint32_t value)
+{
+    for (unsigned int i = 0; i < 8; i++) {
+        pgraph_reg_w(pg, NV_PGRAPH_COMBINEFACTOR0 + i * 4, value);
+        pgraph_reg_w(pg, NV_PGRAPH_COMBINEFACTOR1 + i * 4, value);
+    }
+    pgraph_reg_w(pg, NV_PGRAPH_SPECFOGFACTOR0, value);
+    pgraph_reg_w(pg, NV_PGRAPH_SPECFOGFACTOR1, value);
+}
+
+static void test_fallback_control_snapshot_tracks_published_packet(void)
+{
+    PGRAPHState *pg = g_new0(PGRAPHState, 1);
+    PGRAPHVkState *r = g_new0(PGRAPHVkState, 1);
+    PshState state_a = { 0 };
+    PshState state_b;
+    PGRAPHUberControls packet_b_l;
+    PGRAPHUberControls expected_b_k;
+    const uint32_t constants_k = 0xff112233;
+    const uint32_t constants_l = 0xffaabbcc;
+
+    pg->vk_renderer_state = r;
+    state_a.combiner_control = PS_COMBINERCOUNT_MUX_MSB << 8;
+    state_a.final_inputs_0 = control_input_word(
+        PS_REGISTER_V0 | PS_INPUTMAPPING_UNSIGNED_IDENTITY,
+        PS_REGISTER_V1 | PS_INPUTMAPPING_UNSIGNED_IDENTITY,
+        PS_REGISTER_V1R0_SUM | PS_INPUTMAPPING_UNSIGNED_IDENTITY,
+        PS_REGISTER_EF_PROD | PS_INPUTMAPPING_UNSIGNED_IDENTITY);
+    state_a.final_inputs_1 = control_input_word(
+        PS_REGISTER_C0 | PS_INPUTMAPPING_UNSIGNED_IDENTITY,
+        PS_REGISTER_C1 | PS_INPUTMAPPING_UNSIGNED_IDENTITY,
+        PS_REGISTER_R0 | PS_CHANNEL_ALPHA, 0);
+    state_b = state_a;
+    state_b.final_inputs_0 = control_input_word(
+        PS_REGISTER_V1 | PS_INPUTMAPPING_UNSIGNED_IDENTITY,
+        PS_REGISTER_V0 | PS_INPUTMAPPING_UNSIGNED_IDENTITY,
+        PS_REGISTER_V1R0_SUM | PS_INPUTMAPPING_UNSIGNED_IDENTITY,
+        PS_REGISTER_EF_PROD | PS_INPUTMAPPING_UNSIGNED_IDENTITY);
+
+    set_uber_constant_registers(pg, constants_k);
+    g_assert_true(pgraph_vk_refresh_fallback_controls(pg, &state_a));
+    g_assert_true(r->uber_constant_regs_valid);
+
+    set_uber_constant_registers(pg, constants_l);
+    g_assert_true(pgraph_vk_pack_fallback_controls(
+        pg, &state_b, &packet_b_l));
+    pgraph_vk_publish_fallback_controls(r, &packet_b_l);
+    g_assert_false(r->uber_constant_regs_valid);
+
+    set_uber_constant_registers(pg, constants_k);
+    g_assert_true(pgraph_vk_refresh_fallback_controls(pg, &state_b));
+    g_assert_true(pgraph_vk_pack_fallback_controls(
+        pg, &state_b, &expected_b_k));
+    g_assert_cmpmem(&r->uber_controls, sizeof(r->uber_controls),
+                    &expected_b_k, sizeof(expected_b_k));
+    g_assert_true(r->uber_constant_regs_valid);
+
+    PGRAPHUberControls stable = r->uber_controls;
+    g_assert_true(pgraph_vk_refresh_fallback_controls(pg, &state_b));
+    g_assert_cmpmem(&r->uber_controls, sizeof(r->uber_controls),
+                    &stable, sizeof(stable));
+
+    g_free(r);
+    g_free(pg);
+}
+
 static void test_production_resolver_materializes_hidden_fallback(void)
 {
     PGRAPHState *pg = g_new0(PGRAPHState, 1);
@@ -1108,6 +1174,8 @@ int main(int argc, char **argv)
                     test_dynamic_control_binding_matches_packet_abi);
     g_test_add_func("/xbox/vk/ubershader/runtime/control-only-upload",
                     test_control_only_upload_does_not_require_descriptor_update);
+    g_test_add_func("/xbox/vk/ubershader/runtime/control-snapshot-publication",
+                    test_fallback_control_snapshot_tracks_published_packet);
     g_test_add_func("/xbox/vk/ubershader/runtime/baseline-layout",
                     test_disabled_runtime_uses_baseline_descriptor_layout);
     g_test_add_func("/xbox/vk/ubershader/runtime/shader-binding-key",

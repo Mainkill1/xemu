@@ -1210,36 +1210,6 @@ static ShaderBinding *get_shader_binding_for_key(PGRAPHVkState *r,
     return binding;
 }
 
-/* The admitted program is unchanged on a stable fallback binding. Compare
- * the raw constant registers so snapshot/restoration or direct state writes
- * cannot rely on a dirty hint to refresh the 448-byte control packet. */
-bool pgraph_vk_refresh_fallback_controls(PGRAPHState *pg,
-                                        const PshState *state)
-{
-    PGRAPHVkState *r = pg->vk_renderer_state;
-    uint32_t current[18];
-    for (unsigned int i = 0; i < 8; i++) {
-        current[i * 2] = pgraph_reg_r(pg, NV_PGRAPH_COMBINEFACTOR0 + i * 4);
-        current[i * 2 + 1] =
-            pgraph_reg_r(pg, NV_PGRAPH_COMBINEFACTOR1 + i * 4);
-    }
-    current[16] = pgraph_reg_r(pg, NV_PGRAPH_SPECFOGFACTOR0);
-    current[17] = pgraph_reg_r(pg, NV_PGRAPH_SPECFOGFACTOR1);
-    if (r->uber_controls_valid && r->uber_constant_regs_valid &&
-        memcmp(current, r->uber_constant_regs, sizeof(current)) == 0) {
-        return true;
-    }
-    r->uber_controls_valid = pgraph_vk_pack_fallback_controls(
-        pg, state, &r->uber_controls);
-    if (r->uber_controls_valid) {
-        memcpy(r->uber_constant_regs, current, sizeof(current));
-        r->uber_constant_regs_valid = true;
-    } else {
-        r->uber_constant_regs_valid = false;
-    }
-    return r->uber_controls_valid;
-}
-
 /* The probe is conservative because activation may dirty either uniform
  * stage. Temporary rollover is distinct from an unsupported fallback:
  * the descriptor update path can finish/reset and continue using it. */
@@ -1290,10 +1260,15 @@ PGRAPHVkFallbackResourceState pgraph_vk_fallback_draw_resource_state(
 static bool update_uber_controls(PGRAPHState *pg, const PshState *state)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
+    PGRAPHUberControls controls;
 
-    r->uber_controls_valid = pgraph_vk_pack_fallback_controls(
-        pg, state, &r->uber_controls);
-    return r->uber_controls_valid;
+    if (!pgraph_vk_pack_fallback_controls(pg, state, &controls)) {
+        r->uber_controls_valid = false;
+        r->uber_constant_regs_valid = false;
+        return false;
+    }
+    pgraph_vk_publish_fallback_controls(r, &controls);
+    return true;
 }
 
 static PGRAPHVkFragmentRoute select_fragment_route(
