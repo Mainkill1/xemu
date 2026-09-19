@@ -26,10 +26,10 @@ tweaks:
   vk_ubershader_mode:
     type: enum
     values: ["off", fallback, prewarm, always]
-    default: "off"
+    default: prewarm
   vk_shader_fastpath:
     type: bool
-    default: false
+    default: true
   gl_native_s3tc:
     type: bool
     default: true

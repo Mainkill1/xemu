@@ -1,8 +1,8 @@
 # Advance performance settings
 
 **Machine → Settings → Advance** exposes independent performance controls.
-Vulkan ubershader mode and its shader-work shortcut default to Off; the other
-accepted controls default to On. Saved choices remain after restart.
+Vulkan ubershader mode defaults to Prewarm; the shader-work shortcut and other
+accepted controls default to On. Explicit saved choices remain after restart.
 
 | Setting | On | Off | Apply |
 | --- | --- | --- | --- |
