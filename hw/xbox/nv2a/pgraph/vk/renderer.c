@@ -235,6 +235,7 @@ static void pgraph_vk_process_pending(NV2AState *d)
             pgraph_vk_process_hybrid_pipeline_completions(&d->pgraph);
         }
         if (qatomic_read(&r->spirv_cache_writeback_pending)) {
+            pgraph_vk_writeback_pipeline_cache(&d->pgraph);
             pgraph_vk_process_spirv_cache_writeback(&d->pgraph);
             qatomic_set(&r->spirv_cache_writeback_pending, false);
             qemu_event_set(&r->spirv_cache_writeback_complete);

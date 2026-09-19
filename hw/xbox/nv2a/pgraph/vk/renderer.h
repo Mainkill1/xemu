@@ -733,6 +733,7 @@ typedef struct PGRAPHVkState {
 
     Lru pipeline_cache;
     VkPipelineCache vk_pipeline_cache;
+    char *pipeline_cache_path;
     PipelineBinding *pipeline_cache_entries;
     PipelineBinding *pipeline_binding;
     bool pipeline_binding_changed;
@@ -1156,6 +1157,7 @@ void pgraph_vk_process_pending_reports_internal(NV2AState *d);
 // draw.c
 void pgraph_vk_init_pipelines(PGRAPHState *pg);
 void pgraph_vk_finalize_pipelines(PGRAPHState *pg);
+void pgraph_vk_writeback_pipeline_cache(PGRAPHState *pg);
 PGRAPHVkHybridPipelineSubmitResult pgraph_vk_request_hybrid_pipeline(
     PGRAPHState *pg, const PipelineKey *key, ShaderBinding *ready_binding);
 void pgraph_vk_process_hybrid_pipeline_completions(PGRAPHState *pg);
