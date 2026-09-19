@@ -1775,7 +1775,6 @@ bool pgraph_vk_bind_textures(NV2AState *d)
 
         PGRAPHVkTextureDescriptorIdentity before =
             texture_descriptor_identity(binding);
-
         if (!enabled) {
             r->texture_bindings[i] = &r->dummy_texture;
         } else if (create_texture(pg, i)) {

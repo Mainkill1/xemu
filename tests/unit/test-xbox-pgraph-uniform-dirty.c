@@ -6,6 +6,8 @@
 
 #include "hw/xbox/nv2a/pgraph/uniform-dirty.h"
 #include "hw/xbox/nv2a/pgraph/vk/glsl.h"
+#include "hw/xbox/nv2a/pgraph/vk/texture-binding-state.h"
+#include "hw/xbox/nv2a/pgraph/vk/texture-uniform.h"
 
 static void test_changed_value_dirties_row(void)
 {
@@ -115,6 +117,110 @@ static void test_uniform_array_copy_is_row_scoped(void)
         &layout, 1, 1, replacement, sizeof(uint32_t)));
 }
 
+static ShaderUniformLayout make_texture_scale_layout(
+    ShaderUniform *uniform, float allocation[][4])
+{
+    *uniform = (ShaderUniform) {
+        .name = "texScale",
+        .dim_v = 1,
+        .dim_a = NV2A_MAX_TEXTURES,
+        .align = 16,
+        .stride = sizeof(allocation[0]),
+        .offset = 0,
+    };
+    return (ShaderUniformLayout) {
+        .uniforms = uniform,
+        .num_uniforms = 1,
+        .total_size = NV2A_MAX_TEXTURES * sizeof(allocation[0]),
+        .allocation = allocation,
+    };
+}
+
+static void test_texture_scale_uniform_updates_only_changed_values(void)
+{
+    float allocation[NV2A_MAX_TEXTURES][4] = {
+        { 1.0f }, { 1.0f }, { 1.0f }, { 1.0f },
+    };
+    const PGRAPHVkTextureScaleInput inputs[NV2A_MAX_TEXTURES] = {
+        { 1.0f, true }, { 2.0f, true },
+        { 3.0f, true }, { 4.0f, true },
+    };
+    ShaderUniform uniform;
+    ShaderUniformLayout layout =
+        make_texture_scale_layout(&uniform, allocation);
+
+    g_assert_true(pgraph_vk_texture_scale_uniform_update(
+        &layout, 1, inputs));
+    for (unsigned int i = 0; i < NV2A_MAX_TEXTURES; i++) {
+        g_assert_cmpfloat(allocation[i][0], ==, inputs[i].scale);
+    }
+    g_assert_false(pgraph_vk_texture_scale_uniform_update(
+        &layout, 1, inputs));
+}
+
+static void test_texture_scale_uniform_ignores_descriptor_only_change(void)
+{
+    float allocation[NV2A_MAX_TEXTURES][4] = {
+        { 1.0f }, { 1.0f }, { 1.0f }, { 1.0f },
+    };
+    const PGRAPHVkTextureScaleInput inputs[NV2A_MAX_TEXTURES] = {
+        { 2.0f, false }, { 4.0f, false },
+        { 1.0f, true }, { 1.0f, false },
+    };
+    const PGRAPHVkTextureDescriptorIdentity before = { 1, 2 };
+    const PGRAPHVkTextureDescriptorIdentity after = { 3, 4 };
+    ShaderUniform uniform;
+    ShaderUniformLayout layout =
+        make_texture_scale_layout(&uniform, allocation);
+    bool descriptor_pending = false;
+
+    pgraph_vk_texture_descriptor_publication_observe(
+        &descriptor_pending, before, after);
+    g_assert_true(descriptor_pending);
+    g_assert_true(pgraph_vk_texture_scale_uniform_update_needed(
+        false, descriptor_pending));
+    g_assert_false(pgraph_vk_texture_scale_uniform_update(
+        &layout, 1, inputs));
+    g_assert_true(descriptor_pending);
+
+    pgraph_vk_texture_descriptor_publication_complete(&descriptor_pending);
+    g_assert_false(descriptor_pending);
+}
+
+static void test_texture_scale_full_update_supersedes_descriptor_trigger(void)
+{
+    g_assert_false(pgraph_vk_texture_scale_uniform_update_needed(true, true));
+    g_assert_false(pgraph_vk_texture_scale_uniform_update_needed(false,
+                                                                 false));
+}
+
+static void test_texture_scale_uniform_reconciles_final_bindings(void)
+{
+    float allocation[NV2A_MAX_TEXTURES][4] = {
+        { 2.0f }, { 2.0f }, { 2.0f }, { 2.0f },
+    };
+    const PGRAPHVkTextureScaleInput inputs[NV2A_MAX_TEXTURES] = {
+        { 2.0f, true }, { 1.0f, true },
+        { 2.0f, true }, { 2.0f, true },
+    };
+    ShaderUniform uniform;
+    ShaderUniformLayout layout =
+        make_texture_scale_layout(&uniform, allocation);
+    bool uniform_pending = true;
+
+    uniform_pending |= pgraph_vk_texture_scale_uniform_update(
+        &layout, 1, inputs);
+    g_assert_true(uniform_pending);
+    g_assert_cmpfloat(allocation[1][0], ==, 1.0f);
+
+    /* A later no-change reconciliation cannot retire an earlier UBO write. */
+    uniform_pending |= pgraph_vk_texture_scale_uniform_update(
+        &layout, 1, inputs);
+    g_assert_true(uniform_pending);
+    g_assert_false(pgraph_vk_texture_scale_uniform_update(
+        &layout, -1, inputs));
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -130,6 +236,13 @@ int main(int argc, char **argv)
                     test_uniform_copy_reports_real_changes);
     g_test_add_func("/xbox/vulkan/uniform-copy/row-scope",
                     test_uniform_array_copy_is_row_scoped);
-
+    g_test_add_func("/xbox/vulkan/texture-scale/change-detection",
+                    test_texture_scale_uniform_updates_only_changed_values);
+    g_test_add_func("/xbox/vulkan/texture-scale/descriptor-independence",
+                    test_texture_scale_uniform_ignores_descriptor_only_change);
+    g_test_add_func("/xbox/vulkan/texture-scale/full-update-supersedes",
+                    test_texture_scale_full_update_supersedes_descriptor_trigger);
+    g_test_add_func("/xbox/vulkan/texture-scale/final-bindings",
+                    test_texture_scale_uniform_reconciles_final_bindings);
     return g_test_run();
 }
