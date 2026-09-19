@@ -193,6 +193,8 @@ typedef struct PGRAPHState {
 
     uint32_t vsh_constants[NV2A_VERTEXSHADER_CONSTANTS][4];
     bool vsh_constants_dirty[NV2A_VERTEXSHADER_CONSTANTS];
+    /* OR of the four VSH uniform row-dirty arrays below. */
+    bool vsh_rows_dirty_any;
 
     /* lighting constant arrays */
     uint32_t ltctxa[NV2A_LTCTXA_COUNT][4];
@@ -348,7 +350,14 @@ static inline void pgraph_uniform_u32_row_w(PGRAPHState *pg,
                                             unsigned int slot,
                                             uint32_t value)
 {
-    pgraph_uniform_u32_row_update(rows, dirty_rows, row, slot, value);
+    pgraph_uniform_u32_row_update(rows, dirty_rows, &pg->vsh_rows_dirty_any,
+                                 row, slot, value);
+}
+
+/* Call only after every VSH source array has been copied or discarded. */
+static inline void pgraph_vsh_uniform_rows_consumed(PGRAPHState *pg)
+{
+    pg->vsh_rows_dirty_any = false;
 }
 
 /*

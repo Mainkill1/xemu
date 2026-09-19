@@ -11,6 +11,7 @@
 
 static inline void pgraph_uniform_u32_row_update(uint32_t (*rows)[4],
                                                  bool *dirty_rows,
+                                                 bool *dirty_any,
                                                  unsigned int row,
                                                  unsigned int slot,
                                                  uint32_t value)
@@ -19,15 +20,29 @@ static inline void pgraph_uniform_u32_row_update(uint32_t (*rows)[4],
     if (rows[row][slot] != value) {
         rows[row][slot] = value;
         dirty_rows[row] = true;
+        *dirty_any = true;
     }
 }
 
 static inline void pgraph_uniform_dirty_rows_invalidate(bool *dirty_rows,
+                                                        bool *dirty_any,
                                                         unsigned int row_count)
 {
     for (unsigned int row = 0; row < row_count; row++) {
         dirty_rows[row] = true;
     }
+    *dirty_any = true;
+}
+
+static inline bool pgraph_uniform_dirty_rows_any(const bool *dirty_rows,
+                                                unsigned int row_count)
+{
+    for (unsigned int row = 0; row < row_count; row++) {
+        if (dirty_rows[row]) {
+            return true;
+        }
+    }
+    return false;
 }
 
 #endif
