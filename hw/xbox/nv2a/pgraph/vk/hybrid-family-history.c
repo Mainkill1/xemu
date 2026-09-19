@@ -227,8 +227,9 @@ bool pgraph_vk_family_history_note_cold_miss(
     return true;
 }
 
-const PGRAPHVkFamilyHistoryRecord *pgraph_vk_family_history_next_unattempted(
-    const PGRAPHVkFamilyHistory *history)
+const PGRAPHVkFamilyHistoryRecord *pgraph_vk_family_history_next_eligible(
+    const PGRAPHVkFamilyHistory *history, uint64_t service_id,
+    bool allow_new)
 {
     if (!history) {
         return NULL;
@@ -236,7 +237,9 @@ const PGRAPHVkFamilyHistoryRecord *pgraph_vk_family_history_next_unattempted(
     const PGRAPHVkFamilyHistoryRecord *selected = NULL;
     for (size_t i = 0; i < history->count; i++) {
         const PGRAPHVkFamilyHistoryRecord *candidate = &history->records[i];
-        if (candidate->attempted) {
+        if (candidate->attempted ||
+            (!allow_new && !candidate->prewarm_considered) ||
+            candidate->prewarm_retry_after_service > service_id) {
             continue;
         }
         if (!selected || candidate->cold_misses > selected->cold_misses ||
@@ -267,6 +270,57 @@ const PGRAPHVkFamilyHistoryRecord *pgraph_vk_family_history_next_unattempted(
     return selected;
 }
 
+const PGRAPHVkFamilyHistoryRecord *pgraph_vk_family_history_next_unattempted(
+    const PGRAPHVkFamilyHistory *history)
+{
+    return pgraph_vk_family_history_next_eligible(history, UINT64_MAX, true);
+}
+
+static PGRAPHVkFamilyHistoryRecord *mutable_record(
+    PGRAPHVkFamilyHistory *history,
+    const PGRAPHVkFamilyHistoryRecord *record)
+{
+    if (!history || !record || !history->records) {
+        return NULL;
+    }
+    for (size_t i = 0; i < history->count; i++) {
+        if (record == &history->records[i]) {
+            return &history->records[i];
+        }
+    }
+    return NULL;
+}
+
+bool pgraph_vk_family_history_mark_considered(
+    PGRAPHVkFamilyHistory *history,
+    const PGRAPHVkFamilyHistoryRecord *record)
+{
+    PGRAPHVkFamilyHistoryRecord *mutable = mutable_record(history, record);
+    if (!mutable || mutable->prewarm_considered) {
+        return false;
+    }
+    mutable->prewarm_considered = true;
+    return true;
+}
+
+bool pgraph_vk_family_history_defer(
+    PGRAPHVkFamilyHistory *history,
+    const PGRAPHVkFamilyHistoryRecord *record, uint64_t service_id)
+{
+    PGRAPHVkFamilyHistoryRecord *mutable = mutable_record(history, record);
+    if (!mutable || !mutable->prewarm_considered || mutable->attempted) {
+        return false;
+    }
+    if (++mutable->prewarm_defer_count >= 3) {
+        mutable->attempted = true;
+        return false;
+    }
+    uint64_t delay = 8 * mutable->prewarm_defer_count;
+    mutable->prewarm_retry_after_service =
+        service_id > UINT64_MAX - delay ? UINT64_MAX : service_id + delay;
+    return true;
+}
+
 void pgraph_vk_family_history_mark_attempted(
     PGRAPHVkFamilyHistory *history,
     const PGRAPHVkFamilyHistoryRecord *record)
@@ -289,6 +343,9 @@ void pgraph_vk_family_history_reset_attempts(PGRAPHVkFamilyHistory *history)
     }
     for (size_t i = 0; i < history->count; i++) {
         history->records[i].attempted = false;
+        history->records[i].prewarm_considered = false;
+        history->records[i].prewarm_defer_count = 0;
+        history->records[i].prewarm_retry_after_service = 0;
     }
 }
 

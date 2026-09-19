@@ -138,7 +138,9 @@ static XemuVulkanUbershaderRuntimeState VulkanUbershaderModeCombo()
                      "cached shader artifacts to prepare fallback pipelines "
                      "opportunistically before a draw needs them. It never "
                      "compiles a missing prewarm artifact synchronously. "
-                     "Always may have lower GPU performance. Unsupported "
+                     "Always may have lower GPU performance and can still "
+                     "construct a missing interpreter executable "
+                     "synchronously. Unsupported "
                      "states or rejected interpreter resources use "
                      "specialization. "
                      "Mode changes require restarting xemu.",
