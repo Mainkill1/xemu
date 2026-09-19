@@ -107,7 +107,7 @@ void pgraph_vk_end_single_time_commands(PGRAPHState *pg, VkCommandBuffer cmd,
     uint64_t submit_cpu_us = r->perf.enabled ?
         MAX(qemu_clock_get_us(QEMU_CLOCK_REALTIME) - submit_start, 0) : 0;
     VK_CHECK(result);
-    nv2a_profile_log_event_once("gpu_submit");
+    nv2a_profile_log_event_once(NV2A_PROFILE_EVENT_GPU_SUBMIT);
     nv2a_profile_inc_counter(NV2A_PROF_QUEUE_SUBMIT_AUX);
     int64_t wait_start = r->perf.enabled ?
         qemu_clock_get_us(QEMU_CLOCK_REALTIME) : 0;

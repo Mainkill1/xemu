@@ -18,6 +18,7 @@
  */
 
 #include "hw/xbox/nv2a/nv2a_int.h"
+#include "qemu/log.h"
 
 NV2AStats g_nv2a_stats;
 
@@ -64,51 +65,28 @@ static void nv2a_profile_write_frame_log(int64_t now)
     }
 }
 
-void nv2a_profile_log_event_once(const char *event)
+void nv2a_profile_log_event_once(NV2AProfileEvent event)
 {
-    enum {
-        EVENT_SHADER_COMPILE = 1 << 0,
-        EVENT_GPU_SUBMIT = 1 << 1,
-        EVENT_READBACK = 1 << 2,
+    static const char *const event_names[NV2A_PROFILE_EVENT_COUNT] = {
+        [NV2A_PROFILE_EVENT_SHADER_COMPILE] = "shader_compile",
+        [NV2A_PROFILE_EVENT_GPU_SUBMIT] = "gpu_submit",
+        [NV2A_PROFILE_EVENT_READBACK] = "readback",
     };
-    static FILE *file;
-    static GMutex lock;
-    static bool initialized;
     static unsigned int written;
-    unsigned int event_bit = 0;
+    unsigned int event_bit;
 
-    if (strcmp(event, "shader_compile") == 0) {
-        event_bit = EVENT_SHADER_COMPILE;
-    } else if (strcmp(event, "gpu_submit") == 0) {
-        event_bit = EVENT_GPU_SUBMIT;
-    } else if (strcmp(event, "readback") == 0) {
-        event_bit = EVENT_READBACK;
-    } else {
+    if ((unsigned int)event >= NV2A_PROFILE_EVENT_COUNT ||
+        !qemu_loglevel_mask(LOG_NV2A) || !qemu_log_enabled()) {
         return;
     }
 
-    g_mutex_lock(&lock);
-    if (!initialized) {
-        const char *path;
-
-        initialized = true;
-        path = g_getenv("XEMU_PERF_EVENT_LOG");
-        if (path != NULL && path[0] != '\0') {
-            file = qemu_fopen(path, "w");
-            if (file == NULL) {
-                fprintf(stderr, "nv2a: failed to open event log '%s'\n", path);
-            }
-        }
+    event_bit = 1U << event;
+    if (qatomic_fetch_or(&written, event_bit) & event_bit) {
+        return;
     }
 
-    if (file != NULL && !(written & event_bit)) {
-        written |= event_bit;
-        fprintf(file, "{\"timestamp_us\":%" PRId64
-                      ",\"event\":\"%s\"}\n",
-                qemu_clock_get_us(QEMU_CLOCK_REALTIME), event);
-        fflush(file);
-    }
-    g_mutex_unlock(&lock);
+    qemu_log("{\"timestamp_us\":%" PRId64 ",\"event\":\"%s\"}\n",
+             qemu_clock_get_us(QEMU_CLOCK_REALTIME), event_names[event]);
 }
 
 static void nv2a_profile_write_flip_log(int64_t now)
