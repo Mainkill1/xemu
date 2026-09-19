@@ -18,6 +18,14 @@ typedef struct PGRAPHVkHybridPrewarmPrepareOps {
         void *opaque, const PipelineKey *key, ShaderBinding *binding);
 } PGRAPHVkHybridPrewarmPrepareOps;
 
+typedef void (*PGRAPHVkHybridPrewarmFormatPropertiesFunc)(
+    void *opaque, VkFormat format, VkFormatProperties *properties);
+
+bool pgraph_vk_hybrid_prewarm_vertex_formats_supported(
+    const PipelineKey *key,
+    PGRAPHVkHybridPrewarmFormatPropertiesFunc get_properties,
+    void *opaque);
+
 PGRAPHVkHybridPrewarmAttemptResult pgraph_vk_hybrid_prewarm_prepare_record(
     const PGRAPHVkFamilyHistoryRecord *record,
     const PGRAPHVkHybridPrewarmPrepareOps *ops, void *opaque);

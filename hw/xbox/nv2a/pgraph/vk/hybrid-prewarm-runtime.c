@@ -9,6 +9,27 @@
 #include "hw/xbox/nv2a/pgraph/vk/hybrid-prewarm-runtime.h"
 #include "hw/xbox/nv2a/pgraph/vk/hybrid-family-codec.h"
 
+bool pgraph_vk_hybrid_prewarm_vertex_formats_supported(
+    const PipelineKey *key,
+    PGRAPHVkHybridPrewarmFormatPropertiesFunc get_properties,
+    void *opaque)
+{
+    if (!key || !get_properties ||
+        key->attribute_description_count >
+            G_N_ELEMENTS(key->attribute_descriptions)) {
+        return false;
+    }
+    for (size_t i = 0; i < key->attribute_description_count; i++) {
+        VkFormatProperties properties = { 0 };
+        get_properties(opaque, key->attribute_descriptions[i].format,
+                       &properties);
+        if (!(properties.bufferFeatures & VK_FORMAT_FEATURE_VERTEX_BUFFER_BIT)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 PGRAPHVkHybridPrewarmAttemptResult pgraph_vk_hybrid_prewarm_prepare_record(
     const PGRAPHVkFamilyHistoryRecord *record,
     const PGRAPHVkHybridPrewarmPrepareOps *ops, void *opaque)

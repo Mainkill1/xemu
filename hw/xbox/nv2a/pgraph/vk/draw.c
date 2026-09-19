@@ -1488,6 +1488,13 @@ static bool hybrid_demand_work_waiting(PGRAPHVkState *r)
     return false;
 }
 
+static void prewarm_get_format_properties(void *opaque, VkFormat format,
+                                          VkFormatProperties *properties)
+{
+    PGRAPHVkState *r = opaque;
+    vkGetPhysicalDeviceFormatProperties(r->physical_device, format, properties);
+}
+
 static bool prewarm_key_device_supported(void *opaque, const PipelineKey *key)
 {
     PGRAPHState *pg = opaque;
@@ -1528,7 +1535,11 @@ static bool prewarm_key_device_supported(void *opaque, const PipelineKey *key)
             sizeof(float) * 4 > limits->maxPushConstantsSize) {
         return false;
     }
-    return true;
+    /* Saved history may have been learned on a different physical device.
+     * Optional vertex formats must be admitted by this device before any
+     * shader or pipeline preparation begins. */
+    return pgraph_vk_hybrid_prewarm_vertex_formats_supported(
+        key, prewarm_get_format_properties, r);
 }
 
 static bool prewarm_pipeline_ready(void *opaque, const PipelineKey *key)

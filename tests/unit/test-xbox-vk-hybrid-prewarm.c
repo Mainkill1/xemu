@@ -171,6 +171,8 @@ typedef struct RuntimeFixture {
     ShaderBinding binding;
     bool published;
     bool device_accept;
+    VkFormatFeatureFlags format_features;
+    unsigned int format_queries;
     PGRAPHVkCachedFamilyModulesResult modules_result;
     unsigned int device_checks;
     unsigned int ready_probes;
@@ -179,12 +181,22 @@ typedef struct RuntimeFixture {
     unsigned int worker_submissions;
 } RuntimeFixture;
 
+static void runtime_format_properties(void *opaque, VkFormat format,
+                                      VkFormatProperties *properties)
+{
+    RuntimeFixture *fixture = opaque;
+    g_assert_cmpint(format, ==, VK_FORMAT_R8G8B8_UNORM);
+    fixture->format_queries++;
+    properties->bufferFeatures = fixture->format_features;
+}
+
 static bool runtime_device_supported(void *opaque, const PipelineKey *key)
 {
     RuntimeFixture *fixture = opaque;
-    (void)key;
     fixture->device_checks++;
-    return fixture->device_accept;
+    return fixture->device_accept &&
+           pgraph_vk_hybrid_prewarm_vertex_formats_supported(
+               key, runtime_format_properties, fixture);
 }
 
 static bool runtime_pipeline_ready(void *opaque, const PipelineKey *key)
@@ -331,6 +343,50 @@ static void test_missing_and_invalid_artifacts_stop_before_worker(void)
     pgraph_vk_family_history_destroy(&history);
 }
 
+static void test_unsupported_vertex_format_stops_before_preparation(void)
+{
+    PipelineKey key = runtime_key();
+    key.binding_description_count = 1;
+    key.binding_descriptions[0] = (VkVertexInputBindingDescription) {
+        .binding = 0,
+        .stride = 3,
+        .inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
+    };
+    key.attribute_description_count = 1;
+    key.attribute_descriptions[0] = (VkVertexInputAttributeDescription) {
+        .location = 0,
+        .binding = 0,
+        .format = VK_FORMAT_R8G8B8_UNORM,
+        .offset = 0,
+    };
+
+    PGRAPHVkFamilyHistory history;
+    runtime_history(&history, &key);
+    RuntimeFixture fixture = {
+        .device_accept = true,
+        .modules_result = PGRAPH_VK_CACHED_FAMILY_MODULES_READY,
+    };
+    const PGRAPHVkFamilyHistoryRecord *record = &history.records[0];
+
+    g_assert_cmpint(pgraph_vk_hybrid_prewarm_prepare_record(
+                        record, &runtime_ops, &fixture),
+                    ==, PGRAPH_VK_HYBRID_PREWARM_REJECTED);
+    g_assert_cmpuint(fixture.module_preparations, ==, 0);
+    g_assert_cmpuint(fixture.binding_preparations, ==, 0);
+    g_assert_cmpuint(fixture.worker_submissions, ==, 0);
+    g_assert_cmpuint(fixture.format_queries, ==, 1);
+
+    fixture.format_features = VK_FORMAT_FEATURE_VERTEX_BUFFER_BIT;
+    g_assert_cmpint(pgraph_vk_hybrid_prewarm_prepare_record(
+                        record, &runtime_ops, &fixture),
+                    ==, PGRAPH_VK_HYBRID_PREWARM_SUBMITTED);
+    g_assert_cmpuint(fixture.module_preparations, ==, 1);
+    g_assert_cmpuint(fixture.binding_preparations, ==, 1);
+    g_assert_cmpuint(fixture.worker_submissions, ==, 1);
+    g_assert_cmpuint(fixture.format_queries, ==, 2);
+    pgraph_vk_family_history_destroy(&history);
+}
+
 static void test_published_pipeline_counts_first_demand(void)
 {
     PGRAPHVkHybridPrewarmState state = { 0 };
@@ -403,6 +459,8 @@ int main(int argc, char **argv)
                     test_stored_recipe_to_published_pipeline);
     g_test_add_func("/nv2a/vk/hybrid-prewarm/invalid-stops-before-worker",
                     test_missing_and_invalid_artifacts_stop_before_worker);
+    g_test_add_func("/nv2a/vk/hybrid-prewarm/vertex-format-capability",
+                    test_unsupported_vertex_format_stops_before_preparation);
     g_test_add_func("/nv2a/vk/hybrid-prewarm/first-demand",
                     test_published_pipeline_counts_first_demand);
     g_test_add_func("/nv2a/vk/hybrid-prewarm/cached-stage-plan",
