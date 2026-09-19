@@ -28,6 +28,113 @@ typedef enum XemuVulkanUbershaderRuntimeStatus {
 
 static int xemu_vulkan_ubershader_runtime_status =
     XEMU_VK_UBERSHADER_RUNTIME_NO_VULKAN;
+static int xemu_tweaks_renderer = XEMU_TWEAK_RENDERER_NONE;
+
+void xemu_tweaks_publish_renderer(XemuTweakRenderer renderer)
+{
+    if (renderer < XEMU_TWEAK_RENDERER_NONE ||
+        renderer > XEMU_TWEAK_RENDERER_VULKAN) {
+        renderer = XEMU_TWEAK_RENDERER_NONE;
+    }
+    qatomic_set(&xemu_tweaks_renderer, renderer);
+}
+
+static bool xemu_tweak_requested(XemuTweak tweak)
+{
+    switch (tweak) {
+    case XEMU_TWEAK_CPU_SAVING_WAIT:
+        return g_config.tweaks.cpu_saving_wait;
+    case XEMU_TWEAK_PGRAPH_BULK_PACKETS:
+        return g_config.tweaks.pgraph_bulk_packets;
+    case XEMU_TWEAK_PGRAPH_FENCE_FASTPATH:
+        return g_config.tweaks.pgraph_fence_fastpath;
+    case XEMU_TWEAK_VK_COLOR_DOWNLOAD_FOLDING:
+        return g_config.tweaks.vk_color_download_folding;
+    case XEMU_TWEAK_VK_BOUNDED_VERTEX_UPLOADS:
+        return g_config.tweaks.vk_bounded_vertex_uploads;
+    case XEMU_TWEAK_VK_VERTEX_COPY_SHORTCUTS:
+        return g_config.tweaks.vk_vertex_copy_shortcuts;
+    case XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH:
+        return g_config.tweaks.vk_transient_buffer_growth;
+    case XEMU_TWEAK_GL_NATIVE_S3TC:
+        return g_config.tweaks.gl_native_s3tc;
+    case XEMU_TWEAK_VK_HYBRID_UBERSHADERS:
+        return g_config.tweaks.vk_ubershader_mode !=
+               XEMU_VK_UBERSHADER_OFF;
+    case XEMU_TWEAK_VK_SHADER_FASTPATH:
+        return g_config.tweaks.vk_shader_fastpath;
+    default:
+        return false;
+    }
+}
+
+XemuTweakRuntimeState xemu_tweak_runtime_state(XemuTweak tweak)
+{
+    XemuTweakRuntimeState state = { 0 };
+    XemuTweakRenderer renderer = qatomic_read(&xemu_tweaks_renderer);
+
+    if ((unsigned int)tweak >= XEMU_TWEAK_COUNT) {
+        state.reason = "Unknown Advanced setting.";
+        return state;
+    }
+
+    state.requested = xemu_tweak_requested(tweak);
+    state.selected = xemu_tweak_enabled(tweak);
+    state.restart_pending = xemu_tweak_requires_restart(tweak) &&
+                            state.requested != state.selected;
+
+    switch (tweak) {
+    case XEMU_TWEAK_CPU_SAVING_WAIT:
+#ifdef _WIN32
+        state.available = true;
+#else
+        state.reason = "This host wait route is available on Windows.";
+#endif
+        break;
+    case XEMU_TWEAK_PGRAPH_BULK_PACKETS:
+    case XEMU_TWEAK_PGRAPH_FENCE_FASTPATH:
+        state.available = renderer != XEMU_TWEAK_RENDERER_NONE;
+        if (!state.available) {
+            state.reason = "Available when a renderer is installed.";
+        }
+        break;
+    case XEMU_TWEAK_GL_NATIVE_S3TC:
+        state.available = renderer == XEMU_TWEAK_RENDERER_OPENGL;
+        if (!state.available) {
+            state.reason = "Available with the OpenGL renderer.";
+        }
+        break;
+    case XEMU_TWEAK_VK_SHADER_FASTPATH:
+        state.available = renderer == XEMU_TWEAK_RENDERER_VULKAN &&
+            xemu_vulkan_ubershader_runtime_state().active !=
+                XEMU_VK_UBERSHADER_OFF;
+        if (!state.available) {
+            state.reason = "Requires an active Vulkan ubershader mode.";
+        }
+        break;
+    case XEMU_TWEAK_VK_HYBRID_UBERSHADERS:
+        state.available = renderer == XEMU_TWEAK_RENDERER_VULKAN &&
+            xemu_vulkan_ubershader_runtime_state().available;
+        if (!state.available) {
+            state.reason = xemu_vulkan_ubershader_runtime_state().reason;
+        }
+        break;
+    default:
+        state.available = renderer == XEMU_TWEAK_RENDERER_VULKAN;
+        if (!state.available) {
+            state.reason = "Available with the Vulkan renderer.";
+        }
+        break;
+    }
+
+    state.effective = state.selected && state.available;
+    if (!state.reason) {
+        state.reason = state.restart_pending ?
+            "Restart xemu to apply the saved choice." :
+            state.effective ? "Active for eligible work." : "Disabled.";
+    }
+    return state;
+}
 
 XemuVulkanUbershaderMode xemu_vulkan_ubershader_migrate_mode(
     bool mode_present, XemuVulkanUbershaderMode mode,

@@ -92,9 +92,17 @@ static void PerformanceToggle(const char *label, bool *selected,
         xemu_tweaks_apply(false);
         xemu_settings_save();
     }
-    if (xemu_tweak_requires_restart(tweak) &&
-        *selected != xemu_tweak_enabled(tweak)) {
+    XemuTweakRuntimeState state = xemu_tweak_runtime_state(tweak);
+    ImGui::TextDisabled("Requested: %s   Effective: %s",
+                        state.requested ? "On" : "Off",
+                        state.effective ? "On" : "Off");
+    if (state.restart_pending) {
         ImGui::TextDisabled("Restart xemu to apply this change.");
+    } else if (!state.available ||
+               (state.requested && !state.effective)) {
+        ImGui::PushTextWrapPos();
+        ImGui::TextDisabled("%s", state.reason);
+        ImGui::PopTextWrapPos();
     }
 }
 
@@ -210,13 +218,6 @@ void MainMenuAdvanceView::Draw()
         "Reuses the current shader and pipeline when their identity has not "
         "changed. Dynamic uniforms and ubershader controls still update.");
     ImGui::EndDisabled();
-    if (ubershader_state.active == XEMU_VK_UBERSHADER_OFF) {
-        ImGui::PushTextWrapPos();
-        ImGui::TextDisabled(
-            "Requires an active Vulkan ubershader mode. The saved choice is "
-            "preserved.");
-        ImGui::PopTextWrapPos();
-    }
     PerformanceToggle("Combine color downloads with rendering",
         &g_config.tweaks.vk_color_download_folding,
         XEMU_TWEAK_VK_COLOR_DOWNLOAD_FOLDING,
