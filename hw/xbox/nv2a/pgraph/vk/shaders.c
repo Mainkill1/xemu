@@ -826,6 +826,27 @@ void pgraph_vk_process_spirv_cache_writeback(PGRAPHState *pg)
             stats->spirv_bytes, stats->loaded_bytes, stats->queued_bytes,
             !active ? "disabled" :
             (written ? (was_dirty ? "published" : "clean") : "failed"));
+    XemuVulkanUbershaderMode policy = xemu_vulkan_ubershader_policy();
+    if (policy == XEMU_VK_UBERSHADER_PREWARM ||
+        policy == XEMU_VK_UBERSHADER_ALWAYS) {
+        const PGRAPHVkHybridPrewarmState *prewarm = &r->hybrid_prewarm;
+        fprintf(stderr,
+                "nv2a/vk: family prewarm considered=%u attempted=%u"
+                " scheduled=%u ready=%u missing=%u deferred=%u"
+                " rejected=%u retry_exhausted=%u owner_attempts=%" PRIu64
+                " owner_us_total=%" PRIu64 " owner_us_max=%" PRIu64
+                " worker_completions=%" PRIu64 " worker_us_total=%" PRIu64
+                " worker_us_max=%" PRIu64 " demand_hits=%" PRIu64 "\n",
+                prewarm->considered, prewarm->attempted,
+                prewarm->scheduled, prewarm->ready, prewarm->missing,
+                prewarm->deferred, prewarm->rejected,
+                prewarm->retry_exhausted, prewarm->owner_attempts,
+                prewarm->owner_prepare_us_total,
+                prewarm->owner_prepare_us_max,
+                prewarm->worker_completions,
+                prewarm->worker_create_us_total,
+                prewarm->worker_create_us_max, prewarm->demand_hits);
+    }
 }
 
 static void shader_spirv_cache_finalize(PGRAPHVkState *r)

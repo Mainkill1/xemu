@@ -10,6 +10,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "hw/xbox/nv2a/pgraph/vk/hybrid-family-history.h"
+
 #define PGRAPH_VK_HYBRID_PREWARM_MAX_CANDIDATES 32U
 
 typedef enum PGRAPHVkHybridPrewarmAttemptResult {
@@ -24,13 +26,22 @@ typedef enum PGRAPHVkHybridPrewarmAttemptResult {
 
 typedef struct PGRAPHVkHybridPrewarmState {
     bool enabled;
+    uint32_t considered;
     uint32_t attempted;
     uint32_t scheduled;
     uint32_t ready;
     uint32_t missing;
     uint32_t deferred;
     uint32_t rejected;
-    uint32_t defer_services;
+    uint32_t retry_exhausted;
+    uint64_t service_id;
+    uint64_t owner_attempts;
+    uint64_t owner_prepare_us_total;
+    uint64_t owner_prepare_us_max;
+    uint64_t worker_completions;
+    uint64_t worker_create_us_total;
+    uint64_t worker_create_us_max;
+    uint64_t demand_hits;
 } PGRAPHVkHybridPrewarmState;
 
 typedef enum PGRAPHVkHybridPrewarmStage {
@@ -51,10 +62,12 @@ typedef PGRAPHVkCachedFamilyModulesResult
                                  PGRAPHVkHybridPrewarmStage stage);
 
 typedef PGRAPHVkHybridPrewarmAttemptResult
-(*PGRAPHVkHybridPrewarmAttemptFunc)(void *opaque);
+(*PGRAPHVkHybridPrewarmAttemptFunc)(
+    void *opaque, const PGRAPHVkFamilyHistoryRecord *record);
 
 PGRAPHVkHybridPrewarmAttemptResult pgraph_vk_hybrid_prewarm_service(
-    PGRAPHVkHybridPrewarmState *state, bool demand_work_waiting,
+    PGRAPHVkHybridPrewarmState *state, PGRAPHVkFamilyHistory *history,
+    bool demand_work_waiting,
     PGRAPHVkHybridPrewarmAttemptFunc attempt, void *opaque);
 PGRAPHVkCachedFamilyModulesResult pgraph_vk_hybrid_prewarm_modules(
     bool geometry_required, PGRAPHVkHybridPrewarmStageFunc materialize,

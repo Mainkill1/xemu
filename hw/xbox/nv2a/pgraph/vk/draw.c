@@ -22,6 +22,7 @@
 #include "qemu/fast-hash.h"
 #include "renderer.h"
 #include "hybrid-family-codec.h"
+#include "hybrid-prewarm-runtime.h"
 #include "hybrid-ready.h"
 #include "pipeline-key.h"
 #include "pipeline-cache-lifetime.h"
@@ -133,6 +134,7 @@ static void pipeline_cache_entry_init(Lru *lru, LruNode *node,
     snode->layout = VK_NULL_HANDLE;
     snode->pipeline = VK_NULL_HANDLE;
     snode->draw_time = 0;
+    snode->prewarmed = false;
     snode->family_learn_state = PGRAPH_VK_FAMILY_UNCHECKED;
 }
 
@@ -1486,78 +1488,87 @@ static bool hybrid_demand_work_waiting(PGRAPHVkState *r)
     return false;
 }
 
-typedef struct PGRAPHVkPrewarmAttemptContext {
-    PGRAPHState *pg;
-} PGRAPHVkPrewarmAttemptContext;
-
-static PGRAPHVkHybridPrewarmAttemptResult prewarm_one_family(void *opaque)
+static bool prewarm_key_device_supported(void *opaque, const PipelineKey *key)
 {
-    PGRAPHVkPrewarmAttemptContext *context = opaque;
-    PGRAPHState *pg = context->pg;
+    PGRAPHState *pg = opaque;
     PGRAPHVkState *r = pg->vk_renderer_state;
-    const PGRAPHVkFamilyHistoryRecord *record =
-        pgraph_vk_family_history_next_unattempted(
-            &r->fallback_family_history);
-    if (!record) {
-        return PGRAPH_VK_HYBRID_PREWARM_NO_CANDIDATE;
+    const VkPhysicalDeviceLimits *limits = &r->device_props.limits;
+    if (key->binding_description_count > limits->maxVertexInputBindings ||
+        key->attribute_description_count > limits->maxVertexInputAttributes ||
+        (pgraph_glsl_need_geom(&key->shader_state.geom) &&
+         !r->enabled_physical_device_features.geometryShader) ||
+        (key->shader_state.geom.polygon_front_mode != POLY_MODE_FILL &&
+         !r->enabled_physical_device_features.fillModeNonSolid)) {
+        return false;
     }
+    VkFormat zeta = key->render_pass_state.zeta_format;
+    if (zeta != VK_FORMAT_UNDEFINED &&
+        zeta != r->kelvin_surface_zeta_vk_map[
+                    key->shader_state.psh.surface_zeta_format].vk_format) {
+        return false;
+    }
+    for (size_t i = 0; i < key->binding_description_count; i++) {
+        const VkVertexInputBindingDescription *binding =
+            &key->binding_descriptions[i];
+        if (binding->binding >= limits->maxVertexInputBindings ||
+            binding->stride > limits->maxVertexInputBindingStride) {
+            return false;
+        }
+    }
+    for (size_t i = 0; i < key->attribute_description_count; i++) {
+        const VkVertexInputAttributeDescription *attribute =
+            &key->attribute_descriptions[i];
+        if (attribute->location >= limits->maxVertexInputAttributes ||
+            attribute->offset > limits->maxVertexInputAttributeOffset) {
+            return false;
+        }
+    }
+    if (r->use_push_constants_for_uniform_attrs &&
+        __builtin_popcount(key->shader_state.vsh.uniform_attrs) *
+            sizeof(float) * 4 > limits->maxPushConstantsSize) {
+        return false;
+    }
+    return true;
+}
 
-    PipelineKey key;
-    if (!pgraph_vk_family_key_decode(record->payload,
-                                     record->payload_size, &key) ||
-        key.clear ||
-        key.fragment_route != PGRAPH_VK_FRAGMENT_UBERSHADER) {
-        pgraph_vk_family_history_mark_attempted(
-            &r->fallback_family_history, record);
-        return PGRAPH_VK_HYBRID_PREWARM_REJECTED;
-    }
+static bool prewarm_pipeline_ready(void *opaque, const PipelineKey *key)
+{
+    PGRAPHState *pg = opaque;
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    uint64_t hash = fast_hash((const uint8_t *)key, sizeof(*key));
+    return pipeline_cache_find_ready(r, hash, key) != NULL;
+}
 
-    uint64_t hash = fast_hash((const uint8_t *)&key, sizeof(key));
-    if (pipeline_cache_find_ready(r, hash, &key)) {
-        pgraph_vk_family_history_mark_attempted(
-            &r->fallback_family_history, record);
-        return PGRAPH_VK_HYBRID_PREWARM_READY;
-    }
+static PGRAPHVkCachedFamilyModulesResult prewarm_cached_modules(
+    void *opaque, const ShaderState *state)
+{
+    return pgraph_vk_materialize_cached_family_modules(opaque, state);
+}
 
-    PGRAPHVkCachedFamilyModulesResult modules =
-        pgraph_vk_materialize_cached_family_modules(
-            pg, &key.shader_state);
-    if (modules == PGRAPH_VK_CACHED_FAMILY_MODULES_MISSING) {
-        pgraph_vk_family_history_mark_attempted(
-            &r->fallback_family_history, record);
-        return PGRAPH_VK_HYBRID_PREWARM_MISSING_ARTIFACT;
-    }
-    if (modules == PGRAPH_VK_CACHED_FAMILY_MODULES_DEFERRED) {
-        return PGRAPH_VK_HYBRID_PREWARM_DEFERRED;
-    }
-    if (modules == PGRAPH_VK_CACHED_FAMILY_MODULES_REJECTED) {
-        pgraph_vk_family_history_mark_attempted(
-            &r->fallback_family_history, record);
-        return PGRAPH_VK_HYBRID_PREWARM_REJECTED;
-    }
+static ShaderBinding *prewarm_ready_binding(void *opaque,
+                                             const ShaderState *state)
+{
+    return pgraph_vk_prepare_binding_from_ready_modules(
+        opaque, state, PGRAPH_VK_FRAGMENT_UBERSHADER);
+}
 
-    ShaderBinding *binding = pgraph_vk_prepare_binding_from_ready_modules(
-        pg, &key.shader_state, PGRAPH_VK_FRAGMENT_UBERSHADER);
-    if (!binding) {
-        return PGRAPH_VK_HYBRID_PREWARM_DEFERRED;
-    }
+static PGRAPHVkHybridPipelineSubmitResult prewarm_submit_pipeline(
+    void *opaque, const PipelineKey *key, ShaderBinding *binding)
+{
+    return request_hybrid_pipeline(opaque, key, binding, true);
+}
 
-    switch (request_hybrid_pipeline(pg, &key, binding, true)) {
-    case PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED:
-        pgraph_vk_family_history_mark_attempted(
-            &r->fallback_family_history, record);
-        return PGRAPH_VK_HYBRID_PREWARM_SUBMITTED;
-    case PGRAPH_VK_HYBRID_PIPELINE_QUEUE_FULL:
-        return PGRAPH_VK_HYBRID_PREWARM_DEFERRED;
-    case PGRAPH_VK_HYBRID_PIPELINE_UNSUPPORTED_RECIPE:
-        pgraph_vk_family_history_mark_attempted(
-            &r->fallback_family_history, record);
-        return PGRAPH_VK_HYBRID_PREWARM_REJECTED;
-    case PGRAPH_VK_HYBRID_PIPELINE_STOPPED:
-        return PGRAPH_VK_HYBRID_PREWARM_DEFERRED;
-    default:
-        g_assert_not_reached();
-    }
+static PGRAPHVkHybridPrewarmAttemptResult prewarm_one_family(
+    void *opaque, const PGRAPHVkFamilyHistoryRecord *record)
+{
+    static const PGRAPHVkHybridPrewarmPrepareOps ops = {
+        .device_supported = prewarm_key_device_supported,
+        .pipeline_ready = prewarm_pipeline_ready,
+        .cached_modules = prewarm_cached_modules,
+        .ready_binding = prewarm_ready_binding,
+        .submit_pipeline = prewarm_submit_pipeline,
+    };
+    return pgraph_vk_hybrid_prewarm_prepare_record(record, &ops, opaque);
 }
 
 void pgraph_vk_process_hybrid_prewarm(PGRAPHState *pg)
@@ -1570,10 +1581,10 @@ void pgraph_vk_process_hybrid_prewarm(PGRAPHState *pg)
         return;
     }
 
-    PGRAPHVkPrewarmAttemptContext context = { .pg = pg };
     pgraph_vk_hybrid_prewarm_service(
-        &r->hybrid_prewarm, hybrid_demand_work_waiting(r),
-        prewarm_one_family, &context);
+        &r->hybrid_prewarm, &r->fallback_family_history,
+        hybrid_demand_work_waiting(r),
+        prewarm_one_family, pg);
 }
 
 static bool hybrid_pipeline_work_publish(PGRAPHVkState *r,
@@ -1583,9 +1594,6 @@ static bool hybrid_pipeline_work_publish(PGRAPHVkState *r,
         return false;
     }
     if (pipeline_cache_find_ready(r, work->key_hash, &work->key)) {
-        if (work->prewarm) {
-            r->hybrid_prewarm.ready++;
-        }
         pgraph_vk_fallback_family_note_pipeline_ready(r, &work->key);
         hybrid_pipeline_work_clear(r, work);
         return false;
@@ -1611,6 +1619,7 @@ static bool hybrid_pipeline_work_publish(PGRAPHVkState *r,
         work->dynamic_blend_constant_mask;
     binding->has_dynamic_line_width = work->has_dynamic_line_width;
     binding->draw_time = 0;
+    binding->prewarmed = work->prewarm;
     work->completed_pipeline = VK_NULL_HANDLE;
     work->layout = VK_NULL_HANDLE;
     r->hybrid_selection_epoch = pgraph_vk_hybrid_next_selection_epoch(
@@ -1665,6 +1674,14 @@ void pgraph_vk_process_hybrid_pipeline_completions(PGRAPHState *pg)
                       sizeof(work->key.shader_state)) : 0;
         PGRAPHVkFragmentRoute route = work ? work->key.fragment_route :
                                             PGRAPH_VK_FRAGMENT_SPECIALIZED;
+        if (work && work->prewarm && result.started_us &&
+            result.finished_us >= result.started_us) {
+            uint64_t create_us = result.finished_us - result.started_us;
+            r->hybrid_prewarm.worker_completions++;
+            r->hybrid_prewarm.worker_create_us_total += create_us;
+            r->hybrid_prewarm.worker_create_us_max = MAX(
+                r->hybrid_prewarm.worker_create_us_max, create_us);
+        }
         if (work && result.generation == r->hybrid_generation &&
             result.vk_result == VK_SUCCESS &&
             result.pipeline != VK_NULL_HANDLE) {
@@ -1986,6 +2003,8 @@ static bool create_pipeline(PGRAPHState *pg)
             r->pipeline_binding_changed =
                 r->pipeline_binding != ready_pipeline;
             r->pipeline_binding = ready_pipeline;
+            pgraph_vk_hybrid_prewarm_note_demand(
+                &r->hybrid_prewarm, ready_pipeline);
             if (route == PGRAPH_VK_FRAGMENT_SPECIALIZED &&
                 track_specialized_family) {
                 pgraph_vk_track_specialized_fallback_family(
@@ -2058,6 +2077,7 @@ static bool create_pipeline(PGRAPHState *pg)
         NV2A_VK_DPRINTF("Cache hit");
         r->pipeline_binding_changed = r->pipeline_binding != snode;
         r->pipeline_binding = snode;
+        pgraph_vk_hybrid_prewarm_note_demand(&r->hybrid_prewarm, snode);
         if (hybrid && track_specialized_family &&
             r->shader_binding->fragment_route ==
                 PGRAPH_VK_FRAGMENT_SPECIALIZED) {
