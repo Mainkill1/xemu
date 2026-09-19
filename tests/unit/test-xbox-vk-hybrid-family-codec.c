@@ -149,6 +149,30 @@ static void assert_semantic_decode_rejected(PipelineKey *source)
     pgraph_vk_family_key_blob_destroy(&blob);
 }
 
+static void test_rejects_checksum_valid_wide_attribute_mask(void)
+{
+    PipelineKey key = make_key();
+    PipelineKey decoded;
+    PGRAPHVkFamilyKeyBlob blob = { 0 };
+    g_assert_true(pgraph_vk_family_key_encode(&key, &blob));
+
+    /* ABI v1: 24-byte envelope, then five u32 fields precede the first
+     * 16-bit VSH mask encoded as u32. Set a high bit and repair the checksum
+     * so only the narrowing guard can reject the record. */
+    blob.data[24 + 5 * 4 + 2] = 1;
+    uint64_t hash = UINT64_C(14695981039346656037);
+    for (size_t i = 24; i < blob.size; i++) {
+        hash ^= blob.data[i];
+        hash *= UINT64_C(1099511628211);
+    }
+    for (size_t i = 0; i < 8; i++) {
+        blob.data[16 + i] = hash >> (8 * i);
+    }
+    g_assert_false(pgraph_vk_family_key_decode(
+        blob.data, blob.size, &decoded));
+    pgraph_vk_family_key_blob_destroy(&blob);
+}
+
 static void test_rejects_checksum_valid_unsafe_recipes(void)
 {
     PipelineKey key = make_key();
@@ -197,6 +221,24 @@ static void test_rejects_checksum_valid_unsafe_recipes(void)
     key = make_key();
     key.attribute_descriptions[0].format = VK_FORMAT_R64_UINT;
     assert_semantic_decode_rejected(&key);
+
+    key = make_key();
+    key.regs[0] = NV_PGRAPH_BLEND_EN | 7;
+    assert_semantic_decode_rejected(&key);
+
+    key = make_key();
+    key.regs[3] = 15;
+    assert_semantic_decode_rejected(&key);
+
+    key = make_key();
+    key.shader_state.psh.other_stage_input = 8;
+    assert_semantic_decode_rejected(&key);
+
+    key = make_key();
+    key.shader_state.psh.shader_stage_program = PS_TEXTUREMODES_PROJECT2D;
+    key.shader_state.psh.dim_tex[0] = 3;
+    key.shader_state.psh.conv_tex[0] = CONVOLUTION_FILTER_GAUSSIAN;
+    assert_semantic_decode_rejected(&key);
 }
 
 int main(int argc, char **argv)
@@ -211,5 +253,7 @@ int main(int argc, char **argv)
                     test_rejects_non_draw_keys);
     g_test_add_func("/nv2a/vk/family-codec/semantic-admission",
                     test_rejects_checksum_valid_unsafe_recipes);
+    g_test_add_func("/nv2a/vk/family-codec/wide-attribute-mask",
+                    test_rejects_checksum_valid_wide_attribute_mask);
     return g_test_run();
 }

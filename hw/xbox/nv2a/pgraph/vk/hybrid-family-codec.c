@@ -384,12 +384,19 @@ static bool family_texture_modes_valid(const PshState *psh)
         if (mode > PS_TEXTUREMODES_DOT_RFLCT_SPEC_CONST ||
             (i >= 2 && input >= NV2A_MAX_TEXTURES) ||
             (i > 0 && ((psh->other_stage_input >> ((i - 1) * 4)) &
-                       0xf) >= 8)) {
+                       0xf) >= 8) ||
+            (psh->shadow_map[i] && psh->dim_tex[i] != 2 &&
+             (mode == PS_TEXTUREMODES_PROJECT2D ||
+              mode == PS_TEXTUREMODES_PROJECT3D))) {
             return false;
         }
         switch (mode) {
         case PS_TEXTUREMODES_PROJECT2D:
             if (psh->dim_tex[i] != 2 && psh->dim_tex[i] != 3) {
+                return false;
+            }
+            if (psh->conv_tex[i] != CONVOLUTION_FILTER_DISABLED &&
+                psh->dim_tex[i] != 2) {
                 return false;
             }
             break;
@@ -459,6 +466,19 @@ static bool family_texture_modes_valid(const PshState *psh)
     return true;
 }
 
+static bool family_pipeline_registers_valid(const PipelineKey *key)
+{
+    uint32_t blend = key->regs[0];
+    uint32_t control_2 = key->regs[3];
+    if ((blend & NV_PGRAPH_BLEND_EN) &&
+        GET_MASK(blend, NV_PGRAPH_BLEND_EQN) >= 7) {
+        return false;
+    }
+    return GET_MASK(control_2, NV_PGRAPH_CONTROL_2_STENCIL_OP_FAIL) < 9 &&
+           GET_MASK(control_2, NV_PGRAPH_CONTROL_2_STENCIL_OP_ZFAIL) < 9 &&
+           GET_MASK(control_2, NV_PGRAPH_CONTROL_2_STENCIL_OP_ZPASS) < 9;
+}
+
 /* A checksum proves transport integrity, not that the saved values are safe
  * inputs to the shader generators or Vulkan recipe builder. Keep this gate
  * before the first replay-side generator call. New consumed fields or enum
@@ -473,6 +493,7 @@ static bool family_key_replay_safe(const PipelineKey *key)
     if (key->fragment_route != PGRAPH_VK_FRAGMENT_UBERSHADER ||
         key->clear ||
         !family_render_formats_valid(&key->render_pass_state) ||
+        !family_pipeline_registers_valid(key) ||
         (vsh->uniform_attrs &
          (vsh->compressed_attrs | vsh->swizzle_attrs)) ||
         (!vsh->is_fixed_function &&
