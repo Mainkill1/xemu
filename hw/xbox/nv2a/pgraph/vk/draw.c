@@ -21,6 +21,7 @@
 #include "qemu/error-report.h"
 #include "qemu/fast-hash.h"
 #include "renderer.h"
+#include "hybrid-family-codec.h"
 #include "hybrid-ready.h"
 #include "pipeline-key.h"
 #include "pipeline-cache-lifetime.h"
@@ -1275,8 +1276,9 @@ static bool prepare_graphics_pipeline_recipe(PGRAPHState *pg,
     return true;
 }
 
-PGRAPHVkHybridPipelineSubmitResult pgraph_vk_request_hybrid_pipeline(
-    PGRAPHState *pg, const PipelineKey *key, ShaderBinding *ready_binding)
+static PGRAPHVkHybridPipelineSubmitResult request_hybrid_pipeline(
+    PGRAPHState *pg, const PipelineKey *key, ShaderBinding *ready_binding,
+    bool prewarm)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     if (!r->hybrid_pipeline_builder_initialized || !key || !ready_binding ||
@@ -1324,6 +1326,7 @@ PGRAPHVkHybridPipelineSubmitResult pgraph_vk_request_hybrid_pipeline(
     }
 
     work->in_use = true;
+    work->prewarm = prewarm;
     work->generation = r->hybrid_generation;
     work->ticket = ++r->hybrid_pipeline_next_ticket;
     if (!work->ticket) {
@@ -1368,6 +1371,12 @@ PGRAPHVkHybridPipelineSubmitResult pgraph_vk_request_hybrid_pipeline(
         hybrid_pipeline_work_clear(r, work);
     }
     return status;
+}
+
+PGRAPHVkHybridPipelineSubmitResult pgraph_vk_request_hybrid_pipeline(
+    PGRAPHState *pg, const PipelineKey *key, ShaderBinding *ready_binding)
+{
+    return request_hybrid_pipeline(pg, key, ready_binding, false);
 }
 
 typedef struct PGRAPHVkFallbackShaderPreparationContext {
@@ -1456,6 +1465,117 @@ void pgraph_vk_process_fallback_families(PGRAPHState *pg)
     }
 }
 
+static bool hybrid_demand_work_waiting(PGRAPHVkState *r)
+{
+    if (r->hybrid_pending_jobs ||
+        pgraph_vk_hybrid_compiler_has_result(&r->hybrid_compiler) ||
+        pgraph_vk_hybrid_pipeline_builder_has_result(
+            &r->hybrid_pipeline_builder)) {
+        return true;
+    }
+    for (size_t i = 0; i < ARRAY_SIZE(r->fallback_family_requests); i++) {
+        if (r->fallback_family_requests[i].in_use) {
+            return true;
+        }
+    }
+    for (size_t i = 0; i < ARRAY_SIZE(r->hybrid_pipeline_work); i++) {
+        if (r->hybrid_pipeline_work[i].in_use) {
+            return true;
+        }
+    }
+    return false;
+}
+
+typedef struct PGRAPHVkPrewarmAttemptContext {
+    PGRAPHState *pg;
+} PGRAPHVkPrewarmAttemptContext;
+
+static PGRAPHVkHybridPrewarmAttemptResult prewarm_one_family(void *opaque)
+{
+    PGRAPHVkPrewarmAttemptContext *context = opaque;
+    PGRAPHState *pg = context->pg;
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    const PGRAPHVkFamilyHistoryRecord *record =
+        pgraph_vk_family_history_next_unattempted(
+            &r->fallback_family_history);
+    if (!record) {
+        return PGRAPH_VK_HYBRID_PREWARM_NO_CANDIDATE;
+    }
+
+    PipelineKey key;
+    if (!pgraph_vk_family_key_decode(record->payload,
+                                     record->payload_size, &key) ||
+        key.clear ||
+        key.fragment_route != PGRAPH_VK_FRAGMENT_UBERSHADER) {
+        pgraph_vk_family_history_mark_attempted(
+            &r->fallback_family_history, record);
+        return PGRAPH_VK_HYBRID_PREWARM_REJECTED;
+    }
+
+    uint64_t hash = fast_hash((const uint8_t *)&key, sizeof(key));
+    if (pipeline_cache_find_ready(r, hash, &key)) {
+        pgraph_vk_family_history_mark_attempted(
+            &r->fallback_family_history, record);
+        return PGRAPH_VK_HYBRID_PREWARM_READY;
+    }
+
+    PGRAPHVkCachedFamilyModulesResult modules =
+        pgraph_vk_materialize_cached_family_modules(
+            pg, &key.shader_state);
+    if (modules == PGRAPH_VK_CACHED_FAMILY_MODULES_MISSING) {
+        pgraph_vk_family_history_mark_attempted(
+            &r->fallback_family_history, record);
+        return PGRAPH_VK_HYBRID_PREWARM_MISSING_ARTIFACT;
+    }
+    if (modules == PGRAPH_VK_CACHED_FAMILY_MODULES_DEFERRED) {
+        return PGRAPH_VK_HYBRID_PREWARM_DEFERRED;
+    }
+    if (modules == PGRAPH_VK_CACHED_FAMILY_MODULES_REJECTED) {
+        pgraph_vk_family_history_mark_attempted(
+            &r->fallback_family_history, record);
+        return PGRAPH_VK_HYBRID_PREWARM_REJECTED;
+    }
+
+    ShaderBinding *binding = pgraph_vk_prepare_binding_from_ready_modules(
+        pg, &key.shader_state, PGRAPH_VK_FRAGMENT_UBERSHADER);
+    if (!binding) {
+        return PGRAPH_VK_HYBRID_PREWARM_DEFERRED;
+    }
+
+    switch (request_hybrid_pipeline(pg, &key, binding, true)) {
+    case PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED:
+        pgraph_vk_family_history_mark_attempted(
+            &r->fallback_family_history, record);
+        return PGRAPH_VK_HYBRID_PREWARM_SUBMITTED;
+    case PGRAPH_VK_HYBRID_PIPELINE_QUEUE_FULL:
+        return PGRAPH_VK_HYBRID_PREWARM_DEFERRED;
+    case PGRAPH_VK_HYBRID_PIPELINE_UNSUPPORTED_RECIPE:
+        pgraph_vk_family_history_mark_attempted(
+            &r->fallback_family_history, record);
+        return PGRAPH_VK_HYBRID_PREWARM_REJECTED;
+    case PGRAPH_VK_HYBRID_PIPELINE_STOPPED:
+        return PGRAPH_VK_HYBRID_PREWARM_DEFERRED;
+    default:
+        g_assert_not_reached();
+    }
+}
+
+void pgraph_vk_process_hybrid_prewarm(PGRAPHState *pg)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    if (!r->hybrid_prewarm.enabled ||
+        !r->fallback_family_history_initialized ||
+        !r->hybrid_compiler_initialized ||
+        !r->hybrid_pipeline_builder_initialized) {
+        return;
+    }
+
+    PGRAPHVkPrewarmAttemptContext context = { .pg = pg };
+    pgraph_vk_hybrid_prewarm_service(
+        &r->hybrid_prewarm, hybrid_demand_work_waiting(r),
+        prewarm_one_family, &context);
+}
+
 static bool hybrid_pipeline_work_publish(PGRAPHVkState *r,
                                          PGRAPHVkHybridPipelineWork *work)
 {
@@ -1463,6 +1583,9 @@ static bool hybrid_pipeline_work_publish(PGRAPHVkState *r,
         return false;
     }
     if (pipeline_cache_find_ready(r, work->key_hash, &work->key)) {
+        if (work->prewarm) {
+            r->hybrid_prewarm.ready++;
+        }
         pgraph_vk_fallback_family_note_pipeline_ready(r, &work->key);
         hybrid_pipeline_work_clear(r, work);
         return false;
@@ -1492,6 +1615,9 @@ static bool hybrid_pipeline_work_publish(PGRAPHVkState *r,
     work->layout = VK_NULL_HANDLE;
     r->hybrid_selection_epoch = pgraph_vk_hybrid_next_selection_epoch(
         r->hybrid_selection_epoch);
+    if (work->prewarm) {
+        r->hybrid_prewarm.ready++;
+    }
     pgraph_vk_fallback_family_note_pipeline_ready(r, &work->key);
     hybrid_pipeline_work_clear(r, work);
     return true;
@@ -1547,6 +1673,9 @@ void pgraph_vk_process_hybrid_pipeline_completions(PGRAPHState *pg)
             adopted = hybrid_pipeline_work_publish(r, work);
         } else if (work &&
                    result.generation == r->hybrid_generation) {
+            if (work->prewarm) {
+                r->hybrid_prewarm.rejected++;
+            }
             pgraph_vk_fallback_family_note_pipeline_failure_at(
                 r, &work->key, g_get_monotonic_time());
         }

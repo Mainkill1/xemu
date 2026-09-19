@@ -46,6 +46,7 @@ bool xemu_vulkan_ubershader_mode_selectable(
 {
     return mode == XEMU_VK_UBERSHADER_OFF ||
            mode == XEMU_VK_UBERSHADER_FALLBACK ||
+           mode == XEMU_VK_UBERSHADER_PREWARM ||
            mode == XEMU_VK_UBERSHADER_ALWAYS;
 }
 
