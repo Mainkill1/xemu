@@ -734,7 +734,7 @@ static void test_fallback_family_production_lifecycle(void)
 
 static void test_fallback_family_owner_observation_requires_admission(void)
 {
-    PGRAPHVkState r = { 0 };
+    PGRAPHVkState *r = g_new0(PGRAPHVkState, 1);
     ShaderState state = base_state();
     PipelineBinding unsupported = {
         .pipeline = (VkPipeline)(uintptr_t)1,
@@ -746,14 +746,15 @@ static void test_fallback_family_owner_observation_requires_admission(void)
     };
 
     pgraph_vk_track_specialized_fallback_family(
-        &r, &unsupported, false, true);
+        r, &unsupported, false, true);
     g_assert_cmpint(unsupported.family_learn_state, ==,
                     PGRAPH_VK_FAMILY_REJECTED);
 
     pgraph_vk_track_specialized_fallback_family(
-        &r, &supported, true, true);
+        r, &supported, true, true);
     g_assert_cmpint(supported.family_learn_state, ==,
                     PGRAPH_VK_FAMILY_READY);
+    g_free(r);
 }
 
 static void test_changed_register_marks_shortcut_dirty(void)
