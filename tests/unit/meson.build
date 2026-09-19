@@ -218,6 +218,8 @@ if vulkan.found()
           meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/common.c',
           meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/geom.c',
           meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-family.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-family-codec.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-family-history.c',
           meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-trace.c',
           meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/ubershader-controls.c',
           nv2a_vk_runtime_prod,
