@@ -733,6 +733,7 @@ typedef struct PGRAPHVkState {
 
     Lru pipeline_cache;
     VkPipelineCache vk_pipeline_cache;
+    char *pipeline_cache_path;
     PipelineBinding *pipeline_cache_entries;
     PipelineBinding *pipeline_binding;
     bool pipeline_binding_changed;
