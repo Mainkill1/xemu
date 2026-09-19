@@ -45,6 +45,7 @@
 #include "constants.h"
 #include "glsl.h"
 #include "hybrid-compiler.h"
+#include "hybrid-family-history.h"
 #include "hybrid-pipeline-builder.h"
 #include "hybrid-trace.h"
 #include "hybrid-policy.h"
@@ -819,9 +820,12 @@ typedef struct PGRAPHVkState {
     Lru shader_module_cache;
     ShaderModuleCacheEntry *shader_module_cache_entries;
     PGRAPHVkSpirvCache spirv_cache;
+    PGRAPHVkFamilyHistory fallback_family_history;
     char *spirv_cache_directory;
     char *spirv_cache_path;
+    char *fallback_family_history_path;
     bool spirv_cache_initialized;
+    bool fallback_family_history_initialized;
     bool spirv_cache_session_eligible;
     bool spirv_cache_writeback_pending;
     bool spirv_cache_writeback_requested;

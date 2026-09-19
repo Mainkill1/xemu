@@ -604,6 +604,44 @@ static const char *shader_spirv_cache_filename(uint32_t api_version,
     }
 }
 
+static const char *fallback_family_history_filename(uint32_t api_version)
+{
+    switch (pgraph_vk_shader_target_for_api(api_version)) {
+    case PGRAPH_VK_SHADER_TARGET_VULKAN_1_3:
+        return "fallback-families-v1-vk13.bin";
+    case PGRAPH_VK_SHADER_TARGET_VULKAN_1_2:
+        return "fallback-families-v1-vk12.bin";
+    default:
+        return "fallback-families-v1-vk11.bin";
+    }
+}
+
+static bool shader_cache_read_file(const char *path, size_t max_size,
+                                   uint8_t **contents, size_t *contents_size)
+{
+    GStatBuf stat_buf;
+    if (g_stat(path, &stat_buf) || stat_buf.st_size <= 0 ||
+        (uint64_t)stat_buf.st_size > max_size) {
+        return false;
+    }
+    *contents_size = stat_buf.st_size;
+    *contents = g_try_malloc(*contents_size);
+    FILE *file = qemu_fopen(path, "rb");
+    if (!*contents || !file ||
+        fread(*contents, 1, *contents_size, file) != *contents_size ||
+        fgetc(file) != EOF) {
+        if (file) {
+            fclose(file);
+        }
+        g_free(*contents);
+        *contents = NULL;
+        *contents_size = 0;
+        return false;
+    }
+    fclose(file);
+    return true;
+}
+
 static void shader_spirv_cache_init(PGRAPHVkState *r)
 {
     const char *base = xemu_settings_get_base_path();
@@ -641,8 +679,17 @@ static void shader_spirv_cache_init(PGRAPHVkState *r)
                              r->vk_api_version,
                              g_config.display.vulkan.debug_shaders),
                          NULL);
+    r->fallback_family_history_path =
+        g_build_filename(r->spirv_cache_directory,
+                         fallback_family_history_filename(r->vk_api_version),
+                         NULL);
     r->spirv_cache_initialized = true;
     r->spirv_cache_session_eligible = g_config.perf.cache_shaders;
+    r->fallback_family_history_initialized =
+        r->ubershader_runtime_enabled &&
+        pgraph_vk_family_history_init(
+            &r->fallback_family_history,
+            PGRAPH_VK_FAMILY_HISTORY_MAX_RECORDS);
     qemu_event_init(&r->spirv_cache_writeback_complete, false);
     r->spirv_cache_writeback_complete_initialized = true;
 
@@ -650,35 +697,32 @@ static void shader_spirv_cache_init(PGRAPHVkState *r)
         return;
     }
 
-    GStatBuf stat_buf;
-    if (g_stat(r->spirv_cache_path, &stat_buf)) {
-        if (errno != ENOENT) {
+    uint8_t *contents = NULL;
+    size_t contents_size = 0;
+    if (shader_cache_read_file(
+            r->spirv_cache_path, PGRAPH_VK_SPIRV_CACHE_MAX_FILE_SIZE,
+            &contents, &contents_size)) {
+        pgraph_vk_spirv_cache_load(&r->spirv_cache,
+                                   contents, contents_size);
+        g_free(contents);
+    } else {
+        GStatBuf stat_buf;
+        if (!g_stat(r->spirv_cache_path, &stat_buf) || errno != ENOENT) {
             pgraph_vk_spirv_cache_note_rejection(&r->spirv_cache);
         }
-        return;
     }
-    if (stat_buf.st_size <= 0 ||
-        (uint64_t)stat_buf.st_size > PGRAPH_VK_SPIRV_CACHE_MAX_FILE_SIZE) {
-        pgraph_vk_spirv_cache_note_rejection(&r->spirv_cache);
-        return;
-    }
-    size_t contents_size = (size_t)stat_buf.st_size;
-    uint8_t *contents = g_try_malloc(contents_size);
-    FILE *file = qemu_fopen(r->spirv_cache_path, "rb");
-    if (!contents || !file ||
-        fread(contents, 1, contents_size, file) != contents_size ||
-        fgetc(file) != EOF) {
-        pgraph_vk_spirv_cache_note_rejection(&r->spirv_cache);
-        if (file) {
-            fclose(file);
-        }
+
+    contents = NULL;
+    contents_size = 0;
+    if (r->fallback_family_history_initialized &&
+        shader_cache_read_file(
+            r->fallback_family_history_path,
+            PGRAPH_VK_FAMILY_HISTORY_MAX_FILE_SIZE,
+            &contents, &contents_size)) {
+        pgraph_vk_family_history_load(
+            &r->fallback_family_history, contents, contents_size);
         g_free(contents);
-        return;
     }
-    fclose(file);
-    pgraph_vk_spirv_cache_load(&r->spirv_cache,
-                               contents, contents_size);
-    g_free(contents);
 }
 
 static bool shader_spirv_write(void *opaque, const char *path,
@@ -710,8 +754,11 @@ void pgraph_vk_process_spirv_cache_writeback(PGRAPHState *pg)
                       &r->spirv_cache, r->spirv_cache_session_eligible,
                       g_config.perf.cache_shaders);
     bool written = !was_dirty || !active;
+    bool family_dirty = r->fallback_family_history_initialized &&
+                        r->fallback_family_history.dirty;
+    bool family_written = !family_dirty || !active;
 
-    if (active && was_dirty &&
+    if (active && (was_dirty || family_dirty) &&
         !g_mkdir_with_parents(r->spirv_cache_directory, 0700)) {
         char *temporary = g_strdup_printf("%s.tmp.%08x",
                                           r->spirv_cache_path,
@@ -724,9 +771,27 @@ void pgraph_vk_process_spirv_cache_writeback(PGRAPHState *pg)
         written = pgraph_vk_spirv_cache_publish(
             &r->spirv_cache, temporary, r->spirv_cache_path, &ops, NULL);
         g_free(temporary);
+
+        if (family_dirty) {
+            temporary = g_strdup_printf(
+                "%s.tmp.%08x", r->fallback_family_history_path,
+                g_random_int());
+            const PGRAPHVkFamilyHistoryFileOps family_ops = {
+                .write = shader_spirv_write,
+                .replace = shader_spirv_replace,
+                .remove = shader_spirv_remove,
+            };
+            family_written = pgraph_vk_family_history_publish(
+                &r->fallback_family_history, temporary,
+                r->fallback_family_history_path, &family_ops, NULL);
+            g_free(temporary);
+        }
     }
     if (active && was_dirty && !written) {
         pgraph_vk_spirv_cache_note_rejection(&r->spirv_cache);
+    }
+    if (active && family_dirty && !family_written) {
+        error_report("nv2a/vk: failed to publish fallback family history");
     }
 
     const PGRAPHVkSpirvCacheStats *stats =
@@ -753,11 +818,17 @@ static void shader_spirv_cache_finalize(PGRAPHVkState *r)
         r->spirv_cache_writeback_complete_initialized = false;
     }
     pgraph_vk_spirv_cache_destroy(&r->spirv_cache);
+    if (r->fallback_family_history_initialized) {
+        pgraph_vk_family_history_destroy(&r->fallback_family_history);
+    }
     g_free(r->spirv_cache_directory);
     g_free(r->spirv_cache_path);
+    g_free(r->fallback_family_history_path);
     r->spirv_cache_directory = NULL;
     r->spirv_cache_path = NULL;
+    r->fallback_family_history_path = NULL;
     r->spirv_cache_initialized = false;
+    r->fallback_family_history_initialized = false;
     r->spirv_cache_session_eligible = false;
 }
 
@@ -1194,7 +1265,9 @@ static void shader_cache_finalize(PGRAPHState *pg)
     g_free(r->shader_module_cache_entries);
     r->shader_module_cache_entries = NULL;
     if (shader_spirv_cache_active(r) &&
-        pgraph_vk_spirv_cache_is_dirty(&r->spirv_cache)) {
+        (pgraph_vk_spirv_cache_is_dirty(&r->spirv_cache) ||
+         (r->fallback_family_history_initialized &&
+          r->fallback_family_history.dirty))) {
         pgraph_vk_process_spirv_cache_writeback(pg);
     }
     shader_spirv_cache_finalize(r);
