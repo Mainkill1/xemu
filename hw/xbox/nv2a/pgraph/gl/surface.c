@@ -791,7 +791,7 @@ static void surface_download(NV2AState *d, SurfaceBinding *surface, bool force)
         return;
     }
 
-    nv2a_profile_log_event_once("readback");
+    nv2a_profile_log_event_once(NV2A_PROFILE_EVENT_READBACK);
 
     /* FIXME: Respect write enable at last TOU? */
 

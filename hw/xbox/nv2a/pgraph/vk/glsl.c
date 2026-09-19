@@ -630,7 +630,7 @@ static glslang_stage_t vk_shader_stage_to_glslang_stage(VkShaderStageFlagBits st
 ShaderModuleInfo *pgraph_vk_create_shader_module_from_glsl(
     PGRAPHVkState *r, VkShaderStageFlagBits stage, const char *glsl)
 {
-    nv2a_profile_log_event_once("shader_compile");
+    nv2a_profile_log_event_once(NV2A_PROFILE_EVENT_SHADER_COMPILE);
     GByteArray *spirv = pgraph_vk_compile_glsl_to_spv(
         r, vk_shader_stage_to_glslang_stage(stage), glsl);
     if (!spirv) {

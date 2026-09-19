@@ -2255,7 +2255,7 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
             MAX(qemu_clock_get_us(QEMU_CLOCK_REALTIME) - submit_start, 0) : 0;
         trace_submit_us = submit_cpu_us;
         VK_CHECK(result);
-        nv2a_profile_log_event_once("gpu_submit");
+        nv2a_profile_log_event_once(NV2A_PROFILE_EVENT_GPU_SUBMIT);
         r->submit_count += 1;
 
         bool check_budget = false;

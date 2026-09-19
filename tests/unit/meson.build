@@ -37,6 +37,10 @@ tests = {
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/renderer-switch.c',
   ],
   'test-xbox-vk-debug-macros': [],
+  'test-xbox-nv2a-profile-event-log': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/profile.c',
+    xbox_i386_target_headers,
+  ],
   'test-xbox-pgraph-reports': [
     'xbox-pgraph-report-test-support.c',
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/reports.c',
