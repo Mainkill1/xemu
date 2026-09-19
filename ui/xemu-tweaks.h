@@ -23,6 +23,29 @@ typedef enum XemuTweak {
     XEMU_TWEAK_COUNT,
 } XemuTweak;
 
+#ifdef __cplusplus
+static_assert(XEMU_TWEAK_COUNT < sizeof(unsigned int) * 8,
+              "Advanced tweak mask is full");
+#else
+_Static_assert(XEMU_TWEAK_COUNT < sizeof(unsigned int) * 8,
+               "Advanced tweak mask is full");
+#endif
+
+typedef enum XemuTweakRenderer {
+    XEMU_TWEAK_RENDERER_NONE,
+    XEMU_TWEAK_RENDERER_OPENGL,
+    XEMU_TWEAK_RENDERER_VULKAN,
+} XemuTweakRenderer;
+
+typedef struct XemuTweakRuntimeState {
+    bool requested;
+    bool selected;
+    bool effective;
+    bool available;
+    bool restart_pending;
+    const char *reason;
+} XemuTweakRuntimeState;
+
 typedef enum XemuVulkanUbershaderMode {
     XEMU_VK_UBERSHADER_OFF = 0,
     XEMU_VK_UBERSHADER_FALLBACK,
@@ -56,6 +79,9 @@ static inline bool xemu_tweak_requires_restart(XemuTweak tweak)
 
 /* UI thread only. startup=true is only valid before workers are created. */
 void xemu_tweaks_apply(bool startup);
+/* Renderer lifecycle publication and UI-only status query. Neither is hot-path. */
+void xemu_tweaks_publish_renderer(XemuTweakRenderer renderer);
+XemuTweakRuntimeState xemu_tweak_runtime_state(XemuTweak tweak);
 XemuVulkanUbershaderMode xemu_vulkan_ubershader_migrate_mode(
     bool mode_present, XemuVulkanUbershaderMode mode,
     bool legacy_enabled);

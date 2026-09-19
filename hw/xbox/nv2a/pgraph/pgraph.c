@@ -369,6 +369,11 @@ static bool attempt_renderer_init(PGRAPHState *pg, bool fallback)
     if (pg->renderer->type != CONFIG_DISPLAY_RENDERER_VULKAN) {
         xemu_vulkan_ubershader_publish_runtime(false, false);
     }
+    xemu_tweaks_publish_renderer(
+        pg->renderer->type == CONFIG_DISPLAY_RENDERER_VULKAN ?
+            XEMU_TWEAK_RENDERER_VULKAN :
+        pg->renderer->type == CONFIG_DISPLAY_RENDERER_OPENGL ?
+            XEMU_TWEAK_RENDERER_OPENGL : XEMU_TWEAK_RENDERER_NONE);
 
     return true;
 }
@@ -411,6 +416,7 @@ void pgraph_destroy(PGRAPHState *pg)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
 
+    xemu_tweaks_publish_renderer(XEMU_TWEAK_RENDERER_NONE);
     if (pg->renderer->ops.finalize) {
        pg->renderer->ops.finalize(d);
     }
@@ -3463,6 +3469,7 @@ static void renderer_switch_finalize_renderer(void *opaque)
     NV2AState *d = opaque;
     PGRAPHState *pg = &d->pgraph;
 
+    xemu_tweaks_publish_renderer(XEMU_TWEAK_RENDERER_NONE);
     if (pg->renderer && pg->renderer->ops.finalize) {
         pg->renderer->ops.finalize(d);
     }

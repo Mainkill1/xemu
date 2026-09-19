@@ -113,8 +113,64 @@ static void test_ubershader_runtime_lifecycle()
     assert(state.restart_pending);
 }
 
+static void test_boolean_tweak_runtime_state()
+{
+    config_tree.reset_to_defaults();
+    config_tree.free_allocations(&g_config);
+    config_tree.store_to_struct(&g_config);
+    xemu_tweaks_apply(true);
+
+    xemu_tweaks_publish_renderer(XEMU_TWEAK_RENDERER_NONE);
+    XemuTweakRuntimeState state =
+        xemu_tweak_runtime_state(XEMU_TWEAK_VK_COLOR_DOWNLOAD_FOLDING);
+    assert(state.requested && state.selected && !state.effective);
+    assert(!state.available && state.reason && state.reason[0]);
+
+    xemu_tweaks_publish_renderer(XEMU_TWEAK_RENDERER_VULKAN);
+    state = xemu_tweak_runtime_state(
+        XEMU_TWEAK_VK_COLOR_DOWNLOAD_FOLDING);
+    assert(state.requested && state.selected && state.effective);
+    assert(state.available && !state.restart_pending);
+    state = xemu_tweak_runtime_state(XEMU_TWEAK_GL_NATIVE_S3TC);
+    assert(state.requested && state.selected && !state.effective);
+    assert(!state.available);
+
+    g_config.tweaks.vk_transient_buffer_growth = false;
+    xemu_tweaks_apply(false);
+    state = xemu_tweak_runtime_state(
+        XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH);
+    assert(!state.requested && state.selected && state.effective);
+    assert(state.restart_pending);
+    xemu_tweaks_apply(true);
+    state = xemu_tweak_runtime_state(
+        XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH);
+    assert(!state.requested && !state.selected && !state.effective);
+    assert(!state.restart_pending);
+
+    g_config.tweaks.vk_shader_fastpath = true;
+    xemu_tweaks_apply(false);
+    state = xemu_tweak_runtime_state(XEMU_TWEAK_VK_SHADER_FASTPATH);
+    assert(state.requested && state.selected && !state.effective);
+    assert(!state.available);
+
+    g_config.tweaks.vk_ubershader_mode =
+        CONFIG_TWEAKS_VK_UBERSHADER_MODE_FALLBACK;
+    xemu_tweaks_apply(true);
+    xemu_vulkan_ubershader_publish_runtime(true, true);
+    state = xemu_tweak_runtime_state(XEMU_TWEAK_VK_SHADER_FASTPATH);
+    assert(state.effective && state.available);
+
+    xemu_tweaks_publish_renderer(XEMU_TWEAK_RENDERER_OPENGL);
+    xemu_vulkan_ubershader_publish_runtime(false, false);
+    state = xemu_tweak_runtime_state(XEMU_TWEAK_VK_SHADER_FASTPATH);
+    assert(state.selected && !state.effective && !state.available);
+    state = xemu_tweak_runtime_state(XEMU_TWEAK_GL_NATIVE_S3TC);
+    assert(state.effective && state.available);
+}
+
 int main()
 {
+    test_boolean_tweak_runtime_state();
     test_ubershader_migration();
     test_ubershader_runtime_lifecycle();
     const char *default_on_keys[] = {
