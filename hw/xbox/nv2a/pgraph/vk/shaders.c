@@ -714,12 +714,11 @@ static void shader_spirv_cache_init(PGRAPHVkState *r)
 
     contents = NULL;
     contents_size = 0;
-    XemuVulkanUbershaderMode ubershader_policy =
-        xemu_vulkan_ubershader_policy();
-    bool load_family_history =
-        ubershader_policy == XEMU_VK_UBERSHADER_PREWARM ||
-        ubershader_policy == XEMU_VK_UBERSHADER_ALWAYS;
-    if (load_family_history && r->fallback_family_history_initialized &&
+    /* Metadata is cumulative in Fallback too. Only Prewarm/Always service
+     * it; skipping this load would overwrite earlier sessions on publish. */
+    if (pgraph_vk_family_history_should_load(
+            r->spirv_cache_session_eligible,
+            r->fallback_family_history_initialized) &&
         shader_cache_read_file(
             r->fallback_family_history_path,
             PGRAPH_VK_FAMILY_HISTORY_MAX_FILE_SIZE,

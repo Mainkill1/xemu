@@ -154,6 +154,44 @@ static void test_round_trip_and_corruption(void)
     pgraph_vk_family_history_destroy(&source);
 }
 
+static void test_fallback_sessions_retain_prior_history(void)
+{
+    static const uint8_t family_a[] = { 0xa1 };
+    static const uint8_t family_b[] = { 0xb2 };
+    PGRAPHVkFamilyHistory first;
+    PGRAPHVkFamilyHistory second;
+    PGRAPHVkFamilyHistory third;
+    PGRAPHVkFamilyHistoryBlob saved = { 0 };
+    PGRAPHVkFamilyHistoryBlob updated = { 0 };
+
+    g_assert_true(pgraph_vk_family_history_should_load(true, true));
+    g_assert_false(pgraph_vk_family_history_should_load(false, true));
+    g_assert_false(pgraph_vk_family_history_should_load(true, false));
+    g_assert_true(pgraph_vk_family_history_init(&first, 4));
+    g_assert_true(pgraph_vk_family_history_init(&second, 4));
+    g_assert_true(pgraph_vk_family_history_init(&third, 4));
+    g_assert_true(pgraph_vk_family_history_note(&first, family_a, 1));
+    g_assert_true(pgraph_vk_family_history_serialize(&first, &saved));
+
+    /* A second Fallback session loads metadata without scheduling it. */
+    g_assert_cmpint(pgraph_vk_family_history_load(
+                        &second, saved.data, saved.size),
+                    ==, PGRAPH_VK_FAMILY_HISTORY_LOAD_OK);
+    g_assert_true(pgraph_vk_family_history_note(&second, family_b, 1));
+    g_assert_true(pgraph_vk_family_history_serialize(&second, &updated));
+    g_assert_cmpint(pgraph_vk_family_history_load(
+                        &third, updated.data, updated.size),
+                    ==, PGRAPH_VK_FAMILY_HISTORY_LOAD_OK);
+    g_assert_nonnull(pgraph_vk_family_history_find(&third, family_a, 1));
+    g_assert_nonnull(pgraph_vk_family_history_find(&third, family_b, 1));
+
+    pgraph_vk_family_history_blob_destroy(&updated);
+    pgraph_vk_family_history_blob_destroy(&saved);
+    pgraph_vk_family_history_destroy(&third);
+    pgraph_vk_family_history_destroy(&second);
+    pgraph_vk_family_history_destroy(&first);
+}
+
 static void test_publish_is_atomic_and_clears_dirty(void)
 {
     static const uint8_t family[] = { 9, 8, 7 };
@@ -203,5 +241,7 @@ int main(int argc, char **argv)
                     test_round_trip_and_corruption);
     g_test_add_func("/nv2a/vk/family-history/atomic-publish",
                     test_publish_is_atomic_and_clears_dirty);
+    g_test_add_func("/nv2a/vk/family-history/fallback-sessions",
+                    test_fallback_sessions_retain_prior_history);
     return g_test_run();
 }

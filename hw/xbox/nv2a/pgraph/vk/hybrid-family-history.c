@@ -77,6 +77,12 @@ static bool payload_valid(const void *payload, size_t payload_size)
            payload_size <= PGRAPH_VK_FAMILY_HISTORY_MAX_PAYLOAD;
 }
 
+bool pgraph_vk_family_history_should_load(bool persistent_cache_eligible,
+                                          bool hybrid_enabled)
+{
+    return persistent_cache_eligible && hybrid_enabled;
+}
+
 bool pgraph_vk_family_history_init(PGRAPHVkFamilyHistory *history,
                                    size_t capacity)
 {

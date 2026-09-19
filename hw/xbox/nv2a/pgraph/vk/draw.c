@@ -1978,6 +1978,11 @@ static bool create_pipeline(PGRAPHState *pg)
     r->pipeline_binding = snode;
     r->pipeline_binding_changed = true;
 
+    if (hybrid && force_ubershader &&
+        key.fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER) {
+        pgraph_vk_note_interpreter_family(r, &key);
+    }
+
     if (hybrid && track_specialized_family &&
         r->shader_binding->fragment_route ==
             PGRAPH_VK_FRAGMENT_SPECIALIZED) {

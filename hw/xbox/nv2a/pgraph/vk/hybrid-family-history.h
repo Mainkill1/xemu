@@ -54,6 +54,8 @@ typedef struct PGRAPHVkFamilyHistoryFileOps {
 
 bool pgraph_vk_family_history_init(PGRAPHVkFamilyHistory *history,
                                    size_t capacity);
+bool pgraph_vk_family_history_should_load(bool persistent_cache_eligible,
+                                          bool hybrid_enabled);
 void pgraph_vk_family_history_destroy(PGRAPHVkFamilyHistory *history);
 bool pgraph_vk_family_history_note(PGRAPHVkFamilyHistory *history,
                                    const void *payload, size_t payload_size);

@@ -1103,6 +1103,8 @@ void pgraph_vk_pipeline_family_set_state(
 void pgraph_vk_track_specialized_fallback_family(
     PGRAPHVkState *r, PipelineBinding *owner,
     bool controls_supported, bool fallback_pipeline_ready);
+void pgraph_vk_note_interpreter_family(PGRAPHVkState *r,
+                                      const PipelineKey *key);
 void pgraph_vk_enqueue_retained_fallback_families(PGRAPHVkState *r);
 void pgraph_vk_fallback_family_note_pipeline_ready(
     PGRAPHVkState *r, const PipelineKey *key);

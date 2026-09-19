@@ -386,6 +386,23 @@ void pgraph_vk_track_specialized_fallback_family(
     }
 }
 
+void pgraph_vk_note_interpreter_family(PGRAPHVkState *r,
+                                      const PipelineKey *key)
+{
+    if (!r->fallback_family_history_initialized || !key || key->clear ||
+        key->fragment_route != PGRAPH_VK_FRAGMENT_UBERSHADER) {
+        return;
+    }
+    PGRAPHVkFamilyKeyBlob blob = { 0 };
+    if (pgraph_vk_family_key_encode(key, &blob)) {
+        /* Called only after the first synchronous executable construction;
+         * warm draws never serialize or update history. */
+        pgraph_vk_family_history_note_cold_miss(
+            &r->fallback_family_history, blob.data, blob.size, 0);
+        pgraph_vk_family_key_blob_destroy(&blob);
+    }
+}
+
 void pgraph_vk_fallback_family_key_from_specialized(
     const PipelineBinding *binding, PipelineKey *key)
 {

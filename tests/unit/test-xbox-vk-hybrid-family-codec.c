@@ -16,9 +16,9 @@ static PipelineKey make_key(void)
     key.render_pass_state.color_format = VK_FORMAT_B8G8R8A8_UNORM;
     key.render_pass_state.zeta_format = VK_FORMAT_D24_UNORM_S8_UINT;
     key.shader_state.vsh.surface_scale_factor = 3;
-    key.shader_state.vsh.compressed_attrs = 0x12;
-    key.shader_state.vsh.uniform_attrs = 0x34;
-    key.shader_state.vsh.swizzle_attrs = 0x56;
+    key.shader_state.vsh.compressed_attrs = 0x02;
+    key.shader_state.vsh.uniform_attrs = 0x04;
+    key.shader_state.vsh.swizzle_attrs = 0x08;
     key.shader_state.vsh.fog_enable = true;
     key.shader_state.vsh.fog_mode = FOG_MODE_EXP;
     key.shader_state.vsh.specular_enable = true;
@@ -35,8 +35,8 @@ static PipelineKey make_key(void)
     key.shader_state.geom.primitive_mode = PRIM_TYPE_TRIANGLES;
     key.shader_state.geom.smooth_shading = true;
     key.shader_state.geom.tri_rot0 = -1;
-    key.shader_state.psh.shader_stage_program = 0x10203040;
-    key.shader_state.psh.other_stage_input = 0x50607080;
+    key.shader_state.psh.shader_stage_program = 0;
+    key.shader_state.psh.other_stage_input = 0;
     key.shader_state.psh.point_sprite = true;
     key.shader_state.psh.rect_tex[1] = true;
     key.shader_state.psh.compare_mode[2][3] = true;
@@ -44,7 +44,8 @@ static PipelineKey make_key(void)
     key.shader_state.psh.border_logical_size[1][2] = 64.0f;
     key.shader_state.psh.shadow_map[3] = true;
     key.shader_state.psh.alpha_test = true;
-    key.shader_state.psh.surface_zeta_format = 0x2a;
+    key.shader_state.psh.surface_zeta_format =
+        NV097_SET_SURFACE_FORMAT_ZETA_Z24S8;
     key.regs[0] = 0x11111111;
     key.regs[7] = 0x77777777;
     key.binding_description_count = 1;
@@ -136,6 +137,68 @@ static void test_rejects_non_draw_keys(void)
     g_assert_false(pgraph_vk_family_key_encode(&key, &blob));
 }
 
+static void assert_semantic_decode_rejected(PipelineKey *source)
+{
+    PGRAPHVkFamilyKeyBlob blob = { 0 };
+    PipelineKey decoded;
+
+    /* Encoding and checksum are valid; semantic admission must still fail. */
+    g_assert_true(pgraph_vk_family_key_encode(source, &blob));
+    g_assert_false(pgraph_vk_family_key_decode(
+        blob.data, blob.size, &decoded));
+    pgraph_vk_family_key_blob_destroy(&blob);
+}
+
+static void test_rejects_checksum_valid_unsafe_recipes(void)
+{
+    PipelineKey key = make_key();
+    key.shader_state.vsh.is_fixed_function = false;
+    key.shader_state.vsh.programmable.program_length = INT_MAX;
+    assert_semantic_decode_rejected(&key);
+
+    key = make_key();
+    key.shader_state.vsh.uniform_attrs |= key.shader_state.vsh.compressed_attrs;
+    assert_semantic_decode_rejected(&key);
+
+    key = make_key();
+    key.shader_state.geom.polygon_front_mode = INT_MAX;
+    key.shader_state.geom.polygon_back_mode = INT_MAX;
+    assert_semantic_decode_rejected(&key);
+
+    key = make_key();
+    key.binding_descriptions[0].inputRate = (VkVertexInputRate)INT_MAX;
+    assert_semantic_decode_rejected(&key);
+
+    key = make_key();
+    key.attribute_descriptions[0].binding = 15;
+    assert_semantic_decode_rejected(&key);
+
+    key = make_key();
+    key.shader_state.vsh.is_fixed_function = false;
+    key.shader_state.vsh.programmable.program_length = 1;
+    key.shader_state.vsh.programmable.program_data[0][1] = 15u << 21;
+    key.shader_state.vsh.programmable.program_data[0][3] = 1;
+    assert_semantic_decode_rejected(&key);
+
+    key = make_key();
+    key.shader_state.vsh.is_fixed_function = false;
+    key.shader_state.vsh.programmable.program_length = 1;
+    key.shader_state.vsh.programmable.program_data[0][3] = 0;
+    assert_semantic_decode_rejected(&key);
+
+    key = make_key();
+    key.shader_state.psh.shader_stage_program = 31;
+    assert_semantic_decode_rejected(&key);
+
+    key = make_key();
+    key.render_pass_state.color_format = VK_FORMAT_R64_UINT;
+    assert_semantic_decode_rejected(&key);
+
+    key = make_key();
+    key.attribute_descriptions[0].format = VK_FORMAT_R64_UINT;
+    assert_semantic_decode_rejected(&key);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -146,5 +209,7 @@ int main(int argc, char **argv)
                     test_rejects_invalid_payloads);
     g_test_add_func("/nv2a/vk/family-codec/non-draw",
                     test_rejects_non_draw_keys);
+    g_test_add_func("/nv2a/vk/family-codec/semantic-admission",
+                    test_rejects_checksum_valid_unsafe_recipes);
     return g_test_run();
 }
