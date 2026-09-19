@@ -194,10 +194,22 @@ static PGRAPHVkPipelineCacheIdentity pipeline_cache_identity(PGRAPHVkState *r)
     return identity;
 }
 
+static bool pipeline_cache_log_enabled(void)
+{
+    return g_strcmp0(g_getenv("XEMU_VK_PIPELINE_CACHE_LOG"), "1") == 0;
+}
+
 static void pipeline_cache_init_path(PGRAPHVkState *r)
 {
     const char *base = xemu_settings_get_base_path();
-    if (!g_config.perf.cache_shaders || !base || !base[0]) {
+    if (pipeline_cache_log_enabled()) {
+        fprintf(stderr,
+                "nv2a/vk: pipeline cache init enabled=%d session=%d base=%s\n",
+                g_config.perf.cache_shaders,
+                r->spirv_cache_session_eligible, base ? base : "(none)");
+    }
+    if (!r->spirv_cache_session_eligible ||
+        !g_config.perf.cache_shaders || !base || !base[0]) {
         return;
     }
 
@@ -250,12 +262,21 @@ static uint8_t *pipeline_cache_read(PGRAPHVkState *r, size_t *size)
 static void pipeline_cache_save(PGRAPHVkState *r)
 {
     if (!r->pipeline_cache_path || !g_config.perf.cache_shaders) {
+        if (pipeline_cache_log_enabled()) {
+            fprintf(stderr, "nv2a/vk: pipeline cache save disabled\n");
+        }
         return;
     }
 
     size_t size = 0;
-    if (vkGetPipelineCacheData(r->device, r->vk_pipeline_cache,
-                               &size, NULL) != VK_SUCCESS ||
+    VkResult query = vkGetPipelineCacheData(r->device, r->vk_pipeline_cache,
+                                             &size, NULL);
+    if (pipeline_cache_log_enabled()) {
+        fprintf(stderr,
+                "nv2a/vk: pipeline cache save query=%d bytes=%zu cap=%u\n",
+                query, size, PGRAPH_VK_PIPELINE_CACHE_MAX_FILE_SIZE);
+    }
+    if (query != VK_SUCCESS ||
         size < 32 || size > PGRAPH_VK_PIPELINE_CACHE_MAX_FILE_SIZE) {
         return;
     }
@@ -266,15 +287,32 @@ static void pipeline_cache_save(PGRAPHVkState *r)
     VkResult result = vkGetPipelineCacheData(r->device, r->vk_pipeline_cache,
                                               &size, data);
     PGRAPHVkPipelineCacheIdentity identity = pipeline_cache_identity(r);
-    if (result == VK_SUCCESS &&
-        pgraph_vk_pipeline_cache_data_compatible(data, size, &identity)) {
+    bool compatible = result == VK_SUCCESS &&
+        pgraph_vk_pipeline_cache_data_compatible(data, size, &identity);
+    if (pipeline_cache_log_enabled()) {
+        fprintf(stderr,
+                "nv2a/vk: pipeline cache save fetch=%d bytes=%zu compatible=%d\n",
+                result, size, compatible);
+    }
+    if (compatible) {
         char *directory = g_path_get_dirname(r->pipeline_cache_path);
-        if (!g_mkdir_with_parents(directory, 0700)) {
+        int directory_result = g_mkdir_with_parents(directory, 0700);
+        if (!directory_result) {
             /* GLib handles replacement of an existing file on Windows. */
-            g_file_set_contents_full(r->pipeline_cache_path,
-                                     (const char *)data, (gssize)size,
-                                     G_FILE_SET_CONTENTS_CONSISTENT,
-                                     0600, NULL);
+            GError *error = NULL;
+            bool written = g_file_set_contents_full(
+                r->pipeline_cache_path, (const char *)data, (gssize)size,
+                G_FILE_SET_CONTENTS_CONSISTENT, 0600, &error);
+            if (pipeline_cache_log_enabled()) {
+                fprintf(stderr,
+                        "nv2a/vk: pipeline cache save write=%d error=%s\n",
+                        written, error ? error->message : "(none)");
+            }
+            g_clear_error(&error);
+        } else if (pipeline_cache_log_enabled()) {
+            fprintf(stderr,
+                    "nv2a/vk: pipeline cache save mkdir failed errno=%d\n",
+                    errno);
         }
         g_free(directory);
     }
@@ -304,6 +342,11 @@ static void init_pipeline_cache(PGRAPHState *pg)
         cache_info.pInitialData = NULL;
         result = vkCreatePipelineCache(r->device, &cache_info, NULL,
                                        &r->vk_pipeline_cache);
+    }
+    if (pipeline_cache_log_enabled()) {
+        fprintf(stderr,
+                "nv2a/vk: pipeline cache init restored_bytes=%zu create=%d\n",
+                restored_size, result);
     }
     VK_CHECK(result);
 
@@ -371,6 +414,21 @@ static void finalize_pipeline_cache(PGRAPHState *pg)
     vkDestroyPipelineCache(r->device, r->vk_pipeline_cache, NULL);
     g_free(r->pipeline_cache_path);
     r->pipeline_cache_path = NULL;
+}
+
+void pgraph_vk_writeback_pipeline_cache(PGRAPHState *pg)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+
+    if (!r->pipeline_cache_path || !g_config.perf.cache_shaders) {
+        return;
+    }
+    /* This callback runs under PGRAPH after PFIFO was released. Stop the
+     * pipeline worker before serializing the cache it also writes. */
+    if (r->hybrid_pipeline_builder_initialized) {
+        pgraph_vk_hybrid_pipeline_builder_join(&r->hybrid_pipeline_builder);
+    }
+    pipeline_cache_save(r);
 }
 
 static VkResult hybrid_pipeline_create(void *opaque, VkDevice device,
