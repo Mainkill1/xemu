@@ -47,6 +47,7 @@
 #include "hybrid-compiler.h"
 #include "hybrid-family-history.h"
 #include "hybrid-pipeline-builder.h"
+#include "hybrid-prewarm.h"
 #include "hybrid-trace.h"
 #include "hybrid-policy.h"
 #include "spirv-prewarm.h"
@@ -161,6 +162,7 @@ typedef struct PGRAPHVkFallbackFamilyRequest {
 
 typedef struct PGRAPHVkHybridPipelineWork {
     bool in_use;
+    bool prewarm;
     uint64_t generation;
     uint64_t ticket;
     uint64_t key_hash;
@@ -796,6 +798,7 @@ typedef struct PGRAPHVkState {
     bool use_push_constants_for_uniform_attrs;
     bool ubershader_runtime_enabled;
     bool ubershader_force_interpreter;
+    PGRAPHVkHybridPrewarmState hybrid_prewarm;
     bool hybrid_compiler_initialized;
     uint64_t hybrid_generation;
     uint64_t hybrid_route_epoch;
@@ -1088,7 +1091,11 @@ void pgraph_vk_enqueue_specialized_fragment(PGRAPHState *pg,
                                             bool fallback_resources_ready);
 bool pgraph_vk_enqueue_fallback_fragment(PGRAPHState *pg,
                                         const ShaderState *state);
+PGRAPHVkCachedFamilyModulesResult
+pgraph_vk_materialize_cached_family_modules(PGRAPHState *pg,
+                                             const ShaderState *state);
 void pgraph_vk_process_fallback_families(PGRAPHState *pg);
+void pgraph_vk_process_hybrid_prewarm(PGRAPHState *pg);
 
 // hybrid-family.c
 void pgraph_vk_resolve_ready_execution_candidates(
