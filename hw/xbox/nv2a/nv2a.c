@@ -457,12 +457,16 @@ static int nv2a_post_load(void *opaque, int version_id)
      * restored guest constants are copied to the active Vulkan allocation.
      */
     pgraph_uniform_dirty_rows_invalidate(
-        d->pgraph.vsh_constants_dirty, NV2A_VERTEXSHADER_CONSTANTS);
+        d->pgraph.vsh_constants_dirty, &d->pgraph.vsh_rows_dirty_any,
+        NV2A_VERTEXSHADER_CONSTANTS);
     pgraph_uniform_dirty_rows_invalidate(d->pgraph.ltctxa_dirty,
+                                         &d->pgraph.vsh_rows_dirty_any,
                                          NV2A_LTCTXA_COUNT);
     pgraph_uniform_dirty_rows_invalidate(d->pgraph.ltctxb_dirty,
+                                         &d->pgraph.vsh_rows_dirty_any,
                                          NV2A_LTCTXB_COUNT);
     pgraph_uniform_dirty_rows_invalidate(d->pgraph.ltc1_dirty,
+                                         &d->pgraph.vsh_rows_dirty_any,
                                          NV2A_LTC1_COUNT);
     pgraph_uniform_input_touch_stages(
         &d->pgraph, PGRAPH_UNIFORM_STAGE_MASK_BOTH);

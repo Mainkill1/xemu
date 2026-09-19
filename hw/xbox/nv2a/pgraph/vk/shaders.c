@@ -54,16 +54,6 @@ static inline void sync_uniform_dirty_summary(PGRAPHVkState *r)
         r->uniform_stage_dirty[PGRAPH_UNIFORM_STAGE_PSH];
 }
 
-static bool any_dirty_flag_set(const bool *dirty, size_t count)
-{
-    for (size_t i = 0; i < count; i++) {
-        if (dirty[i]) {
-            return true;
-        }
-    }
-    return false;
-}
-
 static void get_uniform_stage_update_needs(PGRAPHState *pg,
                                            bool update_stage[])
 {
@@ -82,12 +72,7 @@ static void get_uniform_stage_update_needs(PGRAPHState *pg,
                 polygon_offset_key),
         .inline_values_in_vsh_ubo =
             pg->uniform_attrs && !r->use_push_constants_for_uniform_attrs,
-        .vsh_rows_dirty =
-            any_dirty_flag_set(pg->vsh_constants_dirty,
-                               NV2A_VERTEXSHADER_CONSTANTS) ||
-            any_dirty_flag_set(pg->ltctxa_dirty, NV2A_LTCTXA_COUNT) ||
-            any_dirty_flag_set(pg->ltctxb_dirty, NV2A_LTCTXB_COUNT) ||
-            any_dirty_flag_set(pg->ltc1_dirty, NV2A_LTC1_COUNT),
+        .vsh_rows_dirty = pg->vsh_rows_dirty_any,
         .force_full_update =
             !r->shader_binding ||
             !r->storage_buffers[BUFFER_UNIFORM_STAGING].buffer_offset,
@@ -1872,6 +1857,8 @@ static void update_shader_uniforms(PGRAPHState *pg, const bool update_stage[])
         vsh_changed |= update_uniform_rows(
             vsh_layout, binding->vsh.uniform_locs[VshUniform_ltc1], pg->ltc1,
             pg->ltc1_dirty, NV2A_LTC1_COUNT, vsh_layout_changed);
+        /* Each update_uniform_rows call consumes its source, even if absent. */
+        pgraph_vsh_uniform_rows_consumed(pg);
 
         r->last_uniform_source_epochs.stage[PGRAPH_UNIFORM_STAGE_VSH] =
             pg->uniform_source_epochs.stage[PGRAPH_UNIFORM_STAGE_VSH];

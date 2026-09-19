@@ -2238,9 +2238,8 @@ DEF_METHOD_INC(NV097, SET_TRANSFORM_CONSTANT)
 
     assert(const_load < NV2A_VERTEXSHADER_CONSTANTS);
     // VertexShaderConstant *constant = &pg->constants[const_load];
-    pg->vsh_constants_dirty[const_load] |=
-        (parameter != pg->vsh_constants[const_load][slot%4]);
-    pg->vsh_constants[const_load][slot%4] = parameter;
+    pgraph_uniform_u32_row_w(pg, pg->vsh_constants, pg->vsh_constants_dirty,
+                             const_load, slot % 4, parameter);
 
     if (slot % 4 == 3) {
         PG_SET_MASK(NV_PGRAPH_CHEOPS_OFFSET,
@@ -3289,6 +3288,8 @@ DEF_METHOD(NV097, LAUNCH_TRANSFORM_PROGRAM)
     memcpy(state_linkage.input_regs, pg->vertex_state_shader_v0, sizeof(pg->vertex_state_shader_v0));
 
     nv2a_vsh_emu_execute_track_context_writes(&state, &program, pg->vsh_constants_dirty);
+    pg->vsh_rows_dirty_any |= pgraph_uniform_dirty_rows_any(
+        pg->vsh_constants_dirty, NV2A_VERTEXSHADER_CONSTANTS);
 
     nv2a_vsh_program_destroy(&program);
 }
