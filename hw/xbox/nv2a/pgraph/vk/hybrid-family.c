@@ -8,6 +8,7 @@
 #include "qemu/fast-hash.h"
 
 #include "renderer.h"
+#include "hybrid-family-codec.h"
 #include "hybrid-ready.h"
 #include "pipeline-key.h"
 
@@ -369,8 +370,36 @@ void pgraph_vk_track_specialized_fallback_family(
     } else if (fallback_pipeline_ready) {
         pgraph_vk_pipeline_family_set_state(r, owner, PGRAPH_VK_FAMILY_READY);
     } else if (owner->family_learn_state == PGRAPH_VK_FAMILY_UNCHECKED) {
+        if (r->fallback_family_history_initialized) {
+            PipelineKey family_key;
+            PGRAPHVkFamilyKeyBlob blob = { 0 };
+            pgraph_vk_fallback_family_key_from_specialized(
+                owner, &family_key);
+            if (pgraph_vk_family_key_encode(&family_key, &blob)) {
+                pgraph_vk_family_history_note_cold_miss(
+                    &r->fallback_family_history, blob.data, blob.size, 0);
+                pgraph_vk_family_key_blob_destroy(&blob);
+            }
+        }
         pgraph_vk_pipeline_family_set_state(
             r, owner, PGRAPH_VK_FAMILY_RETRY_PENDING);
+    }
+}
+
+void pgraph_vk_note_interpreter_family(PGRAPHVkState *r,
+                                      const PipelineKey *key)
+{
+    if (!r->fallback_family_history_initialized || !key || key->clear ||
+        key->fragment_route != PGRAPH_VK_FRAGMENT_UBERSHADER) {
+        return;
+    }
+    PGRAPHVkFamilyKeyBlob blob = { 0 };
+    if (pgraph_vk_family_key_encode(key, &blob)) {
+        /* Called only after the first synchronous executable construction;
+         * warm draws never serialize or update history. */
+        pgraph_vk_family_history_note_cold_miss(
+            &r->fallback_family_history, blob.data, blob.size, 0);
+        pgraph_vk_family_key_blob_destroy(&blob);
     }
 }
 

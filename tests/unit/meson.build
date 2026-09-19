@@ -114,6 +114,9 @@ tests = {
   'test-xbox-vk-spirv-prewarm': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/spirv-prewarm.c',
   ],
+  'test-xbox-vk-hybrid-family-history': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-family-history.c',
+  ],
   'test-xbox-nv2a-ptimer': [
     'ptimer-test-stubs.c',
     meson.project_source_root() / 'hw/xbox/nv2a/ptimer.c',
@@ -164,6 +167,10 @@ endif
 if vulkan.found()
   tests += {
     'test-xbox-vk-staging-flush': [volk, vma],
+    'test-xbox-vk-hybrid-family-codec': [
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-family-codec.c',
+      xbox_i386_target_headers, volk, libglslang, vma, vulkan, spirv_reflect,
+    ],
     'test-xbox-vk-ubershader-glsl-integration': [
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/common.c',
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/psh.c',
@@ -211,6 +218,8 @@ if vulkan.found()
           meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/common.c',
           meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/geom.c',
           meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-family.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-family-codec.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-family-history.c',
           meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-trace.c',
           meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/ubershader-controls.c',
           nv2a_vk_runtime_prod,
