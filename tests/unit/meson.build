@@ -166,6 +166,13 @@ endif
 
 if vulkan.found()
   tests += {
+    'test-xbox-vk-hybrid-prewarm': [
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-prewarm.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-prewarm-runtime.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-family-codec.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-family-history.c',
+      xbox_i386_target_headers, volk, libglslang, vma, vulkan, spirv_reflect,
+    ],
     'test-xbox-vk-staging-flush': [volk, vma],
     'test-xbox-vk-hybrid-family-codec': [
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-family-codec.c',

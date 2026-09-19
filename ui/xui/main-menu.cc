@@ -127,19 +127,23 @@ static XemuVulkanUbershaderRuntimeState VulkanUbershaderModeCombo()
                      &g_config.tweaks.vk_ubershader_mode,
                      "Off\0"
                      "Fallback\0"
-                     "Prewarm (planned)\0"
+                     "Prewarm\0"
                      "Always (diagnostic)\0",
                      "Off uses specialized shaders. Fallback uses an "
                      "already-ready fragment-combiner fallback while "
                      "specialization is prepared. Uncovered states can still "
                      "wait. Always forces the fragment-combiner interpreter "
                      "for supported draws and does not prepare specialized "
-                     "fragment shaders. Missing interpreter executables may "
-                     "compile synchronously, GPU performance may be lower, "
-                     "and unsupported states or rejected interpreter resources "
-                     "use specialization. This build does not prewarm families. "
-                     "Mode changes require restarting xemu. Prewarm is not "
-                     "implemented in this build.",
+                     "fragment shaders. Prewarm uses learned families and "
+                     "cached shader artifacts to prepare fallback pipelines "
+                     "opportunistically before a draw needs them. It never "
+                     "compiles a missing prewarm artifact synchronously. "
+                     "Always may have lower GPU performance and can still "
+                     "construct a missing interpreter executable "
+                     "synchronously. Unsupported "
+                     "states or rejected interpreter resources use "
+                     "specialization. "
+                     "Mode changes require restarting xemu.",
                      VulkanUbershaderModeSelectable)) {
         xemu_tweaks_apply(false);
         xemu_settings_save();
@@ -157,6 +161,15 @@ static XemuVulkanUbershaderRuntimeState VulkanUbershaderModeCombo()
     }
     if (state.restart_pending) {
         ImGui::TextDisabled("Restart xemu to activate the selected mode.");
+    }
+    if ((state.requested == XEMU_VK_UBERSHADER_PREWARM ||
+         state.requested == XEMU_VK_UBERSHADER_ALWAYS) &&
+        !g_config.perf.cache_shaders) {
+        ImGui::PushTextWrapPos();
+        ImGui::TextDisabled(
+            "Cross-launch family prewarm is unavailable while persistent "
+            "shader caching is disabled.");
+        ImGui::PopTextWrapPos();
     }
 
     return state;

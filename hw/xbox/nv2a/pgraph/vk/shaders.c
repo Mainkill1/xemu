@@ -454,6 +454,30 @@ static void update_shader_uniform_locs(ShaderBinding *binding)
     }
 }
 
+static void init_geometry_module_key(ShaderModuleCacheKey *key,
+                                     const GeomState *state)
+{
+    memset(key, 0, sizeof(*key));
+    key->kind = VK_SHADER_STAGE_GEOMETRY_BIT;
+    key->geom.state = *state;
+    key->geom.glsl_opts.vulkan = true;
+}
+
+static void init_vertex_module_key(PGRAPHVkState *r,
+                                   ShaderModuleCacheKey *key,
+                                   const VshState *state,
+                                   bool need_geometry_shader)
+{
+    memset(key, 0, sizeof(*key));
+    key->kind = VK_SHADER_STAGE_VERTEX_BIT;
+    key->vsh.state = *state;
+    key->vsh.glsl_opts.vulkan = true;
+    key->vsh.glsl_opts.prefix_outputs = need_geometry_shader;
+    key->vsh.glsl_opts.use_push_constants_for_uniform_attrs =
+        r->use_push_constants_for_uniform_attrs;
+    key->vsh.glsl_opts.ubo_binding = VSH_UBO_BINDING;
+}
+
 static void init_fragment_module_key(ShaderModuleCacheKey *key,
                                      const PshState *state,
                                      PGRAPHVkFragmentRoute route)
@@ -507,24 +531,15 @@ static void shader_cache_entry_init(Lru *lru, LruNode *node, const void *key)
 
     bool need_geometry_shader = pgraph_glsl_need_geom(&binding->state.geom);
     if (need_geometry_shader) {
-        memset(&module_key, 0, sizeof(module_key));
-        module_key.kind = VK_SHADER_STAGE_GEOMETRY_BIT;
-        module_key.geom.state = binding->state.geom;
-        module_key.geom.glsl_opts.vulkan = true;
+        init_geometry_module_key(&module_key, &binding->state.geom);
         binding->geom.module_info =
             get_and_ref_shader_module_for_key(r, &module_key);
     } else {
         binding->geom.module_info = NULL;
     }
 
-    memset(&module_key, 0, sizeof(module_key));
-    module_key.kind = VK_SHADER_STAGE_VERTEX_BIT;
-    module_key.vsh.state = binding->state.vsh;
-    module_key.vsh.glsl_opts.vulkan = true;
-    module_key.vsh.glsl_opts.prefix_outputs = need_geometry_shader;
-    module_key.vsh.glsl_opts.use_push_constants_for_uniform_attrs =
-        r->use_push_constants_for_uniform_attrs;
-    module_key.vsh.glsl_opts.ubo_binding = VSH_UBO_BINDING;
+    init_vertex_module_key(r, &module_key, &binding->state.vsh,
+                           need_geometry_shader);
     binding->vsh.module_info =
         get_and_ref_shader_module_for_key(r, &module_key);
 
@@ -811,6 +826,27 @@ void pgraph_vk_process_spirv_cache_writeback(PGRAPHState *pg)
             stats->spirv_bytes, stats->loaded_bytes, stats->queued_bytes,
             !active ? "disabled" :
             (written ? (was_dirty ? "published" : "clean") : "failed"));
+    XemuVulkanUbershaderMode policy = xemu_vulkan_ubershader_policy();
+    if (policy == XEMU_VK_UBERSHADER_PREWARM ||
+        policy == XEMU_VK_UBERSHADER_ALWAYS) {
+        const PGRAPHVkHybridPrewarmState *prewarm = &r->hybrid_prewarm;
+        fprintf(stderr,
+                "nv2a/vk: family prewarm considered=%u attempted=%u"
+                " scheduled=%u ready=%u missing=%u deferred=%u"
+                " rejected=%u retry_exhausted=%u owner_attempts=%" PRIu64
+                " owner_us_total=%" PRIu64 " owner_us_max=%" PRIu64
+                " worker_completions=%" PRIu64 " worker_us_total=%" PRIu64
+                " worker_us_max=%" PRIu64 " demand_hits=%" PRIu64 "\n",
+                prewarm->considered, prewarm->attempted,
+                prewarm->scheduled, prewarm->ready, prewarm->missing,
+                prewarm->deferred, prewarm->rejected,
+                prewarm->retry_exhausted, prewarm->owner_attempts,
+                prewarm->owner_prepare_us_total,
+                prewarm->owner_prepare_us_max,
+                prewarm->worker_completions,
+                prewarm->worker_create_us_total,
+                prewarm->worker_create_us_max, prewarm->demand_hits);
+    }
 }
 
 static void shader_spirv_cache_finalize(PGRAPHVkState *r)
@@ -1556,6 +1592,106 @@ static PGRAPHVkSpirvCacheArtifactResult adopt_cached_hybrid_shader(
     return result;
 }
 
+static PGRAPHVkSpirvCacheAdoptResult materialize_cached_module(
+    PGRAPHVkState *r, const ShaderModuleCacheKey *key)
+{
+    if (find_shader_module_for_key(r, key)) {
+        return PGRAPH_VK_SPIRV_CACHE_ADOPTED;
+    }
+    if (!shader_spirv_cache_active(r)) {
+        return PGRAPH_VK_SPIRV_CACHE_NOT_FOUND;
+    }
+
+    MString *code;
+    switch (key->kind) {
+    case VK_SHADER_STAGE_VERTEX_BIT:
+        code = pgraph_glsl_gen_vsh(&key->vsh.state, key->vsh.glsl_opts);
+        break;
+    case VK_SHADER_STAGE_GEOMETRY_BIT:
+        code = pgraph_glsl_gen_geom(&key->geom.state,
+                                    key->geom.glsl_opts);
+        break;
+    case VK_SHADER_STAGE_FRAGMENT_BIT:
+        code = pgraph_glsl_gen_psh(&key->psh.state, key->psh.glsl_opts);
+        break;
+    default:
+        g_assert_not_reached();
+    }
+
+    const char *glsl = mstring_get_str(code);
+    PGRAPHVkCachedShaderAdoption adoption = {
+        .renderer = r,
+        .key = key,
+        .glsl = glsl,
+    };
+    PGRAPHVkSpirvCacheAdoptResult result =
+        pgraph_vk_spirv_cache_adopt_hit(
+            &r->spirv_cache, key->kind, glsl, strlen(glsl),
+            adopt_cached_hybrid_shader, &adoption);
+    mstring_unref(code);
+    return result;
+}
+
+typedef struct PGRAPHVkCachedFamilyModuleContext {
+    PGRAPHVkState *renderer;
+    const ShaderState *state;
+    bool need_geometry_shader;
+} PGRAPHVkCachedFamilyModuleContext;
+
+static PGRAPHVkCachedFamilyModulesResult materialize_cached_family_stage(
+    void *opaque, PGRAPHVkHybridPrewarmStage stage)
+{
+    PGRAPHVkCachedFamilyModuleContext *context = opaque;
+    ShaderModuleCacheKey key;
+    switch (stage) {
+    case PGRAPH_VK_HYBRID_PREWARM_VERTEX:
+        init_vertex_module_key(context->renderer, &key,
+                               &context->state->vsh,
+                               context->need_geometry_shader);
+        break;
+    case PGRAPH_VK_HYBRID_PREWARM_GEOMETRY:
+        init_geometry_module_key(&key, &context->state->geom);
+        break;
+    case PGRAPH_VK_HYBRID_PREWARM_FRAGMENT:
+        init_fragment_module_key(&key, &context->state->psh,
+                                 PGRAPH_VK_FRAGMENT_UBERSHADER);
+        break;
+    default:
+        g_assert_not_reached();
+    }
+
+    switch (materialize_cached_module(context->renderer, &key)) {
+    case PGRAPH_VK_SPIRV_CACHE_ADOPTED:
+        return PGRAPH_VK_CACHED_FAMILY_MODULES_READY;
+    case PGRAPH_VK_SPIRV_CACHE_DEFERRED:
+        return PGRAPH_VK_CACHED_FAMILY_MODULES_DEFERRED;
+    case PGRAPH_VK_SPIRV_CACHE_REJECTED:
+        return PGRAPH_VK_CACHED_FAMILY_MODULES_REJECTED;
+    case PGRAPH_VK_SPIRV_CACHE_NOT_FOUND:
+        return PGRAPH_VK_CACHED_FAMILY_MODULES_MISSING;
+    default:
+        g_assert_not_reached();
+    }
+}
+
+/* Prewarm never sends missing stages through glslang. Vertex and geometry
+ * artifacts use this renderer-owned adoption path because the hybrid worker
+ * completion consumer deliberately accepts fragment jobs only. */
+PGRAPHVkCachedFamilyModulesResult
+pgraph_vk_materialize_cached_family_modules(PGRAPHState *pg,
+                                             const ShaderState *state)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    bool need_geometry_shader = pgraph_glsl_need_geom(&state->geom);
+    PGRAPHVkCachedFamilyModuleContext context = {
+        .renderer = r,
+        .state = state,
+        .need_geometry_shader = need_geometry_shader,
+    };
+    return pgraph_vk_hybrid_prewarm_modules(
+        need_geometry_shader, materialize_cached_family_stage, &context);
+}
+
 /* Frame-boundary work: prepare a missing fallback fragment without making
  * its first specialized draw wait for a fallback that did not exist. */
 bool pgraph_vk_enqueue_fallback_fragment(PGRAPHState *pg,
@@ -1927,6 +2063,9 @@ void pgraph_vk_init_shaders(PGRAPHState *pg)
     r->ubershader_runtime_enabled =
         ubershader_policy != XEMU_VK_UBERSHADER_OFF;
     r->ubershader_force_interpreter =
+        ubershader_policy == XEMU_VK_UBERSHADER_ALWAYS;
+    r->hybrid_prewarm.enabled =
+        ubershader_policy == XEMU_VK_UBERSHADER_PREWARM ||
         ubershader_policy == XEMU_VK_UBERSHADER_ALWAYS;
     pgraph_vk_init_glsl_compiler();
     create_descriptor_pool(pg);

@@ -24,6 +24,10 @@ typedef struct PGRAPHVkFamilyHistoryRecord {
     uint64_t synchronous_create_us;
     uint64_t last_used;
     bool attempted;
+    /* Session-only prewarm scheduling; never serialized. */
+    bool prewarm_considered;
+    uint8_t prewarm_defer_count;
+    uint64_t prewarm_retry_after_service;
 } PGRAPHVkFamilyHistoryRecord;
 
 typedef struct PGRAPHVkFamilyHistory {
@@ -67,6 +71,15 @@ const PGRAPHVkFamilyHistoryRecord *pgraph_vk_family_history_find(
     size_t payload_size);
 const PGRAPHVkFamilyHistoryRecord *pgraph_vk_family_history_next_unattempted(
     const PGRAPHVkFamilyHistory *history);
+const PGRAPHVkFamilyHistoryRecord *pgraph_vk_family_history_next_eligible(
+    const PGRAPHVkFamilyHistory *history, uint64_t service_id,
+    bool allow_new);
+bool pgraph_vk_family_history_mark_considered(
+    PGRAPHVkFamilyHistory *history,
+    const PGRAPHVkFamilyHistoryRecord *record);
+bool pgraph_vk_family_history_defer(
+    PGRAPHVkFamilyHistory *history,
+    const PGRAPHVkFamilyHistoryRecord *record, uint64_t service_id);
 void pgraph_vk_family_history_mark_attempted(
     PGRAPHVkFamilyHistory *history,
     const PGRAPHVkFamilyHistoryRecord *record);

@@ -162,7 +162,7 @@ int main()
         XEMU_VK_UBERSHADER_OFF));
     assert(xemu_vulkan_ubershader_mode_selectable(
         XEMU_VK_UBERSHADER_FALLBACK));
-    assert(!xemu_vulkan_ubershader_mode_selectable(
+    assert(xemu_vulkan_ubershader_mode_selectable(
         XEMU_VK_UBERSHADER_PREWARM));
     assert(xemu_vulkan_ubershader_mode_selectable(
         XEMU_VK_UBERSHADER_ALWAYS));
@@ -269,6 +269,15 @@ int main()
            XEMU_VK_UBERSHADER_FALLBACK);
     assert(ubershader_state.restart_pending);
     assert(xemu_tweak_enabled(XEMU_TWEAK_VK_HYBRID_UBERSHADERS));
+    g_config.tweaks.vk_ubershader_mode =
+        CONFIG_TWEAKS_VK_UBERSHADER_MODE_PREWARM;
+    xemu_tweaks_apply(true);
+    xemu_vulkan_ubershader_publish_runtime(true, true);
+    ubershader_state = xemu_vulkan_ubershader_runtime_state();
+    assert(ubershader_state.requested == XEMU_VK_UBERSHADER_PREWARM);
+    assert(ubershader_state.active == XEMU_VK_UBERSHADER_PREWARM);
+    assert(ubershader_state.available);
+    assert(!ubershader_state.restart_pending);
     g_config.tweaks.vk_ubershader_mode =
         CONFIG_TWEAKS_VK_UBERSHADER_MODE_ALWAYS;
     xemu_tweaks_apply(true);
