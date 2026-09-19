@@ -117,6 +117,9 @@ tests = {
   'test-xbox-vk-hybrid-family-history': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-family-history.c',
   ],
+  'test-xbox-vk-hybrid-prewarm': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-prewarm.c',
+  ],
   'test-xbox-nv2a-ptimer': [
     'ptimer-test-stubs.c',
     meson.project_source_root() / 'hw/xbox/nv2a/ptimer.c',
