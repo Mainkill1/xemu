@@ -45,7 +45,13 @@ bool xemu_vulkan_ubershader_mode_selectable(
     XemuVulkanUbershaderMode mode)
 {
     return mode == XEMU_VK_UBERSHADER_OFF ||
-           mode == XEMU_VK_UBERSHADER_FALLBACK;
+           mode == XEMU_VK_UBERSHADER_FALLBACK ||
+           mode == XEMU_VK_UBERSHADER_ALWAYS;
+}
+
+XemuVulkanUbershaderMode xemu_vulkan_ubershader_policy(void)
+{
+    return qatomic_read(&xemu_vulkan_ubershader_latched_policy);
 }
 
 XemuVulkanUbershaderRuntimeState
@@ -76,7 +82,8 @@ xemu_vulkan_ubershader_runtime_state(void)
     } else if (runtime_status == XEMU_VK_UBERSHADER_RUNTIME_NO_VULKAN) {
         state.reason = "Available when the Vulkan renderer is installed.";
     } else if (runtime_status == XEMU_VK_UBERSHADER_RUNTIME_DEGRADED) {
-        state.reason = "Fallback setup failed; Vulkan is using specialized shaders.";
+        state.reason = "Ubershader setup failed; Vulkan is using "
+                       "specialized shaders.";
     } else {
         state.reason = "Active.";
     }
@@ -85,7 +92,7 @@ xemu_vulkan_ubershader_runtime_state(void)
 }
 
 void xemu_vulkan_ubershader_publish_runtime(
-    bool vulkan_installed, bool fallback_operational)
+    bool vulkan_installed, bool ubershader_operational)
 {
     XemuVulkanUbershaderMode policy =
         qatomic_read(&xemu_vulkan_ubershader_latched_policy);
@@ -93,8 +100,7 @@ void xemu_vulkan_ubershader_publish_runtime(
 
     if (!vulkan_installed) {
         status = XEMU_VK_UBERSHADER_RUNTIME_NO_VULKAN;
-    } else if (policy == XEMU_VK_UBERSHADER_FALLBACK &&
-               !fallback_operational) {
+    } else if (policy != XEMU_VK_UBERSHADER_OFF && !ubershader_operational) {
         status = XEMU_VK_UBERSHADER_RUNTIME_DEGRADED;
     } else {
         status = XEMU_VK_UBERSHADER_RUNTIME_ACTIVE;
@@ -130,8 +136,8 @@ void xemu_tweaks_apply(bool startup)
             g_config.tweaks.vk_transient_buffer_growth,
         [XEMU_TWEAK_GL_NATIVE_S3TC] = g_config.tweaks.gl_native_s3tc,
         [XEMU_TWEAK_VK_HYBRID_UBERSHADERS] =
-            qatomic_read(&xemu_vulkan_ubershader_latched_policy) ==
-            XEMU_VK_UBERSHADER_FALLBACK,
+            qatomic_read(&xemu_vulkan_ubershader_latched_policy) !=
+            XEMU_VK_UBERSHADER_OFF,
         [XEMU_TWEAK_VK_SHADER_FASTPATH] =
             g_config.tweaks.vk_shader_fastpath,
     };

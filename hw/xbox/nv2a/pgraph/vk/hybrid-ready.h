@@ -42,14 +42,28 @@ typedef enum PGRAPHVkExecutionRoute {
     PGRAPH_VK_EXECUTION_UNCOVERED,
 } PGRAPHVkExecutionRoute;
 
+static inline bool pgraph_vk_hybrid_fastpath_route_allowed(
+    bool force_ubershader, PGRAPHVkFragmentRoute route)
+{
+    return !force_ubershader || route == PGRAPH_VK_FRAGMENT_UBERSHADER;
+}
+
+static inline bool pgraph_vk_hybrid_should_schedule_specialization(
+    bool force_ubershader, PGRAPHVkFragmentRoute route)
+{
+    return !force_ubershader && route == PGRAPH_VK_FRAGMENT_UBERSHADER;
+}
+
 /* Module presence or an isolated pipeline hit is insufficient for a draw.
  * A ready fallback remains usable even when the speculative queue is full. */
 static inline PGRAPHVkExecutionRoute pgraph_vk_hybrid_choose_execution_route(
+    bool force_ubershader,
     bool specialized_shader_ready, bool specialized_pipeline_ready,
     bool fallback_shader_ready, bool fallback_pipeline_ready,
     PGRAPHVkFallbackResourceState fallback_resources)
 {
-    if (specialized_shader_ready && specialized_pipeline_ready) {
+    if (!force_ubershader && specialized_shader_ready &&
+        specialized_pipeline_ready) {
         return PGRAPH_VK_EXECUTION_SPECIALIZED;
     }
     if (fallback_shader_ready && fallback_pipeline_ready) {
@@ -84,9 +98,19 @@ static inline bool pgraph_vk_fallback_family_learning_needed(
 
 /* A partially prepared specialized route is closer than a cold fallback. */
 static inline PGRAPHVkFragmentRoute pgraph_vk_hybrid_choose_uncovered_route(
-    bool specialized_shader_ready, bool fallback_shader_ready,
-    bool fallback_controls_supported)
+    bool force_ubershader, bool specialized_shader_ready,
+    bool fallback_shader_ready, bool fallback_pipeline_ready,
+    bool fallback_controls_supported,
+    PGRAPHVkFallbackResourceState fallback_resources)
 {
+    bool complete_fallback_unavailable =
+        fallback_shader_ready && fallback_pipeline_ready &&
+        fallback_resources == PGRAPH_VK_FALLBACK_RESOURCES_UNAVAILABLE;
+    if (force_ubershader && fallback_controls_supported) {
+        return complete_fallback_unavailable ?
+               PGRAPH_VK_FRAGMENT_SPECIALIZED :
+               PGRAPH_VK_FRAGMENT_UBERSHADER;
+    }
     if (specialized_shader_ready) {
         return PGRAPH_VK_FRAGMENT_SPECIALIZED;
     }

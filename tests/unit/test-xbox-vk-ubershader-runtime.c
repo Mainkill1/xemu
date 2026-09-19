@@ -247,28 +247,49 @@ static void test_shader_ready_probe_requires_runtime_metadata(void)
 
 static void test_execution_route_requires_complete_candidate(void)
 {
+    g_assert_true(pgraph_vk_hybrid_fastpath_route_allowed(
+        false, PGRAPH_VK_FRAGMENT_SPECIALIZED));
+    g_assert_false(pgraph_vk_hybrid_fastpath_route_allowed(
+        true, PGRAPH_VK_FRAGMENT_SPECIALIZED));
+    g_assert_true(pgraph_vk_hybrid_fastpath_route_allowed(
+        true, PGRAPH_VK_FRAGMENT_UBERSHADER));
+    g_assert_true(pgraph_vk_hybrid_should_schedule_specialization(
+        false, PGRAPH_VK_FRAGMENT_UBERSHADER));
+    g_assert_false(pgraph_vk_hybrid_should_schedule_specialization(
+        true, PGRAPH_VK_FRAGMENT_UBERSHADER));
+    g_assert_false(pgraph_vk_hybrid_should_schedule_specialization(
+        false, PGRAPH_VK_FRAGMENT_SPECIALIZED));
+
     g_assert_cmpint(pgraph_vk_hybrid_choose_execution_route(
-                        true, true, true, true,
+                        false, true, true, true, true,
                         PGRAPH_VK_FALLBACK_RESOURCES_READY),
                     ==, PGRAPH_VK_EXECUTION_SPECIALIZED);
     g_assert_cmpint(pgraph_vk_hybrid_choose_execution_route(
-                        true, false, true, true,
+                        true, true, true, true, true,
                         PGRAPH_VK_FALLBACK_RESOURCES_READY),
                     ==, PGRAPH_VK_EXECUTION_UBERSHADER);
     g_assert_cmpint(pgraph_vk_hybrid_choose_execution_route(
-                        false, false, true, true,
+                        true, true, true, false, false,
+                        PGRAPH_VK_FALLBACK_RESOURCES_UNAVAILABLE),
+                    ==, PGRAPH_VK_EXECUTION_UNCOVERED);
+    g_assert_cmpint(pgraph_vk_hybrid_choose_execution_route(
+                        false, true, false, true, true,
                         PGRAPH_VK_FALLBACK_RESOURCES_READY),
                     ==, PGRAPH_VK_EXECUTION_UBERSHADER);
     g_assert_cmpint(pgraph_vk_hybrid_choose_execution_route(
-                        true, false, true, false,
+                        false, false, false, true, true,
+                        PGRAPH_VK_FALLBACK_RESOURCES_READY),
+                    ==, PGRAPH_VK_EXECUTION_UBERSHADER);
+    g_assert_cmpint(pgraph_vk_hybrid_choose_execution_route(
+                        false, true, false, true, false,
                         PGRAPH_VK_FALLBACK_RESOURCES_READY),
                     ==, PGRAPH_VK_EXECUTION_UNCOVERED);
     g_assert_cmpint(pgraph_vk_hybrid_choose_execution_route(
-                        false, false, true, true,
+                        false, false, false, true, true,
                         PGRAPH_VK_FALLBACK_RESOURCES_NEED_ROLLOVER),
                     ==, PGRAPH_VK_EXECUTION_UBERSHADER_AFTER_ROLLOVER);
     g_assert_cmpint(pgraph_vk_hybrid_choose_execution_route(
-                        false, false, true, true,
+                        false, false, false, true, true,
                         PGRAPH_VK_FALLBACK_RESOURCES_UNAVAILABLE),
                     ==, PGRAPH_VK_EXECUTION_UNCOVERED);
 }
@@ -299,19 +320,43 @@ static void test_ready_fallback_pipeline_requests_missing_binding(void)
 static void test_uncovered_build_uses_closer_binding(void)
 {
     g_assert_cmpint(pgraph_vk_hybrid_choose_uncovered_route(
-                        true, false, true),
+                        false, true, false, false, true,
+                        PGRAPH_VK_FALLBACK_RESOURCES_UNAVAILABLE),
                     ==, PGRAPH_VK_FRAGMENT_SPECIALIZED);
     g_assert_cmpint(pgraph_vk_hybrid_choose_uncovered_route(
-                        false, true, true),
+                        false, false, true, false, true,
+                        PGRAPH_VK_FALLBACK_RESOURCES_UNAVAILABLE),
                     ==, PGRAPH_VK_FRAGMENT_UBERSHADER);
     g_assert_cmpint(pgraph_vk_hybrid_choose_uncovered_route(
-                        false, false, true),
+                        false, false, false, false, true,
+                        PGRAPH_VK_FALLBACK_RESOURCES_UNAVAILABLE),
                     ==, PGRAPH_VK_FRAGMENT_SPECIALIZED);
     g_assert_cmpint(pgraph_vk_hybrid_choose_uncovered_route(
-                        true, true, true),
+                        false, true, true, false, true,
+                        PGRAPH_VK_FALLBACK_RESOURCES_UNAVAILABLE),
                     ==, PGRAPH_VK_FRAGMENT_SPECIALIZED);
     g_assert_cmpint(pgraph_vk_hybrid_choose_uncovered_route(
-                        false, true, false),
+                        false, false, true, false, false,
+                        PGRAPH_VK_FALLBACK_RESOURCES_UNAVAILABLE),
+                    ==, PGRAPH_VK_FRAGMENT_SPECIALIZED);
+    g_assert_cmpint(pgraph_vk_hybrid_choose_uncovered_route(
+                        true, true, false, false, true,
+                        PGRAPH_VK_FALLBACK_RESOURCES_UNAVAILABLE),
+                    ==, PGRAPH_VK_FRAGMENT_UBERSHADER);
+    g_assert_cmpint(pgraph_vk_hybrid_choose_uncovered_route(
+                        true, true, true, false, false,
+                        PGRAPH_VK_FALLBACK_RESOURCES_UNAVAILABLE),
+                    ==, PGRAPH_VK_FRAGMENT_SPECIALIZED);
+    g_assert_cmpint(pgraph_vk_hybrid_choose_uncovered_route(
+                        true, true, true, true, true,
+                        PGRAPH_VK_FALLBACK_RESOURCES_UNAVAILABLE),
+                    ==, PGRAPH_VK_FRAGMENT_SPECIALIZED);
+    /* The forced resolver normally has no specialized binding. A complete
+     * fallback whose draw resources are unavailable must still escape to the
+     * synchronous specialized path instead of reselecting that fallback. */
+    g_assert_cmpint(pgraph_vk_hybrid_choose_uncovered_route(
+                        true, false, true, true, true,
+                        PGRAPH_VK_FALLBACK_RESOURCES_UNAVAILABLE),
                     ==, PGRAPH_VK_FRAGMENT_SPECIALIZED);
 }
 
@@ -762,6 +807,72 @@ static uint32_t control_input_word(uint8_t a, uint8_t b,
            (uint32_t)c << 8 | d;
 }
 
+static void set_uber_constant_registers(PGRAPHState *pg, uint32_t value)
+{
+    for (unsigned int i = 0; i < 8; i++) {
+        pgraph_reg_w(pg, NV_PGRAPH_COMBINEFACTOR0 + i * 4, value);
+        pgraph_reg_w(pg, NV_PGRAPH_COMBINEFACTOR1 + i * 4, value);
+    }
+    pgraph_reg_w(pg, NV_PGRAPH_SPECFOGFACTOR0, value);
+    pgraph_reg_w(pg, NV_PGRAPH_SPECFOGFACTOR1, value);
+}
+
+static void test_fallback_control_snapshot_tracks_published_packet(void)
+{
+    PGRAPHState *pg = g_new0(PGRAPHState, 1);
+    PGRAPHVkState *r = g_new0(PGRAPHVkState, 1);
+    PshState state_a = { 0 };
+    PshState state_b;
+    PGRAPHUberControls packet_b_l;
+    PGRAPHUberControls expected_b_k;
+    const uint32_t constants_k = 0xff112233;
+    const uint32_t constants_l = 0xffaabbcc;
+
+    pg->vk_renderer_state = r;
+    state_a.combiner_control = PS_COMBINERCOUNT_MUX_MSB << 8;
+    state_a.final_inputs_0 = control_input_word(
+        PS_REGISTER_V0 | PS_INPUTMAPPING_UNSIGNED_IDENTITY,
+        PS_REGISTER_V1 | PS_INPUTMAPPING_UNSIGNED_IDENTITY,
+        PS_REGISTER_V1R0_SUM | PS_INPUTMAPPING_UNSIGNED_IDENTITY,
+        PS_REGISTER_EF_PROD | PS_INPUTMAPPING_UNSIGNED_IDENTITY);
+    state_a.final_inputs_1 = control_input_word(
+        PS_REGISTER_C0 | PS_INPUTMAPPING_UNSIGNED_IDENTITY,
+        PS_REGISTER_C1 | PS_INPUTMAPPING_UNSIGNED_IDENTITY,
+        PS_REGISTER_R0 | PS_CHANNEL_ALPHA, 0);
+    state_b = state_a;
+    state_b.final_inputs_0 = control_input_word(
+        PS_REGISTER_V1 | PS_INPUTMAPPING_UNSIGNED_IDENTITY,
+        PS_REGISTER_V0 | PS_INPUTMAPPING_UNSIGNED_IDENTITY,
+        PS_REGISTER_V1R0_SUM | PS_INPUTMAPPING_UNSIGNED_IDENTITY,
+        PS_REGISTER_EF_PROD | PS_INPUTMAPPING_UNSIGNED_IDENTITY);
+
+    set_uber_constant_registers(pg, constants_k);
+    g_assert_true(pgraph_vk_refresh_fallback_controls(pg, &state_a));
+    g_assert_true(r->uber_constant_regs_valid);
+
+    set_uber_constant_registers(pg, constants_l);
+    g_assert_true(pgraph_vk_pack_fallback_controls(
+        pg, &state_b, &packet_b_l));
+    pgraph_vk_publish_fallback_controls(r, &packet_b_l);
+    g_assert_false(r->uber_constant_regs_valid);
+
+    set_uber_constant_registers(pg, constants_k);
+    g_assert_true(pgraph_vk_refresh_fallback_controls(pg, &state_b));
+    g_assert_true(pgraph_vk_pack_fallback_controls(
+        pg, &state_b, &expected_b_k));
+    g_assert_cmpmem(&r->uber_controls, sizeof(r->uber_controls),
+                    &expected_b_k, sizeof(expected_b_k));
+    g_assert_true(r->uber_constant_regs_valid);
+
+    PGRAPHUberControls stable = r->uber_controls;
+    g_assert_true(pgraph_vk_refresh_fallback_controls(pg, &state_b));
+    g_assert_cmpmem(&r->uber_controls, sizeof(r->uber_controls),
+                    &stable, sizeof(stable));
+
+    g_free(r);
+    g_free(pg);
+}
+
 static void test_production_resolver_materializes_hidden_fallback(void)
 {
     PGRAPHState *pg = g_new0(PGRAPHState, 1);
@@ -850,7 +961,8 @@ static void test_production_resolver_materializes_hidden_fallback(void)
     fallback_pipeline->pipeline = (VkPipeline)(uintptr_t)1;
 
     PGRAPHVkReadyExecutionCandidates candidates;
-    pgraph_vk_resolve_ready_execution_candidates(pg, &state, &candidates);
+    pgraph_vk_resolve_ready_execution_candidates(
+        pg, &state, false, &candidates);
     g_assert_true(candidates.specialized.shader == specialized);
     g_assert_null(candidates.specialized.pipeline);
     g_assert_true(candidates.controls_checked);
@@ -869,12 +981,24 @@ static void test_production_resolver_materializes_hidden_fallback(void)
         lru_lookup(&r->pipeline_cache, specialized_pipeline_hash,
                    &specialized_pipeline_key), PipelineBinding, node);
     specialized_pipeline->pipeline = (VkPipeline)(uintptr_t)2;
-    pgraph_vk_resolve_ready_execution_candidates(pg, &state, &candidates);
+    pgraph_vk_resolve_ready_execution_candidates(
+        pg, &state, false, &candidates);
     g_assert_true(candidates.specialized.shader == specialized);
     g_assert_true(candidates.specialized.pipeline == specialized_pipeline);
     g_assert_false(candidates.controls_checked);
     g_assert_null(candidates.fallback.shader);
     g_assert_null(candidates.fallback.pipeline);
+
+    /* Always mode ignores an exact specialized executable and resolves only
+     * the supported interpreter candidate. */
+    pgraph_vk_resolve_ready_execution_candidates(
+        pg, &state, true, &candidates);
+    g_assert_null(candidates.specialized.shader);
+    g_assert_null(candidates.specialized.pipeline);
+    g_assert_true(candidates.controls_checked);
+    g_assert_true(candidates.controls_supported);
+    g_assert_nonnull(candidates.fallback.shader);
+    g_assert_true(candidates.fallback.pipeline == fallback_pipeline);
 
     probe_shader_populate_modules = false;
     g_free(r);
@@ -1050,6 +1174,8 @@ int main(int argc, char **argv)
                     test_dynamic_control_binding_matches_packet_abi);
     g_test_add_func("/xbox/vk/ubershader/runtime/control-only-upload",
                     test_control_only_upload_does_not_require_descriptor_update);
+    g_test_add_func("/xbox/vk/ubershader/runtime/control-snapshot-publication",
+                    test_fallback_control_snapshot_tracks_published_packet);
     g_test_add_func("/xbox/vk/ubershader/runtime/baseline-layout",
                     test_disabled_runtime_uses_baseline_descriptor_layout);
     g_test_add_func("/xbox/vk/ubershader/runtime/shader-binding-key",

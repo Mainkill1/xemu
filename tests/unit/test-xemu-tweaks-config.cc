@@ -102,7 +102,7 @@ static void test_ubershader_runtime_lifecycle()
     assert(!state.available);
     assert(state.restart_pending);
 
-    /* Unsupported planned requests remain unavailable and do not relatch. */
+    /* A live edit to Always remains pending until the next process start. */
     g_config.tweaks.vk_ubershader_mode =
         CONFIG_TWEAKS_VK_UBERSHADER_MODE_ALWAYS;
     xemu_tweaks_apply(false);
@@ -110,7 +110,7 @@ static void test_ubershader_runtime_lifecycle()
     assert(state.policy == XEMU_VK_UBERSHADER_FALLBACK);
     assert(state.active == XEMU_VK_UBERSHADER_OFF);
     assert(!state.available);
-    assert(!state.restart_pending);
+    assert(state.restart_pending);
 }
 
 int main()
@@ -164,7 +164,7 @@ int main()
         XEMU_VK_UBERSHADER_FALLBACK));
     assert(!xemu_vulkan_ubershader_mode_selectable(
         XEMU_VK_UBERSHADER_PREWARM));
-    assert(!xemu_vulkan_ubershader_mode_selectable(
+    assert(xemu_vulkan_ubershader_mode_selectable(
         XEMU_VK_UBERSHADER_ALWAYS));
     for (const char *key : default_on_keys) {
         auto node = tweaks->child(key);
@@ -272,15 +272,22 @@ int main()
     g_config.tweaks.vk_ubershader_mode =
         CONFIG_TWEAKS_VK_UBERSHADER_MODE_ALWAYS;
     xemu_tweaks_apply(true);
+    assert(xemu_vulkan_ubershader_policy() ==
+           XEMU_VK_UBERSHADER_ALWAYS);
+    assert(xemu_tweak_enabled(XEMU_TWEAK_VK_HYBRID_UBERSHADERS));
+    xemu_vulkan_ubershader_publish_runtime(true, true);
     ubershader_state = xemu_vulkan_ubershader_runtime_state();
     assert(ubershader_state.requested ==
            XEMU_VK_UBERSHADER_ALWAYS);
     assert(ubershader_state.active ==
-           XEMU_VK_UBERSHADER_OFF);
-    assert(!ubershader_state.available);
+           XEMU_VK_UBERSHADER_ALWAYS);
+    assert(ubershader_state.available);
     assert(!ubershader_state.restart_pending);
     assert(ubershader_state.reason && ubershader_state.reason[0]);
-    assert(!xemu_tweak_enabled(XEMU_TWEAK_VK_HYBRID_UBERSHADERS));
+    xemu_vulkan_ubershader_publish_runtime(true, false);
+    ubershader_state = xemu_vulkan_ubershader_runtime_state();
+    assert(ubershader_state.active == XEMU_VK_UBERSHADER_OFF);
+    assert(!ubershader_state.available);
     g_config.tweaks.vk_ubershader_mode =
         CONFIG_TWEAKS_VK_UBERSHADER_MODE_FALLBACK;
     g_config.display.renderer = CONFIG_DISPLAY_RENDERER_OPENGL;

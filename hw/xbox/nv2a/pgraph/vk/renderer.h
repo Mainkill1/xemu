@@ -794,6 +794,7 @@ typedef struct PGRAPHVkState {
     bool shader_bindings_changed;
     bool use_push_constants_for_uniform_attrs;
     bool ubershader_runtime_enabled;
+    bool ubershader_force_interpreter;
     bool hybrid_compiler_initialized;
     uint64_t hybrid_generation;
     uint64_t hybrid_route_epoch;
@@ -1066,8 +1067,10 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg);
 bool pgraph_vk_pack_fallback_controls(PGRAPHState *pg,
                                      const PshState *state,
                                      PGRAPHUberControls *packet);
+void pgraph_vk_publish_fallback_controls(PGRAPHVkState *r,
+                                         const PGRAPHUberControls *packet);
 bool pgraph_vk_refresh_fallback_controls(PGRAPHState *pg,
-                                        const PshState *state);
+                                         const PshState *state);
 typedef enum PGRAPHVkFallbackResourceState {
     PGRAPH_VK_FALLBACK_RESOURCES_READY,
     PGRAPH_VK_FALLBACK_RESOURCES_NEED_ROLLOVER,
@@ -1085,7 +1088,7 @@ void pgraph_vk_process_fallback_families(PGRAPHState *pg);
 
 // hybrid-family.c
 void pgraph_vk_resolve_ready_execution_candidates(
-    PGRAPHState *pg, const ShaderState *state,
+    PGRAPHState *pg, const ShaderState *state, bool force_ubershader,
     PGRAPHVkReadyExecutionCandidates *candidates);
 void pgraph_vk_init_pipeline_key_for_state(
     PGRAPHState *pg, const ShaderState *shader_state,
