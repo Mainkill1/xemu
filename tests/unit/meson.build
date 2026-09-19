@@ -36,6 +36,7 @@ tests = {
   'test-xbox-pgraph-renderer-switch-locking': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/renderer-switch.c',
   ],
+  'test-xbox-vk-debug-macros': [],
   'test-xbox-pgraph-reports': [
     'xbox-pgraph-report-test-support.c',
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/reports.c',
