@@ -714,7 +714,12 @@ static void shader_spirv_cache_init(PGRAPHVkState *r)
 
     contents = NULL;
     contents_size = 0;
-    if (r->fallback_family_history_initialized &&
+    XemuVulkanUbershaderMode ubershader_policy =
+        xemu_vulkan_ubershader_policy();
+    bool load_family_history =
+        ubershader_policy == XEMU_VK_UBERSHADER_PREWARM ||
+        ubershader_policy == XEMU_VK_UBERSHADER_ALWAYS;
+    if (load_family_history && r->fallback_family_history_initialized &&
         shader_cache_read_file(
             r->fallback_family_history_path,
             PGRAPH_VK_FAMILY_HISTORY_MAX_FILE_SIZE,
