@@ -207,6 +207,14 @@ static bool consume_surface_guest_writes(NV2AState *d, hwaddr start,
         visit_surface_dirty_range, &context);
 }
 
+static bool refresh_readback_guest_writes(void *opaque, uint64_t start,
+                                          uint64_t size)
+{
+    return consume_surface_guest_writes(opaque, start, size);
+}
+
+static bool download_surface(NV2AState *d, SurfaceBinding *surface, bool force);
+
 bool pgraph_vk_surface_overlaps_range(PGRAPHState *pg, hwaddr start,
                                       hwaddr size)
 {
@@ -237,7 +245,9 @@ bool pgraph_vk_download_surfaces_in_range_if_dirty(PGRAPHState *pg,
 
     QTAILQ_FOREACH(surface, &r->surfaces, entry) {
         if (check_surface_overlaps_range(surface, start, size)) {
-            succeeded &= pgraph_vk_surface_download_if_dirty(d, surface);
+            if (surface->draw_dirty) {
+                succeeded &= download_surface(d, surface, true);
+            }
         }
     }
     return succeeded;
@@ -656,8 +666,11 @@ static bool download_surface_to_buffer(NV2AState *d, SurfaceBinding *surface,
 
 static bool download_surface(NV2AState *d, SurfaceBinding *surface, bool force)
 {
-    if (!(surface->download_pending || force) || !surface->width ||
-        !surface->height) {
+    if (!surface->width || !surface->height ||
+        !pgraph_vk_surface_readback_preflight(
+            surface->download_pending, force,
+            surface->vram_addr, surface->size,
+            refresh_readback_guest_writes, d)) {
         return true;
     }
 

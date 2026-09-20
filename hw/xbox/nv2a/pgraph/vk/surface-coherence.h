@@ -77,4 +77,18 @@ static inline bool pgraph_vk_surface_resolve_guest_write(
     return true;
 }
 
+/* A guest write observed before a GPU-to-RAM readback makes that readback
+ * stale. Check the entire surface because the readback copies its full extent,
+ * even when a caller previously checked a smaller overlapping texture range. */
+static inline bool pgraph_vk_surface_readback_preflight(
+    bool download_pending, bool force, uint64_t start, uint64_t size,
+    PGRAPHVkSurfaceConsumeDirtyRange refresh, void *opaque)
+{
+    if (!(download_pending || force)) {
+        return false;
+    }
+    assert(refresh);
+    return !refresh(opaque, start, size);
+}
+
 #endif

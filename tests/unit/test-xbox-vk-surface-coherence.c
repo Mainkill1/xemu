@@ -123,6 +123,67 @@ static bool test_clean_range_does_not_touch_surfaces(void)
            !fixture.surface_stale[2];
 }
 
+typedef struct ReadbackFixture {
+    bool guest_wrote;
+    bool download_pending;
+    bool draw_dirty;
+    bool upload_pending;
+    unsigned int probes;
+} ReadbackFixture;
+
+static bool refresh_readback_guest_writes(void *opaque, uint64_t start,
+                                          uint64_t size)
+{
+    ReadbackFixture *fixture = opaque;
+
+    if (start != 0x37d0000 || size != 65536) {
+        fixture->probes = UINT32_MAX;
+        return false;
+    }
+    fixture->probes++;
+    pgraph_vk_surface_resolve_guest_write(
+        fixture->guest_wrote, &fixture->download_pending,
+        &fixture->draw_dirty, &fixture->upload_pending);
+    return fixture->guest_wrote;
+}
+
+static bool test_guest_write_blocks_forced_readback(void)
+{
+    ReadbackFixture fixture = {
+        .guest_wrote = true,
+        .draw_dirty = true,
+    };
+    bool should_readback = pgraph_vk_surface_readback_preflight(
+        fixture.download_pending, true,
+        0x37d0000, 65536, refresh_readback_guest_writes, &fixture);
+
+    return !should_readback && fixture.probes == 1 &&
+           !fixture.download_pending && !fixture.draw_dirty &&
+           fixture.upload_pending;
+}
+
+static bool test_clean_surface_still_reads_back(void)
+{
+    ReadbackFixture fixture = { .draw_dirty = true };
+    bool should_readback = pgraph_vk_surface_readback_preflight(
+        fixture.download_pending, true,
+        0x37d0000, 65536, refresh_readback_guest_writes, &fixture);
+
+    return should_readback && fixture.probes == 1 &&
+           fixture.draw_dirty && !fixture.upload_pending;
+}
+
+static bool test_guest_write_blocks_forced_clean_surface_readback(void)
+{
+    ReadbackFixture fixture = { .guest_wrote = true };
+    bool should_readback = pgraph_vk_surface_readback_preflight(
+        fixture.download_pending, true,
+        0x37d0000, 65536, refresh_readback_guest_writes, &fixture);
+
+    return !should_readback && fixture.probes == 1 &&
+           fixture.upload_pending;
+}
+
 int main(void)
 {
     bool clean = test_clean_guest_memory_preserves_surface_state();
@@ -131,9 +192,13 @@ int main(void)
     bool transition = test_upload_pending_transition_is_counted_once();
     bool overlap = test_one_dirty_page_reaches_both_overlapping_surfaces();
     bool clean_range = test_clean_range_does_not_touch_surfaces();
+    bool guest_write_readback = test_guest_write_blocks_forced_readback();
+    bool clean_readback = test_clean_surface_still_reads_back();
+    bool forced_clean_readback =
+        test_guest_write_blocks_forced_clean_surface_readback();
 
     puts("TAP version 13");
-    puts("1..6");
+    puts("1..9");
     printf("%s 1 - clean guest memory preserves surface state\n",
            clean ? "ok" : "not ok");
     printf("%s 2 - guest write preempts stale surface download\n",
@@ -146,7 +211,14 @@ int main(void)
            overlap ? "ok" : "not ok");
     printf("%s 6 - clean range preserves cached surfaces\n",
            clean_range ? "ok" : "not ok");
+    printf("%s 7 - guest write blocks forced stale readback\n",
+           guest_write_readback ? "ok" : "not ok");
+    printf("%s 8 - clean drawn surface still reads back\n",
+           clean_readback ? "ok" : "not ok");
+    printf("%s 9 - guest write blocks forced clean-surface readback\n",
+           forced_clean_readback ? "ok" : "not ok");
 
     return clean && preempt && upload && transition && overlap &&
-           clean_range ? 0 : 1;
+           clean_range && guest_write_readback && clean_readback &&
+           forced_clean_readback ? 0 : 1;
 }
