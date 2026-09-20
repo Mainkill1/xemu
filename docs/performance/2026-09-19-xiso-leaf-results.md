@@ -4,7 +4,7 @@ The official upstream v0.8.136 release, published fork main at ef1a7fc4, and the
 
 **Performance comparison withdrawn.** The actual XISO launcher set display options but omitted the fork Advanced controls. Candidate used its Prewarm and shader-fastpath defaults On; main used both defaults Off. The saved config was rewritten after exit and omitted default-valued settings, concealing the mismatch. The earlier percentage speedups and aggregate faster/slower counts are invalid as a matched performance comparison.
 
-The runner also waived unavailable live guest markers. Official upstream stopped early after Vulkan device loss, and several leaves varied materially between repeated runs. The linked CSV retains raw timings and functional outcomes, with speedup fields cleared. A new explicitly configured and order-balanced run is required for performance conclusions.
+The runner also waived unavailable live guest markers. Official upstream stopped early after Vulkan device loss, and several leaves varied materially between repeated runs. The linked CSV retains raw timings and functional outcomes, with speedup fields cleared. A separate [explicitly configured, order-balanced fork rerun](2026-09-19-xiso-matched-rerun.md) now provides a diagnostic comparison; it does not rehabilitate the percentages withdrawn from this original dataset.
 
 ## Functional coverage
 
