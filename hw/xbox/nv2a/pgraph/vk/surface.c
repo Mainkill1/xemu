@@ -229,6 +229,10 @@ bool pgraph_vk_download_surfaces_in_range_if_dirty(PGRAPHState *pg,
     SurfaceBinding *surface;
     bool succeeded = true;
 
+    if (!pgraph_vk_surface_overlaps_range(pg, start, size)) {
+        return true;
+    }
+
     consume_surface_guest_writes(d, start, size);
 
     QTAILQ_FOREACH(surface, &r->surfaces, entry) {
