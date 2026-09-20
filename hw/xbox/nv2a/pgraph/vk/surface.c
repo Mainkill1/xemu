@@ -145,15 +145,66 @@ static void memcpy_image(void *dst, void const *src, int dst_stride,
 static bool check_surface_overlaps_range(const SurfaceBinding *surface,
                                          hwaddr range_start, hwaddr range_len)
 {
-    if (!surface->size || !range_len) {
-        return false;
-    }
+    return pgraph_vk_surface_range_overlaps(
+        surface->vram_addr, surface->size, range_start, range_len);
+}
 
-    /* Compare half-open ranges without forming potentially overflowing ends. */
-    if (surface->vram_addr <= range_start) {
-        return range_start - surface->vram_addr < surface->size;
+typedef struct SurfaceDirtyRangeContext {
+    NV2AState *d;
+    PGRAPHVkState *r;
+} SurfaceDirtyRangeContext;
+
+static void resolve_surface_guest_write(PGRAPHVkState *r,
+                                        SurfaceBinding *surface)
+{
+    bool was_upload_pending = surface->upload_pending;
+
+    pgraph_vk_surface_resolve_guest_write(
+        true, &surface->download_pending, &surface->draw_dirty,
+        &surface->upload_pending);
+    if (!was_upload_pending) {
+        record_surface_upload_pending_cause(
+            r, SURFACE_UPLOAD_PENDING_OVERLAP_GUEST_WRITE);
     }
-    return surface->vram_addr - range_start < range_len;
+}
+
+static bool consume_surface_dirty_range(void *opaque, uint64_t start,
+                                        uint64_t size)
+{
+    SurfaceDirtyRangeContext *context = opaque;
+
+    return memory_region_test_and_clear_dirty(
+        context->d->vram, start, size, DIRTY_MEMORY_NV2A_SURFACE);
+}
+
+static void visit_surface_dirty_range(void *opaque, uint64_t start,
+                                      uint64_t size)
+{
+    SurfaceDirtyRangeContext *context = opaque;
+    SurfaceBinding *surface;
+
+    QTAILQ_FOREACH(surface, &context->r->surfaces, entry) {
+        if (check_surface_overlaps_range(surface, start, size)) {
+            resolve_surface_guest_write(context->r, surface);
+        }
+    }
+}
+
+static bool consume_surface_guest_writes(NV2AState *d, hwaddr start,
+                                         hwaddr size)
+{
+    PGRAPHVkState *r = d->pgraph.vk_renderer_state;
+    hwaddr vram_size = memory_region_size(d->vram);
+
+    assert(start <= vram_size && size <= vram_size - start);
+
+    SurfaceDirtyRangeContext context = {
+        .d = d,
+        .r = r,
+    };
+    return pgraph_vk_surface_consume_dirty_range(
+        start, size, TARGET_PAGE_SIZE, consume_surface_dirty_range,
+        visit_surface_dirty_range, &context);
 }
 
 bool pgraph_vk_surface_overlaps_range(PGRAPHState *pg, hwaddr start,
@@ -178,28 +229,10 @@ bool pgraph_vk_download_surfaces_in_range_if_dirty(PGRAPHState *pg,
     SurfaceBinding *surface;
     bool succeeded = true;
 
+    consume_surface_guest_writes(d, start, size);
+
     QTAILQ_FOREACH(surface, &r->surfaces, entry) {
         if (check_surface_overlaps_range(surface, start, size)) {
-            hwaddr overlap_start = MAX(surface->vram_addr, start);
-            hwaddr overlap_end = MIN(surface->vram_addr + surface->size,
-                                     start + size);
-            /* This client is cleared when a surface consumes guest memory and
-             * is independent from vertex and texture cache validation. */
-            bool guest_memory_dirty = memory_region_test_and_clear_dirty(
-                d->vram, overlap_start, overlap_end - overlap_start,
-                DIRTY_MEMORY_NV2A_SURFACE);
-
-            bool was_upload_pending = surface->upload_pending;
-            if (pgraph_vk_surface_resolve_guest_write(
-                    guest_memory_dirty, &surface->download_pending,
-                    &surface->draw_dirty, &surface->upload_pending)) {
-                if (!was_upload_pending && surface->upload_pending) {
-                    record_surface_upload_pending_cause(
-                        r, SURFACE_UPLOAD_PENDING_OVERLAP_GUEST_WRITE);
-                }
-                continue;
-            }
-
             succeeded &= pgraph_vk_surface_download_if_dirty(d, surface);
         }
     }
@@ -1698,9 +1731,8 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
 
     Surface *pg_surface = color ? &pg->surface_color : &pg->surface_zeta;
 
-    bool mem_dirty = memory_region_test_and_clear_dirty(
-        d->vram, target.vram_addr, target.size,
-        DIRTY_MEMORY_NV2A_SURFACE);
+    bool mem_dirty = consume_surface_guest_writes(
+        d, target.vram_addr, target.size);
 
     SurfaceBinding *current_binding = color ? r->color_binding
                                             : r->zeta_binding;
