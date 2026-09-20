@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "source": "2026-09-19 XISO, two runs per role, same suite leaf ID/revision/iteration contract",
+  "metric": "Guest average microseconds per leaf; lower is better. Positive speedup = 100 * (control latency / candidate latency - 1). Two-run speedup uses the arithmetic mean latency of each role.",
+  "limits": "Live guest markers were unavailable. Percentages are descriptive, not PR-grade timing proof. Runs were role-blocked, not interleaved. Failed, unreached, or functional-hash-mismatched leaves have no speedup value.",
+  "leaf_count": 152,
+  "comparisons": {
+    "main_vs_upstream": {
+      "status_counts": {
+        "comparable": 29,
+        "not_reached": 117,
+        "hash_mismatch": 4,
+        "functional_failure": 2
+      },
+      "comparable_leaf_count": 29,
+      "faster_leaf_count": 12,
+      "slower_leaf_count": 17,
+      "median_leaf_speedup_pct": -2.07,
+      "geometric_mean_leaf_speedup_pct": 2.75,
+      "both_run_pairs_faster_count": 11,
+      "both_run_pairs_slower_count": 16
+    },
+    "candidate_vs_main": {
+      "status_counts": {
+        "comparable": 150,
+        "hash_mismatch": 2
+      },
+      "comparable_leaf_count": 150,
+      "faster_leaf_count": 73,
+      "slower_leaf_count": 77,
+      "median_leaf_speedup_pct": -0.09,
+      "geometric_mean_leaf_speedup_pct": 1.26,
+      "both_run_pairs_faster_count": 41,
+      "both_run_pairs_slower_count": 50
+    }
+  }
+}
