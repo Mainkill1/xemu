@@ -229,6 +229,9 @@ typedef struct SurfaceBinding {
     bool draw_dirty;
     bool download_pending;
     bool upload_pending;
+    /* An observed guest write makes older GPU contents ineligible for RAM
+     * readback until a successful upload or logical binding replacement. */
+    bool readback_superseded_by_guest;
 
     BasicSurfaceFormatInfo fmt;
     SurfaceFormatInfo host_fmt;
@@ -775,6 +778,8 @@ typedef struct PGRAPHVkState {
 
     QTAILQ_HEAD(, SurfaceBinding) surfaces;
     QTAILQ_HEAD(, SurfaceBinding) invalid_surfaces;
+    unsigned long *surface_dirty_page_bits;
+    size_t surface_dirty_page_words;
     SurfaceBinding *color_binding, *zeta_binding;
     bool downloads_pending;
     bool downloads_succeeded;

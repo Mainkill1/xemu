@@ -49,6 +49,10 @@ bool physical_memory_test_and_clear_dirty(ram_addr_t start,
                                           ram_addr_t length,
                                           unsigned client);
 
+bool physical_memory_take_dirty_pages(ram_addr_t start, ram_addr_t length,
+                                      unsigned client, unsigned long *pages,
+                                      size_t capacity_words);
+
 DirtyBitmapSnapshot *
 physical_memory_snapshot_and_clear_dirty(MemoryRegion *mr, hwaddr offset,
                                          hwaddr length, unsigned client);

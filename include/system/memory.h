@@ -2162,6 +2162,14 @@ void memory_region_set_dirty(MemoryRegion *mr, hwaddr addr,
 bool memory_region_test_and_clear_dirty(MemoryRegion *mr, hwaddr addr,
                                         hwaddr size, unsigned client);
 
+/* Take exact dirty pages in [addr, addr + size). The caller supplies at least
+ * BITS_TO_LONGS(number of intersecting TARGET_PAGE_SIZE pages) words. Output
+ * bit zero corresponds to the page containing addr. */
+bool memory_region_take_dirty_pages(MemoryRegion *mr, hwaddr addr,
+                                    hwaddr size, unsigned client,
+                                    unsigned long *pages,
+                                    size_t capacity_words);
+
 /**
  * memory_region_set_client_dirty: Mark a range of bytes as dirty
  *                                 in a memory region for a specified client.
