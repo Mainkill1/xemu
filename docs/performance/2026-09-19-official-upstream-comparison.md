@@ -1,6 +1,6 @@
 # Windows comparison: official upstream, current main, and #135 candidate
 
-On 2026-09-19, one Windows test rig ran two primary attempts of each applicable workload, all candidate attempts first, followed by the [official xemu v0.8.136 ZIP](https://github.com/xemu-project/xemu/releases/download/v0.8.136/xemu-win-x86_64-release.zip), then the already-published [current-main release](https://github.com/Mainkill1/xemu/releases/tag/xemu-upstream-f9b14039-main-ef1a7fc4-win64-20260919). Main was **not rebuilt**. The candidate combines rebased #135 texture-uniform changes and a separate Advanced-defaults change; both candidate and main were explicitly configured with the same Advanced settings, so the default change does not affect their comparison.
+On 2026-09-19, one Windows test rig ran two primary attempts of each applicable workload, all candidate attempts first, followed by the [official xemu v0.8.136 ZIP](https://github.com/xemu-project/xemu/releases/download/v0.8.136/xemu-win-x86_64-release.zip), then the already-published [current-main release](https://github.com/Mainkill1/xemu/releases/tag/xemu-upstream-f9b14039-main-ef1a7fc4-win64-20260919). Main was **not rebuilt**. The candidate combines rebased #135 texture-uniform changes and a separate Advanced-defaults change. **Correction:** the XISO launcher did not explicitly configure those controls, so its candidate/main timing comparison used different defaults. The PGR2 and Morrowind launchers did configure both fork builds identically.
 
 | Role | Source commit | EXE SHA-256 |
 | --- | --- | --- |
@@ -8,7 +8,7 @@ On 2026-09-19, one Windows test rig ran two primary attempts of each applicable 
 | Current main release | `ef1a7fc4b62b033d4364f56c7c1822981935232a` | `f9fbc940e33994698ad43ea9c7ecf42790c0b3c53763c08f120a73fc3c485ffa` |
 | #135 + defaults candidate | `cd3c30b6025d4ca8d8bf114d689892873fc40a71` | `f673bb0eb250e1e15ca9768a11a1ad5a06ae8f12d611cae9f7de0167edea0170` |
 
-The rig used an AMD Ryzen 9 6900HX, NVIDIA RTX 3070 Ti Laptop GPU, NVIDIA driver 581.95, Vulkan at 1× surface scale, VSync off, and shader cache on. Validation, optional Vulkan telemetry, and Hybrid tracing were off. All fork Advanced controls were on, with Ubershader **Prewarm**. Official upstream has no corresponding fork controls. The same game media and input script were used within each workload. These are two samples per role, so small differences are descriptive, not statistical proof.
+The rig used an AMD Ryzen 9 6900HX, NVIDIA RTX 3070 Ti Laptop GPU, NVIDIA driver 581.95, Vulkan at 1× surface scale, and VSync off. Validation, optional Vulkan telemetry, and Hybrid tracing were off. The PGR2 and Morrowind launchers explicitly enabled all fork Advanced controls, selected Ubershader **Prewarm**, and enabled shader caching. The XISO launcher only set display options; its candidate used Prewarm and shader fastpath defaults On, while main used both defaults Off. Official upstream has no corresponding fork controls. The same game media and input script were used within each workload. These are two samples per role, so small differences are descriptive, not statistical proof.
 
 For PGR2 and Morrowind, **cadence** means guest NV2A display-write events per second; p95/p99 are intervals between those events. PGR2 values were recalculated from the *same raw QEMU trace event in every role*. The harness had mislabeled different sources as the same frame log; its original cross-role p95/p99 values are not used here. Guest writes are a progress proxy, **not displayed FPS**. The PGR2 pre-race window contains scripted menu waits, so it is not a pure loading-duration measurement.
 
@@ -65,7 +65,7 @@ Both candidate and current main completed twice and passed the final-image check
 
 Candidate mean cadence was about 0.47% lower, p95 essentially level, and p99 about 1.9% worse than main. Thus #135 does not meet the previously requested merge condition of an improvement across workloads. It remains draft while this result is investigated or consciously accepted.
 
-## XISO suite: functional and descriptive timing results
+## XISO suite: functional results; timing comparison withdrawn
 
 The fork's candidate and current main each passed **157/157** records in both runs. Official v0.8.136 completed **35 PASS, 2 FAIL, 120 not reached** in each attempt, then hit `VK_ERROR_DEVICE_LOST` before suite completion. The two failures were `game_load.s3tc_sync_factor.dxt1_same_address_wait` and `game_load.s3tc_sync_factor.rgba8_same_address_wait`, both a source-precision tile readback mismatch. The last completed record was `game_load.s3tc_sync_factor.bc2_native_eligible`. This is a repeatable functional difference; a partial upstream run cannot yield a comparable full-suite timing result.
 
@@ -78,8 +78,8 @@ The fork's candidate and current main each passed **157/157** records in both ru
 | Official 1 | 35 PASS, 2 FAIL, 120 not reached | — | — | — | — |
 | Official 2 | 35 PASS, 2 FAIL, 120 not reached | — | — | — | — |
 
-XISO p95/p99 here are percentiles across 152 leaf-test **guest-average** latencies, not frame-time percentiles. Cadence is guest test iterations divided by summed guest-test duration. Live guest timing markers were unavailable, so these suite timings are descriptive and not PR-grade proof. Candidate and main are broadly level by this measure.
+XISO p95/p99 here are percentiles across 152 leaf-test **guest-average** latencies, not frame-time percentiles. Cadence is guest test iterations divided by summed guest-test duration. Live guest timing markers were unavailable. Because the two fork executables used different Advanced defaults, these recorded figures must not be used to accept or reject #135's performance.
 
-The [per-leaf timing table](2026-09-19-xiso-leaf-results.md) and [complete 152-leaf CSV](2026-09-19-xiso-leaf-comparison.csv) give both run values and percentage speed changes. Official upstream reached 35 leaves; 2 failed, and 4 other passing leaves had different functional hashes. Of the remaining **29 comparable leaves**, current main was faster on 12 and slower on 17; the median leaf speedup was **−2.07%**. A few large wins, notably one S3TC streaming leaf, lifted the geometric mean to **+2.75%**, so it would be misleading to call XISO uniformly faster. Candidate versus main had 150 hash-matched comparable leaves, 73 faster and 77 slower, with a **−0.09%** median speedup. Failed, unreached, and hash-mismatched leaves have no reported speed percentage.
+The [per-leaf audit](2026-09-19-xiso-leaf-results.md) and [complete 152-leaf CSV](2026-09-19-xiso-leaf-comparison.csv) retain raw guest timings, record outcomes, and functional-hash match status. Official upstream reached 35 passing leaves; 2 failed, 4 other passing leaves had different functional hashes, and 117 were not reached. The earlier leaf speed percentages have been withdrawn pending a matched, explicitly configured rerun.
 
 The [candidate prerelease](https://github.com/Mainkill1/xemu/releases/tag/xemu-upstream-f9b14039-main-ef1a7fc4-pr135-cd3c30b6-20260919) retains the exact stripped executable, separate symbols, source identity, and machine-readable aggregate results. Raw traces, screenshots, game data, and private host paths are deliberately excluded.
