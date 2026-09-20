@@ -12,6 +12,8 @@ The Windows comparison below used the published `main` product build at `ef1a7fc
 
 In that PGR2 race, fork `main` had **110.8% higher guest-write cadence** and 52.6%/53.3% lower p95/p99 intervals than official upstream. This is a measured advantage in one scene, not a universal speedup; the scripted pre-race window did **not** establish a loading-time improvement. The fork also passed **157/157 XISO records twice**. Official upstream completed 35 PASS and 2 FAIL records in each attempt, then hit Vulkan device loss with 120 records unrun, so a full-suite timing comparison is unavailable.
 
+XISO speed is [reported per leaf](docs/performance/2026-09-19-xiso-leaf-results.md), with both run values and percentages in the [152-leaf CSV](docs/performance/2026-09-19-xiso-leaf-comparison.csv). Only **29 official-versus-main leaves** passed with matching functional hashes in both runs: main was faster on 12 and slower on 17, with a **−2.07% median leaf speedup**. The largest positive and negative results are both visible in the full table. These percentages describe the completed leaf tests; missing live guest markers and upstream's early device loss prevent a broad XISO speedup claim.
+
 A separate third PGR2 full-start pass sampled resource usage at approximately 1 Hz. In-race xemu CPU averaged **3.08 core equivalents** on fork `main` versus **2.96** upstream. Whole-GPU utilization averaged **38.4%** versus **37.3%**; that device-wide counter is not specific to xemu and does not identify the performance bottleneck. The [per-run results and limitations](docs/performance/2026-09-19-official-upstream-comparison.md) include the separate profile, XISO timing definitions, and the draft #135 candidate comparison.
 
 | Branch | Role |
