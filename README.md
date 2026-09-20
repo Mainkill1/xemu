@@ -2,9 +2,17 @@
 
 This fork uses the existing stable main tree as its accepted baseline foundation, including its known fixes and testing addons.
 
-On the Windows test rig, current `main` (`ef1a7fc4`) produced **29.99 guest display writes/s** during a scripted PGR2 full-start race, versus **14.23/s** for the [official upstream v0.8.136 release](https://github.com/xemu-project/xemu/releases/tag/v0.8.136). The two-run means are a **110.8% higher guest-write cadence**, with p95/p99 write intervals falling from **83.03/91.09 ms** to **39.35/42.56 ms**. These are guest-progress measurements in this scene, not displayed FPS or a universal speedup. Both roles used Vulkan at 1× scale with VSync off; the fork used its Advanced options enabled and Ubershader Prewarm selected. The pre-race scripted window did not establish a loading-time improvement.
+The Windows comparison below used the published `main` product build at `ef1a7fc4` and the [official upstream v0.8.136 release](https://github.com/xemu-project/xemu/releases/tag/v0.8.136). Values are two-run means from the same guest display-write trace source. Cadence is guest display writes per second; p95/p99 are intervals between those writes, **not displayed FPS**. Both roles used Vulkan at 1× scale with VSync off; the fork test profile explicitly enabled its Advanced controls and selected Ubershader Prewarm.
 
-In the same comparison, current `main` passed **157/157** XISO records twice. Official upstream completed 35 PASS and 2 FAIL records in each attempt, then hit Vulkan device loss before the remaining 120 records; this is a functional result, not a comparable XISO timing result. The official release could not load the fork's PGR2 or Morrowind snapshots because their VMState formats differ. See the [per-run results and limitations](docs/performance/2026-09-19-official-upstream-comparison.md). The newer #135 texture-uniform candidate was functionally clean but did not improve every measured workload, so its performance decision remains separate from these current-main results.
+| Workload | Official upstream: cadence; p95 / p99 | Fork `main`: cadence; p95 / p99 |
+| --- | ---: | ---: |
+| PGR2 full start, in-race | 14.23/s; 83.03 / 91.09 ms | **29.99/s; 39.35 / 42.56 ms** |
+| PGR2 snapshot | Incompatible fork VMState | 22.50/s; 52.11 / 56.80 ms |
+| Morrowind snapshot | Incompatible fork VMState | 29.06/s; 42.41 / 46.54 ms |
+
+In that PGR2 race, fork `main` had **110.8% higher guest-write cadence** and 52.6%/53.3% lower p95/p99 intervals than official upstream. This is a measured advantage in one scene, not a universal speedup; the scripted pre-race window did **not** establish a loading-time improvement. The fork also passed **157/157 XISO records twice**. Official upstream completed 35 PASS and 2 FAIL records in each attempt, then hit Vulkan device loss with 120 records unrun, so a full-suite timing comparison is unavailable.
+
+A separate third PGR2 full-start pass sampled resource usage at approximately 1 Hz. In-race xemu CPU averaged **3.08 core equivalents** on fork `main` versus **2.96** upstream. Whole-GPU utilization averaged **38.4%** versus **37.3%**; that device-wide counter is not specific to xemu and does not identify the performance bottleneck. The [per-run results and limitations](docs/performance/2026-09-19-official-upstream-comparison.md) include the separate profile, XISO timing definitions, and the draft #135 candidate comparison.
 
 | Branch | Role |
 | --- | --- |
