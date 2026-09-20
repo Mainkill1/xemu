@@ -2,6 +2,10 @@
 
 This fork uses the existing stable main tree as its accepted baseline foundation, including its known fixes and testing addons.
 
+On the Windows test rig, current `main` (`ef1a7fc4`) produced **29.99 guest display writes/s** during a scripted PGR2 full-start race, versus **14.23/s** for the [official upstream v0.8.136 release](https://github.com/xemu-project/xemu/releases/tag/v0.8.136). The two-run means are a **110.8% higher guest-write cadence**, with p95/p99 write intervals falling from **83.03/91.09 ms** to **39.35/42.56 ms**. These are guest-progress measurements in this scene, not displayed FPS or a universal speedup. Both roles used Vulkan at 1× scale with VSync off; the fork used its Advanced options enabled and Ubershader Prewarm selected. The pre-race scripted window did not establish a loading-time improvement.
+
+In the same comparison, current `main` passed **157/157** XISO records twice. Official upstream completed 35 PASS and 2 FAIL records in each attempt, then hit Vulkan device loss before the remaining 120 records; this is a functional result, not a comparable XISO timing result. The official release could not load the fork's PGR2 or Morrowind snapshots because their VMState formats differ. See the [per-run results and limitations](docs/performance/2026-09-19-official-upstream-comparison.md). The newer #135 texture-uniform candidate was functionally clean but did not improve every measured workload, so its performance decision remains separate from these current-main results.
+
 | Branch | Role |
 | --- | --- |
 | `upstream` | Exact mirror of `xemu-project/xemu:master` |
