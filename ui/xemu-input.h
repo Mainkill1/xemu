@@ -104,18 +104,46 @@ typedef struct ControllerState {
     SDL_JoystickID      sdl_joystick_id;
     SDL_GUID            sdl_joystick_guid;
 
-    enum peripheral_type peripheral_types[2];
-    void *peripherals[2];
-
     GamepadMappings *controller_map;
 
     int   bound;  // Which port this input device is bound to
-    void *device; // DeviceState opaque
 } ControllerState;
+
+/* Guest USB topology and expansion devices outlive a host input provider. */
+typedef struct XemuVirtualControllerPort {
+    bool connected;
+    ControllerState *provider;
+    void *hub;     // DeviceState opaque
+    void *gamepad; // DeviceState opaque
+    enum peripheral_type peripheral_types[2];
+    void *peripherals[2];
+} XemuVirtualControllerPort;
+
+/* Host assignment never changes guest USB or expansion ownership. */
+static inline ControllerState *xemu_input_port_assign_provider(
+    XemuVirtualControllerPort *port, ControllerState *provider, int index)
+{
+    ControllerState *previous = port->provider;
+    if (previous) {
+        previous->bound = -1;
+    }
+    port->provider = provider;
+    if (provider) {
+        provider->bound = index;
+    }
+    return previous;
+}
+
+static inline bool xemu_input_port_should_exist(int setting,
+                                                 const char *legacy_guid)
+{
+    return setting == 1 ||
+           (setting < 0 && legacy_guid && legacy_guid[0]);
+}
 
 typedef QTAILQ_HEAD(, ControllerState) ControllerStateList;
 extern ControllerStateList available_controllers;
-extern ControllerState *bound_controllers[4];
+extern XemuVirtualControllerPort virtual_controllers[4];
 extern const char *bound_drivers[4];
 
 #ifdef __cplusplus
@@ -132,7 +160,10 @@ void xemu_input_update_sdl_kbd_controller_state(ControllerState *state);
 void xemu_input_update_sdl_controller_state(ControllerState *state);
 void xemu_input_update_rumble(ControllerState *state);
 ControllerState *xemu_input_get_bound(int index);
-void xemu_input_bind(int index, ControllerState *state, int save);
+void xemu_input_set_provider(int index, ControllerState *state, int save);
+void xemu_input_virtual_connect(int index, const char *driver, int save);
+void xemu_input_virtual_disconnect(int index, int save);
+void xemu_input_set_virtual_model(int index, const char *driver, int save);
 bool xemu_input_bind_xmu(int player_index, int peripheral_port_index,
                          const char *filename, bool is_rebind);
 void xemu_input_rebind_xmu(int port);

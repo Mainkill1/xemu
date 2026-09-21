@@ -26,6 +26,7 @@
 #include "qobject/qdict.h"
 #include "qemu/option.h"
 #include "qemu/timer.h"
+#include "qemu/main-loop.h"
 #include "qemu/config-file.h"
 
 #include "xemu-input.h"
@@ -87,7 +88,7 @@ static void xemu_input_print_controller_state(ControllerState *state)
 
 ControllerStateList available_controllers =
     QTAILQ_HEAD_INITIALIZER(available_controllers);
-ControllerState *bound_controllers[4] = { NULL, NULL, NULL, NULL };
+XemuVirtualControllerPort virtual_controllers[4];
 const char *bound_drivers[4] = { DRIVER_DUKE, DRIVER_DUKE, DRIVER_DUKE,
                                  DRIVER_DUKE };
 int test_mode;
@@ -104,6 +105,13 @@ static const char **port_index_to_driver_settings_key_map[] = {
     &g_config.input.bindings.port2_driver,
     &g_config.input.bindings.port3_driver, 
     &g_config.input.bindings.port4_driver
+};
+
+static int *port_index_to_virtual_settings_key_map[] = {
+    &g_config.input.virtual_ports.port1_connected,
+    &g_config.input.virtual_ports.port2_connected,
+    &g_config.input.virtual_ports.port3_connected,
+    &g_config.input.virtual_ports.port4_connected,
 };
 
 static int *peripheral_types_settings_map[4][2] = {
@@ -288,10 +296,6 @@ void xemu_input_init(void)
     new_con->type = INPUT_DEVICE_SDL_KEYBOARD;
     new_con->name = "Keyboard";
     new_con->bound = -1;
-    new_con->peripheral_types[0] = PERIPHERAL_NONE;
-    new_con->peripheral_types[1] = PERIPHERAL_NONE;
-    new_con->peripherals[0] = NULL;
-    new_con->peripherals[1] = NULL;
 
     for (int i = 0; i < 25; i++) {
         static const char *format_str =
@@ -308,14 +312,22 @@ void xemu_input_init(void)
     bound_drivers[2] = get_bound_driver(2);
     bound_drivers[3] = get_bound_driver(3);
 
+    /* Legacy GUID bindings imply guest presence, even without that provider. */
+    for (int i = 0; i < 4; i++) {
+        int setting = *port_index_to_virtual_settings_key_map[i];
+        const char *guid = *port_index_to_settings_key_map[i];
+        if (xemu_input_port_should_exist(setting, guid)) {
+            xemu_input_virtual_connect(i, bound_drivers[i], 0);
+        }
+    }
+
     // Check to see if we should auto-bind the keyboard
     int port = xemu_input_get_controller_default_bind_port(new_con, 0);
     if (port >= 0) {
-        xemu_input_bind(port, new_con, 0);
+        xemu_input_set_provider(port, new_con, 0);
         char buf[128];
         snprintf(buf, sizeof(buf), "Connected '%s' to port %d", new_con->name, port+1);
         xemu_queue_notification(buf);
-        xemu_input_rebind_xmu(port);
     }
 
     QTAILQ_INSERT_TAIL(&available_controllers, new_con, entry);
@@ -331,7 +343,8 @@ int xemu_input_get_controller_default_bind_port(ControllerState *state, int star
     }
 
     for (int i = start; i < 4; i++) {
-        if (strcmp(guid, *port_index_to_settings_key_map[i]) == 0) {
+        if (*port_index_to_virtual_settings_key_map[i] != 0 &&
+            strcmp(guid, *port_index_to_settings_key_map[i]) == 0) {
             return i;
         }
     }
@@ -380,10 +393,6 @@ void xemu_input_process_sdl_events(const SDL_Event *event)
         new_con->sdl_joystick_id      = SDL_GetJoystickID(new_con->sdl_joystick);
         new_con->sdl_joystick_guid    = SDL_GetJoystickGUID(new_con->sdl_joystick);
         new_con->bound                = -1;
-        new_con->peripheral_types[0] = PERIPHERAL_NONE;
-        new_con->peripheral_types[1] = PERIPHERAL_NONE;
-        new_con->peripherals[0] = NULL;
-        new_con->peripherals[1] = NULL;
 
         char guid_buf[35] = { 0 };
         SDL_GUIDToString(new_con->sdl_joystick_guid, guid_buf, sizeof(guid_buf));
@@ -414,7 +423,7 @@ void xemu_input_process_sdl_events(const SDL_Event *event)
                 // No (additional) default mappings
                 break;
             } else if (!xemu_input_get_bound(port)) {
-                xemu_input_bind(port, new_con, 0);
+                xemu_input_set_provider(port, new_con, 0);
                 did_bind = true;
                 break;
             } else {
@@ -426,8 +435,9 @@ void xemu_input_process_sdl_events(const SDL_Event *event)
         // Try to bind to any open port, and if so remember the binding
         if (!did_bind && g_config.input.auto_bind) {
             for (port = 0; port < 4; port++) {
-                if (!xemu_input_get_bound(port)) {
-                    xemu_input_bind(port, new_con, 1);
+                if (!xemu_input_get_bound(port) &&
+                    *port_index_to_virtual_settings_key_map[port] != 0) {
+                    xemu_input_set_provider(port, new_con, 1);
                     did_bind = true;
                     break;
                 }
@@ -438,7 +448,6 @@ void xemu_input_process_sdl_events(const SDL_Event *event)
             char buf[128];
             snprintf(buf, sizeof(buf), "Connected '%s' to port %d", new_con->name, port+1);
             xemu_queue_notification(buf);
-            xemu_input_rebind_xmu(port);
         }
     } else if (event->type == SDL_EVENT_GAMEPAD_REMOVED) {
         DPRINTF("Controller Removed: %d\n", event->gdevice.which);
@@ -461,7 +470,7 @@ void xemu_input_process_sdl_events(const SDL_Event *event)
 
                     // Unbind the controller, but don't save the unbinding in
                     // case the controller is reconnected
-                    xemu_input_bind(iter->bound, NULL, 0);
+                    xemu_input_set_provider(iter->bound, NULL, 0);
                 }
 
                 // Unlink
@@ -472,10 +481,6 @@ void xemu_input_process_sdl_events(const SDL_Event *event)
                     SDL_CloseGamepad(iter->sdl_gamepad);
                 }
 
-                for (int i = 0; i < 2; i++) {
-                    if (iter->peripherals[i])
-                        g_free(iter->peripherals[i]);
-                }
                 free(iter);
 
                 handled = 1;
@@ -673,43 +678,32 @@ void xemu_input_update_rumble(ControllerState *state)
 
 ControllerState *xemu_input_get_bound(int index)
 {
-    return bound_controllers[index];
+    assert(index >= 0 && index < 4);
+    return virtual_controllers[index].provider;
 }
 
-void xemu_input_bind(int index, ControllerState *state, int save)
+void xemu_input_set_provider(int index, ControllerState *state, int save)
 {
-    // FIXME: Attempt to disable rumble when unbinding so it's not left
-    // in rumble mode
+    assert(index >= 0 && index < 4);
+    XemuVirtualControllerPort *port = &virtual_controllers[index];
 
-    // Unbind existing controller
-    if (bound_controllers[index]) {
-        assert(bound_controllers[index]->device != NULL);
-        Error *err = NULL;
-
-        // Unbind any XMUs
-        for (int i = 0; i < 2; i++) {
-            if (bound_controllers[index]->peripherals[i]) {
-                // If this was an XMU, unbind the XMU
-                if (bound_controllers[index]->peripheral_types[i] ==
-                    PERIPHERAL_XMU)
-                    xemu_input_unbind_xmu(index, i);
-
-                // Free up the XmuState and set the peripheral type to none
-                g_free(bound_controllers[index]->peripherals[i]);
-                bound_controllers[index]->peripherals[i] = NULL;
-                bound_controllers[index]->peripheral_types[i] = PERIPHERAL_NONE;
-            }
+    if (port->provider == state) {
+        return;
+    }
+    if (port->provider) {
+        ControllerState *old = port->provider;
+        if (old->type == INPUT_DEVICE_SDL_GAMEPAD && old->sdl_gamepad) {
+            SDL_RumbleGamepad(old->sdl_gamepad, 0, 0, 0);
         }
-
-        qdev_unplug((DeviceState *)bound_controllers[index]->device, &err);
-        assert(err == NULL);
-
-        bound_controllers[index]->bound = -1;
-        bound_controllers[index]->device = NULL;
-        bound_controllers[index] = NULL;
+        old->rumble_l = old->rumble_r = 0;
+        xemu_input_port_assign_provider(port, NULL, index);
     }
 
-    // Save this controller's GUID in settings for auto re-connect
+    if (state && state->bound >= 0) {
+        /* One live provider may drive only one virtual port. */
+        xemu_input_set_provider(state->bound, NULL, 1);
+    }
+
     if (save) {
         char guid_buf[35] = { 0 };
         if (state) {
@@ -720,62 +714,124 @@ void xemu_input_bind(int index, ControllerState *state, int save)
             }
         }
         xemu_settings_set_string(port_index_to_settings_key_map[index], guid_buf);
-        xemu_settings_set_string(port_index_to_driver_settings_key_map[index],
-                                 bound_drivers[index]);
+        if (port->connected) {
+            /* Persist guest presence before a legacy GUID is cleared. */
+            *port_index_to_virtual_settings_key_map[index] = 1;
+        }
     }
 
-    // Bind new controller
     if (state) {
-        if (state->bound >= 0) {
-            // Device was already bound to another port. Unbind it.
-            xemu_input_bind(state->bound, NULL, 1);
+        if (!port->connected) {
+            xemu_input_virtual_connect(index, bound_drivers[index], save);
         }
+        xemu_input_port_assign_provider(port, state, index);
+    }
+}
 
-        bound_controllers[index] = state;
-        bound_controllers[index]->bound = index;
+void xemu_input_virtual_disconnect(int index, int save)
+{
+    assert(index >= 0 && index < 4);
+    assert(bql_locked());
+    XemuVirtualControllerPort *port = &virtual_controllers[index];
 
-        char *tmp;
+    xemu_input_set_provider(index, NULL, 0);
+    if (port->connected) {
+        for (int i = 0; i < 2; i++) {
+            if (port->peripheral_types[i] == PERIPHERAL_XMU) {
+                xemu_input_unbind_xmu(index, i);
+            }
+            g_free(port->peripherals[i]);
+            port->peripherals[i] = NULL;
+            port->peripheral_types[i] = PERIPHERAL_NONE;
+        }
+        qdev_unplug((DeviceState *)port->hub, &error_abort);
+        port->hub = NULL;
+        port->gamepad = NULL;
+        port->connected = false;
+    }
+    if (save) {
+        *port_index_to_virtual_settings_key_map[index] = 0;
+    }
+}
 
-        // Create controller's internal USB hub.
-        QDict *usbhub_qdict = qdict_new();
-        qdict_put_str(usbhub_qdict, "driver", "usb-hub");
-        tmp = g_strdup_printf("1.%d", port_map[index]);
-        qdict_put_str(usbhub_qdict, "port", tmp);
-        qdict_put_int(usbhub_qdict, "ports", 3);
-        QemuOpts *usbhub_opts = qemu_opts_from_qdict(qemu_find_opts("device"), usbhub_qdict, &error_abort);
-        DeviceState *usbhub_dev = qdev_device_add(usbhub_opts, &error_abort);
-        g_free(tmp);
+void xemu_input_virtual_connect(int index, const char *driver, int save)
+{
+    assert(index >= 0 && index < 4);
+    assert(bql_locked());
+    assert(driver && (!strcmp(driver, DRIVER_DUKE) ||
+                      !strcmp(driver, DRIVER_S)));
+    XemuVirtualControllerPort *port = &virtual_controllers[index];
 
-        // Create XID controller. This is connected to Port 1 of the controller's internal USB Hub
-        QDict *qdict = qdict_new();
+    if (port->connected && strcmp(bound_drivers[index], driver) == 0) {
+        if (save) {
+            *port_index_to_virtual_settings_key_map[index] = 1;
+            xemu_settings_set_string(
+                port_index_to_driver_settings_key_map[index], driver);
+        }
+        return;
+    }
+    ControllerState *provider = port->provider;
+    if (port->connected) {
+        xemu_input_virtual_disconnect(index, 0);
+    }
+    bound_drivers[index] = driver;
 
-        // Specify device driver
-        qdict_put_str(qdict, "driver", bound_drivers[index]);
+    QDict *hub_dict = qdict_new();
+    qdict_put_str(hub_dict, "driver", "usb-hub");
+    char *path = g_strdup_printf("1.%d", port_map[index]);
+    qdict_put_str(hub_dict, "port", path);
+    qdict_put_int(hub_dict, "ports", 3);
+    QemuOpts *hub_opts = qemu_opts_from_qdict(qemu_find_opts("device"),
+                                               hub_dict, &error_abort);
+    DeviceState *hub = qdev_device_add(hub_opts, &error_abort);
+    g_free(path);
 
-        // Specify device identifier
-        static int id_counter = 0;
-        tmp = g_strdup_printf("gamepad_%d", id_counter++);
-        qdict_put_str(qdict, "id", tmp);
-        g_free(tmp);
+    QDict *pad_dict = qdict_new();
+    qdict_put_str(pad_dict, "driver", driver);
+    static int id_counter;
+    char *id = g_strdup_printf("gamepad_%d", id_counter++);
+    qdict_put_str(pad_dict, "id", id);
+    g_free(id);
+    qdict_put_int(pad_dict, "index", index);
+    path = g_strdup_printf("1.%d.1", port_map[index]);
+    qdict_put_str(pad_dict, "port", path);
+    g_free(path);
+    QemuOpts *pad_opts = qemu_opts_from_qdict(qemu_find_opts("device"),
+                                               pad_dict, &error_abort);
+    DeviceState *pad = qdev_device_add(pad_opts, &error_abort);
+    assert(hub && pad);
+    qobject_unref(hub_dict);
+    qobject_unref(pad_dict);
+    object_unref(OBJECT(hub));
+    object_unref(OBJECT(pad));
+    port->hub = hub;
+    port->gamepad = pad;
+    port->connected = true;
+    if (provider) {
+        xemu_input_set_provider(index, provider, 0);
+    }
+    xemu_input_rebind_xmu(index);
 
-        // Specify index/port
-        qdict_put_int(qdict, "index", index);
-        tmp = g_strdup_printf("1.%d.1", port_map[index]);
-        qdict_put_str(qdict, "port", tmp);
-        g_free(tmp);
+    if (save) {
+        *port_index_to_virtual_settings_key_map[index] = 1;
+        xemu_settings_set_string(port_index_to_driver_settings_key_map[index],
+                                 driver);
+    }
+}
 
-        // Create the device
-        QemuOpts *opts = qemu_opts_from_qdict(qemu_find_opts("device"), qdict, &error_abort);
-        DeviceState *dev = qdev_device_add(opts, &error_abort);
-        assert(dev);
-
-        // Unref for eventual cleanup
-        qobject_unref(usbhub_qdict);
-        object_unref(OBJECT(usbhub_dev));
-        qobject_unref(qdict);
-        object_unref(OBJECT(dev));
-
-        state->device = usbhub_dev;
+void xemu_input_set_virtual_model(int index, const char *driver, int save)
+{
+    assert(index >= 0 && index < 4);
+    assert(driver && (!strcmp(driver, DRIVER_DUKE) ||
+                      !strcmp(driver, DRIVER_S)));
+    if (virtual_controllers[index].connected) {
+        xemu_input_virtual_connect(index, driver, save);
+    } else {
+        bound_drivers[index] = driver;
+        if (save) {
+            xemu_settings_set_string(port_index_to_driver_settings_key_map[index],
+                                     driver);
+        }
     }
 }
 
@@ -785,7 +841,10 @@ bool xemu_input_bind_xmu(int player_index, int expansion_slot_index,
     assert(player_index >= 0 && player_index < 4);
     assert(expansion_slot_index >= 0 && expansion_slot_index < 2);
 
-    ControllerState *player = bound_controllers[player_index];
+    XemuVirtualControllerPort *player = &virtual_controllers[player_index];
+    if (!player->connected) {
+        return false;
+    }
     enum peripheral_type peripheral_type =
         player->peripheral_types[expansion_slot_index];
     if (peripheral_type != PERIPHERAL_XMU)
@@ -803,8 +862,8 @@ bool xemu_input_bind_xmu(int player_index, int expansion_slot_index,
 
     // Look for any other XMUs that are using this file, and unbind them
     for (int player_i = 0; player_i < 4; player_i++) {
-        ControllerState *state = bound_controllers[player_i];
-        if (state != NULL) {
+        XemuVirtualControllerPort *state = &virtual_controllers[player_i];
+        if (state->connected) {
             for (int peripheral_i = 0; peripheral_i < 2; peripheral_i++) {
                 if (state->peripheral_types[peripheral_i] == PERIPHERAL_XMU) {
                     XmuState *xmu_i =
@@ -888,7 +947,7 @@ void xemu_input_unbind_xmu(int player_index, int expansion_slot_index)
     assert(player_index >= 0 && player_index < 4);
     assert(expansion_slot_index >= 0 && expansion_slot_index < 2);
 
-    ControllerState *state = bound_controllers[player_index];
+    XemuVirtualControllerPort *state = &virtual_controllers[player_index];
     if (state->peripheral_types[expansion_slot_index] != PERIPHERAL_XMU)
         return;
 
@@ -907,6 +966,9 @@ void xemu_input_unbind_xmu(int player_index, int expansion_slot_index)
 
 void xemu_input_rebind_xmu(int port)
 {
+    if (!virtual_controllers[port].connected) {
+        return;
+    }
     // Try to bind peripherals back to controller
     for (int i = 0; i < 2; i++) {
         enum peripheral_type peripheral_type =
@@ -926,11 +988,11 @@ void xemu_input_rebind_xmu(int port)
             if (param != NULL && strlen(param) > 0) {
                 // This is an XMU and needs to be bound to this controller
                 if (qemu_access(param, R_OK | W_OK) == 0) {
-                    bound_controllers[port]->peripheral_types[i] =
+                    virtual_controllers[port].peripheral_types[i] =
                         peripheral_type;
-                    bound_controllers[port]->peripherals[i] =
+                    virtual_controllers[port].peripherals[i] =
                         g_malloc(sizeof(XmuState));
-                    memset(bound_controllers[port]->peripherals[i], 0,
+                    memset(virtual_controllers[port].peripherals[i], 0,
                            sizeof(XmuState));
                     bool did_bind = xemu_input_bind_xmu(port, i, param, true);
                     if (did_bind) {

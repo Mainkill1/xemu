@@ -304,7 +304,7 @@ void MainMenuInputView::Draw()
     const int port_padding = 8;
     for (int i = 0; i < 4; i++) {
         bool is_selected = (i == active);
-        bool port_is_bound = (xemu_input_get_bound(i) != NULL);
+        bool port_is_bound = virtual_controllers[i].connected;
 
         // Set an X offset to center the image button within the column
         ImGui::SetCursorPosX(
@@ -384,11 +384,7 @@ void MainMenuInputView::Draw()
             is_selected = strcmp(driver, iter) == 0;
             ImGui::PushID(iter);
             if (ImGui::Selectable(iter, is_selected)) {
-                for (int j = 0; j < num_drivers; j++) {
-                    if (iter == driver_display_names[j])
-                        bound_drivers[active] = available_drivers[j];
-                }
-                xemu_input_bind(active, bound_controllers[active], 1);
+                xemu_input_set_virtual_model(active, available_drivers[i], 1);
             }
             if (is_selected) {
                 ImGui::SetItemDefaultFocus();
@@ -400,6 +396,18 @@ void MainMenuInputView::Draw()
     }
     DrawComboChevron();
 
+    ImGui::NextColumn();
+
+    ImGui::Text("Connected to Xbox");
+    ImGui::NextColumn();
+    bool guest_connected = virtual_controllers[active].connected;
+    if (ImGui::Checkbox("###VirtualControllerConnected", &guest_connected)) {
+        if (guest_connected) {
+            xemu_input_virtual_connect(active, bound_drivers[active], 1);
+        } else {
+            xemu_input_virtual_disconnect(active, 1);
+        }
+    }
     ImGui::NextColumn();
 
     //
@@ -428,7 +436,7 @@ void MainMenuInputView::Draw()
         // Handle "Not connected"
         bool is_selected = bound_state == NULL;
         if (ImGui::Selectable(not_connected, is_selected)) {
-            xemu_input_bind(active, NULL, 1);
+            xemu_input_set_provider(active, NULL, 1);
             bound_state = NULL;
         }
         if (is_selected) {
@@ -447,16 +455,7 @@ void MainMenuInputView::Draw()
                 selectable_label = buf;
             }
             if (ImGui::Selectable(selectable_label, is_selected)) {
-                xemu_input_bind(active, iter, 1);
-
-                // FIXME: We want to bind the XMU here, but we can't because we
-                // just unbound it and we need to wait for Qemu to release the
-                // file
-
-                // If we previously had no controller connected, we can rebind
-                // the XMU
-                if (bound_state == NULL)
-                    xemu_input_rebind_xmu(active);
+                xemu_input_set_provider(active, iter, 1);
 
                 bound_state = iter;
             }
@@ -525,7 +524,7 @@ void MainMenuInputView::Draw()
     ImGui::PopFont();
     ImGui::SetCursorPos(pos);
 
-    if (bound_state) {
+    if (virtual_controllers[active].connected) {
         ImGui::PushID(active);
 
         SectionTitle("Expansion Slots");
@@ -547,7 +546,7 @@ void MainMenuInputView::Draw()
             // Display a combo box to allow the user to choose the type of
             // peripheral they want to use
             enum peripheral_type selected_type =
-                bound_state->peripheral_types[i];
+                virtual_controllers[active].peripheral_types[i];
             const char *peripheral_type_names[2] = { "None", "Memory Unit" };
             const char *selected_peripheral_type =
                 peripheral_type_names[selected_type];
@@ -562,8 +561,8 @@ void MainMenuInputView::Draw()
 
                     if (ImGui::Selectable(selectable_label, is_selected)) {
                         // Free any existing peripheral
-                        if (bound_state->peripherals[i] != NULL) {
-                            if (bound_state->peripheral_types[i] ==
+                        if (virtual_controllers[active].peripherals[i] != NULL) {
+                            if (virtual_controllers[active].peripheral_types[i] ==
                                 PERIPHERAL_XMU) {
                                 // Another peripheral was already bound.
                                 // Unplugging
@@ -571,24 +570,26 @@ void MainMenuInputView::Draw()
                             }
 
                             // Free the existing state
-                            g_free((void *)bound_state->peripherals[i]);
-                            bound_state->peripherals[i] = NULL;
+                            g_free(virtual_controllers[active].peripherals[i]);
+                            virtual_controllers[active].peripherals[i] = NULL;
                         }
 
                         // Change the peripheral type to the newly selected type
-                        bound_state->peripheral_types[i] =
+                        virtual_controllers[active].peripheral_types[i] =
                             (enum peripheral_type)j;
 
                         // Allocate state for the new peripheral
                         if (j == PERIPHERAL_XMU) {
-                            bound_state->peripherals[i] =
+                            virtual_controllers[active].peripherals[i] =
                                 g_malloc(sizeof(XmuState));
-                            memset(bound_state->peripherals[i], 0,
+                            memset(virtual_controllers[active].peripherals[i], 0,
                                    sizeof(XmuState));
                         }
 
                         xemu_save_peripheral_settings(
-                            active, i, bound_state->peripheral_types[i], NULL);
+                            active, i,
+                            virtual_controllers[active].peripheral_types[i],
+                            NULL);
                     }
 
                     if (is_selected) {
@@ -610,12 +611,13 @@ void MainMenuInputView::Draw()
                        2 * port_padding * g_viewport_mgr.m_scale) /
                       2));
 
-            selected_type = bound_state->peripheral_types[i];
+            selected_type = virtual_controllers[active].peripheral_types[i];
             if (selected_type == PERIPHERAL_XMU) {
                 float x = xmu_x + i * xmu_x_stride;
                 float y = xmu_y;
 
-                XmuState *xmu = (XmuState *)bound_state->peripherals[i];
+                XmuState *xmu =
+                    (XmuState *)virtual_controllers[active].peripherals[i];
                 if (xmu->filename != NULL && strlen(xmu->filename) > 0) {
                     RenderXmu(x, y, 0x81dc8a00, 0x0f0f0f00);
 
