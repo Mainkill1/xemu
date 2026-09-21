@@ -67,7 +67,7 @@ static bool test_upload_pending_transition_is_counted_once(void)
 
 typedef struct DirtyPageFixture {
     uint8_t dirty_pages;
-    bool surface_stale[3];
+    bool surface_stale[4];
     unsigned int tests;
     unsigned int visits;
     uint64_t tested_start;
@@ -100,10 +100,10 @@ static void mark_overlapping_surfaces(void *opaque, uint64_t start,
                                       const unsigned long *pages)
 {
     DirtyPageFixture *fixture = opaque;
-    static const uint64_t surface_start[] = { 0, 256, 4096 };
-    static const uint64_t surface_size[] = { 2048, 1024, 4096 };
+    static const uint64_t surface_start[] = { 0, 256, 4096, 8192 };
+    static const uint64_t surface_size[] = { 2048, 1024, 4096, 4096 };
 
-    for (unsigned int i = 0; i < 3; i++) {
+    for (unsigned int i = 0; i < 4; i++) {
         if (pgraph_vk_surface_dirty_pages_overlap(
                 surface_start[i], surface_size[i], start, size, page_size,
                 pages)) {
@@ -154,6 +154,33 @@ static bool test_sparse_dirty_page_preserves_clean_neighbor(void)
     /* The dirty bit belongs to page zero; surface two covers only page one. */
     return any_dirty && fixture.surface_stale[0] &&
            fixture.surface_stale[1] && !fixture.surface_stale[2];
+}
+
+static bool test_sparse_first_and_third_pages(void)
+{
+    DirtyPageFixture fixture = { .dirty_pages = 0x5 };
+    unsigned long pages[1] = { 0 };
+
+    bool any_dirty = pgraph_vk_surface_consume_dirty_range(
+        0, 3 * 4096, 4096, pages, 1, take_dirty_pages,
+        mark_overlapping_surfaces, &fixture);
+
+    return any_dirty && fixture.visits == 1 &&
+           fixture.surface_stale[0] && fixture.surface_stale[1] &&
+           !fixture.surface_stale[2] && fixture.surface_stale[3];
+}
+
+static bool test_dirty_page_outside_request_remains_pending(void)
+{
+    DirtyPageFixture fixture = { .dirty_pages = 0x4 };
+    unsigned long pages[1] = { 0 };
+
+    bool any_dirty = pgraph_vk_surface_consume_dirty_range(
+        0, 2 * 4096, 4096, pages, 1, take_dirty_pages,
+        mark_overlapping_surfaces, &fixture);
+
+    return !any_dirty && fixture.dirty_pages == 0x4 &&
+           fixture.visits == 0 && !fixture.surface_stale[3];
 }
 
 typedef struct ReadbackFixture {
@@ -273,6 +300,8 @@ int main(void)
     bool overlap = test_one_dirty_page_reaches_both_overlapping_surfaces();
     bool clean_range = test_clean_range_does_not_touch_surfaces();
     bool sparse = test_sparse_dirty_page_preserves_clean_neighbor();
+    bool sparse_first_third = test_sparse_first_and_third_pages();
+    bool outside_request = test_dirty_page_outside_request_remains_pending();
     bool guest_write_readback = test_guest_write_blocks_forced_readback();
     bool clean_readback = test_clean_surface_still_reads_back();
     bool forced_clean_readback =
@@ -283,7 +312,7 @@ int main(void)
         test_upload_retires_guest_write_veto_only_on_success();
 
     puts("TAP version 13");
-    puts("1..12");
+    puts("1..14");
     printf("%s 1 - clean guest memory preserves surface state\n",
            clean ? "ok" : "not ok");
     printf("%s 2 - guest write preempts stale surface download\n",
@@ -308,9 +337,14 @@ int main(void)
            consumed_readback ? "ok" : "not ok");
     printf("%s 12 - successful upload retires guest-write veto\n",
            upload_retires_veto ? "ok" : "not ok");
+    printf("%s 13 - sparse first and third pages skip clean middle\n",
+           sparse_first_third ? "ok" : "not ok");
+    printf("%s 14 - dirty page outside request remains pending\n",
+           outside_request ? "ok" : "not ok");
 
     return clean && preempt && upload && transition && overlap &&
            clean_range && guest_write_readback && clean_readback &&
            forced_clean_readback && sparse && consumed_readback &&
-           upload_retires_veto ? 0 : 1;
+           upload_retires_veto && sparse_first_third && outside_request ?
+           0 : 1;
 }
