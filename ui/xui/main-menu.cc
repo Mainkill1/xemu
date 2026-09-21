@@ -419,7 +419,7 @@ void MainMenuInputView::Draw()
     ImGui::NextColumn();
 
     // List available input devices
-    const char *not_connected = "Not Connected";
+    const char *not_connected = "None (neutral input)";
     ControllerState *bound_state = xemu_input_get_bound(active);
 
     // Get current controller name
@@ -560,36 +560,40 @@ void MainMenuInputView::Draw()
                     const char *selectable_label = peripheral_type_names[j];
 
                     if (ImGui::Selectable(selectable_label, is_selected)) {
+                        bool can_replace = true;
                         // Free any existing peripheral
                         if (virtual_controllers[active].peripherals[i] != NULL) {
                             if (virtual_controllers[active].peripheral_types[i] ==
                                 PERIPHERAL_XMU) {
                                 // Another peripheral was already bound.
                                 // Unplugging
-                                xemu_input_unbind_xmu(active, i);
+                                can_replace = xemu_input_unbind_xmu(active, i);
                             }
 
-                            // Free the existing state
-                            g_free(virtual_controllers[active].peripherals[i]);
-                            virtual_controllers[active].peripherals[i] = NULL;
+                            if (can_replace) {
+                                // Free the existing state
+                                g_free(
+                                    virtual_controllers[active].peripherals[i]);
+                                virtual_controllers[active].peripherals[i] = NULL;
+                            }
                         }
 
-                        // Change the peripheral type to the newly selected type
-                        virtual_controllers[active].peripheral_types[i] =
-                            (enum peripheral_type)j;
+                        if (can_replace) {
+                            // Change the peripheral type to the selected type
+                            virtual_controllers[active].peripheral_types[i] =
+                                (enum peripheral_type)j;
 
-                        // Allocate state for the new peripheral
-                        if (j == PERIPHERAL_XMU) {
-                            virtual_controllers[active].peripherals[i] =
-                                g_malloc(sizeof(XmuState));
-                            memset(virtual_controllers[active].peripherals[i], 0,
-                                   sizeof(XmuState));
+                            // Allocate state for the new peripheral
+                            if (j == PERIPHERAL_XMU) {
+                                virtual_controllers[active].peripherals[i] =
+                                    g_new0(XmuState, 1);
+                            }
+
+                            xemu_save_peripheral_settings(
+                                active, i,
+                                virtual_controllers[active].peripheral_types[i],
+                                NULL);
                         }
-
-                        xemu_save_peripheral_settings(
-                            active, i,
-                            virtual_controllers[active].peripheral_types[i],
-                            NULL);
                     }
 
                     if (is_selected) {
