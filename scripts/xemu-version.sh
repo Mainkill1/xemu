@@ -22,7 +22,7 @@ XEMU_VERSION=$( \
 # build cannot silently identify itself as 0.0.0.
 version_from_file=false
 if [[ -z "$XEMU_VERSION" && -f "$dir/XEMU_VERSION" ]]; then
-  IFS= read -r XEMU_VERSION < "$dir/XEMU_VERSION"
+  XEMU_VERSION=$(cat "$dir/XEMU_VERSION")
   version_from_file=true
 fi
 if [[ ! "$XEMU_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9]+-g[0-9a-f]+)?$ ]]; then
