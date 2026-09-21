@@ -249,6 +249,20 @@ static bool test_guest_write_blocks_forced_clean_surface_readback(void)
            fixture.upload_pending;
 }
 
+static bool test_prewrite_upload_intent_does_not_block_readback(void)
+{
+    ReadbackFixture fixture = {
+        .draw_dirty = true,
+        .upload_pending = true,
+    };
+    bool should_readback = pgraph_vk_surface_readback_preflight(
+        false, true, 0x37d0000, 65536, &fixture.superseded,
+        refresh_readback_guest_writes, &fixture);
+
+    return should_readback && fixture.probes == 1 &&
+           fixture.upload_pending && !fixture.superseded;
+}
+
 static bool test_consumed_guest_write_still_blocks_forced_readback(void)
 {
     ReadbackFixture fixture = {
@@ -306,13 +320,15 @@ int main(void)
     bool clean_readback = test_clean_surface_still_reads_back();
     bool forced_clean_readback =
         test_guest_write_blocks_forced_clean_surface_readback();
+    bool prewrite_readback =
+        test_prewrite_upload_intent_does_not_block_readback();
     bool consumed_readback =
         test_consumed_guest_write_still_blocks_forced_readback();
     bool upload_retires_veto =
         test_upload_retires_guest_write_veto_only_on_success();
 
     puts("TAP version 13");
-    puts("1..14");
+    puts("1..15");
     printf("%s 1 - clean guest memory preserves surface state\n",
            clean ? "ok" : "not ok");
     printf("%s 2 - guest write preempts stale surface download\n",
@@ -341,10 +357,12 @@ int main(void)
            sparse_first_third ? "ok" : "not ok");
     printf("%s 14 - dirty page outside request remains pending\n",
            outside_request ? "ok" : "not ok");
+    printf("%s 15 - prewrite upload intent permits ordered readback\n",
+           prewrite_readback ? "ok" : "not ok");
 
     return clean && preempt && upload && transition && overlap &&
            clean_range && guest_write_readback && clean_readback &&
            forced_clean_readback && sparse && consumed_readback &&
-           upload_retires_veto && sparse_first_third && outside_request ?
-           0 : 1;
+           upload_retires_veto && sparse_first_third && outside_request &&
+           prewrite_readback ? 0 : 1;
 }
