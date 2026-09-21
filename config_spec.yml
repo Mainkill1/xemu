@@ -57,6 +57,20 @@ general:
     filter_current_game: bool
 
 input:
+  # -1 migrates legacy GUID/model settings; 0 and 1 are explicit guest topology.
+  virtual_ports:
+    port1_connected:
+      type: integer
+      default: -1
+    port2_connected:
+      type: integer
+      default: -1
+    port3_connected:
+      type: integer
+      default: -1
+    port4_connected:
+      type: integer
+      default: -1
   bindings:
     port1_driver: string
     port1: string

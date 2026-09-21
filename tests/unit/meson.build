@@ -319,6 +319,13 @@ if sdl.found() and epoxy.found()
   }
 endif
 
+if sdl.found()
+  tests += {'test-xemu-input-topology': [
+    meson.project_source_root() / 'ui/xemu-input-topology.c',
+    sdl,
+  ]}
+endif
+
 if have_system or have_tools
   tests += {
     'test-qmp-event': [testqapi],
