@@ -2395,6 +2395,23 @@ bool memory_region_test_and_clear_dirty(MemoryRegion *mr, hwaddr addr,
             memory_region_get_ram_addr(mr) + addr, size, client);
 }
 
+bool memory_region_take_dirty_pages(MemoryRegion *mr, hwaddr addr,
+                                    hwaddr size, unsigned client,
+                                    unsigned long *pages,
+                                    size_t capacity_words)
+{
+    if (mr->alias) {
+        return memory_region_take_dirty_pages(mr->alias,
+                                              addr - mr->alias_offset, size,
+                                              client, pages, capacity_words);
+    }
+    assert(mr->terminates);
+    memory_region_sync_dirty_bitmap(mr, false);
+    return physical_memory_take_dirty_pages(
+        memory_region_get_ram_addr(mr) + addr, size, client,
+        pages, capacity_words);
+}
+
 void memory_region_clear_dirty_bitmap(MemoryRegion *mr, hwaddr start,
                                       hwaddr len)
 {

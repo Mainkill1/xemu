@@ -1367,6 +1367,55 @@ bool physical_memory_test_and_clear_dirty(ram_addr_t start,
     return dirty;
 }
 
+bool physical_memory_take_dirty_pages(ram_addr_t start, ram_addr_t length,
+                                      unsigned client, unsigned long *pages,
+                                      size_t capacity_words)
+{
+    DirtyMemoryBlocks *blocks;
+    RAMBlock *ramblock;
+    unsigned long start_page, end_page, page;
+    uint64_t mr_offset, mr_size;
+    bool dirty = false;
+
+    if (length == 0) {
+        return false;
+    }
+
+    assert(start <= RAM_ADDR_MAX - length);
+    start_page = start >> TARGET_PAGE_BITS;
+    end_page = TARGET_PAGE_ALIGN(start + length) >> TARGET_PAGE_BITS;
+    assert(capacity_words >= BITS_TO_LONGS(end_page - start_page));
+    bitmap_zero(pages, end_page - start_page);
+
+    WITH_RCU_READ_LOCK_GUARD() {
+        blocks = qatomic_rcu_read(&ram_list.dirty_memory[client]);
+        ramblock = qemu_get_ram_block(start);
+        assert(start >= ramblock->offset &&
+               start + length <= ramblock->offset + ramblock->used_length);
+
+        for (page = start_page; page < end_page;) {
+            unsigned long idx = page / DIRTY_MEMORY_BLOCK_SIZE;
+            unsigned long offset = page % DIRTY_MEMORY_BLOCK_SIZE;
+            unsigned long num = MIN(end_page - page,
+                                    DIRTY_MEMORY_BLOCK_SIZE - offset);
+
+            dirty |= bitmap_take_and_clear_atomic(
+                pages, page - start_page, blocks->blocks[idx], offset, num);
+            page += num;
+        }
+
+        mr_offset = (ram_addr_t)(start_page << TARGET_PAGE_BITS) -
+                    ramblock->offset;
+        mr_size = (end_page - start_page) << TARGET_PAGE_BITS;
+        memory_region_clear_dirty_bitmap(ramblock->mr, mr_offset, mr_size);
+    }
+
+    if (dirty) {
+        physical_memory_dirty_bits_cleared(start, length);
+    }
+    return dirty;
+}
+
 static void physical_memory_clear_dirty_range(ram_addr_t addr, ram_addr_t length)
 {
     physical_memory_test_and_clear_dirty(addr, length, DIRTY_MEMORY_MIGRATION);
