@@ -451,6 +451,10 @@ xemu_tweaks_test = executable('test-xemu-tweaks-config',
   dependencies: [qemuutil, genconfig, tomlplusplus])
 test('test-xemu-tweaks-config', xemu_tweaks_test, suite: ['unit'])
 
+test('test-xemu-version', find_program('test-xemu-version.sh'),
+     args: [meson.project_source_root() / 'scripts/xemu-version.sh'],
+     suite: ['unit'])
+
 # This driver compiles small native API doubles, even during a cross build.
 if build_machine.system() in ['linux', 'darwin']
   tweak_test_cc = find_program('cc', native: true, required: false)
