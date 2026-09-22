@@ -91,6 +91,9 @@ DEF_HELPER_2(vmsave, void, env, int)
 DEF_HELPER_1(stgi, void, env)
 DEF_HELPER_1(clgi, void, env)
 DEF_HELPER_FLAGS_2(flush_page, TCG_CALL_NO_RWG, void, env, tl)
+#ifdef XBOX
+DEF_HELPER_FLAGS_3(xbox_tb_mapping_valid, TCG_CALL_NO_WG, i32, env, i32, ptr)
+#endif
 DEF_HELPER_FLAGS_1(hlt, TCG_CALL_NO_WG, noreturn, env)
 DEF_HELPER_FLAGS_2(monitor, TCG_CALL_NO_WG, void, env, tl)
 DEF_HELPER_FLAGS_2(mwait, TCG_CALL_NO_WG, noreturn, env, int)

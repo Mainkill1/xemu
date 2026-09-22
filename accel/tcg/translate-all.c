@@ -514,6 +514,10 @@ recycle_tb:
     tb->jmp_list_next[1] = (uintptr_t)NULL;
     tb->jmp_dest[0] = (uintptr_t)NULL;
     tb->jmp_dest[1] = (uintptr_t)NULL;
+#ifdef XBOX
+    tb->jmp_target_mapping_valid[0] = false;
+    tb->jmp_target_mapping_valid[1] = false;
+#endif
 
     /* init original jump addresses which have been set during tcg_gen_code() */
     if (tb->jmp_reset_offset[0] != TB_JMP_OFFSET_INVALID) {

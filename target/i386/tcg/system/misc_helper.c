@@ -511,6 +511,15 @@ void helper_flush_page(CPUX86State *env, target_ulong addr)
     tlb_flush_page(env_cpu(env), addr);
 }
 
+#ifdef XBOX
+uint32_t helper_xbox_tb_mapping_valid(CPUX86State *env, uint32_t pc,
+                                      void *expected_addend)
+{
+    return tlb_code_mapping_matches(env_cpu(env), pc,
+                                    (uintptr_t)expected_addend);
+}
+#endif
+
 G_NORETURN void helper_hlt(CPUX86State *env)
 {
     CPUState *cs = env_cpu(env);

@@ -45,6 +45,7 @@
 #include "trace.h"
 #include "tb-hash.h"
 #include "tb-internal.h"
+#include "tb-mapping.h"
 #include "tlb-bounds.h"
 #include "internal-common.h"
 #ifdef CONFIG_PLUGIN
@@ -137,6 +138,31 @@ static inline CPUTLBEntry *tlb_entry(CPUState *cpu, uintptr_t mmu_idx,
                                      vaddr addr)
 {
     return &cpu_tlb_fast(cpu, mmu_idx)->table[tlb_index(cpu, mmu_idx, addr)];
+}
+
+bool tlb_get_code_mapping_addend(CPUState *cpu, vaddr addr,
+                                 uintptr_t *addend)
+{
+    CPUTLBEntry *entry = tlb_entry(cpu, cpu_mmu_index(cpu, true), addr);
+    uintptr_t addr_code = qatomic_read(&entry->addr_code);
+    uintptr_t compare_mask = TARGET_PAGE_MASK | TLB_INVALID_MASK;
+
+    if ((addr_code & compare_mask) != (addr & TARGET_PAGE_MASK)) {
+        return false;
+    }
+
+    *addend = qatomic_read(&entry->addend);
+    return true;
+}
+
+bool tlb_code_mapping_matches(CPUState *cpu, vaddr addr,
+                              uintptr_t expected_addend)
+{
+    CPUTLBEntry *entry = tlb_entry(cpu, cpu_mmu_index(cpu, true), addr);
+    uintptr_t addr_code = qatomic_read(&entry->addr_code);
+    uintptr_t addend = qatomic_read(&entry->addend);
+
+    return tb_code_mapping_matches(addr, addr_code, addend, expected_addend);
 }
 
 static void tlb_window_reset(CPUTLBDesc *desc, int64_t ns,

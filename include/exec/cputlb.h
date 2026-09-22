@@ -28,6 +28,10 @@
 #if defined(CONFIG_TCG) && !defined(CONFIG_USER_ONLY)
 void tlb_protect_code(ram_addr_t ram_addr);
 void tlb_unprotect_code(ram_addr_t ram_addr);
+bool tlb_get_code_mapping_addend(CPUState *cpu, vaddr addr,
+                                 uintptr_t *addend);
+bool tlb_code_mapping_matches(CPUState *cpu, vaddr addr,
+                              uintptr_t expected_addend);
 #endif
 
 #ifndef CONFIG_USER_ONLY

@@ -137,6 +137,7 @@ tests = {
   'test-cutils': [],
   'test-div128': [],
   'test-shift128': [],
+  'test-tcg-cross-page-mapping': [xbox_i386_target_headers],
   'test-mul64': [],
   # all code tested by test-int128 is inside int128.h
   'test-int128': [],

@@ -124,6 +124,11 @@ struct TranslationBlock {
     uint16_t jmp_reset_offset[2]; /* offset of original jump target */
     uint16_t jmp_insn_offset[2];  /* offset of direct jump insn */
     uintptr_t jmp_target_addr[2]; /* target address */
+#ifdef XBOX
+    /* Mapping identity used by guarded cross-page direct jumps. */
+    uintptr_t jmp_target_addend[2];
+    uint8_t jmp_target_mapping_valid[2];
+#endif
 
     /*
      * Each TB has a NULL-terminated list (jmp_list_head) of incoming jumps.

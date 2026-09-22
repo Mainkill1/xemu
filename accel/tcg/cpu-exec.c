@@ -28,6 +28,7 @@
 #include "disas/disas.h"
 #include "exec/cpu-common.h"
 #include "exec/cpu-interrupt.h"
+#include "exec/cputlb.h"
 #include "exec/page-protection.h"
 #include "exec/mmap-lock.h"
 #include "exec/translation-block.h"
@@ -660,8 +661,8 @@ void tb_set_jmp_target(TranslationBlock *tb, int n, uintptr_t addr)
     tb_target_set_jmp_target(c_tb, n, jmp_rx, jmp_rw);
 }
 
-static inline void tb_add_jump(TranslationBlock *tb, int n,
-                               TranslationBlock *tb_next)
+static inline void tb_add_jump(CPUState *cpu, TranslationBlock *tb, int n,
+                               TranslationBlock *tb_next, vaddr dest_pc)
 {
     uintptr_t old;
 
@@ -679,6 +680,20 @@ static inline void tb_add_jump(TranslationBlock *tb, int n,
     if (old) {
         goto out_unlock_next;
     }
+
+#ifdef XBOX
+    uintptr_t addend;
+    bool mapping_valid =
+        tlb_get_code_mapping_addend(cpu, dest_pc, &addend);
+
+    if (mapping_valid) {
+        tb->jmp_target_addend[n] = addend;
+    }
+    qatomic_set(&tb->jmp_target_mapping_valid[n], mapping_valid);
+#else
+    (void)cpu;
+    (void)dest_pc;
+#endif
 
     /* patch the native jump address */
     tb_set_jmp_target(tb, n, (uintptr_t)tb_next->tc.ptr);
@@ -1042,7 +1057,7 @@ cpu_exec_loop(CPUState *cpu, SyncClocks *sc)
 #endif
             /* See if we can patch the calling TB. */
             if (last_tb) {
-                tb_add_jump(last_tb, tb_exit, tb);
+                tb_add_jump(cpu, last_tb, tb_exit, tb, s.pc);
             }
 
             cpu_loop_exec_tb(cpu, tb, s.pc, &last_tb, &tb_exit);

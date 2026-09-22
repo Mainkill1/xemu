@@ -2854,6 +2854,38 @@ static void gen_jmp_rel(DisasContext *s, MemOp ot, int diff, int tb_num)
         }
         tcg_gen_exit_tb(s->base.tb, tb_num);
         s->base.is_jmp = DISAS_NORETURN;
+#if defined(XBOX) && !defined(CONFIG_USER_ONLY)
+    } else if (use_goto_tb && !(tb_cflags(s->base.tb) & CF_PCREL)) {
+        /*
+         * Xbox uses frequent CR3 reloads while retaining its code mappings.
+         * Bypass the patched jump until the destination code-TLB entry again
+         * identifies the mapping that was present when the link was created.
+         */
+        TCGLabel *lookup = gen_new_label();
+        TCGv_ptr tb = tcg_constant_ptr(s->base.tb);
+        TCGv_ptr expected_addend = tcg_temp_new_ptr();
+        TCGv_i32 mapping_valid = tcg_temp_new_i32();
+
+        tcg_gen_movi_tl(cpu_eip, new_eip);
+        tcg_gen_ld8u_i32(mapping_valid, tb,
+                         offsetof(TranslationBlock,
+                                  jmp_target_mapping_valid) + tb_num);
+        tcg_gen_brcondi_i32(TCG_COND_EQ, mapping_valid, 0, lookup);
+        tcg_gen_ld_ptr(expected_addend, tb,
+                       offsetof(TranslationBlock,
+                                jmp_target_addend) +
+                       tb_num * sizeof(uintptr_t));
+        gen_helper_xbox_tb_mapping_valid(mapping_valid, tcg_env,
+                                         tcg_constant_i32(new_pc),
+                                         expected_addend);
+        tcg_gen_brcondi_i32(TCG_COND_EQ, mapping_valid, 0, lookup);
+
+        tcg_gen_goto_tb(tb_num);
+
+        gen_set_label(lookup);
+        tcg_gen_exit_tb(s->base.tb, tb_num);
+        s->base.is_jmp = DISAS_NORETURN;
+#endif
     } else {
         if (!(tb_cflags(s->base.tb) & CF_PCREL)) {
             tcg_gen_movi_tl(cpu_eip, new_eip);
@@ -4287,7 +4319,6 @@ static void i386_tr_init_disas_context(DisasContextBase *dcbase, CPUState *cpu)
     dc->cpuid_xsave_features = env->features[FEAT_XSAVE];
     dc->jmp_opt = !((cflags & CF_NO_GOTO_TB) ||
                     (flags & (HF_RF_MASK | HF_TF_MASK | HF_INHIBIT_IRQ_MASK)));
-
     dc->T0 = tcg_temp_new();
     dc->T1 = tcg_temp_new();
     dc->A0 = tcg_temp_new();
