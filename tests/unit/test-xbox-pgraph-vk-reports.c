@@ -60,7 +60,13 @@ static void fixture_free(ReportFixture *fixture)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(ReportFixture, fixture_free)
 
 int nv2a_vk_dgroup_indent;
+bool nv2a_vk_text_debug_enabled;
 unsigned int xemu_tweaks_active;
+
+void pgraph_vk_text_debug_printf(const char *format, ...)
+{
+    (void)format;
+}
 
 PFN_vkBeginCommandBuffer vkBeginCommandBuffer;
 PFN_vkCmdCopyBuffer vkCmdCopyBuffer;
