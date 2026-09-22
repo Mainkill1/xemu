@@ -160,6 +160,7 @@ tests = {
   'test-interval-tree': [],
   'test-fifo': [],
   'test-lru-active': [],
+  'test-xbox-mcpx-apu-resampler': [libsamplerate],
 }
 
 if host_os == 'windows'
