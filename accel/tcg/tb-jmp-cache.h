@@ -10,7 +10,9 @@
 #define ACCEL_TCG_TB_JMP_CACHE_H
 
 #include "qemu/rcu.h"
+#include "accel/tcg/tb-cpu-state.h"
 #include "exec/cpu-common.h"
+#include "exec/translation-block.h"
 
 #define TB_JMP_CACHE_BITS 12
 #define TB_JMP_CACHE_SIZE (1 << TB_JMP_CACHE_BITS)
@@ -29,5 +31,20 @@ typedef struct CPUJumpCache {
         vaddr pc;
     } array[TB_JMP_CACHE_SIZE];
 } CPUJumpCache;
+
+static inline TranslationBlock *
+tb_jmp_cache_lookup(CPUJumpCache *jc, uint32_t hash, TCGTBCPUState s)
+{
+    TranslationBlock *tb = qatomic_read(&jc->array[hash].tb);
+
+    if (likely(tb &&
+               jc->array[hash].pc == s.pc &&
+               tb->cs_base == s.cs_base &&
+               tb->flags == s.flags &&
+               tb_cflags(tb) == s.cflags)) {
+        return tb;
+    }
+    return NULL;
+}
 
 #endif /* ACCEL_TCG_TB_JMP_CACHE_H */

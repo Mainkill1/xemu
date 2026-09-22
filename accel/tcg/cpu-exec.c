@@ -258,12 +258,8 @@ static inline TranslationBlock *tb_lookup(CPUState *cpu, TCGTBCPUState s)
     hash = tb_jmp_cache_hash_func(s.pc);
     jc = cpu->tb_jmp_cache;
 
-    tb = qatomic_read(&jc->array[hash].tb);
-    if (likely(tb &&
-               jc->array[hash].pc == s.pc &&
-               tb->cs_base == s.cs_base &&
-               tb->flags == s.flags &&
-               tb_cflags(tb) == s.cflags)) {
+    tb = tb_jmp_cache_lookup(jc, hash, s);
+    if (likely(tb)) {
         goto hit;
     }
 
@@ -441,12 +437,29 @@ HELPER(lookup_tb_ptr_i32)(CPUArchState *env, uint32_t eip,
                           uint64_t cs_base, uint32_t flags)
 {
     CPUState *cpu = env_cpu(env);
+    TranslationBlock *tb;
     TCGTBCPUState s = {
         .pc = (uint32_t)(cs_base + eip),
         .flags = flags,
         .cflags = curr_cflags(cpu),
         .cs_base = cs_base,
     };
+
+    cpu->neg.can_do_io = true;
+
+    if (likely(QTAILQ_EMPTY(&cpu->breakpoints))) {
+        uint32_t hash = tb_jmp_cache_hash_func(s.pc);
+
+        tb = tb_jmp_cache_lookup(cpu->tb_jmp_cache, hash, s);
+        if (likely(tb)) {
+            assert((tb_cflags(tb) & CF_PCREL) || tb->pc == s.pc);
+            if (unlikely(qemu_loglevel_mask(CPU_LOG_TB_CPU |
+                                            CPU_LOG_EXEC))) {
+                log_cpu_exec(s.pc, cpu, tb);
+            }
+            return tb->tc.ptr;
+        }
+    }
 
     return lookup_tb_ptr_common(cpu, s);
 }
