@@ -25,7 +25,7 @@ if [[ -z "$XEMU_VERSION" && -f "$dir/XEMU_VERSION" ]]; then
   XEMU_VERSION=$(cat "$dir/XEMU_VERSION")
   version_from_file=true
 fi
-if [[ ! "$XEMU_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9]+-g[0-9a-f]+)?$ ]]; then
+if [[ ! "$XEMU_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9]+-g[0-9a-f]+|-0-unofficial-[0-9a-f]+)?$ ]]; then
   echo "xemu: no valid version tag or XEMU_VERSION file" >&2
   exit 1
 fi
