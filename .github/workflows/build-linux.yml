@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         arch: [x86_64]
-        configuration: [debug]
+        configuration: [release]
     env:
       ARTIFACT_NAME: xemu-ubuntu-${{ matrix.arch }}-${{ matrix.configuration }}
       CCACHE_DIR: /tmp/xemu-ccache
