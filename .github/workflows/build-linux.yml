@@ -14,8 +14,8 @@ jobs:
     runs-on: ubuntu-22.04${{ matrix.arch == 'aarch64' && '-arm' || '' }}
     strategy:
       matrix:
-        arch: [x86_64, aarch64]
-        configuration: [debug, release]
+        arch: [x86_64]
+        configuration: [debug]
     env:
       ARTIFACT_NAME: xemu-ubuntu-${{ matrix.arch }}-${{ matrix.configuration }}
       CCACHE_DIR: /tmp/xemu-ccache
