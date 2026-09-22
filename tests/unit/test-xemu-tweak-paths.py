@@ -32,6 +32,9 @@ widgets = (repo / "ui/xui/widgets.cc").read_text()
 main_menu = (repo / "ui/xui/main-menu.cc").read_text()
 settings = (repo / "ui/xemu-settings.cc").read_text()
 migration = (repo / "ui/xemu-settings-migration.cc").read_text()
+vsh = (repo / "hw/xbox/nv2a/pgraph/glsl/vsh.c").read_text()
+vsh_prog = (repo / "hw/xbox/nv2a/pgraph/glsl/vsh-prog.c").read_text()
+shaders = (repo / "hw/xbox/nv2a/pgraph/glsl/shaders.c").read_text()
 
 assert "CalcTextSize(description, nullptr, false, wrap_width)" in widgets
 assert "wrap_width" in widgets[widgets.index("void WidgetTitleDescription("):
@@ -46,6 +49,13 @@ assert "xemu_settings_apply_ubershader_migration" in settings
 assert 'contains("vk_ubershader_mode")' in migration
 assert "xemu_vulkan_ubershader_migrate_mode" in migration
 assert "g_config.tweaks.vk_hybrid_ubershaders = false" in settings
+assert 'PerformanceToggle("Accurate NV20 vertex arithmetic"' in main_menu
+assert "XEMU_TWEAK_NV20_VERTEX_ARITHMETIC" in main_menu
+assert "nv20_vertex_arithmetic" in vsh
+assert "state->vsh.nv20_vertex_arithmetic" in shaders
+assert "nv20_mul_bits" in vsh_prog
+assert "nv20_sum_bits" in vsh_prog
+assert "nv20_rcp_bits" in vsh_prog
 macros = pgraph[pgraph.index("#define METHOD_HANDLER_ARG_DECL"):
                 pgraph.index("#define DEF_METHOD_PROTO")]
 preamble = r'''
