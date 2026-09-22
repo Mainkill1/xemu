@@ -1,3 +1,5 @@
+specific_ss.add(files('device-selection.c'))
+
 if vulkan.found()
 
 specific_ss.add([volk, libglslang, vma, vulkan, spirv_reflect, 
@@ -7,7 +9,6 @@ specific_ss.add([volk, libglslang, vma, vulkan, spirv_reflect,
 		'command.c',
 		'debug.c',
 		'device-inventory.c',
-		'device-selection.c',
 		'display.c',
 		'draw.c',
 		'failpoint.c',
