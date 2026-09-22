@@ -14,8 +14,8 @@ jobs:
     runs-on: ubuntu-22.04${{ matrix.arch == 'aarch64' && '-arm' || '' }}
     strategy:
       matrix:
-        arch: [x86_64, aarch64]
-        configuration: [debug, release]
+        arch: [x86_64]
+        configuration: [release]
     env:
       ARTIFACT_NAME: xemu-ubuntu-${{ matrix.arch }}-${{ matrix.configuration }}
       CCACHE_DIR: /tmp/xemu-ccache
@@ -69,6 +69,7 @@ jobs:
       run: |
         mkdir src
         tar -xf xemu-${{ inputs.pkg_version }}.tar.zst -C src --strip-components=2
+        echo -n "0.0.0-0-g${GITHUB_SHA::12}" > src/XEMU_VERSION
     - name: Create debian changelog
       run: |
         pushd src
