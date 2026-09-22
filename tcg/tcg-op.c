@@ -26,6 +26,8 @@
 #include "tcg/tcg.h"
 #include "tcg/tcg-temp-internal.h"
 #include "tcg/tcg-op-common.h"
+#include "accel/tcg/internal-common.h"
+#include "accel/tcg/tb-hash.h"
 #include "exec/translation-block.h"
 #include "exec/plugin-gen.h"
 #include "tcg-internal.h"
@@ -3272,6 +3274,123 @@ void tcg_gen_lookup_and_goto_ptr_i32(TCGv_i32 eip, uint64_t cs_base,
     }
 
     plugin_gen_disable_mem_helpers();
+
+#ifdef CONFIG_SOFTMMU
+    {
+        TCGLabel *slow = gen_new_label();
+        TCGv_i32 guard = tcg_temp_new_i32();
+        TCGv_i32 pc = tcg_temp_new_i32();
+        TCGv_i32 hash = tcg_temp_new_i32();
+        TCGv_i32 tmp = tcg_temp_new_i32();
+        TCGv_i32 tb_flags = tcg_temp_new_i32();
+        TCGv_i32 tb_cflags = tcg_temp_new_i32();
+        TCGv_i32 current_cflags = tcg_temp_new_i32();
+        TCGv_i64 tb_cs_base = tcg_temp_new_i64();
+        TCGv_ptr breakpoints = tcg_temp_new_ptr();
+        TCGv_ptr jump_cache = tcg_temp_new_ptr();
+        TCGv_ptr entry = tcg_temp_new_ptr();
+        TCGv_ptr tb = tcg_temp_new_ptr();
+        TCGv_ptr cached_pc = tcg_temp_new_ptr();
+
+        QEMU_BUILD_BUG_ON(sizeof_field(CPUState, neg.can_do_io) != 1);
+        QEMU_BUILD_BUG_ON(sizeof(vaddr) != sizeof(void *));
+        QEMU_BUILD_BUG_ON(offsetof(CPUJumpCache, array[0].tb) !=
+                          offsetof(CPUJumpCache, array));
+        QEMU_BUILD_BUG_ON(offsetof(CPUJumpCache, array[0].pc) -
+                          offsetof(CPUJumpCache, array[0].tb) !=
+                          sizeof(void *));
+
+        /* Match lookup_tb_ptr_common's exceptional-mode gates. */
+        tcg_gen_st8_i32(tcg_constant_i32(true), tcg_env,
+                        offsetof(CPUState, neg.can_do_io) -
+                        sizeof(CPUState));
+
+        tcg_gen_ld_i32(guard, tcg_constant_ptr(&qemu_loglevel), 0);
+        tcg_gen_andi_i32(guard, guard, CPU_LOG_TB_CPU | CPU_LOG_EXEC |
+                                       CPU_LOG_TB_NOCHAIN);
+        tcg_gen_brcondi_i32(TCG_COND_NE, guard, 0, slow);
+
+        tcg_gen_ld8u_i32(guard, tcg_constant_ptr(&one_insn_per_tb), 0);
+        tcg_gen_brcondi_i32(TCG_COND_NE, guard, 0, slow);
+
+        tcg_gen_ld_i32(guard, tcg_env,
+                       offsetof(CPUState, singlestep_enabled) -
+                       sizeof(CPUState));
+        tcg_gen_brcondi_i32(TCG_COND_NE, guard, 0, slow);
+
+        tcg_gen_ld_ptr(breakpoints, tcg_env,
+                       offsetof(CPUState, breakpoints.tqh_first) -
+                       sizeof(CPUState));
+        tcg_gen_brcondi_ptr(TCG_COND_NE, breakpoints, 0, slow);
+
+        /* Reproduce tb_jmp_cache_hash_func for a 32-bit guest PC. */
+        tcg_gen_addi_i32(pc, eip, (uint32_t)cs_base);
+        tcg_gen_shri_i32(tmp, pc,
+                         TARGET_PAGE_BITS - TB_JMP_PAGE_BITS);
+        tcg_gen_xor_i32(hash, pc, tmp);
+        tcg_gen_shri_i32(tmp, hash,
+                         TARGET_PAGE_BITS - TB_JMP_PAGE_BITS);
+        tcg_gen_andi_i32(tmp, tmp, TB_JMP_PAGE_MASK);
+        tcg_gen_andi_i32(hash, hash, TB_JMP_ADDR_MASK);
+        tcg_gen_or_i32(hash, hash, tmp);
+        tcg_gen_muli_i32(hash, hash,
+                         sizeof(((CPUJumpCache *)0)->array[0]));
+
+        tcg_gen_ld_ptr(jump_cache, tcg_env,
+                       offsetof(CPUState, tb_jmp_cache) -
+                       sizeof(CPUState));
+        tcg_gen_ext_i32_ptr(entry, hash);
+        tcg_gen_add_ptr(entry, jump_cache, entry);
+        tcg_gen_addi_ptr(entry, entry, offsetof(CPUJumpCache, array));
+
+        tcg_gen_ld_ptr(tb, entry, 0);
+        tcg_gen_brcondi_ptr(TCG_COND_EQ, tb, 0, slow);
+
+        tcg_gen_ld_ptr(cached_pc, entry, sizeof(void *));
+#if UINTPTR_MAX == UINT32_MAX
+        tcg_gen_brcond_i32(TCG_COND_NE, (TCGv_i32)cached_pc, pc, slow);
+#else
+        tcg_gen_extu_i32_i64((TCGv_i64)entry, pc);
+        tcg_gen_brcond_i64(TCG_COND_NE, (TCGv_i64)cached_pc,
+                           (TCGv_i64)entry, slow);
+#endif
+
+        tcg_gen_ld_i64(tb_cs_base, tb,
+                       offsetof(TranslationBlock, cs_base));
+        tcg_gen_brcondi_i64(TCG_COND_NE, tb_cs_base, cs_base, slow);
+
+        tcg_gen_ld_i32(tb_flags, tb, offsetof(TranslationBlock, flags));
+        tcg_gen_brcondi_i32(TCG_COND_NE, tb_flags, flags, slow);
+
+        tcg_gen_ld_i32(current_cflags, tcg_env,
+                       offsetof(CPUState, tcg_cflags) - sizeof(CPUState));
+        tcg_gen_ld_i32(tb_cflags, tb,
+                       offsetof(TranslationBlock, cflags));
+        tcg_gen_brcond_i32(TCG_COND_NE, tb_cflags, current_cflags, slow);
+
+        ptr = tcg_temp_new_ptr();
+        tcg_gen_ld_ptr(ptr, tb, offsetof(TranslationBlock, tc.ptr));
+        tcg_gen_op1i(INDEX_op_goto_ptr, TCG_TYPE_PTR, tcgv_ptr_arg(ptr));
+        tcg_temp_free_ptr(ptr);
+
+        tcg_temp_free_i32(guard);
+        tcg_temp_free_i32(pc);
+        tcg_temp_free_i32(hash);
+        tcg_temp_free_i32(tmp);
+        tcg_temp_free_i32(tb_flags);
+        tcg_temp_free_i32(tb_cflags);
+        tcg_temp_free_i32(current_cflags);
+        tcg_temp_free_i64(tb_cs_base);
+        tcg_temp_free_ptr(breakpoints);
+        tcg_temp_free_ptr(jump_cache);
+        tcg_temp_free_ptr(entry);
+        tcg_temp_free_ptr(tb);
+        tcg_temp_free_ptr(cached_pc);
+
+        gen_set_label(slow);
+    }
+#endif
+
     ptr = tcg_temp_ebb_new_ptr();
     gen_helper_lookup_tb_ptr_i32(ptr, tcg_env, eip,
                                  tcg_constant_i64(cs_base),

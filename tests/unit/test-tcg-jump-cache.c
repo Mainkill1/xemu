@@ -6,6 +6,14 @@
 
 #define TEST_SLOT 37
 
+G_STATIC_ASSERT(sizeof(vaddr) == sizeof(void *));
+G_STATIC_ASSERT(offsetof(CPUJumpCache, array[0].tb) ==
+                offsetof(CPUJumpCache, array));
+G_STATIC_ASSERT(offsetof(CPUJumpCache, array[0].pc) -
+                offsetof(CPUJumpCache, array[0].tb) == sizeof(void *));
+G_STATIC_ASSERT(sizeof(((CPUJumpCache *)0)->array[0]) ==
+                sizeof(void *) + sizeof(vaddr));
+
 static TCGTBCPUState matching_state(void)
 {
     return (TCGTBCPUState) {
