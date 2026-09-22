@@ -9,7 +9,7 @@
 #include "hw/xbox/mcpx/apu/perf.h"
 #include "hw/xbox/mcpx/apu/apu_regs.h"
 
-#define APU_PERF_SCHEMA_VERSION 1
+#define APU_PERF_SCHEMA_VERSION 2
 #define APU_PERF_EMIT_INTERVAL_US G_USEC_PER_SEC
 #define APU_PERF_FRAME_BUDGET_US (EP_FRAME_US / 8)
 
@@ -37,6 +37,9 @@ static void emit_sample_locked(McpxApuPerfTelemetry *perf, int64_t now_us)
             ",\"dispatches\":%" PRIu64
             ",\"queued_voices\":%" PRIu64
             ",\"queued_voices_max\":%" PRIu64
+            ",\"resampled_mono_voices\":%" PRIu64
+            ",\"resampled_stereo_voices\":%" PRIu64
+            ",\"multipass_voices\":%" PRIu64
             ",\"scheduled_workers\":%" PRIu64
             ",\"scheduled_workers_max\":%" PRIu64
             ",\"voice_lock_wait_us\":%" PRIu64
@@ -55,7 +58,9 @@ static void emit_sample_locked(McpxApuPerfTelemetry *perf, int64_t now_us)
             ",\"audio_high_watermark_samples\":%" PRIu64,
             APU_PERF_SCHEMA_VERSION, now_us, t->frames, t->frame_work_us,
             t->frame_work_max_us, t->frame_budget_overruns, t->dispatches,
-            t->queued_voices, t->queued_voices_max, t->scheduled_workers,
+            t->queued_voices, t->queued_voices_max,
+            t->resampled_mono_voices, t->resampled_stereo_voices,
+            t->multipass_voices, t->scheduled_workers,
             t->scheduled_workers_max, t->voice_lock_wait_us, t->schedule_us,
             t->completion_wait_us, t->dispatch_us, t->dispatch_max_us,
             t->worker_wakeups, t->useful_worker_wakeups,
@@ -144,6 +149,9 @@ void mcpx_apu_perf_record_worker(McpxApuPerfTelemetry *perf, int worker_id,
 
 void mcpx_apu_perf_record_dispatch(McpxApuPerfTelemetry *perf,
                                    int queued_voices, int scheduled_workers,
+                                   int resampled_mono_voices,
+                                   int resampled_stereo_voices,
+                                   int multipass_voices,
                                    uint64_t voice_lock_wait_us,
                                    uint64_t schedule_us,
                                    uint64_t completion_wait_us,
@@ -153,6 +161,11 @@ void mcpx_apu_perf_record_dispatch(McpxApuPerfTelemetry *perf,
         return;
     }
     assert(queued_voices >= 0);
+    assert(resampled_mono_voices >= 0);
+    assert(resampled_stereo_voices >= 0);
+    assert(multipass_voices >= 0);
+    assert(resampled_mono_voices + resampled_stereo_voices +
+           multipass_voices == queued_voices);
     assert(scheduled_workers >= 0 &&
            scheduled_workers <= perf->num_workers);
 
@@ -160,6 +173,9 @@ void mcpx_apu_perf_record_dispatch(McpxApuPerfTelemetry *perf,
     t->dispatches++;
     t->queued_voices += queued_voices;
     t->queued_voices_max = MAX(t->queued_voices_max, queued_voices);
+    t->resampled_mono_voices += resampled_mono_voices;
+    t->resampled_stereo_voices += resampled_stereo_voices;
+    t->multipass_voices += multipass_voices;
     t->scheduled_workers += scheduled_workers;
     t->scheduled_workers_max = MAX(t->scheduled_workers_max,
                                    scheduled_workers);

@@ -18,6 +18,9 @@ typedef struct McpxApuPerfTotals {
     uint64_t dispatches;
     uint64_t queued_voices;
     uint64_t queued_voices_max;
+    uint64_t resampled_mono_voices;
+    uint64_t resampled_stereo_voices;
+    uint64_t multipass_voices;
     uint64_t scheduled_workers;
     uint64_t scheduled_workers_max;
     uint64_t voice_lock_wait_us;
@@ -62,6 +65,9 @@ void mcpx_apu_perf_record_worker(McpxApuPerfTelemetry *perf, int worker_id,
                                  uint64_t total_us);
 void mcpx_apu_perf_record_dispatch(McpxApuPerfTelemetry *perf,
                                    int queued_voices, int scheduled_workers,
+                                   int resampled_mono_voices,
+                                   int resampled_stereo_voices,
+                                   int multipass_voices,
                                    uint64_t voice_lock_wait_us,
                                    uint64_t schedule_us,
                                    uint64_t completion_wait_us,

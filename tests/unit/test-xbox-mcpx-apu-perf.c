@@ -15,7 +15,7 @@ static void test_disabled(void)
 
     g_assert_false(mcpx_apu_perf_init(&perf, NULL, 4, 0));
     mcpx_apu_perf_record_worker(&perf, 0, 2, 100, 20, 140);
-    mcpx_apu_perf_record_dispatch(&perf, 2, 1, 3, 5, 120, 160);
+    mcpx_apu_perf_record_dispatch(&perf, 2, 1, 1, 1, 0, 3, 5, 120, 160);
     mcpx_apu_perf_record_audio_queue(&perf, 4096, 2048, 6144);
     mcpx_apu_perf_record_frame(&perf, 300, 1000);
     mcpx_apu_perf_finalize(&perf, 1000);
@@ -37,7 +37,7 @@ static void test_cumulative_jsonl(void)
     mcpx_apu_perf_record_worker(&perf, 0, 3, 100, 20, 140);
     mcpx_apu_perf_record_worker(&perf, 1, 0, 0, 0, 0);
     mcpx_apu_perf_record_worker(&perf, 0, 2, 80, 10, 110);
-    mcpx_apu_perf_record_dispatch(&perf, 5, 2, 3, 7, 150, 210);
+    mcpx_apu_perf_record_dispatch(&perf, 5, 2, 3, 1, 1, 3, 7, 150, 210);
     mcpx_apu_perf_record_audio_queue(&perf, 1024, 2048, 6144);
     mcpx_apu_perf_record_audio_queue(&perf, 8192, 2048, 6144);
     mcpx_apu_perf_record_frame(&perf, 700, 500000);
@@ -47,13 +47,16 @@ static void test_cumulative_jsonl(void)
     g_assert_true(g_file_get_contents(path, &contents, &length, NULL));
     g_assert_cmpuint(length, >, 0);
     g_assert_nonnull(strstr(contents, "\"type\":\"schema\""));
-    g_assert_nonnull(strstr(contents, "\"schema_version\":1"));
+    g_assert_nonnull(strstr(contents, "\"schema_version\":2"));
     g_assert_nonnull(strstr(contents, "\"num_workers\":4"));
     g_assert_nonnull(strstr(contents, "\"type\":\"sample\""));
     g_assert_nonnull(strstr(contents, "\"frames\":2"));
     g_assert_nonnull(strstr(contents, "\"frame_budget_overruns\":1"));
     g_assert_nonnull(strstr(contents, "\"dispatches\":1"));
     g_assert_nonnull(strstr(contents, "\"queued_voices\":5"));
+    g_assert_nonnull(strstr(contents, "\"resampled_mono_voices\":3"));
+    g_assert_nonnull(strstr(contents, "\"resampled_stereo_voices\":1"));
+    g_assert_nonnull(strstr(contents, "\"multipass_voices\":1"));
     g_assert_nonnull(strstr(contents, "\"scheduled_workers\":2"));
     g_assert_nonnull(strstr(contents, "\"worker_wakeups\":3"));
     g_assert_nonnull(strstr(contents, "\"useful_worker_wakeups\":2"));

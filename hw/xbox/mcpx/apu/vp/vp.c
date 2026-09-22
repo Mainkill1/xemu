@@ -1756,6 +1756,9 @@ voice_work_dispatch(MCPXAPUState *d,
     bool perf_enabled = d->perf.enabled;
     int queued_voices = 0;
     int scheduled_workers = 0;
+    int resampled_mono_voices = 0;
+    int resampled_stereo_voices = 0;
+    int multipass_voices = 0;
     uint64_t voice_lock_wait_us = 0;
     uint64_t schedule_us = 0;
     uint64_t completion_wait_us = 0;
@@ -1782,6 +1785,23 @@ voice_work_dispatch(MCPXAPUState *d,
 
     if (vwd->queue_len) {
         queued_voices = vwd->queue_len;
+        if (perf_enabled) {
+            for (int i = 0; i < vwd->queue_len; i++) {
+                int v = vwd->queue[i].voice;
+                uint32_t format = voice_get_mask(
+                    d, v, NV_PAVS_VOICE_CFG_FMT, UINT32_MAX);
+                bool multipass = format & NV_PAVS_VOICE_CFG_FMT_MULTIPASS;
+                bool stereo = format & NV_PAVS_VOICE_CFG_FMT_STEREO;
+
+                if (multipass) {
+                    multipass_voices++;
+                } else if (stereo) {
+                    resampled_stereo_voices++;
+                } else {
+                    resampled_mono_voices++;
+                }
+            }
+        }
         memset(vwd->mixbins, 0, sizeof(vwd->mixbins));
 
         // Signal workers and wait for completion
@@ -1816,7 +1836,8 @@ voice_work_dispatch(MCPXAPUState *d,
     g_dbg.vp.total_worker_time_us = end_time - start_time;
 
     mcpx_apu_perf_record_dispatch(
-        &d->perf, queued_voices, scheduled_workers, voice_lock_wait_us,
+        &d->perf, queued_voices, scheduled_workers, resampled_mono_voices,
+        resampled_stereo_voices, multipass_voices, voice_lock_wait_us,
         schedule_us, completion_wait_us, end_time - start_time);
     qemu_mutex_unlock(&vwd->lock);
 }
