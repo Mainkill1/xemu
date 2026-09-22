@@ -17,7 +17,8 @@ unsigned int xemu_tweaks_active =
     ((1u << XEMU_TWEAK_COUNT) - 1) &
     ~((1u << XEMU_TWEAK_VK_HYBRID_UBERSHADERS) |
       (1u << XEMU_TWEAK_VK_SHADER_FASTPATH) |
-      (1u << XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION));
+      (1u << XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION) |
+      (1u << XEMU_TWEAK_NV20_VERTEX_ARITHMETIC));
 static int xemu_vulkan_ubershader_latched_policy =
     XEMU_VK_UBERSHADER_OFF;
 
@@ -66,6 +67,8 @@ static bool xemu_tweak_requested(XemuTweak tweak)
         return g_config.tweaks.vk_shader_fastpath;
     case XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION:
         return g_config.tweaks.issue149_effect_suppression;
+    case XEMU_TWEAK_NV20_VERTEX_ARITHMETIC:
+        return g_config.tweaks.nv20_vertex_arithmetic;
     default:
         return false;
     }
@@ -106,6 +109,12 @@ XemuTweakRuntimeState xemu_tweak_runtime_state(XemuTweak tweak)
         state.available = renderer == XEMU_TWEAK_RENDERER_OPENGL;
         if (!state.available) {
             state.reason = "Available with the OpenGL renderer.";
+        }
+        break;
+    case XEMU_TWEAK_NV20_VERTEX_ARITHMETIC:
+        state.available = renderer != XEMU_TWEAK_RENDERER_NONE;
+        if (!state.available) {
+            state.reason = "Available when a renderer is installed.";
         }
         break;
     case XEMU_TWEAK_VK_SHADER_FASTPATH:
@@ -254,6 +263,8 @@ void xemu_tweaks_apply(bool startup)
             g_config.tweaks.vk_shader_fastpath,
         [XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION] =
             g_config.tweaks.issue149_effect_suppression,
+        [XEMU_TWEAK_NV20_VERTEX_ARITHMETIC] =
+            g_config.tweaks.nv20_vertex_arithmetic,
     };
     unsigned int active = qatomic_read(&xemu_tweaks_active);
 

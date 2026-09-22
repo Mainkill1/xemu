@@ -193,6 +193,12 @@ void MainMenuAdvanceView::Draw()
         "state, and index signatures for issue #149. This provisional "
         "workaround removes the corrupt screen-covering geometry instead "
         "of rendering it incorrectly. Applies live to both renderers.");
+    PerformanceToggle("Accurate NV20 vertex arithmetic",
+        &g_config.tweaks.nv20_vertex_arithmetic,
+        XEMU_TWEAK_NV20_VERTEX_ARITHMETIC,
+        "Uses bit-level NV20 multiply, add, MAD, dot-product and reciprocal "
+        "behavior in programmable vertex shaders. This experimental path "
+        "is substantially slower and is intended for graphics diagnosis.");
     SectionTitle("Performance");
 #ifdef _WIN32
     PerformanceToggle("Reduce CPU usage while waiting",
