@@ -33,6 +33,9 @@ tweaks:
   gl_native_s3tc:
     type: bool
     default: true
+  issue149_effect_suppression:
+    type: bool
+    default: false
 
 general:
   show_welcome:

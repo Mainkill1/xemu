@@ -27,6 +27,7 @@
 #include "pipeline-key.h"
 #include "pipeline-cache-lifetime.h"
 #include "pipeline-cache-data.h"
+#include "hw/xbox/nv2a/pgraph/effect-suppression.h"
 #include "staging-copy.h"
 #include "vertex-version-policy.h"
 #include "ui/xemu-tweaks.h"
@@ -3864,8 +3865,12 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
         vkCmdBindIndexBuffer(r->command_buffer,
                              r->storage_buffers[BUFFER_INDEX].buffer,
                              buffer_offset, VK_INDEX_TYPE_UINT32);
-        vkCmdDrawIndexed(r->command_buffer, pg->inline_elements_length, 1, 0, 0,
-                         0);
+        if (!xemu_tweak_enabled(XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION) ||
+            !pgraph_matches_issue149_effect(pg, pg->inline_elements_length,
+                                            min_element, max_element)) {
+            vkCmdDrawIndexed(r->command_buffer, pg->inline_elements_length, 1,
+                             0, 0, 0);
+        }
         end_draw(pg);
         pgraph_vk_end_debug_marker(r, r->command_buffer);
 

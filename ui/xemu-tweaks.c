@@ -16,7 +16,8 @@ G_STATIC_ASSERT((int)XEMU_VK_UBERSHADER_ALWAYS ==
 unsigned int xemu_tweaks_active =
     ((1u << XEMU_TWEAK_COUNT) - 1) &
     ~((1u << XEMU_TWEAK_VK_HYBRID_UBERSHADERS) |
-      (1u << XEMU_TWEAK_VK_SHADER_FASTPATH));
+      (1u << XEMU_TWEAK_VK_SHADER_FASTPATH) |
+      (1u << XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION));
 static int xemu_vulkan_ubershader_latched_policy =
     XEMU_VK_UBERSHADER_OFF;
 
@@ -63,6 +64,8 @@ static bool xemu_tweak_requested(XemuTweak tweak)
                XEMU_VK_UBERSHADER_OFF;
     case XEMU_TWEAK_VK_SHADER_FASTPATH:
         return g_config.tweaks.vk_shader_fastpath;
+    case XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION:
+        return g_config.tweaks.issue149_effect_suppression;
     default:
         return false;
     }
@@ -93,6 +96,7 @@ XemuTweakRuntimeState xemu_tweak_runtime_state(XemuTweak tweak)
         break;
     case XEMU_TWEAK_PGRAPH_BULK_PACKETS:
     case XEMU_TWEAK_PGRAPH_FENCE_FASTPATH:
+    case XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION:
         state.available = renderer != XEMU_TWEAK_RENDERER_NONE;
         if (!state.available) {
             state.reason = "Available when a renderer is installed.";
@@ -248,6 +252,8 @@ void xemu_tweaks_apply(bool startup)
             XEMU_VK_UBERSHADER_OFF,
         [XEMU_TWEAK_VK_SHADER_FASTPATH] =
             g_config.tweaks.vk_shader_fastpath,
+        [XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION] =
+            g_config.tweaks.issue149_effect_suppression,
     };
     unsigned int active = qatomic_read(&xemu_tweaks_active);
 
