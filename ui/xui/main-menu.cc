@@ -186,13 +186,13 @@ static XemuVulkanUbershaderRuntimeState VulkanUbershaderModeCombo()
 void MainMenuAdvanceView::Draw()
 {
     SectionTitle("Accuracy");
-    PerformanceToggle("Suppress unsupported Ghoulies death effect",
+    PerformanceToggle("Suppress issue #149 corrupt geometry",
         &g_config.tweaks.issue149_effect_suppression,
         XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION,
-        "Hides only draws matching the complete captured failing signature "
-        "for issue #149. This provisional workaround removes the death "
-        "effect instead of rendering it incorrectly. Applies live to both "
-        "renderers.");
+        "Hides four draws matching the complete captured shader, render "
+        "state, and index signatures for issue #149. This provisional "
+        "workaround removes the corrupt screen-covering geometry instead "
+        "of rendering it incorrectly. Applies live to both renderers.");
     SectionTitle("Performance");
 #ifdef _WIN32
     PerformanceToggle("Reduce CPU usage while waiting",

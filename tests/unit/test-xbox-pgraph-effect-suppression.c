@@ -27,8 +27,41 @@ int main(void)
 {
     PGRAPHState *pg = g_new0(PGRAPHState, 1);
     matching_state(pg);
+    g_assert_cmphex(pgraph_issue149_effect_signature_mismatches(
+                        pg, 217, 5005, 5096, MATCHING_VSH_FINGERPRINT),
+                    ==, 0);
     g_assert_true(pgraph_matches_issue149_effect_signature(
         pg, 217, 5005, 5096, MATCHING_VSH_FINGERPRINT));
+    g_assert_true(pgraph_matches_issue149_effect_signature(
+        pg, 165, 4881, 4945, MATCHING_VSH_FINGERPRINT));
+    g_assert_true(pgraph_matches_issue149_effect_signature(
+        pg, 142, 4946, 5004, MATCHING_VSH_FINGERPRINT));
+    g_assert_true(pgraph_matches_issue149_effect_signature(
+        pg, 126, 5027, 5393, MATCHING_VSH_FINGERPRINT));
+    /* Same shader/state family, but localized draws must remain visible. */
+    g_assert_false(pgraph_matches_issue149_effect_signature(
+        pg, 121, 5564, 5636, MATCHING_VSH_FINGERPRINT));
+    g_assert_false(pgraph_matches_issue149_effect_signature(
+        pg, 104, 5590, 5655, MATCHING_VSH_FINGERPRINT));
+    g_assert_cmphex(pgraph_issue149_effect_signature_mismatches(
+                        pg, 217, 6120, 6209, MATCHING_VSH_FINGERPRINT),
+                    ==, ISSUE149_MISMATCH_ELEMENT_RANGE);
+    g_assert_false(pgraph_matches_issue149_effect_signature(
+        pg, 217, 6120, 6209, MATCHING_VSH_FINGERPRINT));
+    pg->regs_[NV_PGRAPH_CONTROL_0] ^= 5;
+    g_assert_true(pgraph_matches_issue149_effect_signature(
+        pg, 217, 5005, 5096, MATCHING_VSH_FINGERPRINT));
+    pg->regs_[NV_PGRAPH_CONTROL_0] ^= NV_PGRAPH_CONTROL_0_ALPHAFUNC;
+    g_assert_true(pgraph_matches_issue149_effect_signature(
+        pg, 217, 5005, 5096, MATCHING_VSH_FINGERPRINT));
+    pg->regs_[NV_PGRAPH_CONTROL_0] |=
+        NV_PGRAPH_CONTROL_0_ALPHATESTENABLE;
+    g_assert_false(pgraph_matches_issue149_effect_signature(
+        pg, 217, 5005, 5096, MATCHING_VSH_FINGERPRINT));
+    matching_state(pg);
+    g_assert_cmphex(pgraph_issue149_effect_signature_mismatches(
+                        pg, 216, 5005, 5096, MATCHING_VSH_FINGERPRINT),
+                    ==, ISSUE149_MISMATCH_ELEMENT_COUNT);
     g_assert_false(pgraph_matches_issue149_effect_signature(
         pg, 216, 5005, 5096, MATCHING_VSH_FINGERPRINT));
     g_assert_false(pgraph_matches_issue149_effect_signature(
@@ -38,6 +71,9 @@ int main(void)
         pg, 217, 5005, 5096, MATCHING_VSH_FINGERPRINT));
     matching_state(pg);
     pg->regs_[NV_PGRAPH_CONTROL_0] ^= NV_PGRAPH_CONTROL_0_ZWRITEENABLE;
+    g_assert_cmphex(pgraph_issue149_effect_signature_mismatches(
+                        pg, 217, 5005, 5096, MATCHING_VSH_FINGERPRINT),
+                    ==, ISSUE149_MISMATCH_CONTROL_0);
     g_assert_false(pgraph_matches_issue149_effect_signature(
         pg, 217, 5005, 5096, MATCHING_VSH_FINGERPRINT));
     matching_state(pg);
