@@ -18,6 +18,7 @@
  */
 
 #include "hw/xbox/nv2a/pgraph/pgraph.h"
+#include "ui/xemu-tweaks.h"
 #include "shaders.h"
 
 ShaderState pgraph_glsl_get_shader_state(PGRAPHState *pg)
@@ -44,7 +45,9 @@ bool pgraph_glsl_nonregister_shader_state_changed(
         pg->compressed_attrs != state->vsh.compressed_attrs ||
         pg->primitive_mode != state->geom.primitive_mode ||
         pg->surface_scale_factor != state->vsh.surface_scale_factor ||
-        pg->surface_shape.zeta_format != state->psh.surface_zeta_format) {
+        pg->surface_shape.zeta_format != state->psh.surface_zeta_format ||
+        xemu_tweak_enabled(XEMU_TWEAK_NV20_VERTEX_ARITHMETIC) !=
+            state->vsh.nv20_vertex_arithmetic) {
         return true;
     }
     for (int i = 0; i < 4; i++) {

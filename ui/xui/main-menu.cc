@@ -185,6 +185,13 @@ static XemuVulkanUbershaderRuntimeState VulkanUbershaderModeCombo()
 
 void MainMenuAdvanceView::Draw()
 {
+    SectionTitle("Accuracy");
+    PerformanceToggle("Accurate NV20 vertex arithmetic",
+        &g_config.tweaks.nv20_vertex_arithmetic,
+        XEMU_TWEAK_NV20_VERTEX_ARITHMETIC,
+        "Uses bit-level NV20 multiply, add, MAD, dot-product and reciprocal "
+        "behavior in programmable vertex shaders. This experimental path "
+        "is substantially slower and is intended for graphics diagnosis.");
     SectionTitle("Performance");
 #ifdef _WIN32
     PerformanceToggle("Reduce CPU usage while waiting",

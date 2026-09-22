@@ -131,6 +131,19 @@ static void test_boolean_tweak_runtime_state()
     assert(!state.available && state.reason && state.reason[0]);
 
     xemu_tweaks_publish_renderer(XEMU_TWEAK_RENDERER_VULKAN);
+    assert(!g_config.tweaks.nv20_vertex_arithmetic);
+    g_config.tweaks.nv20_vertex_arithmetic = true;
+    xemu_tweaks_apply(false);
+    state = xemu_tweak_runtime_state(XEMU_TWEAK_NV20_VERTEX_ARITHMETIC);
+    assert(state.requested && state.selected && state.effective);
+    assert(state.available && !state.restart_pending);
+
+    xemu_tweaks_publish_renderer(XEMU_TWEAK_RENDERER_OPENGL);
+    state = xemu_tweak_runtime_state(XEMU_TWEAK_NV20_VERTEX_ARITHMETIC);
+    assert(state.requested && state.selected && state.effective);
+    assert(state.available && !state.restart_pending);
+
+    xemu_tweaks_publish_renderer(XEMU_TWEAK_RENDERER_VULKAN);
     state = xemu_tweak_runtime_state(
         XEMU_TWEAK_VK_COLOR_DOWNLOAD_FOLDING);
     assert(state.requested && state.selected && state.effective);
@@ -197,6 +210,8 @@ int main()
     assert(xemu_tweak_enabled(XEMU_TWEAK_VK_HYBRID_UBERSHADERS));
     assert(g_config.tweaks.vk_shader_fastpath);
     assert(xemu_tweak_enabled(XEMU_TWEAK_VK_SHADER_FASTPATH));
+    assert(!g_config.tweaks.nv20_vertex_arithmetic);
+    assert(!xemu_tweak_enabled(XEMU_TWEAK_NV20_VERTEX_ARITHMETIC));
     assert(g_config.perf.cache_shaders);
     auto tweaks = config_tree.child("tweaks");
     auto ubershader_mode = tweaks->child("vk_ubershader_mode");
@@ -235,6 +250,9 @@ int main()
     }
     auto hybrid = tweaks->child("vk_hybrid_ubershaders");
     assert(hybrid && !hybrid->data.boolean.val);
+    auto nv20_arithmetic = tweaks->child("nv20_vertex_arithmetic");
+    assert(nv20_arithmetic && !nv20_arithmetic->data.boolean.val);
+    nv20_arithmetic->data.boolean.val = true;
     ubershader_mode->set_enum_by_index(
         CONFIG_TWEAKS_VK_UBERSHADER_MODE_FALLBACK);
     auto cache_shaders = config_tree.child("perf")->child("cache_shaders");
@@ -250,7 +268,8 @@ int main()
         bool restart = tweak == XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH ||
                        tweak == XEMU_TWEAK_GL_NATIVE_S3TC ||
                        tweak == XEMU_TWEAK_VK_HYBRID_UBERSHADERS;
-        bool expected = restart;
+        bool expected = restart ||
+                        tweak == XEMU_TWEAK_NV20_VERTEX_ARITHMETIC;
         assert(xemu_tweak_enabled(tweak) == expected);
     }
     assert(xemu_tweak_enabled(XEMU_TWEAK_VK_HYBRID_UBERSHADERS));
@@ -273,12 +292,15 @@ int main()
     assert(saved.find("vk_ubershader_mode = 'fallback'") !=
            std::string::npos);
     assert(saved.find("vk_hybrid_ubershaders") == std::string::npos);
+    assert(saved.find("nv20_vertex_arithmetic = true") !=
+           std::string::npos);
     config_tree.reset_to_defaults();
     config_tree.update_from_table(toml::parse(saved));
     for (const char *key : default_on_keys) {
         assert(!tweaks->child(key)->data.boolean.val);
     }
     assert(!tweaks->child("vk_hybrid_ubershaders")->data.boolean.val);
+    assert(tweaks->child("nv20_vertex_arithmetic")->data.boolean.val);
     assert(tweaks->child("vk_ubershader_mode")->data_enum.val ==
            CONFIG_TWEAKS_VK_UBERSHADER_MODE_FALLBACK);
     assert(!config_tree.child("perf")->child("cache_shaders")
