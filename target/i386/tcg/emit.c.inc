@@ -899,14 +899,111 @@ static void gen_##uname(DisasContext *s, X86DecodedInsn *decode)                
                           gen_helper_##lname##_xmm,                                \
                           gen_helper_##lname##_ymm);                               \
 }
-BINARY_INT_MMX(PUNPCKLBW,  punpcklbw)
-BINARY_INT_MMX(PUNPCKLWD,  punpcklwd)
-BINARY_INT_MMX(PUNPCKLDQ,  punpckldq)
+
+static void gen_mmx_punpck_spread(TCGv_i64 value, TCGv_i64 tmp,
+                                  unsigned element_bits)
+{
+    if (element_bits <= 16) {
+        tcg_gen_shli_i64(tmp, value, 16);
+        tcg_gen_or_i64(value, value, tmp);
+        tcg_gen_andi_i64(value, value, UINT64_C(0x0000ffff0000ffff));
+    }
+    if (element_bits == 8) {
+        tcg_gen_shli_i64(tmp, value, 8);
+        tcg_gen_or_i64(value, value, tmp);
+        tcg_gen_andi_i64(value, value, UINT64_C(0x00ff00ff00ff00ff));
+    }
+}
+
+static void gen_mmx_punpck(X86DecodedInsn *decode, unsigned element_bits,
+                           bool high)
+{
+    TCGv_i64 left = tcg_temp_new_i64();
+    TCGv_i64 right = tcg_temp_new_i64();
+    TCGv_i64 tmp = tcg_temp_new_i64();
+
+    /* Load both inputs before writing the possibly aliased destination. */
+    tcg_gen_ld_i64(left, tcg_env, decode->op[1].offset);
+    tcg_gen_ld_i64(right, tcg_env, decode->op[2].offset);
+    if (high) {
+        tcg_gen_shri_i64(left, left, 32);
+        tcg_gen_shri_i64(right, right, 32);
+    } else {
+        tcg_gen_ext32u_i64(left, left);
+        tcg_gen_ext32u_i64(right, right);
+    }
+
+    gen_mmx_punpck_spread(left, tmp, element_bits);
+    gen_mmx_punpck_spread(right, tmp, element_bits);
+    tcg_gen_shli_i64(right, right, element_bits);
+    tcg_gen_or_i64(left, left, right);
+    tcg_gen_st_i64(left, tcg_env, decode->op[0].offset);
+}
+
+static void gen_binary_int_punpck(DisasContext *s, X86DecodedInsn *decode,
+                                  unsigned element_bits, bool high,
+                                  SSEFunc_0_eppp xmm, SSEFunc_0_eppp ymm)
+{
+    assert(decode->e.special == X86_SPECIAL_MMX);
+
+    if (!(s->prefix & PREFIX_DATA)) {
+        if (s->prefix & PREFIX_VEX) {
+            gen_illegal_opcode(s);
+            return;
+        }
+        gen_mmx_punpck(decode, element_bits, high);
+    } else if (!s->vex_l) {
+        xmm(tcg_env, OP_PTR0, OP_PTR1, OP_PTR2);
+    } else {
+        ymm(tcg_env, OP_PTR0, OP_PTR1, OP_PTR2);
+    }
+}
+
+static void gen_PUNPCKLBW(DisasContext *s, X86DecodedInsn *decode)
+{
+    gen_binary_int_punpck(s, decode, 8, false,
+                          gen_helper_punpcklbw_xmm,
+                          gen_helper_punpcklbw_ymm);
+}
+
+static void gen_PUNPCKLWD(DisasContext *s, X86DecodedInsn *decode)
+{
+    gen_binary_int_punpck(s, decode, 16, false,
+                          gen_helper_punpcklwd_xmm,
+                          gen_helper_punpcklwd_ymm);
+}
+
+static void gen_PUNPCKLDQ(DisasContext *s, X86DecodedInsn *decode)
+{
+    gen_binary_int_punpck(s, decode, 32, false,
+                          gen_helper_punpckldq_xmm,
+                          gen_helper_punpckldq_ymm);
+}
+
 BINARY_INT_MMX(PACKSSWB,   packsswb)
 BINARY_INT_MMX(PACKUSWB,   packuswb)
-BINARY_INT_MMX(PUNPCKHBW,  punpckhbw)
-BINARY_INT_MMX(PUNPCKHWD,  punpckhwd)
-BINARY_INT_MMX(PUNPCKHDQ,  punpckhdq)
+
+static void gen_PUNPCKHBW(DisasContext *s, X86DecodedInsn *decode)
+{
+    gen_binary_int_punpck(s, decode, 8, true,
+                          gen_helper_punpckhbw_xmm,
+                          gen_helper_punpckhbw_ymm);
+}
+
+static void gen_PUNPCKHWD(DisasContext *s, X86DecodedInsn *decode)
+{
+    gen_binary_int_punpck(s, decode, 16, true,
+                          gen_helper_punpckhwd_xmm,
+                          gen_helper_punpckhwd_ymm);
+}
+
+static void gen_PUNPCKHDQ(DisasContext *s, X86DecodedInsn *decode)
+{
+    gen_binary_int_punpck(s, decode, 32, true,
+                          gen_helper_punpckhdq_xmm,
+                          gen_helper_punpckhdq_ymm);
+}
+
 BINARY_INT_MMX(PACKSSDW,   packssdw)
 
 BINARY_INT_MMX(PAVGB,   pavgb)
