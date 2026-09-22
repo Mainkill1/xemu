@@ -3,13 +3,13 @@
 > **For Codex:** Follow this plan with test-driven development. Do not advance
 > from a failing verification step without explaining and fixing the failure.
 
-**Goal:** Bypass the non-inlined common lookup call on the dominant successful
-32-bit x86 jump-cache hit while preserving all existing lookup semantics.
+**Goal:** Bypass the C helper boundary on the dominant successful 32-bit x86
+jump-cache hit while preserving all existing lookup semantics.
 
-**Architecture:** Extract the current jump-cache tag predicate into a small
-internal inline helper shared by `tb_lookup` and the specialized x86 helper.
-The specialized helper performs the normal no-breakpoint cache hit directly;
-all misses and exceptional modes retain the existing common path.
+**Architecture:** Keep the shared C cache predicate for canonical behavior and
+fallback, then emit the same probe in TCG IR for normal 32-bit x86 static
+jumps. Hits jump directly to the cached TB. Misses and exceptional modes call
+the existing helper and common path.
 
 **Tech stack:** C, QEMU TCG internals, Meson unit tests, xemu release builds,
 Linux `perf`, Mainkill1/Xemu-Test-Runner.
@@ -98,3 +98,22 @@ Linux `perf`, Mainkill1/Xemu-Test-Runner.
 6. If the candidate is correct and materially beneficial, commit, push only
    to `mainkill1`, open the PR with the required agent declaration, and update
    issues #162/#163 with the bounded evidence.
+
+## Task 6: Record and respond to the phase-1 falsification
+
+**Files:**
+
+- Modify: `tcg/tcg-op.c`
+- Test: `tests/unit/test-tcg-jump-cache.c`
+
+1. Preserve the matched profile and benchmark evidence showing that the C
+   fast path removed common-lookup samples but did not change 25.03 FPS.
+2. Add layout assertions for every cache/TB field used by generated code.
+3. In `tcg_gen_lookup_and_goto_ptr_i32`, emit the jump-cache hash, entry load,
+   and PC/CS-base/flags/cflags comparisons for normal softmmu operation.
+4. Branch to the existing helper for breakpoints, special cflags, null or
+   mismatched entries, logging, and cache misses.
+5. On a hit, load `tb->tc.ptr` and emit `goto_ptr` without entering C.
+6. Re-run focused tests, optimized disassembly, matched profiling, and the
+   complete native qualification matrix. Revert or revise this phase if it
+   does not materially improve cadence.

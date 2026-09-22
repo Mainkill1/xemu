@@ -25,24 +25,35 @@ The helper currently materializes `TCGTBCPUState`, calls a non-inlined common
 function, and pays that function's prologue and cache checks on every
 cross-page static jump.
 
-## Selected Approach
+## Phase 1 Result
 
-Add a dedicated fast-hit path to `HELPER(lookup_tb_ptr_i32)`, which already
-receives the destination EIP, CS base, and flags from translated 32-bit x86
-code.
+The first implementation added a dedicated fast-hit path to
+`HELPER(lookup_tb_ptr_i32)`. Matched 20-second Steam Deck profiles confirmed
+that it reduced `lookup_tb_ptr_common` from 15.19% to 1.04% self samples, but
+the generated-code-to-C `helper_lookup_tb_ptr_i32` boundary remained about
+17%. A controlled Vulkan run remained 25.03 FPS with unchanged frame-time
+tails. This disproves the hypothesis that the extra common-function call is
+the throughput limiter.
+
+## Selected Phase 2 Approach
+
+Generate the normal jump-cache probe directly into 32-bit x86 translated
+code. The generated path will:
 
 The path will:
 
 1. Preserve the current `can_do_io` transition.
-2. Read the current cflags once.
-3. When no breakpoint or execution logging requires slow handling, compute
-   the existing jump-cache hash and atomically load the existing cache entry.
+2. Reject active breakpoint and special-cflags modes to the helper fallback.
+3. Compute the existing jump-cache hash and load the existing cache entry.
 4. Validate the full current cache contract: PC, CS base, flags, and cflags.
-5. Return the cached translated-code pointer on a hit.
-6. Delegate misses and exceptional modes to the existing common lookup path.
+5. Jump to the cached translated-code pointer on a hit without crossing into
+   C.
+6. Call the existing helper on a miss or exceptional mode.
 
-No new cache, title identifier, game heuristic, or cross-page direct link is
-introduced. Cache population and invalidation remain unchanged.
+No new cache, title identifier, game heuristic, or unguarded cross-page
+direct link is introduced. Cache population and invalidation remain
+unchanged. The phase-1 C fast path remains as a race-safe fallback if an entry
+becomes usable between the generated probe and helper call.
 
 ## Alternatives Considered
 
@@ -52,7 +63,7 @@ This is smaller syntactically but duplicates cold breakpoint, logging, and
 QHT code into both helpers. It also gives the compiler less explicit control
 over the high-frequency hit path and risks unnecessary code growth.
 
-### Cross-page direct TB linking
+### Unguarded cross-page direct TB linking
 
 This can avoid lookup entirely, but an unguarded link is incorrect in system
 emulation: the destination virtual page may be remapped while the source TB
@@ -62,10 +73,12 @@ fast path is insufficient.
 
 ## Correctness Invariants
 
-- The cache entry is read with the same atomic operation used by `tb_lookup`.
+- The generated cache entry read uses the same naturally aligned pointer slot
+  cleared by existing atomic invalidation.
 - A hit requires the same PC, CS base, flags, and cflags comparisons as the
   existing implementation.
-- Breakpoint and execution-log modes always use the existing common path.
+- Breakpoint, special-cflags, and execution-log modes always use the existing
+  helper/common path.
 - A miss always uses the existing QHT lookup, population, code-generation,
   and epilogue behavior.
 - Translation-block invalidation semantics are unchanged.
