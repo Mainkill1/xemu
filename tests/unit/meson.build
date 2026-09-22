@@ -41,6 +41,9 @@ tests = {
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/profile.c',
     xbox_i386_target_headers,
   ],
+  'test-xbox-mcpx-apu-perf': [
+    meson.project_source_root() / 'hw/xbox/mcpx/apu/perf.c',
+  ],
   'test-xbox-pgraph-reports': [
     'xbox-pgraph-report-test-support.c',
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/reports.c',

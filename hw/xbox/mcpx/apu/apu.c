@@ -214,6 +214,14 @@ static void throttle(MCPXAPUState *d)
             d->next_frame_time_us += (queued_bytes > mid) - (queued_bytes < mid);
         }
     }
+
+    if (d->perf.enabled) {
+        qemu_mutex_lock(&d->vp.voice_work_dispatch.lock);
+        mcpx_apu_perf_record_audio_queue(&d->perf, queued_bytes,
+                                         d->monitor.queued_bytes_low,
+                                         d->monitor.queued_bytes_high);
+        qemu_mutex_unlock(&d->vp.voice_work_dispatch.lock);
+    }
 }
 
 static void se_frame(MCPXAPUState *d)
@@ -249,7 +257,14 @@ static void se_frame(MCPXAPUState *d)
     mcpx_apu_monitor_frame(d);
 
     d->ep_frame_div++;
-    d->frame_work_acc_us += qemu_clock_get_us(QEMU_CLOCK_REALTIME) - start_us;
+    int64_t end_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
+    uint64_t frame_work_us = end_us - start_us;
+    d->frame_work_acc_us += frame_work_us;
+    if (d->perf.enabled) {
+        qemu_mutex_lock(&d->vp.voice_work_dispatch.lock);
+        mcpx_apu_perf_record_frame(&d->perf, frame_work_us, end_us);
+        qemu_mutex_unlock(&d->vp.voice_work_dispatch.lock);
+    }
 
     mcpx_debug_end_frame();
 }
@@ -435,6 +450,9 @@ static void mcpx_apu_realize(PCIDevice *dev, Error **errp)
     qemu_cond_init(&d->idle_cond);
 
     mcpx_apu_vp_init(d);
+    mcpx_apu_perf_init(&d->perf, g_getenv("XEMU_APU_PERF_LOG"),
+                       d->vp.voice_work_dispatch.num_workers,
+                       qemu_clock_get_us(QEMU_CLOCK_REALTIME));
     mcpx_apu_dsp_init(d);
 
     Error *local_err = NULL;
@@ -464,6 +482,8 @@ static void mcpx_apu_exitfn(PCIDevice *dev)
 
     qemu_thread_join(&d->apu_thread);
     mcpx_apu_vp_finalize(d);
+    mcpx_apu_perf_finalize(&d->perf,
+                           qemu_clock_get_us(QEMU_CLOCK_REALTIME));
     mcpx_apu_monitor_finalize(d);
 }
 

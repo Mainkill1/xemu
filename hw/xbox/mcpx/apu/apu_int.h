@@ -39,6 +39,7 @@
 #include "apu.h"
 #include "apu_regs.h"
 #include "apu_debug.h"
+#include "perf.h"
 #include "fpconv.h"
 #include "vp/vp.h"
 #include "dsp/gp_ep.h"
@@ -92,6 +93,7 @@ typedef struct MCPXAPUState {
     MCPXAPUVPState vp;
     MCPXAPUGPState gp;
     MCPXAPUEPState ep;
+    McpxApuPerfTelemetry perf;
 
     uint32_t regs[0x20000];
 
