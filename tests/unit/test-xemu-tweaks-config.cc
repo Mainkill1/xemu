@@ -145,6 +145,16 @@ static void test_boolean_tweak_runtime_state()
 
     xemu_tweaks_publish_renderer(XEMU_TWEAK_RENDERER_VULKAN);
     state = xemu_tweak_runtime_state(
+        XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION);
+    assert(!state.requested && !state.selected && !state.effective);
+    assert(state.available && !state.restart_pending);
+    g_config.tweaks.issue149_effect_suppression = true;
+    xemu_tweaks_apply(false);
+    state = xemu_tweak_runtime_state(
+        XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION);
+    assert(state.requested && state.selected && state.effective);
+
+    state = xemu_tweak_runtime_state(
         XEMU_TWEAK_VK_COLOR_DOWNLOAD_FOLDING);
     assert(state.requested && state.selected && state.effective);
     assert(state.available && !state.restart_pending);
@@ -183,6 +193,11 @@ static void test_boolean_tweak_runtime_state()
     assert(state.selected && !state.effective && !state.available);
     state = xemu_tweak_runtime_state(XEMU_TWEAK_GL_NATIVE_S3TC);
     assert(state.effective && state.available);
+    state = xemu_tweak_runtime_state(
+        XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION);
+    assert(state.requested && state.selected && state.effective);
+    g_config.tweaks.issue149_effect_suppression = false;
+    xemu_tweaks_apply(false);
 }
 
 int main()
@@ -210,6 +225,8 @@ int main()
     assert(xemu_tweak_enabled(XEMU_TWEAK_VK_HYBRID_UBERSHADERS));
     assert(g_config.tweaks.vk_shader_fastpath);
     assert(xemu_tweak_enabled(XEMU_TWEAK_VK_SHADER_FASTPATH));
+    assert(!g_config.tweaks.issue149_effect_suppression);
+    assert(!xemu_tweak_enabled(XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION));
     assert(!g_config.tweaks.nv20_vertex_arithmetic);
     assert(!xemu_tweak_enabled(XEMU_TWEAK_NV20_VERTEX_ARITHMETIC));
     assert(g_config.perf.cache_shaders);

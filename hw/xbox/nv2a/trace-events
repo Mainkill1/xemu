@@ -28,6 +28,8 @@ nv2a_pgraph_surface_render_to_texture(uint32_t addr, uint32_t width, uint32_t he
 nv2a_pgraph_surface_target(const char *binding, uint32_t addr, const char *layout, uint32_t anti_aliasing, uint32_t clip_x, uint32_t clip_width, uint32_t clip_y, uint32_t clip_height) "      Target: [%-5s @ 0x%08" PRIx32 "] (%s) aa:%d clip:x=%d,w=%d,y=%d,h=%d"
 nv2a_pgraph_surface_texture_compat_failed(int32_t surface_fmt, int32_t texture_fmt) "Surface->Texture compat failed: %x to %x"
 nv2a_pgraph_surface_upload(const char *binding, const char *layout, uint32_t addr, uint32_t width, uint32_t height, uint32_t pitch, uint32_t bytes_per_pixel) "[RAM->GPU] %s (%s) surface @ 0x%08" PRIx32 " (w=%d,h=%d,p=%d,bpp=%d)"
+nv2a_pgraph_issue149_signature(uint32_t mismatches, size_t element_count, uint32_t min_element, uint32_t max_element, uint64_t fingerprint, uint32_t program_start, uint32_t primitive, uint32_t mode) "mismatches=0x%04"PRIx32" count=%zu min=%"PRIu32" max=%"PRIu32" fingerprint=0x%016"PRIx64" start=%"PRIu32" primitive=%"PRIu32" mode=%"PRIu32
+nv2a_pgraph_issue149_state0(uint32_t blend, uint32_t control0, uint32_t control1, uint32_t control2, uint32_t setupraster, uint32_t combinectl) "blend=0x%08"PRIx32" control0=0x%08"PRIx32" control1=0x%08"PRIx32" control2=0x%08"PRIx32" setupraster=0x%08"PRIx32" combinectl=0x%08"PRIx32
+nv2a_pgraph_issue149_state1(uint32_t specfog0, uint32_t specfog1, uint32_t shaderprog, uint32_t shaderctl, uint32_t shaderclipmode) "specfog0=0x%08"PRIx32" specfog1=0x%08"PRIx32" shaderprog=0x%08"PRIx32" shaderctl=0x%08"PRIx32" shaderclipmode=0x%08"PRIx32
 nv2a_pgraph_flip_stall(void) ""
 nv2a_pgraph_flip_increment_write(uint32_t write3d_old, uint32_t write3d_new) "0x%"PRIx32" -> 0x%"PRIx32
-

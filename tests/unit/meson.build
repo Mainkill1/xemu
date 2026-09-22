@@ -460,6 +460,13 @@ xemu_tweaks_test = executable('test-xemu-tweaks-config',
   dependencies: [qemuutil, genconfig, tomlplusplus])
 test('test-xemu-tweaks-config', xemu_tweaks_test, suite: ['unit'])
 
+issue149_effect_test = executable('test-xbox-pgraph-effect-suppression',
+  files('test-xbox-pgraph-effect-suppression.c',
+        '../../hw/xbox/nv2a/pgraph/effect-suppression.c'),
+  dependencies: [qemuutil, xbox_i386_target_headers])
+test('test-xbox-pgraph-effect-suppression', issue149_effect_test,
+     suite: ['unit'])
+
 test('test-xemu-version', find_program('test-xemu-version.sh'),
      args: [meson.project_source_root() / 'scripts/xemu-version.sh'],
      suite: ['unit'])

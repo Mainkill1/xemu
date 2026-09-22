@@ -186,6 +186,13 @@ static XemuVulkanUbershaderRuntimeState VulkanUbershaderModeCombo()
 void MainMenuAdvanceView::Draw()
 {
     SectionTitle("Accuracy");
+    PerformanceToggle("Suppress issue #149 corrupt geometry",
+        &g_config.tweaks.issue149_effect_suppression,
+        XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION,
+        "Hides four draws matching the complete captured shader, render "
+        "state, and index signatures for issue #149. This provisional "
+        "workaround removes the corrupt screen-covering geometry instead "
+        "of rendering it incorrectly. Applies live to both renderers.");
     PerformanceToggle("Accurate NV20 vertex arithmetic",
         &g_config.tweaks.nv20_vertex_arithmetic,
         XEMU_TWEAK_NV20_VERTEX_ARITHMETIC,
