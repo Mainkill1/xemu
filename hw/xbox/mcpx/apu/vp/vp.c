@@ -23,6 +23,7 @@
 #include "qemu/error-report.h"
 #include "adpcm.h"
 #include "resample.h"
+#include "sge.h"
 
 static const struct {
     hwaddr top, current, next;
@@ -675,16 +676,24 @@ const MemoryRegionOps vp_ops = {
     .write = vp_write,
 };
 
-static hwaddr get_data_ptr(hwaddr sge_base, unsigned int max_sge, uint32_t addr)
+static hwaddr get_data_ptr(hwaddr sge_base, unsigned int max_sge, uint32_t addr,
+                           MCPXAPUSGETranslationCache *cache)
 {
     unsigned int entry = addr / TARGET_PAGE_SIZE;
+    hwaddr physical;
+
     assert(entry <= max_sge);
+
+    if (mcpx_apu_sge_cache_translate(cache, addr, &physical)) {
+        return physical;
+    }
+
     uint32_t prd_address =
         ldl_le_phys(&address_space_memory, sge_base + entry * 4 * 2);
     // uint32_t prd_control =
     //     ldl_le_phys(&address_space_memory, sge_base + entry * 4 * 2 + 4);
     DPRINTF("Addr: 0x%08X, control: 0x%08X\n", prd_address, prd_control);
-    return prd_address + addr % TARGET_PAGE_SIZE;
+    return mcpx_apu_sge_cache_fill(cache, addr, prd_address);
 }
 
 static float voice_step_envelope(MCPXAPUState *d, uint16_t v, uint32_t reg_0,
@@ -899,6 +908,7 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
     int adpcm_block_index = -1;
     uint32_t adpcm_block[MCPX_ADPCM_MAX_BLOCK_BYTES / sizeof(uint32_t)];
     const int16_t *adpcm_decoded = NULL;
+    MCPXAPUSGETranslationCache sge_cache = { 0 };
 
     // FIXME: Only update if necessary
     struct McpxApuDebugVoice *dbg = &g_dbg.vp.v[v];
@@ -1037,8 +1047,9 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
                     linear_addr += ba;
                     for (unsigned int word_index = 0;
                          word_index < (9 * samples_per_block); word_index++) {
-                        hwaddr addr = get_data_ptr(d->regs[NV_PAPU_VPSGEADDR],
-                                                   0xFFFFFFFF, linear_addr);
+                        hwaddr addr = get_data_ptr(
+                            d->regs[NV_PAPU_VPSGEADDR], 0xFFFFFFFF,
+                            linear_addr, &sge_cache);
                         adpcm_block[word_index] =
                             ldl_le_phys(&address_space_memory, addr);
                         linear_addr += 4;
@@ -1070,7 +1081,7 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
             } else {
                 uint32_t linear_addr = ba + cbo * block_size;
                 addr = get_data_ptr(d->regs[NV_PAPU_VPSGEADDR], 0xFFFFFFFF,
-                                    linear_addr);
+                                    linear_addr, &sge_cache);
             }
 
             for (unsigned int channel = 0; channel < channels; channel++) {
