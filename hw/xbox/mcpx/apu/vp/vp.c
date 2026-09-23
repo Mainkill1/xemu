@@ -52,14 +52,22 @@ static void set_notify_status(MCPXAPUState *d, uint32_t v, int notifier,
     d->set_irq = true;
 }
 
+static void voice_destroy_resampler(MCPXAPUVoiceFilter *filter)
+{
+    if (filter->resampler) {
+        src_delete(filter->resampler);
+        filter->resampler = NULL;
+        filter->resampler_channels = 0;
+    }
+}
+
 static void voice_reset_filters(MCPXAPUState *d, uint16_t v)
 {
     assert(v < MCPX_HW_MAX_VOICES);
     memset(&d->vp.filters[v].svf, 0, sizeof(d->vp.filters[v].svf));
     hrtf_filter_clear_history(&d->vp.filters[v].hrtf);
-    if (d->vp.filters[v].resampler) {
-        src_reset(d->vp.filters[v].resampler);
-    }
+    /* VOICE_ON starts a new stream, so select its channel layout afresh. */
+    voice_destroy_resampler(&d->vp.filters[v]);
 }
 
 static bool voice_should_mute(uint16_t v)
@@ -1170,13 +1178,14 @@ static int voice_resample(MCPXAPUState *d, uint16_t v, float samples[][2],
                           int requested_num, float rate, bool stereo)
 {
     assert(v < MCPX_HW_MAX_VOICES);
+    assert(requested_num > 0);
+    assert(requested_num <= NUM_SAMPLES_PER_FRAME);
     MCPXAPUVoiceFilter *filter = &d->vp.filters[v];
     int channels = stereo ? 2 : 1;
 
     if (filter->resampler != NULL &&
         filter->resampler_channels != channels) {
-        src_delete(filter->resampler);
-        filter->resampler = NULL;
+        voice_destroy_resampler(filter);
     }
 
     if (filter->resampler == NULL) {
@@ -1194,29 +1203,34 @@ static int voice_resample(MCPXAPUState *d, uint16_t v, float samples[][2],
                                              filter);
         if (filter->resampler == NULL) {
             fprintf(stderr, "src error: %s\n", src_strerror(err));
-            assert(0);
+            return -1;
         }
     }
 
     float mono_samples[NUM_SAMPLES_PER_FRAME];
     float *output = stereo ? (float *)samples : mono_samples;
-    int count = src_callback_read(filter->resampler, rate, requested_num,
-                                  output);
-    if (count == -1) {
-        DPRINTF("resample error\n");
+    long count = src_callback_read(filter->resampler, rate, requested_num,
+                                   output);
+    if (count != requested_num) {
+        int err = src_error(filter->resampler);
+
+        if (err != 0) {
+            DPRINTF("src_callback_read: %s\n", src_strerror(err));
+            return -1;
+        }
+        if (count == 0) {
+            return -1;
+        }
     }
     if (count != requested_num) {
-        DPRINTF("resample returned fewer than expected: %d\n", count);
-
-        if (count == 0)
-            return -1;
+        DPRINTF("resample returned fewer than expected: %ld\n", count);
     }
 
     if (!stereo) {
-        mcpx_apu_expand_mono_samples(mono_samples, samples, count);
+        mcpx_apu_expand_mono_samples(mono_samples, samples, (int)count);
     }
 
-    return count;
+    return (int)count;
 }
 
 static int peek_ahead_multipass_bin(MCPXAPUState *d, uint16_t v,
@@ -1893,10 +1907,7 @@ void mcpx_apu_vp_finalize(MCPXAPUState *d)
 {
     voice_work_finalize(d);
     for (int v = 0; v < ARRAY_SIZE(d->vp.filters); v++) {
-        if (d->vp.filters[v].resampler) {
-            src_delete(d->vp.filters[v].resampler);
-            d->vp.filters[v].resampler = NULL;
-        }
+        voice_destroy_resampler(&d->vp.filters[v]);
     }
 }
 
