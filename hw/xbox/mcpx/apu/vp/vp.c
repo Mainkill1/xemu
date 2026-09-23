@@ -20,6 +20,7 @@
  */
 
 #include "hw/xbox/mcpx/apu/apu_int.h"
+#include "qemu/error-report.h"
 #include "adpcm.h"
 #include "resample.h"
 
@@ -1193,14 +1194,9 @@ static int voice_resample(MCPXAPUState *d, uint16_t v, float samples[][2],
         filter->resampler_channels = channels;
         int err;
 
-        /* Note: Using a sinc based resampler for quality. Unsure about
-         * hardware's actual interpolation method; it could just be linear, in
-         * which case using this resampler is overkill, but quality is good
-         * so use it for now.
-         */
         filter->resampler = src_callback_new(&voice_resample_callback,
-                                             SRC_SINC_FASTEST, channels, &err,
-                                             filter);
+                                             d->vp.resampler_type, channels,
+                                             &err, filter);
         if (filter->resampler == NULL) {
             fprintf(stderr, "src error: %s\n", src_strerror(err));
             return -1;
@@ -1900,6 +1896,26 @@ void mcpx_apu_vp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_P
 
 void mcpx_apu_vp_init(MCPXAPUState *d)
 {
+    CONFIG_AUDIO_VP_RESAMPLER requested = g_config.audio.vp.resampler;
+    const char *requested_name;
+
+    switch (requested) {
+    case CONFIG_AUDIO_VP_RESAMPLER_SINC:
+        requested_name = "sinc";
+        break;
+    case CONFIG_AUDIO_VP_RESAMPLER_LINEAR:
+        requested_name = "linear";
+        break;
+    default:
+        requested_name = "unknown";
+        break;
+    }
+
+    d->vp.resampler_type = mcpx_apu_resampler_type(requested);
+    info_report("MCPX APU voice resampler: requested=%s effective=%s "
+                "libsamplerate=%s",
+                requested_name, src_get_name(d->vp.resampler_type),
+                src_get_version());
     voice_work_init(d);
 }
 
