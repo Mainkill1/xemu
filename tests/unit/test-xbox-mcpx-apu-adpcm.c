@@ -22,12 +22,15 @@ static void test_cache_reuses_unchanged_block(void)
     MCPXADPCMBlockCache cache = { 0 };
     int sample_count;
     bool cache_hit;
+    MCPXAPUADPCMDecodeTable table;
 
     init_mono_block(block);
-    int expected_count = adpcm_decode_block(expected, block, sizeof(block), 1);
+    mcpx_apu_adpcm_decode_table_init(&table);
+    int expected_count =
+        adpcm_decode_block(&table, expected, block, sizeof(block), 1);
 
     const int16_t *decoded = mcpx_apu_adpcm_decode_cached(
-        &cache, block, sizeof(block), 1, &sample_count, &cache_hit);
+        &table, &cache, block, sizeof(block), 1, &sample_count, &cache_hit);
     g_assert_nonnull(decoded);
     g_assert_false(cache_hit);
     g_assert_cmpint(sample_count, ==, expected_count);
@@ -35,7 +38,7 @@ static void test_cache_reuses_unchanged_block(void)
                     expected_count * sizeof(*expected));
 
     decoded = mcpx_apu_adpcm_decode_cached(
-        &cache, block, sizeof(block), 1, &sample_count, &cache_hit);
+        &table, &cache, block, sizeof(block), 1, &sample_count, &cache_hit);
     g_assert_nonnull(decoded);
     g_assert_true(cache_hit);
     g_assert_cmpint(sample_count, ==, expected_count);
@@ -50,17 +53,19 @@ static void test_cache_detects_guest_data_change(void)
     MCPXADPCMBlockCache cache = { 0 };
     int sample_count;
     bool cache_hit;
+    MCPXAPUADPCMDecodeTable table;
 
     init_mono_block(block);
+    mcpx_apu_adpcm_decode_table_init(&table);
     const int16_t *decoded = mcpx_apu_adpcm_decode_cached(
-        &cache, block, sizeof(block), 1, &sample_count, &cache_hit);
+        &table, &cache, block, sizeof(block), 1, &sample_count, &cache_hit);
     g_assert_nonnull(decoded);
     g_assert_false(cache_hit);
     memcpy(first_decode, decoded, sizeof(first_decode));
 
     block[11] ^= 0x55;
     decoded = mcpx_apu_adpcm_decode_cached(
-        &cache, block, sizeof(block), 1, &sample_count, &cache_hit);
+        &table, &cache, block, sizeof(block), 1, &sample_count, &cache_hit);
     g_assert_nonnull(decoded);
     g_assert_false(cache_hit);
     g_assert_cmpint(memcmp(decoded, first_decode, sizeof(first_decode)), !=, 0);
@@ -72,18 +77,20 @@ static void test_cache_reset_forces_decode(void)
     MCPXADPCMBlockCache cache = { 0 };
     int sample_count;
     bool cache_hit;
+    MCPXAPUADPCMDecodeTable table;
 
     init_mono_block(block);
+    mcpx_apu_adpcm_decode_table_init(&table);
     g_assert_nonnull(mcpx_apu_adpcm_decode_cached(
-        &cache, block, sizeof(block), 1, &sample_count, &cache_hit));
+        &table, &cache, block, sizeof(block), 1, &sample_count, &cache_hit));
     g_assert_false(cache_hit);
     g_assert_nonnull(mcpx_apu_adpcm_decode_cached(
-        &cache, block, sizeof(block), 1, &sample_count, &cache_hit));
+        &table, &cache, block, sizeof(block), 1, &sample_count, &cache_hit));
     g_assert_true(cache_hit);
 
     mcpx_apu_adpcm_cache_reset(&cache);
     g_assert_nonnull(mcpx_apu_adpcm_decode_cached(
-        &cache, block, sizeof(block), 1, &sample_count, &cache_hit));
+        &table, &cache, block, sizeof(block), 1, &sample_count, &cache_hit));
     g_assert_false(cache_hit);
 }
 

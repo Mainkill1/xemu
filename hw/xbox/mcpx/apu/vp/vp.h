@@ -83,6 +83,7 @@ typedef struct {
     MemoryRegion mmio;
     VoiceWorkDispatch voice_work_dispatch;
     int resampler_type;
+    MCPXAPUADPCMDecodeTable adpcm_decode_table;
     MCPXAPUVoiceFilter filters[MCPX_HW_MAX_VOICES];
     float attenuation_table[MCPX_APU_ATTENUATION_TABLE_SIZE];
 

@@ -1047,8 +1047,10 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
                 }
                 int decoded_samples;
                 adpcm_decoded = mcpx_apu_adpcm_decode_cached(
-                    &d->vp.filters[v].adpcm_cache, (uint8_t *)adpcm_block,
-                    block_size, channels, &decoded_samples, NULL);
+                    &d->vp.adpcm_decode_table,
+                    &d->vp.filters[v].adpcm_cache,
+                    (uint8_t *)adpcm_block, block_size, channels,
+                    &decoded_samples, NULL);
                 if (adpcm_decoded == NULL ||
                     block_position >= decoded_samples) {
                     return -1;
@@ -1915,6 +1917,7 @@ void mcpx_apu_vp_init(MCPXAPUState *d)
                 requested_name, src_get_name(d->vp.resampler_type),
                 src_get_version());
     mcpx_apu_attenuation_table_init(d->vp.attenuation_table);
+    mcpx_apu_adpcm_decode_table_init(&d->vp.adpcm_decode_table);
     voice_work_init(d);
 }
 
