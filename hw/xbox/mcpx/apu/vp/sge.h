@@ -13,7 +13,6 @@
 #define HW_XBOX_MCPX_APU_VP_SGE_H
 
 #include "exec/hwaddr.h"
-#include "exec/target_page.h"
 
 typedef struct MCPXAPUSGETranslationCache {
     unsigned int entry;
@@ -23,26 +22,27 @@ typedef struct MCPXAPUSGETranslationCache {
 
 static inline bool mcpx_apu_sge_cache_translate(
     const MCPXAPUSGETranslationCache *cache, uint32_t address,
-    hwaddr *physical)
+    uint32_t page_size, hwaddr *physical)
 {
-    unsigned int entry = address / TARGET_PAGE_SIZE;
+    unsigned int entry = address / page_size;
 
     if (!cache->valid || cache->entry != entry) {
         return false;
     }
 
-    *physical = cache->page_base + address % TARGET_PAGE_SIZE;
+    *physical = cache->page_base + address % page_size;
     return true;
 }
 
 static inline hwaddr mcpx_apu_sge_cache_fill(
-    MCPXAPUSGETranslationCache *cache, uint32_t address, hwaddr page_base)
+    MCPXAPUSGETranslationCache *cache, uint32_t address, uint32_t page_size,
+    hwaddr page_base)
 {
-    cache->entry = address / TARGET_PAGE_SIZE;
+    cache->entry = address / page_size;
     cache->page_base = page_base;
     cache->valid = true;
 
-    return page_base + address % TARGET_PAGE_SIZE;
+    return page_base + address % page_size;
 }
 
 #endif
