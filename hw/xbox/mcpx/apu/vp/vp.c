@@ -1198,8 +1198,11 @@ static int voice_resample(MCPXAPUState *d, uint16_t v, float samples[][2],
          * which case using this resampler is overkill, but quality is good
          * so use it for now.
          */
+        /* Experimental performance-ceiling probe; not a hardware-accuracy
+         * claim. Keep lifecycle and callback behavior identical while
+         * measuring the cost of libsamplerate's cheaper linear converter. */
         filter->resampler = src_callback_new(&voice_resample_callback,
-                                             SRC_SINC_FASTEST, channels, &err,
+                                             SRC_LINEAR, channels, &err,
                                              filter);
         if (filter->resampler == NULL) {
             fprintf(stderr, "src error: %s\n", src_strerror(err));
