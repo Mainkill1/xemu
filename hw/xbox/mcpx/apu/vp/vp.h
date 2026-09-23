@@ -30,6 +30,7 @@
 #include "hw/xbox/mcpx/apu/apu_regs.h"
 #include "svf.h"
 #include "hrtf.h"
+#include "adpcm.h"
 
 typedef struct MCPXAPUState MCPXAPUState;
 
@@ -77,6 +78,7 @@ typedef struct VoiceWorkDispatch {
 typedef struct {
     MemoryRegion mmio;
     VoiceWorkDispatch voice_work_dispatch;
+    MCPXAPUADPCMDecodeTable adpcm_decode_table;
     MCPXAPUVoiceFilter filters[MCPX_HW_MAX_VOICES];
 
     // FIXME: Where are these stored?
