@@ -471,6 +471,7 @@ test('test-xbox-pgraph-effect-suppression', issue149_effect_test,
 
 tests += {'test-xbox-mcpx-apu-sge-cache': []}
 tests += {'test-xbox-mcpx-apu-voice-format': []}
+tests += {'test-xbox-mcpx-apu-voice-math': []}
 
 test('test-xemu-version', find_program('test-xemu-version.sh'),
      args: [meson.project_source_root() / 'scripts/xemu-version.sh'],
