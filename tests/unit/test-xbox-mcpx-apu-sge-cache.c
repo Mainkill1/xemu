@@ -2,6 +2,8 @@
 
 #include "hw/xbox/mcpx/apu/vp/sge.h"
 
+#define TEST_PAGE_SIZE 4096
+
 typedef struct TestSGEReader {
     MCPXAPUSGETranslationCache cache;
     hwaddr page_bases[4];
@@ -12,12 +14,14 @@ static hwaddr test_translate(TestSGEReader *reader, uint32_t address)
 {
     hwaddr physical;
 
-    if (!mcpx_apu_sge_cache_translate(&reader->cache, address, &physical)) {
-        unsigned int entry = address / TARGET_PAGE_SIZE;
+    if (!mcpx_apu_sge_cache_translate(&reader->cache, address, TEST_PAGE_SIZE,
+                                      &physical)) {
+        unsigned int entry = address / TEST_PAGE_SIZE;
 
         reader->reads++;
-        physical = mcpx_apu_sge_cache_fill(
-            &reader->cache, address, reader->page_bases[entry]);
+        physical = mcpx_apu_sge_cache_fill(&reader->cache, address,
+                                           TEST_PAGE_SIZE,
+                                           reader->page_bases[entry]);
     }
 
     return physical;
