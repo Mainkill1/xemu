@@ -1471,16 +1471,19 @@ static void voice_process(MCPXAPUState *d,
     if (lpf) {
         for (int ch = 0; ch < 2; ch++) {
             // FIXME: Cutoff modulation via NV_PAVS_VOICE_CFG_ENV1_EF_FCSCALE
-            int16_t fc = voice_get_mask(
+            uint32_t fca = voice_get_mask(
                 d, v, NV_PAVS_VOICE_TAR_FCA + (ch % channels) * 4,
-                NV_PAVS_VOICE_TAR_FCA_FC0);
-            float fc_f = clampf(pow(2, fc / 4096.0), 0.003906f, 1.0f);
-            uint16_t q = voice_get_mask(
-                d, v, NV_PAVS_VOICE_TAR_FCA + (ch % channels) * 4,
-                NV_PAVS_VOICE_TAR_FCA_FC1);
-            float q_f = clampf(q / (1.0 * 0x8000), 0.079407f, 1.0f);
+                UINT32_MAX);
+            int16_t fc = GET_MASK(fca, NV_PAVS_VOICE_TAR_FCA_FC0);
+            uint16_t q = GET_MASK(fca, NV_PAVS_VOICE_TAR_FCA_FC1);
             sv_filter *filter = &d->vp.filters[v].svf[ch];
-            setup_svf(filter, fc_f, q_f, F_LP);
+            if (svf_config_update(filter, fc, q)) {
+                float fc_f =
+                    clampf(pow(2, fc / 4096.0), 0.003906f, 1.0f);
+                float q_f =
+                    clampf(q / (1.0 * 0x8000), 0.079407f, 1.0f);
+                setup_svf(filter, fc_f, q_f, F_LP);
+            }
             for (int i = 0; i < NUM_SAMPLES_PER_FRAME; i++) {
                 samples[i][ch] = run_svf(filter, samples[i][ch]);
                 samples[i][ch] = fmin(fmax(samples[i][ch], -1.0), 1.0);
