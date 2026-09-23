@@ -4,6 +4,7 @@
 #include "hw/xbox/mcpx/apu/vp/resample.h"
 #include "xemu-config.h"
 
+#include <math.h>
 #include <samplerate.h>
 
 typedef struct TestSamples {

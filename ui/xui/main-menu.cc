@@ -1108,6 +1108,17 @@ void MainMenuAudioView::Draw()
     Toggle("DSP JIT engine", &g_config.audio.use_dsp_jit,
            "Use DSP JIT engine");
 
+    SectionTitle("Advanced");
+    if (ChevronCombo(
+            "Voice resampler", &g_config.audio.vp.resampler,
+            "Sinc (Default)\0"
+            "Linear (Experimental)\0",
+            "Choose voice interpolation quality. Linear reduces CPU usage "
+            "but may reduce audio quality or alter playback behavior. "
+            "Restart xemu to apply changes.")) {
+        xemu_queue_notification(
+            "Voice resampler changed. Restart xemu to apply it.");
+    }
 }
 
 NetworkInterface::NetworkInterface(pcap_if_t *pcap_desc, char *_friendlyname)
