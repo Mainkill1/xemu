@@ -5,6 +5,7 @@
  */
 
 #include "qemu/osdep.h"
+#include <math.h>
 #include <glib/gstdio.h>
 
 #include "hw/xbox/mcpx/apu/perf.h"
@@ -12,8 +13,15 @@
 static void test_disabled(void)
 {
     McpxApuPerfTelemetry perf;
+    McpxApuPerfRateBatch batch = { 0 };
 
     g_assert_false(mcpx_apu_perf_init(&perf, NULL, 4, 0));
+    uint64_t dispatch = mcpx_apu_perf_begin_dispatch(&perf);
+    g_assert_cmpuint(dispatch, ==, 0);
+    mcpx_apu_perf_record_voice_rate(&perf, &batch, 0, false, 1.0f,
+                                    dispatch);
+    mcpx_apu_perf_merge_rate_batch(&perf, &batch);
+    g_assert_cmpuint(batch.samples, ==, 0);
     mcpx_apu_perf_record_worker(&perf, 0, 2, 100, 20, 140);
     mcpx_apu_perf_record_dispatch(&perf, 2, 1, 1, 1, 0, 3, 5, 120, 160);
     mcpx_apu_perf_record_audio_queue(&perf, 4096, 2048, 6144);

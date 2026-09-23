@@ -1288,7 +1288,9 @@ static void get_multipass_samples(MCPXAPUState *d,
 static void voice_process(MCPXAPUState *d,
                           float mixbins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME],
                           float sample_buf[NUM_SAMPLES_PER_FRAME][2],
-                          uint16_t v, int voice_list)
+                          uint16_t v, int voice_list,
+                          McpxApuPerfRateBatch *rate_batch,
+                          uint64_t dispatch_serial)
 {
     assert(v < MCPX_HW_MAX_VOICES);
     bool stereo = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_FMT,
@@ -1337,11 +1339,18 @@ static void voice_process(MCPXAPUState *d,
     if (multipass) {
         get_multipass_samples(d, mixbins, v, samples);
     } else {
+        bool rate_recorded = false;
         for (int sample_count = 0; sample_count < NUM_SAMPLES_PER_FRAME;) {
             int active = voice_get_mask(d, v, NV_PAVS_VOICE_PAR_STATE,
                                         NV_PAVS_VOICE_PAR_STATE_ACTIVE_VOICE);
             if (!active) {
                 return;
+            }
+            if (!rate_recorded) {
+                mcpx_apu_perf_record_voice_rate(&d->perf, rate_batch, v,
+                                                stereo, rate,
+                                                dispatch_serial);
+                rate_recorded = true;
             }
             int count =
                 voice_resample(d, v, &samples[sample_count],
@@ -1603,6 +1612,8 @@ static void *voice_worker_thread(void *arg)
         int64_t processing_end_us = 0;
         int64_t reduction_start_us = 0;
         int64_t reduction_end_us = 0;
+        uint64_t dispatch_serial = perf_enabled ? d->perf.dispatch_serial : 0;
+        McpxApuPerfRateBatch rate_batch = { 0 };
         g_dbg.vp.workers[worker_id].num_voices = assigned_voices;
 
         if (assigned_voices) {
@@ -1619,7 +1630,9 @@ static void *voice_worker_thread(void *arg)
             }
             for (int i = 0; i < self->queue_len; i++) {
                 voice_process(d, self->mixbins, self->sample_buf,
-                              self->queue[i].voice, self->queue[i].list);
+                              self->queue[i].voice, self->queue[i].list,
+                              perf_enabled ? &rate_batch : NULL,
+                              dispatch_serial);
             }
             if (perf_enabled) {
                 processing_end_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
@@ -1645,6 +1658,7 @@ static void *voice_worker_thread(void *arg)
             }
             if (perf_enabled) {
                 reduction_end_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
+                mcpx_apu_perf_merge_rate_batch(&d->perf, &rate_batch);
             }
 
             self->queue_len = 0;
@@ -1803,6 +1817,7 @@ voice_work_dispatch(MCPXAPUState *d,
             }
         }
         memset(vwd->mixbins, 0, sizeof(vwd->mixbins));
+        mcpx_apu_perf_begin_dispatch(&d->perf);
 
         // Signal workers and wait for completion
         int64_t schedule_start_us = perf_enabled ?

@@ -9,7 +9,7 @@
 #include "hw/xbox/mcpx/apu/perf.h"
 #include "hw/xbox/mcpx/apu/apu_regs.h"
 
-#define APU_PERF_SCHEMA_VERSION 2
+#define APU_PERF_SCHEMA_VERSION 3
 #define APU_PERF_EMIT_INTERVAL_US G_USEC_PER_SEC
 #define APU_PERF_FRAME_BUDGET_US (EP_FRAME_US / 8)
 
@@ -47,6 +47,17 @@ static void emit_sample_locked(McpxApuPerfTelemetry *perf, int64_t now_us)
             ",\"completion_wait_us\":%" PRIu64
             ",\"dispatch_us\":%" PRIu64
             ",\"dispatch_max_us\":%" PRIu64
+            ",\"resampler_rate_samples\":%" PRIu64
+            ",\"resampler_rate_exact_unity\":%" PRIu64
+            ",\"resampler_rate_near_unity\":%" PRIu64
+            ",\"resampler_rate_other\":%" PRIu64
+            ",\"resampler_rate_exact_unity_mono\":%" PRIu64
+            ",\"resampler_rate_exact_unity_stereo\":%" PRIu64
+            ",\"resampler_rate_observation_starts\":%" PRIu64
+            ",\"resampler_rate_exact_unity_starts\":%" PRIu64
+            ",\"resampler_rate_class_transitions\":%" PRIu64
+            ",\"resampler_rate_exact_unity_entries\":%" PRIu64
+            ",\"resampler_rate_exact_unity_exits\":%" PRIu64
             ",\"worker_wakeups\":%" PRIu64
             ",\"useful_worker_wakeups\":%" PRIu64
             ",\"empty_worker_wakeups\":%" PRIu64
@@ -63,6 +74,15 @@ static void emit_sample_locked(McpxApuPerfTelemetry *perf, int64_t now_us)
             t->multipass_voices, t->scheduled_workers,
             t->scheduled_workers_max, t->voice_lock_wait_us, t->schedule_us,
             t->completion_wait_us, t->dispatch_us, t->dispatch_max_us,
+            t->resampler_rate_samples, t->resampler_rate_exact_unity,
+            t->resampler_rate_near_unity, t->resampler_rate_other,
+            t->resampler_rate_exact_unity_mono,
+            t->resampler_rate_exact_unity_stereo,
+            t->resampler_rate_observation_starts,
+            t->resampler_rate_exact_unity_starts,
+            t->resampler_rate_class_transitions,
+            t->resampler_rate_exact_unity_entries,
+            t->resampler_rate_exact_unity_exits,
             t->worker_wakeups, t->useful_worker_wakeups,
             t->empty_worker_wakeups, t->audio_queue_samples,
             t->audio_queue_bytes, t->audio_queue_min_bytes,
@@ -119,6 +139,101 @@ void mcpx_apu_perf_finalize(McpxApuPerfTelemetry *perf, int64_t now_us)
         perf->file = NULL;
         perf->enabled = false;
     }
+}
+
+uint64_t mcpx_apu_perf_begin_dispatch(McpxApuPerfTelemetry *perf)
+{
+    if (!perf->enabled) {
+        return 0;
+    }
+
+    return ++perf->dispatch_serial;
+}
+
+void mcpx_apu_perf_record_voice_rate(McpxApuPerfTelemetry *perf,
+                                     McpxApuPerfRateBatch *batch,
+                                     int voice, bool stereo, float rate,
+                                     uint64_t dispatch_serial)
+{
+    if (!perf->enabled || batch == NULL) {
+        return;
+    }
+    assert(voice >= 0 && voice < MCPX_HW_MAX_VOICES);
+    assert(dispatch_serial != 0);
+
+    McpxApuPerfRateClass rate_class;
+    if (rate == 1.0f) {
+        rate_class = MCPX_APU_PERF_RATE_EXACT_UNITY;
+    } else if (rate >= 0.99f && rate <= 1.01f) {
+        rate_class = MCPX_APU_PERF_RATE_NEAR_UNITY;
+    } else {
+        rate_class = MCPX_APU_PERF_RATE_OTHER;
+    }
+
+    batch->samples++;
+    switch (rate_class) {
+    case MCPX_APU_PERF_RATE_EXACT_UNITY:
+        batch->exact_unity++;
+        if (stereo) {
+            batch->exact_unity_stereo++;
+        } else {
+            batch->exact_unity_mono++;
+        }
+        break;
+    case MCPX_APU_PERF_RATE_NEAR_UNITY:
+        batch->near_unity++;
+        break;
+    case MCPX_APU_PERF_RATE_OTHER:
+        batch->other++;
+        break;
+    case MCPX_APU_PERF_RATE_NONE:
+        g_assert_not_reached();
+    }
+
+    McpxApuPerfVoiceRateState *state = &perf->voice_rates[voice];
+    bool continuous = state->dispatch_serial != 0 &&
+                      state->dispatch_serial + 1 == dispatch_serial;
+    if (!continuous) {
+        batch->observation_starts++;
+        if (rate_class == MCPX_APU_PERF_RATE_EXACT_UNITY) {
+            batch->exact_unity_starts++;
+        }
+    } else if (state->rate_class != rate_class) {
+        batch->class_transitions++;
+        if (rate_class == MCPX_APU_PERF_RATE_EXACT_UNITY) {
+            batch->exact_unity_entries++;
+        }
+        if (state->rate_class == MCPX_APU_PERF_RATE_EXACT_UNITY) {
+            batch->exact_unity_exits++;
+        }
+    }
+    state->dispatch_serial = dispatch_serial;
+    state->rate_class = rate_class;
+}
+
+void mcpx_apu_perf_merge_rate_batch(McpxApuPerfTelemetry *perf,
+                                    const McpxApuPerfRateBatch *batch)
+{
+    if (!perf->enabled || batch == NULL) {
+        return;
+    }
+    assert(batch->exact_unity + batch->near_unity + batch->other ==
+           batch->samples);
+    assert(batch->exact_unity_mono + batch->exact_unity_stereo ==
+           batch->exact_unity);
+
+    McpxApuPerfTotals *t = &perf->totals;
+    t->resampler_rate_samples += batch->samples;
+    t->resampler_rate_exact_unity += batch->exact_unity;
+    t->resampler_rate_near_unity += batch->near_unity;
+    t->resampler_rate_other += batch->other;
+    t->resampler_rate_exact_unity_mono += batch->exact_unity_mono;
+    t->resampler_rate_exact_unity_stereo += batch->exact_unity_stereo;
+    t->resampler_rate_observation_starts += batch->observation_starts;
+    t->resampler_rate_exact_unity_starts += batch->exact_unity_starts;
+    t->resampler_rate_class_transitions += batch->class_transitions;
+    t->resampler_rate_exact_unity_entries += batch->exact_unity_entries;
+    t->resampler_rate_exact_unity_exits += batch->exact_unity_exits;
 }
 
 void mcpx_apu_perf_record_worker(McpxApuPerfTelemetry *perf, int worker_id,

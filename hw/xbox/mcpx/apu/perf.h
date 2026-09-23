@@ -8,6 +8,33 @@
 #define HW_XBOX_MCPX_APU_PERF_H
 
 #include "hw/xbox/mcpx/apu/apu_debug.h"
+#include "hw/xbox/mcpx/apu/apu_regs.h"
+
+typedef enum McpxApuPerfRateClass {
+    MCPX_APU_PERF_RATE_NONE = 0,
+    MCPX_APU_PERF_RATE_EXACT_UNITY,
+    MCPX_APU_PERF_RATE_NEAR_UNITY,
+    MCPX_APU_PERF_RATE_OTHER,
+} McpxApuPerfRateClass;
+
+typedef struct McpxApuPerfRateBatch {
+    uint64_t samples;
+    uint64_t exact_unity;
+    uint64_t near_unity;
+    uint64_t other;
+    uint64_t exact_unity_mono;
+    uint64_t exact_unity_stereo;
+    uint64_t observation_starts;
+    uint64_t exact_unity_starts;
+    uint64_t class_transitions;
+    uint64_t exact_unity_entries;
+    uint64_t exact_unity_exits;
+} McpxApuPerfRateBatch;
+
+typedef struct McpxApuPerfVoiceRateState {
+    uint64_t dispatch_serial;
+    McpxApuPerfRateClass rate_class;
+} McpxApuPerfVoiceRateState;
 
 typedef struct McpxApuPerfTotals {
     uint64_t frames;
@@ -28,6 +55,18 @@ typedef struct McpxApuPerfTotals {
     uint64_t completion_wait_us;
     uint64_t dispatch_us;
     uint64_t dispatch_max_us;
+
+    uint64_t resampler_rate_samples;
+    uint64_t resampler_rate_exact_unity;
+    uint64_t resampler_rate_near_unity;
+    uint64_t resampler_rate_other;
+    uint64_t resampler_rate_exact_unity_mono;
+    uint64_t resampler_rate_exact_unity_stereo;
+    uint64_t resampler_rate_observation_starts;
+    uint64_t resampler_rate_exact_unity_starts;
+    uint64_t resampler_rate_class_transitions;
+    uint64_t resampler_rate_exact_unity_entries;
+    uint64_t resampler_rate_exact_unity_exits;
 
     uint64_t worker_wakeups;
     uint64_t useful_worker_wakeups;
@@ -51,6 +90,8 @@ typedef struct McpxApuPerfTelemetry {
     FILE *file;
     int num_workers;
     int64_t last_emit_us;
+    uint64_t dispatch_serial;
+    McpxApuPerfVoiceRateState voice_rates[MCPX_HW_MAX_VOICES];
     McpxApuPerfTotals totals;
 } McpxApuPerfTelemetry;
 
@@ -58,6 +99,13 @@ typedef struct McpxApuPerfTelemetry {
 bool mcpx_apu_perf_init(McpxApuPerfTelemetry *perf, const char *path,
                         int num_workers, int64_t now_us);
 void mcpx_apu_perf_finalize(McpxApuPerfTelemetry *perf, int64_t now_us);
+uint64_t mcpx_apu_perf_begin_dispatch(McpxApuPerfTelemetry *perf);
+void mcpx_apu_perf_record_voice_rate(McpxApuPerfTelemetry *perf,
+                                     McpxApuPerfRateBatch *batch,
+                                     int voice, bool stereo, float rate,
+                                     uint64_t dispatch_serial);
+void mcpx_apu_perf_merge_rate_batch(McpxApuPerfTelemetry *perf,
+                                    const McpxApuPerfRateBatch *batch);
 void mcpx_apu_perf_record_worker(McpxApuPerfTelemetry *perf, int worker_id,
                                  int assigned_voices,
                                  uint64_t processing_us,
