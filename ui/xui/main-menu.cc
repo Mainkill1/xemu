@@ -1108,6 +1108,31 @@ void MainMenuAudioView::Draw()
     Toggle("DSP JIT engine", &g_config.audio.use_dsp_jit,
            "Use DSP JIT engine");
 
+    SectionTitle("Advanced");
+    if (ChevronCombo(
+            "Voice processing workers", &g_config.audio.vp.num_workers,
+            "Auto\0"
+            "1\0"
+            "2\0"
+            "3\0"
+            "4\0"
+            "5\0"
+            "6\0"
+            "7\0"
+            "8\0"
+            "9\0"
+            "10\0"
+            "11\0"
+            "12\0"
+            "13\0"
+            "14\0"
+            "15\0"
+            "16\0",
+            "Set MCPX voice processing worker threads. Auto uses the host "
+            "logical CPU count, capped at 16. Restart xemu to apply changes.")) {
+        xemu_queue_notification(
+            "Voice processing worker count changed. Restart xemu to apply it.");
+    }
 }
 
 NetworkInterface::NetworkInterface(pcap_if_t *pcap_desc, char *_friendlyname)
