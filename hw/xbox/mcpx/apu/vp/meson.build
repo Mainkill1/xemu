@@ -1,3 +1,4 @@
 mcpx_ss.add(libsamplerate, files(
-	'vp.c'
+	'vp.c',
+	'voice_math.c'
 	))

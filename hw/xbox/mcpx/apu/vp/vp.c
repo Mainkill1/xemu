@@ -91,12 +91,6 @@ static float clampf(float v, float min, float max)
     }
 }
 
-static float attenuate(uint16_t vol)
-{
-    vol &= 0xFFF;
-    return (vol == 0xFFF) ? 0.0 : powf(10.0f, vol/(64.0 * -20.0f));
-}
-
 static uint32_t voice_get_mask(MCPXAPUState *d, uint16_t voice_handle,
                                hwaddr offset, uint32_t mask)
 {
@@ -1475,7 +1469,8 @@ static void voice_process(MCPXAPUState *d,
         } else {
             hr = 1 << d->vp.submix_headroom[bin[b]];
         }
-        g *= attenuate(vol[b])/hr;
+        g *= mcpx_apu_attenuation_lookup(
+                 d->vp.attenuation_table, vol[b]) / hr;
         for (int i = 0; i < NUM_SAMPLES_PER_FRAME; i++) {
             mixbins[bin[b]][i] += g*samples[i][b % channels];
         }
@@ -1512,7 +1507,8 @@ static void voice_process(MCPXAPUState *d,
                 continue;
             }
             float hr = 1 << d->vp.submix_headroom[bin[b]];
-            g = fmax(g, attenuate(vol[b]) / hr);
+            g = fmax(g, mcpx_apu_attenuation_lookup(
+                             d->vp.attenuation_table, vol[b]) / hr);
         }
         g *= ea_value;
         for (int i = 0; i < NUM_SAMPLES_PER_FRAME; i++) {
@@ -1859,6 +1855,7 @@ void mcpx_apu_vp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_P
 
 void mcpx_apu_vp_init(MCPXAPUState *d)
 {
+    mcpx_apu_attenuation_table_init(d->vp.attenuation_table);
     voice_work_init(d);
 }
 
