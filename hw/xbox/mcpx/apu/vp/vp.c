@@ -25,6 +25,7 @@
 #include "resample.h"
 #include "sge.h"
 #include "voice_format.h"
+#include "voice_math.h"
 
 static const struct {
     hwaddr top, current, next;
@@ -1489,7 +1490,7 @@ static void voice_process(MCPXAPUState *d,
             setup_svf(filter, fc_f, q_f, F_LP);
             for (int i = 0; i < NUM_SAMPLES_PER_FRAME; i++) {
                 samples[i][ch] = run_svf(filter, samples[i][ch]);
-                samples[i][ch] = fmin(fmax(samples[i][ch], -1.0), 1.0);
+                samples[i][ch] = mcpx_apu_clamp_sample(samples[i][ch]);
             }
         }
     }
