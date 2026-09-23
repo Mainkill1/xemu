@@ -16,10 +16,13 @@
 
 static inline float mcpx_apu_clamp_sample(float sample)
 {
-    if (isnan(sample)) {
+    if (isnan(sample) || sample < -1.0f) {
         return -1.0f;
     }
-    return fminf(fmaxf(sample, -1.0f), 1.0f);
+    if (sample > 1.0f) {
+        return 1.0f;
+    }
+    return sample;
 }
 
 #endif
