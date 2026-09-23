@@ -68,5 +68,14 @@ static int test_attenuation_shape(void)
 
 int main(void)
 {
-    return test_attenuation_exhaustive() || test_attenuation_shape();
+    int exhaustive = test_attenuation_exhaustive();
+    int shape = test_attenuation_shape();
+
+    puts("TAP version 13");
+    puts("1..2");
+    printf("%s 1 - attenuation lookup matches every 16-bit input\n",
+           exhaustive ? "not ok" : "ok");
+    printf("%s 2 - attenuation table has the expected shape\n",
+           shape ? "not ok" : "ok");
+    return exhaustive || shape;
 }
