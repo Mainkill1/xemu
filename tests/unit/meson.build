@@ -30,6 +30,7 @@ tests = {
   'test-visitor-serialization': [testqapi],
   'test-bitmap': [],
   'test-xbox-mcpx-apu-adpcm-table': [],
+  'test-xbox-mcpx-apu-voice-routing': [],
   'test-xbox-pgraph-texture-state': [],
   'test-xbox-mcpx-apu-attenuation': [
     meson.project_source_root() / 'hw/xbox/mcpx/apu/vp/voice_math.c',
