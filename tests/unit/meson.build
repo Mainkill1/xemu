@@ -29,6 +29,7 @@ tests = {
   'test-string-output-visitor': [testqapi],
   'test-visitor-serialization': [testqapi],
   'test-bitmap': [],
+  'test-xbox-mcpx-apu-voice-routing': [],
   'test-xbox-pgraph-texture-state': [],
   'test-xbox-pgraph-texture-layout': [],
   'test-xbox-pgraph-uniform-dirty': [xbox_i386_target_headers],
