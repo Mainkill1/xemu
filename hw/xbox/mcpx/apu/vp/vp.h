@@ -31,6 +31,7 @@
 #include "adpcm.h"
 #include "svf.h"
 #include "hrtf.h"
+#include "voice_math.h"
 
 typedef struct MCPXAPUState MCPXAPUState;
 
@@ -83,6 +84,7 @@ typedef struct {
     VoiceWorkDispatch voice_work_dispatch;
     int resampler_type;
     MCPXAPUVoiceFilter filters[MCPX_HW_MAX_VOICES];
+    float attenuation_table[MCPX_APU_ATTENUATION_TABLE_SIZE];
 
     // FIXME: Where are these stored?
     int ssl_base_page;
