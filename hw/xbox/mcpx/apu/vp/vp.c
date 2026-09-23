@@ -67,6 +67,7 @@ static void voice_reset_filters(MCPXAPUState *d, uint16_t v)
     assert(v < MCPX_HW_MAX_VOICES);
     memset(&d->vp.filters[v].svf, 0, sizeof(d->vp.filters[v].svf));
     hrtf_filter_clear_history(&d->vp.filters[v].hrtf);
+    mcpx_apu_adpcm_cache_reset(&d->vp.filters[v].adpcm_cache);
     /* VOICE_ON starts a new stream, so select its channel layout afresh. */
     voice_destroy_resampler(&d->vp.filters[v]);
 }
@@ -896,8 +897,8 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
     size_t block_size;
 
     int adpcm_block_index = -1;
-    uint32_t adpcm_block[36*2/4];
-    int16_t adpcm_decoded[65*2]; // FIXME: Move out of here
+    uint32_t adpcm_block[MCPX_ADPCM_MAX_BLOCK_BYTES / sizeof(uint32_t)];
+    const int16_t *adpcm_decoded = NULL;
 
     // FIXME: Only update if necessary
     struct McpxApuDebugVoice *dbg = &g_dbg.vp.v[v];
@@ -1043,8 +1044,14 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
                         linear_addr += 4;
                     }
                 }
-                adpcm_decode_block(adpcm_decoded, (uint8_t *)adpcm_block,
-                                   block_size, channels);
+                int decoded_samples;
+                adpcm_decoded = mcpx_apu_adpcm_decode_cached(
+                    &d->vp.filters[v].adpcm_cache, (uint8_t *)adpcm_block,
+                    block_size, channels, &decoded_samples, NULL);
+                if (adpcm_decoded == NULL ||
+                    block_position >= decoded_samples) {
+                    return -1;
+                }
                 adpcm_block_index = block_index;
             }
 
@@ -1925,5 +1932,6 @@ void mcpx_apu_vp_reset(MCPXAPUState *d)
     memset(d->vp.voice_locked, 0, sizeof(d->vp.voice_locked));
     for (int v = 0; v < ARRAY_SIZE(d->vp.filters); v++) {
         hrtf_filter_init(&d->vp.filters[v].hrtf);
+        mcpx_apu_adpcm_cache_reset(&d->vp.filters[v].adpcm_cache);
     }
 }
