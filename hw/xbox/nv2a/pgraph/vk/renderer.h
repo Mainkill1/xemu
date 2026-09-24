@@ -656,6 +656,16 @@ typedef struct PGRAPHVkCpuStats {
     uint64_t cpu_us;
 } PGRAPHVkCpuStats;
 
+typedef struct PGRAPHVkDemandExecutableAtomicSnapshot {
+    uint64_t demanded_executables QEMU_ALIGNED(8);
+    uint64_t deduplicated_demands QEMU_ALIGNED(8);
+    uint64_t deferred_demands QEMU_ALIGNED(8);
+    uint64_t permanent_failures QEMU_ALIGNED(8);
+    uint64_t first_demand_to_ready_us_total QEMU_ALIGNED(8);
+    uint64_t first_demand_to_ready_us_max QEMU_ALIGNED(8);
+    uint32_t pending_demand_executables QEMU_ALIGNED(4);
+} PGRAPHVkDemandExecutableAtomicSnapshot;
+
 typedef struct PGRAPHVkPerfTelemetry {
     FILE *file;
     bool enabled;
@@ -792,6 +802,8 @@ typedef struct PGRAPHVkState {
     uint64_t hybrid_pipeline_next_ticket;
     PGRAPHVkHybridPipelineWork
         hybrid_pipeline_work[PGRAPH_VK_HYBRID_MAX_PIPELINE_JOBS];
+    struct PGRAPHVkDemandExecutableState *demand_executables;
+    PGRAPHVkDemandExecutableAtomicSnapshot demand_executable_snapshot;
 
     VkDescriptorPool descriptor_pool;
     VkDescriptorSetLayout descriptor_set_layout;
@@ -1126,6 +1138,13 @@ void pgraph_vk_process_hybrid_completions(PGRAPHState *pg);
  * Vulkan module creation and cache publication remain renderer-owned. */
 PGRAPHVkAsyncModuleRequestResult pgraph_vk_request_shader_module_async(
     PGRAPHState *pg, const ShaderModuleCacheKey *key);
+bool pgraph_vk_shader_state_module_ready(PGRAPHState *pg,
+                                         const ShaderState *state,
+                                         PGRAPHVkFragmentRoute route,
+                                         VkShaderStageFlagBits stage);
+PGRAPHVkAsyncModuleRequestResult pgraph_vk_request_shader_state_module_async(
+    PGRAPHState *pg, const ShaderState *state, PGRAPHVkFragmentRoute route,
+    VkShaderStageFlagBits stage);
 void pgraph_vk_stop_hybrid_compiler(PGRAPHState *pg);
 void pgraph_vk_process_spirv_cache_writeback(PGRAPHState *pg);
 void pgraph_vk_update_descriptor_sets(PGRAPHState *pg);
@@ -1215,6 +1234,8 @@ void pgraph_vk_init_pipelines(PGRAPHState *pg);
 void pgraph_vk_finalize_pipelines(PGRAPHState *pg);
 void pgraph_vk_writeback_pipeline_cache(PGRAPHState *pg);
 PGRAPHVkHybridPipelineSubmitResult pgraph_vk_request_hybrid_pipeline(
+    PGRAPHState *pg, const PipelineKey *key, ShaderBinding *ready_binding);
+PGRAPHVkHybridPipelineSubmitResult pgraph_vk_request_retained_demand_pipeline(
     PGRAPHState *pg, const PipelineKey *key, ShaderBinding *ready_binding);
 void pgraph_vk_process_hybrid_pipeline_completions(PGRAPHState *pg);
 void pgraph_vk_clear_surface(NV2AState *d, uint32_t parameter);

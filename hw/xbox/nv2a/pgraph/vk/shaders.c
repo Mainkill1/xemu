@@ -26,6 +26,7 @@
 #include "ui/xemu-tweaks.h"
 #include "device-inventory.h"
 #include "renderer.h"
+#include "demand-executable.h"
 #include "hybrid-ready.h"
 #include "texture-binding-state.h"
 
@@ -1217,6 +1218,7 @@ void pgraph_vk_process_hybrid_completions(PGRAPHState *pg)
             0, 0, 0, 0, batch_count, batch_start_us,
             g_get_monotonic_time(), 0);
     }
+    pgraph_vk_service_demand_executables(pg);
 }
 
 static void shader_module_cache_entry_init(Lru *lru, LruNode *node,
@@ -1829,6 +1831,68 @@ PGRAPHVkAsyncModuleRequestResult pgraph_vk_request_shader_module_async(
     PGRAPHState *pg, const ShaderModuleCacheKey *key)
 {
     return request_shader_module_async(pg, key, 3, NULL, 0, false);
+}
+
+static bool init_shader_state_module_key(PGRAPHVkState *r,
+                                         ShaderModuleCacheKey *key,
+                                         const ShaderState *state,
+                                         PGRAPHVkFragmentRoute route,
+                                         VkShaderStageFlagBits stage)
+{
+    bool need_geometry_shader = pgraph_glsl_need_geom(&state->geom);
+
+    switch (stage) {
+    case VK_SHADER_STAGE_VERTEX_BIT:
+        init_vertex_module_key(r, key, &state->vsh, need_geometry_shader);
+        return true;
+    case VK_SHADER_STAGE_GEOMETRY_BIT:
+        if (!need_geometry_shader) {
+            return false;
+        }
+        init_geometry_module_key(key, &state->geom);
+        return true;
+    case VK_SHADER_STAGE_FRAGMENT_BIT:
+        init_fragment_module_key(key, &state->psh, route);
+        return true;
+    default:
+        return false;
+    }
+}
+
+bool pgraph_vk_shader_state_module_ready(PGRAPHState *pg,
+                                         const ShaderState *state,
+                                         PGRAPHVkFragmentRoute route,
+                                         VkShaderStageFlagBits stage)
+{
+    if (!pg || !pg->vk_renderer_state || !state) {
+        return false;
+    }
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    ShaderModuleCacheKey key;
+    if (!init_shader_state_module_key(r, &key, state, route, stage)) {
+        return stage == VK_SHADER_STAGE_GEOMETRY_BIT &&
+               !pgraph_glsl_need_geom(&state->geom);
+    }
+    ShaderModuleCacheEntry *entry = find_shader_module_for_key(r, &key);
+    return entry && entry->module_info;
+}
+
+PGRAPHVkAsyncModuleRequestResult pgraph_vk_request_shader_state_module_async(
+    PGRAPHState *pg, const ShaderState *state, PGRAPHVkFragmentRoute route,
+    VkShaderStageFlagBits stage)
+{
+    if (!pg || !pg->vk_renderer_state || !state) {
+        return PGRAPH_VK_ASYNC_MODULE_FAILED;
+    }
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    ShaderModuleCacheKey key;
+    if (!init_shader_state_module_key(r, &key, state, route, stage)) {
+        return stage == VK_SHADER_STAGE_GEOMETRY_BIT &&
+                       !pgraph_glsl_need_geom(&state->geom) ?
+                   PGRAPH_VK_ASYNC_MODULE_READY :
+                   PGRAPH_VK_ASYNC_MODULE_FAILED;
+    }
+    return request_shader_module_async(pg, &key, 3);
 }
 
 typedef struct PGRAPHVkCachedFamilyModuleContext {
