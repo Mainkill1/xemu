@@ -1469,6 +1469,12 @@ request_hybrid_pipeline(PGRAPHState *pg, const PipelineKey *key,
                        key->fragment_route != PGRAPH_VK_FRAGMENT_UBERSHADER)) {
         return PGRAPH_VK_HYBRID_PIPELINE_STOPPED;
     }
+    if (ready_binding->fragment_route != key->fragment_route ||
+        (key->fragment_route == PGRAPH_VK_FRAGMENT_SPECIALIZED &&
+         memcmp(&ready_binding->state, &key->shader_state,
+                sizeof(key->shader_state)) != 0)) {
+        return PGRAPH_VK_HYBRID_PIPELINE_UNSUPPORTED_RECIPE;
+    }
 
     if (key->fragment_route == PGRAPH_VK_FRAGMENT_SPECIALIZED &&
         !retained_demand) {
