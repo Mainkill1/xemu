@@ -62,6 +62,7 @@ static void test_ubershader_migration()
 static void test_shader_miss_policy_config()
 {
     load_tweaks_table("[tweaks]\npgraph_bulk_packets = true\n");
+    xemu_tweaks_apply(false);
     assert(g_config.tweaks.vk_shader_miss_policy ==
            CONFIG_TWEAKS_VK_SHADER_MISS_POLICY_WAIT);
     assert(xemu_vulkan_shader_miss_policy() == XEMU_VK_SHADER_MISS_WAIT);
