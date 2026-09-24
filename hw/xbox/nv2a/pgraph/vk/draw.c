@@ -1500,6 +1500,9 @@ request_hybrid_pipeline(PGRAPHState *pg, const PipelineKey *key,
             candidate->generation == r->hybrid_generation &&
             candidate->key_hash == hash &&
             memcmp(&candidate->key, key, sizeof(*key)) == 0) {
+            if (retained_demand) {
+                candidate->prewarm = false;
+            }
             return PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED;
         }
         if (!candidate->in_use && !work) {
