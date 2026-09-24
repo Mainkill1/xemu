@@ -262,6 +262,89 @@ static void test_sinc_channel_change_at_stream_reset(void)
     src_delete(fresh);
 }
 
+static void test_full_reset_discards_resampler_history(void)
+{
+    enum { INPUT_FRAMES = 512, OUTPUT_FRAMES = 32 };
+    float signal_a[INPUT_FRAMES * 2];
+    float signal_b[INPUT_FRAMES * 2];
+    float reset_output[OUTPUT_FRAMES * 2];
+    float fresh_output[OUTPUT_FRAMES * 2];
+
+    for (int channels = 1; channels <= 2; channels++) {
+        for (int frame = 0; frame < INPUT_FRAMES; frame++) {
+            for (int channel = 0; channel < channels; channel++) {
+                signal_a[frame * channels + channel] =
+                    0.75f + 0.2f * sinf(frame * 0.071f + channel);
+                signal_b[frame * channels + channel] =
+                    -0.75f + 0.2f * cosf(frame * 0.053f + channel);
+            }
+        }
+
+        TestSamples old_samples = {
+            .samples = signal_a,
+            .frames = INPUT_FRAMES,
+            .callback_frames = 17,
+            .channels = channels,
+        };
+        int err;
+        SRC_STATE *resampler = src_callback_new(
+            sample_callback, SRC_SINC_FASTEST, channels, &err, &old_samples);
+        int resampler_channels = channels;
+        g_assert_nonnull(resampler);
+        g_assert_cmpint(err, ==, 0);
+
+        float warm_output[OUTPUT_FRAMES * 2];
+        g_assert_cmpint(src_callback_read(resampler, 0.55, OUTPUT_FRAMES,
+                                         warm_output),
+                        ==, OUTPUT_FRAMES);
+        g_assert_cmpint(old_samples.offset, >, 0);
+
+        mcpx_apu_resampler_destroy(&resampler, &resampler_channels);
+        g_assert_null(resampler);
+        g_assert_cmpint(resampler_channels, ==, 0);
+
+        TestSamples reset_samples = {
+            .samples = signal_b,
+            .frames = INPUT_FRAMES,
+            .callback_frames = 17,
+            .channels = channels,
+        };
+        TestSamples fresh_samples = reset_samples;
+        resampler = src_callback_new(sample_callback, SRC_SINC_FASTEST,
+                                     channels, &err, &reset_samples);
+        resampler_channels = channels;
+        g_assert_nonnull(resampler);
+        g_assert_cmpint(err, ==, 0);
+        SRC_STATE *fresh = src_callback_new(sample_callback, SRC_SINC_FASTEST,
+                                            channels, &err, &fresh_samples);
+        g_assert_nonnull(fresh);
+        g_assert_cmpint(err, ==, 0);
+
+        long reset_count = src_callback_read(
+            resampler, 0.83, OUTPUT_FRAMES, reset_output);
+        long fresh_count = src_callback_read(fresh, 0.83, OUTPUT_FRAMES,
+                                             fresh_output);
+
+        g_assert_cmpint(reset_count, ==, fresh_count);
+        g_assert_cmpint(reset_count, ==, OUTPUT_FRAMES);
+        g_assert_cmpint(reset_samples.offset, ==, fresh_samples.offset);
+        g_assert_cmpint(reset_samples.callback_calls, ==,
+                        fresh_samples.callback_calls);
+        for (int i = 0; i < reset_count * channels; i++) {
+            g_assert_cmpfloat_with_epsilon(reset_output[i], fresh_output[i],
+                                           0.0000001f);
+        }
+
+        mcpx_apu_resampler_destroy(&resampler, &resampler_channels);
+        src_delete(fresh);
+    }
+
+    SRC_STATE *resampler = NULL;
+    int resampler_channels = 2;
+    mcpx_apu_resampler_destroy(&resampler, &resampler_channels);
+    g_assert_cmpint(resampler_channels, ==, 0);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -273,5 +356,7 @@ int main(int argc, char **argv)
                     test_sinc_streaming_mono_matches_duplicated_stereo);
     g_test_add_func("/mcpx/apu/resampler/channel-change-at-stream-reset",
                     test_sinc_channel_change_at_stream_reset);
+    g_test_add_func("/mcpx/apu/resampler/full-reset-discards-history",
+                    test_full_reset_discards_resampler_history);
     return g_test_run();
 }

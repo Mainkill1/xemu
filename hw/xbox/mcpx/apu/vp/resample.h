@@ -3,6 +3,18 @@
 #ifndef HW_XBOX_MCPX_APU_VP_RESAMPLE_H
 #define HW_XBOX_MCPX_APU_VP_RESAMPLE_H
 
+#include <samplerate.h>
+
+static inline void mcpx_apu_resampler_destroy(SRC_STATE **resampler,
+                                               int *channels)
+{
+    if (*resampler != NULL) {
+        src_delete(*resampler);
+        *resampler = NULL;
+    }
+    *channels = 0;
+}
+
 static inline void mcpx_apu_pack_mono_samples(const float stereo[][2],
                                                float mono[], int frames)
 {
