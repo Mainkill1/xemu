@@ -1715,6 +1715,11 @@ static PGRAPHVkAsyncModuleRequestResult request_shader_module_async(
         result = PGRAPH_VK_ASYNC_MODULE_DEFERRED;
         break;
     case PGRAPH_VK_HYBRID_COMPILER_STOPPED:
+        pgraph_vk_hybrid_note_queue_deferral(
+            &work->metadata, false, r->hybrid_generation,
+            r->hybrid_route_epoch, 8);
+        result = PGRAPH_VK_ASYNC_MODULE_DEFERRED;
+        break;
     case PGRAPH_VK_HYBRID_COMPILER_INVALID:
         hybrid_work_clear(work);
         result = PGRAPH_VK_ASYNC_MODULE_FAILED;
