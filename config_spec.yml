@@ -27,6 +27,10 @@ tweaks:
     type: enum
     values: ["off", fallback, prewarm, always]
     default: prewarm
+  vk_shader_miss_policy:
+    type: enum
+    values: [wait, continue_black]
+    default: wait
   vk_shader_fastpath:
     type: bool
     default: true
