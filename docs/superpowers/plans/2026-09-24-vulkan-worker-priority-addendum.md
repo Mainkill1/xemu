@@ -4,7 +4,7 @@
 
 ## Owner requirement
 
-The off-thread shader/module and graphics-pipeline builders are the primary miss-recovery mechanism. They must not take host scheduling time from guest-critical CPU, PFIFO/PGRAPH, APU, input, or presentation work. Demand work has priority over speculative prewarm inside the bounded queues, but both background worker classes should run at a lower host scheduling priority than normal emulator threads.
+The off-thread shader/module and graphics-pipeline builders are the primary miss-recovery mechanism. They must not monopolize host scheduling time needed by guest-critical CPU, PFIFO/PGRAPH, APU, input, or presentation work. Demand work has priority over speculative prewarm inside bounded queues. **Do not hard-code the assumption that every asynchronous compiler must always run below normal priority.** Cemu's current Vulkan compiler deliberately keeps one compile thread at normal priority while lowering the rest so all compilation cannot be starved. Treat worker priority as a measured scheduling policy: speculative/prewarm work should normally be low priority, while demanded work may need a normal-priority lane or promotion when evidence shows lower-priority workers miss readiness deadlines.
 
 This is separate from the blackout policy:
 
@@ -44,12 +44,42 @@ Extend `PGRAPHVkHybridCompilerConfig` and `PGRAPHVkHybridPipelineBuilderConfig` 
 
 ## Worker policy
 
-Call the callback exactly once at worker startup for:
+The first implementation must expose scheduling as an explicit experiment rather than baking one global rule into the worker type.
 
-- the asynchronous hybrid shader compiler worker;
-- the graphics-pipeline builder worker.
+Required controls/variants:
 
-Do not lower the compiler's existing blocking/reference worker in this first implementation. Continue mode is forbidden from using that lane. Lowering it could make the accuracy-preserving Wait path block longer and is a separate measured decision.
+1. current/default worker scheduling;
+2. all speculative/prewarm workers lowered;
+3. one normal-priority **demand** lane plus lower-priority prewarm/speculative workers;
+4. promotion of an already queued exact job from prewarm/speculative to demand urgency without duplicating the work.
+
+Cemu reference:
+https://github.com/cemu-project/Cemu/blob/5e09ec72a43dc8e857f94619d3b0a40c2bd65298/src/Cafe/HW/Latte/Renderer/Vulkan/VulkanPipelineCompiler.cpp
+
+Cemu's Windows compiler pool keeps thread 0 at normal priority and lowers the rest specifically to avoid starving every compile thread.
+
+Use a job-level urgency classification:
+
+```c
+typedef enum PGRAPHVkCompileUrgency {
+    PGRAPH_VK_COMPILE_SPECULATIVE,
+    PGRAPH_VK_COMPILE_PREWARM,
+    PGRAPH_VK_COMPILE_DEMAND,
+} PGRAPHVkCompileUrgency;
+```
+
+Exact duplicate work must be promoted in place:
+
+```c
+if (existing_exact_job) {
+    existing_exact_job->urgency =
+        MAX(existing_exact_job->urgency, requested_urgency);
+    reprioritize(existing_exact_job);
+    return PGRAPH_VK_COMPILE_DUPLICATE_PROMOTED;
+}
+```
+
+The compiler's existing blocking/reference worker remains unchanged. Continue mode is forbidden from using that lane. The dedicated background **demand** lane, if the experiment proves it necessary, is still nonblocking from the renderer's perspective; it is not the reference blocking worker.
 
 Platform behavior:
 
@@ -79,13 +109,14 @@ The normal UI does not need a priority control. Effective shader-miss status may
 
 Add production-linked tests proving:
 
-1. the asynchronous compiler invokes the injected priority callback exactly once;
-2. the pipeline builder invokes it exactly once;
-3. the blocking compiler worker invokes it zero times;
+1. a worker configured for lowered scheduling invokes the injected priority callback exactly once;
+2. a normal-priority demand lane does not invoke the lowering callback;
+3. the blocking/reference compiler worker invokes it zero times;
 4. `APPLIED`, `UNSUPPORTED`, and `FAILED` all preserve queue processing and clean shutdown;
-5. callback failure does not submit work to the blocking lane;
+5. callback failure does not submit work to the blocking/reference lane;
 6. repeated jobs do not repeat priority setup or log spam;
-7. worker result/status remains readable after startup without exposing mutable queue state.
+7. exact queued work can be promoted from prewarm/speculative to demand without duplicate compilation;
+8. worker result/status remains readable after startup without exposing mutable queue state.
 
 Focused command:
 
@@ -98,11 +129,13 @@ meson test -C "$BUILD_DIR" --print-errorlogs \
 
 ## Required telemetry and qualification
 
-Record separately for compiler and pipeline workers:
+Record separately for each compiler/pipeline worker lane and urgency class:
 
 ```text
-priority_result = applied | unsupported | failed
-jobs_submitted / started / completed / failed
+worker_lane = demand | prewarm | speculative | reference
+urgency = demand | prewarm | speculative
+priority_result = normal | applied-low | unsupported | failed
+jobs_submitted / promoted / started / completed / failed
 submitted_us -> started_us runnable delay
 started_us -> finished_us worker elapsed time
 queue depth and queue-full/byte-limit events
@@ -148,5 +181,15 @@ Stop and request architectural review when:
 - Continue mode needs the normal-priority blocking worker to make progress;
 - priority setup requires elevated privileges or a fatal initialization path;
 - the helper leaks platform APIs into generic draw or shader policy code;
-- reduced priority causes repeated missed readiness deadlines that erase the foreground-stall benefit;
+- an all-lowered configuration causes repeated missed readiness deadlines; in that case test a bounded normal-priority demand lane before abandoning background compilation;
 - a proposed fix uses affinity pinning as a substitute without a separate measured topology design.
+
+
+## Prior-art correction logged after the initial addendum
+
+The detailed prior-art review is now authoritative for scheduling decisions:
+
+- `docs/performance/issue-198-prior-art-implementation-playbook.md`
+- #207 owns fully off-thread recipes, urgency, duplicate promotion, and scheduling experiments.
+
+Do not interpret this addendum as permission to start with a large custom scheduler. First collect submitted-to-started delay, readiness margin, guest progress, and worker CPU under the existing implementation. Add the smallest lane/promotion mechanism needed by that evidence.
