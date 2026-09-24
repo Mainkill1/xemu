@@ -100,20 +100,27 @@ static PGRAPHVkHybridCompilerConfig test_config(TestCompiler *test,
     };
 }
 
-static PGRAPHVkHybridCompileRequest test_request(uint64_t generation,
-                                                  uint64_t ticket,
-                                                  const char *glsl,
-                                                  const char *config)
+static PGRAPHVkHybridCompileRequest test_request_stage(
+    uint64_t generation, uint64_t ticket, uint32_t stage,
+    const char *glsl, const char *config)
 {
     return (PGRAPHVkHybridCompileRequest) {
         .generation = generation,
         .ticket = ticket,
-        .stage = 16,
+        .stage = stage,
         .glsl = glsl,
         .glsl_size = strlen(glsl),
         .config = config,
         .config_size = strlen(config),
     };
+}
+
+static PGRAPHVkHybridCompileRequest test_request(uint64_t generation,
+                                                  uint64_t ticket,
+                                                  const char *glsl,
+                                                  const char *config)
+{
+    return test_request_stage(generation, ticket, 16, glsl, config);
 }
 
 static bool init_compiler(PGRAPHVkHybridCompiler *compiler,
@@ -231,6 +238,45 @@ static void test_dedup_keeps_different_immutable_configs_distinct(void)
     g_assert_true(take_result(&compiler, &result));
     g_assert_cmpuint(result.ticket, ==, 2);
     pgraph_vk_hybrid_compile_result_destroy(&result);
+    pgraph_vk_hybrid_compiler_destroy(&compiler);
+    test_compiler_destroy(&test);
+}
+
+static void test_async_preserves_stage_identity(void)
+{
+    static const struct {
+        uint64_t generation;
+        uint64_t ticket;
+        uint32_t stage;
+        const char *source;
+    } requests[] = {
+        { 11, 21, 1, "same-source" },
+        { 12, 22, 2, "same-source" },
+        { 13, 23, 3, "fragment-source" },
+    };
+    TestCompiler test;
+    PGRAPHVkHybridCompiler compiler = { 0 };
+    PGRAPHVkHybridCompileResult result;
+
+    test_compiler_init(&test, false);
+    g_assert_true(init_compiler(&compiler, &test, ARRAY_SIZE(requests), 128));
+    for (size_t i = 0; i < ARRAY_SIZE(requests); i++) {
+        PGRAPHVkHybridCompileRequest request = test_request_stage(
+            requests[i].generation, requests[i].ticket, requests[i].stage,
+            requests[i].source, "config");
+        g_assert_cmpint(pgraph_vk_hybrid_compiler_submit_async(
+                            &compiler, &request, NULL),
+                        ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
+    }
+
+    for (size_t i = 0; i < ARRAY_SIZE(requests); i++) {
+        g_assert_true(take_result(&compiler, &result));
+        g_assert_cmpuint(result.generation, ==, requests[i].generation);
+        g_assert_cmpuint(result.ticket, ==, requests[i].ticket);
+        g_assert_cmpuint(result.stage, ==, requests[i].stage);
+        pgraph_vk_hybrid_compile_result_destroy(&result);
+    }
+
     pgraph_vk_hybrid_compiler_destroy(&compiler);
     test_compiler_destroy(&test);
 }
@@ -435,6 +481,8 @@ int main(int argc, char **argv)
                     test_async_limits_release_when_result_is_taken);
     g_test_add_func("/xbox/vk/hybrid-compiler/exact-config",
                     test_dedup_keeps_different_immutable_configs_distinct);
+    g_test_add_func("/xbox/vk/hybrid-compiler/stage-identity",
+                    test_async_preserves_stage_identity);
     g_test_add_func("/xbox/vk/hybrid-compiler/async-after-blocking",
                     test_async_matching_blocking_work_keeps_its_own_result);
     g_test_add_func("/xbox/vk/hybrid-compiler/reserved-blocking",

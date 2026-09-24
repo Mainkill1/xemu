@@ -188,6 +188,7 @@ if vulkan.found()
     ],
     'test-xbox-vk-ubershader-glsl-integration': [
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/common.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/geom.c',
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/psh.c',
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/psh-uber.c',
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/vsh-prog.c',
