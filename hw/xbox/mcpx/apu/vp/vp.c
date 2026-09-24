@@ -1640,6 +1640,7 @@ static void *voice_worker_thread(void *arg)
         qemu_cond_wait(&vwd->work_pending, &vwd->lock);
     } while (!vwd->workers_should_exit);
 
+    qemu_mutex_unlock(&vwd->lock);
     rcu_unregister_thread();
     return NULL;
 }
