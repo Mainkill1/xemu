@@ -289,6 +289,12 @@ void pgraph_vk_fallback_family_note_pipeline_ready(
     boundary_trace.valid = false;
 }
 
+void pgraph_vk_service_demand_executables(PGRAPHState *pg)
+{
+    /* This report-only fixture does not initialize hybrid demand state. */
+    (void)pg;
+}
+
 static void install_vulkan_boundaries(void)
 {
     vkBeginCommandBuffer = test_vk_begin_command_buffer;
