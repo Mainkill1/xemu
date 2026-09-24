@@ -153,14 +153,8 @@ pgraph_vk_request_demand_executable(PGRAPHState *pg, const PipelineKey *key,
         pgraph_vk_demand_executable_service(r->demand_executables,
                                             r->hybrid_generation, now_us,
                                             &renderer_demand_ops, pg);
-        const PGRAPHVkDemandExecutableRecord *record =
-            pgraph_vk_demand_executable_find(r->demand_executables, key);
-        if (record && record->status == PGRAPH_VK_DEMAND_READY) {
-            result = PGRAPH_VK_DEMAND_EXECUTABLE_READY;
-        } else if (record &&
-                   record->status == PGRAPH_VK_DEMAND_FAILED_PERMANENT) {
-            result = PGRAPH_VK_DEMAND_EXECUTABLE_FAILED;
-        }
+        result = pgraph_vk_demand_executable_current_result(
+            r->demand_executables, key, result);
     }
     sync_atomic_snapshot(r);
     pgraph_vk_blackout_runtime_sync_demand(pg);

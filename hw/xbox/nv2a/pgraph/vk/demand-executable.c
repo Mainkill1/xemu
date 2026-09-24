@@ -335,6 +335,31 @@ pgraph_vk_demand_executable_find(const PGRAPHVkDemandExecutableState *state,
     return NULL;
 }
 
+PGRAPHVkDemandExecutableResult pgraph_vk_demand_executable_current_result(
+    const PGRAPHVkDemandExecutableState *state, const PipelineKey *key,
+    PGRAPHVkDemandExecutableResult fallback)
+{
+    const PGRAPHVkDemandExecutableRecord *record =
+        pgraph_vk_demand_executable_find(state, key);
+    if (!record) {
+        return fallback;
+    }
+    switch (record->status) {
+    case PGRAPH_VK_DEMAND_READY:
+        return PGRAPH_VK_DEMAND_EXECUTABLE_READY;
+    case PGRAPH_VK_DEMAND_DEFERRED:
+        return PGRAPH_VK_DEMAND_EXECUTABLE_DEFERRED;
+    case PGRAPH_VK_DEMAND_FAILED_PERMANENT:
+        return PGRAPH_VK_DEMAND_EXECUTABLE_FAILED;
+    case PGRAPH_VK_DEMAND_WAITING_FOR_MODULES:
+    case PGRAPH_VK_DEMAND_WAITING_FOR_BINDING:
+    case PGRAPH_VK_DEMAND_PIPELINE_PENDING:
+        return fallback;
+    default:
+        g_assert_not_reached();
+    }
+}
+
 bool pgraph_vk_demand_executable_has_pending(
     const PGRAPHVkDemandExecutableState *state)
 {

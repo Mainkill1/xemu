@@ -105,6 +105,9 @@ void pgraph_vk_demand_executable_note_pipeline_failure(
 const PGRAPHVkDemandExecutableRecord *
 pgraph_vk_demand_executable_find(const PGRAPHVkDemandExecutableState *state,
                                  const PipelineKey *key);
+PGRAPHVkDemandExecutableResult pgraph_vk_demand_executable_current_result(
+    const PGRAPHVkDemandExecutableState *state, const PipelineKey *key,
+    PGRAPHVkDemandExecutableResult fallback);
 bool pgraph_vk_demand_executable_has_pending(
     const PGRAPHVkDemandExecutableState *state);
 

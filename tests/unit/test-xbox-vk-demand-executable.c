@@ -231,6 +231,10 @@ static void test_pipeline_queue_full_defers_without_retrying_early(void)
     g_assert_cmpuint(fixture.submit_calls, ==, 1);
     g_assert_cmpint(find_record(&state, &key)->status, ==,
                     PGRAPH_VK_DEMAND_DEFERRED);
+    g_assert_cmpint(pgraph_vk_demand_executable_current_result(
+                        &state, &key,
+                        PGRAPH_VK_DEMAND_EXECUTABLE_QUEUED), ==,
+                    PGRAPH_VK_DEMAND_EXECUTABLE_DEFERRED);
     g_assert_cmpuint(find_record(&state, &key)->pipeline_attempts, ==, 0);
 
     pgraph_vk_demand_executable_service(&state, 1, 1000, &demand_ops, &fixture);
