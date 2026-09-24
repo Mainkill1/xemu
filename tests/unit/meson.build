@@ -54,10 +54,6 @@ tests = {
   'test-xbox-vk-blend-constants': [],
   'test-xbox-vk-texture-binding': [],
   'test-xbox-vk-display-output-state': [],
-  'test-xbox-vk-readiness-attribution': [
-    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/readiness-attribution.c',
-    xbox_i386_target_headers, volk, libglslang, vma, vulkan, spirv_reflect,
-  ],
   'test-xemu-win32-dxgi-interop': [],
   'test-xbox-vk-device-selection': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/device-selection.c',
@@ -196,6 +192,10 @@ if vulkan.found()
     ],
     'test-xbox-vk-demand-executable': [
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/demand-executable.c',
+      xbox_i386_target_headers, volk, libglslang, vma, vulkan, spirv_reflect,
+    ],
+    'test-xbox-vk-readiness-attribution': [
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/readiness-attribution.c',
       xbox_i386_target_headers, volk, libglslang, vma, vulkan, spirv_reflect,
     ],
     'test-xbox-vk-hybrid-family-codec': [
