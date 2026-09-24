@@ -109,6 +109,33 @@ static void test_submitted_draw_publishes_surface_generation(void)
     g_free(pg);
 }
 
+static void test_shader_miss_action_preserves_wait(void)
+{
+    g_assert_cmpint(
+        pgraph_vk_draw_shader_miss_action(false, true, true, false), ==,
+        PGRAPH_VK_DRAW_MISS_WAIT);
+    g_assert_cmpint(
+        pgraph_vk_draw_shader_miss_action(true, false, true, false), ==,
+        PGRAPH_VK_DRAW_MISS_WAIT);
+    g_assert_cmpint(
+        pgraph_vk_draw_shader_miss_action(true, true, false, false), ==,
+        PGRAPH_VK_DRAW_MISS_WAIT);
+}
+
+static void test_shader_miss_action_uses_ready_executable(void)
+{
+    g_assert_cmpint(
+        pgraph_vk_draw_shader_miss_action(true, true, true, true), ==,
+        PGRAPH_VK_DRAW_MISS_READY);
+}
+
+static void test_shader_miss_action_omits_supported_continue_draw(void)
+{
+    g_assert_cmpint(
+        pgraph_vk_draw_shader_miss_action(true, true, true, false), ==,
+        PGRAPH_VK_DRAW_MISS_OMIT);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -123,5 +150,14 @@ int main(int argc, char **argv)
     g_test_add_func(
         "/xbox/vk/draw-lifecycle/submitted",
         test_submitted_draw_publishes_surface_generation);
+    g_test_add_func(
+        "/xbox/vk/draw-lifecycle/miss-wait",
+        test_shader_miss_action_preserves_wait);
+    g_test_add_func(
+        "/xbox/vk/draw-lifecycle/miss-ready",
+        test_shader_miss_action_uses_ready_executable);
+    g_test_add_func(
+        "/xbox/vk/draw-lifecycle/miss-omit",
+        test_shader_miss_action_omits_supported_continue_draw);
     return g_test_run();
 }

@@ -1962,7 +1962,7 @@ static void request_complete_specialization(PGRAPHState *pg,
 }
 
 static void maybe_request_complete_specialization(PGRAPHState *pg,
-                                                   const ShaderState *state)
+                                                  const ShaderState *state)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     ShaderBinding *binding = r->shader_binding;
@@ -1981,7 +1981,103 @@ static void maybe_request_complete_specialization(PGRAPHState *pg,
     request_complete_specialization(pg, state);
 }
 
-static bool create_pipeline(PGRAPHState *pg)
+static void trace_omitted_shader_miss(
+    PGRAPHState *pg, const PipelineKey *key,
+    PGRAPHVkDemandExecutableResult demand)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    if (r->perf.enabled) {
+        r->perf.omitted_shader_miss_draws++;
+        r->perf.omitted_shader_miss_query_draws +=
+            pg->zpass_pixel_count_enable != 0;
+        r->perf.omitted_shader_miss_deferred +=
+            demand == PGRAPH_VK_DEMAND_EXECUTABLE_DEFERRED;
+        r->perf.omitted_shader_miss_failed +=
+            demand == PGRAPH_VK_DEMAND_EXECUTABLE_FAILED;
+    }
+    if (!r->hybrid_trace) {
+        return;
+    }
+    pgraph_vk_hybrid_trace_record(
+        r->hybrid_trace, VK_HYBRID_TRACE_DRAW_OMITTED,
+        key->fragment_route,
+        fast_hash((const uint8_t *)key, sizeof(*key)),
+        fast_hash((const uint8_t *)&key->shader_state,
+                  sizeof(key->shader_state)),
+        0, demand, pg->zpass_pixel_count_enable,
+        r->color_binding != NULL, r->zeta_binding != NULL);
+}
+
+static PGRAPHVkDrawPrepareResult prepare_continue_pipeline(
+    PGRAPHState *pg, const PipelineKey *key, ShaderBinding *binding,
+    PipelineBinding **ready_pipeline)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    PGRAPHVkGraphicsPipelineRecipe recipe;
+    if (!prepare_graphics_pipeline_recipe(pg, key, binding, &recipe)) {
+        return PGRAPH_VK_DRAW_PREPARE_FAILED;
+    }
+
+    VkPipeline pipeline = VK_NULL_HANDLE;
+    int64_t probe_start_us = r->hybrid_trace ? g_get_monotonic_time() : 0;
+    PGRAPHVkPipelineProbeOutcome outcome =
+        pgraph_vk_probe_pipeline_without_compile(
+            r->device, r->vk_pipeline_cache, &recipe.info, &pipeline,
+            hybrid_pipeline_create, NULL);
+    uint64_t hash = fast_hash((const uint8_t *)key, sizeof(*key));
+    if (r->hybrid_trace) {
+        pgraph_vk_hybrid_trace_record(
+            r->hybrid_trace, VK_HYBRID_TRACE_PIPELINE_DRIVER_PROBE,
+            key->fragment_route, hash,
+            fast_hash((const uint8_t *)&key->shader_state,
+                      sizeof(key->shader_state)),
+            0, probe_start_us, g_get_monotonic_time(), outcome.status,
+            (uint64_t)(int64_t)outcome.vk_result);
+    }
+
+    switch (outcome.status) {
+    case PGRAPH_VK_PIPELINE_PROBE_READY: {
+        PipelineBinding *snode = pipeline_cache_get_or_create(
+            pg, hash, key);
+        assert(snode->pipeline == VK_NULL_HANDLE);
+        memcpy(&snode->key, key, sizeof(*key));
+        snode->pipeline = pipeline;
+        snode->has_dynamic_line_width = recipe.has_dynamic_line_width;
+        snode->layout = recipe.layout;
+        snode->render_pass = recipe.render_pass;
+        snode->draw_time = pg->draw_time;
+        snode->dynamic_blend_constant_mask =
+            recipe.dynamic_blend_constant_mask;
+        *ready_pipeline = snode;
+        return PGRAPH_VK_DRAW_PREPARE_READY;
+    }
+    case PGRAPH_VK_PIPELINE_PROBE_COMPILE_REQUIRED: {
+        vkDestroyPipelineLayout(r->device, recipe.layout, NULL);
+        PGRAPHVkDemandExecutableResult demand =
+            pgraph_vk_request_demand_executable(
+                pg, key, g_get_monotonic_time());
+        if (demand == PGRAPH_VK_DEMAND_EXECUTABLE_READY) {
+            *ready_pipeline = pgraph_vk_pipeline_cache_find_ready(
+                &r->pipeline_cache, hash, key);
+            if (*ready_pipeline) {
+                return PGRAPH_VK_DRAW_PREPARE_READY;
+            }
+        }
+        trace_omitted_shader_miss(pg, key, demand);
+        return PGRAPH_VK_DRAW_PREPARE_OMITTED_SHADER_MISS;
+    }
+    case PGRAPH_VK_PIPELINE_PROBE_ERROR:
+        if (outcome.vk_result != VK_SUCCESS) {
+            VK_CHECK(outcome.vk_result);
+        }
+        vkDestroyPipelineLayout(r->device, recipe.layout, NULL);
+        return PGRAPH_VK_DRAW_PREPARE_FAILED;
+    default:
+        g_assert_not_reached();
+    }
+}
+
+static PGRAPHVkDrawPrepareResult create_pipeline(PGRAPHState *pg)
 {
     NV2A_VK_DGROUP_BEGIN("Creating pipeline");
 
@@ -1993,10 +2089,16 @@ static bool create_pipeline(PGRAPHState *pg)
 
     if (!pgraph_vk_bind_textures(d)) {
         NV2A_VK_DGROUP_END();
-        return false;
+        return PGRAPH_VK_DRAW_PREPARE_FAILED;
     }
     bool hybrid = r->ubershader_runtime_enabled &&
                   r->hybrid_compiler_initialized;
+    bool continue_requested =
+        xemu_vulkan_shader_miss_policy() ==
+        XEMU_VK_SHADER_MISS_CONTINUE_BLACK;
+    bool continue_nonblocking_supported =
+        hybrid && r->hybrid_pipeline_builder_initialized &&
+        r->pipeline_creation_cache_control_enabled;
     bool force_ubershader = r->ubershader_force_interpreter;
     bool schedule_specialization = false;
     bool track_specialized_family = false;
@@ -2055,7 +2157,7 @@ static bool create_pipeline(PGRAPHState *pg)
             }
             pgraph_clear_dirty_reg_map(pg);
             NV2A_VK_DGROUP_END();
-            return true;
+            return PGRAPH_VK_DRAW_PREPARE_READY;
         }
 
         PGRAPHVkShaderPreparation preparation;
@@ -2079,7 +2181,7 @@ static bool create_pipeline(PGRAPHState *pg)
                                        r->shader_binding);
             pgraph_clear_dirty_reg_map(pg);
             NV2A_VK_DGROUP_END();
-            return true;
+            return PGRAPH_VK_DRAW_PREPARE_READY;
         }
 
         /* A stable fallback updates only its dynamic inputs. Fallback mode
@@ -2106,7 +2208,7 @@ static bool create_pipeline(PGRAPHState *pg)
             }
             pgraph_clear_dirty_reg_map(pg);
             NV2A_VK_DGROUP_END();
-            return true;
+            return PGRAPH_VK_DRAW_PREPARE_READY;
         }
 
         PGRAPHVkReadyExecutionCandidates candidates;
@@ -2201,6 +2303,54 @@ static bool create_pipeline(PGRAPHState *pg)
                         ((uint64_t)fallback_resources << 1) |
                         ((uint64_t)controls_supported << 3));
             }
+
+            PGRAPHVkDrawShaderMissAction miss_action =
+                pgraph_vk_draw_shader_miss_action(
+                    continue_requested, continue_nonblocking_supported,
+                    true, false);
+            if (miss_action == PGRAPH_VK_DRAW_MISS_OMIT) {
+                PipelineKey missing_key;
+                pgraph_vk_init_pipeline_key_for_state(
+                    pg, &requested_state, route, &missing_key);
+                PGRAPHVkDemandExecutableResult demand =
+                    pgraph_vk_request_demand_executable(
+                        pg, &missing_key, g_get_monotonic_time());
+                if (demand != PGRAPH_VK_DEMAND_EXECUTABLE_READY) {
+                    trace_omitted_shader_miss(pg, &missing_key, demand);
+                    NV2A_VK_DGROUP_END();
+                    return PGRAPH_VK_DRAW_PREPARE_OMITTED_SHADER_MISS;
+                }
+                ready_shader = pgraph_vk_prepare_binding_from_ready_modules(
+                    pg, &requested_state, route);
+                uint64_t missing_hash = fast_hash(
+                    (const uint8_t *)&missing_key, sizeof(missing_key));
+                ready_pipeline = pgraph_vk_pipeline_cache_find_ready(
+                    &r->pipeline_cache, missing_hash, &missing_key);
+                if (!ready_shader || !ready_pipeline) {
+                    trace_omitted_shader_miss(
+                        pg, &missing_key, demand);
+                    NV2A_VK_DGROUP_END();
+                    return PGRAPH_VK_DRAW_PREPARE_OMITTED_SHADER_MISS;
+                }
+            }
+        }
+
+        PGRAPHVkDrawShaderMissAction pipeline_miss_action =
+            pgraph_vk_draw_shader_miss_action(
+                continue_requested, continue_nonblocking_supported,
+                true, ready_pipeline != NULL);
+        if (pipeline_miss_action == PGRAPH_VK_DRAW_MISS_OMIT &&
+            ready_shader) {
+            PipelineKey missing_key;
+            pgraph_vk_init_pipeline_key_for_state(
+                pg, &requested_state, route, &missing_key);
+            PGRAPHVkDrawPrepareResult prepare_result =
+                prepare_continue_pipeline(
+                    pg, &missing_key, ready_shader, &ready_pipeline);
+            if (prepare_result != PGRAPH_VK_DRAW_PREPARE_READY) {
+                NV2A_VK_DGROUP_END();
+                return prepare_result;
+            }
         }
         r->uber_controls_valid = route == PGRAPH_VK_FRAGMENT_UBERSHADER &&
                                  controls_supported;
@@ -2230,7 +2380,7 @@ static bool create_pipeline(PGRAPHState *pg)
                 maybe_request_complete_specialization(pg, &requested_state);
             }
             NV2A_VK_DGROUP_END();
-            return true;
+            return PGRAPH_VK_DRAW_PREPARE_READY;
         }
     } else {
         trace_execution_candidates(pg);
@@ -2267,7 +2417,7 @@ static bool create_pipeline(PGRAPHState *pg)
             maybe_request_complete_specialization(pg, &requested_state);
         }
         NV2A_VK_DGROUP_END();
-        return true;
+        return PGRAPH_VK_DRAW_PREPARE_READY;
     }
 
     PipelineKey key;
@@ -2302,7 +2452,7 @@ static bool create_pipeline(PGRAPHState *pg)
             maybe_request_complete_specialization(pg, &requested_state);
         }
         NV2A_VK_DGROUP_END();
-        return true;
+        return PGRAPH_VK_DRAW_PREPARE_READY;
     }
 
     NV2A_VK_DPRINTF("Cache miss");
@@ -2314,7 +2464,7 @@ static bool create_pipeline(PGRAPHState *pg)
     if (!prepare_graphics_pipeline_recipe(pg, &key, r->shader_binding,
                                           &recipe)) {
         NV2A_VK_DGROUP_END();
-        return false;
+        return PGRAPH_VK_DRAW_PREPARE_FAILED;
     }
     VkPipeline pipeline = VK_NULL_HANDLE;
     bool blocking_create_required = true;
@@ -2349,7 +2499,7 @@ static bool create_pipeline(PGRAPHState *pg)
             }
             vkDestroyPipelineLayout(r->device, recipe.layout, NULL);
             NV2A_VK_DGROUP_END();
-            return false;
+            return PGRAPH_VK_DRAW_PREPARE_FAILED;
         default:
             g_assert_not_reached();
         }
@@ -2397,7 +2547,7 @@ static bool create_pipeline(PGRAPHState *pg)
     }
 
     NV2A_VK_DGROUP_END();
-    return true;
+    return PGRAPH_VK_DRAW_PREPARE_READY;
 }
 
 static void push_vertex_attr_values(PGRAPHState *pg)
@@ -2792,7 +2942,7 @@ void pgraph_vk_end_nondraw_commands(PGRAPHState *pg, VkCommandBuffer cmd)
 // buffer. For other reasons though (like descriptor set amount, surface
 // changes, etc) we do flush often.
 
-static PGRAPHVkDrawPrepareResult begin_pre_draw(PGRAPHState *pg)
+static PGRAPHVkDrawPrepareResult prepare_draw_pipeline(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
@@ -2804,16 +2954,27 @@ static PGRAPHVkDrawPrepareResult begin_pre_draw(PGRAPHState *pg)
         create_clear_pipeline(pg);
     } else {
         int64_t start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
-        bool pipeline_ready = create_pipeline(pg);
+        PGRAPHVkDrawPrepareResult result = create_pipeline(pg);
         pgraph_vk_perf_record_cpu_region(
             r, VK_PERF_CPU_PIPELINE_PREPARE,
             r->perf.enabled ? g_get_monotonic_time() - start_us : 0);
-        if (!pipeline_ready) {
+        if (result == PGRAPH_VK_DRAW_PREPARE_FAILED) {
             error_report("Vulkan draw skipped because texture preparation "
                          "failed");
-            return PGRAPH_VK_DRAW_PREPARE_FAILED;
         }
+        return result;
     }
+
+    return PGRAPH_VK_DRAW_PREPARE_READY;
+}
+
+static void begin_pre_draw(PGRAPHState *pg)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+
+    assert(r->color_binding || r->zeta_binding);
+    assert(!r->color_binding || r->color_binding->initialized);
+    assert(!r->zeta_binding || r->zeta_binding->initialized);
 
     bool render_pass_dirty = r->pipeline_binding->render_pass != r->render_pass;
 
@@ -2839,7 +3000,6 @@ static PGRAPHVkDrawPrepareResult begin_pre_draw(PGRAPHState *pg)
     }
 
     pgraph_vk_ensure_command_buffer(pg);
-    return PGRAPH_VK_DRAW_PREPARE_READY;
 }
 
 static float clamp_line_width_to_device_limits(PGRAPHState *pg, float width)
@@ -3125,14 +3285,23 @@ typedef enum PGRAPHVkVertexBacking {
     PGRAPH_VK_VERTEX_BACKING_PRIVATE,
 } PGRAPHVkVertexBacking;
 
-static PGRAPHVkVertexBacking prepare_vertex_ram_backing(
+typedef struct PGRAPHVkPreparedVertexRam {
+    PGRAPHVkVertexBacking backing;
+    MemorySyncRequirement deferred_stale_ranges[16];
+    size_t num_deferred_stale_ranges;
+} PGRAPHVkPreparedVertexRam;
+
+static PGRAPHVkPreparedVertexRam prepare_vertex_ram_backing(
     PGRAPHState *pg, uint32_t num_vertices)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
     PGRAPHVkState *r = pg->vk_renderer_state;
+    PGRAPHVkPreparedVertexRam prepared = {
+        .backing = PGRAPH_VK_VERTEX_BACKING_FIXED,
+    };
 
     if (r->num_vertex_ram_buffer_syncs == 0) {
-        return PGRAPH_VK_VERTEX_BACKING_FIXED;
+        return prepared;
     }
 
     // Align sync requirements to page boundaries
@@ -3248,11 +3417,10 @@ static PGRAPHVkVertexBacking prepare_vertex_ram_backing(
                     version_policy_checked = true;
                 }
                 if (version_eligible) {
-                    set_vertex_ram_stale_pages(r, first_page, page_count,
-                                               true);
-                    if (r->perf.enabled) {
-                        r->perf.vertex_version_selected_ranges++;
-                    }
+                    assert(prepared.num_deferred_stale_ranges <
+                           ARRAY_SIZE(prepared.deferred_stale_ranges));
+                    prepared.deferred_stale_ranges
+                        [prepared.num_deferred_stale_ranges++] = merged[i];
                     versioned = true;
                     continue;
                 }
@@ -3283,8 +3451,9 @@ static PGRAPHVkVertexBacking prepare_vertex_ram_backing(
     r->num_vertex_ram_buffer_syncs = 0;
 
     NV2A_VK_DGROUP_END();
-    return versioned ? PGRAPH_VK_VERTEX_BACKING_PRIVATE :
-                       PGRAPH_VK_VERTEX_BACKING_FIXED;
+    prepared.backing = versioned ? PGRAPH_VK_VERTEX_BACKING_PRIVATE :
+                                   PGRAPH_VK_VERTEX_BACKING_FIXED;
+    return prepared;
 }
 
 void pgraph_vk_clear_surface(NV2AState *d, uint32_t parameter)
@@ -3325,8 +3494,9 @@ void pgraph_vk_clear_surface(NV2AState *d, uint32_t parameter)
                          ymax, write_color ? " color" : "",
                          write_zeta ? " zeta" : "");
 
-    PGRAPHVkDrawPrepareResult prepare_result = begin_pre_draw(pg);
+    PGRAPHVkDrawPrepareResult prepare_result = prepare_draw_pipeline(pg);
     assert(prepare_result == PGRAPH_VK_DRAW_PREPARE_READY);
+    begin_pre_draw(pg);
     pgraph_vk_begin_debug_marker(r, r->command_buffer,
         RGBA_BLUE, "Clear %08" HWADDR_PRIx,
         binding->vram_addr);
@@ -3734,7 +3904,7 @@ static void pack_remapped_attributes(PGRAPHState *pg, VertexBufferRemap remap,
 }
 
 typedef struct PGRAPHVkPreparedVertexData {
-    PGRAPHVkVertexBacking backing;
+    PGRAPHVkPreparedVertexRam ram;
     VertexBufferRemap remap;
 } PGRAPHVkPreparedVertexData;
 
@@ -3746,15 +3916,15 @@ static PGRAPHVkPreparedVertexData prepare_vertex_data(
     uint32_t provoking_vertex)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
-    PGRAPHVkPreparedVertexData prepared = {
-        .backing = prepare_vertex_ram_backing(pg, num_vertices),
-    };
+    PGRAPHVkPreparedVertexData prepared = { 0 };
+
+    prepared.ram = prepare_vertex_ram_backing(pg, num_vertices);
 
     pgraph_vk_refresh_vertex_inline_values_after_sync(pg, provoking_vertex);
     prepared.remap = prepare_vertex_attribute_layout(
-        pg, num_vertices, prepared.backing);
+        pg, num_vertices, prepared.ram.backing);
 
-    if (prepared.backing == PGRAPH_VK_VERTEX_BACKING_PRIVATE) {
+    if (prepared.ram.backing == PGRAPH_VK_VERTEX_BACKING_PRIVATE) {
         assert(prepared.remap.buffer_space_required <=
                PGRAPH_VK_VERTEX_VERSION_SCRATCH_SIZE);
         memset(r->vertex_version_scratch, 0,
@@ -3763,7 +3933,6 @@ static PGRAPHVkPreparedVertexData prepare_vertex_data(
                                  num_vertices, r->vertex_version_scratch);
     }
 
-    reserve_remapped_attributes(pg, prepared.remap);
     return prepared;
 }
 
@@ -3813,13 +3982,55 @@ static void publish_prepared_vertex_data(PGRAPHState *pg,
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
+    for (size_t i = 0; i < prepared.ram.num_deferred_stale_ranges; i++) {
+        const MemorySyncRequirement *range =
+            &prepared.ram.deferred_stale_ranges[i];
+        size_t first_page = range->addr / TARGET_PAGE_SIZE;
+        size_t page_count = range->size / TARGET_PAGE_SIZE;
+        set_vertex_ram_stale_pages(r, first_page, page_count, true);
+        if (r->perf.enabled) {
+            r->perf.vertex_version_selected_ranges++;
+        }
+    }
+
     copy_remapped_attributes_to_inline_buffer(
-        pg, prepared.remap, start_vertex, num_vertices, prepared.backing);
-    if (prepared.backing == PGRAPH_VK_VERTEX_BACKING_PRIVATE &&
+        pg, prepared.remap, start_vertex, num_vertices,
+        prepared.ram.backing);
+    if (prepared.ram.backing == PGRAPH_VK_VERTEX_BACKING_PRIVATE &&
         r->perf.enabled) {
         r->perf.vertex_version_draw_count++;
         r->perf.vertex_version_bytes += prepared.remap.buffer_space_required;
     }
+}
+
+static void reserve_prepared_vertex_data(
+    PGRAPHState *pg, const PGRAPHVkPreparedVertexData *prepared)
+{
+    reserve_remapped_attributes(pg, prepared->remap);
+}
+
+static void discard_prepared_vertex_data(
+    PGRAPHState *pg, const PGRAPHVkPreparedVertexData *prepared)
+{
+    NV2AState *d = container_of(pg, NV2AState, pgraph);
+    PGRAPHVkState *r = pg->vk_renderer_state;
+
+    for (size_t i = 0; i < prepared->ram.num_deferred_stale_ranges; i++) {
+        const MemorySyncRequirement *range =
+            &prepared->ram.deferred_stale_ranges[i];
+        memory_region_set_dirty(d->vram, range->addr, range->size);
+    }
+    for (int attr_id = 0; attr_id < NV2A_VERTEXSHADER_ATTRIBUTES; attr_id++) {
+        if (!(prepared->remap.attributes & (1 << attr_id))) {
+            continue;
+        }
+        int desc_loc = r->vertex_attribute_to_description_location[attr_id];
+        assert(desc_loc >= 0);
+        r->vertex_binding_descriptions[desc_loc].stride =
+            prepared->remap.map[attr_id].old_stride;
+    }
+    r->num_pending_vertex_ram_reads = 0;
+    r->num_vertex_ram_buffer_syncs = 0;
 }
 
 static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
@@ -3859,12 +4070,14 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
         PGRAPHVkPreparedVertexData vertex_data = prepare_vertex_data(
             pg, min_element, max_element, pg->draw_arrays_max_count - 1);
 
-        PGRAPHVkDrawResult prepare_result =
-            pgraph_vk_draw_result_from_prepare(begin_pre_draw(pg));
-        if (prepare_result != PGRAPH_VK_DRAW_SUBMITTED) {
+        PGRAPHVkDrawPrepareResult prepare_result = prepare_draw_pipeline(pg);
+        if (prepare_result != PGRAPH_VK_DRAW_PREPARE_READY) {
+            discard_prepared_vertex_data(pg, &vertex_data);
             NV2A_VK_DGROUP_END();
-            return prepare_result;
+            return pgraph_vk_draw_result_from_prepare(prepare_result);
         }
+        reserve_prepared_vertex_data(pg, &vertex_data);
+        begin_pre_draw(pg);
         publish_prepared_vertex_data(pg, vertex_data, min_element,
                                      max_element);
         pgraph_vk_begin_debug_marker(r, r->command_buffer, RGBA_BLUE,
@@ -3891,8 +4104,6 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
         size_t index_data_size =
             pg->inline_elements_length * sizeof(pg->inline_elements[0]);
 
-        ensure_buffer_space(pg, BUFFER_INDEX_STAGING, index_data_size, 1);
-
         uint32_t min_element = (uint32_t)-1;
         uint32_t max_element = 0;
         for (int i = 0; i < pg->inline_elements_length; i++) {
@@ -3910,12 +4121,15 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
         PGRAPHVkPreparedVertexData vertex_data = prepare_vertex_data(
             pg, min_element, max_element + 1, provoking_element);
 
-        PGRAPHVkDrawResult prepare_result =
-            pgraph_vk_draw_result_from_prepare(begin_pre_draw(pg));
-        if (prepare_result != PGRAPH_VK_DRAW_SUBMITTED) {
+        PGRAPHVkDrawPrepareResult prepare_result = prepare_draw_pipeline(pg);
+        if (prepare_result != PGRAPH_VK_DRAW_PREPARE_READY) {
+            discard_prepared_vertex_data(pg, &vertex_data);
             NV2A_VK_DGROUP_END();
-            return prepare_result;
+            return pgraph_vk_draw_result_from_prepare(prepare_result);
         }
+        reserve_prepared_vertex_data(pg, &vertex_data);
+        ensure_buffer_space(pg, BUFFER_INDEX_STAGING, index_data_size, 1);
+        begin_pre_draw(pg);
         publish_prepared_vertex_data(pg, vertex_data, min_element,
                                      max_element + 1);
         VkDeviceSize buffer_offset = pgraph_vk_update_index_buffer(
@@ -3960,14 +4174,13 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
             attr->inline_buffer_populated = false;
             offset += vertex_data_size;
         }
-        ensure_buffer_space(pg, BUFFER_VERTEX_INLINE_STAGING, offset, 1);
-
-        PGRAPHVkDrawResult prepare_result =
-            pgraph_vk_draw_result_from_prepare(begin_pre_draw(pg));
-        if (prepare_result != PGRAPH_VK_DRAW_SUBMITTED) {
+        PGRAPHVkDrawPrepareResult prepare_result = prepare_draw_pipeline(pg);
+        if (prepare_result != PGRAPH_VK_DRAW_PREPARE_READY) {
             NV2A_VK_DGROUP_END();
-            return prepare_result;
+            return pgraph_vk_draw_result_from_prepare(prepare_result);
         }
+        ensure_buffer_space(pg, BUFFER_VERTEX_INLINE_STAGING, offset, 1);
+        begin_pre_draw(pg);
         VkDeviceSize buffer_offset = pgraph_vk_update_vertex_inline_buffer(
             pg, data, sizes, r->num_active_vertex_attribute_descriptions);
         pgraph_vk_begin_debug_marker(r, r->command_buffer, RGBA_BLUE,
@@ -3984,9 +4197,6 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
         nv2a_profile_inc_counter(NV2A_PROF_INLINE_ARRAYS);
 
         VkDeviceSize inline_array_data_size = pg->inline_array_length * 4;
-        ensure_buffer_space(pg, BUFFER_VERTEX_INLINE_STAGING,
-                            inline_array_data_size, 1);
-
         unsigned int offset = 0;
         for (int i = 0; i < NV2A_VERTEXSHADER_ATTRIBUTES; i++) {
             VertexAttribute *attr = &pg->vertex_attributes[i];
@@ -4013,12 +4223,14 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
             return PGRAPH_VK_DRAW_FAILED;
         }
 
-        PGRAPHVkDrawResult prepare_result =
-            pgraph_vk_draw_result_from_prepare(begin_pre_draw(pg));
-        if (prepare_result != PGRAPH_VK_DRAW_SUBMITTED) {
+        PGRAPHVkDrawPrepareResult prepare_result = prepare_draw_pipeline(pg);
+        if (prepare_result != PGRAPH_VK_DRAW_PREPARE_READY) {
             NV2A_VK_DGROUP_END();
-            return prepare_result;
+            return pgraph_vk_draw_result_from_prepare(prepare_result);
         }
+        ensure_buffer_space(pg, BUFFER_VERTEX_INLINE_STAGING,
+                            inline_array_data_size, 1);
+        begin_pre_draw(pg);
         void *inline_array_data = pg->inline_array;
         VkDeviceSize buffer_offset = pgraph_vk_update_vertex_inline_buffer(
             pg, &inline_array_data, &inline_array_data_size, 1);

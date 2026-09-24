@@ -9,6 +9,19 @@
 #include "draw-lifecycle.h"
 #include "renderer.h"
 
+PGRAPHVkDrawShaderMissAction pgraph_vk_draw_shader_miss_action(
+    bool continue_requested, bool nonblocking_supported,
+    bool omission_supported, bool executable_ready)
+{
+    if (executable_ready) {
+        return PGRAPH_VK_DRAW_MISS_READY;
+    }
+    if (continue_requested && nonblocking_supported && omission_supported) {
+        return PGRAPH_VK_DRAW_MISS_OMIT;
+    }
+    return PGRAPH_VK_DRAW_MISS_WAIT;
+}
+
 void pgraph_vk_complete_draw_lifecycle(
     PGRAPHState *pg, PGRAPHVkState *r, PGRAPHVkDrawResult result,
     bool color_write, bool zeta_write, bool color_dirty, bool zeta_dirty)

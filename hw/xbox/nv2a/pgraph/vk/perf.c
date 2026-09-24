@@ -103,7 +103,8 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     fprintf(r->perf.file,
             "{\"type\":\"schema\",\"schema_version\":9"
             ",\"features\":[\"report_lifecycle\","
-            "\"descriptor_publication\",\"surface_upload\"]"
+            "\"descriptor_publication\",\"surface_upload\","
+            "\"shader_miss_omission\"]"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
             ",\"presentation_counters\":\"cumulative_totals\"",
@@ -377,6 +378,10 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"vertex_version_draws_per_guest_frame\":%" PRIu64
             ",\"vertex_version_bytes_per_guest_frame\":%" PRIu64
             ",\"vertex_version_selected_ranges_per_guest_frame\":%" PRIu64
+            ",\"omitted_shader_miss_draws_per_guest_frame\":%" PRIu64
+            ",\"omitted_shader_miss_query_draws_per_guest_frame\":%" PRIu64
+            ",\"omitted_shader_miss_deferred_per_guest_frame\":%" PRIu64
+            ",\"omitted_shader_miss_failed_per_guest_frame\":%" PRIu64
             ",\"vertex_staging_capacity_bytes\":%zu"
             ",\"vertex_staging_capacity_growths_per_guest_frame\":%" PRIu64
             ",\"vertex_staging_fallback_finishes_per_guest_frame\":%" PRIu64
@@ -425,6 +430,10 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->vertex_direct_bytes, perf->vertex_direct_copy_count,
             perf->vertex_version_draw_count, perf->vertex_version_bytes,
             perf->vertex_version_selected_ranges,
+            perf->omitted_shader_miss_draws,
+            perf->omitted_shader_miss_query_draws,
+            perf->omitted_shader_miss_deferred,
+            perf->omitted_shader_miss_failed,
             r->storage_buffers[BUFFER_VERTEX_RAM_STAGING].buffer_size,
             perf->vertex_staging_capacity_growth_count,
             perf->vertex_staging_fallback_finish_count,
@@ -516,6 +525,10 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->vertex_version_draw_count = 0;
     perf->vertex_version_bytes = 0;
     perf->vertex_version_selected_ranges = 0;
+    perf->omitted_shader_miss_draws = 0;
+    perf->omitted_shader_miss_query_draws = 0;
+    perf->omitted_shader_miss_deferred = 0;
+    perf->omitted_shader_miss_failed = 0;
     perf->vertex_staging_capacity_growth_count = 0;
     perf->vertex_staging_fallback_finish_count = 0;
     perf->native_bc_upload_count = 0;
