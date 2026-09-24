@@ -172,7 +172,7 @@ if vulkan.found()
   tests += {
     'test-xbox-vk-draw-lifecycle': [
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/draw-lifecycle.c',
-      xbox_i386_target_headers, volk, vma, vulkan,
+      xbox_i386_target_headers, volk, libglslang, vma, vulkan, spirv_reflect,
     ],
     'test-xbox-vk-hybrid-prewarm': [
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-prewarm.c',
