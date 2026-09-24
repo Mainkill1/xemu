@@ -18,6 +18,16 @@ static inline int mcpx_apu_resampler_type(CONFIG_AUDIO_VP_RESAMPLER mode)
     }
 }
 
+static inline void mcpx_apu_resampler_destroy(SRC_STATE **resampler,
+                                               int *channels)
+{
+    if (*resampler != NULL) {
+        src_delete(*resampler);
+        *resampler = NULL;
+    }
+    *channels = 0;
+}
+
 static inline void mcpx_apu_pack_mono_samples(const float stereo[][2],
                                                float mono[], int frames)
 {

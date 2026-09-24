@@ -55,11 +55,8 @@ static void set_notify_status(MCPXAPUState *d, uint32_t v, int notifier,
 
 static void voice_destroy_resampler(MCPXAPUVoiceFilter *filter)
 {
-    if (filter->resampler) {
-        src_delete(filter->resampler);
-        filter->resampler = NULL;
-        filter->resampler_channels = 0;
-    }
+    mcpx_apu_resampler_destroy(&filter->resampler,
+                               &filter->resampler_channels);
 }
 
 static void voice_reset_filters(MCPXAPUState *d, uint16_t v)
@@ -1936,6 +1933,7 @@ void mcpx_apu_vp_reset(MCPXAPUState *d)
     memset(d->vp.submix_headroom, 0, sizeof(d->vp.submix_headroom));
     memset(d->vp.voice_locked, 0, sizeof(d->vp.voice_locked));
     for (int v = 0; v < ARRAY_SIZE(d->vp.filters); v++) {
+        voice_destroy_resampler(&d->vp.filters[v]);
         hrtf_filter_init(&d->vp.filters[v].hrtf);
     }
 }
