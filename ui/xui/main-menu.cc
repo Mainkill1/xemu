@@ -213,11 +213,12 @@ static void VulkanShaderMissPolicyCombo()
             &g_config.tweaks.vk_shader_miss_policy,
             "Wait - accurate/default\0"
             "Continue with black frames - experimental\0",
-            "Avoid waiting for missing Vulkan shaders and pipelines. Game "
-            "execution, input and audio continue while the game view may "
-            "turn black. Missing rendering can affect visuals or game "
-            "behavior, and non-shader stalls can remain. Compiled results "
-            "are reused when available.")) {
+            "Avoid waiting only when a missing Vulkan executable belongs "
+            "to a draw without color, depth/stencil, or occlusion-query "
+            "side effects. Resource-producing misses still wait for "
+            "correctness. For eligible omissions, game execution, input "
+            "and audio continue while the game view may turn black. "
+            "Compiled results are reused when available.")) {
         xemu_tweaks_apply(false);
         xemu_settings_save();
     }
