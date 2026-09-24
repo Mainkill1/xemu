@@ -99,6 +99,85 @@ static void test_shader_miss_policy_config()
     assert(xemu_vulkan_shader_miss_policy_epoch() != continue_epoch);
 }
 
+static void test_shader_miss_runtime_lifecycle()
+{
+    g_config.tweaks.vk_shader_miss_policy =
+        CONFIG_TWEAKS_VK_SHADER_MISS_POLICY_CONTINUE_BLACK;
+    xemu_tweaks_apply(false);
+
+    xemu_vulkan_shader_miss_publish_runtime(
+        false, false, false, false, false,
+        XEMU_VK_SHADER_MISS_ACTIVITY_INACTIVE, 0);
+    XemuVulkanShaderMissRuntimeState state =
+        xemu_vulkan_shader_miss_runtime_state();
+    assert(state.requested == XEMU_VK_SHADER_MISS_CONTINUE_BLACK);
+    assert(state.effective == XEMU_VK_SHADER_MISS_WAIT);
+    assert(!state.available);
+    assert(strstr(state.reason, "Vulkan renderer"));
+
+    xemu_vulkan_shader_miss_publish_runtime(
+        true, false, true, true, true,
+        XEMU_VK_SHADER_MISS_ACTIVITY_INACTIVE, 0);
+    state = xemu_vulkan_shader_miss_runtime_state();
+    assert(state.effective == XEMU_VK_SHADER_MISS_WAIT);
+    assert(strstr(state.reason, "Fallback"));
+
+    xemu_vulkan_shader_miss_publish_runtime(
+        true, true, false, true, true,
+        XEMU_VK_SHADER_MISS_ACTIVITY_INACTIVE, 0);
+    state = xemu_vulkan_shader_miss_runtime_state();
+    assert(state.effective == XEMU_VK_SHADER_MISS_WAIT);
+    assert(strstr(state.reason, "compile-free"));
+
+    xemu_vulkan_shader_miss_publish_runtime(
+        true, true, true, false, true,
+        XEMU_VK_SHADER_MISS_ACTIVITY_INACTIVE, 0);
+    state = xemu_vulkan_shader_miss_runtime_state();
+    assert(strstr(state.reason, "shader compiler"));
+
+    xemu_vulkan_shader_miss_publish_runtime(
+        true, true, true, true, false,
+        XEMU_VK_SHADER_MISS_ACTIVITY_INACTIVE, 0);
+    state = xemu_vulkan_shader_miss_runtime_state();
+    assert(strstr(state.reason, "pipeline builder"));
+
+    xemu_vulkan_shader_miss_publish_runtime(
+        true, true, true, true, true,
+        XEMU_VK_SHADER_MISS_ACTIVITY_COMPILING, 2);
+    state = xemu_vulkan_shader_miss_runtime_state();
+    assert(state.available);
+    assert(state.effective == XEMU_VK_SHADER_MISS_CONTINUE_BLACK);
+    assert(state.activity == XEMU_VK_SHADER_MISS_ACTIVITY_COMPILING);
+    assert(state.pending_demands == 2);
+    assert(strstr(state.reason, "background"));
+
+    xemu_vulkan_shader_miss_publish_runtime(
+        true, true, true, true, true,
+        XEMU_VK_SHADER_MISS_ACTIVITY_DEFERRED, 1);
+    state = xemu_vulkan_shader_miss_runtime_state();
+    assert(state.activity == XEMU_VK_SHADER_MISS_ACTIVITY_DEFERRED);
+    assert(strstr(state.reason, "deferred"));
+
+    xemu_vulkan_shader_miss_publish_runtime(
+        true, true, true, true, true,
+        XEMU_VK_SHADER_MISS_ACTIVITY_FAILED, 0);
+    state = xemu_vulkan_shader_miss_runtime_state();
+    assert(state.activity == XEMU_VK_SHADER_MISS_ACTIVITY_FAILED);
+    assert(strstr(state.reason, "failed"));
+
+    g_config.tweaks.vk_shader_miss_policy =
+        CONFIG_TWEAKS_VK_SHADER_MISS_POLICY_WAIT;
+    xemu_tweaks_apply(false);
+    state = xemu_vulkan_shader_miss_runtime_state();
+    assert(state.requested == XEMU_VK_SHADER_MISS_WAIT);
+    assert(state.effective == XEMU_VK_SHADER_MISS_WAIT);
+    assert(state.available);
+
+    xemu_vulkan_shader_miss_publish_runtime(
+        false, false, false, false, false,
+        XEMU_VK_SHADER_MISS_ACTIVITY_INACTIVE, 0);
+}
+
 static void test_ubershader_runtime_lifecycle()
 {
     XemuVulkanUbershaderRuntimeState state;
@@ -247,6 +326,7 @@ int main()
     test_ubershader_migration();
     test_ubershader_runtime_lifecycle();
     test_shader_miss_policy_config();
+    test_shader_miss_runtime_lifecycle();
     const char *default_on_keys[] = {
         "cpu_saving_wait", "pgraph_bulk_packets", "pgraph_fence_fastpath",
         "vk_color_download_folding", "vk_bounded_vertex_uploads",

@@ -368,6 +368,9 @@ static bool attempt_renderer_init(PGRAPHState *pg, bool fallback)
         fallback, fallback ? "requested renderer failed to initialize" : NULL);
     if (pg->renderer->type != CONFIG_DISPLAY_RENDERER_VULKAN) {
         xemu_vulkan_ubershader_publish_runtime(false, false);
+        xemu_vulkan_shader_miss_publish_runtime(
+            false, false, false, false, false,
+            XEMU_VK_SHADER_MISS_ACTIVITY_INACTIVE, 0);
     }
     xemu_tweaks_publish_renderer(
         pg->renderer->type == CONFIG_DISPLAY_RENDERER_VULKAN ?
@@ -421,6 +424,9 @@ void pgraph_destroy(PGRAPHState *pg)
        pg->renderer->ops.finalize(d);
     }
     xemu_vulkan_ubershader_publish_runtime(false, false);
+    xemu_vulkan_shader_miss_publish_runtime(
+        false, false, false, false, false,
+        XEMU_VK_SHADER_MISS_ACTIVITY_INACTIVE, 0);
 
     qemu_event_destroy(&pg->renderer_switch_progress);
     qemu_mutex_destroy(&pg->lock);
@@ -3475,6 +3481,9 @@ static void renderer_switch_finalize_renderer(void *opaque)
         pg->renderer->ops.finalize(d);
     }
     xemu_vulkan_ubershader_publish_runtime(false, false);
+    xemu_vulkan_shader_miss_publish_runtime(
+        false, false, false, false, false,
+        XEMU_VK_SHADER_MISS_ACTIVITY_INACTIVE, 0);
 }
 
 static void renderer_switch_init_renderer(void *opaque)

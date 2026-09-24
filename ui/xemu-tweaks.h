@@ -60,6 +60,22 @@ typedef enum XemuVulkanShaderMissPolicy {
     XEMU_VK_SHADER_MISS_CONTINUE_BLACK,
 } XemuVulkanShaderMissPolicy;
 
+typedef enum XemuVulkanShaderMissActivity {
+    XEMU_VK_SHADER_MISS_ACTIVITY_INACTIVE,
+    XEMU_VK_SHADER_MISS_ACTIVITY_COMPILING,
+    XEMU_VK_SHADER_MISS_ACTIVITY_DEFERRED,
+    XEMU_VK_SHADER_MISS_ACTIVITY_FAILED,
+} XemuVulkanShaderMissActivity;
+
+typedef struct XemuVulkanShaderMissRuntimeState {
+    XemuVulkanShaderMissPolicy requested;
+    XemuVulkanShaderMissPolicy effective;
+    XemuVulkanShaderMissActivity activity;
+    uint32_t pending_demands;
+    bool available;
+    const char *reason;
+} XemuVulkanShaderMissRuntimeState;
+
 typedef struct XemuVulkanUbershaderRuntimeState {
     XemuVulkanUbershaderMode requested;
     XemuVulkanUbershaderMode policy;
@@ -97,6 +113,13 @@ bool xemu_vulkan_ubershader_mode_selectable(
 XemuVulkanUbershaderMode xemu_vulkan_ubershader_policy(void);
 XemuVulkanShaderMissPolicy xemu_vulkan_shader_miss_policy(void);
 uint64_t xemu_vulkan_shader_miss_policy_epoch(void);
+XemuVulkanShaderMissRuntimeState
+xemu_vulkan_shader_miss_runtime_state(void);
+void xemu_vulkan_shader_miss_publish_runtime(
+    bool vulkan_installed, bool hybrid_mode_active,
+    bool cache_control_supported, bool compiler_operational,
+    bool pipeline_builder_operational,
+    XemuVulkanShaderMissActivity activity, uint32_t pending_demands);
 XemuVulkanUbershaderRuntimeState
 xemu_vulkan_ubershader_runtime_state(void);
 /* Renderer lifecycle publication; never called from the draw path. */

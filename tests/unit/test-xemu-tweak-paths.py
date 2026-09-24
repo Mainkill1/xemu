@@ -40,6 +40,11 @@ assert "CalcTextSize(description, nullptr, false, wrap_width)" in widgets
 assert "wrap_width" in widgets[widgets.index("void WidgetTitleDescription("):
                                widgets.index("void WidgetTitleDescriptionItem(")]
 assert 'ChevronCombo("Vulkan ubershader mode"' in main_menu
+assert '"Shader miss handling"' in main_menu
+assert '"Wait - accurate/default\\0"' in main_menu
+assert '"Continue with black frames - experimental\\0"' in main_menu
+assert '"Requested: %s   Effective: %s"' in main_menu
+assert "xemu_vulkan_shader_miss_runtime_state" in main_menu
 assert "ChevronComboItemEnabled" in widgets
 assert "ImGui::BeginDisabled(!enabled)" in widgets
 assert "xemu_vulkan_ubershader_mode_selectable" in main_menu

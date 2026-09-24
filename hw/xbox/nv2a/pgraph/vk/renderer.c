@@ -91,6 +91,29 @@ static void publish_blackout_snapshot(PGRAPHVkState *r)
     qatomic_set(&r->blackout_snapshot.pending_demands,
                 r->blackout.pending_demands);
     qatomic_set(&r->blackout_snapshot.status, r->blackout.status);
+
+    XemuVulkanShaderMissActivity activity;
+    switch (r->blackout.status) {
+    case PGRAPH_VK_BLACKOUT_COMPILING:
+        activity = XEMU_VK_SHADER_MISS_ACTIVITY_COMPILING;
+        break;
+    case PGRAPH_VK_BLACKOUT_DEFERRED:
+        activity = XEMU_VK_SHADER_MISS_ACTIVITY_DEFERRED;
+        break;
+    case PGRAPH_VK_BLACKOUT_FAILED:
+        activity = XEMU_VK_SHADER_MISS_ACTIVITY_FAILED;
+        break;
+    case PGRAPH_VK_BLACKOUT_INACTIVE:
+    default:
+        activity = XEMU_VK_SHADER_MISS_ACTIVITY_INACTIVE;
+        break;
+    }
+    xemu_vulkan_shader_miss_publish_runtime(
+        true, r->ubershader_runtime_enabled,
+        r->pipeline_creation_cache_control_enabled,
+        r->hybrid_compiler_initialized,
+        r->hybrid_pipeline_builder_initialized,
+        activity, r->blackout.pending_demands);
 }
 
 PGRAPHVkBlackoutStatus pgraph_vk_blackout_runtime_status(

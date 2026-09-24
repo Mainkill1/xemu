@@ -183,6 +183,61 @@ static XemuVulkanUbershaderRuntimeState VulkanUbershaderModeCombo()
     return state;
 }
 
+static const char *VulkanShaderMissPolicyName(
+    XemuVulkanShaderMissPolicy policy)
+{
+    return policy == XEMU_VK_SHADER_MISS_CONTINUE_BLACK ?
+               "Continue with black frames" : "Wait";
+}
+
+static const char *VulkanShaderMissActivityName(
+    XemuVulkanShaderMissActivity activity)
+{
+    switch (activity) {
+    case XEMU_VK_SHADER_MISS_ACTIVITY_COMPILING:
+        return "Compiling";
+    case XEMU_VK_SHADER_MISS_ACTIVITY_DEFERRED:
+        return "Deferred";
+    case XEMU_VK_SHADER_MISS_ACTIVITY_FAILED:
+        return "Failed";
+    case XEMU_VK_SHADER_MISS_ACTIVITY_INACTIVE:
+    default:
+        return "Idle";
+    }
+}
+
+static void VulkanShaderMissPolicyCombo()
+{
+    if (ChevronCombo(
+            "Shader miss handling",
+            &g_config.tweaks.vk_shader_miss_policy,
+            "Wait - accurate/default\0"
+            "Continue with black frames - experimental\0",
+            "Avoid waiting for missing Vulkan shaders and pipelines. Game "
+            "execution, input and audio continue while the game view may "
+            "turn black. Missing rendering can affect visuals or game "
+            "behavior, and non-shader stalls can remain. Compiled results "
+            "are reused when available.")) {
+        xemu_tweaks_apply(false);
+        xemu_settings_save();
+    }
+
+    XemuVulkanShaderMissRuntimeState state =
+        xemu_vulkan_shader_miss_runtime_state();
+    ImGui::TextDisabled("Requested: %s   Effective: %s",
+                        VulkanShaderMissPolicyName(state.requested),
+                        VulkanShaderMissPolicyName(state.effective));
+    if (state.effective == XEMU_VK_SHADER_MISS_CONTINUE_BLACK &&
+        state.activity != XEMU_VK_SHADER_MISS_ACTIVITY_INACTIVE) {
+        ImGui::TextDisabled("Status: %s   Pending: %u",
+                            VulkanShaderMissActivityName(state.activity),
+                            state.pending_demands);
+    }
+    ImGui::PushTextWrapPos();
+    ImGui::TextDisabled("%s", state.reason);
+    ImGui::PopTextWrapPos();
+}
+
 void MainMenuAdvanceView::Draw()
 {
     SectionTitle("Accuracy");
@@ -224,6 +279,7 @@ void MainMenuAdvanceView::Draw()
     SectionTitle("Vulkan");
     XemuVulkanUbershaderRuntimeState ubershader_state =
         VulkanUbershaderModeCombo();
+    VulkanShaderMissPolicyCombo();
     ImGui::BeginDisabled(
         ubershader_state.active == XEMU_VK_UBERSHADER_OFF);
     PerformanceToggle("Skip unchanged shader work",

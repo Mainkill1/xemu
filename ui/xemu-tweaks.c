@@ -30,6 +30,21 @@ static int xemu_vulkan_shader_miss_requested_policy =
 static uint64_t xemu_vulkan_shader_miss_requested_policy_epoch
     QEMU_ALIGNED(8) = 1;
 
+typedef enum XemuVulkanShaderMissAvailability {
+    XEMU_VK_SHADER_MISS_NO_VULKAN,
+    XEMU_VK_SHADER_MISS_HYBRID_OFF,
+    XEMU_VK_SHADER_MISS_NO_CACHE_CONTROL,
+    XEMU_VK_SHADER_MISS_NO_COMPILER,
+    XEMU_VK_SHADER_MISS_NO_PIPELINE_BUILDER,
+    XEMU_VK_SHADER_MISS_AVAILABLE,
+} XemuVulkanShaderMissAvailability;
+
+static int xemu_vulkan_shader_miss_availability =
+    XEMU_VK_SHADER_MISS_NO_VULKAN;
+static int xemu_vulkan_shader_miss_activity =
+    XEMU_VK_SHADER_MISS_ACTIVITY_INACTIVE;
+static uint32_t xemu_vulkan_shader_miss_pending_demands;
+
 typedef enum XemuVulkanUbershaderRuntimeStatus {
     XEMU_VK_UBERSHADER_RUNTIME_NO_VULKAN,
     XEMU_VK_UBERSHADER_RUNTIME_ACTIVE,
@@ -195,6 +210,101 @@ uint64_t xemu_vulkan_shader_miss_policy_epoch(void)
 {
     return qatomic_read_u64(
         &xemu_vulkan_shader_miss_requested_policy_epoch);
+}
+
+XemuVulkanShaderMissRuntimeState
+xemu_vulkan_shader_miss_runtime_state(void)
+{
+    XemuVulkanShaderMissPolicy requested =
+        xemu_vulkan_shader_miss_policy();
+    XemuVulkanShaderMissAvailability availability =
+        qatomic_read(&xemu_vulkan_shader_miss_availability);
+    XemuVulkanShaderMissRuntimeState state = {
+        .requested = requested,
+        .effective = requested == XEMU_VK_SHADER_MISS_CONTINUE_BLACK &&
+                         availability == XEMU_VK_SHADER_MISS_AVAILABLE ?
+                     XEMU_VK_SHADER_MISS_CONTINUE_BLACK :
+                     XEMU_VK_SHADER_MISS_WAIT,
+        .activity = (XemuVulkanShaderMissActivity)qatomic_read(
+            &xemu_vulkan_shader_miss_activity),
+        .pending_demands = qatomic_read(
+            &xemu_vulkan_shader_miss_pending_demands),
+        .available = availability == XEMU_VK_SHADER_MISS_AVAILABLE,
+    };
+
+    switch (availability) {
+    case XEMU_VK_SHADER_MISS_NO_VULKAN:
+        state.reason = "Continue requires the Vulkan renderer.";
+        break;
+    case XEMU_VK_SHADER_MISS_HYBRID_OFF:
+        state.reason = "Continue requires Vulkan ubershader mode Fallback, "
+                       "Prewarm, or Always.";
+        break;
+    case XEMU_VK_SHADER_MISS_NO_CACHE_CONTROL:
+        state.reason = "The selected Vulkan device cannot guarantee a "
+                       "compile-free foreground pipeline probe.";
+        break;
+    case XEMU_VK_SHADER_MISS_NO_COMPILER:
+        state.reason = "The background shader compiler is unavailable.";
+        break;
+    case XEMU_VK_SHADER_MISS_NO_PIPELINE_BUILDER:
+        state.reason = "The background pipeline builder is unavailable.";
+        break;
+    case XEMU_VK_SHADER_MISS_AVAILABLE:
+        if (requested == XEMU_VK_SHADER_MISS_WAIT) {
+            state.reason = "Accurate Wait handling is active.";
+        } else if (state.activity == XEMU_VK_SHADER_MISS_ACTIVITY_COMPILING) {
+            state.reason = "Compiling an exact shader executable in the "
+                           "background; game output is black.";
+        } else if (state.activity == XEMU_VK_SHADER_MISS_ACTIVITY_DEFERRED) {
+            state.reason = "Exact shader work is deferred by bounded queue "
+                           "capacity; game output remains black.";
+        } else if (state.activity == XEMU_VK_SHADER_MISS_ACTIVITY_FAILED) {
+            state.reason = "Exact shader work failed; select Wait or reset "
+                           "the renderer to leave blackout.";
+        } else {
+            state.reason = "Experimental Continue handling is active.";
+        }
+        break;
+    default:
+        state.available = false;
+        state.effective = XEMU_VK_SHADER_MISS_WAIT;
+        state.reason = "Shader-miss runtime status is invalid.";
+        break;
+    }
+    return state;
+}
+
+void xemu_vulkan_shader_miss_publish_runtime(
+    bool vulkan_installed, bool hybrid_mode_active,
+    bool cache_control_supported, bool compiler_operational,
+    bool pipeline_builder_operational,
+    XemuVulkanShaderMissActivity activity, uint32_t pending_demands)
+{
+    XemuVulkanShaderMissAvailability availability;
+    if (!vulkan_installed) {
+        availability = XEMU_VK_SHADER_MISS_NO_VULKAN;
+        activity = XEMU_VK_SHADER_MISS_ACTIVITY_INACTIVE;
+        pending_demands = 0;
+    } else if (!hybrid_mode_active) {
+        availability = XEMU_VK_SHADER_MISS_HYBRID_OFF;
+    } else if (!cache_control_supported) {
+        availability = XEMU_VK_SHADER_MISS_NO_CACHE_CONTROL;
+    } else if (!compiler_operational) {
+        availability = XEMU_VK_SHADER_MISS_NO_COMPILER;
+    } else if (!pipeline_builder_operational) {
+        availability = XEMU_VK_SHADER_MISS_NO_PIPELINE_BUILDER;
+    } else {
+        availability = XEMU_VK_SHADER_MISS_AVAILABLE;
+    }
+    if (availability != XEMU_VK_SHADER_MISS_AVAILABLE) {
+        activity = XEMU_VK_SHADER_MISS_ACTIVITY_INACTIVE;
+        pending_demands = 0;
+    }
+    qatomic_set(&xemu_vulkan_shader_miss_pending_demands,
+                pending_demands);
+    qatomic_set(&xemu_vulkan_shader_miss_activity, activity);
+    qatomic_set(&xemu_vulkan_shader_miss_availability, availability);
 }
 
 XemuVulkanUbershaderRuntimeState
