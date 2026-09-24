@@ -1083,6 +1083,8 @@ void pgraph_vk_trim_texture_cache(PGRAPHState *pg);
 void pgraph_vk_init_shaders(PGRAPHState *pg);
 void pgraph_vk_finalize_shaders(PGRAPHState *pg);
 void pgraph_vk_process_hybrid_completions(PGRAPHState *pg);
+/* Renderer-thread request. Workers receive immutable source/config bytes;
+ * Vulkan module creation and cache publication remain renderer-owned. */
 PGRAPHVkAsyncModuleRequestResult pgraph_vk_request_shader_module_async(
     PGRAPHState *pg, const ShaderModuleCacheKey *key);
 void pgraph_vk_stop_hybrid_compiler(PGRAPHState *pg);
