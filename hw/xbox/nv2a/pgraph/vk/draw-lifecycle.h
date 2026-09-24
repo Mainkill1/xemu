@@ -23,6 +23,16 @@ typedef enum PGRAPHVkDrawResult {
     PGRAPH_VK_DRAW_FAILED,
 } PGRAPHVkDrawResult;
 
+typedef enum PGRAPHVkDrawShaderMissAction {
+    PGRAPH_VK_DRAW_MISS_WAIT,
+    PGRAPH_VK_DRAW_MISS_READY,
+    PGRAPH_VK_DRAW_MISS_OMIT,
+} PGRAPHVkDrawShaderMissAction;
+
+PGRAPHVkDrawShaderMissAction pgraph_vk_draw_shader_miss_action(
+    bool continue_requested, bool nonblocking_supported,
+    bool omission_supported, bool executable_ready);
+
 void pgraph_vk_complete_draw_lifecycle(
     PGRAPHState *pg, PGRAPHVkState *r, PGRAPHVkDrawResult result,
     bool color_write, bool zeta_write, bool color_dirty, bool zeta_dirty);

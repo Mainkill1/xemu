@@ -649,6 +649,10 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t vertex_version_draw_count;
     uint64_t vertex_version_bytes;
     uint64_t vertex_version_selected_ranges;
+    uint64_t omitted_shader_miss_draws;
+    uint64_t omitted_shader_miss_query_draws;
+    uint64_t omitted_shader_miss_deferred;
+    uint64_t omitted_shader_miss_failed;
     uint64_t vertex_staging_capacity_growth_count;
     uint64_t vertex_staging_fallback_finish_count;
     uint64_t native_bc_upload_count;
