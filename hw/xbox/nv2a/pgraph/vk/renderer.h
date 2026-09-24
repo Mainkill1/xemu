@@ -144,6 +144,7 @@ typedef struct PipelineBinding {
     VkRenderPass render_pass;
     unsigned int draw_time;
     bool prewarmed;
+    bool readiness_classified;
     bool has_dynamic_line_width;
     uint32_t dynamic_blend_constant_mask;
     PGRAPHVkFamilyLearnState family_learn_state;
@@ -781,6 +782,7 @@ typedef struct PGRAPHVkState {
     PGRAPHVkHybridPipelineWork
         hybrid_pipeline_work[PGRAPH_VK_HYBRID_MAX_PIPELINE_JOBS];
     struct PGRAPHVkDemandExecutableState *demand_executables;
+    struct PGRAPHVkReadinessAttributionState *readiness_attribution;
     PGRAPHVkDemandExecutableAtomicSnapshot demand_executable_snapshot;
     PGRAPHVkBlackoutState blackout;
     PGRAPHVkBlackoutAtomicSnapshot blackout_snapshot;

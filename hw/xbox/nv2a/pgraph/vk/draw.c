@@ -25,6 +25,7 @@
 #include "draw-lifecycle.h"
 #include "hybrid-family-codec.h"
 #include "hybrid-prewarm-runtime.h"
+#include "readiness-attribution.h"
 #include "hybrid-ready.h"
 #include "pipeline-key.h"
 #include "pipeline-cache-lifetime.h"
@@ -142,6 +143,7 @@ static void pipeline_cache_entry_init(Lru *lru, LruNode *node,
     snode->pipeline = VK_NULL_HANDLE;
     snode->draw_time = 0;
     snode->prewarmed = false;
+    snode->readiness_classified = false;
     snode->family_learn_state = PGRAPH_VK_FAMILY_UNCHECKED;
 }
 
@@ -551,6 +553,8 @@ void pgraph_vk_init_pipelines(PGRAPHState *pg)
                 &r->hybrid_pipeline_builder, &config);
     }
     pgraph_vk_init_demand_executables(pg);
+    r->readiness_attribution = g_new0(PGRAPHVkReadinessAttributionState, 1);
+    pgraph_vk_readiness_attribution_init(r->readiness_attribution);
 
     VkSemaphoreCreateInfo semaphore_info = {
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO
@@ -569,6 +573,7 @@ void pgraph_vk_finalize_pipelines(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
+    g_clear_pointer(&r->readiness_attribution, g_free);
     pgraph_vk_finalize_demand_executables(pg);
     finalize_hybrid_pipeline_builder(r);
     finalize_clear_shaders(pg);
@@ -2010,6 +2015,56 @@ static void trace_omitted_shader_miss(
         r->color_binding != NULL, r->zeta_binding != NULL);
 }
 
+static void note_readiness(PGRAPHVkState *r, const PipelineKey *key,
+                           PGRAPHVkReadinessClass classification)
+{
+    if (r->readiness_attribution &&
+        pgraph_vk_readiness_note_first_demand(
+            r->readiness_attribution, key, r->hybrid_generation,
+            g_get_monotonic_time(), classification) && r->hybrid_trace) {
+        pgraph_vk_hybrid_trace_record(
+            r->hybrid_trace, VK_HYBRID_TRACE_READINESS,
+            key->fragment_route,
+            fast_hash((const uint8_t *)key, sizeof(*key)),
+            fast_hash((const uint8_t *)&key->shader_state,
+                      sizeof(key->shader_state)),
+            0, classification, r->hybrid_generation, 0, 0);
+    }
+}
+
+static void note_ready_pipeline(PGRAPHVkState *r, PipelineBinding *binding)
+{
+    if (!binding || binding->readiness_classified) {
+        return;
+    }
+    note_readiness(r, &binding->key, PGRAPH_VK_READINESS_HIT);
+    binding->readiness_classified = true;
+}
+
+static bool exact_prewarm_pipeline_pending(PGRAPHVkState *r,
+                                           const PipelineKey *key)
+{
+    uint64_t hash = fast_hash((const uint8_t *)key, sizeof(*key));
+    for (size_t i = 0; i < ARRAY_SIZE(r->hybrid_pipeline_work); i++) {
+        PGRAPHVkHybridPipelineWork *work = &r->hybrid_pipeline_work[i];
+        if (work->in_use && work->prewarm &&
+            work->generation == r->hybrid_generation &&
+            work->key_hash == hash &&
+            memcmp(&work->key, key, sizeof(*key)) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static PGRAPHVkReadinessClass demand_readiness_class(
+    bool predicted, PGRAPHVkDemandExecutableResult demand)
+{
+    return pgraph_vk_readiness_classify_miss(
+        predicted, demand == PGRAPH_VK_DEMAND_EXECUTABLE_DEFERRED,
+        demand == PGRAPH_VK_DEMAND_EXECUTABLE_FAILED);
+}
+
 static PGRAPHVkDrawPrepareResult prepare_continue_pipeline(
     PGRAPHState *pg, const PipelineKey *key, ShaderBinding *binding,
     PipelineBinding **ready_pipeline)
@@ -2045,6 +2100,7 @@ static PGRAPHVkDrawPrepareResult prepare_continue_pipeline(
             vkDestroyPipeline(r->device, pipeline, NULL);
             vkDestroyPipelineLayout(r->device, recipe.layout, NULL);
             *ready_pipeline = snode;
+            note_ready_pipeline(r, snode);
             return PGRAPH_VK_DRAW_PREPARE_READY;
         }
         memcpy(&snode->key, key, sizeof(*key));
@@ -2056,13 +2112,16 @@ static PGRAPHVkDrawPrepareResult prepare_continue_pipeline(
         snode->dynamic_blend_constant_mask =
             recipe.dynamic_blend_constant_mask;
         *ready_pipeline = snode;
+        note_ready_pipeline(r, snode);
         return PGRAPH_VK_DRAW_PREPARE_READY;
     }
     case PGRAPH_VK_PIPELINE_PROBE_COMPILE_REQUIRED: {
         vkDestroyPipelineLayout(r->device, recipe.layout, NULL);
+        bool predicted = exact_prewarm_pipeline_pending(r, key);
         PGRAPHVkDemandExecutableResult demand =
             pgraph_vk_request_demand_executable(
                 pg, key, g_get_monotonic_time());
+        note_readiness(r, key, demand_readiness_class(predicted, demand));
         if (demand == PGRAPH_VK_DEMAND_EXECUTABLE_READY) {
             *ready_pipeline = pgraph_vk_pipeline_cache_find_ready(
                 &r->pipeline_cache, hash, key);
@@ -2074,6 +2133,7 @@ static PGRAPHVkDrawPrepareResult prepare_continue_pipeline(
         return PGRAPH_VK_DRAW_PREPARE_OMITTED_SHADER_MISS;
     }
     case PGRAPH_VK_PIPELINE_PROBE_ERROR:
+        note_readiness(r, key, PGRAPH_VK_READINESS_UNSUPPORTED);
         if (outcome.vk_result != VK_SUCCESS) {
             VK_CHECK(outcome.vk_result);
         }
@@ -2101,6 +2161,12 @@ static PGRAPHVkDrawPrepareResult create_pipeline(PGRAPHState *pg)
     bool hybrid = r->ubershader_runtime_enabled &&
                   r->hybrid_compiler_initialized;
     bool force_ubershader = r->ubershader_force_interpreter;
+    bool continue_requested =
+        xemu_vulkan_shader_miss_policy() ==
+        XEMU_VK_SHADER_MISS_CONTINUE_BLACK;
+    bool continue_nonblocking_supported =
+        hybrid && r->hybrid_pipeline_builder_initialized &&
+        r->pipeline_creation_cache_control_enabled;
     bool schedule_specialization = false;
     bool track_specialized_family = false;
     bool family_controls_supported = false;
@@ -2156,6 +2222,7 @@ static PGRAPHVkDrawPrepareResult create_pipeline(PGRAPHState *pg)
                 maybe_request_complete_specialization(
                     pg, &unchanged.state);
             }
+            note_ready_pipeline(r, r->pipeline_binding);
             pgraph_clear_dirty_reg_map(pg);
             NV2A_VK_DGROUP_END();
             return PGRAPH_VK_DRAW_PREPARE_READY;
@@ -2180,6 +2247,7 @@ static PGRAPHVkDrawPrepareResult create_pipeline(PGRAPHState *pg)
             pgraph_vk_activate_shaders(pg, &preparation,
                                        PGRAPH_VK_FRAGMENT_SPECIALIZED,
                                        r->shader_binding);
+            note_ready_pipeline(r, r->pipeline_binding);
             pgraph_clear_dirty_reg_map(pg);
             NV2A_VK_DGROUP_END();
             return PGRAPH_VK_DRAW_PREPARE_READY;
@@ -2207,6 +2275,7 @@ static PGRAPHVkDrawPrepareResult create_pipeline(PGRAPHState *pg)
                     PGRAPH_VK_FRAGMENT_UBERSHADER)) {
                 maybe_request_complete_specialization(pg, &requested_state);
             }
+            note_ready_pipeline(r, r->pipeline_binding);
             pgraph_clear_dirty_reg_map(pg);
             NV2A_VK_DGROUP_END();
             return PGRAPH_VK_DRAW_PREPARE_READY;
@@ -2265,12 +2334,6 @@ static PGRAPHVkDrawPrepareResult create_pipeline(PGRAPHState *pg)
         PGRAPHVkFragmentRoute route;
         ShaderBinding *ready_shader;
         PipelineBinding *ready_pipeline;
-        bool continue_requested =
-            xemu_vulkan_shader_miss_policy() ==
-            XEMU_VK_SHADER_MISS_CONTINUE_BLACK;
-        bool continue_nonblocking_supported =
-            r->hybrid_pipeline_builder_initialized &&
-            r->pipeline_creation_cache_control_enabled;
         if (selected == PGRAPH_VK_EXECUTION_SPECIALIZED) {
             route = PGRAPH_VK_FRAGMENT_SPECIALIZED;
             ready_shader = specialized.shader;
@@ -2319,9 +2382,14 @@ static PGRAPHVkDrawPrepareResult create_pipeline(PGRAPHState *pg)
                 PipelineKey missing_key;
                 pgraph_vk_init_pipeline_key_for_state(
                     pg, &requested_state, route, &missing_key);
+                bool predicted =
+                    exact_prewarm_pipeline_pending(r, &missing_key);
                 PGRAPHVkDemandExecutableResult demand =
                     pgraph_vk_request_demand_executable(
                         pg, &missing_key, g_get_monotonic_time());
+                note_readiness(
+                    r, &missing_key,
+                    demand_readiness_class(predicted, demand));
                 if (demand != PGRAPH_VK_DEMAND_EXECUTABLE_READY) {
                     trace_omitted_shader_miss(pg, &missing_key, demand);
                     NV2A_VK_DGROUP_END();
@@ -2373,6 +2441,7 @@ static PGRAPHVkDrawPrepareResult create_pipeline(PGRAPHState *pg)
             r->pipeline_binding_changed =
                 r->pipeline_binding != ready_pipeline;
             r->pipeline_binding = ready_pipeline;
+            note_ready_pipeline(r, ready_pipeline);
             pgraph_vk_hybrid_prewarm_note_demand(
                 &r->hybrid_prewarm, ready_pipeline);
             if (route == PGRAPH_VK_FRAGMENT_SPECIALIZED &&
@@ -2413,6 +2482,7 @@ static PGRAPHVkDrawPrepareResult create_pipeline(PGRAPHState *pg)
                 0, 1, 1, 0, 0);
         }
         NV2A_VK_DPRINTF("Cache hit");
+        note_ready_pipeline(r, r->pipeline_binding);
         if (hybrid && track_specialized_family &&
             r->shader_binding->fragment_route ==
                 PGRAPH_VK_FRAGMENT_SPECIALIZED) {
@@ -2447,6 +2517,7 @@ static PGRAPHVkDrawPrepareResult create_pipeline(PGRAPHState *pg)
         NV2A_VK_DPRINTF("Cache hit");
         r->pipeline_binding_changed = r->pipeline_binding != snode;
         r->pipeline_binding = snode;
+        note_ready_pipeline(r, snode);
         pgraph_vk_hybrid_prewarm_note_demand(&r->hybrid_prewarm, snode);
         if (hybrid && track_specialized_family &&
             r->shader_binding->fragment_route ==
@@ -2464,6 +2535,12 @@ static PGRAPHVkDrawPrepareResult create_pipeline(PGRAPHState *pg)
 
     NV2A_VK_DPRINTF("Cache miss");
     nv2a_profile_inc_counter(NV2A_PROF_PIPELINE_GEN);
+
+    note_readiness(
+        r, &key,
+        continue_requested && !continue_nonblocking_supported ?
+            PGRAPH_VK_READINESS_UNSUPPORTED : PGRAPH_VK_READINESS_MISSED);
+    snode->readiness_classified = true;
 
     memcpy(&snode->key, &key, sizeof(key));
 

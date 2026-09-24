@@ -6,6 +6,7 @@
  */
 
 #include "renderer.h"
+#include "readiness-attribution.h"
 
 /*
  * Morrowind issues about 102 VERTEX_BUFFER_DIRTY submissions per guest frame.
@@ -99,10 +100,11 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":10"
+            "{\"type\":\"schema\",\"schema_version\":11"
             ",\"features\":[\"report_lifecycle\","
             "\"descriptor_publication\",\"surface_upload\","
-            "\"shader_miss_omission\",\"shader_miss_blackout\"]"
+            "\"shader_miss_omission\",\"shader_miss_blackout\","
+            "\"shader_readiness_attribution\"]"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
             ",\"presentation_counters\":\"cumulative_totals\"",
@@ -326,10 +328,13 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
         (double)perf->submit_info_count / submit_count : 0.0;
     double command_buffers_per_submit = submit_count ?
         (double)perf->command_buffer_count / submit_count : 0.0;
+    const PGRAPHVkReadinessTelemetry empty_readiness = { 0 };
+    const PGRAPHVkReadinessTelemetry *readiness = r->readiness_attribution ?
+        &r->readiness_attribution->telemetry : &empty_readiness;
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":10"
+            "{\"type\":\"frame\",\"schema_version\":11"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
@@ -432,7 +437,15 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"host_copy_uploaded_bytes_total\":%" PRIu64
             ",\"blackout_frames_total\":%" PRIu64
             ",\"blackout_sync_requests_avoided_total\":%" PRIu64
-            ",\"blackout_host_copy_uploads_avoided_total\":%" PRIu64,
+            ",\"blackout_host_copy_uploads_avoided_total\":%" PRIu64
+            ",\"readiness_hit_total\":%" PRIu64
+            ",\"readiness_missed_total\":%" PRIu64
+            ",\"readiness_too_late_total\":%" PRIu64
+            ",\"readiness_unsupported_total\":%" PRIu64
+            ",\"readiness_queue_deferred_total\":%" PRIu64
+            ",\"readiness_duplicate_demands_total\":%" PRIu64
+            ",\"readiness_tracker_evictions_total\":%" PRIu64
+            ",\"readiness_generation_reclassifications_total\":%" PRIu64,
             submit_count, perf->submit_info_count, perf->command_buffer_count,
             perf->staged_bytes, perf->vertex_staged_bytes,
             perf->vertex_staging_copy_count,
@@ -473,7 +486,15 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             qatomic_read_u64(&perf->blackout_frames_total),
             qatomic_read_u64(&perf->blackout_sync_requests_avoided_total),
             qatomic_read_u64(
-                &perf->blackout_host_copy_uploads_avoided_total));
+                &perf->blackout_host_copy_uploads_avoided_total),
+            readiness->classified[PGRAPH_VK_READINESS_HIT],
+            readiness->classified[PGRAPH_VK_READINESS_MISSED],
+            readiness->classified[PGRAPH_VK_READINESS_TOO_LATE],
+            readiness->classified[PGRAPH_VK_READINESS_UNSUPPORTED],
+            readiness->classified[PGRAPH_VK_READINESS_QUEUE_DEFERRED],
+            readiness->duplicate_demands,
+            readiness->tracker_evictions,
+            readiness->generation_reclassifications);
 
     fprintf(perf->file,
             ",\"descriptor_update_calls_per_guest_frame\":%" PRIu64
