@@ -1196,8 +1196,12 @@ void pgraph_vk_process_hybrid_completions(PGRAPHState *pg)
             completed_route = work->module_key.fragment_route;
         }
         if (r->hybrid_trace) {
+            PGRAPHVkHybridTraceType job_trace_type =
+                result.kind == PGRAPH_VK_HYBRID_JOB_GENERATE_SOURCE ?
+                    VK_HYBRID_TRACE_SOURCE_GENERATION :
+                    VK_HYBRID_TRACE_SOURCE_COMPILE;
             pgraph_vk_hybrid_trace_record(
-                r->hybrid_trace, VK_HYBRID_TRACE_SPECULATIVE_COMPILE,
+                r->hybrid_trace, job_trace_type,
                 completed_route, result.stage,
                 work && work->glsl ?
                     fast_hash((const uint8_t *)work->glsl,
@@ -1772,6 +1776,8 @@ static PGRAPHVkAsyncModuleRequestResult request_shader_module_async(
     }
 
     PGRAPHVkState *r = pg->vk_renderer_state;
+    bool captured_recipe = false;
+    uint64_t capture_started_us = 0;
     PGRAPHVkGlslCompileConfig config = {
         .api_version = r->vk_api_version,
         .debug_shaders = g_config.display.vulkan.debug_shaders,
@@ -1790,6 +1796,7 @@ static PGRAPHVkAsyncModuleRequestResult request_shader_module_async(
         work->last_epoch = r->hybrid_route_epoch;
         if (work->metadata.status == PGRAPH_VK_HYBRID_WORK_PENDING) {
             if (urgency > work->urgency) {
+                PGRAPHVkCompileUrgency old_urgency = work->urgency;
                 PGRAPHVkHybridCompileRequest promotion =
                     hybrid_work_request(
                         work, work->metadata.generation,
@@ -1804,6 +1811,20 @@ static PGRAPHVkAsyncModuleRequestResult request_shader_module_async(
                     assert(owner.generation == work->metadata.generation);
                     assert(owner.ticket == work->metadata.ticket);
                     work->urgency = urgency;
+                    if (r->hybrid_trace && submit ==
+                            PGRAPH_VK_HYBRID_COMPILER_DUPLICATE_PROMOTED) {
+                        PGRAPHVkFragmentRoute route =
+                            key->kind == VK_SHADER_STAGE_FRAGMENT_BIT ?
+                                key->fragment_route :
+                                PGRAPH_VK_FRAGMENT_SPECIALIZED;
+                        pgraph_vk_hybrid_trace_record(
+                            r->hybrid_trace,
+                            VK_HYBRID_TRACE_JOB_PROMOTION, route,
+                            shader_module_glslang_stage(key->kind),
+                            shader_module_key_hash(key), owner.ticket,
+                            old_urgency, urgency, r->hybrid_route_epoch,
+                            promotion.kind);
+                    }
                 } else if (submit == PGRAPH_VK_HYBRID_COMPILER_STOPPED) {
                     return PGRAPH_VK_ASYNC_MODULE_DEFERRED;
                 } else {
@@ -1838,6 +1859,8 @@ static PGRAPHVkAsyncModuleRequestResult request_shader_module_async(
     }
 
     if (!work) {
+        capture_started_us = r->hybrid_trace ?
+            g_get_monotonic_time() : 0;
         work = hybrid_allocate_work(r);
         if (!work) {
             return PGRAPH_VK_ASYNC_MODULE_DEFERRED;
@@ -1847,11 +1870,23 @@ static PGRAPHVkAsyncModuleRequestResult request_shader_module_async(
         work->phase = PGRAPH_VK_HYBRID_GENERATE_SOURCE;
         work->urgency = urgency;
         pgraph_vk_hybrid_work_init(&work->metadata, max_attempts);
+        captured_recipe = true;
     }
 
     work->compile_config = config;
     work->urgency = urgency;
     PGRAPHVkAsyncModuleRequestResult result = hybrid_submit_work(r, work);
+    if (r->hybrid_trace && captured_recipe) {
+        PGRAPHVkFragmentRoute route =
+            key->kind == VK_SHADER_STAGE_FRAGMENT_BIT ?
+                key->fragment_route : PGRAPH_VK_FRAGMENT_SPECIALIZED;
+        pgraph_vk_hybrid_trace_record(
+            r->hybrid_trace, VK_HYBRID_TRACE_RECIPE_CAPTURE, route,
+            shader_module_glslang_stage(key->kind),
+            shader_module_key_hash(key), work->metadata.ticket,
+            capture_started_us, g_get_monotonic_time(), result,
+            PGRAPH_VK_HYBRID_JOB_GENERATE_SOURCE);
+    }
     if (result == PGRAPH_VK_ASYNC_MODULE_FAILED) {
         hybrid_work_clear(work);
     }

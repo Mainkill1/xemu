@@ -287,6 +287,9 @@ static void test_async_generates_source_from_deep_owned_recipe(void)
                      strlen("generated-recipe-a") + 1);
     g_assert_null(result.spirv);
     g_assert_cmpuint(result.spirv_size, ==, 0);
+    g_assert_cmpuint(result.submitted_us, >, 0);
+    g_assert_cmpuint(result.started_us, >=, result.submitted_us);
+    g_assert_cmpuint(result.finished_us, >=, result.started_us);
     g_assert_cmpuint(test.generate_calls, ==, 1);
     g_assert_cmpuint(test.calls, ==, 0);
     g_assert_cmpstr(test.recipe, ==, "recipe-a");
@@ -421,6 +424,9 @@ static void test_dedup_keeps_different_immutable_configs_distinct(void)
                     ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
     g_assert_true(take_result(&compiler, &result));
     g_assert_cmpuint(result.ticket, ==, 1);
+    g_assert_cmpuint(result.submitted_us, >, 0);
+    g_assert_cmpuint(result.started_us, >=, result.submitted_us);
+    g_assert_cmpuint(result.finished_us, >=, result.started_us);
     pgraph_vk_hybrid_compile_result_destroy(&result);
     g_assert_true(take_result(&compiler, &result));
     g_assert_cmpuint(result.ticket, ==, 2);

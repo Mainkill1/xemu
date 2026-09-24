@@ -34,6 +34,21 @@ static void test_only_slow_frames_are_written(void)
     pgraph_vk_hybrid_trace_close(trace);
     g_assert_true(g_file_get_contents(path, &contents, NULL, NULL));
     g_assert_nonnull(strstr(contents, "hybrid-trace-v1"));
+    g_assert_nonnull(strstr(
+        contents,
+        "event-types: source-generation=20,source-compile=21,"));
+    g_assert_nonnull(strstr(
+        contents,
+        "job timing: a=submitted_us,b=started_us,c=finished_us,d=success"));
+    g_assert_nonnull(strstr(
+        contents,
+        "recipe capture: a=started_us,b=finished_us,c=submit_result"));
+    g_assert_nonnull(strstr(
+        contents,
+        "promotion: a=old_urgency,b=new_urgency,c=epoch,d=job_kind"));
+    g_assert_nonnull(strstr(
+        contents,
+        "completion: a=renderer_started_us,b=renderer_finished_us,"));
     g_assert_null(strstr(contents, "\nframe,"));
     g_unlink(path);
 }
