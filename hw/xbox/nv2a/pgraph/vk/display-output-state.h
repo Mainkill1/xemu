@@ -38,6 +38,14 @@ static inline bool pgraph_vk_blackout_active(
     return blackout->status != PGRAPH_VK_BLACKOUT_INACTIVE;
 }
 
+static inline bool pgraph_vk_blackout_should_bypass_guest_sync(
+    bool continue_requested, PGRAPHVkBlackoutStatus status,
+    bool black_output_ready)
+{
+    return continue_requested &&
+           status != PGRAPH_VK_BLACKOUT_INACTIVE && black_output_ready;
+}
+
 static inline void pgraph_vk_blackout_reset(PGRAPHVkBlackoutState *blackout)
 {
     *blackout = (PGRAPHVkBlackoutState) { 0 };

@@ -96,6 +96,7 @@ bool xemu_vulkan_ubershader_mode_selectable(
     XemuVulkanUbershaderMode mode);
 XemuVulkanUbershaderMode xemu_vulkan_ubershader_policy(void);
 XemuVulkanShaderMissPolicy xemu_vulkan_shader_miss_policy(void);
+uint64_t xemu_vulkan_shader_miss_policy_epoch(void);
 XemuVulkanUbershaderRuntimeState
 xemu_vulkan_ubershader_runtime_state(void);
 /* Renderer lifecycle publication; never called from the draw path. */

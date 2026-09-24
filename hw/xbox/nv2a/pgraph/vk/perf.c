@@ -99,10 +99,10 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":9"
+            "{\"type\":\"schema\",\"schema_version\":10"
             ",\"features\":[\"report_lifecycle\","
             "\"descriptor_publication\",\"surface_upload\","
-            "\"shader_miss_omission\"]"
+            "\"shader_miss_omission\",\"shader_miss_blackout\"]"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
             ",\"presentation_counters\":\"cumulative_totals\"",
@@ -292,6 +292,20 @@ void pgraph_vk_perf_record_host_copy_result(PGRAPHVkState *r, bool skipped,
     }
 }
 
+void pgraph_vk_perf_record_blackout_frame(PGRAPHVkState *r,
+                                          bool host_copy_transport)
+{
+    if (!r->perf.enabled) {
+        return;
+    }
+    qatomic_fetch_add(&r->perf.blackout_frames_total, 1);
+    qatomic_fetch_add(&r->perf.blackout_sync_requests_avoided_total, 1);
+    if (host_copy_transport) {
+        qatomic_fetch_add(
+            &r->perf.blackout_host_copy_uploads_avoided_total, 1);
+    }
+}
+
 void pgraph_vk_perf_frame(PGRAPHVkState *r)
 {
     PGRAPHVkPerfTelemetry *perf = &r->perf;
@@ -315,7 +329,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":9"
+            "{\"type\":\"frame\",\"schema_version\":10"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
@@ -415,7 +429,10 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"valid_sync_requests_total\":%" PRIu64
             ",\"host_copy_uploads_total\":%" PRIu64
             ",\"host_copy_upload_skips_total\":%" PRIu64
-            ",\"host_copy_uploaded_bytes_total\":%" PRIu64,
+            ",\"host_copy_uploaded_bytes_total\":%" PRIu64
+            ",\"blackout_frames_total\":%" PRIu64
+            ",\"blackout_sync_requests_avoided_total\":%" PRIu64
+            ",\"blackout_host_copy_uploads_avoided_total\":%" PRIu64,
             submit_count, perf->submit_info_count, perf->command_buffer_count,
             perf->staged_bytes, perf->vertex_staged_bytes,
             perf->vertex_staging_copy_count,
@@ -452,7 +469,11 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             qatomic_read_u64(&perf->valid_sync_requests_total),
             qatomic_read_u64(&perf->host_copy_uploads_total),
             qatomic_read_u64(&perf->host_copy_upload_skips_total),
-            qatomic_read_u64(&perf->host_copy_uploaded_bytes_total));
+            qatomic_read_u64(&perf->host_copy_uploaded_bytes_total),
+            qatomic_read_u64(&perf->blackout_frames_total),
+            qatomic_read_u64(&perf->blackout_sync_requests_avoided_total),
+            qatomic_read_u64(
+                &perf->blackout_host_copy_uploads_avoided_total));
 
     fprintf(perf->file,
             ",\"descriptor_update_calls_per_guest_frame\":%" PRIu64

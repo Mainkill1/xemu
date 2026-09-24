@@ -163,6 +163,7 @@ pgraph_vk_request_demand_executable(PGRAPHState *pg, const PipelineKey *key,
         }
     }
     sync_atomic_snapshot(r);
+    pgraph_vk_blackout_runtime_sync_demand(pg);
     return result;
 }
 
@@ -180,6 +181,7 @@ void pgraph_vk_service_demand_executables(PGRAPHState *pg)
         r->demand_executables, r->hybrid_generation, g_get_monotonic_time(),
         &renderer_demand_ops, pg);
     sync_atomic_snapshot(r);
+    pgraph_vk_blackout_runtime_sync_demand(pg);
 }
 
 void pgraph_vk_note_demand_pipeline_failure(PGRAPHState *pg,
@@ -197,6 +199,7 @@ void pgraph_vk_note_demand_pipeline_failure(PGRAPHState *pg,
     pgraph_vk_demand_executable_note_pipeline_failure(r->demand_executables,
                                                       key, generation, now_us);
     sync_atomic_snapshot(r);
+    pgraph_vk_blackout_runtime_sync_demand(pg);
 }
 
 bool pgraph_vk_demand_work_pending(PGRAPHState *pg)

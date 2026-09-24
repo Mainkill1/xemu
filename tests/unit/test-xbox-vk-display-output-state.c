@@ -144,6 +144,22 @@ static bool deferred_can_recover_but_failure_is_sticky(void)
            blackout.status == PGRAPH_VK_BLACKOUT_INACTIVE;
 }
 
+static bool blackout_bypasses_guest_sync_only_when_ready(void)
+{
+    return pgraph_vk_blackout_should_bypass_guest_sync(
+               true, PGRAPH_VK_BLACKOUT_COMPILING, true) &&
+           pgraph_vk_blackout_should_bypass_guest_sync(
+               true, PGRAPH_VK_BLACKOUT_DEFERRED, true) &&
+           pgraph_vk_blackout_should_bypass_guest_sync(
+               true, PGRAPH_VK_BLACKOUT_FAILED, true) &&
+           !pgraph_vk_blackout_should_bypass_guest_sync(
+               true, PGRAPH_VK_BLACKOUT_INACTIVE, true) &&
+           !pgraph_vk_blackout_should_bypass_guest_sync(
+               false, PGRAPH_VK_BLACKOUT_COMPILING, true) &&
+           !pgraph_vk_blackout_should_bypass_guest_sync(
+               true, PGRAPH_VK_BLACKOUT_COMPILING, false);
+}
+
 int main(void)
 {
     static const struct {
@@ -169,6 +185,8 @@ int main(void)
           blackout_requires_resolution_draw_and_flip },
         { "deferred recovers and failure is sticky",
           deferred_can_recover_but_failure_is_sticky },
+        { "blackout bypasses guest sync only when ready",
+          blackout_bypasses_guest_sync_only_when_ready },
     };
     const size_t count = sizeof(tests) / sizeof(tests[0]);
     bool passed = true;

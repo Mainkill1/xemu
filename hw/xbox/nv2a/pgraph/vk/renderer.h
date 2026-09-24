@@ -517,6 +517,7 @@ typedef struct PGRAPHVkDisplayState {
     bool shared_presentation;
     bool presentation_reported;
     uint64_t completed_output_generation;
+    GLuint blackout_gl_texture_id;
 
     struct {
         VkBuffer buffer;
@@ -631,6 +632,13 @@ typedef struct PGRAPHVkDemandExecutableAtomicSnapshot {
     uint32_t pending_demand_executables QEMU_ALIGNED(4);
 } PGRAPHVkDemandExecutableAtomicSnapshot;
 
+typedef struct PGRAPHVkBlackoutAtomicSnapshot {
+    uint64_t policy_epoch QEMU_ALIGNED(8);
+    uint64_t miss_epoch QEMU_ALIGNED(8);
+    uint32_t pending_demands QEMU_ALIGNED(4);
+    uint32_t status QEMU_ALIGNED(4);
+} PGRAPHVkBlackoutAtomicSnapshot;
+
 typedef struct PGRAPHVkPerfTelemetry {
     FILE *file;
     bool enabled;
@@ -707,6 +715,9 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t host_copy_uploads_total QEMU_ALIGNED(8);
     uint64_t host_copy_upload_skips_total QEMU_ALIGNED(8);
     uint64_t host_copy_uploaded_bytes_total QEMU_ALIGNED(8);
+    uint64_t blackout_frames_total QEMU_ALIGNED(8);
+    uint64_t blackout_sync_requests_avoided_total QEMU_ALIGNED(8);
+    uint64_t blackout_host_copy_uploads_avoided_total QEMU_ALIGNED(8);
 } PGRAPHVkPerfTelemetry;
 
 typedef struct PGRAPHVkState {
@@ -771,6 +782,10 @@ typedef struct PGRAPHVkState {
         hybrid_pipeline_work[PGRAPH_VK_HYBRID_MAX_PIPELINE_JOBS];
     struct PGRAPHVkDemandExecutableState *demand_executables;
     PGRAPHVkDemandExecutableAtomicSnapshot demand_executable_snapshot;
+    PGRAPHVkBlackoutState blackout;
+    PGRAPHVkBlackoutAtomicSnapshot blackout_snapshot;
+    uint64_t blackout_policy_epoch;
+    uint64_t blackout_permanent_failures_seen;
 
     VkDescriptorPool descriptor_pool;
     VkDescriptorSetLayout descriptor_set_layout;
@@ -1018,6 +1033,8 @@ void pgraph_vk_perf_record_framebuffer_acquire(PGRAPHVkState *r);
 void pgraph_vk_perf_record_valid_sync_request(PGRAPHVkState *r);
 void pgraph_vk_perf_record_host_copy_result(PGRAPHVkState *r, bool skipped,
                                             uint64_t uploaded_bytes);
+void pgraph_vk_perf_record_blackout_frame(PGRAPHVkState *r,
+                                          bool host_copy_transport);
 void pgraph_vk_perf_frame(PGRAPHVkState *r);
 
 // image.c
@@ -1088,6 +1105,7 @@ void pgraph_vk_unpack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
 void pgraph_vk_init_display(PGRAPHState *pg);
 void pgraph_vk_finalize_display(PGRAPHState *pg);
 void pgraph_vk_render_display(PGRAPHState *pg);
+GLuint pgraph_vk_ensure_blackout_output(PGRAPHState *pg);
 
 // texture.c
 void pgraph_vk_init_textures(PGRAPHState *pg);
@@ -1210,6 +1228,14 @@ void pgraph_vk_draw_begin(NV2AState *d);
 void pgraph_vk_draw_end(NV2AState *d);
 void pgraph_vk_finish(PGRAPHState *pg, FinishReason why);
 void pgraph_vk_flush_draw(NV2AState *d);
+void pgraph_vk_blackout_runtime_note_omission(
+    PGRAPHState *pg, PGRAPHVkBlackoutStatus status);
+void pgraph_vk_blackout_runtime_sync_demand(PGRAPHState *pg);
+void pgraph_vk_blackout_runtime_note_submitted_draw(PGRAPHState *pg);
+void pgraph_vk_blackout_runtime_note_flip(PGRAPHState *pg);
+void pgraph_vk_blackout_runtime_reset(PGRAPHState *pg);
+PGRAPHVkBlackoutStatus pgraph_vk_blackout_runtime_status(
+    const PGRAPHVkState *r);
 void pgraph_vk_invalidate_blend_constants(PGRAPHState *pg);
 void pgraph_vk_begin_command_buffer(PGRAPHState *pg);
 void pgraph_vk_ensure_command_buffer(PGRAPHState *pg);

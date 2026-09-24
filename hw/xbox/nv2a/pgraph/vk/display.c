@@ -1204,6 +1204,39 @@ static void destroy_surface_sampler(PGRAPHState *pg)
     r->display.sampler = VK_NULL_HANDLE;
 }
 
+GLuint pgraph_vk_ensure_blackout_output(PGRAPHState *pg)
+{
+    PGRAPHVkDisplayState *display = &pg->vk_renderer_state->display;
+    if (display->blackout_gl_texture_id) {
+        return display->blackout_gl_texture_id;
+    }
+    const GLubyte black[] = { 0, 0, 0, 255 };
+    GLint previous_texture = 0;
+
+    glGetIntegerv(GL_TEXTURE_BINDING_2D, &previous_texture);
+    glGenTextures(1, &display->blackout_gl_texture_id);
+    glBindTexture(GL_TEXTURE_2D, display->blackout_gl_texture_id);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA,
+                 GL_UNSIGNED_BYTE, black);
+    glBindTexture(GL_TEXTURE_2D, previous_texture);
+    assert(display->blackout_gl_texture_id != 0);
+    assert(glGetError() == GL_NO_ERROR);
+    return display->blackout_gl_texture_id;
+}
+
+static void destroy_blackout_output(PGRAPHState *pg)
+{
+    PGRAPHVkDisplayState *display = &pg->vk_renderer_state->display;
+    if (display->blackout_gl_texture_id) {
+        glDeleteTextures(1, &display->blackout_gl_texture_id);
+        display->blackout_gl_texture_id = 0;
+    }
+}
+
 void pgraph_vk_init_display(PGRAPHState *pg)
 {
     create_descriptor_pool(pg);
@@ -1218,6 +1251,7 @@ void pgraph_vk_finalize_display(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
+    destroy_blackout_output(pg);
     destroy_pvideo_image(pg);
 
     if (r->display.image != VK_NULL_HANDLE) {

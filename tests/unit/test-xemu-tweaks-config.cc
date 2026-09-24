@@ -66,6 +66,7 @@ static void test_shader_miss_policy_config()
     assert(g_config.tweaks.vk_shader_miss_policy ==
            CONFIG_TWEAKS_VK_SHADER_MISS_POLICY_WAIT);
     assert(xemu_vulkan_shader_miss_policy() == XEMU_VK_SHADER_MISS_WAIT);
+    uint64_t wait_epoch = xemu_vulkan_shader_miss_policy_epoch();
 
     load_tweaks_table(
         "[tweaks]\n"
@@ -74,6 +75,8 @@ static void test_shader_miss_policy_config()
     xemu_tweaks_apply(false);
     assert(xemu_vulkan_shader_miss_policy() ==
            XEMU_VK_SHADER_MISS_CONTINUE_BLACK);
+    uint64_t continue_epoch = xemu_vulkan_shader_miss_policy_epoch();
+    assert(continue_epoch != wait_epoch);
 
     g_config.tweaks.vk_ubershader_mode =
         CONFIG_TWEAKS_VK_UBERSHADER_MODE_ALWAYS;
@@ -88,10 +91,12 @@ static void test_shader_miss_policy_config()
     xemu_tweaks_apply(false);
     assert(xemu_vulkan_shader_miss_policy() ==
            XEMU_VK_SHADER_MISS_CONTINUE_BLACK);
+    assert(xemu_vulkan_shader_miss_policy_epoch() == continue_epoch);
 
     g_config.tweaks.vk_shader_miss_policy = 99;
     xemu_tweaks_apply(false);
     assert(xemu_vulkan_shader_miss_policy() == XEMU_VK_SHADER_MISS_WAIT);
+    assert(xemu_vulkan_shader_miss_policy_epoch() != continue_epoch);
 }
 
 static void test_ubershader_runtime_lifecycle()

@@ -27,6 +27,8 @@ static int xemu_vulkan_ubershader_latched_policy =
     XEMU_VK_UBERSHADER_OFF;
 static int xemu_vulkan_shader_miss_requested_policy =
     XEMU_VK_SHADER_MISS_WAIT;
+static uint64_t xemu_vulkan_shader_miss_requested_policy_epoch
+    QEMU_ALIGNED(8) = 1;
 
 typedef enum XemuVulkanUbershaderRuntimeStatus {
     XEMU_VK_UBERSHADER_RUNTIME_NO_VULKAN,
@@ -189,6 +191,12 @@ XemuVulkanShaderMissPolicy xemu_vulkan_shader_miss_policy(void)
                policy : XEMU_VK_SHADER_MISS_WAIT;
 }
 
+uint64_t xemu_vulkan_shader_miss_policy_epoch(void)
+{
+    return qatomic_read_u64(
+        &xemu_vulkan_shader_miss_requested_policy_epoch);
+}
+
 XemuVulkanUbershaderRuntimeState
 xemu_vulkan_ubershader_runtime_state(void)
 {
@@ -260,6 +268,12 @@ void xemu_tweaks_apply(bool startup)
         (XemuVulkanShaderMissPolicy)g_config.tweaks.vk_shader_miss_policy;
     if (shader_miss_policy != XEMU_VK_SHADER_MISS_CONTINUE_BLACK) {
         shader_miss_policy = XEMU_VK_SHADER_MISS_WAIT;
+    }
+    if (shader_miss_policy !=
+        qatomic_read(&xemu_vulkan_shader_miss_requested_policy)) {
+        uint64_t epoch = xemu_vulkan_shader_miss_policy_epoch() + 1;
+        qatomic_set_u64(&xemu_vulkan_shader_miss_requested_policy_epoch,
+                        epoch ? epoch : 1);
     }
     qatomic_set(&xemu_vulkan_shader_miss_requested_policy,
                 shader_miss_policy);

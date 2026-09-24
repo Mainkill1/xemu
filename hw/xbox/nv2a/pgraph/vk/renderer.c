@@ -82,6 +82,136 @@ static void early_context_init(void)
 #endif
 }
 
+static void publish_blackout_snapshot(PGRAPHVkState *r)
+{
+    qatomic_set_u64(&r->blackout_snapshot.policy_epoch,
+                    r->blackout_policy_epoch);
+    qatomic_set_u64(&r->blackout_snapshot.miss_epoch,
+                    r->blackout.miss_epoch);
+    qatomic_set(&r->blackout_snapshot.pending_demands,
+                r->blackout.pending_demands);
+    qatomic_set(&r->blackout_snapshot.status, r->blackout.status);
+}
+
+PGRAPHVkBlackoutStatus pgraph_vk_blackout_runtime_status(
+    const PGRAPHVkState *r)
+{
+    uint32_t status = qatomic_read(&r->blackout_snapshot.status);
+    return status <= PGRAPH_VK_BLACKOUT_FAILED ?
+               (PGRAPHVkBlackoutStatus)status :
+               PGRAPH_VK_BLACKOUT_INACTIVE;
+}
+
+void pgraph_vk_blackout_runtime_reset(PGRAPHState *pg)
+{
+    if (!pg || !pg->vk_renderer_state) {
+        return;
+    }
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    pgraph_vk_blackout_reset(&r->blackout);
+    r->blackout_policy_epoch =
+        xemu_vulkan_shader_miss_policy_epoch();
+    r->blackout_permanent_failures_seen = r->demand_executables ?
+        r->demand_executables->telemetry.permanent_failures : 0;
+    publish_blackout_snapshot(r);
+}
+
+void pgraph_vk_blackout_runtime_note_omission(
+    PGRAPHState *pg, PGRAPHVkBlackoutStatus status)
+{
+    if (!pg || !pg->vk_renderer_state ||
+        xemu_vulkan_shader_miss_policy() !=
+            XEMU_VK_SHADER_MISS_CONTINUE_BLACK) {
+        return;
+    }
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    r->blackout_policy_epoch =
+        xemu_vulkan_shader_miss_policy_epoch();
+    uint32_t pending = r->demand_executables ?
+        r->demand_executables->telemetry.pending_demand_executables : 0;
+    pgraph_vk_blackout_note_omission(
+        &r->blackout, pg->frame_time, pending, status);
+    if (r->demand_executables) {
+        r->blackout_permanent_failures_seen =
+            r->demand_executables->telemetry.permanent_failures;
+    }
+    publish_blackout_snapshot(r);
+}
+
+void pgraph_vk_blackout_runtime_sync_demand(PGRAPHState *pg)
+{
+    if (!pg || !pg->vk_renderer_state) {
+        return;
+    }
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    if (!r->demand_executables) {
+        return;
+    }
+    const PGRAPHVkDemandExecutableState *demand = r->demand_executables;
+    bool failed = demand->telemetry.permanent_failures >
+                  r->blackout_permanent_failures_seen;
+    bool deferred = false;
+    for (size_t i = 0; i < G_N_ELEMENTS(demand->records); i++) {
+        const PGRAPHVkDemandExecutableRecord *record = &demand->records[i];
+        if (record->in_use && record->generation == r->hybrid_generation &&
+            record->status == PGRAPH_VK_DEMAND_DEFERRED) {
+            deferred = true;
+            break;
+        }
+    }
+    r->blackout_permanent_failures_seen =
+        demand->telemetry.permanent_failures;
+    uint64_t policy_epoch = xemu_vulkan_shader_miss_policy_epoch();
+    if (xemu_vulkan_shader_miss_policy() !=
+            XEMU_VK_SHADER_MISS_CONTINUE_BLACK ||
+        r->blackout_policy_epoch != policy_epoch) {
+        pgraph_vk_blackout_reset(&r->blackout);
+        r->blackout_policy_epoch = policy_epoch;
+    } else {
+        pgraph_vk_blackout_note_demand_snapshot(
+            &r->blackout,
+            demand->telemetry.pending_demand_executables,
+            deferred, failed);
+    }
+    publish_blackout_snapshot(r);
+}
+
+void pgraph_vk_blackout_runtime_note_submitted_draw(PGRAPHState *pg)
+{
+    if (!pg || !pg->vk_renderer_state) {
+        return;
+    }
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    uint64_t policy_epoch = xemu_vulkan_shader_miss_policy_epoch();
+    if (xemu_vulkan_shader_miss_policy() !=
+            XEMU_VK_SHADER_MISS_CONTINUE_BLACK ||
+        r->blackout_policy_epoch != policy_epoch) {
+        pgraph_vk_blackout_reset(&r->blackout);
+        r->blackout_policy_epoch = policy_epoch;
+    } else {
+        pgraph_vk_blackout_note_submitted_draw(&r->blackout);
+    }
+    publish_blackout_snapshot(r);
+}
+
+void pgraph_vk_blackout_runtime_note_flip(PGRAPHState *pg)
+{
+    if (!pg || !pg->vk_renderer_state) {
+        return;
+    }
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    uint64_t policy_epoch = xemu_vulkan_shader_miss_policy_epoch();
+    if (xemu_vulkan_shader_miss_policy() !=
+            XEMU_VK_SHADER_MISS_CONTINUE_BLACK ||
+        r->blackout_policy_epoch != policy_epoch) {
+        pgraph_vk_blackout_reset(&r->blackout);
+        r->blackout_policy_epoch = policy_epoch;
+    } else {
+        pgraph_vk_blackout_note_flip(&r->blackout);
+    }
+    publish_blackout_snapshot(r);
+}
+
 static void pgraph_vk_init(NV2AState *d, Error **errp)
 {
     PGRAPHState *pg = &d->pgraph;
@@ -123,6 +253,7 @@ static void pgraph_vk_init(NV2AState *d, Error **errp)
     pgraph_vk_init_surfaces(pg);
     pgraph_vk_init_shaders(pg);
     pgraph_vk_init_pipelines(pg);
+    pgraph_vk_blackout_runtime_reset(pg);
     pgraph_vk_init_textures(pg);
     pgraph_vk_init_reports(pg);
     pgraph_vk_init_compute(pg);
@@ -252,6 +383,7 @@ static void pgraph_vk_flip_stall(NV2AState *d)
     pgraph_vk_process_fallback_families(&d->pgraph);
     pgraph_vk_service_demand_executables(&d->pgraph);
     pgraph_vk_process_hybrid_prewarm(&d->pgraph);
+    pgraph_vk_blackout_runtime_note_flip(&d->pgraph);
     pgraph_vk_perf_frame(d->pgraph.vk_renderer_state);
     pgraph_vk_hybrid_trace_frame(
         d->pgraph.vk_renderer_state->hybrid_trace);
@@ -307,6 +439,23 @@ static int pgraph_vk_get_framebuffer_surface(NV2AState *d)
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     pgraph_vk_perf_record_framebuffer_acquire(r);
+    PGRAPHVkBlackoutStatus blackout_status =
+        pgraph_vk_blackout_runtime_status(r);
+    uint64_t blackout_policy_epoch =
+        qatomic_read_u64(&r->blackout_snapshot.policy_epoch);
+    bool blackout_current =
+        xemu_vulkan_shader_miss_policy() ==
+                XEMU_VK_SHADER_MISS_CONTINUE_BLACK &&
+        blackout_policy_epoch == xemu_vulkan_shader_miss_policy_epoch() &&
+        blackout_status != PGRAPH_VK_BLACKOUT_INACTIVE;
+    GLuint blackout_output = blackout_current ?
+        pgraph_vk_ensure_blackout_output(pg) : 0;
+    if (pgraph_vk_blackout_should_bypass_guest_sync(
+            blackout_current, blackout_status, blackout_output != 0)) {
+        pgraph_vk_perf_record_blackout_frame(
+            r, !r->display.shared_presentation);
+        return blackout_output;
+    }
     qemu_mutex_lock(&d->pfifo.lock);
 
     VGADisplayParams vga_display_params;

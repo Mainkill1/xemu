@@ -1981,6 +1981,13 @@ static void trace_omitted_shader_miss(
     PGRAPHVkDemandExecutableResult demand)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
+    PGRAPHVkBlackoutStatus blackout_status =
+        demand == PGRAPH_VK_DEMAND_EXECUTABLE_DEFERRED ?
+            PGRAPH_VK_BLACKOUT_DEFERRED :
+        demand == PGRAPH_VK_DEMAND_EXECUTABLE_FAILED ?
+            PGRAPH_VK_BLACKOUT_FAILED :
+            PGRAPH_VK_BLACKOUT_COMPILING;
+    pgraph_vk_blackout_runtime_note_omission(pg, blackout_status);
     if (r->perf.enabled) {
         r->perf.omitted_shader_miss_draws++;
         r->perf.omitted_shader_miss_query_draws +=
@@ -4092,6 +4099,7 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
             NV2A_VK_DPRINTF("- [%d] Start:%d Count:%d", i, start, count);
             vkCmdDraw(r->command_buffer, count, 1, start, 0);
         }
+        pgraph_vk_blackout_runtime_note_submitted_draw(pg);
         end_draw(pg);
         pgraph_vk_end_debug_marker(r, r->command_buffer);
 
@@ -4157,6 +4165,7 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
                                             min_element, max_element)) {
             vkCmdDrawIndexed(r->command_buffer, pg->inline_elements_length, 1,
                              0, 0, 0);
+            pgraph_vk_blackout_runtime_note_submitted_draw(pg);
         }
         end_draw(pg);
         pgraph_vk_end_debug_marker(r, r->command_buffer);
@@ -4208,6 +4217,7 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
         begin_draw(pg);
         bind_inline_vertex_buffer(pg, buffer_offset);
         vkCmdDraw(r->command_buffer, pg->inline_buffer_length, 1, 0, 0);
+        pgraph_vk_blackout_runtime_note_submitted_draw(pg);
         end_draw(pg);
         pgraph_vk_end_debug_marker(r, r->command_buffer);
 
@@ -4268,6 +4278,7 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
         begin_draw(pg);
         bind_inline_vertex_buffer(pg, buffer_offset);
         vkCmdDraw(r->command_buffer, index_count, 1, 0, 0);
+        pgraph_vk_blackout_runtime_note_submitted_draw(pg);
         end_draw(pg);
         pgraph_vk_end_debug_marker(r, r->command_buffer);
         NV2A_VK_DGROUP_END();
