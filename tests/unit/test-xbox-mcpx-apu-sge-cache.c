@@ -63,6 +63,21 @@ static void test_reloads_after_non_adjacent_page(void)
     g_assert_cmpuint(reader.reads, ==, 3);
 }
 
+static void test_reloads_after_sge_base_change(void)
+{
+    MCPXAPUSGETranslationCache cache = { 0 };
+    hwaddr physical;
+
+    g_assert_cmphex(mcpx_apu_sge_cache_fill(&cache, 0x1000, 0x120,
+                                            TEST_PAGE_SIZE, 0x8000),
+                    ==, 0x8120);
+    g_assert_true(mcpx_apu_sge_cache_translate(
+        &cache, 0x1000, 0x124, TEST_PAGE_SIZE, &physical));
+    g_assert_cmphex(physical, ==, 0x8124);
+    g_assert_false(mcpx_apu_sge_cache_translate(
+        &cache, 0x2000, 0x124, TEST_PAGE_SIZE, &physical));
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -73,6 +88,8 @@ int main(int argc, char **argv)
                     test_reloads_at_page_boundary);
     g_test_add_func("/mcpx-apu/sge-cache/reloads-non-adjacent-page",
                     test_reloads_after_non_adjacent_page);
+    g_test_add_func("/mcpx-apu/sge-cache/reloads-sge-base-change",
+                    test_reloads_after_sge_base_change);
 
     return g_test_run();
 }
