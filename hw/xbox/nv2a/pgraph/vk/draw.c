@@ -2039,7 +2039,12 @@ static PGRAPHVkDrawPrepareResult prepare_continue_pipeline(
     case PGRAPH_VK_PIPELINE_PROBE_READY: {
         PipelineBinding *snode = pipeline_cache_get_or_create(
             pg, hash, key);
-        assert(snode->pipeline == VK_NULL_HANDLE);
+        if (snode->pipeline != VK_NULL_HANDLE) {
+            vkDestroyPipeline(r->device, pipeline, NULL);
+            vkDestroyPipelineLayout(r->device, recipe.layout, NULL);
+            *ready_pipeline = snode;
+            return PGRAPH_VK_DRAW_PREPARE_READY;
+        }
         memcpy(&snode->key, key, sizeof(*key));
         snode->pipeline = pipeline;
         snode->has_dynamic_line_width = recipe.has_dynamic_line_width;
