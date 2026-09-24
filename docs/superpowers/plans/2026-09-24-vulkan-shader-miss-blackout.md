@@ -10,10 +10,15 @@
 
 **Spec:** `docs/performance/issue-198-ubershader-loading.md`
 
+**Required prior art:** `docs/performance/issue-198-prior-art-implementation-playbook.md`. Read it before Task 2 or later. This plan adapts Cemu/Dolphin/RPCS3/Unreal/DXVK/Vulkan techniques; it is not permission to independently rebuild equivalent mechanisms.
+
 ## Global Constraints
 
 - Audit/implementation base is `134de6616e1d8f5bfe9d919a4e98e0ff7da3c928`; rebase each child PR onto the then-current `main` and record the new base explicitly.
 - Keep `Shader miss handling = Wait` as the default; existing saved ubershader choices remain intact.
+- Treat Continue as an adaptation of Cemu's async skip-render pattern: first use a compile-forbidden exact-pipeline probe when supported (#204), retain/queue the exact build, and omit only when policy and omission-safety classification allow it.
+- Keep fallback policy and miss policy orthogonal: Off/Fallback/Prewarm/Always decides which executable may be selected; Wait/Continue decides what happens when no permitted executable is ready.
+- Record `MISSED` separately from `TOO_LATE`; a predicted/queued pipeline that misses its first-demand deadline is a scheduling problem, not a discovery miss.
 - Do not implement a replacement black fragment shader. An omitted draw plus an already-ready host black presentation path is the intended escape.
 - `Continue with black frames` must never silently fall back to synchronous shader or pipeline compilation when its queue is full or a worker is unavailable.
 - Never replay a skipped draw after guest execution advances. Later matching draws may use the completed executable; one-shot lost rendering remains an explicitly accepted limitation.
@@ -38,15 +43,22 @@
 
 Do not turn this plan into one large product PR.
 
-| Child PR | Tasks | Mergeable result |
+| Child PR | Tasks / issue | Mergeable result |
 | --- | --- | --- |
 | A — draw result contract | Task 1 | Vulkan distinguishes submitted, intentionally omitted and failed draws without changing current runtime behavior. |
-| B — generic asynchronous modules | Task 2 | Existing hybrid compiler safely compiles and publishes vertex, geometry and fragment modules. |
-| C — retained demand executable and omission | Tasks 3–4 | Missing exact executables are queued without a drawable fallback and affected draws can be intentionally omitted without corrupting renderer state. |
+| B — generic asynchronous modules | Task 2 + #207 | Exact vertex/geometry/fragment work uses immutable worker recipes, deduplication and measured demand/prewarm scheduling. |
+| C1 — compile-required foreground probe | #204 | Driver-authoritative READY vs COMPILE_REQUIRED result prevents accidental foreground pipeline compilation where supported. |
+| C2 — retained demand executable | Task 3 + #207 | Missing exact executable requests survive stage/module/pipeline publication without requiring a drawable fallback. |
+| C3 — safe omission / Continue | Task 4 + Cemu prior art | Continue adapts proven async skip-render semantics, including conservative unsafe/unknown draw handling. |
 | D — blackout policy and UI | Tasks 5–6 | Host output becomes black without guest framebuffer synchronization, with an explicit default-Wait Advanced policy and truthful status. |
-| E — qualification | Task 7 | Exact builds, cold/warm game runs, correctness controls and evidence support the final decision. |
+| E — qualification | Task 7 | Exact builds, cold/warm game runs, Hit/Missed/Too-late classification, correctness controls and evidence support the final decision. |
+| F — GPL experiment | #205 | Separately measure reusable pipeline libraries, fast link and background LTO against monolithic creation. |
+| G — key entropy/minimal recipes | #206 | Instrument and safely reduce expensive identities; begin stage work before full PSO state when proven correct. |
+| H — warm cache tiers | #208 | Separately evaluate first-use retention, module identifiers, pipeline binaries and recipe replay. |
 
 Each child PR should target current `main`; later child PRs may temporarily stack on the immediately preceding branch for testing, but must state the dependency and be restacked after the parent merges.
+
+**Do not start C3 by inventing a new Continue mechanism.** Read the Cemu implementation cited in the prior-art playbook. The expected control flow is compile-forbidden exact-pipeline probe -> queue exact work -> use ready fallback when possible -> otherwise omit only under the explicit lossy policy. GPL (#205), key reduction (#206), and warm cache tiers (#208) remain separate experiments and may reduce how often omission is necessary.
 
 ### Task 1: Introduce an explicit Vulkan draw lifecycle result
 
