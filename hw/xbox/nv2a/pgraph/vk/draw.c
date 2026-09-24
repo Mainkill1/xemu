@@ -553,8 +553,11 @@ void pgraph_vk_init_pipelines(PGRAPHState *pg)
                 &r->hybrid_pipeline_builder, &config);
     }
     pgraph_vk_init_demand_executables(pg);
-    r->readiness_attribution = g_new0(PGRAPHVkReadinessAttributionState, 1);
-    pgraph_vk_readiness_attribution_init(r->readiness_attribution);
+    if (r->perf.enabled || r->hybrid_trace) {
+        r->readiness_attribution =
+            g_new0(PGRAPHVkReadinessAttributionState, 1);
+        pgraph_vk_readiness_attribution_init(r->readiness_attribution);
+    }
 
     VkSemaphoreCreateInfo semaphore_info = {
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO
