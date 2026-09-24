@@ -1,8 +1,10 @@
 # Issue 198: qualify and repair ubershader loading stalls
 
-**Status: Draft investigation. Source-level coverage and scheduling limits identified; the reported title hitches are not yet attributed or fixed.**
+**Status: Draft investigation and opt-in performance policy. Source-level coverage and scheduling limits identified; the reported title hitches are not yet attributed or fixed.**
 
-Tracks [#198][issue]. This initial change adds an investigation and implementation handoff only. It changes no renderer behavior, defaults, or tests. Keep the issue open. Subsequent implementation should be split by demonstrated cause rather than merging every experiment described here.
+Tracks [#198][issue]. This draft adds an investigation and implementation handoff only. It changes no renderer behavior, defaults, or tests. Keep the issue open. Subsequent implementation should be split by demonstrated cause rather than merging every experiment described here.
+
+**Owner direction, 2026-09-24:** users may explicitly prioritize responsiveness over complete rendering, including several seconds of black output while compilation continues. An opt-in Advanced shader-miss policy is an accepted feature direction. Earlier blanket prohibitions on skipping draws are withdrawn; unchanged-output requirements apply to the accuracy-preserving path, not to the deliberately lossy mode below.
 
 ## Identity and evidence boundary
 
@@ -34,6 +36,69 @@ Do not switch the default to Always as a presumed repair. First compare **Fallba
 | Always | Prefer the interpreter for supported draws and avoid ordinary specialization there. Current shader initialization also enables learned-family prewarm in this mode. Cold pipeline construction, unsupported-state escapes, and interpreter GPU cost still apply. |
 
 The Always initialization detail is important: the earlier #142 description is not sufficient documentation of current main. A strict interpreter/no-speculative-prewarm comparison needs a separate diagnostic control or an explicitly empty, verified history; the current mode alone is not that control. [Shader initialization and preparation][shaders] are authoritative.
+
+## Proposed Advanced option: continue with black frames
+
+This is a design target, not an implemented setting or a proven stutter fix. Retain the current ubershader modes and add a separate **Shader miss handling** policy:
+
+| Choice | Contract |
+| --- | --- |
+| Wait (default/reference) | Keep the existing accuracy-preserving behavior when no complete executable is available. |
+| Continue with black frames (experimental) | Use a ready executable when the selected mode permits it. Otherwise capture and queue the missing executable, omit the unrenderable draw, and keep processing the guest stream without waiting for shader/PSO compilation. Suppress incomplete game output with host-side black presentation. |
+
+Proposed help text: "Avoid waiting for missing shaders and pipelines. Gameplay, input and audio continue while the game view may turn black. Missing rendering can also affect game behavior. Compiled results are reused when available; other sources of stutter may remain."
+
+The initial default stays Wait and explicit saved choices remain intact. Availability must follow actual renderer/worker support. This policy is conceptually separate from Off/Fallback/Prewarm/Always: do not relabel Always or silently change its interpreter preference. Qualify supported combinations; a combination without a functioning async path must be shown unavailable, not falsely reported active. Prewarm remains useful for reducing how often blackout is needed.
+
+### Avoid the actual wait, not just the visible image
+
+A literal fragment shader returning black still needs a compatible complete graphics pipeline and may need vertex/geometry processing. It is not a universal zero-cost escape from pipeline compilation. Vulkan pipeline objects include shader and fixed-function state ([pipeline specification][vk-pipelines]). Prefer omission plus an already-ready host presentation clear; do not compile a replacement black pipeline on the miss or erase the guest render target to hide it.
+
+```text
+Demand -> ready permitted specialized or ubershader executable -> render
+       -> no ready executable
+            Wait: existing required construction path
+            Continue-black:
+                capture immutable full recipe / deduplicate request
+                queue missing stages and pipeline without waiting
+                omit this draw; flag incomplete game output
+                keep consuming commands and discovering further misses
+
+Workers -> compile/load artifacts -> build complete pipeline
+        -> validate generation/ticket -> renderer-owned publication
+        -> later draws use the result; old skipped draws are not replayed
+
+Host presentation -> incomplete output: black game view, responsive UI
+                  -> current output recovered: resume game view
+```
+
+Do not wait for all global prewarm work to finish before restoring output. Base recovery on current-frame needs and affected resource dependencies. A short measured anti-flicker hold can group a burst, but a fixed multi-second blackout is not required. A frame with no new misses is not proof that a texture written by an earlier skipped pass has recovered.
+
+### Concrete integration work
+
+**Demand compilation cannot depend on a drawable fallback.** At audited main, `pgraph_vk_enqueue_specialized_fragment()` returns unless both fallback pipeline and resources are ready (`vk/shaders.c`). Add a separate owned demand-build path; simply removing the guard would not establish correct source, control or lifecycle ownership. Capture full shader/pipeline state before consuming the draw. Support missing vertex, geometry, fragment and pipeline stages as needed, including a valid specialized route when the interpreter rejects a state. Honor the selected mode's route rules.
+
+**Branch before synchronous materialization.** `create_pipeline()` in `vk/draw.c` selects the uncovered route before activating shaders; insert explicit miss-policy handling before activation can create missing modules or the pipeline. The function currently binds textures first, so an early shader return alone does not remove texture/upload stalls. Audit ready-only probes and separate expensive materialization where measured. Worker source generation, cache-hit adoption, reflection, pipeline building and publication must not merely move the same long wait elsewhere on the render thread.
+
+**Use an explicit omitted-draw outcome.** Propagate `READY / OMITTED / ERROR` semantics through callers rather than treating an ordinary failure return as a completed draw. Drain the guest command/state stream, retire per-draw buffers and references, maintain dirty-state obligations, and continue completion processing. Do not fabricate Vulkan handles, mark skipped GPU writes completed, replay stale draw inputs after the game advances, or delete synchronization needed by work that was actually submitted.
+
+**Keep discovery and completion alive during blackout.** Missing draws must still discover/queue all currently encountered identities; skipping discovery would create a compile-one-shader-then-blackout-again loop. Service completions without requiring a successfully presented guest frame. Use demand priority, exact-key deduplication, bounded owned pending records, fair retries and CPU/memory limits. Queue saturation must defer or explicitly report lost admission, not silently invoke synchronous compilation or claim unqueued work is compiling.
+
+**Separate host black presentation from guest rendering.** Gate the game image before expensive framebuffer acquisition/copy where possible, while retaining a responsive menu and a small compiling/failed status. Continue ready rendering and guest command consumption as required for discovery and dependencies. Handle reset, backend changes, shutdown and stale worker results. On a permanent build failure, report that it failed and let the user change policy; do not leave an indefinite fictitious "compiling" status or silently switch to blocking.
+
+**Define the lossy consequences rather than prohibiting them.** Skipping a draw can omit depth/stencil changes, query contributions and render-to-texture content used later. The user accepts this tradeoff in this mode; it is not automatically only a cosmetic loss. Preserve the contracts for remaining operations and track affected resources. Rebuild or overwrite incomplete resources when possible; otherwise expose residual artifacts or gameplay differences in compatibility results. A one-time skipped texture-generation pass may not repair itself when compilation finishes. Accurate-path tests still require unchanged output, whereas lossy-mode tests document the omissions and recovery behavior.
+
+**Cache completed work for future use.** Publish complete executables for later matching draws, retain appropriate demanded working sets, and reuse the existing validated SPIR-V/history/driver-cache lifecycle. Test repeat launches with identical cache seeds and clean shutdown. A persisted shader does not guarantee a resident pipeline on the next launch; keep loading/materialization nonblocking in the opt-in mode too. Missed draws are not a substitute for actually completing and persisting their compilation work.
+
+### Separate acceptance criteria
+
+The feature can be accepted as an explicitly lossy responsiveness option without claiming that accurate rendering in #198 is fixed. It does not need to wait until every non-shader hypothesis is eliminated, but it does need proof that it avoids targeted waits and makes forward progress.
+
+Use production-linked tests for missing stages/PSOs with no fallback, duplicate requests, queue saturation, unsupported interpreter states, stale completions, omitted-draw cleanup, reset and shutdown. Add native tests where rendering is omitted, the guest continues, dependencies recover or their limits are recorded, and later cached runs need less omission.
+
+Measure foreground shader-wait time, guest/input/audio progress, compiler contention, black-frame count and total/longest blackout, omitted draws, pending/failed/dropped work, time to usable complete pipelines and warm-run recovery. Do not count a smooth black UI or suppressed frames as rendered gameplay FPS. Pixel parity is required when the feature is disabled; temporary output differences are expected when enabled. Report any persistent visual/gameplay impact instead of excluding it from the results.
+
+This changes the previous policy conclusion: [Epic's documented skip-draw/default-material strategies][epic] are legitimate inspiration for an opt-in performance mode. The emulator must still determine its own command, resource and recovery behavior; engine-owned component semantics cannot simply be assumed for guest draws.
 
 ## Source audit: identified limits and safeguards
 
@@ -71,10 +136,14 @@ Current demand path
   otherwise complete admitted fallback -> draw + request specialization
   otherwise uncovered route -> synchronous construction can block the draw
 
-Target property, not yet implemented
+Accuracy-preserving target, not yet implemented
   first demand -> a correct complete executable is already available
   missed prediction / unsupported state -> explicit reason and preserved output
   specialization -> background work -> complete publication -> later promotion
+
+Opt-in performance target, not yet implemented
+  missing executable -> queue work -> omit draw / black presentation
+  guest processing continues -> publish executable -> recover later output
 ```
 
 Prewarming more bytecode cannot establish that target property when the missing item is a vertex variant, a different full pipeline, or a stalled publication. Likewise, even complete shader coverage cannot remove guest I/O or presentation waits.
@@ -98,13 +167,13 @@ Every row starts **OPEN for the reported games**. The source audit rules out abs
 | H11: Key explosion, history pollution, eviction | Compare full-key count with per-stage source count; record key-field differences, eviction/recreation, family age and usefulness by workload. | Normalize only state proven irrelevant to the actual shader/pipeline. Test cross-title histories and the working set before raising limits or pinning objects. |
 | H12: Interpreter GPU cost or pipeline switching | Use GPU timestamps/captures and a warm, supported-state interpreter comparison at fixed resolution; separately inspect route transitions. | If CPU compile time is absent but GPU time grows, optimize interpreter execution/switching rather than prewarm. Account for Always's current prewarm behavior. |
 | H13: Descriptor, control, uniform, vertex staging exhaustion | Correlate capacity counters and `NEED_BUFFER_SPACE` finish reasons with hitches. | A capacity wait is not a shader miss. Repair lifetime/retirement or measured capacity pressure without weakening visibility or reuse guarantees. |
-| H14: Textures, surfaces, readbacks, queries or VRAM pressure | Attribute uploads, decoding/unswizzling, transfers, dirty-surface downloads, report/query waits and memory residency around the same frame. | Use correct warm-resource controls. Do not skip uploads, depth/query effects or guest-visible waits to manufacture a pass. |
+| H14: Textures, surfaces, readbacks, queries or VRAM pressure | Attribute uploads, decoding/unswizzling, transfers, dirty-surface downloads, report/query waits and memory residency around the same frame. | Use correct warm-resource controls. Do not call omitted work an accuracy-preserving pass. The opt-in mode separately records omissions, dependent-resource effects and any changed query/gameplay outcomes. |
 | H15: CPU emulation or guest loading | Capture vCPU/PFIFO/PGRAPH timelines, TCG translation, storage activity, decompression/audio work and lock waits. | Continued stalls with ready pipelines and no shader work keep this branch open; a low total CPU percentage does not exclude a saturated emulation thread. |
 | H16: Presentation, frame pacing or transport | Correlate guest display-write progress with output presentation, present waits, VSync and shared-memory versus host-copy transport. | Stable guest progress with late presentation is not a shader-compilation result. Separate reported-build and current-main presentation changes. |
 | H17: Host/driver conditions | Record driver, clocks, memory pressure, background load and scheduling interruptions; repeat controlled same-scene runs and a second vendor where available. | Do not label a vendor defect from one machine or from another emulator's warning. Eliminate host interference with repeatable evidence. |
 | H18: Measurement artifact | Verify capture starts before loading, trace capacity/drops, exact replay, marker validity, instrumentation overhead and cold/warm ordering. | Missing events do not prove absence when the trace was exhausted or started too late. Never substitute UI presentation rate for guest progress. |
 
-## First implementation: attribution, not a mode change
+## Shared instrumentation for accurate repair and opt-in omission
 
 Extend existing diagnostics rather than building a second logging framework. Relevant entry points are `pgraph_vk_resolve_ready_execution_candidates()`, `pgraph_vk_hybrid_choose_uncovered_route()`, `request_hybrid_pipeline()`, `pgraph_vk_process_hybrid_pipeline_completions()`, `pgraph_vk_process_hybrid_prewarm()` and the cached-module materialization path in `shaders.c`.
 
@@ -127,7 +196,7 @@ Record expensive events and per-frame aggregates, with bounded memory and explic
 
 Existing controls worth reusing are `XEMU_VK_HYBRID_TRACE` and `XEMU_VK_PIPELINE_CACHE_LOG=1`. The current trace is opened with a 50,000-event bound; verify that the loading interval is retained. Enable diagnostics only for separate attribution captures and remove them for primary performance runs. Redact machine paths and identifiers before publishing logs.
 
-Optional Vulkan creation feedback/cache-control experiments must query feature support and preserve the ordinary path. A compile-required result is a reason to use an already-ready correct fallback or preserve required blocking; it is not permission to skip a draw. Absence of an application-cache-hit flag does not describe every driver-internal cache.
+Optional Vulkan creation feedback/cache-control experiments must query feature support and preserve the ordinary path. A compile-required result selects an already-ready correct fallback or required blocking in Wait mode. In Continue-black mode it can select an explicitly recorded omission and owned async build; never bind an invalid pipeline or treat that omission as accurate rendering. Absence of an application-cache-hit flag does not describe every driver-internal cache.
 
 ## External implementations: what transfers and what does not
 
@@ -137,7 +206,7 @@ These are primary project/vendor publications. Epic, Unity and Valve provide com
 | --- | --- | --- |
 | [Dolphin][dolphin] | Hybrid interpretation covers missing specialized shaders; its compile-before-start option prepares cached identities before execution. Its performance guide also warns of NVIDIA/Vulkan hybrid switching stutter. | Separate broad fallback coverage, readiness before first demand, and driver switching. The warning motivates a test on the reporter's RTX, not a diagnosis or an automatic backend change. |
 | [DXVK 3.0][dxvk3] / [fixed-function implementation][dxvk5192] | D3D8/9 fixed-function handling uses vertex/pixel ubershaders with optimized variants prepared in the background. Shader translation itself also moved off the application thread in 3.0. | Study missing vertex/fragment-shell coverage and owner-thread translation, not only fragment-combiner compilation. NV2A semantics still need independent validation; do not transplant D3D9 behavior blindly. |
-| [Epic Unreal Engine][epic] | Tracks shader-only, partial and full PSO readiness, including missed versus too-late work; recommends waiting for outstanding precompiles during loading and budgeting compilation resources. | Adopt deadline/coverage attribution and consider an explicit preparation phase. Do not copy its skip-draw/default-material escape into accurate emulation. |
+| [Epic Unreal Engine][epic] | Tracks shader-only, partial and full PSO readiness, including missed versus too-late work; recommends waiting for outstanding precompiles during loading and budgeting compilation resources. | Adopt deadline/coverage attribution and consider an explicit preparation phase. Its skip-draw/default-material strategies also motivate the owner-approved opt-in performance mode; distinguish that mode from accurate emulation. |
 | [Unity warmup warning][unity-warning] / [graphics-state warmup][unity-warmup] | On Vulkan, different vertex layouts or render targets can require more driver work despite shader warmup. Graphics-state capture provides a more exact warmup input. | Keep shader artifacts distinct from complete pipeline recipes and live executables. Verify full-state equality at replay and demand. |
 | [Valve Fossilize][fossilize] | Captures and replays Vulkan object dependencies, including pipelines, allowing focused compiler replay independent of the full application. | Capture a slow, valid complete recipe to distinguish driver compilation from guest loading. Validate feature/device requirements; do not distribute opaque driver caches as universal executables. |
 | [Khronos graphics pipeline libraries][gpl] / [DXVK's adoption][dxvk2] | Pipeline parts can be built separately and linked into an executable; early compilation depends on when inputs become known. | Prototype only after full-PSO creation is measured as dominant. Check fast-link/optimization tradeoffs and support; retain the monolithic reference path. This does not remove all possible first-use work. |
@@ -146,9 +215,9 @@ The common lesson is **a correct usable executable before demand**, plus measure
 
 ## Ordered repair plan and files to touch
 
-### A. Establish the cause and maintain one authoritative record
+### A. Establish accurate-path causes and the opt-in miss boundary
 
-Start with H01/H02, then instrument the first reproduced hitch. Use the existing unit registration in `tests/unit/meson.build` to locate prewarm/history/runtime fixtures; do not rely on obsolete test counts from an earlier PR. Maintain observations and experiment decisions on #198, candidate results in the draft PR, and compact manifests/raw tables under `evidence/wiki-xiso-per-test/pr-<number>/issue-198/`. Promote durable conclusions to the wiki after qualification instead of copying evolving narratives across multiple PRs.
+Start with H01/H02, then instrument the first reproduced hitch. In parallel, prototype the owner-approved Continue-black behavior at the uncovered executable boundary; do not gate this feature on proving all 18 hypotheses false. Use the existing unit registration in `tests/unit/meson.build` to locate prewarm/history/runtime fixtures; do not rely on obsolete test counts from an earlier PR. Maintain observations and experiment decisions on #198, candidate results in the draft PR, and compact manifests/raw tables under `evidence/wiki-xiso-per-test/pr-<number>/issue-198/`. Promote durable conclusions to the wiki after qualification instead of copying evolving narratives across multiple PRs.
 
 ### B. Repair a demonstrated preparation-lifecycle gap
 
@@ -191,15 +260,15 @@ First obtain a deterministic full-boot/loading transition for both reported game
 
 Record guest display-write intervals and host presentation separately, p95/p99/p99.9/max, hitch counts and total stall time above declared thresholds (for example 50/75/100 ms), ready-before-demand coverage and CPU/GPU time. Keep raw timelines: a good average or a long capture's p99 can conceal one severe loading stall. Thresholds must be tied to the workload's intended cadence, not treated as proof that every 33 ms interval is a defect.
 
-A repair needs reproduced reduction of the attributed stalls, unchanged required output/side effects, and no repeatable greater-than-2% regression against contemporary main in the accepted comparable metrics. Report uncertainty and order drift; do not treat a single maximum as statistically stable. Preserve framebuffer checks and explicit inspection of affected effects, depth/query behavior and scene completeness. Skipped draws, default materials or disabled effects are not successful repairs.
+An accuracy-preserving repair needs reproduced reduction of the attributed stalls, unchanged required output/side effects, and no repeatable greater-than-2% regression against contemporary main in the accepted comparable metrics. The opt-in Continue-black feature is qualified separately on responsiveness, explicit omissions, recovery and cache reuse; unchanged output during blackout is not its gate. Its disabled/reference path must retain correctness and avoid a repeatable greater-than-2% regression in accepted comparable metrics. Report uncertainty and order drift; do not treat a single maximum as statistically stable. Preserve framebuffer checks and explicit inspection of affected effects, depth/query behavior and scene completeness. Skipped draws or blank output may be successful results for the explicitly selected performance mode; report their cost and do not relabel them an accuracy-preserving fix. Blanket effect suppression beyond shader misses is outside this feature.
 
 ## Current result and next decision
 
-**Completed:** pinned-source audit, comparison with the reported revision, review of related prewarm/default work, primary-source comparison, and an executable investigation plan.
+**Completed:** pinned-source audit, comparison with the reported revision, review of related prewarm/default work, primary-source comparison, an investigation plan, and the owner-directed opt-in blackout design. The blanket exclusion of deliberately incomplete rendering has been removed.
 
 **Not completed:** retrieval of the attached log, native reproduction, trace attribution, a renderer patch, product compilation, GPU correctness qualification, or measured performance improvement. No measured results or fabricated CSV rows are included in this draft.
 
-The next implementation decision is driven by the first correlated hitch: **missed coverage, too-late readiness, owner/driver contention, resource wait, or non-shader work**. Keep the default unchanged until that decision is supported. Keep #198 open until Batman and Azurik are qualified, including any residual non-shader causes.
+The accurate-path repair is driven by the first correlated hitch: **missed coverage, too-late readiness, owner/driver contention, resource wait, or non-shader work**. The opt-in Continue-black feature is a separate accepted path for users who prefer omitted rendering over shader waits. Keep existing defaults unchanged in this documentation draft. Keep #198 open until the reported games and chosen modes are qualified, including blackout/recovery tradeoffs and residual non-shader causes.
 
 ## Sources
 
@@ -225,3 +294,5 @@ The next implementation decision is driven by the first correlated hitch: **miss
 [fossilize]: https://github.com/ValveSoftware/Fossilize
 [gpl]: https://docs.vulkan.org/samples/latest/samples/extensions/graphics_pipeline_library/README.html
 [dxvk2]: https://github.com/doitsujin/dxvk/releases/tag/v2.0
+
+[vk-pipelines]: https://docs.vulkan.org/spec/latest/chapters/pipelines.html
