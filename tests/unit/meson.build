@@ -186,6 +186,10 @@ if vulkan.found()
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/pipeline-probe.c',
       volk, vulkan,
     ],
+    'test-xbox-vk-demand-executable': [
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/demand-executable.c',
+      xbox_i386_target_headers, volk, libglslang, vma, vulkan, spirv_reflect,
+    ],
     'test-xbox-vk-hybrid-family-codec': [
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-family-codec.c',
       xbox_i386_target_headers, volk, libglslang, vma, vulkan, spirv_reflect,
