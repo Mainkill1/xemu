@@ -17,7 +17,10 @@ typedef struct TestCompiler {
     bool released;
     bool fail;
     unsigned int calls;
+    unsigned int generate_calls;
+    size_t generated_size;
     char source[32];
+    char recipe[32];
     char config[32];
 } TestCompiler;
 
@@ -72,6 +75,38 @@ static bool test_compile(void *opaque,
     return *spirv != NULL;
 }
 
+static bool test_generate(void *opaque,
+                          const PGRAPHVkHybridCompileRequest *request,
+                          uint8_t **glsl, size_t *glsl_size)
+{
+    TestCompiler *compiler = opaque;
+
+    qemu_mutex_lock(&compiler->lock);
+    compiler->generate_calls++;
+    g_assert_cmpuint(request->recipe_size, <, sizeof(compiler->recipe));
+    g_assert_cmpuint(request->config_size, <, sizeof(compiler->config));
+    memcpy(compiler->recipe, request->recipe, request->recipe_size);
+    compiler->recipe[request->recipe_size] = '\0';
+    memcpy(compiler->config, request->config, request->config_size);
+    compiler->config[request->config_size] = '\0';
+    size_t generated_size = compiler->generated_size;
+    qemu_cond_broadcast(&compiler->started);
+    bool fail = compiler->fail;
+    qemu_mutex_unlock(&compiler->lock);
+
+    if (fail) {
+        return false;
+    }
+    if (generated_size) {
+        *glsl = g_malloc0(generated_size);
+        *glsl_size = generated_size;
+        return *glsl != NULL;
+    }
+    *glsl = (uint8_t *)g_strdup_printf("generated-%s", compiler->recipe);
+    *glsl_size = strlen((char *)*glsl) + 1;
+    return *glsl != NULL;
+}
+
 static void test_wait_for_calls(TestCompiler *compiler, unsigned int calls)
 {
     qemu_mutex_lock(&compiler->lock);
@@ -95,6 +130,7 @@ static PGRAPHVkHybridCompilerConfig test_config(TestCompiler *test,
     return (PGRAPHVkHybridCompilerConfig) {
         .max_async_jobs = jobs,
         .max_async_bytes = bytes,
+        .generate = test_generate,
         .compile = test_compile,
         .opaque = test,
     };
@@ -107,10 +143,28 @@ static PGRAPHVkHybridCompileRequest test_request_stage(
     return (PGRAPHVkHybridCompileRequest) {
         .generation = generation,
         .ticket = ticket,
+        .kind = PGRAPH_VK_HYBRID_JOB_COMPILE_SOURCE,
         .stage = stage,
         .urgency = urgency,
         .glsl = glsl,
         .glsl_size = strlen(glsl),
+        .config = config,
+        .config_size = strlen(config),
+    };
+}
+
+static PGRAPHVkHybridCompileRequest test_recipe_request(
+    uint64_t generation, uint64_t ticket, const char *recipe,
+    const char *config)
+{
+    return (PGRAPHVkHybridCompileRequest) {
+        .generation = generation,
+        .ticket = ticket,
+        .kind = PGRAPH_VK_HYBRID_JOB_GENERATE_SOURCE,
+        .stage = 16,
+        .urgency = PGRAPH_VK_COMPILE_DEMAND,
+        .recipe = recipe,
+        .recipe_size = strlen(recipe),
         .config = config,
         .config_size = strlen(config),
     };
@@ -202,6 +256,126 @@ static void test_async_deduplicates_and_deep_owns_input(void)
     g_assert_cmpstr(test.config, ==, "config-a");
     g_assert_cmpmem(result.spirv, result.spirv_size, "shader-a", 8);
     pgraph_vk_hybrid_compile_result_destroy(&result);
+    pgraph_vk_hybrid_compiler_destroy(&compiler);
+    test_compiler_destroy(&test);
+}
+
+static void test_async_generates_source_from_deep_owned_recipe(void)
+{
+    TestCompiler test;
+    PGRAPHVkHybridCompiler compiler = { 0 };
+    char recipe[] = "recipe-a";
+    char config[] = "config-a";
+    PGRAPHVkHybridCompileRequest request =
+        test_recipe_request(7, 19, recipe, config);
+    PGRAPHVkHybridCompileResult result;
+
+    test_compiler_init(&test, false);
+    g_assert_true(init_compiler(&compiler, &test, 2, 64));
+    g_assert_cmpint(pgraph_vk_hybrid_compiler_submit_async(
+                        &compiler, &request, NULL),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
+    memcpy(recipe, "mutated!", sizeof(recipe));
+    memcpy(config, "mutated!", sizeof(config));
+
+    g_assert_true(take_result(&compiler, &result));
+    g_assert_true(result.success);
+    g_assert_cmpint(result.kind, ==,
+                    PGRAPH_VK_HYBRID_JOB_GENERATE_SOURCE);
+    g_assert_cmpstr((char *)result.glsl, ==, "generated-recipe-a");
+    g_assert_cmpuint(result.glsl_size, ==,
+                     strlen("generated-recipe-a") + 1);
+    g_assert_null(result.spirv);
+    g_assert_cmpuint(result.spirv_size, ==, 0);
+    g_assert_cmpuint(test.generate_calls, ==, 1);
+    g_assert_cmpuint(test.calls, ==, 0);
+    g_assert_cmpstr(test.recipe, ==, "recipe-a");
+    g_assert_cmpstr(test.config, ==, "config-a");
+    pgraph_vk_hybrid_compile_result_destroy(&result);
+    pgraph_vk_hybrid_compiler_destroy(&compiler);
+    test_compiler_destroy(&test);
+}
+
+static void test_async_keeps_recipe_and_source_jobs_distinct(void)
+{
+    TestCompiler test;
+    PGRAPHVkHybridCompiler compiler = { 0 };
+    PGRAPHVkHybridCompileRequest generate =
+        test_recipe_request(1, 1, "same-bytes", "config");
+    PGRAPHVkHybridCompileRequest compile =
+        test_request(1, 2, "same-bytes", "config");
+    PGRAPHVkHybridCompileResult result;
+
+    test_compiler_init(&test, false);
+    g_assert_true(init_compiler(&compiler, &test, 2, 64));
+    g_assert_cmpint(pgraph_vk_hybrid_compiler_submit_async(
+                        &compiler, &generate, NULL),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
+    g_assert_cmpint(pgraph_vk_hybrid_compiler_submit_async(
+                        &compiler, &compile, NULL),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
+
+    g_assert_true(take_result(&compiler, &result));
+    g_assert_cmpint(result.kind, ==,
+                    PGRAPH_VK_HYBRID_JOB_GENERATE_SOURCE);
+    pgraph_vk_hybrid_compile_result_destroy(&result);
+    g_assert_true(take_result(&compiler, &result));
+    g_assert_cmpint(result.kind, ==,
+                    PGRAPH_VK_HYBRID_JOB_COMPILE_SOURCE);
+    pgraph_vk_hybrid_compile_result_destroy(&result);
+    g_assert_cmpuint(test.generate_calls, ==, 1);
+    g_assert_cmpuint(test.calls, ==, 1);
+
+    pgraph_vk_hybrid_compiler_destroy(&compiler);
+    test_compiler_destroy(&test);
+}
+
+static void test_generated_source_is_bounded(void)
+{
+    TestCompiler test;
+    PGRAPHVkHybridCompiler compiler = { 0 };
+    PGRAPHVkHybridCompileRequest request =
+        test_recipe_request(1, 1, "recipe", "config");
+    PGRAPHVkHybridCompileResult result;
+
+    test_compiler_init(&test, false);
+    /* 6 recipe + 6 config + 53 output exceeds the retained-byte cap. */
+    test.generated_size = 53;
+    g_assert_true(init_compiler(&compiler, &test, 1, 64));
+    g_assert_cmpint(pgraph_vk_hybrid_compiler_submit_async(
+                        &compiler, &request, NULL),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
+    g_assert_true(take_result(&compiler, &result));
+    g_assert_false(result.success);
+    g_assert_null(result.glsl);
+    g_assert_cmpuint(result.glsl_size, ==, 0);
+    g_assert_cmpuint(test.generate_calls, ==, 1);
+    g_assert_cmpuint(test.calls, ==, 0);
+    pgraph_vk_hybrid_compile_result_destroy(&result);
+    pgraph_vk_hybrid_compiler_destroy(&compiler);
+    test_compiler_destroy(&test);
+}
+
+static void test_recipe_requires_generator_and_async_lane(void)
+{
+    TestCompiler test;
+    PGRAPHVkHybridCompiler compiler = { 0 };
+    PGRAPHVkHybridCompileRequest request =
+        test_recipe_request(1, 1, "recipe", "config");
+    PGRAPHVkHybridCompileResult result;
+    PGRAPHVkHybridCompilerConfig config;
+
+    test_compiler_init(&test, false);
+    config = test_config(&test, 1, 64);
+    config.generate = NULL;
+    g_assert_true(pgraph_vk_hybrid_compiler_init(&compiler, &config));
+    g_assert_cmpint(pgraph_vk_hybrid_compiler_submit_async(
+                        &compiler, &request, NULL),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_INVALID);
+    g_assert_false(pgraph_vk_hybrid_compiler_submit_blocking(
+        &compiler, &request, &result));
+    g_assert_cmpuint(test.generate_calls, ==, 0);
+    g_assert_cmpuint(test.calls, ==, 0);
     pgraph_vk_hybrid_compiler_destroy(&compiler);
     test_compiler_destroy(&test);
 }
@@ -638,6 +812,14 @@ int main(int argc, char **argv)
     g_test_init(&argc, &argv, NULL);
     g_test_add_func("/xbox/vk/hybrid-compiler/dedup-deep-copy",
                     test_async_deduplicates_and_deep_owns_input);
+    g_test_add_func("/xbox/vk/hybrid-compiler/recipe-deep-copy",
+                    test_async_generates_source_from_deep_owned_recipe);
+    g_test_add_func("/xbox/vk/hybrid-compiler/job-kind-identity",
+                    test_async_keeps_recipe_and_source_jobs_distinct);
+    g_test_add_func("/xbox/vk/hybrid-compiler/generated-source-limit",
+                    test_generated_source_is_bounded);
+    g_test_add_func("/xbox/vk/hybrid-compiler/recipe-lane-contract",
+                    test_recipe_requires_generator_and_async_lane);
     g_test_add_func("/xbox/vk/hybrid-compiler/async-limits",
                     test_async_limits_release_when_result_is_taken);
     g_test_add_func("/xbox/vk/hybrid-compiler/exact-config",

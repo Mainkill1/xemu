@@ -320,10 +320,16 @@ typedef struct PGRAPHVkGlslCompileConfig {
     uint32_t debug_shaders;
 } PGRAPHVkGlslCompileConfig;
 
+typedef enum PGRAPHVkHybridShaderWorkPhase {
+    PGRAPH_VK_HYBRID_GENERATE_SOURCE,
+    PGRAPH_VK_HYBRID_COMPILE_SOURCE,
+} PGRAPHVkHybridShaderWorkPhase;
+
 typedef struct PGRAPHVkHybridShaderWork {
     bool in_use;
     uint64_t last_epoch;
     PGRAPHVkCompileUrgency urgency;
+    PGRAPHVkHybridShaderWorkPhase phase;
     PGRAPHVkHybridWork metadata;
     ShaderModuleCacheKey module_key;
     char *glsl;

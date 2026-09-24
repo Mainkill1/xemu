@@ -22,13 +22,21 @@ typedef enum PGRAPHVkCompileUrgency {
     PGRAPH_VK_COMPILE_DEMAND,
 } PGRAPHVkCompileUrgency;
 
+typedef enum PGRAPHVkHybridJobKind {
+    PGRAPH_VK_HYBRID_JOB_COMPILE_SOURCE,
+    PGRAPH_VK_HYBRID_JOB_GENERATE_SOURCE,
+} PGRAPHVkHybridJobKind;
+
 typedef struct PGRAPHVkHybridCompileRequest {
     uint64_t generation;
     uint64_t ticket;
+    PGRAPHVkHybridJobKind kind;
     uint32_t stage;
     PGRAPHVkCompileUrgency urgency;
     const void *glsl;
     size_t glsl_size;
+    const void *recipe;
+    size_t recipe_size;
     const void *config;
     size_t config_size;
 } PGRAPHVkHybridCompileRequest;
@@ -36,9 +44,12 @@ typedef struct PGRAPHVkHybridCompileRequest {
 typedef struct PGRAPHVkHybridCompileResult {
     uint64_t generation;
     uint64_t ticket;
+    PGRAPHVkHybridJobKind kind;
     uint32_t stage;
     PGRAPHVkCompileUrgency urgency;
     bool success;
+    uint8_t *glsl;
+    size_t glsl_size;
     uint8_t *spirv;
     size_t spirv_size;
     uint64_t submitted_us;
@@ -62,9 +73,14 @@ typedef bool (*PGRAPHVkHybridCompileFunc)(
     void *opaque, const PGRAPHVkHybridCompileRequest *request,
     uint8_t **spirv, size_t *spirv_size);
 
+typedef bool (*PGRAPHVkHybridGenerateFunc)(
+    void *opaque, const PGRAPHVkHybridCompileRequest *request,
+    uint8_t **glsl, size_t *glsl_size);
+
 typedef struct PGRAPHVkHybridCompilerConfig {
     size_t max_async_jobs;
     size_t max_async_bytes;
+    PGRAPHVkHybridGenerateFunc generate;
     PGRAPHVkHybridCompileFunc compile;
     void *opaque;
 } PGRAPHVkHybridCompilerConfig;
@@ -91,10 +107,10 @@ bool pgraph_vk_hybrid_compiler_can_submit_async(
     PGRAPHVkHybridCompiler *compiler, size_t glsl_size, size_t config_size);
 
 /*
- * A duplicate is identified by stage plus exact GLSL/config bytes, not by
- * generation or ticket. On an accepted or duplicate outcome, owner identifies
- * the one result that an integration must associate with every matching
- * recipe.
+ * A duplicate is identified by job kind, stage, exact input bytes, and exact
+ * configuration bytes, not by generation or ticket. On an accepted or
+ * duplicate outcome, owner identifies the one result that an integration must
+ * associate with every matching request.
  * A higher-urgency exact duplicate promotes queued work in place without
  * changing that identity or consuming another queue slot.
  */
@@ -104,8 +120,9 @@ PGRAPHVkHybridCompilerSubmitResult pgraph_vk_hybrid_compiler_submit_async(
     PGRAPHVkHybridCompileIdentity *owner);
 
 /*
- * Blocking work uses one dedicated slot and worker. It is admitted
- * independently of the asynchronous count and byte caps.
+ * Blocking source compilation uses one dedicated slot and worker. It is
+ * admitted independently of the asynchronous count and byte caps. Recipe
+ * generation is intentionally asynchronous-only.
  */
 bool pgraph_vk_hybrid_compiler_submit_blocking(
     PGRAPHVkHybridCompiler *compiler,

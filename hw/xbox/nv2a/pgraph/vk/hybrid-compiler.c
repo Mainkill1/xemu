@@ -14,6 +14,7 @@ typedef struct HybridCompilerJob {
     struct HybridCompilerJob *next;
     PGRAPHVkHybridCompileRequest request;
     uint8_t *glsl;
+    uint8_t *recipe;
     uint8_t *config;
     size_t bytes;
     bool blocking;
@@ -22,6 +23,7 @@ typedef struct HybridCompilerJob {
     bool success;
     uint8_t *spirv;
     size_t spirv_size;
+    size_t generated_glsl_size;
     uint64_t submitted_us;
     uint64_t started_us;
     uint64_t finished_us;
@@ -52,11 +54,30 @@ typedef struct HybridCompilerState {
 
 static bool request_valid(const PGRAPHVkHybridCompileRequest *request)
 {
-    return request && request->ticket && request->glsl && request->glsl_size &&
-           request->urgency >= PGRAPH_VK_COMPILE_SPECULATIVE &&
-           request->urgency <= PGRAPH_VK_COMPILE_DEMAND &&
-           (!request->config_size || request->config) &&
-           request->glsl_size <= SIZE_MAX - request->config_size;
+    size_t input_size;
+
+    if (!request || !request->ticket ||
+        request->kind < PGRAPH_VK_HYBRID_JOB_COMPILE_SOURCE ||
+        request->kind > PGRAPH_VK_HYBRID_JOB_GENERATE_SOURCE ||
+        request->urgency < PGRAPH_VK_COMPILE_SPECULATIVE ||
+        request->urgency > PGRAPH_VK_COMPILE_DEMAND ||
+        (request->config_size && !request->config)) {
+        return false;
+    }
+    if (request->kind == PGRAPH_VK_HYBRID_JOB_COMPILE_SOURCE) {
+        if (!request->glsl || !request->glsl_size || request->recipe ||
+            request->recipe_size) {
+            return false;
+        }
+        input_size = request->glsl_size;
+    } else {
+        if (!request->recipe || !request->recipe_size || request->glsl ||
+            request->glsl_size) {
+            return false;
+        }
+        input_size = request->recipe_size;
+    }
+    return input_size <= SIZE_MAX - request->config_size;
 }
 
 static HybridCompilerJob *job_new(const PGRAPHVkHybridCompileRequest *request,
@@ -68,20 +89,30 @@ static HybridCompilerJob *job_new(const PGRAPHVkHybridCompileRequest *request,
         return NULL;
     }
     job = g_new0(HybridCompilerJob, 1);
-    job->glsl = g_memdup2(request->glsl, request->glsl_size);
+    if (request->glsl_size) {
+        job->glsl = g_memdup2(request->glsl, request->glsl_size);
+    }
+    if (request->recipe_size) {
+        job->recipe = g_memdup2(request->recipe, request->recipe_size);
+    }
     if (request->config_size) {
         job->config = g_memdup2(request->config, request->config_size);
     }
-    if (!job->glsl || (request->config_size && !job->config)) {
+    if ((request->glsl_size && !job->glsl) ||
+        (request->recipe_size && !job->recipe) ||
+        (request->config_size && !job->config)) {
         g_free(job->glsl);
+        g_free(job->recipe);
         g_free(job->config);
         g_free(job);
         return NULL;
     }
     job->request = *request;
     job->request.glsl = job->glsl;
+    job->request.recipe = job->recipe;
     job->request.config = job->config;
-    job->bytes = request->glsl_size + request->config_size;
+    job->bytes = request->glsl_size + request->recipe_size +
+                 request->config_size;
     job->blocking = blocking;
     job->submitted_us = g_get_monotonic_time();
     return job;
@@ -94,6 +125,7 @@ static void job_destroy(HybridCompilerJob *job)
     }
     g_free(job->spirv);
     g_free(job->config);
+    g_free(job->recipe);
     g_free(job->glsl);
     g_free(job);
 }
@@ -101,10 +133,22 @@ static void job_destroy(HybridCompilerJob *job)
 static bool job_matches_request(const HybridCompilerJob *job,
                                 const PGRAPHVkHybridCompileRequest *request)
 {
-    return job->request.stage == request->stage &&
+    const void *job_input = job->request.kind ==
+                                PGRAPH_VK_HYBRID_JOB_COMPILE_SOURCE ?
+                            (const void *)job->glsl : job->recipe;
+    const void *request_input = request->kind ==
+                                    PGRAPH_VK_HYBRID_JOB_COMPILE_SOURCE ?
+                                request->glsl : request->recipe;
+    size_t input_size = request->kind ==
+                            PGRAPH_VK_HYBRID_JOB_COMPILE_SOURCE ?
+                        request->glsl_size : request->recipe_size;
+
+    return job->request.kind == request->kind &&
+           job->request.stage == request->stage &&
            job->request.glsl_size == request->glsl_size &&
+           job->request.recipe_size == request->recipe_size &&
            job->request.config_size == request->config_size &&
-           !memcmp(job->glsl, request->glsl, request->glsl_size) &&
+           !memcmp(job_input, request_input, input_size) &&
            (!request->config_size ||
             !memcmp(job->config, request->config, request->config_size));
 }
@@ -221,8 +265,8 @@ static void *hybrid_compiler_worker(void *opaque)
 
     for (;;) {
         HybridCompilerJob *job;
-        uint8_t *spirv = NULL;
-        size_t spirv_size = 0;
+        uint8_t *artifact = NULL;
+        size_t artifact_size = 0;
         bool success;
 
         qemu_mutex_lock(&state->lock);
@@ -238,21 +282,48 @@ static void *hybrid_compiler_worker(void *opaque)
         job->started_us = g_get_monotonic_time();
         qemu_mutex_unlock(&state->lock);
 
-        success = state->config.compile(state->config.opaque, &job->request,
-                                        &spirv, &spirv_size);
-        if (!success || !spirv || !spirv_size) {
-            g_free(spirv);
-            spirv = NULL;
-            spirv_size = 0;
+        if (job->request.kind == PGRAPH_VK_HYBRID_JOB_GENERATE_SOURCE) {
+            success = state->config.generate(
+                state->config.opaque, &job->request, &artifact,
+                &artifact_size);
+        } else {
+            success = state->config.compile(
+                state->config.opaque, &job->request, &artifact,
+                &artifact_size);
+        }
+        if (!success || !artifact || !artifact_size ||
+            (job->request.kind == PGRAPH_VK_HYBRID_JOB_GENERATE_SOURCE &&
+             artifact_size > state->config.max_async_bytes)) {
+            g_free(artifact);
+            artifact = NULL;
+            artifact_size = 0;
             success = false;
         }
 
         qemu_mutex_lock(&state->lock);
         job->finished_us = g_get_monotonic_time();
         state->active = NULL;
+        if (success &&
+            job->request.kind == PGRAPH_VK_HYBRID_JOB_GENERATE_SOURCE) {
+            if (artifact_size > state->config.max_async_bytes -
+                                    state->async_bytes) {
+                g_free(artifact);
+                artifact = NULL;
+                artifact_size = 0;
+                success = false;
+            } else {
+                state->async_bytes += artifact_size;
+                job->bytes += artifact_size;
+            }
+        }
         job->success = success;
-        job->spirv = spirv;
-        job->spirv_size = spirv_size;
+        if (job->request.kind == PGRAPH_VK_HYBRID_JOB_GENERATE_SOURCE) {
+            job->glsl = artifact;
+            job->generated_glsl_size = artifact_size;
+        } else {
+            job->spirv = artifact;
+            job->spirv_size = artifact_size;
+        }
         if (state->stopping) {
             async_account_release(state, job);
             job_destroy(job);
@@ -379,7 +450,9 @@ PGRAPHVkHybridCompilerSubmitResult pgraph_vk_hybrid_compiler_submit_async(
     if (owner) {
         *owner = (PGRAPHVkHybridCompileIdentity) { 0 };
     }
-    if (!state || !request_valid(request)) {
+    if (!state || !request_valid(request) ||
+        (request->kind == PGRAPH_VK_HYBRID_JOB_GENERATE_SOURCE &&
+         !state->config.generate)) {
         return PGRAPH_VK_HYBRID_COMPILER_INVALID;
     }
     job = job_new(request, false);
@@ -445,7 +518,8 @@ bool pgraph_vk_hybrid_compiler_submit_blocking(
     if (result) {
         *result = (PGRAPHVkHybridCompileResult) { 0 };
     }
-    if (!state || !result || !request_valid(request)) {
+    if (!state || !result || !request_valid(request) ||
+        request->kind != PGRAPH_VK_HYBRID_JOB_COMPILE_SOURCE) {
         return false;
     }
     job = job_new(request, true);
@@ -472,6 +546,7 @@ bool pgraph_vk_hybrid_compiler_submit_blocking(
         *result = (PGRAPHVkHybridCompileResult) {
             .generation = job->request.generation,
             .ticket = job->request.ticket,
+            .kind = job->request.kind,
             .stage = job->request.stage,
             .urgency = job->request.urgency,
             .success = job->success,
@@ -521,15 +596,25 @@ bool pgraph_vk_hybrid_compiler_take_result(
     *result = (PGRAPHVkHybridCompileResult) {
         .generation = job->request.generation,
         .ticket = job->request.ticket,
+        .kind = job->request.kind,
         .stage = job->request.stage,
         .urgency = job->request.urgency,
         .success = job->success,
+        .glsl = job->request.kind ==
+                    PGRAPH_VK_HYBRID_JOB_GENERATE_SOURCE ? job->glsl : NULL,
+        .glsl_size = job->request.kind ==
+                         PGRAPH_VK_HYBRID_JOB_GENERATE_SOURCE ?
+                     job->generated_glsl_size : 0,
         .spirv = job->spirv,
         .spirv_size = job->spirv_size,
         .submitted_us = job->submitted_us,
         .started_us = job->started_us,
         .finished_us = job->finished_us,
     };
+    if (job->request.kind == PGRAPH_VK_HYBRID_JOB_GENERATE_SOURCE) {
+        job->glsl = NULL;
+        job->generated_glsl_size = 0;
+    }
     job->spirv = NULL;
     job->spirv_size = 0;
     qemu_mutex_unlock(&state->lock);
@@ -551,6 +636,7 @@ void pgraph_vk_hybrid_compile_result_destroy(
     if (!result) {
         return;
     }
+    g_free(result->glsl);
     g_free(result->spirv);
     *result = (PGRAPHVkHybridCompileResult) { 0 };
 }

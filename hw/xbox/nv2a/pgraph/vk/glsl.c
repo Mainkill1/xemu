@@ -285,6 +285,7 @@ GByteArray *pgraph_vk_compile_glsl_to_spv(PGRAPHVkState *r,
         PGRAPHVkHybridCompileRequest request = {
             .generation = r->hybrid_generation,
             .ticket = ticket,
+            .kind = PGRAPH_VK_HYBRID_JOB_COMPILE_SOURCE,
             .stage = stage,
             .urgency = PGRAPH_VK_COMPILE_DEMAND,
             .glsl = glsl_source,
