@@ -1128,8 +1128,9 @@ void MainMenuAudioView::Draw()
             "14\0"
             "15\0"
             "16\0",
-            "Set MCPX voice processing worker threads. Auto uses the host "
-            "logical CPU count, capped at 16. Restart xemu to apply changes.")) {
+            "Set MCPX voice processing worker threads. Auto chooses a "
+            "host-dependent count, capped at 16. Restart xemu to apply "
+            "changes.")) {
         xemu_queue_notification(
             "Voice processing worker count changed. Restart xemu to apply it.");
     }
