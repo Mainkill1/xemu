@@ -2098,12 +2098,6 @@ static PGRAPHVkDrawPrepareResult create_pipeline(PGRAPHState *pg)
     }
     bool hybrid = r->ubershader_runtime_enabled &&
                   r->hybrid_compiler_initialized;
-    bool continue_requested =
-        xemu_vulkan_shader_miss_policy() ==
-        XEMU_VK_SHADER_MISS_CONTINUE_BLACK;
-    bool continue_nonblocking_supported =
-        hybrid && r->hybrid_pipeline_builder_initialized &&
-        r->pipeline_creation_cache_control_enabled;
     bool force_ubershader = r->ubershader_force_interpreter;
     bool schedule_specialization = false;
     bool track_specialized_family = false;
@@ -2269,6 +2263,12 @@ static PGRAPHVkDrawPrepareResult create_pipeline(PGRAPHState *pg)
         PGRAPHVkFragmentRoute route;
         ShaderBinding *ready_shader;
         PipelineBinding *ready_pipeline;
+        bool continue_requested =
+            xemu_vulkan_shader_miss_policy() ==
+            XEMU_VK_SHADER_MISS_CONTINUE_BLACK;
+        bool continue_nonblocking_supported =
+            r->hybrid_pipeline_builder_initialized &&
+            r->pipeline_creation_cache_control_enabled;
         if (selected == PGRAPH_VK_EXECUTION_SPECIALIZED) {
             route = PGRAPH_VK_FRAGMENT_SPECIALIZED;
             ready_shader = specialized.shader;
