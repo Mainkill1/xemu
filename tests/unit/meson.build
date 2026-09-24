@@ -165,6 +165,7 @@ tests = {
   'test-fifo': [],
   'test-lru-active': [],
   'test-xbox-mcpx-apu-resampler': [libsamplerate],
+  'test-xbox-mcpx-apu-worker-count': [],
 }
 
 if host_os == 'windows'
