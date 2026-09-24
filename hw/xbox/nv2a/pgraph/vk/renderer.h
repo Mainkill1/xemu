@@ -705,6 +705,8 @@ typedef struct PGRAPHVkState {
     bool custom_border_color_extension_enabled;
     bool memory_budget_extension_enabled;
     bool demote_to_helper_extension_enabled;
+    bool pipeline_creation_cache_control_extension_enabled;
+    bool pipeline_creation_cache_control_enabled;
 
     VkPhysicalDevice physical_device;
     PGRAPHVkDeviceRecord selected_device;

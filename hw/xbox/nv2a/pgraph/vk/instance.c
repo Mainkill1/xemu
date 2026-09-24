@@ -24,6 +24,7 @@
 #include "ui/xemu-settings.h"
 #include "renderer.h"
 #include "device-inventory.h"
+#include "pipeline-probe.h"
 #include "xemu-version.h"
 
 #define VkExtensionPropertiesArray GArray
@@ -339,6 +340,15 @@ static void add_optional_device_extension_names(
     r->demote_to_helper_extension_enabled = add_extension_if_available(
         available_extensions, enabled_extension_names,
         VK_EXT_SHADER_DEMOTE_TO_HELPER_INVOCATION_EXTENSION_NAME);
+
+    bool pipeline_cache_control_is_core =
+        pgraph_vk_pipeline_cache_control_is_core(r->vk_api_version,
+                                                 r->device_props.apiVersion);
+    r->pipeline_creation_cache_control_extension_enabled =
+        !pipeline_cache_control_is_core &&
+        add_extension_if_available(
+            available_extensions, enabled_extension_names,
+            VK_EXT_PIPELINE_CREATION_CACHE_CONTROL_EXTENSION_NAME);
 }
 
 static void get_required_device_extension_support(VkPhysicalDevice device,
@@ -672,6 +682,35 @@ static bool create_logical_device(PGRAPHState *pg, Error **errp)
 
     void *next_struct = NULL;
 
+    VkPhysicalDevicePipelineCreationCacheControlFeatures
+        pipeline_cache_control_features;
+    r->pipeline_creation_cache_control_enabled = false;
+    if (pgraph_vk_pipeline_cache_control_api_available(
+            r->vk_api_version, r->device_props.apiVersion,
+            r->pipeline_creation_cache_control_extension_enabled)) {
+        VkPhysicalDevicePipelineCreationCacheControlFeatures supported = {
+            .sType =
+                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES,
+        };
+        VkPhysicalDeviceFeatures2 features2 = {
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
+            .pNext = &supported,
+        };
+
+        vkGetPhysicalDeviceFeatures2(r->physical_device, &features2);
+        if (supported.pipelineCreationCacheControl) {
+            pipeline_cache_control_features =
+                (VkPhysicalDevicePipelineCreationCacheControlFeatures){
+                    .sType =
+                        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES,
+                    .pNext = next_struct,
+                    .pipelineCreationCacheControl = VK_TRUE,
+                };
+            next_struct = &pipeline_cache_control_features;
+            r->pipeline_creation_cache_control_enabled = true;
+        }
+    }
+
     VkPhysicalDeviceCustomBorderColorFeaturesEXT custom_border_features;
     if (r->custom_border_color_extension_enabled) {
         custom_border_features = (VkPhysicalDeviceCustomBorderColorFeaturesEXT){
@@ -725,6 +764,10 @@ static bool create_logical_device(PGRAPHState *pg, Error **errp)
         error_setg(errp, "Failed to create logical device (%d)", result);
         return false;
     }
+
+    fprintf(stderr, "nv2a/vk: compile-required pipeline probe %s\n",
+            r->pipeline_creation_cache_control_enabled ? "enabled" :
+                                                         "unavailable");
 
     vkGetDeviceQueue(r->device, indices.queue_family, 0, &r->queue);
     return true;
