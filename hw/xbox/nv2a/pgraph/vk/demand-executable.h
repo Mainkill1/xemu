@@ -108,4 +108,18 @@ pgraph_vk_demand_executable_find(const PGRAPHVkDemandExecutableState *state,
 bool pgraph_vk_demand_executable_has_pending(
     const PGRAPHVkDemandExecutableState *state);
 
+void pgraph_vk_init_demand_executables(PGRAPHState *pg);
+void pgraph_vk_finalize_demand_executables(PGRAPHState *pg);
+PGRAPHVkDemandExecutableResult
+pgraph_vk_request_demand_executable(PGRAPHState *pg, const PipelineKey *key,
+                                    uint64_t first_demand_us);
+void pgraph_vk_service_demand_executables(PGRAPHState *pg);
+void pgraph_vk_note_demand_pipeline_failure(PGRAPHState *pg,
+                                            const PipelineKey *key,
+                                            uint64_t generation,
+                                            uint64_t now_us);
+bool pgraph_vk_demand_work_pending(PGRAPHState *pg);
+PGRAPHVkDemandExecutableTelemetry
+pgraph_vk_demand_executable_telemetry_snapshot(PGRAPHState *pg);
+
 #endif

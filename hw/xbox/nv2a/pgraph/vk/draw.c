@@ -21,6 +21,7 @@
 #include "qemu/error-report.h"
 #include "qemu/fast-hash.h"
 #include "renderer.h"
+#include "demand-executable.h"
 #include "draw-lifecycle.h"
 #include "hybrid-family-codec.h"
 #include "hybrid-prewarm-runtime.h"
@@ -549,6 +550,7 @@ void pgraph_vk_init_pipelines(PGRAPHState *pg)
             pgraph_vk_hybrid_pipeline_builder_init(
                 &r->hybrid_pipeline_builder, &config);
     }
+    pgraph_vk_init_demand_executables(pg);
 
     VkSemaphoreCreateInfo semaphore_info = {
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO
@@ -567,6 +569,7 @@ void pgraph_vk_finalize_pipelines(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
+    pgraph_vk_finalize_demand_executables(pg);
     finalize_hybrid_pipeline_builder(r);
     finalize_clear_shaders(pg);
     finalize_pipeline_cache(pg);
@@ -1455,9 +1458,10 @@ static bool prepare_graphics_pipeline_recipe(PGRAPHState *pg,
     return true;
 }
 
-static PGRAPHVkHybridPipelineSubmitResult request_hybrid_pipeline(
-    PGRAPHState *pg, const PipelineKey *key, ShaderBinding *ready_binding,
-    bool prewarm)
+static PGRAPHVkHybridPipelineSubmitResult
+request_hybrid_pipeline(PGRAPHState *pg, const PipelineKey *key,
+                        ShaderBinding *ready_binding, bool prewarm,
+                        bool retained_demand)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     if (!r->hybrid_pipeline_builder_initialized || !key || !ready_binding ||
@@ -1466,7 +1470,8 @@ static PGRAPHVkHybridPipelineSubmitResult request_hybrid_pipeline(
         return PGRAPH_VK_HYBRID_PIPELINE_STOPPED;
     }
 
-    if (key->fragment_route == PGRAPH_VK_FRAGMENT_SPECIALIZED) {
+    if (key->fragment_route == PGRAPH_VK_FRAGMENT_SPECIALIZED &&
+        !retained_demand) {
         /* Active specialization must still match the live draw. A queued
          * fallback family instead owns its complete earlier pipeline key. */
         PipelineKey current_key;
@@ -1555,7 +1560,13 @@ static PGRAPHVkHybridPipelineSubmitResult request_hybrid_pipeline(
 PGRAPHVkHybridPipelineSubmitResult pgraph_vk_request_hybrid_pipeline(
     PGRAPHState *pg, const PipelineKey *key, ShaderBinding *ready_binding)
 {
-    return request_hybrid_pipeline(pg, key, ready_binding, false);
+    return request_hybrid_pipeline(pg, key, ready_binding, false, false);
+}
+
+PGRAPHVkHybridPipelineSubmitResult pgraph_vk_request_retained_demand_pipeline(
+    PGRAPHState *pg, const PipelineKey *key, ShaderBinding *ready_binding)
+{
+    return request_hybrid_pipeline(pg, key, ready_binding, false, true);
 }
 
 typedef struct PGRAPHVkFallbackShaderPreparationContext {
@@ -1644,12 +1655,16 @@ void pgraph_vk_process_fallback_families(PGRAPHState *pg)
     }
 }
 
-static bool hybrid_demand_work_waiting(PGRAPHVkState *r)
+static bool hybrid_demand_work_waiting(PGRAPHState *pg)
 {
+    PGRAPHVkState *r = pg->vk_renderer_state;
     if (r->hybrid_pending_jobs ||
         pgraph_vk_hybrid_compiler_has_result(&r->hybrid_compiler) ||
         pgraph_vk_hybrid_pipeline_builder_has_result(
             &r->hybrid_pipeline_builder)) {
+        return true;
+    }
+    if (pgraph_vk_demand_work_pending(pg)) {
         return true;
     }
     for (size_t i = 0; i < ARRAY_SIZE(r->fallback_family_requests); i++) {
@@ -1743,7 +1758,7 @@ static ShaderBinding *prewarm_ready_binding(void *opaque,
 static PGRAPHVkHybridPipelineSubmitResult prewarm_submit_pipeline(
     void *opaque, const PipelineKey *key, ShaderBinding *binding)
 {
-    return request_hybrid_pipeline(opaque, key, binding, true);
+    return request_hybrid_pipeline(opaque, key, binding, true, false);
 }
 
 static PGRAPHVkHybridPrewarmAttemptResult prewarm_one_family(
@@ -1771,8 +1786,7 @@ void pgraph_vk_process_hybrid_prewarm(PGRAPHState *pg)
 
     pgraph_vk_hybrid_prewarm_service(
         &r->hybrid_prewarm, &r->fallback_family_history,
-        hybrid_demand_work_waiting(r),
-        prewarm_one_family, pg);
+        hybrid_demand_work_waiting(pg), prewarm_one_family, pg);
 }
 
 static bool hybrid_pipeline_work_publish(PGRAPHVkState *r,
@@ -1883,6 +1897,10 @@ void pgraph_vk_process_hybrid_pipeline_completions(PGRAPHState *pg)
             }
             pgraph_vk_fallback_family_note_pipeline_failure_at(
                 r, &work->key, g_get_monotonic_time());
+            pgraph_vk_note_demand_pipeline_failure(
+                pg, &work->key, work->generation,
+                result.finished_us ? result.finished_us :
+                                     g_get_monotonic_time());
         }
         if (r->hybrid_trace) {
             pgraph_vk_hybrid_trace_record(
@@ -1897,6 +1915,7 @@ void pgraph_vk_process_hybrid_pipeline_completions(PGRAPHState *pg)
             hybrid_pipeline_work_clear(r, work);
         }
     }
+    pgraph_vk_service_demand_executables(pg);
 }
 
 static void request_complete_specialization(PGRAPHState *pg,
@@ -1922,18 +1941,10 @@ static void request_complete_specialization(PGRAPHState *pg,
     if (!fallback_pipeline_ready || !fallback_resources_ready) {
         return;
     }
-    pgraph_vk_enqueue_specialized_fragment(pg, state,
-                                           fallback_pipeline_ready,
-                                           fallback_resources_ready);
-    ShaderBinding *binding = pgraph_vk_prepare_binding_from_ready_modules(
-        pg, state, PGRAPH_VK_FRAGMENT_SPECIALIZED);
-    if (!binding) {
-        return;
-    }
     PipelineKey key;
     pgraph_vk_init_pipeline_key_for_state(
         pg, state, PGRAPH_VK_FRAGMENT_SPECIALIZED, &key);
-    (void)pgraph_vk_request_hybrid_pipeline(pg, &key, binding);
+    (void)pgraph_vk_request_demand_executable(pg, &key, g_get_monotonic_time());
 }
 
 static void maybe_request_complete_specialization(PGRAPHState *pg,
@@ -2697,6 +2708,7 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
 
     pgraph_vk_compute_finish_complete(r);
     retry_hybrid_pipeline_publications(r);
+    pgraph_vk_service_demand_executables(pg);
     pgraph_vk_hybrid_trace_record(
         r->hybrid_trace, VK_HYBRID_TRACE_FINISH,
         r->shader_binding ? r->shader_binding->fragment_route : 0,
