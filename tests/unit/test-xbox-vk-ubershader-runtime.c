@@ -1197,7 +1197,7 @@ int main(int argc, char **argv)
                     test_shader_binding_key_equality_requires_route_and_full_state);
     g_test_add_func("/xbox/vk/ubershader/runtime/shader-module-key",
                     test_shader_module_key_uses_only_active_stage);
-    g_test_add_func("/xbox/vk/ubershader/runtime/async-module-stopped",
+    g_test_add_func("/xbox/vk/ubershader/runtime/async-module-requires-live-compiler",
                     test_async_module_request_requires_live_compiler);
     g_test_add_func("/xbox/vk/ubershader/runtime/canonical-key",
                     test_uber_pipeline_key_ignores_only_combiner_words);
