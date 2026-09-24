@@ -22,6 +22,13 @@ PGRAPHVkDrawShaderMissAction pgraph_vk_draw_shader_miss_action(
     return PGRAPH_VK_DRAW_MISS_WAIT;
 }
 
+bool pgraph_vk_draw_omission_supported(bool query_side_effect,
+                                       bool color_write,
+                                       bool zeta_write)
+{
+    return !query_side_effect && !color_write && !zeta_write;
+}
+
 void pgraph_vk_draw_omission_checkpoint_capture(
     const PGRAPHVkState *r, PGRAPHVkDrawEncoding encoding,
     PGRAPHVkDrawOmissionCheckpoint *checkpoint)

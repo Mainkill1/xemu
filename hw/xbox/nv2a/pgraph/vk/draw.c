@@ -2188,6 +2188,10 @@ static PGRAPHVkDrawPrepareResult create_pipeline(PGRAPHState *pg)
     bool continue_nonblocking_supported =
         hybrid && r->hybrid_pipeline_builder_initialized &&
         r->pipeline_creation_cache_control_enabled;
+    bool omission_supported = pgraph_vk_draw_omission_supported(
+        pg->zpass_pixel_count_enable != 0,
+        pgraph_color_write_enabled(pg),
+        pgraph_zeta_write_enabled(pg));
     bool schedule_specialization = false;
     bool track_specialized_family = false;
     bool family_controls_supported = false;
@@ -2398,7 +2402,7 @@ static PGRAPHVkDrawPrepareResult create_pipeline(PGRAPHState *pg)
             PGRAPHVkDrawShaderMissAction miss_action =
                 pgraph_vk_draw_shader_miss_action(
                     continue_requested, continue_nonblocking_supported,
-                    true, false);
+                    omission_supported, false);
             if (miss_action == PGRAPH_VK_DRAW_MISS_OMIT) {
                 PipelineKey missing_key;
                 pgraph_vk_init_pipeline_key_for_state(
@@ -2434,7 +2438,7 @@ static PGRAPHVkDrawPrepareResult create_pipeline(PGRAPHState *pg)
         PGRAPHVkDrawShaderMissAction pipeline_miss_action =
             pgraph_vk_draw_shader_miss_action(
                 continue_requested, continue_nonblocking_supported,
-                true, ready_pipeline != NULL);
+                omission_supported, ready_pipeline != NULL);
         if (pipeline_miss_action == PGRAPH_VK_DRAW_MISS_OMIT &&
             ready_shader) {
             PipelineKey missing_key;

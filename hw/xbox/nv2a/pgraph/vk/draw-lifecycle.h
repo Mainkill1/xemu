@@ -47,6 +47,9 @@ typedef struct PGRAPHVkDrawOmissionCheckpoint {
 PGRAPHVkDrawShaderMissAction pgraph_vk_draw_shader_miss_action(
     bool continue_requested, bool nonblocking_supported,
     bool omission_supported, bool executable_ready);
+bool pgraph_vk_draw_omission_supported(bool query_side_effect,
+                                       bool color_write,
+                                       bool zeta_write);
 
 void pgraph_vk_draw_omission_checkpoint_capture(
     const PGRAPHVkState *r, PGRAPHVkDrawEncoding encoding,

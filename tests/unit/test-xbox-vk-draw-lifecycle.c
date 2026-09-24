@@ -123,6 +123,15 @@ static void test_shader_miss_action_omits_supported_continue_draw(void)
         PGRAPH_VK_DRAW_MISS_OMIT);
 }
 
+static void test_omission_requires_side_effect_free_draw(void)
+{
+    g_assert_true(pgraph_vk_draw_omission_supported(false, false, false));
+    g_assert_false(pgraph_vk_draw_omission_supported(true, false, false));
+    g_assert_false(pgraph_vk_draw_omission_supported(false, true, false));
+    g_assert_false(pgraph_vk_draw_omission_supported(false, false, true));
+    g_assert_false(pgraph_vk_draw_omission_supported(true, true, true));
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -144,5 +153,8 @@ int main(int argc, char **argv)
     g_test_add_func(
         "/xbox/vk/draw-lifecycle/miss-omit",
         test_shader_miss_action_omits_supported_continue_draw);
+    g_test_add_func(
+        "/xbox/vk/draw-lifecycle/omission-side-effects",
+        test_omission_requires_side_effect_free_draw);
     return g_test_run();
 }
