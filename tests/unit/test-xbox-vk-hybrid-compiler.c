@@ -102,12 +102,13 @@ static PGRAPHVkHybridCompilerConfig test_config(TestCompiler *test,
 
 static PGRAPHVkHybridCompileRequest test_request_stage(
     uint64_t generation, uint64_t ticket, uint32_t stage,
-    const char *glsl, const char *config)
+    const char *glsl, const char *config, PGRAPHVkCompileUrgency urgency)
 {
     return (PGRAPHVkHybridCompileRequest) {
         .generation = generation,
         .ticket = ticket,
         .stage = stage,
+        .urgency = urgency,
         .glsl = glsl,
         .glsl_size = strlen(glsl),
         .config = config,
@@ -120,7 +121,8 @@ static PGRAPHVkHybridCompileRequest test_request(uint64_t generation,
                                                   const char *glsl,
                                                   const char *config)
 {
-    return test_request_stage(generation, ticket, 16, glsl, config);
+    return test_request_stage(generation, ticket, 16, glsl, config,
+                              PGRAPH_VK_COMPILE_DEMAND);
 }
 
 static bool init_compiler(PGRAPHVkHybridCompiler *compiler,
@@ -137,6 +139,17 @@ static PGRAPHVkHybridCompilerSubmitResult submit_async(
 {
     PGRAPHVkHybridCompileRequest request =
         test_request(generation, ticket, glsl, config);
+
+    return pgraph_vk_hybrid_compiler_submit_async(compiler, &request, owner);
+}
+
+static PGRAPHVkHybridCompilerSubmitResult submit_async_urgency(
+    PGRAPHVkHybridCompiler *compiler, uint64_t generation, uint64_t ticket,
+    const char *glsl, const char *config, PGRAPHVkCompileUrgency urgency,
+    PGRAPHVkHybridCompileIdentity *owner)
+{
+    PGRAPHVkHybridCompileRequest request =
+        test_request_stage(generation, ticket, 16, glsl, config, urgency);
 
     return pgraph_vk_hybrid_compiler_submit_async(compiler, &request, owner);
 }
@@ -263,7 +276,7 @@ static void test_async_preserves_stage_identity(void)
     for (size_t i = 0; i < ARRAY_SIZE(requests); i++) {
         PGRAPHVkHybridCompileRequest request = test_request_stage(
             requests[i].generation, requests[i].ticket, requests[i].stage,
-            requests[i].source, "config");
+            requests[i].source, "config", PGRAPH_VK_COMPILE_DEMAND);
         g_assert_cmpint(pgraph_vk_hybrid_compiler_submit_async(
                             &compiler, &request, NULL),
                         ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
@@ -276,6 +289,136 @@ static void test_async_preserves_stage_identity(void)
         g_assert_cmpuint(result.stage, ==, requests[i].stage);
         pgraph_vk_hybrid_compile_result_destroy(&result);
     }
+
+    pgraph_vk_hybrid_compiler_destroy(&compiler);
+    test_compiler_destroy(&test);
+}
+
+static void test_async_urgency_orders_queued_work(void)
+{
+    TestCompiler test;
+    PGRAPHVkHybridCompiler compiler = { 0 };
+    PGRAPHVkHybridCompileResult result;
+    static const struct {
+        uint64_t ticket;
+        PGRAPHVkCompileUrgency urgency;
+    } expected[] = {
+        { 1, PGRAPH_VK_COMPILE_SPECULATIVE },
+        { 4, PGRAPH_VK_COMPILE_DEMAND },
+        { 5, PGRAPH_VK_COMPILE_DEMAND },
+        { 3, PGRAPH_VK_COMPILE_PREWARM },
+        { 2, PGRAPH_VK_COMPILE_SPECULATIVE },
+    };
+
+    test_compiler_init(&test, true);
+    g_assert_true(init_compiler(&compiler, &test, 5, 160));
+    g_assert_cmpint(submit_async_urgency(
+                        &compiler, 1, 1, "active", "config",
+                        PGRAPH_VK_COMPILE_SPECULATIVE, NULL),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
+    test_wait_for_calls(&test, 1);
+    g_assert_cmpint(submit_async_urgency(
+                        &compiler, 1, 2, "queued-spec", "config",
+                        PGRAPH_VK_COMPILE_SPECULATIVE, NULL),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
+    g_assert_cmpint(submit_async_urgency(
+                        &compiler, 1, 3, "queued-prewarm", "config",
+                        PGRAPH_VK_COMPILE_PREWARM, NULL),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
+    g_assert_cmpint(submit_async_urgency(
+                        &compiler, 1, 4, "queued-demand", "config",
+                        PGRAPH_VK_COMPILE_DEMAND, NULL),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
+    g_assert_cmpint(submit_async_urgency(
+                        &compiler, 1, 5, "demand-second", "config",
+                        PGRAPH_VK_COMPILE_DEMAND, NULL),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
+    test_release(&test);
+
+    for (size_t i = 0; i < ARRAY_SIZE(expected); i++) {
+        g_assert_true(take_result(&compiler, &result));
+        g_assert_cmpuint(result.ticket, ==, expected[i].ticket);
+        g_assert_cmpint(result.urgency, ==, expected[i].urgency);
+        pgraph_vk_hybrid_compile_result_destroy(&result);
+    }
+    g_assert_cmpuint(test.calls, ==, ARRAY_SIZE(expected));
+
+    pgraph_vk_hybrid_compiler_destroy(&compiler);
+    test_compiler_destroy(&test);
+}
+
+static void test_async_active_duplicate_is_not_reordered(void)
+{
+    TestCompiler test;
+    PGRAPHVkHybridCompiler compiler = { 0 };
+    PGRAPHVkHybridCompileIdentity owner;
+    PGRAPHVkHybridCompileResult result;
+
+    test_compiler_init(&test, true);
+    g_assert_true(init_compiler(&compiler, &test, 1, 64));
+    g_assert_cmpint(submit_async_urgency(
+                        &compiler, 2, 2, "active", "config",
+                        PGRAPH_VK_COMPILE_SPECULATIVE, NULL),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
+    test_wait_for_calls(&test, 1);
+    g_assert_cmpint(submit_async_urgency(
+                        &compiler, 9, 99, "active", "config",
+                        PGRAPH_VK_COMPILE_DEMAND, &owner),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_DUPLICATE);
+    g_assert_cmpuint(owner.generation, ==, 2);
+    g_assert_cmpuint(owner.ticket, ==, 2);
+
+    test_release(&test);
+    g_assert_true(take_result(&compiler, &result));
+    g_assert_cmpuint(result.ticket, ==, 2);
+    g_assert_cmpint(result.urgency, ==, PGRAPH_VK_COMPILE_SPECULATIVE);
+    pgraph_vk_hybrid_compile_result_destroy(&result);
+    g_assert_cmpuint(test.calls, ==, 1);
+
+    pgraph_vk_hybrid_compiler_destroy(&compiler);
+    test_compiler_destroy(&test);
+}
+
+static void test_async_exact_duplicate_is_promoted_in_place(void)
+{
+    TestCompiler test;
+    PGRAPHVkHybridCompiler compiler = { 0 };
+    PGRAPHVkHybridCompileIdentity owner;
+    PGRAPHVkHybridCompileResult result;
+
+    test_compiler_init(&test, true);
+    g_assert_true(init_compiler(&compiler, &test, 3, 128));
+    g_assert_cmpint(submit_async_urgency(
+                        &compiler, 1, 1, "active", "config",
+                        PGRAPH_VK_COMPILE_SPECULATIVE, NULL),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
+    test_wait_for_calls(&test, 1);
+    g_assert_cmpint(submit_async_urgency(
+                        &compiler, 2, 2, "promoted", "config",
+                        PGRAPH_VK_COMPILE_SPECULATIVE, NULL),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
+    g_assert_cmpint(submit_async_urgency(
+                        &compiler, 9, 99, "promoted", "config",
+                        PGRAPH_VK_COMPILE_DEMAND, &owner),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_DUPLICATE_PROMOTED);
+    g_assert_cmpuint(owner.generation, ==, 2);
+    g_assert_cmpuint(owner.ticket, ==, 2);
+    g_assert_cmpint(submit_async_urgency(
+                        &compiler, 10, 100, "promoted", "config",
+                        PGRAPH_VK_COMPILE_PREWARM, &owner),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_DUPLICATE);
+    g_assert_cmpuint(owner.generation, ==, 2);
+    g_assert_cmpuint(owner.ticket, ==, 2);
+
+    test_release(&test);
+    g_assert_true(take_result(&compiler, &result));
+    g_assert_cmpuint(result.ticket, ==, 1);
+    pgraph_vk_hybrid_compile_result_destroy(&result);
+    g_assert_true(take_result(&compiler, &result));
+    g_assert_cmpuint(result.ticket, ==, 2);
+    g_assert_cmpint(result.urgency, ==, PGRAPH_VK_COMPILE_DEMAND);
+    pgraph_vk_hybrid_compile_result_destroy(&result);
+    g_assert_cmpuint(test.calls, ==, 2);
 
     pgraph_vk_hybrid_compiler_destroy(&compiler);
     test_compiler_destroy(&test);
@@ -421,6 +564,24 @@ static void test_compile_failure_is_returned_with_owned_empty_artifact(void)
     test_compiler_destroy(&test);
 }
 
+static void test_invalid_urgency_is_rejected(void)
+{
+    TestCompiler test;
+    PGRAPHVkHybridCompiler compiler = { 0 };
+    PGRAPHVkHybridCompileRequest request =
+        test_request(1, 1, "shader", "config");
+
+    test_compiler_init(&test, false);
+    g_assert_true(init_compiler(&compiler, &test, 1, 64));
+    request.urgency = PGRAPH_VK_COMPILE_DEMAND + 1;
+    g_assert_cmpint(pgraph_vk_hybrid_compiler_submit_async(
+                        &compiler, &request, NULL),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_INVALID);
+    g_assert_cmpuint(test.calls, ==, 0);
+    pgraph_vk_hybrid_compiler_destroy(&compiler);
+    test_compiler_destroy(&test);
+}
+
 static void test_stop_join_releases_idle_busy_and_full_queues(void)
 {
     TestCompiler test;
@@ -483,6 +644,12 @@ int main(int argc, char **argv)
                     test_dedup_keeps_different_immutable_configs_distinct);
     g_test_add_func("/xbox/vk/hybrid-compiler/stage-identity",
                     test_async_preserves_stage_identity);
+    g_test_add_func("/xbox/vk/hybrid-compiler/urgency-order",
+                    test_async_urgency_orders_queued_work);
+    g_test_add_func("/xbox/vk/hybrid-compiler/duplicate-promotion",
+                    test_async_exact_duplicate_is_promoted_in_place);
+    g_test_add_func("/xbox/vk/hybrid-compiler/active-not-promoted",
+                    test_async_active_duplicate_is_not_reordered);
     g_test_add_func("/xbox/vk/hybrid-compiler/async-after-blocking",
                     test_async_matching_blocking_work_keeps_its_own_result);
     g_test_add_func("/xbox/vk/hybrid-compiler/reserved-blocking",
@@ -491,6 +658,8 @@ int main(int argc, char **argv)
                     test_required_compile_starts_while_async_is_active);
     g_test_add_func("/xbox/vk/hybrid-compiler/failure-result",
                     test_compile_failure_is_returned_with_owned_empty_artifact);
+    g_test_add_func("/xbox/vk/hybrid-compiler/invalid-urgency",
+                    test_invalid_urgency_is_rejected);
     g_test_add_func("/xbox/vk/hybrid-compiler/stop-join",
                     test_stop_join_releases_idle_busy_and_full_queues);
     g_test_add_func("/xbox/vk/hybrid-compiler/stop-active-required",

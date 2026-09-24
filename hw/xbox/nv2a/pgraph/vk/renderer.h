@@ -314,14 +314,22 @@ typedef struct ShaderModuleCacheEntry {
 
 #define PGRAPH_VK_HYBRID_MAX_WORK 64
 
+typedef struct PGRAPHVkGlslCompileConfig {
+    uint32_t api_version;
+    /* Fixed-width fields keep bytewise worker-job identity deterministic. */
+    uint32_t debug_shaders;
+} PGRAPHVkGlslCompileConfig;
+
 typedef struct PGRAPHVkHybridShaderWork {
     bool in_use;
     uint64_t last_epoch;
+    PGRAPHVkCompileUrgency urgency;
     PGRAPHVkHybridWork metadata;
     ShaderModuleCacheKey module_key;
     char *glsl;
     /* PR70/cache identity length; glsl[glsl_size] is the owned NUL. */
     size_t glsl_size;
+    PGRAPHVkGlslCompileConfig compile_config;
 } PGRAPHVkHybridShaderWork;
 
 typedef enum PGRAPHVkAsyncModuleRequestResult {
@@ -942,12 +950,6 @@ uint32_t pgraph_vk_get_memory_type(PGRAPHState *pg, uint32_t type_bits,
                                    VkMemoryPropertyFlags properties);
 
 // glsl.c
-typedef struct PGRAPHVkGlslCompileConfig {
-    uint32_t api_version;
-    /* Fixed-width fields keep bytewise worker-job identity deterministic. */
-    uint32_t debug_shaders;
-} PGRAPHVkGlslCompileConfig;
-
 void pgraph_vk_init_glsl_compiler(void);
 void pgraph_vk_finalize_glsl_compiler(void);
 void pgraph_vk_glsl_target_versions(

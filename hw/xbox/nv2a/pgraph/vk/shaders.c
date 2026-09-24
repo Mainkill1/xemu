@@ -1604,7 +1604,7 @@ static PGRAPHVkSpirvCacheAdoptResult generate_and_materialize_cached_module(
 
 static PGRAPHVkAsyncModuleRequestResult request_shader_module_async(
     PGRAPHState *pg, const ShaderModuleCacheKey *key,
-    unsigned int max_attempts)
+    unsigned int max_attempts, PGRAPHVkCompileUrgency urgency)
 {
     if (!pg || !pg->vk_renderer_state || !key || !max_attempts ||
         !shader_module_kind_supported(key->kind)) {
@@ -1612,6 +1612,10 @@ static PGRAPHVkAsyncModuleRequestResult request_shader_module_async(
     }
 
     PGRAPHVkState *r = pg->vk_renderer_state;
+    PGRAPHVkGlslCompileConfig config = {
+        .api_version = r->vk_api_version,
+        .debug_shaders = g_config.display.vulkan.debug_shaders,
+    };
     if (!r->hybrid_compiler_initialized) {
         return PGRAPH_VK_ASYNC_MODULE_FAILED;
     }
@@ -1625,6 +1629,34 @@ static PGRAPHVkAsyncModuleRequestResult request_shader_module_async(
             work->metadata.max_attempts =
                 MAX(work->metadata.max_attempts, max_attempts);
             work->last_epoch = r->hybrid_route_epoch;
+            if (urgency > work->urgency) {
+                PGRAPHVkHybridCompileRequest promotion = {
+                    .generation = work->metadata.generation,
+                    .ticket = work->metadata.ticket,
+                    .stage = shader_module_glslang_stage(key->kind),
+                    .urgency = urgency,
+                    .glsl = work->glsl,
+                    .glsl_size = work->glsl_size + 1,
+                    .config = &work->compile_config,
+                    .config_size = sizeof(work->compile_config),
+                };
+                PGRAPHVkHybridCompileIdentity owner = { 0 };
+                PGRAPHVkHybridCompilerSubmitResult submit =
+                    pgraph_vk_hybrid_compiler_submit_async(
+                        &r->hybrid_compiler, &promotion, &owner);
+                if (submit ==
+                        PGRAPH_VK_HYBRID_COMPILER_DUPLICATE_PROMOTED ||
+                    submit == PGRAPH_VK_HYBRID_COMPILER_DUPLICATE) {
+                    assert(owner.generation == work->metadata.generation);
+                    assert(owner.ticket == work->metadata.ticket);
+                    work->urgency = urgency;
+                } else if (submit == PGRAPH_VK_HYBRID_COMPILER_STOPPED) {
+                    return PGRAPH_VK_ASYNC_MODULE_DEFERRED;
+                } else {
+                    assert(submit != PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
+                    return PGRAPH_VK_ASYNC_MODULE_FAILED;
+                }
+            }
             return PGRAPH_VK_ASYNC_MODULE_DUPLICATE;
         }
         if (work->metadata.status ==
@@ -1671,19 +1703,19 @@ static PGRAPHVkAsyncModuleRequestResult request_shader_module_async(
         work->module_key = *key;
         work->glsl = g_strndup(glsl, glsl_size);
         work->glsl_size = glsl_size;
+        work->urgency = urgency;
         pgraph_vk_hybrid_work_init(&work->metadata, max_attempts);
     }
 
-    PGRAPHVkGlslCompileConfig config = {
-        .api_version = r->vk_api_version,
-        .debug_shaders = g_config.display.vulkan.debug_shaders,
-    };
+    work->compile_config = config;
+    work->urgency = urgency;
     uint64_t ticket = pgraph_vk_hybrid_allocate_ticket(
         &r->hybrid_ticket_allocator);
     PGRAPHVkHybridCompileRequest request = {
         .generation = r->hybrid_generation,
         .ticket = ticket,
         .stage = shader_module_glslang_stage(key->kind),
+        .urgency = urgency,
         .glsl = glsl,
         .glsl_size = glsl_size + 1,
         .config = &config,
@@ -1698,7 +1730,8 @@ static PGRAPHVkAsyncModuleRequestResult request_shader_module_async(
 
     switch (submit) {
     case PGRAPH_VK_HYBRID_COMPILER_ACCEPTED:
-    case PGRAPH_VK_HYBRID_COMPILER_DUPLICATE: {
+    case PGRAPH_VK_HYBRID_COMPILER_DUPLICATE:
+    case PGRAPH_VK_HYBRID_COMPILER_DUPLICATE_PROMOTED: {
         bool marked = pgraph_vk_hybrid_mark_pending(
             &work->metadata, false, owner.generation, owner.ticket,
             r->hybrid_route_epoch);
@@ -1741,7 +1774,8 @@ static PGRAPHVkAsyncModuleRequestResult request_shader_module_async(
 PGRAPHVkAsyncModuleRequestResult pgraph_vk_request_shader_module_async(
     PGRAPHState *pg, const ShaderModuleCacheKey *key)
 {
-    return request_shader_module_async(pg, key, 3);
+    return request_shader_module_async(pg, key, 3,
+                                       PGRAPH_VK_COMPILE_SPECULATIVE);
 }
 
 static bool init_shader_state_module_key(PGRAPHVkState *r,
@@ -1803,7 +1837,8 @@ PGRAPHVkAsyncModuleRequestResult pgraph_vk_request_shader_state_module_async(
                    PGRAPH_VK_ASYNC_MODULE_READY :
                    PGRAPH_VK_ASYNC_MODULE_FAILED;
     }
-    return request_shader_module_async(pg, &key, 3);
+    return request_shader_module_async(pg, &key, 3,
+                                       PGRAPH_VK_COMPILE_DEMAND);
 }
 
 typedef struct PGRAPHVkCachedFamilyModuleContext {
@@ -1874,7 +1909,8 @@ bool pgraph_vk_enqueue_fallback_fragment(PGRAPHState *pg,
     ShaderModuleCacheKey key;
     init_fragment_module_key(&key, &state->psh,
                              PGRAPH_VK_FRAGMENT_UBERSHADER);
-    return request_shader_module_async(pg, &key, 1) !=
+    return request_shader_module_async(pg, &key, 1,
+                                       PGRAPH_VK_COMPILE_PREWARM) !=
            PGRAPH_VK_ASYNC_MODULE_FAILED;
 }
 

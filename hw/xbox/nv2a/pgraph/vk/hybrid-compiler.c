@@ -53,6 +53,8 @@ typedef struct HybridCompilerState {
 static bool request_valid(const PGRAPHVkHybridCompileRequest *request)
 {
     return request && request->ticket && request->glsl && request->glsl_size &&
+           request->urgency >= PGRAPH_VK_COMPILE_SPECULATIVE &&
+           request->urgency <= PGRAPH_VK_COMPILE_DEMAND &&
            (!request->config_size || request->config) &&
            request->glsl_size <= SIZE_MAX - request->config_size;
 }
@@ -119,14 +121,20 @@ static HybridCompilerJob *find_in_list(
 }
 
 static HybridCompilerJob *find_matching_async_job(
-    HybridCompilerState *state, const PGRAPHVkHybridCompileRequest *request)
+    HybridCompilerState *state, const PGRAPHVkHybridCompileRequest *request,
+    bool *queued)
 {
+    *queued = false;
     if (state->active && !state->active->blocking &&
         job_matches_request(state->active, request)) {
         return state->active;
     }
     HybridCompilerJob *job = find_in_list(state->async_head, request);
-    return job ? job : find_in_list(state->result_head, request);
+    if (job) {
+        *queued = true;
+        return job;
+    }
+    return find_in_list(state->result_head, request);
 }
 
 static bool async_has_capacity(const HybridCompilerState *state,
@@ -166,16 +174,33 @@ static void async_list_destroy(HybridCompilerState *state,
 static HybridCompilerJob *async_pop(HybridCompilerState *state)
 {
     HybridCompilerJob *job = state->async_head;
+    HybridCompilerJob *previous = NULL;
+    HybridCompilerJob *best = job;
+    HybridCompilerJob *best_previous = NULL;
 
     if (!job) {
         return NULL;
     }
-    state->async_head = job->next;
+
+    for (; job; previous = job, job = job->next) {
+        if (job->request.urgency > best->request.urgency) {
+            best = job;
+            best_previous = previous;
+        }
+    }
+    if (best_previous) {
+        best_previous->next = best->next;
+    } else {
+        state->async_head = best->next;
+    }
+    if (state->async_tail == best) {
+        state->async_tail = best_previous;
+    }
     if (!state->async_head) {
         state->async_tail = NULL;
     }
-    job->next = NULL;
-    return job;
+    best->next = NULL;
+    return best;
 }
 
 static void result_append(HybridCompilerState *state, HybridCompilerJob *job)
@@ -347,7 +372,9 @@ PGRAPHVkHybridCompilerSubmitResult pgraph_vk_hybrid_compiler_submit_async(
 {
     HybridCompilerState *state = compiler ? compiler->state : NULL;
     HybridCompilerJob *job;
+    HybridCompilerJob *existing;
     PGRAPHVkHybridCompilerSubmitResult result;
+    bool queued;
 
     if (owner) {
         *owner = (PGRAPHVkHybridCompileIdentity) { 0 };
@@ -363,9 +390,14 @@ PGRAPHVkHybridCompilerSubmitResult pgraph_vk_hybrid_compiler_submit_async(
     qemu_mutex_lock(&state->lock);
     if (state->stopping) {
         result = PGRAPH_VK_HYBRID_COMPILER_STOPPED;
-    } else if (find_matching_async_job(state, request)) {
-        result = PGRAPH_VK_HYBRID_COMPILER_DUPLICATE;
-        HybridCompilerJob *existing = find_matching_async_job(state, request);
+    } else if ((existing = find_matching_async_job(state, request,
+                                                    &queued))) {
+        if (queued && request->urgency > existing->request.urgency) {
+            existing->request.urgency = request->urgency;
+            result = PGRAPH_VK_HYBRID_COMPILER_DUPLICATE_PROMOTED;
+        } else {
+            result = PGRAPH_VK_HYBRID_COMPILER_DUPLICATE;
+        }
         if (owner) {
             *owner = (PGRAPHVkHybridCompileIdentity) {
                 .generation = existing->request.generation,
@@ -441,6 +473,7 @@ bool pgraph_vk_hybrid_compiler_submit_blocking(
             .generation = job->request.generation,
             .ticket = job->request.ticket,
             .stage = job->request.stage,
+            .urgency = job->request.urgency,
             .success = job->success,
             .spirv = job->spirv,
             .spirv_size = job->spirv_size,
@@ -489,6 +522,7 @@ bool pgraph_vk_hybrid_compiler_take_result(
         .generation = job->request.generation,
         .ticket = job->request.ticket,
         .stage = job->request.stage,
+        .urgency = job->request.urgency,
         .success = job->success,
         .spirv = job->spirv,
         .spirv_size = job->spirv_size,

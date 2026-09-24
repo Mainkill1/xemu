@@ -16,10 +16,17 @@
  * artifacts. It deliberately knows nothing about PGRAPH, Vulkan, caches, or
  * renderer-owned state.
  */
+typedef enum PGRAPHVkCompileUrgency {
+    PGRAPH_VK_COMPILE_SPECULATIVE,
+    PGRAPH_VK_COMPILE_PREWARM,
+    PGRAPH_VK_COMPILE_DEMAND,
+} PGRAPHVkCompileUrgency;
+
 typedef struct PGRAPHVkHybridCompileRequest {
     uint64_t generation;
     uint64_t ticket;
     uint32_t stage;
+    PGRAPHVkCompileUrgency urgency;
     const void *glsl;
     size_t glsl_size;
     const void *config;
@@ -30,6 +37,7 @@ typedef struct PGRAPHVkHybridCompileResult {
     uint64_t generation;
     uint64_t ticket;
     uint32_t stage;
+    PGRAPHVkCompileUrgency urgency;
     bool success;
     uint8_t *spirv;
     size_t spirv_size;
@@ -64,6 +72,7 @@ typedef struct PGRAPHVkHybridCompilerConfig {
 typedef enum PGRAPHVkHybridCompilerSubmitResult {
     PGRAPH_VK_HYBRID_COMPILER_ACCEPTED,
     PGRAPH_VK_HYBRID_COMPILER_DUPLICATE,
+    PGRAPH_VK_HYBRID_COMPILER_DUPLICATE_PROMOTED,
     PGRAPH_VK_HYBRID_COMPILER_QUEUE_FULL,
     PGRAPH_VK_HYBRID_COMPILER_BYTE_LIMIT,
     PGRAPH_VK_HYBRID_COMPILER_STOPPED,
@@ -83,8 +92,11 @@ bool pgraph_vk_hybrid_compiler_can_submit_async(
 
 /*
  * A duplicate is identified by stage plus exact GLSL/config bytes, not by
- * generation or ticket. On ACCEPTED or DUPLICATE, owner identifies the one
- * result that an integration must associate with every matching recipe.
+ * generation or ticket. On an accepted or duplicate outcome, owner identifies
+ * the one result that an integration must associate with every matching
+ * recipe.
+ * A higher-urgency exact duplicate promotes queued work in place without
+ * changing that identity or consuming another queue slot.
  */
 PGRAPHVkHybridCompilerSubmitResult pgraph_vk_hybrid_compiler_submit_async(
     PGRAPHVkHybridCompiler *compiler,
