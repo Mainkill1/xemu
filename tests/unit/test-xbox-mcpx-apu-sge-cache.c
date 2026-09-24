@@ -6,6 +6,7 @@
 
 typedef struct TestSGEReader {
     MCPXAPUSGETranslationCache cache;
+    hwaddr sge_base;
     hwaddr page_bases[4];
     unsigned int reads;
 } TestSGEReader;
@@ -14,13 +15,13 @@ static hwaddr test_translate(TestSGEReader *reader, uint32_t address)
 {
     hwaddr physical;
 
-    if (!mcpx_apu_sge_cache_translate(&reader->cache, address, TEST_PAGE_SIZE,
-                                      &physical)) {
+    if (!mcpx_apu_sge_cache_translate(&reader->cache, reader->sge_base,
+                                      address, TEST_PAGE_SIZE, &physical)) {
         unsigned int entry = address / TEST_PAGE_SIZE;
 
         reader->reads++;
-        physical = mcpx_apu_sge_cache_fill(&reader->cache, address,
-                                           TEST_PAGE_SIZE,
+        physical = mcpx_apu_sge_cache_fill(&reader->cache, reader->sge_base,
+                                           address, TEST_PAGE_SIZE,
                                            reader->page_bases[entry]);
     }
 

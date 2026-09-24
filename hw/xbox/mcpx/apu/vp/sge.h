@@ -15,18 +15,20 @@
 #include "exec/hwaddr.h"
 
 typedef struct MCPXAPUSGETranslationCache {
+    hwaddr sge_base;
     unsigned int entry;
     hwaddr page_base;
     bool valid;
 } MCPXAPUSGETranslationCache;
 
 static inline bool mcpx_apu_sge_cache_translate(
-    const MCPXAPUSGETranslationCache *cache, uint32_t address,
-    uint32_t page_size, hwaddr *physical)
+    const MCPXAPUSGETranslationCache *cache, hwaddr sge_base,
+    uint32_t address, uint32_t page_size, hwaddr *physical)
 {
     unsigned int entry = address / page_size;
 
-    if (!cache->valid || cache->entry != entry) {
+    if (!cache->valid || cache->sge_base != sge_base ||
+        cache->entry != entry) {
         return false;
     }
 
@@ -35,9 +37,10 @@ static inline bool mcpx_apu_sge_cache_translate(
 }
 
 static inline hwaddr mcpx_apu_sge_cache_fill(
-    MCPXAPUSGETranslationCache *cache, uint32_t address, uint32_t page_size,
-    hwaddr page_base)
+    MCPXAPUSGETranslationCache *cache, hwaddr sge_base, uint32_t address,
+    uint32_t page_size, hwaddr page_base)
 {
+    cache->sge_base = sge_base;
     cache->entry = address / page_size;
     cache->page_base = page_base;
     cache->valid = true;

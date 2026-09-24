@@ -673,8 +673,8 @@ static hwaddr get_data_ptr(hwaddr sge_base, unsigned int max_sge, uint32_t addr,
 
     assert(entry <= max_sge);
 
-    if (mcpx_apu_sge_cache_translate(cache, addr, TARGET_PAGE_SIZE,
-                                     &physical)) {
+    if (mcpx_apu_sge_cache_translate(cache, sge_base, addr,
+                                     TARGET_PAGE_SIZE, &physical)) {
         return physical;
     }
 
@@ -683,7 +683,7 @@ static hwaddr get_data_ptr(hwaddr sge_base, unsigned int max_sge, uint32_t addr,
     // uint32_t prd_control =
     //     ldl_le_phys(&address_space_memory, sge_base + entry * 4 * 2 + 4);
     DPRINTF("Addr: 0x%08X, control: 0x%08X\n", prd_address, prd_control);
-    return mcpx_apu_sge_cache_fill(cache, addr, TARGET_PAGE_SIZE,
+    return mcpx_apu_sge_cache_fill(cache, sge_base, addr, TARGET_PAGE_SIZE,
                                    prd_address);
 }
 
