@@ -1693,6 +1693,8 @@ static PGRAPHVkAsyncModuleRequestResult request_shader_module_async(
     PGRAPHVkHybridShaderWork *work = hybrid_find_work_by_key(r, key);
     if (work) {
         if (work->metadata.status == PGRAPH_VK_HYBRID_WORK_PENDING) {
+            work->metadata.max_attempts =
+                MAX(work->metadata.max_attempts, max_attempts);
             work->last_epoch = r->hybrid_route_epoch;
             return PGRAPH_VK_ASYNC_MODULE_DUPLICATE;
         }
