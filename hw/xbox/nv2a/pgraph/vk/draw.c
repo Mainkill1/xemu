@@ -28,6 +28,7 @@
 #include "pipeline-key.h"
 #include "pipeline-cache-lifetime.h"
 #include "pipeline-cache-data.h"
+#include "pipeline-probe.h"
 #include "hw/xbox/nv2a/pgraph/effect-suppression.h"
 #include "staging-copy.h"
 #include "vertex-version-policy.h"
@@ -2290,18 +2291,53 @@ static bool create_pipeline(PGRAPHState *pg)
         NV2A_VK_DGROUP_END();
         return false;
     }
-    VkPipeline pipeline;
-    int64_t pipeline_start_us = r->hybrid_trace ?
-        g_get_monotonic_time() : 0;
-    VK_CHECK(vkCreateGraphicsPipelines(r->device, r->vk_pipeline_cache, 1,
-                                       &recipe.info, NULL, &pipeline));
-    if (r->hybrid_trace) {
-        pgraph_vk_hybrid_trace_record(
-            r->hybrid_trace, VK_HYBRID_TRACE_PIPELINE_CREATE,
-            key.fragment_route, hash,
-            fast_hash((const uint8_t *)&key.shader_state,
-                      sizeof(key.shader_state)),
-            0, pipeline_start_us, g_get_monotonic_time(), 0, 0);
+    VkPipeline pipeline = VK_NULL_HANDLE;
+    bool blocking_create_required = true;
+    if (r->pipeline_creation_cache_control_enabled) {
+        int64_t probe_start_us = r->hybrid_trace ? g_get_monotonic_time() : 0;
+        PGRAPHVkPipelineProbeOutcome outcome =
+            pgraph_vk_probe_pipeline_without_compile(
+                r->device, r->vk_pipeline_cache, &recipe.info, &pipeline,
+                hybrid_pipeline_create, NULL);
+        if (r->hybrid_trace) {
+            pgraph_vk_hybrid_trace_record(
+                r->hybrid_trace, VK_HYBRID_TRACE_PIPELINE_DRIVER_PROBE,
+                key.fragment_route, hash,
+                fast_hash((const uint8_t *)&key.shader_state,
+                          sizeof(key.shader_state)),
+                0, probe_start_us, g_get_monotonic_time(), outcome.status,
+                (uint64_t)(int64_t)outcome.vk_result);
+        }
+        switch (outcome.status) {
+        case PGRAPH_VK_PIPELINE_PROBE_READY:
+            blocking_create_required = false;
+            break;
+        case PGRAPH_VK_PIPELINE_PROBE_COMPILE_REQUIRED:
+            break;
+        case PGRAPH_VK_PIPELINE_PROBE_ERROR:
+            if (outcome.vk_result != VK_SUCCESS) {
+                VK_CHECK(outcome.vk_result);
+            }
+            vkDestroyPipelineLayout(r->device, recipe.layout, NULL);
+            NV2A_VK_DGROUP_END();
+            return false;
+        default:
+            g_assert_not_reached();
+        }
+    }
+    if (blocking_create_required) {
+        int64_t pipeline_start_us =
+            r->hybrid_trace ? g_get_monotonic_time() : 0;
+        VK_CHECK(vkCreateGraphicsPipelines(r->device, r->vk_pipeline_cache, 1,
+                                           &recipe.info, NULL, &pipeline));
+        if (r->hybrid_trace) {
+            pgraph_vk_hybrid_trace_record(
+                r->hybrid_trace, VK_HYBRID_TRACE_PIPELINE_CREATE,
+                key.fragment_route, hash,
+                fast_hash((const uint8_t *)&key.shader_state,
+                          sizeof(key.shader_state)),
+                0, pipeline_start_us, g_get_monotonic_time(), 0, 0);
+        }
     }
 
     snode->pipeline = pipeline;
