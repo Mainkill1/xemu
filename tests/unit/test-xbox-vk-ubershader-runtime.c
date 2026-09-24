@@ -1091,6 +1091,20 @@ static void test_shader_module_key_uses_only_active_stage(void)
     g_assert_false(pgraph_vk_shader_module_key_equal(&a, &b));
 }
 
+static void test_async_module_request_requires_live_compiler(void)
+{
+    PGRAPHState pg = { 0 };
+    PGRAPHVkState renderer = { 0 };
+    ShaderModuleCacheKey key = {
+        .kind = VK_SHADER_STAGE_VERTEX_BIT,
+    };
+
+    pg.vk_renderer_state = &renderer;
+    g_assert_cmpint(pgraph_vk_request_shader_module_async(&pg, &key),
+                    ==, PGRAPH_VK_ASYNC_MODULE_FAILED);
+    g_assert_cmpuint(renderer.hybrid_pending_jobs, ==, 0);
+}
+
 static void test_uber_pipeline_key_ignores_only_combiner_words(void)
 {
     ShaderState a = base_state();
@@ -1183,6 +1197,8 @@ int main(int argc, char **argv)
                     test_shader_binding_key_equality_requires_route_and_full_state);
     g_test_add_func("/xbox/vk/ubershader/runtime/shader-module-key",
                     test_shader_module_key_uses_only_active_stage);
+    g_test_add_func("/xbox/vk/ubershader/runtime/async-module-stopped",
+                    test_async_module_request_requires_live_compiler);
     g_test_add_func("/xbox/vk/ubershader/runtime/canonical-key",
                     test_uber_pipeline_key_ignores_only_combiner_words);
     g_test_add_func("/xbox/vk/ubershader/runtime/route-isolation",

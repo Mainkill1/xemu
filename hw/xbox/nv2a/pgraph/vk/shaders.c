@@ -482,6 +482,44 @@ static void init_fragment_module_key(ShaderModuleCacheKey *key,
     key->psh.glsl_opts.uber_binding = PGRAPH_VK_PSH_UBER_UBO_BINDING;
 }
 
+static glslang_stage_t shader_module_glslang_stage(
+    VkShaderStageFlagBits kind)
+{
+    switch (kind) {
+    case VK_SHADER_STAGE_VERTEX_BIT:
+        return GLSLANG_STAGE_VERTEX;
+    case VK_SHADER_STAGE_GEOMETRY_BIT:
+        return GLSLANG_STAGE_GEOMETRY;
+    case VK_SHADER_STAGE_FRAGMENT_BIT:
+        return GLSLANG_STAGE_FRAGMENT;
+    default:
+        g_assert_not_reached();
+    }
+}
+
+static bool shader_module_kind_supported(VkShaderStageFlagBits kind)
+{
+    return kind == VK_SHADER_STAGE_VERTEX_BIT ||
+           kind == VK_SHADER_STAGE_GEOMETRY_BIT ||
+           kind == VK_SHADER_STAGE_FRAGMENT_BIT;
+}
+
+static MString *generate_shader_module_glsl(
+    const ShaderModuleCacheKey *key)
+{
+    switch (key->kind) {
+    case VK_SHADER_STAGE_VERTEX_BIT:
+        return pgraph_glsl_gen_vsh(&key->vsh.state, key->vsh.glsl_opts);
+    case VK_SHADER_STAGE_GEOMETRY_BIT:
+        return pgraph_glsl_gen_geom(&key->geom.state,
+                                    key->geom.glsl_opts);
+    case VK_SHADER_STAGE_FRAGMENT_BIT:
+        return pgraph_glsl_gen_psh(&key->psh.state, key->psh.glsl_opts);
+    default:
+        g_assert_not_reached();
+    }
+}
+
 static uint64_t shader_module_key_hash(const ShaderModuleCacheKey *key)
 {
     return fast_hash((const uint8_t *)key,
@@ -896,20 +934,6 @@ static void hybrid_work_clear(PGRAPHVkHybridShaderWork *work)
     memset(work, 0, sizeof(*work));
 }
 
-static PGRAPHVkHybridShaderWork *hybrid_find_work_by_source(
-    PGRAPHVkState *r, uint32_t stage, const char *glsl, size_t glsl_size)
-{
-    for (size_t i = 0; i < ARRAY_SIZE(r->hybrid_work); i++) {
-        PGRAPHVkHybridShaderWork *work = &r->hybrid_work[i];
-        if (work->in_use && pgraph_vk_hybrid_source_matches(
-                                work->module_key.kind, work->glsl,
-                                work->glsl_size, stage, glsl, glsl_size)) {
-            return work;
-        }
-    }
-    return NULL;
-}
-
 static PGRAPHVkHybridShaderWork *hybrid_find_work_by_key(
     PGRAPHVkState *r, const ShaderModuleCacheKey *key)
 {
@@ -1062,10 +1086,10 @@ void pgraph_vk_process_hybrid_completions(PGRAPHState *pg)
         batch_count++;
         PGRAPHVkHybridShaderWork *work = hybrid_find_work_by_completion(
             r, result.generation, result.ticket);
-        PGRAPHVkFragmentRoute completed_route =
-            work && work->module_key.psh.glsl_opts.ubershader ?
-                PGRAPH_VK_FRAGMENT_UBERSHADER :
-                PGRAPH_VK_FRAGMENT_SPECIALIZED;
+        PGRAPHVkFragmentRoute completed_route = PGRAPH_VK_FRAGMENT_SPECIALIZED;
+        if (work && work->module_key.kind == VK_SHADER_STAGE_FRAGMENT_BIT) {
+            completed_route = work->module_key.fragment_route;
+        }
         if (r->hybrid_trace) {
             pgraph_vk_hybrid_trace_record(
                 r->hybrid_trace, VK_HYBRID_TRACE_SPECULATIVE_COMPILE,
@@ -1075,7 +1099,8 @@ void pgraph_vk_process_hybrid_completions(PGRAPHState *pg)
                 result.ticket, result.submitted_us, result.started_us,
                 result.finished_us, result.success);
         }
-        if (!work || result.stage != GLSLANG_STAGE_FRAGMENT ||
+        if (!work || result.stage !=
+                         shader_module_glslang_stage(work->module_key.kind) ||
             pgraph_vk_hybrid_validate_completion_metadata(
                 work ? &work->metadata : NULL, result.generation,
                 result.ticket, r->hybrid_generation) !=
@@ -1093,32 +1118,67 @@ void pgraph_vk_process_hybrid_completions(PGRAPHState *pg)
         r->hybrid_pending_jobs--;
 
         bool published = false;
+        uint64_t matching_work = 0;
         if (result.success && result.spirv && result.spirv_size) {
             GByteArray *spirv = g_byte_array_new_take(result.spirv,
                                                        result.spirv_size);
             result.spirv = NULL;
             result.spirv_size = 0;
-            published = materialize_hybrid_shader_module(
-                            r, &work->module_key, work->glsl, spirv) ==
+            published = true;
+            for (size_t i = 0; i < ARRAY_SIZE(r->hybrid_work); i++) {
+                PGRAPHVkHybridShaderWork *candidate = &r->hybrid_work[i];
+                if (!candidate->in_use ||
+                    candidate->metadata.generation != result.generation ||
+                    candidate->metadata.ticket != result.ticket) {
+                    continue;
+                }
+                matching_work++;
+                bool candidate_published =
+                    result.stage == shader_module_glslang_stage(
+                                        candidate->module_key.kind) &&
+                    pgraph_vk_hybrid_validate_completion_metadata(
+                        &candidate->metadata, result.generation,
+                        result.ticket, r->hybrid_generation) ==
+                        PGRAPH_VK_HYBRID_COMPLETION_METADATA_MATCH &&
+                    materialize_hybrid_shader_module(
+                        r, &candidate->module_key, candidate->glsl, spirv) ==
                         PGRAPH_VK_SPIRV_CACHE_ARTIFACT_ACCEPTED;
-            if (published && shader_spirv_cache_active(r)) {
-                pgraph_vk_spirv_cache_add(
-                    &r->spirv_cache, work->module_key.kind,
-                    work->glsl, work->glsl_size,
-                    spirv->data, spirv->len);
+                if (candidate_published && shader_spirv_cache_active(r)) {
+                    pgraph_vk_spirv_cache_add(
+                        &r->spirv_cache, candidate->module_key.kind,
+                        candidate->glsl, candidate->glsl_size,
+                        spirv->data, spirv->len);
+                }
+                if (candidate_published) {
+                    /* A module is not an executable draw. The selection
+                     * epoch moves only when its exact pipeline is published. */
+                    hybrid_work_clear(candidate);
+                } else {
+                    pgraph_vk_hybrid_note_compile_failure(
+                        &candidate->metadata, result.generation,
+                        result.ticket, r->hybrid_generation,
+                        r->hybrid_route_epoch, 32);
+                    candidate->last_epoch = r->hybrid_route_epoch;
+                }
+                published &= candidate_published;
             }
             g_byte_array_unref(spirv);
-        }
-        if (published) {
-            /* A module is not an executable draw. The selection epoch moves
-             * only when its exact graphics pipeline is published. */
-            hybrid_work_clear(work);
         } else {
-            pgraph_vk_hybrid_note_compile_failure(
-                &work->metadata, result.generation, result.ticket,
-                r->hybrid_generation, r->hybrid_route_epoch, 32);
-            work->last_epoch = r->hybrid_route_epoch;
+            for (size_t i = 0; i < ARRAY_SIZE(r->hybrid_work); i++) {
+                PGRAPHVkHybridShaderWork *candidate = &r->hybrid_work[i];
+                if (!candidate->in_use ||
+                    candidate->metadata.generation != result.generation ||
+                    candidate->metadata.ticket != result.ticket) {
+                    continue;
+                }
+                matching_work++;
+                pgraph_vk_hybrid_note_compile_failure(
+                    &candidate->metadata, result.generation, result.ticket,
+                    r->hybrid_generation, r->hybrid_route_epoch, 32);
+                candidate->last_epoch = r->hybrid_route_epoch;
+            }
         }
+        assert(matching_work > 0);
         if (r->hybrid_trace) {
             pgraph_vk_hybrid_trace_record(
                 r->hybrid_trace, VK_HYBRID_TRACE_COMPLETION,
@@ -1377,9 +1437,6 @@ static PGRAPHVkFragmentRoute select_fragment_route(
     PGRAPHVkState *r = pg->vk_renderer_state;
     ShaderModuleCacheKey module_key;
     PGRAPHVkHybridShaderWork *work;
-    MString *code;
-    const char *glsl;
-    size_t glsl_size;
 
     r->uber_controls_valid = false;
     if (!r->ubershader_runtime_enabled ||
@@ -1428,36 +1485,6 @@ static PGRAPHVkFragmentRoute select_fragment_route(
         }
     }
 
-    code = pgraph_glsl_gen_psh(&module_key.psh.state,
-                               module_key.psh.glsl_opts);
-    glsl = mstring_get_str(code);
-    glsl_size = strlen(glsl);
-
-    const uint8_t *cached_spirv;
-    size_t cached_spirv_size;
-    if (shader_spirv_cache_active(r) &&
-        pgraph_vk_spirv_cache_lookup(
-            &r->spirv_cache, module_key.kind, glsl, glsl_size,
-            &cached_spirv, &cached_spirv_size) ==
-        PGRAPH_VK_SPIRV_CACHE_HIT) {
-        uint64_t hash = shader_module_key_hash(&module_key);
-        int64_t materialize_start_us = r->hybrid_trace ?
-            g_get_monotonic_time() : 0;
-        lru_lookup(&r->shader_module_cache, hash, &module_key);
-        if (r->hybrid_trace) {
-            pgraph_vk_hybrid_trace_record(
-                r->hybrid_trace, VK_HYBRID_TRACE_MODULE_MATERIALIZE,
-                PGRAPH_VK_FRAGMENT_SPECIALIZED, 0,
-                fast_hash((const uint8_t *)state, sizeof(*state)), 0,
-                materialize_start_us, g_get_monotonic_time(),
-                cached_spirv_size, hash);
-        }
-        mstring_unref(code);
-        return PGRAPH_VK_FRAGMENT_SPECIALIZED;
-    }
-
-    work = hybrid_find_work_by_source(
-        r, module_key.kind, glsl, glsl_size);
     PGRAPHVkHybridRouteInput input = {
         .matching_status = work ? work->metadata.status :
                                   PGRAPH_VK_HYBRID_WORK_ABSENT,
@@ -1467,67 +1494,20 @@ static PGRAPHVkFragmentRoute select_fragment_route(
         .max_attempts = work ? work->metadata.max_attempts : 3,
         .fallback_pipeline_ready = fallback_pipeline_ready,
         .fallback_draw_resources_ready = fallback_draw_resources_ready,
-        .queue_has_capacity = pgraph_vk_hybrid_compiler_can_submit_async(
-            &r->hybrid_compiler, glsl_size + 1,
-            sizeof(PGRAPHVkGlslCompileConfig)),
+        .queue_has_capacity = true,
     };
     PGRAPHVkHybridDecision decision = pgraph_vk_hybrid_choose(&input);
 
     if (decision.request_specialization) {
-        if (!work) {
-            work = hybrid_allocate_work(r);
-            if (work) {
-                work->in_use = true;
-                work->module_key = module_key;
-                work->glsl = g_strndup(glsl, glsl_size);
-                work->glsl_size = glsl_size;
-                pgraph_vk_hybrid_work_init(&work->metadata, 3);
-            }
+        PGRAPHVkAsyncModuleRequestResult request_result =
+            pgraph_vk_request_shader_module_async(pg, &module_key);
+        if (request_result == PGRAPH_VK_ASYNC_MODULE_READY) {
+            return PGRAPH_VK_FRAGMENT_SPECIALIZED;
         }
-        if (work) {
-            PGRAPHVkGlslCompileConfig config = {
-                .api_version = r->vk_api_version,
-                .debug_shaders = g_config.display.vulkan.debug_shaders,
-            };
-            uint64_t ticket = pgraph_vk_hybrid_allocate_ticket(
-                &r->hybrid_ticket_allocator);
-            PGRAPHVkHybridCompileRequest request = {
-                .generation = r->hybrid_generation,
-                .ticket = ticket,
-                .stage = GLSLANG_STAGE_FRAGMENT,
-                .glsl = glsl,
-                /* Worker owns the NUL; cache identity excludes it. */
-                .glsl_size = glsl_size + 1,
-                .config = &config,
-                .config_size = sizeof(config),
-            };
-            PGRAPHVkHybridCompileIdentity owner = { 0 };
-            PGRAPHVkHybridCompilerSubmitResult submit =
-                ticket ? pgraph_vk_hybrid_compiler_submit_async(
-                             &r->hybrid_compiler, &request, &owner) :
-                         PGRAPH_VK_HYBRID_COMPILER_STOPPED;
-            if (submit == PGRAPH_VK_HYBRID_COMPILER_ACCEPTED) {
-                bool marked = pgraph_vk_hybrid_mark_pending(
-                    &work->metadata, false, owner.generation, owner.ticket,
-                    r->hybrid_route_epoch);
-                assert(marked);
-                r->hybrid_pending_jobs++;
-            } else if (submit == PGRAPH_VK_HYBRID_COMPILER_QUEUE_FULL ||
-                       submit == PGRAPH_VK_HYBRID_COMPILER_BYTE_LIMIT) {
-                pgraph_vk_hybrid_note_queue_deferral(
-                    &work->metadata, false, r->hybrid_generation,
-                    r->hybrid_route_epoch, 8);
-            } else {
-                /* Source work is deduplicated before submission. */
-                hybrid_work_clear(work);
-                decision.route = PGRAPH_VK_HYBRID_USE_SYNCHRONOUS;
-            }
-            if (work->in_use) {
-                work->last_epoch = r->hybrid_route_epoch;
-            }
+        if (request_result == PGRAPH_VK_ASYNC_MODULE_FAILED) {
+            decision.route = PGRAPH_VK_HYBRID_USE_SYNCHRONOUS;
         }
     }
-    mstring_unref(code);
 
     return decision.route == PGRAPH_VK_HYBRID_USE_SYNCHRONOUS ?
                PGRAPH_VK_FRAGMENT_SPECIALIZED :
@@ -1578,7 +1558,8 @@ static PGRAPHVkSpirvCacheArtifactResult adopt_cached_hybrid_shader(
 }
 
 static PGRAPHVkSpirvCacheAdoptResult materialize_cached_module(
-    PGRAPHVkState *r, const ShaderModuleCacheKey *key)
+    PGRAPHVkState *r, const ShaderModuleCacheKey *key,
+    const char *glsl, size_t glsl_size)
 {
     if (find_shader_module_for_key(r, key)) {
         return PGRAPH_VK_SPIRV_CACHE_ADOPTED;
@@ -1587,23 +1568,6 @@ static PGRAPHVkSpirvCacheAdoptResult materialize_cached_module(
         return PGRAPH_VK_SPIRV_CACHE_NOT_FOUND;
     }
 
-    MString *code;
-    switch (key->kind) {
-    case VK_SHADER_STAGE_VERTEX_BIT:
-        code = pgraph_glsl_gen_vsh(&key->vsh.state, key->vsh.glsl_opts);
-        break;
-    case VK_SHADER_STAGE_GEOMETRY_BIT:
-        code = pgraph_glsl_gen_geom(&key->geom.state,
-                                    key->geom.glsl_opts);
-        break;
-    case VK_SHADER_STAGE_FRAGMENT_BIT:
-        code = pgraph_glsl_gen_psh(&key->psh.state, key->psh.glsl_opts);
-        break;
-    default:
-        g_assert_not_reached();
-    }
-
-    const char *glsl = mstring_get_str(code);
     PGRAPHVkCachedShaderAdoption adoption = {
         .renderer = r,
         .key = key,
@@ -1611,10 +1575,164 @@ static PGRAPHVkSpirvCacheAdoptResult materialize_cached_module(
     };
     PGRAPHVkSpirvCacheAdoptResult result =
         pgraph_vk_spirv_cache_adopt_hit(
-            &r->spirv_cache, key->kind, glsl, strlen(glsl),
+            &r->spirv_cache, key->kind, glsl, glsl_size,
             adopt_cached_hybrid_shader, &adoption);
+    return result;
+}
+
+static PGRAPHVkSpirvCacheAdoptResult generate_and_materialize_cached_module(
+    PGRAPHVkState *r, const ShaderModuleCacheKey *key)
+{
+    if (find_shader_module_for_key(r, key)) {
+        return PGRAPH_VK_SPIRV_CACHE_ADOPTED;
+    }
+    if (!shader_spirv_cache_active(r)) {
+        return PGRAPH_VK_SPIRV_CACHE_NOT_FOUND;
+    }
+    MString *code = generate_shader_module_glsl(key);
+    if (!code) {
+        return PGRAPH_VK_SPIRV_CACHE_REJECTED;
+    }
+    const char *glsl = mstring_get_str(code);
+    PGRAPHVkSpirvCacheAdoptResult result = materialize_cached_module(
+        r, key, glsl, strlen(glsl));
     mstring_unref(code);
     return result;
+}
+
+static PGRAPHVkAsyncModuleRequestResult request_shader_module_async(
+    PGRAPHState *pg, const ShaderModuleCacheKey *key,
+    unsigned int max_attempts)
+{
+    if (!pg || !pg->vk_renderer_state || !key || !max_attempts ||
+        !shader_module_kind_supported(key->kind)) {
+        return PGRAPH_VK_ASYNC_MODULE_FAILED;
+    }
+
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    if (!r->hybrid_compiler_initialized) {
+        return PGRAPH_VK_ASYNC_MODULE_FAILED;
+    }
+    if (find_shader_module_for_key(r, key)) {
+        return PGRAPH_VK_ASYNC_MODULE_READY;
+    }
+
+    PGRAPHVkHybridShaderWork *work = hybrid_find_work_by_key(r, key);
+    if (work) {
+        if (work->metadata.status == PGRAPH_VK_HYBRID_WORK_PENDING) {
+            work->last_epoch = r->hybrid_route_epoch;
+            return PGRAPH_VK_ASYNC_MODULE_DUPLICATE;
+        }
+        if (work->metadata.status ==
+            PGRAPH_VK_HYBRID_WORK_FAILED_PERMANENT) {
+            return PGRAPH_VK_ASYNC_MODULE_FAILED;
+        }
+        if ((work->metadata.status == PGRAPH_VK_HYBRID_WORK_QUEUE_BACKOFF ||
+             work->metadata.status == PGRAPH_VK_HYBRID_WORK_FAILED_BACKOFF) &&
+            r->hybrid_route_epoch < work->metadata.retry_after_epoch) {
+            return PGRAPH_VK_ASYNC_MODULE_DEFERRED;
+        }
+    }
+
+    MString *code = generate_shader_module_glsl(key);
+    if (!code) {
+        return PGRAPH_VK_ASYNC_MODULE_FAILED;
+    }
+    const char *glsl = mstring_get_str(code);
+    size_t glsl_size = strlen(glsl);
+
+    PGRAPHVkSpirvCacheAdoptResult cache_result =
+        materialize_cached_module(r, key, glsl, glsl_size);
+    if (cache_result == PGRAPH_VK_SPIRV_CACHE_ADOPTED) {
+        mstring_unref(code);
+        return PGRAPH_VK_ASYNC_MODULE_READY;
+    }
+    if (cache_result == PGRAPH_VK_SPIRV_CACHE_DEFERRED) {
+        mstring_unref(code);
+        return PGRAPH_VK_ASYNC_MODULE_DEFERRED;
+    }
+
+    if (work) {
+        assert(work->glsl_size == glsl_size);
+        assert(memcmp(work->glsl, glsl, glsl_size) == 0);
+    }
+
+    if (!work) {
+        work = hybrid_allocate_work(r);
+        if (!work) {
+            mstring_unref(code);
+            return PGRAPH_VK_ASYNC_MODULE_DEFERRED;
+        }
+        work->in_use = true;
+        work->module_key = *key;
+        work->glsl = g_strndup(glsl, glsl_size);
+        work->glsl_size = glsl_size;
+        pgraph_vk_hybrid_work_init(&work->metadata, max_attempts);
+    }
+
+    PGRAPHVkGlslCompileConfig config = {
+        .api_version = r->vk_api_version,
+        .debug_shaders = g_config.display.vulkan.debug_shaders,
+    };
+    uint64_t ticket = pgraph_vk_hybrid_allocate_ticket(
+        &r->hybrid_ticket_allocator);
+    PGRAPHVkHybridCompileRequest request = {
+        .generation = r->hybrid_generation,
+        .ticket = ticket,
+        .stage = shader_module_glslang_stage(key->kind),
+        .glsl = glsl,
+        .glsl_size = glsl_size + 1,
+        .config = &config,
+        .config_size = sizeof(config),
+    };
+    PGRAPHVkHybridCompileIdentity owner = { 0 };
+    PGRAPHVkHybridCompilerSubmitResult submit =
+        ticket ? pgraph_vk_hybrid_compiler_submit_async(
+                     &r->hybrid_compiler, &request, &owner) :
+                 PGRAPH_VK_HYBRID_COMPILER_STOPPED;
+    PGRAPHVkAsyncModuleRequestResult result;
+
+    switch (submit) {
+    case PGRAPH_VK_HYBRID_COMPILER_ACCEPTED:
+    case PGRAPH_VK_HYBRID_COMPILER_DUPLICATE: {
+        bool marked = pgraph_vk_hybrid_mark_pending(
+            &work->metadata, false, owner.generation, owner.ticket,
+            r->hybrid_route_epoch);
+        assert(marked);
+        if (submit == PGRAPH_VK_HYBRID_COMPILER_ACCEPTED) {
+            r->hybrid_pending_jobs++;
+            result = PGRAPH_VK_ASYNC_MODULE_ACCEPTED;
+        } else {
+            result = PGRAPH_VK_ASYNC_MODULE_DUPLICATE;
+        }
+        break;
+    }
+    case PGRAPH_VK_HYBRID_COMPILER_QUEUE_FULL:
+    case PGRAPH_VK_HYBRID_COMPILER_BYTE_LIMIT:
+        pgraph_vk_hybrid_note_queue_deferral(
+            &work->metadata, false, r->hybrid_generation,
+            r->hybrid_route_epoch, 8);
+        result = PGRAPH_VK_ASYNC_MODULE_DEFERRED;
+        break;
+    case PGRAPH_VK_HYBRID_COMPILER_STOPPED:
+    case PGRAPH_VK_HYBRID_COMPILER_INVALID:
+        hybrid_work_clear(work);
+        result = PGRAPH_VK_ASYNC_MODULE_FAILED;
+        break;
+    default:
+        g_assert_not_reached();
+    }
+    if (work->in_use) {
+        work->last_epoch = r->hybrid_route_epoch;
+    }
+    mstring_unref(code);
+    return result;
+}
+
+PGRAPHVkAsyncModuleRequestResult pgraph_vk_request_shader_module_async(
+    PGRAPHState *pg, const ShaderModuleCacheKey *key)
+{
+    return request_shader_module_async(pg, key, 3);
 }
 
 typedef struct PGRAPHVkCachedFamilyModuleContext {
@@ -1645,7 +1763,8 @@ static PGRAPHVkCachedFamilyModulesResult materialize_cached_family_stage(
         g_assert_not_reached();
     }
 
-    switch (materialize_cached_module(context->renderer, &key)) {
+    switch (generate_and_materialize_cached_module(
+                context->renderer, &key)) {
     case PGRAPH_VK_SPIRV_CACHE_ADOPTED:
         return PGRAPH_VK_CACHED_FAMILY_MODULES_READY;
     case PGRAPH_VK_SPIRV_CACHE_DEFERRED:
@@ -1659,9 +1778,8 @@ static PGRAPHVkCachedFamilyModulesResult materialize_cached_family_stage(
     }
 }
 
-/* Prewarm never sends missing stages through glslang. Vertex and geometry
- * artifacts use this renderer-owned adoption path because the hybrid worker
- * completion consumer deliberately accepts fragment jobs only. */
+/* Prewarm only adopts persistent artifacts. Demand compilation for all three
+ * graphics stages uses the bounded async module-request path separately. */
 PGRAPHVkCachedFamilyModulesResult
 pgraph_vk_materialize_cached_family_modules(PGRAPHState *pg,
                                              const ShaderState *state)
@@ -1682,82 +1800,11 @@ pgraph_vk_materialize_cached_family_modules(PGRAPHState *pg,
 bool pgraph_vk_enqueue_fallback_fragment(PGRAPHState *pg,
                                         const ShaderState *state)
 {
-    PGRAPHVkState *r = pg->vk_renderer_state;
     ShaderModuleCacheKey key;
     init_fragment_module_key(&key, &state->psh,
                              PGRAPH_VK_FRAGMENT_UBERSHADER);
-    if (find_shader_module_for_key(r, &key)) {
-        return true;
-    }
-    PGRAPHVkHybridShaderWork *existing = hybrid_find_work_by_key(r, &key);
-    if (existing) {
-        /* The family has no executable fallback after a permanent compile
-         * failure. Drop the request instead of probing it every frame. */
-        return existing->metadata.status !=
-               PGRAPH_VK_HYBRID_WORK_FAILED_PERMANENT;
-    }
-    MString *code = pgraph_glsl_gen_psh(&key.psh.state, key.psh.glsl_opts);
-    const char *glsl = mstring_get_str(code);
-    size_t glsl_size = strlen(glsl);
-    PGRAPHVkSpirvCacheAdoptResult cache_result =
-        PGRAPH_VK_SPIRV_CACHE_NOT_FOUND;
-    if (shader_spirv_cache_active(r)) {
-        PGRAPHVkCachedShaderAdoption adoption = {
-            .renderer = r,
-            .key = &key,
-            .glsl = glsl,
-        };
-        cache_result = pgraph_vk_spirv_cache_adopt_hit(
-            &r->spirv_cache, key.kind, glsl, glsl_size,
-            adopt_cached_hybrid_shader, &adoption);
-        if (!pgraph_vk_spirv_cache_adoption_needs_compile(cache_result)) {
-            mstring_unref(code);
-            return true;
-        }
-    }
-
-    PGRAPHVkHybridShaderWork *work = hybrid_allocate_work(r);
-    if (!work) {
-        mstring_unref(code);
-        return true;
-    }
-    work->in_use = true;
-    work->module_key = key;
-    work->glsl = g_strndup(glsl, glsl_size);
-    work->glsl_size = glsl_size;
-    pgraph_vk_hybrid_work_init(&work->metadata, 1);
-
-    PGRAPHVkGlslCompileConfig config = {
-        .api_version = r->vk_api_version,
-        .debug_shaders = g_config.display.vulkan.debug_shaders,
-    };
-    uint64_t ticket = pgraph_vk_hybrid_allocate_ticket(
-        &r->hybrid_ticket_allocator);
-    PGRAPHVkHybridCompileRequest request = {
-        .generation = r->hybrid_generation,
-        .ticket = ticket,
-        .stage = GLSLANG_STAGE_FRAGMENT,
-        .glsl = glsl,
-        .glsl_size = glsl_size + 1,
-        .config = &config,
-        .config_size = sizeof(config),
-    };
-    PGRAPHVkHybridCompileIdentity owner = { 0 };
-    PGRAPHVkHybridCompilerSubmitResult status = ticket ?
-        pgraph_vk_hybrid_compiler_submit_async(
-            &r->hybrid_compiler, &request, &owner) :
-        PGRAPH_VK_HYBRID_COMPILER_STOPPED;
-    if (status == PGRAPH_VK_HYBRID_COMPILER_ACCEPTED) {
-        bool marked = pgraph_vk_hybrid_mark_pending(
-            &work->metadata, false, owner.generation, owner.ticket,
-            r->hybrid_route_epoch);
-        assert(marked);
-        r->hybrid_pending_jobs++;
-    } else {
-        hybrid_work_clear(work);
-    }
-    mstring_unref(code);
-    return true;
+    return request_shader_module_async(pg, &key, 1) !=
+           PGRAPH_VK_ASYNC_MODULE_FAILED;
 }
 
 static bool apply_uniform_updates(ShaderUniformLayout *layout,

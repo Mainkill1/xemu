@@ -323,6 +323,14 @@ typedef struct PGRAPHVkHybridShaderWork {
     size_t glsl_size;
 } PGRAPHVkHybridShaderWork;
 
+typedef enum PGRAPHVkAsyncModuleRequestResult {
+    PGRAPH_VK_ASYNC_MODULE_READY,
+    PGRAPH_VK_ASYNC_MODULE_ACCEPTED,
+    PGRAPH_VK_ASYNC_MODULE_DUPLICATE,
+    PGRAPH_VK_ASYNC_MODULE_DEFERRED,
+    PGRAPH_VK_ASYNC_MODULE_FAILED,
+} PGRAPHVkAsyncModuleRequestResult;
+
 typedef struct ShaderBinding {
     LruNode node;
     ShaderState state;
@@ -1075,6 +1083,8 @@ void pgraph_vk_trim_texture_cache(PGRAPHState *pg);
 void pgraph_vk_init_shaders(PGRAPHState *pg);
 void pgraph_vk_finalize_shaders(PGRAPHState *pg);
 void pgraph_vk_process_hybrid_completions(PGRAPHState *pg);
+PGRAPHVkAsyncModuleRequestResult pgraph_vk_request_shader_module_async(
+    PGRAPHState *pg, const ShaderModuleCacheKey *key);
 void pgraph_vk_stop_hybrid_compiler(PGRAPHState *pg);
 void pgraph_vk_process_spirv_cache_writeback(PGRAPHState *pg);
 void pgraph_vk_update_descriptor_sets(PGRAPHState *pg);
