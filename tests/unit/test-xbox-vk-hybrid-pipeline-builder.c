@@ -15,6 +15,8 @@ typedef struct FakeDriver {
     bool fail;
     unsigned calls;
     unsigned destroys;
+    unsigned priority_calls;
+    PGRAPHVkWorkerPriorityResult priority_result;
     uint32_t observed_binding;
     uint32_t observed_attribute;
     VkDynamicState observed_dynamic;
@@ -28,10 +30,24 @@ typedef struct FakeDriver {
 
 static void fake_init(FakeDriver *driver)
 {
-    *driver = (FakeDriver) { 0 };
+    *driver = (FakeDriver) {
+        .priority_result = PGRAPH_VK_WORKER_PRIORITY_APPLIED,
+    };
     qemu_mutex_init(&driver->lock);
     qemu_cond_init(&driver->entered);
     qemu_cond_init(&driver->release);
+}
+
+static PGRAPHVkWorkerPriorityResult fake_set_priority(void *opaque)
+{
+    FakeDriver *driver = opaque;
+
+    qemu_mutex_lock(&driver->lock);
+    driver->priority_calls++;
+    PGRAPHVkWorkerPriorityResult result = driver->priority_result;
+    qemu_cond_broadcast(&driver->entered);
+    qemu_mutex_unlock(&driver->lock);
+    return result;
 }
 
 static void fake_fini(FakeDriver *driver)
@@ -451,6 +467,72 @@ static void test_shutdown_waits_for_active(void)
     fake_fini(&driver);
 }
 
+static void test_priority_results_preserve_pipeline_work(void)
+{
+    const PGRAPHVkWorkerPriorityResult results[] = {
+        PGRAPH_VK_WORKER_PRIORITY_APPLIED,
+        PGRAPH_VK_WORKER_PRIORITY_UNSUPPORTED,
+        PGRAPH_VK_WORKER_PRIORITY_FAILED,
+    };
+
+    for (size_t i = 0; i < ARRAY_SIZE(results); i++) {
+        FakeDriver driver;
+        TestRecipe recipe;
+        PGRAPHVkHybridPipelineBuilder builder = { 0 };
+        PGRAPHVkHybridPipelineWorkerStatus status;
+
+        fake_init(&driver);
+        recipe_init(&recipe);
+        driver.priority_result = results[i];
+        PGRAPHVkHybridPipelineBuilderConfig cfg = config(&driver);
+        cfg.lower_worker_priority = true;
+        cfg.set_lower_priority = fake_set_priority;
+        cfg.priority_opaque = &driver;
+        g_assert_true(pgraph_vk_hybrid_pipeline_builder_init(&builder, &cfg));
+        PGRAPHVkHybridPipelineBuildRequest req = request(&recipe, 1, 21);
+        g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_submit(&builder, &req),
+                        ==, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED);
+        PGRAPHVkHybridPipelineBuildResult result = take(&builder);
+        g_assert_cmpint(result.vk_result, ==, VK_SUCCESS);
+        pgraph_vk_hybrid_pipeline_build_result_destroy(&builder, &result);
+        g_assert_true(pgraph_vk_hybrid_pipeline_builder_get_worker_status(
+            &builder, &status));
+        g_assert_true(status.started);
+        g_assert_true(status.lower_priority_requested);
+        g_assert_cmpint(status.priority_result, ==, results[i]);
+        g_assert_cmpuint(driver.priority_calls, ==, 1);
+        pgraph_vk_hybrid_pipeline_builder_destroy(&builder);
+        fake_fini(&driver);
+    }
+}
+
+static void test_normal_pipeline_worker_does_not_lower_priority(void)
+{
+    FakeDriver driver;
+    TestRecipe recipe;
+    PGRAPHVkHybridPipelineBuilder builder = { 0 };
+    PGRAPHVkHybridPipelineWorkerStatus status;
+
+    fake_init(&driver);
+    recipe_init(&recipe);
+    PGRAPHVkHybridPipelineBuilderConfig cfg = config(&driver);
+    cfg.set_lower_priority = fake_set_priority;
+    cfg.priority_opaque = &driver;
+    g_assert_true(pgraph_vk_hybrid_pipeline_builder_init(&builder, &cfg));
+    PGRAPHVkHybridPipelineBuildRequest req = request(&recipe, 1, 22);
+    g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_submit(&builder, &req),
+                    ==, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED);
+    PGRAPHVkHybridPipelineBuildResult result = take(&builder);
+    pgraph_vk_hybrid_pipeline_build_result_destroy(&builder, &result);
+    g_assert_true(pgraph_vk_hybrid_pipeline_builder_get_worker_status(
+        &builder, &status));
+    g_assert_true(status.started);
+    g_assert_false(status.lower_priority_requested);
+    g_assert_cmpuint(driver.priority_calls, ==, 0);
+    pgraph_vk_hybrid_pipeline_builder_destroy(&builder);
+    fake_fini(&driver);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -463,5 +545,9 @@ int main(int argc, char **argv)
     g_test_add_func("/vk/hybrid-pipeline/queue-cap-includes-active", test_queue_cap_includes_active_job);
     g_test_add_func("/vk/hybrid-pipeline/late-result-destroy", test_taken_result_destroyed_after_builder_teardown);
     g_test_add_func("/vk/hybrid-pipeline/shutdown-waits-for-active", test_shutdown_waits_for_active);
+    g_test_add_func("/vk/hybrid-pipeline/priority-results-preserve-work",
+                    test_priority_results_preserve_pipeline_work);
+    g_test_add_func("/vk/hybrid-pipeline/normal-worker-keeps-priority",
+                    test_normal_pipeline_worker_does_not_lower_priority);
     return g_test_run();
 }

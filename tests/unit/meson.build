@@ -105,6 +105,9 @@ tests = {
   'test-xbox-vk-hybrid-policy': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-policy.c',
   ],
+  'test-xbox-vk-background-worker-priority': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/background-worker-priority.c',
+  ],
   'test-xbox-vk-hybrid-compiler': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-compiler.c',
   ],

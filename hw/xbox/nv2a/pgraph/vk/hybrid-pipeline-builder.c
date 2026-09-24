@@ -50,6 +50,7 @@ typedef struct PipelineBuilderState {
     QemuCond work_ready;
     QemuThread worker;
     PGRAPHVkHybridPipelineBuilderConfig config;
+    PGRAPHVkHybridPipelineWorkerStatus worker_status;
     PipelineJob *pending_head;
     PipelineJob *pending_tail;
     PipelineJob *result_head;
@@ -238,6 +239,23 @@ static void list_destroy(PipelineBuilderState *state, PipelineJob *head)
 static void *pipeline_worker(void *opaque)
 {
     PipelineBuilderState *state = opaque;
+    PGRAPHVkWorkerPriorityResult priority_result =
+        PGRAPH_VK_WORKER_PRIORITY_UNSUPPORTED;
+
+    if (state->config.lower_worker_priority &&
+        state->config.set_lower_priority) {
+        priority_result = state->config.set_lower_priority(
+            state->config.priority_opaque);
+    }
+    qemu_mutex_lock(&state->lock);
+    state->worker_status = (PGRAPHVkHybridPipelineWorkerStatus) {
+        .started = true,
+        .lower_priority_requested = state->config.lower_worker_priority,
+        .priority_result = priority_result,
+    };
+    qemu_cond_broadcast(&state->work_ready);
+    qemu_mutex_unlock(&state->lock);
+
     for (;;) {
         qemu_mutex_lock(&state->lock);
         while (!state->stopping && !state->pending_head) {
@@ -303,6 +321,11 @@ bool pgraph_vk_hybrid_pipeline_builder_init(
     qemu_cond_init(&state->work_ready);
     qemu_thread_create(&state->worker, "vk-hybrid-pipeline", pipeline_worker,
                        state, QEMU_THREAD_JOINABLE);
+    qemu_mutex_lock(&state->lock);
+    while (!state->worker_status.started) {
+        qemu_cond_wait(&state->work_ready, &state->lock);
+    }
+    qemu_mutex_unlock(&state->lock);
     builder->state = state;
     return true;
 }
@@ -387,6 +410,24 @@ bool pgraph_vk_hybrid_pipeline_builder_has_result(
 {
     const PipelineBuilderState *state = builder ? builder->state : NULL;
     return state && qatomic_read(&state->result_available);
+}
+
+bool pgraph_vk_hybrid_pipeline_builder_get_worker_status(
+    PGRAPHVkHybridPipelineBuilder *builder,
+    PGRAPHVkHybridPipelineWorkerStatus *status)
+{
+    PipelineBuilderState *state = builder ? builder->state : NULL;
+
+    if (status) {
+        *status = (PGRAPHVkHybridPipelineWorkerStatus) { 0 };
+    }
+    if (!state || !status) {
+        return false;
+    }
+    qemu_mutex_lock(&state->lock);
+    *status = state->worker_status;
+    qemu_mutex_unlock(&state->lock);
+    return true;
 }
 
 void pgraph_vk_hybrid_pipeline_builder_cancel_before_generation(

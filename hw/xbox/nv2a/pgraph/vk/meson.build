@@ -5,6 +5,7 @@ if vulkan.found()
 specific_ss.add([volk, libglslang, vma, vulkan, spirv_reflect, 
 	files(
 		'blit.c',
+		'background-worker-priority.c',
 		'buffer.c',
 		'command.c',
 		'debug.c',

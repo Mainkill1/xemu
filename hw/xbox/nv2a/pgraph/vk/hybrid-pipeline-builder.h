@@ -9,6 +9,8 @@
 #include <stdint.h>
 #include <vulkan/vulkan.h>
 
+#include "hw/xbox/nv2a/pgraph/vk/background-worker-priority.h"
+
 typedef struct PGRAPHVkHybridPipelineBuildRequest {
     uint64_t generation;
     uint64_t ticket;
@@ -44,8 +46,17 @@ typedef struct PGRAPHVkHybridPipelineBuilderConfig {
     size_t max_jobs; /* Includes queued, active, and untaken results. */
     PGRAPHVkHybridPipelineCreateFunc create;
     PGRAPHVkHybridPipelineDestroyFunc destroy;
+    bool lower_worker_priority;
+    PGRAPHVkSetWorkerPriorityFunc set_lower_priority;
+    void *priority_opaque;
     void *opaque;
 } PGRAPHVkHybridPipelineBuilderConfig;
+
+typedef struct PGRAPHVkHybridPipelineWorkerStatus {
+    bool started;
+    bool lower_priority_requested;
+    PGRAPHVkWorkerPriorityResult priority_result;
+} PGRAPHVkHybridPipelineWorkerStatus;
 
 typedef enum PGRAPHVkHybridPipelineSubmitResult {
     PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED,
@@ -73,6 +84,9 @@ bool pgraph_vk_hybrid_pipeline_builder_take_result(
 /* Lock-free empty-queue hint. A true result still requires take_result(). */
 bool pgraph_vk_hybrid_pipeline_builder_has_result(
     const PGRAPHVkHybridPipelineBuilder *builder);
+bool pgraph_vk_hybrid_pipeline_builder_get_worker_status(
+    PGRAPHVkHybridPipelineBuilder *builder,
+    PGRAPHVkHybridPipelineWorkerStatus *status);
 /* Superseded results are destroyed, including a result produced by an active
  * job after the generation changes. */
 void pgraph_vk_hybrid_pipeline_builder_cancel_before_generation(

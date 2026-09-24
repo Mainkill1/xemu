@@ -30,19 +30,29 @@ typedef struct HybridCompilerJob {
     bool speculative_active_at_start;
 } HybridCompilerJob;
 
-typedef struct HybridCompilerState {
+typedef struct HybridCompilerState HybridCompilerState;
+
+typedef struct HybridCompilerLane {
+    HybridCompilerState *state;
+    QemuThread thread;
+    HybridCompilerJob *active;
+    PGRAPHVkHybridWorkerClass worker_class;
+    PGRAPHVkHybridWorkerStatus status;
+} HybridCompilerLane;
+
+struct HybridCompilerState {
     QemuMutex lock;
     QemuCond work_ready;
     QemuCond blocking_ready;
     QemuCond blocking_done;
-    QemuThread worker;
     QemuThread blocking_worker;
+    HybridCompilerLane async_lanes[2];
+    size_t async_lane_count;
     PGRAPHVkHybridCompilerConfig config;
     HybridCompilerJob *async_head;
     HybridCompilerJob *async_tail;
     HybridCompilerJob *result_head;
     HybridCompilerJob *result_tail;
-    HybridCompilerJob *active;
     HybridCompilerJob *active_blocking;
     HybridCompilerJob *blocking;
     size_t async_jobs;
@@ -50,7 +60,7 @@ typedef struct HybridCompilerState {
     int result_available;
     bool stopping;
     bool joined;
-} HybridCompilerState;
+};
 
 static bool request_valid(const PGRAPHVkHybridCompileRequest *request)
 {
@@ -169,9 +179,11 @@ static HybridCompilerJob *find_matching_async_job(
     bool *queued)
 {
     *queued = false;
-    if (state->active && !state->active->blocking &&
-        job_matches_request(state->active, request)) {
-        return state->active;
+    for (size_t i = 0; i < state->async_lane_count; i++) {
+        HybridCompilerJob *active = state->async_lanes[i].active;
+        if (active && job_matches_request(active, request)) {
+            return active;
+        }
     }
     HybridCompilerJob *job = find_in_list(state->async_head, request);
     if (job) {
@@ -215,22 +227,58 @@ static void async_list_destroy(HybridCompilerState *state,
     *tail = NULL;
 }
 
-static HybridCompilerJob *async_pop(HybridCompilerState *state)
+static bool lane_accepts_job(const HybridCompilerLane *lane,
+                             const HybridCompilerJob *job)
 {
+    if (lane->state->config.worker_policy !=
+        PGRAPH_VK_HYBRID_WORKERS_SPLIT_DEMAND) {
+        return true;
+    }
+    return lane->worker_class == PGRAPH_VK_HYBRID_WORKER_NORMAL ?
+               job->request.urgency == PGRAPH_VK_COMPILE_DEMAND :
+               job->request.urgency != PGRAPH_VK_COMPILE_DEMAND;
+}
+
+static bool async_has_work_for_lane(const HybridCompilerLane *lane)
+{
+    for (HybridCompilerJob *job = lane->state->async_head; job;
+         job = job->next) {
+        if (lane_accepts_job(lane, job)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool async_has_active_job(const HybridCompilerState *state)
+{
+    for (size_t i = 0; i < state->async_lane_count; i++) {
+        if (state->async_lanes[i].active) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static HybridCompilerJob *async_pop(HybridCompilerLane *lane)
+{
+    HybridCompilerState *state = lane->state;
     HybridCompilerJob *job = state->async_head;
     HybridCompilerJob *previous = NULL;
-    HybridCompilerJob *best = job;
+    HybridCompilerJob *best = NULL;
     HybridCompilerJob *best_previous = NULL;
 
-    if (!job) {
-        return NULL;
-    }
-
     for (; job; previous = job, job = job->next) {
-        if (job->request.urgency > best->request.urgency) {
+        if (!lane_accepts_job(lane, job)) {
+            continue;
+        }
+        if (!best || job->request.urgency > best->request.urgency) {
             best = job;
             best_previous = previous;
         }
+    }
+    if (!best) {
+        return NULL;
     }
     if (best_previous) {
         best_previous->next = best->next;
@@ -261,7 +309,26 @@ static void result_append(HybridCompilerState *state, HybridCompilerJob *job)
 
 static void *hybrid_compiler_worker(void *opaque)
 {
-    HybridCompilerState *state = opaque;
+    HybridCompilerLane *lane = opaque;
+    HybridCompilerState *state = lane->state;
+
+    PGRAPHVkWorkerPriorityResult priority_result =
+        PGRAPH_VK_WORKER_PRIORITY_UNSUPPORTED;
+    bool lower_priority =
+        lane->worker_class == PGRAPH_VK_HYBRID_WORKER_BACKGROUND;
+    if (lower_priority && state->config.set_lower_priority) {
+        priority_result = state->config.set_lower_priority(
+            state->config.priority_opaque);
+    }
+
+    qemu_mutex_lock(&state->lock);
+    lane->status = (PGRAPHVkHybridWorkerStatus) {
+        .started = true,
+        .lower_priority_requested = lower_priority,
+        .priority_result = priority_result,
+    };
+    qemu_cond_broadcast(&state->work_ready);
+    qemu_mutex_unlock(&state->lock);
 
     for (;;) {
         HybridCompilerJob *job;
@@ -270,15 +337,16 @@ static void *hybrid_compiler_worker(void *opaque)
         bool success;
 
         qemu_mutex_lock(&state->lock);
-        while (!state->stopping && !state->async_head) {
+        while (!state->stopping && !async_has_work_for_lane(lane)) {
             qemu_cond_wait(&state->work_ready, &state->lock);
         }
         if (state->stopping) {
             qemu_mutex_unlock(&state->lock);
             break;
         }
-        job = async_pop(state);
-        state->active = job;
+        job = async_pop(lane);
+        assert(job);
+        lane->active = job;
         job->started_us = g_get_monotonic_time();
         qemu_mutex_unlock(&state->lock);
 
@@ -302,7 +370,7 @@ static void *hybrid_compiler_worker(void *opaque)
 
         qemu_mutex_lock(&state->lock);
         job->finished_us = g_get_monotonic_time();
-        state->active = NULL;
+        lane->active = NULL;
         if (success &&
             job->request.kind == PGRAPH_VK_HYBRID_JOB_GENERATE_SOURCE) {
             if (artifact_size > state->config.max_async_bytes -
@@ -364,7 +432,7 @@ static void *hybrid_compiler_blocking_worker(void *opaque)
         job = state->blocking;
         state->active_blocking = job;
         job->started_us = g_get_monotonic_time();
-        job->speculative_active_at_start = state->active != NULL;
+        job->speculative_active_at_start = async_has_active_job(state);
         qemu_mutex_unlock(&state->lock);
 
         success = state->config.compile(state->config.opaque, &job->request,
@@ -412,8 +480,47 @@ bool pgraph_vk_hybrid_compiler_init(
     qemu_cond_init(&state->work_ready);
     qemu_cond_init(&state->blocking_ready);
     qemu_cond_init(&state->blocking_done);
-    qemu_thread_create(&state->worker, "vk-hybrid-compiler",
-                       hybrid_compiler_worker, state, QEMU_THREAD_JOINABLE);
+    if (config->worker_policy > PGRAPH_VK_HYBRID_WORKERS_SPLIT_DEMAND) {
+        qemu_cond_destroy(&state->blocking_done);
+        qemu_cond_destroy(&state->blocking_ready);
+        qemu_cond_destroy(&state->work_ready);
+        qemu_mutex_destroy(&state->lock);
+        g_free(state);
+        return false;
+    }
+    state->async_lane_count =
+        config->worker_policy == PGRAPH_VK_HYBRID_WORKERS_SPLIT_DEMAND ? 2 : 1;
+    for (size_t i = 0; i < state->async_lane_count; i++) {
+        HybridCompilerLane *lane = &state->async_lanes[i];
+        const char *name;
+
+        lane->state = state;
+        if ((config->worker_policy == PGRAPH_VK_HYBRID_WORKERS_SPLIT_DEMAND &&
+             i == 0) ||
+            config->worker_policy == PGRAPH_VK_HYBRID_WORKERS_ALL_LOW) {
+            lane->worker_class = PGRAPH_VK_HYBRID_WORKER_BACKGROUND;
+            name = "vk-hybrid-background";
+        } else {
+            lane->worker_class = PGRAPH_VK_HYBRID_WORKER_NORMAL;
+            name = config->worker_policy ==
+                           PGRAPH_VK_HYBRID_WORKERS_SPLIT_DEMAND ?
+                       "vk-hybrid-demand" : "vk-hybrid-compiler";
+        }
+        qemu_thread_create(&lane->thread, name, hybrid_compiler_worker, lane,
+                           QEMU_THREAD_JOINABLE);
+    }
+    qemu_mutex_lock(&state->lock);
+    for (;;) {
+        bool all_started = true;
+        for (size_t i = 0; i < state->async_lane_count; i++) {
+            all_started &= state->async_lanes[i].status.started;
+        }
+        if (all_started) {
+            break;
+        }
+        qemu_cond_wait(&state->work_ready, &state->lock);
+    }
+    qemu_mutex_unlock(&state->lock);
     qemu_thread_create(&state->blocking_worker, "vk-hybrid-required",
                        hybrid_compiler_blocking_worker, state,
                        QEMU_THREAD_JOINABLE);
@@ -468,6 +575,7 @@ PGRAPHVkHybridCompilerSubmitResult pgraph_vk_hybrid_compiler_submit_async(
         if (queued && request->urgency > existing->request.urgency) {
             existing->request.urgency = request->urgency;
             result = PGRAPH_VK_HYBRID_COMPILER_DUPLICATE_PROMOTED;
+            qemu_cond_broadcast(&state->work_ready);
         } else {
             result = PGRAPH_VK_HYBRID_COMPILER_DUPLICATE;
         }
@@ -497,7 +605,7 @@ PGRAPHVkHybridCompilerSubmitResult pgraph_vk_hybrid_compiler_submit_async(
                 .ticket = request->ticket,
             };
         }
-        qemu_cond_signal(&state->work_ready);
+        qemu_cond_broadcast(&state->work_ready);
         qemu_mutex_unlock(&state->lock);
         return PGRAPH_VK_HYBRID_COMPILER_ACCEPTED;
     }
@@ -630,6 +738,31 @@ bool pgraph_vk_hybrid_compiler_has_result(
     return state && qatomic_read(&state->result_available);
 }
 
+bool pgraph_vk_hybrid_compiler_get_worker_status(
+    PGRAPHVkHybridCompiler *compiler, PGRAPHVkHybridWorkerClass worker_class,
+    PGRAPHVkHybridWorkerStatus *status)
+{
+    HybridCompilerState *state = compiler ? compiler->state : NULL;
+    bool found = false;
+
+    if (status) {
+        *status = (PGRAPHVkHybridWorkerStatus) { 0 };
+    }
+    if (!state || !status) {
+        return false;
+    }
+    qemu_mutex_lock(&state->lock);
+    for (size_t i = 0; i < state->async_lane_count; i++) {
+        if (state->async_lanes[i].worker_class == worker_class) {
+            *status = state->async_lanes[i].status;
+            found = true;
+            break;
+        }
+    }
+    qemu_mutex_unlock(&state->lock);
+    return found;
+}
+
 void pgraph_vk_hybrid_compile_result_destroy(
     PGRAPHVkHybridCompileResult *result)
 {
@@ -675,7 +808,9 @@ void pgraph_vk_hybrid_compiler_join(PGRAPHVkHybridCompiler *compiler)
         return;
     }
     pgraph_vk_hybrid_compiler_stop(compiler);
-    qemu_thread_join(&state->worker);
+    for (size_t i = 0; i < state->async_lane_count; i++) {
+        qemu_thread_join(&state->async_lanes[i].thread);
+    }
     qemu_thread_join(&state->blocking_worker);
     state->joined = true;
 }
@@ -691,7 +826,9 @@ void pgraph_vk_hybrid_compiler_destroy(PGRAPHVkHybridCompiler *compiler)
     qemu_mutex_lock(&state->lock);
     async_list_destroy(state, &state->async_head, &state->async_tail);
     async_list_destroy(state, &state->result_head, &state->result_tail);
-    assert(!state->active);
+    for (size_t i = 0; i < state->async_lane_count; i++) {
+        assert(!state->async_lanes[i].active);
+    }
     assert(!state->active_blocking);
     assert(!state->blocking);
     qemu_mutex_unlock(&state->lock);

@@ -542,8 +542,14 @@ void pgraph_vk_init_pipelines(PGRAPHState *pg)
     init_render_passes(r);
 
     if (r->ubershader_runtime_enabled) {
+        PGRAPHVkWorkerSchedulingMode scheduling =
+            pgraph_vk_worker_scheduling_mode_from_environment();
         const PGRAPHVkHybridPipelineBuilderConfig config = {
             .max_jobs = PGRAPH_VK_HYBRID_MAX_PIPELINE_JOBS,
+            .lower_worker_priority =
+                scheduling == PGRAPH_VK_WORKER_SCHEDULING_ALL_LOW,
+            .set_lower_priority =
+                pgraph_vk_lower_current_worker_priority_callback,
             .create = hybrid_pipeline_create,
             .destroy = hybrid_pipeline_destroy,
             .opaque = r,
@@ -551,6 +557,18 @@ void pgraph_vk_init_pipelines(PGRAPHState *pg)
         r->hybrid_pipeline_builder_initialized =
             pgraph_vk_hybrid_pipeline_builder_init(
                 &r->hybrid_pipeline_builder, &config);
+        if (r->hybrid_pipeline_builder_initialized &&
+            config.lower_worker_priority) {
+            PGRAPHVkHybridPipelineWorkerStatus status;
+            if (pgraph_vk_hybrid_pipeline_builder_get_worker_status(
+                    &r->hybrid_pipeline_builder, &status)) {
+                fprintf(stderr,
+                        "Vulkan pipeline worker: mode=%s priority=%s\n",
+                        pgraph_vk_worker_scheduling_mode_name(scheduling),
+                        pgraph_vk_worker_priority_result_name(
+                            status.priority_result));
+            }
+        }
     }
     pgraph_vk_init_demand_executables(pg);
     if (r->perf.enabled || r->hybrid_trace) {

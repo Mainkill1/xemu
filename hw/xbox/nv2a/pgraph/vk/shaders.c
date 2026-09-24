@@ -2342,9 +2342,19 @@ void pgraph_vk_init_shaders(PGRAPHState *pg)
     r->hybrid_generation = 1;
     r->hybrid_selection_epoch = 1;
     if (r->ubershader_runtime_enabled) {
+        PGRAPHVkWorkerSchedulingMode scheduling =
+            pgraph_vk_worker_scheduling_mode_from_environment();
         PGRAPHVkHybridCompilerConfig compiler_config = {
             .max_async_jobs = 32,
             .max_async_bytes = 8 * MiB,
+            .worker_policy =
+                scheduling == PGRAPH_VK_WORKER_SCHEDULING_ALL_LOW ?
+                    PGRAPH_VK_HYBRID_WORKERS_ALL_LOW :
+                scheduling == PGRAPH_VK_WORKER_SCHEDULING_SPLIT_DEMAND ?
+                    PGRAPH_VK_HYBRID_WORKERS_SPLIT_DEMAND :
+                    PGRAPH_VK_HYBRID_WORKERS_CURRENT,
+            .set_lower_priority =
+                pgraph_vk_lower_current_worker_priority_callback,
             .generate = hybrid_generate_source_job,
             .compile = hybrid_compile_job,
         };
@@ -2353,6 +2363,17 @@ void pgraph_vk_init_shaders(PGRAPHState *pg)
         if (!r->hybrid_compiler_initialized) {
             error_report("nv2a/vk: failed to start hybrid shader compiler; "
                          "using synchronous specialization");
+        } else if (scheduling != PGRAPH_VK_WORKER_SCHEDULING_CURRENT) {
+            PGRAPHVkHybridWorkerStatus status;
+            if (pgraph_vk_hybrid_compiler_get_worker_status(
+                    &r->hybrid_compiler,
+                    PGRAPH_VK_HYBRID_WORKER_BACKGROUND, &status)) {
+                fprintf(stderr,
+                        "Vulkan shader workers: mode=%s background=%s\n",
+                        pgraph_vk_worker_scheduling_mode_name(scheduling),
+                        pgraph_vk_worker_priority_result_name(
+                            status.priority_result));
+            }
         }
     }
 

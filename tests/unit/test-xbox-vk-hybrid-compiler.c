@@ -18,6 +18,8 @@ typedef struct TestCompiler {
     bool fail;
     unsigned int calls;
     unsigned int generate_calls;
+    unsigned int priority_calls;
+    PGRAPHVkWorkerPriorityResult priority_result;
     size_t generated_size;
     char source[32];
     char recipe[32];
@@ -33,7 +35,10 @@ typedef struct BlockingSubmit {
 
 static void test_compiler_init(TestCompiler *compiler, bool block)
 {
-    *compiler = (TestCompiler) { .block = block };
+    *compiler = (TestCompiler) {
+        .block = block,
+        .priority_result = PGRAPH_VK_WORKER_PRIORITY_APPLIED,
+    };
     qemu_mutex_init(&compiler->lock);
     qemu_cond_init(&compiler->started);
     qemu_cond_init(&compiler->release);
@@ -107,6 +112,18 @@ static bool test_generate(void *opaque,
     return *glsl != NULL;
 }
 
+static PGRAPHVkWorkerPriorityResult test_set_priority(void *opaque)
+{
+    TestCompiler *compiler = opaque;
+
+    qemu_mutex_lock(&compiler->lock);
+    compiler->priority_calls++;
+    PGRAPHVkWorkerPriorityResult result = compiler->priority_result;
+    qemu_cond_broadcast(&compiler->started);
+    qemu_mutex_unlock(&compiler->lock);
+    return result;
+}
+
 static void test_wait_for_calls(TestCompiler *compiler, unsigned int calls)
 {
     qemu_mutex_lock(&compiler->lock);
@@ -134,6 +151,16 @@ static PGRAPHVkHybridCompilerConfig test_config(TestCompiler *test,
         .compile = test_compile,
         .opaque = test,
     };
+}
+
+static PGRAPHVkHybridCompilerConfig test_split_lane_config(
+    TestCompiler *test, size_t jobs, size_t bytes)
+{
+    PGRAPHVkHybridCompilerConfig config = test_config(test, jobs, bytes);
+    config.worker_policy = PGRAPH_VK_HYBRID_WORKERS_SPLIT_DEMAND;
+    config.set_lower_priority = test_set_priority;
+    config.priority_opaque = test;
+    return config;
 }
 
 static PGRAPHVkHybridCompileRequest test_request_stage(
@@ -724,6 +751,153 @@ static void test_required_compile_starts_while_async_is_active(void)
     g_assert_true(started);
 }
 
+static void test_demand_lane_starts_while_background_lane_is_active(void)
+{
+    TestCompiler test;
+    PGRAPHVkHybridCompiler compiler = { 0 };
+    PGRAPHVkHybridCompileResult result;
+    PGRAPHVkHybridCompilerConfig config;
+    PGRAPHVkHybridWorkerStatus background_status;
+    PGRAPHVkHybridWorkerStatus normal_status;
+    bool started;
+
+    test_compiler_init(&test, true);
+    config = test_split_lane_config(&test, 2, 64);
+    g_assert_true(pgraph_vk_hybrid_compiler_init(&compiler, &config));
+
+    g_assert_cmpint(submit_async_urgency(
+                        &compiler, 1, 1, "background", "config",
+                        PGRAPH_VK_COMPILE_SPECULATIVE, NULL),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
+    test_wait_for_calls(&test, 1);
+    g_assert_cmpint(submit_async_urgency(
+                        &compiler, 1, 2, "demand", "config",
+                        PGRAPH_VK_COMPILE_DEMAND, NULL),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
+
+    qemu_mutex_lock(&test.lock);
+    while (test.calls < 2 &&
+           qemu_cond_timedwait(&test.started, &test.lock, 1000)) {
+    }
+    started = test.calls >= 2;
+    qemu_mutex_unlock(&test.lock);
+
+    test_release(&test);
+    g_assert_true(take_result(&compiler, &result));
+    pgraph_vk_hybrid_compile_result_destroy(&result);
+    g_assert_true(take_result(&compiler, &result));
+    pgraph_vk_hybrid_compile_result_destroy(&result);
+    g_assert_true(started);
+    g_assert_cmpuint(test.priority_calls, ==, 1);
+    g_assert_true(pgraph_vk_hybrid_compiler_get_worker_status(
+        &compiler, PGRAPH_VK_HYBRID_WORKER_BACKGROUND,
+        &background_status));
+    g_assert_true(background_status.started);
+    g_assert_true(background_status.lower_priority_requested);
+    g_assert_cmpint(background_status.priority_result, ==,
+                    PGRAPH_VK_WORKER_PRIORITY_APPLIED);
+    g_assert_true(pgraph_vk_hybrid_compiler_get_worker_status(
+        &compiler, PGRAPH_VK_HYBRID_WORKER_NORMAL, &normal_status));
+    g_assert_true(normal_status.started);
+    g_assert_false(normal_status.lower_priority_requested);
+    pgraph_vk_hybrid_compiler_destroy(&compiler);
+    test_compiler_destroy(&test);
+}
+
+static void test_priority_results_preserve_async_and_blocking_work(void)
+{
+    const PGRAPHVkWorkerPriorityResult results[] = {
+        PGRAPH_VK_WORKER_PRIORITY_APPLIED,
+        PGRAPH_VK_WORKER_PRIORITY_UNSUPPORTED,
+        PGRAPH_VK_WORKER_PRIORITY_FAILED,
+    };
+
+    for (size_t i = 0; i < ARRAY_SIZE(results); i++) {
+        TestCompiler test;
+        PGRAPHVkHybridCompiler compiler = { 0 };
+        PGRAPHVkHybridCompilerConfig config;
+        PGRAPHVkHybridCompileRequest blocking_request;
+        PGRAPHVkHybridCompileResult result;
+        PGRAPHVkHybridWorkerStatus status;
+
+        test_compiler_init(&test, false);
+        test.priority_result = results[i];
+        config = test_config(&test, 2, 64);
+        config.worker_policy = PGRAPH_VK_HYBRID_WORKERS_ALL_LOW;
+        config.set_lower_priority = test_set_priority;
+        config.priority_opaque = &test;
+        g_assert_true(pgraph_vk_hybrid_compiler_init(&compiler, &config));
+
+        g_assert_cmpint(submit_async(&compiler, 1, 1, "async", "config",
+                                     NULL),
+                        ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
+        g_assert_true(take_result(&compiler, &result));
+        pgraph_vk_hybrid_compile_result_destroy(&result);
+        blocking_request = test_request(1, 2, "blocking", "config");
+        blocking_request.urgency = PGRAPH_VK_COMPILE_DEMAND;
+        g_assert_true(pgraph_vk_hybrid_compiler_submit_blocking(
+            &compiler, &blocking_request, &result));
+        pgraph_vk_hybrid_compile_result_destroy(&result);
+        g_assert_cmpuint(test.priority_calls, ==, 1);
+        g_assert_true(pgraph_vk_hybrid_compiler_get_worker_status(
+            &compiler, PGRAPH_VK_HYBRID_WORKER_BACKGROUND, &status));
+        g_assert_true(status.started);
+        g_assert_true(status.lower_priority_requested);
+        g_assert_cmpint(status.priority_result, ==, results[i]);
+
+        pgraph_vk_hybrid_compiler_destroy(&compiler);
+        test_compiler_destroy(&test);
+    }
+}
+
+static void test_queued_promotion_moves_work_to_demand_lane(void)
+{
+    TestCompiler test;
+    PGRAPHVkHybridCompiler compiler = { 0 };
+    PGRAPHVkHybridCompilerConfig config;
+    PGRAPHVkHybridCompileIdentity original;
+    PGRAPHVkHybridCompileIdentity promoted;
+    PGRAPHVkHybridCompileRequest request;
+    PGRAPHVkHybridCompileResult result;
+    bool started;
+
+    test_compiler_init(&test, true);
+    config = test_split_lane_config(&test, 3, 96);
+    g_assert_true(pgraph_vk_hybrid_compiler_init(&compiler, &config));
+    g_assert_cmpint(submit_async_urgency(
+                        &compiler, 1, 1, "active", "config",
+                        PGRAPH_VK_COMPILE_SPECULATIVE, NULL),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
+    test_wait_for_calls(&test, 1);
+    g_assert_cmpint(submit_async_urgency(
+                        &compiler, 1, 2, "promote", "config",
+                        PGRAPH_VK_COMPILE_SPECULATIVE, &original),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
+    request = test_request(1, 99, "promote", "config");
+    request.urgency = PGRAPH_VK_COMPILE_DEMAND;
+    g_assert_cmpint(pgraph_vk_hybrid_compiler_submit_async(
+                        &compiler, &request, &promoted),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_DUPLICATE_PROMOTED);
+    g_assert_cmpuint(promoted.generation, ==, original.generation);
+    g_assert_cmpuint(promoted.ticket, ==, original.ticket);
+
+    qemu_mutex_lock(&test.lock);
+    while (test.calls < 2 &&
+           qemu_cond_timedwait(&test.started, &test.lock, 1000)) {
+    }
+    started = test.calls >= 2;
+    qemu_mutex_unlock(&test.lock);
+    test_release(&test);
+    g_assert_true(take_result(&compiler, &result));
+    pgraph_vk_hybrid_compile_result_destroy(&result);
+    g_assert_true(take_result(&compiler, &result));
+    pgraph_vk_hybrid_compile_result_destroy(&result);
+    g_assert_true(started);
+    g_assert_cmpuint(test.calls, ==, 2);
+    pgraph_vk_hybrid_compiler_destroy(&compiler);
+    test_compiler_destroy(&test);
+}
+
 static void test_compile_failure_is_returned_with_owned_empty_artifact(void)
 {
     TestCompiler test;
@@ -844,6 +1018,12 @@ int main(int argc, char **argv)
                     test_blocking_slot_is_reserved_from_async_limits);
     g_test_add_func("/xbox/vk/hybrid-compiler/required-starts-before-async-finishes",
                     test_required_compile_starts_while_async_is_active);
+    g_test_add_func("/xbox/vk/hybrid-compiler/demand-starts-before-background-finishes",
+                    test_demand_lane_starts_while_background_lane_is_active);
+    g_test_add_func("/xbox/vk/hybrid-compiler/priority-results-preserve-work",
+                    test_priority_results_preserve_async_and_blocking_work);
+    g_test_add_func("/xbox/vk/hybrid-compiler/promotion-moves-to-demand-lane",
+                    test_queued_promotion_moves_work_to_demand_lane);
     g_test_add_func("/xbox/vk/hybrid-compiler/failure-result",
                     test_compile_failure_is_returned_with_owned_empty_artifact);
     g_test_add_func("/xbox/vk/hybrid-compiler/invalid-urgency",

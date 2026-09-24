@@ -11,6 +11,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "hw/xbox/nv2a/pgraph/vk/background-worker-priority.h"
+
 /*
  * This queue owns only immutable source/configuration bytes and compiler
  * artifacts. It deliberately knows nothing about PGRAPH, Vulkan, caches, or
@@ -77,9 +79,29 @@ typedef bool (*PGRAPHVkHybridGenerateFunc)(
     void *opaque, const PGRAPHVkHybridCompileRequest *request,
     uint8_t **glsl, size_t *glsl_size);
 
+typedef enum PGRAPHVkHybridWorkerClass {
+    PGRAPH_VK_HYBRID_WORKER_NORMAL,
+    PGRAPH_VK_HYBRID_WORKER_BACKGROUND,
+} PGRAPHVkHybridWorkerClass;
+
+typedef enum PGRAPHVkHybridWorkerPolicy {
+    PGRAPH_VK_HYBRID_WORKERS_CURRENT,
+    PGRAPH_VK_HYBRID_WORKERS_ALL_LOW,
+    PGRAPH_VK_HYBRID_WORKERS_SPLIT_DEMAND,
+} PGRAPHVkHybridWorkerPolicy;
+
+typedef struct PGRAPHVkHybridWorkerStatus {
+    bool started;
+    bool lower_priority_requested;
+    PGRAPHVkWorkerPriorityResult priority_result;
+} PGRAPHVkHybridWorkerStatus;
+
 typedef struct PGRAPHVkHybridCompilerConfig {
     size_t max_async_jobs;
     size_t max_async_bytes;
+    PGRAPHVkHybridWorkerPolicy worker_policy;
+    PGRAPHVkSetWorkerPriorityFunc set_lower_priority;
+    void *priority_opaque;
     PGRAPHVkHybridGenerateFunc generate;
     PGRAPHVkHybridCompileFunc compile;
     void *opaque;
@@ -135,6 +157,9 @@ bool pgraph_vk_hybrid_compiler_take_result(
     PGRAPHVkHybridCompileResult *result);
 bool pgraph_vk_hybrid_compiler_has_result(
     const PGRAPHVkHybridCompiler *compiler);
+bool pgraph_vk_hybrid_compiler_get_worker_status(
+    PGRAPHVkHybridCompiler *compiler, PGRAPHVkHybridWorkerClass worker_class,
+    PGRAPHVkHybridWorkerStatus *status);
 void pgraph_vk_hybrid_compile_result_destroy(
     PGRAPHVkHybridCompileResult *result);
 
