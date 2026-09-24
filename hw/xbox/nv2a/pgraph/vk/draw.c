@@ -4034,8 +4034,6 @@ static void discard_prepared_vertex_data(
         r->vertex_binding_descriptions[desc_loc].stride =
             prepared->remap.map[attr_id].old_stride;
     }
-    r->num_pending_vertex_ram_reads = 0;
-    r->num_vertex_ram_buffer_syncs = 0;
 }
 
 static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
@@ -4054,6 +4052,9 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
     if (pg->draw_arrays_length) {
         NV2A_VK_DGROUP_BEGIN("Draw Arrays");
         nv2a_profile_inc_counter(NV2A_PROF_DRAW_ARRAYS);
+        PGRAPHVkDrawOmissionCheckpoint omission_checkpoint;
+        pgraph_vk_draw_omission_checkpoint_capture(
+            r, PGRAPH_VK_DRAW_ENCODING_ARRAYS, &omission_checkpoint);
 
         assert(pg->inline_elements_length == 0);
         assert(pg->inline_buffer_length == 0);
@@ -4078,6 +4079,8 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
         PGRAPHVkDrawPrepareResult prepare_result = prepare_draw_pipeline(pg);
         if (prepare_result != PGRAPH_VK_DRAW_PREPARE_READY) {
             discard_prepared_vertex_data(pg, &vertex_data);
+            pgraph_vk_discard_unsubmitted_draw_state(
+                r, &omission_checkpoint);
             NV2A_VK_DGROUP_END();
             return pgraph_vk_draw_result_from_prepare(prepare_result);
         }
@@ -4105,6 +4108,10 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
         assert(pg->inline_array_length == 0);
 
         nv2a_profile_inc_counter(NV2A_PROF_INLINE_ELEMENTS);
+        PGRAPHVkDrawOmissionCheckpoint omission_checkpoint;
+        pgraph_vk_draw_omission_checkpoint_capture(
+            r, PGRAPH_VK_DRAW_ENCODING_INLINE_ELEMENTS,
+            &omission_checkpoint);
 
         size_t index_data_size =
             pg->inline_elements_length * sizeof(pg->inline_elements[0]);
@@ -4129,6 +4136,8 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
         PGRAPHVkDrawPrepareResult prepare_result = prepare_draw_pipeline(pg);
         if (prepare_result != PGRAPH_VK_DRAW_PREPARE_READY) {
             discard_prepared_vertex_data(pg, &vertex_data);
+            pgraph_vk_discard_unsubmitted_draw_state(
+                r, &omission_checkpoint);
             NV2A_VK_DGROUP_END();
             return pgraph_vk_draw_result_from_prepare(prepare_result);
         }
@@ -4159,6 +4168,10 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
     } else if (pg->inline_buffer_length) {
         NV2A_VK_DGROUP_BEGIN("Inline Buffer");
         nv2a_profile_inc_counter(NV2A_PROF_INLINE_BUFFERS);
+        PGRAPHVkDrawOmissionCheckpoint omission_checkpoint;
+        pgraph_vk_draw_omission_checkpoint_capture(
+            r, PGRAPH_VK_DRAW_ENCODING_INLINE_BUFFER,
+            &omission_checkpoint);
         assert(pg->inline_array_length == 0);
 
         size_t vertex_data_size = pg->inline_buffer_length * sizeof(float) * 4;
@@ -4181,6 +4194,8 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
         }
         PGRAPHVkDrawPrepareResult prepare_result = prepare_draw_pipeline(pg);
         if (prepare_result != PGRAPH_VK_DRAW_PREPARE_READY) {
+            pgraph_vk_discard_unsubmitted_draw_state(
+                r, &omission_checkpoint);
             NV2A_VK_DGROUP_END();
             return pgraph_vk_draw_result_from_prepare(prepare_result);
         }
@@ -4200,6 +4215,10 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
     } else if (pg->inline_array_length) {
         NV2A_VK_DGROUP_BEGIN("Inline Array");
         nv2a_profile_inc_counter(NV2A_PROF_INLINE_ARRAYS);
+        PGRAPHVkDrawOmissionCheckpoint omission_checkpoint;
+        pgraph_vk_draw_omission_checkpoint_capture(
+            r, PGRAPH_VK_DRAW_ENCODING_INLINE_ARRAY,
+            &omission_checkpoint);
 
         VkDeviceSize inline_array_data_size = pg->inline_array_length * 4;
         unsigned int offset = 0;
@@ -4230,6 +4249,8 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
 
         PGRAPHVkDrawPrepareResult prepare_result = prepare_draw_pipeline(pg);
         if (prepare_result != PGRAPH_VK_DRAW_PREPARE_READY) {
+            pgraph_vk_discard_unsubmitted_draw_state(
+                r, &omission_checkpoint);
             NV2A_VK_DGROUP_END();
             return pgraph_vk_draw_result_from_prepare(prepare_result);
         }
