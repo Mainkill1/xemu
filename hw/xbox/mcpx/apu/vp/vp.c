@@ -23,6 +23,7 @@
 #include "qemu/error-report.h"
 #include "adpcm.h"
 #include "resample.h"
+#include "worker-count.h"
 
 static const struct {
     hwaddr top, current, next;
@@ -1805,14 +1806,21 @@ static void voice_work_init(MCPXAPUState *d)
 {
     VoiceWorkDispatch *vwd = &d->vp.voice_work_dispatch;
 
-    int num_workers = g_config.audio.vp.num_workers ?: SDL_GetNumLogicalCPUCores();
-    vwd->num_workers = MAX(1, MIN(num_workers, MAX_VOICE_WORKERS));
+    int configured_workers = g_config.audio.vp.num_workers;
+    int logical_cpus = SDL_GetNumLogicalCPUCores();
+    bool linear_resampler = d->vp.resampler_type == SRC_LINEAR;
+    vwd->num_workers = mcpx_apu_voice_worker_count(
+        configured_workers, logical_cpus, linear_resampler);
     vwd->workers = g_malloc0_n(vwd->num_workers, sizeof(VoiceWorker));
     vwd->workers_should_exit = false;
     vwd->workers_pending = 0;
     vwd->queue_len = 0;
 
     g_dbg.vp.num_workers = vwd->num_workers;
+    info_report("MCPX APU voice workers: configured=%d effective=%d "
+                "logical_cpus=%d resampler=%s",
+                configured_workers, vwd->num_workers, logical_cpus,
+                linear_resampler ? "linear" : "sinc");
 
     qemu_mutex_init(&vwd->lock);
     qemu_mutex_lock(&vwd->lock);
