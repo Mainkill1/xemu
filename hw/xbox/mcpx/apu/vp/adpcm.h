@@ -158,12 +158,29 @@ static inline void mcpx_apu_adpcm_cache_reset(MCPXADPCMBlockCache *cache)
     cache->valid = false;
 }
 
+static inline bool mcpx_apu_adpcm_fits_cache(size_t encoded_size,
+                                              unsigned int channels)
+{
+    if (channels < 1 || channels > 2 ||
+        encoded_size > MCPX_ADPCM_MAX_BLOCK_BYTES) {
+        return false;
+    }
+
+    size_t header_bytes = 4u * channels;
+    if (encoded_size < header_bytes) {
+        return false;
+    }
+
+    size_t chunks = (encoded_size - header_bytes) / header_bytes;
+    size_t decoded_samples = channels * (1u + chunks * 8u);
+    return decoded_samples <= MCPX_ADPCM_MAX_DECODED_SAMPLES;
+}
+
 static inline const int16_t *mcpx_apu_adpcm_decode_cached(
     MCPXADPCMBlockCache *cache, const uint8_t *encoded, size_t encoded_size,
     unsigned int channels, int *sample_count, bool *cache_hit)
 {
-    if (channels < 1 || channels > 2 ||
-        encoded_size > sizeof(cache->encoded)) {
+    if (!mcpx_apu_adpcm_fits_cache(encoded_size, channels)) {
         mcpx_apu_adpcm_cache_reset(cache);
         *sample_count = 0;
         if (cache_hit) {

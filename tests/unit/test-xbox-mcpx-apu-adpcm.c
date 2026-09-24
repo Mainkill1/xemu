@@ -191,6 +191,80 @@ static void test_cache_rejects_invalid_blocks(void)
     g_assert_false(cache_hit);
 }
 
+static void test_cache_rejects_output_overflow_before_decode(void)
+{
+    struct {
+        MCPXADPCMBlockCache cache;
+        uint8_t guard[32];
+    } fixture = { 0 };
+    uint8_t block[MCPX_ADPCM_MAX_BLOCK_BYTES] = { 0 };
+    int sample_count = -1;
+    bool cache_hit = true;
+
+    memset(fixture.guard, 0xa5, sizeof(fixture.guard));
+
+    g_assert_null(mcpx_apu_adpcm_decode_cached(
+        &fixture.cache, block, sizeof(block), 1, &sample_count, &cache_hit));
+    g_assert_cmpint(sample_count, ==, 0);
+    g_assert_false(cache_hit);
+    g_assert_false(fixture.cache.valid);
+
+    for (size_t i = 0; i < sizeof(fixture.guard); i++) {
+        g_assert_cmphex(fixture.guard[i], ==, 0xa5);
+    }
+}
+
+static void test_cache_input_capacity_sweep(void)
+{
+    uint8_t block[MCPX_ADPCM_MAX_BLOCK_BYTES + 1] = { 0 };
+    int16_t reference[300];
+
+    for (unsigned int channels = 0; channels <= 3; channels++) {
+        for (size_t encoded_size = 0; encoded_size <= sizeof(block);
+             encoded_size++) {
+            struct {
+                MCPXADPCMBlockCache cache;
+                uint8_t guard[32];
+            } fixture = { 0 };
+            int sample_count = -1;
+            bool cache_hit = true;
+            int expected_count = 0;
+
+            memset(fixture.guard, 0xa5, sizeof(fixture.guard));
+            if (channels == 1 || channels == 2) {
+                expected_count = adpcm_decode_block(
+                    reference, block, encoded_size, channels);
+            }
+            bool fits = encoded_size <= MCPX_ADPCM_MAX_BLOCK_BYTES &&
+                        expected_count > 0 &&
+                        expected_count * channels <=
+                            MCPX_ADPCM_MAX_DECODED_SAMPLES;
+
+            const int16_t *decoded = mcpx_apu_adpcm_decode_cached(
+                &fixture.cache, block, encoded_size, channels, &sample_count,
+                &cache_hit);
+
+            if (fits) {
+                g_assert_nonnull(decoded);
+                g_assert_cmpint(sample_count, ==, expected_count);
+                g_assert_cmpmem(decoded,
+                                sample_count * channels * sizeof(*decoded),
+                                reference,
+                                expected_count * channels * sizeof(*reference));
+            } else {
+                g_assert_null(decoded);
+                g_assert_cmpint(sample_count, ==, 0);
+                g_assert_false(fixture.cache.valid);
+            }
+            g_assert_false(cache_hit);
+
+            for (size_t i = 0; i < sizeof(fixture.guard); i++) {
+                g_assert_cmphex(fixture.guard[i], ==, 0xa5);
+            }
+        }
+    }
+}
+
 static void test_cache_reset_forces_decode(void)
 {
     uint8_t block[72];
@@ -225,6 +299,10 @@ int main(int argc, char **argv)
                     test_cache_detects_format_changes);
     g_test_add_func("/mcpx/apu/adpcm/cache-rejects-invalid-blocks",
                     test_cache_rejects_invalid_blocks);
+    g_test_add_func("/mcpx/apu/adpcm/rejects-output-overflow-before-decode",
+                    test_cache_rejects_output_overflow_before_decode);
+    g_test_add_func("/mcpx/apu/adpcm/input-capacity-sweep",
+                    test_cache_input_capacity_sweep);
     g_test_add_func("/mcpx/apu/adpcm/cache-reset-forces-decode",
                     test_cache_reset_forces_decode);
     return g_test_run();
