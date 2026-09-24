@@ -28,6 +28,7 @@
 #include "hw/hw.h"
 #include "hw/pci/pci.h"
 #include "hw/xbox/mcpx/apu/apu_regs.h"
+#include "adpcm.h"
 #include "svf.h"
 #include "hrtf.h"
 
@@ -46,6 +47,7 @@ typedef struct MCPXAPUVoiceFilter {
     float mono_resample_buf[NUM_SAMPLES_PER_FRAME];
     SRC_STATE *resampler;
     int resampler_channels;
+    MCPXADPCMBlockCache adpcm_cache;
     sv_filter svf[2];
     HrtfFilter hrtf;
 } MCPXAPUVoiceFilter;
