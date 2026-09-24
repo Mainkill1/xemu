@@ -55,6 +55,11 @@ typedef enum XemuVulkanUbershaderMode {
     XEMU_VK_UBERSHADER_ALWAYS,
 } XemuVulkanUbershaderMode;
 
+typedef enum XemuVulkanShaderMissPolicy {
+    XEMU_VK_SHADER_MISS_WAIT = 0,
+    XEMU_VK_SHADER_MISS_CONTINUE_BLACK,
+} XemuVulkanShaderMissPolicy;
+
 typedef struct XemuVulkanUbershaderRuntimeState {
     XemuVulkanUbershaderMode requested;
     XemuVulkanUbershaderMode policy;
@@ -90,6 +95,7 @@ XemuVulkanUbershaderMode xemu_vulkan_ubershader_migrate_mode(
 bool xemu_vulkan_ubershader_mode_selectable(
     XemuVulkanUbershaderMode mode);
 XemuVulkanUbershaderMode xemu_vulkan_ubershader_policy(void);
+XemuVulkanShaderMissPolicy xemu_vulkan_shader_miss_policy(void);
 XemuVulkanUbershaderRuntimeState
 xemu_vulkan_ubershader_runtime_state(void);
 /* Renderer lifecycle publication; never called from the draw path. */

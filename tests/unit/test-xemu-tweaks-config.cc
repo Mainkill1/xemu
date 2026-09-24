@@ -27,6 +27,7 @@ static void load_tweaks_table(const char *text)
 static void test_ubershader_migration()
 {
     load_tweaks_table("[tweaks]\npgraph_bulk_packets = true\n");
+    xemu_tweaks_apply(false);
     assert(g_config.tweaks.vk_ubershader_mode ==
            CONFIG_TWEAKS_VK_UBERSHADER_MODE_PREWARM);
 
@@ -56,6 +57,40 @@ static void test_ubershader_migration()
     load_tweaks_table(saved.c_str());
     assert(g_config.tweaks.vk_ubershader_mode ==
            CONFIG_TWEAKS_VK_UBERSHADER_MODE_FALLBACK);
+}
+
+static void test_shader_miss_policy_config()
+{
+    load_tweaks_table("[tweaks]\npgraph_bulk_packets = true\n");
+    assert(g_config.tweaks.vk_shader_miss_policy ==
+           CONFIG_TWEAKS_VK_SHADER_MISS_POLICY_WAIT);
+    assert(xemu_vulkan_shader_miss_policy() == XEMU_VK_SHADER_MISS_WAIT);
+
+    load_tweaks_table(
+        "[tweaks]\n"
+        "vk_shader_miss_policy = 'continue_black'\n"
+        "vk_ubershader_mode = 'off'\n");
+    xemu_tweaks_apply(false);
+    assert(xemu_vulkan_shader_miss_policy() ==
+           XEMU_VK_SHADER_MISS_CONTINUE_BLACK);
+
+    g_config.tweaks.vk_ubershader_mode =
+        CONFIG_TWEAKS_VK_UBERSHADER_MODE_ALWAYS;
+    assert(xemu_vulkan_shader_miss_policy() ==
+           XEMU_VK_SHADER_MISS_CONTINUE_BLACK);
+
+    config_tree.update_from_struct(&g_config);
+    std::string saved = config_tree.generate_delta_toml();
+    assert(saved.find("vk_shader_miss_policy = 'continue_black'") !=
+           std::string::npos);
+    load_tweaks_table(saved.c_str());
+    xemu_tweaks_apply(false);
+    assert(xemu_vulkan_shader_miss_policy() ==
+           XEMU_VK_SHADER_MISS_CONTINUE_BLACK);
+
+    g_config.tweaks.vk_shader_miss_policy = 99;
+    xemu_tweaks_apply(false);
+    assert(xemu_vulkan_shader_miss_policy() == XEMU_VK_SHADER_MISS_WAIT);
 }
 
 static void test_ubershader_runtime_lifecycle()
@@ -205,6 +240,7 @@ int main()
     test_boolean_tweak_runtime_state();
     test_ubershader_migration();
     test_ubershader_runtime_lifecycle();
+    test_shader_miss_policy_config();
     const char *default_on_keys[] = {
         "cpu_saving_wait", "pgraph_bulk_packets", "pgraph_fence_fastpath",
         "vk_color_download_folding", "vk_bounded_vertex_uploads",

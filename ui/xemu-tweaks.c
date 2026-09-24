@@ -12,6 +12,10 @@ G_STATIC_ASSERT((int)XEMU_VK_UBERSHADER_PREWARM ==
                 CONFIG_TWEAKS_VK_UBERSHADER_MODE_PREWARM);
 G_STATIC_ASSERT((int)XEMU_VK_UBERSHADER_ALWAYS ==
                 CONFIG_TWEAKS_VK_UBERSHADER_MODE_ALWAYS);
+G_STATIC_ASSERT((int)XEMU_VK_SHADER_MISS_WAIT ==
+                CONFIG_TWEAKS_VK_SHADER_MISS_POLICY_WAIT);
+G_STATIC_ASSERT((int)XEMU_VK_SHADER_MISS_CONTINUE_BLACK ==
+                CONFIG_TWEAKS_VK_SHADER_MISS_POLICY_CONTINUE_BLACK);
 
 unsigned int xemu_tweaks_active =
     ((1u << XEMU_TWEAK_COUNT) - 1) &
@@ -21,6 +25,8 @@ unsigned int xemu_tweaks_active =
       (1u << XEMU_TWEAK_NV20_VERTEX_ARITHMETIC));
 static int xemu_vulkan_ubershader_latched_policy =
     XEMU_VK_UBERSHADER_OFF;
+static int xemu_vulkan_shader_miss_requested_policy =
+    XEMU_VK_SHADER_MISS_WAIT;
 
 typedef enum XemuVulkanUbershaderRuntimeStatus {
     XEMU_VK_UBERSHADER_RUNTIME_NO_VULKAN,
@@ -175,6 +181,14 @@ XemuVulkanUbershaderMode xemu_vulkan_ubershader_policy(void)
     return qatomic_read(&xemu_vulkan_ubershader_latched_policy);
 }
 
+XemuVulkanShaderMissPolicy xemu_vulkan_shader_miss_policy(void)
+{
+    XemuVulkanShaderMissPolicy policy =
+        qatomic_read(&xemu_vulkan_shader_miss_requested_policy);
+    return policy == XEMU_VK_SHADER_MISS_CONTINUE_BLACK ?
+               policy : XEMU_VK_SHADER_MISS_WAIT;
+}
+
 XemuVulkanUbershaderRuntimeState
 xemu_vulkan_ubershader_runtime_state(void)
 {
@@ -242,6 +256,13 @@ void xemu_tweaks_apply(bool startup)
         qatomic_set(&xemu_vulkan_ubershader_runtime_status,
                     XEMU_VK_UBERSHADER_RUNTIME_NO_VULKAN);
     }
+    XemuVulkanShaderMissPolicy shader_miss_policy =
+        (XemuVulkanShaderMissPolicy)g_config.tweaks.vk_shader_miss_policy;
+    if (shader_miss_policy != XEMU_VK_SHADER_MISS_CONTINUE_BLACK) {
+        shader_miss_policy = XEMU_VK_SHADER_MISS_WAIT;
+    }
+    qatomic_set(&xemu_vulkan_shader_miss_requested_policy,
+                shader_miss_policy);
     bool selected[XEMU_TWEAK_COUNT] = {
         [XEMU_TWEAK_CPU_SAVING_WAIT] = g_config.tweaks.cpu_saving_wait,
         [XEMU_TWEAK_PGRAPH_BULK_PACKETS] = g_config.tweaks.pgraph_bulk_packets,
