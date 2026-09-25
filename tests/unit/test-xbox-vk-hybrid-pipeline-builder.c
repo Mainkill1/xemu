@@ -451,8 +451,13 @@ static void test_diagnostic_queue_delay_allows_promotion(void)
     req.urgency = PGRAPH_VK_HYBRID_PIPELINE_BACKGROUND;
     g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_submit(&builder, &req),
                     ==, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED);
-    g_assert_true(pgraph_vk_hybrid_pipeline_builder_promote(
-        &builder, 9, 80, PGRAPH_VK_HYBRID_PIPELINE_DEMAND));
+    PGRAPHVkHybridPipelineUrgency old_urgency;
+    g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_promote(
+                        &builder, 9, 80,
+                        PGRAPH_VK_HYBRID_PIPELINE_DEMAND, &old_urgency),
+                    ==, PGRAPH_VK_PIPELINE_PROMOTE_QUEUED_CHANGED);
+    g_assert_cmpint(old_urgency, ==,
+                    PGRAPH_VK_HYBRID_PIPELINE_BACKGROUND);
 
     int64_t promoted_us = g_get_monotonic_time();
     PGRAPHVkHybridPipelineBuildResult result = take(&builder);
@@ -544,10 +549,17 @@ static void test_diagnostic_create_delay_cancellation_is_interruptible(void)
     req.urgency = PGRAPH_VK_HYBRID_PIPELINE_DEMAND;
     g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_submit(&builder, &req),
                     ==, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED);
-    while (pgraph_vk_hybrid_pipeline_builder_promote(
-        &builder, 12, 84, PGRAPH_VK_HYBRID_PIPELINE_DEMAND)) {
+    PGRAPHVkHybridPipelineUrgency old_urgency;
+    PGRAPHVkPipelinePromoteResult promote_result;
+    do {
+        promote_result = pgraph_vk_hybrid_pipeline_builder_promote(
+            &builder, 12, 84, PGRAPH_VK_HYBRID_PIPELINE_DEMAND,
+            &old_urgency);
+        g_assert_true(promote_result ==
+                          PGRAPH_VK_PIPELINE_PROMOTE_ALREADY_DEMAND ||
+                      promote_result == PGRAPH_VK_PIPELINE_PROMOTE_ACTIVE_MATCH);
         g_thread_yield();
-    }
+    } while (promote_result != PGRAPH_VK_PIPELINE_PROMOTE_ACTIVE_MATCH);
 
     int64_t cancel_started_us = g_get_monotonic_time();
     pgraph_vk_hybrid_pipeline_builder_cancel_before_generation(&builder, 13);
