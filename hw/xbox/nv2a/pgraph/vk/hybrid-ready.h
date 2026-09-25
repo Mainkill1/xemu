@@ -8,6 +8,24 @@
 
 #include "hw/xbox/nv2a/pgraph/vk/renderer.h"
 
+#define PGRAPH_VK_HYBRID_OWNER_SERVICE_BUDGET_US 1000
+
+static inline void pgraph_vk_hybrid_owner_budget_begin(PGRAPHVkState *r)
+{
+    int64_t now_us = g_get_monotonic_time();
+    if (r->hybrid_owner_service_deadline_us <= now_us) {
+        r->hybrid_owner_service_deadline_us = now_us +
+            PGRAPH_VK_HYBRID_OWNER_SERVICE_BUDGET_US;
+    }
+}
+
+static inline bool pgraph_vk_hybrid_owner_budget_available(
+    const PGRAPHVkState *r)
+{
+    return r->hybrid_owner_service_deadline_us <= 0 ||
+           g_get_monotonic_time() < r->hybrid_owner_service_deadline_us;
+}
+
 /* Borrowed exact hits. These functions neither reserve entries nor refresh
  * LRU order. The renderer must keep cache mutation on its owning thread. */
 static inline PipelineBinding *pgraph_vk_pipeline_cache_find_ready(
@@ -144,6 +162,9 @@ static inline bool pgraph_vk_fallback_family_enqueue(
         if (requests[i].in_use &&
             memcmp(&requests[i].key, key, sizeof(*key)) == 0) {
             requests[i].from_prewarm |= from_prewarm;
+            if (!from_prewarm) {
+                requests[i].priority = PGRAPH_VK_HYBRID_PRIORITY_VISIBLE;
+            }
             return true;
         }
         if (!requests[i].in_use && !free_request) {
@@ -157,6 +178,9 @@ static inline bool pgraph_vk_fallback_family_enqueue(
     free_request->state = *state;
     free_request->in_use = true;
     free_request->from_prewarm = from_prewarm;
+    free_request->priority = from_prewarm ?
+        PGRAPH_VK_HYBRID_PRIORITY_PREWARM :
+        PGRAPH_VK_HYBRID_PRIORITY_VISIBLE;
     free_request->status = PGRAPH_VK_FAMILY_WAITING_FOR_SHADER;
     free_request->attempts = 0;
     free_request->retry_after_us = 0;
@@ -167,6 +191,42 @@ static inline void pgraph_vk_hybrid_pipeline_note_prewarm(
     PGRAPHVkHybridPipelineWork *work, bool from_prewarm)
 {
     work->prewarm |= from_prewarm;
+}
+
+static inline PGRAPHVkHybridPriority pgraph_vk_hybrid_priority_max(
+    PGRAPHVkHybridPriority a, PGRAPHVkHybridPriority b)
+{
+    return a > b ? a : b;
+}
+
+static inline size_t pgraph_vk_hybrid_shader_promote_aliases(
+    PGRAPHVkHybridShaderWork *work, size_t capacity, uint64_t generation,
+    uint64_t ticket, PGRAPHVkHybridPriority priority)
+{
+    size_t promoted = 0;
+    for (size_t i = 0; i < capacity; i++) {
+        if (!work[i].in_use || work[i].metadata.generation != generation ||
+            work[i].metadata.ticket != ticket) {
+            continue;
+        }
+        work[i].priority = pgraph_vk_hybrid_priority_max(work[i].priority,
+                                                         priority);
+        promoted++;
+    }
+    return promoted;
+}
+
+static inline bool pgraph_vk_hybrid_shader_owned_source(
+    const PGRAPHVkHybridShaderWork *work, const char **glsl,
+    size_t *glsl_size)
+{
+    if (!work || !work->in_use || !work->glsl || !work->glsl_size ||
+        !glsl || !glsl_size) {
+        return false;
+    }
+    *glsl = work->glsl;
+    *glsl_size = work->glsl_size;
+    return true;
 }
 
 typedef bool (*PGRAPHVkHybridCompletionAliasFunc)(
