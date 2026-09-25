@@ -50,6 +50,11 @@ static const char *cpu_region_names[VK_PERF_CPU_REGION_COUNT] = {
     [VK_PERF_CPU_SHADER_CACHE_ADOPTION] = "shader_cache_adoption",
 };
 
+static const char *omission_blocker_names[] = {
+    "query", "color_write", "depth_write", "stencil",
+    "surface_dependency", "report_dependency", "unknown",
+};
+
 static void write_names(FILE *file, const char *key, const char **names,
                         size_t count)
 {
@@ -101,10 +106,10 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":9"
+            "{\"type\":\"schema\",\"schema_version\":10"
             ",\"features\":[\"report_lifecycle\","
             "\"descriptor_publication\",\"surface_upload\","
-            "\"shader_miss_omission\"]"
+            "\"shader_miss_omission\",\"omission_blockers\"]"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
             ",\"presentation_counters\":\"cumulative_totals\"",
@@ -115,6 +120,8 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
                 ARRAY_SIZE(single_time_reason_names));
     write_names(r->perf.file, "cpu_regions", cpu_region_names,
                 ARRAY_SIZE(cpu_region_names));
+    write_names(r->perf.file, "omission_blockers", omission_blocker_names,
+                ARRAY_SIZE(omission_blocker_names));
     fprintf(r->perf.file, "}\n");
 }
 
@@ -382,6 +389,10 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"omitted_shader_miss_query_draws_per_guest_frame\":%" PRIu64
             ",\"omitted_shader_miss_deferred_per_guest_frame\":%" PRIu64
             ",\"omitted_shader_miss_failed_per_guest_frame\":%" PRIu64
+            ",\"unsafe_shader_miss_forced_waits_per_guest_frame\":%" PRIu64
+            ",\"unsafe_shader_miss_blocker_counts_per_guest_frame\":[%" PRIu64
+            ",%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64
+            ",%" PRIu64 ",%" PRIu64 "]"
             ",\"vertex_staging_capacity_bytes\":%zu"
             ",\"vertex_staging_capacity_growths_per_guest_frame\":%" PRIu64
             ",\"vertex_staging_fallback_finishes_per_guest_frame\":%" PRIu64
@@ -434,6 +445,14 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->omitted_shader_miss_query_draws,
             perf->omitted_shader_miss_deferred,
             perf->omitted_shader_miss_failed,
+            perf->unsafe_shader_miss_forced_waits,
+            perf->unsafe_shader_miss_blocker_counts[0],
+            perf->unsafe_shader_miss_blocker_counts[1],
+            perf->unsafe_shader_miss_blocker_counts[2],
+            perf->unsafe_shader_miss_blocker_counts[3],
+            perf->unsafe_shader_miss_blocker_counts[4],
+            perf->unsafe_shader_miss_blocker_counts[5],
+            perf->unsafe_shader_miss_blocker_counts[6],
             r->storage_buffers[BUFFER_VERTEX_RAM_STAGING].buffer_size,
             perf->vertex_staging_capacity_growth_count,
             perf->vertex_staging_fallback_finish_count,
@@ -529,6 +548,9 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->omitted_shader_miss_query_draws = 0;
     perf->omitted_shader_miss_deferred = 0;
     perf->omitted_shader_miss_failed = 0;
+    perf->unsafe_shader_miss_forced_waits = 0;
+    memset(perf->unsafe_shader_miss_blocker_counts, 0,
+           sizeof(perf->unsafe_shader_miss_blocker_counts));
     perf->vertex_staging_capacity_growth_count = 0;
     perf->vertex_staging_fallback_finish_count = 0;
     perf->native_bc_upload_count = 0;

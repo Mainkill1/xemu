@@ -2008,6 +2008,33 @@ static void trace_omitted_shader_miss(
         r->color_binding != NULL, r->zeta_binding != NULL);
 }
 
+static void trace_blocked_shader_miss_omission(
+    PGRAPHState *pg, PGRAPHVkOmissionDecision omission)
+{
+    static const uint32_t blocker_bits[] = {
+        PGRAPH_VK_OMIT_BLOCK_QUERY,
+        PGRAPH_VK_OMIT_BLOCK_COLOR_WRITE,
+        PGRAPH_VK_OMIT_BLOCK_DEPTH_WRITE,
+        PGRAPH_VK_OMIT_BLOCK_STENCIL,
+        PGRAPH_VK_OMIT_BLOCK_SURFACE_DEP,
+        PGRAPH_VK_OMIT_BLOCK_REPORT_DEP,
+        PGRAPH_VK_OMIT_BLOCK_UNKNOWN,
+    };
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    if (r->perf.enabled) {
+        r->perf.unsafe_shader_miss_forced_waits++;
+        for (size_t i = 0; i < ARRAY_SIZE(blocker_bits); i++) {
+            r->perf.unsafe_shader_miss_blocker_counts[i] +=
+                (omission.blockers & blocker_bits[i]) != 0;
+        }
+    }
+    if (r->hybrid_trace) {
+        pgraph_vk_hybrid_trace_record(
+            r->hybrid_trace, VK_HYBRID_TRACE_DRAW_OMISSION_BLOCKED,
+            0, 0, 0, 0, omission.blockers, 0, 0, 0);
+    }
+}
+
 static PGRAPHVkDrawPrepareResult prepare_continue_pipeline(
     PGRAPHState *pg, const PipelineKey *key, ShaderBinding *binding,
     PipelineBinding **ready_pipeline)
@@ -2023,7 +2050,7 @@ static PGRAPHVkDrawPrepareResult prepare_continue_pipeline(
     PGRAPHVkPipelineProbeOutcome outcome =
         pgraph_vk_probe_pipeline_without_compile(
             r->device, r->vk_pipeline_cache, &recipe.info, &pipeline,
-            hybrid_pipeline_create, NULL);
+            true, hybrid_pipeline_create, hybrid_pipeline_destroy, NULL);
     uint64_t hash = fast_hash((const uint8_t *)key, sizeof(*key));
     if (r->hybrid_trace) {
         pgraph_vk_hybrid_trace_record(
@@ -2056,7 +2083,8 @@ static PGRAPHVkDrawPrepareResult prepare_continue_pipeline(
         *ready_pipeline = snode;
         return PGRAPH_VK_DRAW_PREPARE_READY;
     }
-    case PGRAPH_VK_PIPELINE_PROBE_COMPILE_REQUIRED: {
+    case PGRAPH_VK_PIPELINE_PROBE_COMPILE_REQUIRED:
+    case PGRAPH_VK_PIPELINE_PROBE_BUSY: {
         vkDestroyPipelineLayout(r->device, recipe.layout, NULL);
         PGRAPHVkDemandExecutableResult demand =
             pgraph_vk_request_demand_executable(
@@ -2067,6 +2095,12 @@ static PGRAPHVkDrawPrepareResult prepare_continue_pipeline(
             if (*ready_pipeline) {
                 return PGRAPH_VK_DRAW_PREPARE_READY;
             }
+        }
+        /* A terminal worker failure disables omission for this exact key.
+         * Return to the ordinary path, which performs the blocking create,
+         * rather than consuming every matching draw forever. */
+        if (!pgraph_vk_demand_executable_can_omit(demand)) {
+            return PGRAPH_VK_DRAW_PREPARE_READY;
         }
         trace_omitted_shader_miss(pg, key, demand);
         return PGRAPH_VK_DRAW_PREPARE_OMITTED_SHADER_MISS;
@@ -2269,6 +2303,9 @@ static PGRAPHVkDrawPrepareResult create_pipeline(PGRAPHState *pg)
         bool continue_nonblocking_supported =
             r->hybrid_pipeline_builder_initialized &&
             r->pipeline_creation_cache_control_enabled;
+        PGRAPHVkOmissionDecision omission =
+            pgraph_vk_classify_draw_omission(pg, r);
+        bool unsafe_wait_recorded = false;
         if (selected == PGRAPH_VK_EXECUTION_SPECIALIZED) {
             route = PGRAPH_VK_FRAGMENT_SPECIALIZED;
             ready_shader = specialized.shader;
@@ -2312,7 +2349,13 @@ static PGRAPHVkDrawPrepareResult create_pipeline(PGRAPHState *pg)
             PGRAPHVkDrawShaderMissAction miss_action =
                 pgraph_vk_draw_shader_miss_action(
                     continue_requested, continue_nonblocking_supported,
-                    true, false);
+                    omission.safe, false);
+            if (miss_action == PGRAPH_VK_DRAW_MISS_WAIT &&
+                continue_requested && continue_nonblocking_supported &&
+                !omission.safe) {
+                trace_blocked_shader_miss_omission(pg, omission);
+                unsafe_wait_recorded = true;
+            }
             if (miss_action == PGRAPH_VK_DRAW_MISS_OMIT) {
                 PipelineKey missing_key;
                 pgraph_vk_init_pipeline_key_for_state(
@@ -2320,22 +2363,19 @@ static PGRAPHVkDrawPrepareResult create_pipeline(PGRAPHState *pg)
                 PGRAPHVkDemandExecutableResult demand =
                     pgraph_vk_request_demand_executable(
                         pg, &missing_key, g_get_monotonic_time());
-                if (demand != PGRAPH_VK_DEMAND_EXECUTABLE_READY) {
+                if (pgraph_vk_demand_executable_can_omit(demand)) {
                     trace_omitted_shader_miss(pg, &missing_key, demand);
                     NV2A_VK_DGROUP_END();
                     return PGRAPH_VK_DRAW_PREPARE_OMITTED_SHADER_MISS;
                 }
-                ready_shader = pgraph_vk_prepare_binding_from_ready_modules(
-                    pg, &requested_state, route);
-                uint64_t missing_hash = fast_hash(
-                    (const uint8_t *)&missing_key, sizeof(missing_key));
-                ready_pipeline = pgraph_vk_pipeline_cache_find_ready(
-                    &r->pipeline_cache, missing_hash, &missing_key);
-                if (!ready_shader || !ready_pipeline) {
-                    trace_omitted_shader_miss(
-                        pg, &missing_key, demand);
-                    NV2A_VK_DGROUP_END();
-                    return PGRAPH_VK_DRAW_PREPARE_OMITTED_SHADER_MISS;
+                if (demand == PGRAPH_VK_DEMAND_EXECUTABLE_READY) {
+                    ready_shader =
+                        pgraph_vk_prepare_binding_from_ready_modules(
+                            pg, &requested_state, route);
+                    uint64_t missing_hash = fast_hash(
+                        (const uint8_t *)&missing_key, sizeof(missing_key));
+                    ready_pipeline = pgraph_vk_pipeline_cache_find_ready(
+                        &r->pipeline_cache, missing_hash, &missing_key);
                 }
             }
         }
@@ -2343,7 +2383,12 @@ static PGRAPHVkDrawPrepareResult create_pipeline(PGRAPHState *pg)
         PGRAPHVkDrawShaderMissAction pipeline_miss_action =
             pgraph_vk_draw_shader_miss_action(
                 continue_requested, continue_nonblocking_supported,
-                true, ready_pipeline != NULL);
+                omission.safe, ready_pipeline != NULL);
+        if (pipeline_miss_action == PGRAPH_VK_DRAW_MISS_WAIT &&
+            continue_requested && continue_nonblocking_supported &&
+            !omission.safe && !unsafe_wait_recorded) {
+            trace_blocked_shader_miss_omission(pg, omission);
+        }
         if (pipeline_miss_action == PGRAPH_VK_DRAW_MISS_OMIT &&
             ready_shader) {
             PipelineKey missing_key;
@@ -4054,7 +4099,7 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
         nv2a_profile_inc_counter(NV2A_PROF_DRAW_ARRAYS);
         PGRAPHVkDrawOmissionCheckpoint omission_checkpoint;
         pgraph_vk_draw_omission_checkpoint_capture(
-            r, PGRAPH_VK_DRAW_ENCODING_ARRAYS, &omission_checkpoint);
+            pg, r, PGRAPH_VK_DRAW_ENCODING_ARRAYS, &omission_checkpoint);
 
         assert(pg->inline_elements_length == 0);
         assert(pg->inline_buffer_length == 0);
@@ -4080,7 +4125,7 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
         if (prepare_result != PGRAPH_VK_DRAW_PREPARE_READY) {
             discard_prepared_vertex_data(pg, &vertex_data);
             pgraph_vk_discard_unsubmitted_draw_state(
-                r, &omission_checkpoint);
+                pg, r, &omission_checkpoint);
             NV2A_VK_DGROUP_END();
             return pgraph_vk_draw_result_from_prepare(prepare_result);
         }
@@ -4110,7 +4155,7 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
         nv2a_profile_inc_counter(NV2A_PROF_INLINE_ELEMENTS);
         PGRAPHVkDrawOmissionCheckpoint omission_checkpoint;
         pgraph_vk_draw_omission_checkpoint_capture(
-            r, PGRAPH_VK_DRAW_ENCODING_INLINE_ELEMENTS,
+            pg, r, PGRAPH_VK_DRAW_ENCODING_INLINE_ELEMENTS,
             &omission_checkpoint);
 
         size_t index_data_size =
@@ -4137,7 +4182,7 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
         if (prepare_result != PGRAPH_VK_DRAW_PREPARE_READY) {
             discard_prepared_vertex_data(pg, &vertex_data);
             pgraph_vk_discard_unsubmitted_draw_state(
-                r, &omission_checkpoint);
+                pg, r, &omission_checkpoint);
             NV2A_VK_DGROUP_END();
             return pgraph_vk_draw_result_from_prepare(prepare_result);
         }
@@ -4170,7 +4215,7 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
         nv2a_profile_inc_counter(NV2A_PROF_INLINE_BUFFERS);
         PGRAPHVkDrawOmissionCheckpoint omission_checkpoint;
         pgraph_vk_draw_omission_checkpoint_capture(
-            r, PGRAPH_VK_DRAW_ENCODING_INLINE_BUFFER,
+            pg, r, PGRAPH_VK_DRAW_ENCODING_INLINE_BUFFER,
             &omission_checkpoint);
         assert(pg->inline_array_length == 0);
 
@@ -4195,7 +4240,7 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
         PGRAPHVkDrawPrepareResult prepare_result = prepare_draw_pipeline(pg);
         if (prepare_result != PGRAPH_VK_DRAW_PREPARE_READY) {
             pgraph_vk_discard_unsubmitted_draw_state(
-                r, &omission_checkpoint);
+                pg, r, &omission_checkpoint);
             NV2A_VK_DGROUP_END();
             return pgraph_vk_draw_result_from_prepare(prepare_result);
         }
@@ -4217,7 +4262,7 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
         nv2a_profile_inc_counter(NV2A_PROF_INLINE_ARRAYS);
         PGRAPHVkDrawOmissionCheckpoint omission_checkpoint;
         pgraph_vk_draw_omission_checkpoint_capture(
-            r, PGRAPH_VK_DRAW_ENCODING_INLINE_ARRAY,
+            pg, r, PGRAPH_VK_DRAW_ENCODING_INLINE_ARRAY,
             &omission_checkpoint);
 
         VkDeviceSize inline_array_data_size = pg->inline_array_length * 4;
@@ -4250,7 +4295,7 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
         PGRAPHVkDrawPrepareResult prepare_result = prepare_draw_pipeline(pg);
         if (prepare_result != PGRAPH_VK_DRAW_PREPARE_READY) {
             pgraph_vk_discard_unsubmitted_draw_state(
-                r, &omission_checkpoint);
+                pg, r, &omission_checkpoint);
             NV2A_VK_DGROUP_END();
             return pgraph_vk_draw_result_from_prepare(prepare_result);
         }

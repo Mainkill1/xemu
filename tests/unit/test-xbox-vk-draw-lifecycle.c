@@ -136,6 +136,61 @@ static void test_shader_miss_action_omits_supported_continue_draw(void)
         PGRAPH_VK_DRAW_MISS_OMIT);
 }
 
+static void test_omission_classifier_defaults_unknown_to_wait(void)
+{
+    PGRAPHState *pg = g_new0(PGRAPHState, 1);
+    PGRAPHVkState *renderer = g_new0(PGRAPHVkState, 1);
+
+    PGRAPHVkOmissionDecision decision =
+        pgraph_vk_classify_draw_omission(pg, renderer);
+    g_assert_false(decision.safe);
+    g_assert_cmphex(decision.blockers & PGRAPH_VK_OMIT_BLOCK_UNKNOWN, !=, 0);
+
+    g_free(renderer);
+    g_free(pg);
+}
+
+static void test_omission_classifier_reports_individual_blockers(void)
+{
+    PGRAPHState *pg = g_new0(PGRAPHState, 1);
+    PGRAPHVkState *renderer = g_new0(PGRAPHVkState, 1);
+    SurfaceBinding color = { .initialized = true };
+    SurfaceBinding zeta = { .initialized = true };
+    pg->vk_renderer_state = renderer;
+    renderer->color_binding = &color;
+    renderer->zeta_binding = &zeta;
+
+    PGRAPHVkOmissionDecision decision =
+        pgraph_vk_classify_draw_omission(pg, renderer);
+    g_assert_true(decision.safe);
+    g_assert_cmphex(decision.blockers, ==, 0);
+
+    pgraph_reg_w(pg, NV_PGRAPH_CONTROL_0,
+                 NV_PGRAPH_CONTROL_0_RED_WRITE_ENABLE |
+                 NV_PGRAPH_CONTROL_0_ZWRITEENABLE |
+                 NV_PGRAPH_CONTROL_0_STENCIL_WRITE_ENABLE);
+    pgraph_reg_w(pg, NV_PGRAPH_CONTROL_1,
+                 NV_PGRAPH_CONTROL_1_STENCIL_TEST_ENABLE);
+    pg->zpass_pixel_count_enable = true;
+    renderer->report_queue_depth = 1;
+    renderer->color_binding->download_pending = true;
+    decision = pgraph_vk_classify_draw_omission(pg, renderer);
+    g_assert_false(decision.safe);
+    g_assert_cmphex(decision.blockers & PGRAPH_VK_OMIT_BLOCK_QUERY, !=, 0);
+    g_assert_cmphex(decision.blockers & PGRAPH_VK_OMIT_BLOCK_COLOR_WRITE, !=,
+                    0);
+    g_assert_cmphex(decision.blockers & PGRAPH_VK_OMIT_BLOCK_DEPTH_WRITE, !=,
+                    0);
+    g_assert_cmphex(decision.blockers & PGRAPH_VK_OMIT_BLOCK_STENCIL, !=, 0);
+    g_assert_cmphex(decision.blockers & PGRAPH_VK_OMIT_BLOCK_SURFACE_DEP, !=,
+                    0);
+    g_assert_cmphex(decision.blockers & PGRAPH_VK_OMIT_BLOCK_REPORT_DEP, !=,
+                    0);
+
+    g_free(renderer);
+    g_free(pg);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -159,5 +214,11 @@ int main(int argc, char **argv)
     g_test_add_func(
         "/xbox/vk/draw-lifecycle/miss-omit",
         test_shader_miss_action_omits_supported_continue_draw);
+    g_test_add_func(
+        "/xbox/vk/draw-lifecycle/omission-unknown",
+        test_omission_classifier_defaults_unknown_to_wait);
+    g_test_add_func(
+        "/xbox/vk/draw-lifecycle/omission-blockers",
+        test_omission_classifier_reports_individual_blockers);
     return g_test_run();
 }

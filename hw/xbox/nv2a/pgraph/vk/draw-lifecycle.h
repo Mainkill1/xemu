@@ -52,25 +52,42 @@ typedef enum PGRAPHVkDrawEncoding {
     PGRAPH_VK_DRAW_ENCODING_INLINE_ARRAY,
 } PGRAPHVkDrawEncoding;
 
-typedef struct PGRAPHVkDrawOmissionCheckpoint {
-    PGRAPHVkDrawEncoding encoding;
-    size_t vertex_inline_staging_offset;
-    size_t index_staging_offset;
-    size_t vertex_ram_stale_page_count;
-} PGRAPHVkDrawOmissionCheckpoint;
+typedef enum PGRAPHVkOmissionBlocker {
+    PGRAPH_VK_OMIT_BLOCK_QUERY = 1U << 0,
+    PGRAPH_VK_OMIT_BLOCK_COLOR_WRITE = 1U << 1,
+    PGRAPH_VK_OMIT_BLOCK_DEPTH_WRITE = 1U << 2,
+    PGRAPH_VK_OMIT_BLOCK_STENCIL = 1U << 3,
+    PGRAPH_VK_OMIT_BLOCK_SURFACE_DEP = 1U << 4,
+    PGRAPH_VK_OMIT_BLOCK_REPORT_DEP = 1U << 5,
+    PGRAPH_VK_OMIT_BLOCK_UNKNOWN = 1U << 31,
+} PGRAPHVkOmissionBlocker;
+
+typedef struct PGRAPHVkOmissionDecision {
+    bool safe;
+    uint32_t blockers;
+} PGRAPHVkOmissionDecision;
+
+typedef struct PGRAPHVkDrawOmissionCheckpoint
+    PGRAPHVkDrawOmissionCheckpoint;
 
 PGRAPHVkDrawShaderMissAction pgraph_vk_draw_shader_miss_action(
     bool continue_requested, bool nonblocking_supported,
     bool omission_supported, bool executable_ready);
+PGRAPHVkOmissionDecision pgraph_vk_classify_draw_omission(
+    PGRAPHState *pg, const PGRAPHVkState *r);
 
 void pgraph_vk_draw_omission_checkpoint_capture(
-    const PGRAPHVkState *r, PGRAPHVkDrawEncoding encoding,
+    const PGRAPHState *pg, const PGRAPHVkState *r,
+    PGRAPHVkDrawEncoding encoding,
     PGRAPHVkDrawOmissionCheckpoint *checkpoint);
 bool pgraph_vk_draw_omission_state_is_clean(
     const PGRAPHVkState *r,
     const PGRAPHVkDrawOmissionCheckpoint *checkpoint);
 void pgraph_vk_discard_unsubmitted_draw_state(
-    PGRAPHVkState *r,
+    PGRAPHState *pg, PGRAPHVkState *r,
+    const PGRAPHVkDrawOmissionCheckpoint *checkpoint);
+bool pgraph_vk_draw_omission_transaction_restored(
+    const PGRAPHState *pg, const PGRAPHVkState *r,
     const PGRAPHVkDrawOmissionCheckpoint *checkpoint);
 
 void pgraph_vk_complete_draw_lifecycle(

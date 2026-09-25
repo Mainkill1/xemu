@@ -28,6 +28,13 @@ typedef enum PGRAPHVkDemandExecutableResult {
     PGRAPH_VK_DEMAND_EXECUTABLE_FAILED,
 } PGRAPHVkDemandExecutableResult;
 
+static inline bool pgraph_vk_demand_executable_can_omit(
+    PGRAPHVkDemandExecutableResult result)
+{
+    return result == PGRAPH_VK_DEMAND_EXECUTABLE_QUEUED ||
+           result == PGRAPH_VK_DEMAND_EXECUTABLE_DEFERRED;
+}
+
 typedef enum PGRAPHVkDemandShaderStage {
     PGRAPH_VK_DEMAND_STAGE_VERTEX,
     PGRAPH_VK_DEMAND_STAGE_GEOMETRY,

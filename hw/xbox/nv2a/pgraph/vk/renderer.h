@@ -31,6 +31,7 @@
 #include "hw/xbox/nv2a/pgraph/surface.h"
 #include "hw/xbox/nv2a/pgraph/texture.h"
 #include "hw/xbox/nv2a/pgraph/glsl/shaders.h"
+#include "hw/xbox/nv2a/pgraph/vk/draw-lifecycle.h"
 
 #include <vulkan/vulkan.h>
 #include <glslang/Include/glslang_c_interface.h>
@@ -204,6 +205,36 @@ typedef struct StorageBuffer {
     size_t buffer_size;
     uint8_t *mapped;
 } StorageBuffer;
+
+/* Draw preparation mutates this renderer-local state before executable
+ * readiness is known. Continue may omit only after restoring this snapshot.
+ * Completed mirror uploads and stale-page removals are durable and are
+ * intentionally outside the transaction. */
+struct PGRAPHVkDrawOmissionCheckpoint {
+    PGRAPHVkDrawEncoding encoding;
+    size_t vertex_inline_staging_offset;
+    size_t index_staging_offset;
+    size_t vertex_ram_stale_page_count;
+    uint32_t compressed_attrs;
+    uint32_t uniform_attrs;
+    uint32_t swizzle_attrs;
+    VertexAttribute vertex_attributes[NV2A_VERTEXSHADER_ATTRIBUTES];
+    MemorySyncRequirement
+        vertex_ram_buffer_syncs[NV2A_VERTEXSHADER_ATTRIBUTES];
+    size_t num_vertex_ram_buffer_syncs;
+    MemorySyncRequirement
+        pending_vertex_ram_reads[NV2A_VERTEXSHADER_ATTRIBUTES];
+    size_t num_pending_vertex_ram_reads;
+    VkVertexInputAttributeDescription
+        vertex_attribute_descriptions[NV2A_VERTEXSHADER_ATTRIBUTES];
+    int vertex_attribute_to_description_location
+        [NV2A_VERTEXSHADER_ATTRIBUTES];
+    int num_active_vertex_attribute_descriptions;
+    VkVertexInputBindingDescription
+        vertex_binding_descriptions[NV2A_VERTEXSHADER_ATTRIBUTES];
+    int num_active_vertex_binding_descriptions;
+    hwaddr vertex_attribute_offsets[NV2A_VERTEXSHADER_ATTRIBUTES];
+};
 
 typedef struct SurfaceBinding {
     QTAILQ_ENTRY(SurfaceBinding) entry;
@@ -691,6 +722,8 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t omitted_shader_miss_query_draws;
     uint64_t omitted_shader_miss_deferred;
     uint64_t omitted_shader_miss_failed;
+    uint64_t unsafe_shader_miss_forced_waits;
+    uint64_t unsafe_shader_miss_blocker_counts[7];
     uint64_t vertex_staging_capacity_growth_count;
     uint64_t vertex_staging_fallback_finish_count;
     uint64_t native_bc_upload_count;

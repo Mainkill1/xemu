@@ -260,6 +260,18 @@ static void test_permanent_module_failure(void)
     g_assert_cmpuint(fixture.submit_calls, ==, 0);
 }
 
+static void test_only_pending_demand_can_omit(void)
+{
+    g_assert_true(pgraph_vk_demand_executable_can_omit(
+        PGRAPH_VK_DEMAND_EXECUTABLE_QUEUED));
+    g_assert_true(pgraph_vk_demand_executable_can_omit(
+        PGRAPH_VK_DEMAND_EXECUTABLE_DEFERRED));
+    g_assert_false(pgraph_vk_demand_executable_can_omit(
+        PGRAPH_VK_DEMAND_EXECUTABLE_READY));
+    g_assert_false(pgraph_vk_demand_executable_can_omit(
+        PGRAPH_VK_DEMAND_EXECUTABLE_FAILED));
+}
+
 static void test_pipeline_queue_full_defers_without_retrying_early(void)
 {
     PGRAPHVkDemandExecutableState state;
@@ -331,6 +343,8 @@ int main(int argc, char **argv)
                     test_full_pending_table_defers_without_callbacks);
     g_test_add_func("/xbox/vk/demand-executable/module-failure",
                     test_permanent_module_failure);
+    g_test_add_func("/xbox/vk/demand-executable/omission-terminal-policy",
+                    test_only_pending_demand_can_omit);
     g_test_add_func("/xbox/vk/demand-executable/pipeline-queue-full",
                     test_pipeline_queue_full_defers_without_retrying_early);
     g_test_add_func("/xbox/vk/demand-executable/pipeline-retry",
