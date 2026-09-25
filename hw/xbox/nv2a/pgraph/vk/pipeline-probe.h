@@ -34,5 +34,9 @@ PGRAPHVkPipelineProbeOutcome pgraph_vk_probe_pipeline_without_compile(
     VkDevice device, VkPipelineCache cache,
     const VkGraphicsPipelineCreateInfo *create_info, VkPipeline *pipeline,
     PGRAPHVkPipelineProbeCreateFunc create, void *opaque);
+/* Diagnostic-only: convert a driver-ready result into a synthetic miss so
+ * warm host caches cannot bypass worker-route correctness tests. */
+bool pgraph_vk_pipeline_probe_apply_diagnostic_override(
+    bool force_compile_required, PGRAPHVkPipelineProbeOutcome *outcome);
 
 #endif

@@ -185,6 +185,31 @@ static void test_core_promotion_requires_instance_and_device_vulkan_1_3(void)
         VK_API_VERSION_1_2, VK_API_VERSION_1_3, false));
 }
 
+static void test_diagnostic_compile_required_override_is_explicit(void)
+{
+    PGRAPHVkPipelineProbeOutcome ready = {
+        .status = PGRAPH_VK_PIPELINE_PROBE_READY,
+        .vk_result = VK_SUCCESS,
+    };
+    g_assert_false(pgraph_vk_pipeline_probe_apply_diagnostic_override(
+        false, &ready));
+    g_assert_cmpint(ready.status, ==, PGRAPH_VK_PIPELINE_PROBE_READY);
+    g_assert_true(pgraph_vk_pipeline_probe_apply_diagnostic_override(
+        true, &ready));
+    g_assert_cmpint(ready.status, ==,
+                    PGRAPH_VK_PIPELINE_PROBE_COMPILE_REQUIRED);
+    g_assert_cmpint(ready.vk_result, ==, VK_PIPELINE_COMPILE_REQUIRED);
+
+    PGRAPHVkPipelineProbeOutcome error = {
+        .status = PGRAPH_VK_PIPELINE_PROBE_ERROR,
+        .vk_result = VK_ERROR_OUT_OF_HOST_MEMORY,
+    };
+    g_assert_false(pgraph_vk_pipeline_probe_apply_diagnostic_override(
+        true, &error));
+    g_assert_cmpint(error.status, ==, PGRAPH_VK_PIPELINE_PROBE_ERROR);
+    g_assert_cmpint(error.vk_result, ==, VK_ERROR_OUT_OF_HOST_MEMORY);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -199,5 +224,8 @@ int main(int argc, char **argv)
     g_test_add_func(
         "/xbox/vk/pipeline-probe/core-promotion",
         test_core_promotion_requires_instance_and_device_vulkan_1_3);
+    g_test_add_func(
+        "/xbox/vk/pipeline-probe/diagnostic-compile-required",
+        test_diagnostic_compile_required_override_is_explicit);
     return g_test_run();
 }

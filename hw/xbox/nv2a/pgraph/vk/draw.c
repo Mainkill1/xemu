@@ -231,6 +231,24 @@ static uint32_t pipeline_diagnostic_delay_ms(const char *name,
     return parsed;
 }
 
+static bool pipeline_diagnostic_flag(const char *name, bool trace_enabled)
+{
+    const char *value = g_getenv(name);
+
+    if (!value || !value[0]) {
+        return false;
+    }
+    if (!trace_enabled) {
+        warn_report("ignoring %s without XEMU_VK_HYBRID_TRACE", name);
+        return false;
+    }
+    if (strcmp(value, "1") != 0) {
+        warn_report("ignoring invalid %s=%s (expected 1)", name, value);
+        return false;
+    }
+    return true;
+}
+
 static void pipeline_cache_init_path(PGRAPHVkState *r)
 {
     const char *base = xemu_settings_get_base_path();
@@ -579,6 +597,10 @@ void pgraph_vk_init_pipelines(PGRAPHState *pg)
         uint32_t publish_delay_ms = pipeline_diagnostic_delay_ms(
             "XEMU_VK_DIAGNOSTIC_PIPELINE_PUBLISH_DELAY_MS",
             r->hybrid_trace != NULL);
+        r->diagnostic_force_pipeline_compile_required =
+            pipeline_diagnostic_flag(
+                "XEMU_VK_DIAGNOSTIC_FORCE_PIPELINE_COMPILE_REQUIRED",
+                r->hybrid_trace != NULL);
         const PGRAPHVkHybridPipelineBuilderConfig config = {
             .max_jobs = PGRAPH_VK_HYBRID_MAX_PIPELINE_JOBS,
             .lower_worker_priority =
@@ -592,11 +614,14 @@ void pgraph_vk_init_pipelines(PGRAPHState *pg)
             .diagnostic_create_delay_ms = create_delay_ms,
             .diagnostic_publish_delay_ms = publish_delay_ms,
         };
-        if (queue_delay_ms || create_delay_ms || publish_delay_ms) {
-            warn_report("Vulkan pipeline diagnostic delays active "
-                        "(queue=%u ms, create=%u ms, publish=%u ms); "
+        if (queue_delay_ms || create_delay_ms || publish_delay_ms ||
+            r->diagnostic_force_pipeline_compile_required) {
+            warn_report("Vulkan pipeline diagnostics active "
+                        "(queue=%u ms, create=%u ms, publish=%u ms, "
+                        "force_compile_required=%u); "
                         "performance results are invalid",
-                        queue_delay_ms, create_delay_ms, publish_delay_ms);
+                        queue_delay_ms, create_delay_ms, publish_delay_ms,
+                        r->diagnostic_force_pipeline_compile_required);
         }
         r->hybrid_pipeline_builder_initialized =
             pgraph_vk_hybrid_pipeline_builder_init(
@@ -2168,6 +2193,11 @@ static PGRAPHVkDrawPrepareResult prepare_continue_pipeline(
         pgraph_vk_probe_pipeline_without_compile(
             r->device, r->vk_pipeline_cache, &recipe.info, &pipeline,
             hybrid_pipeline_create, NULL);
+    if (pgraph_vk_pipeline_probe_apply_diagnostic_override(
+            r->diagnostic_force_pipeline_compile_required, &outcome)) {
+        vkDestroyPipeline(r->device, pipeline, NULL);
+        pipeline = VK_NULL_HANDLE;
+    }
     uint64_t hash = fast_hash((const uint8_t *)key, sizeof(*key));
     if (r->hybrid_trace) {
         pgraph_vk_hybrid_trace_record(

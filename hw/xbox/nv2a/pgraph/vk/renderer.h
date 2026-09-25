@@ -747,6 +747,7 @@ typedef struct PGRAPHVkState {
     bool demote_to_helper_extension_enabled;
     bool pipeline_creation_cache_control_extension_enabled;
     bool pipeline_creation_cache_control_enabled;
+    bool diagnostic_force_pipeline_compile_required;
 
     VkPhysicalDevice physical_device;
     PGRAPHVkDeviceRecord selected_device;

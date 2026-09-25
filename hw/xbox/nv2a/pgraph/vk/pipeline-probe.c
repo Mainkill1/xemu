@@ -55,3 +55,15 @@ PGRAPHVkPipelineProbeOutcome pgraph_vk_probe_pipeline_without_compile(
     }
     return outcome;
 }
+
+bool pgraph_vk_pipeline_probe_apply_diagnostic_override(
+    bool force_compile_required, PGRAPHVkPipelineProbeOutcome *outcome)
+{
+    if (!force_compile_required || !outcome ||
+        outcome->status != PGRAPH_VK_PIPELINE_PROBE_READY) {
+        return false;
+    }
+    outcome->status = PGRAPH_VK_PIPELINE_PROBE_COMPILE_REQUIRED;
+    outcome->vk_result = VK_PIPELINE_COMPILE_REQUIRED;
+    return true;
+}
