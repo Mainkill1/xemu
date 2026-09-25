@@ -13,6 +13,16 @@
 #include "hw/xbox/nv2a/pgraph/vk/hybrid-family-history.h"
 
 #define PGRAPH_VK_HYBRID_PREWARM_MAX_CANDIDATES 32U
+#define PGRAPH_VK_HYBRID_PREWARM_MAX_IN_FLIGHT 4U
+#define PGRAPH_VK_HYBRID_PREWARM_DEFAULT_IN_FLIGHT 1U
+
+static inline bool pgraph_vk_hybrid_prewarm_can_admit(
+    uint32_t in_flight, uint32_t window)
+{
+    return window > 0 &&
+           window <= PGRAPH_VK_HYBRID_PREWARM_MAX_IN_FLIGHT &&
+           in_flight < window;
+}
 
 typedef enum PGRAPHVkHybridPrewarmAttemptResult {
     PGRAPH_VK_HYBRID_PREWARM_IDLE,
@@ -26,6 +36,7 @@ typedef enum PGRAPHVkHybridPrewarmAttemptResult {
 
 typedef struct PGRAPHVkHybridPrewarmState {
     bool enabled;
+    uint32_t max_in_flight;
     uint32_t considered;
     uint32_t attempted;
     uint32_t scheduled;

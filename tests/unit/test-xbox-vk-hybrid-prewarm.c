@@ -52,6 +52,18 @@ static void test_demand_has_priority(void)
     pgraph_vk_family_history_destroy(&history);
 }
 
+static void test_in_flight_window_is_bounded(void)
+{
+    g_assert_true(pgraph_vk_hybrid_prewarm_can_admit(0, 1));
+    g_assert_false(pgraph_vk_hybrid_prewarm_can_admit(1, 1));
+    g_assert_true(pgraph_vk_hybrid_prewarm_can_admit(1, 2));
+    g_assert_false(pgraph_vk_hybrid_prewarm_can_admit(2, 2));
+    g_assert_true(pgraph_vk_hybrid_prewarm_can_admit(3, 4));
+    g_assert_false(pgraph_vk_hybrid_prewarm_can_admit(4, 4));
+    g_assert_false(pgraph_vk_hybrid_prewarm_can_admit(0, 0));
+    g_assert_false(pgraph_vk_hybrid_prewarm_can_admit(0, 5));
+}
+
 static void test_one_candidate_per_service(void)
 {
     PGRAPHVkFamilyHistory history;
@@ -509,6 +521,8 @@ int main(int argc, char **argv)
     g_test_init(&argc, &argv, NULL);
     g_test_add_func("/nv2a/vk/hybrid-prewarm/demand-priority",
                     test_demand_has_priority);
+    g_test_add_func("/nv2a/vk/hybrid-prewarm/in-flight-window",
+                    test_in_flight_window_is_bounded);
     g_test_add_func("/nv2a/vk/hybrid-prewarm/one-per-service",
                     test_one_candidate_per_service);
     g_test_add_func("/nv2a/vk/hybrid-prewarm/launch-bound", test_launch_bound);

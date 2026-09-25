@@ -24,6 +24,7 @@
 #include "qemu/thread.h"
 #include "qemu/queue.h"
 #include "qemu/lru.h"
+#include "qemu/timer.h"
 #include "hw/hw.h"
 #include "hw/xbox/nv2a/nv2a_int.h"
 #include "hw/xbox/nv2a/nv2a_regs.h"
@@ -155,6 +156,7 @@ typedef struct PipelineBinding {
 typedef struct PGRAPHVkFallbackFamilyRequest {
     bool in_use;
     bool from_prewarm;
+    PGRAPHVkHybridPriority priority;
     ShaderState state;
     PipelineKey key;
     PGRAPHVkFallbackFamilyStatus status;
@@ -165,6 +167,7 @@ typedef struct PGRAPHVkFallbackFamilyRequest {
 typedef struct PGRAPHVkHybridPipelineWork {
     bool in_use;
     bool prewarm;
+    PGRAPHVkHybridPriority priority;
     uint64_t generation;
     uint64_t ticket;
     uint64_t key_hash;
@@ -316,12 +319,17 @@ typedef struct ShaderModuleCacheEntry {
 
 typedef struct PGRAPHVkHybridShaderWork {
     bool in_use;
+    bool prewarm;
+    PGRAPHVkHybridPriority priority;
     uint64_t last_epoch;
+    int64_t retry_after_us;
     PGRAPHVkHybridWork metadata;
     ShaderModuleCacheKey module_key;
     char *glsl;
     /* PR70/cache identity length; glsl[glsl_size] is the owned NUL. */
     size_t glsl_size;
+    GByteArray *completed_spirv;
+    uint32_t completed_stage;
 } PGRAPHVkHybridShaderWork;
 
 typedef enum PGRAPHVkAsyncModuleRequestResult {
@@ -816,6 +824,9 @@ typedef struct PGRAPHVkState {
     bool ubershader_force_interpreter;
     PGRAPHVkHybridPrewarmState hybrid_prewarm;
     bool hybrid_prewarm_service_pending;
+    int hybrid_completion_kick_pending;
+    QEMUTimer *hybrid_service_timer;
+    int64_t hybrid_owner_service_deadline_us;
     bool hybrid_compiler_initialized;
     uint64_t hybrid_generation;
     uint64_t hybrid_route_epoch;
@@ -1114,10 +1125,17 @@ PGRAPHVkCachedFamilyModulesResult
 pgraph_vk_request_fallback_family_modules(PGRAPHState *pg,
                                            const ShaderState *state);
 PGRAPHVkCachedFamilyModulesResult
+pgraph_vk_request_fallback_family_modules_priority(
+    PGRAPHState *pg, const ShaderState *state,
+    PGRAPHVkHybridPriority priority);
+PGRAPHVkCachedFamilyModulesResult
 pgraph_vk_materialize_cached_family_modules(PGRAPHState *pg,
                                              const ShaderState *state);
 void pgraph_vk_process_fallback_families(PGRAPHState *pg);
 void pgraph_vk_process_hybrid_prewarm(PGRAPHState *pg);
+void pgraph_vk_hybrid_worker_notify(void *opaque);
+void pgraph_vk_hybrid_schedule_service(PGRAPHState *pg,
+                                       int64_t deadline_us);
 
 // hybrid-family.c
 void pgraph_vk_resolve_ready_execution_candidates(
@@ -1131,9 +1149,11 @@ void pgraph_vk_pipeline_family_set_state(
     PGRAPHVkFamilyLearnState state);
 void pgraph_vk_track_specialized_fallback_family(
     PGRAPHVkState *r, PipelineBinding *owner,
-    bool controls_supported, bool fallback_pipeline_ready);
+    bool controls_supported, bool fallback_pipeline_ready,
+    uint64_t synchronous_create_us);
 void pgraph_vk_note_interpreter_family(PGRAPHVkState *r,
-                                      const PipelineKey *key);
+                                      const PipelineKey *key,
+                                      uint64_t synchronous_create_us);
 void pgraph_vk_enqueue_retained_fallback_families(PGRAPHVkState *r);
 void pgraph_vk_fallback_family_note_pipeline_ready(
     PGRAPHVkState *r, const PipelineKey *key);

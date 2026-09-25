@@ -357,7 +357,8 @@ void pgraph_vk_pipeline_family_owner_evict(PGRAPHVkState *r,
 
 void pgraph_vk_track_specialized_fallback_family(
     PGRAPHVkState *r, PipelineBinding *owner,
-    bool controls_supported, bool fallback_pipeline_ready)
+    bool controls_supported, bool fallback_pipeline_ready,
+    uint64_t synchronous_create_us)
 {
     if (!owner || owner->pipeline == VK_NULL_HANDLE || owner->key.clear ||
         owner->key.fragment_route != PGRAPH_VK_FRAGMENT_SPECIALIZED) {
@@ -377,7 +378,8 @@ void pgraph_vk_track_specialized_fallback_family(
                 owner, &family_key);
             if (pgraph_vk_family_key_encode(&family_key, &blob)) {
                 pgraph_vk_family_history_note_cold_miss(
-                    &r->fallback_family_history, blob.data, blob.size, 0);
+                    &r->fallback_family_history, blob.data, blob.size,
+                    synchronous_create_us);
                 pgraph_vk_family_key_blob_destroy(&blob);
             }
         }
@@ -387,7 +389,8 @@ void pgraph_vk_track_specialized_fallback_family(
 }
 
 void pgraph_vk_note_interpreter_family(PGRAPHVkState *r,
-                                      const PipelineKey *key)
+                                      const PipelineKey *key,
+                                      uint64_t synchronous_create_us)
 {
     if (!r->fallback_family_history_initialized || !key || key->clear ||
         key->fragment_route != PGRAPH_VK_FRAGMENT_UBERSHADER) {
@@ -398,7 +401,8 @@ void pgraph_vk_note_interpreter_family(PGRAPHVkState *r,
         /* Called only after the first synchronous executable construction;
          * warm draws never serialize or update history. */
         pgraph_vk_family_history_note_cold_miss(
-            &r->fallback_family_history, blob.data, blob.size, 0);
+            &r->fallback_family_history, blob.data, blob.size,
+            synchronous_create_us);
         pgraph_vk_family_key_blob_destroy(&blob);
     }
 }
