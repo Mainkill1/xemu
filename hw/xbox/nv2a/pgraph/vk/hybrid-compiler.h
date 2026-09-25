@@ -11,6 +11,14 @@
 #include <stddef.h>
 #include <stdint.h>
 
+typedef enum PGRAPHVkHybridPriority {
+    PGRAPH_VK_HYBRID_PRIORITY_PREWARM = 0,
+    PGRAPH_VK_HYBRID_PRIORITY_VISIBLE = 1,
+    PGRAPH_VK_HYBRID_PRIORITY_REQUIRED = 2,
+} PGRAPHVkHybridPriority;
+
+typedef void (*PGRAPHVkHybridCompletionNotifyFunc)(void *opaque);
+
 /*
  * This queue owns only immutable source/configuration bytes and compiler
  * artifacts. It deliberately knows nothing about PGRAPH, Vulkan, caches, or
@@ -20,6 +28,7 @@ typedef struct PGRAPHVkHybridCompileRequest {
     uint64_t generation;
     uint64_t ticket;
     uint32_t stage;
+    PGRAPHVkHybridPriority priority;
     const void *glsl;
     size_t glsl_size;
     const void *config;
@@ -30,6 +39,7 @@ typedef struct PGRAPHVkHybridCompileResult {
     uint64_t generation;
     uint64_t ticket;
     uint32_t stage;
+    PGRAPHVkHybridPriority priority;
     bool success;
     uint8_t *spirv;
     size_t spirv_size;
@@ -59,6 +69,8 @@ typedef struct PGRAPHVkHybridCompilerConfig {
     size_t max_async_bytes;
     PGRAPHVkHybridCompileFunc compile;
     void *opaque;
+    PGRAPHVkHybridCompletionNotifyFunc notify;
+    void *notify_opaque;
 } PGRAPHVkHybridCompilerConfig;
 
 typedef enum PGRAPHVkHybridCompilerSubmitResult {
@@ -80,6 +92,8 @@ bool pgraph_vk_hybrid_compiler_init(
 
 bool pgraph_vk_hybrid_compiler_can_submit_async(
     PGRAPHVkHybridCompiler *compiler, size_t glsl_size, size_t config_size);
+PGRAPHVkHybridCompilerSubmitResult pgraph_vk_hybrid_compiler_probe_async(
+    PGRAPHVkHybridCompiler *compiler, size_t glsl_size, size_t config_size);
 
 /*
  * A duplicate is identified by stage plus exact GLSL/config bytes, not by
@@ -90,6 +104,9 @@ PGRAPHVkHybridCompilerSubmitResult pgraph_vk_hybrid_compiler_submit_async(
     PGRAPHVkHybridCompiler *compiler,
     const PGRAPHVkHybridCompileRequest *request,
     PGRAPHVkHybridCompileIdentity *owner);
+bool pgraph_vk_hybrid_compiler_promote(
+    PGRAPHVkHybridCompiler *compiler, uint64_t generation, uint64_t ticket,
+    PGRAPHVkHybridPriority priority);
 
 /*
  * Blocking work uses one dedicated slot and worker. It is admitted
@@ -103,6 +120,9 @@ bool pgraph_vk_hybrid_compiler_submit_blocking(
 /* Transfer one completed asynchronous artifact to the caller, if available. */
 bool pgraph_vk_hybrid_compiler_take_result(
     PGRAPHVkHybridCompiler *compiler,
+    PGRAPHVkHybridCompileResult *result);
+bool pgraph_vk_hybrid_compiler_take_result_for(
+    PGRAPHVkHybridCompiler *compiler, uint64_t generation, uint64_t ticket,
     PGRAPHVkHybridCompileResult *result);
 bool pgraph_vk_hybrid_compiler_has_result(
     const PGRAPHVkHybridCompiler *compiler);

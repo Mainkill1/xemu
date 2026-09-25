@@ -107,6 +107,7 @@ tests = {
   ],
   'test-xbox-vk-hybrid-compiler': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-compiler.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-policy.c',
   ],
   'test-xbox-vk-hybrid-pipeline-builder': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-pipeline-builder.c',
@@ -184,6 +185,7 @@ if vulkan.found()
     ],
     'test-xbox-vk-ubershader-glsl-integration': [
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/common.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/geom.c',
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/psh.c',
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/psh-uber.c',
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/vsh-prog.c',
@@ -226,6 +228,13 @@ if vulkan.found()
         include_directories: include_directories('../../target/i386'),
       )
       tests += {
+        'test-xbox-vk-hybrid-wake': [
+          meson.project_source_root() / 'hw/xbox/nv2a/pfifo.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-wake.c',
+          nv2a_vk_runtime_prod,
+          xbox_i386_target_headers, volk, libglslang, vma, vulkan,
+          spirv_reflect,
+        ],
         'test-xbox-vk-ubershader-runtime': [
           meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/common.c',
           meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/geom.c',

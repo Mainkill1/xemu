@@ -24,8 +24,36 @@
 #include "ui/xemu-tweaks.h"
 #include "failpoint.h"
 #include "renderer.h"
+#include "hybrid-ready.h"
 
 #include "gloffscreen.h"
+
+static void pgraph_vk_hybrid_service_timer_fired(void *opaque)
+{
+    NV2AState *d = opaque;
+    PGRAPHVkState *r = d->pgraph.vk_renderer_state;
+
+    if (!r) {
+        return;
+    }
+    qatomic_set(&r->hybrid_prewarm_service_pending, true);
+    pgraph_vk_hybrid_worker_notify(d);
+}
+
+void pgraph_vk_hybrid_schedule_service(PGRAPHState *pg, int64_t deadline_us)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    if (!r || !r->hybrid_service_timer) {
+        return;
+    }
+    int64_t delay_us = MAX(deadline_us - g_get_monotonic_time(), 0);
+    int64_t expiry_ns = qemu_clock_get_ns(QEMU_CLOCK_REALTIME) +
+                        delay_us * 1000;
+    if (!timer_pending(r->hybrid_service_timer) ||
+        expiry_ns < timer_expire_time_ns(r->hybrid_service_timer)) {
+        timer_mod_ns(r->hybrid_service_timer, expiry_ns);
+    }
+}
 
 #if HAVE_EXTERNAL_MEMORY
 static GloContext *g_gl_context;
@@ -98,6 +126,8 @@ static void pgraph_vk_init(NV2AState *d, Error **errp)
     if (*errp) {
         return;
     }
+    pg->vk_renderer_state->hybrid_service_timer = timer_new_ns(
+        QEMU_CLOCK_REALTIME, pgraph_vk_hybrid_service_timer_fired, d);
 
 #if HAVE_EXTERNAL_MEMORY
     pg->vk_renderer_state->display.shared_presentation =
@@ -127,6 +157,9 @@ static void pgraph_vk_init(NV2AState *d, Error **errp)
     pgraph_vk_init_compute(pg);
     pgraph_vk_init_display(pg);
 
+    qatomic_set(&pg->vk_renderer_state->hybrid_prewarm_service_pending,
+                pg->vk_renderer_state->hybrid_prewarm.enabled);
+
     pgraph_vk_update_vertex_ram_buffer(&d->pgraph, 0, d->vram_ptr,
                                        memory_region_size(d->vram));
     pgraph_vk_clear_vertex_ram_stale(pg->vk_renderer_state);
@@ -143,6 +176,8 @@ static void pgraph_vk_finalize(NV2AState *d)
 {
     PGRAPHState *pg = &d->pgraph;
 
+    timer_del(pg->vk_renderer_state->hybrid_service_timer);
+
     /* Finish recorded draws before destroying their cached pipelines. */
     pgraph_vk_finish(pg, VK_FINISH_REASON_FLUSH);
     pgraph_vk_finalize_display(pg);
@@ -158,6 +193,9 @@ static void pgraph_vk_finalize(NV2AState *d)
     pgraph_vk_hybrid_trace_close(pg->vk_renderer_state->hybrid_trace);
     pgraph_vk_finalize_instance(pg);
     pgraph_vk_failpoint_report();
+
+    timer_free(pg->vk_renderer_state->hybrid_service_timer);
+    pg->vk_renderer_state->hybrid_service_timer = NULL;
 
     g_free(pg->vk_renderer_state);
     pg->vk_renderer_state = NULL;
@@ -202,6 +240,7 @@ static void pgraph_vk_process_pending(NV2AState *d)
         qatomic_read(&d->pgraph.sync_pending) ||
         qatomic_read(&d->pgraph.flush_pending) ||
         qatomic_read(&r->spirv_cache_writeback_pending) ||
+        qatomic_read(&r->hybrid_prewarm_service_pending) ||
         (r->hybrid_compiler_initialized &&
          pgraph_vk_hybrid_compiler_has_result(&r->hybrid_compiler)) ||
         (r->hybrid_pipeline_builder_initialized &&
@@ -210,6 +249,9 @@ static void pgraph_vk_process_pending(NV2AState *d)
     ) {
         qemu_mutex_unlock(&d->pfifo.lock);
         qemu_mutex_lock(&d->pgraph.lock);
+        qatomic_set(&r->hybrid_completion_kick_pending, false);
+        pgraph_vk_hybrid_owner_budget_begin(r);
+        qatomic_set(&r->hybrid_prewarm_service_pending, false);
         if (qatomic_read(&r->downloads_pending)) {
             pgraph_vk_process_pending_downloads(d);
         }
@@ -222,8 +264,7 @@ static void pgraph_vk_process_pending(NV2AState *d)
         if (qatomic_read(&d->pgraph.flush_pending)) {
             pgraph_vk_flush(d);
         }
-        if (r->hybrid_compiler_initialized &&
-            pgraph_vk_hybrid_compiler_has_result(&r->hybrid_compiler)) {
+        if (r->hybrid_compiler_initialized) {
             pgraph_vk_process_hybrid_completions(&d->pgraph);
             /* A published fallback module may unblock a retained family.
              * Give it one bounded service pass without waiting for a flip. */
@@ -234,6 +275,10 @@ static void pgraph_vk_process_pending(NV2AState *d)
                 &r->hybrid_pipeline_builder)) {
             pgraph_vk_process_hybrid_pipeline_completions(&d->pgraph);
         }
+        /* Start learned preparation before the first flip and continue one
+         * bounded candidate at each existing renderer service opportunity. */
+        pgraph_vk_process_hybrid_prewarm(&d->pgraph);
+        pgraph_vk_process_fallback_families(&d->pgraph);
         if (qatomic_read(&r->spirv_cache_writeback_pending)) {
             pgraph_vk_writeback_pipeline_cache(&d->pgraph);
             pgraph_vk_process_spirv_cache_writeback(&d->pgraph);
@@ -247,9 +292,11 @@ static void pgraph_vk_process_pending(NV2AState *d)
 
 static void pgraph_vk_flip_stall(NV2AState *d)
 {
+    pgraph_vk_hybrid_owner_budget_begin(d->pgraph.vk_renderer_state);
     pgraph_vk_finish(&d->pgraph, VK_FINISH_REASON_FLIP_STALL);
     pgraph_vk_process_fallback_families(&d->pgraph);
     pgraph_vk_process_hybrid_prewarm(&d->pgraph);
+    pgraph_vk_process_fallback_families(&d->pgraph);
     pgraph_vk_perf_frame(d->pgraph.vk_renderer_state);
     pgraph_vk_hybrid_trace_frame(
         d->pgraph.vk_renderer_state->hybrid_trace);

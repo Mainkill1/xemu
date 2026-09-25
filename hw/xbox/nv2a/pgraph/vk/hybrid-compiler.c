@@ -163,19 +163,61 @@ static void async_list_destroy(HybridCompilerState *state,
     *tail = NULL;
 }
 
-static HybridCompilerJob *async_pop(HybridCompilerState *state)
+static HybridCompilerJob *list_pop_highest_priority(
+    HybridCompilerJob **head, HybridCompilerJob **tail)
 {
-    HybridCompilerJob *job = state->async_head;
+    HybridCompilerJob *job = *head;
 
     if (!job) {
         return NULL;
     }
-    state->async_head = job->next;
-    if (!state->async_head) {
-        state->async_tail = NULL;
+
+    HybridCompilerJob *best = job;
+    HybridCompilerJob *best_prev = NULL;
+    HybridCompilerJob *prev = job;
+    for (HybridCompilerJob *candidate = job->next; candidate;
+         candidate = candidate->next) {
+        if (candidate->request.priority > best->request.priority) {
+            best = candidate;
+            best_prev = prev;
+        }
+        prev = candidate;
     }
-    job->next = NULL;
-    return job;
+    if (best_prev) {
+        best_prev->next = best->next;
+    } else {
+        *head = best->next;
+    }
+    if (*tail == best) {
+        *tail = best_prev;
+    }
+    best->next = NULL;
+    return best;
+}
+
+static HybridCompilerJob *result_take_identity(
+    HybridCompilerState *state, uint64_t generation, uint64_t ticket)
+{
+    HybridCompilerJob *previous = NULL;
+    for (HybridCompilerJob *job = state->result_head; job;
+         job = job->next) {
+        if (job->request.generation != generation ||
+            job->request.ticket != ticket) {
+            previous = job;
+            continue;
+        }
+        if (previous) {
+            previous->next = job->next;
+        } else {
+            state->result_head = job->next;
+        }
+        if (state->result_tail == job) {
+            state->result_tail = previous;
+        }
+        job->next = NULL;
+        return job;
+    }
+    return NULL;
 }
 
 static void result_append(HybridCompilerState *state, HybridCompilerJob *job)
@@ -208,7 +250,8 @@ static void *hybrid_compiler_worker(void *opaque)
             qemu_mutex_unlock(&state->lock);
             break;
         }
-        job = async_pop(state);
+        job = list_pop_highest_priority(&state->async_head,
+                                        &state->async_tail);
         state->active = job;
         job->started_us = g_get_monotonic_time();
         qemu_mutex_unlock(&state->lock);
@@ -228,14 +271,19 @@ static void *hybrid_compiler_worker(void *opaque)
         job->success = success;
         job->spirv = spirv;
         job->spirv_size = spirv_size;
+        bool notify = false;
         if (state->stopping) {
             async_account_release(state, job);
             job_destroy(job);
         } else {
             result_append(state, job);
+            notify = true;
         }
         bool stopping = state->stopping;
         qemu_mutex_unlock(&state->lock);
+        if (notify && state->config.notify) {
+            state->config.notify(state->config.notify_opaque);
+        }
         if (stopping) {
             break;
         }
@@ -340,6 +388,36 @@ bool pgraph_vk_hybrid_compiler_can_submit_async(
     return result;
 }
 
+PGRAPHVkHybridCompilerSubmitResult pgraph_vk_hybrid_compiler_probe_async(
+    PGRAPHVkHybridCompiler *compiler, size_t glsl_size, size_t config_size)
+{
+    HybridCompilerState *state = compiler ? compiler->state : NULL;
+    PGRAPHVkHybridCompilerSubmitResult result;
+
+    if (!state) {
+        return PGRAPH_VK_HYBRID_COMPILER_STOPPED;
+    }
+    if (!glsl_size || glsl_size > SIZE_MAX - config_size) {
+        return PGRAPH_VK_HYBRID_COMPILER_INVALID;
+    }
+
+    size_t bytes = glsl_size + config_size;
+    qemu_mutex_lock(&state->lock);
+    if (state->stopping) {
+        result = PGRAPH_VK_HYBRID_COMPILER_STOPPED;
+    } else if (bytes > state->config.max_async_bytes) {
+        result = PGRAPH_VK_HYBRID_COMPILER_BYTE_LIMIT;
+    } else if (state->async_jobs == state->config.max_async_jobs) {
+        result = PGRAPH_VK_HYBRID_COMPILER_QUEUE_FULL;
+    } else if (bytes > state->config.max_async_bytes - state->async_bytes) {
+        result = PGRAPH_VK_HYBRID_COMPILER_QUEUE_FULL;
+    } else {
+        result = PGRAPH_VK_HYBRID_COMPILER_ACCEPTED;
+    }
+    qemu_mutex_unlock(&state->lock);
+    return result;
+}
+
 PGRAPHVkHybridCompilerSubmitResult pgraph_vk_hybrid_compiler_submit_async(
     PGRAPHVkHybridCompiler *compiler,
     const PGRAPHVkHybridCompileRequest *request,
@@ -366,17 +444,22 @@ PGRAPHVkHybridCompilerSubmitResult pgraph_vk_hybrid_compiler_submit_async(
     } else if (find_matching_async_job(state, request)) {
         result = PGRAPH_VK_HYBRID_COMPILER_DUPLICATE;
         HybridCompilerJob *existing = find_matching_async_job(state, request);
+        if (request->priority > existing->request.priority) {
+            existing->request.priority = request->priority;
+        }
         if (owner) {
             *owner = (PGRAPHVkHybridCompileIdentity) {
                 .generation = existing->request.generation,
                 .ticket = existing->request.ticket,
             };
         }
+    } else if (job->bytes > state->config.max_async_bytes) {
+        result = PGRAPH_VK_HYBRID_COMPILER_BYTE_LIMIT;
     } else if (state->async_jobs == state->config.max_async_jobs) {
         result = PGRAPH_VK_HYBRID_COMPILER_QUEUE_FULL;
     } else if (job->bytes > state->config.max_async_bytes -
                state->async_bytes) {
-        result = PGRAPH_VK_HYBRID_COMPILER_BYTE_LIMIT;
+        result = PGRAPH_VK_HYBRID_COMPILER_QUEUE_FULL;
     } else {
         if (state->async_tail) {
             state->async_tail->next = job;
@@ -399,6 +482,36 @@ PGRAPHVkHybridCompilerSubmitResult pgraph_vk_hybrid_compiler_submit_async(
     qemu_mutex_unlock(&state->lock);
     job_destroy(job);
     return result;
+}
+
+bool pgraph_vk_hybrid_compiler_promote(
+    PGRAPHVkHybridCompiler *compiler, uint64_t generation, uint64_t ticket,
+    PGRAPHVkHybridPriority priority)
+{
+    HybridCompilerState *state = compiler ? compiler->state : NULL;
+    if (!state || !ticket) {
+        return false;
+    }
+
+    bool found = false;
+    qemu_mutex_lock(&state->lock);
+    HybridCompilerJob *lists[] = {
+        state->async_head, state->active, state->result_head,
+    };
+    for (size_t i = 0; i < G_N_ELEMENTS(lists) && !found; i++) {
+        for (HybridCompilerJob *job = lists[i]; job; job = job->next) {
+            if (job->request.generation == generation &&
+                job->request.ticket == ticket) {
+                if (priority > job->request.priority) {
+                    job->request.priority = priority;
+                }
+                found = true;
+                break;
+            }
+        }
+    }
+    qemu_mutex_unlock(&state->lock);
+    return found;
 }
 
 bool pgraph_vk_hybrid_compiler_submit_blocking(
@@ -441,6 +554,7 @@ bool pgraph_vk_hybrid_compiler_submit_blocking(
             .generation = job->request.generation,
             .ticket = job->request.ticket,
             .stage = job->request.stage,
+            .priority = job->request.priority,
             .success = job->success,
             .spirv = job->spirv,
             .spirv_size = job->spirv_size,
@@ -474,14 +588,13 @@ bool pgraph_vk_hybrid_compiler_take_result(
     }
 
     qemu_mutex_lock(&state->lock);
-    job = state->result_head;
+    job = list_pop_highest_priority(&state->result_head,
+                                    &state->result_tail);
     if (!job) {
         qemu_mutex_unlock(&state->lock);
         return false;
     }
-    state->result_head = job->next;
     if (!state->result_head) {
-        state->result_tail = NULL;
         qatomic_set(&state->result_available, false);
     }
     async_account_release(state, job);
@@ -489,6 +602,50 @@ bool pgraph_vk_hybrid_compiler_take_result(
         .generation = job->request.generation,
         .ticket = job->request.ticket,
         .stage = job->request.stage,
+        .priority = job->request.priority,
+        .success = job->success,
+        .spirv = job->spirv,
+        .spirv_size = job->spirv_size,
+        .submitted_us = job->submitted_us,
+        .started_us = job->started_us,
+        .finished_us = job->finished_us,
+    };
+    job->spirv = NULL;
+    job->spirv_size = 0;
+    qemu_mutex_unlock(&state->lock);
+    job_destroy(job);
+    return true;
+}
+
+bool pgraph_vk_hybrid_compiler_take_result_for(
+    PGRAPHVkHybridCompiler *compiler, uint64_t generation, uint64_t ticket,
+    PGRAPHVkHybridCompileResult *result)
+{
+    HybridCompilerState *state = compiler ? compiler->state : NULL;
+    HybridCompilerJob *job;
+
+    if (result) {
+        *result = (PGRAPHVkHybridCompileResult) { 0 };
+    }
+    if (!state || !ticket || !result) {
+        return false;
+    }
+
+    qemu_mutex_lock(&state->lock);
+    job = result_take_identity(state, generation, ticket);
+    if (!job) {
+        qemu_mutex_unlock(&state->lock);
+        return false;
+    }
+    if (!state->result_head) {
+        qatomic_set(&state->result_available, false);
+    }
+    async_account_release(state, job);
+    *result = (PGRAPHVkHybridCompileResult) {
+        .generation = job->request.generation,
+        .ticket = job->request.ticket,
+        .stage = job->request.stage,
+        .priority = job->request.priority,
         .success = job->success,
         .spirv = job->spirv,
         .spirv_size = job->spirv_size,

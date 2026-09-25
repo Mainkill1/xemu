@@ -423,18 +423,94 @@ static void test_fallback_family_queue_deduplicates_and_bounds(void)
     PipelineKey c = { .regs[0] = 3 };
 
     g_assert_true(pgraph_vk_fallback_family_enqueue(
-        requests, G_N_ELEMENTS(requests), &a, &state));
+        requests, G_N_ELEMENTS(requests), &a, &state, false));
     g_assert_true(pgraph_vk_fallback_family_enqueue(
-        requests, G_N_ELEMENTS(requests), &a, &state));
+        requests, G_N_ELEMENTS(requests), &a, &state, false));
     g_assert_true(pgraph_vk_fallback_family_enqueue(
-        requests, G_N_ELEMENTS(requests), &b, &state));
+        requests, G_N_ELEMENTS(requests), &b, &state, false));
     g_assert_false(pgraph_vk_fallback_family_enqueue(
-        requests, G_N_ELEMENTS(requests), &c, &state));
+        requests, G_N_ELEMENTS(requests), &c, &state, false));
     g_assert_cmpuint(requests[0].key.regs[0], ==, 1);
     g_assert_cmpuint(requests[1].key.regs[0], ==, 2);
     g_assert_cmpint(requests[0].status, ==,
                     PGRAPH_VK_FAMILY_WAITING_FOR_SHADER);
     g_assert_cmpuint(requests[0].attempts, ==, 0);
+}
+
+static void test_fallback_family_prewarm_provenance_is_monotonic(void)
+{
+    PGRAPHVkFallbackFamilyRequest requests[1] = { 0 };
+    PGRAPHVkHybridPipelineWork work = { 0 };
+    ShaderState state = { 0 };
+    PipelineKey key = { .regs[0] = 1 };
+
+    g_assert_true(pgraph_vk_fallback_family_enqueue(
+        requests, G_N_ELEMENTS(requests), &key, &state, false));
+    g_assert_false(requests[0].from_prewarm);
+    g_assert_cmpint(requests[0].priority, ==,
+                    PGRAPH_VK_HYBRID_PRIORITY_VISIBLE);
+
+    /* An opportunistic prewarm owner joining the same exact family upgrades
+     * its provenance; a later demand owner must not erase it. */
+    g_assert_true(pgraph_vk_fallback_family_enqueue(
+        requests, G_N_ELEMENTS(requests), &key, &state, true));
+    g_assert_true(requests[0].from_prewarm);
+    g_assert_true(pgraph_vk_fallback_family_enqueue(
+        requests, G_N_ELEMENTS(requests), &key, &state, false));
+    g_assert_true(requests[0].from_prewarm);
+
+    pgraph_vk_hybrid_pipeline_note_prewarm(
+        &work, requests[0].from_prewarm);
+    g_assert_true(work.prewarm);
+    pgraph_vk_hybrid_pipeline_note_prewarm(&work, false);
+    g_assert_true(work.prewarm);
+
+    requests[0] = (PGRAPHVkFallbackFamilyRequest) { 0 };
+    g_assert_true(pgraph_vk_fallback_family_enqueue(
+        requests, G_N_ELEMENTS(requests), &key, &state, true));
+    g_assert_cmpint(requests[0].priority, ==,
+                    PGRAPH_VK_HYBRID_PRIORITY_PREWARM);
+    g_assert_true(pgraph_vk_fallback_family_enqueue(
+        requests, G_N_ELEMENTS(requests), &key, &state, false));
+    g_assert_true(requests[0].from_prewarm);
+    g_assert_cmpint(requests[0].priority, ==,
+                    PGRAPH_VK_HYBRID_PRIORITY_VISIBLE);
+}
+
+static void test_shader_alias_priority_and_owned_retry_source(void)
+{
+    PGRAPHVkHybridShaderWork work[3] = { 0 };
+    char source[] = "owned-source";
+    for (unsigned int i = 0; i < 2; i++) {
+        work[i].in_use = true;
+        work[i].prewarm = true;
+        work[i].priority = PGRAPH_VK_HYBRID_PRIORITY_PREWARM;
+        work[i].metadata.generation = 7;
+        work[i].metadata.ticket = 11;
+    }
+    work[0].glsl = source;
+    work[0].glsl_size = strlen(source);
+    work[2].in_use = true;
+    work[2].metadata.generation = 7;
+    work[2].metadata.ticket = 12;
+
+    g_assert_cmpuint(pgraph_vk_hybrid_shader_promote_aliases(
+                         work, G_N_ELEMENTS(work), 7, 11,
+                         PGRAPH_VK_HYBRID_PRIORITY_VISIBLE),
+                     ==, 2);
+    g_assert_cmpint(work[0].priority, ==,
+                    PGRAPH_VK_HYBRID_PRIORITY_VISIBLE);
+    g_assert_cmpint(work[1].priority, ==,
+                    PGRAPH_VK_HYBRID_PRIORITY_VISIBLE);
+    g_assert_cmpint(work[2].priority, ==,
+                    PGRAPH_VK_HYBRID_PRIORITY_PREWARM);
+
+    const char *owned = NULL;
+    size_t owned_size = 0;
+    g_assert_true(pgraph_vk_hybrid_shader_owned_source(
+        &work[0], &owned, &owned_size));
+    g_assert_true(owned == source);
+    g_assert_cmpuint(owned_size, ==, strlen(source));
 }
 
 static void test_fallback_family_tracks_pipeline_until_ready(void)
@@ -746,12 +822,12 @@ static void test_fallback_family_owner_observation_requires_admission(void)
     };
 
     pgraph_vk_track_specialized_fallback_family(
-        r, &unsupported, false, true);
+        r, &unsupported, false, true, 0);
     g_assert_cmpint(unsupported.family_learn_state, ==,
                     PGRAPH_VK_FAMILY_REJECTED);
 
     pgraph_vk_track_specialized_fallback_family(
-        r, &supported, true, true);
+        r, &supported, true, true, 0);
     g_assert_cmpint(supported.family_learn_state, ==,
                     PGRAPH_VK_FAMILY_READY);
     g_free(r);
@@ -779,6 +855,25 @@ static void test_snapshot_restore_invalidates_execution_hints(void)
     g_assert_true(pgraph_is_reg_dirty(pg, NV_PGRAPH_CONTROL_0));
     g_assert_true(pgraph_is_reg_dirty(pg, NV_PGRAPH_ZOFFSETFACTOR));
     g_free(pg);
+}
+
+static void test_owner_budget_is_shared_across_draw_service(void)
+{
+    PGRAPHVkState *r = g_new0(PGRAPHVkState, 1);
+
+    pgraph_vk_hybrid_owner_budget_begin(r);
+    int64_t first_deadline = r->hybrid_owner_service_deadline_us;
+    pgraph_vk_hybrid_owner_budget_begin(r);
+    g_assert_cmpint(r->hybrid_owner_service_deadline_us, ==,
+                    first_deadline);
+    g_assert_true(pgraph_vk_hybrid_owner_budget_available(r));
+
+    g_usleep(10);
+    r->hybrid_owner_service_deadline_us = g_get_monotonic_time() - 1;
+    pgraph_vk_hybrid_owner_budget_begin(r);
+    g_assert_cmpint(r->hybrid_owner_service_deadline_us, >,
+                    first_deadline);
+    g_free(r);
 }
 
 static ShaderState base_state(void)
@@ -1211,6 +1306,10 @@ int main(int argc, char **argv)
                     test_pipeline_publication_eviction_is_late);
     g_test_add_func("/xbox/vk/ubershader/runtime/fallback-family-queue",
                     test_fallback_family_queue_deduplicates_and_bounds);
+    g_test_add_func("/xbox/vk/ubershader/runtime/fallback-family-prewarm",
+                    test_fallback_family_prewarm_provenance_is_monotonic);
+    g_test_add_func("/xbox/vk/ubershader/runtime/alias-priority-owned-source",
+                    test_shader_alias_priority_and_owned_retry_source);
     g_test_add_func("/xbox/vk/ubershader/runtime/fallback-family-tracked",
                     test_fallback_family_tracks_pipeline_until_ready);
     g_test_add_func("/xbox/vk/ubershader/runtime/fallback-family-retry",
@@ -1228,5 +1327,7 @@ int main(int argc, char **argv)
                     test_changed_register_marks_shortcut_dirty);
     g_test_add_func("/xbox/vk/ubershader/runtime/snapshot-invalidation",
                     test_snapshot_restore_invalidates_execution_hints);
+    g_test_add_func("/xbox/vk/ubershader/runtime/shared-owner-budget",
+                    test_owner_budget_is_shared_across_draw_service);
     return g_test_run();
 }
