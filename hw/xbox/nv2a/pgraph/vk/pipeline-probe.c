@@ -24,10 +24,19 @@ bool pgraph_vk_pipeline_cache_control_api_available(
            extension_enabled;
 }
 
+bool pgraph_vk_pipeline_probe_should_run(bool cache_control_available,
+                                        bool continue_policy,
+                                        bool diagnostic_enabled)
+{
+    return cache_control_available &&
+           (continue_policy || diagnostic_enabled);
+}
+
 PGRAPHVkPipelineProbeOutcome pgraph_vk_probe_pipeline_without_compile(
     VkDevice device, VkPipelineCache cache,
     const VkGraphicsPipelineCreateInfo *create_info, VkPipeline *pipeline,
-    PGRAPHVkPipelineProbeCreateFunc create, void *opaque)
+    bool cache_access_available, PGRAPHVkPipelineProbeCreateFunc create,
+    PGRAPHVkPipelineProbeDestroyFunc destroy, void *opaque)
 {
     PGRAPHVkPipelineProbeOutcome outcome = {
         .status = PGRAPH_VK_PIPELINE_PROBE_ERROR,
@@ -37,20 +46,32 @@ PGRAPHVkPipelineProbeOutcome pgraph_vk_probe_pipeline_without_compile(
     if (pipeline) {
         *pipeline = VK_NULL_HANDLE;
     }
-    if (!create_info || !pipeline || !create) {
+    if (!create_info || !pipeline || !create || !destroy) {
+        return outcome;
+    }
+    if (!cache_access_available) {
+        outcome.status = PGRAPH_VK_PIPELINE_PROBE_BUSY;
+        outcome.vk_result = VK_SUCCESS;
         return outcome;
     }
 
     VkGraphicsPipelineCreateInfo probe_info = *create_info;
     probe_info.flags |=
         VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT;
-    outcome.vk_result = create(opaque, device, cache, &probe_info, pipeline);
+    /* Never contend on the application's shared pipeline cache from the
+     * foreground compile-free probe. The cache argument is retained so the
+     * call site must make the ownership decision explicitly. */
+    (void)cache;
+    outcome.vk_result = create(opaque, device, VK_NULL_HANDLE, &probe_info,
+                               pipeline);
     if (outcome.vk_result == VK_SUCCESS && *pipeline != VK_NULL_HANDLE) {
         outcome.status = PGRAPH_VK_PIPELINE_PROBE_READY;
     } else if (outcome.vk_result == VK_PIPELINE_COMPILE_REQUIRED) {
-        *pipeline = VK_NULL_HANDLE;
         outcome.status = PGRAPH_VK_PIPELINE_PROBE_COMPILE_REQUIRED;
-    } else {
+    }
+    if (outcome.status != PGRAPH_VK_PIPELINE_PROBE_READY &&
+        *pipeline != VK_NULL_HANDLE) {
+        destroy(opaque, device, *pipeline);
         *pipeline = VK_NULL_HANDLE;
     }
     return outcome;

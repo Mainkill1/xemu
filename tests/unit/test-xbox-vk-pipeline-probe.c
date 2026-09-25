@@ -12,7 +12,9 @@ typedef struct TestPipelineCreate {
     VkResult result;
     VkPipeline output;
     VkGraphicsPipelineCreateInfo observed_info;
+    VkPipelineCache observed_cache;
     unsigned int calls;
+    unsigned int destroys;
 } TestPipelineCreate;
 
 static void
@@ -48,13 +50,23 @@ test_create_pipeline(void *opaque, VkDevice device, VkPipelineCache cache,
     TestPipelineCreate *test = opaque;
 
     (void)device;
-    (void)cache;
     test->calls++;
+    test->observed_cache = cache;
     test->observed_info = *create_info;
-    if (test->result == VK_SUCCESS) {
+    if (test->output != VK_NULL_HANDLE) {
         *pipeline = test->output;
     }
     return test->result;
+}
+
+static void test_destroy_pipeline(void *opaque, VkDevice device,
+                                  VkPipeline pipeline)
+{
+    TestPipelineCreate *test = opaque;
+
+    (void)device;
+    g_assert_true(pipeline == test->output);
+    test->destroys++;
 }
 
 static void test_ready_preserves_recipe_flags(void)
@@ -99,14 +111,17 @@ static void test_ready_preserves_recipe_flags(void)
     VkPipeline pipeline = VK_NULL_HANDLE;
 
     PGRAPHVkPipelineProbeOutcome outcome =
-        pgraph_vk_probe_pipeline_without_compile(VK_NULL_HANDLE, VK_NULL_HANDLE,
-                                                 &create_info, &pipeline,
-                                                 test_create_pipeline, &test);
+        pgraph_vk_probe_pipeline_without_compile(
+            VK_NULL_HANDLE, (VkPipelineCache)(uintptr_t)99, &create_info,
+            &pipeline, true, test_create_pipeline, test_destroy_pipeline,
+            &test);
 
     g_assert_cmpint(outcome.status, ==, PGRAPH_VK_PIPELINE_PROBE_READY);
     g_assert_cmpint(outcome.vk_result, ==, VK_SUCCESS);
     g_assert_true(pipeline == test.output);
     g_assert_cmpuint(test.calls, ==, 1);
+    g_assert_true(test.observed_cache == VK_NULL_HANDLE);
+    g_assert_cmpuint(test.destroys, ==, 0);
     assert_same_recipe(&test.observed_info, &expected_info);
     g_assert_cmpuint(create_info.flags, ==,
                      VK_PIPELINE_CREATE_DISABLE_OPTIMIZATION_BIT);
@@ -125,7 +140,8 @@ static void test_compile_required_is_not_an_error(void)
     PGRAPHVkPipelineProbeOutcome outcome =
         pgraph_vk_probe_pipeline_without_compile(VK_NULL_HANDLE, VK_NULL_HANDLE,
                                                  &create_info, &pipeline,
-                                                 test_create_pipeline, &test);
+                                                 true, test_create_pipeline,
+                                                 test_destroy_pipeline, &test);
 
     g_assert_cmpint(outcome.status, ==,
                     PGRAPH_VK_PIPELINE_PROBE_COMPILE_REQUIRED);
@@ -147,7 +163,8 @@ static void test_real_vulkan_error_remains_an_error(void)
     PGRAPHVkPipelineProbeOutcome outcome =
         pgraph_vk_probe_pipeline_without_compile(VK_NULL_HANDLE, VK_NULL_HANDLE,
                                                  &create_info, &pipeline,
-                                                 test_create_pipeline, &test);
+                                                 true, test_create_pipeline,
+                                                 test_destroy_pipeline, &test);
 
     g_assert_cmpint(outcome.status, ==, PGRAPH_VK_PIPELINE_PROBE_ERROR);
     g_assert_cmpint(outcome.vk_result, ==, VK_ERROR_OUT_OF_HOST_MEMORY);
@@ -163,12 +180,64 @@ static void test_invalid_request_never_calls_driver(void)
     PGRAPHVkPipelineProbeOutcome outcome =
         pgraph_vk_probe_pipeline_without_compile(VK_NULL_HANDLE, VK_NULL_HANDLE,
                                                  NULL, &pipeline,
-                                                 test_create_pipeline, &test);
+                                                 true, test_create_pipeline,
+                                                 test_destroy_pipeline, &test);
 
     g_assert_cmpint(outcome.status, ==, PGRAPH_VK_PIPELINE_PROBE_ERROR);
     g_assert_cmpint(outcome.vk_result, ==, VK_ERROR_INITIALIZATION_FAILED);
     g_assert_true(pipeline == VK_NULL_HANDLE);
     g_assert_cmpuint(test.calls, ==, 0);
+}
+
+static void test_busy_never_calls_driver(void)
+{
+    TestPipelineCreate test = { 0 };
+    VkGraphicsPipelineCreateInfo create_info = {
+        .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
+    };
+    VkPipeline pipeline = (VkPipeline)(uintptr_t)1;
+
+    PGRAPHVkPipelineProbeOutcome outcome =
+        pgraph_vk_probe_pipeline_without_compile(
+            VK_NULL_HANDLE, (VkPipelineCache)(uintptr_t)2, &create_info,
+            &pipeline, false, test_create_pipeline, test_destroy_pipeline,
+            &test);
+
+    g_assert_cmpint(outcome.status, ==, PGRAPH_VK_PIPELINE_PROBE_BUSY);
+    g_assert_cmpint(outcome.vk_result, ==, VK_SUCCESS);
+    g_assert_true(pipeline == VK_NULL_HANDLE);
+    g_assert_cmpuint(test.calls, ==, 0);
+    g_assert_cmpuint(test.destroys, ==, 0);
+}
+
+static void test_error_destroys_unexpected_handle(void)
+{
+    TestPipelineCreate test = {
+        .result = VK_ERROR_OUT_OF_HOST_MEMORY,
+        .output = (VkPipeline)(uintptr_t)7,
+    };
+    VkGraphicsPipelineCreateInfo create_info = {
+        .sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
+    };
+    VkPipeline pipeline = VK_NULL_HANDLE;
+
+    PGRAPHVkPipelineProbeOutcome outcome =
+        pgraph_vk_probe_pipeline_without_compile(
+            VK_NULL_HANDLE, VK_NULL_HANDLE, &create_info, &pipeline, true,
+            test_create_pipeline, test_destroy_pipeline, &test);
+
+    g_assert_cmpint(outcome.status, ==, PGRAPH_VK_PIPELINE_PROBE_ERROR);
+    g_assert_true(pipeline == VK_NULL_HANDLE);
+    g_assert_cmpuint(test.calls, ==, 1);
+    g_assert_cmpuint(test.destroys, ==, 1);
+}
+
+static void test_probe_policy_preserves_default_wait_path(void)
+{
+    g_assert_false(pgraph_vk_pipeline_probe_should_run(true, false, false));
+    g_assert_true(pgraph_vk_pipeline_probe_should_run(true, true, false));
+    g_assert_true(pgraph_vk_pipeline_probe_should_run(true, false, true));
+    g_assert_false(pgraph_vk_pipeline_probe_should_run(false, true, true));
 }
 
 static void test_core_promotion_requires_instance_and_device_vulkan_1_3(void)
@@ -196,6 +265,12 @@ int main(int argc, char **argv)
                     test_real_vulkan_error_remains_an_error);
     g_test_add_func("/xbox/vk/pipeline-probe/invalid",
                     test_invalid_request_never_calls_driver);
+    g_test_add_func("/xbox/vk/pipeline-probe/busy",
+                    test_busy_never_calls_driver);
+    g_test_add_func("/xbox/vk/pipeline-probe/error-handle-ownership",
+                    test_error_destroys_unexpected_handle);
+    g_test_add_func("/xbox/vk/pipeline-probe/wait-policy",
+                    test_probe_policy_preserves_default_wait_path);
     g_test_add_func(
         "/xbox/vk/pipeline-probe/core-promotion",
         test_core_promotion_requires_instance_and_device_vulkan_1_3);

@@ -32,6 +32,13 @@
 
 static bool enable_validation = false;
 
+static bool pipeline_probe_diagnostic_requested(void)
+{
+    const char *value = g_getenv("XEMU_VK_PIPELINE_PROBE");
+
+    return value && !strcmp(value, "1");
+}
+
 static char const *const validation_layers[] = {
     "VK_LAYER_KHRONOS_validation",
 };
@@ -153,6 +160,9 @@ static bool create_instance(PGRAPHState *pg, Error **errp)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     VkResult result;
+
+    r->pipeline_probe_diagnostic_enabled =
+        pipeline_probe_diagnostic_requested();
 
     result = volkInitialize();
     if (result != VK_SUCCESS) {

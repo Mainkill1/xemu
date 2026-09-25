@@ -2293,12 +2293,15 @@ static bool create_pipeline(PGRAPHState *pg)
     }
     VkPipeline pipeline = VK_NULL_HANDLE;
     bool blocking_create_required = true;
-    if (r->pipeline_creation_cache_control_enabled) {
+    bool should_probe = pgraph_vk_pipeline_probe_should_run(
+        r->pipeline_creation_cache_control_enabled, false,
+        r->pipeline_probe_diagnostic_enabled);
+    if (should_probe) {
         int64_t probe_start_us = r->hybrid_trace ? g_get_monotonic_time() : 0;
         PGRAPHVkPipelineProbeOutcome outcome =
             pgraph_vk_probe_pipeline_without_compile(
                 r->device, r->vk_pipeline_cache, &recipe.info, &pipeline,
-                hybrid_pipeline_create, NULL);
+                true, hybrid_pipeline_create, hybrid_pipeline_destroy, NULL);
         if (r->hybrid_trace) {
             pgraph_vk_hybrid_trace_record(
                 r->hybrid_trace, VK_HYBRID_TRACE_PIPELINE_DRIVER_PROBE,
@@ -2313,6 +2316,7 @@ static bool create_pipeline(PGRAPHState *pg)
             blocking_create_required = false;
             break;
         case PGRAPH_VK_PIPELINE_PROBE_COMPILE_REQUIRED:
+        case PGRAPH_VK_PIPELINE_PROBE_BUSY:
             break;
         case PGRAPH_VK_PIPELINE_PROBE_ERROR:
             if (outcome.vk_result != VK_SUCCESS) {
