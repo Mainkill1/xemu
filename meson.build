@@ -3696,6 +3696,12 @@ tomlplusplus = dependency('tomlplusplus', fallback: ['tomlplusplus', 'tomlpluspl
 
 xxhash = dependency('libxxhash', fallback: ['xxhash', 'xxhash_dep'], default_options: ['default_library=static'])
 
+sqlite3 = dependency(
+  'sqlite3',
+  fallback: ['sqlite3', 'sqlite3_dep'],
+  default_options: ['default_library=static', 'all-extensions=disabled', 'strict=true'],
+)
+
 #####################
 # Generated sources #
 #####################
