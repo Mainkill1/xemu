@@ -227,10 +227,170 @@ static PGRAPHVkHybridPipelineBuildRequest request(TestRecipe *recipe,
 {
     return (PGRAPHVkHybridPipelineBuildRequest) {
         .generation = generation, .ticket = ticket, .key_hash = 0x55,
+        .urgency = PGRAPH_VK_HYBRID_PIPELINE_DEMAND,
         .device = (VkDevice)(uintptr_t)4,
         .cache = (VkPipelineCache)(uintptr_t)5,
         .create_info = &recipe->info,
     };
+}
+
+static PGRAPHVkHybridPipelineBuildResult take(
+    PGRAPHVkHybridPipelineBuilder *builder);
+
+static void destroy_result(PGRAPHVkHybridPipelineBuilder *builder,
+                           PGRAPHVkHybridPipelineBuildResult *result)
+{
+    pgraph_vk_hybrid_pipeline_build_result_destroy(builder, result);
+}
+
+static void test_demand_precedes_queued_prewarm(void)
+{
+    FakeDriver driver;
+    TestRecipe recipe;
+    PGRAPHVkHybridPipelineBuilder builder = { 0 };
+    fake_init(&driver);
+    recipe_init(&recipe);
+    driver.block = true;
+    PGRAPHVkHybridPipelineBuilderConfig cfg = config(&driver);
+    cfg.max_jobs = 4;
+    g_assert_true(pgraph_vk_hybrid_pipeline_builder_init(&builder, &cfg));
+
+    PGRAPHVkHybridPipelineBuildRequest active = request(&recipe, 1, 40);
+    PGRAPHVkHybridPipelineBuildRequest prewarm_a = request(&recipe, 1, 41);
+    PGRAPHVkHybridPipelineBuildRequest prewarm_b = request(&recipe, 1, 42);
+    PGRAPHVkHybridPipelineBuildRequest demand = request(&recipe, 1, 43);
+    prewarm_a.urgency = PGRAPH_VK_HYBRID_PIPELINE_BACKGROUND;
+    prewarm_b.urgency = PGRAPH_VK_HYBRID_PIPELINE_BACKGROUND;
+
+    g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_submit(&builder, &active),
+                    ==, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED);
+    fake_wait_entered(&driver);
+    g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_submit(&builder, &prewarm_a),
+                    ==, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED);
+    g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_submit(&builder, &prewarm_b),
+                    ==, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED);
+    g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_submit(&builder, &demand),
+                    ==, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED);
+    fake_release(&driver);
+
+    const uint64_t expected[] = { 40, 43, 41, 42 };
+    for (size_t i = 0; i < G_N_ELEMENTS(expected); i++) {
+        PGRAPHVkHybridPipelineBuildResult result = take(&builder);
+        g_assert_cmpuint(result.ticket, ==, expected[i]);
+        destroy_result(&builder, &result);
+    }
+    pgraph_vk_hybrid_pipeline_builder_destroy(&builder);
+    fake_fini(&driver);
+}
+
+static void test_equal_urgency_remains_fifo(void)
+{
+    FakeDriver driver;
+    TestRecipe recipe;
+    PGRAPHVkHybridPipelineBuilder builder = { 0 };
+    fake_init(&driver);
+    recipe_init(&recipe);
+    driver.block = true;
+    PGRAPHVkHybridPipelineBuilderConfig cfg = config(&driver);
+    cfg.max_jobs = 3;
+    g_assert_true(pgraph_vk_hybrid_pipeline_builder_init(&builder, &cfg));
+
+    PGRAPHVkHybridPipelineBuildRequest requests[] = {
+        request(&recipe, 1, 50),
+        request(&recipe, 1, 51),
+        request(&recipe, 1, 52),
+    };
+    requests[1].urgency = PGRAPH_VK_HYBRID_PIPELINE_BACKGROUND;
+    requests[2].urgency = PGRAPH_VK_HYBRID_PIPELINE_BACKGROUND;
+    g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_submit(&builder,
+                                                             &requests[0]),
+                    ==, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED);
+    fake_wait_entered(&driver);
+    g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_submit(&builder,
+                                                             &requests[1]),
+                    ==, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED);
+    g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_submit(&builder,
+                                                             &requests[2]),
+                    ==, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED);
+    fake_release(&driver);
+
+    for (size_t i = 0; i < G_N_ELEMENTS(requests); i++) {
+        PGRAPHVkHybridPipelineBuildResult result = take(&builder);
+        g_assert_cmpuint(result.ticket, ==, 50 + i);
+        destroy_result(&builder, &result);
+    }
+    pgraph_vk_hybrid_pipeline_builder_destroy(&builder);
+    fake_fini(&driver);
+}
+
+static void test_queued_prewarm_promotes_in_place(void)
+{
+    FakeDriver driver;
+    TestRecipe recipe;
+    PGRAPHVkHybridPipelineBuilder builder = { 0 };
+    fake_init(&driver);
+    recipe_init(&recipe);
+    driver.block = true;
+    PGRAPHVkHybridPipelineBuilderConfig cfg = config(&driver);
+    cfg.max_jobs = 3;
+    g_assert_true(pgraph_vk_hybrid_pipeline_builder_init(&builder, &cfg));
+
+    PGRAPHVkHybridPipelineBuildRequest active = request(&recipe, 7, 60);
+    PGRAPHVkHybridPipelineBuildRequest first = request(&recipe, 7, 61);
+    PGRAPHVkHybridPipelineBuildRequest promoted = request(&recipe, 7, 62);
+    first.urgency = PGRAPH_VK_HYBRID_PIPELINE_BACKGROUND;
+    promoted.urgency = PGRAPH_VK_HYBRID_PIPELINE_BACKGROUND;
+    g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_submit(&builder, &active),
+                    ==, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED);
+    fake_wait_entered(&driver);
+    g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_submit(&builder, &first),
+                    ==, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED);
+    g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_submit(&builder, &promoted),
+                    ==, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED);
+    g_assert_true(pgraph_vk_hybrid_pipeline_builder_promote(
+        &builder, 7, 62, PGRAPH_VK_HYBRID_PIPELINE_DEMAND));
+    PGRAPHVkHybridPipelineBuildRequest extra = request(&recipe, 7, 63);
+    g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_submit(&builder, &extra),
+                    ==, PGRAPH_VK_HYBRID_PIPELINE_QUEUE_FULL);
+    fake_release(&driver);
+
+    const uint64_t expected[] = { 60, 62, 61 };
+    for (size_t i = 0; i < G_N_ELEMENTS(expected); i++) {
+        PGRAPHVkHybridPipelineBuildResult result = take(&builder);
+        g_assert_cmpuint(result.ticket, ==, expected[i]);
+        if (result.ticket == 62) {
+            g_assert_cmpint(result.urgency, ==,
+                            PGRAPH_VK_HYBRID_PIPELINE_DEMAND);
+        }
+        destroy_result(&builder, &result);
+    }
+    pgraph_vk_hybrid_pipeline_builder_destroy(&builder);
+    fake_fini(&driver);
+}
+
+static void test_active_job_is_not_promoted(void)
+{
+    FakeDriver driver;
+    TestRecipe recipe;
+    PGRAPHVkHybridPipelineBuilder builder = { 0 };
+    fake_init(&driver);
+    recipe_init(&recipe);
+    driver.block = true;
+    PGRAPHVkHybridPipelineBuilderConfig cfg = config(&driver);
+    g_assert_true(pgraph_vk_hybrid_pipeline_builder_init(&builder, &cfg));
+    PGRAPHVkHybridPipelineBuildRequest active = request(&recipe, 8, 70);
+    active.urgency = PGRAPH_VK_HYBRID_PIPELINE_BACKGROUND;
+    g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_submit(&builder, &active),
+                    ==, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED);
+    fake_wait_entered(&driver);
+    g_assert_false(pgraph_vk_hybrid_pipeline_builder_promote(
+        &builder, 8, 70, PGRAPH_VK_HYBRID_PIPELINE_DEMAND));
+    fake_release(&driver);
+    PGRAPHVkHybridPipelineBuildResult result = take(&builder);
+    g_assert_cmpint(result.urgency, ==, PGRAPH_VK_HYBRID_PIPELINE_BACKGROUND);
+    destroy_result(&builder, &result);
+    pgraph_vk_hybrid_pipeline_builder_destroy(&builder);
+    fake_fini(&driver);
 }
 
 static PGRAPHVkHybridPipelineBuildResult take(PGRAPHVkHybridPipelineBuilder *builder)
@@ -549,5 +709,13 @@ int main(int argc, char **argv)
                     test_priority_results_preserve_pipeline_work);
     g_test_add_func("/vk/hybrid-pipeline/normal-worker-keeps-priority",
                     test_normal_pipeline_worker_does_not_lower_priority);
+    g_test_add_func("/vk/hybrid-pipeline/demand-before-prewarm",
+                    test_demand_precedes_queued_prewarm);
+    g_test_add_func("/vk/hybrid-pipeline/equal-urgency-fifo",
+                    test_equal_urgency_remains_fifo);
+    g_test_add_func("/vk/hybrid-pipeline/queued-promotion",
+                    test_queued_prewarm_promotes_in_place);
+    g_test_add_func("/vk/hybrid-pipeline/active-not-promoted",
+                    test_active_job_is_not_promoted);
     return g_test_run();
 }

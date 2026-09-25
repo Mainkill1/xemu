@@ -11,10 +11,16 @@
 
 #include "hw/xbox/nv2a/pgraph/vk/background-worker-priority.h"
 
+typedef enum PGRAPHVkHybridPipelineUrgency {
+    PGRAPH_VK_HYBRID_PIPELINE_BACKGROUND,
+    PGRAPH_VK_HYBRID_PIPELINE_DEMAND,
+} PGRAPHVkHybridPipelineUrgency;
+
 typedef struct PGRAPHVkHybridPipelineBuildRequest {
     uint64_t generation;
     uint64_t ticket;
     uint64_t key_hash;
+    PGRAPHVkHybridPipelineUrgency urgency;
     VkDevice device;
     VkPipelineCache cache;
     const VkGraphicsPipelineCreateInfo *create_info;
@@ -30,6 +36,7 @@ typedef struct PGRAPHVkHybridPipelineBuildResult {
     uint64_t generation;
     uint64_t ticket;
     uint64_t key_hash;
+    PGRAPHVkHybridPipelineUrgency urgency;
     VkDevice device;
     VkPipeline pipeline;
     VkResult vk_result;
@@ -78,6 +85,11 @@ bool pgraph_vk_hybrid_pipeline_builder_init(
 PGRAPHVkHybridPipelineSubmitResult pgraph_vk_hybrid_pipeline_builder_submit(
     PGRAPHVkHybridPipelineBuilder *builder,
     const PGRAPHVkHybridPipelineBuildRequest *request);
+/* Raise queued work to demand urgency without changing its ticket, queue slot,
+ * or immutable recipe. Active and completed jobs are never rewritten. */
+bool pgraph_vk_hybrid_pipeline_builder_promote(
+    PGRAPHVkHybridPipelineBuilder *builder, uint64_t generation,
+    uint64_t ticket, PGRAPHVkHybridPipelineUrgency urgency);
 bool pgraph_vk_hybrid_pipeline_builder_take_result(
     PGRAPHVkHybridPipelineBuilder *builder,
     PGRAPHVkHybridPipelineBuildResult *result);

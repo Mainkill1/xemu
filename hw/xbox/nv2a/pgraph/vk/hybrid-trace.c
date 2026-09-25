@@ -53,11 +53,13 @@ PGRAPHVkHybridTrace *pgraph_vk_hybrid_trace_open(const char *path,
             "type,frame,draw,time_us,route,pipeline_hash,shader_hash,"
             "ticket,a,b,c,d\n");
     fprintf(file, "# event-types: source-generation=%u,source-compile=%u,"
-            "recipe-capture=%u,job-promotion=%u,completion=%u\n",
+            "recipe-capture=%u,job-promotion=%u,pipeline-promotion=%u,"
+            "completion=%u\n",
             VK_HYBRID_TRACE_SOURCE_GENERATION,
             VK_HYBRID_TRACE_SOURCE_COMPILE,
             VK_HYBRID_TRACE_RECIPE_CAPTURE,
             VK_HYBRID_TRACE_JOB_PROMOTION,
+            VK_HYBRID_TRACE_PIPELINE_PROMOTION,
             VK_HYBRID_TRACE_COMPLETION);
     fprintf(file, "# source-generation/source-compile job timing: "
             "a=submitted_us,b=started_us,c=finished_us,d=success\n");
@@ -65,6 +67,8 @@ PGRAPHVkHybridTrace *pgraph_vk_hybrid_trace_open(const char *path,
             "a=started_us,b=finished_us,c=submit_result,d=job_kind\n");
     fprintf(file, "# promotion: "
             "a=old_urgency,b=new_urgency,c=epoch,d=job_kind\n");
+    fprintf(file, "# pipeline promotion: "
+            "a=old_urgency,b=new_urgency,c=generation,d=0\n");
     fprintf(file, "# completion: "
             "a=renderer_started_us,b=renderer_finished_us,"
             "c=published,d=matching_work\n");

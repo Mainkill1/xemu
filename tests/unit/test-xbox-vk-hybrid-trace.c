@@ -48,6 +48,9 @@ static void test_only_slow_frames_are_written(void)
         "promotion: a=old_urgency,b=new_urgency,c=epoch,d=job_kind"));
     g_assert_nonnull(strstr(
         contents,
+        "pipeline promotion: a=old_urgency,b=new_urgency,c=generation"));
+    g_assert_nonnull(strstr(
+        contents,
         "completion: a=renderer_started_us,b=renderer_finished_us,"));
     g_assert_null(strstr(contents, "\nframe,"));
     g_unlink(path);

@@ -1528,6 +1528,21 @@ request_hybrid_pipeline(PGRAPHState *pg, const PipelineKey *key,
             memcmp(&candidate->key, key, sizeof(*key)) == 0) {
             if (retained_demand) {
                 candidate->prewarm = false;
+                bool promoted = pgraph_vk_hybrid_pipeline_builder_promote(
+                    &r->hybrid_pipeline_builder, candidate->generation,
+                    candidate->ticket, PGRAPH_VK_HYBRID_PIPELINE_DEMAND);
+                if (promoted && r->hybrid_trace) {
+                    pgraph_vk_hybrid_trace_record(
+                        r->hybrid_trace,
+                        VK_HYBRID_TRACE_PIPELINE_PROMOTION,
+                        key->fragment_route, hash,
+                        fast_hash((const uint8_t *)&key->shader_state,
+                                  sizeof(key->shader_state)),
+                        candidate->ticket,
+                        PGRAPH_VK_HYBRID_PIPELINE_BACKGROUND,
+                        PGRAPH_VK_HYBRID_PIPELINE_DEMAND,
+                        candidate->generation, 0);
+                }
             }
             return PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED;
         }
@@ -1571,6 +1586,8 @@ request_hybrid_pipeline(PGRAPHState *pg, const PipelineKey *key,
         .generation = work->generation,
         .ticket = work->ticket,
         .key_hash = hash,
+        .urgency = retained_demand ? PGRAPH_VK_HYBRID_PIPELINE_DEMAND :
+                                     PGRAPH_VK_HYBRID_PIPELINE_BACKGROUND,
         .device = r->device,
         .cache = r->vk_pipeline_cache,
         .create_info = &recipe.info,

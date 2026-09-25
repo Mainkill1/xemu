@@ -236,6 +236,31 @@ static void list_destroy(PipelineBuilderState *state, PipelineJob *head)
     }
 }
 
+static PipelineJob *take_next_pending(PipelineBuilderState *state)
+{
+    PipelineJob *best = state->pending_head;
+    PipelineJob *best_previous = NULL;
+    PipelineJob *previous = NULL;
+
+    for (PipelineJob *job = state->pending_head; job;
+         previous = job, job = job->next) {
+        if (job->request.urgency > best->request.urgency) {
+            best = job;
+            best_previous = previous;
+        }
+    }
+    if (best_previous) {
+        best_previous->next = best->next;
+    } else {
+        state->pending_head = best->next;
+    }
+    if (state->pending_tail == best) {
+        state->pending_tail = best_previous;
+    }
+    best->next = NULL;
+    return best;
+}
+
 static void *pipeline_worker(void *opaque)
 {
     PipelineBuilderState *state = opaque;
@@ -265,12 +290,7 @@ static void *pipeline_worker(void *opaque)
             qemu_mutex_unlock(&state->lock);
             break;
         }
-        PipelineJob *job = state->pending_head;
-        state->pending_head = job->next;
-        if (!state->pending_head) {
-            state->pending_tail = NULL;
-        }
-        job->next = NULL;
+        PipelineJob *job = take_next_pending(state);
         state->active = job;
         bool stale = job->request.generation < state->min_generation;
         qemu_mutex_unlock(&state->lock);
@@ -335,7 +355,9 @@ PGRAPHVkHybridPipelineSubmitResult pgraph_vk_hybrid_pipeline_builder_submit(
     const PGRAPHVkHybridPipelineBuildRequest *request)
 {
     PipelineBuilderState *state = builder ? builder->state : NULL;
-    if (!state || !request || !request->ticket || !request->create_info) {
+    if (!state || !request || !request->ticket || !request->create_info ||
+        request->urgency < PGRAPH_VK_HYBRID_PIPELINE_BACKGROUND ||
+        request->urgency > PGRAPH_VK_HYBRID_PIPELINE_DEMAND) {
         return PGRAPH_VK_HYBRID_PIPELINE_UNSUPPORTED_RECIPE;
     }
     PipelineJob *job = g_new0(PipelineJob, 1);
@@ -349,6 +371,7 @@ PGRAPHVkHybridPipelineSubmitResult pgraph_vk_hybrid_pipeline_builder_submit(
         .generation = request->generation,
         .ticket = request->ticket,
         .key_hash = request->key_hash,
+        .urgency = request->urgency,
         .device = request->device,
         .pipeline = VK_NULL_HANDLE,
         .vk_result = VK_NOT_READY,
@@ -377,6 +400,34 @@ PGRAPHVkHybridPipelineSubmitResult pgraph_vk_hybrid_pipeline_builder_submit(
         g_free(job);
     }
     return status;
+}
+
+bool pgraph_vk_hybrid_pipeline_builder_promote(
+    PGRAPHVkHybridPipelineBuilder *builder, uint64_t generation,
+    uint64_t ticket, PGRAPHVkHybridPipelineUrgency urgency)
+{
+    PipelineBuilderState *state = builder ? builder->state : NULL;
+    if (!state || !ticket ||
+        urgency < PGRAPH_VK_HYBRID_PIPELINE_BACKGROUND ||
+        urgency > PGRAPH_VK_HYBRID_PIPELINE_DEMAND) {
+        return false;
+    }
+
+    bool found = false;
+    qemu_mutex_lock(&state->lock);
+    for (PipelineJob *job = state->pending_head; job; job = job->next) {
+        if (job->request.generation == generation &&
+            job->request.ticket == ticket) {
+            if (urgency > job->request.urgency) {
+                job->request.urgency = urgency;
+                job->result.urgency = urgency;
+            }
+            found = true;
+            break;
+        }
+    }
+    qemu_mutex_unlock(&state->lock);
+    return found;
 }
 
 bool pgraph_vk_hybrid_pipeline_builder_take_result(
