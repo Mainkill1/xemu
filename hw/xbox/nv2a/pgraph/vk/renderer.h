@@ -663,6 +663,9 @@ typedef struct PGRAPHVkDemandExecutableAtomicSnapshot {
     uint64_t permanent_failures QEMU_ALIGNED(8);
     uint64_t first_demand_to_ready_us_total QEMU_ALIGNED(8);
     uint64_t first_demand_to_ready_us_max QEMU_ALIGNED(8);
+    uint64_t demand_record_scans QEMU_ALIGNED(8);
+    uint64_t demand_service_record_scans QEMU_ALIGNED(8);
+    uint64_t demand_full_key_comparisons QEMU_ALIGNED(8);
     uint32_t pending_demand_executables QEMU_ALIGNED(4);
 } PGRAPHVkDemandExecutableAtomicSnapshot;
 

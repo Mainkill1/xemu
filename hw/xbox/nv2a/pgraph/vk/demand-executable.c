@@ -33,8 +33,12 @@ find_mutable_record(PGRAPHVkDemandExecutableState *state, uint64_t hash,
 {
     for (size_t i = 0; i < G_N_ELEMENTS(state->records); i++) {
         PGRAPHVkDemandExecutableRecord *record = &state->records[i];
-        if (record->in_use && record->key_hash == hash &&
-            memcmp(&record->key, key, sizeof(*key)) == 0) {
+        state->telemetry.record_scans++;
+        if (!record->in_use || record->key_hash != hash) {
+            continue;
+        }
+        state->telemetry.full_key_comparisons++;
+        if (memcmp(&record->key, key, sizeof(*key)) == 0) {
             return record;
         }
     }
@@ -82,6 +86,7 @@ allocate_record(PGRAPHVkDemandExecutableState *state)
 
     for (size_t i = 0; i < G_N_ELEMENTS(state->records); i++) {
         PGRAPHVkDemandExecutableRecord *record = &state->records[i];
+        state->telemetry.record_scans++;
         if (!record->in_use) {
             return record;
         }
@@ -196,7 +201,8 @@ static bool service_missing_modules(PGRAPHVkDemandExecutableState *state,
     }
     record->status = deferred ? PGRAPH_VK_DEMAND_DEFERRED :
                                 PGRAPH_VK_DEMAND_WAITING_FOR_MODULES;
-    record->retry_after_us = now_us + PGRAPH_VK_DEMAND_RETRY_US;
+    record->retry_after_us = deferred ?
+        now_us + PGRAPH_VK_DEMAND_RETRY_US : 0;
     if (deferred) {
         state->telemetry.deferred_demands++;
     }
@@ -220,6 +226,7 @@ void pgraph_vk_demand_executable_service(PGRAPHVkDemandExecutableState *state,
         size_t index = state->service_cursor++ % G_N_ELEMENTS(state->records);
         PGRAPHVkDemandExecutableRecord *record = &state->records[index];
         visited++;
+        state->telemetry.service_record_scans++;
         if (!record->in_use) {
             continue;
         }
@@ -240,10 +247,10 @@ void pgraph_vk_demand_executable_service(PGRAPHVkDemandExecutableState *state,
         if (now_us < record->retry_after_us) {
             continue;
         }
-        processed++;
         if (record->status == PGRAPH_VK_DEMAND_PIPELINE_PENDING) {
             continue;
         }
+        processed++;
 
         uint32_t missing = ops->missing_modules(opaque, &record->key);
         if (missing && !service_missing_modules(state, record, now_us, ops,

@@ -123,10 +123,11 @@ static void test_stage_progression_without_flip(void)
                      1);
     g_assert_cmpint(find_record(&state, &key)->status, ==,
                     PGRAPH_VK_DEMAND_WAITING_FOR_MODULES);
+    g_assert_cmpuint(find_record(&state, &key)->retry_after_us, ==, 0);
 
     fixture.missing_modules = PGRAPH_VK_DEMAND_STAGE_GEOMETRY_BIT |
                               PGRAPH_VK_DEMAND_STAGE_FRAGMENT_BIT;
-    pgraph_vk_demand_executable_service(&state, 7, 20000, &demand_ops,
+    pgraph_vk_demand_executable_service(&state, 7, 101, &demand_ops,
                                         &fixture);
     g_assert_cmpuint(fixture.module_calls[PGRAPH_VK_DEMAND_STAGE_GEOMETRY], ==,
                      1);
@@ -157,6 +158,43 @@ static void test_stage_progression_without_flip(void)
     g_assert_cmpuint(state.telemetry.first_demand_to_ready_us_total, ==, 69900);
 }
 
+static void test_pipeline_pending_misses_do_not_consume_service_budget(void)
+{
+    PGRAPHVkDemandExecutableState state;
+    pgraph_vk_demand_executable_state_init(&state);
+    DemandFixture fixture = default_fixture();
+    PipelineKey first = test_key(40);
+    PipelineKey second = test_key(41);
+    PipelineKey actionable = test_key(42);
+
+    state.records[0] = (PGRAPHVkDemandExecutableRecord) {
+        .in_use = true,
+        .key = first,
+        .generation = 3,
+        .status = PGRAPH_VK_DEMAND_PIPELINE_PENDING,
+    };
+    state.records[1] = (PGRAPHVkDemandExecutableRecord) {
+        .in_use = true,
+        .key = second,
+        .generation = 3,
+        .status = PGRAPH_VK_DEMAND_PIPELINE_PENDING,
+    };
+    state.records[2] = (PGRAPHVkDemandExecutableRecord) {
+        .in_use = true,
+        .key = actionable,
+        .generation = 3,
+        .status = PGRAPH_VK_DEMAND_WAITING_FOR_MODULES,
+    };
+    state.telemetry.pending_demand_executables = 3;
+
+    pgraph_vk_demand_executable_service(&state, 3, 100, &demand_ops,
+                                        &fixture);
+
+    g_assert_cmpuint(fixture.submit_calls, ==, 1);
+    g_assert_cmpint(state.records[2].status, ==,
+                    PGRAPH_VK_DEMAND_PIPELINE_PENDING);
+}
+
 static void test_pending_key_deduplicates(void)
 {
     PGRAPHVkDemandExecutableState state;
@@ -177,6 +215,8 @@ static void test_pending_key_deduplicates(void)
     g_assert_cmpuint(fixture.submit_calls, ==, 1);
     g_assert_cmpuint(find_record(&state, &key)->demand_count, ==, 2);
     g_assert_cmpuint(state.telemetry.deduplicated_demands, ==, 1);
+    g_assert_cmpuint(state.telemetry.record_scans, >, 0);
+    g_assert_cmpuint(state.telemetry.full_key_comparisons, >, 0);
 }
 
 static void test_full_pending_table_defers_without_callbacks(void)
@@ -197,6 +237,8 @@ static void test_full_pending_table_defers_without_callbacks(void)
     g_assert_cmpuint(state.telemetry.pending_demand_executables, ==,
                      PGRAPH_VK_MAX_DEMAND_EXECUTABLES);
     g_assert_cmpuint(state.telemetry.deferred_demands, ==, 1);
+    g_assert_cmpuint(state.telemetry.record_scans, >=,
+                     PGRAPH_VK_MAX_DEMAND_EXECUTABLES);
 }
 
 static void test_permanent_module_failure(void)
@@ -281,6 +323,8 @@ int main(int argc, char **argv)
     g_test_init(&argc, &argv, NULL);
     g_test_add_func("/xbox/vk/demand-executable/stage-progression",
                     test_stage_progression_without_flip);
+    g_test_add_func("/xbox/vk/demand-executable/pending-budget",
+                    test_pipeline_pending_misses_do_not_consume_service_budget);
     g_test_add_func("/xbox/vk/demand-executable/deduplicate",
                     test_pending_key_deduplicates);
     g_test_add_func("/xbox/vk/demand-executable/full-table",

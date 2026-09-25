@@ -111,6 +111,12 @@ static void sync_atomic_snapshot(PGRAPHVkState *r)
                 telemetry->first_demand_to_ready_us_total);
     qatomic_set(&r->demand_executable_snapshot.first_demand_to_ready_us_max,
                 telemetry->first_demand_to_ready_us_max);
+    qatomic_set(&r->demand_executable_snapshot.demand_record_scans,
+                telemetry->record_scans);
+    qatomic_set(&r->demand_executable_snapshot.demand_service_record_scans,
+                telemetry->service_record_scans);
+    qatomic_set(&r->demand_executable_snapshot.demand_full_key_comparisons,
+                telemetry->full_key_comparisons);
     qatomic_set(&r->demand_executable_snapshot.pending_demand_executables,
                 telemetry->pending_demand_executables);
 }
@@ -225,6 +231,12 @@ pgraph_vk_demand_executable_telemetry_snapshot(PGRAPHState *pg)
         qatomic_read_u64(&atomic->first_demand_to_ready_us_total);
     snapshot.first_demand_to_ready_us_max =
         qatomic_read_u64(&atomic->first_demand_to_ready_us_max);
+    snapshot.record_scans =
+        qatomic_read_u64(&atomic->demand_record_scans);
+    snapshot.service_record_scans =
+        qatomic_read_u64(&atomic->demand_service_record_scans);
+    snapshot.full_key_comparisons =
+        qatomic_read_u64(&atomic->demand_full_key_comparisons);
     snapshot.pending_demand_executables =
         qatomic_read(&atomic->pending_demand_executables);
     return snapshot;

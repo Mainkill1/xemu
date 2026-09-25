@@ -1673,9 +1673,6 @@ static bool hybrid_demand_work_waiting(PGRAPHState *pg)
             &r->hybrid_pipeline_builder)) {
         return true;
     }
-    if (pgraph_vk_demand_work_pending(pg)) {
-        return true;
-    }
     for (size_t i = 0; i < ARRAY_SIZE(r->fallback_family_requests); i++) {
         if (r->fallback_family_requests[i].in_use) {
             return true;
@@ -1950,10 +1947,18 @@ static void request_complete_specialization(PGRAPHState *pg,
     if (!fallback_pipeline_ready || !fallback_resources_ready) {
         return;
     }
+    pgraph_vk_enqueue_specialized_fragment(pg, state,
+                                           fallback_pipeline_ready,
+                                           fallback_resources_ready);
+    ShaderBinding *binding = pgraph_vk_prepare_binding_from_ready_modules(
+        pg, state, PGRAPH_VK_FRAGMENT_SPECIALIZED);
+    if (!binding) {
+        return;
+    }
     PipelineKey key;
     pgraph_vk_init_pipeline_key_for_state(
         pg, state, PGRAPH_VK_FRAGMENT_SPECIALIZED, &key);
-    (void)pgraph_vk_request_demand_executable(pg, &key, g_get_monotonic_time());
+    (void)pgraph_vk_request_hybrid_pipeline(pg, &key, binding);
 }
 
 static void maybe_request_complete_specialization(PGRAPHState *pg,

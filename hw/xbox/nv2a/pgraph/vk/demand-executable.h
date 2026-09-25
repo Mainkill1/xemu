@@ -68,6 +68,9 @@ typedef struct PGRAPHVkDemandExecutableTelemetry {
     uint64_t stale_generation_discards;
     uint64_t first_demand_to_ready_us_total;
     uint64_t first_demand_to_ready_us_max;
+    uint64_t record_scans;
+    uint64_t service_record_scans;
+    uint64_t full_key_comparisons;
     uint32_t pending_demand_executables;
 } PGRAPHVkDemandExecutableTelemetry;
 
