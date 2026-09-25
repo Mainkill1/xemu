@@ -265,8 +265,24 @@ static void pgraph_vk_init(NV2AState *d, Error **errp)
     pgraph_vk_perf_init(pg->vk_renderer_state);
     const char *hybrid_trace_path = g_getenv("XEMU_VK_HYBRID_TRACE");
     if (hybrid_trace_path && hybrid_trace_path[0]) {
+        const char *trace_all_frames =
+            g_getenv("XEMU_VK_DIAGNOSTIC_TRACE_ALL_FRAMES");
+        uint64_t trace_threshold_us =
+            pgraph_vk_hybrid_trace_threshold_us(trace_all_frames);
+        if (trace_all_frames && trace_all_frames[0]) {
+            if (strcmp(trace_all_frames, "1") != 0) {
+                warn_report(
+                    "ignoring invalid XEMU_VK_DIAGNOSTIC_TRACE_ALL_FRAMES=%s "
+                    "(expected 1)", trace_all_frames);
+            } else {
+                warn_report(
+                    "Vulkan all-frame hybrid trace diagnostic active; "
+                    "performance results are invalid");
+            }
+        }
         pg->vk_renderer_state->hybrid_trace =
-            pgraph_vk_hybrid_trace_open(hybrid_trace_path, 50000);
+            pgraph_vk_hybrid_trace_open(hybrid_trace_path,
+                                        trace_threshold_us);
         if (!pg->vk_renderer_state->hybrid_trace) {
             error_report("nv2a/vk: could not open hybrid trace output");
         }

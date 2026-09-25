@@ -56,6 +56,15 @@ static void test_only_slow_frames_are_written(void)
     g_unlink(path);
 }
 
+static void test_diagnostic_all_frame_threshold(void)
+{
+    g_assert_cmpuint(pgraph_vk_hybrid_trace_threshold_us(NULL), ==, 50000);
+    g_assert_cmpuint(pgraph_vk_hybrid_trace_threshold_us(""), ==, 50000);
+    g_assert_cmpuint(pgraph_vk_hybrid_trace_threshold_us("0"), ==, 50000);
+    g_assert_cmpuint(pgraph_vk_hybrid_trace_threshold_us("true"), ==, 50000);
+    g_assert_cmpuint(pgraph_vk_hybrid_trace_threshold_us("1"), ==, 0);
+}
+
 static void test_slow_frame_ring_reports_overflow(void)
 {
     g_autofree char *path = new_trace_path();
@@ -89,6 +98,8 @@ int main(int argc, char **argv)
     g_test_init(&argc, &argv, NULL);
     g_test_add_func("/xbox/vk/hybrid-trace/slow-only",
                     test_only_slow_frames_are_written);
+    g_test_add_func("/xbox/vk/hybrid-trace/diagnostic-all-frames",
+                    test_diagnostic_all_frame_threshold);
     g_test_add_func("/xbox/vk/hybrid-trace/overflow",
                     test_slow_frame_ring_reports_overflow);
     return g_test_run();

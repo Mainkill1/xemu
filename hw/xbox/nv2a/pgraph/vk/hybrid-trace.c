@@ -8,6 +8,7 @@
 #include "hw/xbox/nv2a/pgraph/vk/hybrid-trace.h"
 
 #define HYBRID_TRACE_CAPACITY 16384
+#define HYBRID_TRACE_SLOW_FRAME_THRESHOLD_US 50000
 
 typedef struct PGRAPHVkHybridTraceRecord {
     uint64_t timestamp_us;
@@ -32,6 +33,12 @@ struct PGRAPHVkHybridTrace {
     size_t count;
     uint64_t dropped;
 };
+
+uint64_t pgraph_vk_hybrid_trace_threshold_us(const char *trace_all_frames)
+{
+    return trace_all_frames && strcmp(trace_all_frames, "1") == 0 ?
+           0 : HYBRID_TRACE_SLOW_FRAME_THRESHOLD_US;
+}
 
 PGRAPHVkHybridTrace *pgraph_vk_hybrid_trace_open(const char *path,
                                                  uint64_t threshold_us)

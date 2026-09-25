@@ -45,6 +45,8 @@ typedef enum PGRAPHVkHybridResourceShortage {
     VK_HYBRID_SHORTAGE_BUFFER,
 } PGRAPHVkHybridResourceShortage;
 
+uint64_t pgraph_vk_hybrid_trace_threshold_us(const char *trace_all_frames);
+
 /* One bounded ring is retained per active guest frame. Only slow frames are
  * written to disk. All timestamps use the same monotonic clock, in us. */
 PGRAPHVkHybridTrace *pgraph_vk_hybrid_trace_open(const char *path,
