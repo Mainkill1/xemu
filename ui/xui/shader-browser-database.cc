@@ -1,0 +1,7 @@
+#include "shader-browser-database-part1.inc"
+#include "shader-browser-database-part2.inc"
+#include "shader-browser-database-part3.inc"
+#include "shader-browser-database-part4.inc"
+#include "shader-browser-database-part5.inc"
+#include "shader-browser-database-part6.inc"
+#include "shader-browser-database-part7.inc"

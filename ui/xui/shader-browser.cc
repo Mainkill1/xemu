@@ -1,0 +1,4 @@
+#include "shader-browser-part1.inc"
+#include "shader-browser-part2.inc"
+#include "shader-browser-part3.inc"
+#include "shader-browser-part4.inc"

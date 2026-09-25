@@ -47,12 +47,15 @@
 #include "notifications.hh"
 #include "monitor.hh"
 #include "debug.hh"
+#include "shader-browser.hh"
+#include "shader-browser-session-provider.hh"
 #include "welcome.hh"
 #include "menubar.hh"
 #include "compat.hh"
 #if defined(_WIN32)
 #include "update.hh"
 #endif
+#include "../xemu-settings.h"
 
 bool g_screenshot_pending;
 const char *g_snapshot_pending_load_name;
@@ -155,12 +158,30 @@ void xemu_hud_init(SDL_Window* window, void* sdl_gl_context)
 #endif
     g_last_scale = g_viewport_mgr.m_scale;
     InitializeStyle();
+
+    char *shader_config_dir = g_path_get_dirname(xemu_settings_get_path());
+    if (xemu_shader_browser_session_install(shader_config_dir)) {
+        char error[256] = {};
+        if (!xemu_shader_browser_database_configure(
+                g_config.shader_browser.database.enabled,
+                g_config.shader_browser.database.record_performance_sessions,
+                g_config.shader_browser.database.save_external_artifacts,
+                error, sizeof(error))) {
+            fprintf(stderr, "Shader Browser persistence: %s\n", error);
+        }
+    } else {
+        fprintf(stderr, "Unable to install Shader Browser provider\n");
+    }
+    g_free(shader_config_dir);
+
     g_main_menu.SetNextViewIndex(g_config.general.last_viewed_menu_index);
     first_boot_window.is_open = g_config.general.show_welcome;
 }
 
 void xemu_hud_cleanup(void)
 {
+    shader_browser_window.m_is_open = false;
+    xemu_shader_browser_session_uninstall();
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL3_Shutdown();
     ImGui::DestroyContext();
@@ -310,6 +331,7 @@ void xemu_hud_update(void)
     monitor_window.Draw();
     apu_window.Draw();
     video_window.Draw();
+    shader_browser_window.Draw();
     compatibility_reporter_window.Draw();
 #if defined(_WIN32)
     update_window.Draw();

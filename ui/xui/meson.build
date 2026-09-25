@@ -3,6 +3,11 @@ xemu_ss.add(files(
   'animation.cc',
   'compat.cc',
   'debug.cc',
+  'shader-browser-model.cc',
+  'shader-browser-database.cc',
+  'shader-browser-artifact-store.cc',
+  'shader-browser-session-provider.cc',
+  'shader-browser.cc',
   'font-manager.cc',
   'gl-helpers.cc',
   'input-manager.cc',
@@ -26,3 +31,57 @@ xemu_ss.add(files(
 if host_os == 'windows'
   xemu_ss.add(files('update.cc', 'win32-dxgi-present.cc'))
 endif
+
+# Stage 1 focused tests live with the production source declaration so the
+# same exact translation units are compiled by supported platform CI.
+shader_browser_test_inc = include_directories('.')
+shader_browser_threads = dependency('threads')
+shader_browser_test_dir = meson.project_source_root() / 'tests/unit'
+
+shader_browser_model_test = executable(
+  'test-xemu-shader-browser-model',
+  shader_browser_test_dir / 'test-xemu-shader-browser-model.cc',
+  files('shader-browser-model.cc'),
+  include_directories: shader_browser_test_inc,
+  dependencies: [xxhash])
+test('test-xemu-shader-browser-model', shader_browser_model_test,
+     suite: ['unit'])
+
+shader_browser_database_test = executable(
+  'test-xemu-shader-browser-database',
+  shader_browser_test_dir / 'test-xemu-shader-browser-database.cc',
+  files('shader-browser-model.cc', 'shader-browser-database.cc'),
+  include_directories: shader_browser_test_inc,
+  dependencies: [shader_browser_threads, xxhash, sqlite3])
+test('test-xemu-shader-browser-database', shader_browser_database_test,
+     suite: ['unit'], timeout: 60)
+
+shader_browser_artifact_test = executable(
+  'test-xemu-shader-browser-artifact-store',
+  shader_browser_test_dir / 'test-xemu-shader-browser-artifact-store.cc',
+  files('shader-browser-model.cc', 'shader-browser-artifact-store.cc'),
+  include_directories: shader_browser_test_inc,
+  dependencies: [shader_browser_threads, xxhash])
+test('test-xemu-shader-browser-artifact-store', shader_browser_artifact_test,
+     suite: ['unit'])
+
+shader_browser_session_test = executable(
+  'test-xemu-shader-browser-session-provider',
+  shader_browser_test_dir / 'test-xemu-shader-browser-session-provider.cc',
+  files(
+    'shader-browser-model.cc',
+    'shader-browser-database.cc',
+    'shader-browser-artifact-store.cc',
+    'shader-browser-session-provider.cc',
+  ),
+  include_directories: shader_browser_test_inc,
+  dependencies: [shader_browser_threads, xxhash, sqlite3])
+test('test-xemu-shader-browser-session-provider',
+     shader_browser_session_test, suite: ['unit'], timeout: 60)
+
+shader_browser_c_header_test = executable(
+  'test-xemu-shader-browser-c-header',
+  shader_browser_test_dir / 'test-xemu-shader-browser-c-header.c',
+  include_directories: shader_browser_test_inc)
+test('test-xemu-shader-browser-c-header', shader_browser_c_header_test,
+     suite: ['unit'])
