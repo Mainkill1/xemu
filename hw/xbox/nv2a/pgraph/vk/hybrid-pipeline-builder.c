@@ -42,6 +42,7 @@ typedef struct PipelineJob {
     struct PipelineJob *next;
     PGRAPHVkHybridPipelineBuildRequest request;
     PGRAPHVkHybridPipelineBuildResult result;
+    uint64_t demanded_us;
     PipelineRecipe recipe;
 } PipelineJob;
 
@@ -59,6 +60,7 @@ typedef struct PipelineBuilderState {
     PipelineJob *active;
     size_t outstanding;
     uint64_t min_generation;
+    PGRAPHVkHybridPipelineQueueTelemetry telemetry;
     bool stopping;
     bool joined;
 } PipelineBuilderState;
@@ -293,10 +295,21 @@ static void *pipeline_worker(void *opaque)
         PipelineJob *job = take_next_pending(state);
         state->active = job;
         bool stale = job->request.generation < state->min_generation;
+        if (!stale) {
+            job->result.started_us = g_get_monotonic_time();
+            if (job->demanded_us) {
+                uint64_t demand_queue_delay_us =
+                    job->result.started_us - job->demanded_us;
+                if (demand_queue_delay_us >
+                    state->telemetry.max_demand_queue_delay_us) {
+                    state->telemetry.max_demand_queue_delay_us =
+                        demand_queue_delay_us;
+                }
+            }
+        }
         qemu_mutex_unlock(&state->lock);
 
         if (!stale) {
-            job->result.started_us = g_get_monotonic_time();
             job->result.vk_result = state->config.create(
                 state->config.opaque, job->request.device,
                 job->request.cache, &job->recipe.info,
@@ -402,32 +415,53 @@ PGRAPHVkHybridPipelineSubmitResult pgraph_vk_hybrid_pipeline_builder_submit(
     return status;
 }
 
-bool pgraph_vk_hybrid_pipeline_builder_promote(
+PGRAPHVkPipelinePromoteResult pgraph_vk_hybrid_pipeline_builder_promote(
     PGRAPHVkHybridPipelineBuilder *builder, uint64_t generation,
-    uint64_t ticket, PGRAPHVkHybridPipelineUrgency urgency)
+    uint64_t ticket, PGRAPHVkHybridPipelineUrgency urgency,
+    PGRAPHVkHybridPipelineUrgency *old_urgency)
 {
     PipelineBuilderState *state = builder ? builder->state : NULL;
-    if (!state || !ticket ||
-        urgency < PGRAPH_VK_HYBRID_PIPELINE_BACKGROUND ||
-        urgency > PGRAPH_VK_HYBRID_PIPELINE_DEMAND) {
-        return false;
+    if (!state || !ticket || urgency != PGRAPH_VK_HYBRID_PIPELINE_DEMAND) {
+        return PGRAPH_VK_PIPELINE_PROMOTE_NOT_FOUND;
     }
 
-    bool found = false;
+    PGRAPHVkPipelinePromoteResult result =
+        PGRAPH_VK_PIPELINE_PROMOTE_NOT_FOUND;
     qemu_mutex_lock(&state->lock);
     for (PipelineJob *job = state->pending_head; job; job = job->next) {
         if (job->request.generation == generation &&
             job->request.ticket == ticket) {
-            if (urgency > job->request.urgency) {
-                job->request.urgency = urgency;
-                job->result.urgency = urgency;
+            if (old_urgency) {
+                *old_urgency = job->request.urgency;
             }
-            found = true;
+            if (job->request.urgency == urgency) {
+                state->telemetry.already_demand_hits++;
+                result = PGRAPH_VK_PIPELINE_PROMOTE_ALREADY_DEMAND;
+            } else {
+                job->request.urgency = PGRAPH_VK_HYBRID_PIPELINE_DEMAND;
+                job->result.urgency = PGRAPH_VK_HYBRID_PIPELINE_DEMAND;
+                job->demanded_us = g_get_monotonic_time();
+                state->telemetry.queued_promotions++;
+                qemu_cond_signal(&state->work_ready);
+                result = PGRAPH_VK_PIPELINE_PROMOTE_QUEUED_CHANGED;
+            }
             break;
         }
     }
+    if (result == PGRAPH_VK_PIPELINE_PROMOTE_NOT_FOUND && state->active &&
+        state->active->request.generation == generation &&
+        state->active->request.ticket == ticket) {
+        if (old_urgency) {
+            *old_urgency = state->active->request.urgency;
+        }
+        if (state->active->request.urgency ==
+            PGRAPH_VK_HYBRID_PIPELINE_BACKGROUND) {
+            state->telemetry.active_background_demand_hits++;
+        }
+        result = PGRAPH_VK_PIPELINE_PROMOTE_ACTIVE_MATCH;
+    }
     qemu_mutex_unlock(&state->lock);
-    return found;
+    return result;
 }
 
 bool pgraph_vk_hybrid_pipeline_builder_take_result(
@@ -477,6 +511,43 @@ bool pgraph_vk_hybrid_pipeline_builder_get_worker_status(
     }
     qemu_mutex_lock(&state->lock);
     *status = state->worker_status;
+    qemu_mutex_unlock(&state->lock);
+    return true;
+}
+
+bool pgraph_vk_hybrid_pipeline_builder_get_queue_telemetry(
+    PGRAPHVkHybridPipelineBuilder *builder,
+    PGRAPHVkHybridPipelineQueueTelemetry *telemetry)
+{
+    PipelineBuilderState *state = builder ? builder->state : NULL;
+
+    if (telemetry) {
+        *telemetry = (PGRAPHVkHybridPipelineQueueTelemetry) { 0 };
+    }
+    if (!state || !telemetry) {
+        return false;
+    }
+
+    qemu_mutex_lock(&state->lock);
+    *telemetry = state->telemetry;
+    uint64_t oldest_submitted_us = 0;
+    for (PipelineJob *job = state->pending_head; job; job = job->next) {
+        if (job->request.urgency == PGRAPH_VK_HYBRID_PIPELINE_BACKGROUND &&
+            (!oldest_submitted_us ||
+             job->result.submitted_us < oldest_submitted_us)) {
+            oldest_submitted_us = job->result.submitted_us;
+        }
+    }
+    if (state->active && state->active->request.urgency ==
+            PGRAPH_VK_HYBRID_PIPELINE_BACKGROUND &&
+        (!oldest_submitted_us ||
+         state->active->result.submitted_us < oldest_submitted_us)) {
+        oldest_submitted_us = state->active->result.submitted_us;
+    }
+    if (oldest_submitted_us) {
+        telemetry->oldest_background_age_us =
+            g_get_monotonic_time() - oldest_submitted_us;
+    }
     qemu_mutex_unlock(&state->lock);
     return true;
 }

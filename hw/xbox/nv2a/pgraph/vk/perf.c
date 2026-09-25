@@ -100,11 +100,12 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":11"
+            "{\"type\":\"schema\",\"schema_version\":12"
             ",\"features\":[\"report_lifecycle\","
             "\"descriptor_publication\",\"surface_upload\","
             "\"shader_miss_omission\",\"shader_miss_blackout\","
-            "\"shader_readiness_attribution\"]"
+            "\"shader_readiness_attribution\","
+            "\"pipeline_queue_telemetry\"]"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
             ",\"presentation_counters\":\"cumulative_totals\"",
@@ -331,10 +332,15 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     const PGRAPHVkReadinessTelemetry empty_readiness = { 0 };
     const PGRAPHVkReadinessTelemetry *readiness = r->readiness_attribution ?
         &r->readiness_attribution->telemetry : &empty_readiness;
+    PGRAPHVkHybridPipelineQueueTelemetry pipeline_queue = { 0 };
+    if (r->hybrid_pipeline_builder_initialized) {
+        pgraph_vk_hybrid_pipeline_builder_get_queue_telemetry(
+            &r->hybrid_pipeline_builder, &pipeline_queue);
+    }
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":11"
+            "{\"type\":\"frame\",\"schema_version\":12"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
@@ -445,7 +451,12 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"readiness_queue_deferred_total\":%" PRIu64
             ",\"readiness_duplicate_demands_total\":%" PRIu64
             ",\"readiness_tracker_evictions_total\":%" PRIu64
-            ",\"readiness_generation_reclassifications_total\":%" PRIu64,
+            ",\"readiness_generation_reclassifications_total\":%" PRIu64
+            ",\"pipeline_queued_promotions_total\":%" PRIu64
+            ",\"pipeline_already_demand_hits_total\":%" PRIu64
+            ",\"pipeline_active_background_demand_hits_total\":%" PRIu64
+            ",\"pipeline_max_demand_queue_delay_us\":%" PRIu64
+            ",\"pipeline_oldest_background_age_us\":%" PRIu64,
             submit_count, perf->submit_info_count, perf->command_buffer_count,
             perf->staged_bytes, perf->vertex_staged_bytes,
             perf->vertex_staging_copy_count,
@@ -494,7 +505,12 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             readiness->classified[PGRAPH_VK_READINESS_QUEUE_DEFERRED],
             readiness->duplicate_demands,
             readiness->tracker_evictions,
-            readiness->generation_reclassifications);
+            readiness->generation_reclassifications,
+            pipeline_queue.queued_promotions,
+            pipeline_queue.already_demand_hits,
+            pipeline_queue.active_background_demand_hits,
+            pipeline_queue.max_demand_queue_delay_us,
+            pipeline_queue.oldest_background_age_us);
 
     fprintf(perf->file,
             ",\"descriptor_update_calls_per_guest_frame\":%" PRIu64

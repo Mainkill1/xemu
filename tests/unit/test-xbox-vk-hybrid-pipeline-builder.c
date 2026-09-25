@@ -347,11 +347,32 @@ static void test_queued_prewarm_promotes_in_place(void)
                     ==, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED);
     g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_submit(&builder, &promoted),
                     ==, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED);
-    g_assert_true(pgraph_vk_hybrid_pipeline_builder_promote(
-        &builder, 7, 62, PGRAPH_VK_HYBRID_PIPELINE_DEMAND));
+    g_usleep(1000);
+    PGRAPHVkHybridPipelineUrgency old_urgency =
+        PGRAPH_VK_HYBRID_PIPELINE_DEMAND;
+    g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_promote(
+                        &builder, 7, 62,
+                        PGRAPH_VK_HYBRID_PIPELINE_DEMAND, &old_urgency),
+                    ==, PGRAPH_VK_PIPELINE_PROMOTE_QUEUED_CHANGED);
+    g_assert_cmpint(old_urgency, ==,
+                    PGRAPH_VK_HYBRID_PIPELINE_BACKGROUND);
+    g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_promote(
+                        &builder, 7, 62,
+                        PGRAPH_VK_HYBRID_PIPELINE_DEMAND, &old_urgency),
+                    ==, PGRAPH_VK_PIPELINE_PROMOTE_ALREADY_DEMAND);
+    g_assert_cmpint(old_urgency, ==, PGRAPH_VK_HYBRID_PIPELINE_DEMAND);
+    PGRAPHVkHybridPipelineQueueTelemetry telemetry;
+    g_assert_true(pgraph_vk_hybrid_pipeline_builder_get_queue_telemetry(
+        &builder, &telemetry));
+    g_assert_cmpuint(telemetry.queued_promotions, ==, 1);
+    g_assert_cmpuint(telemetry.already_demand_hits, ==, 1);
+    g_assert_cmpuint(telemetry.active_background_demand_hits, ==, 0);
+    g_assert_cmpuint(telemetry.max_demand_queue_delay_us, ==, 0);
+    g_assert_cmpuint(telemetry.oldest_background_age_us, >, 0);
     PGRAPHVkHybridPipelineBuildRequest extra = request(&recipe, 7, 63);
     g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_submit(&builder, &extra),
                     ==, PGRAPH_VK_HYBRID_PIPELINE_QUEUE_FULL);
+    g_usleep(1000);
     fake_release(&driver);
 
     const uint64_t expected[] = { 60, 62, 61 };
@@ -364,6 +385,9 @@ static void test_queued_prewarm_promotes_in_place(void)
         }
         destroy_result(&builder, &result);
     }
+    g_assert_true(pgraph_vk_hybrid_pipeline_builder_get_queue_telemetry(
+        &builder, &telemetry));
+    g_assert_cmpuint(telemetry.max_demand_queue_delay_us, >, 0);
     pgraph_vk_hybrid_pipeline_builder_destroy(&builder);
     fake_fini(&driver);
 }
@@ -383,8 +407,27 @@ static void test_active_job_is_not_promoted(void)
     g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_submit(&builder, &active),
                     ==, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED);
     fake_wait_entered(&driver);
-    g_assert_false(pgraph_vk_hybrid_pipeline_builder_promote(
-        &builder, 8, 70, PGRAPH_VK_HYBRID_PIPELINE_DEMAND));
+    g_usleep(1000);
+    PGRAPHVkHybridPipelineUrgency old_urgency =
+        PGRAPH_VK_HYBRID_PIPELINE_DEMAND;
+    g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_promote(
+                        &builder, 8, 70,
+                        PGRAPH_VK_HYBRID_PIPELINE_DEMAND, &old_urgency),
+                    ==, PGRAPH_VK_PIPELINE_PROMOTE_ACTIVE_MATCH);
+    g_assert_cmpint(old_urgency, ==,
+                    PGRAPH_VK_HYBRID_PIPELINE_BACKGROUND);
+    g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_promote(
+                        &builder, 8, 999,
+                        PGRAPH_VK_HYBRID_PIPELINE_DEMAND, &old_urgency),
+                    ==, PGRAPH_VK_PIPELINE_PROMOTE_NOT_FOUND);
+    PGRAPHVkHybridPipelineQueueTelemetry telemetry;
+    g_assert_true(pgraph_vk_hybrid_pipeline_builder_get_queue_telemetry(
+        &builder, &telemetry));
+    g_assert_cmpuint(telemetry.queued_promotions, ==, 0);
+    g_assert_cmpuint(telemetry.already_demand_hits, ==, 0);
+    g_assert_cmpuint(telemetry.active_background_demand_hits, ==, 1);
+    g_assert_cmpuint(telemetry.max_demand_queue_delay_us, ==, 0);
+    g_assert_cmpuint(telemetry.oldest_background_age_us, >, 0);
     fake_release(&driver);
     PGRAPHVkHybridPipelineBuildResult result = take(&builder);
     g_assert_cmpint(result.urgency, ==, PGRAPH_VK_HYBRID_PIPELINE_BACKGROUND);

@@ -72,6 +72,21 @@ typedef enum PGRAPHVkHybridPipelineSubmitResult {
     PGRAPH_VK_HYBRID_PIPELINE_UNSUPPORTED_RECIPE,
 } PGRAPHVkHybridPipelineSubmitResult;
 
+typedef enum PGRAPHVkPipelinePromoteResult {
+    PGRAPH_VK_PIPELINE_PROMOTE_NOT_FOUND,
+    PGRAPH_VK_PIPELINE_PROMOTE_ALREADY_DEMAND,
+    PGRAPH_VK_PIPELINE_PROMOTE_QUEUED_CHANGED,
+    PGRAPH_VK_PIPELINE_PROMOTE_ACTIVE_MATCH,
+} PGRAPHVkPipelinePromoteResult;
+
+typedef struct PGRAPHVkHybridPipelineQueueTelemetry {
+    uint64_t queued_promotions;
+    uint64_t already_demand_hits;
+    uint64_t active_background_demand_hits;
+    uint64_t max_demand_queue_delay_us;
+    uint64_t oldest_background_age_us;
+} PGRAPHVkHybridPipelineQueueTelemetry;
+
 typedef struct PGRAPHVkHybridPipelineBuilder {
     void *state;
 } PGRAPHVkHybridPipelineBuilder;
@@ -86,10 +101,12 @@ PGRAPHVkHybridPipelineSubmitResult pgraph_vk_hybrid_pipeline_builder_submit(
     PGRAPHVkHybridPipelineBuilder *builder,
     const PGRAPHVkHybridPipelineBuildRequest *request);
 /* Raise queued work to demand urgency without changing its ticket, queue slot,
- * or immutable recipe. Active and completed jobs are never rewritten. */
-bool pgraph_vk_hybrid_pipeline_builder_promote(
+ * or immutable recipe. Active jobs are reported but never rewritten. On a
+ * matching result, old_urgency receives the urgency observed under the lock. */
+PGRAPHVkPipelinePromoteResult pgraph_vk_hybrid_pipeline_builder_promote(
     PGRAPHVkHybridPipelineBuilder *builder, uint64_t generation,
-    uint64_t ticket, PGRAPHVkHybridPipelineUrgency urgency);
+    uint64_t ticket, PGRAPHVkHybridPipelineUrgency urgency,
+    PGRAPHVkHybridPipelineUrgency *old_urgency);
 bool pgraph_vk_hybrid_pipeline_builder_take_result(
     PGRAPHVkHybridPipelineBuilder *builder,
     PGRAPHVkHybridPipelineBuildResult *result);
@@ -99,6 +116,9 @@ bool pgraph_vk_hybrid_pipeline_builder_has_result(
 bool pgraph_vk_hybrid_pipeline_builder_get_worker_status(
     PGRAPHVkHybridPipelineBuilder *builder,
     PGRAPHVkHybridPipelineWorkerStatus *status);
+bool pgraph_vk_hybrid_pipeline_builder_get_queue_telemetry(
+    PGRAPHVkHybridPipelineBuilder *builder,
+    PGRAPHVkHybridPipelineQueueTelemetry *telemetry);
 /* Superseded results are destroyed, including a result produced by an active
  * job after the generation changes. */
 void pgraph_vk_hybrid_pipeline_builder_cancel_before_generation(

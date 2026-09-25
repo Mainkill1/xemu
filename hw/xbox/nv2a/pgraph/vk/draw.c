@@ -1528,10 +1528,15 @@ request_hybrid_pipeline(PGRAPHState *pg, const PipelineKey *key,
             memcmp(&candidate->key, key, sizeof(*key)) == 0) {
             if (retained_demand) {
                 candidate->prewarm = false;
-                bool promoted = pgraph_vk_hybrid_pipeline_builder_promote(
+                PGRAPHVkHybridPipelineUrgency old_urgency;
+                PGRAPHVkPipelinePromoteResult promote_result =
+                    pgraph_vk_hybrid_pipeline_builder_promote(
                     &r->hybrid_pipeline_builder, candidate->generation,
-                    candidate->ticket, PGRAPH_VK_HYBRID_PIPELINE_DEMAND);
-                if (promoted && r->hybrid_trace) {
+                    candidate->ticket, PGRAPH_VK_HYBRID_PIPELINE_DEMAND,
+                    &old_urgency);
+                if (promote_result ==
+                        PGRAPH_VK_PIPELINE_PROMOTE_QUEUED_CHANGED &&
+                    r->hybrid_trace) {
                     pgraph_vk_hybrid_trace_record(
                         r->hybrid_trace,
                         VK_HYBRID_TRACE_PIPELINE_PROMOTION,
@@ -1539,7 +1544,7 @@ request_hybrid_pipeline(PGRAPHState *pg, const PipelineKey *key,
                         fast_hash((const uint8_t *)&key->shader_state,
                                   sizeof(key->shader_state)),
                         candidate->ticket,
-                        PGRAPH_VK_HYBRID_PIPELINE_BACKGROUND,
+                        old_urgency,
                         PGRAPH_VK_HYBRID_PIPELINE_DEMAND,
                         candidate->generation, 0);
                 }
