@@ -19,7 +19,11 @@ int main()
     assert(computed == computed_again);
     assert(computed != other_stage);
     assert(computed != other_recipe_version);
-    assert(ShaderHashHex(computed) == "dc91a6bac7390d00440a0bfe");
+    const std::string computed_hex = ShaderHashHex(computed);
+    if (computed_hex != "dc91a6bac7390d00440a0bfe") {
+        std::cerr << "unexpected shader hash fixture: " << computed_hex << "\n";
+    }
+    assert(computed_hex == "dc91a6bac7390d00440a0bfe");
 
     ShaderHash hash{};
     hash.version = 1;
