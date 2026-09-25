@@ -1881,9 +1881,9 @@ static PGRAPHVkCachedFamilyModulesResult materialize_cached_family_stage(
     }
 }
 
-/* Prewarm never sends missing stages through glslang. Vertex and geometry
- * artifacts use this renderer-owned adoption path because the hybrid worker
- * completion consumer deliberately accepts fragment jobs only. */
+/* The initial cached prewarm probe only adopts artifacts here. Retained
+ * learned families request any missing stage through the stage-generic worker
+ * after this probe, then retry family preparation on matching completion. */
 PGRAPHVkCachedFamilyModulesResult
 pgraph_vk_materialize_cached_family_modules(PGRAPHState *pg,
                                              const ShaderState *state)
