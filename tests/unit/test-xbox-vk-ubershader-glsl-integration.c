@@ -6,6 +6,7 @@
 
 #include "qemu/osdep.h"
 
+#include "hw/xbox/nv2a/pgraph/glsl/geom.h"
 #include "hw/xbox/nv2a/pgraph/glsl/psh.h"
 #include "hw/xbox/nv2a/pgraph/glsl/vsh-prog.h"
 #include "hw/xbox/nv2a/pgraph/texture.h"
@@ -17,6 +18,30 @@ struct config g_config;
 
 /* This compiler test does not exercise texture-format classification. */
 const BasicColorFormatInfo kelvin_color_format_info_map[66] = { 0 };
+
+static uint64_t fake_shader_module_next;
+static uint64_t fake_shader_module_destroy_count;
+
+static VKAPI_ATTR VkResult VKAPI_CALL fake_vk_create_shader_module(
+    VkDevice device, const VkShaderModuleCreateInfo *create_info,
+    const VkAllocationCallbacks *allocator, VkShaderModule *module)
+{
+    (void)device;
+    (void)create_info;
+    (void)allocator;
+    *module = (VkShaderModule)(uintptr_t)++fake_shader_module_next;
+    return VK_SUCCESS;
+}
+
+static VKAPI_ATTR void VKAPI_CALL fake_vk_destroy_shader_module(
+    VkDevice device, VkShaderModule module,
+    const VkAllocationCallbacks *allocator)
+{
+    (void)device;
+    (void)module;
+    (void)allocator;
+    fake_shader_module_destroy_count++;
+}
 
 void nv2a_profile_log_event_once(NV2AProfileEvent event)
 {
@@ -181,6 +206,117 @@ static void test_real_compiler_accepts_nv20_vertex_arithmetic(void)
     mstring_unref(header);
 }
 
+static void test_real_compiler_accepts_generated_graphics_stages(void)
+{
+    GeomState geom = {
+        .primitive_mode = PRIM_TYPE_TRIANGLES,
+        .polygon_front_mode = POLY_MODE_FILL,
+        .polygon_back_mode = POLY_MODE_FILL,
+        .smooth_shading = true,
+        .z_perspective = true,
+    };
+    PshState psh = base_state();
+    const uint32_t final_nop[VSH_TOKEN_SIZE] = { 0, 0, 0, 1 };
+    MString *vertex_source = mstring_from_str(
+        "#version 450\n"
+        "float clampAwayZeroInf(float value) { return value; }\n"
+        "vec4 NaNToOne(vec4 value) { return value; }\n"
+        "vec2 roundScreenCoords(vec2 value) { return value; }\n"
+        "const vec2 surfaceSize = vec2(640.0, 480.0);\n"
+        "const vec4 clipRange = vec4(0.0, 16777215.0, 0.0, 0.0);\n"
+        "vec4 oPos = vec4(0.0, 0.0, 0.0, 1.0);\n");
+    MString *vertex_body = mstring_from_str("void main() {\n");
+    pgraph_glsl_gen_vsh_prog(VSH_VERSION_XVS, final_nop, 1, false,
+                             vertex_source, vertex_body);
+    mstring_append(vertex_body, "  gl_Position = oPos;\n}\n");
+    mstring_append(vertex_source, mstring_get_str(vertex_body));
+    mstring_unref(vertex_body);
+
+    MString *sources[] = {
+        vertex_source,
+        pgraph_glsl_gen_geom(&geom, (GenGeomGlslOptions) {
+            .vulkan = true,
+        }),
+        pgraph_glsl_gen_psh(&psh, (GenPshGlslOptions) {
+            .vulkan = true,
+            .ubo_binding = 1,
+            .tex_binding = 2,
+        }),
+    };
+    static const glslang_stage_t stages[] = {
+        GLSLANG_STAGE_VERTEX,
+        GLSLANG_STAGE_GEOMETRY,
+        GLSLANG_STAGE_FRAGMENT,
+    };
+    PGRAPHVkGlslCompileConfig config = {
+        .api_version = VK_API_VERSION_1_1,
+    };
+
+    pgraph_vk_init_glsl_compiler();
+    for (size_t i = 0; i < ARRAY_SIZE(sources); i++) {
+        g_assert_nonnull(sources[i]);
+        GByteArray *spirv = pgraph_vk_compile_glsl_to_spv_config(
+            &config, stages[i], mstring_get_str(sources[i]));
+        g_assert_nonnull(spirv);
+        g_byte_array_unref(spirv);
+        mstring_unref(sources[i]);
+    }
+    pgraph_vk_finalize_glsl_compiler();
+}
+
+static void test_deduplicated_source_aliases_own_independent_modules(void)
+{
+    PGRAPHVkState *r = g_new0(PGRAPHVkState, 1);
+    PshState state = base_state();
+    GenPshGlslOptions opts = {
+        .vulkan = true,
+        .ubo_binding = 1,
+        .tex_binding = 2,
+    };
+    PGRAPHVkGlslCompileConfig config = {
+        .api_version = VK_API_VERSION_1_1,
+    };
+    MString *source = pgraph_glsl_gen_psh(&state, opts);
+
+    pgraph_vk_init_glsl_compiler();
+    GByteArray *spirv = pgraph_vk_compile_glsl_to_spv_config(
+        &config, GLSLANG_STAGE_FRAGMENT, mstring_get_str(source));
+    g_assert_nonnull(spirv);
+
+    PFN_vkCreateShaderModule saved_create = vkCreateShaderModule;
+    PFN_vkDestroyShaderModule saved_destroy = vkDestroyShaderModule;
+    vkCreateShaderModule = fake_vk_create_shader_module;
+    vkDestroyShaderModule = fake_vk_destroy_shader_module;
+    fake_shader_module_next = 0;
+    fake_shader_module_destroy_count = 0;
+
+    ShaderModuleInfo *first = pgraph_vk_create_shader_module_from_spirv(
+        r, VK_SHADER_STAGE_FRAGMENT_BIT, mstring_get_str(source), spirv);
+    ShaderModuleInfo *second = pgraph_vk_create_shader_module_from_spirv(
+        r, VK_SHADER_STAGE_FRAGMENT_BIT, mstring_get_str(source), spirv);
+    g_assert_nonnull(first);
+    g_assert_nonnull(second);
+    g_assert_true(first != second);
+    g_assert_true(first->module != second->module);
+
+    pgraph_vk_ref_shader_module(first);
+    pgraph_vk_ref_shader_module(second);
+    VkShaderModule surviving_module = second->module;
+    pgraph_vk_unref_shader_module(r, first);
+    g_assert_cmpuint(fake_shader_module_destroy_count, ==, 1);
+    g_assert_true(second->module == surviving_module);
+    g_assert_cmpuint(second->refcnt, ==, 1);
+    pgraph_vk_unref_shader_module(r, second);
+    g_assert_cmpuint(fake_shader_module_destroy_count, ==, 2);
+
+    vkCreateShaderModule = saved_create;
+    vkDestroyShaderModule = saved_destroy;
+    g_byte_array_unref(spirv);
+    pgraph_vk_finalize_glsl_compiler();
+    mstring_unref(source);
+    g_free(r);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -190,5 +326,9 @@ int main(int argc, char **argv)
                     test_invalid_glsl_returns_failure);
     g_test_add_func("/xbox/vk/vsh/nv20-arithmetic-compile",
                     test_real_compiler_accepts_nv20_vertex_arithmetic);
+    g_test_add_func("/xbox/vk/ubershader/glsl/generated-graphics-stages",
+                    test_real_compiler_accepts_generated_graphics_stages);
+    g_test_add_func("/xbox/vk/ubershader/glsl/dedup-alias-ownership",
+                    test_deduplicated_source_aliases_own_independent_modules);
     return g_test_run();
 }

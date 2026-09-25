@@ -1731,6 +1731,20 @@ static PGRAPHVkCachedFamilyModulesResult prewarm_cached_modules(
     return pgraph_vk_materialize_cached_family_modules(opaque, state);
 }
 
+static PGRAPHVkHybridPrewarmAttemptResult prewarm_retain_missing_family(
+    void *opaque, const PipelineKey *key)
+{
+    PGRAPHState *pg = opaque;
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    bool retained = pgraph_vk_fallback_family_enqueue(
+        r->fallback_family_requests,
+        ARRAY_SIZE(r->fallback_family_requests), key,
+        &key->shader_state);
+
+    return retained ? PGRAPH_VK_HYBRID_PREWARM_SUBMITTED :
+                      PGRAPH_VK_HYBRID_PREWARM_DEFERRED;
+}
+
 static ShaderBinding *prewarm_ready_binding(void *opaque,
                                              const ShaderState *state)
 {
@@ -1751,6 +1765,7 @@ static PGRAPHVkHybridPrewarmAttemptResult prewarm_one_family(
         .device_supported = prewarm_key_device_supported,
         .pipeline_ready = prewarm_pipeline_ready,
         .cached_modules = prewarm_cached_modules,
+        .retain_missing_family = prewarm_retain_missing_family,
         .ready_binding = prewarm_ready_binding,
         .submit_pipeline = prewarm_submit_pipeline,
     };
@@ -1767,10 +1782,15 @@ void pgraph_vk_process_hybrid_prewarm(PGRAPHState *pg)
         return;
     }
 
-    pgraph_vk_hybrid_prewarm_service(
+    PGRAPHVkHybridPrewarmAttemptResult result =
+        pgraph_vk_hybrid_prewarm_service(
         &r->hybrid_prewarm, &r->fallback_family_history,
         hybrid_demand_work_waiting(r),
         prewarm_one_family, pg);
+    bool service_again = r->hybrid_prewarm.enabled &&
+        (result == PGRAPH_VK_HYBRID_PREWARM_READY ||
+         result == PGRAPH_VK_HYBRID_PREWARM_REJECTED);
+    qatomic_set(&r->hybrid_prewarm_service_pending, service_again);
 }
 
 static bool hybrid_pipeline_work_publish(PGRAPHVkState *r,

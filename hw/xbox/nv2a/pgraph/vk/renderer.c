@@ -127,6 +127,9 @@ static void pgraph_vk_init(NV2AState *d, Error **errp)
     pgraph_vk_init_compute(pg);
     pgraph_vk_init_display(pg);
 
+    qatomic_set(&pg->vk_renderer_state->hybrid_prewarm_service_pending,
+                pg->vk_renderer_state->hybrid_prewarm.enabled);
+
     pgraph_vk_update_vertex_ram_buffer(&d->pgraph, 0, d->vram_ptr,
                                        memory_region_size(d->vram));
     pgraph_vk_clear_vertex_ram_stale(pg->vk_renderer_state);
@@ -202,6 +205,7 @@ static void pgraph_vk_process_pending(NV2AState *d)
         qatomic_read(&d->pgraph.sync_pending) ||
         qatomic_read(&d->pgraph.flush_pending) ||
         qatomic_read(&r->spirv_cache_writeback_pending) ||
+        qatomic_read(&r->hybrid_prewarm_service_pending) ||
         (r->hybrid_compiler_initialized &&
          pgraph_vk_hybrid_compiler_has_result(&r->hybrid_compiler)) ||
         (r->hybrid_pipeline_builder_initialized &&
@@ -210,6 +214,7 @@ static void pgraph_vk_process_pending(NV2AState *d)
     ) {
         qemu_mutex_unlock(&d->pfifo.lock);
         qemu_mutex_lock(&d->pgraph.lock);
+        qatomic_set(&r->hybrid_prewarm_service_pending, false);
         if (qatomic_read(&r->downloads_pending)) {
             pgraph_vk_process_pending_downloads(d);
         }
@@ -234,6 +239,10 @@ static void pgraph_vk_process_pending(NV2AState *d)
                 &r->hybrid_pipeline_builder)) {
             pgraph_vk_process_hybrid_pipeline_completions(&d->pgraph);
         }
+        /* Start learned preparation before the first flip and continue one
+         * bounded candidate at each existing renderer service opportunity. */
+        pgraph_vk_process_hybrid_prewarm(&d->pgraph);
+        pgraph_vk_process_fallback_families(&d->pgraph);
         if (qatomic_read(&r->spirv_cache_writeback_pending)) {
             pgraph_vk_writeback_pipeline_cache(&d->pgraph);
             pgraph_vk_process_spirv_cache_writeback(&d->pgraph);
@@ -250,6 +259,7 @@ static void pgraph_vk_flip_stall(NV2AState *d)
     pgraph_vk_finish(&d->pgraph, VK_FINISH_REASON_FLIP_STALL);
     pgraph_vk_process_fallback_families(&d->pgraph);
     pgraph_vk_process_hybrid_prewarm(&d->pgraph);
+    pgraph_vk_process_fallback_families(&d->pgraph);
     pgraph_vk_perf_frame(d->pgraph.vk_renderer_state);
     pgraph_vk_hybrid_trace_frame(
         d->pgraph.vk_renderer_state->hybrid_trace);

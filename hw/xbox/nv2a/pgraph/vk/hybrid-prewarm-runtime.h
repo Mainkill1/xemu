@@ -13,6 +13,8 @@ typedef struct PGRAPHVkHybridPrewarmPrepareOps {
     bool (*pipeline_ready)(void *opaque, const PipelineKey *key);
     PGRAPHVkCachedFamilyModulesResult (*cached_modules)(
         void *opaque, const ShaderState *state);
+    PGRAPHVkHybridPrewarmAttemptResult (*retain_missing_family)(
+        void *opaque, const PipelineKey *key);
     ShaderBinding *(*ready_binding)(void *opaque, const ShaderState *state);
     PGRAPHVkHybridPipelineSubmitResult (*submit_pipeline)(
         void *opaque, const PipelineKey *key, ShaderBinding *binding);

@@ -72,5 +72,8 @@ PGRAPHVkHybridPrewarmAttemptResult pgraph_vk_hybrid_prewarm_service(
 PGRAPHVkCachedFamilyModulesResult pgraph_vk_hybrid_prewarm_modules(
     bool geometry_required, PGRAPHVkHybridPrewarmStageFunc materialize,
     void *opaque);
+PGRAPHVkCachedFamilyModulesResult pgraph_vk_hybrid_prepare_family_modules(
+    bool geometry_required, PGRAPHVkHybridPrewarmStageFunc prepare,
+    void *opaque);
 
 #endif

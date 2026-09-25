@@ -323,6 +323,14 @@ typedef struct PGRAPHVkHybridShaderWork {
     size_t glsl_size;
 } PGRAPHVkHybridShaderWork;
 
+typedef enum PGRAPHVkAsyncModuleRequestResult {
+    PGRAPH_VK_ASYNC_MODULE_READY,
+    PGRAPH_VK_ASYNC_MODULE_ACCEPTED,
+    PGRAPH_VK_ASYNC_MODULE_DUPLICATE,
+    PGRAPH_VK_ASYNC_MODULE_DEFERRED,
+    PGRAPH_VK_ASYNC_MODULE_FAILED,
+} PGRAPHVkAsyncModuleRequestResult;
+
 typedef struct ShaderBinding {
     LruNode node;
     ShaderState state;
@@ -806,6 +814,7 @@ typedef struct PGRAPHVkState {
     bool ubershader_runtime_enabled;
     bool ubershader_force_interpreter;
     PGRAPHVkHybridPrewarmState hybrid_prewarm;
+    bool hybrid_prewarm_service_pending;
     bool hybrid_compiler_initialized;
     uint64_t hybrid_generation;
     uint64_t hybrid_route_epoch;
@@ -1075,6 +1084,8 @@ void pgraph_vk_trim_texture_cache(PGRAPHState *pg);
 void pgraph_vk_init_shaders(PGRAPHState *pg);
 void pgraph_vk_finalize_shaders(PGRAPHState *pg);
 void pgraph_vk_process_hybrid_completions(PGRAPHState *pg);
+PGRAPHVkAsyncModuleRequestResult pgraph_vk_request_shader_module_async(
+    PGRAPHState *pg, const ShaderModuleCacheKey *key);
 void pgraph_vk_stop_hybrid_compiler(PGRAPHState *pg);
 void pgraph_vk_process_spirv_cache_writeback(PGRAPHState *pg);
 void pgraph_vk_update_descriptor_sets(PGRAPHState *pg);
@@ -1098,6 +1109,9 @@ void pgraph_vk_enqueue_specialized_fragment(PGRAPHState *pg,
                                             bool fallback_resources_ready);
 bool pgraph_vk_enqueue_fallback_fragment(PGRAPHState *pg,
                                         const ShaderState *state);
+PGRAPHVkCachedFamilyModulesResult
+pgraph_vk_request_fallback_family_modules(PGRAPHState *pg,
+                                           const ShaderState *state);
 PGRAPHVkCachedFamilyModulesResult
 pgraph_vk_materialize_cached_family_modules(PGRAPHState *pg,
                                              const ShaderState *state);

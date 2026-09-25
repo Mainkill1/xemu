@@ -174,9 +174,12 @@ typedef struct RuntimeFixture {
     VkFormatFeatureFlags format_features;
     unsigned int format_queries;
     PGRAPHVkCachedFamilyModulesResult modules_result;
+    PGRAPHVkHybridPrewarmAttemptResult retain_result;
+    PipelineKey retained_key;
     unsigned int device_checks;
     unsigned int ready_probes;
     unsigned int module_preparations;
+    unsigned int retained_families;
     unsigned int binding_preparations;
     unsigned int worker_submissions;
 } RuntimeFixture;
@@ -216,6 +219,15 @@ static PGRAPHVkCachedFamilyModulesResult runtime_cached_modules(
     return fixture->modules_result;
 }
 
+static PGRAPHVkHybridPrewarmAttemptResult runtime_retain_missing_family(
+    void *opaque, const PipelineKey *key)
+{
+    RuntimeFixture *fixture = opaque;
+    fixture->retained_families++;
+    fixture->retained_key = *key;
+    return fixture->retain_result;
+}
+
 static ShaderBinding *runtime_ready_binding(void *opaque,
                                              const ShaderState *state)
 {
@@ -239,6 +251,7 @@ static const PGRAPHVkHybridPrewarmPrepareOps runtime_ops = {
     .device_supported = runtime_device_supported,
     .pipeline_ready = runtime_pipeline_ready,
     .cached_modules = runtime_cached_modules,
+    .retain_missing_family = runtime_retain_missing_family,
     .ready_binding = runtime_ready_binding,
     .submit_pipeline = runtime_submit_pipeline,
 };
@@ -301,7 +314,7 @@ static void test_stored_recipe_to_published_pipeline(void)
     pgraph_vk_family_history_destroy(&history);
 }
 
-static void test_missing_and_invalid_artifacts_stop_before_worker(void)
+static void test_missing_artifact_transfers_to_retained_family(void)
 {
     PipelineKey key = runtime_key();
     PGRAPHVkFamilyHistory history;
@@ -309,13 +322,38 @@ static void test_missing_and_invalid_artifacts_stop_before_worker(void)
     RuntimeFixture fixture = {
         .device_accept = true,
         .modules_result = PGRAPH_VK_CACHED_FAMILY_MODULES_MISSING,
+        .retain_result = PGRAPH_VK_HYBRID_PREWARM_SUBMITTED,
     };
     g_assert_cmpint(pgraph_vk_hybrid_prewarm_prepare_record(
                         &history.records[0], &runtime_ops, &fixture),
-                    ==, PGRAPH_VK_HYBRID_PREWARM_MISSING_ARTIFACT);
+                    ==, PGRAPH_VK_HYBRID_PREWARM_SUBMITTED);
+    g_assert_cmpuint(fixture.retained_families, ==, 1);
+    g_assert_cmpmem(&fixture.retained_key, sizeof(fixture.retained_key),
+                    &key, sizeof(key));
+    g_assert_cmpuint(fixture.binding_preparations, ==, 0);
+    g_assert_cmpuint(fixture.worker_submissions, ==, 0);
+
+    /* Registry pressure must defer the record instead of consuming it
+     * without a live owner for the exact family. */
+    fixture = (RuntimeFixture) {
+        .device_accept = true,
+        .modules_result = PGRAPH_VK_CACHED_FAMILY_MODULES_MISSING,
+        .retain_result = PGRAPH_VK_HYBRID_PREWARM_DEFERRED,
+    };
+    g_assert_cmpint(pgraph_vk_hybrid_prewarm_prepare_record(
+                        &history.records[0], &runtime_ops, &fixture),
+                    ==, PGRAPH_VK_HYBRID_PREWARM_DEFERRED);
+    g_assert_cmpuint(fixture.retained_families, ==, 1);
     g_assert_cmpuint(fixture.binding_preparations, ==, 0);
     g_assert_cmpuint(fixture.worker_submissions, ==, 0);
     pgraph_vk_family_history_destroy(&history);
+}
+
+static void test_invalid_artifacts_stop_before_worker(void)
+{
+    PipelineKey key;
+    PGRAPHVkFamilyHistory history;
+    RuntimeFixture fixture;
 
     key = runtime_key();
     key.shader_state.vsh.is_fixed_function = false;
@@ -324,6 +362,7 @@ static void test_missing_and_invalid_artifacts_stop_before_worker(void)
     fixture = (RuntimeFixture) {
         .device_accept = true,
         .modules_result = PGRAPH_VK_CACHED_FAMILY_MODULES_READY,
+        .retain_result = PGRAPH_VK_HYBRID_PREWARM_SUBMITTED,
     };
     g_assert_cmpint(pgraph_vk_hybrid_prewarm_prepare_record(
                         &history.records[0], &runtime_ops, &fixture),
@@ -441,6 +480,25 @@ static void test_cached_stage_plan(void)
     g_assert_cmpuint(fixture.count, ==, 2);
 }
 
+static void test_requested_stage_plan_visits_every_required_stage(void)
+{
+    StageFixture fixture = {
+        .fail_stage = PGRAPH_VK_HYBRID_PREWARM_VERTEX,
+        .failure = PGRAPH_VK_CACHED_FAMILY_MODULES_MISSING,
+    };
+
+    g_assert_cmpint(pgraph_vk_hybrid_prepare_family_modules(
+                        true, materialize_stage, &fixture),
+                    ==, PGRAPH_VK_CACHED_FAMILY_MODULES_MISSING);
+    g_assert_cmpuint(fixture.count, ==, 3);
+    g_assert_cmpint(fixture.stages[0], ==,
+                    PGRAPH_VK_HYBRID_PREWARM_VERTEX);
+    g_assert_cmpint(fixture.stages[1], ==,
+                    PGRAPH_VK_HYBRID_PREWARM_GEOMETRY);
+    g_assert_cmpint(fixture.stages[2], ==,
+                    PGRAPH_VK_HYBRID_PREWARM_FRAGMENT);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -457,13 +515,17 @@ int main(int argc, char **argv)
                     test_retry_is_bounded);
     g_test_add_func("/nv2a/vk/hybrid-prewarm/recipe-publication",
                     test_stored_recipe_to_published_pipeline);
+    g_test_add_func("/nv2a/vk/hybrid-prewarm/missing-retained",
+                    test_missing_artifact_transfers_to_retained_family);
     g_test_add_func("/nv2a/vk/hybrid-prewarm/invalid-stops-before-worker",
-                    test_missing_and_invalid_artifacts_stop_before_worker);
+                    test_invalid_artifacts_stop_before_worker);
     g_test_add_func("/nv2a/vk/hybrid-prewarm/vertex-format-capability",
                     test_unsupported_vertex_format_stops_before_preparation);
     g_test_add_func("/nv2a/vk/hybrid-prewarm/first-demand",
                     test_published_pipeline_counts_first_demand);
     g_test_add_func("/nv2a/vk/hybrid-prewarm/cached-stage-plan",
                     test_cached_stage_plan);
+    g_test_add_func("/nv2a/vk/hybrid-prewarm/requested-stage-plan",
+                    test_requested_stage_plan_visits_every_required_stage);
     return g_test_run();
 }
