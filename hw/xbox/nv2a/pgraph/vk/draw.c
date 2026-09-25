@@ -3793,13 +3793,11 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
         PGRAPHVkPreparedVertexData vertex_data = prepare_vertex_data(
             pg, min_element, max_element, pg->draw_arrays_max_count - 1);
 
-        PGRAPHVkDrawPrepareResult prepare_result = begin_pre_draw(pg);
-        if (prepare_result != PGRAPH_VK_DRAW_PREPARE_READY) {
+        PGRAPHVkDrawResult prepare_result =
+            pgraph_vk_draw_result_from_prepare(begin_pre_draw(pg));
+        if (prepare_result != PGRAPH_VK_DRAW_SUBMITTED) {
             NV2A_VK_DGROUP_END();
-            return prepare_result ==
-                           PGRAPH_VK_DRAW_PREPARE_OMITTED_SHADER_MISS
-                       ? PGRAPH_VK_DRAW_OMITTED_SHADER_MISS
-                       : PGRAPH_VK_DRAW_FAILED;
+            return prepare_result;
         }
         publish_prepared_vertex_data(pg, vertex_data, min_element,
                                      max_element);
@@ -3846,13 +3844,11 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
         PGRAPHVkPreparedVertexData vertex_data = prepare_vertex_data(
             pg, min_element, max_element + 1, provoking_element);
 
-        PGRAPHVkDrawPrepareResult prepare_result = begin_pre_draw(pg);
-        if (prepare_result != PGRAPH_VK_DRAW_PREPARE_READY) {
+        PGRAPHVkDrawResult prepare_result =
+            pgraph_vk_draw_result_from_prepare(begin_pre_draw(pg));
+        if (prepare_result != PGRAPH_VK_DRAW_SUBMITTED) {
             NV2A_VK_DGROUP_END();
-            return prepare_result ==
-                           PGRAPH_VK_DRAW_PREPARE_OMITTED_SHADER_MISS
-                       ? PGRAPH_VK_DRAW_OMITTED_SHADER_MISS
-                       : PGRAPH_VK_DRAW_FAILED;
+            return prepare_result;
         }
         publish_prepared_vertex_data(pg, vertex_data, min_element,
                                      max_element + 1);
@@ -3900,13 +3896,11 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
         }
         ensure_buffer_space(pg, BUFFER_VERTEX_INLINE_STAGING, offset, 1);
 
-        PGRAPHVkDrawPrepareResult prepare_result = begin_pre_draw(pg);
-        if (prepare_result != PGRAPH_VK_DRAW_PREPARE_READY) {
+        PGRAPHVkDrawResult prepare_result =
+            pgraph_vk_draw_result_from_prepare(begin_pre_draw(pg));
+        if (prepare_result != PGRAPH_VK_DRAW_SUBMITTED) {
             NV2A_VK_DGROUP_END();
-            return prepare_result ==
-                           PGRAPH_VK_DRAW_PREPARE_OMITTED_SHADER_MISS
-                       ? PGRAPH_VK_DRAW_OMITTED_SHADER_MISS
-                       : PGRAPH_VK_DRAW_FAILED;
+            return prepare_result;
         }
         VkDeviceSize buffer_offset = pgraph_vk_update_vertex_inline_buffer(
             pg, data, sizes, r->num_active_vertex_attribute_descriptions);
@@ -3953,13 +3947,11 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
             return PGRAPH_VK_DRAW_FAILED;
         }
 
-        PGRAPHVkDrawPrepareResult prepare_result = begin_pre_draw(pg);
-        if (prepare_result != PGRAPH_VK_DRAW_PREPARE_READY) {
+        PGRAPHVkDrawResult prepare_result =
+            pgraph_vk_draw_result_from_prepare(begin_pre_draw(pg));
+        if (prepare_result != PGRAPH_VK_DRAW_SUBMITTED) {
             NV2A_VK_DGROUP_END();
-            return prepare_result ==
-                           PGRAPH_VK_DRAW_PREPARE_OMITTED_SHADER_MISS
-                       ? PGRAPH_VK_DRAW_OMITTED_SHADER_MISS
-                       : PGRAPH_VK_DRAW_FAILED;
+            return prepare_result;
         }
         void *inline_array_data = pg->inline_array;
         VkDeviceSize buffer_offset = pgraph_vk_update_vertex_inline_buffer(
