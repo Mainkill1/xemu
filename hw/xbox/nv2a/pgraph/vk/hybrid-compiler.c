@@ -340,6 +340,34 @@ bool pgraph_vk_hybrid_compiler_can_submit_async(
     return result;
 }
 
+PGRAPHVkHybridCompilerSubmitResult pgraph_vk_hybrid_compiler_probe_async(
+    PGRAPHVkHybridCompiler *compiler, size_t glsl_size, size_t config_size)
+{
+    HybridCompilerState *state = compiler ? compiler->state : NULL;
+    PGRAPHVkHybridCompilerSubmitResult result;
+
+    if (!state) {
+        return PGRAPH_VK_HYBRID_COMPILER_STOPPED;
+    }
+    if (!glsl_size || glsl_size > SIZE_MAX - config_size) {
+        return PGRAPH_VK_HYBRID_COMPILER_INVALID;
+    }
+
+    size_t bytes = glsl_size + config_size;
+    qemu_mutex_lock(&state->lock);
+    if (state->stopping) {
+        result = PGRAPH_VK_HYBRID_COMPILER_STOPPED;
+    } else if (state->async_jobs == state->config.max_async_jobs) {
+        result = PGRAPH_VK_HYBRID_COMPILER_QUEUE_FULL;
+    } else if (bytes > state->config.max_async_bytes - state->async_bytes) {
+        result = PGRAPH_VK_HYBRID_COMPILER_BYTE_LIMIT;
+    } else {
+        result = PGRAPH_VK_HYBRID_COMPILER_ACCEPTED;
+    }
+    qemu_mutex_unlock(&state->lock);
+    return result;
+}
+
 PGRAPHVkHybridCompilerSubmitResult pgraph_vk_hybrid_compiler_submit_async(
     PGRAPHVkHybridCompiler *compiler,
     const PGRAPHVkHybridCompileRequest *request,

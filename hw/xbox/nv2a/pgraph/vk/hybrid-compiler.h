@@ -80,6 +80,8 @@ bool pgraph_vk_hybrid_compiler_init(
 
 bool pgraph_vk_hybrid_compiler_can_submit_async(
     PGRAPHVkHybridCompiler *compiler, size_t glsl_size, size_t config_size);
+PGRAPHVkHybridCompilerSubmitResult pgraph_vk_hybrid_compiler_probe_async(
+    PGRAPHVkHybridCompiler *compiler, size_t glsl_size, size_t config_size);
 
 /*
  * A duplicate is identified by stage plus exact GLSL/config bytes, not by

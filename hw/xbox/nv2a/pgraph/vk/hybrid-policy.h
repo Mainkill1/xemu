@@ -100,6 +100,11 @@ bool pgraph_vk_hybrid_note_queue_deferral(PGRAPHVkHybridWork *work,
                                           bool specialized_ready,
                                           uint64_t current_generation,
                                           uint64_t epoch, uint64_t backoff);
+/* Queue deferral is an admission-control condition, not a draw-selection
+ * failure. A retained request may rearm as soon as real capacity exists even
+ * when no draw advances the renderer epoch. */
+bool pgraph_vk_hybrid_rearm_queue_deferral(PGRAPHVkHybridWork *work,
+                                           bool queue_has_capacity);
 bool pgraph_vk_hybrid_note_compile_failure(PGRAPHVkHybridWork *work,
                                            uint64_t completion_generation,
                                            uint64_t completion_ticket,

@@ -32,6 +32,16 @@ PGRAPHVkHybridPrewarmAttemptResult pgraph_vk_hybrid_prewarm_prepare_record(
     const PGRAPHVkFamilyHistoryRecord *record,
     const PGRAPHVkHybridPrewarmPrepareOps *ops, void *opaque);
 
+static inline void pgraph_vk_hybrid_prewarm_note_publication(
+    PGRAPHVkHybridPrewarmState *state, PipelineBinding *binding,
+    bool from_prewarm)
+{
+    binding->prewarmed = from_prewarm;
+    if (from_prewarm) {
+        state->ready++;
+    }
+}
+
 static inline void pgraph_vk_hybrid_prewarm_note_demand(
     PGRAPHVkHybridPrewarmState *state, PipelineBinding *binding)
 {

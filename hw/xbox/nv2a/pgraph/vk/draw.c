@@ -1487,6 +1487,7 @@ static PGRAPHVkHybridPipelineSubmitResult request_hybrid_pipeline(
             candidate->generation == r->hybrid_generation &&
             candidate->key_hash == hash &&
             memcmp(&candidate->key, key, sizeof(*key)) == 0) {
+            pgraph_vk_hybrid_pipeline_note_prewarm(candidate, prewarm);
             return PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED;
         }
         if (!candidate->in_use && !work) {
@@ -1503,7 +1504,7 @@ static PGRAPHVkHybridPipelineSubmitResult request_hybrid_pipeline(
     }
 
     work->in_use = true;
-    work->prewarm = prewarm;
+    pgraph_vk_hybrid_pipeline_note_prewarm(work, prewarm);
     work->generation = r->hybrid_generation;
     work->ticket = ++r->hybrid_pipeline_next_ticket;
     if (!work->ticket) {
@@ -1633,7 +1634,8 @@ void pgraph_vk_process_fallback_families(PGRAPHState *pg)
         }
         assert(binding);
         PGRAPHVkHybridPipelineSubmitResult status =
-            pgraph_vk_request_hybrid_pipeline(pg, &request->key, binding);
+            request_hybrid_pipeline(pg, &request->key, binding,
+                                    request->from_prewarm);
         if (!pgraph_vk_fallback_family_note_pipeline_submit(
                 request, status, now_us)) {
             pgraph_vk_fallback_family_mark_pipeline_owners(
@@ -1739,7 +1741,7 @@ static PGRAPHVkHybridPrewarmAttemptResult prewarm_retain_missing_family(
     bool retained = pgraph_vk_fallback_family_enqueue(
         r->fallback_family_requests,
         ARRAY_SIZE(r->fallback_family_requests), key,
-        &key->shader_state);
+        &key->shader_state, true);
 
     return retained ? PGRAPH_VK_HYBRID_PREWARM_SUBMITTED :
                       PGRAPH_VK_HYBRID_PREWARM_DEFERRED;
@@ -1825,14 +1827,12 @@ static bool hybrid_pipeline_work_publish(PGRAPHVkState *r,
         work->dynamic_blend_constant_mask;
     binding->has_dynamic_line_width = work->has_dynamic_line_width;
     binding->draw_time = 0;
-    binding->prewarmed = work->prewarm;
+    pgraph_vk_hybrid_prewarm_note_publication(
+        &r->hybrid_prewarm, binding, work->prewarm);
     work->completed_pipeline = VK_NULL_HANDLE;
     work->layout = VK_NULL_HANDLE;
     r->hybrid_selection_epoch = pgraph_vk_hybrid_next_selection_epoch(
         r->hybrid_selection_epoch);
-    if (work->prewarm) {
-        r->hybrid_prewarm.ready++;
-    }
     pgraph_vk_fallback_family_note_pipeline_ready(r, &work->key);
     hybrid_pipeline_work_clear(r, work);
     return true;

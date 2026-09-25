@@ -154,6 +154,7 @@ typedef struct PipelineBinding {
 
 typedef struct PGRAPHVkFallbackFamilyRequest {
     bool in_use;
+    bool from_prewarm;
     ShaderState state;
     PipelineKey key;
     PGRAPHVkFallbackFamilyStatus status;

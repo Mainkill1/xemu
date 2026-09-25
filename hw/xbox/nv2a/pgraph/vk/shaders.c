@@ -1096,6 +1096,41 @@ static PGRAPHVkSpirvCacheArtifactResult materialize_hybrid_shader_module(
     return PGRAPH_VK_SPIRV_CACHE_ARTIFACT_ACCEPTED;
 }
 
+typedef struct PGRAPHVkHybridCompletionPublication {
+    PGRAPHVkState *renderer;
+    const PGRAPHVkHybridCompileResult *result;
+    GByteArray *spirv;
+} PGRAPHVkHybridCompletionPublication;
+
+static bool publish_hybrid_completion_alias(
+    void *opaque, PGRAPHVkHybridShaderWork *work)
+{
+    PGRAPHVkHybridCompletionPublication *publication = opaque;
+    PGRAPHVkState *r = publication->renderer;
+    const PGRAPHVkHybridCompileResult *result = publication->result;
+    GByteArray *spirv = publication->spirv;
+    bool published =
+        result->stage == shader_module_glslang_stage(work->module_key.kind) &&
+        materialize_hybrid_shader_module(
+            r, &work->module_key, work->glsl, spirv) ==
+            PGRAPH_VK_SPIRV_CACHE_ARTIFACT_ACCEPTED;
+
+    if (published && shader_spirv_cache_active(r)) {
+        pgraph_vk_spirv_cache_add(
+            &r->spirv_cache, work->module_key.kind,
+            work->glsl, work->glsl_size, spirv->data, spirv->len);
+    }
+    if (published) {
+        hybrid_work_clear(work);
+    } else {
+        pgraph_vk_hybrid_note_compile_failure(
+            &work->metadata, result->generation, result->ticket,
+            r->hybrid_generation, r->hybrid_route_epoch, 32);
+        work->last_epoch = r->hybrid_route_epoch;
+    }
+    return published;
+}
+
 void pgraph_vk_process_hybrid_completions(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -1155,42 +1190,15 @@ void pgraph_vk_process_hybrid_completions(PGRAPHState *pg)
                                                        result.spirv_size);
             result.spirv = NULL;
             result.spirv_size = 0;
-            published = true;
-            for (size_t i = 0; i < ARRAY_SIZE(r->hybrid_work); i++) {
-                PGRAPHVkHybridShaderWork *candidate = &r->hybrid_work[i];
-                if (!candidate->in_use ||
-                    candidate->metadata.generation != result.generation ||
-                    candidate->metadata.ticket != result.ticket) {
-                    continue;
-                }
-                matching_work++;
-                bool candidate_published =
-                    result.stage == shader_module_glslang_stage(
-                                        candidate->module_key.kind) &&
-                    pgraph_vk_hybrid_validate_completion_metadata(
-                        &candidate->metadata, result.generation,
-                        result.ticket, r->hybrid_generation) ==
-                        PGRAPH_VK_HYBRID_COMPLETION_METADATA_MATCH &&
-                    materialize_hybrid_shader_module(
-                        r, &candidate->module_key, candidate->glsl, spirv) ==
-                        PGRAPH_VK_SPIRV_CACHE_ARTIFACT_ACCEPTED;
-                if (candidate_published && shader_spirv_cache_active(r)) {
-                    pgraph_vk_spirv_cache_add(
-                        &r->spirv_cache, candidate->module_key.kind,
-                        candidate->glsl, candidate->glsl_size,
-                        spirv->data, spirv->len);
-                }
-                if (candidate_published) {
-                    hybrid_work_clear(candidate);
-                } else {
-                    pgraph_vk_hybrid_note_compile_failure(
-                        &candidate->metadata, result.generation,
-                        result.ticket, r->hybrid_generation,
-                        r->hybrid_route_epoch, 32);
-                    candidate->last_epoch = r->hybrid_route_epoch;
-                }
-                published &= candidate_published;
-            }
+            PGRAPHVkHybridCompletionPublication publication = {
+                .renderer = r,
+                .result = &result,
+                .spirv = spirv,
+            };
+            matching_work = pgraph_vk_hybrid_completion_fanout(
+                r->hybrid_work, ARRAY_SIZE(r->hybrid_work),
+                result.generation, result.ticket, r->hybrid_generation,
+                publish_hybrid_completion_alias, &publication, &published);
             g_byte_array_unref(spirv);
         } else {
             for (size_t i = 0; i < ARRAY_SIZE(r->hybrid_work); i++) {
@@ -1733,10 +1741,24 @@ static PGRAPHVkAsyncModuleRequestResult request_shader_module_async(
             PGRAPH_VK_HYBRID_WORK_FAILED_PERMANENT) {
             return PGRAPH_VK_ASYNC_MODULE_FAILED;
         }
-        if ((work->metadata.status == PGRAPH_VK_HYBRID_WORK_QUEUE_BACKOFF ||
-             work->metadata.status == PGRAPH_VK_HYBRID_WORK_FAILED_BACKOFF) &&
-            r->hybrid_route_epoch < work->metadata.retry_after_epoch) {
-            return PGRAPH_VK_ASYNC_MODULE_DEFERRED;
+        if (work->metadata.status == PGRAPH_VK_HYBRID_WORK_FAILED_BACKOFF) {
+            return PGRAPH_VK_ASYNC_MODULE_FAILED;
+        }
+        if (work->metadata.status == PGRAPH_VK_HYBRID_WORK_QUEUE_BACKOFF) {
+            PGRAPHVkHybridCompilerSubmitResult admission =
+                pgraph_vk_hybrid_compiler_probe_async(
+                    &r->hybrid_compiler, work->glsl_size + 1,
+                    sizeof(PGRAPHVkGlslCompileConfig));
+            if (admission == PGRAPH_VK_HYBRID_COMPILER_QUEUE_FULL) {
+                return PGRAPH_VK_ASYNC_MODULE_DEFERRED;
+            }
+            if (admission != PGRAPH_VK_HYBRID_COMPILER_ACCEPTED) {
+                hybrid_work_clear(work);
+                return PGRAPH_VK_ASYNC_MODULE_FAILED;
+            }
+            bool rearmed = pgraph_vk_hybrid_rearm_queue_deferral(
+                &work->metadata, true);
+            assert(rearmed);
         }
     }
 
@@ -1812,13 +1834,13 @@ static PGRAPHVkAsyncModuleRequestResult request_shader_module_async(
         break;
     }
     case PGRAPH_VK_HYBRID_COMPILER_QUEUE_FULL:
-    case PGRAPH_VK_HYBRID_COMPILER_BYTE_LIMIT:
-    case PGRAPH_VK_HYBRID_COMPILER_STOPPED:
         pgraph_vk_hybrid_note_queue_deferral(
             &work->metadata, false, r->hybrid_generation,
             r->hybrid_route_epoch, 8);
         result = PGRAPH_VK_ASYNC_MODULE_DEFERRED;
         break;
+    case PGRAPH_VK_HYBRID_COMPILER_BYTE_LIMIT:
+    case PGRAPH_VK_HYBRID_COMPILER_STOPPED:
     case PGRAPH_VK_HYBRID_COMPILER_INVALID:
         hybrid_work_clear(work);
         result = PGRAPH_VK_ASYNC_MODULE_FAILED;

@@ -8,6 +8,7 @@
 #include "qemu/thread.h"
 
 #include "hw/xbox/nv2a/pgraph/vk/hybrid-compiler.h"
+#include "hw/xbox/nv2a/pgraph/vk/hybrid-policy.h"
 
 typedef struct TestCompiler {
     QemuMutex lock;
@@ -200,12 +201,27 @@ static void test_async_limits_release_when_result_is_taken(void)
     PGRAPHVkHybridCompileResult result;
 
     test_compiler_init(&test, false);
+    g_assert_cmpint(pgraph_vk_hybrid_compiler_probe_async(
+                        &compiler, 8, 8),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_STOPPED);
     g_assert_true(init_compiler(&compiler, &test, 1, 16));
+    g_assert_cmpint(pgraph_vk_hybrid_compiler_probe_async(
+                        &compiler, 0, 8),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_INVALID);
+    g_assert_cmpint(pgraph_vk_hybrid_compiler_probe_async(
+                        &compiler, 9, 8),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_BYTE_LIMIT);
+    g_assert_cmpint(pgraph_vk_hybrid_compiler_probe_async(
+                        &compiler, 8, 8),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
     g_assert_true(pgraph_vk_hybrid_compiler_can_submit_async(&compiler, 8, 8));
     g_assert_cmpint(submit_async(&compiler, 1, 1, "abcdefgh", "12345678",
                                  NULL),
                     ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
     g_assert_false(pgraph_vk_hybrid_compiler_can_submit_async(&compiler, 1, 1));
+    g_assert_cmpint(pgraph_vk_hybrid_compiler_probe_async(
+                        &compiler, 1, 1),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_QUEUE_FULL);
     g_assert_cmpint(submit_async(&compiler, 1, 2, "x", "y", NULL),
                     ==, PGRAPH_VK_HYBRID_COMPILER_QUEUE_FULL);
     g_assert_true(take_result(&compiler, &result));
@@ -214,6 +230,57 @@ static void test_async_limits_release_when_result_is_taken(void)
     g_assert_cmpint(submit_async(&compiler, 1, 3, "123456789", "12345678",
                                  NULL),
                     ==, PGRAPH_VK_HYBRID_COMPILER_BYTE_LIMIT);
+    pgraph_vk_hybrid_compiler_destroy(&compiler);
+    test_compiler_destroy(&test);
+}
+
+static void test_retained_graphics_stages_resume_at_fixed_epoch(void)
+{
+    static const uint32_t stages[] = { 1, 2, 3 };
+    static const char *sources[] = { "vertex", "geometry", "fragment" };
+    TestCompiler test;
+    PGRAPHVkHybridCompiler compiler = { 0 };
+    PGRAPHVkHybridCompileResult result;
+    PGRAPHVkHybridWork work[G_N_ELEMENTS(stages)];
+    const uint64_t frozen_epoch = 30;
+
+    test_compiler_init(&test, false);
+    g_assert_true(init_compiler(&compiler, &test, 1, 32));
+    g_assert_cmpint(submit_async(&compiler, 1, 1, "occupant", "config",
+                                 NULL),
+                    ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
+
+    for (size_t i = 0; i < G_N_ELEMENTS(work); i++) {
+        g_assert_true(pgraph_vk_hybrid_work_init(&work[i], 3));
+        g_assert_true(pgraph_vk_hybrid_note_queue_deferral(
+            &work[i], false, 1, frozen_epoch, 8));
+        g_assert_false(pgraph_vk_hybrid_rearm_queue_deferral(
+            &work[i], pgraph_vk_hybrid_compiler_can_submit_async(
+                          &compiler, strlen(sources[i]), strlen("config"))));
+    }
+
+    g_assert_true(take_result(&compiler, &result));
+    pgraph_vk_hybrid_compile_result_destroy(&result);
+
+    for (size_t i = 0; i < G_N_ELEMENTS(work); i++) {
+        PGRAPHVkHybridCompileRequest request = test_request_stage(
+            1, i + 2, stages[i], sources[i], "config");
+        PGRAPHVkHybridCompileIdentity owner = { 0 };
+
+        g_assert_true(pgraph_vk_hybrid_rearm_queue_deferral(
+            &work[i], pgraph_vk_hybrid_compiler_can_submit_async(
+                          &compiler, request.glsl_size,
+                          request.config_size)));
+        g_assert_cmpint(pgraph_vk_hybrid_compiler_submit_async(
+                            &compiler, &request, &owner),
+                        ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
+        g_assert_true(pgraph_vk_hybrid_mark_pending(
+            &work[i], false, owner.generation, owner.ticket, frozen_epoch));
+        g_assert_true(take_result(&compiler, &result));
+        g_assert_cmpuint(result.stage, ==, stages[i]);
+        pgraph_vk_hybrid_compile_result_destroy(&result);
+    }
+
     pgraph_vk_hybrid_compiler_destroy(&compiler);
     test_compiler_destroy(&test);
 }
@@ -530,6 +597,8 @@ int main(int argc, char **argv)
                     test_async_deduplicates_and_deep_owns_input);
     g_test_add_func("/xbox/vk/hybrid-compiler/async-limits",
                     test_async_limits_release_when_result_is_taken);
+    g_test_add_func("/xbox/vk/hybrid-compiler/fixed-epoch-retained-stages",
+                    test_retained_graphics_stages_resume_at_fixed_epoch);
     g_test_add_func("/xbox/vk/hybrid-compiler/exact-config",
                     test_dedup_keeps_different_immutable_configs_distinct);
     g_test_add_func("/xbox/vk/hybrid-compiler/stage-identity",

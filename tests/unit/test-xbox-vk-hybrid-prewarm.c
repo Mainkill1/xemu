@@ -429,7 +429,12 @@ static void test_unsupported_vertex_format_stops_before_preparation(void)
 static void test_published_pipeline_counts_first_demand(void)
 {
     PGRAPHVkHybridPrewarmState state = { 0 };
-    PipelineBinding binding = { .prewarmed = true };
+    PipelineBinding binding = { 0 };
+
+    pgraph_vk_hybrid_prewarm_note_publication(&state, &binding, true);
+    g_assert_cmpuint(state.ready, ==, 1);
+    g_assert_true(binding.prewarmed);
+
     pgraph_vk_hybrid_prewarm_note_demand(&state, &binding);
     g_assert_cmpuint(state.demand_hits, ==, 1);
     g_assert_false(binding.prewarmed);

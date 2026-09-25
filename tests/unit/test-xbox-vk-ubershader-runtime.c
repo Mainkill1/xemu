@@ -423,18 +423,45 @@ static void test_fallback_family_queue_deduplicates_and_bounds(void)
     PipelineKey c = { .regs[0] = 3 };
 
     g_assert_true(pgraph_vk_fallback_family_enqueue(
-        requests, G_N_ELEMENTS(requests), &a, &state));
+        requests, G_N_ELEMENTS(requests), &a, &state, false));
     g_assert_true(pgraph_vk_fallback_family_enqueue(
-        requests, G_N_ELEMENTS(requests), &a, &state));
+        requests, G_N_ELEMENTS(requests), &a, &state, false));
     g_assert_true(pgraph_vk_fallback_family_enqueue(
-        requests, G_N_ELEMENTS(requests), &b, &state));
+        requests, G_N_ELEMENTS(requests), &b, &state, false));
     g_assert_false(pgraph_vk_fallback_family_enqueue(
-        requests, G_N_ELEMENTS(requests), &c, &state));
+        requests, G_N_ELEMENTS(requests), &c, &state, false));
     g_assert_cmpuint(requests[0].key.regs[0], ==, 1);
     g_assert_cmpuint(requests[1].key.regs[0], ==, 2);
     g_assert_cmpint(requests[0].status, ==,
                     PGRAPH_VK_FAMILY_WAITING_FOR_SHADER);
     g_assert_cmpuint(requests[0].attempts, ==, 0);
+}
+
+static void test_fallback_family_prewarm_provenance_is_monotonic(void)
+{
+    PGRAPHVkFallbackFamilyRequest requests[1] = { 0 };
+    PGRAPHVkHybridPipelineWork work = { 0 };
+    ShaderState state = { 0 };
+    PipelineKey key = { .regs[0] = 1 };
+
+    g_assert_true(pgraph_vk_fallback_family_enqueue(
+        requests, G_N_ELEMENTS(requests), &key, &state, false));
+    g_assert_false(requests[0].from_prewarm);
+
+    /* An opportunistic prewarm owner joining the same exact family upgrades
+     * its provenance; a later demand owner must not erase it. */
+    g_assert_true(pgraph_vk_fallback_family_enqueue(
+        requests, G_N_ELEMENTS(requests), &key, &state, true));
+    g_assert_true(requests[0].from_prewarm);
+    g_assert_true(pgraph_vk_fallback_family_enqueue(
+        requests, G_N_ELEMENTS(requests), &key, &state, false));
+    g_assert_true(requests[0].from_prewarm);
+
+    pgraph_vk_hybrid_pipeline_note_prewarm(
+        &work, requests[0].from_prewarm);
+    g_assert_true(work.prewarm);
+    pgraph_vk_hybrid_pipeline_note_prewarm(&work, false);
+    g_assert_true(work.prewarm);
 }
 
 static void test_fallback_family_tracks_pipeline_until_ready(void)
@@ -1211,6 +1238,8 @@ int main(int argc, char **argv)
                     test_pipeline_publication_eviction_is_late);
     g_test_add_func("/xbox/vk/ubershader/runtime/fallback-family-queue",
                     test_fallback_family_queue_deduplicates_and_bounds);
+    g_test_add_func("/xbox/vk/ubershader/runtime/fallback-family-prewarm",
+                    test_fallback_family_prewarm_provenance_is_monotonic);
     g_test_add_func("/xbox/vk/ubershader/runtime/fallback-family-tracked",
                     test_fallback_family_tracks_pipeline_until_ready);
     g_test_add_func("/xbox/vk/ubershader/runtime/fallback-family-retry",

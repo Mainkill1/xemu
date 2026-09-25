@@ -12,6 +12,7 @@
 #include "hw/xbox/nv2a/pgraph/texture.h"
 #include "hw/xbox/nv2a/pgraph/vsh_regs.h"
 #include "hw/xbox/nv2a/pgraph/vk/renderer.h"
+#include "hw/xbox/nv2a/pgraph/vk/hybrid-ready.h"
 #include "ui/xemu-settings.h"
 
 struct config g_config;
@@ -264,9 +265,72 @@ static void test_real_compiler_accepts_generated_graphics_stages(void)
     pgraph_vk_finalize_glsl_compiler();
 }
 
-static void test_deduplicated_source_aliases_own_independent_modules(void)
+typedef struct AliasPublicationFixture {
+    PGRAPHVkState *renderer;
+    PGRAPHVkHybridShaderWork *first_work;
+    const char *source;
+    GByteArray *spirv;
+    ShaderModuleInfo *first;
+    ShaderModuleInfo *second;
+} AliasPublicationFixture;
+
+typedef struct AliasFailureFixture {
+    PGRAPHVkHybridShaderWork *failed_work;
+    unsigned int calls;
+} AliasFailureFixture;
+
+static bool publish_completion_alias(void *opaque,
+                                     PGRAPHVkHybridShaderWork *work)
+{
+    AliasPublicationFixture *fixture = opaque;
+    ShaderModuleInfo *info = pgraph_vk_create_shader_module_from_spirv(
+        fixture->renderer, work->module_key.kind, fixture->source,
+        fixture->spirv);
+
+    if (work == fixture->first_work) {
+        fixture->first = info;
+    } else {
+        fixture->second = info;
+    }
+    return info != NULL;
+}
+
+static bool publish_completion_alias_with_failure(
+    void *opaque, PGRAPHVkHybridShaderWork *work)
+{
+    AliasFailureFixture *fixture = opaque;
+
+    fixture->calls++;
+    return work != fixture->failed_work;
+}
+
+static void test_completion_fanout_visits_aliases_after_one_failure(void)
+{
+    PGRAPHVkHybridShaderWork work[2] = { 0 };
+
+    for (size_t i = 0; i < G_N_ELEMENTS(work); i++) {
+        work[i].in_use = true;
+        work[i].metadata = (PGRAPHVkHybridWork) {
+            .generation = 7,
+            .ticket = 11,
+            .status = PGRAPH_VK_HYBRID_WORK_PENDING,
+        };
+    }
+    AliasFailureFixture fixture = { .failed_work = &work[0] };
+    bool all_published = true;
+
+    g_assert_cmpuint(pgraph_vk_hybrid_completion_fanout(
+                         work, G_N_ELEMENTS(work), 7, 11, 7,
+                         publish_completion_alias_with_failure, &fixture,
+                         &all_published), ==, 2);
+    g_assert_false(all_published);
+    g_assert_cmpuint(fixture.calls, ==, 2);
+}
+
+static void test_deduplicated_completion_publishes_independent_aliases(void)
 {
     PGRAPHVkState *r = g_new0(PGRAPHVkState, 1);
+    PGRAPHVkHybridShaderWork work[2] = { 0 };
     PshState state = base_state();
     GenPshGlslOptions opts = {
         .vulkan = true,
@@ -290,23 +354,45 @@ static void test_deduplicated_source_aliases_own_independent_modules(void)
     fake_shader_module_next = 0;
     fake_shader_module_destroy_count = 0;
 
-    ShaderModuleInfo *first = pgraph_vk_create_shader_module_from_spirv(
-        r, VK_SHADER_STAGE_FRAGMENT_BIT, mstring_get_str(source), spirv);
-    ShaderModuleInfo *second = pgraph_vk_create_shader_module_from_spirv(
-        r, VK_SHADER_STAGE_FRAGMENT_BIT, mstring_get_str(source), spirv);
-    g_assert_nonnull(first);
-    g_assert_nonnull(second);
-    g_assert_true(first != second);
-    g_assert_true(first->module != second->module);
+    for (size_t i = 0; i < G_N_ELEMENTS(work); i++) {
+        work[i].in_use = true;
+        work[i].metadata = (PGRAPHVkHybridWork) {
+            .generation = 7,
+            .ticket = 11,
+            .status = PGRAPH_VK_HYBRID_WORK_PENDING,
+        };
+        work[i].module_key.kind = VK_SHADER_STAGE_FRAGMENT_BIT;
+    }
+    work[0].module_key.psh.state.alpha_func = ALPHA_FUNC_ALWAYS;
+    work[1].module_key.psh.state.alpha_func = ALPHA_FUNC_GREATER;
+    g_assert_cmpint(memcmp(&work[0].module_key, &work[1].module_key,
+                           sizeof(work[0].module_key)), !=, 0);
 
-    pgraph_vk_ref_shader_module(first);
-    pgraph_vk_ref_shader_module(second);
-    VkShaderModule surviving_module = second->module;
-    pgraph_vk_unref_shader_module(r, first);
+    AliasPublicationFixture fixture = {
+        .renderer = r,
+        .first_work = &work[0],
+        .source = mstring_get_str(source),
+        .spirv = spirv,
+    };
+    bool all_published = false;
+    g_assert_cmpuint(pgraph_vk_hybrid_completion_fanout(
+                         work, G_N_ELEMENTS(work), 7, 11, 7,
+                         publish_completion_alias, &fixture,
+                         &all_published), ==, 2);
+    g_assert_true(all_published);
+    g_assert_nonnull(fixture.first);
+    g_assert_nonnull(fixture.second);
+    g_assert_true(fixture.first != fixture.second);
+    g_assert_true(fixture.first->module != fixture.second->module);
+
+    pgraph_vk_ref_shader_module(fixture.first);
+    pgraph_vk_ref_shader_module(fixture.second);
+    VkShaderModule surviving_module = fixture.second->module;
+    pgraph_vk_unref_shader_module(r, fixture.first);
     g_assert_cmpuint(fake_shader_module_destroy_count, ==, 1);
-    g_assert_true(second->module == surviving_module);
-    g_assert_cmpuint(second->refcnt, ==, 1);
-    pgraph_vk_unref_shader_module(r, second);
+    g_assert_true(fixture.second->module == surviving_module);
+    g_assert_cmpuint(fixture.second->refcnt, ==, 1);
+    pgraph_vk_unref_shader_module(r, fixture.second);
     g_assert_cmpuint(fake_shader_module_destroy_count, ==, 2);
 
     vkCreateShaderModule = saved_create;
@@ -329,6 +415,8 @@ int main(int argc, char **argv)
     g_test_add_func("/xbox/vk/ubershader/glsl/generated-graphics-stages",
                     test_real_compiler_accepts_generated_graphics_stages);
     g_test_add_func("/xbox/vk/ubershader/glsl/dedup-alias-ownership",
-                    test_deduplicated_source_aliases_own_independent_modules);
+                    test_deduplicated_completion_publishes_independent_aliases);
+    g_test_add_func("/xbox/vk/ubershader/glsl/dedup-alias-partial-failure",
+                    test_completion_fanout_visits_aliases_after_one_failure);
     return g_test_run();
 }

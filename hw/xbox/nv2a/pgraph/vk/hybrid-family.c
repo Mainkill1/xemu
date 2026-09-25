@@ -525,7 +525,7 @@ void pgraph_vk_enqueue_retained_fallback_families(PGRAPHVkState *r)
         bool queued = pgraph_vk_fallback_family_enqueue(
             r->fallback_family_requests,
             ARRAY_SIZE(r->fallback_family_requests), &family_key,
-            &binding->key.shader_state);
+            &binding->key.shader_state, false);
         if (queued) {
             pgraph_vk_pipeline_family_set_state(
                 r, binding, PGRAPH_VK_FAMILY_TRACKED);

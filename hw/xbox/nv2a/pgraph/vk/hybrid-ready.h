@@ -137,12 +137,13 @@ static inline PipelineBinding *pgraph_vk_pipeline_cache_publish_slot(
 /* Capture an exact family without preparing it on the current draw. */
 static inline bool pgraph_vk_fallback_family_enqueue(
     PGRAPHVkFallbackFamilyRequest *requests, size_t capacity,
-    const PipelineKey *key, const ShaderState *state)
+    const PipelineKey *key, const ShaderState *state, bool from_prewarm)
 {
     PGRAPHVkFallbackFamilyRequest *free_request = NULL;
     for (size_t i = 0; i < capacity; i++) {
         if (requests[i].in_use &&
             memcmp(&requests[i].key, key, sizeof(*key)) == 0) {
+            requests[i].from_prewarm |= from_prewarm;
             return true;
         }
         if (!requests[i].in_use && !free_request) {
@@ -155,10 +156,48 @@ static inline bool pgraph_vk_fallback_family_enqueue(
     free_request->key = *key;
     free_request->state = *state;
     free_request->in_use = true;
+    free_request->from_prewarm = from_prewarm;
     free_request->status = PGRAPH_VK_FAMILY_WAITING_FOR_SHADER;
     free_request->attempts = 0;
     free_request->retry_after_us = 0;
     return true;
+}
+
+static inline void pgraph_vk_hybrid_pipeline_note_prewarm(
+    PGRAPHVkHybridPipelineWork *work, bool from_prewarm)
+{
+    work->prewarm |= from_prewarm;
+}
+
+typedef bool (*PGRAPHVkHybridCompletionAliasFunc)(
+    void *opaque, PGRAPHVkHybridShaderWork *work);
+
+/* A source-deduplicated compiler result still owns one independently
+ * materialized module for every exact-key alias that joined its ticket. */
+static inline size_t pgraph_vk_hybrid_completion_fanout(
+    PGRAPHVkHybridShaderWork *work, size_t capacity,
+    uint64_t completion_generation, uint64_t completion_ticket,
+    uint64_t current_generation, PGRAPHVkHybridCompletionAliasFunc publish,
+    void *opaque, bool *all_published)
+{
+    size_t matching = 0;
+    bool all = true;
+
+    for (size_t i = 0; i < capacity; i++) {
+        if (!work[i].in_use ||
+            pgraph_vk_hybrid_validate_completion_metadata(
+                &work[i].metadata, completion_generation,
+                completion_ticket, current_generation) !=
+                PGRAPH_VK_HYBRID_COMPLETION_METADATA_MATCH) {
+            continue;
+        }
+        matching++;
+        all &= publish(opaque, &work[i]);
+    }
+    if (all_published) {
+        *all_published = matching > 0 && all;
+    }
+    return matching;
 }
 
 #define PGRAPH_VK_FAMILY_MAX_PIPELINE_ATTEMPTS 3

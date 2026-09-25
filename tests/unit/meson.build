@@ -107,6 +107,7 @@ tests = {
   ],
   'test-xbox-vk-hybrid-compiler': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-compiler.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-policy.c',
   ],
   'test-xbox-vk-hybrid-pipeline-builder': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-pipeline-builder.c',
