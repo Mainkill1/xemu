@@ -46,6 +46,8 @@ static const char *cpu_region_names[VK_PERF_CPU_REGION_COUNT] = {
     [VK_PERF_CPU_BIND_TEXTURES] = "bind_textures",
     [VK_PERF_CPU_TEXTURE_UPLOAD] = "texture_upload",
     [VK_PERF_CPU_UPDATE_DESCRIPTOR_SETS] = "update_descriptor_sets",
+    [VK_PERF_CPU_SHADER_SOURCE_GENERATION] = "shader_source_generation",
+    [VK_PERF_CPU_SHADER_CACHE_ADOPTION] = "shader_cache_adoption",
 };
 
 static void write_names(FILE *file, const char *key, const char **names,
@@ -99,7 +101,7 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":8"
+            "{\"type\":\"schema\",\"schema_version\":9"
             ",\"features\":[\"report_lifecycle\","
             "\"descriptor_publication\",\"surface_upload\"]"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
@@ -312,9 +314,11 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     double command_buffers_per_submit = submit_count ?
         (double)perf->command_buffer_count / submit_count : 0.0;
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
+    PGRAPHVkHybridDeferredStats deferred = pgraph_vk_hybrid_deferred_stats(
+        r->hybrid_work, ARRAY_SIZE(r->hybrid_work), now);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":8"
+            "{\"type\":\"frame\",\"schema_version\":9"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
@@ -410,7 +414,11 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"valid_sync_requests_total\":%" PRIu64
             ",\"host_copy_uploads_total\":%" PRIu64
             ",\"host_copy_upload_skips_total\":%" PRIu64
-            ",\"host_copy_uploaded_bytes_total\":%" PRIu64,
+            ",\"host_copy_uploaded_bytes_total\":%" PRIu64
+            ",\"hybrid_deferred_work_entries\":%" PRIu64
+            ",\"hybrid_deferred_glsl_bytes\":%" PRIu64
+            ",\"hybrid_oldest_deferred_age_us\":%" PRIu64
+            ",\"hybrid_work_table_full_events_total\":%" PRIu64,
             submit_count, perf->submit_info_count, perf->command_buffer_count,
             perf->staged_bytes, perf->vertex_staged_bytes,
             perf->vertex_staging_copy_count,
@@ -443,7 +451,9 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             qatomic_read_u64(&perf->valid_sync_requests_total),
             qatomic_read_u64(&perf->host_copy_uploads_total),
             qatomic_read_u64(&perf->host_copy_upload_skips_total),
-            qatomic_read_u64(&perf->host_copy_uploaded_bytes_total));
+            qatomic_read_u64(&perf->host_copy_uploaded_bytes_total),
+            deferred.entries, deferred.glsl_bytes, deferred.oldest_age_us,
+            perf->hybrid_work_table_full_events);
 
     fprintf(perf->file,
             ",\"descriptor_update_calls_per_guest_frame\":%" PRIu64

@@ -45,6 +45,14 @@
 #define SPIRV_POLICY_NONSEMANTIC_DEBUG    (1U << 9)
 #define SPIRV_POLICY_NONSEMANTIC_SOURCE   (1U << 10)
 
+static PGRAPHVkSpirvCacheAdoptResult materialize_cached_module(
+    PGRAPHVkState *r, const ShaderModuleCacheKey *key,
+    const char *glsl, size_t glsl_size);
+static PGRAPHVkAsyncModuleRequestResult request_shader_module_async(
+    PGRAPHState *pg, const ShaderModuleCacheKey *key,
+    unsigned int max_attempts, const char *prepared_glsl,
+    size_t prepared_glsl_size, bool cache_checked);
+
 const size_t MAX_UNIFORM_ATTR_VALUES_SIZE = NV2A_VERTEXSHADER_ATTRIBUTES * 4 * sizeof(float);
 
 static inline void sync_uniform_dirty_summary(PGRAPHVkState *r)
@@ -520,6 +528,20 @@ static MString *generate_shader_module_glsl(
     }
 }
 
+static MString *generate_shader_module_glsl_timed(
+    PGRAPHVkState *r, const ShaderModuleCacheKey *key)
+{
+    int64_t start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
+    MString *result = generate_shader_module_glsl(key);
+
+    if (start_us) {
+        pgraph_vk_perf_record_cpu_region(
+            r, VK_PERF_CPU_SHADER_SOURCE_GENERATION,
+            g_get_monotonic_time() - start_us);
+    }
+    return result;
+}
+
 static uint64_t shader_module_key_hash(const ShaderModuleCacheKey *key)
 {
     return fast_hash((const uint8_t *)key,
@@ -977,6 +999,8 @@ static PGRAPHVkHybridShaderWork *hybrid_allocate_work(PGRAPHVkState *r)
     }
     if (oldest) {
         hybrid_work_clear(oldest);
+    } else {
+        r->perf.hybrid_work_table_full_events++;
     }
     return oldest;
 }
@@ -1437,6 +1461,7 @@ static PGRAPHVkFragmentRoute select_fragment_route(
     PGRAPHVkState *r = pg->vk_renderer_state;
     ShaderModuleCacheKey module_key;
     PGRAPHVkHybridShaderWork *work;
+    MString *generated_code = NULL;
 
     r->uber_controls_valid = false;
     if (!r->ubershader_runtime_enabled ||
@@ -1466,25 +1491,6 @@ static PGRAPHVkFragmentRoute select_fragment_route(
     r->hybrid_route_epoch = pgraph_vk_hybrid_next_selection_epoch(
         r->hybrid_route_epoch);
     work = hybrid_find_work_by_key(r, &module_key);
-    if (work) {
-        PGRAPHVkHybridRouteInput fast_input = {
-            .matching_status = work->metadata.status,
-            .epoch = r->hybrid_route_epoch,
-            .retry_after_epoch = work->metadata.retry_after_epoch,
-            .attempts = work->metadata.attempts,
-            .max_attempts = work->metadata.max_attempts,
-            .fallback_pipeline_ready = fallback_pipeline_ready,
-            .fallback_draw_resources_ready = fallback_draw_resources_ready,
-            .queue_has_capacity = true,
-        };
-        PGRAPHVkHybridDecision fast_decision =
-            pgraph_vk_hybrid_choose(&fast_input);
-        if (!fast_decision.request_specialization) {
-            work->last_epoch = r->hybrid_route_epoch;
-            return PGRAPH_VK_FRAGMENT_UBERSHADER;
-        }
-    }
-
     PGRAPHVkHybridRouteInput input = {
         .matching_status = work ? work->metadata.status :
                                   PGRAPH_VK_HYBRID_WORK_ABSENT,
@@ -1494,19 +1500,77 @@ static PGRAPHVkFragmentRoute select_fragment_route(
         .max_attempts = work ? work->metadata.max_attempts : 3,
         .fallback_pipeline_ready = fallback_pipeline_ready,
         .fallback_draw_resources_ready = fallback_draw_resources_ready,
-        .queue_has_capacity = true,
+        .queue_has_capacity = false,
     };
     PGRAPHVkHybridDecision decision = pgraph_vk_hybrid_choose(&input);
 
+    /* Resolve all states that do not need a new queue admission before doing
+     * foreground source work. QUEUE_FULL here means only that this otherwise
+     * eligible request still needs an exact admission snapshot. */
+    if (decision.reason != PGRAPH_VK_HYBRID_REASON_QUEUE_FULL) {
+        if (work) {
+            work->last_epoch = r->hybrid_route_epoch;
+        }
+        return decision.route == PGRAPH_VK_HYBRID_USE_SYNCHRONOUS ?
+                   PGRAPH_VK_FRAGMENT_SPECIALIZED :
+                   PGRAPH_VK_FRAGMENT_UBERSHADER;
+    }
+
+    const char *glsl;
+    size_t glsl_size;
+    if (work) {
+        glsl = work->glsl;
+        glsl_size = work->glsl_size;
+    } else {
+        generated_code = generate_shader_module_glsl_timed(r, &module_key);
+        if (!generated_code) {
+            return PGRAPH_VK_FRAGMENT_SPECIALIZED;
+        }
+        glsl = mstring_get_str(generated_code);
+        glsl_size = strlen(glsl);
+    }
+
+    PGRAPHVkSpirvCacheAdoptResult cache_result =
+        materialize_cached_module(r, &module_key, glsl, glsl_size);
+    if (cache_result == PGRAPH_VK_SPIRV_CACHE_ADOPTED) {
+        if (generated_code) {
+            mstring_unref(generated_code);
+        }
+        return PGRAPH_VK_FRAGMENT_SPECIALIZED;
+    }
+    if (cache_result == PGRAPH_VK_SPIRV_CACHE_DEFERRED) {
+        if (generated_code) {
+            mstring_unref(generated_code);
+        }
+        return PGRAPH_VK_FRAGMENT_UBERSHADER;
+    }
+
+    PGRAPHVkHybridAdmission admission =
+        pgraph_vk_hybrid_compiler_can_submit_recipe(
+            &r->hybrid_compiler, glsl_size + 1,
+            sizeof(PGRAPHVkGlslCompileConfig));
+    input.queue_has_capacity = admission.worker_running &&
+                               admission.job_slot_available &&
+                               admission.byte_budget_available;
+    decision = pgraph_vk_hybrid_choose(&input);
+
     if (decision.request_specialization) {
         PGRAPHVkAsyncModuleRequestResult request_result =
-            pgraph_vk_request_shader_module_async(pg, &module_key);
+            request_shader_module_async(pg, &module_key, 3, glsl, glsl_size,
+                                        true);
         if (request_result == PGRAPH_VK_ASYNC_MODULE_READY) {
+            if (generated_code) {
+                mstring_unref(generated_code);
+            }
             return PGRAPH_VK_FRAGMENT_SPECIALIZED;
         }
         if (request_result == PGRAPH_VK_ASYNC_MODULE_FAILED) {
             decision.route = PGRAPH_VK_HYBRID_USE_SYNCHRONOUS;
         }
+    }
+
+    if (generated_code) {
+        mstring_unref(generated_code);
     }
 
     return decision.route == PGRAPH_VK_HYBRID_USE_SYNCHRONOUS ?
@@ -1561,22 +1625,28 @@ static PGRAPHVkSpirvCacheAdoptResult materialize_cached_module(
     PGRAPHVkState *r, const ShaderModuleCacheKey *key,
     const char *glsl, size_t glsl_size)
 {
-    if (find_shader_module_for_key(r, key)) {
-        return PGRAPH_VK_SPIRV_CACHE_ADOPTED;
-    }
-    if (!shader_spirv_cache_active(r)) {
-        return PGRAPH_VK_SPIRV_CACHE_NOT_FOUND;
-    }
+    int64_t start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
+    PGRAPHVkSpirvCacheAdoptResult result;
 
-    PGRAPHVkCachedShaderAdoption adoption = {
-        .renderer = r,
-        .key = key,
-        .glsl = glsl,
-    };
-    PGRAPHVkSpirvCacheAdoptResult result =
-        pgraph_vk_spirv_cache_adopt_hit(
+    if (find_shader_module_for_key(r, key)) {
+        result = PGRAPH_VK_SPIRV_CACHE_ADOPTED;
+    } else if (!shader_spirv_cache_active(r)) {
+        result = PGRAPH_VK_SPIRV_CACHE_NOT_FOUND;
+    } else {
+        PGRAPHVkCachedShaderAdoption adoption = {
+            .renderer = r,
+            .key = key,
+            .glsl = glsl,
+        };
+        result = pgraph_vk_spirv_cache_adopt_hit(
             &r->spirv_cache, key->kind, glsl, glsl_size,
             adopt_cached_hybrid_shader, &adoption);
+    }
+    if (start_us) {
+        pgraph_vk_perf_record_cpu_region(
+            r, VK_PERF_CPU_SHADER_CACHE_ADOPTION,
+            g_get_monotonic_time() - start_us);
+    }
     return result;
 }
 
@@ -1589,7 +1659,7 @@ static PGRAPHVkSpirvCacheAdoptResult generate_and_materialize_cached_module(
     if (!shader_spirv_cache_active(r)) {
         return PGRAPH_VK_SPIRV_CACHE_NOT_FOUND;
     }
-    MString *code = generate_shader_module_glsl(key);
+    MString *code = generate_shader_module_glsl_timed(r, key);
     if (!code) {
         return PGRAPH_VK_SPIRV_CACHE_REJECTED;
     }
@@ -1602,7 +1672,8 @@ static PGRAPHVkSpirvCacheAdoptResult generate_and_materialize_cached_module(
 
 static PGRAPHVkAsyncModuleRequestResult request_shader_module_async(
     PGRAPHState *pg, const ShaderModuleCacheKey *key,
-    unsigned int max_attempts)
+    unsigned int max_attempts, const char *prepared_glsl,
+    size_t prepared_glsl_size, bool cache_checked)
 {
     if (!pg || !pg->vk_renderer_state || !key || !max_attempts ||
         !shader_module_kind_supported(key->kind)) {
@@ -1634,22 +1705,33 @@ static PGRAPHVkAsyncModuleRequestResult request_shader_module_async(
         }
     }
 
-    MString *code = generate_shader_module_glsl(key);
-    if (!code) {
-        return PGRAPH_VK_ASYNC_MODULE_FAILED;
+    MString *code = NULL;
+    const char *glsl = prepared_glsl;
+    size_t glsl_size = prepared_glsl_size;
+    if (!glsl) {
+        code = generate_shader_module_glsl_timed(r, key);
+        if (!code) {
+            return PGRAPH_VK_ASYNC_MODULE_FAILED;
+        }
+        glsl = mstring_get_str(code);
+        glsl_size = strlen(glsl);
     }
-    const char *glsl = mstring_get_str(code);
-    size_t glsl_size = strlen(glsl);
 
-    PGRAPHVkSpirvCacheAdoptResult cache_result =
-        materialize_cached_module(r, key, glsl, glsl_size);
-    if (cache_result == PGRAPH_VK_SPIRV_CACHE_ADOPTED) {
-        mstring_unref(code);
-        return PGRAPH_VK_ASYNC_MODULE_READY;
-    }
-    if (cache_result == PGRAPH_VK_SPIRV_CACHE_DEFERRED) {
-        mstring_unref(code);
-        return PGRAPH_VK_ASYNC_MODULE_DEFERRED;
+    if (!cache_checked) {
+        PGRAPHVkSpirvCacheAdoptResult cache_result =
+            materialize_cached_module(r, key, glsl, glsl_size);
+        if (cache_result == PGRAPH_VK_SPIRV_CACHE_ADOPTED) {
+            if (code) {
+                mstring_unref(code);
+            }
+            return PGRAPH_VK_ASYNC_MODULE_READY;
+        }
+        if (cache_result == PGRAPH_VK_SPIRV_CACHE_DEFERRED) {
+            if (code) {
+                mstring_unref(code);
+            }
+            return PGRAPH_VK_ASYNC_MODULE_DEFERRED;
+        }
     }
 
     if (work) {
@@ -1660,7 +1742,9 @@ static PGRAPHVkAsyncModuleRequestResult request_shader_module_async(
     if (!work) {
         work = hybrid_allocate_work(r);
         if (!work) {
-            mstring_unref(code);
+            if (code) {
+                mstring_unref(code);
+            }
             return PGRAPH_VK_ASYNC_MODULE_DEFERRED;
         }
         work->in_use = true;
@@ -1699,6 +1783,7 @@ static PGRAPHVkAsyncModuleRequestResult request_shader_module_async(
             &work->metadata, false, owner.generation, owner.ticket,
             r->hybrid_route_epoch);
         assert(marked);
+        work->deferred_since_us = 0;
         if (submit == PGRAPH_VK_HYBRID_COMPILER_ACCEPTED) {
             r->hybrid_pending_jobs++;
             result = PGRAPH_VK_ASYNC_MODULE_ACCEPTED;
@@ -1709,15 +1794,19 @@ static PGRAPHVkAsyncModuleRequestResult request_shader_module_async(
     }
     case PGRAPH_VK_HYBRID_COMPILER_QUEUE_FULL:
     case PGRAPH_VK_HYBRID_COMPILER_BYTE_LIMIT:
-        pgraph_vk_hybrid_note_queue_deferral(
+        if (pgraph_vk_hybrid_note_queue_deferral(
             &work->metadata, false, r->hybrid_generation,
-            r->hybrid_route_epoch, 8);
+            r->hybrid_route_epoch, 8) && !work->deferred_since_us) {
+            work->deferred_since_us = g_get_monotonic_time();
+        }
         result = PGRAPH_VK_ASYNC_MODULE_DEFERRED;
         break;
     case PGRAPH_VK_HYBRID_COMPILER_STOPPED:
-        pgraph_vk_hybrid_note_queue_deferral(
+        if (pgraph_vk_hybrid_note_queue_deferral(
             &work->metadata, false, r->hybrid_generation,
-            r->hybrid_route_epoch, 8);
+            r->hybrid_route_epoch, 8) && !work->deferred_since_us) {
+            work->deferred_since_us = g_get_monotonic_time();
+        }
         result = PGRAPH_VK_ASYNC_MODULE_DEFERRED;
         break;
     case PGRAPH_VK_HYBRID_COMPILER_INVALID:
@@ -1730,14 +1819,16 @@ static PGRAPHVkAsyncModuleRequestResult request_shader_module_async(
     if (work->in_use) {
         work->last_epoch = r->hybrid_route_epoch;
     }
-    mstring_unref(code);
+    if (code) {
+        mstring_unref(code);
+    }
     return result;
 }
 
 PGRAPHVkAsyncModuleRequestResult pgraph_vk_request_shader_module_async(
     PGRAPHState *pg, const ShaderModuleCacheKey *key)
 {
-    return request_shader_module_async(pg, key, 3);
+    return request_shader_module_async(pg, key, 3, NULL, 0, false);
 }
 
 typedef struct PGRAPHVkCachedFamilyModuleContext {
@@ -1808,7 +1899,7 @@ bool pgraph_vk_enqueue_fallback_fragment(PGRAPHState *pg,
     ShaderModuleCacheKey key;
     init_fragment_module_key(&key, &state->psh,
                              PGRAPH_VK_FRAGMENT_UBERSHADER);
-    return request_shader_module_async(pg, &key, 1) !=
+    return request_shader_module_async(pg, &key, 1, NULL, 0, false) !=
            PGRAPH_VK_ASYNC_MODULE_FAILED;
 }
 

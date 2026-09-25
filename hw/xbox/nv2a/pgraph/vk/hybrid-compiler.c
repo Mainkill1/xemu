@@ -129,14 +129,6 @@ static HybridCompilerJob *find_matching_async_job(
     return job ? job : find_in_list(state->result_head, request);
 }
 
-static bool async_has_capacity(const HybridCompilerState *state,
-                               size_t bytes)
-{
-    return !state->stopping &&
-           state->async_jobs < state->config.max_async_jobs &&
-           bytes <= state->config.max_async_bytes - state->async_bytes;
-}
-
 static void async_account_release(HybridCompilerState *state,
                                   HybridCompilerJob *job)
 {
@@ -325,17 +317,26 @@ bool pgraph_vk_hybrid_compiler_init(
     return true;
 }
 
-bool pgraph_vk_hybrid_compiler_can_submit_async(
-    PGRAPHVkHybridCompiler *compiler, size_t glsl_size, size_t config_size)
+PGRAPHVkHybridAdmission pgraph_vk_hybrid_compiler_can_submit_recipe(
+    PGRAPHVkHybridCompiler *compiler, size_t recipe_size,
+    size_t config_size)
 {
     HybridCompilerState *state = compiler ? compiler->state : NULL;
-    bool result;
+    PGRAPHVkHybridAdmission result = { 0 };
 
-    if (!state || !glsl_size || glsl_size > SIZE_MAX - config_size) {
-        return false;
+    if (!state) {
+        return result;
     }
     qemu_mutex_lock(&state->lock);
-    result = async_has_capacity(state, glsl_size + config_size);
+    size_t available_bytes =
+        state->async_bytes < state->config.max_async_bytes ?
+            state->config.max_async_bytes - state->async_bytes : 0;
+    result.worker_running = !state->stopping;
+    result.job_slot_available =
+        state->async_jobs < state->config.max_async_jobs;
+    result.byte_budget_available =
+        recipe_size && recipe_size <= SIZE_MAX - config_size &&
+        recipe_size + config_size <= available_bytes;
     qemu_mutex_unlock(&state->lock);
     return result;
 }

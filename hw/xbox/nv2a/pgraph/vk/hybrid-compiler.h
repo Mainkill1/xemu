@@ -74,12 +74,19 @@ typedef struct PGRAPHVkHybridCompiler {
     void *state;
 } PGRAPHVkHybridCompiler;
 
+typedef struct PGRAPHVkHybridAdmission {
+    bool job_slot_available;
+    bool byte_budget_available;
+    bool worker_running;
+} PGRAPHVkHybridAdmission;
+
 bool pgraph_vk_hybrid_compiler_init(
     PGRAPHVkHybridCompiler *compiler,
     const PGRAPHVkHybridCompilerConfig *config);
 
-bool pgraph_vk_hybrid_compiler_can_submit_async(
-    PGRAPHVkHybridCompiler *compiler, size_t glsl_size, size_t config_size);
+PGRAPHVkHybridAdmission pgraph_vk_hybrid_compiler_can_submit_recipe(
+    PGRAPHVkHybridCompiler *compiler, size_t recipe_size,
+    size_t config_size);
 
 /*
  * A duplicate is identified by stage plus exact GLSL/config bytes, not by

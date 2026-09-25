@@ -340,6 +340,8 @@ static void test_recipe_key_identity_uses_size_and_exact_bytes(void)
 
 int main(void)
 {
+    puts("TAP version 14");
+    puts("1..1");
     test_eight_readiness_combinations();
     test_queue_full_keeps_the_ready_fallback();
     test_matching_work_suppresses_duplicate_enqueues();
@@ -353,6 +355,6 @@ int main(void)
     test_selection_epoch_is_pure_and_skips_zero();
     test_source_identity_uses_stage_size_and_exact_bytes();
     test_recipe_key_identity_uses_size_and_exact_bytes();
-    puts("hybrid policy metadata tests passed");
+    puts("ok 1 - hybrid policy metadata tests");
     return 0;
 }

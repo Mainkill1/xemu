@@ -1168,6 +1168,35 @@ static void test_canonicalization_preserves_fragment_shell_state(void)
     g_assert_cmpint(state.alpha_func, ==, ALPHA_FUNC_GREATER);
 }
 
+static void test_deferred_work_stats_count_only_queue_backoff(void)
+{
+    PGRAPHVkHybridShaderWork *work = g_new0(PGRAPHVkHybridShaderWork, 4);
+
+    work[0].in_use = true;
+    work[0].metadata.status = PGRAPH_VK_HYBRID_WORK_QUEUE_BACKOFF;
+    work[0].glsl_size = 120;
+    work[0].deferred_since_us = 1000;
+    work[1].in_use = true;
+    work[1].metadata.status = PGRAPH_VK_HYBRID_WORK_QUEUE_BACKOFF;
+    work[1].glsl_size = 80;
+    work[1].deferred_since_us = 1500;
+    work[2].in_use = true;
+    work[2].metadata.status = PGRAPH_VK_HYBRID_WORK_PENDING;
+    work[2].glsl_size = 400;
+    work[2].deferred_since_us = 500;
+    work[3].metadata.status = PGRAPH_VK_HYBRID_WORK_QUEUE_BACKOFF;
+    work[3].glsl_size = 900;
+    work[3].deferred_since_us = 250;
+
+    PGRAPHVkHybridDeferredStats stats = pgraph_vk_hybrid_deferred_stats(
+        work, 4, 3000);
+    g_assert_cmpuint(stats.entries, ==, 2);
+    g_assert_cmpuint(stats.glsl_bytes, ==, 200);
+    g_assert_cmpuint(stats.oldest_age_us, ==, 2000);
+
+    g_free(work);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -1228,5 +1257,7 @@ int main(int argc, char **argv)
                     test_changed_register_marks_shortcut_dirty);
     g_test_add_func("/xbox/vk/ubershader/runtime/snapshot-invalidation",
                     test_snapshot_restore_invalidates_execution_hints);
+    g_test_add_func("/xbox/vk/ubershader/runtime/deferred-work-stats",
+                    test_deferred_work_stats_count_only_queue_backoff);
     return g_test_run();
 }

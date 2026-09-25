@@ -316,12 +316,45 @@ typedef struct ShaderModuleCacheEntry {
 typedef struct PGRAPHVkHybridShaderWork {
     bool in_use;
     uint64_t last_epoch;
+    uint64_t deferred_since_us;
     PGRAPHVkHybridWork metadata;
     ShaderModuleCacheKey module_key;
     char *glsl;
     /* PR70/cache identity length; glsl[glsl_size] is the owned NUL. */
     size_t glsl_size;
 } PGRAPHVkHybridShaderWork;
+
+typedef struct PGRAPHVkHybridDeferredStats {
+    uint64_t entries;
+    uint64_t glsl_bytes;
+    uint64_t oldest_age_us;
+} PGRAPHVkHybridDeferredStats;
+
+static inline PGRAPHVkHybridDeferredStats
+pgraph_vk_hybrid_deferred_stats(const PGRAPHVkHybridShaderWork *work,
+                                size_t count, uint64_t now_us)
+{
+    PGRAPHVkHybridDeferredStats stats = { 0 };
+    uint64_t oldest_since_us = 0;
+
+    for (size_t i = 0; i < count; i++) {
+        if (!work[i].in_use ||
+            work[i].metadata.status != PGRAPH_VK_HYBRID_WORK_QUEUE_BACKOFF) {
+            continue;
+        }
+        stats.entries++;
+        stats.glsl_bytes += work[i].glsl_size;
+        if (work[i].deferred_since_us &&
+            (!oldest_since_us ||
+             work[i].deferred_since_us < oldest_since_us)) {
+            oldest_since_us = work[i].deferred_since_us;
+        }
+    }
+    if (oldest_since_us && now_us > oldest_since_us) {
+        stats.oldest_age_us = now_us - oldest_since_us;
+    }
+    return stats;
+}
 
 typedef enum PGRAPHVkAsyncModuleRequestResult {
     PGRAPH_VK_ASYNC_MODULE_READY,
@@ -613,6 +646,8 @@ typedef enum PerfCpuRegion {
     VK_PERF_CPU_BIND_TEXTURES,
     VK_PERF_CPU_TEXTURE_UPLOAD,
     VK_PERF_CPU_UPDATE_DESCRIPTOR_SETS,
+    VK_PERF_CPU_SHADER_SOURCE_GENERATION,
+    VK_PERF_CPU_SHADER_CACHE_ADOPTION,
     VK_PERF_CPU_REGION_COUNT,
 } PerfCpuRegion;
 
@@ -693,6 +728,7 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t host_copy_uploads_total QEMU_ALIGNED(8);
     uint64_t host_copy_upload_skips_total QEMU_ALIGNED(8);
     uint64_t host_copy_uploaded_bytes_total QEMU_ALIGNED(8);
+    uint64_t hybrid_work_table_full_events;
 } PGRAPHVkPerfTelemetry;
 
 typedef struct PGRAPHVkState {

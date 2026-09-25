@@ -201,16 +201,30 @@ static void test_async_limits_release_when_result_is_taken(void)
 
     test_compiler_init(&test, false);
     g_assert_true(init_compiler(&compiler, &test, 1, 16));
-    g_assert_true(pgraph_vk_hybrid_compiler_can_submit_async(&compiler, 8, 8));
+    PGRAPHVkHybridAdmission admission =
+        pgraph_vk_hybrid_compiler_can_submit_recipe(&compiler, 8, 8);
+    g_assert_true(admission.job_slot_available);
+    g_assert_true(admission.byte_budget_available);
+    g_assert_true(admission.worker_running);
     g_assert_cmpint(submit_async(&compiler, 1, 1, "abcdefgh", "12345678",
                                  NULL),
                     ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
-    g_assert_false(pgraph_vk_hybrid_compiler_can_submit_async(&compiler, 1, 1));
+    admission = pgraph_vk_hybrid_compiler_can_submit_recipe(&compiler, 1, 1);
+    g_assert_false(admission.job_slot_available);
+    g_assert_false(admission.byte_budget_available);
+    g_assert_true(admission.worker_running);
     g_assert_cmpint(submit_async(&compiler, 1, 2, "x", "y", NULL),
                     ==, PGRAPH_VK_HYBRID_COMPILER_QUEUE_FULL);
     g_assert_true(take_result(&compiler, &result));
     pgraph_vk_hybrid_compile_result_destroy(&result);
-    g_assert_true(pgraph_vk_hybrid_compiler_can_submit_async(&compiler, 8, 8));
+    admission = pgraph_vk_hybrid_compiler_can_submit_recipe(&compiler, 8, 8);
+    g_assert_true(admission.job_slot_available);
+    g_assert_true(admission.byte_budget_available);
+    g_assert_true(admission.worker_running);
+    admission = pgraph_vk_hybrid_compiler_can_submit_recipe(&compiler, 9, 8);
+    g_assert_true(admission.job_slot_available);
+    g_assert_false(admission.byte_budget_available);
+    g_assert_true(admission.worker_running);
     g_assert_cmpint(submit_async(&compiler, 1, 3, "123456789", "12345678",
                                  NULL),
                     ==, PGRAPH_VK_HYBRID_COMPILER_BYTE_LIMIT);
@@ -440,6 +454,9 @@ static void test_stop_join_releases_idle_busy_and_full_queues(void)
     g_assert_cmpint(submit_async(&compiler, 1, 2, "full", "config", NULL),
                     ==, PGRAPH_VK_HYBRID_COMPILER_QUEUE_FULL);
     pgraph_vk_hybrid_compiler_stop(&compiler);
+    PGRAPHVkHybridAdmission admission =
+        pgraph_vk_hybrid_compiler_can_submit_recipe(&compiler, 4, 6);
+    g_assert_false(admission.worker_running);
     g_assert_cmpint(submit_async(&compiler, 1, 3, "stopped", "config", NULL),
                     ==, PGRAPH_VK_HYBRID_COMPILER_STOPPED);
     test_release(&test);
