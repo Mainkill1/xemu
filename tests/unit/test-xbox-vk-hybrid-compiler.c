@@ -472,6 +472,57 @@ static void test_stop_waits_for_active_required_compile(void)
     test_compiler_destroy(&test);
 }
 
+static void test_stop_discards_active_and_queued_graphics_stages(void)
+{
+    static const uint32_t stages[] = { 1, 2, 3 };
+
+    for (size_t active = 0; active < ARRAY_SIZE(stages); active++) {
+        TestCompiler test;
+        PGRAPHVkHybridCompiler compiler = { 0 };
+        PGRAPHVkHybridCompileResult result;
+
+        test_compiler_init(&test, true);
+        g_assert_true(init_compiler(&compiler, &test, ARRAY_SIZE(stages),
+                                    128));
+
+        PGRAPHVkHybridCompileRequest request = test_request_stage(
+            1, 1, stages[active], "active", "config");
+        g_assert_cmpint(pgraph_vk_hybrid_compiler_submit_async(
+                            &compiler, &request, NULL),
+                        ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
+        test_wait_for_calls(&test, 1);
+
+        for (size_t queued = 1; queued < ARRAY_SIZE(stages); queued++) {
+            size_t index = (active + queued) % ARRAY_SIZE(stages);
+            request = test_request_stage(1, queued + 1, stages[index],
+                                         queued == 1 ? "queued-a" :
+                                                       "queued-b",
+                                         "config");
+            g_assert_cmpint(pgraph_vk_hybrid_compiler_submit_async(
+                                &compiler, &request, NULL),
+                            ==, PGRAPH_VK_HYBRID_COMPILER_ACCEPTED);
+        }
+
+        pgraph_vk_hybrid_compiler_stop(&compiler);
+        for (size_t stage = 0; stage < ARRAY_SIZE(stages); stage++) {
+            request = test_request_stage(2, stage + 4, stages[stage],
+                                         "after-stop", "config");
+            g_assert_cmpint(pgraph_vk_hybrid_compiler_submit_async(
+                                &compiler, &request, NULL),
+                            ==, PGRAPH_VK_HYBRID_COMPILER_STOPPED);
+        }
+
+        test_release(&test);
+        pgraph_vk_hybrid_compiler_join(&compiler);
+        g_assert_cmpuint(test.calls, ==, 1);
+        g_assert_false(pgraph_vk_hybrid_compiler_has_result(&compiler));
+        g_assert_false(pgraph_vk_hybrid_compiler_take_result(&compiler,
+                                                              &result));
+        pgraph_vk_hybrid_compiler_destroy(&compiler);
+        test_compiler_destroy(&test);
+    }
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -495,5 +546,7 @@ int main(int argc, char **argv)
                     test_stop_join_releases_idle_busy_and_full_queues);
     g_test_add_func("/xbox/vk/hybrid-compiler/stop-active-required",
                     test_stop_waits_for_active_required_compile);
+    g_test_add_func("/xbox/vk/hybrid-compiler/stop-all-graphics-stages",
+                    test_stop_discards_active_and_queued_graphics_stages);
     return g_test_run();
 }
