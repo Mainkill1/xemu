@@ -205,6 +205,32 @@ static bool pipeline_cache_log_enabled(void)
     return g_strcmp0(g_getenv("XEMU_VK_PIPELINE_CACHE_LOG"), "1") == 0;
 }
 
+static uint32_t pipeline_diagnostic_delay_ms(const char *name,
+                                             bool trace_enabled)
+{
+    const char *value = g_getenv(name);
+
+    if (!value || !value[0]) {
+        return 0;
+    }
+    if (!trace_enabled) {
+        warn_report("ignoring %s without XEMU_VK_HYBRID_TRACE", name);
+        return 0;
+    }
+
+    char *end = NULL;
+    errno = 0;
+    uint64_t parsed = g_ascii_strtoull(value, &end, 10);
+    if (errno || end == value || *end ||
+        parsed > PGRAPH_VK_HYBRID_PIPELINE_MAX_DIAGNOSTIC_DELAY_MS) {
+        warn_report("ignoring invalid %s=%s (expected 0..%u ms)", name,
+                    value,
+                    PGRAPH_VK_HYBRID_PIPELINE_MAX_DIAGNOSTIC_DELAY_MS);
+        return 0;
+    }
+    return parsed;
+}
+
 static void pipeline_cache_init_path(PGRAPHVkState *r)
 {
     const char *base = xemu_settings_get_base_path();
@@ -544,6 +570,15 @@ void pgraph_vk_init_pipelines(PGRAPHState *pg)
     if (r->ubershader_runtime_enabled) {
         PGRAPHVkWorkerSchedulingMode scheduling =
             pgraph_vk_worker_scheduling_mode_from_environment();
+        uint32_t queue_delay_ms = pipeline_diagnostic_delay_ms(
+            "XEMU_VK_DIAGNOSTIC_PIPELINE_QUEUE_DELAY_MS",
+            r->hybrid_trace != NULL);
+        uint32_t create_delay_ms = pipeline_diagnostic_delay_ms(
+            "XEMU_VK_DIAGNOSTIC_PIPELINE_CREATE_DELAY_MS",
+            r->hybrid_trace != NULL);
+        uint32_t publish_delay_ms = pipeline_diagnostic_delay_ms(
+            "XEMU_VK_DIAGNOSTIC_PIPELINE_PUBLISH_DELAY_MS",
+            r->hybrid_trace != NULL);
         const PGRAPHVkHybridPipelineBuilderConfig config = {
             .max_jobs = PGRAPH_VK_HYBRID_MAX_PIPELINE_JOBS,
             .lower_worker_priority =
@@ -553,7 +588,16 @@ void pgraph_vk_init_pipelines(PGRAPHState *pg)
             .create = hybrid_pipeline_create,
             .destroy = hybrid_pipeline_destroy,
             .opaque = r,
+            .diagnostic_queue_delay_ms = queue_delay_ms,
+            .diagnostic_create_delay_ms = create_delay_ms,
+            .diagnostic_publish_delay_ms = publish_delay_ms,
         };
+        if (queue_delay_ms || create_delay_ms || publish_delay_ms) {
+            warn_report("Vulkan pipeline diagnostic delays active "
+                        "(queue=%u ms, create=%u ms, publish=%u ms); "
+                        "performance results are invalid",
+                        queue_delay_ms, create_delay_ms, publish_delay_ms);
+        }
         r->hybrid_pipeline_builder_initialized =
             pgraph_vk_hybrid_pipeline_builder_init(
                 &r->hybrid_pipeline_builder, &config);

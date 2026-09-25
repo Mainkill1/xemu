@@ -11,6 +11,8 @@
 
 #include "hw/xbox/nv2a/pgraph/vk/background-worker-priority.h"
 
+#define PGRAPH_VK_HYBRID_PIPELINE_MAX_DIAGNOSTIC_DELAY_MS 1000
+
 typedef enum PGRAPHVkHybridPipelineUrgency {
     PGRAPH_VK_HYBRID_PIPELINE_BACKGROUND,
     PGRAPH_VK_HYBRID_PIPELINE_DEMAND,
@@ -57,6 +59,11 @@ typedef struct PGRAPHVkHybridPipelineBuilderConfig {
     PGRAPHVkSetWorkerPriorityFunc set_lower_priority;
     void *priority_opaque;
     void *opaque;
+    /* Trace-only fault-injection gates. Non-zero values make timing results
+     * performance-ineligible and must remain bounded and interruptible. */
+    uint32_t diagnostic_queue_delay_ms;
+    uint32_t diagnostic_create_delay_ms;
+    uint32_t diagnostic_publish_delay_ms;
 } PGRAPHVkHybridPipelineBuilderConfig;
 
 typedef struct PGRAPHVkHybridPipelineWorkerStatus {

@@ -436,6 +436,151 @@ static void test_active_job_is_not_promoted(void)
     fake_fini(&driver);
 }
 
+static void test_diagnostic_queue_delay_allows_promotion(void)
+{
+    FakeDriver driver;
+    TestRecipe recipe;
+    PGRAPHVkHybridPipelineBuilder builder = { 0 };
+    fake_init(&driver);
+    recipe_init(&recipe);
+    PGRAPHVkHybridPipelineBuilderConfig cfg = config(&driver);
+    cfg.diagnostic_queue_delay_ms = 1000;
+    g_assert_true(pgraph_vk_hybrid_pipeline_builder_init(&builder, &cfg));
+
+    PGRAPHVkHybridPipelineBuildRequest req = request(&recipe, 9, 80);
+    req.urgency = PGRAPH_VK_HYBRID_PIPELINE_BACKGROUND;
+    g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_submit(&builder, &req),
+                    ==, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED);
+    g_assert_true(pgraph_vk_hybrid_pipeline_builder_promote(
+        &builder, 9, 80, PGRAPH_VK_HYBRID_PIPELINE_DEMAND));
+
+    int64_t promoted_us = g_get_monotonic_time();
+    PGRAPHVkHybridPipelineBuildResult result = take(&builder);
+    g_assert_cmpint(result.urgency, ==, PGRAPH_VK_HYBRID_PIPELINE_DEMAND);
+    g_assert_cmpint(result.started_us - promoted_us, <, 500 * 1000);
+    destroy_result(&builder, &result);
+    pgraph_vk_hybrid_pipeline_builder_destroy(&builder);
+    fake_fini(&driver);
+}
+
+static void test_diagnostic_create_delay_is_measured(void)
+{
+    FakeDriver driver;
+    TestRecipe recipe;
+    PGRAPHVkHybridPipelineBuilder builder = { 0 };
+    fake_init(&driver);
+    recipe_init(&recipe);
+    PGRAPHVkHybridPipelineBuilderConfig cfg = config(&driver);
+    cfg.diagnostic_create_delay_ms = 10;
+    g_assert_true(pgraph_vk_hybrid_pipeline_builder_init(&builder, &cfg));
+
+    PGRAPHVkHybridPipelineBuildRequest req = request(&recipe, 10, 81);
+    g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_submit(&builder, &req),
+                    ==, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED);
+    PGRAPHVkHybridPipelineBuildResult result = take(&builder);
+    g_assert_cmpuint(result.finished_us - result.started_us, >=, 9000);
+    destroy_result(&builder, &result);
+    pgraph_vk_hybrid_pipeline_builder_destroy(&builder);
+    fake_fini(&driver);
+}
+
+static void test_diagnostic_publication_delay_is_measured(void)
+{
+    FakeDriver driver;
+    TestRecipe recipe;
+    PGRAPHVkHybridPipelineBuilder builder = { 0 };
+    fake_init(&driver);
+    recipe_init(&recipe);
+    PGRAPHVkHybridPipelineBuilderConfig cfg = config(&driver);
+    cfg.diagnostic_publish_delay_ms = 10;
+    g_assert_true(pgraph_vk_hybrid_pipeline_builder_init(&builder, &cfg));
+
+    PGRAPHVkHybridPipelineBuildRequest req = request(&recipe, 11, 82);
+    g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_submit(&builder, &req),
+                    ==, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED);
+    PGRAPHVkHybridPipelineBuildResult result = take(&builder);
+    g_assert_cmpint(g_get_monotonic_time() - result.finished_us, >=, 9000);
+    destroy_result(&builder, &result);
+    pgraph_vk_hybrid_pipeline_builder_destroy(&builder);
+    fake_fini(&driver);
+}
+
+static void test_diagnostic_delay_shutdown_is_interruptible(void)
+{
+    FakeDriver driver;
+    TestRecipe recipe;
+    PGRAPHVkHybridPipelineBuilder builder = { 0 };
+    fake_init(&driver);
+    recipe_init(&recipe);
+    PGRAPHVkHybridPipelineBuilderConfig cfg = config(&driver);
+    cfg.diagnostic_queue_delay_ms = 1000;
+    g_assert_true(pgraph_vk_hybrid_pipeline_builder_init(&builder, &cfg));
+
+    PGRAPHVkHybridPipelineBuildRequest req = request(&recipe, 12, 83);
+    req.urgency = PGRAPH_VK_HYBRID_PIPELINE_BACKGROUND;
+    g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_submit(&builder, &req),
+                    ==, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED);
+    int64_t stop_started_us = g_get_monotonic_time();
+    pgraph_vk_hybrid_pipeline_builder_stop(&builder);
+    pgraph_vk_hybrid_pipeline_builder_join(&builder);
+    g_assert_cmpint(g_get_monotonic_time() - stop_started_us, <, 500 * 1000);
+    g_assert_cmpuint(driver.calls, ==, 0);
+    pgraph_vk_hybrid_pipeline_builder_destroy(&builder);
+    fake_fini(&driver);
+}
+
+static void test_diagnostic_create_delay_cancellation_is_interruptible(void)
+{
+    FakeDriver driver;
+    TestRecipe recipe;
+    PGRAPHVkHybridPipelineBuilder builder = { 0 };
+    fake_init(&driver);
+    recipe_init(&recipe);
+    PGRAPHVkHybridPipelineBuilderConfig cfg = config(&driver);
+    cfg.diagnostic_create_delay_ms = 1000;
+    g_assert_true(pgraph_vk_hybrid_pipeline_builder_init(&builder, &cfg));
+
+    PGRAPHVkHybridPipelineBuildRequest req = request(&recipe, 12, 84);
+    req.urgency = PGRAPH_VK_HYBRID_PIPELINE_DEMAND;
+    g_assert_cmpint(pgraph_vk_hybrid_pipeline_builder_submit(&builder, &req),
+                    ==, PGRAPH_VK_HYBRID_PIPELINE_ACCEPTED);
+    while (pgraph_vk_hybrid_pipeline_builder_promote(
+        &builder, 12, 84, PGRAPH_VK_HYBRID_PIPELINE_DEMAND)) {
+        g_thread_yield();
+    }
+
+    int64_t cancel_started_us = g_get_monotonic_time();
+    pgraph_vk_hybrid_pipeline_builder_cancel_before_generation(&builder, 13);
+    pgraph_vk_hybrid_pipeline_builder_stop(&builder);
+    pgraph_vk_hybrid_pipeline_builder_join(&builder);
+    g_assert_cmpint(g_get_monotonic_time() - cancel_started_us, <, 500 * 1000);
+    g_assert_cmpuint(driver.calls, ==, 0);
+    pgraph_vk_hybrid_pipeline_builder_destroy(&builder);
+    fake_fini(&driver);
+}
+
+static void test_diagnostic_delays_are_bounded(void)
+{
+    FakeDriver driver;
+    PGRAPHVkHybridPipelineBuilder builder = { 0 };
+    fake_init(&driver);
+    PGRAPHVkHybridPipelineBuilderConfig cfg = config(&driver);
+
+    cfg.diagnostic_queue_delay_ms =
+        PGRAPH_VK_HYBRID_PIPELINE_MAX_DIAGNOSTIC_DELAY_MS + 1;
+    g_assert_false(pgraph_vk_hybrid_pipeline_builder_init(&builder, &cfg));
+    cfg.diagnostic_queue_delay_ms = 0;
+    cfg.diagnostic_create_delay_ms =
+        PGRAPH_VK_HYBRID_PIPELINE_MAX_DIAGNOSTIC_DELAY_MS + 1;
+    g_assert_false(pgraph_vk_hybrid_pipeline_builder_init(&builder, &cfg));
+    cfg.diagnostic_create_delay_ms = 0;
+    cfg.diagnostic_publish_delay_ms =
+        PGRAPH_VK_HYBRID_PIPELINE_MAX_DIAGNOSTIC_DELAY_MS + 1;
+    g_assert_false(pgraph_vk_hybrid_pipeline_builder_init(&builder, &cfg));
+
+    fake_fini(&driver);
+}
+
 static PGRAPHVkHybridPipelineBuildResult take(PGRAPHVkHybridPipelineBuilder *builder)
 {
     PGRAPHVkHybridPipelineBuildResult result;
@@ -760,5 +905,17 @@ int main(int argc, char **argv)
                     test_queued_prewarm_promotes_in_place);
     g_test_add_func("/vk/hybrid-pipeline/active-not-promoted",
                     test_active_job_is_not_promoted);
+    g_test_add_func("/vk/hybrid-pipeline/diagnostic-queue-delay-promotion",
+                    test_diagnostic_queue_delay_allows_promotion);
+    g_test_add_func("/vk/hybrid-pipeline/diagnostic-create-delay",
+                    test_diagnostic_create_delay_is_measured);
+    g_test_add_func("/vk/hybrid-pipeline/diagnostic-publication-delay",
+                    test_diagnostic_publication_delay_is_measured);
+    g_test_add_func("/vk/hybrid-pipeline/diagnostic-delay-shutdown",
+                    test_diagnostic_delay_shutdown_is_interruptible);
+    g_test_add_func("/vk/hybrid-pipeline/diagnostic-delay-cancellation",
+                    test_diagnostic_create_delay_cancellation_is_interruptible);
+    g_test_add_func("/vk/hybrid-pipeline/diagnostic-delay-bounds",
+                    test_diagnostic_delays_are_bounded);
     return g_test_run();
 }

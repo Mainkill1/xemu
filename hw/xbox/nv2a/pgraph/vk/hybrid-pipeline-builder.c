@@ -238,7 +238,8 @@ static void list_destroy(PipelineBuilderState *state, PipelineJob *head)
     }
 }
 
-static PipelineJob *take_next_pending(PipelineBuilderState *state)
+static PipelineJob *find_next_pending(PipelineBuilderState *state,
+                                      PipelineJob **previous_out)
 {
     PipelineJob *best = state->pending_head;
     PipelineJob *best_previous = NULL;
@@ -251,6 +252,17 @@ static PipelineJob *take_next_pending(PipelineBuilderState *state)
             best_previous = previous;
         }
     }
+    if (previous_out) {
+        *previous_out = best_previous;
+    }
+    return best;
+}
+
+static PipelineJob *take_next_pending(PipelineBuilderState *state)
+{
+    PipelineJob *best_previous;
+    PipelineJob *best = find_next_pending(state, &best_previous);
+
     if (best_previous) {
         best_previous->next = best->next;
     } else {
@@ -261,6 +273,25 @@ static PipelineJob *take_next_pending(PipelineBuilderState *state)
     }
     best->next = NULL;
     return best;
+}
+
+static bool diagnostic_delay_locked(PipelineBuilderState *state,
+                                    const PipelineJob *job,
+                                    uint32_t delay_ms,
+                                    int64_t base_us)
+{
+    int64_t deadline_us = base_us + (int64_t)delay_ms * 1000;
+
+    while (!state->stopping &&
+           job->request.generation >= state->min_generation) {
+        int64_t remaining_us = deadline_us - g_get_monotonic_time();
+        if (remaining_us <= 0) {
+            return true;
+        }
+        int remaining_ms = MIN((remaining_us + 999) / 1000, INT_MAX);
+        qemu_cond_timedwait(&state->work_ready, &state->lock, remaining_ms);
+    }
+    return false;
 }
 
 static void *pipeline_worker(void *opaque)
@@ -292,6 +323,33 @@ static void *pipeline_worker(void *opaque)
             qemu_mutex_unlock(&state->lock);
             break;
         }
+        while (!state->stopping && state->pending_head &&
+               state->config.diagnostic_queue_delay_ms) {
+            PipelineJob *next = find_next_pending(state, NULL);
+            if (next->request.urgency == PGRAPH_VK_HYBRID_PIPELINE_DEMAND) {
+                break;
+            }
+            int64_t deadline_us =
+                next->result.submitted_us +
+                (int64_t)state->config.diagnostic_queue_delay_ms * 1000;
+            int64_t remaining_us = deadline_us - g_get_monotonic_time();
+            if (remaining_us <= 0) {
+                break;
+            }
+            int remaining_ms = MIN((remaining_us + 999) / 1000, INT_MAX);
+            /* Do not retain next across this wait: generation cancellation may
+             * remove and destroy the pending job while the lock is released. */
+            qemu_cond_timedwait(&state->work_ready, &state->lock,
+                                remaining_ms);
+        }
+        if (state->stopping) {
+            qemu_mutex_unlock(&state->lock);
+            break;
+        }
+        if (!state->pending_head) {
+            qemu_mutex_unlock(&state->lock);
+            continue;
+        }
         PipelineJob *job = take_next_pending(state);
         state->active = job;
         bool stale = job->request.generation < state->min_generation;
@@ -310,11 +368,28 @@ static void *pipeline_worker(void *opaque)
         qemu_mutex_unlock(&state->lock);
 
         if (!stale) {
-            job->result.vk_result = state->config.create(
-                state->config.opaque, job->request.device,
-                job->request.cache, &job->recipe.info,
-                &job->result.pipeline);
-            job->result.finished_us = g_get_monotonic_time();
+            bool create_allowed = true;
+            if (state->config.diagnostic_create_delay_ms) {
+                qemu_mutex_lock(&state->lock);
+                create_allowed = diagnostic_delay_locked(
+                    state, job, state->config.diagnostic_create_delay_ms,
+                    job->result.started_us);
+                qemu_mutex_unlock(&state->lock);
+            }
+            if (create_allowed) {
+                job->result.vk_result = state->config.create(
+                    state->config.opaque, job->request.device,
+                    job->request.cache, &job->recipe.info,
+                    &job->result.pipeline);
+                job->result.finished_us = g_get_monotonic_time();
+                if (state->config.diagnostic_publish_delay_ms) {
+                    qemu_mutex_lock(&state->lock);
+                    diagnostic_delay_locked(
+                        state, job, state->config.diagnostic_publish_delay_ms,
+                        job->result.finished_us);
+                    qemu_mutex_unlock(&state->lock);
+                }
+            }
         }
 
         qemu_mutex_lock(&state->lock);
@@ -345,7 +420,13 @@ bool pgraph_vk_hybrid_pipeline_builder_init(
     const PGRAPHVkHybridPipelineBuilderConfig *config)
 {
     if (!builder || builder->state || !config || !config->max_jobs ||
-        !config->create || !config->destroy) {
+        !config->create || !config->destroy ||
+        config->diagnostic_queue_delay_ms >
+            PGRAPH_VK_HYBRID_PIPELINE_MAX_DIAGNOSTIC_DELAY_MS ||
+        config->diagnostic_create_delay_ms >
+            PGRAPH_VK_HYBRID_PIPELINE_MAX_DIAGNOSTIC_DELAY_MS ||
+        config->diagnostic_publish_delay_ms >
+            PGRAPH_VK_HYBRID_PIPELINE_MAX_DIAGNOSTIC_DELAY_MS) {
         return false;
     }
     PipelineBuilderState *state = g_new0(PipelineBuilderState, 1);
@@ -563,6 +644,7 @@ void pgraph_vk_hybrid_pipeline_builder_cancel_before_generation(
     qemu_mutex_lock(&state->lock);
     if (generation > state->min_generation) {
         state->min_generation = generation;
+        qemu_cond_broadcast(&state->work_ready);
     }
     PipelineJob **lists[] = { &state->pending_head, &state->result_head };
     PipelineJob **tails[] = { &state->pending_tail, &state->result_tail };
