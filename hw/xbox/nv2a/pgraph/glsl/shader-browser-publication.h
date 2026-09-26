@@ -47,6 +47,6 @@ void pgraph_shader_browser_capture_inline(
     uint32_t primitive, uint16_t attribute_mask, uint32_t width,
     uint32_t height, const char *vertex_source,
     const char *geometry_source, const char *pixel_source,
-    uint32_t route);
+    uint32_t route, uint64_t sampled_nonce);
 
 #endif

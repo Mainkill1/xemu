@@ -27,6 +27,8 @@ typedef struct XemuShaderCaptureRequest {
     uint32_t backend;
     uint64_t session_epoch;
     uint64_t renderer_epoch;
+    uint64_t scope_generation;
+    uint64_t request_nonce;
     uint64_t deadline_ns;
 } XemuShaderCaptureRequest;
 
@@ -64,14 +66,33 @@ typedef struct XemuShaderCaptureDraw {
     uint32_t scissor_height;
     uint32_t texture_mask;
     uint32_t route;
+    uint64_t sampled_nonce;
     uint64_t capture_started_ns;
 } XemuShaderCaptureDraw;
+
+typedef struct XemuShaderCaptureAbiSizes {
+    size_t shader_state;
+    size_t vertex_uniforms;
+    size_t pixel_uniforms;
+} XemuShaderCaptureAbiSizes;
+
+XemuShaderCaptureAbiSizes xemu_shader_capture_abi_sizes(void);
+int xemu_shader_capture_ordinary_2d_sampler(const void *shader_state,
+                                             size_t size, uint32_t stage);
+int xemu_shader_capture_pixel_scale_is(const void *pixel_uniforms,
+                                        size_t size, uint32_t stage,
+                                        float expected);
+#ifdef XEMU_SHADER_CAPTURE_TESTING
+void xemu_shader_capture_test_make_state(void *bytes, size_t size, int cube);
+void xemu_shader_capture_test_make_pixel_uniforms(void *bytes, size_t size);
+#endif
 
 // UI arms a single exact selection. The renderer only calls the draw hook
 // after a command was actually submitted. A rejected draw never calls it.
 void xemu_shader_capture_request(const XemuShaderCaptureRequest *request);
 void xemu_shader_capture_cancel(void);
 int xemu_shader_capture_armed(void);
+uint64_t xemu_shader_capture_nonce(void);
 int xemu_shader_capture_copy_request(XemuShaderCaptureRequest *request);
 int xemu_shader_capture_submitted(const XemuShaderCaptureDraw *draw,
                                   uint64_t now_ns);
