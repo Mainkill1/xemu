@@ -6,7 +6,8 @@ namespace xemu::shader_browser {
 static bool SameInteractionInputs(const PreviewResultKey &lhs,
                                   const PreviewResultKey &rhs)
 {
-    return lhs.clock_edit_revision == rhs.clock_edit_revision &&
+    return lhs.channel == rhs.channel &&
+           lhs.clock_edit_revision == rhs.clock_edit_revision &&
            lhs.compile == rhs.compile &&
            lhs.input_revision == rhs.input_revision &&
            lhs.view_revision == rhs.view_revision && lhs.scene == rhs.scene &&

@@ -642,3 +642,55 @@ Sampler coordinate routing uses a preview vertex attribute populated from the
 linked GL active-uniform types or Vulkan reflected descriptor types. It does not
 parse sampler declarations from GLSL source; comments, whitespace and macros
 therefore cannot switch a 2D input to cube coordinates or vice versa.
+
+### Explicit Visualize channels (Task 3c)
+
+Visualize offers Final RGBA and opaque grayscale Final R/G/B/Alpha from the
+selected shader's actual private render target. Final RGBA retains its alpha for
+checkerboard compositing. Final Alpha shows the stored shader output alpha as
+brightness, including the private target's clear alpha outside rendered geometry;
+it is not a discard/coverage measurement.
+
+Additional channels are explicitly labeled preview-owned 2D fixture charts:
+UV (clamped red/green), D0/D1/B0/B1 (opaque RGB), T0–T3 RGB texel atlases, Fog
+(grayscale), a horizontal depth-like UV ramp, and an approximate alpha threshold
+mask. The charts are independent of scene/camera and do not execute the selected
+shader. D0 uses bilinear corner modulation of its fixture color, including its
+alpha for the threshold mask. Fog follows the fixture profile's horizontal ramp
+where applicable. Texture atlases show all six generated faces, bottom row
++X/-X/+Y and top row -Y/+Z/-Z; a 2D pattern repeats across faces. They show RGB
+texels before sampler filtering/coordinate routing and do not expose sampled guest
+texture registers. The depth-like ramp is neither scene nor guest depth.
+
+The approximate mask compares fixture D0 alpha strictly greater than the fixture
+alpha reference. It does not infer a guest alpha function or execute shader
+discard. Exact shader discard mask is visibly Unsupported and disabled: output
+RGBA cannot recover that coverage. Labels and provenance accompany channel
+selection, and hovering each Current/Frozen channel label describes that frame's
+own provenance.
+
+Channels are result identity, not compile identity. A paused channel edit requests
+an immediate governed update using the existing shared source packet and prepared
+program. Running admission still follows the existing pressure ceilings. A stale
+in-flight channel completion cannot replace a newer request. Frozen slots keep
+their original channel and pixels; the ordinary three-slot producer/consumer
+fences and retirement protocol remain in force.
+
+OpenGL uses per-output-texture swizzle for scalar output sampling, with no extra
+shader, draw, or GPU readback. Vulkan transforms its already completed private
+RGBA bytes. Diagnostic charts are bounded CPU RGBA8 buffers (at most 409,600
+bytes each), uploaded only on the private worker through the existing producer
+fence path. GL's temporary chart can coexist with the retained Vulkan transport
+buffer; these bounded allocations are separate from the 32 MiB immutable packet
+budget. No game cache, queue, framebuffer or wait is added. Charts currently
+require successful preparation of the selected shader, just like final output.
+
+Deck native checks sample GL final RGBA/scalars and uploaded chart pixels, and
+exercise the production Vulkan executor's final channels and CPU charts without
+re-preparation. They cover UV, D0, T0, Fog, depth-like ramp, approximate mask and
+Unsupported discard. Focused tests cover all named channels/atlas faces,
+provenance, bounds, compile/source reuse, immediate paused updates, stale active
+jobs, frozen/current channel identity and all three slots returning to Free.
+The GL native harness exercises the production swizzle/chart helpers; production
+GL worker/HUD lifecycle, Windows, achieved UI cadence and matched gameplay
+performance remain Task 6 qualification gates.

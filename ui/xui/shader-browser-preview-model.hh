@@ -30,6 +30,34 @@ enum class PreviewMode : uint8_t {
     Visualize,
 };
 
+enum class PreviewChannel : uint8_t {
+    FinalRGBA,
+    Red,
+    Green,
+    Blue,
+    Alpha,
+    UV,
+    D0,
+    D1,
+    B0,
+    B1,
+    T0,
+    T1,
+    T2,
+    T3,
+    Fog,
+    DepthRamp,
+    FixtureAlphaMask,
+    ShaderDiscard,
+    Count
+};
+const char *PreviewChannelLabel(PreviewChannel channel);
+const char *PreviewChannelProvenance(PreviewChannel channel);
+bool PreviewChannelAvailable(PreviewChannel channel);
+bool PreviewChannelIsDiagnostic(PreviewChannel channel);
+// -1 means the unmodified RGBA result; 0..3 selects an opaque scalar view.
+int PreviewChannelComponent(PreviewChannel channel);
+
 enum class PreviewBackend : uint8_t {
     Unknown,
     OpenGL,
@@ -113,6 +141,7 @@ struct PreviewCompileKey {
 };
 
 struct PreviewResultKey {
+    PreviewChannel channel = PreviewChannel::FinalRGBA;
     PreviewScene scene;
     uint64_t clock_revision = 0;
     uint64_t clock_edit_revision = 0;

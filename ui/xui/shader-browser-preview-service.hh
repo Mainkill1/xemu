@@ -61,6 +61,7 @@ public:
     bool SubmitPacket(PreviewPacket packet,
                       uint64_t now_ns, std::string *error);
     bool RequestPreparation(std::string *error);
+    void EditChannel(PreviewChannel channel);
     void EditScene(const PreviewScene &scene);
     void EditClock(PreviewClockAction action, double value, uint64_t now_ns);
     void UpdateHealth(const PreviewHealth &health);
@@ -132,6 +133,7 @@ private:
     PreviewMode requested_mode_ = PreviewMode::Normal;
     uint64_t selection_changed_ns_ = 0;
 
+    PreviewChannel channel_ = PreviewChannel::FinalRGBA;
     PreviewScene scene_;
     uint64_t scene_revision_ = 0;
     PreviewClock clock_;

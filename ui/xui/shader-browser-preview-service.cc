@@ -349,6 +349,17 @@ void PreviewService::EditClock(PreviewClockAction action, double value,
     }
 }
 
+void PreviewService::EditChannel(PreviewChannel channel)
+{
+    if (!PreviewChannelAvailable(channel))
+        return;
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (channel_ != channel) {
+        channel_ = channel;
+        ++generation_;
+    }
+}
+
 void PreviewService::EditScene(const PreviewScene &scene)
 {
     std::lock_guard<std::mutex> lock(mutex_);
@@ -363,6 +374,7 @@ void PreviewService::EditScene(const PreviewScene &scene)
 PreviewResultKey PreviewService::CurrentResultKeyLocked() const
 {
     auto key = BuildPreviewResultKey(*pending_.packet);
+    key.channel = channel_;
     if (scene_revision_) {
         key.scene = scene_;
         key.view_revision = scene_revision_;

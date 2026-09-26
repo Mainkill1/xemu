@@ -530,6 +530,49 @@ int main()
     assert(service.CompleteRender(work.token, true, "camera",
                                   paused_first + 200000005));
 
+    service.EditChannel(PreviewChannel::Red);
+    assert(service.TryClaimWork(paused_first + 200000006, &work));
+    assert(work.packet == storage && work.compile_key == compiled);
+    assert(work.result_key.channel == PreviewChannel::Red);
+    service.EditChannel(PreviewChannel::UV);
+    assert(service.CompleteRender(work.token, true, "obsolete channel",
+                                  paused_first + 200000007));
+    service.CopyStatus(&status);
+    assert(status.stale_completions == 3);
+    assert(service.TryClaimWork(paused_first + 200000008, &work));
+    assert(work.packet == storage && work.compile_key == compiled);
+    assert(work.result_key.channel == PreviewChannel::UV);
+    assert(service.CompleteRender(work.token, true, "chart",
+                                  paused_first + 200000008));
+    service.EditChannel(PreviewChannel::ShaderDiscard);
+    assert(!service.TryClaimWork(paused_first + 200000009, &work));
+
+    PreviewFrameRef frozen_channel{};
+    assert(service.TryAcquireReadyFrame(&frozen_channel,
+                                        paused_first + 200000010));
+    assert(frozen_channel.result_key.channel == PreviewChannel::UV);
+    service.EditChannel(PreviewChannel::Alpha);
+    assert(service.TryClaimWork(paused_first + 200000011, &work));
+    assert(work.slot != frozen_channel.slot);
+    assert(work.packet == storage && work.compile_key == compiled);
+    assert(service.CompleteRender(work.token, true, "alpha",
+                                  paused_first + 200000011));
+    PreviewFrameRef current_channel{};
+    assert(service.TryAcquireReadyFrame(&current_channel,
+                                        paused_first + 200000012));
+    assert(current_channel.result_key.channel == PreviewChannel::Alpha);
+    assert(frozen_channel.result_key.channel == PreviewChannel::UV);
+    assert(service.ReleaseDisplayLease(frozen_channel.slot,
+                                       frozen_channel.slot_generation));
+    assert(service.CompleteDisplayRetirement(frozen_channel.slot,
+                                             frozen_channel.slot_generation));
+    assert(service.ReleaseDisplayLease(current_channel.slot,
+                                       current_channel.slot_generation));
+    assert(service.CompleteDisplayRetirement(current_channel.slot,
+                                             current_channel.slot_generation));
+    service.CopyStatus(&status);
+    assert(status.free_slots == 3);
+
     // Continuous playback has no duration cap and retains one immutable packet.
     service.ResetForTest();
     service.SetEnabled(true);

@@ -29,7 +29,7 @@ int main(int argc, char **)
         packet->source, PreviewBackend::Vulkan);
     PreviewSyntheticFixture fixture{};
     for (auto &color : fixture.corner_colors)
-        color = { 255, 0, 0, 255 };
+        color = { 255, 0, 0, 73 };
     packet->fixture_bytes = EncodePreviewSyntheticFixture(fixture);
     work.packet = packet;
     bool unsupported = false;
@@ -48,6 +48,43 @@ int main(int argc, char **)
     CHECK(pixels.size() == 32 * 32 * 4);
     CHECK(pixels[4 * (16 * 32 + 16)] == 255);
     CHECK(pixels[4 * (16 * 32 + 16) + 1] == 0);
+    CHECK(pixels[4 * (16 * 32 + 16) + 3] == 73);
+    const auto final_pixels = pixels;
+    for (auto channel : { PreviewChannel::Red, PreviewChannel::Green,
+                          PreviewChannel::Blue, PreviewChannel::Alpha }) {
+        work.result_key.channel = channel;
+        CHECK(executor.Render(work, stop, &pixels, &error));
+        const auto value =
+            final_pixels[4 * (16 * 32 + 16) + PreviewChannelComponent(channel)];
+        for (int c = 0; c < 3; ++c)
+            CHECK(pixels[4 * (16 * 32 + 16) + c] == value);
+        CHECK(pixels[4 * (16 * 32 + 16) + 3] == 255);
+    }
+    fixture.fog = 0.25f;
+    fixture.alpha_reference = 63;
+    packet->fixture_bytes = EncodePreviewSyntheticFixture(fixture);
+    for (auto channel :
+         { PreviewChannel::UV, PreviewChannel::D0, PreviewChannel::T0,
+           PreviewChannel::Fog, PreviewChannel::DepthRamp,
+           PreviewChannel::FixtureAlphaMask }) {
+        work.result_key.channel = channel;
+        CHECK(executor.Render(work, stop, &pixels, &error));
+        const auto center = 4 * (16 * 32 + 16);
+        const uint8_t expected = channel == PreviewChannel::UV ||
+                                         channel == PreviewChannel::DepthRamp ?
+                                     131 :
+                                 channel == PreviewChannel::Fog ? 64 :
+                                 channel == PreviewChannel::T0  ? 0 :
+                                                                  255;
+        CHECK(pixels[center] == expected);
+        CHECK(pixels[center + 3] == 255);
+    }
+    work.result_key.channel = PreviewChannel::ShaderDiscard;
+    CHECK(!executor.Render(work, stop, &pixels, &error));
+    CHECK(error.find("Unsupported") != std::string::npos);
+    work.result_key.channel = PreviewChannel::FinalRGBA;
+    std::puts("Vulkan final scalar channels and fixture charts / unsupported "
+              "discard PASS");
     // Mesh and camera edits reuse this prepared pipeline.
     std::vector<std::vector<uint8_t>> mesh_pixels;
     for (auto kind :
