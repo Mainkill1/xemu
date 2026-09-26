@@ -351,8 +351,17 @@ static bool InitializeShaderBrowserExternalWindow(SDL_Window *main_window,
     return true;
 }
 
-void xemu_hud_init(SDL_Window* window, void* sdl_gl_context,
-                   bool shader_browser_window_on_start)
+void xemu_hud_init_external_window(SDL_Window *window, void *sdl_gl_context,
+                                   bool requested)
+{
+    if (requested &&
+        !InitializeShaderBrowserExternalWindow(
+            window, static_cast<SDL_GLContext>(sdl_gl_context))) {
+        shader_browser_window.m_is_open = true;
+    }
+}
+
+void xemu_hud_init(SDL_Window* window, void* sdl_gl_context)
 {
     xemu_monitor_init();
     g_vsync = g_config.display.window.vsync;
@@ -379,12 +388,6 @@ void xemu_hud_init(SDL_Window* window, void* sdl_gl_context,
 #endif
     g_last_scale = g_viewport_mgr.m_scale;
     InitializeStyle();
-
-    if (shader_browser_window_on_start &&
-        !InitializeShaderBrowserExternalWindow(
-            window, static_cast<SDL_GLContext>(sdl_gl_context))) {
-        shader_browser_window.m_is_open = true;
-    }
 
     g_shader_browser_scope = {};
     g_shader_browser_next_scope_poll_ms = 0;

@@ -40,8 +40,9 @@ void xemu_main_loop_lock(void);
 void xemu_main_loop_unlock(void);
 
 // Implemented in xemu_hud.cc
-void xemu_hud_init(SDL_Window *window, void *sdl_gl_context,
-                   bool shader_browser_window_on_start);
+void xemu_hud_init(SDL_Window *window, void *sdl_gl_context);
+void xemu_hud_init_external_window(SDL_Window *window, void *sdl_gl_context,
+                                   bool requested);
 void xemu_hud_cleanup(void);
 void xemu_hud_update(void);
 void xemu_hud_render(void);

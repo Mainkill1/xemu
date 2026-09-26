@@ -1167,8 +1167,7 @@ static void display_early_init(DisplayOptions *o)
 
     SDL_GL_MakeCurrent(m_window, m_context);
     SDL_GL_SetSwapInterval(g_config.display.window.vsync ? 1 : 0);
-    xemu_hud_init(m_window, m_context,
-                  g_shader_browser_window_on_start);
+    xemu_hud_init(m_window, m_context);
 }
 
 static const DisplayChangeListenerOps dcl_gl_ops = {
@@ -1517,6 +1516,16 @@ int main(int argc, char **argv)
     qemu_thread_create(&thread, "qemu_main", qemu_main,
                        NULL, QEMU_THREAD_JOINABLE);
     qemu_sem_wait(&display_init_sem);
+
+    /* SDL windows must be created on the thread that pumps their events.
+     * The HUD itself was initialized during QEMU display setup on qemu_main,
+     * but poll_events() runs here on the process main thread. */
+    SDL_GL_MakeCurrent(m_window, m_context);
+    xemu_main_loop_lock();
+    xemu_hud_init_external_window(m_window, m_context,
+                                  g_shader_browser_window_on_start);
+    xemu_main_loop_unlock();
+    SDL_GL_MakeCurrent(NULL, NULL);
 
     gui_grab = 0;
     if (gui_fullscreen) {
