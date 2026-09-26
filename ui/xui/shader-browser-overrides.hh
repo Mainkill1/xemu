@@ -45,6 +45,18 @@ enum DrawConditionMask : uint32_t {
     DrawConditionPrimitive = 1U << 2,
 };
 
+struct ShaderDragPayload {
+    uint32_t title_id = 0;
+    uint32_t identity_version = 0;
+    std::array<uint8_t, kShaderHashBytes> shader_hash{};
+    uint32_t stage = 0;
+};
+
+ShaderDragPayload MakeShaderDragPayload(uint32_t title_id,
+                                        const ShaderKey &key);
+bool DecodeShaderDragPayload(const ShaderDragPayload &payload,
+                             uint32_t *title_id, ShaderKey *key);
+
 struct DrawFacts {
     uint32_t element_count = 0;
     uint32_t min_element = 0;

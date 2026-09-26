@@ -43,6 +43,8 @@ void ShaderBrowserWindow::ApplyPersistenceSettings()
 
 void ShaderBrowserWindow::DrawSelector()
 {
+    GetShaderOverrideUi().Refresh(m_snapshot.current_title_id);
+
     ImGui::SetNextItemWidth(-1);
     if (ImGui::InputTextWithHint("##shader-search", "Search shaders...",
                                  &m_search)) {
@@ -121,9 +123,17 @@ void ShaderBrowserWindow::DrawSelector()
                                      StageLabel(entry.key.stage);
                 bool selected = m_has_selection &&
                                 m_selected_key == entry.key;
+                ShaderOverrideRowPresentation override_row =
+                    GetShaderOverrideUi().EvaluateRow(
+                        entry, m_snapshot.current_title_id);
 
                 ImGui::PushID(row_id.c_str());
                 ImGui::TableNextRow();
+                if (override_row.compatible) {
+                    ImGui::TableSetBgColor(
+                        ImGuiTableBgTarget_RowBg0,
+                        IM_COL32(66, 104, 72, selected ? 115 : 72));
+                }
                 ImGui::TableSetColumnIndex(0);
                 if (ImGui::Selectable(
                         short_id.c_str(), selected,
@@ -141,8 +151,13 @@ void ShaderBrowserWindow::DrawSelector()
                         ImGui::SetClipboardText(canonical.c_str());
                         m_action_message = "Copied canonical shader hash";
                     }
+                    GetShaderOverrideUi().DrawRowContextMenu(
+                        entry, m_snapshot.current_title_id,
+                        &m_action_message);
                     ImGui::EndPopup();
                 }
+                GetShaderOverrideUi().DrawRowDragSource(
+                    entry, m_snapshot.current_title_id, full_id);
 
                 ImGui::TableSetColumnIndex(1);
                 ImGui::TextUnformatted(StageLabel(entry.key.stage));

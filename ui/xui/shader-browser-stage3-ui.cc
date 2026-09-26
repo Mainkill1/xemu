@@ -1,0 +1,433 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+#include "shader-browser-stage3-ui.hh"
+
+#include "common.hh"
+#include "viewport-manager.hh"
+#include "../xemu-settings.h"
+
+#include <xxhash.h>
+
+#include <algorithm>
+#include <array>
+#include <cstring>
+#include <iterator>
+
+namespace xemu::shader_browser {
+namespace {
+
+constexpr char kShaderDragPayloadType[] = "XEMU_SHADER_BROWSER_SHADER_KEY_V1";
+
+uint64_t RuleId(uint32_t title_id, const ShaderKey &key)
+{
+    std::array<uint8_t, 4 + 4 + 4 + kShaderHashBytes> frame{};
+    size_t offset = 0;
+    auto put_u32 = [&](uint32_t value) {
+        for (unsigned shift = 0; shift < 32; shift += 8) {
+            frame[offset++] = static_cast<uint8_t>((value >> shift) & 0xffU);
+        }
+    };
+    put_u32(title_id);
+    put_u32(key.hash.version);
+    put_u32(static_cast<uint32_t>(key.stage));
+    std::memcpy(frame.data() + offset, key.hash.bytes.data(),
+                key.hash.bytes.size());
+    uint64_t id = XXH3_64bits_withSeed(frame.data(), frame.size(),
+                                      UINT64_C(0x58454d5553484452));
+    return id ? id : 1;
+}
+
+const ShaderScope *FindBuildScope(const Entry *entry, uint32_t title_id)
+{
+    if (!entry) return nullptr;
+    auto it = std::find_if(entry->scopes.begin(), entry->scopes.end(),
+                           [title_id](const ShaderScope &scope) {
+                               return scope.title_id == title_id &&
+                                      scope.executable_fingerprint_version != 0;
+                           });
+    return it == entry->scopes.end() ? nullptr : &*it;
+}
+
+bool OpenDirectory(const std::string &path, std::string *error)
+{
+    if (path.empty()) {
+        if (error) *error = "Replacement directory is not configured";
+        return false;
+    }
+    GError *glib_error = nullptr;
+    char *uri = g_filename_to_uri(path.c_str(), nullptr, &glib_error);
+    if (!uri) {
+        if (error) {
+            *error = glib_error ? glib_error->message :
+                                  "Unable to create replacement directory URI";
+        }
+        g_clear_error(&glib_error);
+        return false;
+    }
+    bool ok = SDL_OpenURL(uri);
+    g_free(uri);
+    if (!ok && error) {
+        *error = std::string("Unable to open replacement directory: ") +
+                 SDL_GetError();
+    }
+    return ok;
+}
+
+} // namespace
+
+void ShaderOverrideUi::Refresh(uint32_t current_title_id)
+{
+    if (!configured_) {
+        const char *base_path = xemu_settings_get_base_path();
+        GetReplacementLibrary().Configure(base_path ? base_path : "");
+        configured_ = true;
+    }
+    RefreshSnapshots(current_title_id);
+}
+
+void ShaderOverrideUi::RefreshSnapshots(uint32_t current_title_id)
+{
+    GetOverrideStore().CopySnapshot(&store_snapshot_);
+    if (current_title_id != 0 &&
+        store_snapshot_.context.title_id != current_title_id) {
+        OverrideContext context = store_snapshot_.context;
+        context.title_id = current_title_id;
+        context.executable_fingerprint_version = 0;
+        context.executable_fingerprint.fill(0);
+        GetOverrideStore().SetContext(context);
+        GetOverrideStore().CopySnapshot(&store_snapshot_);
+    }
+    GetReplacementLibrary().CopySnapshot(&library_snapshot_);
+    if (selected_replacement_id_ != 0 && !SelectedPackage()) {
+        selected_replacement_id_ = 0;
+    }
+    if (selected_replacement_id_ == 0 &&
+        !library_snapshot_.packages.empty()) {
+        selected_replacement_id_ =
+            library_snapshot_.packages.front().descriptor.id;
+    }
+}
+
+const ReplacementPackageInfo *ShaderOverrideUi::SelectedPackage() const
+{
+    auto it = std::find_if(
+        library_snapshot_.packages.begin(), library_snapshot_.packages.end(),
+        [this](const ReplacementPackageInfo &package) {
+            return package.descriptor.id == selected_replacement_id_;
+        });
+    return it == library_snapshot_.packages.end() ? nullptr : &*it;
+}
+
+OverrideAction ShaderOverrideUi::SelectedAction() const
+{
+    if (action_index_ < static_cast<int>(OverrideAction::Normal) ||
+        action_index_ > static_cast<int>(OverrideAction::Replacement)) {
+        return OverrideAction::Normal;
+    }
+    return static_cast<OverrideAction>(action_index_);
+}
+
+ShaderOverrideRowPresentation ShaderOverrideUi::EvaluateRow(
+    const Entry &entry, uint32_t title_id) const
+{
+    ShaderOverrideRowPresentation result{};
+    const ReplacementPackageInfo *package = SelectedPackage();
+    if (!package || SelectedAction() != OverrideAction::Replacement) {
+        return result;
+    }
+    result.replacement_selected = true;
+    if (title_id == 0) {
+        result.reason = "shader has no active Xbox TitleID";
+        return result;
+    }
+    result.compatible = IsEntryCompatibleWithReplacement(
+        entry, title_id, package->descriptor, store_snapshot_.context.backend,
+        &result.reason);
+    return result;
+}
+
+void ShaderOverrideUi::DrawRowDragSource(const Entry &entry,
+                                         uint32_t title_id,
+                                         const std::string &display_id)
+{
+    ShaderOverrideRowPresentation row = EvaluateRow(entry, title_id);
+    if (!row.compatible) {
+        if (row.replacement_selected && ImGui::IsItemHovered()) {
+            ImGui::SetTooltip("Not compatible: %s", row.reason.c_str());
+        }
+        return;
+    }
+    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
+        ShaderDragPayload payload = MakeShaderDragPayload(title_id, entry.key);
+        ImGui::SetDragDropPayload(kShaderDragPayloadType, &payload,
+                                  sizeof(payload));
+        ImGui::TextUnformatted("Assign replacement to");
+        ImGui::TextUnformatted(display_id.c_str());
+        ImGui::EndDragDropSource();
+    }
+}
+
+bool ShaderOverrideUi::ApplyRule(const ShaderKey &key, uint32_t title_id,
+                                 const Entry *entry, OverrideAction action,
+                                 uint64_t replacement_id,
+                                 std::string *message)
+{
+    if (!title_id) {
+        if (message) *message = "A concrete Xbox TitleID is required";
+        return false;
+    }
+    OverrideRule rule{};
+    rule.id = RuleId(title_id, key);
+    rule.enabled = true;
+    rule.title_id = title_id;
+    rule.shader = key;
+    rule.origin = OverrideOrigin::Session;
+    rule.priority = 1000;
+    rule.action = action;
+    rule.replacement_id = replacement_id;
+    rule.revision = next_rule_revision_++;
+    if (restrict_build_) {
+        const ShaderScope *scope = FindBuildScope(entry, title_id);
+        if (!scope) {
+            if (message) {
+                *message = "Current shader has no executable fingerprint for "
+                           "build-specific targeting";
+            }
+            return false;
+        }
+        rule.restrict_build = true;
+        rule.executable_fingerprint_version =
+            scope->executable_fingerprint_version;
+        rule.executable_fingerprint = scope->executable_fingerprint;
+    }
+    std::string error;
+    if (!GetOverrideStore().UpsertRule(rule, &error)) {
+        if (message) *message = error;
+        return false;
+    }
+    if (message) {
+        *message = std::string("Requested ") + OverrideActionLabel(action) +
+                   " for the selected shader";
+    }
+    RefreshSnapshots(title_id);
+    return true;
+}
+
+bool ShaderOverrideUi::ApplyReplacement(const ShaderKey &key,
+                                        uint32_t title_id,
+                                        const Entry *entry,
+                                        std::string *message)
+{
+    const ReplacementPackageInfo *package = SelectedPackage();
+    if (!package) {
+        if (message) *message = "Choose a replacement package first";
+        return false;
+    }
+    std::string reason;
+    if (!IsReplacementCompatible(key, package->descriptor,
+                                 store_snapshot_.context.backend, &reason)) {
+        if (message) *message = "Replacement is incompatible: " + reason;
+        return false;
+    }
+    return ApplyRule(key, title_id, entry, OverrideAction::Replacement,
+                     package->descriptor.id, message);
+}
+
+void ShaderOverrideUi::DrawRowContextMenu(const Entry &entry,
+                                          uint32_t title_id,
+                                          std::string *message)
+{
+    const ReplacementPackageInfo *package = SelectedPackage();
+    if (!package || SelectedAction() != OverrideAction::Replacement) return;
+    ShaderOverrideRowPresentation row = EvaluateRow(entry, title_id);
+    const std::string &reason = row.reason;
+    bool compatible = row.compatible;
+    ImGui::Separator();
+    ImGui::BeginDisabled(!compatible);
+    std::string label = "Assign replacement: " + package->descriptor.name;
+    if (ImGui::MenuItem(label.c_str())) {
+        ApplyReplacement(entry.key, title_id, &entry, message);
+    }
+    ImGui::EndDisabled();
+    if (!compatible && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
+        ImGui::SetTooltip("%s", reason.c_str());
+    }
+}
+
+void ShaderOverrideUi::DrawPanel(const Entry &entry, uint32_t title_id,
+                                 std::string *message)
+{
+    Refresh(title_id);
+    ImGui::SeparatorText("Game override");
+
+    static const char *actions[] = {
+        "Normal", "Force Uber", "Force Specialized",
+        "Skip Draw", "Highlight", "Replacement",
+    };
+    ImGui::SetNextItemWidth(210.0f * g_viewport_mgr.m_scale);
+    ImGui::Combo("Action", &action_index_, actions,
+                 static_cast<int>(std::size(actions)));
+
+    if (SelectedAction() == OverrideAction::Replacement) {
+        const ReplacementPackageInfo *selected = SelectedPackage();
+        const char *preview = selected ? selected->descriptor.name.c_str() :
+                                         "No replacement packages";
+        ImGui::SetNextItemWidth(-1);
+        if (ImGui::BeginCombo("Replacement", preview)) {
+            for (const ReplacementPackageInfo &package :
+                 library_snapshot_.packages) {
+                bool is_selected = package.descriptor.id ==
+                                   selected_replacement_id_;
+                if (ImGui::Selectable(package.descriptor.name.c_str(),
+                                      is_selected)) {
+                    selected_replacement_id_ = package.descriptor.id;
+                }
+                if (is_selected) ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+
+        ShaderOverrideRowPresentation compatibility =
+            EvaluateRow(entry, title_id);
+        if (selected && compatibility.compatible) {
+            ImGui::TextDisabled("Compatible with selected shader");
+        } else if (selected) {
+            ImGui::TextWrapped("Incompatible: %s",
+                               compatibility.reason.c_str());
+        }
+
+        ImVec2 target_size(-1, 54.0f * g_viewport_mgr.m_scale);
+        ImGui::Button("Drop a highlighted shader here to assign replacement",
+                      target_size);
+        if (ImGui::BeginDragDropTarget()) {
+            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(
+                    kShaderDragPayloadType)) {
+                if (payload->DataSize == sizeof(ShaderDragPayload)) {
+                    const ShaderDragPayload &drag =
+                        *static_cast<const ShaderDragPayload *>(payload->Data);
+                    uint32_t dropped_title = 0;
+                    ShaderKey dropped_key{};
+                    if (!DecodeShaderDragPayload(drag, &dropped_title,
+                                                 &dropped_key)) {
+                        if (message) *message = "Rejected invalid shader drag payload";
+                    } else if (dropped_title != title_id) {
+                        if (message) {
+                            *message = "Dropped shader belongs to a different title";
+                        }
+                    } else {
+                        ApplyReplacement(dropped_key, dropped_title, nullptr,
+                                         message);
+                    }
+                }
+            }
+            ImGui::EndDragDropTarget();
+        }
+    }
+
+    const ShaderScope *build_scope = FindBuildScope(&entry, title_id);
+    ImGui::BeginDisabled(!build_scope);
+    ImGui::Checkbox("Restrict to current executable build", &restrict_build_);
+    ImGui::EndDisabled();
+    if (!build_scope && restrict_build_) restrict_build_ = false;
+
+    bool action_supported = true;
+    std::string unsupported;
+    if (SelectedAction() == OverrideAction::ForceUber &&
+        store_snapshot_.context.backend == OverrideBackend::OpenGL) {
+        action_supported = false;
+        unsupported = "Force Uber is not available in the OpenGL renderer";
+    }
+    if (SelectedAction() == OverrideAction::Replacement) {
+        const ReplacementPackageInfo *package = SelectedPackage();
+        action_supported = package && IsEntryCompatibleWithReplacement(
+            entry, title_id, package->descriptor,
+            store_snapshot_.context.backend, &unsupported);
+    }
+
+    ImGui::BeginDisabled(!action_supported);
+    if (ImGui::Button("Apply to selected shader")) {
+        if (SelectedAction() == OverrideAction::Replacement) {
+            ApplyReplacement(entry.key, title_id, &entry, message);
+        } else {
+            ApplyRule(entry.key, title_id, &entry, SelectedAction(), 0,
+                      message);
+        }
+    }
+    ImGui::EndDisabled();
+    if (!action_supported && !unsupported.empty()) {
+        ImGui::TextWrapped("%s", unsupported.c_str());
+    }
+
+    OverrideResolution resolution = GetOverrideStore().Resolve(entry.key);
+    ImGui::Text("Requested/effective: %s",
+                OverrideResolutionLabel(resolution.status));
+    if (!resolution.message.empty()) {
+        ImGui::SameLine();
+        ImGui::TextDisabled("%s", resolution.message.c_str());
+    }
+    if (store_snapshot_.context.backend == OverrideBackend::Unknown) {
+        ImGui::TextDisabled(
+            "Renderer not yet registered; the rule is retained and will be "
+            "resolved when OpenGL or Vulkan publishes its context.");
+    }
+}
+
+void ShaderOverrideUi::DrawSettings(std::string *message)
+{
+    Refresh(store_snapshot_.context.title_id);
+    ImGui::SeparatorText("Replacement library");
+    ImGui::TextWrapped("%s", library_snapshot_.root_path.empty() ?
+                       "Replacement folder is not configured" :
+                       library_snapshot_.root_path.c_str());
+    if (ImGui::Button("Create replacement folder")) {
+        std::string error;
+        if (!GetReplacementLibrary().EnsureRoot(&error)) {
+            if (message) *message = error;
+        } else if (message) {
+            *message = "Replacement folder is ready";
+        }
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Reload replacements")) {
+        std::string error;
+        bool ok = GetReplacementLibrary().Reload(&GetOverrideStore(), &error);
+        RefreshSnapshots(store_snapshot_.context.title_id);
+        if (message) {
+            *message = ok ? "Replacement packages reloaded" : error;
+        }
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Open replacement folder")) {
+        std::string error;
+        if (!OpenDirectory(library_snapshot_.root_path, &error) && message) {
+            *message = error;
+        }
+    }
+
+    ImGui::Text("Packages: %zu | load errors: %zu",
+                library_snapshot_.packages.size(),
+                library_snapshot_.errors.size());
+    for (const ReplacementLibraryError &error : library_snapshot_.errors) {
+        ImGui::BulletText("%s: %s", error.path.c_str(), error.message.c_str());
+    }
+
+    bool disabled = store_snapshot_.disabled;
+    if (ImGui::Checkbox("Disable all user overrides", &disabled)) {
+        GetOverrideStore().SetDisabled(disabled);
+        RefreshSnapshots(store_snapshot_.context.title_id);
+        if (message) {
+            *message = disabled ? "User shader overrides disabled" :
+                                 "User shader overrides enabled";
+        }
+    }
+    ImGui::TextDisabled(
+        "Replacement source is authored data under shader-replacements/. It "
+        "is separate from disposable shader-artifacts/ files.");
+}
+
+ShaderOverrideUi &GetShaderOverrideUi()
+{
+    static ShaderOverrideUi ui;
+    return ui;
+}
+
+} // namespace xemu::shader_browser

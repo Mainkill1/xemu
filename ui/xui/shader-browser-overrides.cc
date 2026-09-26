@@ -71,6 +71,35 @@ bool ActionSupported(OverrideAction action, OverrideBackend backend,
 
 } // namespace
 
+ShaderDragPayload MakeShaderDragPayload(uint32_t title_id,
+                                        const ShaderKey &key)
+{
+    ShaderDragPayload payload{};
+    payload.title_id = title_id;
+    payload.identity_version = key.hash.version;
+    payload.shader_hash = key.hash.bytes;
+    payload.stage = static_cast<uint32_t>(key.stage);
+    return payload;
+}
+
+bool DecodeShaderDragPayload(const ShaderDragPayload &payload,
+                             uint32_t *title_id, ShaderKey *key)
+{
+    if (!title_id || !key || payload.title_id == 0 ||
+        payload.identity_version == 0 || payload.stage == 0 ||
+        payload.stage > static_cast<uint32_t>(Stage::Unknown)) {
+        return false;
+    }
+    key->hash.version = payload.identity_version;
+    key->hash.bytes = payload.shader_hash;
+    key->stage = static_cast<Stage>(payload.stage);
+    if (key->stage == Stage::Any || key->stage == Stage::Unknown) {
+        return false;
+    }
+    *title_id = payload.title_id;
+    return true;
+}
+
 bool DrawCondition::Matches(const DrawFacts &facts) const
 {
     if ((mask & DrawConditionElementCount) &&
@@ -125,7 +154,11 @@ bool IsReplacementCompatible(const ShaderKey &shader,
         return fail("Stage 3 v1 supports full pixel/fragment replacements only");
     }
     const uint32_t mask = BackendMaskFor(backend);
-    if (!mask || !(replacement.backend_mask & mask)) {
+    if (backend == OverrideBackend::Unknown) {
+        if ((replacement.backend_mask & (BackendOpenGL | BackendVulkan)) == 0) {
+            return fail("replacement has no supported renderer payload");
+        }
+    } else if (!(replacement.backend_mask & mask)) {
         return fail("replacement has no payload for the active renderer");
     }
     if (replacement.entry_point.empty()) {

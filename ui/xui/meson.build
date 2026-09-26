@@ -7,6 +7,7 @@ xemu_ss.add(files(
   'shader-browser-overrides.cc',
   'shader-browser-override-store.cc',
   'shader-browser-replacement-library.cc',
+  'shader-browser-stage3-ui.cc',
   'shader-browser-database.cc',
   'shader-browser-artifact-store.cc',
   'shader-browser-session-provider.cc',
