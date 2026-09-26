@@ -2,7 +2,6 @@
 
 #include <cassert>
 #include <iostream>
-#include <xxhash.h>
 
 using namespace xemu::shader_browser;
 
@@ -23,23 +22,6 @@ int main()
     const std::string computed_hex = ShaderHashHex(computed);
     if (computed_hex != "dc91a6bac7390d00440a0bfe") {
         std::cerr << "unexpected shader hash fixture: " << computed_hex << "\n";
-        const uint8_t frame[] = {
-            'X', 'E', 'M', 'U', '-', 'N', 'V', '2', 'A', '-',
-            'S', 'H', 'A', 'D', 'E', 'R',
-            1, 0, 0, 0, 2, 1, 0, 0, 0,
-            4, 0, 0, 0, 0, 0, 0, 0,
-            0x10, 0x20, 0x30, 0x40,
-        };
-        XXH128_canonical_t canonical{};
-        XXH128_canonicalFromHash(&canonical,
-                                 XXH3_128bits(frame, sizeof(frame)));
-        std::cerr << "direct XXH3 fixture: ";
-        for (size_t i = 0; i < 12; ++i) {
-            std::cerr << std::hex << static_cast<unsigned>(
-                canonical.digest[i] >> 4) << static_cast<unsigned>(
-                canonical.digest[i] & 15);
-        }
-        std::cerr << std::dec << " (xxHash " << XXH_VERSION_NUMBER << ")\n";
     }
     assert(computed_hex == "dc91a6bac7390d00440a0bfe");
 
