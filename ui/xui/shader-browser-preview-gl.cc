@@ -10,6 +10,7 @@
 #include <glib.h>
 
 #include <array>
+#include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <mutex>
@@ -149,6 +150,11 @@ struct PreviewGlExecutor::Impl {
     GLsync displayed_fence = nullptr;
     bool has_displayed = false;
     bool sampled_this_frame = false;
+    PreviewFrameRef frozen;
+    GLuint frozen_texture = 0;
+    GLsync frozen_fence = nullptr;
+    bool has_frozen = false;
+    bool frozen_sampled_this_frame = false;
     std::vector<Retirement> retirements;
 
     bool Prepare(const PreviewWorkItem &work, std::string *error,
@@ -435,6 +441,17 @@ struct PreviewGlExecutor::Impl {
         has_displayed = false;
     }
 
+    void RetireFrozen()
+    {
+        if (!has_frozen) return;
+        GetPreviewService().ReleaseDisplayLease(frozen.slot,
+                                                frozen.slot_generation);
+        retirements.push_back({frozen, frozen_fence});
+        frozen_fence = nullptr;
+        frozen_texture = 0;
+        has_frozen = false;
+    }
+
     void PollRetirements()
     {
         auto it = retirements.begin();
@@ -496,15 +513,21 @@ bool PreviewGlExecutor::StartWhilePaused(std::string *error)
 
 void PreviewGlExecutor::DrawImage(float side,
                                   const PreviewSelection *selection,
-                                  uint64_t now_ns)
+                                  uint64_t now_ns,
+                                  PreviewViewSettings *view)
 {
     Impl &impl = *impl_;
     impl.PollRetirements();
     if (!selection || selection->backend != PreviewBackend::OpenGL ||
         !impl.worker.joinable()) {
         impl.RetireDisplayed();
+        impl.RetireFrozen();
         ImGui::TextDisabled("Private OpenGL preview is not prepared");
         return;
+    }
+    if (impl.has_frozen &&
+        impl.frozen.result_key.compile.selection != *selection) {
+        impl.RetireFrozen();
     }
     PreviewFrameRef ready{};
     if (GetPreviewService().TryAcquireReadyFrame(&ready, now_ns)) {
@@ -528,15 +551,112 @@ void PreviewGlExecutor::DrawImage(float side,
             impl.has_displayed = true;
         }
     }
-    if (!impl.has_displayed ||
+    if (impl.has_displayed &&
         impl.displayed.result_key.compile.selection != *selection) {
         impl.RetireDisplayed();
+    }
+    if (!impl.has_displayed && !impl.has_frozen) {
         ImGui::TextDisabled("Waiting for a private OpenGL result");
         return;
     }
-    ImGui::Image((ImTextureID)(intptr_t)impl.displayed_texture,
-                 ImVec2(side, side), ImVec2(0, 1), ImVec2(1, 0));
-    impl.sampled_this_frame = true;
+
+    PreviewViewSettings default_view{};
+    if (!view) view = &default_view;
+    const float zoom = std::clamp(view->zoom, 1.0f, 8.0f);
+    const float half = 0.5f / zoom;
+    view->center[0] = std::clamp(view->center[0], half, 1.0f - half);
+    view->center[1] = std::clamp(view->center[1], half, 1.0f - half);
+    const ImVec2 uv0(view->center[0] - half, view->center[1] + half);
+    const ImVec2 uv1(view->center[0] + half, view->center[1] - half);
+    ImVec4 tint(1.0f, 1.0f, 1.0f, 1.0f);
+    switch (view->channel) {
+    case 1: tint = ImVec4(1.0f, 0.0f, 0.0f, 1.0f); break;
+    case 2: tint = ImVec4(0.0f, 1.0f, 0.0f, 1.0f); break;
+    case 3: tint = ImVec4(0.0f, 0.0f, 1.0f, 1.0f); break;
+    case 4: tint = ImVec4(0.0f, 0.0f, 0.0f, 1.0f); break;
+    default: break;
+    }
+    const float image_side = impl.has_displayed && impl.has_frozen ?
+        std::max(1.0f, (side - 8.0f) * 0.5f) : std::max(1.0f, side);
+    auto draw = [&](const char *label, GLuint texture, bool *sampled,
+                    bool pannable) {
+        ImGui::BeginGroup();
+        ImGui::TextDisabled("%s", label);
+        const ImVec2 position = ImGui::GetCursorScreenPos();
+        ImDrawList *list = ImGui::GetWindowDrawList();
+        const float tile = image_side / 8.0f;
+        for (int y = 0; y < 8; ++y) {
+            for (int x = 0; x < 8; ++x) {
+                list->AddRectFilled(
+                    ImVec2(position.x + x * tile, position.y + y * tile),
+                    ImVec2(position.x + (x + 1) * tile,
+                           position.y + (y + 1) * tile),
+                    (x + y) & 1 ? IM_COL32(170, 170, 170, 255) :
+                                  IM_COL32(90, 90, 90, 255));
+            }
+        }
+        ImGui::Image((ImTextureID)(intptr_t)texture,
+                     ImVec2(image_side, image_side), uv0, uv1, tint);
+        *sampled = true;
+        if (pannable && ImGui::IsItemHovered() &&
+            ImGui::IsMouseDown(ImGuiMouseButton_Left) && zoom > 1.0f) {
+            const ImVec2 delta = ImGui::GetIO().MouseDelta;
+            view->center[0] = std::clamp(
+                view->center[0] - delta.x / (image_side * zoom),
+                half, 1.0f - half);
+            view->center[1] = std::clamp(
+                view->center[1] + delta.y / (image_side * zoom),
+                half, 1.0f - half);
+        }
+        ImGui::EndGroup();
+    };
+    if (impl.has_frozen) {
+        draw("Frozen", impl.frozen_texture,
+             &impl.frozen_sampled_this_frame, false);
+        if (impl.has_displayed) ImGui::SameLine();
+    }
+    if (impl.has_displayed) {
+        draw("Current", impl.displayed_texture,
+             &impl.sampled_this_frame, true);
+    }
+}
+
+bool PreviewGlExecutor::HasDisplayed() const
+{
+    return impl_->has_displayed;
+}
+
+bool PreviewGlExecutor::HasFrozen() const
+{
+    return impl_->has_frozen;
+}
+
+bool PreviewGlExecutor::NeedsRetirementPump() const
+{
+    return impl_->has_displayed || impl_->has_frozen ||
+           !impl_->retirements.empty();
+}
+
+bool PreviewGlExecutor::FreezeDisplayed()
+{
+    Impl &impl = *impl_;
+    if (!impl.has_displayed) return false;
+    impl.RetireFrozen();
+    impl.frozen = impl.displayed;
+    impl.frozen_texture = impl.displayed_texture;
+    impl.frozen_fence = impl.displayed_fence;
+    impl.has_frozen = true;
+    impl.frozen_sampled_this_frame = false;
+    impl.displayed_fence = nullptr;
+    impl.displayed_texture = 0;
+    impl.has_displayed = false;
+    impl.sampled_this_frame = false;
+    return true;
+}
+
+void PreviewGlExecutor::ClearFrozen()
+{
+    impl_->RetireFrozen();
 }
 
 void PreviewGlExecutor::AfterHudRender()
@@ -550,6 +670,14 @@ void PreviewGlExecutor::AfterHudRender()
         impl.RetireDisplayed();
     }
     impl.sampled_this_frame = false;
+    if (impl.has_frozen && impl.frozen_sampled_this_frame) {
+        if (impl.frozen_fence) glDeleteSync(impl.frozen_fence);
+        impl.frozen_fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+        glFlush();
+    } else if (impl.has_frozen) {
+        impl.RetireFrozen();
+    }
+    impl.frozen_sampled_this_frame = false;
     impl.PollRetirements();
 }
 
@@ -559,6 +687,7 @@ void PreviewGlExecutor::Shutdown()
     impl.stop.store(true, std::memory_order_release);
     if (impl.worker.joinable()) impl.worker.join();
     impl.RetireDisplayed();
+    impl.RetireFrozen();
     for (Impl::Retirement &retirement : impl.retirements) {
         if (retirement.fence) glDeleteSync(retirement.fence);
         GetPreviewService().CompleteDisplayRetirement(
