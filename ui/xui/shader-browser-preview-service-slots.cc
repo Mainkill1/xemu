@@ -99,6 +99,7 @@ void PreviewService::CopyStatus(PreviewStatus *status) const
     }
     std::lock_guard<std::mutex> lock(mutex_);
     *status = {};
+    status->clock = clock_.State();
     status->generation = generation_;
     status->state = state_;
     status->requested_mode = requested_mode_;
@@ -141,6 +142,9 @@ void PreviewService::ResetLocked()
     selection_ = {};
     requested_mode_ = PreviewMode::Normal;
     selection_changed_ns_ = 0;
+    clock_ = {};
+    clock_edit_revision_ = 0;
+    clock_suspended_ = true;
     pending_ = {};
     next_request_id_ = 1;
     latest_request_id_ = 0;

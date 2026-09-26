@@ -245,6 +245,9 @@ struct PreviewGlExecutor::Impl {
                                            error)) {
             return false;
         }
+        if (packet.update_policy == PreviewUpdatePolicy::Continuous) {
+            AnimatePreviewSyntheticFixture(&fixture, work.result_key.time_seconds);
+        }
         Slot &slot = slots[work.slot];
         if (!slot.texture) glGenTextures(1, &slot.texture);
         if (!slot.texture) {

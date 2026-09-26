@@ -966,6 +966,9 @@ struct PreviewVkExecutor::Impl {
         if (!DecodePreviewSyntheticFixture(packet.fixture_bytes, &fixture,
                                            error))
             return false;
+        if (packet.update_policy == PreviewUpdatePolicy::Continuous) {
+            AnimatePreviewSyntheticFixture(&fixture, work.result_key.time_seconds);
+        }
         if (linear != bool(fixture.linear_filter) ||
             repeat != bool(fixture.repeat_wrap)) {
             if (!MakeSampler(fixture.linear_filter, fixture.repeat_wrap))

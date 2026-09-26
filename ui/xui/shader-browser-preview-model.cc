@@ -68,7 +68,10 @@ bool PreviewCompileKey::operator!=(const PreviewCompileKey &other) const
 
 bool PreviewResultKey::operator==(const PreviewResultKey &other) const
 {
-    return compile == other.compile &&
+    return clock_revision == other.clock_revision &&
+           clock_edit_revision == other.clock_edit_revision &&
+           time_seconds == other.time_seconds &&
+           compile == other.compile &&
            input_revision == other.input_revision &&
            view_revision == other.view_revision && width == other.width &&
            height == other.height && packet_kind == other.packet_kind &&
