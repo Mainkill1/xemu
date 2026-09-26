@@ -79,6 +79,13 @@ int main()
     Snapshot snapshot;
     assert(GetProvider().CopySnapshot(&snapshot));
     assert(snapshot.entries.size() == 1);
+    CanonicalRecipe copied_recipe{};
+    assert(GetProvider().CopyCanonicalRecipe(snapshot.entries[0].key,
+                                              &copied_recipe));
+    assert(copied_recipe.bytes == std::vector<uint8_t>(recipe,
+                                                       recipe + sizeof(recipe)));
+    assert(copied_recipe.scopes.size() == 1);
+    assert(copied_recipe.scopes.front().title_id == shader.scope.title_id);
     assert(!snapshot.database_enabled);
     assert(!snapshot.entries[0].stored_in_database);
 

@@ -2,6 +2,7 @@
 #pragma once
 
 #include "shader-browser-model.hh"
+#include "shader-browser-recipe-inspector.hh"
 
 #include <cstdint>
 #include <string>
@@ -50,6 +51,10 @@ public:
     virtual ~Provider() = default;
 
     virtual bool CopySnapshot(Snapshot *snapshot) = 0;
+    // Copies a selected recipe from the in-memory live or SQLite cache. XUI
+    // owns this lookup; renderer threads never query the database.
+    virtual bool CopyCanonicalRecipe(const ShaderKey &key,
+                                     CanonicalRecipe *recipe) = 0;
     virtual void SetLiveCollectionEnabled(bool enabled) = 0;
     virtual void ClearLiveSession() = 0;
 

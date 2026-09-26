@@ -73,7 +73,8 @@
 }
 
 bool ShaderDatabase::CopyRecord(const ShaderKey &key,
-                                ShaderRecord *record) const
+                                ShaderRecord *record,
+                                std::vector<ShaderScope> *scopes) const
 {
     if (!record) return false;
     std::lock_guard<std::mutex> lock(cache_mutex);
@@ -81,6 +82,7 @@ bool ShaderDatabase::CopyRecord(const ShaderKey &key,
     if (it == records.end()) return false;
     *record = it->second.record;
     if (!it->second.scopes.empty()) record->scope = it->second.scopes.front();
+    if (scopes) *scopes = it->second.scopes;
     return true;
 }
 

@@ -140,7 +140,8 @@ public:
     void Close();
 
     bool UpsertShader(const ShaderRecord &record, std::string *error);
-    bool CopyRecord(const ShaderKey &key, ShaderRecord *record) const;
+    bool CopyRecord(const ShaderKey &key, ShaderRecord *record,
+                    std::vector<ShaderScope> *scopes = nullptr) const;
     std::vector<DatabaseShaderMetadata> CopyMetadata() const;
 
     bool BeginPerformanceSession(const SessionDescriptor &session,
