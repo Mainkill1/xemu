@@ -13,6 +13,8 @@ void ShaderBrowserWindow::DrawOverview()
         *entry, m_snapshot.current_title_id);
     std::string canonical = PortableShaderHash(entry->key.hash);
     ImGui::Text("Shader: %s", short_id.c_str());
+    ImGui::TextDisabled("Timing source: %s",
+        m_snapshot.timing_session_id.empty() ? "Live" : "Recorded session");
     ImGui::SameLine();
     if (ImGui::SmallButton("Copy ID")) {
         ImGui::SetClipboardText(full_id.c_str());
@@ -49,7 +51,7 @@ void ShaderBrowserWindow::DrawOverview()
         DrawKeyValue("Last used", FormatLastUsed(
             entry->last_frame, m_snapshot.current_frame,
             entry->observed_in_session));
-        DrawDurationRows(*entry);
+        DrawDurationRows(*entry, !m_snapshot.timing_session_id.empty());
         DrawKeyValue("Pipeline variants",
                      UnsignedText(entry->pipeline_variant_count));
         DrawKeyValue("Specialized draws",
@@ -67,6 +69,7 @@ void ShaderBrowserWindow::DrawOverview()
 
     ImGui::SeparatorText("Shared binding variants");
     ImGui::TextDisabled("Shared values include all member shaders; do not sum across stages.");
+    ImGui::TextDisabled("Foreground stall classifies link/pipeline work and overlaps that cost.");
     bool has_binding = false;
     for (const BindingVariant &variant : m_snapshot.binding_variants) {
         if (std::find(variant.members.begin(), variant.members.end(),
@@ -84,6 +87,15 @@ void ShaderBrowserWindow::DrawOverview()
             members += StageLabel(member.stage);
         }
         ImGui::TextDisabled("Members: %s", members.c_str());
+        ImGui::TextDisabled("Provenance: %s%s%s%s",
+            variant.flags & XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND ?
+                "foreground " : "",
+            variant.flags & XEMU_SHADER_BROWSER_SAMPLE_BACKGROUND ?
+                "background " : "",
+            variant.flags & XEMU_SHADER_BROWSER_SAMPLE_CACHED ?
+                "cached " : "",
+            variant.flags & XEMU_SHADER_BROWSER_SAMPLE_SAMPLED ?
+                "sampled" : "");
         static const char *names[] = {
             "", "", "", "", "Link / pipeline CPU", "Foreground stall",
             "Draw submit CPU", "Sampled GPU draw interval",
@@ -94,8 +106,9 @@ void ShaderBrowserWindow::DrawOverview()
             ImGui::Text("%s: %s", names[metric],
                         FormatDurationNs(variant.timing[metric]).c_str());
         }
-        ImGui::TextDisabled("Sampled draws represented: %llu",
-            static_cast<unsigned long long>(variant.sampled_draws));
+        ImGui::TextDisabled("Sampled CPU/GPU draws: %llu / %llu",
+            static_cast<unsigned long long>(variant.sampled_cpu_draws),
+            static_cast<unsigned long long>(variant.sampled_gpu_draws));
         ImGui::PopID();
     }
     if (!has_binding) ImGui::TextDisabled("No shared sample in this session.");
@@ -156,6 +169,56 @@ void ShaderBrowserWindow::DrawSettings()
                     m_snapshot.dropped_performance_samples));
     ImGui::TextDisabled(
         "Monitoring level and sample budgets are in Advanced settings.");
+
+    ImGui::SeparatorText("Timing source");
+    const SessionSummary *selected_session = nullptr;
+    for (const SessionSummary &session : m_snapshot.timing_sessions) {
+        if (session.session_id == m_snapshot.timing_session_id) {
+            selected_session = &session;
+            break;
+        }
+    }
+    std::string source_label = selected_session ?
+        (selected_session->ended_unix_ms ? "Previous session: " :
+                                           "Current recorded session: ") +
+        selected_session->session_id : "Live session";
+    if (ImGui::BeginCombo("Timing source", source_label.c_str())) {
+        if (ImGui::Selectable("Live session", !selected_session)) {
+            GetProvider().SetTimingSession("");
+            m_next_poll_ms = 0;
+        }
+        for (const SessionSummary &session : m_snapshot.timing_sessions) {
+            std::string label =
+                (session.ended_unix_ms ? "Previous: " : "Current: ") +
+                session.session_id + " | " + session.renderer;
+            if (ImGui::Selectable(label.c_str(),
+                                  selected_session == &session)) {
+                GetProvider().SetTimingSession(session.session_id);
+                m_next_poll_ms = 0;
+            }
+        }
+        ImGui::EndCombo();
+    }
+    if (selected_session) {
+        ImGui::TextDisabled("Host: %s | CPU: %s",
+            selected_session->host_os.empty() ? "Unknown" :
+                selected_session->host_os.c_str(),
+            selected_session->cpu_model.empty() ? "Unknown" :
+                selected_session->cpu_model.c_str());
+        ImGui::TextDisabled("GPU: %s | driver: %s | vendor/device: %04X/%04X",
+            selected_session->gpu_name.empty() ? "Unknown" :
+                selected_session->gpu_name.c_str(),
+            selected_session->gpu_driver.empty() ? "Unknown" :
+                selected_session->gpu_driver.c_str(),
+            selected_session->gpu_vendor_id,
+            selected_session->gpu_device_id);
+        ImGui::TextDisabled(
+            "Revision: %s | resolution scale: %u | uber: %s | cache: %s",
+            selected_session->xemu_revision.c_str(),
+            selected_session->internal_resolution_scale,
+            selected_session->ubershader_mode.c_str(),
+            selected_session->shader_cache_enabled ? "On" : "Off");
+    }
 
     ImGui::SeparatorText("Persistence");
     bool database_enabled = g_config.shader_browser.database.enabled;

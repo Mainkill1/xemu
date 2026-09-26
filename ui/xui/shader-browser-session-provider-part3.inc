@@ -75,11 +75,9 @@
 
     bool CollectionRequired() const
     {
-        if (!MonitoringEnabled()) return false;
-        if (live_collection_enabled.load(std::memory_order_acquire)) return true;
-        std::lock_guard<std::mutex> lock(performance_mutex);
-        return database.RecordPerformanceSessions() &&
-               !performance_session_id.empty();
+        return MonitoringEnabled() &&
+            (live_collection_enabled.load(std::memory_order_relaxed) ||
+             performance_active.load(std::memory_order_relaxed));
     }
 
     bool ExternalArtifactsEnabled() const
@@ -159,7 +157,8 @@
         session.xemu_revision = wire->xemu_revision ? wire->xemu_revision : "";
         session.renderer = wire->renderer ? wire->renderer : "";
         session.host_os = wire->host_os ? wire->host_os : "";
-        session.cpu_model = wire->cpu_model ? wire->cpu_model : "";
+        session.cpu_model = wire->cpu_model && wire->cpu_model[0] ?
+            wire->cpu_model : "Unknown";
         session.gpu_name = wire->gpu_name ? wire->gpu_name : "";
         session.gpu_vendor_id = wire->gpu_vendor_id;
         session.gpu_device_id = wire->gpu_device_id;
@@ -172,7 +171,9 @@
         std::lock_guard<std::mutex> lock(performance_mutex);
         if (!database.BeginPerformanceSession(session, error)) return false;
         performance_entries.clear();
+        performance_aggregates.clear();
         performance_session_id = session.session_id;
+        performance_epoch.fetch_add(1, std::memory_order_release);
         performance_active.store(true, std::memory_order_release);
         return true;
     }
@@ -185,6 +186,10 @@
             if (error) *error = "Performance session ID is empty";
             return false;
         }
+        {
+            std::lock_guard<std::mutex> sample_state(sample_state_mutex);
+            DrainPerformanceSamples();
+        }
         std::lock_guard<std::mutex> lock(performance_mutex);
         if (performance_session_id != session_id) {
             if (error) *error = "Performance session is not active";
@@ -195,6 +200,8 @@
                                                   clean_shutdown, error);
         performance_session_id.clear();
         performance_entries.clear();
+        performance_aggregates.clear();
         performance_active.store(false, std::memory_order_release);
+        performance_epoch.fetch_add(1, std::memory_order_release);
         return ok;
     }

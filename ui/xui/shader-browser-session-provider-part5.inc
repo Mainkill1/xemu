@@ -17,7 +17,9 @@
     std::atomic<uint64_t> profiling_word{
         (uint64_t)128 << 4 | (uint64_t)4 << 17};
     std::atomic<uint64_t> live_epoch{1};
+    std::atomic<uint64_t> performance_epoch{1};
     PerformanceSampleQueue sample_queue;
+    std::mutex sample_state_mutex;
     std::atomic<uint64_t> dropped_performance_samples{0};
     std::atomic<uint32_t> gl_gpu_pending{0};
     std::atomic<uint32_t> vk_gpu_pending{0};
@@ -32,11 +34,15 @@
     uint64_t live_consumer_epoch = 1;
     uint64_t current_frame = 0;
     uint64_t snapshot_sequence = 0;
+    std::mutex timing_source_mutex;
+    std::string selected_timing_session;
 
     mutable std::mutex performance_mutex;
     std::string performance_session_id;
     std::unordered_map<ShaderKey, PerformanceEntry, ShaderKeyHash>
         performance_entries;
+    std::map<PerformanceKey, PerformanceAggregateEntry>
+        performance_aggregates;
     std::mutex maintenance_mutex;
     std::condition_variable maintenance_cv;
     std::thread maintenance_thread;

@@ -155,7 +155,8 @@ struct BindingVariant {
     uint64_t variant_id = 0;
     uint64_t first_frame = 0;
     uint64_t last_frame = 0;
-    uint64_t sampled_draws = 0;
+    uint64_t sampled_cpu_draws = 0;
+    uint64_t sampled_gpu_draws = 0;
     uint32_t flags = 0;
     std::vector<ShaderKey> members;
     // Indexed by XemuShaderBrowserPerfMetric; element zero is unused.

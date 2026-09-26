@@ -152,6 +152,8 @@ struct PerformanceEntry {
 struct QueuedPerformanceSample {
     XemuShaderBrowserPerformanceSample sample{};
     uint64_t live_epoch = 0;
+    uint64_t performance_epoch = 0;
+    bool live_requested = false;
 };
 
 // Fixed MPSC ring: renderer and compiler threads only copy into a reserved
@@ -216,7 +218,15 @@ public:
     }
 };
 
-using VariantKey = std::tuple<uint32_t, uint32_t, uint64_t>;
+using VariantKey = std::tuple<uint32_t, uint32_t, uint64_t, uint32_t>;
+using PerformanceKey = std::tuple<uint32_t, uint32_t, uint32_t, uint64_t,
+                                  uint32_t, uint32_t,
+                                  std::vector<ShaderKey>>;
+
+struct PerformanceAggregateEntry {
+    PerformanceAggregate aggregate;
+    bool needs_enqueue = false;
+};
 
 class SessionProvider final : public Provider {
 public:
@@ -240,12 +250,16 @@ public:
     void PublishPerformanceSamples(
         const XemuShaderBrowserPerformanceSample *samples, size_t count)
     {
-        if (!samples || !count ||
-            (!live_collection_enabled.load(std::memory_order_relaxed) &&
-             !performance_active.load(std::memory_order_relaxed))) return;
+        if (!samples || !count) return;
+        const bool live = live_collection_enabled.load(
+            std::memory_order_relaxed);
+        if (!live && !performance_active.load(
+                         std::memory_order_relaxed)) return;
         const uint64_t word = profiling_word.load(std::memory_order_relaxed);
         if ((word & 3U) != XEMU_SHADER_BROWSER_MONITOR_DIAGNOSTIC) return;
         const uint64_t epoch = live_epoch.load(std::memory_order_acquire);
+        const uint64_t record_epoch =
+            performance_epoch.load(std::memory_order_acquire);
         for (size_t i = 0; i < count; ++i) {
             const auto &sample = samples[i];
             const bool gpu = sample.metric == XEMU_SHADER_BROWSER_PERF_DRAW_GPU;
@@ -264,7 +278,7 @@ public:
                  sample.metric < XEMU_SHADER_BROWSER_PERF_LINK_OR_PIPELINE_CPU)) {
                 continue;
             }
-            if (!sample_queue.Push({sample, epoch})) {
+            if (!sample_queue.Push({sample, epoch, record_epoch, live})) {
                 dropped_performance_samples.fetch_add(
                     1, std::memory_order_relaxed);
             }
@@ -336,6 +350,7 @@ public:
         live_collection_enabled.store(false, std::memory_order_release);
         performance_active.store(false, std::memory_order_release);
         live_epoch.store(1, std::memory_order_release);
+        performance_epoch.fetch_add(1, std::memory_order_release);
         live_consumer_epoch = 1;
         snapshot_sequence = 0;
         maintenance_stop = false;
@@ -344,6 +359,11 @@ public:
         artifact_pending_bytes = 0;
         artifact_pending_jobs = 0;
         rejected_artifacts.store(0, std::memory_order_release);
+        dropped_performance_samples.store(0, std::memory_order_release);
+        gl_gpu_pending.store(0, std::memory_order_release);
+        vk_gpu_pending.store(0, std::memory_order_release);
+        gl_gpu_supported.store(false, std::memory_order_release);
+        vk_gpu_supported.store(false, std::memory_order_release);
         failed_artifact_jobs = 0;
         last_artifact_error.clear();
         maintenance_thread = std::thread(&SessionProvider::MaintenanceMain, this);
@@ -360,8 +380,13 @@ public:
                 return;
             }
             live_collection_enabled.store(false, std::memory_order_release);
-            performance_active.store(false, std::memory_order_release);
             installed = false;
+        }
+
+        PersistPerformanceSnapshot();
+        performance_active.store(false, std::memory_order_release);
+        {
+            std::unique_lock<std::shared_mutex> lifecycle(lifecycle_mutex);
             std::lock_guard<std::mutex> scope_lock(scope_mutex);
             if (current_scope.title_id ||
                 current_scope.executable_fingerprint_version ||
@@ -372,8 +397,6 @@ public:
                 scope_generation.fetch_add(1, std::memory_order_release);
             }
         }
-
-        PersistPerformanceSnapshot();
         {
             std::lock_guard<std::mutex> lock(maintenance_mutex);
             maintenance_stop = true;
@@ -395,10 +418,14 @@ public:
             next_event_sequence = 0;
         }
         live_entries.clear();
+        live_binding_variants.clear();
         snapshot_events.clear();
+        QueuedPerformanceSample discarded;
+        while (sample_queue.Pop(&discarded)) {}
         {
             std::lock_guard<std::mutex> lock(performance_mutex);
             performance_entries.clear();
+            performance_aggregates.clear();
             performance_session_id.clear();
         }
         current_frame = 0;

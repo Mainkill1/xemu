@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
 
-#include "shader-browser-model.hh"
+#include "shader-browser-database.hh"
 #include "shader-browser-recipe-inspector.hh"
 
 #include <cstdint>
@@ -50,6 +50,8 @@ struct Snapshot {
     std::string database_journal_mode;
     std::vector<Entry> entries;
     std::vector<BindingVariant> binding_variants;
+    std::string timing_session_id;
+    std::vector<SessionSummary> timing_sessions;
 };
 
 class Provider
@@ -64,6 +66,7 @@ public:
                                      CanonicalRecipe *recipe) = 0;
     virtual void SetLiveCollectionEnabled(bool enabled) = 0;
     virtual void ClearLiveSession() = 0;
+    virtual void SetTimingSession(const std::string &session_id) = 0;
 
     virtual bool ConfigurePersistence(bool database_enabled,
                                       bool record_performance_sessions,

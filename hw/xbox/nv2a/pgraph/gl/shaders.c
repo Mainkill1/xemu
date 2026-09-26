@@ -926,6 +926,13 @@ update_uniforms:
             browser, XEMU_SHADER_BROWSER_BACKEND_GL,
             XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
             r->shader_binding->node.hash, pg->frame_time,
+            XEMU_SHADER_BROWSER_PERF_FOREGROUND_STALL_CPU,
+            browser->link_cpu_ns, 0,
+            XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND);
+        pgraph_shader_browser_publish_binding_timing(
+            browser, XEMU_SHADER_BROWSER_BACKEND_GL,
+            XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+            r->shader_binding->node.hash, pg->frame_time,
             XEMU_SHADER_BROWSER_PERF_BINDING_PREPARE_CPU,
             browser->prepare_cpu_ns, 0,
             XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND);

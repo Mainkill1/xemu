@@ -169,14 +169,16 @@ bool OpenDirectory(const std::string &path, std::string *error)
     return ok;
 }
 
-void DrawDurationRows(const Entry &entry)
+void DrawDurationRows(const Entry &entry, bool recorded)
 {
-    const bool enabled =
+    const bool enabled = recorded || (
         g_config.shader_browser.profiling.monitoring_level == 2 &&
-        g_config.shader_browser.profiling.cpu_timing;
-    auto text = [enabled](const DurationStats &stats) {
+        g_config.shader_browser.profiling.cpu_timing);
+    auto text = [enabled, recorded](const DurationStats &stats) {
         return stats.samples ? FormatDurationNs(stats) :
-            enabled ? std::string("No creation sample in this session") :
+            enabled ? recorded ?
+                std::string("No recorded creation sample") :
+                std::string("Created before profiling or cache hit") :
                       std::string("Profiling disabled");
     };
     DrawKeyValue("Source generation CPU", text(entry.source_cpu));

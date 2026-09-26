@@ -230,6 +230,31 @@ int main()
     assert(xemu_shader_browser_performance_session_begin(
         &session, error, sizeof(error)));
     assert(xemu_shader_browser_session_collection_enabled());
+    profiling.monitoring_level = XEMU_SHADER_BROWSER_MONITOR_DIAGNOSTIC;
+    xemu_shader_browser_configure_profiling(&profiling);
+    GetProvider().SetLiveCollectionEnabled(false);
+    XemuShaderBrowserPerformanceSample recorded_sample{};
+    recorded_sample.owner = XEMU_SHADER_BROWSER_PERF_STAGE;
+    recorded_sample.metric = XEMU_SHADER_BROWSER_PERF_COMPILE_CPU;
+    recorded_sample.backend = XEMU_SHADER_BROWSER_BACKEND_VK;
+    recorded_sample.route = XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED;
+    recorded_sample.scope_generation = xemu_shader_browser_scope_generation();
+    recorded_sample.duration_ns = 7654;
+    recorded_sample.identity_count = 1;
+    recorded_sample.identities[0].version = shader.identity_version;
+    recorded_sample.identities[0].stage = shader.stage;
+    std::memcpy(recorded_sample.identities[0].hash, shader.identity_hash,
+                sizeof(shader.identity_hash));
+    xemu_shader_browser_publish_performance_samples(&recorded_sample, 1);
+    recorded_sample.owner = XEMU_SHADER_BROWSER_PERF_BINDING;
+    recorded_sample.metric = XEMU_SHADER_BROWSER_PERF_DRAW_SUBMIT_CPU;
+    recorded_sample.variant_id = 987;
+    recorded_sample.duration_ns = 2345;
+    recorded_sample.identity_count = 2;
+    recorded_sample.identities[1] = recorded_sample.identities[0];
+    recorded_sample.identities[1].stage = XEMU_SHADER_BROWSER_STAGE_VERTEX;
+    recorded_sample.identities[1].hash[0] ^= 0x10;
+    xemu_shader_browser_publish_performance_samples(&recorded_sample, 1);
 
     XemuShaderBrowserObservation observation{};
     observation.identity_version = 1;
@@ -269,7 +294,29 @@ int main()
     assert(persisted.size() == 1);
     assert(persisted[0].draw_count == 3);
     assert(persisted[0].compile_cpu.total_ns == 4000000);
+    auto recorded_sessions = inspect.CopySessions(0x4d530064, 4);
+    assert(!recorded_sessions.empty());
+    assert(recorded_sessions[0].cpu_model == "Unknown");
+    auto persisted_samples = inspect.CopyPerformanceAggregates(
+        "provider-session");
+    assert(persisted_samples.size() == 2);
+    assert(persisted_samples[0].duration.total_ns == 7654 ||
+           persisted_samples[1].duration.total_ns == 7654);
     inspect.Close();
+    xemu_shader_browser_set_current_scope(&identified_scope);
+    GetProvider().SetTimingSession("provider-session");
+    assert(GetProvider().CopySnapshot(&snapshot));
+    assert(snapshot.timing_session_id == "provider-session");
+    assert(snapshot.entries.size() == 1);
+    assert(snapshot.entries[0].compile_cpu.total_ns == 7654);
+    assert(snapshot.binding_variants.size() == 1);
+    GetProvider().SetTimingSession("");
+    assert(GetProvider().CopySnapshot(&snapshot));
+    assert(snapshot.timing_session_id.empty());
+    assert(snapshot.binding_variants.empty());
+    xemu_shader_browser_set_current_scope(nullptr);
+    profiling.monitoring_level = XEMU_SHADER_BROWSER_MONITOR_BASIC;
+    xemu_shader_browser_configure_profiling(&profiling);
 
     XemuShaderBrowserPerformanceSession idle_session = session;
     idle_session.session_id = "idle-snapshot";

@@ -12,13 +12,13 @@ static size_t published_count;
 static int artifacts_enabled;
 static int monitoring_enabled = 1;
 static size_t artifact_count;
-static XemuShaderBrowserPerformanceSample perf_samples[4];
+static XemuShaderBrowserPerformanceSample perf_samples[8];
 static size_t perf_count;
 
 void xemu_shader_browser_publish_performance_samples(
     const XemuShaderBrowserPerformanceSample *samples, size_t count)
 {
-    assert(perf_count + count <= 4);
+    assert(perf_count + count <= 8);
     memcpy(perf_samples + perf_count, samples, count * sizeof(*samples));
     perf_count += count;
 }
@@ -139,6 +139,22 @@ int main(void)
     assert(perf_samples[1].variant_id == 99);
     assert(perf_samples[1].identities[2].stage ==
            XEMU_SHADER_BROWSER_STAGE_GEOMETRY);
+    state.vsh.is_fixed_function = false;
+    const uint32_t stages[] = {
+        XEMU_SHADER_BROWSER_STAGE_VERTEX,
+        XEMU_SHADER_BROWSER_STAGE_PIXEL,
+        XEMU_SHADER_BROWSER_STAGE_GEOMETRY,
+    };
+    for (size_t i = 0; i < 3; ++i) {
+        pgraph_shader_browser_publish_stage_timing(
+            &state, stages[i], XEMU_SHADER_BROWSER_BACKEND_GL,
+            XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+            XEMU_SHADER_BROWSER_PERF_SOURCE_CPU, 100 + i,
+            XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND);
+        assert(perf_samples[2 + i].identities[0].stage == stages[i]);
+        assert(perf_samples[2 + i].identities[0].hash[0] == stages[i]);
+    }
+    state.vsh.is_fixed_function = true;
     const uint8_t source[] = "hello";
     pgraph_shader_browser_publish_generated_artifact(
         &state, XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION, "opengl",

@@ -178,6 +178,44 @@ DurationStats ReadDuration(sqlite3_stmt *stmt, int first)
     return stats;
 }
 
+std::vector<uint8_t> EncodePerformanceMembers(
+    const std::vector<ShaderKey> &members)
+{
+    std::vector<uint8_t> bytes;
+    bytes.reserve(members.size() * 17);
+    for (const ShaderKey &member : members) {
+        for (unsigned int shift = 0; shift < 32; shift += 8) {
+            bytes.push_back((member.hash.version >> shift) & 0xffU);
+        }
+        bytes.push_back(StageToWire(member.stage));
+        for (uint8_t byte : member.hash.bytes) bytes.push_back(byte);
+    }
+    return bytes;
+}
+
+bool DecodePerformanceMembers(const void *blob, int length,
+                              std::vector<ShaderKey> *members)
+{
+    if (!blob || length < 17 || length > 51 || length % 17) return false;
+    const uint8_t *bytes = static_cast<const uint8_t *>(blob);
+    members->clear();
+    for (int offset = 0; offset < length; offset += 17) {
+        ShaderKey member{};
+        member.hash.version = 0;
+        for (int i = 0; i < 4; ++i) {
+            member.hash.version |= (uint32_t)bytes[offset + i] << (8 * i);
+        }
+        member.stage = StageFromWire(bytes[offset + 4]);
+        if (!member.hash.version || member.stage == Stage::Unknown) {
+            members->clear();
+            return false;
+        }
+        std::memcpy(member.hash.bytes.data(), bytes + offset + 5, 12);
+        members->push_back(member);
+    }
+    return true;
+}
+
 } // namespace
 
 ShaderDatabase::ShaderDatabase() = default;
@@ -248,4 +286,3 @@ bool ShaderDatabase::OpenLocked(const DatabaseConfig &new_config,
         writer_db = nullptr;
         return false;
     }
-
