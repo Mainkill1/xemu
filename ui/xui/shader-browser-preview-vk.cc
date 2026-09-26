@@ -998,6 +998,15 @@ struct PreviewVkExecutor::Impl {
         if (packet.update_policy == PreviewUpdatePolicy::Continuous) {
             AnimatePreviewSyntheticFixture(&fixture, work.result_key.time_seconds);
         }
+        if (!PreviewChannelAvailable(work.result_key.channel)) {
+            *error = PreviewChannelProvenance(work.result_key.channel);
+            return false;
+        }
+        if (PreviewChannelIsDiagnostic(work.result_key.channel)) {
+            return RenderPreviewDiagnostic(work.result_key.channel, fixture,
+                                           packet.width, packet.height, rgba,
+                                           error);
+        }
         if (linear != bool(fixture.linear_filter) ||
             repeat != bool(fixture.repeat_wrap)) {
             if (!MakeSampler(fixture.linear_filter, fixture.repeat_wrap))
@@ -1146,6 +1155,7 @@ struct PreviewVkExecutor::Impl {
             std::memcpy(rgba->data() + row * stride,
                         source + (packet.height - row - 1) * stride, stride);
         }
+        ApplyPreviewOutputChannel(work.result_key.channel, rgba);
         return true;
     }
 };

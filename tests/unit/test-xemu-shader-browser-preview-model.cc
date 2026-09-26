@@ -53,6 +53,16 @@ int main()
     assert(BuildPreviewCompileKey(input_changed) == compile_a);
     assert(BuildPreviewResultKey(input_changed) != result_a);
 
+    auto channel_result = result_a;
+    channel_result.channel = PreviewChannel::Alpha;
+    assert(channel_result != result_a);
+    assert(channel_result.compile == result_a.compile);
+    assert(PreviewChannelAvailable(PreviewChannel::FixtureAlphaMask));
+    assert(!PreviewChannelAvailable(PreviewChannel::ShaderDiscard));
+    assert(!PreviewChannelAvailable(static_cast<PreviewChannel>(255)));
+    assert(std::string(PreviewChannelProvenance(PreviewChannel::ShaderDiscard))
+               .find("Unsupported") != std::string::npos);
+
     PreviewPacket other_title = base;
     other_title.selection.scope.title_id++;
     assert(BuildPreviewCompileKey(other_title) != compile_a);

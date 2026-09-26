@@ -148,6 +148,31 @@ void ShaderBrowserWindow::DrawLivePreview()
         service.SetRequestedMode(static_cast<PreviewMode>(mode));
     }
 
+    const bool visualize = mode == static_cast<int>(PreviewMode::Visualize);
+    if (visualize) {
+        auto channel = static_cast<PreviewChannel>(m_preview_view_channel);
+        if (ImGui::BeginCombo("Visualize channel",
+                              PreviewChannelLabel(channel))) {
+            for (int i = 0; i < static_cast<int>(PreviewChannel::Count); ++i) {
+                auto option = static_cast<PreviewChannel>(i);
+                ImGui::BeginDisabled(!PreviewChannelAvailable(option));
+                if (ImGui::Selectable(PreviewChannelLabel(option),
+                                      channel == option))
+                    m_preview_view_channel = i;
+                ImGui::EndDisabled();
+            }
+            ImGui::EndCombo();
+        }
+        ImGui::TextWrapped(
+            "%s", PreviewChannelProvenance(
+                      static_cast<PreviewChannel>(m_preview_view_channel)));
+        ImGui::TextDisabled(
+            "Exact shader discard mask: Unsupported (coverage unavailable).");
+    }
+    service.EditChannel(
+        visualize ? static_cast<PreviewChannel>(m_preview_view_channel) :
+                    PreviewChannel::FinalRGBA);
+
     int mesh = static_cast<int>(m_preview_scene.mesh);
     bool scene_changed = ImGui::Combo("Mesh", &mesh, "Quad\0Sphere\0Cube\0");
     m_preview_scene.mesh = static_cast<PreviewMesh>(mesh);
@@ -500,15 +525,10 @@ void ShaderBrowserWindow::DrawLivePreview()
     }
 
     if (ImGui::CollapsingHeader("View and comparison")) {
-        ImGui::SetNextItemWidth(180.0f * g_viewport_mgr.m_scale);
-        ImGui::Combo("Channel", &m_preview_view_channel,
-                     "RGBA\0Red\0Green\0Blue\0Alpha opacity\0");
         ImGui::SliderFloat("Zoom", &m_preview_view_zoom, 1.0f, 8.0f,
                            "%.1fx");
         ImGui::SliderFloat2("Pan center", m_preview_view_center.data(),
                             0.0f, 1.0f);
-        ImGui::TextDisabled(
-            "Channel tint keeps shader alpha; Alpha opacity uses a checkerboard.");
         PreviewGlExecutor &executor = GetPreviewGlExecutor();
         ImGui::BeginDisabled(!status.guest_paused || !executor.HasDisplayed() ||
                              status.state != PreviewState::Ready);
@@ -536,7 +556,6 @@ void ShaderBrowserWindow::DrawLivePreview()
             PreviewViewSettings view{};
             view.zoom = m_preview_view_zoom;
             view.center = m_preview_view_center;
-            view.channel = m_preview_view_channel;
             GetPreviewGlExecutor().DrawImage(side - 16.0f,
                                              enabled ? &selection : nullptr,
                                              now_ns, &view);
