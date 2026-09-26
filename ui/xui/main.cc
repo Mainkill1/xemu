@@ -31,6 +31,11 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <cstdlib>
+#include <fstream>
+#if defined(__APPLE__)
+#include <sys/sysctl.h>
+#endif
 
 #include "actions.hh"
 #include "common.hh"
@@ -76,6 +81,31 @@ static XemuShaderBrowserScope g_shader_browser_scope{};
 static std::string g_shader_browser_performance_session;
 static std::string g_shader_browser_session_key;
 static uint64_t g_shader_browser_next_scope_poll_ms;
+
+static std::string ShaderBrowserHostCpuModel()
+{
+#if defined(__APPLE__)
+    char model[256] = {};
+    size_t length = sizeof(model);
+    if (sysctlbyname("machdep.cpu.brand_string", model, &length,
+                     nullptr, 0) == 0 && model[0]) return model;
+#elif defined(_WIN32)
+    const char *model = std::getenv("PROCESSOR_IDENTIFIER");
+    if (model && model[0]) return model;
+#else
+    std::ifstream cpuinfo("/proc/cpuinfo");
+    std::string line;
+    while (std::getline(cpuinfo, line)) {
+        if (line.rfind("model name", 0) != 0) continue;
+        size_t colon = line.find(':');
+        if (colon == std::string::npos) continue;
+        std::string model = line.substr(colon + 1);
+        size_t first = model.find_first_not_of(" \t");
+        if (first != std::string::npos) return model.substr(first);
+    }
+#endif
+    return "Unknown";
+}
 
 static void ShaderBrowserEndPerformanceSessionLocked(void *)
 {
@@ -139,6 +169,8 @@ static void ShaderBrowserApplyScopeTransition(void *opaque)
     session.started_unix_ms =
         static_cast<uint64_t>(g_get_real_time() / 1000);
     session.xemu_revision = xemu_version;
+    std::string cpu_model = ShaderBrowserHostCpuModel();
+    session.cpu_model = cpu_model.c_str();
     session.renderer =
         g_config.display.renderer == CONFIG_DISPLAY_RENDERER_VULKAN ?
             "Vulkan" : "OpenGL";
@@ -319,6 +351,7 @@ void xemu_hud_init(SDL_Window* window, void* sdl_gl_context)
     g_shader_browser_next_scope_poll_ms = 0;
     char *shader_config_dir = g_path_get_dirname(xemu_settings_get_path());
     if (xemu_shader_browser_session_install(shader_config_dir)) {
+        ShaderBrowserApplyProfilingSettings();
         char error[256] = {};
         if (!xemu_shader_browser_database_configure(
                 g_config.shader_browser.database.enabled,

@@ -46,8 +46,121 @@ private:
     {
         if (epoch <= live_consumer_epoch) return;
         live_entries.clear();
+        live_binding_variants.clear();
+        live_stage_profiles.clear();
         current_frame = 0;
         live_consumer_epoch = epoch;
+    }
+
+    void DrainPerformanceSamples()
+    {
+        QueuedPerformanceSample queued;
+        const uint64_t generation =
+            scope_generation.load(std::memory_order_acquire);
+        const uint64_t record_epoch =
+            performance_epoch.load(std::memory_order_acquire);
+        const bool recording =
+            performance_active.load(std::memory_order_acquire);
+        std::unique_lock<std::mutex> performance_lock(performance_mutex,
+                                                       std::defer_lock);
+        if (recording) performance_lock.lock();
+        while (sample_queue.Pop(&queued)) {
+            const auto &sample = queued.sample;
+            if (sample.scope_generation != generation) continue;
+            std::array<ShaderKey, 3> members{};
+            bool valid = true;
+            for (uint32_t i = 0; i < sample.identity_count; ++i) {
+                const auto &identity = sample.identities[i];
+                members[i] = {ConvertHash(identity.version, identity.hash),
+                              ConvertStage(identity.stage)};
+                if (!identity.version || members[i].stage == Stage::Unknown) {
+                    valid = false;
+                }
+            }
+            if (!valid) continue;
+            if (recording && queued.performance_epoch == record_epoch) {
+                std::vector<ShaderKey> record_members(
+                    members.begin(), members.begin() + sample.identity_count);
+                PerformanceKey key{sample.owner, sample.backend,
+                                   sample.route, sample.variant_id,
+                                   sample.metric, sample.flags,
+                                   record_members};
+                PerformanceAggregateEntry &record =
+                    performance_aggregates[key];
+                PerformanceAggregate &aggregate = record.aggregate;
+                if (!aggregate.duration.samples) {
+                    aggregate.owner = sample.owner;
+                    aggregate.backend = sample.backend;
+                    aggregate.route = sample.route;
+                    aggregate.variant_id = sample.variant_id;
+                    aggregate.metric = sample.metric;
+                    aggregate.flags = sample.flags;
+                    aggregate.members = std::move(record_members);
+                    aggregate.first_frame = sample.frame;
+                }
+                aggregate.last_frame = std::max(aggregate.last_frame,
+                                                sample.frame);
+                aggregate.first_frame = std::min(aggregate.first_frame,
+                                                 sample.frame);
+                aggregate.represented_draws += sample.represented_draws;
+                aggregate.duration.AddSample(sample.duration_ns);
+                record.needs_enqueue = true;
+            }
+            if (!queued.live_requested ||
+                queued.live_epoch != live_consumer_epoch) continue;
+            if (sample.owner == XEMU_SHADER_BROWSER_PERF_STAGE) {
+                StageProfileKey profile_key{members[0], sample.backend,
+                                            sample.route, sample.flags};
+                StageProfile &profile = live_stage_profiles[profile_key];
+                profile.key = members[0];
+                profile.backend = sample.backend;
+                profile.route = ConvertRoute(sample.route);
+                profile.flags = sample.flags;
+                profile.timing[sample.metric].AddSample(sample.duration_ns);
+                auto [it, inserted] = live_entries.try_emplace(members[0]);
+                Entry &entry = it->second.entry;
+                if (inserted) entry.key = members[0];
+                DurationStats *duration =
+                    sample.metric == XEMU_SHADER_BROWSER_PERF_SOURCE_CPU ?
+                        &entry.source_cpu :
+                    sample.metric == XEMU_SHADER_BROWSER_PERF_COMPILE_CPU ?
+                        &entry.compile_cpu : &entry.module_cpu;
+                duration->AddSample(sample.duration_ns);
+            } else {
+                VariantKey key{sample.backend, sample.route,
+                               sample.variant_id, sample.flags};
+                BindingVariant &variant = live_binding_variants[key];
+                variant.backend = sample.backend;
+                variant.route = ConvertRoute(sample.route);
+                variant.variant_id = sample.variant_id;
+                if (variant.members.empty()) {
+                    variant.members.assign(members.begin(),
+                                           members.begin() +
+                                           sample.identity_count);
+                    variant.first_frame = sample.frame;
+                }
+                if (!std::equal(variant.members.begin(),
+                                variant.members.end(), members.begin(),
+                                members.begin() + sample.identity_count)) {
+                    dropped_performance_samples.fetch_add(
+                        1, std::memory_order_relaxed);
+                    continue;
+                }
+                variant.first_frame = std::min(variant.first_frame,
+                                               sample.frame);
+                variant.last_frame = std::max(variant.last_frame,
+                                              sample.frame);
+                variant.flags |= sample.flags;
+                if (sample.metric ==
+                    XEMU_SHADER_BROWSER_PERF_DRAW_SUBMIT_CPU) {
+                    variant.sampled_cpu_draws += sample.represented_draws;
+                } else if (sample.metric ==
+                           XEMU_SHADER_BROWSER_PERF_DRAW_GPU) {
+                    variant.sampled_gpu_draws += sample.represented_draws;
+                }
+                variant.timing[sample.metric].AddSample(sample.duration_ns);
+            }
+        }
     }
 
     static void AggregateObservationIntoEntry(
@@ -143,11 +256,23 @@ private:
             }
             entry.needs_enqueue = false;
         }
+        for (auto &pair : performance_aggregates) {
+            PerformanceAggregateEntry &entry = pair.second;
+            if (!entry.needs_enqueue) continue;
+            std::string ignored;
+            if (!database.UpsertPerformanceAggregate(
+                    performance_session_id, entry.aggregate, &ignored)) break;
+            entry.needs_enqueue = false;
+        }
     }
 
     void PersistPerformanceSnapshot()
     {
         std::shared_lock<std::shared_mutex> lifecycle(lifecycle_mutex);
+        {
+            std::lock_guard<std::mutex> sample_state(sample_state_mutex);
+            DrainPerformanceSamples();
+        }
         std::lock_guard<std::mutex> lock(performance_mutex);
         PersistPerformanceSnapshotLocked();
     }

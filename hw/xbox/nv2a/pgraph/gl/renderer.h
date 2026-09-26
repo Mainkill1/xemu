@@ -155,6 +155,14 @@ typedef struct QueryReport {
     GLuint *queries;
 } QueryReport;
 
+#define PGRAPH_GL_SHADER_TIMING_SLOTS 256
+typedef struct PGRAPHGLShaderTimingSlot {
+    PGRAPHShaderBrowserBinding binding;
+    uint64_t variant_id;
+    uint64_t frame;
+    bool submitted;
+} PGRAPHGLShaderTimingSlot;
+
 typedef struct PGRAPHGLState {
     GLuint gl_framebuffer;
     GLuint gl_display_buffer;
@@ -195,6 +203,13 @@ typedef struct PGRAPHGLState {
     unsigned int gl_zpass_pixel_count_query_count;
     GLuint *gl_zpass_pixel_count_queries;
     PGRAPHGLDrawLifecycle draw_lifecycle;
+    bool shader_timing_supported;
+    bool shader_timing_initialized;
+    GLuint shader_timing_queries[PGRAPH_GL_SHADER_TIMING_SLOTS * 2];
+    PGRAPHGLShaderTimingSlot shader_timing_slots[
+        PGRAPH_GL_SHADER_TIMING_SLOTS];
+    uint64_t shader_timing_head;
+    uint64_t shader_timing_tail;
     QSIMPLEQ_HEAD(, QueryReport) report_queue;
 
     bool shader_cache_writeback_pending;

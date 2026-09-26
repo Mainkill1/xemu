@@ -13,7 +13,20 @@
         discovered_records;
 
     std::atomic<bool> live_collection_enabled{false};
+    std::atomic<bool> performance_active{false};
+    std::atomic<uint64_t> profiling_word{
+        (uint64_t)128 << 4 | (uint64_t)4 << 17};
     std::atomic<uint64_t> live_epoch{1};
+    std::atomic<uint64_t> performance_epoch{1};
+    PerformanceSampleQueue sample_queue;
+    std::mutex sample_state_mutex;
+    std::atomic<uint64_t> dropped_performance_samples{0};
+    std::atomic<uint32_t> gl_gpu_pending{0};
+    std::atomic<uint32_t> vk_gpu_pending{0};
+    std::atomic<bool> gl_gpu_supported{false};
+    std::atomic<bool> vk_gpu_supported{false};
+    std::map<VariantKey, BindingVariant> live_binding_variants;
+    std::map<StageProfileKey, StageProfile> live_stage_profiles;
     std::mutex live_queue_mutex;
     std::vector<QueuedEvent> live_events;
     std::vector<QueuedEvent> snapshot_events;
@@ -22,11 +35,15 @@
     uint64_t live_consumer_epoch = 1;
     uint64_t current_frame = 0;
     uint64_t snapshot_sequence = 0;
+    std::mutex timing_source_mutex;
+    std::string selected_timing_session;
 
     mutable std::mutex performance_mutex;
     std::string performance_session_id;
     std::unordered_map<ShaderKey, PerformanceEntry, ShaderKeyHash>
         performance_entries;
+    std::map<PerformanceKey, PerformanceAggregateEntry>
+        performance_aggregates;
     std::mutex maintenance_mutex;
     std::condition_variable maintenance_cv;
     std::thread maintenance_thread;
@@ -73,6 +90,33 @@ int xemu_shader_browser_session_install(const char *base_path)
 void xemu_shader_browser_session_uninstall(void)
 {
     xemu::shader_browser::provider.Uninstall();
+}
+
+void xemu_shader_browser_configure_profiling(
+    const XemuShaderBrowserProfilingConfig *config)
+{
+    xemu::shader_browser::provider.ConfigureProfiling(config);
+}
+
+void xemu_shader_browser_copy_profiling_config(
+    XemuShaderBrowserProfilingConfig *config)
+{
+    xemu::shader_browser::provider.CopyProfilingConfig(config);
+}
+
+int xemu_shader_browser_monitoring_enabled(void)
+{
+    return xemu::shader_browser::provider.MonitoringEnabled() ? 1 : 0;
+}
+
+int xemu_shader_browser_cpu_profiling_enabled(void)
+{
+    return xemu::shader_browser::provider.CpuProfilingEnabled() ? 1 : 0;
+}
+
+int xemu_shader_browser_gpu_profiling_enabled(void)
+{
+    return xemu::shader_browser::provider.GpuProfilingEnabled() ? 1 : 0;
 }
 
 void xemu_shader_browser_set_current_scope(
@@ -138,6 +182,24 @@ void xemu_shader_browser_publish_observations(
     const XemuShaderBrowserObservation *observations, size_t count)
 {
     xemu::shader_browser::provider.PublishObservations(observations, count);
+}
+
+void xemu_shader_browser_publish_performance_samples(
+    const XemuShaderBrowserPerformanceSample *samples, size_t count)
+{
+    xemu::shader_browser::provider.PublishPerformanceSamples(samples, count);
+}
+
+void xemu_shader_browser_record_dropped_samples(uint64_t count)
+{
+    xemu::shader_browser::provider.RecordDroppedSamples(count);
+}
+
+void xemu_shader_browser_report_gpu_state(uint32_t backend, int supported,
+                                          uint32_t pending)
+{
+    xemu::shader_browser::provider.ReportGpuState(backend, supported != 0,
+                                                   pending);
 }
 
 void xemu_shader_browser_publish_frame(uint64_t frame)

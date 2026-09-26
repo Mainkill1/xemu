@@ -3,6 +3,31 @@
 
 #include <string.h>
 
+PGRAPHShaderBrowserSampleDecision pgraph_shader_browser_choose_sample(
+    PGRAPHShaderBrowserSampler *sampler, uint64_t frame, bool gpu_supported)
+{
+    PGRAPHShaderBrowserSampleDecision decision = { 0 };
+    if (!sampler) return decision;
+    XemuShaderBrowserProfilingConfig config;
+    xemu_shader_browser_copy_profiling_config(&config);
+    if (config.monitoring_level != XEMU_SHADER_BROWSER_MONITOR_DIAGNOSTIC ||
+        (!config.cpu_timing && !config.gpu_timing)) return decision;
+    if (sampler->frame != frame) {
+        sampler->frame = frame;
+        sampler->gpu_samples_this_frame = 0;
+    }
+    uint32_t interval = config.draw_sample_interval ?
+        config.draw_sample_interval : 1;
+    if (++sampler->eligible_draws % interval) return decision;
+    decision.cpu = config.cpu_timing;
+    if (config.gpu_timing && gpu_supported &&
+        sampler->gpu_samples_this_frame < config.max_gpu_samples_per_frame) {
+        decision.gpu = true;
+        ++sampler->gpu_samples_this_frame;
+    }
+    return decision;
+}
+
 static void publish_batch(PGRAPHShaderBrowserObservations *batch)
 {
     if (!batch->used) {
@@ -26,21 +51,6 @@ static uint32_t identity_bucket(const PGRAPHShaderBrowserIdentity *identity,
     return hash & (PGRAPH_SHADER_BROWSER_OBSERVATION_INDEX_SLOTS - 1);
 }
 
-static void add_duration(XemuShaderBrowserDurationStats *stats, uint64_t ns)
-{
-    if (!ns) {
-        return;
-    }
-    if (!stats->sample_count || ns < stats->min_ns) {
-        stats->min_ns = ns;
-    }
-    if (ns > stats->max_ns) {
-        stats->max_ns = ns;
-    }
-    ++stats->sample_count;
-    stats->total_ns += ns;
-}
-
 void pgraph_shader_browser_flush_observations(
     PGRAPHShaderBrowserObservations *batch, uint64_t frame)
 {
@@ -57,7 +67,8 @@ void pgraph_shader_browser_record_draw(PGRAPHShaderBrowserObservations *batch,
                                        PGRAPHShaderBrowserBinding *binding,
                                        uint64_t frame, uint32_t pixel_route)
 {
-    if (!batch || !binding || !binding->count) {
+    if (!batch || !binding || !binding->count ||
+        !xemu_shader_browser_monitoring_enabled()) {
         return;
     }
     /* A title transition must not put the old title's draws in the new
@@ -125,12 +136,6 @@ void pgraph_shader_browser_record_draw(PGRAPHShaderBrowserObservations *batch,
             ++observation->uber_draw_delta;
         } else {
             ++observation->specialized_draw_delta;
-        }
-        if (binding->timings_pending &&
-            identity->stage == XEMU_SHADER_BROWSER_STAGE_PIXEL) {
-            add_duration(&observation->compile_cpu, binding->compile_cpu_ns);
-            add_duration(&observation->prepare_cpu, binding->prepare_cpu_ns);
-            binding->timings_pending = false;
         }
     }
 }

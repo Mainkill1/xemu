@@ -13,6 +13,8 @@ void ShaderBrowserWindow::DrawOverview()
         *entry, m_snapshot.current_title_id);
     std::string canonical = PortableShaderHash(entry->key.hash);
     ImGui::Text("Shader: %s", short_id.c_str());
+    ImGui::TextDisabled("Timing source: %s",
+        m_snapshot.timing_session_id.empty() ? "Live" : "Recorded session");
     ImGui::SameLine();
     if (ImGui::SmallButton("Copy ID")) {
         ImGui::SetClipboardText(full_id.c_str());
@@ -49,7 +51,7 @@ void ShaderBrowserWindow::DrawOverview()
         DrawKeyValue("Last used", FormatLastUsed(
             entry->last_frame, m_snapshot.current_frame,
             entry->observed_in_session));
-        DrawDurationRows(*entry);
+        DrawDurationRows(*entry, !m_snapshot.timing_session_id.empty());
         DrawKeyValue("Pipeline variants",
                      UnsignedText(entry->pipeline_variant_count));
         DrawKeyValue("Specialized draws",
@@ -63,6 +65,118 @@ void ShaderBrowserWindow::DrawOverview()
         DrawKeyValue("Route", RouteLabel(entry->route));
         DrawKeyValue("Readiness", ReadinessLabel(entry->readiness));
         ImGui::EndTable();
+    }
+
+    ImGui::SeparatorText("Stage timing by capture context");
+    bool has_stage_profile = false;
+    for (const StageProfile &profile : m_snapshot.stage_profiles) {
+        if (!(profile.key == entry->key)) continue;
+        has_stage_profile = true;
+        ImGui::PushID(&profile);
+        ImGui::Text("%s / %s",
+                    profile.backend == XEMU_SHADER_BROWSER_BACKEND_GL ?
+                        "OpenGL" : "Vulkan",
+                    RouteLabel(profile.route));
+        ImGui::TextDisabled("Provenance: %s%s%s%s",
+            profile.flags & XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND ?
+                "foreground " : "",
+            profile.flags & XEMU_SHADER_BROWSER_SAMPLE_BACKGROUND ?
+                "background " : "",
+            profile.flags & XEMU_SHADER_BROWSER_SAMPLE_CACHED ?
+                "cached " : "",
+            profile.flags & XEMU_SHADER_BROWSER_SAMPLE_SAMPLED ?
+                "sampled" : "");
+        static const char *names[] = {
+            "", "Source generation CPU", "Stage compile CPU", "Module CPU",
+        };
+        for (size_t metric = 1; metric < profile.timing.size(); ++metric) {
+            if (!profile.timing[metric].samples) continue;
+            ImGui::Text("%s: %s", names[metric],
+                        FormatDurationNs(profile.timing[metric]).c_str());
+        }
+        ImGui::PopID();
+    }
+    if (!has_stage_profile) {
+        ImGui::TextDisabled("No stage timing sample in this session.");
+    }
+
+    ImGui::SeparatorText("Shared binding variants");
+    ImGui::TextDisabled("Shared values include all member shaders; do not sum across stages.");
+    ImGui::TextDisabled("Foreground stall classifies link/pipeline work and overlaps that cost.");
+    bool has_binding = false;
+    for (const BindingVariant &variant : m_snapshot.binding_variants) {
+        if (std::find(variant.members.begin(), variant.members.end(),
+                      entry->key) == variant.members.end()) continue;
+        has_binding = true;
+        ImGui::PushID(&variant);
+        ImGui::Text("%s / %s / variant %llu",
+                    variant.backend == XEMU_SHADER_BROWSER_BACKEND_GL ?
+                        "OpenGL" : "Vulkan",
+                    RouteLabel(variant.route),
+                    static_cast<unsigned long long>(variant.variant_id));
+        std::string members;
+        for (const ShaderKey &member : variant.members) {
+            if (!members.empty()) members += ", ";
+            members += StageLabel(member.stage);
+        }
+        ImGui::TextDisabled("Members: %s", members.c_str());
+        ImGui::TextDisabled("Provenance: %s%s%s%s",
+            variant.flags & XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND ?
+                "foreground " : "",
+            variant.flags & XEMU_SHADER_BROWSER_SAMPLE_BACKGROUND ?
+                "background " : "",
+            variant.flags & XEMU_SHADER_BROWSER_SAMPLE_CACHED ?
+                "cached " : "",
+            variant.flags & XEMU_SHADER_BROWSER_SAMPLE_SAMPLED ?
+                "sampled" : "");
+        static const char *names[] = {
+            "", "", "", "", "Link / pipeline CPU", "Foreground stall",
+            "Draw submit CPU", "Sampled GPU draw interval",
+            "Binding preparation CPU",
+            "Background queue delay",
+        };
+        for (size_t metric = 4; metric < variant.timing.size(); ++metric) {
+            const DurationStats &timing = variant.timing[metric];
+            if (timing.samples) {
+                ImGui::Text("%s: %s", names[metric],
+                            FormatDurationNs(timing).c_str());
+                continue;
+            }
+            const bool recorded = !m_snapshot.timing_session_id.empty();
+            const bool gpu = metric == XEMU_SHADER_BROWSER_PERF_DRAW_GPU;
+            const bool enabled = recorded || (
+                g_config.shader_browser.profiling.monitoring_level == 2 &&
+                (gpu ? g_config.shader_browser.profiling.gpu_timing :
+                       g_config.shader_browser.profiling.cpu_timing));
+            const bool creation = metric !=
+                XEMU_SHADER_BROWSER_PERF_DRAW_SUBMIT_CPU && !gpu;
+            const uint32_t pending = variant.backend ==
+                XEMU_SHADER_BROWSER_BACKEND_GL ?
+                    m_snapshot.pending_gl_gpu_queries :
+                    m_snapshot.pending_vk_gpu_queries;
+            const bool supported = variant.backend ==
+                XEMU_SHADER_BROWSER_BACKEND_GL ?
+                    m_snapshot.gl_gpu_supported :
+                    m_snapshot.vk_gpu_supported;
+            const char *reason = !enabled ? "Profiling disabled" :
+                recorded ? "No recorded sample" :
+                gpu && !supported ? "Unsupported by backend/device" :
+                gpu && pending ? "GPU result pending" :
+                creation ? "Created before profiling or cache hit" :
+                           "No eligible sampled draw yet";
+            ImGui::TextDisabled("%s: %s", names[metric], reason);
+        }
+        ImGui::TextDisabled("Sampled CPU/GPU draws: %llu / %llu",
+            static_cast<unsigned long long>(variant.sampled_cpu_draws),
+            static_cast<unsigned long long>(variant.sampled_gpu_draws));
+        ImGui::PopID();
+    }
+    if (!has_binding) {
+        ImGui::TextDisabled("No shared variant sample in this session.");
+        if (m_snapshot.dropped_performance_samples) {
+            ImGui::TextDisabled(
+                "Some profiling samples were dropped; reduce the sample rate.");
+        }
     }
 
     if (!entry->scopes.empty() &&
@@ -88,14 +202,89 @@ void ShaderBrowserWindow::DrawOverview()
 
 void ShaderBrowserWindow::DrawSettings()
 {
+    const bool monitoring_off =
+        g_config.shader_browser.profiling.monitoring_level == 0;
+    ImGui::BeginDisabled(monitoring_off);
     if (ImGui::Checkbox("Collect live usage while this window is open",
                         &m_collection_requested)) {
         GetProvider().SetLiveCollectionEnabled(m_collection_requested);
         m_snapshot.live_collection_enabled = m_collection_requested;
     }
+    ImGui::EndDisabled();
+    if (monitoring_off) {
+        ImGui::TextDisabled(
+            "Live monitoring is Off. Change it in the Advanced menu.");
+    }
     ImGui::TextDisabled(
         "Live browsing works without database persistence. Persistent storage "
         "is opt-in and never runs on the draw hot path.");
+
+    ImGui::SeparatorText("Profiling state");
+    const bool vulkan =
+        g_config.display.renderer == CONFIG_DISPLAY_RENDERER_VULKAN;
+    const bool supported = vulkan ? m_snapshot.vk_gpu_supported :
+                                    m_snapshot.gl_gpu_supported;
+    const uint32_t pending = vulkan ? m_snapshot.pending_vk_gpu_queries :
+                                      m_snapshot.pending_gl_gpu_queries;
+    ImGui::Text("Active backend: %s", vulkan ? "Vulkan" : "OpenGL");
+    ImGui::Text("GPU timestamps: %s",
+                supported ? "Supported" : "Unsupported by active backend/device");
+    ImGui::Text("Pending GPU queries: %u", pending);
+    ImGui::Text("Dropped profiling samples: %llu",
+                static_cast<unsigned long long>(
+                    m_snapshot.dropped_performance_samples));
+    ImGui::TextDisabled(
+        "Monitoring level and sample budgets are in Advanced settings.");
+
+    ImGui::SeparatorText("Timing source");
+    const SessionSummary *selected_session = nullptr;
+    for (const SessionSummary &session : m_snapshot.timing_sessions) {
+        if (session.session_id == m_snapshot.timing_session_id) {
+            selected_session = &session;
+            break;
+        }
+    }
+    std::string source_label = selected_session ?
+        (selected_session->ended_unix_ms ? "Previous session: " :
+                                           "Current recorded session: ") +
+        selected_session->session_id : "Live session";
+    if (ImGui::BeginCombo("Timing source", source_label.c_str())) {
+        if (ImGui::Selectable("Live session", !selected_session)) {
+            GetProvider().SetTimingSession("");
+            m_next_poll_ms = 0;
+        }
+        for (const SessionSummary &session : m_snapshot.timing_sessions) {
+            std::string label =
+                (session.ended_unix_ms ? "Previous: " : "Current: ") +
+                session.session_id + " | " + session.renderer;
+            if (ImGui::Selectable(label.c_str(),
+                                  selected_session == &session)) {
+                GetProvider().SetTimingSession(session.session_id);
+                m_next_poll_ms = 0;
+            }
+        }
+        ImGui::EndCombo();
+    }
+    if (selected_session) {
+        ImGui::TextDisabled("Host: %s | CPU: %s",
+            selected_session->host_os.empty() ? "Unknown" :
+                selected_session->host_os.c_str(),
+            selected_session->cpu_model.empty() ? "Unknown" :
+                selected_session->cpu_model.c_str());
+        ImGui::TextDisabled("GPU: %s | driver: %s | vendor/device: %04X/%04X",
+            selected_session->gpu_name.empty() ? "Unknown" :
+                selected_session->gpu_name.c_str(),
+            selected_session->gpu_driver.empty() ? "Unknown" :
+                selected_session->gpu_driver.c_str(),
+            selected_session->gpu_vendor_id,
+            selected_session->gpu_device_id);
+        ImGui::TextDisabled(
+            "Revision: %s | resolution scale: %u | uber: %s | cache: %s",
+            selected_session->xemu_revision.c_str(),
+            selected_session->internal_resolution_scale,
+            selected_session->ubershader_mode.c_str(),
+            selected_session->shader_cache_enabled ? "On" : "Off");
+    }
 
     ImGui::SeparatorText("Persistence");
     bool database_enabled = g_config.shader_browser.database.enabled;

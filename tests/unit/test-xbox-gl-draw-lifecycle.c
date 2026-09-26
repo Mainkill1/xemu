@@ -21,8 +21,10 @@ void pgraph_gl_set_surface_dirty(PGRAPHState *pg, bool color, bool zeta)
 
 static void test_rejected_draw_does_not_publish_surface_generation(void)
 {
-    PGRAPHState pg = { 0 };
-    PGRAPHGLState renderer = { 0 };
+    static PGRAPHState pg;
+    static PGRAPHGLState renderer;
+    memset(&pg, 0, sizeof(pg));
+    memset(&renderer, 0, sizeof(renderer));
     SurfaceBinding color = { .draw_time = 7, .draw_dirty = false };
     SurfaceBinding zeta = { .draw_time = 8, .draw_dirty = false };
 
@@ -57,8 +59,11 @@ static void test_rejected_draw_does_not_publish_surface_generation(void)
 
 static void test_empty_draw_does_not_publish_surface_generation(void)
 {
-    PGRAPHState pg = { .draw_time = 20 };
-    PGRAPHGLState renderer = { 0 };
+    static PGRAPHState pg;
+    static PGRAPHGLState renderer;
+    memset(&pg, 0, sizeof(pg));
+    memset(&renderer, 0, sizeof(renderer));
+    pg.draw_time = 20;
 
     dirty_calls = 0;
     pgraph_gl_complete_draw_lifecycle(
@@ -72,8 +77,10 @@ static void test_empty_draw_does_not_publish_surface_generation(void)
 static void test_submitted_segment_survives_rejected_final_segment(void)
 {
     PGRAPHGLDrawLifecycle lifecycle;
-    PGRAPHState pg = { 0 };
-    PGRAPHGLState renderer = { 0 };
+    static PGRAPHState pg;
+    static PGRAPHGLState renderer;
+    memset(&pg, 0, sizeof(pg));
+    memset(&renderer, 0, sizeof(renderer));
     SurfaceBinding color = { 0 };
     SurfaceBinding zeta = { 0 };
 
@@ -120,8 +127,10 @@ static void test_submitted_segment_survives_empty_final_segment(void)
 static void test_rejected_scope_without_submission_stays_rejected(void)
 {
     PGRAPHGLDrawLifecycle lifecycle;
-    PGRAPHState pg = { 0 };
-    PGRAPHGLState renderer = { 0 };
+    static PGRAPHState pg;
+    static PGRAPHGLState renderer;
+    memset(&pg, 0, sizeof(pg));
+    memset(&renderer, 0, sizeof(renderer));
 
     pg.gl_renderer_state = &renderer;
     dirty_calls = 0;

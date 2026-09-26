@@ -52,7 +52,10 @@ std::vector<SessionSummary> ShaderDatabase::CopySessions(uint32_t title_id,
     sqlite3_stmt *stmt = nullptr;
     if (!Prepare(db,
         "SELECT session_id,title_id,started_ms,ended_ms,xemu_revision,renderer,"
-        "gpu_name,clean_shutdown FROM shader_sessions WHERE title_id=? "
+        "gpu_name,clean_shutdown,host_os,cpu_model,gpu_driver,"
+        "gpu_vendor_id,gpu_device_id,internal_resolution_scale,"
+        "ubershader_mode,shader_cache_enabled "
+        "FROM shader_sessions WHERE title_id=? "
         "ORDER BY started_ms DESC LIMIT ?", &stmt, &ignored)) {
         sqlite3_close(db); return out;
     }
@@ -71,6 +74,18 @@ std::vector<SessionSummary> ShaderDatabase::CopySessions(uint32_t title_id,
         text = sqlite3_column_text(stmt, 6);
         if (text) row.gpu_name = reinterpret_cast<const char *>(text);
         row.clean_shutdown = sqlite3_column_int(stmt, 7) != 0;
+        text = sqlite3_column_text(stmt, 8);
+        if (text) row.host_os = reinterpret_cast<const char *>(text);
+        text = sqlite3_column_text(stmt, 9);
+        if (text) row.cpu_model = reinterpret_cast<const char *>(text);
+        text = sqlite3_column_text(stmt, 10);
+        if (text) row.gpu_driver = reinterpret_cast<const char *>(text);
+        row.gpu_vendor_id = sqlite3_column_int(stmt, 11);
+        row.gpu_device_id = sqlite3_column_int(stmt, 12);
+        row.internal_resolution_scale = sqlite3_column_int(stmt, 13);
+        text = sqlite3_column_text(stmt, 14);
+        if (text) row.ubershader_mode = reinterpret_cast<const char *>(text);
+        row.shader_cache_enabled = sqlite3_column_int(stmt, 15) != 0;
         out.push_back(std::move(row));
     }
     sqlite3_finalize(stmt);
@@ -116,6 +131,93 @@ std::vector<ShaderSessionStats> ShaderDatabase::CopySessionStats(
         row.prepare_cpu = ReadDuration(stmt, 18);
         row.foreground_stall_cpu = ReadDuration(stmt, 22);
         row.gpu_execution = ReadDuration(stmt, 26);
+        out.push_back(std::move(row));
+    }
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+    return out;
+}
+
+bool ShaderDatabase::UpsertPerformanceAggregate(
+    const std::string &session_id, const PerformanceAggregate &aggregate,
+    std::string *error)
+{
+    std::shared_lock<std::shared_mutex> lifecycle(lifecycle_mutex);
+    if (!open || !config.record_performance_sessions ||
+        session_id.empty() || aggregate.members.empty() ||
+        aggregate.members.size() > 3 || !aggregate.duration.samples) {
+        if (error) *error = "Invalid performance aggregate or session";
+        return false;
+    }
+    std::vector<uint8_t> members =
+        EncodePerformanceMembers(aggregate.members);
+    PerformanceAggregate copy = aggregate;
+    return Enqueue([session_id, copy, members](sqlite3 *db,
+                                              std::string *job_error) {
+        sqlite3_stmt *stmt = nullptr;
+        const char *sql =
+            "INSERT INTO shader_performance_stats("
+            "session_id,owner,backend,route,variant_id,metric,members,"
+            "flags,first_frame,last_frame,represented_draws,"
+            "samples,total_ns,min_ns,max_ns) "
+            "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) "
+            "ON CONFLICT(session_id,owner,backend,route,variant_id,metric,"
+            "flags,members) DO UPDATE SET "
+            "first_frame=excluded.first_frame,"
+            "last_frame=excluded.last_frame,"
+            "represented_draws=excluded.represented_draws,"
+            "samples=excluded.samples,total_ns=excluded.total_ns,"
+            "min_ns=excluded.min_ns,max_ns=excluded.max_ns";
+        if (!Prepare(db, sql, &stmt, job_error)) return false;
+        sqlite3_bind_text(stmt, 1, session_id.c_str(), -1, SQLITE_TRANSIENT);
+        sqlite3_bind_int(stmt, 2, copy.owner);
+        sqlite3_bind_int(stmt, 3, copy.backend);
+        sqlite3_bind_int(stmt, 4, copy.route);
+        sqlite3_bind_int64(stmt, 5, copy.variant_id);
+        sqlite3_bind_int(stmt, 6, copy.metric);
+        sqlite3_bind_blob(stmt, 7, members.data(), members.size(),
+                          SQLITE_TRANSIENT);
+        sqlite3_bind_int(stmt, 8, copy.flags);
+        sqlite3_bind_int64(stmt, 9, copy.first_frame);
+        sqlite3_bind_int64(stmt, 10, copy.last_frame);
+        sqlite3_bind_int64(stmt, 11, copy.represented_draws);
+        BindDuration(stmt, 12, copy.duration);
+        bool ok = StepDone(db, stmt, job_error);
+        sqlite3_finalize(stmt);
+        return ok;
+    }, error);
+}
+
+std::vector<PerformanceAggregate> ShaderDatabase::CopyPerformanceAggregates(
+    const std::string &session_id)
+{
+    std::string ignored;
+    Flush(&ignored);
+    std::vector<PerformanceAggregate> out;
+    sqlite3 *db = nullptr;
+    if (!OpenAuxConnection(&db, true, &ignored)) return out;
+    sqlite3_stmt *stmt = nullptr;
+    if (!Prepare(db,
+        "SELECT owner,backend,route,variant_id,metric,members,flags,"
+        "first_frame,last_frame,represented_draws,samples,total_ns,min_ns,"
+        "max_ns FROM shader_performance_stats WHERE session_id=?",
+        &stmt, &ignored)) { sqlite3_close(db); return out; }
+    sqlite3_bind_text(stmt, 1, session_id.c_str(), -1, SQLITE_TRANSIENT);
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        PerformanceAggregate row{};
+        row.owner = sqlite3_column_int(stmt, 0);
+        row.backend = sqlite3_column_int(stmt, 1);
+        row.route = sqlite3_column_int(stmt, 2);
+        row.variant_id = sqlite3_column_int64(stmt, 3);
+        row.metric = sqlite3_column_int(stmt, 4);
+        if (!DecodePerformanceMembers(
+                sqlite3_column_blob(stmt, 5),
+                sqlite3_column_bytes(stmt, 5), &row.members)) continue;
+        row.flags = sqlite3_column_int(stmt, 6);
+        row.first_frame = sqlite3_column_int64(stmt, 7);
+        row.last_frame = sqlite3_column_int64(stmt, 8);
+        row.represented_draws = sqlite3_column_int64(stmt, 9);
+        row.duration = ReadDuration(stmt, 10);
         out.push_back(std::move(row));
     }
     sqlite3_finalize(stmt);

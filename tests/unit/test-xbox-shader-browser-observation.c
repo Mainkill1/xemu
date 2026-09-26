@@ -5,15 +5,32 @@
 #include <string.h>
 
 static bool collection_enabled;
+static bool monitoring_enabled = true;
 static XemuShaderBrowserObservation published[16];
 static size_t published_count;
 static uint64_t published_epochs[16];
 static uint64_t live_epoch = 1;
 static uint64_t last_frame;
+static XemuShaderBrowserProfilingConfig profiling = {
+    .monitoring_level = XEMU_SHADER_BROWSER_MONITOR_OFF,
+    .draw_sample_interval = 2,
+    .max_gpu_samples_per_frame = 1,
+};
+
+void xemu_shader_browser_copy_profiling_config(
+    XemuShaderBrowserProfilingConfig *config)
+{
+    *config = profiling;
+}
 
 int xemu_shader_browser_session_collection_enabled(void)
 {
     return collection_enabled;
+}
+
+int xemu_shader_browser_monitoring_enabled(void)
+{
+    return monitoring_enabled;
 }
 
 void xemu_shader_browser_publish_observations(
@@ -35,6 +52,24 @@ void xemu_shader_browser_publish_frame(uint64_t frame)
 
 int main(void)
 {
+    PGRAPHShaderBrowserSampler sampler = { 0 };
+    PGRAPHShaderBrowserSampleDecision choice =
+        pgraph_shader_browser_choose_sample(&sampler, 1, true);
+    assert(!choice.cpu && !choice.gpu && sampler.eligible_draws == 0);
+    profiling.monitoring_level = XEMU_SHADER_BROWSER_MONITOR_DIAGNOSTIC;
+    profiling.cpu_timing = 1;
+    profiling.gpu_timing = 1;
+    choice = pgraph_shader_browser_choose_sample(&sampler, 1, true);
+    assert(!choice.cpu && !choice.gpu);
+    choice = pgraph_shader_browser_choose_sample(&sampler, 1, true);
+    assert(choice.cpu && choice.gpu);
+    pgraph_shader_browser_choose_sample(&sampler, 1, true);
+    choice = pgraph_shader_browser_choose_sample(&sampler, 1, true);
+    assert(choice.cpu && !choice.gpu);
+    pgraph_shader_browser_choose_sample(&sampler, 2, true);
+    choice = pgraph_shader_browser_choose_sample(&sampler, 2, true);
+    assert(choice.cpu && choice.gpu);
+
     PGRAPHShaderBrowserObservations batch = { 0 };
     PGRAPHShaderBrowserBinding binding = { 0 };
     binding.scope_generation = 4;
@@ -43,11 +78,13 @@ int main(void)
     binding.identities[0].hash[0] = 1;
     binding.identities[1].stage = XEMU_SHADER_BROWSER_STAGE_PIXEL;
     binding.identities[1].hash[0] = 2;
-    binding.compile_cpu_ns = 100000;
-    binding.prepare_cpu_ns = 20000;
-    binding.timings_pending = true;
 
     collection_enabled = true;
+    monitoring_enabled = false;
+    pgraph_shader_browser_record_draw(&batch, &binding, 9,
+                                      XEMU_SHADER_BROWSER_ROUTE_UBER);
+    assert(batch.used == 0 && batch.draw_poll_count == 0);
+    monitoring_enabled = true;
     pgraph_shader_browser_record_draw(&batch, &binding, 10,
                                       XEMU_SHADER_BROWSER_ROUTE_UBER);
     pgraph_shader_browser_record_draw(&batch, &binding, 11,
@@ -62,10 +99,8 @@ int main(void)
     assert(published[1].stage == XEMU_SHADER_BROWSER_STAGE_PIXEL);
     assert(published[1].route == XEMU_SHADER_BROWSER_ROUTE_UBER);
     assert(published[1].uber_draw_delta == 2);
-    assert(published[1].compile_cpu.sample_count == 1);
-    assert(published[1].compile_cpu.total_ns == 100000);
-    assert(published[1].prepare_cpu.total_ns == 20000);
-    assert(!binding.timings_pending);
+    assert(published[1].compile_cpu.sample_count == 0);
+    assert(published[1].prepare_cpu.sample_count == 0);
 
     pgraph_shader_browser_record_draw(&batch, &binding, 13,
                                       XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED);

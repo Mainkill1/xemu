@@ -173,6 +173,7 @@ typedef struct PGRAPHVkHybridPipelineWork {
     uint64_t ticket;
     uint64_t key_hash;
     PipelineKey key;
+    PGRAPHShaderBrowserBinding browser;
     /* A completed result waits here if every LRU entry is still in use. */
     VkPipeline completed_pipeline;
     VkPipelineLayout layout;
@@ -326,6 +327,7 @@ typedef struct PGRAPHVkHybridShaderWork {
     int64_t retry_after_us;
     PGRAPHVkHybridWork metadata;
     ShaderModuleCacheKey module_key;
+    uint64_t browser_scope_generation;
     char *glsl;
     /* PR70/cache identity length; glsl[glsl_size] is the owned NUL. */
     size_t glsl_size;
@@ -880,6 +882,21 @@ typedef struct PGRAPHVkState {
     bool uploaded_uber_controls_valid;
 
     VkQueryPool query_pool;
+#define PGRAPH_VK_SHADER_TIMING_SLOTS 256
+    VkQueryPool shader_timing_pool;
+    bool shader_timing_supported;
+    bool shader_timing_reset_in_command_buffer;
+    bool shader_timing_requested;
+    bool shader_timing_written;
+    uint32_t shader_timing_used;
+    uint32_t shader_timing_active_slot;
+    struct {
+        PGRAPHShaderBrowserBinding binding;
+        uint64_t variant_id;
+        uint64_t frame;
+        uint32_t route;
+        bool complete;
+    } shader_timing_slots[PGRAPH_VK_SHADER_TIMING_SLOTS];
     int max_queries_in_flight; // FIXME: Move out to constant
     int num_queries_in_flight;
     bool new_query_needed;
@@ -946,6 +963,9 @@ bool pgraph_vk_init_shader_module_layout_from_spv(
 void pgraph_vk_clear_shader_module_layout(ShaderModuleInfo *info);
 ShaderModuleInfo *pgraph_vk_create_shader_module_from_glsl(
     PGRAPHVkState *r, VkShaderStageFlagBits stage, const char *glsl);
+ShaderModuleInfo *pgraph_vk_create_shader_module_from_glsl_profiled(
+    PGRAPHVkState *r, VkShaderStageFlagBits stage, const char *glsl,
+    uint64_t *compile_ns, uint64_t *module_ns);
 ShaderModuleInfo *pgraph_vk_create_shader_module_from_spirv(
     PGRAPHVkState *r, VkShaderStageFlagBits expected_stage, const char *glsl,
     GByteArray *spirv);

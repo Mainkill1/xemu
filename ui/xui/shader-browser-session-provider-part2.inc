@@ -31,8 +31,11 @@
     {
         if (!snapshot) return false;
         snapshot->entries.clear();
+        snapshot->binding_variants.clear();
+        snapshot->stage_profiles.clear();
         std::shared_lock<std::shared_mutex> lifecycle(lifecycle_mutex);
         if (!installed) return false;
+        std::lock_guard<std::mutex> sample_state(sample_state_mutex);
 
         // XUI is the sole snapshot consumer; reuse both queue allocations.
         auto &events = snapshot_events;
@@ -51,6 +54,29 @@
                 AggregateLive(event);
             }
         }
+        DrainPerformanceSamples();
+
+        uint32_t title_id = 0;
+        {
+            std::lock_guard<std::mutex> lock(scope_mutex);
+            title_id = current_scope.title_id;
+        }
+        std::string selected_session;
+        {
+            std::lock_guard<std::mutex> lock(timing_source_mutex);
+            selected_session = selected_timing_session;
+        }
+        snapshot->timing_sessions.clear();
+        if (database.Enabled() && title_id) {
+            snapshot->timing_sessions = database.CopySessions(title_id, 64);
+        }
+        if (!selected_session.empty() &&
+            std::none_of(snapshot->timing_sessions.begin(),
+                         snapshot->timing_sessions.end(),
+                         [&](const SessionSummary &session) {
+                return session.session_id == selected_session;
+            })) selected_session.clear();
+        snapshot->timing_session_id = selected_session;
 
         std::unordered_map<ShaderKey, Entry, ShaderKeyHash> merged;
         if (database.Enabled()) {
@@ -78,7 +104,7 @@
                 if (database.Enabled()) entry.stored_in_database = true;
             }
         }
-        for (const auto &pair : live_entries) {
+        if (selected_session.empty()) for (const auto &pair : live_entries) {
             auto [it, inserted] = merged.try_emplace(pair.first);
             Entry &entry = it->second;
             if (inserted) entry.key = pair.first;
@@ -92,6 +118,8 @@
             entry.route = live.route;
             entry.readiness = live.readiness;
             entry.compile_cpu = live.compile_cpu;
+            entry.source_cpu = live.source_cpu;
+            entry.module_cpu = live.module_cpu;
             entry.pipeline_cpu = live.pipeline_cpu;
             entry.prepare_cpu = live.prepare_cpu;
             entry.foreground_stall_cpu = live.foreground_stall_cpu;
@@ -101,15 +129,117 @@
             entry.replacement_draws = live.replacement_draws;
             entry.compile_failures = live.compile_failures;
         }
+        if (!selected_session.empty()) {
+            {
+                std::lock_guard<std::mutex> lock(performance_mutex);
+                if (selected_session == performance_session_id) {
+                    PersistPerformanceSnapshotLocked();
+                }
+            }
+            for (const ShaderSessionStats &row :
+                 database.CopySessionStats(selected_session)) {
+                auto [it, inserted] = merged.try_emplace(row.key);
+                Entry &entry = it->second;
+                if (inserted) entry.key = row.key;
+                entry.draw_count = row.draw_count;
+                entry.first_frame = row.first_frame;
+                entry.last_frame = row.last_frame;
+                entry.observed_in_session = row.draw_count != 0;
+                entry.specialized_draws = row.specialized_draws;
+                entry.uber_draws = row.uber_draws;
+                entry.replacement_draws = row.replacement_draws;
+                entry.compile_failures = row.compile_failures;
+            }
+            std::map<VariantKey, BindingVariant> recorded_variants;
+            std::map<StageProfileKey, StageProfile> recorded_profiles;
+            for (const PerformanceAggregate &row :
+                 database.CopyPerformanceAggregates(selected_session)) {
+                if (row.owner == XEMU_SHADER_BROWSER_PERF_STAGE &&
+                    row.members.size() == 1 && row.metric >= 1 &&
+                    row.metric <= 3) {
+                    auto [it, inserted] = merged.try_emplace(row.members[0]);
+                    Entry &entry = it->second;
+                    if (inserted) entry.key = row.members[0];
+                    DurationStats *duration = row.metric ==
+                        XEMU_SHADER_BROWSER_PERF_SOURCE_CPU ?
+                            &entry.source_cpu : row.metric ==
+                        XEMU_SHADER_BROWSER_PERF_COMPILE_CPU ?
+                            &entry.compile_cpu : &entry.module_cpu;
+                    duration->Merge(row.duration);
+                    StageProfileKey profile_key{row.members[0], row.backend,
+                                                row.route, row.flags};
+                    StageProfile &profile = recorded_profiles[profile_key];
+                    profile.key = row.members[0];
+                    profile.backend = row.backend;
+                    profile.route = ConvertRoute(row.route);
+                    profile.flags = row.flags;
+                    profile.timing[row.metric].Merge(row.duration);
+                } else if (row.owner ==
+                               XEMU_SHADER_BROWSER_PERF_BINDING &&
+                           row.metric >= 4 && row.metric <= 9) {
+                    VariantKey key{row.backend, row.route, row.variant_id,
+                                   row.flags};
+                    BindingVariant &variant = recorded_variants[key];
+                    variant.backend = row.backend;
+                    variant.route = ConvertRoute(row.route);
+                    variant.variant_id = row.variant_id;
+                    variant.members = row.members;
+                    if (!variant.first_frame ||
+                        row.first_frame < variant.first_frame) {
+                        variant.first_frame = row.first_frame;
+                    }
+                    variant.last_frame = std::max(variant.last_frame,
+                                                  row.last_frame);
+                    variant.flags |= row.flags;
+                    if (row.metric ==
+                        XEMU_SHADER_BROWSER_PERF_DRAW_SUBMIT_CPU) {
+                        variant.sampled_cpu_draws += row.represented_draws;
+                    } else if (row.metric ==
+                               XEMU_SHADER_BROWSER_PERF_DRAW_GPU) {
+                        variant.sampled_gpu_draws += row.represented_draws;
+                    }
+                    variant.timing[row.metric].Merge(row.duration);
+                }
+            }
+            for (const auto &pair : recorded_variants) {
+                snapshot->binding_variants.push_back(pair.second);
+            }
+            for (const auto &pair : recorded_profiles) {
+                snapshot->stage_profiles.push_back(pair.second);
+            }
+        }
 
         DatabaseStats db_stats = database.GetStats();
         snapshot->snapshot_sequence = ++snapshot_sequence;
         snapshot->session_epoch = live_consumer_epoch;
         snapshot->current_frame = current_frame;
-        {
-            std::lock_guard<std::mutex> lock(scope_mutex);
-            snapshot->current_title_id = current_scope.title_id;
+        if (!selected_session.empty()) {
+            snapshot->current_frame = 0;
+            for (const auto &pair : merged) {
+                snapshot->current_frame = std::max(
+                    snapshot->current_frame, pair.second.last_frame);
+            }
         }
+        snapshot->dropped_performance_samples =
+            dropped_performance_samples.load(std::memory_order_relaxed);
+        snapshot->pending_performance_samples = sample_queue.Pending();
+        snapshot->gl_gpu_supported =
+            gl_gpu_supported.load(std::memory_order_relaxed);
+        snapshot->vk_gpu_supported =
+            vk_gpu_supported.load(std::memory_order_relaxed);
+        snapshot->pending_gl_gpu_queries =
+            gl_gpu_pending.load(std::memory_order_relaxed);
+        snapshot->pending_vk_gpu_queries =
+            vk_gpu_pending.load(std::memory_order_relaxed);
+        if (selected_session.empty()) {
+            for (const auto &pair : live_binding_variants) {
+                snapshot->binding_variants.push_back(pair.second);
+            }
+            for (const auto &pair : live_stage_profiles) {
+                snapshot->stage_profiles.push_back(pair.second);
+            }
+        }
+        snapshot->current_title_id = title_id;
         snapshot->capabilities = CapabilityDetails;
         snapshot->live_collection_enabled =
             live_collection_enabled.load(std::memory_order_acquire);
@@ -180,6 +310,12 @@
         std::shared_lock<std::shared_mutex> lock(lifecycle_mutex);
         live_collection_enabled.store(installed && enabled,
                                       std::memory_order_release);
+    }
+
+    void SetTimingSession(const std::string &session_id) override
+    {
+        std::lock_guard<std::mutex> lock(timing_source_mutex);
+        selected_timing_session = session_id;
     }
 
     void ClearLiveSession() override

@@ -433,14 +433,20 @@ std::string FormatDurationNs(const DurationStats &stats)
     double avg = stats.AverageNs();
     char buffer[96];
     if (avg >= 1000000.0) {
-        std::snprintf(buffer, sizeof(buffer), "%.2f ms avg / %.2f ms max",
-                      avg / 1000000.0, stats.max_ns / 1000000.0);
+        std::snprintf(buffer, sizeof(buffer),
+                      "%.2f ms avg / %.2f ms max / %llu samples",
+                      avg / 1000000.0, stats.max_ns / 1000000.0,
+                      static_cast<unsigned long long>(stats.samples));
     } else if (avg >= 1000.0) {
-        std::snprintf(buffer, sizeof(buffer), "%.1f us avg / %.1f us max",
-                      avg / 1000.0, stats.max_ns / 1000.0);
+        std::snprintf(buffer, sizeof(buffer),
+                      "%.1f us avg / %.1f us max / %llu samples",
+                      avg / 1000.0, stats.max_ns / 1000.0,
+                      static_cast<unsigned long long>(stats.samples));
     } else {
-        std::snprintf(buffer, sizeof(buffer), "%.0f ns avg / %llu ns max",
-                      avg, static_cast<unsigned long long>(stats.max_ns));
+        std::snprintf(buffer, sizeof(buffer),
+                      "%.0f ns avg / %llu ns max / %llu samples",
+                      avg, static_cast<unsigned long long>(stats.max_ns),
+                      static_cast<unsigned long long>(stats.samples));
     }
     return buffer;
 }

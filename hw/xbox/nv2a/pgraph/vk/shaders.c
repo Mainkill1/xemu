@@ -561,7 +561,8 @@ static void publish_vk_stage_artifacts(const ShaderState *state,
 
 static void shader_cache_entry_init(Lru *lru, LruNode *node, const void *key)
 {
-    int64_t shader_prepare_start = g_get_monotonic_time();
+    bool profile_cpu = xemu_shader_browser_cpu_profiling_enabled();
+    int64_t shader_prepare_start = profile_cpu ? g_get_monotonic_time() : 0;
     PGRAPHVkState *r = container_of(lru, PGRAPHVkState, shader_cache);
     ShaderBinding *binding = container_of(node, ShaderBinding, node);
     const ShaderBindingKey *binding_key = key;
@@ -597,10 +598,10 @@ static void shader_cache_entry_init(Lru *lru, LruNode *node, const void *key)
            (binding->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER));
 
     update_shader_uniform_locs(binding);
-    if (xemu_shader_browser_session_collection_enabled()) {
+    if (profile_cpu) {
         binding->browser.prepare_cpu_ns =
             (uint64_t)(g_get_monotonic_time() - shader_prepare_start) * 1000;
-        binding->browser.timings_pending = true;
+        binding->browser.timing_pending = true;
     }
     if (xemu_shader_browser_external_artifacts_enabled()) {
         const char *route = binding->fragment_route ==
@@ -1312,6 +1313,22 @@ static void process_hybrid_compile_result(
     }
     assert(r->hybrid_pending_jobs > 0);
     r->hybrid_pending_jobs--;
+    if (result->success && result->finished_us >= result->started_us &&
+        work->module_key.kind == VK_SHADER_STAGE_FRAGMENT_BIT &&
+        work->module_key.fragment_route ==
+            PGRAPH_VK_FRAGMENT_SPECIALIZED &&
+        xemu_shader_browser_cpu_profiling_enabled()) {
+        ShaderState stage_state = { 0 };
+        stage_state.psh = work->module_key.psh.state;
+        pgraph_shader_browser_publish_stage_timing_at_scope(
+            &stage_state, XEMU_SHADER_BROWSER_STAGE_PIXEL,
+            XEMU_SHADER_BROWSER_BACKEND_VK,
+            XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+            XEMU_SHADER_BROWSER_PERF_COMPILE_CPU,
+            (result->finished_us - result->started_us) * 1000,
+            XEMU_SHADER_BROWSER_SAMPLE_BACKGROUND,
+            work->browser_scope_generation);
+    }
 
     bool published = false;
     uint64_t matching_work = 0;
@@ -1431,6 +1448,10 @@ static void shader_module_cache_entry_init(Lru *lru, LruNode *node,
     }
 
     MString *code = NULL;
+    bool profile_cpu = xemu_shader_browser_cpu_profiling_enabled();
+    uint64_t source_ns = 0;
+    uint64_t compile_ns = 0;
+    uint64_t module_ns = 0;
     const char *glsl = NULL;
     size_t glsl_size = 0;
     bool glsl_size_known = false;
@@ -1438,6 +1459,7 @@ static void shader_module_cache_entry_init(Lru *lru, LruNode *node,
     if (!module_info) {
         /* A worker completion already owns its exact source and SPIR-V.
          * Generate GLSL only when that direct adoption was unavailable. */
+        int64_t source_start = profile_cpu ? g_get_monotonic_time() : 0;
         switch (module->key.kind) {
         case VK_SHADER_STAGE_VERTEX_BIT:
             code = pgraph_glsl_gen_vsh(&module->key.vsh.state,
@@ -1454,6 +1476,10 @@ static void shader_module_cache_entry_init(Lru *lru, LruNode *node,
         default:
             assert(!"Invalid shader module kind");
         }
+        if (profile_cpu) {
+            source_ns = (uint64_t)(g_get_monotonic_time() - source_start) *
+                        1000;
+        }
         glsl = mstring_get_str(code);
     }
     if (!module_info && shader_spirv_cache_active(r)) {
@@ -1467,8 +1493,13 @@ static void shader_module_cache_entry_init(Lru *lru, LruNode *node,
             PGRAPH_VK_SPIRV_CACHE_HIT) {
             GByteArray *spirv = g_byte_array_sized_new(cached_spirv_size);
             g_byte_array_append(spirv, cached_spirv, cached_spirv_size);
+            int64_t module_start = profile_cpu ? g_get_monotonic_time() : 0;
             module_info = pgraph_vk_create_shader_module_from_spirv(
                 r, module->key.kind, glsl, spirv);
+            if (profile_cpu) {
+                module_ns = (uint64_t)(g_get_monotonic_time() -
+                                       module_start) * 1000;
+            }
             g_byte_array_unref(spirv);
             if (!module_info) {
                 pgraph_vk_spirv_cache_reject_hit(
@@ -1477,8 +1508,10 @@ static void shader_module_cache_entry_init(Lru *lru, LruNode *node,
         }
     }
     if (!module_info) {
-        module_info = pgraph_vk_create_shader_module_from_glsl(
-            r, module->key.kind, glsl);
+        module_info = pgraph_vk_create_shader_module_from_glsl_profiled(
+            r, module->key.kind, glsl,
+            profile_cpu ? &compile_ns : NULL,
+            profile_cpu ? &module_ns : NULL);
         if (module_info && shader_spirv_cache_active(r)) {
             if (!glsl_size_known) {
                 glsl_size = strlen(glsl);
@@ -1497,6 +1530,49 @@ static void shader_module_cache_entry_init(Lru *lru, LruNode *node,
     }
     module->module_info = module_info;
     pgraph_vk_ref_shader_module(module->module_info);
+    if (profile_cpu) {
+        ShaderState stage_state = { 0 };
+        uint32_t stage = XEMU_SHADER_BROWSER_STAGE_UNKNOWN;
+        uint32_t route = XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED;
+        switch (module->key.kind) {
+        case VK_SHADER_STAGE_VERTEX_BIT:
+            stage_state.vsh = module->key.vsh.state;
+            stage = stage_state.vsh.is_fixed_function ?
+                XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION :
+                XEMU_SHADER_BROWSER_STAGE_VERTEX;
+            break;
+        case VK_SHADER_STAGE_GEOMETRY_BIT:
+            stage_state.geom = module->key.geom.state;
+            stage = XEMU_SHADER_BROWSER_STAGE_GEOMETRY;
+            break;
+        case VK_SHADER_STAGE_FRAGMENT_BIT:
+            stage_state.psh = module->key.psh.state;
+            stage = XEMU_SHADER_BROWSER_STAGE_PIXEL;
+            if (module->key.fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER) {
+                /* The uber module key canonicalizes guest PS state, so its
+                 * creation time has no single guest pixel identity. */
+                stage = XEMU_SHADER_BROWSER_STAGE_UNKNOWN;
+                route = XEMU_SHADER_BROWSER_ROUTE_UBER;
+            }
+            break;
+        default:
+            break;
+        }
+        if (stage != XEMU_SHADER_BROWSER_STAGE_UNKNOWN) {
+            pgraph_shader_browser_publish_stage_timing(
+                &stage_state, stage, XEMU_SHADER_BROWSER_BACKEND_VK,
+                route, XEMU_SHADER_BROWSER_PERF_SOURCE_CPU, source_ns,
+                XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND);
+            pgraph_shader_browser_publish_stage_timing(
+                &stage_state, stage, XEMU_SHADER_BROWSER_BACKEND_VK,
+                route, XEMU_SHADER_BROWSER_PERF_COMPILE_CPU, compile_ns,
+                XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND);
+            pgraph_shader_browser_publish_stage_timing(
+                &stage_state, stage, XEMU_SHADER_BROWSER_BACKEND_VK,
+                route, XEMU_SHADER_BROWSER_PERF_MODULE_CPU, module_ns,
+                XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND);
+        }
+    }
     if (code) {
         mstring_unref(code);
     }
@@ -1781,6 +1857,8 @@ static PGRAPHVkFragmentRoute select_fragment_route(
                 work->in_use = true;
                 work->priority = PGRAPH_VK_HYBRID_PRIORITY_VISIBLE;
                 work->module_key = module_key;
+                work->browser_scope_generation =
+                    xemu_shader_browser_scope_generation();
                 work->glsl = g_strndup(glsl, glsl_size);
                 work->glsl_size = glsl_size;
                 pgraph_vk_hybrid_work_init(&work->metadata, 3);
@@ -2022,6 +2100,8 @@ static PGRAPHVkAsyncModuleRequestResult request_shader_module_async(
         work->prewarm = priority == PGRAPH_VK_HYBRID_PRIORITY_PREWARM;
         work->priority = priority;
         work->module_key = *key;
+        work->browser_scope_generation =
+            xemu_shader_browser_scope_generation();
         work->glsl = g_strndup(glsl, glsl_size);
         work->glsl_size = glsl_size;
         pgraph_vk_hybrid_work_init(&work->metadata, max_attempts);
@@ -2477,6 +2557,19 @@ void pgraph_vk_activate_shaders(PGRAPHState *pg,
         &r->shader_binding->state,
         pgraph_glsl_need_geom(&r->shader_binding->state.geom),
         &r->shader_binding->browser);
+    if (r->shader_binding->browser.timing_pending) {
+        PGRAPHShaderBrowserBinding *browser = &r->shader_binding->browser;
+        pgraph_shader_browser_publish_binding_timing(
+            browser, XEMU_SHADER_BROWSER_BACKEND_VK,
+            r->shader_binding->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER ?
+                XEMU_SHADER_BROWSER_ROUTE_UBER :
+                XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+            r->shader_binding->node.hash, pg->frame_time,
+            XEMU_SHADER_BROWSER_PERF_BINDING_PREPARE_CPU,
+            browser->prepare_cpu_ns, 0,
+            XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND);
+        browser->timing_pending = false;
+    }
 
     bool update_stage[PGRAPH_UNIFORM_STAGE_COUNT];
     get_uniform_stage_update_needs(pg, update_stage);

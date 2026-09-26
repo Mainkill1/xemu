@@ -28,6 +28,7 @@
 #include "misc.hh"
 #include "gl-helpers.hh"
 #include "reporting.hh"
+#include "shader-browser.hh"
 #include "qapi/error.h"
 #include "actions.hh"
 
@@ -221,6 +222,48 @@ void MainMenuAdvanceView::Draw()
                "runs. Disable this when diagnosing first-use shader stalls.")) {
         xemu_settings_save();
     }
+    SectionTitle("Shader Browser");
+    if (ChevronCombo("Monitoring",
+                     &g_config.shader_browser.profiling.monitoring_level,
+                     "Off (no live monitoring)\0"
+                     "Basic details\0"
+                     "Diagnostic CPU and GPU\0",
+                     "Off avoids live shader tracking. Basic collects usage "
+                     "and selected details. Diagnostic enables opt-in sampled "
+                     "CPU and GPU timing.")) {
+        if (g_config.shader_browser.profiling.monitoring_level == 2) {
+            g_config.shader_browser.profiling.cpu_timing = true;
+            g_config.shader_browser.profiling.gpu_timing = true;
+        }
+        ShaderBrowserApplyProfilingSettings();
+        xemu_settings_save();
+    }
+    ImGui::BeginDisabled(
+        g_config.shader_browser.profiling.monitoring_level != 2);
+    if (Toggle("Detailed CPU timing",
+               &g_config.shader_browser.profiling.cpu_timing,
+               "Samples stage-owned and shared CPU shader work.")) {
+        ShaderBrowserApplyProfilingSettings();
+        xemu_settings_save();
+    }
+    if (Toggle("Sampled GPU timing",
+               &g_config.shader_browser.profiling.gpu_timing,
+               "Samples bounded GPU draw intervals where supported.")) {
+        ShaderBrowserApplyProfilingSettings();
+        xemu_settings_save();
+    }
+    int &interval = g_config.shader_browser.profiling.draw_sample_interval;
+    if (ImGui::SliderInt("Sample every N draws", &interval, 1, 4096)) {
+        ShaderBrowserApplyProfilingSettings();
+        xemu_settings_save();
+    }
+    int &gpu_limit =
+        g_config.shader_browser.profiling.max_gpu_samples_per_frame;
+    if (ImGui::SliderInt("GPU samples per frame", &gpu_limit, 1, 64)) {
+        ShaderBrowserApplyProfilingSettings();
+        xemu_settings_save();
+    }
+    ImGui::EndDisabled();
     SectionTitle("Vulkan");
     XemuVulkanUbershaderRuntimeState ubershader_state =
         VulkanUbershaderModeCombo();

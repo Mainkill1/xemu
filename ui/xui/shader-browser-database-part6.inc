@@ -196,6 +196,7 @@ bool ShaderDatabase::ClearPerformanceHistory(std::string *error)
     sqlite3 *db = nullptr;
     if (!OpenAuxConnection(&db, false, error)) return false;
     bool ok = Exec(db, "BEGIN IMMEDIATE;", error) &&
+              Exec(db, "DELETE FROM shader_performance_stats;", error) &&
               Exec(db, "DELETE FROM shader_session_stats;", error) &&
               Exec(db, "DELETE FROM shader_sessions;", error);
     if (ok) {

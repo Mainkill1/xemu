@@ -29,6 +29,37 @@
 
 static PGRAPHGLDrawResult pgraph_gl_flush_draw_internal(NV2AState *d);
 
+static void pgraph_gl_retire_shader_timing(PGRAPHGLState *r)
+{
+    if (!r->shader_timing_initialized) return;
+    while (r->shader_timing_tail != r->shader_timing_head) {
+        uint32_t index = r->shader_timing_tail %
+                         PGRAPH_GL_SHADER_TIMING_SLOTS;
+        GLuint *queries = &r->shader_timing_queries[index * 2];
+        GLint available = GL_FALSE;
+        glGetQueryObjectiv(queries[1], GL_QUERY_RESULT_AVAILABLE,
+                           &available);
+        if (!available) break;
+        GLuint64 start = 0, end = 0;
+        glGetQueryObjectui64v(queries[0], GL_QUERY_RESULT, &start);
+        glGetQueryObjectui64v(queries[1], GL_QUERY_RESULT, &end);
+        PGRAPHGLShaderTimingSlot *slot = &r->shader_timing_slots[index];
+        if (slot->submitted && end > start) {
+            pgraph_shader_browser_publish_binding_timing(
+                &slot->binding, XEMU_SHADER_BROWSER_BACKEND_GL,
+                XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+                slot->variant_id, slot->frame,
+                XEMU_SHADER_BROWSER_PERF_DRAW_GPU,
+                (uint64_t)(end - start), 1,
+                XEMU_SHADER_BROWSER_SAMPLE_SAMPLED);
+        }
+        ++r->shader_timing_tail;
+    }
+    xemu_shader_browser_report_gpu_state(
+        XEMU_SHADER_BROWSER_BACKEND_GL, r->shader_timing_supported,
+        r->shader_timing_head - r->shader_timing_tail);
+}
+
 void pgraph_gl_clear_surface(NV2AState *d, uint32_t parameter)
 {
     PGRAPHState *pg = &d->pgraph;
@@ -494,14 +525,76 @@ static PGRAPHGLDrawResult pgraph_gl_flush_draw_internal(NV2AState *d)
 
 void pgraph_gl_flush_draw(NV2AState *d)
 {
+    PGRAPHState *pg = &d->pgraph;
     PGRAPHGLState *r = d->pgraph.gl_renderer_state;
 
     if (!r->draw_lifecycle.prepared) {
         return;
     }
+    if (xemu_shader_browser_gpu_profiling_enabled()) {
+        pgraph_gl_retire_shader_timing(r);
+    }
+    PGRAPHShaderBrowserSampleDecision sample =
+        r->shader_binding ? pgraph_shader_browser_choose_sample(
+            &pg->shader_browser_sampler, pg->frame_time,
+            r->shader_timing_supported) :
+            (PGRAPHShaderBrowserSampleDecision){ 0 };
+    bool gpu_sample = sample.gpu;
+    uint32_t gpu_index = 0;
+    if (gpu_sample && !r->shader_timing_initialized) {
+        glGenQueries(PGRAPH_GL_SHADER_TIMING_SLOTS * 2,
+                     r->shader_timing_queries);
+        if (glGetError() == GL_NO_ERROR) {
+            r->shader_timing_initialized = true;
+        } else {
+            r->shader_timing_supported = false;
+            xemu_shader_browser_report_gpu_state(
+                XEMU_SHADER_BROWSER_BACKEND_GL, false, 0);
+            gpu_sample = false;
+        }
+    }
+    if (gpu_sample) {
+        if (r->shader_timing_head - r->shader_timing_tail ==
+            PGRAPH_GL_SHADER_TIMING_SLOTS) {
+            xemu_shader_browser_record_dropped_samples(1);
+            gpu_sample = false;
+        } else {
+            gpu_index = r->shader_timing_head++ %
+                        PGRAPH_GL_SHADER_TIMING_SLOTS;
+            PGRAPHGLShaderTimingSlot *slot =
+                &r->shader_timing_slots[gpu_index];
+            slot->binding = r->shader_binding->browser;
+            slot->variant_id = r->shader_binding->node.hash;
+            slot->frame = pg->frame_time;
+            slot->submitted = false;
+            glQueryCounter(r->shader_timing_queries[gpu_index * 2],
+                           GL_TIMESTAMP);
+        }
+    }
+    int64_t cpu_start = sample.cpu ? g_get_monotonic_time() : 0;
     PGRAPHGLDrawResult result = pgraph_gl_flush_draw_internal(d);
+    uint64_t cpu_ns = sample.cpu ?
+        (uint64_t)(g_get_monotonic_time() - cpu_start) * 1000 : 0;
+    if (gpu_sample) {
+        glQueryCounter(r->shader_timing_queries[gpu_index * 2 + 1],
+                       GL_TIMESTAMP);
+        r->shader_timing_slots[gpu_index].submitted =
+            result == PGRAPH_GL_DRAW_SUBMITTED;
+        xemu_shader_browser_report_gpu_state(
+            XEMU_SHADER_BROWSER_BACKEND_GL, true,
+            r->shader_timing_head - r->shader_timing_tail);
+    }
     pgraph_gl_draw_lifecycle_record(&r->draw_lifecycle, result);
     if (result == PGRAPH_GL_DRAW_SUBMITTED && r->shader_binding) {
+        if (sample.cpu) {
+            pgraph_shader_browser_publish_binding_timing(
+                &r->shader_binding->browser,
+                XEMU_SHADER_BROWSER_BACKEND_GL,
+                XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+                r->shader_binding->node.hash, pg->frame_time,
+                XEMU_SHADER_BROWSER_PERF_DRAW_SUBMIT_CPU, cpu_ns, 1,
+                XEMU_SHADER_BROWSER_SAMPLE_SAMPLED);
+        }
         pgraph_shader_browser_record_draw(
             &d->pgraph.shader_browser_observations,
             &r->shader_binding->browser, d->pgraph.frame_time,

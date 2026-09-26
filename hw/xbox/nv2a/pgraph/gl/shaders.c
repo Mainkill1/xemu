@@ -136,6 +136,8 @@ static void shader_module_cache_entry_init(Lru *lru, LruNode *node,
 
     const char *kind_str;
     MString *code;
+    bool profile_cpu = xemu_shader_browser_cpu_profiling_enabled();
+    int64_t generation_start = profile_cpu ? g_get_monotonic_time() : 0;
 
     switch (module->key.kind) {
     case GL_VERTEX_SHADER:
@@ -159,9 +161,14 @@ static void shader_module_cache_entry_init(Lru *lru, LruNode *node,
         code = NULL;
     }
 
+    uint64_t generation_ns = profile_cpu ?
+        (uint64_t)(g_get_monotonic_time() - generation_start) * 1000 : 0;
+    int64_t compile_start = profile_cpu ? g_get_monotonic_time() : 0;
     module->gl_shader =
         create_gl_shader(module->key.kind, mstring_get_str(code), kind_str);
-    if (xemu_shader_browser_external_artifacts_enabled()) {
+    uint64_t compile_ns = profile_cpu ?
+        (uint64_t)(g_get_monotonic_time() - compile_start) * 1000 : 0;
+    if (profile_cpu || xemu_shader_browser_external_artifacts_enabled()) {
         ShaderState artifact_state = {0};
         uint32_t artifact_stage = XEMU_SHADER_BROWSER_STAGE_UNKNOWN;
         switch (module->key.kind) {
@@ -180,10 +187,26 @@ static void shader_module_cache_entry_init(Lru *lru, LruNode *node,
             artifact_stage = XEMU_SHADER_BROWSER_STAGE_PIXEL;
             break;
         }
-        pgraph_shader_browser_publish_generated_artifact(
-            &artifact_state, artifact_stage, "opengl", "specialized", "glsl",
-            "glsl", (const uint8_t *)mstring_get_str(code),
-            mstring_get_length(code));
+        if (profile_cpu) {
+            pgraph_shader_browser_publish_stage_timing(
+                &artifact_state, artifact_stage,
+                XEMU_SHADER_BROWSER_BACKEND_GL,
+                XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+                XEMU_SHADER_BROWSER_PERF_SOURCE_CPU, generation_ns,
+                XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND);
+            pgraph_shader_browser_publish_stage_timing(
+                &artifact_state, artifact_stage,
+                XEMU_SHADER_BROWSER_BACKEND_GL,
+                XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+                XEMU_SHADER_BROWSER_PERF_COMPILE_CPU, compile_ns,
+                XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND);
+        }
+        if (xemu_shader_browser_external_artifacts_enabled()) {
+            pgraph_shader_browser_publish_generated_artifact(
+                &artifact_state, artifact_stage, "opengl", "specialized", "glsl",
+                "glsl", (const uint8_t *)mstring_get_str(code),
+                mstring_get_length(code));
+        }
     }
     mstring_unref(code);
 }
@@ -242,7 +265,15 @@ static void generate_shaders(PGRAPHGLState *r, ShaderBinding *binding)
     glAttachShader(program, get_shader_module_for_key(r, &key));
 
     /* link the program */
+    bool profile_cpu = xemu_shader_browser_cpu_profiling_enabled();
+    int64_t link_start = profile_cpu ? g_get_monotonic_time() : 0;
     glLinkProgram(program);
+    if (profile_cpu) {
+        binding->browser.link_cpu_ns =
+            (uint64_t)(g_get_monotonic_time() - link_start) * 1000;
+        binding->browser.timing_pending = true;
+    }
+    int64_t prepare_start = profile_cpu ? g_get_monotonic_time() : 0;
     GLint linked = 0;
     glGetProgramiv(program, GL_LINK_STATUS, &linked);
     if(!linked) {
@@ -273,6 +304,10 @@ static void generate_shaders(PGRAPHGLState *r, ShaderBinding *binding)
     }
 
     update_shader_uniform_locs(binding);
+    if (profile_cpu) {
+        binding->browser.prepare_cpu_ns =
+            (uint64_t)(g_get_monotonic_time() - prepare_start) * 1000;
+    }
 }
 
 static const char *shader_gl_vendor = NULL;
@@ -841,13 +876,14 @@ void pgraph_gl_bind_shaders(PGRAPHState *pg)
 
     if (!binding->initialized && !pgraph_gl_shader_load_from_memory(binding)) {
         nv2a_profile_inc_counter(NV2A_PROF_SHADER_GEN);
-        int64_t shader_compile_start = g_get_monotonic_time();
+        bool profile_cpu = xemu_shader_browser_cpu_profiling_enabled();
+        int64_t shader_compile_start = profile_cpu ?
+            g_get_monotonic_time() : 0;
         generate_shaders(r, binding);
-        if (xemu_shader_browser_session_collection_enabled()) {
+        if (profile_cpu) {
             binding->browser.compile_cpu_ns =
                 (uint64_t)(g_get_monotonic_time() - shader_compile_start) *
                 1000;
-            binding->browser.timings_pending = true;
         }
         if (g_config.perf.cache_shaders) {
             pgraph_gl_shader_cache_to_disk(binding);
@@ -877,6 +913,31 @@ update_uniforms:
         &r->shader_binding->state,
         pgraph_glsl_need_geom(&r->shader_binding->state.geom),
         &r->shader_binding->browser);
+    if (r->shader_binding->browser.timing_pending) {
+        PGRAPHShaderBrowserBinding *browser = &r->shader_binding->browser;
+        pgraph_shader_browser_publish_binding_timing(
+            browser, XEMU_SHADER_BROWSER_BACKEND_GL,
+            XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+            r->shader_binding->node.hash, pg->frame_time,
+            XEMU_SHADER_BROWSER_PERF_LINK_OR_PIPELINE_CPU,
+            browser->link_cpu_ns, 0,
+            XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND);
+        pgraph_shader_browser_publish_binding_timing(
+            browser, XEMU_SHADER_BROWSER_BACKEND_GL,
+            XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+            r->shader_binding->node.hash, pg->frame_time,
+            XEMU_SHADER_BROWSER_PERF_FOREGROUND_STALL_CPU,
+            browser->link_cpu_ns, 0,
+            XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND);
+        pgraph_shader_browser_publish_binding_timing(
+            browser, XEMU_SHADER_BROWSER_BACKEND_GL,
+            XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+            r->shader_binding->node.hash, pg->frame_time,
+            XEMU_SHADER_BROWSER_PERF_BINDING_PREPARE_CPU,
+            browser->prepare_cpu_ns, 0,
+            XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND);
+        browser->timing_pending = false;
+    }
     update_shader_uniforms(pg, r->shader_binding);
 }
 

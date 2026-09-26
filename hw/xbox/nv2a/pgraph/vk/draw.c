@@ -1520,6 +1520,18 @@ static PGRAPHVkHybridPipelineSubmitResult request_hybrid_pipeline(
     }
     work->key_hash = hash;
     work->key = *key;
+    if (xemu_shader_browser_cpu_profiling_enabled()) {
+        if (ready_binding->browser.count &&
+            ready_binding->browser.scope_generation ==
+                xemu_shader_browser_scope_generation()) {
+            work->browser = ready_binding->browser;
+        } else {
+            pgraph_shader_browser_capture_binding(
+                &ready_binding->state,
+                pgraph_glsl_need_geom(&ready_binding->state.geom),
+                &work->browser);
+        }
+    }
     work->layout = recipe.layout;
     work->render_pass = recipe.render_pass;
     work->dynamic_blend_constant_mask =
@@ -1926,6 +1938,29 @@ static void process_hybrid_pipeline_result(
         r->hybrid_prewarm.worker_create_us_total += create_us;
         r->hybrid_prewarm.worker_create_us_max = MAX(
             r->hybrid_prewarm.worker_create_us_max, create_us);
+    }
+    if (work && result->generation == r->hybrid_generation &&
+        result->vk_result == VK_SUCCESS &&
+        xemu_shader_browser_cpu_profiling_enabled()) {
+        uint32_t browser_route = route == PGRAPH_VK_FRAGMENT_UBERSHADER ?
+            XEMU_SHADER_BROWSER_ROUTE_UBER :
+            XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED;
+        if (result->finished_us >= result->started_us) {
+            pgraph_shader_browser_publish_binding_timing(
+                &work->browser, XEMU_SHADER_BROWSER_BACKEND_VK,
+                browser_route, work->key_hash, pg->frame_time,
+                XEMU_SHADER_BROWSER_PERF_LINK_OR_PIPELINE_CPU,
+                (result->finished_us - result->started_us) * 1000, 0,
+                XEMU_SHADER_BROWSER_SAMPLE_BACKGROUND);
+        }
+        if (result->started_us >= result->submitted_us) {
+            pgraph_shader_browser_publish_binding_timing(
+                &work->browser, XEMU_SHADER_BROWSER_BACKEND_VK,
+                browser_route, work->key_hash, pg->frame_time,
+                XEMU_SHADER_BROWSER_PERF_QUEUE_DELAY_CPU,
+                (result->started_us - result->submitted_us) * 1000, 0,
+                XEMU_SHADER_BROWSER_SAMPLE_BACKGROUND);
+        }
     }
     if (work && result->generation == r->hybrid_generation &&
         result->vk_result == VK_SUCCESS &&
@@ -2430,6 +2465,28 @@ static bool create_pipeline(PGRAPHState *pg)
     int64_t pipeline_finish_us = g_get_monotonic_time();
     uint64_t pipeline_create_us = MAX(
         (int64_t)0, pipeline_finish_us - pipeline_start_us);
+    if (xemu_shader_browser_cpu_profiling_enabled() && r->shader_binding) {
+        pgraph_shader_browser_publish_binding_timing(
+            &r->shader_binding->browser,
+            XEMU_SHADER_BROWSER_BACKEND_VK,
+            key.fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER ?
+                XEMU_SHADER_BROWSER_ROUTE_UBER :
+                XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+            hash, pg->frame_time,
+            XEMU_SHADER_BROWSER_PERF_LINK_OR_PIPELINE_CPU,
+            pipeline_create_us * 1000, 0,
+            XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND);
+        pgraph_shader_browser_publish_binding_timing(
+            &r->shader_binding->browser,
+            XEMU_SHADER_BROWSER_BACKEND_VK,
+            key.fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER ?
+                XEMU_SHADER_BROWSER_ROUTE_UBER :
+                XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+            hash, pg->frame_time,
+            XEMU_SHADER_BROWSER_PERF_FOREGROUND_STALL_CPU,
+            pipeline_create_us * 1000, 0,
+            XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND);
+    }
     if (r->hybrid_trace) {
         pgraph_vk_hybrid_trace_record(
             r->hybrid_trace, VK_HYBRID_TRACE_PIPELINE_CREATE,
@@ -2658,6 +2715,38 @@ const enum NV2A_PROF_COUNTERS_ENUM finish_reason_to_counter_enum[] = {
     [VK_FINISH_REASON_TEXTURE_DIRTY] = NV2A_PROF_FINISH_TEXTURE_DIRTY,
 };
 
+static void pgraph_vk_retire_shader_timing(PGRAPHVkState *r)
+{
+    if (r->shader_timing_pool == VK_NULL_HANDLE ||
+        !r->shader_timing_used) return;
+    for (uint32_t i = 0; i < r->shader_timing_used; ++i) {
+        if (!r->shader_timing_slots[i].complete) continue;
+        uint64_t ticks[2] = { 0 };
+        VkResult result = vkGetQueryPoolResults(
+            r->device, r->shader_timing_pool, i * 2, 2,
+            sizeof(ticks), ticks, sizeof(ticks[0]),
+            VK_QUERY_RESULT_64_BIT);
+        if (result == VK_SUCCESS && ticks[1] > ticks[0]) {
+            uint64_t duration_ns = (uint64_t)(
+                (double)(ticks[1] - ticks[0]) *
+                r->device_props.limits.timestampPeriod);
+            pgraph_shader_browser_publish_binding_timing(
+                &r->shader_timing_slots[i].binding,
+                XEMU_SHADER_BROWSER_BACKEND_VK,
+                r->shader_timing_slots[i].route,
+                r->shader_timing_slots[i].variant_id,
+                r->shader_timing_slots[i].frame,
+                XEMU_SHADER_BROWSER_PERF_DRAW_GPU,
+                duration_ns, 1, XEMU_SHADER_BROWSER_SAMPLE_SAMPLED);
+        } else {
+            xemu_shader_browser_record_dropped_samples(1);
+        }
+    }
+    r->shader_timing_used = 0;
+    xemu_shader_browser_report_gpu_state(
+        XEMU_SHADER_BROWSER_BACKEND_VK, r->shader_timing_supported, 0);
+}
+
 void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -2756,6 +2845,7 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
             MAX(qemu_clock_get_us(QEMU_CLOCK_REALTIME) - wait_start, 0) : 0;
         trace_wait_us = wait_us;
         VK_CHECK(result);
+        pgraph_vk_retire_shader_timing(r);
         pgraph_vk_perf_record_finish_submit(
             r, finish_reason, time_submit, submit_cpu_us, wait_us, staged_bytes,
             ARRAY_SIZE(submit_infos), 2);
@@ -2814,6 +2904,28 @@ void pgraph_vk_begin_command_buffer(PGRAPHState *pg)
     };
     VK_CHECK(vkBeginCommandBuffer(r->command_buffer,
                                   &command_buffer_begin_info));
+    r->shader_timing_reset_in_command_buffer = false;
+    if (r->shader_timing_supported &&
+        xemu_shader_browser_gpu_profiling_enabled()) {
+        if (r->shader_timing_pool == VK_NULL_HANDLE) {
+            VkQueryPoolCreateInfo info = {
+                .sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO,
+                .queryType = VK_QUERY_TYPE_TIMESTAMP,
+                .queryCount = PGRAPH_VK_SHADER_TIMING_SLOTS * 2,
+            };
+            if (vkCreateQueryPool(r->device, &info, NULL,
+                                  &r->shader_timing_pool) != VK_SUCCESS) {
+                r->shader_timing_supported = false;
+                xemu_shader_browser_report_gpu_state(
+                    XEMU_SHADER_BROWSER_BACKEND_VK, false, 0);
+            }
+        }
+        if (r->shader_timing_pool != VK_NULL_HANDLE) {
+            vkCmdResetQueryPool(r->command_buffer, r->shader_timing_pool,
+                                0, PGRAPH_VK_SHADER_TIMING_SLOTS * 2);
+            r->shader_timing_reset_in_command_buffer = true;
+        }
+    }
     pgraph_vk_invalidate_blend_constants(pg);
     r->command_buffer_start_time = pg->draw_time;
     r->in_command_buffer = true;
@@ -3067,6 +3179,34 @@ static void begin_draw(PGRAPHState *pg)
         }
     }
     r->num_pending_vertex_ram_reads = 0;
+    if (r->shader_timing_requested &&
+        r->shader_timing_reset_in_command_buffer &&
+        r->shader_timing_pool != VK_NULL_HANDLE && r->shader_binding) {
+        if (r->shader_timing_used == PGRAPH_VK_SHADER_TIMING_SLOTS) {
+            xemu_shader_browser_record_dropped_samples(1);
+        } else {
+            uint32_t index = r->shader_timing_used++;
+            r->shader_timing_slots[index].binding =
+                r->shader_binding->browser;
+            r->shader_timing_slots[index].variant_id =
+                r->shader_binding->node.hash;
+            r->shader_timing_slots[index].frame = pg->frame_time;
+            r->shader_timing_slots[index].route =
+                r->shader_binding->fragment_route ==
+                    PGRAPH_VK_FRAGMENT_UBERSHADER ?
+                    XEMU_SHADER_BROWSER_ROUTE_UBER :
+                    XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED;
+            r->shader_timing_slots[index].complete = false;
+            r->shader_timing_active_slot = index;
+            r->shader_timing_written = true;
+            vkCmdWriteTimestamp(r->command_buffer,
+                                VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                r->shader_timing_pool, index * 2);
+            xemu_shader_browser_report_gpu_state(
+                XEMU_SHADER_BROWSER_BACKEND_VK, true,
+                r->shader_timing_used);
+        }
+    }
     r->in_draw = true;
 }
 
@@ -3076,6 +3216,16 @@ static void end_draw(PGRAPHState *pg)
 
     assert(r->in_command_buffer);
     assert(r->in_render_pass);
+
+    if (r->shader_timing_written) {
+        uint32_t index = r->shader_timing_active_slot;
+        vkCmdWriteTimestamp(r->command_buffer,
+                            VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                            r->shader_timing_pool, index * 2 + 1);
+        r->shader_timing_slots[index].complete = true;
+        r->shader_timing_written = false;
+    }
+    r->shader_timing_requested = false;
 
     if (pg->clearing) {
         end_render_pass(r);
@@ -3112,11 +3262,22 @@ void pgraph_vk_draw_end(NV2AState *d)
         return;
     }
 
-    int64_t start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
+    PGRAPHShaderBrowserSampleDecision sample =
+        r->shader_binding ? pgraph_shader_browser_choose_sample(
+            &pg->shader_browser_sampler, pg->frame_time,
+            r->shader_timing_supported &&
+            r->shader_timing_reset_in_command_buffer) :
+            (PGRAPHShaderBrowserSampleDecision){ 0 };
+    r->shader_timing_requested = sample.gpu;
+    int64_t start_us = (r->perf.enabled || sample.cpu) ?
+        g_get_monotonic_time() : 0;
     bool draw_recorded = pgraph_vk_flush_draw_internal(d);
+    r->shader_timing_requested = false;
+    int64_t elapsed_us = (r->perf.enabled || sample.cpu) ?
+        g_get_monotonic_time() - start_us : 0;
     pgraph_vk_perf_record_cpu_region(
         r, VK_PERF_CPU_DRAW_FLUSH,
-        r->perf.enabled ? g_get_monotonic_time() - start_us : 0);
+        r->perf.enabled ? elapsed_us : 0);
     if (!draw_recorded) {
         return;
     }
@@ -3124,6 +3285,19 @@ void pgraph_vk_draw_end(NV2AState *d)
     if (r->shader_binding &&
         (pg->draw_arrays_length || pg->inline_elements_length ||
          pg->inline_buffer_length || pg->inline_array_length)) {
+        if (sample.cpu) {
+            pgraph_shader_browser_publish_binding_timing(
+                &r->shader_binding->browser,
+                XEMU_SHADER_BROWSER_BACKEND_VK,
+                r->shader_binding->fragment_route ==
+                    PGRAPH_VK_FRAGMENT_UBERSHADER ?
+                    XEMU_SHADER_BROWSER_ROUTE_UBER :
+                    XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+                r->shader_binding->node.hash, pg->frame_time,
+                XEMU_SHADER_BROWSER_PERF_DRAW_SUBMIT_CPU,
+                elapsed_us * 1000, 1,
+                XEMU_SHADER_BROWSER_SAMPLE_SAMPLED);
+        }
         pgraph_shader_browser_record_draw(
             &pg->shader_browser_observations, &r->shader_binding->browser,
             pg->frame_time,

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "shader-browser.hh"
+#include "shader-browser-session-provider.hh"
 
 #include "common.hh"
 #include "viewport-manager.hh"
@@ -15,6 +16,24 @@
 using namespace xemu::shader_browser;
 
 ShaderBrowserWindow shader_browser_window;
+
+void ShaderBrowserApplyProfilingSettings()
+{
+    auto &settings = g_config.shader_browser.profiling;
+    settings.monitoring_level = std::clamp(
+        settings.monitoring_level, 0, 2);
+    settings.draw_sample_interval = std::clamp(
+        settings.draw_sample_interval, 1, 4096);
+    settings.max_gpu_samples_per_frame = std::clamp(
+        settings.max_gpu_samples_per_frame, 1, 64);
+    XemuShaderBrowserProfilingConfig config{};
+    config.monitoring_level = settings.monitoring_level;
+    config.cpu_timing = settings.cpu_timing;
+    config.gpu_timing = settings.gpu_timing;
+    config.draw_sample_interval = settings.draw_sample_interval;
+    config.max_gpu_samples_per_frame = settings.max_gpu_samples_per_frame;
+    xemu_shader_browser_configure_profiling(&config);
+}
 
 namespace {
 
@@ -150,14 +169,21 @@ bool OpenDirectory(const std::string &path, std::string *error)
     return ok;
 }
 
-void DrawDurationRows(const Entry &entry)
+void DrawDurationRows(const Entry &entry, bool recorded)
 {
-    DrawKeyValue("Compile CPU", FormatDurationNs(entry.compile_cpu));
-    DrawKeyValue("Pipeline CPU", FormatDurationNs(entry.pipeline_cpu));
-    DrawKeyValue("Prepare CPU", FormatDurationNs(entry.prepare_cpu));
-    DrawKeyValue("Foreground stall",
-                 FormatDurationNs(entry.foreground_stall_cpu));
-    DrawKeyValue("GPU execution", FormatDurationNs(entry.gpu_execution));
+    const bool enabled = recorded || (
+        g_config.shader_browser.profiling.monitoring_level == 2 &&
+        g_config.shader_browser.profiling.cpu_timing);
+    auto text = [enabled, recorded](const DurationStats &stats) {
+        return stats.samples ? FormatDurationNs(stats) :
+            enabled ? recorded ?
+                std::string("No recorded creation sample") :
+                std::string("Created before profiling or cache hit") :
+                      std::string("Profiling disabled");
+    };
+    DrawKeyValue("Source generation CPU", text(entry.source_cpu));
+    DrawKeyValue("Stage compile CPU", text(entry.compile_cpu));
+    DrawKeyValue("Module creation CPU", text(entry.module_cpu));
 }
 
 } // namespace

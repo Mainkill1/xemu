@@ -136,6 +136,8 @@ struct Entry {
     Route route = Route::Unknown;
     Readiness readiness = Readiness::Unknown;
     DurationStats compile_cpu;
+    DurationStats source_cpu;
+    DurationStats module_cpu;
     DurationStats pipeline_cpu;
     DurationStats prepare_cpu;
     DurationStats foreground_stall_cpu;
@@ -145,6 +147,29 @@ struct Entry {
     uint64_t replacement_draws = 0;
     uint64_t compile_failures = 0;
     std::vector<ShaderScope> scopes;
+};
+
+struct BindingVariant {
+    uint32_t backend = 0;
+    Route route = Route::Unknown;
+    uint64_t variant_id = 0;
+    uint64_t first_frame = 0;
+    uint64_t last_frame = 0;
+    uint64_t sampled_cpu_draws = 0;
+    uint64_t sampled_gpu_draws = 0;
+    uint32_t flags = 0;
+    std::vector<ShaderKey> members;
+    // Indexed by XemuShaderBrowserPerfMetric; element zero is unused.
+    std::array<DurationStats, 10> timing;
+};
+
+struct StageProfile {
+    ShaderKey key;
+    uint32_t backend = 0;
+    Route route = Route::Unknown;
+    uint32_t flags = 0;
+    // Indexed by stage-owned XemuShaderBrowserPerfMetric values 1..3.
+    std::array<DurationStats, 4> timing;
 };
 
 struct Filter {

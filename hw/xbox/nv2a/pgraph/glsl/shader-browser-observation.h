@@ -16,6 +16,20 @@ typedef struct PGRAPHShaderBrowserObservations {
     bool collecting;
 } PGRAPHShaderBrowserObservations;
 
+typedef struct PGRAPHShaderBrowserSampler {
+    uint64_t eligible_draws;
+    uint64_t frame;
+    uint32_t gpu_samples_this_frame;
+} PGRAPHShaderBrowserSampler;
+
+typedef struct PGRAPHShaderBrowserSampleDecision {
+    bool cpu;
+    bool gpu;
+} PGRAPHShaderBrowserSampleDecision;
+
+PGRAPHShaderBrowserSampleDecision pgraph_shader_browser_choose_sample(
+    PGRAPHShaderBrowserSampler *sampler, uint64_t frame, bool gpu_supported);
+
 /* PGRAPH owns the binding and batch; calls are serialized by its lock. */
 void pgraph_shader_browser_record_draw(PGRAPHShaderBrowserObservations *batch,
                                        PGRAPHShaderBrowserBinding *binding,

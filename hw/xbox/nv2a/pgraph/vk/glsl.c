@@ -630,14 +630,31 @@ static glslang_stage_t vk_shader_stage_to_glslang_stage(VkShaderStageFlagBits st
 ShaderModuleInfo *pgraph_vk_create_shader_module_from_glsl(
     PGRAPHVkState *r, VkShaderStageFlagBits stage, const char *glsl)
 {
+    return pgraph_vk_create_shader_module_from_glsl_profiled(
+        r, stage, glsl, NULL, NULL);
+}
+
+ShaderModuleInfo *pgraph_vk_create_shader_module_from_glsl_profiled(
+    PGRAPHVkState *r, VkShaderStageFlagBits stage, const char *glsl,
+    uint64_t *compile_ns, uint64_t *module_ns)
+{
     nv2a_profile_log_event_once(NV2A_PROFILE_EVENT_SHADER_COMPILE);
+    int64_t compile_start = compile_ns ? g_get_monotonic_time() : 0;
     GByteArray *spirv = pgraph_vk_compile_glsl_to_spv(
         r, vk_shader_stage_to_glslang_stage(stage), glsl);
+    if (compile_ns) {
+        *compile_ns = (uint64_t)(g_get_monotonic_time() - compile_start) *
+                      1000;
+    }
     if (!spirv) {
         return NULL;
     }
+    int64_t module_start = module_ns ? g_get_monotonic_time() : 0;
     ShaderModuleInfo *info = pgraph_vk_create_shader_module_from_spirv(
         r, stage, glsl, spirv);
+    if (module_ns) {
+        *module_ns = (uint64_t)(g_get_monotonic_time() - module_start) * 1000;
+    }
     g_byte_array_unref(spirv);
     if (!info) {
         error_report("nv2a/vk: failed to construct freshly compiled shader");

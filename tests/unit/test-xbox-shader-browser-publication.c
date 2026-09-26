@@ -10,7 +10,18 @@ static uint32_t published_stages[8];
 static uint32_t published_titles[8];
 static size_t published_count;
 static int artifacts_enabled;
+static int monitoring_enabled = 1;
 static size_t artifact_count;
+static XemuShaderBrowserPerformanceSample perf_samples[8];
+static size_t perf_count;
+
+void xemu_shader_browser_publish_performance_samples(
+    const XemuShaderBrowserPerformanceSample *samples, size_t count)
+{
+    assert(perf_count + count <= 8);
+    memcpy(perf_samples + perf_count, samples, count * sizeof(*samples));
+    perf_count += count;
+}
 
 uint64_t xemu_shader_browser_scope_generation(void)
 {
@@ -53,6 +64,11 @@ int xemu_shader_browser_external_artifacts_enabled(void)
     return artifacts_enabled;
 }
 
+int xemu_shader_browser_monitoring_enabled(void)
+{
+    return monitoring_enabled;
+}
+
 int xemu_shader_browser_publish_external_artifact(
     const XemuShaderBrowserExternalArtifact *artifact)
 {
@@ -81,6 +97,14 @@ int main(void)
 
     pgraph_shader_browser_refresh_binding_scope(&state, false, &binding);
     assert(published_count == 2);
+    monitoring_enabled = 0;
+    ++generation;
+    pgraph_shader_browser_refresh_binding_scope(&state, false, &binding);
+    assert(published_count == 2 && binding.scope_generation == 7);
+    monitoring_enabled = 1;
+    pgraph_shader_browser_refresh_binding_scope(&state, false, &binding);
+    assert(published_count == 4 && binding.scope_generation == generation);
+    published_count = 2;
     title_id = 0x54540001;
     ++generation;
     pgraph_shader_browser_refresh_binding_scope(&state, false, &binding);
@@ -94,6 +118,58 @@ int main(void)
     assert(published_stages[4] == XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION);
     assert(published_stages[5] == XEMU_SHADER_BROWSER_STAGE_PIXEL);
     assert(published_stages[6] == XEMU_SHADER_BROWSER_STAGE_GEOMETRY);
+    pgraph_shader_browser_publish_stage_timing(
+        &state, XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION,
+        XEMU_SHADER_BROWSER_BACKEND_GL,
+        XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+        XEMU_SHADER_BROWSER_PERF_COMPILE_CPU, 1234,
+        XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND);
+    pgraph_shader_browser_publish_binding_timing(
+        &binding, XEMU_SHADER_BROWSER_BACKEND_GL,
+        XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED, 99, 12,
+        XEMU_SHADER_BROWSER_PERF_LINK_OR_PIPELINE_CPU, 5000, 0,
+        XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND);
+    assert(perf_count == 2);
+    assert(perf_samples[0].owner == XEMU_SHADER_BROWSER_PERF_STAGE);
+    assert(perf_samples[0].identity_count == 1);
+    assert(perf_samples[0].identities[0].stage ==
+           XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION);
+    assert(perf_samples[1].owner == XEMU_SHADER_BROWSER_PERF_BINDING);
+    assert(perf_samples[1].identity_count == 3);
+    assert(perf_samples[1].variant_id == 99);
+    assert(perf_samples[1].identities[2].stage ==
+           XEMU_SHADER_BROWSER_STAGE_GEOMETRY);
+    size_t catalog_count = published_count;
+    PGRAPHShaderBrowserBinding captured = { 0 };
+    pgraph_shader_browser_capture_binding(&state, true, &captured);
+    assert(captured.count == 3);
+    assert(captured.scope_generation == generation);
+    assert(published_count == catalog_count);
+    state.vsh.is_fixed_function = false;
+    const uint32_t stages[] = {
+        XEMU_SHADER_BROWSER_STAGE_VERTEX,
+        XEMU_SHADER_BROWSER_STAGE_PIXEL,
+        XEMU_SHADER_BROWSER_STAGE_GEOMETRY,
+    };
+    for (size_t i = 0; i < 3; ++i) {
+        pgraph_shader_browser_publish_stage_timing(
+            &state, stages[i], XEMU_SHADER_BROWSER_BACKEND_GL,
+            XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+            XEMU_SHADER_BROWSER_PERF_SOURCE_CPU, 100 + i,
+            XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND);
+        assert(perf_samples[2 + i].identities[0].stage == stages[i]);
+        assert(perf_samples[2 + i].identities[0].hash[0] == stages[i]);
+    }
+    pgraph_shader_browser_publish_stage_timing_at_scope(
+        &state, XEMU_SHADER_BROWSER_STAGE_PIXEL,
+        XEMU_SHADER_BROWSER_BACKEND_VK,
+        XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+        XEMU_SHADER_BROWSER_PERF_COMPILE_CPU, 250,
+        XEMU_SHADER_BROWSER_SAMPLE_BACKGROUND, 12);
+    assert(perf_count == 6);
+    assert(perf_samples[5].scope_generation == 12);
+    assert(perf_samples[5].flags == XEMU_SHADER_BROWSER_SAMPLE_BACKGROUND);
+    state.vsh.is_fixed_function = true;
     const uint8_t source[] = "hello";
     pgraph_shader_browser_publish_generated_artifact(
         &state, XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION, "opengl",

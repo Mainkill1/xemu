@@ -224,6 +224,10 @@ static void pgraph_gl_init(NV2AState *d, Error **errp)
 
     /* fire up opengl */
     glo_set_current(g_nv2a_context_render);
+    r->shader_timing_supported = epoxy_gl_version() >= 33 ||
+        glo_check_extension("GL_ARB_timer_query");
+    xemu_shader_browser_report_gpu_state(
+        XEMU_SHADER_BROWSER_BACKEND_GL, r->shader_timing_supported, 0);
 
 #if DEBUG_NV2A_GL
     gl_debug_initialize();
@@ -258,6 +262,12 @@ static void pgraph_gl_finalize(NV2AState *d)
     PGRAPHState *pg = &d->pgraph;
 
     glo_set_current(g_nv2a_context_render);
+    if (pg->gl_renderer_state->shader_timing_initialized) {
+        glDeleteQueries(PGRAPH_GL_SHADER_TIMING_SLOTS * 2,
+                        pg->gl_renderer_state->shader_timing_queries);
+    }
+    xemu_shader_browser_report_gpu_state(
+        XEMU_SHADER_BROWSER_BACKEND_GL, 0, 0);
 
     pgraph_gl_finalize_surfaces(pg);
     pgraph_gl_finalize_shaders(pg);

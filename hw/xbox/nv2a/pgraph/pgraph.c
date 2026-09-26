@@ -297,6 +297,8 @@ void pgraph_init(NV2AState *d)
     pg->draw_time = 0;
     memset(&pg->shader_browser_observations, 0,
            sizeof(pg->shader_browser_observations));
+    memset(&pg->shader_browser_sampler, 0,
+           sizeof(pg->shader_browser_sampler));
     memset(&pg->uniform_source_epochs, 0,
            sizeof(pg->uniform_source_epochs));
 

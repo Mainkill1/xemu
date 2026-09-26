@@ -21,7 +21,7 @@ struct sqlite3;
 
 namespace xemu::shader_browser {
 
-constexpr uint32_t kShaderDatabaseSchemaVersion = 1;
+constexpr uint32_t kShaderDatabaseSchemaVersion = 2;
 
 struct DatabaseConfig {
     std::string base_path;
@@ -81,6 +81,20 @@ struct ShaderSessionStats {
     DurationStats gpu_execution;
 };
 
+struct PerformanceAggregate {
+    uint32_t owner = 0;
+    uint32_t backend = 0;
+    uint32_t route = 0;
+    uint32_t metric = 0;
+    uint32_t flags = 0;
+    uint64_t variant_id = 0;
+    uint64_t first_frame = 0;
+    uint64_t last_frame = 0;
+    uint64_t represented_draws = 0;
+    std::vector<ShaderKey> members;
+    DurationStats duration;
+};
+
 struct SessionSummary {
     std::string session_id;
     uint32_t title_id = 0;
@@ -88,7 +102,15 @@ struct SessionSummary {
     uint64_t ended_unix_ms = 0;
     std::string xemu_revision;
     std::string renderer;
+    std::string host_os;
+    std::string cpu_model;
     std::string gpu_name;
+    std::string gpu_driver;
+    uint32_t gpu_vendor_id = 0;
+    uint32_t gpu_device_id = 0;
+    uint32_t internal_resolution_scale = 1;
+    std::string ubershader_mode;
+    bool shader_cache_enabled = false;
     bool clean_shutdown = false;
 };
 
@@ -154,6 +176,11 @@ public:
                                std::string *error);
     std::vector<SessionSummary> CopySessions(uint32_t title_id, size_t limit);
     std::vector<ShaderSessionStats> CopySessionStats(
+        const std::string &session_id);
+    bool UpsertPerformanceAggregate(const std::string &session_id,
+                                    const PerformanceAggregate &aggregate,
+                                    std::string *error);
+    std::vector<PerformanceAggregate> CopyPerformanceAggregates(
         const std::string &session_id);
 
     bool RegisterArtifact(const ArtifactMetadata &artifact,
