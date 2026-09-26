@@ -430,20 +430,49 @@ void xemu_hud_cleanup(void)
     if (external.enabled) {
         SDL_Window *main_window = SDL_GL_GetCurrentWindow();
         SDL_GLContext main_gl = SDL_GL_GetCurrentContext();
-        SDL_GL_MakeCurrent(external.window, external.gl_context);
-        // The external browser is the preview texture consumer. Retire and
-        // delete its outputs here before destroying this shared GL context.
+        if (!SDL_GL_MakeCurrent(external.window, external.gl_context)) {
+            fprintf(stderr,
+                    "Shader preview cleanup: external GL context switch "
+                    "failed: %s\n",
+                    SDL_GetError());
+            if (!main_window || !main_gl ||
+                !SDL_GL_MakeCurrent(main_window, main_gl)) {
+                fprintf(stderr,
+                        "Shader preview cleanup: no usable main GL "
+                        "context; skipping terminal HUD GL cleanup: %s\n",
+                        SDL_GetError());
+                xemu::shader_browser::GetPreviewGlExecutor().Shutdown(false);
+                return;
+            }
+            fprintf(stderr, "Shader preview cleanup: using restored shared "
+                            "main GL context instead of external context\n");
+        }
+        // Normally the consumer context; on switch failure, the checked main
+        // context shares its textures/syncs and GL preserves queued references.
         xemu::shader_browser::GetPreviewGlExecutor().Shutdown();
         ImGui::SetCurrentContext(external.imgui_context);
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplSDL3_Shutdown();
         ImGui::DestroyContext(external.imgui_context);
-        SDL_GL_MakeCurrent(main_window, main_gl);
+        if (!SDL_GL_MakeCurrent(main_window, main_gl)) {
+            fprintf(stderr,
+                    "Shader preview cleanup: cannot restore main GL "
+                    "context; skipping remaining HUD GL cleanup: %s\n",
+                    SDL_GetError());
+            return;
+        }
         ImGui::SetCurrentContext(external.main_imgui_context);
         SDL_GL_DestroyContext(external.gl_context);
         SDL_DestroyWindow(external.window);
         external = {};
     } else {
+        if (!SDL_GL_GetCurrentContext()) {
+            fprintf(stderr,
+                    "Shader preview cleanup: main GL context is absent; "
+                    "skipping terminal HUD GL cleanup\n");
+            xemu::shader_browser::GetPreviewGlExecutor().Shutdown(false);
+            return;
+        }
         xemu::shader_browser::GetPreviewGlExecutor().Shutdown();
     }
     ImGui_ImplOpenGL3_Shutdown();

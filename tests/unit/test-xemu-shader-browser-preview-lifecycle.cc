@@ -270,6 +270,35 @@ int main(int argc, char **argv)
     ++packet.selection.renderer_epoch;
     submit();
     await([&] { return executor.HasDisplayed(); });
+    // If the consumer switch fails, terminal cleanup can use the explicitly
+    // restored shared main context while preserving queued consumer references.
+    assert(SDL_GL_MakeCurrent(main_window, main_context));
+    executor.Shutdown();
+    assert(SDL_GL_GetCurrentContext() == main_context);
+    assert(!executor.NeedsRetirementPump());
+    assert(glGetError() == GL_NO_ERROR);
+    assert(SDL_GL_MakeCurrent(window, context));
+    service.SetEnabled(true);
+    ++packet.selection.renderer_epoch;
+    submit();
+    await([&] { return executor.HasDisplayed(); });
+    // Terminal context failure must stop the worker without issuing HUD GL
+    // deletion. The shared objects remain for destruction of the share group.
+    const auto abandoned_textures = textures;
+    assert(!abandoned_textures.empty());
+    assert(SDL_GL_MakeCurrent(nullptr, nullptr));
+    executor.Shutdown(false);
+    assert(SDL_GL_GetCurrentContext() == nullptr);
+    assert(!executor.NeedsRetirementPump());
+    assert(SDL_GL_MakeCurrent(window, context));
+    for (GLuint texture : abandoned_textures) {
+        assert(glIsTexture(texture));
+    }
+    assert(glGetError() == GL_NO_ERROR);
+    service.SetEnabled(true);
+    ++packet.selection.renderer_epoch;
+    submit();
+    await([&] { return executor.HasDisplayed(); });
     service.SetEnabled(false);
     draw();
     assert(!executor.HasDisplayed() && !executor.HasFrozen());

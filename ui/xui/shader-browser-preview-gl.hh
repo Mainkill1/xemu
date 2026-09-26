@@ -35,7 +35,9 @@ public:
     bool FreezeDisplayed();
     void ClearFrozen();
     void AfterHudRender();
-    void Shutdown();
+    // Terminal context loss may skip GL deletion and leave objects to SDL
+    // teardown.
+    void Shutdown(bool have_shared_context = true);
 
 private:
     struct Impl;

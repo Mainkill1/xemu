@@ -839,18 +839,23 @@ void PreviewGlExecutor::AfterHudRender()
     impl.PollRetirements();
 }
 
-void PreviewGlExecutor::Shutdown()
+void PreviewGlExecutor::Shutdown(bool have_shared_context)
 {
     Impl &impl = *impl_;
     impl.stop.store(true, std::memory_order_release);
     if (impl.worker.joinable()) impl.worker.join();
     impl.RetireDisplayed();
     impl.RetireFrozen();
+    const bool can_delete = have_shared_context && SDL_GL_GetCurrentContext();
+    if (impl.context && !can_delete) {
+        g_printerr("Private preview: no usable shared HUD GL context; "
+                   "leaving output objects to terminal SDL teardown\n");
+    }
     // Terminal HUD cleanup only. Ordinary tab close/disable uses zero-time
     // PollRetirements and never waits. Bound the aggregate terminal fence wait.
     const uint64_t deadline = NowNs() + UINT64_C(1000000000);
     for (Impl::Retirement &retirement : impl.retirements) {
-        if (retirement.fence) {
+        if (can_delete && retirement.fence) {
             const uint64_t now = NowNs();
             glClientWaitSync(retirement.fence, GL_SYNC_FLUSH_COMMANDS_BIT,
                              now < deadline ? deadline - now : 0);
@@ -863,7 +868,7 @@ void PreviewGlExecutor::Shutdown()
     // never recycle these texture objects or claim a fence has signaled.
     const bool had_backend = impl.context != nullptr;
     for (Impl::Slot &slot : impl.slots) {
-        if (slot.texture)
+        if (can_delete && slot.texture)
             glDeleteTextures(1, &slot.texture);
         slot = {};
     }
