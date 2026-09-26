@@ -21,6 +21,10 @@ struct Snapshot {
     size_t pending_observation_count = 0;
     size_t pending_performance_samples = 0;
     uint64_t dropped_performance_samples = 0;
+    uint32_t pending_gl_gpu_queries = 0;
+    uint32_t pending_vk_gpu_queries = 0;
+    bool gl_gpu_supported = false;
+    bool vk_gpu_supported = false;
 
     bool database_enabled = false;
     bool database_open = false;

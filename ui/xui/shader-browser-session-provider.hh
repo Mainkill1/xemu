@@ -246,6 +246,9 @@ void xemu_shader_browser_publish_observations(
     const XemuShaderBrowserObservation *observations, size_t count);
 void xemu_shader_browser_publish_performance_samples(
     const XemuShaderBrowserPerformanceSample *samples, size_t count);
+void xemu_shader_browser_record_dropped_samples(uint64_t count);
+void xemu_shader_browser_report_gpu_state(uint32_t backend, int supported,
+                                          uint32_t pending);
 void xemu_shader_browser_publish_frame(uint64_t frame);
 
 void xemu_shader_browser_session_clear_live(void);

@@ -140,6 +140,23 @@ void ShaderBrowserWindow::DrawSettings()
         "Live browsing works without database persistence. Persistent storage "
         "is opt-in and never runs on the draw hot path.");
 
+    ImGui::SeparatorText("Profiling state");
+    const bool vulkan =
+        g_config.display.renderer == CONFIG_DISPLAY_RENDERER_VULKAN;
+    const bool supported = vulkan ? m_snapshot.vk_gpu_supported :
+                                    m_snapshot.gl_gpu_supported;
+    const uint32_t pending = vulkan ? m_snapshot.pending_vk_gpu_queries :
+                                      m_snapshot.pending_gl_gpu_queries;
+    ImGui::Text("Active backend: %s", vulkan ? "Vulkan" : "OpenGL");
+    ImGui::Text("GPU timestamps: %s",
+                supported ? "Supported" : "Unsupported by active backend/device");
+    ImGui::Text("Pending GPU queries: %u", pending);
+    ImGui::Text("Dropped profiling samples: %llu",
+                static_cast<unsigned long long>(
+                    m_snapshot.dropped_performance_samples));
+    ImGui::TextDisabled(
+        "Monitoring level and sample budgets are in Advanced settings.");
+
     ImGui::SeparatorText("Persistence");
     bool database_enabled = g_config.shader_browser.database.enabled;
     if (ImGui::Checkbox("Enable persistent shader database",

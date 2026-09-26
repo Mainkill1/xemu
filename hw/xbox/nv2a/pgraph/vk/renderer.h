@@ -880,6 +880,21 @@ typedef struct PGRAPHVkState {
     bool uploaded_uber_controls_valid;
 
     VkQueryPool query_pool;
+#define PGRAPH_VK_SHADER_TIMING_SLOTS 256
+    VkQueryPool shader_timing_pool;
+    bool shader_timing_supported;
+    bool shader_timing_reset_in_command_buffer;
+    bool shader_timing_requested;
+    bool shader_timing_written;
+    uint32_t shader_timing_used;
+    uint32_t shader_timing_active_slot;
+    struct {
+        PGRAPHShaderBrowserBinding binding;
+        uint64_t variant_id;
+        uint64_t frame;
+        uint32_t route;
+        bool complete;
+    } shader_timing_slots[PGRAPH_VK_SHADER_TIMING_SLOTS];
     int max_queries_in_flight; // FIXME: Move out to constant
     int num_queries_in_flight;
     bool new_query_needed;

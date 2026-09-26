@@ -252,6 +252,17 @@ void MainMenuAdvanceView::Draw()
         ShaderBrowserApplyProfilingSettings();
         xemu_settings_save();
     }
+    int &interval = g_config.shader_browser.profiling.draw_sample_interval;
+    if (ImGui::SliderInt("Sample every N draws", &interval, 1, 4096)) {
+        ShaderBrowserApplyProfilingSettings();
+        xemu_settings_save();
+    }
+    int &gpu_limit =
+        g_config.shader_browser.profiling.max_gpu_samples_per_frame;
+    if (ImGui::SliderInt("GPU samples per frame", &gpu_limit, 1, 64)) {
+        ShaderBrowserApplyProfilingSettings();
+        xemu_settings_save();
+    }
     ImGui::EndDisabled();
     SectionTitle("Vulkan");
     XemuVulkanUbershaderRuntimeState ubershader_state =

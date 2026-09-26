@@ -113,6 +113,14 @@
         snapshot->dropped_performance_samples =
             dropped_performance_samples.load(std::memory_order_relaxed);
         snapshot->pending_performance_samples = sample_queue.Pending();
+        snapshot->gl_gpu_supported =
+            gl_gpu_supported.load(std::memory_order_relaxed);
+        snapshot->vk_gpu_supported =
+            vk_gpu_supported.load(std::memory_order_relaxed);
+        snapshot->pending_gl_gpu_queries =
+            gl_gpu_pending.load(std::memory_order_relaxed);
+        snapshot->pending_vk_gpu_queries =
+            vk_gpu_pending.load(std::memory_order_relaxed);
         for (const auto &pair : live_binding_variants) {
             snapshot->binding_variants.push_back(pair.second);
         }

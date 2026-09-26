@@ -377,6 +377,11 @@ static void pgraph_vk_init(NV2AState *d, Error **errp)
     if (*errp) {
         return;
     }
+    pg->vk_renderer_state->shader_timing_supported =
+        pg->vk_renderer_state->device_props.limits.timestampComputeAndGraphics;
+    xemu_shader_browser_report_gpu_state(
+        XEMU_SHADER_BROWSER_BACKEND_VK,
+        pg->vk_renderer_state->shader_timing_supported, 0);
     pg->vk_renderer_state->hybrid_service_timer = timer_new_ns(
         QEMU_CLOCK_REALTIME, pgraph_vk_hybrid_service_timer_fired, d);
 
@@ -431,6 +436,13 @@ static void pgraph_vk_finalize(NV2AState *d)
 
     /* Finish recorded draws before destroying their cached pipelines. */
     pgraph_vk_finish(pg, VK_FINISH_REASON_FLUSH);
+    if (pg->vk_renderer_state->shader_timing_pool != VK_NULL_HANDLE) {
+        vkDestroyQueryPool(pg->vk_renderer_state->device,
+                           pg->vk_renderer_state->shader_timing_pool, NULL);
+        pg->vk_renderer_state->shader_timing_pool = VK_NULL_HANDLE;
+    }
+    xemu_shader_browser_report_gpu_state(
+        XEMU_SHADER_BROWSER_BACKEND_VK, 0, 0);
     pgraph_vk_finalize_display(pg);
     pgraph_vk_finalize_compute(pg);
     pgraph_vk_finalize_reports(pg);

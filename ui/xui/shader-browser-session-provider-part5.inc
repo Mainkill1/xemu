@@ -19,6 +19,10 @@
     std::atomic<uint64_t> live_epoch{1};
     PerformanceSampleQueue sample_queue;
     std::atomic<uint64_t> dropped_performance_samples{0};
+    std::atomic<uint32_t> gl_gpu_pending{0};
+    std::atomic<uint32_t> vk_gpu_pending{0};
+    std::atomic<bool> gl_gpu_supported{false};
+    std::atomic<bool> vk_gpu_supported{false};
     std::map<VariantKey, BindingVariant> live_binding_variants;
     std::mutex live_queue_mutex;
     std::vector<QueuedEvent> live_events;
@@ -177,6 +181,18 @@ void xemu_shader_browser_publish_performance_samples(
     const XemuShaderBrowserPerformanceSample *samples, size_t count)
 {
     xemu::shader_browser::provider.PublishPerformanceSamples(samples, count);
+}
+
+void xemu_shader_browser_record_dropped_samples(uint64_t count)
+{
+    xemu::shader_browser::provider.RecordDroppedSamples(count);
+}
+
+void xemu_shader_browser_report_gpu_state(uint32_t backend, int supported,
+                                          uint32_t pending)
+{
+    xemu::shader_browser::provider.ReportGpuState(backend, supported != 0,
+                                                   pending);
 }
 
 void xemu_shader_browser_publish_frame(uint64_t frame)

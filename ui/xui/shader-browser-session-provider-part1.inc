@@ -220,6 +220,23 @@ using VariantKey = std::tuple<uint32_t, uint32_t, uint64_t>;
 
 class SessionProvider final : public Provider {
 public:
+    void RecordDroppedSamples(uint64_t count)
+    {
+        dropped_performance_samples.fetch_add(count,
+                                               std::memory_order_relaxed);
+    }
+
+    void ReportGpuState(uint32_t backend, bool supported, uint32_t pending)
+    {
+        if (backend == XEMU_SHADER_BROWSER_BACKEND_GL) {
+            gl_gpu_supported.store(supported, std::memory_order_relaxed);
+            gl_gpu_pending.store(pending, std::memory_order_relaxed);
+        } else if (backend == XEMU_SHADER_BROWSER_BACKEND_VK) {
+            vk_gpu_supported.store(supported, std::memory_order_relaxed);
+            vk_gpu_pending.store(pending, std::memory_order_relaxed);
+        }
+    }
+
     void PublishPerformanceSamples(
         const XemuShaderBrowserPerformanceSample *samples, size_t count)
     {
