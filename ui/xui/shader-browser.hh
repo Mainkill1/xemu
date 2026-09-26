@@ -59,6 +59,9 @@ private:
     int m_preview_alpha_reference = 0;
     bool m_preview_linear_filter = true;
     bool m_preview_repeat_wrap = false;
+    float m_preview_view_zoom = 1.0f;
+    std::array<float, 2> m_preview_view_center{0.5f, 0.5f};
+    int m_preview_view_channel = 0;
     bool m_preview_packet_attempted = false;
     std::string m_preview_packet_message;
     std::vector<size_t> m_source_line_offsets;
