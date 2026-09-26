@@ -7,7 +7,22 @@
 
 namespace xemu::shader_browser {
 
-constexpr size_t kPreviewSyntheticFixtureBytes = 83U;
+enum class PreviewFixtureProfile : uint8_t {
+    Flat,
+    UV,
+    Checker,
+    Alpha,
+    MultiTexture,
+    Normal,
+    Cubemap,
+    Fog,
+    Diagnostic
+};
+constexpr size_t kPreviewTextureExtent = 8;
+constexpr size_t kPreviewTextureFaceBytes = 8 * 8 * 4;
+constexpr size_t kPreviewFixtureTextureBytes = 4 * 6 * kPreviewTextureFaceBytes;
+constexpr size_t kPreviewSyntheticFixtureBytes = 83 + 4 + 1 + 4 + 64 + 4 + 12;
+const char *PreviewFixtureProfileName(PreviewFixtureProfile profile);
 
 struct PreviewSyntheticFixture {
     std::array<std::array<uint8_t, 4>, 4> corner_colors{};
@@ -16,10 +31,24 @@ struct PreviewSyntheticFixture {
     std::array<float, 2> uv_offset{0.0f, 0.0f};
     std::array<float, 4> constant_color{1.0f, 1.0f, 1.0f, 1.0f};
     std::array<float, 4> fog_color{0.0f, 0.0f, 0.0f, 0.0f};
+    PreviewFixtureProfile profile = PreviewFixtureProfile::Flat;
+    std::array<PreviewFixtureProfile, 4> textures{};
+    std::array<std::array<float, 4>, 4> colors{
+        { { 1, 1, 1, 1 }, { 0, 1, 0, 1 }, { 0, 0, 1, 1 }, { 1, 1, 0, 1 } }
+    };
+    float fog = 0;
+    std::array<float, 3> cube_direction{ 0, 0, 1 };
     uint8_t alpha_reference = 0;
     uint8_t linear_filter = 1;
     uint8_t repeat_wrap = 0;
 };
+
+PreviewSyntheticFixture MakePreviewFixture(PreviewFixtureProfile profile);
+bool SuggestPreviewFixture(const CanonicalRecipe &recipe,
+                           PreviewFixtureProfile *profile, std::string *error);
+using PreviewTexturePixels = std::array<uint8_t, 6 * kPreviewTextureFaceBytes>;
+PreviewTexturePixels
+GeneratePreviewTexture(const PreviewSyntheticFixture &fixture, size_t stage);
 
 // Apply fixture values once, using the untransformed mesh UVs for corner colors.
 void ApplyPreviewSyntheticFixture(const PreviewSyntheticFixture &fixture,

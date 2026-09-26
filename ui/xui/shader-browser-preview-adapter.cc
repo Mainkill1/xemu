@@ -19,6 +19,14 @@ void ApplyPreviewSyntheticFixture(const PreviewSyntheticFixture &fixture,
                           (1 - u) * (1 - t) * fixture.corner_colors[2][c] +
                           u * (1 - t) * fixture.corner_colors[3][c]) /
                          255.0f;
+        for (size_t i = 0; i < 4; ++i)
+            std::copy(fixture.colors[i].begin(), fixture.colors[i].end(),
+                      v.colors[i]);
+        v.fog = fixture.profile == PreviewFixtureProfile::Fog ?
+                    u * fixture.fog :
+                    fixture.fog;
+        std::copy(fixture.cube_direction.begin(), fixture.cube_direction.end(),
+                  v.direction);
         for (size_t c = 0; c < 2; ++c)
             v.uv[c] = v.uv[c] * fixture.uv_scale[c] + fixture.uv_offset[c];
     }
@@ -63,6 +71,16 @@ std::vector<uint8_t> EncodePreviewSyntheticFixture(
     bytes.push_back(fixture.alpha_reference);
     bytes.push_back(fixture.linear_filter);
     bytes.push_back(fixture.repeat_wrap);
+    bytes.insert(bytes.end(), { 'P', 'F', 'X', 2 });
+    bytes.push_back(static_cast<uint8_t>(fixture.profile));
+    for (auto profile : fixture.textures)
+        bytes.push_back(static_cast<uint8_t>(profile));
+    for (auto color : fixture.colors)
+        for (float value : color)
+            append_float(value);
+    append_float(fixture.fog);
+    for (float value : fixture.cube_direction)
+        append_float(value);
     return bytes;
 }
 
@@ -95,6 +113,41 @@ bool DecodePreviewSyntheticFixture(const std::vector<uint8_t> &bytes,
     decoded.alpha_reference = bytes[offset++];
     decoded.linear_filter = bytes[offset++];
     decoded.repeat_wrap = bytes[offset++];
+    if (bytes[offset++] != 'P' || bytes[offset++] != 'F' ||
+        bytes[offset++] != 'X' || bytes[offset++] != 2) {
+        if (error)
+            *error = "Unsupported fixture encoding version";
+        return false;
+    }
+    decoded.profile = static_cast<PreviewFixtureProfile>(bytes[offset++]);
+    for (auto &p : decoded.textures)
+        p = static_cast<PreviewFixtureProfile>(bytes[offset++]);
+    for (auto &color : decoded.colors)
+        for (float &v : color)
+            read_float(&v);
+    read_float(&decoded.fog);
+    for (float &v : decoded.cube_direction)
+        read_float(&v);
+    auto valid_profile = [](PreviewFixtureProfile p) {
+        return static_cast<unsigned>(p) <= 8;
+    };
+    bool valid = valid_profile(decoded.profile) && std::isfinite(decoded.fog) &&
+                 decoded.fog >= 0 && decoded.fog <= 1;
+    for (auto p : decoded.textures)
+        valid &= valid_profile(p);
+    for (auto color : decoded.colors)
+        for (float v : color)
+            valid &= std::isfinite(v) && v >= 0 && v <= 1;
+    float length = 0;
+    for (float v : decoded.cube_direction) {
+        valid &= std::isfinite(v) && v >= -1 && v <= 1;
+        length += v * v;
+    }
+    if (!valid || length < 0.0001f) {
+        if (error)
+            *error = "Unsupported fixture profile or input range";
+        return false;
+    }
     auto valid_range = [](float value, float low, float high) {
         return std::isfinite(value) && value >= low && value <= high;
     };
@@ -177,7 +230,13 @@ std::string BuildPreviewSyntheticVertexSource(
     std::string result = vulkan ? "#version 450\n" : "#version 400\n";
     result += "layout(location = 0) in vec4 previewPosition;\n"
               "layout(location = 1) in vec4 previewColor;\n"
-              "layout(location = 2) in vec2 previewUV;\n";
+              "layout(location = 2) in vec2 previewUV;\n"
+              "layout(location = 3) in vec4 previewD0;\n"
+              "layout(location = 4) in vec4 previewD1;\n"
+              "layout(location = 5) in vec4 previewB0;\n"
+              "layout(location = 6) in vec4 previewB1;\n"
+              "layout(location = 7) in float previewFog;\n"
+              "layout(location = 8) in vec3 previewDirection;\n";
     const char *names[] = { "vtxD0", "vtxD1", "vtxB0", "vtxB1",
                             "vtxFog", "vtxT0", "vtxT1", "vtxT2",
                             "vtxT3", "vtxPos0", "vtxPos1", "vtxPos2",
@@ -196,16 +255,27 @@ std::string BuildPreviewSyntheticVertexSource(
         result += names[i];
         result += ";\n";
     }
+    bool cube[4]{};
+    for (int i = 0; i < 4; ++i)
+        cube[i] = fragment_source.find("samplerCube texSamp" +
+                                       std::to_string(i)) != std::string::npos;
     result += "void main() {\n"
               "  gl_Position = previewPosition;\n"
-              "  vtxD0 = previewColor; vtxD1 = previewColor;\n"
-              "  vtxB0 = previewColor; vtxB1 = previewColor;\n"
-              "  vtxFog = 0.0;\n"
+              "  vtxD0 = previewColor * previewD0; vtxD1 = previewD1;\n"
+              "  vtxB0 = previewB0; vtxB1 = previewB1;\n"
+              "  vtxFog = previewFog;\n"
               "  vtxT0 = vec4(previewUV, 0.0, 1.0);\n"
               "  vtxT1 = vtxT0; vtxT2 = vtxT0; vtxT3 = vtxT0;\n"
               "  vtxPos0 = gl_Position; vtxPos1 = gl_Position;\n"
               "  vtxPos2 = gl_Position; triMZ = 0.0;\n"
               "}\n";
+    const auto end = result.rfind('}');
+    std::string directions;
+    for (int i = 0; i < 4; ++i)
+        if (cube[i])
+            directions += "vtxT" + std::to_string(i) +
+                          " = vec4(previewDirection, 1.0);\n";
+    result.insert(end, directions);
     return result;
 }
 

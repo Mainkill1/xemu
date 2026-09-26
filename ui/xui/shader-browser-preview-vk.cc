@@ -180,7 +180,10 @@ struct PreviewVkExecutor::Impl {
         VkImage handle = VK_NULL_HANDLE;
         VkDeviceMemory memory = VK_NULL_HANDLE;
         VkImageView view = VK_NULL_HANDLE;
-    } target, texture;
+    } target;
+    std::array<Image, 4> textures{};
+    std::array<bool, 4> cubes{};
+    std::array<unsigned, 32> binding_stage{};
     VkFramebuffer framebuffer = VK_NULL_HANDLE;
     std::vector<Uniform> uniforms;
     std::vector<VkDescriptorSetLayoutBinding> bindings;
@@ -376,14 +379,15 @@ struct PreviewVkExecutor::Impl {
                      "mapping");
     }
     bool MakeImage(Image &image, uint32_t width, uint32_t height,
-                   VkImageUsageFlags usage)
+                   VkImageUsageFlags usage, bool cube = false)
     {
         VkImageCreateInfo ci{ VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
         ci.imageType = VK_IMAGE_TYPE_2D;
         ci.format = VK_FORMAT_R8G8B8A8_UNORM;
         ci.extent = { width, height, 1 };
         ci.mipLevels = 1;
-        ci.arrayLayers = 1;
+        ci.arrayLayers = cube ? 6 : 1;
+        ci.flags = cube ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0;
         ci.samples = VK_SAMPLE_COUNT_1_BIT;
         ci.tiling = VK_IMAGE_TILING_OPTIMAL;
         ci.usage = usage;
@@ -399,9 +403,10 @@ struct PreviewVkExecutor::Impl {
             return false;
         VkImageViewCreateInfo vi{ VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
         vi.image = image.handle;
-        vi.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        vi.viewType = cube ? VK_IMAGE_VIEW_TYPE_CUBE : VK_IMAGE_VIEW_TYPE_2D;
         vi.format = ci.format;
-        vi.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+        vi.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0,
+                                cube ? 6U : 1U };
         return Check(api.CreateImageView(device, &vi, nullptr, &image.view),
                      "image view");
     }
@@ -457,7 +462,9 @@ struct PreviewVkExecutor::Impl {
         Destroy(upload);
         Destroy(readback);
         Destroy(target);
-        Destroy(texture);
+        for (auto &texture : textures)
+            Destroy(texture);
+        cubes.fill(false);
         uniforms.clear();
         bindings.clear();
         uniform_size = 0;
@@ -555,13 +562,18 @@ struct PreviewVkExecutor::Impl {
                     if (!b.type_description ||
                         !(b.type_description->type_flags &
                           SPV_REFLECT_TYPE_FLAG_FLOAT) ||
-                        b.image.dim != SpvDim2D || b.image.arrayed ||
-                        b.image.ms || b.image.depth || !b.name ||
+                        (b.image.dim != SpvDim2D &&
+                         b.image.dim != SpvDimCube) ||
+                        b.image.arrayed || b.image.ms || b.image.depth ||
+                        !b.name ||
                         (std::strcmp(b.name, "texSamp0") &&
                          std::strcmp(b.name, "texSamp1") &&
                          std::strcmp(b.name, "texSamp2") &&
                          std::strcmp(b.name, "texSamp3")))
                         return false;
+                    const unsigned stage = b.name[7] - '0';
+                    cubes[stage] = b.image.dim == SpvDimCube;
+                    binding_stage[b.binding] = stage;
                     binding.descriptorType =
                         VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
                 } else if (b.descriptor_type ==
@@ -691,10 +703,12 @@ struct PreviewVkExecutor::Impl {
     }
     void WriteDescriptors()
     {
-        VkDescriptorImageInfo image{ sampler, texture.view,
-                                     VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL };
         VkDescriptorBufferInfo buffer{ uniform.handle, 0, uniform_size };
         for (const auto &b : bindings) {
+            VkDescriptorImageInfo image{
+                sampler, textures[binding_stage[b.binding]].view,
+                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+            };
             VkWriteDescriptorSet write{
                 VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET
             };
@@ -821,14 +835,23 @@ struct PreviewVkExecutor::Impl {
         VkVertexInputAttributeDescription attrs[] = {
             { 0, 0, VK_FORMAT_R32G32B32A32_SFLOAT, 0 },
             { 1, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(Vertex, color) },
-            { 2, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv) }
+            { 2, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv) },
+            { 3, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(Vertex, colors) },
+            { 4, 0, VK_FORMAT_R32G32B32A32_SFLOAT,
+              offsetof(Vertex, colors) + 16 },
+            { 5, 0, VK_FORMAT_R32G32B32A32_SFLOAT,
+              offsetof(Vertex, colors) + 32 },
+            { 6, 0, VK_FORMAT_R32G32B32A32_SFLOAT,
+              offsetof(Vertex, colors) + 48 },
+            { 7, 0, VK_FORMAT_R32_SFLOAT, offsetof(Vertex, fog) },
+            { 8, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, direction) }
         };
         VkPipelineVertexInputStateCreateInfo vi{
             VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO
         };
         vi.vertexBindingDescriptionCount = 1;
         vi.pVertexBindingDescriptions = &vb;
-        vi.vertexAttributeDescriptionCount = 3;
+        vi.vertexAttributeDescriptionCount = 9;
         vi.pVertexAttributeDescriptions = attrs;
         VkPipelineInputAssemblyStateCreateInfo ia{
             VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO
@@ -884,7 +907,8 @@ struct PreviewVkExecutor::Impl {
             return false;
         if (!MakeBuffer(vertices, kPreviewMaxSceneVertices * sizeof(Vertex),
                         VK_BUFFER_USAGE_VERTEX_BUFFER_BIT) ||
-            !MakeBuffer(upload, 16, VK_BUFFER_USAGE_TRANSFER_SRC_BIT) ||
+            !MakeBuffer(upload, kPreviewFixtureTextureBytes,
+                        VK_BUFFER_USAGE_TRANSFER_SRC_BIT) ||
             !MakeBuffer(readback, 320 * 320 * 4,
                         VK_BUFFER_USAGE_TRANSFER_DST_BIT) ||
             (uniform_size && !MakeBuffer(uniform, uniform_size,
@@ -892,11 +916,14 @@ struct PreviewVkExecutor::Impl {
             !MakeImage(target, 320, 320,
                        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
                            VK_IMAGE_USAGE_TRANSFER_SRC_BIT) ||
-            !MakeImage(texture, 2, 2,
-                       VK_IMAGE_USAGE_TRANSFER_DST_BIT |
-                           VK_IMAGE_USAGE_SAMPLED_BIT) ||
             !MakeSampler(false, false))
             return false;
+        for (unsigned i = 0; i < 4; ++i)
+            if (!MakeImage(textures[i], 8, 8,
+                           VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                               VK_IMAGE_USAGE_SAMPLED_BIT,
+                           cubes[i]))
+                return false;
         VkFramebufferCreateInfo fi{ VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO };
         fi.renderPass = pass;
         fi.attachmentCount = 1;
@@ -936,7 +963,8 @@ struct PreviewVkExecutor::Impl {
     }
     void Barrier(VkImage image, VkImageLayout old_layout,
                  VkImageLayout new_layout, VkAccessFlags src, VkAccessFlags dst,
-                 VkPipelineStageFlags src_stage, VkPipelineStageFlags dst_stage)
+                 VkPipelineStageFlags src_stage, VkPipelineStageFlags dst_stage,
+                 uint32_t layers = 1)
     {
         VkImageMemoryBarrier barrier{ VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER };
         barrier.srcAccessMask = src;
@@ -946,7 +974,8 @@ struct PreviewVkExecutor::Impl {
         barrier.srcQueueFamilyIndex = barrier.dstQueueFamilyIndex =
             VK_QUEUE_FAMILY_IGNORED;
         barrier.image = image;
-        barrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+        barrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0,
+                                     layers };
         api.CmdPipelineBarrier(cmd, src_stage, dst_stage, 0, 0, nullptr, 0,
                                nullptr, 1, &barrier);
     }
@@ -972,7 +1001,12 @@ struct PreviewVkExecutor::Impl {
             if (!MakeSampler(fixture.linear_filter, fixture.repeat_wrap))
                 return false;
         }
-        std::memcpy(upload.mapped, fixture.texture_texels.data(), 16);
+        for (unsigned i = 0; i < 4; ++i) {
+            const auto pixels = GeneratePreviewTexture(fixture, i);
+            std::memcpy(static_cast<uint8_t *>(upload.mapped) +
+                            i * pixels.size(),
+                        pixels.data(), pixels.size());
+        }
         auto mesh = BuildPreviewSceneGeometry(
             work.result_key.scene, float(packet.width) / packet.height, true);
         ApplyPreviewSyntheticFixture(fixture, mesh);
@@ -996,7 +1030,7 @@ struct PreviewVkExecutor::Impl {
                     value[2] = -1.0e9f;
                     value[3] = 1.0e9f;
                 } else if (u.name == "texScale")
-                    value[0] = 2;
+                    value[0] = 8;
                 else if (u.name == "alphaRef")
                     integer[0] = fixture.alpha_reference;
                 else if (u.name == "surfaceScale")
@@ -1026,21 +1060,26 @@ struct PreviewVkExecutor::Impl {
         bi.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
         if (!Check(api.BeginCommandBuffer(cmd, &bi), "command begin"))
             return false;
-        Barrier(texture.handle, VK_IMAGE_LAYOUT_UNDEFINED,
-                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 0,
-                VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                VK_PIPELINE_STAGE_TRANSFER_BIT);
-        VkBufferImageCopy copy{};
-        copy.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
-        copy.imageExtent = { 2, 2, 1 };
-        api.CmdCopyBufferToImage(cmd, upload.handle, texture.handle,
-                                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1,
-                                 &copy);
-        Barrier(texture.handle, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT,
-                VK_PIPELINE_STAGE_TRANSFER_BIT,
-                VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+        for (unsigned i = 0; i < 4; ++i) {
+            const uint32_t layers = cubes[i] ? 6 : 1;
+            Barrier(textures[i].handle, VK_IMAGE_LAYOUT_UNDEFINED,
+                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 0,
+                    VK_ACCESS_TRANSFER_WRITE_BIT,
+                    VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                    VK_PIPELINE_STAGE_TRANSFER_BIT, layers);
+            VkBufferImageCopy copy{};
+            copy.bufferOffset = i * 6 * kPreviewTextureFaceBytes;
+            copy.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, layers };
+            copy.imageExtent = { 8, 8, 1 };
+            api.CmdCopyBufferToImage(cmd, upload.handle, textures[i].handle,
+                                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1,
+                                     &copy);
+            Barrier(textures[i].handle, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                    VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                    VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT,
+                    VK_PIPELINE_STAGE_TRANSFER_BIT,
+                    VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, layers);
+        }
         VkClearValue clear{};
         clear.color.float32[3] = 1;
         VkRenderPassBeginInfo begin{ VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
@@ -1062,6 +1101,8 @@ struct PreviewVkExecutor::Impl {
         api.CmdSetScissor(cmd, 0, 1, &scissor);
         api.CmdDraw(cmd, static_cast<uint32_t>(mesh.size()), 1, 0, 0);
         api.CmdEndRenderPass(cmd);
+        VkBufferImageCopy copy{};
+        copy.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
         copy.imageExtent = { packet.width, packet.height, 1 };
         api.CmdCopyImageToBuffer(cmd, target.handle,
                                  VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,

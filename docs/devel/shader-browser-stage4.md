@@ -592,3 +592,48 @@ one prepared pipeline. The GL native test renders the production geometry and
 synthetic partner interface in a private SDL GL context; it does not exercise
 the asynchronous HUD executor lifecycle. These checks do not qualify Windows,
 interactive UI cadence, transparency accuracy or gameplay overhead.
+
+### Deterministic fixture profiles (Task 3b)
+
+The private fixture encoding is versioned (`PFX`, version 2), exactly 172 bytes.
+It retains profile identifiers, four independently selected texture patterns,
+D0/D1/B0/B1, fog scalar/color, alpha reference, combiner constant, UV transform,
+cube direction, legacy corner colors and editable flat texture quadrants. Invalid
+versions, profiles, nonfinite inputs and out-of-range values fail closed. Editing
+these bytes changes fixture digest/input revision, never source or compile key.
+D0 additionally receives the corner-color modulation; D1/B0/B1 are independent.
+
+Named profiles are Flat Color, UV Gradient, Checker/UV Grid, Alpha Gradient,
+Multi-texture, Normal-like Direction, Cubemap/Direction, Fog/Depth Ramp and All
+Inputs Diagnostic. Patterns are deterministic 8x8 RGBA8. Cube faces have six
+contrasting axis colors (+X red, -X cyan, +Y green, -Y magenta, +Z blue, -Z yellow).
+The direction and axis buttons select the preview sampling direction. The fog
+profile uses a synthetic UV ramp as a depth-like input, not guest depth. Diagnostic
+combines distinct texture stages and nonzero fog. Texture choices remain editable
+per T0–T3 regardless of the suggested profile.
+
+Suggestions decode the validated Stage 2 canonical pixel recipe: texture-stage
+program, cube flags, alpha-test/kill flags and fog register references in combiner
+inputs. Invalid/missing recipes receive no inferred suggestion. Explicit profile
+selection overrides suggestions; source text is not used to infer recipe defaults.
+Inputs unused by the resident shader have no effect. Integer, shadow, array,
+multisample and storage samplers remain Unsupported. Supported `texSamp0`–`3`
+interfaces use floating sampler2D or samplerCube; GL active uniform reflection and
+Vulkan descriptor reflection determine image targets. Vulkan preserves binding,
+array, uniform member offset/type and varying validation.
+
+All texture data is preview-owned: at most four images, each at most six 8x8x4
+faces, hence 6,144 bytes of texel payload. Vulkan retains a 6,144-byte upload
+buffer; generation uses a single 1,536-byte scratch array. GL uploads the same
+bounded generated data directly. Actual driver allocation granularity is separate
+from these payload sizes. The packet retains only the 172 encoded bytes, charged
+by vector capacity under the unchanged 32 MiB cap; there are no retained profile
+libraries or borrowed texture pointers. The expanded 120-byte scene vertex gives
+a bounded 368,640-byte vertex buffer (3,072 vertices). One active job and three
+output slots are unchanged. No game queue/cache/framebuffer access is added.
+
+Deck native readbacks cover each named profile, six-face cube allocation with
++Z/+X edits, distinct T0/T1 descriptors, independent color inputs, fog scalar/color,
+combiner constants and alpha reference. Input edits reuse prepared Vulkan programs.
+GL uses the focused native harness for the production shared generator/partner
+contract; production GL worker/presentation smoke remains part of Task 6.
