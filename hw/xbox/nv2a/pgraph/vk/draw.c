@@ -3121,6 +3121,17 @@ void pgraph_vk_draw_end(NV2AState *d)
         return;
     }
 
+    if (r->shader_binding &&
+        (pg->draw_arrays_length || pg->inline_elements_length ||
+         pg->inline_buffer_length || pg->inline_array_length)) {
+        pgraph_shader_browser_record_draw(
+            &pg->shader_browser_observations, &r->shader_binding->browser,
+            pg->frame_time,
+            r->shader_binding->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER
+                ? XEMU_SHADER_BROWSER_ROUTE_UBER
+                : XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED);
+    }
+
     pg->draw_time++;
     if (r->color_binding && pgraph_color_write_enabled(pg)) {
         r->color_binding->draw_time = pg->draw_time;

@@ -25,6 +25,8 @@ int main()
     XemuShaderBrowserScope current_scope{};
     uint64_t initial_scope_generation =
         xemu_shader_browser_copy_current_scope(&current_scope);
+    assert(xemu_shader_browser_scope_generation() ==
+           initial_scope_generation);
     assert(current_scope.title_id == 0);
     XemuShaderBrowserScope identified_scope{};
     identified_scope.title_id = 0x4d530064;
@@ -34,6 +36,8 @@ int main()
     uint64_t identified_scope_generation =
         xemu_shader_browser_copy_current_scope(&current_scope);
     assert(identified_scope_generation > initial_scope_generation);
+    assert(xemu_shader_browser_scope_generation() ==
+           identified_scope_generation);
     assert(current_scope.title_id == identified_scope.title_id);
     assert(current_scope.executable_fingerprint[0] == 0x55);
     xemu_shader_browser_set_current_scope(&identified_scope);

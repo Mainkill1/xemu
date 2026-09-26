@@ -148,6 +148,7 @@ public:
         std::unique_lock<std::shared_mutex> lock(lifecycle_mutex);
         base_path = new_base_path;
         installed = true;
+        scope_generation.fetch_add(1, std::memory_order_release);
         live_collection_enabled.store(false, std::memory_order_release);
         live_epoch.store(1, std::memory_order_release);
         live_consumer_epoch = 1;
@@ -177,7 +178,7 @@ public:
                             std::end(current_scope.executable_fingerprint),
                             [](uint8_t byte) { return byte != 0; })) {
                 current_scope = {};
-                ++scope_generation;
+                scope_generation.fetch_add(1, std::memory_order_release);
             }
         }
 
@@ -225,7 +226,7 @@ public:
                         next.executable_fingerprint,
                         sizeof(next.executable_fingerprint)) != 0) {
             current_scope = next;
-            ++scope_generation;
+            scope_generation.fetch_add(1, std::memory_order_release);
         }
     }
 
@@ -234,7 +235,12 @@ public:
         if (!scope) return 0;
         std::lock_guard<std::mutex> lock(scope_mutex);
         *scope = current_scope;
-        return scope_generation;
+        return scope_generation.load(std::memory_order_acquire);
+    }
+
+    uint64_t ScopeGeneration() const
+    {
+        return scope_generation.load(std::memory_order_acquire);
     }
 
     bool ConfigurePersistence(bool database_enabled,

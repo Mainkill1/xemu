@@ -151,6 +151,7 @@ void xemu_shader_browser_set_current_scope(
     const XemuShaderBrowserScope *scope);
 uint64_t xemu_shader_browser_copy_current_scope(
     XemuShaderBrowserScope *scope);
+uint64_t xemu_shader_browser_scope_generation(void);
 
 int xemu_shader_browser_compute_shader_hash(
     uint32_t identity_version, uint32_t stage,

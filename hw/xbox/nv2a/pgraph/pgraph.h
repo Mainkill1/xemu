@@ -35,6 +35,7 @@
 #include "uniform-source.h"
 #include "util.h"
 #include "vsh_regs.h"
+#include "glsl/shader-browser-observation.h"
 
 typedef struct NV2AState NV2AState;
 typedef struct PGRAPHNullState PGRAPHNullState;
@@ -146,6 +147,7 @@ typedef struct PGRAPHState {
 
     int frame_time;
     int draw_time;
+    PGRAPHShaderBrowserObservations shader_browser_observations;
 
     /* subchannels state we're not sure the location of... */
     ContextSurfaces2DState context_surfaces_2d;

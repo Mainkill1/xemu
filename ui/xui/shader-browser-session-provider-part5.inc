@@ -3,7 +3,7 @@
     std::string base_path;
     std::mutex scope_mutex;
     XemuShaderBrowserScope current_scope{};
-    uint64_t scope_generation = 1;
+    std::atomic<uint64_t> scope_generation{1};
 
     ShaderDatabase database;
     ShaderArtifactStore artifact_store;
@@ -79,6 +79,11 @@ uint64_t xemu_shader_browser_copy_current_scope(
     XemuShaderBrowserScope *scope)
 {
     return xemu::shader_browser::provider.CopyCurrentScope(scope);
+}
+
+uint64_t xemu_shader_browser_scope_generation(void)
+{
+    return xemu::shader_browser::provider.ScopeGeneration();
 }
 
 int xemu_shader_browser_compute_shader_hash(

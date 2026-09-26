@@ -545,6 +545,7 @@ static void shader_cache_entry_init(Lru *lru, LruNode *node, const void *key)
     ShaderBinding *binding = container_of(node, ShaderBinding, node);
     const ShaderBindingKey *binding_key = key;
     binding->state = binding_key->state;
+    memset(&binding->browser, 0, sizeof(binding->browser));
     binding->fragment_route = binding_key->fragment_route;
     binding->next_promotion_probe_us = 0;
 
@@ -2428,6 +2429,11 @@ void pgraph_vk_activate_shaders(PGRAPHState *pg,
     } else {
         nv2a_profile_inc_counter(NV2A_PROF_SHADER_BIND_NOTDIRTY);
     }
+
+    pgraph_shader_browser_refresh_binding_scope(
+        &r->shader_binding->state,
+        pgraph_glsl_need_geom(&r->shader_binding->state.geom),
+        &r->shader_binding->browser);
 
     bool update_stage[PGRAPH_UNIFORM_STAGE_COUNT];
     get_uniform_stage_update_needs(pg, update_stage);

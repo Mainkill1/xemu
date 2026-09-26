@@ -33,6 +33,19 @@ tests = {
   'test-xbox-pgraph-texture-layout': [],
   'test-xbox-pgraph-uniform-dirty': [xbox_i386_target_headers],
   'test-xbox-pgraph-uniform-source': [],
+  'test-xbox-shader-browser-recipe': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/shader-browser-recipe.c',
+    xbox_i386_target_headers,
+  ],
+  'test-xbox-shader-browser-publication': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/shader-browser-recipe.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/shader-browser-publication.c',
+    xbox_i386_target_headers,
+  ],
+  'test-xbox-shader-browser-observation': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/shader-browser-observation.c',
+    xbox_i386_target_headers,
+  ],
   'test-xbox-pgraph-renderer-switch-locking': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/renderer-switch.c',
   ],

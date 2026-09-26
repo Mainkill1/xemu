@@ -34,6 +34,7 @@
 #include "hw/xbox/nv2a/pgraph/surface.h"
 #include "hw/xbox/nv2a/pgraph/texture.h"
 #include "hw/xbox/nv2a/pgraph/glsl/shaders.h"
+#include "hw/xbox/nv2a/pgraph/glsl/shader-browser-publication.h"
 
 #include "gloffscreen.h"
 #include "texture-stage.h"
@@ -101,6 +102,7 @@ typedef struct ShaderBinding {
     size_t program_size;
     GLenum program_format;
     ShaderState state;
+    PGRAPHShaderBrowserBinding browser;
     QemuThread *save_thread;
 
     GLuint gl_program;

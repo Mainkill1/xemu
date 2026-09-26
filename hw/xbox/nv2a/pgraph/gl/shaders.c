@@ -515,6 +515,7 @@ static void shader_cache_entry_init(Lru *lru, LruNode *node, const void *state)
 {
     ShaderBinding *binding = container_of(node, ShaderBinding, node);
     memcpy(&binding->state, state, sizeof(ShaderState));
+    memset(&binding->browser, 0, sizeof(binding->browser));
     binding->initialized = false;
     binding->cached = false;
     binding->program = NULL;
@@ -841,6 +842,10 @@ void pgraph_gl_bind_shaders(PGRAPHState *pg)
 update_uniforms:
     assert(r->shader_binding);
     assert(r->shader_binding->initialized);
+    pgraph_shader_browser_refresh_binding_scope(
+        &r->shader_binding->state,
+        pgraph_glsl_need_geom(&r->shader_binding->state.geom),
+        &r->shader_binding->browser);
     update_shader_uniforms(pg, r->shader_binding);
 }
 

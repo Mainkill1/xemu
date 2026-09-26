@@ -262,6 +262,8 @@ void pgraph_init(NV2AState *d)
 
     pg->frame_time = 0;
     pg->draw_time = 0;
+    memset(&pg->shader_browser_observations, 0,
+           sizeof(pg->shader_browser_observations));
     memset(&pg->uniform_source_epochs, 0,
            sizeof(pg->uniform_source_epochs));
 
@@ -415,6 +417,9 @@ void pgraph_init_thread(NV2AState *d)
 void pgraph_destroy(PGRAPHState *pg)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
+
+    pgraph_shader_browser_flush_observations(
+        &pg->shader_browser_observations, pg->frame_time);
 
     xemu_tweaks_publish_renderer(XEMU_TWEAK_RENDERER_NONE);
     if (pg->renderer->ops.finalize) {
@@ -1094,6 +1099,8 @@ DEF_METHOD(NV097, FLIP_INCREMENT_WRITE)
 
     trace_nv2a_pgraph_flip_increment_write(old, new);
     pg->frame_time++;
+    pgraph_shader_browser_flush_observations(
+        &pg->shader_browser_observations, pg->frame_time);
 }
 
 DEF_METHOD(NV097, FLIP_STALL)
