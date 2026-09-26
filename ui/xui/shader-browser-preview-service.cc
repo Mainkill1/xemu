@@ -67,11 +67,24 @@ void PreviewService::InvalidatePendingLocked(PreviewState state,
     for (Slot &slot : slots_) {
         if (slot.state == PreviewSlotState::Ready) {
             slot.state = PreviewSlotState::Free;
+            slot.ready_sequence = 0;
         } else if (slot.state == PreviewSlotState::DisplayLeased) {
             slot.state = PreviewSlotState::Retiring;
         }
     }
     SetStateLocked(state, message);
+}
+
+bool PreviewService::ExpireVisibilityLocked(uint64_t now_ns)
+{
+    if (!visible_ || now_ns < visible_heartbeat_ns_ ||
+        now_ns - visible_heartbeat_ns_ <= kPreviewVisibilityStaleNs) {
+        return false;
+    }
+    visible_ = false;
+    InvalidatePendingLocked(PreviewState::Hidden,
+                            "Live Preview visibility heartbeat expired");
+    return true;
 }
 
 void PreviewService::SetEnabled(bool enabled)
@@ -210,26 +223,23 @@ size_t PreviewService::AggregatePacketBytesLocked(
     return valid ? total : std::numeric_limits<size_t>::max();
 }
 
-bool PreviewService::SubmitPacket(std::shared_ptr<const PreviewPacket> packet,
+bool PreviewService::SubmitPacket(PreviewPacket packet,
                                   uint64_t now_ns, std::string *error)
 {
-    if (!packet) {
-        if (error) *error = "Preview packet is null";
-        return false;
-    }
     std::string validation_error;
-    if (!ValidatePreviewPacket(*packet, &validation_error)) {
+    if (!ValidatePreviewPacket(packet, &validation_error)) {
         if (error) *error = validation_error;
         return false;
     }
+    auto owned = std::make_shared<const PreviewPacket>(std::move(packet));
 
     std::lock_guard<std::mutex> lock(mutex_);
-    if (!has_selection_ || packet->selection != selection_) {
+    if (!has_selection_ || owned->selection != selection_) {
         if (error) *error = "Preview packet does not match the active selection";
         return false;
     }
     bool overflow = false;
-    size_t aggregate = AggregatePacketBytesLocked(packet, &overflow);
+    size_t aggregate = AggregatePacketBytesLocked(owned, &overflow);
     if (overflow || aggregate > kPreviewMaxOwnedPacketBytes) {
         if (error) {
             *error = "Active and pending preview packets exceed 32 MiB";
@@ -240,7 +250,7 @@ bool PreviewService::SubmitPacket(std::shared_ptr<const PreviewPacket> packet,
         ++superseded_requests_;
     }
     pending_.request_id = next_request_id_++;
-    pending_.packet = std::move(packet);
+    pending_.packet = std::move(owned);
     latest_request_id_ = pending_.request_id;
     ++submitted_requests_;
     (void)now_ns;

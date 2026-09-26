@@ -147,6 +147,10 @@ int main()
     oversized.fixture_bytes.resize(kPreviewMaxOwnedPacketBytes + 1);
     assert(!ValidatePreviewPacket(oversized, &error));
 
+    PreviewPacket retained = base;
+    retained.fixture_bytes.reserve(kPreviewMaxOwnedPacketBytes + 1);
+    assert(!ValidatePreviewPacket(retained, &error));
+
     assert(std::string(PreviewModeLabel(PreviewMode::Uber)) == "Uber Shader");
     assert(std::string(PreviewStateLabel(PreviewState::NeedsPreparation)) ==
            "Needs preparation");

@@ -18,6 +18,11 @@ ShaderBrowserWindow shader_browser_window;
 
 namespace {
 
+uint64_t PreviewNowNs()
+{
+    return static_cast<uint64_t>(g_get_monotonic_time()) * UINT64_C(1000);
+}
+
 Stage StageFromIndex(int index)
 {
     static constexpr Stage stages[] = {
@@ -181,6 +186,7 @@ void ShaderBrowserWindow::Draw()
 {
     Provider &provider = GetProvider();
     if (!m_is_open) {
+        GetPreviewService().SetVisible(false, PreviewNowNs());
         if (m_window_was_open) {
             provider.SetLiveCollectionEnabled(false);
             GetDetailStore().Clear();
@@ -216,6 +222,7 @@ void ShaderBrowserWindow::Draw()
     if (!ImGui::Begin("Shader Browser", &m_is_open,
                       ImGuiWindowFlags_NoCollapse)) {
         ImGui::End();
+        GetPreviewService().SetVisible(false, PreviewNowNs());
         if (!m_is_open) {
             provider.SetLiveCollectionEnabled(false);
             GetDetailStore().Clear();
@@ -242,6 +249,7 @@ void ShaderBrowserWindow::Draw()
     ImGui::End();
 
     if (!m_is_open) {
+        GetPreviewService().SetVisible(false, PreviewNowNs());
         provider.SetLiveCollectionEnabled(false);
         GetDetailStore().Clear();
         m_window_was_open = false;
