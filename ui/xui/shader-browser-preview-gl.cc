@@ -3,6 +3,7 @@
 
 #include "shader-browser-preview-adapter.hh"
 #include "shader-browser-preview-service.hh"
+#include "shader-browser-preview-vk.hh"
 
 #include <SDL3/SDL.h>
 #include <epoxy/gl.h>
@@ -393,21 +394,74 @@ struct PreviewGlExecutor::Impl {
         return false;
     }
 
+    bool UploadVulkan(const PreviewWorkItem &work,
+                      const std::vector<uint8_t> &rgba, std::string *error)
+    {
+        if (!work.packet || work.slot >= slots.size() ||
+            rgba.size() != size_t(work.packet->width) * work.packet->height * 4) {
+            *error = "Private Vulkan presentation data is incomplete";
+            return false;
+        }
+        Slot &slot = slots[work.slot];
+        if (!slot.texture) glGenTextures(1, &slot.texture);
+        glBindTexture(GL_TEXTURE_2D, slot.texture);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, work.packet->width,
+                     work.packet->height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                     rgba.data());
+        slot.width = work.packet->width;
+        slot.height = work.packet->height;
+        if (glGetError() != GL_NO_ERROR) {
+            *error = "Private Vulkan GL presentation upload failed";
+            return false;
+        }
+        GLsync producer = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+        if (!producer) {
+            *error = "Private Vulkan GL presentation fence failed";
+            return false;
+        }
+        glFlush();
+        while (!stop.load(std::memory_order_acquire)) {
+            GLenum result = glClientWaitSync(producer, 0, 0);
+            if (result == GL_ALREADY_SIGNALED ||
+                result == GL_CONDITION_SATISFIED) {
+                glDeleteSync(producer);
+                std::lock_guard<std::mutex> lock(slots_mutex);
+                slot.generation = work.slot_generation;
+                return true;
+            }
+            if (result == GL_WAIT_FAILED) break;
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+        glDeleteSync(producer);
+        *error = "Private Vulkan GL presentation stopped or failed";
+        return false;
+    }
+
     void Run()
     {
         if (!SDL_GL_MakeCurrent(window, context)) return;
         PreviewService &service = GetPreviewService();
+        PreviewVkExecutor vulkan;
+        std::vector<uint8_t> completed_pixels;
         while (!stop.load(std::memory_order_acquire)) {
             PreviewWorkItem work{};
             if (!service.TryClaimWork(NowNs(), &work,
-                                      PreviewBackend::OpenGL)) {
+                                      PreviewBackend::OpenGL) &&
+                !service.TryClaimWork(NowNs(), &work,
+                                      PreviewBackend::Vulkan)) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
                 continue;
             }
             std::string error;
             if (work.kind == PreviewWorkKind::Prepare) {
                 bool unsupported = false;
-                bool ok = Prepare(work, &error, &unsupported);
+                bool ok = work.packet->selection.backend == PreviewBackend::Vulkan ?
+                    vulkan.Prepare(work, &error, &unsupported) :
+                    Prepare(work, &error, &unsupported);
                 const PreviewPreparationOutcome outcome = ok ?
                     PreviewPreparationOutcome::Succeeded :
                     (unsupported ? PreviewPreparationOutcome::Unsupported :
@@ -415,7 +469,10 @@ struct PreviewGlExecutor::Impl {
                 service.CompletePreparation(work.token, outcome, error,
                                             NowNs());
             } else if (work.kind == PreviewWorkKind::Render) {
-                bool ok = Render(work, &error);
+                bool ok = work.packet->selection.backend == PreviewBackend::Vulkan ?
+                    (vulkan.Render(work, stop, &completed_pixels, &error) &&
+                     UploadVulkan(work, completed_pixels, &error)) :
+                    Render(work, &error);
                 service.CompleteRender(work.token, ok, error, NowNs());
             }
         }
@@ -518,11 +575,10 @@ void PreviewGlExecutor::DrawImage(float side,
 {
     Impl &impl = *impl_;
     impl.PollRetirements();
-    if (!selection || selection->backend != PreviewBackend::OpenGL ||
-        !impl.worker.joinable()) {
+    if (!selection || !impl.worker.joinable()) {
         impl.RetireDisplayed();
         impl.RetireFrozen();
-        ImGui::TextDisabled("Private OpenGL preview is not prepared");
+        ImGui::TextDisabled("Private preview is not prepared");
         return;
     }
     if (impl.has_frozen &&
@@ -556,7 +612,7 @@ void PreviewGlExecutor::DrawImage(float side,
         impl.RetireDisplayed();
     }
     if (!impl.has_displayed && !impl.has_frozen) {
-        ImGui::TextDisabled("Waiting for a private OpenGL result");
+        ImGui::TextDisabled("Waiting for a private preview result");
         return;
     }
 

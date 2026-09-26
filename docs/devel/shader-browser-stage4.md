@@ -2,9 +2,9 @@
 
 > **Status:** Draft stacked on Shader Browser Stage 3 at
 > `8e03d756398b8299da464c17d064729db499f68a`. The immutable model,
-> request governor, external Shader Browser window, and private OpenGL pixel
-> preview path are implemented. Vulkan execution and gameplay overhead
-> qualification remain required before merge.
+> request governor, external Shader Browser window, and bounded private OpenGL
+> and Vulkan pixel preview paths are implemented. Expanded interactive product
+> requirements and gameplay overhead qualification remain required before merge.
 
 ## Goal
 
@@ -213,7 +213,8 @@ consumer fences before slot reuse. The linked program's active uniform
 interface is checked before use: only synthetic scalar/vector/matrix inputs
 and the four private 2D sampler bindings are admitted. Unsupported active
 inputs are reported as `Unsupported` until the compile identity changes or
-preparation is explicitly retried. Vulkan output is still unavailable.
+preparation is explicitly retried. The Vulkan path uses the same logical
+slots and HUD presentation leases.
 
 ### Separate Shader Browser window
 
@@ -281,6 +282,54 @@ private image -> asynchronous private staging -> completed CPU bytes
 
 Only process completed data. External-memory interop is an optional later fast
 path and must preserve device/format/synchronization compatibility.
+
+### Implemented Vulkan synthetic interface
+
+`shader-browser-preview-vk.*` owns a separate Vulkan instance, logical device,
+low-priority graphics queue, command pool, pipeline, RGBA8 target, fixture image,
+and coherent staging buffers. It resolves Vulkan functions into its own dispatch
+table and never changes the game renderer's global loader state. Compilation
+uses private glslang objects with its own process-lifetime reference. No game
+pipeline cache, descriptor, queue, or `PGRAPHVkState` enters this path.
+
+The existing private GL worker claims Vulkan work with an explicit backend
+filter. It polls the private Vulkan fence, reads only completed coherent staging
+bytes, flips the rows to GL texture order, uploads into the service-selected GL
+slot, and publishes Ready only after the GL producer fence completes. HUD
+consumer fences retire sampled Vulkan presentation textures through the same
+three-slot lease ring as OpenGL. There is no HUD-thread pixel upload or Vulkan
+wait. Shutdown joins this private worker and retires its private device.
+
+The supported interface is intentionally bounded:
+
+- The copied fragment GLSL uses the exact generated synthetic partner stage.
+  Fragment locations and formats must match that partner; output is location 0
+  `vec4`, optionally with `gl_FragDepth`. Supported fragment built-in inputs are
+  `gl_FragCoord` and `gl_FrontFacing`.
+- Descriptor set 0 may contain one uniform block of at most 4096 bytes and four
+  individual floating-point, non-shadow `sampler2D` descriptors named
+  `texSamp0` through `texSamp3`. Binding numbers are reflected, not guessed.
+- Uniform members must match the known pixel interface names, scalar types,
+  dimensions, and array lengths. Reflected offsets and array strides are used
+  for writes. Clip regions, clip range, surface scale, texture scale, combiner
+  constants, fog color, and alpha reference have explicit synthetic values.
+  Bump matrices/scales/offsets, color keys/masks, and depth factor/offset are
+  explicitly zero synthetic values.
+- Cube, array, integer, shadow, multisample, storage, and input-attachment
+  resources; descriptor arrays; unknown uniform fields; push constants;
+  incompatible varyings; and the uber control block return `Unsupported`.
+  Compilation failure is reported separately. No shader is substituted.
+
+The one active job reuses a 320-square private target and a 409600-byte staging
+buffer for all accepted extents, including 160 and 320. A completed CPU buffer
+is at most 409600 bytes, and the three GL textures follow service ownership.
+These transport allocations are separate from the 32 MiB immutable packet
+budget. Driver allocations and compiler memory are additional, implementation
+and device dependent costs; no total host-memory bound is claimed.
+
+The native test executable `test-xemu-shader-browser-preview-vk` is built with
+Vulkan support but run explicitly on GPU hosts. It is excluded from the default
+host unit suite so compile-only builders do not execute native GPU tests.
 
 ### HUD lease retirement
 
@@ -419,10 +468,20 @@ new shader render. Closing the browser with both frames visible left the game
 running; hidden-frame retirement continues through nonblocking fence polls on
 the main presentation context until the logical leases can be released.
 
+The private Vulkan native test passed on the Steam Deck's RADV VANGOGH device:
+quad color readback, 2D texture inputs, fixture and sampler edits, 160/320 output,
+the known pixel uniform block, unsupported interface rejection, compile failure
+recovery, stop, and unavailable-device retry. The external browser also prepared
+a resident Vulkan pixel shader to Ready, displayed its synthetic gradient,
+pinned a frozen frame, and rendered an edited fixture beside it with two leased
+slots. Closing the browser left the guest running; a monitor quit then exited
+normally. These are bounded functional checks. Validation layers were not
+available on that Deck image, and matched gameplay overhead was not measured.
+
 Those checks do not establish:
 
 - a Windows xemu build or native Windows operation;
-- native Vulkan operation;
+- representative native Vulkan UI/lifecycle and performance qualification;
 - representative shader output correctness;
 - gameplay frame-time neutrality;
 - HUD texture retirement on a real driver.
