@@ -21,6 +21,7 @@
 
 #include "hw/xbox/mcpx/apu/apu_int.h"
 #include "adpcm.h"
+#include "voice_routing.h"
 
 static const struct {
     hwaddr top, current, next;
@@ -1525,60 +1526,21 @@ static void voice_process(MCPXAPUState *d,
 static void get_voice_bin_src_dst(MCPXAPUState *d, int v,
                                   uint32_t *src, uint32_t *dst, uint32_t *clr)
 {
-    uint32_t src_v = 0;
-    uint32_t dst_v = 0;
-    uint32_t clr_v = 0;
-
-    bool multipass = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_FMT,
-                                    NV_PAVS_VOICE_CFG_FMT_MULTIPASS);
-    if (multipass) {
-        int mp_bin = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_FMT,
-                                    NV_PAVS_VOICE_CFG_FMT_MULTIPASS_BIN);
-        bool clear_mix = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_FMT,
-                                        NV_PAVS_VOICE_CFG_FMT_CLEAR_MIX);
-        src_v |= (1 << mp_bin);
-        if (clear_mix) {
-            clr_v |= (1 << mp_bin);
-        }
-    }
-
-    int bin[8];
-    if (v < MCPX_HW_MAX_3D_VOICES) {
-        bin[0] = d->vp.hrtf_submix[0];
-        bin[1] = d->vp.hrtf_submix[1];
-        bin[2] = d->vp.hrtf_submix[2];
-        bin[3] = d->vp.hrtf_submix[3];
-    } else {
-        bin[0] = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_VBIN,
-                                NV_PAVS_VOICE_CFG_VBIN_V0BIN);
-        bin[1] = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_VBIN,
-                                NV_PAVS_VOICE_CFG_VBIN_V1BIN);
-        bin[2] = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_VBIN,
-                                NV_PAVS_VOICE_CFG_VBIN_V2BIN);
-        bin[3] = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_VBIN,
-                                NV_PAVS_VOICE_CFG_VBIN_V3BIN);
-    }
-    bin[4] = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_VBIN,
-                            NV_PAVS_VOICE_CFG_VBIN_V4BIN);
-    bin[5] = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_VBIN,
-                            NV_PAVS_VOICE_CFG_VBIN_V5BIN);
-    bin[6] = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_FMT,
-                            NV_PAVS_VOICE_CFG_FMT_V6BIN);
-    bin[7] = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_FMT,
-                            NV_PAVS_VOICE_CFG_FMT_V7BIN);
-
-    for (int i = 0; i < 8; i++) {
-        dst_v |= 1 << bin[i];
-    }
+    uint32_t cfg_fmt = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_FMT,
+                                      UINT32_MAX);
+    uint32_t cfg_vbin = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_VBIN,
+                                       UINT32_MAX);
+    MCPXAPUVoiceRouting routing = mcpx_apu_decode_voice_routing(
+        cfg_fmt, cfg_vbin, v < MCPX_HW_MAX_3D_VOICES, d->vp.hrtf_submix);
 
     if (src) {
-        *src = src_v;
+        *src = routing.src;
     }
     if (dst) {
-        *dst = dst_v;
+        *dst = routing.dst;
     }
     if (clr) {
-        *clr = clr_v;
+        *clr = routing.clr;
     }
 }
 
