@@ -206,7 +206,11 @@ The Live Preview tab exposes:
 OpenGL preparation is explicit and requires the guest to be paused. The private
 worker compiles the copied fragment source with a deterministic partner vertex
 stage, draws into one of three preview-owned textures, and uses producer and
-consumer fences before slot reuse. Vulkan output is still unavailable.
+consumer fences before slot reuse. The linked program's active uniform
+interface is checked before use: only synthetic scalar/vector/matrix inputs
+and the four private 2D sampler bindings are admitted. Unsupported active
+inputs are reported as `Unsupported` until the compile identity changes or
+preparation is explicitly retried. Vulkan output is still unavailable.
 
 ### Separate Shader Browser window
 
@@ -396,7 +400,10 @@ Ready output with a leased presentation slot. The selected shader rendered a
 four-corner color gradient; changing one corner produced a new private result
 without changing the running game. A normal window-manager close hid the
 browser while the game kept running. A normal process shutdown with the private
-worker active exited cleanly. This is a functional smoke test, not a
+worker active exited cleanly. The focused service test passed on the Steam
+Deck after adding persistent Unsupported classification, and the same resident
+shader still rendered under the uniform-interface check. This is a functional
+smoke test, not a
 representative shader-correctness or performance qualification.
 
 Those checks do not establish:

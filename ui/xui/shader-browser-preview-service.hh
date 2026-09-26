@@ -36,6 +36,12 @@ struct PreviewStatus {
     std::string message;
 };
 
+enum class PreviewPreparationOutcome : uint8_t {
+    Succeeded,
+    Failed,
+    Unsupported,
+};
+
 class PreviewService
 {
 public:
@@ -55,8 +61,16 @@ public:
 
     bool TryClaimWork(uint64_t now_ns, PreviewWorkItem *work,
                       PreviewBackend backend_filter = PreviewBackend::Unknown);
-    bool CompletePreparation(uint64_t token, bool success,
+    bool CompletePreparation(uint64_t token, PreviewPreparationOutcome outcome,
                              const std::string &status, uint64_t now_ns);
+    bool CompletePreparation(uint64_t token, bool success,
+                             const std::string &status, uint64_t now_ns)
+    {
+        return CompletePreparation(token,
+            success ? PreviewPreparationOutcome::Succeeded :
+                      PreviewPreparationOutcome::Failed,
+            status, now_ns);
+    }
     bool CompleteRender(uint64_t token, bool success,
                         const std::string &status, uint64_t now_ns);
 
@@ -119,6 +133,9 @@ private:
 
     bool prepared_ = false;
     PreviewCompileKey prepared_key_;
+    bool unsupported_ = false;
+    PreviewCompileKey unsupported_key_;
+    std::string unsupported_reason_;
 
     bool active_ = false;
     PreviewWorkItem active_work_;

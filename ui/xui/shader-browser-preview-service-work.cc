@@ -141,6 +141,12 @@ bool PreviewService::TryClaimWork(uint64_t now_ns, PreviewWorkItem *work,
         return true;
     }
 
+    if (unsupported_ &&
+        unsupported_key_ == BuildPreviewCompileKey(*pending_.packet)) {
+        SetStateLocked(PreviewState::Unsupported, unsupported_reason_);
+        return false;
+    }
+
     if (!IsPreparedLocked()) {
         SetStateLocked(PreviewState::NeedsPreparation,
                        guest_paused_ ?
@@ -217,7 +223,8 @@ bool PreviewService::TryClaimWork(uint64_t now_ns, PreviewWorkItem *work,
     return true;
 }
 
-bool PreviewService::CompletePreparation(uint64_t token, bool success,
+bool PreviewService::CompletePreparation(uint64_t token,
+                                         PreviewPreparationOutcome outcome,
                                          const std::string &status,
                                          uint64_t now_ns)
 {
@@ -228,16 +235,28 @@ bool PreviewService::CompletePreparation(uint64_t token, bool success,
         return false;
     }
     bool current = IsCurrentRequestLocked(active_work_.request_id, nullptr);
-    if (success && current) {
+    if (outcome == PreviewPreparationOutcome::Succeeded && current) {
         prepared_ = true;
         prepared_key_ = active_work_.compile_key;
+        unsupported_ = false;
+        unsupported_reason_.clear();
         SetStateLocked(PreviewState::Ready,
                        status.empty() ? "Preview resources prepared" : status);
     } else if (!current) {
         ++stale_completions_;
         SetRestingStateLocked("Discarded obsolete preparation result");
+    } else if (outcome == PreviewPreparationOutcome::Unsupported) {
+        prepared_ = false;
+        unsupported_ = true;
+        unsupported_key_ = active_work_.compile_key;
+        unsupported_reason_ = status.empty() ?
+            "Selected shader interface is unsupported by synthetic preview" :
+            status;
+        SetStateLocked(PreviewState::Unsupported, unsupported_reason_);
     } else {
         prepared_ = false;
+        unsupported_ = false;
+        unsupported_reason_.clear();
         SetStateLocked(PreviewState::Failed,
                        status.empty() ? "Preview preparation failed" : status);
     }
