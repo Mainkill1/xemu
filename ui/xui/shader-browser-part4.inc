@@ -122,6 +122,13 @@ void ShaderBrowserWindow::DrawLivePreview()
 {
     PreviewService &service = GetPreviewService();
     const uint64_t now_ns = PreviewNowNs();
+    const bool guest_paused = runstate_check(RUN_STATE_PAUSED);
+    service.SetGuestPaused(guest_paused);
+    uint64_t completed_flips = 0;
+    uint64_t flip_interval_ns = 0;
+    nv2a_profile_preview_flip_snapshot(&completed_flips, &flip_interval_ns);
+    service.UpdateHealth(m_preview_health_monitor.Sample(
+        now_ns, completed_flips, flip_interval_ns, runstate_is_running()));
 
     PreviewStatus status{};
     service.CopyStatus(&status);
@@ -145,7 +152,7 @@ void ShaderBrowserWindow::DrawLivePreview()
         PreviewSelection selection{};
         selection.shader = entry->key;
         selection.session_epoch = m_snapshot.session_epoch;
-        selection.renderer_epoch = 0;
+        selection.renderer_epoch = nv2a_profile_preview_renderer_epoch();
         selection.backend =
             g_config.display.renderer == CONFIG_DISPLAY_RENDERER_VULKAN ?
                 PreviewBackend::Vulkan : PreviewBackend::OpenGL;

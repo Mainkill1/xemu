@@ -51,11 +51,44 @@ static void test_events_are_written_once(void)
     assert_occurs_once(contents, "\"event\":\"readback\"");
 }
 
+static void test_preview_flip_snapshot(void)
+{
+    uint64_t before = 0, after = 0, interval = 0;
+    nv2a_profile_preview_flip_snapshot(&before, &interval);
+    nv2a_profile_increment();
+    nv2a_profile_preview_flip_snapshot(&after, &interval);
+    g_assert_cmpuint(after, ==, before + 1);
+    g_usleep(1000);
+    nv2a_profile_increment();
+    nv2a_profile_preview_flip_snapshot(&after, &interval);
+    g_assert_cmpuint(after, ==, before + 2);
+    g_assert_cmpuint(interval, >, 0);
+}
+
+static void test_preview_renderer_epoch(void)
+{
+    uint64_t before = nv2a_profile_preview_renderer_epoch();
+    uint64_t flips = 0, interval = 0;
+    nv2a_profile_increment();
+    g_usleep(1000);
+    nv2a_profile_increment();
+    nv2a_profile_preview_flip_snapshot(&flips, &interval);
+    g_assert_cmpuint(interval, >, 0);
+    nv2a_profile_preview_advance_renderer_epoch();
+    g_assert_cmpuint(nv2a_profile_preview_renderer_epoch(), ==, before + 1);
+    nv2a_profile_preview_flip_snapshot(&flips, &interval);
+    g_assert_cmpuint(interval, ==, 0);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
     g_test_add_func("/nv2a/profile/event-log-once",
                     test_events_are_written_once);
+    g_test_add_func("/nv2a/profile/preview-flip-snapshot",
+                    test_preview_flip_snapshot);
+    g_test_add_func("/nv2a/profile/preview-renderer-epoch",
+                    test_preview_renderer_epoch);
 
     return g_test_run();
 }

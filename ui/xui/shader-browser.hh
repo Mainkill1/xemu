@@ -4,6 +4,7 @@
 #include "shader-browser-model.hh"
 #include "shader-browser-provider.hh"
 #include "shader-browser-details-store.hh"
+#include "shader-browser-preview-health.hh"
 
 #include <cstdint>
 #include <string>
@@ -42,6 +43,7 @@ private:
     xemu::shader_browser::CanonicalRecipe m_selected_recipe;
     xemu::shader_browser::RecipeInspection m_recipe_inspection;
     xemu::shader_browser::DetailSnapshot m_detail_snapshot;
+    xemu::shader_browser::PreviewHealthMonitor m_preview_health_monitor;
     std::vector<size_t> m_source_line_offsets;
     size_t m_selected_source = 0;
     uint64_t m_source_offsets_generation = 0;

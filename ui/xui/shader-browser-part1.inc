@@ -5,6 +5,7 @@
 #include "viewport-manager.hh"
 #include "../xemu-settings.h"
 #include "hw/xbox/nv2a/pgraph/shader-browser-flush.h"
+#include "hw/xbox/nv2a/debug.h"
 
 #include <algorithm>
 #include <cstdio>

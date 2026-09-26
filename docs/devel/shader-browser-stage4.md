@@ -199,6 +199,13 @@ The existing `DrawLivePreview()` placeholder now exposes:
 Enabling the current draft therefore cannot allocate preview GPU resources or
 submit GPU work.
 
+The Live Preview tab publishes the actual guest pause state. A small atomic
+flip count and interval, updated at the NV2A flip boundary, feed a conservative
+health classifier; missing or stale flips freeze running preview admission.
+Renderer initialization, switch, and shutdown advance a separate atomic epoch
+so a packet cannot survive a renderer lifecycle transition under the same
+identity. These publishers do not issue preview work by themselves.
+
 ## Backend contract to implement next
 
 ### Immutable packet adapter
