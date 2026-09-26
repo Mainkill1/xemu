@@ -41,6 +41,7 @@ private:
     bool m_filter_dirty;
     bool m_window_was_open;
     bool m_collection_requested;
+    bool m_current_title_only;
 
     int m_stage_filter;
     int m_source_filter;

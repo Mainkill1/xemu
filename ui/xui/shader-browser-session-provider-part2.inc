@@ -104,6 +104,10 @@
         snapshot->snapshot_sequence = ++snapshot_sequence;
         snapshot->session_epoch = live_consumer_epoch;
         snapshot->current_frame = current_frame;
+        {
+            std::lock_guard<std::mutex> lock(scope_mutex);
+            snapshot->current_title_id = current_scope.title_id;
+        }
         snapshot->capabilities = CapabilityDetails;
         snapshot->live_collection_enabled =
             live_collection_enabled.load(std::memory_order_acquire);
@@ -182,4 +186,3 @@
         }
         return database.ClearPerformanceHistory(error);
     }
-

@@ -73,6 +73,10 @@ void ShaderBrowserWindow::DrawSelector()
         m_sort_descending = m_sort_key != 3;
         m_filter_dirty = true;
     }
+    if (m_snapshot.current_title_id &&
+        ImGui::Checkbox("Current title only", &m_current_title_only)) {
+        m_filter_dirty = true;
+    }
 
     if (m_filter_dirty) {
         RebuildVisibleOrder();
@@ -109,8 +113,10 @@ void ShaderBrowserWindow::DrawSelector()
                  visible < clipper.DisplayEnd; ++visible) {
                 const Entry &entry =
                     m_snapshot.entries[m_visible_order[visible]];
-                std::string short_id = ShortDisplayId(entry);
-                std::string full_id = FullDisplayId(entry);
+                std::string short_id = ShortDisplayId(
+                    entry, m_snapshot.current_title_id);
+                std::string full_id = FullDisplayId(
+                    entry, m_snapshot.current_title_id);
                 std::string row_id = PortableShaderHash(entry.key.hash) + "-" +
                                      StageLabel(entry.key.stage);
                 bool selected = m_has_selection &&

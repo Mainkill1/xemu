@@ -96,16 +96,26 @@ std::string ScopeSummary(const Entry &entry)
     return std::to_string(entry.scopes.size()) + " title/build scopes";
 }
 
-std::string FullDisplayId(const Entry &entry)
+uint32_t DisplayTitleId(const Entry &entry, uint32_t current_title_id)
 {
-    uint32_t title_id = PrimaryTitleId(entry);
+    for (const ShaderScope &scope : entry.scopes) {
+        if (scope.title_id && scope.title_id == current_title_id) {
+            return current_title_id;
+        }
+    }
+    return PrimaryTitleId(entry);
+}
+
+std::string FullDisplayId(const Entry &entry, uint32_t current_title_id)
+{
+    uint32_t title_id = DisplayTitleId(entry, current_title_id);
     return title_id ? GameShaderId(title_id, entry.key.hash) :
                       PortableShaderHash(entry.key.hash);
 }
 
-std::string ShortDisplayId(const Entry &entry)
+std::string ShortDisplayId(const Entry &entry, uint32_t current_title_id)
 {
-    uint32_t title_id = PrimaryTitleId(entry);
+    uint32_t title_id = DisplayTitleId(entry, current_title_id);
     if (title_id) {
         return ShortGameShaderId(title_id, entry.key.hash);
     }
@@ -157,6 +167,7 @@ ShaderBrowserWindow::ShaderBrowserWindow()
       m_filter_dirty(true),
       m_window_was_open(false),
       m_collection_requested(true),
+      m_current_title_only(true),
       m_stage_filter(0),
       m_source_filter(0),
       m_sort_key(0),
@@ -258,5 +269,28 @@ void ShaderBrowserWindow::RebuildVisibleOrder()
     filter.sort_key = SortFromIndex(m_sort_key);
     filter.descending = m_sort_descending;
     m_visible_order = BuildVisibleOrder(m_snapshot.entries, filter);
+    if (m_current_title_only && m_snapshot.current_title_id) {
+        m_visible_order.erase(std::remove_if(
+            m_visible_order.begin(), m_visible_order.end(),
+            [this](size_t index) {
+                const Entry &entry = m_snapshot.entries[index];
+                return std::none_of(
+                    entry.scopes.begin(), entry.scopes.end(),
+                    [this](const ShaderScope &scope) {
+                        return scope.title_id != 0 &&
+                               scope.title_id == m_snapshot.current_title_id;
+                    });
+            }), m_visible_order.end());
+    }
+    if (m_has_selection && std::none_of(
+            m_visible_order.begin(), m_visible_order.end(),
+            [this](size_t index) {
+                return m_snapshot.entries[index].key == m_selected_key;
+            })) {
+        m_has_selection = false;
+    }
+    if (!m_has_selection && !m_visible_order.empty()) {
+        SelectEntry(m_snapshot.entries[m_visible_order.front()]);
+    }
     m_filter_dirty = false;
 }

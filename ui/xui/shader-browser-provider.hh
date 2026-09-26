@@ -13,6 +13,7 @@ struct Snapshot {
     uint64_t snapshot_sequence = 0;
     uint64_t session_epoch = 0;
     uint64_t current_frame = 0;
+    uint32_t current_title_id = 0;
     uint32_t capabilities = 0;
     bool live_collection_enabled = false;
     bool renderer_collection_required = false;

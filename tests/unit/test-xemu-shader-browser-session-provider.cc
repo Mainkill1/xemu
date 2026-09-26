@@ -41,6 +41,9 @@ int main()
            identified_scope_generation);
     assert(current_scope.title_id == identified_scope.title_id);
     assert(current_scope.executable_fingerprint[0] == 0x55);
+    Snapshot scope_snapshot;
+    assert(GetProvider().CopySnapshot(&scope_snapshot));
+    assert(scope_snapshot.current_title_id == identified_scope.title_id);
     xemu_shader_browser_set_current_scope(&identified_scope);
     assert(xemu_shader_browser_copy_current_scope(&current_scope) ==
            identified_scope_generation);
@@ -48,6 +51,8 @@ int main()
     assert(xemu_shader_browser_copy_current_scope(&current_scope) >
            identified_scope_generation);
     assert(current_scope.title_id == 0);
+    assert(GetProvider().CopySnapshot(&scope_snapshot));
+    assert(scope_snapshot.current_title_id == 0);
 
     uint8_t recipe[] = {1, 2, 3, 4};
     XemuShaderBrowserShaderRecord shader{};

@@ -7,8 +7,10 @@ void ShaderBrowserWindow::DrawShaderDetails()
         return;
     }
 
-    std::string short_id = ShortDisplayId(*entry);
-    std::string full_id = FullDisplayId(*entry);
+    std::string short_id = ShortDisplayId(
+        *entry, m_snapshot.current_title_id);
+    std::string full_id = FullDisplayId(
+        *entry, m_snapshot.current_title_id);
     std::string canonical = PortableShaderHash(entry->key.hash);
     ImGui::Text("Shader: %s", short_id.c_str());
     ImGui::SameLine();
