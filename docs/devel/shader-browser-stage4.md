@@ -672,8 +672,9 @@ own provenance.
 Channels are result identity, not compile identity. A paused channel edit requests
 an immediate governed update using the existing shared source packet and prepared
 program. Running admission still follows the existing pressure ceilings. A stale
-in-flight channel completion cannot replace a newer request. Frozen slots keep
-their original channel and pixels; the ordinary three-slot producer/consumer
+in-flight channel completion cannot replace a newer request. Channel edits also
+reclaim obsolete Ready frames that have not yet been acquired, so they cannot be
+newly presented after the edit. Frozen slots keep their original channel and pixels; the ordinary three-slot producer/consumer
 fences and retirement protocol remain in force.
 
 OpenGL uses per-output-texture swizzle for scalar output sampling, with no extra

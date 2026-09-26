@@ -562,6 +562,39 @@ int main()
                                         paused_first + 200000012));
     assert(current_channel.result_key.channel == PreviewChannel::Alpha);
     assert(frozen_channel.result_key.channel == PreviewChannel::UV);
+    // A completed but unacquired channel must not appear after a channel edit.
+    // Keep both displayed frames leased while using the third slot.
+    service.EditChannel(PreviewChannel::Red);
+    assert(service.TryClaimWork(paused_first + 200000013, &work));
+    const auto obsolete_slot = work.slot;
+    const auto obsolete_generation = work.slot_generation;
+    assert(service.CompleteRender(work.token, true, "unacquired red",
+                                  paused_first + 200000013));
+    service.EditChannel(PreviewChannel::Green);
+    PreviewFrameRef obsolete_channel{};
+    assert(!service.TryAcquireReadyFrame(&obsolete_channel,
+                                         paused_first + 200000014));
+    service.CopyStatus(&status);
+    assert(status.ready_slots == 0 && status.leased_slots == 2 &&
+           status.free_slots == 1);
+    assert(frozen_channel.result_key.channel == PreviewChannel::UV);
+    assert(current_channel.result_key.channel == PreviewChannel::Alpha);
+    // Returning to the discarded result must rerender immediately while paused.
+    service.EditChannel(PreviewChannel::Red);
+    assert(service.TryClaimWork(paused_first + 200000015, &work));
+    assert(work.slot == obsolete_slot &&
+           work.slot_generation > obsolete_generation);
+    assert(work.packet == storage && work.compile_key == compiled);
+    assert(service.CompleteRender(work.token, true, "new red",
+                                  paused_first + 200000015));
+    PreviewFrameRef new_channel{};
+    assert(
+        service.TryAcquireReadyFrame(&new_channel, paused_first + 200000016));
+    assert(new_channel.result_key.channel == PreviewChannel::Red);
+    assert(service.ReleaseDisplayLease(new_channel.slot,
+                                       new_channel.slot_generation));
+    assert(service.CompleteDisplayRetirement(new_channel.slot,
+                                             new_channel.slot_generation));
     assert(service.ReleaseDisplayLease(frozen_channel.slot,
                                        frozen_channel.slot_generation));
     assert(service.CompleteDisplayRetirement(frozen_channel.slot,
