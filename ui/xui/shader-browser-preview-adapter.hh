@@ -52,7 +52,8 @@ GeneratePreviewTexture(const PreviewSyntheticFixture &fixture, size_t stage);
 
 // Apply fixture values once, using the untransformed mesh UVs for corner colors.
 void ApplyPreviewSyntheticFixture(const PreviewSyntheticFixture &fixture,
-                                  std::vector<PreviewSceneVertex> &vertices);
+                                  std::vector<PreviewSceneVertex> &vertices,
+                                  const std::array<bool, 4> &cube_stages = {});
 
 void AnimatePreviewSyntheticFixture(PreviewSyntheticFixture *fixture,
                                     double time_seconds);

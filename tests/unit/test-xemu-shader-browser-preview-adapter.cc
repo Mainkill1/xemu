@@ -112,6 +112,14 @@ int main()
     auto vertices = BuildPreviewSceneGeometry({});
     ApplyPreviewSyntheticFixture(diagnostic, vertices);
     assert(vertices[0].colors[0][0] != vertices[0].colors[1][0]);
+    ApplyPreviewSyntheticFixture(diagnostic, vertices,
+                                 { true, false, true, false });
+    for (size_t i = 0; i < 4; ++i)
+        assert(vertices[0].cube_stages[i] == (i % 2 ? 0 : 1));
+    assert(BuildPreviewSyntheticVertexSource("uniform samplerCube\ntexSamp0;",
+                                             PreviewBackend::OpenGL) ==
+           BuildPreviewSyntheticVertexSource("// samplerCube texSamp0",
+                                             PreviewBackend::OpenGL));
     PreviewFixtureProfile suggestion;
     std::string suggestion_error;
     assert(!SuggestPreviewFixture({}, &suggestion, &suggestion_error));

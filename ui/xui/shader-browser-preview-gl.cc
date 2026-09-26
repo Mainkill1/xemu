@@ -291,7 +291,10 @@ struct PreviewGlExecutor::Impl {
         }
         auto vertices = BuildPreviewSceneGeometry(
             work.result_key.scene, float(packet.width) / packet.height);
-        ApplyPreviewSyntheticFixture(fixture, vertices);
+        std::array<bool, 4> cube_stages{};
+        for (size_t i = 0; i < 4; ++i)
+            cube_stages[i] = fixture_targets[i] == GL_TEXTURE_CUBE_MAP;
+        ApplyPreviewSyntheticFixture(fixture, vertices, cube_stages);
         glViewport(0, 0, static_cast<GLsizei>(packet.width),
                    static_cast<GLsizei>(packet.height));
         glDisable(GL_BLEND);
@@ -362,6 +365,10 @@ struct PreviewGlExecutor::Impl {
         glVertexAttribPointer(
             8, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
             reinterpret_cast<const void *>(offsetof(Vertex, direction)));
+        glEnableVertexAttribArray(9);
+        glVertexAttribPointer(
+            9, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+            reinterpret_cast<const void *>(offsetof(Vertex, cube_stages)));
         const GLint filter = fixture.linear_filter ? GL_LINEAR : GL_NEAREST;
         const GLint wrap = fixture.repeat_wrap ? GL_REPEAT : GL_CLAMP_TO_EDGE;
         for (int unit = 0; unit < 4; ++unit) {

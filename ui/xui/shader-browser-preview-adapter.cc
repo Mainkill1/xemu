@@ -9,7 +9,8 @@
 namespace xemu::shader_browser {
 
 void ApplyPreviewSyntheticFixture(const PreviewSyntheticFixture &fixture,
-                                  std::vector<PreviewSceneVertex> &vertices)
+                                  std::vector<PreviewSceneVertex> &vertices,
+                                  const std::array<bool, 4> &cube_stages)
 {
     for (auto &v : vertices) {
         const float u = v.uv[0], t = v.uv[1];
@@ -22,6 +23,8 @@ void ApplyPreviewSyntheticFixture(const PreviewSyntheticFixture &fixture,
         for (size_t i = 0; i < 4; ++i)
             std::copy(fixture.colors[i].begin(), fixture.colors[i].end(),
                       v.colors[i]);
+        for (size_t i = 0; i < 4; ++i)
+            v.cube_stages[i] = cube_stages[i] ? 1.0f : 0.0f;
         v.fog = fixture.profile == PreviewFixtureProfile::Fog ?
                     u * fixture.fog :
                     fixture.fog;
@@ -236,7 +239,8 @@ std::string BuildPreviewSyntheticVertexSource(
               "layout(location = 5) in vec4 previewB0;\n"
               "layout(location = 6) in vec4 previewB1;\n"
               "layout(location = 7) in float previewFog;\n"
-              "layout(location = 8) in vec3 previewDirection;\n";
+              "layout(location = 8) in vec3 previewDirection;\n"
+              "layout(location = 9) in vec4 previewCubeStages;\n";
     const char *names[] = { "vtxD0", "vtxD1", "vtxB0", "vtxB1",
                             "vtxFog", "vtxT0", "vtxT1", "vtxT2",
                             "vtxT3", "vtxPos0", "vtxPos1", "vtxPos2",
@@ -255,10 +259,6 @@ std::string BuildPreviewSyntheticVertexSource(
         result += names[i];
         result += ";\n";
     }
-    bool cube[4]{};
-    for (int i = 0; i < 4; ++i)
-        cube[i] = fragment_source.find("samplerCube texSamp" +
-                                       std::to_string(i)) != std::string::npos;
     result += "void main() {\n"
               "  gl_Position = previewPosition;\n"
               "  vtxD0 = previewColor * previewD0; vtxD1 = previewD1;\n"
@@ -269,13 +269,16 @@ std::string BuildPreviewSyntheticVertexSource(
               "  vtxPos0 = gl_Position; vtxPos1 = gl_Position;\n"
               "  vtxPos2 = gl_Position; triMZ = 0.0;\n"
               "}\n";
-    const auto end = result.rfind('}');
-    std::string directions;
+    // Sampler types are supplied by the backend's linked/reflected interface.
+    // GLSL comments, whitespace and preprocessor aliases cannot affect routing.
+    std::string routing;
+    const char *components[] = { "x", "y", "z", "w" };
     for (int i = 0; i < 4; ++i)
-        if (cube[i])
-            directions += "vtxT" + std::to_string(i) +
-                          " = vec4(previewDirection, 1.0);\n";
-    result.insert(end, directions);
+        routing += "vtxT" + std::to_string(i) + " = previewCubeStages." +
+                   components[i] +
+                   " > 0.5 ? vec4(previewDirection, 1.0) : vec4(previewUV, "
+                   "0.0, 1.0);\n";
+    result.insert(result.rfind('}'), routing);
     return result;
 }
 
