@@ -110,6 +110,8 @@ int main()
     XemuShaderBrowserExternalArtifact oversized = artifact;
     oversized.size = 32U * 1024U * 1024U + 1;
     assert(!xemu_shader_browser_publish_external_artifact(&oversized));
+    assert(GetProvider().CopySnapshot(&snapshot));
+    assert(snapshot.rejected_artifact_count == 1);
 
     // A renderer may publish while XUI toggles artifact persistence. The
     // configuration boundary must drain accepted jobs before closing SQLite.

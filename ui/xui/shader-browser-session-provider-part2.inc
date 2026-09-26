@@ -128,6 +128,8 @@
         snapshot->session_count = db_stats.session_count;
         snapshot->session_stat_count = db_stats.session_stat_count;
         snapshot->artifact_count = db_stats.artifact_count;
+        snapshot->rejected_artifact_count =
+            rejected_artifacts.load(std::memory_order_acquire);
         snapshot->pending_database_writes = db_stats.pending_writes;
         snapshot->database_bytes = db_stats.database_bytes;
         snapshot->database_wal_bytes = db_stats.wal_bytes;

@@ -3,9 +3,13 @@
     {
         std::shared_lock<std::shared_mutex> lifecycle(lifecycle_mutex);
         if (!installed || !wire || !database.SaveExternalArtifacts() ||
-            !wire->data || !wire->size || wire->size > kMaxExternalArtifactBytes ||
+            !wire->data || !wire->size ||
             !wire->title_id || !wire->backend || !wire->route ||
             !wire->kind || !wire->extension) {
+            return false;
+        }
+        if (wire->size > kMaxExternalArtifactBytes) {
+            rejected_artifacts.fetch_add(1, std::memory_order_relaxed);
             return false;
         }
         ArtifactJob job{};
@@ -25,6 +29,7 @@
             if (artifact_pending_jobs >= kMaxPendingArtifactJobs ||
                 wire->size > kMaxPendingArtifactBytes -
                                  artifact_pending_bytes) {
+                rejected_artifacts.fetch_add(1, std::memory_order_relaxed);
                 return false;
             }
             job.write.bytes.assign(wire->data, wire->data + wire->size);

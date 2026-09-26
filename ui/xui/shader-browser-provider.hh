@@ -30,6 +30,7 @@ struct Snapshot {
     size_t session_count = 0;
     size_t session_stat_count = 0;
     size_t artifact_count = 0;
+    uint64_t rejected_artifact_count = 0;
     size_t pending_database_writes = 0;
     uint64_t database_bytes = 0;
     uint64_t database_wal_bytes = 0;

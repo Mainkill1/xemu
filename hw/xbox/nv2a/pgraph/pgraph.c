@@ -48,7 +48,7 @@
 NV2AState *g_nv2a;
 static GMutex shader_browser_flush_mutex;
 
-void pgraph_shader_browser_flush_pending(void)
+void pgraph_shader_browser_transition(void (*change)(void *), void *opaque)
 {
     g_mutex_lock(&shader_browser_flush_mutex);
     NV2AState *d = g_nv2a;
@@ -57,7 +57,14 @@ void pgraph_shader_browser_flush_pending(void)
         qemu_mutex_lock(&pg->lock);
         pgraph_shader_browser_flush_observations(
             &pg->shader_browser_observations, pg->frame_time);
+        if (change) {
+            change(opaque);
+        }
+        pgraph_shader_browser_flush_observations(
+            &pg->shader_browser_observations, pg->frame_time);
         qemu_mutex_unlock(&pg->lock);
+    } else if (change) {
+        change(opaque);
     }
     g_mutex_unlock(&shader_browser_flush_mutex);
 }

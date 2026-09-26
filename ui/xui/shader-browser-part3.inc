@@ -163,6 +163,8 @@ void ShaderBrowserWindow::DrawSettings()
                      UnsignedText(m_snapshot.session_stat_count));
         DrawKeyValue("External artifacts",
                      UnsignedText(m_snapshot.artifact_count));
+        DrawKeyValue("Rejected artifacts",
+                     UnsignedText(m_snapshot.rejected_artifact_count));
         DrawKeyValue("Database size", BytesText(m_snapshot.database_bytes));
         DrawKeyValue("WAL size", BytesText(m_snapshot.database_wal_bytes));
         DrawKeyValue("Artifact size",

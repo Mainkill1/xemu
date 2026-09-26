@@ -160,6 +160,7 @@ public:
         artifact_in_flight = false;
         artifact_pending_bytes = 0;
         artifact_pending_jobs = 0;
+        rejected_artifacts.store(0, std::memory_order_release);
         maintenance_thread = std::thread(&SessionProvider::MaintenanceMain, this);
         artifact_thread = std::thread(&SessionProvider::ArtifactMain, this);
         return true;

@@ -6,9 +6,9 @@
 extern "C" {
 #endif
 
-/* Drain renderer-owned observations before a UI performance session or title
- * scope ends. Safe to call from the UI thread while the renderer is active. */
-void pgraph_shader_browser_flush_pending(void);
+/* Drain renderer-owned observations, change the UI session/scope while PGRAPH
+ * is serialized, then refresh collection state before drawing resumes. */
+void pgraph_shader_browser_transition(void (*change)(void *), void *opaque);
 
 #ifdef __cplusplus
 }
