@@ -84,6 +84,47 @@ int main()
     retained.fixture_bytes.reserve(kPreviewMaxOwnedPacketBytes + 1);
     assert(!BuildPreviewPacket(retained, &packet, &error));
 
+    DetailSnapshot detail{};
+    detail.request.key = inputs.selection.shader;
+    detail.state = DetailState::Complete;
+    HostSource gl{};
+    gl.backend = DetailBackend::OpenGL;
+    gl.stage = HostSourceStage::Fragment;
+    gl.kind = HostSourceKind::Glsl;
+    gl.route = Route::Specialized;
+    gl.text = "#version 400\nflat in vec4 vtxD0;\n";
+    detail.sources.push_back(gl);
+    std::string selected_source;
+    assert(CopyPreviewFragmentSource(inputs.selection, detail,
+                                     &selected_source, &error));
+    assert(selected_source == gl.text);
+    std::string partner = BuildPreviewSyntheticVertexSource(
+        selected_source, PreviewBackend::OpenGL);
+    assert(partner.find("flat out vec4 vtxD0;") != std::string::npos);
+    assert(partner.find("layout(location = 0) in vec2 previewPosition;") !=
+           std::string::npos);
+    PreviewSelection uber = inputs.selection;
+    uber.mode = PreviewMode::Uber;
+    assert(!CopyPreviewFragmentSource(uber, detail,
+                                      &selected_source, &error));
+    assert(selected_source.empty());
+    HostSource vk = gl;
+    vk.backend = DetailBackend::Vulkan;
+    vk.route = Route::Uber;
+    vk.text = "#version 450\nlayout(location = 0) in vec4 vtxD0;\n";
+    detail.sources.push_back(vk);
+    uber.backend = PreviewBackend::Vulkan;
+    assert(CopyPreviewFragmentSource(uber, detail,
+                                     &selected_source, &error));
+    assert(selected_source == vk.text);
+    partner = BuildPreviewSyntheticVertexSource(selected_source,
+                                                 PreviewBackend::Vulkan);
+    assert(partner.find("layout(location = 0) out vec4 vtxD0;") !=
+           std::string::npos);
+    detail.request.key.hash.bytes[0] ^= 1;
+    assert(!CopyPreviewFragmentSource(uber, detail,
+                                      &selected_source, &error));
+
     std::cout << "shader browser preview adapter tests passed\n";
     return 0;
 }

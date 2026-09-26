@@ -5,8 +5,10 @@
 #include "shader-browser-provider.hh"
 #include "shader-browser-details-store.hh"
 #include "shader-browser-preview-health.hh"
+#include "shader-browser-preview-model.hh"
 
 #include <cstdint>
+#include <array>
 #include <string>
 #include <vector>
 
@@ -44,6 +46,13 @@ private:
     xemu::shader_browser::RecipeInspection m_recipe_inspection;
     xemu::shader_browser::DetailSnapshot m_detail_snapshot;
     xemu::shader_browser::PreviewHealthMonitor m_preview_health_monitor;
+    xemu::shader_browser::PreviewSelection m_preview_packet_selection;
+    uint64_t m_preview_packet_detail_generation = 0;
+    uint64_t m_preview_packet_override_generation = 0;
+    uint64_t m_preview_input_revision = 1;
+    std::array<std::array<float, 4>, 4> m_preview_colors{};
+    bool m_preview_packet_attempted = false;
+    std::string m_preview_packet_message;
     std::vector<size_t> m_source_line_offsets;
     size_t m_selected_source = 0;
     uint64_t m_source_offsets_generation = 0;

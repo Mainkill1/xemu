@@ -6,6 +6,84 @@
 
 namespace xemu::shader_browser {
 
+bool CopyPreviewFragmentSource(const PreviewSelection &selection,
+                               const DetailSnapshot &detail,
+                               std::string *source, std::string *error)
+{
+    if (!source) {
+        if (error) *error = "Preview source destination is null";
+        return false;
+    }
+    source->clear();
+    if (selection.mode == PreviewMode::Replacement ||
+        detail.request.key != selection.shader ||
+        (detail.state != DetailState::Complete &&
+         detail.state != DetailState::Partial)) {
+        if (error) *error = "Selected resident shader details are unavailable";
+        return false;
+    }
+    const DetailBackend backend = selection.backend == PreviewBackend::OpenGL ?
+        DetailBackend::OpenGL : DetailBackend::Vulkan;
+    const Route route = selection.mode == PreviewMode::Uber ? Route::Uber :
+                                                              Route::Specialized;
+    for (const HostSource &candidate : detail.sources) {
+        if (candidate.backend == backend &&
+            candidate.stage == HostSourceStage::Fragment &&
+            candidate.kind == HostSourceKind::Glsl &&
+            candidate.route == route && !candidate.text.empty() &&
+            candidate.text.size() <= kPreviewMaxSourceBytes) {
+            *source = candidate.text;
+            if (error) error->clear();
+            return true;
+        }
+    }
+    if (error) *error = "No resident fragment source matches the selected preview mode";
+    return false;
+}
+
+std::string BuildPreviewSyntheticVertexSource(
+    const std::string &fragment_source, PreviewBackend backend)
+{
+    if (backend != PreviewBackend::OpenGL &&
+        backend != PreviewBackend::Vulkan) {
+        return {};
+    }
+    const bool vulkan = backend == PreviewBackend::Vulkan;
+    std::string result = vulkan ? "#version 450\n" : "#version 400\n";
+    result += "layout(location = 0) in vec2 previewPosition;\n"
+              "layout(location = 1) in vec4 previewColor;\n"
+              "layout(location = 2) in vec2 previewUV;\n";
+    const char *names[] = { "vtxD0", "vtxD1", "vtxB0", "vtxB1",
+                            "vtxFog", "vtxT0", "vtxT1", "vtxT2",
+                            "vtxT3", "vtxPos0", "vtxPos1", "vtxPos2",
+                            "triMZ" };
+    for (unsigned i = 0; i < 13; ++i) {
+        const bool flat = i >= 9 || i == 12 ||
+            fragment_source.find(std::string("flat in ") +
+                                 (i == 4 || i == 12 ? "float " : "vec4 ") +
+                                 names[i]) != std::string::npos;
+        if (vulkan) {
+            result += "layout(location = " + std::to_string(i) + ") ";
+        }
+        if (flat) result += "flat ";
+        result += "out ";
+        result += (i == 4 || i == 12) ? "float " : "vec4 ";
+        result += names[i];
+        result += ";\n";
+    }
+    result += "void main() {\n"
+              "  gl_Position = vec4(previewPosition, 0.0, 1.0);\n"
+              "  vtxD0 = previewColor; vtxD1 = previewColor;\n"
+              "  vtxB0 = previewColor; vtxB1 = previewColor;\n"
+              "  vtxFog = 0.0;\n"
+              "  vtxT0 = vec4(previewUV, 0.0, 1.0);\n"
+              "  vtxT1 = vtxT0; vtxT2 = vtxT0; vtxT3 = vtxT0;\n"
+              "  vtxPos0 = gl_Position; vtxPos1 = gl_Position;\n"
+              "  vtxPos2 = gl_Position; triMZ = 0.0;\n"
+              "}\n";
+    return result;
+}
+
 bool BuildPreviewPacket(const PreviewPacketInputs &inputs,
                         PreviewPacket *packet, std::string *error)
 {

@@ -181,6 +181,10 @@ ShaderBrowserWindow::ShaderBrowserWindow()
       m_sort_key(0),
       m_sort_descending(true)
 {
+    m_preview_colors = {{{1.0f, 0.25f, 0.25f, 1.0f},
+                         {0.25f, 1.0f, 0.25f, 1.0f},
+                         {0.25f, 0.25f, 1.0f, 1.0f},
+                         {1.0f, 1.0f, 1.0f, 1.0f}}};
 }
 
 void ShaderBrowserWindow::Draw()
