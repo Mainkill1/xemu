@@ -6,7 +6,8 @@ namespace xemu::shader_browser {
 static bool SameInteractionInputs(const PreviewResultKey &lhs,
                                   const PreviewResultKey &rhs)
 {
-    return lhs.compile == rhs.compile &&
+    return lhs.clock_edit_revision == rhs.clock_edit_revision &&
+           lhs.compile == rhs.compile &&
            lhs.input_revision == rhs.input_revision &&
            lhs.view_revision == rhs.view_revision &&
            lhs.width == rhs.width && lhs.height == rhs.height &&
@@ -61,7 +62,8 @@ bool PreviewService::IsCurrentRequestLocked(
         request_id != pending_.request_id) {
         return false;
     }
-    return !result_key || *result_key == BuildPreviewResultKey(*pending_.packet);
+    return !result_key ||
+           SameInteractionInputs(*result_key, CurrentResultKeyLocked());
 }
 
 int PreviewService::FindFreeSlotLocked() const
@@ -96,6 +98,15 @@ bool PreviewService::TryClaimWork(uint64_t now_ns, PreviewWorkItem *work,
     }
     std::lock_guard<std::mutex> lock(mutex_);
     *work = {};
+    // A probe for the other private backend is observational only.
+    if (pending_.packet && backend_filter != PreviewBackend::Unknown &&
+        pending_.packet->selection.backend != backend_filter) {
+        return false;
+    }
+    // Resume from a fresh anchor after any admission freeze. No elapsed hidden
+    // time or slot-pressure backlog is replayed into the preview.
+    if (clock_suspended_) clock_.Suspend(now_ns);
+    clock_suspended_ = true;
     if (!enabled_) {
         SetStateLocked(PreviewState::Disabled, "Preview is disabled");
         return false;
@@ -117,13 +128,6 @@ bool PreviewService::TryClaimWork(uint64_t now_ns, PreviewWorkItem *work,
                        "Waiting for an immutable preview packet");
         return false;
     }
-    if (backend_filter != PreviewBackend::Unknown &&
-        pending_.packet->selection.backend != backend_filter) {
-        return false;
-    }
-    if (active_) {
-        return false;
-    }
     if (now_ns < selection_changed_ns_ ||
         now_ns - selection_changed_ns_ < kPreviewSelectionDebounceNs) {
         SetStateLocked(PreviewState::Debouncing,
@@ -131,7 +135,7 @@ bool PreviewService::TryClaimWork(uint64_t now_ns, PreviewWorkItem *work,
         return false;
     }
 
-    if (preparation_requested_) {
+    if (preparation_requested_ && !active_) {
         if (!guest_paused_) {
             preparation_requested_ = false;
             SetStateLocked(PreviewState::NeedsPreparation,
@@ -185,11 +189,27 @@ bool PreviewService::TryClaimWork(uint64_t now_ns, PreviewWorkItem *work,
         }
     }
 
-    PreviewResultKey result_key = BuildPreviewResultKey(*pending_.packet);
-    if (!pending_.packet->animated && last_result_valid_ &&
+    if (!active_ && clock_.State().playing &&
+        pending_.packet->update_policy == PreviewUpdatePolicy::Continuous &&
+        FindFreeSlotLocked() < 0) {
+        ++dropped_no_slot_;
+        SetStateLocked(PreviewState::Throttled,
+                       "Preview update dropped; all output slots are owned");
+        return false;
+    }
+    const uint64_t clock_interval = guest_paused_ ? kPreviewPausedIntervalNs :
+                                                    IntervalForPressureLocked();
+    if (pending_.packet->update_policy == PreviewUpdatePolicy::Continuous &&
+        (active_ || FindFreeSlotLocked() >= 0)) {
+        clock_.Tick(now_ns, clock_interval);
+        clock_suspended_ = false;
+    }
+    if (active_) return false;
+    PreviewResultKey result_key = CurrentResultKeyLocked();
+    if (last_result_valid_ &&
         last_result_key_ == result_key) {
         SetStateLocked(PreviewState::Ready,
-                       "Static preview is already current");
+                       "Preview sample is already current");
         return false;
     }
 

@@ -21,6 +21,9 @@ struct PreviewSyntheticFixture {
     uint8_t repeat_wrap = 0;
 };
 
+void AnimatePreviewSyntheticFixture(PreviewSyntheticFixture *fixture,
+                                    double time_seconds);
+
 std::vector<uint8_t> EncodePreviewSyntheticFixture(
     const PreviewSyntheticFixture &fixture);
 bool DecodePreviewSyntheticFixture(const std::vector<uint8_t> &bytes,
@@ -43,7 +46,7 @@ struct PreviewPacketInputs {
     uint64_t view_revision = 0;
     uint32_t width = kPreviewFullExtent;
     uint32_t height = kPreviewFullExtent;
-    bool animated = false;
+    PreviewUpdatePolicy update_policy = PreviewUpdatePolicy::OnDirty;
 };
 
 bool BuildPreviewPacket(const PreviewPacketInputs &inputs,

@@ -2,6 +2,7 @@
 #pragma once
 
 #include "shader-browser-preview-backend.hh"
+#include "shader-browser-preview-clock.hh"
 
 #include <array>
 #include <memory>
@@ -10,7 +11,10 @@
 
 namespace xemu::shader_browser {
 
+enum class PreviewClockAction { Play, Pause, Restart, Scrub, Speed, Loop, LoopLength };
+
 struct PreviewStatus {
+    PreviewClockState clock;
     uint64_t generation = 0;
     PreviewState state = PreviewState::Disabled;
     PreviewMode requested_mode = PreviewMode::Normal;
@@ -57,6 +61,7 @@ public:
     bool SubmitPacket(PreviewPacket packet,
                       uint64_t now_ns, std::string *error);
     bool RequestPreparation(std::string *error);
+    void EditClock(PreviewClockAction action, double value, uint64_t now_ns);
     void UpdateHealth(const PreviewHealth &health);
 
     bool TryClaimWork(uint64_t now_ns, PreviewWorkItem *work,
@@ -126,6 +131,10 @@ private:
     PreviewMode requested_mode_ = PreviewMode::Normal;
     uint64_t selection_changed_ns_ = 0;
 
+    PreviewClock clock_;
+    uint64_t clock_edit_revision_ = 0;
+    bool clock_suspended_ = true;
+    PreviewResultKey CurrentResultKeyLocked() const;
     PendingRequest pending_;
     uint64_t next_request_id_ = 1;
     uint64_t latest_request_id_ = 0;

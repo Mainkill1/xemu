@@ -56,6 +56,14 @@ int main()
             std::array<uint8_t, 4>{255, 0, 0, 255}));
     assert((decoded.texture_texels[0] ==
             std::array<uint8_t, 4>{255, 255, 255, 255}));
+    auto animated_fixture = decoded;
+    AnimatePreviewSyntheticFixture(&animated_fixture, 2.0);
+    assert(animated_fixture.uv_offset[0] == 0.25f);
+    assert(animated_fixture.corner_colors[0][0] < decoded.corner_colors[0][0]);
+    auto repeated_fixture = decoded;
+    AnimatePreviewSyntheticFixture(&repeated_fixture, 10.0);
+    assert(EncodePreviewSyntheticFixture(animated_fixture) ==
+           EncodePreviewSyntheticFixture(repeated_fixture));
     const PreviewCompileKey compile = BuildPreviewCompileKey(packet);
     const PreviewResultKey result = BuildPreviewResultKey(packet);
 

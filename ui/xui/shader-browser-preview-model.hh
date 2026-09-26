@@ -20,6 +20,8 @@ constexpr size_t kPreviewDigestBytes = 32U;
 
 using PreviewDigest = std::array<uint8_t, kPreviewDigestBytes>;
 
+enum class PreviewUpdatePolicy : uint8_t { OnDirty, Continuous };
+
 enum class PreviewMode : uint8_t {
     Normal,
     Uber,
@@ -110,6 +112,9 @@ struct PreviewCompileKey {
 };
 
 struct PreviewResultKey {
+    uint64_t clock_revision = 0;
+    uint64_t clock_edit_revision = 0;
+    double time_seconds = 0.0;
     PreviewCompileKey compile;
     uint64_t input_revision = 0;
     uint64_t view_revision = 0;
@@ -141,7 +146,7 @@ struct PreviewPacket {
     uint64_t view_revision = 0;
     uint32_t width = kPreviewFullExtent;
     uint32_t height = kPreviewFullExtent;
-    bool animated = false;
+    PreviewUpdatePolicy update_policy = PreviewUpdatePolicy::OnDirty;
     PreviewPacketKind packet_kind = PreviewPacketKind::Synthetic;
     PreviewReplayClass replay_class = PreviewReplayClass::Synthetic;
 };

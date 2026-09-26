@@ -331,6 +331,39 @@ The native test executable `test-xemu-shader-browser-preview-vk` is built with
 Vulkan support but run explicitly on GPU hosts. It is excluded from the default
 host unit suite so compile-only builders do not execute native GPU tests.
 
+### Persistent synthetic clock and update policy
+
+`OnDirty` is the default: a successful current result idles until source,
+fixture, view, or output changes. `Continuous` uses a persistent private clock
+with Play/Pause, Restart, time scrub, speed (0.05–8×), loop enable and length
+(0.1–3600 seconds), and a clock sample counter. Restart resets time and the
+counter. Disabling loop permits indefinite playback; there is no run-duration
+cutoff. Clock samples count cadence emissions, not guest or presented frames.
+
+The clock drives a deterministic eight-second synthetic cycle: horizontal UV
+translation, half-speed vertical UV translation, and RGB vertex-color gain
+between 0.3 and 1.0. Both private backends apply this to decoded preview-owned
+fixtures. The UI labels this synthetic animation; original game time uniforms
+are unavailable. Shaders that ignore these inputs can remain visually static.
+The configurable loop wraps clock time; it does not rescale the fixture cycle.
+`OnDirty` never applies the animation, including after switching from Continuous.
+
+Time affects only result identity. Ticks reuse the immutable packet and prepared
+shader, copying neither shader source nor recipes. One active job and the
+three-slot lease ring remain the only work/output queue. A newer clock tick
+allows an older in-flight sample to publish so slow GPU work cannot starve the
+display. Source/input changes and explicit clock edits still reject obsolete
+completions. Pausing requests one final sample, then stops clock-driven work;
+editing or scrubbing while paused requests a frame immediately. A failed
+unchanged attempt retries only at the governed cadence.
+
+Paused guests target 30 Hz; running guests retain 15/8/4 Hz ceilings and the
+health freeze rules. Hidden, disabled, unselected, unprepared, unhealthy, and
+slot-exhausted previews freeze the clock. Admission resumes from a fresh time
+anchor, without hidden elapsed time or accumulated work. The first resumed
+clock-driven sample waits one cadence interval. User edits bypass cadence only
+while the guest is paused; health and slot admission remain mandatory.
+
 ### HUD lease retirement
 
 After the actual ImGui OpenGL submission, associate the last sampled preview
@@ -345,6 +378,7 @@ CPU command construction or a texture-ID swap is not sufficient proof.
 | Default state | Off |
 | Full synthetic target | 320 × 320 |
 | Reduced target | 160 × 160 |
+| Paused update target | 30 Hz |
 | Running update ceiling | 15 Hz |
 | Elevated pressure | 8 Hz |
 | High pressure | 4 Hz |
@@ -477,6 +511,20 @@ pinned a frozen frame, and rendered an edited fixture beside it with two leased
 slots. Closing the browser left the guest running; a monitor quit then exited
 normally. These are bounded functional checks. Validation layers were not
 available on that Deck image, and matched gameplay overhead was not measured.
+
+The persistent clock's focused model, adapter, clock, service and native Vulkan
+tests also passed on the Deck. Coverage includes 10,000 simulated continuous
+frames, pause/scrub/restart, shared source ownership, stable compile identity,
+slow-result publication, and freeze/resume without a time jump. A regression
+specifically exercises the worker's alternating backend probes. The OpenGL UI
+showed advancing samples and changing synthetic color output, then idle pause
+and a restart at time/sample zero. The Vulkan UI likewise advanced and changed
+output; paused scrubbing to 2.000 seconds produced a new frame and idled with
+one leased slot. Both native UI processes exited cleanly. Vulkan's native pixel
+test changes clock
+time without preparing another program and verifies different output bytes.
+These checks establish functional behavior, not an achieved refresh rate or
+matched gameplay overhead.
 
 Those checks do not establish:
 
