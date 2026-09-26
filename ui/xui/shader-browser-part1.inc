@@ -171,12 +171,17 @@ bool OpenDirectory(const std::string &path, std::string *error)
 
 void DrawDurationRows(const Entry &entry)
 {
-    DrawKeyValue("Compile CPU", FormatDurationNs(entry.compile_cpu));
-    DrawKeyValue("Pipeline CPU", FormatDurationNs(entry.pipeline_cpu));
-    DrawKeyValue("Prepare CPU", FormatDurationNs(entry.prepare_cpu));
-    DrawKeyValue("Foreground stall",
-                 FormatDurationNs(entry.foreground_stall_cpu));
-    DrawKeyValue("GPU execution", FormatDurationNs(entry.gpu_execution));
+    const bool enabled =
+        g_config.shader_browser.profiling.monitoring_level == 2 &&
+        g_config.shader_browser.profiling.cpu_timing;
+    auto text = [enabled](const DurationStats &stats) {
+        return stats.samples ? FormatDurationNs(stats) :
+            enabled ? std::string("No creation sample in this session") :
+                      std::string("Profiling disabled");
+    };
+    DrawKeyValue("Source generation CPU", text(entry.source_cpu));
+    DrawKeyValue("Stage compile CPU", text(entry.compile_cpu));
+    DrawKeyValue("Module creation CPU", text(entry.module_cpu));
 }
 
 } // namespace

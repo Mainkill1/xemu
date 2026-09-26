@@ -116,6 +116,54 @@ typedef struct XemuShaderBrowserObservation {
     XemuShaderBrowserDurationStats gpu_execution;
 } XemuShaderBrowserObservation;
 
+typedef enum XemuShaderBrowserPerfOwner {
+    XEMU_SHADER_BROWSER_PERF_STAGE = 1,
+    XEMU_SHADER_BROWSER_PERF_BINDING = 2,
+} XemuShaderBrowserPerfOwner;
+
+typedef enum XemuShaderBrowserPerfMetric {
+    XEMU_SHADER_BROWSER_PERF_SOURCE_CPU = 1,
+    XEMU_SHADER_BROWSER_PERF_COMPILE_CPU = 2,
+    XEMU_SHADER_BROWSER_PERF_MODULE_CPU = 3,
+    XEMU_SHADER_BROWSER_PERF_LINK_OR_PIPELINE_CPU = 4,
+    XEMU_SHADER_BROWSER_PERF_FOREGROUND_STALL_CPU = 5,
+    XEMU_SHADER_BROWSER_PERF_DRAW_SUBMIT_CPU = 6,
+    XEMU_SHADER_BROWSER_PERF_DRAW_GPU = 7,
+} XemuShaderBrowserPerfMetric;
+
+typedef enum XemuShaderBrowserPerfBackend {
+    XEMU_SHADER_BROWSER_BACKEND_GL = 1,
+    XEMU_SHADER_BROWSER_BACKEND_VK = 2,
+} XemuShaderBrowserPerfBackend;
+
+typedef enum XemuShaderBrowserPerfFlags {
+    XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND = 1U << 0,
+    XEMU_SHADER_BROWSER_SAMPLE_BACKGROUND = 1U << 1,
+    XEMU_SHADER_BROWSER_SAMPLE_CACHED = 1U << 2,
+    XEMU_SHADER_BROWSER_SAMPLE_SAMPLED = 1U << 3,
+} XemuShaderBrowserPerfFlags;
+
+typedef struct XemuShaderBrowserPerfIdentity {
+    uint32_t version;
+    uint8_t hash[XEMU_SHADER_BROWSER_HASH_BYTES];
+    uint32_t stage;
+} XemuShaderBrowserPerfIdentity;
+
+typedef struct XemuShaderBrowserPerformanceSample {
+    uint32_t owner;
+    uint32_t metric;
+    uint32_t backend;
+    uint32_t route;
+    uint64_t variant_id;
+    uint64_t scope_generation;
+    uint64_t frame;
+    uint64_t duration_ns;
+    uint64_t represented_draws;
+    uint32_t identity_count;
+    XemuShaderBrowserPerfIdentity identities[3];
+    uint32_t flags;
+} XemuShaderBrowserPerformanceSample;
+
 typedef struct XemuShaderBrowserPerformanceSession {
     const char *session_id;
     uint32_t title_id;
@@ -195,6 +243,8 @@ int xemu_shader_browser_publish_shader(
 int xemu_shader_browser_session_collection_enabled(void);
 void xemu_shader_browser_publish_observations(
     const XemuShaderBrowserObservation *observations, size_t count);
+void xemu_shader_browser_publish_performance_samples(
+    const XemuShaderBrowserPerformanceSample *samples, size_t count);
 void xemu_shader_browser_publish_frame(uint64_t frame);
 
 void xemu_shader_browser_session_clear_live(void);

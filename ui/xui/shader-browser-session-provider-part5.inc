@@ -13,9 +13,13 @@
         discovered_records;
 
     std::atomic<bool> live_collection_enabled{false};
+    std::atomic<bool> performance_active{false};
     std::atomic<uint64_t> profiling_word{
         (uint64_t)128 << 4 | (uint64_t)4 << 17};
     std::atomic<uint64_t> live_epoch{1};
+    PerformanceSampleQueue sample_queue;
+    std::atomic<uint64_t> dropped_performance_samples{0};
+    std::map<VariantKey, BindingVariant> live_binding_variants;
     std::mutex live_queue_mutex;
     std::vector<QueuedEvent> live_events;
     std::vector<QueuedEvent> snapshot_events;
@@ -167,6 +171,12 @@ void xemu_shader_browser_publish_observations(
     const XemuShaderBrowserObservation *observations, size_t count)
 {
     xemu::shader_browser::provider.PublishObservations(observations, count);
+}
+
+void xemu_shader_browser_publish_performance_samples(
+    const XemuShaderBrowserPerformanceSample *samples, size_t count)
+{
+    xemu::shader_browser::provider.PublishPerformanceSamples(samples, count);
 }
 
 void xemu_shader_browser_publish_frame(uint64_t frame)

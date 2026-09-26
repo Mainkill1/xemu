@@ -6,12 +6,15 @@
 #include "shader-browser-provider.hh"
 
 #include <algorithm>
+#include <array>
 #include <atomic>
 #include <chrono>
 #include <cstring>
 #include <deque>
+#include <map>
 #include <mutex>
 #include <shared_mutex>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -146,8 +149,111 @@ struct PerformanceEntry {
     bool needs_enqueue = false;
 };
 
+struct QueuedPerformanceSample {
+    XemuShaderBrowserPerformanceSample sample{};
+    uint64_t live_epoch = 0;
+};
+
+// Fixed MPSC ring: renderer and compiler threads only copy into a reserved
+// slot. A full ring drops the new sample without waiting for the UI consumer.
+class PerformanceSampleQueue {
+    static constexpr size_t Capacity = 1024;
+    struct Slot {
+        std::atomic<size_t> sequence;
+        QueuedPerformanceSample value;
+    };
+    std::array<Slot, Capacity> slots;
+    std::atomic<size_t> head{0};
+    std::atomic<size_t> tail{0};
+public:
+    PerformanceSampleQueue()
+    {
+        for (size_t i = 0; i < Capacity; ++i) {
+            slots[i].sequence.store(i, std::memory_order_relaxed);
+        }
+    }
+
+    bool Push(const QueuedPerformanceSample &value)
+    {
+        size_t position = head.load(std::memory_order_relaxed);
+        for (;;) {
+            Slot &slot = slots[position & (Capacity - 1)];
+            size_t sequence = slot.sequence.load(std::memory_order_acquire);
+            intptr_t difference = static_cast<intptr_t>(sequence) -
+                                  static_cast<intptr_t>(position);
+            if (difference == 0) {
+                if (head.compare_exchange_weak(position, position + 1,
+                                               std::memory_order_relaxed)) {
+                    slot.value = value;
+                    slot.sequence.store(position + 1,
+                                        std::memory_order_release);
+                    return true;
+                }
+            } else if (difference < 0) {
+                return false;
+            } else {
+                position = head.load(std::memory_order_relaxed);
+            }
+        }
+    }
+
+    bool Pop(QueuedPerformanceSample *value)
+    {
+        size_t position = tail.load(std::memory_order_relaxed);
+        Slot &slot = slots[position & (Capacity - 1)];
+        size_t sequence = slot.sequence.load(std::memory_order_acquire);
+        if (sequence != position + 1) return false;
+        *value = slot.value;
+        slot.sequence.store(position + Capacity, std::memory_order_release);
+        tail.store(position + 1, std::memory_order_relaxed);
+        return true;
+    }
+
+    size_t Pending() const
+    {
+        return head.load(std::memory_order_acquire) -
+               tail.load(std::memory_order_acquire);
+    }
+};
+
+using VariantKey = std::tuple<uint32_t, uint32_t, uint64_t>;
+
 class SessionProvider final : public Provider {
 public:
+    void PublishPerformanceSamples(
+        const XemuShaderBrowserPerformanceSample *samples, size_t count)
+    {
+        if (!samples || !count ||
+            (!live_collection_enabled.load(std::memory_order_relaxed) &&
+             !performance_active.load(std::memory_order_relaxed))) return;
+        const uint64_t word = profiling_word.load(std::memory_order_relaxed);
+        if ((word & 3U) != XEMU_SHADER_BROWSER_MONITOR_DIAGNOSTIC) return;
+        const uint64_t epoch = live_epoch.load(std::memory_order_acquire);
+        for (size_t i = 0; i < count; ++i) {
+            const auto &sample = samples[i];
+            const bool gpu = sample.metric == XEMU_SHADER_BROWSER_PERF_DRAW_GPU;
+            if (!(word & (gpu ? 8U : 4U)) || !sample.duration_ns ||
+                !sample.scope_generation || sample.identity_count == 0 ||
+                sample.identity_count > 3 ||
+                (sample.owner != XEMU_SHADER_BROWSER_PERF_STAGE &&
+                 sample.owner != XEMU_SHADER_BROWSER_PERF_BINDING) ||
+                (sample.owner == XEMU_SHADER_BROWSER_PERF_STAGE &&
+                 sample.identity_count != 1) ||
+                sample.metric < XEMU_SHADER_BROWSER_PERF_SOURCE_CPU ||
+                sample.metric > XEMU_SHADER_BROWSER_PERF_DRAW_GPU ||
+                (sample.owner == XEMU_SHADER_BROWSER_PERF_STAGE &&
+                 sample.metric > XEMU_SHADER_BROWSER_PERF_MODULE_CPU) ||
+                (sample.owner == XEMU_SHADER_BROWSER_PERF_BINDING &&
+                 sample.metric < XEMU_SHADER_BROWSER_PERF_LINK_OR_PIPELINE_CPU)) {
+                continue;
+            }
+            if (!sample_queue.Push({sample, epoch})) {
+                dropped_performance_samples.fetch_add(
+                    1, std::memory_order_relaxed);
+            }
+        }
+    }
+
     void ConfigureProfiling(const XemuShaderBrowserProfilingConfig *config)
     {
         if (!config) return;
@@ -211,6 +317,7 @@ public:
         installed = true;
         scope_generation.fetch_add(1, std::memory_order_release);
         live_collection_enabled.store(false, std::memory_order_release);
+        performance_active.store(false, std::memory_order_release);
         live_epoch.store(1, std::memory_order_release);
         live_consumer_epoch = 1;
         snapshot_sequence = 0;
@@ -236,6 +343,7 @@ public:
                 return;
             }
             live_collection_enabled.store(false, std::memory_order_release);
+            performance_active.store(false, std::memory_order_release);
             installed = false;
             std::lock_guard<std::mutex> scope_lock(scope_mutex);
             if (current_scope.title_id ||

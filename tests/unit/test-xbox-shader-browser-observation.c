@@ -49,9 +49,6 @@ int main(void)
     binding.identities[0].hash[0] = 1;
     binding.identities[1].stage = XEMU_SHADER_BROWSER_STAGE_PIXEL;
     binding.identities[1].hash[0] = 2;
-    binding.compile_cpu_ns = 100000;
-    binding.prepare_cpu_ns = 20000;
-    binding.timings_pending = true;
 
     collection_enabled = true;
     monitoring_enabled = false;
@@ -73,10 +70,8 @@ int main(void)
     assert(published[1].stage == XEMU_SHADER_BROWSER_STAGE_PIXEL);
     assert(published[1].route == XEMU_SHADER_BROWSER_ROUTE_UBER);
     assert(published[1].uber_draw_delta == 2);
-    assert(published[1].compile_cpu.sample_count == 1);
-    assert(published[1].compile_cpu.total_ns == 100000);
-    assert(published[1].prepare_cpu.total_ns == 20000);
-    assert(!binding.timings_pending);
+    assert(published[1].compile_cpu.sample_count == 0);
+    assert(published[1].prepare_cpu.sample_count == 0);
 
     pgraph_shader_browser_record_draw(&batch, &binding, 13,
                                       XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED);

@@ -26,21 +26,6 @@ static uint32_t identity_bucket(const PGRAPHShaderBrowserIdentity *identity,
     return hash & (PGRAPH_SHADER_BROWSER_OBSERVATION_INDEX_SLOTS - 1);
 }
 
-static void add_duration(XemuShaderBrowserDurationStats *stats, uint64_t ns)
-{
-    if (!ns) {
-        return;
-    }
-    if (!stats->sample_count || ns < stats->min_ns) {
-        stats->min_ns = ns;
-    }
-    if (ns > stats->max_ns) {
-        stats->max_ns = ns;
-    }
-    ++stats->sample_count;
-    stats->total_ns += ns;
-}
-
 void pgraph_shader_browser_flush_observations(
     PGRAPHShaderBrowserObservations *batch, uint64_t frame)
 {
@@ -126,12 +111,6 @@ void pgraph_shader_browser_record_draw(PGRAPHShaderBrowserObservations *batch,
             ++observation->uber_draw_delta;
         } else {
             ++observation->specialized_draw_delta;
-        }
-        if (binding->timings_pending &&
-            identity->stage == XEMU_SHADER_BROWSER_STAGE_PIXEL) {
-            add_duration(&observation->compile_cpu, binding->compile_cpu_ns);
-            add_duration(&observation->prepare_cpu, binding->prepare_cpu_ns);
-            binding->timings_pending = false;
         }
     }
 }

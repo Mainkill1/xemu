@@ -46,8 +46,70 @@ private:
     {
         if (epoch <= live_consumer_epoch) return;
         live_entries.clear();
+        live_binding_variants.clear();
         current_frame = 0;
         live_consumer_epoch = epoch;
+    }
+
+    void DrainPerformanceSamples()
+    {
+        QueuedPerformanceSample queued;
+        const uint64_t generation =
+            scope_generation.load(std::memory_order_acquire);
+        while (sample_queue.Pop(&queued)) {
+            const auto &sample = queued.sample;
+            if (queued.live_epoch != live_consumer_epoch ||
+                sample.scope_generation != generation) continue;
+            std::array<ShaderKey, 3> members{};
+            bool valid = true;
+            for (uint32_t i = 0; i < sample.identity_count; ++i) {
+                const auto &identity = sample.identities[i];
+                members[i] = {ConvertHash(identity.version, identity.hash),
+                              ConvertStage(identity.stage)};
+                if (!identity.version || members[i].stage == Stage::Unknown) {
+                    valid = false;
+                }
+            }
+            if (!valid) continue;
+            if (sample.owner == XEMU_SHADER_BROWSER_PERF_STAGE) {
+                auto [it, inserted] = live_entries.try_emplace(members[0]);
+                Entry &entry = it->second.entry;
+                if (inserted) entry.key = members[0];
+                DurationStats *duration =
+                    sample.metric == XEMU_SHADER_BROWSER_PERF_SOURCE_CPU ?
+                        &entry.source_cpu :
+                    sample.metric == XEMU_SHADER_BROWSER_PERF_COMPILE_CPU ?
+                        &entry.compile_cpu : &entry.module_cpu;
+                duration->AddSample(sample.duration_ns);
+            } else {
+                VariantKey key{sample.backend, sample.route,
+                               sample.variant_id};
+                BindingVariant &variant = live_binding_variants[key];
+                variant.backend = sample.backend;
+                variant.route = ConvertRoute(sample.route);
+                variant.variant_id = sample.variant_id;
+                if (variant.members.empty()) {
+                    variant.members.assign(members.begin(),
+                                           members.begin() +
+                                           sample.identity_count);
+                    variant.first_frame = sample.frame;
+                }
+                if (!std::equal(variant.members.begin(),
+                                variant.members.end(), members.begin(),
+                                members.begin() + sample.identity_count)) {
+                    dropped_performance_samples.fetch_add(
+                        1, std::memory_order_relaxed);
+                    continue;
+                }
+                variant.first_frame = std::min(variant.first_frame,
+                                               sample.frame);
+                variant.last_frame = std::max(variant.last_frame,
+                                              sample.frame);
+                variant.flags |= sample.flags;
+                variant.sampled_draws += sample.represented_draws;
+                variant.timing[sample.metric].AddSample(sample.duration_ns);
+            }
+        }
     }
 
     static void AggregateObservationIntoEntry(

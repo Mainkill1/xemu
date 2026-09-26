@@ -65,6 +65,40 @@ void ShaderBrowserWindow::DrawOverview()
         ImGui::EndTable();
     }
 
+    ImGui::SeparatorText("Shared binding variants");
+    ImGui::TextDisabled("Shared values include all member shaders; do not sum across stages.");
+    bool has_binding = false;
+    for (const BindingVariant &variant : m_snapshot.binding_variants) {
+        if (std::find(variant.members.begin(), variant.members.end(),
+                      entry->key) == variant.members.end()) continue;
+        has_binding = true;
+        ImGui::PushID(&variant);
+        ImGui::Text("%s / %s / variant %llu",
+                    variant.backend == XEMU_SHADER_BROWSER_BACKEND_GL ?
+                        "OpenGL" : "Vulkan",
+                    RouteLabel(variant.route),
+                    static_cast<unsigned long long>(variant.variant_id));
+        std::string members;
+        for (const ShaderKey &member : variant.members) {
+            if (!members.empty()) members += ", ";
+            members += StageLabel(member.stage);
+        }
+        ImGui::TextDisabled("Members: %s", members.c_str());
+        static const char *names[] = {
+            "", "", "", "", "Link / pipeline CPU", "Foreground stall",
+            "Draw submit CPU", "Sampled GPU draw interval",
+        };
+        for (size_t metric = 4; metric < variant.timing.size(); ++metric) {
+            if (!variant.timing[metric].samples) continue;
+            ImGui::Text("%s: %s", names[metric],
+                        FormatDurationNs(variant.timing[metric]).c_str());
+        }
+        ImGui::TextDisabled("Sampled draws represented: %llu",
+            static_cast<unsigned long long>(variant.sampled_draws));
+        ImGui::PopID();
+    }
+    if (!has_binding) ImGui::TextDisabled("No shared sample in this session.");
+
     if (!entry->scopes.empty() &&
         ImGui::CollapsingHeader("Known title/build associations")) {
         for (const ShaderScope &scope : entry->scopes) {

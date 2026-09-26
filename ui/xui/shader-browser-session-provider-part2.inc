@@ -31,6 +31,7 @@
     {
         if (!snapshot) return false;
         snapshot->entries.clear();
+        snapshot->binding_variants.clear();
         std::shared_lock<std::shared_mutex> lifecycle(lifecycle_mutex);
         if (!installed) return false;
 
@@ -51,6 +52,7 @@
                 AggregateLive(event);
             }
         }
+        DrainPerformanceSamples();
 
         std::unordered_map<ShaderKey, Entry, ShaderKeyHash> merged;
         if (database.Enabled()) {
@@ -92,6 +94,8 @@
             entry.route = live.route;
             entry.readiness = live.readiness;
             entry.compile_cpu = live.compile_cpu;
+            entry.source_cpu = live.source_cpu;
+            entry.module_cpu = live.module_cpu;
             entry.pipeline_cpu = live.pipeline_cpu;
             entry.prepare_cpu = live.prepare_cpu;
             entry.foreground_stall_cpu = live.foreground_stall_cpu;
@@ -106,6 +110,12 @@
         snapshot->snapshot_sequence = ++snapshot_sequence;
         snapshot->session_epoch = live_consumer_epoch;
         snapshot->current_frame = current_frame;
+        snapshot->dropped_performance_samples =
+            dropped_performance_samples.load(std::memory_order_relaxed);
+        snapshot->pending_performance_samples = sample_queue.Pending();
+        for (const auto &pair : live_binding_variants) {
+            snapshot->binding_variants.push_back(pair.second);
+        }
         {
             std::lock_guard<std::mutex> lock(scope_mutex);
             snapshot->current_title_id = current_scope.title_id;

@@ -3,7 +3,9 @@
 #include "../../ui/xui/shader-browser-session-provider.hh"
 
 #include <cassert>
+#include <algorithm>
 #include <chrono>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -381,6 +383,62 @@ int main()
                                                    error, sizeof(error)));
     assert(GetProvider().CopySnapshot(&snapshot));
     assert(snapshot.failed_artifact_count == 1);
+
+    // Typed performance samples keep stage creation on its shader and
+    // binding costs in one shared variant, even with multiple members.
+    profiling.monitoring_level = XEMU_SHADER_BROWSER_MONITOR_DIAGNOSTIC;
+    xemu_shader_browser_configure_profiling(&profiling);
+    GetProvider().SetLiveCollectionEnabled(true);
+    XemuShaderBrowserPerformanceSample sample{};
+    sample.owner = XEMU_SHADER_BROWSER_PERF_STAGE;
+    sample.metric = XEMU_SHADER_BROWSER_PERF_COMPILE_CPU;
+    sample.backend = XEMU_SHADER_BROWSER_BACKEND_GL;
+    sample.route = XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED;
+    sample.scope_generation = xemu_shader_browser_scope_generation();
+    sample.duration_ns = 1000;
+    sample.identity_count = 1;
+    sample.identities[0].version = shader.identity_version;
+    sample.identities[0].stage = shader.stage;
+    std::memcpy(sample.identities[0].hash, shader.identity_hash,
+                sizeof(shader.identity_hash));
+    xemu_shader_browser_publish_performance_samples(&sample, 1);
+    sample.owner = XEMU_SHADER_BROWSER_PERF_BINDING;
+    sample.metric = XEMU_SHADER_BROWSER_PERF_LINK_OR_PIPELINE_CPU;
+    sample.variant_id = 23;
+    sample.duration_ns = 4000;
+    sample.identity_count = 2;
+    sample.identities[1] = sample.identities[0];
+    sample.identities[1].stage = XEMU_SHADER_BROWSER_STAGE_VERTEX;
+    sample.identities[1].hash[0] ^= 0x80;
+    xemu_shader_browser_publish_performance_samples(&sample, 1);
+    assert(GetProvider().CopySnapshot(&snapshot));
+    auto pixel = std::find_if(snapshot.entries.begin(), snapshot.entries.end(),
+                              [&](const Entry &entry) {
+        return entry.key.stage == Stage::Pixel &&
+               entry.key.hash.bytes[0] == shader.identity_hash[0];
+    });
+    assert(pixel != snapshot.entries.end());
+    assert(pixel->compile_cpu.samples == 1);
+    assert(pixel->compile_cpu.total_ns == 1000);
+    assert(pixel->pipeline_cpu.samples == 0);
+    assert(snapshot.binding_variants.size() == 1);
+    assert(snapshot.binding_variants[0].members.size() == 2);
+    assert(snapshot.binding_variants[0].timing[
+        XEMU_SHADER_BROWSER_PERF_LINK_OR_PIPELINE_CPU].total_ns == 4000);
+    sample.route = XEMU_SHADER_BROWSER_ROUTE_UBER;
+    sample.metric = XEMU_SHADER_BROWSER_PERF_DRAW_SUBMIT_CPU;
+    sample.duration_ns = 2000;
+    sample.represented_draws = 1;
+    for (int i = 0; i < 1100; ++i) {
+        xemu_shader_browser_publish_performance_samples(&sample, 1);
+    }
+    assert(GetProvider().CopySnapshot(&snapshot));
+    assert(snapshot.binding_variants.size() == 2);
+    assert(snapshot.binding_variants[1].route == Route::Uber);
+    assert(snapshot.binding_variants[1].timing[
+        XEMU_SHADER_BROWSER_PERF_DRAW_SUBMIT_CPU].samples == 1024);
+    assert(snapshot.dropped_performance_samples == 76);
+    assert(snapshot.pending_performance_samples == 0);
 
     xemu_shader_browser_session_uninstall();
     std::filesystem::remove_all(root, ec);

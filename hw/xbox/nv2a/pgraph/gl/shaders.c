@@ -849,7 +849,6 @@ void pgraph_gl_bind_shaders(PGRAPHState *pg)
             binding->browser.compile_cpu_ns =
                 (uint64_t)(g_get_monotonic_time() - shader_compile_start) *
                 1000;
-            binding->browser.timings_pending = true;
         }
         if (g_config.perf.cache_shaders) {
             pgraph_gl_shader_cache_to_disk(binding);

@@ -19,6 +19,8 @@ struct Snapshot {
     bool live_collection_enabled = false;
     bool renderer_collection_required = false;
     size_t pending_observation_count = 0;
+    size_t pending_performance_samples = 0;
+    uint64_t dropped_performance_samples = 0;
 
     bool database_enabled = false;
     bool database_open = false;
@@ -43,6 +45,7 @@ struct Snapshot {
     std::string database_status;
     std::string database_journal_mode;
     std::vector<Entry> entries;
+    std::vector<BindingVariant> binding_variants;
 };
 
 class Provider

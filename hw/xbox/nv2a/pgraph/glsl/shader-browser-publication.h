@@ -14,7 +14,6 @@ typedef struct PGRAPHShaderBrowserBinding {
     uint64_t compile_cpu_ns;
     uint64_t prepare_cpu_ns;
     uint32_t count;
-    bool timings_pending;
     PGRAPHShaderBrowserIdentity identities[3];
 } PGRAPHShaderBrowserBinding;
 

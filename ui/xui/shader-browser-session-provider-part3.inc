@@ -173,6 +173,7 @@
         if (!database.BeginPerformanceSession(session, error)) return false;
         performance_entries.clear();
         performance_session_id = session.session_id;
+        performance_active.store(true, std::memory_order_release);
         return true;
     }
 
@@ -194,5 +195,6 @@
                                                   clean_shutdown, error);
         performance_session_id.clear();
         performance_entries.clear();
+        performance_active.store(false, std::memory_order_release);
         return ok;
     }

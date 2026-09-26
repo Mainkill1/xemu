@@ -601,7 +601,6 @@ static void shader_cache_entry_init(Lru *lru, LruNode *node, const void *key)
     if (profile_cpu) {
         binding->browser.prepare_cpu_ns =
             (uint64_t)(g_get_monotonic_time() - shader_prepare_start) * 1000;
-        binding->browser.timings_pending = true;
     }
     if (xemu_shader_browser_external_artifacts_enabled()) {
         const char *route = binding->fragment_route ==
