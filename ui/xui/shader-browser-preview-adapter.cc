@@ -282,6 +282,30 @@ std::string BuildPreviewSyntheticVertexSource(
     return result;
 }
 
+bool AttachPreviewSelectionScope(const Entry &entry,
+                                 const PreviewSelection &selection,
+                                 CanonicalRecipe *recipe, std::string *error)
+{
+    auto fail = [error](const char *message) {
+        if (error) *error = message;
+        return false;
+    };
+    if (!recipe || recipe->key != selection.shader ||
+        entry.key != selection.shader) {
+        return fail("Canonical recipe and snapshot entry must match selected shader");
+    }
+    if (!selection.scope.title_id ||
+        std::find(entry.scopes.begin(), entry.scopes.end(),
+                  selection.scope) == entry.scopes.end()) {
+        return fail("Selected title/build scope is not in current snapshot");
+    }
+    if (std::find(recipe->scopes.begin(), recipe->scopes.end(),
+                  selection.scope) == recipe->scopes.end()) {
+        recipe->scopes.push_back(selection.scope);
+    }
+    return true;
+}
+
 bool BuildPreviewPacket(const PreviewPacketInputs &inputs,
                         PreviewPacket *packet, std::string *error)
 {

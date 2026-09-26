@@ -259,6 +259,43 @@ int main()
     wrong_scope.selection.scope.title_id++;
     assert(!BuildPreviewPacket(wrong_scope, &packet, &error));
 
+    PreviewPacketInputs refreshed_scope = Inputs();
+    Entry current_entry{};
+    current_entry.key = refreshed_scope.selection.shader;
+    current_entry.scopes = refreshed_scope.recipe.scopes;
+    refreshed_scope.selection.scope.executable_fingerprint[0]++;
+    current_entry.scopes.push_back(refreshed_scope.selection.scope);
+    assert(!BuildPreviewPacket(refreshed_scope, &packet, &error));
+    assert(AttachPreviewSelectionScope(current_entry, refreshed_scope.selection,
+                                       &refreshed_scope.recipe, &error));
+    assert(refreshed_scope.recipe.scopes.size() == 2);
+    assert(BuildPreviewPacket(refreshed_scope, &packet, &error));
+    assert(ValidatePreviewPacket(packet, &error));
+    assert(AttachPreviewSelectionScope(current_entry, refreshed_scope.selection,
+                                       &refreshed_scope.recipe, &error));
+    assert(refreshed_scope.recipe.scopes.size() == 2);
+
+    Entry unrelated_entry = current_entry;
+    unrelated_entry.key.stage = Stage::Vertex;
+    assert(!AttachPreviewSelectionScope(unrelated_entry,
+                                        refreshed_scope.selection,
+                                        &refreshed_scope.recipe, &error));
+    Entry unobserved_scope = current_entry;
+    unobserved_scope.scopes.pop_back();
+    assert(!AttachPreviewSelectionScope(unobserved_scope,
+                                        refreshed_scope.selection,
+                                        &refreshed_scope.recipe, &error));
+    PreviewPacketInputs arriving_scope = Inputs();
+    Entry arriving_entry{};
+    arriving_entry.key = arriving_scope.selection.shader;
+    assert(!AttachPreviewSelectionScope(arriving_entry,
+                                        arriving_scope.selection,
+                                        &arriving_scope.recipe, &error));
+    arriving_entry.scopes.push_back(arriving_scope.selection.scope);
+    assert(AttachPreviewSelectionScope(arriving_entry,
+                                       arriving_scope.selection,
+                                       &arriving_scope.recipe, &error));
+
     PreviewPacketInputs replacement = Inputs();
     replacement.selection.mode = PreviewMode::Replacement;
     assert(!BuildPreviewPacket(replacement, &packet, &error));
