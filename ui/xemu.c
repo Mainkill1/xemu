@@ -122,6 +122,7 @@ static SDL_Cursor *guest_sprite;
 static Notifier mouse_mode_notifier;
 static SDL_Window *m_window;
 static bool g_shader_browser_window_on_start;
+static bool g_shader_browser_window_initializing;
 static SDL_GLContext m_context;
 static QemuSemaphore display_init_sem;
 static QemuSemaphore display_shutdown_sem;
@@ -926,6 +927,14 @@ static bool event_watch_callback(void *userdata, SDL_Event *event)
 {
     struct xemu_console *scon = (struct xemu_console *)userdata;
 
+    /* SDL may deliver expose/resize events synchronously from
+     * SDL_CreateWindow. Rendering here would try to take the nonrecursive
+     * main-loop lock already held by external window initialization. The
+     * regular frame loop will paint both windows after initialization. */
+    if (qatomic_read(&g_shader_browser_window_initializing)) {
+        return true;
+    }
+
     if (xemu_hud_is_external_window_event(event)) {
         return true;
     }
@@ -1520,12 +1529,15 @@ int main(int argc, char **argv)
     /* SDL windows must be created on the thread that pumps their events.
      * The HUD itself was initialized during QEMU display setup on qemu_main,
      * but poll_events() runs here on the process main thread. */
-    SDL_GL_MakeCurrent(m_window, m_context);
-    xemu_main_loop_lock();
-    xemu_hud_init_external_window(m_window, m_context,
-                                  g_shader_browser_window_on_start);
-    xemu_main_loop_unlock();
-    SDL_GL_MakeCurrent(NULL, NULL);
+    if (g_shader_browser_window_on_start) {
+        qatomic_set(&g_shader_browser_window_initializing, true);
+        SDL_GL_MakeCurrent(m_window, m_context);
+        xemu_main_loop_lock();
+        xemu_hud_init_external_window(m_window, m_context, true);
+        xemu_main_loop_unlock();
+        SDL_GL_MakeCurrent(NULL, NULL);
+        qatomic_set(&g_shader_browser_window_initializing, false);
+    }
 
     gui_grab = 0;
     if (gui_fullscreen) {
