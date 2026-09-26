@@ -2,9 +2,103 @@
 #include "shader-browser-preview-adapter.hh"
 
 #include <algorithm>
+#include <cmath>
+#include <cstring>
 #include <utility>
 
 namespace xemu::shader_browser {
+
+std::vector<uint8_t> EncodePreviewSyntheticFixture(
+    const PreviewSyntheticFixture &fixture)
+{
+    static_assert(sizeof(float) == 4, "Preview fixture expects 32-bit float");
+    std::vector<uint8_t> bytes;
+    bytes.reserve(kPreviewSyntheticFixtureBytes);
+    for (const auto &color : fixture.corner_colors) {
+        bytes.insert(bytes.end(), color.begin(), color.end());
+    }
+    for (const auto &texel : fixture.texture_texels) {
+        bytes.insert(bytes.end(), texel.begin(), texel.end());
+    }
+    auto append_float = [&bytes](float value) {
+        uint8_t data[sizeof(value)];
+        std::memcpy(data, &value, sizeof(value));
+        bytes.insert(bytes.end(), data, data + sizeof(data));
+    };
+    for (float value : fixture.uv_scale) append_float(value);
+    for (float value : fixture.uv_offset) append_float(value);
+    for (float value : fixture.constant_color) append_float(value);
+    for (float value : fixture.fog_color) append_float(value);
+    bytes.push_back(fixture.alpha_reference);
+    bytes.push_back(fixture.linear_filter);
+    bytes.push_back(fixture.repeat_wrap);
+    return bytes;
+}
+
+bool DecodePreviewSyntheticFixture(const std::vector<uint8_t> &bytes,
+                                   PreviewSyntheticFixture *fixture,
+                                   std::string *error)
+{
+    if (!fixture || bytes.size() != kPreviewSyntheticFixtureBytes) {
+        if (error) *error = "Synthetic fixture has an unsupported format";
+        return false;
+    }
+    PreviewSyntheticFixture decoded{};
+    size_t offset = 0;
+    for (auto &color : decoded.corner_colors) {
+        std::copy_n(bytes.data() + offset, color.size(), color.begin());
+        offset += color.size();
+    }
+    for (auto &texel : decoded.texture_texels) {
+        std::copy_n(bytes.data() + offset, texel.size(), texel.begin());
+        offset += texel.size();
+    }
+    auto read_float = [&bytes, &offset](float *value) {
+        std::memcpy(value, bytes.data() + offset, sizeof(*value));
+        offset += sizeof(*value);
+    };
+    for (float &value : decoded.uv_scale) read_float(&value);
+    for (float &value : decoded.uv_offset) read_float(&value);
+    for (float &value : decoded.constant_color) read_float(&value);
+    for (float &value : decoded.fog_color) read_float(&value);
+    decoded.alpha_reference = bytes[offset++];
+    decoded.linear_filter = bytes[offset++];
+    decoded.repeat_wrap = bytes[offset++];
+    auto valid_range = [](float value, float low, float high) {
+        return std::isfinite(value) && value >= low && value <= high;
+    };
+    for (float value : decoded.uv_scale) {
+        if (!valid_range(value, -4.0f, 4.0f)) {
+            if (error) *error = "Synthetic UV scale is outside [-4, 4]";
+            return false;
+        }
+    }
+    for (float value : decoded.uv_offset) {
+        if (!valid_range(value, -4.0f, 4.0f)) {
+            if (error) *error = "Synthetic UV offset is outside [-4, 4]";
+            return false;
+        }
+    }
+    for (float value : decoded.constant_color) {
+        if (!valid_range(value, 0.0f, 1.0f)) {
+            if (error) *error = "Synthetic constant color is outside [0, 1]";
+            return false;
+        }
+    }
+    for (float value : decoded.fog_color) {
+        if (!valid_range(value, 0.0f, 1.0f)) {
+            if (error) *error = "Synthetic fog color is outside [0, 1]";
+            return false;
+        }
+    }
+    if (decoded.linear_filter > 1 || decoded.repeat_wrap > 1) {
+        if (error) *error = "Synthetic texture sampler setting is unsupported";
+        return false;
+    }
+    *fixture = decoded;
+    if (error) error->clear();
+    return true;
+}
 
 bool CopyPreviewFragmentSource(const PreviewSelection &selection,
                                const DetailSnapshot &detail,
@@ -106,6 +200,11 @@ bool BuildPreviewPacket(const PreviewPacketInputs &inputs,
     }
     if (inputs.fixture_bytes.empty()) {
         return fail("Synthetic preview requires owned fixture bytes");
+    }
+    PreviewSyntheticFixture fixture{};
+    if (!DecodePreviewSyntheticFixture(inputs.fixture_bytes, &fixture,
+                                       error)) {
+        return false;
     }
     size_t remaining = kPreviewMaxOwnedPacketBytes;
     auto charge = [&remaining](size_t capacity) {

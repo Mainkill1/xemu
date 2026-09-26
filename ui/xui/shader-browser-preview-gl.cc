@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "shader-browser-preview-gl.hh"
 
+#include "shader-browser-preview-adapter.hh"
 #include "shader-browser-preview-service.hh"
 
 #include <SDL3/SDL.h>
@@ -227,12 +228,16 @@ struct PreviewGlExecutor::Impl {
     {
         if (!work.packet || !has_program ||
             work.compile_key != program_key ||
-            work.slot >= slots.size() ||
-            work.packet->fixture_bytes.size() != 16) {
+            work.slot >= slots.size()) {
             *error = "Private GL preview inputs are incomplete";
             return false;
         }
         const PreviewPacket &packet = *work.packet;
+        PreviewSyntheticFixture fixture{};
+        if (!DecodePreviewSyntheticFixture(packet.fixture_bytes, &fixture,
+                                           error)) {
+            return false;
+        }
         Slot &slot = slots[work.slot];
         if (!slot.texture) glGenTextures(1, &slot.texture);
         if (!slot.texture) {
@@ -260,16 +265,15 @@ struct PreviewGlExecutor::Impl {
             *error = "Private GL framebuffer is incomplete";
             return false;
         }
-        const auto &colors = packet.fixture_bytes;
         auto make_vertex = [&](float x, float y, float u, float v,
                                size_t corner) {
             Vertex vertex{};
             vertex.position[0] = x;
             vertex.position[1] = y;
-            vertex.uv[0] = u;
-            vertex.uv[1] = v;
+            vertex.uv[0] = u * fixture.uv_scale[0] + fixture.uv_offset[0];
+            vertex.uv[1] = v * fixture.uv_scale[1] + fixture.uv_offset[1];
             for (size_t c = 0; c < 4; ++c) {
-                vertex.color[c] = colors[corner * 4 + c] / 255.0f;
+                vertex.color[c] = fixture.corner_colors[corner][c] / 255.0f;
             }
             return vertex;
         };
@@ -308,6 +312,17 @@ struct PreviewGlExecutor::Impl {
         const GLfloat texture_scales[4] = {2.0f, 2.0f, 2.0f, 2.0f};
         location = glGetUniformLocation(program, "texScale[0]");
         if (location >= 0) glUniform1fv(location, 4, texture_scales);
+        for (size_t i = 0; i < 18; ++i) {
+            std::string name = "consts[" + std::to_string(i) + "]";
+            location = glGetUniformLocation(program, name.c_str());
+            if (location >= 0) {
+                glUniform4fv(location, 1, fixture.constant_color.data());
+            }
+        }
+        location = glGetUniformLocation(program, "fogColor");
+        if (location >= 0) glUniform4fv(location, 1, fixture.fog_color.data());
+        location = glGetUniformLocation(program, "alphaRef");
+        if (location >= 0) glUniform1i(location, fixture.alpha_reference);
         glBindVertexArray(vao);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
@@ -321,6 +336,16 @@ struct PreviewGlExecutor::Impl {
         glEnableVertexAttribArray(2);
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                               reinterpret_cast<const void *>(sizeof(float) * 6));
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, fixture_texture);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 2, 2, GL_RGBA,
+                        GL_UNSIGNED_BYTE, fixture.texture_texels.data());
+        const GLint filter = fixture.linear_filter ? GL_LINEAR : GL_NEAREST;
+        const GLint wrap = fixture.repeat_wrap ? GL_REPEAT : GL_CLAMP_TO_EDGE;
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
         for (int unit = 0; unit < 4; ++unit) {
             glActiveTexture(GL_TEXTURE0 + unit);
             glBindTexture(GL_TEXTURE_2D, fixture_texture);
