@@ -626,6 +626,10 @@ void xemu_hud_update_external(void)
     external.frame_ready = false;
     if (!external.enabled) return;
     if (!shader_browser_window.m_is_open) {
+        // The main HUD calls Draw() even after its window closes, which
+        // releases live collection and resident detail state. The external
+        // window has the same lifecycle although it no longer paints.
+        shader_browser_window.Draw();
         if (external.visible) {
             SDL_Window *main_window = SDL_GL_GetCurrentWindow();
             SDL_GLContext main_gl = SDL_GL_GetCurrentContext();
