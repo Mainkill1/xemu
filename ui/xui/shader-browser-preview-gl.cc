@@ -217,6 +217,28 @@ struct PreviewGlExecutor::Impl {
         glClearColor(0.08f, 0.08f, 0.08f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         glUseProgram(program);
+        // Resident xemu fragment sources expect the same clipping and
+        // coordinate uniforms as the game renderer. Give the private quad
+        // an explicit synthetic viewport instead of GL's zero defaults,
+        // which would discard every fragment in the window-clip loop.
+        std::array<GLint, 8 * 4> clip_regions{};
+        for (size_t i = 0; i < 8; ++i) {
+            clip_regions[i * 4 + 2] = static_cast<GLint>(packet.width);
+            clip_regions[i * 4 + 3] = static_cast<GLint>(packet.height);
+        }
+        GLint location = glGetUniformLocation(program, "clipRegion[0]");
+        if (location >= 0) {
+            glUniform4iv(location, 8, clip_regions.data());
+        }
+        location = glGetUniformLocation(program, "clipRange");
+        if (location >= 0) {
+            glUniform4f(location, 0.0f, 0.0f, -1.0e9f, 1.0e9f);
+        }
+        location = glGetUniformLocation(program, "surfaceScale");
+        if (location >= 0) glUniform2i(location, 1, 1);
+        const GLfloat texture_scales[4] = {2.0f, 2.0f, 2.0f, 2.0f};
+        location = glGetUniformLocation(program, "texScale[0]");
+        if (location >= 0) glUniform1fv(location, 4, texture_scales);
         glBindVertexArray(vao);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
@@ -234,8 +256,8 @@ struct PreviewGlExecutor::Impl {
             glActiveTexture(GL_TEXTURE0 + unit);
             glBindTexture(GL_TEXTURE_2D, fixture_texture);
             std::string name = "texSamp" + std::to_string(unit);
-            GLint location = glGetUniformLocation(program, name.c_str());
-            if (location >= 0) glUniform1i(location, unit);
+            GLint sampler_location = glGetUniformLocation(program, name.c_str());
+            if (sampler_location >= 0) glUniform1i(sampler_location, unit);
         }
         glDrawArrays(GL_TRIANGLES, 0, 6);
         GLenum gl_error = glGetError();
