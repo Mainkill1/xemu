@@ -737,8 +737,10 @@ External-window cleanup switches to the external browser GL context before
 preview shutdown and restores the main context afterward; the embedded browser
 shuts down in the main HUD context. A failed external-context switch is logged,
 and cleanup explicitly restores and checks the shared main context before using
-it as a fallback. If neither context is usable, preview shutdown stops/joins the
-worker without HUD GL calls and leaves GL objects for terminal SDL/share-group
+it as a fallback. Null saved window/context pairs are rejected instead of treating
+SDL's successful unbind as a restored context, and remaining GL backend teardown
+requires a real current context. If neither context is usable, preview shutdown
+stops/joins the worker without HUD GL calls and leaves GL objects for terminal SDL/share-group
 teardown; remaining ImGui GL cleanup is skipped with an error. The worker no
 longer deletes those output textures. On timeout, GL object lifetime rules
 preserve storage referenced by queued commands ([OpenGL 4.5, section 5.1.3](https://registry.khronos.org/OpenGL/specs/gl/glspec45.core.withchanges.pdf)).

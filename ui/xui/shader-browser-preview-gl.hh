@@ -11,6 +11,9 @@ struct SDL_Window;
 
 namespace xemu::shader_browser {
 
+// Unlike SDL_GL_MakeCurrent, a null pair is an error, never a valid unbind.
+bool MakePreviewHudContextCurrent(SDL_Window *window, void *context);
+
 struct PreviewViewSettings {
     float zoom = 1.0f;
     std::array<float, 2> center{0.5f, 0.5f};

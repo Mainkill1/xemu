@@ -1561,7 +1561,10 @@ int main(int argc, char **argv)
         poll_events(scon);
         gl_render_frame(scon);
     }
-    SDL_GL_MakeCurrent(scon->real_window, scon->winctx);
+    if (!SDL_GL_MakeCurrent(scon->real_window, scon->winctx)) {
+        fprintf(stderr, "HUD cleanup: main GL context switch failed: %s\n",
+                SDL_GetError());
+    }
     xemu_hud_cleanup();
     qemu_sem_post(&display_shutdown_sem);
     qemu_thread_join(&thread);
