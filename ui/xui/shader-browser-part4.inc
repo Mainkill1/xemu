@@ -148,6 +148,21 @@ void ShaderBrowserWindow::DrawLivePreview()
         service.SetRequestedMode(static_cast<PreviewMode>(mode));
     }
 
+    int mesh = static_cast<int>(m_preview_scene.mesh);
+    bool scene_changed = ImGui::Combo("Mesh", &mesh, "Quad\0Sphere\0Cube\0");
+    m_preview_scene.mesh = static_cast<PreviewMesh>(mesh);
+    scene_changed |= ImGui::SliderFloat("Orbit yaw", &m_preview_scene.yaw, -180, 180);
+    scene_changed |= ImGui::SliderFloat("Orbit pitch", &m_preview_scene.pitch, -85, 85);
+    scene_changed |= ImGui::SliderFloat("Zoom distance", &m_preview_scene.distance, 2.5f, 12);
+    scene_changed |= ImGui::SliderFloat2("Pan", m_preview_scene.pan.data(), -2, 2);
+    if (ImGui::Button("Reset camera")) {
+        auto mesh_kind = m_preview_scene.mesh;
+        m_preview_scene = {};
+        m_preview_scene.mesh = mesh_kind;
+        scene_changed = true;
+    }
+    if (scene_changed) service.EditScene(m_preview_scene);
+
     int policy = static_cast<int>(m_preview_update_policy);
     if (ImGui::Combo("Update policy", &policy, "On dirty\0Continuous\0")) {
         m_preview_update_policy = static_cast<PreviewUpdatePolicy>(policy);
@@ -307,7 +322,7 @@ void ShaderBrowserWindow::DrawLivePreview()
                 inputs.interface_abi = 1;
                 inputs.update_policy = m_preview_update_policy;
                 inputs.input_revision = m_preview_input_revision;
-                inputs.view_revision = 1;
+                inputs.scene = m_preview_scene;
                 bool source_ready = true;
                 if (selection.mode == PreviewMode::Replacement) {
                     const OverrideBackend backend =
