@@ -4,6 +4,8 @@ xemu_ss.add(files(
   'compat.cc',
   'debug.cc',
   'shader-browser-model.cc',
+  'shader-browser-details-model.cc',
+  'shader-browser-details-store.cc',
   'shader-browser-database.cc',
   'shader-browser-artifact-store.cc',
   'shader-browser-session-provider.cc',
@@ -46,6 +48,19 @@ shader_browser_model_test = executable(
   dependencies: [xxhash])
 test('test-xemu-shader-browser-model', shader_browser_model_test,
      suite: ['unit'])
+
+shader_browser_details_store_test = executable(
+  'test-xemu-shader-browser-details-store',
+  shader_browser_test_dir / 'test-xemu-shader-browser-details-store.cc',
+  files(
+    'shader-browser-model.cc',
+    'shader-browser-details-model.cc',
+    'shader-browser-details-store.cc',
+  ),
+  include_directories: shader_browser_test_inc,
+  dependencies: [xxhash])
+test('test-xemu-shader-browser-details-store',
+     shader_browser_details_store_test, suite: ['unit'])
 
 shader_browser_database_test = executable(
   'test-xemu-shader-browser-database',
