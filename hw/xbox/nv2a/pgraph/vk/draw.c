@@ -99,24 +99,38 @@ static bool pgraph_vk_override_skip_draw(
             &binding->browser);
         *browser = binding->browser;
     } else {
-        if (!renderer->override_probe_valid ||
-            pgraph_glsl_check_shader_state_dirty(
-                pg, &renderer->override_probe_state)) {
-            renderer->override_probe_state = pgraph_glsl_get_shader_state(pg);
-            memset(&renderer->override_probe_browser, 0,
-                   sizeof(renderer->override_probe_browser));
-            pgraph_shader_browser_publish_binding(
-                &renderer->override_probe_state,
-                pgraph_glsl_need_geom(&renderer->override_probe_state.geom),
-                &renderer->override_probe_browser);
-            renderer->override_probe_valid = true;
-        } else {
+        /* A skipped draw does not bind shaders or clear dirty registers.  Compare
+         * the complete state so repeated skips reuse one published identity. */
+        bool program_data_dirty = pg->program_data_dirty;
+        ShaderState state = pgraph_glsl_get_shader_state(pg);
+        pg->program_data_dirty = program_data_dirty;
+
+        if (binding && !memcmp(&state, &binding->state, sizeof(state))) {
             pgraph_shader_browser_refresh_binding_scope(
-                &renderer->override_probe_state,
-                pgraph_glsl_need_geom(&renderer->override_probe_state.geom),
-                &renderer->override_probe_browser);
+                &binding->state,
+                pgraph_glsl_need_geom(&binding->state.geom),
+                &binding->browser);
+            *browser = binding->browser;
+        } else {
+            if (!renderer->override_probe_valid ||
+                memcmp(&state, &renderer->override_probe_state,
+                       sizeof(state))) {
+                renderer->override_probe_state = state;
+                memset(&renderer->override_probe_browser, 0,
+                       sizeof(renderer->override_probe_browser));
+                pgraph_shader_browser_publish_binding(
+                    &renderer->override_probe_state,
+                    pgraph_glsl_need_geom(&renderer->override_probe_state.geom),
+                    &renderer->override_probe_browser);
+                renderer->override_probe_valid = true;
+            } else {
+                pgraph_shader_browser_refresh_binding_scope(
+                    &renderer->override_probe_state,
+                    pgraph_glsl_need_geom(&renderer->override_probe_state.geom),
+                    &renderer->override_probe_browser);
+            }
+            *browser = renderer->override_probe_browser;
         }
-        *browser = renderer->override_probe_browser;
     }
     const XemuShaderOverridePolicy *policy = &browser->vulkan_policy;
     if (policy->action != XEMU_SHADER_OVERRIDE_ACTION_SKIP_DRAW) {
