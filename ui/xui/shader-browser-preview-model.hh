@@ -126,6 +126,10 @@ struct PreviewSelection {
     bool operator!=(const PreviewSelection &other) const;
 };
 
+// Display compatibility ignores mode; all ownership epochs still match.
+bool SamePreviewDisplayScope(const PreviewSelection &lhs,
+                             const PreviewSelection &rhs);
+
 struct PreviewCompileKey {
     PreviewSelection selection;
     uint32_t recipe_format_version = 0;
@@ -139,6 +143,8 @@ struct PreviewCompileKey {
     bool operator==(const PreviewCompileKey &other) const;
     bool operator!=(const PreviewCompileKey &other) const;
 };
+
+std::string PreviewSourceIdentity(const PreviewCompileKey &key);
 
 struct PreviewResultKey {
     PreviewChannel channel = PreviewChannel::FinalRGBA;

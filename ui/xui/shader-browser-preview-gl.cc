@@ -143,6 +143,7 @@ struct PreviewGlExecutor::Impl {
     struct Retirement {
         PreviewFrameRef frame;
         GLsync fence = nullptr;
+        bool fence_failed = false;
     };
 
     SDL_Window *window = nullptr;
@@ -163,11 +164,13 @@ struct PreviewGlExecutor::Impl {
     PreviewFrameRef displayed;
     GLuint displayed_texture = 0;
     GLsync displayed_fence = nullptr;
+    bool displayed_fence_failed = false;
     bool has_displayed = false;
     bool sampled_this_frame = false;
     PreviewFrameRef frozen;
     GLuint frozen_texture = 0;
     GLsync frozen_fence = nullptr;
+    bool frozen_fence_failed = false;
     bool has_frozen = false;
     bool frozen_sampled_this_frame = false;
     std::vector<Retirement> retirements;
@@ -526,9 +529,8 @@ struct PreviewGlExecutor::Impl {
                 service.CompleteRender(work.token, ok, error, NowNs());
             }
         }
-        for (Slot &slot : slots) {
-            if (slot.texture) glDeleteTextures(1, &slot.texture);
-        }
+        // Output textures belong to the HUD until its last sampling retires.
+        // Shutdown deletes them on the consumer context after joining us.
         if (fixture_texture[0])
             glDeleteTextures(4, fixture_texture);
         if (fbo) glDeleteFramebuffers(1, &fbo);
@@ -543,7 +545,9 @@ struct PreviewGlExecutor::Impl {
         if (!has_displayed) return;
         GetPreviewService().ReleaseDisplayLease(displayed.slot,
                                                 displayed.slot_generation);
-        retirements.push_back({displayed, displayed_fence});
+        retirements.push_back(
+            { displayed, displayed_fence, displayed_fence_failed });
+        displayed_fence_failed = false;
         displayed_fence = nullptr;
         displayed_texture = 0;
         has_displayed = false;
@@ -554,7 +558,8 @@ struct PreviewGlExecutor::Impl {
         if (!has_frozen) return;
         GetPreviewService().ReleaseDisplayLease(frozen.slot,
                                                 frozen.slot_generation);
-        retirements.push_back({frozen, frozen_fence});
+        retirements.push_back({ frozen, frozen_fence, frozen_fence_failed });
+        frozen_fence_failed = false;
         frozen_fence = nullptr;
         frozen_texture = 0;
         has_frozen = false;
@@ -564,6 +569,12 @@ struct PreviewGlExecutor::Impl {
     {
         auto it = retirements.begin();
         while (it != retirements.end()) {
+            // A failed fence allocation is not retirement proof. Keep this
+            // bounded slot owned until terminal teardown rather than reuse it.
+            if (it->fence_failed) {
+                ++it;
+                continue;
+            }
             GLenum result = it->fence ? glClientWaitSync(it->fence, 0, 0) :
                                         GL_ALREADY_SIGNALED;
             if (result != GL_ALREADY_SIGNALED &&
@@ -626,19 +637,22 @@ void PreviewGlExecutor::DrawImage(float side,
 {
     Impl &impl = *impl_;
     impl.PollRetirements();
-    if (!selection || !impl.worker.joinable()) {
+    PreviewStatus status;
+    GetPreviewService().CopyStatus(&status);
+    if (!selection || !impl.worker.joinable() || !status.enabled ||
+        !status.visible) {
         impl.RetireDisplayed();
         impl.RetireFrozen();
         ImGui::TextDisabled("Private preview is not prepared");
         return;
     }
     if (impl.has_frozen &&
-        impl.frozen.result_key.compile.selection != *selection) {
+        !SamePreviewDisplayScope(impl.frozen.result_key.compile.selection,
+                                 *selection)) {
         impl.RetireFrozen();
     }
     PreviewFrameRef ready{};
     if (GetPreviewService().TryAcquireReadyFrame(&ready, now_ns)) {
-        impl.RetireDisplayed();
         GLuint texture = 0;
         {
             std::lock_guard<std::mutex> lock(impl.slots_mutex);
@@ -653,13 +667,15 @@ void PreviewGlExecutor::DrawImage(float side,
             GetPreviewService().CompleteDisplayRetirement(
                 ready.slot, ready.slot_generation);
         } else {
+            impl.RetireDisplayed();
             impl.displayed = ready;
             impl.displayed_texture = texture;
             impl.has_displayed = true;
         }
     }
     if (impl.has_displayed &&
-        impl.displayed.result_key.compile.selection != *selection) {
+        !SamePreviewDisplayScope(impl.displayed.result_key.compile.selection,
+                                 *selection)) {
         impl.RetireDisplayed();
     }
     if (!impl.has_displayed && !impl.has_frozen) {
@@ -675,15 +691,28 @@ void PreviewGlExecutor::DrawImage(float side,
     view->center[1] = std::clamp(view->center[1], half, 1.0f - half);
     const ImVec2 uv0(view->center[0] - half, view->center[1] + half);
     const ImVec2 uv1(view->center[0] + half, view->center[1] - half);
-    const float image_side = impl.has_displayed && impl.has_frozen ?
-        std::max(1.0f, (side - 8.0f) * 0.5f) : std::max(1.0f, side);
-    auto draw = [&](const char *label, PreviewChannel channel, GLuint texture,
-                    bool *sampled, bool pannable) {
+    const float image_side = impl.has_frozen ?
+                                 std::max(1.0f, (side - 8.0f) * 0.5f) :
+                                 std::max(1.0f, side);
+    auto draw = [&](const char *label, const PreviewFrameRef &frame,
+                    GLuint texture, bool *sampled, bool pannable) {
+        const PreviewChannel channel = frame.result_key.channel;
+        const auto &origin = frame.result_key.compile;
+        const bool stale =
+            pannable &&
+            (!status.has_packet || status.state == PreviewState::Failed ||
+             status.state == PreviewState::Unsupported ||
+             (status.has_attempt && origin != status.attempted_compile));
         ImGui::BeginGroup();
+        ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + image_side);
+        ImGui::TextWrapped("%s%s: %s", label, stale ? " — STALE" : "",
+                           PreviewModeLabel(origin.selection.mode));
+        ImGui::TextWrapped("Source: %s", PreviewSourceIdentity(origin).c_str());
         ImGui::TextDisabled("%s: %s", label, PreviewChannelLabel(channel));
         if (ImGui::IsItemHovered()) {
             ImGui::SetTooltip("%s", PreviewChannelProvenance(channel));
         }
+        ImGui::PopTextWrapPos();
         const ImVec2 position = ImGui::GetCursorScreenPos();
         ImDrawList *list = ImGui::GetWindowDrawList();
         const float tile = image_side / 8.0f;
@@ -713,13 +742,18 @@ void PreviewGlExecutor::DrawImage(float side,
         ImGui::EndGroup();
     };
     if (impl.has_frozen) {
-        draw("Frozen", impl.frozen.result_key.channel, impl.frozen_texture,
+        draw("Reference (frozen)", impl.frozen, impl.frozen_texture,
              &impl.frozen_sampled_this_frame, false);
-        if (impl.has_displayed) ImGui::SameLine();
+        ImGui::SameLine();
     }
     if (impl.has_displayed) {
-        draw("Current", impl.displayed.result_key.channel,
-             impl.displayed_texture, &impl.sampled_this_frame, true);
+        draw("Current", impl.displayed, impl.displayed_texture,
+             &impl.sampled_this_frame, true);
+    } else if (impl.has_frozen) {
+        // Freeze transfers one lease; until a new Current arrives both views
+        // sample the same last-good texture, covered by the Reference fence.
+        draw("Current", impl.frozen, impl.frozen_texture,
+             &impl.frozen_sampled_this_frame, true);
     }
 }
 
@@ -747,12 +781,15 @@ bool PreviewGlExecutor::FreezeDisplayed()
     impl.frozen = impl.displayed;
     impl.frozen_texture = impl.displayed_texture;
     impl.frozen_fence = impl.displayed_fence;
+    impl.frozen_fence_failed = impl.displayed_fence_failed;
+    impl.displayed_fence_failed = false;
     impl.has_frozen = true;
     impl.frozen_sampled_this_frame = false;
     impl.displayed_fence = nullptr;
     impl.displayed_texture = 0;
     impl.has_displayed = false;
     impl.sampled_this_frame = false;
+    GetPreviewService().RequestCurrentFrame();
     return true;
 }
 
@@ -767,6 +804,7 @@ void PreviewGlExecutor::AfterHudRender()
     if (impl.has_displayed && impl.sampled_this_frame) {
         if (impl.displayed_fence) glDeleteSync(impl.displayed_fence);
         impl.displayed_fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+        impl.displayed_fence_failed = !impl.displayed_fence;
         glFlush();
     } else if (impl.has_displayed) {
         impl.RetireDisplayed();
@@ -775,6 +813,7 @@ void PreviewGlExecutor::AfterHudRender()
     if (impl.has_frozen && impl.frozen_sampled_this_frame) {
         if (impl.frozen_fence) glDeleteSync(impl.frozen_fence);
         impl.frozen_fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+        impl.frozen_fence_failed = !impl.frozen_fence;
         glFlush();
     } else if (impl.has_frozen) {
         impl.RetireFrozen();
@@ -790,12 +829,35 @@ void PreviewGlExecutor::Shutdown()
     if (impl.worker.joinable()) impl.worker.join();
     impl.RetireDisplayed();
     impl.RetireFrozen();
+    // Terminal HUD cleanup only. Ordinary tab close/disable uses zero-time
+    // PollRetirements and never waits. Bound the aggregate terminal fence wait.
+    const uint64_t deadline = NowNs() + UINT64_C(1000000000);
     for (Impl::Retirement &retirement : impl.retirements) {
-        if (retirement.fence) glDeleteSync(retirement.fence);
-        GetPreviewService().CompleteDisplayRetirement(
-            retirement.frame.slot, retirement.frame.slot_generation);
+        if (retirement.fence) {
+            const uint64_t now = NowNs();
+            glClientWaitSync(retirement.fence, GL_SYNC_FLUSH_COMMANDS_BIT,
+                             now < deadline ? deadline - now : 0);
+            glDeleteSync(retirement.fence);
+        }
     }
     impl.retirements.clear();
+    // GL 4.5 section 5.1.3: deletion does not destroy objects still used by
+    // queued commands. Delete in the consuming context, including on timeout;
+    // never recycle these texture objects or claim a fence has signaled.
+    const bool had_backend = impl.context != nullptr;
+    for (Impl::Slot &slot : impl.slots) {
+        if (slot.texture)
+            glDeleteTextures(1, &slot.texture);
+        slot = {};
+    }
+    if (had_backend)
+        GetPreviewService().BackendDestroyed();
+    impl.program = impl.vao = impl.vbo = impl.fbo = 0;
+    std::fill(std::begin(impl.fixture_texture), std::end(impl.fixture_texture),
+              0);
+    impl.has_program = false;
+    impl.program_key = {};
+    impl.sampled_this_frame = impl.frozen_sampled_this_frame = false;
     if (impl.context) SDL_GL_DestroyContext(impl.context);
     if (impl.window) SDL_DestroyWindow(impl.window);
     impl.context = nullptr;
