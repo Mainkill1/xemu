@@ -10,6 +10,7 @@ static uint32_t published_stages[8];
 static uint32_t published_titles[8];
 static size_t published_count;
 static int artifacts_enabled;
+static int monitoring_enabled = 1;
 static size_t artifact_count;
 
 uint64_t xemu_shader_browser_scope_generation(void)
@@ -53,6 +54,11 @@ int xemu_shader_browser_external_artifacts_enabled(void)
     return artifacts_enabled;
 }
 
+int xemu_shader_browser_monitoring_enabled(void)
+{
+    return monitoring_enabled;
+}
+
 int xemu_shader_browser_publish_external_artifact(
     const XemuShaderBrowserExternalArtifact *artifact)
 {
@@ -81,6 +87,14 @@ int main(void)
 
     pgraph_shader_browser_refresh_binding_scope(&state, false, &binding);
     assert(published_count == 2);
+    monitoring_enabled = 0;
+    ++generation;
+    pgraph_shader_browser_refresh_binding_scope(&state, false, &binding);
+    assert(published_count == 2 && binding.scope_generation == 7);
+    monitoring_enabled = 1;
+    pgraph_shader_browser_refresh_binding_scope(&state, false, &binding);
+    assert(published_count == 4 && binding.scope_generation == generation);
+    published_count = 2;
     title_id = 0x54540001;
     ++generation;
     pgraph_shader_browser_refresh_binding_scope(&state, false, &binding);

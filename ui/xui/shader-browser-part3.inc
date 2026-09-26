@@ -88,10 +88,18 @@ void ShaderBrowserWindow::DrawOverview()
 
 void ShaderBrowserWindow::DrawSettings()
 {
+    const bool monitoring_off =
+        g_config.shader_browser.profiling.monitoring_level == 0;
+    ImGui::BeginDisabled(monitoring_off);
     if (ImGui::Checkbox("Collect live usage while this window is open",
                         &m_collection_requested)) {
         GetProvider().SetLiveCollectionEnabled(m_collection_requested);
         m_snapshot.live_collection_enabled = m_collection_requested;
+    }
+    ImGui::EndDisabled();
+    if (monitoring_off) {
+        ImGui::TextDisabled(
+            "Live monitoring is Off. Change it in the Advanced menu.");
     }
     ImGui::TextDisabled(
         "Live browsing works without database persistence. Persistent storage "

@@ -57,7 +57,8 @@ void pgraph_shader_browser_record_draw(PGRAPHShaderBrowserObservations *batch,
                                        PGRAPHShaderBrowserBinding *binding,
                                        uint64_t frame, uint32_t pixel_route)
 {
-    if (!batch || !binding || !binding->count) {
+    if (!batch || !binding || !binding->count ||
+        !xemu_shader_browser_monitoring_enabled()) {
         return;
     }
     /* A title transition must not put the old title's draws in the new

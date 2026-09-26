@@ -319,6 +319,7 @@ void xemu_hud_init(SDL_Window* window, void* sdl_gl_context)
     g_shader_browser_next_scope_poll_ms = 0;
     char *shader_config_dir = g_path_get_dirname(xemu_settings_get_path());
     if (xemu_shader_browser_session_install(shader_config_dir)) {
+        ShaderBrowserApplyProfilingSettings();
         char error[256] = {};
         if (!xemu_shader_browser_database_configure(
                 g_config.shader_browser.database.enabled,

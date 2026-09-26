@@ -75,6 +75,7 @@
 
     bool CollectionRequired() const
     {
+        if (!MonitoringEnabled()) return false;
         if (live_collection_enabled.load(std::memory_order_acquire)) return true;
         std::lock_guard<std::mutex> lock(performance_mutex);
         return database.RecordPerformanceSessions() &&
@@ -83,7 +84,7 @@
 
     bool ExternalArtifactsEnabled() const
     {
-        return database.SaveExternalArtifacts();
+        return MonitoringEnabled() && database.SaveExternalArtifacts();
     }
 
     void PublishObservations(const XemuShaderBrowserObservation *observations,
@@ -120,7 +121,8 @@
 
     void PublishFrame(uint64_t frame)
     {
-        if (!live_collection_enabled.load(std::memory_order_acquire)) return;
+        if (!MonitoringEnabled() ||
+            !live_collection_enabled.load(std::memory_order_acquire)) return;
         std::shared_lock<std::shared_mutex> lifecycle(lifecycle_mutex);
         if (!installed) return;
         QueuedEvent event{};

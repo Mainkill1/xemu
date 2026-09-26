@@ -5,6 +5,7 @@
 #include <string.h>
 
 static bool collection_enabled;
+static bool monitoring_enabled = true;
 static XemuShaderBrowserObservation published[16];
 static size_t published_count;
 static uint64_t published_epochs[16];
@@ -14,6 +15,11 @@ static uint64_t last_frame;
 int xemu_shader_browser_session_collection_enabled(void)
 {
     return collection_enabled;
+}
+
+int xemu_shader_browser_monitoring_enabled(void)
+{
+    return monitoring_enabled;
 }
 
 void xemu_shader_browser_publish_observations(
@@ -48,6 +54,11 @@ int main(void)
     binding.timings_pending = true;
 
     collection_enabled = true;
+    monitoring_enabled = false;
+    pgraph_shader_browser_record_draw(&batch, &binding, 9,
+                                      XEMU_SHADER_BROWSER_ROUTE_UBER);
+    assert(batch.used == 0 && batch.draw_poll_count == 0);
+    monitoring_enabled = true;
     pgraph_shader_browser_record_draw(&batch, &binding, 10,
                                       XEMU_SHADER_BROWSER_ROUTE_UBER);
     pgraph_shader_browser_record_draw(&batch, &binding, 11,

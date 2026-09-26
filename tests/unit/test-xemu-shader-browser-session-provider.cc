@@ -26,6 +26,45 @@ int main()
                                                    error, sizeof(error)));
     assert(!xemu_shader_browser_external_artifacts_enabled());
 
+    // Off is a real zero-monitoring mode, including when the browser asks
+    // for live collection. CPU/GPU switches are effective only in Diagnostic.
+    assert(!xemu_shader_browser_monitoring_enabled());
+    assert(!xemu_shader_browser_cpu_profiling_enabled());
+    assert(!xemu_shader_browser_gpu_profiling_enabled());
+    GetProvider().SetLiveCollectionEnabled(true);
+    assert(!xemu_shader_browser_session_collection_enabled());
+    xemu_shader_browser_publish_frame(1);
+    Snapshot off_snapshot{};
+    assert(GetProvider().CopySnapshot(&off_snapshot));
+    assert(off_snapshot.current_frame == 0);
+    uint64_t off_generation = xemu_shader_browser_scope_generation();
+    XemuShaderBrowserProfilingConfig profiling{};
+    profiling.monitoring_level = XEMU_SHADER_BROWSER_MONITOR_BASIC;
+    profiling.cpu_timing = 1;
+    profiling.gpu_timing = 1;
+    profiling.draw_sample_interval = 0;
+    profiling.max_gpu_samples_per_frame = 1000;
+    xemu_shader_browser_configure_profiling(&profiling);
+    assert(xemu_shader_browser_scope_generation() > off_generation);
+    assert(xemu_shader_browser_monitoring_enabled());
+    assert(xemu_shader_browser_session_collection_enabled());
+    assert(!xemu_shader_browser_cpu_profiling_enabled());
+    assert(!xemu_shader_browser_gpu_profiling_enabled());
+    profiling.monitoring_level = XEMU_SHADER_BROWSER_MONITOR_DIAGNOSTIC;
+    xemu_shader_browser_configure_profiling(&profiling);
+    assert(xemu_shader_browser_cpu_profiling_enabled());
+    assert(xemu_shader_browser_gpu_profiling_enabled());
+    XemuShaderBrowserProfilingConfig effective{};
+    xemu_shader_browser_copy_profiling_config(&effective);
+    assert(effective.draw_sample_interval == 1);
+    assert(effective.max_gpu_samples_per_frame == 64);
+    profiling.monitoring_level = XEMU_SHADER_BROWSER_MONITOR_OFF;
+    xemu_shader_browser_configure_profiling(&profiling);
+    assert(!xemu_shader_browser_session_collection_enabled());
+    profiling.monitoring_level = XEMU_SHADER_BROWSER_MONITOR_BASIC;
+    xemu_shader_browser_configure_profiling(&profiling);
+    GetProvider().SetLiveCollectionEnabled(false);
+
     XemuShaderBrowserScope current_scope{};
     uint64_t initial_scope_generation =
         xemu_shader_browser_copy_current_scope(&current_scope);

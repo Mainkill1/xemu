@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "shader-browser.hh"
+#include "shader-browser-session-provider.hh"
 
 #include "common.hh"
 #include "viewport-manager.hh"
@@ -15,6 +16,24 @@
 using namespace xemu::shader_browser;
 
 ShaderBrowserWindow shader_browser_window;
+
+void ShaderBrowserApplyProfilingSettings()
+{
+    auto &settings = g_config.shader_browser.profiling;
+    settings.monitoring_level = std::clamp(
+        settings.monitoring_level, 0, 2);
+    settings.draw_sample_interval = std::clamp(
+        settings.draw_sample_interval, 1, 4096);
+    settings.max_gpu_samples_per_frame = std::clamp(
+        settings.max_gpu_samples_per_frame, 1, 64);
+    XemuShaderBrowserProfilingConfig config{};
+    config.monitoring_level = settings.monitoring_level;
+    config.cpu_timing = settings.cpu_timing;
+    config.gpu_timing = settings.gpu_timing;
+    config.draw_sample_interval = settings.draw_sample_interval;
+    config.max_gpu_samples_per_frame = settings.max_gpu_samples_per_frame;
+    xemu_shader_browser_configure_profiling(&config);
+}
 
 namespace {
 

@@ -13,6 +13,8 @@
         discovered_records;
 
     std::atomic<bool> live_collection_enabled{false};
+    std::atomic<uint64_t> profiling_word{
+        (uint64_t)128 << 4 | (uint64_t)4 << 17};
     std::atomic<uint64_t> live_epoch{1};
     std::mutex live_queue_mutex;
     std::vector<QueuedEvent> live_events;
@@ -73,6 +75,33 @@ int xemu_shader_browser_session_install(const char *base_path)
 void xemu_shader_browser_session_uninstall(void)
 {
     xemu::shader_browser::provider.Uninstall();
+}
+
+void xemu_shader_browser_configure_profiling(
+    const XemuShaderBrowserProfilingConfig *config)
+{
+    xemu::shader_browser::provider.ConfigureProfiling(config);
+}
+
+void xemu_shader_browser_copy_profiling_config(
+    XemuShaderBrowserProfilingConfig *config)
+{
+    xemu::shader_browser::provider.CopyProfilingConfig(config);
+}
+
+int xemu_shader_browser_monitoring_enabled(void)
+{
+    return xemu::shader_browser::provider.MonitoringEnabled() ? 1 : 0;
+}
+
+int xemu_shader_browser_cpu_profiling_enabled(void)
+{
+    return xemu::shader_browser::provider.CpuProfilingEnabled() ? 1 : 0;
+}
+
+int xemu_shader_browser_gpu_profiling_enabled(void)
+{
+    return xemu::shader_browser::provider.GpuProfilingEnabled() ? 1 : 0;
 }
 
 void xemu_shader_browser_set_current_scope(

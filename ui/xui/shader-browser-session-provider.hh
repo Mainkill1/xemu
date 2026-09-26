@@ -11,6 +11,20 @@ extern "C" {
 #define XEMU_SHADER_BROWSER_HASH_BYTES 12
 #define XEMU_SHADER_BROWSER_EXECUTABLE_FINGERPRINT_BYTES 32
 
+typedef enum XemuShaderBrowserMonitoringLevel {
+    XEMU_SHADER_BROWSER_MONITOR_OFF = 0,
+    XEMU_SHADER_BROWSER_MONITOR_BASIC = 1,
+    XEMU_SHADER_BROWSER_MONITOR_DIAGNOSTIC = 2,
+} XemuShaderBrowserMonitoringLevel;
+
+typedef struct XemuShaderBrowserProfilingConfig {
+    uint32_t monitoring_level;
+    int cpu_timing;
+    int gpu_timing;
+    uint32_t draw_sample_interval;
+    uint32_t max_gpu_samples_per_frame;
+} XemuShaderBrowserProfilingConfig;
+
 typedef enum XemuShaderBrowserStage {
     XEMU_SHADER_BROWSER_STAGE_VERTEX = 1,
     XEMU_SHADER_BROWSER_STAGE_PIXEL = 2,
@@ -143,6 +157,13 @@ typedef struct XemuShaderBrowserExternalArtifact {
 // here. Persistence is enabled separately from the user configuration.
 int xemu_shader_browser_session_install(const char *base_path);
 void xemu_shader_browser_session_uninstall(void);
+void xemu_shader_browser_configure_profiling(
+    const XemuShaderBrowserProfilingConfig *config);
+void xemu_shader_browser_copy_profiling_config(
+    XemuShaderBrowserProfilingConfig *config);
+int xemu_shader_browser_monitoring_enabled(void);
+int xemu_shader_browser_cpu_profiling_enabled(void);
+int xemu_shader_browser_gpu_profiling_enabled(void);
 
 // The UI publishes the active XBE scope when it changes. Renderer discovery
 // copies it at binding creation, outside the ordinary draw path. A changed

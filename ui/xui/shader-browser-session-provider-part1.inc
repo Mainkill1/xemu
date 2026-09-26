@@ -148,6 +148,60 @@ struct PerformanceEntry {
 
 class SessionProvider final : public Provider {
 public:
+    void ConfigureProfiling(const XemuShaderBrowserProfilingConfig *config)
+    {
+        if (!config) return;
+        const uint32_t level = config->monitoring_level <=
+                                       XEMU_SHADER_BROWSER_MONITOR_DIAGNOSTIC ?
+                                   config->monitoring_level :
+                                   static_cast<uint32_t>(
+                                       XEMU_SHADER_BROWSER_MONITOR_OFF);
+        const uint32_t interval = std::clamp(
+            config->draw_sample_interval, 1U, 4096U);
+        const uint32_t maximum = std::clamp(
+            config->max_gpu_samples_per_frame, 1U, 64U);
+        const uint64_t next = level |
+                              (uint64_t)(config->cpu_timing != 0) << 2 |
+                              (uint64_t)(config->gpu_timing != 0) << 3 |
+                              (uint64_t)interval << 4 |
+                              (uint64_t)maximum << 17;
+        const uint64_t previous = profiling_word.exchange(
+            next, std::memory_order_acq_rel);
+        if ((previous & 3U) != level) {
+            scope_generation.fetch_add(1, std::memory_order_release);
+        }
+    }
+
+    void CopyProfilingConfig(XemuShaderBrowserProfilingConfig *config) const
+    {
+        if (!config) return;
+        const uint64_t word = profiling_word.load(std::memory_order_acquire);
+        config->monitoring_level = word & 3U;
+        config->cpu_timing = (word >> 2) & 1U;
+        config->gpu_timing = (word >> 3) & 1U;
+        config->draw_sample_interval = (word >> 4) & 0x1fffU;
+        config->max_gpu_samples_per_frame = (word >> 17) & 0x7fU;
+    }
+
+    bool MonitoringEnabled() const
+    {
+        return (profiling_word.load(std::memory_order_relaxed) & 3U) != 0;
+    }
+
+    bool CpuProfilingEnabled() const
+    {
+        const uint64_t word = profiling_word.load(std::memory_order_relaxed);
+        return (word & 3U) == XEMU_SHADER_BROWSER_MONITOR_DIAGNOSTIC &&
+               (word & (1U << 2));
+    }
+
+    bool GpuProfilingEnabled() const
+    {
+        const uint64_t word = profiling_word.load(std::memory_order_relaxed);
+        return (word & 3U) == XEMU_SHADER_BROWSER_MONITOR_DIAGNOSTIC &&
+               (word & (1U << 3));
+    }
+
     bool Install(const char *new_base_path)
     {
         Uninstall();

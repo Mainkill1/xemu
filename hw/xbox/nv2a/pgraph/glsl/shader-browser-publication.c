@@ -55,7 +55,7 @@ void pgraph_shader_browser_refresh_binding_scope(
     const ShaderState *state, bool geometry_needed,
     PGRAPHShaderBrowserBinding *binding)
 {
-    if (binding &&
+    if (binding && xemu_shader_browser_monitoring_enabled() &&
         binding->scope_generation != xemu_shader_browser_scope_generation()) {
         pgraph_shader_browser_publish_binding(state, geometry_needed, binding);
     }

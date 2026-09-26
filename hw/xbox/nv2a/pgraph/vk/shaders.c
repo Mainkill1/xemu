@@ -561,7 +561,8 @@ static void publish_vk_stage_artifacts(const ShaderState *state,
 
 static void shader_cache_entry_init(Lru *lru, LruNode *node, const void *key)
 {
-    int64_t shader_prepare_start = g_get_monotonic_time();
+    bool profile_cpu = xemu_shader_browser_cpu_profiling_enabled();
+    int64_t shader_prepare_start = profile_cpu ? g_get_monotonic_time() : 0;
     PGRAPHVkState *r = container_of(lru, PGRAPHVkState, shader_cache);
     ShaderBinding *binding = container_of(node, ShaderBinding, node);
     const ShaderBindingKey *binding_key = key;
@@ -597,7 +598,7 @@ static void shader_cache_entry_init(Lru *lru, LruNode *node, const void *key)
            (binding->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER));
 
     update_shader_uniform_locs(binding);
-    if (xemu_shader_browser_session_collection_enabled()) {
+    if (profile_cpu) {
         binding->browser.prepare_cpu_ns =
             (uint64_t)(g_get_monotonic_time() - shader_prepare_start) * 1000;
         binding->browser.timings_pending = true;

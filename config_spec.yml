@@ -432,6 +432,22 @@ perf:
     default: true
 
 shader_browser:
+  profiling:
+    monitoring_level:
+      type: integer
+      default: 0
+    cpu_timing:
+      type: bool
+      default: false
+    gpu_timing:
+      type: bool
+      default: false
+    draw_sample_interval:
+      type: integer
+      default: 128
+    max_gpu_samples_per_frame:
+      type: integer
+      default: 4
   database:
     enabled:
       type: bool

@@ -841,9 +841,11 @@ void pgraph_gl_bind_shaders(PGRAPHState *pg)
 
     if (!binding->initialized && !pgraph_gl_shader_load_from_memory(binding)) {
         nv2a_profile_inc_counter(NV2A_PROF_SHADER_GEN);
-        int64_t shader_compile_start = g_get_monotonic_time();
+        bool profile_cpu = xemu_shader_browser_cpu_profiling_enabled();
+        int64_t shader_compile_start = profile_cpu ?
+            g_get_monotonic_time() : 0;
         generate_shaders(r, binding);
-        if (xemu_shader_browser_session_collection_enabled()) {
+        if (profile_cpu) {
             binding->browser.compile_cpu_ns =
                 (uint64_t)(g_get_monotonic_time() - shader_compile_start) *
                 1000;
