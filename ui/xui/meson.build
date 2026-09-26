@@ -22,6 +22,7 @@ xemu_ss.add(files(
   'shader-browser-session-provider.cc',
   'shader-browser-preview-model.cc',
   'shader-browser-preview-adapter.cc',
+  'shader-browser-preview-health.cc',
   'shader-browser-preview-service.cc',
   'shader-browser-preview-service-work.cc',
   'shader-browser-preview-service-slots.cc',
@@ -249,6 +250,14 @@ shader_browser_preview_adapter_test = executable(
   dependencies: [xxhash])
 test('test-xemu-shader-browser-preview-adapter',
      shader_browser_preview_adapter_test, suite: ['unit'])
+
+shader_browser_preview_health_test = executable(
+  'test-xemu-shader-browser-preview-health',
+  shader_browser_test_dir / 'test-xemu-shader-browser-preview-health.cc',
+  files('shader-browser-preview-health.cc'),
+  include_directories: shader_browser_test_inc)
+test('test-xemu-shader-browser-preview-health',
+     shader_browser_preview_health_test, suite: ['unit'])
 
 shader_browser_preview_service_test = executable(
   'test-xemu-shader-browser-preview-service',
