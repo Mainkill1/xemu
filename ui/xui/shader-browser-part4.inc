@@ -161,8 +161,8 @@ void ShaderBrowserWindow::DrawLivePreview()
     }
 
     const Entry *entry = SelectedEntry();
+    PreviewSelection selection{};
     if (entry) {
-        PreviewSelection selection{};
         selection.shader = entry->key;
         selection.session_epoch = m_snapshot.session_epoch;
         selection.renderer_epoch = nv2a_profile_preview_renderer_epoch();
@@ -267,12 +267,14 @@ void ShaderBrowserWindow::DrawLivePreview()
     }
 
     service.CopyStatus(&status);
-    ImGui::SameLine();
     ImGui::BeginDisabled(!status.has_packet || !status.guest_paused ||
                          status.work_active || status.prepared);
     if (ImGui::Button("Prepare while paused")) {
         std::string error;
         if (!service.RequestPreparation(&error)) {
+            m_action_message = error;
+        } else if (selection.backend == PreviewBackend::OpenGL &&
+                   !GetPreviewGlExecutor().StartWhilePaused(&error)) {
             m_action_message = error;
         }
     }
@@ -315,11 +317,15 @@ void ShaderBrowserWindow::DrawLivePreview()
     if (ImGui::BeginChild("##preview-output", ImVec2(side, side), true)) {
         ImGui::TextDisabled("Synthetic inputs — not an in-game draw");
         ImGui::Separator();
-        ImGui::TextWrapped(
-            "Selected recipe, resident source, replacement payload, and "
-            "synthetic inputs are copied into a bounded private request. "
-            "Native OpenGL/Vulkan execution is still being built; this "
-            "draft does not create preview GPU work.");
+        if (entry && selection.backend == PreviewBackend::OpenGL) {
+            GetPreviewGlExecutor().DrawImage(side - 16.0f,
+                                             enabled ? &selection : nullptr,
+                                             now_ns);
+        } else {
+            ImGui::TextWrapped(
+                "Private Vulkan execution and presentation are still being "
+                "built; no Vulkan preview GPU work is submitted.");
+        }
         if (entry) {
             ImGui::Spacing();
             ImGui::Text("Selected: %s", StageLabel(entry->key.stage));

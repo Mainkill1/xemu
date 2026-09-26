@@ -224,8 +224,17 @@ void ShaderBrowserWindow::Draw()
     ImGui::SetNextWindowSize(initial, ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSizeConstraints(minimum, work);
 
-    if (!ImGui::Begin("Shader Browser", &m_is_open,
-                      ImGuiWindowFlags_NoCollapse)) {
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoCollapse;
+    if (xemu_hud_shader_browser_external()) {
+        const ImGuiViewport *viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(viewport->WorkPos, ImGuiCond_Always);
+        ImGui::SetNextWindowSize(viewport->WorkSize, ImGuiCond_Always);
+        window_flags |= ImGuiWindowFlags_NoTitleBar |
+                        ImGuiWindowFlags_NoResize |
+                        ImGuiWindowFlags_NoMove;
+    }
+
+    if (!ImGui::Begin("Shader Browser", &m_is_open, window_flags)) {
         ImGui::End();
         GetPreviewService().SetVisible(false, PreviewNowNs());
         if (!m_is_open) {

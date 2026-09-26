@@ -40,10 +40,15 @@ void xemu_main_loop_lock(void);
 void xemu_main_loop_unlock(void);
 
 // Implemented in xemu_hud.cc
-void xemu_hud_init(SDL_Window *window, void *sdl_gl_context);
+void xemu_hud_init(SDL_Window *window, void *sdl_gl_context,
+                   bool shader_browser_window_on_start);
 void xemu_hud_cleanup(void);
 void xemu_hud_update(void);
 void xemu_hud_render(void);
+void xemu_hud_update_external(void);
+void xemu_hud_render_external(void);
+bool xemu_hud_is_external_window_event(const SDL_Event *event);
+bool xemu_hud_shader_browser_external(void);
 void xemu_hud_process_sdl_events(SDL_Event *event);
 void xemu_hud_should_capture_kbd_mouse(int *kbd, int *mouse);
 void xemu_hud_set_framebuffer_texture(GLuint tex, bool flip);

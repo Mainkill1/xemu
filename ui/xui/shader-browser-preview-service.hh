@@ -53,7 +53,8 @@ public:
     bool RequestPreparation(std::string *error);
     void UpdateHealth(const PreviewHealth &health);
 
-    bool TryClaimWork(uint64_t now_ns, PreviewWorkItem *work);
+    bool TryClaimWork(uint64_t now_ns, PreviewWorkItem *work,
+                      PreviewBackend backend_filter = PreviewBackend::Unknown);
     bool CompletePreparation(uint64_t token, bool success,
                              const std::string &status, uint64_t now_ns);
     bool CompleteRender(uint64_t token, bool success,

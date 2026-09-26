@@ -121,6 +121,7 @@ static int guest_x, guest_y;
 static SDL_Cursor *guest_sprite;
 static Notifier mouse_mode_notifier;
 static SDL_Window *m_window;
+static bool g_shader_browser_window_on_start;
 static SDL_GLContext m_context;
 static QemuSemaphore display_init_sem;
 static QemuSemaphore display_shutdown_sem;
@@ -888,6 +889,7 @@ static void gl_render_frame(struct xemu_console *scon)
      */
     xemu_main_loop_lock();
     xemu_hud_update();
+    xemu_hud_update_external();
     xemu_main_loop_unlock();
 
     xemu_hud_render();
@@ -912,6 +914,7 @@ static void gl_render_frame(struct xemu_console *scon)
 #endif
     assert(glGetError() == GL_NO_ERROR);
 
+    xemu_hud_render_external();
     qatomic_set(&rendering, false);
 
 #if DEBUG_XEMU_C
@@ -922,6 +925,10 @@ static void gl_render_frame(struct xemu_console *scon)
 static bool event_watch_callback(void *userdata, SDL_Event *event)
 {
     struct xemu_console *scon = (struct xemu_console *)userdata;
+
+    if (xemu_hud_is_external_window_event(event)) {
+        return true;
+    }
 
     if (event->type == SDL_EVENT_WINDOW_RESIZED) {
 #ifdef _WIN32
@@ -959,6 +966,10 @@ static void poll_events(struct xemu_console *scon)
         // HUD must process events first so that if a controller is detached,
         // a latent rebind request can cancel before the state is freed
         xemu_hud_process_sdl_events(ev);
+        if (xemu_hud_is_external_window_event(ev)) {
+            xemu_main_loop_unlock();
+            continue;
+        }
         xemu_input_process_sdl_events(ev);
 
         switch (ev->type) {
@@ -1156,7 +1167,8 @@ static void display_early_init(DisplayOptions *o)
 
     SDL_GL_MakeCurrent(m_window, m_context);
     SDL_GL_SetSwapInterval(g_config.display.window.vsync ? 1 : 0);
-    xemu_hud_init(m_window, m_context);
+    xemu_hud_init(m_window, m_context,
+                  g_shader_browser_window_on_start);
 }
 
 static const DisplayChangeListenerOps dcl_gl_ops = {
@@ -1449,6 +1461,15 @@ int main(int argc, char **argv)
 
     init_sdl_app_metadata();
 
+    for (int i = 1; i < argc; ++i) {
+        if (argv[i] &&
+            (strcmp(argv[i], "-shader-browser-window") == 0 ||
+             strcmp(argv[i], "--shader-browser-window") == 0)) {
+            g_shader_browser_window_on_start = true;
+            argv[i] = NULL;
+        }
+    }
+
     for (int i = 1; i < argc; i++) {
         if (argv[i] && strcmp(argv[i], "-config_path") == 0) {
             argv[i] = NULL;
@@ -1519,6 +1540,8 @@ int main(int argc, char **argv)
         poll_events(scon);
         gl_render_frame(scon);
     }
+    SDL_GL_MakeCurrent(scon->real_window, scon->winctx);
+    xemu_hud_cleanup();
     qemu_sem_post(&display_shutdown_sem);
     qemu_thread_join(&thread);
     display_finalize();

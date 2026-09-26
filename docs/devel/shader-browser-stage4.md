@@ -1,10 +1,10 @@
 # Shader Browser Stage 4 — isolated live preview
 
-> **Status:** Draft foundation stacked on Shader Browser Stage 3 at
+> **Status:** Draft stacked on Shader Browser Stage 3 at
 > `8e03d756398b8299da464c17d064729db499f68a`. The immutable model,
-> request governor, and presentation-slot lifetime are implemented and covered
-> by focused host tests. Native OpenGL/Vulkan preview execution and gameplay
-> overhead qualification remain required before merge.
+> request governor, external Shader Browser window, and private OpenGL pixel
+> preview path are implemented. Vulkan execution and gameplay overhead
+> qualification remain required before merge.
 
 ## Goal
 
@@ -193,17 +193,30 @@ backend work may finish only to be rejected as obsolete and retired safely.
 
 ### Honest UI scaffold
 
-The existing `DrawLivePreview()` placeholder now exposes:
+The Live Preview tab exposes:
 
 - Enable preview, default off;
 - Normal / Uber / Replacement / Visualize mode selection;
 - state, pressure, update ceiling, and slot ownership status;
 - selected shader/backend target;
 - a preparation button enabled for a validated packet while paused;
-- an explicit statement that native GL/Vulkan execution is not connected.
+- four editable synthetic corner colors;
+- a private OpenGL output when an eligible pixel shader is prepared.
 
-Enabling the current draft can assemble and schedule a private packet but cannot
-allocate preview GPU resources or submit GPU work.
+OpenGL preparation is explicit and requires the guest to be paused. The private
+worker compiles the copied fragment source with a deterministic partner vertex
+stage, draws into one of three preview-owned textures, and uses producer and
+consumer fences before slot reuse. Vulkan output is still unavailable.
+
+### Separate Shader Browser window
+
+Start xemu with `-shader-browser-window` (or `--shader-browser-window`) to open
+the Shader Browser in a second operating-system window. The game stays in its
+own window. The browser uses an independent ImGui context and GL presentation
+context, and SDL events for that window do not reach guest input. Closing the
+browser through the desktop window manager hides it while xemu keeps running;
+the Debug > Shader Browser menu item can show it again. Without the launch
+option, the browser remains in the main HUD.
 
 The Live Preview tab publishes the actual guest pause state. A small atomic
 flip count and interval, updated at the NV2A flip boundary, feed a conservative
@@ -212,7 +225,7 @@ Renderer initialization, switch, and shutdown advance a separate atomic epoch
 so a packet cannot survive a renderer lifecycle transition under the same
 identity. These publishers do not issue preview work by themselves.
 
-## Backend contract to implement next
+## Remaining backend contract
 
 ### Immutable packet adapter
 
@@ -376,12 +389,17 @@ preview by default.
 
 The foundation has been exercised in a focused host harness with strict GCC and
 Clang compilation, ASan/UBSan, TSan concurrency coverage, and Clang static
-analysis. The UI function has a compile-only fixture.
+analysis. The current Linux xemu executable compiles. On a Steam Deck using
+Mesa OpenGL, the launch option opened separate game and browser windows, the
+browser selected a resident pixel shader, and private preparation reached a
+Ready output with a leased presentation slot. A normal process shutdown with
+the private worker active exited cleanly. This is a functional smoke test, not
+an output-correctness or performance qualification.
 
 Those checks do not establish:
 
-- a full xemu build on supported platforms;
-- native OpenGL/Vulkan operation;
+- a Windows xemu build or native Windows operation;
+- native Vulkan operation;
 - shader output correctness;
 - gameplay frame-time neutrality;
 - HUD texture retirement on a real driver.

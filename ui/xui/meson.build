@@ -23,6 +23,7 @@ xemu_ss.add(files(
   'shader-browser-preview-model.cc',
   'shader-browser-preview-adapter.cc',
   'shader-browser-preview-health.cc',
+  'shader-browser-preview-gl.cc',
   'shader-browser-preview-service.cc',
   'shader-browser-preview-service-work.cc',
   'shader-browser-preview-service-slots.cc',
