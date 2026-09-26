@@ -97,7 +97,12 @@ int main()
     assert(error.find("paused") != std::string::npos);
     service.SetGuestPaused(true);
     assert(service.RequestPreparation(&error));
-    assert(service.TryClaimWork(t0 + kPreviewSelectionDebounceNs, &work));
+    assert(!service.TryClaimWork(t0 + kPreviewSelectionDebounceNs, &work,
+                                 PreviewBackend::Vulkan));
+    service.CopyStatus(&status);
+    assert(status.preparation_requested);
+    assert(service.TryClaimWork(t0 + kPreviewSelectionDebounceNs, &work,
+                                PreviewBackend::OpenGL));
     assert(work.kind == PreviewWorkKind::Prepare);
 
     // A/B/C newest-only behavior: completion for A cannot publish after C.
@@ -392,10 +397,10 @@ int main()
     EnableAndSelect(&service, t0);
     std::thread publisher([&service] {
         for (uint64_t i = 0; i < 2000; ++i) {
-            const uint64_t now = UINT64_C(2000000000) + i * 1000;
-            service.SetVisible(true, now);
+            const uint64_t sample_ns = UINT64_C(2000000000) + i * 1000;
+            service.SetVisible(true, sample_ns);
             service.UpdateHealth(
-                PreviewHealth{now, PreviewPressure::Normal, true});
+                PreviewHealth{sample_ns, PreviewPressure::Normal, true});
         }
     });
     std::thread reader([&service] {
