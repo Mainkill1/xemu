@@ -33,6 +33,7 @@ bool DecodePreviewSyntheticFixture(const std::vector<uint8_t> &bytes,
 // All fields are copied out of the browser and renderer before admission.
 // No source vector, replacement payload, or fixture buffer is borrowed.
 struct PreviewPacketInputs {
+    PreviewScene scene;
     PreviewSelection selection;
     CanonicalRecipe recipe;
     std::string source;

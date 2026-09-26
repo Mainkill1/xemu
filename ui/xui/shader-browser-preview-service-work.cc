@@ -9,7 +9,7 @@ static bool SameInteractionInputs(const PreviewResultKey &lhs,
     return lhs.clock_edit_revision == rhs.clock_edit_revision &&
            lhs.compile == rhs.compile &&
            lhs.input_revision == rhs.input_revision &&
-           lhs.view_revision == rhs.view_revision &&
+           lhs.view_revision == rhs.view_revision && lhs.scene == rhs.scene &&
            lhs.width == rhs.width && lhs.height == rhs.height &&
            lhs.packet_kind == rhs.packet_kind &&
            lhs.replay_class == rhs.replay_class &&

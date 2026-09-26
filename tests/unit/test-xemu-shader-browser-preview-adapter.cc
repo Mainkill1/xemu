@@ -128,7 +128,7 @@ int main()
     std::string partner = BuildPreviewSyntheticVertexSource(
         selected_source, PreviewBackend::OpenGL);
     assert(partner.find("flat out vec4 vtxD0;") != std::string::npos);
-    assert(partner.find("layout(location = 0) in vec2 previewPosition;") !=
+    assert(partner.find("layout(location = 0) in vec4 previewPosition;") !=
            std::string::npos);
     PreviewSelection uber = inputs.selection;
     uber.mode = PreviewMode::Uber;

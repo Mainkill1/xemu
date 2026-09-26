@@ -70,9 +70,8 @@ bool PreviewResultKey::operator==(const PreviewResultKey &other) const
 {
     return clock_revision == other.clock_revision &&
            clock_edit_revision == other.clock_edit_revision &&
-           time_seconds == other.time_seconds &&
-           compile == other.compile &&
-           input_revision == other.input_revision &&
+           time_seconds == other.time_seconds && compile == other.compile &&
+           input_revision == other.input_revision && scene == other.scene &&
            view_revision == other.view_revision && width == other.width &&
            height == other.height && packet_kind == other.packet_kind &&
            replay_class == other.replay_class &&
@@ -309,6 +308,7 @@ PreviewResultKey BuildPreviewResultKey(const PreviewPacket &packet)
     key.compile = BuildPreviewCompileKey(packet);
     key.input_revision = packet.input_revision;
     key.view_revision = packet.view_revision;
+    key.scene = ClampPreviewScene(packet.scene);
     key.width = packet.width;
     key.height = packet.height;
     key.packet_kind = packet.packet_kind;

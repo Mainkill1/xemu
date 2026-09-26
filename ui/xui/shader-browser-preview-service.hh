@@ -61,6 +61,7 @@ public:
     bool SubmitPacket(PreviewPacket packet,
                       uint64_t now_ns, std::string *error);
     bool RequestPreparation(std::string *error);
+    void EditScene(const PreviewScene &scene);
     void EditClock(PreviewClockAction action, double value, uint64_t now_ns);
     void UpdateHealth(const PreviewHealth &health);
 
@@ -131,6 +132,8 @@ private:
     PreviewMode requested_mode_ = PreviewMode::Normal;
     uint64_t selection_changed_ns_ = 0;
 
+    PreviewScene scene_;
+    uint64_t scene_revision_ = 0;
     PreviewClock clock_;
     uint64_t clock_edit_revision_ = 0;
     bool clock_suspended_ = true;

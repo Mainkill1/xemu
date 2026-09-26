@@ -50,6 +50,7 @@ private:
     uint64_t m_preview_packet_detail_generation = 0;
     uint64_t m_preview_packet_override_generation = 0;
     uint64_t m_preview_input_revision = 1;
+    xemu::shader_browser::PreviewScene m_preview_scene;
     xemu::shader_browser::PreviewUpdatePolicy m_preview_update_policy =
         xemu::shader_browser::PreviewUpdatePolicy::OnDirty;
     std::array<std::array<float, 4>, 4> m_preview_colors{};

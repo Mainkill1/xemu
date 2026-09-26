@@ -57,7 +57,7 @@ private ownership, strict bounds, conservative admission, and native evidence.
 The initial image executes a selected pixel/fragment shader against explicit,
 preview-owned inputs:
 
-- a deterministic quad and compatible partner-stage outputs;
+- deterministic Quad, Sphere, or Cube geometry and compatible partner-stage outputs;
 - generated textures and samplers;
 - editable colors, alpha, UVs, constants, and view controls;
 - a private render target and private destination contents.
@@ -549,3 +549,46 @@ Before claiming implementation completion, the next agent must publish:
 
 Do not convert missing evidence into a permissive default or silently route
 preview through the game renderer.
+
+## Private scene geometry and camera
+
+The synthetic scene now provides a two-sided Quad, a 32-by-16 tessellated Sphere,
+and a six-face Cube. All vertices and face-local/spherical UVs are generated
+privately. Both backends consume the same bounded CPU geometry and homogeneous
+clip positions, preserving perspective interpolation. Vulkan converts clip Y
+and depth to its viewport convention before the existing presentation row flip.
+There are at most 3,072 vertices (120 KiB) per generated mesh. Vulkan allocates
+one fixed vertex buffer; GL uploads only the current bounded mesh.
+
+Camera controls expose yaw, pitch, distance and two-axis pan, plus reset. Yaw
+is bounded to +/-180 degrees, pitch to +/-85 degrees, distance to 2.5–12 units,
+and pan to +/-2 units. Non-finite values become finite defaults. A 45-degree
+perspective projection uses near/far planes 0.1/32. The camera stays outside
+the closed convex meshes even at minimum distance.
+
+Visibility is determined by rejecting camera-back-facing triangles of the
+closed convex Sphere and Cube; the Quad reverses its winding when viewed from
+behind. Their front surfaces cannot occlude each other, so this private
+visibility method needs no shared depth buffer. This is an opaque synthetic
+surface approximation: transparency, discard revealing back surfaces, custom
+fragment depth and guest depth/blend interactions are not reconstructed.
+Existing unsupported source-interface rejection remains in force.
+
+Scene settings are bounded values owned by the immutable input packet and the
+claimed result key. Camera/mesh edits update a small service-owned override and
+view revision, preserving the source/recipe shared pointer and compile key.
+Every claimed job snapshots the scene; completion after another camera edit is
+stale. Paused interaction uses the clock task's immediate refresh path. Running
+pressure admission, one active job, three output slots and the 32 MiB owned
+packet payload cap remain in force. Clock fixture animation applies to every
+mesh.
+
+Focused CPU tests cover generated winding, finite clipping, Vulkan conversion,
+camera movement, clamps and service result identity/source-storage reuse.
+Deck native pixel tests render all three meshes and changed cameras: at 64x64,
+OpenGL red-pixel coverage is 1270/1240/2517; at 32x32 Vulkan coverage is
+316/312/633 (Quad/Sphere/Cube). Vulkan also checks animation on each mesh using
+one prepared pipeline. The GL native test renders the production geometry and
+synthetic partner interface in a private SDL GL context; it does not exercise
+the asynchronous HUD executor lifecycle. These checks do not qualify Windows,
+interactive UI cadence, transparency accuracy or gameplay overhead.

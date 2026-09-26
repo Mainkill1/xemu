@@ -64,9 +64,7 @@ struct Dispatch {
     PREVIEW_VK_DEVICE_FUNCTIONS(DECLARE)
 #undef DECLARE
 };
-struct Vertex {
-    float position[2], color[4], uv[2];
-};
+using Vertex = PreviewSceneVertex;
 struct Uniform {
     std::string name;
     uint32_t offset, count, stride, components;
@@ -821,9 +819,9 @@ struct PreviewVkExecutor::Impl {
         VkVertexInputBindingDescription vb{ 0, sizeof(Vertex),
                                             VK_VERTEX_INPUT_RATE_VERTEX };
         VkVertexInputAttributeDescription attrs[] = {
-            { 0, 0, VK_FORMAT_R32G32_SFLOAT, 0 },
-            { 1, 0, VK_FORMAT_R32G32B32A32_SFLOAT, 8 },
-            { 2, 0, VK_FORMAT_R32G32_SFLOAT, 24 }
+            { 0, 0, VK_FORMAT_R32G32B32A32_SFLOAT, 0 },
+            { 1, 0, VK_FORMAT_R32G32B32A32_SFLOAT, 16 },
+            { 2, 0, VK_FORMAT_R32G32_SFLOAT, 32 }
         };
         VkPipelineVertexInputStateCreateInfo vi{
             VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO
@@ -884,7 +882,7 @@ struct PreviewVkExecutor::Impl {
             api.DestroyShaderModule(device, module, nullptr);
         if (!ok)
             return false;
-        if (!MakeBuffer(vertices, 6 * sizeof(Vertex),
+        if (!MakeBuffer(vertices, kPreviewMaxSceneVertices * sizeof(Vertex),
                         VK_BUFFER_USAGE_VERTEX_BUFFER_BIT) ||
             !MakeBuffer(upload, 16, VK_BUFFER_USAGE_TRANSFER_SRC_BIT) ||
             !MakeBuffer(readback, 320 * 320 * 4,
@@ -975,22 +973,20 @@ struct PreviewVkExecutor::Impl {
                 return false;
         }
         std::memcpy(upload.mapped, fixture.texture_texels.data(), 16);
-        auto vertex = [&](float x, float y, float u, float v, size_t corner) {
-            Vertex result{};
-            result.position[0] = x;
-            result.position[1] = y;
-            result.uv[0] = u * fixture.uv_scale[0] + fixture.uv_offset[0];
-            result.uv[1] = v * fixture.uv_scale[1] + fixture.uv_offset[1];
+        auto mesh = BuildPreviewSceneGeometry(
+            work.result_key.scene, float(packet.width) / packet.height, true);
+        for (auto &v : mesh) {
+            const float u = v.uv[0], t = v.uv[1];
             for (size_t c = 0; c < 4; ++c)
-                result.color[c] = fixture.corner_colors[corner][c] / 255.0f;
-            return result;
-        };
-        // Positive Vulkan viewport: the first image row has NDC y=-1.
-        // This CPU transport is flipped to GL row order below.
-        Vertex tl = vertex(-1, -1, 0, 1, 0), tr = vertex(1, -1, 1, 1, 1);
-        Vertex bl = vertex(-1, 1, 0, 0, 2), br = vertex(1, 1, 1, 0, 3);
-        Vertex quad[] = { tl, bl, tr, tr, bl, br };
-        std::memcpy(vertices.mapped, quad, sizeof(quad));
+                v.color[c] = ((1 - u) * t * fixture.corner_colors[0][c] +
+                              u * t * fixture.corner_colors[1][c] +
+                              (1 - u) * (1 - t) * fixture.corner_colors[2][c] +
+                              u * (1 - t) * fixture.corner_colors[3][c]) /
+                             255.0f;
+            for (size_t c = 0; c < 2; ++c)
+                v.uv[c] = v.uv[c] * fixture.uv_scale[c] + fixture.uv_offset[c];
+        }
+        std::memcpy(vertices.mapped, mesh.data(), mesh.size() * sizeof(Vertex));
         if (uniform_size)
             std::memset(uniform.mapped, 0, uniform_size);
         for (const auto &u : uniforms) {
@@ -1074,7 +1070,7 @@ struct PreviewVkExecutor::Impl {
         VkRect2D scissor{ { 0, 0 }, { packet.width, packet.height } };
         api.CmdSetViewport(cmd, 0, 1, &viewport);
         api.CmdSetScissor(cmd, 0, 1, &scissor);
-        api.CmdDraw(cmd, 6, 1, 0, 0);
+        api.CmdDraw(cmd, static_cast<uint32_t>(mesh.size()), 1, 0, 0);
         api.CmdEndRenderPass(cmd);
         copy.imageExtent = { packet.width, packet.height, 1 };
         api.CmdCopyImageToBuffer(cmd, target.handle,

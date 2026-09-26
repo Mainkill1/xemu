@@ -21,6 +21,7 @@ xemu_ss.add(files(
   'shader-browser-artifact-store.cc',
   'shader-browser-session-provider.cc',
   'shader-browser-preview-model.cc',
+  'shader-browser-preview-scene.cc',
   'shader-browser-preview-clock.cc',
   'shader-browser-preview-adapter.cc',
   'shader-browser-preview-health.cc',
@@ -235,6 +236,7 @@ shader_browser_preview_model_test = executable(
   files(
     'shader-browser-model.cc',
     'shader-browser-preview-model.cc',
+    'shader-browser-preview-scene.cc',
   ),
   include_directories: shader_browser_test_inc,
   dependencies: [xxhash])
@@ -247,6 +249,7 @@ shader_browser_preview_adapter_test = executable(
   files(
     'shader-browser-model.cc',
     'shader-browser-preview-model.cc',
+    'shader-browser-preview-scene.cc',
     'shader-browser-preview-adapter.cc',
   ),
   include_directories: shader_browser_test_inc,
@@ -268,6 +271,7 @@ shader_browser_preview_service_test = executable(
   files(
     'shader-browser-model.cc',
     'shader-browser-preview-model.cc',
+    'shader-browser-preview-scene.cc',
     'shader-browser-preview-clock.cc',
     'shader-browser-preview-service.cc',
     'shader-browser-preview-service-work.cc',
@@ -291,7 +295,7 @@ if vulkan.found()
     'test-xemu-shader-browser-preview-vk',
     shader_browser_test_dir / 'test-xemu-shader-browser-preview-vk.cc',
     files('shader-browser-preview-vk.cc', 'shader-browser-preview-adapter.cc',
-          'shader-browser-preview-model.cc', 'shader-browser-model.cc'),
+          'shader-browser-preview-model.cc', 'shader-browser-preview-scene.cc', 'shader-browser-model.cc'),
     include_directories: shader_browser_test_inc,
     cpp_args: ['-DXEMU_PREVIEW_VK_TESTING'],
     dependencies: [shader_browser_threads, xxhash, sdl, vulkan, libglslang, spirv_reflect, glib])
@@ -306,3 +310,20 @@ shader_browser_preview_clock_test = executable(
   include_directories: shader_browser_test_inc)
 test('test-xemu-shader-browser-preview-clock',
      shader_browser_preview_clock_test, suite: ['unit'])
+
+shader_browser_preview_scene_test = executable(
+  'test-xemu-shader-browser-preview-scene',
+  shader_browser_test_dir / 'test-xemu-shader-browser-preview-scene.cc',
+  files('shader-browser-preview-scene.cc'),
+  build_by_default: false)
+test('test-xemu-shader-browser-preview-scene', shader_browser_preview_scene_test,
+     suite: ['unit'])
+
+# Native GPU hosts only: renders the shared scene and synthetic partner contract.
+shader_browser_preview_gl_scene_test = executable(
+  'test-xemu-shader-browser-preview-gl-scene',
+  shader_browser_test_dir / 'test-xemu-shader-browser-preview-gl-scene.cc',
+  files('shader-browser-preview-scene.cc', 'shader-browser-preview-adapter.cc',
+        'shader-browser-preview-model.cc', 'shader-browser-model.cc'),
+  include_directories: shader_browser_test_inc,
+  dependencies: [sdl, epoxy, xxhash])

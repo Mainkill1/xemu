@@ -159,7 +159,7 @@ std::string BuildPreviewSyntheticVertexSource(
     }
     const bool vulkan = backend == PreviewBackend::Vulkan;
     std::string result = vulkan ? "#version 450\n" : "#version 400\n";
-    result += "layout(location = 0) in vec2 previewPosition;\n"
+    result += "layout(location = 0) in vec4 previewPosition;\n"
               "layout(location = 1) in vec4 previewColor;\n"
               "layout(location = 2) in vec2 previewUV;\n";
     const char *names[] = { "vtxD0", "vtxD1", "vtxB0", "vtxB1",
@@ -181,7 +181,7 @@ std::string BuildPreviewSyntheticVertexSource(
         result += ";\n";
     }
     result += "void main() {\n"
-              "  gl_Position = vec4(previewPosition, 0.0, 1.0);\n"
+              "  gl_Position = previewPosition;\n"
               "  vtxD0 = previewColor; vtxD1 = previewColor;\n"
               "  vtxB0 = previewColor; vtxB1 = previewColor;\n"
               "  vtxFog = 0.0;\n"
@@ -254,6 +254,7 @@ bool BuildPreviewPacket(const PreviewPacketInputs &inputs,
     candidate.replacement_revision = inputs.replacement_revision;
     candidate.input_revision = inputs.input_revision;
     candidate.view_revision = inputs.view_revision;
+    candidate.scene = ClampPreviewScene(inputs.scene);
     candidate.width = inputs.width;
     candidate.height = inputs.height;
     candidate.update_policy = inputs.update_policy;
