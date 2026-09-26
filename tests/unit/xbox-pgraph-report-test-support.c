@@ -13,6 +13,40 @@
 #include "xbox-pgraph-report-test-support.h"
 #include "hw/xbox/nv2a/nv2a_int.h"
 
+#ifdef XBOX_PGRAPH_REPORT_TEST_USE_PRODUCTION_DMA_LOAD
+#include "hw/xbox/nv2a/pgraph/glsl/shader-browser-publication.h"
+
+/* This report fixture exercises finish/retirement without Shader Browser. */
+void xemu_shader_browser_record_dropped_samples(uint64_t count)
+{
+    (void)count;
+}
+
+void xemu_shader_browser_report_gpu_state(uint32_t backend, int supported,
+                                          uint32_t pending)
+{
+    (void)backend;
+    (void)supported;
+    (void)pending;
+}
+
+void pgraph_shader_browser_publish_binding_timing(
+    const PGRAPHShaderBrowserBinding *binding, uint32_t backend,
+    uint32_t route, uint64_t variant_id, uint64_t frame, uint32_t metric,
+    uint64_t duration_ns, uint64_t represented_draws, uint32_t flags)
+{
+    (void)binding;
+    (void)backend;
+    (void)route;
+    (void)variant_id;
+    (void)frame;
+    (void)metric;
+    (void)duration_ns;
+    (void)represented_draws;
+    (void)flags;
+}
+#endif
+
 #ifndef XBOX_PGRAPH_REPORT_TEST_USE_PRODUCTION_DMA_LOAD
 static unsigned int dma_load_count;
 #endif
