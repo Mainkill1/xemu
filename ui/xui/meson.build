@@ -291,6 +291,7 @@ if vulkan.found()
     files('shader-browser-preview-vk.cc', 'shader-browser-preview-adapter.cc',
           'shader-browser-preview-model.cc', 'shader-browser-model.cc'),
     include_directories: shader_browser_test_inc,
+    cpp_args: ['-DXEMU_PREVIEW_VK_TESTING'],
     dependencies: [shader_browser_threads, xxhash, sdl, vulkan, libglslang, spirv_reflect, glib])
   # Run this binary explicitly on native GPU hosts. It is intentionally not
   # in the default host unit suite, which also runs on compile-only builders.
