@@ -4,6 +4,38 @@
 #include <string.h>
 #include <glib.h>
 
+static void refresh_override_policies(
+    const XemuShaderBrowserScope *scope, PGRAPHShaderBrowserBinding *binding)
+{
+    memset(&binding->opengl_policy, 0, sizeof(binding->opengl_policy));
+    memset(&binding->vulkan_policy, 0, sizeof(binding->vulkan_policy));
+    binding->override_generation = xemu_shader_override_generation();
+    if (!scope || !scope->title_id) {
+        return;
+    }
+
+    const PGRAPHShaderBrowserIdentity *pixel = NULL;
+    for (uint32_t i = 0; i < binding->count; ++i) {
+        if (binding->identities[i].stage ==
+            XEMU_SHADER_BROWSER_STAGE_PIXEL) {
+            pixel = &binding->identities[i];
+            break;
+        }
+    }
+    if (!pixel) {
+        return;
+    }
+
+    xemu_shader_override_resolve_scoped(
+        scope->title_id, scope->executable_fingerprint_version,
+        scope->executable_fingerprint, XEMU_SHADER_OVERRIDE_BACKEND_OPENGL,
+        1, pixel->hash, pixel->stage, &binding->opengl_policy);
+    xemu_shader_override_resolve_scoped(
+        scope->title_id, scope->executable_fingerprint_version,
+        scope->executable_fingerprint, XEMU_SHADER_OVERRIDE_BACKEND_VULKAN,
+        1, pixel->hash, pixel->stage, &binding->vulkan_policy);
+}
+
 void pgraph_shader_browser_publish_binding(const ShaderState *state,
                                            bool geometry_needed,
                                            PGRAPHShaderBrowserBinding *binding)
@@ -49,15 +81,24 @@ void pgraph_shader_browser_publish_binding(const ShaderState *state,
         identity->stage = stages[i];
         memcpy(identity->hash, hash, sizeof(hash));
     }
+    refresh_override_policies(&scope, binding);
 }
 
 void pgraph_shader_browser_refresh_binding_scope(
     const ShaderState *state, bool geometry_needed,
     PGRAPHShaderBrowserBinding *binding)
 {
-    if (binding &&
-        binding->scope_generation != xemu_shader_browser_scope_generation()) {
+    if (!binding) {
+        return;
+    }
+    if (binding->scope_generation != xemu_shader_browser_scope_generation()) {
         pgraph_shader_browser_publish_binding(state, geometry_needed, binding);
+        return;
+    }
+    if (binding->override_generation != xemu_shader_override_generation()) {
+        XemuShaderBrowserScope scope = { 0 };
+        xemu_shader_browser_copy_current_scope(&scope);
+        refresh_override_policies(&scope, binding);
     }
 }
 
