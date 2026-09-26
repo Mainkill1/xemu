@@ -282,6 +282,27 @@ int main(int argc, char **argv)
     ++packet.selection.renderer_epoch;
     submit();
     await([&] { return executor.HasDisplayed(); });
+    // No context on entry: an external switch may succeed, but restoring
+    // the saved null pair must fail rather than treat SDL unbind as success.
+    assert(SDL_GL_MakeCurrent(nullptr, nullptr));
+    auto *missing_window = SDL_GL_GetCurrentWindow();
+    auto missing_context = SDL_GL_GetCurrentContext();
+    assert(!missing_window && !missing_context);
+    assert(MakePreviewHudContextCurrent(window, context));
+    executor.Shutdown();
+    assert(!executor.NeedsRetirementPump());
+    assert(!MakePreviewHudContextCurrent(missing_window, missing_context));
+    assert(SDL_GL_GetCurrentContext() == context);
+    assert(!MakePreviewHudContextCurrent(window, nullptr));
+    assert(!MakePreviewHudContextCurrent(nullptr, context));
+    assert(SDL_GL_GetCurrentContext() == context);
+    assert(MakePreviewHudContextCurrent(main_window, main_context));
+    assert(SDL_GL_GetCurrentContext() == main_context);
+    assert(MakePreviewHudContextCurrent(window, context));
+    service.SetEnabled(true);
+    ++packet.selection.renderer_epoch;
+    submit();
+    await([&] { return executor.HasDisplayed(); });
     // Terminal context failure must stop the worker without issuing HUD GL
     // deletion. The shared objects remain for destruction of the share group.
     const auto abandoned_textures = textures;
