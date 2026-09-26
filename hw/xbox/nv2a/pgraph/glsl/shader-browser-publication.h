@@ -39,14 +39,4 @@ void pgraph_shader_browser_publish_generated_artifact(
     const char *route, const char *kind, const char *extension,
     const uint8_t *data, size_t size);
 
-/* Called only after an actual inline draw command. The cheap disarmed gate is
- * inside the helper; all copied inputs are CPU-visible at this boundary. */
-void pgraph_shader_browser_capture_inline(
-    PGRAPHState *pg, const ShaderState *state,
-    const PGRAPHShaderBrowserBinding *binding, uint32_t backend,
-    uint32_t primitive, uint16_t attribute_mask, uint32_t width,
-    uint32_t height, const char *vertex_source,
-    const char *geometry_source, const char *pixel_source,
-    uint32_t route);
-
 #endif
