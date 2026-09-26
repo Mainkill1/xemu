@@ -33,6 +33,7 @@
 #include "ui/xemu-tweaks.h"
 #include "ui/xemu-settings.h"
 #include "ui/xui/shader-browser-session-provider.hh"
+#include "ui/xui/shader-browser-capture-bridge.h"
 #include <glib/gstdio.h>
 #include <math.h>
 
@@ -4440,6 +4441,13 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
         size_t offset = 0;
 
         pgraph_vk_bind_vertex_attributes_inline(d);
+        uint16_t capture_attribute_mask = 0;
+        if (xemu_shader_capture_armed()) {
+            for (int i = 0; i < r->num_active_vertex_attribute_descriptions; ++i) {
+                capture_attribute_mask |=
+                    1U << r->vertex_attribute_descriptions[i].location;
+            }
+        }
         for (int i = 0; i < r->num_active_vertex_attribute_descriptions; i++) {
             int attr_index = r->vertex_attribute_descriptions[i].location;
 
@@ -4465,6 +4473,24 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
         begin_draw(pg);
         bind_inline_vertex_buffer(pg, buffer_offset);
         vkCmdDraw(r->command_buffer, pg->inline_buffer_length, 1, 0, 0);
+        ShaderBinding *capture_binding = r->shader_binding;
+        if (capture_binding) {
+            pgraph_shader_browser_capture_inline(
+                pg, &capture_binding->state, &capture_binding->browser,
+                2, get_primitive_topology(&capture_binding->state),
+                capture_attribute_mask,
+                r->color_binding ? r->color_binding->width : 0,
+                r->color_binding ? r->color_binding->height : 0,
+                capture_binding->vsh.module_info ?
+                    capture_binding->vsh.module_info->glsl : NULL,
+                capture_binding->geom.module_info ?
+                    capture_binding->geom.module_info->glsl : NULL,
+                capture_binding->psh.module_info ?
+                    capture_binding->psh.module_info->glsl : NULL,
+                capture_binding->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER ?
+                    XEMU_SHADER_BROWSER_ROUTE_UBER :
+                    XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED);
+        }
         end_draw(pg);
         pgraph_vk_end_debug_marker(r, r->command_buffer);
 

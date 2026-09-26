@@ -7,9 +7,11 @@
 #include "shader-browser-preview-health.hh"
 #include "shader-browser-preview-model.hh"
 #include "shader-browser-preview-adapter.hh"
+#include "shader-browser-capture.hh"
 
 #include <cstdint>
 #include <array>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -74,6 +76,9 @@ private:
     int m_preview_view_channel = 0;
     bool m_preview_packet_attempted = false;
     std::string m_preview_packet_message;
+    xemu::shader_browser::PreviewSelection m_capture_selection;
+    std::optional<xemu::shader_browser::CapturedDraw> m_captured_draw;
+    std::string m_capture_message;
     std::vector<size_t> m_source_line_offsets;
     size_t m_selected_source = 0;
     uint64_t m_source_offsets_generation = 0;

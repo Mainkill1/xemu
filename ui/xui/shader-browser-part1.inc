@@ -195,6 +195,8 @@ void ShaderBrowserWindow::Draw()
 {
     Provider &provider = GetProvider();
     if (!m_is_open) {
+        GetCaptureStore().Cancel();
+        m_captured_draw.reset();
         GetPreviewService().SetVisible(false, PreviewNowNs());
         if (m_window_was_open) {
             provider.SetLiveCollectionEnabled(false);
@@ -242,6 +244,8 @@ void ShaderBrowserWindow::Draw()
         ImGui::End();
         GetPreviewService().SetVisible(false, PreviewNowNs());
         if (!m_is_open) {
+            GetCaptureStore().Cancel();
+            m_captured_draw.reset();
             provider.SetLiveCollectionEnabled(false);
             GetDetailStore().Clear();
             m_window_was_open = false;
@@ -267,6 +271,8 @@ void ShaderBrowserWindow::Draw()
     ImGui::End();
 
     if (!m_is_open) {
+        GetCaptureStore().Cancel();
+        m_captured_draw.reset();
         GetPreviewService().SetVisible(false, PreviewNowNs());
         provider.SetLiveCollectionEnabled(false);
         GetDetailStore().Clear();

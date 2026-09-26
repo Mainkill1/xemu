@@ -72,7 +72,7 @@ A shader recipe alone does not reproduce its appearance in a title. Missing
 partner stages or unsupported interfaces return `Unsupported`; they are not
 silently replaced with a generic shader and called exact.
 
-### Supported replay — later deliverable
+### One-shot captured draw and replay
 
 Replay consumes an already-owned immutable packet. It must not enable a
 continuous capture path merely because the tab is open. A replay packet needs
@@ -87,6 +87,35 @@ Every replay is classified as:
 - `Unsupported` — a required dependency cannot be represented safely.
 
 Unsupported packets are rejected before backend work is admitted.
+
+The **Capture selected draw** button arms one request for the selected shader's
+title/build scope, shader hash, backend, session, and renderer. It consumes at
+most one matching draw after the renderer submits it. Selection or window
+changes cancel the request, and an unanswered request expires. Merely opening
+the browser does not record game draws. Current capture covers bounded CPU
+inline vertices only; indexed draws and other vertex sources do not enter the
+capture path. The draw path copies at most 1 MiB or 4096 vertices with a 2 ms
+capture cap, and the sealed owned packet has a 32 MiB ceiling. It performs no
+game GPU readback, wait, extra submission, file write, or cache operation.
+
+The packet stores exact stage identities in the binding order (vertex or fixed
+function, pixel, optional geometry), generated stage sources, CPU uniforms,
+inline attributes and constants, primitive, viewport/scissor, surface extent,
+and raw raster, color mask, and blend registers. OpenGL generates source from
+the copied shader state after the gameplay draw; Vulkan copies the active
+module source only while armed. The packet has a content digest and no renderer
+pointers or GPU handles. Unsupported inputs are shown as a reason before
+private replay starts.
+
+The first admitted class is **Approximate**: the original GPU destination is
+replaced by a transparent RGBA8 clear. If a draw uses GPU textures, its used
+stages receive declared, opaque diagnostic 1×1 texels; blend operates against
+the declared clear, and unwritten color channels retain it. The exact
+substitutions are in the packet and the UI warning. Depth/alpha/stencil tests,
+logic operations, culling, missing stage source, and unrepresentable primitives
+remain Unsupported. Private GL and Vulkan execution of these captured packets
+is the next replay step; a successful capture does not claim rendered game
+pixels yet.
 
 ## Mode semantics
 

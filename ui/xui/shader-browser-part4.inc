@@ -369,6 +369,84 @@ void ShaderBrowserWindow::DrawLivePreview()
         }
         service.SetSelection(selection, now_ns);
 
+        if (m_capture_selection != selection) {
+            auto prior = GetCaptureStore().Status().kind;
+            if (prior != CaptureStatusKind::Idle) {
+                GetCaptureStore().Cancel();
+                m_capture_message = "Capture cancelled: selection changed";
+            }
+            m_captured_draw.reset();
+        }
+        if (ImGui::Button("Capture selected draw")) {
+            XemuShaderCaptureRequest request{};
+            request.title_id = selection.scope.title_id;
+            request.fingerprint_version =
+                selection.scope.executable_fingerprint_version;
+            std::memcpy(request.fingerprint,
+                        selection.scope.executable_fingerprint.data(),
+                        sizeof(request.fingerprint));
+            request.selected.stage = static_cast<uint32_t>(entry->key.stage);
+            std::memcpy(request.selected.hash, entry->key.hash.bytes.data(),
+                        sizeof(request.selected.hash));
+            request.backend = selection.backend == PreviewBackend::OpenGL ? 1 :
+                              selection.backend == PreviewBackend::Vulkan ? 2 : 0;
+            request.session_epoch = selection.session_epoch;
+            request.renderer_epoch = selection.renderer_epoch;
+            request.deadline_ns = now_ns + UINT64_C(5000000000);
+            m_capture_selection = selection;
+            m_captured_draw.reset();
+            m_capture_message.clear();
+            if (request.backend && request.title_id &&
+                entry->key.hash.version == 1 &&
+                entry->key.stage != Stage::Any) {
+                GetCaptureStore().Request(request);
+            } else {
+                m_capture_message = "Capture needs a resolved game scope and shader";
+            }
+        }
+        GetCaptureStore().Expire(now_ns);
+        auto capture_status = GetCaptureStore().Status();
+        if (capture_status.kind == CaptureStatusKind::Captured) {
+            CapturedDraw captured;
+            if (GetCaptureStore().Take(&captured)) {
+                if (captured.header.context.backend == 1) {
+                    char *vertex = xemu_shader_capture_generate_gl_source(
+                        captured.shader_state.data(),
+                        captured.shader_state.size(),
+                        captured.header.stages[0].stage);
+                    char *pixel = xemu_shader_capture_generate_gl_source(
+                        captured.shader_state.data(),
+                        captured.shader_state.size(), 2);
+                    char *geometry = captured.header.stage_count == 3 ?
+                        xemu_shader_capture_generate_gl_source(
+                            captured.shader_state.data(),
+                            captured.shader_state.size(), 3) : nullptr;
+                    if (vertex) captured.vertex_source = vertex;
+                    if (geometry) captured.geometry_source = geometry;
+                    if (pixel) captured.pixel_source = pixel;
+                    g_free(vertex);
+                    g_free(geometry);
+                    g_free(pixel);
+                }
+                std::string reason;
+                if (SealCapturedDraw(&captured, &reason)) {
+                    m_capture_message =
+                        "Approximate game draw captured. " +
+                        captured.substitution;
+                    m_captured_draw = std::move(captured);
+                } else {
+                    m_capture_message = "Unsupported game draw: " + reason;
+                }
+            }
+        } else if (capture_status.kind == CaptureStatusKind::Unsupported ||
+                   capture_status.kind == CaptureStatusKind::Expired) {
+            m_capture_message = capture_status.reason;
+        } else if (capture_status.kind == CaptureStatusKind::Armed) {
+            m_capture_message = capture_status.reason;
+        }
+        if (!m_capture_message.empty())
+            ImGui::TextWrapped("%s", m_capture_message.c_str());
+
         PreviewCompileKey attempted{};
         attempted.selection = selection;
         const uint64_t detail_generation = m_detail_snapshot.generation;
@@ -497,6 +575,7 @@ void ShaderBrowserWindow::DrawLivePreview()
             }
         }
     } else {
+        if (GetCaptureStore().Armed()) GetCaptureStore().Cancel();
         service.ClearSelection();
         m_preview_packet_attempted = false;
     }
