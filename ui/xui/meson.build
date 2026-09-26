@@ -20,6 +20,10 @@ xemu_ss.add(files(
   'shader-browser-database.cc',
   'shader-browser-artifact-store.cc',
   'shader-browser-session-provider.cc',
+  'shader-browser-preview-model.cc',
+  'shader-browser-preview-service.cc',
+  'shader-browser-preview-service-work.cc',
+  'shader-browser-preview-service-slots.cc',
   'shader-browser.cc',
   'font-manager.cc',
   'gl-helpers.cc',
@@ -219,6 +223,33 @@ shader_browser_details_test = executable(
   dependencies: [shader_browser_threads, xxhash])
 test('test-xemu-shader-browser-details-store',
      shader_browser_details_test, suite: ['unit'])
+
+shader_browser_preview_model_test = executable(
+  'test-xemu-shader-browser-preview-model',
+  shader_browser_test_dir / 'test-xemu-shader-browser-preview-model.cc',
+  files(
+    'shader-browser-model.cc',
+    'shader-browser-preview-model.cc',
+  ),
+  include_directories: shader_browser_test_inc,
+  dependencies: [xxhash])
+test('test-xemu-shader-browser-preview-model',
+     shader_browser_preview_model_test, suite: ['unit'])
+
+shader_browser_preview_service_test = executable(
+  'test-xemu-shader-browser-preview-service',
+  shader_browser_test_dir / 'test-xemu-shader-browser-preview-service.cc',
+  files(
+    'shader-browser-model.cc',
+    'shader-browser-preview-model.cc',
+    'shader-browser-preview-service.cc',
+    'shader-browser-preview-service-work.cc',
+    'shader-browser-preview-service-slots.cc',
+  ),
+  include_directories: shader_browser_test_inc,
+  dependencies: [shader_browser_threads, xxhash])
+test('test-xemu-shader-browser-preview-service',
+     shader_browser_preview_service_test, suite: ['unit'])
 
 shader_browser_c_header_test = executable(
   'test-xemu-shader-browser-c-header',
