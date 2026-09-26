@@ -717,7 +717,10 @@ Freeze Reference preserves that frame across Normal/Uber/Replacement changes for
 the same shader and scope/session/renderer epochs. Reference and Current identify
 their own origins. Freezing transfers a lease and requests a fresh Current; until
 it arrives both views sample the same retained texture under one consumer fence.
-Afterward the two views use at most two leases. A third busy/retiring slot causes
+Clearing Reference before an independent Current arrives transfers the sole
+last-good lease back to Current, including its sampling fence; a failed edit
+therefore cannot turn Clear Reference into a blank preview. Afterward the two
+views use at most two leases. A third busy/retiring slot causes
 preview drops, never a game wait or texture overwrite. Selection/epoch changes,
 disable, closing/hiding the tab, and visibility expiry retire both images.
 
@@ -730,7 +733,9 @@ queue, renderer lock, or automatic pause is used to improve this UX.
 Ordinary HUD retirement polls fences with zero timeout. Terminal HUD teardown
 joins the private worker, waits at most one second in aggregate for remaining
 consumer fences, then deletes output textures on the consuming HUD context.
-The worker no longer deletes those textures. On timeout, GL object lifetime rules
+External-window cleanup switches to the external browser GL context before
+preview shutdown and restores the main context afterward; the embedded browser
+shuts down in the main HUD context. The worker no longer deletes those textures. On timeout, GL object lifetime rules
 preserve storage referenced by queued commands ([OpenGL 4.5, section 5.1.3](https://registry.khronos.org/OpenGL/specs/gl/glspec45.core.withchanges.pdf)).
 This is terminal deletion, not a claim that an unsignaled lease has retired.
 The service invalidates the entire backend epoch and advances slot generations;
