@@ -71,6 +71,16 @@ int main(int argc, char **argv)
     assert(window);
     auto context = SDL_GL_CreateContext(window);
     assert(context);
+    // Model the main/external HUD share group. All image sampling below uses
+    // context; cleanup must switch back to that consumer before Shutdown.
+    SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
+    auto *main_window = SDL_CreateWindow("Main HUD context", 64, 64,
+                                         SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
+    assert(main_window);
+    auto main_context = SDL_GL_CreateContext(main_window);
+    assert(main_context);
+    SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 0);
+    assert(SDL_GL_MakeCurrent(window, context));
     ImGui::CreateContext();
     ImGui::GetIO().IniFilename = nullptr;
     ImGui::GetIO().DisplaySize = ImVec2(800, 600);
@@ -147,6 +157,41 @@ int main(int argc, char **argv)
     };
     await([&] { return executor.HasDisplayed(); });
     assert(colors() == std::set<unsigned>{ 0xff0000 });
+    // Clearing a Reference must preserve the sole last-good frame when the
+    // failed attempt cannot produce an independent Current.
+    packet = Packet(PreviewMode::Replacement, true, 2);
+    submit();
+    await([&] {
+        PreviewStatus status;
+        service.CopyStatus(&status);
+        return status.state == PreviewState::Failed;
+    });
+    PreviewStatus failed_status;
+    service.CopyStatus(&failed_status);
+    assert(failed_status.leased_slots == 1 && failed_status.free_slots == 2);
+    assert(failed_status.attempted_compile.replacement_revision == 2);
+    assert(executor.FreezeDisplayed());
+    draw();
+    assert(executor.HasFrozen() && !executor.HasDisplayed());
+    assert(colors() == std::set<unsigned>{ 0xff0000 });
+    executor.ClearFrozen();
+    assert(executor.HasDisplayed() && !executor.HasFrozen());
+    draw();
+    assert(textures.size() == 1);
+    assert(colors() == std::set<unsigned>{ 0xff0000 });
+    PreviewStatus cleared_status;
+    service.CopyStatus(&cleared_status);
+    assert(cleared_status.state == PreviewState::Failed);
+    assert(cleared_status.message == failed_status.message);
+    assert(cleared_status.attempted_compile == failed_status.attempted_compile);
+    assert(cleared_status.leased_slots == 1 && cleared_status.free_slots == 2);
+    packet = Packet(PreviewMode::Normal, false, 0);
+    submit();
+    await([&] {
+        PreviewStatus status;
+        service.CopyStatus(&status);
+        return status.state == PreviewState::Ready;
+    });
     assert(executor.FreezeDisplayed());
     await([&] { return executor.HasDisplayed() && executor.HasFrozen(); });
     assert(textures.size() == 2);
@@ -208,7 +253,15 @@ int main(int argc, char **argv)
     assert(executor.FreezeDisplayed());
     await([&] { return executor.HasDisplayed(); });
     draw(); // Submit actual HUD sampling immediately before terminal shutdown.
+    assert(SDL_GL_MakeCurrent(main_window, main_context));
+    assert(SDL_GL_GetCurrentContext() == main_context);
+    assert(SDL_GL_MakeCurrent(window, context));
     executor.Shutdown();
+    assert(SDL_GL_GetCurrentContext() == context);
+    assert(SDL_GL_MakeCurrent(main_window, main_context));
+    assert(SDL_GL_GetCurrentContext() == main_context);
+    assert(glGetError() == GL_NO_ERROR);
+    assert(SDL_GL_MakeCurrent(window, context));
     assert(!executor.HasDisplayed() && !executor.HasFrozen());
     assert(!executor.NeedsRetirementPump());
     // Reuse the owner after a terminal reset; old GL object names cannot
@@ -224,6 +277,8 @@ int main(int argc, char **argv)
     assert(glGetError() == GL_NO_ERROR);
     ImGui_ImplOpenGL3_Shutdown();
     ImGui::DestroyContext();
+    SDL_GL_DestroyContext(main_context);
+    SDL_DestroyWindow(main_window);
     SDL_GL_DestroyContext(context);
     SDL_DestroyWindow(window);
     SDL_Quit();
