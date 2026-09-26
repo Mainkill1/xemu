@@ -66,6 +66,11 @@
                !performance_session_id.empty();
     }
 
+    bool ExternalArtifactsEnabled() const
+    {
+        return database.SaveExternalArtifacts();
+    }
+
     void PublishObservations(const XemuShaderBrowserObservation *observations,
                              size_t count)
     {
@@ -170,4 +175,3 @@
         }
         return ok;
     }
-

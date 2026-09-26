@@ -161,6 +161,30 @@ static void shader_module_cache_entry_init(Lru *lru, LruNode *node,
 
     module->gl_shader =
         create_gl_shader(module->key.kind, mstring_get_str(code), kind_str);
+    if (xemu_shader_browser_external_artifacts_enabled()) {
+        ShaderState artifact_state = {0};
+        uint32_t artifact_stage = XEMU_SHADER_BROWSER_STAGE_UNKNOWN;
+        switch (module->key.kind) {
+        case GL_VERTEX_SHADER:
+            artifact_state.vsh = module->key.vsh.state;
+            artifact_stage = artifact_state.vsh.is_fixed_function ?
+                XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION :
+                XEMU_SHADER_BROWSER_STAGE_VERTEX;
+            break;
+        case GL_GEOMETRY_SHADER:
+            artifact_state.geom = module->key.geom.state;
+            artifact_stage = XEMU_SHADER_BROWSER_STAGE_GEOMETRY;
+            break;
+        case GL_FRAGMENT_SHADER:
+            artifact_state.psh = module->key.psh.state;
+            artifact_stage = XEMU_SHADER_BROWSER_STAGE_PIXEL;
+            break;
+        }
+        pgraph_shader_browser_publish_generated_artifact(
+            &artifact_state, artifact_stage, "opengl", "specialized", "glsl",
+            "glsl", (const uint8_t *)mstring_get_str(code),
+            mstring_get_length(code));
+    }
     mstring_unref(code);
 }
 

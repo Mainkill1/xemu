@@ -173,6 +173,11 @@ int xemu_shader_browser_publish_external_artifact(
         1 : 0;
 }
 
+int xemu_shader_browser_external_artifacts_enabled(void)
+{
+    return xemu::shader_browser::provider.ExternalArtifactsEnabled() ? 1 : 0;
+}
+
 int xemu_shader_browser_flush_database(char *error, size_t error_size)
 {
     std::string message;

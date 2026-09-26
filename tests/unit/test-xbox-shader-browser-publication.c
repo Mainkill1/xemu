@@ -9,6 +9,8 @@ static uint32_t title_id = 0x4d530064;
 static uint32_t published_stages[8];
 static uint32_t published_titles[8];
 static size_t published_count;
+static int artifacts_enabled;
+static size_t artifact_count;
 
 uint64_t xemu_shader_browser_scope_generation(void)
 {
@@ -46,6 +48,25 @@ int xemu_shader_browser_publish_shader(
     return 1;
 }
 
+int xemu_shader_browser_external_artifacts_enabled(void)
+{
+    return artifacts_enabled;
+}
+
+int xemu_shader_browser_publish_external_artifact(
+    const XemuShaderBrowserExternalArtifact *artifact)
+{
+    assert(artifact->title_id == title_id);
+    assert(artifact->stage == XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION);
+    assert(artifact->identity_hash[0] == artifact->stage);
+    assert(strcmp(artifact->backend, "opengl") == 0);
+    assert(strcmp(artifact->kind, "glsl") == 0);
+    assert(strcmp(artifact->content_hash, "2cf24dba5fb0a30e26e83b2ac5b9e29e1b16"
+                                          "1e5c1fa7425e73043362938b9824") == 0);
+    ++artifact_count;
+    return 1;
+}
+
 int main(void)
 {
     ShaderState state = { 0 };
@@ -73,6 +94,16 @@ int main(void)
     assert(published_stages[4] == XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION);
     assert(published_stages[5] == XEMU_SHADER_BROWSER_STAGE_PIXEL);
     assert(published_stages[6] == XEMU_SHADER_BROWSER_STAGE_GEOMETRY);
+    const uint8_t source[] = "hello";
+    pgraph_shader_browser_publish_generated_artifact(
+        &state, XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION, "opengl",
+        "specialized", "glsl", "glsl", source, sizeof(source) - 1);
+    assert(artifact_count == 0);
+    artifacts_enabled = 1;
+    pgraph_shader_browser_publish_generated_artifact(
+        &state, XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION, "opengl",
+        "specialized", "glsl", "glsl", source, sizeof(source) - 1);
+    assert(artifact_count == 1 && published_count == 8);
     puts("1..1\nok 1 - renderer discovery publishes guest stages and title "
          "scope");
     return 0;

@@ -21,6 +21,7 @@ int main()
     char error[256] = {};
     assert(xemu_shader_browser_database_configure(0, 0, 0,
                                                    error, sizeof(error)));
+    assert(!xemu_shader_browser_external_artifacts_enabled());
 
     XemuShaderBrowserScope current_scope{};
     uint64_t initial_scope_generation =
@@ -75,6 +76,7 @@ int main()
 
     assert(xemu_shader_browser_database_configure(1, 1, 1,
                                                    error, sizeof(error)));
+    assert(xemu_shader_browser_external_artifacts_enabled());
     assert(xemu_shader_browser_flush_database(error, sizeof(error)));
     assert(std::filesystem::exists(root / "shader-browser.db"));
 
@@ -115,6 +117,7 @@ int main()
     // user-visible artifact folder. Live/current-process browsing remains.
     assert(xemu_shader_browser_database_configure(0, 0, 0,
                                                    error, sizeof(error)));
+    assert(!xemu_shader_browser_external_artifacts_enabled());
     assert(std::filesystem::exists(root / "shader-browser.db"));
     assert(artifact_files == 1);
     assert(GetProvider().CopySnapshot(&snapshot));

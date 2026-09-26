@@ -168,11 +168,29 @@ int main()
     assert(db.QuickCheck(&check, &error));
     assert(check == "ok");
 
+    // Exercise the intended catalog size across an actual close and reload.
+    for (uint32_t i = 0; i < 10000; ++i) {
+        ShaderRecord record{};
+        record.key.stage = Stage::Pixel;
+        record.recipe_format_version = 1;
+        record.recipe = {0x53, static_cast<uint8_t>(i),
+                         static_cast<uint8_t>(i >> 8),
+                         static_cast<uint8_t>(i >> 16),
+                         static_cast<uint8_t>(i >> 24)};
+        record.key.hash = ComputeShaderHash(
+            1, record.key.stage, record.recipe_format_version,
+            record.recipe.data(), record.recipe.size());
+        record.scope.title_id = 0x4d530064;
+        assert(db.UpsertShader(record, &error));
+    }
+    assert(db.Flush(&error));
+    assert(db.GetStats().shader_count == 10002);
+
     db.Close();
 
     ShaderDatabase reopened;
     assert(reopened.Configure(config, &error));
-    assert(reopened.CopyMetadata().size() == 2);
+    assert(reopened.CopyMetadata().size() == 10002);
     assert(reopened.CopySessions(0x4d530064, 16).size() == 2);
     assert(reopened.CopySessionStats("session-a").size() == 1);
     assert(reopened.GetStats().artifact_count == 1);

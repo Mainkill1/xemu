@@ -55,6 +55,16 @@ int main()
     assert(metadata.relative_path.find("4D530064") != std::string::npos);
     assert(metadata.relative_path.find("ps") != std::string::npos);
 
+    // Different generated variants of the same guest shader keep distinct
+    // files when their content digests are supplied.
+    std::string first_path = metadata.relative_path;
+    write.content_hash = std::string(64, 'a');
+    assert(store.Write(write, &metadata, &error));
+    assert(metadata.relative_path != first_path);
+    assert(std::filesystem::exists(root / "shader-artifacts" / first_path));
+    assert(std::filesystem::exists(root / "shader-artifacts" /
+                                   metadata.relative_path));
+
     std::filesystem::remove_all(root, ec);
     std::cout << "shader artifact store tests passed\n";
     return 0;

@@ -3477,6 +3477,8 @@ static void renderer_switch_finalize_renderer(void *opaque)
     NV2AState *d = opaque;
     PGRAPHState *pg = &d->pgraph;
 
+    pgraph_shader_browser_flush_observations(
+        &pg->shader_browser_observations, pg->frame_time);
     xemu_tweaks_publish_renderer(XEMU_TWEAK_RENDERER_NONE);
     if (pg->renderer && pg->renderer->ops.finalize) {
         pg->renderer->ops.finalize(d);
@@ -3547,6 +3549,8 @@ void pgraph_pre_savevm_wait(NV2AState *d)
 {
     PGRAPHState *pg = &d->pgraph;
     pg->renderer->ops.pre_savevm_wait(d);
+    pgraph_shader_browser_flush_observations(
+        &pg->shader_browser_observations, pg->frame_time);
 }
 
 void pgraph_pre_shutdown_trigger(NV2AState *d)

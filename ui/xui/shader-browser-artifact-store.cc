@@ -2,6 +2,7 @@
 #include "shader-browser-artifact-store.hh"
 
 #include <algorithm>
+#include <cctype>
 #include <filesystem>
 #include <fstream>
 
@@ -59,8 +60,13 @@ bool ShaderArtifactStore::Write(const ArtifactWrite &write,
         hash / StageDirectory(write.key.stage);
     std::string filename = write.backend + "-" + write.route + "-" +
                            write.kind + "-abi" +
-                           std::to_string(write.generator_abi) + "." +
-                           write.extension;
+                           std::to_string(write.generator_abi);
+    if (write.content_hash.size() == 64 &&
+        std::all_of(write.content_hash.begin(), write.content_hash.end(),
+                    [](unsigned char c) { return std::isxdigit(c); })) {
+        filename += "-" + write.content_hash;
+    }
+    filename += "." + write.extension;
     relative /= filename;
     std::filesystem::path absolute = std::filesystem::u8path(root_path) /
                                      relative;

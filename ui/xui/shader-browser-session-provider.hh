@@ -190,6 +190,7 @@ int xemu_shader_browser_performance_session_end(
 // and only relative-path metadata is registered in shader-browser.db.
 int xemu_shader_browser_publish_external_artifact(
     const XemuShaderBrowserExternalArtifact *artifact);
+int xemu_shader_browser_external_artifacts_enabled(void);
 
 int xemu_shader_browser_flush_database(char *error, size_t error_size);
 
