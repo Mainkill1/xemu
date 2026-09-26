@@ -20,7 +20,6 @@
  */
 
 #include "hw/xbox/mcpx/apu/apu_int.h"
-#include "adpcm.h"
 
 static const struct {
     hwaddr top, current, next;
@@ -1033,8 +1032,9 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
                         linear_addr += 4;
                     }
                 }
-                adpcm_decode_block(adpcm_decoded, (uint8_t *)adpcm_block,
-                                   block_size, channels);
+                adpcm_decode_block(&d->vp.adpcm_decode_table, adpcm_decoded,
+                                   (uint8_t *)adpcm_block, block_size,
+                                   channels);
                 adpcm_block_index = block_index;
             }
 
@@ -1860,6 +1860,7 @@ void mcpx_apu_vp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_P
 
 void mcpx_apu_vp_init(MCPXAPUState *d)
 {
+    mcpx_apu_adpcm_decode_table_init(&d->vp.adpcm_decode_table);
     voice_work_init(d);
 }
 
