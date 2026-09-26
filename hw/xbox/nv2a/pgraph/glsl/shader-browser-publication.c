@@ -54,6 +54,7 @@ static void publish_binding(const ShaderState *state, bool geometry_needed,
     };
     uint32_t stage_count = geometry_needed ? 3 : 2;
     binding->count = 0;
+    binding->pixel_only = pixel_only;
     binding->scope_generation = generation;
     for (uint32_t i = pixel_only ? 1 : 0;
          i < (pixel_only ? 2 : stage_count); ++i) {
@@ -106,8 +107,7 @@ void pgraph_shader_browser_refresh_binding_scope(
         return;
     }
     if (binding->scope_generation != xemu_shader_browser_scope_generation()) {
-        if (binding->count == 1 &&
-            binding->identities[0].stage == XEMU_SHADER_BROWSER_STAGE_PIXEL) {
+        if (binding->pixel_only) {
             pgraph_shader_browser_publish_pixel_binding(state, binding);
         } else {
             pgraph_shader_browser_publish_binding(state, geometry_needed,

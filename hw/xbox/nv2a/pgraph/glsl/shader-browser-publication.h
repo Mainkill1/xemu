@@ -17,6 +17,7 @@ typedef struct PGRAPHShaderBrowserBinding {
     uint64_t prepare_cpu_ns;
     uint32_t count;
     bool timings_pending;
+    bool pixel_only;
     PGRAPHShaderBrowserIdentity identities[3];
     XemuShaderOverridePolicy opengl_policy;
     XemuShaderOverridePolicy vulkan_policy;
