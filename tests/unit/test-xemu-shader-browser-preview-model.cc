@@ -1,6 +1,7 @@
 #include "../../ui/xui/shader-browser-preview-model.hh"
 
 #include <cassert>
+#include <cmath>
 #include <iostream>
 #include <memory>
 
@@ -52,6 +53,63 @@ int main()
         input_changed.fixture_bytes.data(), input_changed.fixture_bytes.size());
     assert(BuildPreviewCompileKey(input_changed) == compile_a);
     assert(BuildPreviewResultKey(input_changed) != result_a);
+
+    PreviewPacket binding_changed = base;
+    binding_changed.binding_count = 1;
+    binding_changed.bindings[0].target = PreviewInputTarget::UVOffsetU;
+    binding_changed.bindings[0].enabled = true;
+    binding_changed.bindings[0].base = 0.25f;
+    assert(ValidatePreviewPacket(binding_changed, &error));
+    assert(BuildPreviewCompileKey(binding_changed) == compile_a);
+    assert(BuildPreviewResultKey(binding_changed) != result_a);
+    binding_changed.bindings[0].period_seconds = 0;
+    assert(!ValidatePreviewPacket(binding_changed, &error));
+
+    PreviewPacket state_changed = base;
+    state_changed.render_state.depth_write = false;
+    state_changed.render_state.alpha_test = true;
+    assert(ValidatePreviewPacket(state_changed, &error));
+    assert(BuildPreviewCompileKey(state_changed) == compile_a);
+    assert(BuildPreviewResultKey(state_changed) != result_a);
+    state_changed.render_state.clear_color[0] = NAN;
+    assert(!ValidatePreviewPacket(state_changed, &error));
+
+    PreviewPacket large_view = base;
+    large_view.width = 640;
+    large_view.height = 480;
+    assert(ValidatePreviewPacket(large_view, &error));
+    large_view.width = 641;
+    assert(!ValidatePreviewPacket(large_view, &error));
+
+
+    PreviewPacket edited = base;
+    edited.source_variant = PreviewSourceVariant::Edited;
+    edited.draft_id = 9;
+    edited.draft_revision = 2;
+    edited.draft_submission_id = 1;
+    edited.source = "void main(){}";
+    edited.source_digest = ComputePreviewDigest(
+        reinterpret_cast<const uint8_t *>(edited.source.data()),
+        edited.source.size());
+    assert(ValidatePreviewPacket(edited, &error));
+    assert(BuildPreviewCompileKey(edited) != compile_a);
+    PreviewCompileKey edited_compile = BuildPreviewCompileKey(edited);
+    edited.draft_submission_id++;
+    assert(ValidatePreviewPacket(edited, &error));
+    assert(BuildPreviewCompileKey(edited) != edited_compile);
+    edited.draft_submission_id = 0;
+    assert(!ValidatePreviewPacket(edited, &error));
+    edited.draft_submission_id = 2;
+    edited_compile = BuildPreviewCompileKey(edited);
+    edited.draft_revision++;
+    assert(BuildPreviewCompileKey(edited) != edited_compile);
+    edited.draft_id = 0;
+    assert(!ValidatePreviewPacket(edited, &error));
+    edited.source_variant = PreviewSourceVariant::Original;
+    edited.draft_revision = 0;
+    assert(!ValidatePreviewPacket(edited, &error));
+    edited.draft_submission_id = 0;
+    assert(ValidatePreviewPacket(edited, &error));
 
     auto channel_result = result_a;
     channel_result.channel = PreviewChannel::Alpha;

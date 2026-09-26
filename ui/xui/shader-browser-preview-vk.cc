@@ -2,6 +2,7 @@
 #include "qemu/osdep.h"
 #include "shader-browser-preview-vk.hh"
 #include "shader-browser-preview-adapter.hh"
+#include "shader-browser-preview-alpha.hh"
 
 #ifdef CONFIG_VULKAN
 #include <SDL3/SDL.h>
@@ -165,6 +166,11 @@ struct PreviewVkExecutor::Impl {
     VkFence fence = VK_NULL_HANDLE;
     VkRenderPass pass = VK_NULL_HANDLE;
     VkPipeline pipeline = VK_NULL_HANDLE;
+    VkPipeline reference_pipeline = VK_NULL_HANDLE;
+    VkShaderModule selected_modules[2]{};
+    PreviewRenderState pipeline_state{};
+    VkFormat depth_format = VK_FORMAT_UNDEFINED;
+    bool unsupported_depth = false;
     VkPipelineLayout layout = VK_NULL_HANDLE;
     VkDescriptorSetLayout set_layout = VK_NULL_HANDLE;
     VkDescriptorPool descriptor_pool = VK_NULL_HANDLE;
@@ -180,7 +186,7 @@ struct PreviewVkExecutor::Impl {
         VkImage handle = VK_NULL_HANDLE;
         VkDeviceMemory memory = VK_NULL_HANDLE;
         VkImageView view = VK_NULL_HANDLE;
-    } target;
+    } target, depth;
     std::array<Image, 4> textures{};
     std::array<bool, 4> cubes{};
     std::array<unsigned, 32> binding_stage{};
@@ -288,6 +294,21 @@ struct PreviewVkExecutor::Impl {
             *error = "Private Vulkan RGBA8 format unavailable";
             return false;
         }
+        for (VkFormat candidate : { VK_FORMAT_D32_SFLOAT,
+                                    VK_FORMAT_D24_UNORM_S8_UINT }) {
+            api.GetPhysicalDeviceFormatProperties(physical, candidate,
+                                                  &format);
+            if (format.optimalTilingFeatures &
+                VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
+                depth_format = candidate;
+                break;
+            }
+        }
+        if (depth_format == VK_FORMAT_UNDEFINED) {
+            unsupported_depth = true;
+            *error = "Unsupported private Vulkan depth attachment format";
+            return false;
+        }
         float priority = 0.0f;
         VkDeviceQueueCreateInfo qi{
             VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO
@@ -379,11 +400,13 @@ struct PreviewVkExecutor::Impl {
                      "mapping");
     }
     bool MakeImage(Image &image, uint32_t width, uint32_t height,
-                   VkImageUsageFlags usage, bool cube = false)
+                   VkImageUsageFlags usage, bool cube = false,
+                   VkFormat format = VK_FORMAT_R8G8B8A8_UNORM,
+                   VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT)
     {
         VkImageCreateInfo ci{ VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
         ci.imageType = VK_IMAGE_TYPE_2D;
-        ci.format = VK_FORMAT_R8G8B8A8_UNORM;
+        ci.format = format;
         ci.extent = { width, height, 1 };
         ci.mipLevels = 1;
         ci.arrayLayers = cube ? 6 : 1;
@@ -405,7 +428,7 @@ struct PreviewVkExecutor::Impl {
         vi.image = image.handle;
         vi.viewType = cube ? VK_IMAGE_VIEW_TYPE_CUBE : VK_IMAGE_VIEW_TYPE_2D;
         vi.format = ci.format;
-        vi.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0,
+        vi.subresourceRange = { aspect, 0, 1, 0,
                                 cube ? 6U : 1U };
         return Check(api.CreateImageView(device, &vi, nullptr, &image.view),
                      "image view");
@@ -437,6 +460,12 @@ struct PreviewVkExecutor::Impl {
             return;
         if (pipeline)
             api.DestroyPipeline(device, pipeline, nullptr);
+        if (reference_pipeline)
+            api.DestroyPipeline(device, reference_pipeline, nullptr);
+        for (VkShaderModule &module : selected_modules) {
+            if (module) api.DestroyShaderModule(device, module, nullptr);
+            module = VK_NULL_HANDLE;
+        }
         if (layout)
             api.DestroyPipelineLayout(device, layout, nullptr);
         if (descriptor_pool)
@@ -450,6 +479,7 @@ struct PreviewVkExecutor::Impl {
         if (sampler)
             api.DestroySampler(device, sampler, nullptr);
         pipeline = VK_NULL_HANDLE;
+        reference_pipeline = VK_NULL_HANDLE;
         layout = VK_NULL_HANDLE;
         descriptor_pool = VK_NULL_HANDLE;
         set = VK_NULL_HANDLE;
@@ -462,6 +492,7 @@ struct PreviewVkExecutor::Impl {
         Destroy(upload);
         Destroy(readback);
         Destroy(target);
+        Destroy(depth);
         for (auto &texture : textures)
             Destroy(texture);
         cubes.fill(false);
@@ -723,104 +754,11 @@ struct PreviewVkExecutor::Impl {
             api.UpdateDescriptorSets(device, 1, &write, 0, nullptr);
         }
     }
-    bool Prepare(const PreviewWorkItem &work, bool *unsupported)
+    bool MakePipeline(const VkShaderModule modules[2],
+                      const PreviewRenderState &requested, bool reference,
+                      VkPipeline *out)
     {
-        *unsupported = false;
-        if (!work.packet ||
-            work.packet->selection.backend != PreviewBackend::Vulkan ||
-            work.packet->packet_kind != PreviewPacketKind::Synthetic ||
-            work.packet->partner_source !=
-                BuildPreviewSyntheticVertexSource(work.packet->source,
-                                                  PreviewBackend::Vulkan)) {
-            *unsupported = true;
-            *error = "Unsupported Vulkan packet or synthetic partner";
-            return false;
-        }
-        if (in_flight) {
-            *error = "Private Vulkan execution owner requires shutdown after "
-                     "incomplete work";
-            return false;
-        }
-        if (prepared && key == work.compile_key)
-            return true;
-        if (!Init())
-            return false;
-        ClearProgram();
-        std::vector<uint32_t> vert, frag;
-        if (!Compile(work.packet->partner_source, GLSLANG_STAGE_VERTEX, &vert,
-                     error) ||
-            !Compile(work.packet->source, GLSLANG_STAGE_FRAGMENT, &frag, error))
-            return false;
-        if (!Reflect(vert, frag)) {
-            *unsupported = true;
-            return false;
-        }
-        VkDescriptorSetLayoutCreateInfo dli{
-            VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO
-        };
-        dli.bindingCount = bindings.size();
-        dli.pBindings = bindings.data();
-        if (!Check(api.CreateDescriptorSetLayout(device, &dli, nullptr,
-                                                 &set_layout),
-                   "descriptor layout"))
-            return false;
-        VkPipelineLayoutCreateInfo li{
-            VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO
-        };
-        li.setLayoutCount = 1;
-        li.pSetLayouts = &set_layout;
-        if (!Check(api.CreatePipelineLayout(device, &li, nullptr, &layout),
-                   "pipeline layout"))
-            return false;
-        VkAttachmentDescription attachment{};
-        attachment.format = VK_FORMAT_R8G8B8A8_UNORM;
-        attachment.samples = VK_SAMPLE_COUNT_1_BIT;
-        attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-        attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        attachment.finalLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-        VkAttachmentReference reference{
-            0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-        };
-        VkSubpassDescription subpass{};
-        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-        subpass.colorAttachmentCount = 1;
-        subpass.pColorAttachments = &reference;
-        VkSubpassDependency dependency{};
-        dependency.srcSubpass = 0;
-        dependency.dstSubpass = VK_SUBPASS_EXTERNAL;
-        dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-        dependency.dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
-        dependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        dependency.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-        VkRenderPassCreateInfo ri{ VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO };
-        ri.attachmentCount = 1;
-        ri.pAttachments = &attachment;
-        ri.subpassCount = 1;
-        ri.pSubpasses = &subpass;
-        ri.dependencyCount = 1;
-        ri.pDependencies = &dependency;
-        if (!Check(api.CreateRenderPass(device, &ri, nullptr, &pass),
-                   "render pass"))
-            return false;
-        VkShaderModule modules[2]{};
-        for (size_t i = 0; i < 2; ++i) {
-            const auto &words = i ? frag : vert;
-            VkShaderModuleCreateInfo mi{
-                VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO
-            };
-            mi.codeSize = words.size() * 4;
-            mi.pCode = words.data();
-            if (!Check(
-                    api.CreateShaderModule(device, &mi, nullptr, &modules[i]),
-                    "shader module")) {
-                if (modules[0])
-                    api.DestroyShaderModule(device, modules[0], nullptr);
-                return false;
-            }
-        }
+        const PreviewRenderState state = ClampPreviewRenderState(requested);
         VkPipelineShaderStageCreateInfo stages[2]{};
         for (size_t i = 0; i < 2; ++i) {
             stages[i].sType =
@@ -868,12 +806,33 @@ struct PreviewVkExecutor::Impl {
         };
         raster.polygonMode = VK_POLYGON_MODE_FILL;
         raster.lineWidth = 1;
+        raster.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+        raster.cullMode = reference || state.cull == PreviewCullMode::None ?
+            VK_CULL_MODE_NONE : state.cull == PreviewCullMode::Back ?
+                VK_CULL_MODE_BACK_BIT : VK_CULL_MODE_FRONT_BIT;
         VkPipelineMultisampleStateCreateInfo ms{
             VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO
         };
         ms.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+        VkPipelineDepthStencilStateCreateInfo depth_state{
+            VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO
+        };
+        depth_state.depthTestEnable = reference || state.depth_test;
+        depth_state.depthWriteEnable = reference || state.depth_write;
+        depth_state.depthCompareOp = VK_COMPARE_OP_LESS;
         VkPipelineColorBlendAttachmentState blend_attachment{};
         blend_attachment.colorWriteMask = 15;
+        if (!reference && state.blend == PreviewBlendMode::Alpha) {
+            blend_attachment.blendEnable = VK_TRUE;
+            blend_attachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+            blend_attachment.dstColorBlendFactor =
+                VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+            blend_attachment.colorBlendOp = VK_BLEND_OP_ADD;
+            blend_attachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+            blend_attachment.dstAlphaBlendFactor =
+                VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+            blend_attachment.alphaBlendOp = VK_BLEND_OP_ADD;
+        }
         VkPipelineColorBlendStateCreateInfo blend{
             VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO
         };
@@ -896,28 +855,194 @@ struct PreviewVkExecutor::Impl {
         pi.pViewportState = &viewport;
         pi.pRasterizationState = &raster;
         pi.pMultisampleState = &ms;
+        pi.pDepthStencilState = &depth_state;
         pi.pColorBlendState = &blend;
         pi.pDynamicState = &dynamic;
         pi.layout = layout;
         pi.renderPass = pass;
-        bool ok = Check(api.CreateGraphicsPipelines(device, VK_NULL_HANDLE, 1,
-                                                    &pi, nullptr, &pipeline),
-                        "pipeline");
-        for (auto module : modules)
+        return Check(api.CreateGraphicsPipelines(device, VK_NULL_HANDLE, 1,
+                                                 &pi, nullptr, out),
+                     reference ? "reference pipeline" : "target pipeline");
+    }
+    bool Prepare(const PreviewWorkItem &work, bool *unsupported)
+    {
+        *unsupported = false;
+        if (!work.packet ||
+            work.packet->selection.backend != PreviewBackend::Vulkan ||
+            work.packet->packet_kind != PreviewPacketKind::Synthetic ||
+            work.packet->partner_source !=
+                BuildPreviewSyntheticVertexSource(work.packet->source,
+                                                  PreviewBackend::Vulkan)) {
+            *unsupported = true;
+            *error = "Unsupported Vulkan packet or synthetic partner";
+            return false;
+        }
+        if (in_flight) {
+            *error = "Private Vulkan execution owner requires shutdown after "
+                     "incomplete work";
+            return false;
+        }
+        if (prepared && key == work.compile_key)
+            return true;
+        if (!Init()) {
+            if (unsupported_depth) *unsupported = true;
+            return false;
+        }
+        ClearProgram();
+        std::vector<uint32_t> vert, frag;
+        if (!Compile(work.packet->partner_source, GLSLANG_STAGE_VERTEX, &vert,
+                     error) ||
+            !Compile(work.packet->source, GLSLANG_STAGE_FRAGMENT, &frag, error))
+            return false;
+        if (!Reflect(vert, frag)) {
+            *unsupported = true;
+            return false;
+        }
+        VkDescriptorSetLayoutCreateInfo dli{
+            VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO
+        };
+        dli.bindingCount = bindings.size();
+        dli.pBindings = bindings.data();
+        if (!Check(api.CreateDescriptorSetLayout(device, &dli, nullptr,
+                                                 &set_layout),
+                   "descriptor layout"))
+            return false;
+        VkPipelineLayoutCreateInfo li{
+            VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO
+        };
+        li.setLayoutCount = 1;
+        li.pSetLayouts = &set_layout;
+        if (!Check(api.CreatePipelineLayout(device, &li, nullptr, &layout),
+                   "pipeline layout"))
+            return false;
+        VkAttachmentDescription attachment{};
+        attachment.format = VK_FORMAT_R8G8B8A8_UNORM;
+        attachment.samples = VK_SAMPLE_COUNT_1_BIT;
+        attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        attachment.finalLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+        VkAttachmentDescription depth_attachment{};
+        depth_attachment.format = depth_format;
+        depth_attachment.samples = VK_SAMPLE_COUNT_1_BIT;
+        depth_attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        depth_attachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        depth_attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        depth_attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        depth_attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        depth_attachment.finalLayout =
+            VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        VkAttachmentDescription attachments[] = { attachment, depth_attachment };
+        VkAttachmentReference reference{
+            0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+        };
+        VkAttachmentReference depth_reference{
+            1, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+        };
+        VkSubpassDescription subpass{};
+        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+        subpass.colorAttachmentCount = 1;
+        subpass.pColorAttachments = &reference;
+        subpass.pDepthStencilAttachment = &depth_reference;
+        VkSubpassDependency dependencies[2]{};
+        dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+        dependencies[0].dstSubpass = 0;
+        dependencies[0].srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+        dependencies[0].dstStageMask =
+            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT |
+            VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+        dependencies[0].dstAccessMask =
+            VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
+            VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        dependencies[1].srcSubpass = 0;
+        dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+        dependencies[1].srcStageMask =
+            VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependencies[1].dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
+        dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        dependencies[1].dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+        VkRenderPassCreateInfo ri{ VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO };
+        ri.attachmentCount = 2;
+        ri.pAttachments = attachments;
+        ri.subpassCount = 1;
+        ri.pSubpasses = &subpass;
+        ri.dependencyCount = 2;
+        ri.pDependencies = dependencies;
+        if (!Check(api.CreateRenderPass(device, &ri, nullptr, &pass),
+                   "render pass"))
+            return false;
+        for (size_t i = 0; i < 2; ++i) {
+            const auto &words = i ? frag : vert;
+            VkShaderModuleCreateInfo mi{
+                VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO
+            };
+            mi.codeSize = words.size() * 4;
+            mi.pCode = words.data();
+            if (!Check(api.CreateShaderModule(device, &mi, nullptr,
+                                              &selected_modules[i]),
+                       "selected shader module"))
+                return false;
+        }
+        constexpr const char *reference_vertex =
+            "#version 450\nlayout(location=0) in vec4 position;\n"
+            "layout(location=1) in vec4 vertexColor;\n"
+            "layout(location=0) out vec4 referenceColor;\n"
+            "void main(){gl_Position=position;referenceColor=vertexColor;}\n";
+        constexpr const char *reference_fragment =
+            "#version 450\nlayout(location=0) in vec4 referenceColor;\n"
+            "layout(location=0) out vec4 color;\n"
+            "void main(){color=referenceColor;}\n";
+        std::vector<uint32_t> reference_vert, reference_frag;
+        if (!Compile(reference_vertex, GLSLANG_STAGE_VERTEX, &reference_vert,
+                     error) ||
+            !Compile(reference_fragment, GLSLANG_STAGE_FRAGMENT,
+                     &reference_frag, error))
+            return false;
+        VkShaderModule reference_modules[2]{};
+        for (size_t i = 0; i < 2; ++i) {
+            const auto &words = i ? reference_frag : reference_vert;
+            VkShaderModuleCreateInfo mi{
+                VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO
+            };
+            mi.codeSize = words.size() * 4;
+            mi.pCode = words.data();
+            if (!Check(api.CreateShaderModule(device, &mi, nullptr,
+                                              &reference_modules[i]),
+                       "reference shader module")) {
+                if (reference_modules[0])
+                    api.DestroyShaderModule(device, reference_modules[0],
+                                            nullptr);
+                return false;
+            }
+        }
+        pipeline_state = ClampPreviewRenderState(work.packet->render_state);
+        const bool pipelines_ok =
+            MakePipeline(selected_modules, pipeline_state, false, &pipeline) &&
+            MakePipeline(reference_modules, {}, true, &reference_pipeline);
+        for (VkShaderModule module : reference_modules)
             api.DestroyShaderModule(device, module, nullptr);
-        if (!ok)
+        if (!pipelines_ok)
             return false;
         if (!MakeBuffer(vertices, kPreviewMaxSceneVertices * sizeof(Vertex),
                         VK_BUFFER_USAGE_VERTEX_BUFFER_BIT) ||
             !MakeBuffer(upload, kPreviewFixtureTextureBytes,
                         VK_BUFFER_USAGE_TRANSFER_SRC_BIT) ||
-            !MakeBuffer(readback, 320 * 320 * 4,
+            !MakeBuffer(readback, 640 * 480 * 4,
                         VK_BUFFER_USAGE_TRANSFER_DST_BIT) ||
             (uniform_size && !MakeBuffer(uniform, uniform_size,
                                          VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)) ||
-            !MakeImage(target, 320, 320,
+            !MakeImage(target, 640, 480,
                        VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
                            VK_IMAGE_USAGE_TRANSFER_SRC_BIT) ||
+            !MakeImage(depth, 640, 480,
+                       VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, false,
+                       depth_format,
+                       depth_format == VK_FORMAT_D24_UNORM_S8_UINT ?
+                           VK_IMAGE_ASPECT_DEPTH_BIT |
+                               VK_IMAGE_ASPECT_STENCIL_BIT :
+                           VK_IMAGE_ASPECT_DEPTH_BIT) ||
             !MakeSampler(false, false))
             return false;
         for (unsigned i = 0; i < 4; ++i)
@@ -928,9 +1053,11 @@ struct PreviewVkExecutor::Impl {
                 return false;
         VkFramebufferCreateInfo fi{ VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO };
         fi.renderPass = pass;
-        fi.attachmentCount = 1;
-        fi.pAttachments = &target.view;
-        fi.width = fi.height = 320;
+        VkImageView views[] = { target.view, depth.view };
+        fi.attachmentCount = 2;
+        fi.pAttachments = views;
+        fi.width = 640;
+        fi.height = 480;
         fi.layers = 1;
         if (!Check(api.CreateFramebuffer(device, &fi, nullptr, &framebuffer),
                    "framebuffer"))
@@ -986,7 +1113,7 @@ struct PreviewVkExecutor::Impl {
     {
         if (!prepared || !work.packet || key != work.compile_key || in_flight ||
             !work.packet->width || !work.packet->height ||
-            work.packet->width > 320 || work.packet->height > 320) {
+            work.packet->width > 640 || work.packet->height > 480) {
             *error = "Private Vulkan preview is not prepared for these inputs";
             return false;
         }
@@ -995,9 +1122,8 @@ struct PreviewVkExecutor::Impl {
         if (!DecodePreviewSyntheticFixture(packet.fixture_bytes, &fixture,
                                            error))
             return false;
-        if (packet.update_policy == PreviewUpdatePolicy::Continuous) {
-            AnimatePreviewSyntheticFixture(&fixture, work.result_key.time_seconds);
-        }
+        ApplyPreviewDeclaredBindings(&fixture, packet,
+                                     work.result_key.time_seconds);
         if (!PreviewChannelAvailable(work.result_key.channel)) {
             *error = PreviewChannelProvenance(work.result_key.channel);
             return false;
@@ -1007,6 +1133,9 @@ struct PreviewVkExecutor::Impl {
                                            packet.width, packet.height, rgba,
                                            error);
         }
+        const PreviewRenderState state =
+            ClampPreviewRenderState(packet.render_state);
+        if (!AdmitPreviewBakedAlphaTest(packet, error)) return false;
         if (linear != bool(fixture.linear_filter) ||
             repeat != bool(fixture.repeat_wrap)) {
             if (!MakeSampler(fixture.linear_filter, fixture.repeat_wrap))
@@ -1018,10 +1147,36 @@ struct PreviewVkExecutor::Impl {
                             i * pixels.size(),
                         pixels.data(), pixels.size());
         }
-        auto mesh = BuildPreviewSceneGeometry(
+        auto frame = BuildPreviewSceneFrame(
             work.result_key.scene, float(packet.width) / packet.height, true);
-        ApplyPreviewSyntheticFixture(fixture, mesh, cubes);
-        std::memcpy(vertices.mapped, mesh.data(), mesh.size() * sizeof(Vertex));
+        if (frame.draw_count != kPreviewMaxSceneDraws ||
+            frame.vertices.size() > kPreviewMaxSceneVertices) {
+            *error = "Private Vulkan scene geometry is invalid";
+            return false;
+        }
+        const auto &target_draw = frame.draws[frame.draw_count - 1];
+        std::vector<Vertex> target_vertices(
+            frame.vertices.begin() + target_draw.first_vertex,
+            frame.vertices.begin() + target_draw.first_vertex +
+                target_draw.vertex_count);
+        ApplyPreviewSyntheticFixture(fixture, target_vertices, cubes);
+        std::copy(target_vertices.begin(), target_vertices.end(),
+                  frame.vertices.begin() + target_draw.first_vertex);
+        std::memcpy(vertices.mapped, frame.vertices.data(),
+                    frame.vertices.size() * sizeof(Vertex));
+        if (state.blend != pipeline_state.blend ||
+            state.depth_test != pipeline_state.depth_test ||
+            state.depth_write != pipeline_state.depth_write ||
+            state.cull != pipeline_state.cull) {
+            VkPipeline next = VK_NULL_HANDLE;
+            if (!MakePipeline(selected_modules, state, false, &next)) {
+                if (next) api.DestroyPipeline(device, next, nullptr);
+                return false;
+            }
+            api.DestroyPipeline(device, pipeline, nullptr);
+            pipeline = next;
+            pipeline_state = state;
+        }
         if (uniform_size)
             std::memset(uniform.mapped, 0, uniform_size);
         for (const auto &u : uniforms) {
@@ -1043,7 +1198,7 @@ struct PreviewVkExecutor::Impl {
                 } else if (u.name == "texScale")
                     value[0] = 8;
                 else if (u.name == "alphaRef")
-                    integer[0] = fixture.alpha_reference;
+                    integer[0] = state.alpha_reference;
                 else if (u.name == "surfaceScale")
                     integer[0] = integer[1] = 1;
                 else if (u.name == "clipRegion") {
@@ -1091,18 +1246,19 @@ struct PreviewVkExecutor::Impl {
                     VK_PIPELINE_STAGE_TRANSFER_BIT,
                     VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, layers);
         }
-        VkClearValue clear{};
-        clear.color.float32[3] = 1;
+        VkClearValue clear[2]{};
+        for (size_t i = 0; i < 4; ++i)
+            clear[0].color.float32[i] = state.clear_color[i];
+        clear[1].depthStencil.depth = 1.0f;
         VkRenderPassBeginInfo begin{ VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO };
         begin.renderPass = pass;
         begin.framebuffer = framebuffer;
         begin.renderArea.extent = { packet.width, packet.height };
-        begin.clearValueCount = 1;
-        begin.pClearValues = &clear;
+        begin.clearValueCount = 2;
+        begin.pClearValues = clear;
         api.CmdBeginRenderPass(cmd, &begin, VK_SUBPASS_CONTENTS_INLINE);
-        api.CmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-        api.CmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, layout,
-                                  0, 1, &set, 0, nullptr);
+        api.CmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                            reference_pipeline);
         VkDeviceSize offset = 0;
         api.CmdBindVertexBuffers(cmd, 0, 1, &vertices.handle, &offset);
         VkViewport viewport{ 0, 0, float(packet.width), float(packet.height),
@@ -1110,7 +1266,16 @@ struct PreviewVkExecutor::Impl {
         VkRect2D scissor{ { 0, 0 }, { packet.width, packet.height } };
         api.CmdSetViewport(cmd, 0, 1, &viewport);
         api.CmdSetScissor(cmd, 0, 1, &scissor);
-        api.CmdDraw(cmd, static_cast<uint32_t>(mesh.size()), 1, 0, 0);
+        for (size_t i = 0; i < frame.draw_count - 1; ++i) {
+            const auto &draw = frame.draws[i];
+            if (draw.vertex_count)
+                api.CmdDraw(cmd, draw.vertex_count, 1, draw.first_vertex, 0);
+        }
+        api.CmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+        api.CmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, layout,
+                                  0, 1, &set, 0, nullptr);
+        api.CmdDraw(cmd, target_draw.vertex_count, 1,
+                    target_draw.first_vertex, 0);
         api.CmdEndRenderPass(cmd);
         VkBufferImageCopy copy{};
         copy.imageSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };

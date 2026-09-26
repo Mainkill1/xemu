@@ -17,11 +17,38 @@ constexpr size_t kPreviewMaxSourceBytes = 4U * 1024U * 1024U;
 constexpr size_t kPreviewMaxOwnedPacketBytes = 32U * 1024U * 1024U;
 constexpr uint32_t kPreviewFullExtent = 320U;
 constexpr uint32_t kPreviewReducedExtent = 160U;
+constexpr uint32_t kPreviewMaxWidth = 640U;
+constexpr uint32_t kPreviewMaxHeight = 480U;
 constexpr size_t kPreviewDigestBytes = 32U;
 
 using PreviewDigest = std::array<uint8_t, kPreviewDigestBytes>;
 
 enum class PreviewUpdatePolicy : uint8_t { OnDirty, Continuous };
+
+enum class PreviewSourceVariant : uint8_t { Original, Edited };
+
+enum class PreviewInputTarget : uint8_t {
+    D0Alpha,
+    UVOffsetU,
+    UVOffsetV,
+    ConstantR,
+    ConstantG,
+    ConstantB,
+    ConstantA,
+    Fog,
+    D0RGB,
+    Count,
+};
+
+struct PreviewInputBinding {
+    PreviewInputTarget target = PreviewInputTarget::D0Alpha;
+    bool enabled = false;
+    float base = 0.0f;
+    float amplitude = 0.0f;
+    float period_seconds = 8.0f;
+    bool operator==(const PreviewInputBinding &other) const;
+};
+constexpr size_t kPreviewMaxInputBindings = 9;
 
 enum class PreviewMode : uint8_t {
     Normal,
@@ -132,6 +159,10 @@ bool SamePreviewDisplayScope(const PreviewSelection &lhs,
 
 struct PreviewCompileKey {
     PreviewSelection selection;
+    PreviewSourceVariant source_variant = PreviewSourceVariant::Original;
+    uint64_t draft_id = 0;
+    uint64_t draft_revision = 0;
+    uint64_t draft_submission_id = 0;
     uint32_t recipe_format_version = 0;
     uint32_t generator_abi = 0;
     uint32_t interface_abi = 0;
@@ -149,11 +180,14 @@ std::string PreviewSourceIdentity(const PreviewCompileKey &key);
 struct PreviewResultKey {
     PreviewChannel channel = PreviewChannel::FinalRGBA;
     PreviewScene scene;
+    PreviewRenderState render_state;
     uint64_t clock_revision = 0;
     uint64_t clock_edit_revision = 0;
     double time_seconds = 0.0;
     PreviewCompileKey compile;
     uint64_t input_revision = 0;
+    uint8_t binding_count = 0;
+    std::array<PreviewInputBinding, kPreviewMaxInputBindings> bindings{};
     uint64_t view_revision = 0;
     uint32_t width = 0;
     uint32_t height = 0;
@@ -167,7 +201,15 @@ struct PreviewResultKey {
 
 struct PreviewPacket {
     PreviewScene scene;
+    PreviewRenderState render_state;
     PreviewSelection selection;
+    // Descriptive provenance; source/partner digests govern compile identity.
+    Route source_route = Route::Unknown;
+    bool source_resident = false;
+    PreviewSourceVariant source_variant = PreviewSourceVariant::Original;
+    uint64_t draft_id = 0;
+    uint64_t draft_revision = 0;
+    uint64_t draft_submission_id = 0;
     uint32_t recipe_format_version = 0;
     std::vector<uint8_t> recipe;
     std::string source;
@@ -181,6 +223,8 @@ struct PreviewPacket {
     PreviewDigest partner_digest{};
     PreviewDigest fixture_digest{};
     uint64_t input_revision = 0;
+    uint8_t binding_count = 0;
+    std::array<PreviewInputBinding, kPreviewMaxInputBindings> bindings{};
     uint64_t view_revision = 0;
     uint32_t width = kPreviewFullExtent;
     uint32_t height = kPreviewFullExtent;

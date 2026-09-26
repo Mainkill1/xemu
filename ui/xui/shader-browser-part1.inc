@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "shader-browser.hh"
+#include "shader-browser-usage-export.hh"
+#include "shader-browser-glsl-export.hh"
 
 #include "common.hh"
 #include "viewport-manager.hh"
@@ -18,6 +20,15 @@ using namespace xemu::shader_browser;
 ShaderBrowserWindow shader_browser_window;
 
 namespace {
+
+struct TableViewState {
+    std::set<ShaderKey> pinned;
+    std::set<ShaderKey> hidden;
+    bool show_hidden = false;
+    int recent_index = 0;
+};
+
+TableViewState table_view;
 
 uint64_t PreviewNowNs()
 {
@@ -250,10 +261,12 @@ void ShaderBrowserWindow::Draw()
     }
 
     ImVec2 available = ImGui::GetContentRegionAvail();
-    float left_width = std::clamp(available.x * 0.48f,
-                                  320.0f * scale,
-                                  std::max(320.0f * scale,
-                                           available.x - 330.0f * scale));
+    const bool external_workbench = xemu_hud_shader_browser_external();
+    float left_width = external_workbench ?
+        std::clamp(available.x * 0.25f, 220.0f * scale,
+                   std::max(220.0f * scale, available.x - 490.0f * scale)) :
+        std::clamp(available.x * 0.48f, 320.0f * scale,
+                   std::max(320.0f * scale, available.x - 330.0f * scale));
     if (ImGui::BeginChild("##shader-selector", ImVec2(left_width, 0), true)) {
         DrawSelector();
     }
@@ -311,6 +324,13 @@ void ShaderBrowserWindow::RebuildVisibleOrder()
     filter.source = SourceFromIndex(m_source_filter);
     filter.sort_key = SortFromIndex(m_sort_key);
     filter.descending = m_sort_descending;
+    filter.pinned = table_view.pinned;
+    filter.hidden = table_view.hidden;
+    filter.show_hidden = table_view.show_hidden;
+    filter.recent_enabled = table_view.recent_index != 0;
+    filter.current_frame = m_snapshot.current_frame;
+    static constexpr uint64_t recent_frames[] = {0, 30, 120, 600};
+    filter.recent_within_frames = recent_frames[table_view.recent_index];
     m_visible_order = BuildVisibleOrder(m_snapshot.entries, filter);
     if (m_current_title_only && m_snapshot.current_title_id) {
         m_visible_order.erase(std::remove_if(
@@ -324,13 +344,6 @@ void ShaderBrowserWindow::RebuildVisibleOrder()
                                scope.title_id == m_snapshot.current_title_id;
                     });
             }), m_visible_order.end());
-    }
-    if (m_has_selection && std::none_of(
-            m_visible_order.begin(), m_visible_order.end(),
-            [this](size_t index) {
-                return m_snapshot.entries[index].key == m_selected_key;
-            })) {
-        m_has_selection = false;
     }
     if (!m_has_selection && !m_visible_order.empty()) {
         SelectEntry(m_snapshot.entries[m_visible_order.front()]);

@@ -4,6 +4,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -153,6 +154,12 @@ struct Filter {
     SourceFilter source = SourceFilter::All;
     SortKey sort_key = SortKey::Draws;
     bool descending = true;
+    bool recent_enabled = false;
+    uint64_t current_frame = 0;
+    uint64_t recent_within_frames = 0;
+    bool show_hidden = false;
+    std::set<ShaderKey> pinned;
+    std::set<ShaderKey> hidden;
 };
 
 ShaderHash ComputeShaderHash(uint32_t identity_version, Stage stage,

@@ -53,6 +53,7 @@ private:
     bool m_preview_packet_scope_available = false;
     uint64_t m_preview_input_revision = 1;
     xemu::shader_browser::PreviewScene m_preview_scene;
+    xemu::shader_browser::PreviewRenderState m_preview_render_state;
     xemu::shader_browser::PreviewUpdatePolicy m_preview_update_policy =
         xemu::shader_browser::PreviewUpdatePolicy::OnDirty;
     int m_preview_profile = -1;
@@ -69,8 +70,6 @@ private:
     int m_preview_alpha_reference = 0;
     bool m_preview_linear_filter = true;
     bool m_preview_repeat_wrap = false;
-    float m_preview_view_zoom = 1.0f;
-    std::array<float, 2> m_preview_view_center{0.5f, 0.5f};
     int m_preview_view_channel = 0;
     bool m_preview_packet_attempted = false;
     std::string m_preview_packet_message;

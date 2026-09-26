@@ -4,6 +4,7 @@
 #include "shader-browser-preview-model.hh"
 #include "shader-browser-recipe-inspector.hh"
 #include "shader-browser-details-model.hh"
+#include "shader-browser-workbench-draft.hh"
 
 namespace xemu::shader_browser {
 
@@ -65,6 +66,10 @@ void ApplyPreviewSyntheticFixture(const PreviewSyntheticFixture &fixture,
 
 void AnimatePreviewSyntheticFixture(PreviewSyntheticFixture *fixture,
                                     double time_seconds);
+const char *PreviewInputTargetName(PreviewInputTarget target);
+void ApplyPreviewDeclaredBindings(PreviewSyntheticFixture *fixture,
+                                  const PreviewPacket &packet,
+                                  double time_seconds);
 
 std::vector<uint8_t> EncodePreviewSyntheticFixture(
     const PreviewSyntheticFixture &fixture);
@@ -76,7 +81,14 @@ bool DecodePreviewSyntheticFixture(const std::vector<uint8_t> &bytes,
 // No source vector, replacement payload, or fixture buffer is borrowed.
 struct PreviewPacketInputs {
     PreviewScene scene;
+    PreviewRenderState render_state;
     PreviewSelection selection;
+    Route source_route = Route::Unknown;
+    bool source_resident = false;
+    PreviewSourceVariant source_variant = PreviewSourceVariant::Original;
+    uint64_t draft_id = 0;
+    uint64_t draft_revision = 0;
+    uint64_t draft_submission_id = 0;
     CanonicalRecipe recipe;
     std::string source;
     std::string partner_source;
@@ -86,6 +98,8 @@ struct PreviewPacketInputs {
     uint64_t replacement_id = 0;
     uint64_t replacement_revision = 0;
     uint64_t input_revision = 0;
+    uint8_t binding_count = 0;
+    std::array<PreviewInputBinding, kPreviewMaxInputBindings> bindings{};
     uint64_t view_revision = 0;
     uint32_t width = kPreviewFullExtent;
     uint32_t height = kPreviewFullExtent;
@@ -106,6 +120,15 @@ bool BuildPreviewPacket(const PreviewPacketInputs &inputs,
 bool CopyPreviewFragmentSource(const PreviewSelection &selection,
                                const DetailSnapshot &detail,
                                std::string *source, std::string *error);
+
+bool CopyGeneratedSourceSnapshot(const PreviewSelection &selection,
+                                 const ShaderScope &active_scope,
+                                 const Entry &entry,
+                                 const DetailSnapshot &detail,
+                                 uint32_t generator_abi,
+                                 uint32_t interface_abi,
+                                 GeneratedSourceSnapshot *source,
+                                 std::string *error);
 
 // A deterministic private partner stage for synthetic inputs. A missing or
 // incompatible interface is rejected later by private program preparation.

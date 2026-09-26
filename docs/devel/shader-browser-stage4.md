@@ -558,27 +558,43 @@ preview through the game renderer.
 
 ## Private scene geometry and camera
 
-The synthetic scene now provides a two-sided Quad, a 32-by-16 tessellated Sphere,
-and a six-face Cube. All vertices and face-local/spherical UVs are generated
-privately. Both backends consume the same bounded CPU geometry and homogeneous
-clip positions, preserving perspective interpolation. Vulkan converts clip Y
-and depth to its viewport convention before the existing presentation row flip.
-There are at most 3,072 vertices (408 KiB with the current fixture attributes) per generated mesh. Vulkan allocates
-one fixed vertex buffer; GL uploads only the current bounded mesh.
+The versioned synthetic fixture has one selected-shader target (two-sided Quad,
+32-by-16 Sphere, or six-face Cube) plus four fixed references: a patterned
+backdrop, checkered ground, intersecting box, and foreground blocker. Each
+reference has bounded translation and visibility. A frame builder returns one
+homogeneous-clip vertex buffer and five explicit draw ranges; only the target
+range receives the selected fragment shader. The compatibility geometry helper
+still returns only the target. The explicit maximum is 4,096 vertices, or
+557,056 bytes at the current 136-byte vertex stride. The default fixture uses
+at most 3,306 vertices. Vulkan converts clip Y/depth to its viewport convention.
 
-Camera controls expose yaw, pitch, distance and two-axis pan, plus reset. Yaw
+Camera state exposes yaw, pitch, distance, two-axis pan and a stable logical
+target pivot. Orbit, pan, dolly, Focus target, Reset camera and Reset scene are
+bounded pure operations and do not change shader compile identity. Yaw
 is bounded to +/-180 degrees, pitch to +/-85 degrees, distance to 2.5–12 units,
-and pan to +/-2 units. Non-finite values become finite defaults. A 45-degree
-perspective projection uses near/far planes 0.1/32. The camera stays outside
-the closed convex meshes even at minimum distance.
+and pan to +/-2 units; target pivot is +/-1.5 and each reference translation
+is +/-0.75 units. Non-finite values become finite defaults. A 45-degree
+perspective projection uses near/far planes 0.1/32.
 
-Visibility is determined by rejecting camera-back-facing triangles of the
-closed convex Sphere and Cube; the Quad reverses its winding when viewed from
-behind. Their front surfaces cannot occlude each other, so this private
-visibility method needs no shared depth buffer. This is an opaque synthetic
-surface approximation: transparency, discard revealing back surfaces, custom
-fragment depth and guest depth/blend interactions are not reconstructed.
-Existing unsupported source-interface rejection remains in force.
+References render first with a private fixed shader, depth test and depth write.
+The target renders last with explicit synthetic blend, depth-test/write,
+culling, alpha-test enable and alpha-reference controls. Generated fragment GLSL
+bakes its alpha-test branch; enable changes unsupported by that source must be
+reported as unavailable rather than silently simulated. Each private renderer
+reads the selected canonical pixel recipe's `alpha_test` field, including
+NEVER and ALWAYS functions whose GLSL has no `fragAlpha` comparison. The
+workbench initializes its enable from that field on a new selection. Edited
+and replacement GLSL have source-defined alpha behavior; their stored alpha
+enable is ignored and the workbench checkbox is disabled. Each private renderer
+clears one shared color/depth pair per result. GL keeps the three leased color
+slots and one worker-owned depth
+renderbuffer; Vulkan keeps one private scratch color/depth pair and transports
+completed pixels into the same three leased presentation slots. Synthetic
+alpha reference is a supplied uniform. No guest draw state or geometry is
+inferred.
+The private Vulkan color target, depth target, and readback allocation are each
+bounded at 640 × 480 pixels (1,228,800 bytes each for 32-bit surfaces); GL
+resizes its one depth attachment and three leased colors to the admitted extent.
 
 Scene settings are bounded values owned by the immutable input packet and the
 claimed result key. Camera/mesh edits update a small service-owned override and
@@ -590,14 +606,13 @@ packet payload cap remain in force. Clock fixture animation applies to every
 mesh.
 
 Focused CPU tests cover generated winding, finite clipping, Vulkan conversion,
-camera movement, clamps and service result identity/source-storage reuse.
-Deck native pixel tests render all three meshes and changed cameras: at 64x64,
-OpenGL red-pixel coverage is 1270/1240/2517; at 32x32 Vulkan coverage is
-316/312/633 (Quad/Sphere/Cube). Vulkan also checks animation on each mesh using
-one prepared pipeline. The GL native test renders the production geometry and
-synthetic partner interface in a private SDL GL context; it does not exercise
-the asynchronous HUD executor lifecycle. These checks do not qualify Windows,
-interactive UI cadence, transparency accuracy or gameplay overhead.
+draw ranges, fixed roles, visibility/transforms, camera movement, clamps and
+service result identity/source-storage reuse.
+The earlier Deck red-pixel coverage figures measured target-only geometry;
+they do not qualify shared depth or reference-object behavior. Native GL/Vulkan
+pixel assertions, renderer reset, resource bounds and gameplay-off/on comparison
+are required in the integrated workbench gate before claiming this scene is
+qualified on either platform.
 
 ### Deterministic fixture profiles (Task 3b)
 

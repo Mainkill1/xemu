@@ -136,6 +136,108 @@ int main()
     }
     assert(images[0] != images[1] && images[0] != images[2] &&
            images[1] != images[2]);
+    GLuint depth_buffer;
+    glGenRenderbuffers(1, &depth_buffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, depth_buffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 64, 64);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+                              GL_RENDERBUFFER, depth_buffer);
+    assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+    const char *reference_vertex =
+        "#version 400\nlayout(location=0) in vec4 position;"
+        "layout(location=1) in vec4 vertexColor;out vec4 referenceColor;"
+        "void main(){gl_Position=position;referenceColor=vertexColor;}";
+    const char *reference_fragment =
+        "#version 400\nin vec4 referenceColor;out vec4 color;"
+        "void main(){color=referenceColor;}";
+    GLuint rv = compile(GL_VERTEX_SHADER, reference_vertex);
+    GLuint rf = compile(GL_FRAGMENT_SHADER, reference_fragment);
+    GLuint reference_program = glCreateProgram();
+    glAttachShader(reference_program, rv);
+    glAttachShader(reference_program, rf);
+    glLinkProgram(reference_program);
+    glGetProgramiv(reference_program, GL_LINK_STATUS, &linked);
+    assert(linked);
+    const std::string discard_fragment =
+        "#version 400\nout vec4 color;void main(){discard;}";
+    GLuint dv = compile(GL_VERTEX_SHADER, BuildPreviewSyntheticVertexSource(
+        discard_fragment, PreviewBackend::OpenGL));
+    GLuint df = compile(GL_FRAGMENT_SHADER, discard_fragment);
+    GLuint discard_program = glCreateProgram();
+    glAttachShader(discard_program, dv);
+    glAttachShader(discard_program, df);
+    glLinkProgram(discard_program);
+    glGetProgramiv(discard_program, GL_LINK_STATUS, &linked);
+    assert(linked);
+    auto render_shared = [&](const PreviewScene &scene, bool discard) {
+        const auto frame = BuildPreviewSceneFrame(scene);
+        assert(frame.draw_count == 5);
+        glBufferData(GL_ARRAY_BUFFER,
+                     frame.vertices.size() * sizeof(PreviewSceneVertex),
+                     frame.vertices.data(), GL_STREAM_DRAW);
+        glViewport(0, 0, 64, 64);
+        glEnable(GL_DEPTH_TEST);
+        glDepthMask(GL_TRUE);
+        glDepthFunc(GL_LESS);
+        glDisable(GL_CULL_FACE);
+        glDisable(GL_BLEND);
+        glClearColor(0, 0, 0, 1);
+        glClearDepth(1);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glUseProgram(reference_program);
+        for (size_t i = 0; i < frame.draw_count - 1; ++i) {
+            const auto &draw = frame.draws[i];
+            glDrawArrays(GL_TRIANGLES, draw.first_vertex, draw.vertex_count);
+        }
+        const auto &target = frame.draws[4];
+        glUseProgram(discard ? discard_program : program);
+        glDrawArrays(GL_TRIANGLES, target.first_vertex, target.vertex_count);
+        std::vector<uint8_t> output(64 * 64 * 4);
+        glReadPixels(0, 0, 64, 64, GL_RGBA, GL_UNSIGNED_BYTE,
+                     output.data());
+        assert(glGetError() == GL_NO_ERROR);
+        return output;
+    };
+    auto scene_pixels = render_shared({}, false);
+    auto find_color = [&](int red, int green, int blue) {
+        for (size_t i = 0; i < scene_pixels.size(); i += 4)
+            if (std::abs(int(scene_pixels[i]) - red) <= 4 &&
+                std::abs(int(scene_pixels[i + 1]) - green) <= 4 &&
+                std::abs(int(scene_pixels[i + 2]) - blue) <= 4)
+                return i;
+        return scene_pixels.size();
+    };
+    assert(find_color(41, 209, 214) < scene_pixels.size());
+    assert(find_color(242, 184, 48) < scene_pixels.size());
+    assert(find_color(69, 74, 79) < scene_pixels.size());
+    assert(find_color(41, 69, 94) < scene_pixels.size());
+    PreviewScene without_blocker;
+    without_blocker.references[3].visible = false;
+    auto uncovered = render_shared(without_blocker, false);
+    size_t blocker_pixel = scene_pixels.size();
+    for (size_t i = 0; i < scene_pixels.size(); i += 4)
+        if (std::abs(int(scene_pixels[i]) - 41) <= 4 &&
+            std::abs(int(scene_pixels[i + 1]) - 209) <= 4 &&
+            uncovered[i] == 255 && uncovered[i + 1] == 0) {
+            blocker_pixel = i;
+            break;
+        }
+    assert(blocker_pixel < scene_pixels.size());
+    auto discarded = render_shared({}, true);
+    assert(discarded[4 * (32 * 64 + 32)] != 255);
+    assert(std::abs(int(discarded[blocker_pixel]) - 41) <= 4);
+    glDisable(GL_DEPTH_TEST);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+                              GL_RENDERBUFFER, 0);
+    glDeleteRenderbuffers(1, &depth_buffer);
+    glDeleteProgram(reference_program);
+    glDeleteProgram(discard_program);
+    glDeleteShader(rv);
+    glDeleteShader(rf);
+    glDeleteShader(dv);
+    glDeleteShader(df);
+    glUseProgram(program);
+    std::puts("OpenGL shared-depth references, blocker and discard PASS");
     glUniform1i(glGetUniformLocation(program, "diagnostic"), 1);
     const auto diagnostic = render(PreviewScene{});
     // Analytic quad interpolation at off-center pixel centers. Red is corner

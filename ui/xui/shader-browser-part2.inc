@@ -127,6 +127,42 @@ void ShaderBrowserWindow::DrawSelector()
         ImGui::Checkbox("Current title only", &m_current_title_only)) {
         m_filter_dirty = true;
     }
+    ImGui::SameLine();
+    if (ImGui::Checkbox("Show hidden", &table_view.show_hidden)) {
+        m_filter_dirty = true;
+    }
+    ImGui::SetNextItemWidth(std::min(180.0f * g_viewport_mgr.m_scale,
+                                     ImGui::GetContentRegionAvail().x));
+    if (ImGui::Combo("Recent", &table_view.recent_index,
+                     "Any time\0Last 30 frames\0Last 120 frames\0Last 600 frames\0")) {
+        m_filter_dirty = true;
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Usage CSV")) {
+        const char *base = xemu_settings_get_base_path();
+        std::filesystem::path root = base ? std::filesystem::u8path(base) :
+                                            std::filesystem::path();
+        std::filesystem::path path;
+        std::string error;
+        if (ExportUsageSnapshot(m_snapshot, root, false, &path, &error)) {
+            m_action_message = "Exported usage CSV to " + path.u8string();
+        } else {
+            m_action_message = error;
+        }
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("JSON")) {
+        const char *base = xemu_settings_get_base_path();
+        std::filesystem::path root = base ? std::filesystem::u8path(base) :
+                                            std::filesystem::path();
+        std::filesystem::path path;
+        std::string error;
+        if (ExportUsageSnapshot(m_snapshot, root, true, &path, &error)) {
+            m_action_message = "Exported usage JSON to " + path.u8string();
+        } else {
+            m_action_message = error;
+        }
+    }
 
     if (m_filter_dirty) {
         RebuildVisibleOrder();
@@ -135,25 +171,15 @@ void ShaderBrowserWindow::DrawSelector()
     ImGuiTableFlags flags = ImGuiTableFlags_Borders |
                             ImGuiTableFlags_RowBg |
                             ImGuiTableFlags_Resizable |
-                            ImGuiTableFlags_ScrollX |
                             ImGuiTableFlags_ScrollY |
-                            ImGuiTableFlags_SizingFixedFit;
-    if (ImGui::BeginTable("##shader-table", 6, flags,
-                          ImVec2(0, -ImGui::GetTextLineHeightWithSpacing() * 2),
-                          690.0f * g_viewport_mgr.m_scale)) {
+                            ImGuiTableFlags_SizingStretchProp;
+    if (ImGui::BeginTable("##shader-table", 4, flags,
+                          ImVec2(0, -ImGui::GetTextLineHeightWithSpacing() * 2))) {
         ImGui::TableSetupScrollFreeze(0, 1);
-        ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_None,
-                                145.0f * g_viewport_mgr.m_scale, 1);
-        ImGui::TableSetupColumn("Stage", ImGuiTableColumnFlags_None,
-                                48.0f * g_viewport_mgr.m_scale, 2);
-        ImGui::TableSetupColumn("Draws", ImGuiTableColumnFlags_None,
-                                72.0f * g_viewport_mgr.m_scale, 3);
-        ImGui::TableSetupColumn("Last Used", ImGuiTableColumnFlags_None,
-                                92.0f * g_viewport_mgr.m_scale, 4);
-        ImGui::TableSetupColumn("Compile", ImGuiTableColumnFlags_None,
-                                120.0f * g_viewport_mgr.m_scale, 5);
-        ImGui::TableSetupColumn("Status", ImGuiTableColumnFlags_None,
-                                105.0f * g_viewport_mgr.m_scale, 6);
+        ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthStretch, 3.0f);
+        ImGui::TableSetupColumn("Stage", ImGuiTableColumnFlags_WidthStretch, 1.2f);
+        ImGui::TableSetupColumn("Draws", ImGuiTableColumnFlags_WidthStretch, 1.0f);
+        ImGui::TableSetupColumn("Last used", ImGuiTableColumnFlags_WidthStretch, 1.8f);
         ImGui::TableHeadersRow();
 
         ImGuiListClipper clipper;
@@ -183,13 +209,30 @@ void ShaderBrowserWindow::DrawSelector()
                         IM_COL32(66, 104, 72, selected ? 115 : 72));
                 }
                 ImGui::TableSetColumnIndex(0);
+                const bool pinned = table_view.pinned.count(entry.key) != 0;
+                const bool hidden = table_view.hidden.count(entry.key) != 0;
+                std::string label = (pinned ? "* " : "") + short_id;
                 if (ImGui::Selectable(
-                        short_id.c_str(), selected,
+                        label.c_str(), selected,
                         ImGuiSelectableFlags_SpanAllColumns |
                             ImGuiSelectableFlags_AllowOverlap)) {
                     SelectEntry(entry);
                 }
+                if (ImGui::IsItemHovered()) {
+                    ImGui::SetTooltip("%s\n%s", full_id.c_str(),
+                                      hidden ? "Hidden from browser" : StatusLabel(entry.status));
+                }
                 if (ImGui::BeginPopupContextItem("##shader-context")) {
+                    if (ImGui::MenuItem(pinned ? "Unpin" : "Pin")) {
+                        if (pinned) table_view.pinned.erase(entry.key);
+                        else table_view.pinned.insert(entry.key);
+                        m_filter_dirty = true;
+                    }
+                    if (ImGui::MenuItem(hidden ? "Unhide" : "Hide")) {
+                        if (hidden) table_view.hidden.erase(entry.key);
+                        else table_view.hidden.insert(entry.key);
+                        m_filter_dirty = true;
+                    }
                     if (ImGui::MenuItem("Copy game shader ID")) {
                         ImGui::SetClipboardText(full_id.c_str());
                         m_action_message = "Copied game shader ID";
@@ -225,11 +268,6 @@ void ShaderBrowserWindow::DrawSelector()
                     entry.last_frame, m_snapshot.current_frame,
                     entry.observed_in_session);
                 ImGui::TextUnformatted(last.c_str());
-                ImGui::TableSetColumnIndex(4);
-                std::string compile = FormatDurationNs(entry.compile_cpu);
-                ImGui::TextUnformatted(compile.c_str());
-                ImGui::TableSetColumnIndex(5);
-                ImGui::TextUnformatted(StatusLabel(entry.status));
                 ImGui::PopID();
             }
         }

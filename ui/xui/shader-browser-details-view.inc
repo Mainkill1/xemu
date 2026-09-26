@@ -178,6 +178,34 @@ void ShaderBrowserWindow::DrawHost()
                                                       "reconstructed");
     ImGui::TextDisabled("Process-local artifact ID: %llu",
                         static_cast<unsigned long long>(source.artifact_id));
+    ImGui::TextDisabled("Generated source build association is unverified.");
+    const Entry *selected_entry = SelectedEntry();
+    const bool glsl_available = selected_entry &&
+        detail.request.key == m_selected_key &&
+        source.kind == HostSourceKind::Glsl && !source.text.empty() &&
+        source.text.size() <= kMaxDetailSourceBytes &&
+        source.text.find('\0') == std::string::npos;
+    ImGui::BeginDisabled(!glsl_available);
+    if (ImGui::SmallButton("Copy generated GLSL")) {
+        ImGui::SetClipboardText(source.text.c_str());
+        m_action_message = "Copied generated GLSL (not a canonical recipe)";
+    }
+    ImGui::SameLine();
+    if (ImGui::SmallButton("Export generated GLSL")) {
+        const char *base = xemu_settings_get_base_path();
+        std::filesystem::path path;
+        std::string error;
+        if (base && ExportGeneratedGlsl(*selected_entry, source,
+                                        std::filesystem::u8path(base),
+                                        &path, &error)) {
+            m_action_message = "Exported generated GLSL and provenance to " +
+                               path.u8string();
+        } else {
+            m_action_message = error.empty() ?
+                "Generated GLSL export path unavailable" : error;
+        }
+    }
+    ImGui::EndDisabled();
     if (m_source_offsets_generation != detail.generation ||
         m_source_line_offsets.empty()) {
         m_source_line_offsets.clear();

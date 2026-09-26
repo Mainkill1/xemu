@@ -118,11 +118,255 @@
     }
 }
 
+namespace {
+
+struct ShaderWorkbenchSession {
+    bool generated_cache_valid = false;
+    bool has_generated = false;
+    uint64_t generated_detail_generation = 0;
+    PreviewSelection generated_selection;
+    ShaderScope generated_active_scope;
+    GeneratedSourceSnapshot generated;
+    std::string generated_error;
+    WorkbenchDraft draft;
+    GlslEditorModel editor;
+    WorkbenchEditorDockState dock;
+    PreviewSourceVariant last_variant = PreviewSourceVariant::Original;
+    std::optional<FrozenDraftCompile> submitted_draft;
+    std::optional<PreviewPacket> last_packet;
+    std::shared_ptr<const WorkbenchExperiment> reopened_test;
+    std::shared_ptr<const WorkbenchExperiment> running_test;
+    bool editing_test = false;
+    bool comparison_locked = false;
+    PreviewSelection comparison_selection;
+    double comparison_time = 0.0;
+    std::vector<std::filesystem::path> available_tests;
+    int selected_test = -1;
+    bool tests_scanned = false;
+    std::optional<WorkbenchAppliedRule> applied_rule;
+    uint64_t next_draft_id = 1;
+};
+
+ShaderWorkbenchSession &WorkbenchSession()
+{
+    static ShaderWorkbenchSession session;
+    return session;
+}
+
+ShaderScope CurrentWorkbenchBuildScope()
+{
+    XemuShaderBrowserScope live{};
+    xemu_shader_browser_copy_current_scope(&live);
+    ShaderScope scope{};
+    scope.title_id = live.title_id;
+    scope.executable_fingerprint_version =
+        live.executable_fingerprint_version;
+    std::copy_n(live.executable_fingerprint,
+                scope.executable_fingerprint.size(),
+                scope.executable_fingerprint.begin());
+    return scope;
+}
+
+bool WorkbenchDraftMatches(const WorkbenchDraft &draft,
+                           const PreviewSelection &selection)
+{
+    if (!draft.Id() || selection.mode == PreviewMode::Replacement)
+        return false;
+    const GeneratedSourceSnapshot &base = draft.Base();
+    return base.key == selection.shader && base.scope == selection.scope &&
+           base.backend == selection.backend &&
+           base.route == (selection.mode == PreviewMode::Uber ?
+                          Route::Uber : Route::Specialized);
+}
+
+DraftGameApplyRequest WorkbenchApplyRequest(
+    const WorkbenchDraft &draft, const PreviewSelection &selection,
+    const PreviewStatus &preview,
+    const std::optional<FrozenDraftCompile> &latest_submission)
+{
+    DraftGameApplyRequest request{};
+    if (!draft.Id()) return request;
+    const GeneratedSourceSnapshot &base = draft.Base();
+    request.key = base.key;
+    request.scope = base.scope;
+    request.backend = base.backend == PreviewBackend::OpenGL ?
+        OverrideBackend::OpenGL : base.backend == PreviewBackend::Vulkan ?
+            OverrideBackend::Vulkan : OverrideBackend::Unknown;
+    request.source_stage = base.stage;
+    request.interface_abi = base.interface_abi;
+    request.draft_id = draft.Id();
+    request.draft_revision = draft.Revision();
+    request.attempted_revision = draft.AttemptedRevision();
+    request.successful_revision = draft.LastSuccessfulRevision();
+    if (draft.LastSuccessfulCompile()) {
+        request.successful_submission_id =
+            draft.LastSuccessfulCompile()->submission_id;
+        request.successful_source_digest =
+            draft.LastSuccessfulCompile()->digest;
+        request.source = draft.LastSuccessfulCompile()->source;
+        request.compiled_success =
+            request.attempted_revision == request.draft_revision &&
+            request.successful_revision == request.draft_revision &&
+            latest_submission &&
+            latest_submission->submission_id ==
+                request.successful_submission_id;
+        const PreviewCompileKey &displayed = preview.displayed_compile;
+        if (preview.has_displayed_source &&
+            displayed.selection == selection &&
+            displayed.source_variant == PreviewSourceVariant::Edited &&
+            displayed.draft_id == request.draft_id &&
+            displayed.draft_revision == request.draft_revision &&
+            displayed.source_digest == request.successful_source_digest) {
+            request.preview_submission_id =
+                displayed.draft_submission_id;
+        }
+    }
+    return request;
+}
+
+const char *WorkbenchGameEffectLabel(uint32_t state)
+{
+    switch (state) {
+    case XEMU_SHADER_OVERRIDE_EFFECT_PREPARING: return "Preparing";
+    case XEMU_SHADER_OVERRIDE_EFFECT_EFFECTIVE: return "Effective";
+    case XEMU_SHADER_OVERRIDE_EFFECT_FALLBACK: return "Fallback";
+    case XEMU_SHADER_OVERRIDE_EFFECT_FAILED: return "Failed";
+    case XEMU_SHADER_OVERRIDE_EFFECT_CONDITION_NOT_MATCHED:
+        return "Draw restriction did not match";
+    default: return "Waiting for a draw";
+    }
+}
+
+bool WorkbenchRuleMatchesToken(const OverrideRule &rule,
+                               const WorkbenchAppliedRule &token)
+{
+    return rule.id == token.id &&
+           rule.origin == OverrideOrigin::Session &&
+           rule.action == OverrideAction::Replacement &&
+           rule.restrict_build && rule.shader == token.key &&
+           rule.title_id == token.scope.title_id &&
+           rule.executable_fingerprint_version ==
+               token.scope.executable_fingerprint_version &&
+           rule.executable_fingerprint ==
+               token.scope.executable_fingerprint &&
+           rule.replacement_id == token.replacement_id;
+}
+
+std::string WorkbenchBuildFingerprint(const ShaderScope &scope)
+{
+    static constexpr char digits[] = "0123456789abcdef";
+    std::string value;
+    value.reserve(scope.executable_fingerprint.size() * 2);
+    for (uint8_t byte : scope.executable_fingerprint) {
+        value.push_back(digits[byte >> 4]);
+        value.push_back(digits[byte & 15]);
+    }
+    return value;
+}
+
+bool BuildCurrentWorkbenchExperiment(
+    const ShaderWorkbenchSession &session, const Entry &entry,
+    const CanonicalRecipe &recipe, const PreviewSelection &selection,
+    const PreviewStatus &status, const PreviewScene &scene,
+    WorkbenchExperiment *experiment,
+    std::string *error)
+{
+    if (!experiment || (!session.running_test &&
+        (!session.has_generated ||
+         session.generated_selection != selection))) {
+        if (error) *error = "Exact generated source is unavailable for export";
+        return false;
+    }
+    const bool edited = session.dock.variant == PreviewSourceVariant::Edited &&
+        (session.running_test && !session.editing_test ?
+            session.running_test->successful_compile.has_value() :
+            WorkbenchDraftMatches(session.draft, selection));
+    const PreviewPacket *candidate =
+        status.prepared && status.has_attempt && session.last_packet &&
+        session.last_packet->selection == selection &&
+        BuildPreviewCompileKey(*session.last_packet) ==
+            status.attempted_compile &&
+        session.last_packet->source_variant ==
+            (edited ? PreviewSourceVariant::Edited :
+                      PreviewSourceVariant::Original) &&
+        ((session.running_test && !session.editing_test) || !edited ||
+         (session.draft.LastSuccessfulCompile() &&
+          session.last_packet->draft_submission_id ==
+              session.draft.LastSuccessfulCompile()->submission_id)) ?
+            &*session.last_packet : nullptr;
+    if (!candidate) {
+        if (error) *error = "No matching synthetic result is ready to export";
+        return false;
+    }
+    WorkbenchExperiment next = session.running_test ?
+        *session.running_test : WorkbenchExperiment{};
+    next.recipe = session.running_test ? session.running_test->recipe : recipe;
+    if (!AttachPreviewSelectionScope(entry, selection, &next.recipe, error))
+        return false;
+    next.packet = *candidate;
+    next.packet.scene = scene;
+    if (!session.running_test) next.original = session.generated;
+    if ((!session.running_test || session.editing_test) &&
+        WorkbenchDraftMatches(session.draft, selection)) {
+        next.edited_text = session.draft.Text();
+        next.edit_revision = session.draft.Revision();
+        next.successful_compile = session.draft.LastSuccessfulCompile();
+    }
+    next.clock = status.clock;
+    PreviewSyntheticFixture fixture{};
+    if (!DecodePreviewSyntheticFixture(next.packet.fixture_bytes,
+                                       &fixture, error)) return false;
+    next.dependencies.clear();
+    for (size_t i = 0; i < next.owned_textures.size(); ++i) {
+        const PreviewTexturePixels pixels = GeneratePreviewTexture(fixture, i);
+        next.owned_textures[i].assign(pixels.begin(), pixels.end());
+        next.dependencies.push_back({"T" + std::to_string(i),
+            WorkbenchDependencyStatus::Synthetic,
+            "Generated RGBA8 synthetic fixture"});
+    }
+    if (!ValidateWorkbenchExperiment(next, error)) return false;
+    *experiment = std::move(next);
+    return true;
+}
+
+void RefreshWorkbenchTestFiles(ShaderWorkbenchSession *session,
+                               const std::filesystem::path &config_directory)
+{
+    if (!session) return;
+    session->tests_scanned = true;
+    session->available_tests.clear();
+    session->selected_test = -1;
+    if (config_directory.empty()) return;
+    std::error_code ec;
+    const auto root = config_directory / "shader-exports";
+    for (const auto &file : std::filesystem::directory_iterator(root, ec)) {
+        if (ec || session->available_tests.size() == 512) break;
+        if (!file.is_regular_file(ec) || ec) continue;
+        const std::string name = file.path().filename().u8string();
+        constexpr char suffix[] = ".xemu-test.json";
+        if (name.size() > sizeof(suffix) - 1 &&
+            name.compare(name.size() - (sizeof(suffix) - 1),
+                         sizeof(suffix) - 1, suffix) == 0) {
+            session->available_tests.push_back(file.path());
+        }
+    }
+    std::sort(session->available_tests.begin(),
+              session->available_tests.end());
+    if (!session->available_tests.empty()) session->selected_test = 0;
+}
+
+} // namespace
+
 void ShaderBrowserWindow::DrawLivePreview()
 {
+    ShaderWorkbenchSession &workbench = WorkbenchSession();
     PreviewService &service = GetPreviewService();
     const uint64_t now_ns = PreviewNowNs();
     const bool guest_paused = runstate_check(RUN_STATE_PAUSED);
+    const bool offline_no_guest = workbench.running_test &&
+        CurrentWorkbenchBuildScope().title_id == 0 &&
+        !runstate_is_running();
+    service.SetOfflineNoGuest(offline_no_guest);
     service.SetGuestPaused(guest_paused);
     uint64_t completed_flips = 0;
     uint64_t flip_interval_ns = 0;
@@ -132,6 +376,33 @@ void ShaderBrowserWindow::DrawLivePreview()
 
     PreviewStatus status{};
     service.CopyStatus(&status);
+    const PreviewBackend active_backend =
+        g_config.display.renderer == CONFIG_DISPLAY_RENDERER_VULKAN ?
+            PreviewBackend::Vulkan : PreviewBackend::OpenGL;
+    if (workbench.running_test &&
+        workbench.running_test->packet.selection.backend != active_backend) {
+        workbench.running_test.reset();
+        workbench.editing_test = false;
+        workbench.comparison_locked = false;
+        workbench.generated_cache_valid = false;
+        m_preview_packet_attempted = false;
+        m_action_message =
+            "Saved test stopped because the renderer backend changed";
+    }
+    auto lock_comparison = [&] (const PreviewSelection &selection) {
+        service.EditClock(PreviewClockAction::Pause, 0, now_ns);
+        service.EditClock(PreviewClockAction::Scrub,
+                          status.clock.time_seconds, now_ns);
+        workbench.comparison_locked = true;
+        workbench.comparison_selection = selection;
+        workbench.comparison_time = status.clock.time_seconds;
+    };
+
+    const float control_width = std::clamp(
+        ImGui::GetContentRegionAvail().x * 0.34f,
+        220.0f * g_viewport_mgr.m_scale,
+        320.0f * g_viewport_mgr.m_scale);
+    ImGui::BeginChild("##workbench-controls", ImVec2(control_width, 0), true);
 
     bool enabled = status.enabled;
     if (ImGui::Checkbox("Enable preview", &enabled)) {
@@ -145,6 +416,11 @@ void ShaderBrowserWindow::DrawLivePreview()
     if (ImGui::Combo("##preview-mode", &mode,
                      "Normal\0Uber Shader\0Replacement Shader\0"
                      "Visualize\0")) {
+        workbench.running_test.reset();
+        workbench.editing_test = false;
+        workbench.comparison_locked = false;
+        workbench.generated_cache_valid = false;
+        m_preview_packet_attempted = false;
         service.SetRequestedMode(static_cast<PreviewMode>(mode));
     }
 
@@ -173,21 +449,34 @@ void ShaderBrowserWindow::DrawLivePreview()
         visualize ? static_cast<PreviewChannel>(m_preview_view_channel) :
                     PreviewChannel::FinalRGBA);
 
-    int mesh = static_cast<int>(m_preview_scene.mesh);
-    bool scene_changed = ImGui::Combo("Mesh", &mesh, "Quad\0Sphere\0Cube\0");
-    m_preview_scene.mesh = static_cast<PreviewMesh>(mesh);
-    scene_changed |= ImGui::SliderFloat("Orbit yaw", &m_preview_scene.yaw, -180, 180);
-    scene_changed |= ImGui::SliderFloat("Orbit pitch", &m_preview_scene.pitch, -85, 85);
-    scene_changed |= ImGui::SliderFloat("Zoom distance", &m_preview_scene.distance, 2.5f, 12);
-    scene_changed |= ImGui::SliderFloat2("Pan", m_preview_scene.pan.data(), -2, 2);
-    if (ImGui::Button("Reset camera")) {
-        auto mesh_kind = m_preview_scene.mesh;
-        m_preview_scene = {};
-        m_preview_scene.mesh = mesh_kind;
-        scene_changed = true;
+    const bool generated_alpha =
+        mode != static_cast<int>(PreviewMode::Replacement) &&
+        workbench.dock.variant == PreviewSourceVariant::Original;
+    const Entry *current_entry = SelectedEntry();
+    const CanonicalRecipe *alpha_recipe = workbench.running_test ?
+        &workbench.running_test->recipe :
+        current_entry && m_has_recipe &&
+        m_selected_recipe.key == current_entry->key ?
+            &m_selected_recipe : nullptr;
+    bool canonical_alpha = false;
+    if (generated_alpha && alpha_recipe &&
+        PreviewCanonicalAlphaTest(*alpha_recipe, &canonical_alpha) &&
+        m_preview_render_state.alpha_test != canonical_alpha) {
+        m_preview_render_state.alpha_test = canonical_alpha;
+        m_preview_packet_attempted = false;
     }
-    if (scene_changed) service.EditScene(m_preview_scene);
+    if (workbench.comparison_locked) ImGui::BeginDisabled();
+    const WorkbenchSceneUiEdits scene_edits = DrawWorkbenchSceneControls(
+        &m_preview_scene, &m_preview_render_state,
+        generated_alpha);
+    if (workbench.comparison_locked) ImGui::EndDisabled();
+    if (scene_edits.scene) service.EditScene(m_preview_scene);
+    if (scene_edits.render_state) {
+        m_preview_alpha_reference = m_preview_render_state.alpha_reference;
+        m_preview_packet_attempted = false;
+    }
 
+    if (workbench.comparison_locked) ImGui::BeginDisabled();
     int policy = static_cast<int>(m_preview_update_policy);
     if (ImGui::Combo("Update policy", &policy, "On dirty\0Continuous\0")) {
         m_preview_update_policy = static_cast<PreviewUpdatePolicy>(policy);
@@ -218,6 +507,7 @@ void ShaderBrowserWindow::DrawLivePreview()
             service.EditClock(PreviewClockAction::LoopLength, length, now_ns);
         ImGui::Text("Clock sample: %llu", static_cast<unsigned long long>(status.clock.frame));
     }
+    if (workbench.comparison_locked) ImGui::EndDisabled();
 
     auto fixture_changed = [this] {
         ++m_preview_input_revision;
@@ -235,12 +525,17 @@ void ShaderBrowserWindow::DrawLivePreview()
             }
         m_preview_fog_color = m_preview_fixture.fog_color;
         m_preview_alpha_reference = m_preview_fixture.alpha_reference;
+        m_preview_render_state.alpha_reference =
+            m_preview_fixture.alpha_reference;
         m_preview_uv_scale = m_preview_fixture.uv_scale;
         m_preview_uv_offset = m_preview_fixture.uv_offset;
         m_preview_constant_color = m_preview_fixture.constant_color;
     };
+    if (workbench.comparison_locked) ImGui::BeginDisabled();
     if (ImGui::CollapsingHeader("Fixture profile and inputs",
                                 ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (DrawWorkbenchBindingControls(&workbench.dock))
+            fixture_changed();
         const char *names[] = {
             "Recipe suggestion",     "Flat Color",          "UV Gradient",
             "Checker / UV Grid",     "Alpha Gradient",      "Multi-texture",
@@ -336,41 +631,366 @@ void ShaderBrowserWindow::DrawLivePreview()
         if (ImGui::ColorEdit4("Fog color", m_preview_fog_color.data())) {
             fixture_changed();
         }
-        if (ImGui::SliderInt("Alpha reference", &m_preview_alpha_reference,
-                             0, 255)) {
-            fixture_changed();
-        }
+        ImGui::TextDisabled("Alpha reference is set in Synthetic render state");
     }
+    if (workbench.comparison_locked) ImGui::EndDisabled();
 
+    Entry imported_entry{};
     const Entry *entry = SelectedEntry();
+    if (workbench.running_test) {
+        const WorkbenchExperiment &running = *workbench.running_test;
+        imported_entry.key = running.recipe.key;
+        imported_entry.scopes = running.recipe.scopes;
+        imported_entry.recipe_format_version =
+            running.recipe.recipe_format_version;
+        imported_entry.recipe_size = running.recipe.bytes.size();
+        entry = &imported_entry;
+    }
     PreviewSelection selection{};
     if (entry) {
-        selection.shader = entry->key;
         selection.session_epoch = m_snapshot.session_epoch;
         selection.renderer_epoch = nv2a_profile_preview_renderer_epoch();
-        selection.backend =
-            g_config.display.renderer == CONFIG_DISPLAY_RENDERER_VULKAN ?
-                PreviewBackend::Vulkan : PreviewBackend::OpenGL;
-        selection.mode = static_cast<PreviewMode>(mode);
-
-        uint32_t preferred_title = m_snapshot.current_title_id ?
-            m_snapshot.current_title_id : PrimaryTitleId(*entry);
-        auto scope = std::find_if(
-            entry->scopes.begin(), entry->scopes.end(),
-            [preferred_title](const ShaderScope &candidate) {
-                return candidate.title_id == preferred_title;
-            });
-        if (scope != entry->scopes.end()) {
-            selection.scope = *scope;
-        } else if (!entry->scopes.empty()) {
-            selection.scope = entry->scopes.front();
+        ShaderScope active_scope = CurrentWorkbenchBuildScope();
+        if (workbench.running_test) {
+            const PreviewSelection &saved =
+                workbench.running_test->packet.selection;
+            selection.shader = saved.shader;
+            selection.scope = saved.scope;
+            selection.backend = saved.backend;
+            selection.mode = saved.mode;
         } else {
-            selection.scope.title_id = preferred_title;
+            selection.shader = entry->key;
+            selection.backend =
+                g_config.display.renderer == CONFIG_DISPLAY_RENDERER_VULKAN ?
+                    PreviewBackend::Vulkan : PreviewBackend::OpenGL;
+            selection.mode = static_cast<PreviewMode>(mode);
+            auto exact_scope = std::find(entry->scopes.begin(),
+                                         entry->scopes.end(), active_scope);
+            uint32_t preferred_title = m_snapshot.current_title_id ?
+                m_snapshot.current_title_id : PrimaryTitleId(*entry);
+            auto scope = std::find_if(
+                entry->scopes.begin(), entry->scopes.end(),
+                [preferred_title](const ShaderScope &candidate) {
+                    return candidate.title_id == preferred_title;
+                });
+            if (exact_scope != entry->scopes.end()) {
+                selection.scope = *exact_scope;
+            } else if (scope != entry->scopes.end()) {
+                selection.scope = *scope;
+            } else if (!entry->scopes.empty()) {
+                selection.scope = entry->scopes.front();
+            } else {
+                selection.scope.title_id = preferred_title;
+            }
         }
         service.SetSelection(selection, now_ns);
+        if (workbench.comparison_locked &&
+            workbench.comparison_selection != selection)
+            workbench.comparison_locked = false;
+        if ((!workbench.running_test || workbench.editing_test) &&
+            workbench.dock.variant == PreviewSourceVariant::Edited &&
+            !WorkbenchDraftMatches(workbench.draft, selection)) {
+            workbench.dock.variant = PreviewSourceVariant::Original;
+            m_preview_packet_attempted = false;
+        }
+
+        if ((!workbench.running_test || workbench.editing_test) &&
+            workbench.submitted_draft &&
+            status.has_attempt &&
+            status.attempted_compile.selection == selection &&
+            status.attempted_compile.source_variant ==
+                PreviewSourceVariant::Edited &&
+            status.attempted_compile.draft_id ==
+                workbench.submitted_draft->draft_id &&
+            status.attempted_compile.draft_revision ==
+                workbench.submitted_draft->revision &&
+            status.attempted_compile.draft_submission_id ==
+                workbench.submitted_draft->submission_id &&
+            status.attempted_compile.source_digest ==
+                workbench.submitted_draft->digest) {
+            if (status.prepared) {
+                workbench.draft.MarkCompiled(
+                    *workbench.submitted_draft, true, {});
+            } else if (!status.work_active &&
+                       (status.state == PreviewState::Failed ||
+                        status.state == PreviewState::Unsupported)) {
+                workbench.draft.MarkCompiled(*workbench.submitted_draft,
+                                             false, status.message);
+            }
+        }
+
+        if (workbench.running_test) {
+            if (workbench.generated_selection != selection)
+                workbench.generated = workbench.running_test->original;
+            workbench.has_generated = true;
+            workbench.generated_selection = selection;
+            workbench.generated_cache_valid = false;
+        } else if (!workbench.generated_cache_valid ||
+            workbench.generated_selection != selection ||
+            !(workbench.generated_active_scope == active_scope) ||
+            workbench.generated_detail_generation !=
+                m_detail_snapshot.generation) {
+            workbench.generated_cache_valid = true;
+            workbench.generated_selection = selection;
+            workbench.generated_active_scope = active_scope;
+            workbench.generated_detail_generation =
+                m_detail_snapshot.generation;
+            workbench.has_generated = CopyGeneratedSourceSnapshot(
+                selection, active_scope, *entry, m_detail_snapshot, 1, 1,
+                &workbench.generated, &workbench.generated_error);
+        }
+        const bool draft_matches = WorkbenchDraftMatches(
+            workbench.draft, selection);
+        WorkbenchEditorDockAction editor_action{};
+        if (workbench.running_test && !workbench.editing_test) {
+            const WorkbenchExperiment &saved = *workbench.running_test;
+            ImGui::TextDisabled("Running owned source from synthetic test");
+            ImGui::Checkbox("Editor dock", &workbench.dock.open);
+            if (workbench.dock.open) {
+                ImGui::SeparatorText("Saved generated GLSL / draft");
+                ImGui::TextDisabled("Original: %s, saved revision %llu",
+                    saved.original.resident ? "resident" : "reconstructed",
+                    static_cast<unsigned long long>(saved.edit_revision));
+                if (ImGui::RadioButton("Original",
+                        workbench.dock.variant ==
+                            PreviewSourceVariant::Original))
+                    workbench.dock.variant = PreviewSourceVariant::Original;
+                if (saved.successful_compile) {
+                    ImGui::SameLine();
+                    if (ImGui::RadioButton("Edited",
+                            workbench.dock.variant ==
+                                PreviewSourceVariant::Edited))
+                        workbench.dock.variant = PreviewSourceVariant::Edited;
+                }
+                const std::string &shown =
+                    workbench.dock.variant == PreviewSourceVariant::Edited &&
+                    saved.successful_compile ?
+                        saved.successful_compile->source :
+                        saved.original.text;
+                if (workbench.dock.variant != workbench.last_variant)
+                    workbench.editor.SetSource(shown);
+                DrawWorkbenchSourceLines(&workbench.editor, &workbench.dock);
+                if (ImGui::Button("Create editable copy of saved GLSL")) {
+                    std::string error;
+                    const bool supported_route =
+                        selection.mode != PreviewMode::Replacement &&
+                        saved.original.route ==
+                            (selection.mode == PreviewMode::Uber ?
+                                Route::Uber : Route::Specialized);
+                    if (supported_route &&
+                        workbench.draft.Create(saved.original,
+                                               workbench.next_draft_id++,
+                                               &error)) {
+                        const std::string &saved_text =
+                            !saved.edited_text.empty() ? saved.edited_text :
+                            shown;
+                        workbench.draft.Edit(saved_text, now_ns);
+                        workbench.editing_test = true;
+                        workbench.submitted_draft.reset();
+                        workbench.dock.variant =
+                            PreviewSourceVariant::Edited;
+                        workbench.dock.buffer_revision = 0;
+                        workbench.dock.edit_buffer.clear();
+                        workbench.editor.SetSource({});
+                        m_preview_packet_attempted = false;
+                        m_action_message =
+                            "Created private draft from saved GLSL";
+                    } else {
+                        m_action_message = error.empty() ?
+                            "Saved source route cannot become an editable preview draft" :
+                            error;
+                    }
+                }
+            }
+        } else {
+            editor_action = DrawWorkbenchEditorDock(
+                workbench.has_generated ? &workbench.generated : nullptr,
+                draft_matches ? &workbench.draft : nullptr,
+                &workbench.editor, &workbench.dock, &status, now_ns);
+        }
+        if ((draft_matches &&
+             (!workbench.running_test || workbench.editing_test)) ||
+            (workbench.running_test && !workbench.editing_test &&
+             workbench.running_test->successful_compile)) {
+            if (workbench.comparison_locked) {
+                ImGui::TextDisabled(
+                    "Original/Edited inputs locked at %.3f s",
+                    workbench.comparison_time);
+                if (ImGui::Button("Unlock comparison inputs"))
+                    workbench.comparison_locked = false;
+            } else if (ImGui::Button("Lock Original/Edited inputs")) {
+                lock_comparison(selection);
+            }
+        }
+        if (editor_action.create_copy && workbench.has_generated) {
+            if (workbench.draft.Create(workbench.generated,
+                                       workbench.next_draft_id++,
+                                       &m_action_message)) {
+                workbench.submitted_draft.reset();
+                workbench.dock.variant = PreviewSourceVariant::Edited;
+                workbench.dock.buffer_revision = 0;
+                workbench.dock.edit_buffer.clear();
+                workbench.editor.SetSource({});
+                m_preview_packet_attempted = false;
+                m_action_message = "Created private editable GLSL draft";
+            }
+        }
+        if (workbench.dock.variant != workbench.last_variant) {
+            workbench.last_variant = workbench.dock.variant;
+            m_preview_packet_attempted = false;
+            if ((draft_matches || (workbench.running_test &&
+                 workbench.running_test->successful_compile)) &&
+                !workbench.comparison_locked &&
+                !editor_action.create_copy)
+                lock_comparison(selection);
+        }
+        if ((!workbench.running_test || workbench.editing_test) &&
+            WorkbenchDraftMatches(workbench.draft, selection) &&
+            workbench.dock.variant == PreviewSourceVariant::Edited &&
+            (workbench.dock.auto_compile || editor_action.manual_compile)) {
+            auto frozen = workbench.draft.FreezeCompile(
+                now_ns, editor_action.manual_compile);
+            if (frozen) {
+                workbench.submitted_draft = std::move(*frozen);
+                m_preview_packet_attempted = false;
+            }
+        }
+        if (workbench.applied_rule && !draft_matches) {
+            ImGui::TextDisabled("Workbench game rule remains active for %s",
+                PortableShaderHash(workbench.applied_rule->key.hash).c_str());
+            if (ImGui::Button("Restore prior workbench rule")) {
+                std::string error;
+                if (RestoreWorkbenchDraft(*workbench.applied_rule,
+                                          &GetOverrideStore(), &error)) {
+                    workbench.applied_rule.reset();
+                    m_action_message = "Restored prior workbench game rule";
+                } else {
+                    m_action_message = error;
+                }
+            }
+        }
+        if (WorkbenchDraftMatches(workbench.draft, selection) &&
+            workbench.dock.open) {
+            ImGui::SeparatorText("Explicit game action");
+            const DraftGameApplyRequest request = WorkbenchApplyRequest(
+                workbench.draft, selection, status,
+                workbench.submitted_draft);
+            OverrideStoreSnapshot store_snapshot{};
+            GetOverrideStore().CopySnapshot(&store_snapshot);
+            bool changed_applied_rule = false;
+            if (workbench.applied_rule) {
+                const auto rule = std::find_if(
+                    store_snapshot.rules.begin(),
+                    store_snapshot.rules.end(),
+                    [&workbench](const OverrideRule &candidate) {
+                        return candidate.id == workbench.applied_rule->id;
+                    });
+                if (rule == store_snapshot.rules.end()) {
+                    workbench.applied_rule.reset();
+                    m_action_message =
+                        "Workbench rule was removed in Overrides";
+                } else {
+                    changed_applied_rule = !WorkbenchRuleMatchesToken(
+                        *rule, *workbench.applied_rule);
+                }
+            }
+            std::string apply_reason;
+            const bool eligible = !workbench.running_test &&
+                EvaluateDraftGameApply(
+                    request, *entry, store_snapshot.context, &apply_reason);
+            if (workbench.running_test)
+                apply_reason = "Return to live source before applying a draft";
+            const bool can_apply = eligible && !workbench.applied_rule;
+            if (eligible && workbench.applied_rule) {
+                apply_reason = "Restore the active workbench rule before "
+                               "applying another draft";
+            }
+            ImGui::BeginDisabled(!can_apply);
+            if (ImGui::Button("Apply draft to game")) {
+                const char *base_path = xemu_settings_get_base_path();
+                WorkbenchAppliedRule applied{};
+                std::string error;
+                if (base_path && ApplyWorkbenchDraft(
+                        request, *entry, &GetOverrideStore(),
+                        &GetReplacementLibrary(),
+                        std::filesystem::u8path(base_path),
+                        &applied, &error)) {
+                    workbench.applied_rule = applied;
+                    m_action_message = "Requested exact-build game replacement";
+                } else {
+                    m_action_message = error.empty() ?
+                        "Replacement path unavailable" : error;
+                }
+            }
+            ImGui::EndDisabled();
+            if (!can_apply) ImGui::TextWrapped("%s", apply_reason.c_str());
+            ImGui::SameLine();
+            ImGui::BeginDisabled(!workbench.applied_rule ||
+                                 changed_applied_rule);
+            if (ImGui::Button("Restore game rule")) {
+                std::string error;
+                if (RestoreWorkbenchDraft(*workbench.applied_rule,
+                                          &GetOverrideStore(), &error)) {
+                    workbench.applied_rule.reset();
+                    m_action_message = "Restored this workbench game rule";
+                } else {
+                    m_action_message = error;
+                }
+            }
+            ImGui::EndDisabled();
+            if (changed_applied_rule)
+                ImGui::TextWrapped("Rule changed in Overrides; remove it "
+                                   "there before applying another draft");
+            if (workbench.applied_rule) {
+                GetOverrideStore().CopySnapshot(&store_snapshot);
+                ImGui::TextWrapped("Rule scope: TitleID %08X, build v%u %s",
+                    workbench.applied_rule->scope.title_id,
+                    workbench.applied_rule->scope.
+                        executable_fingerprint_version,
+                    WorkbenchBuildFingerprint(
+                        workbench.applied_rule->scope).c_str());
+                ImGui::TextWrapped("Shader: %s / %s; all matching draws",
+                    PortableShaderHash(workbench.applied_rule->key.hash).c_str(),
+                    StageLabel(workbench.applied_rule->key.stage));
+                const OverrideResolution resolution =
+                    GetOverrideStore().Resolve(entry->key);
+                if (resolution.status == OverrideResolutionStatus::Matched &&
+                    resolution.policy.rule_id == workbench.applied_rule->id) {
+                    ImGui::TextDisabled("Requested: %s, draft r%llu",
+                        OverrideActionLabel(resolution.policy.action),
+                        static_cast<unsigned long long>(
+                            resolution.policy.rule_revision));
+                    XemuShaderOverrideEffect effect{};
+                    const OverrideContext &context = store_snapshot.context;
+                    const bool observed = xemu_shader_override_copy_effect(
+                        context.title_id,
+                        context.executable_fingerprint_version,
+                        context.executable_fingerprint.data(),
+                        static_cast<uint32_t>(context.backend),
+                        entry->key.hash.version, entry->key.hash.bytes.data(),
+                        static_cast<uint32_t>(entry->key.stage),
+                        store_snapshot.generation,
+                        resolution.policy.rule_id,
+                        resolution.policy.rule_revision, &effect);
+                    ImGui::TextDisabled("Renderer: %s",
+                        observed ? WorkbenchGameEffectLabel(effect.state) :
+                                   "Waiting for a draw");
+                    if (observed) {
+                        ImGui::TextDisabled("Effective: %s, package r%llu",
+                            OverrideActionLabel(static_cast<OverrideAction>(
+                                effect.effective_action)),
+                            static_cast<unsigned long long>(
+                                effect.effective_replacement_revision));
+                    }
+                } else {
+                    ImGui::TextDisabled("Applied rule is not currently resolved");
+                }
+            }
+        }
 
         PreviewCompileKey attempted{};
         attempted.selection = selection;
+        bool draft_waiting = false;
         const uint64_t detail_generation = m_detail_snapshot.generation;
         const uint64_t replacement_generation =
             selection.mode == PreviewMode::Replacement ?
@@ -385,9 +1005,9 @@ void ShaderBrowserWindow::DrawLivePreview()
              m_preview_packet_override_generation != replacement_generation ||
              m_preview_packet_scope_available != scope_available)) {
             const bool new_selection = m_preview_packet_selection != selection;
-            if (new_selection)
+            if (new_selection && !workbench.running_test)
                 m_preview_fixture_suggested = false;
-            if (m_preview_profile < 0 &&
+            if (!workbench.running_test && m_preview_profile < 0 &&
                 (new_selection || !m_preview_fixture_suggested) &&
                 m_has_recipe && m_selected_recipe.key == entry->key) {
                 PreviewFixtureProfile suggested;
@@ -404,12 +1024,14 @@ void ShaderBrowserWindow::DrawLivePreview()
             m_preview_packet_override_generation = replacement_generation;
             m_preview_packet_scope_available = scope_available;
             m_preview_packet_message.clear();
-            if (!m_has_recipe || m_selected_recipe.key != entry->key) {
+            if (!workbench.running_test &&
+                (!m_has_recipe || m_selected_recipe.key != entry->key)) {
                 m_preview_packet_message = "Canonical recipe is unavailable";
             } else {
                 PreviewPacketInputs inputs{};
                 inputs.selection = selection;
-                inputs.recipe = m_selected_recipe;
+                inputs.recipe = workbench.running_test ?
+                    workbench.running_test->recipe : m_selected_recipe;
                 bool scope_ready = AttachPreviewSelectionScope(
                     *entry, selection, &inputs.recipe,
                     &m_preview_packet_message);
@@ -441,9 +1063,80 @@ void ShaderBrowserWindow::DrawLivePreview()
                 inputs.interface_abi = 1;
                 inputs.update_policy = m_preview_update_policy;
                 inputs.input_revision = m_preview_input_revision;
+                inputs.binding_count = static_cast<uint8_t>(
+                    workbench.dock.bindings.size());
+                inputs.bindings = workbench.dock.bindings;
                 inputs.scene = m_preview_scene;
+                inputs.render_state = m_preview_render_state;
+                inputs.width = kPreviewMaxWidth;
+                inputs.height = kPreviewMaxHeight;
+                inputs.source_route = selection.mode == PreviewMode::Uber ?
+                    Route::Uber : Route::Specialized;
+                if (workbench.running_test) {
+                    inputs.source_route =
+                        workbench.running_test->original.route;
+                    inputs.generator_abi =
+                        workbench.running_test->original.generator_abi;
+                    inputs.interface_abi =
+                        workbench.running_test->original.interface_abi;
+                }
                 bool source_ready = scope_ready;
-                if (scope_ready && selection.mode == PreviewMode::Replacement) {
+                if (scope_ready && workbench.running_test &&
+                    !workbench.editing_test) {
+                    const PreviewPacket &saved =
+                        workbench.running_test->packet;
+                    inputs.source_route = saved.source_route;
+                    inputs.generator_abi = saved.generator_abi;
+                    inputs.interface_abi = saved.interface_abi;
+                    inputs.replacement_id = saved.replacement_id;
+                    inputs.replacement_revision =
+                        saved.replacement_revision;
+                    if (workbench.dock.variant ==
+                            PreviewSourceVariant::Edited &&
+                        workbench.running_test->successful_compile) {
+                        const FrozenDraftCompile &compiled =
+                            *workbench.running_test->successful_compile;
+                        inputs.source_variant = PreviewSourceVariant::Edited;
+                        inputs.source = compiled.source;
+                        inputs.draft_id = compiled.draft_id;
+                        inputs.draft_revision = compiled.revision;
+                        inputs.draft_submission_id =
+                            compiled.submission_id;
+                    } else {
+                        inputs.source_variant =
+                            PreviewSourceVariant::Original;
+                        inputs.source =
+                            workbench.running_test->original.text;
+                        inputs.source_resident =
+                            workbench.running_test->original.resident;
+                    }
+                    inputs.partner_source =
+                        inputs.source_variant == saved.source_variant &&
+                        inputs.source == saved.source ?
+                            saved.partner_source :
+                            BuildPreviewSyntheticVertexSource(
+                                inputs.source, selection.backend);
+                    attempted.source_variant = inputs.source_variant;
+                    attempted.draft_id = inputs.draft_id;
+                    attempted.draft_revision = inputs.draft_revision;
+                    attempted.draft_submission_id =
+                        inputs.draft_submission_id;
+                    attempted.replacement_id = inputs.replacement_id;
+                    attempted.replacement_revision =
+                        inputs.replacement_revision;
+                } else if (scope_ready && workbench.running_test &&
+                           workbench.editing_test &&
+                           workbench.dock.variant ==
+                               PreviewSourceVariant::Original) {
+                    const GeneratedSourceSnapshot &saved =
+                        workbench.running_test->original;
+                    inputs.source_route = saved.route;
+                    inputs.source_resident = saved.resident;
+                    inputs.source = saved.text;
+                    inputs.generator_abi = saved.generator_abi;
+                    inputs.interface_abi = saved.interface_abi;
+                } else if (scope_ready &&
+                           selection.mode == PreviewMode::Replacement) {
                     const OverrideBackend backend =
                         selection.backend == PreviewBackend::OpenGL ?
                             OverrideBackend::OpenGL : OverrideBackend::Vulkan;
@@ -469,26 +1162,59 @@ void ShaderBrowserWindow::DrawLivePreview()
                             replacement->opengl_source :
                             replacement->vulkan_source;
                     }
+                } else if (scope_ready &&
+                           workbench.dock.variant ==
+                               PreviewSourceVariant::Edited &&
+                           WorkbenchDraftMatches(workbench.draft, selection)) {
+                    if (workbench.submitted_draft &&
+                        workbench.submitted_draft->draft_id ==
+                            workbench.draft.Id()) {
+                        inputs.source = workbench.submitted_draft->source;
+                        inputs.source_variant = PreviewSourceVariant::Edited;
+                        inputs.draft_id = workbench.submitted_draft->draft_id;
+                        inputs.draft_revision =
+                            workbench.submitted_draft->revision;
+                        inputs.draft_submission_id =
+                            workbench.submitted_draft->submission_id;
+                        attempted.source_variant = inputs.source_variant;
+                        attempted.draft_id = inputs.draft_id;
+                        attempted.draft_revision = inputs.draft_revision;
+                        attempted.draft_submission_id =
+                            inputs.draft_submission_id;
+                    } else {
+                        m_preview_packet_message =
+                            "Editable draft has no submitted source revision";
+                        draft_waiting = true;
+                        source_ready = false;
+                    }
                 } else if (scope_ready) {
                     source_ready = CopyPreviewFragmentSource(
                         selection, m_detail_snapshot, &inputs.source,
                         &m_preview_packet_message);
+                    inputs.source_resident = workbench.has_generated &&
+                        workbench.generated_selection == selection &&
+                        workbench.generated.resident;
                 }
                 attempted.source_digest = ComputePreviewDigest(
                     reinterpret_cast<const uint8_t *>(inputs.source.data()),
                     inputs.source.size());
                 if (source_ready) {
-                    inputs.partner_source = BuildPreviewSyntheticVertexSource(
-                        inputs.source, selection.backend);
+                    if (!workbench.running_test ||
+                        workbench.editing_test)
+                        inputs.partner_source =
+                            BuildPreviewSyntheticVertexSource(
+                                inputs.source, selection.backend);
                     PreviewPacket packet{};
                     if (BuildPreviewPacket(inputs, &packet,
                                            &m_preview_packet_message)) {
-                        service.SubmitPacket(std::move(packet), now_ns,
-                                             &m_preview_packet_message);
+                        if (service.SubmitPacket(packet, now_ns,
+                                                 &m_preview_packet_message)) {
+                            workbench.last_packet = std::move(packet);
+                        }
                     }
                 }
             }
-            if (!m_preview_packet_message.empty()) {
+            if (!m_preview_packet_message.empty() && !draft_waiting) {
                 service.ReportInputFailure(attempted,
                     "INPUT FAILED (source snapshot " +
                     std::to_string(detail_generation) + ", replacement store " +
@@ -508,9 +1234,200 @@ void ShaderBrowserWindow::DrawLivePreview()
         }
     }
     service.CopyStatus(&status);
-    ImGui::BeginDisabled(!status.has_packet || !status.guest_paused ||
+    if (ImGui::CollapsingHeader("Synthetic test file")) {
+        const char *base_path = xemu_settings_get_base_path();
+        const std::filesystem::path base = base_path ?
+            std::filesystem::u8path(base_path) : std::filesystem::path();
+        ImGui::TextDisabled("Synthetic inputs — not an in-game draw");
+        ImGui::BeginDisabled(!entry || !workbench.has_generated);
+        if (ImGui::Button("Export current test")) {
+            WorkbenchExperiment experiment{};
+            std::filesystem::path output;
+            std::string error;
+            if (entry && BuildCurrentWorkbenchExperiment(
+                    workbench, *entry, m_selected_recipe, selection, status,
+                    m_preview_scene,
+                    &experiment, &error) &&
+                ExportWorkbenchExperiment(experiment, base,
+                                          &output, &error)) {
+                m_action_message = "Exported synthetic test to " +
+                    output.u8string();
+                RefreshWorkbenchTestFiles(&workbench, base);
+            } else {
+                m_action_message = error;
+            }
+        }
+        ImGui::EndDisabled();
+        ImGui::SameLine();
+        if (ImGui::Button("Refresh tests") || !workbench.tests_scanned)
+            RefreshWorkbenchTestFiles(&workbench, base);
+        const char *selection_label = "No test files";
+        std::string selected_name;
+        if (workbench.selected_test >= 0 &&
+            static_cast<size_t>(workbench.selected_test) <
+                workbench.available_tests.size()) {
+            selected_name = workbench.available_tests[
+                workbench.selected_test].filename().u8string();
+            selection_label = selected_name.c_str();
+        }
+        if (ImGui::BeginCombo("Reopen test", selection_label)) {
+            for (size_t i = 0; i < workbench.available_tests.size(); ++i) {
+                const std::string name =
+                    workbench.available_tests[i].filename().u8string();
+                if (ImGui::Selectable(name.c_str(),
+                                      workbench.selected_test ==
+                                          static_cast<int>(i))) {
+                    workbench.selected_test = static_cast<int>(i);
+                }
+            }
+            ImGui::EndCombo();
+        }
+        ImGui::BeginDisabled(workbench.selected_test < 0);
+        if (ImGui::Button("Reopen selected test")) {
+            WorkbenchExperiment opened{};
+            std::string error;
+            if (ReadWorkbenchExperiment(workbench.available_tests[
+                    workbench.selected_test], &opened, &error)) {
+                workbench.running_test.reset();
+                workbench.editing_test = false;
+                workbench.comparison_locked = false;
+                workbench.last_packet.reset();
+                workbench.generated_cache_valid = false;
+                m_preview_packet_attempted = false;
+                service.ClearSelection();
+                workbench.reopened_test =
+                    std::make_shared<WorkbenchExperiment>(std::move(opened));
+                m_action_message = "Reopened inactive synthetic test";
+            } else {
+                m_action_message = error;
+            }
+        }
+        ImGui::EndDisabled();
+        if (workbench.reopened_test) {
+            const WorkbenchExperiment &opened = *workbench.reopened_test;
+            ImGui::TextWrapped("%s test: %s / TitleID %08X / %s",
+                workbench.running_test == workbench.reopened_test ?
+                    "Running" : "Inactive",
+                PortableShaderHash(opened.recipe.key.hash).c_str(),
+                opened.packet.selection.scope.title_id,
+                PreviewBackendLabel(opened.packet.selection.backend));
+            const bool backend_supported =
+                opened.packet.selection.backend == active_backend;
+            ImGui::BeginDisabled(!backend_supported);
+            if (ImGui::Button("Run opened synthetic test")) {
+                PreviewPacket packet = opened.packet;
+                selection = packet.selection;
+                selection.session_epoch = m_snapshot.session_epoch;
+                selection.renderer_epoch =
+                    nv2a_profile_preview_renderer_epoch();
+                packet.selection = selection;
+                std::string error;
+                service.SetRequestedMode(selection.mode);
+                service.SetSelection(selection, now_ns);
+                if (service.SubmitPacket(packet, now_ns, &error)) {
+                    workbench.running_test = workbench.reopened_test;
+                    workbench.editing_test = false;
+                    workbench.comparison_locked = false;
+                    workbench.generated = opened.original;
+                    workbench.has_generated = true;
+                    workbench.generated_selection = selection;
+                    workbench.generated_cache_valid = false;
+                    workbench.dock.variant = packet.source_variant;
+                    workbench.last_variant = packet.source_variant;
+                    workbench.editor.SetSource(packet.source);
+                    m_preview_scene = packet.scene;
+                    service.EditScene(m_preview_scene);
+                    m_preview_render_state = packet.render_state;
+                    workbench.dock.bindings = packet.bindings;
+                    m_preview_update_policy = packet.update_policy;
+                    m_preview_input_revision = packet.input_revision;
+                    PreviewSyntheticFixture restored{};
+                    if (DecodePreviewSyntheticFixture(packet.fixture_bytes,
+                                                      &restored, &error)) {
+                        m_preview_fixture = restored;
+                        for (size_t i = 0; i < 4; ++i) {
+                            for (size_t c = 0; c < 4; ++c) {
+                                m_preview_colors[i][c] =
+                                    restored.corner_colors[i][c] / 255.0f;
+                                m_preview_texture_colors[i][c] =
+                                    restored.texture_texels[i][c] / 255.0f;
+                            }
+                        }
+                        m_preview_uv_scale = restored.uv_scale;
+                        m_preview_uv_offset = restored.uv_offset;
+                        m_preview_constant_color = restored.constant_color;
+                        m_preview_fog_color = restored.fog_color;
+                        m_preview_alpha_reference =
+                            restored.alpha_reference;
+                        m_preview_linear_filter =
+                            restored.linear_filter != 0;
+                        m_preview_repeat_wrap = restored.repeat_wrap != 0;
+                        m_preview_profile = -1;
+                        m_preview_fixture_suggested = false;
+                    }
+                    service.EditClock(PreviewClockAction::Pause, 0, now_ns);
+                    service.EditClock(PreviewClockAction::LoopLength,
+                                      opened.clock.loop_seconds, now_ns);
+                    service.EditClock(PreviewClockAction::Loop,
+                                      opened.clock.loop ? 1 : 0, now_ns);
+                    service.EditClock(PreviewClockAction::Speed,
+                                      opened.clock.speed, now_ns);
+                    service.EditClock(PreviewClockAction::Scrub,
+                                      opened.clock.time_seconds, now_ns);
+                    if (opened.clock.playing)
+                        service.EditClock(PreviewClockAction::Play, 0,
+                                          now_ns);
+                    workbench.last_packet = packet;
+                    m_preview_packet_selection = selection;
+                    m_preview_packet_detail_generation =
+                        m_detail_snapshot.generation;
+                    m_preview_packet_override_generation =
+                        selection.mode == PreviewMode::Replacement ?
+                            GetOverrideStore().Generation() : 0;
+                    m_preview_packet_scope_available = true;
+                    m_preview_packet_attempted = true;
+                    m_preview_packet_message.clear();
+                    m_action_message = "Running reopened synthetic test";
+                } else {
+                    m_action_message = error;
+                }
+            }
+            ImGui::EndDisabled();
+            if (!backend_supported) {
+                ImGui::TextDisabled(
+                    "Switch to the test's renderer backend to run");
+            }
+            if (ImGui::Button("Export opened test")) {
+                std::filesystem::path output;
+                std::string error;
+                if (ExportWorkbenchExperiment(opened, base,
+                                              &output, &error)) {
+                    m_action_message = "Exported synthetic test to " +
+                        output.u8string();
+                    RefreshWorkbenchTestFiles(&workbench, base);
+                } else {
+                    m_action_message = error;
+                }
+            }
+        }
+        if (workbench.running_test) {
+            if (ImGui::Button("Return to live source")) {
+                workbench.running_test.reset();
+                workbench.editing_test = false;
+                workbench.comparison_locked = false;
+                workbench.last_packet.reset();
+                workbench.generated_cache_valid = false;
+                m_preview_packet_attempted = false;
+                service.ClearSelection();
+                m_action_message = "Returned to selected live shader";
+            }
+        }
+    }
+    ImGui::BeginDisabled(!status.has_packet ||
+                         !(status.guest_paused || offline_no_guest) ||
                          status.work_active || status.prepared);
-    if (ImGui::Button("Prepare while paused")) {
+    if (ImGui::Button(offline_no_guest ?
+                      "Prepare owned test" : "Prepare while paused")) {
         std::string error;
         if (!service.RequestPreparation(&error)) {
             m_action_message = error;
@@ -557,11 +1474,7 @@ void ShaderBrowserWindow::DrawLivePreview()
             StageLabel(entry->key.stage));
     }
 
-    if (ImGui::CollapsingHeader("View and comparison")) {
-        ImGui::SliderFloat("Zoom", &m_preview_view_zoom, 1.0f, 8.0f,
-                           "%.1fx");
-        ImGui::SliderFloat2("Pan center", m_preview_view_center.data(),
-                            0.0f, 1.0f);
+    if (ImGui::CollapsingHeader("Comparison")) {
         PreviewGlExecutor &executor = GetPreviewGlExecutor();
         ImGui::BeginDisabled(!executor.HasDisplayed());
         if (ImGui::Button("Freeze Reference")) {
@@ -577,6 +1490,9 @@ void ShaderBrowserWindow::DrawLivePreview()
         }
     }
 
+    ImGui::EndChild();
+    ImGui::SameLine();
+    ImGui::BeginChild("##workbench-viewport", ImVec2(0, 0), false);
     ImVec2 available = ImGui::GetContentRegionAvail();
     float side = std::max(1.0f, available.x - 40.0f);
     float output_height = std::max(340.0f, available.y);
@@ -586,12 +1502,11 @@ void ShaderBrowserWindow::DrawLivePreview()
         ImGui::Separator();
         if (entry) {
             PreviewViewSettings view{};
-            view.zoom = m_preview_view_zoom;
-            view.center = m_preview_view_center;
             GetPreviewGlExecutor().DrawImage(side - 16.0f,
                                              enabled ? &selection : nullptr,
-                                             now_ns, &view);
-            m_preview_view_center = view.center;
+                                             now_ns, &view,
+                                             workbench.comparison_locked ?
+                                                 nullptr : &m_preview_scene);
         } else {
             ImGui::TextWrapped(
                 "Select a pixel shader to prepare a private preview.");
@@ -607,5 +1522,6 @@ void ShaderBrowserWindow::DrawLivePreview()
                                 PreviewBackend::OpenGL));
         }
     }
+    ImGui::EndChild();
     ImGui::EndChild();
 }

@@ -66,6 +66,35 @@ int main()
     filter.source = SourceFilter::ThisSession;
     assert(EntryMatches(entry, filter));
 
+    filter.recent_enabled = true;
+    filter.current_frame = 130;
+    filter.recent_within_frames = 30;
+    assert(EntryMatches(entry, filter));
+    filter.recent_within_frames = 29;
+    assert(!EntryMatches(entry, filter));
+    filter.current_frame = 99;
+    assert(!EntryMatches(entry, filter));
+    filter.current_frame = 130;
+    filter.recent_enabled = false;
+
+    filter.hidden.insert(entry.key);
+    assert(!EntryMatches(entry, filter));
+    filter.show_hidden = true;
+    assert(EntryMatches(entry, filter));
+    filter.hidden.clear();
+
+    Entry other = entry;
+    other.key.hash.bytes[0]++;
+    other.draw_count = 100;
+    filter.query.clear();
+    filter.source = SourceFilter::All;
+    filter.pinned.insert(entry.key);
+    auto order = BuildVisibleOrder({other, entry}, filter);
+    assert(order.size() == 2 && order[0] == 1 && order[1] == 0);
+    filter.pinned.clear();
+    order = BuildVisibleOrder({other, entry}, filter);
+    assert(order.size() == 2 && order[0] == 0 && order[1] == 1);
+
     assert(FormatDurationNs(entry.compile_cpu).find("2.00 ms avg") !=
            std::string::npos);
     assert(FormatLastUsed(95, 100, true) == "5 frames ago");
