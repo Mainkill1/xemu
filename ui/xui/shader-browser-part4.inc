@@ -375,11 +375,15 @@ void ShaderBrowserWindow::DrawLivePreview()
         const uint64_t replacement_generation =
             selection.mode == PreviewMode::Replacement ?
                 GetOverrideStore().Generation() : 0;
+        const bool scope_available = std::find(
+            entry->scopes.begin(), entry->scopes.end(),
+            selection.scope) != entry->scopes.end();
         if (enabled && entry->key.stage == Stage::Pixel &&
             (!m_preview_packet_attempted ||
              m_preview_packet_selection != selection ||
              m_preview_packet_detail_generation != detail_generation ||
-             m_preview_packet_override_generation != replacement_generation)) {
+             m_preview_packet_override_generation != replacement_generation ||
+             m_preview_packet_scope_available != scope_available)) {
             const bool new_selection = m_preview_packet_selection != selection;
             if (new_selection)
                 m_preview_fixture_suggested = false;
@@ -398,6 +402,7 @@ void ShaderBrowserWindow::DrawLivePreview()
             m_preview_packet_selection = selection;
             m_preview_packet_detail_generation = detail_generation;
             m_preview_packet_override_generation = replacement_generation;
+            m_preview_packet_scope_available = scope_available;
             m_preview_packet_message.clear();
             if (!m_has_recipe || m_selected_recipe.key != entry->key) {
                 m_preview_packet_message = "Canonical recipe is unavailable";
@@ -405,6 +410,9 @@ void ShaderBrowserWindow::DrawLivePreview()
                 PreviewPacketInputs inputs{};
                 inputs.selection = selection;
                 inputs.recipe = m_selected_recipe;
+                bool scope_ready = AttachPreviewSelectionScope(
+                    *entry, selection, &inputs.recipe,
+                    &m_preview_packet_message);
                 PreviewSyntheticFixture fixture = m_preview_fixture;
                 auto encode_color = [](const std::array<float, 4> &color) {
                     std::array<uint8_t, 4> encoded{};
@@ -434,8 +442,8 @@ void ShaderBrowserWindow::DrawLivePreview()
                 inputs.update_policy = m_preview_update_policy;
                 inputs.input_revision = m_preview_input_revision;
                 inputs.scene = m_preview_scene;
-                bool source_ready = true;
-                if (selection.mode == PreviewMode::Replacement) {
+                bool source_ready = scope_ready;
+                if (scope_ready && selection.mode == PreviewMode::Replacement) {
                     const OverrideBackend backend =
                         selection.backend == PreviewBackend::OpenGL ?
                             OverrideBackend::OpenGL : OverrideBackend::Vulkan;
@@ -461,7 +469,7 @@ void ShaderBrowserWindow::DrawLivePreview()
                             replacement->opengl_source :
                             replacement->vulkan_source;
                     }
-                } else {
+                } else if (scope_ready) {
                     source_ready = CopyPreviewFragmentSource(
                         selection, m_detail_snapshot, &inputs.source,
                         &m_preview_packet_message);

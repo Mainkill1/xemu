@@ -92,6 +92,12 @@ struct PreviewPacketInputs {
     PreviewUpdatePolicy update_policy = PreviewUpdatePolicy::OnDirty;
 };
 
+// A live snapshot can gain another build scope after the selected recipe was
+// copied. Bind only a scope observed for the same shader in the current entry.
+bool AttachPreviewSelectionScope(const Entry &entry,
+                                 const PreviewSelection &selection,
+                                 CanonicalRecipe *recipe, std::string *error);
+
 bool BuildPreviewPacket(const PreviewPacketInputs &inputs,
                         PreviewPacket *packet, std::string *error);
 
