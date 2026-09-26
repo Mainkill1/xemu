@@ -43,8 +43,11 @@ int main()
 
     OverrideStore store;
     ReplacementLibrary library;
-    library.Configure(root.u8string());
     std::string error;
+    library.Configure("");
+    assert(library.RootPath().empty());
+    assert(!library.EnsureRoot(&error));
+    library.Configure(root.u8string());
     assert(library.Reload(&store, &error));
 
     ReplacementLibrarySnapshot snapshot;

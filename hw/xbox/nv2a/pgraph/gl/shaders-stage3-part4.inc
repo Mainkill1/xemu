@@ -56,6 +56,21 @@ void pgraph_gl_bind_shaders(PGRAPHState *pg)
     }
 
     const XemuShaderOverridePolicy *policy = &binding->browser.opengl_policy;
+    if (policy->action == XEMU_SHADER_OVERRIDE_ACTION_SKIP_DRAW) {
+        binding->gl_primitive_mode = get_gl_primitive_mode(
+            binding->state.geom.polygon_front_mode,
+            binding->state.geom.primitive_mode);
+        if (cache_locked) {
+            qemu_mutex_unlock(&renderer->shader_cache_lock);
+            NV2A_GL_DGROUP_END();
+        }
+        if (state_changed) {
+            pgraph_clear_dirty_reg_map(pg);
+        }
+        runtime->active_custom_program = false;
+        runtime->active_action = XEMU_SHADER_OVERRIDE_ACTION_SKIP_DRAW;
+        return;
+    }
     PGRAPHGLOverrideProgram *override_program = NULL;
     if (pgraph_gl_policy_wants_override(policy)) {
         override_program = pgraph_gl_override_program_build(
@@ -148,11 +163,15 @@ void pgraph_gl_shader_override_prepare_draw(
         return;
     }
     const XemuShaderOverridePolicy *policy = &binding->browser.opengl_policy;
-    if (!pgraph_gl_policy_wants_override(policy) ||
+    if ((!pgraph_gl_policy_wants_override(policy) &&
+         policy->action != XEMU_SHADER_OVERRIDE_ACTION_SKIP_DRAW) ||
         !policy->draw_condition_mask) {
         return;
     }
     if (xemu_shader_override_policy_matches_draw(policy, facts)) {
+        if (policy->action == XEMU_SHADER_OVERRIDE_ACTION_SKIP_DRAW) {
+            return;
+        }
         if (pgraph_gl_shader_override_effective_action(pg) ==
             XEMU_SHADER_OVERRIDE_ACTION_NORMAL) {
             pgraph_gl_bind_shaders(pg);

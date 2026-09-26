@@ -76,6 +76,7 @@ void xemu_shader_override_set_context(
         XEMU_SHADER_BROWSER_EXECUTABLE_FINGERPRINT_BYTES],
     uint32_t backend);
 uint64_t xemu_shader_override_generation(void);
+int xemu_shader_override_has_active_rules(void);
 int xemu_shader_override_resolve(
     uint32_t identity_version,
     const uint8_t identity_hash[XEMU_SHADER_BROWSER_HASH_BYTES],

@@ -35,9 +35,10 @@ static ReplacementPayload MakeReplacement(uint64_t id, uint64_t revision)
 int main()
 {
     OverrideStore store;
+    assert(!store.HasActiveRules());
     OverrideContext context{};
     context.title_id = 0x4d530064;
-    context.backend = OverrideBackend::Vulkan;
+    context.backend = OverrideBackend::OpenGL;
     store.SetContext(context);
 
     std::string error;
@@ -54,6 +55,11 @@ int main()
     rule.replacement_id = payload.descriptor.id;
     rule.revision = 1;
     assert(store.UpsertRule(rule, &error));
+    assert(store.HasActiveRules());
+    store.SetDisabled(true);
+    assert(!store.HasActiveRules());
+    store.SetDisabled(false);
+    assert(store.HasActiveRules());
 
     OverrideResolution resolved = store.Resolve(rule.shader);
     assert(resolved.status == OverrideResolutionStatus::Matched);
@@ -82,6 +88,20 @@ int main()
     assert(store.RemoveRule(9));
     assert(store.Resolve(rule.shader).status ==
            OverrideResolutionStatus::None);
+    assert(!store.HasActiveRules());
+
+    OverrideRule session = rule;
+    session.id = 10;
+    session.origin = OverrideOrigin::Session;
+    OverrideRule saved = rule;
+    saved.id = 11;
+    saved.origin = OverrideOrigin::Saved;
+    assert(store.UpsertRule(session, &error));
+    assert(store.UpsertRule(saved, &error));
+    store.ClearSessionRules();
+    OverrideStoreSnapshot retained;
+    store.CopySnapshot(&retained);
+    assert(retained.rules.size() == 1 && retained.rules[0].id == saved.id);
 
     OverrideStore &global = GetOverrideStore();
     global.Clear();

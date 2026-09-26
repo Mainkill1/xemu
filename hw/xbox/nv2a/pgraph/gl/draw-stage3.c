@@ -68,7 +68,8 @@ static void pgraph_gl_override_draw_facts(
     }
 }
 
-static bool pgraph_gl_override_skip_draw(PGRAPHState *pg)
+static bool pgraph_gl_override_skip_draw(
+    PGRAPHState *pg, const XemuShaderOverrideDrawFacts *facts)
 {
     PGRAPHGLState *renderer = pg->gl_renderer_state;
     if (!renderer || !renderer->shader_binding) {
@@ -79,9 +80,7 @@ static bool pgraph_gl_override_skip_draw(PGRAPHState *pg)
     if (policy->action != XEMU_SHADER_OVERRIDE_ACTION_SKIP_DRAW) {
         return false;
     }
-    XemuShaderOverrideDrawFacts facts;
-    pgraph_gl_override_draw_facts(pg, &facts);
-    return xemu_shader_override_policy_matches_draw(policy, &facts);
+    return xemu_shader_override_policy_matches_draw(policy, facts);
 }
 
 static uint32_t pgraph_gl_override_observation_route(PGRAPHState *pg)
@@ -101,7 +100,16 @@ void pgraph_gl_flush_draw(NV2AState *d)
         return;
     }
 
-    if (pgraph_gl_override_skip_draw(pg)) {
+    const XemuShaderOverridePolicy *policy = renderer->shader_binding ?
+        &renderer->shader_binding->browser.opengl_policy : NULL;
+    XemuShaderOverrideDrawFacts facts;
+    if (policy && (policy->action == XEMU_SHADER_OVERRIDE_ACTION_SKIP_DRAW ||
+                   policy->draw_condition_mask)) {
+        pgraph_gl_override_draw_facts(pg, &facts);
+    }
+
+    if (policy && policy->action == XEMU_SHADER_OVERRIDE_ACTION_SKIP_DRAW &&
+        pgraph_gl_override_skip_draw(pg, &facts)) {
         pgraph_gl_draw_lifecycle_record(&renderer->draw_lifecycle,
                                         PGRAPH_GL_DRAW_EMPTY);
         pgraph_shader_browser_record_draw(
@@ -111,10 +119,7 @@ void pgraph_gl_flush_draw(NV2AState *d)
         return;
     }
 
-    if (renderer->shader_binding &&
-        renderer->shader_binding->browser.opengl_policy.draw_condition_mask) {
-        XemuShaderOverrideDrawFacts facts;
-        pgraph_gl_override_draw_facts(pg, &facts);
+    if (policy && policy->draw_condition_mask) {
         pgraph_gl_shader_override_prepare_draw(pg, &facts);
     }
 

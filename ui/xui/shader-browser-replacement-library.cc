@@ -213,7 +213,8 @@ void StoreU64Le(std::array<uint8_t, 32> *target, size_t offset,
 void ReplacementLibrary::Configure(const std::string &base_path)
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    root_path_ = (fs::u8path(base_path) / "shader-replacements").u8string();
+    root_path_ = base_path.empty() ? std::string{} :
+        (fs::u8path(base_path) / "shader-replacements").u8string();
     ++generation_;
 }
 

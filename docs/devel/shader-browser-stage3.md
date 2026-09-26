@@ -73,9 +73,13 @@ Changing file contents under the same path must never reuse an old effective pro
 <config-dir>/shader-browser.db       optional rule metadata
 <config-dir>/shader-artifacts/       disposable generated/compiled artifacts
 <config-dir>/shader-replacements/    authored/imported source and manifests
+<config-dir>/shader-presets/         portable rule preset exports/imports
 ```
 
 Authored replacements must survive artifact cleanup. Database-off operation still supports session-only rules.
+Portable presets contain full title/build shader identities and replacement
+package IDs, but no authored shader source; package directories must be shared
+separately. Importing a preset creates process-lifetime imported rules.
 
 ## Validation gates
 

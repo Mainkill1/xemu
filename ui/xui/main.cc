@@ -50,6 +50,7 @@
 #include "debug.hh"
 #include "shader-browser.hh"
 #include "shader-browser-session-provider.hh"
+#include "shader-browser-override-store.hh"
 #include "welcome.hh"
 #include "menubar.hh"
 #include "compat.hh"
@@ -121,6 +122,7 @@ static void ShaderBrowserApplyScopeTransition(void *opaque)
         g_shader_browser_scope = transition->scope;
         xemu_shader_browser_set_current_scope(&transition->scope);
         xemu_shader_browser_session_clear_live();
+        xemu::shader_browser::GetOverrideStore().ClearSessionRules();
     }
     if (!transition->scope.title_id || !record_sessions ||
         !g_shader_browser_performance_session.empty()) {

@@ -4,6 +4,7 @@
 #include "shader-browser-overrides.hh"
 
 #include <memory>
+#include <atomic>
 #include <mutex>
 #include <unordered_map>
 
@@ -43,9 +44,11 @@ public:
     bool UpsertRule(const OverrideRule &rule, std::string *error);
     bool RemoveRule(uint64_t rule_id);
     void ClearSessionRules();
+    void ClearSavedRules();
 
     OverrideResolution Resolve(const ShaderKey &key) const;
     uint64_t Generation() const;
+    bool HasActiveRules() const;
     void CopySnapshot(OverrideStoreSnapshot *snapshot) const;
     void Clear();
 
@@ -59,6 +62,7 @@ private:
     OverrideContext context_;
     bool disabled_ = false;
     uint64_t generation_ = 0;
+    std::atomic<bool> has_active_rules_{false};
     std::unordered_map<uint64_t, OverrideRule> rules_;
     std::unordered_map<uint64_t, std::shared_ptr<const ReplacementPayload>>
         replacements_;

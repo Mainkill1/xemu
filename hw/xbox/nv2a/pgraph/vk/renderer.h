@@ -819,6 +819,10 @@ typedef struct PGRAPHVkState {
     Lru shader_cache;
     ShaderBinding *shader_cache_entries;
     ShaderBinding *shader_binding;
+    bool override_probe_valid;
+    ShaderState override_probe_state;
+    PGRAPHShaderBrowserBinding override_probe_browser;
+    bool draw_scope_had_submission;
     ShaderModuleInfo *quad_vert_module, *solid_frag_module;
     bool shader_bindings_changed;
     bool use_push_constants_for_uniform_attrs;

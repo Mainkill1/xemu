@@ -2528,6 +2528,7 @@ void pgraph_vk_bind_shaders(PGRAPHState *pg)
 void pgraph_vk_init_shaders(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
+    r->override_probe_valid = false;
 
     XemuVulkanUbershaderMode ubershader_policy =
         xemu_vulkan_ubershader_policy();

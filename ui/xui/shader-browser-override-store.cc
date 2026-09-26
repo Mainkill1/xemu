@@ -206,11 +206,29 @@ void OverrideStore::ClearSessionRules()
     RebuildLocked();
 }
 
+void OverrideStore::ClearSavedRules()
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    bool changed = false;
+    for (auto it = rules_.begin(); it != rules_.end();) {
+        if (it->second.origin == OverrideOrigin::Saved) {
+            it = rules_.erase(it);
+            changed = true;
+        } else {
+            ++it;
+        }
+    }
+    if (changed) {
+        RebuildLocked();
+    }
+}
+
 void OverrideStore::RebuildLocked()
 {
     ++generation_;
     if (disabled_) {
         index_.Rebuild(context_, {}, {});
+        has_active_rules_.store(false, std::memory_order_release);
         return;
     }
     std::vector<OverrideRule> rules;
@@ -224,6 +242,15 @@ void OverrideStore::RebuildLocked()
         replacements.push_back(pair.second->descriptor);
     }
     index_.Rebuild(context_, rules, replacements);
+    has_active_rules_.store(
+        std::any_of(rules.begin(), rules.end(),
+                    [](const OverrideRule &rule) { return rule.enabled; }),
+        std::memory_order_release);
+}
+
+bool OverrideStore::HasActiveRules() const
+{
+    return has_active_rules_.load(std::memory_order_acquire);
 }
 
 OverrideResolution OverrideStore::Resolve(const ShaderKey &key) const
@@ -313,6 +340,11 @@ void xemu_shader_override_set_context(
 uint64_t xemu_shader_override_generation(void)
 {
     return GetOverrideStore().Generation();
+}
+
+int xemu_shader_override_has_active_rules(void)
+{
+    return GetOverrideStore().HasActiveRules() ? 1 : 0;
 }
 
 int xemu_shader_override_resolve(

@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <array>
 #include <cstring>
+#include <filesystem>
 #include <iterator>
 
 namespace xemu::shader_browser {
@@ -18,9 +19,11 @@ namespace {
 
 constexpr char kShaderDragPayloadType[] = "XEMU_SHADER_BROWSER_SHADER_KEY_V1";
 
-uint64_t RuleId(uint32_t title_id, const ShaderKey &key)
+uint64_t RuleId(uint32_t title_id, const ShaderKey &key,
+                OverrideOrigin origin, const ShaderScope *build_scope)
 {
-    std::array<uint8_t, 4 + 4 + 4 + kShaderHashBytes> frame{};
+    std::array<uint8_t, 4 + 4 + 4 + kShaderHashBytes + 2 + 4 +
+                        kExecutableFingerprintBytes> frame{};
     size_t offset = 0;
     auto put_u32 = [&](uint32_t value) {
         for (unsigned shift = 0; shift < 32; shift += 8) {
@@ -32,7 +35,17 @@ uint64_t RuleId(uint32_t title_id, const ShaderKey &key)
     put_u32(static_cast<uint32_t>(key.stage));
     std::memcpy(frame.data() + offset, key.hash.bytes.data(),
                 key.hash.bytes.size());
-    uint64_t id = XXH3_64bits_withSeed(frame.data(), frame.size(),
+    offset += key.hash.bytes.size();
+    frame[offset++] = static_cast<uint8_t>(origin);
+    frame[offset++] = build_scope ? 1 : 0;
+    if (build_scope) {
+        put_u32(build_scope->executable_fingerprint_version);
+        std::memcpy(frame.data() + offset,
+                    build_scope->executable_fingerprint.data(),
+                    build_scope->executable_fingerprint.size());
+        offset += build_scope->executable_fingerprint.size();
+    }
+    uint64_t id = XXH3_64bits_withSeed(frame.data(), offset,
                                       UINT64_C(0x58454d5553484452));
     return id ? id : 1;
 }
@@ -77,10 +90,28 @@ bool OpenDirectory(const std::string &path, std::string *error)
 
 void ShaderOverrideUi::Refresh(uint32_t current_title_id)
 {
+    const char *base_path = xemu_settings_get_base_path();
+    const std::string base = base_path ? base_path : "";
     if (!configured_) {
-        const char *base_path = xemu_settings_get_base_path();
-        GetReplacementLibrary().Configure(base_path ? base_path : "");
+        GetReplacementLibrary().Configure(base);
+        if (!base.empty()) {
+            preset_path_ = (std::filesystem::u8path(base) /
+                            "shader-presets" /
+                            "shader-preset.json").u8string();
+        }
         configured_ = true;
+    }
+    const bool database_enabled = g_config.shader_browser.database.enabled;
+    if (!persistence_configured_ ||
+        persistence_enabled_ != database_enabled ||
+        persistence_base_path_ != base) {
+        GetSavedOverrideRules().Configure(
+            base, database_enabled, &GetOverrideStore(),
+            &persistence_error_);
+        persistence_configured_ = true;
+        persistence_enabled_ = database_enabled;
+        persistence_base_path_ = base;
+        if (!GetSavedOverrideRules().Enabled()) save_rule_ = false;
     }
     RefreshSnapshots(current_title_id);
 }
@@ -193,8 +224,9 @@ bool ShaderOverrideUi::ApplyRule(const ShaderKey &key, uint32_t title_id,
         return false;
     }
     if (store_snapshot_.context.backend == OverrideBackend::Vulkan &&
-        action != OverrideAction::Normal) {
-        if (message) *message = "Vulkan override runtime is not available yet";
+        action != OverrideAction::Normal &&
+        action != OverrideAction::SkipDraw) {
+        if (message) *message = "This Vulkan override action is not available yet";
         return false;
     }
     if (!entry || entry->key != key ||
@@ -206,11 +238,11 @@ bool ShaderOverrideUi::ApplyRule(const ShaderKey &key, uint32_t title_id,
         return false;
     }
     OverrideRule rule{};
-    rule.id = RuleId(title_id, key);
     rule.enabled = true;
     rule.title_id = title_id;
     rule.shader = key;
-    rule.origin = OverrideOrigin::Session;
+    rule.origin = save_rule_ && GetSavedOverrideRules().Enabled() ?
+        OverrideOrigin::Saved : OverrideOrigin::Session;
     rule.priority = 1000;
     rule.action = action;
     rule.replacement_id = replacement_id;
@@ -229,8 +261,14 @@ bool ShaderOverrideUi::ApplyRule(const ShaderKey &key, uint32_t title_id,
             scope->executable_fingerprint_version;
         rule.executable_fingerprint = scope->executable_fingerprint;
     }
+    rule.id = RuleId(title_id, key, rule.origin,
+                     rule.restrict_build ? FindBuildScope(entry, title_id) :
+                                           nullptr);
     std::string error;
-    if (!GetOverrideStore().UpsertRule(rule, &error)) {
+    bool applied = rule.origin == OverrideOrigin::Saved ?
+        GetSavedOverrideRules().Save(rule, &GetOverrideStore(), &error) :
+        GetOverrideStore().UpsertRule(rule, &error);
+    if (!applied) {
         if (message) *message = error;
         return false;
     }
@@ -375,12 +413,23 @@ void ShaderOverrideUi::DrawPanel(const Entry &entry,
     ImGui::EndDisabled();
     if (!build_scope && restrict_build_) restrict_build_ = false;
 
+    ImGui::BeginDisabled(!GetSavedOverrideRules().Enabled());
+    ImGui::Checkbox("Save rule to shader database", &save_rule_);
+    ImGui::EndDisabled();
+    if (!GetSavedOverrideRules().Enabled()) save_rule_ = false;
+
     bool action_supported = true;
     std::string unsupported;
     if (store_snapshot_.context.backend == OverrideBackend::Vulkan &&
+        SelectedAction() != OverrideAction::Normal &&
+        SelectedAction() != OverrideAction::SkipDraw) {
+        action_supported = false;
+        unsupported = "This Vulkan override action is not available yet";
+    }
+    if (entry.key.stage != Stage::Pixel &&
         SelectedAction() != OverrideAction::Normal) {
         action_supported = false;
-        unsupported = "Vulkan override runtime is not available yet";
+        unsupported = "Stage 3 v1 runtime actions target pixel shaders only";
     }
     if (SelectedAction() == OverrideAction::ForceUber &&
         store_snapshot_.context.backend == OverrideBackend::OpenGL) {
@@ -411,11 +460,37 @@ void ShaderOverrideUi::DrawPanel(const Entry &entry,
     }
 
     OverrideResolution resolution = GetOverrideStore().Resolve(entry.key);
-    ImGui::Text("Requested/effective: %s",
+    ImGui::Text("Rule resolution: %s",
                 OverrideResolutionLabel(resolution.status));
     if (!resolution.message.empty()) {
         ImGui::SameLine();
         ImGui::TextDisabled("%s", resolution.message.c_str());
+    }
+    if (GetSavedOverrideRules().Enabled()) {
+        for (const OverrideRule &saved : store_snapshot_.rules) {
+            if (saved.title_id != title_id || saved.shader != entry.key ||
+                saved.origin != OverrideOrigin::Saved) {
+                continue;
+            }
+            ImGui::PushID(static_cast<int>(saved.id));
+            const char *label = saved.restrict_build ?
+                "Remove saved rule for this build" :
+                "Remove saved rule for all builds";
+            if (!ImGui::Button(label)) {
+                ImGui::PopID();
+                continue;
+            }
+            std::string error;
+            if (!GetSavedOverrideRules().Remove(
+                    saved.id, &GetOverrideStore(), &error)) {
+                if (message) *message = error;
+            } else {
+                if (message) *message = "Saved rule removed";
+            }
+            ImGui::PopID();
+            RefreshSnapshots(title_id);
+            break;
+        }
     }
     if (store_snapshot_.context.backend == OverrideBackend::Unknown) {
         ImGui::TextDisabled(
@@ -475,6 +550,47 @@ void ShaderOverrideUi::DrawSettings(std::string *message)
     ImGui::TextDisabled(
         "Replacement source is authored data under shader-replacements/. It "
         "is separate from disposable shader-artifacts/ files.");
+    if (!persistence_error_.empty()) {
+        ImGui::TextWrapped("Saved rules: %s", persistence_error_.c_str());
+    }
+
+    ImGui::SeparatorText("Portable override preset");
+    ImGui::InputText("Preset JSON file", &preset_path_);
+    ImGui::BeginDisabled(!store_snapshot_.context.title_id);
+    if (ImGui::Button("Export current title rules")) {
+        std::vector<OverrideRule> rules;
+        for (const OverrideRule &rule : store_snapshot_.rules) {
+            if (rule.title_id == store_snapshot_.context.title_id) {
+                rules.push_back(rule);
+            }
+        }
+        std::string error;
+        if (!ExportOverridePreset(preset_path_, rules, &error)) {
+            if (message) *message = error;
+        } else if (message) {
+            *message = "Exported " + std::to_string(rules.size()) +
+                       " override rules";
+        }
+    }
+    ImGui::EndDisabled();
+    ImGui::SameLine();
+    if (ImGui::Button("Import preset")) {
+        size_t count = 0;
+        std::string error;
+        if (!ImportOverridePreset(preset_path_, &GetOverrideStore(),
+                                  &count, &error)) {
+            if (message) *message = error;
+        } else {
+            RefreshSnapshots(store_snapshot_.context.title_id);
+            if (message) {
+                *message = "Imported " + std::to_string(count) +
+                           " override rules";
+            }
+        }
+    }
+    ImGui::TextDisabled(
+        "Presets contain title/build rules and package IDs. Copy authored "
+        "replacement packages separately when sharing a preset.");
 }
 
 ShaderOverrideUi &GetShaderOverrideUi()

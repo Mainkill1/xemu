@@ -37,6 +37,96 @@
 
 static bool pgraph_vk_flush_draw_internal(NV2AState *d);
 
+static void pgraph_vk_override_draw_facts(
+    PGRAPHState *pg, XemuShaderOverrideDrawFacts *facts)
+{
+    memset(facts, 0, sizeof(*facts));
+    facts->primitive_mode = pg->primitive_mode;
+    facts->available_mask = XEMU_SHADER_OVERRIDE_DRAW_CONDITION_PRIMITIVE;
+    if (pg->inline_elements_length) {
+        uint32_t minimum = UINT32_MAX;
+        uint32_t maximum = 0;
+        for (int i = 0; i < pg->inline_elements_length; ++i) {
+            minimum = MIN(minimum, pg->inline_elements[i]);
+            maximum = MAX(maximum, pg->inline_elements[i]);
+        }
+        facts->element_count = pg->inline_elements_length;
+        facts->min_element = minimum;
+        facts->max_element = maximum;
+        facts->available_mask |=
+            XEMU_SHADER_OVERRIDE_DRAW_CONDITION_ELEMENT_COUNT |
+            XEMU_SHADER_OVERRIDE_DRAW_CONDITION_ELEMENT_RANGE;
+    } else if (pg->draw_arrays_length) {
+        uint64_t total = 0;
+        for (unsigned int i = 0; i < pg->draw_arrays_length; ++i) {
+            total += pg->draw_arrays_count[i];
+        }
+        facts->element_count = total > UINT32_MAX ? UINT32_MAX : total;
+        facts->min_element = pg->draw_arrays_min_start;
+        facts->max_element = pg->draw_arrays_max_count ?
+            pg->draw_arrays_max_count - 1 : 0;
+        facts->available_mask |=
+            XEMU_SHADER_OVERRIDE_DRAW_CONDITION_ELEMENT_COUNT |
+            XEMU_SHADER_OVERRIDE_DRAW_CONDITION_ELEMENT_RANGE;
+    } else if (pg->inline_buffer_length) {
+        facts->element_count = pg->inline_buffer_length;
+        facts->min_element = 0;
+        facts->max_element = pg->inline_buffer_length - 1;
+        facts->available_mask |=
+            XEMU_SHADER_OVERRIDE_DRAW_CONDITION_ELEMENT_COUNT |
+            XEMU_SHADER_OVERRIDE_DRAW_CONDITION_ELEMENT_RANGE;
+    }
+}
+
+static bool pgraph_vk_override_skip_draw(
+    PGRAPHState *pg, PGRAPHShaderBrowserBinding *browser)
+{
+    PGRAPHVkState *renderer = pg->vk_renderer_state;
+    if (pg->clearing ||
+        !(renderer->color_binding || renderer->zeta_binding) ||
+        !(pg->draw_arrays_length || pg->inline_elements_length ||
+          pg->inline_buffer_length || pg->inline_array_length) ||
+        !xemu_shader_override_has_active_rules()) {
+        return false;
+    }
+
+    ShaderBinding *binding = renderer->shader_binding;
+    if (binding &&
+        !pgraph_glsl_check_shader_state_dirty(pg, &binding->state)) {
+        pgraph_shader_browser_refresh_binding_scope(
+            &binding->state,
+            pgraph_glsl_need_geom(&binding->state.geom),
+            &binding->browser);
+        *browser = binding->browser;
+    } else {
+        if (!renderer->override_probe_valid ||
+            pgraph_glsl_check_shader_state_dirty(
+                pg, &renderer->override_probe_state)) {
+            renderer->override_probe_state = pgraph_glsl_get_shader_state(pg);
+            memset(&renderer->override_probe_browser, 0,
+                   sizeof(renderer->override_probe_browser));
+            pgraph_shader_browser_publish_binding(
+                &renderer->override_probe_state,
+                pgraph_glsl_need_geom(&renderer->override_probe_state.geom),
+                &renderer->override_probe_browser);
+            renderer->override_probe_valid = true;
+        } else {
+            pgraph_shader_browser_refresh_binding_scope(
+                &renderer->override_probe_state,
+                pgraph_glsl_need_geom(&renderer->override_probe_state.geom),
+                &renderer->override_probe_browser);
+        }
+        *browser = renderer->override_probe_browser;
+    }
+    const XemuShaderOverridePolicy *policy = &browser->vulkan_policy;
+    if (policy->action != XEMU_SHADER_OVERRIDE_ACTION_SKIP_DRAW) {
+        return false;
+    }
+    XemuShaderOverrideDrawFacts facts;
+    pgraph_vk_override_draw_facts(pg, &facts);
+    return xemu_shader_override_policy_matches_draw(policy, &facts);
+}
+
 typedef struct PGRAPHVkGraphicsPipelineRecipe {
     VkGraphicsPipelineCreateInfo info;
     VkPipelineShaderStageCreateInfo stages[3];
@@ -65,6 +155,7 @@ void pgraph_vk_draw_begin(NV2AState *d)
 {
     PGRAPHState *pg = &d->pgraph;
     PGRAPHVkState *r = pg->vk_renderer_state;
+    r->draw_scope_had_submission = false;
 
     NV2A_VK_DPRINTF("NV097_SET_BEGIN_END: 0x%x", d->pgraph.primitive_mode);
 
@@ -89,6 +180,7 @@ void pgraph_vk_draw_begin(NV2AState *d)
         NV2A_VK_DPRINTF("nop!");
         return;
     }
+
 }
 
 static VkPrimitiveTopology get_primitive_topology(const ShaderState *state)
@@ -3112,8 +3204,17 @@ void pgraph_vk_draw_end(NV2AState *d)
         return;
     }
 
+    PGRAPHShaderBrowserBinding skipped_browser;
+    bool skipped = pgraph_vk_override_skip_draw(pg, &skipped_browser);
+    if (skipped) {
+        pgraph_shader_browser_record_draw(
+            &pg->shader_browser_observations, &skipped_browser,
+            pg->frame_time, XEMU_SHADER_BROWSER_ROUTE_DISABLED);
+    }
+
     int64_t start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
-    bool draw_recorded = pgraph_vk_flush_draw_internal(d);
+    bool final_recorded = skipped ? false : pgraph_vk_flush_draw_internal(d);
+    bool draw_recorded = final_recorded || r->draw_scope_had_submission;
     pgraph_vk_perf_record_cpu_region(
         r, VK_PERF_CPU_DRAW_FLUSH,
         r->perf.enabled ? g_get_monotonic_time() - start_us : 0);
@@ -3121,7 +3222,7 @@ void pgraph_vk_draw_end(NV2AState *d)
         return;
     }
 
-    if (r->shader_binding &&
+    if (!skipped && r->shader_binding &&
         (pg->draw_arrays_length || pg->inline_elements_length ||
          pg->inline_buffer_length || pg->inline_array_length)) {
         pgraph_shader_browser_record_draw(
@@ -4120,5 +4221,14 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
 
 void pgraph_vk_flush_draw(NV2AState *d)
 {
-    pgraph_vk_flush_draw_internal(d);
+    PGRAPHShaderBrowserBinding skipped_browser;
+    if (pgraph_vk_override_skip_draw(&d->pgraph, &skipped_browser)) {
+        return;
+    }
+    PGRAPHState *pg = &d->pgraph;
+    if (pgraph_vk_flush_draw_internal(d) &&
+        (pg->draw_arrays_length || pg->inline_elements_length ||
+         pg->inline_buffer_length || pg->inline_array_length)) {
+        pg->vk_renderer_state->draw_scope_had_submission = true;
+    }
 }

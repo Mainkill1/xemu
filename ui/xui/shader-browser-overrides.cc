@@ -52,6 +52,12 @@ std::tuple<int, int, int32_t> RuleRank(const OverrideRule &rule)
 bool ActionSupported(OverrideAction action, OverrideBackend backend,
                      std::string *reason)
 {
+    if (backend == OverrideBackend::Vulkan &&
+        action != OverrideAction::Normal &&
+        action != OverrideAction::SkipDraw) {
+        if (reason) *reason = "This Vulkan override action is not available yet";
+        return false;
+    }
     if (action == OverrideAction::ForceUber &&
         backend != OverrideBackend::Vulkan) {
         if (reason) {
@@ -271,6 +277,14 @@ void OverrideIndex::Rebuild(
         }
 
         std::string reason;
+        if (winner->action != OverrideAction::Normal &&
+            key.stage != Stage::Pixel) {
+            resolution.status = OverrideResolutionStatus::Incompatible;
+            resolution.message =
+                "Stage 3 v1 runtime actions target pixel shaders only";
+            resolved.emplace(key, std::move(resolution));
+            continue;
+        }
         if (!ActionSupported(winner->action, context.backend, &reason)) {
             resolution.status = OverrideResolutionStatus::Incompatible;
             resolution.message = reason;

@@ -27,21 +27,21 @@ int main() {
     OverrideIndex index;
     OverrideContext ctx{}; ctx.title_id=0x4d530064; ctx.backend=OverrideBackend::Vulkan; ctx.executable_fingerprint_version=1; ctx.executable_fingerprint=Build(3);
     OverrideRule saved=Rule(1,pixel,OverrideAction::SkipDraw,OverrideOrigin::Saved);
-    OverrideRule session=Rule(2,pixel,OverrideAction::Highlight,OverrideOrigin::Session);
+    OverrideRule session=Rule(2,pixel,OverrideAction::Normal,OverrideOrigin::Session);
     index.Rebuild(ctx,{saved,session},{glvk});
     OverrideResolution result=index.Resolve(pixel);
     assert(result.status==OverrideResolutionStatus::Matched);
-    assert(result.policy.action==OverrideAction::Highlight);
+    assert(result.policy.action==OverrideAction::Normal);
     assert(result.policy.rule_id==2);
 
-    OverrideRule build_specific=Rule(3,pixel,OverrideAction::ForceSpecialized,OverrideOrigin::Session);
+    OverrideRule build_specific=Rule(3,pixel,OverrideAction::SkipDraw,OverrideOrigin::Session);
     build_specific.restrict_build=true; build_specific.executable_fingerprint_version=1; build_specific.executable_fingerprint=Build(3);
     build_specific.priority=10;
     index.Rebuild(ctx,{session,build_specific},{glvk});
     result=index.Resolve(pixel);
     assert(result.policy.rule_id==3);
 
-    OverrideRule conflict=build_specific; conflict.id=4; conflict.action=OverrideAction::SkipDraw;
+    OverrideRule conflict=build_specific; conflict.id=4; conflict.action=OverrideAction::Highlight;
     index.Rebuild(ctx,{build_specific,conflict},{glvk});
     result=index.Resolve(pixel);
     assert(result.status==OverrideResolutionStatus::Conflict);
@@ -51,10 +51,13 @@ int main() {
     replacement.replacement_id=44;
     index.Rebuild(ctx,{replacement},{glvk});
     result=index.Resolve(pixel);
+    assert(result.status==OverrideResolutionStatus::Incompatible);
+    OverrideContext glctx=ctx; glctx.backend=OverrideBackend::OpenGL;
+    index.Rebuild(glctx,{replacement},{glvk});
+    result=index.Resolve(pixel);
     assert(result.status==OverrideResolutionStatus::Matched);
     assert(result.policy.replacement_id==44);
 
-    OverrideContext glctx=ctx; glctx.backend=OverrideBackend::OpenGL;
     OverrideRule uber=Rule(6,pixel,OverrideAction::ForceUber,OverrideOrigin::Session);
     index.Rebuild(glctx,{uber},{glvk});
     result=index.Resolve(pixel);
@@ -67,6 +70,16 @@ int main() {
 
     OverrideRule wrong_title=Rule(7,pixel,OverrideAction::SkipDraw,OverrideOrigin::Session); wrong_title.title_id=0x12345678;
     index.Rebuild(ctx,{wrong_title},{glvk});
+    assert(index.Resolve(pixel).status==OverrideResolutionStatus::None);
+
+    OverrideRule vertex_skip=Rule(8,vertex,OverrideAction::SkipDraw,OverrideOrigin::Session);
+    index.Rebuild(ctx,{vertex_skip},{glvk});
+    assert(index.Resolve(vertex).status==OverrideResolutionStatus::Incompatible);
+
+    OverrideRule wrong_build=build_specific;
+    wrong_build.id=9;
+    wrong_build.executable_fingerprint[0] ^= 0xff;
+    index.Rebuild(ctx,{wrong_build},{glvk});
     assert(index.Resolve(pixel).status==OverrideResolutionStatus::None);
 
     ShaderDragPayload drag = MakeShaderDragPayload(ctx.title_id, pixel);
