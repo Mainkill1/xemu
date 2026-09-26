@@ -83,6 +83,31 @@ int main()
     assert(work.packet->input_revision == 1);
     assert(service.CompletePreparation(work.token, false, "cancelled", t0));
 
+    // Unsupported source interfaces stay unsupported for input-only edits.
+    service.ResetForTest();
+    EnableAndSelect(&service, t0);
+    service.SetGuestPaused(true);
+    assert(service.RequestPreparation(&error));
+    assert(service.TryClaimWork(t0 + kPreviewSelectionDebounceNs, &work));
+    assert(service.CompletePreparation(
+        work.token, PreviewPreparationOutcome::Unsupported,
+        "Unsupported samplerCube input", t0));
+    service.CopyStatus(&status);
+    assert(status.state == PreviewState::Unsupported);
+    assert(!service.TryClaimWork(t0 + kPreviewSelectionDebounceNs + 1,
+                                 &work));
+    service.CopyStatus(&status);
+    assert(status.state == PreviewState::Unsupported);
+    PreviewPacket unsupported_edit = *Packet(2);
+    assert(service.SubmitPacket(unsupported_edit, t0, &error));
+    service.CopyStatus(&status);
+    assert(status.state == PreviewState::Unsupported);
+    PreviewPacket different_source = *Packet(3);
+    ++different_source.generator_abi;
+    assert(service.SubmitPacket(different_source, t0, &error));
+    service.CopyStatus(&status);
+    assert(status.state == PreviewState::NeedsPreparation);
+
     // Moving a packet preserves reserved storage, so admission must account
     // for its capacity rather than its much smaller logical payload.
     PreviewPacket reserved = *Packet();

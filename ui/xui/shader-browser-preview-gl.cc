@@ -54,6 +54,68 @@ struct Vertex {
     float uv[2];
 };
 
+bool IsSyntheticUniformType(GLenum type)
+{
+    switch (type) {
+    case GL_FLOAT: case GL_FLOAT_VEC2: case GL_FLOAT_VEC3: case GL_FLOAT_VEC4:
+    case GL_INT: case GL_INT_VEC2: case GL_INT_VEC3: case GL_INT_VEC4:
+    case GL_UNSIGNED_INT: case GL_UNSIGNED_INT_VEC2:
+    case GL_UNSIGNED_INT_VEC3: case GL_UNSIGNED_INT_VEC4:
+    case GL_BOOL: case GL_BOOL_VEC2: case GL_BOOL_VEC3: case GL_BOOL_VEC4:
+    case GL_FLOAT_MAT2: case GL_FLOAT_MAT3: case GL_FLOAT_MAT4:
+    case GL_FLOAT_MAT2x3: case GL_FLOAT_MAT2x4:
+    case GL_FLOAT_MAT3x2: case GL_FLOAT_MAT3x4:
+    case GL_FLOAT_MAT4x2: case GL_FLOAT_MAT4x3:
+        return true;
+    default:
+        return false;
+    }
+}
+
+bool CheckSyntheticUniformInterface(GLuint program, std::string *error)
+{
+    GLint count = 0;
+    GLint max_name = 0;
+    glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &count);
+    glGetProgramiv(program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &max_name);
+    if (count == 0) return true;
+    if (count < 0 || max_name <= 0 || max_name > 1024) {
+        *error = "Unsupported private shader uniform interface";
+        return false;
+    }
+    std::vector<GLchar> name(static_cast<size_t>(max_name));
+    for (GLint i = 0; i < count; ++i) {
+        GLsizei length = 0;
+        GLint size = 0;
+        GLenum type = 0;
+        glGetActiveUniform(program, static_cast<GLuint>(i), max_name,
+                           &length, &size, &type, name.data());
+        if (length <= 0 || length >= max_name) {
+            *error = "Unsupported private shader uniform name";
+            return false;
+        }
+        const GLuint index = static_cast<GLuint>(i);
+        GLint block = -1;
+        glGetActiveUniformsiv(program, 1, &index, GL_UNIFORM_BLOCK_INDEX,
+                             &block);
+        const std::string uniform(name.data(), static_cast<size_t>(length));
+        if (block != -1) {
+            *error = "Unsupported private shader uniform block: " + uniform;
+            return false;
+        }
+        if (type == GL_SAMPLER_2D && size == 1 &&
+            (uniform == "texSamp0" || uniform == "texSamp1" ||
+             uniform == "texSamp2" || uniform == "texSamp3")) {
+            continue;
+        }
+        if (!IsSyntheticUniformType(type)) {
+            *error = "Unsupported private shader uniform input: " + uniform;
+            return false;
+        }
+    }
+    return true;
+}
+
 } // namespace
 
 struct PreviewGlExecutor::Impl {
@@ -88,8 +150,10 @@ struct PreviewGlExecutor::Impl {
     bool sampled_this_frame = false;
     std::vector<Retirement> retirements;
 
-    bool Prepare(const PreviewWorkItem &work, std::string *error)
+    bool Prepare(const PreviewWorkItem &work, std::string *error,
+                 bool *unsupported)
     {
+        *unsupported = false;
         if (!work.packet ||
             work.packet->selection.backend != PreviewBackend::OpenGL ||
             work.packet->source.empty() ||
@@ -128,6 +192,11 @@ struct PreviewGlExecutor::Impl {
             *error = std::string("Private GL program link failed: ") +
                      log.data();
             glDeleteProgram(next);
+            return false;
+        }
+        if (!CheckSyntheticUniformInterface(next, error)) {
+            glDeleteProgram(next);
+            *unsupported = true;
             return false;
         }
         if (program) glDeleteProgram(program);
@@ -306,8 +375,14 @@ struct PreviewGlExecutor::Impl {
             }
             std::string error;
             if (work.kind == PreviewWorkKind::Prepare) {
-                bool ok = Prepare(work, &error);
-                service.CompletePreparation(work.token, ok, error, NowNs());
+                bool unsupported = false;
+                bool ok = Prepare(work, &error, &unsupported);
+                const PreviewPreparationOutcome outcome = ok ?
+                    PreviewPreparationOutcome::Succeeded :
+                    (unsupported ? PreviewPreparationOutcome::Unsupported :
+                                   PreviewPreparationOutcome::Failed);
+                service.CompletePreparation(work.token, outcome, error,
+                                            NowNs());
             } else if (work.kind == PreviewWorkKind::Render) {
                 bool ok = Render(work, &error);
                 service.CompleteRender(work.token, ok, error, NowNs());

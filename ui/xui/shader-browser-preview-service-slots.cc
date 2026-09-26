@@ -147,6 +147,9 @@ void PreviewService::ResetLocked()
     preparation_requested_ = false;
     prepared_ = false;
     prepared_key_ = {};
+    unsupported_ = false;
+    unsupported_key_ = {};
+    unsupported_reason_.clear();
     active_ = false;
     active_work_ = {};
     next_token_ = 1;

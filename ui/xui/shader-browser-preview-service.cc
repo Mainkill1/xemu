@@ -47,6 +47,9 @@ void PreviewService::SetRestingStateLocked(const std::string &message)
     } else if (!pending_.packet) {
         SetStateLocked(PreviewState::WaitingForInputs,
                        "Waiting for an immutable preview packet");
+    } else if (unsupported_ &&
+               unsupported_key_ == BuildPreviewCompileKey(*pending_.packet)) {
+        SetStateLocked(PreviewState::Unsupported, unsupported_reason_);
     } else if (!IsPreparedLocked()) {
         SetStateLocked(PreviewState::NeedsPreparation, message.empty() ?
                            "Preview preparation is required" : message);
@@ -63,6 +66,8 @@ void PreviewService::InvalidatePendingLocked(PreviewState state,
     pending_ = {};
     preparation_requested_ = false;
     prepared_ = false;
+    unsupported_ = false;
+    unsupported_reason_.clear();
     last_result_valid_ = false;
     for (Slot &slot : slots_) {
         if (slot.state == PreviewSlotState::Ready) {
@@ -255,6 +260,11 @@ bool PreviewService::SubmitPacket(PreviewPacket packet,
     ++submitted_requests_;
     (void)now_ns;
     preparation_requested_ = false;
+    if (unsupported_ &&
+        unsupported_key_ != BuildPreviewCompileKey(*pending_.packet)) {
+        unsupported_ = false;
+        unsupported_reason_.clear();
+    }
     if (!prepared_ ||
         prepared_key_ != BuildPreviewCompileKey(*pending_.packet)) {
         prepared_ = false;
@@ -263,6 +273,8 @@ bool PreviewService::SubmitPacket(PreviewPacket packet,
         SetStateLocked(PreviewState::Disabled, "Preview is disabled");
     } else if (!visible_) {
         SetStateLocked(PreviewState::Hidden, "Live Preview is not visible");
+    } else if (unsupported_) {
+        SetStateLocked(PreviewState::Unsupported, unsupported_reason_);
     } else if (!IsPreparedLocked()) {
         SetStateLocked(PreviewState::NeedsPreparation,
                        guest_paused_ ?
@@ -298,6 +310,8 @@ bool PreviewService::RequestPreparation(std::string *error)
         if (error) *error = "Preview resources are already prepared";
         return false;
     }
+    unsupported_ = false;
+    unsupported_reason_.clear();
     preparation_requested_ = true;
     SetStateLocked(PreviewState::NeedsPreparation,
                    "Preparation requested while the guest is paused");
