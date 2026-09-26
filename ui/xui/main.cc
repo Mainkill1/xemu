@@ -83,10 +83,13 @@ static void ShaderBrowserEndPerformanceSessionLocked(void *)
         return;
     }
     char error[256] = {};
-    xemu_shader_browser_performance_session_end(
-        g_shader_browser_performance_session.c_str(),
-        static_cast<uint64_t>(g_get_real_time() / 1000), 1,
-        error, sizeof(error));
+    if (!xemu_shader_browser_performance_session_end(
+            g_shader_browser_performance_session.c_str(),
+            static_cast<uint64_t>(g_get_real_time() / 1000), 1,
+            error, sizeof(error))) {
+        fprintf(stderr, "Shader Browser session end failed: %s\n",
+                error[0] ? error : "unknown error");
+    }
     g_shader_browser_performance_session.clear();
     g_shader_browser_session_key.clear();
 }
@@ -172,6 +175,9 @@ static void ShaderBrowserApplyScopeTransition(void *opaque)
             &session, error, sizeof(error))) {
         g_shader_browser_performance_session = uuid;
         g_shader_browser_session_key = transition->session_key;
+    } else {
+        fprintf(stderr, "Shader Browser session begin failed: %s\n",
+                error[0] ? error : "unknown error");
     }
     g_free(uuid);
 }

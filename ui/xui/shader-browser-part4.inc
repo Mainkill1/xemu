@@ -24,7 +24,8 @@
     }
     ImGui::SameLine();
     if (ImGui::Button("Clear live session")) {
-        GetProvider().ClearLiveSession();
+        pgraph_shader_browser_transition(
+            [](void *) { GetProvider().ClearLiveSession(); }, nullptr);
         m_has_selection = false;
         m_next_poll_ms = 0;
         RefreshSnapshot();

@@ -62,7 +62,7 @@ void ShaderBrowserWindow::DrawSelector()
     ImGui::SameLine();
     ImGui::SetNextItemWidth(combo_width);
     if (ImGui::Combo("##source", &m_source_filter,
-                     "All sources\0This session\0Stored database\0")) {
+                     "All sources\0This session\0Database catalog (write-behind)\0")) {
         m_filter_dirty = true;
     }
     ImGui::SameLine();
@@ -172,7 +172,7 @@ void ShaderBrowserWindow::DrawSelector()
     size_t session_count = std::count_if(
         m_snapshot.entries.begin(), m_snapshot.entries.end(),
         [](const Entry &entry) { return entry.observed_in_session; });
-    ImGui::TextDisabled("%zu visible | %zu stored | %zu this session",
+    ImGui::TextDisabled("%zu visible | %zu catalogued | %zu this session",
                         m_visible_order.size(),
                         m_snapshot.stored_shader_count, session_count);
 }

@@ -5,8 +5,10 @@
 #include <cassert>
 #include <chrono>
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <thread>
+#include <sqlite3.h>
 
 using namespace xemu::shader_browser;
 
@@ -221,6 +223,40 @@ int main()
     assert(persisted[0].compile_cpu.total_ns == 4000000);
     inspect.Close();
 
+    XemuShaderBrowserPerformanceSession idle_session = session;
+    idle_session.session_id = "idle-snapshot";
+    assert(xemu_shader_browser_performance_session_begin(
+        &idle_session, error, sizeof(error)));
+    xemu_shader_browser_publish_observations(&observation, 1);
+    assert(xemu_shader_browser_flush_database(error, sizeof(error)));
+    sqlite3 *audit = nullptr;
+    assert(sqlite3_open((root / "shader-browser.db").string().c_str(),
+                        &audit) == SQLITE_OK);
+    assert(sqlite3_exec(audit,
+        "CREATE TABLE snapshot_audit(n INTEGER);"
+        "CREATE TRIGGER count_snapshot_update AFTER UPDATE ON "
+        "shader_session_stats BEGIN INSERT INTO snapshot_audit VALUES(1); END;",
+        nullptr, nullptr, nullptr) == SQLITE_OK);
+    auto audit_count = [&] {
+        sqlite3_stmt *statement = nullptr;
+        assert(sqlite3_prepare_v2(audit, "SELECT COUNT(*) FROM snapshot_audit",
+                                  -1, &statement, nullptr) == SQLITE_OK);
+        assert(sqlite3_step(statement) == SQLITE_ROW);
+        int count = sqlite3_column_int(statement, 0);
+        sqlite3_finalize(statement);
+        return count;
+    };
+    assert(xemu_shader_browser_flush_database(error, sizeof(error)));
+    assert(audit_count() == 0);
+    xemu_shader_browser_publish_observations(&observation, 1);
+    assert(xemu_shader_browser_flush_database(error, sizeof(error)));
+    assert(audit_count() == 1);
+    assert(xemu_shader_browser_performance_session_end(
+        "idle-snapshot", 3000, 1, error, sizeof(error)));
+    assert(xemu_shader_browser_flush_database(error, sizeof(error)));
+    assert(audit_count() == 1);
+    sqlite3_close(audit);
+
     // Live clear is independent from durable performance-session storage.
     GetProvider().SetLiveCollectionEnabled(true);
     xemu_shader_browser_publish_observations(&observation, 1);
@@ -236,6 +272,69 @@ int main()
     assert(GetProvider().CopySnapshot(&snapshot));
     assert(snapshot.session_count == 0);
     assert(snapshot.session_stat_count == 0);
+
+    // Explicit disable/re-enable reloads committed rows and backfills the
+    // process-lifetime discovery catalog after a failed writer transaction.
+    sqlite3 *failure_inject = nullptr;
+    assert(sqlite3_open((root / "shader-browser.db").string().c_str(),
+                        &failure_inject) == SQLITE_OK);
+    assert(sqlite3_exec(failure_inject,
+        "CREATE TRIGGER fail_new_title BEFORE INSERT ON titles "
+        "BEGIN SELECT RAISE(FAIL, 'injected provider write failure'); END;",
+        nullptr, nullptr, nullptr) == SQLITE_OK);
+    uint8_t recovery_recipe[] = {9, 8, 7, 6};
+    XemuShaderBrowserShaderRecord recovery_shader = shader;
+    recovery_shader.recipe_data = recovery_recipe;
+    recovery_shader.scope.title_id = 0x12345678;
+    assert(xemu_shader_browser_compute_shader_hash(
+        recovery_shader.identity_version, recovery_shader.stage,
+        recovery_shader.recipe_format_version, recovery_recipe,
+        sizeof(recovery_recipe), recovery_shader.identity_hash));
+    assert(xemu_shader_browser_publish_shader(&recovery_shader));
+    assert(!xemu_shader_browser_flush_database(error, sizeof(error)));
+    assert(GetProvider().CopySnapshot(&snapshot));
+    assert(snapshot.database_write_failed);
+    assert(!xemu_shader_browser_external_artifacts_enabled());
+    assert(xemu_shader_browser_database_configure(0, 0, 0,
+                                                   error, sizeof(error)));
+    assert(sqlite3_exec(failure_inject, "DROP TRIGGER fail_new_title",
+                        nullptr, nullptr, nullptr) == SQLITE_OK);
+    sqlite3_close(failure_inject);
+    assert(xemu_shader_browser_database_configure(1, 1, 1,
+                                                   error, sizeof(error)));
+    assert(xemu_shader_browser_flush_database(error, sizeof(error)));
+    assert(GetProvider().CopySnapshot(&snapshot));
+    assert(!snapshot.database_write_failed);
+    assert(snapshot.stored_shader_count >= 2);
+
+    // The file worker may accept a job before discovering an I/O failure.
+    // A regular file at the intended stage directory forces that failure.
+    std::filesystem::path blocked_stage = root / "shader-artifacts" /
+        FormatTitleId(shader.scope.title_id) /
+        ShaderHashBase32(ComputeShaderHash(
+            1, Stage::Pixel, shader.recipe_format_version, recipe,
+            sizeof(recipe))) / "vs";
+    std::filesystem::create_directories(blocked_stage.parent_path());
+    std::ofstream(blocked_stage) << "not a directory";
+    assert(GetProvider().CopySnapshot(&snapshot));
+    size_t artifacts_before_failure = snapshot.artifact_count;
+    std::string late_hash(64, 'a');
+    XemuShaderBrowserExternalArtifact successful_late = concurrent;
+    successful_late.content_hash = late_hash.c_str();
+    assert(xemu_shader_browser_publish_external_artifact(&successful_late));
+    XemuShaderBrowserExternalArtifact failed_artifact = concurrent;
+    failed_artifact.stage = XEMU_SHADER_BROWSER_STAGE_VERTEX;
+    assert(xemu_shader_browser_publish_external_artifact(&failed_artifact));
+    assert(!xemu_shader_browser_flush_database(error, sizeof(error)));
+    assert(error[0]);
+    assert(GetProvider().CopySnapshot(&snapshot));
+    assert(snapshot.failed_artifact_count == 1);
+    assert(!snapshot.last_artifact_error.empty());
+    assert(snapshot.artifact_count >= artifacts_before_failure + 1);
+    assert(xemu_shader_browser_database_configure(0, 0, 0,
+                                                   error, sizeof(error)));
+    assert(GetProvider().CopySnapshot(&snapshot));
+    assert(snapshot.failed_artifact_count == 1);
 
     xemu_shader_browser_session_uninstall();
     std::filesystem::remove_all(root, ec);

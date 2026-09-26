@@ -7,6 +7,8 @@
 static bool collection_enabled;
 static XemuShaderBrowserObservation published[16];
 static size_t published_count;
+static uint64_t published_epochs[16];
+static uint64_t live_epoch = 1;
 static uint64_t last_frame;
 
 int xemu_shader_browser_session_collection_enabled(void)
@@ -20,6 +22,9 @@ void xemu_shader_browser_publish_observations(
     assert(published_count + count <= 16);
     memcpy(published + published_count, observations,
            count * sizeof(*observations));
+    for (size_t i = 0; i < count; ++i) {
+        published_epochs[published_count + i] = live_epoch;
+    }
     published_count += count;
 }
 
@@ -75,6 +80,31 @@ int main(void)
     pgraph_shader_browser_record_draw(&batch, &binding, 16,
                                       XEMU_SHADER_BROWSER_ROUTE_UBER);
     assert(batch.used == 0);
-    puts("1..1\nok 1 - bounded renderer observations track routes and scope");
+
+    // Clear before the next flip: draining at the transition keeps buffered
+    // old draws in the old epoch, while the next draw enters the new epoch.
+    memset(&batch, 0, sizeof(batch));
+    published_count = 0;
+    collection_enabled = true;
+    binding.count = 1;
+    binding.scope_generation = 6;
+    for (int i = 0; i < 10; ++i) {
+        pgraph_shader_browser_record_draw(&batch, &binding, 20 + i,
+                                          XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED);
+    }
+    assert(batch.used == 1 && published_count == 0);
+    pgraph_shader_browser_flush_observations(&batch, 30);
+    ++live_epoch;
+    pgraph_shader_browser_flush_observations(&batch, 30);
+    assert(published_count == 1 && published_epochs[0] == 1);
+    assert(published[0].draw_count_delta == 10);
+    pgraph_shader_browser_record_draw(&batch, &binding, 31,
+                                      XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED);
+    pgraph_shader_browser_flush_observations(&batch, 32);
+    assert(published_count == 2 && published_epochs[1] == 2);
+    assert(published[1].draw_count_delta == 1);
+    assert(published[0].draw_count_delta + published[1].draw_count_delta == 11);
+    puts("1..2\nok 1 - bounded renderer observations track routes and scope\n"
+         "ok 2 - live clear drains unflushed draws before epoch change");
     return 0;
 }

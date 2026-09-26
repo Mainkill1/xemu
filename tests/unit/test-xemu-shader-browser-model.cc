@@ -47,6 +47,8 @@ int main()
     scope.title_id = 0x4d530064;
     entry.scopes.push_back(scope);
     entry.stored_in_database = true;
+    assert(std::string(SourceFilterLabel(SourceFilter::StoredDatabase)) ==
+           "Database catalog (write-behind)");
     entry.observed_in_session = true;
     entry.draw_count = 12;
     entry.last_frame = 100;

@@ -164,8 +164,8 @@ int xemu_shader_browser_database_configure(int enabled,
                                            char *error,
                                            size_t error_size);
 
-// Discovery always enters the in-memory current-process catalog. When the DB
-// setting is enabled, the same record is asynchronously persisted.
+// Trusted in-process renderer discovery enters the in-memory catalog. When
+// the DB setting is enabled, the same record is asynchronously persisted.
 int xemu_shader_browser_publish_shader(
     const XemuShaderBrowserShaderRecord *record);
 

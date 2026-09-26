@@ -1,5 +1,20 @@
     bool ReconcileArtifacts(size_t *removed, std::string *error) override
     {
+        std::unique_lock<std::shared_mutex> lifecycle(lifecycle_mutex);
+        std::string artifact_error;
+        std::string database_error;
+        bool artifacts_ok = FlushArtifactQueue(&artifact_error);
+        bool database_ok = database.Flush(&database_error);
+        if (!artifacts_ok || !database_ok) {
+            if (error) {
+                *error = artifact_error;
+                if (!database_error.empty()) {
+                    if (!error->empty()) *error += "; ";
+                    *error += database_error;
+                }
+            }
+            return false;
+        }
         return database.ReconcileExternalArtifacts(removed, error);
     }
 

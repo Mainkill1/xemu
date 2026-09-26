@@ -164,10 +164,10 @@ bool ShaderDatabase::UpsertShader(const ShaderRecord &record,
         changed |= stored.scopes.size() != old_scopes;
         if (record.scope.title_id) known_titles.insert(record.scope.title_id);
     }
-    if (!changed) return true;
+    if (!changed) return AcceptingWrites(error);
 
     ShaderRecord copy = record;
-    Enqueue([copy](sqlite3 *db, std::string *job_error) {
+    return Enqueue([copy](sqlite3 *db, std::string *job_error) {
         sqlite3_stmt *stmt = nullptr;
         const char *shader_sql =
             "INSERT INTO shaders(identity_version,stage,shader_hash,recipe_version,"

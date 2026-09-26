@@ -34,7 +34,9 @@
         std::shared_lock<std::shared_mutex> lifecycle(lifecycle_mutex);
         if (!installed) return false;
 
-        std::vector<QueuedEvent> events;
+        // XUI is the sole snapshot consumer; reuse both queue allocations.
+        auto &events = snapshot_events;
+        events.clear();
         {
             std::lock_guard<std::mutex> lock(live_queue_mutex);
             events.swap(live_events);
@@ -130,6 +132,11 @@
         snapshot->artifact_count = db_stats.artifact_count;
         snapshot->rejected_artifact_count =
             rejected_artifacts.load(std::memory_order_acquire);
+        {
+            std::lock_guard<std::mutex> lock(artifact_mutex);
+            snapshot->failed_artifact_count = failed_artifact_jobs;
+            snapshot->last_artifact_error = last_artifact_error;
+        }
         snapshot->pending_database_writes = db_stats.pending_writes;
         snapshot->database_bytes = db_stats.database_bytes;
         snapshot->database_wal_bytes = db_stats.wal_bytes;
@@ -159,8 +166,18 @@
     bool FlushDatabase(std::string *error) override
     {
         PersistPerformanceSnapshot();
-        FlushArtifactQueue();
-        return database.Flush(error);
+        std::string artifact_error;
+        std::string database_error;
+        bool artifacts_ok = FlushArtifactQueue(&artifact_error);
+        bool database_ok = database.Flush(&database_error);
+        if (error) {
+            *error = artifacts_ok ? std::string{} : artifact_error;
+            if (!database_ok) {
+                if (!error->empty()) *error += "; ";
+                *error += database_error;
+            }
+        }
+        return artifacts_ok && database_ok;
     }
 
     bool QuickCheckDatabase(std::string *result,

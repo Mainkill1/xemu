@@ -182,7 +182,8 @@ private:
     bool LoadCache(sqlite3 *db, std::string *error);
     bool ValidateShaderRecord(const ShaderRecord &record,
                               std::string *error) const;
-    void Enqueue(WriteJob job);
+    bool Enqueue(WriteJob job, std::string *error);
+    bool AcceptingWrites(std::string *error) const;
     void WriterMain();
     void SetWriteError(const std::string &message);
     bool OpenAuxConnection(sqlite3 **db, bool read_only,
