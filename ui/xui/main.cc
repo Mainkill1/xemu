@@ -422,7 +422,6 @@ void xemu_hud_init(SDL_Window* window, void* sdl_gl_context)
 
 void xemu_hud_cleanup(void)
 {
-    xemu::shader_browser::GetPreviewGlExecutor().Shutdown();
     ShaderBrowserEndPerformanceSession();
     xemu_shader_browser_set_current_scope(nullptr);
     shader_browser_window.m_is_open = false;
@@ -432,6 +431,9 @@ void xemu_hud_cleanup(void)
         SDL_Window *main_window = SDL_GL_GetCurrentWindow();
         SDL_GLContext main_gl = SDL_GL_GetCurrentContext();
         SDL_GL_MakeCurrent(external.window, external.gl_context);
+        // The external browser is the preview texture consumer. Retire and
+        // delete its outputs here before destroying this shared GL context.
+        xemu::shader_browser::GetPreviewGlExecutor().Shutdown();
         ImGui::SetCurrentContext(external.imgui_context);
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplSDL3_Shutdown();
@@ -441,6 +443,8 @@ void xemu_hud_cleanup(void)
         SDL_GL_DestroyContext(external.gl_context);
         SDL_DestroyWindow(external.window);
         external = {};
+    } else {
+        xemu::shader_browser::GetPreviewGlExecutor().Shutdown();
     }
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL3_Shutdown();

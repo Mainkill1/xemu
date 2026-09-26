@@ -795,7 +795,24 @@ bool PreviewGlExecutor::FreezeDisplayed()
 
 void PreviewGlExecutor::ClearFrozen()
 {
-    impl_->RetireFrozen();
+    Impl &impl = *impl_;
+    if (!impl.has_displayed && impl.has_frozen) {
+        // Both views currently sample this one last-good lease. Clearing the
+        // comparison must not discard Current when the attempted edit failed.
+        impl.displayed = impl.frozen;
+        impl.displayed_texture = impl.frozen_texture;
+        impl.displayed_fence = impl.frozen_fence;
+        impl.displayed_fence_failed = impl.frozen_fence_failed;
+        impl.has_displayed = true;
+        impl.sampled_this_frame = impl.frozen_sampled_this_frame;
+        impl.frozen_texture = 0;
+        impl.frozen_fence = nullptr;
+        impl.frozen_fence_failed = false;
+        impl.has_frozen = false;
+        impl.frozen_sampled_this_frame = false;
+    } else {
+        impl.RetireFrozen();
+    }
 }
 
 void PreviewGlExecutor::AfterHudRender()
