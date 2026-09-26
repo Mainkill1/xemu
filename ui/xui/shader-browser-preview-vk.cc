@@ -193,6 +193,9 @@ struct PreviewVkExecutor::Impl {
     bool initialized = false;
     bool in_flight = false;
     bool linear = false, repeat = false;
+#ifdef XEMU_PREVIEW_VK_TESTING
+    bool fail_next_sampler_creation = false;
+#endif
     std::string *error = nullptr;
 
     bool Check(VkResult result, const char *operation)
@@ -446,6 +449,7 @@ struct PreviewVkExecutor::Impl {
         pipeline = VK_NULL_HANDLE;
         layout = VK_NULL_HANDLE;
         descriptor_pool = VK_NULL_HANDLE;
+        set = VK_NULL_HANDLE;
         set_layout = VK_NULL_HANDLE;
         framebuffer = VK_NULL_HANDLE;
         pass = VK_NULL_HANDLE;
@@ -504,10 +508,16 @@ struct PreviewVkExecutor::Impl {
                         return false;
                     continue;
                 }
+                // SPIRV-Reflect uses UINT32_MAX for an absent Component
+                // decoration, whose Vulkan interface value is zero.
+                if (input.component != 0 && input.component != UINT32_MAX)
+                    return false;
                 bool match = false;
                 for (uint32_t j = 0; j < v.output_variable_count; ++j) {
                     const auto &output = *v.output_variables[j];
                     if (input.location == output.location &&
+                        (output.component == 0 ||
+                         output.component == UINT32_MAX) &&
                         input.format == output.format &&
                         input.array.dims_count == 0 &&
                         output.array.dims_count == 0 &&
@@ -528,6 +538,7 @@ struct PreviewVkExecutor::Impl {
                     continue;
                 }
                 if (out.location != 0 ||
+                    (out.component != 0 && out.component != UINT32_MAX) ||
                     out.format != SPV_REFLECT_FORMAT_R32G32B32A32_SFLOAT ||
                     out.array.dims_count)
                     return false;
@@ -647,9 +658,7 @@ struct PreviewVkExecutor::Impl {
     }
     bool MakeSampler(bool use_linear, bool use_repeat)
     {
-        if (sampler)
-            api.DestroySampler(device, sampler, nullptr);
-        sampler = VK_NULL_HANDLE;
+        VkSampler next = VK_NULL_HANDLE;
         VkSamplerCreateInfo si{ VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
         si.magFilter = si.minFilter =
             use_linear ? VK_FILTER_LINEAR : VK_FILTER_NEAREST;
@@ -657,10 +666,30 @@ struct PreviewVkExecutor::Impl {
         si.addressModeU = si.addressModeV = si.addressModeW =
             use_repeat ? VK_SAMPLER_ADDRESS_MODE_REPEAT :
                          VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        VkResult result;
+#ifdef XEMU_PREVIEW_VK_TESTING
+        if (fail_next_sampler_creation) {
+            fail_next_sampler_creation = false;
+            result = VK_ERROR_OUT_OF_HOST_MEMORY;
+        } else
+#endif
+        {
+            result = api.CreateSampler(device, &si, nullptr, &next);
+        }
+        if (!Check(result, "sampler"))
+            return false;
+        // Prepare has no submitted work; Render enters only after the previous
+        // fence completed. Keep the live descriptor intact until creation
+        // succeeds, then publish the replacement before retiring its sampler.
+        VkSampler previous = sampler;
+        sampler = next;
+        if (set)
+            WriteDescriptors();
         linear = use_linear;
         repeat = use_repeat;
-        return Check(api.CreateSampler(device, &si, nullptr, &sampler),
-                     "sampler");
+        if (previous)
+            api.DestroySampler(device, previous, nullptr);
+        return true;
     }
     void WriteDescriptors()
     {
@@ -941,7 +970,6 @@ struct PreviewVkExecutor::Impl {
             repeat != bool(fixture.repeat_wrap)) {
             if (!MakeSampler(fixture.linear_filter, fixture.repeat_wrap))
                 return false;
-            WriteDescriptors();
         }
         std::memcpy(upload.mapped, fixture.texture_texels.data(), 16);
         auto vertex = [&](float x, float y, float u, float v, size_t corner) {
@@ -1115,6 +1143,18 @@ bool PreviewVkExecutor::Render(const PreviewWorkItem &work,
     impl_->error = error;
     return impl_->Render(work, stop, rgba);
 }
+#ifdef XEMU_PREVIEW_VK_TESTING
+void PreviewVkExecutor::FailNextSamplerCreationForTest()
+{
+    impl_->fail_next_sampler_creation = true;
+}
+bool PreviewVkExecutor::HasSamplerSettingsForTest(bool linear,
+                                                  bool repeat) const
+{
+    return impl_->sampler != VK_NULL_HANDLE && impl_->linear == linear &&
+           impl_->repeat == repeat;
+}
+#endif
 } // namespace xemu::shader_browser
 #else
 namespace xemu::shader_browser {
@@ -1140,5 +1180,14 @@ bool PreviewVkExecutor::Render(const PreviewWorkItem &,
     *error = "This build has no private Vulkan preview support";
     return false;
 }
+#ifdef XEMU_PREVIEW_VK_TESTING
+void PreviewVkExecutor::FailNextSamplerCreationForTest()
+{
+}
+bool PreviewVkExecutor::HasSamplerSettingsForTest(bool, bool) const
+{
+    return false;
+}
+#endif
 } // namespace xemu::shader_browser
 #endif
