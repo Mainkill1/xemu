@@ -356,6 +356,23 @@ void PreviewService::EditChannel(PreviewChannel channel)
     std::lock_guard<std::mutex> lock(mutex_);
     if (channel_ != channel) {
         channel_ = channel;
+        for (Slot &slot : slots_) {
+            if (slot.state != PreviewSlotState::Ready ||
+                slot.result_key.channel == channel) {
+                continue;
+            }
+            // Producer completion is established, and an unacquired frame has
+            // no HUD consumer. Keep leased Current/Frozen frames untouched.
+            slot.state = PreviewSlotState::Free;
+            slot.ready_sequence = 0;
+            if (last_result_valid_ && slot.result_key == last_result_key_) {
+                last_result_valid_ = false;
+            }
+            if (last_attempt_valid_ &&
+                slot.result_key == last_attempt_result_key_) {
+                last_attempt_valid_ = false;
+            }
+        }
         ++generation_;
     }
 }
