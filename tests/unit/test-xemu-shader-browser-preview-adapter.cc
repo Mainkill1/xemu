@@ -1,6 +1,7 @@
 #include "../../ui/xui/shader-browser-preview-adapter.hh"
 
 #include <cassert>
+#include <cmath>
 #include <iostream>
 
 using namespace xemu::shader_browser;
@@ -26,7 +27,10 @@ static PreviewPacketInputs Inputs()
     inputs.recipe.scopes.push_back(inputs.selection.scope);
     inputs.source = "void main() {}";
     inputs.partner_source = "partner source";
-    inputs.fixture_bytes = {0, 0, 0, 255, 255, 255, 255, 255};
+    PreviewSyntheticFixture fixture{};
+    fixture.corner_colors[0] = {255, 0, 0, 255};
+    fixture.texture_texels[0] = {255, 255, 255, 255};
+    inputs.fixture_bytes = EncodePreviewSyntheticFixture(fixture);
     inputs.generator_abi = 1;
     inputs.interface_abi = 1;
     inputs.input_revision = 1;
@@ -45,15 +49,22 @@ int main()
     assert(ValidatePreviewPacket(packet, &error));
     assert(packet.recipe == inputs.recipe.bytes);
     assert(packet.selection == inputs.selection);
+    PreviewSyntheticFixture decoded{};
+    assert(DecodePreviewSyntheticFixture(packet.fixture_bytes, &decoded,
+                                         &error));
+    assert((decoded.corner_colors[0] ==
+            std::array<uint8_t, 4>{255, 0, 0, 255}));
+    assert((decoded.texture_texels[0] ==
+            std::array<uint8_t, 4>{255, 255, 255, 255}));
     const PreviewCompileKey compile = BuildPreviewCompileKey(packet);
     const PreviewResultKey result = BuildPreviewResultKey(packet);
 
     inputs.source += " // edited";
     inputs.partner_source += " // edited";
-    inputs.fixture_bytes.push_back(17);
+    inputs.fixture_bytes[0] ^= 17;
     assert(packet.source == "void main() {}");
     assert(packet.partner_source == "partner source");
-    assert(packet.fixture_bytes.size() == 8);
+    assert(packet.fixture_bytes.size() == kPreviewSyntheticFixtureBytes);
     PreviewPacket changed{};
     assert(BuildPreviewPacket(inputs, &changed, &error));
     assert(BuildPreviewCompileKey(changed) != compile);
@@ -79,6 +90,14 @@ int main()
     PreviewPacketInputs no_fixture = Inputs();
     no_fixture.fixture_bytes.clear();
     assert(!BuildPreviewPacket(no_fixture, &packet, &error));
+
+    PreviewPacketInputs malformed_fixture = Inputs();
+    malformed_fixture.fixture_bytes.pop_back();
+    assert(!BuildPreviewPacket(malformed_fixture, &packet, &error));
+    PreviewSyntheticFixture nonfinite{};
+    nonfinite.uv_scale[0] = NAN;
+    malformed_fixture.fixture_bytes = EncodePreviewSyntheticFixture(nonfinite);
+    assert(!BuildPreviewPacket(malformed_fixture, &packet, &error));
 
     PreviewPacketInputs retained = Inputs();
     retained.fixture_bytes.reserve(kPreviewMaxOwnedPacketBytes + 1);
