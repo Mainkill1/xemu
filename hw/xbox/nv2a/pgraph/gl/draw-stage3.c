@@ -15,7 +15,6 @@
 
 void pgraph_gl_draw_end(NV2AState *d);
 void pgraph_gl_flush_draw(NV2AState *d);
-bool pgraph_gl_shader_override_program_active(PGRAPHState *pg);
 uint32_t pgraph_gl_shader_override_effective_action(PGRAPHState *pg);
 void pgraph_gl_shader_override_prepare_draw(
     PGRAPHState *pg, const XemuShaderOverrideDrawFacts *facts);

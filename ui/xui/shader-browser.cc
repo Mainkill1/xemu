@@ -2,6 +2,8 @@
 #include "shader-browser-preview-service.hh"
 #include "shader-browser-preview-adapter.hh"
 #include "shader-browser-preview-gl.hh"
+#include "shader-browser-capture.hh"
+#include <cstring>
 #include "common.hh"
 #include "xemu-hud.h"
 #include "shader-browser-part1.inc"

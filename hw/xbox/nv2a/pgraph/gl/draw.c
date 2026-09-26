@@ -26,8 +26,10 @@
 #include "debug.h"
 #include "draw-lifecycle.h"
 #include "renderer.h"
+#include "ui/xui/shader-browser-capture-bridge.h"
 
 static PGRAPHGLDrawResult pgraph_gl_flush_draw_internal(NV2AState *d);
+bool pgraph_gl_shader_override_program_active(PGRAPHState *pg);
 
 void pgraph_gl_clear_surface(NV2AState *d, uint32_t parameter)
 {
@@ -451,6 +453,15 @@ static PGRAPHGLDrawResult pgraph_gl_flush_draw_internal(NV2AState *d)
             pgraph_gl_bind_shaders(pg);
         }
 
+        uint16_t capture_attribute_mask = 0;
+        if (xemu_shader_capture_armed()) {
+            for (int i = 0; i < NV2A_VERTEXSHADER_ATTRIBUTES; ++i) {
+                if (pg->vertex_attributes[i].inline_buffer_populated) {
+                    capture_attribute_mask |= 1U << i;
+                }
+            }
+        }
+
         for (int i = 0; i < NV2A_VERTEXSHADER_ATTRIBUTES; i++) {
             VertexAttribute *attr = &pg->vertex_attributes[i];
             if (attr->inline_buffer_populated) {
@@ -473,6 +484,16 @@ static PGRAPHGLDrawResult pgraph_gl_flush_draw_internal(NV2AState *d)
 
         glDrawArrays(r->shader_binding->gl_primitive_mode,
                      0, pg->inline_buffer_length);
+        pgraph_shader_browser_capture_inline(
+            pg, &r->shader_binding->state, &r->shader_binding->browser,
+            1, r->shader_binding->gl_primitive_mode,
+            capture_attribute_mask,
+            r->color_binding ? r->color_binding->width : 0,
+            r->color_binding ? r->color_binding->height : 0,
+            NULL, NULL, NULL,
+            pgraph_gl_shader_override_program_active(pg) ?
+                XEMU_SHADER_BROWSER_ROUTE_REPLACEMENT :
+                XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED);
         return PGRAPH_GL_DRAW_SUBMITTED;
     } else if (pg->inline_array_length) {
         NV2A_GL_DPRINTF(false, "Inline Array");

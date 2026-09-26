@@ -269,4 +269,7 @@ void ShaderBrowserWindow::DrawRightPane()
         ImGui::EndTabBar();
     }
     GetPreviewService().SetVisible(preview_visible, PreviewNowNs());
+    if (!preview_visible && GetCaptureStore().Armed())
+        GetCaptureStore().Cancel();
+    if (!preview_visible) m_captured_draw.reset();
 }
