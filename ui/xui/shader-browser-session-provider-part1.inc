@@ -170,6 +170,15 @@ public:
             }
             live_collection_enabled.store(false, std::memory_order_release);
             installed = false;
+            std::lock_guard<std::mutex> scope_lock(scope_mutex);
+            if (current_scope.title_id ||
+                current_scope.executable_fingerprint_version ||
+                std::any_of(std::begin(current_scope.executable_fingerprint),
+                            std::end(current_scope.executable_fingerprint),
+                            [](uint8_t byte) { return byte != 0; })) {
+                current_scope = {};
+                ++scope_generation;
+            }
         }
 
         PersistPerformanceSnapshot();
@@ -200,6 +209,32 @@ public:
             performance_session_id.clear();
         }
         current_frame = 0;
+    }
+
+    void SetCurrentScope(const XemuShaderBrowserScope *scope)
+    {
+        std::shared_lock<std::shared_mutex> lifecycle(lifecycle_mutex);
+        if (!installed) return;
+        XemuShaderBrowserScope next = scope ? *scope :
+                                           XemuShaderBrowserScope{};
+        std::lock_guard<std::mutex> lock(scope_mutex);
+        if (current_scope.title_id != next.title_id ||
+            current_scope.executable_fingerprint_version !=
+                next.executable_fingerprint_version ||
+            std::memcmp(current_scope.executable_fingerprint,
+                        next.executable_fingerprint,
+                        sizeof(next.executable_fingerprint)) != 0) {
+            current_scope = next;
+            ++scope_generation;
+        }
+    }
+
+    uint64_t CopyCurrentScope(XemuShaderBrowserScope *scope)
+    {
+        if (!scope) return 0;
+        std::lock_guard<std::mutex> lock(scope_mutex);
+        *scope = current_scope;
+        return scope_generation;
     }
 
     bool ConfigurePersistence(bool database_enabled,
@@ -234,4 +269,3 @@ public:
         artifact_config.base_path = base_path;
         artifact_config.enabled = db_config.save_external_artifacts;
         artifact_store.Configure(artifact_config);
-

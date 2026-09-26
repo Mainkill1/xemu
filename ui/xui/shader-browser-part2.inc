@@ -23,6 +23,9 @@ void ShaderBrowserWindow::ApplyPersistenceSettings()
         g_config.shader_browser.database.record_performance_sessions;
     bool save_artifacts = database_enabled &&
         g_config.shader_browser.database.save_external_artifacts;
+    if (!record_sessions) {
+        ShaderBrowserEndPerformanceSession();
+    }
     std::string error;
     if (!GetProvider().ConfigurePersistence(database_enabled, record_sessions,
                                             save_artifacts, &error)) {

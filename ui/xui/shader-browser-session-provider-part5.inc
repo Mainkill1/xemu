@@ -1,6 +1,9 @@
     mutable std::shared_mutex lifecycle_mutex;
     bool installed = false;
     std::string base_path;
+    std::mutex scope_mutex;
+    XemuShaderBrowserScope current_scope{};
+    uint64_t scope_generation = 1;
 
     ShaderDatabase database;
     ShaderArtifactStore artifact_store;
@@ -64,6 +67,18 @@ int xemu_shader_browser_session_install(const char *base_path)
 void xemu_shader_browser_session_uninstall(void)
 {
     xemu::shader_browser::provider.Uninstall();
+}
+
+void xemu_shader_browser_set_current_scope(
+    const XemuShaderBrowserScope *scope)
+{
+    xemu::shader_browser::provider.SetCurrentScope(scope);
+}
+
+uint64_t xemu_shader_browser_copy_current_scope(
+    XemuShaderBrowserScope *scope)
+{
+    return xemu::shader_browser::provider.CopyCurrentScope(scope);
 }
 
 int xemu_shader_browser_compute_shader_hash(

@@ -144,6 +144,14 @@ typedef struct XemuShaderBrowserExternalArtifact {
 int xemu_shader_browser_session_install(const char *base_path);
 void xemu_shader_browser_session_uninstall(void);
 
+// The UI publishes the active XBE scope when it changes. Renderer discovery
+// copies it at binding creation, outside the ordinary draw path. A changed
+// generation means a cached binding may need a new title association.
+void xemu_shader_browser_set_current_scope(
+    const XemuShaderBrowserScope *scope);
+uint64_t xemu_shader_browser_copy_current_scope(
+    XemuShaderBrowserScope *scope);
+
 int xemu_shader_browser_compute_shader_hash(
     uint32_t identity_version, uint32_t stage,
     uint32_t recipe_format_version, const uint8_t *recipe_data,

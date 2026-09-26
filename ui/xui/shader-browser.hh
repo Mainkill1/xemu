@@ -49,3 +49,6 @@ private:
 };
 
 extern ShaderBrowserWindow shader_browser_window;
+
+// Called before a user disables session recording or closes the HUD.
+void ShaderBrowserEndPerformanceSession();

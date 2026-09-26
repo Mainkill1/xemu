@@ -27,6 +27,7 @@
 #include <fpng.h>
 
 #include <deque>
+#include <cstring>
 #include <vector>
 #include <string>
 #include <memory>
@@ -56,6 +57,8 @@
 #include "update.hh"
 #endif
 #include "../xemu-settings.h"
+#include "xemu-xbe.h"
+#include "xemu-version.h"
 
 bool g_screenshot_pending;
 const char *g_snapshot_pending_load_name;
@@ -67,6 +70,91 @@ static float g_last_scale;
 static int g_vsync;
 static GLuint g_tex;
 static bool g_flip_req;
+static XemuShaderBrowserScope g_shader_browser_scope{};
+static std::string g_shader_browser_performance_session;
+static uint64_t g_shader_browser_next_scope_poll_ms;
+
+void ShaderBrowserEndPerformanceSession()
+{
+    if (g_shader_browser_performance_session.empty()) {
+        return;
+    }
+    char error[256] = {};
+    xemu_shader_browser_performance_session_end(
+        g_shader_browser_performance_session.c_str(),
+        static_cast<uint64_t>(g_get_real_time() / 1000), 1,
+        error, sizeof(error));
+    g_shader_browser_performance_session.clear();
+}
+
+static void ShaderBrowserRefreshScope(uint64_t now_ms)
+{
+    if (now_ms < g_shader_browser_next_scope_poll_ms) {
+        return;
+    }
+    g_shader_browser_next_scope_poll_ms = now_ms + 1000;
+
+    XemuShaderBrowserScope scope{};
+    struct xbe *xbe = xemu_get_xbe_info();
+    if (xbe && xbe->cert && xbe->headers && xbe->headers_len) {
+        scope.title_id = GUINT32_FROM_LE(xbe->cert->m_titleid);
+        if (scope.title_id) {
+            GChecksum *checksum = g_checksum_new(G_CHECKSUM_SHA256);
+            g_checksum_update(checksum, xbe->headers, xbe->headers_len);
+            gsize digest_size = sizeof(scope.executable_fingerprint);
+            g_checksum_get_digest(checksum, scope.executable_fingerprint,
+                                  &digest_size);
+            g_checksum_free(checksum);
+            scope.executable_fingerprint_version = 1;
+        }
+    }
+
+    if (std::memcmp(&scope, &g_shader_browser_scope, sizeof(scope)) != 0) {
+        ShaderBrowserEndPerformanceSession();
+        g_shader_browser_scope = scope;
+        xemu_shader_browser_set_current_scope(&scope);
+        xemu_shader_browser_session_clear_live();
+    }
+
+    if (scope.title_id && g_shader_browser_performance_session.empty() &&
+        g_config.shader_browser.database.enabled &&
+        g_config.shader_browser.database.record_performance_sessions) {
+        char *uuid = g_uuid_string_random();
+        XemuShaderBrowserPerformanceSession session{};
+        session.session_id = uuid;
+        session.title_id = scope.title_id;
+        session.executable_fingerprint_version =
+            scope.executable_fingerprint_version;
+        std::memcpy(session.executable_fingerprint,
+                    scope.executable_fingerprint,
+                    sizeof(session.executable_fingerprint));
+        session.started_unix_ms =
+            static_cast<uint64_t>(g_get_real_time() / 1000);
+        session.xemu_revision = xemu_version;
+        session.renderer =
+            g_config.display.renderer == CONFIG_DISPLAY_RENDERER_VULKAN ?
+                "Vulkan" : "OpenGL";
+#if defined(_WIN32)
+        session.host_os = "Windows";
+#elif defined(__APPLE__)
+        session.host_os = "macOS";
+#else
+        session.host_os = "Linux";
+#endif
+        session.internal_resolution_scale =
+            g_config.display.quality.surface_scale;
+        session.ubershader_mode =
+            g_config.tweaks.vk_hybrid_ubershaders ? "enabled" : "off";
+        session.shader_cache_enabled = g_config.perf.cache_shaders;
+        session.telemetry_version = 1;
+        char error[256] = {};
+        if (xemu_shader_browser_performance_session_begin(
+                &session, error, sizeof(error))) {
+            g_shader_browser_performance_session = uuid;
+        }
+        g_free(uuid);
+    }
+}
 
 
 static void InitializeStyle()
@@ -159,6 +247,8 @@ void xemu_hud_init(SDL_Window* window, void* sdl_gl_context)
     g_last_scale = g_viewport_mgr.m_scale;
     InitializeStyle();
 
+    g_shader_browser_scope = {};
+    g_shader_browser_next_scope_poll_ms = 0;
     char *shader_config_dir = g_path_get_dirname(xemu_settings_get_path());
     if (xemu_shader_browser_session_install(shader_config_dir)) {
         char error[256] = {};
@@ -180,6 +270,8 @@ void xemu_hud_init(SDL_Window* window, void* sdl_gl_context)
 
 void xemu_hud_cleanup(void)
 {
+    ShaderBrowserEndPerformanceSession();
+    xemu_shader_browser_set_current_scope(nullptr);
     shader_browser_window.m_is_open = false;
     xemu_shader_browser_session_uninstall();
     ImGui_ImplOpenGL3_Shutdown();
@@ -214,6 +306,10 @@ void xemu_hud_update(void)
 {
     ImGuiIO& io = ImGui::GetIO();
     uint32_t now = SDL_GetTicks();
+    if (g_config.shader_browser.database.enabled ||
+        shader_browser_window.m_is_open) {
+        ShaderBrowserRefreshScope(SDL_GetTicks());
+    }
 
     g_viewport_mgr.Update();
     g_font_mgr.Update();
