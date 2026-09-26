@@ -4,6 +4,7 @@
 #include "shader-browser-details-model.hh"
 
 #include <cstdint>
+#include <atomic>
 #include <mutex>
 #include <string>
 
@@ -18,6 +19,8 @@ public:
     // Only the active renderer owner thread should claim a request. The store
     // retains one newest request, so rapid selection cannot build a queue.
     bool TryClaim(DetailBackend renderer, DetailRequest *request);
+    bool CanComplete(uint64_t request_id, const ShaderKey &key,
+                     DetailBackend renderer) const;
 
     // Returns false for invalid or stale completions. Stale data is discarded
     // rather than replacing the currently selected shader's details.
@@ -32,9 +35,14 @@ public:
     bool CopySnapshotIfChanged(uint64_t known_generation,
                                DetailSnapshot *snapshot) const;
     void Clear();
+    bool HasPending() const
+    {
+        return pending_.load(std::memory_order_acquire);
+    }
 
 private:
     mutable std::mutex mutex_;
+    std::atomic<bool> pending_{false};
     uint64_t next_request_id_ = 1;
     bool request_claimed_ = false;
     DetailBackend claimed_backend_ = DetailBackend::Unknown;

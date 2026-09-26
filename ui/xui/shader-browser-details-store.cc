@@ -27,6 +27,7 @@ uint64_t DetailStore::Request(const ShaderKey &key, DetailBackend backend,
     snapshot_.dropped_lifecycle_events = 0;
     request_claimed_ = false;
     claimed_backend_ = DetailBackend::Unknown;
+    pending_.store(true, std::memory_order_release);
     return request_id;
 }
 
@@ -46,6 +47,15 @@ bool DetailStore::TryClaim(DetailBackend renderer, DetailRequest *request)
     claimed_backend_ = renderer;
     *request = snapshot_.request;
     return true;
+}
+
+bool DetailStore::CanComplete(uint64_t request_id, const ShaderKey &key,
+                              DetailBackend renderer) const
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    return snapshot_.state == DetailState::Pending && request_claimed_ &&
+           snapshot_.request.request_id == request_id &&
+           snapshot_.request.key == key && claimed_backend_ == renderer;
 }
 
 bool DetailStore::Complete(DetailResult result, std::string *error)
@@ -123,6 +133,7 @@ bool DetailStore::Complete(DetailResult result, std::string *error)
     snapshot_.generation++;
     request_claimed_ = false;
     claimed_backend_ = DetailBackend::Unknown;
+    pending_.store(false, std::memory_order_release);
     return true;
 }
 
@@ -145,6 +156,7 @@ bool DetailStore::Abandon(uint64_t request_id, DetailBackend renderer,
     snapshot_.generation++;
     request_claimed_ = false;
     claimed_backend_ = DetailBackend::Unknown;
+    pending_.store(false, std::memory_order_release);
     return true;
 }
 
@@ -180,6 +192,7 @@ void DetailStore::Clear()
     snapshot_.generation = generation;
     request_claimed_ = false;
     claimed_backend_ = DetailBackend::Unknown;
+    pending_.store(false, std::memory_order_release);
 }
 
 DetailStore &GetDetailStore()

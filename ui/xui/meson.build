@@ -6,6 +6,7 @@ xemu_ss.add(files(
   'shader-browser-model.cc',
   'shader-browser-details-model.cc',
   'shader-browser-details-store.cc',
+  'shader-browser-details-bridge.cc',
   'shader-browser-recipe-inspector.cc',
   'shader-browser-database.cc',
   'shader-browser-artifact-store.cc',
@@ -62,6 +63,18 @@ shader_browser_details_store_test = executable(
   dependencies: [xxhash])
 test('test-xemu-shader-browser-details-store',
      shader_browser_details_store_test, suite: ['unit'])
+
+shader_browser_details_bridge_test = executable(
+  'test-xemu-shader-browser-details-bridge',
+  shader_browser_test_dir / 'test-xemu-shader-browser-details-bridge.cc',
+  files('shader-browser-model.cc',
+        'shader-browser-details-model.cc',
+        'shader-browser-details-store.cc',
+        'shader-browser-details-bridge.cc'),
+  include_directories: shader_browser_test_inc,
+  dependencies: [xxhash])
+test('test-xemu-shader-browser-details-bridge',
+     shader_browser_details_bridge_test, suite: ['unit'])
 
 shader_browser_recipe_inspector_test = executable(
   'test-xemu-shader-browser-recipe-inspector',

@@ -24,6 +24,7 @@ int main()
     const ShaderKey second_key = MakeKey(20);
 
     const uint64_t first_id = store.Request(first_key, DetailBackend::Vulkan);
+    assert(store.HasPending());
     const uint64_t second_id = store.Request(second_key, DetailBackend::OpenGL);
     assert(second_id > first_id);
 
@@ -81,6 +82,7 @@ int main()
 
     error.clear();
     assert(store.Complete(completed, &error));
+    assert(!store.HasPending());
 
     DetailSnapshot snapshot{};
     assert(store.CopySnapshot(&snapshot));
@@ -94,6 +96,7 @@ int main()
 
     const uint64_t generation_after_complete = snapshot.generation;
     store.Clear();
+    assert(!store.HasPending());
     assert(store.CopySnapshot(&snapshot));
     assert(snapshot.state == DetailState::Idle);
     assert(snapshot.generation > generation_after_complete);

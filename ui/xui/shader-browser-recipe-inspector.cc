@@ -466,9 +466,13 @@ bool ExportPortableRecipe(const CanonicalRecipe &recipe,
     std::filesystem::rename(temporary, target, ec);
     if (ec) {
         // std::filesystem::rename cannot replace an existing file on Windows.
-        ec.clear();
-        std::filesystem::remove(target, ec);
-        if (!ec) std::filesystem::rename(temporary, target, ec);
+        std::error_code inspect_error;
+        if (std::filesystem::is_regular_file(target, inspect_error) &&
+            !inspect_error) {
+            ec.clear();
+            std::filesystem::remove(target, ec);
+            if (!ec) std::filesystem::rename(temporary, target, ec);
+        }
     }
     if (ec) {
         std::filesystem::remove(temporary, ec);
