@@ -25,6 +25,8 @@ typedef struct PGRAPHShaderBrowserBinding {
 void pgraph_shader_browser_publish_binding(const ShaderState *state,
                                            bool geometry_needed,
                                            PGRAPHShaderBrowserBinding *binding);
+void pgraph_shader_browser_publish_pixel_binding(
+    const ShaderState *state, PGRAPHShaderBrowserBinding *binding);
 void pgraph_shader_browser_refresh_binding_scope(
     const ShaderState *state, bool geometry_needed,
     PGRAPHShaderBrowserBinding *binding);

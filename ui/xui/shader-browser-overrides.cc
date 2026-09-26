@@ -54,7 +54,9 @@ bool ActionSupported(OverrideAction action, OverrideBackend backend,
 {
     if (backend == OverrideBackend::Vulkan &&
         action != OverrideAction::Normal &&
-        action != OverrideAction::SkipDraw) {
+        action != OverrideAction::SkipDraw &&
+        action != OverrideAction::ForceUber &&
+        action != OverrideAction::ForceSpecialized) {
         if (reason) *reason = "This Vulkan override action is not available yet";
         return false;
     }

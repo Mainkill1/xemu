@@ -7,8 +7,8 @@
 static uint64_t generation = 7;
 static uint64_t override_generation = 11;
 static uint32_t title_id = 0x4d530064;
-static uint32_t published_stages[8];
-static uint32_t published_titles[8];
+static uint32_t published_stages[10];
+static uint32_t published_titles[10];
 static size_t published_count;
 static size_t override_resolve_count;
 static int artifacts_enabled;
@@ -91,7 +91,7 @@ int xemu_shader_browser_compute_shader_hash(
 int xemu_shader_browser_publish_shader(
     const XemuShaderBrowserShaderRecord *record)
 {
-    assert(published_count < 8);
+    assert(published_count < 10);
     assert(record->identity_hash[0] == record->stage);
     published_stages[published_count] = record->stage;
     published_titles[published_count] = record->scope.title_id;
@@ -180,6 +180,15 @@ int main(void)
         &state, XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION, "opengl",
         "specialized", "glsl", "glsl", source, sizeof(source) - 1);
     assert(artifact_count == 1 && published_count == 8);
+    PGRAPHShaderBrowserBinding pixel_only = { 0 };
+    pgraph_shader_browser_publish_pixel_binding(&state, &pixel_only);
+    assert(pixel_only.count == 1 && published_count == 9);
+    assert(pixel_only.identities[0].stage == XEMU_SHADER_BROWSER_STAGE_PIXEL);
+    assert(published_stages[8] == XEMU_SHADER_BROWSER_STAGE_PIXEL);
+    ++generation;
+    pgraph_shader_browser_refresh_binding_scope(&state, true, &pixel_only);
+    assert(pixel_only.count == 1 && published_count == 10);
+    assert(published_stages[9] == XEMU_SHADER_BROWSER_STAGE_PIXEL);
     puts("1..1\nok 1 - renderer discovery publishes guest stages, title scope, "
          "and refreshable override policies");
     return 0;

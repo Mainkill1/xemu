@@ -62,6 +62,17 @@ int main() {
     index.Rebuild(glctx,{uber},{glvk});
     result=index.Resolve(pixel);
     assert(result.status==OverrideResolutionStatus::Incompatible);
+    index.Rebuild(ctx,{uber},{glvk});
+    result=index.Resolve(pixel);
+    assert(result.status==OverrideResolutionStatus::Matched);
+    assert(result.policy.action==OverrideAction::ForceUber);
+    OverrideRule specialized=uber;
+    specialized.id=10;
+    specialized.action=OverrideAction::ForceSpecialized;
+    index.Rebuild(ctx,{specialized},{glvk});
+    result=index.Resolve(pixel);
+    assert(result.status==OverrideResolutionStatus::Matched);
+    assert(result.policy.action==OverrideAction::ForceSpecialized);
 
     DrawCondition cond{}; cond.mask=DrawConditionElementCount|DrawConditionPrimitive; cond.element_count_min=100; cond.element_count_max=200; cond.primitive_mode=7;
     assert(cond.Matches(DrawFacts{150,0,0,7}));

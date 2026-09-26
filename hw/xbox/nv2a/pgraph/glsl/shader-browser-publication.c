@@ -36,9 +36,9 @@ static void refresh_override_policies(
         1, pixel->hash, pixel->stage, &binding->vulkan_policy);
 }
 
-void pgraph_shader_browser_publish_binding(const ShaderState *state,
-                                           bool geometry_needed,
-                                           PGRAPHShaderBrowserBinding *binding)
+static void publish_binding(const ShaderState *state, bool geometry_needed,
+                            bool pixel_only,
+                            PGRAPHShaderBrowserBinding *binding)
 {
     if (!state || !binding) {
         return;
@@ -55,7 +55,8 @@ void pgraph_shader_browser_publish_binding(const ShaderState *state,
     uint32_t stage_count = geometry_needed ? 3 : 2;
     binding->count = 0;
     binding->scope_generation = generation;
-    for (uint32_t i = 0; i < stage_count; ++i) {
+    for (uint32_t i = pixel_only ? 1 : 0;
+         i < (pixel_only ? 2 : stage_count); ++i) {
         uint8_t recipe[PGRAPH_SHADER_BROWSER_RECIPE_MAX];
         size_t recipe_size = 0;
         uint8_t hash[XEMU_SHADER_BROWSER_HASH_BYTES];
@@ -84,6 +85,19 @@ void pgraph_shader_browser_publish_binding(const ShaderState *state,
     refresh_override_policies(&scope, binding);
 }
 
+void pgraph_shader_browser_publish_binding(const ShaderState *state,
+                                           bool geometry_needed,
+                                           PGRAPHShaderBrowserBinding *binding)
+{
+    publish_binding(state, geometry_needed, false, binding);
+}
+
+void pgraph_shader_browser_publish_pixel_binding(
+    const ShaderState *state, PGRAPHShaderBrowserBinding *binding)
+{
+    publish_binding(state, false, true, binding);
+}
+
 void pgraph_shader_browser_refresh_binding_scope(
     const ShaderState *state, bool geometry_needed,
     PGRAPHShaderBrowserBinding *binding)
@@ -92,7 +106,13 @@ void pgraph_shader_browser_refresh_binding_scope(
         return;
     }
     if (binding->scope_generation != xemu_shader_browser_scope_generation()) {
-        pgraph_shader_browser_publish_binding(state, geometry_needed, binding);
+        if (binding->count == 1 &&
+            binding->identities[0].stage == XEMU_SHADER_BROWSER_STAGE_PIXEL) {
+            pgraph_shader_browser_publish_pixel_binding(state, binding);
+        } else {
+            pgraph_shader_browser_publish_binding(state, geometry_needed,
+                                                  binding);
+        }
         return;
     }
     if (binding->override_generation != xemu_shader_override_generation()) {

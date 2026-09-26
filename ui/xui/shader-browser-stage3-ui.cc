@@ -436,7 +436,9 @@ void ShaderOverrideUi::DrawPanel(const Entry &entry,
     std::string unsupported;
     if (store_snapshot_.context.backend == OverrideBackend::Vulkan &&
         SelectedAction() != OverrideAction::Normal &&
-        SelectedAction() != OverrideAction::SkipDraw) {
+        SelectedAction() != OverrideAction::SkipDraw &&
+        SelectedAction() != OverrideAction::ForceUber &&
+        SelectedAction() != OverrideAction::ForceSpecialized) {
         action_supported = false;
         unsupported = "This Vulkan override action is not available yet";
     }
