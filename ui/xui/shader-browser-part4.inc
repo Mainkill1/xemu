@@ -136,6 +136,7 @@ void ShaderBrowserWindow::DrawLivePreview()
     bool enabled = status.enabled;
     if (ImGui::Checkbox("Enable preview", &enabled)) {
         service.SetEnabled(enabled);
+        m_preview_packet_attempted = false;
     }
     ImGui::SameLine();
 
@@ -145,6 +146,18 @@ void ShaderBrowserWindow::DrawLivePreview()
                      "Normal\0Uber Shader\0Replacement Shader\0"
                      "Visualize\0")) {
         service.SetRequestedMode(static_cast<PreviewMode>(mode));
+    }
+
+    if (ImGui::CollapsingHeader("Synthetic fixture colors")) {
+        static const char *labels[] = {
+            "Top left", "Top right", "Bottom left", "Bottom right"
+        };
+        for (size_t i = 0; i < m_preview_colors.size(); ++i) {
+            if (ImGui::ColorEdit4(labels[i], m_preview_colors[i].data())) {
+                ++m_preview_input_revision;
+                m_preview_packet_attempted = false;
+            }
+        }
     }
 
     const Entry *entry = SelectedEntry();
@@ -173,8 +186,84 @@ void ShaderBrowserWindow::DrawLivePreview()
             selection.scope.title_id = preferred_title;
         }
         service.SetSelection(selection, now_ns);
+
+        const uint64_t detail_generation = m_detail_snapshot.generation;
+        const uint64_t replacement_generation =
+            selection.mode == PreviewMode::Replacement ?
+                GetOverrideStore().Generation() : 0;
+        if (enabled && entry->key.stage == Stage::Pixel &&
+            (!m_preview_packet_attempted ||
+             m_preview_packet_selection != selection ||
+             m_preview_packet_detail_generation != detail_generation ||
+             m_preview_packet_override_generation != replacement_generation)) {
+            m_preview_packet_attempted = true;
+            m_preview_packet_selection = selection;
+            m_preview_packet_detail_generation = detail_generation;
+            m_preview_packet_override_generation = replacement_generation;
+            m_preview_packet_message.clear();
+            if (!m_has_recipe || m_selected_recipe.key != entry->key) {
+                m_preview_packet_message = "Canonical recipe is unavailable";
+            } else {
+                PreviewPacketInputs inputs{};
+                inputs.selection = selection;
+                inputs.recipe = m_selected_recipe;
+                inputs.fixture_bytes.reserve(16);
+                for (const auto &color : m_preview_colors) {
+                    for (float component : color) {
+                        inputs.fixture_bytes.push_back(static_cast<uint8_t>(
+                            std::clamp(static_cast<int>(component * 255.0f +
+                                                        0.5f), 0, 255)));
+                    }
+                }
+                inputs.generator_abi = 1;
+                inputs.interface_abi = 1;
+                inputs.input_revision = m_preview_input_revision;
+                inputs.view_revision = 1;
+                bool source_ready = true;
+                if (selection.mode == PreviewMode::Replacement) {
+                    const OverrideBackend backend =
+                        selection.backend == PreviewBackend::OpenGL ?
+                            OverrideBackend::OpenGL : OverrideBackend::Vulkan;
+                    auto replacement = GetShaderOverrideUi().
+                        AcquireSelectedReplacement(backend);
+                    if (!replacement) {
+                        m_preview_packet_message =
+                            "Selected replacement payload is unavailable";
+                        source_ready = false;
+                    } else if (!IsReplacementCompatible(
+                                   entry->key, replacement->descriptor,
+                                   backend, &m_preview_packet_message)) {
+                        source_ready = false;
+                    } else {
+                        inputs.replacement_id = replacement->descriptor.id;
+                        inputs.replacement_revision =
+                            replacement->descriptor.content_revision;
+                        inputs.interface_abi =
+                            replacement->descriptor.interface_version;
+                        inputs.source = backend == OverrideBackend::OpenGL ?
+                            replacement->opengl_source :
+                            replacement->vulkan_source;
+                    }
+                } else {
+                    source_ready = CopyPreviewFragmentSource(
+                        selection, m_detail_snapshot, &inputs.source,
+                        &m_preview_packet_message);
+                }
+                if (source_ready) {
+                    inputs.partner_source = BuildPreviewSyntheticVertexSource(
+                        inputs.source, selection.backend);
+                    PreviewPacket packet{};
+                    if (BuildPreviewPacket(inputs, &packet,
+                                           &m_preview_packet_message)) {
+                        service.SubmitPacket(std::move(packet), now_ns,
+                                             &m_preview_packet_message);
+                    }
+                }
+            }
+        }
     } else {
         service.ClearSelection();
+        m_preview_packet_attempted = false;
     }
 
     service.CopyStatus(&status);
@@ -210,6 +299,10 @@ void ShaderBrowserWindow::DrawLivePreview()
     }
 
     ImGui::TextWrapped("%s", status.message.c_str());
+    if (!m_preview_packet_message.empty()) {
+        ImGui::TextWrapped("Preview inputs: %s",
+                           m_preview_packet_message.c_str());
+    }
     if (entry && entry->key.stage != Stage::Pixel) {
         ImGui::TextWrapped(
             "Stage 4 v1 intentionally supports pixel/fragment shaders first. "
@@ -223,11 +316,10 @@ void ShaderBrowserWindow::DrawLivePreview()
         ImGui::TextDisabled("Synthetic inputs — not an in-game draw");
         ImGui::Separator();
         ImGui::TextWrapped(
-            "The bounded Stage 4 request, preparation, throttling, and output "
-            "lifetime foundation is active. Native OpenGL/Vulkan execution "
-            "and the immutable recipe/input adapter are intentionally not "
-            "connected in this draft, so enabling this panel cannot invoke "
-            "the game renderer or create GPU work.");
+            "Selected recipe, resident source, replacement payload, and "
+            "synthetic inputs are copied into a bounded private request. "
+            "Native OpenGL/Vulkan execution is still being built; this "
+            "draft does not create preview GPU work.");
         if (entry) {
             ImGui::Spacing();
             ImGui::Text("Selected: %s", StageLabel(entry->key.stage));

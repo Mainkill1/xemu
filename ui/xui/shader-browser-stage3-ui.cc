@@ -169,6 +169,17 @@ const ReplacementPackageInfo *ShaderOverrideUi::SelectedPackage() const
     return it == library_snapshot_.packages.end() ? nullptr : &*it;
 }
 
+std::shared_ptr<const ReplacementPayload>
+ShaderOverrideUi::AcquireSelectedReplacement(OverrideBackend backend) const
+{
+    const ReplacementPackageInfo *package = SelectedPackage();
+    if (!package) {
+        return {};
+    }
+    return GetOverrideStore().AcquireReplacement(
+        package->descriptor.id, package->descriptor.content_revision, backend);
+}
+
 OverrideAction ShaderOverrideUi::SelectedAction() const
 {
     if (action_index_ < static_cast<int>(OverrideAction::Normal) ||
