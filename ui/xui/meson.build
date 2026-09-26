@@ -24,6 +24,7 @@ xemu_ss.add(files(
   'shader-browser-preview-adapter.cc',
   'shader-browser-preview-health.cc',
   'shader-browser-preview-gl.cc',
+  'shader-browser-preview-vk.cc',
   'shader-browser-preview-service.cc',
   'shader-browser-preview-service-work.cc',
   'shader-browser-preview-service-slots.cc',
@@ -281,3 +282,16 @@ shader_browser_c_header_test = executable(
   include_directories: shader_browser_test_inc)
 test('test-xemu-shader-browser-c-header', shader_browser_c_header_test,
      suite: ['unit'])
+
+if vulkan.found()
+  xemu_ss.add([vulkan, libglslang, spirv_reflect])
+  shader_browser_preview_vk_test = executable(
+    'test-xemu-shader-browser-preview-vk',
+    shader_browser_test_dir / 'test-xemu-shader-browser-preview-vk.cc',
+    files('shader-browser-preview-vk.cc', 'shader-browser-preview-adapter.cc',
+          'shader-browser-preview-model.cc', 'shader-browser-model.cc'),
+    include_directories: shader_browser_test_inc,
+    dependencies: [shader_browser_threads, xxhash, sdl, vulkan, libglslang, spirv_reflect, glib])
+  # Run this binary explicitly on native GPU hosts. It is intentionally not
+  # in the default host unit suite, which also runs on compile-only builders.
+endif
