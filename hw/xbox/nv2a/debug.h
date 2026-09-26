@@ -145,6 +145,10 @@ extern NV2AStats g_nv2a_stats;
 const char *nv2a_profile_get_counter_name(unsigned int cnt);
 int nv2a_profile_get_counter_value(unsigned int cnt);
 void nv2a_profile_increment(void);
+void nv2a_profile_preview_flip_snapshot(uint64_t *completed_flips,
+                                        uint64_t *interval_ns);
+uint64_t nv2a_profile_preview_renderer_epoch(void);
+void nv2a_profile_preview_advance_renderer_epoch(void);
 typedef enum NV2AProfileEvent {
     NV2A_PROFILE_EVENT_SHADER_COMPILE,
     NV2A_PROFILE_EVENT_GPU_SUBMIT,

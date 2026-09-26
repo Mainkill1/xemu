@@ -4,8 +4,12 @@
 #include "shader-browser-model.hh"
 #include "shader-browser-provider.hh"
 #include "shader-browser-details-store.hh"
+#include "shader-browser-preview-health.hh"
+#include "shader-browser-preview-model.hh"
+#include "shader-browser-preview-adapter.hh"
 
 #include <cstdint>
+#include <array>
 #include <string>
 #include <vector>
 
@@ -42,6 +46,34 @@ private:
     xemu::shader_browser::CanonicalRecipe m_selected_recipe;
     xemu::shader_browser::RecipeInspection m_recipe_inspection;
     xemu::shader_browser::DetailSnapshot m_detail_snapshot;
+    xemu::shader_browser::PreviewHealthMonitor m_preview_health_monitor;
+    xemu::shader_browser::PreviewSelection m_preview_packet_selection;
+    uint64_t m_preview_packet_detail_generation = 0;
+    uint64_t m_preview_packet_override_generation = 0;
+    bool m_preview_packet_scope_available = false;
+    uint64_t m_preview_input_revision = 1;
+    xemu::shader_browser::PreviewScene m_preview_scene;
+    xemu::shader_browser::PreviewUpdatePolicy m_preview_update_policy =
+        xemu::shader_browser::PreviewUpdatePolicy::OnDirty;
+    int m_preview_profile = -1;
+    bool m_preview_fixture_suggested = false;
+    xemu::shader_browser::PreviewSyntheticFixture m_preview_fixture =
+        xemu::shader_browser::MakePreviewFixture(
+            xemu::shader_browser::PreviewFixtureProfile::Diagnostic);
+    std::array<std::array<float, 4>, 4> m_preview_colors{};
+    std::array<std::array<float, 4>, 4> m_preview_texture_colors{};
+    std::array<float, 2> m_preview_uv_scale{1.0f, 1.0f};
+    std::array<float, 2> m_preview_uv_offset{0.0f, 0.0f};
+    std::array<float, 4> m_preview_constant_color{1.0f, 1.0f, 1.0f, 1.0f};
+    std::array<float, 4> m_preview_fog_color{0.0f, 0.0f, 0.0f, 0.0f};
+    int m_preview_alpha_reference = 0;
+    bool m_preview_linear_filter = true;
+    bool m_preview_repeat_wrap = false;
+    float m_preview_view_zoom = 1.0f;
+    std::array<float, 2> m_preview_view_center{0.5f, 0.5f};
+    int m_preview_view_channel = 0;
+    bool m_preview_packet_attempted = false;
+    std::string m_preview_packet_message;
     std::vector<size_t> m_source_line_offsets;
     size_t m_selected_source = 0;
     uint64_t m_source_offsets_generation = 0;

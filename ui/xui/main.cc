@@ -49,6 +49,8 @@
 #include "monitor.hh"
 #include "debug.hh"
 #include "shader-browser.hh"
+#include "shader-browser-preview-gl.hh"
+#include "shader-browser-preview-service.hh"
 #include "shader-browser-session-provider.hh"
 #include "shader-browser-override-store.hh"
 #include "shader-browser-override-lifecycle.hh"
@@ -80,6 +82,19 @@ static XemuShaderBrowserScope g_shader_browser_scope{};
 static std::string g_shader_browser_performance_session;
 static std::string g_shader_browser_session_key;
 static uint64_t g_shader_browser_next_scope_poll_ms;
+
+struct ShaderBrowserExternalWindow {
+    SDL_Window *window = nullptr;
+    SDL_GLContext gl_context = nullptr;
+    ImGuiContext *imgui_context = nullptr;
+    ImGuiContext *main_imgui_context = nullptr;
+    bool enabled = false;
+    bool visible = false;
+    bool frame_ready = false;
+    uint64_t last_update_ms = 0;
+};
+
+static ShaderBrowserExternalWindow g_shader_browser_external;
 
 static void ShaderBrowserEndPerformanceSessionLocked(void *)
 {
@@ -292,6 +307,60 @@ static void InitializeStyle()
     g_base_style = s;
 }
 
+static bool InitializeShaderBrowserExternalWindow(SDL_Window *main_window,
+                                                   SDL_GLContext main_gl)
+{
+    ShaderBrowserExternalWindow &external = g_shader_browser_external;
+    external.main_imgui_context = ImGui::GetCurrentContext();
+    ImGuiStyle style = ImGui::GetStyle();
+    SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
+    external.window = SDL_CreateWindow(
+        "xemu Shader Browser", 1060, 720,
+        SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN);
+    if (external.window) {
+        external.gl_context = SDL_GL_CreateContext(external.window);
+    }
+    const std::string creation_error = SDL_GetError();
+    SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 0);
+    SDL_GL_MakeCurrent(main_window, main_gl);
+    if (!external.window || !external.gl_context) {
+        fprintf(stderr, "Shader Browser external window: %s\n",
+                creation_error.c_str());
+        if (external.gl_context) SDL_GL_DestroyContext(external.gl_context);
+        if (external.window) SDL_DestroyWindow(external.window);
+        external = {};
+        return false;
+    }
+    SDL_SetWindowMinimumSize(external.window, 720, 460);
+    SDL_GL_MakeCurrent(external.window, external.gl_context);
+    SDL_GL_SetSwapInterval(0);
+    external.imgui_context = ImGui::CreateContext();
+    ImGui::SetCurrentContext(external.imgui_context);
+    ImGui::GetStyle() = style;
+    ImGuiIO &io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.IniFilename = nullptr;
+    ImGui_ImplSDL3_InitForOpenGL(external.window, external.gl_context);
+    ImGui_ImplOpenGL3_Init("#version 150");
+    SDL_GL_MakeCurrent(main_window, main_gl);
+    ImGui::SetCurrentContext(external.main_imgui_context);
+    external.enabled = true;
+    shader_browser_window.m_is_open = true;
+    SDL_ShowWindow(external.window);
+    external.visible = true;
+    return true;
+}
+
+void xemu_hud_init_external_window(SDL_Window *window, void *sdl_gl_context,
+                                   bool requested)
+{
+    if (requested &&
+        !InitializeShaderBrowserExternalWindow(
+            window, static_cast<SDL_GLContext>(sdl_gl_context))) {
+        shader_browser_window.m_is_open = true;
+    }
+}
+
 void xemu_hud_init(SDL_Window* window, void* sdl_gl_context)
 {
     xemu_monitor_init();
@@ -357,13 +426,90 @@ void xemu_hud_cleanup(void)
     xemu_shader_browser_set_current_scope(nullptr);
     shader_browser_window.m_is_open = false;
     xemu_shader_browser_session_uninstall();
+    ShaderBrowserExternalWindow &external = g_shader_browser_external;
+    if (external.enabled) {
+        SDL_Window *main_window = SDL_GL_GetCurrentWindow();
+        SDL_GLContext main_gl = SDL_GL_GetCurrentContext();
+        if (!xemu::shader_browser::MakePreviewHudContextCurrent(
+                external.window, external.gl_context)) {
+            fprintf(stderr,
+                    "Shader preview cleanup: external GL context switch "
+                    "failed: %s\n",
+                    SDL_GetError());
+            if (!xemu::shader_browser::MakePreviewHudContextCurrent(main_window,
+                                                                    main_gl)) {
+                fprintf(stderr,
+                        "Shader preview cleanup: no usable main GL "
+                        "context; skipping terminal HUD GL cleanup: %s\n",
+                        SDL_GetError());
+                xemu::shader_browser::GetPreviewGlExecutor().Shutdown(false);
+                return;
+            }
+            fprintf(stderr, "Shader preview cleanup: using restored shared "
+                            "main GL context instead of external context\n");
+        }
+        // Normally the consumer context; on switch failure, the checked main
+        // context shares its textures/syncs and GL preserves queued references.
+        xemu::shader_browser::GetPreviewGlExecutor().Shutdown();
+        ImGui::SetCurrentContext(external.imgui_context);
+        if (!SDL_GL_GetCurrentWindow() || !SDL_GL_GetCurrentContext()) {
+            fprintf(stderr, "Shader preview cleanup: consumer GL context is "
+                            "absent; skipping remaining HUD GL cleanup\n");
+            return;
+        }
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplSDL3_Shutdown();
+        ImGui::DestroyContext(external.imgui_context);
+        const bool main_restored =
+            xemu::shader_browser::MakePreviewHudContextCurrent(main_window,
+                                                               main_gl);
+        if (!main_restored) {
+            fprintf(stderr,
+                    "Shader preview cleanup: cannot restore main GL "
+                    "context; skipping remaining HUD GL cleanup: %s\n",
+                    SDL_GetError());
+        }
+        ImGui::SetCurrentContext(external.main_imgui_context);
+        SDL_GL_DestroyContext(external.gl_context);
+        SDL_DestroyWindow(external.window);
+        external = {};
+        if (!main_restored)
+            return;
+    } else {
+        if (!SDL_GL_GetCurrentWindow() || !SDL_GL_GetCurrentContext()) {
+            fprintf(stderr,
+                    "Shader preview cleanup: main GL context is absent; "
+                    "skipping terminal HUD GL cleanup\n");
+            xemu::shader_browser::GetPreviewGlExecutor().Shutdown(false);
+            return;
+        }
+        xemu::shader_browser::GetPreviewGlExecutor().Shutdown();
+    }
+    if (!SDL_GL_GetCurrentWindow() || !SDL_GL_GetCurrentContext()) {
+        fprintf(stderr, "Shader preview cleanup: no current main GL context; "
+                        "skipping remaining HUD GL cleanup\n");
+        return;
+    }
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplSDL3_Shutdown();
+    ImPlot::DestroyContext();
     ImGui::DestroyContext();
 }
 
 void xemu_hud_process_sdl_events(SDL_Event *event)
 {
+    if (xemu_hud_is_external_window_event(event)) {
+        if (event->type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) {
+            shader_browser_window.m_is_open = false;
+            xemu::shader_browser::GetPreviewService().SetVisible(
+                false, static_cast<uint64_t>(g_get_monotonic_time()) *
+                           UINT64_C(1000));
+        }
+        ImGui::SetCurrentContext(g_shader_browser_external.imgui_context);
+        ImGui_ImplSDL3_ProcessEvent(event);
+        ImGui::SetCurrentContext(g_shader_browser_external.main_imgui_context);
+        return;
+    }
     // Ignore inputs that are consumed by rebinding
     if (g_main_menu.ConsumeRebindEvent(event)) {
         return;
@@ -510,7 +656,9 @@ void xemu_hud_update(void)
     monitor_window.Draw();
     apu_window.Draw();
     video_window.Draw();
-    shader_browser_window.Draw();
+    if (!g_shader_browser_external.enabled) {
+        shader_browser_window.Draw();
+    }
     compatibility_reporter_window.Draw();
 #if defined(_WIN32)
     update_window.Draw();
@@ -523,10 +671,92 @@ void xemu_hud_update(void)
     // if (show_demo) ImGui::ShowDemoWindow(&show_demo);
 }
 
+void xemu_hud_update_external(void)
+{
+    ShaderBrowserExternalWindow &external = g_shader_browser_external;
+    external.frame_ready = false;
+    if (!external.enabled) return;
+    if (!shader_browser_window.m_is_open) {
+        // The main HUD calls Draw() even after its window closes, which
+        // releases live collection and resident detail state. The external
+        // window has the same lifecycle although it no longer paints.
+        shader_browser_window.Draw();
+        if (external.visible) {
+            SDL_HideWindow(external.window);
+            external.visible = false;
+        }
+        return;
+    }
+    if (!external.visible) {
+        SDL_ShowWindow(external.window);
+        external.visible = true;
+        external.last_update_ms = 0;
+    }
+    const uint64_t now_ms = SDL_GetTicks();
+    if (external.last_update_ms && now_ms >= external.last_update_ms &&
+        now_ms - external.last_update_ms < 33) {
+        return;
+    }
+    external.last_update_ms = now_ms;
+
+    SDL_Window *main_window = SDL_GL_GetCurrentWindow();
+    SDL_GLContext main_gl = SDL_GL_GetCurrentContext();
+    if (!SDL_GL_MakeCurrent(external.window, external.gl_context)) return;
+    ImGui::SetCurrentContext(external.imgui_context);
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL3_NewFrame();
+    ImGui::NewFrame();
+    shader_browser_window.Draw();
+    ImGui::Render();
+    external.frame_ready = true;
+    SDL_GL_MakeCurrent(main_window, main_gl);
+    ImGui::SetCurrentContext(external.main_imgui_context);
+}
+
+void xemu_hud_render_external(void)
+{
+    ShaderBrowserExternalWindow &external = g_shader_browser_external;
+    if (!external.enabled || !external.visible || !external.frame_ready) {
+        return;
+    }
+    external.frame_ready = false;
+    SDL_Window *main_window = SDL_GL_GetCurrentWindow();
+    SDL_GLContext main_gl = SDL_GL_GetCurrentContext();
+    if (!SDL_GL_MakeCurrent(external.window, external.gl_context)) return;
+    ImGui::SetCurrentContext(external.imgui_context);
+    int width = 0;
+    int height = 0;
+    SDL_GetWindowSizeInPixels(external.window, &width, &height);
+    glViewport(0, 0, width, height);
+    glClearColor(0.06f, 0.06f, 0.06f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    xemu::shader_browser::GetPreviewGlExecutor().AfterHudRender();
+    SDL_GL_SwapWindow(external.window);
+    SDL_GL_MakeCurrent(main_window, main_gl);
+    ImGui::SetCurrentContext(external.main_imgui_context);
+}
+
+bool xemu_hud_is_external_window_event(const SDL_Event *event)
+{
+    return event && g_shader_browser_external.enabled &&
+           SDL_GetWindowFromEvent(event) == g_shader_browser_external.window;
+}
+
+bool xemu_hud_shader_browser_external(void)
+{
+    return g_shader_browser_external.enabled;
+}
+
 void xemu_hud_render()
 {
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    if (!g_shader_browser_external.enabled ||
+        (!g_shader_browser_external.visible &&
+         xemu::shader_browser::GetPreviewGlExecutor().NeedsRetirementPump())) {
+        xemu::shader_browser::GetPreviewGlExecutor().AfterHudRender();
+    }
 
     if (g_vsync != g_config.display.window.vsync) {
         g_vsync = g_config.display.window.vsync;

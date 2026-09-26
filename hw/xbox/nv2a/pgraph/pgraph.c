@@ -375,6 +375,8 @@ static bool attempt_renderer_init(PGRAPHState *pg, bool fallback)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
 
+    nv2a_profile_preview_advance_renderer_epoch();
+
     pg->renderer = renderers[g_config.display.renderer];
     if (!pg->renderer) {
         xemu_queue_error_message("Configured renderer not available");
@@ -453,6 +455,8 @@ void pgraph_init_thread(NV2AState *d)
 void pgraph_destroy(PGRAPHState *pg)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
+
+    nv2a_profile_preview_advance_renderer_epoch();
 
     g_mutex_lock(&shader_browser_flush_mutex);
     if (g_nv2a == d) {
@@ -3520,6 +3524,8 @@ static void renderer_switch_finalize_renderer(void *opaque)
 {
     NV2AState *d = opaque;
     PGRAPHState *pg = &d->pgraph;
+
+    nv2a_profile_preview_advance_renderer_epoch();
 
     pgraph_shader_browser_flush_observations(
         &pg->shader_browser_observations, pg->frame_time);

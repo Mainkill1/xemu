@@ -22,6 +22,34 @@
 
 NV2AStats g_nv2a_stats;
 
+static uint64_t preview_completed_flips;
+static uint64_t preview_previous_flip_ns;
+static uint64_t preview_flip_interval_ns;
+static uint64_t preview_renderer_epoch;
+
+uint64_t nv2a_profile_preview_renderer_epoch(void)
+{
+    return qatomic_read(&preview_renderer_epoch);
+}
+
+void nv2a_profile_preview_advance_renderer_epoch(void)
+{
+    qatomic_set(&preview_previous_flip_ns, 0);
+    qatomic_set(&preview_flip_interval_ns, 0);
+    qatomic_fetch_inc(&preview_renderer_epoch);
+}
+
+void nv2a_profile_preview_flip_snapshot(uint64_t *completed_flips,
+                                        uint64_t *interval_ns)
+{
+    if (completed_flips) {
+        *completed_flips = qatomic_read(&preview_completed_flips);
+    }
+    if (interval_ns) {
+        *interval_ns = qatomic_read(&preview_flip_interval_ns);
+    }
+}
+
 static void nv2a_profile_write_frame_log(int64_t now)
 {
     static FILE *file;
@@ -134,6 +162,13 @@ static void nv2a_profile_write_flip_log(int64_t now)
 void nv2a_profile_increment(void)
 {
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
+    uint64_t now_ns = (uint64_t)now * UINT64_C(1000);
+    uint64_t previous_ns = qatomic_read(&preview_previous_flip_ns);
+    if (previous_ns && now_ns > previous_ns) {
+        qatomic_set(&preview_flip_interval_ns, now_ns - previous_ns);
+    }
+    qatomic_set(&preview_previous_flip_ns, now_ns);
+    qatomic_fetch_inc(&preview_completed_flips);
     const int64_t fps_update_interval = 250000;
     g_nv2a_stats.last_flip_time = now;
 

@@ -5,6 +5,7 @@
 #include "viewport-manager.hh"
 #include "../xemu-settings.h"
 #include "hw/xbox/nv2a/pgraph/shader-browser-flush.h"
+#include "hw/xbox/nv2a/debug.h"
 
 #include <algorithm>
 #include <cstdio>
@@ -17,6 +18,11 @@ using namespace xemu::shader_browser;
 ShaderBrowserWindow shader_browser_window;
 
 namespace {
+
+uint64_t PreviewNowNs()
+{
+    return static_cast<uint64_t>(g_get_monotonic_time()) * UINT64_C(1000);
+}
 
 Stage StageFromIndex(int index)
 {
@@ -175,12 +181,21 @@ ShaderBrowserWindow::ShaderBrowserWindow()
       m_sort_key(0),
       m_sort_descending(true)
 {
+    m_preview_colors = {{{1.0f, 0.25f, 0.25f, 1.0f},
+                         {0.25f, 1.0f, 0.25f, 1.0f},
+                         {0.25f, 0.25f, 1.0f, 1.0f},
+                         {1.0f, 1.0f, 1.0f, 1.0f}}};
+    m_preview_texture_colors = {{{1.0f, 1.0f, 1.0f, 1.0f},
+                                 {0.25f, 0.25f, 0.25f, 1.0f},
+                                 {0.25f, 0.25f, 0.25f, 1.0f},
+                                 {1.0f, 1.0f, 1.0f, 1.0f}}};
 }
 
 void ShaderBrowserWindow::Draw()
 {
     Provider &provider = GetProvider();
     if (!m_is_open) {
+        GetPreviewService().SetVisible(false, PreviewNowNs());
         if (m_window_was_open) {
             provider.SetLiveCollectionEnabled(false);
             GetDetailStore().Clear();
@@ -213,9 +228,19 @@ void ShaderBrowserWindow::Draw()
     ImGui::SetNextWindowSize(initial, ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSizeConstraints(minimum, work);
 
-    if (!ImGui::Begin("Shader Browser", &m_is_open,
-                      ImGuiWindowFlags_NoCollapse)) {
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoCollapse;
+    if (xemu_hud_shader_browser_external()) {
+        const ImGuiViewport *viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(viewport->WorkPos, ImGuiCond_Always);
+        ImGui::SetNextWindowSize(viewport->WorkSize, ImGuiCond_Always);
+        window_flags |= ImGuiWindowFlags_NoTitleBar |
+                        ImGuiWindowFlags_NoResize |
+                        ImGuiWindowFlags_NoMove;
+    }
+
+    if (!ImGui::Begin("Shader Browser", &m_is_open, window_flags)) {
         ImGui::End();
+        GetPreviewService().SetVisible(false, PreviewNowNs());
         if (!m_is_open) {
             provider.SetLiveCollectionEnabled(false);
             GetDetailStore().Clear();
@@ -242,6 +267,7 @@ void ShaderBrowserWindow::Draw()
     ImGui::End();
 
     if (!m_is_open) {
+        GetPreviewService().SetVisible(false, PreviewNowNs());
         provider.SetLiveCollectionEnabled(false);
         GetDetailStore().Clear();
         m_window_was_open = false;

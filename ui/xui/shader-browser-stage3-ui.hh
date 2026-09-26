@@ -31,6 +31,8 @@ public:
                    uint32_t title_id,
                    std::string *message);
     void DrawSettings(std::string *message);
+    std::shared_ptr<const ReplacementPayload> AcquireSelectedReplacement(
+        OverrideBackend backend) const;
 
 private:
     const ReplacementPackageInfo *SelectedPackage() const;

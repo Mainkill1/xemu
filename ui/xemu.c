@@ -121,6 +121,8 @@ static int guest_x, guest_y;
 static SDL_Cursor *guest_sprite;
 static Notifier mouse_mode_notifier;
 static SDL_Window *m_window;
+static bool g_shader_browser_window_on_start;
+static bool g_shader_browser_window_initializing;
 static SDL_GLContext m_context;
 static QemuSemaphore display_init_sem;
 static QemuSemaphore display_shutdown_sem;
@@ -888,6 +890,7 @@ static void gl_render_frame(struct xemu_console *scon)
      */
     xemu_main_loop_lock();
     xemu_hud_update();
+    xemu_hud_update_external();
     xemu_main_loop_unlock();
 
     xemu_hud_render();
@@ -912,6 +915,7 @@ static void gl_render_frame(struct xemu_console *scon)
 #endif
     assert(glGetError() == GL_NO_ERROR);
 
+    xemu_hud_render_external();
     qatomic_set(&rendering, false);
 
 #if DEBUG_XEMU_C
@@ -922,6 +926,18 @@ static void gl_render_frame(struct xemu_console *scon)
 static bool event_watch_callback(void *userdata, SDL_Event *event)
 {
     struct xemu_console *scon = (struct xemu_console *)userdata;
+
+    /* SDL may deliver expose/resize events synchronously from
+     * SDL_CreateWindow. Rendering here would try to take the nonrecursive
+     * main-loop lock already held by external window initialization. The
+     * regular frame loop will paint both windows after initialization. */
+    if (qatomic_read(&g_shader_browser_window_initializing)) {
+        return true;
+    }
+
+    if (xemu_hud_is_external_window_event(event)) {
+        return true;
+    }
 
     if (event->type == SDL_EVENT_WINDOW_RESIZED) {
 #ifdef _WIN32
@@ -959,6 +975,10 @@ static void poll_events(struct xemu_console *scon)
         // HUD must process events first so that if a controller is detached,
         // a latent rebind request can cancel before the state is freed
         xemu_hud_process_sdl_events(ev);
+        if (xemu_hud_is_external_window_event(ev)) {
+            xemu_main_loop_unlock();
+            continue;
+        }
         xemu_input_process_sdl_events(ev);
 
         switch (ev->type) {
@@ -1449,6 +1469,15 @@ int main(int argc, char **argv)
 
     init_sdl_app_metadata();
 
+    for (int i = 1; i < argc; ++i) {
+        if (argv[i] &&
+            (strcmp(argv[i], "-shader-browser-window") == 0 ||
+             strcmp(argv[i], "--shader-browser-window") == 0)) {
+            g_shader_browser_window_on_start = true;
+            argv[i] = NULL;
+        }
+    }
+
     for (int i = 1; i < argc; i++) {
         if (argv[i] && strcmp(argv[i], "-config_path") == 0) {
             argv[i] = NULL;
@@ -1497,6 +1526,19 @@ int main(int argc, char **argv)
                        NULL, QEMU_THREAD_JOINABLE);
     qemu_sem_wait(&display_init_sem);
 
+    /* SDL windows must be created on the thread that pumps their events.
+     * The HUD itself was initialized during QEMU display setup on qemu_main,
+     * but poll_events() runs here on the process main thread. */
+    if (g_shader_browser_window_on_start) {
+        qatomic_set(&g_shader_browser_window_initializing, true);
+        SDL_GL_MakeCurrent(m_window, m_context);
+        xemu_main_loop_lock();
+        xemu_hud_init_external_window(m_window, m_context, true);
+        xemu_main_loop_unlock();
+        SDL_GL_MakeCurrent(NULL, NULL);
+        qatomic_set(&g_shader_browser_window_initializing, false);
+    }
+
     gui_grab = 0;
     if (gui_fullscreen) {
         grab_start(0);
@@ -1519,6 +1561,11 @@ int main(int argc, char **argv)
         poll_events(scon);
         gl_render_frame(scon);
     }
+    if (!SDL_GL_MakeCurrent(scon->real_window, scon->winctx)) {
+        fprintf(stderr, "HUD cleanup: main GL context switch failed: %s\n",
+                SDL_GetError());
+    }
+    xemu_hud_cleanup();
     qemu_sem_post(&display_shutdown_sem);
     qemu_thread_join(&thread);
     display_finalize();

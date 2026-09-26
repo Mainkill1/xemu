@@ -1,6 +1,8 @@
 
 void ShaderBrowserWindow::SelectEntry(const Entry &entry)
 {
+    m_preview_packet_attempted = false;
+    m_preview_packet_message.clear();
     m_selected_key = entry.key;
     m_has_selection = true;
     m_action_message.clear();
@@ -244,6 +246,7 @@ void ShaderBrowserWindow::DrawSelector()
 
 void ShaderBrowserWindow::DrawRightPane()
 {
+    bool preview_visible = false;
     if (ImGui::BeginTabBar("##shader-browser-tabs")) {
         if (ImGui::BeginTabItem("Shader Details")) {
             DrawShaderDetails();
@@ -254,9 +257,16 @@ void ShaderBrowserWindow::DrawRightPane()
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Live Preview")) {
+            preview_visible = true;
+            PreviewStatus preview_status{};
+            GetPreviewService().CopyStatus(&preview_status);
+            if (!preview_status.visible) {
+                m_preview_packet_attempted = false;
+            }
             DrawLivePreview();
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
     }
+    GetPreviewService().SetVisible(preview_visible, PreviewNowNs());
 }
