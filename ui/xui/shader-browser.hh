@@ -50,6 +50,7 @@ private:
     xemu::shader_browser::PreviewSelection m_preview_packet_selection;
     uint64_t m_preview_packet_detail_generation = 0;
     uint64_t m_preview_packet_override_generation = 0;
+    bool m_preview_packet_scope_available = false;
     uint64_t m_preview_input_revision = 1;
     xemu::shader_browser::PreviewScene m_preview_scene;
     xemu::shader_browser::PreviewUpdatePolicy m_preview_update_policy =
