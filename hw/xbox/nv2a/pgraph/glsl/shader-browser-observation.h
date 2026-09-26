@@ -16,10 +16,9 @@ typedef struct PGRAPHShaderBrowserObservations {
     bool collecting;
 } PGRAPHShaderBrowserObservations;
 
-void pgraph_shader_browser_record_draw(
-    PGRAPHShaderBrowserObservations *batch,
-    const PGRAPHShaderBrowserBinding *binding, uint64_t frame,
-    uint32_t pixel_route);
+void pgraph_shader_browser_record_draw(PGRAPHShaderBrowserObservations *batch,
+                                       PGRAPHShaderBrowserBinding *binding,
+                                       uint64_t frame, uint32_t pixel_route);
 void pgraph_shader_browser_flush_observations(
     PGRAPHShaderBrowserObservations *batch, uint64_t frame);
 

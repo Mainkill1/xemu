@@ -57,6 +57,7 @@
 #include "update.hh"
 #endif
 #include "../xemu-settings.h"
+#include "../xemu-gpu-info.h"
 #include "xemu-xbe.h"
 #include "xemu-version.h"
 
@@ -72,6 +73,7 @@ static GLuint g_tex;
 static bool g_flip_req;
 static XemuShaderBrowserScope g_shader_browser_scope{};
 static std::string g_shader_browser_performance_session;
+static std::string g_shader_browser_session_key;
 static uint64_t g_shader_browser_next_scope_poll_ms;
 
 void ShaderBrowserEndPerformanceSession()
@@ -85,6 +87,7 @@ void ShaderBrowserEndPerformanceSession()
         static_cast<uint64_t>(g_get_real_time() / 1000), 1,
         error, sizeof(error));
     g_shader_browser_performance_session.clear();
+    g_shader_browser_session_key.clear();
 }
 
 static void ShaderBrowserRefreshScope(uint64_t now_ms)
@@ -114,6 +117,16 @@ static void ShaderBrowserRefreshScope(uint64_t now_ms)
         g_shader_browser_scope = scope;
         xemu_shader_browser_set_current_scope(&scope);
         xemu_shader_browser_session_clear_live();
+    }
+
+    std::string session_key =
+        std::to_string(g_config.display.renderer) + ":" +
+        std::to_string(g_config.display.quality.surface_scale) + ":" +
+        std::to_string(g_config.tweaks.vk_hybrid_ubershaders) + ":" +
+        std::to_string(g_config.perf.cache_shaders);
+    if (!g_shader_browser_performance_session.empty() &&
+        session_key != g_shader_browser_session_key) {
+        ShaderBrowserEndPerformanceSession();
     }
 
     if (scope.title_id && g_shader_browser_performance_session.empty() &&
@@ -146,11 +159,27 @@ static void ShaderBrowserRefreshScope(uint64_t now_ms)
         session.ubershader_mode =
             g_config.tweaks.vk_hybrid_ubershaders ? "enabled" : "off";
         session.shader_cache_enabled = g_config.perf.cache_shaders;
+        std::string gpu_driver;
+        const PGRAPHVkDeviceRecord *gpu = xemu_gpu_info_get_actual_device();
+        if (gpu && g_config.display.renderer ==
+                       CONFIG_DISPLAY_RENDERER_VULKAN) {
+            session.gpu_name = gpu->name;
+            session.gpu_vendor_id = gpu->vendor_id;
+            session.gpu_device_id = gpu->device_id;
+            gpu_driver = std::to_string(gpu->driver_version);
+            session.gpu_driver = gpu_driver.c_str();
+        } else {
+            const GLubyte *renderer = glGetString(GL_RENDERER);
+            const GLubyte *driver = glGetString(GL_VERSION);
+            session.gpu_name = reinterpret_cast<const char *>(renderer);
+            session.gpu_driver = reinterpret_cast<const char *>(driver);
+        }
         session.telemetry_version = 1;
         char error[256] = {};
         if (xemu_shader_browser_performance_session_begin(
                 &session, error, sizeof(error))) {
             g_shader_browser_performance_session = uuid;
+            g_shader_browser_session_key = session_key;
         }
         g_free(uuid);
     }
