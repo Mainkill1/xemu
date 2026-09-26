@@ -1,0 +1,83 @@
+# Development status — September 26, 2026
+
+This is a dated development snapshot, not a promise about every installed build. The audited `main` tip was [`9a58e261c0934f756d0e880b35b5361dc6c0d854`](https://github.com/Mainkill1/xemu/commit/9a58e261c0934f756d0e880b35b5361dc6c0d854). Check a PR's current merge state before treating a draft as available. An open issue is a work tracker, not proof that every item in its original description remains unimplemented.
+
+The review covered the descriptions returned for 47 open issues and 14 open PRs, plus selected merged/closed PRs and the accessible wiki overview. It did not re-run emulator tests, inspect every discussion comment, or verify every wiki page. Results below are attributed to their original PRs; they are not new benchmark results.
+
+## Merged implementation versus unfinished work
+
+| Area | Available in the audited main | Boundary that documentation must retain |
+| --- | --- | --- |
+| Learned Vulkan fallback readiness — [PR #228](https://github.com/Mainkill1/xemu/pull/228) | Bounded priority scheduling, promotion, owner-side retry/completion adoption and retained completed artifacts. | The reported experiment reduced selected synchronous shader/pipeline work; frame-time tails were mixed. This is not a general FPS or stutter-elimination claim. |
+| Shader Browser Stage 1 — [PR #237](https://github.com/Mainkill1/xemu/pull/237) | Opt-in discovery, shader identity, session statistics and SQLite-backed history. | Collection/history does not imply complete CPU/GPU timing attribution. |
+| Shader Browser Stage 2 — [PR #238](https://github.com/Mainkill1/xemu/pull/238) | Guest recipe decoding, resident host details, Overview/Guest/Host/Lifecycle tabs and validated recipe export. | Inspection does not compile shaders, create renderer objects, change cache recency or reconstruct historical events that were never recorded. Missing resident information is unavailable, not zero. |
+| Shader Browser Stage 3 — [PR #239](https://github.com/Mainkill1/xemu/pull/239) | Scoped saved/session replacement rules, presets, conflict reporting and requested/effective renderer status on OpenGL and Vulkan. | Replacement support is not an unrestricted shader ABI or a complete live-preview environment. |
+| Synthetic live preview — [PR #241](https://github.com/Mainkill1/xemu/pull/241) | **Open draft; not part of the audited main.** | Native OpenGL smoke evidence exists in the PR, but Vulkan execution, representative output correctness, supported replay and matched gameplay qualification remain unfinished. |
+| Correctly attributed profiling — [PR #242](https://github.com/Mainkill1/xemu/pull/242) | **Open draft; not part of the audited main.** | Off/Basic/Diagnostic monitoring, separate CPU/GPU controls and recorded-session improvements are draft features. Native guest-draw and matched mode-comparison gates remain. |
+
+The merged Stage 3 actions include OpenGL replacement, highlight and skip-draw, and Vulkan replacement, highlight, skip-draw, force-uber and force-specialized. Failed replacement edits expose failure/fallback status and retain a prior valid revision when available. Stage 3 v1 authored Vulkan fragments can sample guest textures, but authored uniform blocks and push constants are rejected until their upload ABI is validated. Do not advertise arbitrary authored interfaces as supported. See [PR #239](https://github.com/Mainkill1/xemu/pull/239).
+
+Shader identity and exported recipes must remain separate from process-local program/pipeline IDs. Stage 2 exports a validated, title-independent recipe file; Stage 3 rule scope supplies the title/build/stage/draw-condition context. A synthetic preview is labeled **“Synthetic inputs — not an in-game draw.”** A successful synthetic render does not establish reproduction of a game's transient death effect or other multi-pass event. See [PR #238](https://github.com/Mainkill1/xemu/pull/238), [PR #239](https://github.com/Mainkill1/xemu/pull/239) and [PR #241](https://github.com/Mainkill1/xemu/pull/241).
+
+## Open PR inventory
+
+All 14 PRs below were open drafts in the reviewed listings. These are implementation/status links, not merge approvals. Reported evidence belongs to its identified source head, binary, settings and workload; later lifecycle fixes require the applicable current-head checks.
+
+| PR | Workstream | Documentation / acceptance boundary |
+| --- | --- | --- |
+| [#177](https://github.com/Mainkill1/xemu/pull/177) | Opt-in APU voice-dispatch telemetry | Diagnostic collection, not a speedup or scheduler policy. Qualify the current schema and disabled/error/lifecycle behavior. |
+| [#182](https://github.com/Mainkill1/xemu/pull/182) | Mono voices through one-channel sinc resampling | Removes duplicate channel work without selecting linear interpolation. Retain output, source-progression and reset/load qualification. |
+| [#183](https://github.com/Mainkill1/xemu/pull/183) | DSP JIT default | A default-policy proposal, not proof of general compatibility. Preserve explicit saved settings and interpreter fallback. |
+| [#184](https://github.com/Mainkill1/xemu/pull/184) | Consolidated voice mix-register reads | Snapshot validity and PCM equivalence are separate from field-decoding equivalence and favorable profiling. |
+| [#187](https://github.com/Mainkill1/xemu/pull/187) | Byte-validated decoded ADPCM reuse | Keep complete encoded-byte/format validation. The documented pre-decode capacity correction needs its own exact-head qualification; older performance data is not validation of that fix. |
+| [#189](https://github.com/Mainkill1/xemu/pull/189) | Experimental voice-resampler selector | Sinc remains the default; linear is opt-in and is not claimed to be MCPX-accurate. Audio/state and lifecycle gates remain distinct from visual/gameplay checks. |
+| [#190](https://github.com/Mainkill1/xemu/pull/190) | Callback-local SGE translation cache | The documented table-base identity and descriptor-coherency concerns must be resolved; callback-local scope alone is not a writer-exclusion proof. |
+| [#191](https://github.com/Mainkill1/xemu/pull/191) | Voice-format snapshot | Requires a demonstrated writer/stability contract. Do not describe the retained mixed tail results as a latency improvement. |
+| [#193](https://github.com/Mainkill1/xemu/pull/193) | Exact attenuation lookup | Preserve exhaustive equivalence and the adverse reported p99 direction; a small CPU improvement is not proof that tails improved. |
+| [#195](https://github.com/Mainkill1/xemu/pull/195) | Exact ADPCM nibble-transition lookup | Preserve decoder/cache-hit semantics and disclose isolated slow events. A packed-table experiment is separate, not an assumed improvement. |
+| [#196](https://github.com/Mainkill1/xemu/pull/196) | Scheduler routing-register snapshots | Requires runtime writer/routing semantics. It does not change worker scheduling; the supported reported claim is CPU efficiency, not FPS. |
+| [#200](https://github.com/Mainkill1/xemu/pull/200) | Auto VP worker count for experimental linear resampling | Stacked on #189. Explicit overrides and sinc Auto remain unchanged; integration must inherit the parent's reset correction and qualify guest-state/PCM/lifecycle behavior. |
+| [#241](https://github.com/Mainkill1/xemu/pull/241) | Isolated synthetic Shader Browser preview | Default-off draft. OpenGL smoke coverage is not Vulkan, replay, Windows or representative output/performance qualification. |
+| [#242](https://github.com/Mainkill1/xemu/pull/242) | Shader Browser profiling and timing attribution | Default-off draft. Keep stage-owned timings separate from shared program/pipeline/binding/GPU intervals. |
+
+### Audio interpretation
+
+The APU roadmap is [#163](https://github.com/Mainkill1/xemu/issues/163); interpolation research is [#188](https://github.com/Mainkill1/xemu/issues/188); cross-PR coherency and slow-event attribution are [#197](https://github.com/Mainkill1/xemu/issues/197). Do not add the percentages from separate patches or configurations together. A changed worker count can change floating-point accumulation grouping even without changing the reduction code. Visual correctness does not substitute for PCM, cursor/notification, reset or save/load checks. These distinctions are explicit in [PR #189](https://github.com/Mainkill1/xemu/pull/189) and [PR #200](https://github.com/Mainkill1/xemu/pull/200).
+
+The snapshot/cache drafts describe unresolved writer-contract questions: holding the APU mutex must not be presented as excluding every MMIO or direct guest-memory writer. Field-decoding tests and byte-equivalence tests establish narrower properties than production synchronization. Track these limits with [PR #184](https://github.com/Mainkill1/xemu/pull/184), [PR #190](https://github.com/Mainkill1/xemu/pull/190), [PR #191](https://github.com/Mainkill1/xemu/pull/191) and [PR #196](https://github.com/Mainkill1/xemu/pull/196), rather than copying their proposed caches into architecture diagrams as accepted behavior.
+
+## Open issue coverage and documentation destinations
+
+Every issue returned by the reviewed open-issue query is indexed below. Grouping is for navigation. It does not confirm every proposed diagnosis, establish current implementation absence, or authorize closing an issue. Reconcile an issue's text with linked merged PRs before changing a feature's availability label.
+
+| Documentation area | Open issues reviewed | Treatment |
+| --- | --- | --- |
+| OpenGL texture correctness / optimization | [#66](https://github.com/Mainkill1/xemu/issues/66), [#79](https://github.com/Mainkill1/xemu/issues/79) | Keep correctness scope and historical optimization evidence separate. |
+| GPU report synchronization / presentation | [#86](https://github.com/Mainkill1/xemu/issues/86), [#90](https://github.com/Mainkill1/xemu/issues/90) | Distinguish guest-visible completion from host presentation and CPU wait savings. |
+| Advanced settings and measurement framework | [#93](https://github.com/Mainkill1/xemu/issues/93), [#94](https://github.com/Mainkill1/xemu/issues/94), [#95](https://github.com/Mainkill1/xemu/issues/95), [#96](https://github.com/Mainkill1/xemu/issues/96), [#97](https://github.com/Mainkill1/xemu/issues/97), [#98](https://github.com/Mainkill1/xemu/issues/98), [#99](https://github.com/Mainkill1/xemu/issues/99), [#100](https://github.com/Mainkill1/xemu/issues/100) | Proposed controls are not instructions for existing UI or CLI options. Preserve defaults and requested/effective/restart distinctions. |
+| Repository and evidence maintenance | [#107](https://github.com/Mainkill1/xemu/issues/107) | Preserve provenance and useful tests; relocation requires verified durable evidence, not merely an archive plan. |
+| Surface lifetime / capture integration | [#113](https://github.com/Mainkill1/xemu/issues/113), [#140](https://github.com/Mainkill1/xemu/issues/140) | Mark audits and unconfirmed crash mechanisms as investigations, not demonstrated root causes. |
+| Loading-stall investigation | [#145](https://github.com/Mainkill1/xemu/issues/145) | Reconcile older shader/cache descriptions with merged #228; do not generalize one resolved configuration problem to all stalls. |
+| Snapshot controller topology | [#159](https://github.com/Mainkill1/xemu/issues/159) | Keep proposed snapshot/topology behavior separate from supported recovery instructions. |
+| Steam Deck baseline / APU program | [#162](https://github.com/Mainkill1/xemu/issues/162), [#163](https://github.com/Mainkill1/xemu/issues/163), [#188](https://github.com/Mainkill1/xemu/issues/188), [#197](https://github.com/Mainkill1/xemu/issues/197) | Host, renderer, cache state, JIT, resampler and worker settings belong with each result. |
+| TCG / generated-code research | [#166](https://github.com/Mainkill1/xemu/issues/166), [#167](https://github.com/Mainkill1/xemu/issues/167), [#168](https://github.com/Mainkill1/xemu/issues/168), [#169](https://github.com/Mainkill1/xemu/issues/169), [#171](https://github.com/Mainkill1/xemu/issues/171), [#172](https://github.com/Mainkill1/xemu/issues/172) | Present as research candidates, with correctness and measured-benefit gates, not implemented throughput gains. |
+| Vulkan lifetime / specialization research | [#170](https://github.com/Mainkill1/xemu/issues/170), [#173](https://github.com/Mainkill1/xemu/issues/173), [#174](https://github.com/Mainkill1/xemu/issues/174) | Preserve ownership, invalidation and measurement boundaries. |
+| Vulkan compilation and cache experiments | [#204](https://github.com/Mainkill1/xemu/issues/204), [#205](https://github.com/Mainkill1/xemu/issues/205), [#206](https://github.com/Mainkill1/xemu/issues/206), [#207](https://github.com/Mainkill1/xemu/issues/207), [#208](https://github.com/Mainkill1/xemu/issues/208) | Distinguish experimental API/queue/cache proposals from the bounded work actually merged in #228. |
+| Build and test infrastructure | [#218](https://github.com/Mainkill1/xemu/issues/218), [#221](https://github.com/Mainkill1/xemu/issues/221), [#224](https://github.com/Mainkill1/xemu/issues/224) | Check actual repair PRs and current CI before publishing a workaround or claiming a failure is resolved. |
+| DSP / AC97 / host-audio research | [#229](https://github.com/Mainkill1/xemu/issues/229), [#230](https://github.com/Mainkill1/xemu/issues/230), [#231](https://github.com/Mainkill1/xemu/issues/231), [#232](https://github.com/Mainkill1/xemu/issues/232), [#233](https://github.com/Mainkill1/xemu/issues/233), [#234](https://github.com/Mainkill1/xemu/issues/234) | Research and isolated models are not hardware or full-emulator qualification. Preserve upstream attribution when adapting code. |
+| Shader Browser implementation / profiling | [#235](https://github.com/Mainkill1/xemu/issues/235), [#240](https://github.com/Mainkill1/xemu/issues/240) | Use the stage/status table above; earlier umbrella text may lag merged Stages 1–3. |
+| Hard-FPU optimization research | [#236](https://github.com/Mainkill1/xemu/issues/236) | Separate proposed hot-path work from the existing setting and from the resolved #228 configuration report. |
+
+## Troubleshooting and performance-report corrections
+
+**The specific Morrowind report on #228:** the PR records that the 12–14 FPS behavior also reproduced in older builds; the tester identified a persisted disabled Hard FPU setting, and restoring it restored expected performance. Document that as the resolution of this report, not proof that all Morrowind or shader-loading problems share the same cause. Record effective configuration before comparing builds. Source: [PR #228, Morrowind report resolved](https://github.com/Mainkill1/xemu/pull/228).
+
+**Pipeline blocking versus game performance:** #228 reports fewer synchronous pipeline operations, including elimination of those operations in its candidate warm-cache comparison, while guest-frame tails remained mixed. Report the targeted phase improvement alongside its workload and tail results. Do not turn “less synchronous work” into “no loading stutter.” Source: [PR #228](https://github.com/Mainkill1/xemu/pull/228).
+
+**Timing attribution:** compilation of a shared program or creation/execution of a pipeline belongs to the binding and its member stages. It is not an exclusive pixel-shader cost and must not be added once per stage. Unrecorded, pending, dropped and historical samples are distinct from a measured zero. Source: [issue #240](https://github.com/Mainkill1/xemu/issues/240) and [PR #242](https://github.com/Mainkill1/xemu/pull/242).
+
+**Historical evidence stays historical:** keep the fixed comparison baseline `61bab9b55db27072989ad33ba112f73318db76a718`, original test identities, excluded runs, adverse deltas and inherited failures. A report with an inherited #60 failure remains a failed suite, even if 158 of 159 cases passed. Guest display-write cadence, host presents and rendered-game FPS are different measurements; reduced wait CPU is not automatically faster guest execution. Follow the [repository workflow](https://github.com/Mainkill1/xemu/blob/9a58e261c0934f756d0e880b35b5361dc6c0d854/docs/repository-workflow.md) and [evidence maintenance issue #107](https://github.com/Mainkill1/xemu/issues/107).
+
+## Maintaining this snapshot
+
+Use explicit labels: **merged**, **open draft**, **reported targeted result**, **research proposal**, or **not verified**. Preserve this page as a dated record rather than silently rewriting its historical head. Update the relevant architecture/feature page only after reading its current text and checking the actual implementation or merged PR. No default, merge state, issue state, release designation or benchmark baseline is changed by this document.
