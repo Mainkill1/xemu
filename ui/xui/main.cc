@@ -631,11 +631,6 @@ void xemu_hud_update_external(void)
         // window has the same lifecycle although it no longer paints.
         shader_browser_window.Draw();
         if (external.visible) {
-            SDL_Window *main_window = SDL_GL_GetCurrentWindow();
-            SDL_GLContext main_gl = SDL_GL_GetCurrentContext();
-            SDL_GL_MakeCurrent(external.window, external.gl_context);
-            xemu::shader_browser::GetPreviewGlExecutor().AfterHudRender();
-            SDL_GL_MakeCurrent(main_window, main_gl);
             SDL_HideWindow(external.window);
             external.visible = false;
         }
@@ -706,7 +701,9 @@ void xemu_hud_render()
 {
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-    if (!g_shader_browser_external.enabled) {
+    if (!g_shader_browser_external.enabled ||
+        (!g_shader_browser_external.visible &&
+         xemu::shader_browser::GetPreviewGlExecutor().NeedsRetirementPump())) {
         xemu::shader_browser::GetPreviewGlExecutor().AfterHudRender();
     }
 

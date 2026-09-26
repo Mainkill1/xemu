@@ -202,6 +202,8 @@ The Live Preview tab exposes:
 - a preparation button enabled for a validated packet while paused;
 - four editable synthetic corner colors, a 2 × 2 texture, UV scale/offset,
   sampler filter/wrap, combiner constant, fog color, and alpha reference;
+- RGBA and individual color-channel tints, alpha opacity over a checkerboard,
+  zoom, pan, and one paused frozen frame for side-by-side comparison;
 - a private OpenGL output when an eligible pixel shader is prepared.
 
 OpenGL preparation is explicit and requires the guest to be paused. The private
@@ -409,6 +411,13 @@ qualification. A later Deck run exercised the expanded fixture: changing one
 2 × 2 texture texel and the UV offset each produced a new Ready result while
 the output slot remained bounded. The focused fixture adapter test passed on
 the Deck, including malformed and non-finite packet rejection.
+The frozen comparison was exercised on the Deck by pinning one completed
+slot, editing a corner, and observing a new result beside the frozen image
+with two slots leased. Clearing the frozen frame returned to one lease.
+Channel selection, zoom, and pan changed presentation without requesting a
+new shader render. Closing the browser with both frames visible left the game
+running; hidden-frame retirement continues through nonblocking fence polls on
+the main presentation context until the logical leases can be released.
 
 Those checks do not establish:
 

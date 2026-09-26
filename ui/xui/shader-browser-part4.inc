@@ -369,15 +369,48 @@ void ShaderBrowserWindow::DrawLivePreview()
             StageLabel(entry->key.stage));
     }
 
+    if (ImGui::CollapsingHeader("View and comparison")) {
+        ImGui::SetNextItemWidth(180.0f * g_viewport_mgr.m_scale);
+        ImGui::Combo("Channel", &m_preview_view_channel,
+                     "RGBA\0Red\0Green\0Blue\0Alpha opacity\0");
+        ImGui::SliderFloat("Zoom", &m_preview_view_zoom, 1.0f, 8.0f,
+                           "%.1fx");
+        ImGui::SliderFloat2("Pan center", m_preview_view_center.data(),
+                            0.0f, 1.0f);
+        ImGui::TextDisabled(
+            "Channel tint keeps shader alpha; Alpha opacity uses a checkerboard.");
+        PreviewGlExecutor &executor = GetPreviewGlExecutor();
+        ImGui::BeginDisabled(!status.guest_paused || !executor.HasDisplayed() ||
+                             status.state != PreviewState::Ready);
+        if (ImGui::Button("Freeze current while paused")) {
+            executor.FreezeDisplayed();
+        }
+        ImGui::EndDisabled();
+        ImGui::SameLine();
+        ImGui::BeginDisabled(!executor.HasFrozen());
+        if (ImGui::Button("Clear frozen")) executor.ClearFrozen();
+        ImGui::EndDisabled();
+        if (executor.HasFrozen()) {
+            ImGui::TextDisabled("Edit the fixture to compare with the frozen image.");
+        }
+    }
+
     ImVec2 available = ImGui::GetContentRegionAvail();
-    float side = std::max(1.0f, std::min(available.x, available.y));
-    if (ImGui::BeginChild("##preview-output", ImVec2(side, side), true)) {
+    float side = std::max(1.0f, available.x - 40.0f);
+    float output_height = std::max(340.0f, available.y);
+    if (ImGui::BeginChild("##preview-output",
+                          ImVec2(0.0f, output_height), true)) {
         ImGui::TextDisabled("Synthetic inputs — not an in-game draw");
         ImGui::Separator();
         if (entry && selection.backend == PreviewBackend::OpenGL) {
+            PreviewViewSettings view{};
+            view.zoom = m_preview_view_zoom;
+            view.center = m_preview_view_center;
+            view.channel = m_preview_view_channel;
             GetPreviewGlExecutor().DrawImage(side - 16.0f,
                                              enabled ? &selection : nullptr,
-                                             now_ns);
+                                             now_ns, &view);
+            m_preview_view_center = view.center;
         } else {
             ImGui::TextWrapped(
                 "Private Vulkan execution and presentation are still being "
