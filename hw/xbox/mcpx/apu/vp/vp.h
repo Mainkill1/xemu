@@ -30,6 +30,7 @@
 #include "hw/xbox/mcpx/apu/apu_regs.h"
 #include "svf.h"
 #include "hrtf.h"
+#include "voice_math.h"
 
 typedef struct MCPXAPUState MCPXAPUState;
 
@@ -78,6 +79,7 @@ typedef struct {
     MemoryRegion mmio;
     VoiceWorkDispatch voice_work_dispatch;
     MCPXAPUVoiceFilter filters[MCPX_HW_MAX_VOICES];
+    float attenuation_table[MCPX_APU_ATTENUATION_TABLE_SIZE];
 
     // FIXME: Where are these stored?
     int ssl_base_page;
