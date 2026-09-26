@@ -3,6 +3,7 @@
 #define HW_XBOX_NV2A_PGRAPH_GLSL_SHADER_BROWSER_PUBLICATION_H
 
 #include "shader-browser-recipe.h"
+#include "ui/xui/shader-browser-override-runtime.h"
 
 typedef struct PGRAPHShaderBrowserIdentity {
     uint8_t hash[XEMU_SHADER_BROWSER_HASH_BYTES];
@@ -11,11 +12,14 @@ typedef struct PGRAPHShaderBrowserIdentity {
 
 typedef struct PGRAPHShaderBrowserBinding {
     uint64_t scope_generation;
+    uint64_t override_generation;
     uint64_t compile_cpu_ns;
     uint64_t prepare_cpu_ns;
     uint32_t count;
     bool timings_pending;
     PGRAPHShaderBrowserIdentity identities[3];
+    XemuShaderOverridePolicy opengl_policy;
+    XemuShaderOverridePolicy vulkan_policy;
 } PGRAPHShaderBrowserBinding;
 
 void pgraph_shader_browser_publish_binding(const ShaderState *state,
