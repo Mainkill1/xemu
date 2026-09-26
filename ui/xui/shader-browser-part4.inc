@@ -330,8 +330,7 @@ void ShaderBrowserWindow::DrawLivePreview()
         std::string error;
         if (!service.RequestPreparation(&error)) {
             m_action_message = error;
-        } else if (selection.backend == PreviewBackend::OpenGL &&
-                   !GetPreviewGlExecutor().StartWhilePaused(&error)) {
+        } else if (!GetPreviewGlExecutor().StartWhilePaused(&error)) {
             m_action_message = error;
         }
     }
@@ -402,7 +401,7 @@ void ShaderBrowserWindow::DrawLivePreview()
                           ImVec2(0.0f, output_height), true)) {
         ImGui::TextDisabled("Synthetic inputs — not an in-game draw");
         ImGui::Separator();
-        if (entry && selection.backend == PreviewBackend::OpenGL) {
+        if (entry) {
             PreviewViewSettings view{};
             view.zoom = m_preview_view_zoom;
             view.center = m_preview_view_center;
@@ -413,8 +412,7 @@ void ShaderBrowserWindow::DrawLivePreview()
             m_preview_view_center = view.center;
         } else {
             ImGui::TextWrapped(
-                "Private Vulkan execution and presentation are still being "
-                "built; no Vulkan preview GPU work is submitted.");
+                "Select a pixel shader to prepare a private preview.");
         }
         if (entry) {
             ImGui::Spacing();
