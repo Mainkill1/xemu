@@ -244,6 +244,7 @@ void ShaderBrowserWindow::DrawSelector()
 
 void ShaderBrowserWindow::DrawRightPane()
 {
+    bool preview_visible = false;
     if (ImGui::BeginTabBar("##shader-browser-tabs")) {
         if (ImGui::BeginTabItem("Shader Details")) {
             DrawShaderDetails();
@@ -254,9 +255,11 @@ void ShaderBrowserWindow::DrawRightPane()
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Live Preview")) {
+            preview_visible = true;
             DrawLivePreview();
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
     }
+    GetPreviewService().SetVisible(preview_visible, PreviewNowNs());
 }

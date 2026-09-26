@@ -65,12 +65,12 @@ int PreviewService::FindFreeSlotLocked() const
 int PreviewService::FindNewestReadySlotLocked() const
 {
     int best = -1;
-    uint64_t best_generation = 0;
+    uint64_t best_sequence = 0;
     for (size_t i = 0; i < slots_.size(); ++i) {
         if (slots_[i].state == PreviewSlotState::Ready &&
-            (best < 0 || slots_[i].generation > best_generation)) {
+            (best < 0 || slots_[i].ready_sequence > best_sequence)) {
             best = static_cast<int>(i);
-            best_generation = slots_[i].generation;
+            best_sequence = slots_[i].ready_sequence;
         }
     }
     return best;
@@ -87,11 +87,7 @@ bool PreviewService::TryClaimWork(uint64_t now_ns, PreviewWorkItem *work)
         SetStateLocked(PreviewState::Disabled, "Preview is disabled");
         return false;
     }
-    if (visible_ && now_ns >= visible_heartbeat_ns_ &&
-        now_ns - visible_heartbeat_ns_ > kPreviewVisibilityStaleNs) {
-        visible_ = false;
-        SetStateLocked(PreviewState::Hidden,
-                       "Live Preview visibility heartbeat expired");
+    if (ExpireVisibilityLocked(now_ns)) {
         return false;
     }
     if (!visible_) {
@@ -194,6 +190,7 @@ bool PreviewService::TryClaimWork(uint64_t now_ns, PreviewWorkItem *work)
     Slot &slot = slots_[slot_index];
     slot.state = PreviewSlotState::Rendering;
     ++slot.generation;
+    slot.ready_sequence = 0;
     slot.result_key = result_key;
     slot.width = pending_.packet->width;
     slot.height = pending_.packet->height;
@@ -216,9 +213,11 @@ bool PreviewService::TryClaimWork(uint64_t now_ns, PreviewWorkItem *work)
 }
 
 bool PreviewService::CompletePreparation(uint64_t token, bool success,
-                                         const std::string &status)
+                                         const std::string &status,
+                                         uint64_t now_ns)
 {
     std::lock_guard<std::mutex> lock(mutex_);
+    ExpireVisibilityLocked(now_ns);
     if (!active_ || active_work_.token != token ||
         active_work_.kind != PreviewWorkKind::Prepare) {
         return false;
@@ -243,9 +242,11 @@ bool PreviewService::CompletePreparation(uint64_t token, bool success,
 }
 
 bool PreviewService::CompleteRender(uint64_t token, bool success,
-                                    const std::string &status)
+                                    const std::string &status,
+                                    uint64_t now_ns)
 {
     std::lock_guard<std::mutex> lock(mutex_);
+    ExpireVisibilityLocked(now_ns);
     if (!active_ || active_work_.token != token ||
         active_work_.kind != PreviewWorkKind::Render ||
         active_work_.slot >= slots_.size()) {
@@ -261,6 +262,7 @@ bool PreviewService::CompleteRender(uint64_t token, bool success,
     bool current = IsCurrentRequestLocked(active_work_.request_id,
                                           &active_work_.result_key);
     if (success && current) {
+        slot.ready_sequence = next_ready_sequence_++;
         slot.state = PreviewSlotState::Ready;
         last_result_valid_ = true;
         last_result_key_ = active_work_.result_key;
@@ -268,6 +270,7 @@ bool PreviewService::CompleteRender(uint64_t token, bool success,
                        status.empty() ? "Preview image ready" : status);
     } else {
         slot.state = PreviewSlotState::Free;
+        slot.ready_sequence = 0;
         if (!current) {
             ++stale_completions_;
             SetRestingStateLocked("Discarded obsolete preview result");
