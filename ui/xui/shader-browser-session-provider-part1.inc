@@ -240,7 +240,7 @@ public:
                 (sample.owner == XEMU_SHADER_BROWSER_PERF_STAGE &&
                  sample.identity_count != 1) ||
                 sample.metric < XEMU_SHADER_BROWSER_PERF_SOURCE_CPU ||
-                sample.metric > XEMU_SHADER_BROWSER_PERF_DRAW_GPU ||
+                sample.metric > XEMU_SHADER_BROWSER_PERF_BINDING_PREPARE_CPU ||
                 (sample.owner == XEMU_SHADER_BROWSER_PERF_STAGE &&
                  sample.metric > XEMU_SHADER_BROWSER_PERF_MODULE_CPU) ||
                 (sample.owner == XEMU_SHADER_BROWSER_PERF_BINDING &&

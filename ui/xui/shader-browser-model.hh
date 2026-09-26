@@ -159,7 +159,7 @@ struct BindingVariant {
     uint32_t flags = 0;
     std::vector<ShaderKey> members;
     // Indexed by XemuShaderBrowserPerfMetric; element zero is unused.
-    std::array<DurationStats, 8> timing;
+    std::array<DurationStats, 9> timing;
 };
 
 struct Filter {

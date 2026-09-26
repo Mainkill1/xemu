@@ -3,6 +3,31 @@
 
 #include <string.h>
 
+PGRAPHShaderBrowserSampleDecision pgraph_shader_browser_choose_sample(
+    PGRAPHShaderBrowserSampler *sampler, uint64_t frame, bool gpu_supported)
+{
+    PGRAPHShaderBrowserSampleDecision decision = { 0 };
+    if (!sampler) return decision;
+    XemuShaderBrowserProfilingConfig config;
+    xemu_shader_browser_copy_profiling_config(&config);
+    if (config.monitoring_level != XEMU_SHADER_BROWSER_MONITOR_DIAGNOSTIC ||
+        (!config.cpu_timing && !config.gpu_timing)) return decision;
+    if (sampler->frame != frame) {
+        sampler->frame = frame;
+        sampler->gpu_samples_this_frame = 0;
+    }
+    uint32_t interval = config.draw_sample_interval ?
+        config.draw_sample_interval : 1;
+    if (++sampler->eligible_draws % interval) return decision;
+    decision.cpu = config.cpu_timing;
+    if (config.gpu_timing && gpu_supported &&
+        sampler->gpu_samples_this_frame < config.max_gpu_samples_per_frame) {
+        decision.gpu = true;
+        ++sampler->gpu_samples_this_frame;
+    }
+    return decision;
+}
+
 static void publish_batch(PGRAPHShaderBrowserObservations *batch)
 {
     if (!batch->used) {

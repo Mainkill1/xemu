@@ -12,6 +12,16 @@ static size_t published_count;
 static int artifacts_enabled;
 static int monitoring_enabled = 1;
 static size_t artifact_count;
+static XemuShaderBrowserPerformanceSample perf_samples[4];
+static size_t perf_count;
+
+void xemu_shader_browser_publish_performance_samples(
+    const XemuShaderBrowserPerformanceSample *samples, size_t count)
+{
+    assert(perf_count + count <= 4);
+    memcpy(perf_samples + perf_count, samples, count * sizeof(*samples));
+    perf_count += count;
+}
 
 uint64_t xemu_shader_browser_scope_generation(void)
 {
@@ -108,6 +118,27 @@ int main(void)
     assert(published_stages[4] == XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION);
     assert(published_stages[5] == XEMU_SHADER_BROWSER_STAGE_PIXEL);
     assert(published_stages[6] == XEMU_SHADER_BROWSER_STAGE_GEOMETRY);
+    pgraph_shader_browser_publish_stage_timing(
+        &state, XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION,
+        XEMU_SHADER_BROWSER_BACKEND_GL,
+        XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+        XEMU_SHADER_BROWSER_PERF_COMPILE_CPU, 1234,
+        XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND);
+    pgraph_shader_browser_publish_binding_timing(
+        &binding, XEMU_SHADER_BROWSER_BACKEND_GL,
+        XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED, 99, 12,
+        XEMU_SHADER_BROWSER_PERF_LINK_OR_PIPELINE_CPU, 5000, 0,
+        XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND);
+    assert(perf_count == 2);
+    assert(perf_samples[0].owner == XEMU_SHADER_BROWSER_PERF_STAGE);
+    assert(perf_samples[0].identity_count == 1);
+    assert(perf_samples[0].identities[0].stage ==
+           XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION);
+    assert(perf_samples[1].owner == XEMU_SHADER_BROWSER_PERF_BINDING);
+    assert(perf_samples[1].identity_count == 3);
+    assert(perf_samples[1].variant_id == 99);
+    assert(perf_samples[1].identities[2].stage ==
+           XEMU_SHADER_BROWSER_STAGE_GEOMETRY);
     const uint8_t source[] = "hello";
     pgraph_shader_browser_publish_generated_artifact(
         &state, XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION, "opengl",

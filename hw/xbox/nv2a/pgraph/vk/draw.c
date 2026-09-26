@@ -2430,6 +2430,28 @@ static bool create_pipeline(PGRAPHState *pg)
     int64_t pipeline_finish_us = g_get_monotonic_time();
     uint64_t pipeline_create_us = MAX(
         (int64_t)0, pipeline_finish_us - pipeline_start_us);
+    if (xemu_shader_browser_cpu_profiling_enabled() && r->shader_binding) {
+        pgraph_shader_browser_publish_binding_timing(
+            &r->shader_binding->browser,
+            XEMU_SHADER_BROWSER_BACKEND_VK,
+            key.fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER ?
+                XEMU_SHADER_BROWSER_ROUTE_UBER :
+                XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+            hash, pg->frame_time,
+            XEMU_SHADER_BROWSER_PERF_LINK_OR_PIPELINE_CPU,
+            pipeline_create_us * 1000, 0,
+            XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND);
+        pgraph_shader_browser_publish_binding_timing(
+            &r->shader_binding->browser,
+            XEMU_SHADER_BROWSER_BACKEND_VK,
+            key.fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER ?
+                XEMU_SHADER_BROWSER_ROUTE_UBER :
+                XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+            hash, pg->frame_time,
+            XEMU_SHADER_BROWSER_PERF_FOREGROUND_STALL_CPU,
+            pipeline_create_us * 1000, 0,
+            XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND);
+    }
     if (r->hybrid_trace) {
         pgraph_vk_hybrid_trace_record(
             r->hybrid_trace, VK_HYBRID_TRACE_PIPELINE_CREATE,
@@ -3112,11 +3134,18 @@ void pgraph_vk_draw_end(NV2AState *d)
         return;
     }
 
-    int64_t start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
+    PGRAPHShaderBrowserSampleDecision sample =
+        r->shader_binding ? pgraph_shader_browser_choose_sample(
+            &pg->shader_browser_sampler, pg->frame_time, false) :
+            (PGRAPHShaderBrowserSampleDecision){ 0 };
+    int64_t start_us = (r->perf.enabled || sample.cpu) ?
+        g_get_monotonic_time() : 0;
     bool draw_recorded = pgraph_vk_flush_draw_internal(d);
+    int64_t elapsed_us = (r->perf.enabled || sample.cpu) ?
+        g_get_monotonic_time() - start_us : 0;
     pgraph_vk_perf_record_cpu_region(
         r, VK_PERF_CPU_DRAW_FLUSH,
-        r->perf.enabled ? g_get_monotonic_time() - start_us : 0);
+        r->perf.enabled ? elapsed_us : 0);
     if (!draw_recorded) {
         return;
     }
@@ -3124,6 +3153,19 @@ void pgraph_vk_draw_end(NV2AState *d)
     if (r->shader_binding &&
         (pg->draw_arrays_length || pg->inline_elements_length ||
          pg->inline_buffer_length || pg->inline_array_length)) {
+        if (sample.cpu) {
+            pgraph_shader_browser_publish_binding_timing(
+                &r->shader_binding->browser,
+                XEMU_SHADER_BROWSER_BACKEND_VK,
+                r->shader_binding->fragment_route ==
+                    PGRAPH_VK_FRAGMENT_UBERSHADER ?
+                    XEMU_SHADER_BROWSER_ROUTE_UBER :
+                    XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+                r->shader_binding->node.hash, pg->frame_time,
+                XEMU_SHADER_BROWSER_PERF_DRAW_SUBMIT_CPU,
+                elapsed_us * 1000, 1,
+                XEMU_SHADER_BROWSER_SAMPLE_SAMPLED);
+        }
         pgraph_shader_browser_record_draw(
             &pg->shader_browser_observations, &r->shader_binding->browser,
             pg->frame_time,

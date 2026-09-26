@@ -87,6 +87,7 @@ void ShaderBrowserWindow::DrawOverview()
         static const char *names[] = {
             "", "", "", "", "Link / pipeline CPU", "Foreground stall",
             "Draw submit CPU", "Sampled GPU draw interval",
+            "Binding preparation CPU",
         };
         for (size_t metric = 4; metric < variant.timing.size(); ++metric) {
             if (!variant.timing[metric].samples) continue;

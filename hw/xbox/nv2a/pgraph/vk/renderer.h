@@ -946,6 +946,9 @@ bool pgraph_vk_init_shader_module_layout_from_spv(
 void pgraph_vk_clear_shader_module_layout(ShaderModuleInfo *info);
 ShaderModuleInfo *pgraph_vk_create_shader_module_from_glsl(
     PGRAPHVkState *r, VkShaderStageFlagBits stage, const char *glsl);
+ShaderModuleInfo *pgraph_vk_create_shader_module_from_glsl_profiled(
+    PGRAPHVkState *r, VkShaderStageFlagBits stage, const char *glsl,
+    uint64_t *compile_ns, uint64_t *module_ns);
 ShaderModuleInfo *pgraph_vk_create_shader_module_from_spirv(
     PGRAPHVkState *r, VkShaderStageFlagBits expected_stage, const char *glsl,
     GByteArray *spirv);

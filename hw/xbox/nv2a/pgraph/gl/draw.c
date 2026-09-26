@@ -494,14 +494,31 @@ static PGRAPHGLDrawResult pgraph_gl_flush_draw_internal(NV2AState *d)
 
 void pgraph_gl_flush_draw(NV2AState *d)
 {
+    PGRAPHState *pg = &d->pgraph;
     PGRAPHGLState *r = d->pgraph.gl_renderer_state;
 
     if (!r->draw_lifecycle.prepared) {
         return;
     }
+    PGRAPHShaderBrowserSampleDecision sample =
+        r->shader_binding ? pgraph_shader_browser_choose_sample(
+            &pg->shader_browser_sampler, pg->frame_time, false) :
+            (PGRAPHShaderBrowserSampleDecision){ 0 };
+    int64_t cpu_start = sample.cpu ? g_get_monotonic_time() : 0;
     PGRAPHGLDrawResult result = pgraph_gl_flush_draw_internal(d);
+    uint64_t cpu_ns = sample.cpu ?
+        (uint64_t)(g_get_monotonic_time() - cpu_start) * 1000 : 0;
     pgraph_gl_draw_lifecycle_record(&r->draw_lifecycle, result);
     if (result == PGRAPH_GL_DRAW_SUBMITTED && r->shader_binding) {
+        if (sample.cpu) {
+            pgraph_shader_browser_publish_binding_timing(
+                &r->shader_binding->browser,
+                XEMU_SHADER_BROWSER_BACKEND_GL,
+                XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+                r->shader_binding->node.hash, pg->frame_time,
+                XEMU_SHADER_BROWSER_PERF_DRAW_SUBMIT_CPU, cpu_ns, 1,
+                XEMU_SHADER_BROWSER_SAMPLE_SAMPLED);
+        }
         pgraph_shader_browser_record_draw(
             &d->pgraph.shader_browser_observations,
             &r->shader_binding->browser, d->pgraph.frame_time,

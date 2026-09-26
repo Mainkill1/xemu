@@ -148,6 +148,7 @@ typedef struct PGRAPHState {
     int frame_time;
     int draw_time;
     PGRAPHShaderBrowserObservations shader_browser_observations;
+    PGRAPHShaderBrowserSampler shader_browser_sampler;
 
     /* subchannels state we're not sure the location of... */
     ContextSurfaces2DState context_surfaces_2d;
