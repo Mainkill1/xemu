@@ -1,4 +1,6 @@
 #include "hw/xbox/nv2a/pgraph/glsl/shader-browser-publication.h"
+#include "hw/xbox/nv2a/debug.h"
+#include "ui/xui/shader-browser-capture-bridge.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -14,6 +16,55 @@ static size_t override_resolve_count;
 static int artifacts_enabled;
 static size_t artifact_count;
 static size_t effect_count;
+
+/* This target links publication.c alone; capture and GLSL generation live in
+ * the full renderer and are intentionally inert in publication unit tests. */
+uint64_t nv2a_profile_preview_renderer_epoch(void) { return 0; }
+uint64_t xemu_shader_browser_live_epoch(void) { return 0; }
+uint64_t xemu_shader_capture_nonce(void) { return 0; }
+int xemu_shader_capture_copy_request(XemuShaderCaptureRequest *request)
+{
+    (void)request;
+    return 0;
+}
+int xemu_shader_capture_submitted(const XemuShaderCaptureDraw *draw,
+                                  uint64_t now_ns)
+{
+    (void)draw;
+    (void)now_ns;
+    return 0;
+}
+void pgraph_glsl_set_vsh_uniform_values(PGRAPHState *pg,
+    const VshState *state, const VshUniformLocs locs,
+    VshUniformValues *values)
+{
+    (void)pg; (void)state; (void)locs; (void)values;
+}
+void pgraph_glsl_set_psh_uniform_values(PGRAPHState *pg,
+    const PshUniformLocs locs, PshUniformValues *values)
+{
+    (void)pg; (void)locs; (void)values;
+}
+bool pgraph_glsl_need_geom(const GeomState *state)
+{
+    (void)state;
+    return false;
+}
+MString *pgraph_glsl_gen_vsh(const VshState *state, GenVshGlslOptions opts)
+{
+    (void)state; (void)opts;
+    return NULL;
+}
+MString *pgraph_glsl_gen_psh(const PshState *state, GenPshGlslOptions opts)
+{
+    (void)state; (void)opts;
+    return NULL;
+}
+MString *pgraph_glsl_gen_geom(const GeomState *state, GenGeomGlslOptions opts)
+{
+    (void)state; (void)opts;
+    return NULL;
+}
 
 void xemu_shader_override_publish_effect(
     uint32_t scoped_title_id, uint32_t fingerprint_version,

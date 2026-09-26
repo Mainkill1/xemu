@@ -5,6 +5,7 @@ specific_ss.add([files(
 	'psh-uber.c',
 	'shader-browser-recipe.c',
 	'shader-browser-publication.c',
+	'shader-browser-capture-abi.c',
 	'shader-browser-observation.c',
 	'shaders.c',
 	'vsh.c',
