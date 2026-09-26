@@ -4,6 +4,7 @@
 #include <epoxy/gl.h>
 #include <cassert>
 #include <cstdio>
+#include <cmath>
 #include <vector>
 using namespace xemu::shader_browser;
 int main()
@@ -18,8 +19,11 @@ int main()
     assert(window);
     auto context = SDL_GL_CreateContext(window);
     assert(context);
-    const std::string fragment = "#version 400\nin vec4 vtxD0;\nout vec4 "
-                                 "color;\nvoid main(){color=vec4(1,0,0,1);}";
+    const std::string fragment =
+        "#version 400\nin vec4 vtxD0;\nin vec4 vtxT0;\n"
+        "uniform bool diagnostic;\nout vec4 color;\n"
+        "void main(){color=diagnostic ? vec4(vtxD0.r,vtxT0.xy,1) : "
+        "vec4(1,0,0,1);}";
     auto compile = [](GLenum type, const std::string &source) {
         GLuint shader = glCreateShader(type);
         const char *text = source.c_str();
@@ -50,6 +54,14 @@ int main()
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(PreviewSceneVertex),
                           nullptr);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(
+        1, 4, GL_FLOAT, GL_FALSE, sizeof(PreviewSceneVertex),
+        reinterpret_cast<const void *>(offsetof(PreviewSceneVertex, color)));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(
+        2, 2, GL_FLOAT, GL_FALSE, sizeof(PreviewSceneVertex),
+        reinterpret_cast<const void *>(offsetof(PreviewSceneVertex, uv)));
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glGenTextures(1, &texture);
@@ -65,6 +77,14 @@ int main()
     glDisable(GL_BLEND);
     auto render = [&](const PreviewScene &scene) {
         auto vertices = BuildPreviewSceneGeometry(scene);
+        PreviewSyntheticFixture fixture;
+        fixture.corner_colors = { { { 0, 255, 0, 255 },
+                                    { 255, 255, 0, 255 },
+                                    { 0, 0, 0, 255 },
+                                    { 255, 0, 0, 255 } } };
+        fixture.uv_scale = { 0.5f, 0.25f };
+        fixture.uv_offset = { 0.2f, 0.3f };
+        ApplyPreviewSyntheticFixture(fixture, vertices);
         glBufferData(GL_ARRAY_BUFFER,
                      vertices.size() * sizeof(PreviewSceneVertex),
                      vertices.data(), GL_STREAM_DRAW);
@@ -96,6 +116,20 @@ int main()
     }
     assert(images[0] != images[1] && images[0] != images[2] &&
            images[1] != images[2]);
+    glUniform1i(glGetUniformLocation(program, "diagnostic"), 1);
+    const auto diagnostic = render(PreviewScene{});
+    // Analytic quad interpolation at off-center pixel centers. Red is corner
+    // color, green/blue are independently scaled and offset fixture UVs.
+    for (int y : { 24, 40 })
+        for (int x : { 24, 40 }) {
+            const float u = (((x + 0.5f) / 32 - 1) * 4 / 2.41421356f + 1) / 2;
+            const float v = (((y + 0.5f) / 32 - 1) * 4 / 2.41421356f + 1) / 2;
+            const float expected[] = { u, u * 0.5f + 0.2f, v * 0.25f + 0.3f };
+            for (size_t c = 0; c < 3; ++c)
+                assert(std::abs(diagnostic[4 * (y * 64 + x) + c] -
+                                expected[c] * 255) < 2);
+        }
+    std::puts("OpenGL fixture color and transformed UV interpolation PASS");
     glDeleteTextures(1, &texture);
     glDeleteFramebuffers(1, &fbo);
     glDeleteBuffers(1, &vbo);

@@ -273,17 +273,7 @@ struct PreviewGlExecutor::Impl {
         }
         auto vertices = BuildPreviewSceneGeometry(
             work.result_key.scene, float(packet.width) / packet.height);
-        for (auto &v : vertices) {
-            const float u = v.uv[0], t = v.uv[1];
-            for (size_t c = 0; c < 4; ++c)
-                v.color[c] = ((1 - u) * t * fixture.corner_colors[0][c] +
-                              u * t * fixture.corner_colors[1][c] +
-                              (1 - u) * (1 - t) * fixture.corner_colors[2][c] +
-                              u * (1 - t) * fixture.corner_colors[3][c]) /
-                             255.0f;
-            for (size_t c = 0; c < 2; ++c)
-                v.uv[c] = v.uv[c] * fixture.uv_scale[c] + fixture.uv_offset[c];
-        }
+        ApplyPreviewSyntheticFixture(fixture, vertices);
         glViewport(0, 0, static_cast<GLsizei>(packet.width),
                    static_cast<GLsizei>(packet.height));
         glDisable(GL_BLEND);
@@ -335,11 +325,11 @@ struct PreviewGlExecutor::Impl {
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(
             1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-            reinterpret_cast<const void *>(sizeof(float) * 4));
+            reinterpret_cast<const void *>(offsetof(Vertex, color)));
         glEnableVertexAttribArray(2);
         glVertexAttribPointer(
             2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-            reinterpret_cast<const void *>(sizeof(float) * 8));
+            reinterpret_cast<const void *>(offsetof(Vertex, uv)));
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, fixture_texture);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 2, 2, GL_RGBA,

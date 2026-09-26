@@ -820,8 +820,8 @@ struct PreviewVkExecutor::Impl {
                                             VK_VERTEX_INPUT_RATE_VERTEX };
         VkVertexInputAttributeDescription attrs[] = {
             { 0, 0, VK_FORMAT_R32G32B32A32_SFLOAT, 0 },
-            { 1, 0, VK_FORMAT_R32G32B32A32_SFLOAT, 16 },
-            { 2, 0, VK_FORMAT_R32G32_SFLOAT, 32 }
+            { 1, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(Vertex, color) },
+            { 2, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv) }
         };
         VkPipelineVertexInputStateCreateInfo vi{
             VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO
@@ -975,17 +975,7 @@ struct PreviewVkExecutor::Impl {
         std::memcpy(upload.mapped, fixture.texture_texels.data(), 16);
         auto mesh = BuildPreviewSceneGeometry(
             work.result_key.scene, float(packet.width) / packet.height, true);
-        for (auto &v : mesh) {
-            const float u = v.uv[0], t = v.uv[1];
-            for (size_t c = 0; c < 4; ++c)
-                v.color[c] = ((1 - u) * t * fixture.corner_colors[0][c] +
-                              u * t * fixture.corner_colors[1][c] +
-                              (1 - u) * (1 - t) * fixture.corner_colors[2][c] +
-                              u * (1 - t) * fixture.corner_colors[3][c]) /
-                             255.0f;
-            for (size_t c = 0; c < 2; ++c)
-                v.uv[c] = v.uv[c] * fixture.uv_scale[c] + fixture.uv_offset[c];
-        }
+        ApplyPreviewSyntheticFixture(fixture, mesh);
         std::memcpy(vertices.mapped, mesh.data(), mesh.size() * sizeof(Vertex));
         if (uniform_size)
             std::memset(uniform.mapped, 0, uniform_size);
