@@ -349,9 +349,24 @@ void PreviewService::EditClock(PreviewClockAction action, double value,
     }
 }
 
+void PreviewService::EditScene(const PreviewScene &scene)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto clamped = ClampPreviewScene(scene);
+    if (!scene_revision_ || !(scene_ == clamped)) {
+        scene_ = clamped;
+        ++scene_revision_;
+        ++generation_;
+    }
+}
+
 PreviewResultKey PreviewService::CurrentResultKeyLocked() const
 {
     auto key = BuildPreviewResultKey(*pending_.packet);
+    if (scene_revision_) {
+        key.scene = scene_;
+        key.view_revision = scene_revision_;
+    }
     if (pending_.packet->update_policy == PreviewUpdatePolicy::Continuous) {
         key.clock_revision = clock_.State().revision;
         key.clock_edit_revision = clock_edit_revision_;

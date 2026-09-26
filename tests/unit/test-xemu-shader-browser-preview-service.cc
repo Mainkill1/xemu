@@ -511,6 +511,25 @@ int main()
     service.CopyStatus(&status);
     assert(status.stale_completions == 1);
 
+    // Scene edits invalidate only results and use the same immutable packet.
+    PreviewScene scene;
+    scene.mesh = PreviewMesh::Sphere;
+    scene.yaw = 30;
+    service.EditScene(scene);
+    assert(service.TryClaimWork(paused_first + 200000003, &work));
+    assert(work.packet == storage && work.compile_key == compiled);
+    assert(work.result_key.scene == scene);
+    const auto view_key = work.result_key;
+    scene.distance = 5;
+    service.EditScene(scene);
+    assert(service.CompleteRender(work.token, true, "obsolete camera",
+                                  paused_first + 200000004));
+    assert(service.TryClaimWork(paused_first + 200000005, &work));
+    assert(work.result_key != view_key);
+    assert(work.packet == storage && work.compile_key == compiled);
+    assert(service.CompleteRender(work.token, true, "camera",
+                                  paused_first + 200000005));
+
     // Continuous playback has no duration cap and retains one immutable packet.
     service.ResetForTest();
     service.SetEnabled(true);

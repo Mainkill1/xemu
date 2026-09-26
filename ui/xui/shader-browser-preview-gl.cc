@@ -51,11 +51,7 @@ bool Compile(GLenum type, const std::string &source, GLuint *shader,
     return false;
 }
 
-struct Vertex {
-    float position[2];
-    float color[4];
-    float uv[2];
-};
+using Vertex = PreviewSceneVertex;
 
 bool IsSyntheticUniformType(GLenum type)
 {
@@ -275,23 +271,19 @@ struct PreviewGlExecutor::Impl {
             *error = "Private GL framebuffer is incomplete";
             return false;
         }
-        auto make_vertex = [&](float x, float y, float u, float v,
-                               size_t corner) {
-            Vertex vertex{};
-            vertex.position[0] = x;
-            vertex.position[1] = y;
-            vertex.uv[0] = u * fixture.uv_scale[0] + fixture.uv_offset[0];
-            vertex.uv[1] = v * fixture.uv_scale[1] + fixture.uv_offset[1];
-            for (size_t c = 0; c < 4; ++c) {
-                vertex.color[c] = fixture.corner_colors[corner][c] / 255.0f;
-            }
-            return vertex;
-        };
-        const Vertex tl = make_vertex(-1, 1, 0, 1, 0);
-        const Vertex tr = make_vertex(1, 1, 1, 1, 1);
-        const Vertex bl = make_vertex(-1, -1, 0, 0, 2);
-        const Vertex br = make_vertex(1, -1, 1, 0, 3);
-        const Vertex vertices[] = { tl, bl, tr, tr, bl, br };
+        auto vertices = BuildPreviewSceneGeometry(
+            work.result_key.scene, float(packet.width) / packet.height);
+        for (auto &v : vertices) {
+            const float u = v.uv[0], t = v.uv[1];
+            for (size_t c = 0; c < 4; ++c)
+                v.color[c] = ((1 - u) * t * fixture.corner_colors[0][c] +
+                              u * t * fixture.corner_colors[1][c] +
+                              (1 - u) * (1 - t) * fixture.corner_colors[2][c] +
+                              u * (1 - t) * fixture.corner_colors[3][c]) /
+                             255.0f;
+            for (size_t c = 0; c < 2; ++c)
+                v.uv[c] = v.uv[c] * fixture.uv_scale[c] + fixture.uv_offset[c];
+        }
         glViewport(0, 0, static_cast<GLsizei>(packet.width),
                    static_cast<GLsizei>(packet.height));
         glDisable(GL_BLEND);
@@ -335,17 +327,19 @@ struct PreviewGlExecutor::Impl {
         if (location >= 0) glUniform1i(location, fixture.alpha_reference);
         glBindVertexArray(vao);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
-                     GL_STREAM_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex),
+                     vertices.data(), GL_STREAM_DRAW);
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                               reinterpret_cast<const void *>(0));
         glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-                              reinterpret_cast<const void *>(sizeof(float) * 2));
+        glVertexAttribPointer(
+            1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+            reinterpret_cast<const void *>(sizeof(float) * 4));
         glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-                              reinterpret_cast<const void *>(sizeof(float) * 6));
+        glVertexAttribPointer(
+            2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+            reinterpret_cast<const void *>(sizeof(float) * 8));
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, fixture_texture);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 2, 2, GL_RGBA,
@@ -363,7 +357,7 @@ struct PreviewGlExecutor::Impl {
             GLint sampler_location = glGetUniformLocation(program, name.c_str());
             if (sampler_location >= 0) glUniform1i(sampler_location, unit);
         }
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vertices.size()));
         GLenum gl_error = glGetError();
         if (gl_error != GL_NO_ERROR) {
             *error = "Private GL preview draw failed with error " +

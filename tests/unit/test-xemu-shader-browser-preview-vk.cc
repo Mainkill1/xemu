@@ -48,6 +48,39 @@ int main(int argc, char **)
     CHECK(pixels.size() == 32 * 32 * 4);
     CHECK(pixels[4 * (16 * 32 + 16)] == 255);
     CHECK(pixels[4 * (16 * 32 + 16) + 1] == 0);
+    // Mesh and camera edits reuse this prepared pipeline.
+    std::vector<std::vector<uint8_t>> mesh_pixels;
+    for (auto kind :
+         { PreviewMesh::Quad, PreviewMesh::Sphere, PreviewMesh::Cube }) {
+        work.result_key.scene = {};
+        work.result_key.scene.mesh = kind;
+        work.result_key.scene.yaw = 30;
+        work.result_key.scene.pitch = 20;
+        work.result_key.scene.distance = 4;
+        CHECK(executor.Render(work, stop, &pixels, &error));
+        mesh_pixels.push_back(pixels);
+        packet->update_policy = PreviewUpdatePolicy::Continuous;
+        work.result_key.time_seconds = 4;
+        CHECK(executor.Render(work, stop, &pixels, &error));
+        CHECK(pixels != mesh_pixels.back());
+        packet->update_policy = PreviewUpdatePolicy::OnDirty;
+        work.result_key.time_seconds = 0;
+        pixels = mesh_pixels.back();
+        size_t coverage = 0;
+        for (size_t i = 0; i < pixels.size(); i += 4)
+            coverage += pixels[i] == 255;
+        CHECK(coverage > 20 && coverage < 900);
+        std::fprintf(stderr, "Vulkan mesh %d: %zu red pixels\n", int(kind),
+                     coverage);
+        work.result_key.scene.yaw = -40;
+        work.result_key.scene.pan[0] = 0.5f;
+        CHECK(executor.Render(work, stop, &pixels, &error));
+        CHECK(pixels != mesh_pixels.back());
+    }
+    CHECK(mesh_pixels[0] != mesh_pixels[1]);
+    CHECK(mesh_pixels[1] != mesh_pixels[2]);
+    CHECK(mesh_pixels[0] != mesh_pixels[2]);
+    work.result_key.scene = {};
     auto source = [&](const std::string &text) {
         packet->source = text;
         packet->partner_source =

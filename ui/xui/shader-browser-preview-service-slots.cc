@@ -142,6 +142,8 @@ void PreviewService::ResetLocked()
     selection_ = {};
     requested_mode_ = PreviewMode::Normal;
     selection_changed_ns_ = 0;
+    scene_ = {};
+    scene_revision_ = 0;
     clock_ = {};
     clock_edit_revision_ = 0;
     clock_suspended_ = true;

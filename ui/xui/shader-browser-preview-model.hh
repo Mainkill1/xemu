@@ -2,6 +2,7 @@
 #pragma once
 
 #include "shader-browser-model.hh"
+#include "shader-browser-preview-scene.hh"
 
 #include <array>
 #include <cstddef>
@@ -112,6 +113,7 @@ struct PreviewCompileKey {
 };
 
 struct PreviewResultKey {
+    PreviewScene scene;
     uint64_t clock_revision = 0;
     uint64_t clock_edit_revision = 0;
     double time_seconds = 0.0;
@@ -129,6 +131,7 @@ struct PreviewResultKey {
 };
 
 struct PreviewPacket {
+    PreviewScene scene;
     PreviewSelection selection;
     uint32_t recipe_format_version = 0;
     std::vector<uint8_t> recipe;
