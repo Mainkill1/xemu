@@ -120,11 +120,11 @@ void ShaderBrowserWindow::DrawHost()
                         DrawKeyValue("Draws", UnsignedText(variant.draw_count));
                     }
                     if (variant.valid_fields & HostVariantCompileTime) {
-                        DrawKeyValue("Compile CPU (ns)",
+                        DrawKeyValue("Shared program creation CPU (ns)",
                                      UnsignedText(variant.compile_time_ns));
                     }
                     if (variant.valid_fields & HostVariantCreateTime) {
-                        DrawKeyValue("Create CPU (ns)",
+                        DrawKeyValue("Shared binding preparation CPU (ns)",
                                      UnsignedText(variant.create_time_ns));
                     }
                     if (variant.valid_fields & HostVariantPrimitiveMode) {
