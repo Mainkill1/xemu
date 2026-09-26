@@ -19,6 +19,12 @@ public:
     bool Render(const PreviewWorkItem &work, const std::atomic<bool> &stop,
                 std::vector<uint8_t> *rgba, std::string *error);
 
+#ifdef XEMU_PREVIEW_VK_TESTING
+    // Deterministic native failure coverage; call only on the owning worker.
+    void FailNextSamplerCreationForTest();
+    bool HasSamplerSettingsForTest(bool linear, bool repeat) const;
+#endif
+
 private:
     struct Impl;
     Impl *impl_;

@@ -70,6 +70,35 @@ int main(int argc, char **)
     render();
     CHECK(pixels[4 * (16 * 32 + 16)] == 0);
     CHECK(pixels[4 * (16 * 32 + 16) + 1] == 255);
+    // A failed sampler edit must leave the old descriptor and cached settings
+    // intact. Inspect before retrying so a broken implementation cannot submit
+    // a descriptor referring to a destroyed sampler to the native device.
+    fixture.texture_texels = { { { 255, 0, 0, 255 },
+                                 { 0, 255, 0, 255 },
+                                 { 255, 0, 0, 255 },
+                                 { 0, 255, 0, 255 } } };
+    fixture.uv_scale = { 0, 0 };
+    fixture.uv_offset = { 1.25f, 0.25f };
+    packet->fixture_bytes = EncodePreviewSyntheticFixture(fixture);
+    render();
+    CHECK(pixels[4 * (16 * 32 + 16) + 1] == 255); // clamped right texel
+    const bool old_linear = fixture.linear_filter;
+    const bool old_repeat = fixture.repeat_wrap;
+    fixture.linear_filter = !old_linear;
+    fixture.repeat_wrap = !old_repeat;
+    packet->fixture_bytes = EncodePreviewSyntheticFixture(fixture);
+    for (unsigned attempt = 0; attempt < 2; ++attempt) {
+        executor.FailNextSamplerCreationForTest();
+        CHECK(!executor.Render(work, stop, &pixels, &error));
+        CHECK(executor.HasSamplerSettingsForTest(old_linear, old_repeat));
+    }
+    CHECK(executor.Render(work, stop, &pixels, &error));
+    CHECK(executor.HasSamplerSettingsForTest(!old_linear, !old_repeat));
+    CHECK(pixels[4 * (16 * 32 + 16)] == 255); // repeated left texel
+    CHECK(pixels[4 * (16 * 32 + 16) + 1] == 0);
+    std::fprintf(stderr, "private Vulkan sampler failure/retry: PASS\n");
+    fixture.uv_scale = { 1, 1 };
+    fixture.uv_offset = { 0, 0 };
     // Same compile identity, updated fixture, sampler and extent.
     for (auto &texel : fixture.texture_texels)
         texel = { 0, 0, 255, 255 };
@@ -98,10 +127,16 @@ int main(int argc, char **)
     render();
     CHECK(pixels[4 * (160 * 320 + 160) + 1] == 255);
     CHECK(pixels[4 * (160 * 320 + 160) + 3] == 128);
+    source("#version 450\nlayout(location=4,component=0) in float vtxFog;\n"
+           "layout(location=0) out vec4 color;\n"
+           "void main(){color=vec4(vtxFog,0,0,1);}\n");
+    render(); // Explicit component zero matches the implicit partner component.
+    CHECK(pixels[4 * (160 * 320 + 160) + 3] == 255);
     auto reject = [&](const std::string &declaration, const std::string &body) {
         source("#version 450\n" + declaration +
                "\nlayout(location=0) out vec4 color;\nvoid main(){" + body +
                "}\n");
+        error.clear();
         CHECK(!executor.Prepare(work, &error, &unsupported));
         CHECK(unsupported);
     };
@@ -120,6 +155,8 @@ int main(int argc, char **)
            "color=consts;");
     reject("layout(location=5) in vec3 unexpected;",
            "color=vec4(unexpected,1);");
+    reject("layout(location=4,component=1) in float vtxFog;",
+           "color=vec4(vtxFog);");
     reject("", "color=vec4(gl_PointCoord,0,1);");
     source("#version 450\nthis is invalid GLSL");
     CHECK(!executor.Prepare(work, &error, &unsupported));
