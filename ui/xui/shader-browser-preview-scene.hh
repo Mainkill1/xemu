@@ -16,6 +16,9 @@ struct PreviewSceneVertex {
     float position[4];
     float color[4];
     float uv[2];
+    float colors[4][4];
+    float fog;
+    float direction[3];
 };
 PreviewScene ClampPreviewScene(PreviewScene scene);
 std::vector<PreviewSceneVertex>

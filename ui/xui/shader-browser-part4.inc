@@ -199,6 +199,76 @@ void ShaderBrowserWindow::DrawLivePreview()
         m_preview_packet_attempted = false;
     };
 
+    auto apply_fixture_profile = [this](PreviewFixtureProfile profile) {
+        m_preview_fixture = MakePreviewFixture(profile);
+        for (size_t i = 0; i < 4; ++i)
+            for (size_t c = 0; c < 4; ++c) {
+                m_preview_colors[i][c] =
+                    m_preview_fixture.corner_colors[i][c] / 255.0f;
+                m_preview_texture_colors[i][c] =
+                    m_preview_fixture.texture_texels[i][c] / 255.0f;
+            }
+        m_preview_fog_color = m_preview_fixture.fog_color;
+        m_preview_alpha_reference = m_preview_fixture.alpha_reference;
+        m_preview_uv_scale = m_preview_fixture.uv_scale;
+        m_preview_uv_offset = m_preview_fixture.uv_offset;
+        m_preview_constant_color = m_preview_fixture.constant_color;
+    };
+    if (ImGui::CollapsingHeader("Fixture profile and inputs",
+                                ImGuiTreeNodeFlags_DefaultOpen)) {
+        const char *names[] = {
+            "Recipe suggestion",     "Flat Color",          "UV Gradient",
+            "Checker / UV Grid",     "Alpha Gradient",      "Multi-texture",
+            "Normal-like Direction", "Cubemap / Direction", "Fog / Depth Ramp",
+            "All Inputs Diagnostic"
+        };
+        int choice = m_preview_profile + 1;
+        if (ImGui::Combo("Profile", &choice, names, 10)) {
+            m_preview_profile = choice - 1;
+            m_preview_fixture_suggested = false;
+            if (choice)
+                apply_fixture_profile(
+                    static_cast<PreviewFixtureProfile>(choice - 1));
+            fixture_changed();
+        }
+        if (m_preview_profile < 0)
+            ImGui::TextDisabled(
+                "Recipe profile: %s",
+                m_preview_fixture_suggested ?
+                    PreviewFixtureProfileName(m_preview_fixture.profile) :
+                    "Unavailable; explicit inputs shown");
+        const char *colors[] = { "D0", "D1", "B0", "B1" };
+        for (int i = 0; i < 4; ++i) {
+            if (ImGui::ColorEdit4(colors[i],
+                                  m_preview_fixture.colors[i].data()))
+                fixture_changed();
+            int texture = static_cast<int>(m_preview_fixture.textures[i]);
+            std::string label = "T" + std::to_string(i) + " texture";
+            if (ImGui::Combo(label.c_str(), &texture, names + 1, 9)) {
+                m_preview_fixture.textures[i] =
+                    static_cast<PreviewFixtureProfile>(texture);
+                fixture_changed();
+            }
+        }
+        if (ImGui::SliderFloat("Fog scalar", &m_preview_fixture.fog, 0, 1))
+            fixture_changed();
+        if (ImGui::SliderFloat3("Cube direction",
+                                m_preview_fixture.cube_direction.data(), -1, 1))
+            fixture_changed();
+        const char *faces[] = { "+X", "-X", "+Y", "-Y", "+Z", "-Z" };
+        for (int face = 0; face < 6; ++face) {
+            if (face)
+                ImGui::SameLine();
+            if (ImGui::Button(faces[face])) {
+                m_preview_fixture.cube_direction = {};
+                m_preview_fixture.cube_direction[face / 2] = face % 2 ? -1 : 1;
+                fixture_changed();
+            }
+        }
+        ImGui::TextWrapped(
+            "Preview-owned inputs only. Unused source inputs have no effect. "
+            "Arrays, integer, shadow and storage textures are Unsupported.");
+    }
     if (ImGui::CollapsingHeader("Synthetic fixture colors")) {
         static const char *labels[] = {
             "Top left", "Top right", "Bottom left", "Bottom right"
@@ -283,6 +353,20 @@ void ShaderBrowserWindow::DrawLivePreview()
              m_preview_packet_selection != selection ||
              m_preview_packet_detail_generation != detail_generation ||
              m_preview_packet_override_generation != replacement_generation)) {
+            const bool new_selection = m_preview_packet_selection != selection;
+            if (new_selection)
+                m_preview_fixture_suggested = false;
+            if (m_preview_profile < 0 &&
+                (new_selection || !m_preview_fixture_suggested) &&
+                m_has_recipe && m_selected_recipe.key == entry->key) {
+                PreviewFixtureProfile suggested;
+                std::string reason;
+                if (SuggestPreviewFixture(m_selected_recipe, &suggested,
+                                          &reason)) {
+                    apply_fixture_profile(suggested);
+                    m_preview_fixture_suggested = true;
+                }
+            }
             m_preview_packet_attempted = true;
             m_preview_packet_selection = selection;
             m_preview_packet_detail_generation = detail_generation;
@@ -294,7 +378,7 @@ void ShaderBrowserWindow::DrawLivePreview()
                 PreviewPacketInputs inputs{};
                 inputs.selection = selection;
                 inputs.recipe = m_selected_recipe;
-                PreviewSyntheticFixture fixture{};
+                PreviewSyntheticFixture fixture = m_preview_fixture;
                 auto encode_color = [](const std::array<float, 4> &color) {
                     std::array<uint8_t, 4> encoded{};
                     for (size_t i = 0; i < encoded.size(); ++i) {

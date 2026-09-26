@@ -153,13 +153,25 @@ int main(int argc, char **)
            "ivec2 surfaceScale; float texScale[4]; };\n"
            "layout(location=0) out vec4 color;\n"
            "void main(){ if (gl_FragCoord.x >= clipRegion[0].z) discard;\n"
-           "color=vec4(consts[0].rgb,float(alphaRef)/255.0); }\n");
+           "color=vec4(consts[0].r,fogColor.g,consts[0].b,float(alphaRef)/"
+           "255.0); }\n");
     fixture.constant_color = { 0, 1, 0, 1 };
+    fixture.fog_color = { 0, 1, 0, 1 };
     fixture.alpha_reference = 128;
     packet->fixture_bytes = EncodePreviewSyntheticFixture(fixture);
     render();
     CHECK(pixels[4 * (160 * 320 + 160) + 1] == 255);
     CHECK(pixels[4 * (160 * 320 + 160) + 3] == 128);
+    fixture.constant_color = { 1, 0, 0, 1 };
+    fixture.alpha_reference = 64;
+    fixture.fog_color[1] = 0.4f;
+    packet->fixture_bytes = EncodePreviewSyntheticFixture(fixture);
+    CHECK(executor.Render(work, stop, &pixels, &error));
+    CHECK(pixels[4 * (160 * 320 + 160)] == 255 &&
+          pixels[4 * (160 * 320 + 160) + 3] == 64);
+    CHECK(pixels[4 * (160 * 320 + 160) + 1] == 102);
+    std::puts(
+        "Vulkan constant, fog color and alpha edits without prepare PASS");
     source("#version 450\nlayout(location=4,component=0) in float vtxFog;\n"
            "layout(location=0) out vec4 color;\n"
            "void main(){color=vec4(vtxFog,0,0,1);}\n");
@@ -179,6 +191,76 @@ int main(int argc, char **)
     CHECK(pixels != time_zero);
     CHECK(pixels[4 * (160 * 320 + 160)] < time_zero[4 * (160 * 320 + 160)]);
     packet->update_policy = PreviewUpdatePolicy::OnDirty;
+    packet->width = packet->height = 32;
+    fixture = MakePreviewFixture(PreviewFixtureProfile::Cubemap);
+    packet->fixture_bytes = EncodePreviewSyntheticFixture(fixture);
+    source(
+        "#version 450\nlayout(binding=3) uniform samplerCube texSamp0;\n"
+        "layout(location=5) in vec4 vtxT0; layout(location=0) out vec4 color;\n"
+        "void main(){color=texture(texSamp0,vtxT0.xyz);}");
+    render();
+    CHECK(pixels[4 * (16 * 32 + 16) + 2] == 255);
+    const auto cube_z = pixels;
+    fixture.cube_direction = { 1, 0, 0 };
+    packet->fixture_bytes = EncodePreviewSyntheticFixture(fixture);
+    CHECK(executor.Render(work, stop, &pixels, &error));
+    CHECK(pixels[4 * (16 * 32 + 16)] == 255);
+    CHECK(pixels != cube_z);
+    std::puts("Vulkan cube +Z blue / +X red PASS");
+    fixture = MakePreviewFixture(PreviewFixtureProfile::MultiTexture);
+    fixture.textures.fill(PreviewFixtureProfile::MultiTexture);
+    packet->fixture_bytes = EncodePreviewSyntheticFixture(fixture);
+    source("#version 450\nlayout(binding=7) uniform sampler2D texSamp0;\n"
+           "layout(binding=2) uniform sampler2D texSamp1;\n"
+           "layout(location=0) out vec4 color;\n"
+           "void "
+           "main(){color=vec4(texture(texSamp0,vec2(0.5)).r,texture(texSamp1,"
+           "vec2(0.5)).g,0,1);}");
+    render();
+    CHECK(pixels[4 * (16 * 32 + 16)] == 255 &&
+          pixels[4 * (16 * 32 + 16) + 1] == 255);
+    fixture.textures[1] = PreviewFixtureProfile::Flat;
+    packet->fixture_bytes = EncodePreviewSyntheticFixture(fixture);
+    CHECK(executor.Render(work, stop, &pixels, &error));
+    CHECK(pixels[4 * (16 * 32 + 16)] == 255 &&
+          pixels[4 * (16 * 32 + 16) + 1] == 90);
+    std::puts("Vulkan distinct T0/T1 and independent input edit PASS");
+    source("#version 450\nlayout(location=0) in vec4 vtxD0; layout(location=1) "
+           "in vec4 vtxD1;\n"
+           "layout(location=2) in vec4 vtxB0; layout(location=3) in vec4 "
+           "vtxB1; layout(location=4) in float vtxFog;\n"
+           "layout(location=0) out vec4 color; void "
+           "main(){color=vec4(vtxD0.r,vtxD1.g,vtxB0.b,vtxB1.a)*vtxFog;}");
+    fixture.fog = 0.5f;
+    fixture.colors[0][0] = 0.2f;
+    fixture.colors[1][1] = 0.4f;
+    fixture.colors[2][2] = 0.6f;
+    fixture.colors[3][3] = 0.8f;
+    packet->fixture_bytes = EncodePreviewSyntheticFixture(fixture);
+    render();
+    for (int i = 0; i < 4; ++i)
+        CHECK(std::abs(int(pixels[4 * (16 * 32 + 16) + i]) -
+                       int((i + 1) * 25.5f)) <= 1);
+    fixture.fog = 1;
+    packet->fixture_bytes = EncodePreviewSyntheticFixture(fixture);
+    CHECK(executor.Render(work, stop, &pixels, &error));
+    CHECK(pixels[4 * (16 * 32 + 16)] == 51);
+    std::puts("Vulkan independent D0/D1/B0/B1 and fog edit PASS");
+    source("#version 450\nlayout(binding=4) uniform sampler2D texSamp0; "
+           "layout(location=0) out vec4 color; void "
+           "main(){color=texture(texSamp0,vec2(0.3125));}");
+    for (int profile = 0; profile < 9; ++profile) {
+        fixture =
+            MakePreviewFixture(static_cast<PreviewFixtureProfile>(profile));
+        fixture.linear_filter = 0;
+        packet->fixture_bytes = EncodePreviewSyntheticFixture(fixture);
+        render();
+        const auto expected = GeneratePreviewTexture(fixture, 0);
+        for (int c = 0; c < 4; ++c)
+            CHECK(pixels[4 * (16 * 32 + 16) + c] ==
+                  expected[4 * (2 * 8 + 2) + c]);
+    }
+    std::puts("Vulkan all nine profile sample readbacks PASS");
     auto reject = [&](const std::string &declaration, const std::string &body) {
         source("#version 450\n" + declaration +
                "\nlayout(location=0) out vec4 color;\nvoid main(){" + body +
