@@ -1,5 +1,6 @@
 #include "shader-browser-stage3-ui.hh"
 #include "shader-browser-preview-service.hh"
+#include "shader-browser-preview-adapter.hh"
 #include "shader-browser-part1.inc"
 #include "shader-browser-part2.inc"
 #include "shader-browser-part3.inc"

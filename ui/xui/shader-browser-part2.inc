@@ -1,6 +1,8 @@
 
 void ShaderBrowserWindow::SelectEntry(const Entry &entry)
 {
+    m_preview_packet_attempted = false;
+    m_preview_packet_message.clear();
     m_selected_key = entry.key;
     m_has_selection = true;
     m_action_message.clear();
@@ -256,6 +258,11 @@ void ShaderBrowserWindow::DrawRightPane()
         }
         if (ImGui::BeginTabItem("Live Preview")) {
             preview_visible = true;
+            PreviewStatus preview_status{};
+            GetPreviewService().CopyStatus(&preview_status);
+            if (!preview_status.visible) {
+                m_preview_packet_attempted = false;
+            }
             DrawLivePreview();
             ImGui::EndTabItem();
         }

@@ -162,6 +162,13 @@ before digesting source or fixture bytes. Ready-frame recency has its own
 completion sequence; the slot generation remains a lease nonce. Heartbeat
 expiry follows the same invalidation path as an explicit tab close.
 
+The Live Preview tab now assembles a scoped packet only when selection,
+resident-detail generation, or replacement generation changes.
+It copies the canonical recipe, selected resident fragment source or selected
+Stage 3 replacement payload, a deterministic synthetic vertex stage, and a
+four-corner color fixture. Missing source or incompatible replacement remains
+unavailable; the tab does not ask the game renderer to compile anything.
+
 The service emits pure `PreviewWorkItem` records. A later backend claims work,
 performs it with private resources, and completes by token. The service itself
 contains no GL/Vulkan API call.
@@ -192,12 +199,11 @@ The existing `DrawLivePreview()` placeholder now exposes:
 - Normal / Uber / Replacement / Visualize mode selection;
 - state, pressure, update ceiling, and slot ownership status;
 - selected shader/backend target;
-- a preparation button that stays disabled until a validated packet and pause
-  adapter exist;
+- a preparation button enabled for a validated packet while paused;
 - an explicit statement that native GL/Vulkan execution is not connected.
 
-Enabling the current draft therefore cannot allocate preview GPU resources or
-submit GPU work.
+Enabling the current draft can assemble and schedule a private packet but cannot
+allocate preview GPU resources or submit GPU work.
 
 The Live Preview tab publishes the actual guest pause state. A small atomic
 flip count and interval, updated at the NV2A flip boundary, feed a conservative
@@ -210,13 +216,13 @@ identity. These publishers do not issue preview work by themselves.
 
 ### Immutable packet adapter
 
-Create a low-frequency adapter outside ordinary draws that copies:
+The low-frequency adapter outside ordinary draws copies:
 
 - the accepted canonical recipe and recipe version;
 - selected title/build scope and session/renderer epochs;
 - generator/interface ABI;
-- deterministic synthetic fixture inputs;
-- immutable Stage 3 replacement source when Replacement mode is selected.
+- deterministic synthetic fixture inputs and a stable private vertex stage;
+- immutable selected Stage 3 replacement source in Replacement mode.
 
 It validates and moves a `PreviewPacket` into the service. It must not borrow
 Stage 2 source vectors or Stage 3 payload memory beyond their ownership window.
