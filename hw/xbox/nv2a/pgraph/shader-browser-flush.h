@@ -10,6 +10,10 @@ extern "C" {
  * is serialized, then refresh collection state before drawing resumes. */
 void pgraph_shader_browser_transition(void (*change)(void *), void *opaque);
 
+/* Wake the PFIFO owner so a selected-detail request is serviced even while
+ * the guest is paused and no new commands arrive. */
+void pgraph_shader_browser_request_details(void);
+
 #ifdef __cplusplus
 }
 #endif

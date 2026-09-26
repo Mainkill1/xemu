@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <filesystem>
 #include <iterator>
 #include <string>
 
@@ -182,6 +183,7 @@ void ShaderBrowserWindow::Draw()
     if (!m_is_open) {
         if (m_window_was_open) {
             provider.SetLiveCollectionEnabled(false);
+            GetDetailStore().Clear();
             m_window_was_open = false;
         }
         return;
@@ -190,9 +192,17 @@ void ShaderBrowserWindow::Draw()
     if (!m_window_was_open) {
         m_window_was_open = true;
         provider.SetLiveCollectionEnabled(m_collection_requested);
+        m_has_selection = false;
+        GetDetailStore().Clear();
         m_next_poll_ms = 0;
     }
     RefreshSnapshot();
+    GetDetailStore().CopySnapshotIfChanged(m_detail_snapshot.generation,
+                                            &m_detail_snapshot);
+    if (m_has_selection && m_detail_snapshot.state == DetailState::Idle) {
+        GetDetailStore().Request(m_selected_key, DetailBackend::Active);
+        pgraph_shader_browser_request_details();
+    }
 
     float scale = g_viewport_mgr.m_scale;
     ImVec2 work = ImGui::GetMainViewport()->WorkSize;
@@ -208,6 +218,7 @@ void ShaderBrowserWindow::Draw()
         ImGui::End();
         if (!m_is_open) {
             provider.SetLiveCollectionEnabled(false);
+            GetDetailStore().Clear();
             m_window_was_open = false;
         }
         return;
@@ -232,6 +243,7 @@ void ShaderBrowserWindow::Draw()
 
     if (!m_is_open) {
         provider.SetLiveCollectionEnabled(false);
+        GetDetailStore().Clear();
         m_window_was_open = false;
     }
 }
@@ -255,6 +267,10 @@ void ShaderBrowserWindow::RefreshSnapshot()
     if (m_has_selection &&
         FindEntryByKey(m_snapshot.entries, m_selected_key) < 0) {
         m_has_selection = false;
+        m_has_recipe = false;
+        m_selected_recipe = {};
+        m_recipe_inspection = {};
+        GetDetailStore().Clear();
     }
     if (!m_has_selection && !m_snapshot.entries.empty()) {
         SelectEntry(m_snapshot.entries.front());

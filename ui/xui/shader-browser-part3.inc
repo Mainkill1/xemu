@@ -1,5 +1,5 @@
 
-void ShaderBrowserWindow::DrawShaderDetails()
+void ShaderBrowserWindow::DrawOverview()
 {
     const Entry *entry = SelectedEntry();
     if (!entry) {
@@ -82,12 +82,8 @@ void ShaderBrowserWindow::DrawShaderDetails()
 
     ImGui::Separator();
     ImGui::TextDisabled(
-        "Stage 1 stores portable guest recipes and lightweight metadata. "
-        "Generated/compiled host shader artifacts are external files, not "
-        "database blobs. Runtime overrides arrive in Stage 3.");
-    if (!m_action_message.empty()) {
-        ImGui::TextDisabled("%s", m_action_message.c_str());
-    }
+        "Canonical recipes stay in the catalog; selected host details "
+        "remain transient. Runtime overrides arrive in Stage 3.");
 }
 
 void ShaderBrowserWindow::DrawSettings()

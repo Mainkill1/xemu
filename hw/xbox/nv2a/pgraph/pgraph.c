@@ -35,6 +35,7 @@
 #include "swizzle.h"
 #include "nv2a_vsh_emulator.h"
 #include "shader-browser-flush.h"
+#include "ui/xui/shader-browser-details-bridge.h"
 
 #define PG_GET_MASK(reg, mask) GET_MASK(pgraph_reg_r(pg, reg), mask)
 #define PG_SET_MASK(reg, mask, value)        \
@@ -65,6 +66,17 @@ void pgraph_shader_browser_transition(void (*change)(void *), void *opaque)
         qemu_mutex_unlock(&pg->lock);
     } else if (change) {
         change(opaque);
+    }
+    g_mutex_unlock(&shader_browser_flush_mutex);
+}
+
+void pgraph_shader_browser_request_details(void)
+{
+    g_mutex_lock(&shader_browser_flush_mutex);
+    if (g_nv2a) {
+        qemu_mutex_lock(&g_nv2a->pfifo.lock);
+        pfifo_kick(g_nv2a);
+        qemu_mutex_unlock(&g_nv2a->pfifo.lock);
     }
     g_mutex_unlock(&shader_browser_flush_mutex);
 }
@@ -447,6 +459,8 @@ void pgraph_destroy(PGRAPHState *pg)
         g_nv2a = NULL;
     }
     g_mutex_unlock(&shader_browser_flush_mutex);
+
+    xemu_shader_browser_details_reset();
 
     pgraph_shader_browser_flush_observations(
         &pg->shader_browser_observations, pg->frame_time);
@@ -3509,6 +3523,7 @@ static void renderer_switch_finalize_renderer(void *opaque)
 
     pgraph_shader_browser_flush_observations(
         &pg->shader_browser_observations, pg->frame_time);
+    xemu_shader_browser_details_reset();
     xemu_tweaks_publish_renderer(XEMU_TWEAK_RENDERER_NONE);
     if (pg->renderer && pg->renderer->ops.finalize) {
         pg->renderer->ops.finalize(d);

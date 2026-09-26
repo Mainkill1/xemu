@@ -3,6 +3,7 @@
 
 #include "shader-browser-model.hh"
 #include "shader-browser-provider.hh"
+#include "shader-browser-details-store.hh"
 
 #include <cstdint>
 #include <string>
@@ -20,11 +21,16 @@ private:
     void RefreshSnapshot();
     void RebuildVisibleOrder();
     void SelectEntry(const xemu::shader_browser::Entry &entry);
+    void ExportRecipe(const xemu::shader_browser::Entry &entry);
     void ApplyPersistenceSettings();
 
     void DrawSelector();
     void DrawRightPane();
     void DrawShaderDetails();
+    void DrawOverview();
+    void DrawGuest();
+    void DrawHost();
+    void DrawLifecycle();
     void DrawSettings();
     void DrawLivePreview();
 
@@ -33,6 +39,14 @@ private:
     xemu::shader_browser::Snapshot m_snapshot;
     std::vector<size_t> m_visible_order;
     xemu::shader_browser::ShaderKey m_selected_key;
+    xemu::shader_browser::CanonicalRecipe m_selected_recipe;
+    xemu::shader_browser::RecipeInspection m_recipe_inspection;
+    xemu::shader_browser::DetailSnapshot m_detail_snapshot;
+    std::vector<size_t> m_source_line_offsets;
+    size_t m_selected_source = 0;
+    uint64_t m_source_offsets_generation = 0;
+    bool m_has_recipe = false;
+    std::string m_recipe_error;
 
     std::string m_search;
     std::string m_action_message;

@@ -150,6 +150,31 @@
         return true;
     }
 
+    bool CopyCanonicalRecipe(const ShaderKey &key,
+                             CanonicalRecipe *recipe) override
+    {
+        if (!recipe) return false;
+        std::shared_lock<std::shared_mutex> lifecycle(lifecycle_mutex);
+        if (!installed) return false;
+        ShaderRecord record{};
+        std::vector<ShaderScope> scopes;
+        {
+            std::lock_guard<std::mutex> lock(discovered_mutex);
+            auto it = discovered_records.find(key);
+            if (it != discovered_records.end()) {
+                record = it->second.record;
+                scopes = it->second.scopes;
+            }
+        }
+        if (record.recipe.empty() &&
+            !database.CopyRecord(key, &record, &scopes)) return false;
+        recipe->key = record.key;
+        recipe->recipe_format_version = record.recipe_format_version;
+        recipe->bytes = std::move(record.recipe);
+        recipe->scopes = std::move(scopes);
+        return true;
+    }
+
     void SetLiveCollectionEnabled(bool enabled) override
     {
         std::shared_lock<std::shared_mutex> lock(lifecycle_mutex);

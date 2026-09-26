@@ -4,6 +4,44 @@ void ShaderBrowserWindow::SelectEntry(const Entry &entry)
     m_selected_key = entry.key;
     m_has_selection = true;
     m_action_message.clear();
+    m_selected_recipe = {};
+    m_recipe_inspection = {};
+    m_recipe_error.clear();
+    m_has_recipe = GetProvider().CopyCanonicalRecipe(entry.key,
+                                                     &m_selected_recipe);
+    if (m_has_recipe && !InspectCanonicalRecipe(m_selected_recipe,
+                                                 &m_recipe_inspection,
+                                                 &m_recipe_error)) {
+        m_has_recipe = false;
+    }
+    if (!m_has_recipe && m_recipe_error.empty()) {
+        m_recipe_error = "Canonical recipe unavailable";
+    }
+    m_detail_snapshot = {};
+    m_selected_source = 0;
+    m_source_line_offsets.clear();
+    m_source_offsets_generation = 0;
+    GetDetailStore().Request(entry.key, DetailBackend::Active);
+    pgraph_shader_browser_request_details();
+}
+
+void ShaderBrowserWindow::ExportRecipe(const Entry &entry)
+{
+    CanonicalRecipe recipe{};
+    std::string error;
+    if (!GetProvider().CopyCanonicalRecipe(entry.key, &recipe)) {
+        m_action_message = "Canonical recipe unavailable";
+        return;
+    }
+    const char *base = xemu_settings_get_base_path();
+    std::filesystem::path path;
+    if (!base || !ExportPortableRecipe(recipe, std::filesystem::u8path(base),
+                                       &path, &error)) {
+        m_action_message = error.empty() ?
+            "Shader recipe export path unavailable" : error;
+        return;
+    }
+    m_action_message = "Exported recipe to " + path.u8string();
 }
 
 const Entry *ShaderBrowserWindow::SelectedEntry() const
@@ -140,6 +178,10 @@ void ShaderBrowserWindow::DrawSelector()
                         std::string canonical = PortableShaderHash(entry.key.hash);
                         ImGui::SetClipboardText(canonical.c_str());
                         m_action_message = "Copied canonical shader hash";
+                    }
+                    if (ImGui::MenuItem("Export recipe", nullptr, false,
+                                        entry.recipe_size > 0)) {
+                        ExportRecipe(entry);
                     }
                     ImGui::EndPopup();
                 }
