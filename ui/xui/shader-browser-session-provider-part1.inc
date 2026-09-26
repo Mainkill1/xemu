@@ -148,10 +148,6 @@ struct PerformanceEntry {
 
 class SessionProvider final : public Provider {
 public:
-    uint64_t LiveEpoch() const
-    {
-        return live_epoch.load(std::memory_order_acquire);
-    }
     bool Install(const char *new_base_path)
     {
         Uninstall();
