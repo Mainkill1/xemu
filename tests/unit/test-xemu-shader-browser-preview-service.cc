@@ -233,6 +233,11 @@ int main()
     assert(!service.TryClaimWork(
         now + 2 * kPreviewNormalIntervalNs + kPreviewPressureRecoveryNs,
         &work));
+    // Recovery anchors time. Intermediate worker polls must not create a
+    // result identity before the first complete cadence interval elapses.
+    assert(!service.TryClaimWork(
+        now + 2 * kPreviewNormalIntervalNs + kPreviewPressureRecoveryNs +
+            kPreviewNormalIntervalNs / 2, &work));
     assert(service.TryClaimWork(
         now + 3 * kPreviewNormalIntervalNs + kPreviewPressureRecoveryNs,
         &work));
