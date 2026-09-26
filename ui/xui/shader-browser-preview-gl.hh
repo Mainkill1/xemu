@@ -14,7 +14,6 @@ namespace xemu::shader_browser {
 struct PreviewViewSettings {
     float zoom = 1.0f;
     std::array<float, 2> center{0.5f, 0.5f};
-    int channel = 0; // RGBA, red, green, blue, or alpha
 };
 
 // Owns a GL context shared only for final HUD texture presentation. All

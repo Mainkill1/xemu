@@ -50,6 +50,14 @@ using PreviewTexturePixels = std::array<uint8_t, 6 * kPreviewTextureFaceBytes>;
 PreviewTexturePixels
 GeneratePreviewTexture(const PreviewSyntheticFixture &fixture, size_t stage);
 
+// Bounded bottom-up RGBA8 charts; texture diagnostics show a 3x2 face atlas.
+bool RenderPreviewDiagnostic(PreviewChannel channel,
+                             const PreviewSyntheticFixture &fixture,
+                             uint32_t width, uint32_t height,
+                             std::vector<uint8_t> *rgba, std::string *error);
+void ApplyPreviewOutputChannel(PreviewChannel channel,
+                               std::vector<uint8_t> *rgba);
+
 // Apply fixture values once, using the untransformed mesh UVs for corner colors.
 void ApplyPreviewSyntheticFixture(const PreviewSyntheticFixture &fixture,
                                   std::vector<PreviewSceneVertex> &vertices,

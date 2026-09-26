@@ -150,4 +150,98 @@ bool SuggestPreviewFixture(const CanonicalRecipe &recipe,
                             PreviewFixtureProfile::Diagnostic;
     return true;
 }
+void ApplyPreviewOutputChannel(PreviewChannel channel,
+                               std::vector<uint8_t> *rgba)
+{
+    const int component = PreviewChannelComponent(channel);
+    if (component < 0 || !rgba)
+        return;
+    for (size_t i = 0; i + 3 < rgba->size(); i += 4) {
+        const auto value = (*rgba)[i + component];
+        (*rgba)[i] = (*rgba)[i + 1] = (*rgba)[i + 2] = value;
+        (*rgba)[i + 3] = 255;
+    }
+}
+
+bool RenderPreviewDiagnostic(PreviewChannel channel,
+                             const PreviewSyntheticFixture &fixture,
+                             uint32_t width, uint32_t height,
+                             std::vector<uint8_t> *rgba, std::string *error)
+{
+    if (!PreviewChannelIsDiagnostic(channel)) {
+        if (error)
+            *error = "Unsupported diagnostic channel: " +
+                     std::string(PreviewChannelProvenance(channel));
+        return false;
+    }
+    if (!rgba || !width || !height || width > kPreviewFullExtent ||
+        height > kPreviewFullExtent) {
+        if (error)
+            *error = "Diagnostic extent exceeds private preview bounds";
+        return false;
+    }
+    rgba->resize(size_t(width) * height * 4);
+    const bool texture =
+        channel >= PreviewChannel::T0 && channel <= PreviewChannel::T3;
+    PreviewTexturePixels texels{};
+    if (texture)
+        texels = GeneratePreviewTexture(
+            fixture, static_cast<size_t>(channel) -
+                         static_cast<size_t>(PreviewChannel::T0));
+    auto byte = [](float value) {
+        return static_cast<uint8_t>(std::clamp(value, 0.0f, 1.0f) * 255 + 0.5f);
+    };
+    for (uint32_t y = 0; y < height; ++y) {
+        for (uint32_t x = 0; x < width; ++x) {
+            const float u = (x + 0.5f) / width, v = (y + 0.5f) / height;
+            std::array<float, 4> color{ 0, 0, 0, 1 };
+            float alpha = fixture.colors[0][3] *
+                          ((1 - u) * v * fixture.corner_colors[0][3] +
+                           u * v * fixture.corner_colors[1][3] +
+                           (1 - u) * (1 - v) * fixture.corner_colors[2][3] +
+                           u * (1 - v) * fixture.corner_colors[3][3]) /
+                          255;
+            if (channel == PreviewChannel::UV) {
+                color[0] = u * fixture.uv_scale[0] + fixture.uv_offset[0];
+                color[1] = v * fixture.uv_scale[1] + fixture.uv_offset[1];
+            } else if (channel >= PreviewChannel::D0 &&
+                       channel <= PreviewChannel::B1) {
+                color = fixture.colors[static_cast<size_t>(channel) -
+                                       static_cast<size_t>(PreviewChannel::D0)];
+                if (channel == PreviewChannel::D0) {
+                    for (size_t c = 0; c < 3; ++c)
+                        color[c] *=
+                            ((1 - u) * v * fixture.corner_colors[0][c] +
+                             u * v * fixture.corner_colors[1][c] +
+                             (1 - u) * (1 - v) * fixture.corner_colors[2][c] +
+                             u * (1 - v) * fixture.corner_colors[3][c]) /
+                            255;
+                }
+            } else if (texture) {
+                const uint32_t tx = std::min(uint32_t(u * 24), 23U);
+                const uint32_t ty = std::min(uint32_t(v * 16), 15U);
+                const size_t offset =
+                    ((ty / 8) * 3 + tx / 8) * kPreviewTextureFaceBytes +
+                    ((ty % 8) * 8 + tx % 8) * 4;
+                for (size_t c = 0; c < 3; ++c)
+                    color[c] = texels[offset + c] / 255.0f;
+            } else {
+                const float scalar =
+                    channel == PreviewChannel::DepthRamp ?
+                        u :
+                    channel == PreviewChannel::FixtureAlphaMask ?
+                        float(alpha > fixture.alpha_reference / 255.0f) :
+                        (fixture.profile == PreviewFixtureProfile::Fog ? u :
+                                                                         1) *
+                            fixture.fog;
+                color[0] = color[1] = color[2] = scalar;
+            }
+            const size_t offset = (size_t(y) * width + x) * 4;
+            for (size_t c = 0; c < 3; ++c)
+                (*rgba)[offset + c] = byte(color[c]);
+            (*rgba)[offset + 3] = 255;
+        }
+    }
+    return true;
+}
 } // namespace xemu::shader_browser

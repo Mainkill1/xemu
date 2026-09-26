@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "shader-browser-preview-gl.hh"
+#include "shader-browser-preview-gl-channel.hh"
 
 #include "shader-browser-preview-adapter.hh"
 #include "shader-browser-preview-service.hh"
@@ -262,6 +263,17 @@ struct PreviewGlExecutor::Impl {
         if (packet.update_policy == PreviewUpdatePolicy::Continuous) {
             AnimatePreviewSyntheticFixture(&fixture, work.result_key.time_seconds);
         }
+        if (!PreviewChannelAvailable(work.result_key.channel)) {
+            *error = PreviewChannelProvenance(work.result_key.channel);
+            return false;
+        }
+        if (PreviewChannelIsDiagnostic(work.result_key.channel)) {
+            std::vector<uint8_t> pixels;
+            return RenderPreviewDiagnostic(work.result_key.channel, fixture,
+                                           packet.width, packet.height, &pixels,
+                                           error) &&
+                   UploadPixels(work, pixels, error);
+        }
         Slot &slot = slots[work.slot];
         if (!slot.texture) glGenTextures(1, &slot.texture);
         if (!slot.texture) {
@@ -393,6 +405,9 @@ struct PreviewGlExecutor::Impl {
             if (sampler_location >= 0) glUniform1i(sampler_location, unit);
         }
         glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vertices.size()));
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, slot.texture);
+        SetPreviewGlOutputChannel(work.result_key.channel);
         GLenum gl_error = glGetError();
         if (gl_error != GL_NO_ERROR) {
             *error = "Private GL preview draw failed with error " +
@@ -426,17 +441,19 @@ struct PreviewGlExecutor::Impl {
         return false;
     }
 
-    bool UploadVulkan(const PreviewWorkItem &work,
+    bool UploadPixels(const PreviewWorkItem &work,
                       const std::vector<uint8_t> &rgba, std::string *error)
     {
         if (!work.packet || work.slot >= slots.size() ||
             rgba.size() != size_t(work.packet->width) * work.packet->height * 4) {
-            *error = "Private Vulkan presentation data is incomplete";
+            *error = "Private preview presentation data is incomplete";
             return false;
         }
         Slot &slot = slots[work.slot];
         if (!slot.texture) glGenTextures(1, &slot.texture);
         glBindTexture(GL_TEXTURE_2D, slot.texture);
+        // CPU diagnostics and Vulkan bytes have already selected their channel.
+        SetPreviewGlOutputChannel(PreviewChannel::FinalRGBA);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -447,12 +464,12 @@ struct PreviewGlExecutor::Impl {
         slot.width = work.packet->width;
         slot.height = work.packet->height;
         if (glGetError() != GL_NO_ERROR) {
-            *error = "Private Vulkan GL presentation upload failed";
+            *error = "Private preview GL presentation upload failed";
             return false;
         }
         GLsync producer = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
         if (!producer) {
-            *error = "Private Vulkan GL presentation fence failed";
+            *error = "Private preview GL presentation fence failed";
             return false;
         }
         glFlush();
@@ -469,7 +486,7 @@ struct PreviewGlExecutor::Impl {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         glDeleteSync(producer);
-        *error = "Private Vulkan GL presentation stopped or failed";
+        *error = "Private preview GL presentation stopped or failed";
         return false;
     }
 
@@ -501,10 +518,11 @@ struct PreviewGlExecutor::Impl {
                 service.CompletePreparation(work.token, outcome, error,
                                             NowNs());
             } else if (work.kind == PreviewWorkKind::Render) {
-                bool ok = work.packet->selection.backend == PreviewBackend::Vulkan ?
-                    (vulkan.Render(work, stop, &completed_pixels, &error) &&
-                     UploadVulkan(work, completed_pixels, &error)) :
-                    Render(work, &error);
+                bool ok =
+                    work.packet->selection.backend == PreviewBackend::Vulkan ?
+                        (vulkan.Render(work, stop, &completed_pixels, &error) &&
+                         UploadPixels(work, completed_pixels, &error)) :
+                        Render(work, &error);
                 service.CompleteRender(work.token, ok, error, NowNs());
             }
         }
@@ -657,20 +675,15 @@ void PreviewGlExecutor::DrawImage(float side,
     view->center[1] = std::clamp(view->center[1], half, 1.0f - half);
     const ImVec2 uv0(view->center[0] - half, view->center[1] + half);
     const ImVec2 uv1(view->center[0] + half, view->center[1] - half);
-    ImVec4 tint(1.0f, 1.0f, 1.0f, 1.0f);
-    switch (view->channel) {
-    case 1: tint = ImVec4(1.0f, 0.0f, 0.0f, 1.0f); break;
-    case 2: tint = ImVec4(0.0f, 1.0f, 0.0f, 1.0f); break;
-    case 3: tint = ImVec4(0.0f, 0.0f, 1.0f, 1.0f); break;
-    case 4: tint = ImVec4(0.0f, 0.0f, 0.0f, 1.0f); break;
-    default: break;
-    }
     const float image_side = impl.has_displayed && impl.has_frozen ?
         std::max(1.0f, (side - 8.0f) * 0.5f) : std::max(1.0f, side);
-    auto draw = [&](const char *label, GLuint texture, bool *sampled,
-                    bool pannable) {
+    auto draw = [&](const char *label, PreviewChannel channel, GLuint texture,
+                    bool *sampled, bool pannable) {
         ImGui::BeginGroup();
-        ImGui::TextDisabled("%s", label);
+        ImGui::TextDisabled("%s: %s", label, PreviewChannelLabel(channel));
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetTooltip("%s", PreviewChannelProvenance(channel));
+        }
         const ImVec2 position = ImGui::GetCursorScreenPos();
         ImDrawList *list = ImGui::GetWindowDrawList();
         const float tile = image_side / 8.0f;
@@ -685,7 +698,7 @@ void PreviewGlExecutor::DrawImage(float side,
             }
         }
         ImGui::Image((ImTextureID)(intptr_t)texture,
-                     ImVec2(image_side, image_side), uv0, uv1, tint);
+                     ImVec2(image_side, image_side), uv0, uv1);
         *sampled = true;
         if (pannable && ImGui::IsItemHovered() &&
             ImGui::IsMouseDown(ImGuiMouseButton_Left) && zoom > 1.0f) {
@@ -700,13 +713,13 @@ void PreviewGlExecutor::DrawImage(float side,
         ImGui::EndGroup();
     };
     if (impl.has_frozen) {
-        draw("Frozen", impl.frozen_texture,
+        draw("Frozen", impl.frozen.result_key.channel, impl.frozen_texture,
              &impl.frozen_sampled_this_frame, false);
         if (impl.has_displayed) ImGui::SameLine();
     }
     if (impl.has_displayed) {
-        draw("Current", impl.displayed_texture,
-             &impl.sampled_this_frame, true);
+        draw("Current", impl.displayed.result_key.channel,
+             impl.displayed_texture, &impl.sampled_this_frame, true);
     }
 }
 

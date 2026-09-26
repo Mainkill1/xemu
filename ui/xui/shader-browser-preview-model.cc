@@ -68,7 +68,7 @@ bool PreviewCompileKey::operator!=(const PreviewCompileKey &other) const
 
 bool PreviewResultKey::operator==(const PreviewResultKey &other) const
 {
-    return clock_revision == other.clock_revision &&
+    return channel == other.channel && clock_revision == other.clock_revision &&
            clock_edit_revision == other.clock_edit_revision &&
            time_seconds == other.time_seconds && compile == other.compile &&
            input_revision == other.input_revision && scene == other.scene &&
@@ -81,6 +81,73 @@ bool PreviewResultKey::operator==(const PreviewResultKey &other) const
 bool PreviewResultKey::operator!=(const PreviewResultKey &other) const
 {
     return !(*this == other);
+}
+
+const char *PreviewChannelLabel(PreviewChannel channel)
+{
+    static const char *labels[] = { "Final RGBA",
+                                    "Final R",
+                                    "Final G",
+                                    "Final B",
+                                    "Final Alpha",
+                                    "Fixture UV",
+                                    "Fixture D0",
+                                    "Fixture D1",
+                                    "Fixture B0",
+                                    "Fixture B1",
+                                    "Fixture T0 atlas",
+                                    "Fixture T1 atlas",
+                                    "Fixture T2 atlas",
+                                    "Fixture T3 atlas",
+                                    "Fixture Fog",
+                                    "Depth-like UV ramp",
+                                    "Fixture alpha threshold mask",
+                                    "Exact shader discard mask" };
+    const auto index = static_cast<size_t>(channel);
+    return index < static_cast<size_t>(PreviewChannel::Count) ?
+               labels[index] :
+               "Unknown channel";
+}
+
+bool PreviewChannelAvailable(PreviewChannel channel)
+{
+    return channel < PreviewChannel::ShaderDiscard;
+}
+
+bool PreviewChannelIsDiagnostic(PreviewChannel channel)
+{
+    return channel >= PreviewChannel::UV && PreviewChannelAvailable(channel);
+}
+
+int PreviewChannelComponent(PreviewChannel channel)
+{
+    return channel >= PreviewChannel::Red && channel <= PreviewChannel::Alpha ?
+               static_cast<int>(channel) -
+                   static_cast<int>(PreviewChannel::Red) :
+               -1;
+}
+
+const char *PreviewChannelProvenance(PreviewChannel channel)
+{
+    if (!PreviewChannelAvailable(channel))
+        return "Unsupported: exact shader discard/alpha-test coverage cannot "
+               "be recovered from RGBA.";
+    if (channel <= PreviewChannel::Alpha)
+        return "Selected shader output with synthetic inputs. Scalar views are "
+               "opaque grayscale; Final RGBA preserves shader alpha.";
+    if (channel >= PreviewChannel::T0 && channel <= PreviewChannel::T3)
+        return "Preview-owned RGB texel atlas, opaque: bottom +X/-X/+Y, top "
+               "-Y/+Z/-Z (2D repeats). Before filtering, coordinate routing or "
+               "shader execution.";
+    if (channel == PreviewChannel::DepthRamp)
+        return "Preview-owned horizontal UV ramp, not scene depth or guest "
+               "depth.";
+    if (channel == PreviewChannel::FixtureAlphaMask)
+        return "Approximate preview-owned mask: D0 alpha > alpha reference. "
+               "Ignores shader execution, guest alpha function and discard.";
+    return "Preview-owned 2D fixture chart before shader execution, with "
+           "bilinear corner colors; independent of mesh/camera. RGB is opaque; "
+           "UV is clamped RG, Fog is grayscale.";
 }
 
 const char *PreviewModeLabel(PreviewMode mode)

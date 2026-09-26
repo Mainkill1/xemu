@@ -87,6 +87,77 @@ static CanonicalRecipe PixelRecipe(unsigned stages, bool cube, bool alpha,
 
 int main()
 {
+    {
+        auto fixture = MakePreviewFixture(PreviewFixtureProfile::Flat);
+        fixture.colors[0] = { 0.2f, 0.4f, 0.6f, 0.5f };
+        for (auto &corner : fixture.corner_colors)
+            corner = { 255, 255, 255, 255 };
+        fixture.fog = 0.25f;
+        fixture.alpha_reference = 128;
+        std::vector<uint8_t> chart;
+        std::string error;
+        assert(RenderPreviewDiagnostic(PreviewChannel::D0, fixture, 8, 8,
+                                       &chart, &error));
+        assert((std::vector<uint8_t>(chart.begin(), chart.begin() + 4) ==
+                std::vector<uint8_t>{ 51, 102, 153, 255 }));
+        assert(RenderPreviewDiagnostic(PreviewChannel::Fog, fixture, 8, 8,
+                                       &chart, &error));
+        assert(chart[0] == 64 && chart[1] == 64 && chart[3] == 255);
+        assert(RenderPreviewDiagnostic(PreviewChannel::FixtureAlphaMask,
+                                       fixture, 8, 8, &chart, &error));
+        assert(chart[0] == 0);
+        fixture.alpha_reference = 127;
+        assert(RenderPreviewDiagnostic(PreviewChannel::FixtureAlphaMask,
+                                       fixture, 8, 8, &chart, &error));
+        assert(chart[0] == 255);
+        assert(!RenderPreviewDiagnostic(PreviewChannel::ShaderDiscard, fixture,
+                                        8, 8, &chart, &error));
+        assert(error.find("Unsupported") != std::string::npos);
+        assert(!RenderPreviewDiagnostic(PreviewChannel::UV, fixture, 321, 8,
+                                        &chart, &error));
+        for (int i = 0; i < static_cast<int>(PreviewChannel::Count); ++i) {
+            const auto channel = static_cast<PreviewChannel>(i);
+            assert(std::string(PreviewChannelLabel(channel)) !=
+                   "Unknown channel");
+            assert(*PreviewChannelProvenance(channel));
+            if (PreviewChannelIsDiagnostic(channel)) {
+                assert(RenderPreviewDiagnostic(channel, fixture, 8, 8, &chart,
+                                               &error));
+                assert(chart.size() == 8 * 8 * 4);
+            }
+        }
+        // Independent fixture colors and each T0-T3 atlas have distinct pixels.
+        fixture.colors[1] = { 0.1f, 0.2f, 0.3f, 1 };
+        fixture.colors[2] = { 0.4f, 0.5f, 0.6f, 1 };
+        fixture.colors[3] = { 0.7f, 0.8f, 0.9f, 1 };
+        for (int i = 0; i < 3; ++i) {
+            assert(RenderPreviewDiagnostic(
+                static_cast<PreviewChannel>(int(PreviewChannel::D1) + i),
+                fixture, 8, 8, &chart, &error));
+            assert(std::abs(chart[0] - (0.1f + 0.3f * i) * 255) < 1);
+        }
+        fixture.textures = { PreviewFixtureProfile::Flat,
+                             PreviewFixtureProfile::UV,
+                             PreviewFixtureProfile::Checker,
+                             PreviewFixtureProfile::Cubemap };
+        for (int stage = 0; stage < 4; ++stage) {
+            assert(RenderPreviewDiagnostic(
+                static_cast<PreviewChannel>(int(PreviewChannel::T0) + stage),
+                fixture, 24, 16, &chart, &error));
+            const auto texels = GeneratePreviewTexture(fixture, stage);
+            for (int face = 0; face < 6; ++face)
+                for (int c = 0; c < 3; ++c)
+                    assert(
+                        chart[((face / 3) * 8 * 24 + (face % 3) * 8) * 4 + c] ==
+                        texels[face * kPreviewTextureFaceBytes + c]);
+        }
+        std::vector<uint8_t> rgba{ 20, 40, 60, 80 };
+        ApplyPreviewOutputChannel(PreviewChannel::FinalRGBA, &rgba);
+        assert((rgba == std::vector<uint8_t>{ 20, 40, 60, 80 }));
+        ApplyPreviewOutputChannel(PreviewChannel::Alpha, &rgba);
+        assert((rgba == std::vector<uint8_t>{ 80, 80, 80, 255 }));
+    }
+
     assert(BuildPreviewSyntheticVertexSource("", PreviewBackend::OpenGL)
                .find("vtxD1 = previewColor") == std::string::npos);
     std::vector<PreviewTexturePixels> profiles;

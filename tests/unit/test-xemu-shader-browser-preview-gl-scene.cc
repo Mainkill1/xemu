@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "shader-browser-preview-adapter.hh"
+#include "shader-browser-preview-gl-channel.hh"
 #include <SDL3/SDL.h>
 #include <epoxy/gl.h>
 #include <cassert>
@@ -296,6 +297,94 @@ int main()
     assert((fixture_render(constants, fixture) ==
             std::array<uint8_t, 4>{ 153, 204, 0, 64 }));
     std::puts("OpenGL independent colors, fog, constants, alpha edits PASS");
+    // Sample the real RGBA output through the same production swizzle used by
+    // the HUD. glReadPixels on the source FBO alone would ignore texture
+    // swizzle.
+    GLuint sample_vs =
+        compile(GL_VERTEX_SHADER, "#version 400\nvoid main(){vec2 "
+                                  "p=vec2((gl_VertexID<<1)&2,gl_VertexID&2);gl_"
+                                  "Position=vec4(p*2-1,0,1);}");
+    GLuint sample_fs =
+        compile(GL_FRAGMENT_SHADER,
+                "#version 400\nuniform sampler2D image;out vec4 color;void "
+                "main(){color=texture(image,vec2(0.5));}");
+    GLuint sample_program = glCreateProgram();
+    glAttachShader(sample_program, sample_vs);
+    glAttachShader(sample_program, sample_fs);
+    glLinkProgram(sample_program);
+    glGetProgramiv(sample_program, GL_LINK_STATUS, &linked);
+    assert(linked);
+    glUseProgram(sample_program);
+    glUniform1i(glGetUniformLocation(sample_program, "image"), 0);
+    GLuint sample_texture, sample_fbo;
+    glGenTextures(1, &sample_texture);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, sample_texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                 nullptr);
+    glGenFramebuffers(1, &sample_fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, sample_fbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
+                           sample_texture, 0);
+    assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glViewport(0, 0, 1, 1);
+    auto sample_output = [&] {
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+        std::array<uint8_t, 4> result;
+        glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, result.data());
+        assert(glGetError() == GL_NO_ERROR);
+        return result;
+    };
+    const std::array<uint8_t, 4> final_pixel{ 153, 204, 0, 64 };
+    for (auto channel : { PreviewChannel::Red, PreviewChannel::Green,
+                          PreviewChannel::Blue, PreviewChannel::Alpha }) {
+        SetPreviewGlOutputChannel(channel);
+        const auto value = final_pixel[PreviewChannelComponent(channel)];
+        assert((sample_output() ==
+                std::array<uint8_t, 4>{ value, value, value, 255 }));
+    }
+    SetPreviewGlOutputChannel(PreviewChannel::FinalRGBA);
+    assert(sample_output() == final_pixel);
+    auto chart_fixture = MakePreviewFixture(PreviewFixtureProfile::Flat);
+    for (auto &c : chart_fixture.corner_colors)
+        c = { 255, 255, 255, 255 };
+    chart_fixture.colors[0] = { 0.2f, 0.4f, 0.6f, 0.5f };
+    chart_fixture.fog = 0.25f;
+    chart_fixture.alpha_reference = 127;
+    chart_fixture.textures[0] = PreviewFixtureProfile::MultiTexture;
+    std::vector<uint8_t> chart;
+    std::string chart_error;
+    for (auto channel :
+         { PreviewChannel::UV, PreviewChannel::D0, PreviewChannel::T0,
+           PreviewChannel::Fog, PreviewChannel::DepthRamp,
+           PreviewChannel::FixtureAlphaMask }) {
+        assert(RenderPreviewDiagnostic(channel, chart_fixture, 64, 64, &chart,
+                                       &chart_error));
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 64, 64, 0, GL_RGBA,
+                     GL_UNSIGNED_BYTE, chart.data());
+        const auto result = sample_output();
+        const uint8_t expected = channel == PreviewChannel::UV ||
+                                         channel == PreviewChannel::DepthRamp ?
+                                     129 :
+                                 channel == PreviewChannel::Fog ? 64 :
+                                 channel == PreviewChannel::D0  ? 51 :
+                                                                  255;
+        assert(result[0] == expected && result[3] == 255);
+    }
+    assert(!RenderPreviewDiagnostic(PreviewChannel::ShaderDiscard,
+                                    chart_fixture, 64, 64, &chart,
+                                    &chart_error));
+    assert(chart_error.find("Unsupported") != std::string::npos);
+    std::puts("OpenGL sampled final RGBA/scalars and fixture charts / "
+              "unsupported discard PASS");
+    glDeleteTextures(1, &sample_texture);
+    glDeleteFramebuffers(1, &sample_fbo);
+    glDeleteProgram(sample_program);
+    glDeleteShader(sample_vs);
+    glDeleteShader(sample_fs);
     glDeleteTextures(1, &texture);
     glDeleteFramebuffers(1, &fbo);
     glDeleteBuffers(1, &vbo);
