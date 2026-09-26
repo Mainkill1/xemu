@@ -557,7 +557,7 @@ and a six-face Cube. All vertices and face-local/spherical UVs are generated
 privately. Both backends consume the same bounded CPU geometry and homogeneous
 clip positions, preserving perspective interpolation. Vulkan converts clip Y
 and depth to its viewport convention before the existing presentation row flip.
-There are at most 3,072 vertices (120 KiB) per generated mesh. Vulkan allocates
+There are at most 3,072 vertices (408 KiB with the current fixture attributes) per generated mesh. Vulkan allocates
 one fixed vertex buffer; GL uploads only the current bounded mesh.
 
 Camera controls expose yaw, pitch, distance and two-axis pan, plus reset. Yaw
@@ -628,8 +628,8 @@ buffer; generation uses a single 1,536-byte scratch array. GL uploads the same
 bounded generated data directly. Actual driver allocation granularity is separate
 from these payload sizes. The packet retains only the 172 encoded bytes, charged
 by vector capacity under the unchanged 32 MiB cap; there are no retained profile
-libraries or borrowed texture pointers. The expanded 120-byte scene vertex gives
-a bounded 368,640-byte vertex buffer (3,072 vertices). One active job and three
+libraries or borrowed texture pointers. The expanded 136-byte scene vertex gives
+a bounded 417,792-byte vertex buffer (3,072 vertices). One active job and three
 output slots are unchanged. No game queue/cache/framebuffer access is added.
 
 Deck native readbacks cover each named profile, six-face cube allocation with
@@ -637,3 +637,8 @@ Deck native readbacks cover each named profile, six-face cube allocation with
 combiner constants and alpha reference. Input edits reuse prepared Vulkan programs.
 GL uses the focused native harness for the production shared generator/partner
 contract; production GL worker/presentation smoke remains part of Task 6.
+
+Sampler coordinate routing uses a preview vertex attribute populated from the
+linked GL active-uniform types or Vulkan reflected descriptor types. It does not
+parse sampler declarations from GLSL source; comments, whitespace and macros
+therefore cannot switch a 2D input to cube coordinates or vice versa.

@@ -206,6 +206,29 @@ int main(int argc, char **)
     CHECK(executor.Render(work, stop, &pixels, &error));
     CHECK(pixels[4 * (16 * 32 + 16)] == 255);
     CHECK(pixels != cube_z);
+    fixture.cube_direction = { 0, 0, 1 };
+    packet->fixture_bytes = EncodePreviewSyntheticFixture(fixture);
+    source(
+        "#version 450\nlayout(binding=3) uniform samplerCube\n\ttexSamp0;\n"
+        "layout(location=5) in vec4 vtxT0; layout(location=0) out vec4 color;"
+        "void main(){color=texture(texSamp0,vtxT0.xyz);}");
+    render();
+    CHECK(pixels[4 * (16 * 32 + 16)] == 40 &&
+          pixels[4 * (16 * 32 + 16) + 2] == 255);
+    fixture.cube_direction = { 1, 0, 0 };
+    fixture.uv_scale = { 0, 0 };
+    fixture.uv_offset = { 0.25f, 0.25f };
+    packet->fixture_bytes = EncodePreviewSyntheticFixture(fixture);
+    source(
+        "#version 450\n// samplerCube texSamp0\n/* samplerCube texSamp0; */\n"
+        "layout(binding=3) uniform sampler2D texSamp0;\n"
+        "layout(location=5) in vec4 vtxT0; layout(location=0) out vec4 color;"
+        "void main(){color=vec4(vtxT0.xy,0,1)*texture(texSamp0,vec2(0.5));}");
+    render();
+    CHECK(pixels[4 * (16 * 32 + 16)] == 64 &&
+          pixels[4 * (16 * 32 + 16) + 1] == 10);
+    std::puts("Vulkan reflected cube routing: whitespace and misleading "
+              "comments PASS");
     std::puts("Vulkan cube +Z blue / +X red PASS");
     fixture = MakePreviewFixture(PreviewFixtureProfile::MultiTexture);
     fixture.textures.fill(PreviewFixtureProfile::MultiTexture);

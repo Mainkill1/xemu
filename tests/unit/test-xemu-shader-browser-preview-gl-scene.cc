@@ -77,6 +77,10 @@ int main()
     glVertexAttribPointer(8, 3, GL_FLOAT, GL_FALSE, sizeof(PreviewSceneVertex),
                           reinterpret_cast<const void *>(
                               offsetof(PreviewSceneVertex, direction)));
+    glEnableVertexAttribArray(9);
+    glVertexAttribPointer(9, 4, GL_FLOAT, GL_FALSE, sizeof(PreviewSceneVertex),
+                          reinterpret_cast<const void *>(
+                              offsetof(PreviewSceneVertex, cube_stages)));
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glGenTextures(1, &texture);
@@ -159,8 +163,19 @@ int main()
         glGetProgramiv(p, GL_LINK_STATUS, &ok);
         assert(ok);
         glUseProgram(p);
+        std::array<bool, 4> cubes{};
+        for (size_t i = 0; i < 4; ++i) {
+            const std::string name = "texSamp" + std::to_string(i);
+            const char *ptr = name.c_str();
+            GLuint index = GL_INVALID_INDEX;
+            glGetUniformIndices(p, 1, &ptr, &index);
+            GLint type = GL_SAMPLER_2D;
+            if (index != GL_INVALID_INDEX)
+                glGetActiveUniformsiv(p, 1, &index, GL_UNIFORM_TYPE, &type);
+            cubes[i] = type == GL_SAMPLER_CUBE;
+        }
         auto vertices = BuildPreviewSceneGeometry({});
-        ApplyPreviewSyntheticFixture(fixture, vertices);
+        ApplyPreviewSyntheticFixture(fixture, vertices, cubes);
         glBufferData(GL_ARRAY_BUFFER,
                      vertices.size() * sizeof(PreviewSceneVertex),
                      vertices.data(), GL_STREAM_DRAW);
@@ -169,8 +184,7 @@ int main()
         for (int i = 0; i < 4; ++i) {
             const auto pixels = GeneratePreviewTexture(fixture, i);
             const std::string name = "texSamp" + std::to_string(i);
-            const bool cube =
-                source.find("samplerCube " + name) != std::string::npos;
+            const bool cube = cubes[i];
             const GLenum target = cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
             glActiveTexture(GL_TEXTURE0 + i);
             glBindTexture(target, textures[i]);
@@ -221,6 +235,24 @@ int main()
     fixture.cube_direction = { 1, 0, 0 };
     assert((fixture_render(cube_source, fixture) ==
             std::array<uint8_t, 4>{ 255, 40, 40, 255 }));
+    fixture.cube_direction = { 0, 0, 1 };
+    const std::string spaced_cube =
+        "#version 400\nuniform samplerCube\n\ttexSamp0; in vec4 vtxT0; out "
+        "vec4 color;"
+        "void main(){color=texture(texSamp0,vtxT0.xyz);}";
+    assert((fixture_render(spaced_cube, fixture) ==
+            std::array<uint8_t, 4>{ 40, 40, 255, 255 }));
+    fixture.cube_direction = { 1, 0, 0 };
+    fixture.uv_scale = { 0, 0 };
+    fixture.uv_offset = { 0.25f, 0.25f };
+    const std::string commented_2d =
+        "#version 400\n// samplerCube texSamp0\n/* samplerCube texSamp0; */\n"
+        "uniform sampler2D texSamp0; in vec4 vtxT0; out vec4 color;"
+        "void main(){color=vec4(vtxT0.xy,0,1)*texture(texSamp0,vec2(0.5));}";
+    assert((fixture_render(commented_2d, fixture) ==
+            std::array<uint8_t, 4>{ 64, 10, 0, 255 }));
+    std::puts("OpenGL reflected cube routing: whitespace and misleading "
+              "comments PASS");
     std::puts("OpenGL cube +Z blue / +X red PASS");
     fixture = MakePreviewFixture(PreviewFixtureProfile::MultiTexture);
     fixture.textures.fill(PreviewFixtureProfile::MultiTexture);

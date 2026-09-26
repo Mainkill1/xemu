@@ -844,14 +844,16 @@ struct PreviewVkExecutor::Impl {
             { 6, 0, VK_FORMAT_R32G32B32A32_SFLOAT,
               offsetof(Vertex, colors) + 48 },
             { 7, 0, VK_FORMAT_R32_SFLOAT, offsetof(Vertex, fog) },
-            { 8, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, direction) }
+            { 8, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, direction) },
+            { 9, 0, VK_FORMAT_R32G32B32A32_SFLOAT,
+              offsetof(Vertex, cube_stages) }
         };
         VkPipelineVertexInputStateCreateInfo vi{
             VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO
         };
         vi.vertexBindingDescriptionCount = 1;
         vi.pVertexBindingDescriptions = &vb;
-        vi.vertexAttributeDescriptionCount = 9;
+        vi.vertexAttributeDescriptionCount = 10;
         vi.pVertexAttributeDescriptions = attrs;
         VkPipelineInputAssemblyStateCreateInfo ia{
             VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO
@@ -1009,7 +1011,7 @@ struct PreviewVkExecutor::Impl {
         }
         auto mesh = BuildPreviewSceneGeometry(
             work.result_key.scene, float(packet.width) / packet.height, true);
-        ApplyPreviewSyntheticFixture(fixture, mesh);
+        ApplyPreviewSyntheticFixture(fixture, mesh, cubes);
         std::memcpy(vertices.mapped, mesh.data(), mesh.size() * sizeof(Vertex));
         if (uniform_size)
             std::memset(uniform.mapped, 0, uniform_size);
