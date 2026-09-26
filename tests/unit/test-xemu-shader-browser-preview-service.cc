@@ -417,6 +417,47 @@ int main()
     assert(status.state == PreviewState::Disabled);
     assert(!status.prepared);
 
+    // A paused guest permits a 30 Hz continuous preview, and a new user
+    // input renders immediately without opening an unbounded failure retry.
+    service.ResetForTest();
+    auto paused_animation = Packet(1, true);
+    service.SetEnabled(true);
+    service.SetVisible(true, t0);
+    service.SetSelection(paused_animation->selection, t0);
+    assert(service.SubmitPacket(*paused_animation, t0, &error));
+    Prepare(&service, t0);
+    const uint64_t paused_first = t0 + kPreviewSelectionDebounceNs + 10;
+    service.SetVisible(true, paused_first);
+    assert(service.TryClaimWork(paused_first, &work));
+    assert(service.CompleteRender(work.token, true, "paused frame", paused_first));
+    service.CopyStatus(&status);
+    assert(status.update_hz == 30);
+    service.SetVisible(true, paused_first + kPreviewPausedIntervalNs - 1);
+    assert(!service.TryClaimWork(paused_first + kPreviewPausedIntervalNs - 1,
+                                 &work));
+    service.SetVisible(true, paused_first + kPreviewPausedIntervalNs);
+    assert(service.TryClaimWork(paused_first + kPreviewPausedIntervalNs,
+                                &work));
+    assert(service.CompleteRender(
+        work.token, true, "paused frame 2",
+        paused_first + kPreviewPausedIntervalNs));
+
+    service.ResetForTest();
+    EnableAndSelect(&service, t0);
+    Prepare(&service, t0);
+    service.SetVisible(true, paused_first);
+    assert(service.TryClaimWork(paused_first, &work));
+    assert(service.CompleteRender(work.token, true, "first", paused_first));
+    PreviewPacket input_edit = *Packet(2);
+    assert(service.SubmitPacket(input_edit, paused_first + 1, &error));
+    service.SetVisible(true, paused_first + 1);
+    assert(service.TryClaimWork(paused_first + 1, &work));
+    assert(work.result_key.input_revision == 2);
+    assert(service.CompleteRender(work.token, false, "bad input",
+                                  paused_first + 1));
+    service.SetVisible(true, paused_first + 2);
+    assert(!service.TryClaimWork(paused_first + 2, &work));
+
     // Status readers and health/visibility publishers may run concurrently.
     service.ResetForTest();
     EnableAndSelect(&service, t0);

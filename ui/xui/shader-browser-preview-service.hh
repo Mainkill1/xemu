@@ -151,6 +151,8 @@ private:
     uint64_t next_ready_sequence_ = 1;
     bool last_result_valid_ = false;
     PreviewResultKey last_result_key_;
+    bool last_attempt_valid_ = false;
+    PreviewResultKey last_attempt_result_key_;
     uint64_t last_render_start_ns_ = 0;
 
     PreviewState state_ = PreviewState::Disabled;

@@ -111,7 +111,7 @@ void PreviewService::CopyStatus(PreviewStatus *status) const
     status->prepared = IsPreparedLocked();
     status->preparation_requested = preparation_requested_;
     status->work_active = active_;
-    status->update_hz = guest_paused_ ? 15 : UpdateHzLocked();
+    status->update_hz = guest_paused_ ? 30 : UpdateHzLocked();
     for (const Slot &slot : slots_) {
         switch (slot.state) {
         case PreviewSlotState::Free: ++status->free_slots; break;
@@ -162,6 +162,8 @@ void PreviewService::ResetLocked()
     next_ready_sequence_ = 1;
     last_result_valid_ = false;
     last_result_key_ = {};
+    last_attempt_valid_ = false;
+    last_attempt_result_key_ = {};
     last_render_start_ns_ = 0;
     state_ = PreviewState::Disabled;
     message_ = "Preview is disabled";
