@@ -21,6 +21,7 @@
 
 #include "hw/xbox/mcpx/apu/apu_int.h"
 #include "adpcm.h"
+#include "voice_mix.h"
 
 static const struct {
     hwaddr top, current, next;
@@ -1359,23 +1360,12 @@ static void voice_process(MCPXAPUState *d,
         return;
     }
 
-    int bin[8];
-    bin[0] = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_VBIN,
-                            NV_PAVS_VOICE_CFG_VBIN_V0BIN);
-    bin[1] = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_VBIN,
-                            NV_PAVS_VOICE_CFG_VBIN_V1BIN);
-    bin[2] = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_VBIN,
-                            NV_PAVS_VOICE_CFG_VBIN_V2BIN);
-    bin[3] = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_VBIN,
-                            NV_PAVS_VOICE_CFG_VBIN_V3BIN);
-    bin[4] = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_VBIN,
-                            NV_PAVS_VOICE_CFG_VBIN_V4BIN);
-    bin[5] = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_VBIN,
-                            NV_PAVS_VOICE_CFG_VBIN_V5BIN);
-    bin[6] = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_FMT,
-                            NV_PAVS_VOICE_CFG_FMT_V6BIN);
-    bin[7] = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_FMT,
-                            NV_PAVS_VOICE_CFG_FMT_V7BIN);
+    uint8_t bin[8];
+    uint32_t cfg_fmt = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_FMT,
+                                      UINT32_MAX);
+    uint32_t cfg_vbin = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_VBIN,
+                                       UINT32_MAX);
+    mcpx_apu_voice_decode_mix_bins(cfg_fmt, cfg_vbin, bin);
 
     if (v < MCPX_HW_MAX_3D_VOICES) {
         bin[0] = d->vp.hrtf_submix[0];
@@ -1385,31 +1375,13 @@ static void voice_process(MCPXAPUState *d,
     }
 
     uint16_t vol[8];
-    vol[0] = voice_get_mask(d, v, NV_PAVS_VOICE_TAR_VOLA,
-                            NV_PAVS_VOICE_TAR_VOLA_VOLUME0);
-    vol[1] = voice_get_mask(d, v, NV_PAVS_VOICE_TAR_VOLA,
-                            NV_PAVS_VOICE_TAR_VOLA_VOLUME1);
-    vol[2] = voice_get_mask(d, v, NV_PAVS_VOICE_TAR_VOLB,
-                            NV_PAVS_VOICE_TAR_VOLB_VOLUME2);
-    vol[3] = voice_get_mask(d, v, NV_PAVS_VOICE_TAR_VOLB,
-                            NV_PAVS_VOICE_TAR_VOLB_VOLUME3);
-    vol[4] = voice_get_mask(d, v, NV_PAVS_VOICE_TAR_VOLC,
-                            NV_PAVS_VOICE_TAR_VOLC_VOLUME4);
-    vol[5] = voice_get_mask(d, v, NV_PAVS_VOICE_TAR_VOLC,
-                            NV_PAVS_VOICE_TAR_VOLC_VOLUME5);
-
-    vol[6] = voice_get_mask(d, v, NV_PAVS_VOICE_TAR_VOLC,
-                            NV_PAVS_VOICE_TAR_VOLC_VOLUME6_B11_8) << 8;
-    vol[6] |= voice_get_mask(d, v, NV_PAVS_VOICE_TAR_VOLB,
-                             NV_PAVS_VOICE_TAR_VOLB_VOLUME6_B7_4) << 4;
-    vol[6] |= voice_get_mask(d, v, NV_PAVS_VOICE_TAR_VOLA,
-                             NV_PAVS_VOICE_TAR_VOLA_VOLUME6_B3_0);
-    vol[7] = voice_get_mask(d, v, NV_PAVS_VOICE_TAR_VOLC,
-                            NV_PAVS_VOICE_TAR_VOLC_VOLUME7_B11_8) << 8;
-    vol[7] |= voice_get_mask(d, v, NV_PAVS_VOICE_TAR_VOLB,
-                             NV_PAVS_VOICE_TAR_VOLB_VOLUME7_B7_4) << 4;
-    vol[7] |= voice_get_mask(d, v, NV_PAVS_VOICE_TAR_VOLA,
-                             NV_PAVS_VOICE_TAR_VOLA_VOLUME7_B3_0);
+    uint32_t vola = voice_get_mask(d, v, NV_PAVS_VOICE_TAR_VOLA,
+                                   UINT32_MAX);
+    uint32_t volb = voice_get_mask(d, v, NV_PAVS_VOICE_TAR_VOLB,
+                                   UINT32_MAX);
+    uint32_t volc = voice_get_mask(d, v, NV_PAVS_VOICE_TAR_VOLC,
+                                   UINT32_MAX);
+    mcpx_apu_voice_decode_mix_volumes(vola, volb, volc, vol);
 
     // FIXME: If phase negations means to flip the signal upside down
     //        we should modify volume of bin6 and bin7 here.
