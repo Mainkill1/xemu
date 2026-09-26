@@ -3,6 +3,18 @@
 
 namespace xemu::shader_browser {
 
+static bool SameInteractionInputs(const PreviewResultKey &lhs,
+                                  const PreviewResultKey &rhs)
+{
+    return lhs.compile == rhs.compile &&
+           lhs.input_revision == rhs.input_revision &&
+           lhs.view_revision == rhs.view_revision &&
+           lhs.width == rhs.width && lhs.height == rhs.height &&
+           lhs.packet_kind == rhs.packet_kind &&
+           lhs.replay_class == rhs.replay_class &&
+           lhs.fixture_digest == rhs.fixture_digest;
+}
+
 void PreviewService::ApplyPressureRecoveryLocked(uint64_t now_ns)
 {
     if (!health_valid_ || recovery_candidate_ >= effective_pressure_ ||
@@ -181,12 +193,17 @@ bool PreviewService::TryClaimWork(uint64_t now_ns, PreviewWorkItem *work,
         return false;
     }
 
-    uint64_t interval = guest_paused_ ? kPreviewNormalIntervalNs :
+    uint64_t interval = guest_paused_ ? kPreviewPausedIntervalNs :
                                        IntervalForPressureLocked();
+    const bool immediate_paused_update =
+        guest_paused_ &&
+        (!last_attempt_valid_ ||
+         !SameInteractionInputs(last_attempt_result_key_, result_key));
     if (last_render_start_ns_ && now_ns >= last_render_start_ns_ &&
-        now_ns - last_render_start_ns_ < interval) {
+        now_ns - last_render_start_ns_ < interval &&
+        !immediate_paused_update) {
         SetStateLocked(PreviewState::Throttled,
-                       "Preview update rate is bounded for gameplay");
+                       "Preview update rate is bounded");
         return false;
     }
 
@@ -217,6 +234,8 @@ bool PreviewService::TryClaimWork(uint64_t now_ns, PreviewWorkItem *work,
     active_work_.slot_generation = slot.generation;
     active_ = true;
     last_render_start_ns_ = now_ns;
+    last_attempt_valid_ = true;
+    last_attempt_result_key_ = result_key;
     *work = active_work_;
     SetStateLocked(PreviewState::Rendering,
                    "Rendering a private bounded preview update");
