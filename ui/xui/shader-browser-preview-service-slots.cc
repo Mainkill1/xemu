@@ -19,10 +19,9 @@ bool PreviewService::TryAcquireReadyFrame(PreviewFrameRef *frame,
     }
     for (size_t i = 0; i < slots_.size(); ++i) {
         Slot &slot = slots_[i];
-        if (slot.state == PreviewSlotState::DisplayLeased) {
-            slot.state = PreviewSlotState::Retiring;
-        } else if (slot.state == PreviewSlotState::Ready &&
-                   static_cast<int>(i) != ready) {
+        // Current and Reference remain leased until the consumer retires them.
+        if (slot.state == PreviewSlotState::Ready &&
+            static_cast<int>(i) != ready) {
             // Completed frames that were never sampled have no consumer lease
             // and may be reclaimed immediately when a newer frame is chosen.
             slot.state = PreviewSlotState::Free;
@@ -54,7 +53,7 @@ bool PreviewService::ReleaseDisplayLease(uint32_t slot_index,
         return false;
     }
     slot.state = PreviewSlotState::Retiring;
-    if (enabled_ && visible_) {
+    if (enabled_ && visible_ && !failed_ && !unsupported_) {
         SetStateLocked(PreviewState::Retiring,
                        "Waiting for HUD sampling to retire");
     }
@@ -128,6 +127,8 @@ void PreviewService::CopyStatus(PreviewStatus *status) const
     status->dropped_no_slot = dropped_no_slot_;
     status->dropped_pressure = dropped_pressure_;
     status->dropped_stale_health = dropped_stale_health_;
+    status->has_attempt = has_attempt_;
+    status->attempted_compile = attempted_compile_;
     status->message = message_;
 }
 
@@ -152,6 +153,13 @@ void PreviewService::ResetLocked()
     next_request_id_ = 1;
     latest_request_id_ = 0;
     preparation_requested_ = false;
+    failed_ = false;
+    failed_render_ = false;
+    failed_compile_ = {};
+    failed_result_ = {};
+    failure_message_.clear();
+    has_attempt_ = false;
+    attempted_compile_ = {};
     prepared_ = false;
     prepared_key_ = {};
     unsupported_ = false;
@@ -180,6 +188,24 @@ void PreviewService::ResetLocked()
     dropped_no_slot_ = 0;
     dropped_pressure_ = 0;
     dropped_stale_health_ = 0;
+}
+
+void PreviewService::BackendDestroyed()
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    // This is an epoch invalidation, never an ordinary fence retirement.
+    // The backend has discarded all texture names and can only allocate new
+    // objects. Keep lease generations monotonic across a subsequent restart.
+    enabled_ = false;
+    InvalidatePendingLocked(PreviewState::Disabled,
+                            "Private preview backend closed");
+    active_ = false;
+    active_work_ = {};
+    for (Slot &slot : slots_) {
+        const uint64_t generation = slot.generation + 1;
+        slot = {};
+        slot.generation = generation;
+    }
 }
 
 void PreviewService::ResetForTest()

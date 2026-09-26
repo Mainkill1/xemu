@@ -37,6 +37,8 @@ struct PreviewStatus {
     uint64_t dropped_no_slot = 0;
     uint64_t dropped_pressure = 0;
     uint64_t dropped_stale_health = 0;
+    bool has_attempt = false;
+    PreviewCompileKey attempted_compile;
     std::string message;
 };
 
@@ -61,6 +63,10 @@ public:
     bool SubmitPacket(PreviewPacket packet,
                       uint64_t now_ns, std::string *error);
     bool RequestPreparation(std::string *error);
+    bool RequestAutomaticPreparation(uint64_t now_ns);
+    void ReportInputFailure(const PreviewCompileKey &attempt,
+                            const std::string &error);
+    void RequestCurrentFrame();
     void EditChannel(PreviewChannel channel);
     void EditScene(const PreviewScene &scene);
     void EditClock(PreviewClockAction action, double value, uint64_t now_ns);
@@ -87,6 +93,8 @@ public:
                                    uint64_t slot_generation);
 
     void CopyStatus(PreviewStatus *status) const;
+    // Terminal backend teardown only, after worker join and texture deletion.
+    void BackendDestroyed();
     void ResetForTest();
 
 private:
@@ -113,8 +121,8 @@ private:
     uint64_t IntervalForPressureLocked() const;
     uint32_t UpdateHzLocked() const;
     void ApplyPressureRecoveryLocked(uint64_t now_ns);
-    void InvalidatePendingLocked(PreviewState state,
-                                 const std::string &message);
+    void InvalidatePendingLocked(PreviewState state, const std::string &message,
+                                 bool preserve_display = false);
     bool ExpireVisibilityLocked(uint64_t now_ns);
     void SetStateLocked(PreviewState state, const std::string &message);
     void SetRestingStateLocked(const std::string &message);
@@ -144,6 +152,14 @@ private:
     uint64_t next_request_id_ = 1;
     uint64_t latest_request_id_ = 0;
     bool preparation_requested_ = false;
+
+    bool failed_ = false;
+    bool failed_render_ = false;
+    PreviewCompileKey failed_compile_;
+    PreviewResultKey failed_result_;
+    std::string failure_message_;
+    bool has_attempt_ = false;
+    PreviewCompileKey attempted_compile_;
 
     bool prepared_ = false;
     PreviewCompileKey prepared_key_;

@@ -36,6 +36,34 @@ bool CheckedAdd(size_t lhs, size_t rhs, size_t *result)
 
 } // namespace
 
+std::string PreviewSourceIdentity(const PreviewCompileKey &key)
+{
+    static const char hex[] = "0123456789abcdef";
+    std::string digest;
+    for (uint8_t byte : key.source_digest) {
+        digest += hex[byte >> 4];
+        digest += hex[byte & 15];
+    }
+    if (std::all_of(key.source_digest.begin(), key.source_digest.end(),
+                    [](uint8_t byte) { return byte == 0; })) {
+        digest = "unavailable";
+    }
+    if (key.selection.mode == PreviewMode::Replacement) {
+        return "replacement " + std::to_string(key.replacement_id) +
+               " revision " + std::to_string(key.replacement_revision) +
+               " / source " + digest;
+    }
+    return digest;
+}
+
+bool SamePreviewDisplayScope(const PreviewSelection &lhs,
+                             const PreviewSelection &rhs)
+{
+    PreviewSelection comparable = lhs;
+    comparable.mode = rhs.mode;
+    return comparable == rhs;
+}
+
 bool PreviewSelection::operator==(const PreviewSelection &other) const
 {
     return scope == other.scope && shader == other.shader &&

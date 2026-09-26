@@ -61,8 +61,119 @@ static void Prepare(PreviewService *service, uint64_t now)
     assert(service->CompletePreparation(work.token, true, "prepared", now));
 }
 
+static void TestLastGoodAndAutomaticPreparation()
+{
+    constexpr uint64_t start = UINT64_C(1000000000);
+    const uint64_t settled = start + kPreviewSelectionDebounceNs;
+    PreviewService service;
+    EnableAndSelect(&service, start);
+    service.SetGuestPaused(true);
+    PreviewWorkItem work{};
+    assert(!service.RequestAutomaticPreparation(settled - 1));
+    assert(!service.TryClaimWork(settled - 1, &work));
+    // No explicit Prepare click is needed after paused selection settles.
+    assert(service.RequestAutomaticPreparation(settled));
+    assert(!service.RequestAutomaticPreparation(settled));
+    assert(service.TryClaimWork(settled, &work));
+    assert(work.kind == PreviewWorkKind::Prepare);
+    assert(service.CompletePreparation(work.token, true, "prepared", settled));
+    assert(service.TryClaimWork(settled, &work));
+    assert(service.CompleteRender(work.token, true, "good", settled));
+    PreviewFrameRef original{};
+    assert(service.TryAcquireReadyFrame(&original, settled));
+
+    auto replacement = Packet();
+    replacement->selection.mode = PreviewMode::Replacement;
+    replacement->replacement_id = 7;
+    replacement->replacement_revision = 2;
+    replacement->source = "invalid shader";
+    replacement->source_digest = ComputePreviewDigest(
+        reinterpret_cast<const uint8_t *>(replacement->source.data()),
+        replacement->source.size());
+    service.SetRequestedMode(PreviewMode::Replacement);
+    service.SetSelection(replacement->selection, settled);
+    std::string error;
+    assert(service.SubmitPacket(*replacement, settled, &error));
+    // A mode change must not retire a frame still sampled by the HUD.
+    assert(!service.CompleteDisplayRetirement(original.slot,
+                                              original.slot_generation));
+    service.SetVisible(true, settled + kPreviewSelectionDebounceNs);
+    assert(service.RequestAutomaticPreparation(settled +
+                                               kPreviewSelectionDebounceNs));
+    assert(service.TryClaimWork(settled + kPreviewSelectionDebounceNs, &work));
+    assert(service.CompletePreparation(work.token, false, "bad replacement",
+                                       settled));
+    assert(!service.TryClaimWork(settled + kPreviewSelectionDebounceNs, &work));
+    PreviewStatus status;
+    service.CopyStatus(&status);
+    assert(status.state == PreviewState::Failed);
+    assert(status.message == "bad replacement");
+    assert(status.leased_slots == 1 && status.free_slots == 2);
+    assert(status.has_attempt &&
+           status.attempted_compile.replacement_revision == 2);
+    assert(
+        !service.RequestPreparation(&error)); // No failed-compile retry loop.
+    ++replacement->replacement_revision;
+    assert(service.SubmitPacket(*replacement, settled, &error));
+    assert(service.RequestAutomaticPreparation(settled +
+                                               kPreviewSelectionDebounceNs));
+    assert(service.TryClaimWork(settled + kPreviewSelectionDebounceNs, &work));
+    assert(service.CompletePreparation(work.token, true, "fixed", settled));
+    assert(service.TryClaimWork(settled + kPreviewSelectionDebounceNs, &work));
+    assert(service.CompleteRender(work.token, true, "new Current", settled));
+    PreviewFrameRef current{};
+    assert(service.TryAcquireReadyFrame(&current, settled));
+    // Original can be Frozen while the new Current owns a different slot.
+    assert(current.slot != original.slot);
+    assert(!service.CompleteDisplayRetirement(original.slot,
+                                              original.slot_generation));
+    assert(!service.CompleteDisplayRetirement(current.slot,
+                                              current.slot_generation));
+    service.RequestCurrentFrame();
+    service.SetVisible(true, settled + 2 * kPreviewSelectionDebounceNs);
+    assert(
+        service.TryClaimWork(settled + 2 * kPreviewSelectionDebounceNs, &work));
+    assert(
+        service.CompleteRender(work.token, false, "render failure", settled));
+    service.CopyStatus(&status);
+    assert(status.leased_slots == 2 && status.free_slots == 1);
+    assert(!service.TryClaimWork(settled + 2 * kPreviewSelectionDebounceNs,
+                                 &work));
+    service.CopyStatus(&status);
+    assert(status.message == "render failure");
+    ++replacement->input_revision;
+    assert(service.SubmitPacket(*replacement, settled, &error));
+    assert(
+        service.TryClaimWork(settled + 2 * kPreviewSelectionDebounceNs, &work));
+    const auto obsolete_token = work.token;
+    PreviewCompileKey attempted = BuildPreviewCompileKey(*replacement);
+    ++attempted.replacement_revision;
+    service.ReportInputFailure(attempted, "incompatible replacement");
+    assert(service.CompleteRender(obsolete_token, true, "obsolete", settled));
+    service.CopyStatus(&status);
+    assert(status.message == "incompatible replacement");
+    assert(status.ready_slots == 0 && status.leased_slots == 2);
+    assert(!service.TryAcquireReadyFrame(&current, settled));
+    // The delayed consumer fence keeps its slot unavailable until explicit
+    // proof.
+    assert(
+        service.ReleaseDisplayLease(original.slot, original.slot_generation));
+    service.CopyStatus(&status);
+    assert(status.free_slots == 1);
+    assert(service.CompleteDisplayRetirement(original.slot,
+                                             original.slot_generation));
+    service.SetVisible(false, settled);
+    assert(service.CompleteDisplayRetirement(current.slot,
+                                             current.slot_generation));
+    service.CopyStatus(&status);
+    assert(status.free_slots == 3);
+    service.BackendDestroyed();
+    assert(!service.ReleaseDisplayLease(current.slot, current.slot_generation));
+}
+
 int main()
 {
+    TestLastGoodAndAutomaticPreparation();
     constexpr uint64_t t0 = UINT64_C(1000000000);
     PreviewService service;
     PreviewWorkItem work{};
@@ -270,7 +381,7 @@ int main()
         assert(service.CompleteRender(work.token, true, "queued frame", t0));
     }
     service.CopyStatus(&status);
-    assert(status.ready_slots == kPreviewSlotCount);
+    assert(status.ready_slots == 1);
     PreviewFrameRef newest{};
     assert(service.TryAcquireReadyFrame(&newest, t0));
     assert(newest.result_key.input_revision == kPreviewSlotCount);
@@ -281,6 +392,32 @@ int main()
     assert(service.ReleaseDisplayLease(newest.slot, newest.slot_generation));
     assert(service.CompleteDisplayRetirement(newest.slot,
                                              newest.slot_generation));
+
+    // Returning to a completed-but-discarded input must produce a new frame.
+    service.ResetForTest();
+    EnableAndSelect(&service, t0);
+    Prepare(&service, t0);
+    const auto settled = t0 + kPreviewSelectionDebounceNs;
+    assert(service.TryClaimWork(settled, &work));
+    assert(service.CompleteRender(work.token, true, "reference", settled));
+    PreviewFrameRef reference{};
+    assert(service.TryAcquireReadyFrame(&reference, settled));
+    assert(service.SubmitPacket(*Packet(10), settled, &error));
+    assert(service.TryClaimWork(settled, &work));
+    assert(service.CompleteRender(work.token, true, "current", settled));
+    PreviewFrameRef retained_current{};
+    assert(service.TryAcquireReadyFrame(&retained_current, settled));
+    assert(service.SubmitPacket(*Packet(1), settled, &error));
+    assert(service.TryClaimWork(settled, &work));
+    assert(service.CompleteRender(work.token, true, "unacquired", settled));
+    assert(service.SubmitPacket(*Packet(2), settled, &error));
+    assert(!service.TryAcquireReadyFrame(&newest, settled));
+    assert(service.SubmitPacket(*Packet(1), settled, &error));
+    service.CopyStatus(&status);
+    assert(status.leased_slots == 2 && status.free_slots == 1);
+    assert(service.TryClaimWork(settled, &work));
+    assert(service.CompleteRender(work.token, true, "restored", settled));
+    assert(service.TryAcquireReadyFrame(&newest, settled));
 
     // A reused slot's larger lease generation must not beat a newer frame.
     service.ResetForTest();

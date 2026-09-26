@@ -44,6 +44,8 @@ void PreviewService::SetRestingStateLocked(const std::string &message)
     } else if (!has_selection_) {
         SetStateLocked(PreviewState::NoSelection,
                        "Select a shader to preview it");
+    } else if (failed_) {
+        SetStateLocked(PreviewState::Failed, failure_message_);
     } else if (!pending_.packet) {
         SetStateLocked(PreviewState::WaitingForInputs,
                        "Waiting for an immutable preview packet");
@@ -60,7 +62,8 @@ void PreviewService::SetRestingStateLocked(const std::string &message)
 }
 
 void PreviewService::InvalidatePendingLocked(PreviewState state,
-                                             const std::string &message)
+                                             const std::string &message,
+                                             bool preserve_display)
 {
     clock_suspended_ = true;
     latest_request_id_ = next_request_id_++;
@@ -70,11 +73,15 @@ void PreviewService::InvalidatePendingLocked(PreviewState state,
     unsupported_ = false;
     unsupported_reason_.clear();
     last_result_valid_ = false;
+    failed_ = false;
+    has_attempt_ = false;
+    failure_message_.clear();
     for (Slot &slot : slots_) {
         if (slot.state == PreviewSlotState::Ready) {
             slot.state = PreviewSlotState::Free;
             slot.ready_sequence = 0;
-        } else if (slot.state == PreviewSlotState::DisplayLeased) {
+        } else if (!preserve_display &&
+                   slot.state == PreviewSlotState::DisplayLeased) {
             slot.state = PreviewSlotState::Retiring;
         }
     }
@@ -151,7 +158,7 @@ void PreviewService::SetGuestPaused(bool paused)
     guest_paused_ = paused;
     ++generation_;
     if (!paused && state_ == PreviewState::NeedsPreparation) {
-        message_ = "Pause the guest before preparing preview resources";
+        message_ = "Pause required to prepare private preview resources";
     }
 }
 
@@ -166,7 +173,7 @@ void PreviewService::SetRequestedMode(PreviewMode mode)
         selection_.mode = mode;
         InvalidatePendingLocked(
             enabled_ && visible_ ? PreviewState::WaitingForInputs : state_,
-            "Preview mode changed; waiting for matching inputs");
+            "Preview mode changed; waiting for matching inputs", true);
     } else {
         ++generation_;
     }
@@ -179,14 +186,18 @@ void PreviewService::SetSelection(const PreviewSelection &selection,
     if (has_selection_ && selection_ == selection) {
         return;
     }
+    const bool preserve_display =
+        has_selection_ && SamePreviewDisplayScope(selection_, selection);
     has_selection_ = true;
     selection_ = selection;
     requested_mode_ = selection.mode;
     selection_changed_ns_ = now_ns;
     InvalidatePendingLocked(
         enabled_ && visible_ ? PreviewState::WaitingForInputs :
-        enabled_ ? PreviewState::Hidden : PreviewState::Disabled,
-        "Selection changed; waiting for matching preview inputs");
+        enabled_             ? PreviewState::Hidden :
+                               PreviewState::Disabled,
+        "Selection changed; waiting for matching preview inputs",
+        preserve_display);
 }
 
 void PreviewService::ClearSelection()
@@ -259,6 +270,29 @@ bool PreviewService::SubmitPacket(PreviewPacket packet,
     pending_.packet = std::move(owned);
     latest_request_id_ = pending_.request_id;
     ++submitted_requests_;
+    has_attempt_ = true;
+    attempted_compile_ = BuildPreviewCompileKey(*pending_.packet);
+    if (failed_ &&
+        (failed_compile_ != attempted_compile_ ||
+         (failed_render_ && failed_result_ != CurrentResultKeyLocked()))) {
+        failed_ = false;
+        failure_message_.clear();
+    }
+    // An unacquired completion from an older edit must never replace Current.
+    for (Slot &slot : slots_) {
+        if (slot.state == PreviewSlotState::Ready &&
+            slot.result_key != CurrentResultKeyLocked()) {
+            if (last_result_valid_ && slot.result_key == last_result_key_) {
+                last_result_valid_ = false;
+            }
+            if (last_attempt_valid_ &&
+                slot.result_key == last_attempt_result_key_) {
+                last_attempt_valid_ = false;
+            }
+            slot.state = PreviewSlotState::Free;
+            slot.ready_sequence = 0;
+        }
+    }
     (void)now_ns;
     preparation_requested_ = false;
     if (unsupported_ &&
@@ -274,17 +308,54 @@ bool PreviewService::SubmitPacket(PreviewPacket packet,
         SetStateLocked(PreviewState::Disabled, "Preview is disabled");
     } else if (!visible_) {
         SetStateLocked(PreviewState::Hidden, "Live Preview is not visible");
+    } else if (failed_) {
+        SetStateLocked(PreviewState::Failed, failure_message_);
     } else if (unsupported_) {
         SetStateLocked(PreviewState::Unsupported, unsupported_reason_);
     } else if (!IsPreparedLocked()) {
-        SetStateLocked(PreviewState::NeedsPreparation,
-                       guest_paused_ ?
-                           "Request preparation for the selected shader" :
-                           "Pause the guest before preparing preview resources");
+        SetStateLocked(
+            PreviewState::NeedsPreparation,
+            guest_paused_ ?
+                "Request preparation for the selected shader" :
+                "Pause required to prepare private preview resources");
     } else {
         SetStateLocked(PreviewState::Ready, "Preview inputs are prepared");
     }
     if (error) error->clear();
+    return true;
+}
+
+void PreviewService::ReportInputFailure(const PreviewCompileKey &attempt,
+                                        const std::string &error)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (!has_selection_ || attempt.selection != selection_)
+        return;
+    InvalidatePendingLocked(PreviewState::Failed, error, true);
+    has_attempt_ = true;
+    attempted_compile_ = attempt;
+    failed_ = true;
+    failed_render_ = false;
+    failed_compile_ = attempt;
+    failure_message_ = error;
+}
+
+void PreviewService::RequestCurrentFrame()
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    last_result_valid_ = false;
+}
+
+bool PreviewService::RequestAutomaticPreparation(uint64_t now_ns)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (!enabled_ || !visible_ || !guest_paused_ || !pending_.packet ||
+        active_ || IsPreparedLocked() || failed_ || unsupported_ ||
+        preparation_requested_ || now_ns < selection_changed_ns_ ||
+        now_ns - selection_changed_ns_ < kPreviewSelectionDebounceNs) {
+        return false;
+    }
+    preparation_requested_ = true;
     return true;
 }
 
@@ -311,8 +382,11 @@ bool PreviewService::RequestPreparation(std::string *error)
         if (error) *error = "Preview resources are already prepared";
         return false;
     }
-    unsupported_ = false;
-    unsupported_reason_.clear();
+    if (failed_ || unsupported_) {
+        if (error)
+            *error = "Change the source revision before retrying preparation";
+        return false;
+    }
     preparation_requested_ = true;
     SetStateLocked(PreviewState::NeedsPreparation,
                    "Preparation requested while the guest is paused");

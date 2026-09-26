@@ -332,3 +332,21 @@ shader_browser_preview_gl_scene_test = executable(
         'shader-browser-preview-model.cc', 'shader-browser-model.cc'),
   include_directories: shader_browser_test_inc,
   dependencies: [sdl, epoxy, xxhash, json])
+
+# Native GPU hosts only: production asynchronous worker and HUD ownership.
+shader_browser_preview_lifecycle_deps = [shader_browser_threads, sdl, epoxy,
+                                         xxhash, json, imgui, glib]
+if vulkan.found()
+  shader_browser_preview_lifecycle_deps += [vulkan, libglslang, spirv_reflect]
+endif
+shader_browser_preview_lifecycle_test = executable(
+  'test-xemu-shader-browser-preview-lifecycle',
+  shader_browser_test_dir / 'test-xemu-shader-browser-preview-lifecycle.cc',
+  files('shader-browser-recipe-inspector.cc', 'shader-browser-preview-gl.cc',
+        'shader-browser-preview-vk.cc', 'shader-browser-preview-scene.cc',
+        'shader-browser-preview-adapter.cc', 'shader-browser-preview-fixture.cc',
+        'shader-browser-preview-model.cc', 'shader-browser-model.cc',
+        'shader-browser-preview-clock.cc', 'shader-browser-preview-service.cc',
+        'shader-browser-preview-service-work.cc', 'shader-browser-preview-service-slots.cc'),
+  include_directories: shader_browser_test_inc,
+  dependencies: shader_browser_preview_lifecycle_deps)

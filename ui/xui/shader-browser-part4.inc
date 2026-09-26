@@ -369,6 +369,8 @@ void ShaderBrowserWindow::DrawLivePreview()
         }
         service.SetSelection(selection, now_ns);
 
+        PreviewCompileKey attempted{};
+        attempted.selection = selection;
         const uint64_t detail_generation = m_detail_snapshot.generation;
         const uint64_t replacement_generation =
             selection.mode == PreviewMode::Replacement ?
@@ -443,11 +445,13 @@ void ShaderBrowserWindow::DrawLivePreview()
                         m_preview_packet_message =
                             "Selected replacement payload is unavailable";
                         source_ready = false;
-                    } else if (!IsReplacementCompatible(
-                                   entry->key, replacement->descriptor,
-                                   backend, &m_preview_packet_message)) {
-                        source_ready = false;
                     } else {
+                        attempted.replacement_id = replacement->descriptor.id;
+                        attempted.replacement_revision =
+                            replacement->descriptor.content_revision;
+                        source_ready = IsReplacementCompatible(
+                            entry->key, replacement->descriptor, backend,
+                            &m_preview_packet_message);
                         inputs.replacement_id = replacement->descriptor.id;
                         inputs.replacement_revision =
                             replacement->descriptor.content_revision;
@@ -462,6 +466,9 @@ void ShaderBrowserWindow::DrawLivePreview()
                         selection, m_detail_snapshot, &inputs.source,
                         &m_preview_packet_message);
                 }
+                attempted.source_digest = ComputePreviewDigest(
+                    reinterpret_cast<const uint8_t *>(inputs.source.data()),
+                    inputs.source.size());
                 if (source_ready) {
                     inputs.partner_source = BuildPreviewSyntheticVertexSource(
                         inputs.source, selection.backend);
@@ -473,12 +480,25 @@ void ShaderBrowserWindow::DrawLivePreview()
                     }
                 }
             }
+            if (!m_preview_packet_message.empty()) {
+                service.ReportInputFailure(attempted,
+                    "INPUT FAILED (source snapshot " +
+                    std::to_string(detail_generation) + ", replacement store " +
+                    std::to_string(replacement_generation) + "): " +
+                    m_preview_packet_message);
+            }
         }
     } else {
         service.ClearSelection();
         m_preview_packet_attempted = false;
     }
 
+    if (service.RequestAutomaticPreparation(now_ns)) {
+        std::string error;
+        if (!GetPreviewGlExecutor().StartWhilePaused(&error)) {
+            m_action_message = error;
+        }
+    }
     service.CopyStatus(&status);
     ImGui::BeginDisabled(!status.has_packet || !status.guest_paused ||
                          status.work_active || status.prepared);
@@ -512,6 +532,11 @@ void ShaderBrowserWindow::DrawLivePreview()
         ImGui::EndTable();
     }
 
+    if (status.has_attempt) {
+        ImGui::TextWrapped("Attempted %s: %s",
+            PreviewModeLabel(status.attempted_compile.selection.mode),
+            PreviewSourceIdentity(status.attempted_compile).c_str());
+    }
     ImGui::TextWrapped("%s", status.message.c_str());
     if (!m_preview_packet_message.empty()) {
         ImGui::TextWrapped("Preview inputs: %s",
@@ -530,18 +555,17 @@ void ShaderBrowserWindow::DrawLivePreview()
         ImGui::SliderFloat2("Pan center", m_preview_view_center.data(),
                             0.0f, 1.0f);
         PreviewGlExecutor &executor = GetPreviewGlExecutor();
-        ImGui::BeginDisabled(!status.guest_paused || !executor.HasDisplayed() ||
-                             status.state != PreviewState::Ready);
-        if (ImGui::Button("Freeze current while paused")) {
+        ImGui::BeginDisabled(!executor.HasDisplayed());
+        if (ImGui::Button("Freeze Reference")) {
             executor.FreezeDisplayed();
         }
         ImGui::EndDisabled();
         ImGui::SameLine();
         ImGui::BeginDisabled(!executor.HasFrozen());
-        if (ImGui::Button("Clear frozen")) executor.ClearFrozen();
+        if (ImGui::Button("Clear Reference")) executor.ClearFrozen();
         ImGui::EndDisabled();
         if (executor.HasFrozen()) {
-            ImGui::TextDisabled("Edit the fixture to compare with the frozen image.");
+            ImGui::TextDisabled("Change mode or inputs to compare Current with Reference.");
         }
     }
 
