@@ -148,6 +148,37 @@ void ShaderBrowserWindow::DrawLivePreview()
         service.SetRequestedMode(static_cast<PreviewMode>(mode));
     }
 
+    int policy = static_cast<int>(m_preview_update_policy);
+    if (ImGui::Combo("Update policy", &policy, "On dirty\0Continuous\0")) {
+        m_preview_update_policy = static_cast<PreviewUpdatePolicy>(policy);
+        m_preview_packet_attempted = false;
+    }
+    if (m_preview_update_policy == PreviewUpdatePolicy::Continuous) {
+        ImGui::TextWrapped("Synthetic animation cycles vertex colors and UVs. "
+                           "It does not supply the game's time uniforms.");
+        if (ImGui::Button(status.clock.playing ? "Pause preview" : "Play preview")) {
+            service.EditClock(status.clock.playing ? PreviewClockAction::Pause :
+                              PreviewClockAction::Play, 0, now_ns);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Restart"))
+            service.EditClock(PreviewClockAction::Restart, 0, now_ns);
+        float time = static_cast<float>(status.clock.time_seconds);
+        if (ImGui::DragFloat("Time (seconds)", &time, 0.02f, 0.0f,
+                             status.clock.loop ? status.clock.loop_seconds : 1.0e9f))
+            service.EditClock(PreviewClockAction::Scrub, time, now_ns);
+        float speed = static_cast<float>(status.clock.speed);
+        if (ImGui::SliderFloat("Speed", &speed, 0.05f, 8.0f, "%.2fx"))
+            service.EditClock(PreviewClockAction::Speed, speed, now_ns);
+        bool loop = status.clock.loop;
+        if (ImGui::Checkbox("Loop", &loop))
+            service.EditClock(PreviewClockAction::Loop, loop, now_ns);
+        float length = static_cast<float>(status.clock.loop_seconds);
+        if (ImGui::DragFloat("Loop length (seconds)", &length, 0.1f, 0.1f, 3600.0f))
+            service.EditClock(PreviewClockAction::LoopLength, length, now_ns);
+        ImGui::Text("Clock sample: %llu", static_cast<unsigned long long>(status.clock.frame));
+    }
+
     auto fixture_changed = [this] {
         ++m_preview_input_revision;
         m_preview_packet_attempted = false;
@@ -274,6 +305,7 @@ void ShaderBrowserWindow::DrawLivePreview()
                 inputs.fixture_bytes = EncodePreviewSyntheticFixture(fixture);
                 inputs.generator_abi = 1;
                 inputs.interface_abi = 1;
+                inputs.update_policy = m_preview_update_policy;
                 inputs.input_revision = m_preview_input_revision;
                 inputs.view_revision = 1;
                 bool source_ready = true;

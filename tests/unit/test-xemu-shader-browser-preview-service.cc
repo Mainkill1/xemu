@@ -30,7 +30,8 @@ static std::shared_ptr<PreviewPacket> Packet(uint64_t input_revision = 1,
     packet->view_revision = 1;
     packet->width = 320;
     packet->height = 320;
-    packet->animated = animated;
+    packet->update_policy = animated ? PreviewUpdatePolicy::Continuous :
+                                      PreviewUpdatePolicy::OnDirty;
     packet->packet_kind = PreviewPacketKind::Synthetic;
     packet->replay_class = PreviewReplayClass::Synthetic;
     packet->fixture_digest = ComputePreviewDigest(
@@ -51,6 +52,7 @@ static void EnableAndSelect(PreviewService *service, uint64_t now)
 static void Prepare(PreviewService *service, uint64_t now)
 {
     service->SetGuestPaused(true);
+    service->EditClock(PreviewClockAction::Play, 0, now);
     std::string error;
     assert(service->RequestPreparation(&error));
     PreviewWorkItem work{};
@@ -228,8 +230,11 @@ int main()
         PreviewPressure::Normal, true});
     service.SetVisible(
         true, now + 2 * kPreviewNormalIntervalNs + kPreviewPressureRecoveryNs);
-    assert(service.TryClaimWork(
+    assert(!service.TryClaimWork(
         now + 2 * kPreviewNormalIntervalNs + kPreviewPressureRecoveryNs,
+        &work));
+    assert(service.TryClaimWork(
+        now + 3 * kPreviewNormalIntervalNs + kPreviewPressureRecoveryNs,
         &work));
     assert(service.CompleteRender(work.token, true, "recovered", t0));
 
@@ -344,7 +349,8 @@ int main()
     const uint64_t reused_time =
         t0 + kPreviewSelectionDebounceNs + 1001 * kPreviewNormalIntervalNs;
     service.SetVisible(true, reused_time);
-    assert(service.TryClaimWork(reused_time, &work));
+    assert(!service.TryClaimWork(reused_time, &work));
+    assert(service.TryClaimWork(reused_time + kPreviewPausedIntervalNs, &work));
 
     // Hiding the panel immediately prevents admission.
     service.SetVisible(false, t0 + 9999999999ULL);
@@ -457,6 +463,80 @@ int main()
                                   paused_first + 1));
     service.SetVisible(true, paused_first + 2);
     assert(!service.TryClaimWork(paused_first + 2, &work));
+
+    // Clock samples reuse immutable source storage and compile identity. Slow
+    // completions remain publishable; explicit scrubs obsolete old samples.
+    service.ResetForTest();
+    service.SetEnabled(true);
+    service.SetVisible(true, t0);
+    service.SetSelection(paused_animation->selection, t0);
+    assert(service.SubmitPacket(*paused_animation, t0, &error));
+    Prepare(&service, t0);
+    service.SetVisible(true, paused_first);
+    assert(service.TryClaimWork(paused_first, &work));
+    const auto storage = work.packet;
+    const auto compiled = work.compile_key;
+    const auto first_key = work.result_key;
+    const auto token = work.token;
+    service.SetVisible(true, paused_first + 100000000);
+    assert(!service.TryClaimWork(paused_first + 100000000, &work));
+    assert(service.CompleteRender(token, true, "slow", paused_first + 100000000));
+    assert(service.TryClaimWork(paused_first + 100000001, &work));
+    assert(work.packet == storage);
+    assert(work.compile_key == compiled);
+    assert(work.result_key != first_key);
+    assert(work.result_key.time_seconds > first_key.time_seconds);
+    assert(service.CompleteRender(work.token, true, "second", paused_first + 100000001));
+    service.EditClock(PreviewClockAction::Pause, 0, paused_first + 100000002);
+    // Pause requests one final sample, then remains idle.
+    assert(service.TryClaimWork(paused_first + 100000002, &work));
+    assert(service.CompleteRender(work.token, true, "pause", paused_first + 100000002));
+    service.SetVisible(true, paused_first + 200000000);
+    assert(!service.TryClaimWork(paused_first + 200000000, &work));
+    PreviewFrameRef clock_frame{};
+    assert(service.TryAcquireReadyFrame(&clock_frame, paused_first + 200000000));
+    assert(service.ReleaseDisplayLease(clock_frame.slot, clock_frame.slot_generation));
+    assert(service.CompleteDisplayRetirement(clock_frame.slot, clock_frame.slot_generation));
+    service.EditClock(PreviewClockAction::Scrub, 3.0, paused_first + 200000001);
+    assert(service.TryClaimWork(paused_first + 200000001, &work));
+    assert(work.result_key.time_seconds == 3.0);
+    assert(work.compile_key == compiled);
+    service.EditClock(PreviewClockAction::Scrub, 4.0, paused_first + 200000002);
+    assert(service.CompleteRender(work.token, true, "obsolete scrub", paused_first + 200000002));
+    service.CopyStatus(&status);
+    assert(status.stale_completions == 1);
+
+    // Continuous playback has no duration cap and retains one immutable packet.
+    service.ResetForTest();
+    service.SetEnabled(true);
+    service.SetVisible(true, t0);
+    service.SetSelection(paused_animation->selection, t0);
+    assert(service.SubmitPacket(*paused_animation, t0, &error));
+    Prepare(&service, t0);
+    service.EditClock(PreviewClockAction::Loop, 0, t0);
+    uint64_t long_now = paused_first;
+    for (unsigned i = 0; i < 10000; ++i) {
+        long_now += kPreviewPausedIntervalNs;
+        service.SetVisible(true, long_now);
+        assert(!service.TryClaimWork(long_now - 1, &work, PreviewBackend::Vulkan));
+        assert(service.TryClaimWork(long_now, &work, PreviewBackend::OpenGL));
+        assert(service.CompleteRender(work.token, true, "continuous", long_now));
+        assert(service.TryAcquireReadyFrame(&clock_frame, long_now));
+        assert(service.ReleaseDisplayLease(clock_frame.slot, clock_frame.slot_generation));
+        assert(service.CompleteDisplayRetirement(clock_frame.slot, clock_frame.slot_generation));
+    }
+    service.CopyStatus(&status);
+    assert(status.clock.time_seconds > 300);
+    assert(status.clock.playing);
+    const double visible_time = status.clock.time_seconds;
+    service.SetVisible(false, long_now);
+    long_now += 100000000000ULL;
+    service.SetVisible(true, long_now);
+    assert(service.SubmitPacket(*paused_animation, long_now, &error));
+    Prepare(&service, long_now);
+    service.SetVisible(true, long_now + kPreviewSelectionDebounceNs);
+    assert(service.TryClaimWork(long_now + kPreviewSelectionDebounceNs, &work));
+    assert(work.result_key.time_seconds == visible_time);
 
     // Status readers and health/visibility publishers may run concurrently.
     service.ResetForTest();

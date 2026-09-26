@@ -21,6 +21,7 @@ xemu_ss.add(files(
   'shader-browser-artifact-store.cc',
   'shader-browser-session-provider.cc',
   'shader-browser-preview-model.cc',
+  'shader-browser-preview-clock.cc',
   'shader-browser-preview-adapter.cc',
   'shader-browser-preview-health.cc',
   'shader-browser-preview-gl.cc',
@@ -267,6 +268,7 @@ shader_browser_preview_service_test = executable(
   files(
     'shader-browser-model.cc',
     'shader-browser-preview-model.cc',
+    'shader-browser-preview-clock.cc',
     'shader-browser-preview-service.cc',
     'shader-browser-preview-service-work.cc',
     'shader-browser-preview-service-slots.cc',
@@ -296,3 +298,11 @@ if vulkan.found()
   # Run this binary explicitly on native GPU hosts. It is intentionally not
   # in the default host unit suite, which also runs on compile-only builders.
 endif
+
+shader_browser_preview_clock_test = executable(
+  'test-xemu-shader-browser-preview-clock',
+  shader_browser_test_dir / 'test-xemu-shader-browser-preview-clock.cc',
+  files('shader-browser-preview-clock.cc'),
+  include_directories: shader_browser_test_inc)
+test('test-xemu-shader-browser-preview-clock',
+     shader_browser_preview_clock_test, suite: ['unit'])

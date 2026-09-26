@@ -8,6 +8,21 @@
 
 namespace xemu::shader_browser {
 
+void AnimatePreviewSyntheticFixture(PreviewSyntheticFixture *fixture,
+                                    double time_seconds)
+{
+    // Preview-owned diagnostic motion; no guest time uniform is inferred.
+    const float phase = static_cast<float>(std::fmod(time_seconds, 8.0) / 8.0);
+    fixture->uv_offset[0] += phase;
+    fixture->uv_offset[1] += phase * 0.5f;
+    const float gain = 0.65f + 0.35f * std::cos(phase * 6.28318530718f);
+    for (auto &color : fixture->corner_colors) {
+        for (size_t c = 0; c < 3; ++c) {
+            color[c] = static_cast<uint8_t>(color[c] * gain);
+        }
+    }
+}
+
 std::vector<uint8_t> EncodePreviewSyntheticFixture(
     const PreviewSyntheticFixture &fixture)
 {
@@ -241,7 +256,7 @@ bool BuildPreviewPacket(const PreviewPacketInputs &inputs,
     candidate.view_revision = inputs.view_revision;
     candidate.width = inputs.width;
     candidate.height = inputs.height;
-    candidate.animated = inputs.animated;
+    candidate.update_policy = inputs.update_policy;
     candidate.packet_kind = PreviewPacketKind::Synthetic;
     candidate.replay_class = PreviewReplayClass::Synthetic;
     if (!candidate.source.empty()) {

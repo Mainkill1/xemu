@@ -132,6 +132,20 @@ int main(int argc, char **)
            "void main(){color=vec4(vtxFog,0,0,1);}\n");
     render(); // Explicit component zero matches the implicit partner component.
     CHECK(pixels[4 * (160 * 320 + 160) + 3] == 255);
+    source("#version 450\nlayout(location=0) in vec4 vtxD0;\n"
+           "layout(location=0) out vec4 color;\n"
+           "void main(){color=vtxD0;}\n");
+    for (auto &corner : fixture.corner_colors) corner = {255, 128, 64, 255};
+    packet->fixture_bytes = EncodePreviewSyntheticFixture(fixture);
+    packet->update_policy = PreviewUpdatePolicy::Continuous;
+    render();
+    const auto time_zero = pixels;
+    work.result_key.time_seconds = 4.0;
+    // A clock sample consumes the prepared program without another Prepare.
+    CHECK(executor.Render(work, stop, &pixels, &error));
+    CHECK(pixels != time_zero);
+    CHECK(pixels[4 * (160 * 320 + 160)] < time_zero[4 * (160 * 320 + 160)]);
+    packet->update_policy = PreviewUpdatePolicy::OnDirty;
     auto reject = [&](const std::string &declaration, const std::string &body) {
         source("#version 450\n" + declaration +
                "\nlayout(location=0) out vec4 color;\nvoid main(){" + body +

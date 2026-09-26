@@ -62,6 +62,7 @@ void PreviewService::SetRestingStateLocked(const std::string &message)
 void PreviewService::InvalidatePendingLocked(PreviewState state,
                                              const std::string &message)
 {
+    clock_suspended_ = true;
     latest_request_id_ = next_request_id_++;
     pending_ = {};
     preparation_requested_ = false;
@@ -317,6 +318,46 @@ bool PreviewService::RequestPreparation(std::string *error)
                    "Preparation requested while the guest is paused");
     if (error) error->clear();
     return true;
+}
+
+void PreviewService::EditClock(PreviewClockAction action, double value,
+                               uint64_t now_ns)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    // Controls cannot accrue hidden/frozen wall time either.
+    if (clock_suspended_) clock_.Suspend(now_ns);
+    bool changed = false;
+    switch (action) {
+    case PreviewClockAction::Play:
+        changed = clock_.SetPlaying(true, now_ns); break;
+    case PreviewClockAction::Pause:
+        changed = clock_.SetPlaying(false, now_ns); break;
+    case PreviewClockAction::Restart:
+        changed = clock_.Restart(now_ns); break;
+    case PreviewClockAction::Scrub:
+        changed = clock_.Scrub(value, now_ns); break;
+    case PreviewClockAction::Speed:
+        changed = clock_.SetSpeed(value, now_ns); break;
+    case PreviewClockAction::Loop:
+        changed = clock_.SetLoop(value != 0, now_ns); break;
+    case PreviewClockAction::LoopLength:
+        changed = clock_.SetLoopLength(value, now_ns); break;
+    }
+    if (changed) {
+        ++clock_edit_revision_;
+        ++generation_;
+    }
+}
+
+PreviewResultKey PreviewService::CurrentResultKeyLocked() const
+{
+    auto key = BuildPreviewResultKey(*pending_.packet);
+    if (pending_.packet->update_policy == PreviewUpdatePolicy::Continuous) {
+        key.clock_revision = clock_.State().revision;
+        key.clock_edit_revision = clock_edit_revision_;
+        key.time_seconds = clock_.State().time_seconds;
+    }
+    return key;
 }
 
 void PreviewService::UpdateHealth(const PreviewHealth &health)
