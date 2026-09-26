@@ -6,6 +6,7 @@
 #include "shader-browser-details-store.hh"
 #include "shader-browser-preview-health.hh"
 #include "shader-browser-preview-model.hh"
+#include "shader-browser-preview-adapter.hh"
 
 #include <cstdint>
 #include <array>
@@ -53,6 +54,11 @@ private:
     xemu::shader_browser::PreviewScene m_preview_scene;
     xemu::shader_browser::PreviewUpdatePolicy m_preview_update_policy =
         xemu::shader_browser::PreviewUpdatePolicy::OnDirty;
+    int m_preview_profile = -1;
+    bool m_preview_fixture_suggested = false;
+    xemu::shader_browser::PreviewSyntheticFixture m_preview_fixture =
+        xemu::shader_browser::MakePreviewFixture(
+            xemu::shader_browser::PreviewFixtureProfile::Diagnostic);
     std::array<std::array<float, 4>, 4> m_preview_colors{};
     std::array<std::array<float, 4>, 4> m_preview_texture_colors{};
     std::array<float, 2> m_preview_uv_scale{1.0f, 1.0f};

@@ -40,8 +40,95 @@ static PreviewPacketInputs Inputs()
     return inputs;
 }
 
+static CanonicalRecipe PixelRecipe(unsigned stages, bool cube, bool alpha,
+                                   bool fog)
+{
+    CanonicalRecipe r;
+    r.key.stage = Stage::Pixel;
+    r.recipe_format_version = 1;
+    r.bytes = { 'N', 'V', '2', 'A', 2, 0 };
+    auto u32 = [&](uint32_t v) {
+        for (int i = 0; i < 4; ++i)
+            r.bytes.push_back(v >> (i * 8));
+    };
+    u32(0);
+    u32(stages);
+    u32(0);
+    u32(fog ? 3 : 0);
+    u32(0);
+    for (int i = 0; i < 32; ++i)
+        u32(0);
+    r.bytes.push_back(0);
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 6; ++j)
+            r.bytes.push_back(0);
+        r.bytes.push_back(alpha && i == 0);
+        u32(0);
+        u32(0);
+        r.bytes.push_back(0);
+        u32(2);
+        r.bytes.push_back(cube && i == 0);
+        u32(0);
+        u32(0);
+        u32(0);
+        r.bytes.push_back(0);
+    }
+    u32(0);
+    r.bytes.push_back(0);
+    u32(0);
+    for (int i = 0; i < 4; ++i)
+        r.bytes.push_back(0);
+    u32(0);
+    u32(0);
+    r.key.hash =
+        ComputeShaderHash(1, r.key.stage, 1, r.bytes.data(), r.bytes.size());
+    return r;
+}
+
 int main()
 {
+    assert(BuildPreviewSyntheticVertexSource("", PreviewBackend::OpenGL)
+               .find("vtxD1 = previewColor") == std::string::npos);
+    std::vector<PreviewTexturePixels> profiles;
+    for (int i = 0; i < 9; ++i) {
+        auto fixture =
+            MakePreviewFixture(static_cast<PreviewFixtureProfile>(i));
+        auto bytes = EncodePreviewSyntheticFixture(fixture);
+        PreviewSyntheticFixture copy;
+        std::string error;
+        assert(DecodePreviewSyntheticFixture(bytes, &copy, &error));
+        assert(EncodePreviewSyntheticFixture(copy) == bytes);
+        profiles.push_back(GeneratePreviewTexture(copy, 0));
+        assert(profiles.back() == GeneratePreviewTexture(fixture, 0));
+        bytes[83] = 0;
+        assert(!DecodePreviewSyntheticFixture(bytes, &copy, &error));
+    }
+    auto diagnostic = MakePreviewFixture(PreviewFixtureProfile::Diagnostic);
+    assert(GeneratePreviewTexture(diagnostic, 0) !=
+           GeneratePreviewTexture(diagnostic, 1));
+    auto cube = MakePreviewFixture(PreviewFixtureProfile::Cubemap);
+    auto pixels = GeneratePreviewTexture(cube, 0);
+    assert(pixels[0] != pixels[2 * kPreviewTextureFaceBytes]);
+    auto vertices = BuildPreviewSceneGeometry({});
+    ApplyPreviewSyntheticFixture(diagnostic, vertices);
+    assert(vertices[0].colors[0][0] != vertices[0].colors[1][0]);
+    PreviewFixtureProfile suggestion;
+    std::string suggestion_error;
+    assert(!SuggestPreviewFixture({}, &suggestion, &suggestion_error));
+    assert(SuggestPreviewFixture(PixelRecipe(33, false, false, false),
+                                 &suggestion, &suggestion_error));
+    assert(suggestion == PreviewFixtureProfile::MultiTexture);
+    assert(SuggestPreviewFixture(PixelRecipe(1, true, false, false),
+                                 &suggestion, &suggestion_error));
+    assert(suggestion == PreviewFixtureProfile::Cubemap);
+    assert(SuggestPreviewFixture(PixelRecipe(1, false, true, false),
+                                 &suggestion, &suggestion_error));
+    assert(suggestion == PreviewFixtureProfile::Alpha);
+    assert(SuggestPreviewFixture(PixelRecipe(0, false, false, true),
+                                 &suggestion, &suggestion_error));
+    assert(suggestion == PreviewFixtureProfile::Fog);
+    assert(kPreviewSyntheticFixtureBytes + kPreviewFixtureTextureBytes <
+           kPreviewMaxOwnedPacketBytes);
     PreviewPacketInputs inputs = Inputs();
     PreviewPacket packet{};
     std::string error;
@@ -67,6 +154,13 @@ int main()
     const PreviewCompileKey compile = BuildPreviewCompileKey(packet);
     const PreviewResultKey result = BuildPreviewResultKey(packet);
 
+    auto edits = inputs;
+    decoded.colors[1][0] = 0.3f;
+    edits.fixture_bytes = EncodePreviewSyntheticFixture(decoded);
+    PreviewPacket edited;
+    assert(BuildPreviewPacket(edits, &edited, &error));
+    assert(BuildPreviewCompileKey(edited) == compile);
+    assert(BuildPreviewResultKey(edited) != result);
     inputs.source += " // edited";
     inputs.partner_source += " // edited";
     inputs.fixture_bytes[0] ^= 17;
@@ -107,6 +201,14 @@ int main()
     malformed_fixture.fixture_bytes = EncodePreviewSyntheticFixture(nonfinite);
     assert(!BuildPreviewPacket(malformed_fixture, &packet, &error));
 
+    nonfinite = MakePreviewFixture(PreviewFixtureProfile::Flat);
+    nonfinite.colors[1][0] = NAN;
+    malformed_fixture.fixture_bytes = EncodePreviewSyntheticFixture(nonfinite);
+    assert(!BuildPreviewPacket(malformed_fixture, &packet, &error));
+    nonfinite = MakePreviewFixture(PreviewFixtureProfile::Flat);
+    nonfinite.textures[3] = static_cast<PreviewFixtureProfile>(255);
+    malformed_fixture.fixture_bytes = EncodePreviewSyntheticFixture(nonfinite);
+    assert(!BuildPreviewPacket(malformed_fixture, &packet, &error));
     PreviewPacketInputs retained = Inputs();
     retained.fixture_bytes.reserve(kPreviewMaxOwnedPacketBytes + 1);
     assert(!BuildPreviewPacket(retained, &packet, &error));

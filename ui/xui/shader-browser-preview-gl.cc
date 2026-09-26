@@ -102,12 +102,27 @@ bool CheckSyntheticUniformInterface(GLuint program, std::string *error)
             *error = "Unsupported private shader uniform block: " + uniform;
             return false;
         }
-        if (type == GL_SAMPLER_2D && size == 1 &&
+        if ((type == GL_SAMPLER_2D || type == GL_SAMPLER_CUBE) && size == 1 &&
             (uniform == "texSamp0" || uniform == "texSamp1" ||
              uniform == "texSamp2" || uniform == "texSamp3")) {
             continue;
         }
-        if (!IsSyntheticUniformType(type)) {
+        const bool bound =
+            (uniform == "alphaRef" && type == GL_INT && size == 1) ||
+            (uniform == "fogColor" && type == GL_FLOAT_VEC4 && size == 1) ||
+            (uniform == "clipRange" && type == GL_FLOAT_VEC4 && size == 1) ||
+            (uniform == "surfaceScale" && type == GL_INT_VEC2 && size == 1) ||
+            (uniform == "clipRegion[0]" && type == GL_INT_VEC4 && size <= 8) ||
+            (uniform == "consts[0]" && type == GL_FLOAT_VEC4 && size <= 18) ||
+            ((uniform == "texScale[0]" || uniform == "bumpOffset[0]" ||
+              uniform == "bumpScale[0]") &&
+             type == GL_FLOAT && size <= 4) ||
+            ((uniform == "colorKey[0]" || uniform == "colorKeyMask[0]") &&
+             type == GL_UNSIGNED_INT && size <= 4) ||
+            (uniform == "bumpMat[0]" && type == GL_FLOAT_MAT2 && size <= 4) ||
+            ((uniform == "depthFactor" || uniform == "depthOffset") &&
+             type == GL_FLOAT && size == 1);
+        if (!bound || !IsSyntheticUniformType(type)) {
             *error = "Unsupported private shader uniform input: " + uniform;
             return false;
         }
@@ -139,7 +154,9 @@ struct PreviewGlExecutor::Impl {
     GLuint vao = 0;
     GLuint vbo = 0;
     GLuint fbo = 0;
-    GLuint fixture_texture = 0;
+    GLuint fixture_texture[4]{};
+    GLenum fixture_targets[4]{ GL_TEXTURE_2D, GL_TEXTURE_2D, GL_TEXTURE_2D,
+                               GL_TEXTURE_2D };
     PreviewCompileKey program_key;
     bool has_program = false;
     PreviewFrameRef displayed;
@@ -210,21 +227,22 @@ struct PreviewGlExecutor::Impl {
         if (!vao) glGenVertexArrays(1, &vao);
         if (!vbo) glGenBuffers(1, &vbo);
         if (!fbo) glGenFramebuffers(1, &fbo);
-        if (!fixture_texture) {
-            const uint8_t texels[] = {
-                255, 255, 255, 255, 64, 64, 64, 255,
-                64, 64, 64, 255, 255, 255, 255, 255
-            };
-            glGenTextures(1, &fixture_texture);
-            glBindTexture(GL_TEXTURE_2D, fixture_texture);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 2, 2, 0, GL_RGBA,
-                         GL_UNSIGNED_BYTE, texels);
+        if (fixture_texture[0])
+            glDeleteTextures(4, fixture_texture);
+        glGenTextures(4, fixture_texture);
+        for (int i = 0; i < 4; ++i) {
+            std::string name = "texSamp" + std::to_string(i);
+            const char *ptr = name.c_str();
+            GLuint index = GL_INVALID_INDEX;
+            glGetUniformIndices(program, 1, &ptr, &index);
+            GLint type = GL_SAMPLER_2D;
+            if (index != GL_INVALID_INDEX)
+                glGetActiveUniformsiv(program, 1, &index, GL_UNIFORM_TYPE,
+                                      &type);
+            fixture_targets[i] =
+                type == GL_SAMPLER_CUBE ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
         }
-        return vao && vbo && fbo && fixture_texture;
+        return vao && vbo && fbo && fixture_texture[0];
     }
 
     bool Render(const PreviewWorkItem &work, std::string *error)
@@ -301,7 +319,7 @@ struct PreviewGlExecutor::Impl {
         }
         location = glGetUniformLocation(program, "surfaceScale");
         if (location >= 0) glUniform2i(location, 1, 1);
-        const GLfloat texture_scales[4] = {2.0f, 2.0f, 2.0f, 2.0f};
+        const GLfloat texture_scales[4] = { 8.0f, 8.0f, 8.0f, 8.0f };
         location = glGetUniformLocation(program, "texScale[0]");
         if (location >= 0) glUniform1fv(location, 4, texture_scales);
         for (size_t i = 0; i < 18; ++i) {
@@ -330,19 +348,39 @@ struct PreviewGlExecutor::Impl {
         glVertexAttribPointer(
             2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
             reinterpret_cast<const void *>(offsetof(Vertex, uv)));
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, fixture_texture);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 2, 2, GL_RGBA,
-                        GL_UNSIGNED_BYTE, fixture.texture_texels.data());
+        for (int i = 0; i < 4; ++i) {
+            glEnableVertexAttribArray(3 + i);
+            glVertexAttribPointer(3 + i, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                                  reinterpret_cast<const void *>(
+                                      offsetof(Vertex, colors) + i * 16));
+        }
+        glEnableVertexAttribArray(7);
+        glVertexAttribPointer(
+            7, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+            reinterpret_cast<const void *>(offsetof(Vertex, fog)));
+        glEnableVertexAttribArray(8);
+        glVertexAttribPointer(
+            8, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+            reinterpret_cast<const void *>(offsetof(Vertex, direction)));
         const GLint filter = fixture.linear_filter ? GL_LINEAR : GL_NEAREST;
         const GLint wrap = fixture.repeat_wrap ? GL_REPEAT : GL_CLAMP_TO_EDGE;
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
         for (int unit = 0; unit < 4; ++unit) {
             glActiveTexture(GL_TEXTURE0 + unit);
-            glBindTexture(GL_TEXTURE_2D, fixture_texture);
+            const GLenum target = fixture_targets[unit];
+            glBindTexture(target, fixture_texture[unit]);
+            const auto pixels = GeneratePreviewTexture(fixture, unit);
+            for (int face = 0; face < (target == GL_TEXTURE_CUBE_MAP ? 6 : 1);
+                 ++face)
+                glTexImage2D(target == GL_TEXTURE_CUBE_MAP ?
+                                 GL_TEXTURE_CUBE_MAP_POSITIVE_X + face :
+                                 target,
+                             0, GL_RGBA8, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                             pixels.data() + face * kPreviewTextureFaceBytes);
+            glTexParameteri(target, GL_TEXTURE_MIN_FILTER, filter);
+            glTexParameteri(target, GL_TEXTURE_MAG_FILTER, filter);
+            glTexParameteri(target, GL_TEXTURE_WRAP_S, wrap);
+            glTexParameteri(target, GL_TEXTURE_WRAP_T, wrap);
+            glTexParameteri(target, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
             std::string name = "texSamp" + std::to_string(unit);
             GLint sampler_location = glGetUniformLocation(program, name.c_str());
             if (sampler_location >= 0) glUniform1i(sampler_location, unit);
@@ -466,7 +504,8 @@ struct PreviewGlExecutor::Impl {
         for (Slot &slot : slots) {
             if (slot.texture) glDeleteTextures(1, &slot.texture);
         }
-        if (fixture_texture) glDeleteTextures(1, &fixture_texture);
+        if (fixture_texture[0])
+            glDeleteTextures(4, fixture_texture);
         if (fbo) glDeleteFramebuffers(1, &fbo);
         if (vbo) glDeleteBuffers(1, &vbo);
         if (vao) glDeleteVertexArrays(1, &vao);

@@ -62,6 +62,21 @@ int main()
     glVertexAttribPointer(
         2, 2, GL_FLOAT, GL_FALSE, sizeof(PreviewSceneVertex),
         reinterpret_cast<const void *>(offsetof(PreviewSceneVertex, uv)));
+    for (int i = 0; i < 4; ++i) {
+        glEnableVertexAttribArray(3 + i);
+        glVertexAttribPointer(
+            3 + i, 4, GL_FLOAT, GL_FALSE, sizeof(PreviewSceneVertex),
+            reinterpret_cast<const void *>(
+                offsetof(PreviewSceneVertex, colors) + i * 16));
+    }
+    glEnableVertexAttribArray(7);
+    glVertexAttribPointer(
+        7, 1, GL_FLOAT, GL_FALSE, sizeof(PreviewSceneVertex),
+        reinterpret_cast<const void *>(offsetof(PreviewSceneVertex, fog)));
+    glEnableVertexAttribArray(8);
+    glVertexAttribPointer(8, 3, GL_FLOAT, GL_FALSE, sizeof(PreviewSceneVertex),
+                          reinterpret_cast<const void *>(
+                              offsetof(PreviewSceneVertex, direction)));
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glGenTextures(1, &texture);
@@ -130,6 +145,125 @@ int main()
                                 expected[c] * 255) < 2);
         }
     std::puts("OpenGL fixture color and transformed UV interpolation PASS");
+    auto fixture_render = [&](const std::string &source,
+                              const PreviewSyntheticFixture &fixture) {
+        GLuint vertex = compile(
+            GL_VERTEX_SHADER,
+            BuildPreviewSyntheticVertexSource(source, PreviewBackend::OpenGL));
+        GLuint fragment_shader = compile(GL_FRAGMENT_SHADER, source);
+        GLuint p = glCreateProgram();
+        glAttachShader(p, vertex);
+        glAttachShader(p, fragment_shader);
+        glLinkProgram(p);
+        GLint ok;
+        glGetProgramiv(p, GL_LINK_STATUS, &ok);
+        assert(ok);
+        glUseProgram(p);
+        auto vertices = BuildPreviewSceneGeometry({});
+        ApplyPreviewSyntheticFixture(fixture, vertices);
+        glBufferData(GL_ARRAY_BUFFER,
+                     vertices.size() * sizeof(PreviewSceneVertex),
+                     vertices.data(), GL_STREAM_DRAW);
+        GLuint textures[4];
+        glGenTextures(4, textures);
+        for (int i = 0; i < 4; ++i) {
+            const auto pixels = GeneratePreviewTexture(fixture, i);
+            const std::string name = "texSamp" + std::to_string(i);
+            const bool cube =
+                source.find("samplerCube " + name) != std::string::npos;
+            const GLenum target = cube ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
+            glActiveTexture(GL_TEXTURE0 + i);
+            glBindTexture(target, textures[i]);
+            for (int face = 0; face < (cube ? 6 : 1); ++face)
+                glTexImage2D(cube ? GL_TEXTURE_CUBE_MAP_POSITIVE_X + face :
+                                    target,
+                             0, GL_RGBA8, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                             pixels.data() + face * kPreviewTextureFaceBytes);
+            glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glUniform1i(glGetUniformLocation(p, name.c_str()), i);
+        }
+        glUniform4fv(glGetUniformLocation(p, "fogColor"), 1,
+                     fixture.fog_color.data());
+        glUniform4fv(glGetUniformLocation(p, "consts"), 1,
+                     fixture.constant_color.data());
+        glUniform1i(glGetUniformLocation(p, "alphaRef"),
+                    fixture.alpha_reference);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+        std::array<uint8_t, 4> pixel;
+        glReadPixels(32, 32, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel.data());
+        assert(glGetError() == GL_NO_ERROR);
+        glDeleteTextures(4, textures);
+        glDeleteProgram(p);
+        glDeleteShader(vertex);
+        glDeleteShader(fragment_shader);
+        return pixel;
+    };
+    for (int profile = 0; profile < 9; ++profile) {
+        auto f =
+            MakePreviewFixture(static_cast<PreviewFixtureProfile>(profile));
+        auto result = fixture_render(
+            "#version 400\nuniform sampler2D texSamp0; out vec4 color; void "
+            "main(){color=texture(texSamp0,vec2(0.3125));}",
+            f);
+        auto expected = GeneratePreviewTexture(f, 0);
+        for (int c = 0; c < 4; ++c)
+            assert(result[c] == expected[4 * (2 * 8 + 2) + c]);
+    }
+    std::puts("OpenGL all nine profile sample readbacks PASS");
+    auto fixture = MakePreviewFixture(PreviewFixtureProfile::Cubemap);
+    const std::string cube_source =
+        "#version 400\nuniform samplerCube texSamp0; in vec4 vtxT0; out vec4 "
+        "color; void main(){color=texture(texSamp0,vtxT0.xyz);}";
+    assert((fixture_render(cube_source, fixture) ==
+            std::array<uint8_t, 4>{ 40, 40, 255, 255 }));
+    fixture.cube_direction = { 1, 0, 0 };
+    assert((fixture_render(cube_source, fixture) ==
+            std::array<uint8_t, 4>{ 255, 40, 40, 255 }));
+    std::puts("OpenGL cube +Z blue / +X red PASS");
+    fixture = MakePreviewFixture(PreviewFixtureProfile::MultiTexture);
+    fixture.textures.fill(PreviewFixtureProfile::MultiTexture);
+    const std::string multi =
+        "#version 400\nuniform sampler2D texSamp0; uniform sampler2D texSamp1; "
+        "out vec4 color; void "
+        "main(){color=vec4(texture(texSamp0,vec2(0.5)).r,texture(texSamp1,vec2("
+        "0.5)).g,0,1);}";
+    assert((fixture_render(multi, fixture) ==
+            std::array<uint8_t, 4>{ 255, 255, 0, 255 }));
+    fixture.textures[1] = PreviewFixtureProfile::Flat;
+    assert((fixture_render(multi, fixture) ==
+            std::array<uint8_t, 4>{ 255, 90, 0, 255 }));
+    std::puts("OpenGL distinct T0/T1 and independent input edit PASS");
+    fixture.fog = 0.5f;
+    fixture.colors[0][0] = 0.2f;
+    fixture.colors[1][1] = 0.4f;
+    fixture.colors[2][2] = 0.6f;
+    fixture.colors[3][3] = 0.8f;
+    const std::string colors =
+        "#version 400\nin vec4 vtxD0; in vec4 vtxD1; in vec4 vtxB0; in vec4 "
+        "vtxB1; in float vtxFog; out vec4 color; void "
+        "main(){color=vec4(vtxD0.r,vtxD1.g,vtxB0.b,vtxB1.a)*vtxFog;}";
+    auto pixel = fixture_render(colors, fixture);
+    for (int i = 0; i < 4; ++i)
+        assert(std::abs(int(pixel[i]) - int((i + 1) * 25.5f)) <= 1);
+    fixture.fog = 1;
+    assert(fixture_render(colors, fixture)[0] == 51);
+    const std::string constants =
+        "#version 400\nuniform vec4 consts; uniform vec4 fogColor; uniform int "
+        "alphaRef; out vec4 color; void "
+        "main(){color=vec4(consts.r,fogColor.g,0,float(alphaRef)/255);}";
+    fixture.constant_color[0] = 0.2f;
+    fixture.fog_color[1] = 0.4f;
+    fixture.alpha_reference = 128;
+    assert((fixture_render(constants, fixture) ==
+            std::array<uint8_t, 4>{ 51, 102, 0, 128 }));
+    fixture.constant_color[0] = 0.6f;
+    fixture.fog_color[1] = 0.8f;
+    fixture.alpha_reference = 64;
+    assert((fixture_render(constants, fixture) ==
+            std::array<uint8_t, 4>{ 153, 204, 0, 64 }));
+    std::puts("OpenGL independent colors, fog, constants, alpha edits PASS");
     glDeleteTextures(1, &texture);
     glDeleteFramebuffers(1, &fbo);
     glDeleteBuffers(1, &vbo);
