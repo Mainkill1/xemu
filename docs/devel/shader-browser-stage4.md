@@ -147,7 +147,8 @@ with no renderer pointers. It provides:
 - 150 ms selection debounce;
 - one pending newest request and one active job;
 - stale completion rejection by request and full result identity;
-- explicit preparation request only while the guest is already paused;
+- automatic private preparation after paused selection settles, with an explicit
+  paused preparation fallback;
 - no automatic pause command;
 - immediate response to increased pressure and a two-second recovery window;
 - stale gameplay-health rejection;
@@ -187,9 +188,13 @@ that were never sampled are reclaimed immediately. Producer completion does not
 make a sampled slot reusable; a later HUD/backend hook must provide the
 consumer-retirement proof.
 
-Selection, mode, disable, and visibility changes invalidate pending results.
-Ready outputs are discarded, display-leased outputs enter Retiring, and active
-backend work may finish only to be rejected as obsolete and retired safely.
+Shader/scope/title/build/session/renderer changes, disable, and visibility loss
+invalidate pending results. Ready outputs are discarded, display-leased outputs
+enter Retiring, and active backend work may finish only to be rejected as obsolete.
+Mode and source edits within the same display scope preserve Current and Reference
+leases; only a new successful frame replaces Current. Acquiring a frame never
+implicitly retires another lease: the HUD explicitly releases the prior Current.
+Its sampling fence must signal before that texture slot can be reused.
 
 ### Honest UI scaffold
 
@@ -203,17 +208,18 @@ The Live Preview tab exposes:
 - four editable synthetic corner colors, a 2 × 2 texture, UV scale/offset,
   sampler filter/wrap, combiner constant, fog color, and alpha reference;
 - RGBA and individual color-channel tints, alpha opacity over a checkerboard,
-  zoom, pan, and one paused frozen frame for side-by-side comparison;
+  zoom, pan, and Freeze Reference for side-by-side comparison across modes;
 - a private OpenGL output when an eligible pixel shader is prepared.
 
-OpenGL preparation is explicit and requires the guest to be paused. The private
+OpenGL preparation is automatic after the 150 ms selection debounce while the
+guest is paused; Prepare while paused remains a fallback. The private
 worker compiles the copied fragment source with a deterministic partner vertex
 stage, draws into one of three preview-owned textures, and uses producer and
 consumer fences before slot reuse. The linked program's active uniform
 interface is checked before use: only synthetic scalar/vector/matrix inputs
 and the four private 2D sampler bindings are admitted. Unsupported active
-inputs are reported as `Unsupported` until the compile identity changes or
-preparation is explicitly retried. The Vulkan path uses the same logical
+inputs are reported as `Unsupported` until the compile identity changes. Failed
+compilations likewise retain their error without an automatic or button retry loop. The Vulkan path uses the same logical
 slots and HUD presentation leases.
 
 ### Separate Shader Browser window
@@ -695,3 +701,48 @@ jobs, frozen/current channel identity and all three slots returning to Free.
 The GL native harness exercises the production swizzle/chart helpers; production
 GL worker/HUD lifecycle, Windows, achieved UI cadence and matched gameplay
 performance remain Task 6 qualification gates.
+
+
+### Last-good images and preparation lifecycle
+
+Current retains its last successful private image after packet construction,
+compilation, interface, or rendering failure. STALE identifies the retained image;
+its own mode, source digest, and replacement id/revision remain visible separately
+from the attempted identity and current error. Input construction failures also
+identify the source snapshot and replacement-store generation when no source is
+available. A later successful completion replaces Current atomically. Obsolete
+active work and completed-but-unacquired source edits cannot replace it.
+
+Freeze Reference preserves that frame across Normal/Uber/Replacement changes for
+the same shader and scope/session/renderer epochs. Reference and Current identify
+their own origins. Freezing transfers a lease and requests a fresh Current; until
+it arrives both views sample the same retained texture under one consumer fence.
+Afterward the two views use at most two leases. A third busy/retiring slot causes
+preview drops, never a game wait or texture overwrite. Selection/epoch changes,
+disable, closing/hiding the tab, and visibility expiry retire both images.
+
+Automatic startup runs on the HUD thread after paused selection debounce; SDL
+context creation is never moved into the worker. Preparation remains newest-only.
+Running guests see **Pause required** when preparation is needed: a safe running
+SDL shared-context initialization path has not been established. No game cache,
+queue, renderer lock, or automatic pause is used to improve this UX.
+
+Ordinary HUD retirement polls fences with zero timeout. Terminal HUD teardown
+joins the private worker, waits at most one second in aggregate for remaining
+consumer fences, then deletes output textures on the consuming HUD context.
+The worker no longer deletes those textures. On timeout, GL object lifetime rules
+preserve storage referenced by queued commands ([OpenGL 4.5, section 5.1.3](https://registry.khronos.org/OpenGL/specs/gl/glspec45.core.withchanges.pdf)).
+This is terminal deletion, not a claim that an unsignaled lease has retired.
+The service invalidates the entire backend epoch and advances slot generations;
+a restart must publish fresh inputs and allocate new texture objects. No terminal
+wait is used during normal preview work, tab close, disable, or mode changes.
+
+The native `test-xemu-shader-browser-preview-lifecycle` harness links the production
+asynchronous executor and ImGui GL renderer. Its OpenGL and `vulkan` variants
+check actual red/green texture pixels through bad replacement/source and render
+failures, recovery, cross-mode Reference, paused automatic startup, epoch reset,
+disable, and terminal shutdown/restart. Focused service tests cover retained
+attempt identities/errors, delayed consumer retirement, three-slot pressure,
+source supersession, pre-packet failure, hide, and stale lease generations.
+Windows qualification requires the exact published artifact; native Windows and
+matched gameplay performance remain release gates.

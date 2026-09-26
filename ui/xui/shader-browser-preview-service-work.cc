@@ -124,6 +124,14 @@ bool PreviewService::TryClaimWork(uint64_t now_ns, PreviewWorkItem *work,
                        "Select a shader to preview it");
         return false;
     }
+    if (failed_ && failed_render_ && pending_.packet &&
+        failed_result_ != CurrentResultKeyLocked()) {
+        failed_ = false;
+    }
+    if (failed_) {
+        SetStateLocked(PreviewState::Failed, failure_message_);
+        return false;
+    }
     if (!pending_.packet) {
         SetStateLocked(PreviewState::WaitingForInputs,
                        "Waiting for an immutable preview packet");
@@ -165,10 +173,11 @@ bool PreviewService::TryClaimWork(uint64_t now_ns, PreviewWorkItem *work,
     }
 
     if (!IsPreparedLocked()) {
-        SetStateLocked(PreviewState::NeedsPreparation,
-                       guest_paused_ ?
-                           "Request preparation for the selected shader" :
-                           "Pause the guest before preparing preview resources");
+        SetStateLocked(
+            PreviewState::NeedsPreparation,
+            guest_paused_ ?
+                "Request preparation for the selected shader" :
+                "Pause required to prepare private preview resources");
         return false;
     }
 
@@ -297,6 +306,11 @@ bool PreviewService::CompletePreparation(uint64_t token,
         prepared_ = false;
         unsupported_ = false;
         unsupported_reason_.clear();
+        failed_ = true;
+        failed_render_ = false;
+        failed_compile_ = active_work_.compile_key;
+        failure_message_ =
+            status.empty() ? "Preview preparation failed" : status;
         SetStateLocked(PreviewState::Failed,
                        status.empty() ? "Preview preparation failed" : status);
     }
@@ -339,6 +353,12 @@ bool PreviewService::CompleteRender(uint64_t token, bool success,
             ++stale_completions_;
             SetRestingStateLocked("Discarded obsolete preview result");
         } else {
+            failed_ = true;
+            failed_render_ = true;
+            failed_compile_ = active_work_.compile_key;
+            failed_result_ = active_work_.result_key;
+            failure_message_ =
+                status.empty() ? "Preview rendering failed" : status;
             SetStateLocked(PreviewState::Failed,
                            status.empty() ? "Preview rendering failed" : status);
         }
