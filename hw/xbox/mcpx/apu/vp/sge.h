@@ -1,0 +1,51 @@
+/*
+ * QEMU MCPX Audio Processing Unit implementation
+ *
+ * Copyright (c) 2026 James Rowe
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ */
+
+#ifndef HW_XBOX_MCPX_APU_VP_SGE_H
+#define HW_XBOX_MCPX_APU_VP_SGE_H
+
+#include "exec/hwaddr.h"
+
+typedef struct MCPXAPUSGETranslationCache {
+    hwaddr sge_base;
+    unsigned int entry;
+    hwaddr page_base;
+    bool valid;
+} MCPXAPUSGETranslationCache;
+
+static inline bool mcpx_apu_sge_cache_translate(
+    const MCPXAPUSGETranslationCache *cache, hwaddr sge_base,
+    uint32_t address, uint32_t page_size, hwaddr *physical)
+{
+    unsigned int entry = address / page_size;
+
+    if (!cache->valid || cache->sge_base != sge_base ||
+        cache->entry != entry) {
+        return false;
+    }
+
+    *physical = cache->page_base + address % page_size;
+    return true;
+}
+
+static inline hwaddr mcpx_apu_sge_cache_fill(
+    MCPXAPUSGETranslationCache *cache, hwaddr sge_base, uint32_t address,
+    uint32_t page_size, hwaddr page_base)
+{
+    cache->sge_base = sge_base;
+    cache->entry = address / page_size;
+    cache->page_base = page_base;
+    cache->valid = true;
+
+    return page_base + address % page_size;
+}
+
+#endif
