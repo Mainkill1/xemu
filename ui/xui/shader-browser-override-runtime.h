@@ -70,6 +70,45 @@ typedef struct XemuShaderReplacementSource {
     uint64_t content_revision;
 } XemuShaderReplacementSource;
 
+typedef enum XemuShaderOverrideEffectState {
+    XEMU_SHADER_OVERRIDE_EFFECT_UNOBSERVED = 0,
+    XEMU_SHADER_OVERRIDE_EFFECT_PREPARING = 1,
+    XEMU_SHADER_OVERRIDE_EFFECT_EFFECTIVE = 2,
+    XEMU_SHADER_OVERRIDE_EFFECT_FALLBACK = 3,
+    XEMU_SHADER_OVERRIDE_EFFECT_FAILED = 4,
+    XEMU_SHADER_OVERRIDE_EFFECT_CONDITION_NOT_MATCHED = 5,
+} XemuShaderOverrideEffectState;
+
+typedef struct XemuShaderOverrideEffect {
+    uint64_t generation;
+    uint64_t rule_id;
+    uint64_t rule_revision;
+    uint32_t requested_action;
+    uint32_t effective_action;
+    uint32_t state;
+    uint64_t requested_replacement_id;
+    uint64_t requested_replacement_revision;
+    uint64_t effective_replacement_id;
+    uint64_t effective_replacement_revision;
+    char error[256];
+} XemuShaderOverrideEffect;
+
+void xemu_shader_override_publish_effect(
+    uint32_t title_id, uint32_t executable_fingerprint_version,
+    const uint8_t executable_fingerprint[
+        XEMU_SHADER_BROWSER_EXECUTABLE_FINGERPRINT_BYTES],
+    uint32_t backend, uint32_t identity_version,
+    const uint8_t identity_hash[XEMU_SHADER_BROWSER_HASH_BYTES],
+    uint32_t stage, const XemuShaderOverrideEffect *effect);
+int xemu_shader_override_copy_effect(
+    uint32_t title_id, uint32_t executable_fingerprint_version,
+    const uint8_t executable_fingerprint[
+        XEMU_SHADER_BROWSER_EXECUTABLE_FINGERPRINT_BYTES],
+    uint32_t backend, uint32_t identity_version,
+    const uint8_t identity_hash[XEMU_SHADER_BROWSER_HASH_BYTES],
+    uint32_t stage, uint64_t generation, uint64_t rule_id,
+    uint64_t rule_revision, XemuShaderOverrideEffect *effect);
+
 void xemu_shader_override_set_context(
     uint32_t title_id, uint32_t executable_fingerprint_version,
     const uint8_t executable_fingerprint[

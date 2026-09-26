@@ -43,6 +43,8 @@ typedef struct PGRAPHGLOverrideRuntime {
     const void *active_uniform_key;
     uint32_t active_action;
     bool active_custom_program;
+    PGRAPHGLOverrideProgram *active_override_program;
+    char active_override_error[256];
     uint64_t use_clock;
 } PGRAPHGLOverrideRuntime;
 

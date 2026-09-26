@@ -13,6 +13,24 @@ static size_t published_count;
 static size_t override_resolve_count;
 static int artifacts_enabled;
 static size_t artifact_count;
+static size_t effect_count;
+
+void xemu_shader_override_publish_effect(
+    uint32_t scoped_title_id, uint32_t fingerprint_version,
+    const uint8_t fingerprint[
+        XEMU_SHADER_BROWSER_EXECUTABLE_FINGERPRINT_BYTES], uint32_t backend,
+    uint32_t identity_version,
+    const uint8_t identity_hash[XEMU_SHADER_BROWSER_HASH_BYTES],
+    uint32_t stage, const XemuShaderOverrideEffect *effect)
+{
+    assert(scoped_title_id == title_id && fingerprint_version == 3);
+    assert(fingerprint[0] == 0x44);
+    assert(backend == XEMU_SHADER_OVERRIDE_BACKEND_OPENGL);
+    assert(identity_version == 1 && stage == XEMU_SHADER_BROWSER_STAGE_PIXEL);
+    assert(identity_hash[0] == XEMU_SHADER_BROWSER_STAGE_PIXEL);
+    assert(effect->state == XEMU_SHADER_OVERRIDE_EFFECT_EFFECTIVE);
+    ++effect_count;
+}
 
 uint64_t xemu_shader_browser_scope_generation(void)
 {
@@ -117,6 +135,13 @@ int main(void)
            XEMU_SHADER_OVERRIDE_ACTION_HIGHLIGHT);
     assert(binding.vulkan_policy.action ==
            XEMU_SHADER_OVERRIDE_ACTION_FORCE_UBER);
+    XemuShaderOverrideEffect effect = {
+        .rule_id = binding.opengl_policy.rule_id,
+        .state = XEMU_SHADER_OVERRIDE_EFFECT_EFFECTIVE,
+    };
+    pgraph_shader_browser_publish_override_effect(
+        &binding, XEMU_SHADER_OVERRIDE_BACKEND_OPENGL, &effect);
+    assert(effect_count == 1);
 
     pgraph_shader_browser_refresh_binding_scope(&state, false, &binding);
     assert(published_count == 2);

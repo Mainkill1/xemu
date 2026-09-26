@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "shader-browser-stage3-ui.hh"
+#include "shader-browser-override-runtime.h"
 #include "shader-browser-session-provider.hh"
 
 #include "common.hh"
@@ -18,6 +19,19 @@ namespace xemu::shader_browser {
 namespace {
 
 constexpr char kShaderDragPayloadType[] = "XEMU_SHADER_BROWSER_SHADER_KEY_V1";
+
+const char *EffectStateLabel(uint32_t state)
+{
+    switch (state) {
+    case XEMU_SHADER_OVERRIDE_EFFECT_PREPARING: return "Preparing";
+    case XEMU_SHADER_OVERRIDE_EFFECT_EFFECTIVE: return "Effective";
+    case XEMU_SHADER_OVERRIDE_EFFECT_FALLBACK: return "Fallback";
+    case XEMU_SHADER_OVERRIDE_EFFECT_FAILED: return "Failed";
+    case XEMU_SHADER_OVERRIDE_EFFECT_CONDITION_NOT_MATCHED:
+        return "Draw restriction did not match";
+    default: return "Waiting for a draw";
+    }
+}
 
 uint64_t RuleId(uint32_t title_id, const ShaderKey &key,
                 OverrideOrigin origin, const ShaderScope *build_scope)
@@ -465,6 +479,37 @@ void ShaderOverrideUi::DrawPanel(const Entry &entry,
     if (!resolution.message.empty()) {
         ImGui::SameLine();
         ImGui::TextDisabled("%s", resolution.message.c_str());
+    }
+    if (resolution.status == OverrideResolutionStatus::Matched) {
+        ImGui::Text("Requested action: %s",
+                    OverrideActionLabel(resolution.policy.action));
+        XemuShaderOverrideEffect effect{};
+        const OverrideContext &context = store_snapshot_.context;
+        bool observed = xemu_shader_override_copy_effect(
+            title_id, context.executable_fingerprint_version,
+            context.executable_fingerprint.data(),
+            static_cast<uint32_t>(context.backend), entry.key.hash.version,
+            entry.key.hash.bytes.data(), static_cast<uint32_t>(entry.key.stage),
+            store_snapshot_.generation, resolution.policy.rule_id,
+            resolution.policy.rule_revision, &effect);
+        ImGui::Text("Renderer state: %s",
+                    observed ? EffectStateLabel(effect.state) :
+                               "Waiting for a draw");
+        if (observed) {
+            ImGui::Text("Effective action: %s",
+                        OverrideActionLabel(static_cast<OverrideAction>(
+                            effect.effective_action)));
+            if (effect.effective_action ==
+                    XEMU_SHADER_OVERRIDE_ACTION_REPLACEMENT &&
+                effect.effective_replacement_id) {
+                ImGui::Text("Effective replacement revision: %llu",
+                    static_cast<unsigned long long>(
+                        effect.effective_replacement_revision));
+            }
+            if (effect.error[0]) {
+                ImGui::TextWrapped("Renderer error: %s", effect.error);
+            }
+        }
     }
     if (GetSavedOverrideRules().Enabled()) {
         for (const OverrideRule &saved : store_snapshot_.rules) {

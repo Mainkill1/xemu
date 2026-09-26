@@ -19,6 +19,8 @@ bool pgraph_gl_shader_override_program_active(PGRAPHState *pg);
 uint32_t pgraph_gl_shader_override_effective_action(PGRAPHState *pg);
 void pgraph_gl_shader_override_prepare_draw(
     PGRAPHState *pg, const XemuShaderOverrideDrawFacts *facts);
+void pgraph_gl_shader_override_report_draw(PGRAPHState *pg,
+                                           bool condition_matched);
 
 static void pgraph_gl_override_draw_facts(
     PGRAPHState *pg, XemuShaderOverrideDrawFacts *facts)
@@ -116,6 +118,7 @@ void pgraph_gl_flush_draw(NV2AState *d)
             &pg->shader_browser_observations,
             &renderer->shader_binding->browser, pg->frame_time,
             XEMU_SHADER_BROWSER_ROUTE_DISABLED);
+        pgraph_gl_shader_override_report_draw(pg, true);
         return;
     }
 
@@ -126,6 +129,9 @@ void pgraph_gl_flush_draw(NV2AState *d)
     PGRAPHGLDrawResult result = pgraph_gl_flush_draw_internal(d);
     pgraph_gl_draw_lifecycle_record(&renderer->draw_lifecycle, result);
     if (result == PGRAPH_GL_DRAW_SUBMITTED && renderer->shader_binding) {
+        bool condition_matched = !policy || !policy->draw_condition_mask ||
+            xemu_shader_override_policy_matches_draw(policy, &facts);
+        pgraph_gl_shader_override_report_draw(pg, condition_matched);
         pgraph_shader_browser_record_draw(
             &pg->shader_browser_observations,
             &renderer->shader_binding->browser, pg->frame_time,

@@ -15,10 +15,16 @@ static PGRAPHGLOverrideProgram *pgraph_gl_override_program_build(
         if (!xemu_shader_override_acquire_replacement(
                 replacement_id, replacement_revision,
                 XEMU_SHADER_OVERRIDE_BACKEND_OPENGL, &source)) {
+            g_strlcpy(runtime->active_override_error,
+                      "Replacement source is unavailable",
+                      sizeof(runtime->active_override_error));
             return pgraph_gl_override_fallback_program(
                 runtime, state, policy->action, replacement_id);
         }
         if (strcmp(source.entry_point, "main") != 0) {
+            g_strlcpy(runtime->active_override_error,
+                      "Replacement entry point must be main",
+                      sizeof(runtime->active_override_error));
             xemu_shader_override_release_replacement(&source);
             return pgraph_gl_override_fallback_program(
                 runtime, state, policy->action, replacement_id);
@@ -37,10 +43,17 @@ static PGRAPHGLOverrideProgram *pgraph_gl_override_program_build(
         if (existing->program) {
             return existing;
         }
+        g_strlcpy(runtime->active_override_error,
+                  existing->error ? existing->error :
+                  "Replacement candidate is invalid",
+                  sizeof(runtime->active_override_error));
         return pgraph_gl_override_fallback_program(
             runtime, state, policy->action, replacement_id);
     }
     if (!pgraph_gl_override_make_room(runtime)) {
+        g_strlcpy(runtime->active_override_error,
+                  "Replacement program cache is full",
+                  sizeof(runtime->active_override_error));
         fprintf(stderr,
                 "nv2a: OpenGL replacement cache has no evictable entry\n");
         xemu_shader_override_release_replacement(&source);
@@ -59,6 +72,9 @@ static PGRAPHGLOverrideProgram *pgraph_gl_override_program_build(
     GLuint fragment = pgraph_gl_compile_override_fragment(
         fragment_source, &entry->error);
     if (!fragment) {
+        g_strlcpy(runtime->active_override_error,
+                  entry->error ? entry->error : "Fragment compile failed",
+                  sizeof(runtime->active_override_error));
         fprintf(stderr,
                 "nv2a: OpenGL shader replacement compile failed: %s\n",
                 entry->error ? entry->error : "unknown error");
@@ -99,6 +115,9 @@ static PGRAPHGLOverrideProgram *pgraph_gl_override_program_build(
     }
     if (linked != GL_TRUE) {
         entry->error = pgraph_gl_copy_program_log(program);
+        g_strlcpy(runtime->active_override_error,
+                  entry->error ? entry->error : "Program link failed",
+                  sizeof(runtime->active_override_error));
         fprintf(stderr,
                 "nv2a: OpenGL shader replacement link/validation failed: %s\n",
                 entry->error ? entry->error : "unknown error");

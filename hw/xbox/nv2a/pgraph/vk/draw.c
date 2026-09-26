@@ -138,7 +138,20 @@ static bool pgraph_vk_override_skip_draw(
     }
     XemuShaderOverrideDrawFacts facts;
     pgraph_vk_override_draw_facts(pg, &facts);
-    return xemu_shader_override_policy_matches_draw(policy, &facts);
+    bool matches = xemu_shader_override_policy_matches_draw(policy, &facts);
+    XemuShaderOverrideEffect effect = {
+        .generation = policy->generation,
+        .rule_id = policy->rule_id,
+        .rule_revision = policy->rule_revision,
+        .requested_action = policy->action,
+        .effective_action = matches ? XEMU_SHADER_OVERRIDE_ACTION_SKIP_DRAW :
+                                      XEMU_SHADER_OVERRIDE_ACTION_NORMAL,
+        .state = matches ? XEMU_SHADER_OVERRIDE_EFFECT_EFFECTIVE :
+                           XEMU_SHADER_OVERRIDE_EFFECT_CONDITION_NOT_MATCHED,
+    };
+    pgraph_shader_browser_publish_override_effect(
+        browser, XEMU_SHADER_OVERRIDE_BACKEND_VULKAN, &effect);
+    return matches;
 }
 
 typedef struct PGRAPHVkGraphicsPipelineRecipe {

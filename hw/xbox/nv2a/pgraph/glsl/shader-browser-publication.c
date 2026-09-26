@@ -102,6 +102,31 @@ void pgraph_shader_browser_refresh_binding_scope(
     }
 }
 
+void pgraph_shader_browser_publish_override_effect(
+    const PGRAPHShaderBrowserBinding *binding, uint32_t backend,
+    const XemuShaderOverrideEffect *effect)
+{
+    if (!binding || !effect || !effect->rule_id) {
+        return;
+    }
+    XemuShaderBrowserScope scope = { 0 };
+    xemu_shader_browser_copy_current_scope(&scope);
+    if (!scope.title_id) {
+        return;
+    }
+    for (uint32_t i = 0; i < binding->count; ++i) {
+        const PGRAPHShaderBrowserIdentity *identity = &binding->identities[i];
+        if (identity->stage != XEMU_SHADER_BROWSER_STAGE_PIXEL) {
+            continue;
+        }
+        xemu_shader_override_publish_effect(
+            scope.title_id, scope.executable_fingerprint_version,
+            scope.executable_fingerprint, backend, 1, identity->hash,
+            identity->stage, effect);
+        return;
+    }
+}
+
 void pgraph_shader_browser_publish_generated_artifact(
     const ShaderState *state, uint32_t stage, const char *backend,
     const char *route, const char *kind, const char *extension,

@@ -68,10 +68,12 @@ void pgraph_gl_bind_shaders(PGRAPHState *pg)
             pgraph_clear_dirty_reg_map(pg);
         }
         runtime->active_custom_program = false;
+        runtime->active_override_program = NULL;
         runtime->active_action = XEMU_SHADER_OVERRIDE_ACTION_SKIP_DRAW;
         return;
     }
     PGRAPHGLOverrideProgram *override_program = NULL;
+    runtime->active_override_error[0] = '\0';
     if (pgraph_gl_policy_wants_override(policy)) {
         override_program = pgraph_gl_override_program_build(
             renderer, runtime, &binding->state, policy);
@@ -119,6 +121,8 @@ void pgraph_gl_bind_shaders(PGRAPHState *pg)
     }
     runtime->active_custom_program =
         override_program && override_program->program;
+    runtime->active_override_program = runtime->active_custom_program ?
+        override_program : NULL;
     runtime->active_action = runtime->active_custom_program ?
         policy->action : XEMU_SHADER_OVERRIDE_ACTION_NORMAL;
 
@@ -152,6 +156,64 @@ uint32_t pgraph_gl_shader_override_effective_action(PGRAPHState *pg)
         pgraph_gl_override_runtime_find(pg->gl_renderer_state);
     return runtime ? runtime->active_action :
                      XEMU_SHADER_OVERRIDE_ACTION_NORMAL;
+}
+
+void pgraph_gl_shader_override_report_draw(PGRAPHState *pg,
+                                           bool condition_matched)
+{
+    PGRAPHGLState *renderer = pg->gl_renderer_state;
+    ShaderBinding *binding = renderer ? renderer->shader_binding : NULL;
+    if (!binding) {
+        return;
+    }
+    const XemuShaderOverridePolicy *policy = &binding->browser.opengl_policy;
+    if (!policy->rule_id) {
+        return;
+    }
+    PGRAPHGLOverrideRuntime *runtime =
+        pgraph_gl_override_runtime_find(renderer);
+    XemuShaderOverrideEffect effect = {
+        .generation = policy->generation,
+        .rule_id = policy->rule_id,
+        .rule_revision = policy->rule_revision,
+        .requested_action = policy->action,
+        .effective_action = condition_matched &&
+            policy->action == XEMU_SHADER_OVERRIDE_ACTION_SKIP_DRAW ?
+                XEMU_SHADER_OVERRIDE_ACTION_SKIP_DRAW :
+            condition_matched &&
+            policy->action == XEMU_SHADER_OVERRIDE_ACTION_FORCE_SPECIALIZED ?
+                XEMU_SHADER_OVERRIDE_ACTION_FORCE_SPECIALIZED :
+            condition_matched && runtime ? runtime->active_action :
+                XEMU_SHADER_OVERRIDE_ACTION_NORMAL,
+        .state = condition_matched ?
+            XEMU_SHADER_OVERRIDE_EFFECT_EFFECTIVE :
+            XEMU_SHADER_OVERRIDE_EFFECT_CONDITION_NOT_MATCHED,
+        .requested_replacement_id = policy->replacement_id,
+        .requested_replacement_revision = policy->replacement_revision,
+    };
+    if (condition_matched && runtime && runtime->active_override_program) {
+        effect.effective_replacement_id =
+            runtime->active_override_program->replacement_id;
+        effect.effective_replacement_revision =
+            runtime->active_override_program->replacement_revision;
+    }
+    if (condition_matched &&
+        policy->action == XEMU_SHADER_OVERRIDE_ACTION_REPLACEMENT) {
+        if (runtime && runtime->active_override_error[0]) {
+            effect.state = XEMU_SHADER_OVERRIDE_EFFECT_FAILED;
+            g_strlcpy(effect.error, runtime->active_override_error,
+                      sizeof(effect.error));
+        } else if (effect.effective_action != policy->action ||
+                   effect.effective_replacement_revision !=
+                       policy->replacement_revision) {
+            effect.state = XEMU_SHADER_OVERRIDE_EFFECT_FALLBACK;
+            g_strlcpy(effect.error,
+                      "Requested replacement could not be activated",
+                      sizeof(effect.error));
+        }
+    }
+    pgraph_shader_browser_publish_override_effect(
+        &binding->browser, XEMU_SHADER_OVERRIDE_BACKEND_OPENGL, &effect);
 }
 
 void pgraph_gl_shader_override_prepare_draw(
@@ -202,6 +264,7 @@ void pgraph_gl_shader_override_prepare_draw(
         nv2a_profile_inc_counter(NV2A_PROF_SHADER_BIND);
     }
     runtime->active_custom_program = false;
+    runtime->active_override_program = NULL;
     runtime->active_action = XEMU_SHADER_OVERRIDE_ACTION_NORMAL;
     update_shader_uniforms(pg, binding);
 }

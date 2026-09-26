@@ -11,6 +11,7 @@ xemu_ss.add(files(
   'shader-browser-overrides.cc',
   'shader-browser-override-store.cc',
   'shader-browser-override-scoped.cc',
+  'shader-browser-override-effect.cc',
   'shader-browser-saved-rules.cc',
   'shader-browser-presets.cc',
   'shader-browser-replacement-library.cc',
@@ -114,6 +115,15 @@ shader_browser_override_scoped_test = executable(
   dependencies: [shader_browser_threads, xxhash])
 test('test-xemu-shader-browser-override-scoped',
      shader_browser_override_scoped_test, suite: ['unit'])
+
+shader_browser_override_effect_test = executable(
+  'test-xemu-shader-browser-override-effect',
+  shader_browser_test_dir / 'test-xemu-shader-browser-override-effect.cc',
+  files('shader-browser-override-effect.cc'),
+  include_directories: shader_browser_test_inc,
+  dependencies: [shader_browser_threads])
+test('test-xemu-shader-browser-override-effect',
+     shader_browser_override_effect_test, suite: ['unit'])
 
 shader_browser_replacement_library_test = executable(
   'test-xemu-shader-browser-replacement-library',
