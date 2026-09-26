@@ -21,6 +21,10 @@ struct PreviewSyntheticFixture {
     uint8_t repeat_wrap = 0;
 };
 
+// Apply fixture values once, using the untransformed mesh UVs for corner colors.
+void ApplyPreviewSyntheticFixture(const PreviewSyntheticFixture &fixture,
+                                  std::vector<PreviewSceneVertex> &vertices);
+
 void AnimatePreviewSyntheticFixture(PreviewSyntheticFixture *fixture,
                                     double time_seconds);
 

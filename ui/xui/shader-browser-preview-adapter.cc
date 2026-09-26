@@ -8,6 +8,22 @@
 
 namespace xemu::shader_browser {
 
+void ApplyPreviewSyntheticFixture(const PreviewSyntheticFixture &fixture,
+                                  std::vector<PreviewSceneVertex> &vertices)
+{
+    for (auto &v : vertices) {
+        const float u = v.uv[0], t = v.uv[1];
+        for (size_t c = 0; c < 4; ++c)
+            v.color[c] = ((1 - u) * t * fixture.corner_colors[0][c] +
+                          u * t * fixture.corner_colors[1][c] +
+                          (1 - u) * (1 - t) * fixture.corner_colors[2][c] +
+                          u * (1 - t) * fixture.corner_colors[3][c]) /
+                         255.0f;
+        for (size_t c = 0; c < 2; ++c)
+            v.uv[c] = v.uv[c] * fixture.uv_scale[c] + fixture.uv_offset[c];
+    }
+}
+
 void AnimatePreviewSyntheticFixture(PreviewSyntheticFixture *fixture,
                                     double time_seconds)
 {
