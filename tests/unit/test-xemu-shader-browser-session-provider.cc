@@ -1,4 +1,5 @@
 #include "../../ui/xui/shader-browser-provider.hh"
+#include "../../ui/xui/shader-browser-database.hh"
 #include "../../ui/xui/shader-browser-session-provider.hh"
 
 #include <cassert>
@@ -106,15 +107,41 @@ int main()
     assert(xemu_shader_browser_publish_external_artifact(&artifact));
     assert(xemu_shader_browser_flush_database(error, sizeof(error)));
 
+    XemuShaderBrowserExternalArtifact oversized = artifact;
+    oversized.size = 32U * 1024U * 1024U + 1;
+    assert(!xemu_shader_browser_publish_external_artifact(&oversized));
+
+    // A renderer may publish while XUI toggles artifact persistence. The
+    // configuration boundary must drain accepted jobs before closing SQLite.
+    std::vector<uint8_t> small_artifact(1024, 0x31);
+    XemuShaderBrowserExternalArtifact concurrent = artifact;
+    concurrent.data = small_artifact.data();
+    concurrent.size = small_artifact.size();
+    concurrent.kind = "glsl";
+    concurrent.extension = "glsl";
+    std::thread publisher([&] {
+        for (int i = 0; i < 100; ++i) {
+            xemu_shader_browser_publish_external_artifact(&concurrent);
+        }
+    });
+    for (int i = 0; i < 10; ++i) {
+        assert(xemu_shader_browser_database_configure(
+            1, 1, 0, error, sizeof(error)));
+        assert(xemu_shader_browser_database_configure(
+            1, 1, 1, error, sizeof(error)));
+    }
+    publisher.join();
+    assert(xemu_shader_browser_flush_database(error, sizeof(error)));
+
     size_t artifact_files = 0;
     for (const auto &item : std::filesystem::recursive_directory_iterator(
              root / "shader-artifacts")) {
         if (item.is_regular_file()) artifact_files++;
     }
-    assert(artifact_files == 1);
+    assert(artifact_files >= 1);
 
     assert(GetProvider().CopySnapshot(&snapshot));
-    assert(snapshot.artifact_count == 1);
+    assert(snapshot.artifact_count >= 1);
     assert(snapshot.external_artifact_bytes >= artifact_bytes.size());
     assert(snapshot.database_enabled && snapshot.database_open);
 
@@ -124,7 +151,7 @@ int main()
                                                    error, sizeof(error)));
     assert(!xemu_shader_browser_external_artifacts_enabled());
     assert(std::filesystem::exists(root / "shader-browser.db"));
-    assert(artifact_files == 1);
+    assert(artifact_files >= 1);
     assert(GetProvider().CopySnapshot(&snapshot));
     assert(!snapshot.database_enabled);
     assert(snapshot.entries.size() == 1);
@@ -170,9 +197,27 @@ int main()
     observation.compile_cpu.min_ns = 1000000;
     observation.compile_cpu.max_ns = 3000000;
     xemu_shader_browser_publish_observations(&observation, 1);
+    std::thread concurrent_snapshot([&] {
+        char flush_error[256] = {};
+        assert(xemu_shader_browser_flush_database(
+            flush_error, sizeof(flush_error)));
+    });
     assert(xemu_shader_browser_performance_session_end(
         "provider-session", 2000, 1, error, sizeof(error)));
+    concurrent_snapshot.join();
     assert(xemu_shader_browser_flush_database(error, sizeof(error)));
+    ShaderDatabase inspect;
+    DatabaseConfig inspect_config{};
+    inspect_config.base_path = root.string();
+    inspect_config.enabled = true;
+    inspect_config.record_performance_sessions = true;
+    std::string inspect_error;
+    assert(inspect.Configure(inspect_config, &inspect_error));
+    auto persisted = inspect.CopySessionStats("provider-session");
+    assert(persisted.size() == 1);
+    assert(persisted[0].draw_count == 3);
+    assert(persisted[0].compile_cpu.total_ns == 4000000);
+    inspect.Close();
 
     // Live clear is independent from durable performance-session storage.
     GetProvider().SetLiveCollectionEnabled(true);

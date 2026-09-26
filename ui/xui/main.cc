@@ -60,6 +60,7 @@
 #include "../xemu-gpu-info.h"
 #include "xemu-xbe.h"
 #include "xemu-version.h"
+#include "hw/xbox/nv2a/pgraph/shader-browser-flush.h"
 
 bool g_screenshot_pending;
 const char *g_snapshot_pending_load_name;
@@ -81,6 +82,7 @@ void ShaderBrowserEndPerformanceSession()
     if (g_shader_browser_performance_session.empty()) {
         return;
     }
+    pgraph_shader_browser_flush_pending();
     char error[256] = {};
     xemu_shader_browser_performance_session_end(
         g_shader_browser_performance_session.c_str(),
@@ -113,6 +115,9 @@ static void ShaderBrowserRefreshScope(uint64_t now_ms)
     }
 
     if (std::memcmp(&scope, &g_shader_browser_scope, sizeof(scope)) != 0) {
+        if (g_shader_browser_performance_session.empty()) {
+            pgraph_shader_browser_flush_pending();
+        }
         ShaderBrowserEndPerformanceSession();
         g_shader_browser_scope = scope;
         xemu_shader_browser_set_current_scope(&scope);

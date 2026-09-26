@@ -1,7 +1,8 @@
     bool PublishExternalArtifact(
         const XemuShaderBrowserExternalArtifact *wire)
     {
-        if (!wire || !database.SaveExternalArtifacts() ||
+        std::shared_lock<std::shared_mutex> lifecycle(lifecycle_mutex);
+        if (!installed || !wire || !database.SaveExternalArtifacts() ||
             !wire->data || !wire->size || wire->size > kMaxExternalArtifactBytes ||
             !wire->title_id || !wire->backend || !wire->route ||
             !wire->kind || !wire->extension) {
@@ -19,9 +20,16 @@
         job.write.generator_abi = wire->generator_abi;
         job.write.xemu_revision = wire->xemu_revision ? wire->xemu_revision : "";
         job.write.content_hash = wire->content_hash ? wire->content_hash : "";
-        job.write.bytes.assign(wire->data, wire->data + wire->size);
         {
             std::lock_guard<std::mutex> lock(artifact_mutex);
+            if (artifact_pending_jobs >= kMaxPendingArtifactJobs ||
+                wire->size > kMaxPendingArtifactBytes -
+                                 artifact_pending_bytes) {
+                return false;
+            }
+            job.write.bytes.assign(wire->data, wire->data + wire->size);
+            artifact_pending_bytes += wire->size;
+            ++artifact_pending_jobs;
             artifact_jobs.push_back(std::move(job));
         }
         artifact_cv.notify_one();
@@ -114,22 +122,22 @@ private:
         stats.gpu_execution.Merge(ConvertDuration(observation.gpu_execution));
     }
 
-    void PersistPerformanceSnapshot()
+    void PersistPerformanceSnapshotLocked()
     {
         if (!database.RecordPerformanceSessions()) return;
-        std::string session_id;
-        std::vector<ShaderSessionStats> copy;
-        {
-            std::lock_guard<std::mutex> lock(performance_mutex);
-            if (performance_session_id.empty()) return;
-            session_id = performance_session_id;
-            copy.reserve(performance_entries.size());
-            for (const auto &pair : performance_entries) copy.push_back(pair.second);
-        }
-        for (const ShaderSessionStats &stats : copy) {
+        if (performance_session_id.empty()) return;
+        for (const auto &pair : performance_entries) {
             std::string ignored;
-            database.UpsertPerformanceStats(session_id, stats, &ignored);
+            database.UpsertPerformanceStats(performance_session_id,
+                                            pair.second, &ignored);
         }
+    }
+
+    void PersistPerformanceSnapshot()
+    {
+        std::shared_lock<std::shared_mutex> lifecycle(lifecycle_mutex);
+        std::lock_guard<std::mutex> lock(performance_mutex);
+        PersistPerformanceSnapshotLocked();
     }
 
     void MaintenanceMain()
@@ -173,6 +181,8 @@ private:
             }
             {
                 std::lock_guard<std::mutex> lock(artifact_mutex);
+                artifact_pending_bytes -= job.write.bytes.size();
+                --artifact_pending_jobs;
                 artifact_in_flight = false;
             }
             artifact_flush_cv.notify_all();

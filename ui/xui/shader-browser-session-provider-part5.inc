@@ -35,6 +35,8 @@
     std::condition_variable artifact_cv;
     std::condition_variable artifact_flush_cv;
     std::deque<ArtifactJob> artifact_jobs;
+    size_t artifact_pending_bytes = 0;
+    size_t artifact_pending_jobs = 0;
     std::thread artifact_thread;
     bool artifact_stop = false;
     bool artifact_in_flight = false;

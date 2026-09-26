@@ -19,7 +19,9 @@
 namespace xemu::shader_browser {
 namespace {
 
-constexpr size_t kMaxExternalArtifactBytes = 256U * 1024U * 1024U;
+constexpr size_t kMaxExternalArtifactBytes = 32U * 1024U * 1024U;
+constexpr size_t kMaxPendingArtifactBytes = 64U * 1024U * 1024U;
+constexpr size_t kMaxPendingArtifactJobs = 128;
 
 Stage ConvertStage(uint32_t stage)
 {
@@ -156,6 +158,8 @@ public:
         maintenance_stop = false;
         artifact_stop = false;
         artifact_in_flight = false;
+        artifact_pending_bytes = 0;
+        artifact_pending_jobs = 0;
         maintenance_thread = std::thread(&SessionProvider::MaintenanceMain, this);
         artifact_thread = std::thread(&SessionProvider::ArtifactMain, this);
         return true;
@@ -248,7 +252,7 @@ public:
                               bool save_external_artifacts,
                               std::string *error) override
     {
-        std::shared_lock<std::shared_mutex> lifecycle(lifecycle_mutex);
+        std::unique_lock<std::shared_mutex> lifecycle(lifecycle_mutex);
         if (!installed) {
             if (error) *error = "Shader Browser provider is not installed";
             return false;

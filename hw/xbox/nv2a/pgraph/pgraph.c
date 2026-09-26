@@ -34,6 +34,7 @@
 #include "util.h"
 #include "swizzle.h"
 #include "nv2a_vsh_emulator.h"
+#include "shader-browser-flush.h"
 
 #define PG_GET_MASK(reg, mask) GET_MASK(pgraph_reg_r(pg, reg), mask)
 #define PG_SET_MASK(reg, mask, value)        \
@@ -45,6 +46,21 @@
 
 
 NV2AState *g_nv2a;
+static GMutex shader_browser_flush_mutex;
+
+void pgraph_shader_browser_flush_pending(void)
+{
+    g_mutex_lock(&shader_browser_flush_mutex);
+    NV2AState *d = g_nv2a;
+    if (d) {
+        PGRAPHState *pg = &d->pgraph;
+        qemu_mutex_lock(&pg->lock);
+        pgraph_shader_browser_flush_observations(
+            &pg->shader_browser_observations, pg->frame_time);
+        qemu_mutex_unlock(&pg->lock);
+    }
+    g_mutex_unlock(&shader_browser_flush_mutex);
+}
 
 uint64_t pgraph_read(void *opaque, hwaddr addr, unsigned int size)
 {
@@ -247,8 +263,6 @@ void pgraph_renderer_register(const PGRAPHRenderer *renderer)
 
 void pgraph_init(NV2AState *d)
 {
-    g_nv2a = d;
-
     PGRAPHState *pg = &d->pgraph;
     qemu_mutex_init(&pg->lock);
     qemu_mutex_init(&pg->renderer_lock);
@@ -280,6 +294,9 @@ void pgraph_init(NV2AState *d)
     }
 
     pgraph_clear_dirty_reg_map(pg);
+    g_mutex_lock(&shader_browser_flush_mutex);
+    g_nv2a = d;
+    g_mutex_unlock(&shader_browser_flush_mutex);
 }
 
 void pgraph_clear_dirty_reg_map(PGRAPHState *pg)
@@ -417,6 +434,12 @@ void pgraph_init_thread(NV2AState *d)
 void pgraph_destroy(PGRAPHState *pg)
 {
     NV2AState *d = container_of(pg, NV2AState, pgraph);
+
+    g_mutex_lock(&shader_browser_flush_mutex);
+    if (g_nv2a == d) {
+        g_nv2a = NULL;
+    }
+    g_mutex_unlock(&shader_browser_flush_mutex);
 
     pgraph_shader_browser_flush_observations(
         &pg->shader_browser_observations, pg->frame_time);

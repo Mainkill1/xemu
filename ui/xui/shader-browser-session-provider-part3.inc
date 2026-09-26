@@ -120,6 +120,7 @@
     bool BeginPerformanceSession(
         const XemuShaderBrowserPerformanceSession *wire, std::string *error)
     {
+        std::shared_lock<std::shared_mutex> lifecycle(lifecycle_mutex);
         if (!wire || !wire->session_id || !wire->session_id[0] ||
             !wire->title_id) {
             if (error) *error = "Invalid performance session";
@@ -151,8 +152,8 @@
             wire->ubershader_mode ? wire->ubershader_mode : "";
         session.shader_cache_enabled = wire->shader_cache_enabled != 0;
         session.telemetry_version = wire->telemetry_version;
-        if (!database.BeginPerformanceSession(session, error)) return false;
         std::lock_guard<std::mutex> lock(performance_mutex);
+        if (!database.BeginPerformanceSession(session, error)) return false;
         performance_entries.clear();
         performance_session_id = session.session_id;
         return true;
@@ -161,17 +162,20 @@
     bool EndPerformanceSession(const char *session_id, uint64_t ended_unix_ms,
                                bool clean_shutdown, std::string *error)
     {
+        std::shared_lock<std::shared_mutex> lifecycle(lifecycle_mutex);
         if (!session_id || !session_id[0]) {
             if (error) *error = "Performance session ID is empty";
             return false;
         }
-        PersistPerformanceSnapshot();
+        std::lock_guard<std::mutex> lock(performance_mutex);
+        if (performance_session_id != session_id) {
+            if (error) *error = "Performance session is not active";
+            return false;
+        }
+        PersistPerformanceSnapshotLocked();
         bool ok = database.EndPerformanceSession(session_id, ended_unix_ms,
                                                   clean_shutdown, error);
-        std::lock_guard<std::mutex> lock(performance_mutex);
-        if (performance_session_id == session_id) {
-            performance_session_id.clear();
-            performance_entries.clear();
-        }
+        performance_session_id.clear();
+        performance_entries.clear();
         return ok;
     }
