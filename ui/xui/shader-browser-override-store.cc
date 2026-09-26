@@ -225,10 +225,13 @@ void OverrideStore::ClearSavedRules()
 
 void OverrideStore::RebuildLocked()
 {
+    /* Publish the new epoch while holding mutex_. Readers that observe it
+     * will wait for CopySnapshot() to see the completed index and rules. */
+    has_active_rules_.store(true, std::memory_order_release);
+    generation_.fetch_add(1, std::memory_order_release);
     if (disabled_) {
         index_.Rebuild(context_, {}, {});
         has_active_rules_.store(false, std::memory_order_release);
-        generation_.fetch_add(1, std::memory_order_release);
         return;
     }
     std::vector<OverrideRule> rules;
@@ -246,7 +249,6 @@ void OverrideStore::RebuildLocked()
         std::any_of(rules.begin(), rules.end(),
                     [](const OverrideRule &rule) { return rule.enabled; }),
         std::memory_order_release);
-    generation_.fetch_add(1, std::memory_order_release);
 }
 
 bool OverrideStore::HasActiveRules() const
