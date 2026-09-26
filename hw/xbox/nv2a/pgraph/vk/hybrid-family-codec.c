@@ -606,7 +606,7 @@ static bool family_key_replay_safe(const PipelineKey *key)
 bool pgraph_vk_family_key_encode(const PipelineKey *key,
                                  PGRAPHVkFamilyKeyBlob *blob)
 {
-    if (!key || !blob) {
+    if (!key || !blob || key->override_action) {
         return false;
     }
     uint8_t *data = calloc(1, PGRAPH_VK_FAMILY_KEY_MAX_SIZE);

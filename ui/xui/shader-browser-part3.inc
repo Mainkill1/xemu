@@ -80,10 +80,18 @@ void ShaderBrowserWindow::DrawOverview()
         }
     }
 
+    GetShaderOverrideUi().DrawPanel(
+        *entry, m_snapshot.entries, m_snapshot.current_title_id,
+        &m_action_message);
+
     ImGui::Separator();
     ImGui::TextDisabled(
-        "Canonical recipes stay in the catalog; selected host details "
-        "remain transient. Runtime overrides arrive in Stage 3.");
+        "Canonical guest recipes remain portable. Authored replacements are "
+        "external files and session overrides are resolved through the "
+        "memory-resident Stage 3 policy index.");
+    if (!m_action_message.empty()) {
+        ImGui::TextDisabled("%s", m_action_message.c_str());
+    }
 }
 
 void ShaderBrowserWindow::DrawSettings()
@@ -96,6 +104,8 @@ void ShaderBrowserWindow::DrawSettings()
     ImGui::TextDisabled(
         "Live browsing works without database persistence. Persistent storage "
         "is opt-in and never runs on the draw hot path.");
+
+    GetShaderOverrideUi().DrawSettings(&m_action_message);
 
     ImGui::SeparatorText("Persistence");
     bool database_enabled = g_config.shader_browser.database.enabled;

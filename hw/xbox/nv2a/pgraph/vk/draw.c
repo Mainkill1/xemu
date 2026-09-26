@@ -32,10 +32,192 @@
 #include "vertex-version-policy.h"
 #include "ui/xemu-tweaks.h"
 #include "ui/xemu-settings.h"
+#include "ui/xui/shader-browser-session-provider.hh"
 #include <glib/gstdio.h>
 #include <math.h>
 
 static bool pgraph_vk_flush_draw_internal(NV2AState *d);
+
+static void pgraph_vk_override_draw_facts(
+    PGRAPHState *pg, XemuShaderOverrideDrawFacts *facts)
+{
+    memset(facts, 0, sizeof(*facts));
+    facts->primitive_mode = pg->primitive_mode;
+    facts->available_mask = XEMU_SHADER_OVERRIDE_DRAW_CONDITION_PRIMITIVE;
+    if (pg->inline_elements_length) {
+        uint32_t minimum = UINT32_MAX;
+        uint32_t maximum = 0;
+        for (int i = 0; i < pg->inline_elements_length; ++i) {
+            minimum = MIN(minimum, pg->inline_elements[i]);
+            maximum = MAX(maximum, pg->inline_elements[i]);
+        }
+        facts->element_count = pg->inline_elements_length;
+        facts->min_element = minimum;
+        facts->max_element = maximum;
+        facts->available_mask |=
+            XEMU_SHADER_OVERRIDE_DRAW_CONDITION_ELEMENT_COUNT |
+            XEMU_SHADER_OVERRIDE_DRAW_CONDITION_ELEMENT_RANGE;
+    } else if (pg->draw_arrays_length) {
+        uint64_t total = 0;
+        for (unsigned int i = 0; i < pg->draw_arrays_length; ++i) {
+            total += pg->draw_arrays_count[i];
+        }
+        facts->element_count = total > UINT32_MAX ? UINT32_MAX : total;
+        facts->min_element = pg->draw_arrays_min_start;
+        facts->max_element = pg->draw_arrays_max_count ?
+            pg->draw_arrays_max_count - 1 : 0;
+        facts->available_mask |=
+            XEMU_SHADER_OVERRIDE_DRAW_CONDITION_ELEMENT_COUNT |
+            XEMU_SHADER_OVERRIDE_DRAW_CONDITION_ELEMENT_RANGE;
+    } else if (pg->inline_buffer_length) {
+        facts->element_count = pg->inline_buffer_length;
+        facts->min_element = 0;
+        facts->max_element = pg->inline_buffer_length - 1;
+        facts->available_mask |=
+            XEMU_SHADER_OVERRIDE_DRAW_CONDITION_ELEMENT_COUNT |
+            XEMU_SHADER_OVERRIDE_DRAW_CONDITION_ELEMENT_RANGE;
+    }
+}
+
+static bool pgraph_vk_override_resolve_draw(
+    PGRAPHState *pg, PGRAPHShaderBrowserBinding *browser,
+    XemuShaderOverrideDrawFacts *facts)
+{
+    PGRAPHVkState *renderer = pg->vk_renderer_state;
+    if (pg->clearing ||
+        !(renderer->color_binding || renderer->zeta_binding) ||
+        !(pg->draw_arrays_length || pg->inline_elements_length ||
+          pg->inline_buffer_length || pg->inline_array_length) ||
+        !xemu_shader_override_has_active_rules()) {
+        return false;
+    }
+    static _Thread_local uint64_t scope_generation;
+    static _Thread_local XemuShaderBrowserScope scope;
+    uint64_t current_scope_generation =
+        xemu_shader_browser_scope_generation();
+    if (scope_generation != current_scope_generation) {
+        scope_generation = xemu_shader_browser_copy_current_scope(&scope);
+    }
+    if (!xemu_shader_override_has_active_rules_scoped(
+            scope.title_id, scope.executable_fingerprint_version,
+            scope.executable_fingerprint,
+            XEMU_SHADER_OVERRIDE_BACKEND_VULKAN)) {
+        return false;
+    }
+
+    ShaderBinding *binding = renderer->shader_binding;
+    if (binding &&
+        !pgraph_glsl_check_shader_state_dirty(pg, &binding->state)) {
+        pgraph_shader_browser_refresh_binding_scope(
+            &binding->state,
+            pgraph_glsl_need_geom(&binding->state.geom),
+            &binding->browser);
+        *browser = binding->browser;
+    } else {
+        /* A skipped draw does not bind shaders or clear dirty registers.  Compare
+         * the complete state so repeated skips reuse one published identity. */
+        bool program_data_dirty = pg->program_data_dirty;
+        ShaderState state = pgraph_glsl_get_shader_state(pg);
+        pg->program_data_dirty = program_data_dirty;
+
+        if (binding && !memcmp(&state, &binding->state, sizeof(state))) {
+            pgraph_shader_browser_refresh_binding_scope(
+                &binding->state,
+                pgraph_glsl_need_geom(&binding->state.geom),
+                &binding->browser);
+            *browser = binding->browser;
+        } else {
+            if (!renderer->override_probe_valid ||
+                memcmp(&state, &renderer->override_probe_state,
+                       sizeof(state))) {
+                renderer->override_probe_state = state;
+                memset(&renderer->override_probe_browser, 0,
+                       sizeof(renderer->override_probe_browser));
+                pgraph_shader_browser_publish_pixel_binding(
+                    &renderer->override_probe_state,
+                    &renderer->override_probe_browser);
+                renderer->override_probe_valid = true;
+            } else {
+                pgraph_shader_browser_refresh_binding_scope(
+                    &renderer->override_probe_state,
+                    pgraph_glsl_need_geom(&renderer->override_probe_state.geom),
+                    &renderer->override_probe_browser);
+            }
+            *browser = renderer->override_probe_browser;
+        }
+    }
+    pgraph_vk_override_draw_facts(pg, facts);
+    return true;
+}
+
+static bool pgraph_vk_override_skip_draw(
+    PGRAPHState *pg, PGRAPHShaderBrowserBinding *browser)
+{
+    XemuShaderOverrideDrawFacts facts;
+    if (!pgraph_vk_override_resolve_draw(pg, browser, &facts)) {
+        return false;
+    }
+    const XemuShaderOverridePolicy *policy = &browser->vulkan_policy;
+    if (policy->action != XEMU_SHADER_OVERRIDE_ACTION_SKIP_DRAW) {
+        return false;
+    }
+    bool matches = xemu_shader_override_policy_matches_draw(policy, &facts);
+    XemuShaderOverrideEffect effect = {
+        .generation = policy->generation,
+        .rule_id = policy->rule_id,
+        .rule_revision = policy->rule_revision,
+        .requested_action = policy->action,
+        .effective_action = matches ? XEMU_SHADER_OVERRIDE_ACTION_SKIP_DRAW :
+                                      XEMU_SHADER_OVERRIDE_ACTION_NORMAL,
+        .state = matches ? XEMU_SHADER_OVERRIDE_EFFECT_EFFECTIVE :
+                           XEMU_SHADER_OVERRIDE_EFFECT_CONDITION_NOT_MATCHED,
+    };
+    pgraph_shader_browser_publish_override_effect(
+        browser, XEMU_SHADER_OVERRIDE_BACKEND_VULKAN, &effect);
+    return matches;
+}
+
+static void pgraph_vk_override_report_route(PGRAPHState *pg)
+{
+    PGRAPHVkState *renderer = pg->vk_renderer_state;
+    ShaderBinding *binding = renderer->shader_binding;
+    if (!binding) {
+        return;
+    }
+    const XemuShaderOverridePolicy *policy =
+        &binding->browser.vulkan_policy;
+    if (policy->action != XEMU_SHADER_OVERRIDE_ACTION_FORCE_UBER &&
+        policy->action != XEMU_SHADER_OVERRIDE_ACTION_FORCE_SPECIALIZED) {
+        return;
+    }
+    XemuShaderOverrideDrawFacts facts;
+    pgraph_vk_override_draw_facts(pg, &facts);
+    bool matches = xemu_shader_override_policy_matches_draw(policy, &facts);
+    bool correct_route =
+        (policy->action == XEMU_SHADER_OVERRIDE_ACTION_FORCE_UBER &&
+         binding->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER) ||
+        (policy->action == XEMU_SHADER_OVERRIDE_ACTION_FORCE_SPECIALIZED &&
+         binding->fragment_route == PGRAPH_VK_FRAGMENT_SPECIALIZED);
+    XemuShaderOverrideEffect effect = {
+        .generation = policy->generation,
+        .rule_id = policy->rule_id,
+        .rule_revision = policy->rule_revision,
+        .requested_action = policy->action,
+        .effective_action = matches && correct_route ? policy->action :
+                                      XEMU_SHADER_OVERRIDE_ACTION_NORMAL,
+        .state = !matches ?
+            XEMU_SHADER_OVERRIDE_EFFECT_CONDITION_NOT_MATCHED :
+            correct_route ? XEMU_SHADER_OVERRIDE_EFFECT_EFFECTIVE :
+                            XEMU_SHADER_OVERRIDE_EFFECT_FAILED,
+    };
+    if (matches && !correct_route) {
+        g_strlcpy(effect.error,
+                  "Requested Vulkan fragment route is unavailable for this draw",
+                  sizeof(effect.error));
+    }
+    pgraph_shader_browser_publish_override_effect(
+        &binding->browser, XEMU_SHADER_OVERRIDE_BACKEND_VULKAN, &effect);
+}
 
 typedef struct PGRAPHVkGraphicsPipelineRecipe {
     VkGraphicsPipelineCreateInfo info;
@@ -65,6 +247,7 @@ void pgraph_vk_draw_begin(NV2AState *d)
 {
     PGRAPHState *pg = &d->pgraph;
     PGRAPHVkState *r = pg->vk_renderer_state;
+    r->draw_scope_had_submission = false;
 
     NV2A_VK_DPRINTF("NV097_SET_BEGIN_END: 0x%x", d->pgraph.primitive_mode);
 
@@ -89,6 +272,7 @@ void pgraph_vk_draw_begin(NV2AState *d)
         NV2A_VK_DPRINTF("nop!");
         return;
     }
+
 }
 
 static VkPrimitiveTopology get_primitive_topology(const ShaderState *state)
@@ -2051,6 +2235,170 @@ static void maybe_request_complete_specialization(PGRAPHState *pg,
     request_complete_specialization(pg, state);
 }
 
+static bool pgraph_vk_override_pipeline(
+    PGRAPHState *pg, PGRAPHShaderBrowserBinding *browser,
+    const XemuShaderOverridePolicy *policy)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    XemuShaderOverrideEffect effect = {
+        .generation = policy->generation,
+        .rule_id = policy->rule_id,
+        .rule_revision = policy->rule_revision,
+        .requested_action = policy->action,
+        .effective_action = XEMU_SHADER_OVERRIDE_ACTION_NORMAL,
+        .state = XEMU_SHADER_OVERRIDE_EFFECT_FAILED,
+        .requested_replacement_id = policy->replacement_id,
+        .requested_replacement_revision = policy->replacement_revision,
+    };
+    PGRAPHVkShaderPreparation preparation;
+    pgraph_vk_prepare_shaders(pg, &preparation);
+    ShaderBindingKey shader_key = {
+        .state = preparation.state,
+        .fragment_route = PGRAPH_VK_FRAGMENT_SPECIALIZED,
+        .override_action = policy->action,
+        .override_replacement_id = policy->replacement_id,
+        .override_replacement_revision = policy->replacement_revision,
+    };
+    ShaderBinding *binding = pgraph_vk_prepare_override_binding(
+        pg, &shader_key, effect.error);
+    if (!binding) {
+        goto failed;
+    }
+
+    PipelineKey key;
+    pgraph_vk_init_pipeline_key_for_state(
+        pg, &preparation.state, PGRAPH_VK_FRAGMENT_SPECIALIZED, &key);
+    key.override_action = policy->action;
+    key.override_replacement_id = policy->replacement_id;
+    key.override_replacement_revision = policy->replacement_revision;
+    uint64_t hash = fast_hash((const uint8_t *)&key, sizeof(key));
+    PipelineBinding *pipeline = pipeline_cache_find_ready(r, hash, &key);
+    if (!pipeline && r->override_failed_pipeline_key_valid &&
+        !memcmp(&r->override_failed_pipeline_key, &key, sizeof(key))) {
+        g_strlcpy(effect.error, "Vulkan replacement pipeline is incompatible",
+                  sizeof(effect.error));
+        goto failed;
+    }
+    if (!pipeline) {
+        PGRAPHVkGraphicsPipelineRecipe recipe;
+        if (!prepare_graphics_pipeline_recipe(pg, &key, binding, &recipe)) {
+            g_strlcpy(effect.error, "Vulkan replacement pipeline recipe failed",
+                      sizeof(effect.error));
+            goto failed;
+        }
+        VkPipeline built = VK_NULL_HANDLE;
+        VkResult result = vkCreateGraphicsPipelines(
+            r->device, r->vk_pipeline_cache, 1, &recipe.info, NULL, &built);
+        if (result != VK_SUCCESS) {
+            if (built != VK_NULL_HANDLE) {
+                vkDestroyPipeline(r->device, built, NULL);
+            }
+            vkDestroyPipelineLayout(r->device, recipe.layout, NULL);
+            g_snprintf(effect.error, sizeof(effect.error),
+                       "Vulkan replacement pipeline failed (%d)", result);
+            r->override_failed_pipeline_key = key;
+            r->override_failed_pipeline_key_valid = true;
+            goto failed;
+        }
+        pipeline = pgraph_vk_pipeline_cache_publish_slot(
+            &r->pipeline_cache, hash, &key);
+        if (!pipeline) {
+            vkDestroyPipeline(r->device, built, NULL);
+            vkDestroyPipelineLayout(r->device, recipe.layout, NULL);
+            g_strlcpy(effect.error, "Vulkan pipeline cache is busy",
+                      sizeof(effect.error));
+            goto failed;
+        }
+        if (pipeline->pipeline != VK_NULL_HANDLE) {
+            vkDestroyPipeline(r->device, built, NULL);
+            vkDestroyPipelineLayout(r->device, recipe.layout, NULL);
+        } else {
+            pipeline->key = key;
+            pipeline->pipeline = built;
+            pipeline->layout = recipe.layout;
+            pipeline->render_pass = recipe.render_pass;
+            pipeline->draw_time = pg->draw_time;
+            pipeline->has_dynamic_line_width = recipe.has_dynamic_line_width;
+            pipeline->dynamic_blend_constant_mask =
+                recipe.dynamic_blend_constant_mask;
+        }
+    }
+
+    lru_touch_existing(&r->pipeline_cache, &pipeline->node);
+    r->uber_controls_valid = false;
+    pgraph_vk_activate_shaders(
+        pg, &preparation, PGRAPH_VK_FRAGMENT_SPECIALIZED, binding);
+    r->pipeline_binding_changed = r->pipeline_binding != pipeline;
+    r->pipeline_binding = pipeline;
+    pgraph_clear_dirty_reg_map(pg);
+    effect.effective_action = policy->action;
+    effect.state = XEMU_SHADER_OVERRIDE_EFFECT_EFFECTIVE;
+    effect.effective_replacement_id = policy->replacement_id;
+    effect.effective_replacement_revision = policy->replacement_revision;
+    pgraph_shader_browser_publish_override_effect(
+        browser, XEMU_SHADER_OVERRIDE_BACKEND_VULKAN, &effect);
+    return true;
+
+failed:
+    /* A failed edit may keep the previously activated revision when its
+     * complete render-state key is still compatible with this draw. */
+    ShaderBinding *previous = NULL;
+    PipelineBinding *previous_pipeline = NULL;
+    LruNode *candidate_node;
+    QTAILQ_FOREACH(candidate_node, &r->shader_cache.global, next_global) {
+        if (!lru_is_node_in_use(&r->shader_cache, candidate_node)) {
+            continue;
+        }
+        ShaderBinding *candidate = container_of(
+            candidate_node, ShaderBinding, node);
+        if (candidate->override_action != policy->action ||
+            candidate->override_replacement_id != policy->replacement_id ||
+            !candidate->psh.module_info ||
+            memcmp(&candidate->state, &preparation.state,
+                   sizeof(preparation.state))) {
+            continue;
+        }
+        PipelineKey previous_key;
+        pgraph_vk_init_pipeline_key_for_state(
+            pg, &preparation.state, candidate->fragment_route,
+            &previous_key);
+        previous_key.override_action = candidate->override_action;
+        previous_key.override_replacement_id =
+            candidate->override_replacement_id;
+        previous_key.override_replacement_revision =
+            candidate->override_replacement_revision;
+        uint64_t previous_hash = fast_hash(
+            (const uint8_t *)&previous_key, sizeof(previous_key));
+        previous_pipeline = pipeline_cache_find_ready(
+            r, previous_hash, &previous_key);
+        if (previous_pipeline) {
+            previous = candidate;
+            break;
+        }
+    }
+    if (previous) {
+        lru_touch_existing(&r->pipeline_cache, &previous_pipeline->node);
+        pgraph_vk_activate_shaders(
+            pg, &preparation, previous->fragment_route, previous);
+        r->pipeline_binding_changed =
+            r->pipeline_binding != previous_pipeline;
+        r->pipeline_binding = previous_pipeline;
+        pgraph_clear_dirty_reg_map(pg);
+        effect.effective_action = previous->override_action;
+        effect.effective_replacement_id =
+            previous->override_replacement_id;
+        effect.effective_replacement_revision =
+            previous->override_replacement_revision;
+        effect.state = XEMU_SHADER_OVERRIDE_EFFECT_FALLBACK;
+        pgraph_shader_browser_publish_override_effect(
+            browser, XEMU_SHADER_OVERRIDE_BACKEND_VULKAN, &effect);
+        return true;
+    }
+    pgraph_shader_browser_publish_override_effect(
+        browser, XEMU_SHADER_OVERRIDE_BACKEND_VULKAN, &effect);
+    return false;
+}
+
 static bool create_pipeline(PGRAPHState *pg)
 {
     NV2A_VK_DGROUP_BEGIN("Creating pipeline");
@@ -2068,6 +2416,46 @@ static bool create_pipeline(PGRAPHState *pg)
     bool hybrid = r->ubershader_runtime_enabled &&
                   r->hybrid_compiler_initialized;
     bool force_ubershader = r->ubershader_force_interpreter;
+    bool force_specialized = false;
+    PGRAPHShaderBrowserBinding override_browser;
+    XemuShaderOverrideDrawFacts override_facts;
+    if (pgraph_vk_override_resolve_draw(
+            pg, &override_browser, &override_facts)) {
+        const XemuShaderOverridePolicy *policy =
+            &override_browser.vulkan_policy;
+        if (xemu_shader_override_policy_matches_draw(
+                policy, &override_facts)) {
+            if (policy->action == XEMU_SHADER_OVERRIDE_ACTION_REPLACEMENT ||
+                policy->action == XEMU_SHADER_OVERRIDE_ACTION_HIGHLIGHT) {
+                if (pgraph_vk_override_pipeline(
+                        pg, &override_browser, policy)) {
+                    NV2A_VK_DGROUP_END();
+                    return true;
+                }
+            } else if (policy->action == XEMU_SHADER_OVERRIDE_ACTION_FORCE_UBER) {
+                force_ubershader = true;
+            } else if (policy->action ==
+                       XEMU_SHADER_OVERRIDE_ACTION_FORCE_SPECIALIZED) {
+                force_ubershader = false;
+                force_specialized = true;
+            }
+        } else if (policy->action == XEMU_SHADER_OVERRIDE_ACTION_REPLACEMENT ||
+                   policy->action == XEMU_SHADER_OVERRIDE_ACTION_HIGHLIGHT) {
+            XemuShaderOverrideEffect effect = {
+                .generation = policy->generation,
+                .rule_id = policy->rule_id,
+                .rule_revision = policy->rule_revision,
+                .requested_action = policy->action,
+                .effective_action = XEMU_SHADER_OVERRIDE_ACTION_NORMAL,
+                .state = XEMU_SHADER_OVERRIDE_EFFECT_CONDITION_NOT_MATCHED,
+                .requested_replacement_id = policy->replacement_id,
+                .requested_replacement_revision = policy->replacement_revision,
+            };
+            pgraph_shader_browser_publish_override_effect(
+                &override_browser, XEMU_SHADER_OVERRIDE_BACKEND_VULKAN,
+                &effect);
+        }
+    }
     bool schedule_specialization = false;
     bool track_specialized_family = false;
     bool family_controls_supported = false;
@@ -2090,6 +2478,7 @@ static bool create_pipeline(PGRAPHState *pg)
         if (xemu_tweak_enabled(XEMU_TWEAK_VK_SHADER_FASTPATH) &&
             !pg->regs_written_since_draw && !pg->program_data_dirty &&
             r->shader_binding && r->pipeline_binding &&
+            !r->shader_binding->override_action &&
             r->pipeline_binding->pipeline != VK_NULL_HANDLE &&
             !r->pipeline_binding->key.clear &&
             r->pipeline_binding->key.fragment_route ==
@@ -2102,6 +2491,8 @@ static bool create_pipeline(PGRAPHState *pg)
             !check_pipeline_dirty(pg) &&
             pgraph_vk_hybrid_fastpath_route_allowed(
                 force_ubershader, r->shader_binding->fragment_route) &&
+            (!force_specialized || r->shader_binding->fragment_route ==
+                                       PGRAPH_VK_FRAGMENT_SPECIALIZED) &&
             (r->shader_binding->fragment_route !=
                  PGRAPH_VK_FRAGMENT_UBERSHADER ||
              pgraph_vk_refresh_fallback_controls(
@@ -2137,6 +2528,7 @@ static bool create_pipeline(PGRAPHState *pg)
          * original cheap dirty path and still update uniforms as needed. */
         if (!force_ubershader && preparation.bound_state_equal &&
             r->shader_binding &&
+            !r->shader_binding->override_action &&
             r->shader_binding->fragment_route ==
                 PGRAPH_VK_FRAGMENT_SPECIALIZED &&
             r->pipeline_binding &&
@@ -2155,8 +2547,9 @@ static bool create_pipeline(PGRAPHState *pg)
 
         /* A stable fallback updates only its dynamic inputs. Fallback mode
          * retries promotion on a timed gate; Always keeps the interpreter. */
-        if (preparation.bound_state_equal &&
+        if (!force_specialized && preparation.bound_state_equal &&
             !preparation.selection_changed && r->shader_binding &&
+            !r->shader_binding->override_action &&
             r->shader_binding->fragment_route ==
                 PGRAPH_VK_FRAGMENT_UBERSHADER &&
             r->pipeline_binding &&
@@ -2194,7 +2587,11 @@ static bool create_pipeline(PGRAPHState *pg)
         PGRAPHVkExecutionRoute selected =
             PGRAPH_VK_EXECUTION_SPECIALIZED;
 
-        if (specialized_complete) {
+        if (force_specialized) {
+            /* A user route request may synchronously complete the
+             * specialized shader and pipeline when neither is ready. */
+            track_specialized_family = false;
+        } else if (specialized_complete) {
             /* Warm specialized draws do no fallback work after their one-time
              * family eligibility decision. The family pipeline probe does not
              * require full-state fallback binding metadata. */
@@ -3112,8 +3509,17 @@ void pgraph_vk_draw_end(NV2AState *d)
         return;
     }
 
+    PGRAPHShaderBrowserBinding skipped_browser;
+    bool skipped = pgraph_vk_override_skip_draw(pg, &skipped_browser);
+    if (skipped) {
+        pgraph_shader_browser_record_draw(
+            &pg->shader_browser_observations, &skipped_browser,
+            pg->frame_time, XEMU_SHADER_BROWSER_ROUTE_DISABLED);
+    }
+
     int64_t start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
-    bool draw_recorded = pgraph_vk_flush_draw_internal(d);
+    bool final_recorded = skipped ? false : pgraph_vk_flush_draw_internal(d);
+    bool draw_recorded = final_recorded || r->draw_scope_had_submission;
     pgraph_vk_perf_record_cpu_region(
         r, VK_PERF_CPU_DRAW_FLUSH,
         r->perf.enabled ? g_get_monotonic_time() - start_us : 0);
@@ -3121,9 +3527,10 @@ void pgraph_vk_draw_end(NV2AState *d)
         return;
     }
 
-    if (r->shader_binding &&
+    if (!skipped && r->shader_binding &&
         (pg->draw_arrays_length || pg->inline_elements_length ||
          pg->inline_buffer_length || pg->inline_array_length)) {
+        pgraph_vk_override_report_route(pg);
         pgraph_shader_browser_record_draw(
             &pg->shader_browser_observations, &r->shader_binding->browser,
             pg->frame_time,
@@ -4120,5 +4527,14 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
 
 void pgraph_vk_flush_draw(NV2AState *d)
 {
-    pgraph_vk_flush_draw_internal(d);
+    PGRAPHShaderBrowserBinding skipped_browser;
+    if (pgraph_vk_override_skip_draw(&d->pgraph, &skipped_browser)) {
+        return;
+    }
+    PGRAPHState *pg = &d->pgraph;
+    if (pgraph_vk_flush_draw_internal(d) &&
+        (pg->draw_arrays_length || pg->inline_elements_length ||
+         pg->inline_buffer_length || pg->inline_array_length)) {
+        pg->vk_renderer_state->draw_scope_had_submission = true;
+    }
 }

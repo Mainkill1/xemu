@@ -21,22 +21,22 @@ void pgraph_gl_set_surface_dirty(PGRAPHState *pg, bool color, bool zeta)
 
 static void test_rejected_draw_does_not_publish_surface_generation(void)
 {
-    PGRAPHState pg = { 0 };
-    PGRAPHGLState renderer = { 0 };
+    PGRAPHState *pg = g_new0(PGRAPHState, 1);
+    PGRAPHGLState *renderer = g_new0(PGRAPHGLState, 1);
     SurfaceBinding color = { .draw_time = 7, .draw_dirty = false };
     SurfaceBinding zeta = { .draw_time = 8, .draw_dirty = false };
 
-    pg.gl_renderer_state = &renderer;
-    pg.draw_time = 10;
-    renderer.color_binding = &color;
-    renderer.zeta_binding = &zeta;
+    pg->gl_renderer_state = renderer;
+    pg->draw_time = 10;
+    renderer->color_binding = &color;
+    renderer->zeta_binding = &zeta;
     dirty_calls = 0;
 
     pgraph_gl_complete_draw_lifecycle(
-        &pg, &renderer, PGRAPH_GL_DRAW_REJECTED,
+        pg, renderer, PGRAPH_GL_DRAW_REJECTED,
         true, true, true, true);
 
-    g_assert_cmpuint(pg.draw_time, ==, 10);
+    g_assert_cmpuint(pg->draw_time, ==, 10);
     g_assert_cmpuint(color.draw_time, ==, 7);
     g_assert_cmpuint(zeta.draw_time, ==, 8);
     g_assert_false(color.draw_dirty);
@@ -44,42 +44,47 @@ static void test_rejected_draw_does_not_publish_surface_generation(void)
     g_assert_cmpuint(dirty_calls, ==, 0);
 
     pgraph_gl_complete_draw_lifecycle(
-        &pg, &renderer, PGRAPH_GL_DRAW_SUBMITTED,
+        pg, renderer, PGRAPH_GL_DRAW_SUBMITTED,
         true, true, true, true);
 
-    g_assert_cmpuint(pg.draw_time, ==, 11);
+    g_assert_cmpuint(pg->draw_time, ==, 11);
     g_assert_cmpuint(color.draw_time, ==, 11);
     g_assert_cmpuint(zeta.draw_time, ==, 11);
     g_assert_cmpuint(dirty_calls, ==, 1);
     g_assert_true(last_color_dirty);
     g_assert_true(last_zeta_dirty);
+    g_free(renderer);
+    g_free(pg);
 }
 
 static void test_empty_draw_does_not_publish_surface_generation(void)
 {
-    PGRAPHState pg = { .draw_time = 20 };
-    PGRAPHGLState renderer = { 0 };
+    PGRAPHState *pg = g_new0(PGRAPHState, 1);
+    PGRAPHGLState *renderer = g_new0(PGRAPHGLState, 1);
+    pg->draw_time = 20;
 
     dirty_calls = 0;
     pgraph_gl_complete_draw_lifecycle(
-        &pg, &renderer, PGRAPH_GL_DRAW_EMPTY,
+        pg, renderer, PGRAPH_GL_DRAW_EMPTY,
         true, true, true, true);
 
-    g_assert_cmpuint(pg.draw_time, ==, 20);
+    g_assert_cmpuint(pg->draw_time, ==, 20);
     g_assert_cmpuint(dirty_calls, ==, 0);
+    g_free(renderer);
+    g_free(pg);
 }
 
 static void test_submitted_segment_survives_rejected_final_segment(void)
 {
     PGRAPHGLDrawLifecycle lifecycle;
-    PGRAPHState pg = { 0 };
-    PGRAPHGLState renderer = { 0 };
+    PGRAPHState *pg = g_new0(PGRAPHState, 1);
+    PGRAPHGLState *renderer = g_new0(PGRAPHGLState, 1);
     SurfaceBinding color = { 0 };
     SurfaceBinding zeta = { 0 };
 
-    pg.gl_renderer_state = &renderer;
-    renderer.color_binding = &color;
-    renderer.zeta_binding = &zeta;
+    pg->gl_renderer_state = renderer;
+    renderer->color_binding = &color;
+    renderer->zeta_binding = &zeta;
     dirty_calls = 0;
 
     pgraph_gl_draw_lifecycle_reset(&lifecycle);
@@ -94,11 +99,13 @@ static void test_submitted_segment_survives_rejected_final_segment(void)
     g_assert_true(pgraph_gl_draw_lifecycle_take_query(&lifecycle));
     g_assert_false(pgraph_gl_draw_lifecycle_take_query(&lifecycle));
     pgraph_gl_complete_draw_lifecycle(
-        &pg, &renderer, lifecycle.result,
+        pg, renderer, lifecycle.result,
         lifecycle.color_write, lifecycle.zeta_write,
         lifecycle.color_dirty, lifecycle.zeta_dirty);
-    g_assert_cmpuint(pg.draw_time, ==, 1);
+    g_assert_cmpuint(pg->draw_time, ==, 1);
     g_assert_cmpuint(dirty_calls, ==, 1);
+    g_free(renderer);
+    g_free(pg);
 }
 
 static void test_submitted_segment_survives_empty_final_segment(void)
@@ -120,10 +127,10 @@ static void test_submitted_segment_survives_empty_final_segment(void)
 static void test_rejected_scope_without_submission_stays_rejected(void)
 {
     PGRAPHGLDrawLifecycle lifecycle;
-    PGRAPHState pg = { 0 };
-    PGRAPHGLState renderer = { 0 };
+    PGRAPHState *pg = g_new0(PGRAPHState, 1);
+    PGRAPHGLState *renderer = g_new0(PGRAPHGLState, 1);
 
-    pg.gl_renderer_state = &renderer;
+    pg->gl_renderer_state = renderer;
     dirty_calls = 0;
 
     pgraph_gl_draw_lifecycle_reset(&lifecycle);
@@ -136,15 +143,17 @@ static void test_rejected_scope_without_submission_stays_rejected(void)
     g_assert_cmpint(lifecycle.result, ==, PGRAPH_GL_DRAW_REJECTED);
     g_assert_true(pgraph_gl_draw_lifecycle_take_query(&lifecycle));
     pgraph_gl_complete_draw_lifecycle(
-        &pg, &renderer, lifecycle.result,
+        pg, renderer, lifecycle.result,
         lifecycle.color_write, lifecycle.zeta_write,
         lifecycle.color_dirty, lifecycle.zeta_dirty);
-    g_assert_cmpuint(pg.draw_time, ==, 0);
+    g_assert_cmpuint(pg->draw_time, ==, 0);
     g_assert_cmpuint(dirty_calls, ==, 0);
 
     pgraph_gl_draw_lifecycle_reset(&lifecycle);
     g_assert_cmpint(lifecycle.result, ==, PGRAPH_GL_DRAW_EMPTY);
     g_assert_false(pgraph_gl_draw_lifecycle_take_query(&lifecycle));
+    g_free(renderer);
+    g_free(pg);
 }
 
 int main(int argc, char **argv)

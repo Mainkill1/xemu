@@ -1146,6 +1146,14 @@ static void test_shader_binding_key_equality_requires_route_and_full_state(void)
     b.state.psh.combiner_control = 1;
     g_assert_false(pgraph_vk_shader_binding_key_equal(&a, &b));
     g_assert_true(pgraph_vk_shader_binding_key_different(&a, &b));
+    b = a;
+    b.override_action = XEMU_SHADER_OVERRIDE_ACTION_REPLACEMENT;
+    b.override_replacement_id = 7;
+    b.override_replacement_revision = 1;
+    g_assert_true(pgraph_vk_shader_binding_key_different(&a, &b));
+    a = b;
+    b.override_replacement_revision = 2;
+    g_assert_true(pgraph_vk_shader_binding_key_different(&a, &b));
 }
 
 static void test_shader_module_key_uses_only_active_stage(void)

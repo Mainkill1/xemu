@@ -743,6 +743,42 @@ void pgraph_gl_shader_cache_to_disk(ShaderBinding *binding)
     qemu_thread_create(binding->save_thread, name, shader_write_to_disk, binding, QEMU_THREAD_JOINABLE);
 }
 
+static void upload_uniform_value(const UniformInfo *info, int location,
+                                 void *value)
+{
+    switch (info->type) {
+        case UniformElementType_uint:
+            glUniform1uiv(location, info->count, value);
+            break;
+        case UniformElementType_int:
+            glUniform1iv(location, info->count, value);
+            break;
+        case UniformElementType_ivec2:
+            glUniform2iv(location, info->count, value);
+            break;
+        case UniformElementType_ivec4:
+            glUniform4iv(location, info->count, value);
+            break;
+        case UniformElementType_float:
+            glUniform1fv(location, info->count, value);
+            break;
+        case UniformElementType_vec2:
+            glUniform2fv(location, info->count, value);
+            break;
+        case UniformElementType_vec3:
+            glUniform3fv(location, info->count, value);
+            break;
+        case UniformElementType_vec4:
+            glUniform4fv(location, info->count, value);
+            break;
+        case UniformElementType_mat2:
+            glUniformMatrix2fv(location, info->count, GL_FALSE, value);
+            break;
+        default:
+            g_assert_not_reached();
+    }
+}
+
 static void apply_uniform_updates(const UniformInfo *info, int *locs,
                                   void *values, size_t count)
 {
@@ -750,43 +786,41 @@ static void apply_uniform_updates(const UniformInfo *info, int *locs,
         if (locs[i] == -1) {
             continue;
         }
-
         void *value = (char*)values + info[i].val_offs;
-
-        switch (info[i].type) {
-        case UniformElementType_uint:
-            glUniform1uiv(locs[i], info[i].count, value);
-            break;
-        case UniformElementType_int:
-            glUniform1iv(locs[i], info[i].count, value);
-            break;
-        case UniformElementType_ivec2:
-            glUniform2iv(locs[i], info[i].count, value);
-            break;
-        case UniformElementType_ivec4:
-            glUniform4iv(locs[i], info[i].count, value);
-            break;
-        case UniformElementType_float:
-            glUniform1fv(locs[i], info[i].count, value);
-            break;
-        case UniformElementType_vec2:
-            glUniform2fv(locs[i], info[i].count, value);
-            break;
-        case UniformElementType_vec3:
-            glUniform3fv(locs[i], info[i].count, value);
-            break;
-        case UniformElementType_vec4:
-            glUniform4fv(locs[i], info[i].count, value);
-            break;
-        case UniformElementType_mat2:
-            glUniformMatrix2fv(locs[i], info[i].count, GL_FALSE, value);
-            break;
-        default:
-            g_assert_not_reached();
-        }
+        upload_uniform_value(&info[i], locs[i], value);
     }
 
     assert(glGetError() == GL_NO_ERROR);
+}
+
+static bool apply_uniform_updates_checked(const UniformInfo *info, int *locs,
+                                          void *values, size_t count,
+                                          char *error, size_t error_size)
+{
+    GLenum gl_error = glGetError();
+    if (gl_error != GL_NO_ERROR) {
+        g_snprintf(error, error_size,
+                   "OpenGL error before replacement uniform upload (0x%x)",
+                   gl_error);
+        while (glGetError() != GL_NO_ERROR) {}
+        return false;
+    }
+    for (size_t i = 0; i < count; ++i) {
+        if (locs[i] < 0) {
+            continue;
+        }
+        void *value = (char *)values + info[i].val_offs;
+        upload_uniform_value(&info[i], locs[i], value);
+        gl_error = glGetError();
+        if (gl_error != GL_NO_ERROR) {
+            g_snprintf(error, error_size,
+                       "Replacement uniform %s upload failed (0x%x)",
+                       info[i].name, gl_error);
+            while (glGetError() != GL_NO_ERROR) {}
+            return false;
+        }
+    }
+    return true;
 }
 
 // FIXME: Dirty tracking

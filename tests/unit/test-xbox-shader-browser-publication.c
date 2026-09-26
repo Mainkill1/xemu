@@ -5,12 +5,32 @@
 #include <string.h>
 
 static uint64_t generation = 7;
+static uint64_t override_generation = 11;
 static uint32_t title_id = 0x4d530064;
-static uint32_t published_stages[8];
-static uint32_t published_titles[8];
+static uint32_t published_stages[10];
+static uint32_t published_titles[10];
 static size_t published_count;
+static size_t override_resolve_count;
 static int artifacts_enabled;
 static size_t artifact_count;
+static size_t effect_count;
+
+void xemu_shader_override_publish_effect(
+    uint32_t scoped_title_id, uint32_t fingerprint_version,
+    const uint8_t fingerprint[
+        XEMU_SHADER_BROWSER_EXECUTABLE_FINGERPRINT_BYTES], uint32_t backend,
+    uint32_t identity_version,
+    const uint8_t identity_hash[XEMU_SHADER_BROWSER_HASH_BYTES],
+    uint32_t stage, const XemuShaderOverrideEffect *effect)
+{
+    assert(scoped_title_id == title_id && fingerprint_version == 3);
+    assert(fingerprint[0] == 0x44);
+    assert(backend == XEMU_SHADER_OVERRIDE_BACKEND_OPENGL);
+    assert(identity_version == 1 && stage == XEMU_SHADER_BROWSER_STAGE_PIXEL);
+    assert(identity_hash[0] == XEMU_SHADER_BROWSER_STAGE_PIXEL);
+    assert(effect->state == XEMU_SHADER_OVERRIDE_EFFECT_EFFECTIVE);
+    ++effect_count;
+}
 
 uint64_t xemu_shader_browser_scope_generation(void)
 {
@@ -21,7 +41,38 @@ uint64_t xemu_shader_browser_copy_current_scope(XemuShaderBrowserScope *scope)
 {
     memset(scope, 0, sizeof(*scope));
     scope->title_id = title_id;
+    scope->executable_fingerprint_version = 3;
+    scope->executable_fingerprint[0] = 0x44;
     return generation;
+}
+
+uint64_t xemu_shader_override_generation(void)
+{
+    return override_generation;
+}
+
+int xemu_shader_override_resolve_scoped(
+    uint32_t scoped_title_id, uint32_t executable_fingerprint_version,
+    const uint8_t executable_fingerprint[
+        XEMU_SHADER_BROWSER_EXECUTABLE_FINGERPRINT_BYTES],
+    uint32_t backend, uint32_t identity_version,
+    const uint8_t identity_hash[XEMU_SHADER_BROWSER_HASH_BYTES],
+    uint32_t stage, XemuShaderOverridePolicy *policy)
+{
+    ++override_resolve_count;
+    assert(scoped_title_id == title_id);
+    assert(executable_fingerprint_version == 3);
+    assert(executable_fingerprint[0] == 0x44);
+    assert(identity_version == 1);
+    assert(stage == XEMU_SHADER_BROWSER_STAGE_PIXEL);
+    assert(identity_hash[0] == XEMU_SHADER_BROWSER_STAGE_PIXEL);
+    memset(policy, 0, sizeof(*policy));
+    policy->generation = override_generation;
+    policy->rule_id = backend;
+    policy->action = backend == XEMU_SHADER_OVERRIDE_BACKEND_OPENGL ?
+        XEMU_SHADER_OVERRIDE_ACTION_HIGHLIGHT :
+        XEMU_SHADER_OVERRIDE_ACTION_FORCE_UBER;
+    return 1;
 }
 
 int xemu_shader_browser_compute_shader_hash(
@@ -40,7 +91,7 @@ int xemu_shader_browser_compute_shader_hash(
 int xemu_shader_browser_publish_shader(
     const XemuShaderBrowserShaderRecord *record)
 {
-    assert(published_count < 8);
+    assert(published_count < 10);
     assert(record->identity_hash[0] == record->stage);
     published_stages[published_count] = record->stage;
     published_titles[published_count] = record->scope.title_id;
@@ -74,18 +125,42 @@ int main(void)
     PGRAPHShaderBrowserBinding binding = { 0 };
     pgraph_shader_browser_publish_binding(&state, false, &binding);
     assert(binding.count == 2 && binding.scope_generation == 7);
+    assert(binding.override_generation == override_generation);
     assert(published_count == 2);
     assert(published_stages[0] == XEMU_SHADER_BROWSER_STAGE_VERTEX);
     assert(published_stages[1] == XEMU_SHADER_BROWSER_STAGE_PIXEL);
     assert(published_titles[0] == title_id && published_titles[1] == title_id);
+    assert(override_resolve_count == 2);
+    assert(binding.opengl_policy.action ==
+           XEMU_SHADER_OVERRIDE_ACTION_HIGHLIGHT);
+    assert(binding.vulkan_policy.action ==
+           XEMU_SHADER_OVERRIDE_ACTION_FORCE_UBER);
+    XemuShaderOverrideEffect effect = {
+        .rule_id = binding.opengl_policy.rule_id,
+        .state = XEMU_SHADER_OVERRIDE_EFFECT_EFFECTIVE,
+    };
+    pgraph_shader_browser_publish_override_effect(
+        &binding, XEMU_SHADER_OVERRIDE_BACKEND_OPENGL, &effect);
+    assert(effect_count == 1);
 
     pgraph_shader_browser_refresh_binding_scope(&state, false, &binding);
     assert(published_count == 2);
+    assert(override_resolve_count == 2);
+
+    /* A policy edit refreshes the attached policies without re-publishing
+     * canonical shader identity or waiting for guest shader state to dirty. */
+    ++override_generation;
+    pgraph_shader_browser_refresh_binding_scope(&state, false, &binding);
+    assert(published_count == 2);
+    assert(override_resolve_count == 4);
+    assert(binding.override_generation == override_generation);
+
     title_id = 0x54540001;
     ++generation;
     pgraph_shader_browser_refresh_binding_scope(&state, false, &binding);
     assert(binding.scope_generation == generation && published_count == 4);
     assert(published_titles[2] == title_id && published_titles[3] == title_id);
+    assert(override_resolve_count == 6);
 
     memset(&binding, 0, sizeof(binding));
     state.vsh.is_fixed_function = true;
@@ -94,6 +169,7 @@ int main(void)
     assert(published_stages[4] == XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION);
     assert(published_stages[5] == XEMU_SHADER_BROWSER_STAGE_PIXEL);
     assert(published_stages[6] == XEMU_SHADER_BROWSER_STAGE_GEOMETRY);
+    assert(override_resolve_count == 8);
     const uint8_t source[] = "hello";
     pgraph_shader_browser_publish_generated_artifact(
         &state, XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION, "opengl",
@@ -104,7 +180,16 @@ int main(void)
         &state, XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION, "opengl",
         "specialized", "glsl", "glsl", source, sizeof(source) - 1);
     assert(artifact_count == 1 && published_count == 8);
-    puts("1..1\nok 1 - renderer discovery publishes guest stages and title "
-         "scope");
+    PGRAPHShaderBrowserBinding pixel_only = { 0 };
+    pgraph_shader_browser_publish_pixel_binding(&state, &pixel_only);
+    assert(pixel_only.count == 1 && published_count == 9);
+    assert(pixel_only.identities[0].stage == XEMU_SHADER_BROWSER_STAGE_PIXEL);
+    assert(published_stages[8] == XEMU_SHADER_BROWSER_STAGE_PIXEL);
+    ++generation;
+    pgraph_shader_browser_refresh_binding_scope(&state, true, &pixel_only);
+    assert(pixel_only.count == 1 && published_count == 10);
+    assert(published_stages[9] == XEMU_SHADER_BROWSER_STAGE_PIXEL);
+    puts("1..1\nok 1 - renderer discovery publishes guest stages, title scope, "
+         "and refreshable override policies");
     return 0;
 }

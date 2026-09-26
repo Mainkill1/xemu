@@ -4,9 +4,41 @@
 #include <string.h>
 #include <glib.h>
 
-void pgraph_shader_browser_publish_binding(const ShaderState *state,
-                                           bool geometry_needed,
-                                           PGRAPHShaderBrowserBinding *binding)
+static void refresh_override_policies(
+    const XemuShaderBrowserScope *scope, PGRAPHShaderBrowserBinding *binding)
+{
+    memset(&binding->opengl_policy, 0, sizeof(binding->opengl_policy));
+    memset(&binding->vulkan_policy, 0, sizeof(binding->vulkan_policy));
+    binding->override_generation = xemu_shader_override_generation();
+    if (!scope || !scope->title_id) {
+        return;
+    }
+
+    const PGRAPHShaderBrowserIdentity *pixel = NULL;
+    for (uint32_t i = 0; i < binding->count; ++i) {
+        if (binding->identities[i].stage ==
+            XEMU_SHADER_BROWSER_STAGE_PIXEL) {
+            pixel = &binding->identities[i];
+            break;
+        }
+    }
+    if (!pixel) {
+        return;
+    }
+
+    xemu_shader_override_resolve_scoped(
+        scope->title_id, scope->executable_fingerprint_version,
+        scope->executable_fingerprint, XEMU_SHADER_OVERRIDE_BACKEND_OPENGL,
+        1, pixel->hash, pixel->stage, &binding->opengl_policy);
+    xemu_shader_override_resolve_scoped(
+        scope->title_id, scope->executable_fingerprint_version,
+        scope->executable_fingerprint, XEMU_SHADER_OVERRIDE_BACKEND_VULKAN,
+        1, pixel->hash, pixel->stage, &binding->vulkan_policy);
+}
+
+static void publish_binding(const ShaderState *state, bool geometry_needed,
+                            bool pixel_only,
+                            PGRAPHShaderBrowserBinding *binding)
 {
     if (!state || !binding) {
         return;
@@ -22,8 +54,10 @@ void pgraph_shader_browser_publish_binding(const ShaderState *state,
     };
     uint32_t stage_count = geometry_needed ? 3 : 2;
     binding->count = 0;
+    binding->pixel_only = pixel_only;
     binding->scope_generation = generation;
-    for (uint32_t i = 0; i < stage_count; ++i) {
+    for (uint32_t i = pixel_only ? 1 : 0;
+         i < (pixel_only ? 2 : stage_count); ++i) {
         uint8_t recipe[PGRAPH_SHADER_BROWSER_RECIPE_MAX];
         size_t recipe_size = 0;
         uint8_t hash[XEMU_SHADER_BROWSER_HASH_BYTES];
@@ -49,15 +83,67 @@ void pgraph_shader_browser_publish_binding(const ShaderState *state,
         identity->stage = stages[i];
         memcpy(identity->hash, hash, sizeof(hash));
     }
+    refresh_override_policies(&scope, binding);
+}
+
+void pgraph_shader_browser_publish_binding(const ShaderState *state,
+                                           bool geometry_needed,
+                                           PGRAPHShaderBrowserBinding *binding)
+{
+    publish_binding(state, geometry_needed, false, binding);
+}
+
+void pgraph_shader_browser_publish_pixel_binding(
+    const ShaderState *state, PGRAPHShaderBrowserBinding *binding)
+{
+    publish_binding(state, false, true, binding);
 }
 
 void pgraph_shader_browser_refresh_binding_scope(
     const ShaderState *state, bool geometry_needed,
     PGRAPHShaderBrowserBinding *binding)
 {
-    if (binding &&
-        binding->scope_generation != xemu_shader_browser_scope_generation()) {
-        pgraph_shader_browser_publish_binding(state, geometry_needed, binding);
+    if (!binding) {
+        return;
+    }
+    if (binding->scope_generation != xemu_shader_browser_scope_generation()) {
+        if (binding->pixel_only) {
+            pgraph_shader_browser_publish_pixel_binding(state, binding);
+        } else {
+            pgraph_shader_browser_publish_binding(state, geometry_needed,
+                                                  binding);
+        }
+        return;
+    }
+    if (binding->override_generation != xemu_shader_override_generation()) {
+        XemuShaderBrowserScope scope = { 0 };
+        xemu_shader_browser_copy_current_scope(&scope);
+        refresh_override_policies(&scope, binding);
+    }
+}
+
+void pgraph_shader_browser_publish_override_effect(
+    const PGRAPHShaderBrowserBinding *binding, uint32_t backend,
+    const XemuShaderOverrideEffect *effect)
+{
+    if (!binding || !effect || !effect->rule_id) {
+        return;
+    }
+    XemuShaderBrowserScope scope = { 0 };
+    xemu_shader_browser_copy_current_scope(&scope);
+    if (!scope.title_id) {
+        return;
+    }
+    for (uint32_t i = 0; i < binding->count; ++i) {
+        const PGRAPHShaderBrowserIdentity *identity = &binding->identities[i];
+        if (identity->stage != XEMU_SHADER_BROWSER_STAGE_PIXEL) {
+            continue;
+        }
+        xemu_shader_override_publish_effect(
+            scope.title_id, scope.executable_fingerprint_version,
+            scope.executable_fingerprint, backend, 1, identity->hash,
+            identity->stage, effect);
+        return;
     }
 }
 
