@@ -15,6 +15,22 @@ void pgraph_gl_finalize_shaders(PGRAPHState *pg)
     pgraph_gl_finalize_shaders_stage2(pg);
 }
 
+void pgraph_gl_shader_override_invalidate_program(PGRAPHState *pg)
+{
+    if (!pg || !pg->gl_renderer_state) {
+        return;
+    }
+    PGRAPHGLOverrideRuntime *runtime =
+        pgraph_gl_override_runtime_find(pg->gl_renderer_state);
+    if (runtime) {
+        runtime->active_program = 0;
+        runtime->active_uniform_key = NULL;
+        runtime->active_override_program = NULL;
+        runtime->active_custom_program = false;
+        runtime->active_action = XEMU_SHADER_OVERRIDE_ACTION_NORMAL;
+    }
+}
+
 void pgraph_gl_bind_shaders(PGRAPHState *pg)
 {
     PGRAPHGLState *renderer = pg->gl_renderer_state;
@@ -79,8 +95,61 @@ void pgraph_gl_bind_shaders(PGRAPHState *pg)
             renderer, runtime, &binding->state, policy);
     }
 
-    if (!override_program || !override_program->program) {
-        if (!binding->initialized && !pgraph_gl_shader_load_from_memory(binding)) {
+    if (override_program && override_program->program) {
+        binding->gl_primitive_mode = get_gl_primitive_mode(
+            binding->state.geom.polygon_front_mode,
+            binding->state.geom.primitive_mode);
+    }
+
+    if (cache_locked) {
+        qemu_mutex_unlock(&renderer->shader_cache_lock);
+        NV2A_GL_DGROUP_END();
+    }
+
+    while (override_program && override_program->program) {
+        GLuint selected = override_program->program;
+        const void *uniform_key = &override_program->uniform_locs;
+        if (runtime->active_program != selected ||
+            runtime->active_uniform_key != uniform_key) {
+            glUseProgram(selected);
+            runtime->active_program = selected;
+            runtime->active_uniform_key = uniform_key;
+            nv2a_profile_inc_counter(NV2A_PROF_SHADER_BIND);
+        }
+        char upload_error[256] = { 0 };
+        if (pgraph_gl_override_update_uniforms(
+                pg, &override_program->uniform_locs,
+                upload_error, sizeof(upload_error))) {
+            runtime->active_custom_program = true;
+            runtime->active_override_program = override_program;
+            runtime->active_action = policy->action;
+            if (state_changed) {
+                pgraph_clear_dirty_reg_map(pg);
+            }
+            return;
+        }
+
+        g_strlcpy(runtime->active_override_error, upload_error,
+                  sizeof(runtime->active_override_error));
+        g_free(override_program->error);
+        override_program->error = g_strdup(upload_error);
+        override_program->program = 0;
+        if (runtime->active_override_program == override_program) {
+            runtime->active_override_program = NULL;
+        }
+        glUseProgram(0);
+        runtime->active_program = 0;
+        runtime->active_uniform_key = NULL;
+        glDeleteProgram(selected);
+        override_program = pgraph_gl_override_fallback_program(
+            runtime, &binding->state, policy->action,
+            policy->action == XEMU_SHADER_OVERRIDE_ACTION_HIGHLIGHT ?
+                PGRAPH_GL_HIGHLIGHT_REPLACEMENT_ID : policy->replacement_id);
+    }
+
+    if (!binding->initialized) {
+        qemu_mutex_lock(&renderer->shader_cache_lock);
+        if (!pgraph_gl_shader_load_from_memory(binding)) {
             nv2a_profile_inc_counter(NV2A_PROF_SHADER_GEN);
             int64_t shader_compile_start = g_get_monotonic_time();
             generate_shaders(renderer, binding);
@@ -94,47 +163,23 @@ void pgraph_gl_bind_shaders(PGRAPHState *pg)
                 pgraph_gl_shader_cache_to_disk(binding);
             }
         }
-        assert(binding->initialized);
-    } else {
-        binding->gl_primitive_mode = get_gl_primitive_mode(
-            binding->state.geom.polygon_front_mode,
-            binding->state.geom.primitive_mode);
-    }
-
-    if (cache_locked) {
         qemu_mutex_unlock(&renderer->shader_cache_lock);
-        NV2A_GL_DGROUP_END();
     }
-
-    GLuint selected_program = override_program && override_program->program ?
-        override_program->program : binding->gl_program;
-    const void *selected_uniform_key =
-        override_program && override_program->program ?
-            (const void *)&override_program->uniform_locs :
-            (const void *)&binding->uniform_locs;
-    if (runtime->active_program != selected_program ||
-        runtime->active_uniform_key != selected_uniform_key) {
-        glUseProgram(selected_program);
-        runtime->active_program = selected_program;
-        runtime->active_uniform_key = selected_uniform_key;
+    assert(binding->initialized);
+    if (runtime->active_program != binding->gl_program ||
+        runtime->active_uniform_key != &binding->uniform_locs) {
+        glUseProgram(binding->gl_program);
+        runtime->active_program = binding->gl_program;
+        runtime->active_uniform_key = &binding->uniform_locs;
         nv2a_profile_inc_counter(NV2A_PROF_SHADER_BIND);
     }
-    runtime->active_custom_program =
-        override_program && override_program->program;
-    runtime->active_override_program = runtime->active_custom_program ?
-        override_program : NULL;
-    runtime->active_action = runtime->active_custom_program ?
-        policy->action : XEMU_SHADER_OVERRIDE_ACTION_NORMAL;
-
+    runtime->active_custom_program = false;
+    runtime->active_override_program = NULL;
+    runtime->active_action = XEMU_SHADER_OVERRIDE_ACTION_NORMAL;
     if (state_changed) {
         pgraph_clear_dirty_reg_map(pg);
     }
-    if (override_program && override_program->program) {
-        pgraph_gl_override_update_uniforms(pg,
-                                          &override_program->uniform_locs);
-    } else {
-        update_shader_uniforms(pg, binding);
-    }
+    update_shader_uniforms(pg, binding);
 }
 
 bool pgraph_gl_shader_override_program_active(PGRAPHState *pg)
@@ -199,16 +244,16 @@ void pgraph_gl_shader_override_report_draw(PGRAPHState *pg,
     }
     if (condition_matched &&
         policy->action == XEMU_SHADER_OVERRIDE_ACTION_REPLACEMENT) {
-        if (runtime && runtime->active_override_error[0]) {
-            effect.state = XEMU_SHADER_OVERRIDE_EFFECT_FAILED;
-            g_strlcpy(effect.error, runtime->active_override_error,
-                      sizeof(effect.error));
-        } else if (effect.effective_action != policy->action ||
+        if (effect.effective_action != policy->action ||
                    effect.effective_replacement_revision !=
                        policy->replacement_revision) {
-            effect.state = XEMU_SHADER_OVERRIDE_EFFECT_FALLBACK;
+            effect.state = effect.effective_action == policy->action ?
+                XEMU_SHADER_OVERRIDE_EFFECT_FALLBACK :
+                XEMU_SHADER_OVERRIDE_EFFECT_FAILED;
             g_strlcpy(effect.error,
-                      "Requested replacement could not be activated",
+                      runtime && runtime->active_override_error[0] ?
+                          runtime->active_override_error :
+                          "Requested replacement could not be activated",
                       sizeof(effect.error));
         }
     }

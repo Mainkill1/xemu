@@ -67,6 +67,47 @@ int CopyPolicy(const OverrideResolution &resolved, uint64_t generation,
 
 using namespace xemu::shader_browser;
 
+extern "C" int xemu_shader_override_has_active_rules_scoped(
+    uint32_t title_id, uint32_t executable_fingerprint_version,
+    const uint8_t executable_fingerprint[
+        XEMU_SHADER_BROWSER_EXECUTABLE_FINGERPRINT_BYTES],
+    uint32_t backend)
+{
+    if (!title_id || !GetOverrideStore().HasActiveRules()) return 0;
+    OverrideContext context{};
+    context.title_id = title_id;
+    context.executable_fingerprint_version = executable_fingerprint_version;
+    if (executable_fingerprint) {
+        std::memcpy(context.executable_fingerprint.data(),
+                    executable_fingerprint,
+                    context.executable_fingerprint.size());
+    }
+    context.backend = BackendFromWire(backend);
+    if (context.backend == OverrideBackend::Unknown) return 0;
+
+    struct FastGate {
+        uint64_t generation = 0;
+        OverrideContext context;
+        bool matched = false;
+    };
+    static thread_local FastGate gate;
+    OverrideStore &store = GetOverrideStore();
+    uint64_t generation = store.Generation();
+    if (gate.generation == generation && SameContext(gate.context, context)) {
+        return gate.matched;
+    }
+    OverrideStoreSnapshot snapshot;
+    store.CopySnapshot(&snapshot);
+    OverrideIndex index;
+    if (!snapshot.disabled) {
+        index.Rebuild(context, snapshot.rules, snapshot.replacements);
+    }
+    gate.generation = snapshot.generation;
+    gate.context = context;
+    gate.matched = !snapshot.disabled && index.HasMatchedRules();
+    return gate.matched;
+}
+
 extern "C" int xemu_shader_override_resolve_scoped(
     uint32_t title_id, uint32_t executable_fingerprint_version,
     const uint8_t executable_fingerprint[

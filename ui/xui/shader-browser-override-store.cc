@@ -225,10 +225,10 @@ void OverrideStore::ClearSavedRules()
 
 void OverrideStore::RebuildLocked()
 {
-    ++generation_;
     if (disabled_) {
         index_.Rebuild(context_, {}, {});
         has_active_rules_.store(false, std::memory_order_release);
+        generation_.fetch_add(1, std::memory_order_release);
         return;
     }
     std::vector<OverrideRule> rules;
@@ -246,6 +246,7 @@ void OverrideStore::RebuildLocked()
         std::any_of(rules.begin(), rules.end(),
                     [](const OverrideRule &rule) { return rule.enabled; }),
         std::memory_order_release);
+    generation_.fetch_add(1, std::memory_order_release);
 }
 
 bool OverrideStore::HasActiveRules() const
@@ -264,8 +265,7 @@ OverrideResolution OverrideStore::Resolve(const ShaderKey &key) const
 
 uint64_t OverrideStore::Generation() const
 {
-    std::lock_guard<std::mutex> lock(mutex_);
-    return generation_;
+    return generation_.load(std::memory_order_acquire);
 }
 
 void OverrideStore::CopySnapshot(OverrideStoreSnapshot *snapshot) const
@@ -274,7 +274,7 @@ void OverrideStore::CopySnapshot(OverrideStoreSnapshot *snapshot) const
         return;
     }
     std::lock_guard<std::mutex> lock(mutex_);
-    snapshot->generation = generation_;
+    snapshot->generation = generation_.load(std::memory_order_relaxed);
     snapshot->disabled = disabled_;
     snapshot->context = context_;
     snapshot->resolved_rule_count = index_.RuleCount();

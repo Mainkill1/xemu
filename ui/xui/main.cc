@@ -51,6 +51,9 @@
 #include "shader-browser.hh"
 #include "shader-browser-session-provider.hh"
 #include "shader-browser-override-store.hh"
+#include "shader-browser-override-lifecycle.hh"
+#include "shader-browser-replacement-library.hh"
+#include "shader-browser-saved-rules.hh"
 #include "welcome.hh"
 #include "menubar.hh"
 #include "compat.hh"
@@ -331,6 +334,16 @@ void xemu_hud_init(SDL_Window* window, void* sdl_gl_context)
         }
     } else {
         fprintf(stderr, "Unable to install Shader Browser provider\n");
+    }
+    std::string override_error;
+    if (!xemu::shader_browser::LoadShaderOverrides(
+            shader_config_dir ? shader_config_dir : "",
+            g_config.shader_browser.database.enabled,
+            &xemu::shader_browser::GetOverrideStore(),
+            &xemu::shader_browser::GetReplacementLibrary(),
+            &xemu::shader_browser::GetSavedOverrideRules(),
+            &override_error)) {
+        fprintf(stderr, "Shader overrides: %s\n", override_error.c_str());
     }
     g_free(shader_config_dir);
 

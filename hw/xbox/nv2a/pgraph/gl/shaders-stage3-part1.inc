@@ -11,6 +11,7 @@
 #define pgraph_gl_init_shaders pgraph_gl_init_shaders_stage2
 #define pgraph_gl_finalize_shaders pgraph_gl_finalize_shaders_stage2
 #include "shaders.c"
+#include "override-interface.h"
 #undef pgraph_gl_bind_shaders
 #undef pgraph_gl_init_shaders
 #undef pgraph_gl_finalize_shaders
@@ -175,7 +176,32 @@ static GLuint pgraph_gl_compile_override_fragment(const char *source,
     return shader;
 }
 
-static void pgraph_gl_override_set_sampler_uniforms(GLuint program)
+static bool pgraph_gl_override_validate_interface(
+    GLuint program, const ShaderState *state, char **error)
+{
+    if (!pgraph_gl_override_validate_uniforms(
+            program, VshUniformInfo, VshUniform__COUNT, error) ||
+        !pgraph_gl_override_validate_uniforms(
+            program, PshUniformInfo, PshUniform__COUNT, error)) {
+        return false;
+    }
+    for (int i = 0; i < NV2A_MAX_TEXTURES; ++i) {
+        char name[16];
+        snprintf(name, sizeof(name), "texSamp%d", i);
+        GLenum expected = state->psh.dim_tex[i] != 2 &&
+                          state->psh.dim_tex[i] != 3 ? 0 :
+            state->psh.tex_cubemap[i] ? GL_SAMPLER_CUBE :
+            state->psh.dim_tex[i] == 3 ? GL_SAMPLER_3D : GL_SAMPLER_2D;
+        if (!pgraph_gl_override_validate_sampler(
+                program, name, expected, error)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static bool pgraph_gl_override_set_sampler_uniforms(GLuint program,
+                                                    char **error)
 {
     for (int i = 0; i < NV2A_MAX_TEXTURES; ++i) {
         char name[16];
@@ -183,8 +209,16 @@ static void pgraph_gl_override_set_sampler_uniforms(GLuint program)
         GLint location = glGetUniformLocation(program, name);
         if (location >= 0) {
             glUniform1i(location, i);
+            GLenum gl_error = glGetError();
+            if (gl_error != GL_NO_ERROR) {
+                *error = g_strdup_printf(
+                    "Sampler %s upload failed (0x%x)", name, gl_error);
+                while (glGetError() != GL_NO_ERROR) {}
+                return false;
+            }
         }
     }
+    return true;
 }
 
 static void pgraph_gl_override_update_uniform_locs(

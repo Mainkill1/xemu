@@ -61,7 +61,7 @@ private:
     mutable std::mutex mutex_;
     OverrideContext context_;
     bool disabled_ = false;
-    uint64_t generation_ = 0;
+    std::atomic<uint64_t> generation_{0};
     std::atomic<bool> has_active_rules_{false};
     std::unordered_map<uint64_t, OverrideRule> rules_;
     std::unordered_map<uint64_t, std::shared_ptr<const ReplacementPayload>>

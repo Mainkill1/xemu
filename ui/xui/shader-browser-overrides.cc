@@ -52,14 +52,6 @@ std::tuple<int, int, int32_t> RuleRank(const OverrideRule &rule)
 bool ActionSupported(OverrideAction action, OverrideBackend backend,
                      std::string *reason)
 {
-    if (backend == OverrideBackend::Vulkan &&
-        action != OverrideAction::Normal &&
-        action != OverrideAction::SkipDraw &&
-        action != OverrideAction::ForceUber &&
-        action != OverrideAction::ForceSpecialized) {
-        if (reason) *reason = "This Vulkan override action is not available yet";
-        return false;
-    }
     if (action == OverrideAction::ForceUber &&
         backend != OverrideBackend::Vulkan) {
         if (reason) {
@@ -78,6 +70,31 @@ bool ActionSupported(OverrideAction action, OverrideBackend backend,
 }
 
 } // namespace
+
+bool IsOverrideActionSupported(OverrideAction action,
+                               OverrideBackend backend,
+                               std::string *reason)
+{
+    return ActionSupported(action, backend, reason);
+}
+
+const ShaderScope *FindCurrentBuildScope(const Entry &entry,
+                                         const OverrideContext &context)
+{
+    if (!context.title_id || !context.executable_fingerprint_version) {
+        return nullptr;
+    }
+    auto it = std::find_if(
+        entry.scopes.begin(), entry.scopes.end(),
+        [&context](const ShaderScope &scope) {
+            return scope.title_id == context.title_id &&
+                   scope.executable_fingerprint_version ==
+                       context.executable_fingerprint_version &&
+                   scope.executable_fingerprint ==
+                       context.executable_fingerprint;
+        });
+    return it == entry.scopes.end() ? nullptr : &*it;
+}
 
 ShaderDragPayload MakeShaderDragPayload(uint32_t title_id,
                                         const ShaderKey &key)
@@ -287,7 +304,8 @@ void OverrideIndex::Rebuild(
             resolved.emplace(key, std::move(resolution));
             continue;
         }
-        if (!ActionSupported(winner->action, context.backend, &reason)) {
+        if (!IsOverrideActionSupported(winner->action, context.backend,
+                                       &reason)) {
             resolution.status = OverrideResolutionStatus::Incompatible;
             resolution.message = reason;
             resolved.emplace(key, std::move(resolution));
@@ -324,6 +342,15 @@ void OverrideIndex::Rebuild(
         resolution.message = OverrideActionLabel(winner->action);
         resolved.emplace(key, std::move(resolution));
     }
+}
+
+bool OverrideIndex::HasMatchedRules() const
+{
+    return std::any_of(resolved.begin(), resolved.end(),
+                       [](const auto &pair) {
+                           return pair.second.status ==
+                               OverrideResolutionStatus::Matched;
+                       });
 }
 
 OverrideResolution OverrideIndex::Resolve(const ShaderKey &key) const

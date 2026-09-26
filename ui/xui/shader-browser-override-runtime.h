@@ -116,6 +116,11 @@ void xemu_shader_override_set_context(
     uint32_t backend);
 uint64_t xemu_shader_override_generation(void);
 int xemu_shader_override_has_active_rules(void);
+int xemu_shader_override_has_active_rules_scoped(
+    uint32_t title_id, uint32_t executable_fingerprint_version,
+    const uint8_t executable_fingerprint[
+        XEMU_SHADER_BROWSER_EXECUTABLE_FINGERPRINT_BYTES],
+    uint32_t backend);
 int xemu_shader_override_resolve(
     uint32_t identity_version,
     const uint8_t identity_hash[XEMU_SHADER_BROWSER_HASH_BYTES],

@@ -47,9 +47,6 @@ private:
     uint64_t selected_replacement_id_ = 0;
     bool restrict_build_ = false;
     bool save_rule_ = false;
-    bool persistence_configured_ = false;
-    bool persistence_enabled_ = false;
-    std::string persistence_base_path_;
     std::string persistence_error_;
     std::string preset_path_;
     uint64_t next_rule_revision_ = 1;

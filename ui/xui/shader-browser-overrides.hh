@@ -140,6 +140,11 @@ bool IsReplacementCompatible(const ShaderKey &shader,
                              const ReplacementDescriptor &replacement,
                              OverrideBackend backend,
                              std::string *reason);
+bool IsOverrideActionSupported(OverrideAction action,
+                               OverrideBackend backend,
+                               std::string *reason);
+const ShaderScope *FindCurrentBuildScope(const Entry &entry,
+                                         const OverrideContext &context);
 bool IsEntryCompatibleWithReplacement(const Entry &entry,
                                       uint32_t title_id,
                                       const ReplacementDescriptor &replacement,
@@ -158,6 +163,7 @@ public:
     OverrideResolution Resolve(const ShaderKey &key) const;
     uint64_t Generation() const { return generation; }
     size_t RuleCount() const { return resolved.size(); }
+    bool HasMatchedRules() const;
 
 private:
     OverrideContext context;

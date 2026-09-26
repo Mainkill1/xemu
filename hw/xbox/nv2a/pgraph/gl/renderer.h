@@ -234,6 +234,7 @@ extern GloContext *g_nv2a_context_display;
 
 unsigned int pgraph_gl_bind_inline_array(NV2AState *d);
 void pgraph_gl_bind_shaders(PGRAPHState *pg);
+void pgraph_gl_shader_override_invalidate_program(PGRAPHState *pg);
 void pgraph_gl_bind_textures(NV2AState *d);
 bool pgraph_gl_bind_vertex_attributes(NV2AState *d,
                                       unsigned int min_element,

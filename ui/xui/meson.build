@@ -10,6 +10,7 @@ xemu_ss.add(files(
   'shader-browser-recipe-inspector.cc',
   'shader-browser-overrides.cc',
   'shader-browser-override-store.cc',
+  'shader-browser-override-lifecycle.cc',
   'shader-browser-override-scoped.cc',
   'shader-browser-override-effect.cc',
   'shader-browser-saved-rules.cc',
@@ -138,6 +139,19 @@ shader_browser_replacement_library_test = executable(
   dependencies: [shader_browser_threads, xxhash])
 test('test-xemu-shader-browser-replacement-library',
      shader_browser_replacement_library_test, suite: ['unit'])
+
+shader_browser_override_lifecycle_test = executable(
+  'test-xemu-shader-browser-override-lifecycle',
+  shader_browser_test_dir / 'test-xemu-shader-browser-override-lifecycle.cc',
+  files('shader-browser-model.cc', 'shader-browser-overrides.cc',
+        'shader-browser-override-store.cc',
+        'shader-browser-replacement-library.cc',
+        'shader-browser-saved-rules.cc',
+        'shader-browser-override-lifecycle.cc'),
+  include_directories: shader_browser_test_inc,
+  dependencies: [shader_browser_threads, xxhash, sqlite3, json])
+test('test-xemu-shader-browser-override-lifecycle',
+     shader_browser_override_lifecycle_test, suite: ['unit'])
 
 shader_browser_details_bridge_test = executable(
   'test-xemu-shader-browser-details-bridge',

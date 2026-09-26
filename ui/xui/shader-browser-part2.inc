@@ -75,6 +75,14 @@ void ShaderBrowserWindow::ApplyPersistenceSettings()
             "Persistent shader database disabled; existing files were kept";
     }
     xemu_settings_save();
+    char *config_dir = g_path_get_dirname(xemu_settings_get_path());
+    std::string saved_error;
+    if (!GetSavedOverrideRules().Configure(
+            config_dir ? config_dir : "", database_enabled,
+            &GetOverrideStore(), &saved_error)) {
+        m_action_message = saved_error;
+    }
+    g_free(config_dir);
     m_next_poll_ms = 0;
     RefreshSnapshot();
 }

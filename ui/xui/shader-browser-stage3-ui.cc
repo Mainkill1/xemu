@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "shader-browser-stage3-ui.hh"
 #include "shader-browser-override-runtime.h"
+#include "shader-browser-override-lifecycle.hh"
 #include "shader-browser-session-provider.hh"
 
 #include "common.hh"
@@ -64,15 +65,19 @@ uint64_t RuleId(uint32_t title_id, const ShaderKey &key,
     return id ? id : 1;
 }
 
-const ShaderScope *FindBuildScope(const Entry *entry, uint32_t title_id)
+OverrideContext CurrentBuildContext(uint32_t title_id)
 {
-    if (!entry) return nullptr;
-    auto it = std::find_if(entry->scopes.begin(), entry->scopes.end(),
-                           [title_id](const ShaderScope &scope) {
-                               return scope.title_id == title_id &&
-                                      scope.executable_fingerprint_version != 0;
-                           });
-    return it == entry->scopes.end() ? nullptr : &*it;
+    XemuShaderBrowserScope live{};
+    xemu_shader_browser_copy_current_scope(&live);
+    OverrideContext context{};
+    if (live.title_id != title_id) return context;
+    context.title_id = live.title_id;
+    context.executable_fingerprint_version =
+        live.executable_fingerprint_version;
+    std::memcpy(context.executable_fingerprint.data(),
+                live.executable_fingerprint,
+                context.executable_fingerprint.size());
+    return context;
 }
 
 bool OpenDirectory(const std::string &path, std::string *error)
@@ -104,10 +109,10 @@ bool OpenDirectory(const std::string &path, std::string *error)
 
 void ShaderOverrideUi::Refresh(uint32_t current_title_id)
 {
-    const char *base_path = xemu_settings_get_base_path();
-    const std::string base = base_path ? base_path : "";
+    char *config_dir = g_path_get_dirname(xemu_settings_get_path());
+    const std::string base = config_dir ? config_dir : "";
+    g_free(config_dir);
     if (!configured_) {
-        GetReplacementLibrary().Configure(base);
         if (!base.empty()) {
             preset_path_ = (std::filesystem::u8path(base) /
                             "shader-presets" /
@@ -115,18 +120,7 @@ void ShaderOverrideUi::Refresh(uint32_t current_title_id)
         }
         configured_ = true;
     }
-    const bool database_enabled = g_config.shader_browser.database.enabled;
-    if (!persistence_configured_ ||
-        persistence_enabled_ != database_enabled ||
-        persistence_base_path_ != base) {
-        GetSavedOverrideRules().Configure(
-            base, database_enabled, &GetOverrideStore(),
-            &persistence_error_);
-        persistence_configured_ = true;
-        persistence_enabled_ = database_enabled;
-        persistence_base_path_ = base;
-        if (!GetSavedOverrideRules().Enabled()) save_rule_ = false;
-    }
+    if (!GetSavedOverrideRules().Enabled()) save_rule_ = false;
     RefreshSnapshots(current_title_id);
 }
 
@@ -193,10 +187,6 @@ ShaderOverrideRowPresentation ShaderOverrideUi::EvaluateRow(
         return result;
     }
     result.replacement_selected = true;
-    if (store_snapshot_.context.backend == OverrideBackend::Vulkan) {
-        result.reason = "Vulkan replacement runtime is not available yet";
-        return result;
-    }
     if (title_id == 0) {
         result.reason = "shader has no active Xbox TitleID";
         return result;
@@ -237,18 +227,19 @@ bool ShaderOverrideUi::ApplyRule(const ShaderKey &key, uint32_t title_id,
         if (message) *message = "A concrete Xbox TitleID is required";
         return false;
     }
-    if (store_snapshot_.context.backend == OverrideBackend::Vulkan &&
-        action != OverrideAction::Normal &&
-        action != OverrideAction::SkipDraw) {
-        if (message) *message = "This Vulkan override action is not available yet";
-        return false;
-    }
     if (!entry || entry->key != key ||
         std::none_of(entry->scopes.begin(), entry->scopes.end(),
                      [title_id](const ShaderScope &scope) {
                          return scope.title_id == title_id;
                      })) {
         if (message) *message = "Shader is not associated with the active title";
+        return false;
+    }
+    std::string capability_error;
+    if (!IsOverrideActionSupported(action,
+                                   store_snapshot_.context.backend,
+                                   &capability_error)) {
+        if (message) *message = capability_error;
         return false;
     }
     OverrideRule rule{};
@@ -261,8 +252,10 @@ bool ShaderOverrideUi::ApplyRule(const ShaderKey &key, uint32_t title_id,
     rule.action = action;
     rule.replacement_id = replacement_id;
     rule.revision = next_rule_revision_++;
+    const ShaderScope *build_scope = FindCurrentBuildScope(
+        *entry, CurrentBuildContext(title_id));
     if (restrict_build_) {
-        const ShaderScope *scope = FindBuildScope(entry, title_id);
+        const ShaderScope *scope = build_scope;
         if (!scope) {
             if (message) {
                 *message = "Current shader has no executable fingerprint for "
@@ -276,12 +269,10 @@ bool ShaderOverrideUi::ApplyRule(const ShaderKey &key, uint32_t title_id,
         rule.executable_fingerprint = scope->executable_fingerprint;
     }
     rule.id = RuleId(title_id, key, rule.origin,
-                     rule.restrict_build ? FindBuildScope(entry, title_id) :
-                                           nullptr);
+                     rule.restrict_build ? build_scope : nullptr);
     std::string error;
-    bool applied = rule.origin == OverrideOrigin::Saved ?
-        GetSavedOverrideRules().Save(rule, &GetOverrideStore(), &error) :
-        GetOverrideStore().UpsertRule(rule, &error);
+    bool applied = ApplyShaderOverrideRule(
+        rule, &GetOverrideStore(), &GetSavedOverrideRules(), &error);
     if (!applied) {
         if (message) *message = error;
         return false;
@@ -302,10 +293,6 @@ bool ShaderOverrideUi::ApplyReplacement(const ShaderKey &key,
     const ReplacementPackageInfo *package = SelectedPackage();
     if (!package) {
         if (message) *message = "Choose a replacement package first";
-        return false;
-    }
-    if (store_snapshot_.context.backend == OverrideBackend::Vulkan) {
-        if (message) *message = "Vulkan replacement runtime is not available yet";
         return false;
     }
     if (!entry) {
@@ -421,7 +408,8 @@ void ShaderOverrideUi::DrawPanel(const Entry &entry,
         }
     }
 
-    const ShaderScope *build_scope = FindBuildScope(&entry, title_id);
+    const ShaderScope *build_scope = FindCurrentBuildScope(
+        entry, CurrentBuildContext(title_id));
     ImGui::BeginDisabled(!build_scope);
     ImGui::Checkbox("Restrict to current executable build", &restrict_build_);
     ImGui::EndDisabled();
@@ -434,23 +422,15 @@ void ShaderOverrideUi::DrawPanel(const Entry &entry,
 
     bool action_supported = true;
     std::string unsupported;
-    if (store_snapshot_.context.backend == OverrideBackend::Vulkan &&
-        SelectedAction() != OverrideAction::Normal &&
-        SelectedAction() != OverrideAction::SkipDraw &&
-        SelectedAction() != OverrideAction::ForceUber &&
-        SelectedAction() != OverrideAction::ForceSpecialized) {
-        action_supported = false;
-        unsupported = "This Vulkan override action is not available yet";
-    }
     if (entry.key.stage != Stage::Pixel &&
         SelectedAction() != OverrideAction::Normal) {
         action_supported = false;
         unsupported = "Stage 3 v1 runtime actions target pixel shaders only";
     }
-    if (SelectedAction() == OverrideAction::ForceUber &&
-        store_snapshot_.context.backend == OverrideBackend::OpenGL) {
-        action_supported = false;
-        unsupported = "Force Uber is not available in the OpenGL renderer";
+    if (action_supported) {
+        action_supported = IsOverrideActionSupported(
+            SelectedAction(), store_snapshot_.context.backend,
+            &unsupported);
     }
     if (SelectedAction() == OverrideAction::Replacement) {
         const ReplacementPackageInfo *package = SelectedPackage();

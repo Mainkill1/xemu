@@ -44,6 +44,12 @@ int main()
     rule.replacement_id = 9;
     rule.revision = 1;
     assert(store.UpsertRule(rule, &error));
+    assert(xemu_shader_override_has_active_rules_scoped(
+        rule.title_id, 0, nullptr,
+        XEMU_SHADER_OVERRIDE_BACKEND_VULKAN));
+    assert(!xemu_shader_override_has_active_rules_scoped(
+        0x12345678, 0, nullptr,
+        XEMU_SHADER_OVERRIDE_BACKEND_VULKAN));
 
     XemuShaderOverridePolicy policy{};
     assert(xemu_shader_override_resolve_scoped(
@@ -62,6 +68,9 @@ int main()
         static_cast<uint32_t>(key.stage), &policy));
     assert(policy.generation > old_generation);
     assert(policy.replacement_revision == 2);
+    assert(xemu_shader_override_has_active_rules_scoped(
+        rule.title_id, 0, nullptr,
+        XEMU_SHADER_OVERRIDE_BACKEND_VULKAN));
 
     assert(!xemu_shader_override_resolve_scoped(
         0x12345678, 0, nullptr, XEMU_SHADER_OVERRIDE_BACKEND_OPENGL,
@@ -70,6 +79,9 @@ int main()
     assert(policy.action == XEMU_SHADER_OVERRIDE_ACTION_NORMAL);
 
     store.Clear();
+    assert(!xemu_shader_override_has_active_rules_scoped(
+        rule.title_id, 0, nullptr,
+        XEMU_SHADER_OVERRIDE_BACKEND_VULKAN));
     std::cout << "shader browser scoped resolver tests passed\n";
     return 0;
 }

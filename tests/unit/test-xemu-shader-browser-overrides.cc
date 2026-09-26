@@ -1,4 +1,5 @@
 #include "../../ui/xui/shader-browser-overrides.hh"
+#include <algorithm>
 #include <cassert>
 #include <iostream>
 using namespace xemu::shader_browser;
@@ -51,7 +52,16 @@ int main() {
     replacement.replacement_id=44;
     index.Rebuild(ctx,{replacement},{glvk});
     result=index.Resolve(pixel);
-    assert(result.status==OverrideResolutionStatus::Incompatible);
+    assert(result.status==OverrideResolutionStatus::Matched);
+    assert(result.policy.action==OverrideAction::Replacement);
+    assert(result.policy.replacement_id==44);
+    assert(result.policy.replacement_revision==44);
+    ReplacementDescriptor gl_only=Replacement(44,Stage::Pixel,BackendOpenGL);
+    index.Rebuild(ctx,{replacement},{gl_only});
+    assert(index.Resolve(pixel).status==OverrideResolutionStatus::Incompatible);
+    OverrideRule highlight=Rule(11,pixel,OverrideAction::Highlight,OverrideOrigin::Session);
+    index.Rebuild(ctx,{highlight},{glvk});
+    assert(index.Resolve(pixel).status==OverrideResolutionStatus::Matched);
     OverrideContext glctx=ctx; glctx.backend=OverrideBackend::OpenGL;
     index.Rebuild(glctx,{replacement},{glvk});
     result=index.Resolve(pixel);
@@ -73,6 +83,12 @@ int main() {
     result=index.Resolve(pixel);
     assert(result.status==OverrideResolutionStatus::Matched);
     assert(result.policy.action==OverrideAction::ForceSpecialized);
+    assert(IsOverrideActionSupported(OverrideAction::ForceUber,
+                                     OverrideBackend::Vulkan, &reason));
+    assert(IsOverrideActionSupported(OverrideAction::ForceSpecialized,
+                                     OverrideBackend::Vulkan, &reason));
+    assert(!IsOverrideActionSupported(OverrideAction::ForceUber,
+                                      OverrideBackend::OpenGL, &reason));
 
     DrawCondition cond{}; cond.mask=DrawConditionElementCount|DrawConditionPrimitive; cond.element_count_min=100; cond.element_count_max=200; cond.primitive_mode=7;
     assert(cond.Matches(DrawFacts{150,0,0,7}));
@@ -106,6 +122,21 @@ int main() {
     assert(IsEntryCompatibleWithReplacement(e,ctx.title_id,glvk,OverrideBackend::Vulkan,&reason));
     e.key=vertex;
     assert(!IsEntryCompatibleWithReplacement(e,ctx.title_id,glvk,OverrideBackend::Vulkan,&reason));
+
+    Entry builds{};
+    ShaderScope old_build{};
+    old_build.title_id=ctx.title_id;
+    old_build.executable_fingerprint_version=1;
+    old_build.executable_fingerprint=Build(8);
+    ShaderScope live_build=old_build;
+    live_build.executable_fingerprint=ctx.executable_fingerprint;
+    builds.scopes={old_build, live_build};
+    assert(FindCurrentBuildScope(builds,ctx)==&builds.scopes[1]);
+    std::reverse(builds.scopes.begin(),builds.scopes.end());
+    assert(FindCurrentBuildScope(builds,ctx)==&builds.scopes[0]);
+    OverrideContext missing=ctx;
+    missing.executable_fingerprint_version=0;
+    assert(!FindCurrentBuildScope(builds,missing));
 
     std::cout << "shader browser override tests passed\n";
 }

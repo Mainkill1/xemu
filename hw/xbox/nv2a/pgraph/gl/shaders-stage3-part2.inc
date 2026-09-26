@@ -8,7 +8,8 @@ static bool pgraph_gl_override_make_room(PGRAPHGLOverrideRuntime *runtime)
     for (guint i = 0; i < runtime->programs->len; ++i) {
         PGRAPHGLOverrideProgram *entry =
             g_ptr_array_index(runtime->programs, i);
-        if (entry->program == runtime->active_program) {
+        if (entry == runtime->active_override_program ||
+            (entry->program && entry->program == runtime->active_program)) {
             continue;
         }
         if (!entry->program) {
@@ -31,6 +32,12 @@ static PGRAPHGLOverrideProgram *pgraph_gl_override_program_find_exact(
     PGRAPHGLOverrideRuntime *runtime, const ShaderState *state,
     uint32_t action, uint64_t replacement_id, uint64_t replacement_revision)
 {
+    PGRAPHGLOverrideProgram *active = runtime->active_override_program;
+    if (active && pgraph_gl_override_program_key_equal(
+            active, state, action, replacement_id, replacement_revision)) {
+        active->last_use = ++runtime->use_clock;
+        return active;
+    }
     for (guint i = 0; i < runtime->programs->len; ++i) {
         PGRAPHGLOverrideProgram *entry =
             g_ptr_array_index(runtime->programs, i);
