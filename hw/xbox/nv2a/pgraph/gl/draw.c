@@ -482,7 +482,6 @@ static PGRAPHGLDrawResult pgraph_gl_flush_draw_internal(NV2AState *d)
             }
         }
 
-        uint64_t capture_nonce = xemu_shader_capture_nonce();
         glDrawArrays(r->shader_binding->gl_primitive_mode,
                      0, pg->inline_buffer_length);
         pgraph_shader_browser_capture_inline(
@@ -494,8 +493,7 @@ static PGRAPHGLDrawResult pgraph_gl_flush_draw_internal(NV2AState *d)
             NULL, NULL, NULL,
             pgraph_gl_shader_override_program_active(pg) ?
                 XEMU_SHADER_BROWSER_ROUTE_REPLACEMENT :
-                XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
-            capture_nonce);
+                XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED);
         return PGRAPH_GL_DRAW_SUBMITTED;
     } else if (pg->inline_array_length) {
         NV2A_GL_DPRINTF(false, "Inline Array");
