@@ -590,6 +590,23 @@ struct PreviewGlExecutor::Impl {
     }
 };
 
+bool MakePreviewHudContextCurrent(SDL_Window *window, void *context)
+{
+    if (!window || !context) {
+        SDL_SetError("HUD cleanup requires a real GL window and context");
+        return false;
+    }
+    auto gl_context = static_cast<SDL_GLContext>(context);
+    if (!SDL_GL_MakeCurrent(window, gl_context))
+        return false;
+    if (SDL_GL_GetCurrentWindow() != window ||
+        SDL_GL_GetCurrentContext() != gl_context) {
+        SDL_SetError("HUD cleanup GL context switch did not become current");
+        return false;
+    }
+    return true;
+}
+
 PreviewGlExecutor::PreviewGlExecutor() : impl_(new Impl) {}
 PreviewGlExecutor::~PreviewGlExecutor() { Shutdown(); delete impl_; }
 
