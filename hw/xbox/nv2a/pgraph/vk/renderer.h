@@ -173,6 +173,7 @@ typedef struct PGRAPHVkHybridPipelineWork {
     uint64_t ticket;
     uint64_t key_hash;
     PipelineKey key;
+    PGRAPHShaderBrowserBinding browser;
     /* A completed result waits here if every LRU entry is still in use. */
     VkPipeline completed_pipeline;
     VkPipelineLayout layout;
@@ -326,6 +327,7 @@ typedef struct PGRAPHVkHybridShaderWork {
     int64_t retry_after_us;
     PGRAPHVkHybridWork metadata;
     ShaderModuleCacheKey module_key;
+    uint64_t browser_scope_generation;
     char *glsl;
     /* PR70/cache identity length; glsl[glsl_size] is the owned NUL. */
     size_t glsl_size;

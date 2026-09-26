@@ -1520,6 +1520,18 @@ static PGRAPHVkHybridPipelineSubmitResult request_hybrid_pipeline(
     }
     work->key_hash = hash;
     work->key = *key;
+    if (xemu_shader_browser_cpu_profiling_enabled()) {
+        if (ready_binding->browser.count &&
+            ready_binding->browser.scope_generation ==
+                xemu_shader_browser_scope_generation()) {
+            work->browser = ready_binding->browser;
+        } else {
+            pgraph_shader_browser_capture_binding(
+                &ready_binding->state,
+                pgraph_glsl_need_geom(&ready_binding->state.geom),
+                &work->browser);
+        }
+    }
     work->layout = recipe.layout;
     work->render_pass = recipe.render_pass;
     work->dynamic_blend_constant_mask =
@@ -1926,6 +1938,29 @@ static void process_hybrid_pipeline_result(
         r->hybrid_prewarm.worker_create_us_total += create_us;
         r->hybrid_prewarm.worker_create_us_max = MAX(
             r->hybrid_prewarm.worker_create_us_max, create_us);
+    }
+    if (work && result->generation == r->hybrid_generation &&
+        result->vk_result == VK_SUCCESS &&
+        xemu_shader_browser_cpu_profiling_enabled()) {
+        uint32_t browser_route = route == PGRAPH_VK_FRAGMENT_UBERSHADER ?
+            XEMU_SHADER_BROWSER_ROUTE_UBER :
+            XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED;
+        if (result->finished_us >= result->started_us) {
+            pgraph_shader_browser_publish_binding_timing(
+                &work->browser, XEMU_SHADER_BROWSER_BACKEND_VK,
+                browser_route, work->key_hash, pg->frame_time,
+                XEMU_SHADER_BROWSER_PERF_LINK_OR_PIPELINE_CPU,
+                (result->finished_us - result->started_us) * 1000, 0,
+                XEMU_SHADER_BROWSER_SAMPLE_BACKGROUND);
+        }
+        if (result->started_us >= result->submitted_us) {
+            pgraph_shader_browser_publish_binding_timing(
+                &work->browser, XEMU_SHADER_BROWSER_BACKEND_VK,
+                browser_route, work->key_hash, pg->frame_time,
+                XEMU_SHADER_BROWSER_PERF_QUEUE_DELAY_CPU,
+                (result->started_us - result->submitted_us) * 1000, 0,
+                XEMU_SHADER_BROWSER_SAMPLE_BACKGROUND);
+        }
     }
     if (work && result->generation == r->hybrid_generation &&
         result->vk_result == VK_SUCCESS &&

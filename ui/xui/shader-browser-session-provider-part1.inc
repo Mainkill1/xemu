@@ -219,6 +219,7 @@ public:
 };
 
 using VariantKey = std::tuple<uint32_t, uint32_t, uint64_t, uint32_t>;
+using StageProfileKey = std::tuple<ShaderKey, uint32_t, uint32_t, uint32_t>;
 using PerformanceKey = std::tuple<uint32_t, uint32_t, uint32_t, uint64_t,
                                   uint32_t, uint32_t,
                                   std::vector<ShaderKey>>;
@@ -271,7 +272,7 @@ public:
                 (sample.owner == XEMU_SHADER_BROWSER_PERF_STAGE &&
                  sample.identity_count != 1) ||
                 sample.metric < XEMU_SHADER_BROWSER_PERF_SOURCE_CPU ||
-                sample.metric > XEMU_SHADER_BROWSER_PERF_BINDING_PREPARE_CPU ||
+                sample.metric > XEMU_SHADER_BROWSER_PERF_QUEUE_DELAY_CPU ||
                 (sample.owner == XEMU_SHADER_BROWSER_PERF_STAGE &&
                  sample.metric > XEMU_SHADER_BROWSER_PERF_MODULE_CPU) ||
                 (sample.owner == XEMU_SHADER_BROWSER_PERF_BINDING &&
@@ -419,6 +420,7 @@ public:
         }
         live_entries.clear();
         live_binding_variants.clear();
+        live_stage_profiles.clear();
         snapshot_events.clear();
         QueuedPerformanceSample discarded;
         while (sample_queue.Pop(&discarded)) {}

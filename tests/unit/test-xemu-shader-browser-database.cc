@@ -1,6 +1,7 @@
 #include "../../ui/xui/shader-browser-database.hh"
 
 #include <cassert>
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -111,6 +112,11 @@ int main()
     shared.duration.AddSample(23456);
     assert(db.UpsertPerformanceAggregate("session-a", shared, &error));
     assert(db.UpsertPerformanceAggregate("session-a", shared, &error));
+    PerformanceAggregate background = shared;
+    background.flags = 2;
+    background.duration = {};
+    background.duration.AddSample(9876);
+    assert(db.UpsertPerformanceAggregate("session-a", background, &error));
     assert(db.EndPerformanceSession("session-a", 2000, true, &error));
     assert(db.Flush(&error));
 
@@ -125,10 +131,15 @@ int main()
     assert(rows[0].gpu_execution.samples == 2);
     assert(rows[0].draw_count == 40);
     auto shared_rows = db.CopyPerformanceAggregates("session-a");
-    assert(shared_rows.size() == 1);
-    assert(shared_rows[0].members == shared.members);
-    assert(shared_rows[0].duration.samples == 2);
-    assert(shared_rows[0].duration.total_ns == 35801);
+    assert(shared_rows.size() == 2);
+    auto foreground_row = std::find_if(shared_rows.begin(), shared_rows.end(),
+                                       [](const PerformanceAggregate &row) {
+        return row.flags == 0;
+    });
+    assert(foreground_row != shared_rows.end());
+    assert(foreground_row->members == shared.members);
+    assert(foreground_row->duration.samples == 2);
+    assert(foreground_row->duration.total_ns == 35801);
     assert(db.GetStats().session_count == 1);
     assert(db.GetStats().session_stat_count == 1);
 
@@ -232,7 +243,7 @@ int main()
     assert(reopened.CopyMetadata().size() == 10002);
     assert(reopened.CopySessions(0x4d530064, 16).size() == 2);
     assert(reopened.CopySessionStats("session-a").size() == 1);
-    assert(reopened.CopyPerformanceAggregates("session-a").size() == 1);
+    assert(reopened.CopyPerformanceAggregates("session-a").size() == 2);
     assert(reopened.GetStats().artifact_count == 1);
     assert(reopened.ClearPerformanceHistory(&error));
     assert(reopened.CopySessions(0x4d530064, 16).empty());

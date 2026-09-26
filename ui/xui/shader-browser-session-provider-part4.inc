@@ -47,6 +47,7 @@ private:
         if (epoch <= live_consumer_epoch) return;
         live_entries.clear();
         live_binding_variants.clear();
+        live_stage_profiles.clear();
         current_frame = 0;
         live_consumer_epoch = epoch;
     }
@@ -108,6 +109,14 @@ private:
             if (!queued.live_requested ||
                 queued.live_epoch != live_consumer_epoch) continue;
             if (sample.owner == XEMU_SHADER_BROWSER_PERF_STAGE) {
+                StageProfileKey profile_key{members[0], sample.backend,
+                                            sample.route, sample.flags};
+                StageProfile &profile = live_stage_profiles[profile_key];
+                profile.key = members[0];
+                profile.backend = sample.backend;
+                profile.route = ConvertRoute(sample.route);
+                profile.flags = sample.flags;
+                profile.timing[sample.metric].AddSample(sample.duration_ns);
                 auto [it, inserted] = live_entries.try_emplace(members[0]);
                 Entry &entry = it->second.entry;
                 if (inserted) entry.key = members[0];

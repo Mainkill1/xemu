@@ -67,6 +67,39 @@ void ShaderBrowserWindow::DrawOverview()
         ImGui::EndTable();
     }
 
+    ImGui::SeparatorText("Stage timing by capture context");
+    bool has_stage_profile = false;
+    for (const StageProfile &profile : m_snapshot.stage_profiles) {
+        if (!(profile.key == entry->key)) continue;
+        has_stage_profile = true;
+        ImGui::PushID(&profile);
+        ImGui::Text("%s / %s",
+                    profile.backend == XEMU_SHADER_BROWSER_BACKEND_GL ?
+                        "OpenGL" : "Vulkan",
+                    RouteLabel(profile.route));
+        ImGui::TextDisabled("Provenance: %s%s%s%s",
+            profile.flags & XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND ?
+                "foreground " : "",
+            profile.flags & XEMU_SHADER_BROWSER_SAMPLE_BACKGROUND ?
+                "background " : "",
+            profile.flags & XEMU_SHADER_BROWSER_SAMPLE_CACHED ?
+                "cached " : "",
+            profile.flags & XEMU_SHADER_BROWSER_SAMPLE_SAMPLED ?
+                "sampled" : "");
+        static const char *names[] = {
+            "", "Source generation CPU", "Stage compile CPU", "Module CPU",
+        };
+        for (size_t metric = 1; metric < profile.timing.size(); ++metric) {
+            if (!profile.timing[metric].samples) continue;
+            ImGui::Text("%s: %s", names[metric],
+                        FormatDurationNs(profile.timing[metric]).c_str());
+        }
+        ImGui::PopID();
+    }
+    if (!has_stage_profile) {
+        ImGui::TextDisabled("No stage timing sample in this session.");
+    }
+
     ImGui::SeparatorText("Shared binding variants");
     ImGui::TextDisabled("Shared values include all member shaders; do not sum across stages.");
     ImGui::TextDisabled("Foreground stall classifies link/pipeline work and overlaps that cost.");
@@ -100,18 +133,51 @@ void ShaderBrowserWindow::DrawOverview()
             "", "", "", "", "Link / pipeline CPU", "Foreground stall",
             "Draw submit CPU", "Sampled GPU draw interval",
             "Binding preparation CPU",
+            "Background queue delay",
         };
         for (size_t metric = 4; metric < variant.timing.size(); ++metric) {
-            if (!variant.timing[metric].samples) continue;
-            ImGui::Text("%s: %s", names[metric],
-                        FormatDurationNs(variant.timing[metric]).c_str());
+            const DurationStats &timing = variant.timing[metric];
+            if (timing.samples) {
+                ImGui::Text("%s: %s", names[metric],
+                            FormatDurationNs(timing).c_str());
+                continue;
+            }
+            const bool recorded = !m_snapshot.timing_session_id.empty();
+            const bool gpu = metric == XEMU_SHADER_BROWSER_PERF_DRAW_GPU;
+            const bool enabled = recorded || (
+                g_config.shader_browser.profiling.monitoring_level == 2 &&
+                (gpu ? g_config.shader_browser.profiling.gpu_timing :
+                       g_config.shader_browser.profiling.cpu_timing));
+            const bool creation = metric !=
+                XEMU_SHADER_BROWSER_PERF_DRAW_SUBMIT_CPU && !gpu;
+            const uint32_t pending = variant.backend ==
+                XEMU_SHADER_BROWSER_BACKEND_GL ?
+                    m_snapshot.pending_gl_gpu_queries :
+                    m_snapshot.pending_vk_gpu_queries;
+            const bool supported = variant.backend ==
+                XEMU_SHADER_BROWSER_BACKEND_GL ?
+                    m_snapshot.gl_gpu_supported :
+                    m_snapshot.vk_gpu_supported;
+            const char *reason = !enabled ? "Profiling disabled" :
+                recorded ? "No recorded sample" :
+                gpu && !supported ? "Unsupported by backend/device" :
+                gpu && pending ? "GPU result pending" :
+                creation ? "Created before profiling or cache hit" :
+                           "No eligible sampled draw yet";
+            ImGui::TextDisabled("%s: %s", names[metric], reason);
         }
         ImGui::TextDisabled("Sampled CPU/GPU draws: %llu / %llu",
             static_cast<unsigned long long>(variant.sampled_cpu_draws),
             static_cast<unsigned long long>(variant.sampled_gpu_draws));
         ImGui::PopID();
     }
-    if (!has_binding) ImGui::TextDisabled("No shared sample in this session.");
+    if (!has_binding) {
+        ImGui::TextDisabled("No shared variant sample in this session.");
+        if (m_snapshot.dropped_performance_samples) {
+            ImGui::TextDisabled(
+                "Some profiling samples were dropped; reduce the sample rate.");
+        }
+    }
 
     if (!entry->scopes.empty() &&
         ImGui::CollapsingHeader("Known title/build associations")) {

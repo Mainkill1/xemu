@@ -26,6 +26,7 @@
     std::atomic<bool> gl_gpu_supported{false};
     std::atomic<bool> vk_gpu_supported{false};
     std::map<VariantKey, BindingVariant> live_binding_variants;
+    std::map<StageProfileKey, StageProfile> live_stage_profiles;
     std::mutex live_queue_mutex;
     std::vector<QueuedEvent> live_events;
     std::vector<QueuedEvent> snapshot_events;

@@ -1313,6 +1313,22 @@ static void process_hybrid_compile_result(
     }
     assert(r->hybrid_pending_jobs > 0);
     r->hybrid_pending_jobs--;
+    if (result->success && result->finished_us >= result->started_us &&
+        work->module_key.kind == VK_SHADER_STAGE_FRAGMENT_BIT &&
+        work->module_key.fragment_route ==
+            PGRAPH_VK_FRAGMENT_SPECIALIZED &&
+        xemu_shader_browser_cpu_profiling_enabled()) {
+        ShaderState stage_state = { 0 };
+        stage_state.psh = work->module_key.psh.state;
+        pgraph_shader_browser_publish_stage_timing_at_scope(
+            &stage_state, XEMU_SHADER_BROWSER_STAGE_PIXEL,
+            XEMU_SHADER_BROWSER_BACKEND_VK,
+            XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+            XEMU_SHADER_BROWSER_PERF_COMPILE_CPU,
+            (result->finished_us - result->started_us) * 1000,
+            XEMU_SHADER_BROWSER_SAMPLE_BACKGROUND,
+            work->browser_scope_generation);
+    }
 
     bool published = false;
     uint64_t matching_work = 0;
@@ -1538,6 +1554,8 @@ static void shader_module_cache_entry_init(Lru *lru, LruNode *node,
                 stage = XEMU_SHADER_BROWSER_STAGE_UNKNOWN;
                 route = XEMU_SHADER_BROWSER_ROUTE_UBER;
             }
+            break;
+        default:
             break;
         }
         if (stage != XEMU_SHADER_BROWSER_STAGE_UNKNOWN) {
@@ -1839,6 +1857,8 @@ static PGRAPHVkFragmentRoute select_fragment_route(
                 work->in_use = true;
                 work->priority = PGRAPH_VK_HYBRID_PRIORITY_VISIBLE;
                 work->module_key = module_key;
+                work->browser_scope_generation =
+                    xemu_shader_browser_scope_generation();
                 work->glsl = g_strndup(glsl, glsl_size);
                 work->glsl_size = glsl_size;
                 pgraph_vk_hybrid_work_init(&work->metadata, 3);
@@ -2080,6 +2100,8 @@ static PGRAPHVkAsyncModuleRequestResult request_shader_module_async(
         work->prewarm = priority == PGRAPH_VK_HYBRID_PRIORITY_PREWARM;
         work->priority = priority;
         work->module_key = *key;
+        work->browser_scope_generation =
+            xemu_shader_browser_scope_generation();
         work->glsl = g_strndup(glsl, glsl_size);
         work->glsl_size = glsl_size;
         pgraph_vk_hybrid_work_init(&work->metadata, max_attempts);

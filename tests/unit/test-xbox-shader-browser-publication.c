@@ -139,6 +139,12 @@ int main(void)
     assert(perf_samples[1].variant_id == 99);
     assert(perf_samples[1].identities[2].stage ==
            XEMU_SHADER_BROWSER_STAGE_GEOMETRY);
+    size_t catalog_count = published_count;
+    PGRAPHShaderBrowserBinding captured = { 0 };
+    pgraph_shader_browser_capture_binding(&state, true, &captured);
+    assert(captured.count == 3);
+    assert(captured.scope_generation == generation);
+    assert(published_count == catalog_count);
     state.vsh.is_fixed_function = false;
     const uint32_t stages[] = {
         XEMU_SHADER_BROWSER_STAGE_VERTEX,
@@ -154,6 +160,15 @@ int main(void)
         assert(perf_samples[2 + i].identities[0].stage == stages[i]);
         assert(perf_samples[2 + i].identities[0].hash[0] == stages[i]);
     }
+    pgraph_shader_browser_publish_stage_timing_at_scope(
+        &state, XEMU_SHADER_BROWSER_STAGE_PIXEL,
+        XEMU_SHADER_BROWSER_BACKEND_VK,
+        XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+        XEMU_SHADER_BROWSER_PERF_COMPILE_CPU, 250,
+        XEMU_SHADER_BROWSER_SAMPLE_BACKGROUND, 12);
+    assert(perf_count == 6);
+    assert(perf_samples[5].scope_generation == 12);
+    assert(perf_samples[5].flags == XEMU_SHADER_BROWSER_SAMPLE_BACKGROUND);
     state.vsh.is_fixed_function = true;
     const uint8_t source[] = "hello";
     pgraph_shader_browser_publish_generated_artifact(

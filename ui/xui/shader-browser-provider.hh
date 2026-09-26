@@ -50,6 +50,7 @@ struct Snapshot {
     std::string database_journal_mode;
     std::vector<Entry> entries;
     std::vector<BindingVariant> binding_variants;
+    std::vector<StageProfile> stage_profiles;
     std::string timing_session_id;
     std::vector<SessionSummary> timing_sessions;
 };

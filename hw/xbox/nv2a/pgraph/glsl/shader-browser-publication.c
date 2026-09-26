@@ -61,9 +61,48 @@ void pgraph_shader_browser_refresh_binding_scope(
     }
 }
 
+void pgraph_shader_browser_capture_binding(
+    const ShaderState *state, bool geometry_needed,
+    PGRAPHShaderBrowserBinding *binding)
+{
+    if (!state || !binding) return;
+    uint32_t stages[3] = {
+        state->vsh.is_fixed_function ?
+            XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION :
+            XEMU_SHADER_BROWSER_STAGE_VERTEX,
+        XEMU_SHADER_BROWSER_STAGE_PIXEL,
+        XEMU_SHADER_BROWSER_STAGE_GEOMETRY,
+    };
+    binding->count = 0;
+    binding->scope_generation = xemu_shader_browser_scope_generation();
+    for (uint32_t i = 0; i < (geometry_needed ? 3U : 2U); ++i) {
+        uint8_t recipe[PGRAPH_SHADER_BROWSER_RECIPE_MAX];
+        size_t size = 0;
+        PGRAPHShaderBrowserIdentity *identity =
+            &binding->identities[binding->count];
+        if (!pgraph_shader_browser_encode_recipe(
+                state, stages[i], recipe, sizeof(recipe), &size) ||
+            !xemu_shader_browser_compute_shader_hash(
+                1, stages[i], PGRAPH_SHADER_BROWSER_RECIPE_VERSION,
+                recipe, size, identity->hash)) continue;
+        identity->stage = stages[i];
+        ++binding->count;
+    }
+}
+
 void pgraph_shader_browser_publish_stage_timing(
     const ShaderState *state, uint32_t stage, uint32_t backend,
     uint32_t route, uint32_t metric, uint64_t duration_ns, uint32_t flags)
+{
+    pgraph_shader_browser_publish_stage_timing_at_scope(
+        state, stage, backend, route, metric, duration_ns, flags,
+        xemu_shader_browser_scope_generation());
+}
+
+void pgraph_shader_browser_publish_stage_timing_at_scope(
+    const ShaderState *state, uint32_t stage, uint32_t backend,
+    uint32_t route, uint32_t metric, uint64_t duration_ns, uint32_t flags,
+    uint64_t scope_generation)
 {
     if (!state || !duration_ns) return;
     uint8_t recipe[PGRAPH_SHADER_BROWSER_RECIPE_MAX];
@@ -78,7 +117,7 @@ void pgraph_shader_browser_publish_stage_timing(
     sample.metric = metric;
     sample.backend = backend;
     sample.route = route;
-    sample.scope_generation = xemu_shader_browser_scope_generation();
+    sample.scope_generation = scope_generation;
     sample.duration_ns = duration_ns;
     sample.identity_count = 1;
     sample.identities[0].version = 1;

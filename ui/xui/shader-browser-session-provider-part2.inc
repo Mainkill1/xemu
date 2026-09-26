@@ -32,6 +32,7 @@
         if (!snapshot) return false;
         snapshot->entries.clear();
         snapshot->binding_variants.clear();
+        snapshot->stage_profiles.clear();
         std::shared_lock<std::shared_mutex> lifecycle(lifecycle_mutex);
         if (!installed) return false;
         std::lock_guard<std::mutex> sample_state(sample_state_mutex);
@@ -150,6 +151,7 @@
                 entry.compile_failures = row.compile_failures;
             }
             std::map<VariantKey, BindingVariant> recorded_variants;
+            std::map<StageProfileKey, StageProfile> recorded_profiles;
             for (const PerformanceAggregate &row :
                  database.CopyPerformanceAggregates(selected_session)) {
                 if (row.owner == XEMU_SHADER_BROWSER_PERF_STAGE &&
@@ -164,9 +166,17 @@
                         XEMU_SHADER_BROWSER_PERF_COMPILE_CPU ?
                             &entry.compile_cpu : &entry.module_cpu;
                     duration->Merge(row.duration);
+                    StageProfileKey profile_key{row.members[0], row.backend,
+                                                row.route, row.flags};
+                    StageProfile &profile = recorded_profiles[profile_key];
+                    profile.key = row.members[0];
+                    profile.backend = row.backend;
+                    profile.route = ConvertRoute(row.route);
+                    profile.flags = row.flags;
+                    profile.timing[row.metric].Merge(row.duration);
                 } else if (row.owner ==
                                XEMU_SHADER_BROWSER_PERF_BINDING &&
-                           row.metric >= 4 && row.metric <= 8) {
+                           row.metric >= 4 && row.metric <= 9) {
                     VariantKey key{row.backend, row.route, row.variant_id,
                                    row.flags};
                     BindingVariant &variant = recorded_variants[key];
@@ -193,6 +203,9 @@
             }
             for (const auto &pair : recorded_variants) {
                 snapshot->binding_variants.push_back(pair.second);
+            }
+            for (const auto &pair : recorded_profiles) {
+                snapshot->stage_profiles.push_back(pair.second);
             }
         }
 
@@ -221,6 +234,9 @@
         if (selected_session.empty()) {
             for (const auto &pair : live_binding_variants) {
                 snapshot->binding_variants.push_back(pair.second);
+            }
+            for (const auto &pair : live_stage_profiles) {
+                snapshot->stage_profiles.push_back(pair.second);
             }
         }
         snapshot->current_title_id = title_id;

@@ -162,7 +162,7 @@ bool ShaderDatabase::UpsertPerformanceAggregate(
             "samples,total_ns,min_ns,max_ns) "
             "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) "
             "ON CONFLICT(session_id,owner,backend,route,variant_id,metric,"
-            "members) DO UPDATE SET flags=excluded.flags,"
+            "flags,members) DO UPDATE SET "
             "first_frame=excluded.first_frame,"
             "last_frame=excluded.last_frame,"
             "represented_draws=excluded.represented_draws,"

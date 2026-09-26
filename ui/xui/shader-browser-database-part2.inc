@@ -199,7 +199,7 @@ CREATE TABLE IF NOT EXISTS shader_performance_stats(
     total_ns INTEGER NOT NULL DEFAULT 0,
     min_ns INTEGER NOT NULL DEFAULT 0,
     max_ns INTEGER NOT NULL DEFAULT 0,
-    PRIMARY KEY(session_id,owner,backend,route,variant_id,metric,members),
+    PRIMARY KEY(session_id,owner,backend,route,variant_id,metric,flags,members),
     FOREIGN KEY(session_id) REFERENCES shader_sessions(session_id) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS idx_shader_performance_stats_session

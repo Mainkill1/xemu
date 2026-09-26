@@ -238,6 +238,7 @@ int main()
     recorded_sample.metric = XEMU_SHADER_BROWSER_PERF_COMPILE_CPU;
     recorded_sample.backend = XEMU_SHADER_BROWSER_BACKEND_VK;
     recorded_sample.route = XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED;
+    recorded_sample.flags = XEMU_SHADER_BROWSER_SAMPLE_BACKGROUND;
     recorded_sample.scope_generation = xemu_shader_browser_scope_generation();
     recorded_sample.duration_ns = 7654;
     recorded_sample.identity_count = 1;
@@ -309,6 +310,13 @@ int main()
     assert(snapshot.timing_session_id == "provider-session");
     assert(snapshot.entries.size() == 1);
     assert(snapshot.entries[0].compile_cpu.total_ns == 7654);
+    assert(snapshot.stage_profiles.size() == 1);
+    assert(snapshot.stage_profiles[0].backend ==
+           XEMU_SHADER_BROWSER_BACKEND_VK);
+    assert(snapshot.stage_profiles[0].flags ==
+           XEMU_SHADER_BROWSER_SAMPLE_BACKGROUND);
+    assert(snapshot.stage_profiles[0].timing[
+        XEMU_SHADER_BROWSER_PERF_COMPILE_CPU].total_ns == 7654);
     assert(snapshot.binding_variants.size() == 1);
     GetProvider().SetTimingSession("");
     assert(GetProvider().CopySnapshot(&snapshot));
@@ -468,6 +476,10 @@ int main()
     assert(pixel->compile_cpu.samples == 1);
     assert(pixel->compile_cpu.total_ns == 1000);
     assert(pixel->pipeline_cpu.samples == 0);
+    assert(snapshot.stage_profiles.size() == 1);
+    assert(snapshot.stage_profiles[0].key == pixel->key);
+    assert(snapshot.stage_profiles[0].timing[
+        XEMU_SHADER_BROWSER_PERF_COMPILE_CPU].total_ns == 1000);
     assert(snapshot.binding_variants.size() == 1);
     assert(snapshot.binding_variants[0].members.size() == 2);
     assert(snapshot.binding_variants[0].timing[
@@ -485,6 +497,22 @@ int main()
     assert(snapshot.binding_variants[1].timing[
         XEMU_SHADER_BROWSER_PERF_DRAW_SUBMIT_CPU].samples == 1024);
     assert(snapshot.dropped_performance_samples == 76);
+    assert(snapshot.pending_performance_samples == 0);
+
+    // Concurrent producer threads share the fixed ring and drop on overflow.
+    std::vector<std::thread> producers;
+    for (int thread = 0; thread < 4; ++thread) {
+        producers.emplace_back([sample] {
+            for (int i = 0; i < 300; ++i) {
+                xemu_shader_browser_publish_performance_samples(&sample, 1);
+            }
+        });
+    }
+    for (std::thread &producer : producers) producer.join();
+    assert(GetProvider().CopySnapshot(&snapshot));
+    assert(snapshot.binding_variants[1].timing[
+        XEMU_SHADER_BROWSER_PERF_DRAW_SUBMIT_CPU].samples == 2048);
+    assert(snapshot.dropped_performance_samples == 252);
     assert(snapshot.pending_performance_samples == 0);
 
     xemu_shader_browser_session_uninstall();

@@ -130,6 +130,7 @@ typedef enum XemuShaderBrowserPerfMetric {
     XEMU_SHADER_BROWSER_PERF_DRAW_SUBMIT_CPU = 6,
     XEMU_SHADER_BROWSER_PERF_DRAW_GPU = 7,
     XEMU_SHADER_BROWSER_PERF_BINDING_PREPARE_CPU = 8,
+    XEMU_SHADER_BROWSER_PERF_QUEUE_DELAY_CPU = 9,
 } XemuShaderBrowserPerfMetric;
 
 typedef enum XemuShaderBrowserPerfBackend {
