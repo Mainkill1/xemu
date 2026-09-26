@@ -3,12 +3,16 @@
 
 namespace xemu::shader_browser {
 
-bool PreviewService::TryAcquireReadyFrame(PreviewFrameRef *frame)
+bool PreviewService::TryAcquireReadyFrame(PreviewFrameRef *frame,
+                                          uint64_t now_ns)
 {
     if (!frame) {
         return false;
     }
     std::lock_guard<std::mutex> lock(mutex_);
+    if (ExpireVisibilityLocked(now_ns) || !enabled_ || !visible_) {
+        return false;
+    }
     int ready = FindNewestReadySlotLocked();
     if (ready < 0) {
         return false;
@@ -22,6 +26,7 @@ bool PreviewService::TryAcquireReadyFrame(PreviewFrameRef *frame)
             // Completed frames that were never sampled have no consumer lease
             // and may be reclaimed immediately when a newer frame is chosen.
             slot.state = PreviewSlotState::Free;
+            slot.ready_sequence = 0;
         }
     }
     Slot &slot = slots_[ready];
@@ -49,8 +54,10 @@ bool PreviewService::ReleaseDisplayLease(uint32_t slot_index,
         return false;
     }
     slot.state = PreviewSlotState::Retiring;
-    SetStateLocked(PreviewState::Retiring,
-                   "Waiting for HUD sampling to retire");
+    if (enabled_ && visible_) {
+        SetStateLocked(PreviewState::Retiring,
+                       "Waiting for HUD sampling to retire");
+    }
     return true;
 }
 
@@ -67,6 +74,20 @@ bool PreviewService::CompleteDisplayRetirement(
         return false;
     }
     slot.state = PreviewSlotState::Free;
+    slot.ready_sequence = 0;
+    if (last_result_valid_ && slot.result_key == last_result_key_) {
+        bool retained = false;
+        for (const Slot &candidate : slots_) {
+            if (candidate.state != PreviewSlotState::Free &&
+                candidate.result_key == last_result_key_) {
+                retained = true;
+                break;
+            }
+        }
+        if (!retained) {
+            last_result_valid_ = false;
+        }
+    }
     SetRestingStateLocked("Preview output slot retired");
     return true;
 }
@@ -135,6 +156,7 @@ void PreviewService::ResetLocked()
     recovery_candidate_ = PreviewPressure::Critical;
     recovery_candidate_since_ns_ = 0;
     slots_ = {};
+    next_ready_sequence_ = 1;
     last_result_valid_ = false;
     last_result_key_ = {};
     last_render_start_ns_ = 0;

@@ -48,18 +48,18 @@ public:
     void SetSelection(const PreviewSelection &selection, uint64_t now_ns);
     void ClearSelection();
 
-    bool SubmitPacket(std::shared_ptr<const PreviewPacket> packet,
+    bool SubmitPacket(PreviewPacket packet,
                       uint64_t now_ns, std::string *error);
     bool RequestPreparation(std::string *error);
     void UpdateHealth(const PreviewHealth &health);
 
     bool TryClaimWork(uint64_t now_ns, PreviewWorkItem *work);
     bool CompletePreparation(uint64_t token, bool success,
-                             const std::string &status);
+                             const std::string &status, uint64_t now_ns);
     bool CompleteRender(uint64_t token, bool success,
-                        const std::string &status);
+                        const std::string &status, uint64_t now_ns);
 
-    bool TryAcquireReadyFrame(PreviewFrameRef *frame);
+    bool TryAcquireReadyFrame(PreviewFrameRef *frame, uint64_t now_ns);
     bool ReleaseDisplayLease(uint32_t slot, uint64_t slot_generation);
     bool CompleteDisplayRetirement(uint32_t slot,
                                    uint64_t slot_generation);
@@ -76,6 +76,7 @@ private:
     struct Slot {
         PreviewSlotState state = PreviewSlotState::Free;
         uint64_t generation = 0;
+        uint64_t ready_sequence = 0;
         PreviewResultKey result_key;
         uint32_t width = 0;
         uint32_t height = 0;
@@ -92,6 +93,7 @@ private:
     void ApplyPressureRecoveryLocked(uint64_t now_ns);
     void InvalidatePendingLocked(PreviewState state,
                                  const std::string &message);
+    bool ExpireVisibilityLocked(uint64_t now_ns);
     void SetStateLocked(PreviewState state, const std::string &message);
     void SetRestingStateLocked(const std::string &message);
     int FindFreeSlotLocked() const;
@@ -128,6 +130,7 @@ private:
     uint64_t recovery_candidate_since_ns_ = 0;
 
     std::array<Slot, kPreviewSlotCount> slots_{};
+    uint64_t next_ready_sequence_ = 1;
     bool last_result_valid_ = false;
     PreviewResultKey last_result_key_;
     uint64_t last_render_start_ns_ = 0;

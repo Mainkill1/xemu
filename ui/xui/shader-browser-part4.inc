@@ -121,9 +121,7 @@
 void ShaderBrowserWindow::DrawLivePreview()
 {
     PreviewService &service = GetPreviewService();
-    const uint64_t now_ns =
-        static_cast<uint64_t>(g_get_monotonic_time()) * UINT64_C(1000);
-    service.SetVisible(true, now_ns);
+    const uint64_t now_ns = PreviewNowNs();
 
     PreviewStatus status{};
     service.CopyStatus(&status);

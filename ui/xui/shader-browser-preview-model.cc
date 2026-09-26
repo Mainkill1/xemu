@@ -166,10 +166,10 @@ PreviewDigest ComputePreviewDigest(const uint8_t *data, size_t size)
 size_t PreviewPacketOwnedBytes(const PreviewPacket &packet, bool *overflow)
 {
     size_t total = 0;
-    bool valid = CheckedAdd(total, packet.recipe.size(), &total) &&
-                 CheckedAdd(total, packet.source.size(), &total) &&
-                 CheckedAdd(total, packet.partner_source.size(), &total) &&
-                 CheckedAdd(total, packet.fixture_bytes.size(), &total);
+    bool valid = CheckedAdd(total, packet.recipe.capacity(), &total) &&
+                 CheckedAdd(total, packet.source.capacity(), &total) &&
+                 CheckedAdd(total, packet.partner_source.capacity(), &total) &&
+                 CheckedAdd(total, packet.fixture_bytes.capacity(), &total);
     if (overflow) {
         *overflow = !valid;
     }
@@ -184,6 +184,13 @@ bool ValidatePreviewPacket(const PreviewPacket &packet, std::string *error)
         }
         return false;
     };
+
+    // Reject retained allocations before digesting any caller supplied bytes.
+    bool overflow = false;
+    size_t bytes = PreviewPacketOwnedBytes(packet, &overflow);
+    if (overflow || bytes > kPreviewMaxOwnedPacketBytes) {
+        return fail("Preview packet exceeds the 32 MiB owned-data limit");
+    }
 
     if (packet.selection.scope.title_id == 0) {
         return fail("Preview packet requires an explicit Xbox TitleID");
@@ -273,11 +280,6 @@ bool ValidatePreviewPacket(const PreviewPacket &packet, std::string *error)
         }
     }
 
-    bool overflow = false;
-    size_t bytes = PreviewPacketOwnedBytes(packet, &overflow);
-    if (overflow || bytes > kPreviewMaxOwnedPacketBytes) {
-        return fail("Preview packet exceeds the 32 MiB owned-data limit");
-    }
     if (error) {
         error->clear();
     }

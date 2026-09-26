@@ -4,6 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <thread>
+#include <utility>
 
 using namespace xemu::shader_browser;
 
@@ -44,7 +45,7 @@ static void EnableAndSelect(PreviewService *service, uint64_t now)
     service->SetVisible(true, now);
     service->SetSelection(packet->selection, now);
     std::string error;
-    assert(service->SubmitPacket(packet, now, &error));
+    assert(service->SubmitPacket(*packet, now, &error));
 }
 
 static void Prepare(PreviewService *service, uint64_t now)
@@ -55,7 +56,7 @@ static void Prepare(PreviewService *service, uint64_t now)
     PreviewWorkItem work{};
     assert(service->TryClaimWork(now + kPreviewSelectionDebounceNs, &work));
     assert(work.kind == PreviewWorkKind::Prepare);
-    assert(service->CompletePreparation(work.token, true, "prepared"));
+    assert(service->CompletePreparation(work.token, true, "prepared", now));
 }
 
 int main()
@@ -69,8 +70,25 @@ int main()
     auto disabled_packet = Packet();
     service.SetSelection(disabled_packet->selection, t0);
     std::string error;
-    assert(service.SubmitPacket(disabled_packet, t0, &error));
+    assert(service.SubmitPacket(*disabled_packet, t0, &error));
     assert(!service.TryClaimWork(t0 + kPreviewSelectionDebounceNs, &work));
+
+    // The service must own a copy that a caller cannot change after admission.
+    disabled_packet->input_revision = 99;
+    service.SetEnabled(true);
+    service.SetVisible(true, t0);
+    service.SetGuestPaused(true);
+    assert(service.RequestPreparation(&error));
+    assert(service.TryClaimWork(t0 + kPreviewSelectionDebounceNs, &work));
+    assert(work.packet->input_revision == 1);
+    assert(service.CompletePreparation(work.token, false, "cancelled", t0));
+
+    // Moving a packet preserves reserved storage, so admission must account
+    // for its capacity rather than its much smaller logical payload.
+    PreviewPacket reserved = *Packet();
+    reserved.fixture_bytes.reserve(kPreviewMaxOwnedPacketBytes + 1);
+    assert(!service.SubmitPacket(std::move(reserved), t0, &error));
+    assert(error.find("32 MiB") != std::string::npos);
 
     // Preparation is explicit and pause-gated.
     service.ResetForTest();
@@ -85,9 +103,9 @@ int main()
     // A/B/C newest-only behavior: completion for A cannot publish after C.
     auto packet_b = Packet(2);
     auto packet_c = Packet(3);
-    assert(service.SubmitPacket(packet_b, t0 + 1, &error));
-    assert(service.SubmitPacket(packet_c, t0 + 2, &error));
-    assert(service.CompletePreparation(work.token, true, "old"));
+    assert(service.SubmitPacket(*packet_b, t0 + 1, &error));
+    assert(service.SubmitPacket(*packet_c, t0 + 2, &error));
+    assert(service.CompletePreparation(work.token, true, "old", t0));
     service.CopyStatus(&status);
     assert(!status.prepared);
     assert(status.superseded_requests >= 2);
@@ -95,7 +113,7 @@ int main()
     assert(service.RequestPreparation(&error));
     assert(service.TryClaimWork(t0 + kPreviewSelectionDebounceNs + 1, &work));
     assert(work.packet->input_revision == 3);
-    assert(service.CompletePreparation(work.token, true, "current"));
+    assert(service.CompletePreparation(work.token, true, "current", t0));
     service.CopyStatus(&status);
     assert(status.prepared);
 
@@ -106,12 +124,12 @@ int main()
     const uint64_t first_render_time = t0 + kPreviewSelectionDebounceNs + 3;
     assert(service.TryClaimWork(first_render_time, &work));
     assert(work.kind == PreviewWorkKind::Render);
-    assert(service.CompleteRender(work.token, true, "ready"));
+    assert(service.CompleteRender(work.token, true, "ready", t0));
     assert(!service.TryClaimWork(first_render_time + kPreviewNormalIntervalNs,
                                  &work));
 
     PreviewFrameRef frame{};
-    assert(service.TryAcquireReadyFrame(&frame));
+    assert(service.TryAcquireReadyFrame(&frame, t0));
     assert(frame.slot < kPreviewSlotCount);
     service.ReleaseDisplayLease(frame.slot, frame.slot_generation);
     assert(!service.CompleteDisplayRetirement(frame.slot,
@@ -121,14 +139,27 @@ int main()
 
     // Input-only changes reuse the prepared compile identity.
     auto input_update = Packet(4);
-    assert(service.SubmitPacket(input_update, first_render_time + 1, &error));
+    assert(service.SubmitPacket(*input_update, first_render_time + 1, &error));
     service.CopyStatus(&status);
     assert(status.prepared);
     service.SetVisible(true, first_render_time + kPreviewNormalIntervalNs);
     assert(service.TryClaimWork(first_render_time + kPreviewNormalIntervalNs,
                                 &work));
     assert(work.kind == PreviewWorkKind::Render);
-    assert(service.CompleteRender(work.token, true, "input update"));
+    assert(service.CompleteRender(work.token, true, "input update", t0));
+
+    // Retirement of the only static output permits a replacement render.
+    assert(service.TryAcquireReadyFrame(&frame, t0));
+    assert(service.ReleaseDisplayLease(frame.slot, frame.slot_generation));
+    assert(service.CompleteDisplayRetirement(frame.slot,
+                                             frame.slot_generation));
+    const uint64_t retry_time =
+        first_render_time + 2 * kPreviewNormalIntervalNs;
+    service.SetVisible(true, retry_time);
+    service.UpdateHealth(PreviewHealth{retry_time, PreviewPressure::Normal,
+                                       true});
+    assert(service.TryClaimWork(retry_time, &work));
+    assert(service.CompleteRender(work.token, false, "cancelled", retry_time));
 
     // Animated work is rate-limited, freezes under critical pressure, and
     // stale health never admits running work.
@@ -137,16 +168,16 @@ int main()
     service.SetEnabled(true);
     service.SetVisible(true, t0);
     service.SetSelection(animated->selection, t0);
-    assert(service.SubmitPacket(animated, t0, &error));
+    assert(service.SubmitPacket(*animated, t0, &error));
     Prepare(&service, t0);
     service.SetGuestPaused(false);
     uint64_t now = t0 + kPreviewSelectionDebounceNs + 10;
     service.UpdateHealth(PreviewHealth{now, PreviewPressure::Normal, true});
     assert(service.TryClaimWork(now, &work));
-    assert(service.CompleteRender(work.token, true, "frame 1"));
+    assert(service.CompleteRender(work.token, true, "frame 1", t0));
     assert(!service.TryClaimWork(now + kPreviewNormalIntervalNs - 1, &work));
     assert(service.TryClaimWork(now + kPreviewNormalIntervalNs, &work));
-    assert(service.CompleteRender(work.token, true, "frame 2"));
+    assert(service.CompleteRender(work.token, true, "frame 2", t0));
 
     service.UpdateHealth(PreviewHealth{
         now + kPreviewNormalIntervalNs + 1,
@@ -170,7 +201,7 @@ int main()
     assert(service.TryClaimWork(
         now + 2 * kPreviewNormalIntervalNs + kPreviewPressureRecoveryNs,
         &work));
-    assert(service.CompleteRender(work.token, true, "recovered"));
+    assert(service.CompleteRender(work.token, true, "recovered", t0));
 
     const uint64_t stale_now =
         now + 2 * kPreviewNormalIntervalNs + kPreviewPressureRecoveryNs +
@@ -185,26 +216,70 @@ int main()
     service.SetEnabled(true);
     service.SetVisible(true, t0);
     service.SetSelection(animated->selection, t0);
-    assert(service.SubmitPacket(animated, t0, &error));
+    assert(service.SubmitPacket(*animated, t0, &error));
     Prepare(&service, t0);
     service.SetGuestPaused(true);
     for (size_t i = 0; i < kPreviewSlotCount; ++i) {
         const uint64_t render_time =
             t0 + kPreviewSelectionDebounceNs + 20 +
             i * kPreviewNormalIntervalNs;
+        auto revision = Packet(i + 1, true);
+        assert(service.SubmitPacket(*revision, render_time, &error));
         service.SetVisible(true, render_time);
         assert(service.TryClaimWork(render_time, &work));
-        assert(service.CompleteRender(work.token, true, "queued frame"));
+        assert(service.CompleteRender(work.token, true, "queued frame", t0));
     }
     service.CopyStatus(&status);
     assert(status.ready_slots == kPreviewSlotCount);
     PreviewFrameRef newest{};
-    assert(service.TryAcquireReadyFrame(&newest));
+    assert(service.TryAcquireReadyFrame(&newest, t0));
+    assert(newest.result_key.input_revision == kPreviewSlotCount);
     service.CopyStatus(&status);
     assert(status.ready_slots == 0);
     assert(status.free_slots == kPreviewSlotCount - 1);
     assert(status.leased_slots == 1);
     assert(service.ReleaseDisplayLease(newest.slot, newest.slot_generation));
+    assert(service.CompleteDisplayRetirement(newest.slot,
+                                             newest.slot_generation));
+
+    // A reused slot's larger lease generation must not beat a newer frame.
+    service.ResetForTest();
+    EnableAndSelect(&service, t0);
+    Prepare(&service, t0);
+    service.SetGuestPaused(true);
+    uint64_t sequence_time = t0 + kPreviewSelectionDebounceNs + 100;
+    for (uint64_t revision = 1; revision <= 3; ++revision) {
+        auto candidate = Packet(revision, true);
+        assert(service.SubmitPacket(*candidate, sequence_time, &error));
+        service.SetVisible(true, sequence_time);
+        assert(service.TryClaimWork(sequence_time, &work));
+        assert(service.CompleteRender(work.token, true, "reused", sequence_time));
+        assert(service.TryAcquireReadyFrame(&frame, sequence_time));
+        assert(frame.result_key.input_revision == revision);
+        assert(service.ReleaseDisplayLease(frame.slot, frame.slot_generation));
+        assert(service.CompleteDisplayRetirement(frame.slot,
+                                                 frame.slot_generation));
+        sequence_time += kPreviewNormalIntervalNs;
+    }
+    for (uint64_t revision = 4; revision <= 5; ++revision) {
+        auto candidate = Packet(revision, true);
+        assert(service.SubmitPacket(*candidate, sequence_time, &error));
+        service.SetVisible(true, sequence_time);
+        assert(service.TryClaimWork(sequence_time, &work));
+        assert(service.CompleteRender(work.token, true, "queued", sequence_time));
+        sequence_time += kPreviewNormalIntervalNs;
+    }
+    assert(service.TryAcquireReadyFrame(&newest, sequence_time));
+    assert(newest.result_key.input_revision == 5);
+    service.SetVisible(false, sequence_time);
+    assert(!service.TryAcquireReadyFrame(&frame, sequence_time));
+    service.CopyStatus(&status);
+    assert(status.state == PreviewState::Hidden);
+    assert(status.ready_slots == 0);
+    assert(status.leased_slots == 1);
+    assert(service.ReleaseDisplayLease(newest.slot, newest.slot_generation));
+    service.CopyStatus(&status);
+    assert(status.state == PreviewState::Hidden);
     assert(service.CompleteDisplayRetirement(newest.slot,
                                              newest.slot_generation));
 
@@ -214,7 +289,7 @@ int main()
     service.SetEnabled(true);
     service.SetVisible(true, t0);
     service.SetSelection(animated->selection, t0);
-    assert(service.SubmitPacket(animated, t0, &error));
+    assert(service.SubmitPacket(*animated, t0, &error));
     Prepare(&service, t0);
     service.SetGuestPaused(true); // Paused work does not require health.
     PreviewFrameRef held[kPreviewSlotCount]{};
@@ -224,8 +299,8 @@ int main()
             i * kPreviewNormalIntervalNs;
         service.SetVisible(true, render_time);
         assert(service.TryClaimWork(render_time, &work));
-        assert(service.CompleteRender(work.token, true, "slot"));
-        assert(service.TryAcquireReadyFrame(&held[i]));
+        assert(service.CompleteRender(work.token, true, "slot", t0));
+        assert(service.TryAcquireReadyFrame(&held[i], t0));
     }
     const uint64_t full_time =
         t0 + kPreviewSelectionDebounceNs + 1000 * kPreviewNormalIntervalNs;
@@ -253,6 +328,32 @@ int main()
     service.CopyStatus(&status);
     assert(status.state == PreviewState::Hidden);
 
+    // A completion itself must expire visibility, without another poll.
+    service.ResetForTest();
+    EnableAndSelect(&service, t0);
+    service.SetGuestPaused(true);
+    assert(service.RequestPreparation(&error));
+    assert(service.TryClaimWork(t0 + kPreviewSelectionDebounceNs, &work));
+    assert(service.CompletePreparation(
+        work.token, true, "late preparation",
+        t0 + kPreviewVisibilityStaleNs + 1));
+    service.CopyStatus(&status);
+    assert(status.state == PreviewState::Hidden);
+    assert(!status.prepared);
+
+    service.ResetForTest();
+    EnableAndSelect(&service, t0);
+    Prepare(&service, t0);
+    assert(service.TryClaimWork(t0 + kPreviewSelectionDebounceNs + 1,
+                                &work));
+    assert(service.CompleteRender(
+        work.token, true, "late render",
+        t0 + kPreviewVisibilityStaleNs + 1));
+    service.CopyStatus(&status);
+    assert(status.state == PreviewState::Hidden);
+    assert(status.ready_slots == 0);
+    assert(status.free_slots == kPreviewSlotCount);
+
     // Active plus replacement pending payloads share the aggregate 32 MiB cap.
     service.ResetForTest();
     auto large_a = Packet();
@@ -262,7 +363,7 @@ int main()
     service.SetEnabled(true);
     service.SetVisible(true, t0);
     service.SetSelection(large_a->selection, t0);
-    assert(service.SubmitPacket(large_a, t0, &error));
+    assert(service.SubmitPacket(*large_a, t0, &error));
     service.SetGuestPaused(true);
     assert(service.RequestPreparation(&error));
     assert(service.TryClaimWork(t0 + kPreviewSelectionDebounceNs, &work));
@@ -270,9 +371,9 @@ int main()
     large_b->fixture_bytes.resize(20U * 1024U * 1024U);
     large_b->fixture_digest = ComputePreviewDigest(
         large_b->fixture_bytes.data(), large_b->fixture_bytes.size());
-    assert(!service.SubmitPacket(large_b, t0 + 1, &error));
+    assert(!service.SubmitPacket(*large_b, t0 + 1, &error));
     assert(error.find("32 MiB") != std::string::npos);
-    assert(service.CompletePreparation(work.token, false, "cancelled"));
+    assert(service.CompletePreparation(work.token, false, "cancelled", t0));
 
     // A completion already in flight cannot re-enable a disabled preview.
     service.ResetForTest();
@@ -281,7 +382,7 @@ int main()
     assert(service.RequestPreparation(&error));
     assert(service.TryClaimWork(t0 + kPreviewSelectionDebounceNs, &work));
     service.SetEnabled(false);
-    assert(service.CompletePreparation(work.token, true, "late"));
+    assert(service.CompletePreparation(work.token, true, "late", t0));
     service.CopyStatus(&status);
     assert(status.state == PreviewState::Disabled);
     assert(!status.prepared);

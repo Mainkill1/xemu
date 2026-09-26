@@ -265,7 +265,7 @@ CPU command construction or a texture-ID swap is not sufficient proof.
 | Pending requests | One newest |
 | Active backend jobs | One |
 | Output slots | Three |
-| Owned packet bytes | 32 MiB aggregate |
+| Retained packet buffer capacity | 32 MiB aggregate across pending and active work |
 | Source text | 4 MiB per backend payload |
 
 Driver/device allocations must be reported separately; application accounting
