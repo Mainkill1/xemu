@@ -76,7 +76,8 @@ int PreviewService::FindNewestReadySlotLocked() const
     return best;
 }
 
-bool PreviewService::TryClaimWork(uint64_t now_ns, PreviewWorkItem *work)
+bool PreviewService::TryClaimWork(uint64_t now_ns, PreviewWorkItem *work,
+                                  PreviewBackend backend_filter)
 {
     if (!work) {
         return false;
@@ -102,6 +103,10 @@ bool PreviewService::TryClaimWork(uint64_t now_ns, PreviewWorkItem *work)
     if (!pending_.packet) {
         SetStateLocked(PreviewState::WaitingForInputs,
                        "Waiting for an immutable preview packet");
+        return false;
+    }
+    if (backend_filter != PreviewBackend::Unknown &&
+        pending_.packet->selection.backend != backend_filter) {
         return false;
     }
     if (active_) {
