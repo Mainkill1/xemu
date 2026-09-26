@@ -39,6 +39,9 @@ struct PreviewStatus {
     uint64_t dropped_stale_health = 0;
     bool has_attempt = false;
     PreviewCompileKey attempted_compile;
+    bool has_displayed_source = false;
+    PreviewCompileKey displayed_compile;
+    PreviewResultKey displayed_result;
     std::string message;
 };
 
@@ -56,6 +59,9 @@ public:
     void SetEnabled(bool enabled);
     void SetVisible(bool visible, uint64_t now_ns);
     void SetGuestPaused(bool paused);
+    // Explicit saved, owned test while no title is active. The caller must
+    // revoke this before a guest title becomes active.
+    void SetOfflineNoGuest(bool enabled);
     void SetRequestedMode(PreviewMode mode);
     void SetSelection(const PreviewSelection &selection, uint64_t now_ns);
     void ClearSelection();
@@ -136,6 +142,7 @@ private:
     bool visible_ = false;
     uint64_t visible_heartbeat_ns_ = 0;
     bool guest_paused_ = false;
+    bool offline_no_guest_ = false;
     bool has_selection_ = false;
     PreviewSelection selection_;
     PreviewMode requested_mode_ = PreviewMode::Normal;
@@ -160,6 +167,10 @@ private:
     std::string failure_message_;
     bool has_attempt_ = false;
     PreviewCompileKey attempted_compile_;
+    bool has_displayed_source_ = false;
+    PreviewResultKey displayed_result_;
+    uint32_t displayed_slot_ = 0;
+    uint64_t displayed_slot_generation_ = 0;
 
     bool prepared_ = false;
     PreviewCompileKey prepared_key_;

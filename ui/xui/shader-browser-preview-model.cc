@@ -2,6 +2,7 @@
 #include "shader-browser-preview-model.hh"
 
 #include <algorithm>
+#include <cmath>
 #include <limits>
 
 #include <xxhash.h>
@@ -48,6 +49,12 @@ std::string PreviewSourceIdentity(const PreviewCompileKey &key)
                     [](uint8_t byte) { return byte == 0; })) {
         digest = "unavailable";
     }
+    if (key.source_variant == PreviewSourceVariant::Edited) {
+        return "draft " + std::to_string(key.draft_id) +
+               " revision " + std::to_string(key.draft_revision) +
+               " attempt " + std::to_string(key.draft_submission_id) +
+               " / source " + digest;
+    }
     if (key.selection.mode == PreviewMode::Replacement) {
         return "replacement " + std::to_string(key.replacement_id) +
                " revision " + std::to_string(key.replacement_revision) +
@@ -80,6 +87,10 @@ bool PreviewSelection::operator!=(const PreviewSelection &other) const
 bool PreviewCompileKey::operator==(const PreviewCompileKey &other) const
 {
     return selection == other.selection &&
+           source_variant == other.source_variant &&
+           draft_id == other.draft_id &&
+           draft_revision == other.draft_revision &&
+           draft_submission_id == other.draft_submission_id &&
            recipe_format_version == other.recipe_format_version &&
            generator_abi == other.generator_abi &&
            interface_abi == other.interface_abi &&
@@ -94,12 +105,22 @@ bool PreviewCompileKey::operator!=(const PreviewCompileKey &other) const
     return !(*this == other);
 }
 
+bool PreviewInputBinding::operator==(const PreviewInputBinding &other) const
+{
+    return target == other.target && enabled == other.enabled &&
+           base == other.base && amplitude == other.amplitude &&
+           period_seconds == other.period_seconds;
+}
+
 bool PreviewResultKey::operator==(const PreviewResultKey &other) const
 {
     return channel == other.channel && clock_revision == other.clock_revision &&
            clock_edit_revision == other.clock_edit_revision &&
            time_seconds == other.time_seconds && compile == other.compile &&
-           input_revision == other.input_revision && scene == other.scene &&
+           input_revision == other.input_revision &&
+           binding_count == other.binding_count &&
+           bindings == other.bindings && scene == other.scene &&
+           render_state == other.render_state &&
            view_revision == other.view_revision && width == other.width &&
            height == other.height && packet_kind == other.packet_kind &&
            replay_class == other.replay_class &&
@@ -351,9 +372,13 @@ bool ValidatePreviewPacket(const PreviewPacket &packet, std::string *error)
         return fail("Preview fixture digest was supplied without fixture bytes");
     }
     if (packet.width == 0 || packet.height == 0 ||
-        packet.width > kPreviewFullExtent ||
-        packet.height > kPreviewFullExtent) {
-        return fail("Preview extent must be between 1 and 320 pixels");
+        packet.width > kPreviewMaxWidth ||
+        packet.height > kPreviewMaxHeight) {
+        return fail("Preview extent exceeds 640 x 480 pixels");
+    }
+    if (!(ClampPreviewRenderState(packet.render_state) ==
+          packet.render_state)) {
+        return fail("Preview render state is invalid");
     }
     if (packet.packet_kind == PreviewPacketKind::Replay &&
         packet.replay_class == PreviewReplayClass::Unsupported) {
@@ -376,6 +401,41 @@ bool ValidatePreviewPacket(const PreviewPacket &packet, std::string *error)
             return fail("Replacement preview requires immutable source identity");
         }
     }
+    if (packet.binding_count > kPreviewMaxInputBindings) {
+        return fail("Preview input binding count exceeds the fixed limit");
+    }
+    uint32_t seen_targets = 0;
+    for (size_t i = 0; i < packet.binding_count; ++i) {
+        const PreviewInputBinding &binding = packet.bindings[i];
+        const unsigned target = static_cast<unsigned>(binding.target);
+        if (target >= static_cast<unsigned>(PreviewInputTarget::Count) ||
+            !std::isfinite(binding.base) ||
+            !std::isfinite(binding.amplitude) ||
+            !std::isfinite(binding.period_seconds) ||
+            std::abs(binding.base) > 16.0f ||
+            std::abs(binding.amplitude) > 16.0f ||
+            binding.period_seconds <= 0.0f ||
+            binding.period_seconds > 3600.0f ||
+            (seen_targets & (1U << target))) {
+            return fail("Preview input binding is invalid or duplicated");
+        }
+        seen_targets |= 1U << target;
+    }
+    if (packet.source_variant == PreviewSourceVariant::Edited) {
+        if (packet.selection.mode == PreviewMode::Replacement ||
+            !packet.draft_id || !packet.draft_revision ||
+            !packet.draft_submission_id ||
+            packet.source.empty() || DigestIsZero(packet.source_digest)) {
+            return fail("Edited preview requires an independent immutable draft identity");
+        }
+    } else if (packet.source_variant == PreviewSourceVariant::Original) {
+        if (packet.draft_id || packet.draft_revision ||
+            packet.draft_submission_id) {
+            return fail("Original preview cannot carry a draft identity");
+        }
+    } else {
+        return fail("Preview source variant is invalid");
+    }
 
     if (error) {
         error->clear();
@@ -387,6 +447,10 @@ PreviewCompileKey BuildPreviewCompileKey(const PreviewPacket &packet)
 {
     PreviewCompileKey key{};
     key.selection = packet.selection;
+    key.source_variant = packet.source_variant;
+    key.draft_id = packet.draft_id;
+    key.draft_revision = packet.draft_revision;
+    key.draft_submission_id = packet.draft_submission_id;
     key.recipe_format_version = packet.recipe_format_version;
     key.generator_abi = packet.generator_abi;
     key.interface_abi = packet.interface_abi;
@@ -402,8 +466,11 @@ PreviewResultKey BuildPreviewResultKey(const PreviewPacket &packet)
     PreviewResultKey key{};
     key.compile = BuildPreviewCompileKey(packet);
     key.input_revision = packet.input_revision;
+    key.binding_count = packet.binding_count;
+    key.bindings = packet.bindings;
     key.view_revision = packet.view_revision;
     key.scene = ClampPreviewScene(packet.scene);
+    key.render_state = packet.render_state;
     key.width = packet.width;
     key.height = packet.height;
     key.packet_kind = packet.packet_kind;

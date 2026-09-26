@@ -50,6 +50,59 @@ void AnimatePreviewSyntheticFixture(PreviewSyntheticFixture *fixture,
     }
 }
 
+const char *PreviewInputTargetName(PreviewInputTarget target)
+{
+    static const char *names[] = {
+        "D0 alpha", "UV offset U", "UV offset V", "Constant R",
+        "Constant G", "Constant B", "Constant A", "Fog scalar", "D0 RGB"
+    };
+    const unsigned index = static_cast<unsigned>(target);
+    return index < static_cast<unsigned>(PreviewInputTarget::Count) ?
+        names[index] : "Unsupported input";
+}
+
+void ApplyPreviewDeclaredBindings(PreviewSyntheticFixture *fixture,
+                                  const PreviewPacket &packet,
+                                  double time_seconds)
+{
+    if (!fixture || !std::isfinite(time_seconds)) return;
+    constexpr double tau = 6.2831853071795864769;
+    for (size_t i = 0; i < packet.binding_count &&
+                       i < kPreviewMaxInputBindings; ++i) {
+        const PreviewInputBinding &binding = packet.bindings[i];
+        if (!binding.enabled || binding.period_seconds <= 0) continue;
+        const double phase = std::fmod(time_seconds,
+                                       binding.period_seconds) /
+                             binding.period_seconds;
+        float value = binding.base + binding.amplitude *
+                      static_cast<float>(std::sin(phase * tau));
+        switch (binding.target) {
+        case PreviewInputTarget::D0Alpha:
+            fixture->colors[0][3] = std::clamp(value, 0.0f, 1.0f); break;
+        case PreviewInputTarget::UVOffsetU:
+            fixture->uv_offset[0] = std::clamp(value, -16.0f, 16.0f); break;
+        case PreviewInputTarget::UVOffsetV:
+            fixture->uv_offset[1] = std::clamp(value, -16.0f, 16.0f); break;
+        case PreviewInputTarget::ConstantR:
+        case PreviewInputTarget::ConstantG:
+        case PreviewInputTarget::ConstantB:
+        case PreviewInputTarget::ConstantA:
+            fixture->constant_color[
+                static_cast<unsigned>(binding.target) -
+                static_cast<unsigned>(PreviewInputTarget::ConstantR)] =
+                    std::clamp(value, 0.0f, 1.0f);
+            break;
+        case PreviewInputTarget::Fog:
+            fixture->fog = std::clamp(value, 0.0f, 1.0f); break;
+        case PreviewInputTarget::D0RGB:
+            for (size_t c = 0; c < 3; ++c)
+                fixture->colors[0][c] = std::clamp(value, 0.0f, 1.0f);
+            break;
+        case PreviewInputTarget::Count: break;
+        }
+    }
+}
+
 std::vector<uint8_t> EncodePreviewSyntheticFixture(
     const PreviewSyntheticFixture &fixture)
 {
@@ -222,6 +275,65 @@ bool CopyPreviewFragmentSource(const PreviewSelection &selection,
     return false;
 }
 
+bool CopyGeneratedSourceSnapshot(const PreviewSelection &selection,
+                                 const ShaderScope &active_scope,
+                                 const Entry &entry,
+                                 const DetailSnapshot &detail,
+                                 uint32_t generator_abi,
+                                 uint32_t interface_abi,
+                                 GeneratedSourceSnapshot *source,
+                                 std::string *error)
+{
+    if (source) *source = {};
+    if (!source || !(active_scope == selection.scope) ||
+        entry.key != selection.shader ||
+        std::find(entry.scopes.begin(), entry.scopes.end(),
+                  selection.scope) == entry.scopes.end() ||
+        selection.scope.title_id == 0 ||
+        detail.request.key != selection.shader ||
+        (detail.state != DetailState::Complete &&
+         detail.state != DetailState::Partial) ||
+        !generator_abi || !interface_abi ||
+        (selection.backend != PreviewBackend::OpenGL &&
+         selection.backend != PreviewBackend::Vulkan) ||
+        selection.mode == PreviewMode::Replacement) {
+        if (error) *error = "Generated source does not match the exact selected scope";
+        return false;
+    }
+    const DetailBackend backend = selection.backend == PreviewBackend::OpenGL ?
+        DetailBackend::OpenGL : DetailBackend::Vulkan;
+    const Route route = selection.mode == PreviewMode::Uber ?
+        Route::Uber : Route::Specialized;
+    for (const HostSource &candidate : detail.sources) {
+        if (candidate.backend != backend ||
+            candidate.stage != HostSourceStage::Fragment ||
+            candidate.kind != HostSourceKind::Glsl ||
+            candidate.route != route || candidate.text.empty() ||
+            candidate.text.size() > kPreviewMaxSourceBytes) {
+            continue;
+        }
+        GeneratedSourceSnapshot result{};
+        result.key = selection.shader;
+        result.scope = selection.scope;
+        result.backend = selection.backend;
+        result.stage = candidate.stage;
+        result.route = candidate.route;
+        result.resident = candidate.exact_runtime_source;
+        result.build_scope_verified = false;
+        result.generator_abi = generator_abi;
+        result.interface_abi = interface_abi;
+        result.text = candidate.text;
+        result.digest = ComputePreviewDigest(
+            reinterpret_cast<const uint8_t *>(result.text.data()),
+            result.text.size());
+        *source = std::move(result);
+        if (error) error->clear();
+        return true;
+    }
+    if (error) *error = "No generated fragment GLSL matches the selected route";
+    return false;
+}
+
 std::string BuildPreviewSyntheticVertexSource(
     const std::string &fragment_source, PreviewBackend backend)
 {
@@ -356,6 +468,12 @@ bool BuildPreviewPacket(const PreviewPacketInputs &inputs,
 
     PreviewPacket candidate{};
     candidate.selection = inputs.selection;
+    candidate.source_route = inputs.source_route;
+    candidate.source_resident = inputs.source_resident;
+    candidate.source_variant = inputs.source_variant;
+    candidate.draft_id = inputs.draft_id;
+    candidate.draft_revision = inputs.draft_revision;
+    candidate.draft_submission_id = inputs.draft_submission_id;
     candidate.recipe_format_version = inputs.recipe.recipe_format_version;
     candidate.recipe = inputs.recipe.bytes;
     candidate.source = inputs.source;
@@ -366,8 +484,11 @@ bool BuildPreviewPacket(const PreviewPacketInputs &inputs,
     candidate.replacement_id = inputs.replacement_id;
     candidate.replacement_revision = inputs.replacement_revision;
     candidate.input_revision = inputs.input_revision;
+    candidate.binding_count = inputs.binding_count;
+    candidate.bindings = inputs.bindings;
     candidate.view_revision = inputs.view_revision;
     candidate.scene = ClampPreviewScene(inputs.scene);
+    candidate.render_state = ClampPreviewRenderState(inputs.render_state);
     candidate.width = inputs.width;
     candidate.height = inputs.height;
     candidate.update_policy = inputs.update_policy;

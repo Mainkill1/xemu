@@ -113,7 +113,9 @@ int main()
         assert(!RenderPreviewDiagnostic(PreviewChannel::ShaderDiscard, fixture,
                                         8, 8, &chart, &error));
         assert(error.find("Unsupported") != std::string::npos);
-        assert(!RenderPreviewDiagnostic(PreviewChannel::UV, fixture, 321, 8,
+        assert(!RenderPreviewDiagnostic(PreviewChannel::UV, fixture, 641, 8,
+                                        &chart, &error));
+        assert(!RenderPreviewDiagnostic(PreviewChannel::UV, fixture, 8, 481,
                                         &chart, &error));
         for (int i = 0; i < static_cast<int>(PreviewChannel::Count); ++i) {
             const auto channel = static_cast<PreviewChannel>(i);
@@ -369,6 +371,74 @@ int main()
     detail.request.key.hash.bytes[0] ^= 1;
     assert(!CopyPreviewFragmentSource(uber, detail,
                                       &selected_source, &error));
+
+    detail.request.key = inputs.selection.shader;
+    Entry owned_entry{};
+    owned_entry.key = inputs.selection.shader;
+    owned_entry.scopes.push_back(inputs.selection.scope);
+    GeneratedSourceSnapshot snapshot{};
+    assert(CopyGeneratedSourceSnapshot(inputs.selection, inputs.selection.scope,
+                                       owned_entry, detail,
+                                       1, 1, &snapshot, &error));
+    assert(snapshot.scope == inputs.selection.scope);
+    assert(!snapshot.resident && snapshot.text == gl.text);
+    assert(!snapshot.build_scope_verified);
+    assert(snapshot.digest == ComputePreviewDigest(
+        reinterpret_cast<const uint8_t *>(gl.text.data()), gl.text.size()));
+    owned_entry.scopes[0].executable_fingerprint[0] ^= 1;
+    assert(!CopyGeneratedSourceSnapshot(inputs.selection, inputs.selection.scope,
+                                        owned_entry, detail,
+                                        1, 1, &snapshot, &error));
+    assert(snapshot.text.empty());
+    owned_entry.scopes[0] = inputs.selection.scope;
+    ShaderScope different_active = inputs.selection.scope;
+    different_active.executable_fingerprint[0] ^= 1;
+    assert(!CopyGeneratedSourceSnapshot(inputs.selection, different_active,
+                                        owned_entry, detail, 1, 1,
+                                        &snapshot, &error));
+    detail.sources[1].exact_runtime_source = true;
+    assert(CopyGeneratedSourceSnapshot(uber, uber.scope, owned_entry, detail,
+                                       1, 1, &snapshot, &error));
+    assert(snapshot.resident && !snapshot.build_scope_verified);
+
+    PreviewPacketInputs draft_inputs = Inputs();
+    draft_inputs.source_variant = PreviewSourceVariant::Edited;
+    draft_inputs.draft_id = 21;
+    draft_inputs.draft_revision = 4;
+    draft_inputs.draft_submission_id = 7;
+    draft_inputs.source = "void main(){}";
+    draft_inputs.source_route = Route::Specialized;
+    draft_inputs.source_resident = false;
+    assert(BuildPreviewPacket(draft_inputs, &packet, &error));
+    assert(packet.source_variant == PreviewSourceVariant::Edited);
+    assert(packet.draft_id == 21 && packet.draft_revision == 4);
+    assert(packet.draft_submission_id == 7);
+    assert(packet.source_route == Route::Specialized &&
+           !packet.source_resident);
+
+    PreviewPacketInputs bound_inputs = Inputs();
+    bound_inputs.binding_count = 1;
+    bound_inputs.bindings[0].target = PreviewInputTarget::UVOffsetU;
+    bound_inputs.bindings[0].enabled = true;
+    bound_inputs.bindings[0].base = 0.25f;
+    bound_inputs.bindings[0].amplitude = 0.5f;
+    bound_inputs.bindings[0].period_seconds = 4.0f;
+    assert(BuildPreviewPacket(bound_inputs, &packet, &error));
+    PreviewSyntheticFixture bound_fixture =
+        MakePreviewFixture(PreviewFixtureProfile::Flat);
+    ApplyPreviewDeclaredBindings(&bound_fixture, packet, 1.0);
+    assert(std::abs(bound_fixture.uv_offset[0] - 0.75f) < 0.0001f);
+    assert(std::string(PreviewInputTargetName(
+        PreviewInputTarget::UVOffsetU)) == "UV offset U");
+    bound_inputs.bindings[0].target = PreviewInputTarget::D0RGB;
+    bound_inputs.bindings[0].base = 1.0f;
+    bound_inputs.bindings[0].amplitude = -0.5f;
+    assert(BuildPreviewPacket(bound_inputs, &packet, &error));
+    ApplyPreviewDeclaredBindings(&bound_fixture, packet, 1.0);
+    assert(std::abs(bound_fixture.colors[0][0] - 0.5f) < 0.0001f);
+    assert(std::abs(bound_fixture.colors[0][1] - 0.5f) < 0.0001f);
+    bound_inputs.bindings[0].period_seconds = 0.0f;
+    assert(!BuildPreviewPacket(bound_inputs, &packet, &error));
 
     std::cout << "shader browser preview adapter tests passed\n";
     return 0;

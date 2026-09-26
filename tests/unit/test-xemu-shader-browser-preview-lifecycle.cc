@@ -28,7 +28,12 @@ static PreviewPacket Packet(PreviewMode mode, bool bad, uint64_t revision)
     p.selection.mode = mode;
     p.selection.shader.stage = Stage::Pixel;
     p.recipe_format_version = 1;
-    p.recipe = { 1, 2, 3, 4 };
+    p.recipe.resize(312);
+    p.recipe[0] = 'N';
+    p.recipe[1] = 'V';
+    p.recipe[2] = '2';
+    p.recipe[3] = 'A';
+    p.recipe[4] = 2;
     p.selection.shader.hash =
         ComputeShaderHash(1, Stage::Pixel, 1, p.recipe.data(), p.recipe.size());
     p.generator_abi = p.interface_abi = 1;

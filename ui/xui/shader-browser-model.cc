@@ -29,6 +29,9 @@ int CompareU64(uint64_t lhs, uint64_t rhs)
 
 int CompareEntries(const Entry &a, const Entry &b, const Filter &filter)
 {
+    const bool a_pinned = filter.pinned.count(a.key) != 0;
+    const bool b_pinned = filter.pinned.count(b.key) != 0;
+    if (a_pinned != b_pinned) return a_pinned ? -1 : 1;
     int result = 0;
     switch (filter.sort_key) {
     case SortKey::Draws:
@@ -376,6 +379,16 @@ const char *SourceFilterLabel(SourceFilter source)
 
 bool EntryMatches(const Entry &entry, const Filter &filter)
 {
+    if (!filter.show_hidden && filter.hidden.count(entry.key)) {
+        return false;
+    }
+    if (filter.recent_enabled &&
+        (!entry.observed_in_session ||
+         entry.last_frame > filter.current_frame ||
+         filter.current_frame - entry.last_frame >
+             filter.recent_within_frames)) {
+        return false;
+    }
     if (filter.stage != Stage::Any && entry.key.stage != filter.stage) {
         return false;
     }

@@ -171,9 +171,103 @@ static void TestLastGoodAndAutomaticPreparation()
     assert(!service.ReleaseDisplayLease(current.slot, current.slot_generation));
 }
 
+static void TestEditedRevisionKeepsDisplayedSource()
+{
+    constexpr uint64_t start = UINT64_C(3000000000);
+    PreviewService service;
+    auto edited = Packet();
+    edited->source_variant = PreviewSourceVariant::Edited;
+    edited->draft_id = 91;
+    edited->draft_revision = 1;
+    edited->draft_submission_id = 1;
+    edited->source = "valid draft";
+    edited->source_digest = ComputePreviewDigest(
+        reinterpret_cast<const uint8_t *>(edited->source.data()),
+        edited->source.size());
+    service.SetEnabled(true);
+    service.SetVisible(true, start);
+    service.SetGuestPaused(true);
+    service.SetSelection(edited->selection, start);
+    std::string error;
+    assert(service.SubmitPacket(*edited, start, &error));
+    assert(service.RequestPreparation(&error));
+    PreviewWorkItem work{};
+    assert(service.TryClaimWork(start + kPreviewSelectionDebounceNs, &work));
+    assert(service.CompletePreparation(work.token, true, "compiled", start));
+    assert(service.TryClaimWork(start + kPreviewSelectionDebounceNs, &work));
+    assert(service.CompleteRender(work.token, true, "display", start));
+    PreviewFrameRef frame{};
+    assert(service.TryAcquireReadyFrame(&frame, start));
+    PreviewStatus status{};
+    service.CopyStatus(&status);
+    assert(status.has_displayed_source);
+    assert(status.displayed_compile.draft_revision == 1);
+    edited->draft_revision = 2;
+    edited->draft_submission_id = 2;
+    edited->source = "invalid draft";
+    edited->source_digest = ComputePreviewDigest(
+        reinterpret_cast<const uint8_t *>(edited->source.data()),
+        edited->source.size());
+    assert(service.SubmitPacket(*edited, start, &error));
+    assert(service.RequestPreparation(&error));
+    assert(service.TryClaimWork(start + kPreviewSelectionDebounceNs, &work));
+    assert(service.CompletePreparation(work.token, false, "0:2: invalid",
+                                       start));
+    service.CopyStatus(&status);
+    assert(status.attempted_compile.draft_revision == 2);
+    assert(status.displayed_compile.draft_revision == 1);
+    assert(status.has_displayed_source);
+    assert(status.state == PreviewState::Failed);
+    const uint64_t failed_token = work.token;
+    assert(service.SubmitPacket(*edited, start, &error));
+    assert(!service.RequestPreparation(&error));
+    edited->draft_submission_id = 3;
+    assert(service.SubmitPacket(*edited, start, &error));
+    assert(service.RequestPreparation(&error));
+    assert(service.TryClaimWork(start + kPreviewSelectionDebounceNs, &work));
+    assert(work.kind == PreviewWorkKind::Prepare);
+    assert(work.compile_key.draft_revision == 2);
+    assert(work.compile_key.draft_submission_id == 3);
+    assert(!service.CompletePreparation(failed_token, true, "late", start));
+    assert(service.CompletePreparation(work.token, true, "retry compiled",
+                                       start));
+    assert(service.TryClaimWork(start + kPreviewSelectionDebounceNs, &work));
+    assert(service.CompleteRender(work.token, true, "retry display", start));
+    service.CopyStatus(&status);
+    assert(status.attempted_compile.draft_submission_id == 3);
+    assert(status.displayed_compile.draft_revision == 1);
+    PreviewFrameRef retried{};
+    assert(service.TryAcquireReadyFrame(&retried, start));
+    service.CopyStatus(&status);
+    assert(status.displayed_compile.draft_submission_id == 3);
+}
+
+static void TestOwnedOfflinePreparationWithoutGuestPause()
+{
+    constexpr uint64_t start = UINT64_C(1000000000);
+    const uint64_t settled = start + kPreviewSelectionDebounceNs;
+    PreviewService service;
+    EnableAndSelect(&service, start);
+    PreviewWorkItem work{};
+    assert(!service.RequestAutomaticPreparation(settled));
+    service.SetOfflineNoGuest(true);
+    assert(service.RequestAutomaticPreparation(settled));
+    assert(service.TryClaimWork(settled, &work));
+    assert(work.kind == PreviewWorkKind::Prepare);
+    assert(service.CompletePreparation(work.token, true, "offline", settled));
+    assert(service.TryClaimWork(settled, &work));
+    assert(work.kind == PreviewWorkKind::Render);
+    assert(service.CompleteRender(work.token, true, "offline frame", settled));
+    service.SetOfflineNoGuest(false);
+    service.RequestCurrentFrame();
+    assert(!service.TryClaimWork(settled + kPreviewPausedIntervalNs, &work));
+}
+
 int main()
 {
     TestLastGoodAndAutomaticPreparation();
+    TestEditedRevisionKeepsDisplayedSource();
+    TestOwnedOfflinePreparationWithoutGuestPause();
     constexpr uint64_t t0 = UINT64_C(1000000000);
     PreviewService service;
     PreviewWorkItem work{};

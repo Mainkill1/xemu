@@ -31,7 +31,8 @@ public:
 
     bool StartWhilePaused(std::string *error);
     void DrawImage(float side, const PreviewSelection *selection,
-                   uint64_t now_ns, PreviewViewSettings *view);
+                   uint64_t now_ns, PreviewViewSettings *view,
+                   PreviewScene *scene = nullptr);
     bool HasDisplayed() const;
     bool HasFrozen() const;
     bool NeedsRetirementPump() const;

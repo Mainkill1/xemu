@@ -3,6 +3,7 @@
 #include "shader-browser-preview-gl-channel.hh"
 
 #include "shader-browser-preview-adapter.hh"
+#include "shader-browser-preview-alpha.hh"
 #include "shader-browser-preview-service.hh"
 #include "shader-browser-preview-vk.hh"
 
@@ -10,6 +11,7 @@
 #include <epoxy/gl.h>
 #include <imgui.h>
 #include <glib.h>
+#include "shader-browser-workbench-scene-ui.inc"
 
 #include <array>
 #include <algorithm>
@@ -153,9 +155,13 @@ struct PreviewGlExecutor::Impl {
     std::mutex slots_mutex;
     std::array<Slot, kPreviewSlotCount> slots{};
     GLuint program = 0;
+    GLuint reference_program = 0;
     GLuint vao = 0;
     GLuint vbo = 0;
     GLuint fbo = 0;
+    GLuint depth_buffer = 0;
+    uint32_t depth_width = 0;
+    uint32_t depth_height = 0;
     GLuint fixture_texture[4]{};
     GLenum fixture_targets[4]{ GL_TEXTURE_2D, GL_TEXTURE_2D, GL_TEXTURE_2D,
                                GL_TEXTURE_2D };
@@ -175,6 +181,47 @@ struct PreviewGlExecutor::Impl {
     bool frozen_sampled_this_frame = false;
     std::vector<Retirement> retirements;
 
+    bool PrepareReference(std::string *error)
+    {
+        if (reference_program) return true;
+        constexpr const char *vertex_source =
+            "#version 400\nlayout(location=0) in vec4 position;\n"
+            "layout(location=1) in vec4 vertexColor;\n"
+            "out vec4 referenceColor;\n"
+            "void main(){gl_Position=position;referenceColor=vertexColor;}\n";
+        constexpr const char *fragment_source =
+            "#version 400\nin vec4 referenceColor;\n"
+            "out vec4 color;\nvoid main(){color=referenceColor;}\n";
+        GLuint vertex = 0, fragment = 0;
+        if (!Compile(GL_VERTEX_SHADER, vertex_source, &vertex, error))
+            return false;
+        if (!Compile(GL_FRAGMENT_SHADER, fragment_source, &fragment, error)) {
+            glDeleteShader(vertex);
+            return false;
+        }
+        GLuint next = glCreateProgram();
+        if (!next) {
+            glDeleteShader(vertex);
+            glDeleteShader(fragment);
+            *error = "Private GL reference program allocation failed";
+            return false;
+        }
+        glAttachShader(next, vertex);
+        glAttachShader(next, fragment);
+        glLinkProgram(next);
+        glDeleteShader(vertex);
+        glDeleteShader(fragment);
+        GLint linked = GL_FALSE;
+        glGetProgramiv(next, GL_LINK_STATUS, &linked);
+        if (linked != GL_TRUE) {
+            glDeleteProgram(next);
+            *error = "Private GL reference program link failed";
+            return false;
+        }
+        reference_program = next;
+        return true;
+    }
+
     bool Prepare(const PreviewWorkItem &work, std::string *error,
                  bool *unsupported)
     {
@@ -186,7 +233,9 @@ struct PreviewGlExecutor::Impl {
             *error = "Private OpenGL preview requires copied fragment and vertex source";
             return false;
         }
-        if (has_program && program_key == work.compile_key) return true;
+        if (has_program && program_key == work.compile_key && vao && vbo &&
+            fbo && depth_buffer && reference_program && fixture_texture[0])
+            return true;
         GLuint vertex = 0;
         GLuint fragment = 0;
         if (!Compile(GL_VERTEX_SHADER, work.packet->partner_source, &vertex,
@@ -224,13 +273,17 @@ struct PreviewGlExecutor::Impl {
             *unsupported = true;
             return false;
         }
+        if (!PrepareReference(error)) {
+            glDeleteProgram(next);
+            return false;
+        }
         if (program) glDeleteProgram(program);
         program = next;
         program_key = work.compile_key;
-        has_program = true;
         if (!vao) glGenVertexArrays(1, &vao);
         if (!vbo) glGenBuffers(1, &vbo);
         if (!fbo) glGenFramebuffers(1, &fbo);
+        if (!depth_buffer) glGenRenderbuffers(1, &depth_buffer);
         if (fixture_texture[0])
             glDeleteTextures(4, fixture_texture);
         glGenTextures(4, fixture_texture);
@@ -246,7 +299,11 @@ struct PreviewGlExecutor::Impl {
             fixture_targets[i] =
                 type == GL_SAMPLER_CUBE ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
         }
-        return vao && vbo && fbo && fixture_texture[0];
+        has_program = vao && vbo && fbo && depth_buffer &&
+                      fixture_texture[0];
+        if (!has_program)
+            *error = "Private GL scene resource allocation failed";
+        return has_program;
     }
 
     bool Render(const PreviewWorkItem &work, std::string *error)
@@ -263,9 +320,8 @@ struct PreviewGlExecutor::Impl {
                                            error)) {
             return false;
         }
-        if (packet.update_policy == PreviewUpdatePolicy::Continuous) {
-            AnimatePreviewSyntheticFixture(&fixture, work.result_key.time_seconds);
-        }
+        ApplyPreviewDeclaredBindings(&fixture, packet,
+                                     work.result_key.time_seconds);
         if (!PreviewChannelAvailable(work.result_key.channel)) {
             *error = PreviewChannelProvenance(work.result_key.channel);
             return false;
@@ -299,24 +355,57 @@ struct PreviewGlExecutor::Impl {
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                                GL_TEXTURE_2D, slot.texture, 0);
+        if (depth_width != packet.width || depth_height != packet.height) {
+            glBindRenderbuffer(GL_RENDERBUFFER, depth_buffer);
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24,
+                                  static_cast<GLsizei>(packet.width),
+                                  static_cast<GLsizei>(packet.height));
+            if (glGetError() != GL_NO_ERROR) {
+                *error = "Private GL depth attachment allocation failed";
+                return false;
+            }
+            depth_width = packet.width;
+            depth_height = packet.height;
+        }
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+                                  GL_RENDERBUFFER, depth_buffer);
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) !=
             GL_FRAMEBUFFER_COMPLETE) {
             *error = "Private GL framebuffer is incomplete";
             return false;
         }
-        auto vertices = BuildPreviewSceneGeometry(
+        auto frame = BuildPreviewSceneFrame(
             work.result_key.scene, float(packet.width) / packet.height);
+        if (frame.draw_count != kPreviewMaxSceneDraws ||
+            frame.vertices.size() > kPreviewMaxSceneVertices) {
+            *error = "Private GL scene geometry is invalid";
+            return false;
+        }
         std::array<bool, 4> cube_stages{};
         for (size_t i = 0; i < 4; ++i)
             cube_stages[i] = fixture_targets[i] == GL_TEXTURE_CUBE_MAP;
-        ApplyPreviewSyntheticFixture(fixture, vertices, cube_stages);
+        const auto &target_draw = frame.draws[frame.draw_count - 1];
+        std::vector<Vertex> target_vertices(
+            frame.vertices.begin() + target_draw.first_vertex,
+            frame.vertices.begin() + target_draw.first_vertex +
+                target_draw.vertex_count);
+        ApplyPreviewSyntheticFixture(fixture, target_vertices, cube_stages);
+        std::copy(target_vertices.begin(), target_vertices.end(),
+                  frame.vertices.begin() + target_draw.first_vertex);
+        const PreviewRenderState render_state =
+            ClampPreviewRenderState(packet.render_state);
+        if (!AdmitPreviewBakedAlphaTest(packet, error)) return false;
         glViewport(0, 0, static_cast<GLsizei>(packet.width),
                    static_cast<GLsizei>(packet.height));
         glDisable(GL_BLEND);
-        glDisable(GL_DEPTH_TEST);
         glDisable(GL_CULL_FACE);
-        glClearColor(0.08f, 0.08f, 0.08f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LESS);
+        glDepthMask(GL_TRUE);
+        glClearDepth(1.0);
+        glClearColor(render_state.clear_color[0], render_state.clear_color[1],
+                     render_state.clear_color[2], render_state.clear_color[3]);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUseProgram(program);
         // Resident xemu fragment sources expect the same clipping and
         // coordinate uniforms as the game renderer. Give the private quad
@@ -350,11 +439,12 @@ struct PreviewGlExecutor::Impl {
         location = glGetUniformLocation(program, "fogColor");
         if (location >= 0) glUniform4fv(location, 1, fixture.fog_color.data());
         location = glGetUniformLocation(program, "alphaRef");
-        if (location >= 0) glUniform1i(location, fixture.alpha_reference);
+        if (location >= 0) glUniform1i(location, render_state.alpha_reference);
         glBindVertexArray(vao);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex),
-                     vertices.data(), GL_STREAM_DRAW);
+        glBufferData(GL_ARRAY_BUFFER,
+                     frame.vertices.size() * sizeof(Vertex),
+                     frame.vertices.data(), GL_STREAM_DRAW);
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                               reinterpret_cast<const void *>(0));
@@ -407,7 +497,31 @@ struct PreviewGlExecutor::Impl {
             GLint sampler_location = glGetUniformLocation(program, name.c_str());
             if (sampler_location >= 0) glUniform1i(sampler_location, unit);
         }
-        glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vertices.size()));
+        glUseProgram(reference_program);
+        for (size_t i = 0; i < frame.draw_count - 1; ++i) {
+            const auto &draw = frame.draws[i];
+            if (draw.vertex_count)
+                glDrawArrays(GL_TRIANGLES, draw.first_vertex,
+                             static_cast<GLsizei>(draw.vertex_count));
+        }
+        glUseProgram(program);
+        if (render_state.depth_test) glEnable(GL_DEPTH_TEST);
+        else glDisable(GL_DEPTH_TEST);
+        glDepthMask(render_state.depth_write ? GL_TRUE : GL_FALSE);
+        if (render_state.blend == PreviewBlendMode::Alpha) {
+            glEnable(GL_BLEND);
+            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA,
+                                GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+        } else {
+            glDisable(GL_BLEND);
+        }
+        if (render_state.cull != PreviewCullMode::None) {
+            glEnable(GL_CULL_FACE);
+            glCullFace(render_state.cull == PreviewCullMode::Back ?
+                           GL_BACK : GL_FRONT);
+        }
+        glDrawArrays(GL_TRIANGLES, target_draw.first_vertex,
+                     static_cast<GLsizei>(target_draw.vertex_count));
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, slot.texture);
         SetPreviewGlOutputChannel(work.result_key.channel);
@@ -533,10 +647,12 @@ struct PreviewGlExecutor::Impl {
         // Shutdown deletes them on the consumer context after joining us.
         if (fixture_texture[0])
             glDeleteTextures(4, fixture_texture);
+        if (depth_buffer) glDeleteRenderbuffers(1, &depth_buffer);
         if (fbo) glDeleteFramebuffers(1, &fbo);
         if (vbo) glDeleteBuffers(1, &vbo);
         if (vao) glDeleteVertexArrays(1, &vao);
         if (program) glDeleteProgram(program);
+        if (reference_program) glDeleteProgram(reference_program);
         SDL_GL_MakeCurrent(nullptr, nullptr);
     }
 
@@ -650,7 +766,8 @@ bool PreviewGlExecutor::StartWhilePaused(std::string *error)
 void PreviewGlExecutor::DrawImage(float side,
                                   const PreviewSelection *selection,
                                   uint64_t now_ns,
-                                  PreviewViewSettings *view)
+                                  PreviewViewSettings *view,
+                                  PreviewScene *scene)
 {
     Impl &impl = *impl_;
     impl.PollRetirements();
@@ -713,6 +830,9 @@ void PreviewGlExecutor::DrawImage(float side,
                                  std::max(1.0f, side);
     auto draw = [&](const char *label, const PreviewFrameRef &frame,
                     GLuint texture, bool *sampled, bool pannable) {
+        const float image_height = image_side *
+            float(std::max(1U, frame.height)) /
+            float(std::max(1U, frame.width));
         const PreviewChannel channel = frame.result_key.channel;
         const auto &origin = frame.result_key.compile;
         const bool stale =
@@ -732,28 +852,35 @@ void PreviewGlExecutor::DrawImage(float side,
         ImGui::PopTextWrapPos();
         const ImVec2 position = ImGui::GetCursorScreenPos();
         ImDrawList *list = ImGui::GetWindowDrawList();
-        const float tile = image_side / 8.0f;
+        const float tile_x = image_side / 8.0f;
+        const float tile_y = image_height / 8.0f;
         for (int y = 0; y < 8; ++y) {
             for (int x = 0; x < 8; ++x) {
                 list->AddRectFilled(
-                    ImVec2(position.x + x * tile, position.y + y * tile),
-                    ImVec2(position.x + (x + 1) * tile,
-                           position.y + (y + 1) * tile),
+                    ImVec2(position.x + x * tile_x,
+                           position.y + y * tile_y),
+                    ImVec2(position.x + (x + 1) * tile_x,
+                           position.y + (y + 1) * tile_y),
                     (x + y) & 1 ? IM_COL32(170, 170, 170, 255) :
                                   IM_COL32(90, 90, 90, 255));
             }
         }
         ImGui::Image((ImTextureID)(intptr_t)texture,
-                     ImVec2(image_side, image_side), uv0, uv1);
+                     ImVec2(image_side, image_height), uv0, uv1);
         *sampled = true;
-        if (pannable && ImGui::IsItemHovered() &&
+        if (pannable && scene &&
+            HandleWorkbenchViewportGesture(scene, position,
+                                           ImVec2(image_side, image_height))) {
+            GetPreviewService().EditScene(*scene);
+        }
+        if (!scene && pannable && ImGui::IsItemHovered() &&
             ImGui::IsMouseDown(ImGuiMouseButton_Left) && zoom > 1.0f) {
             const ImVec2 delta = ImGui::GetIO().MouseDelta;
             view->center[0] = std::clamp(
                 view->center[0] - delta.x / (image_side * zoom),
                 half, 1.0f - half);
             view->center[1] = std::clamp(
-                view->center[1] + delta.y / (image_side * zoom),
+                view->center[1] + delta.y / (image_height * zoom),
                 half, 1.0f - half);
         }
         ImGui::EndGroup();
@@ -891,7 +1018,9 @@ void PreviewGlExecutor::Shutdown(bool have_shared_context)
     }
     if (had_backend)
         GetPreviewService().BackendDestroyed();
-    impl.program = impl.vao = impl.vbo = impl.fbo = 0;
+    impl.program = impl.reference_program = impl.vao = impl.vbo =
+        impl.fbo = impl.depth_buffer = 0;
+    impl.depth_width = impl.depth_height = 0;
     std::fill(std::begin(impl.fixture_texture), std::end(impl.fixture_texture),
               0);
     impl.has_program = false;

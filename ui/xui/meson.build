@@ -4,6 +4,10 @@ xemu_ss.add(files(
   'compat.cc',
   'debug.cc',
   'shader-browser-model.cc',
+  'shader-browser-usage-export.cc',
+  'shader-browser-glsl-export.cc',
+  'shader-browser-workbench-apply.cc',
+  'shader-browser-workbench-bundle.cc',
   'shader-browser-details-model.cc',
   'shader-browser-details-store.cc',
   'shader-browser-details-bridge.cc',
@@ -31,6 +35,8 @@ xemu_ss.add(files(
   'shader-browser-preview-service.cc',
   'shader-browser-preview-service-work.cc',
   'shader-browser-preview-service-slots.cc',
+  'shader-browser-workbench-draft.cc',
+  'shader-browser-glsl-editor.cc',
   'shader-browser.cc',
   'font-manager.cc',
   'gl-helpers.cc',
@@ -70,6 +76,52 @@ shader_browser_model_test = executable(
   dependencies: [xxhash])
 test('test-xemu-shader-browser-model', shader_browser_model_test,
      suite: ['unit'])
+
+shader_browser_usage_export_test = executable(
+  'test-xemu-shader-browser-usage-export',
+  shader_browser_test_dir / 'test-xemu-shader-browser-usage-export.cc',
+  files('shader-browser-model.cc', 'shader-browser-usage-export.cc'),
+  include_directories: shader_browser_test_inc,
+  dependencies: [xxhash])
+test('test-xemu-shader-browser-usage-export', shader_browser_usage_export_test,
+     suite: ['unit'])
+
+shader_browser_glsl_export_test = executable(
+  'test-xemu-shader-browser-glsl-export',
+  shader_browser_test_dir / 'test-xemu-shader-browser-glsl-export.cc',
+  files('shader-browser-model.cc', 'shader-browser-details-model.cc',
+        'shader-browser-glsl-export.cc'),
+  include_directories: shader_browser_test_inc,
+  dependencies: [xxhash])
+test('test-xemu-shader-browser-glsl-export', shader_browser_glsl_export_test,
+     suite: ['unit'])
+
+shader_browser_workbench_apply_test = executable(
+  'test-xemu-shader-browser-workbench-apply',
+  shader_browser_test_dir / 'test-xemu-shader-browser-workbench-apply.cc',
+  files('shader-browser-model.cc', 'shader-browser-details-model.cc',
+        'shader-browser-preview-scene.cc', 'shader-browser-preview-model.cc',
+        'shader-browser-overrides.cc', 'shader-browser-override-store.cc',
+        'shader-browser-replacement-library.cc',
+        'shader-browser-workbench-apply.cc'),
+  include_directories: shader_browser_test_inc,
+  dependencies: [shader_browser_threads, xxhash])
+test('test-xemu-shader-browser-workbench-apply',
+     shader_browser_workbench_apply_test, suite: ['unit'])
+
+shader_browser_workbench_bundle_test = executable(
+  'test-xemu-shader-browser-workbench-bundle',
+  shader_browser_test_dir / 'test-xemu-shader-browser-workbench-bundle.cc',
+  files('shader-browser-model.cc', 'shader-browser-recipe-inspector.cc',
+        'shader-browser-details-model.cc',
+        'shader-browser-preview-scene.cc', 'shader-browser-preview-model.cc',
+        'shader-browser-preview-adapter.cc',
+        'shader-browser-preview-fixture.cc',
+        'shader-browser-workbench-bundle.cc'),
+  include_directories: shader_browser_test_inc,
+  dependencies: [shader_browser_threads, xxhash, json])
+test('test-xemu-shader-browser-workbench-bundle',
+     shader_browser_workbench_bundle_test, suite: ['unit'])
 
 shader_browser_override_test = executable(
   'test-xemu-shader-browser-overrides',
@@ -284,6 +336,26 @@ shader_browser_preview_service_test = executable(
   dependencies: [shader_browser_threads, xxhash])
 test('test-xemu-shader-browser-preview-service',
      shader_browser_preview_service_test, suite: ['unit'])
+
+shader_browser_workbench_draft_test = executable(
+  'test-xemu-shader-browser-workbench-draft',
+  shader_browser_test_dir / 'test-xemu-shader-browser-workbench-draft.cc',
+  files('shader-browser-workbench-draft.cc',
+        'shader-browser-preview-model.cc',
+        'shader-browser-preview-scene.cc',
+        'shader-browser-model.cc'),
+  include_directories: shader_browser_test_inc,
+  dependencies: [xxhash])
+test('test-xemu-shader-browser-workbench-draft',
+     shader_browser_workbench_draft_test, suite: ['unit'])
+
+shader_browser_glsl_editor_test = executable(
+  'test-xemu-shader-browser-glsl-editor',
+  shader_browser_test_dir / 'test-xemu-shader-browser-glsl-editor.cc',
+  files('shader-browser-glsl-editor.cc'),
+  include_directories: shader_browser_test_inc)
+test('test-xemu-shader-browser-glsl-editor',
+     shader_browser_glsl_editor_test, suite: ['unit'])
 
 shader_browser_c_header_test = executable(
   'test-xemu-shader-browser-c-header',

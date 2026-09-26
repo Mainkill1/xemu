@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "shader-browser-preview-vk.hh"
 #include "shader-browser-preview-adapter.hh"
+#include "shader-browser-preview-alpha.hh"
 #include <cstdio>
 #include <cstdlib>
 
@@ -21,6 +22,7 @@ int main(int argc, char **)
     PreviewWorkItem work{};
     auto packet = std::make_shared<PreviewPacket>();
     packet->selection.backend = PreviewBackend::Vulkan;
+    packet->source_variant = PreviewSourceVariant::Edited;
     packet->width = packet->height = 32;
     packet->source = "#version 450\nlayout(location=0) in vec4 vtxD0;\n"
                      "layout(location=0) out vec4 color;\n"
@@ -32,6 +34,53 @@ int main(int argc, char **)
         color = { 255, 0, 0, 73 };
     packet->fixture_bytes = EncodePreviewSyntheticFixture(fixture);
     work.packet = packet;
+    PreviewPacket alpha_packet{};
+    alpha_packet.selection.shader.stage = Stage::Pixel;
+    alpha_packet.recipe_format_version = 1;
+    alpha_packet.recipe.resize(312);
+    alpha_packet.recipe[0] = 'N';
+    alpha_packet.recipe[1] = 'V';
+    alpha_packet.recipe[2] = '2';
+    alpha_packet.recipe[3] = 'A';
+    alpha_packet.recipe[4] = 2;
+    auto set_recipe_alpha = [&](bool enabled, uint32_t function) {
+        // Encoder v1 puts alpha_test and alpha_func after shadow_depth_func.
+        alpha_packet.recipe[295] = enabled ? 1 : 0;
+        alpha_packet.recipe[296] = static_cast<uint8_t>(function);
+        alpha_packet.selection.shader.hash = ComputeShaderHash(
+            1, Stage::Pixel, 1, alpha_packet.recipe.data(),
+            alpha_packet.recipe.size());
+    };
+    alpha_packet.render_state.alpha_test = true;
+    set_recipe_alpha(true, 0); // NEVER: unconditional discard, no fragAlpha.
+    CanonicalRecipe canonical_alpha{};
+    canonical_alpha.key = alpha_packet.selection.shader;
+    canonical_alpha.recipe_format_version = 1;
+    canonical_alpha.bytes = alpha_packet.recipe;
+    bool selected_alpha = false;
+    CHECK(PreviewCanonicalAlphaTest(canonical_alpha, &selected_alpha));
+    CHECK(selected_alpha);
+    CHECK(AdmitPreviewBakedAlphaTest(alpha_packet, &error));
+    set_recipe_alpha(true, 7); // ALWAYS: no generated discard branch.
+    CHECK(AdmitPreviewBakedAlphaTest(alpha_packet, &error));
+    set_recipe_alpha(false, 7);
+    canonical_alpha.key = alpha_packet.selection.shader;
+    canonical_alpha.bytes = alpha_packet.recipe;
+    CHECK(PreviewCanonicalAlphaTest(canonical_alpha, &selected_alpha));
+    CHECK(!selected_alpha);
+    CHECK(!AdmitPreviewBakedAlphaTest(alpha_packet, &error));
+    alpha_packet.source_variant = PreviewSourceVariant::Edited;
+    set_recipe_alpha(true, 7);
+    CHECK(AdmitPreviewBakedAlphaTest(alpha_packet, &error));
+    alpha_packet.source_variant = PreviewSourceVariant::Original;
+    alpha_packet.selection.mode = PreviewMode::Replacement;
+    CHECK(AdmitPreviewBakedAlphaTest(alpha_packet, &error));
+    alpha_packet.selection.mode = PreviewMode::Normal;
+    alpha_packet.recipe.clear();
+    CHECK(!AdmitPreviewBakedAlphaTest(alpha_packet, &error));
+    CHECK(error.find("canonical pixel recipe") != std::string::npos);
+    alpha_packet.source_variant = PreviewSourceVariant::Edited;
+    CHECK(AdmitPreviewBakedAlphaTest(alpha_packet, &error));
     bool unsupported = false;
     if (argc > 1) {
         CHECK(!executor.Prepare(work, &error, &unsupported));
@@ -49,6 +98,53 @@ int main(int argc, char **)
     CHECK(pixels[4 * (16 * 32 + 16)] == 255);
     CHECK(pixels[4 * (16 * 32 + 16) + 1] == 0);
     CHECK(pixels[4 * (16 * 32 + 16) + 3] == 73);
+    packet->render_state.alpha_test = true;
+    CHECK(executor.Render(work, stop, &pixels, &error));
+    CHECK(pixels[4 * (16 * 32 + 16)] == 255);
+    packet->render_state.alpha_test = false;
+    CHECK(executor.Render(work, stop, &pixels, &error));
+    auto find_rgb = [&](int red, int green, int blue) {
+        for (size_t i = 0; i < pixels.size(); i += 4)
+            if (std::abs(int(pixels[i]) - red) <= 4 &&
+                std::abs(int(pixels[i + 1]) - green) <= 4 &&
+                std::abs(int(pixels[i + 2]) - blue) <= 4)
+                return i;
+        return pixels.size();
+    };
+    CHECK(find_rgb(41, 209, 214) < pixels.size());
+    CHECK(find_rgb(242, 184, 48) < pixels.size()); // intersection
+    CHECK(find_rgb(69, 74, 79) < pixels.size());   // ground
+    CHECK(find_rgb(41, 69, 94) < pixels.size());   // backdrop
+    const auto with_blocker = pixels;
+    work.result_key.scene.references[3].visible = false;
+    CHECK(executor.Render(work, stop, &pixels, &error));
+    size_t blocker_pixel = pixels.size();
+    for (size_t i = 0; i < pixels.size(); i += 4)
+        if (std::abs(int(with_blocker[i]) - 41) <= 4 &&
+            std::abs(int(with_blocker[i + 1]) - 209) <= 4 &&
+            pixels[i] == 255 && pixels[i + 1] == 0) {
+            blocker_pixel = i;
+            break;
+        }
+    CHECK(blocker_pixel < pixels.size());
+    work.result_key.scene.references[3].visible = true;
+    CHECK(executor.Render(work, stop, &pixels, &error));
+    CHECK(std::abs(int(pixels[blocker_pixel]) - 41) <= 4);
+    packet->render_state.depth_test = false;
+    CHECK(executor.Render(work, stop, &pixels, &error));
+    CHECK(pixels[blocker_pixel] == 255);
+    packet->render_state.depth_test = true;
+    packet->render_state.blend = PreviewBlendMode::Alpha;
+    CHECK(executor.Render(work, stop, &pixels, &error));
+    CHECK(pixels[4 * (16 * 32 + 16)] < 255);
+    packet->render_state.blend = PreviewBlendMode::Opaque;
+    packet->render_state.cull = PreviewCullMode::Front;
+    CHECK(executor.Render(work, stop, &pixels, &error));
+    CHECK(pixels[4 * (16 * 32 + 16)] != 255);
+    packet->render_state.cull = PreviewCullMode::None;
+    CHECK(executor.Render(work, stop, &pixels, &error));
+    CHECK(pixels[4 * (16 * 32 + 16)] == 255);
+    std::puts("Vulkan shared-depth references and per-result clear PASS");
     const auto final_pixels = pixels;
     for (auto channel : { PreviewChannel::Red, PreviewChannel::Green,
                           PreviewChannel::Blue, PreviewChannel::Alpha }) {
@@ -97,10 +193,14 @@ int main(int argc, char **)
         CHECK(executor.Render(work, stop, &pixels, &error));
         mesh_pixels.push_back(pixels);
         packet->update_policy = PreviewUpdatePolicy::Continuous;
+        packet->binding_count = 1;
+        packet->bindings[0] = { PreviewInputTarget::D0RGB, true, 1.0f,
+                                -0.5f, 10.0f };
         work.result_key.time_seconds = 4;
         CHECK(executor.Render(work, stop, &pixels, &error));
         CHECK(pixels != mesh_pixels.back());
         packet->update_policy = PreviewUpdatePolicy::OnDirty;
+        packet->binding_count = 0;
         work.result_key.time_seconds = 0;
         pixels = mesh_pixels.back();
         size_t coverage = 0;
@@ -130,6 +230,13 @@ int main(int argc, char **)
         CHECK(executor.Render(work, stop, &pixels, &error));
         CHECK(pixels.size() == size_t(packet->width) * packet->height * 4);
     };
+    source("#version 450\nlayout(location=0) out vec4 color;"
+           "void main(){discard;}\n");
+    render();
+    CHECK(pixels[4 * (16 * 32 + 16)] != 255);
+    CHECK(find_rgb(41, 209, 214) < pixels.size());
+    CHECK(find_rgb(242, 184, 48) < pixels.size());
+    std::puts("Vulkan target discard preserves reference scene PASS");
     source("#version 450\nlayout(binding=3) uniform sampler2D texSamp0;\n"
            "layout(location=5) in vec4 vtxT0;\n"
            "layout(location=0) out vec4 color;\n"
@@ -180,6 +287,12 @@ int main(int argc, char **)
     packet->width = packet->height = 320;
     render();
     CHECK(pixels[4 * (160 * 320 + 160) + 2] == 255);
+    packet->width = 640;
+    packet->height = 480;
+    render();
+    CHECK(pixels.size() == 640U * 480U * 4U);
+    CHECK(pixels[4 * (240 * 640 + 320) + 2] == 255);
+    packet->width = packet->height = 320;
     source("#version 450\nlayout(binding=1,std140) uniform PshUniforms {\n"
            "int alphaRef; mat2 bumpMat[4]; float bumpOffset[4]; float "
            "bumpScale[4];\n"
@@ -195,12 +308,14 @@ int main(int argc, char **)
     fixture.constant_color = { 0, 1, 0, 1 };
     fixture.fog_color = { 0, 1, 0, 1 };
     fixture.alpha_reference = 128;
+    packet->render_state.alpha_reference = 128;
     packet->fixture_bytes = EncodePreviewSyntheticFixture(fixture);
     render();
     CHECK(pixels[4 * (160 * 320 + 160) + 1] == 255);
     CHECK(pixels[4 * (160 * 320 + 160) + 3] == 128);
     fixture.constant_color = { 1, 0, 0, 1 };
     fixture.alpha_reference = 64;
+    packet->render_state.alpha_reference = 64;
     fixture.fog_color[1] = 0.4f;
     packet->fixture_bytes = EncodePreviewSyntheticFixture(fixture);
     CHECK(executor.Render(work, stop, &pixels, &error));
@@ -220,6 +335,9 @@ int main(int argc, char **)
     for (auto &corner : fixture.corner_colors) corner = {255, 128, 64, 255};
     packet->fixture_bytes = EncodePreviewSyntheticFixture(fixture);
     packet->update_policy = PreviewUpdatePolicy::Continuous;
+    packet->binding_count = 1;
+    packet->bindings[0] = { PreviewInputTarget::D0RGB, true, 1.0f,
+                            -0.5f, 10.0f };
     render();
     const auto time_zero = pixels;
     work.result_key.time_seconds = 4.0;
@@ -228,6 +346,7 @@ int main(int argc, char **)
     CHECK(pixels != time_zero);
     CHECK(pixels[4 * (160 * 320 + 160)] < time_zero[4 * (160 * 320 + 160)]);
     packet->update_policy = PreviewUpdatePolicy::OnDirty;
+    packet->binding_count = 0;
     packet->width = packet->height = 32;
     fixture = MakePreviewFixture(PreviewFixtureProfile::Cubemap);
     packet->fixture_bytes = EncodePreviewSyntheticFixture(fixture);

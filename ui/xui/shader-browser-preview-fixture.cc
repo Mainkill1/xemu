@@ -174,8 +174,8 @@ bool RenderPreviewDiagnostic(PreviewChannel channel,
                      std::string(PreviewChannelProvenance(channel));
         return false;
     }
-    if (!rgba || !width || !height || width > kPreviewFullExtent ||
-        height > kPreviewFullExtent) {
+    if (!rgba || !width || !height || width > kPreviewMaxWidth ||
+        height > kPreviewMaxHeight) {
         if (error)
             *error = "Diagnostic extent exceeds private preview bounds";
         return false;

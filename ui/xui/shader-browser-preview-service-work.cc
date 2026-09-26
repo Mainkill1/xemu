@@ -11,6 +11,7 @@ static bool SameInteractionInputs(const PreviewResultKey &lhs,
            lhs.compile == rhs.compile &&
            lhs.input_revision == rhs.input_revision &&
            lhs.view_revision == rhs.view_revision && lhs.scene == rhs.scene &&
+           lhs.render_state == rhs.render_state &&
            lhs.width == rhs.width && lhs.height == rhs.height &&
            lhs.packet_kind == rhs.packet_kind &&
            lhs.replay_class == rhs.replay_class &&
@@ -145,10 +146,10 @@ bool PreviewService::TryClaimWork(uint64_t now_ns, PreviewWorkItem *work,
     }
 
     if (preparation_requested_ && !active_) {
-        if (!guest_paused_) {
+        if (!guest_paused_ && !offline_no_guest_) {
             preparation_requested_ = false;
             SetStateLocked(PreviewState::NeedsPreparation,
-                           "Preparation cancelled because the guest resumed");
+                           "Preparation cancelled because a title became active");
             return false;
         }
         active_work_ = {};
@@ -175,14 +176,14 @@ bool PreviewService::TryClaimWork(uint64_t now_ns, PreviewWorkItem *work,
     if (!IsPreparedLocked()) {
         SetStateLocked(
             PreviewState::NeedsPreparation,
-            guest_paused_ ?
+            guest_paused_ || offline_no_guest_ ?
                 "Request preparation for the selected shader" :
-                "Pause required to prepare private preview resources");
+                "Pause the guest to prepare private preview resources");
         return false;
     }
 
     ApplyPressureRecoveryLocked(now_ns);
-    if (!guest_paused_) {
+    if (!guest_paused_ && !offline_no_guest_) {
         if (!health_valid_ || now_ns < health_.sampled_ns ||
             now_ns - health_.sampled_ns > kPreviewHealthStaleNs ||
             !health_.game_progressing) {
@@ -207,8 +208,9 @@ bool PreviewService::TryClaimWork(uint64_t now_ns, PreviewWorkItem *work,
                        "Preview update dropped; all output slots are owned");
         return false;
     }
-    const uint64_t clock_interval = guest_paused_ ? kPreviewPausedIntervalNs :
-                                                    IntervalForPressureLocked();
+    const uint64_t clock_interval =
+        guest_paused_ || offline_no_guest_ ? kPreviewPausedIntervalNs :
+                                          IntervalForPressureLocked();
     if (pending_.packet->update_policy == PreviewUpdatePolicy::Continuous &&
         (active_ || FindFreeSlotLocked() >= 0)) {
         clock_.Tick(now_ns, clock_interval);
@@ -223,10 +225,10 @@ bool PreviewService::TryClaimWork(uint64_t now_ns, PreviewWorkItem *work,
         return false;
     }
 
-    uint64_t interval = guest_paused_ ? kPreviewPausedIntervalNs :
-                                       IntervalForPressureLocked();
+    uint64_t interval = guest_paused_ || offline_no_guest_ ?
+        kPreviewPausedIntervalNs : IntervalForPressureLocked();
     const bool immediate_paused_update =
-        guest_paused_ &&
+        (guest_paused_ || offline_no_guest_) &&
         (!last_attempt_valid_ ||
          !SameInteractionInputs(last_attempt_result_key_, result_key));
     if (last_render_start_ns_ && now_ns >= last_render_start_ns_ &&

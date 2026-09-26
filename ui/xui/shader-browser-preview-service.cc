@@ -157,9 +157,18 @@ void PreviewService::SetGuestPaused(bool paused)
     }
     guest_paused_ = paused;
     ++generation_;
-    if (!paused && state_ == PreviewState::NeedsPreparation) {
+    if (!paused && !offline_no_guest_ &&
+        state_ == PreviewState::NeedsPreparation) {
         message_ = "Pause required to prepare private preview resources";
     }
+}
+
+void PreviewService::SetOfflineNoGuest(bool enabled)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (offline_no_guest_ == enabled) return;
+    offline_no_guest_ = enabled;
+    ++generation_;
 }
 
 void PreviewService::SetRequestedMode(PreviewMode mode)
@@ -349,7 +358,8 @@ void PreviewService::RequestCurrentFrame()
 bool PreviewService::RequestAutomaticPreparation(uint64_t now_ns)
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    if (!enabled_ || !visible_ || !guest_paused_ || !pending_.packet ||
+    if (!enabled_ || !visible_ ||
+        !(guest_paused_ || offline_no_guest_) || !pending_.packet ||
         active_ || IsPreparedLocked() || failed_ || unsupported_ ||
         preparation_requested_ || now_ns < selection_changed_ns_ ||
         now_ns - selection_changed_ns_ < kPreviewSelectionDebounceNs) {
@@ -366,8 +376,10 @@ bool PreviewService::RequestPreparation(std::string *error)
         if (error) *error = "Enable and open Live Preview before preparation";
         return false;
     }
-    if (!guest_paused_) {
-        if (error) *error = "The guest must already be paused for preparation";
+    if (!guest_paused_ && !offline_no_guest_) {
+        if (error) *error =
+            "The guest must already be paused for preparation unless "
+            "running an owned test with no active title";
         return false;
     }
     if (!pending_.packet) {
@@ -389,7 +401,9 @@ bool PreviewService::RequestPreparation(std::string *error)
     }
     preparation_requested_ = true;
     SetStateLocked(PreviewState::NeedsPreparation,
-                   "Preparation requested while the guest is paused");
+                   offline_no_guest_ ?
+                       "Preparing owned test with no active title" :
+                       "Preparation requested while the guest is paused");
     if (error) error->clear();
     return true;
 }
