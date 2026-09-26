@@ -148,15 +148,56 @@ void ShaderBrowserWindow::DrawLivePreview()
         service.SetRequestedMode(static_cast<PreviewMode>(mode));
     }
 
+    auto fixture_changed = [this] {
+        ++m_preview_input_revision;
+        m_preview_packet_attempted = false;
+    };
+
     if (ImGui::CollapsingHeader("Synthetic fixture colors")) {
         static const char *labels[] = {
             "Top left", "Top right", "Bottom left", "Bottom right"
         };
         for (size_t i = 0; i < m_preview_colors.size(); ++i) {
             if (ImGui::ColorEdit4(labels[i], m_preview_colors[i].data())) {
-                ++m_preview_input_revision;
-                m_preview_packet_attempted = false;
+                fixture_changed();
             }
+        }
+    }
+    if (ImGui::CollapsingHeader("Synthetic texture and UV")) {
+        static const char *texel_labels[] = {
+            "Texture bottom left", "Texture bottom right",
+            "Texture top left", "Texture top right"
+        };
+        for (size_t i = 0; i < m_preview_texture_colors.size(); ++i) {
+            if (ImGui::ColorEdit4(texel_labels[i],
+                                  m_preview_texture_colors[i].data())) {
+                fixture_changed();
+            }
+        }
+        if (ImGui::DragFloat2("UV scale", m_preview_uv_scale.data(),
+                              0.01f, -4.0f, 4.0f)) {
+            fixture_changed();
+        }
+        if (ImGui::DragFloat2("UV offset", m_preview_uv_offset.data(),
+                              0.01f, -4.0f, 4.0f)) {
+            fixture_changed();
+        }
+        if (ImGui::Checkbox("Linear texture filter",
+                            &m_preview_linear_filter)) fixture_changed();
+        if (ImGui::Checkbox("Repeat texture wrap",
+                            &m_preview_repeat_wrap)) fixture_changed();
+    }
+    if (ImGui::CollapsingHeader("Synthetic constants and alpha")) {
+        if (ImGui::ColorEdit4("Combiner constant",
+                              m_preview_constant_color.data())) {
+            fixture_changed();
+        }
+        if (ImGui::ColorEdit4("Fog color", m_preview_fog_color.data())) {
+            fixture_changed();
+        }
+        if (ImGui::SliderInt("Alpha reference", &m_preview_alpha_reference,
+                             0, 255)) {
+            fixture_changed();
         }
     }
 
@@ -207,14 +248,30 @@ void ShaderBrowserWindow::DrawLivePreview()
                 PreviewPacketInputs inputs{};
                 inputs.selection = selection;
                 inputs.recipe = m_selected_recipe;
-                inputs.fixture_bytes.reserve(16);
-                for (const auto &color : m_preview_colors) {
-                    for (float component : color) {
-                        inputs.fixture_bytes.push_back(static_cast<uint8_t>(
-                            std::clamp(static_cast<int>(component * 255.0f +
-                                                        0.5f), 0, 255)));
+                PreviewSyntheticFixture fixture{};
+                auto encode_color = [](const std::array<float, 4> &color) {
+                    std::array<uint8_t, 4> encoded{};
+                    for (size_t i = 0; i < encoded.size(); ++i) {
+                        encoded[i] = static_cast<uint8_t>(std::clamp(
+                            static_cast<int>(color[i] * 255.0f + 0.5f),
+                            0, 255));
                     }
+                    return encoded;
+                };
+                for (size_t i = 0; i < m_preview_colors.size(); ++i) {
+                    fixture.corner_colors[i] = encode_color(m_preview_colors[i]);
+                    fixture.texture_texels[i] =
+                        encode_color(m_preview_texture_colors[i]);
                 }
+                fixture.uv_scale = m_preview_uv_scale;
+                fixture.uv_offset = m_preview_uv_offset;
+                fixture.constant_color = m_preview_constant_color;
+                fixture.fog_color = m_preview_fog_color;
+                fixture.alpha_reference = static_cast<uint8_t>(
+                    m_preview_alpha_reference);
+                fixture.linear_filter = m_preview_linear_filter ? 1 : 0;
+                fixture.repeat_wrap = m_preview_repeat_wrap ? 1 : 0;
+                inputs.fixture_bytes = EncodePreviewSyntheticFixture(fixture);
                 inputs.generator_abi = 1;
                 inputs.interface_abi = 1;
                 inputs.input_revision = m_preview_input_revision;

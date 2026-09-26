@@ -51,6 +51,14 @@ private:
     uint64_t m_preview_packet_override_generation = 0;
     uint64_t m_preview_input_revision = 1;
     std::array<std::array<float, 4>, 4> m_preview_colors{};
+    std::array<std::array<float, 4>, 4> m_preview_texture_colors{};
+    std::array<float, 2> m_preview_uv_scale{1.0f, 1.0f};
+    std::array<float, 2> m_preview_uv_offset{0.0f, 0.0f};
+    std::array<float, 4> m_preview_constant_color{1.0f, 1.0f, 1.0f, 1.0f};
+    std::array<float, 4> m_preview_fog_color{0.0f, 0.0f, 0.0f, 0.0f};
+    int m_preview_alpha_reference = 0;
+    bool m_preview_linear_filter = true;
+    bool m_preview_repeat_wrap = false;
     bool m_preview_packet_attempted = false;
     std::string m_preview_packet_message;
     std::vector<size_t> m_source_line_offsets;

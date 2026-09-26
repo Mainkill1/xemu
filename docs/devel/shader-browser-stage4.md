@@ -200,7 +200,8 @@ The Live Preview tab exposes:
 - state, pressure, update ceiling, and slot ownership status;
 - selected shader/backend target;
 - a preparation button enabled for a validated packet while paused;
-- four editable synthetic corner colors;
+- four editable synthetic corner colors, a 2 × 2 texture, UV scale/offset,
+  sampler filter/wrap, combiner constant, fog color, and alpha reference;
 - a private OpenGL output when an eligible pixel shader is prepared.
 
 OpenGL preparation is explicit and requires the guest to be paused. The private
@@ -403,8 +404,11 @@ browser while the game kept running. A normal process shutdown with the private
 worker active exited cleanly. The focused service test passed on the Steam
 Deck after adding persistent Unsupported classification, and the same resident
 shader still rendered under the uniform-interface check. This is a functional
-smoke test, not a
-representative shader-correctness or performance qualification.
+smoke test, not a representative shader-correctness or performance
+qualification. A later Deck run exercised the expanded fixture: changing one
+2 × 2 texture texel and the UV offset each produced a new Ready result while
+the output slot remained bounded. The focused fixture adapter test passed on
+the Deck, including malformed and non-finite packet rejection.
 
 Those checks do not establish:
 
