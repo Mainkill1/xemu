@@ -248,11 +248,7 @@ test('test-xemu-shader-browser-preview-model',
 shader_browser_capture_test = executable(
   'test-xemu-shader-browser-capture',
   shader_browser_test_dir / 'test-xemu-shader-browser-capture.cc',
-  shader_browser_test_dir / 'test-xemu-shader-browser-capture-state.c',
   files('shader-browser-capture.cc'),
-  meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/shader-browser-capture-abi.c',
-  c_args: ['-DXEMU_SHADER_CAPTURE_TESTING'],
-  cpp_args: ['-DXEMU_SHADER_CAPTURE_TESTING'],
   include_directories: shader_browser_test_inc,
   dependencies: [shader_browser_threads])
 test('test-xemu-shader-browser-capture', shader_browser_capture_test,
