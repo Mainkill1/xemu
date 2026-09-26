@@ -77,6 +77,7 @@ private:
     bool m_preview_packet_attempted = false;
     std::string m_preview_packet_message;
     xemu::shader_browser::PreviewSelection m_capture_selection;
+    uint64_t m_capture_scope_generation = 0;
     std::optional<xemu::shader_browser::CapturedDraw> m_captured_draw;
     std::string m_capture_message;
     std::vector<size_t> m_source_line_offsets;

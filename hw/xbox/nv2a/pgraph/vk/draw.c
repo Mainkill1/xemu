@@ -4472,6 +4472,7 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
                                      "Inline Buffer");
         begin_draw(pg);
         bind_inline_vertex_buffer(pg, buffer_offset);
+        uint64_t capture_nonce = xemu_shader_capture_nonce();
         vkCmdDraw(r->command_buffer, pg->inline_buffer_length, 1, 0, 0);
         ShaderBinding *capture_binding = r->shader_binding;
         if (capture_binding) {
@@ -4487,9 +4488,13 @@ static bool pgraph_vk_flush_draw_internal(NV2AState *d)
                     capture_binding->geom.module_info->glsl : NULL,
                 capture_binding->psh.module_info ?
                     capture_binding->psh.module_info->glsl : NULL,
+                capture_binding->override_action !=
+                        XEMU_SHADER_OVERRIDE_ACTION_NORMAL ?
+                    XEMU_SHADER_BROWSER_ROUTE_REPLACEMENT :
                 capture_binding->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER ?
                     XEMU_SHADER_BROWSER_ROUTE_UBER :
-                    XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED);
+                    XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+                capture_nonce);
         }
         end_draw(pg);
         pgraph_vk_end_debug_marker(r, r->command_buffer);

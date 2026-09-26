@@ -1,8 +1,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "shader-browser-capture.hh"
 
+#include <algorithm>
 #include <chrono>
 #include <cstring>
+#ifdef XEMU_SHADER_CAPTURE_TESTING
+#include <thread>
+#endif
 
 namespace xemu::shader_browser {
 namespace {
@@ -22,7 +26,9 @@ bool SameRequest(const XemuShaderCaptureRequest &a,
                        sizeof(a.fingerprint)) == 0 &&
            SameIdentity(a.selected, b.selected) && a.backend == b.backend &&
            a.session_epoch == b.session_epoch &&
-           a.renderer_epoch == b.renderer_epoch;
+           a.renderer_epoch == b.renderer_epoch &&
+           a.scope_generation == b.scope_generation &&
+           a.request_nonce == b.request_nonce;
 }
 
 bool CopyBytes(const void *source, size_t size, size_t *budget,
@@ -43,7 +49,9 @@ bool CopySource(const char *source, size_t *budget, std::string *target)
 {
     if (!source) return true;
     size_t size = 0;
-    while (size <= XEMU_SHADER_CAPTURE_MAX_SOURCE && source[size]) ++size;
+    const size_t limit = std::min(*budget,
+                                  static_cast<size_t>(XEMU_SHADER_CAPTURE_MAX_SOURCE));
+    while (size <= limit && source[size]) ++size;
     if (size > XEMU_SHADER_CAPTURE_MAX_SOURCE || size > *budget) return false;
     *budget -= size;
     target->assign(source, size);
@@ -73,6 +81,10 @@ static std::array<uint8_t, 32> CaptureDigest(const CapturedDraw &capture)
         update(&capture.substitution_flags, sizeof(capture.substitution_flags));
         update(capture.substitute_texels.data(),
                sizeof(capture.substitute_texels));
+        update(capture.substitute_sampler_kind.data(),
+               sizeof(capture.substitute_sampler_kind));
+        update(capture.substitute_tex_scale.data(),
+               sizeof(capture.substitute_tex_scale));
         update(&h.context.title_id, sizeof(h.context.title_id));
         update(&h.context.fingerprint_version,
                sizeof(h.context.fingerprint_version));
@@ -82,6 +94,10 @@ static std::array<uint8_t, 32> CaptureDigest(const CapturedDraw &capture)
         update(&h.context.backend, sizeof(h.context.backend));
         update(&h.context.session_epoch, sizeof(h.context.session_epoch));
         update(&h.context.renderer_epoch, sizeof(h.context.renderer_epoch));
+        update(&h.context.scope_generation,
+               sizeof(h.context.scope_generation));
+        update(&h.context.request_nonce, sizeof(h.context.request_nonce));
+        update(&h.sampled_nonce, sizeof(h.sampled_nonce));
         update(&h.stage_count, sizeof(h.stage_count));
         for (uint32_t i = 0; i < h.stage_count && i < 3; ++i)
             update(&h.stages[i], sizeof(h.stages[i]));
@@ -129,6 +145,35 @@ static std::array<uint8_t, 32> CaptureDigest(const CapturedDraw &capture)
     return result;
 }
 
+bool FindCurrentCaptureScope(const Entry &entry,
+                             const XemuShaderBrowserScope &live,
+                             ShaderScope *scope, std::string *reason)
+{
+    if (!scope) {
+        if (reason) *reason = "Capture scope destination is missing";
+        return false;
+    }
+    *scope = {};
+    if (!live.title_id || !live.executable_fingerprint_version) {
+        if (reason) *reason = "Current game title/build scope is unavailable";
+        return false;
+    }
+    for (const ShaderScope &candidate : entry.scopes) {
+        if (candidate.title_id == live.title_id &&
+            candidate.executable_fingerprint_version ==
+                live.executable_fingerprint_version &&
+            std::memcmp(candidate.executable_fingerprint.data(),
+                        live.executable_fingerprint,
+                        candidate.executable_fingerprint.size()) == 0) {
+            *scope = candidate;
+            if (reason) reason->clear();
+            return true;
+        }
+    }
+    if (reason) *reason = "Selected shader has no current build scope";
+    return false;
+}
+
 bool ValidateCapturedDraw(const CapturedDraw &capture, std::string *reason)
 {
     auto fail = [reason](const char *message) {
@@ -141,6 +186,10 @@ bool ValidateCapturedDraw(const CapturedDraw &capture, std::string *reason)
         return fail("Unsupported or unknown captured packet version");
     if (h.context.backend != 1 && h.context.backend != 2)
         return fail("Capture backend is unknown");
+    if (!h.context.title_id || !h.context.fingerprint_version ||
+        !h.context.scope_generation || !h.context.request_nonce ||
+        h.sampled_nonce != h.context.request_nonce)
+        return fail("Capture scope or pre-submit request nonce is missing");
     if ((h.stage_count != 2 && h.stage_count != 3) ||
         h.stages[1].stage != 2 ||
         (h.stages[0].stage != 1 && h.stages[0].stage != 4))
@@ -172,7 +221,7 @@ bool ValidateCapturedDraw(const CapturedDraw &capture, std::string *reason)
         return fail("Draw primitive is not representable by captured stages");
     if (h.route != 1)
         return fail("Active shader route is not the captured specialized source");
-    size_t bytes = capture.shader_state.capacity() +
+    size_t bytes = sizeof(capture) + capture.shader_state.capacity() +
                    capture.vertex_uniforms.capacity() +
                    capture.pixel_uniforms.capacity() +
                    capture.vertex_source.capacity() +
@@ -202,17 +251,32 @@ bool ValidateCapturedDraw(const CapturedDraw &capture, std::string *reason)
     if ((h.stage_count == 3 && capture.geometry_source.empty()) ||
         (h.stage_count == 2 && !capture.geometry_source.empty()))
         return fail("Captured geometry source does not match stage identity");
-    if (h.shader_state_size != capture.shader_state.size() ||
+    XemuShaderCaptureAbiSizes abi = xemu_shader_capture_abi_sizes();
+    if (h.shader_state_size != abi.shader_state ||
+        h.vertex_uniforms_size != abi.vertex_uniforms ||
+        h.pixel_uniforms_size != abi.pixel_uniforms ||
+        h.shader_state_size != capture.shader_state.size() ||
         h.vertex_uniforms_size != capture.vertex_uniforms.size() ||
         h.pixel_uniforms_size != capture.pixel_uniforms.size())
         return fail("Captured state length is inconsistent");
     if (h.texture_mask &&
-        !(capture.substitution_flags & CaptureDiagnosticTextures))
-        return fail("Texture input is not owned or explicitly substituted");
+        (!(capture.substitution_flags & CaptureDiagnosticTextures) ||
+         !(capture.substitution_flags & CaptureDiagnosticSamplers)))
+        return fail("Texture and sampler inputs are not owned or substituted");
     for (unsigned i = 0; i < 4; ++i) {
-        if ((h.texture_mask & (1U << i)) &&
-            capture.substitute_texels[i][3] != 255)
-            return fail("Substituted texture texel must be opaque RGBA8");
+        if (!(h.texture_mask & (1U << i))) continue;
+        if (capture.substitute_texels[i][3] != 255 ||
+            capture.substitute_sampler_kind[i] != 1 ||
+            capture.substitute_tex_scale[i] != 1.0f)
+            return fail("Diagnostic 2D sampler substitution is incomplete");
+        if (!xemu_shader_capture_pixel_scale_is(
+                capture.pixel_uniforms.data(),
+                capture.pixel_uniforms.size(), i,
+                capture.substitute_tex_scale[i]))
+            return fail("Pixel uniform texScale differs from declared substitution");
+        if (!xemu_shader_capture_ordinary_2d_sampler(
+                capture.shader_state.data(), capture.shader_state.size(), i))
+            return fail("Non-2D or special sampler interface is unsupported");
     }
     if (!(capture.substitution_flags & CaptureDestinationClear))
         return fail("Destination color is not owned or explicitly substituted");
@@ -220,7 +284,8 @@ bool ValidateCapturedDraw(const CapturedDraw &capture, std::string *reason)
         return fail("Destination color format is not owned or substituted");
     if (capture.substitution_flags &
         ~(CaptureDestinationClear | CaptureDiagnosticTextures |
-          CaptureOutputRgba8 | CaptureBlendOnClear))
+          CaptureOutputRgba8 | CaptureBlendOnClear |
+          CaptureDiagnosticSamplers))
         return fail("Unknown replay substitution flag");
     if (h.blend & (1U << 16))
         return fail("Destination logic operation is unsupported");
@@ -230,7 +295,9 @@ bool ValidateCapturedDraw(const CapturedDraw &capture, std::string *reason)
     if (h.control_0 & ((1U << 14) | (1U << 12)))
         return fail("Depth or alpha test is unsupported");
     if (h.control_1 & 1U) return fail("Stencil test is unsupported");
-    if (h.setup_raster & (1U << 28)) return fail("Culling is unsupported");
+    if ((h.setup_raster & (1U << 28)) &&
+        !(h.setup_raster & (3U << 21)))
+        return fail("Enabled face culling has no valid cull mode");
     if (capture.replay_class == CaptureReplayClass::Approximate &&
         capture.substitution.empty())
         return fail("Approximate replay needs an exact substitution warning");
@@ -249,12 +316,15 @@ bool SealCapturedDraw(CapturedDraw *capture, std::string *reason)
     capture->substitution_flags =
         CaptureDestinationClear | CaptureOutputRgba8;
     capture->substitute_texels = {};
+    capture->substitute_sampler_kind = {};
+    capture->substitute_tex_scale = {};
     capture->substitution =
         "Original destination color is GPU-only; replay clears it to "
         "transparent and represents target color format " +
         std::to_string(capture->header.color_format) + " as RGBA8.";
     if (capture->header.texture_mask) {
-        capture->substitution_flags |= CaptureDiagnosticTextures;
+        capture->substitution_flags |=
+            CaptureDiagnosticTextures | CaptureDiagnosticSamplers;
         constexpr uint8_t colors[4][4] = {
             { 255, 0, 255, 255 }, { 0, 255, 255, 255 },
             { 255, 255, 0, 255 }, { 255, 255, 255, 255 },
@@ -262,11 +332,14 @@ bool SealCapturedDraw(CapturedDraw *capture, std::string *reason)
         for (unsigned i = 0; i < 4; ++i) {
             if (capture->header.texture_mask & (1U << i)) {
                 std::memcpy(capture->substitute_texels[i].data(), colors[i], 4);
+                capture->substitute_sampler_kind[i] = 1;
+                capture->substitute_tex_scale[i] = 1.0f;
                 capture->substitution += " GPU-only texture stage " +
                     std::to_string(i) + " uses a constant 1x1 RGBA8 (" +
                     std::to_string(colors[i][0]) + "," +
                     std::to_string(colors[i][1]) + "," +
-                    std::to_string(colors[i][2]) + ",255) texel.";
+                    std::to_string(colors[i][2]) + ",255) texel with a "
+                    "substituted 2D nearest/clamp sampler and texScale=1.";
             }
         }
     }
@@ -293,10 +366,14 @@ void CaptureStore::Request(const XemuShaderCaptureRequest &request)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     armed_.store(false, std::memory_order_release);
+    armed_nonce_.store(0, std::memory_order_release);
     request_ = request;
+    request_.request_nonce = ++next_nonce_;
+    if (!request_.request_nonce) request_.request_nonce = ++next_nonce_;
     capture_ = {};
     has_capture_ = false;
     status_ = { CaptureStatusKind::Armed, "Waiting for a matching submitted draw" };
+    armed_nonce_.store(request_.request_nonce, std::memory_order_release);
     armed_.store(true, std::memory_order_release);
 }
 
@@ -304,6 +381,7 @@ void CaptureStore::Cancel()
 {
     std::lock_guard<std::mutex> lock(mutex_);
     armed_.store(false, std::memory_order_release);
+    armed_nonce_.store(0, std::memory_order_release);
     capture_ = {};
     has_capture_ = false;
     status_ = {};
@@ -312,7 +390,8 @@ void CaptureStore::Cancel()
 bool CaptureStore::CopyRequest(XemuShaderCaptureRequest *request) const
 {
     if (!Armed() || !request) return false;
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::unique_lock<std::mutex> lock(mutex_, std::try_to_lock);
+    if (!lock.owns_lock()) return false;
     if (!Armed()) return false;
     *request = request_;
     return true;
@@ -324,6 +403,7 @@ void CaptureStore::Expire(uint64_t now_ns)
     std::lock_guard<std::mutex> lock(mutex_);
     if (Armed() && now_ns > request_.deadline_ns) {
         armed_.store(false, std::memory_order_release);
+        armed_nonce_.store(0, std::memory_order_release);
         status_ = { CaptureStatusKind::Expired, "Capture request timed out" };
     }
 }
@@ -333,14 +413,18 @@ bool CaptureStore::Submitted(const XemuShaderCaptureDraw &draw,
 {
     if (!Armed()) return false;
     const auto copy_start = std::chrono::steady_clock::now();
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::unique_lock<std::mutex> lock(mutex_, std::try_to_lock);
+    if (!lock.owns_lock()) return false;
     if (!Armed()) return false;
     if (now_ns > request_.deadline_ns) {
         armed_.store(false, std::memory_order_release);
+        armed_nonce_.store(0, std::memory_order_release);
         status_ = { CaptureStatusKind::Expired, "Capture request timed out" };
         return false;
     }
     if (!SameRequest(request_, draw.context)) return false;
+    if (!draw.sampled_nonce ||
+        draw.sampled_nonce != request_.request_nonce) return false;
     bool selected_present = false;
     if (draw.stage_count > 3) return false;
     for (uint32_t i = 0; i < draw.stage_count; ++i)
@@ -348,6 +432,7 @@ bool CaptureStore::Submitted(const XemuShaderCaptureDraw &draw,
     if (!selected_present) return false;
 
     armed_.store(false, std::memory_order_release);
+    armed_nonce_.store(0, std::memory_order_release);
     auto unsupported = [this](const char *reason) {
         status_ = { CaptureStatusKind::Unsupported, reason };
         return false;
@@ -356,6 +441,11 @@ bool CaptureStore::Submitted(const XemuShaderCaptureDraw &draw,
         draw.vertex_count > XEMU_SHADER_CAPTURE_MAX_VERTICES ||
         draw.width == 0 || draw.height == 0)
         return unsupported("Inline vertex count or surface extent exceeds capture limits");
+    XemuShaderCaptureAbiSizes abi = xemu_shader_capture_abi_sizes();
+    if (draw.shader_state_size != abi.shader_state ||
+        draw.vertex_uniforms_size != abi.vertex_uniforms ||
+        draw.pixel_uniforms_size != abi.pixel_uniforms)
+        return unsupported("Draw state or uniform ABI length is incorrect");
     constexpr uint64_t kMaxCaptureNs = UINT64_C(2000000);
     if (draw.capture_started_ns &&
         (now_ns < draw.capture_started_ns ||
@@ -400,7 +490,8 @@ bool CaptureStore::Submitted(const XemuShaderCaptureDraw &draw,
         return unsupported("Draw-boundary capture exceeded the 2 ms time cap");
     capture_ = std::move(owned);
     has_capture_ = true;
-    status_ = { CaptureStatusKind::Captured, "Submitted draw captured" };
+    status_ = { CaptureStatusKind::Captured, "Submitted draw captured",
+                static_cast<uint64_t>(copied_ns) + pre_copy_ns };
     return true;
 }
 
@@ -418,6 +509,16 @@ CaptureStatus CaptureStore::Status() const
     std::lock_guard<std::mutex> lock(mutex_);
     return status_;
 }
+
+#ifdef XEMU_SHADER_CAPTURE_TESTING
+void CaptureStore::HoldLockForTest(std::atomic<bool> *entered,
+                                   unsigned milliseconds)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    entered->store(true, std::memory_order_release);
+    std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
+}
+#endif
 
 CaptureStore &GetCaptureStore()
 {
@@ -438,6 +539,10 @@ void xemu_shader_capture_cancel(void)
 int xemu_shader_capture_armed(void)
 {
     return xemu::shader_browser::GetCaptureStore().Armed();
+}
+uint64_t xemu_shader_capture_nonce(void)
+{
+    return xemu::shader_browser::GetCaptureStore().SampleNonce();
 }
 int xemu_shader_capture_copy_request(XemuShaderCaptureRequest *request)
 {

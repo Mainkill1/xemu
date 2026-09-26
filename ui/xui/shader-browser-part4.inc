@@ -367,9 +367,20 @@ void ShaderBrowserWindow::DrawLivePreview()
         } else {
             selection.scope.title_id = preferred_title;
         }
+        XemuShaderBrowserScope live_capture_scope{};
+        uint64_t live_capture_generation =
+            xemu_shader_browser_copy_current_scope(&live_capture_scope);
+        ShaderScope exact_capture_scope{};
+        std::string capture_scope_reason;
+        bool capture_scope_ready = FindCurrentCaptureScope(
+            *entry, live_capture_scope, &exact_capture_scope,
+            &capture_scope_reason);
+        if (capture_scope_ready) selection.scope = exact_capture_scope;
         service.SetSelection(selection, now_ns);
 
-        if (m_capture_selection != selection) {
+        if (m_capture_selection != selection || !capture_scope_ready ||
+            (GetCaptureStore().Armed() &&
+             m_capture_scope_generation != live_capture_generation)) {
             auto prior = GetCaptureStore().Status().kind;
             if (prior != CaptureStatusKind::Idle) {
                 GetCaptureStore().Cancel();
@@ -392,16 +403,21 @@ void ShaderBrowserWindow::DrawLivePreview()
                               selection.backend == PreviewBackend::Vulkan ? 2 : 0;
             request.session_epoch = selection.session_epoch;
             request.renderer_epoch = selection.renderer_epoch;
+            request.scope_generation = live_capture_generation;
             request.deadline_ns = now_ns + UINT64_C(5000000000);
             m_capture_selection = selection;
+            m_capture_scope_generation = live_capture_generation;
             m_captured_draw.reset();
             m_capture_message.clear();
-            if (request.backend && request.title_id &&
+            if (capture_scope_ready && request.backend && request.title_id &&
+                request.scope_generation &&
                 entry->key.hash.version == 1 &&
                 entry->key.stage != Stage::Any) {
                 GetCaptureStore().Request(request);
             } else {
-                m_capture_message = "Capture needs a resolved game scope and shader";
+                m_capture_message = capture_scope_ready ?
+                    "Capture needs a resolved game shader" :
+                    capture_scope_reason;
             }
         }
         GetCaptureStore().Expire(now_ns);
@@ -431,7 +447,9 @@ void ShaderBrowserWindow::DrawLivePreview()
                 std::string reason;
                 if (SealCapturedDraw(&captured, &reason)) {
                     m_capture_message =
-                        "Approximate game draw captured. " +
+                        "Approximate game draw captured (" +
+                        std::to_string(capture_status.duration_ns / 1000) +
+                        " us draw-boundary copy). " +
                         captured.substitution;
                     m_captured_draw = std::move(captured);
                 } else {

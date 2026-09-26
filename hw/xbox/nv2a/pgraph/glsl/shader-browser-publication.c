@@ -14,16 +14,21 @@ void pgraph_shader_browser_capture_inline(
     uint32_t primitive, uint16_t attribute_mask, uint32_t width,
     uint32_t height, const char *vertex_source,
     const char *geometry_source, const char *pixel_source,
-    uint32_t route)
+    uint32_t route, uint64_t sampled_nonce)
 {
-    if (!xemu_shader_capture_armed() || !pg || !state || !binding) {
+    if (!sampled_nonce || sampled_nonce != xemu_shader_capture_nonce() ||
+        !pg || !state || !binding) {
         return;
     }
     XemuShaderCaptureRequest request;
     if (!xemu_shader_capture_copy_request(&request)) return;
+    if (request.request_nonce != sampled_nonce) return;
     if (request.backend != backend ||
         request.renderer_epoch != nv2a_profile_preview_renderer_epoch() ||
-        request.session_epoch != xemu_shader_browser_live_epoch()) return;
+        request.session_epoch != xemu_shader_browser_live_epoch() ||
+        request.scope_generation != binding->scope_generation ||
+        request.scope_generation != xemu_shader_browser_scope_generation())
+        return;
     bool selected_present = false;
     for (uint32_t i = 0; i < binding->count && i < 3; ++i) {
         if (binding->identities[i].stage == request.selected.stage &&
@@ -34,22 +39,14 @@ void pgraph_shader_browser_capture_inline(
         }
     }
     if (!selected_present) return;
-    XemuShaderBrowserScope scope = { 0 };
-    xemu_shader_browser_copy_current_scope(&scope);
-    if (scope.title_id != request.title_id ||
-        scope.executable_fingerprint_version != request.fingerprint_version ||
-        memcmp(scope.executable_fingerprint, request.fingerprint,
-               sizeof(request.fingerprint)) != 0) return;
     XemuShaderCaptureDraw draw = { 0 };
     draw.capture_started_ns = (uint64_t)g_get_monotonic_time() * 1000;
     draw.context = request;
-    draw.context.title_id = scope.title_id;
-    draw.context.fingerprint_version = scope.executable_fingerprint_version;
-    memcpy(draw.context.fingerprint, scope.executable_fingerprint,
-           sizeof(draw.context.fingerprint));
+    draw.context.scope_generation = xemu_shader_browser_scope_generation();
     draw.context.backend = backend;
     draw.context.renderer_epoch = nv2a_profile_preview_renderer_epoch();
     draw.context.session_epoch = xemu_shader_browser_live_epoch();
+    draw.sampled_nonce = sampled_nonce;
     draw.stage_count = binding->count;
     for (uint32_t i = 0; i < binding->count && i < 3; ++i) {
         draw.stages[i].stage = binding->identities[i].stage;
