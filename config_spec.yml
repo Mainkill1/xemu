@@ -430,3 +430,15 @@ perf:
   cache_shaders:
     type: bool
     default: true
+
+shader_browser:
+  database:
+    enabled:
+      type: bool
+      default: false
+    record_performance_sessions:
+      type: bool
+      default: false
+    save_external_artifacts:
+      type: bool
+      default: false

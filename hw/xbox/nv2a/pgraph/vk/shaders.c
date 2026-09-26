@@ -539,12 +539,34 @@ get_and_ref_shader_module_for_key(PGRAPHVkState *r,
     return module->module_info;
 }
 
+static void publish_vk_stage_artifacts(const ShaderState *state,
+                                       uint32_t stage,
+                                       const ShaderModuleInfo *module,
+                                       const char *route)
+{
+    if (!module) {
+        return;
+    }
+    if (module->glsl) {
+        pgraph_shader_browser_publish_generated_artifact(
+            state, stage, "vulkan", route, "glsl", "glsl",
+            (const uint8_t *)module->glsl, strlen(module->glsl));
+    }
+    if (module->spirv) {
+        pgraph_shader_browser_publish_generated_artifact(
+            state, stage, "vulkan", route, "spirv", "spv",
+            module->spirv->data, module->spirv->len);
+    }
+}
+
 static void shader_cache_entry_init(Lru *lru, LruNode *node, const void *key)
 {
+    int64_t shader_prepare_start = g_get_monotonic_time();
     PGRAPHVkState *r = container_of(lru, PGRAPHVkState, shader_cache);
     ShaderBinding *binding = container_of(node, ShaderBinding, node);
     const ShaderBindingKey *binding_key = key;
     binding->state = binding_key->state;
+    memset(&binding->browser, 0, sizeof(binding->browser));
     binding->fragment_route = binding_key->fragment_route;
     binding->next_promotion_probe_us = 0;
 
@@ -575,6 +597,28 @@ static void shader_cache_entry_init(Lru *lru, LruNode *node, const void *key)
            (binding->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER));
 
     update_shader_uniform_locs(binding);
+    if (xemu_shader_browser_session_collection_enabled()) {
+        binding->browser.prepare_cpu_ns =
+            (uint64_t)(g_get_monotonic_time() - shader_prepare_start) * 1000;
+        binding->browser.timings_pending = true;
+    }
+    if (xemu_shader_browser_external_artifacts_enabled()) {
+        const char *route = binding->fragment_route ==
+                                    PGRAPH_VK_FRAGMENT_UBERSHADER ?
+                                "uber" : "specialized";
+        publish_vk_stage_artifacts(
+            &binding->state,
+            binding->state.vsh.is_fixed_function ?
+                XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION :
+                XEMU_SHADER_BROWSER_STAGE_VERTEX,
+            binding->vsh.module_info, "specialized");
+        publish_vk_stage_artifacts(
+            &binding->state, XEMU_SHADER_BROWSER_STAGE_GEOMETRY,
+            binding->geom.module_info, "specialized");
+        publish_vk_stage_artifacts(
+            &binding->state, XEMU_SHADER_BROWSER_STAGE_PIXEL,
+            binding->psh.module_info, route);
+    }
 }
 
 static void shader_cache_entry_post_evict(Lru *lru, LruNode *node)
@@ -2428,6 +2472,11 @@ void pgraph_vk_activate_shaders(PGRAPHState *pg,
     } else {
         nv2a_profile_inc_counter(NV2A_PROF_SHADER_BIND_NOTDIRTY);
     }
+
+    pgraph_shader_browser_refresh_binding_scope(
+        &r->shader_binding->state,
+        pgraph_glsl_need_geom(&r->shader_binding->state.geom),
+        &r->shader_binding->browser);
 
     bool update_stage[PGRAPH_UNIFORM_STAGE_COUNT];
     get_uniform_stage_update_needs(pg, update_stage);

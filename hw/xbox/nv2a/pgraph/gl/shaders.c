@@ -161,6 +161,30 @@ static void shader_module_cache_entry_init(Lru *lru, LruNode *node,
 
     module->gl_shader =
         create_gl_shader(module->key.kind, mstring_get_str(code), kind_str);
+    if (xemu_shader_browser_external_artifacts_enabled()) {
+        ShaderState artifact_state = {0};
+        uint32_t artifact_stage = XEMU_SHADER_BROWSER_STAGE_UNKNOWN;
+        switch (module->key.kind) {
+        case GL_VERTEX_SHADER:
+            artifact_state.vsh = module->key.vsh.state;
+            artifact_stage = artifact_state.vsh.is_fixed_function ?
+                XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION :
+                XEMU_SHADER_BROWSER_STAGE_VERTEX;
+            break;
+        case GL_GEOMETRY_SHADER:
+            artifact_state.geom = module->key.geom.state;
+            artifact_stage = XEMU_SHADER_BROWSER_STAGE_GEOMETRY;
+            break;
+        case GL_FRAGMENT_SHADER:
+            artifact_state.psh = module->key.psh.state;
+            artifact_stage = XEMU_SHADER_BROWSER_STAGE_PIXEL;
+            break;
+        }
+        pgraph_shader_browser_publish_generated_artifact(
+            &artifact_state, artifact_stage, "opengl", "specialized", "glsl",
+            "glsl", (const uint8_t *)mstring_get_str(code),
+            mstring_get_length(code));
+    }
     mstring_unref(code);
 }
 
@@ -515,6 +539,7 @@ static void shader_cache_entry_init(Lru *lru, LruNode *node, const void *state)
 {
     ShaderBinding *binding = container_of(node, ShaderBinding, node);
     memcpy(&binding->state, state, sizeof(ShaderState));
+    memset(&binding->browser, 0, sizeof(binding->browser));
     binding->initialized = false;
     binding->cached = false;
     binding->program = NULL;
@@ -816,7 +841,14 @@ void pgraph_gl_bind_shaders(PGRAPHState *pg)
 
     if (!binding->initialized && !pgraph_gl_shader_load_from_memory(binding)) {
         nv2a_profile_inc_counter(NV2A_PROF_SHADER_GEN);
+        int64_t shader_compile_start = g_get_monotonic_time();
         generate_shaders(r, binding);
+        if (xemu_shader_browser_session_collection_enabled()) {
+            binding->browser.compile_cpu_ns =
+                (uint64_t)(g_get_monotonic_time() - shader_compile_start) *
+                1000;
+            binding->browser.timings_pending = true;
+        }
         if (g_config.perf.cache_shaders) {
             pgraph_gl_shader_cache_to_disk(binding);
         }
@@ -841,6 +873,10 @@ void pgraph_gl_bind_shaders(PGRAPHState *pg)
 update_uniforms:
     assert(r->shader_binding);
     assert(r->shader_binding->initialized);
+    pgraph_shader_browser_refresh_binding_scope(
+        &r->shader_binding->state,
+        pgraph_glsl_need_geom(&r->shader_binding->state.geom),
+        &r->shader_binding->browser);
     update_shader_uniforms(pg, r->shader_binding);
 }
 

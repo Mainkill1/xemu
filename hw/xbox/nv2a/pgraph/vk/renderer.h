@@ -32,6 +32,7 @@
 #include "hw/xbox/nv2a/pgraph/surface.h"
 #include "hw/xbox/nv2a/pgraph/texture.h"
 #include "hw/xbox/nv2a/pgraph/glsl/shaders.h"
+#include "hw/xbox/nv2a/pgraph/glsl/shader-browser-publication.h"
 
 #include <vulkan/vulkan.h>
 #include <glslang/Include/glslang_c_interface.h>
@@ -343,6 +344,7 @@ typedef enum PGRAPHVkAsyncModuleRequestResult {
 typedef struct ShaderBinding {
     LruNode node;
     ShaderState state;
+    PGRAPHShaderBrowserBinding browser;
     PGRAPHVkFragmentRoute fragment_route;
     int64_t next_promotion_probe_us;
     struct {
