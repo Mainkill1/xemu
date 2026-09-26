@@ -25,7 +25,8 @@ public:
                            const std::string &display_id);
     void DrawRowContextMenu(const Entry &entry, uint32_t title_id,
                             std::string *message);
-    void DrawPanel(const Entry &entry, uint32_t title_id,
+    void DrawPanel(const Entry &entry, const std::vector<Entry> &entries,
+                   uint32_t title_id,
                    std::string *message);
     void DrawSettings(std::string *message);
 

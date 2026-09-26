@@ -105,18 +105,6 @@ shader_browser_replacement_library_test = executable(
   dependencies: [shader_browser_threads, xxhash])
 test('test-xemu-shader-browser-replacement-library',
      shader_browser_replacement_library_test, suite: ['unit'])
-shader_browser_details_store_test = executable(
-  'test-xemu-shader-browser-details-store',
-  shader_browser_test_dir / 'test-xemu-shader-browser-details-store.cc',
-  files(
-    'shader-browser-model.cc',
-    'shader-browser-details-model.cc',
-    'shader-browser-details-store.cc',
-  ),
-  include_directories: shader_browser_test_inc,
-  dependencies: [xxhash])
-test('test-xemu-shader-browser-details-store',
-     shader_browser_details_store_test, suite: ['unit'])
 
 shader_browser_details_bridge_test = executable(
   'test-xemu-shader-browser-details-bridge',

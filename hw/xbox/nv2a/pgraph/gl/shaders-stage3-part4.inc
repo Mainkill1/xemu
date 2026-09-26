@@ -138,3 +138,51 @@ uint32_t pgraph_gl_shader_override_effective_action(PGRAPHState *pg)
     return runtime ? runtime->active_action :
                      XEMU_SHADER_OVERRIDE_ACTION_NORMAL;
 }
+
+void pgraph_gl_shader_override_prepare_draw(
+    PGRAPHState *pg, const XemuShaderOverrideDrawFacts *facts)
+{
+    PGRAPHGLState *renderer = pg->gl_renderer_state;
+    ShaderBinding *binding = renderer->shader_binding;
+    if (!binding || !facts) {
+        return;
+    }
+    const XemuShaderOverridePolicy *policy = &binding->browser.opengl_policy;
+    if (!pgraph_gl_policy_wants_override(policy) ||
+        !policy->draw_condition_mask) {
+        return;
+    }
+    if (xemu_shader_override_policy_matches_draw(policy, facts)) {
+        if (pgraph_gl_shader_override_effective_action(pg) ==
+            XEMU_SHADER_OVERRIDE_ACTION_NORMAL) {
+            pgraph_gl_bind_shaders(pg);
+        }
+        return;
+    }
+
+    /* A restricted replacement may be active for the binding, but this draw
+     * must use the normal program. Prepare it only when the restriction
+     * rejects a draw, preserving the replacement's ability to bypass a bad
+     * original pixel shader on matching draws. */
+    if (!binding->initialized) {
+        qemu_mutex_lock(&renderer->shader_cache_lock);
+        if (!pgraph_gl_shader_load_from_memory(binding)) {
+            generate_shaders(renderer, binding);
+            if (g_config.perf.cache_shaders) {
+                pgraph_gl_shader_cache_to_disk(binding);
+            }
+        }
+        qemu_mutex_unlock(&renderer->shader_cache_lock);
+    }
+    PGRAPHGLOverrideRuntime *runtime =
+        pgraph_gl_override_runtime_get(renderer);
+    if (runtime->active_program != binding->gl_program) {
+        glUseProgram(binding->gl_program);
+        runtime->active_program = binding->gl_program;
+        runtime->active_uniform_key = &binding->uniform_locs;
+        nv2a_profile_inc_counter(NV2A_PROF_SHADER_BIND);
+    }
+    runtime->active_custom_program = false;
+    runtime->active_action = XEMU_SHADER_OVERRIDE_ACTION_NORMAL;
+    update_shader_uniforms(pg, binding);
+}

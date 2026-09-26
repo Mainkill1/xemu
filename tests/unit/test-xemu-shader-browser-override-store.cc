@@ -98,6 +98,17 @@ int main()
     assert(policy.action == XEMU_SHADER_OVERRIDE_ACTION_REPLACEMENT);
     assert(policy.replacement_id == 77);
 
+    policy.draw_condition_mask =
+        XEMU_SHADER_OVERRIDE_DRAW_CONDITION_ELEMENT_COUNT;
+    policy.element_count_min = 1;
+    policy.element_count_max = 10;
+    XemuShaderOverrideDrawFacts facts{};
+    facts.element_count = 5;
+    assert(!xemu_shader_override_policy_matches_draw(&policy, &facts));
+    facts.available_mask =
+        XEMU_SHADER_OVERRIDE_DRAW_CONDITION_ELEMENT_COUNT;
+    assert(xemu_shader_override_policy_matches_draw(&policy, &facts));
+
     XemuShaderReplacementSource source{};
     assert(xemu_shader_override_acquire_replacement(
         77, 4, XEMU_SHADER_OVERRIDE_BACKEND_VULKAN, &source));

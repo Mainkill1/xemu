@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "shader-browser-stage3-ui.hh"
+#include "shader-browser-session-provider.hh"
 
 #include "common.hh"
 #include "viewport-manager.hh"
@@ -87,12 +88,24 @@ void ShaderOverrideUi::Refresh(uint32_t current_title_id)
 void ShaderOverrideUi::RefreshSnapshots(uint32_t current_title_id)
 {
     GetOverrideStore().CopySnapshot(&store_snapshot_);
-    if (current_title_id != 0 &&
-        store_snapshot_.context.title_id != current_title_id) {
-        OverrideContext context = store_snapshot_.context;
-        context.title_id = current_title_id;
-        context.executable_fingerprint_version = 0;
-        context.executable_fingerprint.fill(0);
+    OverrideContext context = store_snapshot_.context;
+    context.title_id = current_title_id;
+    context.executable_fingerprint_version = 0;
+    context.executable_fingerprint.fill(0);
+    XemuShaderBrowserScope live_scope{};
+    xemu_shader_browser_copy_current_scope(&live_scope);
+    if (current_title_id && live_scope.title_id == current_title_id) {
+        context.executable_fingerprint_version =
+            live_scope.executable_fingerprint_version;
+        std::memcpy(context.executable_fingerprint.data(),
+                    live_scope.executable_fingerprint,
+                    context.executable_fingerprint.size());
+    }
+    if (context.title_id != store_snapshot_.context.title_id ||
+        context.executable_fingerprint_version !=
+            store_snapshot_.context.executable_fingerprint_version ||
+        context.executable_fingerprint !=
+            store_snapshot_.context.executable_fingerprint) {
         GetOverrideStore().SetContext(context);
         GetOverrideStore().CopySnapshot(&store_snapshot_);
     }
@@ -135,6 +148,10 @@ ShaderOverrideRowPresentation ShaderOverrideUi::EvaluateRow(
         return result;
     }
     result.replacement_selected = true;
+    if (store_snapshot_.context.backend == OverrideBackend::Vulkan) {
+        result.reason = "Vulkan replacement runtime is not available yet";
+        return result;
+    }
     if (title_id == 0) {
         result.reason = "shader has no active Xbox TitleID";
         return result;
@@ -173,6 +190,19 @@ bool ShaderOverrideUi::ApplyRule(const ShaderKey &key, uint32_t title_id,
 {
     if (!title_id) {
         if (message) *message = "A concrete Xbox TitleID is required";
+        return false;
+    }
+    if (store_snapshot_.context.backend == OverrideBackend::Vulkan &&
+        action != OverrideAction::Normal) {
+        if (message) *message = "Vulkan override runtime is not available yet";
+        return false;
+    }
+    if (!entry || entry->key != key ||
+        std::none_of(entry->scopes.begin(), entry->scopes.end(),
+                     [title_id](const ShaderScope &scope) {
+                         return scope.title_id == title_id;
+                     })) {
+        if (message) *message = "Shader is not associated with the active title";
         return false;
     }
     OverrideRule rule{};
@@ -222,9 +252,20 @@ bool ShaderOverrideUi::ApplyReplacement(const ShaderKey &key,
         if (message) *message = "Choose a replacement package first";
         return false;
     }
+    if (store_snapshot_.context.backend == OverrideBackend::Vulkan) {
+        if (message) *message = "Vulkan replacement runtime is not available yet";
+        return false;
+    }
+    if (!entry) {
+        if (message) *message = "Shader is no longer available";
+        return false;
+    }
     std::string reason;
-    if (!IsReplacementCompatible(key, package->descriptor,
-                                 store_snapshot_.context.backend, &reason)) {
+    if (entry->key != key ||
+        !IsEntryCompatibleWithReplacement(
+            *entry, title_id, package->descriptor,
+            store_snapshot_.context.backend, &reason)) {
+        if (reason.empty()) reason = "shader selection changed";
         if (message) *message = "Replacement is incompatible: " + reason;
         return false;
     }
@@ -253,7 +294,9 @@ void ShaderOverrideUi::DrawRowContextMenu(const Entry &entry,
     }
 }
 
-void ShaderOverrideUi::DrawPanel(const Entry &entry, uint32_t title_id,
+void ShaderOverrideUi::DrawPanel(const Entry &entry,
+                                 const std::vector<Entry> &entries,
+                                 uint32_t title_id,
                                  std::string *message)
 {
     Refresh(title_id);
@@ -314,8 +357,11 @@ void ShaderOverrideUi::DrawPanel(const Entry &entry, uint32_t title_id,
                             *message = "Dropped shader belongs to a different title";
                         }
                     } else {
-                        ApplyReplacement(dropped_key, dropped_title, nullptr,
-                                         message);
+                        int index = FindEntryByKey(entries, dropped_key);
+                        const Entry *dropped_entry = index >= 0 ?
+                            &entries[static_cast<size_t>(index)] : nullptr;
+                        ApplyReplacement(dropped_key, dropped_title,
+                                         dropped_entry, message);
                     }
                 }
             }
@@ -331,6 +377,11 @@ void ShaderOverrideUi::DrawPanel(const Entry &entry, uint32_t title_id,
 
     bool action_supported = true;
     std::string unsupported;
+    if (store_snapshot_.context.backend == OverrideBackend::Vulkan &&
+        SelectedAction() != OverrideAction::Normal) {
+        action_supported = false;
+        unsupported = "Vulkan override runtime is not available yet";
+    }
     if (SelectedAction() == OverrideAction::ForceUber &&
         store_snapshot_.context.backend == OverrideBackend::OpenGL) {
         action_supported = false;
@@ -338,9 +389,11 @@ void ShaderOverrideUi::DrawPanel(const Entry &entry, uint32_t title_id,
     }
     if (SelectedAction() == OverrideAction::Replacement) {
         const ReplacementPackageInfo *package = SelectedPackage();
-        action_supported = package && IsEntryCompatibleWithReplacement(
-            entry, title_id, package->descriptor,
-            store_snapshot_.context.backend, &unsupported);
+        if (action_supported) {
+            action_supported = package && IsEntryCompatibleWithReplacement(
+                entry, title_id, package->descriptor,
+                store_snapshot_.context.backend, &unsupported);
+        }
     }
 
     ImGui::BeginDisabled(!action_supported);

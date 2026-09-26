@@ -13,8 +13,12 @@
 #undef pgraph_gl_draw_end
 #undef pgraph_gl_flush_draw
 
+void pgraph_gl_draw_end(NV2AState *d);
+void pgraph_gl_flush_draw(NV2AState *d);
 bool pgraph_gl_shader_override_program_active(PGRAPHState *pg);
 uint32_t pgraph_gl_shader_override_effective_action(PGRAPHState *pg);
+void pgraph_gl_shader_override_prepare_draw(
+    PGRAPHState *pg, const XemuShaderOverrideDrawFacts *facts);
 
 static void pgraph_gl_override_draw_facts(
     PGRAPHState *pg, XemuShaderOverrideDrawFacts *facts)
@@ -105,6 +109,13 @@ void pgraph_gl_flush_draw(NV2AState *d)
             &renderer->shader_binding->browser, pg->frame_time,
             XEMU_SHADER_BROWSER_ROUTE_DISABLED);
         return;
+    }
+
+    if (renderer->shader_binding &&
+        renderer->shader_binding->browser.opengl_policy.draw_condition_mask) {
+        XemuShaderOverrideDrawFacts facts;
+        pgraph_gl_override_draw_facts(pg, &facts);
+        pgraph_gl_shader_override_prepare_draw(pg, &facts);
     }
 
     PGRAPHGLDrawResult result = pgraph_gl_flush_draw_internal(d);

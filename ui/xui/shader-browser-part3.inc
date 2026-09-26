@@ -81,7 +81,8 @@ void ShaderBrowserWindow::DrawOverview()
     }
 
     GetShaderOverrideUi().DrawPanel(
-        *entry, m_snapshot.current_title_id, &m_action_message);
+        *entry, m_snapshot.entries, m_snapshot.current_title_id,
+        &m_action_message);
 
     ImGui::Separator();
     ImGui::TextDisabled(

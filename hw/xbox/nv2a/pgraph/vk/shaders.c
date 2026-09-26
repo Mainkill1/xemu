@@ -2556,6 +2556,11 @@ void pgraph_vk_init_shaders(PGRAPHState *pg)
     create_descriptor_set_layout(pg);
     create_descriptor_sets(pg);
     shader_cache_init(pg);
+    XemuShaderBrowserScope scope = { 0 };
+    xemu_shader_browser_copy_current_scope(&scope);
+    xemu_shader_override_set_context(
+        scope.title_id, scope.executable_fingerprint_version,
+        scope.executable_fingerprint, XEMU_SHADER_OVERRIDE_BACKEND_VULKAN);
 
     r->hybrid_generation = 1;
     r->hybrid_selection_epoch = 1;

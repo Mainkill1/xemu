@@ -15,11 +15,13 @@ static PGRAPHGLOverrideProgram *pgraph_gl_override_program_build(
         if (!xemu_shader_override_acquire_replacement(
                 replacement_id, replacement_revision,
                 XEMU_SHADER_OVERRIDE_BACKEND_OPENGL, &source)) {
-            return NULL;
+            return pgraph_gl_override_fallback_program(
+                runtime, state, policy->action, replacement_id);
         }
         if (strcmp(source.entry_point, "main") != 0) {
             xemu_shader_override_release_replacement(&source);
-            return NULL;
+            return pgraph_gl_override_fallback_program(
+                runtime, state, policy->action, replacement_id);
         }
         fragment_source = (const char *)source.data;
     } else {
@@ -36,14 +38,14 @@ static PGRAPHGLOverrideProgram *pgraph_gl_override_program_build(
             return existing;
         }
         return pgraph_gl_override_fallback_program(
-            renderer, runtime, state, policy->action, replacement_id);
+            runtime, state, policy->action, replacement_id);
     }
     if (!pgraph_gl_override_make_room(runtime)) {
         fprintf(stderr,
                 "nv2a: OpenGL replacement cache has no evictable entry\n");
         xemu_shader_override_release_replacement(&source);
         return pgraph_gl_override_fallback_program(
-            renderer, runtime, state, policy->action, replacement_id);
+            runtime, state, policy->action, replacement_id);
     }
 
     PGRAPHGLOverrideProgram *entry =
@@ -63,7 +65,7 @@ static PGRAPHGLOverrideProgram *pgraph_gl_override_program_build(
         g_ptr_array_add(runtime->programs, entry);
         xemu_shader_override_release_replacement(&source);
         return pgraph_gl_override_fallback_program(
-            renderer, runtime, state, policy->action, replacement_id);
+            runtime, state, policy->action, replacement_id);
     }
 
     GLuint program = glCreateProgram();
@@ -86,6 +88,9 @@ static PGRAPHGLOverrideProgram *pgraph_gl_override_program_build(
     glGetProgramiv(program, GL_LINK_STATUS, &linked);
     if (linked == GL_TRUE) {
         glUseProgram(program);
+        /* Candidate validation changes GL_CURRENT_PROGRAM. Force the binder
+         * to restore whichever effective program it chooses below. */
+        runtime->active_program = 0;
         pgraph_gl_override_set_sampler_uniforms(program);
         glValidateProgram(program);
         GLint valid = GL_FALSE;
@@ -102,7 +107,7 @@ static PGRAPHGLOverrideProgram *pgraph_gl_override_program_build(
         g_ptr_array_add(runtime->programs, entry);
         xemu_shader_override_release_replacement(&source);
         return pgraph_gl_override_fallback_program(
-            renderer, runtime, state, policy->action, replacement_id);
+            runtime, state, policy->action, replacement_id);
     }
 
     glDeleteShader(fragment);

@@ -357,6 +357,10 @@ int xemu_shader_override_policy_matches_draw(
     if (!policy || !facts) {
         return 0;
     }
+    if ((policy->draw_condition_mask & facts->available_mask) !=
+        policy->draw_condition_mask) {
+        return 0;
+    }
     DrawCondition condition{};
     condition.mask = policy->draw_condition_mask;
     condition.element_count_min = policy->element_count_min;

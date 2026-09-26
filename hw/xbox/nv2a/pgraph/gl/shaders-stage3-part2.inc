@@ -70,27 +70,12 @@ static PGRAPHGLOverrideProgram *pgraph_gl_override_program_build(
     PGRAPHGLState *renderer, PGRAPHGLOverrideRuntime *runtime,
     const ShaderState *state, const XemuShaderOverridePolicy *policy);
 
-static PGRAPHGLOverrideProgram *pgraph_gl_override_diagnostic_program(
-    PGRAPHGLState *renderer, PGRAPHGLOverrideRuntime *runtime,
-    const ShaderState *state)
-{
-    XemuShaderOverridePolicy diagnostic = { 0 };
-    diagnostic.action = XEMU_SHADER_OVERRIDE_ACTION_HIGHLIGHT;
-    diagnostic.replacement_id = PGRAPH_GL_HIGHLIGHT_REPLACEMENT_ID;
-    diagnostic.replacement_revision = PGRAPH_GL_HIGHLIGHT_REVISION;
-    return pgraph_gl_override_program_build(renderer, runtime, state,
-                                            &diagnostic);
-}
-
 static PGRAPHGLOverrideProgram *pgraph_gl_override_fallback_program(
-    PGRAPHGLState *renderer, PGRAPHGLOverrideRuntime *runtime,
-    const ShaderState *state, uint32_t action, uint64_t replacement_id)
+    PGRAPHGLOverrideRuntime *runtime, const ShaderState *state,
+    uint32_t action, uint64_t replacement_id)
 {
     PGRAPHGLOverrideProgram *fallback =
         pgraph_gl_override_program_find_last_valid(
             runtime, state, action, replacement_id);
-    if (fallback || action != XEMU_SHADER_OVERRIDE_ACTION_REPLACEMENT) {
-        return fallback;
-    }
-    return pgraph_gl_override_diagnostic_program(renderer, runtime, state);
+    return fallback;
 }

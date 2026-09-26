@@ -54,6 +54,7 @@ typedef struct XemuShaderOverridePolicy {
 } XemuShaderOverridePolicy;
 
 typedef struct XemuShaderOverrideDrawFacts {
+    uint32_t available_mask;
     uint32_t element_count;
     uint32_t min_element;
     uint32_t max_element;
