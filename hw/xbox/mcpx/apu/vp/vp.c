@@ -1288,7 +1288,9 @@ static void get_multipass_samples(MCPXAPUState *d,
 static void voice_process(MCPXAPUState *d,
                           float mixbins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME],
                           float sample_buf[NUM_SAMPLES_PER_FRAME][2],
-                          uint16_t v, int voice_list)
+                          uint16_t v, int voice_list,
+                          McpxApuPerfRateBatch *rate_batch,
+                          uint64_t dispatch_serial)
 {
     assert(v < MCPX_HW_MAX_VOICES);
     bool stereo = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_FMT,
@@ -1337,11 +1339,18 @@ static void voice_process(MCPXAPUState *d,
     if (multipass) {
         get_multipass_samples(d, mixbins, v, samples);
     } else {
+        bool rate_recorded = false;
         for (int sample_count = 0; sample_count < NUM_SAMPLES_PER_FRAME;) {
             int active = voice_get_mask(d, v, NV_PAVS_VOICE_PAR_STATE,
                                         NV_PAVS_VOICE_PAR_STATE_ACTIVE_VOICE);
             if (!active) {
                 return;
+            }
+            if (!rate_recorded) {
+                mcpx_apu_perf_record_voice_rate(&d->perf, rate_batch, v,
+                                                stereo, rate,
+                                                dispatch_serial);
+                rate_recorded = true;
             }
             int count =
                 voice_resample(d, v, &samples[sample_count],
@@ -1593,12 +1602,25 @@ static void *voice_worker_thread(void *arg)
     int worker_id = ctz64(vwd->workers_pending);
     VoiceWorker *self = &d->vp.voice_work_dispatch.workers[worker_id];
     self->queue_len = 0;
+    bool woke_for_dispatch = false;
 
     do {
         int64_t start_time = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
-        g_dbg.vp.workers[worker_id].num_voices = self->queue_len;
+        int assigned_voices = self->queue_len;
+        bool perf_enabled = d->perf.enabled;
+        int64_t processing_start_us = 0;
+        int64_t processing_end_us = 0;
+        int64_t reduction_start_us = 0;
+        int64_t reduction_end_us = 0;
+        uint64_t dispatch_serial = perf_enabled ? d->perf.dispatch_serial : 0;
+        McpxApuPerfRateBatch rate_batch = { 0 };
+        g_dbg.vp.workers[worker_id].num_voices = assigned_voices;
 
-        if (self->queue_len) {
+        if (assigned_voices) {
+            if (perf_enabled) {
+                processing_start_us =
+                    qemu_clock_get_us(QEMU_CLOCK_REALTIME);
+            }
             qemu_mutex_unlock(&vwd->lock);
 
             // Process queued voices
@@ -1608,10 +1630,19 @@ static void *voice_worker_thread(void *arg)
             }
             for (int i = 0; i < self->queue_len; i++) {
                 voice_process(d, self->mixbins, self->sample_buf,
-                              self->queue[i].voice, self->queue[i].list);
+                              self->queue[i].voice, self->queue[i].list,
+                              perf_enabled ? &rate_batch : NULL,
+                              dispatch_serial);
+            }
+            if (perf_enabled) {
+                processing_end_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
             }
 
             qemu_mutex_lock(&vwd->lock);
+            if (perf_enabled) {
+                reduction_start_us =
+                    qemu_clock_get_us(QEMU_CLOCK_REALTIME);
+            }
 
             // Add voice contributions
             for (int b = 0; b < NUM_MIXBINS; b++) {
@@ -1625,6 +1656,10 @@ static void *voice_worker_thread(void *arg)
                     d->vp.sample_buf[i][1] += self->sample_buf[i][1];
                 }
             }
+            if (perf_enabled) {
+                reduction_end_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
+                mcpx_apu_perf_merge_rate_batch(&d->perf, &rate_batch);
+            }
 
             self->queue_len = 0;
         }
@@ -1636,8 +1671,16 @@ static void *voice_worker_thread(void *arg)
 
         int64_t end_time = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
         g_dbg.vp.workers[worker_id].time_us = end_time - start_time;
+        if (woke_for_dispatch && perf_enabled) {
+            mcpx_apu_perf_record_worker(
+                &d->perf, worker_id, assigned_voices,
+                processing_end_us - processing_start_us,
+                reduction_end_us - reduction_start_us,
+                end_time - start_time);
+        }
 
         qemu_cond_wait(&vwd->work_pending, &vwd->lock);
+        woke_for_dispatch = true;
     } while (!vwd->workers_should_exit);
 
     qemu_mutex_unlock(&vwd->lock);
@@ -1725,6 +1768,15 @@ voice_work_dispatch(MCPXAPUState *d,
     VoiceWorkDispatch *vwd = &d->vp.voice_work_dispatch;
 
     int64_t start_time = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
+    bool perf_enabled = d->perf.enabled;
+    int queued_voices = 0;
+    int scheduled_workers = 0;
+    int resampled_mono_voices = 0;
+    int resampled_stereo_voices = 0;
+    int multipass_voices = 0;
+    uint64_t voice_lock_wait_us = 0;
+    uint64_t schedule_us = 0;
+    uint64_t completion_wait_us = 0;
 
     while (true) {
         if (qatomic_read(&d->pause_requested)) {
@@ -1739,15 +1791,52 @@ voice_work_dispatch(MCPXAPUState *d,
         qemu_cond_timedwait(&d->cond, &d->lock, 1);
     }
 
+    if (perf_enabled) {
+        voice_lock_wait_us =
+            qemu_clock_get_us(QEMU_CLOCK_REALTIME) - start_time;
+    }
+
     qemu_mutex_lock(&vwd->lock);
 
     if (vwd->queue_len) {
+        queued_voices = vwd->queue_len;
+        if (perf_enabled) {
+            for (int i = 0; i < vwd->queue_len; i++) {
+                int v = vwd->queue[i].voice;
+                uint32_t format = voice_get_mask(
+                    d, v, NV_PAVS_VOICE_CFG_FMT, UINT32_MAX);
+                bool multipass = format & NV_PAVS_VOICE_CFG_FMT_MULTIPASS;
+                bool stereo = format & NV_PAVS_VOICE_CFG_FMT_STEREO;
+
+                if (multipass) {
+                    multipass_voices++;
+                } else if (stereo) {
+                    resampled_stereo_voices++;
+                } else {
+                    resampled_mono_voices++;
+                }
+            }
+        }
         memset(vwd->mixbins, 0, sizeof(vwd->mixbins));
+        mcpx_apu_perf_begin_dispatch(&d->perf);
 
         // Signal workers and wait for completion
+        int64_t schedule_start_us = perf_enabled ?
+            qemu_clock_get_us(QEMU_CLOCK_REALTIME) : 0;
         voice_work_schedule(d);
+        scheduled_workers = ctpop64(vwd->workers_pending);
+        if (perf_enabled) {
+            schedule_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME) -
+                          schedule_start_us;
+        }
+        int64_t completion_wait_start_us = perf_enabled ?
+            qemu_clock_get_us(QEMU_CLOCK_REALTIME) : 0;
         qemu_cond_broadcast(&vwd->work_pending);
         qemu_cond_wait(&vwd->work_finished, &vwd->lock);
+        if (perf_enabled) {
+            completion_wait_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME) -
+                                 completion_wait_start_us;
+        }
         assert(!vwd->workers_pending);
         vwd->queue_len = 0;
 
@@ -1762,6 +1851,10 @@ voice_work_dispatch(MCPXAPUState *d,
     int64_t end_time = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     g_dbg.vp.total_worker_time_us = end_time - start_time;
 
+    mcpx_apu_perf_record_dispatch(
+        &d->perf, queued_voices, scheduled_workers, resampled_mono_voices,
+        resampled_stereo_voices, multipass_voices, voice_lock_wait_us,
+        schedule_us, completion_wait_us, end_time - start_time);
     qemu_mutex_unlock(&vwd->lock);
 }
 
