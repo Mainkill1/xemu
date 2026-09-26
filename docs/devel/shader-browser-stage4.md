@@ -392,15 +392,18 @@ Clang compilation, ASan/UBSan, TSan concurrency coverage, and Clang static
 analysis. The current Linux xemu executable compiles. On a Steam Deck using
 Mesa OpenGL, the launch option opened separate game and browser windows, the
 browser selected a resident pixel shader, and private preparation reached a
-Ready output with a leased presentation slot. A normal process shutdown with
-the private worker active exited cleanly. This is a functional smoke test, not
-an output-correctness or performance qualification.
+Ready output with a leased presentation slot. The selected shader rendered a
+four-corner color gradient; changing one corner produced a new private result
+without changing the running game. A normal window-manager close hid the
+browser while the game kept running. A normal process shutdown with the private
+worker active exited cleanly. This is a functional smoke test, not a
+representative shader-correctness or performance qualification.
 
 Those checks do not establish:
 
 - a Windows xemu build or native Windows operation;
 - native Vulkan operation;
-- shader output correctness;
+- representative shader output correctness;
 - gameplay frame-time neutrality;
 - HUD texture retirement on a real driver.
 
