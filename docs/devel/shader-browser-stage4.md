@@ -1,7 +1,7 @@
 # Shader Browser Stage 4 — isolated live preview
 
 > **Status:** Draft foundation stacked on Shader Browser Stage 3 at
-> `d395282aa6ec64813fad1e5a30a11b0ab5cd2496`. The immutable model,
+> `8e03d756398b8299da464c17d064729db499f68a`. The immutable model,
 > request governor, and presentation-slot lifetime are implemented and covered
 > by focused host tests. Native OpenGL/Vulkan preview execution and gameplay
 > overhead qualification remain required before merge.
@@ -156,6 +156,12 @@ with no renderer pointers. It provides:
 - Critical pressure freezing preview;
 - aggregate accounting across pending and active packet ownership.
 
+Packet admission creates service-owned immutable storage. The 32 MiB limit
+counts retained buffer capacity, and validation rejects over-limit packets
+before digesting source or fixture bytes. Ready-frame recency has its own
+completion sequence; the slot generation remains a lease nonce. Heartbeat
+expiry follows the same invalidation path as an explicit tab close.
+
 The service emits pure `PreviewWorkItem` records. A later backend claims work,
 performs it with private resources, and completes by token. The service itself
 contains no GL/Vulkan API call.
@@ -205,7 +211,7 @@ Create a low-frequency adapter outside ordinary draws that copies:
 - deterministic synthetic fixture inputs;
 - immutable Stage 3 replacement source when Replacement mode is selected.
 
-It validates and submits a `shared_ptr<const PreviewPacket>`. It must not borrow
+It validates and moves a `PreviewPacket` into the service. It must not borrow
 Stage 2 source vectors or Stage 3 payload memory beyond their ownership window.
 
 ### Pause and health publishers

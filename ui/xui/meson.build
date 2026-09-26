@@ -21,6 +21,7 @@ xemu_ss.add(files(
   'shader-browser-artifact-store.cc',
   'shader-browser-session-provider.cc',
   'shader-browser-preview-model.cc',
+  'shader-browser-preview-adapter.cc',
   'shader-browser-preview-service.cc',
   'shader-browser-preview-service-work.cc',
   'shader-browser-preview-service-slots.cc',
@@ -235,6 +236,19 @@ shader_browser_preview_model_test = executable(
   dependencies: [xxhash])
 test('test-xemu-shader-browser-preview-model',
      shader_browser_preview_model_test, suite: ['unit'])
+
+shader_browser_preview_adapter_test = executable(
+  'test-xemu-shader-browser-preview-adapter',
+  shader_browser_test_dir / 'test-xemu-shader-browser-preview-adapter.cc',
+  files(
+    'shader-browser-model.cc',
+    'shader-browser-preview-model.cc',
+    'shader-browser-preview-adapter.cc',
+  ),
+  include_directories: shader_browser_test_inc,
+  dependencies: [xxhash])
+test('test-xemu-shader-browser-preview-adapter',
+     shader_browser_preview_adapter_test, suite: ['unit'])
 
 shader_browser_preview_service_test = executable(
   'test-xemu-shader-browser-preview-service',
