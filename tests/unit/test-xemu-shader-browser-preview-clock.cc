@@ -24,6 +24,7 @@ int main()
     const uint64_t first_revision = clock.State().revision;
     assert(!clock.Tick(10 * second + second / 60, second / 30));
     assert(clock.State().revision == first_revision);
+    assert(Near(clock.State().time_seconds, 0.0));
     assert(clock.Tick(10 * second + second / 30, second / 30));
     assert(clock.State().frame == 1);
     assert(Near(clock.State().time_seconds, 1.0 / 30.0));

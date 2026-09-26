@@ -119,11 +119,18 @@ bool PreviewClock::Tick(uint64_t now_ns, uint64_t update_interval_ns)
     if (anchored_ && now_ns < last_sample_ns_) {
         return false;
     }
-    AdvanceTime(now_ns);
+    if (!anchored_) {
+        AdvanceTime(now_ns);
+        return false;
+    }
     if (!state_.playing || now_ns < last_emit_ns_ ||
         now_ns - last_emit_ns_ < update_interval_ns) {
         return false;
     }
+    // Result identity includes time. Keep ordinary samples unchanged until
+    // emission, including the first interval after a pressure freeze.
+    // Explicit controls still advance/scrub time immediately.
+    AdvanceTime(now_ns);
     last_emit_ns_ = now_ns;
     ++state_.frame;
     ++state_.revision;
