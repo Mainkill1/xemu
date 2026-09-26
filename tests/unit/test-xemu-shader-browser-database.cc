@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <sqlite3.h>
 
 using namespace xemu::shader_browser;
 
@@ -168,6 +169,25 @@ int main()
     assert(db.QuickCheck(&check, &error));
     assert(check == "ok");
 
+#ifndef _WIN32
+    // A filesystem lookup error is not evidence that an artifact is gone.
+    std::filesystem::path loop = root / "shader-artifacts" / "loop";
+    std::filesystem::create_symlink("loop", loop, ec);
+    assert(!ec);
+    ArtifactMetadata loop_artifact = artifact;
+    loop_artifact.relative_path = "loop";
+    assert(db.RegisterArtifact(loop_artifact, &error));
+    assert(db.Flush(&error));
+    size_t removed = 0;
+    assert(!db.ReconcileExternalArtifacts(&removed, &error));
+    assert(removed == 0);
+    assert(db.GetStats().artifact_count == 2);
+    std::filesystem::remove(loop, ec);
+    assert(!ec);
+    assert(db.ReconcileExternalArtifacts(&removed, &error));
+    assert(removed == 1);
+#endif
+
     // Exercise the intended catalog size across an actual close and reload.
     for (uint32_t i = 0; i < 10000; ++i) {
         ShaderRecord record{};
@@ -199,6 +219,46 @@ int main()
     assert(reopened.GetStats().session_count == 0);
     assert(reopened.GetStats().session_stat_count == 0);
     reopened.Close();
+
+    // A failed writer transaction must stop accepting optimistic cache hits.
+    std::filesystem::path failure_root = root / "writer-failure";
+    std::filesystem::create_directories(failure_root);
+    DatabaseConfig failure_config = config;
+    failure_config.base_path = failure_root.string();
+    ShaderDatabase failing;
+    assert(failing.Configure(failure_config, &error));
+    sqlite3 *inject = nullptr;
+    assert(sqlite3_open((failure_root / "shader-browser.db").string().c_str(),
+                        &inject) == SQLITE_OK);
+    assert(sqlite3_exec(inject,
+        "CREATE TRIGGER fail_title BEFORE INSERT ON titles "
+        "BEGIN SELECT RAISE(FAIL, 'injected shader write failure'); END;",
+        nullptr, nullptr, nullptr) == SQLITE_OK);
+    assert(failing.UpsertShader(a, &error));
+    assert(!failing.Flush(&error));
+    assert(error.find("injected shader write failure") != std::string::npos);
+    assert(failing.GetStats().write_failed);
+    assert(!failing.RecordPerformanceSessions());
+    assert(!failing.SaveExternalArtifacts());
+    assert(!failing.UpsertShader(a, &error));
+    assert(!failing.UpsertShader(b, &error));
+    ArtifactMetadata rejected_metadata = artifact;
+    rejected_metadata.relative_path = "4D530064/rejected/ps/test.spv";
+    assert(!failing.RegisterArtifact(rejected_metadata, &error));
+    SessionDescriptor rejected_session = session;
+    rejected_session.session_id = "rejected-after-writer-failure";
+    assert(!failing.BeginPerformanceSession(rejected_session, &error));
+    assert(failing.GetStats().pending_writes == 0);
+    failing.Close();
+    assert(sqlite3_exec(inject, "DROP TRIGGER fail_title", nullptr, nullptr,
+                        nullptr) == SQLITE_OK);
+    sqlite3_close(inject);
+    assert(failing.Configure(failure_config, &error));
+    assert(failing.CopyMetadata().empty());
+    assert(failing.UpsertShader(a, &error));
+    assert(failing.Flush(&error));
+    assert(failing.CopyMetadata().size() == 1);
+    failing.Close();
 
     std::filesystem::remove_all(root, ec);
     std::cout << "shader browser database tests passed\n";

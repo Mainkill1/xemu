@@ -10,16 +10,31 @@ bool ShaderDatabase::ReconcileExternalArtifacts(size_t *removed,
     if (!Prepare(db, "SELECT artifact_id,relative_path FROM shader_artifacts",
                  &stmt, error)) { sqlite3_close(db); return false; }
     std::vector<std::pair<sqlite3_int64, std::string>> missing;
-    while (sqlite3_step(stmt) == SQLITE_ROW) {
+    int rc = SQLITE_OK;
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
         sqlite3_int64 id = sqlite3_column_int64(stmt, 0);
         const unsigned char *text = sqlite3_column_text(stmt, 1);
         if (!text) continue;
         std::filesystem::path file = std::filesystem::u8path(artifact_root) /
             reinterpret_cast<const char *>(text);
         std::error_code ec;
-        if (!std::filesystem::exists(file, ec) || ec) {
+        bool exists = std::filesystem::exists(file, ec);
+        if (ec) {
+            if (error) *error = "Unable to inspect shader artifact: " +
+                                ec.message();
+            sqlite3_finalize(stmt);
+            sqlite3_close(db);
+            return false;
+        }
+        if (!exists) {
             missing.emplace_back(id, reinterpret_cast<const char *>(text));
         }
+    }
+    if (rc != SQLITE_DONE) {
+        if (error) *error = sqlite3_errmsg(db);
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
+        return false;
     }
     sqlite3_finalize(stmt);
     if (!Exec(db, "BEGIN IMMEDIATE", error)) { sqlite3_close(db); return false; }
@@ -33,7 +48,10 @@ bool ShaderDatabase::ReconcileExternalArtifacts(size_t *removed,
         sqlite3_finalize(stmt);
         if (!ok) break;
     }
-    Exec(db, ok ? "COMMIT" : "ROLLBACK", nullptr);
+    if (ok) ok = Exec(db, "COMMIT", error);
+    if (!ok && !sqlite3_get_autocommit(db)) {
+        Exec(db, "ROLLBACK", nullptr);
+    }
     sqlite3_close(db);
     if (ok) {
         {
@@ -54,13 +72,28 @@ bool ShaderDatabase::ReconcileExternalArtifacts(size_t *removed,
     return ok;
 }
 
-void ShaderDatabase::Enqueue(WriteJob job)
+bool ShaderDatabase::AcceptingWrites(std::string *error) const
+{
+    std::lock_guard<std::mutex> lock(queue_mutex);
+    if (write_failed) {
+        if (error) *error = write_error;
+        return false;
+    }
+    return true;
+}
+
+bool ShaderDatabase::Enqueue(WriteJob job, std::string *error)
 {
     {
         std::lock_guard<std::mutex> lock(queue_mutex);
+        if (write_failed) {
+            if (error) *error = write_error;
+            return false;
+        }
         write_queue.push_back(std::move(job));
     }
     queue_cv.notify_one();
+    return true;
 }
 
 void ShaderDatabase::WriterMain()
@@ -88,8 +121,12 @@ void ShaderDatabase::WriterMain()
             }
         }
         if (ok) ok = Exec(writer_db, "COMMIT", &error);
-        else Exec(writer_db, "ROLLBACK", nullptr);
-        if (!ok) SetWriteError(error);
+        if (!ok) {
+            if (!sqlite3_get_autocommit(writer_db)) {
+                Exec(writer_db, "ROLLBACK", nullptr);
+            }
+            SetWriteError(error);
+        }
 
         {
             std::lock_guard<std::mutex> lock(queue_mutex);
@@ -105,6 +142,7 @@ void ShaderDatabase::SetWriteError(const std::string &message)
     std::lock_guard<std::mutex> lock(queue_mutex);
     write_failed = true;
     write_error = message;
+    write_queue.clear();
 }
 
 bool ShaderDatabase::Flush(std::string *error)

@@ -69,12 +69,12 @@
         ok = StepDone(db, stmt, job_error);
         sqlite3_finalize(stmt);
         return ok;
-    });
-    return true;
+    }, error);
 }
 
 bool ShaderDatabase::CopyRecord(const ShaderKey &key,
-                                ShaderRecord *record) const
+                                ShaderRecord *record,
+                                std::vector<ShaderScope> *scopes) const
 {
     if (!record) return false;
     std::lock_guard<std::mutex> lock(cache_mutex);
@@ -82,6 +82,7 @@ bool ShaderDatabase::CopyRecord(const ShaderKey &key,
     if (it == records.end()) return false;
     *record = it->second.record;
     if (!it->second.scopes.empty()) record->scope = it->second.scopes.front();
+    if (scopes) *scopes = it->second.scopes;
     return true;
 }
 
@@ -113,7 +114,7 @@ bool ShaderDatabase::BeginPerformanceSession(const SessionDescriptor &session,
         if (error) *error = "Performance session requires ID and title";
         return false;
     }
-    Enqueue([session](sqlite3 *db, std::string *job_error) {
+    if (!Enqueue([session](sqlite3 *db, std::string *job_error) {
         sqlite3_stmt *stmt = nullptr;
         const char *sql =
             "INSERT OR REPLACE INTO shader_sessions(session_id,title_id,"
@@ -146,7 +147,7 @@ bool ShaderDatabase::BeginPerformanceSession(const SessionDescriptor &session,
         bool ok = StepDone(db, stmt, job_error);
         sqlite3_finalize(stmt);
         return ok;
-    });
+    }, error)) return false;
     {
         std::lock_guard<std::mutex> lock(cache_mutex);
         known_sessions.insert(session.session_id);
@@ -169,7 +170,7 @@ bool ShaderDatabase::UpsertPerformanceStats(const std::string &session_id,
         return false;
     }
     ShaderSessionStats copy = stats;
-    Enqueue([session_id, copy](sqlite3 *db, std::string *job_error) {
+    if (!Enqueue([session_id, copy](sqlite3 *db, std::string *job_error) {
         sqlite3_int64 shader_id = 0;
         if (!FindShaderId(db, copy.key, &shader_id, job_error)) return false;
         sqlite3_stmt *stmt = nullptr;
@@ -217,7 +218,7 @@ bool ShaderDatabase::UpsertPerformanceStats(const std::string &session_id,
         bool ok = StepDone(db, stmt, job_error);
         sqlite3_finalize(stmt);
         return ok;
-    });
+    }, error)) return false;
     {
         std::lock_guard<std::mutex> lock(cache_mutex);
         known_session_stats.insert(SessionStatIdentity(session_id, stats.key));

@@ -2,6 +2,7 @@
 #pragma once
 
 #include "shader-browser-model.hh"
+#include "shader-browser-recipe-inspector.hh"
 
 #include <cstdint>
 #include <string>
@@ -31,6 +32,8 @@ struct Snapshot {
     size_t session_stat_count = 0;
     size_t artifact_count = 0;
     uint64_t rejected_artifact_count = 0;
+    uint64_t failed_artifact_count = 0;
+    std::string last_artifact_error;
     size_t pending_database_writes = 0;
     uint64_t database_bytes = 0;
     uint64_t database_wal_bytes = 0;
@@ -48,6 +51,10 @@ public:
     virtual ~Provider() = default;
 
     virtual bool CopySnapshot(Snapshot *snapshot) = 0;
+    // Copies a selected recipe from the in-memory live or SQLite cache. XUI
+    // owns this lookup; renderer threads never query the database.
+    virtual bool CopyCanonicalRecipe(const ShaderKey &key,
+                                     CanonicalRecipe *recipe) = 0;
     virtual void SetLiveCollectionEnabled(bool enabled) = 0;
     virtual void ClearLiveSession() = 0;
 

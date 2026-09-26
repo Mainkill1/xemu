@@ -1,6 +1,6 @@
 # Shader Browser Stage 2: details, host artifacts, and portable export
 
-This document defines the implementation contract for Stage 2 of #235. The branch is stacked on `feature/shader-browser-stage1`; it must be rebased onto the accepted Stage 1 result before merge.
+This document defines the implementation contract for Stage 2 of #235. The branch is based on the accepted Stage 1 result in `main`.
 
 ## Scope
 
@@ -38,7 +38,7 @@ Stage 1 SQLite remains the only persistent catalog. Stage 2 adds one bounded sel
 The selected detail service uses a newest-request-wins protocol:
 
 1. XUI publishes a request ID, full ShaderKey, active backend, and requested detail masks.
-2. The active renderer polls from a safe owner-thread point.
+2. XUI wakes the PFIFO owner; the active renderer claims the request at its safe owner-thread service point.
 3. The renderer copies only already-resident data or deterministic source text that can be regenerated without compilation.
 4. The renderer completes the request as Complete, Partial, Unavailable, or Failed.
 5. Stale completions are rejected by request ID and ShaderKey.
@@ -62,6 +62,7 @@ Missing data is reported as unavailable.
 
 - One active selected-shader snapshot.
 - Maximum generated source payload: 4 MiB per source record.
+- Maximum aggregate source payload: 16 MiB, with at most 32 source records and 256 variants.
 - Maximum text label/status/message: 4096 bytes.
 - Maximum lifecycle records: 128, with an exact dropped counter.
 - Newest unclaimed request only; rapid navigation cannot grow an unbounded queue.
@@ -71,14 +72,16 @@ Missing data is reported as unavailable.
 
 Filename:
 
-`<TitleID>-<ShaderHash>-<stage>.xemu-shader.json`
+`nv2a-v<identity-version>-<ShaderHash>-<stage>.xemu-shader.json`
+
+Exports are written under the configuration directory's `shader-exports/` folder. The filename is independent of title scope, so identical canonical recipes use the same filename across games. The bytes and hash are round-trip checked before the file is published.
 
 Schema: `xemu.shader-recipe-export.v1`
 
 The export contains:
 
 - identity and recipe format versions;
-- title ID and full ShaderHash;
+- full ShaderHash;
 - stage;
 - canonical recipe bytes encoded as base64;
 - recipe byte count;

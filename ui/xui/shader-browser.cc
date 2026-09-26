@@ -3,3 +3,4 @@
 #include "shader-browser-part2.inc"
 #include "shader-browser-part3.inc"
 #include "shader-browser-part4.inc"
+#include "shader-browser-details-view.inc"

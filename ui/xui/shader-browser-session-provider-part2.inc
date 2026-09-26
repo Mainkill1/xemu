@@ -34,7 +34,9 @@
         std::shared_lock<std::shared_mutex> lifecycle(lifecycle_mutex);
         if (!installed) return false;
 
-        std::vector<QueuedEvent> events;
+        // XUI is the sole snapshot consumer; reuse both queue allocations.
+        auto &events = snapshot_events;
+        events.clear();
         {
             std::lock_guard<std::mutex> lock(live_queue_mutex);
             events.swap(live_events);
@@ -130,6 +132,11 @@
         snapshot->artifact_count = db_stats.artifact_count;
         snapshot->rejected_artifact_count =
             rejected_artifacts.load(std::memory_order_acquire);
+        {
+            std::lock_guard<std::mutex> lock(artifact_mutex);
+            snapshot->failed_artifact_count = failed_artifact_jobs;
+            snapshot->last_artifact_error = last_artifact_error;
+        }
         snapshot->pending_database_writes = db_stats.pending_writes;
         snapshot->database_bytes = db_stats.database_bytes;
         snapshot->database_wal_bytes = db_stats.wal_bytes;
@@ -140,6 +147,31 @@
         snapshot->database_journal_mode = db_stats.journal_mode;
         snapshot->entries.reserve(merged.size());
         for (auto &pair : merged) snapshot->entries.push_back(std::move(pair.second));
+        return true;
+    }
+
+    bool CopyCanonicalRecipe(const ShaderKey &key,
+                             CanonicalRecipe *recipe) override
+    {
+        if (!recipe) return false;
+        std::shared_lock<std::shared_mutex> lifecycle(lifecycle_mutex);
+        if (!installed) return false;
+        ShaderRecord record{};
+        std::vector<ShaderScope> scopes;
+        {
+            std::lock_guard<std::mutex> lock(discovered_mutex);
+            auto it = discovered_records.find(key);
+            if (it != discovered_records.end()) {
+                record = it->second.record;
+                scopes = it->second.scopes;
+            }
+        }
+        if (record.recipe.empty() &&
+            !database.CopyRecord(key, &record, &scopes)) return false;
+        recipe->key = record.key;
+        recipe->recipe_format_version = record.recipe_format_version;
+        recipe->bytes = std::move(record.recipe);
+        recipe->scopes = std::move(scopes);
         return true;
     }
 
@@ -159,8 +191,18 @@
     bool FlushDatabase(std::string *error) override
     {
         PersistPerformanceSnapshot();
-        FlushArtifactQueue();
-        return database.Flush(error);
+        std::string artifact_error;
+        std::string database_error;
+        bool artifacts_ok = FlushArtifactQueue(&artifact_error);
+        bool database_ok = database.Flush(&database_error);
+        if (error) {
+            *error = artifacts_ok ? std::string{} : artifact_error;
+            if (!database_ok) {
+                if (!error->empty()) *error += "; ";
+                *error += database_error;
+            }
+        }
+        return artifacts_ok && database_ok;
     }
 
     bool QuickCheckDatabase(std::string *result,

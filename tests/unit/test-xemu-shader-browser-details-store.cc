@@ -24,6 +24,7 @@ int main()
     const ShaderKey second_key = MakeKey(20);
 
     const uint64_t first_id = store.Request(first_key, DetailBackend::Vulkan);
+    assert(store.HasPending());
     const uint64_t second_id = store.Request(second_key, DetailBackend::OpenGL);
     assert(second_id > first_id);
 
@@ -41,7 +42,7 @@ int main()
     stale.backend = DetailBackend::Vulkan;
     std::string error;
     assert(!store.Complete(stale, &error));
-    assert(error == "stale shader detail completion");
+    assert(error == "stale or unclaimed shader detail completion");
 
     DetailResult completed{};
     completed.request_id = second_id;
@@ -81,6 +82,7 @@ int main()
 
     error.clear();
     assert(store.Complete(completed, &error));
+    assert(!store.HasPending());
 
     DetailSnapshot snapshot{};
     assert(store.CopySnapshot(&snapshot));
@@ -94,6 +96,7 @@ int main()
 
     const uint64_t generation_after_complete = snapshot.generation;
     store.Clear();
+    assert(!store.HasPending());
     assert(store.CopySnapshot(&snapshot));
     assert(snapshot.state == DetailState::Idle);
     assert(snapshot.generation > generation_after_complete);
@@ -136,6 +139,89 @@ int main()
     assert(store.Complete(unavailable, &error));
     assert(store.CopySnapshot(&snapshot));
     assert(snapshot.state == DetailState::Unavailable);
+
+    // A renderer must claim the request before publishing details, and the
+    // completion must come from that same renderer.
+    DetailStore ownership;
+    const uint64_t ownership_id = ownership.Request(
+        first_key, DetailBackend::Vulkan, DetailRequestSources);
+    DetailResult owned{};
+    owned.request_id = ownership_id;
+    owned.key = first_key;
+    owned.state = DetailState::Complete;
+    owned.backend = DetailBackend::Vulkan;
+    assert(!ownership.Complete(owned, &error));
+    assert(ownership.TryClaim(DetailBackend::Vulkan, &request));
+    owned.backend = DetailBackend::OpenGL;
+    assert(!ownership.Complete(owned, &error));
+    owned.backend = DetailBackend::Vulkan;
+    assert(ownership.Complete(owned, &error));
+    assert(!ownership.Complete(owned, &error));
+
+    // A request for variants cannot carry source text or lifecycle events.
+    const uint64_t variants_id = ownership.Request(
+        second_key, DetailBackend::OpenGL, DetailRequestVariants);
+    assert(ownership.TryClaim(DetailBackend::OpenGL, &request));
+    DetailResult wrong_fields{};
+    wrong_fields.request_id = variants_id;
+    wrong_fields.key = second_key;
+    wrong_fields.state = DetailState::Complete;
+    wrong_fields.backend = DetailBackend::OpenGL;
+    wrong_fields.sources.push_back(source);
+    assert(!ownership.Complete(wrong_fields, &error));
+    wrong_fields.sources.clear();
+    wrong_fields.lifecycle.push_back(completed.lifecycle.front());
+    assert(!ownership.Complete(wrong_fields, &error));
+
+    // The UI can poll an unchanged generation without copying source text.
+    DetailSnapshot unchanged{};
+    unchanged.status = "sentinel";
+    assert(ownership.CopySnapshot(&snapshot));
+    assert(!ownership.CopySnapshotIfChanged(snapshot.generation, &unchanged));
+    assert(unchanged.status == "sentinel");
+    assert(ownership.Abandon(variants_id, DetailBackend::OpenGL,
+                             "renderer switched"));
+    assert(ownership.CopySnapshotIfChanged(snapshot.generation, &unchanged));
+    assert(unchanged.state == DetailState::Unavailable);
+    assert(unchanged.status == "renderer switched");
+
+    // Validation limits and deduplication apply at publication, never draws.
+    DetailResult invalid{};
+    invalid.request_id = 1;
+    invalid.key = first_key;
+    invalid.state = DetailState::Partial;
+    invalid.backend = DetailBackend::Vulkan;
+    assert(!ValidateDetailResult(invalid, &error));
+    invalid.status = "missing resident program";
+    invalid.lifecycle.push_back({});
+    assert(!ValidateDetailResult(invalid, &error));
+    invalid.lifecycle.clear();
+    invalid.sources.push_back(source);
+    invalid.sources.push_back(source);
+    assert(!ValidateDetailResult(invalid, &error));
+    invalid.sources.clear();
+    invalid.variants.push_back(variant);
+    invalid.variants.push_back(variant);
+    assert(!ValidateDetailResult(invalid, &error));
+    invalid.variants.clear();
+    invalid.sources.resize(33, source);
+    assert(!ValidateDetailResult(invalid, &error));
+    invalid.sources.clear();
+    HostVariant known_zero = variant;
+    known_zero.backend = DetailBackend::Vulkan;
+    known_zero.valid_fields = HostVariantFrames | HostVariantDrawCount;
+    invalid.variants.push_back(known_zero);
+    assert(ValidateDetailResult(invalid, &error));
+    invalid.variants.front().valid_fields = 1U << 31;
+    assert(!ValidateDetailResult(invalid, &error));
+    invalid.variants.clear();
+    invalid.variants.resize(kMaxDetailVariants + 1, known_zero);
+    assert(!ValidateDetailResult(invalid, &error));
+    invalid.variants.clear();
+    invalid.sources.push_back(source);
+    assert(!ValidateDetailResult(invalid, &error));
+    invalid.sources.front().backend = DetailBackend::Vulkan;
+    assert(ValidateDetailResult(invalid, &error));
 
     std::cout << "shader browser detail store tests passed\n";
     return 0;

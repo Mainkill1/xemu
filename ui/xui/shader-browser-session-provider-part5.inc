@@ -16,6 +16,7 @@
     std::atomic<uint64_t> live_epoch{1};
     std::mutex live_queue_mutex;
     std::vector<QueuedEvent> live_events;
+    std::vector<QueuedEvent> snapshot_events;
     uint64_t next_event_sequence = 0;
     std::unordered_map<ShaderKey, LiveSessionEntry, ShaderKeyHash> live_entries;
     uint64_t live_consumer_epoch = 1;
@@ -24,7 +25,7 @@
 
     mutable std::mutex performance_mutex;
     std::string performance_session_id;
-    std::unordered_map<ShaderKey, ShaderSessionStats, ShaderKeyHash>
+    std::unordered_map<ShaderKey, PerformanceEntry, ShaderKeyHash>
         performance_entries;
     std::mutex maintenance_mutex;
     std::condition_variable maintenance_cv;
@@ -38,6 +39,8 @@
     size_t artifact_pending_bytes = 0;
     size_t artifact_pending_jobs = 0;
     std::atomic<uint64_t> rejected_artifacts{0};
+    uint64_t failed_artifact_jobs = 0;
+    std::string last_artifact_error;
     std::thread artifact_thread;
     bool artifact_stop = false;
     bool artifact_in_flight = false;

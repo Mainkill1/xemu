@@ -11,6 +11,9 @@
 namespace xemu::shader_browser {
 
 constexpr size_t kMaxDetailSourceBytes = 4U * 1024U * 1024U;
+constexpr size_t kMaxDetailSourceBytesTotal = 16U * 1024U * 1024U;
+constexpr size_t kMaxDetailSources = 32U;
+constexpr size_t kMaxDetailVariants = 256U;
 constexpr size_t kMaxDetailTextBytes = 4096U;
 constexpr size_t kMaxLifecycleEvents = 128U;
 
@@ -22,12 +25,23 @@ enum class DetailBackend : uint8_t {
 };
 
 enum DetailRequestFlag : uint32_t {
-    DetailRequestGuest = 1U << 0,
-    DetailRequestSources = 1U << 1,
-    DetailRequestVariants = 1U << 2,
-    DetailRequestLifecycle = 1U << 3,
-    DetailRequestAll = DetailRequestGuest | DetailRequestSources |
-                       DetailRequestVariants | DetailRequestLifecycle,
+    DetailRequestSources = 1U << 0,
+    DetailRequestVariants = 1U << 1,
+    DetailRequestLifecycle = 1U << 2,
+    DetailRequestAll = DetailRequestSources | DetailRequestVariants |
+                       DetailRequestLifecycle,
+};
+
+enum HostVariantValidField : uint32_t {
+    HostVariantFrames = 1U << 0,
+    HostVariantDrawCount = 1U << 1,
+    HostVariantCompileTime = 1U << 2,
+    HostVariantCreateTime = 1U << 3,
+    HostVariantPrimitiveMode = 1U << 4,
+    HostVariantColorFormat = 1U << 5,
+    HostVariantDepthFormat = 1U << 6,
+    HostVariantVertexLayout = 1U << 7,
+    HostVariantAllValidFields = (1U << 8) - 1U,
 };
 
 enum class DetailState : uint8_t {
@@ -100,8 +114,7 @@ struct HostVariant {
     uint64_t draw_count = 0;
     uint64_t compile_time_ns = 0;
     uint64_t create_time_ns = 0;
-    bool compile_time_valid = false;
-    bool create_time_valid = false;
+    uint32_t valid_fields = 0;
     uint32_t primitive_mode = 0;
     uint32_t color_format = 0;
     uint32_t depth_format = 0;

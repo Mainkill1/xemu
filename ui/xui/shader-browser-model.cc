@@ -369,7 +369,7 @@ const char *SourceFilterLabel(SourceFilter source)
     switch (source) {
     case SourceFilter::All: return "All";
     case SourceFilter::ThisSession: return "This session";
-    case SourceFilter::StoredDatabase: return "Stored database";
+    case SourceFilter::StoredDatabase: return "Database catalog (write-behind)";
     }
     return "All";
 }

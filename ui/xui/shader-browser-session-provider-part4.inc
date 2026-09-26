@@ -105,7 +105,9 @@ private:
         ShaderKey key{ConvertHash(observation.identity_version,
                                   observation.identity_hash),
                       ConvertStage(observation.stage)};
-        ShaderSessionStats &stats = performance_entries[key];
+        PerformanceEntry &entry = performance_entries[key];
+        ShaderSessionStats &stats = entry.stats;
+        entry.needs_enqueue = true;
         stats.key = key;
         if (observation.flags & XEMU_SHADER_BROWSER_OBSERVED) {
             if (!stats.draw_count) stats.first_frame = observation.first_frame;
@@ -131,10 +133,15 @@ private:
     {
         if (!database.RecordPerformanceSessions()) return;
         if (performance_session_id.empty()) return;
-        for (const auto &pair : performance_entries) {
+        for (auto &pair : performance_entries) {
+            PerformanceEntry &entry = pair.second;
+            if (!entry.needs_enqueue) continue;
             std::string ignored;
-            database.UpsertPerformanceStats(performance_session_id,
-                                            pair.second, &ignored);
+            if (!database.UpsertPerformanceStats(performance_session_id,
+                                                 entry.stats, &ignored)) {
+                break;
+            }
+            entry.needs_enqueue = false;
         }
     }
 
@@ -157,12 +164,17 @@ private:
         }
     }
 
-    void FlushArtifactQueue()
+    bool FlushArtifactQueue(std::string *error)
     {
         std::unique_lock<std::mutex> lock(artifact_mutex);
         artifact_flush_cv.wait(lock, [&] {
             return artifact_jobs.empty() && !artifact_in_flight;
         });
+        if (failed_artifact_jobs) {
+            if (error) *error = last_artifact_error;
+            return false;
+        }
+        return true;
     }
 
     void ArtifactMain()
@@ -180,12 +192,16 @@ private:
                 artifact_in_flight = true;
             }
             ArtifactMetadata metadata{};
-            std::string ignored;
-            if (artifact_store.Write(job.write, &metadata, &ignored)) {
-                database.RegisterArtifact(metadata, &ignored);
-            }
+            std::string error;
+            bool ok = artifact_store.Write(job.write, &metadata, &error);
+            if (ok) ok = database.RegisterArtifact(metadata, &error);
             {
                 std::lock_guard<std::mutex> lock(artifact_mutex);
+                if (!ok) {
+                    ++failed_artifact_jobs;
+                    last_artifact_error = error.empty() ?
+                        "Unable to save shader artifact" : error;
+                }
                 artifact_pending_bytes -= job.write.bytes.size();
                 --artifact_pending_jobs;
                 artifact_in_flight = false;

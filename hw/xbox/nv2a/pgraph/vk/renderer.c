@@ -25,8 +25,259 @@
 #include "failpoint.h"
 #include "renderer.h"
 #include "hybrid-ready.h"
+#include "ui/xui/shader-browser-details-bridge.h"
 
 #include "gloffscreen.h"
+
+typedef struct VkShaderDetailCollection {
+    XemuShaderBrowserDetailRequest request;
+    XemuShaderBrowserDetailVariant variants[256];
+    XemuShaderBrowserDetailSource sources[32];
+    ShaderBinding *matching_binding;
+    size_t variant_count;
+    size_t source_count;
+    size_t source_bytes;
+    size_t omitted;
+    size_t omitted_sources;
+    bool ready_module_seen;
+    bool ready_pipeline_seen;
+} VkShaderDetailCollection;
+
+static void pgraph_vk_collect_shader_detail(Lru *lru, LruNode *node,
+                                            void *opaque)
+{
+    VkShaderDetailCollection *out = opaque;
+    ShaderBinding *binding = container_of(node, ShaderBinding, node);
+    bool matches = false;
+    for (uint32_t i = 0; i < binding->browser.count; ++i) {
+        const PGRAPHShaderBrowserIdentity *identity =
+            &binding->browser.identities[i];
+        if (identity->stage == out->request.stage &&
+            memcmp(identity->hash, out->request.identity_hash,
+                   sizeof(identity->hash)) == 0) {
+            matches = true;
+            break;
+        }
+    }
+    if (!matches) {
+        return;
+    }
+    if (!out->matching_binding) {
+        out->matching_binding = binding;
+    }
+    uint32_t route = binding->fragment_route ==
+                             PGRAPH_VK_FRAGMENT_UBERSHADER ?
+                         XEMU_SHADER_BROWSER_ROUTE_UBER :
+                         XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED;
+    ShaderModuleInfo *module = NULL;
+    uint32_t source_stage = XEMU_SHADER_BROWSER_DETAIL_SOURCE_VERTEX;
+    switch (out->request.stage) {
+    case XEMU_SHADER_BROWSER_STAGE_VERTEX:
+    case XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION:
+        module = binding->vsh.module_info;
+        break;
+    case XEMU_SHADER_BROWSER_STAGE_PIXEL:
+        module = binding->psh.module_info;
+        source_stage = XEMU_SHADER_BROWSER_DETAIL_SOURCE_FRAGMENT;
+        break;
+    case XEMU_SHADER_BROWSER_STAGE_GEOMETRY:
+        module = binding->geom.module_info;
+        source_stage = XEMU_SHADER_BROWSER_DETAIL_SOURCE_GEOMETRY;
+        break;
+    }
+    if (module && module->glsl && (out->request.flags & 1U)) {
+        bool exists = false;
+        for (size_t i = 0; i < out->source_count; ++i) {
+            if (out->sources[i].artifact_id == (uintptr_t)module) {
+                exists = true;
+                break;
+            }
+        }
+        if (!exists && out->source_count < ARRAY_SIZE(out->sources)) {
+            size_t length = strnlen(module->glsl, 4U * 1024U * 1024U + 1U);
+            if (length > 4U * 1024U * 1024U ||
+                length > 16U * 1024U * 1024U - out->source_bytes) {
+                out->omitted_sources++;
+            } else {
+                XemuShaderBrowserDetailSource *source =
+                    &out->sources[out->source_count++];
+                out->source_bytes += length;
+                source->stage = source_stage;
+                source->kind = XEMU_SHADER_BROWSER_DETAIL_SOURCE_GLSL;
+                source->route = route;
+                source->artifact_id = (uintptr_t)module;
+                source->exact_runtime_source = 1;
+                source->label = route == XEMU_SHADER_BROWSER_ROUTE_UBER ?
+                    "resident Vulkan uber GLSL" :
+                    "resident Vulkan specialized GLSL";
+                source->text = module->glsl;
+                source->text_size = length;
+            }
+        } else if (!exists) {
+            out->omitted_sources++;
+        }
+    }
+    if (module && module->module != VK_NULL_HANDLE) {
+        out->ready_module_seen = true;
+    }
+    if (!(out->request.flags & 2U)) {
+        return;
+    }
+    if (out->variant_count == ARRAY_SIZE(out->variants)) {
+        out->omitted++;
+        return;
+    }
+    XemuShaderBrowserDetailVariant *variant =
+        &out->variants[out->variant_count++];
+    variant->variant_id = (uintptr_t)binding;
+    variant->route = route;
+    variant->readiness = module && module->module != VK_NULL_HANDLE ?
+        XEMU_SHADER_BROWSER_READINESS_READY :
+        XEMU_SHADER_BROWSER_READINESS_PENDING;
+    variant->label = "resident Vulkan shader binding";
+    if (binding->browser.prepare_cpu_ns) {
+        variant->valid_fields |= XEMU_SHADER_BROWSER_DETAIL_VALID_CREATE_TIME;
+        variant->create_time_ns = binding->browser.prepare_cpu_ns;
+    }
+}
+
+static void pgraph_vk_collect_pipeline_detail(Lru *lru, LruNode *node,
+                                              void *opaque)
+{
+    VkShaderDetailCollection *out = opaque;
+    PipelineBinding *binding = container_of(node, PipelineBinding, node);
+    if (binding->key.clear) {
+        return;
+    }
+    const ShaderState *selected = &out->matching_binding->state;
+    const ShaderState *candidate = &binding->key.shader_state;
+    bool matches = false;
+    switch (out->request.stage) {
+    case XEMU_SHADER_BROWSER_STAGE_VERTEX:
+    case XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION:
+        matches = memcmp(&selected->vsh, &candidate->vsh,
+                         sizeof(selected->vsh)) == 0;
+        break;
+    case XEMU_SHADER_BROWSER_STAGE_PIXEL:
+        matches = memcmp(&selected->psh, &candidate->psh,
+                         sizeof(selected->psh)) == 0;
+        break;
+    case XEMU_SHADER_BROWSER_STAGE_GEOMETRY:
+        matches = memcmp(&selected->geom, &candidate->geom,
+                         sizeof(selected->geom)) == 0;
+        break;
+    }
+    if (!matches) {
+        return;
+    }
+    if (binding->pipeline != VK_NULL_HANDLE) {
+        out->ready_pipeline_seen = true;
+    }
+    if (!(out->request.flags & 2U)) {
+        return;
+    }
+    if (out->variant_count == ARRAY_SIZE(out->variants)) {
+        out->omitted++;
+        return;
+    }
+    XemuShaderBrowserDetailVariant *variant =
+        &out->variants[out->variant_count++];
+    variant->variant_id = (uintptr_t)binding;
+    variant->route = binding->key.fragment_route ==
+                             PGRAPH_VK_FRAGMENT_UBERSHADER ?
+                         XEMU_SHADER_BROWSER_ROUTE_UBER :
+                         XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED;
+    variant->readiness = binding->pipeline != VK_NULL_HANDLE ?
+        XEMU_SHADER_BROWSER_READINESS_READY :
+        XEMU_SHADER_BROWSER_READINESS_PENDING;
+    variant->label = "resident Vulkan pipeline";
+    variant->valid_fields = XEMU_SHADER_BROWSER_DETAIL_VALID_COLOR_FORMAT |
+                            XEMU_SHADER_BROWSER_DETAIL_VALID_DEPTH_FORMAT |
+                            XEMU_SHADER_BROWSER_DETAIL_VALID_VERTEX_LAYOUT;
+    variant->color_format = binding->key.render_pass_state.color_format;
+    variant->depth_format = binding->key.render_pass_state.zeta_format;
+    variant->vertex_binding_count = binding->key.binding_description_count;
+    variant->vertex_attribute_count = binding->key.attribute_description_count;
+}
+
+/* Called on the Vulkan owner thread under pgraph.lock. Only resident cache
+ * data is read; no shader module, pipeline, or cache recency is changed. */
+static void pgraph_vk_service_shader_details(PGRAPHState *pg)
+{
+    XemuShaderBrowserDetailRequest request = { 0 };
+    if (!xemu_shader_browser_details_try_claim(
+            XEMU_SHADER_BROWSER_DETAIL_VULKAN, &request)) {
+        return;
+    }
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    VkShaderDetailCollection out = { .request = request };
+    lru_visit_active(&r->shader_cache, pgraph_vk_collect_shader_detail, &out);
+    if (out.matching_binding && (request.flags & (2U | 4U))) {
+        lru_visit_active(&r->pipeline_cache,
+                         pgraph_vk_collect_pipeline_detail, &out);
+    }
+    XemuShaderBrowserDetailLifecycle lifecycle[4] = { 0 };
+    size_t lifecycle_count = 0;
+    if (out.ready_module_seen) {
+        lifecycle[lifecycle_count++] =
+            (XemuShaderBrowserDetailLifecycle){
+                .frame = pg->frame_time,
+                .kind = XEMU_SHADER_BROWSER_DETAIL_EVENT_MODULE_PUBLISHED,
+                .message = "resident shader module present when inspected",
+            };
+    }
+    if (out.ready_pipeline_seen) {
+        lifecycle[lifecycle_count++] =
+            (XemuShaderBrowserDetailLifecycle){
+                .frame = pg->frame_time,
+                .kind = XEMU_SHADER_BROWSER_DETAIL_EVENT_PIPELINE_PUBLISHED,
+                .message = "resident pipeline present when inspected",
+            };
+    }
+    if (out.matching_binding && out.matching_binding == r->shader_binding) {
+        lifecycle[lifecycle_count++] =
+            (XemuShaderBrowserDetailLifecycle){
+                .frame = pg->frame_time,
+                .kind = XEMU_SHADER_BROWSER_DETAIL_EVENT_SELECTED,
+                .message = "shader binding selected when inspected",
+            };
+    }
+    lifecycle[lifecycle_count++] =
+        (XemuShaderBrowserDetailLifecycle){
+            .frame = pg->frame_time,
+            .kind = XEMU_SHADER_BROWSER_DETAIL_EVENT_REQUEST_COMPLETED,
+            .message = "resident Vulkan caches inspected",
+        };
+    for (size_t i = 0; i < lifecycle_count; ++i) {
+        lifecycle[i].sequence = i + 1;
+    }
+    char status[160];
+    if (out.omitted_sources || out.omitted) {
+        snprintf(status, sizeof(status),
+                 "Vulkan detail omitted %zu sources and %zu variants",
+                 out.omitted_sources, out.omitted);
+    }
+    XemuShaderBrowserDetailResult result = {
+        .request = request,
+        .backend = XEMU_SHADER_BROWSER_DETAIL_VULKAN,
+        .state = !out.matching_binding ?
+            XEMU_SHADER_BROWSER_DETAIL_UNAVAILABLE :
+            (out.omitted_sources || out.omitted) ?
+                XEMU_SHADER_BROWSER_DETAIL_PARTIAL :
+                XEMU_SHADER_BROWSER_DETAIL_COMPLETE,
+        .status = !out.matching_binding ?
+            "No resident Vulkan binding for this shader" :
+            (out.omitted_sources || out.omitted) ? status :
+            "Resident Vulkan binding and pipelines inspected",
+        .sources = out.sources,
+        .source_count = out.source_count,
+        .variants = out.variants,
+        .variant_count = out.variant_count,
+        .lifecycle = (request.flags & 4U) ? lifecycle : NULL,
+        .lifecycle_count = (request.flags & 4U) ? lifecycle_count : 0,
+    };
+    xemu_shader_browser_details_complete(&result);
+}
 
 static void pgraph_vk_hybrid_service_timer_fired(void *opaque)
 {
@@ -245,7 +496,8 @@ static void pgraph_vk_process_pending(NV2AState *d)
          pgraph_vk_hybrid_compiler_has_result(&r->hybrid_compiler)) ||
         (r->hybrid_pipeline_builder_initialized &&
          pgraph_vk_hybrid_pipeline_builder_has_result(
-             &r->hybrid_pipeline_builder))
+             &r->hybrid_pipeline_builder)) ||
+        xemu_shader_browser_details_pending()
     ) {
         qemu_mutex_unlock(&d->pfifo.lock);
         qemu_mutex_lock(&d->pgraph.lock);
@@ -284,6 +536,9 @@ static void pgraph_vk_process_pending(NV2AState *d)
             pgraph_vk_process_spirv_cache_writeback(&d->pgraph);
             qatomic_set(&r->spirv_cache_writeback_pending, false);
             qemu_event_set(&r->spirv_cache_writeback_complete);
+        }
+        if (xemu_shader_browser_details_pending()) {
+            pgraph_vk_service_shader_details(&d->pgraph);
         }
         qemu_mutex_unlock(&d->pgraph.lock);
         qemu_mutex_lock(&d->pfifo.lock);

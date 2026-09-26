@@ -9,7 +9,7 @@ bool ShaderDatabase::EndPerformanceSession(const std::string &session_id,
         if (error) *error = "Performance session is unavailable";
         return false;
     }
-    Enqueue([session_id, ended_unix_ms, clean_shutdown](
+    return Enqueue([session_id, ended_unix_ms, clean_shutdown](
                 sqlite3 *db, std::string *job_error) {
         sqlite3_stmt *stmt = nullptr;
         if (!Prepare(db,
@@ -21,8 +21,7 @@ bool ShaderDatabase::EndPerformanceSession(const std::string &session_id,
         bool ok = StepDone(db, stmt, job_error);
         sqlite3_finalize(stmt);
         return ok;
-    });
-    return true;
+    }, error);
 }
 
 bool ShaderDatabase::OpenAuxConnection(sqlite3 **db, bool read_only,
@@ -139,7 +138,7 @@ bool ShaderDatabase::RegisterArtifact(const ArtifactMetadata &artifact,
         return false;
     }
     ArtifactMetadata copy = artifact;
-    Enqueue([copy](sqlite3 *db, std::string *job_error) {
+    if (!Enqueue([copy](sqlite3 *db, std::string *job_error) {
         sqlite3_int64 shader_id = 0;
         if (!FindShaderId(db, copy.key, &shader_id, job_error)) return false;
         sqlite3_stmt *stmt = nullptr;
@@ -163,7 +162,7 @@ bool ShaderDatabase::RegisterArtifact(const ArtifactMetadata &artifact,
         bool ok = StepDone(db, stmt, job_error);
         sqlite3_finalize(stmt);
         return ok;
-    });
+    }, error)) return false;
     {
         std::lock_guard<std::mutex> lock(cache_mutex);
         auto it = known_artifact_paths.find(artifact.relative_path);

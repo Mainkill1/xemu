@@ -16,6 +16,7 @@ typedef struct PGRAPHShaderBrowserObservations {
     bool collecting;
 } PGRAPHShaderBrowserObservations;
 
+/* PGRAPH owns the binding and batch; calls are serialized by its lock. */
 void pgraph_shader_browser_record_draw(PGRAPHShaderBrowserObservations *batch,
                                        PGRAPHShaderBrowserBinding *binding,
                                        uint64_t frame, uint32_t pixel_route);

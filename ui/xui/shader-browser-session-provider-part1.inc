@@ -141,6 +141,11 @@ struct ArtifactJob {
     ArtifactWrite write;
 };
 
+struct PerformanceEntry {
+    ShaderSessionStats stats;
+    bool needs_enqueue = false;
+};
+
 class SessionProvider final : public Provider {
 public:
     bool Install(const char *new_base_path)
@@ -161,6 +166,8 @@ public:
         artifact_pending_bytes = 0;
         artifact_pending_jobs = 0;
         rejected_artifacts.store(0, std::memory_order_release);
+        failed_artifact_jobs = 0;
+        last_artifact_error.clear();
         maintenance_thread = std::thread(&SessionProvider::MaintenanceMain, this);
         artifact_thread = std::thread(&SessionProvider::ArtifactMain, this);
         return true;
@@ -209,6 +216,7 @@ public:
             next_event_sequence = 0;
         }
         live_entries.clear();
+        snapshot_events.clear();
         {
             std::lock_guard<std::mutex> lock(performance_mutex);
             performance_entries.clear();
@@ -262,7 +270,8 @@ public:
         // a user from disabling persistence while an external artifact has
         // been written but its SQLite metadata is still queued.
         if (database.Enabled()) {
-            FlushArtifactQueue();
+            std::string ignored_artifact_error;
+            FlushArtifactQueue(&ignored_artifact_error);
             std::string ignored;
             database.Flush(&ignored);
         }

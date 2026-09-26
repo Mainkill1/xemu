@@ -1,5 +1,5 @@
 
-void ShaderBrowserWindow::DrawShaderDetails()
+void ShaderBrowserWindow::DrawOverview()
 {
     const Entry *entry = SelectedEntry();
     if (!entry) {
@@ -29,8 +29,11 @@ void ShaderBrowserWindow::DrawShaderDetails()
         DrawKeyValue("Stage", StageLabel(entry->key.stage));
         DrawKeyValue("Game shader ID", full_id);
         DrawKeyValue("Shader hash", canonical);
-        DrawKeyValue("Stored in DB",
-                     entry->stored_in_database ? "Yes" : "No");
+        DrawKeyValue("Database catalog",
+                     m_snapshot.database_write_failed ?
+                         "Unconfirmed after writer error" :
+                     entry->stored_in_database ?
+                         "Catalogued (write-behind)" : "Not catalogued");
         DrawKeyValue("Recipe format",
                      entry->recipe_format_version ?
                          std::to_string(entry->recipe_format_version) :
@@ -159,7 +162,7 @@ void ShaderBrowserWindow::DrawSettings()
                      UnsignedText(m_snapshot.database_schema_version));
         DrawKeyValue("Journal", m_snapshot.database_journal_mode.empty() ?
                      "-" : m_snapshot.database_journal_mode);
-        DrawKeyValue("Stored shaders",
+        DrawKeyValue("Catalogued shaders",
                      UnsignedText(m_snapshot.stored_shader_count));
         DrawKeyValue("Known titles", UnsignedText(m_snapshot.title_count));
         DrawKeyValue("Performance sessions",
@@ -170,6 +173,12 @@ void ShaderBrowserWindow::DrawSettings()
                      UnsignedText(m_snapshot.artifact_count));
         DrawKeyValue("Rejected artifacts",
                      UnsignedText(m_snapshot.rejected_artifact_count));
+        DrawKeyValue("Failed artifact writes",
+                     UnsignedText(m_snapshot.failed_artifact_count));
+        if (m_snapshot.failed_artifact_count) {
+            DrawKeyValue("Last artifact error",
+                         m_snapshot.last_artifact_error);
+        }
         DrawKeyValue("Database size", BytesText(m_snapshot.database_bytes));
         DrawKeyValue("WAL size", BytesText(m_snapshot.database_wal_bytes));
         DrawKeyValue("Artifact size",
