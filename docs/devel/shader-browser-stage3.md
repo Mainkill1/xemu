@@ -1,6 +1,6 @@
 # Shader Browser Stage 3 — replacements and runtime overrides
 
-Stage 3 intentionally changes rendering. It is stacked on the Stage 2 Shader Details branch and must remain a draft until both renderers pass native output, failure, lifetime, and overhead validation.
+Stage 3 intentionally changes rendering. It targets `main` after the Stage 2 Shader Details work merged. Native OpenGL and Vulkan output, failure, reload, reset, and frame-time checks are recorded in the Stage 3 pull request.
 
 ## Research basis
 
@@ -22,6 +22,7 @@ The shared lesson is that xemu needs a guest-scoped policy layer and backend-own
 - Normal, Force Uber, Force Specialized, Skip Draw, Highlight, and Replacement actions, but only advertise actions actually supported by the active backend.
 - Full pixel/fragment replacements first. Vertex/fixed-function/geometry replacements require separate stage-linkage fixtures.
 - Separate replacement payloads for OpenGL and Vulkan may share one portable target manifest.
+- Authored Vulkan fragments may use guest texture samplers. Stage 3 v1 rejects authored Vulkan uniform blocks and push constants until their upload ABI can be validated; this is reported as an incompatible candidate and falls back safely.
 - Requested and effective actions remain separate while candidates prepare.
 - Replacement failures are recoverable; they never use the existing fatal internal compiler path.
 - SQLite/filesystem work is excluded from normal draws. The active title/build produces an immutable/read-mostly in-memory index.
@@ -95,3 +96,5 @@ separately. Importing a preset creates process-lifetime imported rules.
 - the drag/drop and button workflows produce the same validated rule;
 - disabled rules preserve normal output/routes and create no replacement work;
 - native cold/warm measurements report frame-time tails, creation counts, waits, memory, output, and guest progression.
+
+The native validation uses the `perf-tests` guest workload with boot assets supplied outside the repository. The detailed measurements and baseline shutdown behavior are recorded in the pull request.
