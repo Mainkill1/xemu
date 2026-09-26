@@ -79,6 +79,13 @@ int xemu_shader_override_resolve(
     uint32_t identity_version,
     const uint8_t identity_hash[XEMU_SHADER_BROWSER_HASH_BYTES],
     uint32_t stage, XemuShaderOverridePolicy *policy);
+int xemu_shader_override_resolve_scoped(
+    uint32_t title_id, uint32_t executable_fingerprint_version,
+    const uint8_t executable_fingerprint[
+        XEMU_SHADER_BROWSER_EXECUTABLE_FINGERPRINT_BYTES],
+    uint32_t backend, uint32_t identity_version,
+    const uint8_t identity_hash[XEMU_SHADER_BROWSER_HASH_BYTES],
+    uint32_t stage, XemuShaderOverridePolicy *policy);
 int xemu_shader_override_policy_matches_draw(
     const XemuShaderOverridePolicy *policy,
     const XemuShaderOverrideDrawFacts *facts);
