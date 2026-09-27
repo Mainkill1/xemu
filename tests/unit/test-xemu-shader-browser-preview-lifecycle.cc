@@ -210,6 +210,8 @@ int main(int argc, char **argv)
                current.displayed_result.mesh_digest == packet.mesh_digest;
     });
     assert(colors() == std::set<unsigned>{ 0xff0000 });
+    packet.width = 640;
+    packet.height = 480;
     packet.update_policy = PreviewUpdatePolicy::Continuous;
     service.EditClock(PreviewClockAction::Play, 0, Now());
     submit();
@@ -220,13 +222,16 @@ int main(int argc, char **argv)
         PreviewStatus current;
         service.CopyStatus(&current);
         if (current.has_displayed_source &&
-            current.displayed_result.packet_kind == PreviewPacketKind::Replay)
+            current.displayed_result.packet_kind == PreviewPacketKind::Replay &&
+            current.displayed_result.width == 640 &&
+            current.displayed_result.height == 480)
             displayed_frames.insert(current.displayed_result.clock_revision);
         SDL_Delay(5);
     }
-    std::printf("Backend %d captured mesh display cadence: %.1f fps\n",
+    std::printf("Backend %d captured mesh 640x480 display cadence: %.1f fps\n",
                 int(backend), displayed_frames.size() / 2.0);
     service.EditClock(PreviewClockAction::Pause, 0, Now());
+    packet.width = packet.height = 160;
     packet.update_policy = PreviewUpdatePolicy::OnDirty;
     packet.packet_kind = PreviewPacketKind::Synthetic;
     packet.replay_class = PreviewReplayClass::Synthetic;
