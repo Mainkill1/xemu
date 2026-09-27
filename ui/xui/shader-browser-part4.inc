@@ -423,8 +423,8 @@ void ShaderBrowserWindow::DrawLivePreview()
             displayed.input_revision != m_preview_input_revision ||
             !SameCountedWorkbenchBindings(
                 displayed, *packet, workbench.dock.bindings) ||
-            displayed.scene != m_preview_scene ||
-            displayed.render_state != m_preview_render_state ||
+            !(displayed.scene == m_preview_scene) ||
+            !(displayed.render_state == m_preview_render_state) ||
             displayed.fixture_digest != packet->fixture_digest ||
             displayed.channel != channel) {
             m_action_message =
