@@ -337,21 +337,37 @@ void RefreshWorkbenchTestFiles(ShaderWorkbenchSession *session,
     session->available_tests.clear();
     session->selected_test = -1;
     if (config_directory.empty()) return;
+    using TimedPath = std::pair<std::filesystem::file_time_type,
+                                std::filesystem::path>;
+    std::vector<TimedPath> newest;
+    newest.reserve(513);
+    auto later = [](const TimedPath &lhs, const TimedPath &rhs) {
+        return lhs > rhs;
+    };
     std::error_code ec;
     const auto root = config_directory / "shader-exports";
-    for (const auto &file : std::filesystem::directory_iterator(root, ec)) {
-        if (ec || session->available_tests.size() == 512) break;
-        if (!file.is_regular_file(ec) || ec) continue;
-        const std::string name = file.path().filename().u8string();
+    std::filesystem::directory_iterator file(root, ec), end;
+    for (; !ec && file != end; file.increment(ec)) {
+        std::error_code file_error;
+        if (!file->is_regular_file(file_error) || file_error) continue;
+        const std::string name = file->path().filename().u8string();
         constexpr char suffix[] = ".xemu-test.json";
         if (name.size() > sizeof(suffix) - 1 &&
             name.compare(name.size() - (sizeof(suffix) - 1),
                          sizeof(suffix) - 1, suffix) == 0) {
-            session->available_tests.push_back(file.path());
+            const auto modified = file->last_write_time(file_error);
+            if (file_error) continue;
+            newest.emplace_back(modified, file->path());
+            std::push_heap(newest.begin(), newest.end(), later);
+            if (newest.size() > 512) {
+                std::pop_heap(newest.begin(), newest.end(), later);
+                newest.pop_back();
+            }
         }
     }
-    std::sort(session->available_tests.begin(),
-              session->available_tests.end());
+    std::sort(newest.begin(), newest.end(), later);
+    for (auto &candidate : newest)
+        session->available_tests.push_back(std::move(candidate.second));
     if (!session->available_tests.empty()) session->selected_test = 0;
 }
 
@@ -389,13 +405,39 @@ void ShaderBrowserWindow::DrawLivePreview()
         m_action_message =
             "Saved test stopped because the renderer backend changed";
     }
-    auto lock_comparison = [&] (const PreviewSelection &selection) {
+    auto lock_comparison = [&] (const PreviewSelection &selection,
+                                PreviewSourceVariant source_variant) {
+        const PreviewPacket *packet = workbench.last_packet ?
+            &*workbench.last_packet : nullptr;
+        const PreviewResultKey &displayed = status.displayed_result;
+        const PreviewChannel channel =
+            selection.mode == PreviewMode::Visualize ?
+                static_cast<PreviewChannel>(m_preview_view_channel) :
+                PreviewChannel::FinalRGBA;
+        if (!packet || !m_preview_packet_attempted ||
+            !status.has_displayed_source || !status.has_attempt ||
+            !status.prepared || packet->selection != selection ||
+            packet->source_variant != source_variant ||
+            displayed.compile != BuildPreviewCompileKey(*packet) ||
+            status.attempted_compile != displayed.compile ||
+            displayed.input_revision != m_preview_input_revision ||
+            displayed.binding_count != packet->binding_count ||
+            displayed.bindings != workbench.dock.bindings ||
+            displayed.scene != m_preview_scene ||
+            displayed.render_state != m_preview_render_state ||
+            displayed.fixture_digest != packet->fixture_digest ||
+            displayed.channel != channel) {
+            m_action_message =
+                "Wait for the current preview before comparing sources";
+            return false;
+        }
         service.EditClock(PreviewClockAction::Pause, 0, now_ns);
         service.EditClock(PreviewClockAction::Scrub,
-                          status.clock.time_seconds, now_ns);
+                          displayed.time_seconds, now_ns);
         workbench.comparison_locked = true;
         workbench.comparison_selection = selection;
-        workbench.comparison_time = status.clock.time_seconds;
+        workbench.comparison_time = displayed.time_seconds;
+        return true;
     };
 
     const float control_width = std::clamp(
@@ -753,7 +795,7 @@ void ShaderBrowserWindow::DrawLivePreview()
                 if (ImGui::Button("Unlock comparison inputs"))
                     workbench.comparison_locked = false;
             } else if (ImGui::Button("Lock Original/Edited inputs")) {
-                lock_comparison(selection);
+                lock_comparison(selection, workbench.dock.variant);
             }
         }
         if (workbench.applied_rule && !draft_matches) {
@@ -1521,13 +1563,19 @@ void ShaderBrowserWindow::DrawLivePreview()
             }
         }
         if (workbench.dock.variant != workbench.last_variant) {
-            workbench.last_variant = workbench.dock.variant;
-            m_preview_packet_attempted = false;
+            const PreviewSourceVariant previous = workbench.last_variant;
             if ((WorkbenchDraftMatches(workbench.draft, selection) ||
                  (workbench.running_test &&
                   workbench.running_test->successful_compile)) &&
-                !workbench.comparison_locked && !editor_action.create_copy)
-                lock_comparison(selection);
+                !workbench.comparison_locked &&
+                !editor_action.create_copy &&
+                !lock_comparison(selection, previous)) {
+                workbench.dock.variant = previous;
+            }
+            if (workbench.dock.variant != previous) {
+                workbench.last_variant = workbench.dock.variant;
+                m_preview_packet_attempted = false;
+            }
         }
         if ((!workbench.running_test || workbench.editing_test) &&
             WorkbenchDraftMatches(workbench.draft, selection) &&
