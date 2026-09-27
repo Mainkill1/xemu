@@ -145,6 +145,22 @@ int main()
     assert(reopened.packet.render_state == input.packet.render_state);
     assert(reopened.packet.bindings[0] == input.packet.bindings[0]);
     assert(std::signbit(reopened.packet.bindings[0].base));
+    PreviewPacket rebuilt = reopened.packet;
+    rebuilt.binding_count = rebuilt.bindings.size();
+    assert(!ValidatePreviewPacket(rebuilt, &error));
+    assert(error == "Preview input binding is invalid or duplicated");
+    std::array<PreviewInputBinding, kPreviewMaxInputBindings> dock_defaults{};
+    for (size_t i = 0; i < dock_defaults.size(); ++i) {
+        dock_defaults[i].target = static_cast<PreviewInputTarget>(i);
+    }
+    rebuilt.bindings = ExpandWorkbenchPacketBindings(reopened.packet,
+                                                    dock_defaults);
+    assert(rebuilt.bindings[0] == input.packet.bindings[0]);
+    for (size_t i = 0; i < rebuilt.bindings.size(); ++i) {
+        assert(rebuilt.bindings[i].target ==
+               static_cast<PreviewInputTarget>(i));
+    }
+    assert(ValidatePreviewPacket(rebuilt, &error));
     assert(reopened.owned_textures[0] == input.owned_textures[0]);
     WorkbenchExperiment wrong_texture = input;
     wrong_texture.owned_textures[0][0] ^= 1;

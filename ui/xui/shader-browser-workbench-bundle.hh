@@ -41,6 +41,22 @@ struct WorkbenchExperiment {
     std::vector<WorkbenchDependency> dependencies;
 };
 
+// Bundle packets store only counted bindings. Restore them into the editor's
+// fixed, uniquely targeted slots before the editor submits a full packet.
+inline std::array<PreviewInputBinding, kPreviewMaxInputBindings>
+ExpandWorkbenchPacketBindings(
+    const PreviewPacket &packet,
+    std::array<PreviewInputBinding, kPreviewMaxInputBindings> defaults)
+{
+    for (size_t i = 0; i < packet.binding_count &&
+                       i < packet.bindings.size(); ++i) {
+        const PreviewInputBinding &binding = packet.bindings[i];
+        const size_t target = static_cast<size_t>(binding.target);
+        if (target < defaults.size()) defaults[target] = binding;
+    }
+    return defaults;
+}
+
 constexpr size_t kMaxWorkbenchBundleJsonBytes = 24U * 1024U * 1024U;
 bool ValidateWorkbenchExperiment(const WorkbenchExperiment &experiment,
                                  std::string *error);
