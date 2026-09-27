@@ -99,9 +99,10 @@ void pgraph_vk_perf_init(PGRAPHVkState *r)
     r->perf.enabled = true;
     r->perf.last_flush_us = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     fprintf(r->perf.file,
-            "{\"type\":\"schema\",\"schema_version\":8"
+            "{\"type\":\"schema\",\"schema_version\":9"
             ",\"features\":[\"report_lifecycle\","
-            "\"descriptor_publication\",\"surface_upload\"]"
+            "\"descriptor_publication\",\"surface_upload\","
+            "\"texture_stage_policy\"]"
             ",\"duration_sampling\":{\"initial_per_reason_per_frame\":%u"
             ",\"hot_stride\":%u}"
             ",\"presentation_counters\":\"cumulative_totals\"",
@@ -314,7 +315,7 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
 
     fprintf(perf->file,
-            "{\"type\":\"frame\",\"schema_version\":8"
+            "{\"type\":\"frame\",\"schema_version\":9"
             ",\"timestamp_us\":%" PRId64 ",\"guest_frame\":%" PRIu64,
             now, ++perf->frame);
     write_stat_array(perf->file, "finish_count_per_guest_frame", perf->finish,
@@ -466,6 +467,12 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             ",\"surface_upload_guest_write_causes_per_guest_frame\":%" PRIu64
             ",\"surface_upload_dirty_memory_causes_per_guest_frame\":%" PRIu64
             ",\"surface_upload_overlap_guest_write_causes_per_guest_frame\":%" PRIu64
+            ",\"texture_whole_clean_returns_per_guest_frame\":%" PRIu64
+            ",\"texture_slow_bind_calls_per_guest_frame\":%" PRIu64
+            ",\"texture_stage_checks_per_guest_frame\":%" PRIu64
+            ",\"texture_clean_stage_eligible_per_guest_frame\":%" PRIu64
+            ",\"texture_clean_stage_skips_per_guest_frame\":%" PRIu64
+            ",\"texture_clean_stage_forced_reference_per_guest_frame\":%" PRIu64
             "}\n",
             perf->descriptor_update_calls,
             perf->descriptor_reuse_returns,
@@ -486,7 +493,13 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
             perf->surface_upload_new_causes,
             perf->surface_upload_guest_write_causes,
             perf->surface_upload_dirty_memory_causes,
-            perf->surface_upload_overlap_guest_write_causes);
+            perf->surface_upload_overlap_guest_write_causes,
+            perf->texture_whole_clean_returns,
+            perf->texture_slow_bind_calls,
+            perf->texture_stage_checks,
+            perf->texture_clean_stage_eligible,
+            perf->texture_clean_stage_skips,
+            perf->texture_clean_stage_forced_reference);
 
     if (now - perf->last_flush_us >= G_USEC_PER_SEC) {
         fflush(perf->file);
@@ -524,6 +537,12 @@ void pgraph_vk_perf_frame(PGRAPHVkState *r)
     perf->descriptor_force_reupload_requests = 0;
     perf->descriptor_uniform_write_requests = 0;
     perf->descriptor_capacity_requests = 0;
+    perf->texture_whole_clean_returns = 0;
+    perf->texture_slow_bind_calls = 0;
+    perf->texture_stage_checks = 0;
+    perf->texture_clean_stage_eligible = 0;
+    perf->texture_clean_stage_skips = 0;
+    perf->texture_clean_stage_forced_reference = 0;
     perf->uniform_capacity_requests = 0;
     memset(perf->uniform_stage_writes, 0,
            sizeof(perf->uniform_stage_writes));

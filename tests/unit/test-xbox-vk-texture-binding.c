@@ -54,6 +54,14 @@ static bool test_failed_active_bind_remains_retryable(void)
            pgraph_vk_texture_stage_needs_rebind(true, false, true, true);
 }
 
+static bool test_clean_stage_policy_gate(void)
+{
+    return pgraph_vk_should_skip_clean_texture_stage(true, true) &&
+           !pgraph_vk_should_skip_clean_texture_stage(false, true) &&
+           !pgraph_vk_should_skip_clean_texture_stage(true, false) &&
+           !pgraph_vk_should_skip_clean_texture_stage(false, false);
+}
+
 static bool test_texture_source_identity(void)
 {
     const uint64_t texture = 0x1000;
@@ -205,9 +213,10 @@ int main(void)
         test_failed_multistage_bind_detects_recovery_changes();
     bool retained_publication =
         test_failed_bind_retains_unpublished_descriptor_change();
+    bool policy_gate = test_clean_stage_policy_gate();
 
     puts("TAP version 13");
-    puts("1..6");
+    puts("1..7");
     printf("%s 1 - disabled dirty state waits for re-enable\n",
            disabled ? "ok" : "not ok");
     printf("%s 2 - failed active bind remains retryable\n",
@@ -220,6 +229,8 @@ int main(void)
            recovery_changes ? "ok" : "not ok");
     printf("%s 6 - failed bind retains unpublished descriptor change\n",
            retained_publication ? "ok" : "not ok");
+    printf("%s 7 - clean-stage policy gates only an eligible skip\n",
+           policy_gate ? "ok" : "not ok");
     return (disabled && retry && identity && descriptor_identity &&
-            recovery_changes && retained_publication) ? 0 : 1;
+            recovery_changes && retained_publication && policy_gate) ? 0 : 1;
 }

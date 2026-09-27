@@ -74,6 +74,9 @@ static bool xemu_tweak_requested(XemuTweak tweak)
         return g_config.tweaks.issue149_effect_suppression;
     case XEMU_TWEAK_NV20_VERTEX_ARITHMETIC:
         return g_config.tweaks.nv20_vertex_arithmetic;
+    case XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES:
+        return g_config.tweaks.vk_skip_clean_texture_stages ==
+               CONFIG_TWEAKS_VK_SKIP_CLEAN_TEXTURE_STAGES_AUTO;
     default:
         return false;
     }
@@ -92,6 +95,9 @@ XemuTweakRuntimeState xemu_tweak_runtime_state(XemuTweak tweak)
     state.requested = xemu_tweak_requested(tweak);
     state.policy_requested = state.requested ?
         XEMU_TWEAK_POLICY_ENABLED : XEMU_TWEAK_POLICY_DISABLED;
+    if (tweak == XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES && state.requested) {
+        state.policy_requested = XEMU_TWEAK_POLICY_AUTO;
+    }
 
     switch (tweak) {
     case XEMU_TWEAK_CPU_SAVING_WAIT:
@@ -285,15 +291,22 @@ void xemu_tweaks_apply(bool startup)
             g_config.tweaks.issue149_effect_suppression,
         [XEMU_TWEAK_NV20_VERTEX_ARITHMETIC] =
             g_config.tweaks.nv20_vertex_arithmetic,
+        [XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES] =
+            g_config.tweaks.vk_skip_clean_texture_stages ==
+            CONFIG_TWEAKS_VK_SKIP_CLEAN_TEXTURE_STAGES_AUTO,
     };
     XemuTweakBits active = qatomic_read_u64(&xemu_tweaks_active);
 
     for (unsigned int i = 0; i < XEMU_TWEAK_COUNT; i++) {
         XemuTweakBits bit = UINT64_C(1) << i;
+        XemuTweakPolicy requested =
+            i == XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES && selected[i] ?
+                XEMU_TWEAK_POLICY_AUTO :
+                selected[i] ? XEMU_TWEAK_POLICY_ENABLED :
+                              XEMU_TWEAK_POLICY_DISABLED;
         XemuTweakPolicyResolution resolved = xemu_tweak_policy_resolve(
-            selected[i] ? XEMU_TWEAK_POLICY_ENABLED :
-                          XEMU_TWEAK_POLICY_DISABLED,
-            false, (active & bit) != 0, true,
+            requested, i == XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES,
+            (active & bit) != 0, true,
             !startup && xemu_tweak_requires_restart(i),
             XEMU_TWEAK_AVAILABLE);
         if (resolved.selected) {

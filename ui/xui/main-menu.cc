@@ -106,6 +106,30 @@ static void PerformanceToggle(const char *label, bool *selected,
     }
 }
 
+static void VulkanCleanTextureStagePolicyCombo(void)
+{
+    if (ChevronCombo("Skip clean texture stages",
+                     &g_config.tweaks.vk_skip_clean_texture_stages,
+                     "Auto\0Disabled\0",
+                     "Auto skips eligible clean stages while another stage "
+                     "requires a slow bind. Disabled sends those eligible "
+                     "stages through normal texture preparation. Whole-bind "
+                     "clean returns and all dirty, surface, palette, and DMA "
+                     "guards remain active. Applies live.")) {
+        xemu_tweaks_apply(false);
+        xemu_settings_save();
+    }
+    XemuTweakRuntimeState state = xemu_tweak_runtime_state(
+        XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES);
+    ImGui::TextDisabled("Requested: %s   Effective: %s",
+                        state.policy_requested == XEMU_TWEAK_POLICY_AUTO ?
+                            "Auto" : "Disabled",
+                        state.effective ? "Enabled" : "Disabled");
+    if (!state.available) {
+        ImGui::TextDisabled("%s", state.reason);
+    }
+}
+
 static const char *VulkanUbershaderModeName(
     XemuVulkanUbershaderMode mode)
 {
@@ -222,6 +246,7 @@ void MainMenuAdvanceView::Draw()
         xemu_settings_save();
     }
     SectionTitle("Vulkan");
+    VulkanCleanTextureStagePolicyCombo();
     XemuVulkanUbershaderRuntimeState ubershader_state =
         VulkanUbershaderModeCombo();
     ImGui::BeginDisabled(

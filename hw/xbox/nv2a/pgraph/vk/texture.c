@@ -30,6 +30,7 @@
 #include "qemu/error-report.h"
 #include "qemu/fast-hash.h"
 #include "qemu/lru.h"
+#include "ui/xemu-tweaks.h"
 #include "bc-layout.h"
 #include "failpoint.h"
 #include "failure-state.h"
@@ -1727,6 +1728,9 @@ bool pgraph_vk_bind_textures(NV2AState *d)
     if (!check_textures_dirty(pg) &&
         !check_bound_texture_memory_dirty(d) &&
         bound_texture_sources_match(pg)) {
+        if (r->perf.enabled) {
+            r->perf.texture_whole_clean_returns++;
+        }
         NV2A_VK_DPRINTF("Not dirty");
         NV2A_VK_DGROUP_END();
         update_timestamps(r);
@@ -1734,6 +1738,10 @@ bool pgraph_vk_bind_textures(NV2AState *d)
             r, VK_PERF_CPU_BIND_TEXTURES,
             r->perf.enabled ? g_get_monotonic_time() - start_us : 0);
         return true;
+    }
+
+    if (r->perf.enabled) {
+        r->perf.texture_slow_bind_calls++;
     }
 
     bool succeeded = true;
@@ -1746,6 +1754,9 @@ bool pgraph_vk_bind_textures(NV2AState *d)
                 continue;
             }
         } else {
+            if (r->perf.enabled) {
+                r->perf.texture_stage_checks++;
+            }
             bool stage_clean =
                 !pg->texture_dirty[i] && binding &&
                 binding != &r->dummy_texture && !binding->possibly_dirty &&
@@ -1769,7 +1780,21 @@ bool pgraph_vk_bind_textures(NV2AState *d)
                      binding->key.palette_vram_offset);
 
             if (stage_clean) {
-                continue;
+                if (r->perf.enabled) {
+                    r->perf.texture_clean_stage_eligible++;
+                }
+                if (pgraph_vk_should_skip_clean_texture_stage(
+                        xemu_tweak_enabled(
+                            XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES),
+                        stage_clean)) {
+                    if (r->perf.enabled) {
+                        r->perf.texture_clean_stage_skips++;
+                    }
+                    continue;
+                }
+                if (r->perf.enabled) {
+                    r->perf.texture_clean_stage_forced_reference++;
+                }
             }
         }
 
