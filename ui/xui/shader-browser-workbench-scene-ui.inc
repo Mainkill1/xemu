@@ -33,6 +33,7 @@ inline WorkbenchSceneUiEdits DrawWorkbenchSceneControls(
         if (ImGui::Button("Reset scene")) {
             *scene = ApplyPreviewCameraGesture(
                 *scene, { PreviewCameraGestureKind::ResetScene });
+            scene->mesh = PreviewMesh::Sphere;
             edits.scene = true;
         }
         edits.scene |= ImGui::DragFloat3("Target pivot",
