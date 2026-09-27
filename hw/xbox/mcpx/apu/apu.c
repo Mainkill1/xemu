@@ -482,6 +482,7 @@ static void mcpx_apu_exitfn(PCIDevice *dev)
 
     qemu_thread_join(&d->apu_thread);
     mcpx_apu_vp_finalize(d);
+    /* All telemetry producers have stopped before joining the sink writer. */
     mcpx_apu_perf_finalize(&d->perf,
                            qemu_clock_get_us(QEMU_CLOCK_REALTIME));
     mcpx_apu_monitor_finalize(d);

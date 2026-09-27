@@ -9,7 +9,7 @@
 #include "hw/xbox/mcpx/apu/perf.h"
 #include "hw/xbox/mcpx/apu/apu_regs.h"
 
-#define APU_PERF_SCHEMA_VERSION 3
+#define APU_PERF_SCHEMA_VERSION 4
 #define APU_PERF_EMIT_INTERVAL_US G_USEC_PER_SEC
 #define APU_PERF_FRAME_BUDGET_US (EP_FRAME_US / 8)
 
@@ -23,13 +23,15 @@ static void write_array(FILE *file, const char *key, const uint64_t *values,
     fputc(']', file);
 }
 
-static void emit_sample_locked(McpxApuPerfTelemetry *perf, int64_t now_us)
+static void emit_sample(FILE *file, const McpxApuPerfSample *sample,
+                        int num_workers)
 {
-    McpxApuPerfTotals *t = &perf->totals;
+    const McpxApuPerfTotals *t = &sample->totals;
 
-    fprintf(perf->file,
+    fprintf(file,
             "{\"type\":\"sample\",\"schema_version\":%d"
             ",\"timestamp_us\":%" PRId64
+            ",\"dropped_samples\":%" PRIu64
             ",\"frames\":%" PRIu64
             ",\"frame_work_us\":%" PRIu64
             ",\"frame_work_max_us\":%" PRIu64
@@ -67,7 +69,8 @@ static void emit_sample_locked(McpxApuPerfTelemetry *perf, int64_t now_us)
             ",\"audio_queue_max_bytes\":%" PRIu64
             ",\"audio_low_watermark_samples\":%" PRIu64
             ",\"audio_high_watermark_samples\":%" PRIu64,
-            APU_PERF_SCHEMA_VERSION, now_us, t->frames, t->frame_work_us,
+            APU_PERF_SCHEMA_VERSION, sample->timestamp_us,
+            sample->dropped_samples, t->frames, t->frame_work_us,
             t->frame_work_max_us, t->frame_budget_overruns, t->dispatches,
             t->queued_voices, t->queued_voices_max,
             t->resampled_mono_voices, t->resampled_stereo_voices,
@@ -88,18 +91,98 @@ static void emit_sample_locked(McpxApuPerfTelemetry *perf, int64_t now_us)
             t->audio_queue_bytes, t->audio_queue_min_bytes,
             t->audio_queue_max_bytes, t->audio_low_watermark_samples,
             t->audio_high_watermark_samples);
-    write_array(perf->file, "assigned_voices", t->assigned_voices,
-                perf->num_workers);
-    write_array(perf->file, "worker_processing_us", t->worker_processing_us,
-                perf->num_workers);
-    write_array(perf->file, "worker_reduction_us", t->worker_reduction_us,
-                perf->num_workers);
-    write_array(perf->file, "worker_total_us", t->worker_total_us,
-                perf->num_workers);
-    write_array(perf->file, "worker_max_us", t->worker_max_us,
-                perf->num_workers);
-    fprintf(perf->file, "}\n");
-    perf->last_emit_us = now_us;
+    write_array(file, "assigned_voices", t->assigned_voices, num_workers);
+    write_array(file, "worker_processing_us", t->worker_processing_us,
+                num_workers);
+    write_array(file, "worker_reduction_us", t->worker_reduction_us,
+                num_workers);
+    write_array(file, "worker_total_us", t->worker_total_us, num_workers);
+    write_array(file, "worker_max_us", t->worker_max_us, num_workers);
+    fprintf(file, "}\n");
+}
+
+static void sink_failed(McpxApuPerfTelemetry *perf,
+                        McpxApuPerfSinkError error)
+{
+    int saved_errno = errno ? errno : EIO;
+
+    qemu_mutex_lock(&perf->sink_lock);
+    if (perf->pending) {
+        qatomic_inc(&perf->dropped_samples);
+        perf->pending = false;
+    }
+    perf->sink_errno = saved_errno;
+    qatomic_set(&perf->sink_error, error);
+    qemu_mutex_unlock(&perf->sink_lock);
+    fprintf(stderr, "mcpx-apu: performance log '%s' failed (%s): %s\n",
+            perf->sink_path,
+            error == MCPX_APU_PERF_SINK_OPEN ? "open" :
+            error == MCPX_APU_PERF_SINK_WRITE ? "write" :
+            error == MCPX_APU_PERF_SINK_FLUSH ? "flush" : "close",
+            strerror(saved_errno));
+}
+
+static void *sink_writer(void *opaque)
+{
+    McpxApuPerfTelemetry *perf = opaque;
+    FILE *file = qemu_fopen(perf->sink_path, "w");
+
+    if (!file) {
+        sink_failed(perf, MCPX_APU_PERF_SINK_OPEN);
+        return NULL;
+    }
+    if (fprintf(file,
+                "{\"type\":\"schema\",\"schema_version\":%d"
+                ",\"num_workers\":%d,\"frame_budget_us\":%d"
+                ",\"counters\":\"cumulative_totals\"}\n",
+                APU_PERF_SCHEMA_VERSION, perf->num_workers,
+                APU_PERF_FRAME_BUDGET_US) < 0) {
+        sink_failed(perf, MCPX_APU_PERF_SINK_WRITE);
+        goto close_file;
+    }
+    if (fflush(file) != 0) {
+        sink_failed(perf, MCPX_APU_PERF_SINK_FLUSH);
+        goto close_file;
+    }
+
+    for (;;) {
+        McpxApuPerfSample sample;
+        bool have_sample;
+        bool final_sample;
+
+        qemu_mutex_lock(&perf->sink_lock);
+        while (!perf->pending && !perf->stopping) {
+            qemu_cond_wait(&perf->sink_cond, &perf->sink_lock);
+        }
+        have_sample = perf->pending;
+        final_sample = !have_sample && perf->stopping;
+        sample = have_sample ? perf->pending_sample : perf->final_sample;
+        perf->pending = false;
+        qemu_mutex_unlock(&perf->sink_lock);
+
+        if (final_sample) {
+            sample.dropped_samples = qatomic_read(&perf->dropped_samples);
+        }
+        emit_sample(file, &sample, perf->num_workers);
+        if (ferror(file)) {
+            sink_failed(perf, MCPX_APU_PERF_SINK_WRITE);
+            break;
+        }
+        if (fflush(file) != 0) {
+            sink_failed(perf, MCPX_APU_PERF_SINK_FLUSH);
+            break;
+        }
+        if (final_sample) {
+            break;
+        }
+    }
+
+close_file:
+    if (fclose(file) != 0 &&
+        qatomic_read(&perf->sink_error) == MCPX_APU_PERF_SINK_OK) {
+        sink_failed(perf, MCPX_APU_PERF_SINK_CLOSE);
+    }
+    return NULL;
 }
 
 bool mcpx_apu_perf_init(McpxApuPerfTelemetry *perf, const char *path,
@@ -113,30 +196,29 @@ bool mcpx_apu_perf_init(McpxApuPerfTelemetry *perf, const char *path,
         return false;
     }
 
-    perf->file = qemu_fopen(path, "w");
-    if (perf->file == NULL) {
-        fprintf(stderr, "mcpx-apu: failed to open performance log '%s'\n",
-                path);
-        return false;
-    }
-
+    perf->sink_path = g_strdup(path);
+    qemu_mutex_init(&perf->sink_lock);
+    qemu_cond_init(&perf->sink_cond);
     perf->enabled = true;
-    fprintf(perf->file,
-            "{\"type\":\"schema\",\"schema_version\":%d"
-            ",\"num_workers\":%d,\"frame_budget_us\":%d"
-            ",\"counters\":\"cumulative_totals\"}\n",
-            APU_PERF_SCHEMA_VERSION, perf->num_workers,
-            APU_PERF_FRAME_BUDGET_US);
+    qemu_thread_create(&perf->writer, "mcpx.apu_perf", sink_writer, perf,
+                       QEMU_THREAD_JOINABLE);
     return true;
 }
 
 void mcpx_apu_perf_finalize(McpxApuPerfTelemetry *perf, int64_t now_us)
 {
     if (perf->enabled) {
-        emit_sample_locked(perf, now_us);
-        fflush(perf->file);
-        fclose(perf->file);
-        perf->file = NULL;
+        qemu_mutex_lock(&perf->sink_lock);
+        perf->final_sample.totals = perf->totals;
+        perf->final_sample.timestamp_us = now_us;
+        perf->stopping = true;
+        qemu_cond_signal(&perf->sink_cond);
+        qemu_mutex_unlock(&perf->sink_lock);
+        qemu_thread_join(&perf->writer);
+        qemu_cond_destroy(&perf->sink_cond);
+        qemu_mutex_destroy(&perf->sink_lock);
+        g_free(perf->sink_path);
+        perf->sink_path = NULL;
         perf->enabled = false;
     }
 }
@@ -338,7 +420,23 @@ void mcpx_apu_perf_record_frame(McpxApuPerfTelemetry *perf,
     t->frame_work_max_us = MAX(t->frame_work_max_us, frame_work_us);
     t->frame_budget_overruns += frame_work_us > APU_PERF_FRAME_BUDGET_US;
     if (now_us - perf->last_emit_us >= APU_PERF_EMIT_INTERVAL_US) {
-        emit_sample_locked(perf, now_us);
-        fflush(perf->file);
+        perf->last_emit_us = now_us;
+        if (qatomic_read(&perf->sink_error) != MCPX_APU_PERF_SINK_OK ||
+            qemu_mutex_trylock(&perf->sink_lock) != 0) {
+            qatomic_inc(&perf->dropped_samples);
+            return;
+        }
+        if (perf->pending ||
+            qatomic_read(&perf->sink_error) != MCPX_APU_PERF_SINK_OK) {
+            qatomic_inc(&perf->dropped_samples);
+        } else {
+            perf->pending_sample.totals = perf->totals;
+            perf->pending_sample.timestamp_us = now_us;
+            perf->pending_sample.dropped_samples =
+                qatomic_read(&perf->dropped_samples);
+            perf->pending = true;
+            qemu_cond_signal(&perf->sink_cond);
+        }
+        qemu_mutex_unlock(&perf->sink_lock);
     }
 }

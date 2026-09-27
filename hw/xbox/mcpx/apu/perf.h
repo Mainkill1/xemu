@@ -7,6 +7,7 @@
 #ifndef HW_XBOX_MCPX_APU_PERF_H
 #define HW_XBOX_MCPX_APU_PERF_H
 
+#include "qemu/thread.h"
 #include "hw/xbox/mcpx/apu/apu_debug.h"
 #include "hw/xbox/mcpx/apu/apu_regs.h"
 
@@ -85,14 +86,39 @@ typedef struct McpxApuPerfTotals {
     uint64_t audio_high_watermark_samples;
 } McpxApuPerfTotals;
 
+typedef struct McpxApuPerfSample {
+    McpxApuPerfTotals totals;
+    int64_t timestamp_us;
+    uint64_t dropped_samples;
+} McpxApuPerfSample;
+
+typedef enum McpxApuPerfSinkError {
+    MCPX_APU_PERF_SINK_OK,
+    MCPX_APU_PERF_SINK_OPEN,
+    MCPX_APU_PERF_SINK_WRITE,
+    MCPX_APU_PERF_SINK_FLUSH,
+    MCPX_APU_PERF_SINK_CLOSE,
+} McpxApuPerfSinkError;
+
 typedef struct McpxApuPerfTelemetry {
     bool enabled;
-    FILE *file;
     int num_workers;
     int64_t last_emit_us;
     uint64_t dispatch_serial;
     McpxApuPerfVoiceRateState voice_rates[MCPX_HW_MAX_VOICES];
     McpxApuPerfTotals totals;
+
+    QemuThread writer;
+    QemuMutex sink_lock;
+    QemuCond sink_cond;
+    char *sink_path;
+    McpxApuPerfSample pending_sample;
+    McpxApuPerfSample final_sample;
+    bool pending;
+    bool stopping;
+    uint64_t dropped_samples;
+    int sink_errno;
+    McpxApuPerfSinkError sink_error;
 } McpxApuPerfTelemetry;
 
 /* Record calls are serialized by VoiceWorkDispatch::lock in production. */
