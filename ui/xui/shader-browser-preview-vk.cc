@@ -889,7 +889,8 @@ struct PreviewVkExecutor::Impl {
         };
         if (!work.packet ||
             work.packet->selection.backend != PreviewBackend::Vulkan ||
-            work.packet->packet_kind != PreviewPacketKind::Synthetic ||
+            (work.packet->packet_kind != PreviewPacketKind::Synthetic &&
+             work.packet->packet_kind != PreviewPacketKind::Replay) ||
             work.packet->partner_source !=
                 BuildPreviewSyntheticVertexSource(work.packet->source,
                                                   PreviewBackend::Vulkan)) {
@@ -1190,8 +1191,12 @@ struct PreviewVkExecutor::Impl {
                             i * pixels.size(),
                         pixels.data(), pixels.size());
         }
-        auto frame = BuildPreviewSceneFrame(
-            work.result_key.scene, float(packet.width) / packet.height, true);
+        auto frame = packet.packet_kind == PreviewPacketKind::Replay ?
+            BuildPreviewCapturedFrame(work.result_key.scene,
+                packet.captured_mesh, float(packet.width) / packet.height,
+                true) :
+            BuildPreviewSceneFrame(work.result_key.scene,
+                float(packet.width) / packet.height, true);
         if (frame.draw_count != kPreviewMaxSceneDraws ||
             frame.vertices.size() > kPreviewMaxSceneVertices) {
             *error = "Private Vulkan scene geometry is invalid";

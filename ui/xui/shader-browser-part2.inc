@@ -333,6 +333,7 @@ void ShaderBrowserWindow::DrawRightPane()
         ImGui::EndTabBar();
     }
     m_select_preview_tab = false;
+    if (!preview_visible) CancelWorkbenchCaptureWhenHidden();
     GetPreviewService().SetVisible(preview_visible, PreviewNowNs());
 }
 

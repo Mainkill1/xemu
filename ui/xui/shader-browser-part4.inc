@@ -129,6 +129,14 @@ struct ShaderWorkbenchSession {
     bool start_requested = false;
     PreviewSelection start_selection;
     std::string start_error;
+    uint64_t capture_request_id = 0;
+    uint64_t capture_handled_id = 0;
+    bool capture_auto_pause = false;
+    PreviewSelection capture_selection;
+    PreviewCapturedMesh capture_mesh;
+    DrawCaptureSummary capture_summary;
+    int capture_component = -1;
+    bool use_capture_mesh = false;
     bool generated_cache_valid = false;
     bool has_generated = false;
     uint64_t generated_detail_generation = 0;
@@ -306,6 +314,10 @@ bool BuildCurrentWorkbenchExperiment(
         if (error) *error = "No matching synthetic result is ready to export";
         return false;
     }
+    if (candidate->packet_kind != PreviewPacketKind::Synthetic) {
+        if (error) *error = "Switch to Synthetic scene before exporting a synthetic test";
+        return false;
+    }
     WorkbenchExperiment next = session.running_test ?
         *session.running_test : WorkbenchExperiment{};
     next.recipe = session.running_test ? session.running_test->recipe : recipe;
@@ -381,6 +393,16 @@ void RefreshWorkbenchTestFiles(ShaderWorkbenchSession *session,
 
 } // namespace
 
+static void CancelWorkbenchCaptureWhenHidden()
+{
+    ShaderWorkbenchSession &workbench = WorkbenchSession();
+    if (!workbench.capture_auto_pause) return;
+    xemu_shader_draw_request_cancel();
+    if (runstate_is_running()) vm_stop(RUN_STATE_PAUSED);
+    workbench.capture_request_id = 0;
+    workbench.capture_auto_pause = false;
+}
+
 void ShaderBrowserWindow::DrawWorkbenchSharedSettings()
 {
     ShaderWorkbenchSession &workbench = WorkbenchSession();
@@ -416,7 +438,58 @@ void ShaderBrowserWindow::DrawLivePreview()
     ShaderWorkbenchSession &workbench = WorkbenchSession();
     PreviewService &service = GetPreviewService();
     const uint64_t now_ns = PreviewNowNs();
-    const bool guest_paused = runstate_check(RUN_STATE_PAUSED);
+    bool guest_paused = runstate_check(RUN_STATE_PAUSED);
+    XemuShaderDrawRequestStatus capture_status{};
+    xemu_shader_draw_request_copy_status(&capture_status);
+    if (workbench.capture_request_id == capture_status.request_id &&
+        workbench.capture_auto_pause &&
+        (capture_status.state == XEMU_SHADER_DRAW_REQUEST_READY ||
+         capture_status.state == XEMU_SHADER_DRAW_REQUEST_CANCELLED ||
+         capture_status.state == XEMU_SHADER_DRAW_REQUEST_FAILED)) {
+        if (runstate_is_running()) vm_stop(RUN_STATE_PAUSED);
+        guest_paused = runstate_check(RUN_STATE_PAUSED);
+        workbench.capture_auto_pause = false;
+    }
+    if (workbench.capture_request_id == capture_status.request_id &&
+        workbench.capture_handled_id != capture_status.request_id &&
+        capture_status.state == XEMU_SHADER_DRAW_REQUEST_READY) {
+        auto geometry = GetDrawCaptureRequest().CopyGeometry();
+        workbench.capture_mesh.positions = std::move(geometry.positions);
+        workbench.capture_mesh.indices = std::move(geometry.indices);
+        workbench.capture_summary = GetDrawCaptureRequest().CopyCaptured();
+        const PrimitiveSegmentation split =
+            SegmentTriangleList(workbench.capture_mesh.indices);
+        workbench.capture_summary.segmentation_complete =
+            !split.limit_exceeded && !split.trailing_index_count &&
+            split.islands.size() <= kCaptureMaxAnalysisSegments;
+        workbench.capture_summary.batched_geometry_suspected =
+            split.islands.size() > 1;
+        if (workbench.capture_summary.segmentation_complete) {
+            for (const auto &island : split.islands) {
+                DrawSegmentSummary segment{};
+                segment.key.draw = workbench.capture_summary.key;
+                segment.key.segment = static_cast<uint32_t>(
+                    workbench.capture_summary.segments.size());
+                segment.origin = DrawSegmentOrigin::ConnectedIndexComponent;
+                segment.primitive_count = island.primitive_indices.size();
+                segment.primitive_indices = island.primitive_indices;
+                workbench.capture_summary.segments.push_back(
+                    std::move(segment));
+            }
+        }
+        workbench.capture_component = -1;
+        workbench.capture_handled_id = capture_status.request_id;
+        workbench.use_capture_mesh =
+            !workbench.capture_mesh.positions.empty() &&
+            !workbench.capture_mesh.indices.empty();
+        m_preview_packet_attempted = false;
+        if (workbench.use_capture_mesh && guest_paused) {
+            service.SetEnabled(true);
+            workbench.start_requested = true;
+            workbench.start_selection = workbench.capture_selection;
+            workbench.start_error.clear();
+        }
+    }
     const bool offline_no_guest = workbench.running_test &&
         CurrentWorkbenchBuildScope().title_id == 0 &&
         !runstate_is_running();
@@ -822,6 +895,22 @@ void ShaderBrowserWindow::DrawLivePreview()
             }
         }
         service.SetSelection(selection, now_ns);
+        if (workbench.capture_request_id &&
+            workbench.capture_selection != selection) {
+            xemu_shader_draw_request_cancel();
+            if (workbench.capture_auto_pause && runstate_is_running())
+                vm_stop(RUN_STATE_PAUSED);
+            workbench.capture_request_id = 0;
+            workbench.capture_auto_pause = false;
+        }
+        if (workbench.capture_selection != selection &&
+            workbench.use_capture_mesh) {
+            workbench.capture_mesh = {};
+            workbench.capture_summary = {};
+            workbench.capture_component = -1;
+            workbench.use_capture_mesh = false;
+            m_preview_packet_attempted = false;
+        }
         if (workbench.comparison_locked &&
             workbench.comparison_selection != selection)
             workbench.comparison_locked = false;
@@ -1249,6 +1338,35 @@ void ShaderBrowserWindow::DrawLivePreview()
                     PreviewPacket packet{};
                     if (BuildPreviewPacket(inputs, &packet,
                                            &m_preview_packet_message)) {
+                        if (workbench.use_capture_mesh &&
+                            workbench.capture_selection == selection) {
+                            packet.packet_kind = PreviewPacketKind::Replay;
+                            packet.replay_class = PreviewReplayClass::Approximate;
+                            packet.captured_mesh = workbench.capture_mesh;
+                            if (workbench.capture_component >= 0 &&
+                                static_cast<size_t>(workbench.capture_component) <
+                                    workbench.capture_summary.segments.size()) {
+                                packet.captured_mesh.indices.clear();
+                                const auto &segment =
+                                    workbench.capture_summary.segments[
+                                        workbench.capture_component];
+                                for (uint32_t primitive :
+                                     segment.primitive_indices) {
+                                    const size_t first = size_t(primitive) * 3;
+                                    if (first + 3 <=
+                                        workbench.capture_mesh.indices.size()) {
+                                        packet.captured_mesh.indices.insert(
+                                            packet.captured_mesh.indices.end(),
+                                            workbench.capture_mesh.indices.begin() +
+                                                first,
+                                            workbench.capture_mesh.indices.begin() +
+                                                first + 3);
+                                    }
+                                }
+                            }
+                            packet.mesh_digest = ComputeCapturedMeshDigest(
+                                packet.captured_mesh);
+                        }
                         if (service.SubmitPacket(packet, now_ns,
                                                  &m_preview_packet_message)) {
                             workbench.last_packet = std::move(packet);
@@ -1267,6 +1385,17 @@ void ShaderBrowserWindow::DrawLivePreview()
     } else {
         service.ClearSelection();
         m_preview_packet_attempted = false;
+        if (workbench.capture_request_id) {
+            xemu_shader_draw_request_cancel();
+            if (workbench.capture_auto_pause && runstate_is_running())
+                vm_stop(RUN_STATE_PAUSED);
+            workbench.capture_request_id = 0;
+            workbench.capture_auto_pause = false;
+        }
+        workbench.capture_mesh = {};
+        workbench.capture_summary = {};
+        workbench.capture_component = -1;
+        workbench.use_capture_mesh = false;
     }
 
     if (workbench.start_requested) {
@@ -1316,7 +1445,8 @@ void ShaderBrowserWindow::DrawLivePreview()
         const std::filesystem::path base = base_path ?
             std::filesystem::u8path(base_path) : std::filesystem::path();
         ImGui::TextDisabled("Synthetic inputs — not an in-game draw");
-        ImGui::BeginDisabled(!entry || !workbench.has_generated);
+        ImGui::BeginDisabled(!entry || !workbench.has_generated ||
+                             workbench.use_capture_mesh);
         if (ImGui::Button("Export current test")) {
             WorkbenchExperiment experiment{};
             std::filesystem::path output;
@@ -1541,6 +1671,119 @@ void ShaderBrowserWindow::DrawLivePreview()
             StageLabel(entry->key.stage));
     }
 
+    if (controls_visible) {
+        ImGui::SeparatorText("Game draw capture");
+        const bool capture_allowed = entry &&
+            entry->key.stage == Stage::Pixel &&
+            selection.scope == CurrentWorkbenchBuildScope() &&
+            selection.scope.title_id &&
+            (runstate_is_running() || runstate_check(RUN_STATE_PAUSED));
+        const bool capture_pending =
+            workbench.capture_request_id == capture_status.request_id &&
+            (capture_status.state == XEMU_SHADER_DRAW_REQUEST_ARMED ||
+             capture_status.state == XEMU_SHADER_DRAW_REQUEST_CAPTURING);
+        ImGui::BeginDisabled(!capture_allowed || capture_pending);
+        if (ImGui::Button(guest_paused ? "Advance to next matching draw" :
+                                     "Capture next matching draw")) {
+            XemuShaderDrawRequestSpec request{};
+            std::copy_n(selection.shader.hash.bytes.begin(),
+                        selection.shader.hash.bytes.size(),
+                        request.identity_hash);
+            request.stage = XEMU_SHADER_BROWSER_STAGE_PIXEL;
+            request.scope.title_id = selection.scope.title_id;
+            request.scope.executable_fingerprint_version =
+                selection.scope.executable_fingerprint_version;
+            std::copy_n(selection.scope.executable_fingerprint.begin(),
+                        selection.scope.executable_fingerprint.size(),
+                        request.scope.executable_fingerprint);
+            request.scope_generation =
+                xemu_shader_browser_scope_generation();
+            request.session_epoch = selection.session_epoch;
+            request.renderer_epoch = selection.renderer_epoch;
+            workbench.capture_request_id =
+                xemu_shader_draw_request_arm(&request);
+            if (workbench.capture_request_id) {
+                workbench.capture_selection = selection;
+                workbench.capture_auto_pause = true;
+                workbench.capture_mesh = {};
+                workbench.capture_summary = {};
+                workbench.capture_component = -1;
+                workbench.use_capture_mesh = false;
+                service.SetEnabled(false);
+                workbench.start_requested = false;
+                if (runstate_check(RUN_STATE_PAUSED)) vm_start();
+                m_action_message = "Waiting for the selected shader's next draw";
+            } else {
+                m_action_message = "Unable to arm game draw capture";
+            }
+        }
+        ImGui::EndDisabled();
+        if (capture_pending) {
+            ImGui::SameLine();
+            if (ImGui::Button("Cancel draw capture")) {
+                xemu_shader_draw_request_cancel();
+                if (workbench.capture_auto_pause && runstate_is_running())
+                    vm_stop(RUN_STATE_PAUSED);
+                workbench.capture_auto_pause = false;
+                m_action_message = "Game draw capture cancelled";
+            }
+            ImGui::TextDisabled("Waiting for a submitted matching draw");
+        } else if (workbench.capture_request_id ==
+                       capture_status.request_id &&
+                   capture_status.state == XEMU_SHADER_DRAW_REQUEST_READY) {
+            ImGui::TextWrapped("Found frame %llu, draw %u. %s",
+                static_cast<unsigned long long>(capture_status.frame),
+                capture_status.draw,
+                workbench.capture_mesh.indices.empty() ?
+                    "Geometry format is unsupported; metadata only." :
+                    "Captured geometry; texture and material inputs are synthetic.");
+            if (!workbench.capture_mesh.indices.empty()) {
+                if (workbench.capture_summary.segments.size() > 1) {
+                    ImGui::TextDisabled(
+                        "%zu connected parts found; connectivity does not prove object ownership",
+                        workbench.capture_summary.segments.size());
+                    if (ImGui::BeginCombo("Draw part",
+                        workbench.capture_component < 0 ? "Whole draw" :
+                        ("Connected part " + std::to_string(
+                            workbench.capture_component + 1)).c_str())) {
+                        if (ImGui::Selectable("Whole draw",
+                                               workbench.capture_component < 0)) {
+                            workbench.capture_component = -1;
+                            m_preview_packet_attempted = false;
+                        }
+                        for (size_t i = 0;
+                             i < workbench.capture_summary.segments.size(); ++i) {
+                            const std::string label = "Connected part " +
+                                std::to_string(i + 1) + " (" +
+                                std::to_string(workbench.capture_summary.
+                                    segments[i].primitive_count) +
+                                " triangles)";
+                            if (ImGui::Selectable(label.c_str(),
+                                  workbench.capture_component == int(i))) {
+                                workbench.capture_component = int(i);
+                                m_preview_packet_attempted = false;
+                            }
+                        }
+                        ImGui::EndCombo();
+                    }
+                }
+                if (!workbench.capture_summary.segmentation_complete)
+                    ImGui::TextDisabled("Draw parts are unavailable or exceed the analysis limit");
+                if (ImGui::RadioButton("Game draw (approximate)",
+                                       workbench.use_capture_mesh)) {
+                    workbench.use_capture_mesh = true;
+                    m_preview_packet_attempted = false;
+                }
+                ImGui::SameLine();
+            }
+        }
+        if (ImGui::RadioButton("Synthetic scene",
+                               !workbench.use_capture_mesh)) {
+            workbench.use_capture_mesh = false;
+            m_preview_packet_attempted = false;
+        }
+    }
+
     if (controls_visible && ImGui::CollapsingHeader("Comparison")) {
         PreviewGlExecutor &executor = GetPreviewGlExecutor();
         ImGui::BeginDisabled(!executor.HasDisplayed());
@@ -1567,8 +1810,9 @@ void ShaderBrowserWindow::DrawLivePreview()
     if (ImGui::BeginChild("##workbench-header",
                           ImVec2(0.0f, header_height), true)) {
         if (desktop_inspector) {
-            ImGui::TextDisabled("PRIVATE SYNTHETIC TEST | %s renderer",
-                                PreviewBackendLabel(active_backend));
+            ImGui::TextDisabled("PRIVATE %s | %s renderer",
+                workbench.use_capture_mesh ? "APPROXIMATE GAME DRAW" :
+                    "SYNTHETIC TEST", PreviewBackendLabel(active_backend));
         }
         bool replacement_source_available = false;
         if (!workbench.running_test && !workbench.has_generated &&
@@ -1632,7 +1876,9 @@ void ShaderBrowserWindow::DrawLivePreview()
                     workbench.start_error.clear();
                     m_preview_packet_attempted = false;
                     m_action_message =
-                        "Preparing a private synthetic test";
+                        workbench.use_capture_mesh ?
+                            "Preparing a private game draw preview" :
+                            "Preparing a private synthetic test";
                 } else {
                     m_action_message = "Could not pause the guest";
                     workbench.start_error = m_action_message;

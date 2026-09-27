@@ -3537,6 +3537,8 @@ void pgraph_vk_draw_end(NV2AState *d)
             r->shader_binding->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER
                 ? XEMU_SHADER_BROWSER_ROUTE_UBER
                 : XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED);
+        pgraph_shader_browser_capture_submitted(
+            d, &r->shader_binding->browser);
     }
 
     pg->draw_time++;

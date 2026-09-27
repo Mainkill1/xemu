@@ -131,6 +131,20 @@ int main()
                         (gl.vertices[i].position[2] +
                          gl.vertices[i].position[3]) / 2) < 1e-5);
     }
+    PreviewCapturedMesh captured;
+    captured.positions = {{{-1, -1, 0, 1}, {1, -1, 0, 1}, {0, 1, 0, 1}}};
+    captured.indices = {0, 1, 2};
+    auto game_gl = BuildPreviewCapturedFrame(PreviewScene{}, captured);
+    auto game_vk = BuildPreviewCapturedFrame(PreviewScene{}, captured, 1, true);
+    assert(game_gl.draw_count == kPreviewMaxSceneDraws);
+    assert(game_gl.draws.back().vertex_count == 3);
+    assert(game_gl.vertices.size() <= kPreviewMaxSceneVertices);
+    assert(game_gl.vertices[game_gl.draws.back().first_vertex].position[1] ==
+          -game_vk.vertices[game_vk.draws.back().first_vertex].position[1]);
+    captured.indices = {0, 2, 1};
+    auto reversed = BuildPreviewCapturedFrame(PreviewScene{}, captured);
+    assert(reversed.vertices[reversed.draws.back().first_vertex + 1].position[1] !=
+           game_gl.vertices[game_gl.draws.back().first_vertex + 1].position[1]);
     PreviewRenderState state;
     state.clear_color[0] = std::numeric_limits<float>::infinity();
     state.cull = static_cast<PreviewCullMode>(255);

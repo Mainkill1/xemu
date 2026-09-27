@@ -206,6 +206,7 @@ void ShaderBrowserWindow::Draw()
 {
     Provider &provider = GetProvider();
     if (!m_is_open) {
+        CancelWorkbenchCaptureWhenHidden();
         GetPreviewService().SetVisible(false, PreviewNowNs());
         if (m_window_was_open) {
             provider.SetLiveCollectionEnabled(false);
@@ -253,6 +254,7 @@ void ShaderBrowserWindow::Draw()
         ImGui::End();
         GetPreviewService().SetVisible(false, PreviewNowNs());
         if (!m_is_open) {
+            CancelWorkbenchCaptureWhenHidden();
             provider.SetLiveCollectionEnabled(false);
             GetDetailStore().Clear();
             m_window_was_open = false;

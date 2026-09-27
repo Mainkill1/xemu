@@ -136,6 +136,8 @@ void pgraph_gl_flush_draw(NV2AState *d)
             &pg->shader_browser_observations,
             &renderer->shader_binding->browser, pg->frame_time,
             pgraph_gl_override_observation_route(pg));
+        pgraph_shader_browser_capture_submitted(
+            d, &renderer->shader_binding->browser);
     }
 }
 

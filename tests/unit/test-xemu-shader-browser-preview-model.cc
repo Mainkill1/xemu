@@ -207,6 +207,34 @@ int main()
     empty_replay.fixture_digest = {};
     assert(!ValidatePreviewPacket(empty_replay, &error));
 
+    PreviewPacket game_draw = base;
+    game_draw.packet_kind = PreviewPacketKind::Replay;
+    game_draw.replay_class = PreviewReplayClass::Approximate;
+    game_draw.captured_mesh.positions = {
+        {-1, -1, 0, 1}, {1, -1, 0, 1}, {0, 1, 0, 1}};
+    game_draw.captured_mesh.indices = {0, 1, 2};
+    game_draw.mesh_digest = ComputeCapturedMeshDigest(game_draw.captured_mesh);
+    assert(ValidatePreviewPacket(game_draw, &error));
+    assert(BuildPreviewCompileKey(game_draw) == compile_a);
+    assert(BuildPreviewResultKey(game_draw) != result_a);
+    PreviewPacket changed_draw = game_draw;
+    changed_draw.captured_mesh.positions[0][0] = -2;
+    assert(!ValidatePreviewPacket(changed_draw, &error));
+    changed_draw.mesh_digest = ComputeCapturedMeshDigest(
+        changed_draw.captured_mesh);
+    assert(ValidatePreviewPacket(changed_draw, &error));
+    assert(BuildPreviewResultKey(changed_draw) !=
+           BuildPreviewResultKey(game_draw));
+    changed_draw.captured_mesh.positions[0][0] = NAN;
+    changed_draw.mesh_digest = ComputeCapturedMeshDigest(
+        changed_draw.captured_mesh);
+    assert(!ValidatePreviewPacket(changed_draw, &error));
+    changed_draw = game_draw;
+    changed_draw.captured_mesh.indices[2] = 3;
+    changed_draw.mesh_digest = ComputeCapturedMeshDigest(
+        changed_draw.captured_mesh);
+    assert(!ValidatePreviewPacket(changed_draw, &error));
+
     PreviewPacket nul_source = base;
     nul_source.source.assign("abc\0def", 7);
     assert(!ValidatePreviewPacket(nul_source, &error));

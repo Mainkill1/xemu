@@ -410,8 +410,11 @@ struct PreviewGlExecutor::Impl {
             *error = "Private GL framebuffer is incomplete";
             return false;
         }
-        auto frame = BuildPreviewSceneFrame(
-            work.result_key.scene, float(packet.width) / packet.height);
+        auto frame = packet.packet_kind == PreviewPacketKind::Replay ?
+            BuildPreviewCapturedFrame(work.result_key.scene,
+                packet.captured_mesh, float(packet.width) / packet.height) :
+            BuildPreviewSceneFrame(work.result_key.scene,
+                float(packet.width) / packet.height);
         if (frame.draw_count != kPreviewMaxSceneDraws ||
             frame.vertices.size() > kPreviewMaxSceneVertices) {
             *error = "Private GL scene geometry is invalid";

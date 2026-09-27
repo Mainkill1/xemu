@@ -6,12 +6,15 @@
 #include "shader-browser-workbench-apply.hh"
 #include "shader-browser-workbench-bundle.hh"
 #include "shader-browser-preview-alpha.hh"
+#include "shader-browser-draw-request.h"
+#include "shader-browser-draw-request.hh"
 #include "shader-browser-override-runtime.h"
 #include <memory>
 #include "common.hh"
 #include "xemu-hud.h"
 #include "shader-browser-workbench-editor-ui.inc"
 #include "shader-browser-workbench-scene-ui.inc"
+static void CancelWorkbenchCaptureWhenHidden();
 #include "shader-browser-part1.inc"
 #include "shader-browser-part2.inc"
 #include "shader-browser-part3.inc"

@@ -35,6 +35,14 @@ bool CheckedAdd(size_t lhs, size_t rhs, size_t *result)
     return true;
 }
 
+bool CheckedMultiply(size_t lhs, size_t rhs, size_t *result)
+{
+    if (rhs && lhs > std::numeric_limits<size_t>::max() / rhs)
+        return false;
+    *result = lhs * rhs;
+    return true;
+}
+
 } // namespace
 
 std::string PreviewSourceIdentity(const PreviewCompileKey &key)
@@ -124,7 +132,8 @@ bool PreviewResultKey::operator==(const PreviewResultKey &other) const
            view_revision == other.view_revision && width == other.width &&
            height == other.height && packet_kind == other.packet_kind &&
            replay_class == other.replay_class &&
-           fixture_digest == other.fixture_digest;
+           fixture_digest == other.fixture_digest &&
+           mesh_digest == other.mesh_digest;
 }
 
 bool PreviewResultKey::operator!=(const PreviewResultKey &other) const
@@ -281,13 +290,38 @@ PreviewDigest ComputePreviewDigest(const uint8_t *data, size_t size)
     return digest;
 }
 
+PreviewDigest ComputeCapturedMeshDigest(const PreviewCapturedMesh &mesh)
+{
+    std::vector<uint8_t> bytes;
+    bytes.reserve(mesh.positions.size() * sizeof(mesh.positions[0]) +
+                  mesh.indices.size() * sizeof(mesh.indices[0]));
+    for (const auto &position : mesh.positions) {
+        const auto *begin = reinterpret_cast<const uint8_t *>(position.data());
+        bytes.insert(bytes.end(), begin, begin + sizeof(float) * 4);
+    }
+    for (uint32_t index : mesh.indices) {
+        const auto *begin = reinterpret_cast<const uint8_t *>(&index);
+        bytes.insert(bytes.end(), begin, begin + sizeof(index));
+    }
+    return ComputePreviewDigest(bytes.data(), bytes.size());
+}
+
 size_t PreviewPacketOwnedBytes(const PreviewPacket &packet, bool *overflow)
 {
     size_t total = 0;
-    bool valid = CheckedAdd(total, packet.recipe.capacity(), &total) &&
+    size_t position_bytes = 0, index_bytes = 0;
+    bool valid = CheckedMultiply(packet.captured_mesh.positions.capacity(),
+                                 sizeof(packet.captured_mesh.positions[0]),
+                                 &position_bytes) &&
+                 CheckedMultiply(packet.captured_mesh.indices.capacity(),
+                                 sizeof(packet.captured_mesh.indices[0]),
+                                 &index_bytes) &&
+                 CheckedAdd(total, packet.recipe.capacity(), &total) &&
                  CheckedAdd(total, packet.source.capacity(), &total) &&
                  CheckedAdd(total, packet.partner_source.capacity(), &total) &&
-                 CheckedAdd(total, packet.fixture_bytes.capacity(), &total);
+                 CheckedAdd(total, packet.fixture_bytes.capacity(), &total) &&
+                 CheckedAdd(total, position_bytes, &total) &&
+                 CheckedAdd(total, index_bytes, &total);
     if (overflow) {
         *overflow = !valid;
     }
@@ -394,6 +428,30 @@ bool ValidatePreviewPacket(const PreviewPacket &packet, std::string *error)
         packet.replay_class != PreviewReplayClass::Synthetic) {
         return fail("Synthetic packets must use the synthetic classification");
     }
+    if (packet.packet_kind == PreviewPacketKind::Replay) {
+        const auto &mesh = packet.captured_mesh;
+        if (packet.replay_class != PreviewReplayClass::Approximate ||
+            mesh.positions.empty() || mesh.positions.size() > 4096 ||
+            mesh.indices.empty() || mesh.indices.size() > 12288 ||
+            mesh.indices.size() % 3 != 0 ||
+            packet.mesh_digest != ComputeCapturedMeshDigest(mesh)) {
+            return fail("Approximate game draw requires bounded owned triangle geometry");
+        }
+        for (const auto &position : mesh.positions) {
+            for (float value : position) {
+                if (!std::isfinite(value) || std::abs(value) > 1.0e9f)
+                    return fail("Game draw position is not finite or exceeds the scene range");
+            }
+        }
+        for (uint32_t index : mesh.indices) {
+            if (index >= mesh.positions.size())
+                return fail("Game draw index exceeds position count");
+        }
+    } else if (!packet.captured_mesh.positions.empty() ||
+               !packet.captured_mesh.indices.empty() ||
+               !DigestIsZero(packet.mesh_digest)) {
+        return fail("Synthetic packet cannot carry game draw geometry");
+    }
     if (packet.selection.mode == PreviewMode::Replacement) {
         if (packet.replacement_id == 0 ||
             packet.replacement_revision == 0 || packet.source.empty() ||
@@ -476,6 +534,7 @@ PreviewResultKey BuildPreviewResultKey(const PreviewPacket &packet)
     key.packet_kind = packet.packet_kind;
     key.replay_class = packet.replay_class;
     key.fixture_digest = packet.fixture_digest;
+    key.mesh_digest = packet.mesh_digest;
     return key;
 }
 

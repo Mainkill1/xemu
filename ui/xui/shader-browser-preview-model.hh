@@ -194,6 +194,7 @@ struct PreviewResultKey {
     PreviewPacketKind packet_kind = PreviewPacketKind::Synthetic;
     PreviewReplayClass replay_class = PreviewReplayClass::Synthetic;
     PreviewDigest fixture_digest{};
+    PreviewDigest mesh_digest{};
 
     bool operator==(const PreviewResultKey &other) const;
     bool operator!=(const PreviewResultKey &other) const;
@@ -222,6 +223,8 @@ struct PreviewPacket {
     PreviewDigest source_digest{};
     PreviewDigest partner_digest{};
     PreviewDigest fixture_digest{};
+    PreviewCapturedMesh captured_mesh;
+    PreviewDigest mesh_digest{};
     uint64_t input_revision = 0;
     uint8_t binding_count = 0;
     std::array<PreviewInputBinding, kPreviewMaxInputBindings> bindings{};
@@ -240,6 +243,7 @@ const char *PreviewPressureLabel(PreviewPressure pressure);
 const char *PreviewReplayClassLabel(PreviewReplayClass replay_class);
 
 PreviewDigest ComputePreviewDigest(const uint8_t *data, size_t size);
+PreviewDigest ComputeCapturedMeshDigest(const PreviewCapturedMesh &mesh);
 size_t PreviewPacketOwnedBytes(const PreviewPacket &packet, bool *overflow);
 bool ValidatePreviewPacket(const PreviewPacket &packet, std::string *error);
 PreviewCompileKey BuildPreviewCompileKey(const PreviewPacket &packet);

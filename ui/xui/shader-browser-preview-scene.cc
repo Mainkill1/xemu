@@ -337,4 +337,71 @@ PreviewSceneFrame BuildPreviewSceneFrame(const PreviewScene &input,
     end();
     return frame;
 }
+
+PreviewSceneFrame BuildPreviewCapturedFrame(const PreviewScene &input,
+                                            const PreviewCapturedMesh &mesh,
+                                            float aspect, bool vulkan)
+{
+    PreviewSceneFrame frame = BuildPreviewSceneFrame(input, aspect, vulkan);
+    if (frame.draw_count != kPreviewMaxSceneDraws) return {};
+    PreviewSceneDraw &target = frame.draws[frame.draw_count - 1];
+    frame.vertices.resize(target.first_vertex);
+    target.vertex_count = 0;
+    if (mesh.positions.empty() || mesh.indices.empty()) return frame;
+
+    std::array<float, 3> low{ INFINITY, INFINITY, INFINITY };
+    std::array<float, 3> high{ -INFINITY, -INFINITY, -INFINITY };
+    for (const auto &point : mesh.positions) {
+        for (size_t axis = 0; axis < 3; ++axis) {
+            low[axis] = std::min(low[axis], point[axis]);
+            high[axis] = std::max(high[axis], point[axis]);
+        }
+    }
+    const float extent = std::max({high[0] - low[0], high[1] - low[1],
+                                   high[2] - low[2]});
+    if (!std::isfinite(extent)) return frame;
+    const float scale = extent > 0.000001f ? 2.0f / extent : 1.0f;
+    const PreviewScene scene = ClampPreviewScene(input);
+    aspect = std::isfinite(aspect) ? std::clamp(aspect, 0.25f, 4.0f) : 1;
+    constexpr float pi = 3.14159265358979323846f;
+    const float cy = std::cos(scene.yaw * pi / 180),
+                sy = std::sin(scene.yaw * pi / 180);
+    const float cp = std::cos(scene.pitch * pi / 180),
+                sp = std::sin(scene.pitch * pi / 180);
+    const size_t limit = std::min(mesh.indices.size() / 3 * 3,
+        (kPreviewMaxSceneVertices - frame.vertices.size()) / 3 * 3);
+    for (size_t i = 0; i < limit; ++i) {
+        const uint32_t index = mesh.indices[i];
+        if (index >= mesh.positions.size()) return frame;
+        const auto &point = mesh.positions[index];
+        const float px = (point[0] - (low[0] + high[0]) * 0.5f) * scale -
+                         scene.target_pivot[0];
+        const float py = (point[1] - (low[1] + high[1]) * 0.5f) * scale -
+                         scene.target_pivot[1];
+        const float pz = (point[2] - (low[2] + high[2]) * 0.5f) * scale -
+                         scene.target_pivot[2];
+        const float x = cy * px + sy * pz + scene.pan[0];
+        const float z = -sy * px + cy * pz;
+        const float camera_z = sp * py + cp * z - scene.distance;
+        const float y = cp * py - sp * z + scene.pan[1];
+        PreviewSceneVertex v{};
+        constexpr float near = 0.1f, far = 32.0f;
+        v.position[0] = 2.41421356f * x / aspect;
+        v.position[1] = 2.41421356f * y * (vulkan ? -1 : 1);
+        v.position[2] = -(far + near) / (far - near) * camera_z -
+                        2 * far * near / (far - near);
+        v.position[3] = -camera_z;
+        if (vulkan) v.position[2] = (v.position[2] + v.position[3]) / 2;
+        v.uv[0] = std::clamp((point[0] - low[0]) * scale * 0.5f, 0.0f, 1.0f);
+        v.uv[1] = std::clamp((point[1] - low[1]) * scale * 0.5f, 0.0f, 1.0f);
+        v.color[0] = v.uv[0];
+        v.color[1] = v.uv[1];
+        v.color[2] = 1.0f - v.uv[0];
+        v.color[3] = 1.0f;
+        frame.vertices.push_back(v);
+    }
+    target.vertex_count = static_cast<uint32_t>(frame.vertices.size()) -
+                          target.first_vertex;
+    return frame;
+}
 } // namespace xemu::shader_browser

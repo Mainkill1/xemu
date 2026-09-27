@@ -424,9 +424,10 @@ shader_browser_preview_lifecycle_test = executable(
   dependencies: shader_browser_preview_lifecycle_deps)
 
 
-# Renderer-independent capture analysis; no PGRAPH hooks or live capture yet.
+# Renderer-independent capture analysis and one-shot live draw request.
 shader_browser_capture_sources = files(
   'shader-browser-draw-capture.cc',
+  'shader-browser-draw-request.cc',
   'shader-browser-draw-segmentation.cc',
   'shader-browser-object-relationship.cc',
   'shader-browser-object-grouping.cc',

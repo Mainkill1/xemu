@@ -195,6 +195,50 @@ int main(int argc, char **argv)
     };
     await([&] { return executor.HasDisplayed(); });
     assert(colors() == std::set<unsigned>{ 0xff0000 });
+    packet.packet_kind = PreviewPacketKind::Replay;
+    packet.replay_class = PreviewReplayClass::Approximate;
+    packet.captured_mesh.positions = {
+        {-1, -1, 0, 1}, {1, -1, 0, 1}, {0, 1, 0, 1}};
+    packet.captured_mesh.indices = {0, 1, 2};
+    packet.mesh_digest = ComputeCapturedMeshDigest(packet.captured_mesh);
+    submit();
+    await([&] {
+        PreviewStatus current;
+        service.CopyStatus(&current);
+        return current.has_displayed_source &&
+               current.displayed_result.packet_kind == PreviewPacketKind::Replay &&
+               current.displayed_result.mesh_digest == packet.mesh_digest;
+    });
+    assert(colors() == std::set<unsigned>{ 0xff0000 });
+    packet.update_policy = PreviewUpdatePolicy::Continuous;
+    service.EditClock(PreviewClockAction::Play, 0, Now());
+    submit();
+    std::set<uint64_t> displayed_frames;
+    const uint64_t cadence_start = Now();
+    while (Now() - cadence_start < UINT64_C(2000000000)) {
+        draw();
+        PreviewStatus current;
+        service.CopyStatus(&current);
+        if (current.has_displayed_source &&
+            current.displayed_result.packet_kind == PreviewPacketKind::Replay)
+            displayed_frames.insert(current.displayed_result.clock_revision);
+        SDL_Delay(5);
+    }
+    std::printf("Backend %d captured mesh display cadence: %.1f fps\n",
+                int(backend), displayed_frames.size() / 2.0);
+    service.EditClock(PreviewClockAction::Pause, 0, Now());
+    packet.update_policy = PreviewUpdatePolicy::OnDirty;
+    packet.packet_kind = PreviewPacketKind::Synthetic;
+    packet.replay_class = PreviewReplayClass::Synthetic;
+    packet.captured_mesh = {};
+    packet.mesh_digest = {};
+    submit();
+    await([&] {
+        PreviewStatus current;
+        service.CopyStatus(&current);
+        return current.has_displayed_source &&
+               current.displayed_result.packet_kind == PreviewPacketKind::Synthetic;
+    });
     if (backend == PreviewBackend::OpenGL) {
         packet = Packet(PreviewMode::Replacement, false, 1);
         packet.source =

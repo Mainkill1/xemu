@@ -153,6 +153,7 @@ struct DrawSegmentSummary {
 enum class CaptureCompleteness : uint8_t {
     MetadataOnly,
     ReferencedResources,
+    GeometrySnapshot,
     OwnedSnapshot,
     ApproximateReplay,
     CompleteReplay,

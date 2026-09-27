@@ -7,6 +7,9 @@
 #define PGRAPH_SHADER_BROWSER_OBSERVATION_SLOTS 256
 #define PGRAPH_SHADER_BROWSER_OBSERVATION_INDEX_SLOTS 512
 
+typedef struct PGRAPHState PGRAPHState;
+typedef struct NV2AState NV2AState;
+
 typedef struct PGRAPHShaderBrowserObservations {
     XemuShaderBrowserObservation slots[PGRAPH_SHADER_BROWSER_OBSERVATION_SLOTS];
     uint16_t indices[PGRAPH_SHADER_BROWSER_OBSERVATION_INDEX_SLOTS];
@@ -22,5 +25,7 @@ void pgraph_shader_browser_record_draw(PGRAPHShaderBrowserObservations *batch,
                                        uint64_t frame, uint32_t pixel_route);
 void pgraph_shader_browser_flush_observations(
     PGRAPHShaderBrowserObservations *batch, uint64_t frame);
+void pgraph_shader_browser_capture_submitted(NV2AState *d,
+                                             PGRAPHShaderBrowserBinding *binding);
 
 #endif

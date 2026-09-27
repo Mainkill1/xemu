@@ -1,8 +1,20 @@
 # Shader draw, geometry, and object capture
 
-**Draft foundation, not a live game capture feature yet.** This branch provides
-compiled, tested analysis code and the contract for future renderer capture.
-The current Shader Browser still uses its existing synthetic preview.
+**Partial live capture and approximate preview.** The workbench can arm one
+request for the next submitted draw using the selected pixel shader. It resumes
+a paused guest, copies supported triangle geometry, pauses again, and displays
+that draw in the private OpenGL or Vulkan preview. The Synthetic scene remains
+selectable. The game draw mode uses the captured geometry with synthetic
+textures, constants, and vertex outputs; it is not exact material replay.
+
+The current geometry decoder supports triangle lists with float3/float4
+attribute 0 positions from vertex DMA, using draw arrays or inline indices,
+and expanded inline float4 vertices. Other formats and topologies produce a metadata-only
+result. Capture copies at most 4096 positions and 12288 indices. The private
+preview displays as many complete triangles as fit its 4096-vertex scene
+budget after reference geometry. The UI offers index-connected parts as
+inspection hints when a draw has multiple islands; these are not engine object
+identities. No game asset name or cross-draw object assembly is inferred.
 
 ## Concept: one shader is not one model
 
@@ -32,8 +44,10 @@ being the geometry of all those scene objects.
 `ui/xui/shader-browser-draw-capture.hh` defines the shared records and APIs.
 The implementation is split into draw identity/admission, triangle-list
 segmentation, relationship analysis, object grouping, and resource dependencies.
-All five production translation units have a separate focused Meson test.
-There are no PGRAPH hooks or per-draw analysis calls in this foundation.
+The analysis production units have a focused Meson test. A separate one-shot
+request service and C bridge connect the final OpenGL/Vulkan submission points
+to the workbench. Ordinary draws take only an atomic armed check; geometry
+copy and segmentation happen for the one requested matching draw.
 
 ### Exact draw and segment references
 
@@ -150,7 +164,9 @@ if a snapshot was retained. Otherwise capture a new occurrence and show its ID.
 A capture pause/readback may have a measured cost; ordinary gameplay and opening
 the preview must not wait for it. Publish owned immutable snapshots with declared
 byte limits, cancellation, generation checks, and no UI access to mutable handles.
-Those capture controls and ownership mechanisms are not implemented here.
+The current one-shot control owns a bounded position/index snapshot and cancels
+on selection change or when the workbench is hidden. Full material ownership,
+readback, and frame capture remain future work.
 
 ## Current limits and unfinished integration
 
@@ -163,10 +179,10 @@ These are bounded foundation windows, **not** a full-frame capacity guarantee or
 an immutable snapshot byte budget. Object relationship analysis is quadratic and
 must stay off the rendering thread; indexed/paged analysis is future work.
 
-Still required: live observation/capture requests, backing-version tracking and
-all non-draw producer events, immutable byte storage, NV2A format/topology decoding,
-OpenGL/Vulkan resource copies, original-stage replay, Geometry/Material/Related
-Draws panels, user membership editing, persistence, and native game validation.
+Still required: backing-version tracking and all non-draw producer events,
+additional NV2A formats/topologies, OpenGL/Vulkan resource copies, original-stage
+replay, Material/Related Draws panels, user membership editing, persistence,
+and native game validation.
 `CaptureCompleteness` is descriptive metadata; it does not validate replay payloads.
 No full model extraction, complete replay, pixel causation, or speedup is claimed.
 
@@ -184,6 +200,7 @@ The same production sources can be tested without graphics dependencies:
 c++ -std=c++17 -Wall -Wextra -Werror -O2 \
   tests/unit/test-xemu-shader-browser-draw-capture.cc \
   ui/xui/shader-browser-draw-capture.cc \
+  ui/xui/shader-browser-draw-request.cc \
   ui/xui/shader-browser-draw-segmentation.cc \
   ui/xui/shader-browser-object-relationship.cc \
   ui/xui/shader-browser-object-grouping.cc \
@@ -193,7 +210,8 @@ c++ -std=c++17 -Wall -Wextra -Werror -O2 \
 ```
 
 Tests use explicit checks that remain active under `NDEBUG`. They exercise
-17 cases including unrelated objects, confirmed multi-pass membership, separate
+21 cases including request matching, owned geometry, unrelated objects,
+confirmed multi-pass membership, separate
 instances, noncontiguous islands, ambiguous batches, screen-space effects,
 aliasing, version changes, upstream/downstream traversal, provenance gaps,
 invalid metadata, and admission limits. Unit results are not native capture or

@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "../../ui/xui/shader-browser-draw-capture.hh"
+#include "../../ui/xui/shader-browser-draw-request.hh"
+#include "../../ui/xui/shader-browser-draw-request.h"
+#include "../../hw/xbox/nv2a/pgraph/shader-browser-geometry-copy.h"
 
 #include <algorithm>
 #include <cstdlib>
@@ -344,6 +347,150 @@ static void TestUpstreamInputsRemainSeparate()
           std::vector<DrawEventKey>({caster.key, receiver.key}));
 }
 
+static void TestOneShotDrawRequest()
+{
+    DrawCaptureRequest request;
+    auto captured = Draw(17);
+    DrawRequestTarget target{};
+    target.shader = captured.shaders[0];
+    target.scope = captured.scope;
+    target.scope_generation = 4;
+    target.session_epoch = captured.key.session_epoch;
+    target.renderer_epoch = captured.key.renderer_epoch;
+    const uint64_t first = request.Arm(target);
+    CHECK(first != 0);
+    CHECK(request.Status().state == DrawRequestState::Armed);
+    uint64_t token = 0;
+    auto different = Draw(18, 2);
+    CHECK(!request.Begin(4, 2, &different.shaders[0], 1, 3, 18, &token));
+    CHECK(request.Status().state == DrawRequestState::Armed);
+    CHECK(request.Begin(4, 2, &captured.shaders[0], 1, 3, 17, &token));
+    CHECK(token == first);
+    CHECK(!request.Begin(4, 2, &captured.shaders[0], 1, 3, 18, &token));
+    request.Cancel();
+    CHECK(!request.Complete(first, captured));
+    CHECK(request.Status().state == DrawRequestState::Cancelled);
+
+    const uint64_t second = request.Arm(target);
+    CHECK(second > first);
+    CHECK(!request.Begin(4, 3, &captured.shaders[0], 1, 3, 17, &token));
+    CHECK(request.Status().state == DrawRequestState::Cancelled);
+    const uint64_t third = request.Arm(target);
+    CHECK(!request.Begin(5, 2, &captured.shaders[0], 1, 3, 17, &token));
+    CHECK(request.Status().state == DrawRequestState::Cancelled);
+
+    const uint64_t fourth = request.Arm(target);
+    CHECK(request.Begin(4, 2, &captured.shaders[0], 1, 3, 17, &token));
+    CHECK(token == fourth);
+    CHECK(!request.Complete(third, captured));
+    CHECK(request.Complete(fourth, captured));
+    CHECK(request.Status().state == DrawRequestState::Ready);
+    CHECK(request.Status().draw == captured.key);
+    CHECK(request.CopyCaptured().completeness ==
+          CaptureCompleteness::MetadataOnly);
+}
+
+static void TestSubmittedDrawBridge()
+{
+    const auto selected = Draw(21);
+    XemuShaderDrawRequestSpec spec{};
+    std::copy(selected.shaders[0].hash.bytes.begin(),
+              selected.shaders[0].hash.bytes.end(), spec.identity_hash);
+    spec.stage = XEMU_SHADER_BROWSER_STAGE_PIXEL;
+    spec.scope.title_id = selected.scope.title_id;
+    spec.scope_generation = 7;
+    spec.session_epoch = selected.key.session_epoch;
+    spec.renderer_epoch = selected.key.renderer_epoch;
+    const uint64_t token = xemu_shader_draw_request_arm(&spec);
+    CHECK(token != 0);
+    CHECK(xemu_shader_draw_request_is_armed());
+    XemuShaderDrawIdentity other{};
+    other.stage = XEMU_SHADER_BROWSER_STAGE_PIXEL;
+    other.identity_hash[0] = 2;
+    CHECK(!xemu_shader_draw_request_wants(7, 2, &other, 1));
+    CHECK(!xemu_shader_draw_request_submitted(7, 2, &other, 1, 3, 21,
+                                              4, 3, 0, nullptr));
+    XemuShaderDrawIdentity matching{};
+    matching.stage = XEMU_SHADER_BROWSER_STAGE_PIXEL;
+    matching.identity_hash[0] = 1;
+    CHECK(xemu_shader_draw_request_wants(7, 2, &matching, 1));
+    CHECK(xemu_shader_draw_request_submitted(7, 2, &matching, 1, 3, 21,
+                                             4, 3, 0, nullptr));
+    XemuShaderDrawRequestStatus status{};
+    CHECK(xemu_shader_draw_request_copy_status(&status));
+    CHECK(status.request_id == token);
+    CHECK(status.state == XEMU_SHADER_DRAW_REQUEST_READY);
+    CHECK(!xemu_shader_draw_request_is_armed());
+    CHECK(status.frame == 3 && status.draw == 21);
+    CHECK(!xemu_shader_draw_request_submitted(7, 2, &matching, 1, 3, 22,
+                                              4, 3, 0, nullptr));
+    xemu_shader_draw_request_cancel();
+}
+
+static void TestDrawGeometryOwnsItsBytes()
+{
+    XemuShaderDrawRequestSpec spec{};
+    spec.identity_hash[0] = 1;
+    spec.stage = XEMU_SHADER_BROWSER_STAGE_PIXEL;
+    spec.scope.title_id = 0x12345678;
+    spec.scope_generation = 8;
+    spec.session_epoch = 1;
+    spec.renderer_epoch = 2;
+    CHECK(xemu_shader_draw_request_arm(&spec));
+    XemuShaderDrawIdentity matching{};
+    matching.stage = spec.stage;
+    matching.identity_hash[0] = 1;
+    float positions[12] = {0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1};
+    uint32_t indices[3] = {0, 1, 2};
+    XemuShaderDrawGeometry geometry{};
+    geometry.positions = positions;
+    geometry.position_count = 3;
+    geometry.indices = indices;
+    geometry.index_count = 3;
+    CHECK(xemu_shader_draw_request_submitted(8, 2, &matching, 1, 4, 22,
+                                             5, 3, 3, &geometry));
+    positions[0] = 42;
+    indices[0] = 2;
+    const auto owned = GetDrawCaptureRequest().CopyGeometry();
+    CHECK(owned.positions.size() == 3);
+    CHECK(owned.positions[0][0] == 0);
+    CHECK(owned.indices == std::vector<uint32_t>({0, 1, 2}));
+    CHECK(GetDrawCaptureRequest().CopyCaptured().completeness ==
+          CaptureCompleteness::GeometrySnapshot);
+    CHECK(GetDrawCaptureRequest().CopyCaptured().segments.empty());
+    CHECK(GetDrawCaptureRequest().CopyCaptured().primitive_count == 1);
+    xemu_shader_draw_request_cancel();
+    CHECK(xemu_shader_draw_request_arm(&spec));
+    geometry.indices = nullptr;
+    geometry.index_count = 0;
+    CHECK(xemu_shader_draw_request_submitted(8, 2, &matching, 1, 4, 23,
+                                             5, 3, 0, &geometry));
+    CHECK(GetDrawCaptureRequest().CopyGeometry().indices.empty());
+    CHECK(GetDrawCaptureRequest().CopyCaptured().completeness ==
+          CaptureCompleteness::MetadataOnly);
+    xemu_shader_draw_request_cancel();
+}
+
+static void TestBoundedFloatPositionCopy()
+{
+    const float raw[15] = {1, 2, 3, 90, 90, 4, 5, 6, 91, 91,
+                           7, 8, 9, 92, 92};
+    float output[8]{};
+    CHECK(xemu_shader_draw_copy_float_positions(
+        reinterpret_cast<const uint8_t *>(raw), sizeof(raw), 1, 2,
+        5 * sizeof(float), 3, output, std::size(output)));
+    CHECK(output[0] == 4 && output[1] == 5 && output[2] == 6 &&
+          output[3] == 1);
+    CHECK(output[4] == 7 && output[5] == 8 && output[6] == 9 &&
+          output[7] == 1);
+    CHECK(!xemu_shader_draw_copy_float_positions(
+        reinterpret_cast<const uint8_t *>(raw), sizeof(raw), 2, 2,
+        5 * sizeof(float), 3, output, std::size(output)));
+    CHECK(!xemu_shader_draw_copy_float_positions(
+        reinterpret_cast<const uint8_t *>(raw), sizeof(raw), 0, 3,
+        5 * sizeof(float), 3, output, std::size(output)));
+}
+
 int main()
 {
     void (*tests[])() = {
@@ -355,7 +502,9 @@ int main()
         TestDuplicateKeysAndLimits, TestAmbiguousAndFragmentedProvenance,
         TestMultipleObjectsAndDownstreamComposite,
         TestReferenceIdentityAndBoundsSpace, TestValidationAndSegmentationLimit,
-        TestUpstreamInputsRemainSeparate,
+        TestUpstreamInputsRemainSeparate, TestOneShotDrawRequest,
+        TestSubmittedDrawBridge, TestDrawGeometryOwnsItsBytes,
+        TestBoundedFloatPositionCopy,
     };
     for (auto test : tests) {
         test();
