@@ -1519,6 +1519,9 @@ int main(int argc, char **argv)
         poll_events(scon);
         gl_render_frame(scon);
     }
+    /* Tear down the HUD while QEMU devices and the GL context are alive. */
+    SDL_GL_MakeCurrent(m_window, m_context);
+    xemu_hud_cleanup();
     qemu_sem_post(&display_shutdown_sem);
     qemu_thread_join(&thread);
     display_finalize();
