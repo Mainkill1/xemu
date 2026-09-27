@@ -1416,6 +1416,23 @@ static int run_gpu_inventory_only(const XemuGpuLaunchRequest *request)
 #endif
 }
 
+static void show_shader_browser_external_window(void)
+{
+    /* SDL_CreateWindow can synchronously dispatch resize/expose events.
+     * Ignore them until the external context is ready. */
+    qatomic_set(&g_shader_browser_window_initializing, true);
+    if (SDL_GL_MakeCurrent(m_window, m_context)) {
+        xemu_main_loop_lock();
+        xemu_hud_init_external_window(m_window, m_context, true);
+        xemu_main_loop_unlock();
+        SDL_GL_MakeCurrent(NULL, NULL);
+    } else {
+        fprintf(stderr, "Shader Browser external window: %s\n",
+                SDL_GetError());
+    }
+    qatomic_set(&g_shader_browser_window_initializing, false);
+}
+
 int main(int argc, char **argv)
 {
     QemuThread thread;
@@ -1530,13 +1547,7 @@ int main(int argc, char **argv)
      * The HUD itself was initialized during QEMU display setup on qemu_main,
      * but poll_events() runs here on the process main thread. */
     if (g_shader_browser_window_on_start) {
-        qatomic_set(&g_shader_browser_window_initializing, true);
-        SDL_GL_MakeCurrent(m_window, m_context);
-        xemu_main_loop_lock();
-        xemu_hud_init_external_window(m_window, m_context, true);
-        xemu_main_loop_unlock();
-        SDL_GL_MakeCurrent(NULL, NULL);
-        qatomic_set(&g_shader_browser_window_initializing, false);
+        show_shader_browser_external_window();
     }
 
     gui_grab = 0;
@@ -1559,6 +1570,9 @@ int main(int argc, char **argv)
     struct xemu_console *scon = &scon_list[0];
     while (!qatomic_read(&qemu_exiting)) {
         poll_events(scon);
+        if (xemu_hud_take_shader_browser_window_request()) {
+            show_shader_browser_external_window();
+        }
         gl_render_frame(scon);
     }
     if (!SDL_GL_MakeCurrent(scon->real_window, scon->winctx)) {

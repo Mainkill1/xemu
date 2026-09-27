@@ -43,6 +43,8 @@ void xemu_main_loop_unlock(void);
 void xemu_hud_init(SDL_Window *window, void *sdl_gl_context);
 void xemu_hud_init_external_window(SDL_Window *window, void *sdl_gl_context,
                                    bool requested);
+void xemu_hud_request_shader_browser_window(void);
+bool xemu_hud_take_shader_browser_window_request(void);
 void xemu_hud_cleanup(void);
 void xemu_hud_update(void);
 void xemu_hud_render(void);
