@@ -125,8 +125,6 @@ static WorkbenchEditorDockAction DrawWorkbenchEditorDock(
 {
     WorkbenchEditorDockAction action{};
     if (!state || !editor) return action;
-    ImGui::Checkbox("Editor dock", &state->open);
-    if (!state->open) return action;
     ImGui::SeparatorText("Generated GLSL / private draft");
     if (generated) {
         ImGui::TextDisabled("%s %s | %s | %s | TitleID %08X",
@@ -165,17 +163,6 @@ static WorkbenchEditorDockAction DrawWorkbenchEditorDock(
         ImGui::TextDisabled("Displayed: %s",
             PreviewSourceIdentity(preview->displayed_compile).c_str());
     }
-    ImGui::InputText("Search GLSL", &state->search);
-    ImGui::SameLine();
-    if (ImGui::Button("Next") && !state->search.empty()) {
-        auto offset = editor->FindNext(state->search, state->search_offset);
-        if (offset) {
-            state->search_offset = *offset;
-            state->goto_line = editor->LineForOffset(*offset) + 1;
-        }
-    }
-    ImGui::TextDisabled("Syntax view (read-only)");
-    DrawWorkbenchSourceLines(editor, state);
     ImGui::TextDisabled("Edit GLSL");
     if (ImGui::InputTextMultiline("##editable-glsl", &state->edit_buffer,
                                    ImVec2(-1, 125))) {
@@ -204,6 +191,20 @@ static WorkbenchEditorDockAction DrawWorkbenchEditorDock(
             ImGui::TextWrapped("%s", diagnostic.message.c_str());
             begin = end + 1;
         }
+    }
+    if (ImGui::CollapsingHeader("Syntax view (read-only)",
+                               ImGuiTreeNodeFlags_DefaultOpen)) {
+        ImGui::InputText("Search GLSL", &state->search);
+        ImGui::SameLine();
+        if (ImGui::Button("Next") && !state->search.empty()) {
+            auto offset = editor->FindNext(state->search,
+                                           state->search_offset);
+            if (offset) {
+                state->search_offset = *offset;
+                state->goto_line = editor->LineForOffset(*offset) + 1;
+            }
+        }
+        DrawWorkbenchSourceLines(editor, state);
     }
     return action;
 }
