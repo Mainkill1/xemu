@@ -13,12 +13,12 @@ G_STATIC_ASSERT((int)XEMU_VK_UBERSHADER_PREWARM ==
 G_STATIC_ASSERT((int)XEMU_VK_UBERSHADER_ALWAYS ==
                 CONFIG_TWEAKS_VK_UBERSHADER_MODE_ALWAYS);
 
-unsigned int xemu_tweaks_active =
-    ((1u << XEMU_TWEAK_COUNT) - 1) &
-    ~((1u << XEMU_TWEAK_VK_HYBRID_UBERSHADERS) |
-      (1u << XEMU_TWEAK_VK_SHADER_FASTPATH) |
-      (1u << XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION) |
-      (1u << XEMU_TWEAK_NV20_VERTEX_ARITHMETIC));
+XemuTweakBits xemu_tweaks_active =
+    (UINT64_MAX >> (64 - XEMU_TWEAK_COUNT)) &
+    ~((UINT64_C(1) << XEMU_TWEAK_VK_HYBRID_UBERSHADERS) |
+      (UINT64_C(1) << XEMU_TWEAK_VK_SHADER_FASTPATH) |
+      (UINT64_C(1) << XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION) |
+      (UINT64_C(1) << XEMU_TWEAK_NV20_VERTEX_ARITHMETIC));
 static int xemu_vulkan_ubershader_latched_policy =
     XEMU_VK_UBERSHADER_OFF;
 
@@ -31,6 +31,11 @@ typedef enum XemuVulkanUbershaderRuntimeStatus {
 static int xemu_vulkan_ubershader_runtime_status =
     XEMU_VK_UBERSHADER_RUNTIME_NO_VULKAN;
 static int xemu_tweaks_renderer = XEMU_TWEAK_RENDERER_NONE;
+
+uint64_t xemu_tweaks_active_snapshot(void)
+{
+    return qatomic_read_u64(&xemu_tweaks_active);
+}
 
 void xemu_tweaks_publish_renderer(XemuTweakRenderer renderer)
 {
@@ -85,9 +90,8 @@ XemuTweakRuntimeState xemu_tweak_runtime_state(XemuTweak tweak)
     }
 
     state.requested = xemu_tweak_requested(tweak);
-    state.selected = xemu_tweak_enabled(tweak);
-    state.restart_pending = xemu_tweak_requires_restart(tweak) &&
-                            state.requested != state.selected;
+    state.policy_requested = state.requested ?
+        XEMU_TWEAK_POLICY_ENABLED : XEMU_TWEAK_POLICY_DISABLED;
 
     switch (tweak) {
     case XEMU_TWEAK_CPU_SAVING_WAIT:
@@ -140,11 +144,27 @@ XemuTweakRuntimeState xemu_tweak_runtime_state(XemuTweak tweak)
         break;
     }
 
-    state.effective = state.selected && state.available;
+    state.availability = state.available ? XEMU_TWEAK_AVAILABLE :
+                         XEMU_TWEAK_UNSUPPORTED_BACKEND;
+    if (!state.available) {
+        if (tweak == XEMU_TWEAK_CPU_SAVING_WAIT) {
+            state.availability = XEMU_TWEAK_UNSUPPORTED_PLATFORM;
+        } else if (renderer == XEMU_TWEAK_RENDERER_VULKAN &&
+                   tweak == XEMU_TWEAK_VK_SHADER_FASTPATH) {
+            state.availability = XEMU_TWEAK_BLOCKED_DEPENDENCY;
+        } else if (renderer == XEMU_TWEAK_RENDERER_VULKAN &&
+                   tweak == XEMU_TWEAK_VK_HYBRID_UBERSHADERS) {
+            state.availability = XEMU_TWEAK_UNSUPPORTED_CAPABILITY;
+        }
+    }
+    XemuTweakPolicyResolution resolved = xemu_tweak_policy_resolve(
+        state.policy_requested, false, xemu_tweak_enabled(tweak), false,
+        xemu_tweak_requires_restart(tweak), state.availability);
+    state.selected = resolved.selected;
+    state.effective = resolved.effective;
+    state.restart_pending = resolved.restart_pending;
     if (!state.reason) {
-        state.reason = state.restart_pending ?
-            "Restart xemu to apply the saved choice." :
-            state.effective ? "Active for eligible work." : "Disabled.";
+        state.reason = resolved.reason;
     }
     return state;
 }
@@ -266,18 +286,22 @@ void xemu_tweaks_apply(bool startup)
         [XEMU_TWEAK_NV20_VERTEX_ARITHMETIC] =
             g_config.tweaks.nv20_vertex_arithmetic,
     };
-    unsigned int active = qatomic_read(&xemu_tweaks_active);
+    XemuTweakBits active = qatomic_read_u64(&xemu_tweaks_active);
 
     for (unsigned int i = 0; i < XEMU_TWEAK_COUNT; i++) {
-        if (!startup && xemu_tweak_requires_restart(i)) {
-            continue;
-        }
-        if (selected[i]) {
-            active |= 1u << i;
+        XemuTweakBits bit = UINT64_C(1) << i;
+        XemuTweakPolicyResolution resolved = xemu_tweak_policy_resolve(
+            selected[i] ? XEMU_TWEAK_POLICY_ENABLED :
+                          XEMU_TWEAK_POLICY_DISABLED,
+            false, (active & bit) != 0, true,
+            !startup && xemu_tweak_requires_restart(i),
+            XEMU_TWEAK_AVAILABLE);
+        if (resolved.selected) {
+            active |= bit;
         } else {
-            active &= ~(1u << i);
+            active &= ~bit;
         }
     }
-    qatomic_set(&xemu_tweaks_active, active);
+    qatomic_set_u64(&xemu_tweaks_active, active);
     qemu_poll_set_cpu_saving(selected[XEMU_TWEAK_CPU_SAVING_WAIT]);
 }

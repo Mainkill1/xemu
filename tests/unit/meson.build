@@ -483,6 +483,11 @@ xemu_tweaks_test = executable('test-xemu-tweaks-config',
   dependencies: [qemuutil, genconfig, tomlplusplus])
 test('test-xemu-tweaks-config', xemu_tweaks_test, suite: ['unit'])
 
+xemu_tweak_policy_test = executable('test-xemu-tweak-policy',
+  files('test-xemu-tweak-policy.c'),
+  include_directories: include_directories('../..'))
+test('test-xemu-tweak-policy', xemu_tweak_policy_test, suite: ['unit'])
+
 issue149_effect_test = executable('test-xbox-pgraph-effect-suppression',
   files('test-xbox-pgraph-effect-suppression.c',
         '../../hw/xbox/nv2a/pgraph/effect-suppression.c'),

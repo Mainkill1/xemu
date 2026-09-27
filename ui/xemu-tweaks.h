@@ -3,7 +3,9 @@
 #define XEMU_TWEAKS_H
 
 #include <stdbool.h>
+#include <stdint.h>
 #include "qemu/atomic.h"
+#include "xemu-tweak-policy.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,12 +28,14 @@ typedef enum XemuTweak {
 } XemuTweak;
 
 #ifdef __cplusplus
-static_assert(XEMU_TWEAK_COUNT < sizeof(unsigned int) * 8,
+static_assert(XEMU_TWEAK_COUNT <= 64,
               "Advanced tweak mask is full");
 #else
-_Static_assert(XEMU_TWEAK_COUNT < sizeof(unsigned int) * 8,
+_Static_assert(XEMU_TWEAK_COUNT <= 64,
                "Advanced tweak mask is full");
 #endif
+
+typedef aligned_uint64_t XemuTweakBits;
 
 typedef enum XemuTweakRenderer {
     XEMU_TWEAK_RENDERER_NONE,
@@ -45,6 +49,8 @@ typedef struct XemuTweakRuntimeState {
     bool effective;
     bool available;
     bool restart_pending;
+    XemuTweakPolicy policy_requested;
+    XemuTweakAvailability availability;
     const char *reason;
 } XemuTweakRuntimeState;
 
@@ -65,11 +71,19 @@ typedef struct XemuVulkanUbershaderRuntimeState {
 } XemuVulkanUbershaderRuntimeState;
 
 /* Workers read this snapshot, never the UI-owned mutable g_config. */
-extern unsigned int xemu_tweaks_active;
+extern XemuTweakBits xemu_tweaks_active;
+
+/* C++ cannot expand qatomic_read_u64's C-only _Generic expression. */
+uint64_t xemu_tweaks_active_snapshot(void);
 
 static inline bool xemu_tweak_enabled(XemuTweak tweak)
 {
-    return (qatomic_read(&xemu_tweaks_active) & (1u << tweak)) != 0;
+#ifdef __cplusplus
+    return (xemu_tweaks_active_snapshot() & (UINT64_C(1) << tweak)) != 0;
+#else
+    return (qatomic_read_u64(&xemu_tweaks_active) &
+            (UINT64_C(1) << tweak)) != 0;
+#endif
 }
 
 static inline bool xemu_tweak_requires_restart(XemuTweak tweak)

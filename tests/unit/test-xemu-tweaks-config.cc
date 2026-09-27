@@ -129,6 +129,8 @@ static void test_boolean_tweak_runtime_state()
         xemu_tweak_runtime_state(XEMU_TWEAK_VK_COLOR_DOWNLOAD_FOLDING);
     assert(state.requested && state.selected && !state.effective);
     assert(!state.available && state.reason && state.reason[0]);
+    assert(state.policy_requested == XEMU_TWEAK_POLICY_ENABLED);
+    assert(state.availability == XEMU_TWEAK_UNSUPPORTED_BACKEND);
 
     xemu_tweaks_publish_renderer(XEMU_TWEAK_RENDERER_VULKAN);
     assert(!g_config.tweaks.nv20_vertex_arithmetic);
@@ -148,6 +150,8 @@ static void test_boolean_tweak_runtime_state()
         XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION);
     assert(!state.requested && !state.selected && !state.effective);
     assert(state.available && !state.restart_pending);
+    assert(state.policy_requested == XEMU_TWEAK_POLICY_DISABLED);
+    assert(state.availability == XEMU_TWEAK_AVAILABLE);
     g_config.tweaks.issue149_effect_suppression = true;
     xemu_tweaks_apply(false);
     state = xemu_tweak_runtime_state(
@@ -179,6 +183,7 @@ static void test_boolean_tweak_runtime_state()
     state = xemu_tweak_runtime_state(XEMU_TWEAK_VK_SHADER_FASTPATH);
     assert(state.requested && state.selected && !state.effective);
     assert(!state.available);
+    assert(state.availability == XEMU_TWEAK_BLOCKED_DEPENDENCY);
 
     g_config.tweaks.vk_ubershader_mode =
         CONFIG_TWEAKS_VK_UBERSHADER_MODE_FALLBACK;
