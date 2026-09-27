@@ -66,6 +66,13 @@ struct Dispatch {
 #undef DECLARE
 };
 using Vertex = PreviewSceneVertex;
+constexpr size_t kPipelineVariantCount = 2 * 2 * 2 * 3;
+size_t PipelineVariantIndex(const PreviewRenderState &requested)
+{
+    const auto state = ClampPreviewRenderState(requested);
+    return (((static_cast<size_t>(state.blend) * 2 + state.depth_test) * 2 +
+             state.depth_write) * 3 + static_cast<size_t>(state.cull));
+}
 struct Uniform {
     std::string name;
     uint32_t offset, count, stride, components;
@@ -165,10 +172,9 @@ struct PreviewVkExecutor::Impl {
     VkCommandBuffer cmd = VK_NULL_HANDLE;
     VkFence fence = VK_NULL_HANDLE;
     VkRenderPass pass = VK_NULL_HANDLE;
-    VkPipeline pipeline = VK_NULL_HANDLE;
+    std::array<VkPipeline, kPipelineVariantCount> pipelines{};
     VkPipeline reference_pipeline = VK_NULL_HANDLE;
     VkShaderModule selected_modules[2]{};
-    PreviewRenderState pipeline_state{};
     VkFormat depth_format = VK_FORMAT_UNDEFINED;
     bool unsupported_depth = false;
     VkPipelineLayout layout = VK_NULL_HANDLE;
@@ -202,6 +208,7 @@ struct PreviewVkExecutor::Impl {
     bool linear = false, repeat = false;
 #ifdef XEMU_PREVIEW_VK_TESTING
     bool fail_next_sampler_creation = false;
+    uint32_t pipeline_creation_count = 0;
 #endif
     std::string *error = nullptr;
 
@@ -458,8 +465,10 @@ struct PreviewVkExecutor::Impl {
         prepared = false;
         if (!device)
             return;
-        if (pipeline)
-            api.DestroyPipeline(device, pipeline, nullptr);
+        for (VkPipeline &pipeline : pipelines) {
+            if (pipeline) api.DestroyPipeline(device, pipeline, nullptr);
+            pipeline = VK_NULL_HANDLE;
+        }
         if (reference_pipeline)
             api.DestroyPipeline(device, reference_pipeline, nullptr);
         for (VkShaderModule &module : selected_modules) {
@@ -478,7 +487,6 @@ struct PreviewVkExecutor::Impl {
             api.DestroyRenderPass(device, pass, nullptr);
         if (sampler)
             api.DestroySampler(device, sampler, nullptr);
-        pipeline = VK_NULL_HANDLE;
         reference_pipeline = VK_NULL_HANDLE;
         layout = VK_NULL_HANDLE;
         descriptor_pool = VK_NULL_HANDLE;
@@ -860,13 +868,25 @@ struct PreviewVkExecutor::Impl {
         pi.pDynamicState = &dynamic;
         pi.layout = layout;
         pi.renderPass = pass;
+#ifdef XEMU_PREVIEW_VK_TESTING
+        ++pipeline_creation_count;
+#endif
         return Check(api.CreateGraphicsPipelines(device, VK_NULL_HANDLE, 1,
                                                  &pi, nullptr, out),
                      reference ? "reference pipeline" : "target pipeline");
     }
-    bool Prepare(const PreviewWorkItem &work, bool *unsupported)
+    bool Prepare(const PreviewWorkItem &work, bool *unsupported,
+                 bool *cancelled,
+                 const std::function<bool()> &may_continue)
     {
         *unsupported = false;
+        if (cancelled) *cancelled = false;
+        const auto allowed = [&] {
+            if (!may_continue || may_continue()) return true;
+            if (cancelled) *cancelled = true;
+            *error = "Private Vulkan preparation cancelled because the guest resumed";
+            return false;
+        };
         if (!work.packet ||
             work.packet->selection.backend != PreviewBackend::Vulkan ||
             work.packet->packet_kind != PreviewPacketKind::Synthetic ||
@@ -884,6 +904,7 @@ struct PreviewVkExecutor::Impl {
         }
         if (prepared && key == work.compile_key)
             return true;
+        if (!allowed()) return false;
         if (!Init()) {
             if (unsupported_depth) *unsupported = true;
             return false;
@@ -1017,14 +1038,35 @@ struct PreviewVkExecutor::Impl {
                 return false;
             }
         }
-        pipeline_state = ClampPreviewRenderState(work.packet->render_state);
+        if (!allowed()) {
+            for (VkShaderModule module : reference_modules)
+                if (module) api.DestroyShaderModule(device, module, nullptr);
+            return false;
+        }
         const bool pipelines_ok =
-            MakePipeline(selected_modules, pipeline_state, false, &pipeline) &&
             MakePipeline(reference_modules, {}, true, &reference_pipeline);
         for (VkShaderModule module : reference_modules)
             api.DestroyShaderModule(device, module, nullptr);
         if (!pipelines_ok)
             return false;
+        // The finite blend/depth/cull state space is built while the guest is
+        // paused. Render only selects a handle; no driver pipeline compile can
+        // occur when the user changes these controls during gameplay.
+        for (unsigned blend = 0; blend < 2; ++blend)
+            for (unsigned depth_test = 0; depth_test < 2; ++depth_test)
+                for (unsigned depth_write = 0; depth_write < 2; ++depth_write)
+                    for (unsigned cull = 0; cull < 3; ++cull) {
+                        PreviewRenderState variant{};
+                        variant.blend = static_cast<PreviewBlendMode>(blend);
+                        variant.depth_test = depth_test;
+                        variant.depth_write = depth_write;
+                        variant.cull = static_cast<PreviewCullMode>(cull);
+                        if (!allowed()) return false;
+                        if (!MakePipeline(selected_modules, variant, false,
+                                          &pipelines[PipelineVariantIndex(variant)]))
+                            return false;
+                    }
+        if (!allowed()) return false;
         if (!MakeBuffer(vertices, kPreviewMaxSceneVertices * sizeof(Vertex),
                         VK_BUFFER_USAGE_VERTEX_BUFFER_BIT) ||
             !MakeBuffer(upload, kPreviewFixtureTextureBytes,
@@ -1086,6 +1128,7 @@ struct PreviewVkExecutor::Impl {
                    "descriptor set"))
             return false;
         WriteDescriptors();
+        if (!allowed()) return false;
         key = work.compile_key;
         prepared = true;
         return true;
@@ -1164,19 +1207,6 @@ struct PreviewVkExecutor::Impl {
                   frame.vertices.begin() + target_draw.first_vertex);
         std::memcpy(vertices.mapped, frame.vertices.data(),
                     frame.vertices.size() * sizeof(Vertex));
-        if (state.blend != pipeline_state.blend ||
-            state.depth_test != pipeline_state.depth_test ||
-            state.depth_write != pipeline_state.depth_write ||
-            state.cull != pipeline_state.cull) {
-            VkPipeline next = VK_NULL_HANDLE;
-            if (!MakePipeline(selected_modules, state, false, &next)) {
-                if (next) api.DestroyPipeline(device, next, nullptr);
-                return false;
-            }
-            api.DestroyPipeline(device, pipeline, nullptr);
-            pipeline = next;
-            pipeline_state = state;
-        }
         if (uniform_size)
             std::memset(uniform.mapped, 0, uniform_size);
         for (const auto &u : uniforms) {
@@ -1271,7 +1301,8 @@ struct PreviewVkExecutor::Impl {
             if (draw.vertex_count)
                 api.CmdDraw(cmd, draw.vertex_count, 1, draw.first_vertex, 0);
         }
-        api.CmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+        api.CmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                            pipelines[PipelineVariantIndex(state)]);
         api.CmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, layout,
                                   0, 1, &set, 0, nullptr);
         api.CmdDraw(cmd, target_draw.vertex_count, 1,
@@ -1333,10 +1364,13 @@ PreviewVkExecutor::~PreviewVkExecutor()
     delete impl_;
 }
 bool PreviewVkExecutor::Prepare(const PreviewWorkItem &work, std::string *error,
-                                bool *unsupported)
+                                bool *unsupported, bool *cancelled,
+                                const std::function<bool()> &may_continue)
 {
     impl_->error = error;
-    bool ok = impl_->Prepare(work, unsupported);
+    bool ok = impl_->Prepare(work, unsupported, cancelled, may_continue);
+    if (!ok && !impl_->prepared)
+        impl_->ClearProgram();
     if (!ok && !impl_->initialized) {
         delete impl_;
         impl_ = new Impl;
@@ -1361,6 +1395,10 @@ bool PreviewVkExecutor::HasSamplerSettingsForTest(bool linear,
     return impl_->sampler != VK_NULL_HANDLE && impl_->linear == linear &&
            impl_->repeat == repeat;
 }
+uint32_t PreviewVkExecutor::PipelineCreationCountForTest() const
+{
+    return impl_->pipeline_creation_count;
+}
 #endif
 } // namespace xemu::shader_browser
 #else
@@ -1374,8 +1412,10 @@ PreviewVkExecutor::~PreviewVkExecutor()
     delete impl_;
 }
 bool PreviewVkExecutor::Prepare(const PreviewWorkItem &, std::string *error,
-                                bool *unsupported)
+                                bool *unsupported, bool *cancelled,
+                                const std::function<bool()> &)
 {
+    if (cancelled) *cancelled = false;
     *unsupported = true;
     *error = "This build has no private Vulkan preview support";
     return false;
@@ -1394,6 +1434,10 @@ void PreviewVkExecutor::FailNextSamplerCreationForTest()
 bool PreviewVkExecutor::HasSamplerSettingsForTest(bool, bool) const
 {
     return false;
+}
+uint32_t PreviewVkExecutor::PipelineCreationCountForTest() const
+{
+    return 0;
 }
 #endif
 } // namespace xemu::shader_browser

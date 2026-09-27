@@ -296,6 +296,12 @@ bool PreviewService::CompletePreparation(uint64_t token,
     } else if (!current) {
         ++stale_completions_;
         SetRestingStateLocked("Discarded obsolete preparation result");
+    } else if (outcome == PreviewPreparationOutcome::Cancelled) {
+        prepared_ = false;
+        unsupported_ = false;
+        unsupported_reason_.clear();
+        SetStateLocked(PreviewState::NeedsPreparation,
+                       "Preparation cancelled because the guest resumed");
     } else if (outcome == PreviewPreparationOutcome::Unsupported) {
         prepared_ = false;
         unsupported_ = true;
@@ -319,6 +325,15 @@ bool PreviewService::CompletePreparation(uint64_t token,
     active_ = false;
     active_work_ = {};
     return true;
+}
+
+bool PreviewService::PreparationStillAllowed(uint64_t token) const
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    return active_ && active_work_.kind == PreviewWorkKind::Prepare &&
+           active_work_.token == token && enabled_ && visible_ &&
+           IsCurrentRequestLocked(active_work_.request_id, nullptr) &&
+           (guest_paused_ || offline_no_guest_);
 }
 
 bool PreviewService::CompleteRender(uint64_t token, bool success,

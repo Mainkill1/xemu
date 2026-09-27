@@ -361,12 +361,23 @@ bool PreviewService::RequestAutomaticPreparation(uint64_t now_ns)
     if (!enabled_ || !visible_ ||
         !(guest_paused_ || offline_no_guest_) || !pending_.packet ||
         active_ || IsPreparedLocked() || failed_ || unsupported_ ||
-        preparation_requested_ || now_ns < selection_changed_ns_ ||
+        preparation_requested_ || now_ns < startup_retry_after_ns_ ||
+        now_ns < selection_changed_ns_ ||
         now_ns - selection_changed_ns_ < kPreviewSelectionDebounceNs) {
         return false;
     }
     preparation_requested_ = true;
     return true;
+}
+
+void PreviewService::ReportWorkerStartupFailure(const std::string &error,
+                                                 uint64_t now_ns)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (!preparation_requested_) return;
+    preparation_requested_ = false;
+    startup_retry_after_ns_ = now_ns + UINT64_C(1000000000);
+    SetStateLocked(PreviewState::NeedsPreparation, error);
 }
 
 bool PreviewService::RequestPreparation(std::string *error)
