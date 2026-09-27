@@ -1239,7 +1239,8 @@ void ShaderBrowserWindow::DrawLivePreview()
                     m_preview_scene = packet.scene;
                     service.EditScene(m_preview_scene);
                     m_preview_render_state = packet.render_state;
-                    workbench.dock.bindings = packet.bindings;
+                    workbench.dock.bindings = ExpandWorkbenchPacketBindings(
+                        packet, WorkbenchEditorDockState{}.bindings);
                     m_preview_update_policy = packet.update_policy;
                     m_preview_input_revision = packet.input_revision;
                     PreviewSyntheticFixture restored{};
