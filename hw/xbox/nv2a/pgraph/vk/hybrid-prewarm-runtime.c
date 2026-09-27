@@ -35,7 +35,8 @@ PGRAPHVkHybridPrewarmAttemptResult pgraph_vk_hybrid_prewarm_prepare_record(
     const PGRAPHVkHybridPrewarmPrepareOps *ops, void *opaque)
 {
     if (!record || !ops || !ops->device_supported || !ops->pipeline_ready ||
-        !ops->cached_modules || !ops->ready_binding ||
+        !ops->cached_modules || !ops->retain_missing_family ||
+        !ops->ready_binding ||
         !ops->submit_pipeline) {
         return PGRAPH_VK_HYBRID_PREWARM_REJECTED;
     }
@@ -56,7 +57,10 @@ PGRAPHVkHybridPrewarmAttemptResult pgraph_vk_hybrid_prewarm_prepare_record(
     case PGRAPH_VK_CACHED_FAMILY_MODULES_READY:
         break;
     case PGRAPH_VK_CACHED_FAMILY_MODULES_MISSING:
-        return PGRAPH_VK_HYBRID_PREWARM_MISSING_ARTIFACT;
+        /* Transfer valid learned work into the bounded runtime owner. The
+         * history record may be consumed only after another owner retains
+         * the exact family through module and pipeline publication. */
+        return ops->retain_missing_family(opaque, &key);
     case PGRAPH_VK_CACHED_FAMILY_MODULES_DEFERRED:
         return PGRAPH_VK_HYBRID_PREWARM_DEFERRED;
     case PGRAPH_VK_CACHED_FAMILY_MODULES_REJECTED:

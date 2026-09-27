@@ -62,6 +62,61 @@ typedef struct PipelineBuilderState {
     bool joined;
 } PipelineBuilderState;
 
+static PipelineJob *list_pop_highest_priority(PipelineJob **head,
+                                              PipelineJob **tail)
+{
+    PipelineJob *job = *head;
+    if (!job) {
+        return NULL;
+    }
+    PipelineJob *best = job;
+    PipelineJob *best_prev = NULL;
+    PipelineJob *prev = job;
+    for (PipelineJob *candidate = job->next; candidate;
+         candidate = candidate->next) {
+        if (candidate->request.priority > best->request.priority) {
+            best = candidate;
+            best_prev = prev;
+        }
+        prev = candidate;
+    }
+    if (best_prev) {
+        best_prev->next = best->next;
+    } else {
+        *head = best->next;
+    }
+    if (*tail == best) {
+        *tail = best_prev;
+    }
+    best->next = NULL;
+    return best;
+}
+
+static PipelineJob *result_take_identity(PipelineBuilderState *state,
+                                         uint64_t generation,
+                                         uint64_t ticket)
+{
+    PipelineJob *previous = NULL;
+    for (PipelineJob *job = state->result_head; job; job = job->next) {
+        if (job->request.generation != generation ||
+            job->request.ticket != ticket) {
+            previous = job;
+            continue;
+        }
+        if (previous) {
+            previous->next = job->next;
+        } else {
+            state->result_head = job->next;
+        }
+        if (state->result_tail == job) {
+            state->result_tail = previous;
+        }
+        job->next = NULL;
+        return job;
+    }
+    return NULL;
+}
+
 static bool recipe_copy(PipelineRecipe *dst,
                         const VkGraphicsPipelineCreateInfo *src)
 {
@@ -247,12 +302,8 @@ static void *pipeline_worker(void *opaque)
             qemu_mutex_unlock(&state->lock);
             break;
         }
-        PipelineJob *job = state->pending_head;
-        state->pending_head = job->next;
-        if (!state->pending_head) {
-            state->pending_tail = NULL;
-        }
-        job->next = NULL;
+        PipelineJob *job = list_pop_highest_priority(&state->pending_head,
+                                                      &state->pending_tail);
         state->active = job;
         bool stale = job->request.generation < state->min_generation;
         qemu_mutex_unlock(&state->lock);
@@ -270,6 +321,7 @@ static void *pipeline_worker(void *opaque)
         state->active = NULL;
         stale = state->stopping ||
                 job->request.generation < state->min_generation;
+        bool notify = false;
         if (stale) {
             state->outstanding--;
         } else {
@@ -280,8 +332,12 @@ static void *pipeline_worker(void *opaque)
             }
             state->result_tail = job;
             qatomic_set(&state->result_available, 1);
+            notify = true;
         }
         qemu_mutex_unlock(&state->lock);
+        if (notify && state->config.notify) {
+            state->config.notify(state->config.notify_opaque);
+        }
         if (stale) {
             job_destroy(state, job);
         }
@@ -326,6 +382,7 @@ PGRAPHVkHybridPipelineSubmitResult pgraph_vk_hybrid_pipeline_builder_submit(
         .generation = request->generation,
         .ticket = request->ticket,
         .key_hash = request->key_hash,
+        .priority = request->priority,
         .device = request->device,
         .pipeline = VK_NULL_HANDLE,
         .vk_result = VK_NOT_READY,
@@ -356,6 +413,36 @@ PGRAPHVkHybridPipelineSubmitResult pgraph_vk_hybrid_pipeline_builder_submit(
     return status;
 }
 
+bool pgraph_vk_hybrid_pipeline_builder_promote(
+    PGRAPHVkHybridPipelineBuilder *builder, uint64_t generation,
+    uint64_t ticket, PGRAPHVkHybridPriority priority)
+{
+    PipelineBuilderState *state = builder ? builder->state : NULL;
+    if (!state || !ticket) {
+        return false;
+    }
+    bool found = false;
+    qemu_mutex_lock(&state->lock);
+    PipelineJob *lists[] = {
+        state->pending_head, state->active, state->result_head,
+    };
+    for (size_t i = 0; i < G_N_ELEMENTS(lists) && !found; i++) {
+        for (PipelineJob *job = lists[i]; job; job = job->next) {
+            if (job->request.generation == generation &&
+                job->request.ticket == ticket) {
+                if (priority > job->request.priority) {
+                    job->request.priority = priority;
+                    job->result.priority = priority;
+                }
+                found = true;
+                break;
+            }
+        }
+    }
+    qemu_mutex_unlock(&state->lock);
+    return found;
+}
+
 bool pgraph_vk_hybrid_pipeline_builder_take_result(
     PGRAPHVkHybridPipelineBuilder *builder,
     PGRAPHVkHybridPipelineBuildResult *result)
@@ -365,11 +452,10 @@ bool pgraph_vk_hybrid_pipeline_builder_take_result(
         return false;
     }
     qemu_mutex_lock(&state->lock);
-    PipelineJob *job = state->result_head;
+    PipelineJob *job = list_pop_highest_priority(&state->result_head,
+                                                  &state->result_tail);
     if (job) {
-        state->result_head = job->next;
         if (!state->result_head) {
-            state->result_tail = NULL;
             qatomic_set(&state->result_available, 0);
         }
         state->outstanding--;
@@ -380,6 +466,31 @@ bool pgraph_vk_hybrid_pipeline_builder_take_result(
     qemu_mutex_unlock(&state->lock);
     g_free(job);
     return found;
+}
+
+bool pgraph_vk_hybrid_pipeline_builder_take_result_for(
+    PGRAPHVkHybridPipelineBuilder *builder, uint64_t generation,
+    uint64_t ticket, PGRAPHVkHybridPipelineBuildResult *result)
+{
+    PipelineBuilderState *state = builder ? builder->state : NULL;
+    if (!state || !ticket || !result) {
+        return false;
+    }
+    qemu_mutex_lock(&state->lock);
+    PipelineJob *job = result_take_identity(state, generation, ticket);
+    if (!job) {
+        qemu_mutex_unlock(&state->lock);
+        return false;
+    }
+    if (!state->result_head) {
+        qatomic_set(&state->result_available, 0);
+    }
+    state->outstanding--;
+    *result = job->result;
+    job->result.pipeline = VK_NULL_HANDLE;
+    qemu_mutex_unlock(&state->lock);
+    g_free(job);
+    return true;
 }
 
 bool pgraph_vk_hybrid_pipeline_builder_has_result(

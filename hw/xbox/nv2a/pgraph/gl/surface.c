@@ -271,6 +271,7 @@ static void render_surface_to(NV2AState *d, SurfaceBinding *surface,
     glBindTexture(gl_target, gl_texture);
     glUseProgram(
         r->shader_binding ? r->shader_binding->gl_program : 0);
+    pgraph_gl_shader_override_invalidate_program(pg);
 }
 
 static void render_surface_to_texture_slow(NV2AState *d,
@@ -317,7 +318,6 @@ void pgraph_gl_render_surface_to_texture(NV2AState *d, SurfaceBinding *surface,
                                       int texture_unit)
 {
     PGRAPHState *pg = &d->pgraph;
-    PGRAPHGLState *r = pg->gl_renderer_state;
 
     const ColorFormatInfo *f =
         &kelvin_color_format_gl_map[texture_shape->color_format];
@@ -345,8 +345,6 @@ void pgraph_gl_render_surface_to_texture(NV2AState *d, SurfaceBinding *surface,
     render_surface_to(d, surface, texture_unit, texture->gl_target,
                              texture->gl_texture, width, height);
     glBindTexture(texture->gl_target, texture->gl_texture);
-    glUseProgram(
-        r->shader_binding ? r->shader_binding->gl_program : 0);
 }
 
 bool pgraph_gl_check_surface_to_texture_compatibility(

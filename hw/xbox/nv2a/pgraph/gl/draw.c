@@ -499,6 +499,12 @@ void pgraph_gl_flush_draw(NV2AState *d)
     if (!r->draw_lifecycle.prepared) {
         return;
     }
-    pgraph_gl_draw_lifecycle_record(
-        &r->draw_lifecycle, pgraph_gl_flush_draw_internal(d));
+    PGRAPHGLDrawResult result = pgraph_gl_flush_draw_internal(d);
+    pgraph_gl_draw_lifecycle_record(&r->draw_lifecycle, result);
+    if (result == PGRAPH_GL_DRAW_SUBMITTED && r->shader_binding) {
+        pgraph_shader_browser_record_draw(
+            &d->pgraph.shader_browser_observations,
+            &r->shader_binding->browser, d->pgraph.frame_time,
+            XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED);
+    }
 }

@@ -204,6 +204,35 @@ static void test_queue_deferral_is_not_a_compile_attempt(void)
     assert(work.attempts == 1);
 }
 
+static void test_queue_capacity_rearms_without_selection_epoch_progress(void)
+{
+    PGRAPHVkHybridWork work;
+    const uint64_t frozen_epoch = 30;
+
+    assert(pgraph_vk_hybrid_work_init(&work, 3));
+    assert(pgraph_vk_hybrid_note_queue_deferral(
+        &work, false, 8, frozen_epoch, 8));
+    assert(work.status == PGRAPH_VK_HYBRID_WORK_QUEUE_BACKOFF);
+    assert(work.retry_after_epoch == 38);
+
+    /* A retained family may be the only renderer activity. Its retry must
+     * follow real queue capacity, not an unrelated draw-selection epoch. */
+    assert(!pgraph_vk_hybrid_rearm_queue_deferral(&work, false));
+    assert(work.status == PGRAPH_VK_HYBRID_WORK_QUEUE_BACKOFF);
+    assert(pgraph_vk_hybrid_rearm_queue_deferral(&work, true));
+    assert(work.status == PGRAPH_VK_HYBRID_WORK_ABSENT);
+    assert(work.retry_after_epoch == 0);
+    assert(pgraph_vk_hybrid_mark_pending(
+        &work, false, 8, 31, frozen_epoch));
+    assert(work.attempts == 1);
+
+    assert(pgraph_vk_hybrid_note_compile_failure(
+        &work, 8, 31, 8, frozen_epoch, 8));
+    assert(work.status == PGRAPH_VK_HYBRID_WORK_FAILED_BACKOFF);
+    assert(!pgraph_vk_hybrid_rearm_queue_deferral(&work, true));
+    assert(work.status == PGRAPH_VK_HYBRID_WORK_FAILED_BACKOFF);
+}
+
 static void test_backoff_rejects_zero_and_saturates(void)
 {
     PGRAPHVkHybridWork work;
@@ -346,6 +375,7 @@ int main(void)
     test_backoff_expiry_and_attempt_saturation();
     test_work_transitions_are_guarded_and_bounded();
     test_queue_deferral_is_not_a_compile_attempt();
+    test_queue_capacity_rearms_without_selection_epoch_progress();
     test_backoff_rejects_zero_and_saturates();
     test_compile_failure_rejects_stale_metadata_without_mutation();
     test_ticket_allocator_is_nonzero_monotonic_and_fails_closed();

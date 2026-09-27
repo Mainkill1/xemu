@@ -3694,7 +3694,23 @@ endif
 
 tomlplusplus = dependency('tomlplusplus', fallback: ['tomlplusplus', 'tomlplusplus_dep'], default_options: ['default_library=static'])
 
-xxhash = dependency('libxxhash', fallback: ['xxhash', 'xxhash_dep'], default_options: ['default_library=static'])
+xxhash_endianness = host_machine.endian() == 'little' ? 'enabled' : 'disabled'
+xxhash = dependency(
+  'libxxhash',
+  fallback: ['xxhash', 'xxhash_dep'],
+  # QEMU disables Meson auto features. The xxHash wrap otherwise converts
+  # its auto byte-order option to "disabled" even on little-endian hosts.
+  default_options: [
+    'default_library=static',
+    'cpu-little-endian=' + xxhash_endianness,
+  ],
+)
+
+sqlite3 = dependency(
+  'sqlite3',
+  fallback: ['sqlite3', 'sqlite3_dep'],
+  default_options: ['default_library=static', 'all-extensions=disabled', 'strict=true'],
+)
 
 #####################
 # Generated sources #

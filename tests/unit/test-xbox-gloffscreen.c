@@ -16,6 +16,8 @@
     if (!(condition)) { \
         fprintf(stderr, "line %d: %s failed (%s)\n", \
                 __LINE__, #condition, SDL_GetError()); \
+        puts("not ok 1 - shared contexts and failed-stage reset lifecycle"); \
+        puts("1..1"); \
         return EXIT_FAILURE; \
     } \
 } while (0)
@@ -31,8 +33,8 @@ static int window_count(void)
 int main(int argc, char **argv)
 {
     if (!getenv("XEMU_TEST_GLOFFSCREEN")) {
-        puts("SKIP: set XEMU_TEST_GLOFFSCREEN=1 on a graphics host");
-        return 77;
+        puts("1..0 # SKIP set XEMU_TEST_GLOFFSCREEN=1 on a graphics host");
+        return EXIT_SUCCESS;
     }
 
     CHECK(SDL_Init(SDL_INIT_VIDEO));
@@ -111,6 +113,7 @@ int main(int argc, char **argv)
     CHECK(window_count() == baseline);
     CHECK(SDL_GL_GetCurrentContext() == NULL);
     SDL_Quit();
-    puts("PASS: shared contexts and failed-stage reset lifecycle");
+    puts("ok 1 - shared contexts and failed-stage reset lifecycle");
+    puts("1..1");
     return EXIT_SUCCESS;
 }

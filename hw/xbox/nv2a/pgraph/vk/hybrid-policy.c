@@ -143,6 +143,19 @@ bool pgraph_vk_hybrid_note_queue_deferral(PGRAPHVkHybridWork *work,
     return true;
 }
 
+bool pgraph_vk_hybrid_rearm_queue_deferral(PGRAPHVkHybridWork *work,
+                                           bool queue_has_capacity)
+{
+    if (!work || !queue_has_capacity ||
+        work->status != PGRAPH_VK_HYBRID_WORK_QUEUE_BACKOFF) {
+        return false;
+    }
+
+    work->retry_after_epoch = 0;
+    work->status = PGRAPH_VK_HYBRID_WORK_ABSENT;
+    return true;
+}
+
 bool pgraph_vk_hybrid_note_compile_failure(PGRAPHVkHybridWork *work,
                                            uint64_t completion_generation,
                                            uint64_t completion_ticket,

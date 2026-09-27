@@ -102,3 +102,38 @@ PGRAPHVkCachedFamilyModulesResult pgraph_vk_hybrid_prewarm_modules(
     }
     return PGRAPH_VK_CACHED_FAMILY_MODULES_READY;
 }
+
+PGRAPHVkCachedFamilyModulesResult pgraph_vk_hybrid_prepare_family_modules(
+    bool geometry_required, PGRAPHVkHybridPrewarmStageFunc prepare,
+    void *opaque)
+{
+    if (!prepare) {
+        return PGRAPH_VK_CACHED_FAMILY_MODULES_REJECTED;
+    }
+    const PGRAPHVkHybridPrewarmStage stages[] = {
+        PGRAPH_VK_HYBRID_PREWARM_VERTEX,
+        PGRAPH_VK_HYBRID_PREWARM_GEOMETRY,
+        PGRAPH_VK_HYBRID_PREWARM_FRAGMENT,
+    };
+    PGRAPHVkCachedFamilyModulesResult aggregate =
+        PGRAPH_VK_CACHED_FAMILY_MODULES_READY;
+
+    for (size_t i = 0; i < G_N_ELEMENTS(stages); i++) {
+        if (stages[i] == PGRAPH_VK_HYBRID_PREWARM_GEOMETRY &&
+            !geometry_required) {
+            continue;
+        }
+        PGRAPHVkCachedFamilyModulesResult result =
+            prepare(opaque, stages[i]);
+        if (result == PGRAPH_VK_CACHED_FAMILY_MODULES_REJECTED) {
+            return result;
+        }
+        if (result == PGRAPH_VK_CACHED_FAMILY_MODULES_DEFERRED) {
+            aggregate = result;
+        } else if (result == PGRAPH_VK_CACHED_FAMILY_MODULES_MISSING &&
+                   aggregate == PGRAPH_VK_CACHED_FAMILY_MODULES_READY) {
+            aggregate = result;
+        }
+    }
+    return aggregate;
+}

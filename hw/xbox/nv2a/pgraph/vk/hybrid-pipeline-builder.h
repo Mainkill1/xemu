@@ -9,10 +9,13 @@
 #include <stdint.h>
 #include <vulkan/vulkan.h>
 
+#include "hw/xbox/nv2a/pgraph/vk/hybrid-compiler.h"
+
 typedef struct PGRAPHVkHybridPipelineBuildRequest {
     uint64_t generation;
     uint64_t ticket;
     uint64_t key_hash;
+    PGRAPHVkHybridPriority priority;
     VkDevice device;
     VkPipelineCache cache;
     const VkGraphicsPipelineCreateInfo *create_info;
@@ -28,6 +31,7 @@ typedef struct PGRAPHVkHybridPipelineBuildResult {
     uint64_t generation;
     uint64_t ticket;
     uint64_t key_hash;
+    PGRAPHVkHybridPriority priority;
     VkDevice device;
     VkPipeline pipeline;
     VkResult vk_result;
@@ -45,6 +49,8 @@ typedef struct PGRAPHVkHybridPipelineBuilderConfig {
     PGRAPHVkHybridPipelineCreateFunc create;
     PGRAPHVkHybridPipelineDestroyFunc destroy;
     void *opaque;
+    PGRAPHVkHybridCompletionNotifyFunc notify;
+    void *notify_opaque;
 } PGRAPHVkHybridPipelineBuilderConfig;
 
 typedef enum PGRAPHVkHybridPipelineSubmitResult {
@@ -67,9 +73,15 @@ bool pgraph_vk_hybrid_pipeline_builder_init(
 PGRAPHVkHybridPipelineSubmitResult pgraph_vk_hybrid_pipeline_builder_submit(
     PGRAPHVkHybridPipelineBuilder *builder,
     const PGRAPHVkHybridPipelineBuildRequest *request);
+bool pgraph_vk_hybrid_pipeline_builder_promote(
+    PGRAPHVkHybridPipelineBuilder *builder, uint64_t generation,
+    uint64_t ticket, PGRAPHVkHybridPriority priority);
 bool pgraph_vk_hybrid_pipeline_builder_take_result(
     PGRAPHVkHybridPipelineBuilder *builder,
     PGRAPHVkHybridPipelineBuildResult *result);
+bool pgraph_vk_hybrid_pipeline_builder_take_result_for(
+    PGRAPHVkHybridPipelineBuilder *builder, uint64_t generation,
+    uint64_t ticket, PGRAPHVkHybridPipelineBuildResult *result);
 /* Lock-free empty-queue hint. A true result still requires take_result(). */
 bool pgraph_vk_hybrid_pipeline_builder_has_result(
     const PGRAPHVkHybridPipelineBuilder *builder);
