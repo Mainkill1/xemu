@@ -130,8 +130,9 @@ static WorkbenchEditorDockAction DrawWorkbenchEditorDock(
     WorkbenchEditorDockAction action{};
     if (!state || !editor) return action;
     ImGui::SeparatorText("Generated GLSL / private draft");
-    const GeneratedSourceSnapshot *original = generated ? generated :
-        (draft && draft->Id() ? &draft->Base() : nullptr);
+    const bool has_draft = draft && draft->Id();
+    const GeneratedSourceSnapshot *original = has_draft ?
+        &draft->Base() : generated;
     if (original) {
         ImGui::TextDisabled("%s %s | %s | %s | TitleID %08X",
             original->resident ? "Resident GLSL" : "Reconstructed GLSL",
@@ -151,7 +152,6 @@ static WorkbenchEditorDockAction DrawWorkbenchEditorDock(
         state->original_loaded = state->original_editor.SetSource(original->text);
         if (state->original_loaded) state->original_digest = original->digest;
     }
-    const bool has_draft = draft && draft->Id();
     if (has_draft) {
         int variant = static_cast<int>(state->variant);
         if (ImGui::RadioButton("Original", variant == 0)) variant = 0;
