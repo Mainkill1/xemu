@@ -168,6 +168,7 @@ void PreviewService::ResetLocked()
     next_request_id_ = 1;
     latest_request_id_ = 0;
     preparation_requested_ = false;
+    startup_retry_after_ns_ = 0;
     failed_ = false;
     failed_render_ = false;
     failed_compile_ = {};

@@ -263,8 +263,43 @@ static void TestOwnedOfflinePreparationWithoutGuestPause()
     assert(!service.TryClaimWork(settled + kPreviewPausedIntervalNs, &work));
 }
 
+static void TestPreparationStopsWhenInputsOrPauseChange()
+{
+    constexpr uint64_t start = UINT64_C(1000000000);
+    PreviewService service;
+    EnableAndSelect(&service, start);
+    service.SetGuestPaused(true);
+    std::string error;
+    assert(service.RequestPreparation(&error));
+    PreviewWorkItem work{};
+    assert(service.TryClaimWork(start + kPreviewSelectionDebounceNs, &work));
+    assert(service.PreparationStillAllowed(work.token));
+    service.SetGuestPaused(false);
+    assert(!service.PreparationStillAllowed(work.token));
+    assert(service.CompletePreparation(work.token,
+                                      PreviewPreparationOutcome::Cancelled,
+                                      "cancelled", start));
+    PreviewStatus status{};
+    service.CopyStatus(&status);
+    assert(status.state == PreviewState::NeedsPreparation &&
+           !status.preparation_requested && !status.work_active);
+    service.SetGuestPaused(true);
+    assert(service.RequestAutomaticPreparation(
+        start + kPreviewSelectionDebounceNs));
+    assert(service.TryClaimWork(start + kPreviewSelectionDebounceNs, &work));
+    assert(service.PreparationStillAllowed(work.token));
+    service.ClearSelection();
+    assert(!service.PreparationStillAllowed(work.token));
+    assert(service.CompletePreparation(work.token,
+                                      PreviewPreparationOutcome::Cancelled,
+                                      "obsolete", start));
+    service.CopyStatus(&status);
+    assert(status.state == PreviewState::NoSelection);
+}
+
 int main()
 {
+    TestPreparationStopsWhenInputsOrPauseChange();
     TestLastGoodAndAutomaticPreparation();
     TestEditedRevisionKeepsDisplayedSource();
     TestOwnedOfflinePreparationWithoutGuestPause();

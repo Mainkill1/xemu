@@ -17,6 +17,7 @@
 #include <algorithm>
 #include <atomic>
 #include <chrono>
+#include <future>
 #include <mutex>
 #include <thread>
 #include <utility>
@@ -78,6 +79,40 @@ bool CheckSyntheticUniformInterface(GLuint program, std::string *error)
 {
     GLint count = 0;
     GLint max_name = 0;
+    glGetProgramiv(program, GL_ACTIVE_UNIFORM_BLOCKS, &count);
+    if (count != 0) {
+        *error = "Unsupported private shader uniform block";
+        return false;
+    }
+    // Storage blocks are a program interface, not ordinary active uniforms.
+    // In particular, a linked shader can have no GL_ACTIVE_UNIFORMS while
+    // still reading unowned SSBO data through this interface.
+    if (epoxy_gl_version() >= 43 ||
+        (epoxy_has_gl_extension("GL_ARB_shader_storage_buffer_object") &&
+         epoxy_has_gl_extension("GL_ARB_program_interface_query"))) {
+        glGetProgramInterfaceiv(program, GL_SHADER_STORAGE_BLOCK,
+                                GL_ACTIVE_RESOURCES, &count);
+        if (count != 0) {
+            *error = "Unsupported private shader shader-storage block";
+            return false;
+        }
+        glGetProgramInterfaceiv(program, GL_ATOMIC_COUNTER_BUFFER,
+                                GL_ACTIVE_RESOURCES, &count);
+        if (count != 0) {
+            *error = "Unsupported private shader atomic-counter buffer";
+            return false;
+        }
+    }
+    if (epoxy_gl_version() >= 40) {
+        for (GLenum stage : { GL_VERTEX_SHADER, GL_FRAGMENT_SHADER }) {
+            glGetProgramStageiv(program, stage, GL_ACTIVE_SUBROUTINE_UNIFORMS,
+                                &count);
+            if (count != 0) {
+                *error = "Unsupported private shader subroutine input";
+                return false;
+            }
+        }
+    }
     glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &count);
     glGetProgramiv(program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &max_name);
     if (count == 0) return true;
@@ -150,6 +185,7 @@ struct PreviewGlExecutor::Impl {
 
     SDL_Window *window = nullptr;
     SDL_GLContext context = nullptr;
+    ContextBinder bind_context = nullptr;
     std::thread worker;
     std::atomic<bool> stop{false};
     std::mutex slots_mutex;
@@ -607,9 +643,14 @@ struct PreviewGlExecutor::Impl {
         return false;
     }
 
-    void Run()
+    void Run(std::promise<std::string> startup)
     {
-        if (!SDL_GL_MakeCurrent(window, context)) return;
+        if (!bind_context(window, context)) {
+            startup.set_value(std::string("Private GL worker context bind failed: ") +
+                              SDL_GetError());
+            return;
+        }
+        startup.set_value({});
         PreviewService &service = GetPreviewService();
         PreviewVkExecutor vulkan;
         std::vector<uint8_t> completed_pixels;
@@ -625,12 +666,17 @@ struct PreviewGlExecutor::Impl {
             std::string error;
             if (work.kind == PreviewWorkKind::Prepare) {
                 bool unsupported = false;
+                bool cancelled = false;
                 bool ok = work.packet->selection.backend == PreviewBackend::Vulkan ?
-                    vulkan.Prepare(work, &error, &unsupported) :
+                    vulkan.Prepare(work, &error, &unsupported, &cancelled,
+                                   [&service, &work] {
+                        return service.PreparationStillAllowed(work.token);
+                    }) :
                     Prepare(work, &error, &unsupported);
                 const PreviewPreparationOutcome outcome = ok ?
                     PreviewPreparationOutcome::Succeeded :
-                    (unsupported ? PreviewPreparationOutcome::Unsupported :
+                    (cancelled ? PreviewPreparationOutcome::Cancelled :
+                     unsupported ? PreviewPreparationOutcome::Unsupported :
                                    PreviewPreparationOutcome::Failed);
                 service.CompletePreparation(work.token, outcome, error,
                                             NowNs());
@@ -723,7 +769,15 @@ bool MakePreviewHudContextCurrent(SDL_Window *window, void *context)
     return true;
 }
 
-PreviewGlExecutor::PreviewGlExecutor() : impl_(new Impl) {}
+PreviewGlExecutor::PreviewGlExecutor(ContextBinder bind_context) :
+    impl_(new Impl)
+{
+    impl_->bind_context = bind_context ? bind_context :
+        [](SDL_Window *window, void *context) {
+            return SDL_GL_MakeCurrent(window,
+                                      static_cast<SDL_GLContext>(context));
+        };
+}
 PreviewGlExecutor::~PreviewGlExecutor() { Shutdown(); delete impl_; }
 
 bool PreviewGlExecutor::StartWhilePaused(std::string *error)
@@ -733,7 +787,9 @@ bool PreviewGlExecutor::StartWhilePaused(std::string *error)
     SDL_Window *original_window = SDL_GL_GetCurrentWindow();
     SDL_GLContext original_context = SDL_GL_GetCurrentContext();
     if (!original_window || !original_context) {
-        if (error) *error = "HUD OpenGL context is unavailable";
+        const std::string failure = "HUD OpenGL context is unavailable";
+        GetPreviewService().ReportWorkerStartupFailure(failure, NowNs());
+        if (error) *error = failure;
         return false;
     }
     SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
@@ -753,12 +809,30 @@ bool PreviewGlExecutor::StartWhilePaused(std::string *error)
         if (impl.window) SDL_DestroyWindow(impl.window);
         impl.context = nullptr;
         impl.window = nullptr;
-        if (error) *error = "Private GL context creation failed: " +
-                            creation_error;
+        const std::string failure = "Private GL context creation failed: " +
+                                    creation_error;
+        GetPreviewService().ReportWorkerStartupFailure(failure, NowNs());
+        if (error) *error = failure;
         return false;
     }
     impl.stop.store(false, std::memory_order_release);
-    impl.worker = std::thread([&impl] { impl.Run(); });
+    std::promise<std::string> startup;
+    auto ready = startup.get_future();
+    impl.worker = std::thread([&impl, signal = std::move(startup)]() mutable {
+        impl.Run(std::move(signal));
+    });
+    const std::string startup_error = ready.get();
+    if (!startup_error.empty()) {
+        impl.worker.join();
+        SDL_GL_DestroyContext(impl.context);
+        SDL_DestroyWindow(impl.window);
+        impl.context = nullptr;
+        impl.window = nullptr;
+        GetPreviewService().ReportWorkerStartupFailure(startup_error,
+                                                       NowNs());
+        if (error) *error = startup_error;
+        return false;
+    }
     if (error) error->clear();
     return true;
 }

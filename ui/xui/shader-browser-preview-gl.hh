@@ -24,7 +24,8 @@ struct PreviewViewSettings {
 class PreviewGlExecutor
 {
 public:
-    PreviewGlExecutor();
+    using ContextBinder = bool (*)(SDL_Window *, void *);
+    explicit PreviewGlExecutor(ContextBinder bind_context = nullptr);
     ~PreviewGlExecutor();
     PreviewGlExecutor(const PreviewGlExecutor &) = delete;
     PreviewGlExecutor &operator=(const PreviewGlExecutor &) = delete;

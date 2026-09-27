@@ -49,6 +49,7 @@ enum class PreviewPreparationOutcome : uint8_t {
     Succeeded,
     Failed,
     Unsupported,
+    Cancelled,
 };
 
 class PreviewService
@@ -70,6 +71,8 @@ public:
                       uint64_t now_ns, std::string *error);
     bool RequestPreparation(std::string *error);
     bool RequestAutomaticPreparation(uint64_t now_ns);
+    void ReportWorkerStartupFailure(const std::string &error,
+                                    uint64_t now_ns);
     void ReportInputFailure(const PreviewCompileKey &attempt,
                             const std::string &error);
     void RequestCurrentFrame();
@@ -80,6 +83,7 @@ public:
 
     bool TryClaimWork(uint64_t now_ns, PreviewWorkItem *work,
                       PreviewBackend backend_filter = PreviewBackend::Unknown);
+    bool PreparationStillAllowed(uint64_t token) const;
     bool CompletePreparation(uint64_t token, PreviewPreparationOutcome outcome,
                              const std::string &status, uint64_t now_ns);
     bool CompletePreparation(uint64_t token, bool success,
@@ -159,6 +163,7 @@ private:
     uint64_t next_request_id_ = 1;
     uint64_t latest_request_id_ = 0;
     bool preparation_requested_ = false;
+    uint64_t startup_retry_after_ns_ = 0;
 
     bool failed_ = false;
     bool failed_render_ = false;

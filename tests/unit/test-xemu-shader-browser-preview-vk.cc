@@ -91,6 +91,22 @@ int main(int argc, char **)
         return 0;
     }
     CHECK(executor.Prepare(work, &error, &unsupported));
+    ++work.compile_key.interface_abi;
+    bool early_cancelled = false;
+    unsigned early_checks = 0;
+    CHECK(!executor.Prepare(work, &error, &unsupported, &early_cancelled,
+                            [&] { return ++early_checks < 2; }));
+    CHECK(early_cancelled && !unsupported);
+    bool cancelled = false;
+    unsigned pause_checks = 0;
+    const auto before_cancel = executor.PipelineCreationCountForTest();
+    CHECK(!executor.Prepare(work, &error, &unsupported, &cancelled,
+                            [&] { return ++pause_checks < 6; }));
+    CHECK(cancelled && !unsupported);
+    CHECK(executor.PipelineCreationCountForTest() - before_cancel < 24);
+    CHECK(executor.Prepare(work, &error, &unsupported));
+    const auto prepared_pipeline_count =
+        executor.PipelineCreationCountForTest();
     std::vector<uint8_t> pixels;
     std::atomic<bool> stop{ false };
     CHECK(executor.Render(work, stop, &pixels, &error));
@@ -144,6 +160,8 @@ int main(int argc, char **)
     packet->render_state.cull = PreviewCullMode::None;
     CHECK(executor.Render(work, stop, &pixels, &error));
     CHECK(pixels[4 * (16 * 32 + 16)] == 255);
+    CHECK(executor.PipelineCreationCountForTest() ==
+          prepared_pipeline_count);
     std::puts("Vulkan shared-depth references and per-result clear PASS");
     const auto final_pixels = pixels;
     for (auto channel : { PreviewChannel::Red, PreviewChannel::Green,

@@ -2,6 +2,7 @@
 #pragma once
 #include "shader-browser-preview-backend.hh"
 #include <atomic>
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -15,7 +16,8 @@ public:
     PreviewVkExecutor(const PreviewVkExecutor &) = delete;
     PreviewVkExecutor &operator=(const PreviewVkExecutor &) = delete;
     bool Prepare(const PreviewWorkItem &work, std::string *error,
-                 bool *unsupported);
+                 bool *unsupported, bool *cancelled = nullptr,
+                 const std::function<bool()> &may_continue = {});
     bool Render(const PreviewWorkItem &work, const std::atomic<bool> &stop,
                 std::vector<uint8_t> *rgba, std::string *error);
 
@@ -23,6 +25,7 @@ public:
     // Deterministic native failure coverage; call only on the owning worker.
     void FailNextSamplerCreationForTest();
     bool HasSamplerSettingsForTest(bool linear, bool repeat) const;
+    uint32_t PipelineCreationCountForTest() const;
 #endif
 
 private:

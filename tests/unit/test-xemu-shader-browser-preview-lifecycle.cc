@@ -8,12 +8,22 @@
 #include <imgui_impl_opengl3.h>
 #include <glib.h>
 #include <cassert>
+#include <atomic>
 #include <cstdio>
 #include <set>
 #include <vector>
 
 using namespace xemu::shader_browser;
 static PreviewBackend backend = PreviewBackend::OpenGL;
+static std::atomic<bool> fail_first_worker_bind{true};
+static bool BindWorkerContext(SDL_Window *window, void *context)
+{
+    if (fail_first_worker_bind.exchange(false)) {
+        SDL_SetError("injected first worker bind failure");
+        return false;
+    }
+    return SDL_GL_MakeCurrent(window, static_cast<SDL_GLContext>(context));
+}
 static uint64_t Now()
 {
     return g_get_monotonic_time() * UINT64_C(1000);
@@ -68,7 +78,8 @@ int main(int argc, char **argv)
         backend = PreviewBackend::Vulkan;
     assert(SDL_Init(SDL_INIT_VIDEO));
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,
+                         backend == PreviewBackend::OpenGL ? 3 : 0);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
                         SDL_GL_CONTEXT_PROFILE_CORE);
     auto *window = SDL_CreateWindow("Preview lifecycle", 800, 600,
@@ -86,12 +97,16 @@ int main(int argc, char **argv)
     assert(main_context);
     SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 0);
     assert(SDL_GL_MakeCurrent(window, context));
+    fprintf(stderr, "Lifecycle GL context: %s\n",
+            glGetString(GL_VERSION));
+    if (backend == PreviewBackend::OpenGL)
+        assert(epoxy_gl_version() >= 43);
     ImGui::CreateContext();
     ImGui::GetIO().IniFilename = nullptr;
     ImGui::GetIO().DisplaySize = ImVec2(800, 600);
     assert(ImGui_ImplOpenGL3_Init("#version 400"));
     auto &service = GetPreviewService();
-    PreviewGlExecutor executor;
+    PreviewGlExecutor executor(BindWorkerContext);
     auto packet = Packet(PreviewMode::Normal, false, 0);
     service.SetEnabled(true);
     service.SetVisible(true, Now());
@@ -106,6 +121,24 @@ int main(int argc, char **argv)
         assert(service.SubmitPacket(packet, Now(), &error));
     };
     submit();
+    assert(SDL_GL_MakeCurrent(nullptr, nullptr));
+    assert(service.RequestPreparation(&error));
+    assert(!executor.StartWhilePaused(&error));
+    assert(error == "HUD OpenGL context is unavailable");
+    PreviewStatus missing_hud;
+    service.CopyStatus(&missing_hud);
+    assert(!missing_hud.preparation_requested &&
+           missing_hud.state == PreviewState::NeedsPreparation);
+    assert(SDL_GL_MakeCurrent(window, context));
+    assert(service.RequestPreparation(&error));
+    assert(!executor.StartWhilePaused(&error));
+    assert(error.find("injected first worker bind failure") !=
+           std::string::npos);
+    PreviewStatus startup_failure;
+    service.CopyStatus(&startup_failure);
+    assert(!startup_failure.preparation_requested &&
+           !startup_failure.work_active &&
+           startup_failure.state == PreviewState::NeedsPreparation);
     std::set<GLuint> textures;
     auto draw = [&] {
         service.SetVisible(true, Now());
@@ -116,7 +149,7 @@ int main(int argc, char **argv)
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(ImVec2(800, 600));
         ImGui::Begin("Preview");
-        executor.DrawImage(600, &packet.selection, Now(), nullptr);
+        executor.DrawImage(600, 600, &packet.selection, Now(), nullptr);
         ImGui::End();
         ImGui::Render();
         textures.clear();
@@ -162,6 +195,37 @@ int main(int argc, char **argv)
     };
     await([&] { return executor.HasDisplayed(); });
     assert(colors() == std::set<unsigned>{ 0xff0000 });
+    if (backend == PreviewBackend::OpenGL) {
+        packet = Packet(PreviewMode::Replacement, false, 1);
+        packet.source =
+            "#version 430\n"
+            "layout(std430, binding=0) buffer UnownedInput { vec4 payload; };\n"
+            "out vec4 color;\n"
+            "void main(){color=payload;}\n";
+        packet.partner_source = BuildPreviewSyntheticVertexSource(
+            packet.source, packet.selection.backend);
+        packet.source_digest = ComputePreviewDigest(
+            reinterpret_cast<const uint8_t *>(packet.source.data()),
+            packet.source.size());
+        packet.partner_digest = ComputePreviewDigest(
+            reinterpret_cast<const uint8_t *>(packet.partner_source.data()),
+            packet.partner_source.size());
+        submit();
+        await([&] {
+            PreviewStatus status;
+            service.CopyStatus(&status);
+            return status.state == PreviewState::Unsupported;
+        });
+        PreviewStatus unsupported;
+        service.CopyStatus(&unsupported);
+        assert(unsupported.message.find("shader-storage") !=
+               std::string::npos);
+        assert(unsupported.leased_slots == 1 && unsupported.free_slots == 2);
+        assert(colors() == std::set<unsigned>{ 0xff0000 });
+        packet = Packet(PreviewMode::Normal, false, 0);
+        submit();
+        await([&] { return executor.HasDisplayed(); });
+    }
     // Clearing a Reference must preserve the sole last-good frame when the
     // failed attempt cannot produce an independent Current.
     packet = Packet(PreviewMode::Replacement, true, 2);
