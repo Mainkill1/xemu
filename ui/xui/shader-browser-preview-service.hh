@@ -138,6 +138,7 @@ private:
     void SetRestingStateLocked(const std::string &message);
     int FindFreeSlotLocked() const;
     int FindNewestReadySlotLocked() const;
+    bool ReclaimSupersededReadySlotLocked();
     void ResetLocked();
 
     mutable std::mutex mutex_;

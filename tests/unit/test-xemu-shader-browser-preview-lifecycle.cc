@@ -220,7 +220,8 @@ int main(int argc, char **argv)
         service.CopyStatus(&unsupported);
         assert(unsupported.message.find("shader-storage") !=
                std::string::npos);
-        assert(unsupported.leased_slots == 1 && unsupported.free_slots == 2);
+        assert(unsupported.leased_slots == 1 &&
+               unsupported.free_slots == kPreviewSlotCount - 1);
         assert(colors() == std::set<unsigned>{ 0xff0000 });
         packet = Packet(PreviewMode::Normal, false, 0);
         submit();
@@ -237,7 +238,8 @@ int main(int argc, char **argv)
     });
     PreviewStatus failed_status;
     service.CopyStatus(&failed_status);
-    assert(failed_status.leased_slots == 1 && failed_status.free_slots == 2);
+    assert(failed_status.leased_slots == 1 &&
+           failed_status.free_slots == kPreviewSlotCount - 1);
     assert(failed_status.attempted_compile.replacement_revision == 2);
     assert(executor.FreezeDisplayed());
     draw();
@@ -253,7 +255,8 @@ int main(int argc, char **argv)
     assert(cleared_status.state == PreviewState::Failed);
     assert(cleared_status.message == failed_status.message);
     assert(cleared_status.attempted_compile == failed_status.attempted_compile);
-    assert(cleared_status.leased_slots == 1 && cleared_status.free_slots == 2);
+    assert(cleared_status.leased_slots == 1 &&
+           cleared_status.free_slots == kPreviewSlotCount - 1);
     packet = Packet(PreviewMode::Normal, false, 0);
     submit();
     await([&] {

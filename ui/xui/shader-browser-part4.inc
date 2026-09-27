@@ -963,7 +963,6 @@ void ShaderBrowserWindow::DrawLivePreview()
                 }
             }
             ImGui::EndDisabled();
-            if (!can_apply) ImGui::TextWrapped("%s", apply_reason.c_str());
             ImGui::SameLine();
             ImGui::BeginDisabled(!workbench.applied_rule ||
                                  changed_applied_rule);
@@ -978,6 +977,7 @@ void ShaderBrowserWindow::DrawLivePreview()
                 }
             }
             ImGui::EndDisabled();
+            if (!can_apply) ImGui::TextWrapped("%s", apply_reason.c_str());
             if (changed_applied_rule)
                 ImGui::TextWrapped("Rule changed in Overrides; remove it "
                                    "there before applying another draft");

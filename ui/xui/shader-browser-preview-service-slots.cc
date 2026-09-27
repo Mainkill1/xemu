@@ -120,7 +120,7 @@ void PreviewService::CopyStatus(PreviewStatus *status) const
     status->preparation_requested = preparation_requested_;
     status->work_active = active_;
     status->update_hz = guest_paused_ || offline_no_guest_ ?
-        30 : UpdateHzLocked();
+        60 : UpdateHzLocked();
     for (const Slot &slot : slots_) {
         switch (slot.state) {
         case PreviewSlotState::Free: ++status->free_slots; break;

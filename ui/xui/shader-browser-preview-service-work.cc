@@ -78,6 +78,28 @@ int PreviewService::FindFreeSlotLocked() const
     return -1;
 }
 
+bool PreviewService::ReclaimSupersededReadySlotLocked()
+{
+    const int newest = FindNewestReadySlotLocked();
+    if (newest < 0) return false;
+    int oldest = -1;
+    for (size_t i = 0; i < slots_.size(); ++i) {
+        if (slots_[i].state == PreviewSlotState::Ready &&
+            static_cast<int>(i) != newest &&
+            (oldest < 0 ||
+             slots_[i].ready_sequence < slots_[oldest].ready_sequence)) {
+            oldest = static_cast<int>(i);
+        }
+    }
+    if (oldest < 0) return false;
+    // Ready has no HUD lease, and the worker completed its producer fence.
+    // Keep the newest result available while recycling a frame the HUD would
+    // skip on its next acquisition.
+    slots_[oldest].state = PreviewSlotState::Free;
+    slots_[oldest].ready_sequence = 0;
+    return true;
+}
+
 int PreviewService::FindNewestReadySlotLocked() const
 {
     int best = -1;
@@ -105,8 +127,9 @@ bool PreviewService::TryClaimWork(uint64_t now_ns, PreviewWorkItem *work,
         pending_.packet->selection.backend != backend_filter) {
         return false;
     }
-    // Resume from a fresh anchor after any admission freeze. No elapsed hidden
-    // time or slot-pressure backlog is replayed into the preview.
+    // Resume from a fresh anchor after visibility, health, or guest-running
+    // admission freezes. A paused private test keeps wall-clock animation
+    // through transient output-slot pressure without queuing missed frames.
     if (clock_suspended_) clock_.Suspend(now_ns);
     clock_suspended_ = true;
     if (!enabled_) {
@@ -200,9 +223,15 @@ bool PreviewService::TryClaimWork(uint64_t now_ns, PreviewWorkItem *work,
         }
     }
 
+    if ((guest_paused_ || offline_no_guest_) &&
+        pending_.packet->update_policy == PreviewUpdatePolicy::Continuous &&
+        FindFreeSlotLocked() < 0) {
+        ReclaimSupersededReadySlotLocked();
+    }
     if (!active_ && clock_.State().playing &&
         pending_.packet->update_policy == PreviewUpdatePolicy::Continuous &&
         FindFreeSlotLocked() < 0) {
+        if (guest_paused_ || offline_no_guest_) clock_suspended_ = false;
         ++dropped_no_slot_;
         SetStateLocked(PreviewState::Throttled,
                        "Preview update dropped; all output slots are owned");
