@@ -830,8 +830,7 @@ void ShaderBrowserWindow::DrawLivePreview()
             }
         }
         if (controls_visible &&
-            WorkbenchDraftMatches(workbench.draft, selection) &&
-            workbench.dock.open) {
+            WorkbenchDraftMatches(workbench.draft, selection)) {
             ImGui::SeparatorText("Explicit game action");
             const DraftGameApplyRequest request = WorkbenchApplyRequest(
                 workbench.draft, selection, status,
