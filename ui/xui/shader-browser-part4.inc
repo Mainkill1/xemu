@@ -421,8 +421,8 @@ void ShaderBrowserWindow::DrawLivePreview()
             displayed.compile != BuildPreviewCompileKey(*packet) ||
             status.attempted_compile != displayed.compile ||
             displayed.input_revision != m_preview_input_revision ||
-            displayed.binding_count != packet->binding_count ||
-            displayed.bindings != workbench.dock.bindings ||
+            !SameCountedWorkbenchBindings(
+                displayed, *packet, workbench.dock.bindings) ||
             displayed.scene != m_preview_scene ||
             displayed.render_state != m_preview_render_state ||
             displayed.fixture_digest != packet->fixture_digest ||
@@ -1570,7 +1570,23 @@ void ShaderBrowserWindow::DrawLivePreview()
                 !workbench.comparison_locked &&
                 !editor_action.create_copy &&
                 !lock_comparison(selection, previous)) {
-                workbench.dock.variant = previous;
+                if (previous == PreviewSourceVariant::Edited &&
+                    workbench.dock.variant == PreviewSourceVariant::Original) {
+                    m_action_message = "Switched to Original without a "
+                                       "comparison lock; Edited has no "
+                                       "current matching sample";
+                } else {
+                    workbench.dock.variant = previous;
+                    if (workbench.running_test && !workbench.editing_test) {
+                        const WorkbenchExperiment &saved =
+                            *workbench.running_test;
+                        workbench.editor.SetSource(
+                            previous == PreviewSourceVariant::Edited &&
+                            saved.successful_compile ?
+                                saved.successful_compile->source :
+                                saved.original.text);
+                    }
+                }
             }
             if (workbench.dock.variant != previous) {
                 workbench.last_variant = workbench.dock.variant;

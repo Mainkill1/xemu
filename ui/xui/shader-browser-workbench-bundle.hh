@@ -57,6 +57,27 @@ ExpandWorkbenchPacketBindings(
     return defaults;
 }
 
+// A saved packet can count fewer bindings than the editor's fixed slots.
+// Compare only the displayed sample's counted targets against both sources.
+inline bool SameCountedWorkbenchBindings(
+    const PreviewResultKey &displayed, const PreviewPacket &packet,
+    const std::array<PreviewInputBinding, kPreviewMaxInputBindings> &dock)
+{
+    if (displayed.binding_count != packet.binding_count ||
+        displayed.binding_count > displayed.bindings.size()) {
+        return false;
+    }
+    for (size_t i = 0; i < displayed.binding_count; ++i) {
+        const PreviewInputBinding &binding = displayed.bindings[i];
+        const size_t target = static_cast<size_t>(binding.target);
+        if (target >= dock.size() || !(binding == packet.bindings[i]) ||
+            !(binding == dock[target])) {
+            return false;
+        }
+    }
+    return true;
+}
+
 constexpr size_t kMaxWorkbenchBundleJsonBytes = 24U * 1024U * 1024U;
 bool ValidateWorkbenchExperiment(const WorkbenchExperiment &experiment,
                                  std::string *error);

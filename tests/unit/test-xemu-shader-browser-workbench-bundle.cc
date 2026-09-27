@@ -161,6 +161,19 @@ int main()
                static_cast<PreviewInputTarget>(i));
     }
     assert(ValidatePreviewPacket(rebuilt, &error));
+    const PreviewResultKey displayed = BuildPreviewResultKey(reopened.packet);
+    assert(SameCountedWorkbenchBindings(displayed, reopened.packet,
+                                        rebuilt.bindings));
+    rebuilt.bindings[0].amplitude += 0.25f;
+    assert(!SameCountedWorkbenchBindings(displayed, reopened.packet,
+                                         rebuilt.bindings));
+    PreviewPacket fog_packet = reopened.packet;
+    fog_packet.bindings[0].target = PreviewInputTarget::Fog;
+    const PreviewResultKey fog_displayed = BuildPreviewResultKey(fog_packet);
+    const auto fog_dock = ExpandWorkbenchPacketBindings(fog_packet,
+                                                         dock_defaults);
+    assert(SameCountedWorkbenchBindings(fog_displayed, fog_packet,
+                                        fog_dock));
     assert(reopened.owned_textures[0] == input.owned_textures[0]);
     WorkbenchExperiment wrong_texture = input;
     wrong_texture.owned_textures[0][0] ^= 1;
