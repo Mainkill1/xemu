@@ -26,6 +26,7 @@
 #include <assert.h>
 #include <fpng.h>
 
+#include <atomic>
 #include <deque>
 #include <cstring>
 #include <vector>
@@ -95,6 +96,7 @@ struct ShaderBrowserExternalWindow {
 };
 
 static ShaderBrowserExternalWindow g_shader_browser_external;
+static std::atomic<bool> g_shader_browser_external_requested;
 
 static void ShaderBrowserEndPerformanceSessionLocked(void *)
 {
@@ -347,17 +349,35 @@ static bool InitializeShaderBrowserExternalWindow(SDL_Window *main_window,
     external.enabled = true;
     shader_browser_window.m_is_open = true;
     SDL_ShowWindow(external.window);
+    SDL_RaiseWindow(external.window);
     external.visible = true;
     return true;
+}
+
+void xemu_hud_request_shader_browser_window(void)
+{
+    g_shader_browser_external_requested = true;
+}
+
+bool xemu_hud_take_shader_browser_window_request(void)
+{
+    return g_shader_browser_external_requested.exchange(false);
 }
 
 void xemu_hud_init_external_window(SDL_Window *window, void *sdl_gl_context,
                                    bool requested)
 {
-    if (requested &&
-        !InitializeShaderBrowserExternalWindow(
-            window, static_cast<SDL_GLContext>(sdl_gl_context))) {
+    if (!requested) return;
+    ShaderBrowserExternalWindow &external = g_shader_browser_external;
+    if (external.enabled) {
         shader_browser_window.m_is_open = true;
+        SDL_ShowWindow(external.window);
+        SDL_RaiseWindow(external.window);
+        external.visible = true;
+        external.last_update_ms = 0;
+    } else if (!InitializeShaderBrowserExternalWindow(
+                   window, static_cast<SDL_GLContext>(sdl_gl_context))) {
+        shader_browser_window.m_is_open = false;
     }
 }
 
