@@ -16,8 +16,9 @@ and versioned producer/consumer traversal are independent.
 
 ## Global constraints
 
-Stack on #241 / `feature/shader-browser-stage4`. Do not touch normal PGRAPH draws
-in this foundation. Do not infer ownership from hashes, textures, or buffer
+Stack on #241 / `feature/shader-browser-stage4`. Keep the normal PGRAPH draw path
+to an armed-request check and avoid continuous geometry copies. Do not infer
+ownership from hashes, textures, or buffer
 addresses. Preserve unknown inputs and scope/epoch/frame boundaries. Report
 analysis limits and missing dependencies. No native replay claims from unit tests.
 
@@ -41,7 +42,7 @@ wrong coordinate spaces; cross-title/session/frame grouping; disabled assertions
       remove dependence on embedding implementation files in another test.
 - [x] Developer README and corrected design contract.
 
-## Remaining stages: not implemented by this draft
+## Continuation stages and current status
 
 ### 1. Capture producer and control surface
 
@@ -50,6 +51,10 @@ OpenGL/Vulkan submission boundaries. Preserve guest-to-host emission provenance.
 Test cancellation, title/reset/renderer epochs, missing retained historical data,
 request limits, and no work when unarmed. Use actual owner-thread state, not the
 CPU's current PC as a guess at asynchronous GPU submission provenance.
+
+The one-shot next-match request, final-submission hooks, cancellation, and the
+unarmed fast path are implemented. Frame capture and complete guest-to-host
+emission provenance remain open.
 
 ### 2. Immutable resource storage and lineage
 
@@ -60,6 +65,9 @@ versions, including non-draw producers and partial-write provenance fragments.
 Test reused addresses, stale host textures, format-changing aliases, readback
 synchronization, partial uploads, depth/color aliases, and byte-budget rejection.
 
+The live snapshot owns bounded float positions and triangle indices. Texture
+and material bytes, backing versions, and non-draw producers remain open.
+
 ### 3. Geometry and material inspection
 
 Decode actual NV2A attribute formats and supported topologies; preserve original
@@ -68,12 +76,19 @@ range's matrix meaning. Publish material snapshots and interpretable mesh views.
 Test inline/ranged/indexed/degenerate cases, multiple disconnected parts in one
 object, and several batched objects in a single connected submission.
 
+Current capture supports a limited float attribute 0 triangle subset and the
+workbench can inspect index-connected parts. No engine object identity is inferred.
+
 ### 4. Preview, confirmation, and object/data-flow views
 
 Adapt owned captures to Stage 4 replay packets and add Geometry, Material,
 Object Membership, Inputs, and Downstream views. User-selected segments can
 receive confirmed capture-local IDs. Show camera/input substitutions and
 incomplete data explicitly. Add indexed/paged analysis before whole-frame scale.
+
+The existing private OpenGL/Vulkan preview now renders the owned triangle
+geometry with synthetic material inputs. Exact replay, membership confirmation,
+and resource panels remain open.
 
 ### 5. Native evidence before ready-for-review
 

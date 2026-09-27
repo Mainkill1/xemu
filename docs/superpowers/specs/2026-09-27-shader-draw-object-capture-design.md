@@ -2,10 +2,11 @@
 
 ## Approved intent and status
 
-Implement the user's shader-seeded capture concept as a draft code foundation
-following the live shader workbench, not a generic named-asset extractor. Keep
-one object's geometry separate from all objects a shader is used on or can
-influence. The executable foundation has no live capture or preview adapter yet.
+Implement the user's shader-seeded capture concept following the live shader
+workbench, not a generic named-asset extractor. Keep one object's geometry
+separate from all objects a shader is used on or can influence. The initial
+foundation was extended with a bounded next-matching-draw capture request and
+an approximate private geometry preview in both renderers.
 The developer README is the detailed integration contract:
 `docs/devel/shader-draw-object-capture.md`.
 
@@ -53,8 +54,11 @@ invented from the draw-only records. Future adapters must provide them.
 ## Implementation boundary
 
 This PR provides standalone C++17 identity, admission, segmentation, relationship,
-grouping, and directed resource analysis with production-source unit tests.
-It does not mutate PGRAPH, issue GPU work, retain live handles, or copy guest RAM.
+grouping, and directed resource analysis with production-source unit tests. Its
+live extension observes final OpenGL/Vulkan draw submissions only while a
+one-shot request is armed, copies bounded geometry into owned memory, and
+renders that geometry in the existing private preview with synthetic material
+inputs. It does not retain live game renderer handles or claim exact replay.
 The analysis windows are limited to 256 draws, 512 segments, 32 resources/draw,
 262,144 explicit primitive selections, and 32,768 dependency edges. Triangle-list
 segmentation accepts 786,432 indices. Admission failure is visible, not truncation
@@ -62,8 +66,8 @@ presented as complete. These limits are not final full-frame capture capacities.
 
 ## Future capture/replay requirements
 
-Capture exact bytes and state at the renderer ownership boundary on explicit
-request. Preserve raw guest and resolved host resources separately; a fresh
+Capture remaining exact bytes and state at the renderer ownership boundary on
+explicit request. Preserve raw guest and resolved host resources separately; a fresh
 conversion must not erase evidence of stale or incorrectly translated inputs.
 Assign request/epoch IDs, enforce owned byte budgets, track backing versions and
 aliases, cancel stale requests, and keep analysis off the normal draw path.
