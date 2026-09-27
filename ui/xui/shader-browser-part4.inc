@@ -1479,6 +1479,7 @@ void ShaderBrowserWindow::DrawLivePreview()
             if (entry) {
                 if (workbench.running_test && !workbench.editing_test) {
                     const WorkbenchExperiment &saved = *workbench.running_test;
+                    workbench.dock.draft_view_valid = false;
                     ImGui::SeparatorText("Saved generated GLSL / draft");
                     ImGui::TextDisabled("Original: %s, saved revision %llu",
                         saved.original.resident ? "resident" : "reconstructed",
