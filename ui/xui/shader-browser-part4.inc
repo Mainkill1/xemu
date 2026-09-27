@@ -447,6 +447,9 @@ void ShaderBrowserWindow::DrawLivePreview()
     const ImVec2 pane_pos = ImGui::GetCursorPos();
     const ImVec2 pane_size = ImGui::GetContentRegionAvail();
     const float gap = ImGui::GetStyle().ItemSpacing.y;
+    // Keep one lower pane open so the scene remains usable at 1024x720.
+    if (workbench.controls_open && workbench.dock.open)
+        workbench.controls_open = false;
     const bool controls_visible = workbench.controls_open;
     const bool editor_visible = workbench.dock.open;
     const float header_height = 136.0f * g_viewport_mgr.m_scale;
@@ -1579,9 +1582,13 @@ void ShaderBrowserWindow::DrawLivePreview()
                 workbench.start_error.c_str() :
             !m_preview_packet_message.empty() ?
                 m_preview_packet_message.c_str() : status.message.c_str());
-        ImGui::Checkbox("Inputs / state", &workbench.controls_open);
+        if (ImGui::Checkbox("Inputs / state", &workbench.controls_open) &&
+            workbench.controls_open)
+            workbench.dock.open = false;
         ImGui::SameLine();
-        ImGui::Checkbox("GLSL editor", &workbench.dock.open);
+        if (ImGui::Checkbox("GLSL editor", &workbench.dock.open) &&
+            workbench.dock.open)
+            workbench.controls_open = false;
         ImGui::SameLine();
         ImGui::SetNextItemWidth(150.0f * g_viewport_mgr.m_scale);
         if (ImGui::Combo("Mode", &mode,
