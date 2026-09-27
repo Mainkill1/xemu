@@ -6,28 +6,57 @@ void ShaderBrowserWindow::DrawShaderDetails()
         ImGui::TextDisabled("Select a shader to inspect it.");
         return;
     }
+    const ImGuiTabItemFlags override_flags = m_jump_to_overrides ?
+        ImGuiTabItemFlags_SetSelected : ImGuiTabItemFlags_None;
     if (ImGui::BeginTabBar("##shader-detail-tabs")) {
         if (ImGui::BeginTabItem("Overview")) {
-            DrawOverview();
+            if (ImGui::BeginChild("##details-overview", ImVec2(0, 0)))
+                DrawOverview();
+            ImGui::EndChild();
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("Guest")) {
-            DrawGuest();
+        if (ImGui::BeginTabItem("Usage & timing")) {
+            if (ImGui::BeginChild("##details-usage", ImVec2(0, 0)))
+                DrawUsageTiming();
+            ImGui::EndChild();
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("Host")) {
-            DrawHost();
+        if (ImGui::BeginTabItem("Source & variants")) {
+            DrawSourceVariants();
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("Lifecycle")) {
-            DrawLifecycle();
+        if (ImGui::BeginTabItem("Overrides", nullptr, override_flags)) {
+            if (ImGui::BeginChild("##details-overrides", ImVec2(0, 0)))
+                DrawOverrides();
+            ImGui::EndChild();
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("History")) {
+            if (ImGui::BeginChild("##details-history", ImVec2(0, 0))) {
+                ImGui::TextDisabled(
+                    "Resident lifecycle events for this shader; not a per-draw stream.");
+                DrawLifecycle();
+            }
+            ImGui::EndChild();
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
     }
-    if (!m_action_message.empty()) {
-        ImGui::Separator();
-        ImGui::TextWrapped("%s", m_action_message.c_str());
+    m_jump_to_overrides = false;
+}
+
+void ShaderBrowserWindow::DrawSourceVariants()
+{
+    if (ImGui::BeginTabBar("##details-source-tabs")) {
+        if (ImGui::BeginTabItem("Generated host source")) {
+            DrawHost();
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Canonical guest recipe")) {
+            DrawGuest();
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
     }
 }
 

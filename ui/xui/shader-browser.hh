@@ -30,12 +30,17 @@ private:
 
     void DrawSelector();
     void DrawRightPane();
+    void DrawSelectedHeader();
     void DrawShaderDetails();
     void DrawOverview();
+    void DrawUsageTiming();
+    void DrawSourceVariants();
+    void DrawOverrides();
     void DrawGuest();
     void DrawHost();
     void DrawLifecycle();
     void DrawSettings();
+    void DrawWorkbenchSharedSettings();
     void DrawLivePreview();
 
     const xemu::shader_browser::Entry *SelectedEntry() const;
@@ -87,6 +92,8 @@ private:
     bool m_window_was_open;
     bool m_collection_requested;
     bool m_current_title_only;
+    bool m_select_preview_tab = true;
+    bool m_jump_to_overrides = false;
 
     int m_stage_filter;
     int m_source_filter;

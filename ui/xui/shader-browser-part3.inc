@@ -2,73 +2,92 @@
 void ShaderBrowserWindow::DrawOverview()
 {
     const Entry *entry = SelectedEntry();
-    if (!entry) {
-        ImGui::TextDisabled("Select a shader to inspect it.");
-        return;
-    }
+    if (!entry) return;
 
-    std::string short_id = ShortDisplayId(
-        *entry, m_snapshot.current_title_id);
-    std::string full_id = FullDisplayId(
-        *entry, m_snapshot.current_title_id);
-    std::string canonical = PortableShaderHash(entry->key.hash);
-    ImGui::Text("Shader: %s", short_id.c_str());
-    ImGui::SameLine();
-    if (ImGui::SmallButton("Copy ID")) {
-        ImGui::SetClipboardText(full_id.c_str());
-        m_action_message = "Copied game shader ID";
-    }
-
-    if (ImGui::BeginTable("##shader-summary", 2,
+    const std::string full_id =
+        FullDisplayId(*entry, m_snapshot.current_title_id);
+    const std::string canonical = PortableShaderHash(entry->key.hash);
+    ImGui::SeparatorText("Identity & provenance");
+    if (ImGui::BeginTable("##shader-identity", 2,
                           ImGuiTableFlags_BordersInnerV |
                           ImGuiTableFlags_SizingStretchProp)) {
         ImGui::TableSetupColumn("##name", ImGuiTableColumnFlags_WidthFixed,
-                                135.0f * g_viewport_mgr.m_scale);
+                                150.0f * g_viewport_mgr.m_scale);
         ImGui::TableSetupColumn("##value",
                                 ImGuiTableColumnFlags_WidthStretch);
-        DrawKeyValue("Stage", StageLabel(entry->key.stage));
         DrawKeyValue("Game shader ID", full_id);
-        DrawKeyValue("Shader hash", canonical);
-        DrawKeyValue("Database catalog",
-                     m_snapshot.database_write_failed ?
-                         "Unconfirmed after writer error" :
-                     entry->stored_in_database ?
-                         "Catalogued (write-behind)" : "Not catalogued");
-        DrawKeyValue("Recipe format",
-                     entry->recipe_format_version ?
-                         std::to_string(entry->recipe_format_version) :
-                         "Identity only");
-        DrawKeyValue("Recipe size", BytesText(entry->recipe_size));
+        DrawKeyValue("Canonical hash", canonical);
+        DrawKeyValue("Stage", StageLabel(entry->key.stage));
         DrawKeyValue("Title/build scope", ScopeSummary(*entry));
-        DrawKeyValue("Session draws",
-                     entry->observed_in_session ?
-                         UnsignedText(entry->draw_count) : "Not observed");
-        DrawKeyValue("First used",
-                     entry->observed_in_session ?
-                         UnsignedText(entry->first_frame) : "Not observed");
-        DrawKeyValue("Last used", FormatLastUsed(
-            entry->last_frame, m_snapshot.current_frame,
-            entry->observed_in_session));
-        DrawDurationRows(*entry);
-        DrawKeyValue("Pipeline variants",
-                     UnsignedText(entry->pipeline_variant_count));
-        DrawKeyValue("Specialized draws",
-                     UnsignedText(entry->specialized_draws));
-        DrawKeyValue("Uber draws", UnsignedText(entry->uber_draws));
-        DrawKeyValue("Replacement draws",
-                     UnsignedText(entry->replacement_draws));
-        DrawKeyValue("Compile failures",
-                     UnsignedText(entry->compile_failures));
-        DrawKeyValue("Status", StatusLabel(entry->status));
-        DrawKeyValue("Route", RouteLabel(entry->route));
-        DrawKeyValue("Readiness", ReadinessLabel(entry->readiness));
+        DrawKeyValue("Canonical recipe",
+                     entry->recipe_format_version ?
+                         "Format v" +
+                             std::to_string(entry->recipe_format_version) +
+                             " | " + BytesText(entry->recipe_size) :
+                         "Identity only");
+        DrawKeyValue("Catalog status",
+                     m_snapshot.database_write_failed ?
+                         "Unconfirmed after database writer error" :
+                         entry->stored_in_database ?
+                             "Catalogued (write-behind)" :
+                             "Not catalogued");
+        const bool detail_current =
+            m_detail_snapshot.request.key == entry->key &&
+            (m_detail_snapshot.state == DetailState::Complete ||
+             m_detail_snapshot.state == DetailState::Partial);
+        DrawKeyValue("Generated host source",
+                     detail_current && !m_detail_snapshot.sources.empty() ?
+                         (m_detail_snapshot.sources.front().
+                              exact_runtime_source ?
+                              "Resident renderer source" :
+                              "Reconstructed source; build association "
+                              "unverified") :
+                         "Not available in selected details");
         ImGui::EndTable();
     }
 
+    ImGui::SeparatorText("Observation window");
+    if (ImGui::BeginTable("##shader-observation", 2,
+                          ImGuiTableFlags_BordersInnerV |
+                          ImGuiTableFlags_SizingStretchProp)) {
+        ImGui::TableSetupColumn("##name", ImGuiTableColumnFlags_WidthFixed,
+                                150.0f * g_viewport_mgr.m_scale);
+        ImGui::TableSetupColumn("##value",
+                                ImGuiTableColumnFlags_WidthStretch);
+        DrawKeyValue("Session draws",
+                     entry->observed_in_session ?
+                         UnsignedText(entry->draw_count) :
+                         "Not observed this session");
+        DrawKeyValue("First guest frame",
+                     entry->observed_in_session ?
+                         UnsignedText(entry->first_frame) :
+                         "Not observed");
+        DrawKeyValue("Last used",
+                     FormatLastUsed(entry->last_frame,
+                                    m_snapshot.current_frame,
+                                    entry->observed_in_session));
+        DrawKeyValue("Current guest frame",
+                     UnsignedText(m_snapshot.current_frame));
+        DrawKeyValue("Current route", RouteLabel(entry->route));
+        DrawKeyValue("Readiness", ReadinessLabel(entry->readiness));
+        ImGui::EndTable();
+    }
+    ImGui::TextDisabled(
+        "Session observations are separate from private preview rendering.");
+
+    ImGui::SeparatorText("Availability");
+    ImGui::Text("CPU compile samples: %llu | pipeline samples: %llu",
+                static_cast<unsigned long long>(
+                    entry->compile_cpu.samples),
+                static_cast<unsigned long long>(
+                    entry->pipeline_cpu.samples));
+    ImGui::TextDisabled(
+        "GPU duration, invocations, visible pixels, and per-draw capture: "
+        "not collected.");
     if (!entry->scopes.empty() &&
         ImGui::CollapsingHeader("Known title/build associations")) {
         for (const ShaderScope &scope : entry->scopes) {
-            std::string title = scope.title_id ?
+            const std::string title = scope.title_id ?
                 FormatTitleId(scope.title_id) : "Unknown";
             ImGui::BulletText(
                 "Title %s | executable fingerprint v%u | %02X%02X%02X%02X...",
@@ -79,31 +98,180 @@ void ShaderBrowserWindow::DrawOverview()
                 scope.executable_fingerprint[3]);
         }
     }
+}
 
+void ShaderBrowserWindow::DrawUsageTiming()
+{
+    const Entry *entry = SelectedEntry();
+    if (!entry) return;
+    ImGui::SeparatorText("Observed logical draws");
+    ImGui::Text("This session: %s",
+                entry->observed_in_session ?
+                    UnsignedText(entry->draw_count).c_str() :
+                    "Not observed");
+    ImGui::TextDisabled(
+        "Current route: %s. Route counters overlap and do not partition "
+        "the draw total.",
+        RouteLabel(entry->route));
+    if (entry->observed_in_session) {
+        ImGui::Text("Uber-path counter: %llu",
+                    static_cast<unsigned long long>(entry->uber_draws));
+        ImGui::Text("Specialized-path counter: %llu",
+                    static_cast<unsigned long long>(
+                        entry->specialized_draws));
+        ImGui::TextDisabled(
+            "The specialized-path counter also includes some skipped and "
+            "replacement observations. Separate skip/replacement totals "
+            "are not collected.");
+    }
+    ImGui::Text("First / last guest frame: %s / %s",
+                entry->observed_in_session ?
+                    UnsignedText(entry->first_frame).c_str() :
+                    "Not observed",
+                entry->observed_in_session ?
+                    UnsignedText(entry->last_frame).c_str() :
+                    "Not observed");
+
+    ImGui::SeparatorText("Host preparation timings");
+    if (ImGui::BeginTable("##shader-cpu-timing", 5,
+                          ImGuiTableFlags_Borders |
+                          ImGuiTableFlags_RowBg |
+                          ImGuiTableFlags_SizingStretchProp)) {
+        ImGui::TableSetupColumn("Operation", ImGuiTableColumnFlags_WidthFixed,
+                                175.0f * g_viewport_mgr.m_scale);
+        ImGui::TableSetupColumn("Samples", ImGuiTableColumnFlags_WidthFixed,
+                                75.0f * g_viewport_mgr.m_scale);
+        ImGui::TableSetupColumn("Total ns", ImGuiTableColumnFlags_WidthFixed,
+                                95.0f * g_viewport_mgr.m_scale);
+        ImGui::TableSetupColumn("Mean ns", ImGuiTableColumnFlags_WidthFixed,
+                                85.0f * g_viewport_mgr.m_scale);
+        ImGui::TableSetupColumn("Min / max ns");
+        ImGui::TableHeadersRow();
+        const struct {
+            const char *name;
+            const DurationStats *stats;
+        } rows[] = {
+            {"Compile CPU", &entry->compile_cpu},
+            {"Pipeline creation CPU", &entry->pipeline_cpu},
+            {"Prepare CPU", &entry->prepare_cpu},
+            {"Foreground stall CPU", &entry->foreground_stall_cpu},
+        };
+        for (const auto &row : rows) {
+            ImGui::TableNextRow();
+            ImGui::TableNextColumn();
+            ImGui::TextUnformatted(row.name);
+            ImGui::TableNextColumn();
+            if (row.stats->samples)
+                ImGui::Text("%llu", static_cast<unsigned long long>(
+                    row.stats->samples));
+            else ImGui::TextDisabled("Not sampled");
+            ImGui::TableNextColumn();
+            if (row.stats->samples)
+                ImGui::Text("%llu", static_cast<unsigned long long>(
+                    row.stats->total_ns));
+            else ImGui::TextDisabled("-");
+            ImGui::TableNextColumn();
+            if (row.stats->samples)
+                ImGui::Text("%.0f", row.stats->AverageNs());
+            else ImGui::TextDisabled("-");
+            ImGui::TableNextColumn();
+            if (row.stats->samples)
+                ImGui::Text("%llu / %llu",
+                    static_cast<unsigned long long>(row.stats->min_ns),
+                    static_cast<unsigned long long>(row.stats->max_ns));
+            else ImGui::TextDisabled("-");
+        }
+        ImGui::EndTable();
+    }
+    ImGui::TextDisabled(
+        "Completed CPU samples only. These are not GPU execution or "
+        "gameplay frame-time measurements.");
+    ImGui::SeparatorText("Execution measurements");
+    ImGui::TextDisabled(
+        "GPU duration, percentiles, invocations, and visible pixels: "
+        "not collected.");
+}
+
+void ShaderBrowserWindow::DrawOverrides()
+{
+    const Entry *entry = SelectedEntry();
+    if (!entry) return;
+    ImGui::TextDisabled(
+        "Rules affect matching game draws only after explicit Apply. "
+        "Hiding a catalog row and editing a preview draft do not apply a rule.");
+    ImGui::TextWrapped("Scope: %s | %s",
+                       FullDisplayId(*entry,
+                                     m_snapshot.current_title_id).c_str(),
+                       StageLabel(entry->key.stage));
     GetShaderOverrideUi().DrawPanel(
         *entry, m_snapshot.entries, m_snapshot.current_title_id,
         &m_action_message);
-
-    ImGui::Separator();
+    ImGui::SeparatorText("Rule status");
+    if (!m_action_message.empty())
+        ImGui::TextWrapped("%s", m_action_message.c_str());
     ImGui::TextDisabled(
-        "Canonical guest recipes remain portable. Authored replacements are "
-        "external files and session overrides are resolved through the "
-        "memory-resident Stage 3 policy index.");
-    if (!m_action_message.empty()) {
-        ImGui::TextDisabled("%s", m_action_message.c_str());
-    }
+        "Requested and effective renderer actions are reported separately "
+        "above. Rules may match every use of this shader identity.");
 }
 
 void ShaderBrowserWindow::DrawSettings()
 {
+    ImGui::SeparatorText("Usage collection");
     if (ImGui::Checkbox("Collect live usage while this window is open",
                         &m_collection_requested)) {
         GetProvider().SetLiveCollectionEnabled(m_collection_requested);
         m_snapshot.live_collection_enabled = m_collection_requested;
     }
     ImGui::TextDisabled(
-        "Live browsing works without database persistence. Persistent storage "
-        "is opt-in and never runs on the draw hot path.");
+        "Provider collection is independent of catalog visibility and "
+        "private preview work.");
+    ImGui::SetNextItemWidth(180.0f * g_viewport_mgr.m_scale);
+    if (ImGui::Combo("Recent catalog window", &table_view.recent_index,
+                     "Any time\0Last 30 frames\0Last 120 frames\0"
+                     "Last 600 frames\0")) {
+        m_filter_dirty = true;
+    }
+    ImGui::TextDisabled(
+        "The selected shader remains selected when it ages out of the list.");
+
+    ImGui::SeparatorText("Preview & editing");
+    DrawWorkbenchSharedSettings();
+
+    ImGui::SeparatorText("Exports");
+    ImGui::TextDisabled(
+        "Usage exports contain provider observations, not preview draws or "
+        "unmeasured GPU data.");
+    if (ImGui::Button("Usage CSV")) {
+        const char *base = xemu_settings_get_base_path();
+        const std::filesystem::path root = base ?
+            std::filesystem::u8path(base) : std::filesystem::path();
+        std::filesystem::path path;
+        std::string error;
+        m_action_message = ExportUsageSnapshot(m_snapshot, root, false,
+                                               &path, &error) ?
+            "Exported usage CSV to " + path.u8string() : error;
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Usage JSON")) {
+        const char *base = xemu_settings_get_base_path();
+        const std::filesystem::path root = base ?
+            std::filesystem::u8path(base) : std::filesystem::path();
+        std::filesystem::path path;
+        std::string error;
+        m_action_message = ExportUsageSnapshot(m_snapshot, root, true,
+                                               &path, &error) ?
+            "Exported usage JSON to " + path.u8string() : error;
+    }
+    const Entry *entry = SelectedEntry();
+    if (entry && entry->recipe_size) {
+        ImGui::SameLine();
+        if (ImGui::Button("Selected recipe")) ExportRecipe(*entry);
+    }
+    ImGui::TextDisabled(
+        "Generated GLSL and synthetic test exports are in their source "
+        "and Live Preview views.");
+
+    ImGui::SeparatorText("Session overrides & replacement library");
 
     GetShaderOverrideUi().DrawSettings(&m_action_message);
 
