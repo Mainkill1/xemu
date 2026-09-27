@@ -7,6 +7,28 @@ void ShaderBrowserWindow::DrawOverview()
     const std::string full_id =
         FullDisplayId(*entry, m_snapshot.current_title_id);
     const std::string canonical = PortableShaderHash(entry->key.hash);
+    const float scale = g_viewport_mgr.m_scale;
+    if (ImGui::BeginTable("##overview-summary", 3,
+                          ImGuiTableFlags_BordersInnerV |
+                          ImGuiTableFlags_SizingStretchSame)) {
+        ImGui::TableNextRow();
+        ImGui::TableNextColumn();
+        ImGui::TextDisabled("OBSERVED DRAWS");
+        ImGui::Text("%s", entry->observed_in_session ?
+            UnsignedText(entry->draw_count).c_str() : "Not observed");
+        ImGui::TableNextColumn();
+        ImGui::TextDisabled("LAST USED");
+        ImGui::Text("%s", FormatLastUsed(entry->last_frame,
+            m_snapshot.current_frame, entry->observed_in_session).c_str());
+        ImGui::TableNextColumn();
+        ImGui::TextDisabled("CURRENT ROUTE");
+        ImGui::Text("%s", RouteLabel(entry->route));
+        ImGui::EndTable();
+    }
+    ImGui::Spacing();
+    const bool overview_columns =
+        ImGui::GetContentRegionAvail().x >= 900.0f * scale;
+    if (overview_columns) ImGui::Columns(2, "##overview-columns", false);
     ImGui::SeparatorText("Identity & provenance");
     if (ImGui::BeginTable("##shader-identity", 2,
                           ImGuiTableFlags_BordersInnerV |
@@ -46,6 +68,7 @@ void ShaderBrowserWindow::DrawOverview()
         ImGui::EndTable();
     }
 
+    if (overview_columns) ImGui::NextColumn();
     ImGui::SeparatorText("Observation window");
     if (ImGui::BeginTable("##shader-observation", 2,
                           ImGuiTableFlags_BordersInnerV |
@@ -72,6 +95,7 @@ void ShaderBrowserWindow::DrawOverview()
         DrawKeyValue("Readiness", ReadinessLabel(entry->readiness));
         ImGui::EndTable();
     }
+    if (overview_columns) ImGui::Columns(1);
     ImGui::TextDisabled(
         "Session observations are separate from private preview rendering.");
 
@@ -216,13 +240,17 @@ void ShaderBrowserWindow::DrawOverrides()
 
 void ShaderBrowserWindow::DrawSettings()
 {
+    const bool settings_columns =
+        ImGui::GetContentRegionAvail().x >=
+        900.0f * g_viewport_mgr.m_scale;
+    if (settings_columns) ImGui::Columns(2, "##settings-columns", false);
     ImGui::SeparatorText("Usage collection");
     if (ImGui::Checkbox("Collect live usage while this window is open",
                         &m_collection_requested)) {
         GetProvider().SetLiveCollectionEnabled(m_collection_requested);
         m_snapshot.live_collection_enabled = m_collection_requested;
     }
-    ImGui::TextDisabled(
+    DrawMutedWrapped(
         "Provider collection is independent of catalog visibility and "
         "private preview work.");
     ImGui::SetNextItemWidth(180.0f * g_viewport_mgr.m_scale);
@@ -231,14 +259,14 @@ void ShaderBrowserWindow::DrawSettings()
                      "Last 600 frames\0")) {
         m_filter_dirty = true;
     }
-    ImGui::TextDisabled(
+    DrawMutedWrapped(
         "The selected shader remains selected when it ages out of the list.");
 
     ImGui::SeparatorText("Preview & editing");
     DrawWorkbenchSharedSettings();
 
     ImGui::SeparatorText("Exports");
-    ImGui::TextDisabled(
+    DrawMutedWrapped(
         "Usage exports contain provider observations, not preview draws or "
         "unmeasured GPU data.");
     if (ImGui::Button("Usage CSV")) {
@@ -267,10 +295,11 @@ void ShaderBrowserWindow::DrawSettings()
         ImGui::SameLine();
         if (ImGui::Button("Selected recipe")) ExportRecipe(*entry);
     }
-    ImGui::TextDisabled(
+    DrawMutedWrapped(
         "Generated GLSL and synthetic test exports are in their source "
         "and Live Preview views.");
 
+    if (settings_columns) ImGui::NextColumn();
     ImGui::SeparatorText("Session overrides & replacement library");
 
     GetShaderOverrideUi().DrawSettings(&m_action_message);
@@ -282,7 +311,7 @@ void ShaderBrowserWindow::DrawSettings()
         g_config.shader_browser.database.enabled = database_enabled;
         ApplyPersistenceSettings();
     }
-    ImGui::TextDisabled(
+    DrawMutedWrapped(
         "Stores shader identity, canonical guest recipes, title/build links, "
         "and lightweight metadata beside the xemu configuration. Disabling "
         "this setting does not delete existing data.");
@@ -296,7 +325,7 @@ void ShaderBrowserWindow::DrawSettings()
             record_sessions;
         ApplyPersistenceSettings();
     }
-    ImGui::TextDisabled(
+    DrawMutedWrapped(
         "Keeps each game run separate. Min/max/count/total are stored; "
         "averages are derived per session instead of across the shader's life.");
 
@@ -308,7 +337,7 @@ void ShaderBrowserWindow::DrawSettings()
             save_artifacts;
         ApplyPersistenceSettings();
     }
-    ImGui::TextDisabled(
+    DrawMutedWrapped(
         "Large GLSL/SPIR-V/compiler artifacts are files under the artifact "
         "folder. SQLite stores only their metadata and relative path so the "
         "files can be inspected or deleted manually.");

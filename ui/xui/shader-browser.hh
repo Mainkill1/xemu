@@ -78,6 +78,7 @@ private:
     int m_preview_view_channel = 0;
     bool m_preview_packet_attempted = false;
     std::string m_preview_packet_message;
+    uint32_t m_preview_packet_height = 0;
     std::vector<size_t> m_source_line_offsets;
     size_t m_selected_source = 0;
     uint64_t m_source_offsets_generation = 0;

@@ -10,6 +10,7 @@
 #include "hw/xbox/nv2a/debug.h"
 
 #include <algorithm>
+#include <cmath>
 #include <cstdio>
 #include <filesystem>
 #include <iterator>
@@ -101,6 +102,14 @@ void DrawKeyValue(const char *key, const std::string &value)
     ImGui::TextUnformatted(key);
     ImGui::TableSetColumnIndex(1);
     ImGui::TextWrapped("%s", value.c_str());
+}
+
+void DrawMutedWrapped(const char *text)
+{
+    ImGui::PushStyleColor(ImGuiCol_Text,
+                          ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
+    ImGui::TextWrapped("%s", text);
+    ImGui::PopStyleColor();
 }
 
 std::string ScopeSummary(const Entry &entry)
@@ -350,8 +359,23 @@ void ShaderBrowserWindow::RefreshSnapshot()
         m_recipe_inspection = {};
         GetDetailStore().Clear();
     }
-    if (!m_has_selection && !m_snapshot.entries.empty()) {
-        SelectEntry(m_snapshot.entries.front());
+    // Wait for a title-scoped recipe before choosing a default. A catalog
+    // selection made by the user remains fixed across later snapshots.
+    if (!m_has_selection && m_snapshot.current_title_id) {
+        const Entry *initial = nullptr;
+        for (const Entry &entry : m_snapshot.entries) {
+            const bool current_title = std::any_of(
+                entry.scopes.begin(), entry.scopes.end(),
+                [this](const ShaderScope &scope) {
+                    return scope.title_id == m_snapshot.current_title_id;
+                });
+            if (current_title && entry.key.stage == Stage::Pixel &&
+                entry.recipe_size &&
+                (!initial || entry.draw_count > initial->draw_count)) {
+                initial = &entry;
+            }
+        }
+        if (initial) SelectEntry(*initial);
     }
 }
 
@@ -383,9 +407,6 @@ void ShaderBrowserWindow::RebuildVisibleOrder()
                                scope.title_id == m_snapshot.current_title_id;
                     });
             }), m_visible_order.end());
-    }
-    if (!m_has_selection && !m_visible_order.empty()) {
-        SelectEntry(m_snapshot.entries[m_visible_order.front()]);
     }
     m_filter_dirty = false;
 }
