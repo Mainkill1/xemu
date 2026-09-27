@@ -423,6 +423,7 @@ void ShaderBrowserWindow::DrawLivePreview()
         m_preview_packet_attempted = false;
         service.SetRequestedMode(static_cast<PreviewMode>(mode));
     }
+    ImGui::Checkbox("Editor dock", &workbench.dock.open);
 
     const bool visualize = mode == static_cast<int>(PreviewMode::Visualize);
     if (visualize) {
@@ -741,73 +742,6 @@ void ShaderBrowserWindow::DrawLivePreview()
         }
         const bool draft_matches = WorkbenchDraftMatches(
             workbench.draft, selection);
-        WorkbenchEditorDockAction editor_action{};
-        if (workbench.running_test && !workbench.editing_test) {
-            const WorkbenchExperiment &saved = *workbench.running_test;
-            ImGui::TextDisabled("Running owned source from synthetic test");
-            ImGui::Checkbox("Editor dock", &workbench.dock.open);
-            if (workbench.dock.open) {
-                ImGui::SeparatorText("Saved generated GLSL / draft");
-                ImGui::TextDisabled("Original: %s, saved revision %llu",
-                    saved.original.resident ? "resident" : "reconstructed",
-                    static_cast<unsigned long long>(saved.edit_revision));
-                if (ImGui::RadioButton("Original",
-                        workbench.dock.variant ==
-                            PreviewSourceVariant::Original))
-                    workbench.dock.variant = PreviewSourceVariant::Original;
-                if (saved.successful_compile) {
-                    ImGui::SameLine();
-                    if (ImGui::RadioButton("Edited",
-                            workbench.dock.variant ==
-                                PreviewSourceVariant::Edited))
-                        workbench.dock.variant = PreviewSourceVariant::Edited;
-                }
-                const std::string &shown =
-                    workbench.dock.variant == PreviewSourceVariant::Edited &&
-                    saved.successful_compile ?
-                        saved.successful_compile->source :
-                        saved.original.text;
-                if (workbench.dock.variant != workbench.last_variant)
-                    workbench.editor.SetSource(shown);
-                DrawWorkbenchSourceLines(&workbench.editor, &workbench.dock);
-                if (ImGui::Button("Create editable copy of saved GLSL")) {
-                    std::string error;
-                    const bool supported_route =
-                        selection.mode != PreviewMode::Replacement &&
-                        saved.original.route ==
-                            (selection.mode == PreviewMode::Uber ?
-                                Route::Uber : Route::Specialized);
-                    if (supported_route &&
-                        workbench.draft.Create(saved.original,
-                                               workbench.next_draft_id++,
-                                               &error)) {
-                        const std::string &saved_text =
-                            !saved.edited_text.empty() ? saved.edited_text :
-                            shown;
-                        workbench.draft.Edit(saved_text, now_ns);
-                        workbench.editing_test = true;
-                        workbench.submitted_draft.reset();
-                        workbench.dock.variant =
-                            PreviewSourceVariant::Edited;
-                        workbench.dock.buffer_revision = 0;
-                        workbench.dock.edit_buffer.clear();
-                        workbench.editor.SetSource({});
-                        m_preview_packet_attempted = false;
-                        m_action_message =
-                            "Created private draft from saved GLSL";
-                    } else {
-                        m_action_message = error.empty() ?
-                            "Saved source route cannot become an editable preview draft" :
-                            error;
-                    }
-                }
-            }
-        } else {
-            editor_action = DrawWorkbenchEditorDock(
-                workbench.has_generated ? &workbench.generated : nullptr,
-                draft_matches ? &workbench.draft : nullptr,
-                &workbench.editor, &workbench.dock, &status, now_ns);
-        }
         if ((draft_matches &&
              (!workbench.running_test || workbench.editing_test)) ||
             (workbench.running_test && !workbench.editing_test &&
@@ -820,39 +754,6 @@ void ShaderBrowserWindow::DrawLivePreview()
                     workbench.comparison_locked = false;
             } else if (ImGui::Button("Lock Original/Edited inputs")) {
                 lock_comparison(selection);
-            }
-        }
-        if (editor_action.create_copy && workbench.has_generated) {
-            if (workbench.draft.Create(workbench.generated,
-                                       workbench.next_draft_id++,
-                                       &m_action_message)) {
-                workbench.submitted_draft.reset();
-                workbench.dock.variant = PreviewSourceVariant::Edited;
-                workbench.dock.buffer_revision = 0;
-                workbench.dock.edit_buffer.clear();
-                workbench.editor.SetSource({});
-                m_preview_packet_attempted = false;
-                m_action_message = "Created private editable GLSL draft";
-            }
-        }
-        if (workbench.dock.variant != workbench.last_variant) {
-            workbench.last_variant = workbench.dock.variant;
-            m_preview_packet_attempted = false;
-            if ((draft_matches || (workbench.running_test &&
-                 workbench.running_test->successful_compile)) &&
-                !workbench.comparison_locked &&
-                !editor_action.create_copy)
-                lock_comparison(selection);
-        }
-        if ((!workbench.running_test || workbench.editing_test) &&
-            WorkbenchDraftMatches(workbench.draft, selection) &&
-            workbench.dock.variant == PreviewSourceVariant::Edited &&
-            (workbench.dock.auto_compile || editor_action.manual_compile)) {
-            auto frozen = workbench.draft.FreezeCompile(
-                now_ns, editor_action.manual_compile);
-            if (frozen) {
-                workbench.submitted_draft = std::move(*frozen);
-                m_preview_packet_attempted = false;
             }
         }
         if (workbench.applied_rule && !draft_matches) {
@@ -1493,16 +1394,22 @@ void ShaderBrowserWindow::DrawLivePreview()
     ImGui::EndChild();
     ImGui::SameLine();
     ImGui::BeginChild("##workbench-viewport", ImVec2(0, 0), false);
-    ImVec2 available = ImGui::GetContentRegionAvail();
-    float side = std::max(1.0f, available.x - 40.0f);
-    float output_height = std::max(340.0f, available.y);
+    const ImVec2 available = ImGui::GetContentRegionAvail();
+    const float dock_height = workbench.dock.open ?
+        std::min(available.y * 0.46f,
+                 380.0f * g_viewport_mgr.m_scale) : 0.0f;
+    const float output_height = std::max(1.0f, available.y - dock_height -
+        (workbench.dock.open ? ImGui::GetStyle().ItemSpacing.y : 0.0f));
+    const float side = std::max(1.0f, std::min(
+        available.x - 32.0f * g_viewport_mgr.m_scale,
+        output_height - 132.0f * g_viewport_mgr.m_scale));
     if (ImGui::BeginChild("##preview-output",
                           ImVec2(0.0f, output_height), true)) {
         ImGui::TextDisabled("Synthetic inputs — not an in-game draw");
         ImGui::Separator();
         if (entry) {
             PreviewViewSettings view{};
-            GetPreviewGlExecutor().DrawImage(side - 16.0f,
+            GetPreviewGlExecutor().DrawImage(side,
                                              enabled ? &selection : nullptr,
                                              now_ns, &view,
                                              workbench.comparison_locked ?
@@ -1523,5 +1430,115 @@ void ShaderBrowserWindow::DrawLivePreview()
         }
     }
     ImGui::EndChild();
+    WorkbenchEditorDockAction editor_action{};
+    if (workbench.dock.open) {
+        if (ImGui::BeginChild("##workbench-editor", ImVec2(0, 0), true)) {
+            if (entry) {
+                if (workbench.running_test && !workbench.editing_test) {
+                    const WorkbenchExperiment &saved = *workbench.running_test;
+                    ImGui::SeparatorText("Saved generated GLSL / draft");
+                    ImGui::TextDisabled("Original: %s, saved revision %llu",
+                        saved.original.resident ? "resident" : "reconstructed",
+                        static_cast<unsigned long long>(saved.edit_revision));
+                    if (ImGui::RadioButton("Original",
+                            workbench.dock.variant ==
+                                PreviewSourceVariant::Original))
+                        workbench.dock.variant = PreviewSourceVariant::Original;
+                    if (saved.successful_compile) {
+                        ImGui::SameLine();
+                        if (ImGui::RadioButton("Edited",
+                                workbench.dock.variant ==
+                                    PreviewSourceVariant::Edited))
+                            workbench.dock.variant = PreviewSourceVariant::Edited;
+                    }
+                    const std::string &shown =
+                        workbench.dock.variant == PreviewSourceVariant::Edited &&
+                        saved.successful_compile ?
+                            saved.successful_compile->source :
+                            saved.original.text;
+                    if (workbench.dock.variant != workbench.last_variant)
+                        workbench.editor.SetSource(shown);
+                    DrawWorkbenchSourceLines(&workbench.editor,
+                                             &workbench.dock);
+                    if (ImGui::Button("Create editable copy of saved GLSL")) {
+                        std::string error;
+                        const bool supported_route =
+                            selection.mode != PreviewMode::Replacement &&
+                            saved.original.route ==
+                                (selection.mode == PreviewMode::Uber ?
+                                    Route::Uber : Route::Specialized);
+                        if (supported_route &&
+                            workbench.draft.Create(saved.original,
+                                                   workbench.next_draft_id++,
+                                                   &error)) {
+                            const std::string &saved_text =
+                                !saved.edited_text.empty() ? saved.edited_text :
+                                shown;
+                            workbench.draft.Edit(saved_text, now_ns);
+                            workbench.editing_test = true;
+                            workbench.submitted_draft.reset();
+                            workbench.dock.variant =
+                                PreviewSourceVariant::Edited;
+                            workbench.dock.buffer_revision = 0;
+                            workbench.dock.edit_buffer.clear();
+                            workbench.editor.SetSource({});
+                            m_preview_packet_attempted = false;
+                            m_action_message =
+                                "Created private draft from saved GLSL";
+                        } else {
+                            m_action_message = error.empty() ?
+                                "Saved source route cannot become an editable preview draft" :
+                                error;
+                        }
+                    }
+                } else {
+                    const bool draft_matches = WorkbenchDraftMatches(
+                        workbench.draft, selection);
+                    editor_action = DrawWorkbenchEditorDock(
+                        workbench.has_generated ? &workbench.generated : nullptr,
+                        draft_matches ? &workbench.draft : nullptr,
+                        &workbench.editor, &workbench.dock, &status, now_ns);
+                }
+            } else {
+                ImGui::TextDisabled("Select a pixel shader to inspect GLSL");
+            }
+        }
+        ImGui::EndChild();
+    }
+    if (entry) {
+        if (editor_action.create_copy && workbench.has_generated) {
+            if (workbench.draft.Create(workbench.generated,
+                                       workbench.next_draft_id++,
+                                       &m_action_message)) {
+                workbench.submitted_draft.reset();
+                workbench.dock.variant = PreviewSourceVariant::Edited;
+                workbench.dock.buffer_revision = 0;
+                workbench.dock.edit_buffer.clear();
+                workbench.editor.SetSource({});
+                m_preview_packet_attempted = false;
+                m_action_message = "Created private editable GLSL draft";
+            }
+        }
+        if (workbench.dock.variant != workbench.last_variant) {
+            workbench.last_variant = workbench.dock.variant;
+            m_preview_packet_attempted = false;
+            if ((WorkbenchDraftMatches(workbench.draft, selection) ||
+                 (workbench.running_test &&
+                  workbench.running_test->successful_compile)) &&
+                !workbench.comparison_locked && !editor_action.create_copy)
+                lock_comparison(selection);
+        }
+        if ((!workbench.running_test || workbench.editing_test) &&
+            WorkbenchDraftMatches(workbench.draft, selection) &&
+            workbench.dock.variant == PreviewSourceVariant::Edited &&
+            (workbench.dock.auto_compile || editor_action.manual_compile)) {
+            auto frozen = workbench.draft.FreezeCompile(
+                now_ns, editor_action.manual_compile);
+            if (frozen) {
+                workbench.submitted_draft = std::move(*frozen);
+                m_preview_packet_attempted = false;
+            }
+        }
+    }
     ImGui::EndChild();
 }
