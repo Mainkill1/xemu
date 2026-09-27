@@ -125,7 +125,7 @@ static void DrawWorkbenchSourceLines(GlslEditorModel *editor,
 static WorkbenchEditorDockAction DrawWorkbenchEditorDock(
     const GeneratedSourceSnapshot *generated, WorkbenchDraft *draft,
     GlslEditorModel *editor, WorkbenchEditorDockState *state,
-    const PreviewStatus *preview, uint64_t now_ns)
+    uint64_t now_ns)
 {
     WorkbenchEditorDockAction action{};
     if (!state || !editor) return action;
@@ -139,9 +139,9 @@ static WorkbenchEditorDockAction DrawWorkbenchEditorDock(
             HostSourceStageLabel(original->stage),
             PreviewBackendLabel(original->backend),
             RouteLabel(original->route), original->scope.title_id);
-        ImGui::TextDisabled("xemu-generated GLSL; not game-authored source");
-        if (!original->build_scope_verified)
-            ImGui::TextDisabled("Selected build association unverified");
+        ImGui::TextWrapped("xemu-generated GLSL; not game-authored%s",
+            original->build_scope_verified ? "" :
+                " | selected build association unverified");
         if (generated && ImGui::Button("Create editable copy"))
             action.create_copy = true;
     } else {
@@ -180,17 +180,12 @@ static WorkbenchEditorDockAction DrawWorkbenchEditorDock(
     }
     if (has_draft) {
         ImGui::TextUnformatted(draft->StatusLabel().c_str());
-        if (preview && preview->has_attempt) {
-            ImGui::TextDisabled("Attempted: %s",
-                PreviewSourceIdentity(preview->attempted_compile).c_str());
-        }
-        if (preview && preview->has_displayed_source) {
-            ImGui::TextDisabled("Displayed: %s",
-                PreviewSourceIdentity(preview->displayed_compile).c_str());
+        if (edited) {
+            ImGui::SameLine();
+            ImGui::TextDisabled("Edit GLSL");
         }
     }
     if (edited) {
-        ImGui::TextDisabled("Edit GLSL");
         if (ImGui::InputTextMultiline("##editable-glsl", &state->edit_buffer,
                                        ImVec2(-1, 125))) {
             if (draft->Edit(state->edit_buffer, now_ns)) {

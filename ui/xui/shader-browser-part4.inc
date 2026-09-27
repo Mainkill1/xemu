@@ -122,7 +122,7 @@ namespace {
 
 struct ShaderWorkbenchSession {
     bool controls_open = false;
-    float editor_height = 125.0f;
+    float editor_height = 240.0f;
     bool start_requested = false;
     PreviewSelection start_selection;
     std::string start_error;
@@ -490,7 +490,7 @@ void ShaderBrowserWindow::DrawLivePreview()
         std::clamp(workbench.editor_height * g_viewport_mgr.m_scale,
                    100.0f * g_viewport_mgr.m_scale,
                    std::max(100.0f * g_viewport_mgr.m_scale,
-                            pane_size.y * 0.42f)) : 0.0f;
+                            pane_size.y * 0.48f)) : 0.0f;
     const float controls_height = controls_visible ?
         std::min(210.0f * g_viewport_mgr.m_scale,
                  pane_size.y * 0.34f) : 0.0f;
@@ -1722,7 +1722,7 @@ void ShaderBrowserWindow::DrawLivePreview()
                 workbench.editor_height - ImGui::GetIO().MouseDelta.y /
                     g_viewport_mgr.m_scale,
                 100.0f, std::max(100.0f,
-                    pane_size.y * 0.42f / g_viewport_mgr.m_scale));
+                    pane_size.y * 0.48f / g_viewport_mgr.m_scale));
         ImGui::SetCursorPos(ImVec2(
             pane_pos.x, pane_pos.y + top_height +
             (controls_visible ? controls_height + gap : 0.0f) + gap));
@@ -1795,7 +1795,7 @@ void ShaderBrowserWindow::DrawLivePreview()
                     editor_action = DrawWorkbenchEditorDock(
                         workbench.has_generated ? &workbench.generated : nullptr,
                         draft_matches ? &workbench.draft : nullptr,
-                        &workbench.editor, &workbench.dock, &status, now_ns);
+                        &workbench.editor, &workbench.dock, now_ns);
                 }
             } else {
                 ImGui::TextDisabled("Select a pixel shader to inspect GLSL");
@@ -1810,11 +1810,11 @@ void ShaderBrowserWindow::DrawLivePreview()
                     ImGui::TextWrapped("%s", m_preview_packet_message.c_str());
                 }
                 if (status.has_attempt) {
-                    ImGui::TextDisabled("Attempted: %s",
+                    ImGui::TextWrapped("Attempted: %s",
                         PreviewSourceIdentity(status.attempted_compile).c_str());
                 }
                 if (status.has_displayed_source) {
-                    ImGui::TextDisabled("Displayed: %s",
+                    ImGui::TextWrapped("Displayed: %s",
                         PreviewSourceIdentity(status.displayed_compile).c_str());
                 }
                 if (workbench.draft.Id() &&

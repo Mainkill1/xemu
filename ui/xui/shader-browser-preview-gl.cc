@@ -844,7 +844,21 @@ void PreviewGlExecutor::DrawImage(float side,
         ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + image_side);
         ImGui::TextWrapped("%s%s: %s", label, stale ? " — STALE" : "",
                            PreviewModeLabel(origin.selection.mode));
-        ImGui::TextWrapped("Source: %s", PreviewSourceIdentity(origin).c_str());
+        const std::string full_source = PreviewSourceIdentity(origin);
+        if (origin.source_variant == PreviewSourceVariant::Edited) {
+            ImGui::TextWrapped("Draft %llu r%llu",
+                static_cast<unsigned long long>(origin.draft_id),
+                static_cast<unsigned long long>(origin.draft_revision));
+        } else if (origin.selection.mode == PreviewMode::Replacement) {
+            ImGui::TextWrapped("Replacement %llu r%llu",
+                static_cast<unsigned long long>(origin.replacement_id),
+                static_cast<unsigned long long>(origin.replacement_revision));
+        } else {
+            ImGui::TextWrapped("Source: %.8s", full_source.c_str());
+        }
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetTooltip("Source: %s", full_source.c_str());
+        }
         ImGui::TextDisabled("%s: %s", label, PreviewChannelLabel(channel));
         if (ImGui::IsItemHovered()) {
             ImGui::SetTooltip("%s", PreviewChannelProvenance(channel));
