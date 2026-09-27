@@ -83,6 +83,15 @@ ObjectRelationship AnalyzeObjectRelationship(
     const DrawSegmentSummary &rhs_segment, const DrawCaptureSummary &rhs_draw)
 {
     ObjectRelationship result{};
+    if (!SameCaptureContext(lhs_draw, rhs_draw) ||
+        !SameFrame(lhs_draw.key, rhs_draw.key) ||
+        lhs_segment.key.draw != lhs_draw.key ||
+        rhs_segment.key.draw != rhs_draw.key ||
+        !IsObjectGeometry(lhs_draw, lhs_segment) ||
+        !IsObjectGeometry(rhs_draw, rhs_segment)) {
+        result.blocked = true;
+        return result;
+    }
     const bool same_draw = lhs_segment.key.draw == rhs_segment.key.draw;
     const bool same_frame = SameFrame(lhs_segment.key.draw,
                                       rhs_segment.key.draw);
@@ -102,8 +111,9 @@ ObjectRelationship AnalyzeObjectRelationship(
         ResourceKind::IndexStream);
     const bool overlapping_vertices = AddressRangesOverlap(
         lhs_segment.vertex_span, rhs_segment.vertex_span);
-    const bool overlapping_bounds = BoundsOverlap(lhs_segment.bounds,
-                                                   rhs_segment.bounds);
+    const bool overlapping_bounds = SameNonEmptyDigest(
+        lhs_segment.bounds_space_digest, rhs_segment.bounds_space_digest) &&
+        BoundsOverlap(lhs_segment.bounds, rhs_segment.bounds);
     const bool shared_texture = ShareResource(
         lhs_draw, rhs_draw, ResourceKind::Texture, ResourceKind::Palette);
     const bool same_destination = ShareResource(
@@ -161,6 +171,20 @@ ObjectRelationship AnalyzeObjectRelationship(
         result.score += 1;
     }
 
+    if (lhs_segment.confirmed_object_id && rhs_segment.confirmed_object_id) {
+        if (lhs_segment.confirmed_object_id == rhs_segment.confirmed_object_id) {
+            result.evidence |= ObjectEvidenceConfirmedMembership;
+            result.classification = ObjectLinkClass::SameObjectCandidate;
+            result.automatic_group = true;
+        } else {
+            result.evidence |= ObjectEvidenceDifferentObject;
+            result.blocked = true;
+            result.classification = shared_geometry || shared_texture ?
+                ObjectLinkClass::SharedResourceOnly : ObjectLinkClass::None;
+        }
+        return result;
+    }
+
     if (different_transform) {
         result.blocked = true;
         result.classification = shared_geometry || shared_texture ?
@@ -170,15 +194,15 @@ ObjectRelationship AnalyzeObjectRelationship(
 
     if (same_geometry && (same_transform || same_skinning)) {
         result.classification = ObjectLinkClass::SameObjectPass;
-        result.automatic_group = true;
+        // Matching transforms, skinning palettes, and bytes can still describe
+        // separate instances or camera-relative geometry. This is a suggestion.
         return result;
     }
 
     if (same_transform && same_frame &&
         (shared_geometry || overlapping_vertices) && result.score >= 11) {
-        // This is deliberately a suggestion. Shared buffers and transforms are
-        // common in batched scenes; only an exact geometry/pass match is safe
-        // enough for automatic grouping.
+        // Shared buffers and transforms remain suggestions. Only explicit
+        // confirmed membership, handled above, can consolidate segments.
         result.classification = ObjectLinkClass::SameObjectCandidate;
         return result;
     }

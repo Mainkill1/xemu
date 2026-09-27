@@ -1,92 +1,86 @@
 # Shader Draw and Object Capture Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** Use superpowers:executing-plans or
+> superpowers:subagent-driven-development for the remaining implementation.
 
-**Goal:** Establish a tested identity, segmentation, resource-edge, and conservative object-grouping foundation for shader-seeded game draw capture.
+**Goal:** Seed geometry/material inspection from a draw using a selected shader,
+without confusing object membership with shared resources or visual influence.
 
-**Architecture:** Keep exact draw/resource facts separate from inferred object membership. Operate on draw segments, automatically merge only exact same-pass evidence, and surface weaker relationships as suggestions or resource-only edges.
+**Architecture:** Renderer-independent, owned-record analysis. Exact draws and
+primitive selections feed conservative object candidates. Confirmed membership
+and versioned producer/consumer traversal are independent.
 
-**Tech Stack:** C++17, existing Shader Browser model types, Meson focused unit executables.
+**Tech Stack:** C++17, existing Shader Browser types, Meson focused unit executable.
 
 **Spec:** `docs/superpowers/specs/2026-09-27-shader-draw-object-capture-design.md`
 
-## Global Constraints
+## Global constraints
 
-- Stack on `feature/shader-browser-stage4`.
-- Do not add live PGRAPH copies or gameplay waits in this foundation PR.
-- Same shader or same texture alone must never establish object identity.
-- One draw may produce zero, one, or many explicit segments; zero uses a whole-draw fallback.
-- Weak grouping remains a suggestion; only exact same geometry plus transform/skinning may merge automatically.
+Stack on #241 / `feature/shader-browser-stage4`. Do not touch normal PGRAPH draws
+in this foundation. Do not infer ownership from hashes, textures, or buffer
+addresses. Preserve unknown inputs and scope/epoch/frame boundaries. Report
+analysis limits and missing dependencies. No native replay claims from unit tests.
 
-## Review Focus
+## Review focus
 
-- Guest address reuse with changed content must not alias one resource.
-- Equal bytes at different addresses must not become one allocation identity.
-- Shared shader usage across unrelated objects must produce separate candidates.
-- One batched draw with disconnected segments must remain split without stronger evidence.
-- Different transforms must block grouping even when a vertex buffer is shared.
+Address reuse and aliases; partial/ambiguous resource provenance; same mesh in
+separate instances; multiple objects in one draw; fullscreen downstream effects;
+wrong coordinate spaces; cross-title/session/frame grouping; disabled assertions.
 
----
+## Foundation delivered
 
-### Task 1: Draw and resource identity model
+- [x] `shader-browser-draw-capture.hh/.cc`: exact keys, reference model, admission.
+- [x] `shader-browser-draw-segmentation.cc`: triangle-list islands/primitive IDs.
+- [x] `shader-browser-object-relationship.cc`: inspectable evidence, no inferred ownership.
+- [x] `shader-browser-object-grouping.cc`: explicit membership and unresolved geometry.
+- [x] `shader-browser-resource-dependencies.cc`: backing/version/range joins and
+      upstream/downstream traversal, with missing/ambiguous provenance reporting.
+- [x] `test-xemu-shader-browser-draw-capture.cc`: standalone production-source tests,
+      including a regression for automatic cross-session grouping.
+- [x] `ui/xui/meson.build`: register the same production sources and focused test;
+      remove dependence on embedding implementation files in another test.
+- [x] Developer README and corrected design contract.
 
-**Files:**
-- Create: `ui/xui/shader-browser-draw-capture.hh`
-- Create: `ui/xui/shader-browser-draw-capture.cc`
-- Test: `tests/unit/test-xemu-shader-browser-draw-capture.cc`
+## Remaining stages: not implemented by this draft
 
-**Interfaces:**
-- Produces: `DrawEventKey`, `DrawSegmentKey`, `ResourceIdentity`, `DrawCaptureSummary`, `DrawUsesShader()`, `FindDrawsUsingShader()`, and `EffectiveDrawSegments()`.
+### 1. Capture producer and control surface
 
-- [ ] Write assertions for exact shader matching, multiple matching draws, whole-draw fallback, strict address/content identity, and address reuse rejection.
-- [ ] Compile before implementation and confirm the missing capture header/source fail the test.
-- [ ] Implement the minimal identity and lookup model.
-- [ ] Compile with `-std=c++17 -Wall -Wextra -Werror` and run the focused executable.
+Add explicit next-match/frame requests beside shader observations and final
+OpenGL/Vulkan submission boundaries. Preserve guest-to-host emission provenance.
+Test cancellation, title/reset/renderer epochs, missing retained historical data,
+request limits, and no work when unarmed. Use actual owner-thread state, not the
+CPU's current PC as a guess at asynchronous GPU submission provenance.
 
-### Task 2: Draw segmentation
+### 2. Immutable resource storage and lineage
 
-**Files:**
-- Modify: `ui/xui/shader-browser-draw-capture.hh`
-- Modify: `ui/xui/shader-browser-draw-capture.cc`
-- Test: `tests/unit/test-xemu-shader-browser-draw-capture.cc`
+Resolve vertex DMA/offset/stride/formats, indices/inline values, texture
+subresources/palettes/samplers, constants and destination state. Capture raw guest
+and resolved host values separately. Allocate backing incarnations and read/write
+versions, including non-draw producers and partial-write provenance fragments.
+Test reused addresses, stale host textures, format-changing aliases, readback
+synchronization, partial uploads, depth/color aliases, and byte-budget rejection.
 
-**Interfaces:**
-- Consumes: draw segment identities from Task 1.
-- Produces: `PrimitiveSegmentation SegmentTriangleList(const std::vector<uint32_t>&)`.
+### 3. Geometry and material inspection
 
-- [ ] Add failing assertions for connected triangles, disconnected islands, degenerate separators, and incomplete trailing indices.
-- [ ] Implement deterministic union-find segmentation over non-degenerate triangle-list primitives.
-- [ ] Verify the focused executable passes.
+Decode actual NV2A attribute formats and supported topologies; preserve original
+primitive selections and stage inputs. Do not assume v0 position or a constant
+range's matrix meaning. Publish material snapshots and interpretable mesh views.
+Test inline/ranged/indexed/degenerate cases, multiple disconnected parts in one
+object, and several batched objects in a single connected submission.
 
-### Task 3: Conservative object graph
+### 4. Preview, confirmation, and object/data-flow views
 
-**Files:**
-- Modify: `ui/xui/shader-browser-draw-capture.hh`
-- Modify: `ui/xui/shader-browser-draw-capture.cc`
-- Test: `tests/unit/test-xemu-shader-browser-draw-capture.cc`
+Adapt owned captures to Stage 4 replay packets and add Geometry, Material,
+Object Membership, Inputs, and Downstream views. User-selected segments can
+receive confirmed capture-local IDs. Show camera/input substitutions and
+incomplete data explicitly. Add indexed/paged analysis before whole-frame scale.
 
-**Interfaces:**
-- Consumes: draw summaries, segments, and resource identities.
-- Produces: `AnalyzeObjectRelationship()`, `BuildObjectCandidates()`, and `TraceShaderObjectUsage()`.
+### 5. Native evidence before ready-for-review
 
-- [ ] Add failing assertions for same-pass grouping, unrelated same-shader draws, shared-buffer/different-transform blocking, attached-part suggestions, and one-draw/multiple-segment separation.
-- [ ] Implement inspectable evidence flags and conservative scoring.
-- [ ] Merge only exact same-pass edges; retain weaker object and resource relationships separately.
-- [ ] Verify the focused executable passes with warnings treated as errors.
-
-### Task 4: Build and developer documentation
-
-**Files:**
-- Modify: `ui/xui/meson.build`
-- Create: `docs/devel/shader-draw-object-capture.md`
-- Create: `docs/superpowers/specs/2026-09-27-shader-draw-object-capture-design.md`
-- Create: `docs/superpowers/plans/2026-09-27-shader-draw-object-capture.md`
-
-**Interfaces:**
-- Consumes: the focused source and test from Tasks 1–3.
-- Produces: production-source registration, a unit target, and a staged integration contract.
-
-- [ ] Register `shader-browser-draw-capture.cc` in `xemu_ss`.
-- [ ] Add `test-xemu-shader-browser-draw-capture` to the focused unit suite.
-- [ ] Document exact versus inferred identity, current implementation, limitations, and the backend integration sequence.
-- [ ] Run source-level compilation locally and let GitHub CI perform the full repository build because the sandbox cannot clone the repository.
+Run full builds and focused tests on supported platforms. Validate OpenGL and
+Vulkan with fixed build/title/settings/capture identities. Compare original
+captured output, repeat replay, and edited shader output; keep synthetic tests
+separate. Measure unarmed, metadata-only, capture, and replay overhead. Exercise
+stale texture/readback bugs, skinned poses, shadow receivers, reflected objects,
+and fullscreen composites. Run clang-format and review source diffs. No merge
+approval until these native stages and required reviews have evidence.

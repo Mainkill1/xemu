@@ -4,9 +4,9 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <set>
 
 namespace xemu::shader_browser {
-
 
 bool CaptureDigestEmpty(const CaptureDigest &digest)
 {
@@ -93,6 +93,12 @@ bool AddressRangesOverlap(const AddressRange &lhs, const AddressRange &rhs)
 bool SameResourceIdentity(const ResourceIdentity &lhs,
                           const ResourceIdentity &rhs)
 {
+    if (lhs.storage_id != rhs.storage_id ||
+        (lhs.storage_id &&
+         (lhs.storage_range.address != rhs.storage_range.address ||
+          lhs.storage_range.length != rhs.storage_range.length))) {
+        return false;
+    }
     if (lhs.kind != rhs.kind) {
         return false;
     }
@@ -124,7 +130,7 @@ bool SameResourceIdentity(const ResourceIdentity &lhs,
     // Content equality is not allocation identity when both resources carry
     // guest addresses. Address-less resources use their immutable descriptor
     // and content digests as the only available identity.
-    return lhs_range || lhs_content || lhs_descriptor;
+    return lhs.storage_id || lhs_range || (lhs_content && lhs_descriptor);
 }
 
 Bounds3 Bounds3::FromMinMax(const std::array<float, 3> &minimum,
@@ -154,6 +160,68 @@ bool BoundsOverlap(const Bounds3 &lhs, const Bounds3 &rhs)
         }
     }
     return true;
+}
+
+bool SameCaptureContext(const DrawCaptureSummary &lhs,
+                        const DrawCaptureSummary &rhs)
+{
+    return lhs.key.session_epoch == rhs.key.session_epoch &&
+           lhs.key.renderer_epoch == rhs.key.renderer_epoch &&
+           lhs.scope.title_id == rhs.scope.title_id &&
+           lhs.scope.executable_fingerprint_version ==
+               rhs.scope.executable_fingerprint_version &&
+           lhs.scope.executable_fingerprint == rhs.scope.executable_fingerprint;
+}
+
+bool IsObjectGeometry(const DrawCaptureSummary &draw,
+                      const DrawSegmentSummary &segment)
+{
+    return draw.domain == DrawDomain::Geometry &&
+           !(draw.batched_geometry_suspected &&
+             segment.origin == DrawSegmentOrigin::WholeDraw);
+}
+
+CaptureAnalysisAdmission CheckCaptureAnalysisInput(
+    const std::vector<DrawCaptureSummary> &draws)
+{
+    if (draws.size() > kCaptureMaxAnalysisDraws) {
+        return CaptureAnalysisAdmission::LimitExceeded;
+    }
+    size_t segment_count = 0;
+    size_t selected_primitives = 0;
+    std::set<DrawEventKey> keys;
+    for (const auto &draw : draws) {
+        const size_t count = std::max<size_t>(draw.segments.size(), 1);
+        if (count > kCaptureMaxAnalysisSegments - segment_count ||
+            draw.resources.size() > kCaptureMaxResourcesPerDraw) {
+            return CaptureAnalysisAdmission::LimitExceeded;
+        }
+        segment_count += count;
+        if (!draw.key.session_epoch || !draw.key.renderer_epoch ||
+            !keys.insert(draw.key).second ||
+            draw.shader_count > draw.shaders.size()) {
+            return CaptureAnalysisAdmission::InvalidInput;
+        }
+        for (const auto &touch : draw.resources) {
+            if (touch.access == ResourceAccess::ReadWrite &&
+                touch.read_version && touch.read_version == touch.write_version) {
+                return CaptureAnalysisAdmission::InvalidInput;
+            }
+        }
+        std::set<uint32_t> segments;
+        for (const auto &segment : draw.segments) {
+            if (segment.primitive_indices.size() >
+                kCaptureMaxSegmentationIndices / 3 - selected_primitives) {
+                return CaptureAnalysisAdmission::LimitExceeded;
+            }
+            selected_primitives += segment.primitive_indices.size();
+            if (segment.key.draw != draw.key ||
+                !segments.insert(segment.key.segment).second) {
+                return CaptureAnalysisAdmission::InvalidInput;
+            }
+        }
+    }
+    return CaptureAnalysisAdmission::Accepted;
 }
 
 bool DrawUsesShader(const DrawCaptureSummary &draw, const ShaderKey &shader)

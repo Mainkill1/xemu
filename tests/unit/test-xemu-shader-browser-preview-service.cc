@@ -108,7 +108,8 @@ static void TestLastGoodAndAutomaticPreparation()
     service.CopyStatus(&status);
     assert(status.state == PreviewState::Failed);
     assert(status.message == "bad replacement");
-    assert(status.leased_slots == 1 && status.free_slots == 2);
+    assert(status.leased_slots == 1 &&
+           status.free_slots == kPreviewSlotCount - 1);
     assert(status.has_attempt &&
            status.attempted_compile.replacement_revision == 2);
     assert(
@@ -136,7 +137,8 @@ static void TestLastGoodAndAutomaticPreparation()
     assert(
         service.CompleteRender(work.token, false, "render failure", settled));
     service.CopyStatus(&status);
-    assert(status.leased_slots == 2 && status.free_slots == 1);
+    assert(status.leased_slots == 2 &&
+           status.free_slots == kPreviewSlotCount - 2);
     assert(!service.TryClaimWork(settled + 2 * kPreviewSelectionDebounceNs,
                                  &work));
     service.CopyStatus(&status);
@@ -159,14 +161,14 @@ static void TestLastGoodAndAutomaticPreparation()
     assert(
         service.ReleaseDisplayLease(original.slot, original.slot_generation));
     service.CopyStatus(&status);
-    assert(status.free_slots == 1);
+    assert(status.free_slots == kPreviewSlotCount - 2);
     assert(service.CompleteDisplayRetirement(original.slot,
                                              original.slot_generation));
     service.SetVisible(false, settled);
     assert(service.CompleteDisplayRetirement(current.slot,
                                              current.slot_generation));
     service.CopyStatus(&status);
-    assert(status.free_slots == 3);
+    assert(status.free_slots == kPreviewSlotCount);
     service.BackendDestroyed();
     assert(!service.ReleaseDisplayLease(current.slot, current.slot_generation));
 }
@@ -522,6 +524,105 @@ int main()
     assert(service.CompleteDisplayRetirement(newest.slot,
                                              newest.slot_generation));
 
+    // An unleased older Ready frame must not stall continuous playback when
+    // the HUD still owns one frame and a newer Ready frame is available.
+    service.ResetForTest();
+    animated = Packet(1, true);
+    service.SetEnabled(true);
+    service.SetVisible(true, t0);
+    service.SetSelection(animated->selection, t0);
+    assert(service.SubmitPacket(*animated, t0, &error));
+    Prepare(&service, t0);
+    const uint64_t first_live = t0 + kPreviewSelectionDebounceNs + 10;
+    service.SetVisible(true, first_live);
+    assert(service.TryClaimWork(first_live, &work));
+    assert(service.CompleteRender(work.token, true, "first", first_live));
+    PreviewFrameRef held_live{};
+    assert(service.TryAcquireReadyFrame(&held_live, first_live));
+    for (size_t i = 1; i < kPreviewSlotCount; ++i) {
+        const uint64_t live_now = first_live + i * kPreviewPausedIntervalNs;
+        service.SetVisible(true, live_now);
+        assert(service.TryClaimWork(live_now, &work));
+        assert(service.CompleteRender(work.token, true, "queued", live_now));
+    }
+    service.CopyStatus(&status);
+    assert(status.leased_slots == 1 &&
+           status.ready_slots == kPreviewSlotCount - 1 &&
+           status.free_slots == 0);
+    const uint64_t next_live =
+        first_live + kPreviewSlotCount * kPreviewPausedIntervalNs;
+    service.SetVisible(true, next_live);
+    assert(service.TryClaimWork(next_live, &work));
+    assert(service.CompleteRender(work.token, true, "reclaimed", next_live));
+    PreviewFrameRef latest_live{};
+    assert(service.TryAcquireReadyFrame(&latest_live, next_live));
+    assert(latest_live.result_key.time_seconds >
+           held_live.result_key.time_seconds);
+    assert(service.ReleaseDisplayLease(held_live.slot,
+                                       held_live.slot_generation));
+    assert(service.CompleteDisplayRetirement(held_live.slot,
+                                             held_live.slot_generation));
+    assert(service.ReleaseDisplayLease(latest_live.slot,
+                                       latest_live.slot_generation));
+    assert(service.CompleteDisplayRetirement(latest_live.slot,
+                                             latest_live.slot_generation));
+
+    // Comparison may lease Original and Edited simultaneously. Keep another
+    // completed frame visible and one slot available for the next update.
+    service.ResetForTest();
+    animated = Packet(1, true);
+    service.SetEnabled(true);
+    service.SetVisible(true, t0);
+    service.SetSelection(animated->selection, t0);
+    assert(service.SubmitPacket(*animated, t0, &error));
+    Prepare(&service, t0);
+    const uint64_t comparison_start = t0 + kPreviewSelectionDebounceNs + 100;
+    PreviewFrameRef comparison_held[2]{};
+    for (unsigned i = 0; i < 2; ++i) {
+        const uint64_t comparison_now =
+            comparison_start + i * kPreviewPausedIntervalNs;
+        service.SetVisible(true, comparison_now);
+        assert(service.TryClaimWork(comparison_now, &work));
+        assert(service.CompleteRender(work.token, true, "comparison",
+                                      comparison_now));
+        assert(service.TryAcquireReadyFrame(&comparison_held[i],
+                                            comparison_now));
+    }
+    const uint64_t queued_comparison =
+        comparison_start + 2 * kPreviewPausedIntervalNs;
+    service.SetVisible(true, queued_comparison);
+    assert(service.TryClaimWork(queued_comparison, &work));
+    assert(service.CompleteRender(work.token, true, "queued comparison",
+                                  queued_comparison));
+    const uint64_t next_comparison =
+        comparison_start + 3 * kPreviewPausedIntervalNs;
+    service.SetVisible(true, next_comparison);
+    assert(service.TryClaimWork(next_comparison, &work));
+    assert(service.CompleteRender(work.token, true, "live comparison",
+                                  next_comparison));
+    service.CopyStatus(&status);
+    assert(status.leased_slots == 2 && status.ready_slots == 2 &&
+           status.free_slots == 0);
+    const uint64_t recycled_comparison =
+        comparison_start + 4 * kPreviewPausedIntervalNs;
+    service.SetVisible(true, recycled_comparison);
+    assert(service.TryClaimWork(recycled_comparison, &work));
+    assert(service.CompleteRender(work.token, true, "recycled comparison",
+                                  recycled_comparison));
+    service.CopyStatus(&status);
+    assert(status.leased_slots == 2 && status.ready_slots == 2);
+    assert(service.TryAcquireReadyFrame(&newest, recycled_comparison));
+    assert(newest.slot != comparison_held[0].slot &&
+           newest.slot != comparison_held[1].slot);
+    assert(service.ReleaseDisplayLease(newest.slot, newest.slot_generation));
+    assert(service.CompleteDisplayRetirement(newest.slot,
+                                             newest.slot_generation));
+    for (const auto &lease : comparison_held) {
+        assert(service.ReleaseDisplayLease(lease.slot, lease.slot_generation));
+        assert(service.CompleteDisplayRetirement(lease.slot,
+                                                 lease.slot_generation));
+    }
+
     // Returning to a completed-but-discarded input must produce a new frame.
     service.ResetForTest();
     EnableAndSelect(&service, t0);
@@ -543,7 +644,8 @@ int main()
     assert(!service.TryAcquireReadyFrame(&newest, settled));
     assert(service.SubmitPacket(*Packet(1), settled, &error));
     service.CopyStatus(&status);
-    assert(status.leased_slots == 2 && status.free_slots == 1);
+    assert(status.leased_slots == 2 &&
+           status.free_slots == kPreviewSlotCount - 2);
     assert(service.TryClaimWork(settled, &work));
     assert(service.CompleteRender(work.token, true, "restored", settled));
     assert(service.TryAcquireReadyFrame(&newest, settled));
@@ -589,7 +691,7 @@ int main()
     assert(service.CompleteDisplayRetirement(newest.slot,
                                              newest.slot_generation));
 
-    // Three consumer-owned slots are never reused until retirement.
+    // Consumer-owned slots are never reused until retirement.
     service.ResetForTest();
     animated = Packet(1, true);
     service.SetEnabled(true);
@@ -617,11 +719,12 @@ int main()
     service.ReleaseDisplayLease(held[0].slot, held[0].slot_generation);
     assert(service.CompleteDisplayRetirement(held[0].slot,
                                              held[0].slot_generation));
-    const uint64_t reused_time =
-        t0 + kPreviewSelectionDebounceNs + 1001 * kPreviewNormalIntervalNs;
+    const uint64_t reused_time = full_time;
     service.SetVisible(true, reused_time);
-    assert(!service.TryClaimWork(reused_time, &work));
-    assert(service.TryClaimWork(reused_time + kPreviewPausedIntervalNs, &work));
+    // Slot pressure can skip frames, but a freed slot should not add a full
+    // clock interval before the next paused private preview frame.
+    assert(service.TryClaimWork(reused_time, &work));
+    assert(service.CompleteRender(work.token, true, "resumed", reused_time));
 
     // Hiding the panel immediately prevents admission.
     service.SetVisible(false, t0 + 9999999999ULL);
@@ -694,7 +797,7 @@ int main()
     assert(status.state == PreviewState::Disabled);
     assert(!status.prepared);
 
-    // A paused guest permits a 30 Hz continuous preview, and a new user
+    // A paused guest permits a 60 Hz continuous preview, and a new user
     // input renders immediately without opening an unbounded failure retry.
     service.ResetForTest();
     auto paused_animation = Packet(1, true);
@@ -708,7 +811,7 @@ int main()
     assert(service.TryClaimWork(paused_first, &work));
     assert(service.CompleteRender(work.token, true, "paused frame", paused_first));
     service.CopyStatus(&status);
-    assert(status.update_hz == 30);
+    assert(status.update_hz == 60);
     service.SetVisible(true, paused_first + kPreviewPausedIntervalNs - 1);
     assert(!service.TryClaimWork(paused_first + kPreviewPausedIntervalNs - 1,
                                  &work));
@@ -842,7 +945,7 @@ int main()
                                          paused_first + 200000014));
     service.CopyStatus(&status);
     assert(status.ready_slots == 0 && status.leased_slots == 2 &&
-           status.free_slots == 1);
+           status.free_slots == kPreviewSlotCount - 2);
     assert(frozen_channel.result_key.channel == PreviewChannel::UV);
     assert(current_channel.result_key.channel == PreviewChannel::Alpha);
     // Returning to the discarded result must rerender immediately while paused.
@@ -870,7 +973,7 @@ int main()
     assert(service.CompleteDisplayRetirement(current_channel.slot,
                                              current_channel.slot_generation));
     service.CopyStatus(&status);
-    assert(status.free_slots == 3);
+    assert(status.free_slots == kPreviewSlotCount);
 
     // Continuous playback has no duration cap and retains one immutable packet.
     service.ResetForTest();
@@ -881,7 +984,10 @@ int main()
     Prepare(&service, t0);
     service.EditClock(PreviewClockAction::Loop, 0, t0);
     uint64_t long_now = paused_first;
-    for (unsigned i = 0; i < 10000; ++i) {
+    const unsigned long_playback_samples =
+        static_cast<unsigned>(UINT64_C(300000000000) /
+                              kPreviewPausedIntervalNs) + 2;
+    for (unsigned i = 0; i < long_playback_samples; ++i) {
         long_now += kPreviewPausedIntervalNs;
         service.SetVisible(true, long_now);
         assert(!service.TryClaimWork(long_now - 1, &work, PreviewBackend::Vulkan));

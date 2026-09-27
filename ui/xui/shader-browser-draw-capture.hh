@@ -19,6 +19,12 @@ namespace xemu::shader_browser {
 // stay separate so a shared texture or buffer never becomes object identity.
 constexpr size_t kCaptureDigestBytes = 16;
 constexpr size_t kCapturedShaderSlots = 4;
+// Offline analysis admission limits, not a live capture ring or byte budget.
+constexpr size_t kCaptureMaxAnalysisDraws = 256;
+constexpr size_t kCaptureMaxAnalysisSegments = 512;
+constexpr size_t kCaptureMaxResourcesPerDraw = 32;
+constexpr size_t kCaptureMaxDependencyEdges = 32768;
+constexpr size_t kCaptureMaxSegmentationIndices = 3U * 262144U;
 using CaptureDigest = std::array<uint8_t, kCaptureDigestBytes>;
 
 bool CaptureDigestEmpty(const CaptureDigest &digest);
@@ -81,6 +87,10 @@ enum class ResourceAccess : uint8_t {
 struct ResourceIdentity {
     ResourceKind kind = ResourceKind::Unknown;
     AddressRange guest;
+    // Capture-local allocation incarnation, shared by resolved aliased views.
+    // Zero means unknown. These IDs must not be inferred from addresses/hashes.
+    uint64_t storage_id = 0;
+    AddressRange storage_range; // Canonical byte range relative to storage.
     CaptureDigest descriptor_digest{};
     CaptureDigest content_digest{};
 };
@@ -89,6 +99,11 @@ struct ResourceTouch {
     ResourceIdentity resource;
     uint32_t slot = 0;
     ResourceAccess access = ResourceAccess::BindOnly;
+    // A ReadWrite consumes one version and produces a different version.
+    // Split reads into provenance fragments when a partial update has several
+    // origins. Version zero explicitly means that provenance is unavailable.
+    uint64_t read_version = 0;
+    uint64_t write_version = 0;
 };
 
 bool SameResourceIdentity(const ResourceIdentity &lhs,
@@ -127,6 +142,12 @@ struct DrawSegmentSummary {
     CaptureDigest transform_digest{};
     CaptureDigest skinning_digest{};
     Bounds3 bounds;
+    CaptureDigest bounds_space_digest{}; // Compare bounds only in one space.
+    // Noncontiguous islands must retain exact primitive selection, not a span.
+    std::vector<uint32_t> primitive_indices;
+    // User-confirmed or engine-proven membership, local to scope/epoch/frame.
+    // Hash/transform/connectivity heuristics MUST leave this zero.
+    uint64_t confirmed_object_id = 0;
 };
 
 enum class CaptureCompleteness : uint8_t {
@@ -139,9 +160,12 @@ enum class CaptureCompleteness : uint8_t {
 
 // Metadata first: this structure can describe a draw before any large resource
 // copy occurs. Owned snapshots and replay packets may be attached later.
+enum class DrawDomain : uint8_t { Unknown, Geometry, ScreenSpace };
+
 struct DrawCaptureSummary {
     DrawEventKey key;
     ShaderScope scope;
+    DrawDomain domain = DrawDomain::Unknown;
     std::array<ShaderKey, kCapturedShaderSlots> shaders{};
     uint8_t shader_count = 0;
     uint32_t primitive_mode = 0;
@@ -154,6 +178,16 @@ struct DrawCaptureSummary {
     bool segmentation_complete = false;
     bool batched_geometry_suspected = false;
 };
+
+enum class CaptureAnalysisAdmission : uint8_t {
+    Accepted, InvalidInput, LimitExceeded,
+};
+CaptureAnalysisAdmission CheckCaptureAnalysisInput(
+    const std::vector<DrawCaptureSummary> &draws);
+bool SameCaptureContext(const DrawCaptureSummary &lhs,
+                        const DrawCaptureSummary &rhs);
+bool IsObjectGeometry(const DrawCaptureSummary &draw,
+                      const DrawSegmentSummary &segment);
 
 bool DrawUsesShader(const DrawCaptureSummary &draw, const ShaderKey &shader);
 std::vector<size_t> FindDrawsUsingShader(
@@ -178,12 +212,14 @@ enum ObjectEvidence : uint32_t {
     ObjectEvidenceOverlappingBounds = 1U << 10,
     ObjectEvidenceSharedTextureResource = 1U << 11,
     ObjectEvidenceSameDestination = 1U << 12,
+    ObjectEvidenceConfirmedMembership = 1U << 13,
+    ObjectEvidenceDifferentObject = 1U << 14,
 };
 
 enum class ObjectLinkClass : uint8_t {
     None,
     SharedResourceOnly,
-    SameObjectPass,
+    SameObjectPass, // Inferred repeat/pass candidate, NOT confirmed ownership.
     SameObjectCandidate,
     AttachedPartCandidate,
     Ambiguous,
@@ -209,13 +245,16 @@ struct ObjectCandidateEdge {
 
 struct ObjectCandidate {
     uint32_t candidate_id = 0;
+    bool membership_confirmed = false;
     std::vector<DrawSegmentKey> segments;
 };
 
-// Automatic groups contain only strong same-pass matches. Suggestions require
-// confirmation or stronger capture evidence. Resource-only edges describe what
-// the selected shader touched without claiming those draws are one object.
+// Only matching explicit confirmed_object_id values can consolidate segments.
+// Suggestions and resource sharing never imply object membership.
 struct ObjectGroupingResult {
+    bool invalid_input = false;
+    bool limit_exceeded = false;
+    std::vector<DrawSegmentKey> unresolved_segments;
     std::vector<ObjectCandidate> groups;
     std::vector<ObjectCandidateEdge> suggestions;
     std::vector<ObjectCandidateEdge> resource_only;
@@ -234,6 +273,7 @@ struct PrimitiveIsland {
 // object ownership: one object may have disconnected parts, and batching may
 // combine several objects into one draw.
 struct PrimitiveSegmentation {
+    bool limit_exceeded = false;
     std::vector<PrimitiveIsland> islands;
     std::vector<uint32_t> degenerate_primitives;
     uint32_t trailing_index_count = 0;
@@ -242,10 +282,48 @@ struct PrimitiveSegmentation {
 PrimitiveSegmentation SegmentTriangleList(
     const std::vector<uint32_t> &indices);
 
-// Starting from a shader, retain every exact seed draw, the strong object/pass
-// groups that contain those draws, nearby candidates, and shared-resource
-// edges.
+// A version edge is a possible data dependency, not proof of pixel influence.
+struct ResourceDependency {
+    DrawEventKey producer;
+    DrawEventKey consumer;
+    uint32_t producer_touch = 0;
+    uint32_t consumer_touch = 0;
+    uint64_t storage_id = 0;
+    uint64_t version = 0;
+    AddressRange overlap;
+};
+
+enum class DependencyGap : uint8_t {
+    UnknownVersion, InvalidRange, MissingProducer, PartialCoverage,
+    AmbiguousProducer,
+};
+struct UnresolvedResourceRead {
+    DrawEventKey consumer;
+    uint32_t touch = 0;
+    DependencyGap reason = DependencyGap::MissingProducer;
+};
+struct ResourceDependencyGraph {
+    bool invalid_input = false;
+    bool limit_exceeded = false;
+    std::vector<ResourceDependency> edges;
+    std::vector<UnresolvedResourceRead> unresolved_reads;
+};
+ResourceDependencyGraph BuildResourceDependencies(
+    const std::vector<DrawCaptureSummary> &draws);
+std::vector<DrawEventKey> TraceResourceInputs(
+    const ResourceDependencyGraph &graph, const std::vector<DrawEventKey> &seeds);
+std::vector<DrawEventKey> TraceResourceInfluence(
+    const ResourceDependencyGraph &graph, const std::vector<DrawEventKey> &seeds);
+
+// Shader seeds, inferred/confirmed geometry, and downstream influence remain
+// independent. Never expand an object group along a resource dependency.
 struct ShaderObjectTrace {
+    bool invalid_input = false;
+    bool limit_exceeded = false;
+    std::vector<DrawSegmentKey> unresolved_segments;
+    ResourceDependencyGraph dependencies;
+    std::vector<DrawEventKey> potentially_affected_draws;
+    std::vector<DrawEventKey> required_producer_draws;
     ShaderKey shader;
     std::vector<DrawEventKey> seed_draws;
     std::vector<ObjectCandidate> object_candidates;

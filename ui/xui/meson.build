@@ -422,3 +422,21 @@ shader_browser_preview_lifecycle_test = executable(
         'shader-browser-preview-service-work.cc', 'shader-browser-preview-service-slots.cc'),
   include_directories: shader_browser_test_inc,
   dependencies: shader_browser_preview_lifecycle_deps)
+
+
+# Renderer-independent capture analysis; no PGRAPH hooks or live capture yet.
+shader_browser_capture_sources = files(
+  'shader-browser-draw-capture.cc',
+  'shader-browser-draw-segmentation.cc',
+  'shader-browser-object-relationship.cc',
+  'shader-browser-object-grouping.cc',
+  'shader-browser-resource-dependencies.cc',
+)
+xemu_ss.add(shader_browser_capture_sources)
+shader_browser_capture_test = executable(
+  'test-xemu-shader-browser-draw-capture',
+  shader_browser_test_dir / 'test-xemu-shader-browser-draw-capture.cc',
+  shader_browser_capture_sources,
+  include_directories: shader_browser_test_inc)
+test('test-xemu-shader-browser-draw-capture', shader_browser_capture_test,
+     suite: ['unit'])

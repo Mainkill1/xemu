@@ -3,13 +3,6 @@
 #include <cassert>
 #include <iostream>
 
-#define XEMU_SHADER_DRAW_CAPTURE_EMBEDDED_TEST
-#include "../../ui/xui/shader-browser-draw-capture.cc"
-#include "../../ui/xui/shader-browser-draw-segmentation.cc"
-#include "../../ui/xui/shader-browser-object-relationship.cc"
-#include "../../ui/xui/shader-browser-object-grouping.cc"
-#include "test-xemu-shader-browser-draw-capture.cc"
-
 using namespace xemu::shader_browser;
 
 int main()
@@ -110,7 +103,6 @@ int main()
     assert(same == entry.key);
     assert(ShaderKeyHash{}(same) == ShaderKeyHash{}(entry.key));
 
-    RunShaderDrawObjectCaptureTests();
     std::cout << "shader browser model tests passed\n";
     return 0;
 }

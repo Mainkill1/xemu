@@ -1,202 +1,365 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
 #include "../../ui/xui/shader-browser-draw-capture.hh"
 
 #include <algorithm>
-#include <cassert>
+#include <cstdlib>
 #include <iostream>
+#include <iterator>
+#include <limits>
 
 using namespace xemu::shader_browser;
 
+#define CHECK(expression) do { \
+    if (!(expression)) { \
+        std::cerr << __func__ << ':' << __LINE__ << ": " #expression "\n"; \
+        std::exit(1); \
+    } \
+} while (false)
+
 static CaptureDigest Digest(uint8_t value)
 {
-    CaptureDigest result{};
-    result[0] = value;
-    return result;
+    CaptureDigest digest{};
+    digest[0] = value;
+    return digest;
 }
 
-static ShaderKey Shader(Stage stage, uint8_t value)
+static DrawCaptureSummary Draw(uint32_t id, uint8_t shader = 1)
 {
-    ShaderKey result{};
-    result.stage = stage;
-    result.hash.version = 1;
-    result.hash.bytes[0] = value;
-    return result;
-}
-
-static DrawCaptureSummary Draw(uint64_t frame, uint32_t draw,
-                               const ShaderKey &shader,
-                               uint8_t geometry, uint8_t transform)
-{
-    DrawCaptureSummary result{};
-    result.key.session_epoch = 1;
-    result.key.renderer_epoch = 2;
-    result.key.frame = frame;
-    result.key.draw = draw;
-    result.shader_count = 1;
-    result.shaders[0] = shader;
-    result.primitive_count = 4;
-    result.vertex_count = 8;
-    result.index_count = 12;
-
+    DrawCaptureSummary draw{};
+    draw.key = {1, 2, 3, id};
+    draw.scope.title_id = 0x12345678;
+    draw.domain = DrawDomain::Geometry;
+    draw.shader_count = 1;
+    draw.shaders[0].stage = Stage::Pixel;
+    draw.shaders[0].hash.bytes[0] = shader;
+    draw.primitive_count = 1;
+    draw.index_count = 3;
     DrawSegmentSummary segment{};
-    segment.key.draw = result.key;
-    segment.key.segment = 0;
-    segment.origin = DrawSegmentOrigin::WholeDraw;
-    segment.primitive_count = result.primitive_count;
-    segment.index_count = result.index_count;
-    segment.geometry_digest = Digest(geometry);
-    segment.transform_digest = Digest(transform);
-    result.segments.push_back(segment);
-    return result;
+    segment.key.draw = draw.key;
+    segment.geometry_digest = Digest(1);
+    segment.transform_digest = Digest(1);
+    segment.primitive_count = 1;
+    segment.index_count = 3;
+    draw.segments.push_back(segment);
+    return draw;
 }
 
-static ResourceTouch Resource(ResourceKind kind, uint32_t slot,
-                              uint64_t address, uint64_t length,
-                              uint8_t descriptor, uint8_t content)
+static ResourceTouch Touch(ResourceAccess access, uint64_t read_version,
+                           uint64_t write_version, uint64_t storage = 1)
 {
     ResourceTouch touch{};
-    touch.resource.kind = kind;
-    touch.resource.guest.address = address;
-    touch.resource.guest.length = length;
-    touch.resource.descriptor_digest = Digest(descriptor);
-    touch.resource.content_digest = Digest(content);
-    touch.slot = slot;
-    touch.access = ResourceAccess::Read;
+    touch.resource.kind = ResourceKind::Texture;
+    touch.resource.guest = {0x1000, 256};
+    touch.resource.storage_id = storage;
+    touch.resource.storage_range = {0, 256};
+    touch.access = access;
+    touch.read_version = read_version;
+    touch.write_version = write_version;
     return touch;
 }
 
-void RunShaderDrawObjectCaptureTests()
+static ObjectRelationship Relation(const DrawCaptureSummary &a,
+                                   const DrawCaptureSummary &b)
 {
-    const ShaderKey selected = Shader(Stage::Pixel, 0x31);
-    const ShaderKey other = Shader(Stage::Pixel, 0x32);
-
-    DrawCaptureSummary first = Draw(100, 10, selected, 1, 1);
-    DrawCaptureSummary second = Draw(100, 20, selected, 2, 2);
-    assert(DrawUsesShader(first, selected));
-    assert(!DrawUsesShader(first, other));
-
-    std::vector<DrawCaptureSummary> two_objects = { first, second };
-    auto matching = FindDrawsUsingShader(two_objects, selected);
-    assert(matching.size() == 2);
-    ObjectGroupingResult separate = BuildObjectCandidates(two_objects);
-    assert(separate.groups.size() == 2);
-    assert(separate.suggestions.empty());
-    assert(separate.resource_only.empty());
-
-    ShaderObjectTrace trace = TraceShaderObjectUsage(two_objects, selected);
-    assert(trace.seed_draws.size() == 2);
-    assert(trace.object_candidates.size() == 2);
-
-    DrawCaptureSummary replay = Draw(100, 11, other, 1, 1);
-    ObjectRelationship same_pass = AnalyzeObjectRelationship(
-        first.segments[0], first, replay.segments[0], replay);
-    assert(same_pass.classification == ObjectLinkClass::SameObjectPass);
-    assert(same_pass.automatic_group);
-
-    ObjectGroupingResult grouped = BuildObjectCandidates({ first, replay });
-    assert(grouped.groups.size() == 1);
-    assert(grouped.groups[0].segments.size() == 2);
-
-    DrawCaptureSummary reused = Draw(100, 12, other, 3, 3);
-    first.resources.push_back(Resource(ResourceKind::VertexStream, 0,
-                                       0x1000, 0x200, 1, 9));
-    reused.resources.push_back(Resource(ResourceKind::VertexStream, 0,
-                                        0x1000, 0x200, 1, 9));
-    ObjectRelationship shared_only = AnalyzeObjectRelationship(
-        first.segments[0], first, reused.segments[0], reused);
-    assert(shared_only.classification == ObjectLinkClass::SharedResourceOnly);
-    assert(shared_only.blocked);
-    assert(!shared_only.automatic_group);
-
-    DrawCaptureSummary attachment = Draw(100, 11, other, 4, 1);
-    first.segments[0].bounds = Bounds3::FromMinMax({ -1, -1, -1 },
-                                                   { 1, 1, 1 });
-    attachment.segments[0].bounds = Bounds3::FromMinMax({ 0, 0, 0 },
-                                                        { 2, 2, 2 });
-    ObjectRelationship attached = AnalyzeObjectRelationship(
-        first.segments[0], first, attachment.segments[0], attachment);
-    assert(attached.classification == ObjectLinkClass::AttachedPartCandidate);
-    assert(!attached.automatic_group);
-    ObjectGroupingResult attachment_result =
-        BuildObjectCandidates({ first, attachment });
-    assert(attachment_result.groups.size() == 2);
-    assert(attachment_result.suggestions.size() == 1);
-
-    DrawCaptureSummary batched = Draw(200, 1, selected, 8, 8);
-    batched.segments.clear();
-    DrawSegmentSummary island_a{};
-    island_a.key.draw = batched.key;
-    island_a.key.segment = 0;
-    island_a.origin = DrawSegmentOrigin::ConnectedIndexComponent;
-    island_a.geometry_digest = Digest(8);
-    island_a.transform_digest = Digest(8);
-    DrawSegmentSummary island_b = island_a;
-    island_b.key.segment = 1;
-    island_b.geometry_digest = Digest(9);
-    batched.segments = { island_a, island_b };
-    ObjectGroupingResult batched_result = BuildObjectCandidates({ batched });
-    assert(batched_result.groups.size() == 2);
-
-    DrawCaptureSummary unsegmented = Draw(201, 1, selected, 0, 0);
-    unsegmented.segments.clear();
-    auto effective = EffectiveDrawSegments(unsegmented);
-    assert(effective.size() == 1);
-    assert(effective[0].origin == DrawSegmentOrigin::WholeDraw);
-    assert(effective[0].key.draw == unsegmented.key);
-
-    PrimitiveSegmentation islands = SegmentTriangleList(
-        { 0, 1, 2, 2, 3, 0, 10, 11, 12 });
-    assert(islands.trailing_index_count == 0);
-    assert(islands.degenerate_primitives.empty());
-    assert(islands.islands.size() == 2);
-    assert(islands.islands[0].primitive_indices.size() == 2);
-    assert(islands.islands[1].primitive_indices.size() == 1);
-
-    PrimitiveSegmentation with_separator = SegmentTriangleList(
-        { 0, 1, 2, 2, 2, 3, 10, 11, 12, 99 });
-    assert(with_separator.islands.size() == 2);
-    assert(with_separator.degenerate_primitives.size() == 1);
-    assert(with_separator.degenerate_primitives[0] == 1);
-    assert(with_separator.trailing_index_count == 1);
-
-    ResourceIdentity same_address_a =
-        Resource(ResourceKind::Texture, 0, 0x3000, 0x100, 4, 1).resource;
-    ResourceIdentity same_address_b = same_address_a;
-    same_address_b.content_digest = Digest(2);
-    assert(!SameResourceIdentity(same_address_a, same_address_b));
-    ResourceIdentity copied_bytes = same_address_a;
-    copied_bytes.guest.address = 0x4000;
-    assert(!SameResourceIdentity(same_address_a, copied_bytes));
-
-    DrawCaptureSummary shared_transform_a = Draw(300, 1, selected, 20, 7);
-    DrawCaptureSummary shared_transform_b = Draw(300, 2, other, 21, 7);
-    shared_transform_a.resources.push_back(Resource(
-        ResourceKind::VertexStream, 0, 0x5000, 0x200, 8, 8));
-    shared_transform_b.resources.push_back(Resource(
-        ResourceKind::VertexStream, 0, 0x5000, 0x200, 8, 8));
-    ObjectRelationship cautious_candidate = AnalyzeObjectRelationship(
-        shared_transform_a.segments[0], shared_transform_a,
-        shared_transform_b.segments[0], shared_transform_b);
-    assert(cautious_candidate.classification ==
-           ObjectLinkClass::SameObjectCandidate);
-    assert(!cautious_candidate.automatic_group);
-    assert(BuildObjectCandidates({ shared_transform_a, shared_transform_b })
-               .groups.size() == 2);
-
-    std::vector<DrawCaptureSummary> expanded = { first, replay, attachment,
-                                                 second };
-    ShaderObjectTrace expanded_trace =
-        TraceShaderObjectUsage(expanded, selected);
-    assert(expanded_trace.seed_draws.size() == 2);
-    assert(expanded_trace.object_candidates.size() == 2);
-    assert(!expanded_trace.related_suggestions.empty());
-
-    std::cout << "shader draw/object capture model tests passed\n";
+    return AnalyzeObjectRelationship(a.segments[0], a, b.segments[0], b);
 }
 
-#ifndef XEMU_SHADER_DRAW_CAPTURE_EMBEDDED_TEST
+static void TestShaderSeeds()
+{
+    auto a = Draw(1), b = Draw(2), c = Draw(3, 2);
+    CHECK(FindDrawsUsingShader({a, b, c}, a.shaders[0]).size() == 2);
+    const auto trace = TraceShaderObjectUsage({a, b, c}, a.shaders[0]);
+    CHECK(trace.seed_draws.size() == 2);
+    CHECK(trace.object_candidates.size() == 2);
+}
+
+static void TestInferenceIsNotMembership()
+{
+    auto a = Draw(1), b = Draw(2);
+    CHECK(Relation(a, b).classification == ObjectLinkClass::SameObjectPass);
+    CHECK(!Relation(a, b).automatic_group);
+    CHECK(BuildObjectCandidates({a, b}).groups.size() == 2);
+    b.segments[0].transform_digest = {};
+    a.segments[0].skinning_digest = b.segments[0].skinning_digest = Digest(3);
+    CHECK(!Relation(a, b).automatic_group);
+}
+
+static void TestScopeIsolation()
+{
+    auto a = Draw(1), original = Draw(2);
+    a.segments[0].confirmed_object_id = 7;
+    original.segments[0].confirmed_object_id = 7;
+    for (unsigned variant = 0; variant < 6; ++variant) {
+        auto b = original;
+        switch (variant) {
+        case 0: ++b.key.session_epoch; break;
+        case 1: ++b.key.renderer_epoch; break;
+        case 2: ++b.key.frame; break;
+        case 3: ++b.scope.title_id; break;
+        case 4: ++b.scope.executable_fingerprint_version; break;
+        case 5: ++b.scope.executable_fingerprint[0]; break;
+        }
+        b.segments[0].key.draw = b.key;
+        CHECK(!Relation(a, b).automatic_group);
+        CHECK(BuildObjectCandidates({a, b}).groups.size() == 2);
+    }
+}
+
+static void TestConfirmedPartsAndInstances()
+{
+    auto a = Draw(1), b = Draw(2, 2), c = Draw(3);
+    a.segments[0].confirmed_object_id = b.segments[0].confirmed_object_id = 4;
+    b.segments[0].transform_digest = Digest(8); // Other pass/camera.
+    c.segments[0].confirmed_object_id = 5; // Same mesh, different instance.
+    CHECK(Relation(a, b).automatic_group);
+    CHECK(Relation(a, c).blocked);
+    const auto result = BuildObjectCandidates({c, b, a});
+    CHECK(result.groups.size() == 2);
+    CHECK(result.groups[0].segments.size() == 2);
+    CHECK(result.groups[0].membership_confirmed);
+    CHECK(TraceShaderObjectUsage({a, b, c}, a.shaders[0])
+              .object_candidates.size() == 2);
+}
+
+static void TestBatchedAndScreenSpace()
+{
+    auto batch = Draw(1);
+    batch.batched_geometry_suspected = true;
+    CHECK(BuildObjectCandidates({batch}).groups.empty());
+    CHECK(BuildObjectCandidates({batch}).unresolved_segments.size() == 1);
+    batch.segments[0].origin = DrawSegmentOrigin::ConnectedIndexComponent;
+    auto second = batch.segments[0];
+    second.key.segment = 1;
+    batch.segments.push_back(second);
+    CHECK(BuildObjectCandidates({batch}).groups.size() == 2);
+    auto screen = Draw(2);
+    screen.domain = DrawDomain::ScreenSpace;
+    screen.segments[0].confirmed_object_id = 4;
+    CHECK(BuildObjectCandidates({screen}).groups.empty());
+    CHECK(TraceShaderObjectUsage({screen}, screen.shaders[0])
+              .unresolved_segments.size() == 1);
+}
+
+static void TestSharedResourcesAreNotOwners()
+{
+    auto a = Draw(1), b = Draw(2);
+    a.resources.push_back(Touch(ResourceAccess::Read, 1, 0));
+    b.resources = a.resources;
+    a.segments[0].geometry_digest = Digest(1);
+    b.segments[0].geometry_digest = Digest(2);
+    a.segments[0].transform_digest = Digest(1);
+    b.segments[0].transform_digest = Digest(2);
+    CHECK(Relation(a, b).classification == ObjectLinkClass::SharedResourceOnly);
+    CHECK(!Relation(a, b).automatic_group);
+    CHECK(BuildResourceDependencies({a, b}).edges.empty());
+}
+
+static void TestSegmentation()
+{
+    auto split = SegmentTriangleList({0, 1, 2, 10, 11, 12, 2, 3, 0, 4, 4, 5, 99});
+    CHECK(split.islands.size() == 2);
+    CHECK(split.islands[0].primitive_indices == std::vector<uint32_t>({0, 2}));
+    CHECK(split.islands[1].primitive_indices == std::vector<uint32_t>({1}));
+    CHECK(split.degenerate_primitives == std::vector<uint32_t>({3}));
+    CHECK(split.trailing_index_count == 1);
+    CHECK(SegmentTriangleList({}).islands.empty());
+    CHECK(SegmentTriangleList({1, 1, 1}).islands.empty());
+}
+
+static void TestResourceVersionsAndViews()
+{
+    auto a = Draw(1), b = Draw(2, 2);
+    a.resources.push_back(Touch(ResourceAccess::Write, 0, 1));
+    a.resources[0].resource.kind = ResourceKind::ColorTarget;
+    b.resources.push_back(Touch(ResourceAccess::Read, 1, 0));
+    b.resources[0].resource.guest.address = 0x8000; // A resolved alias/view.
+    auto graph = BuildResourceDependencies({b, a});
+    CHECK(graph.edges.size() == 1);
+    CHECK(graph.unresolved_reads.empty());
+    CHECK(graph.edges[0].producer == a.key);
+    CHECK(graph.edges[0].consumer == b.key);
+    b.resources[0].resource.storage_id = 2;
+    graph = BuildResourceDependencies({a, b});
+    CHECK(graph.edges.empty());
+    CHECK(graph.unresolved_reads.size() == 1);
+    b.resources[0].resource.storage_id = 1;
+    b.resources[0].read_version = 2;
+    CHECK(BuildResourceDependencies({a, b}).edges.empty());
+}
+
+static void TestReadWriteAndTransitiveInfluence()
+{
+    auto a = Draw(1), b = Draw(2, 2), c = Draw(3, 2), unrelated = Draw(4, 2);
+    a.resources.push_back(Touch(ResourceAccess::Write, 0, 1));
+    b.resources.push_back(Touch(ResourceAccess::ReadWrite, 1, 2));
+    c.resources.push_back(Touch(ResourceAccess::Read, 2, 0));
+    unrelated.resources.push_back(Touch(ResourceAccess::Read, 8, 0, 5));
+    auto graph = BuildResourceDependencies({c, unrelated, b, a});
+    CHECK(graph.edges.size() == 2);
+    const auto reached = TraceResourceInfluence(graph, {a.key});
+    CHECK(reached == std::vector<DrawEventKey>({b.key, c.key}));
+    const auto trace = TraceShaderObjectUsage({c, unrelated, b, a}, a.shaders[0]);
+    CHECK(trace.object_candidates.size() == 1);
+    CHECK(trace.potentially_affected_draws == reached);
+    CHECK(trace.dependencies.unresolved_reads.size() == 1);
+}
+
+static void TestDependencyIsolationAndOrdering()
+{
+    auto a = Draw(1), b = Draw(2);
+    a.resources.push_back(Touch(ResourceAccess::Write, 0, 1));
+    b.resources.push_back(Touch(ResourceAccess::Read, 1, 0));
+    b.key.session_epoch++;
+    b.segments[0].key.draw = b.key;
+    CHECK(BuildResourceDependencies({a, b}).edges.empty());
+    b.key = {1, 2, 3, 0};
+    b.segments[0].key.draw = b.key;
+    CHECK(BuildResourceDependencies({a, b}).edges.empty());
+    b.key = {1, 2, 4, 0}; // Explicit version may persist across frames.
+    b.segments[0].key.draw = b.key;
+    CHECK(BuildResourceDependencies({b, a}).edges.size() == 1);
+    b.scope.title_id++;
+    CHECK(BuildResourceDependencies({a, b}).edges.empty());
+}
+
+static void TestUnresolvedAndInvalidRanges()
+{
+    auto a = Draw(1), b = Draw(2);
+    a.resources.push_back(Touch(ResourceAccess::Write, 0, 1));
+    b.resources.push_back(Touch(ResourceAccess::Read, 0, 0));
+    auto graph = BuildResourceDependencies({a, b});
+    CHECK(graph.edges.empty());
+    CHECK(graph.unresolved_reads.size() == 1);
+    b.resources[0].read_version = 1;
+    b.resources[0].resource.storage_range = {256, 1};
+    CHECK(BuildResourceDependencies({a, b}).edges.empty());
+    b.resources[0].resource.storage_range = {128, 256}; // Only half covered.
+    graph = BuildResourceDependencies({a, b});
+    CHECK(graph.edges.size() == 1);
+    CHECK(graph.unresolved_reads.size() == 1);
+    b.resources[0].resource.storage_range = {std::numeric_limits<uint64_t>::max(), 2};
+    CHECK(BuildResourceDependencies({a, b}).edges.empty());
+    b.resources[0].access = ResourceAccess::BindOnly;
+    CHECK(BuildResourceDependencies({a, b}).unresolved_reads.empty());
+}
+
+static void TestDuplicateKeysAndLimits()
+{
+    auto a = Draw(1);
+    CHECK(BuildObjectCandidates({a, a}).invalid_input);
+    CHECK(BuildResourceDependencies({a, a}).invalid_input);
+    std::vector<DrawCaptureSummary> too_many(kCaptureMaxAnalysisDraws + 1, a);
+    CHECK(BuildObjectCandidates(too_many).limit_exceeded);
+    CHECK(BuildResourceDependencies(too_many).limit_exceeded);
+}
+
+static void TestAmbiguousAndFragmentedProvenance()
+{
+    auto a = Draw(1), b = Draw(2), c = Draw(3);
+    a.resources.push_back(Touch(ResourceAccess::Write, 0, 1));
+    b.resources = a.resources;
+    c.resources.push_back(Touch(ResourceAccess::Read, 1, 0));
+    auto graph = BuildResourceDependencies({a, b, c});
+    CHECK(graph.edges.empty());
+    CHECK(graph.unresolved_reads.size() == 1);
+    CHECK(graph.unresolved_reads[0].reason == DependencyGap::AmbiguousProducer);
+    a.resources[0].resource.storage_range = {0, 128};
+    b.resources[0].resource.storage_range = {128, 128};
+    graph = BuildResourceDependencies({a, b, c});
+    CHECK(graph.edges.size() == 2);
+    CHECK(graph.unresolved_reads.empty());
+}
+
+static void TestMultipleObjectsAndDownstreamComposite()
+{
+    auto batch = Draw(1), composite = Draw(2, 2);
+    batch.batched_geometry_suspected = true;
+    batch.segments[0].origin = DrawSegmentOrigin::UserDefined;
+    batch.segments[0].confirmed_object_id = 7;
+    auto second = batch.segments[0];
+    second.key.segment = 1;
+    second.confirmed_object_id = 8;
+    batch.segments.push_back(second);
+    batch.resources.push_back(Touch(ResourceAccess::Write, 0, 1));
+    composite.domain = DrawDomain::ScreenSpace;
+    composite.resources.push_back(Touch(ResourceAccess::Read, 1, 0));
+    const auto trace = TraceShaderObjectUsage({batch, composite}, batch.shaders[0]);
+    CHECK(trace.seed_draws.size() == 1);
+    CHECK(trace.object_candidates.size() == 2);
+    CHECK(trace.potentially_affected_draws ==
+          std::vector<DrawEventKey>({composite.key}));
+}
+
+static void TestReferenceIdentityAndBoundsSpace()
+{
+    auto a = Touch(ResourceAccess::Read, 1, 0).resource;
+    a.descriptor_digest = Digest(1);
+    a.content_digest = Digest(1);
+    auto b = a;
+    b.content_digest = Digest(2);
+    CHECK(!SameResourceIdentity(a, b));
+    b = a;
+    b.storage_id++;
+    CHECK(!SameResourceIdentity(a, b));
+    b = a;
+    b.guest.address++;
+    CHECK(!SameResourceIdentity(a, b));
+    ResourceIdentity empty{};
+    empty.descriptor_digest = Digest(1);
+    CHECK(!SameResourceIdentity(empty, empty));
+    auto x = Draw(1), y = Draw(5);
+    x.segments[0].bounds = y.segments[0].bounds =
+        Bounds3::FromMinMax({0, 0, 0}, {1, 1, 1});
+    x.segments[0].bounds_space_digest = Digest(1);
+    y.segments[0].bounds_space_digest = Digest(2);
+    CHECK(!(Relation(x, y).evidence & ObjectEvidenceOverlappingBounds));
+}
+
+static void TestValidationAndSegmentationLimit()
+{
+    auto draw = Draw(1);
+    draw.segments.push_back(draw.segments[0]);
+    CHECK(BuildObjectCandidates({draw}).invalid_input);
+    draw = Draw(1);
+    draw.resources.push_back(Touch(ResourceAccess::ReadWrite, 1, 1));
+    CHECK(BuildResourceDependencies({draw}).invalid_input);
+    const std::vector<uint32_t> oversized(kCaptureMaxSegmentationIndices + 1, 0);
+    CHECK(SegmentTriangleList(oversized).limit_exceeded);
+}
+
+static void TestUpstreamInputsRemainSeparate()
+{
+    auto caster = Draw(1, 1), receiver = Draw(2, 2), composite = Draw(3, 3);
+    caster.resources.push_back(Touch(ResourceAccess::Write, 0, 1));
+    receiver.resources.push_back(Touch(ResourceAccess::ReadWrite, 1, 2));
+    composite.resources.push_back(Touch(ResourceAccess::Read, 2, 0));
+    composite.domain = DrawDomain::ScreenSpace;
+    const auto trace = TraceShaderObjectUsage({caster, receiver, composite},
+                                             receiver.shaders[0]);
+    CHECK(trace.required_producer_draws == std::vector<DrawEventKey>({caster.key}));
+    CHECK(trace.potentially_affected_draws ==
+          std::vector<DrawEventKey>({composite.key}));
+    CHECK(trace.object_candidates.size() == 1);
+    CHECK(TraceResourceInputs(trace.dependencies, {composite.key}) ==
+          std::vector<DrawEventKey>({caster.key, receiver.key}));
+}
+
 int main()
 {
-    RunShaderDrawObjectCaptureTests();
-    return 0;
+    void (*tests[])() = {
+        TestShaderSeeds, TestInferenceIsNotMembership, TestScopeIsolation,
+        TestConfirmedPartsAndInstances, TestBatchedAndScreenSpace,
+        TestSharedResourcesAreNotOwners, TestSegmentation,
+        TestResourceVersionsAndViews, TestReadWriteAndTransitiveInfluence,
+        TestDependencyIsolationAndOrdering, TestUnresolvedAndInvalidRanges,
+        TestDuplicateKeysAndLimits, TestAmbiguousAndFragmentedProvenance,
+        TestMultipleObjectsAndDownstreamComposite,
+        TestReferenceIdentityAndBoundsSpace, TestValidationAndSegmentationLimit,
+        TestUpstreamInputsRemainSeparate,
+    };
+    for (auto test : tests) {
+        test();
+    }
+    std::cout << "shader draw/object capture: " << std::size(tests)
+              << " cases passed\n";
 }
-#endif
