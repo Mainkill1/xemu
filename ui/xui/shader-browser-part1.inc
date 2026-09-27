@@ -253,6 +253,8 @@ void ShaderBrowserWindow::Draw()
 
     ImVec2 available = ImGui::GetContentRegionAvail();
     const bool external_workbench = xemu_hud_shader_browser_external();
+    const bool compact_catalog = external_workbench &&
+        available.x <= 920.0f * scale;
     static float external_catalog_width = 300.0f;
     const float catalog_max = std::max(220.0f,
         std::min(314.0f, available.x / scale - 460.0f));
@@ -262,12 +264,36 @@ void ShaderBrowserWindow::Draw()
         external_catalog_width * scale :
         std::clamp(available.x * 0.48f, 320.0f * scale,
                    std::max(320.0f * scale, available.x - 330.0f * scale));
-    if (ImGui::BeginChild("##shader-selector", ImVec2(left_width, 0), true)) {
-        DrawSelector();
+    if (compact_catalog) {
+        const Entry *selected = SelectedEntry();
+        const std::string label = selected ?
+            "Shaders  /  " + ShortDisplayId(*selected,
+                m_snapshot.current_title_id) + "##catalog-toggle" :
+            "Shaders  /  Select a shader##catalog-toggle";
+        if (ImGui::Button(label.c_str()))
+            ImGui::OpenPopup("##shader-catalog-overlay");
+        const ImVec2 toggle_min = ImGui::GetItemRectMin();
+        const ImVec2 toggle_max = ImGui::GetItemRectMax();
+        ImGui::SetNextWindowPos(ImVec2(toggle_min.x, toggle_max.y),
+                                ImGuiCond_Appearing);
+        ImGui::SetNextWindowSize(ImVec2(
+            std::min(340.0f * scale, available.x),
+            std::min(600.0f * scale,
+                std::max(240.0f * scale,
+                         available.y - (toggle_max.y - toggle_min.y)))),
+            ImGuiCond_Appearing);
+        if (ImGui::BeginPopup("##shader-catalog-overlay")) {
+            DrawSelector();
+            ImGui::EndPopup();
+        }
+    } else {
+        if (ImGui::BeginChild("##shader-selector", ImVec2(left_width, 0), true)) {
+            DrawSelector();
+        }
+        ImGui::EndChild();
     }
-    ImGui::EndChild();
 
-    if (external_workbench) {
+    if (!compact_catalog && external_workbench) {
         ImGui::SameLine(0.0f, 0.0f);
         ImGui::InvisibleButton("##shader-catalog-resize",
                                ImVec2(7.0f * scale, available.y));
@@ -283,7 +309,7 @@ void ShaderBrowserWindow::Draw()
                 external_catalog_width + ImGui::GetIO().MouseDelta.x / scale,
                 std::min(220.0f, catalog_max), catalog_max);
         ImGui::SameLine(0.0f, 0.0f);
-    } else {
+    } else if (!compact_catalog) {
         ImGui::SameLine();
     }
     if (ImGui::BeginChild("##shader-content", ImVec2(0, 0), true)) {
