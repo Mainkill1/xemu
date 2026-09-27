@@ -121,6 +121,10 @@
 namespace {
 
 struct ShaderWorkbenchSession {
+    bool controls_open = false;
+    bool start_requested = false;
+    PreviewSelection start_selection;
+    std::string start_error;
     bool generated_cache_valid = false;
     bool has_generated = false;
     uint64_t generated_detail_generation = 0;
@@ -440,35 +444,31 @@ void ShaderBrowserWindow::DrawLivePreview()
         return true;
     };
 
-    const float control_width = std::clamp(
-        ImGui::GetContentRegionAvail().x * 0.34f,
-        220.0f * g_viewport_mgr.m_scale,
-        320.0f * g_viewport_mgr.m_scale);
-    ImGui::BeginChild("##workbench-controls", ImVec2(control_width, 0), true);
-
+    const ImVec2 pane_pos = ImGui::GetCursorPos();
+    const ImVec2 pane_size = ImGui::GetContentRegionAvail();
+    const float gap = ImGui::GetStyle().ItemSpacing.y;
+    const bool controls_visible = workbench.controls_open;
+    const bool editor_visible = workbench.dock.open;
+    const float header_height = 136.0f * g_viewport_mgr.m_scale;
+    const float editor_height = editor_visible ?
+        std::min(230.0f * g_viewport_mgr.m_scale,
+                 pane_size.y * 0.26f) : 0.0f;
+    const float controls_height = controls_visible ?
+        std::min(140.0f * g_viewport_mgr.m_scale,
+                 pane_size.y * 0.16f) : 0.0f;
+    const float top_height = std::max(1.0f, pane_size.y - editor_height -
+        controls_height - gap * (editor_visible + controls_visible));
+    // Process drawer edits before packet submission, then draw the scene above
+    // this lower drawer without keeping a permanent controls column.
+    if (controls_visible) {
+        ImGui::SetCursorPos(ImVec2(pane_pos.x, pane_pos.y + top_height + gap));
+        ImGui::BeginChild("##workbench-controls",
+                          ImVec2(pane_size.x, controls_height), true);
+    }
     bool enabled = status.enabled;
-    if (ImGui::Checkbox("Enable preview", &enabled)) {
-        service.SetEnabled(enabled);
-        m_preview_packet_attempted = false;
-    }
-    ImGui::SameLine();
-
     int mode = static_cast<int>(status.requested_mode);
-    ImGui::SetNextItemWidth(185.0f * g_viewport_mgr.m_scale);
-    if (ImGui::Combo("##preview-mode", &mode,
-                     "Normal\0Uber Shader\0Replacement Shader\0"
-                     "Visualize\0")) {
-        workbench.running_test.reset();
-        workbench.editing_test = false;
-        workbench.comparison_locked = false;
-        workbench.generated_cache_valid = false;
-        m_preview_packet_attempted = false;
-        service.SetRequestedMode(static_cast<PreviewMode>(mode));
-    }
-    ImGui::Checkbox("Editor dock", &workbench.dock.open);
-
     const bool visualize = mode == static_cast<int>(PreviewMode::Visualize);
-    if (visualize) {
+    if (controls_visible && visualize) {
         auto channel = static_cast<PreviewChannel>(m_preview_view_channel);
         if (ImGui::BeginCombo("Visualize channel",
                               PreviewChannelLabel(channel))) {
@@ -508,49 +508,56 @@ void ShaderBrowserWindow::DrawLivePreview()
         m_preview_render_state.alpha_test = canonical_alpha;
         m_preview_packet_attempted = false;
     }
-    if (workbench.comparison_locked) ImGui::BeginDisabled();
-    const WorkbenchSceneUiEdits scene_edits = DrawWorkbenchSceneControls(
-        &m_preview_scene, &m_preview_render_state,
-        generated_alpha);
-    if (workbench.comparison_locked) ImGui::EndDisabled();
-    if (scene_edits.scene) service.EditScene(m_preview_scene);
-    if (scene_edits.render_state) {
-        m_preview_alpha_reference = m_preview_render_state.alpha_reference;
-        m_preview_packet_attempted = false;
-    }
-
-    if (workbench.comparison_locked) ImGui::BeginDisabled();
-    int policy = static_cast<int>(m_preview_update_policy);
-    if (ImGui::Combo("Update policy", &policy, "On dirty\0Continuous\0")) {
-        m_preview_update_policy = static_cast<PreviewUpdatePolicy>(policy);
-        m_preview_packet_attempted = false;
-    }
-    if (m_preview_update_policy == PreviewUpdatePolicy::Continuous) {
-        ImGui::TextWrapped("Synthetic animation cycles vertex colors and UVs. "
-                           "It does not supply the game's time uniforms.");
-        if (ImGui::Button(status.clock.playing ? "Pause preview" : "Play preview")) {
-            service.EditClock(status.clock.playing ? PreviewClockAction::Pause :
-                              PreviewClockAction::Play, 0, now_ns);
+    if (controls_visible) {
+        if (workbench.comparison_locked) ImGui::BeginDisabled();
+        const WorkbenchSceneUiEdits scene_edits = DrawWorkbenchSceneControls(
+            &m_preview_scene, &m_preview_render_state, generated_alpha);
+        if (workbench.comparison_locked) ImGui::EndDisabled();
+        if (scene_edits.scene) service.EditScene(m_preview_scene);
+        if (scene_edits.render_state) {
+            m_preview_alpha_reference = m_preview_render_state.alpha_reference;
+            m_preview_packet_attempted = false;
         }
-        ImGui::SameLine();
-        if (ImGui::Button("Restart"))
-            service.EditClock(PreviewClockAction::Restart, 0, now_ns);
-        float time = static_cast<float>(status.clock.time_seconds);
-        if (ImGui::DragFloat("Time (seconds)", &time, 0.02f, 0.0f,
-                             status.clock.loop ? status.clock.loop_seconds : 1.0e9f))
-            service.EditClock(PreviewClockAction::Scrub, time, now_ns);
-        float speed = static_cast<float>(status.clock.speed);
-        if (ImGui::SliderFloat("Speed", &speed, 0.05f, 8.0f, "%.2fx"))
-            service.EditClock(PreviewClockAction::Speed, speed, now_ns);
-        bool loop = status.clock.loop;
-        if (ImGui::Checkbox("Loop", &loop))
-            service.EditClock(PreviewClockAction::Loop, loop, now_ns);
-        float length = static_cast<float>(status.clock.loop_seconds);
-        if (ImGui::DragFloat("Loop length (seconds)", &length, 0.1f, 0.1f, 3600.0f))
-            service.EditClock(PreviewClockAction::LoopLength, length, now_ns);
-        ImGui::Text("Clock sample: %llu", static_cast<unsigned long long>(status.clock.frame));
+
+        if (workbench.comparison_locked) ImGui::BeginDisabled();
+        int policy = static_cast<int>(m_preview_update_policy);
+        if (ImGui::Combo("Update policy", &policy, "On dirty\0Continuous\0")) {
+            m_preview_update_policy = static_cast<PreviewUpdatePolicy>(policy);
+            m_preview_packet_attempted = false;
+        }
+        if (m_preview_update_policy == PreviewUpdatePolicy::Continuous) {
+            ImGui::TextWrapped("Synthetic animation cycles vertex colors and UVs. "
+                               "It does not supply the game's time uniforms.");
+            if (ImGui::Button(status.clock.playing ?
+                              "Pause preview" : "Play preview")) {
+                service.EditClock(status.clock.playing ?
+                    PreviewClockAction::Pause : PreviewClockAction::Play,
+                    0, now_ns);
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Restart"))
+                service.EditClock(PreviewClockAction::Restart, 0, now_ns);
+            float time = static_cast<float>(status.clock.time_seconds);
+            if (ImGui::DragFloat("Time (seconds)", &time, 0.02f, 0.0f,
+                                 status.clock.loop ?
+                                     status.clock.loop_seconds : 1.0e9f))
+                service.EditClock(PreviewClockAction::Scrub, time, now_ns);
+            float speed = static_cast<float>(status.clock.speed);
+            if (ImGui::SliderFloat("Speed", &speed, 0.05f, 8.0f, "%.2fx"))
+                service.EditClock(PreviewClockAction::Speed, speed, now_ns);
+            bool loop = status.clock.loop;
+            if (ImGui::Checkbox("Loop", &loop))
+                service.EditClock(PreviewClockAction::Loop, loop, now_ns);
+            float length = static_cast<float>(status.clock.loop_seconds);
+            if (ImGui::DragFloat("Loop length (seconds)", &length,
+                                 0.1f, 0.1f, 3600.0f))
+                service.EditClock(PreviewClockAction::LoopLength,
+                                  length, now_ns);
+            ImGui::Text("Clock sample: %llu",
+                        static_cast<unsigned long long>(status.clock.frame));
+        }
+        if (workbench.comparison_locked) ImGui::EndDisabled();
     }
-    if (workbench.comparison_locked) ImGui::EndDisabled();
 
     auto fixture_changed = [this] {
         ++m_preview_input_revision;
@@ -574,9 +581,10 @@ void ShaderBrowserWindow::DrawLivePreview()
         m_preview_uv_offset = m_preview_fixture.uv_offset;
         m_preview_constant_color = m_preview_fixture.constant_color;
     };
-    if (workbench.comparison_locked) ImGui::BeginDisabled();
-    if (ImGui::CollapsingHeader("Fixture profile and inputs",
-                                ImGuiTreeNodeFlags_DefaultOpen)) {
+    if (controls_visible && workbench.comparison_locked)
+        ImGui::BeginDisabled();
+    if (controls_visible &&
+        ImGui::CollapsingHeader("Fixture profile and inputs")) {
         if (DrawWorkbenchBindingControls(&workbench.dock))
             fixture_changed();
         const char *names[] = {
@@ -632,7 +640,8 @@ void ShaderBrowserWindow::DrawLivePreview()
             "Preview-owned inputs only. Unused source inputs have no effect. "
             "Arrays, integer, shadow and storage textures are Unsupported.");
     }
-    if (ImGui::CollapsingHeader("Synthetic fixture colors")) {
+    if (controls_visible &&
+        ImGui::CollapsingHeader("Synthetic fixture colors")) {
         static const char *labels[] = {
             "Top left", "Top right", "Bottom left", "Bottom right"
         };
@@ -642,7 +651,8 @@ void ShaderBrowserWindow::DrawLivePreview()
             }
         }
     }
-    if (ImGui::CollapsingHeader("Synthetic texture and UV")) {
+    if (controls_visible &&
+        ImGui::CollapsingHeader("Synthetic texture and UV")) {
         static const char *texel_labels[] = {
             "Texture bottom left", "Texture bottom right",
             "Texture top left", "Texture top right"
@@ -666,7 +676,8 @@ void ShaderBrowserWindow::DrawLivePreview()
         if (ImGui::Checkbox("Repeat texture wrap",
                             &m_preview_repeat_wrap)) fixture_changed();
     }
-    if (ImGui::CollapsingHeader("Synthetic constants and alpha")) {
+    if (controls_visible &&
+        ImGui::CollapsingHeader("Synthetic constants and alpha")) {
         if (ImGui::ColorEdit4("Combiner constant",
                               m_preview_constant_color.data())) {
             fixture_changed();
@@ -676,7 +687,8 @@ void ShaderBrowserWindow::DrawLivePreview()
         }
         ImGui::TextDisabled("Alpha reference is set in Synthetic render state");
     }
-    if (workbench.comparison_locked) ImGui::EndDisabled();
+    if (controls_visible && workbench.comparison_locked)
+        ImGui::EndDisabled();
 
     Entry imported_entry{};
     const Entry *entry = SelectedEntry();
@@ -784,10 +796,11 @@ void ShaderBrowserWindow::DrawLivePreview()
         }
         const bool draft_matches = WorkbenchDraftMatches(
             workbench.draft, selection);
-        if ((draft_matches &&
+        if (controls_visible &&
+            ((draft_matches &&
              (!workbench.running_test || workbench.editing_test)) ||
             (workbench.running_test && !workbench.editing_test &&
-             workbench.running_test->successful_compile)) {
+             workbench.running_test->successful_compile))) {
             if (workbench.comparison_locked) {
                 ImGui::TextDisabled(
                     "Original/Edited inputs locked at %.3f s",
@@ -798,7 +811,8 @@ void ShaderBrowserWindow::DrawLivePreview()
                 lock_comparison(selection, workbench.dock.variant);
             }
         }
-        if (workbench.applied_rule && !draft_matches) {
+        if (controls_visible && workbench.applied_rule &&
+            !draft_matches) {
             ImGui::TextDisabled("Workbench game rule remains active for %s",
                 PortableShaderHash(workbench.applied_rule->key.hash).c_str());
             if (ImGui::Button("Restore prior workbench rule")) {
@@ -812,7 +826,8 @@ void ShaderBrowserWindow::DrawLivePreview()
                 }
             }
         }
-        if (WorkbenchDraftMatches(workbench.draft, selection) &&
+        if (controls_visible &&
+            WorkbenchDraftMatches(workbench.draft, selection) &&
             workbench.dock.open) {
             ImGui::SeparatorText("Explicit game action");
             const DraftGameApplyRequest request = WorkbenchApplyRequest(
@@ -1170,6 +1185,39 @@ void ShaderBrowserWindow::DrawLivePreview()
         m_preview_packet_attempted = false;
     }
 
+    if (workbench.start_requested) {
+        PreviewStatus preparation{};
+        service.CopyStatus(&preparation);
+        if (!entry || selection != workbench.start_selection ||
+            !preparation.enabled) {
+            workbench.start_requested = false;
+            workbench.start_error =
+                "Selected shader changed before preparation";
+        } else if (!preparation.guest_paused && !offline_no_guest) {
+            workbench.start_requested = false;
+            workbench.start_error =
+                "Guest resumed before private preparation";
+        } else if (preparation.state == PreviewState::Failed ||
+                   preparation.state == PreviewState::Unsupported) {
+            workbench.start_requested = false;
+        } else if (preparation.prepared || preparation.work_active) {
+            workbench.start_requested = false;
+        } else if ((preparation.guest_paused || offline_no_guest) &&
+                   preparation.has_packet) {
+            std::string error;
+            if (service.RequestPreparation(&error)) {
+                workbench.start_requested = false;
+                if (!GetPreviewGlExecutor().StartWhilePaused(&error)) {
+                    m_action_message = error;
+                    workbench.start_error = error;
+                }
+            } else {
+                workbench.start_requested = false;
+                m_action_message = error;
+                workbench.start_error = error;
+            }
+        }
+    }
     if (service.RequestAutomaticPreparation(now_ns)) {
         std::string error;
         if (!GetPreviewGlExecutor().StartWhilePaused(&error)) {
@@ -1177,7 +1225,9 @@ void ShaderBrowserWindow::DrawLivePreview()
         }
     }
     service.CopyStatus(&status);
-    if (ImGui::CollapsingHeader("Synthetic test file")) {
+    if (status.prepared) workbench.start_error.clear();
+    if (controls_visible &&
+        ImGui::CollapsingHeader("Synthetic test file")) {
         const char *base_path = xemu_settings_get_base_path();
         const std::filesystem::path base = base_path ?
             std::filesystem::u8path(base_path) : std::filesystem::path();
@@ -1367,21 +1417,8 @@ void ShaderBrowserWindow::DrawLivePreview()
             }
         }
     }
-    ImGui::BeginDisabled(!status.has_packet ||
-                         !(status.guest_paused || offline_no_guest) ||
-                         status.work_active || status.prepared);
-    if (ImGui::Button(offline_no_guest ?
-                      "Prepare owned test" : "Prepare while paused")) {
-        std::string error;
-        if (!service.RequestPreparation(&error)) {
-            m_action_message = error;
-        } else if (!GetPreviewGlExecutor().StartWhilePaused(&error)) {
-            m_action_message = error;
-        }
-    }
-    ImGui::EndDisabled();
-
-    if (ImGui::BeginTable("##preview-status", 2,
+    if (controls_visible &&
+        ImGui::BeginTable("##preview-status", 2,
                           ImGuiTableFlags_BordersInnerV |
                           ImGuiTableFlags_SizingStretchProp)) {
         ImGui::TableSetupColumn("##name", ImGuiTableColumnFlags_WidthFixed,
@@ -1401,24 +1438,26 @@ void ShaderBrowserWindow::DrawLivePreview()
         ImGui::EndTable();
     }
 
-    if (status.has_attempt) {
+    if (controls_visible && status.has_attempt) {
         ImGui::TextWrapped("Attempted %s: %s",
             PreviewModeLabel(status.attempted_compile.selection.mode),
             PreviewSourceIdentity(status.attempted_compile).c_str());
     }
-    ImGui::TextWrapped("%s", status.message.c_str());
-    if (!m_preview_packet_message.empty()) {
+    if (controls_visible)
+        ImGui::TextWrapped("%s", status.message.c_str());
+    if (controls_visible && !m_preview_packet_message.empty()) {
         ImGui::TextWrapped("Preview inputs: %s",
                            m_preview_packet_message.c_str());
     }
-    if (entry && entry->key.stage != Stage::Pixel) {
+    if (controls_visible && entry &&
+        entry->key.stage != Stage::Pixel) {
         ImGui::TextWrapped(
             "Stage 4 v1 intentionally supports pixel/fragment shaders first. "
             "The selected %s row remains available for inspection.",
             StageLabel(entry->key.stage));
     }
 
-    if (ImGui::CollapsingHeader("Comparison")) {
+    if (controls_visible && ImGui::CollapsingHeader("Comparison")) {
         PreviewGlExecutor &executor = GetPreviewGlExecutor();
         ImGui::BeginDisabled(!executor.HasDisplayed());
         if (ImGui::Button("Freeze Reference")) {
@@ -1433,19 +1472,136 @@ void ShaderBrowserWindow::DrawLivePreview()
             ImGui::TextDisabled("Change mode or inputs to compare Current with Reference.");
         }
     }
-
+    if (controls_visible) ImGui::EndChild();
+    ImGui::SetCursorPos(pane_pos);
+    ImGui::BeginChild("##workbench-viewport",
+                      ImVec2(pane_size.x, top_height), false);
+    if (ImGui::BeginChild("##workbench-header",
+                          ImVec2(0.0f, header_height), true)) {
+        ImGui::Text("Selected: %s / %s",
+                    entry ? PortableShaderHash(entry->key.hash).c_str() :
+                            "none",
+                    entry ? StageLabel(entry->key.stage) : "none");
+        ImGui::SameLine();
+        ImGui::TextDisabled("Private synthetic test");
+        bool replacement_source_available = false;
+        if (!workbench.running_test && !workbench.has_generated &&
+            mode == static_cast<int>(PreviewMode::Replacement)) {
+            const OverrideBackend backend =
+                active_backend == PreviewBackend::OpenGL ?
+                    OverrideBackend::OpenGL : OverrideBackend::Vulkan;
+            auto replacement = GetShaderOverrideUi().
+                AcquireSelectedReplacement(backend);
+            replacement_source_available = replacement &&
+                !(backend == OverrideBackend::OpenGL ?
+                    replacement->opengl_source :
+                    replacement->vulkan_source).empty();
+        }
+        const char *unavailable = nullptr;
+        if (!entry) {
+            unavailable = "Select a pixel shader";
+        } else if (entry->key.stage != Stage::Pixel) {
+            unavailable = "Only pixel shaders can run in this scene";
+        } else if (!workbench.running_test &&
+                   (!m_has_recipe || m_selected_recipe.key != entry->key)) {
+            unavailable = "Canonical recipe is unavailable";
+        } else if (!workbench.running_test &&
+                   !workbench.has_generated &&
+                   !replacement_source_available) {
+            unavailable = workbench.generated_error.empty() ?
+                "Selected shader source is unavailable" :
+                workbench.generated_error.c_str();
+        } else if (!runstate_is_running() && !guest_paused &&
+                   !offline_no_guest) {
+            unavailable = "Guest is not running or paused";
+        } else if (status.state == PreviewState::Failed ||
+                   status.state == PreviewState::Unsupported) {
+            unavailable = status.message.c_str();
+        }
+        if (enabled && status.prepared) {
+            if (ImGui::Button("Stop private test")) {
+                service.SetEnabled(false);
+                workbench.start_requested = false;
+                workbench.start_error.clear();
+                m_preview_packet_attempted = false;
+                enabled = false;
+            }
+        } else {
+            const char *start_label = workbench.start_requested ?
+                "Preparing private test" :
+                guest_paused || offline_no_guest ?
+                    "Start private test" : "Pause game and start test";
+            ImGui::BeginDisabled(unavailable || workbench.start_requested ||
+                                 status.work_active);
+            if (ImGui::Button(start_label)) {
+                if (runstate_is_running()) vm_stop(RUN_STATE_PAUSED);
+                const bool paused_now = runstate_check(RUN_STATE_PAUSED);
+                if (paused_now || offline_no_guest) {
+                    service.SetGuestPaused(paused_now);
+                    service.SetEnabled(true);
+                    enabled = true;
+                    workbench.start_requested = true;
+                    workbench.start_selection = selection;
+                    workbench.start_error.clear();
+                    m_preview_packet_attempted = false;
+                    m_action_message =
+                        "Preparing a private synthetic test";
+                } else {
+                    m_action_message = "Could not pause the guest";
+                    workbench.start_error = m_action_message;
+                }
+            }
+            ImGui::EndDisabled();
+            if (enabled) {
+                ImGui::SameLine();
+                if (ImGui::Button("Stop private test")) {
+                    service.SetEnabled(false);
+                    workbench.start_requested = false;
+                    workbench.start_error.clear();
+                    m_preview_packet_attempted = false;
+                    enabled = false;
+                }
+            }
+        }
+        if (runstate_check(RUN_STATE_PAUSED)) {
+            ImGui::SameLine();
+            if (ImGui::Button("Resume game")) {
+                workbench.start_requested = false;
+                workbench.start_error.clear();
+                vm_start();
+                service.SetGuestPaused(false);
+                m_action_message = "Game resumed";
+            }
+        }
+        ImGui::TextWrapped("%s: %s", PreviewStateLabel(status.state),
+            unavailable ? unavailable :
+            !workbench.start_error.empty() ?
+                workbench.start_error.c_str() :
+            !m_preview_packet_message.empty() ?
+                m_preview_packet_message.c_str() : status.message.c_str());
+        ImGui::Checkbox("Inputs / state", &workbench.controls_open);
+        ImGui::SameLine();
+        ImGui::Checkbox("GLSL editor", &workbench.dock.open);
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(150.0f * g_viewport_mgr.m_scale);
+        if (ImGui::Combo("Mode", &mode,
+                         "Normal\0Uber Shader\0Replacement Shader\0"
+                         "Visualize\0")) {
+            workbench.running_test.reset();
+            workbench.editing_test = false;
+            workbench.comparison_locked = false;
+            workbench.generated_cache_valid = false;
+            workbench.start_requested = false;
+            workbench.start_error.clear();
+            m_preview_packet_attempted = false;
+            service.SetRequestedMode(static_cast<PreviewMode>(mode));
+        }
+    }
     ImGui::EndChild();
-    ImGui::SameLine();
-    ImGui::BeginChild("##workbench-viewport", ImVec2(0, 0), false);
-    const ImVec2 available = ImGui::GetContentRegionAvail();
-    const float dock_height = workbench.dock.open ?
-        std::min(available.y * 0.46f,
-                 380.0f * g_viewport_mgr.m_scale) : 0.0f;
-    const float output_height = std::max(1.0f, available.y - dock_height -
-        (workbench.dock.open ? ImGui::GetStyle().ItemSpacing.y : 0.0f));
+    const float output_height = std::max(1.0f, top_height - header_height - gap);
     const float side = std::max(1.0f, std::min(
-        available.x - 32.0f * g_viewport_mgr.m_scale,
-        output_height - 132.0f * g_viewport_mgr.m_scale));
+        pane_size.x - 32.0f * g_viewport_mgr.m_scale,
+        output_height - 100.0f * g_viewport_mgr.m_scale));
     if (ImGui::BeginChild("##preview-output",
                           ImVec2(0.0f, output_height), true)) {
         ImGui::TextDisabled("Synthetic inputs — not an in-game draw");
@@ -1461,21 +1617,20 @@ void ShaderBrowserWindow::DrawLivePreview()
             ImGui::TextWrapped(
                 "Select a pixel shader to prepare a private preview.");
         }
-        if (entry) {
-            ImGui::Spacing();
-            ImGui::Text("Selected: %s", StageLabel(entry->key.stage));
-            ImGui::Text("Backend target: %s",
-                        PreviewBackendLabel(
-                            g_config.display.renderer ==
-                                    CONFIG_DISPLAY_RENDERER_VULKAN ?
-                                PreviewBackend::Vulkan :
-                                PreviewBackend::OpenGL));
-        }
+        ImGui::TextDisabled("Backend: %s | target: %s",
+            PreviewBackendLabel(active_backend),
+            m_preview_scene.mesh == PreviewMesh::Sphere ? "sphere" :
+            m_preview_scene.mesh == PreviewMesh::Cube ? "cube" : "quad");
     }
     ImGui::EndChild();
+    ImGui::EndChild();
     WorkbenchEditorDockAction editor_action{};
-    if (workbench.dock.open) {
-        if (ImGui::BeginChild("##workbench-editor", ImVec2(0, 0), true)) {
+    if (editor_visible) {
+        ImGui::SetCursorPos(ImVec2(
+            pane_pos.x, pane_pos.y + top_height +
+            (controls_visible ? controls_height + gap : 0.0f) + gap));
+        if (ImGui::BeginChild("##workbench-editor",
+                              ImVec2(pane_size.x, editor_height), true)) {
             if (entry) {
                 if (workbench.running_test && !workbench.editing_test) {
                     const WorkbenchExperiment &saved = *workbench.running_test;
@@ -1606,5 +1761,6 @@ void ShaderBrowserWindow::DrawLivePreview()
             }
         }
     }
-    ImGui::EndChild();
+    ImGui::SetCursorPos(ImVec2(pane_pos.x,
+                               pane_pos.y + pane_size.y));
 }
