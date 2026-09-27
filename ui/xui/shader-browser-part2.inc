@@ -180,6 +180,13 @@ void ShaderBrowserWindow::DrawSelector()
                     m_snapshot.entries[m_visible_order[visible]];
                 const std::string short_id =
                     ShortDisplayId(entry, m_snapshot.current_title_id);
+                const size_t separator = short_id.find('-');
+                const std::string catalog_id =
+                    (entry.key.stage == Stage::Pixel ? "PS " :
+                     entry.key.stage == Stage::Vertex ? "VS " :
+                     entry.key.stage == Stage::Geometry ? "GS " : "SH ") +
+                    (separator == std::string::npos ? short_id :
+                     short_id.substr(separator + 1));
                 const std::string full_id =
                     FullDisplayId(entry, m_snapshot.current_title_id);
                 const std::string row_id =
@@ -202,10 +209,11 @@ void ShaderBrowserWindow::DrawSelector()
                 }
                 ImGui::TableSetColumnIndex(0);
                 if (ImGui::Selectable(
-                        short_id.c_str(), selected,
+                        catalog_id.c_str(), selected,
                         ImGuiSelectableFlags_SpanAllColumns |
-                            ImGuiSelectableFlags_AllowOverlap))
+                            ImGuiSelectableFlags_AllowOverlap)) {
                     SelectEntry(entry);
+                }
                 if (ImGui::IsItemHovered()) {
                     ImGui::SetTooltip("%s | %s\n%s", full_id.c_str(),
                                       StageLabel(entry.key.stage),

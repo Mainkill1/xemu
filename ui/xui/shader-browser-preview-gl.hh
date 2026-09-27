@@ -30,7 +30,8 @@ public:
     PreviewGlExecutor &operator=(const PreviewGlExecutor &) = delete;
 
     bool StartWhilePaused(std::string *error);
-    void DrawImage(float side, const PreviewSelection *selection,
+    void DrawImage(float max_width, float max_height,
+                   const PreviewSelection *selection,
                    uint64_t now_ns, PreviewViewSettings *view,
                    PreviewScene *scene = nullptr);
     bool HasDisplayed() const;

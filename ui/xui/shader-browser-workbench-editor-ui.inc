@@ -18,7 +18,7 @@ struct WorkbenchEditorDockState {
                     1.0f : 0.0f;
         }
     }
-    bool open = false;
+    bool open = true;
     bool auto_compile = true;
     PreviewSourceVariant variant = PreviewSourceVariant::Original;
     std::string edit_buffer;
@@ -82,7 +82,10 @@ static bool DrawWorkbenchBindingControls(WorkbenchEditorDockState *state)
 static void DrawWorkbenchSourceLines(GlslEditorModel *editor,
                                      WorkbenchEditorDockState *state)
 {
-    if (ImGui::BeginChild("##workbench-source-lines", ImVec2(0, 145), true,
+    const float source_height = std::max(80.0f,
+        ImGui::GetContentRegionAvail().y);
+    if (ImGui::BeginChild("##workbench-source-lines",
+                          ImVec2(0, source_height), true,
                           ImGuiWindowFlags_HorizontalScrollbar)) {
         if (state->goto_line && state->goto_line <= editor->LineCount()) {
             ImGui::SetScrollY((state->goto_line - 1) *
@@ -129,21 +132,23 @@ static WorkbenchEditorDockAction DrawWorkbenchEditorDock(
 {
     WorkbenchEditorDockAction action{};
     if (!state || !editor) return action;
-    ImGui::SeparatorText("Generated GLSL / private draft");
     const bool has_draft = draft && draft->Id();
     const GeneratedSourceSnapshot *original = has_draft ?
         &draft->Base() : generated;
     if (original) {
+        if (generated && !has_draft &&
+            ImGui::SmallButton("Create editable copy"))
+            action.create_copy = true;
+        if (generated && !has_draft) ImGui::SameLine();
         ImGui::TextDisabled("%s %s | %s | %s | TitleID %08X",
             original->resident ? "Resident GLSL" : "Reconstructed GLSL",
             HostSourceStageLabel(original->stage),
             PreviewBackendLabel(original->backend),
             RouteLabel(original->route), original->scope.title_id);
-        ImGui::TextWrapped("xemu-generated GLSL; not game-authored%s",
-            original->build_scope_verified ? "" :
-                " | selected build association unverified");
-        if (generated && ImGui::Button("Create editable copy"))
-            action.create_copy = true;
+        if (ImGui::IsItemHovered())
+            ImGui::SetTooltip("xemu-generated GLSL; not game-authored%s",
+                original->build_scope_verified ? "" :
+                    "; selected build association unverified");
     } else {
         ImGui::TextDisabled("No generated GLSL for this selection");
         return action;
@@ -160,7 +165,6 @@ static WorkbenchEditorDockAction DrawWorkbenchEditorDock(
         state->variant = static_cast<PreviewSourceVariant>(variant);
     } else {
         state->variant = PreviewSourceVariant::Original;
-        ImGui::TextDisabled("Original GLSL (read-only)");
     }
     const bool edited = has_draft &&
         state->variant == PreviewSourceVariant::Edited;
@@ -186,8 +190,10 @@ static WorkbenchEditorDockAction DrawWorkbenchEditorDock(
         }
     }
     if (edited) {
+        const float edit_height = std::max(90.0f,
+            ImGui::GetContentRegionAvail().y * 0.55f);
         if (ImGui::InputTextMultiline("##editable-glsl", &state->edit_buffer,
-                                       ImVec2(-1, 125))) {
+                                     ImVec2(-1, edit_height))) {
             if (draft->Edit(state->edit_buffer, now_ns)) {
                 state->buffer_revision = draft->Revision();
                 state->draft_view_valid =
@@ -221,20 +227,20 @@ static WorkbenchEditorDockAction DrawWorkbenchEditorDock(
         ImGui::TextDisabled("Original GLSL cannot be displayed");
         return action;
     }
-    if (ImGui::CollapsingHeader("Syntax view (read-only)",
-                               ImGuiTreeNodeFlags_DefaultOpen)) {
-        ImGui::InputText("Search GLSL", &state->search);
-        ImGui::SameLine();
-        if (ImGui::Button("Next") && !state->search.empty()) {
-            auto offset = shown_editor->FindNext(state->search,
-                                                 state->search_offset);
-            if (offset) {
-                state->search_offset = *offset;
-                state->goto_line = shown_editor->LineForOffset(*offset) + 1;
-            }
+    ImGui::SetNextItemWidth(std::max(120.0f,
+        ImGui::GetContentRegionAvail().x - 70.0f));
+    ImGui::InputTextWithHint("##search-glsl", "Search GLSL...",
+                             &state->search);
+    ImGui::SameLine();
+    if (ImGui::SmallButton("Next") && !state->search.empty()) {
+        auto offset = shown_editor->FindNext(state->search,
+                                             state->search_offset);
+        if (offset) {
+            state->search_offset = *offset;
+            state->goto_line = shown_editor->LineForOffset(*offset) + 1;
         }
-        DrawWorkbenchSourceLines(shown_editor, state);
     }
+    DrawWorkbenchSourceLines(shown_editor, state);
     return action;
 }
 

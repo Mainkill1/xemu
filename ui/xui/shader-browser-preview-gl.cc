@@ -763,7 +763,7 @@ bool PreviewGlExecutor::StartWhilePaused(std::string *error)
     return true;
 }
 
-void PreviewGlExecutor::DrawImage(float side,
+void PreviewGlExecutor::DrawImage(float max_width, float max_height,
                                   const PreviewSelection *selection,
                                   uint64_t now_ns,
                                   PreviewViewSettings *view,
@@ -777,7 +777,33 @@ void PreviewGlExecutor::DrawImage(float side,
         !status.visible) {
         impl.RetireDisplayed();
         impl.RetireFrozen();
-        ImGui::TextDisabled("Private preview is not prepared");
+        const ImVec2 origin = ImGui::GetCursorScreenPos();
+        const ImVec2 extent(std::max(1.0f, max_width),
+                            std::max(1.0f, max_height));
+        ImGui::InvisibleButton("##preview-inactive", extent);
+        ImDrawList *draw = ImGui::GetWindowDrawList();
+        const ImVec2 end(origin.x + extent.x, origin.y + extent.y);
+        draw->AddRectFilled(origin, end, IM_COL32(24, 37, 45, 255));
+        for (float x = origin.x; x < end.x; x += 32.0f)
+            draw->AddLine(ImVec2(x, origin.y), ImVec2(x, end.y),
+                          IM_COL32(61, 82, 91, 90));
+        for (float y = origin.y; y < end.y; y += 32.0f)
+            draw->AddLine(ImVec2(origin.x, y), ImVec2(end.x, y),
+                          IM_COL32(61, 82, 91, 90));
+        const char *title = "PRIVATE PREVIEW INACTIVE";
+        const char *hint = selection ?
+            "Start private test to render this shader" :
+            "Select a pixel shader to begin";
+        const ImVec2 title_size = ImGui::CalcTextSize(title);
+        const ImVec2 hint_size = ImGui::CalcTextSize(hint);
+        const float center_x = origin.x + extent.x * 0.5f;
+        const float center_y = origin.y + extent.y * 0.5f;
+        draw->AddText(ImVec2(center_x - title_size.x * 0.5f,
+                             center_y - title_size.y),
+                      IM_COL32(194, 221, 205, 255), title);
+        draw->AddText(ImVec2(center_x - hint_size.x * 0.5f,
+                             center_y + 8.0f),
+                      IM_COL32(145, 169, 178, 255), hint);
         return;
     }
     if (impl.has_frozen &&
@@ -825,14 +851,16 @@ void PreviewGlExecutor::DrawImage(float side,
     view->center[1] = std::clamp(view->center[1], half, 1.0f - half);
     const ImVec2 uv0(view->center[0] - half, view->center[1] + half);
     const ImVec2 uv1(view->center[0] + half, view->center[1] - half);
-    const float image_side = impl.has_frozen ?
-                                 std::max(1.0f, (side - 8.0f) * 0.5f) :
-                                 std::max(1.0f, side);
+    const float lane_width = impl.has_frozen ?
+        std::max(1.0f, (max_width - 8.0f) * 0.5f) :
+        std::max(1.0f, max_width);
     auto draw = [&](const char *label, const PreviewFrameRef &frame,
                     GLuint texture, bool *sampled, bool pannable) {
-        const float image_height = image_side *
-            float(std::max(1U, frame.height)) /
-            float(std::max(1U, frame.width));
+        const float aspect = float(std::max(1U, frame.height)) /
+                             float(std::max(1U, frame.width));
+        const float image_width = std::max(1.0f, std::min(
+            lane_width, max_height / aspect));
+        const float image_height = image_width * aspect;
         const PreviewChannel channel = frame.result_key.channel;
         const auto &origin = frame.result_key.compile;
         const bool stale =
@@ -841,32 +869,17 @@ void PreviewGlExecutor::DrawImage(float side,
              status.state == PreviewState::Unsupported ||
              (status.has_attempt && origin != status.attempted_compile));
         ImGui::BeginGroup();
-        ImGui::PushTextWrapPos(ImGui::GetCursorPosX() + image_side);
-        ImGui::TextWrapped("%s%s: %s", label, stale ? " — STALE" : "",
-                           PreviewModeLabel(origin.selection.mode));
+        ImGui::Text("%s%s: %s", label, stale ? " — STALE" : "",
+                    PreviewModeLabel(origin.selection.mode));
         const std::string full_source = PreviewSourceIdentity(origin);
-        if (origin.source_variant == PreviewSourceVariant::Edited) {
-            ImGui::TextWrapped("Draft %llu r%llu",
-                static_cast<unsigned long long>(origin.draft_id),
-                static_cast<unsigned long long>(origin.draft_revision));
-        } else if (origin.selection.mode == PreviewMode::Replacement) {
-            ImGui::TextWrapped("Replacement %llu r%llu",
-                static_cast<unsigned long long>(origin.replacement_id),
-                static_cast<unsigned long long>(origin.replacement_revision));
-        } else {
-            ImGui::TextWrapped("Source: %.8s", full_source.c_str());
-        }
         if (ImGui::IsItemHovered()) {
-            ImGui::SetTooltip("Source: %s", full_source.c_str());
+            ImGui::SetTooltip("Source: %s\nChannel: %s\n%s",
+                full_source.c_str(), PreviewChannelLabel(channel),
+                PreviewChannelProvenance(channel));
         }
-        ImGui::TextDisabled("%s: %s", label, PreviewChannelLabel(channel));
-        if (ImGui::IsItemHovered()) {
-            ImGui::SetTooltip("%s", PreviewChannelProvenance(channel));
-        }
-        ImGui::PopTextWrapPos();
         const ImVec2 position = ImGui::GetCursorScreenPos();
         ImDrawList *list = ImGui::GetWindowDrawList();
-        const float tile_x = image_side / 8.0f;
+        const float tile_x = image_width / 8.0f;
         const float tile_y = image_height / 8.0f;
         for (int y = 0; y < 8; ++y) {
             for (int x = 0; x < 8; ++x) {
@@ -880,18 +893,18 @@ void PreviewGlExecutor::DrawImage(float side,
             }
         }
         ImGui::Image((ImTextureID)(intptr_t)texture,
-                     ImVec2(image_side, image_height), uv0, uv1);
+                     ImVec2(image_width, image_height), uv0, uv1);
         *sampled = true;
         if (pannable && scene &&
             HandleWorkbenchViewportGesture(scene, position,
-                                           ImVec2(image_side, image_height))) {
+                                           ImVec2(image_width, image_height))) {
             GetPreviewService().EditScene(*scene);
         }
         if (!scene && pannable && ImGui::IsItemHovered() &&
             ImGui::IsMouseDown(ImGuiMouseButton_Left) && zoom > 1.0f) {
             const ImVec2 delta = ImGui::GetIO().MouseDelta;
             view->center[0] = std::clamp(
-                view->center[0] - delta.x / (image_side * zoom),
+                view->center[0] - delta.x / (image_width * zoom),
                 half, 1.0f - half);
             view->center[1] = std::clamp(
                 view->center[1] + delta.y / (image_height * zoom),

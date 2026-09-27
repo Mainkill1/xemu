@@ -561,7 +561,6 @@ void ShaderOverrideUi::DrawSettings(std::string *message)
             *message = ok ? "Replacement packages reloaded" : error;
         }
     }
-    ImGui::SameLine();
     if (ImGui::Button("Open replacement folder")) {
         std::string error;
         if (!OpenDirectory(library_snapshot_.root_path, &error) && message) {
@@ -585,7 +584,7 @@ void ShaderOverrideUi::DrawSettings(std::string *message)
                                  "User shader overrides enabled";
         }
     }
-    ImGui::TextDisabled(
+    ImGui::TextWrapped(
         "Replacement source is authored data under shader-replacements/. It "
         "is separate from disposable shader-artifacts/ files.");
     if (!persistence_error_.empty()) {
@@ -626,7 +625,7 @@ void ShaderOverrideUi::DrawSettings(std::string *message)
             }
         }
     }
-    ImGui::TextDisabled(
+    ImGui::TextWrapped(
         "Presets contain title/build rules and package IDs. Copy authored "
         "replacement packages separately when sharing a preset.");
 }
