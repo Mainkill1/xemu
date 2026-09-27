@@ -1639,7 +1639,7 @@ void ShaderBrowserWindow::DrawLivePreview()
     const float output_height = std::max(1.0f, top_height - header_height - gap);
     const float side = std::max(1.0f, std::min(
         pane_size.x - 32.0f * g_viewport_mgr.m_scale,
-        output_height - 150.0f * g_viewport_mgr.m_scale));
+        output_height - 100.0f * g_viewport_mgr.m_scale));
     if (ImGui::BeginChild("##preview-output",
                           ImVec2(0.0f, output_height), true)) {
         if (!workbench.comparison_locked) {
