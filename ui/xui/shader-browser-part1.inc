@@ -263,9 +263,13 @@ void ShaderBrowserWindow::Draw()
 
     ImVec2 available = ImGui::GetContentRegionAvail();
     const bool external_workbench = xemu_hud_shader_browser_external();
+    static float external_catalog_width = 300.0f;
+    const float catalog_max = std::max(220.0f,
+        std::min(314.0f, available.x / scale - 460.0f));
+    external_catalog_width = std::clamp(external_catalog_width,
+        std::min(274.0f, catalog_max), catalog_max);
     float left_width = external_workbench ?
-        std::clamp(available.x * 0.25f, 220.0f * scale,
-                   std::max(220.0f * scale, available.x - 490.0f * scale)) :
+        external_catalog_width * scale :
         std::clamp(available.x * 0.48f, 320.0f * scale,
                    std::max(320.0f * scale, available.x - 330.0f * scale));
     if (ImGui::BeginChild("##shader-selector", ImVec2(left_width, 0), true)) {
@@ -273,7 +277,25 @@ void ShaderBrowserWindow::Draw()
     }
     ImGui::EndChild();
 
-    ImGui::SameLine();
+    if (external_workbench) {
+        ImGui::SameLine(0.0f, 0.0f);
+        ImGui::InvisibleButton("##shader-catalog-resize",
+                               ImVec2(7.0f * scale, available.y));
+        const ImVec2 marker_min = ImGui::GetItemRectMin();
+        const ImVec2 marker_max = ImGui::GetItemRectMax();
+        ImGui::GetWindowDrawList()->AddRectFilled(
+            ImVec2(marker_min.x + 3.0f * scale, marker_min.y),
+            ImVec2(marker_max.x - 3.0f * scale, marker_max.y),
+            ImGui::GetColorU32(ImGui::IsItemHovered() || ImGui::IsItemActive() ?
+                ImGuiCol_ButtonHovered : ImGuiCol_Border));
+        if (ImGui::IsItemActive())
+            external_catalog_width = std::clamp(
+                external_catalog_width + ImGui::GetIO().MouseDelta.x / scale,
+                std::min(220.0f, catalog_max), catalog_max);
+        ImGui::SameLine(0.0f, 0.0f);
+    } else {
+        ImGui::SameLine();
+    }
     if (ImGui::BeginChild("##shader-content", ImVec2(0, 0), true)) {
         DrawRightPane();
     }

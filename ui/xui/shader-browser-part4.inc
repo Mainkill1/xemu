@@ -122,6 +122,7 @@ namespace {
 
 struct ShaderWorkbenchSession {
     bool controls_open = false;
+    float editor_height = 230.0f;
     bool start_requested = false;
     PreviewSelection start_selection;
     std::string start_error;
@@ -377,6 +378,29 @@ void RefreshWorkbenchTestFiles(ShaderWorkbenchSession *session,
 
 } // namespace
 
+void ShaderBrowserWindow::DrawWorkbenchSharedSettings()
+{
+    ShaderWorkbenchSession &workbench = WorkbenchSession();
+    ImGui::SeparatorText("Private preview and editor");
+    ImGui::Checkbox("Auto-compile edited GLSL", &workbench.dock.auto_compile);
+    ImGui::TextDisabled("Compiles only the private draft; a game rule requires an explicit Apply action.");
+    int policy = static_cast<int>(m_preview_update_policy);
+    if (ImGui::Combo("Preview updates", &policy,
+                     "When inputs change\0Continuous synthetic clock\0")) {
+        m_preview_update_policy = static_cast<PreviewUpdatePolicy>(policy);
+        m_preview_packet_attempted = false;
+    }
+    PreviewStatus status{};
+    GetPreviewService().CopyStatus(&status);
+    ImGui::TextDisabled("Current preparation ceiling: %s",
+        status.update_hz ?
+            (std::to_string(status.update_hz) + " Hz").c_str() : "Frozen");
+    ImGui::TextDisabled(
+        "The service adjusts this ceiling for guest pressure; it is not a user-set frame rate.");
+    ImGui::TextDisabled(
+        "Camera: left drag to orbit, middle or Shift+left drag to pan, wheel to dolly, F to focus.");
+}
+
 void ShaderBrowserWindow::DrawLivePreview()
 {
     ShaderWorkbenchSession &workbench = WorkbenchSession();
@@ -447,18 +471,22 @@ void ShaderBrowserWindow::DrawLivePreview()
     const ImVec2 pane_pos = ImGui::GetCursorPos();
     const ImVec2 pane_size = ImGui::GetContentRegionAvail();
     const float gap = ImGui::GetStyle().ItemSpacing.y;
-    // Keep one lower pane open so the scene remains usable at 1024x720.
+    // At compact sizes the inspector uses the lower drawer.  The GLSL dock
+    // remains independent at desktop sizes, while the scene keeps the main
+    // share of a 1024x720 browser window.
     if (workbench.controls_open && workbench.dock.open)
         workbench.controls_open = false;
     const bool controls_visible = workbench.controls_open;
     const bool editor_visible = workbench.dock.open;
-    const float header_height = 136.0f * g_viewport_mgr.m_scale;
+    const float header_height = 105.0f * g_viewport_mgr.m_scale;
     const float editor_height = editor_visible ?
-        std::min(230.0f * g_viewport_mgr.m_scale,
-                 pane_size.y * 0.26f) : 0.0f;
+        std::clamp(workbench.editor_height * g_viewport_mgr.m_scale,
+                   120.0f * g_viewport_mgr.m_scale,
+                   std::max(120.0f * g_viewport_mgr.m_scale,
+                            pane_size.y * 0.42f)) : 0.0f;
     const float controls_height = controls_visible ?
-        std::min(140.0f * g_viewport_mgr.m_scale,
-                 pane_size.y * 0.16f) : 0.0f;
+        std::min(210.0f * g_viewport_mgr.m_scale,
+                 pane_size.y * 0.34f) : 0.0f;
     const float top_height = std::max(1.0f, pane_size.y - editor_height -
         controls_height - gap * (editor_visible + controls_visible));
     // Process drawer edits before packet submission, then draw the scene above
@@ -1480,12 +1508,9 @@ void ShaderBrowserWindow::DrawLivePreview()
                       ImVec2(pane_size.x, top_height), false);
     if (ImGui::BeginChild("##workbench-header",
                           ImVec2(0.0f, header_height), true)) {
-        ImGui::Text("Selected: %s / %s",
-                    entry ? PortableShaderHash(entry->key.hash).c_str() :
-                            "none",
-                    entry ? StageLabel(entry->key.stage) : "none");
+        ImGui::TextDisabled("PRIVATE SYNTHETIC TEST");
         ImGui::SameLine();
-        ImGui::TextDisabled("Private synthetic test");
+        ImGui::TextDisabled("%s renderer", PreviewBackendLabel(active_backend));
         bool replacement_source_available = false;
         if (!workbench.running_test && !workbench.has_generated &&
             mode == static_cast<int>(PreviewMode::Replacement)) {
@@ -1581,11 +1606,11 @@ void ShaderBrowserWindow::DrawLivePreview()
                 workbench.start_error.c_str() :
             !m_preview_packet_message.empty() ?
                 m_preview_packet_message.c_str() : status.message.c_str());
-        if (ImGui::Checkbox("Inputs / state", &workbench.controls_open) &&
+        if (ImGui::Checkbox("Inspector", &workbench.controls_open) &&
             workbench.controls_open)
             workbench.dock.open = false;
         ImGui::SameLine();
-        if (ImGui::Checkbox("GLSL editor", &workbench.dock.open) &&
+        if (ImGui::Checkbox("GLSL / output", &workbench.dock.open) &&
             workbench.dock.open)
             workbench.controls_open = false;
         ImGui::SameLine();
@@ -1607,13 +1632,23 @@ void ShaderBrowserWindow::DrawLivePreview()
     const float output_height = std::max(1.0f, top_height - header_height - gap);
     const float side = std::max(1.0f, std::min(
         pane_size.x - 32.0f * g_viewport_mgr.m_scale,
-        output_height - 100.0f * g_viewport_mgr.m_scale));
+        output_height - 150.0f * g_viewport_mgr.m_scale));
     if (ImGui::BeginChild("##preview-output",
                           ImVec2(0.0f, output_height), true)) {
-        ImGui::TextDisabled("Synthetic inputs — not an in-game draw");
+        if (!workbench.comparison_locked) {
+            if (DrawWorkbenchSceneToolbar(&m_preview_scene)) {
+                service.EditScene(m_preview_scene);
+                m_preview_packet_attempted = false;
+            }
+        } else {
+            ImGui::TextDisabled("Camera locked for Original / Edited comparison");
+        }
         ImGui::Separator();
         if (entry) {
             PreviewViewSettings view{};
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() +
+                std::max(0.0f,
+                    (ImGui::GetContentRegionAvail().x - side) * 0.5f));
             GetPreviewGlExecutor().DrawImage(side,
                                              enabled ? &selection : nullptr,
                                              now_ns, &view,
@@ -1623,20 +1658,69 @@ void ShaderBrowserWindow::DrawLivePreview()
             ImGui::TextWrapped(
                 "Select a pixel shader to prepare a private preview.");
         }
-        ImGui::TextDisabled("Backend: %s | target: %s",
-            PreviewBackendLabel(active_backend),
-            m_preview_scene.mesh == PreviewMesh::Sphere ? "sphere" :
-            m_preview_scene.mesh == PreviewMesh::Cube ? "cube" : "quad");
+        if (ImGui::SmallButton(status.clock.playing ? "Pause##clock" :
+                                                   "Play##clock")) {
+            if (!status.clock.playing &&
+                m_preview_update_policy != PreviewUpdatePolicy::Continuous) {
+                m_preview_update_policy = PreviewUpdatePolicy::Continuous;
+                m_preview_packet_attempted = false;
+            }
+            service.EditClock(status.clock.playing ?
+                PreviewClockAction::Pause : PreviewClockAction::Play,
+                0, now_ns);
+        }
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(std::max(80.0f,
+            ImGui::GetContentRegionAvail().x - 150.0f * g_viewport_mgr.m_scale));
+        float clock_time = static_cast<float>(status.clock.time_seconds);
+        const float clock_end = std::max(1.0f,
+            static_cast<float>(status.clock.loop ?
+                status.clock.loop_seconds : 10.0));
+        if (ImGui::SliderFloat("##clock-time", &clock_time, 0.0f,
+                               clock_end, "%.2f s"))
+            service.EditClock(PreviewClockAction::Scrub, clock_time, now_ns);
+        ImGui::SameLine();
+        bool clock_loop = status.clock.loop;
+        if (ImGui::Checkbox("Loop##clock", &clock_loop))
+            service.EditClock(PreviewClockAction::Loop, clock_loop, now_ns);
+        ImGui::SameLine();
+        if (ImGui::SmallButton("Reset##clock"))
+            service.EditClock(PreviewClockAction::Restart, 0, now_ns);
+        ImGui::TextDisabled("Synthetic inputs; this is not an in-game draw");
+        if (visualize) {
+            ImGui::SameLine();
+            ImGui::TextDisabled("%s", PreviewChannelLabel(
+                static_cast<PreviewChannel>(m_preview_view_channel)));
+        }
     }
     ImGui::EndChild();
     ImGui::EndChild();
     WorkbenchEditorDockAction editor_action{};
     if (editor_visible) {
+        ImGui::SetCursorPos(ImVec2(pane_pos.x, pane_pos.y + top_height));
+        ImGui::InvisibleButton("##workbench-dock-resize",
+                               ImVec2(pane_size.x, gap));
+        const ImVec2 grip_min = ImGui::GetItemRectMin();
+        const ImVec2 grip_max = ImGui::GetItemRectMax();
+        const float grip_center = (grip_min.x + grip_max.x) * 0.5f;
+        ImGui::GetWindowDrawList()->AddLine(
+            ImVec2(grip_center - 16.0f, (grip_min.y + grip_max.y) * 0.5f),
+            ImVec2(grip_center + 16.0f, (grip_min.y + grip_max.y) * 0.5f),
+            ImGui::GetColorU32(ImGui::IsItemHovered() || ImGui::IsItemActive() ?
+                ImGuiCol_ButtonHovered : ImGuiCol_Border), 2.0f);
+        if (ImGui::IsItemActive())
+            workbench.editor_height = std::clamp(
+                workbench.editor_height - ImGui::GetIO().MouseDelta.y /
+                    g_viewport_mgr.m_scale,
+                120.0f, std::max(120.0f,
+                    pane_size.y * 0.42f / g_viewport_mgr.m_scale));
         ImGui::SetCursorPos(ImVec2(
             pane_pos.x, pane_pos.y + top_height +
             (controls_visible ? controls_height + gap : 0.0f) + gap));
         if (ImGui::BeginChild("##workbench-editor",
                               ImVec2(pane_size.x, editor_height), true)) {
+            if (ImGui::BeginTabBar("##workbench-dock-tabs")) {
+            if (ImGui::BeginTabItem("Generated GLSL / draft")) {
             if (entry) {
                 if (workbench.running_test && !workbench.editing_test) {
                     const WorkbenchExperiment &saved = *workbench.running_test;
@@ -1706,6 +1790,35 @@ void ShaderBrowserWindow::DrawLivePreview()
                 }
             } else {
                 ImGui::TextDisabled("Select a pixel shader to inspect GLSL");
+            }
+            ImGui::EndTabItem();
+            }
+            if (ImGui::BeginTabItem("Output")) {
+                ImGui::Text("%s", PreviewStateLabel(status.state));
+                ImGui::TextWrapped("%s", status.message.c_str());
+                if (!m_preview_packet_message.empty()) {
+                    ImGui::SeparatorText("Preview inputs");
+                    ImGui::TextWrapped("%s", m_preview_packet_message.c_str());
+                }
+                if (status.has_attempt) {
+                    ImGui::TextDisabled("Attempted: %s",
+                        PreviewSourceIdentity(status.attempted_compile).c_str());
+                }
+                if (status.has_displayed_source) {
+                    ImGui::TextDisabled("Displayed: %s",
+                        PreviewSourceIdentity(status.displayed_compile).c_str());
+                }
+                if (workbench.draft.Id() &&
+                    !workbench.draft.Diagnostics().empty()) {
+                    ImGui::SeparatorText("Compiler messages");
+                    ImGui::TextWrapped("%s",
+                        workbench.draft.Diagnostics().c_str());
+                }
+                ImGui::TextDisabled(
+                    "Private preview output; no game rule is changed by a compile.");
+                ImGui::EndTabItem();
+            }
+            ImGui::EndTabBar();
             }
         }
         ImGui::EndChild();

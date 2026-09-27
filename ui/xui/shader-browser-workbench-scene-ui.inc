@@ -8,6 +8,37 @@ struct WorkbenchSceneUiEdits {
     bool render_state = false;
 };
 
+// The small controls that belong with the image remain visible when the
+// detailed synthetic-input inspector is closed.  They edit the same scene
+// object as the inspector, so the preview packet keeps one source of truth.
+inline bool DrawWorkbenchSceneToolbar(PreviewScene *scene)
+{
+    if (!scene) return false;
+    bool changed = false;
+    ImGui::TextDisabled("Target");
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(112.0f);
+    int mesh = static_cast<int>(scene->mesh);
+    if (ImGui::Combo("##target-mesh", &mesh, "Quad\0Sphere\0Cube\0")) {
+        scene->mesh = static_cast<PreviewMesh>(mesh);
+        changed = true;
+    }
+    ImGui::SameLine();
+    if (ImGui::SmallButton("Focus")) {
+        *scene = ApplyPreviewCameraGesture(
+            *scene, { PreviewCameraGestureKind::FocusTarget });
+        changed = true;
+    }
+    ImGui::SameLine();
+    if (ImGui::SmallButton("Reset camera")) {
+        *scene = ApplyPreviewCameraGesture(
+            *scene, { PreviewCameraGestureKind::ResetCamera });
+        changed = true;
+    }
+    if (changed) *scene = ClampPreviewScene(*scene);
+    return changed;
+}
+
 inline WorkbenchSceneUiEdits DrawWorkbenchSceneControls(
     PreviewScene *scene, PreviewRenderState *render_state,
     bool generated_alpha)
