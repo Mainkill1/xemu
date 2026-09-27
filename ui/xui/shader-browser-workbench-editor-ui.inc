@@ -23,6 +23,10 @@ struct WorkbenchEditorDockState {
     PreviewSourceVariant variant = PreviewSourceVariant::Original;
     std::string edit_buffer;
     uint64_t buffer_revision = 0;
+    GlslEditorModel original_editor;
+    PreviewDigest original_digest{};
+    bool original_loaded = false;
+    bool draft_view_valid = false;
     std::string search;
     size_t search_offset = 0;
     size_t goto_line = 0;
@@ -126,52 +130,77 @@ static WorkbenchEditorDockAction DrawWorkbenchEditorDock(
     WorkbenchEditorDockAction action{};
     if (!state || !editor) return action;
     ImGui::SeparatorText("Generated GLSL / private draft");
-    if (generated) {
+    const GeneratedSourceSnapshot *original = generated ? generated :
+        (draft && draft->Id() ? &draft->Base() : nullptr);
+    if (original) {
         ImGui::TextDisabled("%s %s | %s | %s | TitleID %08X",
-            generated->resident ? "Resident GLSL" : "Reconstructed GLSL",
-            HostSourceStageLabel(generated->stage),
-            PreviewBackendLabel(generated->backend),
-            RouteLabel(generated->route), generated->scope.title_id);
+            original->resident ? "Resident GLSL" : "Reconstructed GLSL",
+            HostSourceStageLabel(original->stage),
+            PreviewBackendLabel(original->backend),
+            RouteLabel(original->route), original->scope.title_id);
         ImGui::TextDisabled("xemu-generated GLSL; not game-authored source");
-        if (!generated->build_scope_verified)
+        if (!original->build_scope_verified)
             ImGui::TextDisabled("Selected build association unverified");
-        if (ImGui::Button("Create editable copy")) action.create_copy = true;
+        if (generated && ImGui::Button("Create editable copy"))
+            action.create_copy = true;
     } else {
         ImGui::TextDisabled("No generated GLSL for this selection");
+        return action;
     }
-    if (!draft || !draft->Id()) return action;
-    if (state->buffer_revision != draft->Revision()) {
-        state->edit_buffer = draft->Text();
-        state->buffer_revision = draft->Revision();
-        editor->SetSource(state->edit_buffer);
+    if (!state->original_loaded || state->original_digest != original->digest) {
+        state->original_loaded = state->original_editor.SetSource(original->text);
+        if (state->original_loaded) state->original_digest = original->digest;
     }
-    int variant = static_cast<int>(state->variant);
-    if (ImGui::RadioButton("Original", variant == 0)) variant = 0;
-    ImGui::SameLine();
-    if (ImGui::RadioButton("Edited", variant == 1)) variant = 1;
-    state->variant = static_cast<PreviewSourceVariant>(variant);
-    ImGui::SameLine();
-    ImGui::Checkbox("Auto-compile", &state->auto_compile);
-    ImGui::SameLine();
-    if (ImGui::Button("Compile")) action.manual_compile = true;
-    ImGui::TextUnformatted(draft->StatusLabel().c_str());
-    if (preview && preview->has_attempt) {
-        ImGui::TextDisabled("Attempted: %s",
-            PreviewSourceIdentity(preview->attempted_compile).c_str());
+    const bool has_draft = draft && draft->Id();
+    if (has_draft) {
+        int variant = static_cast<int>(state->variant);
+        if (ImGui::RadioButton("Original", variant == 0)) variant = 0;
+        ImGui::SameLine();
+        if (ImGui::RadioButton("Edited", variant == 1)) variant = 1;
+        state->variant = static_cast<PreviewSourceVariant>(variant);
+    } else {
+        state->variant = PreviewSourceVariant::Original;
+        ImGui::TextDisabled("Original GLSL (read-only)");
     }
-    if (preview && preview->has_displayed_source) {
-        ImGui::TextDisabled("Displayed: %s",
-            PreviewSourceIdentity(preview->displayed_compile).c_str());
-    }
-    ImGui::TextDisabled("Edit GLSL");
-    if (ImGui::InputTextMultiline("##editable-glsl", &state->edit_buffer,
-                                   ImVec2(-1, 125))) {
-        if (draft->Edit(state->edit_buffer, now_ns)) {
+    const bool edited = has_draft &&
+        state->variant == PreviewSourceVariant::Edited;
+    GlslEditorModel *shown_editor = &state->original_editor;
+    if (edited) {
+        if (state->buffer_revision != draft->Revision()) {
+            state->edit_buffer = draft->Text();
             state->buffer_revision = draft->Revision();
-            editor->SetSource(state->edit_buffer);
+            state->draft_view_valid = false;
+        }
+        if (!state->draft_view_valid)
+            state->draft_view_valid = editor->SetSource(state->edit_buffer);
+        shown_editor = editor;
+        ImGui::Checkbox("Auto-compile", &state->auto_compile);
+        ImGui::SameLine();
+        if (ImGui::Button("Compile")) action.manual_compile = true;
+    }
+    if (has_draft) {
+        ImGui::TextUnformatted(draft->StatusLabel().c_str());
+        if (preview && preview->has_attempt) {
+            ImGui::TextDisabled("Attempted: %s",
+                PreviewSourceIdentity(preview->attempted_compile).c_str());
+        }
+        if (preview && preview->has_displayed_source) {
+            ImGui::TextDisabled("Displayed: %s",
+                PreviewSourceIdentity(preview->displayed_compile).c_str());
         }
     }
-    if (!draft->Diagnostics().empty()) {
+    if (edited) {
+        ImGui::TextDisabled("Edit GLSL");
+        if (ImGui::InputTextMultiline("##editable-glsl", &state->edit_buffer,
+                                       ImVec2(-1, 125))) {
+            if (draft->Edit(state->edit_buffer, now_ns)) {
+                state->buffer_revision = draft->Revision();
+                state->draft_view_valid =
+                    editor->SetSource(state->edit_buffer);
+            }
+        }
+    }
+    if (edited && !draft->Diagnostics().empty()) {
         ImGui::SeparatorText("Compiler messages");
         const std::string &log = draft->Diagnostics();
         size_t begin = 0;
@@ -180,7 +209,8 @@ static WorkbenchEditorDockAction DrawWorkbenchEditorDock(
             if (end == std::string::npos) end = log.size();
             GlslDiagnostic diagnostic = ParseGlslDiagnosticLine(
                 log.substr(begin, end - begin));
-            if (diagnostic.line && diagnostic.line <= editor->LineCount()) {
+            if (diagnostic.line &&
+                diagnostic.line <= shown_editor->LineCount()) {
                 if (ImGui::SmallButton(("Line " +
                     std::to_string(diagnostic.line) + "##" +
                     std::to_string(begin)).c_str())) {
@@ -192,19 +222,23 @@ static WorkbenchEditorDockAction DrawWorkbenchEditorDock(
             begin = end + 1;
         }
     }
+    if (!edited && !state->original_loaded) {
+        ImGui::TextDisabled("Original GLSL cannot be displayed");
+        return action;
+    }
     if (ImGui::CollapsingHeader("Syntax view (read-only)",
                                ImGuiTreeNodeFlags_DefaultOpen)) {
         ImGui::InputText("Search GLSL", &state->search);
         ImGui::SameLine();
         if (ImGui::Button("Next") && !state->search.empty()) {
-            auto offset = editor->FindNext(state->search,
-                                           state->search_offset);
+            auto offset = shown_editor->FindNext(state->search,
+                                                 state->search_offset);
             if (offset) {
                 state->search_offset = *offset;
-                state->goto_line = editor->LineForOffset(*offset) + 1;
+                state->goto_line = shown_editor->LineForOffset(*offset) + 1;
             }
         }
-        DrawWorkbenchSourceLines(editor, state);
+        DrawWorkbenchSourceLines(shown_editor, state);
     }
     return action;
 }
