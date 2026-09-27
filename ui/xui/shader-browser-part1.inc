@@ -167,16 +167,6 @@ bool OpenDirectory(const std::string &path, std::string *error)
     return ok;
 }
 
-void DrawDurationRows(const Entry &entry)
-{
-    DrawKeyValue("Compile CPU", FormatDurationNs(entry.compile_cpu));
-    DrawKeyValue("Pipeline CPU", FormatDurationNs(entry.pipeline_cpu));
-    DrawKeyValue("Prepare CPU", FormatDurationNs(entry.prepare_cpu));
-    DrawKeyValue("Foreground stall",
-                 FormatDurationNs(entry.foreground_stall_cpu));
-    DrawKeyValue("GPU execution", FormatDurationNs(entry.gpu_execution));
-}
-
 } // namespace
 
 ShaderBrowserWindow::ShaderBrowserWindow()
