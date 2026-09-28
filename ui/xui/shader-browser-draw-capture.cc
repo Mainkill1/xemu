@@ -24,7 +24,7 @@ bool DrawEventKey::operator==(const DrawEventKey &other) const
 {
     return session_epoch == other.session_epoch &&
            renderer_epoch == other.renderer_epoch && frame == other.frame &&
-           draw == other.draw;
+           draw == other.draw && submission == other.submission;
 }
 
 bool DrawEventKey::operator!=(const DrawEventKey &other) const
@@ -43,7 +43,9 @@ bool DrawEventKey::operator<(const DrawEventKey &other) const
     if (frame != other.frame) {
         return frame < other.frame;
     }
-    return draw < other.draw;
+    if (draw != other.draw)
+        return draw < other.draw;
+    return submission < other.submission;
 }
 
 bool DrawSegmentKey::operator==(const DrawSegmentKey &other) const
@@ -181,8 +183,8 @@ bool IsObjectGeometry(const DrawCaptureSummary &draw,
              segment.origin == DrawSegmentOrigin::WholeDraw);
 }
 
-CaptureAnalysisAdmission CheckCaptureAnalysisInput(
-    const std::vector<DrawCaptureSummary> &draws)
+CaptureAnalysisAdmission
+CheckCaptureAnalysisInput(const std::vector<DrawCaptureSummary> &draws)
 {
     if (draws.size() > kCaptureMaxAnalysisDraws) {
         return CaptureAnalysisAdmission::LimitExceeded;
@@ -204,7 +206,8 @@ CaptureAnalysisAdmission CheckCaptureAnalysisInput(
         }
         for (const auto &touch : draw.resources) {
             if (touch.access == ResourceAccess::ReadWrite &&
-                touch.read_version && touch.read_version == touch.write_version) {
+                touch.read_version &&
+                touch.read_version == touch.write_version) {
                 return CaptureAnalysisAdmission::InvalidInput;
             }
         }
@@ -226,8 +229,8 @@ CaptureAnalysisAdmission CheckCaptureAnalysisInput(
 
 bool DrawUsesShader(const DrawCaptureSummary &draw, const ShaderKey &shader)
 {
-    const size_t count = std::min<size_t>(draw.shader_count,
-                                          draw.shaders.size());
+    const size_t count =
+        std::min<size_t>(draw.shader_count, draw.shaders.size());
     for (size_t index = 0; index < count; ++index) {
         if (SameShaderIdentity(draw.shaders[index], shader)) {
             return true;
@@ -236,8 +239,9 @@ bool DrawUsesShader(const DrawCaptureSummary &draw, const ShaderKey &shader)
     return false;
 }
 
-std::vector<size_t> FindDrawsUsingShader(
-    const std::vector<DrawCaptureSummary> &draws, const ShaderKey &shader)
+std::vector<size_t>
+FindDrawsUsingShader(const std::vector<DrawCaptureSummary> &draws,
+                     const ShaderKey &shader)
 {
     std::vector<size_t> result;
     for (size_t index = 0; index < draws.size(); ++index) {
@@ -248,8 +252,8 @@ std::vector<size_t> FindDrawsUsingShader(
     return result;
 }
 
-std::vector<DrawSegmentSummary> EffectiveDrawSegments(
-    const DrawCaptureSummary &draw)
+std::vector<DrawSegmentSummary>
+EffectiveDrawSegments(const DrawCaptureSummary &draw)
 {
     if (!draw.segments.empty()) {
         std::vector<DrawSegmentSummary> result = draw.segments;

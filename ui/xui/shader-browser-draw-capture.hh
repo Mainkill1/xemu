@@ -37,6 +37,7 @@ struct DrawEventKey {
     uint64_t renderer_epoch = 0;
     uint64_t frame = 0;
     uint32_t draw = 0;
+    uint64_t submission = 0;
 
     bool operator==(const DrawEventKey &other) const;
     bool operator!=(const DrawEventKey &other) const;
@@ -181,20 +182,23 @@ struct DrawCaptureSummary {
 };
 
 enum class CaptureAnalysisAdmission : uint8_t {
-    Accepted, InvalidInput, LimitExceeded,
+    Accepted,
+    InvalidInput,
+    LimitExceeded,
 };
-CaptureAnalysisAdmission CheckCaptureAnalysisInput(
-    const std::vector<DrawCaptureSummary> &draws);
+CaptureAnalysisAdmission
+CheckCaptureAnalysisInput(const std::vector<DrawCaptureSummary> &draws);
 bool SameCaptureContext(const DrawCaptureSummary &lhs,
                         const DrawCaptureSummary &rhs);
 bool IsObjectGeometry(const DrawCaptureSummary &draw,
                       const DrawSegmentSummary &segment);
 
 bool DrawUsesShader(const DrawCaptureSummary &draw, const ShaderKey &shader);
-std::vector<size_t> FindDrawsUsingShader(
-    const std::vector<DrawCaptureSummary> &draws, const ShaderKey &shader);
-std::vector<DrawSegmentSummary> EffectiveDrawSegments(
-    const DrawCaptureSummary &draw);
+std::vector<size_t>
+FindDrawsUsingShader(const std::vector<DrawCaptureSummary> &draws,
+                     const ShaderKey &shader);
+std::vector<DrawSegmentSummary>
+EffectiveDrawSegments(const DrawCaptureSummary &draw);
 
 // Evidence is intentionally inspectable by the UI. SameShader has no positive
 // grouping weight because one shader commonly renders many unrelated objects.
@@ -261,8 +265,8 @@ struct ObjectGroupingResult {
     std::vector<ObjectCandidateEdge> resource_only;
 };
 
-ObjectGroupingResult BuildObjectCandidates(
-    const std::vector<DrawCaptureSummary> &draws);
+ObjectGroupingResult
+BuildObjectCandidates(const std::vector<DrawCaptureSummary> &draws);
 
 struct PrimitiveIsland {
     uint32_t island_id = 0;
@@ -280,8 +284,7 @@ struct PrimitiveSegmentation {
     uint32_t trailing_index_count = 0;
 };
 
-PrimitiveSegmentation SegmentTriangleList(
-    const std::vector<uint32_t> &indices);
+PrimitiveSegmentation SegmentTriangleList(const std::vector<uint32_t> &indices);
 
 // A version edge is a possible data dependency, not proof of pixel influence.
 struct ResourceDependency {
@@ -295,7 +298,10 @@ struct ResourceDependency {
 };
 
 enum class DependencyGap : uint8_t {
-    UnknownVersion, InvalidRange, MissingProducer, PartialCoverage,
+    UnknownVersion,
+    InvalidRange,
+    MissingProducer,
+    PartialCoverage,
     AmbiguousProducer,
 };
 struct UnresolvedResourceRead {
@@ -309,12 +315,14 @@ struct ResourceDependencyGraph {
     std::vector<ResourceDependency> edges;
     std::vector<UnresolvedResourceRead> unresolved_reads;
 };
-ResourceDependencyGraph BuildResourceDependencies(
-    const std::vector<DrawCaptureSummary> &draws);
-std::vector<DrawEventKey> TraceResourceInputs(
-    const ResourceDependencyGraph &graph, const std::vector<DrawEventKey> &seeds);
-std::vector<DrawEventKey> TraceResourceInfluence(
-    const ResourceDependencyGraph &graph, const std::vector<DrawEventKey> &seeds);
+ResourceDependencyGraph
+BuildResourceDependencies(const std::vector<DrawCaptureSummary> &draws);
+std::vector<DrawEventKey>
+TraceResourceInputs(const ResourceDependencyGraph &graph,
+                    const std::vector<DrawEventKey> &seeds);
+std::vector<DrawEventKey>
+TraceResourceInfluence(const ResourceDependencyGraph &graph,
+                       const std::vector<DrawEventKey> &seeds);
 
 // Shader seeds, inferred/confirmed geometry, and downstream influence remain
 // independent. Never expand an object group along a resource dependency.
@@ -332,7 +340,8 @@ struct ShaderObjectTrace {
     std::vector<ObjectCandidateEdge> resource_only;
 };
 
-ShaderObjectTrace TraceShaderObjectUsage(
-    const std::vector<DrawCaptureSummary> &draws, const ShaderKey &shader);
+ShaderObjectTrace
+TraceShaderObjectUsage(const std::vector<DrawCaptureSummary> &draws,
+                       const ShaderKey &shader);
 
 } // namespace xemu::shader_browser

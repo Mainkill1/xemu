@@ -10,9 +10,10 @@ namespace xemu::shader_browser {
 namespace {
 class SegmentationDisjointSet {
 public:
-    explicit SegmentationDisjointSet(size_t size) : parent_(size), rank_(size, 0)
+    explicit SegmentationDisjointSet(size_t size)
+        : parent_(size), rank_(size, 0)
     {
-        std::iota(parent_.begin(), parent_.end(), size_t{0});
+        std::iota(parent_.begin(), parent_.end(), size_t{ 0 });
     }
     size_t Find(size_t value)
     {
@@ -36,6 +37,7 @@ public:
             ++rank_[lhs];
         }
     }
+
 private:
     std::vector<size_t> parent_;
     std::vector<uint8_t> rank_;
@@ -62,16 +64,19 @@ PrimitiveSegmentation SegmentTriangleList(const std::vector<uint32_t> &indices)
         const uint32_t b = indices[primitive * 3 + 1];
         const uint32_t c = indices[primitive * 3 + 2];
         if (a == b || b == c || a == c) {
-            result.degenerate_primitives.push_back(static_cast<uint32_t>(primitive));
+            result.degenerate_primitives.push_back(
+                static_cast<uint32_t>(primitive));
         } else {
-            triangles.push_back({static_cast<uint32_t>(primitive), {a, b, c}});
+            triangles.push_back(
+                { static_cast<uint32_t>(primitive), { a, b, c } });
         }
     }
     SegmentationDisjointSet components(triangles.size());
     std::unordered_map<uint32_t, size_t> first_triangle_for_vertex;
     for (size_t index = 0; index < triangles.size(); ++index) {
         for (uint32_t vertex : triangles[index].vertices) {
-            const auto inserted = first_triangle_for_vertex.emplace(vertex, index);
+            const auto inserted =
+                first_triangle_for_vertex.emplace(vertex, index);
             if (!inserted.second) {
                 components.Unite(index, inserted.first->second);
             }
@@ -92,9 +97,9 @@ PrimitiveSegmentation SegmentTriangleList(const std::vector<uint32_t> &indices)
     }
     for (auto &island : result.islands) {
         std::sort(island.unique_vertices.begin(), island.unique_vertices.end());
-        island.unique_vertices.erase(
-            std::unique(island.unique_vertices.begin(), island.unique_vertices.end()),
-            island.unique_vertices.end());
+        island.unique_vertices.erase(std::unique(island.unique_vertices.begin(),
+                                                 island.unique_vertices.end()),
+                                     island.unique_vertices.end());
     }
     for (size_t index = 0; index < result.islands.size(); ++index) {
         result.islands[index].island_id = static_cast<uint32_t>(index);

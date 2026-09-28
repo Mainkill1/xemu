@@ -15,6 +15,7 @@ typedef enum PGRAPHGLDrawResult {
     PGRAPH_GL_DRAW_EMPTY,
     PGRAPH_GL_DRAW_SUBMITTED,
     PGRAPH_GL_DRAW_REJECTED,
+    PGRAPH_GL_DRAW_SUPPRESSED, /* Guest lifecycle without a host command. */
 } PGRAPHGLDrawResult;
 
 typedef struct PGRAPHGLDrawLifecycle {

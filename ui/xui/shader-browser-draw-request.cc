@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <cmath>
 #include <utility>
 
 namespace xemu::shader_browser {
@@ -28,31 +29,18 @@ uint64_t DrawCaptureRequest::Arm(const DrawRequestTarget &target)
     return status_.request_id;
 }
 
-bool DrawCaptureRequest::Wants(uint64_t scope_generation,
-                               uint64_t renderer_epoch,
-                               const ShaderKey *shaders,
-                               size_t shader_count) const
-{
-    if (!Armed() || !shaders) return false;
-    std::lock_guard<std::mutex> lock(mutex_);
-    if (status_.state != DrawRequestState::Armed ||
-        scope_generation != target_.scope_generation ||
-        renderer_epoch != target_.renderer_epoch) return false;
-    for (size_t i = 0; i < shader_count; ++i) {
-        if (SameShaderIdentity(shaders[i], target_.shader)) return true;
-    }
-    return false;
-}
-
 bool DrawCaptureRequest::Begin(uint64_t scope_generation,
                                uint64_t renderer_epoch,
                                const ShaderKey *shaders, size_t shader_count,
-                               uint64_t frame, uint32_t draw,
-                               uint64_t *token)
+                               uint64_t frame, uint32_t draw, uint64_t *token,
+                               uint64_t submission)
 {
-    if (!Armed() || !shaders || !shader_count || !token) return false;
+    if (!Armed() || !shaders || !shader_count ||
+        shader_count > kCapturedShaderSlots || !token)
+        return false;
     std::lock_guard<std::mutex> lock(mutex_);
-    if (status_.state != DrawRequestState::Armed) return false;
+    if (status_.state != DrawRequestState::Armed)
+        return false;
     if (scope_generation != target_.scope_generation ||
         renderer_epoch != target_.renderer_epoch) {
         status_.state = DrawRequestState::Cancelled;
@@ -66,8 +54,15 @@ bool DrawCaptureRequest::Begin(uint64_t scope_generation,
             break;
         }
     }
-    if (!matched) return false;
-    status_.draw = {target_.session_epoch, target_.renderer_epoch, frame, draw};
+    if (!matched)
+        return false;
+    status_.draw = { target_.session_epoch, target_.renderer_epoch, frame, draw,
+                     submission };
+    captured_ = {};
+    captured_.key = status_.draw;
+    captured_.scope = target_.scope;
+    captured_.shader_count = static_cast<uint8_t>(shader_count);
+    std::copy_n(shaders, shader_count, captured_.shaders.begin());
     status_.state = DrawRequestState::Capturing;
     armed_.store(false, std::memory_order_release);
     *token = status_.request_id;
@@ -90,6 +85,66 @@ bool DrawCaptureRequest::Complete(uint64_t token,
     }
     captured_ = capture;
     geometry_ = geometry;
+    if (!geometry_.positions.empty() && !geometry_.indices.empty()) {
+        captured_.completeness = CaptureCompleteness::GeometrySnapshot;
+        captured_.domain = DrawDomain::Geometry;
+        captured_.primitive_count = geometry_.indices.size() / 3;
+    }
+    status_.state = DrawRequestState::Ready;
+    return true;
+}
+
+bool DrawCaptureRequest::StageGeometry(uint64_t token,
+                                       OwnedDrawGeometry geometry)
+{
+    if (geometry.positions.size() > 4096 || geometry.indices.size() > 12288)
+        return false;
+    std::vector<bool> referenced(geometry.positions.size());
+    for (uint32_t index : geometry.indices) {
+        if (index >= geometry.positions.size())
+            return false;
+        referenced[index] = true;
+    }
+    for (size_t i = 0; i < geometry.positions.size(); ++i) {
+        auto &position = geometry.positions[i];
+        if (!referenced[i]) {
+            // Sparse buffer holes are not submitted vertices. Neutralize them
+            // so unrelated bytes cannot reject or contaminate the packet.
+            position = { 0, 0, 0, 1 };
+            continue;
+        }
+        for (float value : position) {
+            if (!std::isfinite(value) || std::abs(value) > 1.0e9f)
+                return false;
+        }
+    }
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (status_.state != DrawRequestState::Capturing ||
+        token != status_.request_id)
+        return false;
+    geometry_ = std::move(geometry);
+    return true;
+}
+
+bool DrawCaptureRequest::Finish(uint64_t token, bool emitted,
+                                uint32_t primitive_mode, uint32_t vertex_count,
+                                uint32_t index_count)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (status_.state != DrawRequestState::Capturing ||
+        token != status_.request_id)
+        return false;
+    if (!emitted) {
+        captured_ = {};
+        geometry_ = {};
+        status_.draw = {};
+        status_.state = DrawRequestState::Armed;
+        armed_.store(true, std::memory_order_release);
+        return true;
+    }
+    captured_.primitive_mode = primitive_mode;
+    captured_.vertex_count = vertex_count;
+    captured_.index_count = index_count;
     if (!geometry_.positions.empty() && !geometry_.indices.empty()) {
         captured_.completeness = CaptureCompleteness::GeometrySnapshot;
         captured_.domain = DrawDomain::Geometry;
@@ -133,14 +188,14 @@ DrawCaptureSummary DrawCaptureRequest::CopyCaptured() const
 {
     std::lock_guard<std::mutex> lock(mutex_);
     return status_.state == DrawRequestState::Ready ? captured_ :
-        DrawCaptureSummary{};
+                                                      DrawCaptureSummary{};
 }
 
 OwnedDrawGeometry DrawCaptureRequest::CopyGeometry() const
 {
     std::lock_guard<std::mutex> lock(mutex_);
     return status_.state == DrawRequestState::Ready ? geometry_ :
-        OwnedDrawGeometry{};
+                                                      OwnedDrawGeometry{};
 }
 
 DrawCaptureRequest &GetDrawCaptureRequest()
@@ -159,19 +214,25 @@ xemu::shader_browser::Stage ConvertStage(uint32_t stage)
 {
     using xemu::shader_browser::Stage;
     switch (stage) {
-    case XEMU_SHADER_BROWSER_STAGE_VERTEX: return Stage::Vertex;
-    case XEMU_SHADER_BROWSER_STAGE_PIXEL: return Stage::Pixel;
-    case XEMU_SHADER_BROWSER_STAGE_GEOMETRY: return Stage::Geometry;
-    case XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION: return Stage::FixedFunction;
-    default: return Stage::Unknown;
+    case XEMU_SHADER_BROWSER_STAGE_VERTEX:
+        return Stage::Vertex;
+    case XEMU_SHADER_BROWSER_STAGE_PIXEL:
+        return Stage::Pixel;
+    case XEMU_SHADER_BROWSER_STAGE_GEOMETRY:
+        return Stage::Geometry;
+    case XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION:
+        return Stage::FixedFunction;
+    default:
+        return Stage::Unknown;
     }
 }
-}
+} // namespace
 
-extern "C" uint64_t xemu_shader_draw_request_arm(
-    const XemuShaderDrawRequestSpec *spec)
+extern "C" uint64_t
+xemu_shader_draw_request_arm(const XemuShaderDrawRequestSpec *spec)
 {
-    if (!spec) return 0;
+    if (!spec)
+        return 0;
     xemu::shader_browser::DrawRequestTarget target{};
     target.shader.stage = ConvertStage(spec->stage);
     std::copy_n(spec->identity_hash, target.shader.hash.bytes.size(),
@@ -198,27 +259,33 @@ extern "C" int xemu_shader_draw_request_is_armed(void)
     return draw_request.Armed() ? 1 : 0;
 }
 
-extern "C" int xemu_shader_draw_request_wants(
+extern "C" uint64_t xemu_shader_draw_request_claim(
     uint64_t scope_generation, uint64_t renderer_epoch,
-    const XemuShaderDrawIdentity *identities, size_t identity_count)
+    const XemuShaderDrawIdentity *identities, size_t identity_count,
+    uint64_t frame, uint32_t draw, uint64_t submission)
 {
     using namespace xemu::shader_browser;
     if (!draw_request.Armed() || !identities ||
-        identity_count > kCapturedShaderSlots) return 0;
+        identity_count > kCapturedShaderSlots)
+        return 0;
     ShaderKey shaders[kCapturedShaderSlots]{};
     for (size_t i = 0; i < identity_count; ++i) {
         shaders[i].stage = ConvertStage(identities[i].stage);
-        std::copy_n(identities[i].identity_hash,
-                    shaders[i].hash.bytes.size(), shaders[i].hash.bytes.begin());
+        std::copy_n(identities[i].identity_hash, shaders[i].hash.bytes.size(),
+                    shaders[i].hash.bytes.begin());
     }
-    return draw_request.Wants(scope_generation, renderer_epoch, shaders,
-                              identity_count) ? 1 : 0;
+    uint64_t token = 0;
+    return draw_request.Begin(scope_generation, renderer_epoch, shaders,
+                              identity_count, frame, draw, &token, submission) ?
+               token :
+               0;
 }
 
-extern "C" int xemu_shader_draw_request_copy_status(
-    XemuShaderDrawRequestStatus *status)
+extern "C" int
+xemu_shader_draw_request_copy_status(XemuShaderDrawRequestStatus *status)
 {
-    if (!status) return 0;
+    if (!status)
+        return 0;
     const auto current = draw_request.Status();
     status->request_id = current.request_id;
     status->state = static_cast<XemuShaderDrawRequestState>(current.state);
@@ -226,62 +293,38 @@ extern "C" int xemu_shader_draw_request_copy_status(
     status->renderer_epoch = current.draw.renderer_epoch;
     status->frame = current.draw.frame;
     status->draw = current.draw.draw;
+    status->submission = current.draw.submission;
     return 1;
 }
 
-extern "C" int xemu_shader_draw_request_submitted(
-    uint64_t scope_generation, uint64_t renderer_epoch,
-    const XemuShaderDrawIdentity *identities, size_t identity_count,
-    uint64_t frame, uint32_t draw, uint32_t primitive_mode,
-    uint32_t vertex_count, uint32_t index_count,
-    const XemuShaderDrawGeometry *geometry)
+extern "C" int
+xemu_shader_draw_request_stage_geometry(uint64_t token,
+                                        const XemuShaderDrawGeometry *geometry)
 {
     using namespace xemu::shader_browser;
-    if (!draw_request.Armed() || !identities ||
-        identity_count > kCapturedShaderSlots) return 0;
-    ShaderKey shaders[kCapturedShaderSlots]{};
-    for (size_t i = 0; i < identity_count; ++i) {
-        shaders[i].stage = ConvertStage(identities[i].stage);
-        std::copy_n(identities[i].identity_hash,
-                    shaders[i].hash.bytes.size(), shaders[i].hash.bytes.begin());
-    }
-    uint64_t token = 0;
-    if (!draw_request.Begin(scope_generation, renderer_epoch, shaders,
-                            identity_count, frame, draw, &token)) return 0;
-    const DrawRequestTarget target = draw_request.Target();
-    const DrawRequestStatus status = draw_request.Status();
-    DrawCaptureSummary capture{};
-    capture.key = status.draw;
-    capture.scope = target.scope;
-    capture.shader_count = static_cast<uint8_t>(identity_count);
-    std::copy_n(shaders, identity_count, capture.shaders.begin());
-    capture.primitive_mode = primitive_mode;
-    capture.vertex_count = vertex_count;
-    capture.index_count = index_count;
-    capture.completeness = CaptureCompleteness::MetadataOnly;
+    if (!geometry || !geometry->positions || !geometry->position_count ||
+        geometry->position_count > 4096 ||
+        (geometry->index_count && !geometry->indices) ||
+        geometry->index_count > 12288)
+        return 0;
     OwnedDrawGeometry owned;
-    if (geometry) {
-        if (!geometry->positions || !geometry->position_count ||
-            geometry->position_count > 4096 ||
-            (geometry->index_count && !geometry->indices) ||
-            geometry->index_count > 12288) {
-            draw_request.Fail(token);
-            return 0;
-        }
-        owned.positions.resize(geometry->position_count);
-        for (size_t i = 0; i < geometry->position_count; ++i) {
-            std::copy_n(geometry->positions + 4 * i, 4,
-                        owned.positions[i].begin());
-        }
-        if (geometry->index_count)
-            owned.indices.assign(geometry->indices,
-                                 geometry->indices + geometry->index_count);
-        for (uint32_t index : owned.indices) {
-            if (index >= owned.positions.size()) {
-                draw_request.Fail(token);
-                return 0;
-            }
-        }
+    owned.positions.resize(geometry->position_count);
+    for (size_t i = 0; i < geometry->position_count; ++i) {
+        std::copy_n(geometry->positions + 4 * i, 4, owned.positions[i].begin());
     }
-    return draw_request.Complete(token, capture, owned) ? 1 : 0;
+    if (geometry->index_count)
+        owned.indices.assign(geometry->indices,
+                             geometry->indices + geometry->index_count);
+    return draw_request.StageGeometry(token, std::move(owned)) ? 1 : 0;
+}
+
+extern "C" int xemu_shader_draw_request_finish(uint64_t token, int emitted,
+                                               uint32_t primitive_mode,
+                                               uint32_t vertex_count,
+                                               uint32_t index_count)
+{
+    return draw_request.Finish(token, emitted != 0, primitive_mode,
+                               vertex_count, index_count) ?
+               1 :
+               0;
 }

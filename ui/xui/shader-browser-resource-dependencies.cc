@@ -10,8 +10,9 @@ namespace xemu::shader_browser {
 namespace {
 bool ValidRange(const AddressRange &range)
 {
-    return range.length && range.length - 1 <=
-        std::numeric_limits<uint64_t>::max() - range.address;
+    return range.length &&
+           range.length - 1 <=
+               std::numeric_limits<uint64_t>::max() - range.address;
 }
 uint64_t LastByte(const AddressRange &range)
 {
@@ -19,11 +20,13 @@ uint64_t LastByte(const AddressRange &range)
 }
 bool Reads(ResourceAccess access)
 {
-    return access == ResourceAccess::Read || access == ResourceAccess::ReadWrite;
+    return access == ResourceAccess::Read ||
+           access == ResourceAccess::ReadWrite;
 }
 bool Writes(ResourceAccess access)
 {
-    return access == ResourceAccess::Write || access == ResourceAccess::ReadWrite;
+    return access == ResourceAccess::Write ||
+           access == ResourceAccess::ReadWrite;
 }
 struct Writer {
     const DrawCaptureSummary *draw;
@@ -31,13 +34,14 @@ struct Writer {
 };
 } // namespace
 
-ResourceDependencyGraph BuildResourceDependencies(
-    const std::vector<DrawCaptureSummary> &draws)
+ResourceDependencyGraph
+BuildResourceDependencies(const std::vector<DrawCaptureSummary> &draws)
 {
     ResourceDependencyGraph result{};
     const auto admission = CheckCaptureAnalysisInput(draws);
     result.invalid_input = admission == CaptureAnalysisAdmission::InvalidInput;
-    result.limit_exceeded = admission == CaptureAnalysisAdmission::LimitExceeded;
+    result.limit_exceeded =
+        admission == CaptureAnalysisAdmission::LimitExceeded;
     if (result.invalid_input || result.limit_exceeded) {
         return result;
     }
@@ -48,15 +52,16 @@ ResourceDependencyGraph BuildResourceDependencies(
         for (size_t index = 0; index < draw.resources.size(); ++index) {
             const auto &touch = draw.resources[index];
             if (Writes(touch.access) && touch.resource.storage_id &&
-                touch.write_version && ValidRange(touch.resource.storage_range)) {
-                writers[{touch.resource.storage_id, touch.write_version}]
-                    .push_back({&draw, static_cast<uint32_t>(index)});
+                touch.write_version &&
+                ValidRange(touch.resource.storage_range)) {
+                writers[{ touch.resource.storage_id, touch.write_version }]
+                    .push_back({ &draw, static_cast<uint32_t>(index) });
             }
         }
     }
-    std::sort(ordered.begin(), ordered.end(), [](const auto *lhs, const auto *rhs) {
-        return lhs->key < rhs->key;
-    });
+    std::sort(
+        ordered.begin(), ordered.end(),
+        [](const auto *lhs, const auto *rhs) { return lhs->key < rhs->key; });
     for (const auto *draw : ordered) {
         for (size_t index = 0; index < draw->resources.size(); ++index) {
             const auto &read = draw->resources[index];
@@ -65,7 +70,7 @@ ResourceDependencyGraph BuildResourceDependencies(
             }
             const auto gap = [&](DependencyGap reason) {
                 result.unresolved_reads.push_back(
-                    {draw->key, static_cast<uint32_t>(index), reason});
+                    { draw->key, static_cast<uint32_t>(index), reason });
             };
             if (!read.resource.storage_id || !read.read_version) {
                 gap(DependencyGap::UnknownVersion);
@@ -76,8 +81,8 @@ ResourceDependencyGraph BuildResourceDependencies(
                 gap(DependencyGap::InvalidRange);
                 continue;
             }
-            const auto found = writers.find({read.resource.storage_id,
-                                             read.read_version});
+            const auto found =
+                writers.find({ read.resource.storage_id, read.read_version });
             std::vector<ResourceDependency> candidates;
             if (found != writers.end()) {
                 for (const auto &writer : found->second) {
@@ -90,12 +95,17 @@ ResourceDependencyGraph BuildResourceDependencies(
                     if (!AddressRangesOverlap(source, range)) {
                         continue;
                     }
-                    const uint64_t start = std::max(source.address, range.address);
-                    const uint64_t end = std::min(LastByte(source), LastByte(range));
-                    candidates.push_back({writer.draw->key, draw->key,
-                        writer.touch, static_cast<uint32_t>(index),
-                        read.resource.storage_id, read.read_version,
-                        {start, end - start + 1}});
+                    const uint64_t start =
+                        std::max(source.address, range.address);
+                    const uint64_t end =
+                        std::min(LastByte(source), LastByte(range));
+                    candidates.push_back({ writer.draw->key,
+                                           draw->key,
+                                           writer.touch,
+                                           static_cast<uint32_t>(index),
+                                           read.resource.storage_id,
+                                           read.read_version,
+                                           { start, end - start + 1 } });
                 }
             }
             std::sort(candidates.begin(), candidates.end(),
@@ -119,23 +129,26 @@ ResourceDependencyGraph BuildResourceDependencies(
                 gap(DependencyGap::AmbiguousProducer);
                 continue;
             }
-            if (candidates.size() > kCaptureMaxDependencyEdges - result.edges.size()) {
+            if (candidates.size() >
+                kCaptureMaxDependencyEdges - result.edges.size()) {
                 result.edges.clear();
                 result.limit_exceeded = true;
                 return result;
             }
-            result.edges.insert(result.edges.end(), candidates.begin(), candidates.end());
+            result.edges.insert(result.edges.end(), candidates.begin(),
+                                candidates.end());
             if (covered != range.length) {
-                gap(covered ? DependencyGap::PartialCoverage : DependencyGap::MissingProducer);
+                gap(covered ? DependencyGap::PartialCoverage :
+                              DependencyGap::MissingProducer);
             }
         }
     }
     return result;
 }
 
-static std::vector<DrawEventKey> TraceResourceGraph(
-    const ResourceDependencyGraph &graph, const std::vector<DrawEventKey> &seeds,
-    bool upstream)
+static std::vector<DrawEventKey>
+TraceResourceGraph(const ResourceDependencyGraph &graph,
+                   const std::vector<DrawEventKey> &seeds, bool upstream)
 {
     if (graph.invalid_input || graph.limit_exceeded) {
         return {};
@@ -161,16 +174,18 @@ static std::vector<DrawEventKey> TraceResourceGraph(
     for (const auto &seed : seeds) {
         seen.erase(seed);
     }
-    return {seen.begin(), seen.end()};
+    return { seen.begin(), seen.end() };
 }
-std::vector<DrawEventKey> TraceResourceInputs(
-    const ResourceDependencyGraph &graph, const std::vector<DrawEventKey> &seeds)
+std::vector<DrawEventKey>
+TraceResourceInputs(const ResourceDependencyGraph &graph,
+                    const std::vector<DrawEventKey> &seeds)
 {
     return TraceResourceGraph(graph, seeds, true);
 }
 
-std::vector<DrawEventKey> TraceResourceInfluence(
-    const ResourceDependencyGraph &graph, const std::vector<DrawEventKey> &seeds)
+std::vector<DrawEventKey>
+TraceResourceInfluence(const ResourceDependencyGraph &graph,
+                       const std::vector<DrawEventKey> &seeds)
 {
     return TraceResourceGraph(graph, seeds, false);
 }

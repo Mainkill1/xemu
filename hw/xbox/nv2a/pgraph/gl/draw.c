@@ -26,6 +26,7 @@
 #include "debug.h"
 #include "draw-lifecycle.h"
 #include "renderer.h"
+#include "shader-browser-capture.h"
 
 static PGRAPHGLDrawResult pgraph_gl_flush_draw_internal(NV2AState *d);
 
@@ -365,6 +366,37 @@ void pgraph_gl_draw_end(NV2AState *d)
     NV2A_GL_DGROUP_END();
 }
 
+static uint64_t capture_gl_command(PGRAPHState *pg, bool indexed,
+                                   const int32_t *starts, const int32_t *counts,
+                                   size_t ranges)
+{
+    PGRAPHGLState *r = pg->gl_renderer_state;
+    uint64_t token =
+        pgraph_shader_browser_capture_claim(pg, &r->shader_binding->browser);
+    if (!token || pg->primitive_mode != NV097_SET_BEGIN_END_OP_TRIANGLES)
+        return token;
+    g_autofree XemuShaderDrawLayout *layout =
+        g_try_new(XemuShaderDrawLayout, 1);
+    if (!layout)
+        return token;
+    if (indexed) {
+        if (pg->inline_elements_length > 12288)
+            return token;
+        GLint buffer;
+        glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &buffer);
+        g_autofree uint8_t *indices = xemu_shader_draw_gl_read_buffer(
+            buffer, 0, pg->inline_elements_length * sizeof(uint32_t));
+        if (!indices || !xemu_shader_draw_layout_elements(
+                            layout, indices, pg->inline_elements_length))
+            return token;
+    } else if (!xemu_shader_draw_layout_arrays(layout, starts, counts,
+                                               ranges)) {
+        return token;
+    }
+    xemu_shader_draw_gl_stage_bound(token, layout);
+    return token;
+}
+
 static PGRAPHGLDrawResult pgraph_gl_flush_draw_internal(NV2AState *d)
 {
     PGRAPHState *pg = &d->pgraph;
@@ -388,10 +420,17 @@ static PGRAPHGLDrawResult pgraph_gl_flush_draw_internal(NV2AState *d)
                 pg->draw_arrays_max_count - 1)) {
             return PGRAPH_GL_DRAW_REJECTED;
         }
+        uint64_t token =
+            capture_gl_command(pg, false, pg->draw_arrays_start,
+                               pg->draw_arrays_count, pg->draw_arrays_length);
         glMultiDrawArrays(r->shader_binding->gl_primitive_mode,
                           pg->draw_arrays_start,
                           pg->draw_arrays_count,
                           pg->draw_arrays_length);
+        uint32_t vertices = 0;
+        for (size_t i = 0; i < pg->draw_arrays_length; ++i)
+            vertices += pg->draw_arrays_count[i];
+        pgraph_shader_browser_capture_finish(pg, token, true, vertices, 0);
         return PGRAPH_GL_DRAW_SUBMITTED;
     } else if (pg->inline_elements_length) {
         NV2A_GL_DPRINTF(false, "Inline Elements");
@@ -436,11 +475,15 @@ static PGRAPHGLDrawResult pgraph_gl_flush_draw_internal(NV2AState *d)
         if (!xemu_tweak_enabled(XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION) ||
             !pgraph_matches_issue149_effect(pg, pg->inline_elements_length,
                                             min_element, max_element)) {
+            uint64_t token = capture_gl_command(pg, true, NULL, NULL, 0);
             glDrawElements(r->shader_binding->gl_primitive_mode,
                            pg->inline_elements_length, GL_UNSIGNED_INT,
                            (void *)0);
+            pgraph_shader_browser_capture_finish(pg, token, true, 0,
+                                                 pg->inline_elements_length);
+            return PGRAPH_GL_DRAW_SUBMITTED;
         }
-        return PGRAPH_GL_DRAW_SUBMITTED;
+        return PGRAPH_GL_DRAW_SUPPRESSED;
     } else if (pg->inline_buffer_length) {
         NV2A_GL_DPRINTF(false, "Inline Buffer");
         nv2a_profile_inc_counter(NV2A_PROF_INLINE_BUFFERS);
@@ -471,8 +514,11 @@ static PGRAPHGLDrawResult pgraph_gl_flush_draw_internal(NV2AState *d)
             }
         }
 
+        const int32_t start = 0, count = pg->inline_buffer_length;
+        uint64_t token = capture_gl_command(pg, false, &start, &count, 1);
         glDrawArrays(r->shader_binding->gl_primitive_mode,
                      0, pg->inline_buffer_length);
+        pgraph_shader_browser_capture_finish(pg, token, true, count, 0);
         return PGRAPH_GL_DRAW_SUBMITTED;
     } else if (pg->inline_array_length) {
         NV2A_GL_DPRINTF(false, "Inline Array");
@@ -482,8 +528,11 @@ static PGRAPHGLDrawResult pgraph_gl_flush_draw_internal(NV2AState *d)
         if (!index_count) {
             return PGRAPH_GL_DRAW_REJECTED;
         }
+        const int32_t start = 0, count = index_count;
+        uint64_t token = capture_gl_command(pg, false, &start, &count, 1);
         glDrawArrays(r->shader_binding->gl_primitive_mode,
                      0, index_count);
+        pgraph_shader_browser_capture_finish(pg, token, true, count, 0);
         return PGRAPH_GL_DRAW_SUBMITTED;
     } else {
         NV2A_GL_DPRINTF(true, "EMPTY NV097_SET_BEGIN_END");
@@ -501,7 +550,9 @@ void pgraph_gl_flush_draw(NV2AState *d)
     }
     PGRAPHGLDrawResult result = pgraph_gl_flush_draw_internal(d);
     pgraph_gl_draw_lifecycle_record(&r->draw_lifecycle, result);
-    if (result == PGRAPH_GL_DRAW_SUBMITTED && r->shader_binding) {
+    if ((result == PGRAPH_GL_DRAW_SUBMITTED ||
+         result == PGRAPH_GL_DRAW_SUPPRESSED) &&
+        r->shader_binding) {
         pgraph_shader_browser_record_draw(
             &d->pgraph.shader_browser_observations,
             &r->shader_binding->browser, d->pgraph.frame_time,

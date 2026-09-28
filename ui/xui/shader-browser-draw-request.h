@@ -45,23 +45,28 @@ typedef struct XemuShaderDrawRequestStatus {
     uint64_t renderer_epoch;
     uint64_t frame;
     uint32_t draw;
+    uint64_t submission;
     XemuShaderDrawRequestState state;
 } XemuShaderDrawRequestStatus;
 
 uint64_t xemu_shader_draw_request_arm(const XemuShaderDrawRequestSpec *spec);
 int xemu_shader_draw_request_is_armed(void);
-int xemu_shader_draw_request_wants(
-    uint64_t scope_generation, uint64_t renderer_epoch,
-    const XemuShaderDrawIdentity *identities, size_t identity_count);
-void xemu_shader_draw_request_cancel(void);
-int xemu_shader_draw_request_copy_status(XemuShaderDrawRequestStatus *status);
-/* Called only after a real backend submission; copies bounded owned geometry. */
-int xemu_shader_draw_request_submitted(
+/* Atomically reserve this request before reading the resolved backend source.
+ */
+uint64_t xemu_shader_draw_request_claim(
     uint64_t scope_generation, uint64_t renderer_epoch,
     const XemuShaderDrawIdentity *identities, size_t identity_count,
-    uint64_t frame, uint32_t draw, uint32_t primitive_mode,
-    uint32_t vertex_count, uint32_t index_count,
-    const XemuShaderDrawGeometry *geometry);
+    uint64_t frame, uint32_t draw, uint64_t submission);
+void xemu_shader_draw_request_cancel(void);
+int xemu_shader_draw_request_copy_status(XemuShaderDrawRequestStatus *status);
+/* Copies while Capturing; unpublished until the exact command is emitted. */
+int xemu_shader_draw_request_stage_geometry(
+    uint64_t token, const XemuShaderDrawGeometry *geometry);
+/* A false emission releases the claim; stale tokens cannot affect a rearm. */
+int xemu_shader_draw_request_finish(uint64_t token, int emitted,
+                                    uint32_t primitive_mode,
+                                    uint32_t vertex_count,
+                                    uint32_t index_count);
 
 #ifdef __cplusplus
 }

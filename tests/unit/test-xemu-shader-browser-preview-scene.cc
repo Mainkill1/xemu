@@ -141,6 +141,15 @@ int main()
     assert(game_gl.vertices.size() <= kPreviewMaxSceneVertices);
     assert(game_gl.vertices[game_gl.draws.back().first_vertex].position[1] ==
           -game_vk.vertices[game_vk.draws.back().first_vertex].position[1]);
+    captured.positions.push_back({ 1000000, -1000000, 1000000, 1 });
+    auto sparse = BuildPreviewCapturedFrame(PreviewScene{}, captured);
+    assert(sparse.draws.back().vertex_count == 3);
+    for (size_t i = game_gl.draws.back().first_vertex;
+         i < game_gl.vertices.size(); ++i) {
+        for (size_t axis = 0; axis < 4; ++axis)
+            assert(sparse.vertices[i].position[axis] ==
+                   game_gl.vertices[i].position[axis]);
+    }
     captured.indices = {0, 2, 1};
     auto reversed = BuildPreviewCapturedFrame(PreviewScene{}, captured);
     assert(reversed.vertices[reversed.draws.back().first_vertex + 1].position[1] !=

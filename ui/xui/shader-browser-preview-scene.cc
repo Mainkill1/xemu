@@ -351,8 +351,13 @@ PreviewSceneFrame BuildPreviewCapturedFrame(const PreviewScene &input,
 
     std::array<float, 3> low{ INFINITY, INFINITY, INFINITY };
     std::array<float, 3> high{ -INFINITY, -INFINITY, -INFINITY };
-    for (const auto &point : mesh.positions) {
+    for (uint32_t index : mesh.indices) {
+        if (index >= mesh.positions.size())
+            return frame;
+        const auto &point = mesh.positions[index];
         for (size_t axis = 0; axis < 3; ++axis) {
+            if (!std::isfinite(point[axis]))
+                return frame;
             low[axis] = std::min(low[axis], point[axis]);
             high[axis] = std::max(high[axis], point[axis]);
         }

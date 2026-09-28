@@ -36,10 +36,10 @@ static bool DifferentNonEmptyDigest(const CaptureDigest &lhs,
 static bool DrawsShareShader(const DrawCaptureSummary &lhs,
                              const DrawCaptureSummary &rhs)
 {
-    const size_t lhs_count = std::min<size_t>(lhs.shader_count,
-                                              lhs.shaders.size());
-    const size_t rhs_count = std::min<size_t>(rhs.shader_count,
-                                              rhs.shaders.size());
+    const size_t lhs_count =
+        std::min<size_t>(lhs.shader_count, lhs.shaders.size());
+    const size_t rhs_count =
+        std::min<size_t>(rhs.shader_count, rhs.shaders.size());
     for (size_t lhs_index = 0; lhs_index < lhs_count; ++lhs_index) {
         for (size_t rhs_index = 0; rhs_index < rhs_count; ++rhs_index) {
             if (SameShaderIdentity(lhs.shaders[lhs_index],
@@ -58,8 +58,7 @@ static bool IsKind(ResourceKind kind, ResourceKind first,
 }
 
 static bool ShareResource(const DrawCaptureSummary &lhs,
-                          const DrawCaptureSummary &rhs,
-                          ResourceKind first,
+                          const DrawCaptureSummary &rhs, ResourceKind first,
                           ResourceKind second = ResourceKind::Unknown)
 {
     for (const auto &lhs_touch : lhs.resources) {
@@ -93,32 +92,33 @@ ObjectRelationship AnalyzeObjectRelationship(
         return result;
     }
     const bool same_draw = lhs_segment.key.draw == rhs_segment.key.draw;
-    const bool same_frame = SameFrame(lhs_segment.key.draw,
-                                      rhs_segment.key.draw);
-    const bool adjacent = AdjacentDraw(lhs_segment.key.draw,
-                                       rhs_segment.key.draw);
+    const bool same_frame =
+        SameFrame(lhs_segment.key.draw, rhs_segment.key.draw);
+    const bool adjacent =
+        AdjacentDraw(lhs_segment.key.draw, rhs_segment.key.draw);
     const bool same_shader = DrawsShareShader(lhs_draw, rhs_draw);
-    const bool same_geometry = SameNonEmptyDigest(
-        lhs_segment.geometry_digest, rhs_segment.geometry_digest);
+    const bool same_geometry = SameNonEmptyDigest(lhs_segment.geometry_digest,
+                                                  rhs_segment.geometry_digest);
     const bool same_transform = SameNonEmptyDigest(
         lhs_segment.transform_digest, rhs_segment.transform_digest);
     const bool different_transform = DifferentNonEmptyDigest(
         lhs_segment.transform_digest, rhs_segment.transform_digest);
-    const bool same_skinning = SameNonEmptyDigest(
-        lhs_segment.skinning_digest, rhs_segment.skinning_digest);
-    const bool shared_geometry = ShareResource(
-        lhs_draw, rhs_draw, ResourceKind::VertexStream,
-        ResourceKind::IndexStream);
-    const bool overlapping_vertices = AddressRangesOverlap(
-        lhs_segment.vertex_span, rhs_segment.vertex_span);
-    const bool overlapping_bounds = SameNonEmptyDigest(
-        lhs_segment.bounds_space_digest, rhs_segment.bounds_space_digest) &&
+    const bool same_skinning = SameNonEmptyDigest(lhs_segment.skinning_digest,
+                                                  rhs_segment.skinning_digest);
+    const bool shared_geometry =
+        ShareResource(lhs_draw, rhs_draw, ResourceKind::VertexStream,
+                      ResourceKind::IndexStream);
+    const bool overlapping_vertices =
+        AddressRangesOverlap(lhs_segment.vertex_span, rhs_segment.vertex_span);
+    const bool overlapping_bounds =
+        SameNonEmptyDigest(lhs_segment.bounds_space_digest,
+                           rhs_segment.bounds_space_digest) &&
         BoundsOverlap(lhs_segment.bounds, rhs_segment.bounds);
     const bool shared_texture = ShareResource(
         lhs_draw, rhs_draw, ResourceKind::Texture, ResourceKind::Palette);
-    const bool same_destination = ShareResource(
-        lhs_draw, rhs_draw, ResourceKind::ColorTarget,
-        ResourceKind::DepthStencilTarget);
+    const bool same_destination =
+        ShareResource(lhs_draw, rhs_draw, ResourceKind::ColorTarget,
+                      ResourceKind::DepthStencilTarget);
 
     if (same_draw) {
         result.evidence |= ObjectEvidenceSameDraw;
@@ -172,7 +172,8 @@ ObjectRelationship AnalyzeObjectRelationship(
     }
 
     if (lhs_segment.confirmed_object_id && rhs_segment.confirmed_object_id) {
-        if (lhs_segment.confirmed_object_id == rhs_segment.confirmed_object_id) {
+        if (lhs_segment.confirmed_object_id ==
+            rhs_segment.confirmed_object_id) {
             result.evidence |= ObjectEvidenceConfirmedMembership;
             result.classification = ObjectLinkClass::SameObjectCandidate;
             result.automatic_group = true;
@@ -180,7 +181,8 @@ ObjectRelationship AnalyzeObjectRelationship(
             result.evidence |= ObjectEvidenceDifferentObject;
             result.blocked = true;
             result.classification = shared_geometry || shared_texture ?
-                ObjectLinkClass::SharedResourceOnly : ObjectLinkClass::None;
+                                        ObjectLinkClass::SharedResourceOnly :
+                                        ObjectLinkClass::None;
         }
         return result;
     }
@@ -188,7 +190,8 @@ ObjectRelationship AnalyzeObjectRelationship(
     if (different_transform) {
         result.blocked = true;
         result.classification = shared_geometry || shared_texture ?
-            ObjectLinkClass::SharedResourceOnly : ObjectLinkClass::None;
+                                    ObjectLinkClass::SharedResourceOnly :
+                                    ObjectLinkClass::None;
         return result;
     }
 

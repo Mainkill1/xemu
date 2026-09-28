@@ -18,7 +18,7 @@ class DisjointSet {
 public:
     explicit DisjointSet(size_t count) : parents_(count)
     {
-        std::iota(parents_.begin(), parents_.end(), size_t{0});
+        std::iota(parents_.begin(), parents_.end(), size_t{ 0 });
     }
     size_t Find(size_t index)
     {
@@ -32,18 +32,20 @@ public:
     {
         parents_[Find(rhs)] = Find(lhs);
     }
+
 private:
     std::vector<size_t> parents_;
 };
 } // namespace
 
-ObjectGroupingResult BuildObjectCandidates(
-    const std::vector<DrawCaptureSummary> &draws)
+ObjectGroupingResult
+BuildObjectCandidates(const std::vector<DrawCaptureSummary> &draws)
 {
     ObjectGroupingResult result{};
     const auto admission = CheckCaptureAnalysisInput(draws);
     result.invalid_input = admission == CaptureAnalysisAdmission::InvalidInput;
-    result.limit_exceeded = admission == CaptureAnalysisAdmission::LimitExceeded;
+    result.limit_exceeded =
+        admission == CaptureAnalysisAdmission::LimitExceeded;
     if (result.invalid_input || result.limit_exceeded) {
         return result;
     }
@@ -53,22 +55,23 @@ ObjectGroupingResult BuildObjectCandidates(
             if (!IsObjectGeometry(draw, segment)) {
                 result.unresolved_segments.push_back(segment.key);
             } else {
-                flat.push_back({&draw, std::move(segment)});
+                flat.push_back({ &draw, std::move(segment) });
             }
         }
     }
-    std::sort(result.unresolved_segments.begin(), result.unresolved_segments.end());
+    std::sort(result.unresolved_segments.begin(),
+              result.unresolved_segments.end());
     std::sort(flat.begin(), flat.end(), [](const auto &lhs, const auto &rhs) {
         return lhs.segment.key < rhs.segment.key;
     });
     DisjointSet groups(flat.size());
     for (size_t lhs = 0; lhs < flat.size(); ++lhs) {
         for (size_t rhs = lhs + 1; rhs < flat.size(); ++rhs) {
-            const auto relationship = AnalyzeObjectRelationship(
-                flat[lhs].segment, *flat[lhs].draw,
-                flat[rhs].segment, *flat[rhs].draw);
-            ObjectCandidateEdge edge{flat[lhs].segment.key,
-                                     flat[rhs].segment.key, relationship};
+            const auto relationship =
+                AnalyzeObjectRelationship(flat[lhs].segment, *flat[lhs].draw,
+                                          flat[rhs].segment, *flat[rhs].draw);
+            ObjectCandidateEdge edge{ flat[lhs].segment.key,
+                                      flat[rhs].segment.key, relationship };
             if (relationship.automatic_group && !relationship.blocked) {
                 groups.Unite(lhs, rhs);
             } else if (relationship.classification ==
@@ -85,18 +88,21 @@ ObjectGroupingResult BuildObjectCandidates(
         const auto inserted = root_to_group.emplace(root, result.groups.size());
         if (inserted.second) {
             ObjectCandidate candidate{};
-            candidate.candidate_id = static_cast<uint32_t>(result.groups.size());
+            candidate.candidate_id =
+                static_cast<uint32_t>(result.groups.size());
             candidate.membership_confirmed =
                 flat[index].segment.confirmed_object_id != 0;
             result.groups.push_back(candidate);
         }
-        result.groups[inserted.first->second].segments.push_back(flat[index].segment.key);
+        result.groups[inserted.first->second].segments.push_back(
+            flat[index].segment.key);
     }
     return result;
 }
 
-ShaderObjectTrace TraceShaderObjectUsage(
-    const std::vector<DrawCaptureSummary> &draws, const ShaderKey &shader)
+ShaderObjectTrace
+TraceShaderObjectUsage(const std::vector<DrawCaptureSummary> &draws,
+                       const ShaderKey &shader)
 {
     ShaderObjectTrace trace{};
     trace.shader = shader;

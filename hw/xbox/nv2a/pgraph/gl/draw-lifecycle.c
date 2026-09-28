@@ -34,6 +34,9 @@ void pgraph_gl_draw_lifecycle_record(
     if (lifecycle->result == PGRAPH_GL_DRAW_SUBMITTED ||
         result == PGRAPH_GL_DRAW_SUBMITTED) {
         lifecycle->result = PGRAPH_GL_DRAW_SUBMITTED;
+    } else if (lifecycle->result == PGRAPH_GL_DRAW_SUPPRESSED ||
+               result == PGRAPH_GL_DRAW_SUPPRESSED) {
+        lifecycle->result = PGRAPH_GL_DRAW_SUPPRESSED;
     } else if (lifecycle->result == PGRAPH_GL_DRAW_REJECTED ||
                result == PGRAPH_GL_DRAW_REJECTED) {
         lifecycle->result = PGRAPH_GL_DRAW_REJECTED;
@@ -51,7 +54,8 @@ void pgraph_gl_complete_draw_lifecycle(
     PGRAPHState *pg, PGRAPHGLState *r, PGRAPHGLDrawResult result,
     bool color_write, bool zeta_write, bool color_dirty, bool zeta_dirty)
 {
-    if (result != PGRAPH_GL_DRAW_SUBMITTED) {
+    if (result != PGRAPH_GL_DRAW_SUBMITTED &&
+        result != PGRAPH_GL_DRAW_SUPPRESSED) {
         return;
     }
 

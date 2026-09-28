@@ -1731,12 +1731,15 @@ void ShaderBrowserWindow::DrawLivePreview()
         } else if (workbench.capture_request_id ==
                        capture_status.request_id &&
                    capture_status.state == XEMU_SHADER_DRAW_REQUEST_READY) {
-            ImGui::TextWrapped("Found frame %llu, draw %u. %s",
+            ImGui::TextWrapped(
+                "Found frame %llu, draw %u, submission %llu. %s",
                 static_cast<unsigned long long>(capture_status.frame),
                 capture_status.draw,
+                static_cast<unsigned long long>(capture_status.submission),
                 workbench.capture_mesh.indices.empty() ?
                     "Geometry format is unsupported; metadata only." :
-                    "Captured geometry; texture and material inputs are synthetic.");
+                    "Captured geometry; texture and material inputs are "
+                    "synthetic.");
             if (!workbench.capture_mesh.indices.empty()) {
                 if (workbench.capture_summary.segments.size() > 1) {
                     ImGui::TextDisabled(
@@ -1995,7 +1998,10 @@ void ShaderBrowserWindow::DrawLivePreview()
         if (ImGui::SmallButton("Reset##clock"))
             service.EditClock(PreviewClockAction::Restart, 0, now_ns);
         if (workbench.comparison_locked) ImGui::EndDisabled();
-        ImGui::TextDisabled("Synthetic inputs; this is not an in-game draw");
+        ImGui::TextDisabled(
+            workbench.use_capture_mesh ?
+                "Captured geometry; texture and material inputs are synthetic" :
+                "Synthetic inputs; this is not an in-game draw");
         if (visualize) {
             ImGui::SameLine();
             ImGui::TextDisabled("%s", PreviewChannelLabel(

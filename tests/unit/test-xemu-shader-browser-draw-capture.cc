@@ -9,15 +9,19 @@
 #include <iostream>
 #include <iterator>
 #include <limits>
+#include <condition_variable>
+#include <mutex>
+#include <thread>
 
 using namespace xemu::shader_browser;
 
-#define CHECK(expression) do { \
-    if (!(expression)) { \
-        std::cerr << __func__ << ':' << __LINE__ << ": " #expression "\n"; \
-        std::exit(1); \
-    } \
-} while (false)
+#define CHECK(expression)                                                      \
+    do {                                                                       \
+        if (!(expression)) {                                                   \
+            std::cerr << __func__ << ':' << __LINE__ << ": " #expression "\n"; \
+            std::exit(1);                                                      \
+        }                                                                      \
+    } while (false)
 
 static CaptureDigest Digest(uint8_t value)
 {
@@ -29,7 +33,7 @@ static CaptureDigest Digest(uint8_t value)
 static DrawCaptureSummary Draw(uint32_t id, uint8_t shader = 1)
 {
     DrawCaptureSummary draw{};
-    draw.key = {1, 2, 3, id};
+    draw.key = { 1, 2, 3, id };
     draw.scope.title_id = 0x12345678;
     draw.domain = DrawDomain::Geometry;
     draw.shader_count = 1;
@@ -52,9 +56,9 @@ static ResourceTouch Touch(ResourceAccess access, uint64_t read_version,
 {
     ResourceTouch touch{};
     touch.resource.kind = ResourceKind::Texture;
-    touch.resource.guest = {0x1000, 256};
+    touch.resource.guest = { 0x1000, 256 };
     touch.resource.storage_id = storage;
-    touch.resource.storage_range = {0, 256};
+    touch.resource.storage_range = { 0, 256 };
     touch.access = access;
     touch.read_version = read_version;
     touch.write_version = write_version;
@@ -70,8 +74,8 @@ static ObjectRelationship Relation(const DrawCaptureSummary &a,
 static void TestShaderSeeds()
 {
     auto a = Draw(1), b = Draw(2), c = Draw(3, 2);
-    CHECK(FindDrawsUsingShader({a, b, c}, a.shaders[0]).size() == 2);
-    const auto trace = TraceShaderObjectUsage({a, b, c}, a.shaders[0]);
+    CHECK(FindDrawsUsingShader({ a, b, c }, a.shaders[0]).size() == 2);
+    const auto trace = TraceShaderObjectUsage({ a, b, c }, a.shaders[0]);
     CHECK(trace.seed_draws.size() == 2);
     CHECK(trace.object_candidates.size() == 2);
 }
@@ -81,7 +85,7 @@ static void TestInferenceIsNotMembership()
     auto a = Draw(1), b = Draw(2);
     CHECK(Relation(a, b).classification == ObjectLinkClass::SameObjectPass);
     CHECK(!Relation(a, b).automatic_group);
-    CHECK(BuildObjectCandidates({a, b}).groups.size() == 2);
+    CHECK(BuildObjectCandidates({ a, b }).groups.size() == 2);
     b.segments[0].transform_digest = {};
     a.segments[0].skinning_digest = b.segments[0].skinning_digest = Digest(3);
     CHECK(!Relation(a, b).automatic_group);
@@ -95,16 +99,28 @@ static void TestScopeIsolation()
     for (unsigned variant = 0; variant < 6; ++variant) {
         auto b = original;
         switch (variant) {
-        case 0: ++b.key.session_epoch; break;
-        case 1: ++b.key.renderer_epoch; break;
-        case 2: ++b.key.frame; break;
-        case 3: ++b.scope.title_id; break;
-        case 4: ++b.scope.executable_fingerprint_version; break;
-        case 5: ++b.scope.executable_fingerprint[0]; break;
+        case 0:
+            ++b.key.session_epoch;
+            break;
+        case 1:
+            ++b.key.renderer_epoch;
+            break;
+        case 2:
+            ++b.key.frame;
+            break;
+        case 3:
+            ++b.scope.title_id;
+            break;
+        case 4:
+            ++b.scope.executable_fingerprint_version;
+            break;
+        case 5:
+            ++b.scope.executable_fingerprint[0];
+            break;
         }
         b.segments[0].key.draw = b.key;
         CHECK(!Relation(a, b).automatic_group);
-        CHECK(BuildObjectCandidates({a, b}).groups.size() == 2);
+        CHECK(BuildObjectCandidates({ a, b }).groups.size() == 2);
     }
 }
 
@@ -116,11 +132,11 @@ static void TestConfirmedPartsAndInstances()
     c.segments[0].confirmed_object_id = 5; // Same mesh, different instance.
     CHECK(Relation(a, b).automatic_group);
     CHECK(Relation(a, c).blocked);
-    const auto result = BuildObjectCandidates({c, b, a});
+    const auto result = BuildObjectCandidates({ c, b, a });
     CHECK(result.groups.size() == 2);
     CHECK(result.groups[0].segments.size() == 2);
     CHECK(result.groups[0].membership_confirmed);
-    CHECK(TraceShaderObjectUsage({a, b, c}, a.shaders[0])
+    CHECK(TraceShaderObjectUsage({ a, b, c }, a.shaders[0])
               .object_candidates.size() == 2);
 }
 
@@ -128,18 +144,18 @@ static void TestBatchedAndScreenSpace()
 {
     auto batch = Draw(1);
     batch.batched_geometry_suspected = true;
-    CHECK(BuildObjectCandidates({batch}).groups.empty());
-    CHECK(BuildObjectCandidates({batch}).unresolved_segments.size() == 1);
+    CHECK(BuildObjectCandidates({ batch }).groups.empty());
+    CHECK(BuildObjectCandidates({ batch }).unresolved_segments.size() == 1);
     batch.segments[0].origin = DrawSegmentOrigin::ConnectedIndexComponent;
     auto second = batch.segments[0];
     second.key.segment = 1;
     batch.segments.push_back(second);
-    CHECK(BuildObjectCandidates({batch}).groups.size() == 2);
+    CHECK(BuildObjectCandidates({ batch }).groups.size() == 2);
     auto screen = Draw(2);
     screen.domain = DrawDomain::ScreenSpace;
     screen.segments[0].confirmed_object_id = 4;
-    CHECK(BuildObjectCandidates({screen}).groups.empty());
-    CHECK(TraceShaderObjectUsage({screen}, screen.shaders[0])
+    CHECK(BuildObjectCandidates({ screen }).groups.empty());
+    CHECK(TraceShaderObjectUsage({ screen }, screen.shaders[0])
               .unresolved_segments.size() == 1);
 }
 
@@ -154,19 +170,21 @@ static void TestSharedResourcesAreNotOwners()
     b.segments[0].transform_digest = Digest(2);
     CHECK(Relation(a, b).classification == ObjectLinkClass::SharedResourceOnly);
     CHECK(!Relation(a, b).automatic_group);
-    CHECK(BuildResourceDependencies({a, b}).edges.empty());
+    CHECK(BuildResourceDependencies({ a, b }).edges.empty());
 }
 
 static void TestSegmentation()
 {
-    auto split = SegmentTriangleList({0, 1, 2, 10, 11, 12, 2, 3, 0, 4, 4, 5, 99});
+    auto split =
+        SegmentTriangleList({ 0, 1, 2, 10, 11, 12, 2, 3, 0, 4, 4, 5, 99 });
     CHECK(split.islands.size() == 2);
-    CHECK(split.islands[0].primitive_indices == std::vector<uint32_t>({0, 2}));
-    CHECK(split.islands[1].primitive_indices == std::vector<uint32_t>({1}));
-    CHECK(split.degenerate_primitives == std::vector<uint32_t>({3}));
+    CHECK(split.islands[0].primitive_indices ==
+          std::vector<uint32_t>({ 0, 2 }));
+    CHECK(split.islands[1].primitive_indices == std::vector<uint32_t>({ 1 }));
+    CHECK(split.degenerate_primitives == std::vector<uint32_t>({ 3 }));
     CHECK(split.trailing_index_count == 1);
     CHECK(SegmentTriangleList({}).islands.empty());
-    CHECK(SegmentTriangleList({1, 1, 1}).islands.empty());
+    CHECK(SegmentTriangleList({ 1, 1, 1 }).islands.empty());
 }
 
 static void TestResourceVersionsAndViews()
@@ -176,18 +194,18 @@ static void TestResourceVersionsAndViews()
     a.resources[0].resource.kind = ResourceKind::ColorTarget;
     b.resources.push_back(Touch(ResourceAccess::Read, 1, 0));
     b.resources[0].resource.guest.address = 0x8000; // A resolved alias/view.
-    auto graph = BuildResourceDependencies({b, a});
+    auto graph = BuildResourceDependencies({ b, a });
     CHECK(graph.edges.size() == 1);
     CHECK(graph.unresolved_reads.empty());
     CHECK(graph.edges[0].producer == a.key);
     CHECK(graph.edges[0].consumer == b.key);
     b.resources[0].resource.storage_id = 2;
-    graph = BuildResourceDependencies({a, b});
+    graph = BuildResourceDependencies({ a, b });
     CHECK(graph.edges.empty());
     CHECK(graph.unresolved_reads.size() == 1);
     b.resources[0].resource.storage_id = 1;
     b.resources[0].read_version = 2;
-    CHECK(BuildResourceDependencies({a, b}).edges.empty());
+    CHECK(BuildResourceDependencies({ a, b }).edges.empty());
 }
 
 static void TestReadWriteAndTransitiveInfluence()
@@ -197,11 +215,12 @@ static void TestReadWriteAndTransitiveInfluence()
     b.resources.push_back(Touch(ResourceAccess::ReadWrite, 1, 2));
     c.resources.push_back(Touch(ResourceAccess::Read, 2, 0));
     unrelated.resources.push_back(Touch(ResourceAccess::Read, 8, 0, 5));
-    auto graph = BuildResourceDependencies({c, unrelated, b, a});
+    auto graph = BuildResourceDependencies({ c, unrelated, b, a });
     CHECK(graph.edges.size() == 2);
-    const auto reached = TraceResourceInfluence(graph, {a.key});
-    CHECK(reached == std::vector<DrawEventKey>({b.key, c.key}));
-    const auto trace = TraceShaderObjectUsage({c, unrelated, b, a}, a.shaders[0]);
+    const auto reached = TraceResourceInfluence(graph, { a.key });
+    CHECK(reached == std::vector<DrawEventKey>({ b.key, c.key }));
+    const auto trace =
+        TraceShaderObjectUsage({ c, unrelated, b, a }, a.shaders[0]);
     CHECK(trace.object_candidates.size() == 1);
     CHECK(trace.potentially_affected_draws == reached);
     CHECK(trace.dependencies.unresolved_reads.size() == 1);
@@ -214,15 +233,15 @@ static void TestDependencyIsolationAndOrdering()
     b.resources.push_back(Touch(ResourceAccess::Read, 1, 0));
     b.key.session_epoch++;
     b.segments[0].key.draw = b.key;
-    CHECK(BuildResourceDependencies({a, b}).edges.empty());
-    b.key = {1, 2, 3, 0};
+    CHECK(BuildResourceDependencies({ a, b }).edges.empty());
+    b.key = { 1, 2, 3, 0 };
     b.segments[0].key.draw = b.key;
-    CHECK(BuildResourceDependencies({a, b}).edges.empty());
-    b.key = {1, 2, 4, 0}; // Explicit version may persist across frames.
+    CHECK(BuildResourceDependencies({ a, b }).edges.empty());
+    b.key = { 1, 2, 4, 0 }; // Explicit version may persist across frames.
     b.segments[0].key.draw = b.key;
-    CHECK(BuildResourceDependencies({b, a}).edges.size() == 1);
+    CHECK(BuildResourceDependencies({ b, a }).edges.size() == 1);
     b.scope.title_id++;
-    CHECK(BuildResourceDependencies({a, b}).edges.empty());
+    CHECK(BuildResourceDependencies({ a, b }).edges.empty());
 }
 
 static void TestUnresolvedAndInvalidRanges()
@@ -230,27 +249,29 @@ static void TestUnresolvedAndInvalidRanges()
     auto a = Draw(1), b = Draw(2);
     a.resources.push_back(Touch(ResourceAccess::Write, 0, 1));
     b.resources.push_back(Touch(ResourceAccess::Read, 0, 0));
-    auto graph = BuildResourceDependencies({a, b});
+    auto graph = BuildResourceDependencies({ a, b });
     CHECK(graph.edges.empty());
     CHECK(graph.unresolved_reads.size() == 1);
     b.resources[0].read_version = 1;
-    b.resources[0].resource.storage_range = {256, 1};
-    CHECK(BuildResourceDependencies({a, b}).edges.empty());
-    b.resources[0].resource.storage_range = {128, 256}; // Only half covered.
-    graph = BuildResourceDependencies({a, b});
+    b.resources[0].resource.storage_range = { 256, 1 };
+    CHECK(BuildResourceDependencies({ a, b }).edges.empty());
+    b.resources[0].resource.storage_range = { 128, 256 }; // Only half covered.
+    graph = BuildResourceDependencies({ a, b });
     CHECK(graph.edges.size() == 1);
     CHECK(graph.unresolved_reads.size() == 1);
-    b.resources[0].resource.storage_range = {std::numeric_limits<uint64_t>::max(), 2};
-    CHECK(BuildResourceDependencies({a, b}).edges.empty());
+    b.resources[0].resource.storage_range = {
+        std::numeric_limits<uint64_t>::max(), 2
+    };
+    CHECK(BuildResourceDependencies({ a, b }).edges.empty());
     b.resources[0].access = ResourceAccess::BindOnly;
-    CHECK(BuildResourceDependencies({a, b}).unresolved_reads.empty());
+    CHECK(BuildResourceDependencies({ a, b }).unresolved_reads.empty());
 }
 
 static void TestDuplicateKeysAndLimits()
 {
     auto a = Draw(1);
-    CHECK(BuildObjectCandidates({a, a}).invalid_input);
-    CHECK(BuildResourceDependencies({a, a}).invalid_input);
+    CHECK(BuildObjectCandidates({ a, a }).invalid_input);
+    CHECK(BuildResourceDependencies({ a, a }).invalid_input);
     std::vector<DrawCaptureSummary> too_many(kCaptureMaxAnalysisDraws + 1, a);
     CHECK(BuildObjectCandidates(too_many).limit_exceeded);
     CHECK(BuildResourceDependencies(too_many).limit_exceeded);
@@ -262,13 +283,13 @@ static void TestAmbiguousAndFragmentedProvenance()
     a.resources.push_back(Touch(ResourceAccess::Write, 0, 1));
     b.resources = a.resources;
     c.resources.push_back(Touch(ResourceAccess::Read, 1, 0));
-    auto graph = BuildResourceDependencies({a, b, c});
+    auto graph = BuildResourceDependencies({ a, b, c });
     CHECK(graph.edges.empty());
     CHECK(graph.unresolved_reads.size() == 1);
     CHECK(graph.unresolved_reads[0].reason == DependencyGap::AmbiguousProducer);
-    a.resources[0].resource.storage_range = {0, 128};
-    b.resources[0].resource.storage_range = {128, 128};
-    graph = BuildResourceDependencies({a, b, c});
+    a.resources[0].resource.storage_range = { 0, 128 };
+    b.resources[0].resource.storage_range = { 128, 128 };
+    graph = BuildResourceDependencies({ a, b, c });
     CHECK(graph.edges.size() == 2);
     CHECK(graph.unresolved_reads.empty());
 }
@@ -286,11 +307,12 @@ static void TestMultipleObjectsAndDownstreamComposite()
     batch.resources.push_back(Touch(ResourceAccess::Write, 0, 1));
     composite.domain = DrawDomain::ScreenSpace;
     composite.resources.push_back(Touch(ResourceAccess::Read, 1, 0));
-    const auto trace = TraceShaderObjectUsage({batch, composite}, batch.shaders[0]);
+    const auto trace =
+        TraceShaderObjectUsage({ batch, composite }, batch.shaders[0]);
     CHECK(trace.seed_draws.size() == 1);
     CHECK(trace.object_candidates.size() == 2);
     CHECK(trace.potentially_affected_draws ==
-          std::vector<DrawEventKey>({composite.key}));
+          std::vector<DrawEventKey>({ composite.key }));
 }
 
 static void TestReferenceIdentityAndBoundsSpace()
@@ -312,7 +334,7 @@ static void TestReferenceIdentityAndBoundsSpace()
     CHECK(!SameResourceIdentity(empty, empty));
     auto x = Draw(1), y = Draw(5);
     x.segments[0].bounds = y.segments[0].bounds =
-        Bounds3::FromMinMax({0, 0, 0}, {1, 1, 1});
+        Bounds3::FromMinMax({ 0, 0, 0 }, { 1, 1, 1 });
     x.segments[0].bounds_space_digest = Digest(1);
     y.segments[0].bounds_space_digest = Digest(2);
     CHECK(!(Relation(x, y).evidence & ObjectEvidenceOverlappingBounds));
@@ -322,11 +344,12 @@ static void TestValidationAndSegmentationLimit()
 {
     auto draw = Draw(1);
     draw.segments.push_back(draw.segments[0]);
-    CHECK(BuildObjectCandidates({draw}).invalid_input);
+    CHECK(BuildObjectCandidates({ draw }).invalid_input);
     draw = Draw(1);
     draw.resources.push_back(Touch(ResourceAccess::ReadWrite, 1, 1));
-    CHECK(BuildResourceDependencies({draw}).invalid_input);
-    const std::vector<uint32_t> oversized(kCaptureMaxSegmentationIndices + 1, 0);
+    CHECK(BuildResourceDependencies({ draw }).invalid_input);
+    const std::vector<uint32_t> oversized(kCaptureMaxSegmentationIndices + 1,
+                                          0);
     CHECK(SegmentTriangleList(oversized).limit_exceeded);
 }
 
@@ -337,14 +360,15 @@ static void TestUpstreamInputsRemainSeparate()
     receiver.resources.push_back(Touch(ResourceAccess::ReadWrite, 1, 2));
     composite.resources.push_back(Touch(ResourceAccess::Read, 2, 0));
     composite.domain = DrawDomain::ScreenSpace;
-    const auto trace = TraceShaderObjectUsage({caster, receiver, composite},
-                                             receiver.shaders[0]);
-    CHECK(trace.required_producer_draws == std::vector<DrawEventKey>({caster.key}));
+    const auto trace = TraceShaderObjectUsage({ caster, receiver, composite },
+                                              receiver.shaders[0]);
+    CHECK(trace.required_producer_draws ==
+          std::vector<DrawEventKey>({ caster.key }));
     CHECK(trace.potentially_affected_draws ==
-          std::vector<DrawEventKey>({composite.key}));
+          std::vector<DrawEventKey>({ composite.key }));
     CHECK(trace.object_candidates.size() == 1);
-    CHECK(TraceResourceInputs(trace.dependencies, {composite.key}) ==
-          std::vector<DrawEventKey>({caster.key, receiver.key}));
+    CHECK(TraceResourceInputs(trace.dependencies, { composite.key }) ==
+          std::vector<DrawEventKey>({ caster.key, receiver.key }));
 }
 
 static void TestOneShotDrawRequest()
@@ -407,23 +431,21 @@ static void TestSubmittedDrawBridge()
     XemuShaderDrawIdentity other{};
     other.stage = XEMU_SHADER_BROWSER_STAGE_PIXEL;
     other.identity_hash[0] = 2;
-    CHECK(!xemu_shader_draw_request_wants(7, 2, &other, 1));
-    CHECK(!xemu_shader_draw_request_submitted(7, 2, &other, 1, 3, 21,
-                                              4, 3, 0, nullptr));
+    CHECK(!xemu_shader_draw_request_claim(7, 2, &other, 1, 3, 21, 1));
     XemuShaderDrawIdentity matching{};
     matching.stage = XEMU_SHADER_BROWSER_STAGE_PIXEL;
     matching.identity_hash[0] = 1;
-    CHECK(xemu_shader_draw_request_wants(7, 2, &matching, 1));
-    CHECK(xemu_shader_draw_request_submitted(7, 2, &matching, 1, 3, 21,
-                                             4, 3, 0, nullptr));
+    const uint64_t claim =
+        xemu_shader_draw_request_claim(7, 2, &matching, 1, 3, 21, 1);
+    CHECK(claim == token);
+    CHECK(xemu_shader_draw_request_finish(claim, 1, 4, 3, 0));
     XemuShaderDrawRequestStatus status{};
     CHECK(xemu_shader_draw_request_copy_status(&status));
     CHECK(status.request_id == token);
     CHECK(status.state == XEMU_SHADER_DRAW_REQUEST_READY);
     CHECK(!xemu_shader_draw_request_is_armed());
     CHECK(status.frame == 3 && status.draw == 21);
-    CHECK(!xemu_shader_draw_request_submitted(7, 2, &matching, 1, 3, 22,
-                                              4, 3, 0, nullptr));
+    CHECK(!xemu_shader_draw_request_finish(claim, 1, 4, 3, 0));
     xemu_shader_draw_request_cancel();
 }
 
@@ -436,53 +458,185 @@ static void TestDrawGeometryOwnsItsBytes()
     spec.scope_generation = 8;
     spec.session_epoch = 1;
     spec.renderer_epoch = 2;
-    CHECK(xemu_shader_draw_request_arm(&spec));
+    const uint64_t claim = xemu_shader_draw_request_arm(&spec);
+    CHECK(claim);
     XemuShaderDrawIdentity matching{};
     matching.stage = spec.stage;
     matching.identity_hash[0] = 1;
-    float positions[12] = {0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1};
-    uint32_t indices[3] = {0, 1, 2};
+    float positions[12] = { 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1 };
+    uint32_t indices[3] = { 0, 1, 2 };
     XemuShaderDrawGeometry geometry{};
     geometry.positions = positions;
     geometry.position_count = 3;
     geometry.indices = indices;
     geometry.index_count = 3;
-    CHECK(xemu_shader_draw_request_submitted(8, 2, &matching, 1, 4, 22,
-                                             5, 3, 3, &geometry));
+    CHECK(xemu_shader_draw_request_claim(8, 2, &matching, 1, 4, 22, 2) ==
+          claim);
+    CHECK(xemu_shader_draw_request_stage_geometry(claim, &geometry));
     positions[0] = 42;
     indices[0] = 2;
+    CHECK(GetDrawCaptureRequest().CopyGeometry().positions.empty());
+    CHECK(xemu_shader_draw_request_finish(claim, 1, 5, 3, 3));
     const auto owned = GetDrawCaptureRequest().CopyGeometry();
     CHECK(owned.positions.size() == 3);
     CHECK(owned.positions[0][0] == 0);
-    CHECK(owned.indices == std::vector<uint32_t>({0, 1, 2}));
+    CHECK(owned.indices == std::vector<uint32_t>({ 0, 1, 2 }));
     CHECK(GetDrawCaptureRequest().CopyCaptured().completeness ==
           CaptureCompleteness::GeometrySnapshot);
     CHECK(GetDrawCaptureRequest().CopyCaptured().segments.empty());
     CHECK(GetDrawCaptureRequest().CopyCaptured().primitive_count == 1);
     xemu_shader_draw_request_cancel();
-    CHECK(xemu_shader_draw_request_arm(&spec));
+    const uint64_t second = xemu_shader_draw_request_arm(&spec);
+    CHECK(second);
     geometry.indices = nullptr;
     geometry.index_count = 0;
-    CHECK(xemu_shader_draw_request_submitted(8, 2, &matching, 1, 4, 23,
-                                             5, 3, 0, &geometry));
+    CHECK(xemu_shader_draw_request_claim(8, 2, &matching, 1, 4, 23, 3) ==
+          second);
+    CHECK(xemu_shader_draw_request_stage_geometry(second, &geometry));
+    CHECK(xemu_shader_draw_request_finish(second, 1, 5, 3, 0));
     CHECK(GetDrawCaptureRequest().CopyGeometry().indices.empty());
     CHECK(GetDrawCaptureRequest().CopyCaptured().completeness ==
           CaptureCompleteness::MetadataOnly);
     xemu_shader_draw_request_cancel();
 }
 
+static void TestClaimCancelRearmInterleaving()
+{
+    XemuShaderDrawRequestSpec spec{};
+    spec.identity_hash[0] = 1;
+    spec.stage = XEMU_SHADER_BROWSER_STAGE_PIXEL;
+    spec.scope.title_id = 1;
+    spec.scope_generation = 8;
+    spec.session_epoch = 1;
+    spec.renderer_epoch = 2;
+    XemuShaderDrawIdentity identity{};
+    identity.identity_hash[0] = 1;
+    identity.stage = spec.stage;
+    const uint64_t old = xemu_shader_draw_request_arm(&spec);
+    std::mutex mutex;
+    std::condition_variable changed;
+    bool claimed = false, rearmed = false;
+    std::thread renderer([&] {
+        CHECK(xemu_shader_draw_request_claim(8, 2, &identity, 1, 1, 1, 1) ==
+              old);
+        std::unique_lock<std::mutex> lock(mutex);
+        claimed = true;
+        changed.notify_one();
+        changed.wait(lock, [&] { return rearmed; });
+        lock.unlock();
+        CHECK(!xemu_shader_draw_request_finish(old, 1, 5, 3, 0));
+    });
+    std::unique_lock<std::mutex> lock(mutex);
+    changed.wait(lock, [&] { return claimed; });
+    xemu_shader_draw_request_cancel();
+    const uint64_t next = xemu_shader_draw_request_arm(&spec);
+    CHECK(next > old);
+    rearmed = true;
+    changed.notify_one();
+    lock.unlock();
+    renderer.join();
+    CHECK(GetDrawCaptureRequest().Status().state == DrawRequestState::Armed);
+    CHECK(xemu_shader_draw_request_claim(8, 2, &identity, 1, 1, 2, 2) == next);
+    // An unsuccessful emission must not satisfy the request.
+    CHECK(xemu_shader_draw_request_finish(next, 0, 5, 3, 0));
+    CHECK(GetDrawCaptureRequest().Status().state == DrawRequestState::Armed);
+    CHECK(xemu_shader_draw_request_claim(9, 2, &identity, 1, 1, 3, 3) == 0);
+    CHECK(GetDrawCaptureRequest().Status().state ==
+          DrawRequestState::Cancelled);
+}
+
+static void TestSubmittedGeometryRanges()
+{
+    XemuShaderDrawLayout layout{};
+    int32_t starts[] = { 0, 4 };
+    int32_t counts[] = { 4, 2 };
+    CHECK(xemu_shader_draw_layout_arrays(&layout, starts, counts, 2));
+    CHECK(layout.index_count == 3);
+    CHECK(layout.first_vertex == 0 && layout.vertex_count == 3);
+    CHECK(layout.indices[0] == 0 && layout.indices[2] == 2);
+    counts[1] = 3;
+    CHECK(xemu_shader_draw_layout_arrays(&layout, starts, counts, 2));
+    CHECK(layout.index_count == 6);
+    CHECK(layout.indices[3] == 4 && layout.indices[5] == 6);
+    const uint32_t indices[] = { 2, 4, 6, 1000000 };
+    CHECK(xemu_shader_draw_layout_elements(&layout, indices, 4));
+    CHECK(layout.first_vertex == 2 && layout.vertex_count == 5);
+    CHECK(layout.index_count == 3 && layout.indices[2] == 4);
+    CHECK(!xemu_shader_draw_layout_elements(&layout, indices, 4097 * 3));
+}
+
+static void TestResolvedSubmissionGeneration()
+{
+    XemuShaderDrawRequestSpec spec{};
+    spec.identity_hash[0] = 1;
+    spec.stage = XEMU_SHADER_BROWSER_STAGE_PIXEL;
+    spec.scope.title_id = 1;
+    spec.scope_generation = 8;
+    spec.session_epoch = 1;
+    spec.renderer_epoch = 2;
+    XemuShaderDrawIdentity identity{};
+    identity.identity_hash[0] = 1;
+    identity.stage = spec.stage;
+    float guest[12] = { 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1 };
+    float resolved[12];
+    std::copy_n(guest, 12, resolved);
+    guest[0] = 500; // Guest changes after backend owns its generation.
+    const auto token = xemu_shader_draw_request_arm(&spec);
+    CHECK(xemu_shader_draw_request_claim(8, 2, &identity, 1, 1, 1, 1) == token);
+    XemuShaderDrawLayout layout{};
+    const int32_t first = 0, count = 3;
+    CHECK(xemu_shader_draw_layout_arrays(&layout, &first, &count, 1));
+    // Same source contract for private/remapped and expanded inline streams.
+    CHECK(xemu_shader_draw_stage_source(
+        token, &layout, reinterpret_cast<const uint8_t *>(resolved),
+        sizeof(resolved), 0, 16, 4));
+    resolved[0] = 1000; // Snapshot remains owned through command emission.
+    CHECK(GetDrawCaptureRequest().CopyGeometry().positions.empty());
+    CHECK(xemu_shader_draw_request_finish(token, 1, 5, 3, 0));
+    CHECK(GetDrawCaptureRequest().CopyGeometry().positions[0][0] == 0);
+    // A later rejected flush must not replace the earlier successful capture.
+    CHECK(!xemu_shader_draw_request_finish(token, 0, 5, 3, 0));
+    CHECK(GetDrawCaptureRequest().Status().state == DrawRequestState::Ready);
+    CHECK(GetDrawCaptureRequest().Status().draw.submission == 1);
+    xemu_shader_draw_request_cancel();
+}
+
+static void TestSparseUnusedPositions()
+{
+    DrawCaptureRequest request;
+    DrawRequestTarget target{};
+    target.shader = Draw(1).shaders[0];
+    target.scope = Draw(1).scope;
+    target.scope_generation = 8;
+    target.session_epoch = 1;
+    target.renderer_epoch = 2;
+    uint64_t token = request.Arm(target);
+    uint64_t claimed = 0;
+    CHECK(request.Begin(8, 2, &target.shader, 1, 1, 1, &claimed));
+    CHECK(claimed == token);
+    OwnedDrawGeometry geometry;
+    geometry.positions = { { 0, 0, 0, 1 },
+                           { std::numeric_limits<float>::quiet_NaN(), 0, 0, 1 },
+                           { 1, 0, 0, 1 },
+                           { 1.0e20f, 0, 0, 1 },
+                           { 0, 1, 0, 1 } };
+    geometry.indices = { 0, 2, 4 };
+    CHECK(request.StageGeometry(token, geometry));
+    CHECK(request.Finish(token, true, 5, 5, 3));
+    CHECK(request.CopyCaptured().completeness ==
+          CaptureCompleteness::GeometrySnapshot);
+    CHECK(request.CopyGeometry().positions[1][0] == 0);
+}
+
 static void TestBoundedFloatPositionCopy()
 {
-    const float raw[15] = {1, 2, 3, 90, 90, 4, 5, 6, 91, 91,
-                           7, 8, 9, 92, 92};
+    const float raw[15] = { 1, 2, 3, 90, 90, 4, 5, 6, 91, 91, 7, 8, 9, 92, 92 };
     float output[8]{};
     CHECK(xemu_shader_draw_copy_float_positions(
         reinterpret_cast<const uint8_t *>(raw), sizeof(raw), 1, 2,
         5 * sizeof(float), 3, output, std::size(output)));
-    CHECK(output[0] == 4 && output[1] == 5 && output[2] == 6 &&
-          output[3] == 1);
-    CHECK(output[4] == 7 && output[5] == 8 && output[6] == 9 &&
-          output[7] == 1);
+    CHECK(output[0] == 4 && output[1] == 5 && output[2] == 6 && output[3] == 1);
+    CHECK(output[4] == 7 && output[5] == 8 && output[6] == 9 && output[7] == 1);
     CHECK(!xemu_shader_draw_copy_float_positions(
         reinterpret_cast<const uint8_t *>(raw), sizeof(raw), 2, 2,
         5 * sizeof(float), 3, output, std::size(output)));
@@ -494,17 +648,31 @@ static void TestBoundedFloatPositionCopy()
 int main()
 {
     void (*tests[])() = {
-        TestShaderSeeds, TestInferenceIsNotMembership, TestScopeIsolation,
-        TestConfirmedPartsAndInstances, TestBatchedAndScreenSpace,
-        TestSharedResourcesAreNotOwners, TestSegmentation,
-        TestResourceVersionsAndViews, TestReadWriteAndTransitiveInfluence,
-        TestDependencyIsolationAndOrdering, TestUnresolvedAndInvalidRanges,
-        TestDuplicateKeysAndLimits, TestAmbiguousAndFragmentedProvenance,
+        TestShaderSeeds,
+        TestInferenceIsNotMembership,
+        TestScopeIsolation,
+        TestConfirmedPartsAndInstances,
+        TestBatchedAndScreenSpace,
+        TestSharedResourcesAreNotOwners,
+        TestSegmentation,
+        TestResourceVersionsAndViews,
+        TestReadWriteAndTransitiveInfluence,
+        TestDependencyIsolationAndOrdering,
+        TestUnresolvedAndInvalidRanges,
+        TestDuplicateKeysAndLimits,
+        TestAmbiguousAndFragmentedProvenance,
         TestMultipleObjectsAndDownstreamComposite,
-        TestReferenceIdentityAndBoundsSpace, TestValidationAndSegmentationLimit,
-        TestUpstreamInputsRemainSeparate, TestOneShotDrawRequest,
-        TestSubmittedDrawBridge, TestDrawGeometryOwnsItsBytes,
+        TestReferenceIdentityAndBoundsSpace,
+        TestValidationAndSegmentationLimit,
+        TestUpstreamInputsRemainSeparate,
+        TestOneShotDrawRequest,
+        TestSubmittedDrawBridge,
+        TestDrawGeometryOwnsItsBytes,
         TestBoundedFloatPositionCopy,
+        TestClaimCancelRearmInterleaving,
+        TestSubmittedGeometryRanges,
+        TestResolvedSubmissionGeneration,
+        TestSparseUnusedPositions,
     };
     for (auto test : tests) {
         test();

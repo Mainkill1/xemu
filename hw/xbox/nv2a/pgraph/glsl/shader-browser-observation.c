@@ -4,12 +4,9 @@
 #include "hw/xbox/nv2a/nv2a_int.h"
 #include "hw/xbox/nv2a/nv2a_regs.h"
 #include "hw/xbox/nv2a/pgraph/pgraph.h"
-#include "hw/xbox/nv2a/pgraph/shader-browser-geometry-copy.h"
-#include "hw/xbox/nv2a/pgraph/vertex-fetch-span.h"
 #include "ui/xui/shader-browser-draw-request.h"
 
 #include <string.h>
-#include <math.h>
 
 static void publish_batch(PGRAPHShaderBrowserObservations *batch)
 {
@@ -49,161 +46,35 @@ static void add_duration(XemuShaderBrowserDurationStats *stats, uint64_t ns)
     stats->total_ns += ns;
 }
 
-static bool capture_float_geometry(NV2AState *d, PGRAPHState *pg,
-                                   XemuShaderDrawGeometry *geometry,
-                                   float **positions, uint32_t **indices)
+uint64_t
+pgraph_shader_browser_capture_claim(PGRAPHState *pg,
+                                    const PGRAPHShaderBrowserBinding *binding)
 {
-    if (pg->primitive_mode != NV097_SET_BEGIN_END_OP_TRIANGLES) return false;
-    const VertexAttribute *attr = &pg->vertex_attributes[0];
-    if (pg->inline_buffer_length) {
-        const size_t count = pg->inline_buffer_length;
-        if (count > 4096 || count < 3 || count % 3 ||
-            !attr->inline_buffer_populated || !attr->inline_buffer)
-            return false;
-        *positions = g_try_new(float, count * 4);
-        *indices = g_try_new(uint32_t, count);
-        if (!*positions || !*indices) {
-            g_free(*positions);
-            g_free(*indices);
-            *positions = NULL;
-            *indices = NULL;
-            return false;
-        }
-        memcpy(*positions, attr->inline_buffer, count * 4 * sizeof(float));
-        for (size_t i = 0; i < count; ++i) (*indices)[i] = i;
-        geometry->positions = *positions;
-        geometry->position_count = count;
-        geometry->indices = *indices;
-        geometry->index_count = count;
-        return true;
-    }
-    if (attr->format != NV097_SET_VERTEX_DATA_ARRAY_FORMAT_TYPE_F ||
-        attr->size != sizeof(float) ||
-        (attr->count != 3 && attr->count != 4) || !attr->stride) return false;
-
-    uint32_t first = UINT32_MAX;
-    uint32_t last = 0;
-    size_t emitted = 0;
-    if (pg->inline_elements_length) {
-        emitted = pg->inline_elements_length;
-        if (emitted > 12288) return false;
-        for (size_t i = 0; i < emitted; ++i) {
-            first = MIN(first, pg->inline_elements[i]);
-            last = MAX(last, pg->inline_elements[i]);
-        }
-    } else if (pg->draw_arrays_length) {
-        for (size_t i = 0; i < pg->draw_arrays_length; ++i) {
-            int32_t start = pg->draw_arrays_start[i];
-            int32_t count = pg->draw_arrays_count[i];
-            if (start < 0 || count <= 0 ||
-                (uint64_t)start + count > UINT32_MAX) return false;
-            emitted += count;
-            if (emitted > 12288) return false;
-            first = MIN(first, (uint32_t)start);
-            last = MAX(last, (uint32_t)(start + count - 1));
-        }
-    } else {
-        return false;
-    }
-    if (!emitted || emitted % 3 || first > last ||
-        (uint64_t)last - first + 1 > 4096)
-        return false;
-    const size_t position_count = (size_t)last - first + 1;
-    hwaddr dma_limit = 0;
-    uint8_t *mapped = nv_dma_map(
-        d, attr->dma_select ? pg->dma_vertex_b : pg->dma_vertex_a,
-        &dma_limit);
-    if (!mapped) return false;
-    const uint64_t dma_base = (uintptr_t)mapped - (uintptr_t)d->vram_ptr;
-    const uint64_t vram_size = memory_region_size(d->vram);
-    PGRAPHVertexFetchRange range;
-    if (!pgraph_vertex_resolve_fetch_range(
-            dma_base, dma_limit, attr->offset, vram_size, first, last,
-            attr->stride, attr->count * sizeof(float), &range)) return false;
-    *positions = g_try_new(float, position_count * 4);
-    *indices = g_try_new(uint32_t, emitted);
-    if (!*positions || !*indices ||
-        !xemu_shader_draw_copy_float_positions(
-            d->vram_ptr + range.attribute_base,
-            vram_size - range.attribute_base, first, position_count,
-            attr->stride, attr->count, *positions, position_count * 4)) {
-        g_free(*positions);
-        g_free(*indices);
-        *positions = NULL;
-        *indices = NULL;
-        return false;
-    }
-    if (pg->inline_elements_length) {
-        for (size_t i = 0; i < emitted; ++i)
-            (*indices)[i] = pg->inline_elements[i] - first;
-    } else {
-        size_t output = 0;
-        for (size_t i = 0; i < pg->draw_arrays_length; ++i) {
-            for (int32_t j = 0; j < pg->draw_arrays_count[i]; ++j)
-                (*indices)[output++] = pg->draw_arrays_start[i] + j - first;
-        }
-    }
-    geometry->positions = *positions;
-    geometry->position_count = position_count;
-    geometry->indices = *indices;
-    geometry->index_count = emitted;
-    return true;
-}
-
-void pgraph_shader_browser_capture_submitted(NV2AState *d,
-                                             PGRAPHShaderBrowserBinding *binding)
-{
-    if (!d || !binding || !binding->count ||
+    if (!binding || !binding->count ||
         binding->count > ARRAY_SIZE(binding->identities) ||
-        !xemu_shader_draw_request_is_armed()) {
-        return;
-    }
-    PGRAPHState *pg = &d->pgraph;
+        !xemu_shader_draw_request_is_armed())
+        return 0;
     XemuShaderDrawIdentity identities[ARRAY_SIZE(binding->identities)] = {0};
     for (uint32_t i = 0; i < binding->count; ++i) {
         memcpy(identities[i].identity_hash, binding->identities[i].hash,
                sizeof(identities[i].identity_hash));
         identities[i].stage = binding->identities[i].stage;
     }
-    const uint64_t renderer_epoch = nv2a_profile_preview_renderer_epoch();
-    if (!xemu_shader_draw_request_wants(binding->scope_generation,
-                                        renderer_epoch, identities,
-                                        binding->count)) return;
-    uint32_t vertex_count = 0;
-    uint32_t index_count = 0;
-    if (pg->inline_elements_length) {
-        index_count = pg->inline_elements_length;
-    } else if (pg->draw_arrays_length) {
-        for (uint32_t i = 0; i < pg->draw_arrays_length; ++i) {
-            vertex_count += pg->draw_arrays_count[i];
-        }
-    } else if (pg->inline_buffer_length) {
-        vertex_count = pg->inline_buffer_length;
-    }
-    XemuShaderDrawGeometry geometry = {0};
-    float *positions = NULL;
-    uint32_t *indices = NULL;
-    bool owned = capture_float_geometry(
-        d, pg, &geometry, &positions, &indices);
-    if (owned) {
-        for (size_t i = 0; i < geometry.position_count * 4; ++i) {
-            if (!isfinite(positions[i]) || fabsf(positions[i]) > 1.0e9f) {
-                owned = false;
-                break;
-            }
-        }
-    }
-    if (owned) {
-        vertex_count = geometry.position_count;
-        index_count = geometry.index_count;
-    }
-    xemu_shader_draw_request_submitted(
-        binding->scope_generation, renderer_epoch,
+    return xemu_shader_draw_request_claim(
+        binding->scope_generation, nv2a_profile_preview_renderer_epoch(),
         identities, binding->count, pg->frame_time, pg->draw_time,
-        pg->primitive_mode, vertex_count, index_count,
-        owned ? &geometry : NULL);
-    g_free(positions);
-    g_free(indices);
+        pg->shader_browser_submission + 1);
+}
+
+void pgraph_shader_browser_capture_finish(PGRAPHState *pg, uint64_t token,
+                                          bool emitted, uint32_t vertex_count,
+                                          uint32_t index_count)
+{
+    if (emitted)
+        ++pg->shader_browser_submission;
+    if (token)
+        xemu_shader_draw_request_finish(token, emitted, pg->primitive_mode,
+                                        vertex_count, index_count);
 }
 
 void pgraph_shader_browser_flush_observations(

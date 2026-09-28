@@ -2,6 +2,8 @@
 #include "shader-browser-preview-adapter.hh"
 #include "shader-browser-preview-gl.hh"
 #include "shader-browser-preview-service.hh"
+#include "shader-browser-draw-request.hh"
+#include "hw/xbox/nv2a/pgraph/gl/shader-browser-capture.h"
 #include <SDL3/SDL.h>
 #include <epoxy/gl.h>
 #include <imgui.h>
@@ -72,6 +74,77 @@ static PreviewPacket Packet(PreviewMode mode, bool bad, uint64_t revision)
     return p;
 }
 
+// Exercise the production OpenGL source adapter with real host buffers rather
+// than handing the preview an already-constructed mesh packet.
+static void TestGLSubmissionSources()
+{
+    GLuint vao, vertex, element, unrelated;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    GLuint buffers[3];
+    glGenBuffers(3, buffers);
+    vertex = buffers[0];
+    element = buffers[1];
+    unrelated = buffers[2];
+    float guest[] = { 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1 };
+    glBindBuffer(GL_ARRAY_BUFFER, vertex);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(guest), guest, GL_STREAM_DRAW);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray(0);
+    const uint32_t indices[] = { 0, 1, 2 };
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
+                 GL_STREAM_DRAW);
+    glBindBuffer(GL_COPY_READ_BUFFER, unrelated);
+    guest[0] =
+        1000; // Mutable guest/inline storage is no longer this generation.
+    XemuShaderDrawRequestSpec spec{};
+    spec.identity_hash[0] = 1;
+    spec.stage = XEMU_SHADER_BROWSER_STAGE_PIXEL;
+    spec.scope.title_id = 1;
+    spec.scope_generation = 8;
+    spec.session_epoch = 1;
+    spec.renderer_epoch = 2;
+    XemuShaderDrawIdentity identity{};
+    identity.identity_hash[0] = 1;
+    identity.stage = spec.stage;
+    for (bool indexed : { false, true }) {
+        auto token = xemu_shader_draw_request_arm(&spec);
+        assert(xemu_shader_draw_request_claim(8, 2, &identity, 1, 1, 1, 1) ==
+               token);
+        XemuShaderDrawLayout layout{};
+        if (indexed) {
+            g_autofree uint8_t *copy =
+                xemu_shader_draw_gl_read_buffer(element, 0, sizeof(indices));
+            assert(copy && xemu_shader_draw_layout_elements(&layout, copy, 3));
+        } else {
+            const int32_t start = 0, count = 3;
+            assert(xemu_shader_draw_layout_arrays(&layout, &start, &count, 1));
+        }
+        assert(xemu_shader_draw_gl_stage_bound(token, &layout));
+        assert(GetDrawCaptureRequest().CopyGeometry().positions.empty());
+        assert(
+            xemu_shader_draw_request_finish(token, 1, 5, 3, indexed ? 3 : 0));
+        auto geometry = GetDrawCaptureRequest().CopyGeometry();
+        assert(geometry.positions.size() == 3 && geometry.positions[0][0] == 0);
+        assert(geometry.indices == std::vector<uint32_t>({ 0, 1, 2 }));
+        GLint bound;
+        glGetIntegerv(GL_COPY_READ_BUFFER_BINDING, &bound);
+        assert(static_cast<GLuint>(bound) == unrelated);
+        glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &bound);
+        assert(static_cast<GLuint>(bound) == element);
+    }
+    assert(!xemu_shader_draw_gl_read_buffer(vertex, sizeof(guest), 1));
+    assert(glGetError() == GL_NO_ERROR);
+    xemu_shader_draw_request_cancel();
+    glBindBuffer(GL_COPY_READ_BUFFER, 0);
+    glBindVertexArray(0);
+    glDeleteBuffers(3, buffers);
+    glDeleteVertexArrays(1, &vao);
+    std::puts("Production GL submission source: indexed host generation and "
+              "expanded inline float4 passed");
+}
+
 int main(int argc, char **argv)
 {
     if (argc > 1 && std::string(argv[1]) == "vulkan")
@@ -99,6 +172,7 @@ int main(int argc, char **argv)
     assert(SDL_GL_MakeCurrent(window, context));
     fprintf(stderr, "Lifecycle GL context: %s\n",
             glGetString(GL_VERSION));
+    TestGLSubmissionSources();
     if (backend == PreviewBackend::OpenGL)
         assert(epoxy_gl_version() >= 43);
     ImGui::CreateContext();

@@ -39,20 +39,23 @@ struct OwnedDrawGeometry {
 // One request, one final submitted draw. Begin reserves a matching draw while
 // the renderer still owns its inputs. Completion publishes owned data only;
 // cancellation and rearming invalidate the old token.
-class DrawCaptureRequest
-{
+class DrawCaptureRequest {
 public:
     uint64_t Arm(const DrawRequestTarget &target);
-    bool Wants(uint64_t scope_generation, uint64_t renderer_epoch,
-               const ShaderKey *shaders, size_t shader_count) const;
     bool Begin(uint64_t scope_generation, uint64_t renderer_epoch,
                const ShaderKey *shaders, size_t shader_count, uint64_t frame,
-               uint32_t draw, uint64_t *token);
+               uint32_t draw, uint64_t *token, uint64_t submission = 0);
+    bool StageGeometry(uint64_t token, OwnedDrawGeometry geometry);
+    bool Finish(uint64_t token, bool emitted, uint32_t primitive_mode,
+                uint32_t vertex_count, uint32_t index_count);
     bool Complete(uint64_t token, const DrawCaptureSummary &capture,
                   const OwnedDrawGeometry &geometry = {});
     void Fail(uint64_t token);
     void Cancel();
-    bool Armed() const { return armed_.load(std::memory_order_acquire); }
+    bool Armed() const
+    {
+        return armed_.load(std::memory_order_acquire);
+    }
     DrawRequestStatus Status() const;
     DrawRequestTarget Target() const;
     DrawCaptureSummary CopyCaptured() const;
@@ -60,7 +63,7 @@ public:
 
 private:
     mutable std::mutex mutex_;
-    std::atomic<bool> armed_{false};
+    std::atomic<bool> armed_{ false };
     uint64_t next_id_ = 1;
     DrawRequestTarget target_;
     DrawRequestStatus status_;

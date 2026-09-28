@@ -419,7 +419,8 @@ shader_browser_preview_lifecycle_test = executable(
         'shader-browser-preview-adapter.cc', 'shader-browser-preview-fixture.cc',
         'shader-browser-preview-model.cc', 'shader-browser-model.cc',
         'shader-browser-preview-clock.cc', 'shader-browser-preview-service.cc',
-        'shader-browser-preview-service-work.cc', 'shader-browser-preview-service-slots.cc'),
+        'shader-browser-preview-service-work.cc', 'shader-browser-preview-service-slots.cc',
+        'shader-browser-draw-request.cc', 'shader-browser-draw-capture.cc'),
   include_directories: shader_browser_test_inc,
   dependencies: shader_browser_preview_lifecycle_deps)
 
@@ -438,6 +439,7 @@ shader_browser_capture_test = executable(
   'test-xemu-shader-browser-draw-capture',
   shader_browser_test_dir / 'test-xemu-shader-browser-draw-capture.cc',
   shader_browser_capture_sources,
-  include_directories: shader_browser_test_inc)
+  include_directories: shader_browser_test_inc,
+  dependencies: shader_browser_threads)
 test('test-xemu-shader-browser-draw-capture', shader_browser_capture_test,
      suite: ['unit'])

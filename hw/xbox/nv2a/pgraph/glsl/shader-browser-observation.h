@@ -25,7 +25,14 @@ void pgraph_shader_browser_record_draw(PGRAPHShaderBrowserObservations *batch,
                                        uint64_t frame, uint32_t pixel_route);
 void pgraph_shader_browser_flush_observations(
     PGRAPHShaderBrowserObservations *batch, uint64_t frame);
-void pgraph_shader_browser_capture_submitted(NV2AState *d,
-                                             PGRAPHShaderBrowserBinding *binding);
+/* Claim before copying a resolved backend source; finish only for this
+ * emission. The submission counter distinguishes mid-scope flushes and Vulkan
+ * subdraws. */
+uint64_t
+pgraph_shader_browser_capture_claim(PGRAPHState *pg,
+                                    const PGRAPHShaderBrowserBinding *binding);
+void pgraph_shader_browser_capture_finish(PGRAPHState *pg, uint64_t token,
+                                          bool emitted, uint32_t vertex_count,
+                                          uint32_t index_count);
 
 #endif

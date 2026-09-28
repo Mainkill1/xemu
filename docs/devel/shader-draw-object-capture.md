@@ -8,9 +8,10 @@ selectable. The game draw mode uses the captured geometry with synthetic
 textures, constants, and vertex outputs; it is not exact material replay.
 
 The current geometry decoder supports triangle lists with float3/float4
-attribute 0 positions from vertex DMA, using draw arrays or inline indices,
-and expanded inline float4 vertices. Other formats and topologies produce a metadata-only
-result. Capture copies at most 4096 positions and 12288 indices. The private
+attribute 0 positions from the backend's resolved host buffers, using draw
+arrays, inline indices, expanded inline float4 vertices, or packed float streams.
+Each triangle-list range discards its own incomplete trailing vertices. Other
+formats and topologies produce a metadata-only result. Capture copies at most 4096 positions and 12288 indices. The private
 preview displays as many complete triangles as fit its 4096-vertex scene
 budget after reference geometry. The UI offers index-connected parts as
 inspection hints when a draw has multiple islands; these are not engine object
@@ -46,12 +47,24 @@ The implementation is split into draw identity/admission, triangle-list
 segmentation, relationship analysis, object grouping, and resource dependencies.
 The analysis production units have a focused Meson test. A separate one-shot
 request service and C bridge connect the final OpenGL/Vulkan submission points
-to the workbench. Ordinary draws take only an atomic armed check; geometry
-copy and segmentation happen for the one requested matching draw.
+to the workbench. An atomic claim reserves the exact request before geometry
+copying; completion uses that token after the command is emitted. Cancellation
+and re-arming cannot assign an older claimed command to the newer request.
+Suppressed commands never claim or satisfy a request. Captures have a submission
+serial so a Vulkan subdraw or mid-scope flush has its own identity.
+
+OpenGL reads the position and index buffers actually bound to its command.
+Vulkan reads its resolved inline staging generation, including private vertex
+backing and expanded inline streams. While a request is armed, bounded float
+position streams with a vertex prefix of at most 4096 vertices are preserved
+before reservation and descriptor preparation and used by both the actual draw
+and capture. Fixed RAM without this readable generation remains metadata-only.
+This diagnostic path can add capture-time copying or OpenGL readback stalls;
+the private preview render cadence is independent of that one-shot cost.
 
 ### Exact draw and segment references
 
-`DrawEventKey` identifies session, renderer epoch, frame, and draw number.
+`DrawEventKey` identifies session, renderer epoch, frame, draw number, and submission serial.
 `DrawCaptureSummary` also retains title/executable scope, shader identities,
 counts, typed resource touches, and segmentation metadata. Queries search the
 provided capture collection; the future UI must supply the selected title/build
@@ -197,7 +210,7 @@ meson test -C build test-xemu-shader-browser-draw-capture --print-errorlogs
 The same production sources can be tested without graphics dependencies:
 
 ```sh
-c++ -std=c++17 -Wall -Wextra -Werror -O2 \
+c++ -std=c++17 -pthread -I. -Wall -Wextra -Werror -O2 \
   tests/unit/test-xemu-shader-browser-draw-capture.cc \
   ui/xui/shader-browser-draw-capture.cc \
   ui/xui/shader-browser-draw-request.cc \
@@ -210,7 +223,8 @@ c++ -std=c++17 -Wall -Wextra -Werror -O2 \
 ```
 
 Tests use explicit checks that remain active under `NDEBUG`. They exercise
-21 cases including request matching, owned geometry, unrelated objects,
+25 cases including atomic request matching, deterministic cancel/re-arm,
+owned resolved generations, independent draw-array ranges, unrelated objects,
 confirmed multi-pass membership, separate
 instances, noncontiguous islands, ambiguous batches, screen-space effects,
 aliasing, version changes, upstream/downstream traversal, provenance gaps,

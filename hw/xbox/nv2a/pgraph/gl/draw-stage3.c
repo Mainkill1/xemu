@@ -128,7 +128,9 @@ void pgraph_gl_flush_draw(NV2AState *d)
 
     PGRAPHGLDrawResult result = pgraph_gl_flush_draw_internal(d);
     pgraph_gl_draw_lifecycle_record(&renderer->draw_lifecycle, result);
-    if (result == PGRAPH_GL_DRAW_SUBMITTED && renderer->shader_binding) {
+    if ((result == PGRAPH_GL_DRAW_SUBMITTED ||
+         result == PGRAPH_GL_DRAW_SUPPRESSED) &&
+        renderer->shader_binding) {
         bool condition_matched = !policy || !policy->draw_condition_mask ||
             xemu_shader_override_policy_matches_draw(policy, &facts);
         pgraph_gl_shader_override_report_draw(pg, condition_matched);
@@ -136,8 +138,6 @@ void pgraph_gl_flush_draw(NV2AState *d)
             &pg->shader_browser_observations,
             &renderer->shader_binding->browser, pg->frame_time,
             pgraph_gl_override_observation_route(pg));
-        pgraph_shader_browser_capture_submitted(
-            d, &renderer->shader_binding->browser);
     }
 }
 
