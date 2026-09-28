@@ -36,7 +36,7 @@
 - [x] Compile/run tests against baseline; expected missing resolver API (record as missing-feature compile result).
 - [x] Implement pure resolution and register source/tests. Named Auto policy follows existing recommended defaults; issue149/NV20 remain off. Hybrid is derived from requested/process mode.
 - [x] Run strict optimized test and actual existing single-policy unit; expected all cases pass with no config/platform side effects.
-- [ ] Commit resolver and its exact red/green evidence.
+- [x] Commit resolver and its exact red/green evidence.
 
 ## Task2: Owned publication and effective mask
 
@@ -50,7 +50,7 @@
 - [x] Replace split runtime atomics/status reconstruction with one mutex-owned request/startup/environment/resolution. Apply the wait adapter before one atomic effective-mask store; expose process mode through existing atomic accessor.
 - [x] Adapt old selected-permission assertions explicitly to selected snapshot values, retaining saved-default/migration checks and adding installed-renderer effective-bit checks. Do not weaken any bounds/persistence assertion.
 - [x] Run strict and ASan/UBSan profile/config/resolver cases; expected all pass. Leak checking remains unavailable under tracing and must be labeled.
-- [ ] Document generation, initialization and adapter ownership; commit with full red/green logs and source hashes.
+- [x] Document generation, initialization and adapter ownership; commit with full red/green logs and source hashes.
 
 ## Task3: Shared UI and dependent child integration
 
@@ -58,10 +58,10 @@
 
 **Interfaces:** `PerformancePolicyCombo(label, int *requested, XemuTweak, help, bool allow_enabled)` applies/saves edits then renders status; Boolean controls reuse `DrawTweakEffectiveStatus(XemuTweak)`.
 
-- [ ] Add Auto/Disabled child snapshot regression, including default/serialized lowercase/unrelated settings/restart/backend transitions. Watch missing child resolver registration fail.
-- [ ] Implement shared status UI and generic restricted policy selector; integrate parent into child without touching renderer guards.
-- [ ] Run parent/child strict/sanitized tests, actual config migration, seven texture-binding cases, and compile affected UI using existing full-product build templates.
-- [ ] Format new files, check focused existing-file changes and whitespace, and request one fresh whole-branch review.
+- [x] Add Auto/Disabled child snapshot regression, including default/serialized lowercase/unrelated settings/restart/backend transitions. Watch missing child resolver registration fail.
+- [x] Implement shared status UI and generic restricted policy selector; integrate parent into child without touching renderer guards.
+- [x] Run parent/child strict/sanitized tests, actual config migration, seven texture-binding cases, and compile affected UI using existing full-product build templates.
+- [x] Format new files, check focused existing-file changes and whitespace, and request one fresh whole-branch review.
 - [ ] Address important review findings with regression tests, commit/publish to existing PRs and observe exact-head CI. Update PR/checkpoint remaining native/#94 gates.
 
 ## Verification commands
@@ -80,3 +80,5 @@ Actual CI must execute TAP subtests. Native manual gates remain those in issue93
 - Ruling: selected and effective masks are separated explicitly, replacing prior selected-mask semantics. Backend-unavailable worker bits become false as required by93; all existing in-backend correctness guards and saved defaults remain. Cost if wrong: an initialization consumer could need selected state, so its call sites require review/native qualification.
 
 - Tasks1/2 local verification: strict and ASan/UBSan5resolver/8profile plus generated config pass; actual widgets/menu compile. Commit is combined to keep the complete resolver/publication transition atomic for the dependent child.
+
+- Task3: childcbefd6c70ac0 strict/sanitized6resolver/9profile/config passes; parent/child UI and required related targets pass. Fresh review finds no critical/important issue, one deferred duplicate restart instruction. Native and94 gates remain. Publish/current-head CI observation remains pending.
