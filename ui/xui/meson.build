@@ -3,6 +3,8 @@ xemu_ss.add(files(
   'animation.cc',
   'compat.cc',
   'debug.cc',
+  'asset-browser-model.cc',
+  'asset-browser-decode.cc',
   'shader-browser-model.cc',
   'shader-browser-usage-export.cc',
   'shader-browser-glsl-export.cc',
@@ -74,6 +76,14 @@ endif
 shader_browser_test_inc = include_directories('.')
 shader_browser_threads = dependency('threads')
 shader_browser_test_dir = meson.project_source_root() / 'tests/unit'
+
+asset_browser_model_test = executable(
+  'test-xemu-asset-browser-model',
+  shader_browser_test_dir / 'test-xemu-asset-browser-model.cc',
+  files('asset-browser-model.cc', 'asset-browser-decode.cc'),
+  include_directories: [shader_browser_test_inc, include_directories('../..')],
+  dependencies: [xxhash, glib])
+test('test-xemu-asset-browser-model', asset_browser_model_test, suite: ['unit'])
 
 shader_browser_model_test = executable(
   'test-xemu-shader-browser-model',

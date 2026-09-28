@@ -1,0 +1,9 @@
+TAP version 14
+# random seed: R02S880550a8a393bc9306ffc3b883c8cdb3
+1..8
+# Start of asset tests
+# Start of catalog tests
+**
+ERROR:tests/unit/test-xemu-asset-browser-model.cc:64:void TestManyUses(): assertion failed (catalog.entries.size() == 32): (0 == 32)
+not ok /asset/catalog/many-uses - ERROR:tests/unit/test-xemu-asset-browser-model.cc:64:void TestManyUses(): assertion failed (catalog.entries.size() == 32): (0 == 32)
+Bail out!

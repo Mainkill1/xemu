@@ -1,0 +1,8 @@
+{
+  "ui/xui/asset-browser-decode.cc": "5ce67a7de456ddf0a28f539554a322f901fe6a5b0e2113125e1e247720ac07eb",
+  "ui/xui/asset-browser-model.cc": "cccad5033bda5750224816a38194275fbc69a6c823d89b8547ed84e8e4cfc5e9",
+  "ui/xui/asset-browser-model.hh": "6366a3d67fc97cb54df9a68e3d0577589b120822cc9dea3c29cb598ea29af3a1",
+  "ui/xui/asset-browser-decode.hh": "dbd58511fd1251e3c4bc6cb80b2c9555a16ddc9bdab7a0ce8dcf59ce574d34e8",
+  "tests/unit/test-xemu-asset-browser-model.cc": "b73be98dc77729c406c3428ecf2e12ef0421dc4ce6b3d998eef990805240fb5e",
+  "ui/xui/meson.build": "e6899c928a98b0a9075e393b2fa238b304483f8ab040d772d2fd50d64eaaec26"
+}
