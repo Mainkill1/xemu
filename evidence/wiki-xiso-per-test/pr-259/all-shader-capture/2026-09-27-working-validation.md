@@ -450,3 +450,18 @@ disabled telemetry preserving behavior. The intentional registration shim still
 produces the existing unused `nv2a_register` warning, explicitly exempted from the
 local strict gate; the modified fixture code has no warnings. Version regressions
 and whitespace checks pass. Full exact-head unit CI remains required after push.
+
+### Profiling test registration follow-up (2026-09-28)
+
+The later86de7ad6e0 push and PR CI runs completed successfully,20/20 jobs each;
+the push unit suite reported181 passed,17 skipped,0 failed. During the PR242
+supersession audit, `test-xbox-vk-shader-timing` was found among the skipped
+targets: its silent exit-code driver was registered by the common TAP runner.
+The assertions were present, but no executed cases were represented in TAP.
+
+The existing timestamp-wrap, invalid-bit-count, pipeline-variant and query-admission
+checks now use the project's GLib test registration and comparison assertions.
+A local check of the previous driver failed because four TAP cases were absent;
+strict optimized compilation of the corrected driver produces four passing cases.
+Formatting and whitespace checks pass. No renderer or profiling behavior changes.
+Current-head CI must confirm the test is reported as executed rather than skipped.
