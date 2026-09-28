@@ -231,7 +231,7 @@ struct AssetViewport::Impl {
     std::list<Image> images;
     uint64_t image_bytes = 0;
     Target target;
-    GLuint program = 0;
+    GLuint program = 0, background_vao = 0;
     uint64_t gpu_bytes = 0, tick = 0;
     uint64_t mesh_budget = kGpuBudget;
     size_t thumbnail_capacity = 24;
@@ -244,8 +244,12 @@ struct AssetViewport::Impl {
 layout(location=0) in vec3 position;layout(location=1) in vec2 uv;
 layout(location=2) in vec4 color;
 uniform vec3 center;uniform float radius;uniform vec4 camera;
-uniform vec2 pan;out vec2 texcoord;out vec4 vertexcolor;
-void main(){vec3 p=(position-center)/radius;
+uniform vec2 pan;uniform bool background;
+out vec2 texcoord;out vec4 vertexcolor;
+void main(){
+if(background){vec2 p=vec2((gl_VertexID<<1)&2,gl_VertexID&2);
+gl_Position=vec4(p*2.-1.,0,1);texcoord=vec2(0);vertexcolor=vec4(1);return;}
+vec3 p=(position-center)/radius;
 float cy=cos(camera.x),sy=sin(camera.x),cp=cos(camera.y),sp=sin(camera.y);
 p=vec3(cy*p.x+sy*p.z,p.y,-sy*p.x+cy*p.z);
 p=vec3(p.x,cp*p.y-sp*p.z,sp*p.y+cp*p.z);
@@ -253,8 +257,12 @@ gl_Position=vec4(p.x*camera.z+pan.x,p.y*camera.w+pan.y,-p.z*.25,1);
 texcoord=uv;vertexcolor=color;})";
         const char *ps = R"(#version 330 core
 in vec2 texcoord;in vec4 vertexcolor;uniform sampler2D image;
-uniform int textured;uniform int colored;out vec4 outputColor;
-void main(){vec4 c=textured!=0?texture(image,texcoord):vec4(.72,.76,.82,1);
+uniform int textured;uniform int colored;uniform bool background;
+out vec4 outputColor;
+void main(){
+if(background){float tile=mod(floor(gl_FragCoord.x/32.)+floor(gl_FragCoord.y/32.),2.);
+outputColor=vec4(mix(vec3(.20,.035,.29),vec3(.66,.12,.88),tile),1);return;}
+vec4 c=textured!=0?texture(image,texcoord):vec4(.72,.76,.82,1);
 if(colored!=0)c*=vertexcolor;outputColor=vec4(c.rgb,1);})";
         GLuint vertex = Shader(GL_VERTEX_SHADER, vs, error),
                pixel = Shader(GL_FRAGMENT_SHADER, ps, error);
@@ -279,6 +287,8 @@ if(colored!=0)c*=vertexcolor;outputColor=vec4(c.rgb,1);})";
             error = log;
             glDeleteProgram(program);
             program = 0;
+        } else {
+            glGenVertexArrays(1, &background_vao);
         }
         return okay;
     }
@@ -402,8 +412,17 @@ if(colored!=0)c*=vertexcolor;outputColor=vec4(c.rgb,1);})";
         glClearColor(.035f, .045f, .065f, 1);
         glClearDepth(1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glPolygonMode(GL_FRONT_AND_BACK, wire ? GL_LINE : GL_FILL);
+        // One fullscreen draw supplies contrast for dark captured materials in
+        // both the inspector and thumbnails. It does not change mesh colors.
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glUseProgram(program);
+        glDisable(GL_DEPTH_TEST);
+        glUniform1i(glGetUniformLocation(program, "background"), 1);
+        glBindVertexArray(background_vao);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glUniform1i(glGetUniformLocation(program, "background"), 0);
+        glEnable(GL_DEPTH_TEST);
+        glPolygonMode(GL_FRONT_AND_BACK, wire ? GL_LINE : GL_FILL);
         float center[3], radius = 0;
         for (size_t i = 0; i < 3; ++i) {
             center[i] =
@@ -591,5 +610,7 @@ void AssetViewport::Shutdown()
     if (impl_->program)
         glDeleteProgram(impl_->program);
     impl_->program = 0;
+    glDeleteVertexArrays(1, &impl_->background_vao);
+    impl_->background_vao = 0;
 }
 } // namespace xemu::asset_browser

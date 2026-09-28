@@ -17,6 +17,8 @@ GPU caches. Freeze retains owned inputs.
 3. Orbit with left drag, pan with right drag, and zoom with the wheel. All parts
    share one frame and one bound. Wireframe, captured texture slots, vertex color
    and clay are diagnostic display options.
+   A purple checkerboard behind models and thumbnails makes dark silhouettes
+   easier to distinguish. It is an inspection background, not a captured texture.
 4. Unfreeze and enable Live discovery/Follow to search for a unique geometry
    correspondence. Matching is inferred. Identical cars, repeated draws, changed
    geometry/LOD and missing parts retain the last coherent view with a status;
@@ -69,6 +71,13 @@ Default asset limits are 32,768 examined events, 2,048 parts, 1,048,576 vertices
 budgets and a progress watchdog. Named assemblies, GPU meshes, texture inspection
 and thumbnails have separate limits. Exhaustion reports partial data instead of
 claiming a complete fresh frame.
+
+Vulkan retires pending capture readbacks at completed draw-flush boundaries when
+staging pressure reaches 128 MiB, within its separate 256 MiB staging limit. This
+prevents repeated texture copies from exhausting staging before the normal frame
+fence. Acquisition may wait for those submissions; this is capture overhead,
+not shader execution time. A single oversized multi-range flush can still exceed
+the limit and remains an explicit incomplete capture.
 
 **Capture settings** exposes bounded memory, event, part, vertex, index and
 sampling limits; stop Live discovery before changing acquisition settings. GPU

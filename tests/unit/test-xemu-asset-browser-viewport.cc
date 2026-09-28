@@ -104,6 +104,19 @@ int main(int argc, char **argv)
     g_assert_cmpuint(pixel(25, 64, 0), >, 200);
     g_assert_cmpuint(pixel(45, 64, 2), >, 200);
     g_assert_cmpuint(pixel(95, 64, 1), >, 200);
+    // Empty pixels must show contrasting purple tiles, without tinting the
+    // captured material. This also catches a background that covers the mesh.
+    g_assert_cmpuint(pixel(4, 4, 2), >, pixel(4, 4, 1) + 30);
+    g_assert_cmpuint(pixel(36, 4, 2), >, pixel(4, 4, 2) + 60);
+    g_assert_cmpuint(pixel(68, 4, 2), ==, pixel(4, 4, 2));
+    auto thumbnail = viewport.Thumbnail(Fixture(91));
+    glBindTexture(GL_TEXTURE_2D, thumbnail.texture);
+    std::vector<uint8_t> thumbnail_pixels(thumbnail.width * thumbnail.height *
+                                          4);
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                  thumbnail_pixels.data());
+    g_assert_cmpuint(thumbnail_pixels[(4 * thumbnail.width + 36) * 4 + 2], >,
+                     thumbnail_pixels[(4 * thumbnail.width + 4) * 4 + 2] + 60);
     auto gl_rows = Fixture(90);
     gl_rows->context.backend = 1;
     auto row_part = std::make_shared<AssetPart>(*gl_rows->parts[0]);

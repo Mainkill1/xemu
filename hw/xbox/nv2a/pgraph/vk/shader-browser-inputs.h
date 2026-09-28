@@ -4,6 +4,7 @@
 
 #include "ui/xui/shader-browser-draw-inputs.h"
 #include "hw/xbox/nv2a/pgraph/s3tc.h"
+#include "shader-browser-input-pressure.h"
 
 /* Kept in draw.c after the render-pass helpers. Every buffer belongs to the
  * game submission and is released only after that submission's fence. */
@@ -17,7 +18,6 @@ enum {
 #define PGRAPH_VK_INPUT_BUDGET (64 * 1024 * 1024)
 #define PGRAPH_VK_INPUT_SOURCE_BUDGET (4 * 1024 * 1024)
 #define PGRAPH_VK_INPUT_MAX_DIMENSION 2048
-#define PGRAPH_VK_INPUT_STAGING_BUDGET (256 * 1024 * 1024)
 #define PGRAPH_VK_INPUT_MAX_EVENTS 8192
 #define PGRAPH_VK_INPUT_BLOB_BUDGET (16 * 1024 * 1024)
 
