@@ -5,6 +5,8 @@ xemu_ss.add(files(
   'debug.cc',
   'asset-browser-model.cc',
   'asset-browser-decode.cc',
+  'asset-browser-controller.cc',
+  'asset-browser-live.cc',
   'shader-browser-model.cc',
   'shader-browser-usage-export.cc',
   'shader-browser-glsl-export.cc',
@@ -84,6 +86,17 @@ asset_browser_model_test = executable(
   include_directories: [shader_browser_test_inc, include_directories('../..')],
   dependencies: [xxhash, glib])
 test('test-xemu-asset-browser-model', asset_browser_model_test, suite: ['unit'])
+
+asset_browser_controller_test = executable(
+  'test-xemu-asset-browser-controller',
+  shader_browser_test_dir / 'test-xemu-asset-browser-controller.cc',
+  files('asset-browser-model.cc', 'asset-browser-decode.cc',
+        'asset-browser-controller.cc', 'asset-browser-live.cc',
+        'shader-browser-capture-session.cc', 'shader-browser-capture-resources.cc',
+        'shader-browser-draw-capture.cc', 'shader-browser-model.cc'),
+  include_directories: [shader_browser_test_inc, include_directories('../..')],
+  dependencies: [xxhash, glib, json, shader_browser_threads])
+test('test-xemu-asset-browser-controller', asset_browser_controller_test, suite: ['unit'])
 
 shader_browser_model_test = executable(
   'test-xemu-shader-browser-model',

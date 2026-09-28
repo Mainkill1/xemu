@@ -223,6 +223,10 @@ public:
     CaptureSession &operator=(const CaptureSession &) = delete;
     bool Start(const CaptureSessionContext &,
                const CaptureSessionSettings & = {});
+    // Atomically leave an active recorder or pending readback owner untouched.
+    bool TryStart(const CaptureSessionContext &, const CaptureSessionSettings &,
+                   uint64_t *claim_generation);
+    bool StopIfCurrent(uint64_t claim_generation);
     bool Active() const;
     // The claim generation identifies a Start incarnation, independently of
     // the caller's context generation. Read both under the recorder mutex.
@@ -308,6 +312,8 @@ public:
                        CaptureFileControl *control = nullptr);
 
 private:
+    bool StartInternal(const CaptureSessionContext &, const CaptureSessionSettings &,
+                        bool idle_only, uint64_t *claim_generation);
     struct Impl;
     std::unique_ptr<Impl> impl_;
 };

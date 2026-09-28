@@ -1126,8 +1126,22 @@ uint64_t CaptureSession::Revision() const
 bool CaptureSession::Start(const CaptureSessionContext &context,
                            const CaptureSessionSettings &settings)
 {
+    return StartInternal(context, settings, false, nullptr);
+}
+bool CaptureSession::TryStart(const CaptureSessionContext &context,
+                              const CaptureSessionSettings &settings,
+                              uint64_t *claim_generation)
+{
+    return StartInternal(context, settings, true, claim_generation);
+}
+bool CaptureSession::StartInternal(const CaptureSessionContext &context,
+                                   const CaptureSessionSettings &settings,
+                                   bool idle_only, uint64_t *claim_generation)
+{
     std::lock_guard<std::mutex> lock(impl_->mutex);
     auto &s = *impl_;
+    if (idle_only && (s.active.load() || !s.pending.empty()))
+        return false;
     s.active.store(false, std::memory_order_release);
     s.pending.clear();
     s.batches.clear();
@@ -1167,6 +1181,8 @@ bool CaptureSession::Start(const CaptureSessionContext &context,
     }
     s.state = CaptureSessionState::Recording;
     s.active.store(true, std::memory_order_release);
+    if (claim_generation)
+        *claim_generation = s.claim_generation;
     return true;
 }
 void CaptureSession::GuestFrameBoundary(uint64_t frame,
@@ -1236,8 +1252,15 @@ bool CaptureSession::Mark()
 }
 void CaptureSession::Stop()
 {
+    StopIfCurrent(0);
+}
+bool CaptureSession::StopIfCurrent(uint64_t claim_generation)
+{
     std::lock_guard<std::mutex> lock(impl_->mutex);
+    if (claim_generation && claim_generation != impl_->claim_generation)
+        return false;
     impl_->Finalize();
+    return true;
 }
 void CaptureSession::Cancel()
 {
