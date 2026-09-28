@@ -30,10 +30,12 @@ xemu::shader_browser::CaptureSessionContext AssetContext()
 AssetBrowserWindow::AssetBrowserWindow()
     : AssetBrowserWindow(
           xemu::shader_browser::GetCaptureSession(), AssetContext,
-          [](auto event, const auto &context) {
+          [](auto event, const auto &context, auto recording) {
+              std::string error;
               if (shader_browser_window.InspectCapturedOccurrence(
-                      std::move(event), context))
+                      std::move(event), context, &error, recording.get()))
                   xemu_hud_request_shader_browser_window();
+              return error;
           })
 {
 }

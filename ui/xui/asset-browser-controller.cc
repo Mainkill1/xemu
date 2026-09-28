@@ -27,6 +27,7 @@ uint64_t AssetController::Begin(const capture::CaptureSessionContext &context)
         return 0;
     if (!SameAssetContext(context, context_)) {
         selected_.reset();
+        selected_recording_.reset();
         pinned_ = false;
         named_.clear();
     }
@@ -99,6 +100,7 @@ bool AssetController::Publish(AssetCatalog catalog, uint64_t generation)
     }
     auto previous = selected_;
     selected_ = std::make_shared<const AssetAssembly>(std::move(assembly));
+    selected_recording_ = catalog_.recording;
     for (auto &named : named_)
         if (named == previous)
             named = selected_;
@@ -115,6 +117,7 @@ bool AssetController::Select(uint64_t id)
     if (found == catalog_.entries.end())
         return false;
     selected_ = std::make_shared<const AssetAssembly>(*found);
+    selected_recording_ = catalog_.recording;
     pinned_ = false;
     state_ =
         frozen_ ? AssetSelectionState::Frozen : AssetSelectionState::Captured;
@@ -130,6 +133,7 @@ bool AssetController::Assemble(const std::vector<uint64_t> &ids,
     if (assembly.parts.empty())
         return false;
     selected_ = std::make_shared<const AssetAssembly>(std::move(assembly));
+    selected_recording_ = catalog_.recording;
     state_ =
         frozen_ ? AssetSelectionState::Frozen : AssetSelectionState::Captured;
     message_.clear();
@@ -185,6 +189,18 @@ bool AssetController::Recall(size_t index)
         !SameAssetContext(named_[index]->context, context_))
         return false;
     selected_ = named_[index];
+    auto contains = [&](const auto &recording) {
+        if (!recording)
+            return false;
+        for (const auto &part : selected_->parts)
+            if (std::find(recording->events.begin(), recording->events.end(),
+                          part->occurrence) == recording->events.end())
+                return false;
+        return true;
+    };
+    if (!contains(selected_recording_))
+        selected_recording_ =
+            contains(catalog_.recording) ? catalog_.recording : nullptr;
     pinned_ = false;
     state_ =
         frozen_ ? AssetSelectionState::Frozen : AssetSelectionState::Captured;
@@ -249,6 +265,11 @@ const AssetCatalog &AssetController::Catalog() const
 std::shared_ptr<const AssetAssembly> AssetController::Selected() const
 {
     return selected_;
+}
+std::shared_ptr<const capture::CaptureSessionSnapshot>
+AssetController::SelectedRecording() const
+{
+    return selected_recording_;
 }
 bool SameAssetContext(const capture::CaptureSessionContext &a,
                       const capture::CaptureSessionContext &b)

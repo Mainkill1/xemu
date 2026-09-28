@@ -220,6 +220,13 @@ struct AssetViewport::Impl {
     };
     std::list<Mesh> meshes;
     std::list<Thumb> thumbs;
+    struct Image {
+        std::weak_ptr<const capture::CaptureOccurrence> event;
+        int slot = 0;
+        AssetViewportFrame frame;
+    };
+    std::list<Image> images;
+    uint64_t image_bytes = 0;
     Target target;
     GLuint program = 0;
     uint64_t gpu_bytes = 0, tick = 0;
@@ -493,6 +500,55 @@ size_t AssetViewport::ThumbnailCount() const
 {
     return impl_->thumbs.size();
 }
+AssetViewportFrame AssetViewport::TextureImage(SharedAssetPart part,
+                                               uint32_t backend, int slot)
+{
+    if (!part || !part->occurrence)
+        return {};
+    for (auto it = impl_->images.begin(); it != impl_->images.end(); ++it)
+        if (it->event.lock() == part->occurrence && it->slot == slot) {
+            auto frame = it->frame;
+            impl_->images.splice(impl_->images.end(), impl_->images, it);
+            return frame;
+        }
+    AssetPart input;
+    input.occurrence = part->occurrence;
+    input.has_uv = true;
+    auto decoded = DecodeAssetTexture(input, backend, slot);
+    if (decoded.rgba.empty()) {
+        AssetViewportFrame frame;
+        frame.message = decoded.reason;
+        return frame;
+    }
+    GlState saved;
+    while (!impl_->images.empty() &&
+           (impl_->image_bytes + decoded.rgba.size() > 64U * 1024U * 1024U ||
+            impl_->images.size() >= 24)) {
+        auto &first = impl_->images.front();
+        impl_->image_bytes -=
+            uint64_t(first.frame.width) * first.frame.height * 4;
+        glDeleteTextures(1, &first.frame.texture);
+        impl_->images.pop_front();
+    }
+    Impl::Image image;
+    image.event = part->occurrence;
+    image.slot = slot;
+    image.frame.width = decoded.width;
+    image.frame.height = decoded.height;
+    image.frame.message = "Owned host-decoded base texture, not a recovered "
+                          "engine material asset";
+    glGenTextures(1, &image.frame.texture);
+    glBindTexture(GL_TEXTURE_2D, image.frame.texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, decoded.width, decoded.height, 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, decoded.rgba.data());
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    impl_->image_bytes += decoded.rgba.size();
+    impl_->images.push_back(image);
+    return image.frame;
+}
 void AssetViewport::Shutdown()
 {
     GlState saved;
@@ -504,6 +560,10 @@ void AssetViewport::Shutdown()
         thumb.target.Destroy();
     impl_->thumbs.clear();
     impl_->target.Destroy();
+    for (auto &image : impl_->images)
+        glDeleteTextures(1, &image.frame.texture);
+    impl_->images.clear();
+    impl_->image_bytes = 0;
     if (impl_->program)
         glDeleteProgram(impl_->program);
     impl_->program = 0;

@@ -17,6 +17,7 @@
 namespace xemu::shader_browser {
 struct CaptureOccurrence;
 struct CaptureSessionContext;
+struct CaptureSessionSnapshot;
 }
 
 class ShaderBrowserWindow
@@ -29,7 +30,9 @@ public:
     void RequestClose();
     bool InspectCapturedOccurrence(
         std::shared_ptr<const xemu::shader_browser::CaptureOccurrence>,
-        const xemu::shader_browser::CaptureSessionContext &);
+        const xemu::shader_browser::CaptureSessionContext &,
+        std::string *error = nullptr,
+        const xemu::shader_browser::CaptureSessionSnapshot *recording = nullptr);
 
 private:
     void RefreshSnapshot();

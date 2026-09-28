@@ -104,6 +104,26 @@ int main(int argc, char **argv)
     g_assert_cmpuint(pixel(25, 64, 0), >, 200);
     g_assert_cmpuint(pixel(45, 64, 2), >, 200);
     g_assert_cmpuint(pixel(95, 64, 1), >, 200);
+    auto gl_rows = Fixture(90);
+    gl_rows->context.backend = 1;
+    auto row_part = std::make_shared<AssetPart>(*gl_rows->parts[0]);
+    auto row_event =
+        std::make_shared<capture::CaptureOccurrence>(*row_part->occurrence);
+    auto row_pixels = std::make_shared<capture::CaptureImmutableBlock>();
+    row_pixels->bytes = { 255, 0, 0,   255, 255, 0, 0,   255,
+                          0,   0, 255, 255, 0,   0, 255, 255 };
+    row_event->inputs.textures[0].images[0].image.rgba = row_pixels;
+    row_part->occurrence = row_event;
+    gl_rows->parts[0] = row_part;
+    auto row_frame = viewport.Render(gl_rows, {}, 128, 128);
+    glBindTexture(GL_TEXTURE_2D, row_frame.texture);
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+    g_assert_cmpuint(pixel(30, 75, 0), >, 200);
+    g_assert_cmpuint(pixel(30, 55, 2), >, 200);
+    row_part->has_uv = false;
+    auto image = viewport.TextureImage(row_part, 1, 0);
+    g_assert_cmpuint(image.texture, !=, 0);
+    g_assert_cmpuint(image.height, ==, 2);
     auto invalid = Fixture(70);
     auto texture = DecodeAssetTexture(*invalid->parts[0], 1, 0, 4);
     g_assert_true(texture.rgba.empty());

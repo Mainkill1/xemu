@@ -22,6 +22,8 @@ public:
                               uint32_t height, int texture_slot = -1,
                               bool wireframe = false);
     AssetViewportFrame Thumbnail(std::shared_ptr<const AssetAssembly>);
+    AssetViewportFrame TextureImage(SharedAssetPart, uint32_t backend,
+                                    int slot);
     size_t ThumbnailCount() const;
     void Shutdown();
 

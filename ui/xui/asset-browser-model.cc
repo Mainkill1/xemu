@@ -47,6 +47,8 @@ AssetCatalog BuildAssetCatalog(const capture::CaptureSessionSnapshot &snapshot,
                                const AssetLimits &limits)
 {
     AssetCatalog catalog;
+    catalog.recording =
+        std::make_shared<const capture::CaptureSessionSnapshot>(snapshot);
     catalog.context = snapshot.context;
     catalog.complete_frame =
         snapshot.state == capture::CaptureSessionState::Ready &&

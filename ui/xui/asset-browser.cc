@@ -1,14 +1,24 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "asset-browser.hh"
 #include "asset-browser-viewport.hh"
+#include "asset-browser-export.hh"
 #include <imgui.h>
 #include <SDL3/SDL.h>
 #include <algorithm>
 #include <cmath>
 #include <set>
+#include <chrono>
+#include <cstring>
 
 using namespace xemu::asset_browser;
 struct AssetBrowserWindow::Impl {
+    struct FileResult {
+        AssetCatalog catalog;
+        std::shared_ptr<const AssetAssembly> selected;
+        uint64_t generation = 0;
+        bool opened = false, success = false;
+        std::string message;
+    };
     AssetController controller;
     AssetLiveCapture live;
     AssetViewport viewport;
@@ -19,11 +29,95 @@ struct AssetBrowserWindow::Impl {
     std::set<uint64_t> checked;
     uint64_t checked_frame = 0;
     char label[256] = "My car";
+    char path[1024] = "asset-capture";
     bool was_open = false, inspector = true, wire = false, largest = true;
     int texture_slot = -1;
     std::string message;
     SDL_Window *owner_window = nullptr;
     SDL_GLContext owner_context = nullptr;
+    std::future<FileResult> file;
+    std::shared_ptr<capture::CaptureFileControl> file_control;
+    uint64_t file_generation = 0;
+    bool opening = false;
+    uint64_t inspected_part = 0;
+    int image_slot = 0;
+    enum class FileAction { SaveFrame, SaveAssembly, Glb, Open };
+    void StartFile(FileAction action)
+    {
+        if (file.valid())
+            return;
+        auto assembly = controller.Selected();
+        if ((action == FileAction::SaveAssembly || action == FileAction::Glb) &&
+            !assembly) {
+            message = "Select an assembly first";
+            return;
+        }
+        if (!path[0]) {
+            message = "Enter a capture directory or GLB filename";
+            return;
+        }
+        auto catalog = controller.Catalog();
+        if (action == FileAction::SaveFrame && controller.SelectedRecording()) {
+            catalog.recording = controller.SelectedRecording();
+            catalog.context = catalog.recording->context;
+            if (assembly)
+                catalog.frame = assembly->frame;
+        }
+        auto destination = std::filesystem::u8path(path);
+        opening = action == FileAction::Open;
+        if (opening) {
+            live.Disable();
+            controller.Freeze(true);
+        }
+        auto control = std::make_shared<capture::CaptureFileControl>();
+        const auto generation = ++file_generation;
+        try {
+            file = std::async(std::launch::async, [action, assembly,
+                                                   catalog = std::move(catalog),
+                                                   destination, control,
+                                                   generation] {
+                FileResult result;
+                result.generation = generation;
+                std::string error;
+                try {
+                    switch (action) {
+                    case FileAction::SaveFrame:
+                        result.success = SaveAssetRecording(
+                            catalog, assembly.get(), destination, &error,
+                            control.get());
+                        break;
+                    case FileAction::SaveAssembly:
+                        result.success = SaveAssetAssembly(
+                            *assembly, destination, &error, control.get());
+                        break;
+                    case FileAction::Glb:
+                        result.success = ExportAssetGlb(*assembly, destination,
+                                                        &error, control.get());
+                        break;
+                    case FileAction::Open:
+                        result.success = ReopenAssetRecording(
+                            destination, &result.catalog, &result.selected,
+                            &error, control.get());
+                        result.opened = result.success;
+                        break;
+                    }
+                } catch (const std::exception &exception) {
+                    error = exception.what();
+                    control->Finish(false);
+                }
+                result.message =
+                    result.success ?
+                        (action == FileAction::Open ? "Opened " : "Saved ") +
+                            std::filesystem::absolute(destination).u8string() :
+                        error;
+                return result;
+            });
+            file_control = std::move(control);
+        } catch (const std::exception &exception) {
+            opening = false;
+            message = exception.what();
+        }
+    }
     Impl(capture::CaptureSession &session, ContextSource source,
          ShaderSink sink)
         : live(session), context(std::move(source)), shader(std::move(sink))
@@ -39,6 +133,9 @@ AssetBrowserWindow::~AssetBrowserWindow() = default;
 bool AssetBrowserWindow::InspectCatalog(AssetCatalog catalog)
 {
     impl_->live.Disable();
+    ++impl_->file_generation;
+    if (impl_->file_control)
+        impl_->file_control->RequestCancel();
     auto generation = impl_->controller.Begin(catalog.context);
     const bool accepted =
         impl_->controller.Publish(std::move(catalog), generation);
@@ -52,6 +149,9 @@ std::shared_ptr<const AssetAssembly> AssetBrowserWindow::Selected() const
 void AssetBrowserWindow::Shutdown()
 {
     impl_->live.Disable();
+    ++impl_->file_generation;
+    if (impl_->file_control)
+        impl_->file_control->RequestCancel();
     if (impl_->owner_context) {
         auto *previous_window = SDL_GL_GetCurrentWindow();
         auto previous = SDL_GL_GetCurrentContext();
@@ -79,6 +179,30 @@ void AssetBrowserWindow::Draw()
         s.owner_window = SDL_GL_GetCurrentWindow();
     }
     const uint64_t now = SDL_GetTicksNS();
+    if (s.file.valid() &&
+        s.file.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
+        try {
+            auto result = s.file.get();
+            if (result.generation == s.file_generation) {
+                s.message = result.message;
+                if (result.opened) {
+                    InspectCatalog(std::move(result.catalog));
+                    if (result.selected) {
+                        std::vector<uint64_t> ids;
+                        for (const auto &part : result.selected->parts)
+                            ids.push_back(part->id);
+                        s.controller.Assemble(ids, result.selected->label);
+                        s.controller.RememberSelected();
+                    }
+                    s.controller.Freeze(true);
+                }
+            }
+        } catch (const std::exception &exception) {
+            s.message = exception.what();
+        }
+        s.opening = false;
+        s.file_control.reset();
+    }
     auto context = s.context();
     s.live.Tick(context, now, s.controller);
     ImGui::SetNextWindowSize(ImVec2(1100, 700), ImGuiCond_FirstUseEver);
@@ -121,6 +245,31 @@ void AssetBrowserWindow::Draw()
     ImGui::TextWrapped(
         "Freeze discovery to choose parts; the game keeps running. Follow uses "
         "geometry evidence, not a verified player-car ID.");
+    ImGui::SetNextItemWidth(350);
+    ImGui::InputText("Capture directory / GLB file", s.path, sizeof(s.path));
+    ImGui::BeginDisabled(s.file.valid());
+    if (ImGui::Button("Save captured frame"))
+        s.StartFile(Impl::FileAction::SaveFrame);
+    ImGui::SameLine();
+    if (ImGui::Button("Extract selected inputs"))
+        s.StartFile(Impl::FileAction::SaveAssembly);
+    ImGui::SameLine();
+    if (ImGui::Button("Export GLB"))
+        s.StartFile(Impl::FileAction::Glb);
+    ImGui::SameLine();
+    if (ImGui::Button("Open capture"))
+        s.StartFile(Impl::FileAction::Open);
+    ImGui::EndDisabled();
+    if (s.file_control) {
+        auto progress = s.file_control->Progress();
+        ImGui::Text("File work: %llu / %llu",
+                    (unsigned long long)progress.completed,
+                    (unsigned long long)progress.total);
+        ImGui::SameLine();
+        if (ImGui::Button("Cancel file work") &&
+            !s.file_control->RequestCancel())
+            s.message = "Output publication has begun; waiting for completion";
+    }
     const auto &catalog = s.controller.Catalog();
     if (s.checked_frame != catalog.frame) {
         s.checked.clear();
@@ -156,7 +305,7 @@ void AssetBrowserWindow::Draw()
         !ImGui::GetIO().WantTextInput &&
         !ImGui::IsPopupOpen(nullptr, ImGuiPopupFlags_AnyPopupId |
                                          ImGuiPopupFlags_AnyPopupLevel) &&
-        !visible.empty()) {
+        !s.opening && !visible.empty()) {
         auto found =
             std::find_if(visible.begin(), visible.end(), [&](size_t i) {
                 return selected && catalog.entries[i].id == selected->id;
@@ -196,6 +345,7 @@ void AssetBrowserWindow::Draw()
     const float width = ImGui::GetContentRegionAvail().x;
     const float left = std::clamp(width * .25f, 210.f, 310.f);
     ImGui::BeginChild("Assets", ImVec2(left, 0), true);
+    ImGui::BeginDisabled(s.opening);
     s.filter.Draw("Find", left - 20);
     ImGui::Checkbox("Largest geometry first", &s.largest);
     if (!s.controller.NamedAssemblies().empty()) {
@@ -268,6 +418,7 @@ void AssetBrowserWindow::Draw()
         }
     }
     ImGui::Text("%zu checked", s.checked.size());
+    ImGui::EndDisabled();
     ImGui::EndChild();
     ImGui::SameLine();
     const float inspector = s.inspector && width > 850 ? 270 : 0;
@@ -327,12 +478,12 @@ void AssetBrowserWindow::Draw()
             }
         }
         ImGui::TextWrapped("%s", frame.message.c_str());
-        ImGui::Text("%zu/%zu textured | viewport %.1f FPS | capture age %.2f s",
-                    frame.textured_parts, frame.drawn_parts,
-                    ImGui::GetIO().Framerate,
-                    s.live.LastCaptureNs() ?
-                        double(now - s.live.LastCaptureNs()) / 1e9 :
-                        0);
+        ImGui::Text(
+            "%zu/%zu textured | HUD cadence %.1f FPS | capture age %.2f s",
+            frame.textured_parts, frame.drawn_parts, ImGui::GetIO().Framerate,
+            s.live.LastCaptureNs() ?
+                double(now - s.live.LastCaptureNs()) / 1e9 :
+                0);
     } else
         ImGui::TextWrapped(
             "Enable Live discovery, then choose a captured part. Freeze "
@@ -364,9 +515,122 @@ void AssetBrowserWindow::Draw()
                                                              "unbound",
                                         tex.metadata.width, tex.metadata.height,
                                         tex.images.size());
+                            if (tex.metadata.bound) {
+                                ImGui::PushID(int(slot));
+                                if (ImGui::Button("View captured texture")) {
+                                    s.inspected_part = part->id;
+                                    s.image_slot = int(slot);
+                                }
+                                ImGui::PopID();
+                            }
+                        }
+                        if (s.inspected_part == part->id) {
+                            auto texture = s.viewport.TextureImage(
+                                part, selected->context.backend, s.image_slot);
+                            if (texture.texture) {
+                                const float image_width = std::min(
+                                    240.f, ImGui::GetContentRegionAvail().x);
+                                ImGui::Image(
+                                    (ImTextureID)(intptr_t)texture.texture,
+                                    ImVec2(image_width,
+                                           std::min(240.f, image_width *
+                                                               texture.height /
+                                                               texture.width)));
+                            }
+                            ImGui::TextWrapped("%s", texture.message.c_str());
+                        }
+                        if (ImGui::TreeNode("Stages and inputs")) {
+                            ImGui::TextWrapped(
+                                "The model displays raw vertex inputs. VS "
+                                "transforms, skinning and generated UVs need "
+                                "original-stage execution. Open the exact draw "
+                                "for supported original-camera replay; preview "
+                                "budgets and interface checks may reject "
+                                "larger or incomplete inputs.");
+                            for (size_t stage :
+                                 { size_t(1), size_t(2), size_t(3) }) {
+                                const auto &source =
+                                    event.inputs.sources[stage];
+                                const char *name =
+                                    stage == 1 ? "Captured vertex GLSL" :
+                                    stage == 2 ? "Captured pixel GLSL" :
+                                                 "Host geometry/emulation GLSL";
+                                if (ImGui::TreeNode(name)) {
+                                    if (source) {
+                                        ImGui::BeginChild(
+                                            name, ImVec2(0, 180), true,
+                                            ImGuiWindowFlags_HorizontalScrollbar);
+                                        ImGui::TextUnformatted(
+                                            reinterpret_cast<const char *>(
+                                                source->bytes.data()),
+                                            reinterpret_cast<const char *>(
+                                                source->bytes.data() +
+                                                source->bytes.size()));
+                                        ImGui::EndChild();
+                                    } else
+                                        ImGui::TextUnformatted(
+                                            "Source was not captured for this "
+                                            "stage");
+                                    ImGui::TreePop();
+                                }
+                            }
+                            ImGui::Text(
+                                "%zu uniforms | %zu raw streams/state blobs",
+                                event.inputs.uniforms.size(),
+                                event.inputs.blobs.size());
+                            for (const auto &uniform : event.inputs.uniforms)
+                                if (ImGui::TreeNode(uniform.name.c_str())) {
+                                    ImGui::Text("Stage %u | type %u | %u "
+                                                "components x %u",
+                                                uniform.stage, uniform.type,
+                                                uniform.components,
+                                                uniform.count);
+                                    if (uniform.data) {
+                                        const auto &bytes = uniform.data->bytes;
+                                        ImGui::BeginChild("Raw uniform words",
+                                                          ImVec2(0, 120), true);
+                                        ImGuiListClipper words;
+                                        words.Begin(int(bytes.size() / 4));
+                                        while (words.Step())
+                                            for (int word = words.DisplayStart;
+                                                 word < words.DisplayEnd;
+                                                 ++word) {
+                                                uint32_t bits =
+                                                    uint32_t(bytes[word * 4]) |
+                                                    uint32_t(
+                                                        bytes[word * 4 + 1])
+                                                        << 8 |
+                                                    uint32_t(
+                                                        bytes[word * 4 + 2])
+                                                        << 16 |
+                                                    uint32_t(
+                                                        bytes[word * 4 + 3])
+                                                        << 24;
+                                                float value;
+                                                std::memcpy(&value, &bits, 4);
+                                                ImGui::Text(
+                                                    "[%d] 0x%08X | float %.9g",
+                                                    word, bits, value);
+                                            }
+                                        ImGui::EndChild();
+                                    }
+                                    ImGui::TreePop();
+                                }
+                            for (const auto &blob : event.inputs.blobs)
+                                ImGui::Text(
+                                    "%s: %u vertices, stride %u, format %u",
+                                    blob.name.c_str(), blob.count, blob.stride,
+                                    blob.format);
+                            ImGui::TreePop();
                         }
                         if (ImGui::Button("Inspect exact draw / GLSL")) {
-                            s.shader(part->occurrence, selected->context);
+                            s.message =
+                                s.shader(part->occurrence, selected->context,
+                                         s.controller.SelectedRecording());
+                            if (s.message.empty())
+                                s.message = "Exact owned draw opened in Shader "
+                                            "Browser; saving a replacement "
+                                            "does not enable it";
                         }
                     }
                     if (selected->parts.size() > 1 &&

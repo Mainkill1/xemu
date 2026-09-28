@@ -35,12 +35,15 @@ public:
     const std::string &Message() const;
     const AssetCatalog &Catalog() const;
     std::shared_ptr<const AssetAssembly> Selected() const;
+    std::shared_ptr<const capture::CaptureSessionSnapshot>
+    SelectedRecording() const;
 
 private:
     uint64_t generation_ = 0;
     capture::CaptureSessionContext context_;
     AssetCatalog catalog_;
     std::shared_ptr<const AssetAssembly> selected_;
+    std::shared_ptr<const capture::CaptureSessionSnapshot> selected_recording_;
     std::vector<std::shared_ptr<const AssetAssembly>> named_;
     bool pinned_ = false, frozen_ = false;
     AssetSelectionState state_ = AssetSelectionState::Empty;

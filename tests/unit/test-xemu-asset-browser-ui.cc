@@ -34,7 +34,8 @@ int main(int argc, char **argv)
     context.scope_generation = 3;
     context.backend = 2;
     AssetBrowserWindow browser(
-        session, [&] { return context; }, [](auto, const auto &) {});
+        session, [&] { return context; },
+        [](auto, const auto &, auto) { return std::string{}; });
     AssetCatalog catalog;
     catalog.context = context;
     catalog.frame = 12;

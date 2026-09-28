@@ -47,6 +47,7 @@ struct AssetAssembly {
     bool complete = false;
 };
 struct AssetCatalog {
+    std::shared_ptr<const capture::CaptureSessionSnapshot> recording;
     capture::CaptureSessionContext context;
     uint64_t frame = 0, decoded_bytes = 0, matching_draws = 0;
     std::vector<SharedAssetPart> parts;

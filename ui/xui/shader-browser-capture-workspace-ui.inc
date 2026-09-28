@@ -556,24 +556,34 @@ void ShaderBrowserWindow::DrawCaptureExplorer()
 
 bool ShaderBrowserWindow::InspectCapturedOccurrence(
     std::shared_ptr<const CaptureOccurrence> occurrence,
-    const CaptureSessionContext &context)
+    const CaptureSessionContext &context, std::string *error,
+    const CaptureSessionSnapshot *recording)
 {
-    if (!occurrence || occurrence->pending)
+    if(error)error->clear();
+    if (!occurrence || occurrence->pending) {
+        if(error)*error="Owned draw is missing or GPU capture is still pending";
         return false;
+    }
     auto &state = CaptureWorkspace();
-    if (state.file_job.valid())
+    if (state.file_job.valid()) {
+        if(error)*error="Finish the Shader Browser file operation before opening another draw";
         return false;
+    }
     state.snapshot = {};
     state.snapshot.context = context;
     state.snapshot.events = { occurrence };
     state.snapshot.state = CaptureSessionState::Ready;
+    if(recording && std::find(recording->events.begin(),recording->events.end(),occurrence)!=recording->events.end())
+        state.snapshot=*recording;
     state.archived = true;
     state.selected = std::move(occurrence);
     state.selected_event = state.selected->event_id;
     state.inputs = state.selected->CopyInputs();
     state.difference = {};
     state.message.clear();
-    return OpenCapturedOccurrence();
+    const bool opened=OpenCapturedOccurrence();
+    if(!opened && error)*error=state.message;
+    return opened;
 }
 
 bool ShaderBrowserWindow::OpenCapturedOccurrence()

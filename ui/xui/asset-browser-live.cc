@@ -133,13 +133,13 @@ void AssetLiveCapture::Tick(const capture::CaptureSessionContext &context,
                 Result result;
                 result.generation = generation;
                 result.claim_generation = claim;
-                uint64_t current = 0;
-                session_.Context(&current);
-                if (current != claim)
+                uint64_t worker_generation = 0;
+                session_.Context(&worker_generation);
+                if (worker_generation != claim)
                     return result;
                 const auto snapshot = session_.Snapshot();
-                session_.Context(&current);
-                if (current != claim)
+                session_.Context(&worker_generation);
+                if (worker_generation != claim)
                     return result;
                 result.valid = true;
                 result.pending =

@@ -11,6 +11,8 @@ xemu_ss.add(files(
   'asset-browser-viewport.cc',
   'asset-browser.cc',
   'asset-browser-platform.cc',
+  'asset-browser-export.cc',
+  'asset-browser-glb.cc',
   'shader-browser-model.cc',
   'shader-browser-usage-export.cc',
   'shader-browser-glsl-export.cc',
@@ -116,11 +118,26 @@ asset_browser_ui_test = executable(
   files('asset-browser.cc', 'asset-browser-model.cc', 'asset-browser-decode.cc',
         'asset-browser-controller.cc', 'asset-browser-live.cc',
         'asset-browser-viewport.cc', 'asset-browser-material.cc',
+        'asset-browser-export.cc', 'asset-browser-glb.cc',
+        'shader-browser-capture-inspection.cc',
         'shader-browser-capture-session.cc', 'shader-browser-capture-resources.cc',
         'shader-browser-draw-capture.cc', 'shader-browser-model.cc'),
   include_directories: [shader_browser_test_inc, include_directories('../..')],
-  dependencies: [shader_browser_threads, glib, xxhash, json, imgui, epoxy, sdl])
+  dependencies: [shader_browser_threads, glib, xxhash, json, imgui, epoxy, sdl, fpng])
 # Native ImGui/GL fixture; normal headless CI compiles it without claiming a run.
+
+asset_browser_export_test = executable(
+  'test-xemu-asset-browser-export',
+  shader_browser_test_dir / 'test-xemu-asset-browser-export.cc',
+  files('asset-browser-model.cc', 'asset-browser-decode.cc',
+        'asset-browser-controller.cc', 'asset-browser-export.cc',
+        'asset-browser-glb.cc', 'asset-browser-material.cc',
+        'shader-browser-capture-inspection.cc', 'shader-browser-capture-session.cc',
+        'shader-browser-capture-resources.cc', 'shader-browser-draw-capture.cc',
+        'shader-browser-model.cc'),
+  include_directories: [shader_browser_test_inc, include_directories('../..')],
+  dependencies: [shader_browser_threads, glib, xxhash, json, fpng])
+test('test-xemu-asset-browser-export', asset_browser_export_test, suite: ['unit'])
 
 shader_browser_model_test = executable(
   'test-xemu-shader-browser-model',
