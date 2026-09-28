@@ -99,6 +99,70 @@ struct ShaderBrowserExternalWindow {
 
 static ShaderBrowserExternalWindow g_shader_browser_external;
 static std::atomic<bool> g_shader_browser_external_requested;
+static SDL_Cursor *g_hud_mouse_cursors[ImGuiMouseCursor_COUNT]{};
+
+static void UpdateHudMouseCursor(SDL_Window *window)
+{
+    // SDL cursor state is process-wide. Only the ImGui context for the window
+    // under the pointer may apply it; the idle game HUD must not hide the
+    // workbench cursor, and an unfocused workbench must not show the game
+    // cursor.
+    if (!window || SDL_GetMouseFocus() != window)
+        return;
+    const ImGuiMouseCursor cursor = ImGui::GetMouseCursor();
+    if (ImGui::GetIO().MouseDrawCursor || cursor == ImGuiMouseCursor_None) {
+        if (SDL_CursorVisible())
+            SDL_HideCursor();
+        return;
+    }
+    SDL_SystemCursor system_cursor = SDL_SYSTEM_CURSOR_DEFAULT;
+    switch (cursor) {
+    case ImGuiMouseCursor_TextInput:
+        system_cursor = SDL_SYSTEM_CURSOR_TEXT;
+        break;
+    case ImGuiMouseCursor_ResizeAll:
+        system_cursor = SDL_SYSTEM_CURSOR_MOVE;
+        break;
+    case ImGuiMouseCursor_ResizeNS:
+        system_cursor = SDL_SYSTEM_CURSOR_NS_RESIZE;
+        break;
+    case ImGuiMouseCursor_ResizeEW:
+        system_cursor = SDL_SYSTEM_CURSOR_EW_RESIZE;
+        break;
+    case ImGuiMouseCursor_ResizeNESW:
+        system_cursor = SDL_SYSTEM_CURSOR_NESW_RESIZE;
+        break;
+    case ImGuiMouseCursor_ResizeNWSE:
+        system_cursor = SDL_SYSTEM_CURSOR_NWSE_RESIZE;
+        break;
+    case ImGuiMouseCursor_Hand:
+        system_cursor = SDL_SYSTEM_CURSOR_POINTER;
+        break;
+    case ImGuiMouseCursor_NotAllowed:
+        system_cursor = SDL_SYSTEM_CURSOR_NOT_ALLOWED;
+        break;
+    default:
+        break;
+    }
+    SDL_Cursor *&owned_cursor = g_hud_mouse_cursors[cursor];
+    if (!owned_cursor)
+        owned_cursor = SDL_CreateSystemCursor(system_cursor);
+    SDL_Cursor *desired = owned_cursor ? owned_cursor : SDL_GetDefaultCursor();
+    if (SDL_GetCursor() != desired)
+        SDL_SetCursor(desired);
+    if (!SDL_CursorVisible())
+        SDL_ShowCursor();
+}
+
+static void DestroyHudMouseCursors()
+{
+    SDL_SetCursor(SDL_GetDefaultCursor());
+    for (SDL_Cursor *&cursor : g_hud_mouse_cursors) {
+        if (cursor)
+            SDL_DestroyCursor(cursor);
+        cursor = nullptr;
+    }
+}
 
 static void ShaderBrowserEndPerformanceSessionLocked(void *)
 {
@@ -387,6 +451,7 @@ static bool InitializeShaderBrowserExternalWindow(SDL_Window *main_window,
     workbench_style.CellPadding = ImVec2(5.0f, 3.0f);
     ImGuiIO &io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
     io.IniFilename = nullptr;
     ImFontConfig font_config;
     font_config.FontDataOwnedByAtlas = false;
@@ -444,6 +509,7 @@ void xemu_hud_init(SDL_Window* window, void* sdl_gl_context)
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     io.IniFilename = NULL;
 
@@ -493,6 +559,7 @@ void xemu_hud_init(SDL_Window* window, void* sdl_gl_context)
 
 void xemu_hud_cleanup(void)
 {
+    DestroyHudMouseCursors();
     ShaderBrowserEndPerformanceSession();
     xemu_shader_browser_set_current_scope(nullptr);
     shader_browser_window.m_is_open = false;
@@ -737,6 +804,7 @@ void xemu_hud_update(void)
     g_scene_mgr.Draw();
     if (!first_boot_window.is_open) notification_manager.Draw();
     g_snapshot_mgr.Draw();
+    UpdateHudMouseCursor(xemu_get_window());
 
     // static bool show_demo = true;
     // if (show_demo) ImGui::ShowDemoWindow(&show_demo);
@@ -778,6 +846,7 @@ void xemu_hud_update_external(void)
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
     shader_browser_window.Draw();
+    UpdateHudMouseCursor(external.window);
     ImGui::Render();
     external.frame_ready = true;
     SDL_GL_MakeCurrent(main_window, main_gl);

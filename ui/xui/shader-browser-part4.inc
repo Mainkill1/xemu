@@ -566,8 +566,8 @@ void ShaderBrowserWindow::DrawLivePreview()
         workbench.controls_open :
         ImGui::IsPopupOpen("##workbench-inspector-popup");
     const bool editor_visible = workbench.dock.open;
-    const float header_height = (desktop_inspector ? 98.0f : 90.0f) *
-        g_viewport_mgr.m_scale;
+    const float header_height =
+        (desktop_inspector ? 128.0f : 120.0f) * g_viewport_mgr.m_scale;
     float &preferred_editor_height = desktop_inspector ?
         workbench.editor_height : workbench.compact_editor_height;
     const float editor_height = editor_visible ?
@@ -1671,65 +1671,68 @@ void ShaderBrowserWindow::DrawLivePreview()
             StageLabel(entry->key.stage));
     }
 
+    const bool capture_allowed =
+        entry && entry->key.stage == Stage::Pixel && !workbench.running_test &&
+        !workbench.comparison_locked &&
+        selection.scope == CurrentWorkbenchBuildScope() &&
+        selection.scope.title_id &&
+        (runstate_is_running() || runstate_check(RUN_STATE_PAUSED));
+    const bool capture_pending =
+        workbench.capture_request_id == capture_status.request_id &&
+        (capture_status.state == XEMU_SHADER_DRAW_REQUEST_ARMED ||
+         capture_status.state == XEMU_SHADER_DRAW_REQUEST_CAPTURING);
+    const auto arm_capture = [&] {
+        XemuShaderDrawRequestSpec request{};
+        std::copy_n(selection.shader.hash.bytes.begin(),
+                    selection.shader.hash.bytes.size(), request.identity_hash);
+        request.stage = XEMU_SHADER_BROWSER_STAGE_PIXEL;
+        request.scope.title_id = selection.scope.title_id;
+        request.scope.executable_fingerprint_version =
+            selection.scope.executable_fingerprint_version;
+        std::copy_n(selection.scope.executable_fingerprint.begin(),
+                    selection.scope.executable_fingerprint.size(),
+                    request.scope.executable_fingerprint);
+        request.scope_generation = xemu_shader_browser_scope_generation();
+        request.session_epoch = selection.session_epoch;
+        request.renderer_epoch = selection.renderer_epoch;
+        workbench.capture_request_id = xemu_shader_draw_request_arm(&request);
+        if (workbench.capture_request_id) {
+            workbench.capture_selection = selection;
+            workbench.capture_auto_pause = true;
+            workbench.capture_mesh = {};
+            workbench.capture_summary = {};
+            workbench.capture_component = -1;
+            workbench.use_capture_mesh = false;
+            service.SetEnabled(false);
+            workbench.start_requested = false;
+            if (runstate_check(RUN_STATE_PAUSED))
+                vm_start();
+            m_action_message = "Waiting for the selected shader's next draw";
+        } else {
+            m_action_message = "Unable to arm game draw capture";
+        }
+    };
+    const auto cancel_capture = [&] {
+        xemu_shader_draw_request_cancel();
+        if (workbench.capture_auto_pause && runstate_is_running())
+            vm_stop(RUN_STATE_PAUSED);
+        workbench.capture_auto_pause = false;
+        workbench.use_capture_mesh = false;
+        m_preview_packet_attempted = false;
+        if (runstate_check(RUN_STATE_PAUSED)) {
+            service.SetGuestPaused(true);
+            service.SetEnabled(true);
+            workbench.start_requested = true;
+            workbench.start_selection = selection;
+        }
+        m_action_message = "Game draw capture cancelled; using synthetic scene";
+    };
+
     if (controls_visible) {
         ImGui::SeparatorText("Game draw capture");
-        const bool capture_allowed = entry &&
-            entry->key.stage == Stage::Pixel &&
-            selection.scope == CurrentWorkbenchBuildScope() &&
-            selection.scope.title_id &&
-            (runstate_is_running() || runstate_check(RUN_STATE_PAUSED));
-        const bool capture_pending =
-            workbench.capture_request_id == capture_status.request_id &&
-            (capture_status.state == XEMU_SHADER_DRAW_REQUEST_ARMED ||
-             capture_status.state == XEMU_SHADER_DRAW_REQUEST_CAPTURING);
-        ImGui::BeginDisabled(!capture_allowed || capture_pending);
-        if (ImGui::Button(guest_paused ? "Advance to next matching draw" :
-                                     "Capture next matching draw")) {
-            XemuShaderDrawRequestSpec request{};
-            std::copy_n(selection.shader.hash.bytes.begin(),
-                        selection.shader.hash.bytes.size(),
-                        request.identity_hash);
-            request.stage = XEMU_SHADER_BROWSER_STAGE_PIXEL;
-            request.scope.title_id = selection.scope.title_id;
-            request.scope.executable_fingerprint_version =
-                selection.scope.executable_fingerprint_version;
-            std::copy_n(selection.scope.executable_fingerprint.begin(),
-                        selection.scope.executable_fingerprint.size(),
-                        request.scope.executable_fingerprint);
-            request.scope_generation =
-                xemu_shader_browser_scope_generation();
-            request.session_epoch = selection.session_epoch;
-            request.renderer_epoch = selection.renderer_epoch;
-            workbench.capture_request_id =
-                xemu_shader_draw_request_arm(&request);
-            if (workbench.capture_request_id) {
-                workbench.capture_selection = selection;
-                workbench.capture_auto_pause = true;
-                workbench.capture_mesh = {};
-                workbench.capture_summary = {};
-                workbench.capture_component = -1;
-                workbench.use_capture_mesh = false;
-                service.SetEnabled(false);
-                workbench.start_requested = false;
-                if (runstate_check(RUN_STATE_PAUSED)) vm_start();
-                m_action_message = "Waiting for the selected shader's next draw";
-            } else {
-                m_action_message = "Unable to arm game draw capture";
-            }
-        }
-        ImGui::EndDisabled();
         if (capture_pending) {
-            ImGui::SameLine();
-            if (ImGui::Button("Cancel draw capture")) {
-                xemu_shader_draw_request_cancel();
-                if (workbench.capture_auto_pause && runstate_is_running())
-                    vm_stop(RUN_STATE_PAUSED);
-                workbench.capture_auto_pause = false;
-                m_action_message = "Game draw capture cancelled";
-            }
             ImGui::TextDisabled("Waiting for a submitted matching draw");
-        } else if (workbench.capture_request_id ==
-                       capture_status.request_id &&
+        } else if (workbench.capture_request_id == capture_status.request_id &&
                    capture_status.state == XEMU_SHADER_DRAW_REQUEST_READY) {
             ImGui::TextWrapped(
                 "Found frame %llu, draw %u, submission %llu. %s",
@@ -1771,19 +1774,9 @@ void ShaderBrowserWindow::DrawLivePreview()
                     }
                 }
                 if (!workbench.capture_summary.segmentation_complete)
-                    ImGui::TextDisabled("Draw parts are unavailable or exceed the analysis limit");
-                if (ImGui::RadioButton("Game draw (approximate)",
-                                       workbench.use_capture_mesh)) {
-                    workbench.use_capture_mesh = true;
-                    m_preview_packet_attempted = false;
-                }
-                ImGui::SameLine();
+                    ImGui::TextDisabled("Draw parts are unavailable or exceed "
+                                        "the analysis limit");
             }
-        }
-        if (ImGui::RadioButton("Synthetic scene",
-                               !workbench.use_capture_mesh)) {
-            workbench.use_capture_mesh = false;
-            m_preview_packet_attempted = false;
         }
     }
 
@@ -1909,11 +1902,58 @@ void ShaderBrowserWindow::DrawLivePreview()
                 m_action_message = "Game resumed";
             }
         }
-        const char *preview_message = unavailable ? unavailable :
-            !workbench.start_error.empty() ?
-                workbench.start_error.c_str() :
+        bool use_game_geometry = workbench.use_capture_mesh || capture_pending;
+        ImGui::BeginDisabled(!capture_allowed && !use_game_geometry);
+        if (ImGui::Checkbox("Use game geometry", &use_game_geometry)) {
+            if (!use_game_geometry) {
+                if (capture_pending)
+                    cancel_capture();
+                workbench.use_capture_mesh = false;
+                m_preview_packet_attempted = false;
+            } else if (workbench.capture_selection == selection &&
+                       !workbench.capture_mesh.indices.empty()) {
+                workbench.use_capture_mesh = true;
+                m_preview_packet_attempted = false;
+            } else {
+                arm_capture();
+            }
+        }
+        ImGui::EndDisabled();
+        if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
+            ImGui::SetTooltip(
+                "Checked: preview captured game geometry. Unchecked: synthetic "
+                "scene.\n"
+                "Captures a matching draw if needed, then pauses the game.\n"
+                "Textures and material inputs remain synthetic.");
+        }
+        ImGui::SameLine();
+        if (capture_pending) {
+            if (ImGui::Button("Cancel capture"))
+                cancel_capture();
+        } else {
+            ImGui::BeginDisabled(!capture_allowed);
+            if (ImGui::Button(guest_paused ? "Advance / capture draw" :
+                                             "Capture game draw")) {
+                arm_capture();
+            }
+            ImGui::EndDisabled();
+            if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+                ImGui::SetTooltip("Capture the selected shader's next "
+                                  "submitted draw and pause the game.");
+        }
+        const bool metadata_only =
+            workbench.capture_request_id == capture_status.request_id &&
+            capture_status.state == XEMU_SHADER_DRAW_REQUEST_READY &&
+            workbench.capture_mesh.indices.empty();
+        const char *preview_message =
+            metadata_only   ? "Matching draw found; geometry unsupported. "
+                              "Capture another draw." :
+            capture_pending ? "Waiting for the selected shader's next draw" :
+            unavailable     ? unavailable :
+            !workbench.start_error.empty() ? workbench.start_error.c_str() :
             !m_preview_packet_message.empty() ?
-                m_preview_packet_message.c_str() : status.message.c_str();
+                                             m_preview_packet_message.c_str() :
+                                             status.message.c_str();
         ImGui::Text("%s: %.64s", PreviewStateLabel(status.state),
                     preview_message);
         if (ImGui::IsItemHovered())

@@ -3,8 +3,11 @@
 **Partial live capture and approximate preview.** The workbench can arm one
 request for the next submitted draw using the selected pixel shader. It resumes
 a paused guest, copies supported triangle geometry, pauses again, and displays
-that draw in the private OpenGL or Vulkan preview. The Synthetic scene remains
-selectable. The game draw mode uses the captured geometry with synthetic
+that draw in the private OpenGL or Vulkan preview. **Use game geometry** is a
+checkbox at the top of Live Preview, beside **Advance / capture draw** (when
+paused) or **Capture game draw**. Checking it captures a matching draw if needed;
+unchecking it returns to the synthetic scene and cancels any pending capture.
+These controls remain visible with the inspector closed. The game draw mode uses the captured geometry with synthetic
 textures, constants, and vertex outputs; it is not exact material replay.
 
 The current geometry decoder supports triangle lists with float3/float4
