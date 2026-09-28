@@ -11,6 +11,7 @@
 #include "shader-browser-override-runtime.h"
 #include <memory>
 #include "common.hh"
+#include "shader-browser-selection-ui.hh"
 #include "xemu-hud.h"
 #include "shader-browser-workbench-editor-ui.inc"
 #include "shader-browser-workbench-scene-ui.inc"

@@ -406,7 +406,7 @@ static void CancelWorkbenchCaptureWhenHidden()
 void ShaderBrowserWindow::DrawWorkbenchSharedSettings()
 {
     ShaderWorkbenchSession &workbench = WorkbenchSession();
-    ImGui::SeparatorText("Private preview and editor");
+    ImGui::SeparatorText("Preview and editor");
     if (workbench.comparison_locked) {
         ImGui::TextDisabled("Original / Edited comparison inputs are locked.");
         if (ImGui::SmallButton("Unlock comparison"))
@@ -414,10 +414,11 @@ void ShaderBrowserWindow::DrawWorkbenchSharedSettings()
     }
     if (workbench.comparison_locked) ImGui::BeginDisabled();
     ImGui::Checkbox("Auto-compile edited GLSL", &workbench.dock.auto_compile);
-    DrawMutedWrapped("Compiles only the private draft; a game rule requires an explicit Apply action.");
+    DrawMutedWrapped("Compiles only the draft; a game rule requires an "
+                     "explicit Apply action.");
     int policy = static_cast<int>(m_preview_update_policy);
-    if (ImGui::Combo("Preview updates", &policy,
-                     "When inputs change\0Continuous synthetic clock\0")) {
+    if (ShaderCombo("Preview updates", &policy,
+                    "When inputs change\0Continuous synthetic clock\0")) {
         m_preview_update_policy = static_cast<PreviewUpdatePolicy>(policy);
         m_preview_packet_attempted = false;
     }
@@ -631,8 +632,8 @@ void ShaderBrowserWindow::DrawLivePreview()
             for (int i = 0; i < static_cast<int>(PreviewChannel::Count); ++i) {
                 auto option = static_cast<PreviewChannel>(i);
                 ImGui::BeginDisabled(!PreviewChannelAvailable(option));
-                if (ImGui::Selectable(PreviewChannelLabel(option),
-                                      channel == option))
+                if (ShaderOptionSelected(PreviewChannelLabel(option),
+                                         channel == option))
                     m_preview_view_channel = i;
                 ImGui::EndDisabled();
             }
@@ -677,7 +678,7 @@ void ShaderBrowserWindow::DrawLivePreview()
 
         if (workbench.comparison_locked) ImGui::BeginDisabled();
         int policy = static_cast<int>(m_preview_update_policy);
-        if (ImGui::Combo("Update policy", &policy, "On dirty\0Continuous\0")) {
+        if (ShaderCombo("Update policy", &policy, "On dirty\0Continuous\0")) {
             m_preview_update_policy = static_cast<PreviewUpdatePolicy>(policy);
             m_preview_packet_attempted = false;
         }
@@ -750,7 +751,7 @@ void ShaderBrowserWindow::DrawLivePreview()
             "All Inputs Diagnostic"
         };
         int choice = m_preview_profile + 1;
-        if (ImGui::Combo("Profile", &choice, names, 10)) {
+        if (ShaderCombo("Profile", &choice, names, 10)) {
             m_preview_profile = choice - 1;
             m_preview_fixture_suggested = false;
             if (choice)
@@ -771,7 +772,7 @@ void ShaderBrowserWindow::DrawLivePreview()
                 fixture_changed();
             int texture = static_cast<int>(m_preview_fixture.textures[i]);
             std::string label = "T" + std::to_string(i) + " texture";
-            if (ImGui::Combo(label.c_str(), &texture, names + 1, 9)) {
+            if (ShaderCombo(label.c_str(), &texture, names + 1, 9)) {
                 m_preview_fixture.textures[i] =
                     static_cast<PreviewFixtureProfile>(texture);
                 fixture_changed();
@@ -1408,8 +1409,7 @@ void ShaderBrowserWindow::DrawLivePreview()
                 "Selected shader changed before preparation";
         } else if (!preparation.guest_paused && !offline_no_guest) {
             workbench.start_requested = false;
-            workbench.start_error =
-                "Guest resumed before private preparation";
+            workbench.start_error = "Guest resumed before preview preparation";
         } else if (preparation.state == PreviewState::Failed ||
                    preparation.state == PreviewState::Unsupported) {
             workbench.start_requested = false;
@@ -1481,9 +1481,9 @@ void ShaderBrowserWindow::DrawLivePreview()
             for (size_t i = 0; i < workbench.available_tests.size(); ++i) {
                 const std::string name =
                     workbench.available_tests[i].filename().u8string();
-                if (ImGui::Selectable(name.c_str(),
-                                      workbench.selected_test ==
-                                          static_cast<int>(i))) {
+                if (ShaderOptionSelected(name.c_str(),
+                                         workbench.selected_test ==
+                                             static_cast<int>(i))) {
                     workbench.selected_test = static_cast<int>(i);
                 }
             }
@@ -1686,6 +1686,7 @@ void ShaderBrowserWindow::DrawLivePreview()
         std::copy_n(selection.shader.hash.bytes.begin(),
                     selection.shader.hash.bytes.size(), request.identity_hash);
         request.stage = XEMU_SHADER_BROWSER_STAGE_PIXEL;
+        request.require_geometry = 1;
         request.scope.title_id = selection.scope.title_id;
         request.scope.executable_fingerprint_version =
             selection.scope.executable_fingerprint_version;
@@ -1707,7 +1708,8 @@ void ShaderBrowserWindow::DrawLivePreview()
             workbench.start_requested = false;
             if (runstate_check(RUN_STATE_PAUSED))
                 vm_start();
-            m_action_message = "Waiting for the selected shader's next draw";
+            m_action_message =
+                "Searching for supported geometry from the selected shader";
         } else {
             m_action_message = "Unable to arm game draw capture";
         }
@@ -1731,7 +1733,10 @@ void ShaderBrowserWindow::DrawLivePreview()
     if (controls_visible) {
         ImGui::SeparatorText("Game draw capture");
         if (capture_pending) {
-            ImGui::TextDisabled("Waiting for a submitted matching draw");
+            ImGui::TextWrapped(
+                "Searching for supported geometry; %llu matching draws "
+                "skipped. Cancel to stop.",
+                static_cast<unsigned long long>(capture_status.skipped_draws));
         } else if (workbench.capture_request_id == capture_status.request_id &&
                    capture_status.state == XEMU_SHADER_DRAW_REQUEST_READY) {
             ImGui::TextWrapped(
@@ -1752,8 +1757,9 @@ void ShaderBrowserWindow::DrawLivePreview()
                         workbench.capture_component < 0 ? "Whole draw" :
                         ("Connected part " + std::to_string(
                             workbench.capture_component + 1)).c_str())) {
-                        if (ImGui::Selectable("Whole draw",
-                                               workbench.capture_component < 0)) {
+                        if (ShaderOptionSelected("Whole draw",
+                                                 workbench.capture_component <
+                                                     0)) {
                             workbench.capture_component = -1;
                             m_preview_packet_attempted = false;
                         }
@@ -1764,8 +1770,9 @@ void ShaderBrowserWindow::DrawLivePreview()
                                 std::to_string(workbench.capture_summary.
                                     segments[i].primitive_count) +
                                 " triangles)";
-                            if (ImGui::Selectable(label.c_str(),
-                                  workbench.capture_component == int(i))) {
+                            if (ShaderOptionSelected(
+                                    label.c_str(),
+                                    workbench.capture_component == int(i))) {
                                 workbench.capture_component = int(i);
                                 m_preview_packet_attempted = false;
                             }
@@ -1806,9 +1813,11 @@ void ShaderBrowserWindow::DrawLivePreview()
     if (ImGui::BeginChild("##workbench-header",
                           ImVec2(0.0f, header_height), true)) {
         if (desktop_inspector) {
-            ImGui::TextDisabled("PRIVATE %s | %s renderer",
-                workbench.use_capture_mesh ? "APPROXIMATE GAME DRAW" :
-                    "SYNTHETIC TEST", PreviewBackendLabel(active_backend));
+            ImGui::TextDisabled("%s | %s renderer",
+                                workbench.use_capture_mesh ?
+                                    "APPROXIMATE GAME DRAW" :
+                                    "SYNTHETIC TEST",
+                                PreviewBackendLabel(active_backend));
         }
         bool replacement_source_available = false;
         if (!workbench.running_test && !workbench.has_generated &&
@@ -1827,7 +1836,11 @@ void ShaderBrowserWindow::DrawLivePreview()
         if (!entry) {
             unavailable = "Select a pixel shader";
         } else if (entry->key.stage != Stage::Pixel) {
-            unavailable = "Only pixel shaders can run in this scene";
+            unavailable = entry->key.stage == Stage::Geometry ?
+                              "GS expands Xbox primitives; inspect its linked "
+                              "draw and GLSL in Details" :
+                              "VS needs its game layout and constants; inspect "
+                              "GLSL and layout in Details";
         } else if (!workbench.running_test &&
                    (!m_has_recipe || m_selected_recipe.key != entry->key)) {
             unavailable = "Canonical recipe is unavailable";
@@ -1846,7 +1859,7 @@ void ShaderBrowserWindow::DrawLivePreview()
         }
         if (desktop_inspector) ImGui::SameLine();
         if (enabled && status.prepared) {
-            if (ImGui::Button("Stop private test")) {
+            if (ImGui::Button("Stop preview")) {
                 service.SetEnabled(false);
                 workbench.start_requested = false;
                 workbench.start_error.clear();
@@ -1854,10 +1867,10 @@ void ShaderBrowserWindow::DrawLivePreview()
                 enabled = false;
             }
         } else {
-            const char *start_label = workbench.start_requested ?
-                "Preparing private test" :
-                guest_paused || offline_no_guest ?
-                    "Start private test" : "Pause game and start test";
+            const char *start_label =
+                workbench.start_requested        ? "Preparing preview" :
+                guest_paused || offline_no_guest ? "Start preview" :
+                                                   "Pause game and start test";
             ImGui::BeginDisabled(unavailable || workbench.start_requested ||
                                  status.work_active);
             if (ImGui::Button(start_label)) {
@@ -1871,10 +1884,9 @@ void ShaderBrowserWindow::DrawLivePreview()
                     workbench.start_selection = selection;
                     workbench.start_error.clear();
                     m_preview_packet_attempted = false;
-                    m_action_message =
-                        workbench.use_capture_mesh ?
-                            "Preparing a private game draw preview" :
-                            "Preparing a private synthetic test";
+                    m_action_message = workbench.use_capture_mesh ?
+                                           "Preparing a game draw preview" :
+                                           "Preparing a synthetic test";
                 } else {
                     m_action_message = "Could not pause the guest";
                     workbench.start_error = m_action_message;
@@ -1883,7 +1895,7 @@ void ShaderBrowserWindow::DrawLivePreview()
             ImGui::EndDisabled();
             if (enabled) {
                 ImGui::SameLine();
-                if (ImGui::Button("Stop private test")) {
+                if (ImGui::Button("Stop preview")) {
                     service.SetEnabled(false);
                     workbench.start_requested = false;
                     workbench.start_error.clear();
@@ -1932,24 +1944,27 @@ void ShaderBrowserWindow::DrawLivePreview()
                 cancel_capture();
         } else {
             ImGui::BeginDisabled(!capture_allowed);
-            if (ImGui::Button(guest_paused ? "Advance / capture draw" :
-                                             "Capture game draw")) {
+            if (ImGui::Button(guest_paused ? "Advance until supported draw" :
+                                             "Capture supported game draw")) {
                 arm_capture();
             }
             ImGui::EndDisabled();
             if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-                ImGui::SetTooltip("Capture the selected shader's next "
-                                  "submitted draw and pause the game.");
+                ImGui::SetTooltip(
+                    "Advance through matching draws until supported geometry "
+                    "is captured, then pause the game. Cancel stops the "
+                    "search.");
         }
         const bool metadata_only =
             workbench.capture_request_id == capture_status.request_id &&
             capture_status.state == XEMU_SHADER_DRAW_REQUEST_READY &&
             workbench.capture_mesh.indices.empty();
         const char *preview_message =
-            metadata_only   ? "Matching draw found; geometry unsupported. "
-                              "Capture another draw." :
-            capture_pending ? "Waiting for the selected shader's next draw" :
-            unavailable     ? unavailable :
+            metadata_only ?
+                "Captured draw has no supported geometry." :
+            capture_pending ?
+                "Searching for supported geometry from the selected shader" :
+            unavailable                    ? unavailable :
             !workbench.start_error.empty() ? workbench.start_error.c_str() :
             !m_preview_packet_message.empty() ?
                                              m_preview_packet_message.c_str() :
@@ -1970,9 +1985,9 @@ void ShaderBrowserWindow::DrawLivePreview()
         ImGui::Checkbox("GLSL / output", &workbench.dock.open);
         ImGui::SameLine();
         ImGui::SetNextItemWidth(150.0f * g_viewport_mgr.m_scale);
-        if (ImGui::Combo("Mode", &mode,
-                         "Normal\0Uber Shader\0Replacement Shader\0"
-                         "Visualize\0")) {
+        if (ShaderCombo("Mode", &mode,
+                        "Normal\0Uber Shader\0Replacement Shader\0"
+                        "Visualize\0")) {
             workbench.running_test.reset();
             workbench.editing_test = false;
             workbench.comparison_locked = false;
@@ -2005,8 +2020,7 @@ void ShaderBrowserWindow::DrawLivePreview()
                                              workbench.comparison_locked ?
                                                  nullptr : &m_preview_scene);
         } else {
-            ImGui::TextWrapped(
-                "Select a pixel shader to prepare a private preview.");
+            ImGui::TextWrapped("Select a pixel shader to prepare a preview.");
         }
         if (workbench.comparison_locked) ImGui::BeginDisabled();
         if (ImGui::SmallButton(status.clock.playing ? "Pause##clock" :
@@ -2126,8 +2140,7 @@ void ShaderBrowserWindow::DrawLivePreview()
                             workbench.dock.edit_buffer.clear();
                             workbench.editor.SetSource({});
                             m_preview_packet_attempted = false;
-                            m_action_message =
-                                "Created private draft from saved GLSL";
+                            m_action_message = "Created draft from saved GLSL";
                         } else {
                             m_action_message = error.empty() ?
                                 "Saved source route cannot become an editable preview draft" :
@@ -2169,7 +2182,7 @@ void ShaderBrowserWindow::DrawLivePreview()
                         workbench.draft.Diagnostics().c_str());
                 }
                 ImGui::TextDisabled(
-                    "Private preview output; no game rule is changed by a compile.");
+                    "Preview output; no game rule is changed by a compile.");
                 ImGui::EndTabItem();
             }
             ImGui::EndTabBar();
@@ -2188,7 +2201,7 @@ void ShaderBrowserWindow::DrawLivePreview()
                 workbench.dock.edit_buffer.clear();
                 workbench.editor.SetSource({});
                 m_preview_packet_attempted = false;
-                m_action_message = "Created private editable GLSL draft";
+                m_action_message = "Created editable GLSL draft";
             }
         }
         if (workbench.dock.variant != workbench.last_variant) {

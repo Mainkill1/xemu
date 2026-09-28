@@ -449,6 +449,48 @@ static void TestSubmittedDrawBridge()
     xemu_shader_draw_request_cancel();
 }
 
+static void TestSearchUntilSupportedGeometry()
+{
+    XemuShaderDrawRequestSpec spec{};
+    spec.identity_hash[0] = 1;
+    spec.stage = XEMU_SHADER_BROWSER_STAGE_PIXEL;
+    spec.scope.title_id = 1;
+    spec.scope_generation = 8;
+    spec.session_epoch = 1;
+    spec.renderer_epoch = 2;
+    spec.require_geometry = 1;
+    XemuShaderDrawIdentity identity{};
+    identity.identity_hash[0] = 1;
+    identity.stage = spec.stage;
+    const uint64_t request = xemu_shader_draw_request_arm(&spec);
+    const uint64_t first =
+        xemu_shader_draw_request_claim(8, 2, &identity, 1, 1, 1, 1);
+    CHECK(first);
+    CHECK(xemu_shader_draw_request_finish(first, 1, 5, 3, 0));
+    XemuShaderDrawRequestStatus status{};
+    CHECK(xemu_shader_draw_request_copy_status(&status));
+    CHECK(status.request_id == request);
+    CHECK(status.state == XEMU_SHADER_DRAW_REQUEST_ARMED);
+    CHECK(status.skipped_draws == 1);
+    CHECK(GetDrawCaptureRequest().CopyCaptured().shader_count == 0);
+    const uint64_t second =
+        xemu_shader_draw_request_claim(8, 2, &identity, 1, 1, 2, 2);
+    CHECK(second && second != first);
+    const float positions[] = { 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1 };
+    const uint32_t indices[] = { 0, 1, 2 };
+    const XemuShaderDrawGeometry geometry{ positions, 3, indices, 3 };
+    CHECK(!xemu_shader_draw_request_stage_geometry(first, &geometry));
+    CHECK(!xemu_shader_draw_request_finish(first, 1, 5, 3, 3));
+    CHECK(xemu_shader_draw_request_stage_geometry(second, &geometry));
+    CHECK(xemu_shader_draw_request_finish(second, 1, 5, 3, 3));
+    CHECK(xemu_shader_draw_request_copy_status(&status));
+    CHECK(status.request_id == request && status.skipped_draws == 1);
+    CHECK(status.state == XEMU_SHADER_DRAW_REQUEST_READY);
+    CHECK(status.draw == 2 && status.submission == 2);
+    xemu_shader_draw_request_cancel();
+    CHECK(!xemu_shader_draw_request_is_armed());
+}
+
 static void TestDrawGeometryOwnsItsBytes()
 {
     XemuShaderDrawRequestSpec spec{};
@@ -667,6 +709,7 @@ int main()
         TestUpstreamInputsRemainSeparate,
         TestOneShotDrawRequest,
         TestSubmittedDrawBridge,
+        TestSearchUntilSupportedGeometry,
         TestDrawGeometryOwnsItsBytes,
         TestBoundedFloatPositionCopy,
         TestClaimCancelRearmInterleaving,

@@ -218,8 +218,7 @@ void PreviewService::BackendDestroyed()
     // The backend has discarded all texture names and can only allocate new
     // objects. Keep lease generations monotonic across a subsequent restart.
     enabled_ = false;
-    InvalidatePendingLocked(PreviewState::Disabled,
-                            "Private preview backend closed");
+    InvalidatePendingLocked(PreviewState::Disabled, "Preview backend closed");
     active_ = false;
     active_work_ = {};
     for (Slot &slot : slots_) {

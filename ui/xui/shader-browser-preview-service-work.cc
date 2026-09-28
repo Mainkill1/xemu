@@ -185,8 +185,7 @@ bool PreviewService::TryClaimWork(uint64_t now_ns, PreviewWorkItem *work,
         active_ = true;
         preparation_requested_ = false;
         *work = active_work_;
-        SetStateLocked(PreviewState::Preparing,
-                       "Preparing private preview resources");
+        SetStateLocked(PreviewState::Preparing, "Preparing preview resources");
         return true;
     }
 
@@ -197,11 +196,10 @@ bool PreviewService::TryClaimWork(uint64_t now_ns, PreviewWorkItem *work,
     }
 
     if (!IsPreparedLocked()) {
-        SetStateLocked(
-            PreviewState::NeedsPreparation,
-            guest_paused_ || offline_no_guest_ ?
-                "Request preparation for the selected shader" :
-                "Pause the guest to prepare private preview resources");
+        SetStateLocked(PreviewState::NeedsPreparation,
+                       guest_paused_ || offline_no_guest_ ?
+                           "Request preparation for the selected shader" :
+                           "Pause the guest to prepare preview resources");
         return false;
     }
 

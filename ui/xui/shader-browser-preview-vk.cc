@@ -121,14 +121,14 @@ bool Compile(const std::string &source, glslang_stage_t stage,
     input.resource = &resources;
     glslang_shader_t *shader = glslang_shader_create(&input);
     if (!shader) {
-        *error = "Private Vulkan compiler allocation failed";
+        *error = "Preview Vulkan compiler allocation failed";
         return false;
     }
     bool ok = glslang_shader_preprocess(shader, &input) &&
               glslang_shader_parse(shader, &input);
     glslang_program_t *program = nullptr;
     if (!ok)
-        *error = std::string("Private Vulkan GLSL: ") +
+        *error = std::string("Preview Vulkan GLSL: ") +
                  glslang_shader_get_info_log(shader);
     if (ok) {
         program = glslang_program_create();
@@ -137,7 +137,7 @@ bool Compile(const std::string &source, glslang_stage_t stage,
             glslang_program_add_shader(program, shader);
             ok = glslang_program_link(program, input.messages);
             if (!ok)
-                *error = std::string("Private Vulkan link: ") +
+                *error = std::string("Preview Vulkan link: ") +
                          glslang_program_get_info_log(program);
         }
     }
@@ -150,7 +150,7 @@ bool Compile(const std::string &source, glslang_stage_t stage,
         if (ok)
             glslang_program_SPIRV_get(program, words->data());
         else
-            *error = "Private Vulkan SPIR-V generation failed";
+            *error = "Preview Vulkan SPIR-V generation failed";
     }
     if (program)
         glslang_program_delete(program);
@@ -216,7 +216,7 @@ struct PreviewVkExecutor::Impl {
     {
         if (result == VK_SUCCESS)
             return true;
-        *error = std::string("Private Vulkan ") + operation + " failed (" +
+        *error = std::string("Preview Vulkan ") + operation + " failed (" +
                  std::to_string(result) + ")";
         return false;
     }
@@ -230,13 +230,13 @@ struct PreviewVkExecutor::Impl {
         loader = SDL_LoadObject("libvulkan.so.1");
 #endif
         if (!loader) {
-            *error = "Private Vulkan loader unavailable";
+            *error = "Preview Vulkan loader unavailable";
             return false;
         }
         auto get = reinterpret_cast<PFN_vkGetInstanceProcAddr>(
             SDL_LoadFunction(loader, "vkGetInstanceProcAddr"));
         if (!get) {
-            *error = "Private Vulkan entry point unavailable";
+            *error = "Preview Vulkan entry point unavailable";
             return false;
         }
         auto create = reinterpret_cast<PFN_vkCreateInstance>(
@@ -261,7 +261,7 @@ struct PreviewVkExecutor::Impl {
                    "devices"))
             return false;
         if (!count) {
-            *error = "Private Vulkan physical device unavailable";
+            *error = "Preview Vulkan physical device unavailable";
             return false;
         }
         std::vector<VkPhysicalDevice> devices(count);
@@ -288,7 +288,7 @@ struct PreviewVkExecutor::Impl {
                 break;
         }
         if (!physical) {
-            *error = "Private Vulkan graphics queue unavailable";
+            *error = "Preview Vulkan graphics queue unavailable";
             return false;
         }
         VkFormatProperties format{};
@@ -298,7 +298,7 @@ struct PreviewVkExecutor::Impl {
               VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) ||
             !(format.optimalTilingFeatures &
               VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) {
-            *error = "Private Vulkan RGBA8 format unavailable";
+            *error = "Preview Vulkan RGBA8 format unavailable";
             return false;
         }
         for (VkFormat candidate : { VK_FORMAT_D32_SFLOAT,
@@ -313,7 +313,7 @@ struct PreviewVkExecutor::Impl {
         }
         if (depth_format == VK_FORMAT_UNDEFINED) {
             unsupported_depth = true;
-            *error = "Unsupported private Vulkan depth attachment format";
+            *error = "Unsupported preview Vulkan depth attachment format";
             return false;
         }
         float priority = 0.0f;
@@ -361,7 +361,7 @@ struct PreviewVkExecutor::Impl {
             return false;
         compiler = glslang_initialize_process();
         if (!compiler) {
-            *error = "Private Vulkan compiler initialization failed";
+            *error = "Preview Vulkan compiler initialization failed";
             return false;
         }
         initialized = true;
@@ -382,7 +382,7 @@ struct PreviewVkExecutor::Impl {
                              "memory");
             }
         }
-        *error = "Private Vulkan compatible memory unavailable";
+        *error = "Preview Vulkan compatible memory unavailable";
         return false;
     }
     bool MakeBuffer(Buffer &buffer, size_t size, VkBufferUsageFlags usage)
@@ -884,7 +884,8 @@ struct PreviewVkExecutor::Impl {
         const auto allowed = [&] {
             if (!may_continue || may_continue()) return true;
             if (cancelled) *cancelled = true;
-            *error = "Private Vulkan preparation cancelled because the guest resumed";
+            *error = "Preview Vulkan preparation cancelled because the guest "
+                     "resumed";
             return false;
         };
         if (!work.packet ||
@@ -899,7 +900,7 @@ struct PreviewVkExecutor::Impl {
             return false;
         }
         if (in_flight) {
-            *error = "Private Vulkan execution owner requires shutdown after "
+            *error = "Preview Vulkan execution owner requires shutdown after "
                      "incomplete work";
             return false;
         }
@@ -1158,7 +1159,7 @@ struct PreviewVkExecutor::Impl {
         if (!prepared || !work.packet || key != work.compile_key || in_flight ||
             !work.packet->width || !work.packet->height ||
             work.packet->width > 640 || work.packet->height > 480) {
-            *error = "Private Vulkan preview is not prepared for these inputs";
+            *error = "Preview Vulkan preview is not prepared for these inputs";
             return false;
         }
         const auto &packet = *work.packet;
@@ -1199,7 +1200,7 @@ struct PreviewVkExecutor::Impl {
                 float(packet.width) / packet.height, true);
         if (frame.draw_count != kPreviewMaxSceneDraws ||
             frame.vertices.size() > kPreviewMaxSceneVertices) {
-            *error = "Private Vulkan scene geometry is invalid";
+            *error = "Preview Vulkan scene geometry is invalid";
             return false;
         }
         const auto &target_draw = frame.draws[frame.draw_count - 1];
@@ -1346,7 +1347,7 @@ struct PreviewVkExecutor::Impl {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         if (in_flight) {
-            *error = "Private Vulkan preview stopped";
+            *error = "Preview Vulkan preview stopped";
             return false;
         }
         const size_t stride = packet.width * 4;
@@ -1422,14 +1423,14 @@ bool PreviewVkExecutor::Prepare(const PreviewWorkItem &, std::string *error,
 {
     if (cancelled) *cancelled = false;
     *unsupported = true;
-    *error = "This build has no private Vulkan preview support";
+    *error = "This build has no preview Vulkan preview support";
     return false;
 }
 bool PreviewVkExecutor::Render(const PreviewWorkItem &,
                                const std::atomic<bool> &,
                                std::vector<uint8_t> *, std::string *error)
 {
-    *error = "This build has no private Vulkan preview support";
+    *error = "This build has no preview Vulkan preview support";
     return false;
 }
 #ifdef XEMU_PREVIEW_VK_TESTING

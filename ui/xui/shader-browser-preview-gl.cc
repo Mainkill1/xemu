@@ -36,7 +36,7 @@ bool Compile(GLenum type, const std::string &source, GLuint *shader,
 {
     *shader = glCreateShader(type);
     if (!*shader) {
-        *error = "Private GL shader allocation failed";
+        *error = "Preview GL shader allocation failed";
         return false;
     }
     const char *text = source.c_str();
@@ -48,8 +48,7 @@ bool Compile(GLenum type, const std::string &source, GLuint *shader,
     std::array<char, 1024> log{};
     glGetShaderInfoLog(*shader, static_cast<GLsizei>(log.size()), nullptr,
                        log.data());
-    *error = std::string("Private GL shader compilation failed: ") +
-             log.data();
+    *error = std::string("Preview GL shader compilation failed: ") + log.data();
     glDeleteShader(*shader);
     *shader = 0;
     return false;
@@ -81,7 +80,7 @@ bool CheckSyntheticUniformInterface(GLuint program, std::string *error)
     GLint max_name = 0;
     glGetProgramiv(program, GL_ACTIVE_UNIFORM_BLOCKS, &count);
     if (count != 0) {
-        *error = "Unsupported private shader uniform block";
+        *error = "Unsupported preview shader uniform block";
         return false;
     }
     // Storage blocks are a program interface, not ordinary active uniforms.
@@ -93,13 +92,13 @@ bool CheckSyntheticUniformInterface(GLuint program, std::string *error)
         glGetProgramInterfaceiv(program, GL_SHADER_STORAGE_BLOCK,
                                 GL_ACTIVE_RESOURCES, &count);
         if (count != 0) {
-            *error = "Unsupported private shader shader-storage block";
+            *error = "Unsupported preview shader shader-storage block";
             return false;
         }
         glGetProgramInterfaceiv(program, GL_ATOMIC_COUNTER_BUFFER,
                                 GL_ACTIVE_RESOURCES, &count);
         if (count != 0) {
-            *error = "Unsupported private shader atomic-counter buffer";
+            *error = "Unsupported preview shader atomic-counter buffer";
             return false;
         }
     }
@@ -108,7 +107,7 @@ bool CheckSyntheticUniformInterface(GLuint program, std::string *error)
             glGetProgramStageiv(program, stage, GL_ACTIVE_SUBROUTINE_UNIFORMS,
                                 &count);
             if (count != 0) {
-                *error = "Unsupported private shader subroutine input";
+                *error = "Unsupported preview shader subroutine input";
                 return false;
             }
         }
@@ -117,7 +116,7 @@ bool CheckSyntheticUniformInterface(GLuint program, std::string *error)
     glGetProgramiv(program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &max_name);
     if (count == 0) return true;
     if (count < 0 || max_name <= 0 || max_name > 1024) {
-        *error = "Unsupported private shader uniform interface";
+        *error = "Unsupported preview shader uniform interface";
         return false;
     }
     std::vector<GLchar> name(static_cast<size_t>(max_name));
@@ -128,7 +127,7 @@ bool CheckSyntheticUniformInterface(GLuint program, std::string *error)
         glGetActiveUniform(program, static_cast<GLuint>(i), max_name,
                            &length, &size, &type, name.data());
         if (length <= 0 || length >= max_name) {
-            *error = "Unsupported private shader uniform name";
+            *error = "Unsupported preview shader uniform name";
             return false;
         }
         const GLuint index = static_cast<GLuint>(i);
@@ -137,7 +136,7 @@ bool CheckSyntheticUniformInterface(GLuint program, std::string *error)
                              &block);
         const std::string uniform(name.data(), static_cast<size_t>(length));
         if (block != -1) {
-            *error = "Unsupported private shader uniform block: " + uniform;
+            *error = "Unsupported preview shader uniform block: " + uniform;
             return false;
         }
         if ((type == GL_SAMPLER_2D || type == GL_SAMPLER_CUBE) && size == 1 &&
@@ -161,7 +160,7 @@ bool CheckSyntheticUniformInterface(GLuint program, std::string *error)
             ((uniform == "depthFactor" || uniform == "depthOffset") &&
              type == GL_FLOAT && size == 1);
         if (!bound || !IsSyntheticUniformType(type)) {
-            *error = "Unsupported private shader uniform input: " + uniform;
+            *error = "Unsupported preview shader uniform input: " + uniform;
             return false;
         }
     }
@@ -239,7 +238,7 @@ struct PreviewGlExecutor::Impl {
         if (!next) {
             glDeleteShader(vertex);
             glDeleteShader(fragment);
-            *error = "Private GL reference program allocation failed";
+            *error = "Preview GL reference program allocation failed";
             return false;
         }
         glAttachShader(next, vertex);
@@ -251,7 +250,7 @@ struct PreviewGlExecutor::Impl {
         glGetProgramiv(next, GL_LINK_STATUS, &linked);
         if (linked != GL_TRUE) {
             glDeleteProgram(next);
-            *error = "Private GL reference program link failed";
+            *error = "Preview GL reference program link failed";
             return false;
         }
         reference_program = next;
@@ -266,7 +265,8 @@ struct PreviewGlExecutor::Impl {
             work.packet->selection.backend != PreviewBackend::OpenGL ||
             work.packet->source.empty() ||
             work.packet->partner_source.empty()) {
-            *error = "Private OpenGL preview requires copied fragment and vertex source";
+            *error = "Preview OpenGL preview requires copied fragment and "
+                     "vertex source";
             return false;
         }
         if (has_program && program_key == work.compile_key && vao && vbo &&
@@ -285,7 +285,7 @@ struct PreviewGlExecutor::Impl {
         if (!next) {
             glDeleteShader(vertex);
             glDeleteShader(fragment);
-            *error = "Private GL program allocation failed";
+            *error = "Preview GL program allocation failed";
             return false;
         }
         glAttachShader(next, vertex);
@@ -299,8 +299,8 @@ struct PreviewGlExecutor::Impl {
             std::array<char, 1024> log{};
             glGetProgramInfoLog(next, static_cast<GLsizei>(log.size()),
                                 nullptr, log.data());
-            *error = std::string("Private GL program link failed: ") +
-                     log.data();
+            *error =
+                std::string("Preview GL program link failed: ") + log.data();
             glDeleteProgram(next);
             return false;
         }
@@ -338,7 +338,7 @@ struct PreviewGlExecutor::Impl {
         has_program = vao && vbo && fbo && depth_buffer &&
                       fixture_texture[0];
         if (!has_program)
-            *error = "Private GL scene resource allocation failed";
+            *error = "Preview GL scene resource allocation failed";
         return has_program;
     }
 
@@ -347,7 +347,7 @@ struct PreviewGlExecutor::Impl {
         if (!work.packet || !has_program ||
             work.compile_key != program_key ||
             work.slot >= slots.size()) {
-            *error = "Private GL preview inputs are incomplete";
+            *error = "Preview GL preview inputs are incomplete";
             return false;
         }
         const PreviewPacket &packet = *work.packet;
@@ -372,7 +372,7 @@ struct PreviewGlExecutor::Impl {
         Slot &slot = slots[work.slot];
         if (!slot.texture) glGenTextures(1, &slot.texture);
         if (!slot.texture) {
-            *error = "Private GL output texture allocation failed";
+            *error = "Preview GL output texture allocation failed";
             return false;
         }
         glBindTexture(GL_TEXTURE_2D, slot.texture);
@@ -397,7 +397,7 @@ struct PreviewGlExecutor::Impl {
                                   static_cast<GLsizei>(packet.width),
                                   static_cast<GLsizei>(packet.height));
             if (glGetError() != GL_NO_ERROR) {
-                *error = "Private GL depth attachment allocation failed";
+                *error = "Preview GL depth attachment allocation failed";
                 return false;
             }
             depth_width = packet.width;
@@ -407,7 +407,7 @@ struct PreviewGlExecutor::Impl {
                                   GL_RENDERBUFFER, depth_buffer);
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) !=
             GL_FRAMEBUFFER_COMPLETE) {
-            *error = "Private GL framebuffer is incomplete";
+            *error = "Preview GL framebuffer is incomplete";
             return false;
         }
         auto frame = packet.packet_kind == PreviewPacketKind::Replay ?
@@ -417,7 +417,7 @@ struct PreviewGlExecutor::Impl {
                 float(packet.width) / packet.height);
         if (frame.draw_count != kPreviewMaxSceneDraws ||
             frame.vertices.size() > kPreviewMaxSceneVertices) {
-            *error = "Private GL scene geometry is invalid";
+            *error = "Preview GL scene geometry is invalid";
             return false;
         }
         std::array<bool, 4> cube_stages{};
@@ -566,13 +566,13 @@ struct PreviewGlExecutor::Impl {
         SetPreviewGlOutputChannel(work.result_key.channel);
         GLenum gl_error = glGetError();
         if (gl_error != GL_NO_ERROR) {
-            *error = "Private GL preview draw failed with error " +
+            *error = "Preview GL preview draw failed with error " +
                      std::to_string(gl_error);
             return false;
         }
         GLsync producer = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
         if (!producer) {
-            *error = "Private GL producer fence allocation failed";
+            *error = "Preview GL producer fence allocation failed";
             return false;
         }
         glFlush();
@@ -587,13 +587,13 @@ struct PreviewGlExecutor::Impl {
             }
             if (result == GL_WAIT_FAILED) {
                 glDeleteSync(producer);
-                *error = "Private GL producer fence wait failed";
+                *error = "Preview GL producer fence wait failed";
                 return false;
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         glDeleteSync(producer);
-        *error = "Private GL preview stopped";
+        *error = "Preview GL preview stopped";
         return false;
     }
 
@@ -602,7 +602,7 @@ struct PreviewGlExecutor::Impl {
     {
         if (!work.packet || work.slot >= slots.size() ||
             rgba.size() != size_t(work.packet->width) * work.packet->height * 4) {
-            *error = "Private preview presentation data is incomplete";
+            *error = "Preview presentation data is incomplete";
             return false;
         }
         Slot &slot = slots[work.slot];
@@ -620,12 +620,12 @@ struct PreviewGlExecutor::Impl {
         slot.width = work.packet->width;
         slot.height = work.packet->height;
         if (glGetError() != GL_NO_ERROR) {
-            *error = "Private preview GL presentation upload failed";
+            *error = "Preview GL presentation upload failed";
             return false;
         }
         GLsync producer = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
         if (!producer) {
-            *error = "Private preview GL presentation fence failed";
+            *error = "Preview GL presentation fence failed";
             return false;
         }
         glFlush();
@@ -642,15 +642,16 @@ struct PreviewGlExecutor::Impl {
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
         glDeleteSync(producer);
-        *error = "Private preview GL presentation stopped or failed";
+        *error = "Preview GL presentation stopped or failed";
         return false;
     }
 
     void Run(std::promise<std::string> startup)
     {
         if (!bind_context(window, context)) {
-            startup.set_value(std::string("Private GL worker context bind failed: ") +
-                              SDL_GetError());
+            startup.set_value(
+                std::string("Preview GL worker context bind failed: ") +
+                SDL_GetError());
             return;
         }
         startup.set_value({});
@@ -800,8 +801,8 @@ bool PreviewGlExecutor::StartWhilePaused(std::string *error)
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
                         SDL_GL_CONTEXT_PROFILE_CORE);
-    impl.window = SDL_CreateWindow("xemu private shader preview", 16, 16,
-                                    SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
+    impl.window = SDL_CreateWindow("xemu preview shader preview", 16, 16,
+                                   SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
     if (impl.window) impl.context = SDL_GL_CreateContext(impl.window);
     const std::string creation_error = SDL_GetError();
     SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 0);
@@ -812,8 +813,8 @@ bool PreviewGlExecutor::StartWhilePaused(std::string *error)
         if (impl.window) SDL_DestroyWindow(impl.window);
         impl.context = nullptr;
         impl.window = nullptr;
-        const std::string failure = "Private GL context creation failed: " +
-                                    creation_error;
+        const std::string failure =
+            "Preview GL context creation failed: " + creation_error;
         GetPreviewService().ReportWorkerStartupFailure(failure, NowNs());
         if (error) *error = failure;
         return false;
@@ -867,10 +868,9 @@ void PreviewGlExecutor::DrawImage(float max_width, float max_height,
         for (float y = origin.y; y < end.y; y += 32.0f)
             draw->AddLine(ImVec2(origin.x, y), ImVec2(end.x, y),
                           IM_COL32(61, 82, 91, 90));
-        const char *title = "PRIVATE PREVIEW INACTIVE";
-        const char *hint = selection ?
-            "Start private test to render this shader" :
-            "Select a pixel shader to begin";
+        const char *title = "PREVIEW INACTIVE";
+        const char *hint = selection ? "Start preview to render this shader" :
+                                       "Select a pixel shader to begin";
         const ImVec2 title_size = ImGui::CalcTextSize(title);
         const ImVec2 hint_size = ImGui::CalcTextSize(hint);
         const float center_x = origin.x + extent.x * 0.5f;
@@ -916,7 +916,7 @@ void PreviewGlExecutor::DrawImage(float max_width, float max_height,
         impl.RetireDisplayed();
     }
     if (!impl.has_displayed && !impl.has_frozen) {
-        ImGui::TextDisabled("Waiting for a private preview result");
+        ImGui::TextDisabled("Waiting for a preview result");
         return;
     }
 
@@ -1096,7 +1096,7 @@ void PreviewGlExecutor::Shutdown(bool have_shared_context)
     impl.RetireFrozen();
     const bool can_delete = have_shared_context && SDL_GL_GetCurrentContext();
     if (impl.context && !can_delete) {
-        g_printerr("Private preview: no usable shared HUD GL context; "
+        g_printerr("Preview: no usable shared HUD GL context; "
                    "leaving output objects to terminal SDL teardown\n");
     }
     // Terminal HUD cleanup only. Ordinary tab close/disable uses zero-time

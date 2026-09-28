@@ -5,6 +5,7 @@
 #include "shader-browser-session-provider.hh"
 
 #include "common.hh"
+#include "shader-browser-selection-ui.hh"
 #include "viewport-manager.hh"
 #include "../xemu-settings.h"
 
@@ -212,13 +213,11 @@ void ShaderOverrideUi::DrawRowDragSource(const Entry &entry,
                                          uint32_t title_id,
                                          const std::string &display_id)
 {
-    ShaderOverrideRowPresentation row = EvaluateRow(entry, title_id);
-    if (!row.compatible) {
-        if (row.replacement_selected && ImGui::IsItemHovered()) {
-            ImGui::SetTooltip("Not compatible: %s", row.reason.c_str());
-        }
+    // Drag the catalog identity regardless of the chosen action/package. The
+    // drop target validates compatibility before it creates an override.
+    if (!title_id || entry.key.stage == Stage::Unknown ||
+        entry.key.stage == Stage::Any)
         return;
-    }
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
         ShaderDragPayload payload = MakeShaderDragPayload(title_id, entry.key);
         ImGui::SetDragDropPayload(kShaderDragPayloadType, &payload,
@@ -357,21 +356,28 @@ void ShaderOverrideUi::DrawPanel(const Entry &entry,
         "Skip Draw", "Highlight", "Replacement",
     };
     ImGui::SetNextItemWidth(210.0f * g_viewport_mgr.m_scale);
-    ImGui::Combo("Action", &action_index_, actions,
-                 static_cast<int>(std::size(actions)));
+    ShaderCombo("Action", &action_index_, actions,
+                static_cast<int>(std::size(actions)));
 
     if (SelectedAction() == OverrideAction::Replacement) {
         const ReplacementPackageInfo *selected = SelectedPackage();
         const char *preview = selected ? selected->descriptor.name.c_str() :
                                          "No replacement packages";
+        if (!selected) {
+            ImGui::TextWrapped(
+                "To create a replacement, open Generated GLSL / "
+                "draft, choose Edit GLSL, compile your change, "
+                "then Save and apply to game. You can also "
+                "install a GLSL package in the replacement folder.");
+        }
         ImGui::SetNextItemWidth(-1);
         if (ImGui::BeginCombo("Replacement", preview)) {
             for (const ReplacementPackageInfo &package :
                  library_snapshot_.packages) {
                 bool is_selected = package.descriptor.id ==
                                    selected_replacement_id_;
-                if (ImGui::Selectable(package.descriptor.name.c_str(),
-                                      is_selected)) {
+                if (ShaderOptionSelected(package.descriptor.name.c_str(),
+                                         is_selected)) {
                     selected_replacement_id_ = package.descriptor.id;
                 }
                 if (is_selected) ImGui::SetItemDefaultFocus();
@@ -379,6 +385,7 @@ void ShaderOverrideUi::DrawPanel(const Entry &entry,
             ImGui::EndCombo();
         }
 
+        selected = SelectedPackage();
         ShaderOverrideRowPresentation compatibility =
             EvaluateRow(entry, title_id);
         if (selected && compatibility.compatible) {
@@ -388,9 +395,16 @@ void ShaderOverrideUi::DrawPanel(const Entry &entry,
                                compatibility.reason.c_str());
         }
 
-        ImVec2 target_size(-1, 54.0f * g_viewport_mgr.m_scale);
-        ImGui::Button("Drop a highlighted shader here to assign replacement",
-                      target_size);
+        ImGui::TextWrapped("Replacement source: the package selected above. "
+                           "Target: the selected catalog shader, or a shader "
+                           "dragged from the catalog.");
+        ImGui::BeginDisabled(!selected || !compatibility.compatible);
+        if (ImGui::Button("Apply replacement to selected shader",
+                          ImVec2(-1, 0)))
+            ApplyReplacement(entry.key, title_id, &entry, message);
+        ImGui::EndDisabled();
+        ImGui::Button("Drag a catalog shader here to use as target",
+                      ImVec2(-1, 40.0f * g_viewport_mgr.m_scale));
         if (ImGui::BeginDragDropTarget()) {
             if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(
                     kShaderDragPayloadType)) {
@@ -453,7 +467,8 @@ void ShaderOverrideUi::DrawPanel(const Entry &entry,
     }
 
     ImGui::BeginDisabled(!action_supported);
-    if (ImGui::Button("Apply to selected shader")) {
+    if (SelectedAction() != OverrideAction::Replacement &&
+        ImGui::Button("Apply to selected shader")) {
         if (SelectedAction() == OverrideAction::Replacement) {
             ApplyReplacement(entry.key, title_id, &entry, message);
         } else {

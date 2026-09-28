@@ -443,3 +443,11 @@ shader_browser_capture_test = executable(
   dependencies: shader_browser_threads)
 test('test-xemu-shader-browser-draw-capture', shader_browser_capture_test,
      suite: ['unit'])
+
+shader_browser_selection_ui_test = executable(
+  'test-xemu-shader-browser-selection-ui',
+  shader_browser_test_dir / 'test-xemu-shader-browser-selection-ui.cc',
+  include_directories: shader_browser_test_inc,
+  dependencies: [imgui])
+test('test-xemu-shader-browser-selection-ui', shader_browser_selection_ui_test,
+     suite: ['unit'])

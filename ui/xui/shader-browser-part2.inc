@@ -208,12 +208,14 @@ void ShaderBrowserWindow::DrawSelector()
                         IM_COL32(66, 104, 72, selected ? 115 : 72));
                 }
                 ImGui::TableSetColumnIndex(0);
-                if (ImGui::Selectable(
+                if (ShaderOptionSelected(
                         catalog_id.c_str(), selected,
                         ImGuiSelectableFlags_SpanAllColumns |
                             ImGuiSelectableFlags_AllowOverlap)) {
                     SelectEntry(entry);
                 }
+                GetShaderOverrideUi().DrawRowDragSource(
+                    entry, m_snapshot.current_title_id, full_id);
                 if (ImGui::IsItemHovered()) {
                     ImGui::SetTooltip("%s | %s\n%s", full_id.c_str(),
                                       StageLabel(entry.key.stage),
@@ -249,8 +251,6 @@ void ShaderBrowserWindow::DrawSelector()
                         ExportRecipe(entry);
                     ImGui::EndPopup();
                 }
-                GetShaderOverrideUi().DrawRowDragSource(
-                    entry, m_snapshot.current_title_id, full_id);
 
                 ImGui::TableSetColumnIndex(1);
                 if (entry.observed_in_session)

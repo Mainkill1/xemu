@@ -204,7 +204,8 @@ void ShaderBrowserWindow::DrawHost()
         for (size_t i = 0; i < detail.sources.size(); ++i) {
             const HostSource &source = detail.sources[i];
             ImGui::PushID(static_cast<int>(i));
-            if (ImGui::Selectable(source.label.c_str(), i == m_selected_source)) {
+            if (ShaderOptionSelected(source.label.c_str(),
+                                     i == m_selected_source)) {
                 m_selected_source = i;
                 m_source_offsets_generation = 0;
             }

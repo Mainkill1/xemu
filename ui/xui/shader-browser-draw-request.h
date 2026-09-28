@@ -28,6 +28,9 @@ typedef struct XemuShaderDrawRequestSpec {
     uint64_t scope_generation;
     uint64_t session_epoch;
     uint64_t renderer_epoch;
+    /* Keep searching through unsupported draws until triangle geometry is
+     * owned. */
+    int require_geometry;
 } XemuShaderDrawRequestSpec;
 
 typedef enum XemuShaderDrawRequestState {
@@ -46,6 +49,7 @@ typedef struct XemuShaderDrawRequestStatus {
     uint64_t frame;
     uint32_t draw;
     uint64_t submission;
+    uint64_t skipped_draws;
     XemuShaderDrawRequestState state;
 } XemuShaderDrawRequestStatus;
 

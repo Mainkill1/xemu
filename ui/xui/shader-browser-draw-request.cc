@@ -18,6 +18,7 @@ uint64_t DrawCaptureRequest::Arm(const DrawRequestTarget &target)
     geometry_ = {};
     status_ = {};
     status_.request_id = next_id_++;
+    active_token_ = 0;
     if (!target.scope_generation || !target.session_epoch ||
         !target.renderer_epoch || !target.shader.hash.version ||
         target.shader.stage == Stage::Unknown) {
@@ -59,13 +60,15 @@ bool DrawCaptureRequest::Begin(uint64_t scope_generation,
     status_.draw = { target_.session_epoch, target_.renderer_epoch, frame, draw,
                      submission };
     captured_ = {};
+    geometry_ = {};
     captured_.key = status_.draw;
     captured_.scope = target_.scope;
     captured_.shader_count = static_cast<uint8_t>(shader_count);
     std::copy_n(shaders, shader_count, captured_.shaders.begin());
     status_.state = DrawRequestState::Capturing;
     armed_.store(false, std::memory_order_release);
-    *token = status_.request_id;
+    active_token_ = active_token_ ? next_id_++ : status_.request_id;
+    *token = active_token_;
     return true;
 }
 
@@ -75,7 +78,7 @@ bool DrawCaptureRequest::Complete(uint64_t token,
 {
     std::lock_guard<std::mutex> lock(mutex_);
     if (status_.state != DrawRequestState::Capturing ||
-        token != status_.request_id || capture.key != status_.draw ||
+        token != active_token_ || capture.key != status_.draw ||
         capture.scope.title_id != target_.scope.title_id ||
         capture.scope.executable_fingerprint_version !=
             target_.scope.executable_fingerprint_version ||
@@ -119,8 +122,7 @@ bool DrawCaptureRequest::StageGeometry(uint64_t token,
         }
     }
     std::lock_guard<std::mutex> lock(mutex_);
-    if (status_.state != DrawRequestState::Capturing ||
-        token != status_.request_id)
+    if (status_.state != DrawRequestState::Capturing || token != active_token_)
         return false;
     geometry_ = std::move(geometry);
     return true;
@@ -131,10 +133,14 @@ bool DrawCaptureRequest::Finish(uint64_t token, bool emitted,
                                 uint32_t index_count)
 {
     std::lock_guard<std::mutex> lock(mutex_);
-    if (status_.state != DrawRequestState::Capturing ||
-        token != status_.request_id)
+    if (status_.state != DrawRequestState::Capturing || token != active_token_)
         return false;
-    if (!emitted) {
+    const bool usable_geometry = !geometry_.positions.empty() &&
+                                 geometry_.indices.size() >= 3 &&
+                                 geometry_.indices.size() % 3 == 0;
+    if (!emitted || (target_.require_geometry && !usable_geometry)) {
+        if (emitted)
+            ++status_.skipped_draws;
         captured_ = {};
         geometry_ = {};
         status_.draw = {};
@@ -158,7 +164,7 @@ void DrawCaptureRequest::Fail(uint64_t token)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     if (status_.state == DrawRequestState::Capturing &&
-        token == status_.request_id) {
+        token == active_token_) {
         status_.state = DrawRequestState::Failed;
     }
 }
@@ -246,6 +252,7 @@ xemu_shader_draw_request_arm(const XemuShaderDrawRequestSpec *spec)
     target.scope_generation = spec->scope_generation;
     target.session_epoch = spec->session_epoch;
     target.renderer_epoch = spec->renderer_epoch;
+    target.require_geometry = spec->require_geometry != 0;
     return draw_request.Arm(target);
 }
 
@@ -294,6 +301,7 @@ xemu_shader_draw_request_copy_status(XemuShaderDrawRequestStatus *status)
     status->frame = current.draw.frame;
     status->draw = current.draw.draw;
     status->submission = current.draw.submission;
+    status->skipped_draws = current.skipped_draws;
     return 1;
 }
 

@@ -177,7 +177,7 @@ bool RenderPreviewDiagnostic(PreviewChannel channel,
     if (!rgba || !width || !height || width > kPreviewMaxWidth ||
         height > kPreviewMaxHeight) {
         if (error)
-            *error = "Diagnostic extent exceeds private preview bounds";
+            *error = "Diagnostic extent exceeds preview bounds";
         return false;
     }
     rgba->resize(size_t(width) * height * 4);

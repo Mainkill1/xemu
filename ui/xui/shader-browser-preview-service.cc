@@ -159,7 +159,7 @@ void PreviewService::SetGuestPaused(bool paused)
     ++generation_;
     if (!paused && !offline_no_guest_ &&
         state_ == PreviewState::NeedsPreparation) {
-        message_ = "Pause required to prepare private preview resources";
+        message_ = "Pause required to prepare preview resources";
     }
 }
 
@@ -322,11 +322,10 @@ bool PreviewService::SubmitPacket(PreviewPacket packet,
     } else if (unsupported_) {
         SetStateLocked(PreviewState::Unsupported, unsupported_reason_);
     } else if (!IsPreparedLocked()) {
-        SetStateLocked(
-            PreviewState::NeedsPreparation,
-            guest_paused_ ?
-                "Request preparation for the selected shader" :
-                "Pause required to prepare private preview resources");
+        SetStateLocked(PreviewState::NeedsPreparation,
+                       guest_paused_ ?
+                           "Request preparation for the selected shader" :
+                           "Pause required to prepare preview resources");
     } else {
         SetStateLocked(PreviewState::Ready, "Preview inputs are prepared");
     }

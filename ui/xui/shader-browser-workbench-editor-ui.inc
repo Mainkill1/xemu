@@ -136,8 +136,7 @@ static WorkbenchEditorDockAction DrawWorkbenchEditorDock(
     const GeneratedSourceSnapshot *original = has_draft ?
         &draft->Base() : generated;
     if (original) {
-        if (generated && !has_draft &&
-            ImGui::SmallButton("Create editable copy"))
+        if (generated && !has_draft && ImGui::SmallButton("Edit GLSL"))
             action.create_copy = true;
         if (generated && !has_draft) ImGui::SameLine();
         ImGui::TextDisabled("%s %s | %s | %s | TitleID %08X",

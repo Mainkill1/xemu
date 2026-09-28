@@ -23,12 +23,14 @@ struct DrawRequestTarget {
     uint64_t scope_generation = 0;
     uint64_t session_epoch = 0;
     uint64_t renderer_epoch = 0;
+    bool require_geometry = false;
 };
 
 struct DrawRequestStatus {
     uint64_t request_id = 0;
     DrawRequestState state = DrawRequestState::Idle;
     DrawEventKey draw;
+    uint64_t skipped_draws = 0;
 };
 
 struct OwnedDrawGeometry {
@@ -36,7 +38,8 @@ struct OwnedDrawGeometry {
     std::vector<uint32_t> indices;
 };
 
-// One request, one final submitted draw. Begin reserves a matching draw while
+// One request searches for one usable submitted draw. Begin reserves a matching
+// attempt with its own token while
 // the renderer still owns its inputs. Completion publishes owned data only;
 // cancellation and rearming invalidate the old token.
 class DrawCaptureRequest {
@@ -65,6 +68,7 @@ private:
     mutable std::mutex mutex_;
     std::atomic<bool> armed_{ false };
     uint64_t next_id_ = 1;
+    uint64_t active_token_ = 0;
     DrawRequestTarget target_;
     DrawRequestStatus status_;
     DrawCaptureSummary captured_;
