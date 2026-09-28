@@ -230,3 +230,32 @@ instances, noncontiguous islands, ambiguous batches, screen-space effects,
 aliasing, version changes, upstream/downstream traversal, provenance gaps,
 invalid metadata, and admission limits. Unit results are not native capture or
 replay evidence. Exact commands/results and verification limits belong in the PR.
+
+### Submission regression campaign
+
+The native preview lifecycle executable also tests the production OpenGL source
+adapter against real vertex and index buffers. It checks expanded float4
+positions, cached host bytes after the guest source changes, bounded reads, and
+binding restoration. Its completion flag is synthetic: that adapter test alone
+does not establish a real backend draw or successful title capture. The ordinary
+capture test checks token cancellation/re-arm, failed emission release, an
+owned generation surviving source replacement, and independent `[4, 2]` array
+ranges. Preview scene tests check unused outliers in sparse bounds.
+
+For renderer integration, run a test XBE on both renderers with these cases:
+
+- A triangle-list `[4, 2]` array sequence within one begin/end scope, then an
+  explicit mid-scope flush. Only the first complete triangle belongs to capture.
+- Expanded inline float4 positions; reset the populated flags during upload and
+  verify that the already-bound host stream remains capturable.
+- Dynamic overlapping vertex updates that trigger private Vulkan backing, and
+  an armed fixed-backing draw whose position stream must survive reservation.
+- A successful mid-scope submission followed by a rejected final segment. The
+  earlier captured submission must stay ready with its original serial/mesh.
+- A compatibility-suppressed indexed effect. It must not fulfill the request;
+  a later emitted draw with the same shader must fulfill it.
+
+The host tests and source review cover parts of this contract. They do not
+replace that complete fault-injection campaign or bare-metal comparisons for
+changes to NV2A behavior. The capture feature itself is a host diagnostic and
+adds no guest register definitions.
