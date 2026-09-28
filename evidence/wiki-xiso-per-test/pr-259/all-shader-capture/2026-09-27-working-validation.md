@@ -409,3 +409,23 @@ normal gameplay timing. The final formatted emulator is installed hash-pinned
 on the rig; no owned game process remains running. General lifecycle/FPS evidence
 is the separately documented snapshot11 run, rather than inferred from this
 archive-only acceptance path.
+
+### Published checkpoint CI version failure (2026-09-28)
+
+Runs36412542073 and36412548561 on85e4959c9423 failed before compiling the
+shader changes. The source job selected the ancestor preview tag as
+`0.0.0-pr259-preview.06334cb502-3-ga67b373dbf`; every failed platform/unit job
+then rejected that archive's version metadata. Cancelled matrix jobs provide no
+build result. This is separate from the pinned local/native validation above.
+
+The version generator now excludes preview tags when locating a numeric base
+tag. Source packaging uses that same validated generator, including the checked-in
+base version for tagless forks. Regression cases cover an unrelated preview tag
+with only file metadata and a newer preview tag masking a valid numeric tag.
+The added test failed before the fix with the exact CI error, then passed.
+`bash tests/unit/test-xemu-version.sh "$PWD/scripts/xemu-version.sh"`, shell
+syntax checks and `git diff --check` pass. An independently executed actual
+workflow version step with a preview-tagged temporary repository produced
+`0.8.136-0-g<source commit>`; the resulting gitless archive metadata was accepted
+by the build generator with the same version and source commit. Full CI on the
+follow-up commit remains a separate gate.
