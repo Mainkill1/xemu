@@ -483,6 +483,12 @@ xemu_tweaks_test = executable('test-xemu-tweaks-config',
   dependencies: [qemuutil, genconfig, tomlplusplus])
 test('test-xemu-tweaks-config', xemu_tweaks_test, suite: ['unit'])
 
+xemu_tweaks_profile_test = executable('test-xemu-tweaks-profile',
+  files('test-xemu-tweaks-profile.cc', '../../ui/xemu-tweaks.c'), genh,
+  dependencies: [qemuutil, genconfig, tomlplusplus])
+test('test-xemu-tweaks-profile', xemu_tweaks_profile_test,
+     args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+
 xemu_tweak_policy_test = executable('test-xemu-tweak-policy',
   files('test-xemu-tweak-policy.c'),
   include_directories: include_directories('../..'))

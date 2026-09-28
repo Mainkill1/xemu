@@ -1,0 +1,9 @@
+TAP version 13
+1..7
+ok 1 - disabled dirty state waits for re-enable
+ok 2 - failed active bind remains retryable
+ok 3 - texture source identity gates clean reuse
+ok 4 - descriptor identity changes only for visible binding
+ok 5 - failed multistage bind detects recovery changes
+ok 6 - failed bind retains unpublished descriptor change
+ok 7 - clean-stage policy gates only an eligible skip
