@@ -28,6 +28,7 @@ uint64_t AssetController::Begin(const capture::CaptureSessionContext &context)
     if (!SameAssetContext(context, context_)) {
         selected_.reset();
         pinned_ = false;
+        named_.clear();
     }
     context_ = context;
     catalog_ = {};
@@ -96,7 +97,11 @@ bool AssetController::Publish(AssetCatalog catalog, uint64_t generation)
             "Incomplete correspondence; retaining the last coherent assembly";
         return true;
     }
+    auto previous = selected_;
     selected_ = std::make_shared<const AssetAssembly>(std::move(assembly));
+    for (auto &named : named_)
+        if (named == previous)
+            named = selected_;
     state_ = AssetSelectionState::FollowingCandidate;
     message_ = "Unique geometry correspondence is inferred; engine instance "
                "ownership is unverified";
@@ -110,6 +115,7 @@ bool AssetController::Select(uint64_t id)
     if (found == catalog_.entries.end())
         return false;
     selected_ = std::make_shared<const AssetAssembly>(*found);
+    pinned_ = false;
     state_ =
         frozen_ ? AssetSelectionState::Frozen : AssetSelectionState::Captured;
     message_.clear();
@@ -137,6 +143,64 @@ bool AssetController::Rename(const std::string &label)
     assembly.label = label;
     selected_ = std::make_shared<const AssetAssembly>(std::move(assembly));
     return true;
+}
+bool AssetController::RememberSelected()
+{
+    if (!selected_ || selected_->label.empty())
+        return false;
+    auto replacement = named_;
+    auto found = std::find_if(
+        replacement.begin(), replacement.end(),
+        [&](const auto &entry) { return entry->label == selected_->label; });
+    if (found == replacement.end())
+        replacement.push_back(selected_);
+    else
+        *found = selected_;
+    if (replacement.size() > 32)
+        return false;
+    uint64_t remaining = 128U * 1024U * 1024U;
+    std::set<const AssetPart *> counted;
+    for (const auto &entry : replacement)
+        for (const auto &part : entry->parts) {
+            if (!counted.insert(part.get()).second)
+                continue;
+            const uint64_t decoded =
+                part->vertices.size() * sizeof(AssetVertex) +
+                part->indices.size() * sizeof(uint32_t);
+            const uint64_t raw =
+                part->occurrence ? part->occurrence->payload_bytes : 0;
+            if (decoded > remaining || raw > remaining - decoded) {
+                message_ =
+                    "Named assemblies exceed the128MiB retained input budget";
+                return false;
+            }
+            remaining -= decoded + raw;
+        }
+    named_ = std::move(replacement);
+    return true;
+}
+bool AssetController::Recall(size_t index)
+{
+    if (index >= named_.size() ||
+        !SameAssetContext(named_[index]->context, context_))
+        return false;
+    selected_ = named_[index];
+    pinned_ = false;
+    state_ =
+        frozen_ ? AssetSelectionState::Frozen : AssetSelectionState::Captured;
+    message_ = "Retained named assembly; enable Follow to search for a new "
+               "correspondence";
+    return true;
+}
+void AssetController::Forget(size_t index)
+{
+    if (index < named_.size())
+        named_.erase(named_.begin() + index);
+}
+const std::vector<std::shared_ptr<const AssetAssembly>> &
+AssetController::NamedAssemblies() const
+{
+    return named_;
 }
 void AssetController::Pin(bool enabled)
 {

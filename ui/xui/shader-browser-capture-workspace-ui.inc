@@ -554,11 +554,33 @@ void ShaderBrowserWindow::DrawCaptureExplorer()
                        "shader stages and rendering events.");
 }
 
-void ShaderBrowserWindow::OpenCapturedOccurrence()
+bool ShaderBrowserWindow::InspectCapturedOccurrence(
+    std::shared_ptr<const CaptureOccurrence> occurrence,
+    const CaptureSessionContext &context)
+{
+    if (!occurrence || occurrence->pending)
+        return false;
+    auto &state = CaptureWorkspace();
+    if (state.file_job.valid())
+        return false;
+    state.snapshot = {};
+    state.snapshot.context = context;
+    state.snapshot.events = { occurrence };
+    state.snapshot.state = CaptureSessionState::Ready;
+    state.archived = true;
+    state.selected = std::move(occurrence);
+    state.selected_event = state.selected->event_id;
+    state.inputs = state.selected->CopyInputs();
+    state.difference = {};
+    state.message.clear();
+    return OpenCapturedOccurrence();
+}
+
+bool ShaderBrowserWindow::OpenCapturedOccurrence()
 {
     CaptureWorkspaceState &state = CaptureWorkspace();
     if (!state.selected || state.selected->pending)
-        return;
+        return false;
     const CaptureOccurrence &event = *state.selected;
     const ShaderKey *pixel = nullptr;
     for (size_t i = 0; i < event.summary.shader_count; ++i)
@@ -567,7 +589,7 @@ void ShaderBrowserWindow::OpenCapturedOccurrence()
     if (!pixel || state.inputs.sources[2].empty()) {
         state.message = "This event has no captured pixel stage. Its raw "
                         "evidence and other stage sources remain available.";
-        return;
+        return false;
     }
     CanonicalRecipe recipe;
     recipe.key = *pixel;
@@ -580,7 +602,7 @@ void ShaderBrowserWindow::OpenCapturedOccurrence()
     std::string error;
     if (!InspectCanonicalRecipe(recipe, &inspection, &error)) {
         state.message = "Captured recipe cannot be previewed: " + error;
-        return;
+        return false;
     }
     m_selected_key = *pixel;
     m_has_selection = true;
@@ -678,9 +700,8 @@ void ShaderBrowserWindow::OpenCapturedOccurrence()
     workbench.capture_selection.backend = source.backend;
     workbench.capture_selection.mode =
         source.route == Route::Uber ? PreviewMode::Uber : PreviewMode::Normal;
-    workbench.capture_selection.session_epoch = m_snapshot.session_epoch;
-    workbench.capture_selection.renderer_epoch =
-        nv2a_profile_preview_renderer_epoch();
+    workbench.capture_selection.session_epoch = event.summary.key.session_epoch;
+    workbench.capture_selection.renderer_epoch = event.summary.key.renderer_epoch;
     m_preview_packet_attempted = false;
     m_select_preview_tab = true;
     m_action_message = "Inspecting captured E" +
@@ -688,6 +709,7 @@ void ShaderBrowserWindow::OpenCapturedOccurrence()
                        ". Original camera uses captured vertex processing "
                        "where supported; saving "
                        "does not enable a replacement.";
+    return true;
 }
 
 void ShaderBrowserWindow::DrawCaptureWorkspace()

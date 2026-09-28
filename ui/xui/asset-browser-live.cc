@@ -34,6 +34,7 @@ bool AssetLiveCapture::Enable(const capture::CaptureSessionContext &context,
     settings_.capture.event_budget =
         std::min<uint32_t>(settings_.capture.event_budget, 32768);
     context_ = context;
+    context_.generation = now;
     if (!session_.TryStart(context_, settings_.capture, &owned_)) {
         message_ = "Another capture or readback owns the recorder; stop it "
                    "before live discovery";

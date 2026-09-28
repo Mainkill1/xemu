@@ -12,6 +12,12 @@
 #include <array>
 #include <string>
 #include <vector>
+#include <memory>
+
+namespace xemu::shader_browser {
+struct CaptureOccurrence;
+struct CaptureSessionContext;
+}
 
 class ShaderBrowserWindow
 {
@@ -21,6 +27,9 @@ public:
     ShaderBrowserWindow();
     void Draw();
     void RequestClose();
+    bool InspectCapturedOccurrence(
+        std::shared_ptr<const xemu::shader_browser::CaptureOccurrence>,
+        const xemu::shader_browser::CaptureSessionContext &);
 
 private:
     void RefreshSnapshot();
@@ -45,7 +54,7 @@ private:
     void DrawLivePreview();
     void DrawCaptureWorkspace();
     void DrawCaptureExplorer();
-    void OpenCapturedOccurrence();
+    bool OpenCapturedOccurrence();
 
     const xemu::shader_browser::Entry *SelectedEntry() const;
 

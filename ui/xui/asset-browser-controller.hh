@@ -21,6 +21,11 @@ public:
     bool Select(uint64_t entry);
     bool Assemble(const std::vector<uint64_t> &, const std::string &label);
     bool Rename(const std::string &label);
+    bool RememberSelected();
+    bool Recall(size_t index);
+    void Forget(size_t index);
+    const std::vector<std::shared_ptr<const AssetAssembly>> &
+    NamedAssemblies() const;
     void Pin(bool);
     void Freeze(bool);
     void Invalidate();
@@ -36,6 +41,7 @@ private:
     capture::CaptureSessionContext context_;
     AssetCatalog catalog_;
     std::shared_ptr<const AssetAssembly> selected_;
+    std::vector<std::shared_ptr<const AssetAssembly>> named_;
     bool pinned_ = false, frozen_ = false;
     AssetSelectionState state_ = AssetSelectionState::Empty;
     std::string message_;

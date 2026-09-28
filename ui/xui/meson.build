@@ -9,6 +9,8 @@ xemu_ss.add(files(
   'asset-browser-live.cc',
   'asset-browser-material.cc',
   'asset-browser-viewport.cc',
+  'asset-browser.cc',
+  'asset-browser-platform.cc',
   'shader-browser-model.cc',
   'shader-browser-usage-export.cc',
   'shader-browser-glsl-export.cc',
@@ -107,6 +109,18 @@ asset_browser_viewport_test = executable(
   include_directories: [shader_browser_test_inc, include_directories('../..')],
   dependencies: [glib, epoxy, sdl])
 # Requires a native GL context; run explicitly on a graphical test host.
+
+asset_browser_ui_test = executable(
+  'test-xemu-asset-browser-ui',
+  shader_browser_test_dir / 'test-xemu-asset-browser-ui.cc',
+  files('asset-browser.cc', 'asset-browser-model.cc', 'asset-browser-decode.cc',
+        'asset-browser-controller.cc', 'asset-browser-live.cc',
+        'asset-browser-viewport.cc', 'asset-browser-material.cc',
+        'shader-browser-capture-session.cc', 'shader-browser-capture-resources.cc',
+        'shader-browser-draw-capture.cc', 'shader-browser-model.cc'),
+  include_directories: [shader_browser_test_inc, include_directories('../..')],
+  dependencies: [shader_browser_threads, glib, xxhash, json, imgui, epoxy, sdl])
+# Native ImGui/GL fixture; normal headless CI compiles it without claiming a run.
 
 shader_browser_model_test = executable(
   'test-xemu-shader-browser-model',

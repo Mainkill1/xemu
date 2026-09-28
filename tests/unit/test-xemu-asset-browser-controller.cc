@@ -175,9 +175,12 @@ static void TestAsyncPublication()
 {
     capture::CaptureSession session;
     AssetController controller;
-    controller.Begin(Context());
+    auto context = Context();
+    context.generation =
+        0; // HUD supplies identity; acquisition owns its incarnation.
+    controller.Begin(context);
     AssetLiveCapture live(session);
-    g_assert_true(live.Enable(Context(), 1));
+    g_assert_true(live.Enable(context, 1));
     session.GuestFrameBoundary(1);
     capture::DrawCaptureSummary summary;
     summary.scope = Context().scope;
@@ -223,6 +226,26 @@ static void TestWatchdog()
     g_assert_false(live.Enabled());
     g_assert_false(session.Active());
 }
+static void TestNamedAssembly()
+{
+    AssetController controller;
+    auto generation = controller.Begin(Context());
+    g_assert_true(
+        controller.Publish(Catalog(1, { { 1, 0 }, { 2, 5 } }), generation));
+    g_assert_true(controller.Assemble({ 1, 2 }, "My car"));
+    g_assert_true(controller.RememberSelected());
+    g_assert_cmpuint(controller.NamedAssemblies().size(), ==, 1);
+    auto car = controller.Selected();
+    g_assert_true(controller.Select(1));
+    g_assert_true(controller.Recall(0));
+    g_assert_true(controller.Selected() == car);
+    controller.Pin(true);
+    g_assert_true(
+        controller.Publish(Catalog(2, { { 20, 5 }, { 10, 0 } }), generation));
+    g_assert_cmpuint(controller.NamedAssemblies()[0]->frame, ==, 2);
+    controller.Forget(0);
+    g_assert_true(controller.NamedAssemblies().empty());
+}
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, nullptr);
@@ -236,5 +259,6 @@ int main(int argc, char **argv)
     g_test_add_func("/asset/live/pending-ownership", TestPendingOwnership);
     g_test_add_func("/asset/live/async-publication", TestAsyncPublication);
     g_test_add_func("/asset/live/watchdog", TestWatchdog);
+    g_test_add_func("/asset/controller/named", TestNamedAssembly);
     return g_test_run();
 }
