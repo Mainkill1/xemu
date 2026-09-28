@@ -84,3 +84,31 @@ single draw.
 The Windows polling tests exercise enable/disable behavior, event readiness,
 timer failures, cleanup, and compatibility fallback. These focused tests do not
 replace final game and performance qualification.
+
+## Requested/effective profile API
+
+`xemu_tweaks_format_effective_profile(buffer, size)` provides the low-frequency
+diagnostic profile used by the Advanced-settings evidence work. Call it on the
+UI thread, outside draw/wait paths. It returns the full length excluding the
+terminating NUL; a short buffer contains a terminated prefix. Pass `NULL, 0`
+to obtain the required length, then allocate that length plus one byte.
+
+The `xemu-tweak-profile/v1` text contains the installed renderer, every registered
+fast-path tweak with its stable key, requested policy, effective permission,
+availability classification/reason and restart status. It also reports the
+requested and active Vulkan ubershader modes. The hybrid-ubershader Boolean row is
+derived from that mode, rather than the deprecated saved migration key.
+
+Reporting uses one captured mask, renderer and ubershader status for all rows and
+does not apply or persist settings. This capture may overlap renderer lifecycle
+publication; it is not an atomic transaction with a guest draw. Complete benchmark
+evidence must capture the profile at a safe lifecycle boundary and include its
+build, workload, GPU and counter identities. The formatter does not implement
+the full #94 JSON session or nonpersistent CLI overrides. Controls outside the
+registered tweak set, including `perf.cache_shaders` and its renderer-owned cache
+eligibility, also require separate state in that session.
+
+An enabled effective setting permits eligible work through the existing guards;
+it does not prove the path was reached or the shortcut taken. The profile tests
+cover live edits, unapplied restart choices, unavailable renderers, complete key
+coverage, unchanged configuration and zero/exact/truncated buffer capacities.

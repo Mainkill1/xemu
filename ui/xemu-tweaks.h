@@ -3,6 +3,7 @@
 #define XEMU_TWEAKS_H
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include "qemu/atomic.h"
 #include "xemu-tweak-policy.h"
@@ -98,6 +99,10 @@ void xemu_tweaks_apply(bool startup);
 /* Renderer lifecycle publication and UI-only status query. Neither is hot-path. */
 void xemu_tweaks_publish_renderer(XemuTweakRenderer renderer);
 XemuTweakRuntimeState xemu_tweak_runtime_state(XemuTweak tweak);
+/* UI thread only; never called from a worker/hot path. Returns the complete
+ * length excluding NUL, like snprintf. NULL is allowed only with size == 0.
+ * Output is a diagnostic profile, not the complete #94 session artifact. */
+size_t xemu_tweaks_format_effective_profile(char *buffer, size_t size);
 XemuVulkanUbershaderMode xemu_vulkan_ubershader_migrate_mode(
     bool mode_present, XemuVulkanUbershaderMode mode,
     bool legacy_enabled);

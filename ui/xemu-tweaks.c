@@ -79,10 +79,11 @@ static bool xemu_tweak_requested(XemuTweak tweak)
     }
 }
 
-XemuTweakRuntimeState xemu_tweak_runtime_state(XemuTweak tweak)
+static XemuTweakRuntimeState tweak_runtime_state(
+    XemuTweak tweak, XemuTweakRenderer renderer, uint64_t active,
+    const XemuVulkanUbershaderRuntimeState *ubershader)
 {
     XemuTweakRuntimeState state = { 0 };
-    XemuTweakRenderer renderer = qatomic_read(&xemu_tweaks_renderer);
 
     if ((unsigned int)tweak >= XEMU_TWEAK_COUNT) {
         state.reason = "Unknown Advanced setting.";
@@ -123,7 +124,7 @@ XemuTweakRuntimeState xemu_tweak_runtime_state(XemuTweak tweak)
         break;
     case XEMU_TWEAK_VK_SHADER_FASTPATH:
         state.available = renderer == XEMU_TWEAK_RENDERER_VULKAN &&
-            xemu_vulkan_ubershader_runtime_state().active !=
+            ubershader->active !=
                 XEMU_VK_UBERSHADER_OFF;
         if (!state.available) {
             state.reason = "Requires an active Vulkan ubershader mode.";
@@ -131,9 +132,9 @@ XemuTweakRuntimeState xemu_tweak_runtime_state(XemuTweak tweak)
         break;
     case XEMU_TWEAK_VK_HYBRID_UBERSHADERS:
         state.available = renderer == XEMU_TWEAK_RENDERER_VULKAN &&
-            xemu_vulkan_ubershader_runtime_state().available;
+            ubershader->available;
         if (!state.available) {
-            state.reason = xemu_vulkan_ubershader_runtime_state().reason;
+            state.reason = ubershader->reason;
         }
         break;
     default:
@@ -158,7 +159,8 @@ XemuTweakRuntimeState xemu_tweak_runtime_state(XemuTweak tweak)
         }
     }
     XemuTweakPolicyResolution resolved = xemu_tweak_policy_resolve(
-        state.policy_requested, false, xemu_tweak_enabled(tweak), false,
+        state.policy_requested, false,
+        (active & (UINT64_C(1) << tweak)) != 0, false,
         xemu_tweak_requires_restart(tweak), state.availability);
     state.selected = resolved.selected;
     state.effective = resolved.effective;
@@ -167,6 +169,131 @@ XemuTweakRuntimeState xemu_tweak_runtime_state(XemuTweak tweak)
         state.reason = resolved.reason;
     }
     return state;
+}
+
+XemuTweakRuntimeState xemu_tweak_runtime_state(XemuTweak tweak)
+{
+    XemuVulkanUbershaderRuntimeState ubershader =
+        xemu_vulkan_ubershader_runtime_state();
+    return tweak_runtime_state(tweak, qatomic_read(&xemu_tweaks_renderer),
+                               xemu_tweaks_active_snapshot(), &ubershader);
+}
+
+static const char *tweak_policy_name(XemuTweakPolicy policy)
+{
+    switch (policy) {
+    case XEMU_TWEAK_POLICY_AUTO:
+        return "auto";
+    case XEMU_TWEAK_POLICY_DISABLED:
+        return "disabled";
+    case XEMU_TWEAK_POLICY_ENABLED:
+        return "enabled";
+    default:
+        return "unknown";
+    }
+}
+
+static const char *tweak_availability_name(XemuTweakAvailability availability)
+{
+    switch (availability) {
+    case XEMU_TWEAK_AVAILABLE:
+        return "available";
+    case XEMU_TWEAK_UNSUPPORTED_BACKEND:
+        return "backend";
+    case XEMU_TWEAK_UNSUPPORTED_PLATFORM:
+        return "platform";
+    case XEMU_TWEAK_UNSUPPORTED_CAPABILITY:
+        return "capability";
+    case XEMU_TWEAK_BLOCKED_DEPENDENCY:
+        return "dependency";
+    default:
+        return "unknown";
+    }
+}
+
+static const char *ubershader_mode_name(XemuVulkanUbershaderMode mode)
+{
+    switch (mode) {
+    case XEMU_VK_UBERSHADER_OFF:
+        return "off";
+    case XEMU_VK_UBERSHADER_FALLBACK:
+        return "fallback";
+    case XEMU_VK_UBERSHADER_PREWARM:
+        return "prewarm";
+    case XEMU_VK_UBERSHADER_ALWAYS:
+        return "always";
+    default:
+        return "unknown";
+    }
+}
+
+size_t xemu_tweaks_format_effective_profile(char *buffer, size_t size)
+{
+    static const struct {
+        XemuTweak tweak;
+        const char *name;
+    } names[] = {
+        { XEMU_TWEAK_CPU_SAVING_WAIT, "cpu_saving_wait" },
+        { XEMU_TWEAK_PGRAPH_BULK_PACKETS, "pgraph_bulk_packets" },
+        { XEMU_TWEAK_PGRAPH_FENCE_FASTPATH, "pgraph_fence_fastpath" },
+        { XEMU_TWEAK_VK_COLOR_DOWNLOAD_FOLDING, "vk_color_download_folding" },
+        { XEMU_TWEAK_VK_BOUNDED_VERTEX_UPLOADS, "vk_bounded_vertex_uploads" },
+        { XEMU_TWEAK_VK_VERTEX_COPY_SHORTCUTS, "vk_vertex_copy_shortcuts" },
+        { XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH, "vk_transient_buffer_growth" },
+        { XEMU_TWEAK_GL_NATIVE_S3TC, "gl_native_s3tc" },
+        { XEMU_TWEAK_VK_HYBRID_UBERSHADERS, "vk_hybrid_ubershaders" },
+        { XEMU_TWEAK_VK_SHADER_FASTPATH, "vk_shader_fastpath" },
+        { XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION,
+          "issue149_effect_suppression" },
+        { XEMU_TWEAK_NV20_VERTEX_ARITHMETIC, "nv20_vertex_arithmetic" },
+    };
+    G_STATIC_ASSERT(ARRAY_SIZE(names) == XEMU_TWEAK_COUNT);
+    assert(buffer || size == 0);
+
+    /* One captured mask/backend/mode serves every row. Configuration is owned
+     * by this caller's UI thread. Renderer lifecycle publication can overlap
+     * this read; this is not a transaction with a particular guest draw. */
+    XemuTweakRenderer renderer = qatomic_read(&xemu_tweaks_renderer);
+    uint64_t active = xemu_tweaks_active_snapshot();
+    XemuVulkanUbershaderRuntimeState ubershader =
+        xemu_vulkan_ubershader_runtime_state();
+    if (renderer != XEMU_TWEAK_RENDERER_VULKAN) {
+        ubershader.active = XEMU_VK_UBERSHADER_OFF;
+        ubershader.available = false;
+        ubershader.reason = "Available when the Vulkan renderer is installed.";
+    }
+    GString *profile = g_string_new("schema=xemu-tweak-profile/v1\n");
+    g_string_append_printf(profile, "renderer=%s\n",
+                           renderer == XEMU_TWEAK_RENDERER_VULKAN ? "vulkan" :
+                           renderer == XEMU_TWEAK_RENDERER_OPENGL ? "opengl" :
+                                                                    "none");
+    for (unsigned int i = 0; i < XEMU_TWEAK_COUNT; i++) {
+        XemuTweakRuntimeState state =
+            tweak_runtime_state(names[i].tweak, renderer, active, &ubershader);
+        g_string_append_printf(
+            profile,
+            "tweak.%s=requested:%s,effective:%s,available:%s,restart:%s,"
+            "availability:%s,reason:%s\n",
+            names[i].name, tweak_policy_name(state.policy_requested),
+            state.effective ? "enabled" : "disabled",
+            state.available ? "yes" : "no",
+            state.restart_pending ? "yes" : "no",
+            tweak_availability_name(state.availability), state.reason);
+    }
+    g_string_append_printf(
+        profile,
+        "tweak.vk_ubershader_mode=requested:%s,effective:%s,available:%s,"
+        "restart:%s,reason:%s\n",
+        ubershader_mode_name(ubershader.requested),
+        ubershader_mode_name(ubershader.active),
+        ubershader.available ? "yes" : "no",
+        ubershader.restart_pending ? "yes" : "no", ubershader.reason);
+    size_t length = profile->len;
+    if (size) {
+        g_strlcpy(buffer, profile->str, size);
+    }
+    g_string_free(profile, true);
+    return length;
 }
 
 XemuVulkanUbershaderMode xemu_vulkan_ubershader_migrate_mode(

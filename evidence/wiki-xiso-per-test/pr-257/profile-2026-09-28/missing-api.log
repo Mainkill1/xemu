@@ -1,0 +1,31 @@
+python3 /home/codex/pr238-source/subprojects/genconfig/gen_config.py /home/codex/xemu-shader-workbench-handoff/xemu-issue93/config_spec.yml /tmp/pr257-profile-build/xemu-config.h
+c++ -I/tmp/pr257-profile-build -iquote /tmp/pr257-profile-build -iquote /home/codex/xemu-shader-workbench-handoff/xemu-issue93 -iquote /home/codex/xemu-shader-workbench-handoff/xemu-issue93/include -I/home/codex/xemu-shader-workbench-handoff/xemu-issue93 -m64 -Itests/unit/test-xemu-tweaks-config.p -Itests/unit -I../tests/unit -Isubprojects/genconfig -I../subprojects/genconfig -Isubprojects/tomlplusplus/include -I../subprojects/tomlplusplus/include -I. -Iqapi -Itrace -Iui -Iui/shader -Idata -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/sysprof-6 -fdiagnostics-color=auto -D_GLIBCXX_ASSERTIONS=1 -Wall -Winvalid-pch -std=c++17 -O2 -g -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -Wempty-body -Wendif-labels -Wexpansion-to-defined -Wformat-security -Wformat-y2k -Wignored-qualifiers -Wimplicit-fallthrough=2 -Winit-self -Wmissing-format-attribute -Wredundant-decls -Wshadow=local -Wtype-limits -Wwrite-strings -Wno-missing-include-dirs -Wno-psabi -Wno-shift-negative-value -isystem /home/codex/pr238-source/linux-headers -isystem linux-headers -iquote . -iquote /home/codex/pr238-source -iquote /home/codex/pr238-source/include -iquote /home/codex/pr238-source/host/include/x86_64 -iquote /home/codex/pr238-source/host/include/generic -iquote /home/codex/pr238-source/tcg/i386 -pthread -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX=1 -Wno-error=redundant-decls -fPIE -DTOML_HEADER_ONLY=0 -Werror -o /tmp/pr257-profile-build/test-xemu-tweaks-profile.cc.o -c /home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-profile.cc
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-profile.cc: In function ‘std::string profile()’:
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-profile.cc:24:21: error: ‘xemu_tweaks_format_effective_profile’ was not declared in this scope
+   24 |     size_t length = xemu_tweaks_format_effective_profile(nullptr, 0);
+      |                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from /usr/include/glib-2.0/glib.h:89,
+                 from /home/codex/xemu-shader-workbench-handoff/xemu-issue93/include/glib-compat.h:32,
+                 from /home/codex/xemu-shader-workbench-handoff/xemu-issue93/include/qemu/osdep.h:175,
+                 from /home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-profile.cc:2:
+/usr/include/glib-2.0/glib/gtestutils.h:80:59: error: ‘__n2’ was not declared in this scope; did you mean ‘__n1’?
+   80 |                                              if (__n1 cmp __n2) ; else \
+      |                                                           ^~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-profile.cc:26:5: note: in expansion of macro ‘g_assert_cmpuint’
+   26 |     g_assert_cmpuint(xemu_tweaks_format_effective_profile(result.data(),
+      |     ^~~~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-profile.cc: In function ‘void test_profile_buffer_bounds()’:
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-profile.cc:112:25: error: ‘xemu_tweaks_format_effective_profile’ was not declared in this scope
+  112 |         size_t length = xemu_tweaks_format_effective_profile(buffer.data() + 1,
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Traceback (most recent call last):
+  File "/tmp/pr257-profile-build.py", line 25, in <module>
+    run(args,cwd=build);objects.append(str(obj))
+    ~~~^^^^^^^^^^^^^^^^
+  File "/tmp/pr257-profile-build.py", line 11, in run
+    subprocess.run(args,check=True,**kw)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['c++', '-I/tmp/pr257-profile-build', '-iquote', '/tmp/pr257-profile-build', '-iquote', '/home/codex/xemu-shader-workbench-handoff/xemu-issue93', '-iquote', '/home/codex/xemu-shader-workbench-handoff/xemu-issue93/include', '-I/home/codex/xemu-shader-workbench-handoff/xemu-issue93', '-m64', '-Itests/unit/test-xemu-tweaks-config.p', '-Itests/unit', '-I../tests/unit', '-Isubprojects/genconfig', '-I../subprojects/genconfig', '-Isubprojects/tomlplusplus/include', '-I../subprojects/tomlplusplus/include', '-I.', '-Iqapi', '-Itrace', '-Iui', '-Iui/shader', '-Idata', '-I/usr/include/glib-2.0', '-I/usr/lib/x86_64-linux-gnu/glib-2.0/include', '-I/usr/include/sysprof-6', '-fdiagnostics-color=auto', '-D_GLIBCXX_ASSERTIONS=1', '-Wall', '-Winvalid-pch', '-std=c++17', '-O2', '-g', '-D__STDC_LIMIT_MACROS', '-D__STDC_CONSTANT_MACROS', '-D__STDC_FORMAT_MACROS', '-Wempty-body', '-Wendif-labels', '-Wexpansion-to-defined', '-Wformat-security', '-Wformat-y2k', '-Wignored-qualifiers', '-Wimplicit-fallthrough=2', '-Winit-self', '-Wmissing-format-attribute', '-Wredundant-decls', '-Wshadow=local', '-Wtype-limits', '-Wwrite-strings', '-Wno-missing-include-dirs', '-Wno-psabi', '-Wno-shift-negative-value', '-isystem', '/home/codex/pr238-source/linux-headers', '-isystem', 'linux-headers', '-iquote', '.', '-iquote', '/home/codex/pr238-source', '-iquote', '/home/codex/pr238-source/include', '-iquote', '/home/codex/pr238-source/host/include/x86_64', '-iquote', '/home/codex/pr238-source/host/include/generic', '-iquote', '/home/codex/pr238-source/tcg/i386', '-pthread', '-mcx16', '-msse2', '-D_GNU_SOURCE', '-D_FILE_OFFSET_BITS=64', '-D_LARGEFILE_SOURCE', '-fno-strict-aliasing', '-fno-common', '-fwrapv', '-ftrivial-auto-var-init=zero', '-fzero-call-used-regs=used-gpr', '-DXBOX=1', '-Wno-error=redundant-decls', '-fPIE', '-DTOML_HEADER_ONLY=0', '-Werror', '-o', '/tmp/pr257-profile-build/test-xemu-tweaks-profile.cc.o', '-c', '/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-profile.cc']' returned non-zero exit status 1.
