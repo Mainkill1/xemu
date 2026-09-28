@@ -22,6 +22,7 @@ static bool recommended_policy(XemuTweak tweak)
     case XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH:
     case XEMU_TWEAK_GL_NATIVE_S3TC:
     case XEMU_TWEAK_VK_SHADER_FASTPATH:
+    case XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES:
         return true;
     default:
         return false;

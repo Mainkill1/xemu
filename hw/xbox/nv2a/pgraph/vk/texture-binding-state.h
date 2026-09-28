@@ -53,6 +53,13 @@ static inline bool pgraph_vk_texture_stage_needs_rebind(bool enabled,
     return !bound || bound_dummy || dirty;
 }
 
+/* The policy changes only the final skip after all reuse guards have run. */
+static inline bool pgraph_vk_should_skip_clean_texture_stage(
+    bool shortcut_enabled, bool stage_is_clean_and_reusable)
+{
+    return shortcut_enabled && stage_is_clean_and_reusable;
+}
+
 static inline bool pgraph_vk_texture_source_identity_matches(
     bool stage_enabled, bool binding_valid, bool binding_is_dummy,
     bool source_is_surface, uint64_t current_texture, uint64_t bound_texture,

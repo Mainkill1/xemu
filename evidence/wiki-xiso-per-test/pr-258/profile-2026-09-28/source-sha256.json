@@ -1,0 +1,6 @@
+{
+  "ui/xemu-tweaks.c": "01d2aa2543c3f35ba68528524d1c175c2ef073eb614c1ad7759b882168021cc7",
+  "ui/xemu-tweaks.h": "1cf578d570ef63e32b924f363ff4d4974a8d08f7020abf111f85183a4505a47a",
+  "tests/unit/test-xemu-tweaks-profile.cc": "4151f233cb7b44759024e543f4d535477041d56c48c4a775b1b2d5eebe3e2c3f",
+  "config_spec.yml": "3ebf9d1b19800a25d5e8a60cfc7bb5ecd3fdb19627d970343182174fec36c71f"
+}

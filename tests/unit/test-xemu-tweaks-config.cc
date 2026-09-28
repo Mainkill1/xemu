@@ -79,6 +79,45 @@ static void test_ubershader_migration()
            CONFIG_TWEAKS_VK_UBERSHADER_MODE_FALLBACK);
 }
 
+static void test_clean_texture_stage_policy()
+{
+    load_tweaks_table("[tweaks]\n");
+    assert(g_config.tweaks.vk_skip_clean_texture_stages ==
+           CONFIG_TWEAKS_VK_SKIP_CLEAN_TEXTURE_STAGES_AUTO);
+    xemu_tweaks_apply(true);
+    xemu_tweaks_publish_renderer(XEMU_TWEAK_RENDERER_VULKAN);
+    XemuTweakRuntimeState state =
+        xemu_tweak_runtime_state(XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES);
+    assert(state.policy_requested == XEMU_TWEAK_POLICY_AUTO);
+    assert(state.effective && !state.restart_pending);
+
+    load_tweaks_table("[perf]\ncache_shaders = false\n"
+                      "[tweaks]\npgraph_bulk_packets = false\n"
+                      "vk_skip_clean_texture_stages = 'disabled'\n");
+    xemu_tweaks_apply(false);
+    state = xemu_tweak_runtime_state(XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES);
+    assert(state.policy_requested == XEMU_TWEAK_POLICY_DISABLED);
+    assert(!state.effective && !state.restart_pending);
+    config_tree.update_from_struct(&g_config);
+    assert(config_tree.generate_delta_toml().find(
+               "vk_skip_clean_texture_stages = 'disabled'") !=
+           std::string::npos);
+
+    auto saved = config_tree.generate_delta_toml();
+    load_tweaks_table(saved.c_str());
+    assert(!g_config.perf.cache_shaders);
+    assert(!g_config.tweaks.pgraph_bulk_packets);
+    assert(g_config.tweaks.vk_skip_clean_texture_stages ==
+           CONFIG_TWEAKS_VK_SKIP_CLEAN_TEXTURE_STAGES_DISABLED);
+
+    xemu_tweaks_publish_renderer(XEMU_TWEAK_RENDERER_OPENGL);
+    load_tweaks_table("[tweaks]\n");
+    xemu_tweaks_apply(false);
+    state = xemu_tweak_runtime_state(XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES);
+    assert(state.policy_requested == XEMU_TWEAK_POLICY_AUTO);
+    assert(state.selected && !state.effective && !state.available);
+}
+
 static void test_ubershader_runtime_lifecycle()
 {
     XemuVulkanUbershaderRuntimeState state;
@@ -230,6 +269,7 @@ static void test_boolean_tweak_runtime_state()
 
 int main()
 {
+    test_clean_texture_stage_policy();
     test_boolean_tweak_runtime_state();
     test_ubershader_migration();
     test_ubershader_runtime_lifecycle();
@@ -318,8 +358,8 @@ int main()
         bool restart = tweak == XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH ||
                        tweak == XEMU_TWEAK_GL_NATIVE_S3TC ||
                        tweak == XEMU_TWEAK_VK_HYBRID_UBERSHADERS;
-        bool expected = restart ||
-                        tweak == XEMU_TWEAK_NV20_VERTEX_ARITHMETIC;
+        bool expected = restart || tweak == XEMU_TWEAK_NV20_VERTEX_ARITHMETIC ||
+                        tweak == XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES;
         assert(selected_permission(tweak) == expected);
     }
     assert(selected_permission(XEMU_TWEAK_VK_HYBRID_UBERSHADERS));

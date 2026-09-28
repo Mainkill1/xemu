@@ -680,6 +680,12 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t descriptor_force_reupload_requests;
     uint64_t descriptor_uniform_write_requests;
     uint64_t descriptor_capacity_requests;
+    uint64_t texture_whole_clean_returns;
+    uint64_t texture_slow_bind_calls;
+    uint64_t texture_stage_checks;
+    uint64_t texture_clean_stage_eligible;
+    uint64_t texture_clean_stage_skips;
+    uint64_t texture_clean_stage_forced_reference;
     uint64_t uniform_capacity_requests;
     uint64_t uniform_stage_writes[PGRAPH_UNIFORM_STAGE_COUNT];
     uint64_t surface_upload_attempts;

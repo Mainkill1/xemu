@@ -215,6 +215,37 @@ static void test_platform_and_invalid_inputs(void)
     assert_masks(&resolved);
 }
 
+static void test_clean_stage_policy(void)
+{
+    XemuTweakRequestedState requested = requested_defaults();
+    XemuTweakEnvironment env = environment(XEMU_TWEAK_RENDERER_VULKAN);
+    XemuTweakResolution startup =
+        xemu_tweaks_resolve(&requested, &env, NULL, true);
+    g_assert_cmpint(
+        startup.state[XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES].policy_requested,
+        ==, XEMU_TWEAK_POLICY_AUTO);
+    g_assert_true(
+        startup.state[XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES].effective);
+    requested.policy[XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES] =
+        XEMU_TWEAK_POLICY_DISABLED;
+    XemuTweakResolution live =
+        xemu_tweaks_resolve(&requested, &env, &startup, false);
+    g_assert_false(
+        live.state[XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES].effective);
+    g_assert_false(
+        live.state[XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES].restart_pending);
+    requested.policy[XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES] =
+        XEMU_TWEAK_POLICY_AUTO;
+    env.renderer = XEMU_TWEAK_RENDERER_OPENGL;
+    live = xemu_tweaks_resolve(&requested, &env, &startup, false);
+    g_assert_true(live.state[XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES].selected);
+    g_assert_false(
+        live.state[XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES].effective);
+    g_assert_false(
+        live.state[XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES].restart_pending);
+    assert_masks(&live);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -227,5 +258,7 @@ int main(int argc, char **argv)
                     test_modes_and_capabilities);
     g_test_add_func("/xemu/tweaks/resolve/platform-invalid",
                     test_platform_and_invalid_inputs);
+    g_test_add_func("/xemu/tweaks/resolve/clean-stage-policy",
+                    test_clean_stage_policy);
     return g_test_run();
 }
