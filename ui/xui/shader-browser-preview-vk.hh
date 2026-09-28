@@ -19,11 +19,16 @@ public:
                  bool *unsupported, bool *cancelled = nullptr,
                  const std::function<bool()> &may_continue = {});
     bool Render(const PreviewWorkItem &work, const std::atomic<bool> &stop,
-                std::vector<uint8_t> *rgba, std::string *error);
+                std::vector<uint8_t> *rgba, std::string *error,
+                PreviewDrawTiming *draw_timing = nullptr);
+    // Called on the same owner worker; availability-only polling never waits.
+    bool PollDrawTiming(PreviewWorkItem *, PreviewDrawTiming *);
 
 #ifdef XEMU_PREVIEW_VK_TESTING
     // Deterministic native failure coverage; call only on the owning worker.
     void FailNextSamplerCreationForTest();
+    // Set before the first Prepare to model a device without depthClamp.
+    void DisableDepthClampForTest();
     bool HasSamplerSettingsForTest(bool linear, bool repeat) const;
     uint32_t PipelineCreationCountForTest() const;
 #endif

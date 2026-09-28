@@ -42,6 +42,10 @@ struct PreviewStatus {
     bool has_displayed_source = false;
     PreviewCompileKey displayed_compile;
     PreviewResultKey displayed_result;
+    // Captured-input warnings for the displayed result survive scheduler
+    // updates.
+    std::string material_fidelity;
+    PreviewDrawTiming draw_timing;
     std::string message;
 };
 
@@ -78,6 +82,9 @@ public:
     void RequestCurrentFrame();
     void EditChannel(PreviewChannel channel);
     void EditScene(const PreviewScene &scene);
+    // Inspect an immutable occurrence using the view identity in its packet.
+    // Subsequent explicit camera edits establish a new view revision.
+    void UsePacketView();
     void EditClock(PreviewClockAction action, double value, uint64_t now_ns);
     void UpdateHealth(const PreviewHealth &health);
 
@@ -94,8 +101,13 @@ public:
                       PreviewPreparationOutcome::Failed,
             status, now_ns);
     }
-    bool CompleteRender(uint64_t token, bool success,
-                        const std::string &status, uint64_t now_ns);
+    bool CompleteRender(uint64_t token, bool success, const std::string &status,
+                        uint64_t now_ns,
+                        const PreviewDrawTiming *draw_timing = nullptr);
+    bool CompleteDrawTiming(const PreviewWorkItem &, const PreviewDrawTiming &);
+    // Exact Ready or DisplayLeased result only; this never waits for the GPU.
+    bool CopyDrawTiming(const PreviewResultKey &expected,
+                        PreviewDrawTiming *) const;
 
     bool TryAcquireReadyFrame(PreviewFrameRef *frame, uint64_t now_ns);
     bool ReleaseDisplayLease(uint32_t slot, uint64_t slot_generation);
@@ -120,6 +132,9 @@ private:
         PreviewResultKey result_key;
         uint32_t width = 0;
         uint32_t height = 0;
+        std::string material_fidelity;
+        uint64_t render_token = 0;
+        PreviewDrawTiming draw_timing;
     };
 
     bool IsCurrentRequestLocked(uint64_t request_id,

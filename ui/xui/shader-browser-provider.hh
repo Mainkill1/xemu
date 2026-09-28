@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
 
-#include "shader-browser-model.hh"
+#include "shader-browser-database.hh"
 #include "shader-browser-recipe-inspector.hh"
 
 #include <cstdint>
@@ -19,6 +19,12 @@ struct Snapshot {
     bool live_collection_enabled = false;
     bool renderer_collection_required = false;
     size_t pending_observation_count = 0;
+    size_t pending_performance_samples = 0;
+    uint64_t dropped_performance_samples = 0;
+    uint32_t pending_gl_gpu_queries = 0;
+    uint32_t pending_vk_gpu_queries = 0;
+    bool gl_gpu_supported = false;
+    bool vk_gpu_supported = false;
 
     bool database_enabled = false;
     bool database_open = false;
@@ -43,6 +49,10 @@ struct Snapshot {
     std::string database_status;
     std::string database_journal_mode;
     std::vector<Entry> entries;
+    std::vector<BindingVariant> binding_variants;
+    std::vector<StageProfile> stage_profiles;
+    std::string timing_session_id;
+    std::vector<SessionSummary> timing_sessions;
 };
 
 class Provider
@@ -57,6 +67,7 @@ public:
                                      CanonicalRecipe *recipe) = 0;
     virtual void SetLiveCollectionEnabled(bool enabled) = 0;
     virtual void ClearLiveSession() = 0;
+    virtual void SetTimingSession(const std::string &session_id) = 0;
 
     virtual bool ConfigurePersistence(bool database_enabled,
                                       bool record_performance_sessions,

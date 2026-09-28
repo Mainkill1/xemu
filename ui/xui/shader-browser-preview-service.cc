@@ -486,6 +486,14 @@ void PreviewService::EditScene(const PreviewScene &scene)
     }
 }
 
+void PreviewService::UsePacketView()
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (!scene_revision_) return;
+    scene_revision_ = 0;
+    ++generation_;
+}
+
 PreviewResultKey PreviewService::CurrentResultKeyLocked() const
 {
     auto key = BuildPreviewResultKey(*pending_.packet);

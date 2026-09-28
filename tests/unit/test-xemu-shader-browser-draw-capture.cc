@@ -3,9 +3,11 @@
 #include "../../ui/xui/shader-browser-draw-request.hh"
 #include "../../ui/xui/shader-browser-draw-request.h"
 #include "../../hw/xbox/nv2a/pgraph/shader-browser-geometry-copy.h"
+#include "../../hw/xbox/nv2a/pgraph/shader-browser-command-copy.h"
 
 #include <algorithm>
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <iterator>
 #include <limits>
@@ -491,6 +493,137 @@ static void TestSearchUntilSupportedGeometry()
     CHECK(!xemu_shader_draw_request_is_armed());
 }
 
+static void TestDrawInputsWaitForEmissionAndOwnTheirBytes()
+{
+    XemuShaderDrawRequestSpec spec{};
+    spec.identity_hash[0] = 1;
+    spec.stage = XEMU_SHADER_BROWSER_STAGE_PIXEL;
+    spec.scope.title_id = 1;
+    spec.scope_generation = 8;
+    spec.session_epoch = 1;
+    spec.renderer_epoch = 2;
+    spec.require_geometry = 1;
+    spec.capture_inputs = 1;
+    XemuShaderDrawIdentity identity{};
+    identity.identity_hash[0] = 1;
+    identity.stage = spec.stage;
+    const uint64_t request = xemu_shader_draw_request_arm(&spec);
+    const uint64_t token =
+        xemu_shader_draw_request_claim(8, 2, &identity, 1, 1, 1, 1);
+    CHECK(token == request && xemu_shader_draw_request_wants_inputs(token));
+    const float positions[] = { 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1 };
+    const uint32_t indices[] = { 0, 1, 2 };
+    const XemuShaderDrawGeometry geometry{ positions, 3, indices, 3 };
+    CHECK(xemu_shader_draw_request_stage_geometry(token, &geometry));
+    CHECK(xemu_shader_draw_request_has_geometry(token));
+    uint8_t pixels[16] = { 1, 2, 3, 4 };
+    XemuShaderDrawImage image{ 2, 2, pixels, sizeof(pixels) };
+    CHECK(xemu_shader_draw_request_stage_image(token, 1, &image));
+    XemuShaderDrawTexture texture{};
+    texture.bound = 1;
+    texture.width = 2;
+    texture.height = 2;
+    texture.depth = 1;
+    texture.face_count = 1;
+    texture.mip_levels = 1;
+    texture.image = image;
+    CHECK(xemu_shader_draw_request_stage_texture(token, &texture));
+    float constants[4] = { 0.25f, 0.5f, 0.75f, 1 };
+    XemuShaderDrawUniform uniform{
+        2,         "consts",         XEMU_SHADER_DRAW_UNIFORM_FLOAT, 4, 1,
+        constants, sizeof(constants)
+    };
+    CHECK(xemu_shader_draw_request_stage_uniform(token, &uniform));
+    std::string source = "void main() {}";
+    CHECK(xemu_shader_draw_request_stage_source(token, 2, source.data(),
+                                                source.size()));
+    CHECK(xemu_shader_draw_request_stage_register(token, "CONTROL_0", 123));
+    pixels[0] = 42;
+    constants[0] = 42;
+    source[0] = 'X';
+    CHECK(xemu_shader_draw_request_finish(token, 1, 5, 3, 3));
+    CHECK(GetDrawCaptureRequest().Status().state ==
+          DrawRequestState::Capturing);
+    CHECK(GetDrawCaptureRequest().CopyInputs().before.rgba.empty());
+    CHECK(xemu_shader_draw_request_stage_image(token, 0, &image));
+    CHECK(xemu_shader_draw_request_inputs_complete(token));
+    CHECK(GetDrawCaptureRequest().Status().state == DrawRequestState::Ready);
+    const auto owned = GetDrawCaptureRequest().CopyInputs();
+    CHECK(owned.complete && owned.before.rgba[0] == 1 &&
+          owned.after.rgba[0] == 42);
+    CHECK(owned.textures[0].images[0].image.rgba[0] == 1);
+    CHECK(owned.textures[0].metadata.image.rgba == nullptr);
+    float stored = 0;
+    std::memcpy(&stored, owned.uniforms[0].data.data(), sizeof(stored));
+    CHECK(stored == 0.25f && owned.sources[2] == "void main() {}" &&
+          owned.registers[0].value == 123);
+    xemu_shader_draw_request_cancel();
+    CHECK(!xemu_shader_draw_request_inputs_complete(token));
+    CHECK(!xemu_shader_draw_request_stage_image(token, 1, &image));
+    const auto next = xemu_shader_draw_request_arm(&spec);
+    CHECK(next > token);
+    const auto next_token =
+        xemu_shader_draw_request_claim(8, 2, &identity, 1, 1, 2, 2);
+    image.width = 2049;
+    CHECK(!xemu_shader_draw_request_stage_image(next_token, 1, &image));
+    texture.slot = 4;
+    CHECK(!xemu_shader_draw_request_stage_texture(next_token, &texture));
+    uniform.byte_count = 15;
+    CHECK(!xemu_shader_draw_request_stage_uniform(next_token, &uniform));
+    xemu_shader_draw_request_cancel();
+    CHECK(GetDrawCaptureRequest().CopyInputs().textures[0].images.empty());
+}
+
+static void TestSearchRejectsDegenerateAndTracksReasons()
+{
+    DrawCaptureRequest request;
+    DrawRequestTarget target;
+    target.shader = Draw(1).shaders[0];
+    target.scope.title_id = 1;
+    target.scope_generation = 8;
+    target.session_epoch = 1;
+    target.renderer_epoch = 2;
+    target.goal = XEMU_SHADER_CAPTURE_PREVIEWABLE_GEOMETRY;
+    target.capture_inputs = true;
+    CHECK(request.Arm(target));
+    uint64_t token = 0;
+    CHECK(request.Begin(8, 2, &target.shader, 1, 1, 1, &token));
+    OwnedDrawGeometry degenerate;
+    degenerate.positions = { { 0, 0, 0, 1 }, { 1, 0, 0, 1 }, { 2, 0, 0, 1 } };
+    degenerate.indices = { 0, 1, 2 };
+    CHECK(!request.StageGeometry(token, degenerate));
+    CHECK(!request.HasGeometry(token));
+    CHECK(request.Finish(token, true, 5, 3, 3));
+    CHECK(request.Status().state == DrawRequestState::Capturing);
+    CHECK(!request.Finish(token, true, 5, 3, 3));
+    CHECK(request.InputsComplete(token));
+    CHECK(request.Status().state == DrawRequestState::Armed);
+    CHECK(request.Status()
+              .rejection_counts[XEMU_SHADER_CAPTURE_REJECT_DEGENERATE] == 1);
+    const auto old = token;
+    CHECK(request.Begin(8, 2, &target.shader, 1, 1, 2, &token));
+    CHECK(!request.NoteRejection(old, XEMU_SHADER_CAPTURE_REJECT_BUDGET));
+    CHECK(
+        request.NoteRejection(token, XEMU_SHADER_CAPTURE_REJECT_VERTEX_FORMAT));
+    CHECK(request.Finish(token, true, 5, 3, 0));
+    CHECK(request.InputsComplete(token));
+    CHECK(request.Status()
+              .rejection_counts[XEMU_SHADER_CAPTURE_REJECT_VERTEX_FORMAT] == 1);
+    CHECK(request.Begin(8, 2, &target.shader, 1, 1, 3, &token));
+    CHECK(request.Finish(token, false, 5, 3, 0));
+    CHECK(request.Status()
+              .rejection_counts[XEMU_SHADER_CAPTURE_REJECT_NOT_EMITTED] == 1);
+    CHECK(request.Begin(8, 2, &target.shader, 1, 1, 4, &token));
+    degenerate.positions[2] = { 0, 1, 0, 1 };
+    CHECK(request.StageGeometry(token, degenerate));
+    CHECK(request.Finish(token, true, 5, 3, 3));
+    CHECK(request.InputsComplete(token));
+    const auto status = request.Status();
+    CHECK(status.state == DrawRequestState::Ready);
+    CHECK(status.matching_draws == 4 && status.skipped_draws == 3);
+    CHECK(status.rejection_counts[XEMU_SHADER_CAPTURE_REJECT_BUDGET] == 0);
+}
+
 static void TestDrawGeometryOwnsItsBytes()
 {
     XemuShaderDrawRequestSpec spec{};
@@ -607,6 +740,164 @@ static void TestSubmittedGeometryRanges()
     CHECK(!xemu_shader_draw_layout_elements(&layout, indices, 4097 * 3));
 }
 
+static void TestFilledStripDiagnosticLayout()
+{
+    XemuShaderDrawLayout layout{};
+    const int32_t start = 10, count = 6;
+    // A submitted strip needs four triangles, including alternating winding.
+    CHECK(xemu_shader_draw_layout_arrays_topology(
+        &layout, NV097_SET_BEGIN_END_OP_TRIANGLE_STRIP, &start, &count, 1));
+    const std::vector<uint32_t> expected = {
+        0, 1, 2, 2, 1, 3, 2, 3, 4, 4, 3, 5
+    };
+    CHECK(layout.first_vertex == 10 && layout.vertex_count == 6);
+    CHECK(std::vector<uint32_t>(
+              layout.indices, layout.indices + layout.index_count) == expected);
+}
+
+static std::vector<uint32_t> LayoutIndices(const XemuShaderDrawLayout &layout)
+{
+    return { layout.indices, layout.indices + layout.index_count };
+}
+
+static void TestFilledTopologySubdrawBoundaries()
+{
+    const int32_t starts[] = { 10, 20 }, counts[] = { 4, 2 };
+    const std::vector<uint32_t> expected[] = {
+        { 0, 1, 2 },          { 0, 1, 2, 2, 1, 3 }, { 0, 1, 2, 0, 2, 3 },
+        { 1, 2, 0, 2, 3, 0 }, { 0, 1, 2, 2, 1, 3 }, { 0, 1, 2, 0, 2, 3 }
+    };
+    for (uint32_t primitive = 5; primitive <= 10; ++primitive) {
+        XemuShaderDrawLayout layout{};
+        CHECK(xemu_shader_draw_layout_arrays_topology(&layout, primitive,
+                                                      starts, counts, 2));
+        CHECK(LayoutIndices(layout) == expected[primitive - 5]);
+        CHECK(layout.first_vertex == 10 &&
+              layout.vertex_count == (primitive == 5 ? 3U : 4U));
+    }
+    XemuShaderDrawLayout layout{};
+    const int32_t separate_counts[] = { 5, 4 };
+    CHECK(xemu_shader_draw_layout_arrays_topology(&layout, 6, starts,
+                                                  separate_counts, 2));
+    CHECK(LayoutIndices(layout) ==
+          std::vector<uint32_t>(
+              { 0, 1, 2, 2, 1, 3, 2, 3, 4, 10, 11, 12, 12, 11, 13 }));
+    CHECK(xemu_shader_draw_layout_arrays_topology(&layout, 7, starts,
+                                                  separate_counts, 2));
+    CHECK(LayoutIndices(layout) ==
+          std::vector<uint32_t>(
+              { 0, 1, 2, 0, 2, 3, 0, 3, 4, 10, 11, 12, 10, 12, 13 }));
+    for (uint32_t primitive = 0; primitive < 5; ++primitive)
+        CHECK(!xemu_shader_draw_layout_arrays_topology(&layout, primitive,
+                                                       starts, counts, 2));
+    CHECK(!xemu_shader_draw_layout_arrays_topology(&layout, 11, starts, counts,
+                                                   2));
+}
+
+static void TestFilledTopologyIndexedBoundsAndDegenerates()
+{
+    XemuShaderDrawLayout layout{};
+    const uint32_t sparse[] = { 102, 104, 106, 108, 110, 112 };
+    const std::vector<uint32_t> expected[] = {
+        { 0, 2, 4, 6, 8, 10 },
+        { 0, 2, 4, 4, 2, 6, 4, 6, 8, 8, 6, 10 },
+        { 0, 2, 4, 0, 4, 6, 0, 6, 8, 0, 8, 10 },
+        { 2, 4, 0, 4, 6, 0 },
+        { 0, 2, 4, 4, 2, 6, 4, 6, 8, 8, 6, 10 },
+        { 0, 2, 4, 0, 4, 6, 0, 6, 8, 0, 8, 10 }
+    };
+    for (uint32_t primitive = 5; primitive <= 10; ++primitive) {
+        CHECK(xemu_shader_draw_layout_elements_topology(
+            &layout, primitive, sparse, std::size(sparse)));
+        CHECK(LayoutIndices(layout) == expected[primitive - 5]);
+        CHECK(layout.first_vertex == 102 &&
+              layout.vertex_count == (primitive == 8 ? 7U : 11U));
+    }
+    const uint32_t degenerates[] = { 2, 2, 4, 6 };
+    CHECK(xemu_shader_draw_layout_elements_topology(&layout, 6, degenerates,
+                                                    std::size(degenerates)));
+    CHECK(LayoutIndices(layout) == std::vector<uint32_t>({ 0, 0, 2, 2, 0, 4 }));
+    CHECK(degenerates[0] == 2 && degenerates[3] == 6);
+    const int32_t start = 0;
+    int32_t count = 4096;
+    CHECK(
+        xemu_shader_draw_layout_arrays_topology(&layout, 6, &start, &count, 1));
+    CHECK(layout.vertex_count == 4096 && layout.index_count == 12282);
+    count = 4097;
+    CHECK(!xemu_shader_draw_layout_arrays_topology(&layout, 6, &start, &count,
+                                                   1));
+    std::vector<uint32_t> repeated(8196, 1);
+    CHECK(xemu_shader_draw_layout_elements_topology(&layout, 6, repeated.data(),
+                                                    4098));
+    CHECK(layout.vertex_count == 1 && layout.index_count == 12288);
+    CHECK(!xemu_shader_draw_layout_elements_topology(&layout, 6,
+                                                     repeated.data(), 4099));
+    CHECK(xemu_shader_draw_layout_elements_topology(&layout, 8, repeated.data(),
+                                                    8192));
+    CHECK(layout.index_count == 12288);
+    CHECK(!xemu_shader_draw_layout_elements_topology(
+        &layout, 8, repeated.data(), repeated.size()));
+    CHECK(!xemu_shader_draw_layout_elements_topology(&layout, 6, sparse,
+                                                     SIZE_MAX));
+    CHECK(!xemu_shader_draw_layout_arrays_topology(&layout, 6, &start, &count,
+                                                   SIZE_MAX));
+    const int32_t negative = -1, enormous = INT32_MAX;
+    CHECK(!xemu_shader_draw_layout_arrays_topology(&layout, 6, &negative,
+                                                   &count, 1));
+    CHECK(!xemu_shader_draw_layout_arrays_topology(&layout, 6, &enormous,
+                                                   &enormous, 1));
+    // Restart is a backend state, not an invented UINT32_MAX sentinel.
+    const uint32_t high[] = { UINT32_MAX - 2, UINT32_MAX - 1, UINT32_MAX };
+    CHECK(xemu_shader_draw_layout_elements_topology(&layout, 6, high,
+                                                    std::size(high)));
+    CHECK(layout.first_vertex == UINT32_MAX - 2 && layout.vertex_count == 3);
+    const uint32_t out_of_span[] = { 0, 1, UINT32_MAX, 2 };
+    CHECK(!xemu_shader_draw_layout_elements_topology(&layout, 6, out_of_span,
+                                                     std::size(out_of_span)));
+}
+
+static void TestFilledTopologySearchReasonsAndOwnedBoundary()
+{
+    DrawCaptureRequest request;
+    DrawRequestTarget target{};
+    target.shader = Draw(1).shaders[0];
+    target.scope = Draw(1).scope;
+    target.scope_generation = 8;
+    target.session_epoch = 1;
+    target.renderer_epoch = 2;
+    target.require_geometry = true;
+    CHECK(request.Arm(target));
+    uint64_t token = 0;
+    for (uint32_t primitive = 1; primitive <= 10; ++primitive) {
+        CHECK(request.Begin(8, 2, &target.shader, 1, 1, primitive, &token));
+        CHECK(request.Finish(token, true, primitive, 4, 4));
+        CHECK(request.Status().state == DrawRequestState::Armed);
+        CHECK(request.Status().last_rejection ==
+              (primitive < 5 ?
+                   XEMU_SHADER_CAPTURE_REJECT_TOPOLOGY :
+                   XEMU_SHADER_CAPTURE_REJECT_POSITION_UNAVAILABLE));
+    }
+    OwnedDrawGeometry geometry;
+    geometry.positions = { { 0, 0, 0, 1 }, { 1, 0, 0, 1 }, { 2, 0, 0, 1 } };
+    geometry.indices = { 0, 1, 2, 2, 1, 0 };
+    CHECK(request.Begin(8, 2, &target.shader, 1, 1, 11, &token));
+    CHECK(!request.StageGeometry(token, geometry));
+    CHECK(request.Finish(token, true, 6, 4, 4));
+    CHECK(request.Status().last_rejection ==
+          XEMU_SHADER_CAPTURE_REJECT_DEGENERATE);
+    CHECK(request.Status().state == DrawRequestState::Armed);
+    geometry.positions[2] = { 0, 1, 0, 1 };
+    CHECK(request.Begin(8, 2, &target.shader, 1, 1, 12, &token));
+    CHECK(request.StageGeometry(token, geometry));
+    geometry.positions[0][0] = 1234;
+    geometry.indices[0] = 2;
+    CHECK(request.Finish(token, true, 6, 4, 4));
+    CHECK(request.Status().state == DrawRequestState::Ready);
+    CHECK(request.CopyCaptured().primitive_mode == 6);
+    CHECK(request.CopyGeometry().positions[0][0] == 0 &&
+          request.CopyGeometry().indices[0] == 0);
+}
+
 static void TestResolvedSubmissionGeneration()
 {
     XemuShaderDrawRequestSpec spec{};
@@ -640,6 +931,24 @@ static void TestResolvedSubmissionGeneration()
     CHECK(!xemu_shader_draw_request_finish(token, 0, 5, 3, 0));
     CHECK(GetDrawCaptureRequest().Status().state == DrawRequestState::Ready);
     CHECK(GetDrawCaptureRequest().Status().draw.submission == 1);
+    xemu_shader_draw_request_cancel();
+
+    float strip[16] = { 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1 };
+    const auto strip_token = xemu_shader_draw_request_arm(&spec);
+    CHECK(xemu_shader_draw_request_claim(8, 2, &identity, 1, 1, 2, 2) ==
+          strip_token);
+    const int32_t strip_count = 4;
+    CHECK(xemu_shader_draw_layout_arrays_topology(&layout, 6, &first,
+                                                  &strip_count, 1));
+    CHECK(xemu_shader_draw_stage_source(
+        strip_token, &layout, reinterpret_cast<const uint8_t *>(strip),
+        sizeof(strip), 0, 16, 4));
+    strip[0] = 500;
+    layout.indices[0] = 3;
+    CHECK(xemu_shader_draw_request_finish(strip_token, 1, 6, 4, 0));
+    const auto owned_strip = GetDrawCaptureRequest().CopyGeometry();
+    CHECK(owned_strip.positions[0][0] == 0);
+    CHECK(owned_strip.indices == std::vector<uint32_t>({ 0, 1, 2, 2, 1, 3 }));
     xemu_shader_draw_request_cancel();
 }
 
@@ -687,6 +996,17 @@ static void TestBoundedFloatPositionCopy()
         5 * sizeof(float), 3, output, std::size(output)));
 }
 
+static void TestCommandSnapshotDoesNotCopyRemainingFifo()
+{
+    constexpr size_t remaining_fifo = 32U * 1024U * 1024U;
+    CHECK(xemu_shader_capture_command_words(1, remaining_fifo, false) == 1);
+    CHECK(xemu_shader_capture_command_words(1, remaining_fifo, true) == 7);
+    CHECK(xemu_shader_capture_command_words(2047, remaining_fifo, true) ==
+          2047);
+    CHECK(xemu_shader_capture_command_words(1, 3, true) == 3);
+    CHECK(xemu_shader_capture_command_words(1, 0, true) == 1);
+}
+
 int main()
 {
     void (*tests[])() = {
@@ -710,12 +1030,19 @@ int main()
         TestOneShotDrawRequest,
         TestSubmittedDrawBridge,
         TestSearchUntilSupportedGeometry,
+        TestDrawInputsWaitForEmissionAndOwnTheirBytes,
         TestDrawGeometryOwnsItsBytes,
         TestBoundedFloatPositionCopy,
         TestClaimCancelRearmInterleaving,
         TestSubmittedGeometryRanges,
+        TestFilledStripDiagnosticLayout,
+        TestFilledTopologySubdrawBoundaries,
+        TestFilledTopologyIndexedBoundsAndDegenerates,
+        TestFilledTopologySearchReasonsAndOwnedBoundary,
         TestResolvedSubmissionGeneration,
         TestSparseUnusedPositions,
+        TestCommandSnapshotDoesNotCopyRemainingFifo,
+        TestSearchRejectsDegenerateAndTracksReasons,
     };
     for (auto test : tests) {
         test();

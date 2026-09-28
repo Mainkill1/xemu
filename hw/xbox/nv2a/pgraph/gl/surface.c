@@ -26,6 +26,7 @@
 #include "hw/xbox/nv2a/pgraph/vertex-fetch-span.h"
 #include "debug.h"
 #include "renderer.h"
+#include "hw/xbox/nv2a/pgraph/shader-browser-resource.h"
 
 static void surface_download(NV2AState *d, SurfaceBinding *surface, bool force);
 static void surface_download_to_buffer(NV2AState *d, SurfaceBinding *surface,
@@ -304,6 +305,15 @@ static void render_surface_to_texture_slow(NV2AState *d,
 
     glTexImage2D(texture->gl_target, 0, f->gl_internal_format, width, height, 0,
                  f->gl_format, f->gl_type, buf);
+    xemu_shader_capture_session_resource_release(
+        texture->capture_owner, 1, XEMU_SHADER_CAPTURE_RESOURCE_TEXTURE,
+        XEMU_SHADER_CAPTURE_RESOURCE_OPAQUE_EXTENT);
+    texture->capture_owner = xemu_shader_capture_resource_new_owner();
+    pgraph_shader_resource_write(
+        pg, XEMU_SHADER_CAPTURE_COPY, texture->capture_owner, 1,
+        XEMU_SHADER_CAPTURE_RESOURCE_TEXTURE, true, surface->capture_owner, 1,
+        surface->color ? XEMU_SHADER_CAPTURE_RESOURCE_COLOR :
+                         XEMU_SHADER_CAPTURE_RESOURCE_DEPTH_STENCIL, true);
     g_free(buf);
     glBindTexture(texture->gl_target, texture->gl_texture);
 }
@@ -341,9 +351,18 @@ void pgraph_gl_render_surface_to_texture(NV2AState *d, SurfaceBinding *surface,
     glTexParameteri(texture->gl_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexImage2D(texture->gl_target, 0, f->gl_internal_format, width, height, 0,
                  f->gl_format, f->gl_type, NULL);
+    xemu_shader_capture_session_resource_release(
+        texture->capture_owner, 1, XEMU_SHADER_CAPTURE_RESOURCE_TEXTURE,
+        XEMU_SHADER_CAPTURE_RESOURCE_OPAQUE_EXTENT);
+    texture->capture_owner = xemu_shader_capture_resource_new_owner();
     glBindTexture(texture->gl_target, 0);
     render_surface_to(d, surface, texture_unit, texture->gl_target,
                              texture->gl_texture, width, height);
+    pgraph_shader_resource_write(
+        pg, XEMU_SHADER_CAPTURE_COPY, texture->capture_owner, 1,
+        XEMU_SHADER_CAPTURE_RESOURCE_TEXTURE, true, surface->capture_owner, 1,
+        surface->color ? XEMU_SHADER_CAPTURE_RESOURCE_COLOR :
+                         XEMU_SHADER_CAPTURE_RESOURCE_DEPTH_STENCIL, true);
     glBindTexture(texture->gl_target, texture->gl_texture);
 }
 
@@ -579,6 +598,10 @@ void pgraph_gl_surface_invalidate(NV2AState *d, SurfaceBinding *surface)
 
     unregister_cpu_access_callback(d, surface);
 
+    pgraph_shader_resource_release(pg, surface->capture_owner, 1,
+                                    surface->color ? XEMU_SHADER_CAPTURE_RESOURCE_COLOR :
+                                                     XEMU_SHADER_CAPTURE_RESOURCE_DEPTH_STENCIL,
+                                    true);
     glDeleteTextures(1, &surface->gl_buffer);
 
     QTAILQ_REMOVE(&r->surfaces, surface, entry);
@@ -981,6 +1004,17 @@ void pgraph_gl_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
     glTexImage2D(GL_TEXTURE_2D, 0, surface->fmt.gl_internal_format, width,
                  height, 0, surface->fmt.gl_format, surface->fmt.gl_type,
                  gl_read_buf);
+    xemu_shader_capture_session_resource_release(
+        surface->capture_owner, 1,
+        surface->color ? XEMU_SHADER_CAPTURE_RESOURCE_COLOR :
+                         XEMU_SHADER_CAPTURE_RESOURCE_DEPTH_STENCIL,
+        XEMU_SHADER_CAPTURE_RESOURCE_OPAQUE_EXTENT);
+    surface->capture_owner = xemu_shader_capture_resource_new_owner();
+    pgraph_shader_resource_write(
+        pg, XEMU_SHADER_CAPTURE_UPLOAD, surface->capture_owner, 1,
+        surface->color ? XEMU_SHADER_CAPTURE_RESOURCE_COLOR :
+                         XEMU_SHADER_CAPTURE_RESOURCE_DEPTH_STENCIL,
+        true, 0, 0, 0, false);
     glPixelStorei(GL_UNPACK_ALIGNMENT, prev_unpack_alignment);
     if (optimal_buf != buf) {
         g_free(optimal_buf);
@@ -1075,6 +1109,7 @@ static void populate_surface_binding_entry_sized(NV2AState *d, bool color,
     entry->shape = (color || !r->color_binding) ? pg->surface_shape :
                                                    r->color_binding->shape;
     entry->gl_buffer = 0;
+    entry->capture_owner = 0;
     entry->fmt = fmt;
     entry->color = color;
     entry->swizzle =
@@ -1233,6 +1268,7 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
 
         if (should_create) {
             glGenTextures(1, &entry.gl_buffer);
+            entry.capture_owner = xemu_shader_capture_resource_new_owner();
             glBindTexture(GL_TEXTURE_2D, entry.gl_buffer);
             NV2A_GL_DLABEL(GL_TEXTURE, entry.gl_buffer,
                            "%s format: %0X, width: %d, height: %d "

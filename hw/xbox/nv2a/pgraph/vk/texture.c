@@ -35,6 +35,7 @@
 #include "failure-state.h"
 #include "texture-binding-state.h"
 #include "renderer.h"
+#include "hw/xbox/nv2a/pgraph/shader-browser-resource.h"
 
 static void texture_cache_release_node_resources(PGRAPHVkState *r, TextureBinding *snode);
 
@@ -177,7 +178,8 @@ static bool can_upload_native_bc(PGRAPHVkState *r, const TextureShape *state,
 
     VkFormatFeatureFlags required_features =
         VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT |
-        VK_FORMAT_FEATURE_TRANSFER_DST_BIT;
+        VK_FORMAT_FEATURE_TRANSFER_DST_BIT |
+        VK_FORMAT_FEATURE_TRANSFER_SRC_BIT;
     if (texture_filter_requires_linear(filter)) {
         required_features |= VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT;
     }
@@ -697,6 +699,8 @@ static bool upload_texture_image(PGRAPHState *pg, int texture_idx,
     }
     assert(staging_offset + buffer_offset <= staging_buffer->buffer_size);
     staging_buffer->buffer_offset = staging_offset + buffer_offset;
+    pgraph_vk_capture_buffer_upload(pg, staging_buffer_index, staging_offset,
+                                    buffer_offset, mapped_memory_ptr, true);
 
     VkResult flush_result = pgraph_vk_failpoint_should_fail(
                                 PGRAPH_VK_FAILPOINT_TEXTURE_STAGING_FLUSH) ?
@@ -740,6 +744,12 @@ static bool upload_texture_image(PGRAPHState *pg, int texture_idx,
     vkCmdCopyBufferToImage(cmd, staging_buffer->buffer,
                            binding->image, binding->current_layout,
                            num_regions, regions);
+    pgraph_vk_capture_resource_write(
+        pg, cmd, XEMU_SHADER_CAPTURE_UPLOAD, binding->capture_owner,
+        binding->capture_bytes, XEMU_SHADER_CAPTURE_RESOURCE_TEXTURE, false,
+        staging_buffer->capture_owner, staging_buffer->buffer_size,
+        XEMU_SHADER_CAPTURE_RESOURCE_BUFFER, false, staging_offset,
+        buffer_offset);
 
     pgraph_vk_transition_image_layout(pg, cmd, binding->image, vk_format,
                                       binding->current_layout,
@@ -970,6 +980,13 @@ static void copy_zeta_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surfac
     pgraph_vk_end_nondraw_commands(pg, cmd);
 
     texture->draw_time = surface->draw_time;
+    pgraph_vk_capture_resource_write(
+        pg, cmd, XEMU_SHADER_CAPTURE_COPY, texture->capture_owner,
+        texture->capture_bytes, XEMU_SHADER_CAPTURE_RESOURCE_TEXTURE, false,
+        surface->capture_owner, surface->capture_bytes,
+        surface->color ? XEMU_SHADER_CAPTURE_RESOURCE_COLOR :
+                         XEMU_SHADER_CAPTURE_RESOURCE_DEPTH_STENCIL, false,
+        0, surface->capture_bytes);
 }
 
 // FIXME: Should be able to skip the copy and sample the original surface image
@@ -1018,6 +1035,7 @@ static void copy_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surface,
     vkCmdCopyImage(cmd, surface->image,
                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, texture->image,
                    texture->current_layout, 1, &region);
+    pgraph_vk_capture_color_image_copy(pg, cmd, surface, texture, &region);
 
     pgraph_vk_transition_image_layout(
         pg, cmd, surface->image, surface->host_fmt.vk_format,
@@ -1152,6 +1170,8 @@ static void create_dummy_texture(PGRAPHState *pg)
                           r->storage_buffers[BUFFER_STAGING_SRC].allocation,
                           (void *)&mapped_memory_ptr));
     memset(mapped_memory_ptr, 0xff, texture_data_size);
+    pgraph_vk_capture_buffer_upload(pg, BUFFER_STAGING_SRC, 0,
+                                    texture_data_size, mapped_memory_ptr, false);
 
     vmaFlushAllocation(r->allocator,
                        r->storage_buffers[BUFFER_STAGING_SRC].allocation, 0,
@@ -1445,6 +1465,31 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
                                         &image_create_info.extent.height);
     }
 
+    VkImageFormatProperties input_properties;
+    snode->input_transfer_src = vkGetPhysicalDeviceImageFormatProperties(
+        r->physical_device, image_create_info.format, image_create_info.imageType,
+        image_create_info.tiling,
+        image_create_info.usage | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+        image_create_info.flags, &input_properties) == VK_SUCCESS;
+    if (snode->input_transfer_src) {
+        VkExtent3D extent = image_create_info.extent;
+        snode->input_transfer_src =
+            extent.width <= input_properties.maxExtent.width &&
+            extent.height <= input_properties.maxExtent.height &&
+            extent.depth <= input_properties.maxExtent.depth &&
+            image_create_info.mipLevels <= input_properties.maxMipLevels &&
+            image_create_info.arrayLayers <= input_properties.maxArrayLayers &&
+            (input_properties.sampleCounts & VK_SAMPLE_COUNT_1_BIT);
+    }
+    if (snode->input_transfer_src) {
+        image_create_info.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    }
+    snode->storage_extent = image_create_info.extent;
+    snode->storage_mip_levels = image_create_info.mipLevels;
+    snode->storage_layer_count = image_create_info.arrayLayers;
+    snode->storage_image_type = image_create_info.imageType;
+    snode->component_mapping = vkf.component_map;
+
     VmaAllocationCreateInfo alloc_create_info = {
         .usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,
     };
@@ -1452,6 +1497,12 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     VK_CHECK(vmaCreateImage(r->allocator, &image_create_info,
                             &alloc_create_info, &snode->image,
                             &snode->allocation, NULL));
+    VmaAllocationInfo capture_allocation_info;
+    vmaGetAllocationInfo(r->allocator, snode->allocation,
+                         &capture_allocation_info);
+    snode->capture_owner = xemu_shader_capture_resource_new_owner();
+    snode->capture_bytes = capture_allocation_info.size;
+    snode->capture_pg = pg;
 
     VkImageViewCreateInfo image_view_create_info = {
         .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
@@ -1587,6 +1638,11 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
 
     VK_CHECK(vkCreateSampler(r->device, &sampler_create_info, NULL,
                              &snode->sampler));
+    snode->sampler_min_filter = sampler_create_info.minFilter;
+    snode->sampler_mag_filter = sampler_create_info.magFilter;
+    snode->sampler_wrap_s = sampler_create_info.addressModeU;
+    snode->sampler_wrap_t = sampler_create_info.addressModeV;
+    snode->sampler_wrap_r = sampler_create_info.addressModeW;
 
     set_texture_label(pg, snode);
 
@@ -1815,6 +1871,14 @@ static void texture_cache_entry_init(Lru *lru, LruNode *node, const void *state)
 
 static void texture_cache_release_node_resources(PGRAPHVkState *r, TextureBinding *snode)
 {
+    if (snode->capture_pg && snode->capture_owner)
+        pgraph_shader_resource_release(snode->capture_pg,
+                                        snode->capture_owner,
+                                        snode->capture_bytes,
+                                        XEMU_SHADER_CAPTURE_RESOURCE_TEXTURE,
+                                        false);
+    snode->capture_owner = snode->capture_bytes = 0;
+    snode->capture_pg = NULL;
     vkDestroySampler(r->device, snode->sampler, NULL);
     snode->sampler = VK_NULL_HANDLE;
 
@@ -1929,6 +1993,7 @@ void pgraph_vk_init_textures(PGRAPHState *pg)
                     r->physical_device, native_bc_formats[i],
                     VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL,
                     VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                        VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
                         VK_IMAGE_USAGE_SAMPLED_BIT,
                     flags, &support->image_properties[cube]) == VK_SUCCESS;
         }

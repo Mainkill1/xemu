@@ -2,8 +2,10 @@
 #include "shader-browser-preview-vk.hh"
 #include "shader-browser-preview-adapter.hh"
 #include "shader-browser-preview-alpha.hh"
+#include <SDL3/SDL.h>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 
 using namespace xemu::shader_browser;
 #define CHECK(x)                                                             \
@@ -109,11 +111,103 @@ int main(int argc, char **)
         executor.PipelineCreationCountForTest();
     std::vector<uint8_t> pixels;
     std::atomic<bool> stop{ false };
-    CHECK(executor.Render(work, stop, &pixels, &error));
+    PreviewDrawTiming draw_timing;
+    CHECK(executor.Render(work, stop, &pixels, &error, &draw_timing));
+    CHECK(draw_timing.status == PreviewDrawTimingStatus::Disarmed &&
+          !draw_timing.nanoseconds);
     CHECK(pixels.size() == 32 * 32 * 4);
     CHECK(pixels[4 * (16 * 32 + 16)] == 255);
     CHECK(pixels[4 * (16 * 32 + 16) + 1] == 0);
     CHECK(pixels[4 * (16 * 32 + 16) + 3] == 73);
+    const auto disarmed_result = work.result_key;
+    packet->profile_draw = true;
+    work.result_key = BuildPreviewResultKey(*packet);
+    const auto timing_render_started = SDL_GetTicksNS();
+    CHECK(executor.Render(work, stop, &pixels, &error, &draw_timing));
+    const auto timing_render_finished = SDL_GetTicksNS();
+    const auto timing_after_render = draw_timing;
+    uint32_t timing_poll_calls = 0, timing_poll_results = 0;
+    bool timing_poll_key_matches = true;
+    const auto timestamp_deadline =
+        timing_render_finished + kPreviewMaxDrawTimingNs;
+    while (draw_timing.status == PreviewDrawTimingStatus::Pending &&
+           SDL_GetTicksNS() < timestamp_deadline) {
+        PreviewWorkItem timed_work;
+        ++timing_poll_calls;
+        if (executor.PollDrawTiming(&timed_work, &draw_timing)) {
+            ++timing_poll_results;
+            timing_poll_key_matches = timed_work.result_key == work.result_key;
+            if (!timing_poll_key_matches)
+                break;
+        } else
+            SDL_Delay(1);
+    }
+    const auto timing_poll_finished = SDL_GetTicksNS();
+    if (!timing_poll_key_matches ||
+        !ValidatePreviewDrawTiming(draw_timing, work.result_key) ||
+        (draw_timing.status != PreviewDrawTimingStatus::Measured &&
+         draw_timing.status != PreviewDrawTimingStatus::Unsupported)) {
+        auto dump = [&](const char *phase, const PreviewDrawTiming &timing) {
+            std::fprintf(
+                stderr,
+                "Vulkan timing diagnostic %s: status=%u (%s) "
+                "provenance=%u (%s) backend=%u ns=%llu valid_bits=%u "
+                "period_ns=%.17g actual_draw_commands=%u exact_key=%u "
+                "valid=%u message=\"%s\"\n",
+                phase, unsigned(timing.status),
+                PreviewDrawTimingStatusLabel(timing.status),
+                unsigned(timing.provenance),
+                PreviewDrawTimingProvenanceLabel(timing.provenance),
+                unsigned(timing.backend),
+                (unsigned long long)timing.nanoseconds,
+                timing.timestamp_valid_bits, timing.timestamp_period_ns,
+                timing.actual_draw_commands,
+                unsigned(timing.result == work.result_key),
+                unsigned(ValidatePreviewDrawTiming(timing, work.result_key)),
+                timing.message.c_str());
+        };
+        std::fprintf(
+            stderr,
+            "Vulkan timing diagnostic request: width=%u height=%u "
+            "slot=%u generation=%llu packet_profile=%u result_profile=%u "
+            "result_compile_matches_work=%u render_ns=%llu "
+            "poll_ns=%llu poll_calls=%u poll_results=%u "
+            "poll_key_matches=%u deadline_reached=%u render_error=\"%s\"\n",
+            packet->width, packet->height, work.slot,
+            (unsigned long long)work.slot_generation,
+            unsigned(packet->profile_draw),
+            unsigned(work.result_key.profile_draw),
+            unsigned(work.result_key.compile == work.compile_key),
+            (unsigned long long)(timing_render_finished -
+                                 timing_render_started),
+            (unsigned long long)(timing_poll_finished - timing_render_finished),
+            timing_poll_calls, timing_poll_results,
+            unsigned(timing_poll_key_matches),
+            unsigned(timing_poll_finished >= timestamp_deadline),
+            error.c_str());
+        dump("after-render", timing_after_render);
+        dump("after-poll", draw_timing);
+        std::fflush(stderr);
+    }
+    CHECK(timing_poll_key_matches);
+    CHECK(ValidatePreviewDrawTiming(draw_timing, work.result_key));
+    CHECK(draw_timing.status == PreviewDrawTimingStatus::Measured ||
+          draw_timing.status == PreviewDrawTimingStatus::Unsupported);
+    CHECK(draw_timing.actual_draw_commands == 1 &&
+          draw_timing.provenance ==
+              PreviewDrawTimingProvenance::SelectedPreviewInstrumented);
+    std::printf("Private Vulkan reused pipeline draw interval: %llu ns (%s)\n",
+                (unsigned long long)draw_timing.nanoseconds,
+                PreviewDrawTimingStatusLabel(draw_timing.status));
+    work.result_key.channel = PreviewChannel::D0;
+    CHECK(executor.Render(work, stop, &pixels, &error, &draw_timing));
+    CHECK(ValidatePreviewDrawTiming(draw_timing, work.result_key));
+    CHECK(draw_timing.status == PreviewDrawTimingStatus::Unsupported &&
+          !draw_timing.nanoseconds && !draw_timing.actual_draw_commands &&
+          !draw_timing.message.empty());
+    CHECK(executor.PipelineCreationCountForTest() == prepared_pipeline_count);
+    packet->profile_draw = false;
+    work.result_key = disarmed_result;
     packet->render_state.alpha_test = true;
     CHECK(executor.Render(work, stop, &pixels, &error));
     CHECK(pixels[4 * (16 * 32 + 16)] == 255);
@@ -310,6 +404,14 @@ int main(int argc, char **)
     render();
     CHECK(pixels.size() == 640U * 480U * 4U);
     CHECK(pixels[4 * (240 * 640 + 320) + 2] == 255);
+    packet->width = kPreviewMaxWidth + 1;
+    PreviewVkExecutor invalid_fixture_extent;
+    CHECK(!invalid_fixture_extent.Prepare(work, &error, &unsupported));
+    CHECK(unsupported && error.find("extent") != std::string::npos);
+    CHECK(invalid_fixture_extent.PipelineCreationCountForTest() == 0);
+    CHECK(!executor.Prepare(work, &error, &unsupported));
+    CHECK(unsupported);
+    CHECK(!executor.Render(work, stop, &pixels, &error));
     packet->width = packet->height = 320;
     source("#version 450\nlayout(binding=1,std140) uniform PshUniforms {\n"
            "int alphaRef; mat2 bumpMat[4]; float bumpOffset[4]; float "
@@ -342,6 +444,475 @@ int main(int argc, char **)
     CHECK(pixels[4 * (160 * 320 + 160) + 1] == 102);
     std::puts(
         "Vulkan constant, fog color and alpha edits without prepare PASS");
+    OwnedDrawInputs captured_inputs;
+    captured_inputs.complete = true;
+    auto capture_uniform = [&](const char *name, uint32_t type,
+                               uint32_t components, uint32_t count,
+                               const void *data, size_t bytes) {
+        OwnedDrawUniform value{ 2, name, type, components, count, {} };
+        const auto *begin = static_cast<const uint8_t *>(data);
+        value.data.assign(begin, begin + bytes);
+        captured_inputs.uniforms.push_back(std::move(value));
+    };
+    std::array<float, 18 * 4> captured_constants{};
+    for (size_t i = 0; i < 18; ++i) {
+        captured_constants[4 * i] = 0.25f;
+        captured_constants[4 * i + 3] = 1;
+    }
+    std::array<float, 4> captured_fog{ 0, 0.6f, 0, 1 };
+    int32_t captured_alpha = 192;
+    std::array<int32_t, 8 * 4>
+        game_clip{}; // Must not replace preview viewport.
+    capture_uniform("consts[0]", XEMU_SHADER_DRAW_UNIFORM_FLOAT, 4, 18,
+                    captured_constants.data(), sizeof(captured_constants));
+    capture_uniform("fogColor", XEMU_SHADER_DRAW_UNIFORM_FLOAT, 4, 1,
+                    captured_fog.data(), sizeof(captured_fog));
+    capture_uniform("alphaRef", XEMU_SHADER_DRAW_UNIFORM_INT, 1, 1,
+                    &captured_alpha, sizeof(captured_alpha));
+    capture_uniform("clipRegion[0]", XEMU_SHADER_DRAW_UNIFORM_INT, 4, 8,
+                    game_clip.data(), sizeof(game_clip));
+    packet->packet_kind = PreviewPacketKind::Replay;
+    packet->replay_class = PreviewReplayClass::Approximate;
+    packet->captured_mesh.positions = { { -1, -1, 0, 1 },
+                                        { 1, -1, 0, 1 },
+                                        { 0, 1, 0, 1 } };
+    packet->captured_mesh.indices = { 0, 1, 2 };
+    packet->captured_material = BuildPreviewCapturedMaterial(captured_inputs);
+    packet->material_digest =
+        ComputePreviewCapturedMaterialDigest(*packet->captured_material);
+    const auto material_pipeline_count =
+        executor.PipelineCreationCountForTest();
+    CHECK(executor.Render(work, stop, &pixels, &error));
+    CHECK(pixels[4 * (160 * 320 + 160)] == 64);
+    CHECK(pixels[4 * (160 * 320 + 160) + 1] == 153);
+    CHECK(pixels[4 * (160 * 320 + 160) + 3] == 192);
+    CHECK(error.find("Partial captured material") != std::string::npos);
+    CHECK(executor.PipelineCreationCountForTest() == material_pipeline_count);
+    source("#version 450\nlayout(binding=3) uniform sampler2D texSamp0;\n"
+           "layout(location=0) out vec4 color;\n"
+           "void main(){color=texture(texSamp0,vec2(0.5));}\n");
+    auto &actual_texture = captured_inputs.textures[0];
+    actual_texture.described = true;
+    actual_texture.metadata.bound = true;
+    actual_texture.metadata.width = 4;
+    actual_texture.metadata.height = 2;
+    actual_texture.metadata.depth = 1;
+    actual_texture.metadata.face_count = actual_texture.metadata.mip_levels = 1;
+    actual_texture.metadata.min_filter = actual_texture.metadata.mag_filter =
+        0x2600;
+    actual_texture.metadata.wrap_s = actual_texture.metadata.wrap_t =
+        actual_texture.metadata.wrap_r = 0x812f;
+    OwnedDrawImage captured_image{ 4, 2, std::vector<uint8_t>(4 * 2 * 4) };
+    for (size_t i = 0; i < captured_image.rgba.size(); i += 4) {
+        captured_image.rgba[i + 2] = captured_image.rgba[i + 3] = 255;
+    }
+    actual_texture.images.push_back({ 0, 0, std::move(captured_image) });
+    packet->captured_material = BuildPreviewCapturedMaterial(captured_inputs);
+    packet->material_digest =
+        ComputePreviewCapturedMaterialDigest(*packet->captured_material);
+    render();
+    CHECK(pixels[4 * (160 * 320 + 160) + 2] == 255);
+    actual_texture.images.clear();
+    packet->captured_material = BuildPreviewCapturedMaterial(captured_inputs);
+    packet->material_digest =
+        ComputePreviewCapturedMaterialDigest(*packet->captured_material);
+    CHECK(executor.Render(work, stop, &pixels, &error));
+    CHECK(pixels[4 * (160 * 320 + 160) + 2] == 0);
+    CHECK(error.find("missing texture") != std::string::npos);
+    source(
+        "#version 450\nlayout(binding=1,std140) uniform U {mat2 bumpMat[4];};\n"
+        "layout(location=0) out vec4 color;\n"
+        "void main(){color=vec4(bumpMat[0]*vec2(1),0,1);}\n");
+    std::array<float, 16> captured_matrices{};
+    for (size_t i = 0; i < 4; ++i) {
+        captured_matrices[4 * i] = 0.2f;
+        captured_matrices[4 * i + 1] = 0.3f;
+        captured_matrices[4 * i + 2] = 0.4f;
+        captured_matrices[4 * i + 3] = 0.5f;
+    }
+    capture_uniform("bumpMat[0]", XEMU_SHADER_DRAW_UNIFORM_MAT2, 4, 4,
+                    captured_matrices.data(), sizeof(captured_matrices));
+    packet->captured_material = BuildPreviewCapturedMaterial(captured_inputs);
+    packet->material_digest =
+        ComputePreviewCapturedMaterialDigest(*packet->captured_material);
+    render();
+    CHECK(pixels[4 * (160 * 320 + 160)] == 153);
+    CHECK(pixels[4 * (160 * 320 + 160) + 1] == 204);
+    source("#version 450\nlayout(binding=1,std140,row_major) uniform U {mat2 "
+           "bumpMat[4];};\n"
+           "layout(location=0) out vec4 color;\n"
+           "void main(){color=vec4(bumpMat[0]*vec2(1),0,1);}\n");
+    CHECK(!executor.Prepare(work, &error, &unsupported));
+    CHECK(unsupported);
+    packet->captured_material.reset();
+    packet->material_digest = {};
+    OwnedDrawInputs native_pipeline_inputs;
+    native_pipeline_inputs.complete = true;
+    native_pipeline_inputs.sources[1] =
+        "#version 450\nlayout(location=0) in vec4 position;\n"
+        "layout(push_constant) uniform P {vec4 inlineValue[1];};\n"
+        "layout(binding=0,std140) uniform V {vec4 cameraOffset;};\n"
+        "layout(location=0) out vec4 vertexColor;\n"
+        "void "
+        "main(){gl_Position=position+cameraOffset;vertexColor=inlineValue[0];}";
+    native_pipeline_inputs.sources[3] =
+        "#version 450\nlayout(triangles) "
+        "in;layout(triangle_strip,max_vertices=3) out;\n"
+        "layout(location=0) in vec4 vertexColor[];layout(location=0) out vec4 "
+        "geometryColor;\n"
+        "void main(){for(int "
+        "i=0;i<3;i++){gl_Position=gl_in[i].gl_Position;geometryColor="
+        "vertexColor[i];EmitVertex();}EndPrimitive();}";
+    native_pipeline_inputs.registers = { { "capture.vertices.first", 0 },
+                                         { "capture.vertices.count", 3 },
+                                         { "capture.vertices.uniform_mask", 2 },
+                                         { "capture.vertex.0.enabled", 1 } };
+    const std::array<float, 12> raw_positions{ -1, -1, 0, 1, 1, -1,
+                                               0,  1,  0, 1, 0, 1 };
+    auto native_blob = [&](const char *name, uint32_t slot, const void *data,
+                           size_t bytes, uint32_t count) {
+        OwnedDrawBlob blob;
+        blob.name = name;
+        blob.slot = slot;
+        blob.format = 109;
+        blob.components = 4;
+        blob.stride = 16;
+        blob.count = count;
+        const auto *begin = static_cast<const uint8_t *>(data);
+        blob.bytes.assign(begin, begin + bytes);
+        native_pipeline_inputs.blobs.push_back(std::move(blob));
+    };
+    native_blob("vertex.attribute0", 0, raw_positions.data(),
+                sizeof(raw_positions), 3);
+    const std::array<float, 4> current_color{ 0, 0.5f, 0, 1 }, camera_offset{},
+        pixel_fog{ 0.5f, 0, 0, 0 };
+    native_blob("vertex.current1", 1, current_color.data(),
+                sizeof(current_color), 1);
+    auto native_uniform = [&](uint32_t stage, const char *name,
+                              const std::array<float, 4> &value) {
+        const auto *begin = reinterpret_cast<const uint8_t *>(value.data());
+        native_pipeline_inputs.uniforms.push_back(
+            { stage, name, XEMU_SHADER_DRAW_UNIFORM_FLOAT, 4, 1,
+              std::vector<uint8_t>(begin, begin + sizeof(value)) });
+    };
+    native_uniform(1, "cameraOffset", camera_offset);
+    native_uniform(2, "fogColor", pixel_fog);
+    packet->captured_pipeline = BuildPreviewCapturedPipeline(
+        native_pipeline_inputs, PreviewBackend::Vulkan, 5, &error);
+    CHECK(packet->captured_pipeline);
+    packet->pipeline_digest =
+        ComputePreviewCapturedPipelineDigest(*packet->captured_pipeline);
+    packet->pipeline_layout_digest =
+        ComputePreviewCapturedPipelineDigest(*packet->captured_pipeline, true);
+    source(
+        "#version 450\nlayout(location=0) in vec4 "
+        "geometryColor;\nlayout(binding=1,std140) uniform F {vec4 fogColor;};\n"
+        "layout(location=0) out vec4 color;void "
+        "main(){color=geometryColor+fogColor;}");
+    packet->partner_source = native_pipeline_inputs.sources[1];
+    work.compile_key.pipeline_layout_digest = packet->pipeline_layout_digest;
+    auto check_native_camera_color = [&](const char *phase, size_t sample,
+                                         bool covered,
+                                         bool always_log = false) {
+        // This source emits (.5,.5,0,1). Only the fractional UNORM8 channels
+        // allow one conversion unit; zero/one endpoints remain exact.
+        const std::array<int, 4> expected =
+            covered ? std::array<int, 4>{ 128, 128, 0, 255 } :
+                      std::array<int, 4>{ 0, 0, 0, 255 };
+        bool exact = true, acceptable = true;
+        for (size_t channel = 0; channel < 4; ++channel) {
+            const int difference =
+                std::abs(int(pixels[sample + channel]) - expected[channel]);
+            exact &= difference == 0;
+            acceptable &= difference <= (covered && channel < 2 ? 1 : 0);
+        }
+        if (always_log || !exact) {
+            std::fprintf(
+                stderr,
+                "Vulkan original-camera color %s: pixel=%zu "
+                "RGBA=%u,%u,%u,%u expected=%d,%d,%d,%d "
+                "tolerance=%u,%u,0,0 acceptable=%u guest_mode=%u "
+                "host_topology=%u error=\"%s\"\n",
+                phase, sample / 4, unsigned(pixels[sample]),
+                unsigned(pixels[sample + 1]), unsigned(pixels[sample + 2]),
+                unsigned(pixels[sample + 3]), expected[0], expected[1],
+                expected[2], expected[3], unsigned(covered), unsigned(covered),
+                unsigned(acceptable),
+                packet->captured_pipeline->guest_primitive_mode,
+                packet->captured_pipeline->host_topology, error.c_str());
+            std::fflush(stderr);
+        }
+        CHECK(acceptable);
+    };
+    render();
+    check_native_camera_color("initial", 4 * (160 * 320 + 160), true, true);
+    CHECK(error.find("Original VS/GS camera") != std::string::npos);
+    const auto complete_native_pipeline = packet->captured_pipeline;
+    // Extent changes reuse the prepared program, including its framebuffer
+    // and transfer buffers. Captured replay has a larger bound than fixtures.
+    const auto before_wide = executor.PipelineCreationCountForTest();
+    packet->width = 1280;
+    packet->height = 480;
+    render();
+    CHECK(executor.PipelineCreationCountForTest() == before_wide);
+    check_native_camera_color("1280x480 reused program", 4 * (240 * 1280 + 640),
+                              true);
+    packet->width = kPreviewMaxCapturedWidth;
+    packet->height = kPreviewMaxCapturedHeight;
+    render();
+    CHECK(executor.PipelineCreationCountForTest() == before_wide);
+    check_native_camera_color(
+        "captured maximum extent",
+        4 * (size_t(packet->height / 2) * packet->width + packet->width / 2),
+        true);
+    packet->width = 1280;
+    packet->height = 480;
+    auto wide_pipeline =
+        std::make_shared<PreviewCapturedPipeline>(*complete_native_pipeline);
+    wide_pipeline->raster.available |= PreviewRasterViewport;
+    wide_pipeline->raster.width = packet->width;
+    wide_pipeline->raster.height = packet->height;
+    auto &wide_before = wide_pipeline->color_before;
+    wide_before.width = packet->width;
+    wide_before.height = packet->height;
+    wide_before.rgba.resize(size_t(packet->width) * packet->height * 4);
+    for (uint32_t y = 0; y < packet->height; ++y)
+        for (uint32_t x = 0; x < packet->width; ++x) {
+            const size_t offset = 4 * (size_t(y) * packet->width + x);
+            wide_before.rgba[offset] = x % 251;
+            wide_before.rgba[offset + 1] = 37;
+            wide_before.rgba[offset + 2] = 209;
+            wide_before.rgba[offset + 3] = 83;
+        }
+    CHECK(ValidatePreviewCapturedPipeline(*wide_pipeline, &error));
+    packet->captured_pipeline = wide_pipeline;
+    packet->pipeline_digest =
+        ComputePreviewCapturedPipelineDigest(*wide_pipeline);
+    packet->pipeline_layout_digest =
+        ComputePreviewCapturedPipelineDigest(*wide_pipeline, true);
+    work.compile_key.pipeline_layout_digest = packet->pipeline_layout_digest;
+    render();
+    check_native_camera_color("1280x480 owned destination",
+                              4 * (240 * 1280 + 640), true);
+    for (uint32_t x : { 0U, packet->width - 1 }) {
+        const size_t offset = 4 * x;
+        CHECK(std::memcmp(pixels.data() + offset,
+                          wide_before.rgba.data() + offset, 4) == 0);
+    }
+    for (const auto extent : { std::array<uint32_t, 2>{ 0, 480 },
+                               { kPreviewMaxCapturedWidth + 1, 480 },
+                               { 1280, kPreviewMaxCapturedHeight + 1 } }) {
+        packet->width = extent[0];
+        packet->height = extent[1];
+        PreviewVkExecutor invalid_extent;
+        CHECK(!invalid_extent.Prepare(work, &error, &unsupported));
+        CHECK(unsupported && error.find("extent") != std::string::npos);
+        CHECK(invalid_extent.PipelineCreationCountForTest() == 0);
+        CHECK(!executor.Prepare(work, &error, &unsupported));
+        CHECK(unsupported);
+        CHECK(!executor.Render(work, stop, &pixels, &error));
+    }
+    packet->width = packet->height = 320;
+    packet->captured_pipeline = complete_native_pipeline;
+    packet->pipeline_digest =
+        ComputePreviewCapturedPipelineDigest(*complete_native_pipeline);
+    packet->pipeline_layout_digest =
+        ComputePreviewCapturedPipelineDigest(*complete_native_pipeline, true);
+    work.compile_key.pipeline_layout_digest = packet->pipeline_layout_digest;
+    render();
+    std::puts("Vulkan captured 1280x480 owned replay, program reuse and extent "
+              "bounds PASS");
+    for (float outside_z : { -2.0f, 2.0f }) {
+        for (bool clamp : { false, true }) {
+            auto clipped_pipeline = std::make_shared<PreviewCapturedPipeline>(
+                *complete_native_pipeline);
+            auto positions = raw_positions;
+            for (size_t vertex = 0; vertex < 3; ++vertex)
+                positions[vertex * 4 + 2] = outside_z;
+            std::memcpy(clipped_pipeline->attributes[0].stream.bytes.data(),
+                        positions.data(), sizeof(positions));
+            clipped_pipeline->raster.available |= PreviewRasterDepthClamp;
+            clipped_pipeline->raster.depth_clamp = clamp;
+            packet->captured_pipeline = clipped_pipeline;
+            packet->pipeline_digest =
+                ComputePreviewCapturedPipelineDigest(*clipped_pipeline);
+            packet->pipeline_layout_digest =
+                ComputePreviewCapturedPipelineDigest(*clipped_pipeline, true);
+            work.compile_key.pipeline_layout_digest =
+                packet->pipeline_layout_digest;
+            render();
+            check_native_camera_color(outside_z < 0 ? "negative clip plane" :
+                                                      "positive clip plane",
+                                      4 * (160 * 320 + 160), clamp);
+            if (clamp) {
+                PreviewVkExecutor without_depth_clamp;
+                without_depth_clamp.DisableDepthClampForTest();
+                CHECK(!without_depth_clamp.Prepare(work, &error,
+                                                   &unsupported));
+                CHECK(unsupported &&
+                      error.find("requires Vulkan depthClamp support") !=
+                          std::string::npos);
+                clipped_pipeline->raster.depth_clamp = false;
+                packet->pipeline_digest =
+                    ComputePreviewCapturedPipelineDigest(*clipped_pipeline);
+                packet->pipeline_layout_digest =
+                    ComputePreviewCapturedPipelineDigest(*clipped_pipeline,
+                                                         true);
+                work.compile_key.pipeline_layout_digest =
+                    packet->pipeline_layout_digest;
+                CHECK(without_depth_clamp.Prepare(work, &error,
+                                                  &unsupported));
+                CHECK(!unsupported);
+            }
+        }
+    }
+    packet->captured_pipeline = complete_native_pipeline;
+    packet->pipeline_digest =
+        ComputePreviewCapturedPipelineDigest(*complete_native_pipeline);
+    packet->pipeline_layout_digest =
+        ComputePreviewCapturedPipelineDigest(*complete_native_pipeline, true);
+    work.compile_key.pipeline_layout_digest = packet->pipeline_layout_digest;
+    render();
+    std::puts("Vulkan captured depth clamp at both clip planes and unsupported "
+              "feature rejection PASS");
+    // Original camera replay keeps native strip/fan and quad adjacency
+    // assembly. Four indices are not a triangle-list count, and the quad GS
+    // must receive four raw vertices without diagnostic mesh conversion.
+    for (const auto mode_host : { std::array<uint32_t, 2>{ 6, 4 },
+                                  { 7, 5 },
+                                  { 8, 6 },
+                                  { 9, 7 },
+                                  { 10, 5 } }) {
+        auto topology_inputs = native_pipeline_inputs;
+        topology_inputs.registers[1].value = 4;
+        topology_inputs.registers.push_back({ "capture.vk.pipeline_abi", 1 });
+        std::array<float, 16> positions =
+            mode_host[0] == 6 || mode_host[0] == 9 ?
+                std::array<float, 16>{ -1, -1, 0, 1, 1, -1, 0, 1,
+                                       -1, 1,  0, 1, 1, 1,  0, 1 } :
+                std::array<float, 16>{ -1, -1, 0, 1, 1,  -1, 0, 1,
+                                       1,  1,  0, 1, -1, 1,  0, 1 };
+        auto &stream = topology_inputs.blobs[0];
+        stream.count = 4;
+        stream.bytes.resize(sizeof(positions));
+        std::memcpy(stream.bytes.data(), positions.data(), sizeof(positions));
+        std::array<uint32_t, 8> assembly{};
+        assembly[0] = 20; // Vk pipeline input assembly ABI1.
+        assembly[5] = mode_host[1];
+        OwnedDrawBlob assembly_blob;
+        assembly_blob.name = "vk.pipeline.assembly";
+        assembly_blob.bytes.resize(sizeof(assembly));
+        std::memcpy(assembly_blob.bytes.data(), assembly.data(),
+                    sizeof(assembly));
+        topology_inputs.blobs.push_back(assembly_blob);
+        const std::array<uint32_t, 4> indices{ 0, 1, 2, 3 };
+        OwnedDrawBlob index_blob;
+        index_blob.name = "vertex.indices";
+        index_blob.count = indices.size();
+        index_blob.bytes.resize(sizeof(indices));
+        std::memcpy(index_blob.bytes.data(), indices.data(), sizeof(indices));
+        topology_inputs.blobs.push_back(index_blob);
+        if (mode_host[0] == 8 || mode_host[0] == 9) {
+            topology_inputs.sources[3] =
+                "#version 450\nlayout(lines_adjacency) in;"
+                "layout(triangle_strip,max_vertices=6) out;\n"
+                "layout(location=0) in vec4 vertexColor[];"
+                "layout(location=0) out vec4 geometryColor;\n"
+                "void emit(int i){gl_Position=gl_in[i].gl_Position;"
+                "geometryColor=vertexColor[i];EmitVertex();}\n"
+                "void main(){" +
+                std::string(mode_host[0] == 8 ?
+                                "emit(1);emit(2);emit(0);EndPrimitive();"
+                                "emit(2);emit(3);emit(0);EndPrimitive();" :
+                                "emit(0);emit(1);emit(2);EndPrimitive();"
+                                "emit(2);emit(1);emit(3);EndPrimitive();") +
+                "}";
+        }
+        auto topology_pipeline = BuildPreviewCapturedPipeline(
+            topology_inputs, PreviewBackend::Vulkan, mode_host[0], &error);
+        CHECK(topology_pipeline && topology_pipeline->indices ==
+                                       std::vector<uint32_t>({ 0, 1, 2, 3 }));
+        packet->captured_pipeline = topology_pipeline;
+        packet->pipeline_digest =
+            ComputePreviewCapturedPipelineDigest(*topology_pipeline);
+        packet->pipeline_layout_digest =
+            ComputePreviewCapturedPipelineDigest(*topology_pipeline, true);
+        work.compile_key.pipeline_layout_digest =
+            packet->pipeline_layout_digest;
+        render();
+        check_native_camera_color("topology indexed", 4 * (100 * 320 + 240),
+                                  true);
+        const auto indexed_pixels = pixels;
+        topology_inputs.blobs.pop_back(); // Exact native array count4.
+        auto array_pipeline = BuildPreviewCapturedPipeline(
+            topology_inputs, PreviewBackend::Vulkan, mode_host[0], &error);
+        CHECK(array_pipeline && array_pipeline->indices.empty() &&
+              array_pipeline->ranges.size() == 1 &&
+              array_pipeline->ranges[0][0] == 0 &&
+              array_pipeline->ranges[0][1] == 4);
+        packet->captured_pipeline = array_pipeline;
+        packet->pipeline_digest =
+            ComputePreviewCapturedPipelineDigest(*array_pipeline);
+        packet->pipeline_layout_digest =
+            ComputePreviewCapturedPipelineDigest(*array_pipeline, true);
+        work.compile_key.pipeline_layout_digest =
+            packet->pipeline_layout_digest;
+        render();
+        CHECK(pixels == indexed_pixels);
+        if (mode_host[0] == 8) {
+            auto incompatible =
+                std::make_shared<PreviewCapturedPipeline>(*topology_pipeline);
+            incompatible->geometry_source = native_pipeline_inputs.sources[3];
+            packet->captured_pipeline = incompatible;
+            packet->pipeline_digest =
+                ComputePreviewCapturedPipelineDigest(*incompatible);
+            packet->pipeline_layout_digest =
+                ComputePreviewCapturedPipelineDigest(*incompatible, true);
+            work.compile_key.pipeline_layout_digest =
+                packet->pipeline_layout_digest;
+            CHECK(!executor.Prepare(work, &error, &unsupported));
+            CHECK(unsupported &&
+                  error.find("geometry input") != std::string::npos);
+        }
+    }
+    packet->captured_pipeline = complete_native_pipeline;
+    packet->pipeline_digest =
+        ComputePreviewCapturedPipelineDigest(*complete_native_pipeline);
+    packet->pipeline_layout_digest =
+        ComputePreviewCapturedPipelineDigest(*complete_native_pipeline, true);
+    work.compile_key.pipeline_layout_digest = packet->pipeline_layout_digest;
+    render();
+    std::puts("Vulkan original strip/fan/quad adjacency assembly and GS "
+              "compatibility PASS");
+    auto missing_native_uniform =
+        std::make_shared<PreviewCapturedPipeline>(*complete_native_pipeline);
+    missing_native_uniform->uniforms.pop_back();
+    packet->captured_pipeline = missing_native_uniform;
+    CHECK(!executor.Render(work, stop, &pixels, &error));
+    CHECK(error.find("uniform unavailable: fogColor") != std::string::npos);
+    packet->captured_pipeline = complete_native_pipeline;
+    packet->captured_material.reset();
+    packet->material_digest = {};
+    source("#version 450\nlayout(location=0) in vec4 geometryColor;\n"
+           "layout(binding=2) uniform sampler2D texSamp0;layout(location=0) "
+           "out vec4 color;\n"
+           "void main(){color=texture(texSamp0,vec2(.5)) + geometryColor;}");
+    packet->partner_source = native_pipeline_inputs.sources[1];
+    CHECK(!executor.Prepare(work, &error, &unsupported));
+    CHECK(unsupported &&
+          error.find("texture base image is unavailable: texSamp0") !=
+              std::string::npos);
+    packet->captured_pipeline.reset();
+    packet->pipeline_digest = {};
+    packet->pipeline_layout_digest = {};
+    work.compile_key.pipeline_layout_digest = {};
+    packet->captured_mesh = {};
+    packet->packet_kind = PreviewPacketKind::Synthetic;
+    packet->replay_class = PreviewReplayClass::Synthetic;
+    std::puts("Vulkan captured constants/base texture, zero missing input and "
+              "material edits PASS");
+    std::puts("Vulkan original VS/GS, separate UBOs, inline constants and "
+              "missing active-input rejection PASS");
     source("#version 450\nlayout(location=4,component=0) in float vtxFog;\n"
            "layout(location=0) out vec4 color;\n"
            "void main(){color=vec4(vtxFog,0,0,1);}\n");

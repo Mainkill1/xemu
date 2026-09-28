@@ -12,6 +12,7 @@ namespace xemu::shader_browser {
 
 class OverrideStore;
 class ReplacementLibrary;
+class SavedOverrideRules;
 
 struct DraftGameApplyRequest {
     ShaderKey key;
@@ -35,11 +36,42 @@ struct WorkbenchAppliedRule {
     ShaderKey key;
     ShaderScope scope;
     uint64_t replacement_id = 0;
+    uint64_t saved_rule_id = 0;
+    uint64_t revision = 0;
 };
 
+struct WorkbenchSavedReplacement {
+    DraftGameApplyRequest request;
+    std::string logical_id;
+    uint64_t replacement_id = 0;
+    uint64_t content_revision = 0;
+};
+
+bool EvaluateDraftSave(const DraftGameApplyRequest &request, const Entry &entry,
+                       std::string *reason);
 bool EvaluateDraftGameApply(const DraftGameApplyRequest &request,
                             const Entry &entry, const OverrideContext &context,
                             std::string *reason);
+bool SaveWorkbenchDraft(const DraftGameApplyRequest &request,
+                        const Entry &entry, OverrideStore *store,
+                        ReplacementLibrary *library,
+                        const std::filesystem::path &config_directory,
+                        WorkbenchSavedReplacement *saved, std::string *error);
+bool SaveWorkbenchDraftForSettingsPath(const DraftGameApplyRequest &request,
+                                       const Entry &entry, OverrideStore *store,
+                                       ReplacementLibrary *library,
+                                       const char *settings_path,
+                                       WorkbenchSavedReplacement *saved,
+                                       std::string *error);
+bool EnableWorkbenchReplacement(const WorkbenchSavedReplacement &saved,
+                                const Entry &entry, OverrideStore *store,
+                                SavedOverrideRules *saved_rules, bool persist,
+                                WorkbenchAppliedRule *applied,
+                                std::string *error);
+bool DisableWorkbenchReplacement(const WorkbenchAppliedRule &applied,
+                                 OverrideStore *store,
+                                 SavedOverrideRules *saved_rules,
+                                 std::string *error);
 bool ApplyWorkbenchDraft(const DraftGameApplyRequest &request,
                          const Entry &entry, OverrideStore *store,
                          ReplacementLibrary *library,

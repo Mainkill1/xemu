@@ -1,0 +1,9 @@
+struct CapturePixelInput {
+    float4 tint : COLOR0;
+    float2 uv : TEXCOORD0;
+};
+float4 main(CapturePixelInput input, uniform sampler2D tile_texture,
+            uniform float4 tile_factor) : COLOR
+{
+    return tex2D(tile_texture, input.uv) * input.tint * tile_factor;
+}

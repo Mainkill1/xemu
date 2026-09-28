@@ -142,8 +142,46 @@ void PreviewService::CopyStatus(PreviewStatus *status) const
     if (has_displayed_source_) {
         status->displayed_result = displayed_result_;
         status->displayed_compile = displayed_result_.compile;
+        status->material_fidelity = slots_[displayed_slot_].material_fidelity;
+        status->draw_timing = slots_[displayed_slot_].draw_timing;
     }
     status->message = message_;
+}
+
+bool PreviewService::CopyDrawTiming(const PreviewResultKey &expected,
+                                    PreviewDrawTiming *out) const
+{
+    if (!out)
+        return false;
+    std::lock_guard<std::mutex> lock(mutex_);
+    for (const auto &slot : slots_)
+        if ((slot.state == PreviewSlotState::Ready ||
+             slot.state == PreviewSlotState::DisplayLeased) &&
+            slot.result_key == expected) {
+            *out = slot.draw_timing;
+            return true;
+        }
+    return false;
+}
+bool PreviewService::CompleteDrawTiming(const PreviewWorkItem &work,
+                                        const PreviewDrawTiming &timing)
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (work.slot >= slots_.size() || work.kind != PreviewWorkKind::Render ||
+        !ValidatePreviewDrawTiming(timing, work.result_key) ||
+        timing.status == PreviewDrawTimingStatus::Pending ||
+        !IsCurrentRequestLocked(work.request_id, &work.result_key))
+        return false;
+    auto &slot = slots_[work.slot];
+    if (slot.generation != work.slot_generation ||
+        slot.render_token != work.token || slot.result_key != work.result_key ||
+        (slot.state != PreviewSlotState::Ready &&
+         slot.state != PreviewSlotState::DisplayLeased) ||
+        slot.draw_timing.status != PreviewDrawTimingStatus::Pending)
+        return false;
+    slot.draw_timing = timing;
+    ++generation_;
+    return true;
 }
 
 void PreviewService::ResetLocked()

@@ -11,11 +11,14 @@ static bool SameInteractionInputs(const PreviewResultKey &lhs,
            lhs.compile == rhs.compile &&
            lhs.input_revision == rhs.input_revision &&
            lhs.view_revision == rhs.view_revision && lhs.scene == rhs.scene &&
-           lhs.render_state == rhs.render_state &&
-           lhs.width == rhs.width && lhs.height == rhs.height &&
-           lhs.packet_kind == rhs.packet_kind &&
+           lhs.render_state == rhs.render_state && lhs.width == rhs.width &&
+           lhs.height == rhs.height && lhs.packet_kind == rhs.packet_kind &&
            lhs.replay_class == rhs.replay_class &&
-           lhs.fixture_digest == rhs.fixture_digest;
+           lhs.fixture_digest == rhs.fixture_digest &&
+           lhs.mesh_digest == rhs.mesh_digest &&
+           lhs.material_digest == rhs.material_digest &&
+           lhs.pipeline_digest == rhs.pipeline_digest &&
+           lhs.profile_draw == rhs.profile_draw;
 }
 
 void PreviewService::ApplyPressureRecoveryLocked(uint64_t now_ns)
@@ -42,13 +45,10 @@ uint64_t PreviewService::IntervalForPressureLocked() const
 
 uint32_t PreviewService::UpdateHzLocked() const
 {
-    switch (effective_pressure_) {
-    case PreviewPressure::Normal: return 15;
-    case PreviewPressure::Elevated: return 8;
-    case PreviewPressure::High: return 4;
-    case PreviewPressure::Critical: return 0;
-    }
-    return 0;
+    const uint64_t interval = IntervalForPressureLocked();
+    return interval ?
+               uint32_t((UINT64_C(1000000000) + interval / 2) / interval) :
+               0;
 }
 
 bool PreviewService::IsPreparedLocked() const
@@ -130,7 +130,13 @@ bool PreviewService::TryClaimWork(uint64_t now_ns, PreviewWorkItem *work,
     // Resume from a fresh anchor after visibility, health, or guest-running
     // admission freezes. A paused private test keeps wall-clock animation
     // through transient output-slot pressure without queuing missed frames.
-    if (clock_suspended_) clock_.Suspend(now_ns);
+    if (clock_suspended_) {
+        clock_.Suspend(now_ns);
+        if (last_render_start_ns_ && !guest_paused_ && !offline_no_guest_ &&
+            pending_.packet &&
+            pending_.packet->update_policy == PreviewUpdatePolicy::Continuous)
+            last_render_start_ns_ = now_ns;
+    }
     clock_suspended_ = true;
     if (!enabled_) {
         SetStateLocked(PreviewState::Disabled, "Preview is disabled");
@@ -292,12 +298,21 @@ bool PreviewService::TryClaimWork(uint64_t now_ns, PreviewWorkItem *work,
     active_work_.slot = static_cast<uint32_t>(slot_index);
     active_work_.slot_generation = slot.generation;
     active_ = true;
-    last_render_start_ns_ = now_ns;
+    if (!last_render_start_ns_ || !interval || now_ns < last_render_start_ns_ ||
+        !last_attempt_valid_ ||
+        !SameInteractionInputs(last_attempt_result_key_, result_key)) {
+        last_render_start_ns_ = now_ns;
+    } else {
+        // Skip missed deadlines while keeping the cadence's scheduled phase.
+        // The worker admits one newest result and never queues missed frames.
+        last_render_start_ns_ +=
+            ((now_ns - last_render_start_ns_) / interval) * interval;
+    }
     last_attempt_valid_ = true;
     last_attempt_result_key_ = result_key;
     *work = active_work_;
     SetStateLocked(PreviewState::Rendering,
-                   "Rendering a private bounded preview update");
+                   "Rendering a bounded preview update");
     return true;
 }
 
@@ -364,8 +379,8 @@ bool PreviewService::PreparationStillAllowed(uint64_t token) const
 }
 
 bool PreviewService::CompleteRender(uint64_t token, bool success,
-                                    const std::string &status,
-                                    uint64_t now_ns)
+                                    const std::string &status, uint64_t now_ns,
+                                    const PreviewDrawTiming *draw_timing)
 {
     std::lock_guard<std::mutex> lock(mutex_);
     ExpireVisibilityLocked(now_ns);
@@ -384,8 +399,33 @@ bool PreviewService::CompleteRender(uint64_t token, bool success,
     bool current = IsCurrentRequestLocked(active_work_.request_id,
                                           &active_work_.result_key);
     if (success && current) {
+        slot.render_token = active_work_.token;
+        slot.draw_timing = {};
+        slot.draw_timing.result = active_work_.result_key;
+        slot.draw_timing.backend = active_work_.packet->selection.backend;
+        if (active_work_.packet->profile_draw) {
+            slot.draw_timing.provenance =
+                active_work_.packet->packet_kind == PreviewPacketKind::Replay ?
+                    PreviewDrawTimingProvenance::ReplayInstrumented :
+                    PreviewDrawTimingProvenance::SelectedPreviewInstrumented;
+            slot.draw_timing.status = PreviewDrawTimingStatus::Pending;
+            if (draw_timing && ValidatePreviewDrawTiming(
+                                   *draw_timing, active_work_.result_key))
+                slot.draw_timing = *draw_timing;
+        }
         slot.ready_sequence = next_ready_sequence_++;
         slot.state = PreviewSlotState::Ready;
+        slot.material_fidelity =
+            active_work_.packet->captured_material ||
+                    active_work_.packet->captured_pipeline ?
+                (status.empty() ?
+                     (active_work_.packet->captured_material ?
+                          DescribePreviewCapturedMaterial(
+                              *active_work_.packet->captured_material) :
+                          "Original VS/GS camera; material, raster and "
+                          "destination substituted") :
+                     status) :
+                std::string{};
         last_result_valid_ = true;
         last_result_key_ = active_work_.result_key;
         SetStateLocked(PreviewState::Ready,

@@ -8,6 +8,35 @@
 
 #include <string.h>
 
+PGRAPHShaderBrowserSampleDecision
+pgraph_shader_browser_choose_sample(PGRAPHShaderBrowserSampler *sampler,
+                                    uint64_t frame, bool gpu_supported)
+{
+    PGRAPHShaderBrowserSampleDecision decision = { 0 };
+    if (!sampler)
+        return decision;
+    XemuShaderBrowserProfilingConfig config;
+    xemu_shader_browser_copy_profiling_config(&config);
+    if (config.monitoring_level != XEMU_SHADER_BROWSER_MONITOR_DIAGNOSTIC ||
+        (!config.cpu_timing && !config.gpu_timing))
+        return decision;
+    if (sampler->frame != frame) {
+        sampler->frame = frame;
+        sampler->gpu_samples_this_frame = 0;
+    }
+    uint32_t interval =
+        config.draw_sample_interval ? config.draw_sample_interval : 1;
+    if (++sampler->eligible_draws % interval)
+        return decision;
+    decision.cpu = config.cpu_timing;
+    if (config.gpu_timing && gpu_supported &&
+        sampler->gpu_samples_this_frame < config.max_gpu_samples_per_frame) {
+        decision.gpu = true;
+        ++sampler->gpu_samples_this_frame;
+    }
+    return decision;
+}
+
 static void publish_batch(PGRAPHShaderBrowserObservations *batch)
 {
     if (!batch->used) {
@@ -31,39 +60,83 @@ static uint32_t identity_bucket(const PGRAPHShaderBrowserIdentity *identity,
     return hash & (PGRAPH_SHADER_BROWSER_OBSERVATION_INDEX_SLOTS - 1);
 }
 
-static void add_duration(XemuShaderBrowserDurationStats *stats, uint64_t ns)
-{
-    if (!ns) {
-        return;
-    }
-    if (!stats->sample_count || ns < stats->min_ns) {
-        stats->min_ns = ns;
-    }
-    if (ns > stats->max_ns) {
-        stats->max_ns = ns;
-    }
-    ++stats->sample_count;
-    stats->total_ns += ns;
-}
-
 uint64_t
 pgraph_shader_browser_capture_claim(PGRAPHState *pg,
                                     const PGRAPHShaderBrowserBinding *binding)
 {
-    if (!binding || !binding->count ||
-        binding->count > ARRAY_SIZE(binding->identities) ||
-        !xemu_shader_draw_request_is_armed())
+    if (!xemu_shader_draw_request_is_armed())
         return 0;
-    XemuShaderDrawIdentity identities[ARRAY_SIZE(binding->identities)] = {0};
-    for (uint32_t i = 0; i < binding->count; ++i) {
+    bool valid_binding = binding && binding->count &&
+                         binding->count <= ARRAY_SIZE(binding->identities);
+    if (!valid_binding && !xemu_shader_capture_session_active())
+        return 0;
+    XemuShaderDrawIdentity identities[3] = { 0 };
+    for (uint32_t i = 0; valid_binding && i < binding->count; ++i) {
         memcpy(identities[i].identity_hash, binding->identities[i].hash,
                sizeof(identities[i].identity_hash));
         identities[i].stage = binding->identities[i].stage;
     }
-    return xemu_shader_draw_request_claim(
-        binding->scope_generation, nv2a_profile_preview_renderer_epoch(),
-        identities, binding->count, pg->frame_time, pg->draw_time,
-        pg->shader_browser_submission + 1);
+    uint64_t token =
+        valid_binding ?
+            xemu_shader_draw_request_claim(
+                binding->scope_generation,
+                nv2a_profile_preview_renderer_epoch(), identities,
+                binding->count, pg->frame_time, pg->draw_time,
+                pg->shader_browser_submission + 1) :
+            xemu_shader_capture_session_begin_event(
+                XEMU_SHADER_CAPTURE_DRAW, pg->frame_time, pg->draw_time, 0,
+                xemu_shader_browser_scope_generation(),
+                nv2a_profile_preview_renderer_epoch());
+    if (token && xemu_shader_draw_request_wants_inputs(token)) {
+        const struct {
+            const char *name;
+            const void *data;
+            size_t size;
+        } banks[] = {
+            { "pgraph.registers", pg->regs_, sizeof(pg->regs_) },
+            { "pgraph.vertex_program", pg->program_data,
+              sizeof(pg->program_data) },
+            { "pgraph.vertex_constants", pg->vsh_constants,
+              sizeof(pg->vsh_constants) },
+            { "pgraph.lighting_a", pg->ltctxa, sizeof(pg->ltctxa) },
+            { "pgraph.lighting_b", pg->ltctxb, sizeof(pg->ltctxb) },
+            { "pgraph.lighting_c", pg->ltc1, sizeof(pg->ltc1) },
+        };
+        for (size_t i = 0; i < ARRAY_SIZE(banks); ++i) {
+            XemuShaderDrawBlob blob = { .name = banks[i].name,
+                                        .data = banks[i].data,
+                                        .byte_count = banks[i].size };
+            xemu_shader_draw_request_stage_blob(token, &blob);
+        }
+        xemu_shader_draw_request_stage_register(token, "capture.generator_abi",
+                                                1);
+        xemu_shader_draw_request_stage_register(token, "capture.interface_abi",
+                                                1);
+    }
+    return token;
+}
+
+void pgraph_shader_browser_capture_recipes(
+    uint64_t token, const ShaderState *state,
+    const PGRAPHShaderBrowserBinding *binding)
+{
+    if (!token || !state || !binding ||
+        !xemu_shader_draw_request_wants_inputs(token))
+        return;
+    for (uint32_t i = 0; i < binding->count; ++i) {
+        uint8_t bytes[PGRAPH_SHADER_BROWSER_RECIPE_MAX];
+        size_t size = 0;
+        uint32_t stage = binding->identities[i].stage;
+        if (!pgraph_shader_browser_encode_recipe(state, stage, bytes,
+                                                 sizeof(bytes), &size))
+            continue;
+        char name[64];
+        snprintf(name, sizeof(name), "recipe.stage%u", stage);
+        XemuShaderDrawBlob blob = { .name = name,
+                                    .data = bytes,
+                                    .byte_count = size };
+        xemu_shader_draw_request_stage_blob(token, &blob);
+    }
 }
 
 void pgraph_shader_browser_capture_finish(PGRAPHState *pg, uint64_t token,
@@ -93,7 +166,8 @@ void pgraph_shader_browser_record_draw(PGRAPHShaderBrowserObservations *batch,
                                        PGRAPHShaderBrowserBinding *binding,
                                        uint64_t frame, uint32_t pixel_route)
 {
-    if (!batch || !binding || !binding->count) {
+    if (!batch || !binding || !binding->count ||
+        !xemu_shader_browser_monitoring_enabled()) {
         return;
     }
     /* A title transition must not put the old title's draws in the new
@@ -161,12 +235,6 @@ void pgraph_shader_browser_record_draw(PGRAPHShaderBrowserObservations *batch,
             ++observation->uber_draw_delta;
         } else {
             ++observation->specialized_draw_delta;
-        }
-        if (binding->timings_pending &&
-            identity->stage == XEMU_SHADER_BROWSER_STAGE_PIXEL) {
-            add_duration(&observation->compile_cpu, binding->compile_cpu_ns);
-            add_duration(&observation->prepare_cpu, binding->prepare_cpu_ns);
-            binding->timings_pending = false;
         }
     }
 }

@@ -5,6 +5,15 @@
 
 namespace xemu::shader_browser {
 
+bool WorkbenchDraft::MatchesSource(const GeneratedSourceSnapshot &source) const
+{
+    return id_ && base_.key == source.key && base_.scope == source.scope &&
+           base_.backend == source.backend && base_.route == source.route &&
+           base_.stage == source.stage && base_.digest == source.digest &&
+           base_.generator_abi == source.generator_abi &&
+           base_.interface_abi == source.interface_abi;
+}
+
 bool WorkbenchDraft::Create(const GeneratedSourceSnapshot &base, uint64_t id,
                             std::string *error)
 {

@@ -12,6 +12,17 @@
 #include "hw/xbox/nv2a/pgraph/thirdparty/gloffscreen/gloffscreen.h"
 #include "hw/xbox/nv2a/pgraph/gl/texture-stage.h"
 
+/* This host GL lifecycle test has no recorder/UI. Resource-model behavior is
+ * covered by test-xemu-shader-browser-capture-session-resources. */
+void xemu_shader_capture_session_resource_release(
+    uint64_t owner, uint64_t byte_size, uint32_t kind, uint32_t flags)
+{
+    (void)owner;
+    (void)byte_size;
+    (void)kind;
+    (void)flags;
+}
+
 #define CHECK(condition) do { \
     if (!(condition)) { \
         fprintf(stderr, "line %d: %s failed (%s)\n", \

@@ -43,6 +43,7 @@ tests = {
     xbox_i386_target_headers,
   ],
   'test-xbox-shader-browser-observation': [
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/shader-browser-recipe.c',
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/shader-browser-observation.c',
     xbox_i386_target_headers,
   ],
@@ -98,6 +99,10 @@ tests = {
     ),
   ],
   'test-xbox-vk-pipeline-lifetime': [],
+  'test-xbox-vk-shader-timing': [
+    meson.project_source_root() / 'util/fast-hash.c',
+    xxhash,
+  ],
   'test-xbox-vk-pipeline-cache-data': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/pipeline-cache-data.c',
   ],
@@ -242,6 +247,17 @@ if vulkan.found()
         include_directories: include_directories('../../target/i386'),
       )
       tests += {
+        'test-xbox-vk-override-interface': [
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/common.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/psh.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/psh-uber.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/glsl.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/device-inventory.c',
+          meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/spirv-prewarm.c',
+          nv2a_vk_runtime_prod,
+          xbox_i386_target_headers, volk, libglslang, vma, vulkan,
+          spirv_reflect,
+        ],
         'test-xbox-vk-hybrid-wake': [
           meson.project_source_root() / 'hw/xbox/nv2a/pfifo.c',
           meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-wake.c',

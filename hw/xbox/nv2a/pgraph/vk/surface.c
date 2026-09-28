@@ -33,6 +33,7 @@
 #include "failure-state.h"
 #include "renderer.h"
 #include "surface-coherence.h"
+#include "hw/xbox/nv2a/pgraph/shader-browser-resource.h"
 
 const int num_invalid_surfaces_to_keep = 10;  // FIXME: Make automatic
 const int max_surface_frame_time_delta = 5;
@@ -1118,6 +1119,12 @@ static void create_surface_image(PGRAPHState *pg, SurfaceBinding *surface)
     VK_CHECK(vmaCreateImage(r->allocator, &image_create_info,
                             &alloc_create_info, &surface->image,
                             &surface->allocation, NULL));
+    VmaAllocationInfo capture_allocation_info;
+    vmaGetAllocationInfo(r->allocator, surface->allocation,
+                         &capture_allocation_info);
+    surface->capture_owner = xemu_shader_capture_resource_new_owner();
+    surface->capture_bytes = capture_allocation_info.size;
+    surface->capture_pg = pg;
 
     VK_CHECK(vmaCreateImage(r->allocator, &image_create_info,
                             &alloc_create_info, &surface->image_scratch,
@@ -1155,6 +1162,11 @@ static void create_surface_image(PGRAPHState *pg, SurfaceBinding *surface)
 
 static void migrate_surface_image(SurfaceBinding *dst, SurfaceBinding *src)
 {
+    dst->capture_owner = src->capture_owner;
+    dst->capture_bytes = src->capture_bytes;
+    dst->capture_pg = src->capture_pg;
+    src->capture_owner = src->capture_bytes = 0;
+    src->capture_pg = NULL;
     dst->image = src->image;
     dst->image_view = src->image_view;
     dst->allocation = src->allocation;
@@ -1172,6 +1184,15 @@ static void migrate_surface_image(SurfaceBinding *dst, SurfaceBinding *src)
 
 static void destroy_surface_image(PGRAPHVkState *r, SurfaceBinding *surface)
 {
+    if (surface->capture_owner && surface->capture_pg)
+        pgraph_shader_resource_release(surface->capture_pg,
+                                        surface->capture_owner,
+                                        surface->capture_bytes,
+                                        surface->color ? XEMU_SHADER_CAPTURE_RESOURCE_COLOR :
+                                                         XEMU_SHADER_CAPTURE_RESOURCE_DEPTH_STENCIL,
+                                        false);
+    surface->capture_owner = surface->capture_bytes = 0;
+    surface->capture_pg = NULL;
     vkDestroyImageView(r->device, surface->image_view, NULL);
     surface->image_view = VK_NULL_HANDLE;
 
@@ -1374,6 +1395,9 @@ bool pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
     memcpy_image(mapped_memory_ptr, gl_read_buf,
                  surface->width * surface->fmt.bytes_per_pixel, surface->pitch,
                  surface->height);
+    pgraph_vk_capture_buffer_upload(pg, BUFFER_STAGING_SRC, 0,
+                                    uploaded_image_size, mapped_memory_ptr,
+                                    true);
 
     VkResult flush_result = vmaFlushAllocation(
         r->allocator, copy_buffer->allocation, 0, VK_WHOLE_SIZE);
@@ -1620,6 +1644,15 @@ bool pgraph_vk_upload_surface_data(NV2AState *d, SurfaceBinding *surface,
         }
     }
 
+    pgraph_vk_capture_resource_write(
+        pg, cmd, XEMU_SHADER_CAPTURE_UPLOAD, surface->capture_owner,
+        surface->capture_bytes,
+        surface->color ? XEMU_SHADER_CAPTURE_RESOURCE_COLOR :
+                         XEMU_SHADER_CAPTURE_RESOURCE_DEPTH_STENCIL,
+        false, copy_buffer->capture_owner, copy_buffer->buffer_size,
+        XEMU_SHADER_CAPTURE_RESOURCE_BUFFER, false, 0,
+        use_compute_to_convert_depth_stencil_format ?
+            copy_buffer->buffer_size : uploaded_image_size);
     pgraph_vk_transition_image_layout(
         pg, cmd, surface->image, surface->host_fmt.vk_format,
         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,

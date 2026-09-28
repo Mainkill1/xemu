@@ -37,6 +37,11 @@ uint8_t *s3tc_decompress_3d(enum S3TC_DECOMPRESS_FORMAT color_format,
                             const uint8_t *data, unsigned int width,
                             unsigned int height, unsigned int depth);
 
+/* The caller provides width * height * 4 bytes, tightly packed RGBA8. */
+void s3tc_decompress_2d_into(enum S3TC_DECOMPRESS_FORMAT color_format,
+                           const uint8_t *data, unsigned int width,
+                           unsigned int height, uint8_t *rgba);
+
 uint8_t *s3tc_decompress_2d(enum S3TC_DECOMPRESS_FORMAT color_format,
                             const uint8_t *data, unsigned int width,
                             unsigned int height);

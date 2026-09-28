@@ -41,6 +41,14 @@ public:
     bool FreezeDisplayed();
     void ClearFrozen();
     void AfterHudRender();
+    // Explicit asynchronous comparison readback on the producing worker.
+    // Returns false without an error while owned pixels or terminal timing
+    // are pending. The exact result is retained through consumer retirement;
+    // returned rows are canonical top-down and require no HUD GL readback.
+    bool CopyReadyImage(const PreviewResultKey &expected, uint32_t *width,
+                        uint32_t *height, std::vector<uint8_t> *rgba,
+                        std::string *error,
+                        PreviewDrawTiming *draw_timing = nullptr);
     // Terminal context loss may skip GL deletion and leave objects to SDL
     // teardown.
     void Shutdown(bool have_shared_context = true);

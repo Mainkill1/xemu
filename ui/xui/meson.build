@@ -7,11 +7,18 @@ xemu_ss.add(files(
   'shader-browser-usage-export.cc',
   'shader-browser-glsl-export.cc',
   'shader-browser-workbench-apply.cc',
+  'shader-browser-capture-export.cc',
+  'shader-browser-capture-session.cc',
+  'shader-browser-capture-resources.cc',
+  'shader-browser-capture-comparison.cc',
+  'shader-browser-capture-replay.cc',
+  'shader-browser-capture-inspection.cc',
   'shader-browser-workbench-bundle.cc',
   'shader-browser-details-model.cc',
   'shader-browser-details-store.cc',
   'shader-browser-details-bridge.cc',
   'shader-browser-recipe-inspector.cc',
+  'shader-browser-source-summary.cc',
   'shader-browser-overrides.cc',
   'shader-browser-override-store.cc',
   'shader-browser-override-lifecycle.cc',
@@ -103,9 +110,9 @@ shader_browser_workbench_apply_test = executable(
         'shader-browser-preview-scene.cc', 'shader-browser-preview-model.cc',
         'shader-browser-overrides.cc', 'shader-browser-override-store.cc',
         'shader-browser-replacement-library.cc',
-        'shader-browser-workbench-apply.cc'),
+        'shader-browser-workbench-apply.cc', 'shader-browser-saved-rules.cc'),
   include_directories: shader_browser_test_inc,
-  dependencies: [shader_browser_threads, xxhash])
+  dependencies: [shader_browser_threads, xxhash, sqlite3, json])
 test('test-xemu-shader-browser-workbench-apply',
      shader_browser_workbench_apply_test, suite: ['unit'])
 
@@ -237,6 +244,14 @@ shader_browser_recipe_inspector_test = executable(
   dependencies: [xxhash, json])
 test('test-xemu-shader-browser-recipe-inspector',
      shader_browser_recipe_inspector_test, suite: ['unit'])
+
+shader_browser_source_summary_test = executable(
+  'test-xemu-shader-browser-source-summary',
+  shader_browser_test_dir / 'test-xemu-shader-browser-source-summary.cc',
+  files('shader-browser-source-summary.cc'),
+  include_directories: shader_browser_test_inc)
+test('test-xemu-shader-browser-source-summary',
+     shader_browser_source_summary_test, suite: ['unit'])
 
 shader_browser_database_test = executable(
   'test-xemu-shader-browser-database',
@@ -420,7 +435,10 @@ shader_browser_preview_lifecycle_test = executable(
         'shader-browser-preview-model.cc', 'shader-browser-model.cc',
         'shader-browser-preview-clock.cc', 'shader-browser-preview-service.cc',
         'shader-browser-preview-service-work.cc', 'shader-browser-preview-service-slots.cc',
-        'shader-browser-draw-request.cc', 'shader-browser-draw-capture.cc'),
+        'shader-browser-draw-request.cc', 'shader-browser-capture-session.cc',
+        'shader-browser-capture-resources.cc',
+        'shader-browser-capture-comparison.cc', 'shader-browser-capture-replay.cc',
+        'shader-browser-draw-capture.cc'),
   include_directories: shader_browser_test_inc,
   dependencies: shader_browser_preview_lifecycle_deps)
 
@@ -428,7 +446,8 @@ shader_browser_preview_lifecycle_test = executable(
 # Renderer-independent capture analysis and one-shot live draw request.
 shader_browser_capture_sources = files(
   'shader-browser-draw-capture.cc',
-  'shader-browser-draw-request.cc',
+  'shader-browser-draw-request.cc', 'shader-browser-capture-session.cc',
+  'shader-browser-capture-resources.cc',
   'shader-browser-draw-segmentation.cc',
   'shader-browser-object-relationship.cc',
   'shader-browser-object-grouping.cc',
@@ -438,9 +457,10 @@ xemu_ss.add(shader_browser_capture_sources)
 shader_browser_capture_test = executable(
   'test-xemu-shader-browser-draw-capture',
   shader_browser_test_dir / 'test-xemu-shader-browser-draw-capture.cc',
+  files('shader-browser-model.cc'),
   shader_browser_capture_sources,
   include_directories: shader_browser_test_inc,
-  dependencies: shader_browser_threads)
+  dependencies: [shader_browser_threads, xxhash, json])
 test('test-xemu-shader-browser-draw-capture', shader_browser_capture_test,
      suite: ['unit'])
 
@@ -450,4 +470,155 @@ shader_browser_selection_ui_test = executable(
   include_directories: shader_browser_test_inc,
   dependencies: [imgui])
 test('test-xemu-shader-browser-selection-ui', shader_browser_selection_ui_test,
+     suite: ['unit'])
+
+shader_browser_capture_export_test = executable(
+  'test-xemu-shader-browser-capture-export',
+  shader_browser_test_dir / 'test-xemu-shader-browser-capture-export.cc',
+  files('shader-browser-capture-export.cc'),
+  include_directories: shader_browser_test_inc,
+  dependencies: [json, fpng])
+test('test-xemu-shader-browser-capture-export', shader_browser_capture_export_test,
+     suite: ['unit'])
+
+shader_browser_capture_file_control_test = executable(
+  'test-xemu-shader-browser-capture-file-control',
+  shader_browser_test_dir / 'test-xemu-shader-browser-capture-file-control.cc',
+  include_directories: shader_browser_test_inc,
+  dependencies: [shader_browser_threads])
+test('test-xemu-shader-browser-capture-file-control',
+     shader_browser_capture_file_control_test, suite: ['unit'])
+
+shader_browser_capture_session_test = executable(
+  'test-xemu-shader-browser-capture-session',
+  shader_browser_test_dir / 'test-xemu-shader-browser-capture-session.cc',
+  files('shader-browser-capture-session.cc', 'shader-browser-draw-capture.cc',
+        'shader-browser-capture-resources.cc',
+        'shader-browser-model.cc'),
+  include_directories: shader_browser_test_inc,
+  dependencies: [shader_browser_threads, xxhash, json])
+test('test-xemu-shader-browser-capture-session', shader_browser_capture_session_test,
+     suite: ['unit'])
+
+shader_browser_capture_comparison_test = executable(
+  'test-xemu-shader-browser-capture-comparison',
+  shader_browser_test_dir / 'test-xemu-shader-browser-capture-comparison.cc',
+  files('shader-browser-capture-comparison.cc', 'shader-browser-capture-replay.cc',
+        'shader-browser-capture-session.cc',
+        'shader-browser-capture-resources.cc',
+        'shader-browser-draw-capture.cc', 'shader-browser-model.cc',
+        'shader-browser-preview-model.cc', 'shader-browser-preview-adapter.cc',
+        'shader-browser-preview-scene.cc', 'shader-browser-preview-fixture.cc',
+        'shader-browser-recipe-inspector.cc', 'shader-browser-details-model.cc'),
+  include_directories: shader_browser_test_inc,
+  dependencies: [shader_browser_threads, xxhash, json])
+test('test-xemu-shader-browser-capture-comparison', shader_browser_capture_comparison_test,
+     suite: ['unit'])
+
+shader_browser_capture_replay_test = executable(
+  'test-xemu-shader-browser-capture-replay',
+  shader_browser_test_dir / 'test-xemu-shader-browser-capture-replay.cc',
+  files('shader-browser-capture-replay.cc', 'shader-browser-capture-session.cc',
+        'shader-browser-capture-resources.cc', 'shader-browser-draw-capture.cc',
+        'shader-browser-model.cc', 'shader-browser-preview-model.cc',
+        'shader-browser-preview-adapter.cc', 'shader-browser-preview-scene.cc',
+        'shader-browser-preview-fixture.cc', 'shader-browser-recipe-inspector.cc'),
+  include_directories: shader_browser_test_inc,
+  dependencies: [shader_browser_threads, xxhash, json])
+test('test-xemu-shader-browser-capture-replay', shader_browser_capture_replay_test,
+     suite: ['unit'])
+
+shader_browser_capture_inspection_test = executable(
+  'test-xemu-shader-browser-capture-inspection',
+  shader_browser_test_dir / 'test-xemu-shader-browser-capture-inspection.cc',
+  files('shader-browser-capture-inspection.cc', 'shader-browser-draw-capture.cc',
+        'shader-browser-model.cc'),
+  include_directories: shader_browser_test_inc,
+  dependencies: [shader_browser_threads, xxhash, json])
+test('test-xemu-shader-browser-capture-inspection', shader_browser_capture_inspection_test,
+     suite: ['unit'])
+
+shader_browser_capture_inspection_ui_test = executable(
+  'test-xemu-shader-browser-capture-inspection-ui',
+  shader_browser_test_dir / 'test-xemu-shader-browser-capture-inspection-ui.cc',
+  files('shader-browser-capture-inspection.cc', 'shader-browser-draw-capture.cc',
+        'shader-browser-model.cc'),
+  include_directories: shader_browser_test_inc,
+  dependencies: [shader_browser_threads, xxhash, json, imgui])
+test('test-xemu-shader-browser-capture-inspection-ui', shader_browser_capture_inspection_ui_test,
+     suite: ['unit'])
+
+shader_browser_capture_session_resources_test = executable(
+  'test-xemu-shader-browser-capture-session-resources',
+  shader_browser_test_dir / 'test-xemu-shader-browser-capture-session-resources.cc',
+  files('shader-browser-capture-session.cc', 'shader-browser-capture-resources.cc',
+        'shader-browser-draw-request.cc', 'shader-browser-draw-capture.cc',
+        'shader-browser-model.cc'),
+  include_directories: shader_browser_test_inc,
+  dependencies: [shader_browser_threads, xxhash, json])
+test('test-xemu-shader-browser-capture-session-resources', shader_browser_capture_session_resources_test,
+     suite: ['unit'])
+
+shader_browser_capture_bridge_allocation_test = executable(
+  'test-xemu-shader-browser-capture-bridge-allocation',
+  shader_browser_test_dir / 'test-xemu-shader-browser-capture-bridge-allocation.cc',
+  files('shader-browser-draw-request.cc', 'shader-browser-capture-session.cc',
+        'shader-browser-capture-resources.cc', 'shader-browser-draw-capture.cc',
+        'shader-browser-model.cc'),
+  include_directories: shader_browser_test_inc,
+  dependencies: [shader_browser_threads, xxhash, json])
+test('test-xemu-shader-browser-capture-bridge-allocation',
+     shader_browser_capture_bridge_allocation_test, suite: ['unit'])
+
+# Native GPU hosts only: exercise the production buffer-copy and standalone
+# queue submission paths, including capture Stop and immutable archive data.
+if vulkan.found() and 'i386-softmmu' in target_dirs
+  shader_browser_vk_batch_section_args = cc.get_supported_arguments(
+    '-ffunction-sections', '-fdata-sections')
+  if host_os == 'darwin'
+    shader_browser_vk_batch_gc_args = cc.get_supported_link_arguments(
+      '-Wl,-dead_strip')
+  else
+    shader_browser_vk_batch_gc_args = cc.get_supported_link_arguments(
+      '-Wl,--gc-sections')
+  endif
+  if shader_browser_vk_batch_section_args.length() == 2 and \
+     shader_browser_vk_batch_gc_args.length() == 1
+    shader_browser_vk_batch_target = declare_dependency(
+      sources: config_target_h['i386-softmmu'],
+      compile_args: ['-DCOMPILING_PER_TARGET',
+                     '-DCONFIG_TARGET="i386-softmmu-config-target.h"'] +
+                    shader_browser_vk_batch_section_args,
+      link_args: shader_browser_vk_batch_gc_args,
+      include_directories: include_directories('../..', '../../target/i386'))
+    shader_browser_vk_capture_batch_test = executable(
+      'test-xemu-shader-browser-vk-capture-batch',
+      shader_browser_test_dir / 'test-xemu-shader-browser-vk-capture-batch.cc',
+      shader_browser_test_dir / 'test-xemu-shader-browser-vk-capture-batch-native.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/command.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/buffer.c',
+      files('shader-browser-draw-request.cc', 'shader-browser-capture-session.cc',
+            'shader-browser-capture-resources.cc', 'shader-browser-draw-capture.cc',
+            'shader-browser-model.cc'),
+      include_directories: shader_browser_test_inc,
+      dependencies: [shader_browser_vk_batch_target, shader_browser_threads,
+                     xxhash, json, glib, volk, libglslang, vma, spirv_reflect])
+  else
+    message('Skipping Shader Browser Vulkan capture test: section GC unsupported')
+  endif
+endif
+
+shader_browser_capture_resources_test = executable(
+  'test-xemu-shader-browser-capture-resources',
+  shader_browser_test_dir / 'test-xemu-shader-browser-capture-resources.cc',
+  files('shader-browser-capture-resources.cc'),
+  include_directories: shader_browser_test_inc)
+test('test-xemu-shader-browser-capture-resources',
+     shader_browser_capture_resources_test, suite: ['unit'])
+
+shader_browser_list_navigation_test = executable(
+  'test-xemu-shader-browser-list-navigation',
+  shader_browser_test_dir / 'test-xemu-shader-browser-list-navigation.cc',
+  include_directories: [shader_browser_test_inc, include_directories('../..')])
+test('test-xemu-shader-browser-list-navigation', shader_browser_list_navigation_test,
      suite: ['unit'])

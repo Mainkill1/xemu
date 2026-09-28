@@ -18,9 +18,9 @@
 #include <iterator>
 
 namespace xemu::shader_browser {
+static_assert(sizeof(kShaderDragPayloadType) <= sizeof(ImGuiPayload::DataType),
+              "Shader drag payload tag must fit ImGui's DataType storage");
 namespace {
-
-constexpr char kShaderDragPayloadType[] = "XEMU_SHADER_BROWSER_SHADER_KEY_V1";
 
 const char *EffectStateLabel(uint32_t state)
 {
@@ -361,28 +361,28 @@ void ShaderOverrideUi::DrawPanel(const Entry &entry,
 
     if (SelectedAction() == OverrideAction::Replacement) {
         const ReplacementPackageInfo *selected = SelectedPackage();
-        const char *preview = selected ? selected->descriptor.name.c_str() :
-                                         "No replacement packages";
         if (!selected) {
             ImGui::TextWrapped(
                 "To create a replacement, open Generated GLSL / "
                 "draft, choose Edit GLSL, compile your change, "
-                "then Save and apply to game. You can also "
+                "then Save replacement and Enable in game. You can also "
                 "install a GLSL package in the replacement folder.");
         }
         ImGui::SetNextItemWidth(-1);
-        if (ImGui::BeginCombo("Replacement", preview)) {
-            for (const ReplacementPackageInfo &package :
-                 library_snapshot_.packages) {
-                bool is_selected = package.descriptor.id ==
-                                   selected_replacement_id_;
-                if (ShaderOptionSelected(package.descriptor.name.c_str(),
-                                         is_selected)) {
-                    selected_replacement_id_ = package.descriptor.id;
-                }
-                if (is_selected) ImGui::SetItemDefaultFocus();
-            }
-            ImGui::EndCombo();
+        std::vector<const char *> replacement_labels;
+        int replacement_index = -1;
+        for (size_t i = 0; i < library_snapshot_.packages.size(); ++i) {
+            const auto &package = library_snapshot_.packages[i];
+            replacement_labels.push_back(package.descriptor.name.c_str());
+            if (package.descriptor.id == selected_replacement_id_)
+                replacement_index = int(i);
+        }
+        if (ShaderCombo("Replacement", &replacement_index,
+                        replacement_labels.data(),
+                        int(replacement_labels.size())) &&
+            replacement_index >= 0) {
+            selected_replacement_id_ =
+                library_snapshot_.packages[replacement_index].descriptor.id;
         }
 
         selected = SelectedPackage();

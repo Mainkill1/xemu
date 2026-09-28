@@ -3,11 +3,13 @@
 
 #include "shader-browser-model.hh"
 #include "shader-browser-preview-scene.hh"
+#include "shader-browser-draw-inputs.hh"
 
 #include <array>
 #include <cstddef>
 #include <cstdint>
 #include <string>
+#include <memory>
 #include <vector>
 
 namespace xemu::shader_browser {
@@ -19,9 +21,121 @@ constexpr uint32_t kPreviewFullExtent = 320U;
 constexpr uint32_t kPreviewReducedExtent = 160U;
 constexpr uint32_t kPreviewMaxWidth = 640U;
 constexpr uint32_t kPreviewMaxHeight = 480U;
+constexpr uint32_t kPreviewMaxCapturedWidth = 1920U;
+constexpr uint32_t kPreviewMaxCapturedHeight = 1080U;
+inline constexpr bool PreviewExtentWithinLimits(uint32_t width, uint32_t height,
+                                                bool captured)
+{
+    return width && height &&
+           width <= (captured ? kPreviewMaxCapturedWidth : kPreviewMaxWidth) &&
+           height <= (captured ? kPreviewMaxCapturedHeight : kPreviewMaxHeight);
+}
 constexpr size_t kPreviewDigestBytes = 32U;
 
 using PreviewDigest = std::array<uint8_t, kPreviewDigestBytes>;
+enum class PreviewBackend : uint8_t;
+
+enum PreviewMaterialLimitation : uint32_t {
+    PreviewMaterialUnavailable = 1,
+    PreviewMaterialMissingTexture = 2,
+    PreviewMaterialUnsupportedTexture = 4,
+    PreviewMaterialUnappliedUniform = 8,
+    PreviewMaterialBudgetLimited = 16,
+    PreviewMaterialBaseLevelOnly = 32,
+    PreviewMaterialApproximateSampler = 64,
+};
+
+struct PreviewCapturedMaterial {
+    std::array<OwnedDrawTexture, 4> textures;
+    std::vector<OwnedDrawUniform> uniforms;
+    uint32_t limitations = PreviewMaterialBaseLevelOnly;
+};
+
+// Leave room for both 4 MiB sources and bounded geometry in the 32 MiB packet.
+constexpr size_t kPreviewMaxCapturedMaterialBytes =
+    24U * 1024U * 1024U - 256U * 1024U;
+std::shared_ptr<const PreviewCapturedMaterial> BuildPreviewCapturedMaterial(
+    const OwnedDrawInputs &inputs,
+    size_t max_bytes = kPreviewMaxCapturedMaterialBytes);
+std::shared_ptr<const PreviewCapturedMaterial> BuildPreviewCapturedMaterial(
+    const OwnedDrawInputs &inputs, PreviewBackend backend,
+    size_t max_bytes = kPreviewMaxCapturedMaterialBytes);
+PreviewDigest
+ComputePreviewCapturedMaterialDigest(const PreviewCapturedMaterial &material);
+std::string
+DescribePreviewCapturedMaterial(const PreviewCapturedMaterial &material);
+bool PreviewCapturedUniformAllowed(const OwnedDrawUniform &uniform);
+
+struct PreviewCapturedAttribute {
+    bool enabled = false;
+    OwnedDrawBlob stream;
+};
+enum PreviewRasterComponent : uint32_t {
+    PreviewRasterViewport = 1,
+    PreviewRasterScissor = 2,
+    PreviewRasterBlend = 4,
+    PreviewRasterColorWrite = 8,
+    PreviewRasterDepth = 16,
+    PreviewRasterStencil = 32,
+    PreviewRasterCull = 64,
+    PreviewRasterDepthBias = 128,
+    PreviewRasterCoverage = 256,
+    PreviewRasterDepthClamp = 512,
+};
+// Portable numeric enums follow core Vulkan blend/compare/stencil values.
+// Rectangles and destination RGBA use canonical top-down coordinates.
+struct PreviewCapturedStencil {
+    uint32_t fail = 0, pass = 0, depth_fail = 0, compare = 7;
+    uint32_t read_mask = UINT32_MAX, write_mask = UINT32_MAX, reference = 0;
+};
+struct PreviewCapturedRaster {
+    uint32_t available = 0, width = 0, height = 0;
+    int32_t scissor_x = 0, scissor_y = 0;
+    uint32_t scissor_width = 0, scissor_height = 0;
+    bool scissor_enabled = false, blend_enabled = false;
+    uint32_t src_rgb = 1, dst_rgb = 0, src_alpha = 1, dst_alpha = 0;
+    uint32_t blend_rgb = 0, blend_alpha = 0, color_write = 15;
+    std::array<float, 4> blend_color{};
+    bool depth_test = false, depth_write = false, stencil_test = false;
+    bool depth_clamp = false;
+    uint32_t depth_compare = 1;
+    double depth_min = 0, depth_max = 1;
+    PreviewCapturedStencil front_stencil, back_stencil;
+    uint32_t cull_mode = 0;
+    bool front_ccw = true, depth_bias = false;
+    float bias_constant = 0, bias_slope = 0;
+};
+struct PreviewCapturedPipeline {
+    PreviewBackend backend{};
+    // Exact backend enum: VkPrimitiveTopology or GLenum. Diagnostic mesh
+    // triangulation does not alter these original camera commands.
+    uint32_t guest_primitive_mode = 5, host_topology = UINT32_MAX;
+    bool primitive_restart = false, host_topology_captured = false;
+    uint32_t first_vertex = 0, vertex_count = 0;
+    uint32_t uniform_attribute_mask = 0;
+    std::array<PreviewCapturedAttribute, 16> attributes;
+    std::vector<uint32_t> indices;
+    std::vector<std::array<uint32_t, 2>> ranges;
+    std::vector<OwnedDrawUniform> uniforms;
+    std::string geometry_source;
+    PreviewCapturedRaster raster;
+    OwnedDrawImage color_before;
+};
+constexpr size_t kPreviewMaxCapturedPipelineBytes = 16U * 1024U * 1024U;
+std::shared_ptr<const PreviewCapturedPipeline> BuildPreviewCapturedPipeline(
+    const OwnedDrawInputs &inputs, PreviewBackend backend,
+    uint32_t primitive_mode, std::string *error,
+    size_t max_bytes = kPreviewMaxCapturedPipelineBytes);
+PreviewDigest
+ComputePreviewCapturedPipelineDigest(const PreviewCapturedPipeline &pipeline,
+                                     bool layout_only = false);
+bool ValidatePreviewCapturedPipeline(const PreviewCapturedPipeline &pipeline,
+                                     std::string *error);
+size_t PreviewCapturedAttributeElementBytes(PreviewBackend backend,
+                                            const OwnedDrawBlob &stream);
+bool DecodePreviewCapturedRaster(const OwnedDrawInputs &, PreviewBackend,
+                                 PreviewCapturedRaster *, std::string *error);
+std::string DescribePreviewCapturedRaster(const PreviewCapturedPipeline &);
 
 enum class PreviewUpdatePolicy : uint8_t { OnDirty, Continuous };
 
@@ -170,6 +284,7 @@ struct PreviewCompileKey {
     uint64_t replacement_revision = 0;
     PreviewDigest source_digest{};
     PreviewDigest partner_digest{};
+    PreviewDigest pipeline_layout_digest{};
 
     bool operator==(const PreviewCompileKey &other) const;
     bool operator!=(const PreviewCompileKey &other) const;
@@ -195,10 +310,58 @@ struct PreviewResultKey {
     PreviewReplayClass replay_class = PreviewReplayClass::Synthetic;
     PreviewDigest fixture_digest{};
     PreviewDigest mesh_digest{};
+    PreviewDigest material_digest{};
+    PreviewDigest pipeline_digest{};
+    bool profile_draw = false;
 
     bool operator==(const PreviewResultKey &other) const;
     bool operator!=(const PreviewResultKey &other) const;
 };
+
+enum class PreviewDrawTimingStatus : uint8_t {
+    Disarmed,
+    Pending,
+    Measured,
+    Unsupported,
+    Failed
+};
+enum class PreviewDrawTimingProvenance : uint8_t {
+    None,
+    SelectedPreviewInstrumented,
+    ReplayInstrumented
+};
+constexpr uint64_t kPreviewMaxDrawTimingNs = UINT64_C(10000000000);
+constexpr size_t kPreviewDrawTimingWindow = 64;
+struct PreviewDrawTiming {
+    PreviewResultKey result;
+    PreviewDrawTimingStatus status = PreviewDrawTimingStatus::Disarmed;
+    PreviewDrawTimingProvenance provenance = PreviewDrawTimingProvenance::None;
+    PreviewBackend backend = PreviewBackend::Unknown;
+    uint64_t nanoseconds = 0;
+    uint32_t timestamp_valid_bits = 0;
+    double timestamp_period_ns = 0;
+    uint32_t actual_draw_commands = 0;
+    std::string message;
+};
+// Last 64 measured event intervals; coverage counts refer to the entire
+// explicit request. These are draw intervals, never individual shader stages.
+struct PreviewDrawTimingDistribution {
+    uint64_t requested = 0, measured = 0, pending = 0, unsupported = 0,
+             failed = 0;
+    uint32_t sample_count = 0;
+    std::array<uint64_t, kPreviewDrawTimingWindow> samples{};
+    double median_ns = 0, p95_ns = 0;
+};
+const char *PreviewDrawTimingStatusLabel(PreviewDrawTimingStatus);
+const char *PreviewDrawTimingProvenanceLabel(PreviewDrawTimingProvenance);
+bool ValidatePreviewDrawTiming(const PreviewDrawTiming &,
+                               const PreviewResultKey &expected);
+bool ComputePreviewDrawInterval(uint64_t start, uint64_t finish,
+                                uint32_t valid_bits, double period_ns,
+                                uint64_t *nanoseconds, std::string *error);
+void AccumulatePreviewDrawTiming(PreviewDrawTimingDistribution *,
+                                 const PreviewDrawTiming &);
+void FinalizePreviewDrawTimingDistribution(PreviewDrawTimingDistribution *);
 
 struct PreviewPacket {
     PreviewScene scene;
@@ -225,6 +388,10 @@ struct PreviewPacket {
     PreviewDigest fixture_digest{};
     PreviewCapturedMesh captured_mesh;
     PreviewDigest mesh_digest{};
+    std::shared_ptr<const PreviewCapturedMaterial> captured_material;
+    PreviewDigest material_digest{};
+    std::shared_ptr<const PreviewCapturedPipeline> captured_pipeline;
+    PreviewDigest pipeline_digest{}, pipeline_layout_digest{};
     uint64_t input_revision = 0;
     uint8_t binding_count = 0;
     std::array<PreviewInputBinding, kPreviewMaxInputBindings> bindings{};
@@ -234,6 +401,8 @@ struct PreviewPacket {
     PreviewUpdatePolicy update_policy = PreviewUpdatePolicy::OnDirty;
     PreviewPacketKind packet_kind = PreviewPacketKind::Synthetic;
     PreviewReplayClass replay_class = PreviewReplayClass::Synthetic;
+    // Explicit profiling only. Disarmed packets never allocate/issue queries.
+    bool profile_draw = false;
 };
 
 const char *PreviewModeLabel(PreviewMode mode);

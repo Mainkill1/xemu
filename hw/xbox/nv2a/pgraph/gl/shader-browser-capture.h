@@ -47,8 +47,12 @@ xemu_shader_draw_gl_stage_bound(uint64_t token,
     glGetVertexAttribiv(0, GL_VERTEX_ATTRIB_ARRAY_STRIDE, &stride);
     glGetVertexAttribiv(0, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, &buffer);
     glGetVertexAttribPointerv(0, GL_VERTEX_ATTRIB_ARRAY_POINTER, &pointer);
-    if (!enabled || type != GL_FLOAT || (components != 3 && components != 4))
+    if (!enabled || type != GL_FLOAT || (components != 3 && components != 4)) {
+        xemu_shader_draw_request_note_rejection(
+            token, enabled ? XEMU_SHADER_CAPTURE_REJECT_VERTEX_FORMAT :
+                             XEMU_SHADER_CAPTURE_REJECT_POSITION_UNAVAILABLE);
         return false;
+    }
     if (!stride)
         stride = components * sizeof(float);
     size_t element = components * sizeof(float);
@@ -60,8 +64,12 @@ xemu_shader_draw_gl_stage_bound(uint64_t token,
     size_t bytes = (layout->vertex_count - 1) * (size_t)stride + element;
     g_autofree uint8_t *source =
         xemu_shader_draw_gl_read_buffer(buffer, offset, bytes);
-    return source && xemu_shader_draw_stage_source(token, layout, source, bytes,
-                                                   layout->first_vertex, stride,
-                                                   components);
+    if (!source) {
+        xemu_shader_draw_request_note_rejection(
+            token, XEMU_SHADER_CAPTURE_REJECT_POSITION_UNAVAILABLE);
+        return false;
+    }
+    return xemu_shader_draw_stage_source(
+        token, layout, source, bytes, layout->first_vertex, stride, components);
 }
 #endif

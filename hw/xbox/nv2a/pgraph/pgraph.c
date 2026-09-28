@@ -35,7 +35,9 @@
 #include "swizzle.h"
 #include "nv2a_vsh_emulator.h"
 #include "shader-browser-flush.h"
+#include "shader-browser-command-copy.h"
 #include "ui/xui/shader-browser-details-bridge.h"
+#include "ui/xui/shader-browser-draw-request.h"
 
 #define PG_GET_MASK(reg, mask) GET_MASK(pgraph_reg_r(pg, reg), mask)
 #define PG_SET_MASK(reg, mask, value)        \
@@ -45,6 +47,24 @@
         pgraph_reg_w(pg, reg, rv);           \
     } while (0)
 
+
+static uint64_t capture_render_event(PGRAPHState *pg, uint32_t kind)
+{
+    if (!xemu_shader_capture_session_active())
+        return 0;
+    return xemu_shader_capture_session_begin_event(
+        kind, pg->frame_time, pg->draw_time, pg->shader_browser_submission,
+        xemu_shader_browser_scope_generation(),
+        nv2a_profile_preview_renderer_epoch());
+}
+
+static void capture_render_event_done(uint64_t token, bool emitted)
+{
+    if (!token)
+        return;
+    xemu_shader_draw_request_finish(token, emitted, 0, 0, 0);
+    xemu_shader_draw_request_inputs_complete(token);
+}
 
 NV2AState *g_nv2a;
 static GMutex shader_browser_flush_mutex;
@@ -297,6 +317,7 @@ void pgraph_init(NV2AState *d)
     pg->draw_time = 0;
     memset(&pg->shader_browser_observations, 0,
            sizeof(pg->shader_browser_observations));
+    memset(&pg->shader_browser_sampler, 0, sizeof(pg->shader_browser_sampler));
     memset(&pg->uniform_source_epochs, 0,
            sizeof(pg->uniform_source_epochs));
 
@@ -376,6 +397,9 @@ static bool attempt_renderer_init(PGRAPHState *pg, bool fallback)
     NV2AState *d = container_of(pg, NV2AState, pgraph);
 
     nv2a_profile_preview_advance_renderer_epoch();
+    xemu_shader_capture_session_invalidate(
+        xemu_shader_browser_scope_generation(),
+        nv2a_profile_preview_renderer_epoch());
 
     pg->renderer = renderers[g_config.display.renderer];
     if (!pg->renderer) {
@@ -457,6 +481,9 @@ void pgraph_destroy(PGRAPHState *pg)
     NV2AState *d = container_of(pg, NV2AState, pgraph);
 
     nv2a_profile_preview_advance_renderer_epoch();
+    xemu_shader_capture_session_invalidate(
+        xemu_shader_browser_scope_generation(),
+        nv2a_profile_preview_renderer_epoch());
 
     g_mutex_lock(&shader_browser_flush_mutex);
     if (g_nv2a == d) {
@@ -913,6 +940,37 @@ int pgraph_method(NV2AState *d, unsigned int subchannel,
     uint32_t graphics_class = PG_GET_MASK(NV_PGRAPH_CTX_SWITCH1,
                                        NV_PGRAPH_CTX_SWITCH1_GRCLASS);
 
+    uint64_t command_token =
+        capture_render_event(pg, XEMU_SHADER_CAPTURE_STATE_WRITE);
+    if (command_token) {
+        xemu_shader_draw_request_stage_register(
+            command_token, "command.subchannel", subchannel);
+        xemu_shader_draw_request_stage_register(
+            command_token, "command.graphics_class", graphics_class);
+        xemu_shader_draw_request_stage_register(command_token, "command.method",
+                                                method);
+        xemu_shader_draw_request_stage_register(command_token,
+                                                "command.parameter", parameter);
+        xemu_shader_draw_request_stage_register(command_token,
+                                                "command.incrementing", inc);
+        /* Own the command window before dispatch can mutate guest memory.
+         * words_consumed below identifies the prefix used by this method. */
+        size_t available = xemu_shader_capture_command_words(
+            num_words_available, max_lookahead_words,
+            graphics_class == NV_KELVIN_PRIMITIVE &&
+                method == NV097_DRAW_ARRAYS);
+        if (parameters && available) {
+            XemuShaderDrawBlob blob = { .name = "command.parameters",
+                                        .data = parameters,
+                                        .byte_count =
+                                            available * sizeof(*parameters),
+                                        .count = available,
+                                        .stride = 4 };
+            xemu_shader_draw_request_stage_blob(command_token, &blob);
+        }
+        xemu_shader_draw_request_stage_register(
+            command_token, "command.words_copied", parameters ? available : 0);
+    }
     pgraph_method_log(subchannel, graphics_class, method, parameter);
 
     if (subchannel != 0) {
@@ -1013,7 +1071,19 @@ int pgraph_method(NV2AState *d, unsigned int subchannel,
             image_blit->height = parameter >> 16;
 
             if (image_blit->width && image_blit->height) {
+                uint64_t token =
+                    capture_render_event(pg, XEMU_SHADER_CAPTURE_COPY);
+                if (token) {
+                    XemuShaderDrawBlob blob = { .name = "pgraph.image_blit",
+                                                .data = image_blit,
+                                                .byte_count =
+                                                    sizeof(*image_blit) };
+                    xemu_shader_draw_request_stage_blob(token, &blob);
+                    xemu_shader_draw_request_stage_register(
+                        token, "copy.contents_available", 0);
+                }
                 d->pgraph.renderer->ops.image_blit(d);
+                capture_render_event_done(token, true);
             }
             break;
         default:
@@ -1058,11 +1128,21 @@ int pgraph_method(NV2AState *d, unsigned int subchannel,
         goto unhandled;
     }
 
+    if (command_token) {
+        xemu_shader_draw_request_stage_register(
+            command_token, "command.words_consumed", num_processed);
+        capture_render_event_done(command_token, false);
+    }
     return num_processed;
 
 unhandled:
     trace_nv2a_pgraph_method_unhandled(subchannel, graphics_class,
                                            method, parameter);
+    if (command_token) {
+        xemu_shader_draw_request_stage_register(
+            command_token, "command.words_consumed", num_processed);
+        capture_render_event_done(command_token, false);
+    }
     return num_processed;
 }
 
@@ -1147,6 +1227,9 @@ DEF_METHOD(NV097, FLIP_INCREMENT_WRITE)
 
     trace_nv2a_pgraph_flip_increment_write(old, new);
     pg->frame_time++;
+    xemu_shader_capture_session_frame(pg->frame_time,
+                                      xemu_shader_browser_scope_generation(),
+                                      nv2a_profile_preview_renderer_epoch());
     pgraph_shader_browser_flush_observations(
         &pg->shader_browser_observations, pg->frame_time);
 }
@@ -3247,7 +3330,18 @@ DEF_METHOD(NV097, SET_COLOR_CLEAR_VALUE)
 
 DEF_METHOD(NV097, CLEAR_SURFACE)
 {
+    uint64_t token = capture_render_event(pg, XEMU_SHADER_CAPTURE_CLEAR);
+    if (token) {
+        XemuShaderDrawBlob blob = { .name = "pgraph.registers",
+                                    .data = pg->regs_,
+                                    .byte_count = sizeof(pg->regs_) };
+        xemu_shader_draw_request_stage_blob(token, &blob);
+        xemu_shader_draw_request_stage_register(token, "clear.mask", parameter);
+        xemu_shader_draw_request_stage_register(token, "clear.output_observed",
+                                                0);
+    }
     d->pgraph.renderer->ops.clear_surface(d, parameter);
+    capture_render_event_done(token, true);
 }
 
 DEF_METHOD(NV097, SET_CLEAR_RECT_HORIZONTAL)
@@ -3526,6 +3620,9 @@ static void renderer_switch_finalize_renderer(void *opaque)
     PGRAPHState *pg = &d->pgraph;
 
     nv2a_profile_preview_advance_renderer_epoch();
+    xemu_shader_capture_session_invalidate(
+        xemu_shader_browser_scope_generation(),
+        nv2a_profile_preview_renderer_epoch());
 
     pgraph_shader_browser_flush_observations(
         &pg->shader_browser_observations, pg->frame_time);
@@ -3593,6 +3690,10 @@ void pgraph_process_pending_reports(NV2AState *d)
 void pgraph_pre_savevm_trigger(NV2AState *d)
 {
     PGRAPHState *pg = &d->pgraph;
+    uint64_t token = capture_render_event(pg, XEMU_SHADER_CAPTURE_SAVE_STATE);
+    capture_render_event_done(token, false);
+    if (xemu_shader_capture_session_active())
+        xemu_shader_capture_session_invalidate(0, 0);
     pg->renderer->ops.pre_savevm_trigger(d);
 }
 
