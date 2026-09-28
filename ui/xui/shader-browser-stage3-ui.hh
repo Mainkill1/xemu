@@ -11,6 +11,9 @@
 
 namespace xemu::shader_browser {
 
+inline constexpr char kShaderDragPayloadType[] =
+    "XEMU_SHADER_KEY_V1";
+
 struct ShaderOverrideRowPresentation {
     bool replacement_selected = false;
     bool compatible = false;

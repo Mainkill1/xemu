@@ -50,6 +50,23 @@ bool pgraph_gl_draw_lifecycle_take_query(PGRAPHGLDrawLifecycle *lifecycle)
     return active;
 }
 
+void pgraph_gl_shader_timing_record_result(PGRAPHGLShaderTimingSlot *slot,
+                                           PGRAPHGLDrawResult result,
+                                           const ShaderBinding *binding,
+                                           uint64_t frame, uint32_t route)
+{
+    slot->submitted = result == PGRAPH_GL_DRAW_SUBMITTED && binding;
+    if (!slot->submitted) {
+        return;
+    }
+    /* Attribute the query to the binding in use after attribute setup,
+     * which can rebind shaders for compressed inline-buffer draws. */
+    slot->binding = binding->browser;
+    slot->variant_id = binding->node.hash;
+    slot->frame = frame;
+    slot->route = route;
+}
+
 void pgraph_gl_complete_draw_lifecycle(
     PGRAPHState *pg, PGRAPHGLState *r, PGRAPHGLDrawResult result,
     bool color_write, bool zeta_write, bool color_dirty, bool zeta_dirty)

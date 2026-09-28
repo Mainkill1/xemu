@@ -14,7 +14,7 @@ XEMU_COMMIT=$( \
 XEMU_VERSION=$( \
   cd "$dir"; \
   if test -e .git; then \
-    git describe --tags --match 'v[0-9]*' 2>/dev/null | cut -c 2- | tr -d '\n'; \
+    git describe --tags --match 'v[0-9]*' --exclude '*-*' 2>/dev/null | cut -c 2- | tr -d '\n'; \
   fi) || :
 
 # Release worktrees may contain the exact source commit without its upstream

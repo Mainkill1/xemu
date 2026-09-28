@@ -6,12 +6,16 @@
 
 #include "qemu/osdep.h"
 #include "texture-stage.h"
+#include "ui/xui/shader-browser-draw-inputs.h"
 
 void pgraph_gl_texture_binding_destroy(TextureBinding *binding)
 {
     assert(binding->refcnt > 0);
     binding->refcnt--;
     if (binding->refcnt == 0) {
+        xemu_shader_capture_session_resource_release(
+            binding->capture_owner, 1, XEMU_SHADER_CAPTURE_RESOURCE_TEXTURE,
+            XEMU_SHADER_CAPTURE_RESOURCE_OPAQUE_EXTENT);
         glDeleteTextures(1, &binding->gl_texture);
         g_free(binding);
     }

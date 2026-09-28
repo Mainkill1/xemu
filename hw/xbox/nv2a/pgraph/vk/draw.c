@@ -25,12 +25,14 @@
 #include "hybrid-prewarm-runtime.h"
 #include "hybrid-ready.h"
 #include "pipeline-key.h"
+#include "shader-timing-policy.h"
 #include "pipeline-cache-lifetime.h"
 #include "pipeline-cache-data.h"
 #include "hw/xbox/nv2a/pgraph/effect-suppression.h"
 #include "staging-copy.h"
 #include "vertex-version-policy.h"
 #include "hw/xbox/nv2a/pgraph/shader-browser-geometry-copy.h"
+#include "hw/xbox/nv2a/pgraph/shader-browser-resource.h"
 #include "ui/xemu-tweaks.h"
 #include "ui/xemu-settings.h"
 #include "ui/xui/shader-browser-session-provider.hh"
@@ -44,7 +46,48 @@ typedef enum PGRAPHVkDrawResult {
     PGRAPH_VK_DRAW_SUBMITTED,
 } PGRAPHVkDrawResult;
 
+/* capture.outcome and capture.reject_reason are exported forensic values. */
+typedef enum PGRAPHVkCaptureOutcome {
+    PGRAPH_VK_CAPTURE_SUBMITTED = 0,
+    PGRAPH_VK_CAPTURE_SUPPRESSED = 1,
+    PGRAPH_VK_CAPTURE_REJECTED = 2,
+    PGRAPH_VK_CAPTURE_EMPTY = 3,
+} PGRAPHVkCaptureOutcome;
+
+typedef enum PGRAPHVkCaptureReason {
+    PGRAPH_VK_CAPTURE_REASON_NONE = 0,
+    PGRAPH_VK_CAPTURE_REASON_EFFECT = 1,
+    PGRAPH_VK_CAPTURE_REASON_OVERRIDE = 2,
+    PGRAPH_VK_CAPTURE_REASON_ATTACHMENT = 3,
+    PGRAPH_VK_CAPTURE_REASON_VERTEX_FETCH = 4,
+    PGRAPH_VK_CAPTURE_REASON_PREPARATION = 5,
+    PGRAPH_VK_CAPTURE_REASON_EMPTY = 6,
+    PGRAPH_VK_CAPTURE_REASON_WRITE_MASK = 7,
+} PGRAPHVkCaptureReason;
+
+static bool pgraph_vk_has_pending_draw(const PGRAPHState *pg)
+{
+    return pg->draw_arrays_length || pg->inline_elements_length ||
+           pg->inline_buffer_length || pg->inline_array_length;
+}
+
+static void pgraph_vk_capture_nonemitted(
+    PGRAPHState *pg, const PGRAPHShaderBrowserBinding *browser,
+    PGRAPHVkCaptureOutcome outcome, PGRAPHVkCaptureReason reason,
+    const char *description);
+
 static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d);
+static PGRAPHVkDrawResult pgraph_vk_flush_draw_timed(NV2AState *d);
+
+static uint32_t pgraph_vk_browser_draw_route(const ShaderBinding *binding)
+{
+    if (binding->override_action == XEMU_SHADER_OVERRIDE_ACTION_REPLACEMENT ||
+        binding->override_action == XEMU_SHADER_OVERRIDE_ACTION_HIGHLIGHT) {
+        return XEMU_SHADER_BROWSER_ROUTE_REPLACEMENT;
+    }
+    return binding->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER ?
+        XEMU_SHADER_BROWSER_ROUTE_UBER : XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED;
+}
 
 static bool vk_draw_completed(PGRAPHVkDrawResult result)
 {
@@ -251,6 +294,27 @@ typedef struct PGRAPHVkGraphicsPipelineRecipe {
     uint32_t dynamic_blend_constant_mask;
     bool has_dynamic_line_width;
 } PGRAPHVkGraphicsPipelineRecipe;
+
+static void capture_pipeline_recipe(
+    PGRAPHVkCapturedPipelineState *state,
+    const PGRAPHVkGraphicsPipelineRecipe *recipe)
+{
+    *state = (PGRAPHVkCapturedPipelineState) {
+        .assembly = recipe->assembly,
+        .raster = recipe->raster,
+        .multisample = recipe->multisample,
+        .depth_stencil = recipe->depth_stencil,
+        .blend = recipe->blend,
+        .color_attachment = recipe->color_attachment,
+    };
+    state->assembly.pNext = NULL;
+    state->raster.pNext = NULL;
+    state->multisample.pNext = NULL;
+    state->multisample.pSampleMask = NULL;
+    state->depth_stencil.pNext = NULL;
+    state->blend.pNext = NULL;
+    state->blend.pAttachments = NULL;
+}
 
 /* Keep a short read-tracking window after a batch uses updated vertex data.
  * Quiet workloads keep the existing ordered upload path without paying for
@@ -1718,11 +1782,26 @@ static PGRAPHVkHybridPipelineSubmitResult request_hybrid_pipeline(
     }
     work->key_hash = hash;
     work->key = *key;
+    if (xemu_shader_browser_cpu_profiling_enabled()) {
+        if (ready_binding->browser.count &&
+            ready_binding->browser.scope_generation ==
+                xemu_shader_browser_scope_generation()) {
+            work->browser = ready_binding->browser;
+        } else {
+            pgraph_shader_browser_capture_binding(
+                &ready_binding->state,
+                pgraph_glsl_need_geom(&ready_binding->state.geom),
+                &work->browser);
+        }
+        pgraph_shader_browser_capture_performance_context(
+            &work->browser_context);
+    }
     work->layout = recipe.layout;
     work->render_pass = recipe.render_pass;
     work->dynamic_blend_constant_mask =
         recipe.dynamic_blend_constant_mask;
     work->has_dynamic_line_width = recipe.has_dynamic_line_width;
+    capture_pipeline_recipe(&work->capture_state, &recipe);
     work->modules[0] = ready_binding->vsh.module_info;
     work->modules[1] = ready_binding->geom.module_info;
     work->modules[2] = ready_binding->psh.module_info;
@@ -2073,6 +2152,7 @@ static bool hybrid_pipeline_work_publish(PGRAPHVkState *r,
     binding->dynamic_blend_constant_mask =
         work->dynamic_blend_constant_mask;
     binding->has_dynamic_line_width = work->has_dynamic_line_width;
+    binding->capture_state = work->capture_state;
     binding->draw_time = 0;
     pgraph_vk_hybrid_prewarm_note_publication(
         &r->hybrid_prewarm, binding, work->prewarm);
@@ -2124,6 +2204,28 @@ static void process_hybrid_pipeline_result(
         r->hybrid_prewarm.worker_create_us_total += create_us;
         r->hybrid_prewarm.worker_create_us_max = MAX(
             r->hybrid_prewarm.worker_create_us_max, create_us);
+    }
+    if (work && result->generation == r->hybrid_generation &&
+        result->vk_result == VK_SUCCESS) {
+        uint32_t browser_route = route == PGRAPH_VK_FRAGMENT_UBERSHADER ?
+                                     XEMU_SHADER_BROWSER_ROUTE_UBER :
+                                     XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED;
+        if (result->finished_us >= result->started_us) {
+            pgraph_shader_browser_publish_binding_timing_at_context(
+                &work->browser, XEMU_SHADER_BROWSER_BACKEND_VK, browser_route,
+                XEMU_SHADER_BROWSER_VARIANT_PIPELINE, work->key_hash,
+                pg->frame_time, XEMU_SHADER_BROWSER_PERF_LINK_OR_PIPELINE_CPU,
+                (result->finished_us - result->started_us) * 1000, 0,
+                XEMU_SHADER_BROWSER_SAMPLE_BACKGROUND, &work->browser_context);
+        }
+        if (result->started_us >= result->submitted_us) {
+            pgraph_shader_browser_publish_binding_timing_at_context(
+                &work->browser, XEMU_SHADER_BROWSER_BACKEND_VK, browser_route,
+                XEMU_SHADER_BROWSER_VARIANT_PIPELINE, work->key_hash,
+                pg->frame_time, XEMU_SHADER_BROWSER_PERF_QUEUE_DELAY_CPU,
+                (result->started_us - result->submitted_us) * 1000, 0,
+                XEMU_SHADER_BROWSER_SAMPLE_BACKGROUND, &work->browser_context);
+        }
     }
     if (work && result->generation == r->hybrid_generation &&
         result->vk_result == VK_SUCCESS &&
@@ -2335,6 +2437,7 @@ static bool pgraph_vk_override_pipeline(
             pipeline->has_dynamic_line_width = recipe.has_dynamic_line_width;
             pipeline->dynamic_blend_constant_mask =
                 recipe.dynamic_blend_constant_mask;
+            capture_pipeline_recipe(&pipeline->capture_state, &recipe);
         }
     }
 
@@ -2835,12 +2938,36 @@ static bool create_pipeline(PGRAPHState *pg)
         return false;
     }
     VkPipeline pipeline;
+    XemuShaderBrowserPerformanceContext pipeline_context = { 0 };
+    if (xemu_shader_browser_cpu_profiling_enabled()) {
+        pgraph_shader_browser_capture_performance_context(&pipeline_context);
+    }
     int64_t pipeline_start_us = g_get_monotonic_time();
     VK_CHECK(vkCreateGraphicsPipelines(r->device, r->vk_pipeline_cache, 1,
                                        &recipe.info, NULL, &pipeline));
     int64_t pipeline_finish_us = g_get_monotonic_time();
     uint64_t pipeline_create_us = MAX(
         (int64_t)0, pipeline_finish_us - pipeline_start_us);
+    if (r->shader_binding) {
+        pgraph_shader_browser_publish_binding_timing_at_context(
+            &r->shader_binding->browser, XEMU_SHADER_BROWSER_BACKEND_VK,
+            key.fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER ?
+                XEMU_SHADER_BROWSER_ROUTE_UBER :
+                XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+            XEMU_SHADER_BROWSER_VARIANT_PIPELINE, hash, pg->frame_time,
+            XEMU_SHADER_BROWSER_PERF_LINK_OR_PIPELINE_CPU,
+            pipeline_create_us * 1000, 0, XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND,
+            &pipeline_context);
+        pgraph_shader_browser_publish_binding_timing_at_context(
+            &r->shader_binding->browser, XEMU_SHADER_BROWSER_BACKEND_VK,
+            key.fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER ?
+                XEMU_SHADER_BROWSER_ROUTE_UBER :
+                XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+            XEMU_SHADER_BROWSER_VARIANT_PIPELINE, hash, pg->frame_time,
+            XEMU_SHADER_BROWSER_PERF_FOREGROUND_STALL_CPU,
+            pipeline_create_us * 1000, 0, XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND,
+            &pipeline_context);
+    }
     if (r->hybrid_trace) {
         pgraph_vk_hybrid_trace_record(
             r->hybrid_trace, VK_HYBRID_TRACE_PIPELINE_CREATE,
@@ -2856,6 +2983,7 @@ static bool create_pipeline(PGRAPHState *pg)
     snode->render_pass = recipe.render_pass;
     snode->draw_time = pg->draw_time;
     snode->dynamic_blend_constant_mask = recipe.dynamic_blend_constant_mask;
+    capture_pipeline_recipe(&snode->capture_state, &recipe);
 
     r->pipeline_binding = snode;
     r->pipeline_binding_changed = true;
@@ -2987,9 +3115,19 @@ static void sync_staging_buffer(PGRAPHState *pg, VkCommandBuffer cmd,
         break;
     }
 
-    VK_CHECK(pgraph_vk_record_staging_copy(
+    uint64_t capture_token = pgraph_vk_capture_buffer_copy(
+        pg, cmd, index_src, index_dst, 0, 0, b_src->buffer_offset, true);
+    VkResult result = pgraph_vk_record_staging_copy(
         r->allocator, b_src->allocation, cmd, b_src->buffer, b_dst->buffer,
-        b_src->buffer_offset, dst_access_mask, dst_stage_mask));
+        b_src->buffer_offset, dst_access_mask, dst_stage_mask);
+    if (result == VK_SUCCESS) {
+        pgraph_vk_capture_record(pg, cmd, capture_token,
+                                 XEMU_SHADER_CAPTURE_COMMAND_UNKNOWN);
+        pgraph_shader_resource_finish(capture_token);
+    } else {
+        pgraph_vk_capture_abort(pg, cmd, result);
+    }
+    VK_CHECK(result);
 
     b_src->buffer_offset = 0;
 }
@@ -2998,9 +3136,12 @@ static void flush_memory_buffer(PGRAPHState *pg, VkCommandBuffer cmd)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
 
-    VK_CHECK(vmaFlushAllocation(
+    VkResult result = vmaFlushAllocation(
         r->allocator, r->storage_buffers[BUFFER_VERTEX_RAM].allocation, 0,
-        VK_WHOLE_SIZE));
+        VK_WHOLE_SIZE);
+    if (result != VK_SUCCESS)
+        pgraph_vk_capture_abort(pg, cmd, result);
+    VK_CHECK(result);
 
     VkBufferMemoryBarrier barrier = {
         .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
@@ -3056,6 +3197,142 @@ static void end_render_pass(PGRAPHVkState *r)
     }
 }
 
+#include "shader-browser-inputs.h"
+
+static void pgraph_vk_capture_outcome(uint64_t token,
+                                      PGRAPHVkCaptureOutcome outcome,
+                                      PGRAPHVkCaptureReason reason,
+                                      const char *description)
+{
+    if (!token || !xemu_shader_capture_session_token(token)) {
+        return;
+    }
+    xemu_shader_draw_request_stage_register(token, "capture.outcome", outcome);
+    xemu_shader_draw_request_stage_register(token, "capture.reject_reason",
+                                             reason);
+    if (description) {
+        XemuShaderDrawBlob blob = {
+            .name = "capture.reason",
+            .data = description,
+            .byte_count = strlen(description),
+            .components = 1,
+            .stride = 1,
+            .count = strlen(description),
+        };
+        xemu_shader_draw_request_stage_blob(token, &blob);
+    }
+}
+
+static void pgraph_vk_capture_guest_blob(uint64_t token, const char *name,
+                                         const void *data, size_t bytes)
+{
+    if (!bytes) {
+        return;
+    }
+    XemuShaderDrawBlob blob = {
+        .name = name,
+        .data = data,
+        .byte_count = bytes,
+    };
+    if (!xemu_shader_draw_request_stage_blob(token, &blob)) {
+        pgraph_vk_input_status(token, "capture.guest_streams.status",
+                                PGRAPH_VK_INPUT_REJECTED);
+    }
+}
+
+static void pgraph_vk_capture_nonemitted(
+    PGRAPHState *pg, const PGRAPHShaderBrowserBinding *browser,
+    PGRAPHVkCaptureOutcome outcome, PGRAPHVkCaptureReason reason,
+    const char *description)
+{
+    /* END after a mid-scope flush has no new guest payload. */
+    if (!xemu_shader_capture_session_active() ||
+        !pgraph_vk_has_pending_draw(pg)) {
+        return;
+    }
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    if (!browser && reason != PGRAPH_VK_CAPTURE_REASON_ATTACHMENT &&
+        r->shader_binding &&
+        !pgraph_glsl_check_shader_state_dirty(pg, &r->shader_binding->state)) {
+        pgraph_shader_browser_refresh_binding_scope(
+            &r->shader_binding->state,
+            pgraph_glsl_need_geom(&r->shader_binding->state.geom),
+            &r->shader_binding->browser);
+        browser = &r->shader_binding->browser;
+    }
+    uint64_t token = pgraph_shader_browser_capture_claim(pg, browser);
+    if (!token || !xemu_shader_capture_session_token(token)) {
+        return;
+    }
+    if (browser) {
+        bool program_data_dirty = pg->program_data_dirty;
+        ShaderState guest_state = pgraph_glsl_get_shader_state(pg);
+        pg->program_data_dirty = program_data_dirty;
+        pgraph_shader_browser_capture_recipes(token, &guest_state, browser);
+    }
+    pgraph_vk_input_stage_registers(pg, token);
+    xemu_shader_draw_request_stage_register(token, "capture.backend",
+                                             XEMU_SHADER_BROWSER_BACKEND_VK);
+    xemu_shader_draw_request_stage_register(token, "capture.route",
+                                             XEMU_SHADER_BROWSER_ROUTE_DISABLED);
+    pgraph_vk_capture_outcome(token, outcome, reason, description);
+    pgraph_vk_input_status(token, "capture.inputs.prepared", 0);
+    pgraph_vk_input_status(token, "capture.geometry.available", 0);
+    pgraph_vk_input_status(token, "capture.vertices.status",
+                            PGRAPH_VK_INPUT_MISSING);
+    pgraph_vk_input_status(token, "capture.sources.status",
+                            PGRAPH_VK_INPUT_MISSING);
+    pgraph_vk_input_status(token, "capture.uniforms.status",
+                            PGRAPH_VK_INPUT_MISSING);
+    pgraph_vk_capture_guest_blob(token, "guest.draw_arrays.start",
+                                 pg->draw_arrays_start,
+                                 pg->draw_arrays_length * sizeof(uint32_t));
+    pgraph_vk_capture_guest_blob(token, "guest.draw_arrays.count",
+                                 pg->draw_arrays_count,
+                                 pg->draw_arrays_length * sizeof(uint32_t));
+    pgraph_vk_capture_guest_blob(token, "guest.vertex.indices",
+                                 pg->inline_elements,
+                                 pg->inline_elements_length * sizeof(uint32_t));
+    pgraph_vk_capture_guest_blob(token, "guest.vertex.inline_array",
+                                 pg->inline_array,
+                                 pg->inline_array_length * sizeof(uint32_t));
+    uint64_t vertices = pg->inline_buffer_length;
+    if (pg->draw_arrays_length) {
+        vertices = 0;
+        for (uint32_t i = 0; i < pg->draw_arrays_length; ++i) {
+            vertices += pg->draw_arrays_count[i];
+        }
+    }
+    for (uint32_t slot = 0; slot < NV2A_VERTEXSHADER_ATTRIBUTES; ++slot) {
+        const VertexAttribute *attribute = &pg->vertex_attributes[slot];
+        char name[64];
+        snprintf(name, sizeof(name), "vertex.current%u", slot);
+        XemuShaderDrawBlob current = {
+            .name = name,
+            .data = attribute->inline_value,
+            .byte_count = sizeof(attribute->inline_value),
+            .slot = slot,
+            .format = VK_FORMAT_R32G32B32A32_SFLOAT,
+            .components = 4,
+            .stride = 16,
+            .count = 1,
+        };
+        xemu_shader_draw_request_stage_blob(token, &current);
+        if (pg->inline_buffer_length &&
+            (attribute->inline_buffer_populated ||
+             (reason == PGRAPH_VK_CAPTURE_REASON_PREPARATION &&
+              r->vertex_attribute_to_description_location[slot] >= 0))) {
+            snprintf(name, sizeof(name), "guest.vertex.inline_buffer%u", slot);
+            pgraph_vk_capture_guest_blob(
+                token, name, attribute->inline_buffer,
+                pg->inline_buffer_length * sizeof(float) * 4);
+        }
+    }
+    pgraph_shader_browser_capture_finish(
+        pg, token, false, MIN(vertices, UINT32_MAX), pg->inline_elements_length);
+    xemu_shader_draw_request_inputs_complete(token);
+}
+
 const enum NV2A_PROF_COUNTERS_ENUM finish_reason_to_counter_enum[] = {
     [VK_FINISH_REASON_VERTEX_BUFFER_DIRTY] = NV2A_PROF_FINISH_VERTEX_BUFFER_DIRTY,
     [VK_FINISH_REASON_SURFACE_CREATE] = NV2A_PROF_FINISH_SURFACE_CREATE,
@@ -3068,6 +3345,41 @@ const enum NV2A_PROF_COUNTERS_ENUM finish_reason_to_counter_enum[] = {
     [VK_FINISH_REASON_STALLED] = NV2A_PROF_FINISH_STALLED,
     [VK_FINISH_REASON_TEXTURE_DIRTY] = NV2A_PROF_FINISH_TEXTURE_DIRTY,
 };
+
+static void pgraph_vk_retire_shader_timing(PGRAPHVkState *r)
+{
+    if (r->shader_timing_pool == VK_NULL_HANDLE || !r->shader_timing_used)
+        return;
+    for (uint32_t i = 0; i < r->shader_timing_used; ++i) {
+        if (!r->shader_timing_slots[i].complete)
+            continue;
+        uint64_t ticks[2] = { 0 };
+        VkResult result = vkGetQueryPoolResults(
+            r->device, r->shader_timing_pool, i * 2, 2, sizeof(ticks), ticks,
+            sizeof(ticks[0]), VK_QUERY_RESULT_64_BIT);
+        uint64_t delta = pgraph_vk_shader_timing_delta(
+            ticks[0], ticks[1], r->shader_timing_valid_bits);
+        if (result == VK_SUCCESS && delta) {
+            uint64_t duration_ns =
+                (uint64_t)((double)delta *
+                           r->device_props.limits.timestampPeriod);
+            pgraph_shader_browser_publish_binding_timing_at_context(
+                &r->shader_timing_slots[i].binding,
+                XEMU_SHADER_BROWSER_BACKEND_VK, r->shader_timing_slots[i].route,
+                XEMU_SHADER_BROWSER_VARIANT_PIPELINE,
+                r->shader_timing_slots[i].variant_id,
+                r->shader_timing_slots[i].frame,
+                XEMU_SHADER_BROWSER_PERF_DRAW_GPU, duration_ns, 1,
+                XEMU_SHADER_BROWSER_SAMPLE_SAMPLED,
+                &r->shader_timing_slots[i].context);
+        } else {
+            xemu_shader_browser_record_dropped_samples(1);
+        }
+    }
+    r->shader_timing_used = 0;
+    xemu_shader_browser_report_gpu_state(XEMU_SHADER_BROWSER_BACKEND_VK,
+                                         r->shader_timing_supported, 0);
+}
 
 void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
 {
@@ -3098,16 +3410,24 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         if (r->query_in_flight) {
             end_query(r);
         }
-        VK_CHECK(vkEndCommandBuffer(r->command_buffer));
+        VkResult end_result = vkEndCommandBuffer(r->command_buffer);
+        if (end_result != VK_SUCCESS)
+            pgraph_vk_capture_abort(pg, r->command_buffer, end_result);
+        VK_CHECK(end_result);
 
+        r->capture_finish_auxiliary = true;
         VkCommandBuffer cmd = pgraph_vk_begin_single_time_commands(pg); // FIXME: Cleanup
         sync_staging_buffer(pg, cmd, BUFFER_INDEX_STAGING, BUFFER_INDEX);
         sync_staging_buffer(pg, cmd, BUFFER_VERTEX_INLINE_STAGING,
                                 BUFFER_VERTEX_INLINE);
         sync_staging_buffer(pg, cmd, BUFFER_UNIFORM_STAGING, BUFFER_UNIFORM);
         flush_memory_buffer(pg, cmd);
-        VK_CHECK(vkEndCommandBuffer(r->aux_command_buffer));
+        end_result = vkEndCommandBuffer(r->aux_command_buffer);
+        if (end_result != VK_SUCCESS)
+            pgraph_vk_capture_abort(pg, r->aux_command_buffer, end_result);
+        VK_CHECK(end_result);
         r->in_aux_command_buffer = false;
+        r->capture_finish_auxiliary = false;
 
         VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
         VkSubmitInfo submit_infos[] = {
@@ -3138,6 +3458,8 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
         VkResult result = vkQueueSubmit(
             r->queue, ARRAY_SIZE(submit_infos), submit_infos,
             r->command_buffer_fence);
+        uint64_t capture_batch_handle = pgraph_vk_capture_submit(
+            pg, r->command_buffer, result);
         uint64_t submit_cpu_us = time_submit ?
             MAX(qemu_clock_get_us(QEMU_CLOCK_REALTIME) - submit_start, 0) : 0;
         trace_submit_us = submit_cpu_us;
@@ -3163,10 +3485,13 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
             qemu_clock_get_us(QEMU_CLOCK_REALTIME) : 0;
         result = vkWaitForFences(r->device, 1, &r->command_buffer_fence,
                                  VK_TRUE, UINT64_MAX);
+        pgraph_vk_capture_retire(capture_batch_handle, result);
         uint64_t wait_us = time_submit ?
             MAX(qemu_clock_get_us(QEMU_CLOCK_REALTIME) - wait_start, 0) : 0;
         trace_wait_us = wait_us;
         VK_CHECK(result);
+        pgraph_vk_retire_shader_timing(r);
+        pgraph_vk_shader_inputs_retire(pg);
         pgraph_vk_perf_record_finish_submit(
             r, finish_reason, time_submit, submit_cpu_us, wait_us, staged_bytes,
             ARRAY_SIZE(submit_infos), 2);
@@ -3175,6 +3500,7 @@ void pgraph_vk_finish(PGRAPHState *pg, FinishReason finish_reason)
 
         r->descriptor_set_index = 0;
         r->in_command_buffer = false;
+        memset(&r->capture_main_batch, 0, sizeof(r->capture_main_batch));
         if (r->vertex_ram_read_pages) {
             memset(r->vertex_ram_read_pages, 0,
                    r->num_vertex_ram_read_pages);
@@ -3223,8 +3549,33 @@ void pgraph_vk_begin_command_buffer(PGRAPHState *pg)
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
         .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
     };
-    VK_CHECK(vkBeginCommandBuffer(r->command_buffer,
-                                  &command_buffer_begin_info));
+    VkResult begin_result = vkBeginCommandBuffer(
+        r->command_buffer, &command_buffer_begin_info);
+    if (begin_result != VK_SUCCESS)
+        pgraph_vk_capture_abort(pg, r->command_buffer, begin_result);
+    VK_CHECK(begin_result);
+    r->shader_timing_reset_in_command_buffer = false;
+    if (r->shader_timing_supported &&
+        xemu_shader_browser_gpu_profiling_enabled()) {
+        if (r->shader_timing_pool == VK_NULL_HANDLE) {
+            VkQueryPoolCreateInfo info = {
+                .sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO,
+                .queryType = VK_QUERY_TYPE_TIMESTAMP,
+                .queryCount = PGRAPH_VK_SHADER_TIMING_SLOTS * 2,
+            };
+            if (vkCreateQueryPool(r->device, &info, NULL,
+                                  &r->shader_timing_pool) != VK_SUCCESS) {
+                r->shader_timing_supported = false;
+                xemu_shader_browser_report_gpu_state(
+                    XEMU_SHADER_BROWSER_BACKEND_VK, false, 0);
+            }
+        }
+        if (r->shader_timing_pool != VK_NULL_HANDLE) {
+            vkCmdResetQueryPool(r->command_buffer, r->shader_timing_pool, 0,
+                                PGRAPH_VK_SHADER_TIMING_SLOTS * 2);
+            r->shader_timing_reset_in_command_buffer = true;
+        }
+    }
     pgraph_vk_invalidate_blend_constants(pg);
     r->command_buffer_start_time = pg->draw_time;
     r->in_command_buffer = true;
@@ -3416,6 +3767,7 @@ static void begin_draw(PGRAPHState *pg)
             .maxDepth = 1.0,
         };
         vkCmdSetViewport(r->command_buffer, 0, 1, &viewport);
+        r->capture_viewport = viewport;
 
         /* Surface clip */
         /* FIXME: Consider moving to PSH w/ window clip */
@@ -3438,11 +3790,14 @@ static void begin_draw(PGRAPHState *pg)
             .extent.height = scissor_height,
         };
         vkCmdSetScissor(r->command_buffer, 0, 1, &scissor);
+        r->capture_scissor = scissor;
 
+        r->capture_line_width = 1.0f;
         if (r->pipeline_binding->has_dynamic_line_width) {
             float line_width =
                 clamp_line_width_to_device_limits(pg, pg->surface_scale_factor);
             vkCmdSetLineWidth(r->command_buffer, line_width);
+            r->capture_line_width = line_width;
         }
         r->pipeline_binding_changed = false;
     }
@@ -3478,6 +3833,48 @@ static void begin_draw(PGRAPHState *pg)
         }
     }
     r->num_pending_vertex_ram_reads = 0;
+    PGRAPHVkShaderTimingInput timing_input = {
+        .requested = r->shader_timing_requested &&
+                     xemu_shader_browser_gpu_profiling_enabled(),
+        .query_pool_ready = r->shader_timing_reset_in_command_buffer &&
+                            r->shader_timing_pool != VK_NULL_HANDLE,
+        .clearing = pg->clearing,
+        .pipeline_ready = r->pipeline_binding != NULL,
+        .shader_ready = r->shader_binding != NULL,
+        .used = r->shader_timing_used,
+        .capacity = PGRAPH_VK_SHADER_TIMING_SLOTS,
+    };
+    PGRAPHVkShaderTimingDecision timing_decision =
+        pgraph_vk_shader_timing_decide(&timing_input);
+    if (timing_decision == PGRAPH_VK_SHADER_TIMING_DROP) {
+        xemu_shader_browser_record_dropped_samples(1);
+    } else if (timing_decision == PGRAPH_VK_SHADER_TIMING_RECORD) {
+        XemuShaderBrowserPerformanceContext context = { 0 };
+        if (pgraph_shader_browser_capture_performance_context(&context)) {
+            uint32_t index = r->shader_timing_used++;
+            r->shader_timing_slots[index].binding = r->shader_binding->browser;
+            r->shader_timing_slots[index].context = context;
+            r->shader_timing_slots[index].variant_id =
+                pgraph_vk_shader_timing_pipeline_variant_id(
+                    &r->pipeline_binding->key,
+                    sizeof(r->pipeline_binding->key));
+            r->shader_timing_slots[index].frame = pg->frame_time;
+            r->shader_timing_slots[index].route =
+                pgraph_vk_browser_draw_route(r->shader_binding);
+            r->shader_timing_slots[index].complete = false;
+            r->shader_timing_slots[index].submission_before =
+                pg->shader_browser_submission;
+            r->shader_timing_slots[index].input_snapshots_before =
+                pg->shader_browser_input_snapshots;
+            r->shader_timing_active_slot = index;
+            r->shader_timing_written = true;
+            vkCmdWriteTimestamp(r->command_buffer,
+                                VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                                r->shader_timing_pool, index * 2);
+            xemu_shader_browser_report_gpu_state(XEMU_SHADER_BROWSER_BACKEND_VK,
+                                                 true, r->shader_timing_used);
+        }
+    }
     r->in_draw = true;
 }
 
@@ -3487,6 +3884,20 @@ static void end_draw(PGRAPHState *pg)
 
     assert(r->in_command_buffer);
     assert(r->in_render_pass);
+
+    if (r->shader_timing_written) {
+        uint32_t index = r->shader_timing_active_slot;
+        vkCmdWriteTimestamp(r->command_buffer,
+                            VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+                            r->shader_timing_pool, index * 2 + 1);
+        r->shader_timing_slots[index].complete =
+            pg->shader_browser_submission !=
+            r->shader_timing_slots[index].submission_before &&
+            pg->shader_browser_input_snapshots ==
+                r->shader_timing_slots[index].input_snapshots_before;
+        r->shader_timing_written = false;
+    }
+    r->shader_timing_requested = false;
 
     if (pg->clearing) {
         end_render_pass(r);
@@ -3520,27 +3931,29 @@ void pgraph_vk_draw_end(NV2AState *d)
         // processing, it is legal to attempt a draw that is entirely
         // clipped regardless of 0x880. See xemu#635 for context.
         NV2A_VK_DPRINTF("nop draw!\n");
+        pgraph_vk_capture_nonemitted(
+            pg, NULL, PGRAPH_VK_CAPTURE_SUPPRESSED,
+            PGRAPH_VK_CAPTURE_REASON_WRITE_MASK,
+            "Color writes, depth testing and stencil testing are disabled");
         return;
     }
 
     PGRAPHShaderBrowserBinding skipped_browser;
     bool skipped = pgraph_vk_override_skip_draw(pg, &skipped_browser);
     if (skipped) {
+        pgraph_vk_capture_nonemitted(
+            pg, &skipped_browser, PGRAPH_VK_CAPTURE_SUPPRESSED,
+            PGRAPH_VK_CAPTURE_REASON_OVERRIDE,
+            "Draw skipped by a shader override rule");
         pgraph_shader_browser_record_draw(
             &pg->shader_browser_observations, &skipped_browser,
             pg->frame_time, XEMU_SHADER_BROWSER_ROUTE_DISABLED);
     }
 
-    int64_t start_us = r->perf.enabled ? g_get_monotonic_time() : 0;
     bool final_recorded =
-        !skipped && vk_draw_completed(pgraph_vk_flush_draw_internal(d));
-    bool draw_recorded = final_recorded || r->draw_scope_had_submission;
-    pgraph_vk_perf_record_cpu_region(
-        r, VK_PERF_CPU_DRAW_FLUSH,
-        r->perf.enabled ? g_get_monotonic_time() - start_us : 0);
-    if (!draw_recorded) {
+        !skipped && vk_draw_completed(pgraph_vk_flush_draw_timed(d));
+    if (!final_recorded && !r->draw_scope_had_submission)
         return;
-    }
 
     pg->draw_time++;
     if (r->color_binding && pgraph_color_write_enabled(pg)) {
@@ -3563,9 +3976,6 @@ static int compare_memory_sync_requirement_by_addr(const void *p1,
         return 1;
     return 0;
 }
-
-static void get_size_and_count_for_format(VkFormat fmt, size_t *size,
-                                          size_t *count);
 
 /* Version only small, non-overlapping, DMA/VRAM-bounded draws. The inline
  * staging pair is copied before the recorded draw batch executes, so older
@@ -3858,6 +4268,9 @@ void pgraph_vk_clear_surface(NV2AState *d, uint32_t parameter)
 
     int num_attachments = 0;
     VkClearAttachment attachments[2];
+    bool capture_emitted = false;
+    bool capture_masked_draw = false;
+    float capture_masked_color[4] = { 0 };
 
     if (write_color && r->color_binding) {
         const bool clear_all_color_channels =
@@ -3874,12 +4287,13 @@ void pgraph_vk_clear_surface(NV2AState *d, uint32_t parameter)
                 pg, attachments[num_attachments].clearValue.color.float32);
             num_attachments++;
         } else {
-            float blend_constants[4];
-            pgraph_get_clear_color(pg, blend_constants);
+            pgraph_get_clear_color(pg, capture_masked_color);
             vkCmdSetScissor(r->command_buffer, 0, 1, &clear_rect.rect);
-            vkCmdSetBlendConstants(r->command_buffer, blend_constants);
+            vkCmdSetBlendConstants(r->command_buffer, capture_masked_color);
             pgraph_vk_invalidate_blend_constants(pg);
             vkCmdDraw(r->command_buffer, 3, 1, 0, 0);
+            capture_emitted = true;
+            capture_masked_draw = true;
         }
     }
 
@@ -3907,6 +4321,13 @@ void pgraph_vk_clear_surface(NV2AState *d, uint32_t parameter)
     if (num_attachments) {
         vkCmdClearAttachments(r->command_buffer, num_attachments, attachments,
                               1, &clear_rect);
+        capture_emitted = true;
+    }
+    if (capture_emitted) {
+        pgraph_vk_capture_clear(
+            pg, r->command_buffer, parameter, num_attachments, attachments,
+            &clear_rect, capture_masked_draw,
+            capture_masked_draw ? capture_masked_color : NULL);
     }
     end_draw(pg);
     pgraph_vk_end_debug_marker(r, r->command_buffer);
@@ -4314,6 +4735,9 @@ static void copy_remapped_attributes_to_inline_buffer(
          * preparation could finish the earlier command buffer. */
         memcpy(destination, r->vertex_version_scratch,
                remap.buffer_space_required);
+        pgraph_vk_capture_buffer_upload(
+            pg, BUFFER_VERTEX_INLINE_STAGING, buffer->buffer_offset,
+            remap.buffer_space_required, destination, true);
     } else {
         VertexBufferRemap remaining = remap;
         if (preserved_position)
@@ -4323,6 +4747,21 @@ static void copy_remapped_attributes_to_inline_buffer(
         if (preserved_position)
             memcpy(destination + remap.map[0].offset, preserved_position,
                    remap.map[0].new_stride * num_vertices);
+        for (int attr_id = 0; attr_id < NV2A_VERTEXSHADER_ATTRIBUTES; ++attr_id) {
+            if (!(remap.attributes & (1 << attr_id)))
+                continue;
+            uint32_t first = preserved_position && attr_id == 0 ? 0 :
+                xemu_tweak_enabled(XEMU_TWEAK_VK_BOUNDED_VERTEX_UPLOADS) ?
+                    start_vertex : 0;
+            size_t offset = remap.map[attr_id].offset +
+                            (size_t)first * remap.map[attr_id].new_stride;
+            size_t bytes = (size_t)(num_vertices - first) *
+                           remap.map[attr_id].new_stride;
+            pgraph_vk_capture_buffer_upload(
+                pg, BUFFER_VERTEX_INLINE_STAGING,
+                buffer->buffer_offset + offset, bytes, destination + offset,
+                true);
+        }
     }
 
     for (int attr_id = 0; attr_id < NV2A_VERTEXSHADER_ATTRIBUTES; attr_id++) {
@@ -4355,6 +4794,78 @@ static void publish_prepared_vertex_data(PGRAPHState *pg,
 /* Snapshot only CPU staging bytes that will populate the bound inline GPU
  * buffer. Fixed RAM without a preserved position generation is metadata-only.
  */
+static void capture_vk_geometry(PGRAPHState *pg, uint64_t token,
+                                 uint16_t inline_map, VkDeviceSize base_offset,
+                                 int32_t start, int32_t count,
+                                 VkDeviceSize index_offset, uint32_t index_count)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    int desc = r->vertex_attribute_to_description_location[0];
+    if (!token)
+        return;
+    if (!xemu_shader_draw_topology_supported(pg->primitive_mode)) {
+        xemu_shader_draw_request_note_rejection(token, XEMU_SHADER_CAPTURE_REJECT_TOPOLOGY);
+        return;
+    }
+    if (!(inline_map & 1) || desc < 0) {
+        xemu_shader_draw_request_note_rejection(token, XEMU_SHADER_CAPTURE_REJECT_POSITION_UNAVAILABLE);
+        return;
+    }
+    VkVertexInputAttributeDescription *attribute =
+        &r->vertex_attribute_descriptions[desc];
+    uint32_t components = attribute->format == VK_FORMAT_R32G32B32_SFLOAT ? 3 :
+                          attribute->format == VK_FORMAT_R32G32B32A32_SFLOAT ?
+                                                                            4 :
+                                                                            0;
+    if (!components) {
+        xemu_shader_draw_request_note_rejection(token, XEMU_SHADER_CAPTURE_REJECT_VERTEX_FORMAT);
+        return;
+    }
+    g_autofree XemuShaderDrawLayout *layout =
+        g_try_new(XemuShaderDrawLayout, 1);
+    if (!layout) {
+        xemu_shader_draw_request_note_rejection(token, XEMU_SHADER_CAPTURE_REJECT_BUDGET);
+        return;
+    }
+    if (index_count) {
+        StorageBuffer *indices = &r->storage_buffers[BUFFER_INDEX_STAGING];
+        size_t bytes = (size_t)index_count * sizeof(uint32_t);
+        if (index_count > 12288 || !indices->mapped ||
+            index_offset > indices->buffer_offset ||
+            bytes > indices->buffer_offset - index_offset ||
+            !xemu_shader_draw_layout_elements_topology(
+                layout, pg->primitive_mode, indices->mapped + index_offset,
+                index_count)) {
+            xemu_shader_draw_request_note_rejection(token,
+                index_count > 12288 ? XEMU_SHADER_CAPTURE_REJECT_BUDGET :
+                                      XEMU_SHADER_CAPTURE_REJECT_INDICES);
+            return;
+        }
+    } else if (!xemu_shader_draw_layout_arrays_topology(
+                   layout, pg->primitive_mode, &start, &count, 1)) {
+        xemu_shader_draw_request_note_rejection(token,
+            count > 4096 ? XEMU_SHADER_CAPTURE_REJECT_BUDGET :
+                           XEMU_SHADER_CAPTURE_REJECT_EMPTY);
+        return;
+    }
+    StorageBuffer *vertices = &r->storage_buffers[BUFFER_VERTEX_INLINE_STAGING];
+    VkDeviceSize offset = r->vertex_attribute_offsets[0];
+    if (base_offset > UINT64_MAX - offset ||
+        attribute->offset > UINT64_MAX - base_offset - offset) {
+        xemu_shader_draw_request_note_rejection(token, XEMU_SHADER_CAPTURE_REJECT_POSITION_UNAVAILABLE);
+        return;
+    }
+    offset += base_offset + attribute->offset;
+    if (!vertices->mapped || offset > vertices->buffer_offset) {
+        xemu_shader_draw_request_note_rejection(token, XEMU_SHADER_CAPTURE_REJECT_POSITION_UNAVAILABLE);
+        return;
+    }
+    xemu_shader_draw_stage_source(token, layout, vertices->mapped + offset,
+                                  vertices->buffer_offset - offset, 0,
+                                  r->vertex_binding_descriptions[desc].stride,
+                                  components);
+}
+
 static uint64_t capture_vk_command(PGRAPHState *pg, uint16_t inline_map,
                                    VkDeviceSize base_offset, int32_t start,
                                    int32_t count, VkDeviceSize index_offset,
@@ -4363,46 +4874,54 @@ static uint64_t capture_vk_command(PGRAPHState *pg, uint16_t inline_map,
     PGRAPHVkState *r = pg->vk_renderer_state;
     uint64_t token =
         pgraph_shader_browser_capture_claim(pg, &r->shader_binding->browser);
-    int desc = r->vertex_attribute_to_description_location[0];
-    if (!token || pg->primitive_mode != NV097_SET_BEGIN_END_OP_TRIANGLES ||
-        !(inline_map & 1) || desc < 0)
-        return token;
-    VkVertexInputAttributeDescription *attribute =
-        &r->vertex_attribute_descriptions[desc];
-    uint32_t components = attribute->format == VK_FORMAT_R32G32B32_SFLOAT ? 3 :
-                          attribute->format == VK_FORMAT_R32G32B32A32_SFLOAT ?
-                                                                            4 :
-                                                                            0;
-    if (!components)
-        return token;
-    g_autofree XemuShaderDrawLayout *layout =
-        g_try_new(XemuShaderDrawLayout, 1);
-    if (!layout)
-        return token;
-    if (index_count) {
-        StorageBuffer *indices = &r->storage_buffers[BUFFER_INDEX_STAGING];
-        size_t bytes = (size_t)index_count * sizeof(uint32_t);
-        if (index_count > 12288 || !indices->mapped ||
-            index_offset > indices->buffer_offset ||
-            bytes > indices->buffer_offset - index_offset ||
-            !xemu_shader_draw_layout_elements(
-                layout, indices->mapped + index_offset, index_count))
-            return token;
-    } else if (!xemu_shader_draw_layout_arrays(layout, &start, &count, 1)) {
-        return token;
+    if (token && !pgraph_vk_capture_hold(pg, r->command_buffer, token)) {
+        xemu_shader_capture_session_fail(token, "Vulkan draw batch admission failed");
+        pgraph_shader_resource_finish(token);
+        return 0;
     }
-    StorageBuffer *vertices = &r->storage_buffers[BUFFER_VERTEX_INLINE_STAGING];
-    VkDeviceSize offset = r->vertex_attribute_offsets[0];
-    if (base_offset > UINT64_MAX - offset ||
-        attribute->offset > UINT64_MAX - base_offset - offset)
-        return token;
-    offset += base_offset + attribute->offset;
-    if (!vertices->mapped || offset > vertices->buffer_offset)
-        return token;
-    xemu_shader_draw_stage_source(token, layout, vertices->mapped + offset,
-                                  vertices->buffer_offset - offset, 0,
-                                  r->vertex_binding_descriptions[desc].stride,
-                                  components);
+    if (token) {
+        if (xemu_shader_capture_session_token(token)) {
+            for (uint32_t slot = 0; slot < NV2A_MAX_TEXTURES; ++slot) {
+                TextureBinding *binding = r->texture_bindings[slot];
+                if (binding && binding != &r->dummy_texture)
+                    pgraph_shader_resource_stage(token, binding->capture_owner,
+                                                 binding->capture_bytes,
+                                                 XEMU_SHADER_CAPTURE_RESOURCE_READ,
+                                                 XEMU_SHADER_CAPTURE_RESOURCE_TEXTURE, slot, false);
+            }
+            SurfaceBinding *targets[] = { r->color_binding, r->zeta_binding };
+            for (uint32_t i = 0; i < ARRAY_SIZE(targets); ++i) {
+                SurfaceBinding *binding = targets[i];
+                if (!binding)
+                    continue;
+                uint32_t kind = binding->color ? XEMU_SHADER_CAPTURE_RESOURCE_COLOR :
+                                                XEMU_SHADER_CAPTURE_RESOURCE_DEPTH_STENCIL;
+                pgraph_shader_resource_stage(token, binding->capture_owner,
+                                             binding->capture_bytes,
+                                             XEMU_SHADER_CAPTURE_RESOURCE_READ,
+                                             kind, 0, false);
+                pgraph_shader_resource_stage(token, binding->capture_owner,
+                                             binding->capture_bytes,
+                                             XEMU_SHADER_CAPTURE_RESOURCE_UNCERTAIN_WRITE,
+                                             kind, 0, false);
+            }
+        }
+        bool program_data_dirty = pg->program_data_dirty;
+        ShaderState guest_state = pgraph_glsl_get_shader_state(pg);
+        pg->program_data_dirty = program_data_dirty;
+        pgraph_shader_browser_capture_recipes(token, &guest_state,
+                                              &r->shader_binding->browser);
+        xemu_shader_draw_request_stage_register(token, "capture.backend", XEMU_SHADER_BROWSER_BACKEND_VK);
+        xemu_shader_draw_request_stage_register(token, "capture.route", pgraph_vk_browser_draw_route(r->shader_binding));
+        xemu_shader_draw_request_stage_register(token, "capture.inputs.prepared", 1);
+    }
+
+    if (token) {
+        capture_vk_geometry(pg, token, inline_map, base_offset, start, count,
+                             index_offset, index_count);
+        pgraph_vk_shader_inputs_begin(pg, token, inline_map, base_offset, start,
+                                      count, index_offset, index_count);
+    }
     return token;
 }
 
@@ -4411,8 +4930,15 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
     PGRAPHState *pg = &d->pgraph;
     PGRAPHVkState *r = pg->vk_renderer_state;
 
+    if (!pgraph_vk_has_pending_draw(pg)) {
+        return PGRAPH_VK_DRAW_EMPTY;
+    }
     if (!(r->color_binding || r->zeta_binding)) {
         NV2A_VK_DPRINTF("No binding present!!!\n");
+        pgraph_vk_capture_nonemitted(
+            pg, NULL, PGRAPH_VK_CAPTURE_REJECTED,
+            PGRAPH_VK_CAPTURE_REASON_ATTACHMENT,
+            "Draw rejected because no color or depth attachment is bound");
         return PGRAPH_VK_DRAW_REJECTED;
     }
 
@@ -4433,6 +4959,10 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
                 pg->draw_arrays_max_count - 1, false, 0,
                 pg->draw_arrays_max_count - 1)) {
             NV2A_VK_DGROUP_END();
+            pgraph_vk_capture_nonemitted(
+                pg, NULL, PGRAPH_VK_CAPTURE_REJECTED,
+                PGRAPH_VK_CAPTURE_REASON_VERTEX_FETCH,
+                "Draw rejected because a vertex fetch exceeds its backing storage");
             return PGRAPH_VK_DRAW_REJECTED;
         }
         uint32_t min_element = INT_MAX;
@@ -4447,6 +4977,10 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
 
         if (!begin_pre_draw(pg)) {
             NV2A_VK_DGROUP_END();
+            pgraph_vk_capture_nonemitted(
+                pg, NULL, PGRAPH_VK_CAPTURE_REJECTED,
+                PGRAPH_VK_CAPTURE_REASON_PREPARATION,
+                "Draw rejected during Vulkan pipeline or resource preparation");
             return PGRAPH_VK_DRAW_REJECTED;
         }
         publish_prepared_vertex_data(pg, vertex_data, min_element,
@@ -4462,7 +4996,7 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
             uint64_t token = capture_vk_command(
                 pg, vertex_data.remap.attributes, 0, start, count, 0, 0);
             vkCmdDraw(r->command_buffer, count, 1, start, 0);
-            pgraph_shader_browser_capture_finish(pg, token, true, count, 0);
+            finish_vk_command(pg, token, true, count, 0);
             emitted = true;
         }
         end_draw(pg);
@@ -4493,6 +5027,10 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
                 d, min_element, max_element, false, 0,
                 provoking_element)) {
             NV2A_VK_DGROUP_END();
+            pgraph_vk_capture_nonemitted(
+                pg, NULL, PGRAPH_VK_CAPTURE_REJECTED,
+                PGRAPH_VK_CAPTURE_REASON_VERTEX_FETCH,
+                "Draw rejected because a vertex fetch exceeds its backing storage");
             return PGRAPH_VK_DRAW_REJECTED;
         }
         PGRAPHVkPreparedVertexData vertex_data = prepare_vertex_data(
@@ -4501,6 +5039,10 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
 
         if (!begin_pre_draw(pg)) {
             NV2A_VK_DGROUP_END();
+            pgraph_vk_capture_nonemitted(
+                pg, NULL, PGRAPH_VK_CAPTURE_REJECTED,
+                PGRAPH_VK_CAPTURE_REASON_PREPARATION,
+                "Draw rejected during Vulkan pipeline or resource preparation");
             return PGRAPH_VK_DRAW_REJECTED;
         }
         publish_prepared_vertex_data(pg, vertex_data, min_element,
@@ -4522,9 +5064,18 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
                                    buffer_offset, pg->inline_elements_length);
             vkCmdDrawIndexed(r->command_buffer, pg->inline_elements_length, 1,
                              0, 0, 0);
-            pgraph_shader_browser_capture_finish(pg, token, true, 0,
+            finish_vk_command(pg, token, true, 0,
                                                  pg->inline_elements_length);
             emitted = true;
+        } else if (xemu_shader_capture_session_active()) {
+            uint64_t token = capture_vk_command(
+                pg, vertex_data.remap.attributes, 0, 0, 0,
+                buffer_offset, pg->inline_elements_length);
+            pgraph_vk_capture_outcome(
+                token, PGRAPH_VK_CAPTURE_SUPPRESSED,
+                PGRAPH_VK_CAPTURE_REASON_EFFECT,
+                "Draw suppressed by the configured effect suppression rule");
+            finish_vk_command(pg, token, false, 0, pg->inline_elements_length);
         }
         end_draw(pg);
         pgraph_vk_end_debug_marker(r, r->command_buffer);
@@ -4557,6 +5108,10 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
 
         if (!begin_pre_draw(pg)) {
             NV2A_VK_DGROUP_END();
+            pgraph_vk_capture_nonemitted(
+                pg, NULL, PGRAPH_VK_CAPTURE_REJECTED,
+                PGRAPH_VK_CAPTURE_REASON_PREPARATION,
+                "Draw rejected during Vulkan pipeline or resource preparation");
             return PGRAPH_VK_DRAW_REJECTED;
         }
         VkDeviceSize buffer_offset = pgraph_vk_update_vertex_inline_buffer(
@@ -4568,8 +5123,7 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
         uint64_t token = capture_vk_command(pg, 0xffff, buffer_offset, 0,
                                             pg->inline_buffer_length, 0, 0);
         vkCmdDraw(r->command_buffer, pg->inline_buffer_length, 1, 0, 0);
-        pgraph_shader_browser_capture_finish(pg, token, true,
-                                             pg->inline_buffer_length, 0);
+        finish_vk_command(pg, token, true, pg->inline_buffer_length, 0);
         emitted = true;
         end_draw(pg);
         pgraph_vk_end_debug_marker(r, r->command_buffer);
@@ -4600,17 +5154,33 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
         }
 
         unsigned int vertex_size = offset;
+        if (!vertex_size || pg->inline_array_length * 4 < vertex_size) {
+            NV2A_VK_DGROUP_END();
+            pgraph_vk_capture_nonemitted(
+                pg, NULL, PGRAPH_VK_CAPTURE_EMPTY,
+                PGRAPH_VK_CAPTURE_REASON_EMPTY,
+                "Inline vertex payload does not contain a complete vertex");
+            return PGRAPH_VK_DRAW_EMPTY;
+        }
         unsigned int index_count = pg->inline_array_length * 4 / vertex_size;
 
         NV2A_DPRINTF("draw inline array %d, %d\n", vertex_size, index_count);
         if (!pgraph_vk_bind_vertex_attributes(d, 0, index_count - 1, true,
                                               vertex_size, index_count - 1)) {
             NV2A_VK_DGROUP_END();
+            pgraph_vk_capture_nonemitted(
+                pg, NULL, PGRAPH_VK_CAPTURE_REJECTED,
+                PGRAPH_VK_CAPTURE_REASON_VERTEX_FETCH,
+                "Draw rejected because a vertex fetch exceeds its backing storage");
             return PGRAPH_VK_DRAW_REJECTED;
         }
 
         if (!begin_pre_draw(pg)) {
             NV2A_VK_DGROUP_END();
+            pgraph_vk_capture_nonemitted(
+                pg, NULL, PGRAPH_VK_CAPTURE_REJECTED,
+                PGRAPH_VK_CAPTURE_REASON_PREPARATION,
+                "Draw rejected during Vulkan pipeline or resource preparation");
             return PGRAPH_VK_DRAW_REJECTED;
         }
         void *inline_array_data = pg->inline_array;
@@ -4623,7 +5193,7 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
         uint64_t token =
             capture_vk_command(pg, 0xffff, buffer_offset, 0, index_count, 0, 0);
         vkCmdDraw(r->command_buffer, index_count, 1, 0, 0);
-        pgraph_shader_browser_capture_finish(pg, token, true, index_count, 0);
+        finish_vk_command(pg, token, true, index_count, 0);
         emitted = true;
         end_draw(pg);
         pgraph_vk_end_debug_marker(r, r->command_buffer);
@@ -4637,20 +5207,68 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_internal(NV2AState *d)
     pgraph_shader_browser_record_draw(
         &pg->shader_browser_observations, &r->shader_binding->browser,
         pg->frame_time,
-        r->shader_binding->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER ?
-            XEMU_SHADER_BROWSER_ROUTE_UBER :
-            XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED);
+        pgraph_vk_browser_draw_route(r->shader_binding));
     return emitted ? PGRAPH_VK_DRAW_SUBMITTED : PGRAPH_VK_DRAW_SUPPRESSED;
+}
+
+static PGRAPHVkDrawResult pgraph_vk_flush_draw_timed(NV2AState *d)
+{
+    PGRAPHState *pg = &d->pgraph;
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    PGRAPHShaderBrowserSampler sampler_before = pg->shader_browser_sampler;
+    bool has_data = pg->draw_arrays_length || pg->inline_elements_length ||
+                    pg->inline_buffer_length || pg->inline_array_length;
+    PGRAPHShaderBrowserSampleDecision sample =
+        r->shader_binding && has_data ?
+            pgraph_vk_shader_timing_choose_sample(
+                &pg->shader_browser_sampler, pg->frame_time,
+                r->shader_timing_supported, r->in_command_buffer,
+                r->shader_timing_reset_in_command_buffer) :
+            (PGRAPHShaderBrowserSampleDecision){ 0 };
+    XemuShaderBrowserPerformanceContext context = { 0 };
+    if (sample.cpu &&
+        !pgraph_shader_browser_capture_performance_context(&context))
+        sample.cpu = false;
+    r->shader_timing_requested = sample.gpu;
+    int64_t start_us =
+        r->perf.enabled || sample.cpu ? g_get_monotonic_time() : 0;
+    uint64_t input_snapshots_before = pg->shader_browser_input_snapshots;
+    PGRAPHVkDrawResult result = pgraph_vk_flush_draw_internal(d);
+    r->shader_timing_requested = false;
+    uint64_t elapsed_us =
+        r->perf.enabled || sample.cpu ? g_get_monotonic_time() - start_us : 0;
+    pgraph_vk_perf_record_cpu_region(r, VK_PERF_CPU_DRAW_FLUSH,
+                                     r->perf.enabled ? elapsed_us : 0);
+    if (result != PGRAPH_VK_DRAW_SUBMITTED) {
+        pg->shader_browser_sampler = sampler_before;
+        return result;
+    }
+    if (sample.cpu && r->shader_binding && r->pipeline_binding &&
+        input_snapshots_before == pg->shader_browser_input_snapshots) {
+        pgraph_shader_browser_publish_binding_timing_at_context(
+            &r->shader_binding->browser, XEMU_SHADER_BROWSER_BACKEND_VK,
+            pgraph_vk_browser_draw_route(r->shader_binding),
+            XEMU_SHADER_BROWSER_VARIANT_PIPELINE,
+            pgraph_vk_shader_timing_pipeline_variant_id(
+                &r->pipeline_binding->key, sizeof(r->pipeline_binding->key)),
+            pg->frame_time, XEMU_SHADER_BROWSER_PERF_DRAW_SUBMIT_CPU,
+            elapsed_us * 1000, 1, XEMU_SHADER_BROWSER_SAMPLE_SAMPLED, &context);
+    }
+    return result;
 }
 
 void pgraph_vk_flush_draw(NV2AState *d)
 {
     PGRAPHShaderBrowserBinding skipped_browser;
     if (pgraph_vk_override_skip_draw(&d->pgraph, &skipped_browser)) {
+        pgraph_vk_capture_nonemitted(
+            &d->pgraph, &skipped_browser, PGRAPH_VK_CAPTURE_SUPPRESSED,
+            PGRAPH_VK_CAPTURE_REASON_OVERRIDE,
+            "Draw skipped by a shader override rule");
         return;
     }
     PGRAPHState *pg = &d->pgraph;
-    if (vk_draw_completed(pgraph_vk_flush_draw_internal(d)) &&
+    if (vk_draw_completed(pgraph_vk_flush_draw_timed(d)) &&
         (pg->draw_arrays_length || pg->inline_elements_length ||
          pg->inline_buffer_length || pg->inline_array_length)) {
         pg->vk_renderer_state->draw_scope_had_submission = true;

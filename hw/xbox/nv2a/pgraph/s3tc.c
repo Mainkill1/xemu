@@ -208,16 +208,16 @@ uint8_t *s3tc_decompress_3d(enum S3TC_DECOMPRESS_FORMAT color_format,
     return converted_data;
 }
 
-uint8_t *s3tc_decompress_2d(enum S3TC_DECOMPRESS_FORMAT color_format,
-                            const uint8_t *data, unsigned int width,
-                            unsigned int height)
+void s3tc_decompress_2d_into(enum S3TC_DECOMPRESS_FORMAT color_format,
+                           const uint8_t *data, unsigned int width,
+                           unsigned int height, uint8_t *converted_data)
 {
+    assert(converted_data);
     assert(width > 0);
     assert(height > 0);
     unsigned int physical_width = (width + 3) & ~3,
                  physical_height = (height + 3) & ~3;
     int num_blocks_x = physical_width / 4, num_blocks_y = physical_height / 4;
-    uint8_t *converted_data = (uint8_t *)g_malloc(width * height * 4);
     for (int j = 0; j < num_blocks_y; j++) {
         for (int i = 0; i < num_blocks_x; i++) {
             int block_index = j * num_blocks_x + i;
@@ -235,5 +235,15 @@ uint8_t *s3tc_decompress_2d(enum S3TC_DECOMPRESS_FORMAT color_format,
             }
         }
     }
+}
+
+uint8_t *s3tc_decompress_2d(enum S3TC_DECOMPRESS_FORMAT color_format,
+                            const uint8_t *data, unsigned int width,
+                            unsigned int height)
+{
+    assert(width > 0);
+    assert(height > 0);
+    uint8_t *converted_data = (uint8_t *)g_malloc(width * height * 4);
+    s3tc_decompress_2d_into(color_format, data, width, height, converted_data);
     return converted_data;
 }

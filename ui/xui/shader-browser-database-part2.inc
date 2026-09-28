@@ -174,10 +174,90 @@ CREATE INDEX IF NOT EXISTS idx_shader_artifacts_shader ON shader_artifacts(shade
     int rc = sqlite3_step(stmt);
     int version = rc == SQLITE_ROW ? sqlite3_column_int(stmt, 0) : 0;
     sqlite3_finalize(stmt);
-    if (version != static_cast<int>(kShaderDatabaseSchemaVersion)) {
+    if (version > static_cast<int>(kShaderDatabaseSchemaVersion) ||
+        version < 1) {
         if (error) *error = "Unsupported shader database schema version " +
                             std::to_string(version);
         return false;
+    }
+    if (version == 1) {
+        const char *migration = R"SQL(
+BEGIN IMMEDIATE;
+CREATE TABLE IF NOT EXISTS shader_performance_stats(
+    session_id TEXT NOT NULL,
+    owner INTEGER NOT NULL,
+    backend INTEGER NOT NULL,
+    route INTEGER NOT NULL,
+    variant_id INTEGER NOT NULL,
+    metric INTEGER NOT NULL,
+    members BLOB NOT NULL,
+    flags INTEGER NOT NULL DEFAULT 0,
+    first_frame INTEGER NOT NULL DEFAULT 0,
+    last_frame INTEGER NOT NULL DEFAULT 0,
+    represented_draws INTEGER NOT NULL DEFAULT 0,
+    samples INTEGER NOT NULL DEFAULT 0,
+    total_ns INTEGER NOT NULL DEFAULT 0,
+    min_ns INTEGER NOT NULL DEFAULT 0,
+    max_ns INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY(session_id,owner,backend,route,variant_id,metric,flags,members),
+    FOREIGN KEY(session_id) REFERENCES shader_sessions(session_id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_shader_performance_stats_session
+    ON shader_performance_stats(session_id,owner);
+UPDATE schema_info SET schema_version=2;
+COMMIT;
+)SQL";
+        if (!Exec(db, migration, error)) {
+            Exec(db, "ROLLBACK", nullptr);
+            return false;
+        }
+        version = 2;
+    }
+    if (version == 2) {
+        // The old variant ID could name either a binding or a pipeline.
+        // Preserve legacy rows as binding data; new pipeline samples use an
+        // explicit kind and can no longer collide with those rows.
+        const char *migration = R"SQL(
+BEGIN IMMEDIATE;
+CREATE TABLE shader_performance_stats_v3(
+    session_id TEXT NOT NULL,
+    owner INTEGER NOT NULL,
+    backend INTEGER NOT NULL,
+    route INTEGER NOT NULL,
+    variant_kind INTEGER NOT NULL,
+    variant_id INTEGER NOT NULL,
+    metric INTEGER NOT NULL,
+    members BLOB NOT NULL,
+    flags INTEGER NOT NULL DEFAULT 0,
+    first_frame INTEGER NOT NULL DEFAULT 0,
+    last_frame INTEGER NOT NULL DEFAULT 0,
+    represented_draws INTEGER NOT NULL DEFAULT 0,
+    samples INTEGER NOT NULL DEFAULT 0,
+    total_ns INTEGER NOT NULL DEFAULT 0,
+    min_ns INTEGER NOT NULL DEFAULT 0,
+    max_ns INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY(session_id,owner,backend,route,variant_kind,variant_id,
+                metric,flags,members),
+    FOREIGN KEY(session_id) REFERENCES shader_sessions(session_id) ON DELETE CASCADE
+);
+INSERT INTO shader_performance_stats_v3(
+    session_id,owner,backend,route,variant_kind,variant_id,metric,members,
+    flags,first_frame,last_frame,represented_draws,samples,total_ns,min_ns,max_ns)
+SELECT session_id,owner,backend,route,CASE WHEN owner=2 THEN 1 ELSE 0 END,
+       variant_id,metric,members,flags,first_frame,last_frame,
+       represented_draws,samples,total_ns,min_ns,max_ns
+FROM shader_performance_stats;
+DROP TABLE shader_performance_stats;
+ALTER TABLE shader_performance_stats_v3 RENAME TO shader_performance_stats;
+CREATE INDEX idx_shader_performance_stats_session
+    ON shader_performance_stats(session_id,owner);
+UPDATE schema_info SET schema_version=3;
+COMMIT;
+)SQL";
+        if (!Exec(db, migration, error)) {
+            Exec(db, "ROLLBACK", nullptr);
+            return false;
+        }
     }
     return true;
 }
@@ -225,4 +305,3 @@ bool ShaderDatabase::LoadCache(sqlite3 *db, std::string *error)
         return false;
     }
     sqlite3_finalize(stmt);
-

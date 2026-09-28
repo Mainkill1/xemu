@@ -33,6 +33,7 @@
 #include "hw/xbox/nv2a/pgraph/texture.h"
 #include "hw/xbox/nv2a/pgraph/glsl/shaders.h"
 #include "hw/xbox/nv2a/pgraph/glsl/shader-browser-publication.h"
+#include "ui/xui/shader-browser-capture-replay-description.h"
 
 #include <vulkan/vulkan.h>
 #include <glslang/Include/glslang_c_interface.h>
@@ -141,6 +142,17 @@ typedef enum PGRAPHVkFallbackShaderPreparation {
     PGRAPH_VK_FALLBACK_SHADER_READY,
 } PGRAPHVkFallbackShaderPreparation;
 
+/* Native create-info snapshots with every pointer cleared before retention.
+ * Shader captures contain state values without live objects or addresses. */
+typedef struct PGRAPHVkCapturedPipelineState {
+    VkPipelineInputAssemblyStateCreateInfo assembly;
+    VkPipelineRasterizationStateCreateInfo raster;
+    VkPipelineMultisampleStateCreateInfo multisample;
+    VkPipelineDepthStencilStateCreateInfo depth_stencil;
+    VkPipelineColorBlendStateCreateInfo blend;
+    VkPipelineColorBlendAttachmentState color_attachment;
+} PGRAPHVkCapturedPipelineState;
+
 typedef struct PipelineBinding {
     LruNode node;
     PipelineKey key;
@@ -151,6 +163,7 @@ typedef struct PipelineBinding {
     bool prewarmed;
     bool has_dynamic_line_width;
     uint32_t dynamic_blend_constant_mask;
+    PGRAPHVkCapturedPipelineState capture_state;
     PGRAPHVkFamilyLearnState family_learn_state;
 } PipelineBinding;
 
@@ -176,12 +189,15 @@ typedef struct PGRAPHVkHybridPipelineWork {
     uint64_t ticket;
     uint64_t key_hash;
     PipelineKey key;
+    PGRAPHShaderBrowserBinding browser;
+    XemuShaderBrowserPerformanceContext browser_context;
     /* A completed result waits here if every LRU entry is still in use. */
     VkPipeline completed_pipeline;
     VkPipelineLayout layout;
     VkRenderPass render_pass;
     uint32_t dynamic_blend_constant_mask;
     bool has_dynamic_line_width;
+    PGRAPHVkCapturedPipelineState capture_state;
     struct ShaderModuleInfo *modules[3];
 } PGRAPHVkHybridPipelineWork;
 
@@ -211,7 +227,13 @@ typedef struct StorageBuffer {
     size_t buffer_offset;
     size_t buffer_size;
     uint8_t *mapped;
+    uint64_t capture_owner;
 } StorageBuffer;
+
+typedef struct PGRAPHVkCaptureBatch {
+    uint64_t handle;
+    uint64_t ordinal[3];
+} PGRAPHVkCaptureBatch;
 
 typedef struct SurfaceBinding {
     QTAILQ_ENTRY(SurfaceBinding) entry;
@@ -257,6 +279,8 @@ typedef struct SurfaceBinding {
 
     /* Identifies this logical binding even when its allocation is recycled. */
     uint64_t lifetime_id;
+    uint64_t capture_owner, capture_bytes;
+    PGRAPHState *capture_pg;
 } SurfaceBinding;
 
 typedef struct ShaderModuleInfo {
@@ -329,6 +353,7 @@ typedef struct PGRAPHVkHybridShaderWork {
     int64_t retry_after_us;
     PGRAPHVkHybridWork metadata;
     ShaderModuleCacheKey module_key;
+    XemuShaderBrowserPerformanceContext browser_context;
     char *glsl;
     /* PR70/cache identity length; glsl[glsl_size] is the owned NUL. */
     size_t glsl_size;
@@ -458,7 +483,17 @@ typedef struct TextureBinding {
     VkImageLayout current_layout;
     VkImageView image_view;
     VmaAllocation allocation;
+    uint64_t capture_owner, capture_bytes;
+    PGRAPHState *capture_pg;
     VkSampler sampler;
+    VkExtent3D storage_extent;
+    uint32_t storage_mip_levels;
+    uint32_t storage_layer_count;
+    VkComponentMapping component_mapping;
+    VkImageType storage_image_type;
+    bool input_transfer_src;
+    VkFilter sampler_min_filter, sampler_mag_filter;
+    VkSamplerAddressMode sampler_wrap_s, sampler_wrap_t, sampler_wrap_r;
     bool possibly_dirty;
     uint64_t hash;
     unsigned int draw_time;
@@ -748,6 +783,9 @@ typedef struct PGRAPHVkState {
     bool in_command_buffer;
     uint32_t submit_count;
     PGRAPHVkBlendConstantsCache blend_constants;
+    VkViewport capture_viewport;
+    VkRect2D capture_scissor;
+    float capture_line_width;
 
     VkCommandBuffer aux_command_buffer;
     bool in_aux_command_buffer;
@@ -783,6 +821,11 @@ typedef struct PGRAPHVkState {
     int descriptor_set_index;
 
     StorageBuffer storage_buffers[BUFFER_COUNT];
+    PGRAPHVkCaptureBatch capture_main_batch, capture_auxiliary_batch;
+    uint64_t capture_queue_ordinal;
+    uint64_t capture_deferred_copy_token[BUFFER_COUNT];
+    uint64_t capture_deferred_copy_batch[BUFFER_COUNT];
+    bool capture_finish_auxiliary;
 
     MemorySyncRequirement vertex_ram_buffer_syncs[NV2A_VERTEXSHADER_ATTRIBUTES];
     size_t num_vertex_ram_buffer_syncs;
@@ -900,6 +943,28 @@ typedef struct PGRAPHVkState {
     bool uploaded_uber_controls_valid;
 
     VkQueryPool query_pool;
+#define PGRAPH_VK_SHADER_TIMING_SLOTS 256
+    VkQueryPool shader_timing_pool;
+    bool shader_timing_supported;
+    uint32_t shader_timing_valid_bits;
+    bool shader_timing_reset_in_command_buffer;
+    bool shader_timing_requested;
+    bool shader_timing_written;
+    uint32_t shader_timing_used;
+    uint32_t shader_timing_active_slot;
+    struct {
+        PGRAPHShaderBrowserBinding binding;
+        XemuShaderBrowserPerformanceContext context;
+        uint64_t variant_id;
+        uint64_t frame;
+        uint32_t route;
+        bool complete;
+        uint64_t submission_before;
+        uint64_t input_snapshots_before;
+    } shader_timing_slots[PGRAPH_VK_SHADER_TIMING_SLOTS];
+    struct PGRAPHVkShaderInputs *shader_browser_inputs;
+    size_t shader_browser_input_staging_bytes;
+    uint32_t shader_browser_input_events;
     int max_queries_in_flight; // FIXME: Move out to constant
     int num_queries_in_flight;
     bool new_query_needed;
@@ -966,6 +1031,9 @@ bool pgraph_vk_init_shader_module_layout_from_spv(
 void pgraph_vk_clear_shader_module_layout(ShaderModuleInfo *info);
 ShaderModuleInfo *pgraph_vk_create_shader_module_from_glsl(
     PGRAPHVkState *r, VkShaderStageFlagBits stage, const char *glsl);
+ShaderModuleInfo *pgraph_vk_create_shader_module_from_glsl_profiled(
+    PGRAPHVkState *r, VkShaderStageFlagBits stage, const char *glsl,
+    uint64_t *compile_ns, uint64_t *module_ns);
 ShaderModuleInfo *pgraph_vk_create_shader_module_from_spirv(
     PGRAPHVkState *r, VkShaderStageFlagBits expected_stage, const char *glsl,
     GByteArray *spirv);
@@ -994,6 +1062,47 @@ VkDeviceSize pgraph_vk_append_to_buffer(PGRAPHState *pg, int index, void **data,
                                         VkDeviceAddress alignment);
 
 // command.c
+uint64_t pgraph_vk_capture_batch_handle(PGRAPHState *pg, bool auxiliary);
+bool pgraph_vk_capture_hold(PGRAPHState *pg, VkCommandBuffer cmd,
+                            uint64_t token);
+void pgraph_vk_capture_record(PGRAPHState *pg, VkCommandBuffer cmd,
+                              uint64_t token, uint32_t kind);
+void pgraph_vk_capture_abort(PGRAPHState *pg, VkCommandBuffer cmd,
+                             VkResult result);
+uint64_t pgraph_vk_capture_submit(PGRAPHState *pg, VkCommandBuffer cmd,
+                                  VkResult result);
+void pgraph_vk_capture_retire(uint64_t batch, VkResult result);
+void pgraph_vk_capture_buffer_upload(PGRAPHState *pg, int index,
+                                     VkDeviceSize offset, VkDeviceSize size,
+                                     const void *data, bool unknown_source);
+uint64_t pgraph_vk_capture_buffer_copy(PGRAPHState *pg, VkCommandBuffer cmd,
+                                       int source, int destination,
+                                       VkDeviceSize source_offset,
+                                       VkDeviceSize destination_offset,
+                                       VkDeviceSize bytes, bool deferred);
+void pgraph_vk_capture_resource_write(
+    PGRAPHState *pg, VkCommandBuffer cmd, uint32_t event_kind, uint64_t owner,
+    uint64_t bytes, uint32_t resource_kind, bool opaque, uint64_t source_owner,
+    uint64_t source_bytes, uint32_t source_kind, bool source_opaque,
+    uint64_t source_offset, uint64_t source_size);
+bool pgraph_vk_capture_draw_description(
+    PGRAPHState *pg, bool indexed,
+    XemuShaderCaptureReplayDescription *description);
+void pgraph_vk_capture_draw_replay(PGRAPHState *pg, uint64_t token,
+                                   uint32_t index_count);
+uint64_t pgraph_vk_capture_color_image_copy(PGRAPHState *pg,
+                                            VkCommandBuffer cmd,
+                                            const SurfaceBinding *source,
+                                            const TextureBinding *destination,
+                                            const VkImageCopy *region);
+bool pgraph_vk_capture_clear_description(
+    PGRAPHState *pg, uint32_t parameter, uint32_t count,
+    const VkClearAttachment *attachments, const VkClearRect *rect,
+    bool masked_draw, XemuShaderCaptureReplayDescription *description);
+uint64_t pgraph_vk_capture_clear(
+    PGRAPHState *pg, VkCommandBuffer cmd, uint32_t parameter, uint32_t count,
+    const VkClearAttachment *attachments, const VkClearRect *rect,
+    bool masked_draw, const float *masked_color);
 void pgraph_vk_init_command_buffers(PGRAPHState *pg);
 void pgraph_vk_finalize_command_buffers(PGRAPHState *pg);
 VkCommandBuffer pgraph_vk_begin_single_time_commands(PGRAPHState *pg);

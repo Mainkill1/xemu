@@ -25,6 +25,7 @@
 #include "hw/xbox/nv2a/pgraph/vertex-fetch-span.h"
 #include "debug.h"
 #include "renderer.h"
+#include "hw/xbox/nv2a/pgraph/shader-browser-resource.h"
 
 static void update_memory_buffer(NV2AState *d, hwaddr addr, hwaddr size,
                                  bool quick)
@@ -50,6 +51,9 @@ static void update_memory_buffer(NV2AState *d, hwaddr addr, hwaddr size,
                                            DIRTY_MEMORY_NV2A)) {
         glBufferSubData(GL_ARRAY_BUFFER, addr, size,
                         d->vram_ptr + addr);
+        pgraph_shader_resource_buffer_upload(
+            pg, r->capture_memory_owner, r->capture_memory_bytes, addr, size,
+            d->vram_ptr + addr, true);
         nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_1);
     }
 }
@@ -61,6 +65,9 @@ void pgraph_gl_update_entire_memory_buffer(NV2AState *d)
 
     glBindBuffer(GL_ARRAY_BUFFER, r->gl_memory_buffer);
     glBufferSubData(GL_ARRAY_BUFFER, 0, memory_region_size(d->vram), d->vram_ptr);
+    pgraph_shader_resource_buffer_upload(
+        pg, r->capture_memory_owner, r->capture_memory_bytes, 0,
+        memory_region_size(d->vram), d->vram_ptr, true);
 }
 
 bool pgraph_gl_bind_vertex_attributes(NV2AState *d, unsigned int min_element,
@@ -253,7 +260,15 @@ unsigned int pgraph_gl_bind_inline_array(NV2AState *d)
     glBindBuffer(GL_ARRAY_BUFFER, r->gl_inline_array_buffer);
     GLsizeiptr buffer_size = index_count * vertex_size;
     glBufferData(GL_ARRAY_BUFFER, buffer_size, NULL, GL_STREAM_DRAW);
+    xemu_shader_capture_session_resource_release(
+        r->capture_inline_array_owner, r->capture_inline_array_bytes,
+        XEMU_SHADER_CAPTURE_RESOURCE_BUFFER, 0);
+    r->capture_inline_array_owner = xemu_shader_capture_resource_new_owner();
+    r->capture_inline_array_bytes = buffer_size;
     glBufferSubData(GL_ARRAY_BUFFER, 0, buffer_size, pg->inline_array);
+    pgraph_shader_resource_buffer_upload(
+        pg, r->capture_inline_array_owner, buffer_size, 0, buffer_size,
+        pg->inline_array, false);
     if (!pgraph_gl_bind_vertex_attributes(d, 0, index_count - 1, true,
                                           vertex_size, index_count - 1)) {
         return 0;
@@ -289,6 +304,8 @@ void pgraph_gl_init_buffers(NV2AState *d)
     glGenBuffers(element_cache_size, element_cache_buffers);
     for (int i = 0; i < element_cache_size; i++) {
         r->element_cache_entries[i].gl_buffer = element_cache_buffers[i];
+        r->element_cache_entries[i].capture_owner = 0;
+        r->element_cache_entries[i].capture_bytes = 0;
         lru_add_free(&r->element_cache, &r->element_cache_entries[i].node);
     }
 
@@ -306,6 +323,8 @@ void pgraph_gl_init_buffers(NV2AState *d)
     glBindBuffer(GL_ARRAY_BUFFER, r->gl_memory_buffer);
     glBufferData(GL_ARRAY_BUFFER, memory_region_size(d->vram),
                  NULL, GL_DYNAMIC_DRAW);
+    r->capture_memory_owner = xemu_shader_capture_resource_new_owner();
+    r->capture_memory_bytes = memory_region_size(d->vram);
 
     glGenVertexArrays(1, &r->gl_vertex_array);
     glBindVertexArray(r->gl_vertex_array);
@@ -320,6 +339,10 @@ void pgraph_gl_finalize_buffers(PGRAPHState *pg)
     GLuint element_cache_buffers[element_cache_size];
     for (int i = 0; i < element_cache_size; i++) {
         element_cache_buffers[i] = r->element_cache_entries[i].gl_buffer;
+        xemu_shader_capture_session_resource_release(
+            r->element_cache_entries[i].capture_owner,
+            r->element_cache_entries[i].capture_bytes,
+            XEMU_SHADER_CAPTURE_RESOURCE_BUFFER, 0);
     }
     glDeleteBuffers(element_cache_size, element_cache_buffers);
     lru_flush(&r->element_cache);
@@ -328,12 +351,26 @@ void pgraph_gl_finalize_buffers(PGRAPHState *pg)
     r->element_cache_entries = NULL;
 
     glDeleteBuffers(NV2A_VERTEXSHADER_ATTRIBUTES, r->gl_inline_buffer);
+    for (uint32_t i = 0; i < NV2A_VERTEXSHADER_ATTRIBUTES; ++i) {
+        xemu_shader_capture_session_resource_release(
+            r->capture_inline_owner[i], r->capture_inline_bytes[i],
+            XEMU_SHADER_CAPTURE_RESOURCE_BUFFER, 0);
+        r->capture_inline_owner[i] = r->capture_inline_bytes[i] = 0;
+    }
     memset(r->gl_inline_buffer, 0, sizeof(r->gl_inline_buffer));
 
     glDeleteBuffers(1, &r->gl_inline_array_buffer);
+    xemu_shader_capture_session_resource_release(
+        r->capture_inline_array_owner, r->capture_inline_array_bytes,
+        XEMU_SHADER_CAPTURE_RESOURCE_BUFFER, 0);
+    r->capture_inline_array_owner = r->capture_inline_array_bytes = 0;
     r->gl_inline_array_buffer = 0;
 
     glDeleteBuffers(1, &r->gl_memory_buffer);
+    xemu_shader_capture_session_resource_release(
+        r->capture_memory_owner, r->capture_memory_bytes,
+        XEMU_SHADER_CAPTURE_RESOURCE_BUFFER, 0);
+    r->capture_memory_owner = r->capture_memory_bytes = 0;
     r->gl_memory_buffer = 0;
 
     glDeleteVertexArrays(1, &r->gl_vertex_array);

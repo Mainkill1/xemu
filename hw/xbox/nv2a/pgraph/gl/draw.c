@@ -26,9 +26,104 @@
 #include "debug.h"
 #include "draw-lifecycle.h"
 #include "renderer.h"
+#include "hw/xbox/nv2a/pgraph/shader-browser-resource.h"
 #include "shader-browser-capture.h"
+#include "shader-browser-inputs.h"
+#include "shader-browser-raw-inputs.h"
 
 static PGRAPHGLDrawResult pgraph_gl_flush_draw_internal(NV2AState *d);
+
+static void capture_gl_not_emitted(PGRAPHState *pg,
+                                   const PGRAPHShaderBrowserBinding *binding,
+                                   uint32_t outcome, uint32_t reason,
+                                   const char *text)
+{
+    if (!xemu_shader_capture_session_active() ||
+        !(pg->draw_arrays_length || pg->inline_elements_length ||
+          pg->inline_buffer_length || pg->inline_array_length))
+        return;
+    uint64_t token = pgraph_shader_browser_capture_claim(pg, binding);
+    if (!token)
+        return;
+    if (binding) {
+        bool dirty = pg->program_data_dirty;
+        ShaderState state = pgraph_glsl_get_shader_state(pg);
+        pg->program_data_dirty = dirty;
+        pgraph_shader_browser_capture_recipes(token, &state, binding);
+    }
+    xemu_shader_draw_request_stage_register(token, "capture.backend",
+                                            XEMU_SHADER_BROWSER_BACKEND_GL);
+    xemu_shader_draw_request_stage_register(token, "capture.outcome", outcome);
+    xemu_shader_draw_request_stage_register(token, "capture.reject_reason",
+                                            reason);
+    XemuShaderDrawBlob explanation = { .name = "capture.reason",
+                                       .data = text,
+                                       .byte_count = strlen(text) };
+    xemu_shader_draw_request_stage_blob(token, &explanation);
+    if (pg->inline_elements_length) {
+        XemuShaderDrawBlob indices = {
+            .name = "geometry.guest_indices",
+            .data = pg->inline_elements,
+            .byte_count =
+                pg->inline_elements_length * sizeof(pg->inline_elements[0]),
+            .count = pg->inline_elements_length,
+            .stride = sizeof(pg->inline_elements[0])
+        };
+        xemu_shader_draw_request_stage_blob(token, &indices);
+    }
+    if (pg->inline_array_length) {
+        XemuShaderDrawBlob vertices = {
+            .name = "geometry.guest_inline_array",
+            .data = pg->inline_array,
+            .byte_count = pg->inline_array_length * sizeof(pg->inline_array[0]),
+            .count = pg->inline_array_length,
+            .stride = sizeof(pg->inline_array[0])
+        };
+        xemu_shader_draw_request_stage_blob(token, &vertices);
+    }
+    pgraph_shader_browser_capture_finish(pg, token, false, 0,
+                                         pg->inline_elements_length);
+    xemu_shader_draw_request_inputs_complete(token);
+}
+
+void pgraph_gl_retire_shader_timing(PGRAPHGLState *r)
+{
+    if (!r->shader_timing_initialized)
+        return;
+    while (r->shader_timing_tail != r->shader_timing_head) {
+        uint32_t index = r->shader_timing_tail % PGRAPH_GL_SHADER_TIMING_SLOTS;
+        GLuint *queries = &r->shader_timing_queries[index * 2];
+        GLint available = GL_FALSE;
+        glGetQueryObjectiv(queries[1], GL_QUERY_RESULT_AVAILABLE, &available);
+        if (!available)
+            break;
+        PGRAPHGLShaderTimingSlot *slot = &r->shader_timing_slots[index];
+        if (slot->submitted) {
+            if (xemu_shader_browser_gpu_profiling_enabled()) {
+                GLuint64 start = 0, end = 0;
+                glGetQueryObjectui64v(queries[0], GL_QUERY_RESULT, &start);
+                glGetQueryObjectui64v(queries[1], GL_QUERY_RESULT, &end);
+                if (end > start) {
+                    pgraph_shader_browser_publish_binding_timing_at_context(
+                        &slot->binding, XEMU_SHADER_BROWSER_BACKEND_GL,
+                        slot->route, XEMU_SHADER_BROWSER_VARIANT_BINDING,
+                        slot->variant_id, slot->frame,
+                        XEMU_SHADER_BROWSER_PERF_DRAW_GPU,
+                        (uint64_t)(end - start), 1,
+                        XEMU_SHADER_BROWSER_SAMPLE_SAMPLED, &slot->context);
+                } else {
+                    xemu_shader_browser_record_dropped_samples(1);
+                }
+            } else {
+                xemu_shader_browser_record_dropped_samples(1);
+            }
+        }
+        ++r->shader_timing_tail;
+    }
+    xemu_shader_browser_report_gpu_state(
+        XEMU_SHADER_BROWSER_BACKEND_GL, r->shader_timing_supported,
+        r->shader_timing_head - r->shader_timing_tail);
+}
 
 void pgraph_gl_clear_surface(NV2AState *d, uint32_t parameter)
 {
@@ -122,6 +217,23 @@ void pgraph_gl_clear_surface(NV2AState *d, uint32_t parameter)
     }
 
     glClear(gl_mask);
+    uint64_t token = pgraph_shader_resource_begin(pg, XEMU_SHADER_CAPTURE_CLEAR);
+    SurfaceBinding *targets[] = { write_color ? r->color_binding : NULL,
+                                 write_zeta ? r->zeta_binding : NULL };
+    for (uint32_t i = 0; i < ARRAY_SIZE(targets); ++i) {
+        SurfaceBinding *binding = targets[i];
+        if (!binding)
+            continue;
+        uint32_t kind = binding->color ? XEMU_SHADER_CAPTURE_RESOURCE_COLOR :
+                                        XEMU_SHADER_CAPTURE_RESOURCE_DEPTH_STENCIL;
+        pgraph_shader_resource_stage(token, binding->capture_owner, 1,
+                                     XEMU_SHADER_CAPTURE_RESOURCE_READ,
+                                     kind, 0, true);
+        pgraph_shader_resource_stage(token, binding->capture_owner, 1,
+                                     XEMU_SHADER_CAPTURE_RESOURCE_UNCERTAIN_WRITE,
+                                     kind, 0, true);
+    }
+    pgraph_shader_resource_finish(token);
 
     glDisable(GL_SCISSOR_TEST);
 
@@ -366,6 +478,83 @@ void pgraph_gl_draw_end(NV2AState *d)
     NV2A_GL_DGROUP_END();
 }
 
+static bool capture_gl_primitive_restart(void)
+{
+    return glIsEnabled(GL_PRIMITIVE_RESTART) ||
+           ((epoxy_gl_version() >= 43 ||
+             epoxy_has_gl_extension("GL_ARB_ES3_compatibility")) &&
+            glIsEnabled(GL_PRIMITIVE_RESTART_FIXED_INDEX));
+}
+
+static void capture_gl_geometry(PGRAPHState *pg, uint64_t token, bool indexed,
+                                const int32_t *starts, const int32_t *counts,
+                                size_t ranges)
+{
+    if (!token)
+        return;
+    if (!xemu_shader_draw_topology_supported(pg->primitive_mode) ||
+        (indexed && capture_gl_primitive_restart())) {
+        xemu_shader_draw_request_note_rejection(
+            token, XEMU_SHADER_CAPTURE_REJECT_TOPOLOGY);
+        return;
+    }
+    g_autofree XemuShaderDrawLayout *layout =
+        g_try_new(XemuShaderDrawLayout, 1);
+    if (!layout) {
+        xemu_shader_draw_request_note_rejection(
+            token, XEMU_SHADER_CAPTURE_REJECT_BUDGET);
+        return;
+    }
+    if (indexed) {
+        if (pg->inline_elements_length > 12288) {
+            xemu_shader_draw_request_note_rejection(
+                token, XEMU_SHADER_CAPTURE_REJECT_BUDGET);
+            return;
+        }
+        GLint buffer;
+        glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &buffer);
+        g_autofree uint8_t *indices = xemu_shader_draw_gl_read_buffer(
+            buffer, 0, pg->inline_elements_length * sizeof(uint32_t));
+        if (!indices) {
+            xemu_shader_draw_request_note_rejection(
+                token, XEMU_SHADER_CAPTURE_REJECT_POSITION_UNAVAILABLE);
+            return;
+        }
+        if (!xemu_shader_draw_layout_elements_topology(
+                layout, pg->primitive_mode, indices,
+                pg->inline_elements_length)) {
+            xemu_shader_draw_request_note_rejection(
+                token, XEMU_SHADER_CAPTURE_REJECT_INDICES);
+            return;
+        }
+    } else if (!xemu_shader_draw_layout_arrays_topology(
+                   layout, pg->primitive_mode, starts, counts, ranges)) {
+        xemu_shader_draw_request_note_rejection(
+            token, XEMU_SHADER_CAPTURE_REJECT_INDICES);
+        return;
+    }
+    xemu_shader_draw_gl_stage_bound(token, layout);
+    return;
+}
+
+static void capture_gl_host_buffer_upload(PGRAPHState *pg, uint64_t owner,
+                                           uint64_t bytes, const void *data)
+{
+    uint64_t token = pgraph_shader_resource_begin(pg, XEMU_SHADER_CAPTURE_UPLOAD);
+    if (!token)
+        return;
+    XemuShaderDrawBlob blob = { .name = "resource.buffer.upload",
+                                .data = data, .byte_count = bytes };
+    xemu_shader_draw_request_stage_blob(token, &blob);
+    XemuShaderCaptureResource resource = {
+        .owner = owner, .byte_size = bytes, .size = bytes,
+        .access = XEMU_SHADER_CAPTURE_RESOURCE_PARTIAL_WRITE,
+        .kind = XEMU_SHADER_CAPTURE_RESOURCE_BUFFER,
+    };
+    xemu_shader_capture_session_resource_snapshot(token, &resource, blob.name);
+    pgraph_shader_resource_finish(token);
+}
+
 static uint64_t capture_gl_command(PGRAPHState *pg, bool indexed,
                                    const int32_t *starts, const int32_t *counts,
                                    size_t ranges)
@@ -373,28 +562,53 @@ static uint64_t capture_gl_command(PGRAPHState *pg, bool indexed,
     PGRAPHGLState *r = pg->gl_renderer_state;
     uint64_t token =
         pgraph_shader_browser_capture_claim(pg, &r->shader_binding->browser);
-    if (!token || pg->primitive_mode != NV097_SET_BEGIN_END_OP_TRIANGLES)
-        return token;
-    g_autofree XemuShaderDrawLayout *layout =
-        g_try_new(XemuShaderDrawLayout, 1);
-    if (!layout)
-        return token;
-    if (indexed) {
-        if (pg->inline_elements_length > 12288)
-            return token;
-        GLint buffer;
-        glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &buffer);
-        g_autofree uint8_t *indices = xemu_shader_draw_gl_read_buffer(
-            buffer, 0, pg->inline_elements_length * sizeof(uint32_t));
-        if (!indices || !xemu_shader_draw_layout_elements(
-                            layout, indices, pg->inline_elements_length))
-            return token;
-    } else if (!xemu_shader_draw_layout_arrays(layout, starts, counts,
-                                               ranges)) {
-        return token;
+    if (!token)
+        return 0;
+    if (xemu_shader_capture_session_token(token)) {
+        SurfaceBinding *targets[] = { r->color_binding, r->zeta_binding };
+        for (uint32_t i = 0; i < ARRAY_SIZE(targets); ++i) {
+            SurfaceBinding *binding = targets[i];
+            if (!binding)
+                continue;
+            uint32_t kind = binding->color ? XEMU_SHADER_CAPTURE_RESOURCE_COLOR :
+                                            XEMU_SHADER_CAPTURE_RESOURCE_DEPTH_STENCIL;
+            pgraph_shader_resource_stage(token, binding->capture_owner, 1,
+                                         XEMU_SHADER_CAPTURE_RESOURCE_READ,
+                                         kind, 0, true);
+            pgraph_shader_resource_stage(token, binding->capture_owner, 1,
+                                         XEMU_SHADER_CAPTURE_RESOURCE_UNCERTAIN_WRITE,
+                                         kind, 0, true);
+        }
     }
-    xemu_shader_draw_gl_stage_bound(token, layout);
+    bool program_data_dirty = pg->program_data_dirty;
+    ShaderState guest_state = pgraph_glsl_get_shader_state(pg);
+    pg->program_data_dirty = program_data_dirty;
+    pgraph_shader_browser_capture_recipes(token, &guest_state,
+                                          &r->shader_binding->browser);
+    xemu_shader_draw_request_stage_register(
+        token, "host.primitive_mode", r->shader_binding->gl_primitive_mode);
+    xemu_shader_draw_request_stage_register(
+        token, "host.primitive_restart", capture_gl_primitive_restart());
+    shader_capture_gl_raw_streams(pg, token, indexed, starts, counts, ranges);
+    capture_gl_geometry(pg, token, indexed, starts, counts, ranges);
+    xemu_shader_draw_gl_stage_before(pg, token);
+    xemu_shader_draw_request_stage_register(token, "capture.backend",
+                                            XEMU_SHADER_BROWSER_BACKEND_GL);
+    GLint active_program;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &active_program);
+    xemu_shader_draw_request_stage_register(
+        token, "capture.route",
+        (GLuint)active_program == r->shader_binding->gl_program ?
+            XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED :
+            XEMU_SHADER_BROWSER_ROUTE_REPLACEMENT);
     return token;
+}
+
+static void finish_gl_command(PGRAPHState *pg, uint64_t token,
+                              uint32_t vertices, uint32_t indices)
+{
+    xemu_shader_draw_gl_stage_after(pg, token);
+    pgraph_shader_browser_capture_finish(pg, token, true, vertices, indices);
 }
 
 static PGRAPHGLDrawResult pgraph_gl_flush_draw_internal(NV2AState *d)
@@ -430,7 +644,7 @@ static PGRAPHGLDrawResult pgraph_gl_flush_draw_internal(NV2AState *d)
         uint32_t vertices = 0;
         for (size_t i = 0; i < pg->draw_arrays_length; ++i)
             vertices += pg->draw_arrays_count[i];
-        pgraph_shader_browser_capture_finish(pg, token, true, vertices, 0);
+        finish_gl_command(pg, token, vertices, 0);
         return PGRAPH_GL_DRAW_SUBMITTED;
     } else if (pg->inline_elements_length) {
         NV2A_GL_DPRINTF(false, "Inline Elements");
@@ -468,10 +682,21 @@ static PGRAPHGLDrawResult pgraph_gl_flush_draw_internal(NV2AState *d)
             glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                          pg->inline_elements_length * 4,
                          pg->inline_elements, GL_STATIC_DRAW);
+            xemu_shader_capture_session_resource_release(
+                found->capture_owner, found->capture_bytes,
+                XEMU_SHADER_CAPTURE_RESOURCE_BUFFER, 0);
+            found->capture_owner = xemu_shader_capture_resource_new_owner();
+            found->capture_bytes = pg->inline_elements_length * 4;
+            capture_gl_host_buffer_upload(pg, found->capture_owner,
+                                           found->capture_bytes,
+                                           pg->inline_elements);
             found->initialized = true;
         } else {
             nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_4_NOTDIRTY);
         }
+        r->capture_element_owner = found->capture_owner;
+        r->capture_element_bytes = found->capture_bytes;
+        r->capture_element_buffer = found->gl_buffer;
         if (!xemu_tweak_enabled(XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION) ||
             !pgraph_matches_issue149_effect(pg, pg->inline_elements_length,
                                             min_element, max_element)) {
@@ -479,9 +704,18 @@ static PGRAPHGLDrawResult pgraph_gl_flush_draw_internal(NV2AState *d)
             glDrawElements(r->shader_binding->gl_primitive_mode,
                            pg->inline_elements_length, GL_UNSIGNED_INT,
                            (void *)0);
-            pgraph_shader_browser_capture_finish(pg, token, true, 0,
-                                                 pg->inline_elements_length);
+            finish_gl_command(pg, token, 0, pg->inline_elements_length);
             return PGRAPH_GL_DRAW_SUBMITTED;
+        }
+        if (xemu_shader_capture_session_active()) {
+            uint64_t token = capture_gl_command(pg, true, NULL, NULL, 0);
+            xemu_shader_draw_request_stage_register(token, "capture.outcome",
+                                                    1);
+            xemu_shader_draw_request_stage_register(token,
+                                                    "capture.reject_reason", 1);
+            xemu_shader_draw_gl_stage_after(pg, token);
+            pgraph_shader_browser_capture_finish(pg, token, false, 0,
+                                                 pg->inline_elements_length);
         }
         return PGRAPH_GL_DRAW_SUPPRESSED;
     } else if (pg->inline_buffer_length) {
@@ -502,6 +736,14 @@ static PGRAPHGLDrawResult pgraph_gl_flush_draw_internal(NV2AState *d)
                 glBufferData(GL_ARRAY_BUFFER,
                              pg->inline_buffer_length * sizeof(float) * 4,
                              attr->inline_buffer, GL_STREAM_DRAW);
+                xemu_shader_capture_session_resource_release(
+                    r->capture_inline_owner[i], r->capture_inline_bytes[i],
+                    XEMU_SHADER_CAPTURE_RESOURCE_BUFFER, 0);
+                r->capture_inline_owner[i] = xemu_shader_capture_resource_new_owner();
+                r->capture_inline_bytes[i] = pg->inline_buffer_length * sizeof(float) * 4;
+                capture_gl_host_buffer_upload(pg, r->capture_inline_owner[i],
+                                               r->capture_inline_bytes[i],
+                                               attr->inline_buffer);
                 glVertexAttribPointer(i, 4, GL_FLOAT, GL_FALSE, 0, 0);
                 glEnableVertexAttribArray(i);
                 attr->inline_buffer_populated = false;
@@ -518,7 +760,7 @@ static PGRAPHGLDrawResult pgraph_gl_flush_draw_internal(NV2AState *d)
         uint64_t token = capture_gl_command(pg, false, &start, &count, 1);
         glDrawArrays(r->shader_binding->gl_primitive_mode,
                      0, pg->inline_buffer_length);
-        pgraph_shader_browser_capture_finish(pg, token, true, count, 0);
+        finish_gl_command(pg, token, count, 0);
         return PGRAPH_GL_DRAW_SUBMITTED;
     } else if (pg->inline_array_length) {
         NV2A_GL_DPRINTF(false, "Inline Array");
@@ -532,7 +774,7 @@ static PGRAPHGLDrawResult pgraph_gl_flush_draw_internal(NV2AState *d)
         uint64_t token = capture_gl_command(pg, false, &start, &count, 1);
         glDrawArrays(r->shader_binding->gl_primitive_mode,
                      0, index_count);
-        pgraph_shader_browser_capture_finish(pg, token, true, count, 0);
+        finish_gl_command(pg, token, count, 0);
         return PGRAPH_GL_DRAW_SUBMITTED;
     } else {
         NV2A_GL_DPRINTF(true, "EMPTY NV097_SET_BEGIN_END");
@@ -541,21 +783,122 @@ static PGRAPHGLDrawResult pgraph_gl_flush_draw_internal(NV2AState *d)
     }
 }
 
+/* Both the ordinary and Stage 3 public draw wrappers use this boundary. The
+ * route is resolved after the internal flush because attribute setup may
+ * replace the shader binding or activate a replacement program. */
+static PGRAPHGLDrawResult
+pgraph_gl_flush_draw_timed(NV2AState *d,
+                           uint32_t (*submitted_route)(PGRAPHState *))
+{
+    PGRAPHState *pg = &d->pgraph;
+    PGRAPHGLState *r = pg->gl_renderer_state;
+
+    if (r->shader_timing_tail != r->shader_timing_head) {
+        pgraph_gl_retire_shader_timing(r);
+    }
+    bool has_draw_data = pg->draw_arrays_length || pg->inline_elements_length ||
+                         pg->inline_buffer_length || pg->inline_array_length;
+    PGRAPHShaderBrowserSampleDecision sample =
+        r->shader_binding && has_draw_data ?
+            pgraph_shader_browser_choose_sample(&pg->shader_browser_sampler,
+                                                pg->frame_time,
+                                                r->shader_timing_supported) :
+            (PGRAPHShaderBrowserSampleDecision){ 0 };
+    bool gpu_sample = sample.gpu;
+    uint32_t gpu_index = 0;
+    XemuShaderBrowserPerformanceContext context = { 0 };
+    if ((sample.cpu || gpu_sample) &&
+        !pgraph_shader_browser_capture_performance_context(&context)) {
+        sample.cpu = false;
+        gpu_sample = false;
+    }
+    if (gpu_sample && !r->shader_timing_initialized) {
+        glGenQueries(PGRAPH_GL_SHADER_TIMING_SLOTS * 2,
+                     r->shader_timing_queries);
+        if (glGetError() == GL_NO_ERROR) {
+            r->shader_timing_initialized = true;
+        } else {
+            r->shader_timing_supported = false;
+            xemu_shader_browser_report_gpu_state(XEMU_SHADER_BROWSER_BACKEND_GL,
+                                                 false, 0);
+            gpu_sample = false;
+        }
+    }
+    if (gpu_sample) {
+        if (r->shader_timing_head - r->shader_timing_tail ==
+            PGRAPH_GL_SHADER_TIMING_SLOTS) {
+            xemu_shader_browser_record_dropped_samples(1);
+            gpu_sample = false;
+        } else {
+            gpu_index = r->shader_timing_head++ % PGRAPH_GL_SHADER_TIMING_SLOTS;
+            PGRAPHGLShaderTimingSlot *slot = &r->shader_timing_slots[gpu_index];
+            slot->context = context;
+            slot->submitted = false;
+            /* GL_TIMESTAMP brackets queued vertex setup and draw commands,
+             * not isolated primitive execution. Selection precedes vertex
+             * setup, so a rejected draw consumes cadence and query capacity
+             * but never publishes a draw sample. */
+            glQueryCounter(r->shader_timing_queries[gpu_index * 2],
+                           GL_TIMESTAMP);
+        }
+    }
+    uint64_t submission_before = pg->shader_browser_submission;
+    uint64_t input_snapshots_before = pg->shader_browser_input_snapshots;
+    int64_t cpu_start = sample.cpu ? g_get_monotonic_time() : 0;
+    PGRAPHGLDrawResult result = pgraph_gl_flush_draw_internal(d);
+    if (has_draw_data &&
+        (result == PGRAPH_GL_DRAW_REJECTED || result == PGRAPH_GL_DRAW_EMPTY))
+        capture_gl_not_emitted(pg, NULL, result == PGRAPH_GL_DRAW_EMPTY ? 3 : 2,
+                               !(r->color_binding || r->zeta_binding) ? 3 : 4,
+                               !(r->color_binding || r->zeta_binding) ?
+                                   "No destination attachment" :
+                                   "Vertex input setup rejected or empty");
+    bool emitted = pg->shader_browser_submission != submission_before;
+    bool ordinary_interval =
+        pg->shader_browser_input_snapshots == input_snapshots_before;
+    uint64_t cpu_ns =
+        sample.cpu ? (uint64_t)(g_get_monotonic_time() - cpu_start) * 1000 : 0;
+    uint32_t route = result == PGRAPH_GL_DRAW_SUBMITTED && submitted_route ?
+                         submitted_route(pg) :
+                         XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED;
+    if (gpu_sample) {
+        glQueryCounter(r->shader_timing_queries[gpu_index * 2 + 1],
+                       GL_TIMESTAMP);
+        pgraph_gl_shader_timing_record_result(
+            &r->shader_timing_slots[gpu_index],
+            emitted && ordinary_interval ? result : PGRAPH_GL_DRAW_REJECTED,
+            r->shader_binding, pg->frame_time, route);
+        xemu_shader_browser_report_gpu_state(
+            XEMU_SHADER_BROWSER_BACKEND_GL, true,
+            r->shader_timing_head - r->shader_timing_tail);
+    }
+    if (emitted && ordinary_interval && r->shader_binding) {
+        if (sample.cpu) {
+            pgraph_shader_browser_publish_binding_timing_at_context(
+                &r->shader_binding->browser, XEMU_SHADER_BROWSER_BACKEND_GL,
+                route, XEMU_SHADER_BROWSER_VARIANT_BINDING,
+                r->shader_binding->node.hash, pg->frame_time,
+                XEMU_SHADER_BROWSER_PERF_DRAW_SUBMIT_CPU, cpu_ns, 1,
+                XEMU_SHADER_BROWSER_SAMPLE_SAMPLED, &context);
+        }
+    }
+    return result;
+}
+
 void pgraph_gl_flush_draw(NV2AState *d)
 {
-    PGRAPHGLState *r = d->pgraph.gl_renderer_state;
-
+    PGRAPHState *pg = &d->pgraph;
+    PGRAPHGLState *r = pg->gl_renderer_state;
     if (!r->draw_lifecycle.prepared) {
         return;
     }
-    PGRAPHGLDrawResult result = pgraph_gl_flush_draw_internal(d);
+    PGRAPHGLDrawResult result = pgraph_gl_flush_draw_timed(d, NULL);
     pgraph_gl_draw_lifecycle_record(&r->draw_lifecycle, result);
     if ((result == PGRAPH_GL_DRAW_SUBMITTED ||
          result == PGRAPH_GL_DRAW_SUPPRESSED) &&
         r->shader_binding) {
         pgraph_shader_browser_record_draw(
-            &d->pgraph.shader_browser_observations,
-            &r->shader_binding->browser, d->pgraph.frame_time,
-            XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED);
+            &pg->shader_browser_observations, &r->shader_binding->browser,
+            pg->frame_time, XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED);
     }
 }

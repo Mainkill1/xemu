@@ -263,6 +263,26 @@ VkResult vmaFlushAllocation(VmaAllocator allocator, VmaAllocation allocation,
     return VK_SUCCESS;
 }
 
+VkResult vmaInvalidateAllocation(VmaAllocator allocator, VmaAllocation allocation,
+                                 VkDeviceSize offset, VkDeviceSize size)
+{
+    (void)allocator;
+    (void)allocation;
+    (void)offset;
+    (void)size;
+    g_assert_not_reached();
+    return VK_ERROR_UNKNOWN;
+}
+
+void vmaDestroyBuffer(VmaAllocator allocator, VkBuffer buffer,
+                      VmaAllocation allocation)
+{
+    (void)allocator;
+    (void)buffer;
+    (void)allocation;
+    g_assert_not_reached();
+}
+
 void vmaSetCurrentFrameIndex(VmaAllocator allocator, uint32_t frame_index)
 {
     (void)allocator;

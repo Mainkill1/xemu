@@ -8,6 +8,14 @@
 
 namespace xemu::shader_browser {
 
+const OwnedDrawTexture *PreviewCapturedTexture(const PreviewPacket &packet,
+                                               size_t slot, bool cube);
+// Uniform names may carry the GL array-element suffix; Vulkan reflects the
+// array member itself. Viewport-dependent controls are never material inputs.
+std::string PreviewCapturedUniformName(const OwnedDrawUniform &uniform);
+void CopyPreviewCapturedTextureRows(const OwnedDrawImage &image,
+                                    uint8_t *destination, bool reverse_rows);
+
 enum class PreviewFixtureProfile : uint8_t {
     Flat,
     UV,
@@ -93,6 +101,9 @@ struct PreviewPacketInputs {
     std::string source;
     std::string partner_source;
     std::vector<uint8_t> fixture_bytes;
+    // An immutable native pipeline establishes captured extent limits before
+    // packet validation; synthetic packets retain their smaller target budget.
+    std::shared_ptr<const PreviewCapturedPipeline> captured_pipeline;
     uint32_t generator_abi = 0;
     uint32_t interface_abi = 0;
     uint64_t replacement_id = 0;

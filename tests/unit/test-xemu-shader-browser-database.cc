@@ -1,6 +1,7 @@
 #include "../../ui/xui/shader-browser-database.hh"
 
 #include <cassert>
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -48,7 +49,7 @@ int main()
     assert(db.Configure(config, &error));
     DatabaseStats stats = db.GetStats();
     assert(stats.enabled && stats.open);
-    assert(stats.schema_version == 1);
+    assert(stats.schema_version == 3);
     assert(stats.database_path == (root / "shader-browser.db").string());
     assert(stats.artifact_root == (root / "shader-artifacts").string());
 
@@ -97,6 +98,31 @@ int main()
     perf.gpu_execution.AddSample(120000);
     assert(db.UpsertPerformanceStats("session-a", perf, &error));
     assert(db.UpsertPerformanceStats("session-a", perf, &error)); // same row
+    PerformanceAggregate shared{};
+    shared.owner = 2;
+    shared.backend = 2;
+    shared.route = 1;
+    shared.variant_kind = 1;
+    shared.variant_id = 42;
+    shared.metric = 7;
+    shared.first_frame = 11;
+    shared.last_frame = 20;
+    shared.represented_draws = 2;
+    shared.members = { a.key, b.key };
+    shared.duration.AddSample(12345);
+    shared.duration.AddSample(23456);
+    assert(db.UpsertPerformanceAggregate("session-a", shared, &error));
+    assert(db.UpsertPerformanceAggregate("session-a", shared, &error));
+    PerformanceAggregate background = shared;
+    background.flags = 2;
+    background.duration = {};
+    background.duration.AddSample(9876);
+    assert(db.UpsertPerformanceAggregate("session-a", background, &error));
+    PerformanceAggregate pipeline = shared;
+    pipeline.variant_kind = 2;
+    pipeline.duration = {};
+    pipeline.duration.AddSample(3333);
+    assert(db.UpsertPerformanceAggregate("session-a", pipeline, &error));
     assert(db.EndPerformanceSession("session-a", 2000, true, &error));
     assert(db.Flush(&error));
 
@@ -110,6 +136,21 @@ int main()
     assert(rows[0].compile_cpu.total_ns == 4000000);
     assert(rows[0].gpu_execution.samples == 2);
     assert(rows[0].draw_count == 40);
+    auto shared_rows = db.CopyPerformanceAggregates("session-a");
+    assert(shared_rows.size() == 3);
+    auto foreground_row =
+        std::find_if(shared_rows.begin(), shared_rows.end(),
+                     [](const PerformanceAggregate &row) {
+                         return row.flags == 0 && row.variant_kind == 1;
+                     });
+    assert(foreground_row != shared_rows.end());
+    assert(foreground_row->members == shared.members);
+    assert(foreground_row->duration.samples == 2);
+    assert(foreground_row->duration.total_ns == 35801);
+    assert(std::count_if(shared_rows.begin(), shared_rows.end(),
+                         [](const PerformanceAggregate &row) {
+                             return row.variant_kind == 2;
+                         }) == 1);
     assert(db.GetStats().session_count == 1);
     assert(db.GetStats().session_stat_count == 1);
 
@@ -213,12 +254,69 @@ int main()
     assert(reopened.CopyMetadata().size() == 10002);
     assert(reopened.CopySessions(0x4d530064, 16).size() == 2);
     assert(reopened.CopySessionStats("session-a").size() == 1);
+    assert(reopened.CopyPerformanceAggregates("session-a").size() == 3);
     assert(reopened.GetStats().artifact_count == 1);
+    reopened.Close();
+
+    // A v2 database keeps its performance rows through the v3 kind split.
+    sqlite3 *version_two = nullptr;
+    assert(sqlite3_open((root / "shader-browser.db").string().c_str(),
+                        &version_two) == SQLITE_OK);
+    assert(sqlite3_exec(
+               version_two,
+               "BEGIN IMMEDIATE;"
+               "ALTER TABLE shader_performance_stats RENAME TO perf_v3_fixture;"
+               "CREATE TABLE shader_performance_stats("
+               "session_id TEXT NOT NULL,owner INTEGER NOT NULL,"
+               "backend INTEGER NOT NULL,route INTEGER NOT NULL,"
+               "variant_id INTEGER NOT NULL,metric INTEGER NOT NULL,"
+               "members BLOB NOT NULL,flags INTEGER NOT NULL,"
+               "first_frame INTEGER NOT NULL,last_frame INTEGER NOT NULL,"
+               "represented_draws INTEGER NOT NULL,samples INTEGER NOT NULL,"
+               "total_ns INTEGER NOT NULL,min_ns INTEGER NOT NULL,"
+               "max_ns INTEGER NOT NULL,"
+               "PRIMARY "
+               "KEY(session_id,owner,backend,route,variant_id,metric,flags,"
+               "members));"
+               "INSERT INTO shader_performance_stats SELECT "
+               "session_id,owner,backend,"
+               "route,variant_id,metric,members,flags,first_frame,last_frame,"
+               "represented_draws,samples,total_ns,min_ns,max_ns "
+               "FROM perf_v3_fixture WHERE variant_kind=1;"
+               "DROP TABLE perf_v3_fixture;"
+               "UPDATE schema_info SET schema_version=2;"
+               "COMMIT;",
+               nullptr, nullptr, nullptr) == SQLITE_OK);
+    sqlite3_close(version_two);
+    assert(reopened.Configure(config, &error));
+    assert(reopened.GetStats().schema_version == 3);
+    auto migrated_rows = reopened.CopyPerformanceAggregates("session-a");
+    assert(migrated_rows.size() == 2);
+    assert(std::all_of(
+        migrated_rows.begin(), migrated_rows.end(),
+        [](const PerformanceAggregate &row) { return row.variant_kind == 1; }));
     assert(reopened.ClearPerformanceHistory(&error));
     assert(reopened.CopySessions(0x4d530064, 16).empty());
+    assert(reopened.CopyPerformanceAggregates("session-a").empty());
     assert(reopened.GetStats().session_count == 0);
     assert(reopened.GetStats().session_stat_count == 0);
     reopened.Close();
+
+    // A version-one catalog upgrades in place without losing shader rows.
+    sqlite3 *legacy = nullptr;
+    assert(sqlite3_open((root / "shader-browser.db").string().c_str(),
+                        &legacy) == SQLITE_OK);
+    assert(sqlite3_exec(legacy,
+                        "DROP TABLE shader_performance_stats;"
+                        "UPDATE schema_info SET schema_version=1;",
+                        nullptr, nullptr, nullptr) == SQLITE_OK);
+    sqlite3_close(legacy);
+    ShaderDatabase migrated;
+    assert(migrated.Configure(config, &error));
+    assert(migrated.GetStats().schema_version == 3);
+    assert(migrated.CopyMetadata().size() == 10002);
+    assert(migrated.CopyPerformanceAggregates("session-a").empty());
+    migrated.Close();
 
     // A failed writer transaction must stop accepting optimistic cache hits.
     std::filesystem::path failure_root = root / "writer-failure";

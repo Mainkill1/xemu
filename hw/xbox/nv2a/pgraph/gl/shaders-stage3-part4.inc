@@ -147,17 +147,28 @@ void pgraph_gl_bind_shaders(PGRAPHState *pg)
                 PGRAPH_GL_HIGHLIGHT_REPLACEMENT_ID : policy->replacement_id);
     }
 
+    bool publish_canonical_timing = false;
+    XemuShaderBrowserPerformanceContext timing_context = { 0 };
     if (!binding->initialized) {
         qemu_mutex_lock(&renderer->shader_cache_lock);
         if (!pgraph_gl_shader_load_from_memory(binding)) {
             nv2a_profile_inc_counter(NV2A_PROF_SHADER_GEN);
-            int64_t shader_compile_start = g_get_monotonic_time();
+            bool observe_cpu = xemu_shader_browser_session_collection_enabled();
+            bool profile_cpu = xemu_shader_browser_cpu_profiling_enabled();
+            publish_canonical_timing =
+                profile_cpu &&
+                pgraph_shader_browser_capture_performance_context(
+                    &timing_context);
+            int64_t shader_compile_start =
+                observe_cpu || profile_cpu ? g_get_monotonic_time() : 0;
             generate_shaders(renderer, binding);
-            if (xemu_shader_browser_session_collection_enabled()) {
+            if (observe_cpu || profile_cpu) {
                 binding->browser.compile_cpu_ns =
                     (uint64_t)(g_get_monotonic_time() - shader_compile_start) *
                     1000;
-                binding->browser.timings_pending = true;
+                if (observe_cpu) {
+                    binding->browser.timings_pending = true;
+                }
             }
             if (g_config.perf.cache_shaders) {
                 pgraph_gl_shader_cache_to_disk(binding);
@@ -165,6 +176,31 @@ void pgraph_gl_bind_shaders(PGRAPHState *pg)
         }
         qemu_mutex_unlock(&renderer->shader_cache_lock);
     }
+    if (publish_canonical_timing && binding->browser.timing_pending) {
+        PGRAPHShaderBrowserBinding *browser = &binding->browser;
+        pgraph_shader_browser_publish_binding_timing_at_context(
+            browser, XEMU_SHADER_BROWSER_BACKEND_GL,
+            XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+            XEMU_SHADER_BROWSER_VARIANT_BINDING, binding->node.hash,
+            pg->frame_time, XEMU_SHADER_BROWSER_PERF_LINK_OR_PIPELINE_CPU,
+            browser->link_cpu_ns, 0, XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND,
+            &timing_context);
+        pgraph_shader_browser_publish_binding_timing_at_context(
+            browser, XEMU_SHADER_BROWSER_BACKEND_GL,
+            XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+            XEMU_SHADER_BROWSER_VARIANT_BINDING, binding->node.hash,
+            pg->frame_time, XEMU_SHADER_BROWSER_PERF_FOREGROUND_STALL_CPU,
+            browser->compile_cpu_ns, 0, XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND,
+            &timing_context);
+        pgraph_shader_browser_publish_binding_timing_at_context(
+            browser, XEMU_SHADER_BROWSER_BACKEND_GL,
+            XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+            XEMU_SHADER_BROWSER_VARIANT_BINDING, binding->node.hash,
+            pg->frame_time, XEMU_SHADER_BROWSER_PERF_BINDING_PREPARE_CPU,
+            browser->prepare_cpu_ns, 0, XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND,
+            &timing_context);
+    }
+    binding->browser.timing_pending = false;
     assert(binding->initialized);
     if (runtime->active_program != binding->gl_program ||
         runtime->active_uniform_key != &binding->uniform_locs) {

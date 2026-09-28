@@ -8,6 +8,37 @@
 
 namespace xemu::shader_browser {
 
+const OwnedDrawTexture *PreviewCapturedTexture(const PreviewPacket &packet,
+                                               size_t slot, bool cube)
+{
+    if (packet.packet_kind != PreviewPacketKind::Replay ||
+        !packet.captured_material || slot >= 4)
+        return nullptr;
+    const auto &texture = packet.captured_material->textures[slot];
+    const uint32_t faces = cube ? 6 : 1;
+    if (!texture.described || !texture.metadata.bound ||
+        texture.metadata.face_count != faces || texture.images.size() != faces)
+        return nullptr;
+    return &texture;
+}
+
+std::string PreviewCapturedUniformName(const OwnedDrawUniform &uniform)
+{
+    const size_t suffix = uniform.name.find('[');
+    return uniform.name.substr(0, suffix);
+}
+
+void CopyPreviewCapturedTextureRows(const OwnedDrawImage &image,
+                                    uint8_t *destination, bool reverse_rows)
+{
+    const size_t stride = size_t(image.width) * 4;
+    for (uint32_t row = 0; row < image.height; ++row) {
+        const size_t source_row = reverse_rows ? image.height - 1 - row : row;
+        std::memcpy(destination + row * stride,
+                    image.rgba.data() + source_row * stride, stride);
+    }
+}
+
 void ApplyPreviewSyntheticFixture(const PreviewSyntheticFixture &fixture,
                                   std::vector<PreviewSceneVertex> &vertices,
                                   const std::array<bool, 4> &cube_stages)
@@ -465,6 +496,9 @@ bool BuildPreviewPacket(const PreviewPacketInputs &inputs,
         inputs.recipe.bytes.size() > kPreviewMaxRecipeBytes) {
         return fail("Preview source or recipe exceeds its size limit");
     }
+    if (inputs.captured_pipeline &&
+        !ValidatePreviewCapturedPipeline(*inputs.captured_pipeline, error))
+        return false;
 
     PreviewPacket candidate{};
     candidate.selection = inputs.selection;
@@ -494,6 +528,22 @@ bool BuildPreviewPacket(const PreviewPacketInputs &inputs,
     candidate.update_policy = inputs.update_policy;
     candidate.packet_kind = PreviewPacketKind::Synthetic;
     candidate.replay_class = PreviewReplayClass::Synthetic;
+    if (inputs.captured_pipeline) {
+        candidate.captured_pipeline = inputs.captured_pipeline;
+        candidate.packet_kind = PreviewPacketKind::Replay;
+        candidate.replay_class = PreviewReplayClass::Approximate;
+    }
+    bool owned_overflow = false;
+    if (PreviewPacketOwnedBytes(candidate, &owned_overflow) >
+            kPreviewMaxOwnedPacketBytes ||
+        owned_overflow)
+        return fail("Preview packet exceeds the 32 MiB retained-data limit");
+    if (candidate.captured_pipeline) {
+        candidate.pipeline_digest =
+            ComputePreviewCapturedPipelineDigest(*candidate.captured_pipeline);
+        candidate.pipeline_layout_digest = ComputePreviewCapturedPipelineDigest(
+            *candidate.captured_pipeline, true);
+    }
     if (!candidate.source.empty()) {
         candidate.source_digest = ComputePreviewDigest(
             reinterpret_cast<const uint8_t *>(candidate.source.data()),

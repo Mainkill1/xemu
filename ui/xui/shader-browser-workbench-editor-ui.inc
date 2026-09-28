@@ -128,7 +128,7 @@ static void DrawWorkbenchSourceLines(GlslEditorModel *editor,
 static WorkbenchEditorDockAction DrawWorkbenchEditorDock(
     const GeneratedSourceSnapshot *generated, WorkbenchDraft *draft,
     GlslEditorModel *editor, WorkbenchEditorDockState *state,
-    uint64_t now_ns)
+    uint64_t now_ns, bool can_create = true)
 {
     WorkbenchEditorDockAction action{};
     if (!state || !editor) return action;
@@ -136,9 +136,12 @@ static WorkbenchEditorDockAction DrawWorkbenchEditorDock(
     const GeneratedSourceSnapshot *original = has_draft ?
         &draft->Base() : generated;
     if (original) {
-        if (generated && !has_draft &&
-            ImGui::SmallButton("Create editable copy"))
+        ImGui::BeginDisabled(!can_create);
+        if (generated && !has_draft && ImGui::SmallButton("Create replacement"))
             action.create_copy = true;
+        ImGui::EndDisabled();
+        if (!can_create && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+            ImGui::SetTooltip("Find a captured draw first, or explicitly open Advanced Lab");
         if (generated && !has_draft) ImGui::SameLine();
         ImGui::TextDisabled("%s %s | %s | %s | TitleID %08X",
             original->resident ? "Resident GLSL" : "Reconstructed GLSL",
@@ -180,7 +183,7 @@ static WorkbenchEditorDockAction DrawWorkbenchEditorDock(
         shown_editor = editor;
         ImGui::Checkbox("Auto-compile", &state->auto_compile);
         ImGui::SameLine();
-        if (ImGui::Button("Compile")) action.manual_compile = true;
+        if (ImGui::Button("Compile preview")) action.manual_compile = true;
     }
     if (has_draft) {
         ImGui::TextUnformatted(draft->StatusLabel().c_str());

@@ -13,10 +13,10 @@ constexpr uint64_t kPreviewSelectionDebounceNs = UINT64_C(150000000);
 constexpr uint64_t kPreviewHealthStaleNs = UINT64_C(500000000);
 constexpr uint64_t kPreviewVisibilityStaleNs = UINT64_C(250000000);
 constexpr uint64_t kPreviewPressureRecoveryNs = UINT64_C(2000000000);
-constexpr uint64_t kPreviewNormalIntervalNs = UINT64_C(66666667);
-constexpr uint64_t kPreviewPausedIntervalNs = UINT64_C(16666667);
-constexpr uint64_t kPreviewElevatedIntervalNs = UINT64_C(125000000);
-constexpr uint64_t kPreviewHighIntervalNs = UINT64_C(250000000);
+constexpr uint64_t kPreviewNormalIntervalNs = UINT64_C(16666667);
+constexpr uint64_t kPreviewPausedIntervalNs = kPreviewNormalIntervalNs;
+constexpr uint64_t kPreviewElevatedIntervalNs = UINT64_C(33333333);
+constexpr uint64_t kPreviewHighIntervalNs = kPreviewElevatedIntervalNs;
 
 struct PreviewHealth {
     uint64_t sampled_ns = 0;

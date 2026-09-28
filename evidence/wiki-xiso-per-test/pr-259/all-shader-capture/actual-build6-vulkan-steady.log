@@ -1,0 +1,8 @@
+Actual archive: frame 2707, PS XSH1-3PF9-0BS9-7WMZ-9PCZ-KN50, 32 distinct geometry/VS/PS constants, two texture contents, retained paired VS and host GS
+Lifecycle GL context: 4.5 (Core Profile) Mesa 25.0.7-2+deb13u1
+Submit mode 0 epoch 1
+Production GL submission source: indexed host generation and expanded inline float4 passed
+Actual event 97 observed checkpoint: changed pixels 0, max channel error 0, mean 0.000000; raster bits 0x3FF, owned seed retained, depth/stencil tests 0/0
+Actual steady cold preparation: calls 1, GLSL compiles 5, pipeline creations 25; worker wall/CPU 192.268/151.523 ms; first draw GPU 65.373 ms
+Actual steady event 97: profiling on, native 640x480, wall 8.000 s, displayed 370 (46.25 FPS), backend draws 370 (46.25 FPS); prep/compile/pipeline delta 0/0/0; render worker wall/CPU 1.261/0.128 ms per draw; process CPU 7.64 cores; HUD 0.087 ms/pump (7022 pumps); whole-pipeline GPU samples 371 median/p95 0.101/0.136 ms
+Actual steady event 97: profiling off, native 640x480, wall 8.001 s, displayed 370 (46.24 FPS), backend draws 370 (46.24 FPS); prep/compile/pipeline delta 0/0/0; render worker wall/CPU 1.197/0.114 ms per draw; process CPU 7.61 cores; HUD 0.086 ms/pump (7030 pumps); whole-pipeline GPU samples 0 median/p95 0.000/0.000 ms

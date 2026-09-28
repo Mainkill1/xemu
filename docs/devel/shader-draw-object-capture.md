@@ -1,24 +1,47 @@
 # Shader draw, geometry, and object capture
 
-**Partial live capture and approximate preview.** The workbench can arm one
-request for the next submitted draw using the selected pixel shader. It resumes
-a paused guest, copies supported triangle geometry, pauses again, and displays
-that draw in the private OpenGL or Vulkan preview. **Use game geometry** is a
-checkbox at the top of Live Preview, beside **Advance / capture draw** (when
-paused) or **Capture game draw**. Checking it captures a matching draw if needed;
-unchecking it returns to the synthetic scene and cancels any pending capture.
-These controls remain visible with the inspector closed. The game draw mode uses the captured geometry with synthetic
-textures, constants, and vertex outputs; it is not exact material replay.
+**Capture-first investigation and bounded replay.** The In-game view defaults to
+captured game data. **Run until usable draw** (paused) or **Find next usable draw**
+(running) searches actual emitted uses of the selected stage, keeps searching
+across rejected candidates, and pauses only after supported geometry is owned.
+Skipped matches expose their reasons and counts. **Advanced Lab (synthetic
+inputs)** is an explicit checkbox; missing captured inputs do not enable it.
 
-The current geometry decoder supports triangle lists with float3/float4
-attribute 0 positions from the backend's resolved host buffers, using draw
-arrays, inline indices, expanded inline float4 vertices, or packed float streams.
-Each triangle-list range discards its own incomplete trailing vertices. Other
-formats and topologies produce a metadata-only result. Capture copies at most 4096 positions and 12288 indices. The private
-preview displays as many complete triangles as fit its 4096-vertex scene
-budget after reference geometry. The UI offers index-connected parts as
-inspection hints when a draw has multiple islands; these are not engine object
-identities. No game asset name or cross-draw object assembly is inferred.
+**After draw**, **Before draw**, and **Difference** inspect observed color-target
+snapshots. They are distinct from **Original camera** replay and the diagnostic
+**Free camera** geometry view. Difference shows changed color values, not exact
+coverage or depth-only contributions. The fidelity inspector lists captured
+stages, textures, uniforms, and state; missing destination/depth dependencies and
+unsupported resource representations remain explicit limitations.
+
+The geometry decoder supports filled triangle lists, triangle strips, triangle
+fans, quads, quad strips, and polygons with float3/float4 attribute 0 positions
+from the backend's resolved buffers. Draw arrays, inline indices, expanded
+inline float4 vertices, and supported packed float streams use the generation
+owned for their emission. Each array range assembles independently: strip parity
+and fan anchors reset, and incomplete trailing primitives never join the next
+range. Raw streams and original topology remain available for native-stage
+replay. Points, lines, primitive restart, and unsupported formats remain
+unsupported preview inputs, with raw evidence retained by session capture.
+
+The geometry inspection copy is bounded to 4096 positions and 12288 triangle
+indices. The free-camera scene has a separate 4096-vertex budget. Native-camera
+replay preserves captured targets up to 1920 x 1080, including PGR2's 1280 x 480
+viewport, without clamping. Its owned pipeline is limited to 16 MiB; all retained
+packet inputs remain bounded to 32 MiB. Synthetic targets remain at most
+640 x 480. Oversized or malformed inputs fail explicitly before GPU allocation.
+Index-connected parts are inspection hints, not engine object identities.
+
+The separate **Capture** workspace records bounded all-shader sessions and
+ordered non-draw events independently of catalog selection. Sources and immutable
+resource blocks are shared while occurrences retain distinct state. Saving and
+reopening the recording, extracting individual inputs, and testing original and
+edited source across matching uses operate on owned data. Replay coverage is
+component-specific; instrumented operations with missing dependencies remain
+incomplete. See the working validation evidence for native renderer coverage and
+remaining fidelity gates. PR #260's Asset Browser is additive: model assembly and
+GLB export should consume these occurrence/resource records rather than replace
+the shader recorder or replacement library.
 
 ## Concept: one shader is not one model
 
@@ -78,7 +101,8 @@ returns index-connected islands, original primitive IDs, degenerate primitives,
 and incomplete trailing-index counts. It does not guess positions, weld UV
 seams, or turn an island into a proven object. Noncontiguous selections retain
 `primitive_indices`; do not replace `{0, 2}` with the contiguous range `0..2`.
-Other topologies and instance/transform-based splits are future decoder work.
+Filled topologies are triangulated for this analysis; instance/transform-based
+splits remain future decoder work.
 
 Geometry with unknown meaning, a screen-space draw, or an unresolved suspected
 batch remains in `unresolved_segments`. It is still a shader seed and can have
@@ -180,9 +204,12 @@ if a snapshot was retained. Otherwise capture a new occurrence and show its ID.
 A capture pause/readback may have a measured cost; ordinary gameplay and opening
 the preview must not wait for it. Publish owned immutable snapshots with declared
 byte limits, cancellation, generation checks, and no UI access to mutable handles.
-The current one-shot control owns a bounded position/index snapshot and cancels
-on selection change or when the workbench is hidden. Full material ownership,
-readback, and frame capture remain future work.
+The targeted search owns bounded geometry and input snapshots and cancels when
+its selection changes. The explicitly armed all-shader session has separate
+ownership: filtering or hiding the inspector does not retarget acquisition.
+Observed color checkpoints, supported texture subresources, constants, raw
+streams and stage sources are retained under declared budgets. This is bounded
+evidence, not complete frame replay.
 
 ## Current limits and unfinished integration
 
@@ -191,14 +218,19 @@ resource touches per draw. Selected primitive lists total at most 262,144 entrie
 Triangle segmentation accepts at most 786,432 indices. The dependency edge limit
 is 32,768. Duplicate draw/segment keys and inconsistent parent keys are rejected.
 Limit or invalid-input flags must be shown as incomplete analysis, never success.
-These are bounded foundation windows, **not** a full-frame capacity guarantee or
-an immutable snapshot byte budget. Object relationship analysis is quadratic and
-must stay off the rendering thread; indexed/paged analysis is future work.
+These are bounded foundation analysis windows, **not** the capture session's
+event capacity or immutable snapshot byte budget. The session uses occurrence
+indexes and a virtualized table. Object relationship analysis remains quadratic
+within its smaller window and must stay off the rendering thread.
 
-Still required: backing-version tracking and all non-draw producer events,
-additional NV2A formats/topologies, OpenGL/Vulkan resource copies, original-stage
-replay, Material/Related Draws panels, user membership editing, persistence,
-and native game validation.
+Remaining coverage includes complete non-draw instrumentation and resource
+dependency closure, additional NV2A formats and primitive restart, depth/stencil
+ownership and replay, uncertain aliases and partial writes, broader real-title
+checkpoint comparisons, temporal correspondence, and native rolling/reset/budget
+acceptance. Backing versions, selected resource copies, original-stage replay,
+input inspection, capture persistence and native validation have bounded
+implementations; consult the per-component evidence instead of assuming universal
+coverage. Asset assembly and portable model export belong to additive PR #260.
 `CaptureCompleteness` is descriptive metadata; it does not validate replay payloads.
 No full model extraction, complete replay, pixel causation, or speedup is claimed.
 

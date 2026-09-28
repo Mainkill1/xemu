@@ -1,0 +1,71 @@
+Actual archive: frame 2707, PS XSH1-3PF9-0BS9-7WMZ-9PCZ-KN50, 32 distinct geometry/VS/PS constants, two texture contents, retained paired VS and host GS
+Lifecycle GL context: 4.5 (Core Profile) Mesa 25.0.7-2+deb13u1
+Submit mode 0 epoch 1
+Production GL submission source: indexed host generation and expanded inline float4 passed
+Actual event 97 observed checkpoint: changed pixels 0, max channel error 0, mean 0.000000; raster bits 0x3FF, owned seed retained, depth/stencil tests 0/0
+Actual archive 1/64: event 97 original
+Actual archive 2/64: event 97 edited
+Actual archive 3/64: event 105 original
+Actual archive 4/64: event 105 edited
+Actual archive 5/64: event 113 original
+Actual archive 6/64: event 113 edited
+Actual archive 7/64: event 121 original
+Actual archive 8/64: event 121 edited
+Actual archive 9/64: event 129 original
+Actual archive 10/64: event 129 edited
+Actual archive 11/64: event 137 original
+Actual archive 12/64: event 137 edited
+Actual archive 13/64: event 145 original
+Actual archive 14/64: event 145 edited
+Actual archive 15/64: event 153 original
+Actual archive 16/64: event 153 edited
+Actual archive 17/64: event 161 original
+Actual archive 18/64: event 161 edited
+Actual archive 19/64: event 169 original
+Actual archive 20/64: event 169 edited
+Actual archive 21/64: event 177 original
+Actual archive 22/64: event 177 edited
+Actual archive 23/64: event 185 original
+Actual archive 24/64: event 185 edited
+Actual archive 25/64: event 193 original
+Actual archive 26/64: event 193 edited
+Actual archive 27/64: event 201 original
+Actual archive 28/64: event 201 edited
+Actual archive 29/64: event 209 original
+Actual archive 30/64: event 209 edited
+Actual archive 31/64: event 217 original
+Actual archive 32/64: event 217 edited
+Actual archive 33/64: event 225 original
+Actual archive 34/64: event 225 edited
+Actual archive 35/64: event 233 original
+Actual archive 36/64: event 233 edited
+Actual archive 37/64: event 241 original
+Actual archive 38/64: event 241 edited
+Actual archive 39/64: event 249 original
+Actual archive 40/64: event 249 edited
+Actual archive 41/64: event 257 original
+Actual archive 42/64: event 257 edited
+Actual archive 43/64: event 265 original
+Actual archive 44/64: event 265 edited
+Actual archive 45/64: event 273 original
+Actual archive 46/64: event 273 edited
+Actual archive 47/64: event 281 original
+Actual archive 48/64: event 281 edited
+Actual archive 49/64: event 289 original
+Actual archive 50/64: event 289 edited
+Actual archive 51/64: event 297 original
+Actual archive 52/64: event 297 edited
+Actual archive 53/64: event 305 original
+Actual archive 54/64: event 305 edited
+Actual archive 55/64: event 313 original
+Actual archive 56/64: event 313 edited
+Actual archive 57/64: event 321 original
+Actual archive 58/64: event 321 edited
+Actual archive 59/64: event 329 original
+Actual archive 60/64: event 329 edited
+Actual archive 61/64: event 337 original
+Actual archive 62/64: event 337 edited
+Actual archive 63/64: event 345 original
+Actual archive 64/64: event 345 edited
+Actual archive timing: original/edited measured 32/32; median/p95 62661026/67850185 and 61979635/65147710 ns; checkpoints 1/1 supported
+Actual saved NV2A archive: all 32 paired original/edited uses and observed checkpoints passed

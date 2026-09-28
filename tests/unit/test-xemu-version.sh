@@ -40,6 +40,8 @@ repo=$tmpdir/repo
 make_repo "$repo"
 printf '1.2.3\n' > "$repo/XEMU_VERSION"
 commit=$(git -C "$repo" rev-parse HEAD)
+# Preview release tags are not numeric base versions.
+git -C "$repo" tag v0.0.0-pr259-preview.06334cb502
 output=$("$generator" "$repo")
 expect_define "$output" XEMU_VERSION "\"1.2.3-0-g${commit:0:12}\""
 expect_define "$output" XEMU_COMMIT "\"$commit\""
@@ -51,6 +53,7 @@ expect_define "$output" XEMU_VERSION '"2.3.4"'
 printf 'next\n' >> "$repo/source"
 git -C "$repo" commit -qam next
 commit=$(git -C "$repo" rev-parse HEAD)
+git -C "$repo" tag v0.0.0-pr259-preview.newer
 output=$("$generator" "$repo")
 expect_define "$output" XEMU_VERSION "\"2.3.4-1-g${commit:0:7}\""
 
