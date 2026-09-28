@@ -131,7 +131,10 @@ bool PreviewClock::Tick(uint64_t now_ns, uint64_t update_interval_ns)
     // emission, including the first interval after a pressure freeze.
     // Explicit controls still advance/scrub time immediately.
     AdvanceTime(now_ns);
-    last_emit_ns_ = now_ns;
+    // Preserve the scheduled phase when a worker poll arrives late. Missed
+    // intervals produce one current sample, without a queue of catch-up frames.
+    last_emit_ns_ +=
+        ((now_ns - last_emit_ns_) / update_interval_ns) * update_interval_ns;
     ++state_.frame;
     ++state_.revision;
     return true;

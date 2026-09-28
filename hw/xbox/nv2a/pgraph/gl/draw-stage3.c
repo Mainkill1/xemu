@@ -112,6 +112,8 @@ void pgraph_gl_flush_draw(NV2AState *d)
 
     if (policy && policy->action == XEMU_SHADER_OVERRIDE_ACTION_SKIP_DRAW &&
         pgraph_gl_override_skip_draw(pg, &facts)) {
+        capture_gl_not_emitted(pg, &renderer->shader_binding->browser, 1, 2,
+                               "Suppressed by an enabled shader rule");
         pgraph_gl_draw_lifecycle_record(&renderer->draw_lifecycle,
                                         PGRAPH_GL_DRAW_EMPTY);
         pgraph_shader_browser_record_draw(
@@ -126,9 +128,12 @@ void pgraph_gl_flush_draw(NV2AState *d)
         pgraph_gl_shader_override_prepare_draw(pg, &facts);
     }
 
-    PGRAPHGLDrawResult result = pgraph_gl_flush_draw_internal(d);
+    PGRAPHGLDrawResult result =
+        pgraph_gl_flush_draw_timed(d, pgraph_gl_override_observation_route);
     pgraph_gl_draw_lifecycle_record(&renderer->draw_lifecycle, result);
-    if (result == PGRAPH_GL_DRAW_SUBMITTED && renderer->shader_binding) {
+    if ((result == PGRAPH_GL_DRAW_SUBMITTED ||
+         result == PGRAPH_GL_DRAW_SUPPRESSED) &&
+        renderer->shader_binding) {
         bool condition_matched = !policy || !policy->draw_condition_mask ||
             xemu_shader_override_policy_matches_draw(policy, &facts);
         pgraph_gl_shader_override_report_draw(pg, condition_matched);

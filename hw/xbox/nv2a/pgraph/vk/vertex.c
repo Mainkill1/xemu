@@ -26,6 +26,7 @@
 #include "qemu/osdep.h"
 #include "qemu/error-report.h"
 #include "renderer.h"
+#include "hw/xbox/nv2a/pgraph/shader-browser-resource.h"
 #include "hw/xbox/nv2a/pgraph/vertex-fetch-span.h"
 
 VkDeviceSize pgraph_vk_update_index_buffer(PGRAPHState *pg, void *data,
@@ -82,6 +83,8 @@ static void update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
             pgraph_vk_perf_record_vertex_direct_copy(r, size);
         }
         memcpy(vertex->mapped + offset, data, size);
+        pgraph_vk_capture_buffer_upload(pg, BUFFER_VERTEX_RAM, offset, size,
+                                        vertex->mapped + offset, true);
         return;
     }
 
@@ -99,6 +102,8 @@ static void update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
          * the hard staging cap is handled here without unbounded allocation. */
         nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_1);
         memcpy(vertex->mapped + offset, data, size);
+        pgraph_vk_capture_buffer_upload(pg, BUFFER_VERTEX_RAM, offset, size,
+                                        vertex->mapped + offset, true);
         return;
     }
 
@@ -111,8 +116,11 @@ static void update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
     assert((offset & 3) == 0);
     assert((size & 3) == 0);
 
-    VK_CHECK(vmaFlushAllocation(r->allocator, staging->allocation,
-                                staging_offset, size));
+    VkResult flush_result = vmaFlushAllocation(
+        r->allocator, staging->allocation, staging_offset, size);
+    if (flush_result != VK_SUCCESS)
+        pgraph_vk_capture_abort(pg, cmd, flush_result);
+    VK_CHECK(flush_result);
 
     VkBufferMemoryBarrier before_copy = {
         .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
@@ -133,7 +141,13 @@ static void update_vertex_ram_buffer(PGRAPHState *pg, hwaddr offset,
         .dstOffset = offset,
         .size = size,
     };
+    uint64_t capture_token = pgraph_vk_capture_buffer_copy(
+        pg, cmd, BUFFER_VERTEX_RAM_STAGING, BUFFER_VERTEX_RAM, staging_offset,
+        offset, size, false);
     vkCmdCopyBuffer(cmd, staging->buffer, vertex->buffer, 1, &copy);
+    pgraph_vk_capture_record(pg, cmd, capture_token,
+                             XEMU_SHADER_CAPTURE_COMMAND_UNKNOWN);
+    pgraph_shader_resource_finish(capture_token);
 
     VkBufferMemoryBarrier after_copy = {
         .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,

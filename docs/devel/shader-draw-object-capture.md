@@ -1,0 +1,296 @@
+# Shader draw, geometry, and object capture
+
+**Capture-first investigation and bounded replay.** The In-game view defaults to
+captured game data. **Run until usable draw** (paused) or **Find next usable draw**
+(running) searches actual emitted uses of the selected stage, keeps searching
+across rejected candidates, and pauses only after supported geometry is owned.
+Skipped matches expose their reasons and counts. **Advanced Lab (synthetic
+inputs)** is an explicit checkbox; missing captured inputs do not enable it.
+
+**After draw**, **Before draw**, and **Difference** inspect observed color-target
+snapshots. They are distinct from **Original camera** replay and the diagnostic
+**Free camera** geometry view. Difference shows changed color values, not exact
+coverage or depth-only contributions. The fidelity inspector lists captured
+stages, textures, uniforms, and state; missing destination/depth dependencies and
+unsupported resource representations remain explicit limitations.
+
+The geometry decoder supports filled triangle lists, triangle strips, triangle
+fans, quads, quad strips, and polygons with float3/float4 attribute 0 positions
+from the backend's resolved buffers. Draw arrays, inline indices, expanded
+inline float4 vertices, and supported packed float streams use the generation
+owned for their emission. Each array range assembles independently: strip parity
+and fan anchors reset, and incomplete trailing primitives never join the next
+range. Raw streams and original topology remain available for native-stage
+replay. Points, lines, primitive restart, and unsupported formats remain
+unsupported preview inputs, with raw evidence retained by session capture.
+
+The geometry inspection copy is bounded to 4096 positions and 12288 triangle
+indices. The free-camera scene has a separate 4096-vertex budget. Native-camera
+replay preserves captured targets up to 1920 x 1080, including PGR2's 1280 x 480
+viewport, without clamping. Its owned pipeline is limited to 16 MiB; all retained
+packet inputs remain bounded to 32 MiB. Synthetic targets remain at most
+640 x 480. Oversized or malformed inputs fail explicitly before GPU allocation.
+Index-connected parts are inspection hints, not engine object identities.
+
+The separate **Capture** workspace records bounded all-shader sessions and
+ordered non-draw events independently of catalog selection. Sources and immutable
+resource blocks are shared while occurrences retain distinct state. Saving and
+reopening the recording, extracting individual inputs, and testing original and
+edited source across matching uses operate on owned data. Replay coverage is
+component-specific; instrumented operations with missing dependencies remain
+incomplete. See the working validation evidence for native renderer coverage and
+remaining fidelity gates. PR #260's Asset Browser is additive: model assembly and
+GLB export should consume these occurrence/resource records rather than replace
+the shader recorder or replacement library.
+
+## Concept: one shader is not one model
+
+```text
+Selected shader
+  -> exact draw events using that shader
+     -> geometry segments -> proposed or confirmed object membership
+     -> material inputs: shader stages, textures, samplers, constants, state
+     -> resource versions -> earlier producers and later consumers
+```
+
+Keep three relationships separate in code and in the future UI:
+
+| Relationship | What it establishes | What it does not establish |
+|---|---|---|
+| Shader use / draw / segment | Which submission and primitive selection we captured | The original engine model name |
+| Object membership | Which segments the user or an engine-aware adapter confirmed belong together | Membership merely from equal shaders, textures, or hashes |
+| Resource dependency | A captured producer version is an input to another draw | Object ownership or proof that a particular pixel changed |
+
+One draw may batch multiple objects. One object may require multiple draws,
+materials, and passes. The same mesh may be used by separate object instances.
+A screen-space quad may process a picture containing the whole scene without
+being the geometry of all those scene objects.
+
+## What the code implements
+
+`ui/xui/shader-browser-draw-capture.hh` defines the shared records and APIs.
+The implementation is split into draw identity/admission, triangle-list
+segmentation, relationship analysis, object grouping, and resource dependencies.
+The analysis production units have a focused Meson test. A separate one-shot
+request service and C bridge connect the final OpenGL/Vulkan submission points
+to the workbench. An atomic claim reserves the exact request before geometry
+copying; completion uses that token after the command is emitted. Cancellation
+and re-arming cannot assign an older claimed command to the newer request.
+Suppressed commands never claim or satisfy a request. Captures have a submission
+serial so a Vulkan subdraw or mid-scope flush has its own identity.
+
+OpenGL reads the position and index buffers actually bound to its command.
+Vulkan reads its resolved inline staging generation, including private vertex
+backing and expanded inline streams. While a request is armed, bounded float
+position streams with a vertex prefix of at most 4096 vertices are preserved
+before reservation and descriptor preparation and used by both the actual draw
+and capture. Fixed RAM without this readable generation remains metadata-only.
+This diagnostic path can add capture-time copying or OpenGL readback stalls;
+the private preview render cadence is independent of that one-shot cost.
+
+### Exact draw and segment references
+
+`DrawEventKey` identifies session, renderer epoch, frame, draw number, and submission serial.
+`DrawCaptureSummary` also retains title/executable scope, shader identities,
+counts, typed resource touches, and segmentation metadata. Queries search the
+provided capture collection; the future UI must supply the selected title/build
+and capture scope, not concatenate unrelated libraries with unremapped IDs.
+
+`DrawSegmentKey` identifies a selection within that draw. `SegmentTriangleList`
+returns index-connected islands, original primitive IDs, degenerate primitives,
+and incomplete trailing-index counts. It does not guess positions, weld UV
+seams, or turn an island into a proven object. Noncontiguous selections retain
+`primitive_indices`; do not replace `{0, 2}` with the contiguous range `0..2`.
+Filled topologies are triangulated for this analysis; instance/transform-based
+splits remain future decoder work.
+
+Geometry with unknown meaning, a screen-space draw, or an unresolved suspected
+batch remains in `unresolved_segments`. It is still a shader seed and can have
+resource dependencies; it is not quietly counted as one reconstructed model.
+An unsegmented known geometry draw is only a whole-draw candidate, not proof
+that it contains exactly one object.
+
+### Membership versus inference
+
+Matching geometry, transform, skinning, bounds, and submission adjacency are
+inspectable evidence. They produce suggestions, never automatic ownership.
+`SameObjectPass` is the name of a repeat/pass *candidate*, not a proven fact.
+Bounds are compared only when their nonempty coordinate-space digests match.
+
+Only equal, nonzero `confirmed_object_id` values consolidate segments, within
+the same title/build/session/renderer/frame. IDs must come from explicit user
+confirmation or verified engine metadata, not from hashes. Different confirmed
+IDs keep repeated instances separate. Confirmation can join passes using
+different camera transforms; an inferred transform mismatch merely blocks the
+heuristic, not an already confirmed relationship. Membership is capture-local,
+not a persistent engine asset ID. The confirmation UI is not implemented yet.
+
+### Resource versions: inputs and downstream influence
+
+`ResourceTouch` stores read and write versions separately. `storage_id` identifies
+a capture-local backing allocation incarnation; `storage_range` is a canonical
+byte range in that backing, independent of the guest pointer or texture view.
+A render-target write and a texture read may use different resource kinds,
+formats, guest addresses, and descriptors while referring to the same backing.
+The capture adapter must establish that alias; this model does not guess it.
+
+`BuildResourceDependencies` joins an earlier producer to a consumer only when
+scope/epoch, backing ID, version, and overlapping canonical byte ranges agree.
+It reports unknown versions, invalid ranges, missing producers, partial coverage,
+and ambiguous overlapping producers. Read/read sharing and bind-only metadata
+create no producer edge. `DerivedFrom` metadata alone also creates no edge;
+a concrete consumed version must be represented as a read.
+
+A read/write consumes version A and produces version B. Partial updates must be
+represented as provenance fragments: one read touch per origin/version/range.
+Unmodified regions keep their earlier origins. Never label an entire image with
+the newest draw and thereby attribute all prior pixels to that draw. CPU uploads,
+clears, blits, resolves, or uncaptured earlier frames require additional event
+adapters or explicit missing-producer status; draw-only input cannot invent them.
+Allocation IDs/versions are supplied by the future capture service, not by a
+content hash, current RAM contents, or a presumed last writer.
+
+`TraceResourceInputs` follows captured edges upstream. `TraceResourceInfluence`
+follows them downstream. `TraceShaderObjectUsage` exposes those draw lists
+separately from `object_candidates`, suggestions, and shared-resource edges.
+The graph's missing-read diagnostics cover the supplied capture collection.
+These lists mean captured resource-level reachability, not exact pixel history.
+
+## Example: separate the character from everything it affects
+
+```text
+D18: character body, object 7, selected shader
+D19: armor, object 7, different shader       -> confirmed part, not shader seed
+D20: another character, object 8            -> separate instance
+D23: character shadow pass, object 7        -> confirmed pass
+D40: ground reads a produced shadow version -> downstream receiver, not body part
+D80: reflection/composite reads scene color -> downstream effect, not model mesh
+```
+
+A selected receiving draw can also show the shadow producer in its upstream
+inputs. Sharing a texture between D18 and D20 creates resource-sharing evidence,
+not membership and not a read-after-write dependency. One batched draw with two
+confirmed segment IDs produces two object candidates, not one model.
+
+For a final composite, resource tracing may reach many scene draws. That is a
+useful dependency view, but identifying exactly which object contributed a
+particular reflected or shadowed pixel requires coverage/pixel-history work.
+
+## How the renderer capture should supply actual geometry and materials
+
+Use the final submission boundary, not a later RAM scan. Preserve the guest draw
+and each backend emission when one guest submission is split/expanded. Assign
+stable event IDs before caches, suppression, or batching can obscure provenance.
+
+Resolve each vertex stream using its DMA selection/base, offset, element range,
+stride, format, and component count. Copy referenced bytes and inline values;
+retain exact indices, primitive order, restart/degenerate boundaries, and original
+submission type. Existing OpenGL vertex fetch-range resolution is an integration
+anchor; use the equivalent Vulkan ownership boundary, not UI access to live state.
+Do not assume input v0 is position or an arbitrary constant block is a world
+matrix. Original vertex programs/constants can replay the captured pose; a free
+camera/attribute viewer must explicitly declare its interpretation.
+
+For every material binding, retain the active stage, texture shape/subresources,
+format, palette, sampler settings, constants, combiner/fixed-function state,
+vertex partner, raster/blend/depth/stencil state, and needed destination contents.
+The original engine material name is optional provenance, not a capture prerequisite.
+Keep raw guest bytes/interpretation separate from the host resource actually
+sampled: regenerating a stale or wrongly decoded host texture could hide the bug.
+
+Capture-next-match and bounded frame capture must be explicit diagnostic actions.
+Metadata is not a time machine: selecting an old draw can recover its bytes only
+if a snapshot was retained. Otherwise capture a new occurrence and show its ID.
+A capture pause/readback may have a measured cost; ordinary gameplay and opening
+the preview must not wait for it. Publish owned immutable snapshots with declared
+byte limits, cancellation, generation checks, and no UI access to mutable handles.
+The targeted search owns bounded geometry and input snapshots and cancels when
+its selection changes. The explicitly armed all-shader session has separate
+ownership: filtering or hiding the inspector does not retarget acquisition.
+Observed color checkpoints, supported texture subresources, constants, raw
+streams and stage sources are retained under declared budgets. This is bounded
+evidence, not complete frame replay.
+
+## Current limits and unfinished integration
+
+The offline analyzers reject more than 256 draws, 512 effective segments, or 32
+resource touches per draw. Selected primitive lists total at most 262,144 entries.
+Triangle segmentation accepts at most 786,432 indices. The dependency edge limit
+is 32,768. Duplicate draw/segment keys and inconsistent parent keys are rejected.
+Limit or invalid-input flags must be shown as incomplete analysis, never success.
+These are bounded foundation analysis windows, **not** the capture session's
+event capacity or immutable snapshot byte budget. The session uses occurrence
+indexes and a virtualized table. Object relationship analysis remains quadratic
+within its smaller window and must stay off the rendering thread.
+
+Remaining coverage includes complete non-draw instrumentation and resource
+dependency closure, additional NV2A formats and primitive restart, depth/stencil
+ownership and replay, uncertain aliases and partial writes, broader real-title
+checkpoint comparisons, temporal correspondence, and native rolling/reset/budget
+acceptance. Backing versions, selected resource copies, original-stage replay,
+input inspection, capture persistence and native validation have bounded
+implementations; consult the per-component evidence instead of assuming universal
+coverage. Asset assembly and portable model export belong to additive PR #260.
+`CaptureCompleteness` is descriptive metadata; it does not validate replay payloads.
+No full model extraction, complete replay, pixel causation, or speedup is claimed.
+
+## Verification
+
+From an existing configured xemu build:
+
+```sh
+meson test -C build test-xemu-shader-browser-draw-capture --print-errorlogs
+```
+
+The same production sources can be tested without graphics dependencies:
+
+```sh
+c++ -std=c++17 -pthread -I. -Wall -Wextra -Werror -O2 \
+  tests/unit/test-xemu-shader-browser-draw-capture.cc \
+  ui/xui/shader-browser-draw-capture.cc \
+  ui/xui/shader-browser-draw-request.cc \
+  ui/xui/shader-browser-draw-segmentation.cc \
+  ui/xui/shader-browser-object-relationship.cc \
+  ui/xui/shader-browser-object-grouping.cc \
+  ui/xui/shader-browser-resource-dependencies.cc \
+  -o /tmp/xemu-capture-test
+/tmp/xemu-capture-test
+```
+
+Tests use explicit checks that remain active under `NDEBUG`. They exercise
+25 cases including atomic request matching, deterministic cancel/re-arm,
+owned resolved generations, independent draw-array ranges, unrelated objects,
+confirmed multi-pass membership, separate
+instances, noncontiguous islands, ambiguous batches, screen-space effects,
+aliasing, version changes, upstream/downstream traversal, provenance gaps,
+invalid metadata, and admission limits. Unit results are not native capture or
+replay evidence. Exact commands/results and verification limits belong in the PR.
+
+### Submission regression campaign
+
+The native preview lifecycle executable also tests the production OpenGL source
+adapter against real vertex and index buffers. It checks expanded float4
+positions, cached host bytes after the guest source changes, bounded reads, and
+binding restoration. Its completion flag is synthetic: that adapter test alone
+does not establish a real backend draw or successful title capture. The ordinary
+capture test checks token cancellation/re-arm, failed emission release, an
+owned generation surviving source replacement, and independent `[4, 2]` array
+ranges. Preview scene tests check unused outliers in sparse bounds.
+
+For renderer integration, run a test XBE on both renderers with these cases:
+
+- A triangle-list `[4, 2]` array sequence within one begin/end scope, then an
+  explicit mid-scope flush. Only the first complete triangle belongs to capture.
+- Expanded inline float4 positions; reset the populated flags during upload and
+  verify that the already-bound host stream remains capturable.
+- Dynamic overlapping vertex updates that trigger private Vulkan backing, and
+  an armed fixed-backing draw whose position stream must survive reservation.
+- A successful mid-scope submission followed by a rejected final segment. The
+  earlier captured submission must stay ready with its original serial/mesh.
+- A compatibility-suppressed indexed effect. It must not fulfill the request;
+  a later emitted draw with the same shader must fulfill it.
+
+The host tests and source review cover parts of this contract. They do not
+replace that complete fault-injection campaign or bare-metal comparisons for
+changes to NV2A behavior. The capture feature itself is a host diagnostic and
+adds no guest register definitions.

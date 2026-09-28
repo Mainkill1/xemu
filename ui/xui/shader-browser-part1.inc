@@ -2,6 +2,7 @@
 #include "shader-browser.hh"
 #include "shader-browser-usage-export.hh"
 #include "shader-browser-glsl-export.hh"
+#include "shader-browser-session-provider.hh"
 
 #include "common.hh"
 #include "viewport-manager.hh"
@@ -19,6 +20,23 @@
 using namespace xemu::shader_browser;
 
 ShaderBrowserWindow shader_browser_window;
+
+void ShaderBrowserApplyProfilingSettings()
+{
+    auto &settings = g_config.shader_browser.profiling;
+    settings.monitoring_level = std::clamp(settings.monitoring_level, 0, 2);
+    settings.draw_sample_interval =
+        std::clamp(settings.draw_sample_interval, 1, 4096);
+    settings.max_gpu_samples_per_frame =
+        std::clamp(settings.max_gpu_samples_per_frame, 1, 64);
+    XemuShaderBrowserProfilingConfig config{};
+    config.monitoring_level = settings.monitoring_level;
+    config.cpu_timing = settings.cpu_timing;
+    config.gpu_timing = settings.gpu_timing;
+    config.draw_sample_interval = settings.draw_sample_interval;
+    config.max_gpu_samples_per_frame = settings.max_gpu_samples_per_frame;
+    xemu_shader_browser_configure_profiling(&config);
+}
 
 namespace {
 
@@ -176,6 +194,23 @@ bool OpenDirectory(const std::string &path, std::string *error)
     return ok;
 }
 
+void DrawDurationRows(const Entry &entry, bool recorded)
+{
+    const bool enabled =
+        recorded || (g_config.shader_browser.profiling.monitoring_level == 2 &&
+                     g_config.shader_browser.profiling.cpu_timing);
+    auto text = [enabled, recorded](const DurationStats &stats) {
+        return stats.samples ? FormatDurationNs(stats) :
+               enabled       ? recorded ?
+                               std::string("No recorded creation sample") :
+                               std::string("Created before profiling or cache hit") :
+                               std::string("Profiling disabled");
+    };
+    DrawKeyValue("Source generation CPU", text(entry.source_cpu));
+    DrawKeyValue("Stage compile CPU", text(entry.compile_cpu));
+    DrawKeyValue("Module creation CPU", text(entry.module_cpu));
+}
+
 } // namespace
 
 ShaderBrowserWindow::ShaderBrowserWindow()
@@ -204,8 +239,10 @@ ShaderBrowserWindow::ShaderBrowserWindow()
 
 void ShaderBrowserWindow::Draw()
 {
+    PollAllShaderCapture();
     Provider &provider = GetProvider();
     if (!m_is_open) {
+        CancelWorkbenchCaptureWhenHidden();
         GetPreviewService().SetVisible(false, PreviewNowNs());
         if (m_window_was_open) {
             provider.SetLiveCollectionEnabled(false);
@@ -218,14 +255,17 @@ void ShaderBrowserWindow::Draw()
     if (!m_window_was_open) {
         m_window_was_open = true;
         provider.SetLiveCollectionEnabled(m_collection_requested);
-        m_has_selection = false;
+        if (!IsInspectingCapturedOccurrence())
+            m_has_selection = false;
         GetDetailStore().Clear();
         m_next_poll_ms = 0;
     }
     RefreshSnapshot();
-    GetDetailStore().CopySnapshotIfChanged(m_detail_snapshot.generation,
-                                            &m_detail_snapshot);
-    if (m_has_selection && m_detail_snapshot.state == DetailState::Idle) {
+    if (!IsInspectingCapturedOccurrence())
+        GetDetailStore().CopySnapshotIfChanged(m_detail_snapshot.generation,
+                                               &m_detail_snapshot);
+    if (!IsInspectingCapturedOccurrence() && m_has_selection &&
+        m_detail_snapshot.state == DetailState::Idle) {
         GetDetailStore().Request(m_selected_key, DetailBackend::Active);
         pgraph_shader_browser_request_details();
     }
@@ -253,6 +293,7 @@ void ShaderBrowserWindow::Draw()
         ImGui::End();
         GetPreviewService().SetVisible(false, PreviewNowNs());
         if (!m_is_open) {
+            CancelWorkbenchCaptureWhenHidden();
             provider.SetLiveCollectionEnabled(false);
             GetDetailStore().Clear();
             m_window_was_open = false;
@@ -292,12 +333,18 @@ void ShaderBrowserWindow::Draw()
                          available.y - (toggle_max.y - toggle_min.y)))),
             ImGuiCond_Appearing);
         if (ImGui::BeginPopup("##shader-catalog-overlay")) {
-            DrawSelector();
+            if (m_capture_workspace)
+                DrawCaptureExplorer();
+            else
+                DrawSelector();
             ImGui::EndPopup();
         }
     } else {
         if (ImGui::BeginChild("##shader-selector", ImVec2(left_width, 0), true)) {
-            DrawSelector();
+            if (m_capture_workspace)
+                DrawCaptureExplorer();
+            else
+                DrawSelector();
         }
         ImGui::EndChild();
     }
@@ -325,6 +372,9 @@ void ShaderBrowserWindow::Draw()
         DrawRightPane();
     }
     ImGui::EndChild();
+    if (!m_is_open && !ConfirmCaptureClose())
+        m_is_open = true;
+    DrawCaptureCloseChoice(&m_is_open);
     ImGui::End();
 
     if (!m_is_open) {
@@ -351,7 +401,7 @@ void ShaderBrowserWindow::RefreshSnapshot()
     m_snapshot = std::move(next);
     m_filter_dirty = true;
 
-    if (m_has_selection &&
+    if (!IsInspectingCapturedOccurrence() && m_has_selection &&
         FindEntryByKey(m_snapshot.entries, m_selected_key) < 0) {
         m_has_selection = false;
         m_has_recipe = false;
@@ -361,7 +411,8 @@ void ShaderBrowserWindow::RefreshSnapshot()
     }
     // Wait for a title-scoped recipe before choosing a default. A catalog
     // selection made by the user remains fixed across later snapshots.
-    if (!m_has_selection && m_snapshot.current_title_id) {
+    if (!IsInspectingCapturedOccurrence() && !m_has_selection &&
+        m_snapshot.current_title_id) {
         const Entry *initial = nullptr;
         for (const Entry &entry : m_snapshot.entries) {
             const bool current_title = std::any_of(

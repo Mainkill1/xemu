@@ -1,6 +1,7 @@
 
 void ShaderBrowserWindow::SelectEntry(const Entry &entry)
 {
+    UseLiveShaderSelection();
     m_preview_packet_attempted = false;
     m_preview_packet_message.clear();
     m_selected_key = entry.key;
@@ -31,7 +32,10 @@ void ShaderBrowserWindow::ExportRecipe(const Entry &entry)
 {
     CanonicalRecipe recipe{};
     std::string error;
-    if (!GetProvider().CopyCanonicalRecipe(entry.key, &recipe)) {
+    if (IsInspectingCapturedOccurrence() && m_has_recipe &&
+        entry.key == m_selected_key) {
+        recipe = m_selected_recipe;
+    } else if (!GetProvider().CopyCanonicalRecipe(entry.key, &recipe)) {
         m_action_message = "Canonical recipe unavailable";
         return;
     }
@@ -48,6 +52,8 @@ void ShaderBrowserWindow::ExportRecipe(const Entry &entry)
 
 const Entry *ShaderBrowserWindow::SelectedEntry() const
 {
+    if (const Entry *captured = InspectedCapturedEntry())
+        return captured;
     if (!m_has_selection) {
         return nullptr;
     }
@@ -106,17 +112,17 @@ void ShaderBrowserWindow::DrawSelector()
     const float gap = ImGui::GetStyle().ItemSpacing.x;
     ImGui::SetNextItemWidth(std::max(85.0f, (width - gap * 2.0f -
                                              42.0f) * 0.5f));
-    if (ImGui::Combo("##stage", &m_stage_filter,
-                     "All stages\0Vertex\0Pixel\0Geometry\0"
-                     "Fixed function\0Unknown\0")) {
+    if (ShaderCombo("##stage", &m_stage_filter,
+                    "All stages\0Vertex\0Pixel\0Geometry\0"
+                    "Fixed function\0Unknown\0")) {
         m_filter_dirty = true;
     }
     ImGui::SameLine();
     ImGui::SetNextItemWidth(std::max(85.0f, (width - gap * 2.0f -
                                              42.0f) * 0.5f));
-    if (ImGui::Combo("##recent", &table_view.recent_index,
-                     "Any time\0Last 30 frames\0Last 120 frames\0"
-                     "Last 600 frames\0")) {
+    if (ShaderCombo("##recent", &table_view.recent_index,
+                    "Any time\0Last 30 frames\0Last 120 frames\0"
+                    "Last 600 frames\0")) {
         m_filter_dirty = true;
     }
     ImGui::SameLine();
@@ -131,13 +137,13 @@ void ShaderBrowserWindow::DrawSelector()
             ImGui::Checkbox("Current title only", &m_current_title_only))
             m_filter_dirty = true;
         ImGui::SetNextItemWidth(200.0f * g_viewport_mgr.m_scale);
-        if (ImGui::Combo("Source", &m_source_filter,
-                         "All sources\0This session\0Database catalog\0"))
+        if (ShaderCombo("Source", &m_source_filter,
+                        "All sources\0This session\0Database catalog\0"))
             m_filter_dirty = true;
         ImGui::SetNextItemWidth(200.0f * g_viewport_mgr.m_scale);
-        if (ImGui::Combo("Sort", &m_sort_key,
-                         "Draws (high first)\0Last used (recent first)\0"
-                         "Compile time (slow first)\0ID (A-Z)\0")) {
+        if (ShaderCombo("Sort", &m_sort_key,
+                        "Draws (high first)\0Last used (recent first)\0"
+                        "Compile time (slow first)\0ID (A-Z)\0")) {
             m_sort_descending = m_sort_key != 3;
             m_filter_dirty = true;
         }
@@ -208,13 +214,15 @@ void ShaderBrowserWindow::DrawSelector()
                         IM_COL32(66, 104, 72, selected ? 115 : 72));
                 }
                 ImGui::TableSetColumnIndex(0);
-                if (ImGui::Selectable(
+                if (ShaderOptionSelected(
                         catalog_id.c_str(), selected,
                         ImGuiSelectableFlags_SpanAllColumns |
                             ImGuiSelectableFlags_AllowOverlap)) {
                     SelectEntry(entry);
                 }
-                if (ImGui::IsItemHovered()) {
+                GetShaderOverrideUi().DrawRowDragSource(
+                    entry, m_snapshot.current_title_id, full_id);
+                if (ImGui::IsItemHovered() && !ImGui::GetDragDropPayload()) {
                     ImGui::SetTooltip("%s | %s\n%s", full_id.c_str(),
                                       StageLabel(entry.key.stage),
                                       hidden ? "Hidden from catalog" :
@@ -249,8 +257,6 @@ void ShaderBrowserWindow::DrawSelector()
                         ExportRecipe(entry);
                     ImGui::EndPopup();
                 }
-                GetShaderOverrideUi().DrawRowDragSource(
-                    entry, m_snapshot.current_title_id, full_id);
 
                 ImGui::TableSetColumnIndex(1);
                 if (entry.observed_in_session)
@@ -302,38 +308,55 @@ void ShaderBrowserWindow::DrawSelector()
 void ShaderBrowserWindow::DrawRightPane()
 {
     bool preview_visible = false;
+    bool capture_visible = false;
     if (ImGui::BeginTabBar("##shader-browser-tabs")) {
+        ImGuiTabItemFlags preview_flags = m_select_preview_tab ?
+                                              ImGuiTabItemFlags_SetSelected :
+                                              ImGuiTabItemFlags_None;
+        // Consume the request before drawing other tabs. A capture action can
+        // request this tab later in the same frame; keep that request for the
+        // next frame instead of discarding it at the end of the tab bar.
+        m_select_preview_tab = false;
+        if (ImGui::BeginTabItem("In-game view", nullptr, preview_flags)) {
+            m_capture_workspace = false;
+            preview_visible = true;
+            DrawSelectedHeader();
+            PreviewStatus preview_status{};
+            GetPreviewService().CopyStatus(&preview_status);
+            if (!preview_status.visible)
+                m_preview_packet_attempted = false;
+            DrawLivePreview();
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Capture")) {
+            capture_visible = true;
+            m_capture_workspace = true;
+            DrawCaptureWorkspace();
+            ImGui::EndTabItem();
+        }
         ImGuiTabItemFlags details_flags = m_jump_to_overrides ?
             ImGuiTabItemFlags_SetSelected : ImGuiTabItemFlags_None;
-        if (ImGui::BeginTabItem("Shader Details", nullptr, details_flags)) {
+        if (ImGui::BeginTabItem("Details", nullptr, details_flags)) {
+            m_capture_workspace = false;
             DrawSelectedHeader();
             DrawShaderDetails();
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Settings")) {
+            m_capture_workspace = false;
             DrawSelectedHeader();
             if (ImGui::BeginChild("##shader-settings-body", ImVec2(0, 0)))
                 DrawSettings();
             ImGui::EndChild();
             ImGui::EndTabItem();
         }
-        ImGuiTabItemFlags preview_flags = m_select_preview_tab ?
-            ImGuiTabItemFlags_SetSelected : ImGuiTabItemFlags_None;
-        if (ImGui::BeginTabItem("Live Preview", nullptr, preview_flags)) {
-            preview_visible = true;
-            DrawSelectedHeader();
-            PreviewStatus preview_status{};
-            GetPreviewService().CopyStatus(&preview_status);
-            if (!preview_status.visible) {
-                m_preview_packet_attempted = false;
-            }
-            DrawLivePreview();
-            ImGui::EndTabItem();
-        }
         ImGui::EndTabBar();
     }
-    m_select_preview_tab = false;
-    GetPreviewService().SetVisible(preview_visible, PreviewNowNs());
+    if (!preview_visible && !capture_visible)
+        CancelWorkbenchCaptureWhenHidden();
+    GetPreviewService().SetVisible(
+        preview_visible || (capture_visible && CaptureComparisonVisible()),
+        PreviewNowNs());
 }
 
 void ShaderBrowserWindow::DrawSelectedHeader()

@@ -29,6 +29,7 @@
 #include "ui/xemu-tweaks.h"
 #include "debug.h"
 #include "renderer.h"
+#include "hw/xbox/nv2a/pgraph/shader-browser-resource.h"
 
 static TextureBinding* generate_texture(const TextureShape s, const uint8_t *texture_data, const uint8_t *palette_data);
 
@@ -771,6 +772,7 @@ static TextureBinding* generate_texture(const TextureShape s,
     TextureBinding* ret = (TextureBinding *)g_malloc(sizeof(TextureBinding));
     ret->gl_target = gl_target;
     ret->gl_texture = gl_texture;
+    ret->capture_owner = xemu_shader_capture_resource_new_owner();
     ret->refcnt = 1;
     ret->draw_time = 0;
     ret->data_hash = 0;
@@ -781,6 +783,9 @@ static TextureBinding* generate_texture(const TextureShape s,
     ret->addrv = 0xFFFFFFFF;
     ret->addrp = 0xFFFFFFFF;
     ret->border_color_set = false;
+    pgraph_shader_resource_write(
+        &g_nv2a->pgraph, XEMU_SHADER_CAPTURE_UPLOAD, ret->capture_owner, 1,
+        XEMU_SHADER_CAPTURE_RESOURCE_TEXTURE, true, 0, 0, 0, false);
     return ret;
 }
 

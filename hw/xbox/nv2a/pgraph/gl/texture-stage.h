@@ -25,6 +25,7 @@ typedef struct TextureBinding {
     bool border_color_set;
     GLenum gl_target;
     GLuint gl_texture;
+    uint64_t capture_owner;
 } TextureBinding;
 
 void pgraph_gl_texture_binding_destroy(TextureBinding *binding);

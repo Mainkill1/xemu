@@ -377,6 +377,26 @@ static void pgraph_vk_init(NV2AState *d, Error **errp)
     if (*errp) {
         return;
     }
+    PGRAPHVkState *timing_renderer = pg->vk_renderer_state;
+    QueueFamilyIndices timing_queue =
+        pgraph_vk_find_queue_families(timing_renderer->physical_device);
+    uint32_t timing_queue_count = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(timing_renderer->physical_device,
+                                             &timing_queue_count, NULL);
+    g_autofree VkQueueFamilyProperties *timing_queues =
+        g_new0(VkQueueFamilyProperties, timing_queue_count);
+    vkGetPhysicalDeviceQueueFamilyProperties(timing_renderer->physical_device,
+                                             &timing_queue_count, timing_queues);
+    if (timing_queue.queue_family >= 0 &&
+        (uint32_t)timing_queue.queue_family < timing_queue_count)
+        timing_renderer->shader_timing_valid_bits =
+            timing_queues[timing_queue.queue_family].timestampValidBits;
+    timing_renderer->shader_timing_supported =
+        timing_renderer->shader_timing_valid_bits >= 36 &&
+        timing_renderer->shader_timing_valid_bits <= 64;
+    xemu_shader_browser_report_gpu_state(
+        XEMU_SHADER_BROWSER_BACKEND_VK,
+        pg->vk_renderer_state->shader_timing_supported, 0);
     pg->vk_renderer_state->hybrid_service_timer = timer_new_ns(
         QEMU_CLOCK_REALTIME, pgraph_vk_hybrid_service_timer_fired, d);
 
@@ -431,6 +451,12 @@ static void pgraph_vk_finalize(NV2AState *d)
 
     /* Finish recorded draws before destroying their cached pipelines. */
     pgraph_vk_finish(pg, VK_FINISH_REASON_FLUSH);
+    if (pg->vk_renderer_state->shader_timing_pool != VK_NULL_HANDLE) {
+        vkDestroyQueryPool(pg->vk_renderer_state->device,
+                           pg->vk_renderer_state->shader_timing_pool, NULL);
+        pg->vk_renderer_state->shader_timing_pool = VK_NULL_HANDLE;
+    }
+    xemu_shader_browser_report_gpu_state(XEMU_SHADER_BROWSER_BACKEND_VK, 0, 0);
     pgraph_vk_finalize_display(pg);
     pgraph_vk_finalize_compute(pg);
     pgraph_vk_finalize_reports(pg);

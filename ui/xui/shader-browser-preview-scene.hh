@@ -69,6 +69,12 @@ struct PreviewSceneFrame {
     std::array<PreviewSceneDraw, kPreviewMaxSceneDraws> draws{};
     size_t draw_count = 0;
 };
+// Raw float positions from one submitted game draw. Indices retain the exact
+// triangle order; the private preview supplies synthetic fragment inputs.
+struct PreviewCapturedMesh {
+    std::vector<std::array<float, 4>> positions;
+    std::vector<uint32_t> indices;
+};
 enum class PreviewCameraGestureKind : uint8_t {
     Orbit,
     Pan,
@@ -90,6 +96,10 @@ PreviewScene ApplyPreviewCameraGesture(PreviewScene scene,
 PreviewSceneFrame BuildPreviewSceneFrame(const PreviewScene &scene,
                                          float aspect = 1.0f,
                                          bool vulkan = false);
+PreviewSceneFrame BuildPreviewCapturedFrame(const PreviewScene &scene,
+                                             const PreviewCapturedMesh &mesh,
+                                             float aspect = 1.0f,
+                                             bool vulkan = false);
 std::vector<PreviewSceneVertex>
 BuildPreviewSceneGeometry(const PreviewScene &scene, float aspect = 1.0f,
                           bool vulkan = false);

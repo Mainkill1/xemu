@@ -156,6 +156,39 @@ static void test_rejected_scope_without_submission_stays_rejected(void)
     g_free(pg);
 }
 
+static void test_shader_timing_uses_submitted_binding_and_route(void)
+{
+    PGRAPHGLShaderTimingSlot slot = { 0 };
+    ShaderBinding before = { 0 };
+    ShaderBinding submitted = { 0 };
+    before.node.hash = 0x11;
+    submitted.node.hash = 0x22;
+    before.browser.identities[0].stage = XEMU_SHADER_BROWSER_STAGE_VERTEX;
+    submitted.browser.identities[0].stage = XEMU_SHADER_BROWSER_STAGE_PIXEL;
+    slot.binding = before.browser;
+    slot.variant_id = before.node.hash;
+
+    pgraph_gl_shader_timing_record_result(
+        &slot, PGRAPH_GL_DRAW_SUBMITTED, &submitted, 42,
+        XEMU_SHADER_BROWSER_ROUTE_REPLACEMENT);
+
+    g_assert_true(slot.submitted);
+    g_assert_cmpuint(slot.variant_id, ==, 0x22);
+    g_assert_cmpuint(slot.frame, ==, 42);
+    g_assert_cmpuint(slot.route, ==, XEMU_SHADER_BROWSER_ROUTE_REPLACEMENT);
+    g_assert_cmpuint(slot.binding.identities[0].stage, ==,
+                     XEMU_SHADER_BROWSER_STAGE_PIXEL);
+
+    pgraph_gl_shader_timing_record_result(
+        &slot, PGRAPH_GL_DRAW_REJECTED, &before, 43,
+        XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED);
+    g_assert_false(slot.submitted);
+    pgraph_gl_shader_timing_record_result(
+        &slot, PGRAPH_GL_DRAW_EMPTY, &before, 44,
+        XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED);
+    g_assert_false(slot.submitted);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -169,5 +202,7 @@ int main(int argc, char **argv)
                     test_submitted_segment_survives_empty_final_segment);
     g_test_add_func("/xbox/gl/draw-lifecycle/rejected-without-submit",
                     test_rejected_scope_without_submission_stays_rejected);
+    g_test_add_func("/xbox/gl/draw-lifecycle/submitted-binding-route-timing",
+                    test_shader_timing_uses_submitted_binding_and_route);
     return g_test_run();
 }

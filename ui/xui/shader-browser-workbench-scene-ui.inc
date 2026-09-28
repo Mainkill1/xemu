@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
+#include "shader-browser-selection-ui.hh"
 // Small shared ImGui helpers for the fixed synthetic scene. Include after imgui.h.
 #include "shader-browser-preview-scene.hh"
 
@@ -19,7 +20,7 @@ inline bool DrawWorkbenchSceneToolbar(PreviewScene *scene)
     ImGui::SameLine();
     ImGui::SetNextItemWidth(112.0f);
     int mesh = static_cast<int>(scene->mesh);
-    if (ImGui::Combo("##target-mesh", &mesh, "Quad\0Sphere\0Cube\0")) {
+    if (ShaderCombo("##target-mesh", &mesh, "Quad\0Sphere\0Cube\0")) {
         scene->mesh = static_cast<PreviewMesh>(mesh);
         changed = true;
     }
@@ -47,7 +48,7 @@ inline WorkbenchSceneUiEdits DrawWorkbenchSceneControls(
     if (!scene || !render_state) return edits;
     if (ImGui::CollapsingHeader("Scene and camera")) {
         int mesh = static_cast<int>(scene->mesh);
-        edits.scene |= ImGui::Combo("Target", &mesh, "Quad\0Sphere\0Cube\0");
+        edits.scene |= ShaderCombo("Target", &mesh, "Quad\0Sphere\0Cube\0");
         scene->mesh = static_cast<PreviewMesh>(mesh);
         if (ImGui::Button("Focus target")) {
             *scene = ApplyPreviewCameraGesture(
@@ -89,16 +90,14 @@ inline WorkbenchSceneUiEdits DrawWorkbenchSceneControls(
     }
     if (ImGui::CollapsingHeader("Synthetic render state")) {
         int blend = static_cast<int>(render_state->blend);
-        edits.render_state |= ImGui::Combo("Blend", &blend,
-                                           "Opaque\0Alpha\0");
+        edits.render_state |= ShaderCombo("Blend", &blend, "Opaque\0Alpha\0");
         render_state->blend = static_cast<PreviewBlendMode>(blend);
         edits.render_state |= ImGui::Checkbox("Depth test",
                                               &render_state->depth_test);
         edits.render_state |= ImGui::Checkbox("Depth write",
                                               &render_state->depth_write);
         int cull = static_cast<int>(render_state->cull);
-        edits.render_state |= ImGui::Combo("Cull", &cull,
-                                           "None\0Back\0Front\0");
+        edits.render_state |= ShaderCombo("Cull", &cull, "None\0Back\0Front\0");
         render_state->cull = static_cast<PreviewCullMode>(cull);
         ImGui::BeginDisabled();
         edits.render_state |= ImGui::Checkbox("Alpha test",

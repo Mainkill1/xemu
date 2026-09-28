@@ -18,6 +18,7 @@
  */
 
 #include "renderer.h"
+#include "hw/xbox/nv2a/pgraph/shader-browser-resource.h"
 #include "vertex-version-policy.h"
 
 /*
@@ -113,6 +114,7 @@ static void create_buffer(PGRAPHState *pg, StorageBuffer *buffer)
     VK_CHECK(vmaCreateBuffer(r->allocator, &buffer_create_info,
                              &buffer->alloc_info, &buffer->buffer,
                              &buffer->allocation, NULL));
+    buffer->capture_owner = xemu_shader_capture_resource_new_owner();
 }
 
 static void destroy_buffer(PGRAPHState *pg, StorageBuffer *buffer)
@@ -123,9 +125,16 @@ static void destroy_buffer(PGRAPHState *pg, StorageBuffer *buffer)
         return;
     }
 
+    uint64_t token = pgraph_shader_resource_begin(pg, XEMU_SHADER_CAPTURE_ALLOCATION);
+    pgraph_shader_resource_stage(token, buffer->capture_owner,
+                                 buffer->buffer_size,
+                                 XEMU_SHADER_CAPTURE_RESOURCE_RELEASE,
+                                 XEMU_SHADER_CAPTURE_RESOURCE_BUFFER, 0, false);
+    pgraph_shader_resource_finish(token);
     vmaDestroyBuffer(r->allocator, buffer->buffer, buffer->allocation);
     buffer->buffer = VK_NULL_HANDLE;
     buffer->allocation = VK_NULL_HANDLE;
+    buffer->capture_owner = 0;
 }
 
 static void resize_buffer(PGRAPHState *pg, int index, size_t size);
@@ -292,6 +301,7 @@ void pgraph_vk_init_buffers(NV2AState *d)
     r->storage_buffers[BUFFER_VERTEX_RAM] = (StorageBuffer){
         .alloc_info = host_alloc_create_info,
         .usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+                 VK_BUFFER_USAGE_TRANSFER_SRC_BIT |
                  VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
         .buffer_size = memory_region_size(d->vram),
     };
@@ -459,6 +469,8 @@ VkDeviceSize pgraph_vk_append_to_buffer(PGRAPHState *pg, int index, void **data,
     for (int i = 0; i < count; i++) {
         b->buffer_offset = ROUND_UP(b->buffer_offset, alignment);
         memcpy(b->mapped + b->buffer_offset, data[i], sizes[i]);
+        pgraph_vk_capture_buffer_upload(pg, index, b->buffer_offset, sizes[i],
+                                        b->mapped + b->buffer_offset, true);
         b->buffer_offset += sizes[i];
     }
 

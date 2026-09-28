@@ -40,6 +40,7 @@ class WorkbenchDraft
 public:
     bool Create(const GeneratedSourceSnapshot &base, uint64_t id,
                 std::string *error);
+    bool MatchesSource(const GeneratedSourceSnapshot &source) const;
     bool Edit(const std::string &text, uint64_t now_ns);
     std::optional<FrozenDraftCompile> FreezeCompile(uint64_t now_ns,
                                                     bool manual);

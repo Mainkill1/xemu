@@ -20,6 +20,7 @@ public:
 
     ShaderBrowserWindow();
     void Draw();
+    void RequestClose();
 
 private:
     void RefreshSnapshot();
@@ -42,6 +43,9 @@ private:
     void DrawSettings();
     void DrawWorkbenchSharedSettings();
     void DrawLivePreview();
+    void DrawCaptureWorkspace();
+    void DrawCaptureExplorer();
+    void OpenCapturedOccurrence();
 
     const xemu::shader_browser::Entry *SelectedEntry() const;
 
@@ -94,6 +98,7 @@ private:
     bool m_collection_requested;
     bool m_current_title_only;
     bool m_select_preview_tab = true;
+    bool m_capture_workspace = false;
     bool m_jump_to_overrides = false;
 
     int m_stage_filter;
@@ -106,3 +111,4 @@ extern ShaderBrowserWindow shader_browser_window;
 
 // Called before a user disables session recording or closes the HUD.
 void ShaderBrowserEndPerformanceSession();
+void ShaderBrowserApplyProfilingSettings();

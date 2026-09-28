@@ -1,0 +1,18 @@
+struct CaptureVertex {
+    float4 position : POSITION;
+    float4 tint : COLOR0;
+    float2 uv : TEXCOORD0;
+};
+struct CaptureVaryings {
+    float4 position : POSITION;
+    float4 tint : COLOR0;
+    float2 uv : TEXCOORD0;
+};
+CaptureVaryings main(CaptureVertex input, uniform float4 tile_offset)
+{
+    CaptureVaryings output;
+    output.position = input.position + tile_offset;
+    output.tint = input.tint;
+    output.uv = input.uv;
+    return output;
+}

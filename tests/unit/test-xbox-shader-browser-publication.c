@@ -5,6 +5,7 @@
 #include <string.h>
 
 static uint64_t generation = 7;
+static uint64_t live_epoch = 1;
 static uint64_t override_generation = 11;
 static uint32_t title_id = 0x4d530064;
 static uint32_t published_stages[10];
@@ -12,6 +13,7 @@ static uint32_t published_titles[10];
 static size_t published_count;
 static size_t override_resolve_count;
 static int artifacts_enabled;
+static int monitoring_enabled = 1;
 static size_t artifact_count;
 static size_t effect_count;
 
@@ -32,9 +34,31 @@ void xemu_shader_override_publish_effect(
     ++effect_count;
 }
 
+static XemuShaderBrowserPerformanceSample perf_samples[8];
+static size_t perf_count;
+
+void xemu_shader_browser_publish_performance_samples(
+    const XemuShaderBrowserPerformanceSample *samples, size_t count)
+{
+    assert(perf_count + count <= 8);
+    memcpy(perf_samples + perf_count, samples, count * sizeof(*samples));
+    perf_count += count;
+}
+
 uint64_t xemu_shader_browser_scope_generation(void)
 {
     return generation;
+}
+
+int xemu_shader_browser_capture_performance_context(
+    XemuShaderBrowserPerformanceContext *context)
+{
+    memset(context, 0, sizeof(*context));
+    context->scope_generation = generation;
+    context->live_epoch = live_epoch;
+    context->profiling_generation = 1;
+    context->destinations = XEMU_SHADER_BROWSER_PERF_DEST_LIVE;
+    return 1;
 }
 
 uint64_t xemu_shader_browser_copy_current_scope(XemuShaderBrowserScope *scope)
@@ -104,6 +128,11 @@ int xemu_shader_browser_external_artifacts_enabled(void)
     return artifacts_enabled;
 }
 
+int xemu_shader_browser_monitoring_enabled(void)
+{
+    return monitoring_enabled;
+}
+
 int xemu_shader_browser_publish_external_artifact(
     const XemuShaderBrowserExternalArtifact *artifact)
 {
@@ -170,6 +199,79 @@ int main(void)
     assert(published_stages[5] == XEMU_SHADER_BROWSER_STAGE_PIXEL);
     assert(published_stages[6] == XEMU_SHADER_BROWSER_STAGE_GEOMETRY);
     assert(override_resolve_count == 8);
+    pgraph_shader_browser_publish_stage_timing(
+        &state, XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION,
+        XEMU_SHADER_BROWSER_BACKEND_GL, XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+        XEMU_SHADER_BROWSER_PERF_COMPILE_CPU, 1234,
+        XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND);
+    pgraph_shader_browser_publish_binding_timing(
+        &binding, XEMU_SHADER_BROWSER_BACKEND_GL,
+        XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED, 99, 12,
+        XEMU_SHADER_BROWSER_PERF_LINK_OR_PIPELINE_CPU, 5000, 0,
+        XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND);
+    assert(perf_count == 2);
+    assert(perf_samples[0].owner == XEMU_SHADER_BROWSER_PERF_STAGE);
+    assert(perf_samples[0].identity_count == 1);
+    assert(perf_samples[0].identities[0].stage ==
+           XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION);
+    assert(perf_samples[1].owner == XEMU_SHADER_BROWSER_PERF_BINDING);
+    assert(perf_samples[1].identity_count == 3);
+    assert(perf_samples[1].variant_id == 99);
+    assert(perf_samples[1].variant_kind == XEMU_SHADER_BROWSER_VARIANT_BINDING);
+    assert(perf_samples[1].identities[2].stage ==
+           XEMU_SHADER_BROWSER_STAGE_GEOMETRY);
+    size_t catalog_count = published_count;
+    PGRAPHShaderBrowserBinding captured = { 0 };
+    pgraph_shader_browser_capture_binding(&state, true, &captured);
+    assert(captured.count == 3);
+    assert(captured.scope_generation == generation);
+    assert(published_count == catalog_count);
+    state.vsh.is_fixed_function = false;
+    const uint32_t stages[] = {
+        XEMU_SHADER_BROWSER_STAGE_VERTEX,
+        XEMU_SHADER_BROWSER_STAGE_PIXEL,
+        XEMU_SHADER_BROWSER_STAGE_GEOMETRY,
+    };
+    for (size_t i = 0; i < 3; ++i) {
+        pgraph_shader_browser_publish_stage_timing(
+            &state, stages[i], XEMU_SHADER_BROWSER_BACKEND_GL,
+            XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+            XEMU_SHADER_BROWSER_PERF_SOURCE_CPU, 100 + i,
+            XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND);
+        assert(perf_samples[2 + i].identities[0].stage == stages[i]);
+        assert(perf_samples[2 + i].identities[0].hash[0] == stages[i]);
+    }
+    pgraph_shader_browser_publish_stage_timing_at_scope(
+        &state, XEMU_SHADER_BROWSER_STAGE_PIXEL, XEMU_SHADER_BROWSER_BACKEND_VK,
+        XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+        XEMU_SHADER_BROWSER_PERF_COMPILE_CPU, 250,
+        XEMU_SHADER_BROWSER_SAMPLE_BACKGROUND, 12);
+    assert(perf_count == 6);
+    assert(perf_samples[5].context.scope_generation == 12);
+    assert(perf_samples[5].flags == XEMU_SHADER_BROWSER_SAMPLE_BACKGROUND);
+
+    /* A compile begun before a session transition keeps its issue-time
+     * context even when publication happens after the transition. */
+    perf_count = 0;
+    PGRAPHShaderBrowserBinding timed_binding = binding;
+    assert(
+        pgraph_shader_browser_capture_binding_timing_context(&timed_binding));
+    uint64_t captured_generation = generation;
+    uint64_t captured_epoch = live_epoch;
+    ++generation;
+    ++live_epoch;
+    pgraph_shader_browser_publish_captured_binding_timing(
+        &timed_binding, XEMU_SHADER_BROWSER_BACKEND_GL,
+        XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED,
+        XEMU_SHADER_BROWSER_VARIANT_BINDING, 99, 12,
+        XEMU_SHADER_BROWSER_PERF_FOREGROUND_STALL_CPU, 7000, 0,
+        XEMU_SHADER_BROWSER_SAMPLE_FOREGROUND);
+    assert(perf_count == 1);
+    assert(perf_samples[0].context.scope_generation == captured_generation);
+    assert(perf_samples[0].context.live_epoch == captured_epoch);
+    assert(perf_samples[0].duration_ns == 7000);
+
+    state.vsh.is_fixed_function = true;
     const uint8_t source[] = "hello";
     pgraph_shader_browser_publish_generated_artifact(
         &state, XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION, "opengl",

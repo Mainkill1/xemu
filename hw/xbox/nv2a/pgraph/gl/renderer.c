@@ -224,6 +224,10 @@ static void pgraph_gl_init(NV2AState *d, Error **errp)
 
     /* fire up opengl */
     glo_set_current(g_nv2a_context_render);
+    r->shader_timing_supported =
+        epoxy_gl_version() >= 33 || glo_check_extension("GL_ARB_timer_query");
+    xemu_shader_browser_report_gpu_state(XEMU_SHADER_BROWSER_BACKEND_GL,
+                                         r->shader_timing_supported, 0);
 
 #if DEBUG_NV2A_GL
     gl_debug_initialize();
@@ -258,6 +262,24 @@ static void pgraph_gl_finalize(NV2AState *d)
     PGRAPHState *pg = &d->pgraph;
 
     glo_set_current(g_nv2a_context_render);
+    if (pg->gl_renderer_state->shader_timing_head !=
+        pg->gl_renderer_state->shader_timing_tail) {
+        PGRAPHGLState *r = pg->gl_renderer_state;
+        uint64_t dropped = 0;
+        for (uint64_t i = r->shader_timing_tail; i != r->shader_timing_head;
+             ++i) {
+            dropped += r->shader_timing_slots[i % PGRAPH_GL_SHADER_TIMING_SLOTS]
+                           .submitted;
+        }
+        if (dropped) {
+            xemu_shader_browser_record_dropped_samples(dropped);
+        }
+    }
+    if (pg->gl_renderer_state->shader_timing_initialized) {
+        glDeleteQueries(PGRAPH_GL_SHADER_TIMING_SLOTS * 2,
+                        pg->gl_renderer_state->shader_timing_queries);
+    }
+    xemu_shader_browser_report_gpu_state(XEMU_SHADER_BROWSER_BACKEND_GL, 0, 0);
 
     pgraph_gl_finalize_surfaces(pg);
     pgraph_gl_finalize_shaders(pg);
@@ -299,6 +321,7 @@ static void pgraph_gl_process_pending(NV2AState *d)
         qatomic_read(&d->pgraph.sync_pending) ||
         qatomic_read(&d->pgraph.flush_pending) ||
         qatomic_read(&r->shader_cache_writeback_pending) ||
+        r->shader_timing_tail != r->shader_timing_head ||
         xemu_shader_browser_details_pending()) {
         qemu_mutex_unlock(&d->pfifo.lock);
         qemu_mutex_lock(&d->pgraph.lock);
@@ -316,6 +339,9 @@ static void pgraph_gl_process_pending(NV2AState *d)
         }
         if (qatomic_read(&r->shader_cache_writeback_pending)) {
             pgraph_gl_shader_write_cache_reload_list(&d->pgraph);
+        }
+        if (r->shader_timing_tail != r->shader_timing_head) {
+            pgraph_gl_retire_shader_timing(r);
         }
         if (xemu_shader_browser_details_pending()) {
             pgraph_gl_service_shader_details(&d->pgraph);

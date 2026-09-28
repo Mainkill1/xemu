@@ -1,0 +1,8 @@
+/bin/
+/main.exe
+/*.obj
+/*.c.d
+/*.inl
+/*.vsh
+/*.psh
+/*.iso

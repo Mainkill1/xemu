@@ -33,6 +33,11 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <cstdlib>
+#include <fstream>
+#if defined(__APPLE__)
+#include <sys/sysctl.h>
+#endif
 
 #include "actions.hh"
 #include "common.hh"
@@ -55,6 +60,7 @@
 #include "shader-browser-preview-gl.hh"
 #include "shader-browser-preview-service.hh"
 #include "shader-browser-session-provider.hh"
+#include "shader-browser-draw-request.h"
 #include "shader-browser-override-store.hh"
 #include "shader-browser-override-lifecycle.hh"
 #include "shader-browser-replacement-library.hh"
@@ -99,6 +105,101 @@ struct ShaderBrowserExternalWindow {
 
 static ShaderBrowserExternalWindow g_shader_browser_external;
 static std::atomic<bool> g_shader_browser_external_requested;
+static SDL_Cursor *g_hud_mouse_cursors[ImGuiMouseCursor_COUNT]{};
+
+static void UpdateHudMouseCursor(SDL_Window *window)
+{
+    // SDL cursor state is process-wide. Only the ImGui context for the window
+    // under the pointer may apply it; the idle game HUD must not hide the
+    // workbench cursor, and an unfocused workbench must not show the game
+    // cursor.
+    if (!window || SDL_GetMouseFocus() != window)
+        return;
+    const ImGuiMouseCursor cursor = ImGui::GetMouseCursor();
+    if (ImGui::GetIO().MouseDrawCursor || cursor == ImGuiMouseCursor_None) {
+        if (SDL_CursorVisible())
+            SDL_HideCursor();
+        return;
+    }
+    SDL_SystemCursor system_cursor = SDL_SYSTEM_CURSOR_DEFAULT;
+    switch (cursor) {
+    case ImGuiMouseCursor_TextInput:
+        system_cursor = SDL_SYSTEM_CURSOR_TEXT;
+        break;
+    case ImGuiMouseCursor_ResizeAll:
+        system_cursor = SDL_SYSTEM_CURSOR_MOVE;
+        break;
+    case ImGuiMouseCursor_ResizeNS:
+        system_cursor = SDL_SYSTEM_CURSOR_NS_RESIZE;
+        break;
+    case ImGuiMouseCursor_ResizeEW:
+        system_cursor = SDL_SYSTEM_CURSOR_EW_RESIZE;
+        break;
+    case ImGuiMouseCursor_ResizeNESW:
+        system_cursor = SDL_SYSTEM_CURSOR_NESW_RESIZE;
+        break;
+    case ImGuiMouseCursor_ResizeNWSE:
+        system_cursor = SDL_SYSTEM_CURSOR_NWSE_RESIZE;
+        break;
+    case ImGuiMouseCursor_Hand:
+        system_cursor = SDL_SYSTEM_CURSOR_POINTER;
+        break;
+    case ImGuiMouseCursor_NotAllowed:
+        system_cursor = SDL_SYSTEM_CURSOR_NOT_ALLOWED;
+        break;
+    default:
+        break;
+    }
+    SDL_Cursor *&owned_cursor = g_hud_mouse_cursors[cursor];
+    if (!owned_cursor)
+        owned_cursor = SDL_CreateSystemCursor(system_cursor);
+    SDL_Cursor *desired = owned_cursor ? owned_cursor : SDL_GetDefaultCursor();
+    if (SDL_GetCursor() != desired)
+        SDL_SetCursor(desired);
+    if (!SDL_CursorVisible())
+        SDL_ShowCursor();
+}
+
+static void DestroyHudMouseCursors()
+{
+    SDL_SetCursor(SDL_GetDefaultCursor());
+    for (SDL_Cursor *&cursor : g_hud_mouse_cursors) {
+        if (cursor)
+            SDL_DestroyCursor(cursor);
+        cursor = nullptr;
+    }
+}
+
+static std::string ShaderBrowserHostCpuModel()
+{
+#if defined(__APPLE__)
+    char model[256] = {};
+    size_t length = sizeof(model);
+    if (sysctlbyname("machdep.cpu.brand_string", model, &length, nullptr, 0) ==
+            0 &&
+        model[0])
+        return model;
+#elif defined(_WIN32)
+    const char *model = std::getenv("PROCESSOR_IDENTIFIER");
+    if (model && model[0])
+        return model;
+#else
+    std::ifstream cpuinfo("/proc/cpuinfo");
+    std::string line;
+    while (std::getline(cpuinfo, line)) {
+        if (line.rfind("model name", 0) != 0)
+            continue;
+        size_t colon = line.find(':');
+        if (colon == std::string::npos)
+            continue;
+        std::string model = line.substr(colon + 1);
+        size_t first = model.find_first_not_of(" \t");
+        if (first != std::string::npos)
+            return model.substr(first);
+    }
+#endif
+    return "Unknown";
+}
 
 static void ShaderBrowserEndPerformanceSessionLocked(void *)
 {
@@ -163,6 +264,8 @@ static void ShaderBrowserApplyScopeTransition(void *opaque)
     session.started_unix_ms =
         static_cast<uint64_t>(g_get_real_time() / 1000);
     session.xemu_revision = xemu_version;
+    std::string cpu_model = ShaderBrowserHostCpuModel();
+    session.cpu_model = cpu_model.c_str();
     session.renderer =
         g_config.display.renderer == CONFIG_DISPLAY_RENDERER_VULKAN ?
             "Vulkan" : "OpenGL";
@@ -387,6 +490,7 @@ static bool InitializeShaderBrowserExternalWindow(SDL_Window *main_window,
     workbench_style.CellPadding = ImVec2(5.0f, 3.0f);
     ImGuiIO &io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
     io.IniFilename = nullptr;
     ImFontConfig font_config;
     font_config.FontDataOwnedByAtlas = false;
@@ -444,6 +548,7 @@ void xemu_hud_init(SDL_Window* window, void* sdl_gl_context)
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     io.IniFilename = NULL;
 
@@ -464,6 +569,7 @@ void xemu_hud_init(SDL_Window* window, void* sdl_gl_context)
     g_shader_browser_next_scope_poll_ms = 0;
     char *shader_config_dir = g_path_get_dirname(xemu_settings_get_path());
     if (xemu_shader_browser_session_install(shader_config_dir)) {
+        ShaderBrowserApplyProfilingSettings();
         char error[256] = {};
         if (!xemu_shader_browser_database_configure(
                 g_config.shader_browser.database.enabled,
@@ -493,6 +599,7 @@ void xemu_hud_init(SDL_Window* window, void* sdl_gl_context)
 
 void xemu_hud_cleanup(void)
 {
+    DestroyHudMouseCursors();
     ShaderBrowserEndPerformanceSession();
     xemu_shader_browser_set_current_scope(nullptr);
     shader_browser_window.m_is_open = false;
@@ -571,7 +678,7 @@ void xemu_hud_process_sdl_events(SDL_Event *event)
 {
     if (xemu_hud_is_external_window_event(event)) {
         if (event->type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) {
-            shader_browser_window.m_is_open = false;
+            shader_browser_window.RequestClose();
             xemu::shader_browser::GetPreviewService().SetVisible(
                 false, static_cast<uint64_t>(g_get_monotonic_time()) *
                            UINT64_C(1000));
@@ -607,7 +714,7 @@ void xemu_hud_update(void)
     ImGuiIO& io = ImGui::GetIO();
     uint32_t now = SDL_GetTicks();
     if (g_config.shader_browser.database.enabled ||
-        shader_browser_window.m_is_open) {
+        shader_browser_window.m_is_open || xemu_shader_capture_session_active()) {
         ShaderBrowserRefreshScope(SDL_GetTicks());
     }
 
@@ -737,6 +844,7 @@ void xemu_hud_update(void)
     g_scene_mgr.Draw();
     if (!first_boot_window.is_open) notification_manager.Draw();
     g_snapshot_mgr.Draw();
+    UpdateHudMouseCursor(xemu_get_window());
 
     // static bool show_demo = true;
     // if (show_demo) ImGui::ShowDemoWindow(&show_demo);
@@ -778,6 +886,7 @@ void xemu_hud_update_external(void)
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
     shader_browser_window.Draw();
+    UpdateHudMouseCursor(external.window);
     ImGui::Render();
     external.frame_ready = true;
     SDL_GL_MakeCurrent(main_window, main_gl);

@@ -21,6 +21,7 @@
 
 #include "hw/xbox/nv2a/nv2a_int.h"
 #include "qemu/main-loop.h"
+#include "ui/xui/shader-browser-draw-request.h"
 
 void nv2a_update_irq(NV2AState *d)
 {
@@ -419,6 +420,19 @@ static void nv2a_vm_state_change(void *opaque, bool running, RunState state)
     } else if (state == RUN_STATE_RESTORE_VM) {
         nv2a_lock_fifo(d);
         qatomic_set(&d->pfifo.halt, true);
+        if (xemu_shader_capture_session_active()) {
+            uint64_t token = xemu_shader_capture_session_begin_event(
+                10, d->pgraph.frame_time, d->pgraph.draw_time,
+                d->pgraph.shader_browser_submission,
+                xemu_shader_browser_scope_generation(),
+                nv2a_profile_preview_renderer_epoch());
+            xemu_shader_draw_request_stage_register(token, "save_state.restore",
+                                                    1);
+            xemu_shader_draw_request_finish(token, false, 0, 0, 0);
+            xemu_shader_draw_request_inputs_complete(token);
+            xemu_shader_capture_session_invalidate(0, 0);
+        }
+        xemu_shader_draw_request_cancel();
         nv2a_unlock_fifo(d);
     } else if (state == RUN_STATE_RUNNING) {
         nv2a_lock_fifo(d);
