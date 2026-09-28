@@ -25,6 +25,8 @@ public:
     AssetViewportFrame TextureImage(SharedAssetPart, uint32_t backend,
                                     int slot);
     size_t ThumbnailCount() const;
+    size_t ThumbnailCapacity() const;
+    bool Configure(uint64_t mesh_byte_budget, size_t thumbnail_capacity);
     void Shutdown();
 
 private:

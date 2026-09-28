@@ -48,6 +48,9 @@ bool AssetLiveCapture::Enable(const capture::CaptureSessionContext &context,
 }
 void AssetLiveCapture::Disable()
 {
+    if (enabled_)
+        message_ =
+            "Live discovery stopped; retained owned inputs remain available";
     enabled_ = false;
     if (owned_)
         session_.StopIfCurrent(owned_);

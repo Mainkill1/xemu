@@ -15,7 +15,8 @@ enum class AssetSelectionState : uint8_t {
 };
 class AssetController {
 public:
-    uint64_t Begin(const capture::CaptureSessionContext &);
+    uint64_t Begin(const capture::CaptureSessionContext &,
+                   bool reset_selection = false);
     uint64_t Generation() const;
     bool Publish(AssetCatalog, uint64_t generation);
     bool Select(uint64_t entry);
@@ -45,6 +46,8 @@ private:
     std::shared_ptr<const AssetAssembly> selected_;
     std::shared_ptr<const capture::CaptureSessionSnapshot> selected_recording_;
     std::vector<std::shared_ptr<const AssetAssembly>> named_;
+    std::vector<std::shared_ptr<const capture::CaptureSessionSnapshot>>
+        named_recordings_;
     bool pinned_ = false, frozen_ = false;
     AssetSelectionState state_ = AssetSelectionState::Empty;
     std::string message_;

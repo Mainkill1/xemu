@@ -186,13 +186,22 @@ bool Values(const capture::CaptureOwnedBlob *blob, uint32_t backend,
 {
     if (!blob)
         return false;
+    // Disabled OpenGL attributes already contain decoded float current values.
+    // A packed mask alone does not make those values packed integer streams.
+    compressed &= backend == 1 ? blob->format == 0x1404 && blob->integer :
+                                 blob->format == 99;
     if (!compressed)
         return DecodeAssetAttribute(*blob, backend,
                                     blob->count == 1 ? 0 : index, value);
-    if (!blob->data || blob->stride < 4 || index >= blob->count ||
-        index > (blob->data->bytes.size() >= 4 ?
-                     (blob->data->bytes.size() - 4) / blob->stride :
-                     0) ||
+    if (blob->count == 1 || blob->stride == 0)
+        index = 0;
+    if (!blob->data || (blob->stride && blob->stride < 4) ||
+        index >= blob->count ||
+        index >
+            (blob->data->bytes.size() >= 4 ?
+                 (blob->stride ? (blob->data->bytes.size() - 4) / blob->stride :
+                                 0) :
+                 0) ||
         blob->data->bytes.size() < 4)
         return false;
     const uint32_t bits =
@@ -303,6 +312,14 @@ DecodeAssetPart(std::shared_ptr<const capture::CaptureOccurrence> event,
     };
     if (source.pending)
         return fail(AssetStatus::Pending, "Waiting for owned draw inputs");
+    if (source.limitations &
+        (capture::CaptureReadbackFailed | capture::CaptureInvalidated)) {
+        part = fail(AssetStatus::Missing,
+                    "Captured inputs failed or were invalidated");
+        if (!source.failure.empty())
+            part.reason += ": " + source.failure;
+        return part;
+    }
     if (source.type != capture::CaptureEventType::Draw || !source.emitted)
         return fail(AssetStatus::Missing, "No emitted geometry command");
     const auto *position = Blob(source, "vertex.attribute0");
@@ -342,6 +359,9 @@ DecodeAssetPart(std::shared_ptr<const capture::CaptureOccurrence> event,
     std::vector<uint32_t> raw;
     const auto *indices =
         Blob(source, backend == 2 ? "vertex.indices" : "geometry.host_indices");
+    if (!indices && source.summary.index_count)
+        return fail(AssetStatus::Missing,
+                    "Owned index stream is unavailable for an indexed draw");
     if (indices) {
         if (!indices->data || indices->count > limits.maximum_indices ||
             indices->data->bytes.size() != uint64_t(indices->count) * 4)
@@ -415,6 +435,9 @@ DecodeAssetPart(std::shared_ptr<const capture::CaptureOccurrence> event,
     } else {
         const auto *starts = Blob(source, "geometry.draw_starts");
         const auto *counts = Blob(source, "geometry.draw_counts");
+        if (backend == 1 && (!starts || !counts))
+            return fail(AssetStatus::Missing,
+                        "Captured OpenGL subdraw ranges are unavailable");
         if (starts || counts) {
             if (!starts || !counts || !starts->data || !counts->data ||
                 starts->count != counts->count || starts->count > 4096 ||

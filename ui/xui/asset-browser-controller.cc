@@ -21,15 +21,58 @@ bool SameGeometry(const AssetPart &a, const AssetPart &b)
     return true;
 }
 } // namespace
-uint64_t AssetController::Begin(const capture::CaptureSessionContext &context)
+static bool FitsRecordings(
+    const std::vector<std::shared_ptr<const capture::CaptureSessionSnapshot>>
+        &recordings)
+{
+    uint64_t remaining = 256U * 1024U * 1024U;
+    std::set<const capture::CaptureSessionSnapshot *> seen;
+    for (const auto &recording : recordings) {
+        if (!recording || !seen.insert(recording.get()).second)
+            continue;
+        if (recording->cpu_bytes > remaining)
+            return false;
+        remaining -= recording->cpu_bytes;
+        for (const auto &event : recording->events) {
+            const auto bytes =
+                event ? capture::CaptureOccurrenceDescriptorBytes(*event) : 0;
+            if (bytes > remaining)
+                return false;
+            remaining -= bytes;
+        }
+    }
+    return true;
+}
+static bool FitsDecodedAssemblies(
+    const std::vector<std::shared_ptr<const AssetAssembly>> &assemblies)
+{
+    uint64_t remaining = 128U * 1024U * 1024U;
+    std::set<const AssetPart *> seen;
+    for (const auto &assembly : assemblies)
+        for (const auto &part : assembly->parts) {
+            if (!seen.insert(part.get()).second)
+                continue;
+            if (!part ||
+                part->vertices.size() > remaining / sizeof(AssetVertex))
+                return false;
+            remaining -= part->vertices.size() * sizeof(AssetVertex);
+            if (part->indices.size() > remaining / sizeof(uint32_t))
+                return false;
+            remaining -= part->indices.size() * sizeof(uint32_t);
+        }
+    return true;
+}
+uint64_t AssetController::Begin(const capture::CaptureSessionContext &context,
+                                bool reset_selection)
 {
     if (generation_ == UINT64_MAX)
         return 0;
-    if (!SameAssetContext(context, context_)) {
+    if (reset_selection || !SameAssetContext(context, context_)) {
         selected_.reset();
         selected_recording_.reset();
         pinned_ = false;
         named_.clear();
+        named_recordings_.clear();
     }
     context_ = context;
     catalog_ = {};
@@ -101,12 +144,26 @@ bool AssetController::Publish(AssetCatalog catalog, uint64_t generation)
     auto previous = selected_;
     selected_ = std::make_shared<const AssetAssembly>(std::move(assembly));
     selected_recording_ = catalog_.recording;
-    for (auto &named : named_)
-        if (named == previous)
-            named = selected_;
+    bool retention_limited = false;
+    for (size_t i = 0; i < named_.size(); ++i)
+        if (named_[i] == previous) {
+            auto recordings = named_recordings_;
+            recordings[i] = selected_recording_;
+            auto assemblies = named_;
+            assemblies[i] = selected_;
+            if (FitsRecordings(recordings) &&
+                FitsDecodedAssemblies(assemblies)) {
+                named_ = std::move(assemblies);
+                named_recordings_ = std::move(recordings);
+            } else
+                retention_limited = true;
+        }
     state_ = AssetSelectionState::FollowingCandidate;
     message_ = "Unique geometry correspondence is inferred; engine instance "
                "ownership is unverified";
+    if (retention_limited)
+        message_ += "; named retention budget reached, saved name remains on "
+                    "its prior frame";
     return true;
 }
 bool AssetController::Select(uint64_t id)
@@ -150,37 +207,36 @@ bool AssetController::Rename(const std::string &label)
 }
 bool AssetController::RememberSelected()
 {
-    if (!selected_ || selected_->label.empty())
+    if (!selected_ || selected_->label.empty() || !selected_recording_) {
+        message_ = "A named assembly requires its owned recording";
         return false;
+    }
     auto replacement = named_;
+    auto recordings = named_recordings_;
     auto found = std::find_if(
         replacement.begin(), replacement.end(),
         [&](const auto &entry) { return entry->label == selected_->label; });
-    if (found == replacement.end())
+    if (found == replacement.end()) {
         replacement.push_back(selected_);
-    else
+        recordings.push_back(selected_recording_);
+    } else {
+        recordings[size_t(found - replacement.begin())] = selected_recording_;
         *found = selected_;
+    }
     if (replacement.size() > 32)
         return false;
-    uint64_t remaining = 128U * 1024U * 1024U;
-    std::set<const AssetPart *> counted;
-    for (const auto &entry : replacement)
-        for (const auto &part : entry->parts) {
-            if (!counted.insert(part.get()).second)
-                continue;
-            const uint64_t decoded =
-                part->vertices.size() * sizeof(AssetVertex) +
-                part->indices.size() * sizeof(uint32_t);
-            const uint64_t raw =
-                part->occurrence ? part->occurrence->payload_bytes : 0;
-            if (decoded > remaining || raw > remaining - decoded) {
-                message_ =
-                    "Named assemblies exceed the128MiB retained input budget";
-                return false;
-            }
-            remaining -= decoded + raw;
-        }
+    if (!FitsRecordings(recordings)) {
+        message_ =
+            "Named assemblies exceed the 256 MiB retained recording budget";
+        return false;
+    }
+    if (!FitsDecodedAssemblies(replacement)) {
+        message_ =
+            "Named assemblies exceed the 128 MiB decoded geometry budget";
+        return false;
+    }
     named_ = std::move(replacement);
+    named_recordings_ = std::move(recordings);
     return true;
 }
 bool AssetController::Recall(size_t index)
@@ -189,18 +245,7 @@ bool AssetController::Recall(size_t index)
         !SameAssetContext(named_[index]->context, context_))
         return false;
     selected_ = named_[index];
-    auto contains = [&](const auto &recording) {
-        if (!recording)
-            return false;
-        for (const auto &part : selected_->parts)
-            if (std::find(recording->events.begin(), recording->events.end(),
-                          part->occurrence) == recording->events.end())
-                return false;
-        return true;
-    };
-    if (!contains(selected_recording_))
-        selected_recording_ =
-            contains(catalog_.recording) ? catalog_.recording : nullptr;
+    selected_recording_ = named_recordings_[index];
     pinned_ = false;
     state_ =
         frozen_ ? AssetSelectionState::Frozen : AssetSelectionState::Captured;
@@ -210,8 +255,10 @@ bool AssetController::Recall(size_t index)
 }
 void AssetController::Forget(size_t index)
 {
-    if (index < named_.size())
+    if (index < named_.size()) {
         named_.erase(named_.begin() + index);
+        named_recordings_.erase(named_recordings_.begin() + index);
+    }
 }
 const std::vector<std::shared_ptr<const AssetAssembly>> &
 AssetController::NamedAssemblies() const

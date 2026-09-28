@@ -75,6 +75,8 @@ static void shader_capture_gl_raw_streams(PGRAPHState *pg, uint64_t token,
     if (!token || !xemu_shader_draw_request_wants_inputs(token))
         return;
     PGRAPHGLState *r = pg->gl_renderer_state;
+    xemu_shader_draw_request_stage_register(
+        token, "capture.vertices.compressed_mask", pg->compressed_attrs);
     uint32_t first = UINT32_MAX, last = 0;
     if (indexed) {
         GLint buffer;

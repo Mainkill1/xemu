@@ -135,6 +135,12 @@ int main(int argc, char **argv)
     for (uint64_t id = 2; id < 34; ++id)
         g_assert_cmpuint(viewport.Thumbnail(Fixture(id)).texture, !=, 0);
     g_assert_cmpuint(viewport.ThumbnailCount(), <=, 24);
+    g_assert_false(viewport.Configure(0, 4));
+    g_assert_true(viewport.Configure(16U * 1024U * 1024U, 4));
+    for (uint64_t id = 34; id < 42; ++id)
+        g_assert_cmpuint(viewport.Thumbnail(Fixture(id)).texture, !=, 0);
+    g_assert_cmpuint(viewport.ThumbnailCapacity(), ==, 4);
+    g_assert_cmpuint(viewport.ThumbnailCount(), <=, 4);
     auto assembly = Fixture(50);
     viewport.Render(assembly, {}, 512, 512);
     auto start = std::chrono::steady_clock::now();

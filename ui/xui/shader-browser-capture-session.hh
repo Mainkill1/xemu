@@ -200,6 +200,9 @@ struct CaptureSessionSnapshot {
     uint64_t resource_domain = 0;
     // Legacy archives contain observation ordering, not verified queue order.
     bool execution_order_complete = true;
+    // True only when acquisition reached its requested terminating guest-frame
+    // boundary. Ready also permits a manually stopped, partial frame.
+    bool frame_window_complete = false;
     size_t pending_events = 0;
     bool has_frame_range = false;
     // Frames containing retained evidence; the min/max span can contain holes.

@@ -340,6 +340,7 @@ struct CaptureSession::Impl {
     uint64_t next_block = 1, total_events = 0, frame = 0, trigger = 0;
     uint64_t claim_generation = 0;
     bool have_boundary = false, checkpoint_taken = false;
+    bool frame_window_complete = false;
     uint64_t UsedBytes() const
     {
         return account->bytes.load() +
@@ -1163,6 +1164,7 @@ bool CaptureSession::StartInternal(const CaptureSessionContext &context,
     s.next_block = 1;
     s.frame = context.current_frame;
     s.have_boundary = false;
+    s.frame_window_complete = false;
     s.checkpoint_taken = false;
     s.reason.clear();
     ++s.revision;
@@ -1204,11 +1206,13 @@ void CaptureSession::GuestFrameBoundary(uint64_t frame,
         return;
     if (s.settings.mode == CaptureSessionMode::NextFrame && s.have_boundary &&
         frame > s.frame) {
+        s.frame_window_complete = true;
         s.Finalize();
         return;
     }
     if (s.state == CaptureSessionState::Triggered && frame > s.trigger &&
         frame - s.trigger > s.settings.post_frames) {
+        s.frame_window_complete = true;
         s.Finalize();
         return;
     }
@@ -2083,6 +2087,7 @@ CaptureSessionSnapshot CaptureSession::Snapshot() const
     const auto &s = *impl_;
     CaptureSessionSnapshot snapshot;
     snapshot.state = s.state;
+    snapshot.frame_window_complete = s.frame_window_complete;
     snapshot.settings = s.settings;
     snapshot.context = s.context;
     snapshot.reason = s.reason;
@@ -3208,6 +3213,7 @@ bool CaptureSession::SaveSnapshot(const CaptureSessionSnapshot &snapshot,
             { "total_events", snapshot.total_events },
             { "resource_domain", snapshot.resource_domain },
             { "execution_order_complete", snapshot.execution_order_complete },
+            { "frame_window_complete", snapshot.frame_window_complete },
             { "event_count", snapshot.events.size() },
             { "event_pages", Json::array() },
             { "blocks", Json::array() }
@@ -3340,6 +3346,8 @@ bool CaptureSession::Reopen(const std::filesystem::path &directory,
         CaptureSessionSnapshot snapshot;
         snapshot.execution_order_complete =
             version >= 3 && metadata.at("execution_order_complete").get<bool>();
+        snapshot.frame_window_complete =
+            metadata.value("frame_window_complete", false);
         snapshot.settings = ReadSettings(metadata.at("settings"));
         snapshot.state = CaptureSessionState(
             U(metadata.at("state"), uint64_t(CaptureSessionState::Failed)));

@@ -109,7 +109,10 @@ struct GlState {
         glUseProgram(program);
         glBindVertexArray(vao);
         glBindBuffer(GL_ARRAY_BUFFER, buffer);
-        glBindTexture(GL_TEXTURE_2D, texture);
+        // Resizing/configuration may delete a previously returned viewport
+        // texture that a caller still had bound. Never rebind its dead name.
+        glBindTexture(GL_TEXTURE_2D,
+                      texture && !glIsTexture(texture) ? 0 : texture);
         glBindSampler(0, sampler);
         glActiveTexture(active);
         glBindBuffer(GL_PIXEL_UNPACK_BUFFER, unpack_buffer);
@@ -230,6 +233,8 @@ struct AssetViewport::Impl {
     Target target;
     GLuint program = 0;
     uint64_t gpu_bytes = 0, tick = 0;
+    uint64_t mesh_budget = kGpuBudget;
+    size_t thumbnail_capacity = 24;
     std::string error;
     bool Init()
     {
@@ -293,12 +298,12 @@ if(colored!=0)c*=vertexcolor;outputColor=vec4(c.rgb,1);})";
         const uint64_t bytes = part->vertices.size() * sizeof(AssetVertex) +
                                part->indices.size() * sizeof(uint32_t) +
                                texture.rgba.size();
-        if (bytes > kGpuBudget) {
+        if (bytes > mesh_budget) {
             error = "Part exceeds the asset GPU budget";
             return nullptr;
         }
         while (!meshes.empty() &&
-               (gpu_bytes + bytes > kGpuBudget || meshes.size() >= 256)) {
+               (gpu_bytes + bytes > mesh_budget || meshes.size() >= 256)) {
             auto victim = std::min_element(
                 meshes.begin(), meshes.end(),
                 [](const Mesh &a, const Mesh &b) { return a.used < b.used; });
@@ -480,7 +485,7 @@ AssetViewport::Thumbnail(std::shared_ptr<const AssetAssembly> assembly)
             return frame;
         }
     }
-    if (impl_->thumbs.size() >= 24) {
+    if (impl_->thumbs.size() >= impl_->thumbnail_capacity) {
         GlState saved;
         impl_->thumbs.front().target.Destroy();
         impl_->thumbs.pop_front();
@@ -499,6 +504,25 @@ AssetViewport::Thumbnail(std::shared_ptr<const AssetAssembly> assembly)
 size_t AssetViewport::ThumbnailCount() const
 {
     return impl_->thumbs.size();
+}
+size_t AssetViewport::ThumbnailCapacity() const
+{
+    return impl_->thumbnail_capacity;
+}
+bool AssetViewport::Configure(uint64_t mesh_byte_budget,
+                              size_t thumbnail_capacity)
+{
+    if (mesh_byte_budget < 16U * 1024U * 1024U ||
+        mesh_byte_budget > kGpuBudget || thumbnail_capacity < 4 ||
+        thumbnail_capacity > 64)
+        return false;
+    if (mesh_byte_budget != impl_->mesh_budget ||
+        thumbnail_capacity != impl_->thumbnail_capacity) {
+        Shutdown();
+        impl_->mesh_budget = mesh_byte_budget;
+        impl_->thumbnail_capacity = thumbnail_capacity;
+    }
+    return true;
 }
 AssetViewportFrame AssetViewport::TextureImage(SharedAssetPart part,
                                                uint32_t backend, int slot)

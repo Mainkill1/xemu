@@ -1,0 +1,6 @@
+TAP version 14
+# random seed: R02S6342b00384ecefa69cc5b2c0bb3ea916
+**
+ERROR:tests/unit/test-xemu-asset-browser-gl-raw.c:119:main: 'saw_mask' should be TRUE
+Bail out! ERROR:tests/unit/test-xemu-asset-browser-gl-raw.c:119:main: 'saw_mask' should be TRUE
+Aborted

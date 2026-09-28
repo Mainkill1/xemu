@@ -50,6 +50,7 @@ static capture::CaptureSessionSnapshot Snapshot()
 {
     capture::CaptureSessionSnapshot s;
     s.state = capture::CaptureSessionState::Ready;
+    s.frame_window_complete = true;
     s.context.backend = 2;
     s.context.session_epoch = 1;
     s.context.renderer_epoch = 2;
@@ -255,6 +256,59 @@ static void TestCompressedAndHalf()
     g_assert_true(part.status == AssetStatus::Ready);
     g_assert_cmpfloat(part.bounds.maximum[0], ==, 1);
     g_assert_cmpfloat(part.bounds.maximum[1], ==, 1);
+    auto normal = event->inputs.blobs[0];
+    normal.name = "vertex.attribute2";
+    normal.slot = 2;
+    normal.stride = 0;
+    normal.count = 3;
+    normal.data = Block<uint32_t>({ 511U << 22 });
+    event->inputs.blobs.push_back(normal);
+    event->inputs.registers.back().value |= 1U << 2;
+    part = DecodeAssetPart(event, 2);
+    g_assert_true(part.status == AssetStatus::Ready);
+    for (const auto &vertex : part.vertices)
+        g_assert_cmpfloat(vertex.normal[2], ==, 1);
+    event->inputs.blobs[0].format = 0x1404;
+    event->inputs.blobs[0].integer = 1;
+    event->inputs.blobs[1].format = 0x1406;
+    event->inputs.blobs[1].components = 3;
+    event->inputs.blobs[1].stride = 12;
+    event->inputs.blobs[1].count = 1;
+    event->inputs.blobs[1].data = Block<float>({ 0, 0, 1 });
+    event->inputs.registers.push_back({ "host.primitive_mode", 4 });
+    event->inputs.registers.push_back({ "capture.first_vertex", 0 });
+    event->inputs.registers.push_back({ "capture.last_vertex", 2 });
+    capture::CaptureOwnedBlob starts, counts;
+    starts.name = "geometry.draw_starts";
+    counts.name = "geometry.draw_counts";
+    starts.count = counts.count = 1;
+    starts.data = Block<uint32_t>({ 0 });
+    counts.data = Block<uint32_t>({ 3 });
+    event->inputs.blobs.push_back(starts);
+    event->inputs.blobs.push_back(counts);
+    part = DecodeAssetPart(event, 1);
+    g_assert_true(part.status == AssetStatus::Ready);
+    g_assert_cmpfloat(part.bounds.maximum[0], ==, 1);
+    g_assert_cmpfloat(part.bounds.maximum[1], ==, 1);
+    for (const auto &vertex : part.vertices)
+        g_assert_cmpfloat(vertex.normal[2], ==, 1);
+}
+static void TestMissingEvidence()
+{
+    auto event = Draw(1);
+    event->summary.index_count = 3;
+    g_assert_true(DecodeAssetPart(event, 2).status == AssetStatus::Missing);
+    event = Draw(2, 1, 6);
+    g_assert_true(DecodeAssetPart(event, 1).status == AssetStatus::Missing);
+    event = Draw(3);
+    event->limitations |= capture::CaptureReadbackFailed;
+    event->failure = "Texture readback failed";
+    auto snapshot = Snapshot();
+    snapshot.events.push_back(event);
+    auto catalog = BuildAssetCatalog(snapshot);
+    g_assert_false(catalog.complete_frame);
+    g_assert_true(catalog.parts[0]->status == AssetStatus::Missing);
+    g_assert_true(catalog.parts[0]->occurrence == event);
 }
 int main(int argc, char **argv)
 {
@@ -269,5 +323,6 @@ int main(int argc, char **argv)
     g_test_add_func("/asset/catalog/partial-frame", TestPartialFrame);
     g_test_add_func("/asset/decode/strip-attributes", TestStripAndAttributes);
     g_test_add_func("/asset/decode/compressed-half", TestCompressedAndHalf);
+    g_test_add_func("/asset/decode/missing-evidence", TestMissingEvidence);
     return g_test_run();
 }

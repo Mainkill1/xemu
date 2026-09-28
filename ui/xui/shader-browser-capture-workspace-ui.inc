@@ -572,7 +572,9 @@ bool ShaderBrowserWindow::InspectCapturedOccurrence(
     state.snapshot = {};
     state.snapshot.context = context;
     state.snapshot.events = { occurrence };
-    state.snapshot.state = CaptureSessionState::Ready;
+    state.snapshot.state = CaptureSessionState::Cancelled;
+    state.snapshot.execution_order_complete = false;
+    state.snapshot.reason = "Selected occurrence inputs only; complete frame and dependency recording is unavailable";
     if(recording && std::find(recording->events.begin(),recording->events.end(),occurrence)!=recording->events.end())
         state.snapshot=*recording;
     state.archived = true;

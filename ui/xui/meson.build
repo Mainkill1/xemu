@@ -111,6 +111,11 @@ asset_browser_viewport_test = executable(
   include_directories: [shader_browser_test_inc, include_directories('../..')],
   dependencies: [glib, epoxy, sdl])
 # Requires a native GL context; run explicitly on a graphical test host.
+asset_browser_gl_raw_test = executable(
+  'test-xemu-asset-browser-gl-raw',
+  shader_browser_test_dir / 'test-xemu-asset-browser-gl-raw.c',
+  include_directories: [shader_browser_test_inc, include_directories('../..')],
+  dependencies: [glib, epoxy, sdl])
 
 asset_browser_ui_test = executable(
   'test-xemu-asset-browser-ui',

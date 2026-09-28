@@ -2,6 +2,7 @@
 #include "../../ui/xui/asset-browser.hh"
 #include <imgui.h>
 #include <SDL3/SDL.h>
+#include <epoxy/gl.h>
 #include <glib.h>
 using namespace xemu::asset_browser;
 int main(int argc, char **argv)
@@ -55,6 +56,17 @@ int main(int argc, char **argv)
         catalog.entries.push_back(
             MakeAssetAssembly(catalog, { id }, "Part " + std::to_string(id)));
     }
+    auto next_catalog = catalog;
+    next_catalog.frame = 13;
+    next_catalog.entries.clear();
+    for (auto &part : next_catalog.parts) {
+        auto newer = std::make_shared<AssetPart>(*part);
+        newer->frame = 13;
+        part = newer;
+    }
+    for (const auto &part : next_catalog.parts)
+        next_catalog.entries.push_back(MakeAssetAssembly(
+            next_catalog, { part->id }, "Part " + std::to_string(part->id)));
     g_assert_true(browser.InspectCatalog(std::move(catalog)));
     auto frame = [&] {
         ImGui::NewFrame();
@@ -81,8 +93,31 @@ int main(int argc, char **argv)
     g_assert_cmpuint(browser.Selected()->id, ==, 32);
     io.AddKeyEvent(ImGuiKey_End, false);
     frame();
+    g_assert_true(browser.InspectCatalog(std::move(next_catalog)));
+    frame();
+    io.AddKeyEvent(ImGuiKey_DownArrow, true);
+    frame();
+    g_assert_cmpuint(browser.Selected()->frame, ==, 13);
+    g_assert_cmpuint(browser.Selected()->id, ==, 1);
+    io.AddKeyEvent(ImGuiKey_DownArrow, false);
+    frame();
     auto frozen = browser.Selected();
     g_assert_true(session.Start(context));
+    std::vector<GLuint> textures;
+    for (const auto *list : ImGui::GetDrawData()->CmdLists)
+        for (const auto &command : list->CmdBuffer) {
+            const auto texture = GLuint((intptr_t)command.GetTexID());
+            if (texture && glIsTexture(texture))
+                textures.push_back(texture);
+        }
+    g_assert_false(textures.empty());
+    ImGui::SetWindowCollapsed("Asset Browser", true);
+    frame();
+    g_assert_true(session.Active());
+    for (auto texture : textures)
+        g_assert_false(glIsTexture(texture));
+    ImGui::SetWindowCollapsed("Asset Browser", false);
+    frame();
     browser.m_is_open = false;
     frame();
     g_assert_true(session.Active());

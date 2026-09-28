@@ -41,6 +41,9 @@ struct AssetBrowserWindow::Impl {
     bool opening = false;
     uint64_t inspected_part = 0;
     int image_slot = 0;
+    int capture_mib = 256, decoded_mib = 128, mesh_mib = 256;
+    int event_limit = 32768, part_limit = 2048, vertex_limit = 1048576;
+    int index_limit = 3145728, sample_ms = 250, thumbnails = 24;
     enum class FileAction { SaveFrame, SaveAssembly, Glb, Open };
     void StartFile(FileAction action)
     {
@@ -136,7 +139,10 @@ bool AssetBrowserWindow::InspectCatalog(AssetCatalog catalog)
     ++impl_->file_generation;
     if (impl_->file_control)
         impl_->file_control->RequestCancel();
-    auto generation = impl_->controller.Begin(catalog.context);
+    impl_->checked.clear();
+    impl_->checked_frame = 0;
+    impl_->inspected_part = 0;
+    auto generation = impl_->controller.Begin(catalog.context, true);
     const bool accepted =
         impl_->controller.Publish(std::move(catalog), generation);
     m_is_open = accepted;
@@ -207,6 +213,8 @@ void AssetBrowserWindow::Draw()
     s.live.Tick(context, now, s.controller);
     ImGui::SetNextWindowSize(ImVec2(1100, 700), ImGuiCond_FirstUseEver);
     if (!ImGui::Begin("Asset Browser", &m_is_open)) {
+        s.live.Disable();
+        s.viewport.Shutdown();
         ImGui::End();
         return;
     }
@@ -222,9 +230,17 @@ void AssetBrowserWindow::Draw()
                     !SameAssetContext(s.controller.Catalog().context, context))
                     s.controller.Begin(context);
                 AssetLiveSettings settings;
-                settings.capture.event_budget = 32768;
+                settings.capture.event_budget = uint32_t(s.event_limit);
+                settings.capture.cpu_byte_budget = uint64_t(s.capture_mib)
+                                                   << 20;
+                settings.assets.maximum_parts = size_t(s.part_limit);
+                settings.assets.maximum_vertices = size_t(s.vertex_limit);
+                settings.assets.maximum_indices = size_t(s.index_limit);
+                settings.assets.decoded_byte_budget = uint64_t(s.decoded_mib)
+                                                      << 20;
+                settings.sample_interval_ns = uint64_t(s.sample_ms) * 1000000;
                 s.live.Enable(context, now, settings);
-                s.message = s.live.Message();
+                s.message.clear();
             }
         } else
             s.live.Disable();
@@ -240,8 +256,35 @@ void AssetBrowserWindow::Draw()
         s.controller.Pin(pinned);
     ImGui::SameLine();
     ImGui::Checkbox("Inspector", &s.inspector);
-    ImGui::TextWrapped("%s", s.live.Enabled() ? s.live.Message().c_str() :
-                                                s.message.c_str());
+    if (!s.live.Message().empty())
+        ImGui::TextWrapped("%s", s.live.Message().c_str());
+    if (!s.message.empty())
+        ImGui::TextWrapped("%s", s.message.c_str());
+    if (ImGui::CollapsingHeader("Capture settings")) {
+        auto limit = [](const char *label, int &value, int minimum,
+                        int maximum) {
+            ImGui::SliderInt(label, &value, minimum, maximum, "%d",
+                             ImGuiSliderFlags_AlwaysClamp);
+        };
+        ImGui::BeginDisabled(s.live.Enabled());
+        ImGui::TextUnformatted(
+            "Stop Live discovery before changing acquisition budgets.");
+        limit("Capture memory (MiB)", s.capture_mib, 32, 512);
+        limit("Decoded geometry (MiB)", s.decoded_mib, 16, 256);
+        limit("Events per frame", s.event_limit, 512, 32768);
+        limit("Parts per frame", s.part_limit, 64, 8192);
+        limit("Vertices per part", s.vertex_limit, 4096, 1048576);
+        limit("Triangle indices per part", s.index_limit, 12288, 3145728);
+        limit("Sample interval (ms)", s.sample_ms, 100, 2000);
+        ImGui::EndDisabled();
+        limit("GPU mesh cache (MiB)", s.mesh_mib, 16, 256);
+        limit("Thumbnail cache", s.thumbnails, 4, 64);
+        ImGui::TextUnformatted(
+            "Collapse or close stops discovery and releases GPU caches.");
+        ImGui::TextUnformatted(
+            "Named recordings: 256 MiB; named geometry: 128 MiB.");
+    }
+    s.viewport.Configure(uint64_t(s.mesh_mib) << 20, size_t(s.thumbnails));
     ImGui::TextWrapped(
         "Freeze discovery to choose parts; the game keeps running. Follow uses "
         "geometry evidence, not a verified player-car ID.");
@@ -299,6 +342,7 @@ void AssetBrowserWindow::Draw()
                 return count(catalog.entries[a]) > count(catalog.entries[b]);
             });
     auto selected = s.controller.Selected();
+    int scroll_row = -1;
     // Live navigation updates the selected occurrence immediately and keeps
     // stable IDs.
     if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) &&
@@ -308,7 +352,10 @@ void AssetBrowserWindow::Draw()
         !s.opening && !visible.empty()) {
         auto found =
             std::find_if(visible.begin(), visible.end(), [&](size_t i) {
-                return selected && catalog.entries[i].id == selected->id;
+                return selected && !selected->parts.empty() &&
+                       !catalog.entries[i].parts.empty() &&
+                       catalog.entries[i].parts.front() ==
+                           selected->parts.front();
             });
         size_t row =
             found == visible.end() ? 0 : size_t(found - visible.begin());
@@ -339,8 +386,10 @@ void AssetBrowserWindow::Draw()
             row = visible.size() - 1;
             move = true;
         }
-        if (move)
+        if (move) {
             s.controller.Select(catalog.entries[visible[row]].id);
+            scroll_row = int(row);
+        }
     }
     const float width = ImGui::GetContentRegionAvail().x;
     const float left = std::clamp(width * .25f, 210.f, 310.f);
@@ -364,12 +413,20 @@ void AssetBrowserWindow::Draw()
     ImGui::BeginChild("Part list", ImVec2(0, -110));
     ImGuiListClipper clipper;
     clipper.Begin(int(visible.size()), 82);
+    size_t submitted_thumbnails = 0;
+    if (scroll_row >= 0)
+        clipper.IncludeItemByIndex(scroll_row);
     while (clipper.Step())
         for (int row = clipper.DisplayStart; row < clipper.DisplayEnd; ++row) {
             const auto &entry = catalog.entries[visible[row]];
             ImGui::PushID(int(entry.id));
             auto owned = std::make_shared<const AssetAssembly>(entry);
-            auto thumb = s.viewport.Thumbnail(owned);
+            // ImGui consumes these IDs after Draw returns. Do not evict a
+            // thumbnail referenced by an earlier row in this same UI frame.
+            auto thumb = submitted_thumbnails < s.viewport.ThumbnailCapacity() ?
+                             s.viewport.Thumbnail(owned) :
+                             AssetViewportFrame{};
+            ++submitted_thumbnails;
             if (thumb.texture)
                 ImGui::Image((ImTextureID)(intptr_t)thumb.texture,
                              ImVec2(96, 72), ImVec2(0, 1), ImVec2(1, 0));
@@ -390,8 +447,11 @@ void AssetBrowserWindow::Draw()
             selected = s.controller.Selected();
             std::string title = entry.label + "##select";
             if (ImGui::Selectable(title.c_str(),
-                                  selected && selected->id == entry.id, 0,
-                                  ImVec2(0, 18)))
+                                  selected && !selected->parts.empty() &&
+                                      !entry.parts.empty() &&
+                                      entry.parts.front() ==
+                                          selected->parts.front(),
+                                  0, ImVec2(0, 18)))
                 s.controller.Select(entry.id);
             ImGui::Text("E%llu | %zu parts", (unsigned long long)entry.id,
                         entry.parts.size());
@@ -399,6 +459,8 @@ void AssetBrowserWindow::Draw()
                 ImGui::TextUnformatted(
                     AssetStatusLabel(entry.parts.front()->status));
             ImGui::EndGroup();
+            if (row == scroll_row)
+                ImGui::SetScrollHereY();
             ImGui::PopID();
         }
     ImGui::EndChild();

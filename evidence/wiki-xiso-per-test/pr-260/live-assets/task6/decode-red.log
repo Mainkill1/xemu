@@ -1,0 +1,29 @@
+c++ -std=c++17 -O2 -g -Wall -Wextra -Werror -I. -Iinclude -Iui/xui -I/home/codex/pr238-source/subprojects/xxHash-0.8.3 -I/home/codex/pr239-source/subprojects/nlohmann_json/single_include -I/tmp/pr259-timing-review-include tests/unit/test-xemu-asset-browser-model.cc ui/xui/asset-browser-model.cc ui/xui/asset-browser-decode.cc -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/sysprof-6 -pthread -lglib-2.0 -Wl,-l:libxxhash.so.0 -pthread -o /tmp/pr260-assets-model
+TAP version 14
+# random seed: R02S2aa9c8f5c9cd9b41e9e88b3358cd08e9
+1..11
+# Start of asset tests
+# Start of catalog tests
+ok 1 /asset/catalog/many-uses
+ok 2 /asset/catalog/partial-frame
+# End of catalog tests
+# Start of decode tests
+ok 3 /asset/decode/sparse-bounds
+ok 4 /asset/decode/subdraws
+ok 5 /asset/decode/formats
+ok 6 /asset/decode/invalid
+ok 7 /asset/decode/large-budget
+ok 8 /asset/decode/host-topology
+ok 9 /asset/decode/strip-attributes
+**
+ERROR:tests/unit/test-xemu-asset-browser-model.cc:270:void TestCompressedAndHalf(): assertion failed (vertex.normal[2] == 1): (0 == 1)
+not ok /asset/decode/compressed-half - ERROR:tests/unit/test-xemu-asset-browser-model.cc:270:void TestCompressedAndHalf(): assertion failed (vertex.normal[2] == 1): (0 == 1)
+Bail out!
+Traceback (most recent call last):
+  File "/tmp/pr260-assets-build.py", line 23, in <module>
+    subprocess.run([str(output), '--tap'], cwd=root, env=env, check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/pr260-assets-model', '--tap']' died with <Signals.SIGABRT: 6>.

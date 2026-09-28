@@ -22,11 +22,19 @@ Catalog(uint64_t frame,
     catalog.context = Context();
     catalog.frame = frame;
     catalog.complete_frame = true;
+    auto recording = std::make_shared<capture::CaptureSessionSnapshot>();
+    recording->context = catalog.context;
+    recording->cpu_bytes = 1024;
     for (auto [id, x] : values) {
         auto part = std::make_shared<AssetPart>();
         part->id = id;
         part->frame = frame;
         part->status = AssetStatus::Ready;
+        auto event = std::make_shared<capture::CaptureOccurrence>();
+        event->event_id = id;
+        event->summary.key.frame = frame;
+        part->occurrence = event;
+        recording->events.push_back(event);
         part->vertices.resize(3);
         part->vertices[0].position = { x, 0, 0 };
         part->vertices[1].position = { x + 1, 0, 0 };
@@ -39,6 +47,7 @@ Catalog(uint64_t frame,
         catalog.parts.push_back(part);
         catalog.entries.push_back(MakeAssetAssembly(catalog, { id }, "Part"));
     }
+    catalog.recording = recording;
     return catalog;
 }
 static void TestFollow()
@@ -171,7 +180,7 @@ static void TestPendingOwnership()
     g_assert_cmpuint(session.Snapshot().pending_events, ==, 1);
     g_assert_cmpuint(owned, ==, 0);
 }
-static void TestAsyncPublication()
+static void TestAsyncPublicationImpl(bool early_stop)
 {
     capture::CaptureSession session;
     AssetController controller;
@@ -201,17 +210,28 @@ static void TestAsyncPublication()
     g_assert_true(session.StageRegister(token, "capture.vertices.count", 3));
     g_assert_true(session.InputsComplete(token));
     g_assert_true(session.Finish(token, true, 5, 3, 0));
-    session.GuestFrameBoundary(2);
+    if (early_stop)
+        session.Stop();
+    else
+        session.GuestFrameBoundary(2);
     for (size_t attempt = 0;
          attempt < 3000 && controller.Catalog().parts.empty(); ++attempt) {
         live.Tick(Context(), UINT64_C(1000000) + attempt * 1000, controller);
         g_usleep(1000);
     }
     g_assert_cmpuint(controller.Catalog().parts.size(), ==, 1);
-    g_assert_true(controller.Catalog().complete_frame);
+    g_assert_true(controller.Catalog().complete_frame == !early_stop);
     g_assert_true(controller.Catalog().parts[0]->status == AssetStatus::Ready);
     live.Disable();
     g_assert_false(session.Active());
+}
+static void TestAsyncPublication()
+{
+    TestAsyncPublicationImpl(false);
+}
+static void TestEarlyStop()
+{
+    TestAsyncPublicationImpl(true);
 }
 static void TestWatchdog()
 {
@@ -236,6 +256,7 @@ static void TestNamedAssembly()
     g_assert_true(controller.RememberSelected());
     g_assert_cmpuint(controller.NamedAssemblies().size(), ==, 1);
     auto car = controller.Selected();
+    auto car_recording = controller.SelectedRecording();
     g_assert_true(controller.Select(1));
     g_assert_true(controller.Recall(0));
     g_assert_true(controller.Selected() == car);
@@ -243,8 +264,54 @@ static void TestNamedAssembly()
     g_assert_true(
         controller.Publish(Catalog(2, { { 20, 5 }, { 10, 0 } }), generation));
     g_assert_cmpuint(controller.NamedAssemblies()[0]->frame, ==, 2);
+    car_recording = controller.SelectedRecording();
+    g_assert_true(controller.Publish(Catalog(3, { { 30, 15 } }), generation));
+    g_assert_true(controller.Select(30));
+    g_assert_true(controller.Recall(0));
+    g_assert_true(controller.SelectedRecording() == car_recording);
+    auto oversized = Catalog(4, { { 40, 20 } });
+    auto huge =
+        std::make_shared<capture::CaptureSessionSnapshot>(*oversized.recording);
+    huge->cpu_bytes = UINT64_C(300) * 1024 * 1024;
+    oversized.recording = huge;
+    g_assert_true(controller.Publish(std::move(oversized), generation));
+    g_assert_true(controller.Select(40));
+    g_assert_true(controller.Rename("Over budget"));
+    g_assert_false(controller.RememberSelected());
     controller.Forget(0);
     g_assert_true(controller.NamedAssemblies().empty());
+}
+static void TestSharedNamedBudget()
+{
+    auto large_catalog = [](uint64_t frame) {
+        auto catalog =
+            Catalog(frame, { { frame * 10, 0 }, { frame * 10 + 1, 5 } });
+        catalog.entries.clear();
+        for (auto &part : catalog.parts) {
+            auto large = std::make_shared<AssetPart>(*part);
+            large->vertices.resize(750000);
+            large->indices.resize(750000);
+            for (size_t i = 0; i < large->indices.size(); ++i)
+                large->indices[i] = uint32_t(i);
+            part = large;
+            catalog.entries.push_back(
+                MakeAssetAssembly(catalog, { part->id }, "Part"));
+        }
+        return catalog;
+    };
+    AssetController controller;
+    auto generation = controller.Begin(Context());
+    g_assert_true(controller.Publish(large_catalog(1), generation));
+    g_assert_true(controller.Assemble({ 10, 11 }, "First"));
+    g_assert_true(controller.RememberSelected());
+    g_assert_true(controller.Rename("Second"));
+    g_assert_true(controller.RememberSelected());
+    controller.Pin(true);
+    g_assert_true(controller.Publish(large_catalog(2), generation));
+    g_assert_cmpuint(controller.Selected()->frame, ==, 2);
+    g_assert_cmpuint(controller.NamedAssemblies()[1]->frame, ==, 1);
+    g_assert_true(controller.Message().find("retention budget") !=
+                  std::string::npos);
 }
 int main(int argc, char **argv)
 {
@@ -258,7 +325,10 @@ int main(int argc, char **argv)
     g_test_add_func("/asset/live/rearm-ownership", TestRearmOwnership);
     g_test_add_func("/asset/live/pending-ownership", TestPendingOwnership);
     g_test_add_func("/asset/live/async-publication", TestAsyncPublication);
+    g_test_add_func("/asset/live/early-stop", TestEarlyStop);
     g_test_add_func("/asset/live/watchdog", TestWatchdog);
     g_test_add_func("/asset/controller/named", TestNamedAssembly);
+    g_test_add_func("/asset/controller/shared-named-budget",
+                    TestSharedNamedBudget);
     return g_test_run();
 }

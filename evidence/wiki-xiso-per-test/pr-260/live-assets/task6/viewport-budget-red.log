@@ -1,0 +1,6 @@
+TAP version 14
+# random seed: R02Sdd4a31401b6e17a64b1f8b413980ea49
+**
+ERROR:tests/unit/test-xemu-asset-browser-viewport.cc:139:int main(int, char**): 'viewport.Configure(16U * 1024U * 1024U, 4)' should be TRUE
+Bail out! ERROR:tests/unit/test-xemu-asset-browser-viewport.cc:139:int main(int, char**): 'viewport.Configure(16U * 1024U * 1024U, 4)' should be TRUE
+Aborted

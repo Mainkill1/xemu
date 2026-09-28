@@ -52,7 +52,7 @@ AssetCatalog BuildAssetCatalog(const capture::CaptureSessionSnapshot &snapshot,
     catalog.context = snapshot.context;
     catalog.complete_frame =
         snapshot.state == capture::CaptureSessionState::Ready &&
-        !snapshot.pending_events;
+        snapshot.frame_window_complete && !snapshot.pending_events;
     catalog.budget_exceeded =
         snapshot.state == capture::CaptureSessionState::BudgetExceeded;
     for (const auto &event : snapshot.events)
@@ -63,6 +63,9 @@ AssetCatalog BuildAssetCatalog(const capture::CaptureSessionSnapshot &snapshot,
     std::map<uint64_t, std::vector<uint64_t>> confirmed;
     std::vector<uint64_t> ungrouped;
     for (const auto &event : snapshot.events) {
+        if (event && (event->limitations & (capture::CaptureReadbackFailed |
+                                            capture::CaptureInvalidated)))
+            catalog.complete_frame = false;
         if (++examined > limits.maximum_events) {
             catalog.budget_exceeded = true;
             break;
