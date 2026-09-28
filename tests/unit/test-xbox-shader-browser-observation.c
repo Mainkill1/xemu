@@ -1,3 +1,7 @@
+#include "qemu/osdep.h"
+#include "hw/xbox/nv2a/debug.h"
+#include "hw/xbox/nv2a/pgraph/pgraph.h"
+#include "ui/xui/shader-browser-draw-request.h"
 #include "hw/xbox/nv2a/pgraph/glsl/shader-browser-observation.h"
 
 #include <assert.h>
@@ -31,6 +35,75 @@ void xemu_shader_browser_publish_observations(
 void xemu_shader_browser_publish_frame(uint64_t frame)
 {
     last_frame = frame;
+}
+
+static bool capture_armed;
+static unsigned claim_calls, finish_calls;
+static uint64_t claimed_submission, finished_token;
+static int finished_emitted;
+
+int xemu_shader_draw_request_is_armed(void)
+{
+    return capture_armed;
+}
+
+uint64_t nv2a_profile_preview_renderer_epoch(void)
+{
+    return 7;
+}
+
+uint64_t xemu_shader_draw_request_claim(
+    uint64_t scope_generation, uint64_t renderer_epoch,
+    const XemuShaderDrawIdentity *identities, size_t count, uint64_t frame,
+    uint32_t draw, uint64_t submission)
+{
+    assert(scope_generation == 6 && renderer_epoch == 7);
+    assert(count == 2 &&
+           identities[1].stage == XEMU_SHADER_BROWSER_STAGE_PIXEL);
+    assert(identities[1].identity_hash[0] == 2);
+    assert(frame == 40 && draw == 50);
+    claimed_submission = submission;
+    ++claim_calls;
+    return 123;
+}
+
+int xemu_shader_draw_request_finish(uint64_t token, int emitted,
+                                    uint32_t primitive_mode,
+                                    uint32_t vertex_count, uint32_t index_count)
+{
+    assert(primitive_mode == 5 && vertex_count == 4 && index_count == 3);
+    finished_token = token;
+    finished_emitted = emitted;
+    ++finish_calls;
+    return 1;
+}
+
+static void test_capture_emission_bridge(PGRAPHShaderBrowserBinding *binding)
+{
+    static PGRAPHState pg;
+    pg.frame_time = 40;
+    pg.draw_time = 50;
+    pg.primitive_mode = 5;
+    pg.shader_browser_submission = 60;
+    binding->count = 2;
+    assert(!pgraph_shader_browser_capture_claim(&pg, binding));
+    assert(!claim_calls);
+    capture_armed = true;
+    assert(!pgraph_shader_browser_capture_claim(&pg, NULL));
+    binding->count = ARRAY_SIZE(binding->identities) + 1;
+    assert(!pgraph_shader_browser_capture_claim(&pg, binding));
+    assert(!claim_calls);
+    binding->count = 2;
+    uint64_t token = pgraph_shader_browser_capture_claim(&pg, binding);
+    assert(token == 123 && claim_calls == 1 && claimed_submission == 61);
+    pgraph_shader_browser_capture_finish(&pg, token, false, 4, 3);
+    assert(pg.shader_browser_submission == 60 && finished_token == token);
+    assert(finish_calls == 1 && !finished_emitted);
+    pgraph_shader_browser_capture_finish(&pg, token, true, 4, 3);
+    assert(pg.shader_browser_submission == 61 && finish_calls == 2);
+    assert(finished_token == token && finished_emitted);
+    pgraph_shader_browser_capture_finish(&pg, 0, true, 4, 3);
+    assert(pg.shader_browser_submission == 62 && finish_calls == 2);
 }
 
 int main(void)
@@ -104,7 +177,9 @@ int main(void)
     assert(published_count == 2 && published_epochs[1] == 2);
     assert(published[1].draw_count_delta == 1);
     assert(published[0].draw_count_delta + published[1].draw_count_delta == 11);
-    puts("1..2\nok 1 - bounded renderer observations track routes and scope\n"
-         "ok 2 - live clear drains unflushed draws before epoch change");
+    test_capture_emission_bridge(&binding);
+    puts("1..3\nok 1 - bounded renderer observations track routes and scope\n"
+         "ok 2 - live clear drains unflushed draws before epoch change\n"
+         "ok 3 - capture bridge carries exact tokens and emission serials");
     return 0;
 }
