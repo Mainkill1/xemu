@@ -429,3 +429,24 @@ workflow version step with a preview-tagged temporary repository produced
 `0.8.136-0-g<source commit>`; the resulting gitless archive metadata was accepted
 by the build generator with the same version and source commit. Full CI on the
 follow-up commit remains a separate gate.
+
+### Vulkan report-fixture link closure (2026-09-28)
+
+The271c71953c platform builds passed, but both full unit jobs stopped at linking
+`test-xbox-pgraph-vk-reports`: report retirement now references capture APIs,
+readback allocation helpers and the S3TC decoder absent from the report-only
+fixture. No unit-test execution pass was implied by those successful builds.
+Compiling the current report/command/draw production sources against existing
+local QEMU generated headers and utility libraries reproduced the same missing
+symbols before the fixture correction.
+
+The report fixture now models a disarmed capture service using the real API
+declarations. Empty batch lifecycle calls require zero handles; payload staging,
+GPU readback and timing publication fail immediately if unexpectedly reached.
+The link includes the production S3TC decoder. No application behavior changes
+are involved. Local strict compilation and report integration execution pass all
+eight cases, including command-buffer completion before DMA publication and
+disabled telemetry preserving behavior. The intentional registration shim still
+produces the existing unused `nv2a_register` warning, explicitly exempted from the
+local strict gate; the modified fixture code has no warnings. Version regressions
+and whitespace checks pass. Full exact-head unit CI remains required after push.

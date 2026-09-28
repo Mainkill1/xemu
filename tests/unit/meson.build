@@ -330,6 +330,7 @@ if 'i386-softmmu' in target_dirs and vulkan.found()
         meson.project_source_root() / 'hw/xbox/nv2a/nv2a.c',
         meson.project_source_root() / 'hw/xbox/nv2a/pgraph/pgraph.c',
         meson.project_source_root() / 'hw/xbox/nv2a/pgraph/reports.c',
+        meson.project_source_root() / 'hw/xbox/nv2a/pgraph/s3tc.c',
         meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/command.c',
         meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/draw.c',
         meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/glsl.c',
