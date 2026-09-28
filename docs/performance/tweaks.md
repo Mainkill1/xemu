@@ -33,10 +33,11 @@ already active. Runtime status comes from the installed renderer, so an OpenGL
 fallback or live backend switch cannot be mistaken for an active Vulkan
 ubershader mode.
 
-The tweak controls publish one atomic active-options snapshot. Renderer and
-FIFO workers do not read the UI-owned configuration directly. Restart-only
-choices stay pending until the next process so texture-cache and buffer-growth
-policies cannot change halfway through their lifetime.
+The tweak controls publish one atomic 64-bit effective-permission mask. Renderer
+and FIFO workers do not read the UI-owned configuration directly. A separate
+selected mask retains process-start choices even when their backend is unavailable.
+Restart-only choices stay pending until the next process so texture-cache and
+buffer-growth policies cannot change halfway through their lifetime.
 
 Cache shaders retains its existing `perf.cache_shaders` setting and renderer
 behavior. Its menu choice is saved immediately.
@@ -88,8 +89,8 @@ replace final game and performance qualification.
 ## Requested/effective profile API
 
 `xemu_tweaks_format_effective_profile(buffer, size)` provides the low-frequency
-diagnostic profile used by the Advanced-settings evidence work. Call it on the
-UI thread, outside draw/wait paths. It returns the full length excluding the
+diagnostic profile used by the Advanced-settings evidence work. Call it outside
+draw/wait paths. It returns the full length excluding the
 terminating NUL; a short buffer contains a terminated prefix. Pass `NULL, 0`
 to obtain the required length, then allocate that length plus one byte.
 
@@ -99,9 +100,19 @@ availability classification/reason and restart status. It also reports the
 requested and active Vulkan ubershader modes. The hybrid-ubershader Boolean row is
 derived from that mode, rather than the deprecated saved migration key.
 
-Reporting uses one captured mask, renderer and ubershader status for all rows and
-does not apply or persist settings. This capture may overlap renderer lifecycle
-publication; it is not an atomic transaction with a guest draw. Complete benchmark
+Reporting copies one mutex-owned published generation for all rows and does not
+apply or persist settings. `xemu_tweaks_snapshot()` returns the complete value,
+including selected/effective masks and a publication sequence; reasons have static
+lifetime. UI edits enter that value only through `xemu_tweaks_apply()`. Renderer
+lifecycle publications resolve the same owned request against the new environment
+without reading configuration or relatching startup choices. The platform wait
+adapter is applied before the mask/status publish. Startup apply must run before
+workers; a pre-startup status query represents no installed permissions.
+
+The pure `xemu_tweaks_resolve()` has no configuration/publication/platform side
+effects and reports sequence zero. The status mutex is never used by hot-path mask
+readers. A separately read worker mask may belong to the prior or next generation;
+the copied status is not an atomic transaction with a guest draw. Complete benchmark
 evidence must capture the profile at a safe lifecycle boundary and include its
 build, workload, GPU and counter identities. The formatter does not implement
 the full #94 JSON session or nonpersistent CLI overrides. Controls outside the
@@ -112,3 +123,7 @@ An enabled effective setting permits eligible work through the existing guards;
 it does not prove the path was reached or the shortcut taken. The profile tests
 cover live edits, unapplied restart choices, unavailable renderers, complete key
 coverage, unchanged configuration and zero/exact/truncated buffer capacities.
+Resolver/profile regressions also cover independent restart selections across
+fallback, mode changes, degraded setup, unpublished edits, retained owned values
+and concurrent lifecycle/apply publication. The shared policy widget reports
+Auto/explicit disable, unavailable reasons and restart pending independently.

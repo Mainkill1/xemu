@@ -1,0 +1,12 @@
+{
+  "ui/xemu-tweaks.h": "4f4d2738a38e624a1d55ae3f93e0f8b25dfe94f415be1abe63769fcfc12dc167",
+  "ui/xemu-tweaks.c": "4c89204bbd591b3a2718c484815f366eb2533f4b54801fa3d9881dcc845b083b",
+  "ui/xemu-tweak-resolver.c": "11a486827b63991a873944d6fac4c20ca3e47820f174293729884c3da2ea4121",
+  "ui/xui/main-menu.cc": "20aa3b0069131cc245dc0b23d3ca79ab8f418314b3877268c825de22982dd9e9",
+  "ui/xui/widgets.cc": "c1f9d488c7c2e716e549caceaf5d327292fd644ed2dcc988a86618f2a6c1a9cc",
+  "ui/xui/widgets.hh": "4e2dba5f3d33df34c88bb04ee56dccc6d99c5bbacf81ceed3eb2a71d87dc5e37",
+  "tests/unit/test-xemu-tweaks-resolver.c": "ef0106f1d82556de4b0db3084eae93f078ccdf589792b182bbf8a2106a319c1d",
+  "tests/unit/test-xemu-tweaks-profile.cc": "e762e555bf0e8712d80fa0de53e6c1f16c14911de14ff1485f2691c540436ab2",
+  "tests/unit/test-xemu-tweaks-config.cc": "0b94d7078acbe16be8d69a77472569769b2cada0e78c57f455fec9434d1e149e",
+  "tests/unit/meson.build": "7fb5fb0580bbecac17a68632601423b4056960c924a3c12d8dc5f34b7382d92f"
+}

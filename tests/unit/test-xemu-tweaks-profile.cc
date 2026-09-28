@@ -86,7 +86,6 @@ static void test_profile_unavailable_and_complete(void)
         "pgraph_bulk_packets",
         "pgraph_fence_fastpath",
         "vk_color_download_folding",
-        "vk_skip_clean_texture_stages",
         "vk_bounded_vertex_uploads",
         "vk_vertex_copy_shortcuts",
         "vk_transient_buffer_growth",
@@ -95,6 +94,7 @@ static void test_profile_unavailable_and_complete(void)
         "vk_shader_fastpath",
         "issue149_effect_suppression",
         "nv20_vertex_arithmetic",
+        "vk_skip_clean_texture_stages",
         "vk_ubershader_mode",
     };
     for (const char *key : keys) {
@@ -157,6 +157,131 @@ static void test_profile_degraded_renderer(void)
                "available:no,restart:no,reason:"));
 }
 
+static void test_profile_owns_published_configuration(void)
+{
+    reset_profile();
+    auto published = profile();
+    g_config.tweaks.pgraph_bulk_packets = false;
+    g_config.tweaks.vk_ubershader_mode = CONFIG_TWEAKS_VK_UBERSHADER_MODE_OFF;
+
+    /* An uncommitted UI edit is not the profile installed in the workers. */
+    g_assert_true(
+        xemu_tweak_runtime_state(XEMU_TWEAK_PGRAPH_BULK_PACKETS).requested);
+    g_assert_cmpint(xemu_vulkan_ubershader_runtime_state().requested, ==,
+                    XEMU_VK_UBERSHADER_PREWARM);
+    g_assert_true(profile() == published);
+    xemu_tweaks_apply(false);
+    g_assert_false(
+        xemu_tweak_runtime_state(XEMU_TWEAK_PGRAPH_BULK_PACKETS).requested);
+    g_assert_false(xemu_tweak_enabled(XEMU_TWEAK_PGRAPH_BULK_PACKETS));
+    g_assert_cmpint(xemu_vulkan_ubershader_runtime_state().requested, ==,
+                    XEMU_VK_UBERSHADER_OFF);
+    g_assert_cmpint(xemu_vulkan_ubershader_runtime_state().active, ==,
+                    XEMU_VK_UBERSHADER_PREWARM);
+}
+
+static void test_profile_effective_worker_bits(void)
+{
+    reset_profile();
+    xemu_tweaks_publish_renderer(XEMU_TWEAK_RENDERER_OPENGL);
+    g_assert_false(xemu_tweak_enabled(XEMU_TWEAK_VK_COLOR_DOWNLOAD_FOLDING));
+    g_assert_true(xemu_tweak_enabled(XEMU_TWEAK_GL_NATIVE_S3TC));
+    xemu_tweaks_publish_renderer(XEMU_TWEAK_RENDERER_VULKAN);
+    g_assert_true(xemu_tweak_enabled(XEMU_TWEAK_VK_COLOR_DOWNLOAD_FOLDING));
+    g_assert_false(xemu_tweak_enabled(XEMU_TWEAK_GL_NATIVE_S3TC));
+    xemu_vulkan_ubershader_publish_runtime(true, false);
+    g_assert_false(xemu_tweak_enabled(XEMU_TWEAK_VK_HYBRID_UBERSHADERS));
+    g_assert_false(xemu_tweak_enabled(XEMU_TWEAK_VK_SHADER_FASTPATH));
+}
+
+static void assert_snapshot(const XemuTweakResolution &snapshot)
+{
+    uint64_t selected = 0, effective = 0;
+    for (unsigned int i = 0; i < XEMU_TWEAK_COUNT; i++) {
+        const auto &state = snapshot.state[i];
+        selected |= state.selected ? UINT64_C(1) << i : 0;
+        effective |= state.effective ? UINT64_C(1) << i : 0;
+        g_assert_true(!state.effective || (state.selected && state.available));
+        g_assert_nonnull(state.reason);
+    }
+    g_assert_cmpuint(snapshot.selected_bits, ==, selected);
+    g_assert_cmpuint(snapshot.effective_bits, ==, effective);
+    g_assert_cmpuint(snapshot.sequence, >, 0);
+    if (snapshot.renderer != XEMU_TWEAK_RENDERER_VULKAN) {
+        g_assert_false(
+            snapshot.state[XEMU_TWEAK_VK_COLOR_DOWNLOAD_FOLDING].effective);
+        g_assert_false(
+            snapshot.state[XEMU_TWEAK_VK_HYBRID_UBERSHADERS].effective);
+        g_assert_cmpint(snapshot.ubershader.active, ==, XEMU_VK_UBERSHADER_OFF);
+    }
+    if (snapshot.renderer != XEMU_TWEAK_RENDERER_OPENGL) {
+        g_assert_false(snapshot.state[XEMU_TWEAK_GL_NATIVE_S3TC].effective);
+    }
+    if (snapshot.ubershader.active == XEMU_VK_UBERSHADER_OFF) {
+        g_assert_false(snapshot.state[XEMU_TWEAK_VK_SHADER_FASTPATH].effective);
+    }
+}
+
+static void test_snapshot_owned_value(void)
+{
+    reset_profile();
+    auto retained = xemu_tweaks_snapshot();
+    assert_snapshot(retained);
+    g_config.tweaks.pgraph_bulk_packets = false;
+    g_config.tweaks.vk_transient_buffer_growth = false;
+    xemu_tweaks_apply(false);
+    auto changed = xemu_tweaks_snapshot();
+    g_assert_cmpuint(changed.sequence, >, retained.sequence);
+    g_assert_true(retained.state[XEMU_TWEAK_PGRAPH_BULK_PACKETS].effective);
+    g_assert_false(changed.state[XEMU_TWEAK_PGRAPH_BULK_PACKETS].effective);
+    g_assert_true(
+        changed.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].restart_pending);
+    g_assert_false(
+        retained.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].restart_pending);
+    auto text = profile();
+    config_tree.free_allocations(&g_config);
+    config_tree.reset_to_defaults();
+    config_tree.store_to_struct(&g_config);
+    g_assert_true(profile() == text);
+    g_assert_nonnull(retained.state[XEMU_TWEAK_GL_NATIVE_S3TC].reason);
+    assert_snapshot(changed);
+}
+
+static gpointer publish_renderers(gpointer)
+{
+    for (unsigned int i = 0; i < 4000; i++) {
+        xemu_tweaks_publish_renderer(i % 2 ? XEMU_TWEAK_RENDERER_OPENGL :
+                                             XEMU_TWEAK_RENDERER_VULKAN);
+        xemu_vulkan_ubershader_publish_runtime(i % 2 == 0, i % 3 != 0);
+    }
+    return nullptr;
+}
+
+static void test_snapshot_concurrent_publication(void)
+{
+    reset_profile();
+    GThread *renderer =
+        g_thread_new("tweak-publisher", publish_renderers, nullptr);
+    uint64_t previous_sequence = 0;
+    for (unsigned int i = 0; i < 1000; i++) {
+        g_config.tweaks.pgraph_bulk_packets = i % 2;
+        g_config.tweaks.pgraph_fence_fastpath = i % 2;
+        xemu_tweaks_apply(false);
+        auto snapshot = xemu_tweaks_snapshot();
+        g_assert_cmpuint(snapshot.sequence, >=, previous_sequence);
+        previous_sequence = snapshot.sequence;
+        g_assert_cmpint(
+            snapshot.state[XEMU_TWEAK_PGRAPH_BULK_PACKETS].policy_requested, ==,
+            snapshot.state[XEMU_TWEAK_PGRAPH_FENCE_FASTPATH].policy_requested);
+        assert_snapshot(snapshot);
+    }
+    g_thread_join(renderer);
+    auto snapshot = xemu_tweaks_snapshot();
+    g_assert_cmpuint(snapshot.effective_bits, ==,
+                     xemu_tweaks_active_snapshot());
+    assert_snapshot(snapshot);
+}
+
 static void test_profile_clean_stage_policy(void)
 {
     reset_profile();
@@ -197,6 +322,14 @@ int main(int argc, char **argv)
                     test_profile_buffer_bounds);
     g_test_add_func("/xemu/tweaks/profile/degraded-renderer",
                     test_profile_degraded_renderer);
+    g_test_add_func("/xemu/tweaks/profile/owned-configuration",
+                    test_profile_owns_published_configuration);
+    g_test_add_func("/xemu/tweaks/profile/effective-worker-bits",
+                    test_profile_effective_worker_bits);
+    g_test_add_func("/xemu/tweaks/profile/snapshot-owned-value",
+                    test_snapshot_owned_value);
+    g_test_add_func("/xemu/tweaks/profile/snapshot-concurrent-publication",
+                    test_snapshot_concurrent_publication);
     g_test_add_func("/xemu/tweaks/profile/clean-stage-policy",
                     test_profile_clean_stage_policy);
     int result = g_test_run();

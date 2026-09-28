@@ -92,46 +92,24 @@ static void PerformanceToggle(const char *label, bool *selected,
         xemu_tweaks_apply(false);
         xemu_settings_save();
     }
-    XemuTweakRuntimeState state = xemu_tweak_runtime_state(tweak);
-    ImGui::TextDisabled("Requested: %s   Effective: %s",
-                        state.requested ? "On" : "Off",
-                        state.effective ? "On" : "Off");
-    if (state.restart_pending) {
-        ImGui::TextDisabled("Restart xemu to apply this change.");
-    } else if (!state.available ||
-               (state.requested && !state.effective)) {
-        ImGui::PushTextWrapPos();
-        ImGui::TextDisabled("%s", state.reason);
-        ImGui::PopTextWrapPos();
-    }
+    DrawTweakEffectiveStatus(tweak);
 }
 
 static void VulkanCleanTextureStagePolicyCombo(void)
 {
-    if (ChevronCombo("Skip clean texture stages",
-                     &g_config.tweaks.vk_skip_clean_texture_stages,
-                     "Auto\0Disabled\0",
-                     "Auto skips eligible clean stages while another stage "
-                     "requires a slow bind. Disabled sends those eligible "
-                     "stages through normal texture preparation. Whole-bind "
-                     "clean returns and all dirty, surface, palette, and DMA "
-                     "guards remain active. Applies live.")) {
-        xemu_tweaks_apply(false);
-        xemu_settings_save();
-    }
-    XemuTweakRuntimeState state = xemu_tweak_runtime_state(
-        XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES);
-    ImGui::TextDisabled("Requested: %s   Effective: %s",
-                        state.policy_requested == XEMU_TWEAK_POLICY_AUTO ?
-                            "Auto" : "Disabled",
-                        state.effective ? "Enabled" : "Disabled");
-    if (!state.available) {
-        ImGui::TextDisabled("%s", state.reason);
-    }
+    PerformancePolicyCombo(
+        "Skip clean texture stages",
+        &g_config.tweaks.vk_skip_clean_texture_stages,
+        XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES,
+        "Auto skips eligible clean stages while another stage requires a slow "
+        "bind. Disabled sends those eligible stages through normal texture "
+        "preparation. Whole-bind clean returns and all dirty, surface, "
+        "palette, "
+        "and DMA guards remain active. Applies live.",
+        false);
 }
 
-static const char *VulkanUbershaderModeName(
-    XemuVulkanUbershaderMode mode)
+static const char *VulkanUbershaderModeName(XemuVulkanUbershaderMode mode)
 {
     switch (mode) {
     case XEMU_VK_UBERSHADER_OFF:

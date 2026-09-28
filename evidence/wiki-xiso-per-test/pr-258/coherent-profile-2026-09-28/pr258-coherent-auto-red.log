@@ -1,0 +1,31 @@
+python3 /home/codex/pr238-source/subprojects/genconfig/gen_config.py /home/codex/xemu-shader-workbench-handoff/xemu-issue95/config_spec.yml /tmp/pr258-profile-build/xemu-config.h
+cc -I/tmp/pr258-profile-build -iquote /tmp/pr258-profile-build -iquote /home/codex/xemu-shader-workbench-handoff/xemu-issue95 -iquote /home/codex/xemu-shader-workbench-handoff/xemu-issue95/include -I/home/codex/xemu-shader-workbench-handoff/xemu-issue95 -m64 -Itests/unit/test-xemu-tweaks-config.p -Itests/unit -I../tests/unit -Isubprojects/genconfig -I../subprojects/genconfig -Isubprojects/tomlplusplus/include -I../subprojects/tomlplusplus/include -I. -Iqapi -Itrace -Iui -Iui/shader -Idata -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/sysprof-6 -fdiagnostics-color=auto -Wall -Winvalid-pch -std=gnu11 -O2 -g -Wempty-body -Wendif-labels -Wexpansion-to-defined -Wformat-security -Wformat-y2k -Wignored-qualifiers -Wimplicit-fallthrough=2 -Winit-self -Wmissing-format-attribute -Wmissing-prototypes -Wnested-externs -Wold-style-declaration -Wold-style-definition -Wredundant-decls -Wshadow=local -Wstrict-prototypes -Wtype-limits -Wwrite-strings -Wno-missing-include-dirs -Wno-psabi -Wno-shift-negative-value -isystem /home/codex/pr238-source/linux-headers -isystem linux-headers -iquote . -iquote /home/codex/pr238-source -iquote /home/codex/pr238-source/include -iquote /home/codex/pr238-source/host/include/x86_64 -iquote /home/codex/pr238-source/host/include/generic -iquote /home/codex/pr238-source/tcg/i386 -pthread -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX=1 -Wno-error=redundant-decls -fPIE -DTOML_HEADER_ONLY=0 -Werror -o /tmp/pr258-profile-build/test-xemu-tweaks-resolver.c.o -c /home/codex/xemu-shader-workbench-handoff/xemu-issue95/tests/unit/test-xemu-tweaks-resolver.c
+cc -I/tmp/pr258-profile-build -iquote /tmp/pr258-profile-build -iquote /home/codex/xemu-shader-workbench-handoff/xemu-issue95 -iquote /home/codex/xemu-shader-workbench-handoff/xemu-issue95/include -I/home/codex/xemu-shader-workbench-handoff/xemu-issue95 -m64 -Itests/unit/test-xemu-tweaks-config.p -Itests/unit -I../tests/unit -Isubprojects/genconfig -I../subprojects/genconfig -Isubprojects/tomlplusplus/include -I../subprojects/tomlplusplus/include -I. -Iqapi -Itrace -Iui -Iui/shader -Idata -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/sysprof-6 -fdiagnostics-color=auto -Wall -Winvalid-pch -std=gnu11 -O2 -g -Wempty-body -Wendif-labels -Wexpansion-to-defined -Wformat-security -Wformat-y2k -Wignored-qualifiers -Wimplicit-fallthrough=2 -Winit-self -Wmissing-format-attribute -Wmissing-prototypes -Wnested-externs -Wold-style-declaration -Wold-style-definition -Wredundant-decls -Wshadow=local -Wstrict-prototypes -Wtype-limits -Wwrite-strings -Wno-missing-include-dirs -Wno-psabi -Wno-shift-negative-value -isystem /home/codex/pr238-source/linux-headers -isystem linux-headers -iquote . -iquote /home/codex/pr238-source -iquote /home/codex/pr238-source/include -iquote /home/codex/pr238-source/host/include/x86_64 -iquote /home/codex/pr238-source/host/include/generic -iquote /home/codex/pr238-source/tcg/i386 -pthread -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX=1 -Wno-error=redundant-decls -fPIE -DTOML_HEADER_ONLY=0 -Werror -o /tmp/pr258-profile-build/xemu-tweak-resolver.c.o -c /home/codex/xemu-shader-workbench-handoff/xemu-issue95/ui/xemu-tweak-resolver.c
+c++ -m64 -o /tmp/pr258-profile-build/resolver libevent-loop-base.a.p/event-loop-base.c.o libqom.a.p/qom_container.c.o libqom.a.p/qom_object.c.o libqom.a.p/qom_object_interfaces.c.o libqom.a.p/qom_qom-qobject.c.o -Wl,--as-needed -Wl,--no-undefined -pie -Wl,-z,relro -Wl,-z,now -DXBOX=1 -Wno-error=redundant-decls /tmp/pr258-profile-build/test-xemu-tweaks-resolver.c.o /tmp/pr258-profile-build/xemu-tweak-resolver.c.o -Wl,--start-group libqemuutil.a subprojects/xxHash-0.8.3/libxxhash.a subprojects/tomlplusplus/src/libtomlplusplus.a /usr/lib/x86_64-linux-gnu/libcurl.so -lm -pthread /usr/lib/x86_64-linux-gnu/libglib-2.0.so -Wl,--end-group
+/tmp/pr258-profile-build/resolver --tap
+TAP version 14
+# random seed: R02S8179da5ac3988dee41bce5926584f9ab
+1..6
+# Start of xemu tests
+# Start of tweaks tests
+# Start of resolve tests
+ok 1 /xemu/tweaks/resolve/defaults-explicit
+ok 2 /xemu/tweaks/resolve/live-latched
+ok 3 /xemu/tweaks/resolve/backend-latches
+ok 4 /xemu/tweaks/resolve/modes-capabilities
+ok 5 /xemu/tweaks/resolve/platform-invalid
+**
+ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-issue95/tests/unit/test-xemu-tweaks-resolver.c:224:test_clean_stage_policy: 'startup.state[XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES].effective' should be TRUE
+not ok /xemu/tweaks/resolve/clean-stage-policy - ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-issue95/tests/unit/test-xemu-tweaks-resolver.c:224:test_clean_stage_policy: 'startup.state[XEMU_TWEAK_VK_SKIP_CLEAN_TEXTURE_STAGES].effective' should be TRUE
+Bail out!
+Traceback (most recent call last):
+  File "/tmp/pr257-profile-build.py", line 42, in <module>
+    run([binary,'--tap'] if any(x in sys.argv for x in ('profile','resolver')) else [binary],env=env)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pr257-profile-build.py", line 11, in run
+    subprocess.run(args,check=True,**kw)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '[PosixPath('/tmp/pr258-profile-build/resolver'), '--tap']' died with <Signals.SIGABRT: 6>.
