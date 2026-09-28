@@ -7,6 +7,8 @@ xemu_ss.add(files(
   'asset-browser-decode.cc',
   'asset-browser-controller.cc',
   'asset-browser-live.cc',
+  'asset-browser-material.cc',
+  'asset-browser-viewport.cc',
   'shader-browser-model.cc',
   'shader-browser-usage-export.cc',
   'shader-browser-glsl-export.cc',
@@ -97,6 +99,14 @@ asset_browser_controller_test = executable(
   include_directories: [shader_browser_test_inc, include_directories('../..')],
   dependencies: [xxhash, glib, json, shader_browser_threads])
 test('test-xemu-asset-browser-controller', asset_browser_controller_test, suite: ['unit'])
+
+asset_browser_viewport_test = executable(
+  'test-xemu-asset-browser-viewport',
+  shader_browser_test_dir / 'test-xemu-asset-browser-viewport.cc',
+  files('asset-browser-viewport.cc', 'asset-browser-material.cc'),
+  include_directories: [shader_browser_test_inc, include_directories('../..')],
+  dependencies: [glib, epoxy, sdl])
+# Requires a native GL context; run explicitly on a graphical test host.
 
 shader_browser_model_test = executable(
   'test-xemu-shader-browser-model',
