@@ -15,7 +15,8 @@ public:
     explicit AssetLiveCapture(capture::CaptureSession &);
     ~AssetLiveCapture();
     bool Enable(const capture::CaptureSessionContext &, uint64_t now_ns,
-                const AssetLiveSettings & = {});
+                const AssetLiveSettings & = {},
+                const AssetController *selection = nullptr);
     void Disable();
     void Tick(const capture::CaptureSessionContext &, uint64_t now_ns,
               AssetController &);

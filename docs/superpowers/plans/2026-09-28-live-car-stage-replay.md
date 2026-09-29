@@ -138,3 +138,10 @@ canonical run; no car gate/marker. Corrected tracking drains on either physical
 or pending consumer bytes at the same safe completed-flush boundary. Two
 runtimeREDs (pressure and24MiB-per-consumer accounting) then strict15 adapter,
 ASan/UBSan and four actual-flags productTUs pass. New exact-head CI/native5 pending.
+
+Native5 verified37-part captured car and native save/reopen at8b316278, but
+first follow request still captured all1723parts and stopped on a partial frame.
+RefreshFilter ran only on later rearm. Seed the first request from the pinned
+selection; retain unfiltered ordinary discovery and later refresh. RuntimeRED
+0vs1 stage sets; all18 strict/sanitized controllercases+2productTUs pass.
+8bpushCI20/20;PRmacOSarm64DNSfailurebeforecompile retained. New native6 required.

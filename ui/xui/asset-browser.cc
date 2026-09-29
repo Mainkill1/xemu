@@ -245,7 +245,7 @@ void AssetBrowserWindow::Draw()
                 settings.assets.decoded_byte_budget = uint64_t(s.decoded_mib)
                                                       << 20;
                 settings.sample_interval_ns = uint64_t(s.sample_ms) * 1000000;
-                s.live.Enable(context, now, settings);
+                s.live.Enable(context, now, settings, &s.controller);
                 s.message.clear();
             }
         } else

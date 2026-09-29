@@ -18,7 +18,8 @@ AssetLiveCapture::~AssetLiveCapture()
     }
 }
 bool AssetLiveCapture::Enable(const capture::CaptureSessionContext &context,
-                              uint64_t now, const AssetLiveSettings &settings)
+                              uint64_t now, const AssetLiveSettings &settings,
+                              const AssetController *selection)
 {
     Disable();
     if (job_.valid() || !now ||
@@ -33,6 +34,8 @@ bool AssetLiveCapture::Enable(const capture::CaptureSessionContext &context,
     settings_.capture.maximum_evidence = false;
     settings_.capture.event_budget =
         std::min<uint32_t>(settings_.capture.event_budget, 32768);
+    if (selection && SameAssetContext(selection->Catalog().context, context))
+        RefreshFilter(*selection);
     context_ = context;
     context_.generation = now;
     if (!session_.TryStart(context_, settings_.capture, &owned_)) {
@@ -43,8 +46,11 @@ bool AssetLiveCapture::Enable(const capture::CaptureSessionContext &context,
     enabled_ = true;
     started_ = now;
     next_ = 0;
-    message_ = "Discovering owned draw inputs; ordered non-draw dependencies "
-               "are omitted";
+    message_ = settings_.capture.live_stage_sets.empty() ?
+                   "Discovering owned draw inputs; ordered non-draw "
+                   "dependencies are omitted" :
+                   "Following selected stage pairings for the next coherent "
+                   "frame";
     return true;
 }
 void AssetLiveCapture::Disable()

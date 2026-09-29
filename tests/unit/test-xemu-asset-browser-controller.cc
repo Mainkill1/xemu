@@ -456,6 +456,51 @@ static void TestWatchdog()
     g_assert_false(live.Enabled());
     g_assert_false(session.Active());
 }
+static void TestFirstFollowRequest(bool pinned)
+{
+    capture::CaptureSession session;
+    AssetController controller;
+    const auto generation = controller.Begin(Context());
+    auto catalog = Catalog(7, { { 1, 0 } });
+    auto part = std::make_shared<AssetPart>(*catalog.parts[0]);
+    auto event =
+        std::make_shared<capture::CaptureOccurrence>(*part->occurrence);
+    capture::ShaderKey vs, ps;
+    vs.stage = capture::Stage::Vertex;
+    ps.stage = capture::Stage::Pixel;
+    vs.hash.bytes[0] = 1;
+    ps.hash.bytes[0] = 2;
+    event->summary.shader_count = 2;
+    event->summary.shaders[0] = ps;
+    event->summary.shaders[1] = vs;
+    part->occurrence = event;
+    catalog.parts[0] = part;
+    g_assert_true(controller.Publish(std::move(catalog), generation));
+    g_assert_true(controller.Assemble({ 1 }, "Car"));
+    controller.Pin(pinned);
+    AssetLiveCapture live(session);
+    g_assert_true(live.Enable(Context(), 1, {}, &controller));
+    const auto snapshot = session.Snapshot();
+    g_assert_cmpuint(snapshot.settings.live_stage_sets.size(), ==,
+                     pinned ? 1 : 0);
+    session.GuestFrameBoundary(10);
+    auto draw = event->summary;
+    draw.scope = Context().scope;
+    draw.key = { 1, 2, 10, 1, 1 };
+    draw.shaders[0].hash.bytes[0] = 3;
+    const auto other = session.BeginOccurrence(draw);
+    g_assert_true(pinned ? other == 0 : other != 0);
+    if (other) {
+        session.Finish(other, true, 5, 3, 0);
+        session.InputsComplete(other);
+    }
+    draw.shaders[0] = ps;
+    const auto matching = session.BeginOccurrence(draw);
+    g_assert_cmpuint(matching, !=, 0);
+    session.Finish(matching, true, 5, 3, 0);
+    session.InputsComplete(matching);
+    live.Disable();
+}
 static void TestNamedAssembly()
 {
     AssetController controller;
@@ -540,6 +585,10 @@ int main(int argc, char **argv)
     g_test_add_func("/asset/live/draw-inputs", TestLiveDrawInputs);
     g_test_add_func("/asset/live/stage-filter", TestLiveStageFilter);
     g_test_add_func("/asset/live/watchdog", TestWatchdog);
+    g_test_add_func("/asset/live/first-follow-filter",
+                    [] { TestFirstFollowRequest(true); });
+    g_test_add_func("/asset/live/first-unpinned-discovery",
+                    [] { TestFirstFollowRequest(false); });
     g_test_add_func("/asset/controller/named", TestNamedAssembly);
     g_test_add_func("/asset/controller/shared-named-budget",
                     TestSharedNamedBudget);
