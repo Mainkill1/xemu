@@ -1643,6 +1643,22 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     snode->sampler_wrap_s = sampler_create_info.addressModeU;
     snode->sampler_wrap_t = sampler_create_info.addressModeV;
     snode->sampler_wrap_r = sampler_create_info.addressModeW;
+    snode->captured_sampler = sampler_create_info;
+    snode->captured_sampler.pNext = NULL;
+    if (vk_border_color == VK_BORDER_COLOR_FLOAT_CUSTOM_EXT) {
+        memcpy(snode->captured_border_color,
+               custom_border_color_create_info.customBorderColor.float32,
+               sizeof(snode->captured_border_color));
+    } else {
+        bool white = vk_border_color == VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE ||
+                     vk_border_color == VK_BORDER_COLOR_INT_OPAQUE_WHITE;
+        bool transparent =
+            vk_border_color == VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK ||
+            vk_border_color == VK_BORDER_COLOR_INT_TRANSPARENT_BLACK;
+        for (int channel = 0; channel < 3; ++channel)
+            snode->captured_border_color[channel] = white ? 1.f : 0.f;
+        snode->captured_border_color[3] = transparent ? 0.f : 1.f;
+    }
 
     set_texture_label(pg, snode);
 

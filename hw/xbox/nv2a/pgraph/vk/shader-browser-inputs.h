@@ -780,6 +780,51 @@ static bool pgraph_vk_input_depth_texture(uint32_t format, VkFormat host)
     }
 }
 
+static void pgraph_vk_input_stage_sampler(uint64_t token, uint32_t slot,
+                                          const VkSamplerCreateInfo *info,
+                                          const float border[4])
+{
+    const struct {
+        const char *name;
+        uint32_t value;
+    } integers[] = {
+        { "sampler_ready",
+          info->sType == VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO },
+        { "mipmap_mode", info->mipmapMode },
+        { "compare_enable", info->compareEnable },
+        { "compare_op", info->compareOp },
+        { "unnormalized_coordinates", info->unnormalizedCoordinates },
+    };
+    for (size_t i = 0; i < G_N_ELEMENTS(integers); ++i) {
+        char name[64];
+        snprintf(name, sizeof(name), "capture.texture%u.%s", slot,
+                 integers[i].name);
+        xemu_shader_draw_request_stage_register(token, name, integers[i].value);
+    }
+    const struct {
+        const char *name;
+        float value;
+    } floats[] = {
+        { "min_lod_bits", info->minLod },
+        { "max_lod_bits", info->maxLod },
+        { "lod_bias_bits", info->mipLodBias },
+        { "anisotropy_bits",
+          info->anisotropyEnable ? info->maxAnisotropy : 1.f },
+        { "border0_bits", border[0] },
+        { "border1_bits", border[1] },
+        { "border2_bits", border[2] },
+        { "border3_bits", border[3] },
+    };
+    for (size_t i = 0; i < G_N_ELEMENTS(floats); ++i) {
+        uint32_t bits;
+        char name[64];
+        memcpy(&bits, &floats[i].value, sizeof(bits));
+        snprintf(name, sizeof(name), "capture.texture%u.%s", slot,
+                 floats[i].name);
+        xemu_shader_draw_request_stage_register(token, name, bits);
+    }
+}
+
 static void pgraph_vk_input_stage_textures(PGRAPHState *pg, uint64_t token,
                                            PGRAPHVkShaderInputs *inputs)
 {
@@ -805,6 +850,9 @@ static void pgraph_vk_input_stage_textures(PGRAPHState *pg, uint64_t token,
             texture.wrap_t = binding->sampler_wrap_t;
             texture.wrap_r = binding->sampler_wrap_r;
             texture.coordinate_scale = binding->key.scale;
+            pgraph_vk_input_stage_sampler(token, slot,
+                                          &binding->captured_sampler,
+                                          binding->captured_border_color);
             // Raw typed storage is before view swizzling; retain the exact
             // view.
             const VkComponentSwizzle channels[] = {

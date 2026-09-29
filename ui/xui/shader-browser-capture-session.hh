@@ -12,7 +12,13 @@
 
 namespace xemu::shader_browser {
 
-enum class CaptureSessionMode : uint8_t { NextFrame, RollingAnimation };
+enum class CaptureSessionMode : uint8_t {
+    NextFrame,
+    RollingAnimation,
+    // Owned draw inputs for live inspection; omits ordered non-draw
+    // dependencies.
+    LiveDrawInputs,
+};
 enum class CaptureSessionState : uint8_t {
     Recording,
     Triggered,
@@ -57,6 +63,9 @@ struct CaptureSessionSettings {
     // unused until Mark. It does not promise a number of post-trigger frames.
     uint32_t post_trigger_reserve_percent = 25;
     bool maximum_evidence = false;
+    // Only LiveDrawInputs accepts a filter. Empty means discover all draws.
+    // Each set describes every bound stage of one accepted pipeline pairing.
+    std::vector<std::vector<ShaderKey>> live_stage_sets;
 };
 struct CaptureSessionCapacityLimits {
     uint64_t cpu_bytes = 0;

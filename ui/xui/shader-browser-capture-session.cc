@@ -73,6 +73,21 @@ size_t NameLength(const char *name)
 }
 bool ValidSettings(const CaptureSessionSettings &settings)
 {
+    if (settings.live_stage_sets.size() > 128 ||
+        (settings.mode != CaptureSessionMode::LiveDrawInputs &&
+         !settings.live_stage_sets.empty()))
+        return false;
+    for (const auto &set : settings.live_stage_sets) {
+        if (set.empty() || set.size() > kCapturedShaderSlots)
+            return false;
+        for (size_t i = 0; i < set.size(); ++i) {
+            if (uint32_t(set[i].stage) >= uint32_t(Stage::Unknown))
+                return false;
+            for (size_t j = 0; j < i; ++j)
+                if (set[i].stage == set[j].stage)
+                    return false;
+        }
+    }
     const auto limits = CaptureSessionPreTriggerLimits(settings);
     return settings.cpu_byte_budget &&
            settings.cpu_byte_budget <= kMaximumBudget &&
@@ -88,7 +103,8 @@ bool ValidSettings(const CaptureSessionSettings &settings)
             !settings.post_frames || !settings.post_trigger_reserve_percent ||
             (limits.cpu_bytes && limits.events)) &&
            (settings.mode == CaptureSessionMode::NextFrame ||
-            settings.mode == CaptureSessionMode::RollingAnimation);
+            settings.mode == CaptureSessionMode::RollingAnimation ||
+            settings.mode == CaptureSessionMode::LiveDrawInputs);
 }
 bool ValidExecutionReceipt(const CaptureOccurrence &event)
 {
@@ -1204,8 +1220,8 @@ void CaptureSession::GuestFrameBoundary(uint64_t frame,
     }
     if (s.have_boundary && frame == s.frame)
         return;
-    if (s.settings.mode == CaptureSessionMode::NextFrame && s.have_boundary &&
-        frame > s.frame) {
+    if (s.settings.mode != CaptureSessionMode::RollingAnimation &&
+        s.have_boundary && frame > s.frame) {
         s.frame_window_complete = true;
         s.Finalize();
         return;
@@ -1346,13 +1362,35 @@ uint64_t CaptureSession::BeginOccurrence(const DrawCaptureSummary &summary,
         s.CancelPending("Capture context changed before completion");
         return 0;
     }
-    if (s.settings.mode == CaptureSessionMode::NextFrame && !s.have_boundary)
+    if (s.settings.mode != CaptureSessionMode::RollingAnimation &&
+        !s.have_boundary)
         return 0;
     if (summary.key.session_epoch != s.context.session_epoch ||
         summary.key.renderer_epoch != s.context.renderer_epoch ||
         !(summary.scope == s.context.scope) ||
         summary.shader_count > kCapturedShaderSlots)
         return 0;
+    if (s.settings.mode == CaptureSessionMode::LiveDrawInputs) {
+        if (type != CaptureEventType::Draw)
+            return 0;
+        if (!s.settings.live_stage_sets.empty() &&
+            std::none_of(
+                s.settings.live_stage_sets.begin(),
+                s.settings.live_stage_sets.end(), [&](const auto &set) {
+                    if (set.size() != summary.shader_count)
+                        return false;
+                    return std::all_of(
+                        set.begin(), set.end(), [&](const auto &key) {
+                            return std::find(summary.shaders.begin(),
+                                             summary.shaders.begin() +
+                                                 summary.shader_count,
+                                             key) != summary.shaders.begin() +
+                                                         summary.shader_count;
+                        });
+                }))
+            return 0;
+        limitations |= CaptureMissingDependencies;
+    }
     // Animation acquisition can begin in the middle of a guest frame. The
     // first owner-side event establishes that frame before a manual mark;
     // the UI's earlier frame snapshot may be stale.
@@ -1389,6 +1427,7 @@ uint64_t CaptureSession::BeginOccurrence(const DrawCaptureSummary &summary,
                      std::chrono::steady_clock::now().time_since_epoch())
                      .count());
     event.observed_checkpoint =
+        s.settings.mode != CaptureSessionMode::LiveDrawInputs &&
         type == CaptureEventType::Draw &&
         (s.settings.maximum_evidence || !s.checkpoint_taken);
     if (type == CaptureEventType::Draw)
@@ -1988,6 +2027,7 @@ void CaptureSession::ReleaseResource(uint64_t owner, uint64_t byte_size,
     std::lock_guard<std::mutex> lock(impl_->mutex);
     auto &s = *impl_;
     if (!owner || !s.active.load() ||
+        s.settings.mode == CaptureSessionMode::LiveDrawInputs ||
         (expected_generation && expected_generation != s.claim_generation) ||
         (s.settings.mode == CaptureSessionMode::NextFrame && !s.have_boundary))
         return;
@@ -2089,6 +2129,8 @@ CaptureSessionSnapshot CaptureSession::Snapshot() const
     snapshot.state = s.state;
     snapshot.frame_window_complete = s.frame_window_complete;
     snapshot.settings = s.settings;
+    snapshot.execution_order_complete =
+        s.settings.mode != CaptureSessionMode::LiveDrawInputs;
     snapshot.context = s.context;
     snapshot.reason = s.reason;
     snapshot.trigger_frame = s.trigger;
@@ -3063,7 +3105,16 @@ struct PackageReader {
 };
 Json SettingsJson(const CaptureSessionSettings &settings)
 {
+    Json sets = Json::array();
+    for (const auto &set : settings.live_stage_sets) {
+        Json stages = Json::array();
+        for (const auto &key : set)
+            stages.push_back(
+                Json::array({ key.hash.version, key.hash.bytes, key.stage }));
+        sets.push_back(std::move(stages));
+    }
     return { { "mode", settings.mode },
+             { "live_stage_sets", std::move(sets) },
              { "cpu_bytes", settings.cpu_byte_budget },
              { "event_bytes", settings.per_event_byte_budget },
              { "disk_bytes", settings.disk_byte_budget },
@@ -3077,7 +3128,24 @@ Json SettingsJson(const CaptureSessionSettings &settings)
 CaptureSessionSettings ReadSettings(const Json &value)
 {
     CaptureSessionSettings settings;
-    settings.mode = CaptureSessionMode(U(value.at("mode"), 1));
+    settings.mode = CaptureSessionMode(U(value.at("mode"), 2));
+    if (value.contains("live_stage_sets")) {
+        const auto &sets = value.at("live_stage_sets");
+        Array(sets, 128);
+        for (const auto &stages : sets) {
+            Array(stages, kCapturedShaderSlots);
+            std::vector<ShaderKey> set;
+            for (const auto &item : stages) {
+                ExactArray(item, 3);
+                ShaderKey key;
+                key.hash.version = U32(item[0]);
+                key.hash.bytes = ByteArray<kShaderHashBytes>(item[1]);
+                key.stage = Stage(U(item[2], uint64_t(Stage::Unknown)));
+                set.push_back(key);
+            }
+            settings.live_stage_sets.push_back(std::move(set));
+        }
+    }
     settings.cpu_byte_budget = U(value.at("cpu_bytes"), kMaximumBudget);
     settings.per_event_byte_budget =
         U(value.at("event_bytes"), kDrawInputBudget);

@@ -8,7 +8,7 @@ struct AssetCamera {
 };
 struct AssetViewportFrame {
     uint32_t texture = 0, width = 0, height = 0;
-    size_t drawn_parts = 0, textured_parts = 0;
+    size_t drawn_parts = 0, textured_parts = 0, captured_parts = 0;
     uint64_t gpu_bytes = 0;
     std::string message;
 };
@@ -20,7 +20,8 @@ public:
     AssetViewportFrame Render(std::shared_ptr<const AssetAssembly>,
                               const AssetCamera &, uint32_t width,
                               uint32_t height, int texture_slot = -1,
-                              bool wireframe = false);
+                              bool wireframe = false,
+                              bool captured_stages = false);
     AssetViewportFrame Thumbnail(std::shared_ptr<const AssetAssembly>);
     AssetViewportFrame TextureImage(SharedAssetPart, uint32_t backend,
                                     int slot);

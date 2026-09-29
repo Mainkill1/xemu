@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "../../ui/xui/asset-browser-live.hh"
+#include "../../ui/xui/asset-browser-placement.hh"
 #include <glib.h>
 
 using namespace xemu::asset_browser;
@@ -49,6 +50,95 @@ Catalog(uint64_t frame,
     }
     catalog.recording = recording;
     return catalog;
+}
+static AssetCatalog PlacedCatalog(uint64_t frame)
+{
+    auto c = Catalog(frame, { { 10 * frame, 0 },
+                              { 10 * frame + 1, 0 },
+                              { 10 * frame + 2, 3 },
+                              { 10 * frame + 3, 3 } });
+    for (size_t i = 0; i < c.parts.size(); ++i) {
+        auto p = std::make_shared<AssetPart>(*c.parts[i]);
+        p->placement.valid = true;
+        p->placement.clip_from_local = { 1, 0, 0, 0, 0, 1, 0, 0,
+                                         0, 0, 1, 0, 0, 0, 0, 1 };
+        p->placement.clip_from_local[3] = i == 0 ? 0 :
+                                          i == 1 ? 10 :
+                                          i == 2 ? -2.75f :
+                                                   7.25f;
+        if (i == 2 && frame > 1)
+            p->placement.clip_from_local[3] += .1f;
+        c.parts[i] = p;
+    }
+    c.entries.clear();
+    for (auto &p : c.parts)
+        c.entries.push_back(MakeAssetAssembly(c, { p->id }, "Part"));
+    return c;
+}
+static void TestPlacedFollow()
+{
+    AssetController controller;
+    const auto generation = controller.Begin(Context());
+    auto initial = PlacedCatalog(1);
+    const auto related = SuggestRelatedAssetParts(initial, 10);
+    g_assert_cmpuint(related.size(), ==, 2);
+    g_assert_cmpuint(related[1], ==, 12);
+    auto other_target = initial;
+    for (size_t i : { size_t(0), size_t(2) }) {
+        auto p = std::make_shared<AssetPart>(*other_target.parts[i]);
+        auto e = std::make_shared<capture::CaptureOccurrence>(*p->occurrence);
+        capture::CaptureOwnedBlob blob;
+        blob.name = "vk.viewport";
+        auto bytes = std::make_shared<capture::CaptureImmutableBlock>();
+        bytes->bytes = { uint8_t(i) };
+        blob.data = bytes;
+        e->inputs.blobs.push_back(blob);
+        p->occurrence = e;
+        other_target.parts[i] = p;
+    }
+    g_assert_cmpuint(SuggestRelatedAssetParts(other_target, 10).size(), ==, 1);
+    auto separate_target = initial;
+    for (size_t i : { size_t(0), size_t(2) }) {
+        auto p = std::make_shared<AssetPart>(*separate_target.parts[i]);
+        auto e = std::make_shared<capture::CaptureOccurrence>(*p->occurrence);
+        auto resources = std::make_shared<capture::CaptureResourceEvent>();
+        resources->domain_id = 1;
+        capture::CaptureResourceAccess access{};
+        access.type = capture::CaptureResourceOperationType::Read;
+        access.kind = XEMU_SHADER_CAPTURE_RESOURCE_COLOR;
+        access.allocation_id = i + 1;
+        access.view_id = i + 1;
+        resources->accesses.push_back(access);
+        e->resource_evidence = resources;
+        p->occurrence = e;
+        separate_target.parts[i] = p;
+    }
+    g_assert_cmpuint(SuggestRelatedAssetParts(separate_target, 10).size(), ==,
+                     1);
+    const auto placed = MakeAssetAssembly(initial, { 10, 12 }, "Car");
+    g_assert_true(placed.captured_placement);
+    g_assert_cmpfloat(placed.bounds.maximum[0], ==, 1.25f);
+    g_assert_true(controller.Publish(initial, generation));
+    g_assert_true(controller.Assemble({ 10, 12 }, "Car"));
+    controller.Pin(true);
+    g_assert_true(controller.Publish(PlacedCatalog(2), generation));
+    g_assert_true(controller.State() ==
+                  AssetSelectionState::FollowingCandidate);
+    g_assert_cmpuint(controller.Selected()->id, ==, 20);
+    g_assert_cmpuint(controller.Selected()->parts.size(), ==, 2);
+    const auto coherent = controller.Selected();
+    auto ambiguous = PlacedCatalog(3);
+    auto duplicate = std::make_shared<AssetPart>(*ambiguous.parts[1]);
+    duplicate->placement = ambiguous.parts[0]->placement;
+    ambiguous.parts[1] = duplicate;
+    g_assert_true(controller.Publish(ambiguous, generation));
+    g_assert_true(controller.State() == AssetSelectionState::Ambiguous);
+    g_assert_true(controller.Selected() == coherent);
+    auto missing = PlacedCatalog(4);
+    missing.parts.resize(2);
+    g_assert_true(controller.Publish(missing, generation));
+    g_assert_true(controller.State() == AssetSelectionState::Missing);
+    g_assert_true(controller.Selected() == coherent);
 }
 static void TestFollow()
 {
@@ -233,6 +323,126 @@ static void TestEarlyStop()
 {
     TestAsyncPublicationImpl(true);
 }
+static void TestLiveDrawInputs()
+{
+    capture::CaptureSession session;
+    auto settings = capture::CaptureSessionSettings{};
+    settings.mode = static_cast<capture::CaptureSessionMode>(2);
+    g_assert_true(session.Start(Context(), settings));
+    capture::DrawCaptureSummary draw;
+    draw.scope = Context().scope;
+    draw.key = { 1, 2, 10, 1, 1 };
+    draw.shader_count = 1;
+    draw.shaders[0].stage = capture::Stage::Pixel;
+    g_assert_cmpuint(session.BeginOccurrence(draw), ==,
+                     0); // Begin at a complete frame.
+    session.GuestFrameBoundary(10);
+    g_assert_cmpuint(
+        session.BeginOccurrence(draw, capture::CaptureEventType::StateWrite),
+        ==, 0);
+    auto token = session.BeginOccurrence(draw);
+    g_assert_cmpuint(token, !=, 0);
+    g_assert_true(session.Finish(token, true, 5, 3, 0));
+    g_assert_true(session.InputsComplete(token));
+    draw.key.draw = 2;
+    draw.key.submission = 2;
+    token = session.BeginOccurrence(draw, capture::CaptureEventType::Draw,
+                                    capture::CaptureUnsupported);
+    g_assert_cmpuint(token, !=,
+                     0); // Keep rejected draw evidence in this mode too.
+    g_assert_true(session.Finish(token, false, 6, 0, 2));
+    g_assert_true(session.InputsComplete(token));
+    const auto count = session.Snapshot().events.size();
+    session.ReleaseResource(1, 64, 0, 0);
+    g_assert_cmpuint(session.Snapshot().events.size(), ==, count);
+    session.GuestFrameBoundary(11);
+    auto snap = session.Snapshot();
+    g_assert_true(snap.state == capture::CaptureSessionState::Ready);
+    g_assert_true(snap.frame_window_complete);
+    g_assert_false(snap.execution_order_complete);
+    size_t draws = 0;
+    for (const auto &e : snap.events)
+        if (e->type == capture::CaptureEventType::Draw) {
+            ++draws;
+            g_assert_true(e->limitations & capture::CaptureMissingDependencies);
+        }
+    g_assert_cmpuint(draws, ==, 2);
+    settings.mode = capture::CaptureSessionMode::NextFrame;
+    g_assert_true(session.Start(Context(), settings));
+    session.GuestFrameBoundary(10);
+    token =
+        session.BeginOccurrence(draw, capture::CaptureEventType::StateWrite);
+    g_assert_cmpuint(token, !=,
+                     0); // Full forensic acquisition remains unchanged.
+    session.Finish(token, false, 0, 0, 0);
+    session.InputsComplete(token);
+    session.Stop();
+}
+static void TestLiveStageFilter()
+{
+    capture::CaptureSession session;
+    capture::CaptureSessionSettings settings;
+    settings.mode = capture::CaptureSessionMode::LiveDrawInputs;
+    capture::ShaderKey vs, ps;
+    vs.stage = capture::Stage::Vertex;
+    ps.stage = capture::Stage::Pixel;
+    vs.hash.bytes[0] = 1;
+    ps.hash.bytes[0] = 2;
+    settings.live_stage_sets = { { vs, ps } };
+    uint64_t claim = 0;
+    g_assert_true(session.TryStart(Context(), settings, &claim));
+    session.GuestFrameBoundary(10);
+    capture::DrawCaptureSummary draw;
+    draw.scope = Context().scope;
+    draw.key = { 1, 2, 10, 1, 1 };
+    draw.shader_count = 2;
+    draw.shaders[0] = ps;
+    draw.shaders[1] = vs; // Stage ordering does not matter.
+    auto wrong = draw;
+    wrong.shaders[0].hash.bytes[0] = 3;
+    g_assert_cmpuint(session.BeginOccurrence(wrong), ==, 0);
+    g_assert_cmpuint(
+        session.BeginOccurrence(draw, capture::CaptureEventType::Upload), ==,
+        0);
+    auto token = session.BeginOccurrence(draw);
+    g_assert_cmpuint(token, !=, 0);
+    session.Finish(token, true, 5, 3, 0);
+    session.InputsComplete(token);
+    session.GuestFrameBoundary(11);
+    std::string error;
+    auto *tmp = g_dir_make_tmp("xemu-live-stage-filter-XXXXXX", nullptr);
+    g_assert_nonnull(tmp);
+    const auto path = std::filesystem::path(tmp) / "capture";
+    g_free(tmp);
+    g_assert_true(session.Save(path, &error));
+    capture::CaptureSessionSnapshot reopened;
+    g_assert_true(capture::CaptureSession::Reopen(path, &reopened, &error));
+    g_assert_true(reopened.settings.mode ==
+                  capture::CaptureSessionMode::LiveDrawInputs);
+    g_assert_true(reopened.settings.live_stage_sets ==
+                  settings.live_stage_sets);
+    g_assert_false(reopened.execution_order_complete);
+    std::filesystem::remove_all(path.parent_path());
+    g_assert_true(session.TryStart(Context(), settings, &claim));
+    session.GuestFrameBoundary(10);
+    wrong.key.renderer_epoch = 3;
+    g_assert_cmpuint(session.BeginOccurrence(wrong,
+                                             capture::CaptureEventType::Draw, 0,
+                                             claim, Context().scope_generation),
+                     ==, 0);
+    g_assert_true(session.Snapshot().state ==
+                  capture::CaptureSessionState::Cancelled);
+    settings.live_stage_sets = { { vs, vs } };
+    g_assert_false(session.Start(Context(), settings));
+    settings.live_stage_sets = { {} };
+    g_assert_false(session.Start(Context(), settings));
+    settings.live_stage_sets =
+        std::vector<std::vector<capture::ShaderKey>>(129, { vs });
+    g_assert_false(session.Start(Context(), settings));
+    settings.live_stage_sets = { { vs, ps } };
+    settings.mode = capture::CaptureSessionMode::NextFrame;
+    g_assert_false(session.Start(Context(), settings));
+}
 static void TestWatchdog()
 {
     capture::CaptureSession session;
@@ -316,6 +526,7 @@ static void TestSharedNamedBudget()
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, nullptr);
+    g_test_add_func("/asset/follow/placed-car", TestPlacedFollow);
     g_test_add_func("/asset/controller/follow", TestFollow);
     g_test_add_func("/asset/controller/ambiguous", TestAmbiguous);
     g_test_add_func("/asset/controller/freeze-stale", TestFreezeAndStale);
@@ -326,6 +537,8 @@ int main(int argc, char **argv)
     g_test_add_func("/asset/live/pending-ownership", TestPendingOwnership);
     g_test_add_func("/asset/live/async-publication", TestAsyncPublication);
     g_test_add_func("/asset/live/early-stop", TestEarlyStop);
+    g_test_add_func("/asset/live/draw-inputs", TestLiveDrawInputs);
+    g_test_add_func("/asset/live/stage-filter", TestLiveStageFilter);
     g_test_add_func("/asset/live/watchdog", TestWatchdog);
     g_test_add_func("/asset/controller/named", TestNamedAssembly);
     g_test_add_func("/asset/controller/shared-named-budget",

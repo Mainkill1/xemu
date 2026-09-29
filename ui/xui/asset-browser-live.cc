@@ -29,7 +29,7 @@ bool AssetLiveCapture::Enable(const capture::CaptureSessionContext &context,
         return false;
     }
     settings_ = settings;
-    settings_.capture.mode = capture::CaptureSessionMode::NextFrame;
+    settings_.capture.mode = capture::CaptureSessionMode::LiveDrawInputs;
     settings_.capture.maximum_evidence = false;
     settings_.capture.event_budget =
         std::min<uint32_t>(settings_.capture.event_budget, 32768);
@@ -43,7 +43,8 @@ bool AssetLiveCapture::Enable(const capture::CaptureSessionContext &context,
     enabled_ = true;
     started_ = now;
     next_ = 0;
-    message_ = "Recording a bounded game frame without pausing";
+    message_ = "Discovering owned draw inputs; ordered non-draw dependencies "
+               "are omitted";
     return true;
 }
 void AssetLiveCapture::Disable()
@@ -158,6 +159,7 @@ void AssetLiveCapture::Tick(const capture::CaptureSessionContext &context,
                 std::string("Asset worker could not start: ") + error.what();
         }
     } else if (!job_.valid() && now >= next_) {
+        RefreshFilter(controller);
         context_ = context;
         context_.generation = now;
         if (!session_.TryStart(context_, settings_.capture, &owned_)) {
@@ -167,7 +169,43 @@ void AssetLiveCapture::Tick(const capture::CaptureSessionContext &context,
             return;
         }
         started_ = now;
-        message_ = "Recording the next bounded game frame";
+        message_ =
+            settings_.capture.live_stage_sets.empty() ?
+                "Discovering all draw inputs for the next frame" :
+                "Following selected stage pairings for the next coherent frame";
+    }
+}
+void AssetLiveCapture::RefreshFilter(const AssetController &controller)
+{
+    settings_.capture.live_stage_sets.clear();
+    const auto selected = controller.Selected();
+    if (!controller.Pinned() || !selected)
+        return;
+    for (const auto &part : selected->parts) {
+        if (!part->occurrence)
+            continue;
+        const auto &draw = part->occurrence->summary;
+        if (!draw.shader_count ||
+            draw.shader_count > capture::kCapturedShaderSlots)
+            continue;
+        std::vector<capture::ShaderKey> set(
+            draw.shaders.begin(), draw.shaders.begin() + draw.shader_count);
+        std::sort(set.begin(), set.end(), [](const auto &a, const auto &b) {
+            return a.stage < b.stage;
+        });
+        if (std::find(settings_.capture.live_stage_sets.begin(),
+                      settings_.capture.live_stage_sets.end(),
+                      set) == settings_.capture.live_stage_sets.end()) {
+            if (settings_.capture.live_stage_sets.size() == 128 ||
+                std::any_of(set.begin(), set.end(), [](const auto &key) {
+                    return uint32_t(key.stage) >=
+                           uint32_t(capture::Stage::Unknown);
+                })) {
+                settings_.capture.live_stage_sets.clear();
+                return; // Keep bounded full draw discovery.
+            }
+            settings_.capture.live_stage_sets.push_back(std::move(set));
+        }
     }
 }
 bool AssetLiveCapture::Enabled() const

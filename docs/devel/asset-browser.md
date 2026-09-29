@@ -1,7 +1,9 @@
 # Asset Browser
 
 Open **Debug → Asset Browser** while a game is running. Enable **Live discovery**
-to acquire bounded frames without pausing the guest. Discovery uses the same
+to acquire bounded draw-input frames without pausing the guest. This explicit
+live mode omits ordered non-draw operations and full destination dependencies.
+The forensic Capture workspace retains its complete event admission. Discovery uses the same
 capture owner as Shader Browser; another active recording must finish first.
 Closing or collapsing this window stops only its own acquisition and releases
 GPU caches. Freeze retains owned inputs.
@@ -12,15 +14,23 @@ GPU caches. Freeze retains owned inputs.
    captured entries immediately. The filter and largest-geometry ordering help
    narrow the list. Draw entries are not game asset names or proven objects.
 2. Freeze discovery while identifying the body, wheels, glass and other parts.
+   Select an anchor/body and use **Suggest related parts** to check nearby
+   same-frame candidates with compatible captured placement, viewport and known attachment allocation/view
+   evidence.
+   Inspect and confirm those suggestions; they do not prove engine ownership.
    Check their entries, enter a name such as **My car**, then choose
    **Assemble checked parts**. The named assembly remains in the left list.
 3. Orbit with left drag, pan with right drag, and zoom with the wheel. All parts
-   share one frame and one bound. Wireframe, captured texture slots, vertex color
-   and clay are diagnostic display options.
+   share one frame and one bound. **Captured shaders and materials** is enabled
+   by default: owned VS/PS/host geometry stages, constants, textures and sampler
+   controls render the ordered passes into one shared depth/stencil/color target.
+   Disable it for raw-input texture/color/clay diagnostics. The camera and framing
+   remain fixed while coherent poses update.
    A purple checkerboard behind models and thumbnails makes dark silhouettes
    easier to distinguish. It is an inspection background, not a captured texture.
 4. Unfreeze and enable Live discovery/Follow to search for a unique geometry
-   correspondence. Matching is inferred. Identical cars, repeated draws, changed
+   and placement/pass correspondence. Follow narrows acquisition to the selected
+   stage pairings. Matching is inferred. Identical cars, repeated draws, changed
    geometry/LOD and missing parts retain the last coherent view with a status;
    they must not silently select an opponent.
 5. Freeze the selected occurrence and inspect its captured texture images,
@@ -53,16 +63,25 @@ publication.
 | Component | Asset Browser view |
 |---|---|
 | Geometry | Referenced captured vertex inputs and emitted topology |
-| Vertex processing | Raw positions; original transforms/skinning not evaluated |
-| Texture | Supported owned host-decoded 2D base image; raw T0 UV |
-| Material | Diagnostic texture/color shader; original PS math not evaluated |
+| Vertex processing | Original owned VS; guarded direct transform establishes anchor-relative placement |
+| Texture | Owned 2D/cube faces and mips; actual Vulkan sampler controls; sampled R16 retains exact16-bit storage |
+| Material | Owned generated PS and captured inputs; absent active inputs stop the view |
 | Constants/stages | Owned words and generated sources available for inspection |
 | Exact draw | Existing Shader Browser replay, within its interface/budget support |
-| Assembly tracking | Unique geometry candidate; duplicates remain ambiguous |
+| Assembly tracking | Same geometry/pass plus nearest compatible placement; duplicates remain ambiguous |
 | Engine identity | User-confirmed membership/label; no automatic player identity |
 
-Original generated UVs, multi-texture operations, render-state blending, destination
-contents and animation pose can differ from this input view. Unsupported data
+The inspection camera replaces guest pixel rounding, window clipping and depth
+bookkeeping. Original material calculations and generated UVs retain captured game
+inputs. Missing scene/destination dependencies can change the result, and changing
+the camera is not exact original-camera replay. Unsupported position transforms,
+non-triangle host GS interfaces, missing inputs or incompatible sampler/GL features
+produce an explicit incomplete view rather than a synthetic substitute. Legacy
+Vulkan captures without full sampler state cannot replay mipmapped materials.
+Texture inspection copies use decoded RGBA8 where exact typed storage is not
+retained. Vulkan sampledR16 retains its full16-bit representation; OpenGL R16
+without exact storage is rejected. Native PGR2/OpenGL parity remains unqualified.
+Unsupported data
 retains its reason and raw capture evidence. The full recording remains the source
 of truth; GLB is not a complete replay package.
 
@@ -80,14 +99,16 @@ not shader execution time. A single oversized multi-range flush can still exceed
 the limit and remains an explicit incomplete capture.
 
 **Capture settings** exposes bounded memory, event, part, vertex, index and
-sampling limits; stop Live discovery before changing acquisition settings. GPU
+sampling limits (default33ms between acquisition cycles); stop Live discovery before changing acquisition settings. GPU
 mesh and thumbnail limits can also be changed there. Named full recordings share
 a 256 MiB retention budget and named decoded geometry shares 128 MiB. Recalling a
 named assembly recalls its original recording and dependencies. Old packages
 without explicit frame completion evidence remain browsable but are not labeled
 complete frames. A manually stopped frame or failed readback is also incomplete.
 
-HUD cadence and capture age describe different work. A local trivial GL fixture
+HUD cadence, measured selected-pose updates and oldest displayed draw age describe
+different work. Ages use draw occurrence timestamps, not UI publication time. A
+local four-part captured-stage GL fixture
 exceeds 30 FPS, but PGR2 viewport cadence and capture-on gameplay overhead require
 measurement on the target hardware. Discovery is opt-in and disarmed by default.
 

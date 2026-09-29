@@ -7,7 +7,7 @@ namespace xemu::asset_browser {
 struct AssetLiveSettings {
     capture::CaptureSessionSettings capture;
     AssetLimits assets;
-    uint64_t sample_interval_ns = UINT64_C(250000000);
+    uint64_t sample_interval_ns = UINT64_C(33000000);
     uint64_t progress_timeout_ns = UINT64_C(15000000000);
 };
 class AssetLiveCapture {
@@ -25,6 +25,7 @@ public:
     uint64_t OwnedGeneration() const;
 
 private:
+    void RefreshFilter(const AssetController &);
     struct Result {
         AssetCatalog catalog;
         uint64_t generation = 0, claim_generation = 0;

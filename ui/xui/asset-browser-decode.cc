@@ -219,6 +219,35 @@ bool Finite(const std::array<float, 4> &value)
 }
 } // namespace
 
+bool DecodeAssetIntegerAttribute(const capture::CaptureOwnedBlob &blob,
+                                 uint32_t backend, size_t element,
+                                 std::array<uint32_t, 4> *output,
+                                 bool *signed_values)
+{
+    const auto format = HostFormat(blob, backend);
+    if (!output || !signed_values || !blob.data || format.normalized ||
+        !format.bytes || format.bytes > 4 ||
+        (format.number != Number::Signed &&
+         format.number != Number::Unsigned) ||
+        element >= blob.count)
+        return false;
+    const size_t bytes = format.bytes * format.components;
+    const size_t step = blob.stride ? blob.stride : backend == 2 ? 0 : bytes;
+    if ((step && step < bytes) || blob.data->bytes.size() < bytes ||
+        (step && element > (blob.data->bytes.size() - bytes) / step))
+        return false;
+    std::array<uint32_t, 4> values{ 0, 0, 0, 1 };
+    const auto *data = blob.data->bytes.data() + element * step;
+    *signed_values = format.number == Number::Signed;
+    for (size_t c = 0; c < format.components; ++c) {
+        const uint64_t bits = Little(data + c * format.bytes, format.bytes);
+        values[c] = *signed_values ? uint32_t(Signed(bits, format.bytes * 8)) :
+                                     uint32_t(bits);
+    }
+    *output = values;
+    return true;
+}
+
 bool DecodeAssetAttribute(const capture::CaptureOwnedBlob &blob,
                           uint32_t backend, size_t element,
                           std::array<float, 4> *output)
@@ -306,6 +335,7 @@ DecodeAssetPart(std::shared_ptr<const capture::CaptureOccurrence> event,
         part.status = status;
         part.reason = reason;
         part.vertices.clear();
+        part.source_vertices.clear();
         part.indices.clear();
         part.bounds = {};
         return part;
@@ -505,7 +535,7 @@ DecodeAssetPart(std::shared_ptr<const capture::CaptureOccurrence> event,
                 (limits.decoded_byte_budget -
                  std::min<uint64_t>(uint64_t(part.indices.size()) * 4,
                                     limits.decoded_byte_budget)) /
-                    sizeof(AssetVertex)) {
+                    (sizeof(AssetVertex) + sizeof(uint32_t))) {
             budget = true;
             break;
         }
@@ -545,6 +575,7 @@ DecodeAssetPart(std::shared_ptr<const capture::CaptureOccurrence> event,
         index = uint32_t(part.vertices.size());
         remap.emplace(local, index);
         part.vertices.push_back(vertex);
+        part.source_vertices.push_back(local);
     }
     if (invalid)
         return fail(
@@ -568,8 +599,9 @@ DecodeAssetPart(std::shared_ptr<const capture::CaptureOccurrence> event,
     XXH3_freeState(hash);
     std::copy(std::begin(canonical.digest), std::end(canonical.digest),
               part.geometry_signature.begin());
-    part.decoded_bytes = part.vertices.size() * sizeof(AssetVertex) +
-                         part.indices.size() * sizeof(uint32_t);
+    part.decoded_bytes =
+        part.vertices.size() * (sizeof(AssetVertex) + sizeof(uint32_t)) +
+        part.indices.size() * sizeof(uint32_t);
     part.status = AssetStatus::Ready;
     part.reason = "Captured vertex inputs; pose and material are diagnostic "
                   "interpretations";

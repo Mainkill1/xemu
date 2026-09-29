@@ -10,4 +10,8 @@ DecodeAssetPart(std::shared_ptr<const capture::CaptureOccurrence>,
 // Host format metadata is retained; values are diagnostic decoded inputs.
 bool DecodeAssetAttribute(const capture::CaptureOwnedBlob &, uint32_t backend,
                           size_t element, std::array<float, 4> *);
+bool DecodeAssetIntegerAttribute(const capture::CaptureOwnedBlob &,
+                                 uint32_t backend, size_t element,
+                                 std::array<uint32_t, 4> *,
+                                 bool *signed_values);
 } // namespace xemu::asset_browser

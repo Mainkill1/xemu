@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "asset-browser.hh"
 #include "asset-browser-viewport.hh"
+#include "asset-browser-placement.hh"
 #include "asset-browser-export.hh"
 #include <imgui.h>
 #include <SDL3/SDL.h>
@@ -24,13 +25,17 @@ struct AssetBrowserWindow::Impl {
     AssetViewport viewport;
     ContextSource context;
     ShaderSink shader;
-    AssetCamera camera;
+    AssetCamera camera{ .55f, -.18f };
     ImGuiTextFilter filter;
     std::set<uint64_t> checked;
     uint64_t checked_frame = 0;
     char label[256] = "My car";
     char path[1024] = "asset-capture";
     bool was_open = false, inspector = true, wire = false, largest = true;
+    bool captured_stages = true;
+    uint64_t pose_frame = 0, pose_started_ns = 0, pose_samples = 0,
+             pose_updated_ns = 0;
+    double pose_hz = 0;
     int texture_slot = -1;
     std::string message;
     SDL_Window *owner_window = nullptr;
@@ -43,7 +48,7 @@ struct AssetBrowserWindow::Impl {
     int image_slot = 0;
     int capture_mib = 256, decoded_mib = 128, mesh_mib = 256;
     int event_limit = 32768, part_limit = 2048, vertex_limit = 1048576;
-    int index_limit = 3145728, sample_ms = 250, thumbnails = 24;
+    int index_limit = 3145728, sample_ms = 33, thumbnails = 24;
     enum class FileAction { SaveFrame, SaveAssembly, Glb, Open };
     void StartFile(FileAction action)
     {
@@ -275,7 +280,7 @@ void AssetBrowserWindow::Draw()
         limit("Parts per frame", s.part_limit, 64, 8192);
         limit("Vertices per part", s.vertex_limit, 4096, 1048576);
         limit("Triangle indices per part", s.index_limit, 12288, 3145728);
-        limit("Sample interval (ms)", s.sample_ms, 100, 2000);
+        limit("Sample interval (ms)", s.sample_ms, 33, 2000);
         ImGui::EndDisabled();
         limit("GPU mesh cache (MiB)", s.mesh_mib, 16, 256);
         limit("Thumbnail cache", s.thumbnails, 4, 64);
@@ -321,7 +326,7 @@ void AssetBrowserWindow::Draw()
     ImGui::Text("Frame %llu | %zu captured parts | %.1f MiB decoded | %s",
                 (unsigned long long)catalog.frame, catalog.parts.size(),
                 double(catalog.decoded_bytes) / (1 << 20),
-                catalog.complete_frame ? "Complete captured frame" :
+                catalog.complete_frame ? "Coherent captured input frame" :
                                          "Incomplete frame");
     std::vector<size_t> visible;
     for (size_t i = 0; i < catalog.entries.size(); ++i) {
@@ -464,9 +469,26 @@ void AssetBrowserWindow::Draw()
             ImGui::PopID();
         }
     ImGui::EndChild();
+    if (ImGui::Button("Suggest related parts")) {
+        const auto anchor = s.controller.Selected();
+        if (anchor) {
+            const auto ids = SuggestRelatedAssetParts(catalog, anchor->id);
+            s.checked = { ids.begin(), ids.end() };
+            s.message =
+                ids.empty() ?
+                    "Captured placement is unavailable for this part" :
+                    "Nearby parts and neighboring passes are suggestions. "
+                    "Inspect and confirm checked membership.";
+        }
+    }
+    ImGui::SameLine();
+    ImGui::TextUnformatted("Confirm membership below");
     ImGui::InputText("Name", s.label, sizeof(s.label));
     if (ImGui::Button("Assemble checked parts")) {
         std::vector<uint64_t> parts;
+        const auto anchor = s.controller.Selected();
+        if (anchor && s.checked.count(anchor->id))
+            parts.push_back(anchor->id);
         for (const auto &entry : catalog.entries)
             if (s.checked.count(entry.id))
                 for (const auto &part : entry.parts)
@@ -499,9 +521,10 @@ void AssetBrowserWindow::Draw()
         }
         ImGui::SameLine();
         if (ImGui::Button("Reset camera"))
-            s.camera = {};
+            s.camera = { .55f, -.18f };
         ImGui::SameLine();
         ImGui::Checkbox("Wireframe", &s.wire);
+        ImGui::Checkbox("Captured shaders and materials", &s.captured_stages);
         static const char *textures[] = {
             "Auto captured texture", "T0",  "T1", "T2", "T3",
             "Vertex color",          "Clay"
@@ -510,7 +533,8 @@ void AssetBrowserWindow::Draw()
                      s.texture_slot == -2 ? 5 :
                      s.texture_slot == -3 ? 6 :
                                             s.texture_slot + 1;
-        if (ImGui::Combo("Material", &choice, textures, 7))
+        if (!s.captured_stages &&
+            ImGui::Combo("Diagnostic material", &choice, textures, 7))
             s.texture_slot = choice == 0 ? -1 :
                              choice == 5 ? -2 :
                              choice == 6 ? -3 :
@@ -520,7 +544,8 @@ void AssetBrowserWindow::Draw()
         size.y = std::max(120.f, size.y - 65);
         auto frame = s.viewport.Render(
             selected, s.camera, uint32_t(std::clamp(size.x, 1.f, 2048.f)),
-            uint32_t(std::clamp(size.y, 1.f, 2048.f)), s.texture_slot, s.wire);
+            uint32_t(std::clamp(size.y, 1.f, 2048.f)), s.texture_slot, s.wire,
+            s.captured_stages);
         if (frame.texture) {
             ImGui::Image((ImTextureID)(intptr_t)frame.texture, size,
                          ImVec2(0, 1), ImVec2(1, 0));
@@ -540,12 +565,41 @@ void AssetBrowserWindow::Draw()
             }
         }
         ImGui::TextWrapped("%s", frame.message.c_str());
+        if (selected->frame != s.pose_frame) {
+            s.pose_updated_ns = now;
+            if (!s.pose_started_ns || selected->frame < s.pose_frame) {
+                s.pose_started_ns = now;
+                s.pose_samples = 0;
+                s.pose_hz = 0;
+            } else
+                ++s.pose_samples;
+            s.pose_frame = selected->frame;
+            if (now - s.pose_started_ns >= UINT64_C(1000000000)) {
+                s.pose_hz =
+                    double(s.pose_samples) * 1e9 / (now - s.pose_started_ns);
+                s.pose_started_ns = now;
+                s.pose_samples = 0;
+            }
+        }
+        if (!s.live.Enabled() || now - s.pose_updated_ns > UINT64_C(1000000000))
+            s.pose_hz = 0;
         ImGui::Text(
-            "%zu/%zu textured | HUD cadence %.1f FPS | capture age %.2f s",
-            frame.textured_parts, frame.drawn_parts, ImGui::GetIO().Framerate,
-            s.live.LastCaptureNs() ?
-                double(now - s.live.LastCaptureNs()) / 1e9 :
-                0);
+            "%zu/%zu captured stages | HUD %.1f FPS | pose updates %.1f/s",
+            frame.captured_parts, selected->parts.size(),
+            ImGui::GetIO().Framerate, s.pose_hz);
+        uint64_t oldest = UINT64_MAX;
+        for (const auto &part : selected->parts)
+            if (part->occurrence && part->occurrence->host_timestamp_ns)
+                oldest = std::min(oldest, part->occurrence->host_timestamp_ns);
+        const uint64_t steady_now =
+            uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(
+                         std::chrono::steady_clock::now().time_since_epoch())
+                         .count());
+        if (s.live.Enabled() && oldest != UINT64_MAX && steady_now >= oldest)
+            ImGui::Text("Oldest displayed draw %.2f s ago",
+                        double(steady_now - oldest) / 1e9);
+        else
+            ImGui::TextUnformatted("Captured pose");
     } else
         ImGui::TextWrapped(
             "Enable Live discovery, then choose a captured part. Freeze "
@@ -603,12 +657,14 @@ void AssetBrowserWindow::Draw()
                         }
                         if (ImGui::TreeNode("Stages and inputs")) {
                             ImGui::TextWrapped(
-                                "The model displays raw vertex inputs. VS "
-                                "transforms, skinning and generated UVs need "
-                                "original-stage execution. Open the exact draw "
-                                "for supported original-camera replay; preview "
-                                "budgets and interface checks may reject "
-                                "larger or incomplete inputs.");
+                                "Captured shaders and materials executes the "
+                                "owned vertex, pixel and host geometry stages. "
+                                "The inspection camera replaces window/depth "
+                                "bookkeeping; scene and destination "
+                                "dependencies "
+                                "may be missing. Disable it for raw-input "
+                                "diagnostics. Open the exact draw for "
+                                "original-camera replay.");
                             for (size_t stage :
                                  { size_t(1), size_t(2), size_t(3) }) {
                                 const auto &source =

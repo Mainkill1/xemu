@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "asset-browser-viewport.hh"
 #include "asset-browser-material.hh"
+#include "asset-browser-stage-renderer.hh"
+#include "asset-browser-stage-source.hh"
+#include "asset-browser-placement.hh"
 #include <epoxy/gl.h>
 #include <algorithm>
 #include <cmath>
@@ -12,9 +15,12 @@ namespace {
 constexpr uint64_t kGpuBudget = 256U * 1024U * 1024U;
 struct GlState {
     GLint draw_fbo, read_fbo, renderbuffer, program, vao, buffer, active;
-    GLint texture, sampler, unpack_buffer, unpack_alignment, viewport[4],
-        scissor[4];
-    GLint polygon[2], depth_func;
+    std::array<GLint, 4> texture{}, cube{}, sampler{};
+    GLint blend[6]{}, front_face = 0, cull_face = 0;
+    GLfloat blend_color[4]{}, polygon_factor = 0, polygon_units = 0;
+    GLint stencil[2][7]{};
+    GLint unpack_buffer, unpack_alignment, viewport[4], scissor[4];
+    GLint polygon[2], depth_func, clear_stencil = 0;
     GLfloat clear_color[4];
     GLdouble clear_depth;
     GLboolean depth_mask, color_mask[4];
@@ -40,14 +46,21 @@ struct GlState {
         GL_UNPACK_SKIP_PIXELS, GL_UNPACK_SKIP_IMAGES,  GL_UNPACK_SWAP_BYTES,
         GL_UNPACK_LSB_FIRST
     };
-    static constexpr GLenum extras[] = {
-        GL_COLOR_LOGIC_OP,  GL_DEPTH_CLAMP,    GL_SAMPLE_ALPHA_TO_COVERAGE,
-        GL_SAMPLE_COVERAGE, GL_SAMPLE_MASK,    GL_CLIP_DISTANCE0,
-        GL_CLIP_DISTANCE1,  GL_CLIP_DISTANCE2, GL_CLIP_DISTANCE3,
-        GL_CLIP_DISTANCE4,  GL_CLIP_DISTANCE5, GL_CLIP_DISTANCE6,
-        GL_CLIP_DISTANCE7
-    };
-    std::array<GLboolean, 13> extra_enabled{};
+    static constexpr GLenum extras[] = { GL_COLOR_LOGIC_OP,
+                                         GL_DEPTH_CLAMP,
+                                         GL_SAMPLE_ALPHA_TO_COVERAGE,
+                                         GL_SAMPLE_COVERAGE,
+                                         GL_SAMPLE_MASK,
+                                         GL_CLIP_DISTANCE0,
+                                         GL_CLIP_DISTANCE1,
+                                         GL_CLIP_DISTANCE2,
+                                         GL_CLIP_DISTANCE3,
+                                         GL_CLIP_DISTANCE4,
+                                         GL_CLIP_DISTANCE5,
+                                         GL_CLIP_DISTANCE6,
+                                         GL_CLIP_DISTANCE7,
+                                         GL_TEXTURE_CUBE_MAP_SEAMLESS };
+    std::array<GLboolean, 14> extra_enabled{};
     bool clip_control = false;
     bool fixed_restart = false;
     GlState()
@@ -59,15 +72,44 @@ struct GlState {
         glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &vao);
         glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &buffer);
         glGetIntegerv(GL_ACTIVE_TEXTURE, &active);
+        for (size_t unit = 0; unit < 4; ++unit) {
+            glActiveTexture(GL_TEXTURE0 + unit);
+            glGetIntegerv(GL_TEXTURE_BINDING_2D, &texture[unit]);
+            glGetIntegerv(GL_TEXTURE_BINDING_CUBE_MAP, &cube[unit]);
+            glGetIntegeri_v(GL_SAMPLER_BINDING, unit, &sampler[unit]);
+            glBindSampler(unit, 0);
+        }
         glActiveTexture(GL_TEXTURE0);
-        glGetIntegerv(GL_TEXTURE_BINDING_2D, &texture);
-        glGetIntegeri_v(GL_SAMPLER_BINDING, 0, &sampler);
+        const GLenum blend_names[] = {
+            GL_BLEND_SRC_RGB,   GL_BLEND_DST_RGB,      GL_BLEND_SRC_ALPHA,
+            GL_BLEND_DST_ALPHA, GL_BLEND_EQUATION_RGB, GL_BLEND_EQUATION_ALPHA
+        };
+        for (size_t i = 0; i < 6; ++i)
+            glGetIntegerv(blend_names[i], &blend[i]);
+        glGetFloatv(GL_BLEND_COLOR, blend_color);
+        glGetIntegerv(GL_FRONT_FACE, &front_face);
+        glGetIntegerv(GL_CULL_FACE_MODE, &cull_face);
+        glGetFloatv(GL_POLYGON_OFFSET_FACTOR, &polygon_factor);
+        glGetFloatv(GL_POLYGON_OFFSET_UNITS, &polygon_units);
+        const GLenum stencil_names[2][7] = {
+            { GL_STENCIL_FUNC, GL_STENCIL_REF, GL_STENCIL_VALUE_MASK,
+              GL_STENCIL_WRITEMASK, GL_STENCIL_FAIL, GL_STENCIL_PASS_DEPTH_FAIL,
+              GL_STENCIL_PASS_DEPTH_PASS },
+            { GL_STENCIL_BACK_FUNC, GL_STENCIL_BACK_REF,
+              GL_STENCIL_BACK_VALUE_MASK, GL_STENCIL_BACK_WRITEMASK,
+              GL_STENCIL_BACK_FAIL, GL_STENCIL_BACK_PASS_DEPTH_FAIL,
+              GL_STENCIL_BACK_PASS_DEPTH_PASS }
+        };
+        for (size_t face = 0; face < 2; ++face)
+            for (size_t i = 0; i < 7; ++i)
+                glGetIntegerv(stencil_names[face][i], &stencil[face][i]);
         glGetIntegerv(GL_PIXEL_UNPACK_BUFFER_BINDING, &unpack_buffer);
         glGetIntegerv(GL_UNPACK_ALIGNMENT, &unpack_alignment);
         glGetIntegerv(GL_VIEWPORT, viewport);
         glGetIntegerv(GL_SCISSOR_BOX, scissor);
         glGetIntegerv(GL_POLYGON_MODE, polygon);
         glGetIntegerv(GL_DEPTH_FUNC, &depth_func);
+        glGetIntegerv(GL_STENCIL_CLEAR_VALUE, &clear_stencil);
         glGetFloatv(GL_COLOR_CLEAR_VALUE, clear_color);
         glGetDoublev(GL_DEPTH_CLEAR_VALUE, &clear_depth);
         glGetBooleanv(GL_DEPTH_WRITEMASK, &depth_mask);
@@ -80,7 +122,6 @@ struct GlState {
             enabled[i] = glIsEnabled(capabilities[i]);
             glDisable(capabilities[i]);
         }
-        glBindSampler(0, 0);
         glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         for (size_t i = 0; i < 7; ++i) {
@@ -111,10 +152,32 @@ struct GlState {
         glBindBuffer(GL_ARRAY_BUFFER, buffer);
         // Resizing/configuration may delete a previously returned viewport
         // texture that a caller still had bound. Never rebind its dead name.
-        glBindTexture(GL_TEXTURE_2D,
-                      texture && !glIsTexture(texture) ? 0 : texture);
-        glBindSampler(0, sampler);
+        for (size_t unit = 0; unit < 4; ++unit) {
+            glActiveTexture(GL_TEXTURE0 + unit);
+            glBindTexture(GL_TEXTURE_2D,
+                          texture[unit] && !glIsTexture(texture[unit]) ?
+                              0 :
+                              texture[unit]);
+            glBindTexture(GL_TEXTURE_CUBE_MAP,
+                          cube[unit] && !glIsTexture(cube[unit]) ? 0 :
+                                                                   cube[unit]);
+            glBindSampler(unit, sampler[unit]);
+        }
         glActiveTexture(active);
+        glBlendFuncSeparate(blend[0], blend[1], blend[2], blend[3]);
+        glBlendEquationSeparate(blend[4], blend[5]);
+        glBlendColor(blend_color[0], blend_color[1], blend_color[2],
+                     blend_color[3]);
+        glFrontFace(front_face);
+        glCullFace(cull_face);
+        glPolygonOffset(polygon_factor, polygon_units);
+        for (size_t face = 0; face < 2; ++face) {
+            const GLenum f = face ? GL_BACK : GL_FRONT;
+            const auto *s = stencil[face];
+            glStencilFuncSeparate(f, s[0], s[1], s[2]);
+            glStencilMaskSeparate(f, s[3]);
+            glStencilOpSeparate(f, s[4], s[5], s[6]);
+        }
         glBindBuffer(GL_PIXEL_UNPACK_BUFFER, unpack_buffer);
         glPixelStorei(GL_UNPACK_ALIGNMENT, unpack_alignment);
         for (size_t i = 0; i < 7; ++i)
@@ -135,6 +198,7 @@ struct GlState {
         glClearColor(clear_color[0], clear_color[1], clear_color[2],
                      clear_color[3]);
         glClearDepth(clear_depth);
+        glClearStencil(clear_stencil);
         glDepthMask(depth_mask);
         glColorMask(color_mask[0], color_mask[1], color_mask[2], color_mask[3]);
         for (size_t i = 0; i < enabled.size(); ++i) {
@@ -175,11 +239,11 @@ struct Target {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glBindRenderbuffer(GL_RENDERBUFFER, depth);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, w, h);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, w, h);
         glBindFramebuffer(GL_FRAMEBUFFER, fbo);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
                                GL_TEXTURE_2D, color, 0);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT,
                                   GL_RENDERBUFFER, depth);
         return glCheckFramebufferStatus(GL_FRAMEBUFFER) ==
                GL_FRAMEBUFFER_COMPLETE;
@@ -232,8 +296,9 @@ struct AssetViewport::Impl {
     uint64_t image_bytes = 0;
     Target target;
     GLuint program = 0, background_vao = 0;
+    AssetStageRenderer stages;
     uint64_t gpu_bytes = 0, tick = 0;
-    uint64_t mesh_budget = kGpuBudget;
+    uint64_t mesh_budget = kGpuBudget / 2, requested_budget = kGpuBudget;
     size_t thumbnail_capacity = 24;
     std::string error;
     bool Init()
@@ -245,11 +310,13 @@ layout(location=0) in vec3 position;layout(location=1) in vec2 uv;
 layout(location=2) in vec4 color;
 uniform vec3 center;uniform float radius;uniform vec4 camera;
 uniform vec2 pan;uniform bool background;
+uniform mat4 anchor_from_local;
 out vec2 texcoord;out vec4 vertexcolor;
 void main(){
 if(background){vec2 p=vec2((gl_VertexID<<1)&2,gl_VertexID&2);
 gl_Position=vec4(p*2.-1.,0,1);texcoord=vec2(0);vertexcolor=vec4(1);return;}
-vec3 p=(position-center)/radius;
+vec4 placed=anchor_from_local*vec4(position,1);
+vec3 p=(placed.xyz/placed.w-center)/radius;
 float cy=cos(camera.x),sy=sin(camera.x),cp=cos(camera.y),sp=sin(camera.y);
 p=vec3(cy*p.x+sy*p.z,p.y,-sy*p.x+cy*p.z);
 p=vec3(p.x,cp*p.y-sp*p.z,sp*p.y+cp*p.z);
@@ -380,7 +447,8 @@ if(colored!=0)c*=vertexcolor;outputColor=vec4(c.rgb,1);})";
     }
     AssetViewportFrame
     Draw(Target &output, const std::shared_ptr<const AssetAssembly> &assembly,
-         const AssetCamera &camera, uint32_t w, uint32_t h, int slot, bool wire)
+         const AssetCamera &camera, uint32_t w, uint32_t h, int slot, bool wire,
+         bool captured = false)
     {
         AssetViewportFrame frame;
         if (!assembly || !assembly->bounds.valid) {
@@ -411,7 +479,10 @@ if(colored!=0)c*=vertexcolor;outputColor=vec4(c.rgb,1);})";
         glEnable(GL_DEPTH_TEST);
         glClearColor(.035f, .045f, .065f, 1);
         glClearDepth(1);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glStencilMask(~0U);
+        glClearStencil(0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT |
+                GL_STENCIL_BUFFER_BIT);
         // One fullscreen draw supplies contrast for dark captured materials in
         // both the inspector and thumbnails. It does not change mesh colors.
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -423,6 +494,42 @@ if(colored!=0)c*=vertexcolor;outputColor=vec4(c.rgb,1);})";
         glUniform1i(glGetUniformLocation(program, "background"), 0);
         glEnable(GL_DEPTH_TEST);
         glPolygonMode(GL_FRONT_AND_BACK, wire ? GL_LINE : GL_FILL);
+        if (captured) {
+            if (!assembly->captured_placement) {
+                frame.message = "Captured placement is unsupported. Raw-input "
+                                "mode remains available.";
+                return frame;
+            }
+            const auto from_anchor = BuildAssetCameraMatrix(
+                assembly->bounds, camera.yaw, camera.pitch, camera.zoom,
+                camera.pan_x, camera.pan_y, float(w) / h);
+            const auto from_clip = MultiplyAssetMatrices(
+                from_anchor, assembly->local_from_captured_clip);
+            for (const auto &part : assembly->parts) {
+                if (!part || part->status != AssetStatus::Ready ||
+                    !stages.DrawPart(*part, assembly->context.backend,
+                                     from_clip, w, h, &frame.message)) {
+                    frame.message =
+                        "Captured-stage view incomplete: " + frame.message;
+                    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+                    glDepthMask(GL_TRUE);
+                    glDisable(GL_SCISSOR_TEST);
+                    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                    return frame;
+                }
+                ++frame.captured_parts;
+            }
+            frame.drawn_parts = frame.captured_parts;
+            frame.texture = output.color;
+            frame.width = w;
+            frame.height = h;
+            frame.gpu_bytes = gpu_bytes + stages.GpuBytes();
+            frame.message = "Captured VS/PS/material inputs in one assembly "
+                            "target. Inspection camera, window clipping and "
+                            "raster depth are overridden; scene/destination "
+                            "dependencies are not reproduced.";
+            return frame;
+        }
         float center[3], radius = 0;
         for (size_t i = 0; i < 3; ++i) {
             center[i] =
@@ -448,12 +555,25 @@ if(colored!=0)c*=vertexcolor;outputColor=vec4(c.rgb,1);})";
         glUniform2f(glGetUniformLocation(program, "pan"), camera.pan_x,
                     camera.pan_y);
         glUniform1i(glGetUniformLocation(program, "image"), 0);
-        for (const auto &part : assembly->parts) {
+        for (size_t part_index = 0; part_index < assembly->parts.size();
+             ++part_index) {
+            const auto &part = assembly->parts[part_index];
             if (!part || part->status != AssetStatus::Ready)
                 continue;
             auto *mesh = Get(part, assembly->context.backend, slot);
             if (!mesh)
                 continue;
+            static const AssetMatrix identity{ 1, 0, 0, 0, 0, 1, 0, 0,
+                                               0, 0, 1, 0, 0, 0, 0, 1 };
+            const auto &placement =
+                assembly->captured_placement &&
+                        assembly->anchor_from_local.size() ==
+                            assembly->parts.size() ?
+                    assembly->anchor_from_local[part_index] :
+                    identity;
+            glUniformMatrix4fv(
+                glGetUniformLocation(program, "anchor_from_local"), 1, GL_TRUE,
+                placement.data());
             glBindVertexArray(mesh->vao);
             glBindTexture(GL_TEXTURE_2D, mesh->texture);
             glUniform1i(glGetUniformLocation(program, "textured"),
@@ -469,7 +589,7 @@ if(colored!=0)c*=vertexcolor;outputColor=vec4(c.rgb,1);})";
         frame.texture = output.color;
         frame.width = w;
         frame.height = h;
-        frame.gpu_bytes = gpu_bytes;
+        frame.gpu_bytes = gpu_bytes + stages.GpuBytes();
         frame.message = "Captured vertex inputs and base textures; diagnostic "
                         "view. Original VS/PS, skinning, generated UVs, "
                         "blending and destination are not replayed";
@@ -485,9 +605,10 @@ AssetViewport::~AssetViewport() = default;
 AssetViewportFrame
 AssetViewport::Render(std::shared_ptr<const AssetAssembly> assembly,
                       const AssetCamera &camera, uint32_t w, uint32_t h,
-                      int slot, bool wire)
+                      int slot, bool wire, bool captured_stages)
 {
-    return impl_->Draw(impl_->target, assembly, camera, w, h, slot, wire);
+    return impl_->Draw(impl_->target, assembly, camera, w, h, slot, wire,
+                       captured_stages);
 }
 AssetViewportFrame
 AssetViewport::Thumbnail(std::shared_ptr<const AssetAssembly> assembly)
@@ -535,10 +656,13 @@ bool AssetViewport::Configure(uint64_t mesh_byte_budget,
         mesh_byte_budget > kGpuBudget || thumbnail_capacity < 4 ||
         thumbnail_capacity > 64)
         return false;
-    if (mesh_byte_budget != impl_->mesh_budget ||
+    if (mesh_byte_budget != impl_->requested_budget ||
         thumbnail_capacity != impl_->thumbnail_capacity) {
         Shutdown();
-        impl_->mesh_budget = mesh_byte_budget;
+        impl_->requested_budget = mesh_byte_budget;
+        impl_->mesh_budget = mesh_byte_budget / 2;
+        impl_->stages.Configure(
+            std::min<uint64_t>(mesh_byte_budget / 2, 64U * 1024U * 1024U));
         impl_->thumbnail_capacity = thumbnail_capacity;
     }
     return true;
@@ -610,6 +734,7 @@ void AssetViewport::Shutdown()
     if (impl_->program)
         glDeleteProgram(impl_->program);
     impl_->program = 0;
+    impl_->stages.Shutdown();
     glDeleteVertexArrays(1, &impl_->background_vao);
     impl_->background_vao = 0;
 }

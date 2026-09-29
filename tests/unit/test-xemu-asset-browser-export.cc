@@ -163,6 +163,11 @@ static void TestGlb()
     auto path = std::filesystem::temp_directory_path() /
                 "xemu-asset-browser-fixture.glb";
     std::filesystem::remove(path);
+    selected.captured_placement = true;
+    AssetMatrix identity{ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
+    auto relative = identity;
+    relative[3] = -10;
+    selected.anchor_from_local = { identity, relative };
     std::string error;
     g_assert_true(ExportAssetGlb(selected, path, &error));
     std::ifstream file(path, std::ios::binary);
@@ -175,6 +180,7 @@ static void TestGlb()
     g_assert_cmphex(U32(bytes, 16), ==, 0x4e4f534a);
     auto doc =
         nlohmann::json::parse(bytes.begin() + 20, bytes.begin() + 20 + length);
+    g_assert_cmpfloat(doc["nodes"][2]["matrix"][12].get<float>(), ==, -10);
     size_t bin = 28 + length;
     g_assert_cmpuint(doc["meshes"].size(), ==, 2);
     g_assert_cmpuint(doc["images"].size(), ==, 2);

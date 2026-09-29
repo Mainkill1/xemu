@@ -494,6 +494,8 @@ typedef struct TextureBinding {
     bool input_transfer_src;
     VkFilter sampler_min_filter, sampler_mag_filter;
     VkSamplerAddressMode sampler_wrap_s, sampler_wrap_t, sampler_wrap_r;
+    VkSamplerCreateInfo captured_sampler;
+    float captured_border_color[4];
     bool possibly_dirty;
     uint64_t hash;
     unsigned int draw_time;

@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "asset-browser-controller.hh"
+#include "asset-browser-placement.hh"
+#include <cmath>
 #include <algorithm>
 #include <cstring>
 #include <map>
@@ -19,6 +21,65 @@ bool SameGeometry(const AssetPart &a, const AssetPart &b)
                         sizeof(a.vertices[i].position)))
             return false;
     return true;
+}
+bool SamePass(const AssetPart &a, const AssetPart &b)
+{
+    if (!a.occurrence || !b.occurrence)
+        return false;
+    const auto &x = a.occurrence->summary, &y = b.occurrence->summary;
+    if (x.primitive_mode != y.primitive_mode ||
+        x.shader_count != y.shader_count)
+        return false;
+    for (size_t i = 0; i < x.shader_count; ++i)
+        if (x.shaders[i] != y.shaders[i])
+            return false;
+    return true;
+}
+std::array<float, 3> Center(const AssetPart &p)
+{
+    std::array<float, 3> out;
+    for (size_t i = 0; i < 3; ++i)
+        out[i] = (p.bounds.minimum[i] + p.bounds.maximum[i]) * .5f;
+    return out;
+}
+SharedAssetPart MatchPlacedPart(const AssetPart &part,
+                                const std::vector<SharedAssetPart> &candidates,
+                                const AssetMatrix &previous_from_clip,
+                                const AssetMatrix &current_from_clip,
+                                float diameter, bool *ambiguous)
+{
+    std::array<float, 3> expected;
+    if (!TransformAssetPoint(
+            MultiplyAssetMatrices(previous_from_clip,
+                                  part.placement.clip_from_local),
+            Center(part), &expected))
+        return {};
+    double best = INFINITY, second = INFINITY;
+    SharedAssetPart match;
+    for (const auto &candidate : candidates) {
+        if (!candidate->placement.valid || !SameGeometry(part, *candidate) ||
+            !SamePass(part, *candidate))
+            continue;
+        std::array<float, 3> point;
+        if (!TransformAssetPoint(
+                MultiplyAssetMatrices(current_from_clip,
+                                      candidate->placement.clip_from_local),
+                Center(*candidate), &point))
+            continue;
+        double distance = 0;
+        for (size_t axis = 0; axis < 3; ++axis)
+            distance += std::pow(double(point[axis]) - expected[axis], 2);
+        if (distance < best) {
+            second = best;
+            best = distance;
+            match = candidate;
+        } else
+            second = std::min(second, distance);
+    }
+    if (best > double(diameter) * diameter * 4)
+        return {};
+    *ambiguous = second - best < double(diameter) * diameter * .0625;
+    return *ambiguous ? SharedAssetPart{} : match;
 }
 } // namespace
 static bool FitsRecordings(
@@ -59,6 +120,9 @@ static bool FitsDecodedAssemblies(
             if (part->indices.size() > remaining / sizeof(uint32_t))
                 return false;
             remaining -= part->indices.size() * sizeof(uint32_t);
+            if (part->source_vertices.size() > remaining / sizeof(uint32_t))
+                return false;
+            remaining -= part->source_vertices.size() * sizeof(uint32_t);
         }
     return true;
 }
@@ -111,23 +175,60 @@ bool AssetController::Publish(AssetCatalog catalog, uint64_t generation)
             candidates[part->geometry_signature].push_back(part);
     std::vector<uint64_t> ids;
     std::set<uint64_t> claimed;
-    for (const auto &anchor : selected_->parts) {
+    const auto previous_anchor =
+        std::find_if(selected_->parts.begin(), selected_->parts.end(),
+                     [&](const auto &p) { return p->id == selected_->id; });
+    const bool placed = selected_->captured_placement &&
+                        previous_anchor != selected_->parts.end();
+    AssetMatrix current_from_clip = selected_->local_from_captured_clip;
+    float diameter = 0;
+    for (size_t axis = 0; axis < 3; ++axis)
+        diameter = std::max(diameter, selected_->bounds.maximum[axis] -
+                                          selected_->bounds.minimum[axis]);
+    auto ordered = selected_->parts;
+    if (placed)
+        std::rotate(
+            ordered.begin(),
+            std::find(ordered.begin(), ordered.end(), *previous_anchor),
+            std::find(ordered.begin(), ordered.end(), *previous_anchor) + 1);
+    for (const auto &anchor : ordered) {
         SharedAssetPart match;
-        for (const auto &candidate : candidates[anchor->geometry_signature]) {
-            if (!SameGeometry(*anchor, *candidate))
-                continue;
-            if (match) {
-                state_ = AssetSelectionState::Ambiguous;
-                message_ = "Several draws match this part; retained view is "
-                           "stale. Confirm the intended occurrence.";
-                return true;
+        bool ambiguous = false;
+        if (placed) {
+            match = MatchPlacedPart(
+                *anchor, candidates[anchor->geometry_signature],
+                selected_->local_from_captured_clip, current_from_clip,
+                std::max(diameter, 1e-6f), &ambiguous);
+        } else
+            for (const auto &candidate :
+                 candidates[anchor->geometry_signature]) {
+                if (!SameGeometry(*anchor, *candidate) ||
+                    !SamePass(*anchor, *candidate))
+                    continue;
+                if (match) {
+                    ambiguous = true;
+                    break;
+                }
+                match = candidate;
             }
-            match = candidate;
+        if (ambiguous) {
+            state_ = AssetSelectionState::Ambiguous;
+            message_ =
+                "Several draws have indistinguishable geometry/pass/placement "
+                "evidence; retaining the last coherent assembly";
+            return true;
         }
         if (!match || !claimed.insert(match->id).second) {
             state_ = AssetSelectionState::Missing;
             message_ = "A part is missing or changed LOD; retaining the last "
                        "coherent assembly";
+            return true;
+        }
+        if (placed && ids.empty() &&
+            !InvertAssetMatrix(match->placement.clip_from_local,
+                               &current_from_clip)) {
+            state_ = AssetSelectionState::Incomplete;
+            message_ = "Anchor transform cannot place this pose";
             return true;
         }
         ids.push_back(match->id);
@@ -141,6 +242,9 @@ bool AssetController::Publish(AssetCatalog catalog, uint64_t generation)
             "Incomplete correspondence; retaining the last coherent assembly";
         return true;
     }
+    if (placed && assembly.captured_placement)
+        assembly.bounds =
+            selected_->bounds; // The inspection camera stays fixed.
     auto previous = selected_;
     selected_ = std::make_shared<const AssetAssembly>(std::move(assembly));
     selected_recording_ = catalog_.recording;
@@ -159,8 +263,9 @@ bool AssetController::Publish(AssetCatalog catalog, uint64_t generation)
                 retention_limited = true;
         }
     state_ = AssetSelectionState::FollowingCandidate;
-    message_ = "Unique geometry correspondence is inferred; engine instance "
-               "ownership is unverified";
+    message_ =
+        "Geometry/pass/placement correspondence is inferred; engine instance "
+        "ownership is unverified";
     if (retention_limited)
         message_ += "; named retention budget reached, saved name remains on "
                     "its prior frame";

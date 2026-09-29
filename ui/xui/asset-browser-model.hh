@@ -24,12 +24,20 @@ enum class AssetStatus : uint8_t {
     Pending,
     BudgetExceeded
 };
+using AssetMatrix = std::array<float, 16>; // Row major; column vectors.
+struct AssetPlacement {
+    AssetMatrix clip_from_local{};
+    bool valid = false;
+    std::string reason;
+};
 struct AssetPart {
     uint64_t id = 0, frame = 0;
     std::shared_ptr<const capture::CaptureOccurrence> occurrence;
     std::vector<AssetVertex> vertices;
+    std::vector<uint32_t> source_vertices;
     std::vector<uint32_t> indices;
     capture::Bounds3 bounds;
+    AssetPlacement placement;
     capture::CaptureDigest geometry_signature{};
     AssetStatus status = AssetStatus::Missing;
     bool has_uv = false, has_normals = false, has_color = false;
@@ -41,6 +49,9 @@ struct AssetAssembly {
     uint64_t id = 0, frame = 0;
     capture::CaptureSessionContext context;
     std::vector<SharedAssetPart> parts;
+    std::vector<AssetMatrix> anchor_from_local;
+    AssetMatrix local_from_captured_clip{};
+    bool captured_placement = false;
     capture::Bounds3 bounds;
     std::string label;
     bool user_confirmed = false;

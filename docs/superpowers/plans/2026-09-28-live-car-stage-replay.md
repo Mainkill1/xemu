@@ -45,35 +45,35 @@ Files: Vulkan `shader-browser-inputs.h`, shared draw-input/model helpers, native
 
 Files: new bounded asset placement helper; model/controller; CPU regressions.
 
-- [ ] Verify the generated direct position-transform pattern against the retained PGR2 body draw; unsupported patterns remain unsupported.
-- [ ] Extract a finite invertible clip-from-local matrix from owned constants and captured viewport state, with raw-bit preservation in evidence.
-- [ ] Transform candidate bounds into anchor space; identify related part candidates with stage/target/spatial evidence and explicit confirmation.
-- [ ] Follow confirmed membership using stage/layout/material and placement evidence, rejecting duplicate/ambiguous matches and partial poses.
-- [ ] Test moving/rotating wheels, duplicate cars, draw reorder, changed LOD, singular/nonfinite transforms and coherent frame publication.
+- [x] Verify the generated direct position-transform pattern against the retained PGR2 body draw; unsupported patterns remain unsupported.
+- [x] Extract a finite invertible clip-from-local matrix from owned constants and captured viewport state, with raw-bit preservation in evidence.
+- [x] Transform candidate bounds into anchor space; identify related part candidates with stage/target/spatial evidence and explicit confirmation.
+- [x] Follow confirmed membership using stage/layout/material and placement evidence, rejecting duplicate/ambiguous matches and partial poses.
+- [x] Test moving/rotating wheels, duplicate cars, draw reorder, changed LOD, singular/nonfinite transforms and coherent frame publication.
 
 ### 3. Render captured stages in one assembly target
 
 Files: asset viewport/replay adapter and generated-source camera helper; native GL fixtures.
 
-- [ ] Adapt owned host GLSL/uniform layouts to the HUD inspection backend using the existing generated source and captured interface metadata.
-- [ ] Cache programs, typed streams/textures and samplers; execute original VS/material stages for all selected occurrences in emission order with shared depth/blend state.
-- [ ] Apply one anchor-relative camera after the original vertex processing; retain game-provided material inputs. Keep camera/bounds fixed through live updates.
-- [ ] Handle generated geometry/depth bookkeeping and clip controls explicitly; failed replay hides unrelated outputs.
-- [ ] Test two rotating wheels/body/glass, distinct materials, depth occlusion, transparent overlap, full precision depth samples, camera continuity and caller GL state.
+- [x] Adapt owned host GLSL/uniform layouts to the HUD inspection backend using the existing generated source and captured interface metadata.
+- [x] Cache programs, typed streams/textures and samplers; execute original VS/material stages for all selected occurrences in emission order with shared depth/blend state.
+- [x] Apply one anchor-relative camera after the original vertex processing; retain game-provided material inputs. Keep camera/bounds fixed through live updates.
+- [x] Handle generated geometry/depth bookkeeping and clip controls explicitly; failed replay hides unrelated outputs.
+- [x] Test two rotating wheels/body/glass, distinct materials, depth occlusion, transparent overlap, full precision depth samples, camera continuity and caller GL state.
 
 ### 4. Update only relevant live draw inputs
 
 Files: capture settings/admission/persistence, asset live/controller/UI; ownership regressions.
 
-- [ ] Add explicit live-draw-input acquisition to the shared recorder; default all-shader forensic admission is unchanged.
-- [ ] Initial discovery acquires bounded draws and complete latched inputs without recording thousands of redundant state-write events.
-- [ ] Confirmed assembly follow narrows acquisition to supported stage/layout candidates; publish only complete same-frame poses and coalesce stale jobs.
-- [ ] Expose captured-stage/raw-input display, related parts, fixed camera, freshness, failures and freeze controls clearly.
-- [ ] Test independent forensic capture, reset/close/re-arm, unsupported parts, budgets and stale worker completion.
+- [x] Add explicit live-draw-input acquisition to the shared recorder; default all-shader forensic admission is unchanged.
+- [x] Initial discovery acquires bounded draws and complete latched inputs without recording thousands of redundant state-write events.
+- [x] Confirmed assembly follow narrows acquisition to supported stage/layout candidates; publish only complete same-frame poses and coalesce stale jobs.
+- [x] Expose captured-stage/raw-input display, related parts, fixed camera, freshness, failures and freeze controls clearly.
+- [x] Test independent forensic capture, reset/close/re-arm, unsupported parts, budgets and stale worker completion.
 
 ### 5. Native end-to-end gate
 
-- [ ] Strict changed-product TUs, focused CPU/native tests, sanitizer gates and formatting.
+- [x] Strict changed-product TUs, focused CPU/native tests, sanitizer gates and formatting.
 - [ ] Fresh review, resolve important findings with meaningful regressions, publish existing branch and obtain actual-head CI.
 - [ ] On the Windows rig, select the identified player car, confirm its connected parts, drive and steer while viewing it at a constant angle; observe wheel motion and actual captured color/shading.
 - [ ] Preserve images/video or ordered frame evidence with exact build/settings/source identities, measure viewer cadence and pose freshness separately, and qualify freeze/reset/duplicate cars.

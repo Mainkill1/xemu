@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "asset-browser-model.hh"
 #include "asset-browser-decode.hh"
+#include "asset-browser-placement.hh"
 #include <algorithm>
 #include <map>
 #include <set>
@@ -40,6 +41,47 @@ AssetAssembly MakeAssetAssembly(const AssetCatalog &catalog,
                 assembly.bounds.maximum[axis] = std::max(
                     assembly.bounds.maximum[axis], part->bounds.maximum[axis]);
             }
+    }
+    if (!assembly.parts.empty() &&
+        std::all_of(assembly.parts.begin(), assembly.parts.end(),
+                    [](const auto &p) { return p->placement.valid; })) {
+        assembly.captured_placement =
+            InvertAssetMatrix(assembly.parts.front()->placement.clip_from_local,
+                              &assembly.local_from_captured_clip);
+        if (assembly.captured_placement) {
+            assembly.bounds = {};
+            // Keep the chosen anchor; rasterize captured passes in emission
+            // order.
+            std::stable_sort(assembly.parts.begin(), assembly.parts.end(),
+                             [](const auto &a, const auto &b) {
+                                 return a->occurrence->summary.key.submission <
+                                        b->occurrence->summary.key.submission;
+                             });
+            for (const auto &p : assembly.parts) {
+                const auto relative =
+                    MultiplyAssetMatrices(assembly.local_from_captured_clip,
+                                          p->placement.clip_from_local);
+                assembly.anchor_from_local.push_back(relative);
+                for (const auto &v : p->vertices) {
+                    std::array<float, 3> point;
+                    if (!TransformAssetPoint(relative, v.position, &point)) {
+                        assembly.captured_placement = false;
+                        continue;
+                    }
+                    if (!assembly.bounds.valid) {
+                        assembly.bounds.minimum = assembly.bounds.maximum =
+                            point;
+                        assembly.bounds.valid = true;
+                    } else
+                        for (size_t axis = 0; axis < 3; ++axis) {
+                            assembly.bounds.minimum[axis] = std::min(
+                                assembly.bounds.minimum[axis], point[axis]);
+                            assembly.bounds.maximum[axis] = std::max(
+                                assembly.bounds.maximum[axis], point[axis]);
+                        }
+                }
+            }
+        }
     }
     return assembly;
 }
@@ -88,6 +130,7 @@ AssetCatalog BuildAssetCatalog(const capture::CaptureSessionSnapshot &snapshot,
             std::min(catalog.decoded_bytes, limits.decoded_byte_budget);
         auto part = std::make_shared<AssetPart>(
             DecodeAssetPart(event, snapshot.context.backend, available));
+        part->placement = DecodeAssetPlacement(*event);
         catalog.decoded_bytes += part->decoded_bytes;
         if (part->status == AssetStatus::BudgetExceeded)
             catalog.budget_exceeded = true;
@@ -112,6 +155,9 @@ AssetCatalog BuildAssetCatalog(const capture::CaptureSessionSnapshot &snapshot,
                          "Asset budget reached; retained frame is partial" :
                      catalog.complete_frame ? "Owned captured frame" :
                                               "Incomplete captured frame";
+    if (snapshot.settings.mode == capture::CaptureSessionMode::LiveDrawInputs)
+        catalog.reason +=
+            "; live draw inputs only, non-draw dependencies omitted";
     return catalog;
 }
 const char *AssetStatusLabel(AssetStatus status)

@@ -207,6 +207,27 @@ bool ExportAssetGlb(const AssetAssembly &assembly,
                   { "extras",
                     { { "event", part->id }, { "frame", part->frame } } } });
             doc["nodes"][0]["children"].push_back(node);
+            if (assembly.captured_placement) {
+                if (assembly.anchor_from_local.size() != assembly.parts.size())
+                    throw std::runtime_error(
+                        "Missing captured assembly placement");
+                const auto &matrix = assembly.anchor_from_local[p];
+                if (!std::all_of(matrix.begin(), matrix.end(),
+                                 [](float f) { return std::isfinite(f); }) ||
+                    std::abs(matrix[15]) < 1e-9f ||
+                    std::abs(matrix[12] / matrix[15]) > 1e-4f ||
+                    std::abs(matrix[13] / matrix[15]) > 1e-4f ||
+                    std::abs(matrix[14] / matrix[15]) > 1e-4f)
+                    throw std::runtime_error(
+                        "GLB requires affine captured placement");
+                Json values = Json::array();
+                for (size_t column = 0; column < 4; ++column)
+                    for (size_t row = 0; row < 4; ++row)
+                        values.push_back(row == 3 ? (column == 3 ? 1.f : 0.f) :
+                                                    matrix[row * 4 + column] /
+                                                        matrix[15]);
+                doc["nodes"][node]["matrix"] = std::move(values);
+            }
         }
         doc["buffers"] = Json::array({ { { "byteLength", binary.size() } } });
         while (binary.size() % 4)

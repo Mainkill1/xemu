@@ -89,6 +89,7 @@ static void TestSparseBounds()
     auto part = DecodeAssetPart(event, 2);
     g_assert_true(part.status == AssetStatus::Ready);
     g_assert_cmpuint(part.vertices.size(), ==, 3);
+    g_assert_true(part.source_vertices == std::vector<uint32_t>({ 0, 1, 2 }));
     g_assert_cmpfloat(part.bounds.maximum[0], ==, 2);
     g_assert_cmpfloat(part.bounds.maximum[1], ==, 2);
 }
@@ -136,6 +137,35 @@ static void TestFormats()
     g_assert_cmpfloat(value[0], ==, -1);
     g_assert_cmpfloat(value[1], ==, 1);
     g_assert_false(DecodeAssetAttribute(blob, 2, 1, &value));
+}
+static void TestIntegerAttributes()
+{
+    capture::CaptureOwnedBlob blob;
+    blob.format = 99; // VK_FORMAT_R32_SINT, compressed normal bits.
+    blob.components = 1;
+    blob.stride = 4;
+    blob.count = 2;
+    blob.data = Block<uint32_t>({ 0x81234567, 0x01234567 });
+    std::array<uint32_t, 4> values;
+    bool signed_values = false;
+    g_assert_true(
+        DecodeAssetIntegerAttribute(blob, 2, 0, &values, &signed_values));
+    g_assert_true(signed_values);
+    g_assert_cmphex(values[0], ==, 0x81234567);
+    g_assert_cmpuint(values[3], ==, 1);
+    g_assert_true(
+        DecodeAssetIntegerAttribute(blob, 2, 1, &values, &signed_values));
+    g_assert_cmphex(values[0], ==, 0x01234567);
+    g_assert_false(
+        DecodeAssetIntegerAttribute(blob, 2, 2, &values, &signed_values));
+    blob.format = 0x1404;
+    blob.integer = 1;
+    g_assert_true(
+        DecodeAssetIntegerAttribute(blob, 1, 0, &values, &signed_values));
+    g_assert_cmphex(values[0], ==, 0x81234567);
+    blob.normalized = 1;
+    g_assert_false(
+        DecodeAssetIntegerAttribute(blob, 1, 0, &values, &signed_values));
 }
 static void TestInvalid()
 {
@@ -317,6 +347,7 @@ int main(int argc, char **argv)
     g_test_add_func("/asset/decode/sparse-bounds", TestSparseBounds);
     g_test_add_func("/asset/decode/subdraws", TestSubdraws);
     g_test_add_func("/asset/decode/formats", TestFormats);
+    g_test_add_func("/asset/decode/integer-bits", TestIntegerAttributes);
     g_test_add_func("/asset/decode/invalid", TestInvalid);
     g_test_add_func("/asset/decode/large-budget", TestLargeAndBudget);
     g_test_add_func("/asset/decode/host-topology", TestHostTopology);

@@ -6,6 +6,7 @@
 #include <cstdlib>
 extern "C" bool xemu_test_depth_rejected(uint32_t, uint32_t);
 extern "C" bool xemu_test_stage_y16(uint64_t, uint8_t *, size_t);
+extern "C" void xemu_test_stage_sampler(uint64_t);
 using namespace xemu::shader_browser;
 int main()
 {
@@ -34,6 +35,7 @@ int main()
     uint8_t raw[] = { 0, 0x80, 1, 0x80, 0xff, 0xff, 0, 0 };
     if (!token || !xemu_test_stage_y16(token, raw, sizeof(raw)))
         std::abort();
+    xemu_test_stage_sampler(token);
     std::memset(raw, 0, sizeof(raw));
     session.Finish(token, true, 5, 3, 0);
     session.InputsComplete(token);
@@ -43,6 +45,25 @@ int main()
     const auto inputs = snap.events.back()->CopyInputs();
     if (inputs.blobs.size() != 1 || inputs.blobs[0].bytes[3] != 0x80 ||
         inputs.blobs[0].bytes[2] != 1 || inputs.blobs[0].format != 70)
+        std::abort();
+    const auto reg = [&](const char *name) {
+        for (const auto &r : inputs.registers)
+            if (r.name == name)
+                return r.value;
+        std::abort();
+    };
+    const auto bits = [](float f) {
+        uint32_t u;
+        std::memcpy(&u, &f, 4);
+        return u;
+    };
+    if (reg("capture.texture0.sampler_ready") != 1 ||
+        reg("capture.texture0.mipmap_mode") != 1 ||
+        reg("capture.texture0.min_lod_bits") != bits(1.25f) ||
+        reg("capture.texture0.max_lod_bits") != bits(6.5f) ||
+        reg("capture.texture0.lod_bias_bits") != bits(-.75f) ||
+        reg("capture.texture0.anisotropy_bits") != bits(4.f) ||
+        reg("capture.texture0.border3_bits") != bits(.4f))
         std::abort();
     session.Stop();
     std::puts("Native sampled-depth admission and owned R16 snapshot PASS");
