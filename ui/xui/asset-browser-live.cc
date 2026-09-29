@@ -64,12 +64,14 @@ void AssetLiveCapture::Disable()
         message_ =
             "Live discovery stopped; retained owned inputs remain available";
     enabled_ = false;
+    was_guest_paused_ = false;
     if (owned_)
         session_.StopIfCurrent(owned_);
     owned_ = 0;
 }
 void AssetLiveCapture::Tick(const capture::CaptureSessionContext &context,
-                            uint64_t now, AssetController &controller)
+                            uint64_t now, AssetController &controller,
+                            bool guest_paused)
 {
     if (job_.valid() &&
         job_.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
@@ -164,6 +166,11 @@ void AssetLiveCapture::Tick(const capture::CaptureSessionContext &context,
             return;
         }
     }
+    // An intentional pause cannot make guest frames progress. Keep polling
+    // owned readbacks and give acquisition a full timeout after resume.
+    if (guest_paused || was_guest_paused_)
+        started_ = now;
+    was_guest_paused_ = guest_paused;
     if (owned_) {
         uint64_t current = 0;
         session_.Context(&current);

@@ -19,7 +19,7 @@ public:
                 const AssetController *selection = nullptr);
     void Disable();
     void Tick(const capture::CaptureSessionContext &, uint64_t now_ns,
-              AssetController &);
+              AssetController &, bool guest_paused = false);
     bool Enabled() const;
     const std::string &Message() const;
     uint64_t LastCaptureNs() const;
@@ -39,6 +39,7 @@ private:
     uint64_t owned_ = 0, started_ = 0, next_ = 0, last_capture_ = 0;
     uint64_t last_frame_ = 0;
     bool enabled_ = false;
+    bool was_guest_paused_ = false;
     std::string message_;
 };
 } // namespace xemu::asset_browser

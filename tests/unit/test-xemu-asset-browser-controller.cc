@@ -335,7 +335,7 @@ static void TestPendingOwnership()
     g_assert_cmpuint(session.Snapshot().pending_events, ==, 1);
     g_assert_cmpuint(owned, ==, 0);
 }
-static void TestAsyncPublicationImpl(bool early_stop)
+static void TestAsyncPublicationImpl(bool early_stop, bool guest_paused = false)
 {
     capture::CaptureSession session;
     AssetController controller;
@@ -371,7 +371,8 @@ static void TestAsyncPublicationImpl(bool early_stop)
         session.GuestFrameBoundary(2);
     for (size_t attempt = 0;
          attempt < 3000 && controller.Catalog().parts.empty(); ++attempt) {
-        live.Tick(Context(), UINT64_C(1000000) + attempt * 1000, controller);
+        live.Tick(Context(), UINT64_C(1000000) + attempt * 1000, controller,
+                  guest_paused);
         g_usleep(1000);
     }
     g_assert_cmpuint(controller.Catalog().parts.size(), ==, 1);
@@ -518,6 +519,31 @@ static void TestWatchdog()
     settings.progress_timeout_ns = 100;
     g_assert_true(live.Enable(Context(), 1, settings));
     live.Tick(Context(), 102, controller);
+    g_assert_false(live.Enabled());
+    g_assert_false(session.Active());
+}
+static void TestPausedWatchdog()
+{
+    capture::CaptureSession session;
+    AssetController controller;
+    controller.Begin(Context());
+    AssetLiveCapture live(session);
+    AssetLiveSettings settings;
+    settings.progress_timeout_ns = 100;
+    g_assert_true(live.Enable(Context(), 1, settings));
+    const auto claim = live.OwnedGeneration();
+    live.Tick(Context(), 2, controller, true);
+    live.Tick(Context(), 1000, controller, true);
+    g_assert_true(live.Enabled());
+    g_assert_true(session.Active());
+    g_assert_cmpuint(live.OwnedGeneration(), ==, claim);
+
+    // Resume after a long pause without retargeting the armed request.
+    live.Tick(Context(), 10000, controller, false);
+    live.Tick(Context(), 10100, controller, false);
+    g_assert_true(live.Enabled());
+    g_assert_cmpuint(live.OwnedGeneration(), ==, claim);
+    live.Tick(Context(), 10101, controller, false);
     g_assert_false(live.Enabled());
     g_assert_false(session.Active());
 }
@@ -905,6 +931,8 @@ int main(int argc, char **argv)
     g_test_add_func("/asset/live/rearm-ownership", TestRearmOwnership);
     g_test_add_func("/asset/live/pending-ownership", TestPendingOwnership);
     g_test_add_func("/asset/live/async-publication", TestAsyncPublication);
+    g_test_add_func("/asset/live/paused-publication",
+                    [] { TestAsyncPublicationImpl(false, true); });
     g_test_add_func("/asset/live/early-stop", TestEarlyStop);
     g_test_add_func("/asset/live/draw-inputs", TestLiveDrawInputs);
     g_test_add_func("/asset/live/stage-filter", TestLiveStageFilter);
@@ -916,6 +944,7 @@ int main(int argc, char **argv)
     g_test_add_func("/asset/live/continuous-stopped",
                     [] { TestContinuousPublication(true); });
     g_test_add_func("/asset/live/watchdog", TestWatchdog);
+    g_test_add_func("/asset/live/paused-watchdog", TestPausedWatchdog);
     g_test_add_func("/asset/live/first-follow-filter",
                     [] { TestFirstFollowRequest(true); });
     g_test_add_func("/asset/live/first-unpinned-discovery",

@@ -6,7 +6,9 @@ live mode omits ordered non-draw operations and full destination dependencies.
 The forensic Capture workspace retains its complete event admission. Discovery uses the same
 capture owner as Shader Browser; another active recording must finish first.
 Closing or collapsing this window stops only its own acquisition and releases
-GPU caches. Freeze retains owned inputs.
+GPU caches. Freeze retains owned inputs. An intentional guest pause does not expire
+the progress watchdog; discovery can be armed before resuming a short animation,
+and completed readbacks remain available while paused.
 
 ## Find and retain a car
 

@@ -7,6 +7,7 @@ class AssetBrowserWindow {
 public:
     using ContextSource =
         std::function<xemu::shader_browser::CaptureSessionContext()>;
+    using PausedSource = std::function<bool()>;
     using ShaderSink = std::function<std::string(
         std::shared_ptr<const xemu::shader_browser::CaptureOccurrence>,
         const xemu::shader_browser::CaptureSessionContext &,
@@ -14,7 +15,7 @@ public:
     bool m_is_open = false;
     AssetBrowserWindow();
     AssetBrowserWindow(xemu::shader_browser::CaptureSession &, ContextSource,
-                       ShaderSink);
+                       ShaderSink, PausedSource = {});
     ~AssetBrowserWindow();
     void Draw();
     void Shutdown();

@@ -25,6 +25,7 @@ struct AssetBrowserWindow::Impl {
     AssetViewport viewport;
     ContextSource context;
     ShaderSink shader;
+    PausedSource paused;
     AssetCamera camera{ .55f, .45f, 1.5f };
     ImGuiTextFilter filter;
     std::set<uint64_t> checked;
@@ -129,14 +130,17 @@ struct AssetBrowserWindow::Impl {
         }
     }
     Impl(capture::CaptureSession &session, ContextSource source,
-         ShaderSink sink)
-        : live(session), context(std::move(source)), shader(std::move(sink))
+         ShaderSink sink, PausedSource paused_source)
+        : live(session), context(std::move(source)), shader(std::move(sink)),
+          paused(std::move(paused_source))
     {
     }
 };
 AssetBrowserWindow::AssetBrowserWindow(capture::CaptureSession &session,
-                                       ContextSource source, ShaderSink sink)
-    : impl_(std::make_unique<Impl>(session, std::move(source), std::move(sink)))
+                                       ContextSource source, ShaderSink sink,
+                                       PausedSource paused)
+    : impl_(std::make_unique<Impl>(session, std::move(source), std::move(sink),
+                                   std::move(paused)))
 {
 }
 AssetBrowserWindow::~AssetBrowserWindow() = default;
@@ -269,7 +273,7 @@ void AssetBrowserWindow::Draw()
         s.file_control.reset();
     }
     auto context = s.context();
-    s.live.Tick(context, now, s.controller);
+    s.live.Tick(context, now, s.controller, s.paused && s.paused());
     ImGui::SetNextWindowSize(ImVec2(1100, 700), ImGuiCond_FirstUseEver);
     if (!ImGui::Begin("Asset Browser", &m_is_open)) {
         s.live.Disable();

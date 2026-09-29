@@ -36,7 +36,8 @@ AssetBrowserWindow::AssetBrowserWindow()
                       std::move(event), context, &error, recording.get()))
                   xemu_hud_request_shader_browser_window();
               return error;
-          })
+          },
+          [] { return !runstate_is_running(); })
 {
 }
 AssetBrowserWindow asset_browser_window;

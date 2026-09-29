@@ -1,0 +1,4 @@
+Compile ui/xui/asset-browser-live.cc
+Compile ui/xui/asset-browser.cc
+Compile ui/xui/asset-browser-platform.cc
+Three pause-handling product translation units passed
