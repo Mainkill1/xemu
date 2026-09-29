@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cstring>
 #include <list>
+#include <set>
 #include <cmath>
 namespace xemu::asset_browser {
 namespace {
@@ -334,6 +335,9 @@ struct AssetStageRenderer::Impl {
             key.Add(stream->components);
             key.Add(stream->normalized);
             key.Add(stream->integer);
+            key.Add(stream->count);
+            key.Add(stream->offset);
+            key.Add(stream->slot);
         }
         for (uint32_t i : part.source_vertices)
             key.Add(i);
@@ -464,10 +468,23 @@ struct AssetStageRenderer::Impl {
         bytes.Add(m.wrap_t);
         bytes.Add(m.wrap_r);
         uint64_t image_bytes = 0;
+        std::vector<const capture::CaptureOwnedTextureImage *> validated_images;
         if (typed) {
             bytes.Block(storage->data);
             image_bytes = storage->data->bytes.size();
-        } else
+        } else {
+            if (texture.images.size() != size_t(m.mip_levels) * m.face_count) {
+                *error = "Duplicate/missing captured texture mip/face";
+                return nullptr;
+            }
+            std::set<std::pair<uint32_t, uint32_t>> image_keys;
+            for (const auto &image : texture.images)
+                if (image.mip_level >= m.mip_levels ||
+                    image.face >= m.face_count ||
+                    !image_keys.emplace(image.mip_level, image.face).second) {
+                    *error = "Duplicate/invalid captured texture mip/face";
+                    return nullptr;
+                }
             for (uint32_t mip = 0; mip < m.mip_levels; ++mip)
                 for (uint32_t face = 0; face < m.face_count; ++face) {
                     const auto image = std::find_if(
@@ -483,9 +500,11 @@ struct AssetStageRenderer::Impl {
                         *error = "Missing captured texture mip/face";
                         return nullptr;
                     }
+                    validated_images.push_back(&*image);
                     bytes.Block(image->image.rgba);
                     image_bytes += image->image.rgba->bytes.size();
                 }
+        }
         const std::string prefix =
             "capture.texture" + std::to_string(slot) + ".";
         const bool full_sampler =
@@ -563,10 +582,8 @@ struct AssetStageRenderer::Impl {
             glTexImage2D(target.target, 0, GL_R16, m.width, m.height, 0, GL_RED,
                          GL_UNSIGNED_SHORT, storage->data->bytes.data());
         else
-            for (const auto &image : texture.images) {
-                if (image.mip_level >= m.mip_levels ||
-                    image.face >= m.face_count)
-                    continue;
+            for (const auto *validated : validated_images) {
+                const auto &image = *validated;
                 std::vector<uint8_t> reversed;
                 const auto *pixels = image.image.rgba->bytes.data();
                 if (backend == 1) {
@@ -618,10 +635,16 @@ struct AssetStageRenderer::Impl {
                         mag == GL_LINEAR ? GL_LINEAR : GL_NEAREST);
         const uint32_t base =
             backend == 1 && full_sampler ? Reg(part, prefix + "base_level") : 0;
-        const uint32_t max = backend == 1 && full_sampler ?
-                                 Reg(part, prefix + "max_level") :
-                                 (full_sampler ? m.mip_levels - 1 : 0);
-        if (base > max || max >= m.mip_levels) {
+        const uint32_t requested_max =
+            backend == 1 && full_sampler ?
+                Reg(part, prefix + "max_level") :
+                (full_sampler ? m.mip_levels - 1 : 0);
+        const uint32_t max = std::min(requested_max, m.mip_levels - 1);
+        const bool mip_filter = min != GL_NEAREST && min != GL_LINEAR;
+        const bool complete_chain =
+            std::max(m.width, m.height) >> (m.mip_levels - 1) <= 1;
+        if (base > max ||
+            (mip_filter && requested_max >= m.mip_levels && !complete_chain)) {
             glDeleteTextures(1, &target.id);
             *error = "Captured sampler mip range is invalid";
             return nullptr;

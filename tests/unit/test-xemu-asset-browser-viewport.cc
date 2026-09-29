@@ -6,6 +6,7 @@
 #include <glib.h>
 #include <chrono>
 #include <cstring>
+#include <cstdlib>
 #include <vulkan/vulkan.h>
 using namespace xemu::asset_browser;
 static std::shared_ptr<AssetAssembly> Fixture(uint64_t id)
@@ -304,6 +305,67 @@ static std::shared_ptr<AssetAssembly> SamplerFixture(bool border,
     assembly->parts[0] = p;
     return assembly;
 }
+static std::shared_ptr<AssetAssembly> DepthClipFixture()
+{
+    auto assembly = StageFixture();
+    for (size_t i = 0; i < assembly->parts.size(); ++i) {
+        auto p = std::make_shared<AssetPart>(*assembly->parts[i]);
+        auto e = std::make_shared<capture::CaptureOccurrence>(*p->occurrence);
+        const std::string vs =
+            "#version 450\nlayout(location=0)in vec4 v0;uniform vec4 shift;"
+            "layout(location=9)flat out vec4 vtxPos0;"
+            "layout(location=10)flat out vec4 vtxPos1;"
+            "layout(location=11)flat out vec4 vtxPos2;"
+            "void "
+            "main(){gl_Position=v0+shift;vtxPos0=vtxPos1=vtxPos2=gl_Position;}";
+        const std::string gs =
+            "#version "
+            "450\nlayout(triangles)in;layout(triangle_strip,max_vertices=3)out;"
+            "layout(location=9)flat in vec4 p0[];"
+            "layout(location=9)flat out vec4 vtxPos0;"
+            "layout(location=10)flat out vec4 vtxPos1;"
+            "layout(location=11)flat out vec4 vtxPos2;"
+            "void main(){for(int i=0;i<3;++i){gl_Position=gl_in[i].gl_Position;"
+            "vtxPos0=p0[0];vtxPos1=p0[1];vtxPos2=p0[2];EmitVertex();}"
+            "EndPrimitive();}";
+        // The generated non-perspective depth bookkeeping and clipping path.
+        const std::string ps =
+            "#version 450\nlayout(location=9)flat in vec4 vtxPos0;"
+            "layout(location=10)flat in vec4 vtxPos1;"
+            "layout(location=11)flat in vec4 vtxPos2;"
+            "uniform vec4 clipRange;uniform ivec2 surfaceScale;uniform vec4 "
+            "paint;"
+            "layout(location=0)out vec4 fragColor;"
+            "float area(vec2 a,vec2 b,vec2 c){vec2 p=b-a,q=c-a;return "
+            "p.x*q.y-p.y*q.x;}"
+            "void main(){vec2 unscaled_xy=gl_FragCoord.xy/surfaceScale;"
+            "precise float bc0=area(unscaled_xy,vtxPos1.xy,vtxPos2.xy);"
+            "precise float bc1=area(unscaled_xy,vtxPos2.xy,vtxPos0.xy);"
+            "precise float bc2=area(unscaled_xy,vtxPos0.xy,vtxPos1.xy);"
+            "float inv_bcsum=1.0/(bc0+bc1+bc2);"
+            "if(isinf(inv_bcsum)){inv_bcsum=0.0;}bc1*=inv_bcsum;bc2*=inv_bcsum;"
+            "precise float "
+            "zvalue=vtxPos0.z+bc1*(vtxPos1.z-vtxPos0.z)+bc2*(vtxPos2.z-vtxPos0."
+            "z);"
+            "if(zvalue<clipRange.z||clipRange.w<zvalue){discard;}"
+            "fragColor=paint;gl_FragDepth=zvalue/clipRange.y;}";
+        e->inputs.sources[1] = StageBytes(vs.data(), vs.size());
+        e->inputs.sources[2] = StageBytes(ps.data(), ps.size());
+        e->inputs.sources[3] = StageBytes(gs.data(), gs.size());
+        for (auto &u : e->inputs.uniforms)
+            if (u.name == "paint")
+                u.stage = 2;
+        const float clip[] = { 0, 65535, 0, 65535 };
+        const int32_t scale[] = { 1, 1 };
+        e->inputs.uniforms.push_back(
+            { 2, 1, 4, 1, "clipRange", StageBytes(clip, 4) });
+        e->inputs.uniforms.push_back(
+            { 2, 2, 2, 1, "surfaceScale", StageBytes(scale, 2) });
+        p->occurrence = e;
+        assembly->parts[i] = p;
+    }
+    return assembly;
+}
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, nullptr);
@@ -432,6 +494,12 @@ int main(int argc, char **argv)
     const double seconds =
         std::chrono::duration<double>(std::chrono::steady_clock::now() - start)
             .count();
+    const char *review_environment = std::getenv("ASSET_REVIEW_CASE");
+    const std::string review_case =
+        review_environment ? review_environment : "all";
+    const auto run_review = [&](const char *name) {
+        return review_case == "all" || review_case == name;
+    };
     const auto original = StageFixture();
     const auto shaded =
         viewport.Render(original, {}, 128, 128, -1, false, true);
@@ -446,6 +514,51 @@ int main(int argc, char **argv)
                      200); // Transformed nearer part occludes body.
     g_assert_cmpuint(pixel(45, 64, 1), <, 30);
     g_assert_cmpuint(pixel(45, 64, 2), >, 200);
+    if (run_review("depth")) {
+        auto clipped =
+            viewport.Render(DepthClipFixture(), {}, 128, 128, -1, false, true);
+        g_assert_cmpuint(clipped.captured_parts, ==, 2);
+        glBindTexture(GL_TEXTURE_2D, clipped.texture);
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                      pixels.data());
+        g_assert_cmpuint(pixel(25, 64, 1), >, 200);
+        g_assert_cmpuint(pixel(45, 64, 0), >, 200);
+        g_assert_cmpuint(pixel(45, 64, 1), <, 30);
+    }
+    if (run_review("duplicate")) {
+        for (int variant = 0; variant < 3; ++variant) {
+            auto bad = SamplerFixture(false);
+            auto p = std::make_shared<AssetPart>(*bad->parts[0]);
+            auto e =
+                std::make_shared<capture::CaptureOccurrence>(*p->occurrence);
+            auto duplicate = e->inputs.textures[0].images[0];
+            if (variant == 2) {
+                const uint8_t undersized[] = { 0, 1, 2 };
+                duplicate.image.rgba = StageBytes(undersized, 3);
+            } else
+                duplicate.image.rgba.reset();
+            if (variant == 0)
+                e->inputs.textures[0].images.push_back(duplicate);
+            else
+                e->inputs.textures[0].images[1] = duplicate;
+            p->occurrence = e;
+            bad->parts[0] = p;
+            auto rejected = viewport.Render(bad, {}, 128, 128, -1, false, true);
+            g_assert_cmpuint(rejected.texture, ==, 0);
+        }
+    }
+    if (run_review("count")) {
+        auto bad = StageFixture();
+        auto p = std::make_shared<AssetPart>(*bad->parts[0]);
+        auto e = std::make_shared<capture::CaptureOccurrence>(*p->occurrence);
+        for (auto &b : e->inputs.blobs)
+            if (b.name == "vertex.attribute0")
+                b.count = 3;
+        p->occurrence = e;
+        bad->parts[0] = p;
+        auto rejected = viewport.Render(bad, {}, 128, 128, -1, false, true);
+        g_assert_cmpuint(rejected.texture, ==, 0);
+    }
     auto parked = AnimatedCarFixture(0);
     auto parked_frame = viewport.Render(parked, {}, 128, 128, -1, false, true);
     g_assert_cmpuint(parked_frame.captured_parts, ==, 4);
@@ -572,6 +685,29 @@ int main(int argc, char **argv)
     glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
     g_assert_cmpuint(pixel(25, 64, 1), >, 200);
     g_assert_cmpuint(pixel(25, 64, 0), <, 30);
+    if (run_review("max-level")) {
+        gl_meta.mip_levels = 1;
+        gl_meta.min_filter = GL_NEAREST;
+        gl_event->inputs.textures[0].images.resize(1);
+        for (auto &r : gl_event->inputs.registers) {
+            if (r.name == "capture.texture0.max_level")
+                r.value = 1000;
+            if (r.name == "capture.texture0.min_lod_bits")
+                r.value = 0;
+            if (r.name == "capture.texture0.max_lod_bits") {
+                const float limit = 1000.f;
+                std::memcpy(&r.value, &limit, 4);
+            }
+        }
+        auto linear =
+            viewport.Render(gl_sampler, {}, 128, 128, -1, false, true);
+        g_assert_cmpuint(linear.captured_parts, ==, 1);
+        glBindTexture(GL_TEXTURE_2D, linear.texture);
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                      pixels.data());
+        g_assert_cmpuint(pixel(25, 64, 0), >, 200);
+        g_assert_cmpuint(pixel(25, 64, 1), <, 30);
+    }
     auto over = viewport.Render(SamplerFixture(false, true), {}, 128, 128, -1,
                                 false, true);
     g_assert_cmpuint(over.texture, ==,

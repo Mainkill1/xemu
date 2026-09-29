@@ -52,6 +52,11 @@ bool SaveAssetRecording(const AssetCatalog &catalog,
                 !SameAssetContext(selected->context, snapshot.context))
                 throw std::runtime_error(
                     "Selected assembly belongs to a different capture scope");
+            if (std::none_of(selected->parts.begin(), selected->parts.end(),
+                             [&](const auto &part) {
+                                 return part && part->id == selected->id;
+                             }))
+                throw std::runtime_error("Selected assembly anchor is missing");
             for (const auto &part : selected->parts) {
                 if (!part || !part->occurrence ||
                     std::find(snapshot.events.begin(), snapshot.events.end(),
@@ -63,7 +68,8 @@ bool SaveAssetRecording(const AssetCatalog &catalog,
             }
         }
         document["asset_browser"] = {
-            { "version", 1 },
+            { "version", 2 },
+            { "anchor", selected ? selected->id : uint64_t(0) },
             { "label", selected ? selected->label : "" },
             { "frame", selected ? selected->frame : catalog.frame },
             { "parts", ids },
@@ -154,7 +160,11 @@ bool ReopenAssetRecording(const std::filesystem::path &path,
             auto document = Json::parse(snapshot.annotations);
             if (document.contains("asset_browser")) {
                 const auto &asset = document.at("asset_browser");
-                if (asset.at("version") != 1 ||
+                const auto version = asset.at("version");
+                if ((version != 1 && version != 2) ||
+                    (version == 2 &&
+                     (!asset.contains("anchor") ||
+                      !asset.at("anchor").is_number_unsigned())) ||
                     !asset.at("label").is_string() ||
                     !asset.at("parts").is_array() ||
                     asset.at("parts").size() > 256 ||
@@ -172,6 +182,16 @@ bool ReopenAssetRecording(const std::filesystem::path &path,
                         throw std::runtime_error(
                             "Invalid or duplicate asset member");
                     ids.push_back(id.get<uint64_t>());
+                }
+                if (version == 2) {
+                    const auto anchor = asset.at("anchor").get<uint64_t>();
+                    const auto found =
+                        std::find(ids.begin(), ids.end(), anchor);
+                    if ((!ids.empty() && found == ids.end()) ||
+                        (ids.empty() && anchor != 0))
+                        throw std::runtime_error("Invalid asset anchor");
+                    if (found != ids.end())
+                        std::rotate(ids.begin(), found, found + 1);
                 }
                 if (!ids.empty()) {
                     if (asset.at("frame").get<uint64_t>() != result.frame)

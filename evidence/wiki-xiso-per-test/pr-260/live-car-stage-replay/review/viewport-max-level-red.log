@@ -1,0 +1,6 @@
+TAP version 14
+# random seed: R02S3f08f8998842110dcbd04070be917da5
+**
+ERROR:tests/unit/test-xemu-asset-browser-viewport.cc:671:int main(int, char**): assertion failed (linear.captured_parts == 1): (0 == 1)
+Bail out! ERROR:tests/unit/test-xemu-asset-browser-viewport.cc:671:int main(int, char**): assertion failed (linear.captured_parts == 1): (0 == 1)
+Aborted

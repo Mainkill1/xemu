@@ -6,7 +6,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../../ui/thirdparty/stb_image/stb_image.h"
 using namespace xemu::asset_browser;
-static AssetCatalog Fixture()
+static AssetCatalog Fixture(bool placed = false)
 {
     capture::CaptureSession session;
     capture::CaptureSessionContext context;
@@ -37,6 +37,47 @@ static AssetCatalog Fixture()
         uniform.data = constants;
         uniform.byte_count = sizeof(constants);
         g_assert_true(session.StageUniform(token, uniform));
+        if (placed) {
+            const std::string vs =
+                "#define R12 oPos\nvoid main(){"
+                "DP4(oPos,x,v0,c[0]);DP4(oPos,y,v0,c[1]);"
+                "DP4(oPos,z,v0,c[2]);DP4(oPos,w,v0,c[3]);"
+                "RCC(R1,x,R12.w);MUL(oPos,xyz,R12.xyz,c[4].xyz);"
+                "MAD(oPos,xyz,R12.xyz,R1.x,c[5].xyz);"
+                "oPos.xy=roundScreenCoords(oPos.xy);oPos.w=clampAwayZeroInf("
+                "oPos.w);"
+                "vec4 "
+                "vtxPos=oPos;oPos.xy=(2.0f*oPos.xy-surfaceSize)/surfaceSize;"
+                "oPos.z=oPos.z/clipRange.y;oPos.xyz*=oPos.w;gl_Position=oPos;}";
+            g_assert_true(session.StageSource(token, 1, vs.data(), vs.size()));
+            std::array<float, 24> c{};
+            for (size_t i = 0; i < 4; ++i)
+                c[i * 4 + i] = 1;
+            c[3] = float(draw);
+            c[16] = 320;
+            c[17] = 240;
+            c[18] = 65535;
+            c[20] = 320;
+            c[21] = 240;
+            uniform.name = "c";
+            uniform.count = 6;
+            uniform.data = c.data();
+            uniform.byte_count = sizeof(c);
+            g_assert_true(session.StageUniform(token, uniform));
+            const float extent[] = { 640, 480 },
+                        clip[] = { 0, 65535, 0, 65535 };
+            uniform.name = "surfaceSize";
+            uniform.count = 1;
+            uniform.components = 2;
+            uniform.data = extent;
+            uniform.byte_count = sizeof(extent);
+            g_assert_true(session.StageUniform(token, uniform));
+            uniform.name = "clipRange";
+            uniform.components = 4;
+            uniform.data = clip;
+            uniform.byte_count = sizeof(clip);
+            g_assert_true(session.StageUniform(token, uniform));
+        }
         float positions[] = { float(draw), 0, 0, float(draw) + 1, 0, 0,
                               float(draw), 1, 0 };
         XemuShaderDrawBlob blob{};
@@ -149,6 +190,44 @@ static void TestRoundTrip()
     g_assert_null(restored.get());
     std::filesystem::remove_all(path);
 }
+static void TestAnchorRoundTrip()
+{
+    auto catalog = Fixture(true);
+    const auto anchor = catalog.parts[10]->id;
+    auto selected = MakeAssetAssembly(catalog, { anchor, catalog.parts[0]->id },
+                                      "Body anchor");
+    g_assert_true(selected.captured_placement);
+    g_assert_cmpuint(selected.id, ==, anchor);
+    g_assert_cmpuint(selected.parts.front()->id, !=, anchor);
+    auto path =
+        std::filesystem::temp_directory_path() / "xemu-asset-anchor-roundtrip";
+    std::filesystem::remove_all(path);
+    std::string error;
+    g_assert_true(SaveAssetAssembly(selected, path, &error));
+    AssetAssembly restored;
+    g_assert_true(ReopenAssetAssembly(path, &restored, &error));
+    g_assert_cmpuint(restored.id, ==, anchor);
+    g_assert_true(restored.captured_placement);
+    g_assert_true(restored.local_from_captured_clip ==
+                  selected.local_from_captured_clip);
+    g_assert_true(restored.anchor_from_local == selected.anchor_from_local);
+    nlohmann::json metadata;
+    std::ifstream(path / "metadata.json") >> metadata;
+    auto annotations =
+        nlohmann::json::parse(metadata["annotations"].get<std::string>());
+    annotations["asset_browser"]["anchor"] = UINT64_C(999999);
+    metadata["annotations"] = annotations.dump();
+    std::ofstream(path / "metadata.json") << metadata.dump();
+    g_assert_false(ReopenAssetAssembly(path, &restored, &error));
+    // Legacy packages have no explicit anchor; retain their original semantics.
+    annotations["asset_browser"]["version"] = 1;
+    annotations["asset_browser"].erase("anchor");
+    metadata["annotations"] = annotations.dump();
+    std::ofstream(path / "metadata.json") << metadata.dump();
+    g_assert_true(ReopenAssetAssembly(path, &restored, &error));
+    g_assert_cmpuint(restored.id, ==, selected.parts.front()->id);
+    std::filesystem::remove_all(path);
+}
 static uint32_t U32(const std::vector<uint8_t> &bytes, size_t offset)
 {
     return uint32_t(bytes[offset]) | uint32_t(bytes[offset + 1]) << 8 |
@@ -217,5 +296,6 @@ int main(int argc, char **argv)
     g_test_init(&argc, &argv, nullptr);
     g_test_add_func("/asset/export/roundtrip", TestRoundTrip);
     g_test_add_func("/asset/export/glb", TestGlb);
+    g_test_add_func("/asset/export/anchor-roundtrip", TestAnchorRoundTrip);
     return g_test_run();
 }

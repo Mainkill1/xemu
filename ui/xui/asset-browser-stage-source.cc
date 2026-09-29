@@ -107,7 +107,7 @@ AssetStageSource BuildAssetStageSource(const std::string &original,
                     "vec4 asset_window_position = "
                     "vec4((gl_Position.xy/"
                     "gl_Position.w*.5+.5)*asset_viewport_extent,gl_Position.z/"
-                    "gl_Position.w,gl_Position.w);\n";
+                    "gl_Position.w*.5+.5,gl_Position.w);\n";
             for (const auto *name : { "vtxPos0", "vtxPos1", "vtxPos2" })
                 if (text.find(name) != std::string::npos)
                     text += std::string(name) + " = asset_window_position;\n";

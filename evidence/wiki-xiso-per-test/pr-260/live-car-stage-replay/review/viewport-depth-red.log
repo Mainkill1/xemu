@@ -1,0 +1,6 @@
+TAP version 14
+# random seed: R02Sfa94ab8bd0a012a19803f01c00596dc3
+**
+ERROR:tests/unit/test-xemu-asset-browser-viewport.cc:511:int main(int, char**): assertion failed (pixel(45,64,0) > 200): (0 > 200)
+Bail out! ERROR:tests/unit/test-xemu-asset-browser-viewport.cc:511:int main(int, char**): assertion failed (pixel(45,64,0) > 200): (0 > 200)
+Aborted

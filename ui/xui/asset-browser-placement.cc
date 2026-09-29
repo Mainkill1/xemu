@@ -114,8 +114,13 @@ AssetPlacement DecodeAssetPlacement(const capture::CaptureOccurrence &event)
         "oPos.xy=roundScreenCoords(oPos.xy);oPos.w=clampAwayZeroInf(oPos.w);"
         "vec4vtxPos=oPos;oPos.xy=(2.0f*oPos.xy-surfaceSize)/"
         "surfaceSize;oPos.z=oPos.z/clipRange.y;oPos.xyz*=oPos.w;";
+    const std::string vk_position = "gl_Position=oPos;";
+    const std::string gl_position =
+        "gl_Position=vec4(oPos.x,oPos.y,2.0*oPos.z-oPos.w,oPos.w);";
+    const bool gl_depth = source.find(gl_position) != std::string::npos;
+    const auto &position = gl_depth ? gl_position : vk_position;
     if (source.find(epilogue) == std::string::npos ||
-        source.find("gl_Position=oPos;") == std::string::npos)
+        source.find(position) == std::string::npos)
         return result;
     static const std::regex instruction(R"(([A-Z][A-Z0-9]*)\(([^;{}]+)\);)");
     static const std::regex dp4(R"(oPos,([xyzw]),v0,c\[([0-9]{1,3})\])");
@@ -185,7 +190,7 @@ AssetPlacement DecodeAssetPlacement(const capture::CaptureOccurrence &event)
             other.erase(at, text.size());
     };
     remove(epilogue);
-    remove("gl_Position=oPos;");
+    remove(position);
     if (other.find("oPos") != std::string::npos ||
         other.find("R12") != std::string::npos)
         return result;
@@ -214,6 +219,9 @@ AssetPlacement DecodeAssetPlacement(const capture::CaptureOccurrence &event)
         result.clip_from_local[8 + column] =
             c[scale_index * 4 + 2] / clip[1] * c[rows[2] * 4 + column] +
             c[bias_index * 4 + 2] / clip[1] * w;
+        if (gl_depth)
+            result.clip_from_local[8 + column] =
+                2 * result.clip_from_local[8 + column] - w;
         result.clip_from_local[12 + column] = w;
     }
     AssetMatrix inverse;

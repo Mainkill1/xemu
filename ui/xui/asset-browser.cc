@@ -199,9 +199,10 @@ void AssetBrowserWindow::Draw()
                 if (result.opened) {
                     InspectCatalog(std::move(result.catalog));
                     if (result.selected) {
-                        std::vector<uint64_t> ids;
+                        std::vector<uint64_t> ids{ result.selected->id };
                         for (const auto &part : result.selected->parts)
-                            ids.push_back(part->id);
+                            if (part->id != result.selected->id)
+                                ids.push_back(part->id);
                         s.controller.Assemble(ids, result.selected->label);
                         s.controller.RememberSelected();
                     }
@@ -357,10 +358,7 @@ void AssetBrowserWindow::Draw()
         !s.opening && !visible.empty()) {
         auto found =
             std::find_if(visible.begin(), visible.end(), [&](size_t i) {
-                return selected && !selected->parts.empty() &&
-                       !catalog.entries[i].parts.empty() &&
-                       catalog.entries[i].parts.front() ==
-                           selected->parts.front();
+                return selected && catalog.entries[i].id == selected->id;
             });
         size_t row =
             found == visible.end() ? 0 : size_t(found - visible.begin());
@@ -452,11 +450,8 @@ void AssetBrowserWindow::Draw()
             selected = s.controller.Selected();
             std::string title = entry.label + "##select";
             if (ImGui::Selectable(title.c_str(),
-                                  selected && !selected->parts.empty() &&
-                                      !entry.parts.empty() &&
-                                      entry.parts.front() ==
-                                          selected->parts.front(),
-                                  0, ImVec2(0, 18)))
+                                  selected && entry.id == selected->id, 0,
+                                  ImVec2(0, 18)))
                 s.controller.Select(entry.id);
             ImGui::Text("E%llu | %zu parts", (unsigned long long)entry.id,
                         entry.parts.size());

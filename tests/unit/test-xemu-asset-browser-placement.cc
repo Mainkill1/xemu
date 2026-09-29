@@ -51,9 +51,19 @@ int main()
 {
     auto d = Draw();
     auto gl = d;
+    auto gl_text = std::string(d.inputs.sources[1]->bytes.begin(),
+                               d.inputs.sources[1]->bytes.end());
+    gl_text.replace(
+        gl_text.find("gl_Position = oPos;"), 19,
+        "gl_Position = vec4(oPos.x, oPos.y, 2.0*oPos.z - oPos.w, oPos.w);");
+    gl.inputs.sources[1] = Bytes(gl_text.data(), gl_text.size());
     for (auto &u : gl.inputs.uniforms)
         u.stage = 0;
     assert(DecodeAssetPlacement(gl).valid);
+    std::array<float, 3> gl_near;
+    assert(TransformAssetPoint(DecodeAssetPlacement(gl).clip_from_local,
+                               { 0, 0, 0 }, &gl_near));
+    assert(std::abs(gl_near[2] + 1.f) < 1e-5f);
     auto prefix = std::make_shared<capture::CaptureImmutableBlock>(
         *gl.inputs.uniforms[0].data);
     prefix->bytes.resize(118 * 16);
