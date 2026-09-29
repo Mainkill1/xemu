@@ -9,6 +9,11 @@
 #include <fstream>
 #include <mutex>
 #include <stdexcept>
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
+#endif
 
 namespace xemu::asset_browser {
 namespace {
@@ -39,14 +44,15 @@ void Check(capture::CaptureFileControl *control, size_t done, size_t total)
 } // namespace
 bool ExportAssetGlb(const AssetAssembly &assembly,
                     const std::filesystem::path &path, std::string *error,
-                    capture::CaptureFileControl *control)
+                    capture::CaptureFileControl *control, bool replace_scratch)
 {
     if (error)
         error->clear();
     std::filesystem::path temporary;
     try {
         Check(control, 0, assembly.parts.size());
-        if (path.empty() || std::filesystem::exists(path) ||
+        if (path.empty() ||
+            (!replace_scratch && std::filesystem::exists(path)) ||
             assembly.parts.empty() || assembly.parts.size() > 256)
             throw std::runtime_error(
                 "GLB requires bounded parts and a new destination");
@@ -275,12 +281,24 @@ bool ExportAssetGlb(const AssetAssembly &assembly,
             throw std::runtime_error("GLB write failed");
         if (control && !control->BeginPublication())
             throw std::runtime_error("Asset export cancelled");
-        if (std::filesystem::exists(path))
-            throw std::runtime_error(
-                "GLB destination was created during export");
-        // A hard link publishes without replacing a racing destination. The
-        // staging file is on the same filesystem; unsupported filesystems fail.
-        std::filesystem::create_hard_link(staging, path);
+        if (replace_scratch) {
+#ifdef _WIN32
+            if (!MoveFileExW(staging.c_str(), path.c_str(),
+                             MOVEFILE_REPLACE_EXISTING |
+                                 MOVEFILE_WRITE_THROUGH))
+                throw std::runtime_error("Cannot replace scratch GLB");
+#else
+            std::filesystem::rename(staging, path);
+#endif
+        } else {
+            if (std::filesystem::exists(path))
+                throw std::runtime_error(
+                    "GLB destination was created during export");
+            // A hard link publishes without replacing a racing destination. The
+            // staging file is on the same filesystem; unsupported filesystems
+            // fail.
+            std::filesystem::create_hard_link(staging, path);
+        }
         // Publication already succeeded. Cleanup failure must not report that
         // the destination was never created.
         std::error_code ignored;

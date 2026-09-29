@@ -51,16 +51,24 @@ the supported way to establish an assembly at this checkpoint.
 
 ## Save and extract
 
-Enter a new directory or GLB filename in the file path control. Existing
-destinations are refused. File work runs asynchronously and can be canceled before
-publication.
+GLB export needs no filename entry: select or assemble the parts you want, then
+choose **Update scratch GLB**. It writes `asset-browser/scratch.glb` under xemu's
+user preferences folder and reports the full path when finished. Each successful
+export replaces the previous scratch; a failed or canceled export preserves it.
+The scratch is an inspection file, not a saved collection of assets.
+
+Choose **Save GLB as...** to keep a separate copy with your chosen filename.
+Existing saved files are refused. The **Capture directory** field is only for
+recording and input packages. File work runs asynchronously and can be canceled
+before publication.
 
 - **Save captured frame:** preserves the selected frame's immutable events,
   resources and assembly annotation, including the other uses of its shaders.
 - **Extract selected inputs:** preserves only selected occurrences and their
   inputs. It explicitly lacks the complete ordered frame/dependency closure.
-- **Export GLB:** exports decoded triangles, raw UVs/colors, supported captured
-  base textures and fidelity/provenance metadata. It is a diagnostic mesh export.
+- **Update scratch GLB / Save GLB as...:** exports decoded triangles, raw
+  UVs/colors, supported captured base textures and fidelity/provenance metadata.
+  It is a diagnostic mesh export.
 - **Open capture:** reopens owned data without reading resources from the current
   game. The saved selection is restored and frozen.
 

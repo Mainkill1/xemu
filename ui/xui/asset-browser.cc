@@ -32,6 +32,7 @@ struct AssetBrowserWindow::Impl {
     uint64_t checked_frame = 0;
     char label[256] = "My car";
     char path[1024] = "asset-capture";
+    char glb_path[1024] = "asset.glb";
     bool was_open = false, inspector = true, wire = false, largest = true;
     bool captured_stages = true;
     bool projected_output = false;
@@ -52,18 +53,20 @@ struct AssetBrowserWindow::Impl {
     int capture_mib = 256, decoded_mib = 128, mesh_mib = 256;
     int event_limit = 32768, part_limit = 2048, vertex_limit = 1048576;
     int index_limit = 3145728, sample_ms = 33, thumbnails = 24;
-    enum class FileAction { SaveFrame, SaveAssembly, Glb, Open };
+    enum class FileAction { SaveFrame, SaveAssembly, Glb, ScratchGlb, Open };
     void StartFile(FileAction action)
     {
         if (file.valid())
             return;
         auto assembly = controller.Selected();
-        if ((action == FileAction::SaveAssembly || action == FileAction::Glb) &&
+        if ((action == FileAction::SaveAssembly || action == FileAction::Glb ||
+             action == FileAction::ScratchGlb) &&
             !assembly) {
             message = "Select an assembly first";
             return;
         }
-        if (!path[0]) {
+        if (action != FileAction::ScratchGlb &&
+            !(action == FileAction::Glb ? glb_path[0] : path[0])) {
             message = "Enter a capture directory or GLB filename";
             return;
         }
@@ -74,7 +77,26 @@ struct AssetBrowserWindow::Impl {
             if (assembly)
                 catalog.frame = assembly->frame;
         }
-        auto destination = std::filesystem::u8path(path);
+        std::filesystem::path destination;
+        try {
+            if (action == FileAction::ScratchGlb) {
+                char *preferences = SDL_GetPrefPath("xemu", "xemu");
+                if (!preferences) {
+                    message = "Cannot locate scratch GLB folder: " +
+                              std::string(SDL_GetError());
+                    return;
+                }
+                destination = std::filesystem::u8path(preferences) /
+                              "asset-browser" / "scratch.glb";
+                SDL_free(preferences);
+                std::filesystem::create_directories(destination.parent_path());
+            } else
+                destination = std::filesystem::u8path(
+                    action == FileAction::Glb ? glb_path : path);
+        } catch (const std::exception &exception) {
+            message = exception.what();
+            return;
+        }
         opening = action == FileAction::Open;
         if (opening) {
             live.Disable();
@@ -102,8 +124,10 @@ struct AssetBrowserWindow::Impl {
                             *assembly, destination, &error, control.get());
                         break;
                     case FileAction::Glb:
-                        result.success = ExportAssetGlb(*assembly, destination,
-                                                        &error, control.get());
+                    case FileAction::ScratchGlb:
+                        result.success = ExportAssetGlb(
+                            *assembly, destination, &error, control.get(),
+                            action == FileAction::ScratchGlb);
                         break;
                     case FileAction::Open:
                         result.success = ReopenAssetRecording(
@@ -379,7 +403,7 @@ void AssetBrowserWindow::Draw()
             "the game. Retry keeps your current budgets.");
     }
     ImGui::SetNextItemWidth(350);
-    ImGui::InputText("Capture directory / GLB file", s.path, sizeof(s.path));
+    ImGui::InputText("Capture directory", s.path, sizeof(s.path));
     ImGui::BeginDisabled(s.file.valid());
     if (ImGui::Button("Save captured frame"))
         s.StartFile(Impl::FileAction::SaveFrame);
@@ -387,12 +411,34 @@ void AssetBrowserWindow::Draw()
     if (ImGui::Button("Extract selected inputs"))
         s.StartFile(Impl::FileAction::SaveAssembly);
     ImGui::SameLine();
-    if (ImGui::Button("Export GLB"))
-        s.StartFile(Impl::FileAction::Glb);
+    if (ImGui::Button("Update scratch GLB"))
+        s.StartFile(Impl::FileAction::ScratchGlb);
+    if (ImGui::IsItemHovered())
+        ImGui::SetTooltip("Export the selection to xemu's scratch.glb. Each "
+                          "successful export replaces the previous scratch.");
+    ImGui::SameLine();
+    if (ImGui::Button("Save GLB as..."))
+        ImGui::OpenPopup("Save GLB copy");
     ImGui::SameLine();
     if (ImGui::Button("Open capture"))
         s.StartFile(Impl::FileAction::Open);
     ImGui::EndDisabled();
+    if (ImGui::BeginPopupModal("Save GLB copy", nullptr,
+                               ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::TextUnformatted("Choose a filename to keep this selection.");
+        ImGui::SetNextItemWidth(500);
+        ImGui::InputText("GLB filename", s.glb_path, sizeof(s.glb_path));
+        ImGui::BeginDisabled(s.file.valid() || !s.glb_path[0]);
+        if (ImGui::Button("Save copy")) {
+            s.StartFile(Impl::FileAction::Glb);
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndDisabled();
+        ImGui::SameLine();
+        if (ImGui::Button("Cancel"))
+            ImGui::CloseCurrentPopup();
+        ImGui::EndPopup();
+    }
     if (s.file_control) {
         auto progress = s.file_control->Progress();
         ImGui::Text("File work: %llu / %llu",

@@ -17,5 +17,6 @@ bool ReopenAssetAssembly(const std::filesystem::path &, AssetAssembly *,
                          std::string *error = nullptr);
 bool ExportAssetGlb(const AssetAssembly &, const std::filesystem::path &,
                     std::string *error = nullptr,
-                    capture::CaptureFileControl *control = nullptr);
+                    capture::CaptureFileControl *control = nullptr,
+                    bool replace_scratch = false);
 } // namespace xemu::asset_browser

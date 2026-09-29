@@ -291,11 +291,45 @@ static void TestGlb()
     g_assert_false(std::filesystem::exists(cancelled));
     // Retain the small fixture for an independent external glTF importer.
 }
+static void TestScratchGlb()
+{
+    auto catalog = Fixture();
+    auto selected =
+        MakeAssetAssembly(catalog, { catalog.parts[0]->id }, "First");
+    auto directory = std::filesystem::temp_directory_path() /
+                     "xemu-asset-browser-scratch-fixture";
+    std::filesystem::remove_all(directory);
+    std::filesystem::create_directory(directory);
+    auto path = directory / "scratch.glb";
+    std::string error;
+    g_assert_true(ExportAssetGlb(selected, path, &error, nullptr, true));
+    selected.label = "Second";
+    g_assert_true(ExportAssetGlb(selected, path, &error, nullptr, true));
+    auto read = [&] {
+        std::ifstream file(path, std::ios::binary);
+        return std::vector<uint8_t>((std::istreambuf_iterator<char>(file)), {});
+    };
+    const auto replacement = read();
+    auto length = U32(replacement, 12);
+    auto doc = nlohmann::json::parse(replacement.begin() + 20,
+                                     replacement.begin() + 20 + length);
+    g_assert_true(doc["nodes"][0]["name"] == "Second");
+    capture::CaptureFileControl cancel;
+    cancel.RequestCancel();
+    g_assert_false(ExportAssetGlb(selected, path, &error, &cancel, true));
+    g_assert_true(read() == replacement);
+    selected.parts.clear();
+    g_assert_false(ExportAssetGlb(selected, path, &error, nullptr, true));
+    g_assert_true(read() == replacement);
+    g_assert_false(ExportAssetGlb(selected, path, &error));
+    std::filesystem::remove_all(directory);
+}
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, nullptr);
     g_test_add_func("/asset/export/roundtrip", TestRoundTrip);
     g_test_add_func("/asset/export/glb", TestGlb);
+    g_test_add_func("/asset/export/scratch-glb", TestScratchGlb);
     g_test_add_func("/asset/export/anchor-roundtrip", TestAnchorRoundTrip);
     return g_test_run();
 }
