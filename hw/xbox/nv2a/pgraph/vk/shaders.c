@@ -231,15 +231,9 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
         force_reupload || r->uniform_stage_dirty[PGRAPH_UNIFORM_STAGE_VSH],
         force_reupload || r->uniform_stage_dirty[PGRAPH_UNIFORM_STAGE_PSH],
     };
-    if (binding->psh.module_info->uniforms.total_size == 0) {
-        need_uniform_write[PGRAPH_UNIFORM_STAGE_PSH] = false;
-        r->uniform_stage_dirty[PGRAPH_UNIFORM_STAGE_PSH] = false;
-        sync_uniform_dirty_summary(r);
-    }
     if (!r->storage_buffers[BUFFER_UNIFORM_STAGING].buffer_offset) {
         need_uniform_write[PGRAPH_UNIFORM_STAGE_VSH] = true;
-        need_uniform_write[PGRAPH_UNIFORM_STAGE_PSH] =
-            binding->psh.module_info->uniforms.total_size != 0;
+        need_uniform_write[PGRAPH_UNIFORM_STAGE_PSH] = true;
     }
     bool any_uniform_write =
         need_uniform_write[PGRAPH_UNIFORM_STAGE_VSH] ||
@@ -317,8 +311,7 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
         }
         pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
         need_uniform_write[PGRAPH_UNIFORM_STAGE_VSH] = true;
-        need_uniform_write[PGRAPH_UNIFORM_STAGE_PSH] =
-            binding->psh.module_info->uniforms.total_size != 0;
+        need_uniform_write[PGRAPH_UNIFORM_STAGE_PSH] = true;
         any_uniform_write = true;
         need_uber_control_write = uses_uber_controls;
         need_descriptor_update = true;
@@ -374,9 +367,8 @@ void pgraph_vk_update_descriptor_sets(PGRAPHState *pg)
     for (int i = 0; i < ARRAY_SIZE(layouts); i++) {
         ubo_buffer_infos[i] = (VkDescriptorBufferInfo){
             .buffer = r->storage_buffers[BUFFER_UNIFORM].buffer,
-            .offset = layouts[i]->total_size ?
-                r->uniform_buffer_offsets[i] : 0,
-            .range = layouts[i]->total_size ? layouts[i]->total_size : 16,
+            .offset = r->uniform_buffer_offsets[i],
+            .range = layouts[i]->total_size,
         };
         descriptor_writes[i] = (VkWriteDescriptorSet){
             .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
@@ -547,39 +539,13 @@ get_and_ref_shader_module_for_key(PGRAPHVkState *r,
     return module->module_info;
 }
 
-static void publish_vk_stage_artifacts(const ShaderState *state,
-                                       uint32_t stage,
-                                       const ShaderModuleInfo *module,
-                                       const char *route)
-{
-    if (!module) {
-        return;
-    }
-    if (module->glsl) {
-        pgraph_shader_browser_publish_generated_artifact(
-            state, stage, "vulkan", route, "glsl", "glsl",
-            (const uint8_t *)module->glsl, strlen(module->glsl));
-    }
-    if (module->spirv) {
-        pgraph_shader_browser_publish_generated_artifact(
-            state, stage, "vulkan", route, "spirv", "spv",
-            module->spirv->data, module->spirv->len);
-    }
-}
-
 static void shader_cache_entry_init(Lru *lru, LruNode *node, const void *key)
 {
-    int64_t shader_prepare_start = g_get_monotonic_time();
     PGRAPHVkState *r = container_of(lru, PGRAPHVkState, shader_cache);
     ShaderBinding *binding = container_of(node, ShaderBinding, node);
     const ShaderBindingKey *binding_key = key;
     binding->state = binding_key->state;
-    memset(&binding->browser, 0, sizeof(binding->browser));
     binding->fragment_route = binding_key->fragment_route;
-    binding->override_action = binding_key->override_action;
-    binding->override_replacement_id = binding_key->override_replacement_id;
-    binding->override_replacement_revision =
-        binding_key->override_replacement_revision;
     binding->next_promotion_probe_us = 0;
 
     NV2A_VK_DPRINTF("cache miss");
@@ -601,45 +567,14 @@ static void shader_cache_entry_init(Lru *lru, LruNode *node, const void *key)
     binding->vsh.module_info =
         get_and_ref_shader_module_for_key(r, &module_key);
 
-    if (binding->override_action) {
-        assert(r->override_pending_fragment);
-        binding->psh.module_info = r->override_pending_fragment;
-        pgraph_vk_ref_shader_module(binding->psh.module_info);
-        r->override_pending_fragment = NULL;
-    } else {
-        init_fragment_module_key(&module_key, &binding->state.psh,
-                                 binding->fragment_route);
-        binding->psh.module_info =
-            get_and_ref_shader_module_for_key(r, &module_key);
-        assert(binding->psh.module_info->uses_uber_controls ==
-               (binding->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER));
-    }
+    init_fragment_module_key(&module_key, &binding->state.psh,
+                             binding->fragment_route);
+    binding->psh.module_info =
+        get_and_ref_shader_module_for_key(r, &module_key);
+    assert(binding->psh.module_info->uses_uber_controls ==
+           (binding->fragment_route == PGRAPH_VK_FRAGMENT_UBERSHADER));
 
     update_shader_uniform_locs(binding);
-    if (xemu_shader_browser_session_collection_enabled()) {
-        binding->browser.prepare_cpu_ns =
-            (uint64_t)(g_get_monotonic_time() - shader_prepare_start) * 1000;
-        binding->browser.timings_pending = true;
-    }
-    if (xemu_shader_browser_external_artifacts_enabled()) {
-        const char *route = binding->fragment_route ==
-                                    PGRAPH_VK_FRAGMENT_UBERSHADER ?
-                                "uber" : "specialized";
-        publish_vk_stage_artifacts(
-            &binding->state,
-            binding->state.vsh.is_fixed_function ?
-                XEMU_SHADER_BROWSER_STAGE_FIXED_FUNCTION :
-                XEMU_SHADER_BROWSER_STAGE_VERTEX,
-            binding->vsh.module_info, "specialized");
-        publish_vk_stage_artifacts(
-            &binding->state, XEMU_SHADER_BROWSER_STAGE_GEOMETRY,
-            binding->geom.module_info, "specialized");
-        if (!binding->override_action) {
-            publish_vk_stage_artifacts(
-                &binding->state, XEMU_SHADER_BROWSER_STAGE_PIXEL,
-                binding->psh.module_info, route);
-        }
-    }
 }
 
 static void shader_cache_entry_post_evict(Lru *lru, LruNode *node)
@@ -673,11 +608,6 @@ static bool shader_cache_entry_compare(Lru *lru, LruNode *node, const void *key)
     const ShaderBindingKey *binding_key = key;
 
     return snode->fragment_route != binding_key->fragment_route ||
-           snode->override_action != binding_key->override_action ||
-           snode->override_replacement_id !=
-               binding_key->override_replacement_id ||
-           snode->override_replacement_revision !=
-               binding_key->override_replacement_revision ||
            memcmp(&snode->state, &binding_key->state,
                   sizeof(snode->state)) != 0;
 }
@@ -1612,146 +1542,6 @@ static ShaderBinding *get_shader_binding_for_key(PGRAPHVkState *r,
     return binding;
 }
 
-static guint override_binding_failure_hash(gconstpointer opaque)
-{
-    const ShaderBindingKey *key = opaque;
-    uint64_t hash = fast_hash((const uint8_t *)&key->state,
-                              sizeof(key->state));
-    hash ^= key->override_replacement_id;
-    hash ^= key->override_replacement_revision;
-    hash ^= ((uint64_t)key->override_action << 32) |
-            key->fragment_route;
-    return (guint)(hash ^ (hash >> 32));
-}
-
-static gboolean override_binding_failure_equal(gconstpointer a,
-                                               gconstpointer b)
-{
-    return pgraph_vk_shader_binding_key_equal(a, b);
-}
-
-/* Authored fragments use the renderer's fixed set-0 ABI. Validate the
- * reflected resources before handing a candidate to a graphics pipeline. */
-static bool override_fragment_layout_supported(const ShaderModuleInfo *module)
-{
-    /* v1 authored Vulkan fragments can sample guest textures, but do not
-     * accept a custom uniform block until every guest upload shape is
-     * reflected and checked. The generic writer has fatal size assertions. */
-    if (module->uses_uber_controls || module->uniforms.total_size != 0 ||
-        module->reflect_module.push_constant_block_count ||
-        module->uniforms.num_uniforms) {
-        return false;
-    }
-    uint32_t count = 0;
-    if (spvReflectEnumerateDescriptorSets(
-            (SpvReflectShaderModule *)&module->reflect_module, &count,
-            NULL) != SPV_REFLECT_RESULT_SUCCESS) {
-        return false;
-    }
-    for (uint32_t i = 0; i < count; ++i) {
-        const SpvReflectDescriptorSet *set = module->descriptor_sets[i];
-        if (!set || set->set != 0) {
-            return false;
-        }
-        for (uint32_t j = 0; j < set->binding_count; ++j) {
-            const SpvReflectDescriptorBinding *binding = set->bindings[j];
-            if (!binding || binding->count != 1) {
-                return false;
-            }
-            if (binding->binding == PSH_UBO_BINDING) {
-                return false;
-            } else if (binding->binding < PSH_TEX_BINDING ||
-                       binding->binding >=
-                           PSH_TEX_BINDING + NV2A_MAX_TEXTURES ||
-                       binding->descriptor_type !=
-                           SPV_REFLECT_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
-ShaderBinding *pgraph_vk_prepare_override_binding(
-    PGRAPHState *pg, const ShaderBindingKey *key, char error[256])
-{
-    static const char highlight_source[] =
-        "#version 450\n"
-        "layout(location = 0) out vec4 outColor;\n"
-        "void main() { outColor = vec4(1.0, 0.0, 1.0, 1.0); }\n";
-    PGRAPHVkState *r = pg->vk_renderer_state;
-    uint64_t hash = fast_hash((const uint8_t *)key, sizeof(*key));
-    LruNode *node = lru_find_existing(&r->shader_cache, hash, key);
-    if (node) {
-        return container_of(node, ShaderBinding, node);
-    }
-    const char *previous_error = g_hash_table_lookup(
-        r->override_failed_bindings, key);
-    if (previous_error) {
-        g_strlcpy(error, previous_error, 256);
-        return NULL;
-    }
-
-    XemuShaderReplacementSource source = { 0 };
-    const char *glsl = highlight_source;
-    char *owned_glsl = NULL;
-    if (key->override_action == XEMU_SHADER_OVERRIDE_ACTION_REPLACEMENT) {
-        if (!xemu_shader_override_acquire_replacement(
-                key->override_replacement_id,
-                key->override_replacement_revision,
-                XEMU_SHADER_OVERRIDE_BACKEND_VULKAN, &source)) {
-            g_strlcpy(error, "Replacement source is unavailable", 256);
-            goto failed;
-        }
-        if (strcmp(source.entry_point, "main")) {
-            g_strlcpy(error, "Vulkan replacement entry point must be main",
-                      256);
-            goto failed;
-        }
-        owned_glsl = g_strndup((const char *)source.data, source.size);
-        glsl = owned_glsl;
-    }
-
-    GByteArray *spirv = pgraph_vk_compile_glsl_to_spv(
-        r, GLSLANG_STAGE_FRAGMENT, glsl);
-    if (!spirv) {
-        g_strlcpy(error, "Vulkan fragment GLSL compilation failed", 256);
-        goto failed;
-    }
-    ShaderModuleInfo *module = pgraph_vk_create_shader_module_from_spirv(
-        r, VK_SHADER_STAGE_FRAGMENT_BIT, glsl, spirv);
-    g_byte_array_unref(spirv);
-    if (!module || !override_fragment_layout_supported(module)) {
-        if (module) {
-            pgraph_vk_destroy_shader_module(r, module);
-        }
-        g_strlcpy(error, "Vulkan fragment interface is incompatible", 256);
-        goto failed;
-    }
-    r->override_pending_fragment = module;
-    node = lru_try_lookup(&r->shader_cache, hash, key);
-    if (!node) {
-        pgraph_vk_destroy_shader_module(r, module);
-        r->override_pending_fragment = NULL;
-        g_strlcpy(error, "Vulkan shader cache has no free entry", 256);
-        goto failed;
-    }
-    assert(!r->override_pending_fragment);
-    g_free(owned_glsl);
-    xemu_shader_override_release_replacement(&source);
-    return container_of(node, ShaderBinding, node);
-
-failed:
-    if (g_hash_table_size(r->override_failed_bindings) >= 256) {
-        g_hash_table_remove_all(r->override_failed_bindings);
-    }
-    g_hash_table_replace(r->override_failed_bindings,
-                         g_memdup2(key, sizeof(*key)), g_strdup(error));
-    g_free(owned_glsl);
-    xemu_shader_override_release_replacement(&source);
-    return NULL;
-}
-
 /* The probe is conservative because activation may dirty either uniform
  * stage. Temporary rollover is distinct from an unsupported fallback:
  * the descriptor update path can finish/reset and continue using it. */
@@ -2607,16 +2397,12 @@ void pgraph_vk_activate_shaders(PGRAPHState *pg,
     }
     r->hybrid_bound_selection_epoch = r->hybrid_selection_epoch;
 
-    if (shader_state_dirty || !r->shader_binding ||
-        r->shader_binding->fragment_route != fragment_route ||
-        (ready_binding && r->shader_binding != ready_binding) ||
-        (!ready_binding && r->shader_binding->override_action)) {
+    if (shader_state_dirty ||
+        r->shader_binding->fragment_route != fragment_route) {
         ShaderBinding *old_binding = r->shader_binding;
         if (!old_binding ||
             old_binding->fragment_route != fragment_route ||
-            !bound_state_equal ||
-            (ready_binding && old_binding != ready_binding) ||
-            (!ready_binding && old_binding->override_action)) {
+            !bound_state_equal) {
             ShaderBindingKey key = {
                 .state = new_state,
                 .fragment_route = fragment_route,
@@ -2642,11 +2428,6 @@ void pgraph_vk_activate_shaders(PGRAPHState *pg,
     } else {
         nv2a_profile_inc_counter(NV2A_PROF_SHADER_BIND_NOTDIRTY);
     }
-
-    pgraph_shader_browser_refresh_binding_scope(
-        &r->shader_binding->state,
-        pgraph_glsl_need_geom(&r->shader_binding->state.geom),
-        &r->shader_binding->browser);
 
     bool update_stage[PGRAPH_UNIFORM_STAGE_COUNT];
     get_uniform_stage_update_needs(pg, update_stage);
@@ -2681,7 +2462,6 @@ void pgraph_vk_bind_shaders(PGRAPHState *pg)
     ShaderBinding *cached_specialized_binding = NULL;
     PGRAPHVkFragmentRoute fragment_route;
     if (preparation.bound_state_equal &&
-        !r->shader_binding->override_action &&
         r->shader_binding->fragment_route ==
             PGRAPH_VK_FRAGMENT_SPECIALIZED) {
         fragment_route = PGRAPH_VK_FRAGMENT_SPECIALIZED;
@@ -2699,12 +2479,6 @@ void pgraph_vk_bind_shaders(PGRAPHState *pg)
 void pgraph_vk_init_shaders(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
-    r->override_probe_valid = false;
-    r->override_pending_fragment = NULL;
-    r->override_failed_bindings = g_hash_table_new_full(
-        override_binding_failure_hash, override_binding_failure_equal,
-        g_free, g_free);
-    r->override_failed_pipeline_key_valid = false;
 
     XemuVulkanUbershaderMode ubershader_policy =
         xemu_vulkan_ubershader_policy();
@@ -2733,11 +2507,6 @@ void pgraph_vk_init_shaders(PGRAPHState *pg)
     create_descriptor_set_layout(pg);
     create_descriptor_sets(pg);
     shader_cache_init(pg);
-    XemuShaderBrowserScope scope = { 0 };
-    xemu_shader_browser_copy_current_scope(&scope);
-    xemu_shader_override_set_context(
-        scope.title_id, scope.executable_fingerprint_version,
-        scope.executable_fingerprint, XEMU_SHADER_OVERRIDE_BACKEND_VULKAN);
 
     r->hybrid_generation = 1;
     r->hybrid_selection_epoch = 1;
@@ -2782,11 +2551,8 @@ void pgraph_vk_stop_hybrid_compiler(PGRAPHState *pg)
 
 void pgraph_vk_finalize_shaders(PGRAPHState *pg)
 {
-    PGRAPHVkState *r = pg->vk_renderer_state;
     pgraph_vk_stop_hybrid_compiler(pg);
     shader_cache_finalize(pg);
-    g_hash_table_unref(r->override_failed_bindings);
-    r->override_failed_bindings = NULL;
     destroy_descriptor_sets(pg);
     destroy_descriptor_set_layout(pg);
     destroy_descriptor_pool(pg);
