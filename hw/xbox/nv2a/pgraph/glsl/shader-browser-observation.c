@@ -123,6 +123,12 @@ void pgraph_shader_browser_capture_recipes(
     if (!token || !state || !binding ||
         !xemu_shader_draw_request_wants_inputs(token))
         return;
+    uint8_t palette[256 * 3];
+    nv2a_copy_dac_palette(palette);
+    XemuShaderDrawBlob display = { .name = "display.dac_palette",
+                                   .data = palette,
+                                   .byte_count = sizeof(palette) };
+    xemu_shader_draw_request_stage_blob(token, &display);
     for (uint32_t i = 0; i < binding->count; ++i) {
         uint8_t bytes[PGRAPH_SHADER_BROWSER_RECIPE_MAX];
         size_t size = 0;

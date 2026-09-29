@@ -148,6 +148,7 @@ typedef struct NV2AState {
     } pramdac;
 
     struct {
+        QemuMutex lock;
         uint16_t write_mode_address;
         uint8_t palette[256*3];
     } puserdac;

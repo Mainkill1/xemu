@@ -294,7 +294,7 @@ struct AssetViewport::Impl {
     };
     std::list<Image> images;
     uint64_t image_bytes = 0;
-    Target target;
+    Target target, display_target;
     GLuint program = 0, background_vao = 0;
     AssetStageRenderer stages;
     uint64_t gpu_bytes = 0, tick = 0;
@@ -309,12 +309,12 @@ struct AssetViewport::Impl {
 layout(location=0) in vec3 position;layout(location=1) in vec2 uv;
 layout(location=2) in vec4 color;
 uniform vec3 center;uniform float radius;uniform vec4 camera;
-uniform vec2 pan;uniform bool background;
+uniform vec2 pan;uniform bool background;uniform bool display;
 uniform mat4 anchor_from_local;
 out vec2 texcoord;out vec4 vertexcolor;
 void main(){
-if(background){vec2 p=vec2((gl_VertexID<<1)&2,gl_VertexID&2);
-gl_Position=vec4(p*2.-1.,0,1);texcoord=vec2(0);vertexcolor=vec4(1);return;}
+if(background||display){vec2 p=vec2((gl_VertexID<<1)&2,gl_VertexID&2);
+gl_Position=vec4(p*2.-1.,0,1);texcoord=p;vertexcolor=vec4(1);return;}
 vec4 placed=anchor_from_local*vec4(position,1);
 vec3 p=(placed.xyz/placed.w-center)/radius;
 float cy=cos(camera.x),sy=sin(camera.x),cp=cos(camera.y),sp=sin(camera.y);
@@ -325,8 +325,12 @@ texcoord=uv;vertexcolor=color;})";
         const char *ps = R"(#version 330 core
 in vec2 texcoord;in vec4 vertexcolor;uniform sampler2D image;
 uniform int textured;uniform int colored;uniform bool background;
+uniform bool display;uniform uint palette[256];
 out vec4 outputColor;
 void main(){
+if(display){vec4 c=texture(image,texcoord);uvec3 i=uvec3(clamp(c.rgb,0.,1.)*255.);
+outputColor=vec4(float(palette[i.r]&255u),float((palette[i.g]>>8)&255u),
+float((palette[i.b]>>16)&255u),c.a*255.)/255.;return;}
 if(background){float tile=mod(floor(gl_FragCoord.x/32.)+floor(gl_FragCoord.y/32.),2.);
 outputColor=vec4(mix(vec3(.20,.035,.29),vec3(.66,.12,.88),tile),1);return;}
 vec4 c=textured!=0?texture(image,texcoord):vec4(.72,.76,.82,1);
@@ -487,6 +491,7 @@ if(colored!=0)c*=vertexcolor;outputColor=vec4(c.rgb,1);})";
         // both the inspector and thumbnails. It does not change mesh colors.
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glUseProgram(program);
+        glUniform1i(glGetUniformLocation(program, "display"), 0);
         glDisable(GL_DEPTH_TEST);
         glUniform1i(glGetUniformLocation(program, "background"), 1);
         glBindVertexArray(background_vao);
@@ -521,6 +526,70 @@ if(colored!=0)c*=vertexcolor;outputColor=vec4(c.rgb,1);})";
             }
             frame.drawn_parts = frame.captured_parts;
             frame.texture = output.color;
+            const capture::SharedCaptureBlock *palette = nullptr;
+            size_t present = 0;
+            for (const auto &part : assembly->parts) {
+                size_t count = 0;
+                for (const auto &blob : part->occurrence->inputs.blobs)
+                    if (blob.name == "display.dac_palette") {
+                        ++count;
+                        if (!blob.data || blob.data->bytes.size() != 768 ||
+                            (palette &&
+                             (*palette)->bytes != blob.data->bytes)) {
+                            frame.texture = 0;
+                            frame.message =
+                                "Captured display palette is invalid "
+                                "or differs between assembly parts";
+                            return frame;
+                        }
+                        palette = &blob.data;
+                    }
+                if (count > 1) {
+                    frame.texture = 0;
+                    frame.message = "Duplicate captured display palette";
+                    return frame;
+                }
+                present += count;
+            }
+            if (present && present != assembly->parts.size()) {
+                frame.texture = 0;
+                frame.message =
+                    "Some assembly parts lack a captured display palette";
+                return frame;
+            }
+            if (palette) {
+                if (!display_target.Resize(w, h)) {
+                    frame.texture = 0;
+                    frame.message = "Captured display target is unavailable";
+                    return frame;
+                }
+                std::array<uint32_t, 256> entries;
+                const auto &bytes = (*palette)->bytes;
+                for (size_t i = 0; i < entries.size(); ++i)
+                    entries[i] = uint32_t(bytes[i * 3]) |
+                                 uint32_t(bytes[i * 3 + 1]) << 8 |
+                                 uint32_t(bytes[i * 3 + 2]) << 16;
+                glBindFramebuffer(GL_FRAMEBUFFER, display_target.fbo);
+                glDisable(GL_DEPTH_TEST);
+                glDisable(GL_STENCIL_TEST);
+                glDisable(GL_BLEND);
+                glDisable(GL_CULL_FACE);
+                glDisable(GL_SCISSOR_TEST);
+                glDisable(GL_POLYGON_OFFSET_FILL);
+                glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                glUseProgram(program);
+                glUniform1i(glGetUniformLocation(program, "display"), 1);
+                glUniform1i(glGetUniformLocation(program, "image"), 0);
+                glUniform1uiv(glGetUniformLocation(program, "palette"), 256,
+                              entries.data());
+                glActiveTexture(GL_TEXTURE0);
+                glBindSampler(0, 0);
+                glBindTexture(GL_TEXTURE_2D, output.color);
+                glBindVertexArray(background_vao);
+                glDrawArrays(GL_TRIANGLES, 0, 3);
+                frame.texture = display_target.color;
+            }
             frame.width = w;
             frame.height = h;
             frame.gpu_bytes = gpu_bytes + stages.GpuBytes();
@@ -528,6 +597,10 @@ if(colored!=0)c*=vertexcolor;outputColor=vec4(c.rgb,1);})";
                             "target. Inspection camera, window clipping and "
                             "raster depth are overridden; scene/destination "
                             "dependencies are not reproduced.";
+            frame.message +=
+                palette ? " Captured display palette applied after blending." :
+                          " Display palette missing; colors are before display "
+                          "correction.";
             return frame;
         }
         float center[3], radius = 0;
@@ -727,6 +800,7 @@ void AssetViewport::Shutdown()
         thumb.target.Destroy();
     impl_->thumbs.clear();
     impl_->target.Destroy();
+    impl_->display_target.Destroy();
     for (auto &image : impl_->images)
         glDeleteTextures(1, &image.frame.texture);
     impl_->images.clear();

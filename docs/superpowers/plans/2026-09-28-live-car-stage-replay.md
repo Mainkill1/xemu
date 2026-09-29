@@ -86,3 +86,24 @@ Files: capture settings/admission/persistence, asset live/controller/UI; ownersh
 - Ruling: extend the existing approved original-stage/live-pose specification and implement inline under the user's explicit real-car test direction; no repeated implementation authorization request.
 
 - Task1 verified local strict material/model, owned native adapter, adjacent-value Vulkan GPU comparison and actual-flags Vulkan product TUs. Native PGR2 resource capture/replay remains an end-to-end gate.
+
+## Native follow-up gates (2026-09-29 UTC)
+
+The exact-head Windows context correction passed CI20/20 on both triggers.
+Native run2 rendered all37 confirmed car parts and followed driving/steering,
+but remained incomplete: HUD31–38FPS during live capture, pose updates2.1–2.4/s,
+underside default angle, and pre-display colors. A frozen pose renders above
+180FPS; this is not a matched gameplay performance measurement.
+
+1. Retain the exact DAC palette at draw capture, synchronize its owned copy
+   with palette writes, and map the shared color target once after blending.
+   Keep legacy missing palette status explicit; reject mixed/malformed data.
+   Runtime palette regression: blended rawR102 must map to ownedR201; mapping
+   parts before blending would yieldR52.
+2. Use an above-body, closer default inspection angle and reset it consistently.
+3. Requalify exact-head CI and native captured paint after this correction.
+4. Profile capture/readback/decode before redesigning continuous pose acquisition.
+   The current next-frame request/pending-retirement/rearm lifecycle does not
+   establish30 fresh poses/s. Do not report HUD cadence as pose cadence.
+
+Both native failed attempts remain archived without acceptance markers.

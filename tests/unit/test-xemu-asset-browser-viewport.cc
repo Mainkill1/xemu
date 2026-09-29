@@ -420,6 +420,7 @@ int main(int argc, char **argv)
     };
     g_assert_cmpuint(pixel(25, 64, 0), >, 200);
     g_assert_cmpuint(pixel(45, 64, 2), >, 200);
+
     g_assert_cmpuint(pixel(95, 64, 1), >, 200);
     // Empty pixels must show contrasting purple tiles, without tinting the
     // captured material. This also catches a background that covers the mesh.
@@ -515,6 +516,87 @@ int main(int argc, char **argv)
                      200); // Transformed nearer part occludes body.
     g_assert_cmpuint(pixel(45, 64, 1), <, 30);
     g_assert_cmpuint(pixel(45, 64, 2), >, 200);
+    if (run_review("palette")) {
+        auto mapped = StageFixture();
+        std::array<uint8_t, 768> palette;
+        for (size_t i = 0; i < 256; ++i) {
+            palette[i * 3] = uint8_t(i);
+            palette[i * 3 + 1] = uint8_t(i);
+            palette[i * 3 + 2] = uint8_t(255 - i);
+        }
+        palette[51 * 3] = 11;
+        palette[153 * 3] = 92;
+        palette[102 * 3] = 201;
+        const std::string ps = "#version 450\nlayout(location=0) in vec4 vtxD0;"
+                               "layout(location=0) out vec4 fragColor;"
+                               "void main(){fragColor=vtxD0;}";
+        for (size_t i = 0; i < 2; ++i) {
+            auto p = std::make_shared<AssetPart>(*mapped->parts[i]);
+            auto e =
+                std::make_shared<capture::CaptureOccurrence>(*p->occurrence);
+            e->inputs.sources[2] = StageBytes(ps.data(), ps.size());
+            const float paint[2][4] = { { .2f, .4f, .6f, 1 },
+                                        { .6f, .2f, 0, .5f } };
+            for (auto &u : e->inputs.uniforms)
+                if (u.name == "paint")
+                    u.data = StageBytes(paint[i], 4);
+            for (auto &blob : e->inputs.blobs)
+                if (i && blob.name == "vk.pipeline.blend_attachment") {
+                    VkPipelineColorBlendAttachmentState b;
+                    std::memcpy(&b, blob.data->bytes.data(), sizeof(b));
+                    b.blendEnable = VK_TRUE;
+                    b.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+                    b.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+                    blob.data = StageBytes(&b, 1);
+                }
+            capture::CaptureOwnedBlob dac;
+            dac.name = "display.dac_palette";
+            dac.data = StageBytes(palette.data(), palette.size());
+            e->inputs.blobs.push_back(dac);
+            p->occurrence = e;
+            mapped->parts[i] = p;
+        }
+        const auto f = viewport.Render(mapped, {}, 128, 128, -1, false, true);
+        g_assert_cmpuint(f.texture, !=, 0);
+        glBindTexture(GL_TEXTURE_2D, f.texture);
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                      pixels.data());
+        // Blend in the renderer's color space, then apply the owned display LUT
+        // exactly once. Mapping each part before blending would yield R=52.
+        g_assert_cmpuint(pixel(45, 64, 0), ==, 201);
+        g_assert_cmpuint(pixel(45, 64, 1), >=, 75);
+        g_assert_cmpuint(pixel(45, 64, 1), <=, 77);
+        g_assert_cmpuint(pixel(45, 64, 2), >=, 178);
+        g_assert_cmpuint(pixel(45, 64, 2), <=, 180);
+        auto invalid = std::make_shared<AssetAssembly>(*mapped);
+        auto p = std::make_shared<AssetPart>(*mapped->parts[1]);
+        auto e = std::make_shared<capture::CaptureOccurrence>(*p->occurrence);
+        const auto good_palette = e->inputs.blobs.back();
+        // Missing members, duplicate entries and short storage never masquerade
+        // as a complete display transform.
+        e->inputs.blobs.pop_back();
+        p->occurrence = e;
+        invalid->parts[1] = p;
+        g_assert_cmpuint(
+            viewport.Render(invalid, {}, 128, 128, -1, false, true).texture, ==,
+            0);
+        e->inputs.blobs.push_back(good_palette);
+        e->inputs.blobs.push_back(good_palette);
+        g_assert_cmpuint(
+            viewport.Render(invalid, {}, 128, 128, -1, false, true).texture, ==,
+            0);
+        e->inputs.blobs.pop_back();
+        e->inputs.blobs.back().data = StageBytes(palette.data(), 767);
+        g_assert_cmpuint(
+            viewport.Render(invalid, {}, 128, 128, -1, false, true).texture, ==,
+            0);
+        palette[0] = 3;
+        e->inputs.blobs.back().data =
+            StageBytes(palette.data(), palette.size());
+        g_assert_cmpuint(
+            viewport.Render(invalid, {}, 128, 128, -1, false, true).texture, ==,
+            0);
+    }
     if (run_review("depth")) {
         auto clipped =
             viewport.Render(DepthClipFixture(), {}, 128, 128, -1, false, true);

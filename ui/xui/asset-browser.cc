@@ -25,7 +25,7 @@ struct AssetBrowserWindow::Impl {
     AssetViewport viewport;
     ContextSource context;
     ShaderSink shader;
-    AssetCamera camera{ .55f, -.18f };
+    AssetCamera camera{ .55f, .45f, 1.5f };
     ImGuiTextFilter filter;
     std::set<uint64_t> checked;
     uint64_t checked_frame = 0;
@@ -516,7 +516,7 @@ void AssetBrowserWindow::Draw()
         }
         ImGui::SameLine();
         if (ImGui::Button("Reset camera"))
-            s.camera = { .55f, -.18f };
+            s.camera = { .55f, .45f, 1.5f };
         ImGui::SameLine();
         ImGui::Checkbox("Wireframe", &s.wire);
         ImGui::Checkbox("Captured shaders and materials", &s.captured_stages);

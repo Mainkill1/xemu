@@ -28,6 +28,7 @@ void nv2a_release_framebuffer_surface(void);
 void nv2a_set_surface_scale_factor(unsigned int scale);
 unsigned int nv2a_get_surface_scale_factor(void);
 const uint8_t *nv2a_get_dac_palette(void);
+void nv2a_copy_dac_palette(uint8_t destination[256 * 3]);
 int nv2a_get_screen_off(void);
 
 #endif

@@ -65,6 +65,7 @@ publication.
 | Geometry | Referenced captured vertex inputs and emitted topology |
 | Vertex processing | Original owned VS; guarded direct transform establishes anchor-relative placement |
 | Texture | Owned 2D/cube faces and mips; actual Vulkan sampler controls; sampled R16 retains exact16-bit storage |
+| Display color | Owned Xbox DAC palette applied once after assembly blending; legacy captures without it show pre-display colors explicitly |
 | Material | Owned generated PS and captured inputs; absent active inputs stop the view |
 | Constants/stages | Owned words and generated sources available for inspection |
 | Exact draw | Existing Shader Browser replay, within its interface/budget support |
