@@ -32,7 +32,6 @@
 #include "hw/xbox/nv2a/pgraph/surface.h"
 #include "hw/xbox/nv2a/pgraph/texture.h"
 #include "hw/xbox/nv2a/pgraph/glsl/shaders.h"
-#include "hw/xbox/nv2a/pgraph/glsl/shader-browser-publication.h"
 
 #include <vulkan/vulkan.h>
 #include <glslang/Include/glslang_c_interface.h>
@@ -106,9 +105,6 @@ static inline void pgraph_vk_canonicalize_uber_combiner_state(PshState *state)
 typedef struct PipelineKey {
     bool clear;
     PGRAPHVkFragmentRoute fragment_route;
-    uint32_t override_action;
-    uint64_t override_replacement_id;
-    uint64_t override_replacement_revision;
     RenderPassState render_pass_state;
     ShaderState shader_state;
     uint32_t regs[8];
@@ -347,11 +343,7 @@ typedef enum PGRAPHVkAsyncModuleRequestResult {
 typedef struct ShaderBinding {
     LruNode node;
     ShaderState state;
-    PGRAPHShaderBrowserBinding browser;
     PGRAPHVkFragmentRoute fragment_route;
-    uint32_t override_action;
-    uint64_t override_replacement_id;
-    uint64_t override_replacement_revision;
     int64_t next_promotion_probe_us;
     struct {
         ShaderModuleInfo *module_info;
@@ -369,9 +361,6 @@ typedef struct ShaderBinding {
 typedef struct ShaderBindingKey {
     ShaderState state;
     PGRAPHVkFragmentRoute fragment_route;
-    uint32_t override_action;
-    uint64_t override_replacement_id;
-    uint64_t override_replacement_revision;
 } ShaderBindingKey;
 
 typedef struct PGRAPHVkShaderPreparation {
@@ -400,9 +389,6 @@ static inline bool pgraph_vk_shader_binding_key_equal(
     const ShaderBindingKey *a, const ShaderBindingKey *b)
 {
     return a->fragment_route == b->fragment_route &&
-           a->override_action == b->override_action &&
-           a->override_replacement_id == b->override_replacement_id &&
-           a->override_replacement_revision == b->override_replacement_revision &&
            memcmp(&a->state, &b->state, sizeof(a->state)) == 0;
 }
 
@@ -831,14 +817,6 @@ typedef struct PGRAPHVkState {
     Lru shader_cache;
     ShaderBinding *shader_cache_entries;
     ShaderBinding *shader_binding;
-    ShaderModuleInfo *override_pending_fragment;
-    GHashTable *override_failed_bindings;
-    bool override_failed_pipeline_key_valid;
-    PipelineKey override_failed_pipeline_key;
-    bool override_probe_valid;
-    ShaderState override_probe_state;
-    PGRAPHShaderBrowserBinding override_probe_browser;
-    bool draw_scope_had_submission;
     ShaderModuleInfo *quad_vert_module, *solid_frag_module;
     bool shader_bindings_changed;
     bool use_push_constants_for_uniform_attrs;
@@ -1202,8 +1180,6 @@ ShaderBinding *pgraph_vk_prepare_binding_from_ready_modules(
     PGRAPHState *pg, const ShaderState *state, PGRAPHVkFragmentRoute route);
 void pgraph_vk_prepare_shaders(PGRAPHState *pg,
                               PGRAPHVkShaderPreparation *preparation);
-ShaderBinding *pgraph_vk_prepare_override_binding(
-    PGRAPHState *pg, const ShaderBindingKey *key, char error[256]);
 void pgraph_vk_activate_shaders(PGRAPHState *pg,
                                const PGRAPHVkShaderPreparation *preparation,
                                PGRAPHVkFragmentRoute route,
