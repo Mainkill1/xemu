@@ -5252,11 +5252,12 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_timed(NV2AState *d)
             pg->frame_time, XEMU_SHADER_BROWSER_PERF_DRAW_SUBMIT_CPU,
             elapsed_us * 1000, 1, XEMU_SHADER_BROWSER_SAMPLE_SAMPLED, &context);
     }
-    /* Capture readbacks are deduplicated only after the submission fence. A
-     * texture used by many draws can fill staging long before the normal frame
-     * finish. Drain at a completed flush (including mid-BEGIN/END flushes),
+    /* Shared readbacks still reserve independent future CPU payloads. Either
+     * those reservations or physical staging can fill before the frame fence.
+     * Drain at a completed flush (including mid-BEGIN/END flushes),
      * outside the draw timing interval and with all draw markers closed. */
     if (pgraph_vk_input_should_drain(r->shader_browser_input_staging_bytes,
+                                     r->shader_browser_input_pending_bytes,
                                      r->in_command_buffer, r->in_draw,
                                      r->debug_depth)) {
         pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);

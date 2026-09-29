@@ -969,6 +969,7 @@ typedef struct PGRAPHVkState {
     struct PGRAPHVkShaderInputs *shader_browser_inputs;
     struct PGRAPHVkInputReadback **shader_browser_texture_readbacks;
     size_t shader_browser_input_staging_bytes;
+    size_t shader_browser_input_pending_bytes;
     uint32_t shader_browser_input_events;
     int max_queries_in_flight; // FIXME: Move out to constant
     int num_queries_in_flight;

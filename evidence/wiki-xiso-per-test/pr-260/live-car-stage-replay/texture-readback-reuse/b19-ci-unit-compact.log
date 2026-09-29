@@ -1,0 +1,13 @@
+2026-09-29T03:49:32.6455561Z [1515/2138] Compiling C++ object ui/xui/test-xemu-shader-browser-vk-texture-reuse.p/_home_runner_work_xemu_xemu_src_tests_unit_test-xemu-shader-browser-vk-texture-reuse.cc.o
+2026-09-29T03:49:32.9025223Z [1516/2138] Compiling C object ui/xui/test-xemu-shader-browser-vk-texture-reuse.p/_home_runner_work_xemu_xemu_src_tests_unit_test-xemu-shader-browser-vk-texture-reuse-native.c.o
+2026-09-29T03:49:32.9549510Z [1517/2138] Compiling C object ui/xui/test-xemu-shader-browser-vk-texture-reuse.p/_home_runner_work_xemu_xemu_src_hw_xbox_nv2a_pgraph_s3tc.c.o
+2026-09-29T03:49:37.1382974Z [1518/2138] Compiling C++ object ui/xui/test-xemu-shader-browser-vk-texture-reuse.p/shader-browser-draw-request.cc.o
+2026-09-29T03:49:42.1545907Z [1520/2138] Compiling C++ object ui/xui/test-xemu-shader-browser-vk-texture-reuse.p/shader-browser-capture-resources.cc.o
+2026-09-29T03:49:43.0311228Z [1521/2138] Compiling C++ object ui/xui/test-xemu-shader-browser-vk-texture-reuse.p/shader-browser-draw-capture.cc.o
+2026-09-29T03:49:44.2435827Z [1522/2138] Compiling C++ object ui/xui/test-xemu-shader-browser-vk-texture-reuse.p/shader-browser-model.cc.o
+2026-09-29T03:50:02.9517417Z [1621/2138] Compiling C++ object ui/xui/test-xemu-shader-browser-vk-texture-reuse.p/shader-browser-capture-session.cc.o
+2026-09-29T03:50:37.6058968Z [1984/2138] Linking target ui/xui/test-xemu-shader-browser-vk-texture-reuse
+2026-09-29T03:50:56.0520365Z 196/207 qemu:unit / test-xemu-shader-browser-vk-texture-reuse          OK               0.03s
+2026-09-29T03:50:59.4796312Z Ok:                190 
+2026-09-29T03:50:59.4796935Z Fail:              0   
+2026-09-29T03:50:59.4797500Z Skipped:           17  

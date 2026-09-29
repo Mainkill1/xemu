@@ -48,6 +48,7 @@ typedef struct PGRAPHVkShaderInputs {
     struct PGRAPHVkShaderInputs *next;
     uint64_t token;
     size_t budget;
+    size_t pending_bytes;
     PGRAPHVkInputReadback *readbacks;
     PGRAPHVkInputReadback *after;
     VkImage color_image;
@@ -626,6 +627,7 @@ static void pgraph_vk_shader_inputs_retire(PGRAPHState *pg)
         }
         r->shader_browser_inputs = inputs->next;
         r->shader_browser_input_events--;
+        r->shader_browser_input_pending_bytes -= inputs->pending_bytes;
         g_free(inputs);
     }
 }
@@ -1096,6 +1098,28 @@ static void pgraph_vk_input_stage_textures(PGRAPHState *pg, uint64_t token,
 static void get_size_and_count_for_format(VkFormat format, size_t *size,
                                           size_t *count);
 
+static void pgraph_vk_input_reserve_pending(PGRAPHVkState *r,
+                                            PGRAPHVkShaderInputs *inputs)
+{
+    size_t pending_bytes = 0;
+    for (PGRAPHVkInputReadback *readback = inputs->readbacks; readback;
+         readback = readback->next) {
+        pending_bytes += readback->rgba_bytes + readback->storage_bytes;
+    }
+    assert(!inputs->pending_bytes);
+    inputs->pending_bytes = pending_bytes;
+    r->shader_browser_input_pending_bytes += pending_bytes;
+    /* Immediate CPU evidence is already staged; reserve only payloads that
+     * still depend on this submission's fence. */
+    if (pending_bytes &&
+        !xemu_shader_capture_session_reserve(inputs->token, pending_bytes)) {
+        pgraph_vk_shader_inputs_fail_budget(
+            inputs, "Vulkan pending evidence exceeds the recorder CPU budget");
+        pgraph_vk_input_status(inputs->token, "capture.readback.status",
+                               PGRAPH_VK_INPUT_LIMIT);
+    }
+}
+
 static bool pgraph_vk_input_stage_blob(uint64_t token,
                                        const XemuShaderDrawBlob *blob,
                                        size_t *budget, uint32_t *status)
@@ -1537,20 +1561,7 @@ static void pgraph_vk_shader_inputs_begin(PGRAPHState *pg, uint64_t token,
                                    start, count, index_offset, index_count,
                                    &inputs->budget);
     pgraph_vk_input_stage_textures(pg, token, inputs);
-    size_t pending_bytes = 0;
-    for (PGRAPHVkInputReadback *readback = inputs->readbacks; readback;
-         readback = readback->next) {
-        pending_bytes += readback->rgba_bytes + readback->storage_bytes;
-    }
-    /* Immediate CPU evidence is already staged, so these reservations only
-     * cover the payload that still depends on this submission's fence. */
-    if (pending_bytes &&
-        !xemu_shader_capture_session_reserve(token, pending_bytes)) {
-        pgraph_vk_shader_inputs_fail_budget(
-            inputs, "Vulkan pending evidence exceeds the recorder CPU budget");
-        pgraph_vk_input_status(token, "capture.readback.status",
-                               PGRAPH_VK_INPUT_LIMIT);
-    }
+    pgraph_vk_input_reserve_pending(r, inputs);
     if (in_render_pass) {
         begin_render_pass(pg);
     }

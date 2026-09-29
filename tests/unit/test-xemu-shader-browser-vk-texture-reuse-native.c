@@ -101,6 +101,11 @@ void xemu_test_texture_reuse_stage(uint64_t token, uint64_t owner,
                                    uint32_t faces);
 void xemu_test_texture_reuse_retire(uint64_t stats[5], bool reverse);
 void xemu_test_texture_reuse_modify(unsigned flags);
+uint64_t xemu_test_texture_reuse_pending(void);
+uint64_t xemu_test_texture_reuse_pending(void)
+{
+    return fixture_r->shader_browser_input_pending_bytes;
+}
 void xemu_test_texture_reuse_modify(unsigned flags)
 {
     variation = flags;
@@ -147,6 +152,8 @@ void xemu_test_texture_reuse_stage(uint64_t token, uint64_t owner,
     fixture_r->texture_bindings[variation & 1 ? 1 : 0] = &fixture_texture;
     fixture_r->capture_main_batch.handle = batch;
     image_value = value;
+    fixture_texture.storage_extent.width =
+        fixture_texture.storage_extent.height = variation & 8 ? 2048 : 2;
     PGRAPHVkShaderInputs *inputs = g_new0(PGRAPHVkShaderInputs, 1);
     inputs->token = token;
     inputs->budget = variation & 4 ? 0 : PGRAPH_VK_INPUT_BUDGET;
@@ -155,6 +162,7 @@ void xemu_test_texture_reuse_stage(uint64_t token, uint64_t owner,
     fixture_r->shader_browser_inputs = inputs;
     ++fixture_r->shader_browser_input_events;
     pgraph_vk_input_stage_textures(fixture_pg, token, inputs);
+    pgraph_vk_input_reserve_pending(fixture_r, inputs);
 }
 void xemu_test_texture_reuse_retire(uint64_t stats[5], bool reverse)
 {
@@ -178,6 +186,7 @@ void xemu_test_texture_reuse_retire(uint64_t stats[5], bool reverse)
     stats[4] = fixture_r->shader_browser_input_staging_bytes;
     assert(!fixture_r->shader_browser_inputs &&
            !fixture_r->shader_browser_input_events);
+    assert(!fixture_r->shader_browser_input_pending_bytes);
     g_clear_pointer(&fixture_pg, g_free);
     g_clear_pointer(&fixture_r, g_free);
 }

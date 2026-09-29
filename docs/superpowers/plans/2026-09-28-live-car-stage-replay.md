@@ -130,3 +130,11 @@ and decode per consumer is a concrete remaining acquisition hotspot.
       Vulkan product flags precede exact-head CI and a fresh Windows driving run.
 - [ ] Measure fresh pose delivery separately from display cadence. Further
       acquisition scheduling work follows measured remaining latency.
+
+Native attempt4 atb19c9415 revealed a reuse-pressure regression despite both
+CI triggers20/20 and190unitpasses: conservative pending CPU reservations
+exhausted before the physical staging trigger. Retained failed manifest and
+canonical run; no car gate/marker. Corrected tracking drains on either physical
+or pending consumer bytes at the same safe completed-flush boundary. Two
+runtimeREDs (pressure and24MiB-per-consumer accounting) then strict15 adapter,
+ASan/UBSan and four actual-flags productTUs pass. New exact-head CI/native5 pending.

@@ -1,0 +1,23 @@
+TAP version 14
+# random seed: R02S7af1df86843944eb2a8a843e77557bd9
+1..15
+# Start of vk tests
+# Start of texture-reuse tests
+ok 1 /vk/texture-reuse/overwritten-generation
+ok 2 /vk/texture-reuse/unchanged-generation
+ok 3 /vk/texture-reuse/allocation-incarnation
+ok 4 /vk/texture-reuse/capture-batch
+ok 5 /vk/texture-reuse/cancelled
+ok 6 /vk/texture-reuse/mip-and-face
+ok 7 /vk/texture-reuse/unknown-version
+ok 8 /vk/texture-reuse/unknown-owner
+ok 9 /vk/texture-reuse/unknown-batch
+ok 10 /vk/texture-reuse/owner-retires-first
+ok 11 /vk/texture-reuse/saturated-version
+ok 12 /vk/texture-reuse/consumer-slot-and-sampler
+ok 13 /vk/texture-reuse/component-mapping
+ok 14 /vk/texture-reuse/consumer-budget
+ok 15 /vk/texture-reuse/pending-consumer-bytes
+# End of texture-reuse tests
+# End of vk tests
+/tmp/pr260-vk-texture-reuse/test

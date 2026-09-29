@@ -8,6 +8,7 @@ extern "C" void xemu_test_texture_reuse_stage(uint64_t, uint64_t, uint64_t,
                                               uint32_t);
 extern "C" void xemu_test_texture_reuse_retire(uint64_t[5], bool);
 extern "C" void xemu_test_texture_reuse_modify(unsigned);
+extern "C" uint64_t xemu_test_texture_reuse_pending();
 using namespace xemu::shader_browser;
 static void Run(unsigned mode, uint32_t mips = 1, uint32_t faces = 1)
 {
@@ -132,5 +133,38 @@ int main(int argc, char **argv)
                     [] { Run(10); });
     g_test_add_func("/vk/texture-reuse/component-mapping", [] { Run(11); });
     g_test_add_func("/vk/texture-reuse/consumer-budget", [] { Run(12); });
+    g_test_add_func("/vk/texture-reuse/pending-consumer-bytes", [] {
+        auto &session = GetCaptureSession();
+        CaptureSessionContext context;
+        context.scope.title_id = 17;
+        context.scope_generation = 1;
+        context.session_epoch = 2;
+        context.renderer_epoch = 3;
+        context.generation = 4;
+        g_assert_true(session.Start(context));
+        session.GuestFrameBoundary(7);
+        xemu_test_texture_reuse_start();
+        xemu_test_texture_reuse_modify(8);
+        for (unsigned i = 0; i < 6; ++i) {
+            DrawCaptureSummary summary;
+            summary.scope = context.scope;
+            summary.key = { 2, 3, 7, i + 1, i + 1 };
+            auto token = session.BeginOccurrence(summary);
+            g_assert_cmpuint(token, !=, 0);
+            xemu_test_texture_reuse_stage(token, 101, 1, 11, 0x8000, 1, 1);
+            g_assert_true(session.Finish(token, true, 5, 3, 0));
+            g_assert_cmpuint(xemu_test_texture_reuse_pending(), ==,
+                             (i + 1) * 24U * 1024U * 1024U);
+        }
+        uint64_t stats[5]{};
+        xemu_test_texture_reuse_retire(stats, true);
+        g_assert_cmpuint(stats[0], ==, 1);
+        g_assert_cmpuint(stats[1], ==, stats[3]);
+        g_assert_cmpuint(stats[4], ==, 0);
+        const auto snapshot = session.Snapshot();
+        g_assert_cmpuint(snapshot.pending_events, ==, 0);
+        g_assert_true(snapshot.state != CaptureSessionState::BudgetExceeded);
+        session.Stop();
+    });
     return g_test_run();
 }

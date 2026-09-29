@@ -40,3 +40,27 @@ A new exact-head Windows artifact and immutable native procedure must measure
 readback copies/shares, viewer FPS and fresh-pose rate. The current serial
 next-frame/rearm scheduler still limits cadence; no30 fresh poses/s claim,
 merge readiness or Steam Deck improvement is established by these tests.
+
+## Native discovery regression and correction
+
+Both b19c9415 CI triggers36518156191/36518159100 passed20/20; actual unit
+job109245149203 reported190passed,0failed,17skipped, including the new14-case
+texture reuse target. Nevertheless native Windows attempt4 at exact executable
+287296f0d74d5fa74911424575573095502f36ab3714d07089422a1ce942d294
+stopped initial discovery at237events before the car. The retained manifest
+reports capture.readback.status4 (budget),256MiB recorder budget and pending
+consumer shares. Most geometry was unavailable after the failed readback batch.
+The run is archived failed/incomplete; process exited, no rule or marker enabled.
+
+Root cause: reuse lowers physical staging but every pending consumer still
+reserves its future CPU payload conservatively. The existing safe-boundary
+drain watched only physical staging, so logical reservations exhausted first.
+The fix tracks pending consumer bytes independently, retires at either physical
+or pending128MiB pressure, and clears the counter on all retirement paths.
+Budgets stay unchanged and no forensic evidence is skipped or falsely ready.
+
+Two runtimeREDs pin this:4MiB physical/128MiB pending must drain; six consumers
+of one2048x2048R16 snapshot must account24MiB apiece despite just one allocation.
+The pressure test and15 native adapter cases now pass, as does ASan/UBSan with
+leakchecking disabled under tracing. Four actual-flags product units pass.
+A further immutable native attempt of the corrected head is required.
