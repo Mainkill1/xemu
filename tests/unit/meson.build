@@ -54,6 +54,8 @@ tests = {
   'test-xbox-vk-blend-constants': [],
   'test-xbox-vk-texture-binding': [],
   'test-xbox-vk-display-output-state': [],
+  'test-xbox-neural-present-state': [],
+  'test-xbox-neural-present-plugin-abi': [],
   'test-xemu-win32-dxgi-interop': [],
   'test-xbox-vk-device-selection': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/device-selection.c',
