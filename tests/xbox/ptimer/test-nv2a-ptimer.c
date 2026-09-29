@@ -16,7 +16,14 @@
     } while (0)
 #define PTIMER_CLEAR_INTERRUPT() \
     PTIMER_WRITE(NV_PTIMER_INTR_0, NV_PTIMER_INTR_0_ALARM)
-#define FIRE_ALARM_TIMER() state.ptimer.timer.cb(state.ptimer.timer.opaque)
+#define FIRE_ALARM_TIMER() fire_alarm_timer(&state)
+
+static void fire_alarm_timer(NV2AState *state)
+{
+    /* QEMU removes a queued event before invoking its callback. */
+    timer_del(&state->ptimer.timer);
+    state->ptimer.timer.cb(state->ptimer.timer.opaque);
+}
 
 static void setup_ptimer_state(NV2AState *state)
 {

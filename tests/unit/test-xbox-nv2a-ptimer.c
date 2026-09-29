@@ -9,14 +9,17 @@
 
 #include "hw/xbox/nv2a/nv2a_int.h"
 #include "ptimer-test.h"
+#include "hw/xbox/nv2a/ptimer_core.h"
 
 static bool irq_asserted;
+static unsigned irq_update_calls;
 
 #define PTIMER_REG_EPOCH_NS (1ULL << 27)
 #define TEST_ALARM_LOW 0x100
 
 void nv2a_update_irq(NV2AState *d)
 {
+    irq_update_calls++;
     if (d->ptimer.pending_interrupts & d->ptimer.enabled_interrupts) {
         d->pmc.pending_interrupts |= NV_PMC_INTR_0_PTIMER;
     } else {
@@ -564,6 +567,394 @@ static void test_source_counter_wrap_revalidates_alarm(void)
     ptimer_reset(&d);
 }
 
+/* Scheduling controls continue PR #81; the state is sampled from QEMUTimer,
+ * not cached in a second device-owned queue record. */
+static void test_noop_queue_operations(gconstpointer opaque)
+{
+    unsigned scenario = GPOINTER_TO_UINT(opaque);
+    unsigned operation = scenario % 8;
+    unsigned mode = scenario / 8; /* enabled, masked, stopped */
+    NV2AState d;
+
+    init_nv2a_ptimer(&d);
+    pramdac_write(&d, NV_PRAMDAC_NVPLL_COEFF, 0x601, 4);
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, mode == 1 ? 0 : 1, 4);
+    ptimer_write(&d, NV_PTIMER_ALARM_0, TEST_ALARM_LOW, 4);
+    if (mode == 2) {
+        ptimer_write(&d, NV_PTIMER_NUMERATOR, 0, 4);
+    }
+    ptimer_test_time_ns = 1;
+    uint64_t mods = ptimer_test_timer_mod_calls;
+    uint64_t dels = ptimer_test_timer_del_calls;
+    uint64_t deadline = timer_expire_time_ns(&d.ptimer.timer);
+
+    for (unsigned i = 0; i < 1000; i++) {
+        switch (operation) {
+        case 0:
+            ptimer_write(&d, NV_PTIMER_NUMERATOR, d.ptimer.numerator, 4);
+            break;
+        case 1:
+            ptimer_write(&d, NV_PTIMER_DENOMINATOR, d.ptimer.denominator, 4);
+            break;
+        case 2:
+            ptimer_write(&d, NV_PTIMER_INTR_EN_0,
+                         d.ptimer.enabled_interrupts, 4);
+            break;
+        case 3:
+            ptimer_write(&d, NV_PTIMER_ALARM_0, TEST_ALARM_LOW, 4);
+            break;
+        case 4:
+            ptimer_write(&d, NV_PTIMER_TIME_0,
+                         ptimer_read(&d, NV_PTIMER_TIME_0, 4), 4);
+            break;
+        case 5:
+            ptimer_write(&d, NV_PTIMER_TIME_1,
+                         ptimer_read(&d, NV_PTIMER_TIME_1, 4), 4);
+            break;
+        case 6:
+            ptimer_set_core_clock(&d, d.pramdac.core_clock_freq);
+            break;
+        case 7:
+            pramdac_write(&d, NV_PRAMDAC_NVPLL_COEFF, 0x601, 4);
+            break;
+        default:
+            g_assert_not_reached();
+        }
+    }
+    g_assert_cmpuint(ptimer_test_timer_mod_calls, ==, mods);
+    g_assert_cmpuint(ptimer_test_timer_del_calls, ==, dels);
+    g_assert_cmpuint(timer_expire_time_ns(&d.ptimer.timer), ==, deadline);
+    g_assert_cmpint(timer_pending(&d.ptimer.timer), ==, mode == 0);
+    g_assert_true(d.ptimer.alarm_armed);
+    g_assert_false(irq_asserted);
+    ptimer_reset(&d);
+}
+
+static void test_consumed_early_callback_rearms(void)
+{
+    NV2AState d;
+    init_nv2a_ptimer(&d);
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, 1, 4);
+    ptimer_write(&d, NV_PTIMER_ALARM_0, TEST_ALARM_LOW, 4);
+    uint64_t mods = ptimer_test_timer_mod_calls;
+
+    /* QEMU has removed this callback. A same-valued desired deadline is
+     * not proof that the event is still queued. No early IRQ is allowed. */
+    fire_alarm_at(&d, 7);
+    g_assert_cmpuint(ptimer_test_timer_mod_calls, ==, mods + 1);
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, 8);
+    g_assert_false(irq_asserted);
+    expire_alarm(&d);
+    g_assert_true(irq_asserted);
+    ptimer_reset(&d);
+}
+
+static void test_restore_observes_actual_queue(void)
+{
+    NV2AState d;
+    init_nv2a_ptimer(&d);
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, 1, 4);
+    ptimer_write(&d, NV_PTIMER_ALARM_0, TEST_ALARM_LOW, 4);
+    uint64_t mods = ptimer_test_timer_mod_calls;
+    ptimer_post_load(&d, 5);
+    g_assert_cmpuint(ptimer_test_timer_mod_calls, ==, mods);
+
+    /* VMState can replace or remove the queued event independently. */
+    timer_del(&d.ptimer.timer);
+    ptimer_post_load(&d, 5);
+    g_assert_cmpuint(ptimer_test_timer_mod_calls, ==, mods + 1);
+    timer_mod(&d.ptimer.timer, 1234);
+    mods = ptimer_test_timer_mod_calls;
+    ptimer_post_load(&d, 5);
+    g_assert_cmpuint(ptimer_test_timer_mod_calls, ==, mods + 1);
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, 8);
+    g_assert_false(irq_asserted);
+    ptimer_reset(&d);
+}
+
+static void test_signed_horizon_does_not_requeue_now(void)
+{
+    NV2AState d;
+    init_nv2a_ptimer(&d);
+    ptimer_test_time_ns = INT64_MAX - 1;
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, 1, 4);
+    ptimer_write(&d, NV_PTIMER_ALARM_0, TEST_ALARM_LOW, 4);
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, INT64_MAX);
+    expire_alarm(&d);
+    g_assert_false(timer_pending(&d.ptimer.timer));
+    g_assert_true(d.ptimer.alarm_armed);
+    g_assert_false(irq_asserted);
+    /* Repeated guest writes at the horizon must not restart a dispatch loop. */
+    ptimer_write(&d, NV_PTIMER_NUMERATOR, 1, 4);
+    g_assert_false(timer_pending(&d.ptimer.timer));
+    ptimer_reset(&d);
+}
+
+static void test_reset_retains_other_timer(void)
+{
+    NV2AState a, b;
+    init_nv2a_ptimer(&a);
+    init_nv2a_ptimer(&b);
+    ptimer_write(&a, NV_PTIMER_INTR_EN_0, 1, 4);
+    ptimer_write(&b, NV_PTIMER_INTR_EN_0, 1, 4);
+    ptimer_write(&a, NV_PTIMER_ALARM_0, TEST_ALARM_LOW, 4);
+    ptimer_write(&b, NV_PTIMER_ALARM_0, TEST_ALARM_LOW * 2, 4);
+    ptimer_write(&a, NV_PTIMER_ALARM_0, TEST_ALARM_LOW * 3, 4);
+    ptimer_reset(&a);
+    g_assert_true(timer_pending(&b.ptimer.timer));
+    g_assert_cmpint(qemu_clock_deadline_ns_all(QEMU_CLOCK_VIRTUAL,
+                                              QEMU_TIMER_ATTR_ALL), ==, 16);
+    ptimer_reset(&b);
+}
+
+/* The following 9 x 5 clock/observation matrix is adapted from #59/#81.
+ * Keep #120's immediate publication for enabled overdue alarms; do not
+ * resurrect the historical due-now deferred callback expectations. */
+enum TimebaseChange {
+    CHANGE_CORE, CHANGE_NUMERATOR, CHANGE_DENOMINATOR, CHANGE_TIME_LOW,
+    CHANGE_TIME_HIGH, CHANGE_CORE_RESTART, CHANGE_PLL,
+    CHANGE_NUMERATOR_RESTART, CHANGE_DENOMINATOR_RESTART,
+    TIMEBASE_CHANGE_COUNT,
+};
+enum TimebaseObservation {
+    OBSERVE_POLL, OBSERVE_CALLBACK, OBSERVE_MASKED_POLL,
+    OBSERVE_ALREADY_PENDING, OBSERVE_MASKED_ACK,
+    TIMEBASE_OBSERVATION_COUNT,
+};
+
+static void test_timebase_crosses_alarm(gconstpointer opaque)
+{
+    unsigned scenario = GPOINTER_TO_UINT(opaque);
+    enum TimebaseChange change = scenario / TIMEBASE_OBSERVATION_COUNT;
+    enum TimebaseObservation observation = scenario % TIMEBASE_OBSERVATION_COUNT;
+    bool masked = observation == OBSERVE_MASKED_POLL ||
+                  observation == OBSERVE_MASKED_ACK;
+    uint32_t initial_pending = observation == OBSERVE_ALREADY_PENDING ? 1 : 0;
+    NV2AState d;
+
+    init_nv2a_ptimer(&d);
+    d.pramdac.core_clock_freq = 100000000;
+    if (change == CHANGE_NUMERATOR || change == CHANGE_NUMERATOR_RESTART) {
+        d.pramdac.core_clock_freq = 1000000000;
+        d.ptimer.numerator = 10;
+    }
+    ptimer_test_time_ns = 100;
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, 1, 4);
+    ptimer_write(&d, NV_PTIMER_ALARM_0, 0x1e0, 4);
+    g_assert_cmphex(ptimer_read(&d, NV_PTIMER_TIME_0, 4), ==, 0x140);
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, 150);
+    if (masked) {
+        ptimer_write(&d, NV_PTIMER_INTR_EN_0, 0, 4);
+    }
+    d.ptimer.pending_interrupts = initial_pending;
+    nv2a_update_irq(&d);
+    switch (change) {
+    case CHANGE_CORE:
+        ptimer_set_core_clock(&d, 1000000000);
+        break;
+    case CHANGE_NUMERATOR:
+        ptimer_write(&d, NV_PTIMER_NUMERATOR, 1, 4);
+        break;
+    case CHANGE_DENOMINATOR:
+        ptimer_write(&d, NV_PTIMER_DENOMINATOR, 10, 4);
+        break;
+    case CHANGE_TIME_LOW:
+        ptimer_write(&d, NV_PTIMER_TIME_0, 0xc80, 4);
+        break;
+    case CHANGE_TIME_HIGH:
+        ptimer_write(&d, NV_PTIMER_TIME_1, 1, 4);
+        break;
+    case CHANGE_CORE_RESTART:
+        ptimer_set_core_clock(&d, 0);
+        g_assert_false(timer_pending(&d.ptimer.timer));
+        ptimer_set_core_clock(&d, 1000000000);
+        break;
+    case CHANGE_PLL:
+        pramdac_write(&d, NV_PRAMDAC_NVPLL_COEFF, 0x3c01, 4);
+        g_assert_cmpuint(d.pramdac.core_clock_freq, ==, 999999960);
+        break;
+    case CHANGE_NUMERATOR_RESTART:
+        ptimer_write(&d, NV_PTIMER_NUMERATOR, 0, 4);
+        g_assert_false(timer_pending(&d.ptimer.timer));
+        ptimer_write(&d, NV_PTIMER_NUMERATOR, 1, 4);
+        break;
+    case CHANGE_DENOMINATOR_RESTART:
+        ptimer_write(&d, NV_PTIMER_DENOMINATOR, 0, 4);
+        g_assert_false(timer_pending(&d.ptimer.timer));
+        ptimer_write(&d, NV_PTIMER_DENOMINATOR, 10, 4);
+        break;
+    default:
+        g_assert_not_reached();
+    }
+    g_assert_true(d.ptimer.alarm_armed);
+    g_assert_cmpint(timer_pending(&d.ptimer.timer), ==, !masked);
+    if (masked) {
+        g_assert_cmphex(d.ptimer.alarm_time, ==, 0x1e0);
+        g_assert_cmphex(d.ptimer.pending_interrupts, ==, initial_pending);
+        g_assert_false(irq_asserted);
+    } else {
+        g_assert_cmphex(d.ptimer.alarm_time, >, 0x1e0);
+        g_assert_cmphex(d.ptimer.pending_interrupts, ==, 1);
+        g_assert_true(irq_asserted);
+        g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), >, 100);
+    }
+    if (observation == OBSERVE_MASKED_ACK) {
+        ptimer_write(&d, NV_PTIMER_INTR_0, 1, 4);
+        g_assert_cmphex(ptimer_read(&d, NV_PTIMER_INTR_0, 4), ==, 0);
+        g_assert_false(irq_asserted);
+    } else {
+        if (observation == OBSERVE_CALLBACK) {
+            /* Simulate an already-consumed early wake after the rate change. */
+            fire_alarm_at(&d, ptimer_test_time_ns);
+        }
+        g_assert_cmphex(ptimer_read(&d, NV_PTIMER_INTR_0, 4), ==, 1);
+        g_assert_cmpint(irq_asserted, ==, !masked);
+    }
+    g_assert_cmphex(d.ptimer.alarm_time, >, 0x1e0);
+    if (masked) {
+        g_assert_false(timer_pending(&d.ptimer.timer));
+        ptimer_write(&d, NV_PTIMER_INTR_EN_0, 1, 4);
+        g_assert_cmpint(irq_asserted, ==, observation != OBSERVE_MASKED_ACK);
+    }
+    g_assert_true(timer_pending(&d.ptimer.timer));
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), >,
+                   ptimer_test_time_ns);
+    ptimer_reset(&d);
+}
+
+static void test_pll_mmio_and_backward_time(void)
+{
+    NV2AState d;
+    init_nv2a_ptimer(&d);
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, 1, 4);
+    ptimer_write(&d, NV_PTIMER_ALARM_0, TEST_ALARM_LOW, 4);
+    pramdac_write(&d, NV_PRAMDAC_NVPLL_COEFF, 0x601, 4);
+    g_assert_cmphex(pramdac_read(&d, NV_PRAMDAC_NVPLL_COEFF, 4), ==, 0x601);
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, 81);
+    ptimer_test_time_ns = 20;
+    pramdac_write(&d, NV_PRAMDAC_NVPLL_COEFF, 0x301, 4);
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, 161);
+    ptimer_test_time_ns = 161;
+    pramdac_write(&d, NV_PRAMDAC_NVPLL_COEFF, 0, 4);
+    g_assert_false(timer_pending(&d.ptimer.timer));
+    g_assert_true(irq_asserted);
+    ptimer_write(&d, NV_PTIMER_INTR_0, 1, 4);
+    pramdac_write(&d, NV_PRAMDAC_NVPLL_COEFF, 0x601, 4);
+    g_assert_false(irq_asserted);
+    ptimer_reset(&d);
+
+    init_nv2a_ptimer(&d);
+    d.pramdac.core_clock_freq = 100000000;
+    ptimer_test_time_ns = 100;
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, 1, 4);
+    ptimer_write(&d, NV_PTIMER_ALARM_0, 0x1e0, 4);
+    ptimer_write(&d, NV_PTIMER_TIME_0, 0x80, 4);
+    g_assert_cmphex(ptimer_read(&d, NV_PTIMER_TIME_0, 4), ==, 0x80);
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, 210);
+    g_assert_false(irq_asserted);
+    expire_alarm(&d);
+    g_assert_true(irq_asserted);
+    ptimer_reset(&d);
+}
+
+static void test_queue_decisions(void)
+{
+    const PtimerHostSchedule absent = { 0 };
+    const PtimerHostSchedule queued = { .queued = true, .deadline_ns = 8 };
+    const PtimerDeadline desired[] = {
+        { 0 },
+        { .queued = true, .deadline_ns = 0 },
+        { .queued = true, .deadline_ns = 7 },
+        { .queued = true, .deadline_ns = 8 },
+        { .queued = true, .deadline_ns = 9 },
+        { .queued = true, .deadline_ns = INT64_MAX },
+    };
+    for (unsigned i = 0; i < G_N_ELEMENTS(desired); i++) {
+        g_assert_cmpint(ptimer_queue_action(&absent, &desired[i]), ==,
+                        i == 0 ? PTIMER_QUEUE_KEEP : PTIMER_QUEUE_ARM);
+        g_assert_cmpint(ptimer_queue_action(&queued, &desired[i]), ==,
+                        i == 0 ? PTIMER_QUEUE_CANCEL :
+                        i == 3 ? PTIMER_QUEUE_KEEP : PTIMER_QUEUE_ARM);
+    }
+    g_assert_false(ptimer_schedule_reusable(&absent, 0));
+    g_assert_true(ptimer_schedule_reusable(&queued, 7));
+    g_assert_false(ptimer_schedule_reusable(&queued, 8));
+    g_assert_false(ptimer_schedule_reusable(&queued, 9));
+}
+
+static void test_noop_after_queue_removal(void)
+{
+    NV2AState d;
+    init_nv2a_ptimer(&d);
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, 1, 4);
+    ptimer_write(&d, NV_PTIMER_ALARM_0, TEST_ALARM_LOW, 4);
+    timer_del(&d.ptimer.timer);
+    ptimer_test_time_ns = 1;
+    uint64_t mods = ptimer_test_timer_mod_calls;
+    ptimer_write(&d, NV_PTIMER_NUMERATOR, 1, 4);
+    g_assert_cmpuint(ptimer_test_timer_mod_calls, ==, mods + 1);
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, 8);
+    expire_alarm(&d);
+    g_assert_true(irq_asserted);
+    ptimer_reset(&d);
+}
+
+static void test_clock_write_publishes_irq_once(void)
+{
+    NV2AState d;
+    init_nv2a_ptimer(&d);
+    d.pramdac.core_clock_freq = 100000000;
+    ptimer_test_time_ns = 100;
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, 1, 4);
+    ptimer_write(&d, NV_PTIMER_ALARM_0, 0x1e0, 4);
+    unsigned updates = irq_update_calls;
+    ptimer_write(&d, NV_PTIMER_DENOMINATOR, 10, 4);
+    g_assert_cmpuint(irq_update_calls, ==, updates + 1);
+    g_assert_true(irq_asserted);
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), >, 100);
+    ptimer_reset(&d);
+}
+
+static void test_wide_deadline_reconciles_source_wrap(void)
+{
+    /* Retain PR #81's wide-quotient control, not just ordinary low wrap. */
+    NV2AState d;
+    init_nv2a_ptimer(&d);
+    d.pramdac.core_clock_freq = UINT32_MAX;
+    d.ptimer.numerator = UINT32_MAX;
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, 1, 4);
+    ptimer_write(&d, NV_PTIMER_ALARM_0, TEST_ALARM_LOW, 4);
+    d.ptimer.alarm_time = 1ULL << 38;
+    ptimer_post_load(&d, 5);
+    g_assert_cmpuint(timer_expire_time_ns(&d.ptimer.timer), ==,
+                    UINT64_C(4294967297000000001));
+    expire_alarm(&d);
+    g_assert_false(irq_asserted);
+    g_assert_cmpuint(timer_expire_time_ns(&d.ptimer.timer), >,
+                    UINT64_C(4294967297000000001));
+    ptimer_reset(&d);
+}
+
+static void test_due_source_wrap_noop_reschedules(void)
+{
+    NV2AState d;
+    init_nv2a_ptimer(&d);
+    d.pramdac.core_clock_freq = 4000000000ULL;
+    int64_t start = (1LL << 62) - 1;
+    ptimer_test_time_ns = start;
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, 1, 4);
+    ptimer_write(&d, NV_PTIMER_ALARM_0, 0x180, 4);
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, start + 1);
+    /* The queued wrap-check is now due, but the guest alarm is not. */
+    ptimer_test_time_ns = start + 1;
+    ptimer_write(&d, NV_PTIMER_NUMERATOR, 1, 4);
+    g_assert_cmpint(timer_expire_time_ns(&d.ptimer.timer), ==, start + 4);
+    g_assert_false(irq_asserted);
+    expire_alarm(&d);
+    g_assert_true(irq_asserted);
+    ptimer_reset(&d);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -625,5 +1016,62 @@ int main(int argc, char **argv)
     g_test_add_func("/xbox/nv2a/ptimer/reconcile/source-counter-wrap-revalidates-alarm",
                     test_source_counter_wrap_revalidates_alarm);
 
-    return g_test_run();
+    g_test_add_func("/xbox/nv2a/ptimer/schedule/consumed-early-callback-rearms",
+                    test_consumed_early_callback_rearms);
+    g_test_add_func("/xbox/nv2a/ptimer/schedule/restore-observes-actual-queue",
+                    test_restore_observes_actual_queue);
+    g_test_add_func("/xbox/nv2a/ptimer/schedule/signed-horizon-no-loop",
+                    test_signed_horizon_does_not_requeue_now);
+    g_test_add_func("/xbox/nv2a/ptimer/schedule/reset-retains-other-timer",
+                    test_reset_retains_other_timer);
+    g_test_add_func("/xbox/nv2a/ptimer/schedule/pll-mmio-backward-time",
+                    test_pll_mmio_and_backward_time);
+    const char *modes[] = { "enabled", "masked", "stopped" };
+    const char *operations[] = {
+        "numerator", "denominator", "enable", "alarm", "time-low",
+        "time-high", "core-clock", "pll",
+    };
+    char path[160];
+    for (unsigned mode = 0; mode < G_N_ELEMENTS(modes); mode++) {
+        for (unsigned op = 0; op < G_N_ELEMENTS(operations); op++) {
+            snprintf(path, sizeof(path), "/xbox/nv2a/ptimer/schedule/noop/%s/%s",
+                     modes[mode], operations[op]);
+            g_test_add_data_func(path, GUINT_TO_POINTER(mode * 8 + op),
+                                 test_noop_queue_operations);
+        }
+    }
+    const char *changes[] = {
+        "core", "numerator", "denominator", "time-low", "time-high",
+        "core-restart", "pll", "numerator-restart", "denominator-restart",
+    };
+    const char *observations[] = {
+        "poll", "callback", "masked-poll", "already-pending", "masked-ack",
+    };
+    for (unsigned change = 0; change < TIMEBASE_CHANGE_COUNT; change++) {
+        for (unsigned obs = 0; obs < TIMEBASE_OBSERVATION_COUNT; obs++) {
+            snprintf(path, sizeof(path), "/xbox/nv2a/ptimer/timebase/%s/%s",
+                     changes[change], observations[obs]);
+            g_test_add_data_func(path,
+                GUINT_TO_POINTER(change * TIMEBASE_OBSERVATION_COUNT + obs),
+                test_timebase_crosses_alarm);
+        }
+    }
+    g_test_add_func("/xbox/nv2a/ptimer/schedule/queue-decisions",
+                    test_queue_decisions);
+    g_test_add_func("/xbox/nv2a/ptimer/schedule/noop-after-queue-removal",
+                    test_noop_after_queue_removal);
+    g_test_add_func("/xbox/nv2a/ptimer/schedule/clock-write-one-irq-update",
+                    test_clock_write_publishes_irq_once);
+    g_test_add_func("/xbox/nv2a/ptimer/schedule/wide-source-wrap",
+                    test_wide_deadline_reconciles_source_wrap);
+
+    g_test_add_func("/xbox/nv2a/ptimer/schedule/due-source-wrap-noop",
+                    test_due_source_wrap_noop_reschedules);
+
+    int ret = g_test_run();
+    for (int i = 0; i < QEMU_CLOCK_MAX; i++) {
+        g_assert_null(main_loop_tlg.tl[i]->active_timers.next);
+        g_free(main_loop_tlg.tl[i]);
+    }
+    return ret;
 }

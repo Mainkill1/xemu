@@ -48,7 +48,12 @@ void timer_del(QEMUTimer *ts)
 
 bool timer_pending(const QEMUTimer *ts)
 {
-    return mock_timer_active;
+    return ts->expire_time >= 0;
+}
+
+uint64_t timer_expire_time_ns(const QEMUTimer *ts)
+{
+    return timer_pending(ts) ? ts->expire_time : -1;
 }
 
 void nv2a_update_irq(NV2AState *d)

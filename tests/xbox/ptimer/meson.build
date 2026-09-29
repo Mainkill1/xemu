@@ -3,7 +3,8 @@ test_nv2a_ptimer = executable(
   files(
     'test-nv2a-ptimer.c',
     'mock-nv2a-ptimer.c',
-    meson.project_source_root() / 'hw/xbox/nv2a/ptimer.c'
+    meson.project_source_root() / 'hw/xbox/nv2a/ptimer.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/ptimer_core.c'
   ),
   c_args: [
     '-DCOMPILING_PER_TARGET',

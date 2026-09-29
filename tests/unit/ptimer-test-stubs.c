@@ -52,40 +52,36 @@ void timer_init_full(QEMUTimer *ts,
     ts->expire_time = -1;
 }
 
+static void ptimer_test_unlink_timer(QEMUTimer *ts)
+{
+    QEMUTimer **link = &ts->timer_list->active_timers.next;
+
+    while (*link && *link != ts) {
+        link = &(*link)->next;
+    }
+    if (*link) {
+        *link = ts->next;
+    }
+    ts->next = NULL;
+}
+
 void timer_mod(QEMUTimer *ts, int64_t expire_time)
 {
     ptimer_test_timer_mod_calls++;
-    QEMUTimerList *timer_list = ts->timer_list;
-    QEMUTimer *t = &timer_list->active_timers;
-
-    while (t->next != NULL) {
-        if (t->next == ts) {
-            break;
-        }
-
-        t = t->next;
-    }
-
+    ptimer_test_unlink_timer(ts);
     ts->expire_time = MAX(expire_time * ts->scale, 0);
-    ts->next = NULL;
-    t->next = ts;
+    QEMUTimer **link = &ts->timer_list->active_timers.next;
+    while (*link && (*link)->expire_time <= ts->expire_time) {
+        link = &(*link)->next;
+    }
+    ts->next = *link;
+    *link = ts;
 }
 
 void timer_del(QEMUTimer *ts)
 {
     ptimer_test_timer_del_calls++;
-    QEMUTimerList *timer_list = ts->timer_list;
-    QEMUTimer *t = &timer_list->active_timers;
-
-    while (t->next != NULL) {
-        if (t->next == ts) {
-            t->next = ts->next;
-            break;
-        }
-
-        t = t->next;
-    }
-    ts->next = NULL;
+    ptimer_test_unlink_timer(ts);
     ts->expire_time = -1;
 }
 
