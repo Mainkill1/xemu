@@ -96,3 +96,20 @@ original-camera replay. No spider identity, death-animation correctness or
 30 fresh poses/s is established. Exact updated Windows-head qualification and
 corrected prerelease are pending. Only synthetic logs are included below; the
 recording, source bytes, images and dump remain outside public Git.
+
+## Palette-corrected thumbnail ownership follow-up
+
+Exact9bddab8b Windows native inspection rendered both formerly failing stream
+occurrences, but exposed catalog thumbnails that all followed the main selected
+image. Palette conversion returned one shared output texture instead of the
+individual thumbnail target. A synthetic GPU regression reproduced identical
+texture IDs before correction. Each thumbnail now owns its palette output,
+retained independently of the main view and released on eviction/shutdown.
+
+The regression verifies distinct rendered images, unchanged cached pixels after
+another thumbnail and a successful differently sized main render, cache-hit
+identity, and shutdown deletion. Full strict and ASAN/UBSAN GPU fixtures and the
+actual viewport product compilation pass. Narrow independent review has no
+blocking finding; its requested main-render success assertions were added.
+Leak detection remains disabled under the traced host. Updated exact-head CI
+and native distinct-thumbnail qualification are required before release.

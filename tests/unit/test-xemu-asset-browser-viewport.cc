@@ -515,6 +515,61 @@ int main(int argc, char **argv)
                      200); // Transformed nearer part occludes body.
     g_assert_cmpuint(pixel(45, 64, 1), <, 30);
     g_assert_cmpuint(pixel(45, 64, 2), >, 200);
+    if (run_review("thumbnail-ownership")) {
+        auto palette_fixture = [&](bool green) {
+            auto assembly = StageFixture();
+            for (auto &part : assembly->parts) {
+                auto changed = std::make_shared<AssetPart>(*part);
+                auto event = std::make_shared<capture::CaptureOccurrence>(
+                    *part->occurrence);
+                std::array<uint8_t, 768> palette;
+                for (size_t i = 0; i < 256; ++i)
+                    palette[i * 3] = palette[i * 3 + 1] = palette[i * 3 + 2] =
+                        uint8_t(i);
+                capture::CaptureOwnedBlob blob;
+                blob.name = "display.dac_palette";
+                blob.data = StageBytes(palette.data(), palette.size());
+                event->inputs.blobs.push_back(blob);
+                if (green) {
+                    const float paint[] = { 0, 1, 0, 1 };
+                    event->inputs.uniforms[0].data = StageBytes(paint, 4);
+                }
+                changed->occurrence = event;
+                part = changed;
+            }
+            return assembly;
+        };
+        auto first = palette_fixture(false), second = palette_fixture(true);
+        const auto a = viewport.Thumbnail(first);
+        std::vector<uint8_t> before(a.width * a.height * 4);
+        glBindTexture(GL_TEXTURE_2D, a.texture);
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                      before.data());
+        const auto b = viewport.Thumbnail(second);
+        g_assert_cmpuint(a.captured_parts, ==, 2);
+        g_assert_cmpuint(b.captured_parts, ==, 2);
+        g_assert_cmpuint(a.texture, !=, b.texture);
+        std::vector<uint8_t> other(before.size());
+        glBindTexture(GL_TEXTURE_2D, b.texture);
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                      other.data());
+        g_assert_true(before != other);
+        const auto main =
+            viewport.Render(second, {}, 384, 256, -1, false, true);
+        g_assert_cmpuint(main.texture, !=, 0);
+        g_assert_cmpuint(main.captured_parts, ==, 2);
+        g_assert_true(glIsTexture(a.texture));
+        std::vector<uint8_t> after(before.size());
+        glBindTexture(GL_TEXTURE_2D, a.texture);
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                      after.data());
+        g_assert_true(before == after);
+        g_assert_cmpuint(viewport.Thumbnail(first).texture, ==, a.texture);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        viewport.Shutdown();
+        g_assert_false(glIsTexture(a.texture));
+        g_assert_false(glIsTexture(b.texture));
+    }
     if (run_review("overlapping-attributes")) {
         auto overlapping = StageFixture();
         for (auto &part : overlapping->parts) {

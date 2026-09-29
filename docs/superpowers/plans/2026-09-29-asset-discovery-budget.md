@@ -70,4 +70,11 @@ User report adds frequently empty/out-of-view assets and a Ghoulies spider death
 - [x] Add synthetic GL/Vulkan float/integer overlap and truncation regressions plus an active-stream GPU color regression; observe both fail before the correction.
 - [x] Remove the element-width-versus-stride restriction while retaining count and complete-read bounds. Expose precise stream errors and wrap raw binding fields.
 - [x] Run strict and sanitizer model/GPU tests, actual product compilation and narrow independent source review. Local owned-recording output fitting and rendering now succeed for E63969/E64317; these are not identified spider parts or exact scene replay.
-- [ ] Publish the correction to the existing PR260 branch and recheck the same recording with its exact Windows CI artifact before the corrected prerelease.
+- [x] Publish9bddab8b and recheck the same recording with its exact Windows CI artifact. Both original failures now render; push/PR CI20/20 each, unit190pass0fail17skip. Native catalog inspection exposed shared palette-output thumbnails, so prerelease stays gated on the follow-up.
+
+### Task 6: Preserve each catalog thumbnail
+
+- [x] Reproduce native thumbnails changing with the main selection; synthetic GPU regression confirms identical palette-output texture IDs.
+- [x] Give each thumbnail its own palette output target and release both targets on eviction/shutdown. Verify pixel persistence, distinct images, successful main resize, cache identity and teardown, with strict/sanitized GPU fixtures and actual viewport compilation.
+- [x] Obtain narrow review and add its requested main-render success assertions.
+- [ ] Push the correction, obtain exact-head green CI, and recheck distinct thumbnails on Windows before the corrected prerelease.

@@ -1,0 +1,6 @@
+TAP version 14
+# random seed: R02Sa4d4f9ad4ce86d70da66cd7bbc77767a
+**
+ERROR:tests/unit/test-xemu-asset-browser-viewport.cc:551:int main(int, char**): assertion failed (a.texture != b.texture): (26 != 26)
+Bail out! ERROR:tests/unit/test-xemu-asset-browser-viewport.cc:551:int main(int, char**): assertion failed (a.texture != b.texture): (26 != 26)
+Aborted

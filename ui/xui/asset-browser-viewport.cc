@@ -282,7 +282,7 @@ struct AssetViewport::Impl {
     };
     struct Thumb {
         std::vector<std::weak_ptr<const AssetPart>> parts;
-        Target target;
+        Target target, display_target;
         AssetViewportFrame frame;
     };
     std::list<Mesh> meshes;
@@ -450,7 +450,8 @@ if(colored!=0)c*=vertexcolor;outputColor=vec4(c.rgb,1);})";
         return &mesh;
     }
     AssetViewportFrame
-    Draw(Target &output, const std::shared_ptr<const AssetAssembly> &assembly,
+    Draw(Target &output, Target &display_output,
+         const std::shared_ptr<const AssetAssembly> &assembly,
          const AssetCamera &camera, uint32_t w, uint32_t h, int slot, bool wire,
          bool captured = false, bool projected_output = false)
     {
@@ -588,7 +589,7 @@ if(colored!=0)c*=vertexcolor;outputColor=vec4(c.rgb,1);})";
                 return frame;
             }
             if (palette) {
-                if (!display_target.Resize(w, h)) {
+                if (!display_output.Resize(w, h)) {
                     frame.texture = 0;
                     frame.message = "Captured display target is unavailable";
                     return frame;
@@ -599,7 +600,7 @@ if(colored!=0)c*=vertexcolor;outputColor=vec4(c.rgb,1);})";
                     entries[i] = uint32_t(bytes[i * 3]) |
                                  uint32_t(bytes[i * 3 + 1]) << 8 |
                                  uint32_t(bytes[i * 3 + 2]) << 16;
-                glBindFramebuffer(GL_FRAMEBUFFER, display_target.fbo);
+                glBindFramebuffer(GL_FRAMEBUFFER, display_output.fbo);
                 glDisable(GL_DEPTH_TEST);
                 glDisable(GL_STENCIL_TEST);
                 glDisable(GL_BLEND);
@@ -618,7 +619,7 @@ if(colored!=0)c*=vertexcolor;outputColor=vec4(c.rgb,1);})";
                 glBindTexture(GL_TEXTURE_2D, output.color);
                 glBindVertexArray(background_vao);
                 glDrawArrays(GL_TRIANGLES, 0, 3);
-                frame.texture = display_target.color;
+                frame.texture = display_output.color;
             }
             frame.width = w;
             frame.height = h;
@@ -717,8 +718,8 @@ AssetViewport::Render(std::shared_ptr<const AssetAssembly> assembly,
                       int slot, bool wire, bool captured_stages,
                       bool projected_output)
 {
-    return impl_->Draw(impl_->target, assembly, camera, w, h, slot, wire,
-                       captured_stages, projected_output);
+    return impl_->Draw(impl_->target, impl_->display_target, assembly, camera,
+                       w, h, slot, wire, captured_stages, projected_output);
 }
 AssetViewportFrame
 AssetViewport::Thumbnail(std::shared_ptr<const AssetAssembly> assembly)
@@ -738,6 +739,7 @@ AssetViewport::Thumbnail(std::shared_ptr<const AssetAssembly> assembly)
     if (impl_->thumbs.size() >= impl_->thumbnail_capacity) {
         GlState saved;
         impl_->thumbs.front().target.Destroy();
+        impl_->thumbs.front().display_target.Destroy();
         impl_->thumbs.pop_front();
     }
     impl_->thumbs.emplace_back();
@@ -754,13 +756,13 @@ AssetViewport::Thumbnail(std::shared_ptr<const AssetAssembly> assembly)
     if (captured) {
         // The game camera's projected output is easier to recognize than an
         // arbitrary orbit of unprocessed skinning inputs.
-        thumb.frame = impl_->Draw(thumb.target, assembly, {}, 96, 72, -1, false,
-                                  true, true);
+        thumb.frame = impl_->Draw(thumb.target, thumb.display_target, assembly,
+                                  {}, 96, 72, -1, false, true, true);
     }
     if (!thumb.frame.texture) {
         const auto missing = thumb.frame.message;
-        thumb.frame =
-            impl_->Draw(thumb.target, assembly, camera, 96, 72, -1, false);
+        thumb.frame = impl_->Draw(thumb.target, thumb.display_target, assembly,
+                                  camera, 96, 72, -1, false);
         thumb.frame.message = "Raw vertex-input thumbnail. " + missing;
     }
     return thumb.frame;
@@ -847,8 +849,10 @@ void AssetViewport::Shutdown()
         mesh.Destroy();
     impl_->meshes.clear();
     impl_->gpu_bytes = 0;
-    for (auto &thumb : impl_->thumbs)
+    for (auto &thumb : impl_->thumbs) {
         thumb.target.Destroy();
+        thumb.display_target.Destroy();
+    }
     impl_->thumbs.clear();
     impl_->target.Destroy();
     impl_->display_target.Destroy();
