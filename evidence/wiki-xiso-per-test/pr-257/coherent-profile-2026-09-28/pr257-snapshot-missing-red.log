@@ -1,0 +1,60 @@
+python3 /home/codex/pr238-source/subprojects/genconfig/gen_config.py /home/codex/xemu-shader-workbench-handoff/xemu-issue93/config_spec.yml /tmp/pr257-profile-build/xemu-config.h
+c++ -I/tmp/pr257-profile-build -iquote /tmp/pr257-profile-build -iquote /home/codex/xemu-shader-workbench-handoff/xemu-issue93 -iquote /home/codex/xemu-shader-workbench-handoff/xemu-issue93/include -I/home/codex/xemu-shader-workbench-handoff/xemu-issue93 -m64 -Itests/unit/test-xemu-tweaks-config.p -Itests/unit -I../tests/unit -Isubprojects/genconfig -I../subprojects/genconfig -Isubprojects/tomlplusplus/include -I../subprojects/tomlplusplus/include -I. -Iqapi -Itrace -Iui -Iui/shader -Idata -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/sysprof-6 -fdiagnostics-color=auto -D_GLIBCXX_ASSERTIONS=1 -Wall -Winvalid-pch -std=c++17 -O2 -g -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -Wempty-body -Wendif-labels -Wexpansion-to-defined -Wformat-security -Wformat-y2k -Wignored-qualifiers -Wimplicit-fallthrough=2 -Winit-self -Wmissing-format-attribute -Wredundant-decls -Wshadow=local -Wtype-limits -Wwrite-strings -Wno-missing-include-dirs -Wno-psabi -Wno-shift-negative-value -isystem /home/codex/pr238-source/linux-headers -isystem linux-headers -iquote . -iquote /home/codex/pr238-source -iquote /home/codex/pr238-source/include -iquote /home/codex/pr238-source/host/include/x86_64 -iquote /home/codex/pr238-source/host/include/generic -iquote /home/codex/pr238-source/tcg/i386 -pthread -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX=1 -Wno-error=redundant-decls -fPIE -DTOML_HEADER_ONLY=0 -Werror -o /tmp/pr257-profile-build/test-xemu-tweaks-profile.cc.o -c /home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-profile.cc
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-profile.cc: In function ‘void test_snapshot_owned_value()’:
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-profile.cc:225:21: error: ‘xemu_tweaks_snapshot’ was not declared in this scope; did you mean ‘xemu_tweaks_apply’?
+  225 |     auto retained = xemu_tweaks_snapshot();
+      |                     ^~~~~~~~~~~~~~~~~~~~
+      |                     xemu_tweaks_apply
+In file included from /usr/include/glib-2.0/glib.h:89,
+                 from /home/codex/xemu-shader-workbench-handoff/xemu-issue93/include/glib-compat.h:32,
+                 from /home/codex/xemu-shader-workbench-handoff/xemu-issue93/include/qemu/osdep.h:175,
+                 from /home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-profile.cc:2:
+/usr/include/glib-2.0/glib/gtestutils.h:80:59: error: ‘__n2’ was not declared in this scope; did you mean ‘__n1’?
+   80 |                                              if (__n1 cmp __n2) ; else \
+      |                                                           ^~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-profile.cc:231:5: note: in expansion of macro ‘g_assert_cmpuint’
+  231 |     g_assert_cmpuint(changed.sequence, >, retained.sequence);
+      |     ^~~~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-profile.cc: In function ‘void test_snapshot_concurrent_publication()’:
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-profile.cc:264:25: error: ‘xemu_tweaks_snapshot’ was not declared in this scope; did you mean ‘xemu_tweaks_apply’?
+  264 |         auto snapshot = xemu_tweaks_snapshot();
+      |                         ^~~~~~~~~~~~~~~~~~~~
+      |                         xemu_tweaks_apply
+/usr/include/glib-2.0/glib/gtestutils.h:80:59: error: ‘__n2’ was not declared in this scope; did you mean ‘__n1’?
+   80 |                                              if (__n1 cmp __n2) ; else \
+      |                                                           ^~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-profile.cc:265:9: note: in expansion of macro ‘g_assert_cmpuint’
+  265 |         g_assert_cmpuint(snapshot.sequence, >=, previous_sequence);
+      |         ^~~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:74:59: error: ‘__n2’ was not declared in this scope; did you mean ‘__n1’?
+   74 |                                              if (__n1 cmp __n2) ; else \
+      |                                                           ^~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-profile.cc:267:9: note: in expansion of macro ‘g_assert_cmpint’
+  267 |         g_assert_cmpint(snapshot.state[XEMU_TWEAK_PGRAPH_BULK_PACKETS].policy_requested,
+      |         ^~~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-profile.cc:272:21: error: ‘xemu_tweaks_snapshot’ was not declared in this scope; did you mean ‘xemu_tweaks_apply’?
+  272 |     auto snapshot = xemu_tweaks_snapshot();
+      |                     ^~~~~~~~~~~~~~~~~~~~
+      |                     xemu_tweaks_apply
+/usr/include/glib-2.0/glib/gtestutils.h:80:59: error: ‘__n2’ was not declared in this scope; did you mean ‘__n1’?
+   80 |                                              if (__n1 cmp __n2) ; else \
+      |                                                           ^~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-profile.cc:273:5: note: in expansion of macro ‘g_assert_cmpuint’
+  273 |     g_assert_cmpuint(snapshot.effective_bits, ==, xemu_tweaks_active_snapshot());
+      |     ^~~~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-profile.cc: At global scope:
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-profile.cc:196:13: error: ‘void assert_snapshot(const XemuTweakResolution&)’ defined but not used [-Werror=unused-function]
+  196 | static void assert_snapshot(const XemuTweakResolution &snapshot)
+      |             ^~~~~~~~~~~~~~~
+cc1plus: all warnings being treated as errors
+Traceback (most recent call last):
+  File "/tmp/pr257-profile-build.py", line 31, in <module>
+    run(args,cwd=build);objects.append(str(obj))
+    ~~~^^^^^^^^^^^^^^^^
+  File "/tmp/pr257-profile-build.py", line 11, in run
+    subprocess.run(args,check=True,**kw)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['c++', '-I/tmp/pr257-profile-build', '-iquote', '/tmp/pr257-profile-build', '-iquote', '/home/codex/xemu-shader-workbench-handoff/xemu-issue93', '-iquote', '/home/codex/xemu-shader-workbench-handoff/xemu-issue93/include', '-I/home/codex/xemu-shader-workbench-handoff/xemu-issue93', '-m64', '-Itests/unit/test-xemu-tweaks-config.p', '-Itests/unit', '-I../tests/unit', '-Isubprojects/genconfig', '-I../subprojects/genconfig', '-Isubprojects/tomlplusplus/include', '-I../subprojects/tomlplusplus/include', '-I.', '-Iqapi', '-Itrace', '-Iui', '-Iui/shader', '-Idata', '-I/usr/include/glib-2.0', '-I/usr/lib/x86_64-linux-gnu/glib-2.0/include', '-I/usr/include/sysprof-6', '-fdiagnostics-color=auto', '-D_GLIBCXX_ASSERTIONS=1', '-Wall', '-Winvalid-pch', '-std=c++17', '-O2', '-g', '-D__STDC_LIMIT_MACROS', '-D__STDC_CONSTANT_MACROS', '-D__STDC_FORMAT_MACROS', '-Wempty-body', '-Wendif-labels', '-Wexpansion-to-defined', '-Wformat-security', '-Wformat-y2k', '-Wignored-qualifiers', '-Wimplicit-fallthrough=2', '-Winit-self', '-Wmissing-format-attribute', '-Wredundant-decls', '-Wshadow=local', '-Wtype-limits', '-Wwrite-strings', '-Wno-missing-include-dirs', '-Wno-psabi', '-Wno-shift-negative-value', '-isystem', '/home/codex/pr238-source/linux-headers', '-isystem', 'linux-headers', '-iquote', '.', '-iquote', '/home/codex/pr238-source', '-iquote', '/home/codex/pr238-source/include', '-iquote', '/home/codex/pr238-source/host/include/x86_64', '-iquote', '/home/codex/pr238-source/host/include/generic', '-iquote', '/home/codex/pr238-source/tcg/i386', '-pthread', '-mcx16', '-msse2', '-D_GNU_SOURCE', '-D_FILE_OFFSET_BITS=64', '-D_LARGEFILE_SOURCE', '-fno-strict-aliasing', '-fno-common', '-fwrapv', '-ftrivial-auto-var-init=zero', '-fzero-call-used-regs=used-gpr', '-DXBOX=1', '-Wno-error=redundant-decls', '-fPIE', '-DTOML_HEADER_ONLY=0', '-Werror', '-o', '/tmp/pr257-profile-build/test-xemu-tweaks-profile.cc.o', '-c', '/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-profile.cc']' returned non-zero exit status 1.

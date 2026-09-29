@@ -3,7 +3,10 @@
 #define XEMU_TWEAKS_H
 
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 #include "qemu/atomic.h"
+#include "xemu-tweak-policy.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,12 +29,14 @@ typedef enum XemuTweak {
 } XemuTweak;
 
 #ifdef __cplusplus
-static_assert(XEMU_TWEAK_COUNT < sizeof(unsigned int) * 8,
+static_assert(XEMU_TWEAK_COUNT <= 64,
               "Advanced tweak mask is full");
 #else
-_Static_assert(XEMU_TWEAK_COUNT < sizeof(unsigned int) * 8,
+_Static_assert(XEMU_TWEAK_COUNT <= 64,
                "Advanced tweak mask is full");
 #endif
+
+typedef aligned_uint64_t XemuTweakBits;
 
 typedef enum XemuTweakRenderer {
     XEMU_TWEAK_RENDERER_NONE,
@@ -45,6 +50,8 @@ typedef struct XemuTweakRuntimeState {
     bool effective;
     bool available;
     bool restart_pending;
+    XemuTweakPolicy policy_requested;
+    XemuTweakAvailability availability;
     const char *reason;
 } XemuTweakRuntimeState;
 
@@ -64,12 +71,52 @@ typedef struct XemuVulkanUbershaderRuntimeState {
     const char *reason;
 } XemuVulkanUbershaderRuntimeState;
 
-/* Workers read this snapshot, never the UI-owned mutable g_config. */
-extern unsigned int xemu_tweaks_active;
+typedef struct XemuTweakRequestedState {
+    XemuTweakPolicy policy[XEMU_TWEAK_COUNT];
+    /* The hybrid Boolean permission is derived from this mode. */
+    XemuVulkanUbershaderMode ubershader_mode;
+} XemuTweakRequestedState;
+
+typedef struct XemuTweakEnvironment {
+    XemuTweakRenderer renderer;
+    bool windows_host;
+    bool ubershader_installed;
+    bool ubershader_operational;
+} XemuTweakEnvironment;
+
+typedef struct XemuTweakResolution {
+    uint64_t selected_bits;
+    uint64_t effective_bits;
+    /* Zero for a pure resolution; publication assigns a sequence. */
+    uint64_t sequence;
+    XemuTweakRenderer renderer;
+    XemuTweakRuntimeState state[XEMU_TWEAK_COUNT];
+    XemuVulkanUbershaderRuntimeState ubershader;
+} XemuTweakResolution;
+
+/* Pure: no configuration reads, publication or platform adapter calls.
+ * Startup selections survive backend unavailability and live edits. */
+XemuTweakResolution
+xemu_tweaks_resolve(const XemuTweakRequestedState *requested,
+                    const XemuTweakEnvironment *environment,
+                    const XemuTweakResolution *startup_state,
+                    bool apply_restart_latched);
+
+/* Workers read complete effective permissions, never mutable configuration.
+ * Existing correctness guards still decide whether eligible work can skip. */
+extern XemuTweakBits xemu_tweaks_active;
+
+/* C++ cannot expand qatomic_read_u64's C-only _Generic expression. */
+uint64_t xemu_tweaks_active_snapshot(void);
 
 static inline bool xemu_tweak_enabled(XemuTweak tweak)
 {
-    return (qatomic_read(&xemu_tweaks_active) & (1u << tweak)) != 0;
+#ifdef __cplusplus
+    return (xemu_tweaks_active_snapshot() & (UINT64_C(1) << tweak)) != 0;
+#else
+    return (qatomic_read_u64(&xemu_tweaks_active) &
+            (UINT64_C(1) << tweak)) != 0;
+#endif
 }
 
 static inline bool xemu_tweak_requires_restart(XemuTweak tweak)
@@ -81,14 +128,19 @@ static inline bool xemu_tweak_requires_restart(XemuTweak tweak)
 
 /* UI thread only. startup=true is only valid before workers are created. */
 void xemu_tweaks_apply(bool startup);
-/* Renderer lifecycle publication and UI-only status query. Neither is hot-path. */
+/* Lifecycle and status APIs are synchronized and low-frequency, never hot-path.
+ * Returned values own one published generation; reasons have static lifetime.
+ */
 void xemu_tweaks_publish_renderer(XemuTweakRenderer renderer);
+XemuTweakResolution xemu_tweaks_snapshot(void);
 XemuTweakRuntimeState xemu_tweak_runtime_state(XemuTweak tweak);
+/* Low-frequency; never called from a worker/hot path. Returns the complete
+ * length excluding NUL, like snprintf. NULL is allowed only with size == 0.
+ * Output is a diagnostic profile, not the complete #94 session artifact. */
+size_t xemu_tweaks_format_effective_profile(char *buffer, size_t size);
 XemuVulkanUbershaderMode xemu_vulkan_ubershader_migrate_mode(
-    bool mode_present, XemuVulkanUbershaderMode mode,
-    bool legacy_enabled);
-bool xemu_vulkan_ubershader_mode_selectable(
-    XemuVulkanUbershaderMode mode);
+    bool mode_present, XemuVulkanUbershaderMode mode, bool legacy_enabled);
+bool xemu_vulkan_ubershader_mode_selectable(XemuVulkanUbershaderMode mode);
 XemuVulkanUbershaderMode xemu_vulkan_ubershader_policy(void);
 XemuVulkanUbershaderRuntimeState
 xemu_vulkan_ubershader_runtime_state(void);

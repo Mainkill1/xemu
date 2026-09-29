@@ -1,0 +1,1115 @@
+python3 /home/codex/pr238-source/subprojects/genconfig/gen_config.py /home/codex/xemu-shader-workbench-handoff/xemu-issue93/config_spec.yml /tmp/pr257-profile-build/xemu-config.h
+cc -I/tmp/pr257-profile-build -iquote /tmp/pr257-profile-build -iquote /home/codex/xemu-shader-workbench-handoff/xemu-issue93 -iquote /home/codex/xemu-shader-workbench-handoff/xemu-issue93/include -I/home/codex/xemu-shader-workbench-handoff/xemu-issue93 -m64 -Itests/unit/test-xemu-tweaks-config.p -Itests/unit -I../tests/unit -Isubprojects/genconfig -I../subprojects/genconfig -Isubprojects/tomlplusplus/include -I../subprojects/tomlplusplus/include -I. -Iqapi -Itrace -Iui -Iui/shader -Idata -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/sysprof-6 -fdiagnostics-color=auto -Wall -Winvalid-pch -std=gnu11 -O2 -g -Wempty-body -Wendif-labels -Wexpansion-to-defined -Wformat-security -Wformat-y2k -Wignored-qualifiers -Wimplicit-fallthrough=2 -Winit-self -Wmissing-format-attribute -Wmissing-prototypes -Wnested-externs -Wold-style-declaration -Wold-style-definition -Wredundant-decls -Wshadow=local -Wstrict-prototypes -Wtype-limits -Wwrite-strings -Wno-missing-include-dirs -Wno-psabi -Wno-shift-negative-value -isystem /home/codex/pr238-source/linux-headers -isystem linux-headers -iquote . -iquote /home/codex/pr238-source -iquote /home/codex/pr238-source/include -iquote /home/codex/pr238-source/host/include/x86_64 -iquote /home/codex/pr238-source/host/include/generic -iquote /home/codex/pr238-source/tcg/i386 -pthread -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX=1 -Wno-error=redundant-decls -fPIE -DTOML_HEADER_ONLY=0 -Werror -o /tmp/pr257-profile-build/test-xemu-tweaks-resolver.c.o -c /home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:5:8: error: unknown type name ‘XemuTweakRequestedState’; did you mean ‘XemuTweakRuntimeState’?
+    5 | static XemuTweakRequestedState requested_defaults(void)
+      |        ^~~~~~~~~~~~~~~~~~~~~~~
+      |        XemuTweakRuntimeState
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c: In function ‘requested_defaults’:
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:7:5: error: unknown type name ‘XemuTweakRequestedState’; did you mean ‘XemuTweakRuntimeState’?
+    7 |     XemuTweakRequestedState requested = {
+      |     ^~~~~~~~~~~~~~~~~~~~~~~
+      |     XemuTweakRuntimeState
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:8:9: error: field name not in record or union initializer
+    8 |         .ubershader_mode = XEMU_VK_UBERSHADER_PREWARM,
+      |         ^
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:8:9: note: (near initialization for ‘requested’)
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c: At top level:
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:13:8: error: unknown type name ‘XemuTweakEnvironment’
+   13 | static XemuTweakEnvironment environment(XemuTweakRenderer renderer)
+      |        ^~~~~~~~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c: In function ‘environment’:
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:15:5: error: unknown type name ‘XemuTweakEnvironment’
+   15 |     XemuTweakEnvironment env = {
+      |     ^~~~~~~~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:16:9: error: field name not in record or union initializer
+   16 |         .renderer = renderer,
+      |         ^
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:16:9: note: (near initialization for ‘env’)
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:17:9: error: field name not in record or union initializer
+   17 |         .windows_host = true,
+      |         ^
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:17:9: note: (near initialization for ‘env’)
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:17:25: error: excess elements in scalar initializer [-Werror]
+   17 |         .windows_host = true,
+      |                         ^~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:17:25: note: (near initialization for ‘env’)
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:18:9: error: field name not in record or union initializer
+   18 |         .ubershader_installed = true,
+      |         ^
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:18:9: note: (near initialization for ‘env’)
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:18:33: error: excess elements in scalar initializer [-Werror]
+   18 |         .ubershader_installed = true,
+      |                                 ^~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:18:33: note: (near initialization for ‘env’)
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:19:9: error: field name not in record or union initializer
+   19 |         .ubershader_operational = true,
+      |         ^
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:19:9: note: (near initialization for ‘env’)
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:19:35: error: excess elements in scalar initializer [-Werror]
+   19 |         .ubershader_operational = true,
+      |                                   ^~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:19:35: note: (near initialization for ‘env’)
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c: At top level:
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:24:32: error: unknown type name ‘XemuTweakResolution’; did you mean ‘XemuTweakPolicyResolution’?
+   24 | static void assert_masks(const XemuTweakResolution *resolved)
+      |                                ^~~~~~~~~~~~~~~~~~~
+      |                                XemuTweakPolicyResolution
+In file included from /usr/include/glib-2.0/glib.h:89,
+                 from /home/codex/xemu-shader-workbench-handoff/xemu-issue93/include/glib-compat.h:32,
+                 from /home/codex/xemu-shader-workbench-handoff/xemu-issue93/include/qemu/osdep.h:175,
+                 from /home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:2:
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c: In function ‘assert_masks’:
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:28:34: error: request for member ‘selected_bits’ in something not a structure or union
+   28 |         g_assert_cmpint((resolved->selected_bits & bit) != 0, ==,
+      |                                  ^~
+/usr/include/glib-2.0/glib/gtestutils.h:73:61: note: in definition of macro ‘g_assert_cmpint’
+   73 |                                              gint64 __n1 = (n1), __n2 = (n2); \
+      |                                                             ^~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:29:33: error: request for member ‘state’ in something not a structure or union
+   29 |                         resolved->state[i].selected);
+      |                                 ^~
+/usr/include/glib-2.0/glib/gtestutils.h:73:74: note: in definition of macro ‘g_assert_cmpint’
+   73 |                                              gint64 __n1 = (n1), __n2 = (n2); \
+      |                                                                          ^~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:30:34: error: request for member ‘effective_bits’ in something not a structure or union
+   30 |         g_assert_cmpint((resolved->effective_bits & bit) != 0, ==,
+      |                                  ^~
+/usr/include/glib-2.0/glib/gtestutils.h:73:61: note: in definition of macro ‘g_assert_cmpint’
+   73 |                                              gint64 __n1 = (n1), __n2 = (n2); \
+      |                                                             ^~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:31:33: error: request for member ‘state’ in something not a structure or union
+   31 |                         resolved->state[i].effective);
+      |                                 ^~
+/usr/include/glib-2.0/glib/gtestutils.h:73:74: note: in definition of macro ‘g_assert_cmpint’
+   73 |                                              gint64 __n1 = (n1), __n2 = (n2); \
+      |                                                                          ^~
+In file included from /usr/lib/x86_64-linux-gnu/glib-2.0/include/glibconfig.h:9,
+                 from /usr/include/glib-2.0/glib/gtypes.h:34,
+                 from /usr/include/glib-2.0/glib/galloca.h:34,
+                 from /usr/include/glib-2.0/glib.h:32:
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:32:32: error: request for member ‘state’ in something not a structure or union
+   32 |         g_assert_true(!resolved->state[i].effective ||
+      |                                ^~
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:32:9: note: in expansion of macro ‘g_assert_true’
+   32 |         g_assert_true(!resolved->state[i].effective ||
+      |         ^~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:33:32: error: request for member ‘state’ in something not a structure or union
+   33 |                       (resolved->state[i].selected &&
+      |                                ^~
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:32:9: note: in expansion of macro ‘g_assert_true’
+   32 |         g_assert_true(!resolved->state[i].effective ||
+      |         ^~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:34:32: error: request for member ‘state’ in something not a structure or union
+   34 |                        resolved->state[i].available));
+      |                                ^~
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:32:9: note: in expansion of macro ‘g_assert_true’
+   32 |         g_assert_true(!resolved->state[i].effective ||
+      |         ^~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:35:34: error: request for member ‘state’ in something not a structure or union
+   35 |         g_assert_nonnull(resolved->state[i].reason);
+      |                                  ^~
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:255:49: note: in expansion of macro ‘G_LIKELY’
+  255 |                                              if G_LIKELY ((expr) != NULL) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:35:9: note: in expansion of macro ‘g_assert_nonnull’
+   35 |         g_assert_nonnull(resolved->state[i].reason);
+      |         ^~~~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:36:31: error: request for member ‘state’ in something not a structure or union
+   36 |         g_assert_true(resolved->state[i].reason[0] != '\0');
+      |                               ^~
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:36:9: note: in expansion of macro ‘g_assert_true’
+   36 |         g_assert_true(resolved->state[i].reason[0] != '\0');
+      |         ^~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:38:30: error: request for member ‘sequence’ in something not a structure or union
+   38 |     g_assert_cmpuint(resolved->sequence, ==, 0);
+      |                              ^~
+/usr/include/glib-2.0/glib/gtestutils.h:79:62: note: in definition of macro ‘g_assert_cmpuint’
+   79 |                                              guint64 __n1 = (n1), __n2 = (n2); \
+      |                                                              ^~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c: In function ‘test_defaults_and_explicit’:
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:43:5: error: unknown type name ‘XemuTweakRequestedState’; did you mean ‘XemuTweakRuntimeState’?
+   43 |     XemuTweakRequestedState requested = requested_defaults();
+      |     ^~~~~~~~~~~~~~~~~~~~~~~
+      |     XemuTweakRuntimeState
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:44:5: error: unknown type name ‘XemuTweakEnvironment’
+   44 |     XemuTweakEnvironment env = environment(XEMU_TWEAK_RENDERER_VULKAN);
+      |     ^~~~~~~~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:45:5: error: unknown type name ‘XemuTweakResolution’; did you mean ‘XemuTweakPolicyResolution’?
+   45 |     XemuTweakResolution resolved =
+      |     ^~~~~~~~~~~~~~~~~~~
+      |     XemuTweakPolicyResolution
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:46:9: error: implicit declaration of function ‘xemu_tweaks_resolve’; did you mean ‘xemu_tweaks_apply’? [-Wimplicit-function-declaration]
+   46 |         xemu_tweaks_resolve(&requested, &env, NULL, true);
+      |         ^~~~~~~~~~~~~~~~~~~
+      |         xemu_tweaks_apply
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:46:9: error: nested extern declaration of ‘xemu_tweaks_resolve’ [-Werror=nested-externs]
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:48:27: error: request for member ‘state’ in something not a structure or union
+   48 |     g_assert_true(resolved.state[XEMU_TWEAK_CPU_SAVING_WAIT].effective);
+      |                           ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:48:5: note: in expansion of macro ‘g_assert_true’
+   48 |     g_assert_true(resolved.state[XEMU_TWEAK_CPU_SAVING_WAIT].effective);
+      |     ^~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:49:27: error: request for member ‘state’ in something not a structure or union
+   49 |     g_assert_true(resolved.state[XEMU_TWEAK_PGRAPH_BULK_PACKETS].effective);
+      |                           ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:49:5: note: in expansion of macro ‘g_assert_true’
+   49 |     g_assert_true(resolved.state[XEMU_TWEAK_PGRAPH_BULK_PACKETS].effective);
+      |     ^~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:50:27: error: request for member ‘state’ in something not a structure or union
+   50 |     g_assert_true(resolved.state[XEMU_TWEAK_PGRAPH_FENCE_FASTPATH].effective);
+      |                           ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:50:5: note: in expansion of macro ‘g_assert_true’
+   50 |     g_assert_true(resolved.state[XEMU_TWEAK_PGRAPH_FENCE_FASTPATH].effective);
+      |     ^~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:51:27: error: request for member ‘state’ in something not a structure or union
+   51 |     g_assert_true(resolved.state[XEMU_TWEAK_VK_COLOR_DOWNLOAD_FOLDING].effective);
+      |                           ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:51:5: note: in expansion of macro ‘g_assert_true’
+   51 |     g_assert_true(resolved.state[XEMU_TWEAK_VK_COLOR_DOWNLOAD_FOLDING].effective);
+      |     ^~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:52:27: error: request for member ‘state’ in something not a structure or union
+   52 |     g_assert_true(resolved.state[XEMU_TWEAK_VK_BOUNDED_VERTEX_UPLOADS].effective);
+      |                           ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:52:5: note: in expansion of macro ‘g_assert_true’
+   52 |     g_assert_true(resolved.state[XEMU_TWEAK_VK_BOUNDED_VERTEX_UPLOADS].effective);
+      |     ^~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:53:27: error: request for member ‘state’ in something not a structure or union
+   53 |     g_assert_true(resolved.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].effective);
+      |                           ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:53:5: note: in expansion of macro ‘g_assert_true’
+   53 |     g_assert_true(resolved.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].effective);
+      |     ^~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:54:28: error: request for member ‘state’ in something not a structure or union
+   54 |     g_assert_false(resolved.state[XEMU_TWEAK_GL_NATIVE_S3TC].effective);
+      |                            ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:233:49: note: in expansion of macro ‘G_LIKELY’
+  233 |                                              if G_LIKELY (!(expr)) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:54:5: note: in expansion of macro ‘g_assert_false’
+   54 |     g_assert_false(resolved.state[XEMU_TWEAK_GL_NATIVE_S3TC].effective);
+      |     ^~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:55:27: error: request for member ‘state’ in something not a structure or union
+   55 |     g_assert_true(resolved.state[XEMU_TWEAK_GL_NATIVE_S3TC].selected);
+      |                           ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:55:5: note: in expansion of macro ‘g_assert_true’
+   55 |     g_assert_true(resolved.state[XEMU_TWEAK_GL_NATIVE_S3TC].selected);
+      |     ^~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:56:28: error: request for member ‘state’ in something not a structure or union
+   56 |     g_assert_false(resolved.state[XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION].effective);
+      |                            ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:233:49: note: in expansion of macro ‘G_LIKELY’
+  233 |                                              if G_LIKELY (!(expr)) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:56:5: note: in expansion of macro ‘g_assert_false’
+   56 |     g_assert_false(resolved.state[XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION].effective);
+      |     ^~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:57:28: error: request for member ‘state’ in something not a structure or union
+   57 |     g_assert_false(resolved.state[XEMU_TWEAK_NV20_VERTEX_ARITHMETIC].effective);
+      |                            ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:233:49: note: in expansion of macro ‘G_LIKELY’
+  233 |                                              if G_LIKELY (!(expr)) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:57:5: note: in expansion of macro ‘g_assert_false’
+   57 |     g_assert_false(resolved.state[XEMU_TWEAK_NV20_VERTEX_ARITHMETIC].effective);
+      |     ^~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:59:8: error: request for member ‘renderer’ in something not a structure or union
+   59 |     env.renderer = XEMU_TWEAK_RENDERER_OPENGL;
+      |        ^
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:61:27: error: request for member ‘state’ in something not a structure or union
+   61 |     g_assert_true(resolved.state[XEMU_TWEAK_GL_NATIVE_S3TC].effective);
+      |                           ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:61:5: note: in expansion of macro ‘g_assert_true’
+   61 |     g_assert_true(resolved.state[XEMU_TWEAK_GL_NATIVE_S3TC].effective);
+      |     ^~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:62:28: error: request for member ‘state’ in something not a structure or union
+   62 |     g_assert_false(resolved.state[XEMU_TWEAK_VK_BOUNDED_VERTEX_UPLOADS].effective);
+      |                            ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:233:49: note: in expansion of macro ‘G_LIKELY’
+  233 |                                              if G_LIKELY (!(expr)) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:62:5: note: in expansion of macro ‘g_assert_false’
+   62 |     g_assert_false(resolved.state[XEMU_TWEAK_VK_BOUNDED_VERTEX_UPLOADS].effective);
+      |     ^~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:63:14: error: request for member ‘policy’ in something not a structure or union
+   63 |     requested.policy[XEMU_TWEAK_PGRAPH_BULK_PACKETS] = XEMU_TWEAK_POLICY_DISABLED;
+      |              ^
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:64:14: error: request for member ‘policy’ in something not a structure or union
+   64 |     requested.policy[XEMU_TWEAK_NV20_VERTEX_ARITHMETIC] = XEMU_TWEAK_POLICY_ENABLED;
+      |              ^
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:66:28: error: request for member ‘state’ in something not a structure or union
+   66 |     g_assert_false(resolved.state[XEMU_TWEAK_PGRAPH_BULK_PACKETS].effective);
+      |                            ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:233:49: note: in expansion of macro ‘G_LIKELY’
+  233 |                                              if G_LIKELY (!(expr)) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:66:5: note: in expansion of macro ‘g_assert_false’
+   66 |     g_assert_false(resolved.state[XEMU_TWEAK_PGRAPH_BULK_PACKETS].effective);
+      |     ^~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:67:27: error: request for member ‘state’ in something not a structure or union
+   67 |     g_assert_true(resolved.state[XEMU_TWEAK_NV20_VERTEX_ARITHMETIC].effective);
+      |                           ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:67:5: note: in expansion of macro ‘g_assert_true’
+   67 |     g_assert_true(resolved.state[XEMU_TWEAK_NV20_VERTEX_ARITHMETIC].effective);
+      |     ^~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c: In function ‘test_live_and_latched’:
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:73:5: error: unknown type name ‘XemuTweakRequestedState’; did you mean ‘XemuTweakRuntimeState’?
+   73 |     XemuTweakRequestedState requested = requested_defaults();
+      |     ^~~~~~~~~~~~~~~~~~~~~~~
+      |     XemuTweakRuntimeState
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:74:5: error: unknown type name ‘XemuTweakEnvironment’
+   74 |     XemuTweakEnvironment env = environment(XEMU_TWEAK_RENDERER_VULKAN);
+      |     ^~~~~~~~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:75:5: error: unknown type name ‘XemuTweakResolution’; did you mean ‘XemuTweakPolicyResolution’?
+   75 |     XemuTweakResolution startup =
+      |     ^~~~~~~~~~~~~~~~~~~
+      |     XemuTweakPolicyResolution
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:77:5: error: unknown type name ‘XemuTweakResolution’; did you mean ‘XemuTweakPolicyResolution’?
+   77 |     XemuTweakResolution original = startup;
+      |     ^~~~~~~~~~~~~~~~~~~
+      |     XemuTweakPolicyResolution
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:78:14: error: request for member ‘policy’ in something not a structure or union
+   78 |     requested.policy[XEMU_TWEAK_PGRAPH_BULK_PACKETS] = XEMU_TWEAK_POLICY_DISABLED;
+      |              ^
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:79:14: error: request for member ‘policy’ in something not a structure or union
+   79 |     requested.policy[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH] = XEMU_TWEAK_POLICY_DISABLED;
+      |              ^
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:80:14: error: request for member ‘policy’ in something not a structure or union
+   80 |     requested.policy[XEMU_TWEAK_GL_NATIVE_S3TC] = XEMU_TWEAK_POLICY_DISABLED;
+      |              ^
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:81:14: error: request for member ‘ubershader_mode’ in something not a structure or union
+   81 |     requested.ubershader_mode = XEMU_VK_UBERSHADER_OFF;
+      |              ^
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:82:5: error: unknown type name ‘XemuTweakResolution’; did you mean ‘XemuTweakPolicyResolution’?
+   82 |     XemuTweakResolution live =
+      |     ^~~~~~~~~~~~~~~~~~~
+      |     XemuTweakPolicyResolution
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:84:24: error: request for member ‘state’ in something not a structure or union
+   84 |     g_assert_false(live.state[XEMU_TWEAK_PGRAPH_BULK_PACKETS].effective);
+      |                        ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:233:49: note: in expansion of macro ‘G_LIKELY’
+  233 |                                              if G_LIKELY (!(expr)) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:84:5: note: in expansion of macro ‘g_assert_false’
+   84 |     g_assert_false(live.state[XEMU_TWEAK_PGRAPH_BULK_PACKETS].effective);
+      |     ^~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:85:23: error: request for member ‘state’ in something not a structure or union
+   85 |     g_assert_true(live.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].effective);
+      |                       ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:85:5: note: in expansion of macro ‘g_assert_true’
+   85 |     g_assert_true(live.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].effective);
+      |     ^~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:86:23: error: request for member ‘state’ in something not a structure or union
+   86 |     g_assert_true(live.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].restart_pending);
+      |                       ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:86:5: note: in expansion of macro ‘g_assert_true’
+   86 |     g_assert_true(live.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].restart_pending);
+      |     ^~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:87:23: error: request for member ‘state’ in something not a structure or union
+   87 |     g_assert_true(live.state[XEMU_TWEAK_GL_NATIVE_S3TC].selected);
+      |                       ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:87:5: note: in expansion of macro ‘g_assert_true’
+   87 |     g_assert_true(live.state[XEMU_TWEAK_GL_NATIVE_S3TC].selected);
+      |     ^~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:88:23: error: request for member ‘state’ in something not a structure or union
+   88 |     g_assert_true(live.state[XEMU_TWEAK_GL_NATIVE_S3TC].restart_pending);
+      |                       ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:88:5: note: in expansion of macro ‘g_assert_true’
+   88 |     g_assert_true(live.state[XEMU_TWEAK_GL_NATIVE_S3TC].restart_pending);
+      |     ^~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:89:25: error: request for member ‘ubershader’ in something not a structure or union
+   89 |     g_assert_cmpint(live.ubershader.requested, ==, XEMU_VK_UBERSHADER_OFF);
+      |                         ^
+/usr/include/glib-2.0/glib/gtestutils.h:73:61: note: in definition of macro ‘g_assert_cmpint’
+   73 |                                              gint64 __n1 = (n1), __n2 = (n2); \
+      |                                                             ^~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:90:25: error: request for member ‘ubershader’ in something not a structure or union
+   90 |     g_assert_cmpint(live.ubershader.policy, ==, XEMU_VK_UBERSHADER_PREWARM);
+      |                         ^
+/usr/include/glib-2.0/glib/gtestutils.h:73:61: note: in definition of macro ‘g_assert_cmpint’
+   73 |                                              gint64 __n1 = (n1), __n2 = (n2); \
+      |                                                             ^~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:91:25: error: request for member ‘ubershader’ in something not a structure or union
+   91 |     g_assert_cmpint(live.ubershader.active, ==, XEMU_VK_UBERSHADER_PREWARM);
+      |                         ^
+/usr/include/glib-2.0/glib/gtestutils.h:73:61: note: in definition of macro ‘g_assert_cmpint’
+   73 |                                              gint64 __n1 = (n1), __n2 = (n2); \
+      |                                                             ^~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:92:23: error: request for member ‘ubershader’ in something not a structure or union
+   92 |     g_assert_true(live.ubershader.restart_pending);
+      |                       ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:92:5: note: in expansion of macro ‘g_assert_true’
+   92 |     g_assert_true(live.ubershader.restart_pending);
+      |     ^~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:96:5: error: unknown type name ‘XemuTweakResolution’; did you mean ‘XemuTweakPolicyResolution’?
+   96 |     XemuTweakResolution restarted =
+      |     ^~~~~~~~~~~~~~~~~~~
+      |     XemuTweakPolicyResolution
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:98:29: error: request for member ‘state’ in something not a structure or union
+   98 |     g_assert_false(restarted.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].effective);
+      |                             ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:233:49: note: in expansion of macro ‘G_LIKELY’
+  233 |                                              if G_LIKELY (!(expr)) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:98:5: note: in expansion of macro ‘g_assert_false’
+   98 |     g_assert_false(restarted.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].effective);
+      |     ^~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:99:29: error: request for member ‘state’ in something not a structure or union
+   99 |     g_assert_false(restarted.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].restart_pending);
+      |                             ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:233:49: note: in expansion of macro ‘G_LIKELY’
+  233 |                                              if G_LIKELY (!(expr)) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:99:5: note: in expansion of macro ‘g_assert_false’
+   99 |     g_assert_false(restarted.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].restart_pending);
+      |     ^~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:100:29: error: request for member ‘state’ in something not a structure or union
+  100 |     g_assert_false(restarted.state[XEMU_TWEAK_GL_NATIVE_S3TC].selected);
+      |                             ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:233:49: note: in expansion of macro ‘G_LIKELY’
+  233 |                                              if G_LIKELY (!(expr)) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:100:5: note: in expansion of macro ‘g_assert_false’
+  100 |     g_assert_false(restarted.state[XEMU_TWEAK_GL_NATIVE_S3TC].selected);
+      |     ^~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:101:30: error: request for member ‘ubershader’ in something not a structure or union
+  101 |     g_assert_cmpint(restarted.ubershader.active, ==, XEMU_VK_UBERSHADER_OFF);
+      |                              ^
+/usr/include/glib-2.0/glib/gtestutils.h:73:61: note: in definition of macro ‘g_assert_cmpint’
+   73 |                                              gint64 __n1 = (n1), __n2 = (n2); \
+      |                                                             ^~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:102:29: error: request for member ‘ubershader’ in something not a structure or union
+  102 |     g_assert_false(restarted.ubershader.restart_pending);
+      |                             ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:233:49: note: in expansion of macro ‘G_LIKELY’
+  233 |                                              if G_LIKELY (!(expr)) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:102:5: note: in expansion of macro ‘g_assert_false’
+  102 |     g_assert_false(restarted.ubershader.restart_pending);
+      |     ^~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c: In function ‘test_backend_changes_preserve_latches’:
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:108:5: error: unknown type name ‘XemuTweakRequestedState’; did you mean ‘XemuTweakRuntimeState’?
+  108 |     XemuTweakRequestedState requested = requested_defaults();
+      |     ^~~~~~~~~~~~~~~~~~~~~~~
+      |     XemuTweakRuntimeState
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:109:5: error: unknown type name ‘XemuTweakEnvironment’
+  109 |     XemuTweakEnvironment env = environment(XEMU_TWEAK_RENDERER_NONE);
+      |     ^~~~~~~~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:110:5: error: unknown type name ‘XemuTweakResolution’; did you mean ‘XemuTweakPolicyResolution’?
+  110 |     XemuTweakResolution startup =
+      |     ^~~~~~~~~~~~~~~~~~~
+      |     XemuTweakPolicyResolution
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:112:26: error: request for member ‘state’ in something not a structure or union
+  112 |     g_assert_true(startup.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].selected);
+      |                          ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:112:5: note: in expansion of macro ‘g_assert_true’
+  112 |     g_assert_true(startup.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].selected);
+      |     ^~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:113:27: error: request for member ‘state’ in something not a structure or union
+  113 |     g_assert_false(startup.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].effective);
+      |                           ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:233:49: note: in expansion of macro ‘G_LIKELY’
+  233 |                                              if G_LIKELY (!(expr)) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:113:5: note: in expansion of macro ‘g_assert_false’
+  113 |     g_assert_false(startup.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].effective);
+      |     ^~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:116:12: error: request for member ‘renderer’ in something not a structure or union
+  116 |         env.renderer = i;
+      |            ^
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:117:9: error: unknown type name ‘XemuTweakResolution’; did you mean ‘XemuTweakPolicyResolution’?
+  117 |         XemuTweakResolution same =
+      |         ^~~~~~~~~~~~~~~~~~~
+      |         XemuTweakPolicyResolution
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:119:30: error: request for member ‘selected_bits’ in something not a structure or union
+  119 |         g_assert_cmpuint(same.selected_bits, ==, startup.selected_bits);
+      |                              ^
+/usr/include/glib-2.0/glib/gtestutils.h:79:62: note: in definition of macro ‘g_assert_cmpuint’
+   79 |                                              guint64 __n1 = (n1), __n2 = (n2); \
+      |                                                              ^~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:119:57: error: request for member ‘selected_bits’ in something not a structure or union
+  119 |         g_assert_cmpuint(same.selected_bits, ==, startup.selected_bits);
+      |                                                         ^
+/usr/include/glib-2.0/glib/gtestutils.h:79:75: note: in definition of macro ‘g_assert_cmpuint’
+   79 |                                              guint64 __n1 = (n1), __n2 = (n2); \
+      |                                                                           ^~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:120:28: error: request for member ‘state’ in something not a structure or union
+  120 |         g_assert_false(same.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].restart_pending);
+      |                            ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:233:49: note: in expansion of macro ‘G_LIKELY’
+  233 |                                              if G_LIKELY (!(expr)) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:120:9: note: in expansion of macro ‘g_assert_false’
+  120 |         g_assert_false(same.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].restart_pending);
+      |         ^~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:121:28: error: request for member ‘state’ in something not a structure or union
+  121 |         g_assert_false(same.state[XEMU_TWEAK_GL_NATIVE_S3TC].restart_pending);
+      |                            ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:233:49: note: in expansion of macro ‘G_LIKELY’
+  233 |                                              if G_LIKELY (!(expr)) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:121:9: note: in expansion of macro ‘g_assert_false’
+  121 |         g_assert_false(same.state[XEMU_TWEAK_GL_NATIVE_S3TC].restart_pending);
+      |         ^~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:122:28: error: request for member ‘ubershader’ in something not a structure or union
+  122 |         g_assert_false(same.ubershader.restart_pending);
+      |                            ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:233:49: note: in expansion of macro ‘G_LIKELY’
+  233 |                                              if G_LIKELY (!(expr)) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:122:9: note: in expansion of macro ‘g_assert_false’
+  122 |         g_assert_false(same.ubershader.restart_pending);
+      |         ^~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:125:14: error: request for member ‘policy’ in something not a structure or union
+  125 |     requested.policy[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH] = XEMU_TWEAK_POLICY_DISABLED;
+      |              ^
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:126:8: error: request for member ‘renderer’ in something not a structure or union
+  126 |     env.renderer = XEMU_TWEAK_RENDERER_OPENGL;
+      |        ^
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:127:5: error: unknown type name ‘XemuTweakResolution’; did you mean ‘XemuTweakPolicyResolution’?
+  127 |     XemuTweakResolution fallback =
+      |     ^~~~~~~~~~~~~~~~~~~
+      |     XemuTweakPolicyResolution
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:129:27: error: request for member ‘state’ in something not a structure or union
+  129 |     g_assert_true(fallback.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].selected);
+      |                           ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:129:5: note: in expansion of macro ‘g_assert_true’
+  129 |     g_assert_true(fallback.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].selected);
+      |     ^~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:130:28: error: request for member ‘state’ in something not a structure or union
+  130 |     g_assert_false(fallback.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].effective);
+      |                            ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:233:49: note: in expansion of macro ‘G_LIKELY’
+  233 |                                              if G_LIKELY (!(expr)) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:130:5: note: in expansion of macro ‘g_assert_false’
+  130 |     g_assert_false(fallback.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].effective);
+      |     ^~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:131:27: error: request for member ‘state’ in something not a structure or union
+  131 |     g_assert_true(fallback.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].restart_pending);
+      |                           ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:131:5: note: in expansion of macro ‘g_assert_true’
+  131 |     g_assert_true(fallback.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].restart_pending);
+      |     ^~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:132:8: error: request for member ‘renderer’ in something not a structure or union
+  132 |     env.renderer = XEMU_TWEAK_RENDERER_VULKAN;
+      |        ^
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:133:5: error: unknown type name ‘XemuTweakResolution’; did you mean ‘XemuTweakPolicyResolution’?
+  133 |     XemuTweakResolution reinstalled =
+      |     ^~~~~~~~~~~~~~~~~~~
+      |     XemuTweakPolicyResolution
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:135:30: error: request for member ‘state’ in something not a structure or union
+  135 |     g_assert_true(reinstalled.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].effective);
+      |                              ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:135:5: note: in expansion of macro ‘g_assert_true’
+  135 |     g_assert_true(reinstalled.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].effective);
+      |     ^~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:136:30: error: request for member ‘state’ in something not a structure or union
+  136 |     g_assert_true(reinstalled.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].restart_pending);
+      |                              ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:136:5: note: in expansion of macro ‘g_assert_true’
+  136 |     g_assert_true(reinstalled.state[XEMU_TWEAK_VK_TRANSIENT_BUFFER_GROWTH].restart_pending);
+      |     ^~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:133:25: error: variable ‘reinstalled’ set but not used [-Werror=unused-but-set-variable]
+  133 |     XemuTweakResolution reinstalled =
+      |                         ^~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:127:25: error: variable ‘fallback’ set but not used [-Werror=unused-but-set-variable]
+  127 |     XemuTweakResolution fallback =
+      |                         ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c: In function ‘test_modes_and_capabilities’:
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:141:5: error: unknown type name ‘XemuTweakRequestedState’; did you mean ‘XemuTweakRuntimeState’?
+  141 |     XemuTweakRequestedState requested = requested_defaults();
+      |     ^~~~~~~~~~~~~~~~~~~~~~~
+      |     XemuTweakRuntimeState
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:142:5: error: unknown type name ‘XemuTweakEnvironment’
+  142 |     XemuTweakEnvironment env = environment(XEMU_TWEAK_RENDERER_VULKAN);
+      |     ^~~~~~~~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:143:5: error: unknown type name ‘XemuTweakResolution’; did you mean ‘XemuTweakPolicyResolution’?
+  143 |     XemuTweakResolution startup =
+      |     ^~~~~~~~~~~~~~~~~~~
+      |     XemuTweakPolicyResolution
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:145:14: error: request for member ‘ubershader_mode’ in something not a structure or union
+  145 |     requested.ubershader_mode = XEMU_VK_UBERSHADER_FALLBACK;
+      |              ^
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:146:5: error: unknown type name ‘XemuTweakResolution’; did you mean ‘XemuTweakPolicyResolution’?
+  146 |     XemuTweakResolution live =
+      |     ^~~~~~~~~~~~~~~~~~~
+      |     XemuTweakPolicyResolution
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:148:23: error: request for member ‘state’ in something not a structure or union
+  148 |     g_assert_true(live.state[XEMU_TWEAK_VK_HYBRID_UBERSHADERS].restart_pending);
+      |                       ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:148:5: note: in expansion of macro ‘g_assert_true’
+  148 |     g_assert_true(live.state[XEMU_TWEAK_VK_HYBRID_UBERSHADERS].restart_pending);
+      |     ^~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:149:25: error: request for member ‘ubershader’ in something not a structure or union
+  149 |     g_assert_cmpint(live.ubershader.active, ==, XEMU_VK_UBERSHADER_PREWARM);
+      |                         ^
+/usr/include/glib-2.0/glib/gtestutils.h:73:61: note: in definition of macro ‘g_assert_cmpint’
+   73 |                                              gint64 __n1 = (n1), __n2 = (n2); \
+      |                                                             ^~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:150:8: error: request for member ‘ubershader_operational’ in something not a structure or union
+  150 |     env.ubershader_operational = false;
+      |        ^
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:152:24: error: request for member ‘ubershader’ in something not a structure or union
+  152 |     g_assert_false(live.ubershader.available);
+      |                        ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:233:49: note: in expansion of macro ‘G_LIKELY’
+  233 |                                              if G_LIKELY (!(expr)) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:152:5: note: in expansion of macro ‘g_assert_false’
+  152 |     g_assert_false(live.ubershader.available);
+      |     ^~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:153:25: error: request for member ‘ubershader’ in something not a structure or union
+  153 |     g_assert_cmpint(live.ubershader.active, ==, XEMU_VK_UBERSHADER_OFF);
+      |                         ^
+/usr/include/glib-2.0/glib/gtestutils.h:73:61: note: in definition of macro ‘g_assert_cmpint’
+   73 |                                              gint64 __n1 = (n1), __n2 = (n2); \
+      |                                                             ^~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:154:25: error: request for member ‘state’ in something not a structure or union
+  154 |     g_assert_cmpint(live.state[XEMU_TWEAK_VK_HYBRID_UBERSHADERS].availability,
+      |                         ^
+/usr/include/glib-2.0/glib/gtestutils.h:73:61: note: in definition of macro ‘g_assert_cmpint’
+   73 |                                              gint64 __n1 = (n1), __n2 = (n2); \
+      |                                                             ^~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:156:25: error: request for member ‘state’ in something not a structure or union
+  156 |     g_assert_cmpint(live.state[XEMU_TWEAK_VK_SHADER_FASTPATH].availability,
+      |                         ^
+/usr/include/glib-2.0/glib/gtestutils.h:73:61: note: in definition of macro ‘g_assert_cmpint’
+   73 |                                              gint64 __n1 = (n1), __n2 = (n2); \
+      |                                                             ^~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:158:24: error: request for member ‘state’ in something not a structure or union
+  158 |     g_assert_false(live.state[XEMU_TWEAK_VK_SHADER_FASTPATH].effective);
+      |                        ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:233:49: note: in expansion of macro ‘G_LIKELY’
+  233 |                                              if G_LIKELY (!(expr)) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:158:5: note: in expansion of macro ‘g_assert_false’
+  158 |     g_assert_false(live.state[XEMU_TWEAK_VK_SHADER_FASTPATH].effective);
+      |     ^~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:160:14: error: request for member ‘ubershader_mode’ in something not a structure or union
+  160 |     requested.ubershader_mode = XEMU_VK_UBERSHADER_OFF;
+      |              ^
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:162:23: error: request for member ‘ubershader’ in something not a structure or union
+  162 |     g_assert_true(live.ubershader.available);
+      |                       ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:162:5: note: in expansion of macro ‘g_assert_true’
+  162 |     g_assert_true(live.ubershader.available);
+      |     ^~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:163:24: error: request for member ‘state’ in something not a structure or union
+  163 |     g_assert_false(live.state[XEMU_TWEAK_VK_HYBRID_UBERSHADERS].effective);
+      |                        ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:233:49: note: in expansion of macro ‘G_LIKELY’
+  233 |                                              if G_LIKELY (!(expr)) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:163:5: note: in expansion of macro ‘g_assert_false’
+  163 |     g_assert_false(live.state[XEMU_TWEAK_VK_HYBRID_UBERSHADERS].effective);
+      |     ^~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:164:24: error: request for member ‘state’ in something not a structure or union
+  164 |     g_assert_false(live.state[XEMU_TWEAK_VK_SHADER_FASTPATH].effective);
+      |                        ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:233:49: note: in expansion of macro ‘G_LIKELY’
+  233 |                                              if G_LIKELY (!(expr)) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:164:5: note: in expansion of macro ‘g_assert_false’
+  164 |     g_assert_false(live.state[XEMU_TWEAK_VK_SHADER_FASTPATH].effective);
+      |     ^~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c: In function ‘test_platform_and_invalid_inputs’:
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:169:5: error: unknown type name ‘XemuTweakRequestedState’; did you mean ‘XemuTweakRuntimeState’?
+  169 |     XemuTweakRequestedState requested = requested_defaults();
+      |     ^~~~~~~~~~~~~~~~~~~~~~~
+      |     XemuTweakRuntimeState
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:170:5: error: unknown type name ‘XemuTweakEnvironment’
+  170 |     XemuTweakEnvironment env = environment(XEMU_TWEAK_RENDERER_NONE);
+      |     ^~~~~~~~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:171:8: error: request for member ‘windows_host’ in something not a structure or union
+  171 |     env.windows_host = false;
+      |        ^
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:172:5: error: unknown type name ‘XemuTweakResolution’; did you mean ‘XemuTweakPolicyResolution’?
+  172 |     XemuTweakResolution resolved =
+      |     ^~~~~~~~~~~~~~~~~~~
+      |     XemuTweakPolicyResolution
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:174:30: error: request for member ‘effective_bits’ in something not a structure or union
+  174 |     g_assert_cmpuint(resolved.effective_bits, ==, 0);
+      |                              ^
+/usr/include/glib-2.0/glib/gtestutils.h:79:62: note: in definition of macro ‘g_assert_cmpuint’
+   79 |                                              guint64 __n1 = (n1), __n2 = (n2); \
+      |                                                              ^~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:175:29: error: request for member ‘state’ in something not a structure or union
+  175 |     g_assert_cmpint(resolved.state[XEMU_TWEAK_CPU_SAVING_WAIT].availability,
+      |                             ^
+/usr/include/glib-2.0/glib/gtestutils.h:73:61: note: in definition of macro ‘g_assert_cmpint’
+   73 |                                              gint64 __n1 = (n1), __n2 = (n2); \
+      |                                                             ^~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:177:8: error: request for member ‘windows_host’ in something not a structure or union
+  177 |     env.windows_host = true;
+      |        ^
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:179:27: error: request for member ‘state’ in something not a structure or union
+  179 |     g_assert_true(resolved.state[XEMU_TWEAK_CPU_SAVING_WAIT].effective);
+      |                           ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:179:5: note: in expansion of macro ‘g_assert_true’
+  179 |     g_assert_true(resolved.state[XEMU_TWEAK_CPU_SAVING_WAIT].effective);
+      |     ^~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:180:28: error: request for member ‘state’ in something not a structure or union
+  180 |     g_assert_false(resolved.state[XEMU_TWEAK_PGRAPH_BULK_PACKETS].effective);
+      |                            ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:233:49: note: in expansion of macro ‘G_LIKELY’
+  233 |                                              if G_LIKELY (!(expr)) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:180:5: note: in expansion of macro ‘g_assert_false’
+  180 |     g_assert_false(resolved.state[XEMU_TWEAK_PGRAPH_BULK_PACKETS].effective);
+      |     ^~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:181:8: error: request for member ‘renderer’ in something not a structure or union
+  181 |     env.renderer = XEMU_TWEAK_RENDERER_VULKAN;
+      |        ^
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:182:14: error: request for member ‘policy’ in something not a structure or union
+  182 |     requested.policy[XEMU_TWEAK_PGRAPH_BULK_PACKETS] = (XemuTweakPolicy)99;
+      |              ^
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:183:14: error: request for member ‘ubershader_mode’ in something not a structure or union
+  183 |     requested.ubershader_mode = (XemuVulkanUbershaderMode)99;
+      |              ^
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:185:28: error: request for member ‘state’ in something not a structure or union
+  185 |     g_assert_false(resolved.state[XEMU_TWEAK_PGRAPH_BULK_PACKETS].selected);
+      |                            ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:233:49: note: in expansion of macro ‘G_LIKELY’
+  233 |                                              if G_LIKELY (!(expr)) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:185:5: note: in expansion of macro ‘g_assert_false’
+  185 |     g_assert_false(resolved.state[XEMU_TWEAK_PGRAPH_BULK_PACKETS].selected);
+      |     ^~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:186:28: error: request for member ‘state’ in something not a structure or union
+  186 |     g_assert_false(resolved.state[XEMU_TWEAK_PGRAPH_BULK_PACKETS].effective);
+      |                            ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:233:49: note: in expansion of macro ‘G_LIKELY’
+  233 |                                              if G_LIKELY (!(expr)) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:186:5: note: in expansion of macro ‘g_assert_false’
+  186 |     g_assert_false(resolved.state[XEMU_TWEAK_PGRAPH_BULK_PACKETS].effective);
+      |     ^~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:187:37: error: request for member ‘state’ in something not a structure or union
+  187 |     g_assert_nonnull(strstr(resolved.state[XEMU_TWEAK_PGRAPH_BULK_PACKETS].reason, "Unknown"));
+      |                                     ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:255:49: note: in expansion of macro ‘G_LIKELY’
+  255 |                                              if G_LIKELY ((expr) != NULL) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:187:5: note: in expansion of macro ‘g_assert_nonnull’
+  187 |     g_assert_nonnull(strstr(resolved.state[XEMU_TWEAK_PGRAPH_BULK_PACKETS].reason, "Unknown"));
+      |     ^~~~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:188:29: error: request for member ‘ubershader’ in something not a structure or union
+  188 |     g_assert_cmpint(resolved.ubershader.policy, ==, XEMU_VK_UBERSHADER_OFF);
+      |                             ^
+/usr/include/glib-2.0/glib/gtestutils.h:73:61: note: in definition of macro ‘g_assert_cmpint’
+   73 |                                              gint64 __n1 = (n1), __n2 = (n2); \
+      |                                                             ^~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:189:28: error: request for member ‘ubershader’ in something not a structure or union
+  189 |     g_assert_false(resolved.ubershader.available);
+      |                            ^
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:233:49: note: in expansion of macro ‘G_LIKELY’
+  233 |                                              if G_LIKELY (!(expr)) ; else \
+      |                                                 ^~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:189:5: note: in expansion of macro ‘g_assert_false’
+  189 |     g_assert_false(resolved.ubershader.available);
+      |     ^~~~~~~~~~~~~~
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:190:8: error: request for member ‘renderer’ in something not a structure or union
+  190 |     env.renderer = (XemuTweakRenderer)99;
+      |        ^
+/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c:192:29: error: request for member ‘renderer’ in something not a structure or union
+  192 |     g_assert_cmpint(resolved.renderer, ==, XEMU_TWEAK_RENDERER_NONE);
+      |                             ^
+/usr/include/glib-2.0/glib/gtestutils.h:73:61: note: in definition of macro ‘g_assert_cmpint’
+   73 |                                              gint64 __n1 = (n1), __n2 = (n2); \
+      |                                                             ^~
+cc1: all warnings being treated as errors
+Traceback (most recent call last):
+  File "/tmp/pr257-profile-build.py", line 31, in <module>
+    run(args,cwd=build);objects.append(str(obj))
+    ~~~^^^^^^^^^^^^^^^^
+  File "/tmp/pr257-profile-build.py", line 11, in run
+    subprocess.run(args,check=True,**kw)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['cc', '-I/tmp/pr257-profile-build', '-iquote', '/tmp/pr257-profile-build', '-iquote', '/home/codex/xemu-shader-workbench-handoff/xemu-issue93', '-iquote', '/home/codex/xemu-shader-workbench-handoff/xemu-issue93/include', '-I/home/codex/xemu-shader-workbench-handoff/xemu-issue93', '-m64', '-Itests/unit/test-xemu-tweaks-config.p', '-Itests/unit', '-I../tests/unit', '-Isubprojects/genconfig', '-I../subprojects/genconfig', '-Isubprojects/tomlplusplus/include', '-I../subprojects/tomlplusplus/include', '-I.', '-Iqapi', '-Itrace', '-Iui', '-Iui/shader', '-Idata', '-I/usr/include/glib-2.0', '-I/usr/lib/x86_64-linux-gnu/glib-2.0/include', '-I/usr/include/sysprof-6', '-fdiagnostics-color=auto', '-Wall', '-Winvalid-pch', '-std=gnu11', '-O2', '-g', '-Wempty-body', '-Wendif-labels', '-Wexpansion-to-defined', '-Wformat-security', '-Wformat-y2k', '-Wignored-qualifiers', '-Wimplicit-fallthrough=2', '-Winit-self', '-Wmissing-format-attribute', '-Wmissing-prototypes', '-Wnested-externs', '-Wold-style-declaration', '-Wold-style-definition', '-Wredundant-decls', '-Wshadow=local', '-Wstrict-prototypes', '-Wtype-limits', '-Wwrite-strings', '-Wno-missing-include-dirs', '-Wno-psabi', '-Wno-shift-negative-value', '-isystem', '/home/codex/pr238-source/linux-headers', '-isystem', 'linux-headers', '-iquote', '.', '-iquote', '/home/codex/pr238-source', '-iquote', '/home/codex/pr238-source/include', '-iquote', '/home/codex/pr238-source/host/include/x86_64', '-iquote', '/home/codex/pr238-source/host/include/generic', '-iquote', '/home/codex/pr238-source/tcg/i386', '-pthread', '-mcx16', '-msse2', '-D_GNU_SOURCE', '-D_FILE_OFFSET_BITS=64', '-D_LARGEFILE_SOURCE', '-fno-strict-aliasing', '-fno-common', '-fwrapv', '-ftrivial-auto-var-init=zero', '-fzero-call-used-regs=used-gpr', '-DXBOX=1', '-Wno-error=redundant-decls', '-fPIE', '-DTOML_HEADER_ONLY=0', '-Werror', '-o', '/tmp/pr257-profile-build/test-xemu-tweaks-resolver.c.o', '-c', '/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-resolver.c']' returned non-zero exit status 1.

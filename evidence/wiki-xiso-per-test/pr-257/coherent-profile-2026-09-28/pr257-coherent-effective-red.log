@@ -1,0 +1,9 @@
+TAP version 14
+# random seed: R02Sc72333d64e81b49a9ad7f30d718115e7
+# Start of xemu tests
+# Start of tweaks tests
+# Start of profile tests
+**
+ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-profile.cc:186:void test_profile_effective_worker_bits(): 'xemu_tweak_enabled(XEMU_TWEAK_VK_COLOR_DOWNLOAD_FOLDING)' should be FALSE
+not ok /xemu/tweaks/profile/effective-worker-bits - ERROR:/home/codex/xemu-shader-workbench-handoff/xemu-issue93/tests/unit/test-xemu-tweaks-profile.cc:186:void test_profile_effective_worker_bits(): 'xemu_tweak_enabled(XEMU_TWEAK_VK_COLOR_DOWNLOAD_FOLDING)' should be FALSE
+Bail out!
