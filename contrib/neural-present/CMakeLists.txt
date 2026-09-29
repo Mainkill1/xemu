@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(xemu_neural_present_reference_adapters LANGUAGES C)
+project(xemu_neural_present_reference_adapters LANGUAGES C CXX)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -86,4 +86,17 @@ if(BUILD_TESTING)
     add_test(NAME neural-present-pass-through-load
         COMMAND xemu-neural-present-loader-smoke
             $<TARGET_FILE:xemu-neural-present-pass-through>)
+endif()
+
+# SDK-free settings/runtime tests; never linked into the emulator.
+if(BUILD_TESTING)
+    find_package(Threads REQUIRED)
+    add_executable(xemu-dlss-settings-test
+        "${XEMU_ROOT}/tests/unit/test-xemu-dlss.cc"
+        "${XEMU_ROOT}/ui/xemu-dlss.cc")
+    target_include_directories(xemu-dlss-settings-test PRIVATE "${XEMU_ROOT}")
+    target_compile_features(xemu-dlss-settings-test PRIVATE cxx_std_17)
+    target_link_libraries(xemu-dlss-settings-test PRIVATE Threads::Threads)
+    xemu_neural_warnings(xemu-dlss-settings-test)
+    add_test(NAME dlss-settings-and-status COMMAND xemu-dlss-settings-test)
 endif()

@@ -647,7 +647,7 @@ static void create_display_image(PGRAPHState *pg, int width, int height)
         // linear is explicitly specified...
         GLint tiling_types[num_tiling_types];
         glGetInternalformativ(GL_TEXTURE_2D, gl_internal_format,
-                              GL_NUM_TILING_TYPES_EXT, num_tiling_types,
+                              GL_TILING_TYPES_EXT, num_tiling_types,
                               tiling_types);
         for (int i = 0; i < num_tiling_types; i++) {
             if (tiling_types[i] == GL_LINEAR_TILING_EXT) {

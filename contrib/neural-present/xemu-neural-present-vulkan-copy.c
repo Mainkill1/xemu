@@ -428,7 +428,8 @@ static void copy_status(void *opaque, XemuNeuralPluginStatusV1 *status)
 static const XemuNeuralPluginApiV1 api = {
     .struct_size = sizeof(api),
     .abi_version = XEMU_NEURAL_PLUGIN_ABI_VERSION,
-    .capabilities = XEMU_NEURAL_PLUGIN_CAP_VULKAN_RECORD |
+    .capabilities = XEMU_NEURAL_PLUGIN_CAP_VALIDATION_ONLY |
+                    XEMU_NEURAL_PLUGIN_CAP_VULKAN_RECORD |
                     XEMU_NEURAL_PLUGIN_CAP_TRANSACTIONAL_IN_PLACE |
                     XEMU_NEURAL_PLUGIN_CAP_COLOR_ONLY,
     .name = "xemu-vulkan-copy-validation",

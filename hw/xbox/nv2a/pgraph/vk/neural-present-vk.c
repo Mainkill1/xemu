@@ -9,11 +9,7 @@
 
 #include "hw/xbox/nv2a/pgraph/neural-present-loader.h"
 #include "neural-present-vk.h"
-
-#define XEMU_NEURAL_ENABLE_ENV "XEMU_EXPERIMENTAL_NEURAL_PRESENT"
-#define XEMU_NEURAL_PLUGIN_ENV "XEMU_NEURAL_PRESENT_PLUGIN"
-#define XEMU_NEURAL_WORK_WIDTH_ENV "XEMU_NEURAL_PRESENT_WORK_WIDTH"
-#define XEMU_NEURAL_WORK_HEIGHT_ENV "XEMU_NEURAL_PRESENT_WORK_HEIGHT"
+#include "ui/xemu-dlss.h"
 
 typedef struct PGRAPHVkNeuralPresent {
     XemuNeuralPluginLibrary library;
@@ -26,8 +22,12 @@ typedef struct PGRAPHVkNeuralPresent {
     bool bootstrapped;
     bool ready;
     uint32_t configuration_generation;
-    uint32_t processing_width;
-    uint32_t processing_height;
+    XemuDLSSLaunch launch;
+    XemuDLSSRuntime runtime;
+    uint64_t status_token;
+    int64_t last_status_publish_us;
+    XemuDLSSRuntimeState last_published_state;
+    XemuNeuralPluginFeature last_published_feature;
     uint64_t next_frame_id;
     XemuNeuralPresentFeature last_logged_feature;
     XemuNeuralPresentBypassReason last_logged_bypass;
@@ -43,28 +43,32 @@ static void terminate_output(XemuNeuralPluginFrameOutputV1 *output)
     output->text[sizeof(output->text) - 1] = '\0';
 }
 
-static bool env_truthy(const char *name)
+/* Called only on the renderer thread. UI readers receive an owned copy.
+ * No SDK callback is executed while the publication mutex is held. */
+static void publish_status(PGRAPHVkNeuralPresent *neural, bool force)
 {
-    const char *value = g_getenv(name);
-    return value != NULL && value[0] != '\0' && strcmp(value, "0") != 0 &&
-           g_ascii_strcasecmp(value, "false") != 0 &&
-           g_ascii_strcasecmp(value, "off") != 0 &&
-           g_ascii_strcasecmp(value, "no") != 0;
+    int64_t now = g_get_monotonic_time();
+    if (force || neural->runtime.state != neural->last_published_state ||
+        neural->runtime.feature != neural->last_published_feature ||
+        now - neural->last_status_publish_us >= 250000) {
+        neural->last_status_publish_us = now;
+        neural->last_published_state = neural->runtime.state;
+        neural->last_published_feature = neural->runtime.feature;
+        xemu_dlss_publish_runtime(neural->status_token, &neural->runtime);
+    }
 }
 
-static uint32_t parse_extent_env(const char *name)
+static void set_runtime_status(PGRAPHVkNeuralPresent *neural,
+                               XemuDLSSRuntimeState state, const char *message)
 {
-    const char *value = g_getenv(name);
-    if (value == NULL || value[0] == '\0') {
-        return 0;
+    neural->runtime.state = state;
+    if (state != XEMU_DLSS_RUNTIME_ACTIVE) {
+        neural->runtime.feature = XEMU_NEURAL_PLUGIN_FEATURE_NONE;
+        neural->runtime.gpu_time_ns = 0;
     }
-    char *end = NULL;
-    unsigned long parsed = strtoul(value, &end, 10);
-    if (end == value || *end != '\0' || parsed == 0 || parsed > UINT32_MAX) {
-        error_report("nv2a/vk/neural: ignoring invalid %s='%s'", name, value);
-        return 0;
-    }
-    return parsed;
+    g_strlcpy(neural->runtime.message, message ? message : "",
+              sizeof(neural->runtime.message));
+    publish_status(neural, true);
 }
 
 static void host_log(void *opaque, XemuNeuralPluginLogLevel level,
@@ -187,6 +191,7 @@ void pgraph_vk_neural_present_reject(PGRAPHState *pg, const char *reason)
     error_report("nv2a/vk/neural: adapter rejected: %s; "
                  "original presentation will be used",
                  reason != NULL ? reason : "unspecified requirement failure");
+    set_runtime_status(neural, XEMU_DLSS_RUNTIME_FAILED, reason);
     shutdown_adapter(neural);
 }
 
@@ -274,39 +279,43 @@ VkResult pgraph_vk_neural_present_create_device(
 void pgraph_vk_neural_present_bootstrap(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
-    if (!env_truthy(XEMU_NEURAL_ENABLE_ENV)) {
+    XemuDLSSLaunch launch;
+    xemu_dlss_get_launch(&launch);
+    if (launch.mode == XEMU_DLSS_OFF) {
         return;
     }
 
     PGRAPHVkNeuralPresent *neural = g_new0(PGRAPHVkNeuralPresent, 1);
     r->neural_present = neural;
+    neural->launch = launch;
     neural->configuration_generation = 1;
-    neural->processing_width = parse_extent_env(XEMU_NEURAL_WORK_WIDTH_ENV);
-    neural->processing_height = parse_extent_env(XEMU_NEURAL_WORK_HEIGHT_ENV);
-    if ((neural->processing_width == 0) !=
-        (neural->processing_height == 0)) {
-        error_report("nv2a/vk/neural: both work width and height are required; "
-                     "using display extent");
-        neural->processing_width = 0;
-        neural->processing_height = 0;
-    }
-
-    const char *path = g_getenv(XEMU_NEURAL_PLUGIN_ENV);
-    if (path == NULL || path[0] == '\0') {
-        error_report("nv2a/vk/neural: %s is enabled but %s is unset; "
-                     "original presentation will be used",
-                     XEMU_NEURAL_ENABLE_ENV, XEMU_NEURAL_PLUGIN_ENV);
+    neural->status_token = xemu_dlss_begin_runtime();
+    if (!launch.valid) {
+        set_runtime_status(neural, XEMU_DLSS_RUNTIME_UNAVAILABLE,
+                            launch.reason);
         return;
     }
-    if (!g_path_is_absolute(path)) {
-        error_report("nv2a/vk/neural: %s must be an absolute path",
-                     XEMU_NEURAL_PLUGIN_ENV);
-        return;
-    }
-    if (!xemu_neural_plugin_library_open(&neural->library, path)) {
+    if (!xemu_neural_plugin_library_open(&neural->library,
+                                         launch.adapter_path)) {
         error_report("nv2a/vk/neural: %s", neural->library.error);
+        set_runtime_status(neural, XEMU_DLSS_RUNTIME_MISSING_ADAPTER,
+                            neural->library.error);
         return;
     }
+    g_strlcpy(neural->runtime.adapter_name, neural->library.api->name,
+              sizeof(neural->runtime.adapter_name));
+    g_strlcpy(neural->runtime.adapter_version, neural->library.api->version,
+              sizeof(neural->runtime.adapter_version));
+    if (!xemu_dlss_adapter_allowed(launch.mode,
+                                   neural->library.api->capabilities)) {
+        set_runtime_status(neural, XEMU_DLSS_RUNTIME_UNAVAILABLE,
+            "Adapter Validation requires a validation-only adapter. "
+            "Select the rebuilt pass-through or Vulkan-copy DLL.");
+        xemu_neural_plugin_library_close(&neural->library);
+        return;
+    }
+    set_runtime_status(neural, XEMU_DLSS_RUNTIME_LOADING,
+                        "Adapter loaded; initializing before Vulkan creation.");
 
     neural->host = (XemuNeuralPluginHostV1)
         XEMU_NEURAL_PLUGIN_HOST_V1_INIT;
@@ -372,8 +381,13 @@ void pgraph_vk_neural_present_init(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
     PGRAPHVkNeuralPresent *neural = r->neural_present;
-    if (neural == NULL || !neural->bootstrapped ||
-        neural->library.api == NULL) {
+    if (neural == NULL) {
+        return;
+    }
+    g_strlcpy(neural->runtime.gpu_name, r->selected_device.name,
+              sizeof(neural->runtime.gpu_name));
+    publish_status(neural, true);
+    if (!neural->bootstrapped || neural->library.api == NULL) {
         return;
     }
     if (neural->requirements.minimum_api_version != 0 &&
@@ -434,6 +448,9 @@ void pgraph_vk_neural_present_init(PGRAPHState *pg)
     }
 
     neural->ready = true;
+    set_runtime_status(neural, XEMU_DLSS_RUNTIME_READY,
+        neural->status.text[0] ? neural->status.text :
+                               "Ready; no frame has been produced yet.");
     fprintf(stderr, "nv2a/vk/neural: loaded %s %s (experimental)\n",
             neural->library.api->name, neural->library.api->version);
 }
@@ -446,6 +463,7 @@ void pgraph_vk_neural_present_finalize(PGRAPHState *pg)
         return;
     }
     shutdown_adapter(neural);
+    xemu_dlss_end_runtime(neural->status_token);
     g_free(neural);
     r->neural_present = NULL;
 }
@@ -462,6 +480,10 @@ void pgraph_vk_neural_present_release_display(PGRAPHState *pg)
     }
     xemu_neural_present_reset(&neural->state,
                               XEMU_NEURAL_RESET_SOURCE_CHANGED);
+    if (neural->ready) {
+        set_runtime_status(neural, XEMU_DLSS_RUNTIME_READY,
+                           "Display resources changed; waiting for a new frame.");
+    }
     r->display.reuse.valid = false;
 }
 
@@ -477,6 +499,10 @@ void pgraph_vk_neural_present_reset(PGRAPHState *pg,
         neural->library.api->reset_history(neural->plugin_context, reason);
     }
     xemu_neural_present_reset(&neural->state, reason);
+    if (neural->ready) {
+        set_runtime_status(neural, XEMU_DLSS_RUNTIME_READY,
+                           "Temporal history reset; waiting for a new frame.");
+    }
     r->display.reuse.valid = false;
 }
 
@@ -503,6 +529,12 @@ void pgraph_vk_neural_present_prepare(
         return;
     }
 
+    uint32_t processing_width, processing_height;
+    xemu_dlss_processing_extent(&neural->launch, r->display.width,
+                                 r->display.height, &processing_width,
+                                 &processing_height);
+    neural->runtime.processing_width = processing_width;
+    neural->runtime.processing_height = processing_height;
     frame->initialized = true;
     frame->state_frame = (XemuNeuralPresentFrameInfo){
         .enabled = true,
@@ -524,12 +556,8 @@ void pgraph_vk_neural_present_prepare(
             .scanout_address = scanout_address,
             .display_width = r->display.width,
             .display_height = r->display.height,
-            .processing_width = neural->processing_width != 0
-                                    ? neural->processing_width
-                                    : (uint32_t)r->display.width,
-            .processing_height = neural->processing_height != 0
-                                     ? neural->processing_height
-                                     : (uint32_t)r->display.height,
+            .processing_width = processing_width,
+            .processing_height = processing_height,
             .surface_scale_factor = pg->surface_scale_factor,
             .configuration_generation = neural->configuration_generation,
         },
@@ -540,6 +568,18 @@ void pgraph_vk_neural_present_prepare(
     if (frame->decision.kind != XEMU_NEURAL_DECISION_PROCESS &&
         frame->decision.kind != XEMU_NEURAL_DECISION_PROCESS_RESET) {
         report_bypass(neural);
+        neural->runtime.bypassed_frames++;
+        /* Retain the actionable startup/failure message instead of replacing
+         * it every frame with the less useful "backend unavailable". */
+        if (neural->ready) {
+            neural->runtime.state = XEMU_DLSS_RUNTIME_BYPASSED;
+            neural->runtime.feature = XEMU_NEURAL_PLUGIN_FEATURE_NONE;
+            neural->runtime.gpu_time_ns = 0;
+            g_strlcpy(neural->runtime.message,
+                xemu_neural_present_bypass_reason_string(frame->decision.reason),
+                sizeof(neural->runtime.message));
+        }
+        publish_status(neural, false);
         return;
     }
 
@@ -617,6 +657,10 @@ void pgraph_vk_neural_present_record(
     XemuNeuralPluginFrameOutputValidation validation =
         xemu_neural_plugin_frame_output_validate(frame->plugin_result,
                                                  &frame->output);
+    if (neural->launch.mode == XEMU_DLSS_VALIDATION &&
+        frame->output.feature > XEMU_NEURAL_PLUGIN_FEATURE_PASSTHROUGH) {
+        validation = XEMU_NEURAL_PLUGIN_FRAME_OUTPUT_RESULT_CONFLICT;
+    }
     if (validation != XEMU_NEURAL_PLUGIN_FRAME_OUTPUT_VALID) {
         frame->plugin_result = XEMU_NEURAL_PLUGIN_RESULT_RETRYABLE_ERROR;
         snprintf(frame->output.text, sizeof(frame->output.text),
@@ -645,8 +689,33 @@ void pgraph_vk_neural_present_complete(
         &neural->state, &frame->state_frame, &frame->decision,
         result, feature, history_valid);
 
-    if (result == XEMU_NEURAL_RESULT_RETRYABLE_FAILURE ||
-        result == XEMU_NEURAL_RESULT_FATAL_FAILURE) {
+    const bool failed = result == XEMU_NEURAL_RESULT_RETRYABLE_FAILURE ||
+                        result == XEMU_NEURAL_RESULT_FATAL_FAILURE;
+    const char *message = frame->output.text[0] ? frame->output.text :
+                           neural->status.text;
+    if (failed) {
+        neural->runtime.failed_frames++;
+        neural->runtime.state = XEMU_DLSS_RUNTIME_FAILED;
+        neural->runtime.feature = XEMU_NEURAL_PLUGIN_FEATURE_NONE;
+        neural->runtime.gpu_time_ns = 0;
+    } else {
+        neural->runtime.processed_frames++;
+        neural->runtime.state = XEMU_DLSS_RUNTIME_ACTIVE;
+        neural->runtime.feature = (uint32_t)neural->state.active_feature;
+        neural->runtime.gpu_time_ns = frame->output.gpu_time_ns;
+        if (result == XEMU_NEURAL_RESULT_PASSTHROUGH) {
+            neural->runtime.bypassed_frames++;
+        }
+        if (feature == XEMU_NEURAL_FEATURE_DLSS_NR &&
+            result == XEMU_NEURAL_RESULT_RECORDED) {
+            neural->runtime.nr_frames++;
+        }
+    }
+    g_strlcpy(neural->runtime.message, message,
+              sizeof(neural->runtime.message));
+    publish_status(neural, failed);
+
+    if (failed) {
         error_report("nv2a/vk/neural: adapter frame failed: %s",
                      frame->output.text[0] ? frame->output.text :
                                              neural->status.text[0]

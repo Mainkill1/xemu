@@ -69,6 +69,8 @@ enum {
     XEMU_NEURAL_PLUGIN_CAP_COLOR_ONLY = UINT64_C(1) << 5,
     /* Adapter supplies pre-device vkCreateInstance/vkCreateDevice proxies. */
     XEMU_NEURAL_PLUGIN_CAP_VULKAN_CREATE_PROXY = UINT64_C(1) << 6,
+    /* Explicitly promises no neural inference; used by Adapter Validation. */
+    XEMU_NEURAL_PLUGIN_CAP_VALIDATION_ONLY = UINT64_C(1) << 7,
 };
 
 typedef uint32_t XemuNeuralPluginFrameFlags;

@@ -50,6 +50,9 @@ general:
   skip_boot_anim: bool
   # throttle_io: bool
   last_viewed_menu_index: integer
+  settings_menu_version:
+    type: integer
+    default: 0
   user_token: string
   snapshots:
     shortcuts:
@@ -281,6 +284,20 @@ display:
     type: enum
     values: ["NULL", OPENGL, VULKAN]
     default: OPENGL
+  dlss:
+    mode:
+      type: enum
+      values: ["off", validation, neural_rendering]
+      default: "off"
+    adapter_selection:
+      type: enum
+      values: [auto, custom]
+      default: auto
+    adapter_path: string
+    processing_resolution:
+      type: enum
+      values: [auto, 720p, 1080p, display]
+      default: auto
   vulkan:
     validation_layers: bool
     debug_shaders: bool
