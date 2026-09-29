@@ -1,0 +1,5 @@
+Compile hw/xbox/nv2a/pgraph/vk/draw.c
+Compile hw/xbox/nv2a/pgraph/vk/texture.c
+Compile hw/xbox/nv2a/pgraph/vk/command.c
+Compile ui/xui/asset-browser.cc
+Four changed product translation units passed

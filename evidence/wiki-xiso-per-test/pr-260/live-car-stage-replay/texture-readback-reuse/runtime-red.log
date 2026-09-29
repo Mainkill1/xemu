@@ -1,0 +1,18 @@
+TAP version 14
+# random seed: R02S918e662df9c308506b68dea8bdff2fe1
+1..10
+# Start of vk tests
+# Start of texture-reuse tests
+**
+ERROR:tests/unit/test-xemu-shader-browser-vk-texture-reuse.cc:46:void Run(unsigned int, uint32_t, uint32_t): assertion failed (stats[0] == versions * mips * faces): (3 == 2)
+not ok /vk/texture-reuse/overwritten-generation - ERROR:tests/unit/test-xemu-shader-browser-vk-texture-reuse.cc:46:void Run(unsigned int, uint32_t, uint32_t): assertion failed (stats[0] == versions * mips * faces): (3 == 2)
+Bail out!
+/tmp/pr260-vk-texture-reuse/test
+Traceback (most recent call last):
+  File "/tmp/pr260-vk-texture-reuse-build.py", line 21, in <module>
+    subprocess.run([out+'/test','--tap'],check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/pr260-vk-texture-reuse/test', '--tap']' died with <Signals.SIGABRT: 6>.

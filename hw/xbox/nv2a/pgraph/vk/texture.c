@@ -741,6 +741,8 @@ static bool upload_texture_image(PGRAPHState *pg, int texture_idx,
                                       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
     binding->current_layout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 
+    if (binding->capture_content_version != UINT64_MAX)
+        ++binding->capture_content_version;
     vkCmdCopyBufferToImage(cmd, staging_buffer->buffer,
                            binding->image, binding->current_layout,
                            num_regions, regions);
@@ -954,6 +956,8 @@ static void copy_zeta_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surfac
         .imageOffset = (VkOffset3D){ 0, 0, 0 },
         .imageExtent = (VkExtent3D){ scaled_width, scaled_height, 1 },
     };
+    if (texture->capture_content_version != UINT64_MAX)
+        ++texture->capture_content_version;
     vkCmdCopyBufferToImage(
         cmd, texture_source_buffer, texture->image,
         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, regions);
@@ -1032,6 +1036,8 @@ static void copy_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surface,
     };
     pgraph_apply_scaling_factor(pg, &region.extent.width,
                                 &region.extent.height);
+    if (texture->capture_content_version != UINT64_MAX)
+        ++texture->capture_content_version;
     vkCmdCopyImage(cmd, surface->image,
                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, texture->image,
                    texture->current_layout, 1, &region);
@@ -1501,6 +1507,7 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     vmaGetAllocationInfo(r->allocator, snode->allocation,
                          &capture_allocation_info);
     snode->capture_owner = xemu_shader_capture_resource_new_owner();
+    snode->capture_content_version = 0;
     snode->capture_bytes = capture_allocation_info.size;
     snode->capture_pg = pg;
 

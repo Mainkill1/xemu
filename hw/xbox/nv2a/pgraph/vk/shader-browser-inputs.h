@@ -20,9 +20,15 @@ enum {
 #define PGRAPH_VK_INPUT_MAX_DIMENSION 2048
 #define PGRAPH_VK_INPUT_MAX_EVENTS 8192
 #define PGRAPH_VK_INPUT_BLOB_BUDGET (16 * 1024 * 1024)
+#define PGRAPH_VK_INPUT_TEXTURE_BUCKETS 1024
 
 typedef struct PGRAPHVkInputReadback {
     struct PGRAPHVkInputReadback *next;
+    struct PGRAPHVkInputReadback *shared_source, *cache_next;
+    uint64_t texture_key[12];
+    unsigned references;
+    uint8_t *decoded_pixels;
+    bool resolved, valid;
     VkBuffer buffer;
     VmaAllocation allocation;
     void *mapped;
@@ -140,7 +146,8 @@ pgraph_vk_input_allocate_bytes(PGRAPHVkState *r, PGRAPHVkShaderInputs *inputs,
                                size_t raw_bytes, size_t owned_bytes,
                                uint32_t *status)
 {
-    size_t reservation = raw_bytes + owned_bytes;
+    size_t reservation =
+        raw_bytes + owned_bytes + sizeof(PGRAPHVkInputReadback);
     if (!raw_bytes || inputs->failed_budget || reservation > inputs->budget ||
         reservation > PGRAPH_VK_INPUT_STAGING_BUDGET -
                           r->shader_browser_input_staging_bytes) {
@@ -184,6 +191,7 @@ pgraph_vk_input_allocate_bytes(PGRAPHVkState *r, PGRAPHVkShaderInputs *inputs,
         return NULL;
     }
     readback->mapped = mapped_info.pMappedData;
+    readback->references = 1;
     readback->raw_bytes = raw_bytes;
     readback->rgba_bytes = owned_bytes;
     readback->next = inputs->readbacks;
@@ -191,6 +199,114 @@ pgraph_vk_input_allocate_bytes(PGRAPHVkState *r, PGRAPHVkShaderInputs *inputs,
     inputs->budget -= reservation;
     r->shader_browser_input_staging_bytes += reservation;
     return readback;
+}
+
+static unsigned pgraph_vk_input_texture_bucket(const uint64_t key[12])
+{
+    uint64_t hash = 0;
+    for (unsigned i = 0; i < 12; ++i)
+        hash ^=
+            key[i] + UINT64_C(0x9e3779b97f4a7c15) + (hash << 6) + (hash >> 2);
+    return hash % PGRAPH_VK_INPUT_TEXTURE_BUCKETS;
+}
+
+static bool pgraph_vk_input_texture_key_valid(const uint64_t key[12])
+{
+    return key[0] && key[1] && key[1] != UINT64_MAX && key[2];
+}
+
+static PGRAPHVkInputReadback *
+pgraph_vk_input_texture_find(PGRAPHVkState *r, const uint64_t key[12])
+{
+    if (!r->shader_browser_texture_readbacks ||
+        !pgraph_vk_input_texture_key_valid(key))
+        return NULL;
+    for (PGRAPHVkInputReadback *source =
+             r->shader_browser_texture_readbacks[pgraph_vk_input_texture_bucket(
+                 key)];
+         source; source = source->cache_next)
+        if (source->recorded &&
+            !memcmp(source->texture_key, key, sizeof(source->texture_key)))
+            return source;
+    return NULL;
+}
+
+static void pgraph_vk_input_texture_remember(PGRAPHVkState *r,
+                                             PGRAPHVkInputReadback *source,
+                                             const uint64_t key[12])
+{
+    if (!pgraph_vk_input_texture_key_valid(key))
+        return;
+    const size_t bytes =
+        sizeof(PGRAPHVkInputReadback *) * PGRAPH_VK_INPUT_TEXTURE_BUCKETS;
+    if (!r->shader_browser_texture_readbacks &&
+        bytes <= PGRAPH_VK_INPUT_STAGING_BUDGET -
+                     r->shader_browser_input_staging_bytes) {
+        r->shader_browser_texture_readbacks = g_try_new0(
+            PGRAPHVkInputReadback *, PGRAPH_VK_INPUT_TEXTURE_BUCKETS);
+        if (r->shader_browser_texture_readbacks)
+            r->shader_browser_input_staging_bytes += bytes;
+    }
+    if (!r->shader_browser_texture_readbacks)
+        return; /* Sharing is optional; the owned copy remains valid. */
+    memcpy(source->texture_key, key, sizeof(source->texture_key));
+    unsigned bucket = pgraph_vk_input_texture_bucket(key);
+    source->cache_next = r->shader_browser_texture_readbacks[bucket];
+    r->shader_browser_texture_readbacks[bucket] = source;
+}
+
+static PGRAPHVkInputReadback *
+pgraph_vk_input_texture_share(PGRAPHVkState *r, PGRAPHVkShaderInputs *inputs,
+                              PGRAPHVkInputReadback *source, uint32_t *status)
+{
+    const size_t owned_bytes =
+        source->rgba_bytes + source->storage_bytes + sizeof(*source);
+    if (inputs->failed_budget || owned_bytes > inputs->budget ||
+        source->references == UINT_MAX ||
+        sizeof(*source) > PGRAPH_VK_INPUT_STAGING_BUDGET -
+                              r->shader_browser_input_staging_bytes) {
+        *status |= PGRAPH_VK_INPUT_LIMIT;
+        pgraph_vk_shader_inputs_fail_budget(
+            inputs, "Vulkan shared texture evidence exceeds its owned budget");
+        return NULL;
+    }
+    PGRAPHVkInputReadback *readback = g_try_new(PGRAPHVkInputReadback, 1);
+    if (!readback) {
+        *status |= PGRAPH_VK_INPUT_ALLOCATION;
+        pgraph_vk_shader_inputs_fail_budget(
+            inputs, "Vulkan shared texture descriptor allocation failed");
+        return NULL;
+    }
+    *readback = *source;
+    readback->shared_source = source;
+    readback->cache_next = NULL;
+    readback->references = 0;
+    readback->next = inputs->readbacks;
+    inputs->readbacks = readback;
+    ++source->references;
+    inputs->budget -= owned_bytes;
+    r->shader_browser_input_staging_bytes += sizeof(*readback);
+    return readback;
+}
+
+static void pgraph_vk_input_release(PGRAPHVkState *r,
+                                    PGRAPHVkInputReadback *readback)
+{
+    PGRAPHVkInputReadback *source =
+        readback->shared_source ? readback->shared_source : readback;
+    if (readback != source) {
+        r->shader_browser_input_staging_bytes -= sizeof(*readback);
+        g_free(readback);
+    }
+    assert(source->references);
+    if (--source->references)
+        return;
+    vmaDestroyBuffer(r->allocator, source->buffer, source->allocation);
+    r->shader_browser_input_staging_bytes -=
+        source->raw_bytes + source->rgba_bytes + source->storage_bytes +
+        sizeof(*source);
+    g_free(source->decoded_pixels);
+    g_free(source);
 }
 
 static PGRAPHVkInputReadback *
@@ -407,6 +523,12 @@ pgraph_vk_input_stage_texture_storage(uint64_t token,
 static void pgraph_vk_shader_inputs_retire(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
+    /* No new admission occurs while this renderer thread retires the fence. */
+    if (r->shader_browser_texture_readbacks) {
+        r->shader_browser_input_staging_bytes -=
+            sizeof(PGRAPHVkInputReadback *) * PGRAPH_VK_INPUT_TEXTURE_BUCKETS;
+        g_clear_pointer(&r->shader_browser_texture_readbacks, g_free);
+    }
     while (r->shader_browser_inputs) {
         PGRAPHVkShaderInputs *inputs = r->shader_browser_inputs;
         bool current = xemu_shader_draw_request_wants_inputs(inputs->token);
@@ -416,10 +538,19 @@ static void pgraph_vk_shader_inputs_retire(PGRAPHState *pg)
                 (inputs->emitted ||
                  xemu_shader_capture_session_token(inputs->token))) {
                 uint32_t status = 0;
-                bool valid =
-                    vmaInvalidateAllocation(r->allocator, readback->allocation,
-                                            0, VK_WHOLE_SIZE) == VK_SUCCESS;
-                g_autofree uint8_t *pixels = NULL;
+                PGRAPHVkInputReadback *source = readback->shared_source ?
+                                                    readback->shared_source :
+                                                    readback;
+                if (!source->resolved) {
+                    source->resolved = true;
+                    source->valid = vmaInvalidateAllocation(
+                                        r->allocator, source->allocation, 0,
+                                        VK_WHOLE_SIZE) == VK_SUCCESS;
+                    if (source->valid && source->before != -2)
+                        source->decoded_pixels = pgraph_vk_input_decode(source);
+                }
+                bool valid = source->valid;
+                uint8_t *pixels = source->decoded_pixels;
                 bool accepted = false;
                 if (readback->before == -2) {
                     if (valid) {
@@ -434,9 +565,6 @@ static void pgraph_vk_shader_inputs_retire(PGRAPHState *pg)
                                 readback->blob.slot, readback->blob.name);
                     }
                 } else {
-                    if (valid) {
-                        pixels = pgraph_vk_input_decode(readback);
-                    }
                     if (pixels) {
                         XemuShaderDrawImage image = {
                             readback->width,
@@ -480,12 +608,7 @@ static void pgraph_vk_shader_inputs_retire(PGRAPHState *pg)
                     inputs->texture_status[readback->texture.slot] |= status;
                 }
             }
-            vmaDestroyBuffer(r->allocator, readback->buffer,
-                             readback->allocation);
-            r->shader_browser_input_staging_bytes -= readback->raw_bytes +
-                                                     readback->rgba_bytes +
-                                                     readback->storage_bytes;
-            g_free(readback);
+            pgraph_vk_input_release(r, readback);
             readback = next;
         }
         for (uint32_t slot = 0; slot < NV2A_MAX_TEXTURES; ++slot) {
@@ -836,7 +959,19 @@ static void pgraph_vk_input_stage_textures(PGRAPHState *pg, uint64_t token,
             .bound = binding && binding != &r->dummy_texture,
         };
         uint32_t status = 0;
+        uint32_t copies = 0, shares = 0;
         if (texture.bound) {
+            const uint64_t provenance[] = { binding->capture_owner,
+                                            binding->capture_content_version };
+            const char *const names[] = { "owner", "content_version" };
+            for (unsigned i = 0; i < ARRAY_SIZE(provenance); ++i)
+                for (unsigned half = 0; half < 2; ++half) {
+                    char name[64];
+                    snprintf(name, sizeof(name), "capture.texture%u.%s_%s",
+                             slot, names[i], half ? "hi" : "lo");
+                    xemu_shader_draw_request_stage_register(
+                        token, name, provenance[i] >> (half * 32));
+                }
             texture.guest_format = binding->key.state.color_format;
             texture.host_format = binding->key.vk_format;
             texture.width = binding->storage_extent.width;
@@ -902,9 +1037,31 @@ static void pgraph_vk_input_stage_textures(PGRAPHState *pg, uint64_t token,
                 for (uint32_t mip = 0; mip < texture.mip_levels; ++mip) {
                     uint32_t width = MAX(1, texture.width >> mip);
                     uint32_t height = MAX(1, texture.height >> mip);
-                    PGRAPHVkInputReadback *readback = pgraph_vk_input_allocate(
-                        r, inputs, binding->key.vk_format, width, height,
-                        &status);
+                    const uint64_t key[12] = {
+                        binding->capture_owner,
+                        binding->capture_content_version,
+                        xemu_shader_capture_session_token(token) ?
+                            r->capture_main_batch.handle :
+                            0,
+                        binding->key.vk_format,
+                        width,
+                        height,
+                        mip,
+                        face,
+                        binding->component_mapping.r,
+                        binding->component_mapping.g,
+                        binding->component_mapping.b,
+                        binding->component_mapping.a,
+                    };
+                    PGRAPHVkInputReadback *source =
+                        pgraph_vk_input_texture_find(r, key);
+                    PGRAPHVkInputReadback *readback =
+                        source ?
+                            pgraph_vk_input_texture_share(r, inputs, source,
+                                                          &status) :
+                            pgraph_vk_input_allocate(r, inputs,
+                                                     binding->key.vk_format,
+                                                     width, height, &status);
                     if (!readback) {
                         continue;
                     }
@@ -913,14 +1070,25 @@ static void pgraph_vk_input_stage_textures(PGRAPHState *pg, uint64_t token,
                     readback->texture.mip_level = mip;
                     readback->texture.face = face;
                     readback->components = binding->component_mapping;
-                    pgraph_vk_input_record(pg, readback, binding->image,
-                                           binding->current_layout, mip, face);
+                    if (!source) {
+                        ++copies;
+                        pgraph_vk_input_record(pg, readback, binding->image,
+                                               binding->current_layout, mip,
+                                               face);
+                        pgraph_vk_input_texture_remember(r, readback, key);
+                    } else
+                        ++shares;
                 }
             }
         }
         if (inputs) {
             inputs->texture_status[slot] |= status;
         }
+        char name[64];
+        snprintf(name, sizeof(name), "capture.texture%u.readback_copies", slot);
+        xemu_shader_draw_request_stage_register(token, name, copies);
+        snprintf(name, sizeof(name), "capture.texture%u.readback_shares", slot);
+        xemu_shader_draw_request_stage_register(token, name, shares);
         pgraph_vk_input_texture_status(token, slot, status);
     }
 }

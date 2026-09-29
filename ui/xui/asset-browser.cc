@@ -536,11 +536,46 @@ void AssetBrowserWindow::Draw()
                                            choice - 1;
         ImGui::TextWrapped("%s", s.controller.Message().c_str());
         auto size = ImGui::GetContentRegionAvail();
-        size.y = std::max(120.f, size.y - 65);
+        size.y = std::max(120.f, size.y - 110);
         auto frame = s.viewport.Render(
             selected, s.camera, uint32_t(std::clamp(size.x, 1.f, 2048.f)),
             uint32_t(std::clamp(size.y, 1.f, 2048.f)), s.texture_slot, s.wire,
             s.captured_stages);
+        if (selected->frame != s.pose_frame) {
+            s.pose_updated_ns = now;
+            if (!s.pose_started_ns || selected->frame < s.pose_frame) {
+                s.pose_started_ns = now;
+                s.pose_samples = 0;
+                s.pose_hz = 0;
+            } else
+                ++s.pose_samples;
+            s.pose_frame = selected->frame;
+            if (now - s.pose_started_ns >= UINT64_C(1000000000)) {
+                s.pose_hz =
+                    double(s.pose_samples) * 1e9 / (now - s.pose_started_ns);
+                s.pose_started_ns = now;
+                s.pose_samples = 0;
+            }
+        }
+        if (!s.live.Enabled() || now - s.pose_updated_ns > UINT64_C(1000000000))
+            s.pose_hz = 0;
+        ImGui::TextWrapped(
+            "%zu/%zu captured stages | HUD %.1f FPS | pose updates %.1f/s",
+            frame.captured_parts, selected->parts.size(),
+            ImGui::GetIO().Framerate, s.pose_hz);
+        uint64_t oldest = UINT64_MAX;
+        for (const auto &part : selected->parts)
+            if (part->occurrence && part->occurrence->host_timestamp_ns)
+                oldest = std::min(oldest, part->occurrence->host_timestamp_ns);
+        const uint64_t steady_now =
+            uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(
+                         std::chrono::steady_clock::now().time_since_epoch())
+                         .count());
+        if (s.live.Enabled() && oldest != UINT64_MAX && steady_now >= oldest)
+            ImGui::Text("Oldest displayed draw %.2f s ago",
+                        double(steady_now - oldest) / 1e9);
+        else
+            ImGui::TextUnformatted("Captured pose");
         if (frame.texture) {
             ImGui::Image((ImTextureID)(intptr_t)frame.texture, size,
                          ImVec2(0, 1), ImVec2(1, 0));
@@ -560,41 +595,6 @@ void AssetBrowserWindow::Draw()
             }
         }
         ImGui::TextWrapped("%s", frame.message.c_str());
-        if (selected->frame != s.pose_frame) {
-            s.pose_updated_ns = now;
-            if (!s.pose_started_ns || selected->frame < s.pose_frame) {
-                s.pose_started_ns = now;
-                s.pose_samples = 0;
-                s.pose_hz = 0;
-            } else
-                ++s.pose_samples;
-            s.pose_frame = selected->frame;
-            if (now - s.pose_started_ns >= UINT64_C(1000000000)) {
-                s.pose_hz =
-                    double(s.pose_samples) * 1e9 / (now - s.pose_started_ns);
-                s.pose_started_ns = now;
-                s.pose_samples = 0;
-            }
-        }
-        if (!s.live.Enabled() || now - s.pose_updated_ns > UINT64_C(1000000000))
-            s.pose_hz = 0;
-        ImGui::Text(
-            "%zu/%zu captured stages | HUD %.1f FPS | pose updates %.1f/s",
-            frame.captured_parts, selected->parts.size(),
-            ImGui::GetIO().Framerate, s.pose_hz);
-        uint64_t oldest = UINT64_MAX;
-        for (const auto &part : selected->parts)
-            if (part->occurrence && part->occurrence->host_timestamp_ns)
-                oldest = std::min(oldest, part->occurrence->host_timestamp_ns);
-        const uint64_t steady_now =
-            uint64_t(std::chrono::duration_cast<std::chrono::nanoseconds>(
-                         std::chrono::steady_clock::now().time_since_epoch())
-                         .count());
-        if (s.live.Enabled() && oldest != UINT64_MAX && steady_now >= oldest)
-            ImGui::Text("Oldest displayed draw %.2f s ago",
-                        double(steady_now - oldest) / 1e9);
-        else
-            ImGui::TextUnformatted("Captured pose");
     } else
         ImGui::TextWrapped(
             "Enable Live discovery, then choose a captured part. Freeze "

@@ -74,7 +74,7 @@ Files: capture settings/admission/persistence, asset live/controller/UI; ownersh
 ### 5. Native end-to-end gate
 
 - [x] Strict changed-product TUs, focused CPU/native tests, sanitizer gates and formatting.
-- [ ] Fresh review, resolve important findings with meaningful regressions, publish existing branch and obtain actual-head CI.
+- [x] Fresh review, resolve important findings with meaningful regressions, publish existing branch and obtain actual-head CI (63f7e934; subsequent changes require new CI).
 - [ ] On the Windows rig, select the identified player car, confirm its connected parts, drive and steer while viewing it at a constant angle; observe wheel motion and actual captured color/shading.
 - [ ] Preserve images/video or ordered frame evidence with exact build/settings/source identities, measure viewer cadence and pose freshness separately, and qualify freeze/reset/duplicate cars.
 - [ ] Remain draft if native fidelity, performance or stacked dependency gates are incomplete.
@@ -107,3 +107,26 @@ underside default angle, and pre-display colors. A frozen pose renders above
    establish30 fresh poses/s. Do not report HUD cadence as pose cadence.
 
 Both native failed attempts remain archived without acceptance markers.
+
+### Native follow-up: repeated texture acquisition
+
+The saved exact3a native live frame has61events,1050texture images but55unique
+immutable image blocks, and128363064bytes of repeated decoded texture evidence.
+Local O2 catalog build median10.054ms; placement9.060ms. These are local decode
+measurements, not Windows acquisition timing. Repeating GPU copies, VMA buffers
+and decode per consumer is a concrete remaining acquisition hotspot.
+
+- [x] Pin the production texture-stage/retirement path with two draws consuming
+      generationA and another consuming overwritten generationB; preserve all
+      three independent event payloads while requiring only two owned readbacks.
+- [x] Increment the texture's content generation on every actual upload/copy into
+      that image. Match allocation incarnation, content generation, capture batch,
+      format/extent, mip/face and component mapping; never match by handle alone.
+- [x] Share pending payload ownership with explicit references; decode once after
+      its fence. Consumer metadata/state remains independent. Cancellation, mixed
+      batches/generations and budget failures release exactly once; no silent gaps.
+- [x] Keep lookup bounded/indexed and staging/reservations truthful. Disarmed
+      recording performs no payload copy/hash/query. Native stage tests and actual
+      Vulkan product flags precede exact-head CI and a fresh Windows driving run.
+- [ ] Measure fresh pose delivery separately from display cadence. Further
+      acquisition scheduling work follows measured remaining latency.

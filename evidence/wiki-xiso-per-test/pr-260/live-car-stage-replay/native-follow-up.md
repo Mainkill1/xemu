@@ -43,3 +43,24 @@ Private game resource bytes, stage source, and native screenshots remain outside
 public Git. An initial save failed because the diagnostic helper was given a
 wrong Ctrl modifier; its failure is retained and the corrected save succeeded.
 This is test-driver friction, not a product save failure.
+
+## Native run3 and subsequent CI
+
+Exact3a3765ef executable SHA2564cf8ba9578531039520725e527cdb874ab5a64f46057760e294758e88bc6a339
+rendered37parts from bodyE5378/frame3556 at the above-body fixed angle, applying
+the captured DAC palette after blending. After HTTP resume and game focus,
+driving reached9MPH and front-wheel steering changed in the assembly. The
+initial invalid driving helper paused the guest through runner failure policy;
+those failures remain archived. Correctness failed/evidence incomplete; no
+acceptance marker or replacement rule. Smooth cadence and exact appearance
+remain unqualified. The private frame contains61events/543blocks7979137bytes.
+
+The3a CI application builds passed but unit linking failed on a missing DAC
+copy provider in the isolated observation fixture. Head63f7e934 corrects that
+fixture and verifies owned copies. Push36515358970 and PR36515362583 both
+succeeded20/20; the actual unit job reported189passed,0failed,17skipped.
+
+Repeated texture readbacks are now addressed locally by exact-generation
+pending-batch sharing. See texture-readback-reuse/RESULT.md for runtimeRED/GREEN,
+ownership/budget cases and sanitizer limits. Native cadence measurement of the
+new published head is still required.

@@ -484,6 +484,8 @@ typedef struct TextureBinding {
     VkImageView image_view;
     VmaAllocation allocation;
     uint64_t capture_owner, capture_bytes;
+    /* UINT64_MAX disables sharing if the write counter ever saturates. */
+    uint64_t capture_content_version;
     PGRAPHState *capture_pg;
     VkSampler sampler;
     VkExtent3D storage_extent;
@@ -965,6 +967,7 @@ typedef struct PGRAPHVkState {
         uint64_t input_snapshots_before;
     } shader_timing_slots[PGRAPH_VK_SHADER_TIMING_SLOTS];
     struct PGRAPHVkShaderInputs *shader_browser_inputs;
+    struct PGRAPHVkInputReadback **shader_browser_texture_readbacks;
     size_t shader_browser_input_staging_bytes;
     uint32_t shader_browser_input_events;
     int max_queries_in_flight; // FIXME: Move out to constant

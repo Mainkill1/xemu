@@ -717,6 +717,19 @@ if vulkan.found() and 'i386-softmmu' in target_dirs
                      xxhash, json, glib, volk, libglslang, vma, spirv_reflect])
     test('test-xemu-shader-browser-vk-sampled-depth',
          shader_browser_vk_sampled_depth_test, suite: ['unit'])
+    shader_browser_vk_texture_reuse_test = executable(
+      'test-xemu-shader-browser-vk-texture-reuse',
+      shader_browser_test_dir / 'test-xemu-shader-browser-vk-texture-reuse.cc',
+      shader_browser_test_dir / 'test-xemu-shader-browser-vk-texture-reuse-native.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/s3tc.c',
+      files('shader-browser-draw-request.cc', 'shader-browser-capture-session.cc',
+            'shader-browser-capture-resources.cc', 'shader-browser-draw-capture.cc',
+            'shader-browser-model.cc'),
+      include_directories: shader_browser_test_inc,
+      dependencies: [shader_browser_vk_batch_target, shader_browser_threads,
+                     xxhash, json, glib, volk, libglslang, vma, spirv_reflect])
+    test('test-xemu-shader-browser-vk-texture-reuse',
+         shader_browser_vk_texture_reuse_test, suite: ['unit'])
   else
     message('Skipping Shader Browser Vulkan capture test: section GC unsupported')
   endif
