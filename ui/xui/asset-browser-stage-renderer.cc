@@ -116,6 +116,9 @@ struct AssetStageRenderer::Impl {
         std::vector<Attribute> attributes;
         std::vector<Uniform> uniforms;
         bool exclusive_clip = false;
+        GLenum feedback_mode = GL_POINTS;
+        uint32_t feedback_vertices_per_input = 1;
+        uint32_t feedback_vertices_per_primitive = 1;
     };
     struct Mesh {
         Key key{};
@@ -192,7 +195,8 @@ struct AssetStageRenderer::Impl {
                 program.exclusive_clip =
                     original.find("Window-clip (Exclusive)") !=
                     std::string::npos;
-            const auto adapted = BuildAssetStageSource(original, i + 1);
+            const auto adapted =
+                BuildAssetStageSource(original, i + 1, !sources[3]);
             if (adapted.text.empty()) {
                 program.error = adapted.error;
                 break;
@@ -206,11 +210,9 @@ struct AssetStageRenderer::Impl {
             for (GLuint s : shaders)
                 if (s)
                     glAttachShader(program.id, s);
-            if (!sources[3]) {
-                const char *varying = "gl_Position";
-                glTransformFeedbackVaryings(program.id, 1, &varying,
-                                            GL_INTERLEAVED_ATTRIBS);
-            }
+            const char *varying = "gl_Position";
+            glTransformFeedbackVaryings(program.id, 1, &varying,
+                                        GL_INTERLEAVED_ATTRIBS);
             glLinkProgram(program.id);
             GLint linked = 0;
             glGetProgramiv(program.id, GL_LINK_STATUS, &linked);
@@ -230,6 +232,28 @@ struct AssetStageRenderer::Impl {
                 if (input != GL_TRIANGLES)
                     program.error = "Host geometry stage requires an "
                                     "unsupported input topology";
+                GLint output = 0, maximum = 0, invocations = 0;
+                glGetProgramiv(program.id, GL_GEOMETRY_OUTPUT_TYPE, &output);
+                glGetProgramiv(program.id, GL_GEOMETRY_VERTICES_OUT, &maximum);
+                glGetProgramiv(program.id, GL_GEOMETRY_SHADER_INVOCATIONS,
+                               &invocations);
+                if (maximum <= 0 || maximum > 1024 || invocations <= 0 ||
+                    invocations > 32 ||
+                    (output != GL_POINTS && output != GL_LINE_STRIP &&
+                     output != GL_TRIANGLE_STRIP)) {
+                    program.error = "Unsupported geometry-stage output bound";
+                } else {
+                    const uint32_t width = output == GL_TRIANGLE_STRIP ? 3 :
+                                           output == GL_LINE_STRIP     ? 2 :
+                                                                         1;
+                    program.feedback_mode = width == 3 ? GL_TRIANGLES :
+                                            width == 2 ? GL_LINES :
+                                                         GL_POINTS;
+                    program.feedback_vertices_per_primitive = width;
+                    program.feedback_vertices_per_input =
+                        uint32_t(std::max(0, maximum - int(width) + 1)) *
+                        width * uint32_t(invocations);
+                }
             }
             for (GLenum stage :
                  { GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_GEOMETRY_SHADER }) {
@@ -822,7 +846,11 @@ struct AssetStageRenderer::Impl {
                 std::memcpy(value.data.data(), scale, 8);
             } else if (u.stage == 2 && base == "clipRange" &&
                        u.type == GL_FLOAT_VEC4) {
-                const float limits[2] = { 0, 3.402823466e38f };
+                // Generated depth interpolation uses the original window
+                // positions, which no longer bound the inspection camera.
+                // Both signs are valid here; the stage wrapper supplies the
+                // inspection raster depth after the original material code.
+                const float limits[2] = { -3.402823466e38f, 3.402823466e38f };
                 std::memcpy(value.data.data() + 8, limits, 8);
             } else if (u.stage == 2 &&
                        (base == "depthFactor" || base == "depthOffset") &&
@@ -924,11 +952,6 @@ bool AssetStageRenderer::OutputBounds(const AssetPart &part, uint32_t backend,
             "Post-transform framing requires complete inputs and HUD OpenGL4.5";
         return false;
     }
-    if (part.occurrence->inputs.sources[3]) {
-        *error = "Post-transform framing with a host geometry stage is not "
-                 "supported";
-        return false;
-    }
     auto *program = impl_->GetProgram(part, backend, error);
     if (!program)
         return false;
@@ -996,7 +1019,12 @@ bool AssetStageRenderer::OutputBounds(const AssetPart &part, uint32_t backend,
             *error = impl_->output_bounds.back().error;
             return bounds->valid;
         }
-    const uint64_t size = part.vertices.size() * sizeof(float) * 4;
+    const bool geometry = bool(part.occurrence->inputs.sources[3]);
+    const uint64_t capacity = geometry ?
+                                  uint64_t(part.indices.size() / 3) *
+                                      program->feedback_vertices_per_input :
+                                  part.vertices.size();
+    const uint64_t size = capacity * sizeof(float) * 4;
     if (size > impl_->budget / 4) {
         *error =
             "Post-transform framing exceeds the bounded GPU readback budget";
@@ -1004,8 +1032,15 @@ bool AssetStageRenderer::OutputBounds(const AssetPart &part, uint32_t backend,
     }
     GLboolean active = GL_FALSE;
     glGetBooleanv(GL_TRANSFORM_FEEDBACK_ACTIVE, &active);
-    if (active) {
-        *error = "HUD transform feedback is already active";
+    GLint current_query = 0;
+    glGetQueryiv(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, GL_CURRENT_QUERY,
+                 &current_query);
+    if (active || current_query) {
+        *error = "HUD transform feedback or its query is already active";
+        return false;
+    }
+    if (!capacity) {
+        *error = "Geometry stage emitted no positions";
         return false;
     }
     static const AssetMatrix identity{ 1, 0, 0, 0, 0, 1, 0, 0,
@@ -1026,8 +1061,8 @@ bool AssetStageRenderer::OutputBounds(const AssetPart &part, uint32_t backend,
     glGetIntegerv(GL_TRANSFORM_FEEDBACK_BINDING, &previous_feedback);
     glGetIntegerv(GL_TRANSFORM_FEEDBACK_BUFFER_BINDING, &previous_buffer);
     const auto discard = glIsEnabled(GL_RASTERIZER_DISCARD);
-    std::vector<std::array<float, 4>> positions(part.vertices.size());
-    GLuint feedback, buffer;
+    std::vector<std::array<float, 4>> positions;
+    GLuint feedback, buffer, query;
     glGenTransformFeedbacks(1, &feedback);
     glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, feedback);
     glGenBuffers(1, &buffer);
@@ -1047,16 +1082,35 @@ bool AssetStageRenderer::OutputBounds(const AssetPart &part, uint32_t backend,
     glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, buffer);
     glEnable(GL_RASTERIZER_DISCARD);
     glBindVertexArray(mesh->vao);
-    glBeginTransformFeedback(GL_POINTS);
-    glDrawArrays(GL_POINTS, 0, part.vertices.size());
+    glGenQueries(1, &query);
+    glBeginQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, query);
+    glBeginTransformFeedback(program->feedback_mode);
+    if (geometry)
+        glDrawElements(GL_TRIANGLES, part.indices.size(), GL_UNSIGNED_INT,
+                       nullptr);
+    else
+        glDrawArrays(GL_POINTS, 0, part.vertices.size());
     glEndTransformFeedback();
-    glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, size, positions.data());
+    glEndQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
+    GLuint64 written = 0;
+    glGetQueryObjectui64v(query, GL_QUERY_RESULT, &written);
+    const uint64_t count = written * program->feedback_vertices_per_primitive;
+    if (!count)
+        *error = "Geometry stage emitted no positions";
+    else if (count > capacity)
+        *error = "Geometry output exceeded its declared bound";
+    else {
+        positions.resize(size_t(count));
+        glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0,
+                           count * sizeof(float) * 4, positions.data());
+    }
     glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, previous_feedback);
     glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, previous_buffer);
     if (!discard)
         glDisable(GL_RASTERIZER_DISCARD);
     glDeleteBuffers(1, &buffer);
     glDeleteTransformFeedbacks(1, &feedback);
+    glDeleteQueries(1, &query);
     // Only referenced vertices were compacted into this mesh. Preserve failure
     // evidence rather than silently ignoring non-finite shader outputs.
     for (const auto &position : positions) {

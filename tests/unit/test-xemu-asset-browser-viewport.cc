@@ -655,6 +655,91 @@ int main(int argc, char **argv)
         }
     }
 
+    if (run_review("geometry-framing")) {
+        auto geometry = StageFixture();
+        geometry->parts.resize(1);
+        geometry->captured_placement = false;
+        auto part = std::make_shared<AssetPart>(*geometry->parts.front());
+        auto event =
+            std::make_shared<capture::CaptureOccurrence>(*part->occurrence);
+        const std::string gs =
+            "#version 450\nlayout(triangles)in;"
+            "layout(triangle_strip,max_vertices=4)out;"
+            "layout(location=0)in vec4 input_color[];"
+            "layout(location=0)out vec4 vtxD0;uniform vec4 displacement;"
+            "void emit_at(int i){"
+            "gl_Position=gl_in[i%3].gl_Position+displacement;"
+            "if(i==3)gl_Position.x+=.25;"
+            "vtxD0=input_color[i%3];EmitVertex();}"
+            "void main(){for(int i=0;i<4;i++)emit_at(i);EndPrimitive();}";
+        const std::string ps = "#version 450\nlayout(location=0)in vec4 vtxD0;"
+                               "layout(location=0)out vec4 fragColor;"
+                               "void main(){fragColor=vtxD0;}";
+        event->inputs.sources[3] = StageBytes(gs.data(), gs.size());
+        event->inputs.sources[2] = StageBytes(ps.data(), ps.size());
+        const float displacement[] = { 8000, -12000, 0, 0 };
+        event->inputs.uniforms.push_back(
+            { 3, 1, 4, 1, "displacement", StageBytes(displacement, 4) });
+        part->occurrence = event;
+        geometry->parts = { part };
+        const auto fitted =
+            viewport.Render(geometry, {}, 128, 128, -1, false, true);
+        g_test_message("GS framing: %s", fitted.message.c_str());
+        g_assert_cmpuint(fitted.captured_parts, ==, 1);
+        glBindTexture(GL_TEXTURE_2D, fitted.texture);
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                      pixels.data());
+        size_t visible = 0;
+        for (size_t i = 0; i < pixels.size(); i += 4)
+            visible += pixels[i + 1] > 180;
+        g_assert_cmpuint(visible, >, 200);
+        g_assert_cmpuint(glGetError(), ==, GL_NO_ERROR);
+        for (const char *topology : { "line_strip", "points" }) {
+            std::string output = gs;
+            output.replace(output.find("triangle_strip"),
+                           std::strlen("triangle_strip"), topology);
+            auto next = std::make_shared<capture::CaptureOccurrence>(*event);
+            next->inputs.sources[3] = StageBytes(output.data(), output.size());
+            auto next_part = std::make_shared<AssetPart>(*part);
+            next_part->occurrence = next;
+            geometry->parts = { next_part };
+            const auto primitive =
+                viewport.Render(geometry, {}, 128, 128, -1, false, true);
+            g_test_message("%s GS framing: %s", topology,
+                           primitive.message.c_str());
+            g_assert_cmpuint(primitive.captured_parts, ==, 1);
+            g_assert_cmpuint(glGetError(), ==, GL_NO_ERROR);
+        }
+        auto large = std::make_shared<AssetPart>(*part);
+        large->indices.resize(600000);
+        for (size_t i = 0; i < large->indices.size(); ++i)
+            large->indices[i] = uint32_t(i % 3);
+        geometry->parts = { large };
+        const auto limited =
+            viewport.Render(geometry, {}, 128, 128, -1, false, true);
+        g_assert_cmpuint(limited.texture, ==, 0);
+        g_assert_true(limited.message.find("bounded GPU readback budget") !=
+                      std::string::npos);
+        g_assert_cmpuint(glGetError(), ==, GL_NO_ERROR);
+        // A GS that emits nothing is evidence, not a zero-filled position mesh.
+        std::string empty_gs = gs;
+        const auto body = empty_gs.find("void main(){");
+        empty_gs.insert(body + std::strlen("void main(){"),
+                        "if(displacement.x>0)return;");
+        event = std::make_shared<capture::CaptureOccurrence>(*event);
+        event->inputs.sources[3] = StageBytes(empty_gs.data(), empty_gs.size());
+        part = std::make_shared<AssetPart>(*part);
+        part->occurrence = event;
+        geometry->parts = { part };
+        const auto empty =
+            viewport.Render(geometry, {}, 128, 128, -1, false, true);
+        g_test_message("Empty GS framing: %s", empty.message.c_str());
+        g_assert_cmpuint(empty.texture, ==, 0);
+        g_assert_true(empty.message.find("emitted no positions") !=
+                      std::string::npos);
+        g_assert_cmpuint(glGetError(), ==, GL_NO_ERROR);
+    }
+
     if (run_review("palette")) {
         auto mapped = StageFixture();
         std::array<uint8_t, 768> palette;

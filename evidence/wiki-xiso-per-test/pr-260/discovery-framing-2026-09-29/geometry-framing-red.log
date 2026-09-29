@@ -1,0 +1,7 @@
+TAP version 14
+# random seed: R02Sc91fce4cfecf080f00789d577f5f3ecc
+# GS framing: Cannot frame captured shader output: Post-transform framing with a host geometry stage is not supported
+**
+ERROR:tests/unit/test-xemu-asset-browser-viewport.cc:686:int main(int, char**): assertion failed (fitted.captured_parts == 1): (0 == 1)
+Bail out! ERROR:tests/unit/test-xemu-asset-browser-viewport.cc:686:int main(int, char**): assertion failed (fitted.captured_parts == 1): (0 == 1)
+Aborted

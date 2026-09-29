@@ -80,7 +80,12 @@ The inspection camera replaces guest pixel rounding, window clipping and depth
 bookkeeping. Original material calculations and generated UVs retain captured game
 inputs. Missing scene/destination dependencies can change the result, and changing
 the camera is not exact original-camera replay. When a direct position matrix cannot be recognized, the viewer fits the actual
-captured VS output in projected coordinates. This supports nonlinear transforms
+captured final-stage output in projected coordinates, including triangle-input
+host geometry stages that emit triangles, lines or points. Geometry expansion is
+bounded by the declared maximum and invocation count; only positions actually
+emitted enter the fit. An empty emission remains an explicit incomplete view.
+The inspection camera runs at the final stage's emission boundary, preserving the
+captured inputs to that stage. This supports nonlinear transforms
 and animation inputs without pretending to recover world-space placement.
 Non-triangle host GS interfaces, missing inputs or incompatible sampler/GL features
 produce an explicit incomplete view. Legacy

@@ -58,4 +58,8 @@ User report adds frequently empty/out-of-view assets and a Ghoulies spider death
 - [x] Expose Fit, standard angles, zoom/pan controls and guidance; do not carry an offscreen pan into a newly selected occurrence.
 - [x] Make captured occurrence output accessible from the shader workbench without requiring synthetic inputs.
 - [x] Verify supported offscreen/nonlinear outputs, changed constants, zero/nonfinite w, budget rejection and HUD state restoration with actual GL fixtures.
+- [x] Restore the newest user-provided Ghoulies snapshot through the upgraded tester API and retain an owned recording on Windows. Discovery produced 909 parts without the former budget failure; no spider identification is established.
+- [x] Reproduce the native host-GS framing rejection and extend fitting to bounded triangle-input GS emissions. Verify triangle/line/point outputs, expansion, empty emissions and budget rejection with actual GPU fixtures.
+- [x] Reproduce and correct generated pixel-shader depth clipping against old window coordinates after the inspection camera moves GS output.
+- [ ] Recheck the geometry-stage correction with sanitizers, actual product compilation and independent review; publish it to the existing branch and qualify an exact-head Windows artifact.
 - [ ] Qualify native discovery and the provided Ghoulies snapshot after the supported tester import route is installed.

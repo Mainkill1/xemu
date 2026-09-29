@@ -11,7 +11,7 @@ std::string AssetStageUniformName(uint32_t stage, const std::string &name)
     return "asset" + std::to_string(stage) + "_" + name;
 }
 AssetStageSource BuildAssetStageSource(const std::string &original,
-                                       uint32_t stage)
+                                       uint32_t stage, bool vertex_is_final)
 {
     AssetStageSource out;
     auto fail = [&](const char *message) {
@@ -93,7 +93,11 @@ AssetStageSource BuildAssetStageSource(const std::string &original,
         return fail("Generated stage entry point is missing");
     if (stage != 3) {
         text = std::regex_replace(text, main, "void asset_original_main()");
-        if (stage == 1) {
+        if (stage == 1 && !vertex_is_final) {
+            // Keep the original inputs for the host geometry stage. The
+            // inspection camera is applied at its actual emission boundary.
+            text += "\nvoid main(){asset_original_main();}\n";
+        } else if (stage == 1) {
             // Guest pixel rounding belongs to the captured game camera. It
             // would quantize the free inspection camera after inverse
             // placement.
@@ -117,6 +121,27 @@ AssetStageSource BuildAssetStageSource(const std::string &original,
         } else
             text += "\nvoid main(){asset_original_main(); gl_FragDepth = "
                     "gl_FragCoord.z;}\n";
+    } else {
+        if (text.find("EmitStreamVertex") != std::string::npos)
+            return fail("Geometry stages with multiple output streams are not "
+                        "supported");
+        static const std::regex emission(R"(\bEmitVertex\s*\(\s*\))");
+        text = std::regex_replace(text, emission, "asset_emit_vertex()");
+        // Generated geometry shaders call EmitVertex from emit_vertex(),
+        // before main. Declare the wrapper before that first void function.
+        static const std::regex function(
+            R"(\bvoid\s+[A-Za-z_][A-Za-z0-9_]*\s*\()");
+        if (!std::regex_search(text, match, function))
+            return fail("Geometry stage entry point is missing");
+        text.insert(size_t(match.position()), "void asset_emit_vertex();\n");
+        text += "\nuniform bool asset_project_output;\n"
+                "uniform mat4 asset_inspection_from_clip;\n"
+                "void asset_emit_vertex(){\n"
+                "vec4 asset_original_position=gl_Position;\n"
+                "if(asset_project_output) gl_Position /= gl_Position.w;\n"
+                "gl_Position=asset_inspection_from_clip*gl_Position;\n"
+                "EmitVertex();\n"
+                "gl_Position=asset_original_position;\n}\n";
     }
     out.text = std::move(text);
     return out;

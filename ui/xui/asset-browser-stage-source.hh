@@ -7,7 +7,8 @@ struct AssetStageSource {
     std::vector<std::string> uniforms;
 };
 // Adapt the owned generated host interface; guest instructions remain intact.
-AssetStageSource BuildAssetStageSource(const std::string &, uint32_t stage);
+AssetStageSource BuildAssetStageSource(const std::string &, uint32_t stage,
+                                       bool vertex_is_final = true);
 std::string AssetStageUniformName(uint32_t stage, const std::string &name);
 AssetMatrix BuildAssetCameraMatrix(const capture::Bounds3 &, float yaw,
                                    float pitch, float zoom, float pan_x,

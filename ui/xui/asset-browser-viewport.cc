@@ -633,7 +633,7 @@ if(colored!=0)c*=vertexcolor;outputColor=vec4(c.rgb,1);})";
                           "correction.";
             if (projected)
                 frame.message = "Post-transform projected view fitted to "
-                                "captured VS output. "
+                                "captured stage output. "
                                 "Depth is projected, not world space; this is "
                                 "not an original-camera replay. " +
                                 frame.message;

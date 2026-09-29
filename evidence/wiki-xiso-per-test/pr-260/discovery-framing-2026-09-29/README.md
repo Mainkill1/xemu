@@ -43,3 +43,30 @@ spider identification or corrected release is claimed here. Raw game captures,
 disks and screenshots stay outside the public evidence directory.
 
 Agent assistance: Codex / GPT-6.
+
+## Host geometry-stage follow-up
+
+The newest supplied Ghoulies snapshot was restored through the upgraded tester
+API. Default discovery retained 909 parts without budget exhaustion. Selecting a
+captured host-GS occurrence reproduced an explicit unsupported framing error.
+Its owned recording stays on the Windows tester for native revalidation.
+
+Final-stage transform feedback now measures actual triangle-input host-GS output
+with bounded triangle, line and point expansion. The camera is applied at the
+final emission boundary. Empty emissions and oversized output remain explicit
+failures. Generated pixel depth clipping now permits both signs while the
+inspection raster supplies depth; the existing depth fixture failed before this
+correction and passes afterward.
+
+Strict and ASAN/UBSAN full GPU fixtures pass, including expansion, empty output,
+readback budget rejection and existing material/depth/HUD state cases. Four
+changed product translation units, including the controller settings view,
+compile with -Werror. Independent source review reports no remaining findings.
+Leak detection is disabled under the traced host; other sanitizer checks remain.
+
+Native testing also recorded a controller settings null dereference after a
+snapshot reconnect. A separate guard commit disables mapping reset when no host
+controller is bound. Its native recheck is pending the corrected Windows build.
+The private crash dump, game recording and screenshots are not included here.
+No spider identification, native corrected rendering, exact replay, merge-ready
+status or corrected prerelease is claimed by these local fixtures.
