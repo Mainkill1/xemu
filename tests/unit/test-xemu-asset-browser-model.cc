@@ -138,6 +138,41 @@ static void TestFormats()
     g_assert_cmpfloat(value[1], ==, 1);
     g_assert_false(DecodeAssetAttribute(blob, 2, 1, &value));
 }
+static void TestOverlappingAttributes()
+{
+    for (uint32_t backend : { 1U, 2U }) {
+        capture::CaptureOwnedBlob blob;
+        blob.format = backend == 2 ? 109 : 0x1406;
+        blob.components = 4;
+        blob.stride = 8;
+        blob.count = 2;
+        blob.data = Block<float>({ 1, 2, 3, 4, 5, 6 });
+        std::array<float, 4> values;
+        g_assert_true(DecodeAssetAttribute(blob, backend, 0, &values));
+        g_assert_cmpfloat(values[2], ==, 3);
+        g_assert_true(DecodeAssetAttribute(blob, backend, 1, &values));
+        g_assert_cmpfloat(values[0], ==, 3);
+        g_assert_cmpfloat(values[3], ==, 6);
+        g_assert_false(DecodeAssetAttribute(blob, backend, 2, &values));
+        blob.data = Block<float>({ 1, 2, 3, 4, 5 });
+        g_assert_true(DecodeAssetAttribute(blob, backend, 0, &values));
+        g_assert_false(DecodeAssetAttribute(blob, backend, 1, &values));
+
+        blob.format = backend == 2 ? 108 : 0x1404;
+        blob.integer = 1;
+        blob.data = Block<int32_t>({ 1, -2, 3, -4, 5, -6 });
+        std::array<uint32_t, 4> integers;
+        bool signed_values = false;
+        g_assert_true(DecodeAssetIntegerAttribute(blob, backend, 1, &integers,
+                                                  &signed_values));
+        g_assert_true(signed_values);
+        g_assert_cmpuint(integers[0], ==, 3);
+        g_assert_cmphex(integers[3], ==, uint32_t(-6));
+        blob.data = Block<int32_t>({ 1, -2, 3, -4, 5 });
+        g_assert_false(DecodeAssetIntegerAttribute(blob, backend, 1, &integers,
+                                                   &signed_values));
+    }
+}
 static void TestIntegerAttributes()
 {
     capture::CaptureOwnedBlob blob;
@@ -377,6 +412,8 @@ int main(int argc, char **argv)
     g_test_add_func("/asset/decode/sparse-bounds", TestSparseBounds);
     g_test_add_func("/asset/decode/subdraws", TestSubdraws);
     g_test_add_func("/asset/decode/formats", TestFormats);
+    g_test_add_func("/asset/decode/overlapping-attributes",
+                    TestOverlappingAttributes);
     g_test_add_func("/asset/decode/integer-bits", TestIntegerAttributes);
     g_test_add_func("/asset/decode/invalid", TestInvalid);
     g_test_add_func("/asset/decode/large-budget", TestLargeAndBudget);

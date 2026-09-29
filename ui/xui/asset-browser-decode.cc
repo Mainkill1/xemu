@@ -233,7 +233,7 @@ bool DecodeAssetIntegerAttribute(const capture::CaptureOwnedBlob &blob,
         return false;
     const size_t bytes = format.bytes * format.components;
     const size_t step = blob.stride ? blob.stride : backend == 2 ? 0 : bytes;
-    if ((step && step < bytes) || blob.data->bytes.size() < bytes ||
+    if (blob.data->bytes.size() < bytes ||
         (step && element > (blob.data->bytes.size() - bytes) / step))
         return false;
     std::array<uint32_t, 4> values{ 0, 0, 0, 1 };
@@ -259,7 +259,9 @@ bool DecodeAssetAttribute(const capture::CaptureOwnedBlob &blob,
                         format.number == Number::PackedUnsigned;
     const size_t bytes = packed ? 4 : format.bytes * format.components;
     const size_t step = blob.stride ? blob.stride : backend == 2 ? 0 : bytes;
-    if ((step && step < bytes) || blob.data->bytes.size() < bytes ||
+    // A host binding may deliberately fetch overlapping elements. Validate
+    // each complete read independently of the distance between starts.
+    if (blob.data->bytes.size() < bytes ||
         (step && element > (blob.data->bytes.size() - bytes) / step))
         return false;
     const uint8_t *data = blob.data->bytes.data() + element * step;

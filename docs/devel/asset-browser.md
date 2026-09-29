@@ -97,6 +97,13 @@ Unsupported data
 retains its reason and raw capture evidence. The full recording remains the source
 of truth; GLB is not a complete replay package.
 
+Captured host attributes may overlap: the binding stride can be smaller than
+the format's element width. The viewer reads the complete format at each captured
+start offset and checks every read against the owned byte span. An incomplete
+span remains an error. Stream failures identify the attribute location, format,
+components, stride, count and source vertex; these fields also wrap in the
+selected draw's raw-input inspector.
+
 Default asset limits are 32,768 examined events, 2,048 parts, 1,048,576 vertices,
 3,145,728 indices and 128 MiB decoded data. Live sampling has bounded capture
 budgets and a progress watchdog. Named assemblies, GPU meshes, texture inspection

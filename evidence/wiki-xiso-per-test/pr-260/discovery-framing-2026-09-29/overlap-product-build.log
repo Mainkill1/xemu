@@ -1,0 +1,4 @@
+Compile ui/xui/asset-browser-stage-renderer.cc
+Compile ui/xui/asset-browser.cc
+Compile ui/xui/asset-browser-decode.cc
+Three changed product translation units passed

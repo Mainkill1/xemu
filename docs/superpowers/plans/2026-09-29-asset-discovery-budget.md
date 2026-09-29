@@ -61,5 +61,13 @@ User report adds frequently empty/out-of-view assets and a Ghoulies spider death
 - [x] Restore the newest user-provided Ghoulies snapshot through the upgraded tester API and retain an owned recording on Windows. Discovery produced 909 parts without the former budget failure; no spider identification is established.
 - [x] Reproduce the native host-GS framing rejection and extend fitting to bounded triangle-input GS emissions. Verify triangle/line/point outputs, expansion, empty emissions and budget rejection with actual GPU fixtures.
 - [x] Reproduce and correct generated pixel-shader depth clipping against old window coordinates after the inspection camera moves GS output.
-- [ ] Recheck the geometry-stage correction with sanitizers, actual product compilation and independent review; publish it to the existing branch and qualify an exact-head Windows artifact.
+- [x] Recheck the geometry-stage correction with sanitizers, actual product compilation and independent review; publish it to the existing branch and qualify an exact-head Windows artifact. Both 7da71bbb CI runs passed 20/20; native Windows reopened the retained frame, rendered E63804, and exposed a separate overlapping-stream decoder restriction in E63969/E64317.
 - [ ] Qualify native discovery and the provided Ghoulies snapshot after the supported tester import route is installed.
+
+### Task 5: Decode the submitted overlapping host layout
+
+- [x] Analyze the one user-authorized owned Ghoulies recording privately; verify all block/page digests through the normal capture loader. Reproduce the failing float4/stride8 bindings in the actual GPU viewer.
+- [x] Add synthetic GL/Vulkan float/integer overlap and truncation regressions plus an active-stream GPU color regression; observe both fail before the correction.
+- [x] Remove the element-width-versus-stride restriction while retaining count and complete-read bounds. Expose precise stream errors and wrap raw binding fields.
+- [x] Run strict and sanitizer model/GPU tests, actual product compilation and narrow independent source review. Local owned-recording output fitting and rendering now succeed for E63969/E64317; these are not identified spider parts or exact scene replay.
+- [ ] Publish the correction to the existing PR260 branch and recheck the same recording with its exact Windows CI artifact before the corrected prerelease.

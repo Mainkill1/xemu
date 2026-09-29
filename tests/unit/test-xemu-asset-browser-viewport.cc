@@ -515,6 +515,56 @@ int main(int argc, char **argv)
                      200); // Transformed nearer part occludes body.
     g_assert_cmpuint(pixel(45, 64, 1), <, 30);
     g_assert_cmpuint(pixel(45, 64, 2), >, 200);
+    if (run_review("overlapping-attributes")) {
+        auto overlapping = StageFixture();
+        for (auto &part : overlapping->parts) {
+            auto changed = std::make_shared<AssetPart>(*part);
+            auto event =
+                std::make_shared<capture::CaptureOccurrence>(*part->occurrence);
+            const std::string vs =
+                "#version 450\nlayout(location=0)in vec4 v0;"
+                "layout(location=1)in vec4 v1;"
+                "layout(location=2)in uvec4 v2;"
+                "uniform vec4 paint;uniform vec4 shift;"
+                "layout(location=0)out vec4 vtxD0;"
+                "void main(){gl_Position=v0+shift;"
+                "vtxD0=all(equal(v1,vec4(1))) && "
+                "all(equal(v2,uvec4(0xf1234567u))) ? paint:vec4(1,0,0,1);}";
+            event->inputs.sources[1] = StageBytes(vs.data(), vs.size());
+            capture::CaptureOwnedBlob stream;
+            stream.name = "vertex.attribute1";
+            stream.format = 109;
+            stream.components = 4;
+            stream.stride = 8;
+            stream.count = 4;
+            const std::array<float, 10> floats{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+            stream.data = StageBytes(floats.data(), floats.size());
+            event->inputs.blobs.push_back(stream);
+            stream.name = "vertex.attribute2";
+            stream.format = 107;
+            stream.integer = 1;
+            const std::array<uint32_t, 10> integers{
+                0xf1234567, 0xf1234567, 0xf1234567, 0xf1234567, 0xf1234567,
+                0xf1234567, 0xf1234567, 0xf1234567, 0xf1234567, 0xf1234567
+            };
+            stream.data = StageBytes(integers.data(), integers.size());
+            event->inputs.blobs.push_back(stream);
+            changed->occurrence = event;
+            part = changed;
+        }
+        const auto frame =
+            viewport.Render(overlapping, {}, 128, 128, -1, false, true);
+        g_test_message("Overlapping streams: %s", frame.message.c_str());
+        g_assert_cmpuint(frame.captured_parts, ==, 2);
+        glBindTexture(GL_TEXTURE_2D, frame.texture);
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                      pixels.data());
+        g_assert_cmpuint(pixel(25, 64, 1), >, 200);
+        g_assert_cmpuint(pixel(25, 64, 2), >, 200);
+        g_assert_cmpuint(pixel(45, 64, 0), >, 200);
+        g_assert_cmpuint(pixel(45, 64, 1), <, 30);
+        g_assert_cmpuint(pixel(45, 64, 2), >, 200);
+    }
     // A captured VS can skin/deform or translate vertices beyond their raw
     // input bounds. Its visible output must not require a recognized matrix.
     if (run_review("output-framing")) {

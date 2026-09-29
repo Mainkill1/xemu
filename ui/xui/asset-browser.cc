@@ -847,10 +847,11 @@ void AssetBrowserWindow::Draw()
                                     ImGui::TreePop();
                                 }
                             for (const auto &blob : event.inputs.blobs)
-                                ImGui::Text(
-                                    "%s: %u vertices, stride %u, format %u",
+                                ImGui::TextWrapped(
+                                    "%s: %u vertices, stride %u, format %u, "
+                                    "%u components",
                                     blob.name.c_str(), blob.count, blob.stride,
-                                    blob.format);
+                                    blob.format, blob.components);
                             ImGui::TreePop();
                         }
                         if (ImGui::Button("Inspect exact draw / GLSL")) {

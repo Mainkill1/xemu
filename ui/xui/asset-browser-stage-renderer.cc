@@ -416,7 +416,14 @@ struct AssetStageRenderer::Impl {
                                                      part.source_vertices[v],
                                                      &values, &signed_values) ||
                         signed_values == attribute.unsigned_values) {
-                        *error = "Unsupported captured integer stream";
+                        *error =
+                            "Cannot decode captured integer attribute " +
+                            std::to_string(attribute.location) + " (format " +
+                            std::to_string(stream->format) + ", components " +
+                            std::to_string(stream->components) + ", stride " +
+                            std::to_string(stream->stride) + ", count " +
+                            std::to_string(stream->count) + ", source vertex " +
+                            std::to_string(part.source_vertices[v]) + ")";
                         return nullptr;
                     }
                     std::memcpy(destination, values.data(), 16);
@@ -425,7 +432,14 @@ struct AssetStageRenderer::Impl {
                     if (!DecodeAssetAttribute(*stream, backend,
                                               part.source_vertices[v],
                                               &values)) {
-                        *error = "Unsupported captured float stream";
+                        *error =
+                            "Cannot decode captured float attribute " +
+                            std::to_string(attribute.location) + " (format " +
+                            std::to_string(stream->format) + ", components " +
+                            std::to_string(stream->components) + ", stride " +
+                            std::to_string(stream->stride) + ", count " +
+                            std::to_string(stream->count) + ", source vertex " +
+                            std::to_string(part.source_vertices[v]) + ")";
                         return nullptr;
                     }
                     std::memcpy(destination, values.data(), 16);

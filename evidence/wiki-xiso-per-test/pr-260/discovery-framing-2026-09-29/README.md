@@ -70,3 +70,29 @@ controller is bound. Its native recheck is pending the corrected Windows build.
 The private crash dump, game recording and screenshots are not included here.
 No spider identification, native corrected rendering, exact replay, merge-ready
 status or corrected prerelease is claimed by these local fixtures.
+
+## Overlapping host-stream follow-up
+
+Exact-head 7da71bbb Windows CI reopened the retained Ghoulies frame. E63804
+rendered captured stages/materials; E63969 and E64317 exposed a separate decoder
+restriction. Private analysis, explicitly authorized by the user, reproduced
+float4 attributes with an 8-byte stride and complete 16-byte reads, including
+the final vertex. Their actual captured host bindings overlap intentionally.
+The normal loader verified the recording's immutable block/page digests.
+
+The float and integer decoders now permit overlapping starts while retaining
+count checks and overflow-safe complete-read bounds. Errors name the location,
+format, components, stride, count and source vertex; raw-input fields wrap in
+the inspector. Synthetic model and actual GPU regressions failed before this
+correction and pass afterward. Model14 and full GPU fixtures pass strict and
+ASAN/UBSAN; three changed product translation units compile with -Werror.
+Independent review found no blocking issue; its misplaced test comment was
+corrected. Leak detection remains disabled under the traced host.
+
+Locally, the same owned recording now fits and renders E63969/E64317 through
+the actual AssetViewport with captured stages/materials. Output remains a
+projected inspection with missing scene/destination dependencies, not exact
+original-camera replay. No spider identity, death-animation correctness or
+30 fresh poses/s is established. Exact updated Windows-head qualification and
+corrected prerelease are pending. Only synthetic logs are included below; the
+recording, source bytes, images and dump remain outside public Git.
