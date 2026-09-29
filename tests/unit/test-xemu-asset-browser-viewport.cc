@@ -2,6 +2,7 @@
 #include "../../ui/xui/asset-browser-viewport.hh"
 #include "../../ui/xui/asset-browser-material.hh"
 #include <SDL3/SDL.h>
+#include "../../ui/xemu-gl-context.h"
 #include <epoxy/gl.h>
 #include <glib.h>
 #include <chrono>
@@ -370,14 +371,14 @@ int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, nullptr);
     g_assert_true(SDL_Init(SDL_INIT_VIDEO));
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
                         SDL_GL_CONTEXT_PROFILE_CORE);
     auto *window = SDL_CreateWindow("Asset viewport fixture", 128, 128,
                                     SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
     g_assert_nonnull(window);
-    auto context = SDL_GL_CreateContext(window);
+    auto context = xemu_create_hud_gl_context(window);
     g_assert_nonnull(context);
     AssetViewport viewport;
     GLuint sentinel = 0;

@@ -65,6 +65,7 @@
 #include <locale.h>
 #include <math.h>
 #include <SDL3/SDL.h>
+#include "xemu-gl-context.h"
 
 #ifdef _WIN32
 #include "xui/win32-dxgi-present.h"
@@ -1124,7 +1125,7 @@ static void display_very_early_init(DisplayOptions *o)
         SDL_SetWindowPosition(m_window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
     }
 
-    m_context = SDL_GL_CreateContext(m_window);
+    m_context = xemu_create_hud_gl_context(m_window);
 
     if (m_context != NULL && epoxy_gl_version() < 40) {
         SDL_GL_MakeCurrent(NULL, NULL);

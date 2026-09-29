@@ -86,6 +86,12 @@ shader_browser_test_inc = include_directories('.')
 shader_browser_threads = dependency('threads')
 shader_browser_test_dir = meson.project_source_root() / 'tests/unit'
 
+hud_gl_context_test = executable(
+  'test-xemu-hud-gl-context',
+  shader_browser_test_dir / 'test-xemu-hud-gl-context.c',
+  dependencies: [glib, sdl])
+test('test-xemu-hud-gl-context', hud_gl_context_test, suite: ['unit'])
+
 asset_browser_model_test = executable(
   'test-xemu-asset-browser-model',
   shader_browser_test_dir / 'test-xemu-asset-browser-model.cc',
