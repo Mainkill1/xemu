@@ -1,0 +1,1 @@
+pr260-asset-placement: tests/unit/test-xemu-asset-browser-placement.cc:63: int main(): Assertion `DecodeAssetPlacement(d).valid' failed.

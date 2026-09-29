@@ -36,6 +36,34 @@ CaptureWorkspaceState &CaptureWorkspace()
     static CaptureWorkspaceState state;
     return state;
 }
+std::string OpenFittedCapturedOccurrence(const PreviewSelection &selection)
+{
+    const auto &state = CaptureWorkspace();
+    const auto &workbench = WorkbenchSession();
+    if (!workbench.inspected_occurrence && workbench.fitted_occurrence &&
+        workbench.capture_selection == selection &&
+        workbench.fitted_occurrence->summary.key ==
+            workbench.capture_summary.key) {
+        return asset_browser_window.InspectOccurrence(
+                   workbench.fitted_occurrence, workbench.fitted_context) ?
+                   "Opened captured shader output in Asset Browser; F fits the "
+                   "view." :
+                   "Finish the Asset Browser operation before opening another "
+                   "occurrence.";
+    }
+    if (!state.selected || state.selected->pending ||
+        !(state.selected->summary.key ==
+          WorkbenchSession().capture_summary.key))
+        return "Select a captured occurrence before opening its fitted view.";
+    auto recording =
+        std::make_shared<const CaptureSessionSnapshot>(state.snapshot);
+    return asset_browser_window.InspectOccurrence(
+               state.selected, state.snapshot.context, recording) ?
+               "Opened captured shader output in Asset Browser; F fits the "
+               "view." :
+               "Finish the Asset Browser operation before opening another "
+               "occurrence.";
+}
 const char *CaptureStateLabel(CaptureSessionState state)
 {
     switch (state) {
@@ -554,11 +582,45 @@ void ShaderBrowserWindow::DrawCaptureExplorer()
                        "shader stages and rendering events.");
 }
 
-void ShaderBrowserWindow::OpenCapturedOccurrence()
+bool ShaderBrowserWindow::InspectCapturedOccurrence(
+    std::shared_ptr<const CaptureOccurrence> occurrence,
+    const CaptureSessionContext &context, std::string *error,
+    const CaptureSessionSnapshot *recording)
+{
+    if(error)error->clear();
+    if (!occurrence || occurrence->pending) {
+        if(error)*error="Owned draw is missing or GPU capture is still pending";
+        return false;
+    }
+    auto &state = CaptureWorkspace();
+    if (state.file_job.valid()) {
+        if(error)*error="Finish the Shader Browser file operation before opening another draw";
+        return false;
+    }
+    state.snapshot = {};
+    state.snapshot.context = context;
+    state.snapshot.events = { occurrence };
+    state.snapshot.state = CaptureSessionState::Cancelled;
+    state.snapshot.execution_order_complete = false;
+    state.snapshot.reason = "Selected occurrence inputs only; complete frame and dependency recording is unavailable";
+    if(recording && std::find(recording->events.begin(),recording->events.end(),occurrence)!=recording->events.end())
+        state.snapshot=*recording;
+    state.archived = true;
+    state.selected = std::move(occurrence);
+    state.selected_event = state.selected->event_id;
+    state.inputs = state.selected->CopyInputs();
+    state.difference = {};
+    state.message.clear();
+    const bool opened=OpenCapturedOccurrence();
+    if(!opened && error)*error=state.message;
+    return opened;
+}
+
+bool ShaderBrowserWindow::OpenCapturedOccurrence()
 {
     CaptureWorkspaceState &state = CaptureWorkspace();
     if (!state.selected || state.selected->pending)
-        return;
+        return false;
     const CaptureOccurrence &event = *state.selected;
     const ShaderKey *pixel = nullptr;
     for (size_t i = 0; i < event.summary.shader_count; ++i)
@@ -567,7 +629,7 @@ void ShaderBrowserWindow::OpenCapturedOccurrence()
     if (!pixel || state.inputs.sources[2].empty()) {
         state.message = "This event has no captured pixel stage. Its raw "
                         "evidence and other stage sources remain available.";
-        return;
+        return false;
     }
     CanonicalRecipe recipe;
     recipe.key = *pixel;
@@ -580,7 +642,7 @@ void ShaderBrowserWindow::OpenCapturedOccurrence()
     std::string error;
     if (!InspectCanonicalRecipe(recipe, &inspection, &error)) {
         state.message = "Captured recipe cannot be previewed: " + error;
-        return;
+        return false;
     }
     m_selected_key = *pixel;
     m_has_selection = true;
@@ -678,9 +740,8 @@ void ShaderBrowserWindow::OpenCapturedOccurrence()
     workbench.capture_selection.backend = source.backend;
     workbench.capture_selection.mode =
         source.route == Route::Uber ? PreviewMode::Uber : PreviewMode::Normal;
-    workbench.capture_selection.session_epoch = m_snapshot.session_epoch;
-    workbench.capture_selection.renderer_epoch =
-        nv2a_profile_preview_renderer_epoch();
+    workbench.capture_selection.session_epoch = event.summary.key.session_epoch;
+    workbench.capture_selection.renderer_epoch = event.summary.key.renderer_epoch;
     m_preview_packet_attempted = false;
     m_select_preview_tab = true;
     m_action_message = "Inspecting captured E" +
@@ -688,6 +749,7 @@ void ShaderBrowserWindow::OpenCapturedOccurrence()
                        ". Original camera uses captured vertex processing "
                        "where supported; saving "
                        "does not enable a replacement.";
+    return true;
 }
 
 void ShaderBrowserWindow::DrawCaptureWorkspace()

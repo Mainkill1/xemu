@@ -12,7 +12,13 @@
 
 namespace xemu::shader_browser {
 
-enum class CaptureSessionMode : uint8_t { NextFrame, RollingAnimation };
+enum class CaptureSessionMode : uint8_t {
+    NextFrame,
+    RollingAnimation,
+    // Owned draw inputs for live inspection; omits ordered non-draw
+    // dependencies.
+    LiveDrawInputs,
+};
 enum class CaptureSessionState : uint8_t {
     Recording,
     Triggered,
@@ -57,6 +63,12 @@ struct CaptureSessionSettings {
     // unused until Mark. It does not promise a number of post-trigger frames.
     uint32_t post_trigger_reserve_percent = 25;
     bool maximum_evidence = false;
+    // Only LiveDrawInputs accepts a filter. Empty means discover all draws.
+    // Each set describes every bound stage of one accepted pipeline pairing.
+    std::vector<std::vector<ShaderKey>> live_stage_sets;
+    // Explicit live inspection only: retain a bounded frame window while
+    // acquiring the next frame. Forensic recordings never use this policy.
+    bool live_continuous = false;
 };
 struct CaptureSessionCapacityLimits {
     uint64_t cpu_bytes = 0;
@@ -200,6 +212,10 @@ struct CaptureSessionSnapshot {
     uint64_t resource_domain = 0;
     // Legacy archives contain observation ordering, not verified queue order.
     bool execution_order_complete = true;
+    // True only when acquisition reached its requested terminating guest-frame
+    // boundary, or for an owned completed-frame view of continuous live input
+    // acquisition. Ready also permits a manually stopped, partial frame.
+    bool frame_window_complete = false;
     size_t pending_events = 0;
     bool has_frame_range = false;
     // Frames containing retained evidence; the min/max span can contain holes.
@@ -223,7 +239,12 @@ public:
     CaptureSession &operator=(const CaptureSession &) = delete;
     bool Start(const CaptureSessionContext &,
                const CaptureSessionSettings & = {});
+    // Atomically leave an active recorder or pending readback owner untouched.
+    bool TryStart(const CaptureSessionContext &, const CaptureSessionSettings &,
+                   uint64_t *claim_generation);
+    bool StopIfCurrent(uint64_t claim_generation);
     bool Active() const;
+    bool ReadbackPressure(uint64_t headroom) const;
     // The claim generation identifies a Start incarnation, independently of
     // the caller's context generation. Read both under the recorder mutex.
     CaptureSessionContext Context(uint64_t *claim_generation = nullptr) const;
@@ -294,6 +315,9 @@ public:
     void Fail(uint64_t token, const std::string &reason);
     void BudgetExceeded(uint64_t token, const std::string &reason);
     CaptureSessionSnapshot Snapshot() const;
+    bool SnapshotCompletedLiveFrame(uint64_t after_frame,
+                                    CaptureSessionSnapshot *out,
+                                    uint64_t expected_generation) const;
     std::vector<uint64_t> Uses(const ShaderKey &, uint64_t first_frame = 0,
                                uint64_t last_frame = UINT64_MAX) const;
     std::shared_ptr<const CaptureOccurrence> Find(uint64_t event_id) const;
@@ -308,6 +332,8 @@ public:
                        CaptureFileControl *control = nullptr);
 
 private:
+    bool StartInternal(const CaptureSessionContext &, const CaptureSessionSettings &,
+                        bool idle_only, uint64_t *claim_generation);
     struct Impl;
     std::unique_ptr<Impl> impl_;
 };

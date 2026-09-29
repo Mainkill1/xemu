@@ -144,6 +144,8 @@ struct ShaderWorkbenchSession {
     int occurrence_view = 0;
     OwnedDrawInputs capture_inputs;
     bool inspected_occurrence = false;
+    std::shared_ptr<const CaptureOccurrence> fitted_occurrence;
+    CaptureSessionContext fitted_context;
     Entry occurrence_entry;
     CanonicalRecipe occurrence_recipe;
     GeneratedSourceSnapshot occurrence_source;
@@ -617,6 +619,11 @@ void ShaderBrowserWindow::DrawLivePreview()
         workbench.capture_mesh.indices = std::move(geometry.indices);
         workbench.capture_summary = GetDrawCaptureRequest().CopyCaptured();
         workbench.capture_inputs = GetDrawCaptureRequest().CopyInputs();
+        workbench.fitted_occurrence =
+            GetDrawCaptureRequest().CopyOccurrence(&workbench.fitted_context);
+        workbench.fitted_context.backend =
+            workbench.capture_selection.backend == PreviewBackend::Vulkan ? 2 :
+                                                                            1;
         workbench.capture_difference = {};
         MakeCapturedDrawDifference(workbench.capture_inputs.before,
                                    workbench.capture_inputs.after,
@@ -1086,10 +1093,13 @@ void ShaderBrowserWindow::DrawLivePreview()
             workbench.capture_auto_pause = false;
         }
         if (workbench.capture_selection != selection &&
-            workbench.use_capture_mesh) {
+            (workbench.use_capture_mesh || workbench.fitted_occurrence ||
+             workbench.capture_summary.key.submission)) {
             workbench.capture_mesh = {};
             workbench.capture_summary = {};
             workbench.capture_inputs = {};
+            workbench.fitted_occurrence.reset();
+            workbench.fitted_context = {};
             workbench.capture_difference = {};
             ++workbench.capture_image_revision;
             workbench.capture_component = -1;
@@ -1843,6 +1853,8 @@ void ShaderBrowserWindow::DrawLivePreview()
             workbench.capture_mesh = {};
             workbench.capture_summary = {};
             workbench.capture_inputs = {};
+            workbench.fitted_occurrence.reset();
+            workbench.fitted_context = {};
             workbench.capture_difference = {};
             ++workbench.capture_image_revision;
             workbench.capture_component = -1;
@@ -2158,6 +2170,13 @@ void ShaderBrowserWindow::DrawLivePreview()
                 ImGui::EndDisabled();
             }
             ImGui::Separator();
+            if ((workbench.inspected_occurrence ||
+                 workbench.fitted_occurrence) &&
+                ImGui::Button("Fit captured shader output"))
+                m_action_message = OpenFittedCapturedOccurrence(selection);
+            if (workbench.inspected_occurrence || workbench.fitted_occurrence)
+                DrawMutedWrapped("Opens the captured draw with Fit, orbit, pan "
+                                 "and zoom in Asset Browser.");
         }
         if (workbench.advanced_lab || workbench.occurrence_view >= 3) {
             if (workbench.occurrence_view != 4 &&

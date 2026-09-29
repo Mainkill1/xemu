@@ -769,7 +769,7 @@ void MainMenuInputView::Draw()
             ImGui::PopStyleVar();
         }
 
-        if (bound_state->type == INPUT_DEVICE_SDL_GAMEPAD) {
+        if (bound_state && bound_state->type == INPUT_DEVICE_SDL_GAMEPAD) {
             Toggle("Enable Rumble",
                    &bound_state->controller_map->enable_rumble);
             Toggle("Invert Left X Axis",
@@ -786,9 +786,11 @@ void MainMenuInputView::Draw()
                         .invert_axis_right_y);
         }
 
-        if (ImGui::Button("Reset to Default")) {
+        ImGui::BeginDisabled(!bound_state);
+        if (ImGui::Button("Reset to Default") && bound_state) {
             xemu_input_reset_input_mapping(bound_state);
         }
+        ImGui::EndDisabled();
 
         ImGui::PopStyleColor();
         ImGui::PopID();

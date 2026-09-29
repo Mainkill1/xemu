@@ -73,6 +73,23 @@ size_t NameLength(const char *name)
 }
 bool ValidSettings(const CaptureSessionSettings &settings)
 {
+    if (settings.live_stage_sets.size() > 128 ||
+        (settings.mode != CaptureSessionMode::LiveDrawInputs &&
+         (!settings.live_stage_sets.empty() || settings.live_continuous)) ||
+        (settings.live_continuous &&
+         (settings.history_frames < 2 || settings.history_frames > 4)))
+        return false;
+    for (const auto &set : settings.live_stage_sets) {
+        if (set.empty() || set.size() > kCapturedShaderSlots)
+            return false;
+        for (size_t i = 0; i < set.size(); ++i) {
+            if (uint32_t(set[i].stage) >= uint32_t(Stage::Unknown))
+                return false;
+            for (size_t j = 0; j < i; ++j)
+                if (set[i].stage == set[j].stage)
+                    return false;
+        }
+    }
     const auto limits = CaptureSessionPreTriggerLimits(settings);
     return settings.cpu_byte_budget &&
            settings.cpu_byte_budget <= kMaximumBudget &&
@@ -88,7 +105,8 @@ bool ValidSettings(const CaptureSessionSettings &settings)
             !settings.post_frames || !settings.post_trigger_reserve_percent ||
             (limits.cpu_bytes && limits.events)) &&
            (settings.mode == CaptureSessionMode::NextFrame ||
-            settings.mode == CaptureSessionMode::RollingAnimation);
+            settings.mode == CaptureSessionMode::RollingAnimation ||
+            settings.mode == CaptureSessionMode::LiveDrawInputs);
 }
 bool ValidExecutionReceipt(const CaptureOccurrence &event)
 {
@@ -340,6 +358,7 @@ struct CaptureSession::Impl {
     uint64_t next_block = 1, total_events = 0, frame = 0, trigger = 0;
     uint64_t claim_generation = 0;
     bool have_boundary = false, checkpoint_taken = false;
+    bool frame_window_complete = false;
     uint64_t UsedBytes() const
     {
         return account->bytes.load() +
@@ -445,9 +464,11 @@ struct CaptureSession::Impl {
         ++revision;
         state = CaptureSessionState::BudgetExceeded;
         active.store(false, std::memory_order_release);
-        reason = message;
+        if (reason.empty())
+            reason = message;
         if (record) {
-            record->event.failure = message;
+            if (record->event.failure.empty())
+                record->event.failure = message;
             record->event.limitations |= CaptureReadbackFailed;
         }
     }
@@ -805,6 +826,28 @@ struct CaptureSession::Impl {
                 std::vector<uint64_t>(retained.begin(), retained.end()));
         return true;
     }
+    void RetainLiveFrames(uint64_t first)
+    {
+        std::unordered_set<uint64_t> pending_frames;
+        for (const auto &entry : pending)
+            pending_frames.insert(entry.second->event.summary.key.frame);
+        events.erase(std::remove_if(events.begin(), events.end(),
+                                    [&](const auto &record) {
+                                        const auto frame =
+                                            record->event.summary.key.frame;
+                                        return frame < first &&
+                                               !pending_frames.count(frame);
+                                    }),
+                     events.end());
+        // Live input inspection deliberately has no replay dependency closure.
+        // Keep pending frames intact and leave pruned producer origins unknown.
+        if (resources) {
+            std::vector<uint64_t> retained;
+            for (const auto &record : events)
+                retained.push_back(record->event.event_id);
+            resources->RetainEvents(retained);
+        }
+    }
     bool Store(Record &record, SharedCaptureBlock &destination,
                const void *data, size_t size)
     {
@@ -1126,8 +1169,22 @@ uint64_t CaptureSession::Revision() const
 bool CaptureSession::Start(const CaptureSessionContext &context,
                            const CaptureSessionSettings &settings)
 {
+    return StartInternal(context, settings, false, nullptr);
+}
+bool CaptureSession::TryStart(const CaptureSessionContext &context,
+                              const CaptureSessionSettings &settings,
+                              uint64_t *claim_generation)
+{
+    return StartInternal(context, settings, true, claim_generation);
+}
+bool CaptureSession::StartInternal(const CaptureSessionContext &context,
+                                   const CaptureSessionSettings &settings,
+                                   bool idle_only, uint64_t *claim_generation)
+{
     std::lock_guard<std::mutex> lock(impl_->mutex);
     auto &s = *impl_;
+    if (idle_only && (s.active.load() || !s.pending.empty()))
+        return false;
     s.active.store(false, std::memory_order_release);
     s.pending.clear();
     s.batches.clear();
@@ -1149,6 +1206,7 @@ bool CaptureSession::Start(const CaptureSessionContext &context,
     s.next_block = 1;
     s.frame = context.current_frame;
     s.have_boundary = false;
+    s.frame_window_complete = false;
     s.checkpoint_taken = false;
     s.reason.clear();
     ++s.revision;
@@ -1167,6 +1225,8 @@ bool CaptureSession::Start(const CaptureSessionContext &context,
     }
     s.state = CaptureSessionState::Recording;
     s.active.store(true, std::memory_order_release);
+    if (claim_generation)
+        *claim_generation = s.claim_generation;
     return true;
 }
 void CaptureSession::GuestFrameBoundary(uint64_t frame,
@@ -1186,13 +1246,15 @@ void CaptureSession::GuestFrameBoundary(uint64_t frame,
     }
     if (s.have_boundary && frame == s.frame)
         return;
-    if (s.settings.mode == CaptureSessionMode::NextFrame && s.have_boundary &&
-        frame > s.frame) {
+    if (s.settings.mode != CaptureSessionMode::RollingAnimation &&
+        !s.settings.live_continuous && s.have_boundary && frame > s.frame) {
+        s.frame_window_complete = true;
         s.Finalize();
         return;
     }
     if (s.state == CaptureSessionState::Triggered && frame > s.trigger &&
         frame - s.trigger > s.settings.post_frames) {
+        s.frame_window_complete = true;
         s.Finalize();
         return;
     }
@@ -1200,12 +1262,15 @@ void CaptureSession::GuestFrameBoundary(uint64_t frame,
     s.have_boundary = true;
     s.checkpoint_taken = false;
     ++s.revision;
-    if (s.settings.mode == CaptureSessionMode::RollingAnimation &&
+    if ((s.settings.mode == CaptureSessionMode::RollingAnimation ||
+         s.settings.live_continuous) &&
         s.state == CaptureSessionState::Recording) {
         const uint64_t first = frame >= s.settings.history_frames ?
                                    frame - s.settings.history_frames + 1 :
                                    0;
-        if (!s.RetainDependencies(first))
+        if (s.settings.live_continuous)
+            s.RetainLiveFrames(first);
+        else if (!s.RetainDependencies(first))
             return;
         s.Reindex();
         for (auto it = s.pool.begin(); it != s.pool.end();) {
@@ -1236,8 +1301,15 @@ bool CaptureSession::Mark()
 }
 void CaptureSession::Stop()
 {
+    StopIfCurrent(0);
+}
+bool CaptureSession::StopIfCurrent(uint64_t claim_generation)
+{
     std::lock_guard<std::mutex> lock(impl_->mutex);
+    if (claim_generation && claim_generation != impl_->claim_generation)
+        return false;
     impl_->Finalize();
+    return true;
 }
 void CaptureSession::Cancel()
 {
@@ -1319,13 +1391,35 @@ uint64_t CaptureSession::BeginOccurrence(const DrawCaptureSummary &summary,
         s.CancelPending("Capture context changed before completion");
         return 0;
     }
-    if (s.settings.mode == CaptureSessionMode::NextFrame && !s.have_boundary)
+    if (s.settings.mode != CaptureSessionMode::RollingAnimation &&
+        !s.have_boundary)
         return 0;
     if (summary.key.session_epoch != s.context.session_epoch ||
         summary.key.renderer_epoch != s.context.renderer_epoch ||
         !(summary.scope == s.context.scope) ||
         summary.shader_count > kCapturedShaderSlots)
         return 0;
+    if (s.settings.mode == CaptureSessionMode::LiveDrawInputs) {
+        if (type != CaptureEventType::Draw)
+            return 0;
+        if (!s.settings.live_stage_sets.empty() &&
+            std::none_of(
+                s.settings.live_stage_sets.begin(),
+                s.settings.live_stage_sets.end(), [&](const auto &set) {
+                    if (set.size() != summary.shader_count)
+                        return false;
+                    return std::all_of(
+                        set.begin(), set.end(), [&](const auto &key) {
+                            return std::find(summary.shaders.begin(),
+                                             summary.shaders.begin() +
+                                                 summary.shader_count,
+                                             key) != summary.shaders.begin() +
+                                                         summary.shader_count;
+                        });
+                }))
+            return 0;
+        limitations |= CaptureMissingDependencies;
+    }
     // Animation acquisition can begin in the middle of a guest frame. The
     // first owner-side event establishes that frame before a manual mark;
     // the UI's earlier frame snapshot may be stale.
@@ -1362,6 +1456,7 @@ uint64_t CaptureSession::BeginOccurrence(const DrawCaptureSummary &summary,
                      std::chrono::steady_clock::now().time_since_epoch())
                      .count());
     event.observed_checkpoint =
+        s.settings.mode != CaptureSessionMode::LiveDrawInputs &&
         type == CaptureEventType::Draw &&
         (s.settings.maximum_evidence || !s.checkpoint_taken);
     if (type == CaptureEventType::Draw)
@@ -1683,6 +1778,11 @@ bool CaptureSession::HasGeometry(uint64_t token) const
     auto *r = impl_->Lookup(token);
     return r && r->event.geometry.positions && r->event.geometry.indices;
 }
+bool CaptureSession::ReadbackPressure(uint64_t headroom) const
+{
+    std::lock_guard<std::mutex> lock(impl_->mutex);
+    return impl_->active.load() && !impl_->Fits(headroom);
+}
 bool CaptureSession::ReservePayload(uint64_t token, size_t bytes)
 {
     std::lock_guard<std::mutex> lock(impl_->mutex);
@@ -1961,6 +2061,7 @@ void CaptureSession::ReleaseResource(uint64_t owner, uint64_t byte_size,
     std::lock_guard<std::mutex> lock(impl_->mutex);
     auto &s = *impl_;
     if (!owner || !s.active.load() ||
+        s.settings.mode == CaptureSessionMode::LiveDrawInputs ||
         (expected_generation && expected_generation != s.claim_generation) ||
         (s.settings.mode == CaptureSessionMode::NextFrame && !s.have_boundary))
         return;
@@ -2054,13 +2155,62 @@ void CaptureSession::BudgetExceeded(uint64_t token, const std::string &reason)
         return;
     impl_->Exhaust(reason.substr(0, 1024), record);
 }
+bool CaptureSession::SnapshotCompletedLiveFrame(
+    uint64_t after_frame, CaptureSessionSnapshot *out,
+    uint64_t expected_generation) const
+{
+    if (!out)
+        return false;
+    std::lock_guard<std::mutex> lock(impl_->mutex);
+    const auto &s = *impl_;
+    if (!expected_generation || expected_generation != s.claim_generation ||
+        !s.settings.live_continuous || !s.have_boundary)
+        return false;
+    std::map<uint64_t, bool> frames;
+    for (const auto &record : s.events) {
+        const auto &event = record->event;
+        const auto frame = event.summary.key.frame;
+        if (frame <= after_frame || frame >= s.frame)
+            continue;
+        if (event.type == CaptureEventType::FrameBoundary)
+            frames.emplace(frame, true);
+        if (event.pending || !event.finished || !event.inputs.complete ||
+            !event.resource_finalized)
+            frames[frame] = false;
+    }
+    const auto ready =
+        std::find_if(frames.rbegin(), frames.rend(),
+                     [](const auto &frame) { return frame.second; });
+    if (ready == frames.rend())
+        return false;
+    CaptureSessionSnapshot snapshot;
+    snapshot.state = CaptureSessionState::Ready;
+    snapshot.frame_window_complete = true;
+    snapshot.execution_order_complete = false;
+    snapshot.settings = s.settings;
+    snapshot.context = s.context;
+    snapshot.cpu_bytes = s.UsedBytes();
+    snapshot.resource_domain = s.resources ? s.resources->DomainId() : 0;
+    snapshot.first_frame = snapshot.last_frame = ready->first;
+    snapshot.has_frame_range = true;
+    snapshot.retained_frames = { ready->first };
+    for (const auto &record : s.events)
+        if (record->event.summary.key.frame == ready->first)
+            snapshot.events.push_back(Impl::SnapshotRecord(record));
+    snapshot.total_events = snapshot.events.size();
+    *out = std::move(snapshot);
+    return true;
+}
 CaptureSessionSnapshot CaptureSession::Snapshot() const
 {
     std::lock_guard<std::mutex> lock(impl_->mutex);
     const auto &s = *impl_;
     CaptureSessionSnapshot snapshot;
     snapshot.state = s.state;
+    snapshot.frame_window_complete = s.frame_window_complete;
     snapshot.settings = s.settings;
+    snapshot.execution_order_complete =
+        s.settings.mode != CaptureSessionMode::LiveDrawInputs;
     snapshot.context = s.context;
     snapshot.reason = s.reason;
     snapshot.trigger_frame = s.trigger;
@@ -3035,7 +3185,17 @@ struct PackageReader {
 };
 Json SettingsJson(const CaptureSessionSettings &settings)
 {
+    Json sets = Json::array();
+    for (const auto &set : settings.live_stage_sets) {
+        Json stages = Json::array();
+        for (const auto &key : set)
+            stages.push_back(
+                Json::array({ key.hash.version, key.hash.bytes, key.stage }));
+        sets.push_back(std::move(stages));
+    }
     return { { "mode", settings.mode },
+             { "live_stage_sets", std::move(sets) },
+             { "live_continuous", settings.live_continuous },
              { "cpu_bytes", settings.cpu_byte_budget },
              { "event_bytes", settings.per_event_byte_budget },
              { "disk_bytes", settings.disk_byte_budget },
@@ -3049,7 +3209,26 @@ Json SettingsJson(const CaptureSessionSettings &settings)
 CaptureSessionSettings ReadSettings(const Json &value)
 {
     CaptureSessionSettings settings;
-    settings.mode = CaptureSessionMode(U(value.at("mode"), 1));
+    settings.mode = CaptureSessionMode(U(value.at("mode"), 2));
+    if (value.contains("live_continuous"))
+        settings.live_continuous = value.at("live_continuous").get<bool>();
+    if (value.contains("live_stage_sets")) {
+        const auto &sets = value.at("live_stage_sets");
+        Array(sets, 128);
+        for (const auto &stages : sets) {
+            Array(stages, kCapturedShaderSlots);
+            std::vector<ShaderKey> set;
+            for (const auto &item : stages) {
+                ExactArray(item, 3);
+                ShaderKey key;
+                key.hash.version = U32(item[0]);
+                key.hash.bytes = ByteArray<kShaderHashBytes>(item[1]);
+                key.stage = Stage(U(item[2], uint64_t(Stage::Unknown)));
+                set.push_back(key);
+            }
+            settings.live_stage_sets.push_back(std::move(set));
+        }
+    }
     settings.cpu_byte_budget = U(value.at("cpu_bytes"), kMaximumBudget);
     settings.per_event_byte_budget =
         U(value.at("event_bytes"), kDrawInputBudget);
@@ -3185,6 +3364,7 @@ bool CaptureSession::SaveSnapshot(const CaptureSessionSnapshot &snapshot,
             { "total_events", snapshot.total_events },
             { "resource_domain", snapshot.resource_domain },
             { "execution_order_complete", snapshot.execution_order_complete },
+            { "frame_window_complete", snapshot.frame_window_complete },
             { "event_count", snapshot.events.size() },
             { "event_pages", Json::array() },
             { "blocks", Json::array() }
@@ -3317,6 +3497,8 @@ bool CaptureSession::Reopen(const std::filesystem::path &directory,
         CaptureSessionSnapshot snapshot;
         snapshot.execution_order_complete =
             version >= 3 && metadata.at("execution_order_complete").get<bool>();
+        snapshot.frame_window_complete =
+            metadata.value("frame_window_complete", false);
         snapshot.settings = ReadSettings(metadata.at("settings"));
         snapshot.state = CaptureSessionState(
             U(metadata.at("state"), uint64_t(CaptureSessionState::Failed)));

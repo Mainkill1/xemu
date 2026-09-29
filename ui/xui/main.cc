@@ -57,6 +57,7 @@
 #include "monitor.hh"
 #include "debug.hh"
 #include "shader-browser.hh"
+#include "asset-browser.hh"
 #include "shader-browser-preview-gl.hh"
 #include "shader-browser-preview-service.hh"
 #include "shader-browser-session-provider.hh"
@@ -600,6 +601,7 @@ void xemu_hud_init(SDL_Window* window, void* sdl_gl_context)
 void xemu_hud_cleanup(void)
 {
     DestroyHudMouseCursors();
+    asset_browser_window.Shutdown();
     ShaderBrowserEndPerformanceSession();
     xemu_shader_browser_set_current_scope(nullptr);
     shader_browser_window.m_is_open = false;
@@ -714,7 +716,8 @@ void xemu_hud_update(void)
     ImGuiIO& io = ImGui::GetIO();
     uint32_t now = SDL_GetTicks();
     if (g_config.shader_browser.database.enabled ||
-        shader_browser_window.m_is_open || xemu_shader_capture_session_active()) {
+        shader_browser_window.m_is_open || asset_browser_window.m_is_open ||
+        xemu_shader_capture_session_active()) {
         ShaderBrowserRefreshScope(SDL_GetTicks());
     }
 
@@ -834,6 +837,7 @@ void xemu_hud_update(void)
     monitor_window.Draw();
     apu_window.Draw();
     video_window.Draw();
+    asset_browser_window.Draw();
     if (!g_shader_browser_external.enabled) {
         shader_browser_window.Draw();
     }

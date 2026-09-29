@@ -1,0 +1,43 @@
+c++ -std=c++17 -O2 -g -Wall -Wextra -Werror -I. -Iinclude -Iui/xui -I/home/codex/pr238-source/subprojects/xxHash-0.8.3 -I/home/codex/pr239-source/subprojects/nlohmann_json/single_include -I/tmp/pr259-timing-review-include tests/unit/test-xemu-asset-browser-controller.cc ui/xui/asset-browser-model.cc ui/xui/asset-browser-placement.cc ui/xui/asset-browser-decode.cc ui/xui/asset-browser-controller.cc ui/xui/asset-browser-live.cc ui/xui/shader-browser-capture-session.cc ui/xui/shader-browser-capture-resources.cc ui/xui/shader-browser-draw-capture.cc ui/xui/shader-browser-model.cc -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/sysprof-6 -pthread -lglib-2.0 -Wl,-l:libxxhash.so.0 -pthread -o /home/codex/xemu-shader-workbench-handoff/.scratch/pr260-fresh-assets-controller
+TAP version 14
+# random seed: R02Sf6d60d672dec869987a7cbbad47c860b
+1..27
+# Start of asset tests
+# Start of follow tests
+ok 1 /asset/follow/placed-car
+ok 2 /asset/follow/deforming-car
+# End of follow tests
+# Start of controller tests
+ok 3 /asset/controller/follow
+ok 4 /asset/controller/ambiguous
+ok 5 /asset/controller/freeze-stale
+ok 6 /asset/controller/coherent
+ok 7 /asset/controller/partial-epoch
+ok 8 /asset/controller/named
+ok 9 /asset/controller/shared-named-budget
+# End of controller tests
+# Start of live tests
+ok 10 /asset/live/foreign
+ok 11 /asset/live/rearm-ownership
+ok 12 /asset/live/pending-ownership
+ok 13 /asset/live/async-publication
+ok 14 /asset/live/early-stop
+ok 15 /asset/live/draw-inputs
+ok 16 /asset/live/stage-filter
+ok 17 /asset/live/continuous-frames
+ok 18 /asset/live/continuous-pending-frame
+ok 19 /asset/live/continuous-publication
+ok 20 /asset/live/continuous-stopped
+ok 21 /asset/live/watchdog
+**
+ERROR:tests/unit/test-xemu-asset-browser-controller.cc:536:void TestPausedWatchdog(): 'live.Enabled()' should be TRUE
+not ok /asset/live/paused-watchdog - ERROR:tests/unit/test-xemu-asset-browser-controller.cc:536:void TestPausedWatchdog(): 'live.Enabled()' should be TRUE
+Bail out!
+Traceback (most recent call last):
+  File "/home/codex/xemu-shader-workbench-handoff/.scratch/pr260-fresh-assets-build.py", line 23, in <module>
+    subprocess.run([str(output), '--tap'], cwd=root, env=env, check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/home/codex/xemu-shader-workbench-handoff/.scratch/pr260-fresh-assets-controller', '--tap']' died with <Signals.SIGABRT: 6>.

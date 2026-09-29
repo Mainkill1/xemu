@@ -203,6 +203,13 @@ const uint8_t *nv2a_get_dac_palette(void)
     return g_nv2a->puserdac.palette;
 }
 
+void nv2a_copy_dac_palette(uint8_t destination[256 * 3])
+{
+    qemu_mutex_lock(&g_nv2a->puserdac.lock);
+    memcpy(destination, g_nv2a->puserdac.palette, 256 * 3);
+    qemu_mutex_unlock(&g_nv2a->puserdac.lock);
+}
+
 int nv2a_get_screen_off(void)
 {
     return g_nv2a->vga.sr[VGA_SEQ_CLOCK_MODE] & VGA_SR01_SCREEN_OFF;
@@ -379,6 +386,7 @@ static void nv2a_realize(PCIDevice *dev, Error **errp)
     }
 
     qemu_mutex_init(&d->pfifo.lock);
+    qemu_mutex_init(&d->puserdac.lock);
     qemu_cond_init(&d->pfifo.fifo_cond);
     qemu_cond_init(&d->pfifo.fifo_idle_cond);
 }
@@ -394,6 +402,7 @@ static void nv2a_exitfn(PCIDevice *dev)
     qemu_thread_join(&d->pfifo.thread);
 
     pgraph_destroy(&d->pgraph);
+    qemu_mutex_destroy(&d->puserdac.lock);
 }
 
 static void nv2a_reset_hold(Object *obj, ResetType type)

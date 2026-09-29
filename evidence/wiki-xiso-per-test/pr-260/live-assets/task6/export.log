@@ -1,0 +1,10 @@
+c++ -std=c++17 -O2 -g -Wall -Wextra -Werror -I. -Iinclude -Iui/xui -I/home/codex/pr238-source/subprojects/xxHash-0.8.3 -I/home/codex/pr239-source/subprojects/nlohmann_json/single_include -I/tmp/pr259-timing-review-include tests/unit/test-xemu-asset-browser-export.cc /tmp/pr260-fpng.o ui/xui/asset-browser-model.cc ui/xui/asset-browser-decode.cc ui/xui/asset-browser-export.cc ui/xui/asset-browser-glb.cc ui/xui/asset-browser-material.cc ui/xui/shader-browser-capture-inspection.cc ui/xui/asset-browser-controller.cc ui/xui/asset-browser-live.cc ui/xui/shader-browser-capture-session.cc ui/xui/shader-browser-capture-resources.cc ui/xui/shader-browser-draw-capture.cc ui/xui/shader-browser-model.cc -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/sysprof-6 -pthread -lglib-2.0 -Wl,-l:libxxhash.so.0 -msse4.1 -mpclmul -pthread -o /tmp/pr260-assets-export
+TAP version 14
+# random seed: R02S4e7149defc347508d7da2a1599bb11af
+1..2
+# Start of asset tests
+# Start of export tests
+ok 1 /asset/export/roundtrip
+ok 2 /asset/export/glb
+# End of export tests
+# End of asset tests

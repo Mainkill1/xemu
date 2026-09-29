@@ -1,0 +1,6 @@
+TAP version 14
+# random seed: R02S047dfa895f8ca74eae91793e5425f6fe
+**
+ERROR:tests/unit/test-xemu-asset-browser-ui.cc:100:int main(int, char**): assertion failed (browser.Selected()->id == 1): (32 == 1)
+Bail out! ERROR:tests/unit/test-xemu-asset-browser-ui.cc:100:int main(int, char**): assertion failed (browser.Selected()->id == 1): (32 == 1)
+Aborted

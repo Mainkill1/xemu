@@ -138,6 +138,10 @@ uint64_t xemu_shader_browser_scope_generation(void)
 {
     return xemu::shader_browser::provider.ScopeGeneration();
 }
+uint64_t xemu_shader_browser_live_epoch(void)
+{
+    return xemu::shader_browser::provider.LiveEpoch();
+}
 
 int xemu_shader_browser_capture_performance_context(
     XemuShaderBrowserPerformanceContext *context)

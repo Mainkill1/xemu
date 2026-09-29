@@ -1,0 +1,11 @@
+TAP version 14
+# random seed: R02Se76d420fc2ec007b8e4f7329dcd073a6
+1..4
+# Start of asset tests
+# Start of export tests
+ok 1 /asset/export/roundtrip
+ok 2 /asset/export/glb
+ok 3 /asset/export/scratch-glb
+ok 4 /asset/export/anchor-roundtrip
+# End of export tests
+# End of asset tests

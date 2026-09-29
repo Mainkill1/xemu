@@ -74,6 +74,7 @@ uint64_t xemu_shader_capture_session_begin_event(uint32_t kind, uint64_t frame,
                                                  uint64_t scope_generation,
                                                  uint64_t renderer_epoch);
 int xemu_shader_capture_session_active(void);
+int xemu_shader_capture_session_readback_pressure(uint64_t headroom);
 int xemu_shader_capture_session_token(uint64_t token);
 int xemu_shader_capture_session_snapshots(uint64_t token);
 int xemu_shader_capture_session_reserve(uint64_t token, size_t bytes);

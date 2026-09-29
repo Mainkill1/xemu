@@ -1,0 +1,102 @@
+Launching asset import ...           OK
+Validating postprocessing flags ...  OK
+0 %50 %50 %51.5152 %53.0303 %54.5455 %56.0606 %57.5758 %59.0909 %60.6061 %62.1212 %63.6364 %65.1515 %66.6667 %68.1818 %69.697 %71.2121 %72.7273 %74.2424 %75.7576 %77.2727 %78.7879 %80.303 %81.8182 %83.3333 %84.8485 %86.3636 %87.8788 %89.3939 %90.9091 %92.4242 %93.9394 %95.4546 %96.9697 %98.4848 %100 %Importing file ...                   OK 
+   import took approx. 0.00059 seconds
+
+Memory consumption: 11046 B
+Nodes:              3
+Maximum depth       2
+Meshes:             2
+Animations:         0
+Textures (embed.):  2
+Materials:          2
+Cameras:            0
+Lights:             0
+Vertices:           6
+Faces:              2
+Bones:              0
+Animation Channels: 0
+Primitive Types:    triangles
+Average faces/mesh  1
+Average verts/mesh  3
+Minimum point      (0.000000 0.000000 0.000000)
+Maximum point      (11.000000 1.000000 0.000000)
+Center point       (5.500000 0.500000 0.000000)
+
+Meshes:  (name) [vertices / bones / faces | primitive_types]
+    0 (meshes[0]): [3 / 0 / 1 | triangle]
+    1 (meshes[1]): [3 / 0 / 1 | triangle]
+
+Named Materials:
+    'E36' (prop) [index / bytes | texture semantic]
+        0 (?mat.name): [0 / 8 | n/a]
+        1 ($clr.diffuse): [0 / 16 | n/a]
+        2 ($clr.base): [0 / 16 | n/a]
+        3 ($tex.file): [0 / 7 | Diffuse]
+        4 ($tex.uvwsrc): [0 / 4 | Diffuse]
+        5 ($tex.mappingname): [0 / 5 | Diffuse]
+        6 ($tex.mappingid): [0 / 16 | Diffuse]
+        7 ($tex.mapmodeu): [0 / 4 | Diffuse]
+        8 ($tex.mapmodev): [0 / 4 | Diffuse]
+        9 ($tex.mappingfiltermag): [0 / 4 | Diffuse]
+        10 ($tex.mappingfiltermin): [0 / 4 | Diffuse]
+        11 ($tex.file): [0 / 7 | BaseColor]
+        12 ($tex.uvwsrc): [0 / 4 | BaseColor]
+        13 ($tex.mappingname): [0 / 5 | BaseColor]
+        14 ($tex.mappingid): [0 / 16 | BaseColor]
+        15 ($tex.mapmodeu): [0 / 4 | BaseColor]
+        16 ($tex.mapmodev): [0 / 4 | BaseColor]
+        17 ($tex.mappingfiltermag): [0 / 4 | BaseColor]
+        18 ($tex.mappingfiltermin): [0 / 4 | BaseColor]
+        19 ($mat.metallicFactor): [0 / 4 | n/a]
+        20 ($mat.roughnessFactor): [0 / 4 | n/a]
+        21 ($mat.shininess): [0 / 4 | n/a]
+        22 ($clr.emissive): [0 / 16 | n/a]
+        23 ($mat.twosided): [0 / 1 | n/a]
+        24 ($mat.opacity): [0 / 4 | n/a]
+        25 ($mat.gltf.alphaMode): [0 / 11 | n/a]
+        26 ($mat.gltf.alphaCutoff): [0 / 4 | n/a]
+        27 ($mat.gltf.unlit): [0 / 1 | n/a]
+        28 ($mat.shadingm): [0 / 4 | n/a]
+    'E46' (prop) [index / bytes | texture semantic]
+        0 (?mat.name): [0 / 8 | n/a]
+        1 ($clr.diffuse): [0 / 16 | n/a]
+        2 ($clr.base): [0 / 16 | n/a]
+        3 ($tex.file): [0 / 7 | Diffuse]
+        4 ($tex.uvwsrc): [0 / 4 | Diffuse]
+        5 ($tex.mappingname): [0 / 5 | Diffuse]
+        6 ($tex.mappingid): [0 / 16 | Diffuse]
+        7 ($tex.mapmodeu): [0 / 4 | Diffuse]
+        8 ($tex.mapmodev): [0 / 4 | Diffuse]
+        9 ($tex.mappingfiltermag): [0 / 4 | Diffuse]
+        10 ($tex.mappingfiltermin): [0 / 4 | Diffuse]
+        11 ($tex.file): [0 / 7 | BaseColor]
+        12 ($tex.uvwsrc): [0 / 4 | BaseColor]
+        13 ($tex.mappingname): [0 / 5 | BaseColor]
+        14 ($tex.mappingid): [0 / 16 | BaseColor]
+        15 ($tex.mapmodeu): [0 / 4 | BaseColor]
+        16 ($tex.mapmodev): [0 / 4 | BaseColor]
+        17 ($tex.mappingfiltermag): [0 / 4 | BaseColor]
+        18 ($tex.mappingfiltermin): [0 / 4 | BaseColor]
+        19 ($mat.metallicFactor): [0 / 4 | n/a]
+        20 ($mat.roughnessFactor): [0 / 4 | n/a]
+        21 ($mat.shininess): [0 / 4 | n/a]
+        22 ($clr.emissive): [0 / 16 | n/a]
+        23 ($mat.twosided): [0 / 1 | n/a]
+        24 ($mat.opacity): [0 / 4 | n/a]
+        25 ($mat.gltf.alphaMode): [0 / 11 | n/a]
+        26 ($mat.gltf.alphaCutoff): [0 / 4 | n/a]
+        27 ($mat.gltf.unlit): [0 / 1 | n/a]
+        28 ($mat.shadingm): [0 / 4 | n/a]
+
+Texture Refs:
+    '*0'
+    '*0'
+    '*1'
+    '*1'
+
+Node hierarchy:
+My car
+├╴E36 (mesh 0)
+└╴E46 (mesh 1)
+

@@ -1,0 +1,19 @@
+TAP version 14
+# random seed: R02Sa1506682758182f34052c43a7d1b8e8b
+1..4
+# Start of asset tests
+# Start of export tests
+ok 1 /asset/export/roundtrip
+ok 2 /asset/export/glb
+**
+ERROR:tests/unit/test-xemu-asset-browser-export.cc:306:void TestScratchGlb(): 'ExportAssetGlb(selected, path, &error, nullptr, true)' should be TRUE
+not ok /asset/export/scratch-glb - ERROR:tests/unit/test-xemu-asset-browser-export.cc:306:void TestScratchGlb(): 'ExportAssetGlb(selected, path, &error, nullptr, true)' should be TRUE
+Bail out!
+Traceback (most recent call last):
+  File "/home/codex/xemu-shader-workbench-handoff/.scratch/scratch-glb-build.py", line 12, in <module>
+    subprocess.run([str(out),'--tap'],cwd=root,env=env,check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/home/codex/xemu-shader-workbench-handoff/.scratch/scratch-glb-test', '--tap']' died with <Signals.SIGABRT: 6>.

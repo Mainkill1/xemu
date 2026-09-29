@@ -557,6 +557,10 @@ public:
     {
         return scope_generation.load(std::memory_order_acquire);
     }
+    uint64_t LiveEpoch() const
+    {
+        return live_epoch.load(std::memory_order_acquire);
+    }
 
     bool ConfigurePersistence(bool database_enabled,
                               bool record_performance_sessions,

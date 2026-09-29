@@ -1,0 +1,7 @@
+Compile asset-browser-platform.cc
+Compile asset-browser.cc
+Compile shader-browser.cc
+Compile shader-browser-session-provider.cc
+Compile menubar.cc
+Compile main.cc
+Changed production translation units passed

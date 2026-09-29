@@ -1,0 +1,10 @@
+TAP version 14
+# random seed: R02Saad09971764306eb3004eaf850226c26
+# Overlapping streams: Captured VS/PS/material inputs in one assembly target. Inspection camera, window clipping and raster depth are overridden; scene/destination dependencies are not reproduced. Display palette missing; colors are before display correction.
+# GS framing: Post-transform projected view fitted to captured stage output. Depth is projected, not world space; this is not an original-camera replay. Captured VS/PS/material inputs in one assembly target. Inspection camera, window clipping and raster depth are overridden; scene/destination dependencies are not reproduced. Display palette missing; colors are before display correction.
+# line_strip GS framing: Post-transform projected view fitted to captured stage output. Depth is projected, not world space; this is not an original-camera replay. Captured VS/PS/material inputs in one assembly target. Inspection camera, window clipping and raster depth are overridden; scene/destination dependencies are not reproduced. Display palette missing; colors are before display correction.
+# points GS framing: Post-transform projected view fitted to captured stage output. Depth is projected, not world space; this is not an original-camera replay. Captured VS/PS/material inputs in one assembly target. Inspection camera, window clipping and raster depth are overridden; scene/destination dependencies are not reproduced. Display palette missing; colors are before display correction.
+# Empty GS framing: Cannot frame captured shader output: Geometry stage emitted no positions
+# 120 captured-stage four-part fixture frames: 0.021 s, 5630.8 FPS (not PGR2)
+# 120 cached 512x512 frames: 0.010 s, 11607.5 FPS (fixture, not PGR2)
+# Asset viewport fixture passed

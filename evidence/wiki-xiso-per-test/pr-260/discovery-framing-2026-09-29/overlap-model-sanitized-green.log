@@ -1,0 +1,23 @@
+TAP version 14
+# random seed: R02S2cc01f56c869f63a8df0e6bd81a34f7f
+1..14
+# Start of asset tests
+# Start of catalog tests
+ok 1 /asset/catalog/many-uses
+ok 2 /asset/catalog/partial-frame
+ok 3 /asset/catalog/named-limits
+# End of catalog tests
+# Start of decode tests
+ok 4 /asset/decode/sparse-bounds
+ok 5 /asset/decode/subdraws
+ok 6 /asset/decode/formats
+ok 7 /asset/decode/overlapping-attributes
+ok 8 /asset/decode/integer-bits
+ok 9 /asset/decode/invalid
+ok 10 /asset/decode/large-budget
+ok 11 /asset/decode/host-topology
+ok 12 /asset/decode/strip-attributes
+ok 13 /asset/decode/compressed-half
+ok 14 /asset/decode/missing-evidence
+# End of decode tests
+# End of asset tests

@@ -1,0 +1,7 @@
+TAP version 14
+# random seed: R02Sb8f289f25f7f02676dd51d05f4bbc06f
+# Overlapping streams: Captured-stage view incomplete: Cannot decode captured float attribute 1 (format 109, components 4, stride 8, count 4, source vertex 0)
+**
+ERROR:tests/unit/test-xemu-asset-browser-viewport.cc:561:int main(int, char**): assertion failed (frame.captured_parts == 2): (0 == 2)
+Bail out! ERROR:tests/unit/test-xemu-asset-browser-viewport.cc:561:int main(int, char**): assertion failed (frame.captured_parts == 2): (0 == 2)
+Aborted

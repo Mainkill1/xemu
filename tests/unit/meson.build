@@ -67,6 +67,7 @@ tests = {
   ],
   'test-xbox-vk-blend-constants': [],
   'test-xbox-vk-texture-binding': [],
+  'test-xbox-vk-capture-pressure': [],
   'test-xbox-vk-display-output-state': [],
   'test-xemu-win32-dxgi-interop': [],
   'test-xbox-vk-device-selection': [

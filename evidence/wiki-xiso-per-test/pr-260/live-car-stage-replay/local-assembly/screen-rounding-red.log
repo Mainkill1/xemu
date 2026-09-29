@@ -1,0 +1,1 @@
+pr260-asset-stage-source: tests/unit/test-xemu-asset-browser-stage-source.cc:14: int main(): Assertion `rounded.text.find("oPos.xy = roundScreenCoords(oPos.xy)")==std::string::npos' failed.

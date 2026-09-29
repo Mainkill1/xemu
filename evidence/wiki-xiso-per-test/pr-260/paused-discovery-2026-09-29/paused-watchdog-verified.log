@@ -1,0 +1,39 @@
+TAP version 14
+# random seed: R02Sd785ce84913de39932eb5f136852c1c0
+1..28
+# Start of asset tests
+# Start of follow tests
+ok 1 /asset/follow/placed-car
+ok 2 /asset/follow/deforming-car
+# End of follow tests
+# Start of controller tests
+ok 3 /asset/controller/follow
+ok 4 /asset/controller/ambiguous
+ok 5 /asset/controller/freeze-stale
+ok 6 /asset/controller/coherent
+ok 7 /asset/controller/partial-epoch
+ok 8 /asset/controller/named
+ok 9 /asset/controller/shared-named-budget
+# End of controller tests
+# Start of live tests
+ok 10 /asset/live/foreign
+ok 11 /asset/live/rearm-ownership
+ok 12 /asset/live/pending-ownership
+ok 13 /asset/live/async-publication
+ok 14 /asset/live/paused-publication
+ok 15 /asset/live/early-stop
+ok 16 /asset/live/draw-inputs
+ok 17 /asset/live/stage-filter
+ok 18 /asset/live/continuous-frames
+ok 19 /asset/live/continuous-pending-frame
+ok 20 /asset/live/continuous-publication
+ok 21 /asset/live/continuous-stopped
+ok 22 /asset/live/watchdog
+ok 23 /asset/live/paused-watchdog
+ok 24 /asset/live/first-follow-filter
+ok 25 /asset/live/first-unpinned-discovery
+ok 26 /asset/live/first-budget-reason
+ok 27 /asset/live/retain-complete-after-budget
+ok 28 /asset/live/decode-limit-reason
+# End of live tests
+# End of asset tests

@@ -1,0 +1,8 @@
+TAP version 14
+# random seed: R02Sbbd06e77bcafa2070d3fc6f7584b8e99
+# Start of asset tests
+# Start of decode tests
+**
+ERROR:tests/unit/test-xemu-asset-browser-model.cc:151:void TestOverlappingAttributes(): 'DecodeAssetAttribute(blob, backend, 0, &values)' should be TRUE
+not ok /asset/decode/overlapping-attributes - ERROR:tests/unit/test-xemu-asset-browser-model.cc:151:void TestOverlappingAttributes(): 'DecodeAssetAttribute(blob, backend, 0, &values)' should be TRUE
+Bail out!

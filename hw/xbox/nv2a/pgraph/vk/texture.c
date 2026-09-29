@@ -741,6 +741,8 @@ static bool upload_texture_image(PGRAPHState *pg, int texture_idx,
                                       VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
     binding->current_layout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 
+    if (binding->capture_content_version != UINT64_MAX)
+        ++binding->capture_content_version;
     vkCmdCopyBufferToImage(cmd, staging_buffer->buffer,
                            binding->image, binding->current_layout,
                            num_regions, regions);
@@ -954,6 +956,8 @@ static void copy_zeta_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surfac
         .imageOffset = (VkOffset3D){ 0, 0, 0 },
         .imageExtent = (VkExtent3D){ scaled_width, scaled_height, 1 },
     };
+    if (texture->capture_content_version != UINT64_MAX)
+        ++texture->capture_content_version;
     vkCmdCopyBufferToImage(
         cmd, texture_source_buffer, texture->image,
         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, regions);
@@ -1032,6 +1036,8 @@ static void copy_surface_to_texture(PGRAPHState *pg, SurfaceBinding *surface,
     };
     pgraph_apply_scaling_factor(pg, &region.extent.width,
                                 &region.extent.height);
+    if (texture->capture_content_version != UINT64_MAX)
+        ++texture->capture_content_version;
     vkCmdCopyImage(cmd, surface->image,
                    VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, texture->image,
                    texture->current_layout, 1, &region);
@@ -1501,6 +1507,7 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     vmaGetAllocationInfo(r->allocator, snode->allocation,
                          &capture_allocation_info);
     snode->capture_owner = xemu_shader_capture_resource_new_owner();
+    snode->capture_content_version = 0;
     snode->capture_bytes = capture_allocation_info.size;
     snode->capture_pg = pg;
 
@@ -1643,6 +1650,22 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
     snode->sampler_wrap_s = sampler_create_info.addressModeU;
     snode->sampler_wrap_t = sampler_create_info.addressModeV;
     snode->sampler_wrap_r = sampler_create_info.addressModeW;
+    snode->captured_sampler = sampler_create_info;
+    snode->captured_sampler.pNext = NULL;
+    if (vk_border_color == VK_BORDER_COLOR_FLOAT_CUSTOM_EXT) {
+        memcpy(snode->captured_border_color,
+               custom_border_color_create_info.customBorderColor.float32,
+               sizeof(snode->captured_border_color));
+    } else {
+        bool white = vk_border_color == VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE ||
+                     vk_border_color == VK_BORDER_COLOR_INT_OPAQUE_WHITE;
+        bool transparent =
+            vk_border_color == VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK ||
+            vk_border_color == VK_BORDER_COLOR_INT_TRANSPARENT_BLACK;
+        for (int channel = 0; channel < 3; ++channel)
+            snode->captured_border_color[channel] = white ? 1.f : 0.f;
+        snode->captured_border_color[3] = transparent ? 0.f : 1.f;
+    }
 
     set_texture_label(pg, snode);
 

@@ -13,6 +13,7 @@
 #include "shader-browser-capture-session.hh"
 #include "shader-browser-capture-comparison.hh"
 #include "shader-browser-capture-inspection.hh"
+#include "asset-browser.hh"
 #include <future>
 #include <map>
 #include "shader-browser-override-runtime.h"
@@ -32,6 +33,8 @@ static void PollAllShaderCapture();
 static bool ConfirmCaptureClose();
 static void DrawCaptureCloseChoice(bool *open);
 static bool CaptureComparisonVisible();
+static std::string OpenFittedCapturedOccurrence(
+    const xemu::shader_browser::PreviewSelection &);
 static const char *CaptureFilePhaseLabel(xemu::shader_browser::CaptureFilePhase);
 } // namespace
 #include "shader-browser-part1.inc"

@@ -1,0 +1,10 @@
+TAP version 14
+# random seed: R02S5cada13c173643f6817a4153611295f2
+1..3
+# Start of xemu tests
+# Start of hud-context tests
+ok 1 /xemu/hud-context/preferred
+ok 2 /xemu/hud-context/fallback
+ok 3 /xemu/hud-context/unavailable
+# End of hud-context tests
+# End of xemu tests

@@ -1,0 +1,22 @@
+c++ -std=c++17 -O2 -g -Wall -Wextra -Werror -I. -Iinclude -Iui/xui -I/home/codex/pr238-source/subprojects/xxHash-0.8.3 -I/home/codex/pr239-source/subprojects/nlohmann_json/single_include -I/tmp/pr259-timing-review-include tests/unit/test-xemu-asset-browser-model.cc ui/xui/asset-browser-model.cc ui/xui/asset-browser-placement.cc ui/xui/asset-browser-decode.cc -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/sysprof-6 -pthread -lglib-2.0 -Wl,-l:libxxhash.so.0 -pthread -o /tmp/pr260-assets-model
+TAP version 14
+# random seed: R02Sd182a5545dfa21fb118b0aad5b207f36
+1..12
+# Start of asset tests
+# Start of catalog tests
+ok 1 /asset/catalog/many-uses
+ok 2 /asset/catalog/partial-frame
+# End of catalog tests
+# Start of decode tests
+ok 3 /asset/decode/sparse-bounds
+ok 4 /asset/decode/subdraws
+ok 5 /asset/decode/formats
+ok 6 /asset/decode/integer-bits
+ok 7 /asset/decode/invalid
+ok 8 /asset/decode/large-budget
+ok 9 /asset/decode/host-topology
+ok 10 /asset/decode/strip-attributes
+ok 11 /asset/decode/compressed-half
+ok 12 /asset/decode/missing-evidence
+# End of decode tests
+# End of asset tests

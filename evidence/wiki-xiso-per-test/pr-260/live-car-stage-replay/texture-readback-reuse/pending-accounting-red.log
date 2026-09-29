@@ -1,0 +1,32 @@
+TAP version 14
+# random seed: R02S8717316ddfe996956e287066aaa373ff
+1..15
+# Start of vk tests
+# Start of texture-reuse tests
+ok 1 /vk/texture-reuse/overwritten-generation
+ok 2 /vk/texture-reuse/unchanged-generation
+ok 3 /vk/texture-reuse/allocation-incarnation
+ok 4 /vk/texture-reuse/capture-batch
+ok 5 /vk/texture-reuse/cancelled
+ok 6 /vk/texture-reuse/mip-and-face
+ok 7 /vk/texture-reuse/unknown-version
+ok 8 /vk/texture-reuse/unknown-owner
+ok 9 /vk/texture-reuse/unknown-batch
+ok 10 /vk/texture-reuse/owner-retires-first
+ok 11 /vk/texture-reuse/saturated-version
+ok 12 /vk/texture-reuse/consumer-slot-and-sampler
+ok 13 /vk/texture-reuse/component-mapping
+ok 14 /vk/texture-reuse/consumer-budget
+**
+ERROR:tests/unit/test-xemu-shader-browser-vk-texture-reuse.cc:156:main(int, char**)::<lambda()>: assertion failed (xemu_test_texture_reuse_pending() == (i + 1) * 24U * 1024U * 1024U): (0 == 25165824)
+not ok /vk/texture-reuse/pending-consumer-bytes - ERROR:tests/unit/test-xemu-shader-browser-vk-texture-reuse.cc:156:main(int, char**)::<lambda()>: assertion failed (xemu_test_texture_reuse_pending() == (i + 1) * 24U * 1024U * 1024U): (0 == 25165824)
+Bail out!
+/tmp/pr260-vk-texture-reuse/test
+Traceback (most recent call last):
+  File "/tmp/pr260-vk-texture-reuse-build.py", line 21, in <module>
+    subprocess.run([out+'/test','--tap'],check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/pr260-vk-texture-reuse/test', '--tap']' died with <Signals.SIGABRT: 6>.

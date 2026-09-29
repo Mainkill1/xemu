@@ -1,0 +1,22 @@
+Compile asset-browser-model.cc
+Compile asset-browser-placement.cc
+Compile asset-browser-decode.cc
+Compile asset-browser-controller.cc
+Compile asset-browser-live.cc
+Compile asset-browser-material.cc
+Compile asset-browser-export.cc
+Compile asset-browser-glb.cc
+Compile asset-browser-viewport.cc
+Compile asset-browser-stage-source.cc
+Compile asset-browser-stage-renderer.cc
+Compile asset-browser-platform.cc
+Compile asset-browser.cc
+Compile shader-browser.cc
+Compile shader-browser-capture-session.cc
+Compile shader-browser-session-provider.cc
+Compile shader-browser-preview-gl.cc
+Compile menubar.cc
+Compile main.cc
+Changed production translation units passed
+Compile OpenGL draw adapter
+OpenGL adapter passed

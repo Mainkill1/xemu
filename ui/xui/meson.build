@@ -3,6 +3,17 @@ xemu_ss.add(files(
   'animation.cc',
   'compat.cc',
   'debug.cc',
+  'asset-browser-model.cc', 'asset-browser-placement.cc',
+  'asset-browser-decode.cc',
+  'asset-browser-controller.cc',
+  'asset-browser-live.cc',
+  'asset-browser-material.cc',
+  'asset-browser-viewport.cc',
+  'asset-browser-stage-source.cc', 'asset-browser-stage-renderer.cc',
+  'asset-browser.cc',
+  'asset-browser-platform.cc',
+  'asset-browser-export.cc',
+  'asset-browser-glb.cc',
   'shader-browser-model.cc',
   'shader-browser-usage-export.cc',
   'shader-browser-glsl-export.cc',
@@ -74,6 +85,97 @@ endif
 shader_browser_test_inc = include_directories('.')
 shader_browser_threads = dependency('threads')
 shader_browser_test_dir = meson.project_source_root() / 'tests/unit'
+
+hud_gl_context_test = executable(
+  'test-xemu-hud-gl-context',
+  shader_browser_test_dir / 'test-xemu-hud-gl-context.c',
+  dependencies: [glib, sdl])
+test('test-xemu-hud-gl-context', hud_gl_context_test, suite: ['unit'])
+
+asset_browser_model_test = executable(
+  'test-xemu-asset-browser-model',
+  shader_browser_test_dir / 'test-xemu-asset-browser-model.cc',
+  files('asset-browser-model.cc', 'asset-browser-placement.cc', 'asset-browser-decode.cc'),
+  include_directories: [shader_browser_test_inc, include_directories('../..')],
+  dependencies: [xxhash, glib])
+test('test-xemu-asset-browser-model', asset_browser_model_test, suite: ['unit'])
+
+asset_browser_placement_test = executable(
+  'test-xemu-asset-browser-placement',
+  shader_browser_test_dir / 'test-xemu-asset-browser-placement.cc',
+  files('asset-browser-placement.cc'),
+  include_directories: [shader_browser_test_inc, include_directories('../..')],
+  dependencies: [glib])
+test('test-xemu-asset-browser-placement', asset_browser_placement_test, suite: ['unit'])
+
+asset_browser_stage_source_test = executable(
+  'test-xemu-asset-browser-stage-source',
+  shader_browser_test_dir / 'test-xemu-asset-browser-stage-source.cc',
+  files('asset-browser-stage-source.cc'),
+  include_directories: [shader_browser_test_inc, include_directories('../..')],
+  dependencies: [glib])
+test('test-xemu-asset-browser-stage-source', asset_browser_stage_source_test, suite: ['unit'])
+
+asset_browser_controller_test = executable(
+  'test-xemu-asset-browser-controller',
+  shader_browser_test_dir / 'test-xemu-asset-browser-controller.cc',
+  files('asset-browser-model.cc', 'asset-browser-placement.cc', 'asset-browser-decode.cc',
+        'asset-browser-controller.cc', 'asset-browser-live.cc',
+        'shader-browser-capture-session.cc', 'shader-browser-capture-resources.cc',
+        'shader-browser-draw-capture.cc', 'shader-browser-model.cc'),
+  include_directories: [shader_browser_test_inc, include_directories('../..')],
+  dependencies: [xxhash, glib, json, shader_browser_threads])
+test('test-xemu-asset-browser-controller', asset_browser_controller_test, suite: ['unit'])
+
+if vulkan.found()
+  asset_browser_viewport_test = executable(
+    'test-xemu-asset-browser-viewport',
+    shader_browser_test_dir / 'test-xemu-asset-browser-viewport.cc',
+    files('asset-browser-viewport.cc', 'asset-browser-material.cc',
+          'asset-browser-stage-renderer.cc', 'asset-browser-stage-source.cc',
+          'asset-browser-placement.cc', 'asset-browser-decode.cc',
+          'shader-browser-preview-model.cc', 'shader-browser-preview-scene.cc',
+          'shader-browser-recipe-inspector.cc', 'shader-browser-draw-capture.cc',
+          'shader-browser-model.cc'),
+    include_directories: [shader_browser_test_inc, include_directories('../..')],
+    dependencies: [glib, epoxy, sdl, xxhash, json, vulkan])
+  # Requires a native GL context; run explicitly on a graphical test host.
+endif
+asset_browser_gl_raw_test = executable(
+  'test-xemu-asset-browser-gl-raw',
+  shader_browser_test_dir / 'test-xemu-asset-browser-gl-raw.c',
+  include_directories: [shader_browser_test_inc, include_directories('../..')],
+  dependencies: [glib, epoxy, sdl])
+
+asset_browser_ui_test = executable(
+  'test-xemu-asset-browser-ui',
+  shader_browser_test_dir / 'test-xemu-asset-browser-ui.cc',
+  files('asset-browser.cc', 'asset-browser-model.cc', 'asset-browser-placement.cc', 'asset-browser-decode.cc',
+        'asset-browser-controller.cc', 'asset-browser-live.cc',
+        'asset-browser-viewport.cc', 'asset-browser-material.cc',
+        'asset-browser-stage-renderer.cc', 'asset-browser-stage-source.cc',
+        'shader-browser-preview-model.cc', 'shader-browser-preview-scene.cc',
+        'shader-browser-recipe-inspector.cc',
+        'asset-browser-export.cc', 'asset-browser-glb.cc',
+        'shader-browser-capture-inspection.cc',
+        'shader-browser-capture-session.cc', 'shader-browser-capture-resources.cc',
+        'shader-browser-draw-capture.cc', 'shader-browser-model.cc'),
+  include_directories: [shader_browser_test_inc, include_directories('../..')],
+  dependencies: [shader_browser_threads, glib, xxhash, json, imgui, epoxy, sdl, fpng])
+# Native ImGui/GL fixture; normal headless CI compiles it without claiming a run.
+
+asset_browser_export_test = executable(
+  'test-xemu-asset-browser-export',
+  shader_browser_test_dir / 'test-xemu-asset-browser-export.cc',
+  files('asset-browser-model.cc', 'asset-browser-placement.cc', 'asset-browser-decode.cc',
+        'asset-browser-controller.cc', 'asset-browser-export.cc',
+        'asset-browser-glb.cc', 'asset-browser-material.cc',
+        'shader-browser-capture-inspection.cc', 'shader-browser-capture-session.cc',
+        'shader-browser-capture-resources.cc', 'shader-browser-draw-capture.cc',
+        'shader-browser-model.cc'),
+  include_directories: [shader_browser_test_inc, include_directories('../..')],
+  dependencies: [shader_browser_threads, glib, xxhash, json, fpng])
+test('test-xemu-asset-browser-export', asset_browser_export_test, suite: ['unit'])
 
 shader_browser_model_test = executable(
   'test-xemu-shader-browser-model',
@@ -603,6 +705,31 @@ if vulkan.found() and 'i386-softmmu' in target_dirs
       include_directories: shader_browser_test_inc,
       dependencies: [shader_browser_vk_batch_target, shader_browser_threads,
                      xxhash, json, glib, volk, libglslang, vma, spirv_reflect])
+    shader_browser_vk_sampled_depth_test = executable(
+      'test-xemu-shader-browser-vk-sampled-depth',
+      shader_browser_test_dir / 'test-xemu-shader-browser-vk-sampled-depth.cc',
+      shader_browser_test_dir / 'test-xemu-shader-browser-vk-sampled-depth-native.c',
+      files('shader-browser-draw-request.cc', 'shader-browser-capture-session.cc',
+            'shader-browser-capture-resources.cc', 'shader-browser-draw-capture.cc',
+            'shader-browser-model.cc'),
+      include_directories: shader_browser_test_inc,
+      dependencies: [shader_browser_vk_batch_target, shader_browser_threads,
+                     xxhash, json, glib, volk, libglslang, vma, spirv_reflect])
+    test('test-xemu-shader-browser-vk-sampled-depth',
+         shader_browser_vk_sampled_depth_test, suite: ['unit'])
+    shader_browser_vk_texture_reuse_test = executable(
+      'test-xemu-shader-browser-vk-texture-reuse',
+      shader_browser_test_dir / 'test-xemu-shader-browser-vk-texture-reuse.cc',
+      shader_browser_test_dir / 'test-xemu-shader-browser-vk-texture-reuse-native.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/s3tc.c',
+      files('shader-browser-draw-request.cc', 'shader-browser-capture-session.cc',
+            'shader-browser-capture-resources.cc', 'shader-browser-draw-capture.cc',
+            'shader-browser-model.cc'),
+      include_directories: shader_browser_test_inc,
+      dependencies: [shader_browser_vk_batch_target, shader_browser_threads,
+                     xxhash, json, glib, volk, libglslang, vma, spirv_reflect])
+    test('test-xemu-shader-browser-vk-texture-reuse',
+         shader_browser_vk_texture_reuse_test, suite: ['unit'])
   else
     message('Skipping Shader Browser Vulkan capture test: section GC unsupported')
   endif

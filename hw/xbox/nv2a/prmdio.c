@@ -48,7 +48,9 @@ void prmdio_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
         break;
     case NV_USER_DAC_PALETTE_DATA:
         /* FIXME: Confirm wrap-around */
+        qemu_mutex_lock(&d->puserdac.lock);
         d->puserdac.palette[d->puserdac.write_mode_address++ % (256*3)] = val;
+        qemu_mutex_unlock(&d->puserdac.lock);
         break;
     default:
         break;

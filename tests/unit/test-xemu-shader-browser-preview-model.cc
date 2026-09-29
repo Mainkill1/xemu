@@ -402,6 +402,46 @@ int main()
     auto stale_material = material_draw;
     stale_material.material_digest[0] ^= 1;
     assert(!ValidatePreviewPacket(stale_material, &error));
+    auto depth_inputs = captured_inputs;
+    depth_inputs.textures[0].metadata.host_format = 70; // VK_FORMAT_R16_UNORM
+    depth_inputs.textures[0].metadata.guest_format = 0x30;
+    depth_inputs.blobs.push_back({ "texture.storage.0",
+                                   { 0x00, 0x80, 0x01, 0x80, 0xff, 0xff, 0, 0 },
+                                   0,
+                                   70,
+                                   1,
+                                   2,
+                                   4,
+                                   0,
+                                   1,
+                                   0 });
+    auto depth_material =
+        BuildPreviewCapturedMaterial(depth_inputs, PreviewBackend::Vulkan);
+    assert(depth_material->texture_storage[0].bytes ==
+           std::vector<uint8_t>({ 0x00, 0x80, 0x01, 0x80, 0xff, 0xff, 0, 0 }));
+    auto depth_packet = game_draw;
+    depth_packet.captured_material = depth_material;
+    depth_packet.material_digest =
+        ComputePreviewCapturedMaterialDigest(*depth_material);
+    assert(ValidatePreviewPacket(depth_packet, &error));
+    auto invalid_storage =
+        std::make_shared<PreviewCapturedMaterial>(*depth_material);
+    invalid_storage->texture_storage[0].bytes.pop_back();
+    depth_packet.captured_material = invalid_storage;
+    depth_packet.material_digest =
+        ComputePreviewCapturedMaterialDigest(*invalid_storage);
+    assert(!ValidatePreviewPacket(depth_packet, &error));
+    const auto depth_digest =
+        ComputePreviewCapturedMaterialDigest(*depth_material);
+    depth_inputs.blobs[0].bytes[0] = 1;
+    auto next_depth =
+        BuildPreviewCapturedMaterial(depth_inputs, PreviewBackend::Vulkan);
+    assert(ComputePreviewCapturedMaterialDigest(*next_depth) != depth_digest);
+    depth_inputs.blobs[0].bytes.resize(1);
+    assert(BuildPreviewCapturedMaterial(depth_inputs, PreviewBackend::Vulkan)
+               ->texture_storage[0]
+               .bytes.empty());
+
     auto unavailable_material = BuildPreviewCapturedMaterial(OwnedDrawInputs{});
     assert(unavailable_material->limitations & PreviewMaterialUnavailable);
     auto missing_inputs = captured_inputs;
