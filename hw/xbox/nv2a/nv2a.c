@@ -445,6 +445,8 @@ static int nv2a_pre_load(void *opaque)
 {
     NV2AState *d = opaque;
     nv2a_lock_fifo(d);
+    /* Clear timer fields omitted by pre-v4 streams and stale host callbacks. */
+    ptimer_reset(d);
     pgraph_shader_browser_flush_observations(
         &d->pgraph.shader_browser_observations, d->pgraph.frame_time);
     return 0;
@@ -454,7 +456,7 @@ static int nv2a_post_load(void *opaque, int version_id)
 {
     NV2AState *d = opaque;
 
-    ptimer_post_load(d);
+    ptimer_post_load(d, version_id);
 
     /*
      * Host renderer allocations are not part of VMState. Ensure that the
@@ -492,7 +494,7 @@ const VMStateDescription vmstate_nv2a_pgraph_vertex_attributes = {
 
 static const VMStateDescription vmstate_nv2a = {
     .name = "nv2a",
-    .version_id = 4,
+    .version_id = 5,
     .minimum_version_id = 1,
     .post_save = nv2a_post_save,
     .post_load = nv2a_post_load,
@@ -615,6 +617,7 @@ static const VMStateDescription vmstate_nv2a = {
         VMSTATE_UINT64_V(ptimer.alarm_time, NV2AState, 4),
         VMSTATE_UINT64_V(ptimer.time_offset, NV2AState, 4),
         VMSTATE_TIMER_V(ptimer.timer, NV2AState, 4),
+        VMSTATE_BOOL_V(ptimer.alarm_armed, NV2AState, 5),
         VMSTATE_END_OF_LIST()
     },
 };

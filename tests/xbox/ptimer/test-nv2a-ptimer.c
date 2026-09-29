@@ -145,7 +145,8 @@ static void test_nonzero_delta_reschedule_numerator(void)
 
     int64_t reschedule_delta = last_timer_mod_expire - mock_virtual_time_ns;
     g_assert_true(mock_timer_active);
-    g_assert_cmpint(reschedule_delta, ==, 575218741);
+    /* Account for the source-clock phase already elapsed at the write. */
+    g_assert_cmpint(reschedule_delta, ==, 575218740);
     g_assert_cmphex(state.ptimer.pending_interrupts & NV_PTIMER_INTR_0_ALARM,
                     ==, NV_PTIMER_INTR_0_ALARM);
     g_assert_true(mock_irq_raised);
@@ -172,7 +173,8 @@ static void test_nonzero_delta_reschedule_denominator(void)
 
     int64_t reschedule_delta = last_timer_mod_expire - mock_virtual_time_ns;
     g_assert_true(mock_timer_active);
-    g_assert_cmpint(reschedule_delta, ==, 75218739);
+    /* Invert both clock stages with their phase at the same sample. */
+    g_assert_cmpint(reschedule_delta, ==, 75218738);
     g_assert_cmphex(state.ptimer.pending_interrupts & NV_PTIMER_INTR_0_ALARM,
                     ==, NV_PTIMER_INTR_0_ALARM);
     g_assert_true(mock_irq_raised);
@@ -200,7 +202,8 @@ static void test_nonzero_delta_reschedule_time_0(void)
 
     int64_t reschedule_delta = last_timer_mod_expire - mock_virtual_time_ns;
     g_assert_true(mock_timer_active);
-    g_assert_cmpint(reschedule_delta, ==, 575218741);
+    /* Account for the source-clock phase already elapsed at the write. */
+    g_assert_cmpint(reschedule_delta, ==, 575218740);
     g_assert_cmphex(state.ptimer.pending_interrupts & NV_PTIMER_INTR_0_ALARM,
                     ==, NV_PTIMER_INTR_0_ALARM);
     g_assert_true(mock_irq_raised);
@@ -228,7 +231,8 @@ static void test_nonzero_delta_reschedule_time_1(void)
 
     int64_t reschedule_delta = last_timer_mod_expire - mock_virtual_time_ns;
     g_assert_true(mock_timer_active);
-    g_assert_cmpint(reschedule_delta, ==, 575218741);
+    /* Account for the source-clock phase already elapsed at the write. */
+    g_assert_cmpint(reschedule_delta, ==, 575218740);
     g_assert_cmphex(state.ptimer.pending_interrupts & NV_PTIMER_INTR_0_ALARM,
                     ==, NV_PTIMER_INTR_0_ALARM);
     g_assert_true(mock_irq_raised);
