@@ -66,6 +66,9 @@ struct CaptureSessionSettings {
     // Only LiveDrawInputs accepts a filter. Empty means discover all draws.
     // Each set describes every bound stage of one accepted pipeline pairing.
     std::vector<std::vector<ShaderKey>> live_stage_sets;
+    // Explicit live inspection only: retain a bounded frame window while
+    // acquiring the next frame. Forensic recordings never use this policy.
+    bool live_continuous = false;
 };
 struct CaptureSessionCapacityLimits {
     uint64_t cpu_bytes = 0;
@@ -210,7 +213,8 @@ struct CaptureSessionSnapshot {
     // Legacy archives contain observation ordering, not verified queue order.
     bool execution_order_complete = true;
     // True only when acquisition reached its requested terminating guest-frame
-    // boundary. Ready also permits a manually stopped, partial frame.
+    // boundary, or for an owned completed-frame view of continuous live input
+    // acquisition. Ready also permits a manually stopped, partial frame.
     bool frame_window_complete = false;
     size_t pending_events = 0;
     bool has_frame_range = false;
@@ -310,6 +314,9 @@ public:
     void Fail(uint64_t token, const std::string &reason);
     void BudgetExceeded(uint64_t token, const std::string &reason);
     CaptureSessionSnapshot Snapshot() const;
+    bool SnapshotCompletedLiveFrame(uint64_t after_frame,
+                                    CaptureSessionSnapshot *out,
+                                    uint64_t expected_generation) const;
     std::vector<uint64_t> Uses(const ShaderKey &, uint64_t first_frame = 0,
                                uint64_t last_frame = UINT64_MAX) const;
     std::shared_ptr<const CaptureOccurrence> Find(uint64_t event_id) const;

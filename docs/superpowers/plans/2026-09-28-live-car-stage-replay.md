@@ -145,3 +145,22 @@ RefreshFilter ran only on later rearm. Seed the first request from the pinned
 selection; retain unfiltered ordinary discovery and later refresh. RuntimeRED
 0vs1 stage sets; all18 strict/sanitized controllercases+2productTUs pass.
 8bpushCI20/20;PRmacOSarm64DNSfailurebeforecompile retained. New native6 required.
+
+### Native6: continuous bounded selected-frame acquisition
+
+Exact e90 CI passed both20/20. Native selected follow is42parts and original
+37-stage assembly renders above100HUD FPS; freshposes4.5/s before mismatch.
+Saved frame proves evolving position bytes and one damaged part split, not
+merely missing topology. Shared acquisition records80copies/895shares in
+the51-part final frame. Failed/incomplete run6 archived, no marker.
+
+- [ ] Explicit LiveDrawInputs continuous flag retains at most3 frame starts,
+      preserves pending GPU ownership, and exports only fully completed closed
+      frames. Forensic acquisition/retention remain unchanged.
+- [ ] Selected live worker consumes latest completed frame while acquisition
+      continues; no50ms completion polling or post-publication33ms rearm gap.
+      Selection/filter/reset/cancellation and budgets stay owned and bounded.
+- [ ] Diagnose deformation and split-range correspondence from owned native
+      evidence; retain ambiguity rather than silently selecting another car.
+- [ ] Strict/sanitized and actual-head CI, then fresh immutable Windows native
+      straight-driving/wheel/steering and cadence/freshness qualification.

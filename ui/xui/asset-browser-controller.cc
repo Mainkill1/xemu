@@ -22,6 +22,47 @@ bool SameGeometry(const AssetPart &a, const AssetPart &b)
             return false;
     return true;
 }
+bool SamePlacedGeometry(const AssetPart &a, const AssetPart &b)
+{
+    if (SameGeometry(a, b))
+        return true;
+    if (a.status != AssetStatus::Ready || b.status != AssetStatus::Ready ||
+        !a.bounds.valid || a.indices != b.indices ||
+        a.vertices.size() != b.vertices.size() ||
+        a.source_vertices != b.source_vertices || !a.occurrence ||
+        !b.occurrence)
+        return false;
+    const auto stream = [](const AssetPart &p) {
+        const auto &blobs = p.occurrence->inputs.blobs;
+        return std::find_if(blobs.begin(), blobs.end(), [](const auto &blob) {
+            return blob.name == "vertex.attribute0";
+        });
+    };
+    const auto x = stream(a), y = stream(b);
+    if (x == a.occurrence->inputs.blobs.end() ||
+        y == b.occurrence->inputs.blobs.end() || !x->offset || !x->data ||
+        !y->data || x->offset != y->offset || x->format != y->format ||
+        x->components != y->components || x->stride != y->stride ||
+        x->count != y->count || x->normalized != y->normalized ||
+        x->integer != y->integer)
+        return false;
+    // Small deformations may update a persistent stream between frames. This
+    // is only candidate evidence, combined below with the same stage pairing
+    // and unique anchor-relative placement. Topology/LOD changes still require
+    // membership confirmation; an address alone never establishes identity.
+    float extent = 0;
+    for (size_t axis = 0; axis < 3; ++axis)
+        extent =
+            std::max(extent, a.bounds.maximum[axis] - a.bounds.minimum[axis]);
+    const double tolerance = extent * .05;
+    for (size_t i = 0; i < a.vertices.size(); ++i)
+        for (size_t axis = 0; axis < 3; ++axis)
+            if (!std::isfinite(b.vertices[i].position[axis]) ||
+                std::abs(double(a.vertices[i].position[axis]) -
+                         b.vertices[i].position[axis]) > tolerance)
+                return false;
+    return true;
+}
 bool SamePass(const AssetPart &a, const AssetPart &b)
 {
     if (!a.occurrence || !b.occurrence)
@@ -57,7 +98,8 @@ SharedAssetPart MatchPlacedPart(const AssetPart &part,
     double best = INFINITY, second = INFINITY;
     SharedAssetPart match;
     for (const auto &candidate : candidates) {
-        if (!candidate->placement.valid || !SameGeometry(part, *candidate) ||
+        if (!candidate->placement.valid ||
+            !SamePlacedGeometry(part, *candidate) ||
             !SamePass(part, *candidate))
             continue;
         std::array<float, 3> point;
@@ -170,9 +212,13 @@ bool AssetController::Publish(AssetCatalog catalog, uint64_t generation)
         return true;
     }
     std::map<capture::CaptureDigest, std::vector<SharedAssetPart>> candidates;
+    std::map<std::pair<size_t, size_t>, std::vector<SharedAssetPart>> shapes;
     for (const auto &part : catalog_.parts)
-        if (part->status == AssetStatus::Ready)
+        if (part->status == AssetStatus::Ready) {
             candidates[part->geometry_signature].push_back(part);
+            shapes[{ part->vertices.size(), part->indices.size() }].push_back(
+                part);
+        }
     std::vector<uint64_t> ids;
     std::set<uint64_t> claimed;
     const auto previous_anchor =
@@ -196,7 +242,8 @@ bool AssetController::Publish(AssetCatalog catalog, uint64_t generation)
         bool ambiguous = false;
         if (placed) {
             match = MatchPlacedPart(
-                *anchor, candidates[anchor->geometry_signature],
+                *anchor,
+                shapes[{ anchor->vertices.size(), anchor->indices.size() }],
                 selected_->local_from_captured_clip, current_from_clip,
                 std::max(diameter, 1e-6f), &ambiguous);
         } else
@@ -220,8 +267,10 @@ bool AssetController::Publish(AssetCatalog catalog, uint64_t generation)
         }
         if (!match || !claimed.insert(match->id).second) {
             state_ = AssetSelectionState::Missing;
-            message_ = "A part is missing or changed LOD; retaining the last "
-                       "coherent assembly";
+            message_ = "Part E" + std::to_string(anchor->id) +
+                       " is missing or changed geometry/LOD; retaining the "
+                       "last coherent assembly. Freeze discovery and "
+                       "re-confirm changed parts";
             return true;
         }
         if (placed && ids.empty() &&

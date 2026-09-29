@@ -36,6 +36,10 @@ bool AssetLiveCapture::Enable(const capture::CaptureSessionContext &context,
         std::min<uint32_t>(settings_.capture.event_budget, 32768);
     if (selection && SameAssetContext(selection->Catalog().context, context))
         RefreshFilter(*selection);
+    settings_.capture.live_continuous =
+        !settings_.capture.live_stage_sets.empty();
+    if (settings_.capture.live_continuous)
+        settings_.capture.history_frames = 3;
     context_ = context;
     context_.generation = now;
     if (!session_.TryStart(context_, settings_.capture, &owned_)) {
@@ -46,6 +50,7 @@ bool AssetLiveCapture::Enable(const capture::CaptureSessionContext &context,
     enabled_ = true;
     started_ = now;
     next_ = 0;
+    last_frame_ = 0;
     message_ = settings_.capture.live_stage_sets.empty() ?
                    "Discovering owned draw inputs; ordered non-draw "
                    "dependencies are omitted" :
@@ -86,11 +91,17 @@ void AssetLiveCapture::Tick(const capture::CaptureSessionContext &context,
                     next_ = now + UINT64_C(50000000);
                 } else {
                     const bool exhausted = result.catalog.budget_exceeded;
+                    const auto frame = result.catalog.frame;
                     if (controller.Publish(std::move(result.catalog),
-                                           result.generation))
+                                           result.generation)) {
                         last_capture_ = now;
-                    owned_ = 0;
-                    next_ = now + settings_.sample_interval_ns;
+                        last_frame_ = frame;
+                        started_ = now;
+                    }
+                    if (!settings_.capture.live_continuous || exhausted) {
+                        owned_ = 0;
+                        next_ = now + settings_.sample_interval_ns;
+                    }
                     message_ = controller.Catalog().reason;
                     if (exhausted) {
                         enabled_ = false;
@@ -117,6 +128,16 @@ void AssetLiveCapture::Tick(const capture::CaptureSessionContext &context,
         Disable();
         return;
     }
+    if (settings_.capture.live_continuous) {
+        const auto previous = settings_.capture.live_stage_sets;
+        RefreshFilter(controller);
+        if (previous != settings_.capture.live_stage_sets) {
+            Disable();
+            message_ = "Selected stage pairings changed; restart Live "
+                       "discovery to acquire the new selection";
+            return;
+        }
+    }
     if (owned_) {
         uint64_t current = 0;
         session_.Context(&current);
@@ -133,13 +154,31 @@ void AssetLiveCapture::Tick(const capture::CaptureSessionContext &context,
                        "acquisition stopped";
             return;
         }
-        if (session_.Active() || job_.valid() || now < next_)
+        if (settings_.capture.live_continuous && !session_.Active()) {
+            const auto snapshot = session_.Snapshot();
+            Disable();
+            message_ = snapshot.reason.empty() ?
+                           "Live acquisition stopped; retained completed "
+                           "frame remains available" :
+                           snapshot.reason +
+                               "; retained completed frame remains available";
+            return;
+        }
+        if (job_.valid() || now < next_ ||
+            (!settings_.capture.live_continuous && session_.Active()))
+            return;
+        capture::CaptureSessionSnapshot ready;
+        const bool continuous = settings_.capture.live_continuous;
+        if (continuous && session_.Active() &&
+            !session_.SnapshotCompletedLiveFrame(last_frame_, &ready, owned_))
             return;
         const uint64_t claim = owned_, generation = controller.Generation();
         const auto limits = settings_.assets;
+        next_ = now + settings_.sample_interval_ns;
         try {
             job_ = std::async(std::launch::async, [this, claim, generation,
-                                                   limits] {
+                                                   limits, continuous,
+                                                   ready = std::move(ready)] {
                 Result result;
                 result.generation = generation;
                 result.claim_generation = claim;
@@ -147,7 +186,9 @@ void AssetLiveCapture::Tick(const capture::CaptureSessionContext &context,
                 session_.Context(&worker_generation);
                 if (worker_generation != claim)
                     return result;
-                const auto snapshot = session_.Snapshot();
+                const auto snapshot = continuous && ready.has_frame_range ?
+                                          ready :
+                                          session_.Snapshot();
                 session_.Context(&worker_generation);
                 if (worker_generation != claim)
                     return result;
@@ -166,6 +207,10 @@ void AssetLiveCapture::Tick(const capture::CaptureSessionContext &context,
         }
     } else if (!job_.valid() && now >= next_) {
         RefreshFilter(controller);
+        settings_.capture.live_continuous =
+            !settings_.capture.live_stage_sets.empty();
+        if (settings_.capture.live_continuous)
+            settings_.capture.history_frames = 3;
         context_ = context;
         context_.generation = now;
         if (!session_.TryStart(context_, settings_.capture, &owned_)) {

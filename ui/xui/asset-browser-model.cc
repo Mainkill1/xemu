@@ -92,6 +92,8 @@ AssetCatalog BuildAssetCatalog(const capture::CaptureSessionSnapshot &snapshot,
     catalog.recording =
         std::make_shared<const capture::CaptureSessionSnapshot>(snapshot);
     catalog.context = snapshot.context;
+    if (snapshot.has_frame_range)
+        catalog.frame = snapshot.last_frame;
     catalog.complete_frame =
         snapshot.state == capture::CaptureSessionState::Ready &&
         snapshot.frame_window_complete && !snapshot.pending_events;

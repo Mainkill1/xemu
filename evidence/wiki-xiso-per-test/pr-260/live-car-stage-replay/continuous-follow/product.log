@@ -1,0 +1,5 @@
+Compile ui/xui/asset-browser-live.cc
+Compile ui/xui/asset-browser-controller.cc
+Compile ui/xui/asset-browser-model.cc
+Compile ui/xui/shader-browser-capture-session.cc
+Four changed product translation units passed

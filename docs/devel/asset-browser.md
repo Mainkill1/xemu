@@ -30,7 +30,11 @@ GPU caches. Freeze retains owned inputs.
    easier to distinguish. It is an inspection background, not a captured texture.
 4. Unfreeze and enable Live discovery/Follow to search for a unique geometry
    and placement/pass correspondence. Follow narrows acquisition to the selected
-   stage pairings. Matching is inferred. Identical cars, repeated draws, changed
+   stage pairings and records continuously into a three-frame input window.
+   Only closed frames with completed owned inputs can update the assembly;
+   delayed GPU frames remain owned until completion or an explicit budget stop.
+   Small position changes can match a persistent stream with unchanged topology,
+   layout and unique compatible placement. Matching is inferred. Identical cars, repeated draws, changed
    geometry/LOD and missing parts retain the last coherent view with a status;
    they must not silently select an opponent.
 5. Freeze the selected occurrence and inspect its captured texture images,
@@ -69,7 +73,7 @@ publication.
 | Material | Owned generated PS and captured inputs; absent active inputs stop the view |
 | Constants/stages | Owned words and generated sources available for inspection |
 | Exact draw | Existing Shader Browser replay, within its interface/budget support |
-| Assembly tracking | Same geometry/pass plus nearest compatible placement; duplicates remain ambiguous |
+| Assembly tracking | Same geometry/pass, or bounded deformation of the same stream/topology, plus unique compatible placement; duplicates remain ambiguous |
 | Engine identity | User-confirmed membership/label; no automatic player identity |
 
 The inspection camera replaces guest pixel rounding, window clipping and depth
@@ -93,14 +97,15 @@ and thumbnails have separate limits. Exhaustion reports partial data instead of
 claiming a complete fresh frame.
 
 Vulkan retires pending capture readbacks at completed draw-flush boundaries when
-staging pressure reaches 128 MiB, within its separate 256 MiB staging limit. This
+physical staging or pending consumer reservations reach 128 MiB, within its separate 256 MiB staging limit. This
 prevents repeated texture copies from exhausting staging before the normal frame
 fence. Acquisition may wait for those submissions; this is capture overhead,
 not shader execution time. A single oversized multi-range flush can still exceed
 the limit and remains an explicit incomplete capture.
 
 **Capture settings** exposes bounded memory, event, part, vertex, index and
-sampling limits (default33ms between acquisition cycles); stop Live discovery before changing acquisition settings. GPU
+sampling limits (default33ms between inspection jobs); selected follow keeps
+acquiring frames while an earlier completed frame is inspected. Stop Live discovery before changing acquisition settings. GPU
 mesh and thumbnail limits can also be changed there. Named full recordings share
 a 256 MiB retention budget and named decoded geometry shares 128 MiB. Recalling a
 named assembly recalls its original recording and dependencies. Old packages

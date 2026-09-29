@@ -1,0 +1,37 @@
+c++ -std=c++17 -O2 -g -Wall -Wextra -Werror -I. -Iinclude -Iui/xui -I/home/codex/pr238-source/subprojects/xxHash-0.8.3 -I/home/codex/pr239-source/subprojects/nlohmann_json/single_include -I/tmp/pr259-timing-review-include tests/unit/test-xemu-asset-browser-controller.cc ui/xui/asset-browser-model.cc ui/xui/asset-browser-placement.cc ui/xui/asset-browser-decode.cc ui/xui/asset-browser-controller.cc ui/xui/asset-browser-live.cc ui/xui/shader-browser-capture-session.cc ui/xui/shader-browser-capture-resources.cc ui/xui/shader-browser-draw-capture.cc ui/xui/shader-browser-model.cc -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/sysprof-6 -pthread -lglib-2.0 -Wl,-l:libxxhash.so.0 -pthread -o /tmp/pr260-assets-controller
+TAP version 14
+# random seed: R02S3aecc14dde0568a10785ea9ea67fe821
+1..19
+# Start of asset tests
+# Start of follow tests
+ok 1 /asset/follow/placed-car
+# End of follow tests
+# Start of controller tests
+ok 2 /asset/controller/follow
+ok 3 /asset/controller/ambiguous
+ok 4 /asset/controller/freeze-stale
+ok 5 /asset/controller/coherent
+ok 6 /asset/controller/partial-epoch
+ok 7 /asset/controller/named
+ok 8 /asset/controller/shared-named-budget
+# End of controller tests
+# Start of live tests
+ok 9 /asset/live/foreign
+ok 10 /asset/live/rearm-ownership
+ok 11 /asset/live/pending-ownership
+ok 12 /asset/live/async-publication
+ok 13 /asset/live/early-stop
+ok 14 /asset/live/draw-inputs
+ok 15 /asset/live/stage-filter
+**
+ERROR:tests/unit/test-xemu-asset-browser-controller.cc:526:void TestContinuousFrames(): 'session.Active()' should be TRUE
+not ok /asset/live/continuous-frames - ERROR:tests/unit/test-xemu-asset-browser-controller.cc:526:void TestContinuousFrames(): 'session.Active()' should be TRUE
+Bail out!
+Traceback (most recent call last):
+  File "/tmp/pr260-assets-build.py", line 23, in <module>
+    subprocess.run([str(output), '--tap'], cwd=root, env=env, check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/pr260-assets-controller', '--tap']' died with <Signals.SIGABRT: 6>.

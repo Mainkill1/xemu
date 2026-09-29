@@ -37,6 +37,7 @@ private:
     AssetLiveSettings settings_;
     std::future<Result> job_;
     uint64_t owned_ = 0, started_ = 0, next_ = 0, last_capture_ = 0;
+    uint64_t last_frame_ = 0;
     bool enabled_ = false;
     std::string message_;
 };

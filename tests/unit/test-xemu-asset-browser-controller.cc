@@ -140,6 +140,71 @@ static void TestPlacedFollow()
     g_assert_true(controller.State() == AssetSelectionState::Missing);
     g_assert_true(controller.Selected() == coherent);
 }
+static AssetCatalog DeformingCatalog(uint64_t frame)
+{
+    auto catalog = PlacedCatalog(frame);
+    for (size_t i = 0; i < catalog.parts.size(); ++i) {
+        auto part = std::make_shared<AssetPart>(*catalog.parts[i]);
+        auto event =
+            std::make_shared<capture::CaptureOccurrence>(*part->occurrence);
+        event->summary.shader_count = 1;
+        event->summary.shaders[0].stage = capture::Stage::Pixel;
+        event->summary.shaders[0].hash.bytes[0] = 1;
+        capture::CaptureOwnedBlob blob;
+        blob.name = "vertex.attribute0";
+        blob.format = 106;
+        blob.components = 3;
+        blob.stride = 12;
+        blob.count = 3;
+        blob.offset = 1024 + i * 128;
+        auto data = std::make_shared<capture::CaptureImmutableBlock>();
+        data->bytes.resize(3 * 12);
+        blob.data = data;
+        event->inputs.blobs.push_back(blob);
+        part->occurrence = event;
+        part->source_vertices = { 0, 1, 2 };
+        catalog.parts[i] = part;
+    }
+    return catalog;
+}
+static void TestPlacedDeformation()
+{
+    AssetController controller;
+    const auto generation = controller.Begin(Context());
+    g_assert_true(controller.Publish(DeformingCatalog(1), generation));
+    g_assert_true(controller.Assemble({ 10, 12 }, "Car"));
+    controller.Pin(true);
+    auto next = DeformingCatalog(2);
+    auto body = std::make_shared<AssetPart>(*next.parts[0]);
+    body->vertices[1].position[0] += .01f;
+    body->geometry_signature[0] ^= 0x80;
+    next.parts[0] = body;
+    g_assert_true(controller.Publish(next, generation));
+    g_assert_cmpuint(controller.Selected()->frame, ==, 2);
+    g_assert_cmpfloat(controller.Selected()->parts[0]->vertices[1].position[0],
+                      ==, 1.01f);
+    const auto coherent = controller.Selected();
+    auto incompatible = DeformingCatalog(3);
+    body = std::make_shared<AssetPart>(*incompatible.parts[0]);
+    body->vertices[1].position[0] += .02f;
+    body->geometry_signature[0] ^= 0x40;
+    auto event =
+        std::make_shared<capture::CaptureOccurrence>(*body->occurrence);
+    event->inputs.blobs[0].offset += 64;
+    body->occurrence = event;
+    incompatible.parts[0] = body;
+    g_assert_true(controller.Publish(incompatible, generation));
+    g_assert_true(controller.Selected() == coherent);
+    g_assert_true(controller.State() == AssetSelectionState::Missing);
+    auto large = DeformingCatalog(4);
+    body = std::make_shared<AssetPart>(*large.parts[0]);
+    body->vertices[1].position[0] += 1;
+    body->geometry_signature[0] ^= 0x80;
+    large.parts[0] = body;
+    g_assert_true(controller.Publish(large, generation));
+    g_assert_true(controller.Selected() == coherent);
+    g_assert_true(controller.State() == AssetSelectionState::Missing);
+}
 static void TestFollow()
 {
     AssetController controller;
@@ -483,6 +548,7 @@ static void TestFirstFollowRequest(bool pinned)
     const auto snapshot = session.Snapshot();
     g_assert_cmpuint(snapshot.settings.live_stage_sets.size(), ==,
                      pinned ? 1 : 0);
+    g_assert_true(snapshot.settings.live_continuous == pinned);
     session.GuestFrameBoundary(10);
     auto draw = event->summary;
     draw.scope = Context().scope;
@@ -500,6 +566,180 @@ static void TestFirstFollowRequest(bool pinned)
     session.Finish(matching, true, 5, 3, 0);
     session.InputsComplete(matching);
     live.Disable();
+}
+static void TestContinuousFrames()
+{
+    capture::CaptureSession session;
+    capture::CaptureSessionSettings settings;
+    settings.mode = capture::CaptureSessionMode::LiveDrawInputs;
+    settings.live_continuous = true;
+    settings.history_frames = 3;
+    uint64_t claim = 0;
+    g_assert_true(session.TryStart(Context(), settings, &claim));
+    capture::DrawCaptureSummary draw;
+    draw.scope = Context().scope;
+    draw.key = { 1, 2, 10, 1, 1 };
+    session.GuestFrameBoundary(10);
+    const auto first = session.BeginOccurrence(draw);
+    uint32_t value = 17;
+    XemuShaderDrawBlob blob{};
+    blob.name = "continuous.owned";
+    blob.data = &value;
+    blob.byte_count = sizeof(value);
+    g_assert_true(session.StageBlob(first, blob));
+    g_assert_true(session.Finish(first, true, 5, 3, 0));
+    session.GuestFrameBoundary(11);
+    g_assert_true(session.Active());
+    capture::CaptureSessionSnapshot ready;
+    g_assert_false(session.SnapshotCompletedLiveFrame(0, &ready, claim));
+    g_assert_true(session.InputsComplete(first));
+    g_assert_true(session.SnapshotCompletedLiveFrame(0, &ready, claim));
+    g_assert_cmpuint(ready.last_frame, ==, 10);
+    g_assert_true(ready.frame_window_complete);
+    g_assert_true(ready.state == capture::CaptureSessionState::Ready);
+    g_assert_false(ready.execution_order_complete);
+    const auto owned = ready.events.back();
+    g_assert_cmpuint(owned->inputs.blobs[0].data->bytes[0], ==, 17);
+    g_assert_false(session.SnapshotCompletedLiveFrame(10, &ready, claim));
+    g_assert_false(session.SnapshotCompletedLiveFrame(0, &ready, claim + 1));
+    std::string error;
+    auto *temporary = g_dir_make_tmp("xemu-live-completed-XXXXXX", nullptr);
+    g_assert_nonnull(temporary);
+    const auto path = std::filesystem::path(temporary) / "capture";
+    g_free(temporary);
+    g_assert_true(capture::CaptureSession::SaveSnapshot(ready, path, &error));
+    capture::CaptureSessionSnapshot reopened;
+    g_assert_true(capture::CaptureSession::Reopen(path, &reopened, &error));
+    g_assert_true(reopened.settings.live_continuous);
+    g_assert_cmpuint(reopened.last_frame, ==, 10);
+    g_assert_cmpuint(reopened.events.back()->inputs.blobs[0].data->bytes[0], ==,
+                     17);
+    std::filesystem::remove_all(path.parent_path());
+    for (uint64_t frame = 11; frame != 20; ++frame) {
+        draw.key.frame = frame;
+        const auto token = session.BeginOccurrence(draw);
+        g_assert_cmpuint(token, !=, 0);
+        value = uint32_t(frame);
+        g_assert_true(session.StageBlob(token, blob));
+        g_assert_true(session.Finish(token, true, 5, 3, 0));
+        g_assert_true(session.InputsComplete(token));
+        session.GuestFrameBoundary(frame + 1);
+        g_assert_true(session.Active());
+        g_assert_true(
+            session.SnapshotCompletedLiveFrame(frame - 1, &ready, claim));
+        g_assert_cmpuint(ready.last_frame, ==, frame);
+        g_assert_cmpuint(session.Snapshot().retained_frames.size(), <=, 3);
+    }
+    g_assert_null(session.Find(first & ~capture::kCaptureSessionTokenBit));
+    g_assert_cmpuint(owned->inputs.blobs[0].data->bytes[0], ==, 17);
+    session.StopIfCurrent(claim);
+    g_assert_false(session.Active());
+    settings.mode = capture::CaptureSessionMode::NextFrame;
+    g_assert_false(session.Start(Context(), settings));
+    settings.mode = capture::CaptureSessionMode::LiveDrawInputs;
+    settings.history_frames = 600;
+    g_assert_false(session.Start(Context(), settings));
+}
+static void TestContinuousPendingFrame()
+{
+    capture::CaptureSession session;
+    capture::CaptureSessionSettings settings;
+    settings.mode = capture::CaptureSessionMode::LiveDrawInputs;
+    settings.live_continuous = true;
+    settings.history_frames = 3;
+    uint64_t claim = 0;
+    g_assert_true(session.TryStart(Context(), settings, &claim));
+    session.GuestFrameBoundary(10);
+    capture::DrawCaptureSummary draw;
+    draw.scope = Context().scope;
+    draw.key = { 1, 2, 10, 1, 1 };
+    const auto token = session.BeginOccurrence(draw);
+    g_assert_true(session.Finish(token, true, 5, 3, 0));
+    for (uint64_t frame = 11; frame <= 20; ++frame)
+        session.GuestFrameBoundary(frame);
+    const auto id = token & ~capture::kCaptureSessionTokenBit;
+    g_assert_nonnull(session.Find(id).get());
+    g_assert_true(session.Find(id)->pending);
+    // GPU ownership protects the entire old frame, including its boundary.
+    const auto snapshot = session.Snapshot();
+    g_assert_cmpuint(snapshot.retained_frames.front(), ==, 10);
+    g_assert_cmpuint(snapshot.pending_events, ==, 1);
+    g_assert_true(session.InputsComplete(token));
+    session.GuestFrameBoundary(21);
+    g_assert_null(session.Find(id).get());
+    session.StopIfCurrent(claim);
+    g_assert_false(session.Active());
+}
+static void TestContinuousPublication(bool stop_recorder = false)
+{
+    capture::CaptureSession session;
+    AssetController controller;
+    const auto generation = controller.Begin(Context());
+    auto initial = Catalog(7, { { 1, 0 } });
+    auto part = std::make_shared<AssetPart>(*initial.parts[0]);
+    auto event =
+        std::make_shared<capture::CaptureOccurrence>(*part->occurrence);
+    event->summary.shader_count = 1;
+    event->summary.shaders[0].stage = capture::Stage::Pixel;
+    event->summary.shaders[0].hash.bytes[0] = 1;
+    part->occurrence = event;
+    initial.parts[0] = part;
+    g_assert_true(controller.Publish(initial, generation));
+    g_assert_true(controller.Assemble({ 1 }, "Car"));
+    controller.Pin(true);
+    AssetLiveCapture live(session);
+    g_assert_true(live.Enable(Context(), 1, {}, &controller));
+    const auto claim = live.OwnedGeneration();
+    auto emit = [&](uint64_t frame) {
+        auto draw = event->summary;
+        draw.scope = Context().scope;
+        draw.key = { 1, 2, frame, uint32_t(frame), frame };
+        const auto token = session.BeginOccurrence(draw);
+        g_assert_cmpuint(token, !=, 0);
+        float positions[] = { 0, 0, 0, 1, 0, 0, 0, 1, 0 };
+        XemuShaderDrawBlob blob{};
+        blob.name = "vertex.attribute0";
+        blob.data = positions;
+        blob.byte_count = sizeof(positions);
+        blob.format = 106;
+        blob.components = 3;
+        blob.stride = 12;
+        blob.count = 3;
+        g_assert_true(session.StageBlob(token, blob));
+        g_assert_true(
+            session.StageRegister(token, "capture.vertices.first", 0));
+        g_assert_true(
+            session.StageRegister(token, "capture.vertices.count", 3));
+        g_assert_true(session.Finish(token, true, 5, 3, 0));
+        g_assert_true(session.InputsComplete(token));
+    };
+    session.GuestFrameBoundary(10);
+    for (uint64_t frame = 10; frame <= 11; ++frame) {
+        emit(frame);
+        session.GuestFrameBoundary(frame + 1);
+        for (uint64_t attempt = 0;
+             attempt < 3000 && controller.Catalog().frame != frame; ++attempt) {
+            live.Tick(Context(),
+                      (frame - 9) * UINT64_C(33000000) + attempt * 1000,
+                      controller);
+            g_usleep(1000);
+        }
+        g_assert_cmpuint(controller.Catalog().frame, ==, frame);
+        g_assert_true(controller.Catalog().complete_frame);
+        g_assert_true(session.Active());
+        g_assert_cmpuint(live.OwnedGeneration(), ==, claim);
+    }
+    if (stop_recorder)
+        session.StopIfCurrent(claim);
+    else
+        controller.Pin(false);
+    for (uint64_t attempt = 0; attempt < 3000 && live.Enabled(); ++attempt) {
+        live.Tick(Context(), UINT64_C(100000000) + attempt * 1000, controller);
+        g_usleep(1000);
+    }
+    g_assert_false(live.Enabled());
+    g_assert_false(session.Active());
+    g_assert_cmpuint(controller.Catalog().frame, ==, 11);
 }
 static void TestNamedAssembly()
 {
@@ -572,6 +812,7 @@ int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, nullptr);
     g_test_add_func("/asset/follow/placed-car", TestPlacedFollow);
+    g_test_add_func("/asset/follow/deforming-car", TestPlacedDeformation);
     g_test_add_func("/asset/controller/follow", TestFollow);
     g_test_add_func("/asset/controller/ambiguous", TestAmbiguous);
     g_test_add_func("/asset/controller/freeze-stale", TestFreezeAndStale);
@@ -584,6 +825,13 @@ int main(int argc, char **argv)
     g_test_add_func("/asset/live/early-stop", TestEarlyStop);
     g_test_add_func("/asset/live/draw-inputs", TestLiveDrawInputs);
     g_test_add_func("/asset/live/stage-filter", TestLiveStageFilter);
+    g_test_add_func("/asset/live/continuous-frames", TestContinuousFrames);
+    g_test_add_func("/asset/live/continuous-pending-frame",
+                    TestContinuousPendingFrame);
+    g_test_add_func("/asset/live/continuous-publication",
+                    [] { TestContinuousPublication(); });
+    g_test_add_func("/asset/live/continuous-stopped",
+                    [] { TestContinuousPublication(true); });
     g_test_add_func("/asset/live/watchdog", TestWatchdog);
     g_test_add_func("/asset/live/first-follow-filter",
                     [] { TestFirstFollowRequest(true); });

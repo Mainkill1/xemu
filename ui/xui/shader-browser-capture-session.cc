@@ -75,7 +75,9 @@ bool ValidSettings(const CaptureSessionSettings &settings)
 {
     if (settings.live_stage_sets.size() > 128 ||
         (settings.mode != CaptureSessionMode::LiveDrawInputs &&
-         !settings.live_stage_sets.empty()))
+         (!settings.live_stage_sets.empty() || settings.live_continuous)) ||
+        (settings.live_continuous &&
+         (settings.history_frames < 2 || settings.history_frames > 4)))
         return false;
     for (const auto &set : settings.live_stage_sets) {
         if (set.empty() || set.size() > kCapturedShaderSlots)
@@ -822,6 +824,28 @@ struct CaptureSession::Impl {
                 std::vector<uint64_t>(retained.begin(), retained.end()));
         return true;
     }
+    void RetainLiveFrames(uint64_t first)
+    {
+        std::unordered_set<uint64_t> pending_frames;
+        for (const auto &entry : pending)
+            pending_frames.insert(entry.second->event.summary.key.frame);
+        events.erase(std::remove_if(events.begin(), events.end(),
+                                    [&](const auto &record) {
+                                        const auto frame =
+                                            record->event.summary.key.frame;
+                                        return frame < first &&
+                                               !pending_frames.count(frame);
+                                    }),
+                     events.end());
+        // Live input inspection deliberately has no replay dependency closure.
+        // Keep pending frames intact and leave pruned producer origins unknown.
+        if (resources) {
+            std::vector<uint64_t> retained;
+            for (const auto &record : events)
+                retained.push_back(record->event.event_id);
+            resources->RetainEvents(retained);
+        }
+    }
     bool Store(Record &record, SharedCaptureBlock &destination,
                const void *data, size_t size)
     {
@@ -1221,7 +1245,7 @@ void CaptureSession::GuestFrameBoundary(uint64_t frame,
     if (s.have_boundary && frame == s.frame)
         return;
     if (s.settings.mode != CaptureSessionMode::RollingAnimation &&
-        s.have_boundary && frame > s.frame) {
+        !s.settings.live_continuous && s.have_boundary && frame > s.frame) {
         s.frame_window_complete = true;
         s.Finalize();
         return;
@@ -1236,12 +1260,15 @@ void CaptureSession::GuestFrameBoundary(uint64_t frame,
     s.have_boundary = true;
     s.checkpoint_taken = false;
     ++s.revision;
-    if (s.settings.mode == CaptureSessionMode::RollingAnimation &&
+    if ((s.settings.mode == CaptureSessionMode::RollingAnimation ||
+         s.settings.live_continuous) &&
         s.state == CaptureSessionState::Recording) {
         const uint64_t first = frame >= s.settings.history_frames ?
                                    frame - s.settings.history_frames + 1 :
                                    0;
-        if (!s.RetainDependencies(first))
+        if (s.settings.live_continuous)
+            s.RetainLiveFrames(first);
+        else if (!s.RetainDependencies(first))
             return;
         s.Reindex();
         for (auto it = s.pool.begin(); it != s.pool.end();) {
@@ -2120,6 +2147,52 @@ void CaptureSession::BudgetExceeded(uint64_t token, const std::string &reason)
     if (token && !record)
         return;
     impl_->Exhaust(reason.substr(0, 1024), record);
+}
+bool CaptureSession::SnapshotCompletedLiveFrame(
+    uint64_t after_frame, CaptureSessionSnapshot *out,
+    uint64_t expected_generation) const
+{
+    if (!out)
+        return false;
+    std::lock_guard<std::mutex> lock(impl_->mutex);
+    const auto &s = *impl_;
+    if (!expected_generation || expected_generation != s.claim_generation ||
+        !s.settings.live_continuous || !s.have_boundary)
+        return false;
+    std::map<uint64_t, bool> frames;
+    for (const auto &record : s.events) {
+        const auto &event = record->event;
+        const auto frame = event.summary.key.frame;
+        if (frame <= after_frame || frame >= s.frame)
+            continue;
+        if (event.type == CaptureEventType::FrameBoundary)
+            frames.emplace(frame, true);
+        if (event.pending || !event.finished || !event.inputs.complete ||
+            !event.resource_finalized)
+            frames[frame] = false;
+    }
+    const auto ready =
+        std::find_if(frames.rbegin(), frames.rend(),
+                     [](const auto &frame) { return frame.second; });
+    if (ready == frames.rend())
+        return false;
+    CaptureSessionSnapshot snapshot;
+    snapshot.state = CaptureSessionState::Ready;
+    snapshot.frame_window_complete = true;
+    snapshot.execution_order_complete = false;
+    snapshot.settings = s.settings;
+    snapshot.context = s.context;
+    snapshot.cpu_bytes = s.UsedBytes();
+    snapshot.resource_domain = s.resources ? s.resources->DomainId() : 0;
+    snapshot.first_frame = snapshot.last_frame = ready->first;
+    snapshot.has_frame_range = true;
+    snapshot.retained_frames = { ready->first };
+    for (const auto &record : s.events)
+        if (record->event.summary.key.frame == ready->first)
+            snapshot.events.push_back(Impl::SnapshotRecord(record));
+    snapshot.total_events = snapshot.events.size();
+    *out = std::move(snapshot);
+    return true;
 }
 CaptureSessionSnapshot CaptureSession::Snapshot() const
 {
@@ -3115,6 +3188,7 @@ Json SettingsJson(const CaptureSessionSettings &settings)
     }
     return { { "mode", settings.mode },
              { "live_stage_sets", std::move(sets) },
+             { "live_continuous", settings.live_continuous },
              { "cpu_bytes", settings.cpu_byte_budget },
              { "event_bytes", settings.per_event_byte_budget },
              { "disk_bytes", settings.disk_byte_budget },
@@ -3129,6 +3203,8 @@ CaptureSessionSettings ReadSettings(const Json &value)
 {
     CaptureSessionSettings settings;
     settings.mode = CaptureSessionMode(U(value.at("mode"), 2));
+    if (value.contains("live_continuous"))
+        settings.live_continuous = value.at("live_continuous").get<bool>();
     if (value.contains("live_stage_sets")) {
         const auto &sets = value.at("live_stage_sets");
         Array(sets, 128);
