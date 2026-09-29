@@ -1,0 +1,7 @@
+Actual QEMU compilation flags, -Werror, isolated bridge fixture.
+1..5
+ok 1 - bounded renderer observations track routes and scope
+ok 2 - live clear drains unflushed draws before epoch change
+ok 3 - capture bridge carries exact tokens and emission serials
+ok 4 - rejected session draws retain raw banks without submissions
+ok 5 - capture recipes retain an owned display palette

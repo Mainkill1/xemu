@@ -1,5 +1,6 @@
 #include "qemu/osdep.h"
 #include "hw/xbox/nv2a/debug.h"
+#include "hw/xbox/nv2a/nv2a.h"
 #include "hw/xbox/nv2a/pgraph/pgraph.h"
 #include "ui/xui/shader-browser-draw-request.h"
 #include "hw/xbox/nv2a/pgraph/glsl/shader-browser-observation.h"
@@ -64,6 +65,15 @@ static unsigned session_claim_calls, captured_bank_count, captured_abi_count;
 static uint32_t captured_bank_words[6];
 static size_t captured_bank_sizes[6];
 static const uint64_t session_token = UINT64_C(0x800000000000007b);
+static uint8_t display_palette[256 * 3], captured_palette[256 * 3];
+static unsigned palette_copy_calls, palette_capture_calls;
+
+/* The isolated bridge test has no realized NV2A display device. */
+void nv2a_copy_dac_palette(uint8_t destination[256 * 3])
+{
+    memcpy(destination, display_palette, sizeof(display_palette));
+    ++palette_copy_calls;
+}
 
 int xemu_shader_capture_session_active(void)
 {
@@ -92,8 +102,15 @@ int xemu_shader_draw_request_wants_inputs(uint64_t token)
 }
 
 int xemu_shader_draw_request_stage_blob(uint64_t token,
-                                       const XemuShaderDrawBlob *blob)
+                                        const XemuShaderDrawBlob *blob)
 {
+    if (!strcmp(blob->name, "display.dac_palette")) {
+        assert(token == session_token && blob->data);
+        assert(blob->byte_count == sizeof(captured_palette));
+        memcpy(captured_palette, blob->data, sizeof(captured_palette));
+        ++palette_capture_calls;
+        return 1;
+    }
     static const char *const names[] = {
         "pgraph.registers", "pgraph.vertex_program", "pgraph.vertex_constants",
         "pgraph.lighting_a", "pgraph.lighting_b", "pgraph.lighting_c",
@@ -221,6 +238,21 @@ static void test_capture_session_without_shader_binding(void)
     capture_session_active = false;
 }
 
+static void test_capture_display_palette(void)
+{
+    ShaderState state = { 0 };
+    PGRAPHShaderBrowserBinding binding = { 0 };
+    for (size_t i = 0; i < sizeof(display_palette); ++i)
+        display_palette[i] = (uint8_t)(i * 17);
+    pgraph_shader_browser_capture_recipes(0, &state, &binding);
+    assert(!palette_copy_calls && !palette_capture_calls);
+    pgraph_shader_browser_capture_recipes(session_token, &state, &binding);
+    assert(palette_copy_calls == 1 && palette_capture_calls == 1);
+    assert(!memcmp(captured_palette, display_palette, sizeof(display_palette)));
+    memset(display_palette, 0xff, sizeof(display_palette));
+    assert(captured_palette[0] == 0 && captured_palette[1] == 17);
+}
+
 int main(void)
 {
     PGRAPHShaderBrowserSampler sampler = { 0 };
@@ -333,9 +365,11 @@ int main(void)
     assert(published[0].draw_count_delta + published[1].draw_count_delta == 11);
     test_capture_emission_bridge(&binding);
     test_capture_session_without_shader_binding();
-    puts("1..4\nok 1 - bounded renderer observations track routes and scope\n"
+    test_capture_display_palette();
+    puts("1..5\nok 1 - bounded renderer observations track routes and scope\n"
          "ok 2 - live clear drains unflushed draws before epoch change\n"
          "ok 3 - capture bridge carries exact tokens and emission serials\n"
-         "ok 4 - rejected session draws retain raw banks without submissions");
+         "ok 4 - rejected session draws retain raw banks without submissions\n"
+         "ok 5 - capture recipes retain an owned display palette");
     return 0;
 }
