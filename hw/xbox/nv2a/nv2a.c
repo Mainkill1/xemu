@@ -308,8 +308,6 @@ static void nv2a_reset(NV2AState *d)
     qemu_event_wait(&d->pgraph.flush_complete);
     bql_lock();
     nv2a_lock_fifo(d);
-    pgraph_shader_browser_flush_observations(
-        &d->pgraph.shader_browser_observations, d->pgraph.frame_time);
     if (!halted) {
         qatomic_set(&d->pfifo.halt, false);
     }
@@ -447,8 +445,6 @@ static int nv2a_pre_load(void *opaque)
     nv2a_lock_fifo(d);
     /* Clear timer fields omitted by pre-v4 streams and stale host callbacks. */
     ptimer_reset(d);
-    pgraph_shader_browser_flush_observations(
-        &d->pgraph.shader_browser_observations, d->pgraph.frame_time);
     return 0;
 }
 
