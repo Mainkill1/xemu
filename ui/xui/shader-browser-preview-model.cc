@@ -893,6 +893,21 @@ ComputePreviewCapturedPipelineDigest(const PreviewCapturedPipeline &pipeline,
     return ComputePreviewDigest(bytes.data(), bytes.size());
 }
 
+static bool ValidCapturedTextureStorage(const OwnedDrawBlob &blob,
+                                        const OwnedDrawTexture &texture,
+                                        size_t slot)
+{
+    const auto &m = texture.metadata;
+    return texture.described && m.bound && m.face_count == 1 && m.depth == 1 &&
+           m.width && m.height && m.width <= 2048 && m.height <= 2048 &&
+           m.host_format == 70 && blob.format == 70 && blob.slot == slot &&
+           blob.components == 1 && blob.stride == 2 && blob.normalized == 1 &&
+           !blob.integer && !blob.offset &&
+           blob.name == "texture.storage." + std::to_string(slot) &&
+           blob.count == size_t(m.width) * m.height &&
+           blob.bytes.size() == size_t(m.width) * m.height * 2;
+}
+
 std::shared_ptr<const PreviewCapturedMaterial>
 BuildPreviewCapturedMaterial(const OwnedDrawInputs &inputs, size_t max_bytes)
 {
@@ -1040,6 +1055,36 @@ BuildPreviewCapturedMaterial(const OwnedDrawInputs &inputs,
         }
         texture.metadata.mip_levels = 1;
         remaining -= bytes;
+        if (backend == PreviewBackend::Vulkan && meta.host_format == 70 &&
+            meta.face_count == 1) {
+            const auto storage = std::find_if(
+                inputs.blobs.begin(), inputs.blobs.end(),
+                [&](const auto &blob) {
+                    return ValidCapturedTextureStorage(blob, texture, slot);
+                });
+            if (storage == inputs.blobs.end()) {
+                // Quantized inspection pixels cannot represent a depth sample.
+                material->limitations |= PreviewMaterialMissingTexture;
+                texture.images.clear();
+                continue;
+            }
+            const size_t storage_bytes =
+                storage->bytes.size() + storage->name.size();
+            if (storage_bytes > remaining) {
+                material->limitations |= PreviewMaterialBudgetLimited |
+                                         PreviewMaterialMissingTexture;
+                texture.images.clear();
+                continue;
+            }
+            material->texture_storage[slot] = *storage;
+            remaining -= storage_bytes;
+            auto &mapping = material->texture_storage_swizzle[slot];
+            for (const auto &reg : inputs.registers)
+                for (size_t channel = 0; channel < 4; ++channel)
+                    if (reg.name ==
+                        prefix + "swizzle" + std::to_string(channel))
+                        mapping[channel] = reg.value;
+        }
         auto wrap_supported = [](uint32_t value) {
             return value == 0x2901 || value == 0x812f || value == 0x8370;
         };
@@ -1140,6 +1185,22 @@ ComputePreviewCapturedMaterialDigest(const PreviewCapturedMaterial &material)
                          image.image.rgba.end());
         }
     }
+    for (size_t slot = 0; slot < material.texture_storage.size(); ++slot) {
+        const auto &blob = material.texture_storage[slot];
+        append(blob.name.size());
+        bytes.insert(bytes.end(), blob.name.begin(), blob.name.end());
+        append(blob.format);
+        append(blob.components);
+        append(blob.stride);
+        append(blob.count);
+        append(blob.slot);
+        append(blob.normalized);
+        append(blob.integer);
+        append(blob.offset);
+        append(material.texture_storage_swizzle[slot]);
+        append(blob.bytes.size());
+        bytes.insert(bytes.end(), blob.bytes.begin(), blob.bytes.end());
+    }
     append(material.uniforms.size());
     for (const auto &uniform : material.uniforms) {
         append(uniform.stage);
@@ -1188,6 +1249,10 @@ CapturedMaterialOwnedBytes(const PreviewCapturedMaterial &material)
             if (!CheckedAdd(total, image.image.rgba.capacity(), &total))
                 return std::numeric_limits<size_t>::max();
     }
+    for (const auto &blob : material.texture_storage)
+        if (!CheckedAdd(total, blob.bytes.capacity(), &total) ||
+            !CheckedAdd(total, blob.name.capacity(), &total))
+            return std::numeric_limits<size_t>::max();
     if (!CheckedAdd(total,
                     material.uniforms.capacity() * sizeof(OwnedDrawUniform),
                     &total))
@@ -1805,6 +1870,19 @@ bool ValidatePreviewPacket(const PreviewPacket &packet, std::string *error)
                   texture.metadata.width != texture.metadata.height)))
                 return fail(
                     "Captured material requires complete cube base faces");
+        }
+        for (size_t slot = 0; slot < material.texture_storage.size(); ++slot) {
+            const auto &storage = material.texture_storage[slot];
+            if (!storage.bytes.empty() &&
+                !ValidCapturedTextureStorage(storage, material.textures[slot],
+                                             slot))
+                return fail("Captured typed texture storage is invalid");
+            for (uint32_t component : material.texture_storage_swizzle[slot])
+                if (component != 0 && component != 1 && component != 0x1903 &&
+                    component != 0x1904 && component != 0x1905 &&
+                    component != 0x1906)
+                    return fail(
+                        "Captured texture component mapping is invalid");
         }
         for (const auto &uniform : material.uniforms) {
             if (!PreviewCapturedUniformAllowed(uniform) ||

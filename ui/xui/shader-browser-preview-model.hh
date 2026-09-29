@@ -47,6 +47,15 @@ enum PreviewMaterialLimitation : uint32_t {
 
 struct PreviewCapturedMaterial {
     std::array<OwnedDrawTexture, 4> textures;
+    // Exact base-level R16 storage for sampled depth comparisons. Inspection
+    // RGBA8 images are retained separately and must not replace this precision.
+    std::array<OwnedDrawBlob, 4> texture_storage;
+    std::array<std::array<uint32_t, 4>, 4> texture_storage_swizzle{
+        std::array<uint32_t, 4>{ 0x1903, 0x1904, 0x1905, 0x1906 },
+        std::array<uint32_t, 4>{ 0x1903, 0x1904, 0x1905, 0x1906 },
+        std::array<uint32_t, 4>{ 0x1903, 0x1904, 0x1905, 0x1906 },
+        std::array<uint32_t, 4>{ 0x1903, 0x1904, 0x1905, 0x1906 }
+    };
     std::vector<OwnedDrawUniform> uniforms;
     uint32_t limitations = PreviewMaterialBaseLevelOnly;
 };

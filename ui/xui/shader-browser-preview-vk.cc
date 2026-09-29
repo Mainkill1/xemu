@@ -345,6 +345,7 @@ struct PreviewVkExecutor::Impl {
     std::array<Image, 4> textures{};
     std::array<VkSampler, 4> captured_samplers{};
     std::array<uint32_t, 4> texture_widths{ 8, 8, 8, 8 };
+    std::array<uint32_t, 4> texture_texel_bytes{ 4, 4, 4, 4 };
     std::array<uint32_t, 4> texture_heights{ 8, 8, 8, 8 };
     std::array<size_t, 4> texture_offsets{};
     PreviewDigest material_digest{};
@@ -602,7 +603,8 @@ struct PreviewVkExecutor::Impl {
     bool MakeImage(Image &image, uint32_t width, uint32_t height,
                    VkImageUsageFlags usage, bool cube = false,
                    VkFormat format = VK_FORMAT_R8G8B8A8_UNORM,
-                   VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT)
+                   VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT,
+                   VkComponentMapping components = {})
     {
         VkImageCreateInfo ci{ VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
         ci.imageType = VK_IMAGE_TYPE_2D;
@@ -628,6 +630,7 @@ struct PreviewVkExecutor::Impl {
         vi.image = image.handle;
         vi.viewType = cube ? VK_IMAGE_VIEW_TYPE_CUBE : VK_IMAGE_VIEW_TYPE_2D;
         vi.format = ci.format;
+        vi.components = components;
         vi.subresourceRange = { aspect, 0, 1, 0,
                                 cube ? 6U : 1U };
         return Check(api.CreateImageView(device, &vi, nullptr, &image.view),
@@ -710,6 +713,7 @@ struct PreviewVkExecutor::Impl {
         }
         material_active = material_uploaded = false;
         texture_widths.fill(8);
+        texture_texel_bytes.fill(4);
         texture_heights.fill(8);
         cubes.fill(false);
         uniforms.clear();
@@ -1323,6 +1327,30 @@ struct PreviewVkExecutor::Impl {
             api.UpdateDescriptorSets(device, 1, &write, 0, nullptr);
         }
     }
+    static VkComponentMapping
+    CapturedTextureComponents(const PreviewPacket &packet, size_t slot)
+    {
+        const auto &mapping =
+            packet.captured_material->texture_storage_swizzle[slot];
+        auto component = [](uint32_t value) {
+            switch (value) {
+            case 0:
+                return VK_COMPONENT_SWIZZLE_ZERO;
+            case 1:
+                return VK_COMPONENT_SWIZZLE_ONE;
+            case 0x1903:
+                return VK_COMPONENT_SWIZZLE_R;
+            case 0x1904:
+                return VK_COMPONENT_SWIZZLE_G;
+            case 0x1905:
+                return VK_COMPONENT_SWIZZLE_B;
+            default:
+                return VK_COMPONENT_SWIZZLE_A;
+            }
+        };
+        return { component(mapping[0]), component(mapping[1]),
+                 component(mapping[2]), component(mapping[3]) };
+    }
     bool ConfigureCapturedMaterial(const PreviewPacket &packet)
     {
         const bool captured = packet.packet_kind == PreviewPacketKind::Replay &&
@@ -1332,7 +1360,8 @@ struct PreviewVkExecutor::Impl {
             return true;
         std::array<Image, 4> next_images{};
         std::array<VkSampler, 4> next_samplers{};
-        std::array<uint32_t, 4> next_widths{}, next_heights{};
+        std::array<uint32_t, 4> next_widths{}, next_heights{},
+            next_texel_bytes{};
         std::array<size_t, 4> next_offsets{};
         Buffer next_upload;
         auto cleanup = [&] {
@@ -1349,14 +1378,22 @@ struct PreviewVkExecutor::Impl {
                 PreviewCapturedTexture(packet, slot, cubes[slot]);
             next_widths[slot] = texture ? texture->metadata.width : 8;
             next_heights[slot] = texture ? texture->metadata.height : 8;
+            const auto *storage = PreviewCapturedTextureStorage(packet, slot);
+            next_texel_bytes[slot] = storage ? 2 : 4;
+            bytes = (bytes + 3) & ~size_t(3); // VkBufferImageCopy alignment
             next_offsets[slot] = bytes;
-            bytes += size_t(next_widths[slot]) * next_heights[slot] * 4 *
+            bytes += size_t(next_widths[slot]) * next_heights[slot] *
+                     next_texel_bytes[slot] *
                      (captured ? (cubes[slot] ? 6 : 1) : 6);
-            if (!MakeImage(next_images[slot], next_widths[slot],
-                           next_heights[slot],
-                           VK_IMAGE_USAGE_TRANSFER_DST_BIT |
-                               VK_IMAGE_USAGE_SAMPLED_BIT,
-                           cubes[slot])) {
+            if (!MakeImage(
+                    next_images[slot], next_widths[slot], next_heights[slot],
+                    VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                        VK_IMAGE_USAGE_SAMPLED_BIT,
+                    cubes[slot],
+                    storage ? VK_FORMAT_R16_UNORM : VK_FORMAT_R8G8B8A8_UNORM,
+                    VK_IMAGE_ASPECT_COLOR_BIT,
+                    storage ? CapturedTextureComponents(packet, slot) :
+                              VkComponentMapping{})) {
                 cleanup();
                 return false;
             }
@@ -1411,6 +1448,7 @@ struct PreviewVkExecutor::Impl {
         captured_samplers = next_samplers;
         upload = next_upload;
         texture_widths = next_widths;
+        texture_texel_bytes = next_texel_bytes;
         texture_heights = next_heights;
         texture_offsets = next_offsets;
         material_active = captured;
@@ -2049,12 +2087,18 @@ struct PreviewVkExecutor::Impl {
             } else if (!material_uploaded) {
                 auto *destination =
                     static_cast<uint8_t *>(upload.mapped) + texture_offsets[i];
-                const size_t face_bytes =
-                    size_t(texture_widths[i]) * texture_heights[i] * 4;
+                const size_t face_bytes = size_t(texture_widths[i]) *
+                                          texture_heights[i] *
+                                          texture_texel_bytes[i];
                 std::memset(destination, 0, face_bytes * (cubes[i] ? 6 : 1));
                 const auto *texture =
                     PreviewCapturedTexture(packet, i, cubes[i]);
-                if (texture) {
+                if (const auto *storage =
+                        PreviewCapturedTextureStorage(packet, i)) {
+                    CopyPreviewCapturedStorageRows(*storage, texture_widths[i],
+                                                   texture_heights[i],
+                                                   destination, false);
+                } else if (texture) {
                     for (const auto &image : texture->images)
                         CopyPreviewCapturedTextureRows(
                             image.image, destination + face_bytes * image.face,

@@ -16,6 +16,12 @@ std::string PreviewCapturedUniformName(const OwnedDrawUniform &uniform);
 void CopyPreviewCapturedTextureRows(const OwnedDrawImage &image,
                                     uint8_t *destination, bool reverse_rows);
 
+const OwnedDrawBlob *PreviewCapturedTextureStorage(const PreviewPacket &packet,
+                                                   size_t slot);
+void CopyPreviewCapturedStorageRows(const OwnedDrawBlob &storage,
+                                    uint32_t width, uint32_t height,
+                                    uint8_t *destination, bool reverse_rows);
+
 enum class PreviewFixtureProfile : uint8_t {
     Flat,
     UV,

@@ -39,6 +39,27 @@ void CopyPreviewCapturedTextureRows(const OwnedDrawImage &image,
     }
 }
 
+const OwnedDrawBlob *PreviewCapturedTextureStorage(const PreviewPacket &packet,
+                                                   size_t slot)
+{
+    if (!PreviewCapturedTexture(packet, slot, false))
+        return nullptr;
+    const auto &storage = packet.captured_material->texture_storage[slot];
+    return storage.bytes.empty() ? nullptr : &storage;
+}
+
+void CopyPreviewCapturedStorageRows(const OwnedDrawBlob &storage,
+                                    uint32_t width, uint32_t height,
+                                    uint8_t *destination, bool reverse_rows)
+{
+    const size_t stride = size_t(width) * 2;
+    for (uint32_t row = 0; row < height; ++row) {
+        const size_t source_row = reverse_rows ? height - 1 - row : row;
+        std::memcpy(destination + row * stride,
+                    storage.bytes.data() + source_row * stride, stride);
+    }
+}
+
 void ApplyPreviewSyntheticFixture(const PreviewSyntheticFixture &fixture,
                                   std::vector<PreviewSceneVertex> &vertices,
                                   const std::array<bool, 4> &cube_stages)

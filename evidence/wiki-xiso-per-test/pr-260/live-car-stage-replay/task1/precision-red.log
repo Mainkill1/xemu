@@ -1,0 +1,5 @@
+Vulkan mesh 0: 195 red pixels
+Vulkan mesh 1: 207 red pixels
+Vulkan mesh 2: 492 red pixels
+private Vulkan sampler failure/retry: PASS
+tests/unit/test-xemu-shader-browser-preview-vk.cc:543: pixels[4 * (160 * 320 + 160)] == 255 (Partial captured material: base-level textures and fragment constants; missing texture images use zero; 3 reflected uniforms unapplied)

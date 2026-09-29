@@ -1,0 +1,88 @@
+# Live car stage replay implementation plan
+
+> **For agentic workers:** Use superpowers:executing-plans, implement and verify each task, then request a fresh whole-change review.
+
+**Goal:** Show a coherent PGR2 car assembly, including animated wheels and captured shading, from a stable inspection camera during gameplay.
+
+**Architecture:** Extend the existing owned occurrence recorder and Asset Browser. Explicit live asset acquisition retains draw-input snapshots rather than claiming a complete forensic event/dependency stream. Verified generated position-transform patterns provide placement relative to the selected anchor; original captured stages and resources render the ordered selected parts into one shared depth/color target. Preserve the existing raw-input diagnostic view and forensic recorder.
+
+**Tech stack:** Existing C++17/ImGui/GL HUD, Vulkan capture owner, immutable blocks, generated NV2A GLSL, native Windows HTTP tester.
+
+**Spec:** `../specs/2026-09-28-pgr2-live-assets.md` and the user's latest fixed-angle, connected-car/wheel/shading acceptance test. This completes the spec's outstanding original-stage/live-pose path; the previously completed diagnostic viewport is not sufficient.
+
+## Constraints
+
+- Existing PR260 and capture ownership; no new PR or competing shader compiler/library.
+- Exact draw generations and owned resources; no delayed reread of mutable guest bytes.
+- Generic placement/membership suggestions remain inferred; same-model opponents must remain ambiguous if evidence cannot distinguish them.
+- One coherent frame for every displayed assembly; fixed camera and bounds must not reset on each update.
+- At least30 FPS viewer target, and independently measured pose update/capture overhead.
+- Forensic capture always preserves its ordered events; explicit lightweight live input acquisition must report its missing dependency closure.
+- No synthetic material substitution in captured-stage mode. Missing required data produces a visible incomplete status.
+- Preserve texture precision, shader interfaces and host numeric attribute interpretation.
+- Keep captures, program/mesh/texture caches and pending jobs bounded; shutdown while HUD context is valid.
+
+## Review focus
+
+1. Reused shader/model data and identical cars do not prove player identity.
+2. A wheel transform must place it within the anchor's coordinate system, not independently center it.
+3. Sampled Y16 depth retains16-bit precision and actual component mapping.
+4. Camera override updates host depth/clip bookkeeping without claiming game-camera output equivalence.
+5. Stale or incomplete input generations cannot silently reuse the old Lab sphere or mix part poses.
+
+## Tasks
+
+### 1. Own the sampled Y16 texture used by the real car
+
+Files: Vulkan `shader-browser-inputs.h`, shared draw-input/model helpers, native adapter and material regressions.
+
+- [x] Pin the current rejection with a native adapter test: guest linear Y16 + host R16_UNORM is a color sample representation, not an unsupported depth attachment read.
+- [x] Retain an exact raw storage blob alongside the existing decoded inspection image, recording format/dimensions/component mapping.
+- [x] Make existing replay upload the typed storage at full precision, and validate malformed/absent bytes without fixture substitution.
+- [x] Run strict adapter/product compilation and native precision/material regression.
+
+### 2. Establish captured placement and coherent related parts
+
+Files: new bounded asset placement helper; model/controller; CPU regressions.
+
+- [ ] Verify the generated direct position-transform pattern against the retained PGR2 body draw; unsupported patterns remain unsupported.
+- [ ] Extract a finite invertible clip-from-local matrix from owned constants and captured viewport state, with raw-bit preservation in evidence.
+- [ ] Transform candidate bounds into anchor space; identify related part candidates with stage/target/spatial evidence and explicit confirmation.
+- [ ] Follow confirmed membership using stage/layout/material and placement evidence, rejecting duplicate/ambiguous matches and partial poses.
+- [ ] Test moving/rotating wheels, duplicate cars, draw reorder, changed LOD, singular/nonfinite transforms and coherent frame publication.
+
+### 3. Render captured stages in one assembly target
+
+Files: asset viewport/replay adapter and generated-source camera helper; native GL fixtures.
+
+- [ ] Adapt owned host GLSL/uniform layouts to the HUD inspection backend using the existing generated source and captured interface metadata.
+- [ ] Cache programs, typed streams/textures and samplers; execute original VS/material stages for all selected occurrences in emission order with shared depth/blend state.
+- [ ] Apply one anchor-relative camera after the original vertex processing; retain game-provided material inputs. Keep camera/bounds fixed through live updates.
+- [ ] Handle generated geometry/depth bookkeeping and clip controls explicitly; failed replay hides unrelated outputs.
+- [ ] Test two rotating wheels/body/glass, distinct materials, depth occlusion, transparent overlap, full precision depth samples, camera continuity and caller GL state.
+
+### 4. Update only relevant live draw inputs
+
+Files: capture settings/admission/persistence, asset live/controller/UI; ownership regressions.
+
+- [ ] Add explicit live-draw-input acquisition to the shared recorder; default all-shader forensic admission is unchanged.
+- [ ] Initial discovery acquires bounded draws and complete latched inputs without recording thousands of redundant state-write events.
+- [ ] Confirmed assembly follow narrows acquisition to supported stage/layout candidates; publish only complete same-frame poses and coalesce stale jobs.
+- [ ] Expose captured-stage/raw-input display, related parts, fixed camera, freshness, failures and freeze controls clearly.
+- [ ] Test independent forensic capture, reset/close/re-arm, unsupported parts, budgets and stale worker completion.
+
+### 5. Native end-to-end gate
+
+- [ ] Strict changed-product TUs, focused CPU/native tests, sanitizer gates and formatting.
+- [ ] Fresh review, resolve important findings with meaningful regressions, publish existing branch and obtain actual-head CI.
+- [ ] On the Windows rig, select the identified player car, confirm its connected parts, drive and steer while viewing it at a constant angle; observe wheel motion and actual captured color/shading.
+- [ ] Preserve images/video or ordered frame evidence with exact build/settings/source identities, measure viewer cadence and pose freshness separately, and qualify freeze/reset/duplicate cars.
+- [ ] Remain draft if native fidelity, performance or stacked dependency gates are incomplete.
+
+## Execution ledger
+
+- Start: existing isolated worktree `xemu-pr260`, clean implementation b4c566.
+- Evidence: native occurrenceE38773, PS1RYS-QZYP, body positionsVK_FORMAT_R16G16B16_SNORM, requiredT1 guest0x30/hostR16_UNORM rejected. Original vertex source retained privately; position usesc114..117 followed byc58/c59 viewport conversion. This is evidence for a guarded transform adapter, not a general Xbox matrix convention.
+- Ruling: extend the existing approved original-stage/live-pose specification and implement inline under the user's explicit real-car test direction; no repeated implementation authorization request.
+
+- Task1 verified local strict material/model, owned native adapter, adjacent-value Vulkan GPU comparison and actual-flags Vulkan product TUs. Native PGR2 resource capture/replay remains an end-to-end gate.

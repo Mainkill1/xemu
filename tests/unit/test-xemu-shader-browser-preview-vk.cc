@@ -512,7 +512,55 @@ int main(int argc, char **)
         ComputePreviewCapturedMaterialDigest(*packet->captured_material);
     render();
     CHECK(pixels[4 * (160 * 320 + 160) + 2] == 255);
+    // Adjacent Y16 values produce the same RGBA8 inspection pixel but must
+    // remain distinguishable to the original shader's depth comparison.
+    auto depth_inputs = captured_inputs;
+    auto &depth_texture = depth_inputs.textures[0];
+    depth_texture.metadata.host_format = 70; // VK_FORMAT_R16_UNORM
+    depth_texture.metadata.guest_format = 0x30;
+    depth_texture.metadata.min_filter = depth_texture.metadata.mag_filter = 0;
+    depth_texture.metadata.wrap_s = depth_texture.metadata.wrap_t =
+        depth_texture.metadata.wrap_r = 2;
+    OwnedDrawBlob storage;
+    storage.name = "texture.storage.0";
+    storage.format = 70;
+    storage.components = 1;
+    storage.stride = 2;
+    storage.count = 8;
+    storage.normalized = 1;
+    storage.bytes.resize(16);
+    for (size_t i = 0; i < 8; ++i)
+        storage.bytes[2 * i + 1] = 0x80;
+    depth_inputs.blobs.push_back(storage);
+    depth_inputs.registers.push_back({ "capture.texture0.swizzle1", 0 });
+    depth_inputs.registers.push_back({ "capture.texture0.swizzle2", 0 });
+    depth_inputs.registers.push_back({ "capture.texture0.swizzle3", 0 });
+    source("#version 450\nlayout(binding=3) uniform sampler2D texSamp0;\n"
+           "layout(location=0) out vec4 color;\n"
+           "void main(){vec4 d=texture(texSamp0,vec2(0.5));"
+           "color=d.r>0.50001526 ? vec4(0,1,0,1):vec4(1,0,0,1);"
+           "if(any(notEqual(d.gba,vec3(0))))color=vec4(0,0,1,1);}\n");
+    packet->captured_material =
+        BuildPreviewCapturedMaterial(depth_inputs, PreviewBackend::Vulkan);
+    packet->material_digest =
+        ComputePreviewCapturedMaterialDigest(*packet->captured_material);
+    render();
+    CHECK(pixels[4 * (160 * 320 + 160)] == 255);
+    CHECK(pixels[4 * (160 * 320 + 160) + 2] == 0);
+    for (size_t i = 0; i < 8; ++i)
+        depth_inputs.blobs.back().bytes[2 * i] = 1;
+    packet->captured_material =
+        BuildPreviewCapturedMaterial(depth_inputs, PreviewBackend::Vulkan);
+    packet->material_digest =
+        ComputePreviewCapturedMaterialDigest(*packet->captured_material);
+    render();
+    CHECK(pixels[4 * (160 * 320 + 160) + 1] == 255);
+    CHECK(pixels[4 * (160 * 320 + 160) + 2] == 0);
+    source("#version 450\nlayout(binding=3) uniform sampler2D texSamp0;\n"
+           "layout(location=0) out vec4 color;\n"
+           "void main(){color=texture(texSamp0,vec2(0.5));}\n");
     actual_texture.images.clear();
+    CHECK(executor.Prepare(work, &error, &unsupported));
     packet->captured_material = BuildPreviewCapturedMaterial(captured_inputs);
     packet->material_digest =
         ComputePreviewCapturedMaterialDigest(*packet->captured_material);

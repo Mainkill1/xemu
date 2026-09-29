@@ -1193,7 +1193,16 @@ struct PreviewGlExecutor::Impl {
                 packet, unit, target == GL_TEXTURE_CUBE_MAP);
             if (!captured || !material_uploaded ||
                 uploaded_material_digest != packet.material_digest) {
-                if (captured && texture) {
+                if (const auto *storage =
+                        PreviewCapturedTextureStorage(packet, unit)) {
+                    std::vector<uint8_t> pixels(storage->bytes.size());
+                    CopyPreviewCapturedStorageRows(
+                        *storage, texture->metadata.width,
+                        texture->metadata.height, pixels.data(), true);
+                    glTexImage2D(target, 0, GL_R16, texture->metadata.width,
+                                 texture->metadata.height, 0, GL_RED,
+                                 GL_UNSIGNED_SHORT, pixels.data());
+                } else if (captured && texture) {
                     for (const auto &image : texture->images) {
                         std::vector<uint8_t> pixels(image.image.rgba.size());
                         CopyPreviewCapturedTextureRows(image.image,
@@ -1239,6 +1248,15 @@ struct PreviewGlExecutor::Impl {
                     wrap_r = CapturedGlWrap(meta.wrap_r);
                 }
             }
+            std::array<GLint, 4> swizzle{ GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA };
+            if (PreviewCapturedTextureStorage(packet, unit))
+                std::copy(
+                    packet.captured_material->texture_storage_swizzle[unit]
+                        .begin(),
+                    packet.captured_material->texture_storage_swizzle[unit]
+                        .end(),
+                    swizzle.begin());
+            glTexParameteriv(target, GL_TEXTURE_SWIZZLE_RGBA, swizzle.data());
             glTexParameteri(target, GL_TEXTURE_BASE_LEVEL, 0);
             glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, 0);
             glTexParameteri(target, GL_TEXTURE_MIN_FILTER, min_filter);

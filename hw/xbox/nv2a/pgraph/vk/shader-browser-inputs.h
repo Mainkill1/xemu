@@ -26,7 +26,7 @@ typedef struct PGRAPHVkInputReadback {
     VkBuffer buffer;
     VmaAllocation allocation;
     void *mapped;
-    size_t raw_bytes, rgba_bytes;
+    size_t raw_bytes, rgba_bytes, storage_bytes;
     uint32_t width, height;
     VkFormat format;
     VkComponentMapping components;
@@ -211,8 +211,13 @@ pgraph_vk_input_allocate(PGRAPHVkState *r, PGRAPHVkShaderInputs *inputs,
         return NULL;
     }
     PGRAPHVkInputReadback *readback = pgraph_vk_input_allocate_bytes(
-        r, inputs, raw_bytes, (size_t)width * height * 4, status);
+        r, inputs, raw_bytes,
+        (size_t)width * height * 4 +
+            (format == VK_FORMAT_R16_UNORM ? raw_bytes : 0),
+        status);
     if (readback) {
+        readback->storage_bytes = format == VK_FORMAT_R16_UNORM ? raw_bytes : 0;
+        readback->rgba_bytes -= readback->storage_bytes;
         readback->width = width;
         readback->height = height;
         readback->format = format;
@@ -375,6 +380,30 @@ static uint8_t *pgraph_vk_input_decode(const PGRAPHVkInputReadback *readback)
     return pixels;
 }
 
+static bool
+pgraph_vk_input_stage_texture_storage(uint64_t token,
+                                      PGRAPHVkInputReadback *readback)
+{
+    if (readback->format != VK_FORMAT_R16_UNORM || readback->before != -1 ||
+        readback->texture.mip_level || readback->texture.face ||
+        readback->texture.face_count != 1)
+        return true;
+    char name[64];
+    snprintf(name, sizeof(name), "texture.storage.%u", readback->texture.slot);
+    XemuShaderDrawBlob blob = {
+        .name = name,
+        .data = readback->mapped,
+        .byte_count = readback->raw_bytes,
+        .format = VK_FORMAT_R16_UNORM,
+        .components = 1,
+        .stride = 2,
+        .count = (size_t)readback->width * readback->height,
+        .slot = readback->texture.slot,
+        .normalized = 1,
+    };
+    return xemu_shader_draw_request_stage_blob(token, &blob);
+}
+
 static void pgraph_vk_shader_inputs_retire(PGRAPHState *pg)
 {
     PGRAPHVkState *r = pg->vk_renderer_state;
@@ -422,6 +451,10 @@ static void pgraph_vk_shader_inputs_retire(PGRAPHState *pg)
                             readback->texture.image = image;
                             accepted = xemu_shader_draw_request_stage_texture(
                                 inputs->token, &readback->texture);
+                            if (accepted)
+                                accepted =
+                                    pgraph_vk_input_stage_texture_storage(
+                                        inputs->token, readback);
                         }
                     }
                 }
@@ -449,8 +482,9 @@ static void pgraph_vk_shader_inputs_retire(PGRAPHState *pg)
             }
             vmaDestroyBuffer(r->allocator, readback->buffer,
                              readback->allocation);
-            r->shader_browser_input_staging_bytes -=
-                readback->raw_bytes + readback->rgba_bytes;
+            r->shader_browser_input_staging_bytes -= readback->raw_bytes +
+                                                     readback->rgba_bytes +
+                                                     readback->storage_bytes;
             g_free(readback);
             readback = next;
         }
@@ -728,8 +762,12 @@ static void pgraph_vk_input_stage_registers(PGRAPHState *pg, uint64_t token)
     }
 }
 
-static bool pgraph_vk_input_depth_texture(uint32_t format)
+static bool pgraph_vk_input_depth_texture(uint32_t format, VkFormat host)
 {
+    // Guest depth textures are uploaded as ordinary sampled color images.
+    // Capture that actual bound representation rather than rejecting its label.
+    if (pgraph_vk_input_raw_bytes(host, 1, 1))
+        return false;
     switch (format) {
     case NV097_SET_TEXTURE_FORMAT_COLOR_SZ_DEPTH_Y16_FIXED:
     case NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_DEPTH_X8_Y24_FIXED:
@@ -767,6 +805,29 @@ static void pgraph_vk_input_stage_textures(PGRAPHState *pg, uint64_t token,
             texture.wrap_t = binding->sampler_wrap_t;
             texture.wrap_r = binding->sampler_wrap_r;
             texture.coordinate_scale = binding->key.scale;
+            // Raw typed storage is before view swizzling; retain the exact
+            // view.
+            const VkComponentSwizzle channels[] = {
+                binding->component_mapping.r,
+                binding->component_mapping.g,
+                binding->component_mapping.b,
+                binding->component_mapping.a,
+            };
+            const uint32_t identity[] = { 0x1903, 0x1904, 0x1905, 0x1906 };
+            for (uint32_t channel = 0; channel < 4; ++channel) {
+                const uint32_t value =
+                    channels[channel] == VK_COMPONENT_SWIZZLE_IDENTITY ?
+                        identity[channel] :
+                    channels[channel] == VK_COMPONENT_SWIZZLE_ZERO ?
+                        0 :
+                    channels[channel] == VK_COMPONENT_SWIZZLE_ONE ?
+                        1 :
+                        identity[channels[channel] - VK_COMPONENT_SWIZZLE_R];
+                char name[64];
+                snprintf(name, sizeof(name), "capture.texture%u.swizzle%u",
+                         slot, channel);
+                xemu_shader_draw_request_stage_register(token, name, value);
+            }
         }
         if (!xemu_shader_draw_request_stage_texture(token, &texture)) {
             status |= PGRAPH_VK_INPUT_REJECTED;
@@ -781,7 +842,8 @@ static void pgraph_vk_input_stage_textures(PGRAPHState *pg, uint64_t token,
         } else if (!binding->input_transfer_src ||
                    binding->storage_image_type != VK_IMAGE_TYPE_2D ||
                    texture.depth != 1 ||
-                   pgraph_vk_input_depth_texture(texture.guest_format) ||
+                   pgraph_vk_input_depth_texture(texture.guest_format,
+                                                 binding->key.vk_format) ||
                    binding->current_layout !=
                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL ||
                    !texture.mip_levels || texture.mip_levels > 16 ||
@@ -1262,7 +1324,7 @@ static void pgraph_vk_shader_inputs_begin(PGRAPHState *pg, uint64_t token,
     size_t pending_bytes = 0;
     for (PGRAPHVkInputReadback *readback = inputs->readbacks; readback;
          readback = readback->next) {
-        pending_bytes += readback->rgba_bytes;
+        pending_bytes += readback->rgba_bytes + readback->storage_bytes;
     }
     /* Immediate CPU evidence is already staged, so these reservations only
      * cover the payload that still depends on this submission's fence. */

@@ -1,0 +1,9 @@
+pr259-preview-topology-model-depth-storage-red2: tests/unit/test-xemu-shader-browser-preview-model.cc:413: int main(): Assertion `depth_material->texture_storage[0].bytes == std::vector<uint8_t>({ 0x00, 0x80, 0x01, 0x80, 0xff, 0xff, 0, 0 })' failed.
+Traceback (most recent call last):
+  File "/tmp/pr259-captured-extent-model-build.py", line 6, in <module>
+    subprocess.run([binary], check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/tmp/pr259-preview-topology-model-depth-storage-red2']' died with <Signals.SIGABRT: 6>.

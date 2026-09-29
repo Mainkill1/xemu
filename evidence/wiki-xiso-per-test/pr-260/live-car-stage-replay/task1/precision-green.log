@@ -1,0 +1,21 @@
+Vulkan mesh 0: 195 red pixels
+Vulkan mesh 1: 207 red pixels
+Vulkan mesh 2: 492 red pixels
+private Vulkan sampler failure/retry: PASS
+Vulkan original-camera color initial: pixel=51360 RGBA=128,128,0,255 expected=128,128,0,255 tolerance=1,1,0,0 acceptable=1 guest_mode=5 host_topology=3 error="Original VS/GS camera; captured raster state; color destination unavailable (preview zero clear); preview RGBA8 destination format; depth/stencil destination unavailable (preview depth 1/stencil 0); raster evidence unavailable: viewport, scissor, blending, color writes, depth, stencil, culling, depth bias, multisample coverage, depth clamp (preview defaults); legacy triangle-list host topology inferred; "
+Private Vulkan reused pipeline draw interval: 42138 ns (Measured draw interval)
+Vulkan shared-depth references and per-result clear PASS
+Vulkan final scalar channels and fixture charts / unsupported discard PASS
+Vulkan target discard preserves reference scene PASS
+Vulkan constant, fog color and alpha edits without prepare PASS
+Vulkan captured 1280x480 owned replay, program reuse and extent bounds PASS
+Vulkan captured depth clamp at both clip planes and unsupported feature rejection PASS
+Vulkan original strip/fan/quad adjacency assembly and GS compatibility PASS
+Vulkan captured constants/base texture, zero missing input and material edits PASS
+Vulkan original VS/GS, separate UBOs, inline constants and missing active-input rejection PASS
+Vulkan reflected cube routing: whitespace and misleading comments PASS
+Vulkan cube +Z blue / +X red PASS
+Vulkan distinct T0/T1 and independent input edit PASS
+Vulkan independent D0/D1/B0/B1 and fog edit PASS
+Vulkan all nine profile sample readbacks PASS
+private Vulkan: quad, sampler, fixture edits, 160/320 resize, uniform block, rejection, recovery and stop PASS
