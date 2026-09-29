@@ -10,6 +10,7 @@ struct AssetViewportFrame {
     uint32_t texture = 0, width = 0, height = 0;
     size_t drawn_parts = 0, textured_parts = 0, captured_parts = 0;
     uint64_t gpu_bytes = 0;
+    bool projected_output = false;
     std::string message;
 };
 // All methods touching GPU resources require the owning HUD GL context.
@@ -21,7 +22,8 @@ public:
                               const AssetCamera &, uint32_t width,
                               uint32_t height, int texture_slot = -1,
                               bool wireframe = false,
-                              bool captured_stages = false);
+                              bool captured_stages = false,
+                              bool projected_output = false);
     AssetViewportFrame Thumbnail(std::shared_ptr<const AssetAssembly>);
     AssetViewportFrame TextureImage(SharedAssetPart, uint32_t backend,
                                     int slot);

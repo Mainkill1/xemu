@@ -100,9 +100,11 @@ AssetStageSource BuildAssetStageSource(const std::string &original,
             static const std::regex screen_rounding(
                 R"(oPos\s*\.\s*xy\s*=\s*roundScreenCoords\s*\(\s*oPos\s*\.\s*xy\s*\)\s*;)");
             text = std::regex_replace(text, screen_rounding, "");
-            text += "\nuniform mat4 asset_inspection_from_clip;\nuniform vec2 "
+            text += "\nuniform bool asset_project_output;\n"
+                    "uniform mat4 asset_inspection_from_clip;\nuniform vec2 "
                     "asset_viewport_extent;\n"
                     "void main(){asset_original_main();\n"
+                    "if(asset_project_output) gl_Position /= gl_Position.w;\n"
                     "gl_Position = asset_inspection_from_clip * gl_Position;\n"
                     "vec4 asset_window_position = "
                     "vec4((gl_Position.xy/"

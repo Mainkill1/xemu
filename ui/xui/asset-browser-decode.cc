@@ -393,7 +393,10 @@ DecodeAssetPart(std::shared_ptr<const capture::CaptureOccurrence> event,
         return fail(AssetStatus::Missing,
                     "Owned index stream is unavailable for an indexed draw");
     if (indices) {
-        if (!indices->data || indices->count > limits.maximum_indices ||
+        if (indices->count > limits.maximum_indices)
+            return fail(AssetStatus::BudgetExceeded,
+                        "Triangle indices per part limit reached");
+        if (!indices->data ||
             indices->data->bytes.size() != uint64_t(indices->count) * 4)
             return fail(AssetStatus::Malformed,
                         "Invalid captured index stream");
@@ -402,6 +405,7 @@ DecodeAssetPart(std::shared_ptr<const capture::CaptureOccurrence> event,
             raw[i] = Little(indices->data->bytes.data() + i * 4, 4);
     }
     bool budget = false, invalid = false;
+    const char *budget_reason = "";
     const auto append = [&](const std::vector<uint32_t> &range) {
         const size_t count = range.size();
         const size_t triangles =
@@ -410,14 +414,19 @@ DecodeAssetPart(std::shared_ptr<const capture::CaptureOccurrence> event,
             primitive == 9 ? (count >= 4 ? (count / 2 - 1) * 2 : 0) :
                              (count >= 3 ? count - 2 : 0);
         if (triangles >
-                (limits.maximum_indices -
-                 std::min(part.indices.size(), limits.maximum_indices)) /
-                    3 ||
-            triangles > (limits.decoded_byte_budget / 4 -
+            (limits.maximum_indices -
+             std::min(part.indices.size(), limits.maximum_indices)) /
+                3) {
+            budget = true;
+            budget_reason = "Triangle indices per part limit reached";
+            return;
+        }
+        if (triangles > (limits.decoded_byte_budget / 4 -
                          std::min<uint64_t>(part.indices.size(),
                                             limits.decoded_byte_budget / 4)) /
                             3) {
             budget = true;
+            budget_reason = "Decoded geometry (MiB) limit reached";
             return;
         }
         for (size_t t = 0; t < triangles; ++t) {
@@ -488,9 +497,12 @@ DecodeAssetPart(std::shared_ptr<const capture::CaptureOccurrence> event,
                     Reg(source, "capture.last_vertex",
                         first + position->count - 1) -
                         first + 1;
-            if (count > limits.maximum_indices ||
-                uint64_t(start) + count > UINT32_MAX) {
+            if (uint64_t(start) + count > UINT32_MAX)
+                return fail(AssetStatus::Malformed,
+                            "Captured draw range overflows the vertex index");
+            if (count > limits.maximum_indices) {
                 budget = true;
+                budget_reason = "Triangle indices per part limit reached";
                 break;
             }
             std::vector<uint32_t> range(count);
@@ -500,8 +512,7 @@ DecodeAssetPart(std::shared_ptr<const capture::CaptureOccurrence> event,
         }
     }
     if (budget)
-        return fail(AssetStatus::BudgetExceeded,
-                    "Asset triangle budget exceeded");
+        return fail(AssetStatus::BudgetExceeded, budget_reason);
     if (part.indices.empty())
         return fail(AssetStatus::Missing,
                     "No complete triangles in the captured subdraws");
@@ -530,13 +541,18 @@ DecodeAssetPart(std::shared_ptr<const capture::CaptureOccurrence> event,
             index = found->second;
             continue;
         }
-        if (part.vertices.size() >= limits.maximum_vertices ||
-            part.vertices.size() >=
-                (limits.decoded_byte_budget -
-                 std::min<uint64_t>(uint64_t(part.indices.size()) * 4,
-                                    limits.decoded_byte_budget)) /
-                    (sizeof(AssetVertex) + sizeof(uint32_t))) {
+        if (part.vertices.size() >= limits.maximum_vertices) {
             budget = true;
+            budget_reason = "Vertices per part limit reached";
+            break;
+        }
+        if (part.vertices.size() >=
+            (limits.decoded_byte_budget -
+             std::min<uint64_t>(uint64_t(part.indices.size()) * 4,
+                                limits.decoded_byte_budget)) /
+                (sizeof(AssetVertex) + sizeof(uint32_t))) {
+            budget = true;
+            budget_reason = "Decoded geometry (MiB) limit reached";
             break;
         }
         AssetVertex vertex;
@@ -582,8 +598,7 @@ DecodeAssetPart(std::shared_ptr<const capture::CaptureOccurrence> event,
             AssetStatus::Malformed,
             "Captured referenced vertex data is invalid or unavailable");
     if (budget)
-        return fail(AssetStatus::BudgetExceeded,
-                    "Asset decoded geometry budget exceeded");
+        return fail(AssetStatus::BudgetExceeded, budget_reason);
     XXH3_state_t *hash = XXH3_createState();
     if (!hash)
         return fail(AssetStatus::BudgetExceeded,

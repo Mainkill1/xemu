@@ -122,6 +122,35 @@ int main(int argc, char **argv)
     frame();
     g_assert_true(session.Active());
     g_assert_true(browser.Selected() == frozen);
+    auto occurrence = std::make_shared<capture::CaptureOccurrence>();
+    occurrence->event_id = 100;
+    occurrence->pending = false;
+    occurrence->emitted = true;
+    occurrence->summary.primitive_mode = 5;
+    occurrence->summary.key.frame = 12;
+    capture::CaptureOwnedBlob positions;
+    positions.name = "vertex.attribute0";
+    positions.count = 3;
+    positions.components = 3;
+    positions.stride = 12;
+    positions.format = 106;
+    auto bytes = std::make_shared<capture::CaptureImmutableBlock>();
+    const float vertices[] = { 0, 0, 0, 1, 0, 0, 0, 1, 0 };
+    const auto *raw = reinterpret_cast<const uint8_t *>(vertices);
+    bytes->bytes.assign(raw, raw + sizeof(vertices));
+    positions.data = bytes;
+    occurrence->inputs.blobs.push_back(positions);
+    g_assert_true(browser.InspectOccurrence(occurrence, context));
+    for (int i = 0;
+         i < 100 && (!browser.Selected() || browser.Selected()->id != 100);
+         ++i) {
+        frame();
+        SDL_Delay(1);
+    }
+    g_assert_nonnull(browser.Selected().get());
+    g_assert_cmpuint(browser.Selected()->id, ==, 100);
+    g_assert_false(browser.Selected()->user_confirmed);
+    g_assert_true(session.Active()); // Inspector cannot steal another recorder.
     browser.Shutdown();
     ImGui::DestroyContext();
     SDL_GL_DestroyContext(gl);

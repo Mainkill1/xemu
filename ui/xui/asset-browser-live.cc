@@ -92,7 +92,12 @@ void AssetLiveCapture::Tick(const capture::CaptureSessionContext &context,
                 } else {
                     const bool exhausted = result.catalog.budget_exceeded;
                     const auto frame = result.catalog.frame;
-                    if (controller.Publish(std::move(result.catalog),
+                    const bool keep_complete =
+                        exhausted && controller.Catalog().complete_frame;
+                    const auto failed = result.catalog.recording;
+                    const auto failure_reason = result.catalog.reason;
+                    if (!keep_complete &&
+                        controller.Publish(std::move(result.catalog),
                                            result.generation)) {
                         last_capture_ = now;
                         last_frame_ = frame;
@@ -105,9 +110,30 @@ void AssetLiveCapture::Tick(const capture::CaptureSessionContext &context,
                     message_ = controller.Catalog().reason;
                     if (exhausted) {
                         enabled_ = false;
-                        message_ = "Capture budget reached; retained partial "
-                                   "frame is available. Reduce scope or "
-                                   "increase the budget before restarting";
+                        const auto mib = [](uint64_t bytes) {
+                            return std::to_string((bytes + (1U << 20) - 1) >>
+                                                  20);
+                        };
+                        message_ = "Capture stopped: " +
+                                   (failed && !failed->reason.empty() ?
+                                        failed->reason :
+                                        failure_reason);
+                        if (failed)
+                            message_ +=
+                                " (retained now " + mib(failed->cpu_bytes) +
+                                "/" + mib(failed->settings.cpu_byte_budget) +
+                                " MiB, pending " + mib(failed->reserved_bytes) +
+                                " MiB; " +
+                                std::to_string(failed->events.size()) + "/" +
+                                std::to_string(failed->settings.event_budget) +
+                                " events)";
+                        message_ +=
+                            keep_complete ?
+                                ". Showing the last complete frame; the failed "
+                                "frame remains in the recorder." :
+                                ". Showing the retained partial frame.";
+                        message_ += " Retry discovery, or increase the named "
+                                    "limit in Capture settings.";
                     }
                 }
             }

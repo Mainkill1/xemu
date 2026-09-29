@@ -244,6 +244,7 @@ public:
                    uint64_t *claim_generation);
     bool StopIfCurrent(uint64_t claim_generation);
     bool Active() const;
+    bool ReadbackPressure(uint64_t headroom) const;
     // The claim generation identifies a Start incarnation, independently of
     // the caller's context generation. Read both under the recorder mutex.
     CaptureSessionContext Context(uint64_t *claim_generation = nullptr) const;

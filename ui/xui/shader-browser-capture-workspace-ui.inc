@@ -36,6 +36,34 @@ CaptureWorkspaceState &CaptureWorkspace()
     static CaptureWorkspaceState state;
     return state;
 }
+std::string OpenFittedCapturedOccurrence(const PreviewSelection &selection)
+{
+    const auto &state = CaptureWorkspace();
+    const auto &workbench = WorkbenchSession();
+    if (!workbench.inspected_occurrence && workbench.fitted_occurrence &&
+        workbench.capture_selection == selection &&
+        workbench.fitted_occurrence->summary.key ==
+            workbench.capture_summary.key) {
+        return asset_browser_window.InspectOccurrence(
+                   workbench.fitted_occurrence, workbench.fitted_context) ?
+                   "Opened captured shader output in Asset Browser; F fits the "
+                   "view." :
+                   "Finish the Asset Browser operation before opening another "
+                   "occurrence.";
+    }
+    if (!state.selected || state.selected->pending ||
+        !(state.selected->summary.key ==
+          WorkbenchSession().capture_summary.key))
+        return "Select a captured occurrence before opening its fitted view.";
+    auto recording =
+        std::make_shared<const CaptureSessionSnapshot>(state.snapshot);
+    return asset_browser_window.InspectOccurrence(
+               state.selected, state.snapshot.context, recording) ?
+               "Opened captured shader output in Asset Browser; F fits the "
+               "view." :
+               "Finish the Asset Browser operation before opening another "
+               "occurrence.";
+}
 const char *CaptureStateLabel(CaptureSessionState state)
 {
     switch (state) {

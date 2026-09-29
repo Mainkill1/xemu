@@ -19,6 +19,11 @@ public:
     void Draw();
     void Shutdown();
     bool InspectCatalog(xemu::asset_browser::AssetCatalog);
+    bool InspectOccurrence(
+        std::shared_ptr<const xemu::shader_browser::CaptureOccurrence>,
+        const xemu::shader_browser::CaptureSessionContext &,
+        std::shared_ptr<
+            const xemu::shader_browser::CaptureSessionSnapshot> = {});
     std::shared_ptr<const xemu::asset_browser::AssetAssembly> Selected() const;
 
 private:

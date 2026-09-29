@@ -99,6 +99,8 @@ AssetCatalog BuildAssetCatalog(const capture::CaptureSessionSnapshot &snapshot,
         snapshot.frame_window_complete && !snapshot.pending_events;
     catalog.budget_exceeded =
         snapshot.state == capture::CaptureSessionState::BudgetExceeded;
+    if (catalog.budget_exceeded)
+        catalog.reason = snapshot.reason;
     for (const auto &event : snapshot.events)
         if (event && event->type == capture::CaptureEventType::Draw)
             catalog.frame = std::max(catalog.frame, event->summary.key.frame);
@@ -112,6 +114,10 @@ AssetCatalog BuildAssetCatalog(const capture::CaptureSessionSnapshot &snapshot,
             catalog.complete_frame = false;
         if (++examined > limits.maximum_events) {
             catalog.budget_exceeded = true;
+            if (catalog.reason.empty())
+                catalog.reason = "Events per capture limit reached (" +
+                                 std::to_string(limits.maximum_events) + "/" +
+                                 std::to_string(limits.maximum_events) + ")";
             break;
         }
         if (!event || event->type != capture::CaptureEventType::Draw ||
@@ -124,6 +130,10 @@ AssetCatalog BuildAssetCatalog(const capture::CaptureSessionSnapshot &snapshot,
         }
         if (catalog.parts.size() == limits.maximum_parts) {
             catalog.budget_exceeded = true;
+            if (catalog.reason.empty())
+                catalog.reason = "Parts per frame limit reached (" +
+                                 std::to_string(catalog.parts.size()) + "/" +
+                                 std::to_string(limits.maximum_parts) + ")";
             break;
         }
         auto available = limits;
@@ -134,8 +144,23 @@ AssetCatalog BuildAssetCatalog(const capture::CaptureSessionSnapshot &snapshot,
             DecodeAssetPart(event, snapshot.context.backend, available));
         part->placement = DecodeAssetPlacement(*event);
         catalog.decoded_bytes += part->decoded_bytes;
-        if (part->status == AssetStatus::BudgetExceeded)
+        if (part->status == AssetStatus::BudgetExceeded) {
             catalog.budget_exceeded = true;
+            if (catalog.reason.empty()) {
+                catalog.reason =
+                    part->reason + " at draw E" + std::to_string(part->id);
+                const auto limit =
+                    part->reason.find("Vertices per part") == 0 ?
+                        uint64_t(limits.maximum_vertices) :
+                    part->reason.find("Triangle indices per part") == 0 ?
+                        uint64_t(limits.maximum_indices) :
+                        limits.decoded_byte_budget;
+                catalog.reason +=
+                    " (limit " + std::to_string(limit) +
+                    (part->reason.find("Decoded geometry") == 0 ? " bytes)" :
+                                                                  ")");
+            }
+        }
         catalog.parts.push_back(std::move(part));
         const uint64_t object =
             event->summary.segments.size() == 1 ?
@@ -153,10 +178,11 @@ AssetCatalog BuildAssetCatalog(const capture::CaptureSessionSnapshot &snapshot,
     for (uint64_t id : ungrouped)
         catalog.entries.push_back(MakeAssetAssembly(
             catalog, { id }, "Part E" + std::to_string(id), false));
-    catalog.reason = catalog.budget_exceeded ?
-                         "Asset budget reached; retained frame is partial" :
-                     catalog.complete_frame ? "Owned captured frame" :
-                                              "Incomplete captured frame";
+    if (catalog.reason.empty())
+        catalog.reason = catalog.budget_exceeded ?
+                             "Asset budget reached; retained frame is partial" :
+                         catalog.complete_frame ? "Owned captured frame" :
+                                                  "Incomplete captured frame";
     if (snapshot.settings.mode == capture::CaptureSessionMode::LiveDrawInputs)
         catalog.reason +=
             "; live draw inputs only, non-draw dependencies omitted";

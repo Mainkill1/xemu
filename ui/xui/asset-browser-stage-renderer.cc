@@ -131,6 +131,12 @@ struct AssetStageRenderer::Impl {
     std::list<Program> programs;
     std::list<Mesh> meshes;
     std::list<Texture> textures;
+    struct Bounds {
+        Key key{};
+        capture::Bounds3 bounds;
+        std::string error;
+    };
+    std::list<Bounds> output_bounds;
     std::vector<GLuint> draw_textures;
     uint64_t mesh_bytes = 0, texture_bytes = 0;
     uint64_t budget = 64U * 1024U * 1024U;
@@ -200,6 +206,11 @@ struct AssetStageRenderer::Impl {
             for (GLuint s : shaders)
                 if (s)
                     glAttachShader(program.id, s);
+            if (!sources[3]) {
+                const char *varying = "gl_Position";
+                glTransformFeedbackVaryings(program.id, 1, &varying,
+                                            GL_INTERLEAVED_ATTRIBS);
+            }
             glLinkProgram(program.id);
             GLint linked = 0;
             glGetProgramiv(program.id, GL_LINK_STATUS, &linked);
@@ -276,7 +287,7 @@ struct AssetStageRenderer::Impl {
                 const std::string n(name, size_t(length));
                 const GLint location = glGetUniformLocation(program.id, name);
                 if (n == "asset_inspection_from_clip" ||
-                    n == "asset_viewport_extent")
+                    n == "asset_project_output" || n == "asset_viewport_extent")
                     continue;
                 const auto stage = UniformStage(n);
                 if (!stage || size <= 0 || size > 4096 || location < 0) {
@@ -832,7 +843,8 @@ AssetStageRenderer::AssetStageRenderer() : impl_(std::make_unique<Impl>())
 AssetStageRenderer::~AssetStageRenderer() = default;
 bool AssetStageRenderer::DrawPart(const AssetPart &part, uint32_t backend,
                                   const AssetMatrix &matrix, uint32_t width,
-                                  uint32_t height, std::string *error)
+                                  uint32_t height, std::string *error,
+                                  bool projected_output)
 {
     if (error)
         error->clear();
@@ -883,6 +895,8 @@ bool AssetStageRenderer::DrawPart(const AssetPart &part, uint32_t backend,
     raster.depth_max = 1;
     preview::ApplyOriginalGlRaster(raster, height);
     glUseProgram(program->id);
+    glUniform1i(glGetUniformLocation(program->id, "asset_project_output"),
+                projected_output);
     glUniformMatrix4fv(
         glGetUniformLocation(program->id, "asset_inspection_from_clip"), 1,
         GL_TRUE, matrix.data());
@@ -895,6 +909,186 @@ bool AssetStageRenderer::DrawPart(const AssetPart &part, uint32_t backend,
     glBindVertexArray(mesh->vao);
     glDrawElements(GL_TRIANGLES, part.indices.size(), GL_UNSIGNED_INT, nullptr);
     return true;
+}
+bool AssetStageRenderer::OutputBounds(const AssetPart &part, uint32_t backend,
+                                      capture::Bounds3 *bounds,
+                                      std::string *error)
+{
+    if (!bounds || !error)
+        return false;
+    *bounds = {};
+    error->clear();
+    if (epoxy_gl_version() < 45 || !part.occurrence ||
+        !part.occurrence->inputs.complete || (backend != 1 && backend != 2)) {
+        *error =
+            "Post-transform framing requires complete inputs and HUD OpenGL4.5";
+        return false;
+    }
+    if (part.occurrence->inputs.sources[3]) {
+        *error = "Post-transform framing with a host geometry stage is not "
+                 "supported";
+        return false;
+    }
+    auto *program = impl_->GetProgram(part, backend, error);
+    if (!program)
+        return false;
+    auto *mesh = impl_->GetMesh(part, *program, backend, error);
+    if (!mesh)
+        return false;
+    KeyBytes inputs;
+    inputs.Add(program->key);
+    inputs.Add(mesh->key);
+    for (const auto &u : part.occurrence->inputs.uniforms) {
+        inputs.Add(u.stage);
+        inputs.Add(u.type);
+        inputs.Add(u.components);
+        inputs.Add(u.count);
+        inputs.Add(uint64_t(u.name.size()));
+        inputs.bytes.insert(inputs.bytes.end(), u.name.begin(), u.name.end());
+        inputs.Block(u.data);
+    }
+    for (const auto &r : part.occurrence->inputs.registers) {
+        inputs.Add(uint64_t(r.name.size()));
+        inputs.bytes.insert(inputs.bytes.end(), r.name.begin(), r.name.end());
+        inputs.Add(r.value);
+    }
+    for (const auto &b : part.occurrence->inputs.blobs)
+        if (b.name.rfind("texture.storage.", 0) == 0 ||
+            b.name.rfind("vertex.current", 0) == 0) {
+            inputs.Add(uint64_t(b.name.size()));
+            inputs.bytes.insert(inputs.bytes.end(), b.name.begin(),
+                                b.name.end());
+            inputs.Add(b.slot);
+            inputs.Add(b.count);
+            inputs.Add(b.format);
+            inputs.Add(b.components);
+            inputs.Add(b.stride);
+            inputs.Add(b.offset);
+            inputs.Add(b.normalized);
+            inputs.Add(b.integer);
+            inputs.Block(b.data);
+        }
+    for (const auto &t : part.occurrence->inputs.textures) {
+        const auto &m = t.metadata;
+        const uint32_t properties[] = {
+            m.slot,       uint32_t(m.bound), m.guest_format, m.host_format,
+            m.width,      m.height,          m.depth,        m.mip_levels,
+            m.face_count, m.min_filter,      m.mag_filter,   m.wrap_s,
+            m.wrap_t,     m.wrap_r,          m.mip_level,    m.face
+        };
+        inputs.Add(properties);
+        inputs.Add(m.coordinate_scale);
+        for (const auto &i : t.images) {
+            inputs.Add(i.mip_level);
+            inputs.Add(i.face);
+            inputs.Add(i.image.width);
+            inputs.Add(i.image.height);
+            inputs.Block(i.image.rgba);
+        }
+    }
+    const auto key = inputs.Digest();
+    for (auto it = impl_->output_bounds.begin();
+         it != impl_->output_bounds.end(); ++it)
+        if (it->key == key) {
+            impl_->output_bounds.splice(impl_->output_bounds.end(),
+                                        impl_->output_bounds, it);
+            *bounds = impl_->output_bounds.back().bounds;
+            *error = impl_->output_bounds.back().error;
+            return bounds->valid;
+        }
+    const uint64_t size = part.vertices.size() * sizeof(float) * 4;
+    if (size > impl_->budget / 4) {
+        *error =
+            "Post-transform framing exceeds the bounded GPU readback budget";
+        return false;
+    }
+    GLboolean active = GL_FALSE;
+    glGetBooleanv(GL_TRANSFORM_FEEDBACK_ACTIVE, &active);
+    if (active) {
+        *error = "HUD transform feedback is already active";
+        return false;
+    }
+    static const AssetMatrix identity{ 1, 0, 0, 0, 0, 1, 0, 0,
+                                       0, 0, 1, 0, 0, 0, 0, 1 };
+    glUseProgram(program->id);
+    glUniform1i(glGetUniformLocation(program->id, "asset_project_output"), 0);
+    glUniformMatrix4fv(
+        glGetUniformLocation(program->id, "asset_inspection_from_clip"), 1,
+        GL_TRUE, identity.data());
+    glUniform2f(glGetUniformLocation(program->id, "asset_viewport_extent"), 1,
+                1);
+    impl_->draw_textures.clear();
+    if (!impl_->Uniforms(*program, part, backend, 1, 1, error))
+        return false;
+    // Match the sampler state used by the final captured-stage draw.
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+    GLint previous_feedback, previous_buffer;
+    glGetIntegerv(GL_TRANSFORM_FEEDBACK_BINDING, &previous_feedback);
+    glGetIntegerv(GL_TRANSFORM_FEEDBACK_BUFFER_BINDING, &previous_buffer);
+    const auto discard = glIsEnabled(GL_RASTERIZER_DISCARD);
+    std::vector<std::array<float, 4>> positions(part.vertices.size());
+    GLuint feedback, buffer;
+    glGenTransformFeedbacks(1, &feedback);
+    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, feedback);
+    glGenBuffers(1, &buffer);
+    glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, buffer);
+    glBufferData(GL_TRANSFORM_FEEDBACK_BUFFER, size, nullptr, GL_STREAM_READ);
+    GLint64 allocated = 0;
+    glGetBufferParameteri64v(GL_TRANSFORM_FEEDBACK_BUFFER, GL_BUFFER_SIZE,
+                             &allocated);
+    if (allocated != int64_t(size)) {
+        glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, previous_feedback);
+        glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, previous_buffer);
+        glDeleteBuffers(1, &buffer);
+        glDeleteTransformFeedbacks(1, &feedback);
+        *error = "Post-transform position buffer allocation failed";
+        return false;
+    }
+    glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, buffer);
+    glEnable(GL_RASTERIZER_DISCARD);
+    glBindVertexArray(mesh->vao);
+    glBeginTransformFeedback(GL_POINTS);
+    glDrawArrays(GL_POINTS, 0, part.vertices.size());
+    glEndTransformFeedback();
+    glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, size, positions.data());
+    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, previous_feedback);
+    glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, previous_buffer);
+    if (!discard)
+        glDisable(GL_RASTERIZER_DISCARD);
+    glDeleteBuffers(1, &buffer);
+    glDeleteTransformFeedbacks(1, &feedback);
+    // Only referenced vertices were compacted into this mesh. Preserve failure
+    // evidence rather than silently ignoring non-finite shader outputs.
+    for (const auto &position : positions) {
+        if (!std::all_of(position.begin(), position.end(),
+                         [](float x) { return std::isfinite(x); }) ||
+            std::abs(position[3]) < 1e-7f) {
+            *bounds = {};
+            *error = "Post-transform position is non-finite or has zero w";
+            break;
+        }
+        for (size_t axis = 0; axis < 3; ++axis) {
+            const float value = position[axis] / position[3];
+            if (!std::isfinite(value)) {
+                *bounds = {};
+                *error = "Post-transform projected position is non-finite";
+                break;
+            }
+            if (!bounds->valid)
+                bounds->minimum[axis] = bounds->maximum[axis] = value;
+            else {
+                bounds->minimum[axis] = std::min(bounds->minimum[axis], value);
+                bounds->maximum[axis] = std::max(bounds->maximum[axis], value);
+            }
+        }
+        if (!error->empty())
+            break;
+        bounds->valid = true;
+    }
+    if (impl_->output_bounds.size() == 128)
+        impl_->output_bounds.pop_front();
+    impl_->output_bounds.push_back({ key, *bounds, *error });
+    return bounds->valid;
 }
 bool AssetStageRenderer::Configure(uint64_t budget)
 {
@@ -921,5 +1115,6 @@ void AssetStageRenderer::Shutdown()
     for (auto &p : impl_->programs)
         glDeleteProgram(p.id);
     impl_->programs.clear();
+    impl_->output_bounds.clear();
 }
 } // namespace xemu::asset_browser

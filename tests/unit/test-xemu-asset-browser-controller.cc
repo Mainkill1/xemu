@@ -741,6 +741,89 @@ static void TestContinuousPublication(bool stop_recorder = false)
     g_assert_false(session.Active());
     g_assert_cmpuint(controller.Catalog().frame, ==, 11);
 }
+static void TestFirstBudgetReason()
+{
+    capture::CaptureSession session;
+    g_assert_true(session.Start(Context()));
+    session.GuestFrameBoundary(10);
+    capture::DrawCaptureSummary draw;
+    draw.scope = Context().scope;
+    draw.key = { 1, 2, 10, 1, 1 };
+    const auto token = session.BeginOccurrence(draw);
+    g_assert_cmpuint(token, !=, 0);
+    g_assert_false(
+        session.ReservePayload(token, capture::kDrawInputBudget + 1));
+    const auto reason = session.Snapshot().reason;
+    session.BudgetExceeded(
+        token, "Vulkan capture could not retain all requested evidence");
+    g_assert_true(session.Snapshot().reason == reason);
+    g_assert_true(
+        session.Find(token & ~capture::kCaptureSessionTokenBit)->failure ==
+        reason);
+}
+static void TestDiscoveryRetainsCompleteFrame()
+{
+    capture::CaptureSession session;
+    AssetController controller;
+    const auto generation = controller.Begin(Context());
+    g_assert_true(
+        controller.Publish(Catalog(10, { { 1, 0 }, { 2, 2 } }), generation));
+    AssetLiveCapture live(session);
+    g_assert_true(live.Enable(Context(), 1));
+    session.GuestFrameBoundary(11);
+    capture::DrawCaptureSummary draw;
+    draw.scope = Context().scope;
+    draw.key = { 1, 2, 11, 1, 1 };
+    const auto token = session.BeginOccurrence(draw);
+    g_assert_cmpuint(token, !=, 0);
+    session.BudgetExceeded(token, "In-flight readback byte budget exceeded");
+    g_assert_true(session.Finish(token, true, 5, 3, 0));
+    g_assert_true(session.InputsComplete(token));
+    for (uint64_t attempt = 0; attempt < 3000 && live.Enabled(); ++attempt) {
+        live.Tick(Context(), UINT64_C(1000000) + attempt * 1000, controller);
+        g_usleep(1000);
+    }
+    g_assert_false(live.Enabled());
+    g_assert_true(
+        live.Message().find("In-flight readback byte budget exceeded") !=
+        std::string::npos);
+    g_assert_cmpuint(controller.Catalog().frame, ==, 10);
+    g_assert_cmpuint(controller.Catalog().parts.size(), ==, 2);
+    g_assert_true(controller.Catalog().complete_frame);
+    // The failed frame remains owned by the recorder for diagnostics.
+    g_assert_cmpuint(session.Snapshot().last_frame, ==, 11);
+}
+static void TestDiscoveryDecodeLimitReason()
+{
+    capture::CaptureSession session;
+    AssetController controller;
+    controller.Begin(Context());
+    AssetLiveCapture live(session);
+    AssetLiveSettings settings;
+    settings.assets.maximum_parts = 1;
+    g_assert_true(live.Enable(Context(), 1, settings));
+    session.GuestFrameBoundary(10);
+    capture::DrawCaptureSummary draw;
+    draw.scope = Context().scope;
+    for (uint32_t i = 1; i <= 2; ++i) {
+        draw.key = { 1, 2, 10, i, i };
+        auto token = session.BeginOccurrence(draw);
+        g_assert_cmpuint(token, !=, 0);
+        g_assert_true(session.Finish(token, true, 5, 3, 0));
+        g_assert_true(session.InputsComplete(token));
+    }
+    session.GuestFrameBoundary(11);
+    g_assert_true(session.Snapshot().state ==
+                  capture::CaptureSessionState::Ready);
+    for (uint64_t attempt = 0; attempt < 3000 && live.Enabled(); ++attempt) {
+        live.Tick(Context(), UINT64_C(1000000) + attempt * 1000, controller);
+        g_usleep(1000);
+    }
+    g_assert_false(live.Enabled());
+    g_assert_true(live.Message().find("Parts per frame") != std::string::npos);
+    g_assert_true(live.Message().find("1/1") != std::string::npos);
+    g_assert_cmpuint(controller.Catalog().parts.size(), ==, 1);
+}
 static void TestNamedAssembly()
 {
     AssetController controller;
@@ -840,5 +923,10 @@ int main(int argc, char **argv)
     g_test_add_func("/asset/controller/named", TestNamedAssembly);
     g_test_add_func("/asset/controller/shared-named-budget",
                     TestSharedNamedBudget);
+    g_test_add_func("/asset/live/first-budget-reason", TestFirstBudgetReason);
+    g_test_add_func("/asset/live/retain-complete-after-budget",
+                    TestDiscoveryRetainsCompleteFrame);
+    g_test_add_func("/asset/live/decode-limit-reason",
+                    TestDiscoveryDecodeLimitReason);
     return g_test_run();
 }

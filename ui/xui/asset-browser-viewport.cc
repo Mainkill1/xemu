@@ -452,7 +452,7 @@ if(colored!=0)c*=vertexcolor;outputColor=vec4(c.rgb,1);})";
     AssetViewportFrame
     Draw(Target &output, const std::shared_ptr<const AssetAssembly> &assembly,
          const AssetCamera &camera, uint32_t w, uint32_t h, int slot, bool wire,
-         bool captured = false)
+         bool captured = false, bool projected_output = false)
     {
         AssetViewportFrame frame;
         if (!assembly || !assembly->bounds.valid) {
@@ -500,20 +500,49 @@ if(colored!=0)c*=vertexcolor;outputColor=vec4(c.rgb,1);})";
         glEnable(GL_DEPTH_TEST);
         glPolygonMode(GL_FRONT_AND_BACK, wire ? GL_LINE : GL_FILL);
         if (captured) {
-            if (!assembly->captured_placement) {
-                frame.message = "Captured placement is unsupported. Raw-input "
-                                "mode remains available.";
-                return frame;
+            const bool projected =
+                projected_output || !assembly->captured_placement;
+            auto bounds = assembly->bounds;
+            if (projected) {
+                bounds = {};
+                for (const auto &part : assembly->parts) {
+                    capture::Bounds3 output_bounds;
+                    if (!part ||
+                        !stages.OutputBounds(*part, assembly->context.backend,
+                                             &output_bounds, &frame.message)) {
+                        frame.message =
+                            "Cannot frame captured shader output: " +
+                            frame.message;
+                        return frame;
+                    }
+                    for (size_t axis = 0; axis < 3; ++axis) {
+                        bounds.minimum[axis] =
+                            bounds.valid ?
+                                std::min(bounds.minimum[axis],
+                                         output_bounds.minimum[axis]) :
+                                output_bounds.minimum[axis];
+                        bounds.maximum[axis] =
+                            bounds.valid ?
+                                std::max(bounds.maximum[axis],
+                                         output_bounds.maximum[axis]) :
+                                output_bounds.maximum[axis];
+                    }
+                    bounds.valid = true;
+                }
             }
             const auto from_anchor = BuildAssetCameraMatrix(
-                assembly->bounds, camera.yaw, camera.pitch, camera.zoom,
-                camera.pan_x, camera.pan_y, float(w) / h);
-            const auto from_clip = MultiplyAssetMatrices(
-                from_anchor, assembly->local_from_captured_clip);
+                bounds, camera.yaw, camera.pitch, camera.zoom, camera.pan_x,
+                camera.pan_y, float(w) / h);
+            const auto from_clip =
+                projected ?
+                    from_anchor :
+                    MultiplyAssetMatrices(from_anchor,
+                                          assembly->local_from_captured_clip);
             for (const auto &part : assembly->parts) {
                 if (!part || part->status != AssetStatus::Ready ||
                     !stages.DrawPart(*part, assembly->context.backend,
-                                     from_clip, w, h, &frame.message)) {
+                                     from_clip, w, h, &frame.message,
+                                     projected)) {
                     frame.message =
                         "Captured-stage view incomplete: " + frame.message;
                     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
@@ -525,6 +554,7 @@ if(colored!=0)c*=vertexcolor;outputColor=vec4(c.rgb,1);})";
                 ++frame.captured_parts;
             }
             frame.drawn_parts = frame.captured_parts;
+            frame.projected_output = projected;
             frame.texture = output.color;
             const capture::SharedCaptureBlock *palette = nullptr;
             size_t present = 0;
@@ -601,6 +631,12 @@ if(colored!=0)c*=vertexcolor;outputColor=vec4(c.rgb,1);})";
                 palette ? " Captured display palette applied after blending." :
                           " Display palette missing; colors are before display "
                           "correction.";
+            if (projected)
+                frame.message = "Post-transform projected view fitted to "
+                                "captured VS output. "
+                                "Depth is projected, not world space; this is "
+                                "not an original-camera replay. " +
+                                frame.message;
             return frame;
         }
         float center[3], radius = 0;
@@ -678,10 +714,11 @@ AssetViewport::~AssetViewport() = default;
 AssetViewportFrame
 AssetViewport::Render(std::shared_ptr<const AssetAssembly> assembly,
                       const AssetCamera &camera, uint32_t w, uint32_t h,
-                      int slot, bool wire, bool captured_stages)
+                      int slot, bool wire, bool captured_stages,
+                      bool projected_output)
 {
     return impl_->Draw(impl_->target, assembly, camera, w, h, slot, wire,
-                       captured_stages);
+                       captured_stages, projected_output);
 }
 AssetViewportFrame
 AssetViewport::Thumbnail(std::shared_ptr<const AssetAssembly> assembly)
@@ -710,8 +747,22 @@ AssetViewport::Thumbnail(std::shared_ptr<const AssetAssembly> assembly)
     AssetCamera camera;
     camera.yaw = .45f;
     camera.pitch = -.25f;
-    thumb.frame =
-        impl_->Draw(thumb.target, assembly, camera, 96, 72, -1, false);
+    const bool captured = std::all_of(
+        assembly->parts.begin(), assembly->parts.end(), [](const auto &p) {
+            return p && p->occurrence && p->occurrence->inputs.complete;
+        });
+    if (captured) {
+        // The game camera's projected output is easier to recognize than an
+        // arbitrary orbit of unprocessed skinning inputs.
+        thumb.frame = impl_->Draw(thumb.target, assembly, {}, 96, 72, -1, false,
+                                  true, true);
+    }
+    if (!thumb.frame.texture) {
+        const auto missing = thumb.frame.message;
+        thumb.frame =
+            impl_->Draw(thumb.target, assembly, camera, 96, 72, -1, false);
+        thumb.frame.message = "Raw vertex-input thumbnail. " + missing;
+    }
     return thumb.frame;
 }
 size_t AssetViewport::ThumbnailCount() const

@@ -5256,10 +5256,13 @@ static PGRAPHVkDrawResult pgraph_vk_flush_draw_timed(NV2AState *d)
      * those reservations or physical staging can fill before the frame fence.
      * Drain at a completed flush (including mid-BEGIN/END flushes),
      * outside the draw timing interval and with all draw markers closed. */
-    if (pgraph_vk_input_should_drain(r->shader_browser_input_staging_bytes,
-                                     r->shader_browser_input_pending_bytes,
-                                     r->in_command_buffer, r->in_draw,
-                                     r->debug_depth)) {
+    if (pgraph_vk_input_should_drain(
+            r->shader_browser_input_staging_bytes,
+            r->shader_browser_input_pending_bytes,
+            r->shader_browser_input_pending_bytes &&
+                xemu_shader_capture_session_readback_pressure(
+                    PGRAPH_VK_INPUT_CPU_HEADROOM),
+            r->in_command_buffer, r->in_draw, r->debug_depth)) {
         pgraph_vk_finish(pg, VK_FINISH_REASON_NEED_BUFFER_SPACE);
     }
     return result;

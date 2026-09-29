@@ -9,6 +9,7 @@ extern "C" void xemu_test_texture_reuse_stage(uint64_t, uint64_t, uint64_t,
 extern "C" void xemu_test_texture_reuse_retire(uint64_t[5], bool);
 extern "C" void xemu_test_texture_reuse_modify(unsigned);
 extern "C" uint64_t xemu_test_texture_reuse_pending();
+extern "C" bool xemu_test_texture_reuse_should_drain();
 using namespace xemu::shader_browser;
 static void Run(unsigned mode, uint32_t mips = 1, uint32_t faces = 1)
 {
@@ -165,6 +166,52 @@ int main(int argc, char **argv)
         g_assert_cmpuint(snapshot.pending_events, ==, 0);
         g_assert_true(snapshot.state != CaptureSessionState::BudgetExceeded);
         session.Stop();
+    });
+    g_test_add_func("/vk/texture-reuse/resident-recorder-pressure", [] {
+        auto &session = GetCaptureSession();
+        CaptureSessionContext context;
+        context.scope.title_id = 17;
+        context.scope_generation = 1;
+        context.session_epoch = 2;
+        context.renderer_epoch = 3;
+        context.generation = 4;
+        CaptureSessionSettings settings;
+        settings.mode = CaptureSessionMode::LiveDrawInputs;
+        settings.cpu_byte_budget = 96U * 1024U * 1024U;
+        g_assert_true(session.Start(context, settings));
+        session.GuestFrameBoundary(7);
+        DrawCaptureSummary draw;
+        draw.scope = context.scope;
+        draw.key = { 2, 3, 7, 1, 1 };
+        auto resident = session.BeginOccurrence(draw);
+        std::vector<uint8_t> bytes(16U * 1024U * 1024U, 1);
+        XemuShaderDrawBlob blob{};
+        blob.name = "retained-a";
+        blob.data = bytes.data();
+        blob.byte_count = bytes.size();
+        g_assert_true(session.StageBlob(resident, blob));
+        bytes[0] = 2;
+        blob.name = "retained-b";
+        g_assert_true(session.StageBlob(resident, blob));
+        g_assert_true(session.Finish(resident, true, 5, 3, 0));
+        g_assert_true(session.InputsComplete(resident));
+        xemu_test_texture_reuse_start();
+        xemu_test_texture_reuse_modify(8);
+        draw.key.draw = draw.key.submission = 2;
+        const auto token = session.BeginOccurrence(draw);
+        g_assert_cmpuint(token, !=, 0);
+        xemu_test_texture_reuse_stage(token, 101, 1, 11, 0x8000, 1, 1);
+        g_assert_true(session.Finish(token, true, 5, 3, 0));
+        g_assert_true(session.Active());
+        // The next bounded draw can exceed capacity even though both fixed
+        // physical and shared-consumer thresholds are still below 128 MiB.
+        g_assert_true(xemu_test_texture_reuse_should_drain());
+        uint64_t stats[5]{};
+        xemu_test_texture_reuse_retire(stats, false);
+        g_assert_cmpuint(session.Snapshot().pending_events, ==, 0);
+        g_assert_true(session.Active());
+        session.GuestFrameBoundary(8);
+        g_assert_true(session.Snapshot().state == CaptureSessionState::Ready);
     });
     return g_test_run();
 }

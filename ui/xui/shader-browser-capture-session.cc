@@ -464,9 +464,11 @@ struct CaptureSession::Impl {
         ++revision;
         state = CaptureSessionState::BudgetExceeded;
         active.store(false, std::memory_order_release);
-        reason = message;
+        if (reason.empty())
+            reason = message;
         if (record) {
-            record->event.failure = message;
+            if (record->event.failure.empty())
+                record->event.failure = message;
             record->event.limitations |= CaptureReadbackFailed;
         }
     }
@@ -1775,6 +1777,11 @@ bool CaptureSession::HasGeometry(uint64_t token) const
     std::lock_guard<std::mutex> lock(impl_->mutex);
     auto *r = impl_->Lookup(token);
     return r && r->event.geometry.positions && r->event.geometry.indices;
+}
+bool CaptureSession::ReadbackPressure(uint64_t headroom) const
+{
+    std::lock_guard<std::mutex> lock(impl_->mutex);
+    return impl_->active.load() && !impl_->Fits(headroom);
 }
 bool CaptureSession::ReservePayload(uint64_t token, size_t bytes)
 {

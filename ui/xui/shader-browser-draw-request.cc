@@ -8,6 +8,7 @@
 #include <cmath>
 #include <utility>
 #include <new>
+#include <xxhash.h>
 
 namespace xemu::shader_browser {
 
@@ -485,6 +486,81 @@ OwnedDrawInputs DrawCaptureRequest::CopyInputs() const
     return status_.state == DrawRequestState::Ready ? inputs_ :
                                                       OwnedDrawInputs{};
 }
+std::shared_ptr<const CaptureOccurrence>
+DrawCaptureRequest::CopyOccurrence(CaptureSessionContext *context) const
+{
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (status_.state != DrawRequestState::Ready || !inputs_.complete)
+        return {};
+    if (context) {
+        context->scope = target_.scope;
+        context->scope_generation = target_.scope_generation;
+        context->session_epoch = target_.session_epoch;
+        context->renderer_epoch = target_.renderer_epoch;
+        context->generation = status_.request_id;
+        context->current_frame = captured_.key.frame;
+    }
+    auto event = std::make_shared<CaptureOccurrence>();
+    event->event_id = status_.request_id;
+    event->summary = captured_;
+    event->pending = false;
+    event->finished = event->emitted = true;
+    event->limitations = CaptureMissingDependencies;
+    uint64_t next_block = 1;
+    const auto block = [&next_block,
+                        &event](const void *data,
+                                size_t size) -> SharedCaptureBlock {
+        if (!size)
+            return {};
+        auto owned = std::make_shared<CaptureImmutableBlock>();
+        owned->id = next_block++;
+        event->payload_bytes += size;
+        const auto *bytes = static_cast<const uint8_t *>(data);
+        owned->bytes.assign(bytes, bytes + size);
+        XXH128_canonical_t canonical;
+        XXH128_canonicalFromHash(&canonical, XXH3_128bits(data, size));
+        std::copy_n(canonical.digest, owned->digest.size(),
+                    owned->digest.begin());
+        return owned;
+    };
+    const auto image = [&block](const OwnedDrawImage &input) {
+        return CaptureOwnedImage{ input.width, input.height,
+                                  block(input.rgba.data(), input.rgba.size()) };
+    };
+    event->inputs.complete = true;
+    event->inputs.registers = inputs_.registers;
+    event->inputs.before = image(inputs_.before);
+    event->inputs.after = image(inputs_.after);
+    for (size_t slot = 0; slot < inputs_.textures.size(); ++slot) {
+        auto &texture = event->inputs.textures[slot];
+        const auto &input = inputs_.textures[slot];
+        texture.described = input.described;
+        texture.metadata = input.metadata;
+        texture.metadata.image = {};
+        for (const auto &i : input.images)
+            texture.images.push_back({ i.mip_level, i.face, image(i.image) });
+    }
+    for (const auto &u : inputs_.uniforms)
+        event->inputs.uniforms.push_back(
+            { u.stage, u.type, u.components, u.count, u.name,
+              block(u.data.data(), u.data.size()) });
+    for (size_t stage = 0; stage < inputs_.sources.size(); ++stage)
+        event->inputs.sources[stage] =
+            block(inputs_.sources[stage].data(), inputs_.sources[stage].size());
+    for (const auto &b : inputs_.blobs)
+        event->inputs.blobs.push_back(
+            { b.name, b.slot, b.format, b.components, b.stride, b.count,
+              b.offset, b.normalized, b.integer,
+              block(b.bytes.data(), b.bytes.size()) });
+    event->geometry.position_count = geometry_.positions.size();
+    event->geometry.index_count = geometry_.indices.size();
+    event->geometry.positions =
+        block(geometry_.positions.data(),
+              geometry_.positions.size() * sizeof(std::array<float, 4>));
+    event->geometry.indices = block(
+        geometry_.indices.data(), geometry_.indices.size() * sizeof(uint32_t));
+    return event;
+}
 
 void DrawCaptureRequest::Fail(uint64_t token)
 {
@@ -941,6 +1017,12 @@ xemu_shader_capture_session_invalidate(uint64_t scope_generation,
 extern "C" int xemu_shader_capture_session_active(void)
 {
     return xemu::shader_browser::GetCaptureSession().Active();
+}
+
+extern "C" int xemu_shader_capture_session_readback_pressure(uint64_t headroom)
+{
+    auto &session = xemu::shader_browser::GetCaptureSession();
+    return session.Active() && session.ReadbackPressure(headroom);
 }
 
 extern "C" uint64_t xemu_shader_capture_session_begin_event(

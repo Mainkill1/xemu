@@ -102,6 +102,16 @@ void xemu_test_texture_reuse_stage(uint64_t token, uint64_t owner,
 void xemu_test_texture_reuse_retire(uint64_t stats[5], bool reverse);
 void xemu_test_texture_reuse_modify(unsigned flags);
 uint64_t xemu_test_texture_reuse_pending(void);
+bool xemu_test_texture_reuse_should_drain(void);
+bool xemu_test_texture_reuse_should_drain(void)
+{
+    return pgraph_vk_input_should_drain(
+        fixture_r->shader_browser_input_staging_bytes,
+        fixture_r->shader_browser_input_pending_bytes,
+        xemu_shader_capture_session_readback_pressure(
+            PGRAPH_VK_INPUT_CPU_HEADROOM),
+        true, false, 0);
+}
 uint64_t xemu_test_texture_reuse_pending(void)
 {
     return fixture_r->shader_browser_input_pending_bytes;

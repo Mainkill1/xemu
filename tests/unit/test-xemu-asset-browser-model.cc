@@ -213,6 +213,36 @@ static void TestLargeAndBudget()
     g_assert_true(catalog.budget_exceeded);
     g_assert_false(catalog.complete_frame);
 }
+static void TestLimitReasons()
+{
+    auto snapshot = Snapshot();
+    snapshot.events = { Draw(1), Draw(2) };
+    AssetLimits limits;
+    limits.maximum_parts = 1;
+    g_assert_true(
+        BuildAssetCatalog(snapshot, limits).reason.find("Parts per frame") !=
+        std::string::npos);
+    limits = {};
+    limits.maximum_events = 1;
+    g_assert_true(
+        BuildAssetCatalog(snapshot, limits).reason.find("Events per capture") !=
+        std::string::npos);
+    limits = {};
+    limits.maximum_indices = 2;
+    g_assert_true(BuildAssetCatalog(snapshot, limits)
+                      .reason.find("Triangle indices per part") !=
+                  std::string::npos);
+    limits = {};
+    limits.maximum_vertices = 2;
+    g_assert_true(
+        BuildAssetCatalog(snapshot, limits).reason.find("Vertices per part") !=
+        std::string::npos);
+    limits = {};
+    limits.decoded_byte_budget = 1;
+    g_assert_true(BuildAssetCatalog(snapshot, limits)
+                      .reason.find("Decoded geometry (MiB)") !=
+                  std::string::npos);
+}
 static void TestHostTopology()
 {
     auto event = Draw(1, 2, 8); // Guest quads, already expanded host triangles.
@@ -355,5 +385,6 @@ int main(int argc, char **argv)
     g_test_add_func("/asset/decode/strip-attributes", TestStripAndAttributes);
     g_test_add_func("/asset/decode/compressed-half", TestCompressedAndHalf);
     g_test_add_func("/asset/decode/missing-evidence", TestMissingEvidence);
+    g_test_add_func("/asset/catalog/named-limits", TestLimitReasons);
     return g_test_run();
 }

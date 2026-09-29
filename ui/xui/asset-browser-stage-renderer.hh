@@ -10,7 +10,10 @@ public:
     ~AssetStageRenderer();
     bool DrawPart(const AssetPart &, uint32_t backend,
                   const AssetMatrix &inspection_from_clip, uint32_t width,
-                  uint32_t height, std::string *error);
+                  uint32_t height, std::string *error,
+                  bool projected_output = false);
+    bool OutputBounds(const AssetPart &, uint32_t backend, capture::Bounds3 *,
+                      std::string *error);
     uint64_t GpuBytes() const;
     bool Configure(uint64_t budget);
     void Shutdown();

@@ -420,7 +420,6 @@ int main(int argc, char **argv)
     };
     g_assert_cmpuint(pixel(25, 64, 0), >, 200);
     g_assert_cmpuint(pixel(45, 64, 2), >, 200);
-
     g_assert_cmpuint(pixel(95, 64, 1), >, 200);
     // Empty pixels must show contrasting purple tiles, without tinting the
     // captured material. This also catches a background that covers the mesh.
@@ -516,6 +515,146 @@ int main(int argc, char **argv)
                      200); // Transformed nearer part occludes body.
     g_assert_cmpuint(pixel(45, 64, 1), <, 30);
     g_assert_cmpuint(pixel(45, 64, 2), >, 200);
+    // A captured VS can skin/deform or translate vertices beyond their raw
+    // input bounds. Its visible output must not require a recognized matrix.
+    if (run_review("output-framing")) {
+        auto deformed = StageFixture();
+        deformed->captured_placement = false;
+        for (auto &part : deformed->parts) {
+            auto changed = std::make_shared<AssetPart>(*part);
+            auto event =
+                std::make_shared<capture::CaptureOccurrence>(*part->occurrence);
+            const std::string vs =
+                "#version 450\nlayout(location=0) in vec4 v0;\n"
+                "uniform vec4 paint; uniform vec4 shift;\n"
+                "layout(location=0)out vec4 vtxD0;\n"
+                "void main(){gl_Position=vec4(v0.x*v0.x*3+400,"
+                "v0.y-900,0,1)+shift;vtxD0=paint;}\n";
+            event->inputs.sources[1] = StageBytes(vs.data(), vs.size());
+            changed->occurrence = event;
+            part = changed;
+        }
+        GLuint feedback, feedback_buffer;
+        glGenTransformFeedbacks(1, &feedback);
+        glGenBuffers(1, &feedback_buffer);
+        glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, feedback);
+        glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, feedback_buffer);
+        glBufferData(GL_TRANSFORM_FEEDBACK_BUFFER, 64, nullptr, GL_STATIC_DRAW);
+        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, feedback_buffer);
+        auto fitted = viewport.Render(deformed, {}, 128, 128, -1, false, true);
+        glGetIntegerv(GL_TRANSFORM_FEEDBACK_BINDING, &actual);
+        g_assert_cmpuint(actual, ==, feedback);
+        glGetIntegerv(GL_TRANSFORM_FEEDBACK_BUFFER_BINDING, &actual);
+        g_assert_cmpuint(actual, ==, feedback_buffer);
+        glGetIntegeri_v(GL_TRANSFORM_FEEDBACK_BUFFER_BINDING, 0, &actual);
+        g_assert_cmpuint(actual, ==, feedback_buffer);
+        glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
+        glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, 0);
+        glDeleteTransformFeedbacks(1, &feedback);
+        glDeleteBuffers(1, &feedback_buffer);
+        g_assert_cmpuint(fitted.captured_parts, ==, 2);
+        g_assert_cmpuint(fitted.texture, !=, 0);
+        g_assert_true(fitted.message.find("Post-transform") !=
+                      std::string::npos);
+        glBindTexture(GL_TEXTURE_2D, fitted.texture);
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                      pixels.data());
+        size_t visible = 0;
+        for (size_t i = 0; i < pixels.size(); i += 4)
+            visible += pixels[i + 1] > 180;
+        g_assert_cmpuint(visible, >, 200);
+        // A new constant generation must invalidate the fitted output bounds.
+        for (auto &part : deformed->parts) {
+            auto changed = std::make_shared<AssetPart>(*part);
+            auto event =
+                std::make_shared<capture::CaptureOccurrence>(*part->occurrence);
+            const float shift[] = { -5000, 2000, 0, 0 };
+            for (auto &u : event->inputs.uniforms)
+                if (u.name == "shift")
+                    u.data = StageBytes(shift, 4);
+            changed->occurrence = event;
+            part = changed;
+        }
+        fitted = viewport.Render(deformed, {}, 128, 128, -1, false, true);
+        g_assert_cmpuint(fitted.captured_parts, ==, 2);
+        glBindTexture(GL_TEXTURE_2D, fitted.texture);
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                      pixels.data());
+        visible = 0;
+        for (size_t i = 0; i < pixels.size(); i += 4)
+            visible += pixels[i + 1] > 180;
+        g_assert_cmpuint(visible, >, 200);
+        auto singular = std::make_shared<AssetAssembly>(*deformed);
+        auto changed = std::make_shared<AssetPart>(*deformed->parts[0]);
+        auto event =
+            std::make_shared<capture::CaptureOccurrence>(*changed->occurrence);
+        const float zero_w[] = { 0, 0, 0, -1 };
+        for (auto &u : event->inputs.uniforms)
+            if (u.name == "shift")
+                u.data = StageBytes(zero_w, 4);
+        changed->occurrence = event;
+        singular->parts = { changed };
+        auto invalid_output =
+            viewport.Render(singular, {}, 128, 128, -1, false, true);
+        g_assert_cmpuint(invalid_output.texture, ==, 0);
+        g_assert_true(invalid_output.message.find("zero w") !=
+                      std::string::npos);
+        // Face assignments are binding identity, even with unchanged byte
+        // blocks. A VS texture fetch must not reuse the previous fitted bounds.
+        auto cube = StageFixture();
+        cube->parts.resize(1);
+        cube->captured_placement = false;
+        auto cube_part = std::make_shared<AssetPart>(*cube->parts.front());
+        auto cube_event = std::make_shared<capture::CaptureOccurrence>(
+            *cube_part->occurrence);
+        const std::string cube_vs =
+            "#version 450\nlayout(location=0)in vec4 v0;"
+            "uniform samplerCube texSamp0;layout(location=0)out vec4 vtxD0;"
+            "void "
+            "main(){gl_Position=vec4(v0.xyz+vec3(texture(texSamp0,vec3(1,0,0))."
+            "r*3000,0,0),1);"
+            "vtxD0=vec4(0,1,0,1);}";
+        const std::string cube_ps =
+            "#version 450\nlayout(location=0)in vec4 vtxD0;"
+            "layout(location=0)out vec4 fragColor;void "
+            "main(){fragColor=vtxD0;}";
+        cube_event->inputs.sources[1] =
+            StageBytes(cube_vs.data(), cube_vs.size());
+        cube_event->inputs.sources[2] =
+            StageBytes(cube_ps.data(), cube_ps.size());
+        auto &texture = cube_event->inputs.textures[0];
+        texture.metadata.host_format = 37;
+        texture.metadata.face_count = 6;
+        texture.metadata.width = texture.metadata.height = 1;
+        texture.images.clear();
+        for (uint32_t face = 0; face < 6; ++face) {
+            const uint8_t rgba[] = { uint8_t(face ? 255 : 0), 0, 0, 255 };
+            texture.images.push_back(
+                { 0, face, { 1, 1, StageBytes(rgba, 4) } });
+        }
+        cube_part->occurrence = cube_event;
+        cube->parts = { cube_part };
+        for (int generation = 0; generation < 2; ++generation) {
+            const auto cube_frame =
+                viewport.Render(cube, {}, 128, 128, -1, false, true);
+            g_assert_cmpuint(cube_frame.captured_parts, ==, 1);
+            glBindTexture(GL_TEXTURE_2D, cube_frame.texture);
+            glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                          pixels.data());
+            visible = 0;
+            for (size_t i = 0; i < pixels.size(); i += 4)
+                visible += pixels[i + 1] > 180;
+            g_assert_cmpuint(visible, >, 200);
+            auto next_event =
+                std::make_shared<capture::CaptureOccurrence>(*cube_event);
+            std::swap(next_event->inputs.textures[0].images[0].face,
+                      next_event->inputs.textures[0].images[1].face);
+            auto next_part = std::make_shared<AssetPart>(*cube_part);
+            next_part->occurrence = next_event;
+            cube->parts = { next_part };
+        }
+    }
+
     if (run_review("palette")) {
         auto mapped = StageFixture();
         std::array<uint8_t, 768> palette;

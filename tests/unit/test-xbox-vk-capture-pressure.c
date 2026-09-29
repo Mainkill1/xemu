@@ -15,7 +15,7 @@ int main(void)
             return 1;
         }
         pending += draw_bytes;
-        if (pgraph_vk_input_should_drain(pending, 0, true, false, 0)) {
+        if (pgraph_vk_input_should_drain(pending, 0, false, true, false, 0)) {
             retired += pending;
             pending = 0;
         }
@@ -24,20 +24,33 @@ int main(void)
      * independent future CPU payload reservations for its consumers. */
     const size_t shared_staging = 4U * 1024U * 1024U;
     const size_t consumer_payload = 128U * 1024U * 1024U;
-    if (!pgraph_vk_input_should_drain(shared_staging, consumer_payload, true,
-                                      false, 0)) {
+    if (!pgraph_vk_input_should_drain(shared_staging, consumer_payload, false,
+                                      true, false, 0)) {
         fprintf(stderr, "Shared readbacks did not drain CPU reservations\n");
         return 1;
     }
+    if (!pgraph_vk_input_should_drain(shared_staging, shared_staging, true,
+                                      true, false, 0) ||
+        pgraph_vk_input_should_drain(shared_staging, shared_staging, true, true,
+                                     true, 0) ||
+        pgraph_vk_input_should_drain(shared_staging, shared_staging, true, true,
+                                     false, 1) ||
+        pgraph_vk_input_should_drain(0, 0, true, true, false, 0)) {
+        fprintf(stderr, "Recorder pressure drained at an unsafe boundary\n");
+        return 1;
+    }
     if (retired + pending != 1600U * 1024U * 1024U || !retired ||
-        pgraph_vk_input_should_drain(0, 0, true, false, 0) ||
-        pgraph_vk_input_should_drain(127U * 1024U * 1024U, 0, true, false, 0) ||
-        !pgraph_vk_input_should_drain(128U * 1024U * 1024U, 0, true, false,
-                                      0) ||
-        pgraph_vk_input_should_drain(192U * 1024U * 1024U, 0, false, false,
+        pgraph_vk_input_should_drain(0, 0, false, true, false, 0) ||
+        pgraph_vk_input_should_drain(127U * 1024U * 1024U, 0, false, true,
+                                     false, 0) ||
+        !pgraph_vk_input_should_drain(128U * 1024U * 1024U, 0, false, true,
+                                      false, 0) ||
+        pgraph_vk_input_should_drain(192U * 1024U * 1024U, 0, true, false,
+                                     false, 0) ||
+        pgraph_vk_input_should_drain(192U * 1024U * 1024U, 0, true, true, true,
                                      0) ||
-        pgraph_vk_input_should_drain(192U * 1024U * 1024U, 0, true, true, 0) ||
-        pgraph_vk_input_should_drain(192U * 1024U * 1024U, 0, true, false, 1)) {
+        pgraph_vk_input_should_drain(192U * 1024U * 1024U, 0, true, true, false,
+                                     1)) {
         fprintf(stderr, "Readbacks drained at an unsafe boundary\n");
         return 1;
     }

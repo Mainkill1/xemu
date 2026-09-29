@@ -17,7 +17,7 @@ struct AssetBrowserWindow::Impl {
         AssetCatalog catalog;
         std::shared_ptr<const AssetAssembly> selected;
         uint64_t generation = 0;
-        bool opened = false, success = false;
+        bool opened = false, success = false, remember = true;
         std::string message;
     };
     AssetController controller;
@@ -33,6 +33,8 @@ struct AssetBrowserWindow::Impl {
     char path[1024] = "asset-capture";
     bool was_open = false, inspector = true, wire = false, largest = true;
     bool captured_stages = true;
+    bool projected_output = false;
+    std::weak_ptr<const AssetAssembly> camera_selection;
     uint64_t pose_frame = 0, pose_started_ns = 0, pose_samples = 0,
              pose_updated_ns = 0;
     double pose_hz = 0;
@@ -157,6 +159,54 @@ std::shared_ptr<const AssetAssembly> AssetBrowserWindow::Selected() const
 {
     return impl_->controller.Selected();
 }
+bool AssetBrowserWindow::InspectOccurrence(
+    std::shared_ptr<const capture::CaptureOccurrence> occurrence,
+    const capture::CaptureSessionContext &context,
+    std::shared_ptr<const capture::CaptureSessionSnapshot> recording)
+{
+    auto &s = *impl_;
+    if (!occurrence || occurrence->pending || s.file.valid())
+        return false;
+    s.live.Disable();
+    s.controller.Freeze(true);
+    const auto generation = ++s.file_generation;
+    try {
+        s.file = std::async(std::launch::async, [occurrence, context, recording,
+                                                 generation] {
+            Impl::FileResult result;
+            result.generation = generation;
+            result.remember = false;
+            capture::CaptureSessionSnapshot selected;
+            selected.context = context;
+            selected.events = { occurrence };
+            result.catalog = BuildAssetCatalog(selected);
+            if (recording)
+                result.catalog.recording = recording;
+            if (!result.catalog.entries.empty()) {
+                result.selected = std::make_shared<const AssetAssembly>(
+                    result.catalog.entries.front());
+                result.opened = result.success = true;
+                result.message = "Selected captured occurrence; use Fit and "
+                                 "camera controls to inspect it.";
+            } else {
+                result.message = "This occurrence has no supported geometry: ";
+                if (!result.catalog.parts.empty())
+                    result.message += result.catalog.parts.front()->reason;
+            }
+            return result;
+        });
+    } catch (const std::exception &exception) {
+        s.message = exception.what();
+        return false;
+    }
+    s.opening = true;
+    s.captured_stages = true;
+    s.projected_output = true;
+    s.camera = {};
+    s.message = "Preparing captured occurrence view";
+    m_is_open = true;
+    return true;
+}
 void AssetBrowserWindow::Shutdown()
 {
     impl_->live.Disable();
@@ -203,8 +253,11 @@ void AssetBrowserWindow::Draw()
                         for (const auto &part : result.selected->parts)
                             if (part->id != result.selected->id)
                                 ids.push_back(part->id);
-                        s.controller.Assemble(ids, result.selected->label);
-                        s.controller.RememberSelected();
+                        if (result.remember) {
+                            s.controller.Assemble(ids, result.selected->label);
+                            s.controller.RememberSelected();
+                        } else
+                            s.controller.Select(result.selected->id);
                     }
                     s.controller.Freeze(true);
                 }
@@ -225,7 +278,11 @@ void AssetBrowserWindow::Draw()
         return;
     }
     bool live = s.live.Enabled();
-    if (ImGui::Checkbox("Live discovery", &live)) {
+    const bool toggle_live = ImGui::Checkbox("Live discovery", &live);
+    ImGui::SameLine();
+    const bool retry_live = !live && ImGui::Button("Retry discovery");
+    if (toggle_live || retry_live) {
+        live |= retry_live;
         if (live) {
             if (!context.scope.title_id)
                 s.message = "Load a game before starting discovery";
@@ -275,9 +332,12 @@ void AssetBrowserWindow::Draw()
         ImGui::BeginDisabled(s.live.Enabled());
         ImGui::TextUnformatted(
             "Stop Live discovery before changing acquisition budgets.");
+        ImGui::TextWrapped(
+            "Capture memory includes shader/state metadata and pending "
+            "readbacks, in addition to geometry and textures.");
         limit("Capture memory (MiB)", s.capture_mib, 32, 512);
         limit("Decoded geometry (MiB)", s.decoded_mib, 16, 256);
-        limit("Events per frame", s.event_limit, 512, 32768);
+        limit("Events per capture", s.event_limit, 512, 32768);
         limit("Parts per frame", s.part_limit, 64, 8192);
         limit("Vertices per part", s.vertex_limit, 4096, 1048576);
         limit("Triangle indices per part", s.index_limit, 12288, 3145728);
@@ -291,9 +351,29 @@ void AssetBrowserWindow::Draw()
             "Named recordings: 256 MiB; named geometry: 128 MiB.");
     }
     s.viewport.Configure(uint64_t(s.mesh_mib) << 20, size_t(s.thumbnails));
-    ImGui::TextWrapped(
-        "Freeze discovery to choose parts; the game keeps running. Follow uses "
-        "geometry evidence, not a verified player-car ID.");
+    if (ImGui::CollapsingHeader("How to view your car",
+                                ImGuiTreeNodeFlags_DefaultOpen)) {
+        ImGui::TextWrapped(
+            "1. Start Live discovery in a race, then Freeze discovery when "
+            "parts appear. The game keeps running.");
+        ImGui::TextWrapped("2. Select a body-shaped thumbnail on the left. "
+                           "Up/Down inspects nearby entries; these entries are "
+                           "draw parts, so a car needs several parts.");
+        ImGui::TextWrapped(
+            "3. Use Suggest related parts, inspect the suggested "
+            "wheels/glass/body, and check only parts that belong to your car.");
+        ImGui::TextWrapped(
+            "4. Name the selection and click Assemble checked parts. Enable "
+            "Follow selected assembly and Live discovery for motion; the "
+            "viewer keeps its camera angle.");
+        ImGui::TextWrapped(
+            "5. Use the Inspector to open a part's captured draw in Shader "
+            "Browser for its stages, inputs, and GLSL replacement editor.");
+        ImGui::TextWrapped(
+            "Related parts and following use geometry evidence; player-car "
+            "identity is not verified. A capture limit stops discovery, not "
+            "the game. Retry keeps your current budgets.");
+    }
     ImGui::SetNextItemWidth(350);
     ImGui::InputText("Capture directory / GLB file", s.path, sizeof(s.path));
     ImGui::BeginDisabled(s.file.valid());
@@ -458,6 +538,13 @@ void AssetBrowserWindow::Draw()
             if (!entry.parts.empty())
                 ImGui::TextUnformatted(
                     AssetStatusLabel(entry.parts.front()->status));
+            ImGui::TextDisabled(thumb.captured_parts ? "Shader output" :
+                                                       "Raw inputs");
+            if (ImGui::IsItemHovered()) {
+                ImGui::BeginTooltip();
+                ImGui::TextWrapped("%s", thumb.message.c_str());
+                ImGui::EndTooltip();
+            }
             ImGui::EndGroup();
             if (row == scroll_row)
                 ImGui::SetScrollHereY();
@@ -506,6 +593,15 @@ void AssetBrowserWindow::Draw()
                       true);
     selected = s.controller.Selected();
     if (selected) {
+        const bool projected =
+            s.captured_stages &&
+            (s.projected_output || !selected->captured_placement);
+        // Browsing another occurrence must not inherit an offscreen pan.
+        // Live following deliberately retains its camera across new poses.
+        if (s.camera_selection.lock() != selected && !s.controller.Pinned())
+            s.camera =
+                projected ? AssetCamera{} : AssetCamera{ .55f, .45f, 1.f };
+        s.camera_selection = selected;
         ImGui::Text("%s | frame %llu | %zu parts", selected->label.c_str(),
                     (unsigned long long)selected->frame,
                     selected->parts.size());
@@ -515,11 +611,32 @@ void AssetBrowserWindow::Draw()
                 s.message = s.controller.Message();
         }
         ImGui::SameLine();
-        if (ImGui::Button("Reset camera"))
-            s.camera = { .55f, .45f, 1.5f };
+        if (ImGui::Button("Fit") ||
+            (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) &&
+             !ImGui::GetIO().WantTextInput &&
+             ImGui::IsKeyPressed(ImGuiKey_F))) {
+            s.camera.zoom = 1;
+            s.camera.pan_x = s.camera.pan_y = 0;
+        }
         ImGui::SameLine();
+        if (ImGui::Button("Front"))
+            s.camera = {};
+        ImGui::SameLine();
+        if (ImGui::Button("Side"))
+            s.camera = { 1.5708f, 0, 1 };
+        ImGui::SameLine();
+        if (ImGui::Button("Top"))
+            s.camera = { 0, 1.5708f, 1 };
         ImGui::Checkbox("Wireframe", &s.wire);
         ImGui::Checkbox("Captured shaders and materials", &s.captured_stages);
+        if (s.captured_stages &&
+            ImGui::Checkbox("Frame shader output", &s.projected_output))
+            s.camera = s.projected_output ? AssetCamera{} :
+                                            AssetCamera{ .55f, .45f, 1.f };
+        ImGui::SetNextItemWidth(160);
+        ImGui::SliderFloat("Zoom", &s.camera.zoom, .1f, 5.f, "%.2fx");
+        ImGui::TextDisabled(
+            "Left drag: orbit | Right drag: pan | Wheel: zoom | F: fit");
         static const char *textures[] = {
             "Auto captured texture", "T0",  "T1", "T2", "T3",
             "Vertex color",          "Clay"
@@ -540,7 +657,7 @@ void AssetBrowserWindow::Draw()
         auto frame = s.viewport.Render(
             selected, s.camera, uint32_t(std::clamp(size.x, 1.f, 2048.f)),
             uint32_t(std::clamp(size.y, 1.f, 2048.f)), s.texture_slot, s.wire,
-            s.captured_stages);
+            s.captured_stages, s.projected_output);
         if (selected->frame != s.pose_frame) {
             s.pose_updated_ns = now;
             if (!s.pose_started_ns || selected->frame < s.pose_frame) {

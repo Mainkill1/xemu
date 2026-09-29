@@ -6,9 +6,12 @@
 #include "shader-browser-draw-request.h"
 
 #include <atomic>
+#include <memory>
 #include <mutex>
 
 namespace xemu::shader_browser {
+struct CaptureOccurrence;
+struct CaptureSessionContext;
 
 enum class DrawRequestState : uint8_t {
     Idle,
@@ -74,6 +77,8 @@ public:
     bool StageBlob(uint64_t token, const XemuShaderDrawBlob &blob);
     bool InputsComplete(uint64_t token);
     OwnedDrawInputs CopyInputs() const;
+    std::shared_ptr<const CaptureOccurrence>
+    CopyOccurrence(CaptureSessionContext *context = nullptr) const;
     void Fail(uint64_t token);
     void Cancel();
     bool Armed() const

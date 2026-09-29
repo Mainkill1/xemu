@@ -79,9 +79,11 @@ publication.
 The inspection camera replaces guest pixel rounding, window clipping and depth
 bookkeeping. Original material calculations and generated UVs retain captured game
 inputs. Missing scene/destination dependencies can change the result, and changing
-the camera is not exact original-camera replay. Unsupported position transforms,
-non-triangle host GS interfaces, missing inputs or incompatible sampler/GL features
-produce an explicit incomplete view rather than a synthetic substitute. Legacy
+the camera is not exact original-camera replay. When a direct position matrix cannot be recognized, the viewer fits the actual
+captured VS output in projected coordinates. This supports nonlinear transforms
+and animation inputs without pretending to recover world-space placement.
+Non-triangle host GS interfaces, missing inputs or incompatible sampler/GL features
+produce an explicit incomplete view. Legacy
 Vulkan captures without full sampler state cannot replay mipmapped materials.
 Texture inspection copies use decoded RGBA8 where exact typed storage is not
 retained. Vulkan sampledR16 retains its full16-bit representation; OpenGL R16
@@ -129,3 +131,56 @@ fixture or a mechanically mergeable PR as this native qualification.
 The current HTTP tester's saved race procedure does not automate the Asset Browser
 controls. These interactive gates need human execution or a reviewed native UI
 test procedure; remote-shell workarounds are not part of normal test operation.
+
+## Find and follow your car
+
+1. Load a race, open **Debug > Asset Browser**, and enable **Live discovery**.
+   Once thumbnails appear, use **Freeze discovery** so the list stays still.
+2. Select a body-shaped thumbnail; Up/Down immediately inspects nearby entries.
+   An entry is a captured draw part, not necessarily a complete engine object.
+3. Use **Suggest related parts**, inspect the candidates, and check the body,
+   glass and wheels that belong together. Suggestions require confirmation.
+4. Enter a name and choose **Assemble checked parts**. Enable **Follow selected
+   assembly**, then **Live discovery**, to update those parts while retaining
+   the viewer's camera angle. Following uses geometry evidence; it does not
+   establish a verified player-car ID.
+5. Open a selected part's captured draw through the Inspector to examine the
+   bound shaders, inputs and generated GLSL in Shader Browser.
+
+If discovery stops, its status gives the original failure, recorder memory and
+pending reservations, and event usage. **Retry discovery** uses the current
+settings. A later failed capture keeps the last complete frame visible; the
+failed frame remains in the recorder for diagnosis. An initial failure exposes
+its retained partial frame. Increase only the named limit if the desired scene
+actually exceeds it; CPU memory, event count and decoded-part limits are separate.
+Vulkan drains pending copies at a safe draw boundary when recorder capacity cannot
+accommodate the next bounded draw, as well as at the physical staging threshold.
+This releases reservations after the submission fence and does not raise budgets.
+
+## Recover a hidden draw and inspect an animation snapshot
+
+**Fit** (or **F**) clears pan and zoom while keeping the current angle. **Front**,
+**Side**, and **Top** choose a standard angle; left drag orbits, right drag pans,
+and the wheel or **Zoom** slider changes scale. Browsing a new occurrence resets
+its camera; following a pinned assembly preserves a fixed angle across poses.
+
+**Frame shader output** executes the captured VS with its owned streams and
+constants, then fits referenced post-transform positions. Unsupported direct
+matrix paths use this mode automatically. It is a projected-coordinate inspection,
+not recovered world geometry or exact replay. Non-finite positions, zero homogeneous
+w, missing active inputs, and unsupported host GS framing have explicit reasons.
+A bounded temporary GPU readback measures positions once per immutable input set;
+camera motion reuses its cached bounds. Fresh poses can incur this inspection cost.
+
+Thumbnails use captured shader output and materials where supported. **Raw inputs**
+marks a diagnostic fallback; hovering the caption explains the missing component.
+Use these thumbnails and immediate arrow-key navigation to locate a creature or
+vehicle in a saved frame. Engine names and spider/player identity are not inferred.
+The frame contains one pose; following a death animation requires a recorded range,
+not a single snapshot. Inspect its independent occurrences in the Capture workspace.
+
+For a selected captured occurrence in Shader Workbench, **Fit captured shader
+output** opens this same view in Asset Browser, with the exact occurrence retained.
+Selecting and inspecting does not change a replacement rule or retarget an armed
+forensic session. GLSL editing and explicit replacement enable remain in Shader
+Workbench.

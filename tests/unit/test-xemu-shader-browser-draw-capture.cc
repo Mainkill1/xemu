@@ -2,6 +2,7 @@
 #include "../../ui/xui/shader-browser-draw-capture.hh"
 #include "../../ui/xui/shader-browser-draw-request.hh"
 #include "../../ui/xui/shader-browser-draw-request.h"
+#include "../../ui/xui/shader-browser-capture-session.hh"
 #include "../../hw/xbox/nv2a/pgraph/shader-browser-geometry-copy.h"
 #include "../../hw/xbox/nv2a/pgraph/shader-browser-command-copy.h"
 
@@ -557,7 +558,45 @@ static void TestDrawInputsWaitForEmissionAndOwnTheirBytes()
     std::memcpy(&stored, owned.uniforms[0].data.data(), sizeof(stored));
     CHECK(stored == 0.25f && owned.sources[2] == "void main() {}" &&
           owned.registers[0].value == 123);
+    CaptureSessionContext context;
+    context.scope = GetDrawCaptureRequest().CopyCaptured().scope;
+    context.session_epoch = 1;
+    context.renderer_epoch = 2;
+    context.generation = request;
+    context.backend = 1;
+    const auto occurrence = GetDrawCaptureRequest().CopyOccurrence(&context);
+    CHECK(occurrence && !occurrence->pending && occurrence->emitted);
+    CHECK(occurrence->summary.key ==
+          GetDrawCaptureRequest().CopyCaptured().key);
+    CHECK(occurrence->inputs.before.rgba->bytes[0] == 1 &&
+          occurrence->inputs.after.rgba->bytes[0] == 42);
+    CHECK(occurrence->inputs.textures[0].metadata.image.rgba == nullptr);
+    CHECK(occurrence->CopyGeometry().indices ==
+          std::vector<uint32_t>({ 0, 1, 2 }));
+    CaptureSessionSnapshot snapshot;
+    snapshot.context = context;
+    snapshot.state = CaptureSessionState::Ready;
+    snapshot.events = { occurrence };
+    snapshot.total_events = 1;
+    snapshot.first_frame = snapshot.last_frame = occurrence->summary.key.frame;
+    const auto path = std::filesystem::temp_directory_path() /
+                      "xemu-single-draw-fitted-context";
+    std::filesystem::remove_all(path);
+    std::string error;
+    CHECK(CaptureSession::SaveSnapshot(snapshot, path, &error));
+    CaptureSessionSnapshot reopened;
+    const bool reopened_ok = CaptureSession::Reopen(path, &reopened, &error);
+    if (!reopened_ok)
+        std::cerr << error << "\n";
+    CHECK(reopened_ok);
+    CHECK(reopened.context.scope_generation == 8 &&
+          reopened.context.current_frame == occurrence->summary.key.frame);
+    CHECK(reopened.events[0]->CopyGeometry().indices ==
+          occurrence->CopyGeometry().indices);
+    std::filesystem::remove_all(path);
     xemu_shader_draw_request_cancel();
+    CHECK(!GetDrawCaptureRequest().CopyOccurrence());
+    CHECK(occurrence->inputs.before.rgba->bytes[0] == 1);
     CHECK(!xemu_shader_draw_request_inputs_complete(token));
     CHECK(!xemu_shader_draw_request_stage_image(token, 1, &image));
     const auto next = xemu_shader_draw_request_arm(&spec);
