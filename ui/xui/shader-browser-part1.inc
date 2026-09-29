@@ -1,12 +1,16 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "shader-browser.hh"
+#include "shader-browser-usage-export.hh"
+#include "shader-browser-glsl-export.hh"
 
 #include "common.hh"
 #include "viewport-manager.hh"
 #include "../xemu-settings.h"
 #include "hw/xbox/nv2a/pgraph/shader-browser-flush.h"
+#include "hw/xbox/nv2a/debug.h"
 
 #include <algorithm>
+#include <cmath>
 #include <cstdio>
 #include <filesystem>
 #include <iterator>
@@ -17,6 +21,20 @@ using namespace xemu::shader_browser;
 ShaderBrowserWindow shader_browser_window;
 
 namespace {
+
+struct TableViewState {
+    std::set<ShaderKey> pinned;
+    std::set<ShaderKey> hidden;
+    bool show_hidden = false;
+    int recent_index = 0;
+};
+
+TableViewState table_view;
+
+uint64_t PreviewNowNs()
+{
+    return static_cast<uint64_t>(g_get_monotonic_time()) * UINT64_C(1000);
+}
 
 Stage StageFromIndex(int index)
 {
@@ -86,6 +104,14 @@ void DrawKeyValue(const char *key, const std::string &value)
     ImGui::TextWrapped("%s", value.c_str());
 }
 
+void DrawMutedWrapped(const char *text)
+{
+    ImGui::PushStyleColor(ImGuiCol_Text,
+                          ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
+    ImGui::TextWrapped("%s", text);
+    ImGui::PopStyleColor();
+}
+
 std::string ScopeSummary(const Entry &entry)
 {
     if (entry.scopes.empty()) {
@@ -150,16 +176,6 @@ bool OpenDirectory(const std::string &path, std::string *error)
     return ok;
 }
 
-void DrawDurationRows(const Entry &entry)
-{
-    DrawKeyValue("Compile CPU", FormatDurationNs(entry.compile_cpu));
-    DrawKeyValue("Pipeline CPU", FormatDurationNs(entry.pipeline_cpu));
-    DrawKeyValue("Prepare CPU", FormatDurationNs(entry.prepare_cpu));
-    DrawKeyValue("Foreground stall",
-                 FormatDurationNs(entry.foreground_stall_cpu));
-    DrawKeyValue("GPU execution", FormatDurationNs(entry.gpu_execution));
-}
-
 } // namespace
 
 ShaderBrowserWindow::ShaderBrowserWindow()
@@ -175,12 +191,22 @@ ShaderBrowserWindow::ShaderBrowserWindow()
       m_sort_key(0),
       m_sort_descending(true)
 {
+    m_preview_scene.mesh = PreviewMesh::Sphere;
+    m_preview_colors = {{{1.0f, 0.25f, 0.25f, 1.0f},
+                         {0.25f, 1.0f, 0.25f, 1.0f},
+                         {0.25f, 0.25f, 1.0f, 1.0f},
+                         {1.0f, 1.0f, 1.0f, 1.0f}}};
+    m_preview_texture_colors = {{{1.0f, 1.0f, 1.0f, 1.0f},
+                                 {0.25f, 0.25f, 0.25f, 1.0f},
+                                 {0.25f, 0.25f, 0.25f, 1.0f},
+                                 {1.0f, 1.0f, 1.0f, 1.0f}}};
 }
 
 void ShaderBrowserWindow::Draw()
 {
     Provider &provider = GetProvider();
     if (!m_is_open) {
+        GetPreviewService().SetVisible(false, PreviewNowNs());
         if (m_window_was_open) {
             provider.SetLiveCollectionEnabled(false);
             GetDetailStore().Clear();
@@ -213,9 +239,19 @@ void ShaderBrowserWindow::Draw()
     ImGui::SetNextWindowSize(initial, ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSizeConstraints(minimum, work);
 
-    if (!ImGui::Begin("Shader Browser", &m_is_open,
-                      ImGuiWindowFlags_NoCollapse)) {
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoCollapse;
+    if (xemu_hud_shader_browser_external()) {
+        const ImGuiViewport *viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(viewport->WorkPos, ImGuiCond_Always);
+        ImGui::SetNextWindowSize(viewport->WorkSize, ImGuiCond_Always);
+        window_flags |= ImGuiWindowFlags_NoTitleBar |
+                        ImGuiWindowFlags_NoResize |
+                        ImGuiWindowFlags_NoMove;
+    }
+
+    if (!ImGui::Begin("Shader Browser", &m_is_open, window_flags)) {
         ImGui::End();
+        GetPreviewService().SetVisible(false, PreviewNowNs());
         if (!m_is_open) {
             provider.SetLiveCollectionEnabled(false);
             GetDetailStore().Clear();
@@ -225,16 +261,66 @@ void ShaderBrowserWindow::Draw()
     }
 
     ImVec2 available = ImGui::GetContentRegionAvail();
-    float left_width = std::clamp(available.x * 0.48f,
-                                  320.0f * scale,
-                                  std::max(320.0f * scale,
-                                           available.x - 330.0f * scale));
-    if (ImGui::BeginChild("##shader-selector", ImVec2(left_width, 0), true)) {
-        DrawSelector();
+    const bool external_workbench = xemu_hud_shader_browser_external();
+    const bool compact_catalog = external_workbench &&
+        available.x <= 920.0f * scale;
+    static float external_catalog_width = 300.0f;
+    const float catalog_max = std::max(220.0f,
+        std::min(314.0f, available.x / scale - 460.0f));
+    external_catalog_width = std::clamp(external_catalog_width,
+        std::min(274.0f, catalog_max), catalog_max);
+    float left_width = external_workbench ?
+        external_catalog_width * scale :
+        std::clamp(available.x * 0.48f, 320.0f * scale,
+                   std::max(320.0f * scale, available.x - 330.0f * scale));
+    if (compact_catalog) {
+        const Entry *selected = SelectedEntry();
+        const std::string label = selected ?
+            "Shaders  /  " + ShortDisplayId(*selected,
+                m_snapshot.current_title_id) + "##catalog-toggle" :
+            "Shaders  /  Select a shader##catalog-toggle";
+        if (ImGui::Button(label.c_str()))
+            ImGui::OpenPopup("##shader-catalog-overlay");
+        const ImVec2 toggle_min = ImGui::GetItemRectMin();
+        const ImVec2 toggle_max = ImGui::GetItemRectMax();
+        ImGui::SetNextWindowPos(ImVec2(toggle_min.x, toggle_max.y),
+                                ImGuiCond_Appearing);
+        ImGui::SetNextWindowSize(ImVec2(
+            std::min(340.0f * scale, available.x),
+            std::min(600.0f * scale,
+                std::max(240.0f * scale,
+                         available.y - (toggle_max.y - toggle_min.y)))),
+            ImGuiCond_Appearing);
+        if (ImGui::BeginPopup("##shader-catalog-overlay")) {
+            DrawSelector();
+            ImGui::EndPopup();
+        }
+    } else {
+        if (ImGui::BeginChild("##shader-selector", ImVec2(left_width, 0), true)) {
+            DrawSelector();
+        }
+        ImGui::EndChild();
     }
-    ImGui::EndChild();
 
-    ImGui::SameLine();
+    if (!compact_catalog && external_workbench) {
+        ImGui::SameLine(0.0f, 0.0f);
+        ImGui::InvisibleButton("##shader-catalog-resize",
+                               ImVec2(7.0f * scale, available.y));
+        const ImVec2 marker_min = ImGui::GetItemRectMin();
+        const ImVec2 marker_max = ImGui::GetItemRectMax();
+        ImGui::GetWindowDrawList()->AddRectFilled(
+            ImVec2(marker_min.x + 3.0f * scale, marker_min.y),
+            ImVec2(marker_max.x - 3.0f * scale, marker_max.y),
+            ImGui::GetColorU32(ImGui::IsItemHovered() || ImGui::IsItemActive() ?
+                ImGuiCol_ButtonHovered : ImGuiCol_Border));
+        if (ImGui::IsItemActive())
+            external_catalog_width = std::clamp(
+                external_catalog_width + ImGui::GetIO().MouseDelta.x / scale,
+                std::min(220.0f, catalog_max), catalog_max);
+        ImGui::SameLine(0.0f, 0.0f);
+    } else if (!compact_catalog) {
+        ImGui::SameLine();
+    }
     if (ImGui::BeginChild("##shader-content", ImVec2(0, 0), true)) {
         DrawRightPane();
     }
@@ -242,6 +328,7 @@ void ShaderBrowserWindow::Draw()
     ImGui::End();
 
     if (!m_is_open) {
+        GetPreviewService().SetVisible(false, PreviewNowNs());
         provider.SetLiveCollectionEnabled(false);
         GetDetailStore().Clear();
         m_window_was_open = false;
@@ -272,8 +359,23 @@ void ShaderBrowserWindow::RefreshSnapshot()
         m_recipe_inspection = {};
         GetDetailStore().Clear();
     }
-    if (!m_has_selection && !m_snapshot.entries.empty()) {
-        SelectEntry(m_snapshot.entries.front());
+    // Wait for a title-scoped recipe before choosing a default. A catalog
+    // selection made by the user remains fixed across later snapshots.
+    if (!m_has_selection && m_snapshot.current_title_id) {
+        const Entry *initial = nullptr;
+        for (const Entry &entry : m_snapshot.entries) {
+            const bool current_title = std::any_of(
+                entry.scopes.begin(), entry.scopes.end(),
+                [this](const ShaderScope &scope) {
+                    return scope.title_id == m_snapshot.current_title_id;
+                });
+            if (current_title && entry.key.stage == Stage::Pixel &&
+                entry.recipe_size &&
+                (!initial || entry.draw_count > initial->draw_count)) {
+                initial = &entry;
+            }
+        }
+        if (initial) SelectEntry(*initial);
     }
 }
 
@@ -285,6 +387,13 @@ void ShaderBrowserWindow::RebuildVisibleOrder()
     filter.source = SourceFromIndex(m_source_filter);
     filter.sort_key = SortFromIndex(m_sort_key);
     filter.descending = m_sort_descending;
+    filter.pinned = table_view.pinned;
+    filter.hidden = table_view.hidden;
+    filter.show_hidden = table_view.show_hidden;
+    filter.recent_enabled = table_view.recent_index != 0;
+    filter.current_frame = m_snapshot.current_frame;
+    static constexpr uint64_t recent_frames[] = {0, 30, 120, 600};
+    filter.recent_within_frames = recent_frames[table_view.recent_index];
     m_visible_order = BuildVisibleOrder(m_snapshot.entries, filter);
     if (m_current_title_only && m_snapshot.current_title_id) {
         m_visible_order.erase(std::remove_if(
@@ -298,16 +407,6 @@ void ShaderBrowserWindow::RebuildVisibleOrder()
                                scope.title_id == m_snapshot.current_title_id;
                     });
             }), m_visible_order.end());
-    }
-    if (m_has_selection && std::none_of(
-            m_visible_order.begin(), m_visible_order.end(),
-            [this](size_t index) {
-                return m_snapshot.entries[index].key == m_selected_key;
-            })) {
-        m_has_selection = false;
-    }
-    if (!m_has_selection && !m_visible_order.empty()) {
-        SelectEntry(m_snapshot.entries[m_visible_order.front()]);
     }
     m_filter_dirty = false;
 }

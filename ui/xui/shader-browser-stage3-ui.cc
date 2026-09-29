@@ -169,6 +169,17 @@ const ReplacementPackageInfo *ShaderOverrideUi::SelectedPackage() const
     return it == library_snapshot_.packages.end() ? nullptr : &*it;
 }
 
+std::shared_ptr<const ReplacementPayload>
+ShaderOverrideUi::AcquireSelectedReplacement(OverrideBackend backend) const
+{
+    const ReplacementPackageInfo *package = SelectedPackage();
+    if (!package) {
+        return {};
+    }
+    return GetOverrideStore().AcquireReplacement(
+        package->descriptor.id, package->descriptor.content_revision, backend);
+}
+
 OverrideAction ShaderOverrideUi::SelectedAction() const
 {
     if (action_index_ < static_cast<int>(OverrideAction::Normal) ||
@@ -550,7 +561,6 @@ void ShaderOverrideUi::DrawSettings(std::string *message)
             *message = ok ? "Replacement packages reloaded" : error;
         }
     }
-    ImGui::SameLine();
     if (ImGui::Button("Open replacement folder")) {
         std::string error;
         if (!OpenDirectory(library_snapshot_.root_path, &error) && message) {
@@ -574,7 +584,7 @@ void ShaderOverrideUi::DrawSettings(std::string *message)
                                  "User shader overrides enabled";
         }
     }
-    ImGui::TextDisabled(
+    ImGui::TextWrapped(
         "Replacement source is authored data under shader-replacements/. It "
         "is separate from disposable shader-artifacts/ files.");
     if (!persistence_error_.empty()) {
@@ -615,7 +625,7 @@ void ShaderOverrideUi::DrawSettings(std::string *message)
             }
         }
     }
-    ImGui::TextDisabled(
+    ImGui::TextWrapped(
         "Presets contain title/build rules and package IDs. Copy authored "
         "replacement packages separately when sharing a preset.");
 }

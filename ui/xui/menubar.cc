@@ -25,6 +25,7 @@
 #include "monitor.hh"
 #include "debug.hh"
 #include "shader-browser.hh"
+#include "xemu-hud.h"
 #include "actions.hh"
 #include "compat.hh"
 #include "update.hh"
@@ -221,8 +222,10 @@ void ShowMainMenu()
             ImGui::MenuItem("Monitor", "~", &monitor_window.is_open);
             ImGui::MenuItem("Audio", NULL, &apu_window.m_is_open);
             ImGui::MenuItem("Video", NULL, &video_window.m_is_open);
-            ImGui::MenuItem("Shader Browser", NULL,
-                            &shader_browser_window.m_is_open);
+            if (ImGui::MenuItem("Shader Browser", NULL,
+                                shader_browser_window.m_is_open)) {
+                xemu_hud_request_shader_browser_window();
+            }
 #ifdef CONFIG_RENDERDOC
             if (nv2a_dbg_renderdoc_available()) {
                 ImGui::MenuItem("RenderDoc: Capture", NULL, &g_capture_renderdoc_frame);

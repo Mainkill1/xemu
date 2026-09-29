@@ -6,28 +6,61 @@ void ShaderBrowserWindow::DrawShaderDetails()
         ImGui::TextDisabled("Select a shader to inspect it.");
         return;
     }
+    const ImGuiTabItemFlags override_flags = m_jump_to_overrides ?
+        ImGuiTabItemFlags_SetSelected : ImGuiTabItemFlags_None;
     if (ImGui::BeginTabBar("##shader-detail-tabs")) {
         if (ImGui::BeginTabItem("Overview")) {
-            DrawOverview();
+            if (ImGui::BeginChild("##details-overview", ImVec2(0, 0)))
+                DrawOverview();
+            ImGui::EndChild();
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("Guest")) {
-            DrawGuest();
+        if (ImGui::BeginTabItem("Usage & timing")) {
+            if (ImGui::BeginChild("##details-usage", ImVec2(0, 0)))
+                DrawUsageTiming();
+            ImGui::EndChild();
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("Host")) {
-            DrawHost();
+        if (ImGui::BeginTabItem("Source & variants")) {
+            DrawSourceVariants();
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("Lifecycle")) {
-            DrawLifecycle();
+        if (ImGui::BeginTabItem("Overrides", nullptr, override_flags)) {
+            if (ImGui::BeginChild("##details-overrides", ImVec2(0, 0)))
+                DrawOverrides();
+            ImGui::EndChild();
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("History")) {
+            if (ImGui::BeginChild("##details-history", ImVec2(0, 0))) {
+                ImGui::TextDisabled(
+                    "Resident lifecycle events for this shader; not a per-draw stream.");
+                DrawLifecycle();
+            }
+            ImGui::EndChild();
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
     }
-    if (!m_action_message.empty()) {
-        ImGui::Separator();
-        ImGui::TextWrapped("%s", m_action_message.c_str());
+    m_jump_to_overrides = false;
+}
+
+void ShaderBrowserWindow::DrawSourceVariants()
+{
+    if (ImGui::BeginTabBar("##details-source-tabs")) {
+        if (ImGui::BeginTabItem("Generated host source")) {
+            if (ImGui::BeginChild("##details-host-body", ImVec2(0, 0)))
+                DrawHost();
+            ImGui::EndChild();
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Canonical guest recipe")) {
+            if (ImGui::BeginChild("##details-guest-body", ImVec2(0, 0)))
+                DrawGuest();
+            ImGui::EndChild();
+            ImGui::EndTabItem();
+        }
+        ImGui::EndTabBar();
     }
 }
 
@@ -56,7 +89,9 @@ void ShaderBrowserWindow::DrawGuest()
                           ImGuiTableFlags_RowBg |
                           ImGuiTableFlags_ScrollY |
                           ImGuiTableFlags_SizingStretchProp,
-                          ImVec2(0, 0))) {
+                          ImVec2(0, std::max(
+                              180.0f * g_viewport_mgr.m_scale,
+                              ImGui::GetContentRegionAvail().y)))) {
         ImGui::TableSetupColumn("Canonical field", ImGuiTableColumnFlags_WidthStretch);
         ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthStretch);
         ImGui::TableHeadersRow();
@@ -101,56 +136,64 @@ void ShaderBrowserWindow::DrawHost()
 
     if (!detail.variants.empty() &&
         ImGui::CollapsingHeader("Resident variants", ImGuiTreeNodeFlags_DefaultOpen)) {
-        for (const HostVariant &variant : detail.variants) {
-            ImGui::PushID(static_cast<int>(variant.variant_id));
-            if (ImGui::TreeNode("##variant", "%s | %s | %s",
-                                variant.label.c_str(), RouteLabel(variant.route),
-                                ReadinessLabel(variant.readiness))) {
-                if (ImGui::BeginTable("##variant-fields", 2,
-                                      ImGuiTableFlags_SizingStretchProp)) {
-                    ImGui::TableSetupColumn("Field");
-                    ImGui::TableSetupColumn("Value");
-                    DrawKeyValue("Variant ID", UnsignedText(variant.variant_id));
-                    if (variant.valid_fields & HostVariantFrames) {
-                        DrawKeyValue("First/last frame",
-                                     UnsignedText(variant.first_frame) + " / " +
-                                     UnsignedText(variant.last_frame));
+        const float variant_height = std::clamp(
+            ImGui::GetContentRegionAvail().y * 0.3f,
+            105.0f * g_viewport_mgr.m_scale,
+            170.0f * g_viewport_mgr.m_scale);
+        if (ImGui::BeginChild("##resident-variants",
+                              ImVec2(0, variant_height), true)) {
+            for (const HostVariant &variant : detail.variants) {
+                ImGui::PushID(static_cast<int>(variant.variant_id));
+                if (ImGui::TreeNode("##variant", "%s | %s | %s",
+                                    variant.label.c_str(), RouteLabel(variant.route),
+                                    ReadinessLabel(variant.readiness))) {
+                    if (ImGui::BeginTable("##variant-fields", 2,
+                                          ImGuiTableFlags_SizingStretchProp)) {
+                        ImGui::TableSetupColumn("Field");
+                        ImGui::TableSetupColumn("Value");
+                        DrawKeyValue("Variant ID", UnsignedText(variant.variant_id));
+                        if (variant.valid_fields & HostVariantFrames) {
+                            DrawKeyValue("First/last frame",
+                                         UnsignedText(variant.first_frame) + " / " +
+                                         UnsignedText(variant.last_frame));
+                        }
+                        if (variant.valid_fields & HostVariantDrawCount) {
+                            DrawKeyValue("Draws", UnsignedText(variant.draw_count));
+                        }
+                        if (variant.valid_fields & HostVariantCompileTime) {
+                            DrawKeyValue("Shared program creation CPU (ns)",
+                                         UnsignedText(variant.compile_time_ns));
+                        }
+                        if (variant.valid_fields & HostVariantCreateTime) {
+                            DrawKeyValue("Shared binding preparation CPU (ns)",
+                                         UnsignedText(variant.create_time_ns));
+                        }
+                        if (variant.valid_fields & HostVariantPrimitiveMode) {
+                            DrawKeyValue("Primitive mode",
+                                         UnsignedText(variant.primitive_mode));
+                        }
+                        if (variant.valid_fields & HostVariantColorFormat) {
+                            DrawKeyValue("Color format",
+                                         UnsignedText(variant.color_format));
+                        }
+                        if (variant.valid_fields & HostVariantDepthFormat) {
+                            DrawKeyValue("Depth format",
+                                         UnsignedText(variant.depth_format));
+                        }
+                        if (variant.valid_fields & HostVariantVertexLayout) {
+                            DrawKeyValue("Vertex bindings/attributes",
+                                         UnsignedText(variant.vertex_binding_count) +
+                                         " / " +
+                                         UnsignedText(variant.vertex_attribute_count));
+                        }
+                        ImGui::EndTable();
                     }
-                    if (variant.valid_fields & HostVariantDrawCount) {
-                        DrawKeyValue("Draws", UnsignedText(variant.draw_count));
-                    }
-                    if (variant.valid_fields & HostVariantCompileTime) {
-                        DrawKeyValue("Shared program creation CPU (ns)",
-                                     UnsignedText(variant.compile_time_ns));
-                    }
-                    if (variant.valid_fields & HostVariantCreateTime) {
-                        DrawKeyValue("Shared binding preparation CPU (ns)",
-                                     UnsignedText(variant.create_time_ns));
-                    }
-                    if (variant.valid_fields & HostVariantPrimitiveMode) {
-                        DrawKeyValue("Primitive mode",
-                                     UnsignedText(variant.primitive_mode));
-                    }
-                    if (variant.valid_fields & HostVariantColorFormat) {
-                        DrawKeyValue("Color format",
-                                     UnsignedText(variant.color_format));
-                    }
-                    if (variant.valid_fields & HostVariantDepthFormat) {
-                        DrawKeyValue("Depth format",
-                                     UnsignedText(variant.depth_format));
-                    }
-                    if (variant.valid_fields & HostVariantVertexLayout) {
-                        DrawKeyValue("Vertex bindings/attributes",
-                                     UnsignedText(variant.vertex_binding_count) +
-                                     " / " +
-                                     UnsignedText(variant.vertex_attribute_count));
-                    }
-                    ImGui::EndTable();
+                    ImGui::TreePop();
                 }
-                ImGui::TreePop();
+                ImGui::PopID();
             }
-            ImGui::PopID();
         }
+        ImGui::EndChild();
     }
 
     if (detail.sources.empty()) return;
@@ -178,6 +221,34 @@ void ShaderBrowserWindow::DrawHost()
                                                       "reconstructed");
     ImGui::TextDisabled("Process-local artifact ID: %llu",
                         static_cast<unsigned long long>(source.artifact_id));
+    ImGui::TextDisabled("Generated source build association is unverified.");
+    const Entry *selected_entry = SelectedEntry();
+    const bool glsl_available = selected_entry &&
+        detail.request.key == m_selected_key &&
+        source.kind == HostSourceKind::Glsl && !source.text.empty() &&
+        source.text.size() <= kMaxDetailSourceBytes &&
+        source.text.find('\0') == std::string::npos;
+    ImGui::BeginDisabled(!glsl_available);
+    if (ImGui::SmallButton("Copy generated GLSL")) {
+        ImGui::SetClipboardText(source.text.c_str());
+        m_action_message = "Copied generated GLSL (not a canonical recipe)";
+    }
+    ImGui::SameLine();
+    if (ImGui::SmallButton("Export generated GLSL")) {
+        const char *base = xemu_settings_get_base_path();
+        std::filesystem::path path;
+        std::string error;
+        if (base && ExportGeneratedGlsl(*selected_entry, source,
+                                        std::filesystem::u8path(base),
+                                        &path, &error)) {
+            m_action_message = "Exported generated GLSL and provenance to " +
+                               path.u8string();
+        } else {
+            m_action_message = error.empty() ?
+                "Generated GLSL export path unavailable" : error;
+        }
+    }
+    ImGui::EndDisabled();
     if (m_source_offsets_generation != detail.generation ||
         m_source_line_offsets.empty()) {
         m_source_line_offsets.clear();
@@ -189,7 +260,10 @@ void ShaderBrowserWindow::DrawHost()
         }
         m_source_offsets_generation = detail.generation;
     }
-    if (ImGui::BeginChild("##host-source-lines", ImVec2(0, 0), true,
+    const float source_height = std::max(
+        180.0f * g_viewport_mgr.m_scale,
+        ImGui::GetContentRegionAvail().y);
+    if (ImGui::BeginChild("##host-source-lines", ImVec2(0, source_height), true,
                           ImGuiWindowFlags_HorizontalScrollbar)) {
         ImGuiListClipper clipper;
         clipper.Begin(static_cast<int>(m_source_line_offsets.size()));
