@@ -1007,12 +1007,7 @@ static MString* psh_convert(struct PixelShader *ps)
                              "}\n");
     }
 
-    bool depth_replace = ps->tex_modes[2] == PS_TEXTUREMODES_DOT_ZW ||
-                         ps->tex_modes[3] == PS_TEXTUREMODES_DOT_ZW;
-    if (depth_replace) {
-        /* Texture-shader depth replaces interpolated depth and polygon offset. */
-        mstring_append(clip, "float zvalue;\n");
-    } else if (ps->state->z_perspective) {
+    if (ps->state->z_perspective) {
         mstring_append(
             clip,
             "vec2 unscaled_xy = gl_FragCoord.xy / surfaceScale;\n"
@@ -1067,12 +1062,12 @@ static MString* psh_convert(struct PixelShader *ps)
     }
 
     /* Depth clipping */
-    if (!depth_replace && ps->state->depth_clipping) {
+    if (ps->state->depth_clipping) {
         mstring_append(
             clip, "if (zvalue < clipRange.z || clipRange.w < zvalue) {\n"
                   "  discard;\n"
                   "}\n");
-    } else if (!depth_replace) {
+    } else {
         mstring_append(
             clip, "zvalue = clamp(zvalue, clipRange.z, clipRange.w);\n");
     }
@@ -1268,24 +1263,11 @@ static MString* psh_convert(struct PixelShader *ps)
             break;
         case PS_TEXTUREMODES_DOT_ZW:
             assert(i >= 2);
-            assert(ps->tex_modes[i - 1] == PS_TEXTUREMODES_DOTPRODUCT);
             mstring_append_fmt(vars, "/* PS_TEXTUREMODES_DOT_ZW */\n");
             mstring_append_fmt(vars, "float dot%d = dot(pT%d.xyz, %s(t%d));\n",
                 i, i, dotmap_func, ps->input_tex[i]);
             mstring_append_fmt(vars, "vec4 t%d = vec4(0.0);\n", i);
-            /* NV_texture_shader 3.8.13.1.21: preceding dot / current dot.
-             * Xbox coordinates produce guest window-depth units; the normal
-             * depth-format conversion below still applies. */
-            mstring_append_fmt(vars, "zvalue = dot%d / dot%d;\n", i - 1, i);
-            if (ps->state->depth_clipping) {
-                mstring_append(vars,
-                    "if (zvalue < clipRange.z || clipRange.w < zvalue) {\n"
-                    "  discard;\n"
-                    "}\n");
-            } else {
-                mstring_append(vars,
-                    "zvalue = clamp(zvalue, clipRange.z, clipRange.w);\n");
-            }
+            // FIXME: mstring_append_fmt(vars, "gl_FragDepth = t%d.x;\n", i);
             break;
         case PS_TEXTUREMODES_DOT_RFLCT_DIFF:
             assert(i == 2);
@@ -1609,14 +1591,6 @@ MString *pgraph_glsl_gen_psh(const PshState *state, GenPshGlslOptions opts)
     ps.flags = state->combiner_control >> 8;
     for (i = 0; i < 4; i++) {
         ps.tex_modes[i] = (state->shader_stage_program >> (i * 5)) & 0x1F;
-    }
-    /* An inconsistent depth-replace stage operates as NONE (NV_texture_shader
-     * 3.8.13.1.21). Do not let guest state assert or reference a missing dot. */
-    for (i = 0; i < 4; i++) {
-        if (ps.tex_modes[i] == PS_TEXTUREMODES_DOT_ZW &&
-            (i < 2 || ps.tex_modes[i - 1] != PS_TEXTUREMODES_DOTPRODUCT)) {
-            ps.tex_modes[i] = PS_TEXTUREMODES_NONE;
-        }
     }
 
     ps.dot_map[0] = 0;

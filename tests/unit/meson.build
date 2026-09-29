@@ -360,16 +360,6 @@ if sdl.found() and epoxy.found()
       sdl, epoxy,
     ],
   }
-  if 'i386-softmmu' in target_dirs
-    tests += {
-      'test-xbox-psh-depth-replace': [
-        meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/common.c',
-        meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/psh.c',
-        meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/psh-uber.c',
-        xbox_i386_target_headers, sdl, epoxy,
-      ],
-    }
-  endif
 endif
 
 if sdl.found()

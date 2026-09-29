@@ -169,40 +169,6 @@ static void test_invalid_glsl_returns_failure(void)
     pgraph_vk_finalize_glsl_compiler();
 }
 
-static void test_depth_replace_compiles_for_both_fragment_routes(void)
-{
-    PGRAPHVkGlslCompileConfig config = { .api_version = VK_API_VERSION_1_1 };
-    pgraph_vk_init_glsl_compiler();
-    for (int stage = 2; stage <= 3; stage++) {
-        for (int uber = 0; uber <= 1; uber++) {
-            for (int format = DEPTH_FORMAT_D24; format <= DEPTH_FORMAT_D16;
-                 format++) {
-                PshState state = base_state();
-                state.shader_stage_program =
-                    PS_TEXTUREMODES_PASSTHRU |
-                    (PS_TEXTUREMODES_DOTPRODUCT << ((stage - 1) * 5)) |
-                    (PS_TEXTUREMODES_DOT_ZW << (stage * 5));
-                state.depth_clipping = true;
-                state.depth_format = format;
-                MString *source = pgraph_glsl_gen_psh(
-                    &state, (GenPshGlslOptions){
-                                .vulkan = true,
-                                .ubo_binding = 1,
-                                .tex_binding = 2,
-                                .ubershader = uber,
-                                .uber_binding = PGRAPH_VK_PSH_UBER_UBO_BINDING,
-                            });
-                GByteArray *spirv = pgraph_vk_compile_glsl_to_spv_config(
-                    &config, GLSLANG_STAGE_FRAGMENT, mstring_get_str(source));
-                g_assert_nonnull(spirv);
-                g_byte_array_unref(spirv);
-                mstring_unref(source);
-            }
-        }
-    }
-    pgraph_vk_finalize_glsl_compiler();
-}
-
 static void test_real_compiler_accepts_nv20_vertex_arithmetic(void)
 {
     const uint32_t final_nop[VSH_TOKEN_SIZE] = { 0, 0, 0, 1 };
@@ -444,8 +410,6 @@ int main(int argc, char **argv)
                     test_real_compiler_and_reflection_accept_uber_abi);
     g_test_add_func("/xbox/vk/ubershader/glsl/invalid-source",
                     test_invalid_glsl_returns_failure);
-    g_test_add_func("/xbox/vk/psh/depth-replace-compile",
-                    test_depth_replace_compiles_for_both_fragment_routes);
     g_test_add_func("/xbox/vk/vsh/nv20-arithmetic-compile",
                     test_real_compiler_accepts_nv20_vertex_arithmetic);
     g_test_add_func("/xbox/vk/ubershader/glsl/generated-graphics-stages",
