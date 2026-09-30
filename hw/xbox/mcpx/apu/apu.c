@@ -20,6 +20,9 @@
  */
 
 #include "apu_int.h"
+#ifdef CONFIG_XEMU_APU_VOICE_WRITE_TRACE
+#include "system/system.h"
+#endif
 
 MCPXAPUState *g_state; // Used via debug handlers
 
@@ -402,6 +405,26 @@ static int mcpx_apu_pre_load(void *opaque)
     return 0;
 }
 
+#ifdef CONFIG_XEMU_APU_VOICE_WRITE_TRACE
+static void mcpx_apu_voice_write_exit(Notifier *notifier, void *unused)
+{
+    MCPXAPUState *d = container_of(notifier, MCPXAPUState,
+                                   voice_write_exit_notifier);
+
+    /* Normal qemu_cleanup leaves root devices realized. The exit notifier
+     * runs under the BQL: follow the established APU pause lock ordering so
+     * every frame/worker store has finished before reading or freeing counts.
+     */
+    bql_unlock();
+    qemu_mutex_lock(&d->lock);
+    mcpx_apu_wait_for_idle(d);
+    mcpx_apu_voice_write_trace_close(d->voice_write_trace);
+    d->voice_write_trace = NULL;
+    qemu_mutex_unlock(&d->lock);
+    bql_lock();
+}
+#endif
+
 static void mcpx_apu_realize(PCIDevice *dev, Error **errp)
 {
     MCPXAPUState *d = MCPX_APU_DEVICE(dev);
@@ -448,6 +471,10 @@ static void mcpx_apu_realize(PCIDevice *dev, Error **errp)
                        d, QEMU_THREAD_JOINABLE);
     mcpx_apu_wait_for_idle(d);
     qemu_mutex_unlock(&d->lock);
+#ifdef CONFIG_XEMU_APU_VOICE_WRITE_TRACE
+    d->voice_write_exit_notifier.notify = mcpx_apu_voice_write_exit;
+    qemu_add_exit_notifier(&d->voice_write_exit_notifier);
+#endif
 }
 
 static void mcpx_apu_exitfn(PCIDevice *dev)
@@ -463,6 +490,9 @@ static void mcpx_apu_exitfn(PCIDevice *dev)
     bql_lock();
 
     qemu_thread_join(&d->apu_thread);
+#ifdef CONFIG_XEMU_APU_VOICE_WRITE_TRACE
+    qemu_remove_exit_notifier(&d->voice_write_exit_notifier);
+#endif
     mcpx_apu_vp_finalize(d);
     mcpx_apu_monitor_finalize(d);
 }

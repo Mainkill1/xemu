@@ -394,3 +394,6 @@ option('rust', type: 'feature', value: 'disabled',
        description: 'Rust support')
 option('strict_rust_lints', type: 'boolean', value: false,
        description: 'Enable stricter set of Rust warnings')
+
+option('xemu_apu_voice_write_trace', type: 'boolean', value: false,
+       description: 'Build opt-in MCPX voice RAM write attribution')

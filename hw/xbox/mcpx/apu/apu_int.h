@@ -41,6 +41,9 @@
 #include "apu_debug.h"
 #include "fpconv.h"
 #include "vp/vp.h"
+#ifdef CONFIG_XEMU_APU_VOICE_WRITE_TRACE
+#include "vp/voice-write-trace.h"
+#endif
 #include "dsp/gp_ep.h"
 
 #define GET_MASK(v, mask) (((v) & (mask)) >> ctz32(mask))
@@ -90,6 +93,10 @@ typedef struct MCPXAPUState {
     MemoryRegion mmio;
 
     MCPXAPUVPState vp;
+#ifdef CONFIG_XEMU_APU_VOICE_WRITE_TRACE
+    McpxApuVoiceWriteTrace *voice_write_trace;
+    Notifier voice_write_exit_notifier;
+#endif
     MCPXAPUGPState gp;
     MCPXAPUEPState ep;
 

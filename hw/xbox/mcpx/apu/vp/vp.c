@@ -22,6 +22,9 @@
 #include "hw/xbox/mcpx/apu/apu_int.h"
 #include "adpcm.h"
 #include "resample.h"
+#ifdef CONFIG_XEMU_APU_VOICE_WRITE_TRACE
+#include "qemu/error-report.h"
+#endif
 
 static const struct {
     hwaddr top, current, next;
@@ -111,14 +114,35 @@ static uint32_t voice_get_mask(MCPXAPUState *d, uint16_t voice_handle,
            ctz32(mask);
 }
 
+#ifdef CONFIG_XEMU_APU_VOICE_WRITE_TRACE
+static __thread unsigned voice_write_phase = MCPX_VOICE_WRITE_OTHER_PHASE;
+#endif
+
 static void voice_set_mask(MCPXAPUState *d, uint16_t voice_handle,
                            hwaddr offset, uint32_t mask, uint32_t val)
 {
     hwaddr voice = d->regs[NV_PAPU_VPVADDR]
                     + voice_handle * NV_PAVS_SIZE;
-    uint32_t v = ldl_le_phys(&address_space_memory, voice + offset) & ~mask;
-    stl_le_phys(&address_space_memory, voice + offset,
-                v | ((val << ctz32(mask)) & mask));
+    uint32_t old = ldl_le_phys(&address_space_memory, voice + offset);
+    uint32_t value = (old & ~mask) | ((val << ctz32(mask)) & mask);
+#ifdef CONFIG_XEMU_APU_VOICE_WRITE_TRACE
+    /* Equal-write hypothesis from izzy2lost/xemu@e8e92c077a50ab7e,
+     * hw/xbox/mcpx/apu/vp/vp.c. This probe retains every physical store. */
+    hwaddr addr = voice + offset;
+    uint64_t ram_size = memory_region_size(d->ram);
+    bool ram_range = addr <= ram_size && ram_size - addr >= 4;
+    bool sample = mcpx_apu_voice_write_trace_record(
+        d->voice_write_trace, offset, voice_write_phase, old, value, ram_range);
+    int64_t start_ns = sample ? qemu_clock_get_ns(QEMU_CLOCK_REALTIME) : 0;
+#endif
+    stl_le_phys(&address_space_memory, voice + offset, value);
+#ifdef CONFIG_XEMU_APU_VOICE_WRITE_TRACE
+    if (sample) {
+        mcpx_apu_voice_write_trace_sample(
+            d->voice_write_trace, offset, voice_write_phase, old != value,
+            qemu_clock_get_ns(QEMU_CLOCK_REALTIME) - start_ns);
+    }
+#endif
 }
 
 static void voice_off(MCPXAPUState *d, uint16_t v)
@@ -688,6 +712,9 @@ static float voice_step_envelope(MCPXAPUState *d, uint16_t v, uint32_t reg_0,
                            uint32_t count_mask, uint32_t cur_mask)
 {
     uint8_t cur = voice_get_mask(d, v, NV_PAVS_VOICE_PAR_STATE, cur_mask);
+#ifdef CONFIG_XEMU_APU_VOICE_WRITE_TRACE
+    voice_write_phase = cur + (reg_0 == NV_PAVS_VOICE_CFG_ENV0 ? 8 : 0);
+#endif
     switch (cur) {
     case NV_PAVS_VOICE_PAR_STATE_EFCUR_OFF:
         voice_set_mask(d, v, NV_PAVS_VOICE_CUR_ECNT, count_mask, 0);
@@ -1348,6 +1375,9 @@ static void voice_process(MCPXAPUState *d,
         NV_PAVS_VOICE_CFG_MISC, NV_PAVS_VOICE_CFG_MISC_EF_RELEASERATE,
         NV_PAVS_VOICE_PAR_NEXT, NV_PAVS_VOICE_PAR_NEXT_EFLVL,
         NV_PAVS_VOICE_CUR_ECNT_EFCOUNT, NV_PAVS_VOICE_PAR_STATE_EFCUR);
+#ifdef CONFIG_XEMU_APU_VOICE_WRITE_TRACE
+    voice_write_phase = MCPX_VOICE_WRITE_OTHER_PHASE;
+#endif
     assert(ef_value >= 0.0f);
     assert(ef_value <= 1.0f);
     int16_t p = voice_get_mask(d, v, NV_PAVS_VOICE_TAR_PITCH_LINK,
@@ -1362,6 +1392,9 @@ static void voice_process(MCPXAPUState *d,
         NV_PAVS_VOICE_TAR_LFO_ENV, NV_PAVS_VOICE_TAR_LFO_ENV_EA_RELEASERATE,
         NV_PAVS_VOICE_PAR_OFFSET, NV_PAVS_VOICE_PAR_OFFSET_EALVL,
         NV_PAVS_VOICE_CUR_ECNT_EACOUNT, NV_PAVS_VOICE_PAR_STATE_EACUR);
+#ifdef CONFIG_XEMU_APU_VOICE_WRITE_TRACE
+    voice_write_phase = MCPX_VOICE_WRITE_OTHER_PHASE;
+#endif
     assert(ea_value >= 0.0f);
     assert(ea_value <= 1.0f);
 
@@ -1879,6 +1912,15 @@ void mcpx_apu_vp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_P
         }
     }
     voice_work_dispatch(d, mixbins);
+#ifdef CONFIG_XEMU_APU_VOICE_WRITE_TRACE
+    if (d->voice_write_trace) {
+        unsigned active_voices = 0;
+        for (unsigned v = 0; v < MCPX_HW_MAX_VOICES; v++) {
+            active_voices += g_dbg.vp.v[v].active;
+        }
+        mcpx_apu_voice_write_trace_frame(d->voice_write_trace, active_voices);
+    }
+#endif
 
     if (d->monitor.point == MCPX_APU_DEBUG_MON_VP) {
         /* Mix all voices together to hear any audible voice */
@@ -1898,12 +1940,23 @@ void mcpx_apu_vp_frame(MCPXAPUState *d, float mixbins[NUM_MIXBINS][NUM_SAMPLES_P
 
 void mcpx_apu_vp_init(MCPXAPUState *d)
 {
+#ifdef CONFIG_XEMU_APU_VOICE_WRITE_TRACE
+    const char *trace_path = getenv("XEMU_APU_VOICE_WRITE_TRACE");
+    d->voice_write_trace = mcpx_apu_voice_write_trace_open(trace_path);
+    if (trace_path && *trace_path && !d->voice_write_trace) {
+        warn_report("Cannot open APU voice-write trace '%s'", trace_path);
+    }
+#endif
     voice_work_init(d);
 }
 
 void mcpx_apu_vp_finalize(MCPXAPUState *d)
 {
     voice_work_finalize(d);
+#ifdef CONFIG_XEMU_APU_VOICE_WRITE_TRACE
+    mcpx_apu_voice_write_trace_close(d->voice_write_trace);
+    d->voice_write_trace = NULL;
+#endif
     for (int v = 0; v < ARRAY_SIZE(d->vp.filters); v++) {
         voice_destroy_resampler(&d->vp.filters[v]);
     }

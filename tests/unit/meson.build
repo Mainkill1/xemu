@@ -164,6 +164,9 @@ tests = {
   'test-fifo': [],
   'test-lru-active': [],
   'test-xbox-mcpx-apu-resampler': [libsamplerate],
+  'test-xbox-mcpx-apu-voice-write-trace': [
+    meson.project_source_root() / 'hw/xbox/mcpx/apu/vp/voice-write-trace.c',
+  ],
 }
 
 if host_os == 'windows'

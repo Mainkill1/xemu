@@ -2473,6 +2473,8 @@ subdir('thirdparty')
 #################
 
 config_host_data = configuration_data()
+config_host_data.set('CONFIG_XEMU_APU_VOICE_WRITE_TRACE',
+                    get_option('xemu_apu_voice_write_trace'))
 
 config_host_data.set('CONFIG_HAVE_RUST', have_rust)
 audio_drivers_selected = []
