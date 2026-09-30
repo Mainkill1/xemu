@@ -150,3 +150,19 @@ as `e5afa40f6deb715c60beecba68ab4dcf463c85bb`. Collector/dispatch/helper/unit so
 dependencies are byte-identical to the measured revision; the full emulator
 includes the upstream NV2A timing changes. Current whole-emulator mode comparisons
 remain a separate missing gate.
+
+## Updated-main build check
+
+[Current build/unit receipt](rebase-checks/receipt.json) pins source
+`7e06bf21a30f0de4f34836f25096b9090c30dbb5`: native default-OFF and Windows
+probe-enabled emulator builds link; native collector **7/7** and validity **6/6**
+pass. Windows units are built, not executed. The ten collector/dispatch/helper/unit
+and atomic/timer source files are byte-identical to `3a3d3c39`, verified by the
+audit. This preserves applicability of the standalone collector-cost experiment,
+not the older whole-emulator guest comparison. Current guest runs: **0**.
+
+Updated-main native logs retain **4** unrelated GL/Vulkan shadow warnings;
+Windows logs retain **137** unchanged header/allocator/format-attribute warnings.
+Changed collector/dispatch/unit files have **0** warning lines. The historical
+measured source is retained by branch `research/issue245-measured-light-probe-3a3d3c39`
+so its source and helper ancestors remain fetchable after the main rebase.

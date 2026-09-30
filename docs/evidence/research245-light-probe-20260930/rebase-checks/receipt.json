@@ -1,0 +1,75 @@
+{
+  "sourceCommit": "7e06bf21a30f0de4f34836f25096b9090c30dbb5",
+  "baseCommit": "a05db7b2375d9c25fe61b6c914e83bab57fc49ca",
+  "checks": [
+    {
+      "name": "native-default-off-build",
+      "argv": [
+        "ninja",
+        "-C",
+        "build-probe",
+        "qemu-system-i386",
+        "tests/unit/test-tcg-jump-cache-probe",
+        "tests/unit/test-tcg-jump-cache-validity"
+      ],
+      "cwd": "/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache",
+      "sourceCommit": "7e06bf21a30f0de4f34836f25096b9090c30dbb5",
+      "startedUtc": "2026-09-30T18:30:36.074228+00:00",
+      "exitCode": 0,
+      "log": "native-default-off-build.log"
+    },
+    {
+      "name": "windows-enabled-build",
+      "argv": [
+        "ninja",
+        "-C",
+        "build-windows-probe",
+        "qemu-system-i386.exe",
+        "tests/unit/test-tcg-jump-cache-probe.exe",
+        "tests/unit/test-tcg-jump-cache-validity.exe"
+      ],
+      "cwd": "/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache",
+      "sourceCommit": "7e06bf21a30f0de4f34836f25096b9090c30dbb5",
+      "startedUtc": "2026-09-30T18:30:36.074548+00:00",
+      "exitCode": 0,
+      "log": "windows-enabled-build.log"
+    },
+    {
+      "name": "native-collector-unit",
+      "argv": [
+        "./build-probe/tests/unit/test-tcg-jump-cache-probe"
+      ],
+      "cwd": "/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache",
+      "sourceCommit": "7e06bf21a30f0de4f34836f25096b9090c30dbb5",
+      "startedUtc": "2026-09-30T18:31:05.910599+00:00",
+      "exitCode": 0,
+      "log": "native-collector-unit.log"
+    },
+    {
+      "name": "native-validity-unit",
+      "argv": [
+        "./build-probe/tests/unit/test-tcg-jump-cache-validity"
+      ],
+      "cwd": "/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache",
+      "sourceCommit": "7e06bf21a30f0de4f34836f25096b9090c30dbb5",
+      "startedUtc": "2026-09-30T18:31:05.930871+00:00",
+      "exitCode": 0,
+      "log": "native-validity-unit.log"
+    }
+  ],
+  "binaries": {
+    "build-probe/qemu-system-i386": {
+      "bytes": 136331936,
+      "sha256": "87450fe70bd1217c233b90962b63b9311b480fc1bc6013dc47349081120e3fc9",
+      "published": false
+    },
+    "build-windows-probe/qemu-system-i386.exe": {
+      "bytes": 136906752,
+      "sha256": "1a7d737eb6b8c2d7ada0aea50f023f0566dedae1baa178cfb3c47ed6cf5c252d",
+      "published": false
+    }
+  },
+  "guestRunsAtThisCommit": 0,
+  "acceptedProductionImprovementPercent": null,
+  "scope": "Updated-main build/units only; earlier48 guest attempts measured3a, not this whole emulator"
+}

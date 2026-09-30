@@ -52,5 +52,24 @@
   "performance": {
     "acceptedProductionImprovementPercent": null,
     "actualRetentionCandidate": false
+  },
+  "rebasedValidation": {
+    "receipt": "rebase-checks/receipt.json",
+    "sourceCommit": "7e06bf21a30f0de4f34836f25096b9090c30dbb5",
+    "baseCommit": "a05db7b2375d9c25fe61b6c914e83bab57fc49ca",
+    "guestRuns": 0,
+    "runtimeSourceEquivalentToMeasured": [
+      "accel/tcg/jump-cache-probe.c",
+      "accel/tcg/jump-cache-probe.h",
+      "accel/tcg/cpu-exec.c",
+      "accel/tcg/cputlb.c",
+      "accel/tcg/tb-jmp-cache.h",
+      "accel/tcg/translate-all.c",
+      "tests/unit/test-tcg-jump-cache-probe.c",
+      "tests/unit/test-tcg-jump-cache-validity.c",
+      "include/qemu/atomic.h",
+      "util/qemu-timer-common.c"
+    ],
+    "scope": "Native defaultOFF and Windows enabled builds; native7 collector/6helper pass. Same collector source supports bounded host cost finding, but no guest proof for updated whole emulator."
   }
 }
