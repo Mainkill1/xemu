@@ -69,7 +69,9 @@ jobs:
           version=0.8.136-0-g2d289cb349bc
           source="stage/xemu-${version}.tar.zst"
           source_sha=$(tar --zstd -xOf "$source" "./xemu-${version}/XEMU_COMMIT")
-          source_version=$(tar --zstd -xOf "$source" "./xemu-${version}/XEMU_VERSION")
+          # The source archive contains the checked-in base version followed by
+          # the CI-generated package version; extraction uses the latter.
+          source_version=$(tar --zstd --occurrence=2 -xOf "$source" "./xemu-${version}/XEMU_VERSION")
           test "$source_sha" = 2d289cb349bca95eae81b6a54b0f8d965365ff82
           test "$source_version" = "$version"
           (cd stage && sha256sum * | sort -k2 > SHA256SUMS)
