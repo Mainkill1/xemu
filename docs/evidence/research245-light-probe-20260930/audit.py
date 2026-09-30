@@ -63,6 +63,17 @@ for item in json.loads((HERE / 'host/configuration-equivalence.json').read_text(
     assert item['byteIdentical'] and item['rebuiltSha256'] == item['originalSha256']
 for item in json.loads((HERE / 'exact-builds.json').read_text()):
     assert item['exitCode'] == 0 and item['sourceCommit'] == receipt['source']['commit']
+rebased = receipt['rebasedValidation']
+checks = json.loads((HERE / rebased['receipt']).read_text())
+assert checks['sourceCommit'] == rebased['sourceCommit'] and checks['guestRunsAtThisCommit'] == 0
+assert all(c['exitCode'] == 0 for c in checks['checks']) and len(checks['checks']) == 4
+for name in rebased['runtimeSourceEquivalentToMeasured']:
+    before = subprocess.check_output(['git', 'show', receipt['source']['commit'] + ':' + name], cwd=REPO)
+    after = subprocess.check_output(['git', 'show', rebased['sourceCommit'] + ':' + name], cwd=REPO)
+    assert before == after, name
+for name, count in [('native-collector-unit.log', 7), ('native-validity-unit.log', 6)]:
+    log = (HERE / 'rebase-checks' / name).read_text()
+    assert len(re.findall(r'^ok \d+ /', log, re.M)) == count and 'not ok' not in log
 assert receipt['performance']['acceptedProductionImprovementPercent'] is None
 assert receipt['performance']['actualRetentionCandidate'] is False
 print(f'PASS: {len(expected)} exact files; 80 retained host runs + 20 warmups + 16 A/A; all 10 medians/deltas; source, 7 collector / 6 helper / 7 ASan/UBSan / 7 TSan; rejected controls. No retention speedup claim.')
