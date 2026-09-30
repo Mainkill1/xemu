@@ -1667,9 +1667,10 @@ void pgraph_glsl_normalize_psh_state(PshState *state)
         case PS_TEXTUREMODES_BRDF:
             break;
         default:
-            /* Other texture operations retain their existing generator path.
-             * Only results known to be invalid are rejected as dot sources. */
-            stage[i].result = PSH_RESULT_RGBA_OR_HILO;
+            /* A mode not classified here cannot supply a proven RGBA/HILO
+             * result to a later depth-replacement dot. Its own generator
+             * path is unchanged. */
+            stage[i].consistent = false;
             break;
         }
     }

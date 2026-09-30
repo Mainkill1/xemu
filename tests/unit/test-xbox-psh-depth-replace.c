@@ -252,6 +252,12 @@ static void test_texture_program_consistency(void)
     g_assert_cmpint((unusable_source.shader_stage_program >> 15) & 0x1F, ==,
                     PS_TEXTUREMODES_NONE);
 
+    PshState invalid_stage_mode = base;
+    set_mode(&invalid_stage_mode, 0, PS_TEXTUREMODES_DOT_ST);
+    pgraph_glsl_normalize_psh_state(&invalid_stage_mode);
+    g_assert_cmpint((invalid_stage_mode.shader_stage_program >> 15) & 0x1F,
+                    ==, PS_TEXTUREMODES_NONE);
+
     PshState inconsistent_source = base;
     set_mode(&inconsistent_source, 1, PS_TEXTUREMODES_DOT_ZW);
     set_input(&inconsistent_source, 3, 1);
