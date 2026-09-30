@@ -83,7 +83,7 @@ jobs:
           set -euo pipefail
           tag=v0.8.136-0-g2d289cb349bc
           sha=2d289cb349bca95eae81b6a54b0f8d965365ff82
-          existing_sha=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq .object.sha 2>/dev/null || true)
+          existing_sha=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq '.object.sha // empty' 2>/dev/null || true)
           if [ -z "$existing_sha" ]; then
             gh api --method POST "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/$tag" -f sha="$sha" >/dev/null
           else
