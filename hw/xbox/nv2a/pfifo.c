@@ -192,7 +192,7 @@ static ssize_t pfifo_run_puller(NV2AState *d, uint32_t method_entry,
         // Switch contexts if necessary
         if (can_fifo_access(d)) {
             pgraph_context_switch(d, entry.channel_id);
-            if (!d->pgraph.waiting_for_context_switch) {
+            if (!qatomic_read(&d->pgraph.waiting_for_context_switch)) {
                 num_proc =
                     pgraph_method(d, subchannel, 0, entry.instance, parameters,
                                   num_words_available, max_lookahead_words, inc);

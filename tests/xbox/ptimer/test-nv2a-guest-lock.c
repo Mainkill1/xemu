@@ -159,7 +159,7 @@ static void *wait_for_lock(void *opaque)
     int64_t guest_start = guest_clock_us();
     qemu_event_set(&waiter->started);
     test_waiter = true;
-    nv2a_guest_mmio_lock(&waiter->holder->lock, "test");
+    nv2a_guest_mmio_lock_address(&waiter->holder->lock, "test", 0x71c);
     test_waiter = false;
     waiter->wall_elapsed = g_get_monotonic_time() - wall_start;
     waiter->guest_elapsed = guest_clock_us() - guest_start;
@@ -339,7 +339,8 @@ int main(int argc, char **argv)
         memmove(argv + 1, argv + 2, sizeof(*argv) * (argc - 1));
         argc--;
     } else {
-        g_setenv("XEMU_ISSUE266_OBSERVE_LOCKS", "0", true);
+        g_setenv("XEMU_ISSUE266_OBSERVE_LOCKS", "1", true);
+        observation_only = true;
     }
     g_test_init(&argc, &argv, NULL);
     g_test_add_func("/nv2a/guest-lock/uncontended", test_uncontended);
