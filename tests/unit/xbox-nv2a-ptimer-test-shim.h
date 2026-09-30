@@ -22,6 +22,12 @@
 /* Keep ptimer.c's heavyweight target-specific internal header out of a unit. */
 #define HW_NV2A_INT_H
 
+/* The issue #266 production trace is opt-in and irrelevant to this isolated
+ * timer fixture, whose generated trace group does not include NV2A events. */
+#define TRACE_NV2A_PTIMER_DIAGNOSTIC 0
+#define trace_event_get_state(event) false
+#define trace_nv2a_ptimer_diagnostic(...) ((void)0)
+
 typedef struct NV2AState {
     struct {
         uint32_t pending_interrupts;
