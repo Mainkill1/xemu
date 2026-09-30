@@ -20,6 +20,9 @@ if get_option('plugins')
 endif
 
 tcg_ss.add(when: 'CONFIG_VTUNE_JITPROFILING', if_true: [vtune_jitprofiling])
+if get_option('xemu_tcg_jump_cache_probe')
+  tcg_ss.add(files('jump-cache-probe.c'))
+endif
 
 user_ss.add_all(tcg_ss)
 system_ss.add_all(tcg_ss)

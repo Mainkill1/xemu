@@ -11,6 +11,9 @@
 
 #include "qemu/rcu.h"
 #include "exec/cpu-common.h"
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+#include "jump-cache-probe.h"
+#endif
 
 #define TB_JMP_CACHE_BITS 12
 #define TB_JMP_CACHE_SIZE (1 << TB_JMP_CACHE_BITS)
@@ -24,10 +27,15 @@
  */
 typedef struct CPUJumpCache {
     struct rcu_head rcu;
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+    TCGJumpCacheProbeSlot array[TB_JMP_CACHE_SIZE];
+    TCGJumpCacheProbe *probe;
+#else
     struct {
         TranslationBlock *tb;
         vaddr pc;
     } array[TB_JMP_CACHE_SIZE];
+#endif
 } CPUJumpCache;
 
 #endif /* ACCEL_TCG_TB_JMP_CACHE_H */
