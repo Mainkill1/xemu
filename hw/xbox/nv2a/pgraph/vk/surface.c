@@ -24,6 +24,7 @@
  */
 
 #include "hw/xbox/nv2a/nv2a_int.h"
+#include "hw/xbox/nv2a/guest-lock.h"
 #include "hw/xbox/nv2a/pgraph/swizzle.h"
 #include "qemu/compiler.h"
 #include "qemu/error-report.h"
@@ -855,7 +856,7 @@ static void surface_access_callback(void *opaque, MemoryRegion *mr, hwaddr addr,
     SurfaceBinding *surface = (SurfaceBinding *)opaque;
     NV2AState *d = surface->d;
 
-    qemu_mutex_lock(&d->pgraph.lock);
+    nv2a_guest_mmio_lock(&d->pgraph.lock, "vk-surface-access");
 
     PGRAPHVkState *r = d->pgraph.vk_renderer_state;
     bool wait_for_downloads = surface_access_one(r, surface, addr, write);
@@ -865,8 +866,8 @@ static void surface_access_callback(void *opaque, MemoryRegion *mr, hwaddr addr,
     if (wait_for_downloads) {
         bool new_batch;
 
-        qemu_mutex_lock(&d->pfifo.lock);
-        qemu_mutex_lock(&d->pgraph.lock);
+        nv2a_guest_mmio_lock(&d->pfifo.lock, "vk-surface-pfifo");
+        nv2a_guest_mmio_lock(&d->pgraph.lock, "vk-surface-batch");
         wait_for_downloads = qatomic_read(&surface->draw_dirty);
         if (wait_for_downloads) {
             qatomic_set(&surface->download_pending, true);

@@ -22,6 +22,7 @@
 #include "hw/xbox/nv2a/pgraph/pgraph.h"
 #include "ui/xemu-settings.h"
 #include "hw/xbox/nv2a/nv2a_int.h"
+#include "hw/xbox/nv2a/guest-lock.h"
 #include "hw/xbox/nv2a/pgraph/swizzle.h"
 #include "hw/xbox/nv2a/pgraph/vertex-fetch-span.h"
 #include "debug.h"
@@ -425,7 +426,7 @@ static void surface_access_callback(void *opaque, MemoryRegion *mr, hwaddr addr,
                                     hwaddr len, bool write)
 {
     NV2AState *d = (NV2AState *)opaque;
-    qemu_mutex_lock(&d->pgraph.lock);
+    nv2a_guest_mmio_lock(&d->pgraph.lock, "gl-surface-access");
 
     PGRAPHGLState *r = d->pgraph.gl_renderer_state;
     bool wait_for_downloads = false;
@@ -457,7 +458,7 @@ static void surface_access_callback(void *opaque, MemoryRegion *mr, hwaddr addr,
     qemu_mutex_unlock(&d->pgraph.lock);
 
     if (wait_for_downloads) {
-        qemu_mutex_lock(&d->pfifo.lock);
+        nv2a_guest_mmio_lock(&d->pfifo.lock, "gl-surface-pfifo");
         qemu_event_reset(&r->downloads_complete);
         qatomic_set(&r->downloads_pending, true);
         pfifo_kick(d);
