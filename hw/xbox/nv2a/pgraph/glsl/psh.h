@@ -75,6 +75,7 @@ typedef struct PshState {
 } PshState;
 
 void pgraph_glsl_set_psh_state(PGRAPHState *pg, PshState *state);
+void pgraph_glsl_normalize_psh_state(PshState *state);
 void pgraph_glsl_get_psh_combiner_constants(PGRAPHState *pg,
                                              float constants[18][4]);
 

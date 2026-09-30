@@ -17,6 +17,12 @@ XEMU_VERSION=$( \
     git describe --tags --match 'v[0-9]*' 2>/dev/null | cut -c 2- | tr -d '\n'; \
   fi) || :
 
+# A test prerelease tag can be an ancestor of a later source commit. Its
+# git-describe suffix is not a product version; use the checked-in base then.
+if [[ ! "$XEMU_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9]+-g[0-9a-f]+|-0-unofficial-[0-9a-f]+)?$ ]]; then
+  XEMU_VERSION=""
+fi
+
 # Release worktrees may contain the exact source commit without its upstream
 # version tags. Keep the upstream base version in the source tree so such a
 # build cannot silently identify itself as 0.0.0.

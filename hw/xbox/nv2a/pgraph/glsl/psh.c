@@ -1007,7 +1007,12 @@ static MString* psh_convert(struct PixelShader *ps)
                              "}\n");
     }
 
-    if (ps->state->z_perspective) {
+    bool depth_replace = ps->tex_modes[2] == PS_TEXTUREMODES_DOT_ZW ||
+                         ps->tex_modes[3] == PS_TEXTUREMODES_DOT_ZW;
+    if (depth_replace) {
+        /* Texture-shader depth replaces interpolated depth and polygon offset. */
+        mstring_append(clip, "float zvalue;\n");
+    } else if (ps->state->z_perspective) {
         mstring_append(
             clip,
             "vec2 unscaled_xy = gl_FragCoord.xy / surfaceScale;\n"
@@ -1062,12 +1067,12 @@ static MString* psh_convert(struct PixelShader *ps)
     }
 
     /* Depth clipping */
-    if (ps->state->depth_clipping) {
+    if (!depth_replace && ps->state->depth_clipping) {
         mstring_append(
             clip, "if (zvalue < clipRange.z || clipRange.w < zvalue) {\n"
                   "  discard;\n"
                   "}\n");
-    } else {
+    } else if (!depth_replace) {
         mstring_append(
             clip, "zvalue = clamp(zvalue, clipRange.z, clipRange.w);\n");
     }
@@ -1263,11 +1268,24 @@ static MString* psh_convert(struct PixelShader *ps)
             break;
         case PS_TEXTUREMODES_DOT_ZW:
             assert(i >= 2);
+            assert(ps->tex_modes[i - 1] == PS_TEXTUREMODES_DOTPRODUCT);
             mstring_append_fmt(vars, "/* PS_TEXTUREMODES_DOT_ZW */\n");
             mstring_append_fmt(vars, "float dot%d = dot(pT%d.xyz, %s(t%d));\n",
                 i, i, dotmap_func, ps->input_tex[i]);
             mstring_append_fmt(vars, "vec4 t%d = vec4(0.0);\n", i);
-            // FIXME: mstring_append_fmt(vars, "gl_FragDepth = t%d.x;\n", i);
+            /* NV_texture_shader 3.8.13.1.21: preceding dot / current dot.
+             * Xbox coordinates produce guest window-depth units; the normal
+             * depth-format conversion below still applies. */
+            mstring_append_fmt(vars, "zvalue = dot%d / dot%d;\n", i - 1, i);
+            if (ps->state->depth_clipping) {
+                mstring_append(vars,
+                    "if (zvalue < clipRange.z || clipRange.w < zvalue) {\n"
+                    "  discard;\n"
+                    "}\n");
+            } else {
+                mstring_append(vars,
+                    "zvalue = clamp(zvalue, clipRange.z, clipRange.w);\n");
+            }
             break;
         case PS_TEXTUREMODES_DOT_RFLCT_DIFF:
             assert(i == 2);
@@ -1576,21 +1594,106 @@ static void parse_combiner_output(uint32_t value, struct OutputInfo *out)
     out->cd_alphablue = flags & 0x40;
 }
 
+typedef enum PshStageResult {
+    PSH_RESULT_UNUSABLE,
+    PSH_RESULT_RGBA,
+    PSH_RESULT_RGBA_OR_HILO,
+} PshStageResult;
+
+typedef struct PshStageStatus {
+    bool consistent;
+    PshStageResult result;
+} PshStageStatus;
+
+/* NV_texture_shader 3.8.13.1.21 requires both a consistent preceding dot
+ * stage and a separate, usable previous texture input. Keep this pass on the
+ * CPU so invalid guest programs do not add fragment-shader work. */
+void pgraph_glsl_normalize_psh_state(PshState *state)
+{
+    int mode[4], input[4] = {
+        -1, 0, (state->other_stage_input >> 16) & 0xF,
+        (state->other_stage_input >> 20) & 0xF,
+    };
+    PshStageStatus stage[4] = { 0 };
+    bool have_depth_replace = false;
+
+    for (int i = 0; i < 4; i++) {
+        mode[i] = (state->shader_stage_program >> (i * 5)) & 0x1F;
+    }
+    for (int i = 0; i < 4; i++) {
+        int src = input[i];
+        bool usable_source = src >= 0 && src < i &&
+                             stage[src].consistent &&
+                             stage[src].result != PSH_RESULT_UNUSABLE;
+        stage[i].consistent = true;
+        switch (mode[i]) {
+        case PS_TEXTUREMODES_PASSTHRU:
+            stage[i].result = PSH_RESULT_RGBA;
+            break;
+        case PS_TEXTUREMODES_PROJECT2D:
+        case PS_TEXTUREMODES_PROJECT3D:
+        case PS_TEXTUREMODES_CUBEMAP:
+            /* The known depth formats are not RGBA/HILO dot-product inputs. */
+            stage[i].result = state->shadow_map[i] || state->tex_x8y24[i] ?
+                              PSH_RESULT_UNUSABLE : PSH_RESULT_RGBA_OR_HILO;
+            break;
+        case PS_TEXTUREMODES_BUMPENVMAP:
+        case PS_TEXTUREMODES_BUMPENVMAP_LUM:
+        case PS_TEXTUREMODES_DPNDNT_AR:
+        case PS_TEXTUREMODES_DPNDNT_GB:
+            stage[i].consistent = usable_source;
+            stage[i].result = usable_source ? PSH_RESULT_RGBA_OR_HILO :
+                                               PSH_RESULT_UNUSABLE;
+            break;
+        case PS_TEXTUREMODES_DOTPRODUCT:
+            stage[i].consistent = usable_source;
+            break;
+        case PS_TEXTUREMODES_DOT_ZW:
+            stage[i].consistent = i >= 2 &&
+                                  mode[i - 1] == PS_TEXTUREMODES_DOTPRODUCT &&
+                                  stage[i - 1].consistent && usable_source &&
+                                  !have_depth_replace;
+            if (stage[i].consistent) {
+                have_depth_replace = true;
+            } else {
+                state->shader_stage_program &= ~(0x1Fu << (i * 5));
+                if (i >= 2) {
+                    state->other_stage_input &= ~(0xFu << (i * 4 + 8));
+                }
+            }
+            break;
+        case PS_TEXTUREMODES_NONE:
+        case PS_TEXTUREMODES_CLIPPLANE:
+        case PS_TEXTUREMODES_BRDF:
+            break;
+        default:
+            /* A mode not classified here cannot supply a proven RGBA/HILO
+             * result to a later depth-replacement dot. Its own generator
+             * path is unchanged. */
+            stage[i].consistent = false;
+            break;
+        }
+    }
+}
+
 MString *pgraph_glsl_gen_psh(const PshState *state, GenPshGlslOptions opts)
 {
     int i;
     struct PixelShader ps;
+    PshState effective = *state;
     memset(&ps, 0, sizeof(ps));
+
+    pgraph_glsl_normalize_psh_state(&effective);
 
     assert(!opts.ubershader || opts.vulkan);
 
     ps.opts = opts;
-    ps.state = state;
+    ps.state = &effective;
 
-    ps.num_stages = state->combiner_control & 0xFF;
-    ps.flags = state->combiner_control >> 8;
+    ps.num_stages = effective.combiner_control & 0xFF;
+    ps.flags = effective.combiner_control >> 8;
     for (i = 0; i < 4; i++) {
-        ps.tex_modes[i] = (state->shader_stage_program >> (i * 5)) & 0x1F;
+        ps.tex_modes[i] = (effective.shader_stage_program >> (i * 5)) & 0x1F;
     }
 
     ps.dot_map[0] = 0;

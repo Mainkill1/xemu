@@ -215,6 +215,7 @@ static void generate_shaders(PGRAPHGLState *r, ShaderBinding *binding)
     memset(&key, 0, sizeof(key));
     key.kind = GL_FRAGMENT_SHADER;
     key.psh.state = state->psh;
+    pgraph_glsl_normalize_psh_state(&key.psh.state);
     glAttachShader(program, get_shader_module_for_key(r, &key));
 
     /* link the program */
