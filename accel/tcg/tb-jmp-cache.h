@@ -11,6 +11,8 @@
 
 #include "qemu/rcu.h"
 #include "exec/cpu-common.h"
+#include "exec/translation-block.h"
+#include "accel/tcg/tb-cpu-state.h"
 #ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
 #include "jump-cache-probe.h"
 #endif
@@ -37,5 +39,31 @@ typedef struct CPUJumpCache {
     } array[TB_JMP_CACHE_SIZE];
 #endif
 } CPUJumpCache;
+
+/* Keep complete cflags equality: CF_INVALID must never be masked here. */
+static inline TranslationBlock *
+tcg_jump_cache_lookup(CPUJumpCache *jc, unsigned hash, TCGTBCPUState s)
+{
+    TranslationBlock *tb = qatomic_read(&jc->array[hash].tb);
+
+    if (likely(tb && jc->array[hash].pc == s.pc &&
+               tb->cs_base == s.cs_base && tb->flags == s.flags &&
+               tb_cflags(tb) == s.cflags)) {
+        return tb;
+    }
+    return NULL;
+}
+
+static inline void tcg_jump_cache_clear_range(CPUJumpCache *jc, unsigned first,
+                                              unsigned count)
+{
+    if (unlikely(!jc)) {
+        return;
+    }
+    assert(first <= TB_JMP_CACHE_SIZE && count <= TB_JMP_CACHE_SIZE - first);
+    for (unsigned i = 0; i < count; i++) {
+        qatomic_set(&jc->array[first + i].tb, NULL);
+    }
+}
 
 #endif /* ACCEL_TCG_TB_JMP_CACHE_H */

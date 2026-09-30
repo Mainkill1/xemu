@@ -168,6 +168,7 @@ tests = {
 
 if have_tcg and host_arch in ['x86_64', 'aarch64']
   tests += {
+    'test-tcg-jump-cache-validity': [xbox_i386_target_headers],
     'test-tcg-jump-cache-probe': [
       meson.project_source_root() / 'accel/tcg/jump-cache-probe.c',
     ],

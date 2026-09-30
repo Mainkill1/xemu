@@ -684,8 +684,6 @@ void tcg_flush_jmp_cache(CPUState *cpu)
 #ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
     tcg_jump_cache_probe_clear(jc->probe, jc->array, TB_JMP_CACHE_SIZE, false);
 #else
-    for (int i = 0; i < TB_JMP_CACHE_SIZE; i++) {
-        qatomic_set(&jc->array[i].tb, NULL);
-    }
+    tcg_jump_cache_clear_range(jc, 0, TB_JMP_CACHE_SIZE);
 #endif
 }

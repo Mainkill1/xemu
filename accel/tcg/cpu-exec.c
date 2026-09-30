@@ -266,12 +266,8 @@ static inline TranslationBlock *tb_lookup(CPUState *cpu, TCGTBCPUState s)
     }
 #endif
 
-    tb = qatomic_read(&jc->array[hash].tb);
-    if (likely(tb &&
-               jc->array[hash].pc == s.pc &&
-               tb->cs_base == s.cs_base &&
-               tb->flags == s.flags &&
-               tb_cflags(tb) == s.cflags)) {
+    tb = tcg_jump_cache_lookup(jc, hash, s);
+    if (likely(tb)) {
         goto hit;
     }
 

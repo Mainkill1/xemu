@@ -1,0 +1,13 @@
+ninja: Entering directory `build-windows-probe'
+[1/15] Generating qemu-version.h with a custom command (wrapped by meson to capture output)
+[2/12] Generating xemu-version-macro.h with a custom command (wrapped by meson to capture output)
+[3/12] Compiling Windows resource version.rc
+[4/12] Compiling C object libqemu-i386-softmmu.a.p/xemu-version.c.obj
+[5/12] Compiling C object tests/unit/test-tcg-jump-cache-validity.exe.p/test-tcg-jump-cache-validity.c.obj
+[6/12] Compiling C object libsystem.a.p/accel_tcg_tcg-stats.c.obj
+[7/12] Linking target tests/unit/test-tcg-jump-cache-validity.exe
+[8/12] Compiling C object libsystem.a.p/accel_tcg_translate-all.c.obj
+[9/12] Compiling C object libsystem.a.p/accel_tcg_tb-maint.c.obj
+[10/12] Compiling C object libsystem.a.p/accel_tcg_cpu-exec.c.obj
+[11/12] Compiling C object libsystem.a.p/accel_tcg_cputlb.c.obj
+[12/12] Linking target qemu-system-i386.exe
