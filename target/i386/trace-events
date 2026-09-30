@@ -1,5 +1,5 @@
 # See docs/devel/tracing.rst for syntax documentation.
-x86_issue266_rdtsc(uint32_t eip, uint64_t tsc, int64_t vm_ns, int64_t host_us) "eip=0x%08"PRIx32" tsc=0x%"PRIx64" vm_ns=%"PRId64" host_us=%"PRId64
+x86_issue266_rdtsc(uint32_t eip, uint64_t tsc, uint64_t target, int64_t vm_ns, int64_t host_us) "eip=0x%08"PRIx32" tsc=0x%"PRIx64" target=0x%"PRIx64" vm_ns=%"PRId64" host_us=%"PRId64
 
 # sev.c
 kvm_sev_init(void) ""

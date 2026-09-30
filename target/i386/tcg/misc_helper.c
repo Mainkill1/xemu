@@ -22,6 +22,7 @@
 #include "cpu.h"
 #include "exec/helper-proto.h"
 #include "exec/cputlb.h"
+#include "accel/tcg/cpu-ldst.h"
 #include "helper-tcg.h"
 #include "trace.h"
 
@@ -78,7 +79,15 @@ void helper_rdtsc(CPUX86State *env)
         ((env->eip >= 0x000d7de0 && env->eip < 0x000d7f00) ||
          (env->eip >= 0x00216410 && env->eip < 0x00216500) ||
          (env->eip >= 0x002232e0 && env->eip < 0x00223400))) {
-        trace_x86_issue266_rdtsc(env->eip, val,
+        uint64_t target = UINT64_MAX;
+        if (env->eip == 0x00216428) {
+            /* After four pushes, arguments one and two are at +0x14/+0x18.
+             * This records the actual proposed deadline before the compare. */
+            target_ulong sp = env->segs[R_SS].base + env->regs[R_ESP];
+            target = cpu_ldl_data_ra(env, sp + 0x14, GETPC());
+            target |= (uint64_t)cpu_ldl_data_ra(env, sp + 0x18, GETPC()) << 32;
+        }
+        trace_x86_issue266_rdtsc(env->eip, val, target,
                                  qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL),
                                  g_get_monotonic_time());
     }
