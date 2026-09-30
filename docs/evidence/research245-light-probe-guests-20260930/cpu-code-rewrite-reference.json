@@ -1,0 +1,36 @@
+[
+  {
+    "schema_version": 1,
+    "id": "cpu_translation_blocks.code_stable",
+    "revision": 2,
+    "kind": "leaf",
+    "outcome": "PASS",
+    "iterations": 10,
+    "sample_count": 10,
+    "measurement_iterations_multiplier": 1,
+    "warmup_iterations": 0,
+    "gpu_completion_mode": "per_iteration",
+    "metadata": {
+      "oracle_status": "PASS",
+      "work_checksum": "9275e7c3",
+      "result_checksum": "f5ff3985"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "cpu_translation_blocks.code_rewrite",
+    "revision": 2,
+    "kind": "leaf",
+    "outcome": "PASS",
+    "iterations": 10,
+    "sample_count": 10,
+    "measurement_iterations_multiplier": 1,
+    "warmup_iterations": 0,
+    "gpu_completion_mode": "per_iteration",
+    "metadata": {
+      "oracle_status": "PASS",
+      "work_checksum": "02a5f4ff",
+      "result_checksum": "65151d67"
+    }
+  }
+]

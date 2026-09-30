@@ -1,0 +1,106 @@
+{
+  "Schema": 1,
+  "Status": "complete",
+  "CacheMode": "cold",
+  "CacheShaders": false,
+  "DriverCache": "uncontrolled",
+  "DriverNamespaceVerified": false,
+  "ComparisonReady": false,
+  "AllowUncontrolledDriverCache": false,
+  "ContractSha256": "c2a89b186eef359c022fcc155f6f8da961f684a8391ce6069260ab6035202a80",
+  "CacheDirectory": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-xc-light245-win-stable-off-03-001\\cache",
+  "PriorCacheDirectory": null,
+  "DriverCacheDirectory": null,
+  "ConfigSourcePath": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-xc-light245-win-stable-off-03-001\\xemu.toml",
+  "EffectiveConfigPath": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Results\\20260930-180805145-1a9ddf64ffca43b99372af09bdc9429e\\diagnostics\\run-state\\effective-live.toml",
+  "ConfigSha256": "aa356a9d7b916ace9b71ff1ef47946db1ac289e36a8b00235c4397f57523b0b8",
+  "EffectiveConfigSha256": "5678fcf6a4aa9cc8c5b9b15fd2b4e5a139c144403ffbda4257f217978652fa0b",
+  "ConfigAfterSha256": "339f0fa338c5d593dac891aa713d0f25580ffdda227f8a270983223644134e4c",
+  "SeedSha256": null,
+  "Before": {
+    "Complete": true,
+    "TreeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "Bytes": 0,
+    "Files": [],
+    "Issues": []
+  },
+  "After": {
+    "Complete": true,
+    "TreeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "Bytes": 0,
+    "Files": [],
+    "Issues": []
+  },
+  "DriverAfter": null,
+  "TargetStopped": true,
+  "Uncontrolled": [
+    "os-page-cache",
+    "driver-cache"
+  ],
+  "Issues": [],
+  "RuntimeSeeds": [
+    {
+      "Source": "state/seed-eeprom.bin",
+      "Destination": "eeprom.bin",
+      "Bytes": 256,
+      "Sha256": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+    },
+    {
+      "Source": "disk-asset:research245-cpu-fatx-compat010-78af83a6",
+      "Destination": "hdd.qcow2",
+      "Bytes": 1310720,
+      "Sha256": "6cec8092db8f1d0a4a4a3ddc39f462d823f73c60e0466eb3686a6ca7ef1a69d5",
+      "DiskAssetId": "research245-cpu-fatx-compat010-78af83a6",
+      "AssetKind": "xiso-seed",
+      "Retention": "deleteAfterEvidence",
+      "SeedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b"
+    }
+  ],
+  "ReadOnlyAssets": [
+    {
+      "Field": "bootrom_path",
+      "AssetId": "devbox-mcpx10-readonly-v1",
+      "Path": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\DiskAssets\\devbox-mcpx10-readonly-v1\\disk.qcow2",
+      "Bytes": 512,
+      "ExpectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335",
+      "BeforeSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335",
+      "AfterSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+    },
+    {
+      "Field": "flashrom_path",
+      "AssetId": "devbox-complex4627-readonly-v1",
+      "Path": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\DiskAssets\\devbox-complex4627-readonly-v1\\disk.qcow2",
+      "Bytes": 1048576,
+      "ExpectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f",
+      "BeforeSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f",
+      "AfterSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+    },
+    {
+      "Field": "dvd_path",
+      "AssetId": "research245-cpu-iso-c02a1a44-74a10c40",
+      "Path": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\DiskAssets\\research245-cpu-iso-c02a1a44-74a10c40\\disk.qcow2",
+      "Bytes": 3670016,
+      "ExpectedSha256": "74a10c400f4fb280dcb4037e38e7e4d3150e73e0061a04f65b3c68cc61a49e63",
+      "BeforeSha256": "74a10c400f4fb280dcb4037e38e7e4d3150e73e0061a04f65b3c68cc61a49e63",
+      "AfterSha256": "74a10c400f4fb280dcb4037e38e7e4d3150e73e0061a04f65b3c68cc61a49e63"
+    }
+  ],
+  "StoragePaths": {
+    "bootrom_path": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\DiskAssets\\devbox-mcpx10-readonly-v1\\disk.qcow2",
+    "flashrom_path": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\DiskAssets\\devbox-complex4627-readonly-v1\\disk.qcow2",
+    "dvd_path": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\DiskAssets\\research245-cpu-iso-c02a1a44-74a10c40\\disk.qcow2",
+    "hdd_path": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Runtime\\20260930-180805145-1a9ddf64ffca43b99372af09bdc9429e\\hdd.qcow2",
+    "eeprom_path": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Runtime\\20260930-180805145-1a9ddf64ffca43b99372af09bdc9429e\\eeprom.bin",
+    "screenshots": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Results\\20260930-180805145-1a9ddf64ffca43b99372af09bdc9429e\\screenshots",
+    "applicationBase": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-xc-light245-win-stable-off-03-001",
+    "openglShaders": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-xc-light245-win-stable-off-03-001\\shaders",
+    "openglReloadList": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-xc-light245-win-stable-off-03-001\\shader_cache_list"
+  },
+  "CacheEnvironment": {},
+  "Limitations": [
+    "Cold refers to the application cache, not RAM, OS page cache or a fully reset GPU driver.",
+    "The effective file pins authored values and shader caching; omitted build defaults are not introspected.",
+    "Directory redirection is not an OS sandbox and does not prove an arbitrary executable obeyed it.",
+    "Driver namespaces are requested controls, not proof the loaded driver used them."
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "runId": "20260930-180833339-44eb75bf75fd4f6d9a0ff55e0f782d8a",
+  "attempt": 1,
+  "job": "xc-light245-win-stable-counters-04-001",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu.exe",
+  "executableSha256": "fecf6c08a305465de4c2658909e15f94e103f613a7828c8e2c77df12f1a8d44d",
+  "jobSha256": "d3982da86204c4443fb6b9e9f5c8fcb14d5487d865729f5f5814213ea290d03f",
+  "arguments": [
+    "-config_path",
+    "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-xc-light245-win-stable-counters-04-001/xemu.toml",
+    "-name",
+    "xemu-research245-cpu,debug-threads=on",
+    "-msg",
+    "timestamp=on",
+    "-qmp",
+    "tcp:127.0.0.1:59777,server=on,wait=off"
+  ],
+  "environmentKeys": [
+    "XEMU_FLIP_LOG",
+    "XEMU_FRAME_LOG",
+    "XEMU_TCG_JUMP_CACHE_PROBE"
+  ],
+  "workingDirectory": ".",
+  "runtimeDirectory": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Runtime\\20260930-180833339-44eb75bf75fd4f6d9a0ff55e0f782d8a",
+  "experiment": {
+    "Id": "light245-windows-same-executable-cpu-modes",
+    "Variant": "counters",
+    "Reference": null,
+    "VariedFactors": [
+      "runtime-collector-mode"
+    ],
+    "ControlledFactors": [
+      "same-executable-fecf6c08a305465de4c2658909e15f94e103f613a7828c8e2c77df12f1a8d44d",
+      "fixture-c02a1a44",
+      "stable-50m-rewrite-1m",
+      "warmups-0",
+      "multiplier-1",
+      "cpuid-both-leaves",
+      "128mb-ram",
+      "vulkan",
+      "cold-private-application-cache",
+      "windows-driver-cache-uncontrolled-no-waiver",
+      "no-HMP-queries"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  },
+  "host": {
+    "runnerVersion": "0.1.0\u002B079e3d483523b3e53a11983efd40e2c530747b5f",
+    "machine": "DESKTOP-52C4KS5",
+    "os": "Microsoft Windows 10.0.19045",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 16,
+    "dotnet": "10.0.12"
+  }
+}

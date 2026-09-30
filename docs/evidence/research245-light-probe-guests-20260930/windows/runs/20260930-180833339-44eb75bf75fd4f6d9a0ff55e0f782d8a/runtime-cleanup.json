@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "runId": "20260930-180833339-44eb75bf75fd4f6d9a0ff55e0f782d8a",
+  "state": "complete",
+  "targetStopped": true,
+  "evidenceFinalized": true,
+  "runtimeDirectory": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Runtime\\20260930-180833339-44eb75bf75fd4f6d9a0ff55e0f782d8a",
+  "files": [
+    {
+      "assetId": "research245-cpu-fatx-compat010-78af83a6",
+      "path": "hdd.qcow2",
+      "retention": "deleteAfterEvidence",
+      "deleted": true,
+      "error": null
+    }
+  ],
+  "updatedUtc": "2026-09-30T18:09:00.9737219+00:00"
+}

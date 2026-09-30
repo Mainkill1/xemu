@@ -1,0 +1,106 @@
+{
+  "Passed": true,
+  "ExecutableSha256": "6887481a8e22e008259f1cbff86e70f538b56ac7680258a9e68f8397216be3f7",
+  "Checks": [
+    {
+      "Name": "target_os",
+      "Passed": true,
+      "Detail": "Host: linux; requested: linux."
+    },
+    {
+      "Name": "executable",
+      "Passed": true,
+      "Detail": "xemu"
+    },
+    {
+      "Name": "executable_stable",
+      "Passed": true,
+      "Detail": "Executable metadata remained unchanged while hashing."
+    },
+    {
+      "Name": "sha256",
+      "Passed": true,
+      "Detail": "6887481a8e22e008259f1cbff86e70f538b56ac7680258a9e68f8397216be3f7"
+    },
+    {
+      "Name": "executable_bit",
+      "Passed": true,
+      "Detail": "The Linux package must retain an executable permission bit."
+    },
+    {
+      "Name": "working_directory",
+      "Passed": true,
+      "Detail": "/home/deck/xemu-research/workspace/Queue/Testing/agent-xc-light245-stable-off-02-001"
+    },
+    {
+      "Name": "required_file",
+      "Passed": true,
+      "Detail": "xemu"
+    },
+    {
+      "Name": "required_file",
+      "Passed": true,
+      "Detail": "xemu.toml"
+    },
+    {
+      "Name": "required_file",
+      "Passed": true,
+      "Detail": "state/seed-eeprom.bin"
+    },
+    {
+      "Name": "required_file",
+      "Passed": true,
+      "Detail": "lib/libslirp.so.0"
+    },
+    {
+      "Name": "required_file",
+      "Passed": true,
+      "Detail": "cpu-code-rewrite-reference.json"
+    },
+    {
+      "Name": "required_file",
+      "Passed": true,
+      "Detail": "lib/libpcap.so.0.8"
+    },
+    {
+      "Name": "input_file",
+      "Passed": true,
+      "Detail": "pinned-cpu-fixture-input: xemu"
+    },
+    {
+      "Name": "input_file",
+      "Passed": true,
+      "Detail": "pinned-cpu-fixture-input: xemu.toml"
+    },
+    {
+      "Name": "input_file",
+      "Passed": true,
+      "Detail": "pinned-cpu-fixture-input: state/seed-eeprom.bin"
+    },
+    {
+      "Name": "input_file",
+      "Passed": true,
+      "Detail": "pinned-cpu-fixture-input: lib/libslirp.so.0"
+    },
+    {
+      "Name": "input_file",
+      "Passed": true,
+      "Detail": "pinned-cpu-fixture-input: cpu-code-rewrite-reference.json"
+    },
+    {
+      "Name": "input_file",
+      "Passed": true,
+      "Detail": "pinned-cpu-probe-input: lib/libpcap.so.0.8"
+    },
+    {
+      "Name": "runtime_seed",
+      "Passed": true,
+      "Detail": "state/seed-eeprom.bin -\u003E eeprom.bin"
+    },
+    {
+      "Name": "free_space",
+      "Passed": true,
+      "Detail": "Available=320452345856; required=1073741824 bytes."
+    }
+  ]
+}

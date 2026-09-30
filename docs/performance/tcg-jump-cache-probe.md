@@ -95,3 +95,9 @@ These wall-clock diagnostic windows are not exact guest phase boundaries.
 The [production validity helper checks](../evidence/research245-validity-20260930/REPORT.md)
 verify complete identity rejection and slot-clearing boundaries. They do not
 prove whole guest remapping, reclamation, reset/load or concurrent invalidation.
+
+The [lighter collector checks and host comparisons](../evidence/research245-light-probe-20260930/REPORT.md)
+retain all mode costs, sanitizer checks and deliberate negative controls.
+[Same-executable Deck/Windows CPU mode checks](../evidence/research245-light-probe-guests-20260930/REPORT.md)
+report actual per-leaf work times and preserve every cache-qualification rejection.
+These measurements assess observer cost; they do not test cache retention.

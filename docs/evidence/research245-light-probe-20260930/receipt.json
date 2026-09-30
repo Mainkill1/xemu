@@ -1,0 +1,56 @@
+{
+  "createdUtc": "2026-09-30T18:09:03.441738+00:00",
+  "source": {
+    "commit": "3a3d3c390fbb5d3835206d47614a86467e7a9330",
+    "parent": "17334c1b1a93c3c4606c044e2af9768187ad03af",
+    "sha256": {
+      "accel/tcg/jump-cache-probe.c": "cb8c64df54a81ed1d31ca4bf4e3332e7caabf90a334a50ede53b8c8485f93eb9",
+      "accel/tcg/jump-cache-probe.h": "01df227ac6cebe4633b9ad80cecc190907acdaac765ff84cb8560c726b416f72",
+      "accel/tcg/cpu-exec.c": "5e0a592d869841406a63e5f4adbfbaac975993566b2c182ece3ba72590277e3c",
+      "tests/unit/test-tcg-jump-cache-probe.c": "00215e253c644c76fb369ee088ac0a2c9c2971a140989491f64e3eac2048fefd",
+      "docs/performance/tcg-jump-cache-probe.md": "84f9333a0bb90b9451f7dab191922cb8cf176b838f1812179c382801b76de6f2"
+    }
+  },
+  "scope": "Collector cost and unit correctness only; no retention or production speedup result",
+  "passingUnitLogs": {
+    "research245-light-probe-restored-collector-unit.log": 7,
+    "research245-light-probe-final-validity-unit.log": 6,
+    "research245-light-probe-restored-asan-ubsan-unit.log": 7,
+    "research245-light-probe-restored-tsan-unit.log": 7,
+    "research245-light-probe-default-off-collector-unit.log": 7,
+    "research245-light-probe-default-off-validity-unit.log": 6
+  },
+  "negativeControls": {
+    "occupancy": "research245-light-probe-occupancy-red.log",
+    "counterMode": "research245-light-probe-counter-mode-negative2.log"
+  },
+  "initialIneffectiveControl": "research245-light-probe-counter-mode-negative.log",
+  "nativeDefaultOff": {
+    "sha256": "d37e4e11d3eae5a2d5a3b8dbb50b9f62b4b7b8272f9caebaf9c5ab511d6eaa67",
+    "bytes": 136331784,
+    "buildLog": "logs/research245-light-probe-default-off-build.log",
+    "unitExecution": "Native default-OFF collector7 and validity6 PASS; Windows units built but not executed"
+  },
+  "buildEnvironment": {
+    "GIT_DIR": "/home/codex/src/steamdeck-xemu/scratch/research245-validity-build-identity.git",
+    "versionContextHead": "3a3d3c390fbb5d3835206d47614a86467e7a9330",
+    "versionContextHasTags": false,
+    "TMPDIR": "/home/codex/src/steamdeck-xemu/scratch/compiler-tmp",
+    "windowsPathPrefix": "/opt/xemu-toolchain/mxe/usr/bin:/opt/xemu-toolchain/bin",
+    "VULKAN_SDK": "/opt/xemu-toolchain/mxe/usr/x86_64-w64-mingw32.static",
+    "ASAN_OPTIONS": "detect_leaks=1:abort_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1",
+    "TSAN_OPTIONS": "halt_on_error=1"
+  },
+  "host": {
+    "retainedRuns": 80,
+    "excludedWarmups": 20,
+    "aaRuns": 16,
+    "qualification": "Not a guest comparison; process CPU time microbenchmark",
+    "generatedConfigurationRecheck": "Both harness binaries reproduced byte-identically after default-OFF reconfiguration; original generated headers not archived"
+  },
+  "performance": {
+    "acceptedProductionImprovementPercent": null,
+    "actualRetentionCandidate": false
+  }
+}

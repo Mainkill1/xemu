@@ -1,0 +1,20 @@
+[
+  {
+    "workload": "lookup-hooks",
+    "median": {
+      "A": 9972538.0,
+      "B": 9977657.5
+    },
+    "apparentImprovementPercent": -0.051335978865159504,
+    "meaning": "A/A control; identical executable and collection OFF, labels carry no change"
+  },
+  {
+    "workload": "empty-cache-clears",
+    "median": {
+      "A": 45087705.5,
+      "B": 45266288.0
+    },
+    "apparentImprovementPercent": -0.3960780395001471,
+    "meaning": "A/A control; identical executable and collection OFF, labels carry no change"
+  }
+]

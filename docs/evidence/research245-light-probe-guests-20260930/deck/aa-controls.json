@@ -1,0 +1,20 @@
+[
+  {
+    "host": "deck",
+    "leaf": "cpu_translation_blocks.code_stable",
+    "firstOffUs": 3420175.5,
+    "secondOffUs": 3389976,
+    "apparentImprovementPercent": 0.8829810049221158,
+    "comparison": "ineligible",
+    "meaning": "Identical executable and mode A/A; labels carry no change"
+  },
+  {
+    "host": "deck",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "firstOffUs": 3021846.5,
+    "secondOffUs": 3034230,
+    "apparentImprovementPercent": -0.4097991079295391,
+    "comparison": "ineligible",
+    "meaning": "Identical executable and mode A/A; labels carry no change"
+  }
+]

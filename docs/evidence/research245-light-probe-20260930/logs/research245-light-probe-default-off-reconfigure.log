@@ -1,0 +1,1066 @@
+The Meson build system
+Version: 1.9.0
+Source dir: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache
+Build dir: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe
+Build type: native build
+Project name: qemu
+Project version: 10.2.0
+C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+C linker for the host machine: cc -m64 ld.bfd 2.44
+C++ compiler for the host machine: c++ -m64 (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+C++ linker for the host machine: c++ -m64 ld.bfd 2.44
+Host machine cpu family: x86_64
+Host machine cpu: x86_64
+Program scripts/symlink-install-tree.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/symlink-install-tree.py)
+Program sh found: YES (/usr/bin/sh)
+Program python3 found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/bin/python3)
+Compiler for language rust skipped: feature rust disabled
+Program iasl found: NO
+Program bzip2 found: YES (/usr/bin/bzip2)
+Program scripts/xemu-version.sh found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/xemu-version.sh)
+Compiler for C supports link arguments -Wl,-z,relro: YES (cached)
+Compiler for C supports link arguments -Wl,-z,now: YES (cached)
+Checking if "-fzero-call-used-regs=used-gpr" compiles: YES (cached)
+Compiler for C supports arguments -ftrivial-auto-var-init=zero: YES (cached)
+Compiler for C supports arguments -fzero-call-used-regs=used-gpr: YES (cached)
+Compiler for C supports arguments -Wempty-body: YES (cached)
+Compiler for C supports arguments -Wendif-labels: YES (cached)
+Compiler for C supports arguments -Wexpansion-to-defined: YES (cached)
+Compiler for C supports arguments -Wformat-security: YES (cached)
+Compiler for C supports arguments -Wformat-y2k: YES (cached)
+Compiler for C supports arguments -Wignored-qualifiers: YES (cached)
+Compiler for C supports arguments -Wimplicit-fallthrough=2: YES (cached)
+Compiler for C supports arguments -Winit-self: YES (cached)
+Compiler for C supports arguments -Wmissing-format-attribute: YES (cached)
+Compiler for C supports arguments -Wmissing-prototypes: YES (cached)
+Compiler for C supports arguments -Wnested-externs: YES (cached)
+Compiler for C supports arguments -Wold-style-declaration: YES (cached)
+Compiler for C supports arguments -Wold-style-definition: YES (cached)
+Compiler for C supports arguments -Wredundant-decls: YES (cached)
+Compiler for C supports arguments -Wshadow=local: YES (cached)
+Compiler for C supports arguments -Wstrict-prototypes: YES (cached)
+Compiler for C supports arguments -Wtype-limits: YES (cached)
+Compiler for C supports arguments -Wwrite-strings: YES (cached)
+Compiler for C supports arguments -Wno-gnu-variable-sized-type-not-at-end: NO (cached)
+Compiler for C supports arguments -Wno-initializer-overrides: NO (cached)
+Compiler for C supports arguments -Wno-missing-include-dirs: YES (cached)
+Compiler for C supports arguments -Wno-psabi: YES (cached)
+Compiler for C supports arguments -Wno-shift-negative-value: YES (cached)
+Compiler for C supports arguments -Wno-string-plus-int: NO (cached)
+Compiler for C supports arguments -Wno-tautological-type-limit-compare: NO (cached)
+Compiler for C supports arguments -Wno-typedef-redefinition: NO (cached)
+Compiler for C++ supports arguments -Wempty-body: YES (cached)
+Compiler for C++ supports arguments -Wendif-labels: YES (cached)
+Compiler for C++ supports arguments -Wexpansion-to-defined: YES (cached)
+Compiler for C++ supports arguments -Wformat-security: YES (cached)
+Compiler for C++ supports arguments -Wformat-y2k: YES (cached)
+Compiler for C++ supports arguments -Wignored-qualifiers: YES (cached)
+Compiler for C++ supports arguments -Wimplicit-fallthrough=2: YES (cached)
+Compiler for C++ supports arguments -Winit-self: YES (cached)
+Compiler for C++ supports arguments -Wmissing-format-attribute: YES (cached)
+Compiler for C++ supports arguments -Wmissing-prototypes: NO (cached)
+Compiler for C++ supports arguments -Wnested-externs: NO (cached)
+Compiler for C++ supports arguments -Wold-style-declaration: NO (cached)
+Compiler for C++ supports arguments -Wold-style-definition: NO (cached)
+Compiler for C++ supports arguments -Wredundant-decls: YES (cached)
+Compiler for C++ supports arguments -Wshadow=local: YES (cached)
+Compiler for C++ supports arguments -Wstrict-prototypes: NO (cached)
+Compiler for C++ supports arguments -Wtype-limits: YES (cached)
+Compiler for C++ supports arguments -Wwrite-strings: YES (cached)
+Compiler for C++ supports arguments -Wno-gnu-variable-sized-type-not-at-end: NO (cached)
+Compiler for C++ supports arguments -Wno-initializer-overrides: NO (cached)
+Compiler for C++ supports arguments -Wno-missing-include-dirs: YES (cached)
+Compiler for C++ supports arguments -Wno-psabi: YES (cached)
+Compiler for C++ supports arguments -Wno-shift-negative-value: YES (cached)
+Compiler for C++ supports arguments -Wno-string-plus-int: NO (cached)
+Compiler for C++ supports arguments -Wno-tautological-type-limit-compare: NO (cached)
+Compiler for C++ supports arguments -Wno-typedef-redefinition: NO (cached)
+Program cgcc skipped: feature sparse disabled
+Library m found: YES
+Dependency threads found: YES unknown (cached)
+Library util found: YES
+Dependency glib-2.0 found: YES 2.84.4 (cached)
+Dependency gio-2.0 skipped: feature gio disabled
+Program scripts/xml-preprocess.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/xml-preprocess.py)
+Dependency pixman-1 skipped: feature pixman disabled
+Dependency zlib found: YES 1.3.1 (cached)
+Library aio skipped: feature linux_aio disabled
+Dependency liburing skipped: feature linux_io_uring disabled
+Dependency libnfs skipped: feature libnfs disabled
+Dependency appleframeworks (modules: Cocoa, CoreVideo, QuartzCore) skipped: feature cocoa disabled
+Dependency appleframeworks (modules: vmnet) skipped: feature vmnet disabled
+Dependency libseccomp skipped: feature seccomp disabled
+Library cap-ng skipped: feature cap_ng disabled
+Dependency xkbcommon skipped: feature xkbcommon disabled
+Dependency slirp found: YES 4.8.0 (cached)
+Library vdeplug skipped: feature vde disabled
+Dependency libpulse skipped: feature pa disabled
+Dependency alsa skipped: feature alsa disabled
+Dependency jack skipped: feature jack disabled
+Dependency libpipewire-0.3 skipped: feature pipewire disabled
+Dependency sndio skipped: feature sndio disabled
+Dependency spice-protocol skipped: feature spice_protocol disabled
+Checking for function "shm_open" : YES (cached)
+Dependency libiscsi skipped: feature libiscsi disabled
+Dependency libzstd skipped: feature zstd disabled
+Dependency qpl skipped: feature qpl disabled
+Dependency libwd skipped: feature uadk disabled
+Dependency libwd_comp skipped: feature uadk disabled
+Dependency qatzip skipped: feature qatzip disabled
+Dependency virglrenderer skipped: feature virglrenderer disabled
+Dependency rutabaga_gfx_ffi skipped: feature rutabaga_gfx disabled
+Dependency blkio skipped: feature blkio disabled
+Dependency libcurl found: YES 8.14.1 (cached)
+Dependency libudev skipped: feature libudev disabled
+Dependency igvm skipped: feature igvm disabled
+Library brlapi skipped: feature brlapi disabled
+Dependency sdl3 found: YES 3.2.10 (cached)
+Dependency SDL3_image skipped: feature sdl_image disabled
+Library rados skipped: feature rbd disabled
+Library rbd skipped: feature rbd disabled
+Dependency glusterfs-api skipped: feature glusterfs disabled
+Dependency libssh skipped: feature libssh disabled
+Library bz2 skipped: feature bzip2 disabled
+Library lzfse skipped: feature lzfse disabled
+Has header "dsound.h" : NO (cached)
+Dependency appleframeworks (modules: CoreAudio) skipped: feature coreaudio disabled
+Dependency epoxy found: YES 1.5.10 (cached)
+Dependency gbm found: YES 25.0.7-2+deb13u1 (cached)
+Dependency libcbor skipped: feature libcbor disabled
+Dependency libgcrypt skipped: feature gcrypt disabled
+Dependency nettle skipped: feature nettle disabled
+Dependency capstone skipped: feature capstone disabled
+Dependency gmp found: YES 6.3.0 (cached)
+Library pam skipped: feature auth_pam disabled
+Library snappy skipped: feature snappy disabled
+Library lzo2 skipped: feature lzo disabled
+Library numa skipped: feature numa disabled
+Library rdmacm skipped: feature rdma disabled
+Library ibverbs skipped: feature rdma disabled
+Dependency libcacard skipped: feature smartcard disabled
+Dependency u2f-emu skipped: feature u2f disabled
+Dependency canokey-qemu skipped: feature canokey disabled
+Dependency libusbredirparser-0.5 skipped: feature usb_redir disabled
+Dependency libusb-1.0 found: YES 1.0.28 (cached)
+Dependency libpmem skipped: feature libpmem disabled
+Dependency libdaxctl skipped: feature libdaxctl disabled
+Dependency libkeyutils skipped: feature libkeyutils disabled
+Checking for function "gettid" : YES (cached)
+Dependency libselinux skipped: feature selinux disabled
+Dependency fuse3 skipped: feature fuse disabled
+Dependency libbpf skipped: feature bpf disabled
+Dependency libdw skipped: feature libdw disabled
+Dependency vulkan found: YES 1.4.309 (cached)
+Found pkg-config: YES (/usr/bin/pkg-config) 1.8.1
+Dependency glslang found: NO. Unknown version, but need: ['>=15.0.0']
+Found CMake: /usr/bin/cmake (3.31.6)
+NOTICE: CMake reported that the package glslang was not found with the following reason:
+glslang could not be found because dependency Threads could not be found.
+Run-time dependency glslang found: NO (tried pkgconfig)
+
+Executing subproject glslang method cmake 
+
+glslang| Found CMake: /usr/bin/cmake (3.31.6)
+
+| Configuring the build directory with CMake version 3.31.6
+| Running CMake with: -G Ninja -DCMAKE_INSTALL_PREFIX=/usr/local -DENABLE_OPT=False -DENABLE_HLSL=False -DCMAKE_BUILD_TYPE=Debug
+| - build directory:          /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/subprojects/glslang/__CMake_build
+| - source directory:         /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang
+| - toolchain file:           /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/subprojects/glslang/__CMake_build/CMakeMesonToolchainFile.cmake
+| - preload file:             /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake
+| - trace args:               --trace-expand --trace-format=json-v1 --no-warn-unused-cli --trace-redirect=cmake_trace.txt
+| - disabled policy warnings: [CMP0025, CMP0047, CMP0056, CMP0060, CMP0065, CMP0066, CMP0067, CMP0082, CMP0089, CMP0102]
+
+| Put cmake in trace mode, but with variables expanded.
+| Put cmake in trace mode and sets the trace output format.
+| Not searching for unused variables given on the command line.
+| Put cmake in trace mode and redirect trace output to a file instead of stderr.
+| Trace will be written to cmake_trace.txt
+| -- The C compiler identification is GNU 14.2.0
+| -- The CXX compiler identification is GNU 14.2.0
+| -- Detecting C compiler ABI info
+| -- Detecting C compiler ABI info - done
+| -- Check for working C compiler: /usr/bin/cc - skipped
+| -- Detecting C compile features
+| -- Detecting C compile features - done
+| -- Detecting CXX compiler ABI info
+| -- Detecting CXX compiler ABI info - done
+| -- Check for working CXX compiler: /usr/bin/c++ - skipped
+| -- Detecting CXX compile features
+| -- Detecting CXX compile features - done
+| -- Google Mock was not found - tests based on that will not build
+| CMake Warning at /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake:18 (message):
+| The function 'target_precompile_headers' is disabled in the context of
+| CMake subprojects.
+
+| This should not be an issue but may lead to compilation errors.
+| Call Stack (most recent call first):
+| /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake:76 (meson_ps_disabled_function)
+| CMakeLists.txt:291 (target_precompile_headers)
+| glslang/CMakeLists.txt:184 (glslang_pch)
+
+
+| -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+| -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+| -- Found Threads: TRUE
+| -- Found Python3: /usr/bin/python3 (found version "3.13.5") found components: Interpreter
+| -- Configuring done (0.4s)
+| CMake Warning (dev) at SPIRV/CMakeLists.txt:76 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at glslang/OSDependent/Unix/CMakeLists.txt:42 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at glslang/CMakeLists.txt:170 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at glslang/CMakeLists.txt:136 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at glslang/CMakeLists.txt:54 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at glslang/CMakeLists.txt:220 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at StandAlone/CMakeLists.txt:50 (add_executable):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Generating done (0.0s)
+| -- Build files have been written to: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/subprojects/glslang/__CMake_build
+
+glslang| CMake configuration: SUCCEEDED
+glslang| WARNING: The CMake function "target_precompile_headers" was disabled to avoid compatibility issues with Meson.
+glslang| CMake project glslang  has 8 build targets.
+glslang| Generated Meson AST: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/subprojects/glslang/meson.build
+glslang| Project name: glslang
+glslang| Project version: undefined
+glslang| C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+glslang| C linker for the host machine: cc -m64 ld.bfd 2.44
+glslang| C++ compiler for the host machine: c++ -m64 (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+glslang| C++ linker for the host machine: c++ -m64 ld.bfd 2.44
+glslang| Build targets in project: 9
+glslang| Subproject glslang finished.
+
+
+Executing subproject volk method cmake 
+
+
+| Configuring the build directory with CMake version 3.31.6
+| Running CMake with: -G Ninja -DCMAKE_INSTALL_PREFIX=/usr/local -DVOLK_STATIC_DEFINES=VK_NO_PROTOTYPES -DCMAKE_BUILD_TYPE=Debug
+| - build directory:          /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/subprojects/volk/__CMake_build
+| - source directory:         /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/volk
+| - toolchain file:           /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/subprojects/volk/__CMake_build/CMakeMesonToolchainFile.cmake
+| - preload file:             /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake
+| - trace args:               --trace-expand --trace-format=json-v1 --no-warn-unused-cli --trace-redirect=cmake_trace.txt
+| - disabled policy warnings: [CMP0025, CMP0047, CMP0056, CMP0060, CMP0065, CMP0066, CMP0067, CMP0082, CMP0089, CMP0102]
+
+| Put cmake in trace mode, but with variables expanded.
+| Put cmake in trace mode and sets the trace output format.
+| Not searching for unused variables given on the command line.
+| Put cmake in trace mode and redirect trace output to a file instead of stderr.
+| Trace will be written to cmake_trace.txt
+| -- The C compiler identification is GNU 14.2.0
+| -- Detecting C compiler ABI info
+| -- Detecting C compiler ABI info - done
+| -- Check for working C compiler: /usr/bin/cc - skipped
+| -- Detecting C compile features
+| -- Detecting C compile features - done
+| volk: using Vulkan_INCLUDE_DIRS from FindVulkan module
+| -- Configuring done (0.2s)
+| CMake Warning (dev) at CMakeLists.txt:35 (add_library):
+| Policy CMP0179 is not set: De-duplication of static libraries on link lines
+| keeps first occurrence.  Run "cmake --help-policy CMP0179" for policy
+| details.  Use the cmake_policy command to set the policy and suppress this
+| warning.
+
+| Since the policy is not set, static libraries de-duplication will keep the
+| last occurrence of the static libraries.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Generating done (0.0s)
+| -- Build files have been written to: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/subprojects/volk/__CMake_build
+
+volk| CMake configuration: SUCCEEDED
+volk| CMake project volk 350 has 2 build targets.
+volk| Generated Meson AST: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/subprojects/volk/meson.build
+volk| Project name: volk
+volk| Project version: 350
+volk| C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+volk| C linker for the host machine: cc -m64 ld.bfd 2.44
+volk| Build targets in project: 10
+volk| Subproject volk finished.
+
+
+Executing subproject SPIRV-Reflect method cmake 
+
+
+| Configuring the build directory with CMake version 3.31.6
+| Running CMake with: -G Ninja -DCMAKE_INSTALL_PREFIX=/usr/local -DSPIRV_REFLECT_STATIC_LIB=ON -DCMAKE_BUILD_TYPE=Debug
+| - build directory:          /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/subprojects/SPIRV-Reflect/__CMake_build
+| - source directory:         /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/SPIRV-Reflect
+| - toolchain file:           /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/subprojects/SPIRV-Reflect/__CMake_build/CMakeMesonToolchainFile.cmake
+| - preload file:             /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake
+| - trace args:               --trace-expand --trace-format=json-v1 --no-warn-unused-cli --trace-redirect=cmake_trace.txt
+| - disabled policy warnings: [CMP0025, CMP0047, CMP0056, CMP0060, CMP0065, CMP0066, CMP0067, CMP0082, CMP0089, CMP0102]
+
+| Put cmake in trace mode, but with variables expanded.
+| Put cmake in trace mode and sets the trace output format.
+| Not searching for unused variables given on the command line.
+| Put cmake in trace mode and redirect trace output to a file instead of stderr.
+| Trace will be written to cmake_trace.txt
+| -- The C compiler identification is GNU 14.2.0
+| -- The CXX compiler identification is GNU 14.2.0
+| CMake Warning (dev) at /usr/share/cmake-3.31/Modules/CMakeFindBinUtils.cmake:225 (find_program):
+| Policy CMP0126 is not set: set(CACHE) does not remove a normal variable of
+| the same name.  Run "cmake --help-policy CMP0126" for policy details.  Use
+| the cmake_policy command to set the policy and suppress this warning.
+
+| For compatibility with older versions of CMake, normal variable
+| "CMAKE_TAPI" will be removed from the current scope.
+| Call Stack (most recent call first):
+| /usr/share/cmake-3.31/Modules/CMakeDetermineCXXCompiler.cmake:207 (include)
+| CMakeLists.txt:3 (project)
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Detecting C compiler ABI info
+| -- Detecting C compiler ABI info - done
+| -- Check for working C compiler: /usr/bin/cc - skipped
+| -- Detecting C compile features
+| -- Detecting C compile features - done
+| -- Detecting CXX compiler ABI info
+| -- Detecting CXX compiler ABI info - done
+| -- Check for working CXX compiler: /usr/bin/c++ - skipped
+| -- Detecting CXX compile features
+| -- Detecting CXX compile features - done
+| -- Configuring done (0.3s)
+| CMake Warning (dev) at CMakeLists.txt:27 (add_executable):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at CMakeLists.txt:58 (add_executable):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at CMakeLists.txt:116 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Generating done (0.0s)
+| -- Build files have been written to: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/subprojects/SPIRV-Reflect/__CMake_build
+
+SPIRV-Reflect| CMake configuration: SUCCEEDED
+SPIRV-Reflect| CMake project spirv-reflect  has 3 build targets.
+SPIRV-Reflect| Generated Meson AST: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/subprojects/SPIRV-Reflect/meson.build
+SPIRV-Reflect| Project name: spirv-reflect
+SPIRV-Reflect| Project version: undefined
+SPIRV-Reflect| C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+SPIRV-Reflect| C linker for the host machine: cc -m64 ld.bfd 2.44
+SPIRV-Reflect| C++ compiler for the host machine: c++ -m64 (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+SPIRV-Reflect| C++ linker for the host machine: c++ -m64 ld.bfd 2.44
+SPIRV-Reflect| Build targets in project: 13
+SPIRV-Reflect| Subproject SPIRV-Reflect finished.
+
+Dependency libpcap found: YES 1.10.5 (cached)
+Dependency samplerate found: YES 0.2.2 (cached)
+
+Executing subproject imgui 
+
+imgui| Project name: imgui
+imgui| Project version: 1.91.8
+imgui| C++ compiler for the host machine: c++ -m64 (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+imgui| C++ linker for the host machine: c++ -m64 ld.bfd 2.44
+imgui| Library d3dcompiler found: NO
+imgui| Library d3d9 skipped: feature dx9 disabled
+imgui| Library d3d10 skipped: feature dx10 disabled
+imgui| Library d3d11 skipped: feature dx11 disabled
+imgui| Library d3d12 skipped: feature dx12 disabled
+imgui| Dependency appleframeworks (modules: Foundation, AppKit, GameController, Metal) skipped: feature metal disabled
+imgui| Dependency gl found: YES 1.2 (cached)
+imgui| Library dl found: YES
+imgui| Dependency sdl2 skipped: feature sdl2_renderer disabled
+imgui| Dependency sdl3 skipped: feature sdl3_renderer disabled
+imgui| Dependency vulkan skipped: feature vulkan disabled
+imgui| Has header "webgpu/webgpu.h" skipped: feature webgpu disabled
+imgui| Dependency sdl2 skipped: feature sdl2 disabled
+imgui| Dependency sdl3 found: YES 3.2.10 (cached)
+imgui| Dependency allegro-5 skipped: feature allegro5 disabled
+imgui| Dependency allegro_primitives-5 skipped: feature allegro5 disabled
+imgui| Build targets in project: 14
+imgui| Subproject imgui finished.
+
+
+Executing subproject implot 
+
+implot| Project name: ImGui Plotting Library
+implot| Project version: 0.16
+implot| C++ compiler for the host machine: c++ -m64 (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+implot| C++ linker for the host machine: c++ -m64 ld.bfd 2.44
+implot| Build targets in project: 15
+implot| Subproject implot finished.
+
+
+Executing subproject genconfig 
+
+genconfig| Project name: genconfig
+genconfig| Project version: 0.1
+genconfig| C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+genconfig| C linker for the host machine: cc -m64 ld.bfd 2.44
+genconfig| Build targets in project: 15
+genconfig| Subproject genconfig finished.
+
+
+Executing subproject VulkanMemoryAllocator method cmake 
+
+
+| Configuring the build directory with CMake version 3.31.6
+| Running CMake with: -G Ninja -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_BUILD_TYPE=Debug
+| - build directory:          /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/subprojects/VulkanMemoryAllocator/__CMake_build
+| - source directory:         /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/VulkanMemoryAllocator
+| - toolchain file:           /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/subprojects/VulkanMemoryAllocator/__CMake_build/CMakeMesonToolchainFile.cmake
+| - preload file:             /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake
+| - trace args:               --trace-expand --trace-format=json-v1 --no-warn-unused-cli --trace-redirect=cmake_trace.txt
+| - disabled policy warnings: [CMP0025, CMP0047, CMP0056, CMP0060, CMP0065, CMP0066, CMP0067, CMP0082, CMP0089, CMP0102]
+
+| Put cmake in trace mode, but with variables expanded.
+| Put cmake in trace mode and sets the trace output format.
+| Not searching for unused variables given on the command line.
+| Put cmake in trace mode and redirect trace output to a file instead of stderr.
+| Trace will be written to cmake_trace.txt
+| -- The CXX compiler identification is GNU 14.2.0
+| -- Detecting CXX compiler ABI info
+| -- Detecting CXX compiler ABI info - done
+| -- Check for working CXX compiler: /usr/bin/c++ - skipped
+| -- Detecting CXX compile features
+| -- Detecting CXX compile features - done
+| -- Configuring done (0.1s)
+| -- Generating done (0.0s)
+| -- Build files have been written to: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/subprojects/VulkanMemoryAllocator/__CMake_build
+
+VulkanMemoryAllocator| CMake configuration: SUCCEEDED
+VulkanMemoryAllocator| CMake project VMA 3.4.0 has 1 build targets.
+VulkanMemoryAllocator| Generated Meson AST: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/subprojects/VulkanMemoryAllocator/meson.build
+VulkanMemoryAllocator| Project name: VMA
+VulkanMemoryAllocator| Project version: 3.4.0
+VulkanMemoryAllocator| Build targets in project: 15
+VulkanMemoryAllocator| Subproject VulkanMemoryAllocator finished.
+
+Header "linux/fs.h" has symbol "FIFREEZE" : YES (cached)
+Header "linux/fs.h" has symbol "FITRIM" : YES (cached)
+Has header "sys/epoll.h" : YES (cached)
+Has header "linux/magic.h" : YES (cached)
+Has header "linux/btrfs.h" : YES (cached)
+Has header "libdrm/drm.h" : YES (cached)
+Has header "linux/openat2.h" : YES (cached)
+Has header "pty.h" : YES (cached)
+Has header "sys/disk.h" : NO (cached)
+Has header "sys/ioccom.h" : NO (cached)
+Has header "sys/kcov.h" : NO (cached)
+Checking for function "close_range" : YES (cached)
+Checking for function "accept4" : YES (cached)
+Checking for function "clock_adjtime" : YES (cached)
+Checking for function "dup3" : YES (cached)
+Checking for function "fallocate" : YES (cached)
+Checking for function "posix_fallocate" : YES (cached)
+Checking for function "sched_getcpu" : NO (cached)
+Checking for function "posix_memalign" : YES (cached)
+Checking for function "_aligned_malloc" : NO (cached)
+Checking for function "valloc" : YES (cached)
+Checking for function "memalign" : YES (cached)
+Checking for function "ppoll" : YES (cached)
+Checking for function "preadv" : YES (cached)
+Checking for function "pthread_fchdir_np" : NO (cached)
+Checking for function "sendfile" : YES (cached)
+Checking for function "setns" : YES (cached)
+Checking for function "unshare" : YES (cached)
+Checking for function "syncfs" : YES (cached)
+Checking for function "sync_file_range" : YES (cached)
+Checking for function "timerfd_create" : YES (cached)
+Checking for function "getloadavg" : YES (cached)
+Checking for function "htonll" : NO (cached)
+Checking for function "copy_file_range" : YES (cached)
+Checking for function "getifaddrs" : YES (cached)
+Checking for function "openpty" with dependency -lutil: YES (cached)
+Checking for function "strchrnul" : YES (cached)
+Checking for function "system" : YES (cached)
+Header "sys/inotify.h" has symbol "inotify_init" : YES (cached)
+Header "sys/inotify.h" has symbol "inotify_init1" : YES (cached)
+Header "linux/blkzoned.h" has symbol "BLKOPENZONE" : YES (cached)
+Header "sys/epoll.h" has symbol "epoll_create1" : YES (cached)
+Header "linux/falloc.h" has symbol "FALLOC_FL_PUNCH_HOLE" : YES (cached)
+Header "linux/falloc.h" has symbol "FALLOC_FL_KEEP_SIZE" : YES (cached)
+Header "linux/falloc.h" has symbol "FALLOC_FL_ZERO_RANGE" : YES (cached)
+Has header "linux/fiemap.h" : YES (cached)
+Header "linux/fs.h" has symbol "FS_IOC_FIEMAP" : YES (cached)
+Header "sched.h" has symbol "getcpu" : YES (cached)
+Checking for function "getrandom" : YES (cached)
+Header "sys/random.h" has symbol "GRND_NONBLOCK" : YES (cached)
+Header "sys/prctl.h" has symbol "PR_SET_TIMERSLACK" : YES (cached)
+Header "linux/rtnetlink.h" has symbol "IFLA_PROTO_DOWN" : YES (cached)
+Header "sys/sysmacros.h" has symbol "makedev" : YES (cached)
+Header "getopt.h" has symbol "optreset" : NO (cached)
+Header "netinet/in.h" has symbol "IPPROTO_MPTCP" : YES (cached)
+Header "netinet/tcp.h" has symbol "TCP_KEEPCNT" : YES (cached)
+Header "netinet/tcp.h" has symbol "TCP_KEEPIDLE" : YES (cached)
+Header "netinet/tcp.h" has symbol "TCP_KEEPINTVL" : YES (cached)
+Checking whether type "struct sigevent" has member "sigev_notify_thread_id" : NO (cached)
+Checking whether type "struct stat" has member "st_atim" : YES (cached)
+Checking whether type "struct blk_zone" has member "capacity" : YES (cached)
+Checking for type "struct iovec" : YES (cached)
+Checking for type "struct utmpx" : YES (cached)
+Header "asm/hwprobe.h" has symbol "RISCV_HWPROBE_EXT_ZBA" : NO (cached)
+Header "linux/vm_sockets.h" has symbol "AF_VSOCK" : YES (cached)
+Checking for size of "void *" : 8 (cached)
+Program scripts/minikconf.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/minikconf.py)
+Configuring i386-softmmu-config-target.h using configuration
+Configuring i386-softmmu-config-devices.mak with command
+Reading depfile: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/meson-private/i386-softmmu-config-devices.mak.d
+Configuring i386-softmmu-config-devices.h using configuration
+Program scripts/make-config-poison.sh found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/make-config-poison.sh)
+Run-time dependency tomlplusplus found: NO (tried pkgconfig and cmake)
+Looking for a fallback subproject for the dependency tomlplusplus
+
+Executing subproject tomlplusplus 
+
+tomlplusplus| Project name: tomlplusplus
+tomlplusplus| Project version: 3.4.0
+tomlplusplus| C++ compiler for the host machine: c++ -m64 (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+tomlplusplus| C++ linker for the host machine: c++ -m64 ld.bfd 2.44
+tomlplusplus| Message: target cpu_family: x86_64
+tomlplusplus| Message: target cpu: x86_64
+tomlplusplus| Message: target system: linux
+tomlplusplus| Message: target endian: little
+tomlplusplus| Compiler for C++ supports arguments -ferror-limit=5: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -fmax-errors=5: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-unused-command-line-argument: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-reserved-macro-identifier: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-init-list-lifetime: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments -fchar8_t: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments /bigobj: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /Gy: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /GF: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /openmp-: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /permissive-: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /utf-8: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /volatile:iso: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /Zc:__cplusplus: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /Zc:inline: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /Zc:externConstexpr: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /Zc:preprocessor: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /Zc:throwingNew: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -D_HAS_EXCEPTIONS=1: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-c++98-compat: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-c++98-compat-pedantic: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-documentation: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-documentation-unknown-command: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-switch-enum: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-covered-switch-default: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-padded: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-float-equal: YES (cached)
+tomlplusplus| Compiler for C++ supports link arguments /OPT:REF,ICF=3: NO (cached)
+tomlplusplus| Compiler for C++ supports link arguments /INCREMENTAL:NO: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -DTOML_HEADER_ONLY=0: YES (cached)
+tomlplusplus| Build targets in project: 18
+tomlplusplus| Subproject tomlplusplus finished.
+
+Dependency tomlplusplus found: YES 3.4.0 (overridden)
+Run-time dependency libxxhash found: NO (tried pkgconfig and cmake)
+Looking for a fallback subproject for the dependency libxxhash
+
+Executing subproject xxhash 
+
+xxhash| Project name: xxHash
+xxhash| Project version: 0.8.3
+xxhash| C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+xxhash| C linker for the host machine: cc -m64 ld.bfd 2.44
+xxhash| Build targets in project: 20
+xxhash| Subproject xxhash finished.
+
+Dependency libxxhash found: YES 0.8.3 (overridden)
+Configuring config-host.h using configuration
+Program scripts/hxtool found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/hxtool)
+Program scripts/shaderinclude.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/shaderinclude.py)
+Program scripts/qapi-gen.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/qapi-gen.py)
+Program scripts/pack-file.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/pack-file.py)
+Program scripts/qemu-version.sh found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/qemu-version.sh)
+Run-time dependency nlohmann_json found: NO (tried pkgconfig and cmake)
+Looking for a fallback subproject for the dependency nlohmann_json
+
+Executing subproject nlohmann_json 
+
+nlohmann_json| Project name: nlohmann_json
+nlohmann_json| Project version: 3.12.0
+nlohmann_json| C++ compiler for the host machine: c++ -m64 (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+nlohmann_json| C++ linker for the host machine: c++ -m64 ld.bfd 2.44
+nlohmann_json| Build targets in project: 459
+nlohmann_json| Subproject nlohmann_json finished.
+
+Dependency nlohmann_json from subproject subprojects/nlohmann_json found: YES 3.12.0
+
+Executing subproject keycodemapdb 
+
+keycodemapdb| Project name: keycodemapdb
+keycodemapdb| Project version: undefined
+keycodemapdb| Program tools/keymap-gen found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/keycodemapdb/tools/keymap-gen)
+keycodemapdb| Build targets in project: 460
+keycodemapdb| Subproject keycodemapdb finished.
+
+
+Executing subproject nv2a_vsh_cpu method cmake 
+
+
+| Configuring the build directory with CMake version 3.31.6
+| Running CMake with: -G Ninja -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_OSX_ARCHITECTURES=x86_64 -Dnv2a_vsh_cpu_UNIT_TEST=OFF -DCMAKE_BUILD_TYPE=Debug
+| - build directory:          /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/subprojects/nv2a_vsh_cpu/__CMake_build
+| - source directory:         /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/nv2a_vsh_cpu
+| - toolchain file:           /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/subprojects/nv2a_vsh_cpu/__CMake_build/CMakeMesonToolchainFile.cmake
+| - preload file:             /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake
+| - trace args:               --trace-expand --trace-format=json-v1 --no-warn-unused-cli --trace-redirect=cmake_trace.txt
+| - disabled policy warnings: [CMP0025, CMP0047, CMP0056, CMP0060, CMP0065, CMP0066, CMP0067, CMP0082, CMP0089, CMP0102]
+
+| Put cmake in trace mode, but with variables expanded.
+| Put cmake in trace mode and sets the trace output format.
+| Not searching for unused variables given on the command line.
+| Put cmake in trace mode and redirect trace output to a file instead of stderr.
+| Trace will be written to cmake_trace.txt
+| -- The C compiler identification is GNU 14.2.0
+| -- The CXX compiler identification is GNU 14.2.0
+| CMake Warning (dev) at /usr/share/cmake-3.31/Modules/CMakeFindBinUtils.cmake:225 (find_program):
+| Policy CMP0126 is not set: set(CACHE) does not remove a normal variable of
+| the same name.  Run "cmake --help-policy CMP0126" for policy details.  Use
+| the cmake_policy command to set the policy and suppress this warning.
+
+| For compatibility with older versions of CMake, normal variable
+| "CMAKE_TAPI" will be removed from the current scope.
+| Call Stack (most recent call first):
+| /usr/share/cmake-3.31/Modules/CMakeDetermineCXXCompiler.cmake:207 (include)
+| CMakeLists.txt:3 (project)
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Detecting C compiler ABI info
+| -- Detecting C compiler ABI info - done
+| -- Check for working C compiler: /usr/bin/cc - skipped
+| -- Detecting C compile features
+| -- Detecting C compile features - done
+| -- Detecting CXX compiler ABI info
+| -- Detecting CXX compiler ABI info - done
+| -- Check for working CXX compiler: /usr/bin/c++ - skipped
+| -- Detecting CXX compile features
+| -- Detecting CXX compile features - done
+| -- Configuring done (0.3s)
+| CMake Warning (dev) at CMakeLists.txt:32 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at CMakeLists.txt:44 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at CMakeLists.txt:56 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Generating done (0.0s)
+| -- Build files have been written to: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/subprojects/nv2a_vsh_cpu/__CMake_build
+
+nv2a_vsh_cpu| CMake configuration: SUCCEEDED
+nv2a_vsh_cpu| CMake project nv2a_vsh_cpu  has 3 build targets.
+nv2a_vsh_cpu| Generated Meson AST: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/subprojects/nv2a_vsh_cpu/meson.build
+nv2a_vsh_cpu| Project name: nv2a_vsh_cpu
+nv2a_vsh_cpu| Project version: undefined
+nv2a_vsh_cpu| C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+nv2a_vsh_cpu| C linker for the host machine: cc -m64 ld.bfd 2.44
+nv2a_vsh_cpu| Build targets in project: 494
+nv2a_vsh_cpu| Subproject nv2a_vsh_cpu finished.
+
+Run-time dependency dsp56300-emu-ffi found: NO (tried pkgconfig and cmake)
+Looking for a fallback subproject for the dependency dsp56300-emu-ffi
+
+Executing subproject dsp56300 
+
+dsp56300| Project name: dsp56300
+dsp56300| Project version: 0.1.3
+dsp56300| Build targets in project: 495
+dsp56300| Subproject dsp56300 finished.
+
+Dependency dsp56300-emu-ffi found: YES 0.1.3 (overridden)
+Program scripts/decodetree.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/decodetree.py)
+Program ../scripts/modules/module_block.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/block/../scripts/modules/module_block.py)
+Program ../scripts/block-coroutine-wrapper.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/block/../scripts/block-coroutine-wrapper.py)
+Program scripts/modinfo-collect.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/modinfo-collect.py)
+Program scripts/modinfo-generate.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/modinfo-generate.py)
+Program nm found: YES
+Program scripts/undefsym.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/undefsym.py)
+Program scripts/feature_to_c.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/feature_to_c.py)
+Program scripts/rust/rust_root_crate.sh found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/rust/rust_root_crate.sh)
+Configuring 50-edk2-i386-secure.json using configuration
+Configuring 50-edk2-x86_64-secure.json using configuration
+Configuring 60-edk2-aarch64.json using configuration
+Configuring 60-edk2-arm.json using configuration
+Configuring 60-edk2-i386.json using configuration
+Configuring 60-edk2-x86_64.json using configuration
+Configuring 60-edk2-loongarch64.json using configuration
+Configuring 60-edk2-riscv64.json using configuration
+Program dtc found: NO
+Program qemu-keymap found: NO
+Program /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/bin/sphinx-build skipped: feature docs disabled
+Program /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/decodetree.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/decodetree.py)
+
+Executing subproject berkeley-softfloat-3 
+
+berkeley-softfloat-3| Project name: berkeley-softfloat-3
+berkeley-softfloat-3| Project version: undefined
+berkeley-softfloat-3| C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+berkeley-softfloat-3| C linker for the host machine: cc -m64 ld.bfd 2.44
+berkeley-softfloat-3| Configuring platform.h using configuration
+berkeley-softfloat-3| Build targets in project: 575
+berkeley-softfloat-3| Subproject berkeley-softfloat-3 finished.
+
+
+Executing subproject berkeley-testfloat-3 
+
+berkeley-testfloat-3| Project name: berkeley-testfloat-3
+berkeley-testfloat-3| Project version: undefined
+berkeley-testfloat-3| C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+berkeley-testfloat-3| C linker for the host machine: cc -m64 ld.bfd 2.44
+berkeley-testfloat-3| Configuring platform.h using configuration
+berkeley-testfloat-3| Compiler for C supports arguments -Wno-ignored-pragmas: NO (cached)
+berkeley-testfloat-3| Build targets in project: 577
+berkeley-testfloat-3| Subproject berkeley-testfloat-3 finished.
+
+Compiler for C supports arguments -ffunction-sections: YES (cached)
+Compiler for C supports arguments -fdata-sections: YES (cached)
+Compiler for C supports link arguments -Wl,--gc-sections: YES (cached)
+Compiler for C supports arguments -ffunction-sections: YES (cached)
+Compiler for C supports arguments -fdata-sections: YES (cached)
+Compiler for C supports link arguments -Wl,--gc-sections: YES (cached)
+Program test-xemu-version.sh found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/tests/unit/test-xemu-version.sh)
+Program cc found: YES (/usr/bin/cc)
+Program diff found: YES (/usr/bin/diff)
+Program dbus-daemon found: YES (/usr/bin/dbus-daemon)
+Dependency sysprof-capture-4 found: YES 48.0 (cached)
+Dependency glib-2.0 found: YES 2.84.4 (cached)
+Program initrd-stress.sh found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/tests/migration-stress/initrd-stress.sh)
+Build targets in project: 767
+
+qemu 10.2.0
+
+  Build environment
+    Build directory                 : /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe
+    Source path                     : /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache
+    Download dependencies           : YES
+
+  Directories
+    Build directory                 : /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe
+    Source path                     : /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache
+    Download dependencies           : YES
+    Install prefix                  : /usr/local
+    BIOS directory                  : share/qemu
+    firmware path                   : share/qemu-firmware
+    binary directory                : /usr/local/bin
+    library directory               : /usr/local/lib/x86_64-linux-gnu
+    module directory                : lib/x86_64-linux-gnu/qemu
+    libexec directory               : /usr/local/libexec
+    include directory               : /usr/local/include
+    config directory                : /usr/local/etc
+    local state directory           : /var/local
+    Manual directory                : /usr/local/share/man
+    Doc directory                   : /usr/local/share/doc
+
+  Host binaries
+    python                          : /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/bin/python3 (version: 3.13)
+    sphinx-build                    : NO
+    gdb                             : /usr/bin/gdb
+    iasl                            : NO
+    genisoimage                     : 
+    smbd                            : NO
+
+  Configurable features
+    Documentation                   : NO
+    system-mode emulation           : YES
+    user-mode emulation             : NO
+    block layer                     : YES
+    Install blobs                   : YES
+    module support                  : NO
+    fuzzing support                 : NO
+    Audio drivers                   : sdl
+    Trace backends                  : log
+    QOM debugging                   : YES
+    Relocatable install             : YES
+    vhost-kernel support            : NO
+    vhost-net support               : NO
+    vhost-user support              : NO
+    vhost-user-crypto support       : NO
+    vhost-user-blk server support   : NO
+    vhost-vdpa support              : NO
+    build guest agent               : NO
+
+  Compilation
+    host CPU                        : x86_64
+    host endianness                 : little
+    C compiler                      : cc -m64
+    Host C compiler                 : cc -m64
+    C++ compiler                    : c++ -m64
+    Objective-C compiler            : NO
+    Rust support                    : NO
+    CFLAGS                          : -DXBOX -g -O2
+    CXXFLAGS                        : -DXBOX -DXBOX -g -O2
+    LDFLAGS                         : -DXBOX
+    QEMU_CFLAGS                     : -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr
+    QEMU_CXXFLAGS                   : -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS
+    QEMU_LDFLAGS                    : -Wl,-z,relro -Wl,-z,now
+    link-time optimization (LTO)    : NO
+    PIE                             : YES
+    static build                    : NO
+    malloc trim support             : NO
+    membarrier                      : NO
+    debug graph lock                : NO
+    debug stack usage               : NO
+    mutex debugging                 : NO
+    memory allocator                : system
+    avx2 optimization               : YES
+    avx512bw optimization           : YES
+    gcov                            : NO
+    thread sanitizer                : NO
+    CFI support                     : NO
+    strip binaries                  : NO
+    sparse                          : NO
+    mingw32 support                 : NO
+
+  Cross compilers
+    i386                            : /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/bin/python3 -B /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/tests/docker/docker.py --engine docker cc --cc i686-linux-gnu-gcc -i qemu/debian-i686-cross -s /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache --
+
+  Targets and accelerators
+    KVM support                     : NO
+    HVF support                     : NO
+    WHPX support                    : NO
+    NVMM support                    : NO
+    MSHV support                    : NO
+    Xen support                     : NO
+    Xen emulation                   : NO
+    TCG support                     : YES
+    TCG backend                     : native (x86_64)
+    TCG plugins                     : NO
+    TCG debug enabled               : NO
+    target list                     : i386-softmmu
+    default devices                 : YES
+    out of process emulation        : NO
+    vfio-user server                : NO
+
+  Block layer support
+    coroutine backend               : ucontext
+    coroutine pool                  : YES
+    Block whitelist (rw)            : 
+    Block whitelist (ro)            : 
+    Use block whitelist in tools    : NO
+    VirtFS (9P) support             : NO
+    replication support             : NO
+    bochs support                   : NO
+    cloop support                   : NO
+    dmg support                     : NO
+    qcow v1 support                 : NO
+    vdi support                     : NO
+    vhdx support                    : NO
+    vmdk support                    : NO
+    vpc support                     : NO
+    vvfat support                   : NO
+    qed support                     : NO
+    parallels support               : NO
+    FUSE exports                    : NO
+    VDUSE block exports             : NO
+
+  Crypto
+    TLS priority                    : NORMAL
+    GNUTLS support                  : NO
+    libgcrypt                       : NO
+    nettle                          : NO
+    SM4 ALG support                 : NO
+    SM3 ALG support                 : NO
+    AF_ALG support                  : NO
+    rng-none                        : NO
+    Linux keyring                   : NO
+    Linux keyutils                  : NO
+
+  User interface
+    D-Bus display                   : NO
+    SDL support                     : YES 3.2.10
+    SDL image support               : NO
+    GTK support                     : NO
+    pixman                          : NO
+    VTE support                     : NO
+    PNG support                     : NO
+    VNC support                     : NO
+    spice protocol support          : NO
+    curses support                  : NO
+    brlapi support                  : NO
+
+  Graphics backends
+    VirGL support                   : NO
+    Rutabaga support                : NO
+
+  Audio backends
+    OSS support                     : NO
+    sndio support                   : NO
+    ALSA support                    : NO
+    PulseAudio support              : NO
+    PipeWire support                : NO
+    JACK support                    : NO
+
+  Network backends
+    AF_XDP support                  : NO
+    passt support                   : NO
+    slirp support                   : YES 4.8.0
+    vde support                     : NO
+    netmap support                  : NO
+    l2tpv3 support                  : NO
+
+  Dependencies
+    libtasn1                        : NO
+    PAM                             : NO
+    iconv support                   : NO
+    blkio support                   : NO
+    curl support                    : YES 8.14.1
+    Multipath support               : NO
+    Linux AIO support               : NO
+    Linux io_uring support          : NO
+    ATTR/XATTR support              : NO
+    RDMA support                    : NO
+    fdt support                     : NO
+    libcap-ng support               : NO
+    bpf support                     : NO
+    rbd support                     : NO
+    smartcard support               : NO
+    U2F support                     : NO
+    libusb                          : YES 1.0.28
+    usb net redir                   : NO
+    OpenGL support (epoxy)          : YES
+    Vulkan support                  : YES 1.4.309
+    GBM                             : YES 25.0.7-2+deb13u1
+    libiscsi support                : NO
+    libnfs support                  : NO
+    seccomp support                 : NO
+    GlusterFS support               : NO
+    hv-balloon support              : NO
+    TPM support                     : NO
+    IGVM support                    : NO
+    libssh support                  : NO
+    lzo support                     : NO
+    snappy support                  : NO
+    bzip2 support                   : NO
+    lzfse support                   : NO
+    zstd support                    : NO
+    Query Processing Library support: NO
+    UADK Library support            : NO
+    qatzip support                  : NO
+    NUMA host support               : NO
+    capstone                        : NO
+    libpmem support                 : NO
+    libdaxctl support               : NO
+    libcbor support                 : NO
+    libudev                         : NO
+    FUSE lseek                      : NO
+    selinux                         : NO
+    vtune                           : NO
+    libdw                           : NO
+    valgrind                        : NO
+
+  Subprojects
+    SPIRV-Reflect                   : YES
+    VulkanMemoryAllocator           : YES
+    berkeley-softfloat-3            : YES
+    berkeley-testfloat-3            : YES
+    dsp56300                        : YES
+    genconfig                       : YES
+    glslang                         : YES
+    imgui                           : YES
+    implot                          : YES
+    keycodemapdb                    : YES
+    nlohmann_json                   : YES
+    nv2a_vsh_cpu                    : YES
+    tomlplusplus                    : YES
+    volk                            : YES
+    xxhash                          : YES
+
+  User defined options
+    Native files                    : /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/config-meson.cross
+    auto_features                   : disabled
+    docs                            : disabled
+    gdb                             : /usr/bin/gdb
+    werror                          : false
+    xemu_tcg_jump_cache_probe       : false
+
+Found ninja-1.12.1 at /usr/bin/ninja
+Generating targets:   0%|          | 0/767 eta ?Generating targets:  65%|██████▌   | 500/767 eta 00:00                                                      Writing build.ninja:   0%|          | 0/3801 eta ?Writing build.ninja:  61%|██████    | 2310/3801 eta 00:00                                                         Cleaning... 1 files.
+Running postconf script '/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/symlink-install-tree.py'

@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "runId": "20260930-181034294-f5ff7cc9ab8b4a0fa87ff239893462ec",
+  "sourceSha256": "228d0f00ce3747198befa10021d191897540abd93915a86af05ff22950c053be",
+  "records": [
+    {
+      "Id": "cpu_translation_blocks.code_stable",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 10,
+      "MeanUs": 1468043,
+      "MedianUs": 1465829,
+      "MinUs": 1460651,
+      "MaxUs": 1478854,
+      "P95Us": 1478854
+    }
+  ],
+  "checks": [
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 1 leaves and 0 groups; received 1. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 1 stable IDs; received 1. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:cpu_translation_blocks.code_stable",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 2 applicable reference hashes."
+    }
+  ],
+  "measurements": [
+    {
+      "Name": "xiso/cpu_translation_blocks/code_stable/mean_us",
+      "Value": 1468043,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_translation_blocks.code_stable"
+    },
+    {
+      "Name": "xiso/cpu_translation_blocks/code_stable/median_us",
+      "Value": 1465829,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_translation_blocks.code_stable"
+    },
+    {
+      "Name": "xiso/cpu_translation_blocks/code_stable/min_us",
+      "Value": 1460651,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_translation_blocks.code_stable"
+    },
+    {
+      "Name": "xiso/cpu_translation_blocks/code_stable/max_us",
+      "Value": 1478854,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_translation_blocks.code_stable"
+    },
+    {
+      "Name": "xiso/cpu_translation_blocks/code_stable/p95_us",
+      "Value": 1478854,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_translation_blocks.code_stable"
+    }
+  ]
+}

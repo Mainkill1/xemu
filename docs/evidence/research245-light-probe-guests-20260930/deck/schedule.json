@@ -1,0 +1,176 @@
+{
+  "sourceCommit": "3a3d3c390fbb5d3835206d47614a86467e7a9330",
+  "executableSha256": "6887481a8e22e008259f1cbff86e70f538b56ac7680258a9e68f8397216be3f7",
+  "application": "research245-light-probe-3a3d3c39-deck-v1",
+  "settings": "warmups0 multiplier1; fixed-work leaf; Vulkan; same dependencies and private seed; no monitor queries; driver qualification missing",
+  "attempts": [
+    {
+      "campaign": "light245-stable-off-01",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "off",
+      "position": 0,
+      "phase": "A/A"
+    },
+    {
+      "campaign": "light245-stable-off-02",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "off",
+      "position": 1,
+      "phase": "A/A"
+    },
+    {
+      "campaign": "light245-stable-off-03",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "off",
+      "position": 2,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-stable-counters-04",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "counters",
+      "position": 3,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-stable-occupancy-05",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "occupancy",
+      "position": 4,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-stable-timing-06",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "timing",
+      "position": 5,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-stable-all-07",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "all",
+      "position": 6,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-stable-all-08",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "all",
+      "position": 7,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-stable-timing-09",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "timing",
+      "position": 8,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-stable-occupancy-10",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "occupancy",
+      "position": 9,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-stable-counters-11",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "counters",
+      "position": 10,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-stable-off-12",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "off",
+      "position": 11,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-rewrite-off-01",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "off",
+      "position": 0,
+      "phase": "A/A"
+    },
+    {
+      "campaign": "light245-rewrite-off-02",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "off",
+      "position": 1,
+      "phase": "A/A"
+    },
+    {
+      "campaign": "light245-rewrite-off-03",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "off",
+      "position": 2,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-rewrite-counters-04",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "counters",
+      "position": 3,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-rewrite-occupancy-05",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "occupancy",
+      "position": 4,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-rewrite-timing-06",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "timing",
+      "position": 5,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-rewrite-all-07",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "all",
+      "position": 6,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-rewrite-all-08",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "all",
+      "position": 7,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-rewrite-timing-09",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "timing",
+      "position": 8,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-rewrite-occupancy-10",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "occupancy",
+      "position": 9,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-rewrite-counters-11",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "counters",
+      "position": 10,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-rewrite-off-12",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "off",
+      "position": 11,
+      "phase": "balanced-mode-sweep"
+    }
+  ]
+}

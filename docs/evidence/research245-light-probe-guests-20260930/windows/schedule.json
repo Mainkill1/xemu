@@ -1,0 +1,176 @@
+{
+  "sourceCommit": "3a3d3c390fbb5d3835206d47614a86467e7a9330",
+  "executableSha256": "fecf6c08a305465de4c2658909e15f94e103f613a7828c8e2c77df12f1a8d44d",
+  "application": "research245-light-probe-3a3d3c39-windows-v1",
+  "settings": "warmups0 multiplier1; fixed-work leaf; Vulkan; same private seed/firmware/reference; no HMP; Windows driver cache uncontrolled; no waiver",
+  "attempts": [
+    {
+      "campaign": "light245-win-stable-off-01",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "off",
+      "position": 0,
+      "phase": "A/A"
+    },
+    {
+      "campaign": "light245-win-stable-off-02",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "off",
+      "position": 1,
+      "phase": "A/A"
+    },
+    {
+      "campaign": "light245-win-stable-off-03",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "off",
+      "position": 2,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-win-stable-counters-04",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "counters",
+      "position": 3,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-win-stable-occupancy-05",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "occupancy",
+      "position": 4,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-win-stable-timing-06",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "timing",
+      "position": 5,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-win-stable-all-07",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "all",
+      "position": 6,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-win-stable-all-08",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "all",
+      "position": 7,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-win-stable-timing-09",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "timing",
+      "position": 8,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-win-stable-occupancy-10",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "occupancy",
+      "position": 9,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-win-stable-counters-11",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "counters",
+      "position": 10,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-win-stable-off-12",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "off",
+      "position": 11,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-win-rewrite-off-01",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "off",
+      "position": 0,
+      "phase": "A/A"
+    },
+    {
+      "campaign": "light245-win-rewrite-off-02",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "off",
+      "position": 1,
+      "phase": "A/A"
+    },
+    {
+      "campaign": "light245-win-rewrite-off-03",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "off",
+      "position": 2,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-win-rewrite-counters-04",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "counters",
+      "position": 3,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-win-rewrite-occupancy-05",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "occupancy",
+      "position": 4,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-win-rewrite-timing-06",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "timing",
+      "position": 5,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-win-rewrite-all-07",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "all",
+      "position": 6,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-win-rewrite-all-08",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "all",
+      "position": 7,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-win-rewrite-timing-09",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "timing",
+      "position": 8,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-win-rewrite-occupancy-10",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "occupancy",
+      "position": 9,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-win-rewrite-counters-11",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "counters",
+      "position": 10,
+      "phase": "balanced-mode-sweep"
+    },
+    {
+      "campaign": "light245-win-rewrite-off-12",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "off",
+      "position": 11,
+      "phase": "balanced-mode-sweep"
+    }
+  ]
+}

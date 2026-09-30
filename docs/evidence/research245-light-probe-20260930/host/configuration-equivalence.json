@@ -1,0 +1,14 @@
+[
+  {
+    "label": "reference",
+    "rebuiltSha256": "104d816a1b5a822df3e5ab3ee3fe55b6c7ad3e053a3743b07341baae0e1a5dee",
+    "originalSha256": "104d816a1b5a822df3e5ab3ee3fe55b6c7ad3e053a3743b07341baae0e1a5dee",
+    "byteIdentical": true
+  },
+  {
+    "label": "candidate",
+    "rebuiltSha256": "22e892ec6ba1cded7d166ae82354d9466ed76ed9d84a83ec6081cbb470052d44",
+    "originalSha256": "22e892ec6ba1cded7d166ae82354d9466ed76ed9d84a83ec6081cbb470052d44",
+    "byteIdentical": true
+  }
+]

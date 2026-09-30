@@ -1,0 +1,63 @@
+{
+  "JobId": "xc-light245-win-rewrite-counters-04-001",
+  "CreatedUtc": "2026-09-30T18:15:00.1141608+00:00",
+  "PackageDirectory": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-xc-light245-win-rewrite-counters-04-001",
+  "JobManifestSha256": "fa0d7b4b8615945fd7be1a20c35222081a2b767d91be5968b3c44318e037fce4",
+  "ExecutableSha256": "fecf6c08a305465de4c2658909e15f94e103f613a7828c8e2c77df12f1a8d44d",
+  "Inputs": [
+    {
+      "Path": "xemu.exe",
+      "Role": "pinned-cpu-fixture-input",
+      "Bytes": 136902656,
+      "LastWriteUtc": "2026-09-30T18:14:57.8539988Z",
+      "Sha256": "fecf6c08a305465de4c2658909e15f94e103f613a7828c8e2c77df12f1a8d44d",
+      "ExpectedSha256": "fecf6c08a305465de4c2658909e15f94e103f613a7828c8e2c77df12f1a8d44d",
+      "Verified": true
+    },
+    {
+      "Path": "xemu.toml",
+      "Role": "pinned-cpu-fixture-input",
+      "Bytes": 383,
+      "LastWriteUtc": "2026-09-30T18:14:58.3172062Z",
+      "Sha256": "aa356a9d7b916ace9b71ff1ef47946db1ac289e36a8b00235c4397f57523b0b8",
+      "ExpectedSha256": "aa356a9d7b916ace9b71ff1ef47946db1ac289e36a8b00235c4397f57523b0b8",
+      "Verified": true
+    },
+    {
+      "Path": "state/seed-eeprom.bin",
+      "Role": "pinned-cpu-fixture-input",
+      "Bytes": 256,
+      "LastWriteUtc": "2026-09-30T18:14:57.7968337Z",
+      "Sha256": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3",
+      "ExpectedSha256": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3",
+      "Verified": true
+    },
+    {
+      "Path": "cpu-code-rewrite-reference.json",
+      "Role": "pinned-cpu-fixture-input",
+      "Bytes": 868,
+      "LastWriteUtc": "2026-09-30T18:14:57.7938263Z",
+      "Sha256": "012286767ceb727d81f4646463cc46dcb13c9e7f30a891eeda74fba63f78401c",
+      "ExpectedSha256": "012286767ceb727d81f4646463cc46dcb13c9e7f30a891eeda74fba63f78401c",
+      "Verified": true
+    }
+  ],
+  "RuntimeFiles": [
+    {
+      "Source": "state/seed-eeprom.bin",
+      "Destination": "eeprom.bin",
+      "Bytes": 256,
+      "Sha256": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+    },
+    {
+      "Source": "disk-asset:research245-cpu-fatx-compat010-78af83a6",
+      "Destination": "hdd.qcow2",
+      "Bytes": 1310720,
+      "Sha256": "e30c631279c2e2f73c07161fab9fa3e378a1399f827213664ce1a9ea3bf5f1ac",
+      "DiskAssetId": "research245-cpu-fatx-compat010-78af83a6",
+      "AssetKind": "xiso-seed",
+      "Retention": "deleteAfterEvidence",
+      "SeedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+/usr/bin/ld: /tmp/ccHpsEYx.o: warning: relocation against `use_rt_clock' in read-only section `.text'
+/usr/bin/ld: /tmp/ccHpsEYx.o: in function `get_clock':
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/qemu/timer.h:854:(.text+0xe): undefined reference to `use_rt_clock'
+/usr/bin/ld: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/qemu/timer.h:854:(.text+0x136): undefined reference to `use_rt_clock'
+/usr/bin/ld: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/qemu/timer.h:854:(.text+0x342): undefined reference to `use_rt_clock'
+/usr/bin/ld: warning: creating DT_TEXTREL in a PIE
+collect2: error: ld returned 1 exit status

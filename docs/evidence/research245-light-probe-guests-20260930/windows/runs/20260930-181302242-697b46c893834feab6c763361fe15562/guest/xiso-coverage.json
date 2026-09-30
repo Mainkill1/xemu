@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "planId": "sha256:c5fc8893a535ed8fddc8a7b2c828245bb16af8e60b9e14b4025a9b9772eb73f2",
+  "SuiteRevision": "7e006ebb512cdcd96037291248b7b609f85de116dd413bb68c5682ca6f957b4d",
+  "IsoSha256": "74a10c400f4fb280dcb4037e38e7e4d3150e73e0061a04f65b3c68cc61a49e63",
+  "CatalogId": "sha256:34b8ee7f91f3412b5e7758aab9f4ca08746ef2e97fee8b5c61be8947e145f7f4",
+  "selected": 1,
+  "missing": [],
+  "extra": [],
+  "complete": true,
+  "receiptMatches": true
+}
