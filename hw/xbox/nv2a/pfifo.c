@@ -127,13 +127,11 @@ static bool pfifo_stall_for_flip(NV2AState *d)
     bool should_stall = false;
 
     if (qatomic_read(&d->pgraph.waiting_for_flip)) {
-        qemu_mutex_lock(&d->pgraph.lock);
         if (!is_flip_stall_complete(d)) {
             should_stall = true;
         } else {
-            d->pgraph.waiting_for_flip = false;
+            qatomic_set(&d->pgraph.waiting_for_flip, false);
         }
-        qemu_mutex_unlock(&d->pgraph.lock);
     }
 
     return should_stall;
