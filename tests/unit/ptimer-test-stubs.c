@@ -95,8 +95,11 @@ uint64_t timer_expire_time_ns(const QEMUTimer *ts)
     return timer_pending(ts) ? ts->expire_time : -1;
 }
 
+uint64_t ptimer_test_clock_read_calls;
+
 int64_t qemu_clock_get_ns(QEMUClockType type)
 {
+    ptimer_test_clock_read_calls++;
     return ptimer_test_time_ns;
 }
 

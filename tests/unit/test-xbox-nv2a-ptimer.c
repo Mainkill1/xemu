@@ -120,6 +120,11 @@ static void test_irq_contribution_with_other_source(void)
                     NV_PMC_INTR_0_PTIMER);
 
     updates = irq_update_calls;
+    expire_alarm(&d);
+    g_assert_cmpuint(irq_update_calls, ==, updates);
+    g_assert_cmphex(d.ptimer.pending_interrupts, ==, NV_PTIMER_INTR_0_ALARM);
+
+    updates = irq_update_calls;
     ptimer_write(&d, NV_PTIMER_INTR_0, NV_PTIMER_INTR_0_ALARM, 4);
     g_assert_cmpuint(irq_update_calls, ==, updates + 1);
     g_assert_cmphex(d.pmc.pending_interrupts & NV_PMC_INTR_0_PTIMER, ==, 0);
@@ -946,6 +951,35 @@ static void test_clock_write_publishes_irq_once(void)
     ptimer_reset(&d);
 }
 
+static void test_one_clock_sample_per_operation(void)
+{
+    NV2AState d;
+    init_nv2a_ptimer(&d);
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, 1, 4);
+    ptimer_write(&d, NV_PTIMER_ALARM_0, TEST_ALARM_LOW, 4);
+
+    uint64_t reads = ptimer_test_clock_read_calls;
+    ptimer_write(&d, NV_PTIMER_ALARM_0, TEST_ALARM_LOW * 2, 4);
+    g_assert_cmpuint(ptimer_test_clock_read_calls - reads, ==, 1);
+
+    reads = ptimer_test_clock_read_calls;
+    ptimer_write(&d, NV_PTIMER_TIME_0, 0x80, 4);
+    g_assert_cmpuint(ptimer_test_clock_read_calls - reads, ==, 1);
+
+    reads = ptimer_test_clock_read_calls;
+    ptimer_write(&d, NV_PTIMER_NUMERATOR, 2, 4);
+    g_assert_cmpuint(ptimer_test_clock_read_calls - reads, ==, 1);
+
+    reads = ptimer_test_clock_read_calls;
+    ptimer_set_core_clock(&d, 500000000);
+    g_assert_cmpuint(ptimer_test_clock_read_calls - reads, ==, 1);
+
+    reads = ptimer_test_clock_read_calls;
+    expire_alarm(&d);
+    g_assert_cmpuint(ptimer_test_clock_read_calls - reads, ==, 1);
+    ptimer_reset(&d);
+}
+
 static void test_wide_deadline_reconciles_source_wrap(void)
 {
     /* Retain PR #81's wide-quotient control, not just ordinary low wrap. */
@@ -1095,6 +1129,8 @@ int main(int argc, char **argv)
                     test_noop_after_queue_removal);
     g_test_add_func("/xbox/nv2a/ptimer/schedule/clock-write-one-irq-update",
                     test_clock_write_publishes_irq_once);
+    g_test_add_func("/xbox/nv2a/ptimer/schedule/one-clock-sample-per-operation",
+                    test_one_clock_sample_per_operation);
     g_test_add_func("/xbox/nv2a/ptimer/schedule/wide-source-wrap",
                     test_wide_deadline_reconciles_source_wrap);
 

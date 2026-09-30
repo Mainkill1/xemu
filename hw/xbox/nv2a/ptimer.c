@@ -133,7 +133,25 @@ void ptimer_init(NV2AState *d)
     ptimer_reset(d);
 }
 
-static uint64_t ptimer_get_absolute_clock(NV2AState *d)
+typedef struct PtimerClockSample {
+    bool valid;
+    int64_t now_ns;
+} PtimerClockSample;
+
+/* One virtual instant per MMIO operation/callback. Keep the two forward
+ * truncations and resample arithmetic under any changed clock mapping.
+ */
+static int64_t ptimer_now_ns(PtimerClockSample *sample)
+{
+    if (!sample->valid) {
+        sample->now_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+        sample->valid = true;
+    }
+    return sample->now_ns;
+}
+
+static uint64_t ptimer_get_absolute_clock(NV2AState *d,
+                                          PtimerClockSample *sample)
 {
     /*
      * The ratio registers reset to zero and are guest writable. Keep their
@@ -145,7 +163,7 @@ static uint64_t ptimer_get_absolute_clock(NV2AState *d)
         return 0;
     }
 
-    return muldiv64(muldiv64(qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL),
+    return muldiv64(muldiv64(ptimer_now_ns(sample),
                              d->pramdac.core_clock_freq,
                              NANOSECONDS_PER_SECOND),
                     d->ptimer.denominator, d->ptimer.numerator);
@@ -156,10 +174,10 @@ static inline uint64_t get_internal_clock(NV2AState *d, uint64_t absolute_clock)
     return (absolute_clock + d->ptimer.time_offset) & PTIMER_INTERNAL_TIME_MASK;
 }
 
-static inline uint64_t get_reg_time(NV2AState *d)
+static inline uint64_t get_reg_time(NV2AState *d, PtimerClockSample *sample)
 {
     uint64_t internal_clock =
-        get_internal_clock(d, ptimer_get_absolute_clock(d));
+        get_internal_clock(d, ptimer_get_absolute_clock(d, sample));
     return PTIMER_INTERNAL_TO_REG_TIME(internal_clock);
 }
 
@@ -280,7 +298,8 @@ static bool ptimer_alarm_armed(NV2AState *d)
 /* Return whether an elapsed occurrence was materialized. The caller
  * publishes the final IRQ contribution once, after all state/queue effects.
  */
-static bool schedule_qemu_timer(NV2AState *d, bool state_changed)
+static bool schedule_qemu_timer(NV2AState *d, bool state_changed,
+                                PtimerClockSample *sample)
 {
     PtimerDeadline desired = { 0 };
     bool caught_up = false;
@@ -292,7 +311,7 @@ static bool schedule_qemu_timer(NV2AState *d, bool state_changed)
         return false;
     }
 
-    int64_t now_ns = qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL);
+    int64_t now_ns = ptimer_now_ns(sample);
     if (!state_changed) {
         PtimerHostSchedule host = ptimer_host_schedule(d);
 
@@ -342,18 +361,20 @@ static bool schedule_qemu_timer(NV2AState *d, bool state_changed)
 static void ptimer_alarm_fired(void *opaque)
 {
     NV2AState *d = (NV2AState *)opaque;
+    PtimerClockSample sample = { 0 };
     bool irq_before = ptimer_irq_contribution(d);
-    uint64_t reg_now = get_reg_time(d);
+    uint64_t reg_now = get_reg_time(d, &sample);
     ptimer_latch_overdue_alarm(d, reg_now);
 
     /* QEMU removed the event before calling us. The queue adapter observes
      * that removal even if an early wake retains the same desired expiry. */
-    schedule_qemu_timer(d, true);
+    schedule_qemu_timer(d, true, &sample);
     ptimer_publish_irq_change(d, irq_before);
 }
 
 void ptimer_post_load(NV2AState *d, int version_id)
 {
+    PtimerClockSample sample = { 0 };
     if (version_id < 4) {
         /* These streams contain no alarm/time/host-timer fields. */
         ptimer_reset(d);
@@ -366,37 +387,39 @@ void ptimer_post_load(NV2AState *d, int version_id)
                                d->ptimer.alarm_time != 0;
     }
 
-    ptimer_latch_overdue_alarm(d, get_reg_time(d));
-    schedule_qemu_timer(d, true);
+    ptimer_latch_overdue_alarm(d, get_reg_time(d, &sample));
+    schedule_qemu_timer(d, true, &sample);
     nv2a_update_irq(d);
 }
 
 void ptimer_set_core_clock(NV2AState *d, uint64_t frequency)
 {
+    PtimerClockSample sample = { 0 };
     /* Materialize elapsed state under the old frequency. Retain the
      * existing absolute-time clock model, not an anchored-clock redesign.
      */
     bool irq_before = ptimer_irq_contribution(d);
-    bool caught_up = ptimer_latch_overdue_alarm(d, get_reg_time(d));
+    bool caught_up = ptimer_latch_overdue_alarm(d, get_reg_time(d, &sample));
     bool state_changed = caught_up || d->pramdac.core_clock_freq != frequency;
     d->pramdac.core_clock_freq = frequency;
-    schedule_qemu_timer(d, state_changed);
+    schedule_qemu_timer(d, state_changed, &sample);
     ptimer_publish_irq_change(d, irq_before);
 }
 
 uint64_t ptimer_read(void *opaque, hwaddr addr, unsigned int size)
 {
     NV2AState *d = opaque;
+    PtimerClockSample sample = { 0 };
 
     uint64_t r = 0;
     switch (addr) {
     case NV_PTIMER_INTR_0: {
         bool irq_before = ptimer_irq_contribution(d);
         if (ptimer_alarm_armed(d)) {
-            uint64_t reg_now = get_reg_time(d);
+            uint64_t reg_now = get_reg_time(d, &sample);
             if (ptimer_latch_overdue_alarm(d, reg_now)) {
                 if (d->ptimer.enabled_interrupts & NV_PTIMER_INTR_0_ALARM) {
-                    schedule_qemu_timer(d, true);
+                    schedule_qemu_timer(d, true, &sample);
                 }
             }
         }
@@ -413,11 +436,11 @@ uint64_t ptimer_read(void *opaque, hwaddr addr, unsigned int size)
         r = d->ptimer.denominator;
         break;
     case NV_PTIMER_TIME_0: {
-        uint64_t reg_now = get_reg_time(d);
+        uint64_t reg_now = get_reg_time(d, &sample);
         r = PTIMER_REG_TIME_GET_TIME_0(reg_now);
     } break;
     case NV_PTIMER_TIME_1: {
-        uint64_t reg_now = get_reg_time(d);
+        uint64_t reg_now = get_reg_time(d, &sample);
         r = PTIMER_REG_TIME_GET_TIME_1(reg_now);
     } break;
     case NV_PTIMER_ALARM_0:
@@ -434,6 +457,7 @@ uint64_t ptimer_read(void *opaque, hwaddr addr, unsigned int size)
 void ptimer_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
 {
     NV2AState *d = opaque;
+    PtimerClockSample sample = { 0 };
     bool irq_before = ptimer_irq_contribution(d);
 
     nv2a_reg_log_write(NV_PTIMER, addr, size, val);
@@ -453,7 +477,8 @@ void ptimer_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
     case NV_PTIMER_TIME_0:
     case NV_PTIMER_TIME_1:
         if (ptimer_alarm_armed(d) && ptimer_clock_running(d)) {
-            caught_up = ptimer_latch_overdue_alarm(d, get_reg_time(d));
+            caught_up = ptimer_latch_overdue_alarm(d,
+                                                  get_reg_time(d, &sample));
         }
         break;
     default:
@@ -466,56 +491,58 @@ void ptimer_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
         /* Preserve upstream's no-requeue path for an unchanged ACK. */
         if (caught_up &&
             (d->ptimer.enabled_interrupts & NV_PTIMER_INTR_0_ALARM)) {
-            schedule_qemu_timer(d, true);
+            schedule_qemu_timer(d, true, &sample);
         }
         break;
     case NV_PTIMER_INTR_EN_0: {
         bool changed = caught_up ||
                        d->ptimer.enabled_interrupts != (uint32_t)val;
         d->ptimer.enabled_interrupts = val;
-        schedule_qemu_timer(d, changed);
+        schedule_qemu_timer(d, changed, &sample);
     } break;
     case NV_PTIMER_DENOMINATOR: {
         bool changed = caught_up || d->ptimer.denominator != (uint32_t)val;
         d->ptimer.denominator = val;
         if (ptimer_alarm_armed(d)) {
-            schedule_qemu_timer(d, changed);
+            schedule_qemu_timer(d, changed, &sample);
         }
     } break;
     case NV_PTIMER_NUMERATOR: {
         bool changed = caught_up || d->ptimer.numerator != (uint32_t)val;
         d->ptimer.numerator = val;
         if (ptimer_alarm_armed(d)) {
-            schedule_qemu_timer(d, changed);
+            schedule_qemu_timer(d, changed, &sample);
         }
     } break;
     case NV_PTIMER_ALARM_0: {
-        uint64_t reg_now = get_reg_time(d);
+        uint64_t reg_now = get_reg_time(d, &sample);
         uint64_t alarm_time = next_alarm_time(reg_now, val);
         bool changed = caught_up || !d->ptimer.alarm_armed ||
                        d->ptimer.alarm_time != alarm_time;
         d->ptimer.alarm_time = alarm_time;
         d->ptimer.alarm_armed = true;
-        schedule_qemu_timer(d, changed);
+        schedule_qemu_timer(d, changed, &sample);
     } break;
     case NV_PTIMER_TIME_0: {
-        uint64_t current_reg_time = get_reg_time(d);
+        uint64_t current_reg_time = get_reg_time(d, &sample);
         uint64_t target_reg_time = PTIMER_MAKE_REG_TIME(
             PTIMER_REG_TIME_GET_TIME_1(current_reg_time), val & ALARM_MASK);
         uint64_t target_internal = PTIMER_REG_TO_INTERNAL_TIME(target_reg_time);
-        d->ptimer.time_offset = target_internal - ptimer_get_absolute_clock(d);
+        d->ptimer.time_offset = target_internal -
+                                ptimer_get_absolute_clock(d, &sample);
         if (ptimer_alarm_armed(d)) {
-            schedule_qemu_timer(d, true);
+            schedule_qemu_timer(d, true, &sample);
         }
     } break;
     case NV_PTIMER_TIME_1: {
-        uint64_t current_reg_time = get_reg_time(d);
+        uint64_t current_reg_time = get_reg_time(d, &sample);
         uint64_t target_reg_time = PTIMER_MAKE_REG_TIME(
             val, PTIMER_REG_TIME_GET_TIME_0(current_reg_time));
         uint64_t target_internal = PTIMER_REG_TO_INTERNAL_TIME(target_reg_time);
-        d->ptimer.time_offset = target_internal - ptimer_get_absolute_clock(d);
+        d->ptimer.time_offset = target_internal -
+                                ptimer_get_absolute_clock(d, &sample);
         if (ptimer_alarm_armed(d)) {
-            schedule_qemu_timer(d, true);
+            schedule_qemu_timer(d, true, &sample);
         }
     } break;
     default:
