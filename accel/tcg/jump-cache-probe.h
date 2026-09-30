@@ -9,6 +9,12 @@
 
 typedef struct TCGJumpCacheProbe TCGJumpCacheProbe;
 
+typedef enum TCGJumpCacheProbeMode {
+    TCG_JUMP_CACHE_PROBE_COUNTERS = 1,
+    TCG_JUMP_CACHE_PROBE_OCCUPANCY = 2,
+    TCG_JUMP_CACHE_PROBE_TIMING = 4,
+} TCGJumpCacheProbeMode;
+
 typedef struct TCGJumpCacheProbeSlot {
     TranslationBlock *tb;
     vaddr pc;
@@ -30,12 +36,15 @@ typedef struct TCGJumpCacheProbeCost {
 typedef struct TCGJumpCacheProbeFlush {
     TCGJumpCacheProbeCost cost;
     uint64_t slots;
+    uint64_t observed_clears;
+    uint64_t observed_slots;
     uint64_t observed_nonnull;
     uint64_t maximum_nonnull;
     uint64_t occupancy[TCG_JUMP_CACHE_PROBE_BINS];
 } TCGJumpCacheProbeFlush;
 
 typedef struct TCGJumpCacheProbeStats {
+    unsigned mode;
     uint64_t lookup_sequence;
     TCGJumpCacheProbeCost lookup[TCG_JUMP_CACHE_LOOKUP_CLASSES];
     TCGJumpCacheProbeFlush flush[2]; /* other, individual CF_PCREL */
@@ -45,8 +54,13 @@ typedef struct TCGJumpCacheProbeStats {
     uint64_t recycled;
 } TCGJumpCacheProbeStats;
 
-TCGJumpCacheProbe *tcg_jump_cache_probe_new(bool enabled);
+/* NULL/off disables; counters, occupancy, timing, all/1 select collection. */
+TCGJumpCacheProbe *tcg_jump_cache_probe_new(const char *mode);
 void tcg_jump_cache_probe_free(TCGJumpCacheProbe *probe);
+/* Begin/end have exactly one serialized dispatch writer per vCPU probe.
+ * Private lookup state is never read by snapshot/clear/invalidation callers.
+ * Other recording methods and snapshot readers may run concurrently.
+ */
 uint64_t tcg_jump_cache_probe_lookup_begin(TCGJumpCacheProbe *probe);
 void tcg_jump_cache_probe_lookup_end(TCGJumpCacheProbe *probe,
                                      TCGJumpCacheProbeLookup result,

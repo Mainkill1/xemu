@@ -4,6 +4,7 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import subprocess
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
@@ -20,7 +21,9 @@ for name, digest in expected.items():
     assert hashlib.sha256((HERE / name).read_bytes()).hexdigest() == digest, name
 receipt = json.loads((HERE / "receipt.json").read_text())
 for name, digest in receipt["source"]["sha256"].items():
-    assert hashlib.sha256((REPO / name).read_bytes()).hexdigest() == digest, name
+    commit = receipt["source"].get("equivalentPublishedCommit")
+    data = subprocess.check_output(["git", "show", f"{commit}:{name}"], cwd=REPO) if commit else (REPO / name).read_bytes()
+    assert hashlib.sha256(data).hexdigest() == digest, name
 checks = json.loads((HERE / "final-checks.json").read_text())
 for check in checks:
     if check["expected"] == "nonzero":
