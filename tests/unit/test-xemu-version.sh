@@ -59,6 +59,13 @@ git -C "$repo" worktree add -q --detach "$worktree"
 output=$("$generator" "$worktree")
 expect_define "$output" XEMU_COMMIT "\"$commit\""
 
+git -C "$repo" tag v0.0.0-pr264-example
+printf 'another change\n' >> "$repo/source"
+git -C "$repo" commit -qam after-prerelease
+commit=$(git -C "$repo" rev-parse HEAD)
+output=$("$generator" "$repo")
+expect_define "$output" XEMU_VERSION "\"1.2.3-0-g${commit:0:12}\""
+
 archive=$tmpdir/archive
 mkdir "$archive"
 printf '3.4.5\n' > "$archive/XEMU_VERSION"
