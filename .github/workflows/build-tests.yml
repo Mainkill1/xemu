@@ -22,9 +22,19 @@ jobs:
         pushd src
         sudo apt-get -qy build-dep .
         popd
+        sudo apt-get install -qy xvfb libgl1-mesa-dri
     - name: Configure
       working-directory: src
       run: ./configure --target-list=i386-softmmu --disable-werror
     - name: Run unit tests
       working-directory: src
       run: make -j$(nproc) check-unit
+    - name: Require shader depth draw tests under Mesa
+      working-directory: src
+      run: |
+        xvfb-run -a env \
+          LIBGL_ALWAYS_SOFTWARE=1 \
+          MESA_LOADER_DRIVER_OVERRIDE=llvmpipe \
+          XEMU_REQUIRE_GL_TEST_CONTEXT=1 \
+          ./build/pyvenv/bin/meson test -C build --no-rebuild \
+            test-xbox-psh-depth-replace --print-errorlogs

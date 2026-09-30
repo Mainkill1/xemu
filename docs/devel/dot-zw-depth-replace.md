@@ -3,14 +3,15 @@
 `PS_TEXTUREMODES_DOT_ZW` replaces fragment window depth with the preceding
 `DOTPRODUCT` result divided by the current dot product. It replaces interpolated
 depth and polygon offset. The Xbox texture coordinates express guest window-depth
-units; the regular D16/D24 conversion still applies. An inconsistent stage without
-a `DOTPRODUCT` predecessor acts as `NONE`.
+units; the regular D16/D24 conversion still applies. An inconsistent stage acts
+as `NONE` when its preceding dot or selected previous texture result is unusable.
 
 Reference: [NVIDIA texture shader specification, section 3.8.13.1.21](https://registry.khronos.org/OpenGL/extensions/NV/NV_texture_shader.txt).
 
 The generated-shader regression executes the production GLSL on OpenGL. Run
 `test-xbox-psh-depth-replace` with an OpenGL 4 context (for example under Xvfb
-with Mesa). Its TAP output explicitly skips when no context is available.
+with Mesa). Its TAP output explicitly skips when no context is available unless
+`XEMU_REQUIRE_GL_TEST_CONTEXT=1` is set; required CI uses that flag under Xvfb.
 `test-xbox-vk-ubershader-glsl-integration` also compiles both valid stages and
 integer depth formats through the real Vulkan compiler, including the uber route.
 Compiler coverage does not establish Vulkan rendering parity.

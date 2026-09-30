@@ -480,6 +480,7 @@ static void init_fragment_module_key(ShaderModuleCacheKey *key,
     key->kind = VK_SHADER_STAGE_FRAGMENT_BIT;
     key->fragment_route = route;
     key->psh.state = *state;
+    pgraph_glsl_normalize_psh_state(&key->psh.state);
     if (route == PGRAPH_VK_FRAGMENT_UBERSHADER) {
         pgraph_vk_canonicalize_uber_combiner_state(&key->psh.state);
     }

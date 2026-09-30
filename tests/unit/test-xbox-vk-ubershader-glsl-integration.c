@@ -192,6 +192,12 @@ static void test_depth_replace_compiles_for_both_fragment_routes(void)
                                 .ubershader = uber,
                                 .uber_binding = PGRAPH_VK_PSH_UBER_UBO_BINDING,
                             });
+                g_assert_nonnull(strstr(mstring_get_str(source),
+                                        "zvalue = dot"));
+                g_assert_null(strstr(mstring_get_str(source),
+                                     "precise float bc0"));
+                g_assert_null(strstr(mstring_get_str(source),
+                                     "zvalue += depthOffset;"));
                 GByteArray *spirv = pgraph_vk_compile_glsl_to_spv_config(
                     &config, GLSLANG_STAGE_FRAGMENT, mstring_get_str(source));
                 g_assert_nonnull(spirv);
@@ -200,6 +206,26 @@ static void test_depth_replace_compiles_for_both_fragment_routes(void)
             }
         }
     }
+    PshState invalid = base_state();
+    invalid.shader_stage_program = PS_TEXTUREMODES_PASSTHRU |
+        (PS_TEXTUREMODES_DOTPRODUCT << 10) |
+        (PS_TEXTUREMODES_DOT_ZW << 15);
+    invalid.other_stage_input =
+        (invalid.other_stage_input & ~(0xFu << 20)) | (2u << 20);
+    MString *ordinary = pgraph_glsl_gen_psh(
+        &invalid, (GenPshGlslOptions){ .vulkan = true,
+                                       .ubo_binding = 1,
+                                       .tex_binding = 2 });
+    g_assert_null(strstr(mstring_get_str(ordinary), "zvalue = dot"));
+    g_assert_nonnull(strstr(mstring_get_str(ordinary),
+                            "precise float bc0"));
+    g_assert_nonnull(strstr(mstring_get_str(ordinary),
+                            "zvalue += depthOffset;"));
+    GByteArray *ordinary_spirv = pgraph_vk_compile_glsl_to_spv_config(
+        &config, GLSLANG_STAGE_FRAGMENT, mstring_get_str(ordinary));
+    g_assert_nonnull(ordinary_spirv);
+    g_byte_array_unref(ordinary_spirv);
+    mstring_unref(ordinary);
     pgraph_vk_finalize_glsl_compiler();
 }
 

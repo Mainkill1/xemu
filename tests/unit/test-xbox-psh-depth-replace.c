@@ -75,6 +75,8 @@ typedef struct DepthCase {
     float expected;
     unsigned int hilo_alpha;
     bool invalid_predecessor;
+    unsigned int previous_input;
+    bool disable_clipping;
 } DepthCase;
 
 static void test_depth(const void *opaque)
@@ -87,7 +89,7 @@ static void test_depth(const void *opaque)
     float maximum = c->format == DEPTH_FORMAT_D16 ? 65535 : 16777215;
     PshState state = {
         .smooth_shading = true,
-        .depth_clipping = true,
+        .depth_clipping = !c->disable_clipping,
         .z_perspective = c->perspective,
         .depth_format = c->format,
         .final_inputs_1 = 0x20202000,
@@ -102,6 +104,11 @@ static void test_depth(const void *opaque)
     }
     if (c->hilo_alpha) {
         state.other_stage_input = (4 << 4) | (4 << 8);
+    }
+    if (c->stage == 3) {
+        state.other_stage_input =
+            (state.other_stage_input & ~(0xFu << 20)) |
+            ((c->previous_input & 0xFu) << 20);
     }
     GLuint p = program(&state);
     glUseProgram(p);
@@ -127,6 +134,15 @@ static void test_depth(const void *opaque)
     const GLint regions[32] = { 0, 0, 8, 8 };
     glUniform4iv(glGetUniformLocation(p, "clipRegion"), 8, regions);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, depth);
+    glRenderbufferStorage(GL_RENDERBUFFER,
+                          c->format == DEPTH_FORMAT_D16 ?
+                          GL_DEPTH_COMPONENT16 : GL_DEPTH_COMPONENT24, 8, 8);
+    GLint depth_bits;
+    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_DEPTH_SIZE,
+                                 &depth_bits);
+    g_assert_cmpint(depth_bits, ==,
+                    c->format == DEPTH_FORMAT_D16 ? 16 : 24);
     glViewport(0, 0, 8, 8);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
@@ -140,7 +156,7 @@ static void test_depth(const void *opaque)
     g_test_message("%s: expected %.8f, observed %.8f", c->name, c->expected,
                    actual);
     g_assert_cmpfloat_with_epsilon(actual, c->expected, 0.00003f);
-    if (c->expected == 1) {
+    if (c->expected == 1 && !c->disable_clipping) {
         uint8_t pixel[4];
         glReadPixels(4, 4, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
         g_assert_cmpuint(pixel[1], ==, 255);
@@ -188,6 +204,79 @@ static void test_restored_depth_allows_following_geometry(void)
     glDeleteProgram(p);
     glDeleteShader(vs);
     glDeleteShader(fs);
+}
+
+static void set_mode(PshState *state, int stage, int mode)
+{
+    state->shader_stage_program =
+        (state->shader_stage_program & ~(0x1Fu << (stage * 5))) |
+        ((uint32_t)mode << (stage * 5));
+}
+
+static void set_input(PshState *state, int stage, int input)
+{
+    g_assert_cmpint(stage, >=, 2);
+    state->other_stage_input =
+        (state->other_stage_input & ~(0xFu << (stage * 4 + 8))) |
+        ((uint32_t)input << (stage * 4 + 8));
+}
+
+static void test_texture_program_consistency(void)
+{
+    PshState base = { 0 };
+    set_mode(&base, 0, PS_TEXTUREMODES_PASSTHRU);
+    set_mode(&base, 2, PS_TEXTUREMODES_DOTPRODUCT);
+    set_mode(&base, 3, PS_TEXTUREMODES_DOT_ZW);
+
+    for (int selector = 0; selector < 16; selector++) {
+        PshState state = base;
+        set_input(&state, 3, selector);
+        pgraph_glsl_normalize_psh_state(&state);
+        int effective = (state.shader_stage_program >> 15) & 0x1F;
+        g_assert_cmpint(effective, ==,
+                        selector == 0 ? PS_TEXTUREMODES_DOT_ZW :
+                                        PS_TEXTUREMODES_NONE);
+    }
+
+    PshState no_source = base;
+    set_mode(&no_source, 0, PS_TEXTUREMODES_NONE);
+    pgraph_glsl_normalize_psh_state(&no_source);
+    g_assert_cmpint((no_source.shader_stage_program >> 15) & 0x1F, ==,
+                    PS_TEXTUREMODES_NONE);
+
+    PshState unusable_source = base;
+    set_mode(&unusable_source, 0, PS_TEXTUREMODES_CLIPPLANE);
+    set_mode(&unusable_source, 1, PS_TEXTUREMODES_PASSTHRU);
+    set_input(&unusable_source, 2, 1);
+    pgraph_glsl_normalize_psh_state(&unusable_source);
+    g_assert_cmpint((unusable_source.shader_stage_program >> 15) & 0x1F, ==,
+                    PS_TEXTUREMODES_NONE);
+
+    PshState inconsistent_source = base;
+    set_mode(&inconsistent_source, 1, PS_TEXTUREMODES_DOT_ZW);
+    set_input(&inconsistent_source, 3, 1);
+    pgraph_glsl_normalize_psh_state(&inconsistent_source);
+    g_assert_cmpint((inconsistent_source.shader_stage_program >> 5) & 0x1F,
+                    ==, PS_TEXTUREMODES_NONE);
+    g_assert_cmpint((inconsistent_source.shader_stage_program >> 15) & 0x1F,
+                    ==, PS_TEXTUREMODES_NONE);
+
+    PshState duplicate = base;
+    set_mode(&duplicate, 1, PS_TEXTUREMODES_DOTPRODUCT);
+    set_mode(&duplicate, 2, PS_TEXTUREMODES_DOT_ZW);
+    pgraph_glsl_normalize_psh_state(&duplicate);
+    g_assert_cmpint((duplicate.shader_stage_program >> 10) & 0x1F, ==,
+                    PS_TEXTUREMODES_DOT_ZW);
+    g_assert_cmpint((duplicate.shader_stage_program >> 15) & 0x1F, ==,
+                    PS_TEXTUREMODES_NONE);
+
+    PshState first = base, second = base;
+    set_input(&first, 3, 4);
+    set_input(&second, 3, 15);
+    g_assert_cmpint(memcmp(&first, &second, sizeof(first)), !=, 0);
+    pgraph_glsl_normalize_psh_state(&first);
+    pgraph_glsl_normalize_psh_state(&second);
+    g_assert_cmpint(memcmp(&first, &second, sizeof(first)), ==, 0);
 }
 
 int main(int argc, char **argv)
@@ -240,6 +329,14 @@ int main(int argc, char **argv)
           255 },
         { "invalid-predecessor", 3, DEPTH_FORMAT_D24, false, .25f, .75f, 1, 0,
           .25f, 0, true },
+        { "selected-dot-product-source", 3, DEPTH_FORMAT_D24, false, .25f,
+          .75f, 1, 0, .25f, 0, false, 2 },
+        { "clamp-in-range", 3, DEPTH_FORMAT_D24, false, 0, .75f, 1, 0,
+          .75f, 0, false, 0, true },
+        { "clamp-below-near", 3, DEPTH_FORMAT_D24, false, 0, -.25f, 1, 0,
+          0, 0, false, 0, true },
+        { "clamp-above-far", 3, DEPTH_FORMAT_D24, false, 0, 2, 1, 0,
+          1, 0, false, 0, true },
     };
     for (size_t i = 0; i < G_N_ELEMENTS(cases); ++i) {
         char *name =
@@ -249,6 +346,11 @@ int main(int argc, char **argv)
     }
     g_test_add_func("/xbox/psh/depth-replace/following-geometry",
                     test_restored_depth_allows_following_geometry);
+    g_test_add_func("/xbox/psh/depth-replace/texture-program-consistency",
+                    test_texture_program_consistency);
+    if (!context && g_getenv("XEMU_REQUIRE_GL_TEST_CONTEXT")) {
+        g_error("OpenGL 4 context required for depth-replacement regression");
+    }
     int result = g_test_run();
     if (context) {
         glDeleteRenderbuffers(1, &depth);
