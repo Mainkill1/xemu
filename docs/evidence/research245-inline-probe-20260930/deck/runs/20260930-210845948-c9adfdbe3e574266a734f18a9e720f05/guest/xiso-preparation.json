@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "planId": "sha256:c9bd061809f7331f565e9c0921dc7c322bd6d7ee55073a4388f8b5a2ab8705ec",
+  "CatalogId": "sha256:34b8ee7f91f3412b5e7758aab9f4ca08746ef2e97fee8b5c61be8947e145f7f4",
+  "IsoSha256": "74a10c400f4fb280dcb4037e38e7e4d3150e73e0061a04f65b3c68cc61a49e63",
+  "image": "hdd.qcow2",
+  "guestPath": "xemu_perf_tests/xemu_perf_tests_config.json",
+  "selectedLeaves": 1,
+  "payloadSha256": "45a2945b168b1ba78a7fc83302c69e0a104b83092c5efa15436f271c73415227",
+  "slotSha256": "a9f95a83fb2b1a557165359f653bbb8141ddcba08e7944682f4aab65f03a37a6",
+  "slotBytes": 4096,
+  "verified": true,
+  "method": "private-preallocated-file-readback"
+}

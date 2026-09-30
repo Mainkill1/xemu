@@ -1,0 +1,34 @@
+{
+  "sourceCommit": "3a144c6624fec0cd8b926e9956a38740e35167b8",
+  "parentCommit": "458730bf53",
+  "host": "deck",
+  "enabled": true,
+  "commands": [
+    {
+      "argv": [
+        "/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/bin/meson",
+        "configure",
+        "build-probe",
+        "-Dxemu_tcg_jump_cache_probe=true"
+      ],
+      "cwd": "/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache",
+      "exitCode": 0
+    },
+    {
+      "argv": [
+        "ninja",
+        "-j12",
+        "-C",
+        "build-probe",
+        "qemu-system-i386"
+      ],
+      "cwd": "/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache",
+      "exitCode": 0
+    }
+  ],
+  "package": "/home/codex/src/steamdeck-xemu/artifacts/research245-inline-deck-3a144c66",
+  "executableSha256": "77b84f158fd35ddffe1a41ad99d0260d6f75a29e1cce220b5e3e02809023c6f0",
+  "symbols": [
+    "000000000040b700 0000000000000c88 t cpu_exec_loop"
+  ]
+}

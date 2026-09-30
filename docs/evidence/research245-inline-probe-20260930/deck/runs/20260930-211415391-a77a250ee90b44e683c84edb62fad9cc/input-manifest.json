@@ -1,0 +1,81 @@
+{
+  "JobId": "xc-i245-3a144c66-rewrite-07-001",
+  "CreatedUtc": "2026-09-30T21:14:15.6910381+00:00",
+  "PackageDirectory": "/home/deck/xemu-research/workspace/Queue/Testing/agent-xc-i245-3a144c66-rewrite-07-001",
+  "JobManifestSha256": "42cd2796585cdfa0033d2f450ca842419438f9689591e424dfbfd810378608ae",
+  "ExecutableSha256": "77b84f158fd35ddffe1a41ad99d0260d6f75a29e1cce220b5e3e02809023c6f0",
+  "Inputs": [
+    {
+      "Path": "xemu",
+      "Role": "pinned-cpu-fixture-input",
+      "Bytes": 136364568,
+      "LastWriteUtc": "2026-09-30T21:14:13.8129378Z",
+      "Sha256": "77b84f158fd35ddffe1a41ad99d0260d6f75a29e1cce220b5e3e02809023c6f0",
+      "ExpectedSha256": "77b84f158fd35ddffe1a41ad99d0260d6f75a29e1cce220b5e3e02809023c6f0",
+      "Verified": true
+    },
+    {
+      "Path": "xemu.toml",
+      "Role": "pinned-cpu-fixture-input",
+      "Bytes": 383,
+      "LastWriteUtc": "2026-09-30T21:14:13.9509377Z",
+      "Sha256": "aa356a9d7b916ace9b71ff1ef47946db1ac289e36a8b00235c4397f57523b0b8",
+      "ExpectedSha256": "aa356a9d7b916ace9b71ff1ef47946db1ac289e36a8b00235c4397f57523b0b8",
+      "Verified": true
+    },
+    {
+      "Path": "state/seed-eeprom.bin",
+      "Role": "pinned-cpu-fixture-input",
+      "Bytes": 256,
+      "LastWriteUtc": "2026-09-30T21:14:13.7186755Z",
+      "Sha256": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3",
+      "ExpectedSha256": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3",
+      "Verified": true
+    },
+    {
+      "Path": "lib/libslirp.so.0",
+      "Role": "pinned-cpu-fixture-input",
+      "Bytes": 149336,
+      "LastWriteUtc": "2026-09-30T21:14:13.7177214Z",
+      "Sha256": "12ee83fb069a5be30b9e450f69a5e07eec4861f2e9b574c46a4052f086c341f3",
+      "ExpectedSha256": "12ee83fb069a5be30b9e450f69a5e07eec4861f2e9b574c46a4052f086c341f3",
+      "Verified": true
+    },
+    {
+      "Path": "cpu-code-rewrite-reference.json",
+      "Role": "pinned-cpu-fixture-input",
+      "Bytes": 868,
+      "LastWriteUtc": "2026-09-30T21:14:13.7149379Z",
+      "Sha256": "012286767ceb727d81f4646463cc46dcb13c9e7f30a891eeda74fba63f78401c",
+      "ExpectedSha256": "012286767ceb727d81f4646463cc46dcb13c9e7f30a891eeda74fba63f78401c",
+      "Verified": true
+    },
+    {
+      "Path": "lib/libpcap.so.0.8",
+      "Role": "pinned-cpu-probe-input",
+      "Bytes": 317784,
+      "LastWriteUtc": "2026-09-30T21:14:13.716008Z",
+      "Sha256": "221fe09f13b357ef354caf2209c886f1c1f8161c5b26ff8ab73afa47dd922f28",
+      "ExpectedSha256": "221fe09f13b357ef354caf2209c886f1c1f8161c5b26ff8ab73afa47dd922f28",
+      "Verified": true
+    }
+  ],
+  "RuntimeFiles": [
+    {
+      "Source": "state/seed-eeprom.bin",
+      "Destination": "eeprom.bin",
+      "Bytes": 256,
+      "Sha256": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+    },
+    {
+      "Source": "disk-asset:research245-cpu-fatx-compat010-78af83a6",
+      "Destination": "hdd.qcow2",
+      "Bytes": 1310720,
+      "Sha256": "1b8153fce8780d0b873c9755f4f593368e847ed2d4bd61308b35f36689871333",
+      "DiskAssetId": "research245-cpu-fatx-compat010-78af83a6",
+      "AssetKind": "xiso-seed",
+      "Retention": "deleteAfterEvidence",
+      "SeedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b"
+    }
+  ]
+}

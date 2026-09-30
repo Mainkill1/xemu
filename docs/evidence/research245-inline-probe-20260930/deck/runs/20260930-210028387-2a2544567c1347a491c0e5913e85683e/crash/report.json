@@ -1,0 +1,16 @@
+{
+  "RunId": "20260930-210028387-2a2544567c1347a491c0e5913e85683e",
+  "ExecutableSha256": "2e99f64682c15b8a90fbe0953af1e997087c67dd34c67c96e8fdd613349ba874",
+  "Platform": "linux",
+  "ProcessId": 23468,
+  "ExitCode": 0,
+  "RunnerTerminated": false,
+  "Crashed": false,
+  "Source": "waitpid",
+  "Code": null,
+  "Capture": "notNeeded",
+  "Dump": "notRequested",
+  "Analysis": "notRequested",
+  "TopFrames": [],
+  "Issues": []
+}

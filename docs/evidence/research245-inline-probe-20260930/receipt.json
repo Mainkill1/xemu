@@ -1,0 +1,13 @@
+{
+  "sourceCommit": "3a144c6624fec0cd8b926e9956a38740e35167b8",
+  "referenceCommit": "0bd18bf26b894852f934a231a29a09b2f5eb480c",
+  "parentCommit": "458730bf53",
+  "completedAttempts": 28,
+  "correctness": "PASS",
+  "comparison": "ineligible",
+  "driverQualification": false,
+  "acceptedProductionImprovementPercent": null,
+  "actualRetentionCandidate": false,
+  "windows": "Build succeeded; no new guest runs because previous free-space preflight failed",
+  "scope": "Selected canonical text files, complete eligible inventory metadata; no binary/cache payloads"
+}

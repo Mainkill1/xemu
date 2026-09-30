@@ -1,0 +1,15 @@
+{
+  "reviewer": "/root/review_voice_attribution",
+  "sourceCommit": "3a144c6624fec0cd8b926e9956a38740e35167b8",
+  "recommendation": "HOLD / existing draft",
+  "materialBlockers": [],
+  "checks": [
+    "Both evidence audits passed",
+    "28 guest exits0; independent literal checksum/work oracles matched",
+    "Native and Windows package hashes match build receipts",
+    "No outlined tb_lookup or clone symbol",
+    "All ten comparison deltas reproduced",
+    "Historical Windows results, cache ineligibility and unproven under5% gate explicit"
+  ],
+  "scope": "Read-only independent review; no publication or merge"
+}

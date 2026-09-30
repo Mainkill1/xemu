@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "runId": "20260930-211952490-80f7a474c81c4698b5590c7f9e53a043",
+  "sourceSha256": "15bbc61b18686639d354824be8c03c4b860aba5b4edc3e42820bb13b73f420e7",
+  "records": [
+    {
+      "Id": "cpu_translation_blocks.code_rewrite",
+      "Kind": "leaf",
+      "Correct": true,
+      "Samples": 10,
+      "MeanUs": 3132414.1,
+      "MedianUs": 3071732.5,
+      "MinUs": 2947726,
+      "MaxUs": 3388004,
+      "P95Us": 3388004
+    }
+  ],
+  "checks": [
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 1 leaves and 0 groups; received 1. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 1 stable IDs; received 1. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:cpu_translation_blocks.code_rewrite",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 2 applicable reference hashes."
+    }
+  ],
+  "measurements": [
+    {
+      "Name": "xiso/cpu_translation_blocks/code_rewrite/mean_us",
+      "Value": 3132414.1,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_translation_blocks.code_rewrite"
+    },
+    {
+      "Name": "xiso/cpu_translation_blocks/code_rewrite/median_us",
+      "Value": 3071732.5,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_translation_blocks.code_rewrite"
+    },
+    {
+      "Name": "xiso/cpu_translation_blocks/code_rewrite/min_us",
+      "Value": 2947726,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_translation_blocks.code_rewrite"
+    },
+    {
+      "Name": "xiso/cpu_translation_blocks/code_rewrite/max_us",
+      "Value": 3388004,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_translation_blocks.code_rewrite"
+    },
+    {
+      "Name": "xiso/cpu_translation_blocks/code_rewrite/p95_us",
+      "Value": 3388004,
+      "Unit": "us",
+      "Direction": "lower",
+      "Source": "result:guest/results.txt#cpu_translation_blocks.code_rewrite"
+    }
+  ]
+}

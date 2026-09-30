@@ -1,0 +1,22 @@
+{
+  "enabled": true,
+  "directory": "/home/deck/xemu-research/workspace/Runtime/20260930-205903124-ce3c14535df24deb9774f99ef77d7857",
+  "files": [
+    {
+      "Source": "state/seed-eeprom.bin",
+      "Destination": "eeprom.bin",
+      "Bytes": 256,
+      "Sha256": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+    },
+    {
+      "Source": "disk-asset:research245-cpu-fatx-compat010-78af83a6",
+      "Destination": "hdd.qcow2",
+      "Bytes": 1310720,
+      "Sha256": "ccd9fe7bce9f3d3261044966946df81d6b8b7972317b5d6c36ce5d1fde3e6f5a",
+      "DiskAssetId": "research245-cpu-fatx-compat010-78af83a6",
+      "AssetKind": "xiso-seed",
+      "Retention": "deleteAfterEvidence",
+      "SeedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b"
+    }
+  ]
+}

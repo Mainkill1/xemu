@@ -1,0 +1,14 @@
+[
+  {
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "firstOffUs": 3046851.5,
+    "secondOffUs": 3041193,
+    "apparentImprovementPercent": 0.18571630419139232
+  },
+  {
+    "leaf": "cpu_translation_blocks.code_stable",
+    "firstOffUs": 2579590,
+    "secondOffUs": 2572985.5,
+    "apparentImprovementPercent": 0.25602905888145017
+  }
+]

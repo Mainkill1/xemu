@@ -1,0 +1,39 @@
+[
+  {
+    "schema_version": 1,
+    "id": "cpu_translation_blocks.code_rewrite",
+    "revision": 2,
+    "kind": "leaf",
+    "name": "CpuTranslationBlocks::CodeRewrite",
+    "outcome": "PASS",
+    "iterations": 10,
+    "sample_count": 10,
+    "measurement_iterations_multiplier": 1,
+    "warmup_iterations": 0,
+    "gpu_completion_mode": "per_iteration",
+    "completion_wait_us": 1733,
+    "total_us": 30961899,
+    "average_us": 3096189,
+    "min_us": 3021109,
+    "max_us": 3131851,
+    "median_us": 3103925,
+    "p95_us": 3131851,
+    "mad_us": 21476,
+    "unit": "us",
+    "direction": "lower_is_better",
+    "raw_results": [
+      3082070,
+      3116191,
+      3125043,
+      3021109,
+      3102706,
+      3058103,
+      3131851,
+      3125760,
+      3093921,
+      3105145
+    ],
+    "framebuffer_fnv1a64": "fe01ca5125b16325",
+    "metadata": {"oracle_status":"PASS","operations":1000000,"work_checksum":"02a5f4ff","result_checksum":"65151d67","expected_checksum":"65151d67"}
+  }
+]

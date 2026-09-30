@@ -1,0 +1,122 @@
+[
+  {
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "referenceMode": "prior-off",
+    "candidateMode": "off",
+    "referenceMedianUs": 3053454.75,
+    "candidateMedianUs": 3064158.75,
+    "absoluteDeltaUs": 10704.0,
+    "improvementPercent": -0.35055374572031894,
+    "runsPerSetting": 2,
+    "samplesPerRun": 10,
+    "comparison": "ineligible"
+  },
+  {
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "referenceMode": "disabled",
+    "candidateMode": "off",
+    "referenceMedianUs": 3023971.75,
+    "candidateMedianUs": 3064158.75,
+    "absoluteDeltaUs": 40187.0,
+    "improvementPercent": -1.3289476001222564,
+    "runsPerSetting": 2,
+    "samplesPerRun": 10,
+    "comparison": "ineligible"
+  },
+  {
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "referenceMode": "off",
+    "candidateMode": "counters",
+    "referenceMedianUs": 3064158.75,
+    "candidateMedianUs": 3057943.5,
+    "absoluteDeltaUs": -6215.25,
+    "improvementPercent": 0.20283707559211805,
+    "runsPerSetting": 2,
+    "samplesPerRun": 10,
+    "comparison": "ineligible"
+  },
+  {
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "referenceMode": "off",
+    "candidateMode": "timing",
+    "referenceMedianUs": 3064158.75,
+    "candidateMedianUs": 3100515.25,
+    "absoluteDeltaUs": 36356.5,
+    "improvementPercent": -1.1865083687325273,
+    "runsPerSetting": 2,
+    "samplesPerRun": 10,
+    "comparison": "ineligible"
+  },
+  {
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "referenceMode": "off",
+    "candidateMode": "all",
+    "referenceMedianUs": 3064158.75,
+    "candidateMedianUs": 3103249.25,
+    "absoluteDeltaUs": 39090.5,
+    "improvementPercent": -1.275733510869827,
+    "runsPerSetting": 2,
+    "samplesPerRun": 10,
+    "comparison": "ineligible"
+  },
+  {
+    "leaf": "cpu_translation_blocks.code_stable",
+    "referenceMode": "prior-off",
+    "candidateMode": "off",
+    "referenceMedianUs": 3441607.5,
+    "candidateMedianUs": 2586796.75,
+    "absoluteDeltaUs": -854810.75,
+    "improvementPercent": 24.83754321200195,
+    "runsPerSetting": 2,
+    "samplesPerRun": 10,
+    "comparison": "ineligible"
+  },
+  {
+    "leaf": "cpu_translation_blocks.code_stable",
+    "referenceMode": "disabled",
+    "candidateMode": "off",
+    "referenceMedianUs": 2637186.5,
+    "candidateMedianUs": 2586796.75,
+    "absoluteDeltaUs": -50389.75,
+    "improvementPercent": 1.9107389636644962,
+    "runsPerSetting": 2,
+    "samplesPerRun": 10,
+    "comparison": "ineligible"
+  },
+  {
+    "leaf": "cpu_translation_blocks.code_stable",
+    "referenceMode": "off",
+    "candidateMode": "counters",
+    "referenceMedianUs": 2586796.75,
+    "candidateMedianUs": 2703506.5,
+    "absoluteDeltaUs": 116709.75,
+    "improvementPercent": -4.511747975560894,
+    "runsPerSetting": 2,
+    "samplesPerRun": 10,
+    "comparison": "ineligible"
+  },
+  {
+    "leaf": "cpu_translation_blocks.code_stable",
+    "referenceMode": "off",
+    "candidateMode": "timing",
+    "referenceMedianUs": 2586796.75,
+    "candidateMedianUs": 2689371.5,
+    "absoluteDeltaUs": 102574.75,
+    "improvementPercent": -3.9653192698653266,
+    "runsPerSetting": 2,
+    "samplesPerRun": 10,
+    "comparison": "ineligible"
+  },
+  {
+    "leaf": "cpu_translation_blocks.code_stable",
+    "referenceMode": "off",
+    "candidateMode": "all",
+    "referenceMedianUs": 2586796.75,
+    "candidateMedianUs": 2685877.0,
+    "absoluteDeltaUs": 99080.25,
+    "improvementPercent": -3.8302294140426767,
+    "runsPerSetting": 2,
+    "samplesPerRun": 10,
+    "comparison": "ineligible"
+  }
+]
