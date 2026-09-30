@@ -509,6 +509,9 @@ TranslationBlock *tb_gen_code(CPUState *cpu, TCGTBCPUState s)
     qemu_spin_init(&tb->jmp_lock);
 
 recycle_tb:
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+    tcg_jump_cache_probe_codegen(cpu->tb_jmp_cache->probe, recycled);
+#endif
     tb->jmp_list_head = (uintptr_t)NULL;
     tb->jmp_list_next[0] = (uintptr_t)NULL;
     tb->jmp_list_next[1] = (uintptr_t)NULL;
@@ -678,7 +681,11 @@ void tcg_flush_jmp_cache(CPUState *cpu)
         return;
     }
 
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+    tcg_jump_cache_probe_clear(jc->probe, jc->array, TB_JMP_CACHE_SIZE, false);
+#else
     for (int i = 0; i < TB_JMP_CACHE_SIZE; i++) {
         qatomic_set(&jc->array[i].tb, NULL);
     }
+#endif
 }

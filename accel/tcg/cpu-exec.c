@@ -258,6 +258,14 @@ static inline TranslationBlock *tb_lookup(CPUState *cpu, TCGTBCPUState s)
     hash = tb_jmp_cache_hash_func(s.pc);
     jc = cpu->tb_jmp_cache;
 
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+    uint64_t sample_start_ns = 0;
+    TCGJumpCacheProbeLookup probe_result = TCG_JUMP_CACHE_HIT;
+    if (unlikely(jc->probe)) {
+        sample_start_ns = tcg_jump_cache_probe_lookup_begin(jc->probe);
+    }
+#endif
+
     tb = qatomic_read(&jc->array[hash].tb);
     if (likely(tb &&
                jc->array[hash].pc == s.pc &&
@@ -269,13 +277,29 @@ static inline TranslationBlock *tb_lookup(CPUState *cpu, TCGTBCPUState s)
 
     tb = tb_htable_lookup(cpu, s);
     if (tb == NULL) {
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+        if (unlikely(jc->probe)) {
+            tcg_jump_cache_probe_lookup_end(jc->probe,
+                                            TCG_JUMP_CACHE_GLOBAL_MISS,
+                                            sample_start_ns);
+        }
+#endif
         return NULL;
     }
+
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+    probe_result = TCG_JUMP_CACHE_GLOBAL_HIT;
+#endif
 
     jc->array[hash].pc = s.pc;
     qatomic_set(&jc->array[hash].tb, tb);
 
 hit:
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+    if (unlikely(jc->probe)) {
+        tcg_jump_cache_probe_lookup_end(jc->probe, probe_result, sample_start_ns);
+    }
+#endif
     /*
      * As long as tb is not NULL, the contents are consistent.  Therefore,
      * the virtual PC has to match for non-CF_PCREL translations.
@@ -1115,6 +1139,11 @@ bool tcg_exec_realizefn(CPUState *cpu, Error **errp)
     }
 
     cpu->tb_jmp_cache = g_new0(CPUJumpCache, 1);
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+    CPUJumpCache *jc = cpu->tb_jmp_cache;
+    jc->probe = tcg_jump_cache_probe_new(
+        g_strcmp0(g_getenv("XEMU_TCG_JUMP_CACHE_PROBE"), "1") == 0);
+#endif
     tlb_init(cpu);
 #ifndef CONFIG_USER_ONLY
     tcg_iommu_init_notifier_list(cpu);
@@ -1124,6 +1153,14 @@ bool tcg_exec_realizefn(CPUState *cpu, Error **errp)
     return true;
 }
 
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+static void tcg_jump_cache_free(CPUJumpCache *jc)
+{
+    tcg_jump_cache_probe_free(jc->probe);
+    g_free(jc);
+}
+#endif
+
 /* undo the initializations in reverse order */
 void tcg_exec_unrealizefn(CPUState *cpu)
 {
@@ -1132,5 +1169,9 @@ void tcg_exec_unrealizefn(CPUState *cpu)
 #endif /* !CONFIG_USER_ONLY */
 
     tlb_destroy(cpu);
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+    call_rcu(cpu->tb_jmp_cache, tcg_jump_cache_free, rcu);
+#else
     g_free_rcu(cpu->tb_jmp_cache, rcu);
+#endif
 }
