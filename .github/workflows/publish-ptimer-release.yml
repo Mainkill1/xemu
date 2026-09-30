@@ -1,0 +1,107 @@
+name: Publish PTIMER correctness release
+
+on:
+  push:
+    branches:
+      - release/ptimer-4a90cb9
+    paths:
+      - .github/workflows/publish-ptimer-release.yml
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify merged main CI and download packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          run_id=36687928103
+          expected_sha=2d289cb349bca95eae81b6a54b0f8d965365ff82
+          for attempt in $(seq 1 50); do
+            actual_sha=$(gh run view "$run_id" --repo "$GITHUB_REPOSITORY" --json headSha --jq .headSha)
+            status=$(gh run view "$run_id" --repo "$GITHUB_REPOSITORY" --json status --jq .status)
+            test "$actual_sha" = "$expected_sha"
+            if [ "$status" = completed ]; then
+              break
+            fi
+            sleep 30
+          done
+          test "$status" = completed
+          conclusion=$(gh run view "$run_id" --repo "$GITHUB_REPOSITORY" --json conclusion --jq .conclusion)
+          test "$conclusion" = success
+          main_sha=$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq .commit.sha)
+          test "$main_sha" = "$expected_sha"
+          gh run download "$run_id" --repo "$GITHUB_REPOSITORY" --dir dist
+
+      - name: Require every release platform and verify source identity
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib
+          import shutil
+          import sys
+
+          version = "0.8.136-0-g2d289cb349bc"
+          prefix = f"xemu-{version}"
+          required = {
+              f"{prefix}.tar.zst",
+              f"{prefix}-x86_64.AppImage",
+              f"{prefix}-aarch64.AppImage",
+              f"{prefix}-windows-x86_64.zip",
+              f"{prefix}-windows-arm64.zip",
+          }
+          found = {p.name: p for p in pathlib.Path("dist").rglob("*") if p.is_file()}
+          mac = [name for name in found if name.startswith(f"{prefix}-macos-universal") and name.endswith(".zip")]
+          missing = required - found.keys()
+          if missing or len(mac) != 1:
+              sys.exit(f"Missing packages: {sorted(missing)}; macOS universal candidates: {mac}")
+          stage = pathlib.Path("stage")
+          stage.mkdir()
+          for name in sorted(required | set(mac)):
+              shutil.copy2(found[name], stage / name)
+              print(name)
+          PY
+          version=0.8.136-0-g2d289cb349bc
+          source="stage/xemu-${version}.tar.zst"
+          source_sha=$(tar --zstd -xOf "$source" "./xemu-${version}/XEMU_COMMIT")
+          source_version=$(tar --zstd -xOf "$source" "./xemu-${version}/XEMU_VERSION")
+          test "$source_sha" = 2d289cb349bca95eae81b6a54b0f8d965365ff82
+          test "$source_version" = "$version"
+          (cd stage && sha256sum * | sort -k2 > SHA256SUMS)
+
+      - name: Publish verified release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag=v0.8.136-0-g2d289cb349bc
+          sha=2d289cb349bca95eae81b6a54b0f8d965365ff82
+          existing_sha=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$tag" --jq .object.sha 2>/dev/null || true)
+          if [ -z "$existing_sha" ]; then
+            gh api --method POST "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/tags/$tag" -f sha="$sha" >/dev/null
+          else
+            test "$existing_sha" = "$sha"
+          fi
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release already exists; refusing to overwrite it" >&2
+            exit 1
+          fi
+          cat > RELEASE_NOTES.md <<'NOTES'
+          # xemu 0.8.136-0-g2d289cb349bc
+
+          This release carries the NV2A PTIMER alarm, interrupt, and scheduling correctness fix from [PR #267](https://github.com/Mainkill1/xemu/pull/267). It targets the timer failure mode behind the Def Jam: Fight for NY loading stall tracked in [our issue #266](https://github.com/Mainkill1/xemu/issues/266) and related to [upstream issue #1124](https://github.com/xemu-project/xemu/issues/1124). It also includes [PR #265](https://github.com/Mainkill1/xemu/pull/265), which removes the old issue #149 draw-suppression workaround.
+
+          The merged source passed all 20 CI jobs. Focused local checks passed 106 NV2A PTIMER cases, 20 native PTIMER cases, and 576 generic timer cases. Normal-clock Def Jam full-match validation and broader PGR2/Morrowind gameplay performance checks are still pending; this release makes no FPS improvement claim.
+
+          Packages are provided for Linux x86_64 and ARM64, Windows x86_64 and ARM64, and macOS universal. `SHA256SUMS` covers every attached package.
+
+          > Agent declaration: Release preparation assisted by ChatGPT / GPT-6 Astra Pro at the repository owner's direction.
+          NOTES
+          gh release create "$tag" stage/* --repo "$GITHUB_REPOSITORY" --verify-tag \
+            --title "xemu 0.8.136-0-g2d289cb349bc — PTIMER correctness" \
+            --notes-file RELEASE_NOTES.md
