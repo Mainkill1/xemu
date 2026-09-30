@@ -2,17 +2,7 @@
 #include "qemu/osdep.h"
 #include "qemu/atomic.h"
 #include "qemu/timer.h"
-#include "jump-cache-probe.h"
-
-struct TCGJumpCacheProbe {
-    unsigned mode; /* Immutable after publication with the owning CPU cache. */
-    TCGJumpCacheProbeStats stats;
-    struct {
-        uint64_t sequence;
-        TCGJumpCacheProbeCost cost[TCG_JUMP_CACHE_LOOKUP_CLASSES];
-        uint32_t random;
-    } owner; /* Dispatch owner only; snapshots read atomic published stats. */
-};
+#include "jump-cache-probe-lookup.h"
 
 /* Mix the event ordinal so periodic guest behavior does not alias the sample.
  */
@@ -47,6 +37,7 @@ TCGJumpCacheProbe *tcg_jump_cache_probe_new(const char *mode)
     }
     TCGJumpCacheProbe *probe = g_new0(TCGJumpCacheProbe, 1);
     probe->mode = selected;
+    probe->owner.timing = (selected & TCG_JUMP_CACHE_PROBE_TIMING) != 0;
     probe->owner.random = UINT32_C(0x9e3779b9);
     return probe;
 }
@@ -56,22 +47,19 @@ void tcg_jump_cache_probe_free(TCGJumpCacheProbe *probe)
     g_free(probe);
 }
 
-uint64_t tcg_jump_cache_probe_lookup_begin(TCGJumpCacheProbe *probe)
+void tcg_jump_cache_probe_publish_owner(TCGJumpCacheProbe *probe)
 {
     if (!probe) {
-        return 0;
+        return;
     }
-    qatomic_set(&probe->stats.lookup_sequence, ++probe->owner.sequence);
-    if (!(probe->mode & TCG_JUMP_CACHE_PROBE_TIMING)) {
-        return 0;
+    qatomic_set(&probe->stats.lookup_sequence, probe->owner.sequence);
+    for (unsigned i = 0; i < TCG_JUMP_CACHE_LOOKUP_CLASSES; i++) {
+        TCGJumpCacheProbeCost *local = &probe->owner.cost[i];
+        TCGJumpCacheProbeCost *published = &probe->stats.lookup[i];
+        qatomic_set(&published->calls, local->calls);
+        qatomic_set(&published->samples, local->samples);
+        qatomic_set(&published->sample_ns, local->sample_ns);
     }
-    /* Cheap owner-local decision; avoid fixed-stride/class aliasing. */
-    uint32_t random = probe->owner.random;
-    random ^= random << 13;
-    random ^= random >> 17;
-    random ^= random << 5;
-    probe->owner.random = random;
-    return (random & 1023) == 0 ? get_clock() : 0;
 }
 
 static void record_cost(TCGJumpCacheProbeCost *cost, uint64_t start)
@@ -82,27 +70,6 @@ static void record_cost(TCGJumpCacheProbeCost *cost, uint64_t start)
             qatomic_inc(&cost->samples);
             qatomic_add(&cost->sample_ns, end - start);
         }
-    }
-}
-
-void tcg_jump_cache_probe_lookup_end(TCGJumpCacheProbe *probe,
-                                     TCGJumpCacheProbeLookup result,
-                                     uint64_t sample_start_ns)
-{
-    if (probe) {
-        assert(result < TCG_JUMP_CACHE_LOOKUP_CLASSES);
-        TCGJumpCacheProbeCost *local = &probe->owner.cost[result];
-        TCGJumpCacheProbeCost *published = &probe->stats.lookup[result];
-        if (sample_start_ns) {
-            uint64_t end = get_clock();
-            if (end >= sample_start_ns) {
-                local->samples++;
-                local->sample_ns += end - sample_start_ns;
-                qatomic_set(&published->samples, local->samples);
-                qatomic_set(&published->sample_ns, local->sample_ns);
-            }
-        }
-        qatomic_set(&published->calls, ++local->calls);
     }
 }
 
@@ -256,7 +223,8 @@ void tcg_jump_cache_probe_format(TCGJumpCacheProbe *probe, GString *out,
     g_string_append_printf(out, "\nJump-cache probe CPU %d\n", cpu_index);
     g_string_append_printf(
         out,
-        "jc diagnostic: mode=%s mask=%u independent atomic fields; "
+        "jc diagnostic: mode=%s mask=%u independent atomic fields; lookup "
+        "publication 1/65536 starts and execution yields; "
         "lookup timing nominal 1/1024; occupancy/clear timing nominal "
         "1/32 when selected; sampled maxima; whole-cache clears only\n",
         mode, stats.mode);

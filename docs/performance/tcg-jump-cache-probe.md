@@ -18,16 +18,21 @@ screenshots and runner performance report.
 
 | Mode | Published mask | Collection |
 | --- | --- | --- |
-| `counters` | 1 | Exact dispatch/clear/publication counts; no clocks or occupancy reads |
+| `counters` | 1 | Exact dispatch/clear counts; no clocks or occupancy reads |
 | `occupancy` | 3 | Counters plus occupancy on nominally 1/32 clears; no clocks |
 | `timing` | 5 | Counters plus nominal 1/1024 lookup and 1/32 clear timing; no occupancy reads |
 | `all` / `1` | 7 | Counters, sampled occupancy and sampled timing |
 
-Each vCPU's serialized dispatch thread maintains private lookup totals and
-publishes each changed value with an atomic store. Snapshot readers load only
-published atomic fields. This removes lookup atomic read-modify-write operations;
-it does not make the whole snapshot coherent. Shared invalidation, clear and
-code-generation writers still use atomic read-modify-write accounting.
+Each vCPU's serialized dispatch thread maintains private lookup totals. The
+lookup hooks are inlined and update each private total once. They publish an
+atomic copy every 65,536 lookup starts and at normal/atomic execution yields.
+The publication at a lookup boundary includes that start, but not its eventual
+completion. Live snapshots may lag by one publication interval, and their atomic
+fields are independent. A quiescent owner publication retains the final partial
+interval. Shared invalidation, clear and code-generation writers still use
+atomic read-modify-write accounting; live readers never read private owner state.
+A 64-byte gap keeps the hot owner fields away from shared counter cache lines
+without assuming that the allocator returns a 64-byte-aligned address.
 
 | Row | Meaning |
 | --- | --- |
@@ -60,13 +65,14 @@ the latter is nonzero. Do not treat the measured sum as total uninstrumented cos
 Timers include read overhead; sequence/sampling decisions before the first clock
 and publication after the second clock are excluded. Flush timings include extra
 occupancy reads only in `all` mode. Never sum sampled durations to estimate total
-observer cost. Atomic publication, shared counters and sampled occupancy scanning
+observer cost. Periodic publication, shared counters and sampled occupancy scanning
 can change cache pressure and guest cadence. Collection disabled in a diagnostic build
 still leaves conditional hook overhead; a normal build excludes the collector.
 Diagnostic timings are unsuitable for production speedup claims.
 
 Snapshot fields are independently atomic, not a coherent snapshot of all counters.
-CPU activity can continue while HMP formats the rows. Small discrepancies between
+CPU activity can continue while HMP formats the rows. Lookup totals refer to
+the last owner publication, not the precise monitor-query instant. Small discrepancies between
 related fields are not evidence of lost updates. Differences across two snapshots
 also include query timing uncertainty. Histogram differences describe sampled
 interval clears, while a difference of cumulative maxima is not an interval

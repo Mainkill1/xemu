@@ -57,14 +57,11 @@ typedef struct TCGJumpCacheProbeStats {
 /* NULL/off disables; counters, occupancy, timing, all/1 select collection. */
 TCGJumpCacheProbe *tcg_jump_cache_probe_new(const char *mode);
 void tcg_jump_cache_probe_free(TCGJumpCacheProbe *probe);
-/* Begin/end have exactly one serialized dispatch writer per vCPU probe.
- * Private lookup state is never read by snapshot/clear/invalidation callers.
- * Other recording methods and snapshot readers may run concurrently.
+/* Publish only on the dispatch owner or after its execution has quiesced.
+ * Live readers use snapshot(), which never reads private owner state.
+ * Shared clear/invalidation recording may run concurrently.
  */
-uint64_t tcg_jump_cache_probe_lookup_begin(TCGJumpCacheProbe *probe);
-void tcg_jump_cache_probe_lookup_end(TCGJumpCacheProbe *probe,
-                                     TCGJumpCacheProbeLookup result,
-                                     uint64_t sample_start_ns);
+void tcg_jump_cache_probe_publish_owner(TCGJumpCacheProbe *probe);
 void tcg_jump_cache_probe_clear(TCGJumpCacheProbe *probe,
                                 TCGJumpCacheProbeSlot *slots, unsigned count,
                                 bool pcrel);
