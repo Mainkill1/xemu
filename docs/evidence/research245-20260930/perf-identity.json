@@ -1,0 +1,14 @@
+{
+  "samples": 8714,
+  "lostSamples": 0,
+  "rawSha256": "6293880a2c695c08120c61ea4875f91e1365bfaa6d7f91c4d469e437038f1153",
+  "rawBytes": 73819992,
+  "compressedBytes": 5050193,
+  "event": "cycles:u",
+  "frequency": 499,
+  "durationSeconds": 5,
+  "callGraph": "dwarf",
+  "sampledScope": "process userspace cycles after ordinary segment; not production acceptance",
+  "sourceCommit": "2d289cb349bca95eae81b6a54b0f8d965365ff82",
+  "buildId": "767622c38f0e8f2726c236b62e5b3075f8c31e22"
+}

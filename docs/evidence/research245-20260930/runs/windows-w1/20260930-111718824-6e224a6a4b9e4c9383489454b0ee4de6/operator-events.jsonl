@@ -1,0 +1,5 @@
+{"timestampUtc":"2026-09-30T11:17:31.3223684+00:00","elapsedMs":12497.6452,"kind":"bulk_transfer","detail":{"runId":"20260930-094606813-958d07b18a024f49a390b875ee57d4d6","action":"artifacts"}}
+{"timestampUtc":"2026-09-30T11:17:56.1560223+00:00","elapsedMs":37332.2922,"kind":"bulk_transfer","detail":{"runId":"20260930-094606813-958d07b18a024f49a390b875ee57d4d6","file":"ptimer-trace.log","bytes":8155385}}
+{"timestampUtc":"2026-09-30T11:17:56.2293566+00:00","elapsedMs":37405.6306,"kind":"bulk_transfer","detail":{"runId":"20260930-094606813-958d07b18a024f49a390b875ee57d4d6","file":"vk-perf.jsonl","bytes":66581011}}
+{"timestampUtc":"2026-09-30T11:18:08.8035495+00:00","elapsedMs":49980.327,"kind":"diagnostic","detail":{"Id":"jit-before","Type":"monitor","Reason":null}}
+{"timestampUtc":"2026-09-30T11:18:41.1154996+00:00","elapsedMs":82293.5725,"kind":"diagnostic","detail":{"Id":"jit-after","Type":"monitor","Reason":null}}

@@ -1,0 +1,76 @@
+{
+  "Passed": true,
+  "ExecutableSha256": "70173532e9057a2dbebce15be1fea4b8482e4e780329375ca49cb7785439503d",
+  "Checks": [
+    {
+      "Name": "target_os",
+      "Passed": true,
+      "Detail": "Host: windows; requested: windows."
+    },
+    {
+      "Name": "executable",
+      "Passed": true,
+      "Detail": "xemu.exe"
+    },
+    {
+      "Name": "executable_stable",
+      "Passed": true,
+      "Detail": "Executable metadata remained unchanged while hashing."
+    },
+    {
+      "Name": "sha256",
+      "Passed": true,
+      "Detail": "70173532e9057a2dbebce15be1fea4b8482e4e780329375ca49cb7785439503d"
+    },
+    {
+      "Name": "working_directory",
+      "Passed": true,
+      "Detail": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-research245-main-2d289cb-w1-t001"
+    },
+    {
+      "Name": "required_file",
+      "Passed": true,
+      "Detail": "xemu.exe"
+    },
+    {
+      "Name": "required_file",
+      "Passed": true,
+      "Detail": "xemu.toml"
+    },
+    {
+      "Name": "required_file",
+      "Passed": true,
+      "Detail": "state/seed-hdd.qcow2"
+    },
+    {
+      "Name": "required_file",
+      "Passed": true,
+      "Detail": "state/eeprom.bin"
+    },
+    {
+      "Name": "input_file",
+      "Passed": true,
+      "Detail": "research247-diagnostic: xemu.exe"
+    },
+    {
+      "Name": "input_file",
+      "Passed": true,
+      "Detail": "pgr2-vulkan-auto-workers-dsp-jit: xemu.toml"
+    },
+    {
+      "Name": "input_file",
+      "Passed": true,
+      "Detail": "isolated-eeprom-seed: state/eeprom.bin"
+    },
+    {
+      "Name": "runtime_seed",
+      "Passed": true,
+      "Detail": "state/seed-hdd.qcow2 -\u003E hdd.qcow2"
+    },
+    {
+      "Name": "free_space",
+      "Passed": true,
+      "Detail": "Available=29651476480; required=1073741824 bytes."
+    }
+  ]
+}

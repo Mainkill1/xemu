@@ -1,0 +1,12 @@
+{
+  "Id": "jit-after",
+  "Type": "monitor",
+  "Status": "completed",
+  "StartedUtc": "2026-09-30T11:18:41.1103761+00:00",
+  "EndedUtc": "2026-09-30T11:18:41.1219726+00:00",
+  "Directory": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Results\\20260930-111718824-6e224a6a4b9e4c9383489454b0ee4de6\\diagnostics\\20260930-111841110-jit-after",
+  "Detail": null,
+  "Artifacts": [
+    "monitor.txt"
+  ]
+}

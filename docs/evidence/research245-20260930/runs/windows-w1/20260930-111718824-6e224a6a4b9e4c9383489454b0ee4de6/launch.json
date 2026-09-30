@@ -1,0 +1,66 @@
+{
+  "runId": "20260930-111718824-6e224a6a4b9e4c9383489454b0ee4de6",
+  "attempt": 1,
+  "job": "research245-main-2d289cb-w1-t001",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu.exe",
+  "executableSha256": "70173532e9057a2dbebce15be1fea4b8482e4e780329375ca49cb7785439503d",
+  "jobSha256": "6bccc808e9973adbadccad3f69d6daf4581a36833a4fbcaccd21a3e2b9fdf449",
+  "arguments": [
+    "-config_path",
+    "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-research245-main-2d289cb-w1-t001\\xemu.toml",
+    "-drive",
+    "index=0,media=disk,file=C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Runtime\\20260930-111718824-6e224a6a4b9e4c9383489454b0ee4de6\\hdd.qcow2,locked=on",
+    "-name",
+    "xemu-pr184,debug-threads=on",
+    "-msg",
+    "timestamp=on",
+    "-qmp",
+    "tcp:127.0.0.1:55324,server=on,wait=off"
+  ],
+  "environmentKeys": [
+    "XEMU_FLIP_LOG",
+    "XEMU_FRAME_LOG"
+  ],
+  "workingDirectory": ".",
+  "runtimeDirectory": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Runtime\\20260930-111718824-6e224a6a4b9e4c9383489454b0ee4de6",
+  "experiment": {
+    "Id": "research245-win-pgr2-jit-counters-v1",
+    "Variant": "diagnostic-binary-probe-off",
+    "Reference": null,
+    "VariedFactors": [
+      "existing-jit-counters"
+    ],
+    "ControlledFactors": [
+      "same-game-and-input-plan"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  },
+  "host": {
+    "runnerVersion": "0.1.0\u002B079e3d483523b3e53a11983efd40e2c530747b5f",
+    "machine": "DESKTOP-52C4KS5",
+    "os": "Microsoft Windows 10.0.19045",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 16,
+    "dotnet": "10.0.12"
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "runId": "20260930-143917780-51f0113fa66f46c4b292c69266521d8c",
+  "attempt": 1,
+  "job": "xc-research245-cpu-main-full-v1-007",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu",
+  "executableSha256": "5b3764acb93ee6d319b9cf7822295ae8748896b87b39ba52702838f1294f22f9",
+  "jobSha256": "de744a3aa3e9ea665667478216bb45ea16adcfa42383e66f24ced2b1ae51bcf7",
+  "arguments": [
+    "-config_path",
+    "/home/deck/xemu-research/workspace/Queue/Testing/agent-xc-research245-cpu-main-full-v1-007/xemu.toml",
+    "-name",
+    "xemu-research245-cpu,debug-threads=on",
+    "-msg",
+    "timestamp=on",
+    "-qmp",
+    "tcp:127.0.0.1:35075,server=on,wait=off"
+  ],
+  "environmentKeys": [
+    "LD_LIBRARY_PATH",
+    "SDL_VIDEODRIVER",
+    "XDG_CACHE_HOME",
+    "XDG_DATA_HOME",
+    "XEMU_FLIP_LOG",
+    "XEMU_FRAME_LOG"
+  ],
+  "workingDirectory": ".",
+  "runtimeDirectory": "/home/deck/xemu-research/workspace/Runtime/20260930-143917780-51f0113fa66f46c4b292c69266521d8c",
+  "experiment": {
+    "Id": "research245-deck-cpu-main-v1",
+    "Variant": "main-calibration",
+    "Reference": null,
+    "VariedFactors": [],
+    "ControlledFactors": [
+      "main-2d289cb",
+      "fixture-c02a1a44",
+      "stable-50m-rewrite-1m",
+      "warmups-3",
+      "multiplier-4",
+      "cpuid-both-leaves",
+      "128mb-ram",
+      "vulkan-radv",
+      "cold-private-application-cache",
+      "mesa-driver-cache-unverified"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": false
+  },
+  "operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B6089e8b841bce379015500853c0455551d7fd2cf",
+    "machine": "steamdeck",
+    "os": "SteamOS",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 8,
+    "dotnet": "10.0.12"
+  }
+}

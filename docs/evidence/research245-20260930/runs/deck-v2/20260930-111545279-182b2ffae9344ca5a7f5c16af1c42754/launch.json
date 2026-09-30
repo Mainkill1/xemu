@@ -1,0 +1,60 @@
+{
+  "runId": "20260930-111545279-182b2ffae9344ca5a7f5c16af1c42754",
+  "attempt": 1,
+  "job": "research245-main-2d289cb-deck-v2-t001",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu",
+  "executableSha256": "3f8bad0fae4dc19bc145a4523fc41f5e6793db7b986f884dfa6f9cc2fb0eb43a",
+  "jobSha256": "df8d79d7c648ed49193b2ebba41ae238aad310f380e5e42af59b62e7bca46d62",
+  "arguments": [
+    "-qmp",
+    "tcp:127.0.0.1:45397,server=on,wait=off"
+  ],
+  "environmentKeys": [
+    "APPIMAGE_EXTRACT_AND_RUN",
+    "SDL_VIDEODRIVER",
+    "XDG_CACHE_HOME",
+    "XDG_DATA_HOME",
+    "XEMU_FLIP_LOG",
+    "XEMU_FRAME_LOG"
+  ],
+  "workingDirectory": ".",
+  "runtimeDirectory": "/home/deck/xemu-research/workspace/Runtime/20260930-111545279-182b2ffae9344ca5a7f5c16af1c42754",
+  "experiment": {
+    "Id": "research245-deck-pgr2-jit-counters-v1",
+    "Variant": "diagnostic",
+    "Reference": null,
+    "VariedFactors": [
+      "existing-jit-counters"
+    ],
+    "ControlledFactors": [],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B6089e8b841bce379015500853c0455551d7fd2cf",
+    "machine": "steamdeck",
+    "os": "SteamOS",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 8,
+    "dotnet": "10.0.12"
+  }
+}

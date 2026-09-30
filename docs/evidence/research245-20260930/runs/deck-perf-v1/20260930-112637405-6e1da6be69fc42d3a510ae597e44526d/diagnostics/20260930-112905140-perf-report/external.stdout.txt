@@ -1,0 +1,402 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 8K of event 'cycles:u'
+# Event count (approx.): 44150888165
+#
+# Children      Self       Samples  Command      Shared Object                Symbol                                     IPC   [IPC Coverage]
+# ........  ........  ............  ...........  ...........................  .........................................  ....................
+#
+    24.85%     0.00%             0  xemu         xemu                         [.] 0x000055bf6ae167cd                     -      -            
+            |
+            ---0x55bf6ae167cd
+               src_callback_read
+               |          
+               |--2.58%--0x7fdc518d81d1
+               |          
+               |--2.38%--0x7fdc518d828a
+               |          
+               |--1.55%--0x7fdc518d824a
+               |          
+               |--1.05%--0x7fdc518d8292
+               |          
+               |--0.92%--0x7fdc518d8242
+               |          
+               |--0.91%--0x7fdc518d81c1
+               |          
+               |--0.88%--0x7fdc518d8194
+               |          
+               |--0.84%--0x7fdc518d8174
+               |          
+               |--0.84%--0x7fdc518d81a4
+               |          
+               |--0.83%--0x7fdc518d81d5
+               |          
+               |--0.74%--0x7fdc518d821c
+               |          
+               |--0.56%--0x7fdc518d824e
+               |          
+               |--0.53%--0x7fdc518d826a
+               |          
+                --0.51%--0x7fdc518d81a8
+
+    24.85%     0.26%            26  xemu         libsamplerate.so.0           [.] src_callback_read                      -      -            
+            |          
+             --24.59%--src_callback_read
+                       |          
+                       |--2.58%--0x7fdc518d81d1
+                       |          
+                       |--2.38%--0x7fdc518d828a
+                       |          
+                       |--1.55%--0x7fdc518d824a
+                       |          
+                       |--1.05%--0x7fdc518d8292
+                       |          
+                       |--0.92%--0x7fdc518d8242
+                       |          
+                       |--0.91%--0x7fdc518d81c1
+                       |          
+                       |--0.88%--0x7fdc518d8194
+                       |          
+                       |--0.84%--0x7fdc518d8174
+                       |          
+                       |--0.84%--0x7fdc518d81a4
+                       |          
+                       |--0.83%--0x7fdc518d81d5
+                       |          
+                       |--0.74%--0x7fdc518d821c
+                       |          
+                       |--0.56%--0x7fdc518d824e
+                       |          
+                       |--0.53%--0x7fdc518d826a
+                       |          
+                        --0.51%--0x7fdc518d81a8
+
+     4.50%     0.00%             0  xemu         [unknown]                    [.] 0x2543b2185c041a99                     -      -            
+            |
+            ---0x2543b2185c041a99
+               |          
+                --4.11%--0x55bf6b09cdc9
+
+     4.11%     0.00%             0  xemu         xemu                         [.] 0x000055bf6b09cdc9                     -      -            
+            |
+            ---0x55bf6b09cdc9
+
+     2.59%     0.36%            29  xemu         libglib-2.0.so.0             [.] g_get_monotonic_time                   -      -            
+            |          
+             --2.23%--g_get_monotonic_time
+                       |          
+                        --2.16%--clock_gettime
+                                  |          
+                                   --2.14%--__vdso_clock_gettime
+
+     2.58%     2.58%           202  xemu         libsamplerate.so.0           [.] 0x00000000000031d1                     -      -            
+            |
+            ---0x55bf6ae167cd
+               src_callback_read
+               0x7fdc518d81d1
+
+     2.58%     0.00%             0  xemu         libsamplerate.so.0           [.] 0x00007fdc518d81d1                     -      -            
+            |
+            ---0x7fdc518d81d1
+
+     2.48%     0.00%             0  xemu         xemu                         [.] 0x000055bf6adfaaf1                     -      -            
+            |
+            ---0x55bf6adfaaf1
+               g_get_monotonic_time
+               |          
+                --2.08%--clock_gettime
+                          |          
+                           --2.05%--__vdso_clock_gettime
+
+     2.38%     0.00%             0  xemu         [unknown]                    [.] 0xfda789376ef21aff                     -      -            
+            |
+            ---0xfda789376ef21aff
+
+     2.38%     2.38%           190  xemu         libsamplerate.so.0           [.] 0x000000000000328a                     -      -            
+            |
+            ---0x55bf6ae167cd
+               src_callback_read
+               0x7fdc518d828a
+
+     2.38%     0.00%             0  xemu         libsamplerate.so.0           [.] 0x00007fdc518d828a                     -      -            
+            |
+            ---0x7fdc518d828a
+
+     2.32%     0.05%            23  xemu         libc.so.6                    [.] clock_gettime                          -      -            
+            |          
+             --2.27%--clock_gettime
+                       |          
+                        --2.24%--__vdso_clock_gettime
+
+     2.24%     2.24%           204  xemu         [vdso]                       [.] __vdso_clock_gettime                   -      -            
+            |          
+             --2.04%--0x55bf6adfaaf1
+                       g_get_monotonic_time
+                       clock_gettime
+                       __vdso_clock_gettime
+
+     1.98%     1.98%           134  xemu         xemu                         [.] 0x00000000011ce43e                     -      -            
+     1.98%     0.00%             0  xemu         xemu                         [.] 0x000055bf6b0ab43e                     -      -            
+            |
+            ---0x55bf6b0ab43e
+
+     1.93%     1.93%           162  xemu         xemu                         [.] 0x0000000000d1fe23                     -      -            
+            |          
+             --0.50%--0x2543b2185c041a99
+                       0x55bf6b09cdc9
+
+     1.93%     0.00%             0  xemu         xemu                         [.] 0x000055bf6abfce23                     -      -            
+            |
+            ---0x55bf6abfce23
+
+     1.58%     0.00%             0  xemu         libgallium-25.3.0.so         [.] 0x00007fdc4ce6bc5c                     -      -            
+            |
+            ---0x7fdc4ce6bc5c
+               |          
+                --1.56%--0x7fdc4ce6b550
+
+     1.56%     0.00%             0  xemu         libgallium-25.3.0.so         [.] 0x00007fdc4ce6b550                     -      -            
+            |
+            ---0x7fdc4ce6b550
+
+     1.55%     1.55%           126  xemu         libsamplerate.so.0           [.] 0x000000000000324a                     -      -            
+            |
+            ---0x55bf6ae167cd
+               src_callback_read
+               0x7fdc518d824a
+
+     1.55%     0.00%             0  xemu         libsamplerate.so.0           [.] 0x00007fdc518d824a                     -      -            
+            |
+            ---0x7fdc518d824a
+
+     1.33%     0.00%             0  xemu:gdrv0   libc.so.6                    [.] 0x00007fdc5152920b                     -      -            
+            |
+            ---0x7fdc5152920b
+               0x7fdc514a57ea
+               0x7fdc4d341c1c
+               |          
+                --1.28%--0x7fdc4d2f8814
+
+     1.33%     0.00%             0  xemu:gdrv0   libc.so.6                    [.] 0x00007fdc514a57ea                     -      -            
+            |
+            ---0x7fdc514a57ea
+               0x7fdc4d341c1c
+               |          
+                --1.28%--0x7fdc4d2f8814
+
+     1.33%     0.00%             0  xemu:gdrv0   libgallium-25.3.0.so         [.] 0x00007fdc4d341c1c                     -      -            
+            |
+            ---0x7fdc4d341c1c
+               |          
+                --1.28%--0x7fdc4d2f8814
+
+     1.29%     0.00%             0  xemu         xemu                         [.] 0x000055bf6ab124f4                     -      -            
+            |
+            ---0x55bf6ab124f4
+               |          
+                --0.87%--0x55bf6b13cf08
+                          |          
+                           --0.85%--0x7fdc4d0d4568
+                                     0x7fdc4ce6bc5c
+                                     |          
+                                      --0.83%--0x7fdc4ce6b550
+
+     1.28%     0.00%             0  xemu:gdrv0   libgallium-25.3.0.so         [.] 0x00007fdc4d2f8814                     -      -            
+            |
+            ---0x7fdc4d2f8814
+
+     1.21%     1.21%            82  xemu         xemu                         [.] 0x0000000000dd8b1c                     -      -            
+            |          
+            |--0.70%--0x55bf6acb5b1c
+            |          
+             --0.51%--0x1d
+                       0x55bf6acb5b1c
+
+     1.21%     0.00%             0  xemu         xemu                         [.] 0x000055bf6acb5b1c                     -      -            
+            |
+            ---0x55bf6acb5b1c
+
+     1.07%     0.00%             0  xemu         [unknown]                    [.] 0x000000000000001d                     -      -            
+            |
+            ---0x1d
+               |          
+                --0.51%--0x55bf6acb5b1c
+
+     1.05%     0.00%             0  xemu         libsamplerate.so.0           [.] 0x00007fdc518d8292                     -      -            
+            |
+            ---0x7fdc518d8292
+
+     1.04%     1.04%            79  xemu         libsamplerate.so.0           [.] 0x0000000000003292                     -      -            
+            |
+            ---0x55bf6ae167cd
+               src_callback_read
+               0x7fdc518d8292
+
+     0.98%     0.98%            68  xemu         [JIT] tid 10216              [.] 0x00007fdb91d3ac3b                     -      -            
+     0.95%     0.95%            80  xemu         xemu                         [.] 0x00000000011ca748                     -      -            
+     0.95%     0.00%             0  xemu         xemu                         [.] 0x000055bf6b0a7748                     -      -            
+            |
+            ---0x55bf6b0a7748
+
+     0.95%     0.00%             0  xemu         libgallium-25.3.0.so         [.] 0x00007fdc4d0d4568                     -      -            
+            |
+            ---0x7fdc4d0d4568
+               |          
+                --0.94%--0x7fdc4ce6bc5c
+                          |          
+                           --0.91%--0x7fdc4ce6b550
+
+     0.92%     0.92%            78  xemu         libsamplerate.so.0           [.] 0x0000000000003242                     -      -            
+            |
+            ---0x55bf6ae167cd
+               src_callback_read
+               0x7fdc518d8242
+
+     0.92%     0.00%             0  xemu         libsamplerate.so.0           [.] 0x00007fdc518d8242                     -      -            
+            |
+            ---0x7fdc518d8242
+
+     0.91%     0.91%            89  xemu         xemu                         [.] 0x0000000000d1fd7b                     -      -            
+     0.91%     0.00%             0  xemu         xemu                         [.] 0x000055bf6abfcd7b                     -      -            
+            |
+            ---0x55bf6abfcd7b
+
+     0.91%     0.91%            72  xemu         libsamplerate.so.0           [.] 0x00000000000031c1                     -      -            
+            |
+            ---0x55bf6ae167cd
+               src_callback_read
+               0x7fdc518d81c1
+
+     0.91%     0.00%             0  xemu         libsamplerate.so.0           [.] 0x00007fdc518d81c1                     -      -            
+            |
+            ---0x7fdc518d81c1
+
+     0.88%     0.00%             0  xemu         [unknown]                    [.] 0x0000000080034fff                     -      -            
+            |
+            ---0x80034fff
+
+     0.88%     0.88%            71  xemu         libsamplerate.so.0           [.] 0x0000000000003194                     -      -            
+            |
+            ---0x55bf6ae167cd
+               src_callback_read
+               0x7fdc518d8194
+
+     0.88%     0.00%             0  xemu         libsamplerate.so.0           [.] 0x00007fdc518d8194                     -      -            
+            |
+            ---0x7fdc518d8194
+
+     0.87%     0.00%             0  xemu         xemu                         [.] 0x000055bf6b13cf08                     -      -            
+            |
+            ---0x55bf6b13cf08
+               |          
+                --0.85%--0x7fdc4d0d4568
+                          0x7fdc4ce6bc5c
+                          |          
+                           --0.83%--0x7fdc4ce6b550
+
+     0.84%     0.84%            65  xemu         libsamplerate.so.0           [.] 0x0000000000003174                     -      -            
+            |
+            ---0x55bf6ae167cd
+               src_callback_read
+               0x7fdc518d8174
+
+     0.84%     0.00%             0  xemu         libsamplerate.so.0           [.] 0x00007fdc518d8174                     -      -            
+            |
+            ---0x7fdc518d8174
+
+     0.84%     0.84%            72  xemu         libsamplerate.so.0           [.] 0x00000000000031a4                     -      -            
+            |
+            ---0x55bf6ae167cd
+               src_callback_read
+               0x7fdc518d81a4
+
+     0.84%     0.00%             0  xemu         libsamplerate.so.0           [.] 0x00007fdc518d81a4                     -      -            
+            |
+            ---0x7fdc518d81a4
+
+     0.83%     0.83%            70  xemu         libsamplerate.so.0           [.] 0x00000000000031d5                     -      -            
+            |
+            ---0x55bf6ae167cd
+               src_callback_read
+               0x7fdc518d81d5
+
+     0.83%     0.00%             0  xemu         libsamplerate.so.0           [.] 0x00007fdc518d81d5                     -      -            
+            |
+            ---0x7fdc518d81d5
+
+     0.74%     0.74%            58  xemu         libsamplerate.so.0           [.] 0x000000000000321c                     -      -            
+            |
+            ---0x55bf6ae167cd
+               src_callback_read
+               0x7fdc518d821c
+
+     0.74%     0.00%             0  xemu         libsamplerate.so.0           [.] 0x00007fdc518d821c                     -      -            
+            |
+            ---0x7fdc518d821c
+
+     0.60%     0.60%            40  xemu         xemu                         [.] 0x0000000000dd8aa0                     -      -            
+     0.60%     0.00%             0  xemu         xemu                         [.] 0x000055bf6acb5aa0                     -      -            
+            |
+            ---0x55bf6acb5aa0
+
+     0.60%     0.00%             0  xemu         xemu                         [.] 0x000055bf6ae19c36                     -      -            
+            |
+            ---0x55bf6ae19c36
+
+     0.56%     0.56%            49  xemu         libsamplerate.so.0           [.] 0x000000000000324e                     -      -            
+            |
+            ---0x55bf6ae167cd
+               src_callback_read
+               0x7fdc518d824e
+
+     0.56%     0.00%             0  xemu         libsamplerate.so.0           [.] 0x00007fdc518d824e                     -      -            
+            |
+            ---0x7fdc518d824e
+
+     0.55%     0.53%            48  xemu         libc.so.6                    [.] pthread_mutex_lock                     -      -            
+     0.54%     0.00%             0  xemu         xemu                         [.] 0x000055bf6addc5c5                     -      -            
+            |
+            ---0x55bf6addc5c5
+
+     0.53%     0.53%            46  xemu         xemu                         [.] 0x0000000000d1fef3                     -      -            
+     0.53%     0.00%             0  xemu         xemu                         [.] 0x000055bf6abfcef3                     -      -            
+            |
+            ---0x55bf6abfcef3
+
+     0.53%     0.53%            36  xemu         xemu                         [.] 0x0000000000dd8982                     -      -            
+     0.53%     0.00%             0  xemu         xemu                         [.] 0x000055bf6acb5982                     -      -            
+            |
+            ---0x55bf6acb5982
+
+     0.53%     0.53%            41  xemu         libsamplerate.so.0           [.] 0x000000000000326a                     -      -            
+            |
+            ---0x55bf6ae167cd
+               src_callback_read
+               0x7fdc518d826a
+
+     0.53%     0.00%             0  xemu         libsamplerate.so.0           [.] 0x00007fdc518d826a                     -      -            
+            |
+            ---0x7fdc518d826a
+
+     0.51%     0.51%            37  xemu         libsamplerate.so.0           [.] 0x00000000000031a8                     -      -            
+            |
+            ---0x55bf6ae167cd
+               src_callback_read
+               0x7fdc518d81a8
+
+     0.51%     0.00%             0  xemu         libsamplerate.so.0           [.] 0x00007fdc518d81a8                     -      -            
+            |
+            ---0x7fdc518d81a8
+
+     0.50%     0.00%             0  xemu         [unknown]                    [.] 0xffffffffbc00012f                     -      -            
+            |
+            ---0xffffffffbc00012f
+
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

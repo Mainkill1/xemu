@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "runId": "20260930-144102510-7087d31bae3a498f84ef2eba4bf68d94",
+  "image": "hdd.qcow2",
+  "format": "qcow2-v2",
+  "guestPath": "xemu_perf_tests/results.txt",
+  "bytes": 14851,
+  "sha256": "d127cc8a4c3e438ac8639f45ad6e7e87439f159c4021ed544efd7e9e595078c4",
+  "referenceSha256": "fe7ea361d2427e81e58e6addfd745f037023497bebd9ea59bf68e90dbc13848f",
+  "imageBytesRead": 80687,
+  "freshness": "result-path-absent-from-private-seed",
+  "parser": "xemu-perf-schema-1"
+}

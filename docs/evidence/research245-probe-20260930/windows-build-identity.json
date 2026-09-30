@@ -1,0 +1,26 @@
+{
+  "sourceCommit": "06168a2f455b832bc6eb7936ebe725ec530b1b00",
+  "sourceTree": "67c893a6de2adadc92557aad7b9e86da4dc14926",
+  "previousMain": "2d289cb349bca95eae81b6a54b0f8d965365ff82",
+  "executable": "xemu.exe",
+  "sha256": "0d70a1f4403a064636ed717b9a8abc4a03f04f4610addf883626f5b1a04e069d",
+  "probeBuild": true,
+  "versionHeader": "#define XEMU_VERSION       \"0.8.136-0-g06168a2f455b\"\n#define XEMU_VERSION_MAJOR 0\n#define XEMU_VERSION_MINOR 8\n#define XEMU_VERSION_PATCH 136\n#define XEMU_VERSION_COMMIT 1558\n#define XEMU_COMMIT        \"06168a2f455b832bc6eb7936ebe725ec530b1b00\"\n#define XEMU_DATE          \"Wed Sep 30 12:22:30 UTC 2026\"\n",
+  "compiler": "Clang 21.1.8 MXE x86_64-w64-mingw32.static",
+  "configureArguments": [
+    "--cross-prefix=x86_64-w64-mingw32.static-",
+    "--target-list=i386-softmmu",
+    "--disable-werror",
+    "--static",
+    "--extra-cflags=-DXBOX",
+    "--extra-cxxflags=-DXBOX",
+    "-Dxemu_tcg_jump_cache_probe=true"
+  ],
+  "packageFiles": [
+    {
+      "path": "xemu.exe",
+      "bytes": 136901120,
+      "sha256": "0d70a1f4403a064636ed717b9a8abc4a03f04f4610addf883626f5b1a04e069d"
+    }
+  ]
+}

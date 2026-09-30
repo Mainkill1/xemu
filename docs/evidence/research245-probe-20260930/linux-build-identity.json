@@ -1,0 +1,44 @@
+{
+  "sourceCommit": "06168a2f455b832bc6eb7936ebe725ec530b1b00",
+  "sourceTree": "67c893a6de2adadc92557aad7b9e86da4dc14926",
+  "previousMain": "2d289cb349bca95eae81b6a54b0f8d965365ff82",
+  "executable": "xemu",
+  "sha256": "9e2dbe1b9ff3298de99f57c9c00accab7cd25dad6362e7d92d7d4d63aed0bd53",
+  "probeBuild": true,
+  "versionHeader": "#define XEMU_VERSION       \"0.8.136-0-g06168a2f455b\"\n#define XEMU_VERSION_MAJOR 0\n#define XEMU_VERSION_MINOR 8\n#define XEMU_VERSION_PATCH 136\n#define XEMU_VERSION_COMMIT 1558\n#define XEMU_COMMIT        \"06168a2f455b832bc6eb7936ebe725ec530b1b00\"\n#define XEMU_DATE          \"Wed Sep 30 12:22:30 UTC 2026\"\n",
+  "compiler": "GCC 14.2.0",
+  "configureArguments": [
+    "--target-list=i386-softmmu",
+    "--disable-werror",
+    "--extra-cflags=-DXBOX",
+    "--extra-cxxflags=-DXBOX",
+    "-Dxemu_tcg_jump_cache_probe=true"
+  ],
+  "packageFiles": [
+    {
+      "path": "lib/libpcap.so.0.8",
+      "bytes": 317784,
+      "sha256": "221fe09f13b357ef354caf2209c886f1c1f8161c5b26ff8ab73afa47dd922f28"
+    },
+    {
+      "path": "lib/libslirp.so.0",
+      "bytes": 149336,
+      "sha256": "12ee83fb069a5be30b9e450f69a5e07eec4861f2e9b574c46a4052f086c341f3"
+    },
+    {
+      "path": "state/seed-eeprom.bin",
+      "bytes": 256,
+      "sha256": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+    },
+    {
+      "path": "xemu",
+      "bytes": 136348960,
+      "sha256": "9e2dbe1b9ff3298de99f57c9c00accab7cd25dad6362e7d92d7d4d63aed0bd53"
+    },
+    {
+      "path": "xemu.toml",
+      "bytes": 383,
+      "sha256": "aa356a9d7b916ace9b71ff1ef47946db1ac289e36a8b00235c4397f57523b0b8"
+    }
+  ]
+}

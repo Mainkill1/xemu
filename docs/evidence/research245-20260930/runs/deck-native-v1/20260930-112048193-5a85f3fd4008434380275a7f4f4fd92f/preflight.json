@@ -1,0 +1,76 @@
+{
+  "Passed": true,
+  "ExecutableSha256": "5b3764acb93ee6d319b9cf7822295ae8748896b87b39ba52702838f1294f22f9",
+  "Checks": [
+    {
+      "Name": "target_os",
+      "Passed": true,
+      "Detail": "Host: linux; requested: linux."
+    },
+    {
+      "Name": "executable",
+      "Passed": true,
+      "Detail": "xemu"
+    },
+    {
+      "Name": "executable_stable",
+      "Passed": true,
+      "Detail": "Executable metadata remained unchanged while hashing."
+    },
+    {
+      "Name": "sha256",
+      "Passed": true,
+      "Detail": "5b3764acb93ee6d319b9cf7822295ae8748896b87b39ba52702838f1294f22f9"
+    },
+    {
+      "Name": "executable_bit",
+      "Passed": true,
+      "Detail": "The Linux package must retain an executable permission bit."
+    },
+    {
+      "Name": "working_directory",
+      "Passed": true,
+      "Detail": "/home/deck/xemu-research/workspace/Queue/Testing/agent-research245-main-2d289cb-deck-native-v1-t001"
+    },
+    {
+      "Name": "required_file",
+      "Passed": true,
+      "Detail": "xemu"
+    },
+    {
+      "Name": "required_file",
+      "Passed": true,
+      "Detail": "xemu.toml"
+    },
+    {
+      "Name": "required_file",
+      "Passed": true,
+      "Detail": "state/seed-eeprom.bin"
+    },
+    {
+      "Name": "input_file",
+      "Passed": true,
+      "Detail": "current-main-build: xemu"
+    },
+    {
+      "Name": "input_file",
+      "Passed": true,
+      "Detail": "portable-fixed-input: xemu.toml"
+    },
+    {
+      "Name": "input_file",
+      "Passed": true,
+      "Detail": "portable-fixed-input: state/seed-eeprom.bin"
+    },
+    {
+      "Name": "runtime_seed",
+      "Passed": true,
+      "Detail": "state/seed-eeprom.bin -\u003E eeprom.bin"
+    },
+    {
+      "Name": "free_space",
+      "Passed": true,
+      "Detail": "Available=324484743168; required=1073741824 bytes."
+    }
+  ]
+}

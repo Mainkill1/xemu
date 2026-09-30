@@ -1,0 +1,20 @@
+{
+  "fixtureSource": "3f0eb995530143fb6e8556ef65bd088a8a891932",
+  "fixtureTree": "ddd1787e8b9223905d9f558de8b6290c3802da07",
+  "nxdk": "73c95900965a16be3a3e34b8d4d5d41bc18498be",
+  "compiler": "Clang 19.1.7",
+  "buildType": "Release",
+  "isoSha256": "2816181930b911acee5b8b61d44e2e3b0b5d543fcc6580c3df4bc488ecf514f7",
+  "catalogSha256": "0afb5878a7c78f2ffb5367fcc232ff2aa531c3464a52956a7761fce38fc60d79",
+  "catalogId": "sha256:b4d29bf2f6f4adea7785327502e0eca89358a9c362f7099ee77af30c2bd32a09",
+  "leafCount": 156,
+  "groupCount": 5,
+  "mainSource": "2d289cb349bca95eae81b6a54b0f8d965365ff82",
+  "executableSha256": "5b3764acb93ee6d319b9cf7822295ae8748896b87b39ba52702838f1294f22f9",
+  "referenceSha256": "831354e1839e44be382ffd6242be18803d5327998acb1bf0537b38860be13c60",
+  "dependencies": {
+    "pbkitplusplus-src": "e91d509e4f75d6d815807d80443e4e56aab89772",
+    "xboxmath_fetched-src": "ec4256026136c89d530ee1cd8fc0e45ea7786ced",
+    "xboxswizzle_fetched-src": "0c2a440f70202f330e1dd03b0035a8629949fa5b"
+  }
+}

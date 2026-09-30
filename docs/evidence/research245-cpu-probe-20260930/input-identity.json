@@ -1,0 +1,22 @@
+{
+  "capturedUtc": "2026-09-30T15:09:36.426097+00:00",
+  "productSource": "06168a2f455b832bc6eb7936ebe725ec530b1b00",
+  "productParent": "2d289cb349bca95eae81b6a54b0f8d965365ff82",
+  "fixtureSource": "c02a1a44e9a4ee9804ac14c75bc431af6a507f64",
+  "files": {
+    "cpu-code-rewrite-reference.json": "012286767ceb727d81f4646463cc46dcb13c9e7f30a891eeda74fba63f78401c",
+    "lib/libpcap.so.0.8": "221fe09f13b357ef354caf2209c886f1c1f8161c5b26ff8ab73afa47dd922f28",
+    "lib/libslirp.so.0": "12ee83fb069a5be30b9e450f69a5e07eec4861f2e9b574c46a4052f086c341f3",
+    "state/seed-eeprom.bin": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3",
+    "xemu": "9e2dbe1b9ff3298de99f57c9c00accab7cd25dad6362e7d92d7d4d63aed0bd53",
+    "xemu.toml": "aa356a9d7b916ace9b71ff1ef47946db1ac289e36a8b00235c4397f57523b0b8"
+  },
+  "purpose": "Existing opt-in probe single-leaf workload windows, maintained HTTP plan, independent mathematical oracles; no emulation behavior changes",
+  "windowsServerObservation": {
+    "version": "0.1.0+079e3d483523b3e53a11983efd40e2c530747b5f",
+    "xisoCampaignCapabilityAdvertised": true,
+    "currentJob": "defjam-issue266-observe-c5b523b3-v2",
+    "runId": "20260930-150519627-7867deaf255f4a6eb85b0cf8348afd9b",
+    "action": "read-only local preparation until independent active job completes; no uploads/registration/restart"
+  }
+}

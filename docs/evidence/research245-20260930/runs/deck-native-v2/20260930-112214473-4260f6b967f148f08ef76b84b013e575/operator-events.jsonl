@@ -1,0 +1,2 @@
+{"timestampUtc":"2026-09-30T11:24:05.5510019+00:00","elapsedMs":111077.545,"kind":"diagnostic","detail":{"Id":"jit-before","Type":"monitor","Reason":"Measure invalidation reachability without a new probe"}}
+{"timestampUtc":"2026-09-30T11:24:36.9326017+00:00","elapsedMs":142459.1445,"kind":"diagnostic","detail":{"Id":"jit-after","Type":"monitor","Reason":"Measure invalidation reachability without a new probe"}}

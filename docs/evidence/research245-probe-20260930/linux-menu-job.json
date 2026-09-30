@@ -1,0 +1,353 @@
+{
+  "id": "research245-linux-pgr2-menu-control-v1",
+  "executable": "xemu",
+  "arguments": [],
+  "workingDirectory": ".",
+  "environment": {
+    "SDL_VIDEODRIVER": "x11",
+    "XDG_DATA_HOME": "{runtimeDir}/xdg-data",
+    "XDG_CACHE_HOME": "{runtimeDir}/xdg-cache",
+    "XEMU_FRAME_LOG": "{resultDir}/guest-frames.log",
+    "XEMU_FLIP_LOG": "{resultDir}/guest-flips.log",
+    "LD_LIBRARY_PATH": "{packageDir}/lib",
+    "XEMU_TCG_JUMP_CACHE_PROBE": "1"
+  },
+  "timeoutSeconds": 210,
+  "tags": [
+    "research245",
+    "pgr2",
+    "menu-control",
+    "jump-cache-probe"
+  ],
+  "plan": [
+    {
+      "type": "require_input",
+      "delayMs": 0,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 30000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 12000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 20000
+    },
+    {
+      "type": "diagnostic",
+      "diagnosticId": "jit-before"
+    },
+    {
+      "type": "segment_start",
+      "delayMs": 0,
+      "button": null,
+      "durationMs": 100,
+      "name": "stationary-start",
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "screenshot",
+      "delayMs": 0,
+      "button": null,
+      "durationMs": 100,
+      "name": "recording-start",
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 30000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "screenshot",
+      "delayMs": 0,
+      "button": null,
+      "durationMs": 100,
+      "name": "recording-end",
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "segment_end",
+      "delayMs": 0,
+      "button": null,
+      "durationMs": 100,
+      "name": "stationary-start",
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "diagnostic",
+      "diagnosticId": "jit-after"
+    },
+    {
+      "type": "wait",
+      "delayMs": 6000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "quit",
+      "delayMs": 0,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    }
+  ],
+  "targetOs": "linux",
+  "expectedExecutableSha256": "9e2dbe1b9ff3298de99f57c9c00accab7cd25dad6362e7d92d7d4d63aed0bd53",
+  "requiredFiles": [
+    "xemu",
+    "xemu.toml",
+    "state/seed-eeprom.bin",
+    "lib/libslirp.so.0"
+  ],
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "requireInput": true,
+  "diagnostics": [
+    {
+      "id": "jit-before",
+      "type": "monitor",
+      "monitorCommand": "info jit",
+      "pauseBefore": false,
+      "pauseAfter": false,
+      "resumeDuring": false
+    },
+    {
+      "id": "jit-after",
+      "type": "monitor",
+      "monitorCommand": "info jit",
+      "pauseBefore": false,
+      "pauseAfter": false,
+      "resumeDuring": false
+    }
+  ],
+  "runtimeState": {
+    "enabled": true,
+    "keepOnSuccess": false,
+    "keepOnFailure": true,
+    "files": [
+      {
+        "source": "state/seed-eeprom.bin",
+        "destination": "eeprom.bin",
+        "expectedSha256": null
+      }
+    ],
+    "diskAssets": [
+      {
+        "assetId": "research247-pgr2-save-7b0f55",
+        "expectedSha256": "7b0f55920d8740e9c77183392aad9969f775ba823f1de4612ef461796a055b52",
+        "destination": "hdd.qcow2",
+        "retention": "deleteAfterEvidence"
+      }
+    ],
+    "isolation": {
+      "cacheMode": "cold",
+      "cacheShaders": false,
+      "driverCache": "mesa",
+      "allowUncontrolledDriverCache": false,
+      "seedDirectory": null,
+      "seedSha256": null,
+      "requirePrivateGuestState": true,
+      "maximumFiles": 4096,
+      "maximumBytes": 268435456,
+      "deadlineSeconds": 15,
+      "readOnlyAssets": [
+        {
+          "field": "bootrom_path",
+          "assetId": "research247-bootrom-e99e3a",
+          "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+        },
+        {
+          "field": "flashrom_path",
+          "assetId": "research247-bios-1de4c8",
+          "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+        },
+        {
+          "field": "dvd_path",
+          "assetId": "research247-pgr2-disc-694365",
+          "expectedSha256": "6943653e6e8540f2c473579cf27c8e710d79ac76f88abaa95ec0c011c5bd69cd"
+        }
+      ]
+    }
+  },
+  "inputs": [
+    {
+      "path": "xemu",
+      "role": "research245-jump-cache-diagnostic",
+      "hash": true,
+      "expectedSha256": "9e2dbe1b9ff3298de99f57c9c00accab7cd25dad6362e7d92d7d4d63aed0bd53"
+    },
+    {
+      "path": "xemu.toml",
+      "role": "portable-run-config",
+      "hash": true,
+      "expectedSha256": null
+    },
+    {
+      "path": "lib/libslirp.so.0",
+      "role": "pinned-appimage-bundled-library",
+      "hash": true,
+      "expectedSha256": null
+    }
+  ],
+  "workload": {
+    "correctnessChecks": [
+      {
+        "name": "recording-start-visible",
+        "scope": "result",
+        "path": "screenshots/recording-start.png",
+        "mustExist": true,
+        "minimumBytes": 1000,
+        "minimumNonBlackPixelRatio": 0.05,
+        "nonBlackPixelThreshold": 96,
+        "imageRegion": null,
+        "expectedSha256": null,
+        "containsText": null,
+        "equalsText": null
+      },
+      {
+        "name": "recording-end-visible",
+        "scope": "result",
+        "path": "screenshots/recording-end.png",
+        "mustExist": true,
+        "minimumBytes": 1000,
+        "minimumNonBlackPixelRatio": 0.05,
+        "nonBlackPixelThreshold": 96,
+        "imageRegion": null,
+        "expectedSha256": null,
+        "containsText": null,
+        "equalsText": null
+      }
+    ],
+    "evidenceRequirements": [
+      {
+        "name": "guest-progress",
+        "scope": "result",
+        "path": "guest-frames.log",
+        "mustExist": true,
+        "minimumBytes": 1000,
+        "minimumNonBlackPixelRatio": null,
+        "nonBlackPixelThreshold": 0,
+        "imageRegion": null,
+        "expectedSha256": null,
+        "containsText": null,
+        "equalsText": null
+      },
+      {
+        "name": "measurement-segments",
+        "scope": "result",
+        "path": "segments.jsonl",
+        "mustExist": true,
+        "minimumBytes": 20,
+        "minimumNonBlackPixelRatio": null,
+        "nonBlackPixelThreshold": 0,
+        "imageRegion": null,
+        "expectedSha256": null,
+        "containsText": null,
+        "equalsText": null
+      }
+    ],
+    "reportedMetrics": [],
+    "minimumMetricSamples": 160,
+    "requirePlanCompletion": true,
+    "analysis": {
+      "segment": "stationary-start",
+      "metricsPath": "metrics.csv",
+      "guestFlipsPath": "guest-flips.log",
+      "guestFramesPath": "guest-frames.log",
+      "flipTailSamples": 5,
+      "frameTailSeconds": 25,
+      "minimumCpuSamples": 55,
+      "minimumFrameSamples": 160
+    }
+  },
+  "experiment": {
+    "id": "research245-linux-pgr2-menu-control-v1",
+    "variant": "menu-control",
+    "variedFactors": [
+      "workload-phase"
+    ],
+    "requireCorrectnessPass": true,
+    "requireCompleteEvidence": true,
+    "allowOperatorIntervention": false,
+    "allowDiagnostics": true
+  },
+  "operations": {
+    "mode": "diagnostic"
+  },
+  "description": "Issue245 menu-phase admission and low-invalidation reachability control; diagnostic only"
+}

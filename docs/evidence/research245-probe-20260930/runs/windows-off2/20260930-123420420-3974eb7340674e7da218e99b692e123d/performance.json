@@ -1,0 +1,66 @@
+{
+  "SchemaVersion": 1,
+  "ProfileSha256": "19e37cb7b3d079e76291cea7fc15f06c34bdc938f9a6efe5f43e3337a831cef9",
+  "Profile": {
+    "Segment": "stationary-start",
+    "MetricsPath": "metrics.csv",
+    "GuestFlipsPath": "guest-flips.log",
+    "GuestFramesPath": "guest-frames.log",
+    "FlipTailSamples": 5,
+    "FrameTailSeconds": 25,
+    "MinimumCpuSamples": 55,
+    "MinimumFrameSamples": 160
+  },
+  "Monitoring": {
+    "Segment": "stationary-start",
+    "Rows": 64,
+    "MissingCpuSamples": 0,
+    "MissingDutySamples": 0,
+    "Cpu": {
+      "Count": 64,
+      "Mean": 397.13190625,
+      "Median": 392.922,
+      "Min": 244.509,
+      "Max": 578.701,
+      "P95": 503.99395,
+      "P99": 543.3750099999999
+    },
+    "CollectorDuty": {
+      "Count": 64,
+      "Mean": 34.868203125,
+      "Median": 34.30799999999999,
+      "Min": 12.915,
+      "Max": 58.149,
+      "P95": 57.39619999999999,
+      "P99": 58.14837
+    },
+    "Overruns": 0
+  },
+  "Flips": {
+    "Samples": 5,
+    "Frames": 753,
+    "ElapsedUs": 25100405,
+    "CadenceFps": 29.999515944065443
+  },
+  "Frames": null,
+  "Sources": [
+    {
+      "Path": "metrics.csv",
+      "Bytes": 35153,
+      "Sha256": "f524bb9adef0699e239178cb96d49ee792a766f016f314592a8d07ad622d4be9",
+      "Records": 167,
+      "IgnoredRecords": 102
+    },
+    {
+      "Path": "guest-flips.log",
+      "Bytes": 630,
+      "Sha256": "a3e60afdde81669c708c29b75fb6aedc13de4c5a68b911c999d1bc4df2ed52b1",
+      "Records": 15,
+      "IgnoredRecords": 0
+    }
+  ],
+  "Errors": [
+    "frames: Analysis source changed while reading."
+  ],
+  "Complete": false
+}

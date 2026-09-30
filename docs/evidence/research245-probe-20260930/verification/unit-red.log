@@ -1,0 +1,9 @@
+TAP version 14
+# random seed: R02S9ae4d4e46de9fae1291bfa46af28f6a7
+1..4
+# Start of tcg tests
+# Start of jump-cache tests
+**
+ERROR:tests/unit/test-tcg-jump-cache-probe.c:19:test_clear: 'qatomic_read(&slots[i].tb)' should be NULL
+not ok /tcg/jump-cache/clear - ERROR:tests/unit/test-tcg-jump-cache-probe.c:19:test_clear: 'qatomic_read(&slots[i].tb)' should be NULL
+Bail out!

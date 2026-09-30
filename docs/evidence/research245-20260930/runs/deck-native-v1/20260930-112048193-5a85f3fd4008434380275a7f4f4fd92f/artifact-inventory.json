@@ -1,0 +1,125 @@
+{
+  "RunId": "20260930-112048193-5a85f3fd4008434380275a7f4f4fd92f",
+  "Artifacts": [
+    {
+      "Path": "stderr.log",
+      "Bytes": 223
+    },
+    {
+      "Path": "operator-events.jsonl",
+      "Bytes": 0
+    },
+    {
+      "Path": "diagnostic-bundle.json",
+      "Bytes": 343
+    },
+    {
+      "Path": "diagnostics.zip",
+      "Bytes": 21338
+    },
+    {
+      "Path": "metrics.csv",
+      "Bytes": 3222
+    },
+    {
+      "Path": "launch.json",
+      "Bytes": 1760
+    },
+    {
+      "Path": "input-manifest.json",
+      "Bytes": 1933
+    },
+    {
+      "Path": "performance.json",
+      "Bytes": 894
+    },
+    {
+      "Path": "job.json",
+      "Bytes": 14999
+    },
+    {
+      "Path": "runtime-cleanup.json",
+      "Bytes": 531
+    },
+    {
+      "Path": "preflight.json",
+      "Bytes": 1831
+    },
+    {
+      "Path": "result.json",
+      "Bytes": 10834
+    },
+    {
+      "Path": "segments.jsonl",
+      "Bytes": 0
+    },
+    {
+      "Path": "host-inventory.json",
+      "Bytes": 466
+    },
+    {
+      "Path": "runtime-state.json",
+      "Bytes": 683
+    },
+    {
+      "Path": "stdout.log",
+      "Bytes": 0
+    },
+    {
+      "Path": "assessment.json",
+      "Bytes": 2680
+    },
+    {
+      "Path": "pre-run-environment.json",
+      "Bytes": 1557
+    },
+    {
+      "Path": "crash/report.json",
+      "Bytes": 472
+    },
+    {
+      "Path": "crash/journal-query.stderr.txt",
+      "Bytes": 0
+    },
+    {
+      "Path": "crash/report.txt",
+      "Bytes": 238
+    },
+    {
+      "Path": "crash/journal-query.txt",
+      "Bytes": 0
+    },
+    {
+      "Path": "crash/native/ready.json",
+      "Bytes": 58
+    },
+    {
+      "Path": "crash/native/start",
+      "Bytes": 1
+    },
+    {
+      "Path": "crash/native/exit-native.json",
+      "Bytes": 140
+    },
+    {
+      "Path": "diagnostics/run-state/report.json",
+      "Bytes": 5716
+    },
+    {
+      "Path": "diagnostics/run-state/effective-live.toml",
+      "Bytes": 1001
+    },
+    {
+      "Path": "diagnostics/run-state/config-before.toml",
+      "Bytes": 383
+    },
+    {
+      "Path": "diagnostics/run-state/config-after.toml",
+      "Bytes": 1001
+    },
+    {
+      "Path": "diagnostics/run-state/config-effective.toml",
+      "Bytes": 1001
+    }
+  ]
+}

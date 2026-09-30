@@ -1,0 +1,2383 @@
+{
+  "capturedUtc": "2026-09-30T14:59:08.721926+00:00",
+  "scope": "CPU fixture qualification and calibration; no optimization comparison",
+  "outcomes": [
+    {
+      "label": "deck-preflight-v1",
+      "runId": "20260930-134802833-c17f80c9fba04f9abd6371c106620207",
+      "execution": "invalidInput",
+      "correctness": "notEvaluated",
+      "evidence": "incomplete",
+      "comparison": "ineligible",
+      "exitCode": null,
+      "source": "focus-run-result.json",
+      "sourceSha256": "abd7197966ff993cea3cb22381f20d62ed435362ee89c488f5e50ae21479ef5a"
+    },
+    {
+      "label": "deck-containing",
+      "runId": "20260930-141936846-980988c02f894b4f9ca6cea40ecd135c",
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "ineligible",
+      "exitCode": 0,
+      "source": "runs/deck-containing/20260930-141936846-980988c02f894b4f9ca6cea40ecd135c/result.json",
+      "sourceSha256": "38b7b09d9628e4c44b5ca56473e03fef52dcebb7317cb65809f27534a009ba92",
+      "operatorActivity": {
+        "Intervened": true,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 1,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      },
+      "comparisonReasons": [
+        "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary.",
+        "Operator, transfer, preview, or host-state intervention was recorded."
+      ],
+      "measurements": [
+        {
+          "Name": "xiso/cpu_translation_blocks/code_rewrite/mean_us",
+          "Value": 2860690.6,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_rewrite"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_rewrite/median_us",
+          "Value": 2862383.5,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_rewrite"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_rewrite/min_us",
+          "Value": 2824631,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_rewrite"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_rewrite/max_us",
+          "Value": 2917437,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_rewrite"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_rewrite/p95_us",
+          "Value": 2917437,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_rewrite"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_stable/mean_us",
+          "Value": 3023154,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_stable"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_stable/median_us",
+          "Value": 2797055,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_stable"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_stable/min_us",
+          "Value": 2747441,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_stable"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_stable/max_us",
+          "Value": 4484743,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_stable"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_stable/p95_us",
+          "Value": 4484743,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_stable"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/direct_loop/mean_us",
+          "Value": 19401.6,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.direct_loop"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/direct_loop/median_us",
+          "Value": 19289.5,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.direct_loop"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/direct_loop/min_us",
+          "Value": 19119,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.direct_loop"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/direct_loop/max_us",
+          "Value": 19914,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.direct_loop"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/direct_loop/p95_us",
+          "Value": 19914,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.direct_loop"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/indirect_dispatch/mean_us",
+          "Value": 62257.4,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/indirect_dispatch/median_us",
+          "Value": 62026.5,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/indirect_dispatch/min_us",
+          "Value": 61366,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/indirect_dispatch/max_us",
+          "Value": 64490,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/indirect_dispatch/p95_us",
+          "Value": 64490,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/indirect_dispatch_stress/mean_us",
+          "Value": 1235186.1,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch_stress"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/indirect_dispatch_stress/median_us",
+          "Value": 1232667.5,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch_stress"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/indirect_dispatch_stress/min_us",
+          "Value": 1226987,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch_stress"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/indirect_dispatch_stress/max_us",
+          "Value": 1250415,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch_stress"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/indirect_dispatch_stress/p95_us",
+          "Value": 1250415,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.indirect_dispatch_stress"
+        }
+      ],
+      "guestSourceSha256": "f2eca121312e1258c8cb07c9ad20cb3e73f3cd958b9c442e863e2bba5ae29315",
+      "normalizationSource": "runs/deck-containing/20260930-141936846-980988c02f894b4f9ca6cea40ecd135c/guest/normalized-results.json",
+      "leafOutcomes": [
+        {
+          "id": "cpu_translation_blocks.code_rewrite",
+          "revision": 2,
+          "outcome": "PASS",
+          "metadata": {
+            "oracle_status": "PASS",
+            "operations": 1000000,
+            "work_checksum": "02a5f4ff",
+            "result_checksum": "65151d67",
+            "expected_checksum": "65151d67"
+          }
+        },
+        {
+          "id": "cpu_translation_blocks.code_stable",
+          "revision": 2,
+          "outcome": "PASS",
+          "metadata": {
+            "oracle_status": "PASS",
+            "operations": 50000000,
+            "work_checksum": "9275e7c3",
+            "result_checksum": "f5ff3985",
+            "expected_checksum": "f5ff3985"
+          }
+        },
+        {
+          "id": "cpu_translation_blocks.direct_loop",
+          "revision": 1,
+          "outcome": "PASS",
+          "metadata": null
+        },
+        {
+          "id": "cpu_translation_blocks.indirect_dispatch",
+          "revision": 1,
+          "outcome": "PASS",
+          "metadata": null
+        },
+        {
+          "id": "cpu_translation_blocks.indirect_dispatch_stress",
+          "revision": 1,
+          "outcome": "PASS",
+          "metadata": null
+        }
+      ]
+    },
+    {
+      "label": "deck-final-focus",
+      "runId": "20260930-141819901-885b07d775754126a98447c7cafa5acb",
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "ineligible",
+      "exitCode": 0,
+      "source": "runs/deck-final-focus/20260930-141819901-885b07d775754126a98447c7cafa5acb/result.json",
+      "sourceSha256": "934f3508a26ef3e83f33818eb64ec034b4388b058ae84337d3e102d2872ffcd6",
+      "operatorActivity": {
+        "Intervened": true,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 2,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      },
+      "comparisonReasons": [
+        "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary.",
+        "Operator, transfer, preview, or host-state intervention was recorded."
+      ],
+      "measurements": [
+        {
+          "Name": "xiso/cpu_translation_blocks/code_rewrite/mean_us",
+          "Value": 2869808.6,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_rewrite"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_rewrite/median_us",
+          "Value": 2869723,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_rewrite"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_rewrite/min_us",
+          "Value": 2809873,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_rewrite"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_rewrite/max_us",
+          "Value": 2921235,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_rewrite"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_rewrite/p95_us",
+          "Value": 2921235,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_rewrite"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_stable/mean_us",
+          "Value": 3148610.8,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_stable"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_stable/median_us",
+          "Value": 2777916,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_stable"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_stable/min_us",
+          "Value": 2723185,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_stable"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_stable/max_us",
+          "Value": 4477057,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_stable"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_stable/p95_us",
+          "Value": 4477057,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_stable"
+        }
+      ],
+      "guestSourceSha256": "6ac5eb61365a1d3d1b7238fba658353b99711e8efb42665833a9c9b2217f3a8b",
+      "normalizationSource": "runs/deck-final-focus/20260930-141819901-885b07d775754126a98447c7cafa5acb/guest/normalized-results.json",
+      "leafOutcomes": [
+        {
+          "id": "cpu_translation_blocks.code_rewrite",
+          "revision": 2,
+          "outcome": "PASS",
+          "metadata": {
+            "oracle_status": "PASS",
+            "operations": 1000000,
+            "work_checksum": "02a5f4ff",
+            "result_checksum": "65151d67",
+            "expected_checksum": "65151d67"
+          }
+        },
+        {
+          "id": "cpu_translation_blocks.code_stable",
+          "revision": 2,
+          "outcome": "PASS",
+          "metadata": {
+            "oracle_status": "PASS",
+            "operations": 50000000,
+            "work_checksum": "9275e7c3",
+            "result_checksum": "f5ff3985",
+            "expected_checksum": "f5ff3985"
+          }
+        }
+      ]
+    },
+    {
+      "label": "deck-focus-v2",
+      "runId": "20260930-135154608-9b1b894fe8334781a059affd86a33911",
+      "execution": "completed",
+      "correctness": "failed",
+      "evidence": "complete",
+      "comparison": "ineligible",
+      "exitCode": 0,
+      "source": "runs/deck-focus-v2/20260930-135154608-9b1b894fe8334781a059affd86a33911/result.json",
+      "sourceSha256": "c03acc3ab726908f11651108387706800b3d3f16a0ca15255a69c5fe71ac861c",
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      },
+      "comparisonReasons": [
+        "Correctness outcome is Failed; a passing correctness contract is required.",
+        "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+      ],
+      "measurements": [],
+      "guestSourceSha256": "97ea05afff275c5565b214691e3ec964afc1f639ea9cd1c8e68e2a5d0aa525af",
+      "normalizationSource": "runs/deck-focus-v2/20260930-135154608-9b1b894fe8334781a059affd86a33911/guest/normalized-results.json",
+      "leafOutcomes": [
+        {
+          "id": "cpu_translation_blocks.code_rewrite",
+          "revision": 1,
+          "outcome": "PASS",
+          "metadata": null
+        },
+        {
+          "id": "cpu_translation_blocks.code_stable",
+          "revision": 1,
+          "outcome": "PASS",
+          "metadata": null
+        }
+      ]
+    },
+    {
+      "label": "deck-quiet-focus",
+      "runId": "20260930-145635788-44b43fc0c8154f4f88e3d1bf80f6bba4",
+      "source": "runs/deck-quiet-focus/20260930-145635788-44b43fc0c8154f4f88e3d1bf80f6bba4/result.json",
+      "sourceSha256": "64a74602da550332c021e7b431cd6b786eddeb22526d2a33ee73472f1c9922c3",
+      "guestSourceSha256": "068c80e40e1a5a120590f9ef3072eeb7aad885431b4cbc941720b38c77b9c4e8",
+      "normalizationSource": "runs/deck-quiet-focus/20260930-145635788-44b43fc0c8154f4f88e3d1bf80f6bba4/guest/normalized-results.json",
+      "exitCode": 0,
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      },
+      "comparisonReasons": [
+        "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+      ],
+      "measurements": [
+        {
+          "Name": "xiso/cpu_translation_blocks/code_rewrite/mean_us",
+          "Value": 2837118.2,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_rewrite"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_rewrite/median_us",
+          "Value": 2835079,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_rewrite"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_rewrite/min_us",
+          "Value": 2811576,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_rewrite"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_rewrite/max_us",
+          "Value": 2871816,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_rewrite"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_rewrite/p95_us",
+          "Value": 2871816,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_rewrite"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_stable/mean_us",
+          "Value": 2761269.7,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_stable"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_stable/median_us",
+          "Value": 2749276.5,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_stable"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_stable/min_us",
+          "Value": 2708424,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_stable"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_stable/max_us",
+          "Value": 2826036,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_stable"
+        },
+        {
+          "Name": "xiso/cpu_translation_blocks/code_stable/p95_us",
+          "Value": 2826036,
+          "Unit": "us",
+          "Direction": "lower",
+          "Source": "result:guest/results.txt#cpu_translation_blocks.code_stable"
+        }
+      ],
+      "leafOutcomes": [
+        {
+          "id": "cpu_translation_blocks.code_rewrite",
+          "revision": 2,
+          "outcome": "PASS",
+          "metadata": {
+            "oracle_status": "PASS",
+            "operations": 1000000,
+            "work_checksum": "02a5f4ff",
+            "result_checksum": "65151d67",
+            "expected_checksum": "65151d67"
+          }
+        },
+        {
+          "id": "cpu_translation_blocks.code_stable",
+          "revision": 2,
+          "outcome": "PASS",
+          "metadata": {
+            "oracle_status": "PASS",
+            "operations": 50000000,
+            "work_checksum": "9275e7c3",
+            "result_checksum": "f5ff3985",
+            "expected_checksum": "f5ff3985"
+          }
+        }
+      ],
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "ineligible"
+    }
+  ],
+  "fullSuiteStatus": {
+    "id": "research245-cpu-main-full-v1",
+    "revision": "a8510bc6f4314da88575eaeb046d4f86c1d4003d9d114f789234dc1be9bc3a9d",
+    "state": "failed",
+    "event": "finished",
+    "terminal": true,
+    "startRequested": true,
+    "selectedLeaves": 156,
+    "chunkCount": 17,
+    "attemptCount": 17,
+    "finished": 17,
+    "passed": 2,
+    "failed": 15,
+    "incomplete": 0,
+    "remaining": 0,
+    "active": null,
+    "error": null,
+    "next": "/api/v1/xiso-campaigns/research245-cpu-main-full-v1/wait",
+    "details": "/api/v1/xiso-campaigns/research245-cpu-main-full-v1/attempts",
+    "comparisonEligible": 0,
+    "qualification": "unverified"
+  },
+  "fullSuiteSnapshotNote": "Terminal status and all 17 terminal attempts captured consecutively after campaign completion.",
+  "fullSuiteOutcomes": [
+    {
+      "chunk": 1,
+      "runId": "20260930-142503203-ea65b2badbc54af6ad74b762203e0a37",
+      "source": "runs/deck-full/20260930-142503203-ea65b2badbc54af6ad74b762203e0a37/result.json",
+      "sourceSha256": "f2c1df2c5b41e04ad4b3f11f66fc8a77b469fd0347ae1a2fe943ec2ec6d3ddda",
+      "guestSourceSha256": "8d0d878b9ec0e08f3c110bedeb78f353bbd9248a28222d2901cfcf519d023e75",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "failed",
+        "Evidence": "complete",
+        "Comparison": "ineligible",
+        "ComparisonReasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required.",
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+        ],
+        "Checks": [
+          {
+            "Name": "guest_hdd_extraction",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+          },
+          {
+            "Name": "xiso_plan_receipt",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Guest completion receipt matches the injected selection."
+          },
+          {
+            "Name": "xiso_exact_coverage",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Selected 9 leaves and 0 groups; received 9. Missing 0, extra 0."
+          },
+          {
+            "Name": "xiso_oracle_coverage",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "No pinned oracle for 4 selected leaves. Actual results remain evidence, not a self-approved baseline."
+          },
+          {
+            "Name": "run_storage_state",
+            "Passed": false,
+            "Category": "state",
+            "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+          }
+        ],
+        "IsExecutionSuccess": true,
+        "IsCorrectnessSuccess": false
+      },
+      "exitCode": 0,
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      }
+    },
+    {
+      "chunk": 2,
+      "runId": "20260930-142634076-4cc389185071448f81fa2d0af583ede1",
+      "source": "runs/deck-full/20260930-142634076-4cc389185071448f81fa2d0af583ede1/result.json",
+      "sourceSha256": "94fe805a02b605b99e1d1fac631ba6a900f88b8adef1bd01ac7f3fdc1ef56c1b",
+      "guestSourceSha256": "194bfe2064827bde0c06fe57eb42ad2cce2c4777dcef6e00bc4158022825eef7",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "passed",
+        "Evidence": "complete",
+        "Comparison": "ineligible",
+        "ComparisonReasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+        ],
+        "Checks": [
+          {
+            "Name": "guest_hdd_extraction",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+          },
+          {
+            "Name": "xiso_plan_receipt",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Guest completion receipt matches the injected selection."
+          },
+          {
+            "Name": "xiso_exact_coverage",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Selected 7 leaves and 0 groups; received 7. Missing 0, extra 0."
+          },
+          {
+            "Name": "guest_record_set",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Expected 7 stable IDs; received 7. Missing 0, extra 0."
+          },
+          {
+            "Name": "guest:cpu_floating_point.sse_scalar",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 1 applicable reference hashes."
+          },
+          {
+            "Name": "guest:cpu_floating_point.x87_scalar",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 1 applicable reference hashes."
+          },
+          {
+            "Name": "guest:cpu_translation_blocks.code_rewrite",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 2 applicable reference hashes."
+          },
+          {
+            "Name": "guest:cpu_translation_blocks.code_stable",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 2 applicable reference hashes."
+          },
+          {
+            "Name": "guest:cpu_translation_blocks.direct_loop",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 1 applicable reference hashes."
+          },
+          {
+            "Name": "guest:cpu_translation_blocks.indirect_dispatch",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 1 applicable reference hashes."
+          },
+          {
+            "Name": "guest:cpu_translation_blocks.indirect_dispatch_stress",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 1 applicable reference hashes."
+          },
+          {
+            "Name": "run_storage_state",
+            "Passed": false,
+            "Category": "state",
+            "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+          }
+        ],
+        "IsExecutionSuccess": true,
+        "IsCorrectnessSuccess": true
+      },
+      "exitCode": 0,
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      }
+    },
+    {
+      "chunk": 3,
+      "runId": "20260930-143416272-864033c195c545d79f49ea7c9a5f005d",
+      "source": "runs/deck-full/20260930-143416272-864033c195c545d79f49ea7c9a5f005d/result.json",
+      "sourceSha256": "71307facbfa0a6e7437ab1109661e4fe6b1dad77bb2a6b0e1342395472371c9e",
+      "guestSourceSha256": "69d4aa8d962afbd386be2359af4071e120c2f0f8354265b04cf34fce7d8c7ecc",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "failed",
+        "Evidence": "complete",
+        "Comparison": "ineligible",
+        "ComparisonReasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required.",
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+        ],
+        "Checks": [
+          {
+            "Name": "guest_hdd_extraction",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+          },
+          {
+            "Name": "xiso_plan_receipt",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Guest completion receipt matches the injected selection."
+          },
+          {
+            "Name": "xiso_exact_coverage",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Selected 2 leaves and 0 groups; received 2. Missing 0, extra 0."
+          },
+          {
+            "Name": "guest_record_set",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Expected 2 stable IDs; received 2. Missing 0, extra 0."
+          },
+          {
+            "Name": "guest:fill_rate.solid",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:fill_rate.textured",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "run_storage_state",
+            "Passed": false,
+            "Category": "state",
+            "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+          }
+        ],
+        "IsExecutionSuccess": true,
+        "IsCorrectnessSuccess": false
+      },
+      "exitCode": 0,
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      }
+    },
+    {
+      "chunk": 4,
+      "runId": "20260930-143433728-86337c3699834d358ae350d59bdc4ba5",
+      "source": "runs/deck-full/20260930-143433728-86337c3699834d358ae350d59bdc4ba5/result.json",
+      "sourceSha256": "dc3beabd3b1d59f243b78db9b06272ac9e19a0af96e33b6c2289b7caba8e0c3f",
+      "guestSourceSha256": "f13581ceaf986335b3b3925c03b8cf04f917d318f8d6071139532d2913113a26",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "failed",
+        "Evidence": "complete",
+        "Comparison": "ineligible",
+        "ComparisonReasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required.",
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+        ],
+        "Checks": [
+          {
+            "Name": "guest_hdd_extraction",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+          },
+          {
+            "Name": "xiso_plan_receipt",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Guest completion receipt matches the injected selection."
+          },
+          {
+            "Name": "xiso_exact_coverage",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Selected 8 leaves and 0 groups; received 8. Missing 0, extra 0."
+          },
+          {
+            "Name": "xiso_oracle_coverage",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "No pinned oracle for 4 selected leaves. Actual results remain evidence, not a self-approved baseline."
+          },
+          {
+            "Name": "run_storage_state",
+            "Passed": false,
+            "Category": "state",
+            "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+          }
+        ],
+        "IsExecutionSuccess": true,
+        "IsCorrectnessSuccess": false
+      },
+      "exitCode": 0,
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      }
+    },
+    {
+      "chunk": 5,
+      "runId": "20260930-143505337-dcb30fb00de94a2d815572068630e128",
+      "source": "runs/deck-full/20260930-143505337-dcb30fb00de94a2d815572068630e128/result.json",
+      "sourceSha256": "89a2c92294b6df29e19d5f2f871ebbcbdbab63302d9b3b9a050f73b61c600bec",
+      "guestSourceSha256": "311e0a558f5cd4b0538c1954df978e861eb9f3251d447629564248ee51d00d65",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "failed",
+        "Evidence": "complete",
+        "Comparison": "ineligible",
+        "ComparisonReasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required.",
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+        ],
+        "Checks": [
+          {
+            "Name": "guest_hdd_extraction",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+          },
+          {
+            "Name": "xiso_plan_receipt",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Guest completion receipt matches the injected selection."
+          },
+          {
+            "Name": "xiso_exact_coverage",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Selected 8 leaves and 0 groups; received 8. Missing 0, extra 0."
+          },
+          {
+            "Name": "xiso_oracle_coverage",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "No pinned oracle for 8 selected leaves. Actual results remain evidence, not a self-approved baseline."
+          },
+          {
+            "Name": "run_storage_state",
+            "Passed": false,
+            "Category": "state",
+            "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+          }
+        ],
+        "IsExecutionSuccess": true,
+        "IsCorrectnessSuccess": false
+      },
+      "exitCode": 0,
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      }
+    },
+    {
+      "chunk": 6,
+      "runId": "20260930-143522443-3936761c8e4747699c158460ad8e7c78",
+      "source": "runs/deck-full/20260930-143522443-3936761c8e4747699c158460ad8e7c78/result.json",
+      "sourceSha256": "6c82604f8ee1310fc8ca2edd8a29821398fed32e4f68747c6fdc223812bc2c64",
+      "guestSourceSha256": "ca51bf3b069310177595a1f53b18bd04d93f81be38ee667108663913c7e49f1b",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "passed",
+        "Evidence": "complete",
+        "Comparison": "ineligible",
+        "ComparisonReasons": [
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+        ],
+        "Checks": [
+          {
+            "Name": "guest_hdd_extraction",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+          },
+          {
+            "Name": "xiso_plan_receipt",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Guest completion receipt matches the injected selection."
+          },
+          {
+            "Name": "xiso_exact_coverage",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Selected 17 leaves and 2 groups; received 19. Missing 0, extra 0."
+          },
+          {
+            "Name": "xiso_group:game_load.long_unlocked_scene",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Structural group outcome; never treated as an independent timing sample."
+          },
+          {
+            "Name": "xiso_group:game_load.cross_title_hotpath",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Structural group outcome; never treated as an independent timing sample."
+          },
+          {
+            "Name": "guest_record_set",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Expected 17 stable IDs; received 17. Missing 0, extra 0."
+          },
+          {
+            "Name": "guest:game_load.cross_title_hotpath.blend_constant_reuse",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.cross_title_hotpath.gpu_wait_control",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.cross_title_hotpath.pgr2_lagspot_inline_elements",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.cross_title_hotpath.pgr2_small_draws",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.cross_title_hotpath.pipeline_state_churn",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.cross_title_hotpath.queued_vertex_cpu_writes",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.cross_title_hotpath.s3tc_streaming_fenced_draws",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.cross_title_hotpath.scaled_surface_pressure",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.cross_title_hotpath.surface_reuse",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.cross_title_hotpath.texture_binding_reuse",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.cross_title_hotpath.texture_update_reuse",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.long_unlocked_scene.alpha_overdraw",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 1 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.long_unlocked_scene.combined",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 1 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.long_unlocked_scene.cpu",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 1 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.long_unlocked_scene.full_system",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 1 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.long_unlocked_scene.pfifo",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 1 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.long_unlocked_scene.streaming_surface_reuse",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 1 applicable reference hashes."
+          },
+          {
+            "Name": "run_storage_state",
+            "Passed": false,
+            "Category": "state",
+            "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+          }
+        ],
+        "IsExecutionSuccess": true,
+        "IsCorrectnessSuccess": true
+      },
+      "exitCode": 0,
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      }
+    },
+    {
+      "chunk": 7,
+      "runId": "20260930-143917780-51f0113fa66f46c4b292c69266521d8c",
+      "source": "runs/deck-full/20260930-143917780-51f0113fa66f46c4b292c69266521d8c/result.json",
+      "sourceSha256": "254cc7a85fb422bd5812dca8a4605731cedd0036e803b60ed126703479aa7212",
+      "guestSourceSha256": "d06847d677879c9c33e916eab5a2a08592f0c352274b395d832ab3924e8347ac",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "failed",
+        "Evidence": "complete",
+        "Comparison": "ineligible",
+        "ComparisonReasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required.",
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+        ],
+        "Checks": [
+          {
+            "Name": "guest_hdd_extraction",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+          },
+          {
+            "Name": "xiso_plan_receipt",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Guest completion receipt matches the injected selection."
+          },
+          {
+            "Name": "xiso_exact_coverage",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Selected 12 leaves and 1 groups; received 13. Missing 0, extra 0."
+          },
+          {
+            "Name": "xiso_group:game_load.s3tc_sync_factor",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Structural group outcome; never treated as an independent timing sample."
+          },
+          {
+            "Name": "guest_record_set",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Expected 12 stable IDs; received 12. Missing 0, extra 0."
+          },
+          {
+            "Name": "guest:game_load.s3tc_sync_factor.bc2_bordered_fallback",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 4 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.s3tc_sync_factor.bc2_native_eligible",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:game_load.s3tc_sync_factor.bc3_bordered_fallback",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 4 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.s3tc_sync_factor.bc3_native_eligible",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:game_load.s3tc_sync_factor.dxt1_dirty_once_redraw",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 4 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.s3tc_sync_factor.dxt1_ring_payload_generations",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:game_load.s3tc_sync_factor.dxt1_same_address_queued",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:game_load.s3tc_sync_factor.dxt1_same_address_wait",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:game_load.s3tc_sync_factor.rgba8_dirty_once_redraw",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 4 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.s3tc_sync_factor.rgba8_ring_payload_generations",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 4 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.s3tc_sync_factor.rgba8_same_address_queued",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:game_load.s3tc_sync_factor.rgba8_same_address_wait",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 4 applicable reference hashes."
+          },
+          {
+            "Name": "run_storage_state",
+            "Passed": false,
+            "Category": "state",
+            "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+          }
+        ],
+        "IsExecutionSuccess": true,
+        "IsCorrectnessSuccess": false
+      },
+      "exitCode": 0,
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      }
+    },
+    {
+      "chunk": 8,
+      "runId": "20260930-144017820-2ffdf12c1aef49b9bb0d06ac72ee4039",
+      "source": "runs/deck-full/20260930-144017820-2ffdf12c1aef49b9bb0d06ac72ee4039/result.json",
+      "sourceSha256": "2831c814b5531c6e51deefcfd1dec3d24f028d8e65f65d94d11a45649b0ae2ad",
+      "guestSourceSha256": "47575b0c5f8e2c898e82b28916ccfa7327b3f7413842727942246c9724b63616",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "failed",
+        "Evidence": "complete",
+        "Comparison": "ineligible",
+        "ComparisonReasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required.",
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+        ],
+        "Checks": [
+          {
+            "Name": "guest_hdd_extraction",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+          },
+          {
+            "Name": "xiso_plan_receipt",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Guest completion receipt matches the injected selection."
+          },
+          {
+            "Name": "xiso_exact_coverage",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Selected 12 leaves and 0 groups; received 12. Missing 0, extra 0."
+          },
+          {
+            "Name": "guest_record_set",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Expected 12 stable IDs; received 12. Missing 0, extra 0."
+          },
+          {
+            "Name": "guest:game_load.doax_menu_representative.cpu_only",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.doax_menu_representative.cpu_pfifo_gpu",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:game_load.doax_menu_representative.cpu_pfifo_gpu_streaming",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.doax_menu_representative.full_system",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.doax_menu_representative.gpu_only",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.doax_menu_representative.pfifo_only",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.doax_menu_representative.streaming_only",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.doax_menu_stress.cpu_only",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.doax_menu_stress.gpu_only",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.doax_menu_stress.pfifo_only",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.repeated_display",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 2 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.repeated_display_boosted",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 2 applicable reference hashes."
+          },
+          {
+            "Name": "run_storage_state",
+            "Passed": false,
+            "Category": "state",
+            "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+          }
+        ],
+        "IsExecutionSuccess": true,
+        "IsCorrectnessSuccess": false
+      },
+      "exitCode": 0,
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      }
+    },
+    {
+      "chunk": 9,
+      "runId": "20260930-144102510-7087d31bae3a498f84ef2eba4bf68d94",
+      "source": "runs/deck-full/20260930-144102510-7087d31bae3a498f84ef2eba4bf68d94/result.json",
+      "sourceSha256": "982fccf7f46751b711d36f29157c402c7f91b07165a391125ae3ab579c94350f",
+      "guestSourceSha256": "d127cc8a4c3e438ac8639f45ad6e7e87439f159c4021ed544efd7e9e595078c4",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "failed",
+        "Evidence": "complete",
+        "Comparison": "ineligible",
+        "ComparisonReasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required.",
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+        ],
+        "Checks": [
+          {
+            "Name": "guest_hdd_extraction",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+          },
+          {
+            "Name": "xiso_plan_receipt",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Guest completion receipt matches the injected selection."
+          },
+          {
+            "Name": "xiso_exact_coverage",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Selected 11 leaves and 0 groups; received 11. Missing 0, extra 0."
+          },
+          {
+            "Name": "guest_record_set",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Expected 11 stable IDs; received 11. Missing 0, extra 0."
+          },
+          {
+            "Name": "guest:game_load.doax_menu_stress.cpu_pfifo_gpu",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:game_load.doax_menu_stress.cpu_pfifo_gpu_streaming",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.doax_menu_stress.full_system",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.doax_menu_stress.streaming_only",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.pgr2_ai_backup.cpu_only",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.pgr2_ai_backup.cpu_pfifo_gpu",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:game_load.pgr2_ai_backup.cpu_pfifo_gpu_streaming",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.pgr2_ai_backup.full_system",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.pgr2_ai_backup.gpu_only",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.pgr2_ai_backup.pfifo_only",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "guest:game_load.pgr2_ai_backup.streaming_only",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 3 applicable reference hashes."
+          },
+          {
+            "Name": "run_storage_state",
+            "Passed": false,
+            "Category": "state",
+            "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+          }
+        ],
+        "IsExecutionSuccess": true,
+        "IsCorrectnessSuccess": false
+      },
+      "exitCode": 0,
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      }
+    },
+    {
+      "chunk": 10,
+      "runId": "20260930-144301914-2f87bb03b05a41b0b7d6ee7c2090c9a2",
+      "source": "runs/deck-full/20260930-144301914-2f87bb03b05a41b0b7d6ee7c2090c9a2/result.json",
+      "sourceSha256": "e48812de9d63b76cbb47e9404589fb9029e24d84af965fdd7f7c557dc897d402",
+      "guestSourceSha256": "887dcb6f500abf66e0d21bca1242eba8cc8b404be962139e2b0ecba79c825795",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "failed",
+        "Evidence": "complete",
+        "Comparison": "ineligible",
+        "ComparisonReasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required.",
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+        ],
+        "Checks": [
+          {
+            "Name": "guest_hdd_extraction",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+          },
+          {
+            "Name": "xiso_plan_receipt",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Guest completion receipt matches the injected selection."
+          },
+          {
+            "Name": "xiso_exact_coverage",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Selected 12 leaves and 0 groups; received 12. Missing 0, extra 0."
+          },
+          {
+            "Name": "guest_record_set",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Expected 12 stable IDs; received 12. Missing 0, extra 0."
+          },
+          {
+            "Name": "guest:high_vertex_count.arrays",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:high_vertex_count.inline_arrays",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:high_vertex_count.inline_buffers",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:high_vertex_count.inline_elements",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:primitive_type.line_loop.fixed_function",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:primitive_type.line_loop.vertex_shader",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:primitive_type.line_strip.fixed_function",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:primitive_type.line_strip.vertex_shader",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:primitive_type.lines.fixed_function",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:primitive_type.lines.vertex_shader",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:primitive_type.points.fixed_function",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:primitive_type.points.vertex_shader",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "run_storage_state",
+            "Passed": false,
+            "Category": "state",
+            "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+          }
+        ],
+        "IsExecutionSuccess": true,
+        "IsCorrectnessSuccess": false
+      },
+      "exitCode": 0,
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      }
+    },
+    {
+      "chunk": 11,
+      "runId": "20260930-144354501-fcf8aa8e01a045d6b7b8947b32b07454",
+      "source": "runs/deck-full/20260930-144354501-fcf8aa8e01a045d6b7b8947b32b07454/result.json",
+      "sourceSha256": "f4538ecc5aa3f5d9d3ccb6f2143bec38ebf68e8d320a85d4da1e015b93b00981",
+      "guestSourceSha256": "45b8b2864d7c1438baf69160a1b60e739f55c96fbe4977d571db0a84ed93c45c",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "failed",
+        "Evidence": "complete",
+        "Comparison": "ineligible",
+        "ComparisonReasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required.",
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+        ],
+        "Checks": [
+          {
+            "Name": "guest_hdd_extraction",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+          },
+          {
+            "Name": "xiso_plan_receipt",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Guest completion receipt matches the injected selection."
+          },
+          {
+            "Name": "xiso_exact_coverage",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Selected 12 leaves and 0 groups; received 12. Missing 0, extra 0."
+          },
+          {
+            "Name": "guest_record_set",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Expected 12 stable IDs; received 12. Missing 0, extra 0."
+          },
+          {
+            "Name": "guest:primitive_type.polygon.fixed_function",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:primitive_type.polygon.vertex_shader",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:primitive_type.quad_strip.fixed_function",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:primitive_type.quad_strip.vertex_shader",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:primitive_type.quads.fixed_function",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:primitive_type.quads.vertex_shader",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:primitive_type.triangle_fan.fixed_function",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:primitive_type.triangle_fan.vertex_shader",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:primitive_type.triangle_strip.fixed_function",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:primitive_type.triangle_strip.vertex_shader",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:primitive_type.triangles.fixed_function",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:primitive_type.triangles.vertex_shader",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "run_storage_state",
+            "Passed": false,
+            "Category": "state",
+            "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+          }
+        ],
+        "IsExecutionSuccess": true,
+        "IsCorrectnessSuccess": false
+      },
+      "exitCode": 0,
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      }
+    },
+    {
+      "chunk": 12,
+      "runId": "20260930-144414982-09d4bfa92aae4e2a890edbdc6edad442",
+      "source": "runs/deck-full/20260930-144414982-09d4bfa92aae4e2a890edbdc6edad442/result.json",
+      "sourceSha256": "b04d6bb4c675c98fdee0bb475d50ad3ea64d3af6fd873a03f5dda926786ef002",
+      "guestSourceSha256": "f8bfe155a9e04e38708820836a51d5ed227a4e9ca12d86ef55226ae1b793b785",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "failed",
+        "Evidence": "complete",
+        "Comparison": "ineligible",
+        "ComparisonReasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required.",
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+        ],
+        "Checks": [
+          {
+            "Name": "guest_hdd_extraction",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+          },
+          {
+            "Name": "xiso_plan_receipt",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Guest completion receipt matches the injected selection."
+          },
+          {
+            "Name": "xiso_exact_coverage",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Selected 1 leaves and 0 groups; received 1. Missing 0, extra 0."
+          },
+          {
+            "Name": "xiso_oracle_coverage",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "No pinned oracle for 1 selected leaves. Actual results remain evidence, not a self-approved baseline."
+          },
+          {
+            "Name": "run_storage_state",
+            "Passed": false,
+            "Category": "state",
+            "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+          }
+        ],
+        "IsExecutionSuccess": true,
+        "IsCorrectnessSuccess": false
+      },
+      "exitCode": 0,
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      }
+    },
+    {
+      "chunk": 13,
+      "runId": "20260930-144431660-a3f615f5f99c4580b4718f0bc1a64e30",
+      "source": "runs/deck-full/20260930-144431660-a3f615f5f99c4580b4718f0bc1a64e30/result.json",
+      "sourceSha256": "5c10d145823068fe3476d9056fb41b03efc5106baaf3ef8c613557b61944319c",
+      "guestSourceSha256": "6a34376bcac3a274586006430b07f34abf8043a1d558982cc97ba2beb875ca83",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "failed",
+        "Evidence": "complete",
+        "Comparison": "ineligible",
+        "ComparisonReasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required.",
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+        ],
+        "Checks": [
+          {
+            "Name": "guest_hdd_extraction",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+          },
+          {
+            "Name": "xiso_plan_receipt",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Guest completion receipt matches the injected selection."
+          },
+          {
+            "Name": "xiso_exact_coverage",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Selected 12 leaves and 0 groups; received 12. Missing 0, extra 0."
+          },
+          {
+            "Name": "guest_record_set",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Expected 12 stable IDs; received 12. Missing 0, extra 0."
+          },
+          {
+            "Name": "guest:surface.basic",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:surface.cpu_read_after_gpu_write",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 1 applicable reference hashes."
+          },
+          {
+            "Name": "guest:surface.cpu_read_clean_surface",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "Matched work contract and 1 applicable reference hashes."
+          },
+          {
+            "Name": "guest:surface.framebuffer_working_set_002",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:surface.framebuffer_working_set_008",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:surface.framebuffer_working_set_032",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:surface.framebuffer_working_set_064",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:surface.full_clear_elision_guard",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:surface.overlapping_surface_churn_representative",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:surface.overlapping_surface_churn_stress",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:surface.partial_channel_clear_guard",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:surface.surface_download_path",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "run_storage_state",
+            "Passed": false,
+            "Category": "state",
+            "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+          }
+        ],
+        "IsExecutionSuccess": true,
+        "IsCorrectnessSuccess": false
+      },
+      "exitCode": 0,
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      }
+    },
+    {
+      "chunk": 14,
+      "runId": "20260930-144500716-2fcf28b5f6774aecb1559c21d92a7fa8",
+      "source": "runs/deck-full/20260930-144500716-2fcf28b5f6774aecb1559c21d92a7fa8/result.json",
+      "sourceSha256": "e2c5772bf57f8e79da0da453213c2500005e326590c0abc07e987e3423cb10e9",
+      "guestSourceSha256": "2e30dabc9ab8c560489ea107df619d48c36fcd2d0bb607e82b5c4ce999eebfda",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "failed",
+        "Evidence": "complete",
+        "Comparison": "ineligible",
+        "ComparisonReasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required.",
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+        ],
+        "Checks": [
+          {
+            "Name": "guest_hdd_extraction",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+          },
+          {
+            "Name": "xiso_plan_receipt",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Guest completion receipt matches the injected selection."
+          },
+          {
+            "Name": "xiso_exact_coverage",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Selected 14 leaves and 2 groups; received 16. Missing 0, extra 0."
+          },
+          {
+            "Name": "xiso_group:surface.vulkan_memory_pressure.representative",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Structural group outcome; never treated as an independent timing sample."
+          },
+          {
+            "Name": "xiso_group:surface.vulkan_memory_pressure.stress",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Structural group outcome; never treated as an independent timing sample."
+          },
+          {
+            "Name": "guest_record_set",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Expected 14 stable IDs; received 14. Missing 0, extra 0."
+          },
+          {
+            "Name": "guest:surface.surface_list_lookup_002",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:surface.surface_list_lookup_008",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:surface.surface_list_lookup_032",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:surface.surface_list_lookup_128",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:surface.vulkan_memory_pressure.representative.alias_resize",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:surface.vulkan_memory_pressure.representative.growth",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:surface.vulkan_memory_pressure.representative.idle_retention",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:surface.vulkan_memory_pressure.representative.plateau",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:surface.vulkan_memory_pressure.representative.reuse",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:surface.vulkan_memory_pressure.stress.alias_resize",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:surface.vulkan_memory_pressure.stress.growth",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:surface.vulkan_memory_pressure.stress.idle_retention",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:surface.vulkan_memory_pressure.stress.plateau",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:surface.vulkan_memory_pressure.stress.reuse",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "run_storage_state",
+            "Passed": false,
+            "Category": "state",
+            "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+          }
+        ],
+        "IsExecutionSuccess": true,
+        "IsCorrectnessSuccess": false
+      },
+      "exitCode": 0,
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      }
+    },
+    {
+      "chunk": 15,
+      "runId": "20260930-144532273-0434121adc574d84ab7a81fabc0dbb02",
+      "source": "runs/deck-full/20260930-144532273-0434121adc574d84ab7a81fabc0dbb02/result.json",
+      "sourceSha256": "6f4ba56605a724d280fb19b7bfb04e6db3470d6f13ee5ccc69233ea2a05f8f49",
+      "guestSourceSha256": "c4c8ddb6ac486edbf284b9895c0de09f0849dd11bf3e2fc1731d8189a0de9e85",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "failed",
+        "Evidence": "complete",
+        "Comparison": "ineligible",
+        "ComparisonReasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required.",
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+        ],
+        "Checks": [
+          {
+            "Name": "guest_hdd_extraction",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+          },
+          {
+            "Name": "xiso_plan_receipt",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Guest completion receipt matches the injected selection."
+          },
+          {
+            "Name": "xiso_exact_coverage",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Selected 8 leaves and 0 groups; received 8. Missing 0, extra 0."
+          },
+          {
+            "Name": "guest_record_set",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Expected 8 stable IDs; received 8. Missing 0, extra 0."
+          },
+          {
+            "Name": "guest:tiny_draw.arrays.fixed_function",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:tiny_draw.arrays.vertex_shader",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:tiny_draw.inline_arrays.fixed_function",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:tiny_draw.inline_arrays.vertex_shader",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:tiny_draw.inline_buffers.fixed_function",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:tiny_draw.inline_buffers.vertex_shader",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:tiny_draw.inline_elements.fixed_function",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "guest:tiny_draw.inline_elements.vertex_shader",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "run_storage_state",
+            "Passed": false,
+            "Category": "state",
+            "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+          }
+        ],
+        "IsExecutionSuccess": true,
+        "IsCorrectnessSuccess": false
+      },
+      "exitCode": 0,
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      }
+    },
+    {
+      "chunk": 16,
+      "runId": "20260930-144630989-1273b01f78be4ec0857044a1b73f92a8",
+      "source": "runs/deck-full/20260930-144630989-1273b01f78be4ec0857044a1b73f92a8/result.json",
+      "sourceSha256": "9b904ab0cfd6d3f5c23098a31f6295cc708e06daeffa2efb2dbb3b6d0d8fa35f",
+      "guestSourceSha256": "067a8f9281eadccaea9efcc90bb53a7e9721e9b28cc8cec1d17f4791f175978a",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "failed",
+        "Evidence": "complete",
+        "Comparison": "ineligible",
+        "ComparisonReasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required.",
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+        ],
+        "Checks": [
+          {
+            "Name": "guest_hdd_extraction",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+          },
+          {
+            "Name": "xiso_plan_receipt",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Guest completion receipt matches the injected selection."
+          },
+          {
+            "Name": "xiso_exact_coverage",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Selected 1 leaves and 0 groups; received 1. Missing 0, extra 0."
+          },
+          {
+            "Name": "guest_record_set",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Expected 1 stable IDs; received 1. Missing 0, extra 0."
+          },
+          {
+            "Name": "guest:uniform_thrash.uniform_thrash",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "Guest outcome, fixed work, or reference hash mismatch; missing oracles are not a pass."
+          },
+          {
+            "Name": "run_storage_state",
+            "Passed": false,
+            "Category": "state",
+            "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+          }
+        ],
+        "IsExecutionSuccess": true,
+        "IsCorrectnessSuccess": false
+      },
+      "exitCode": 0,
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      }
+    },
+    {
+      "chunk": 17,
+      "runId": "20260930-144647493-1fa1782f43fd44cd9498ecf3ee6a52c6",
+      "source": "runs/deck-full/20260930-144647493-1fa1782f43fd44cd9498ecf3ee6a52c6/result.json",
+      "sourceSha256": "574b259d3457e2d8d9bac7bf3367b95b57b6cfbc8bda0e785b64aad2e910a9a7",
+      "guestSourceSha256": "2c26ed00ab4f8aea08750e2fe3a27e7ac4a58b305468f3f5e4a6612248fdabf7",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "failed",
+        "Evidence": "complete",
+        "Comparison": "ineligible",
+        "ComparisonReasons": [
+          "Correctness outcome is Failed; a passing correctness contract is required.",
+          "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+        ],
+        "Checks": [
+          {
+            "Name": "guest_hdd_extraction",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+          },
+          {
+            "Name": "xiso_plan_receipt",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Guest completion receipt matches the injected selection."
+          },
+          {
+            "Name": "xiso_exact_coverage",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Selected 10 leaves and 0 groups; received 10. Missing 0, extra 0."
+          },
+          {
+            "Name": "xiso_oracle_coverage",
+            "Passed": false,
+            "Category": "correctness",
+            "Detail": "No pinned oracle for 1 selected leaves. Actual results remain evidence, not a self-approved baseline."
+          },
+          {
+            "Name": "run_storage_state",
+            "Passed": false,
+            "Category": "state",
+            "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+          }
+        ],
+        "IsExecutionSuccess": true,
+        "IsCorrectnessSuccess": false
+      },
+      "exitCode": 0,
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      }
+    }
+  ]
+}

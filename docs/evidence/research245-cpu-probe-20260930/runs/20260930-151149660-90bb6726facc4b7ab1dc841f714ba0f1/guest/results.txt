@@ -1,0 +1,39 @@
+[
+  {
+    "schema_version": 1,
+    "id": "cpu_translation_blocks.code_stable",
+    "revision": 2,
+    "kind": "leaf",
+    "name": "CpuTranslationBlocks::CodeStable",
+    "outcome": "PASS",
+    "iterations": 10,
+    "sample_count": 10,
+    "measurement_iterations_multiplier": 1,
+    "warmup_iterations": 0,
+    "gpu_completion_mode": "per_iteration",
+    "completion_wait_us": 2010,
+    "total_us": 42919948,
+    "average_us": 4291994,
+    "min_us": 4256109,
+    "max_us": 4356509,
+    "median_us": 4280967,
+    "p95_us": 4356509,
+    "mad_us": 10911,
+    "unit": "us",
+    "direction": "lower_is_better",
+    "raw_results": [
+      4283009,
+      4269424,
+      4356509,
+      4315837,
+      4278926,
+      4256109,
+      4271951,
+      4328124,
+      4289371,
+      4270688
+    ],
+    "framebuffer_fnv1a64": "31a89789f019a325",
+    "metadata": {"oracle_status":"PASS","operations":50000000,"work_checksum":"9275e7c3","result_checksum":"f5ff3985","expected_checksum":"f5ff3985"}
+  }
+]

@@ -1,0 +1,624 @@
+{
+  "Id": "research245-probe-06168a2f-deck-on1-t001",
+  "Executable": "xemu",
+  "Arguments": [],
+  "WorkingDirectory": ".",
+  "Environment": {
+    "SDL_VIDEODRIVER": "x11",
+    "XDG_DATA_HOME": "{runtimeDir}/xdg-data",
+    "XDG_CACHE_HOME": "{runtimeDir}/xdg-cache",
+    "XEMU_FRAME_LOG": "{resultDir}/guest-frames.log",
+    "XEMU_FLIP_LOG": "{resultDir}/guest-flips.log",
+    "LD_LIBRARY_PATH": "{packageDir}/lib",
+    "XEMU_TCG_JUMP_CACHE_PROBE": "1"
+  },
+  "TimeoutSeconds": 210,
+  "Tags": [
+    "research245",
+    "pgr2",
+    "stationary-start",
+    "jump-cache-probe",
+    "test-definition:research245-linux-pgr2-jump-cache-on-v1@b460e24accdf8d023b69d93bf6c079e9b4eb67545d88f36ee7d72b933436b8bf"
+  ],
+  "Plan": [
+    {
+      "Type": "require_input",
+      "DelayMs": 0,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 30000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "button",
+      "DelayMs": 0,
+      "Button": "A",
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 12000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "button",
+      "DelayMs": 0,
+      "Button": "A",
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 4000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "button",
+      "DelayMs": 0,
+      "Button": "A",
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 4000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "button",
+      "DelayMs": 0,
+      "Button": "A",
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 4000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "button",
+      "DelayMs": 0,
+      "Button": "DPadRight",
+      "DurationMs": 80,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 4000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "button",
+      "DelayMs": 0,
+      "Button": "A",
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 4000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "button",
+      "DelayMs": 0,
+      "Button": "A",
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 4000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "button",
+      "DelayMs": 0,
+      "Button": "A",
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 4000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "button",
+      "DelayMs": 0,
+      "Button": "A",
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 4000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "button",
+      "DelayMs": 0,
+      "Button": "A",
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 10000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "button",
+      "DelayMs": 0,
+      "Button": "A",
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 20000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "diagnostic",
+      "DelayMs": 0,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": "jit-before",
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "segment_start",
+      "DelayMs": 0,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": "stationary-start",
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "screenshot",
+      "DelayMs": 0,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": "recording-start",
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 30000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "screenshot",
+      "DelayMs": 0,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": "recording-end",
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "segment_end",
+      "DelayMs": 0,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": "stationary-start",
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "diagnostic",
+      "DelayMs": 0,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": "jit-after",
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "wait",
+      "DelayMs": 6000,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    },
+    {
+      "Type": "quit",
+      "DelayMs": 0,
+      "Button": null,
+      "DurationMs": 100,
+      "Name": null,
+      "DiagnosticId": null,
+      "Condition": null,
+      "TimeoutMs": 10000,
+      "PollIntervalMs": 100
+    }
+  ],
+  "TargetOs": "linux",
+  "ExpectedExecutableSha256": "9e2dbe1b9ff3298de99f57c9c00accab7cd25dad6362e7d92d7d4d63aed0bd53",
+  "RequiredFiles": [
+    "xemu",
+    "xemu.toml",
+    "state/seed-eeprom.bin",
+    "lib/libslirp.so.0"
+  ],
+  "LaunchMode": "direct",
+  "SnapshotName": null,
+  "StartPaused": false,
+  "RequireInput": true,
+  "Diagnostics": [
+    {
+      "Id": "jit-before",
+      "Type": "monitor",
+      "DurationMs": 30000,
+      "PauseBefore": false,
+      "ResumeDuring": false,
+      "PauseAfter": false,
+      "OutputName": null,
+      "Reason": null,
+      "Profile": "GeneralProfile\u002BGPU",
+      "Frequency": 997,
+      "CallGraph": "dwarf",
+      "ClockId": null,
+      "Frames": 1,
+      "TracePgraph": false,
+      "RenderDocTrigger": "xemu-hotkey",
+      "AnalyzeCapture": true,
+      "Address": 0,
+      "Size": 0,
+      "DebugFile": null,
+      "Addresses": [],
+      "QmpCommand": null,
+      "QmpArguments": {},
+      "MonitorCommand": "info jit",
+      "ToolExecutable": null,
+      "ToolArguments": [],
+      "ToolWorkingDirectory": null
+    },
+    {
+      "Id": "jit-after",
+      "Type": "monitor",
+      "DurationMs": 30000,
+      "PauseBefore": false,
+      "ResumeDuring": false,
+      "PauseAfter": false,
+      "OutputName": null,
+      "Reason": null,
+      "Profile": "GeneralProfile\u002BGPU",
+      "Frequency": 997,
+      "CallGraph": "dwarf",
+      "ClockId": null,
+      "Frames": 1,
+      "TracePgraph": false,
+      "RenderDocTrigger": "xemu-hotkey",
+      "AnalyzeCapture": true,
+      "Address": 0,
+      "Size": 0,
+      "DebugFile": null,
+      "Addresses": [],
+      "QmpCommand": null,
+      "QmpArguments": {},
+      "MonitorCommand": "info jit",
+      "ToolExecutable": null,
+      "ToolArguments": [],
+      "ToolWorkingDirectory": null
+    }
+  ],
+  "RuntimeState": {
+    "Enabled": true,
+    "KeepOnSuccess": false,
+    "KeepOnFailure": true,
+    "Files": [
+      {
+        "Source": "state/seed-eeprom.bin",
+        "Destination": "eeprom.bin",
+        "ExpectedSha256": null
+      }
+    ],
+    "DiskAssets": [
+      {
+        "AssetId": "research247-pgr2-save-7b0f55",
+        "ExpectedSha256": "7b0f55920d8740e9c77183392aad9969f775ba823f1de4612ef461796a055b52",
+        "Destination": "hdd.qcow2",
+        "Retention": "deleteAfterEvidence"
+      }
+    ],
+    "Isolation": {
+      "CacheMode": "cold",
+      "CacheShaders": false,
+      "DriverCache": "mesa",
+      "AllowUncontrolledDriverCache": false,
+      "SeedDirectory": null,
+      "SeedSha256": null,
+      "RequirePrivateGuestState": true,
+      "MaximumFiles": 4096,
+      "MaximumBytes": 268435456,
+      "DeadlineSeconds": 15,
+      "ReadOnlyAssets": [
+        {
+          "Field": "bootrom_path",
+          "AssetId": "research247-bootrom-e99e3a",
+          "ExpectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+        },
+        {
+          "Field": "flashrom_path",
+          "AssetId": "research247-bios-1de4c8",
+          "ExpectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+        },
+        {
+          "Field": "dvd_path",
+          "AssetId": "research247-pgr2-disc-694365",
+          "ExpectedSha256": "6943653e6e8540f2c473579cf27c8e710d79ac76f88abaa95ec0c011c5bd69cd"
+        }
+      ]
+    }
+  },
+  "Inputs": [
+    {
+      "Path": "xemu",
+      "Role": "research245-jump-cache-diagnostic",
+      "Hash": true,
+      "ExpectedSha256": "9e2dbe1b9ff3298de99f57c9c00accab7cd25dad6362e7d92d7d4d63aed0bd53"
+    },
+    {
+      "Path": "xemu.toml",
+      "Role": "portable-run-config",
+      "Hash": true,
+      "ExpectedSha256": null
+    },
+    {
+      "Path": "lib/libslirp.so.0",
+      "Role": "pinned-appimage-bundled-library",
+      "Hash": true,
+      "ExpectedSha256": null
+    }
+  ],
+  "Workload": {
+    "CorrectnessChecks": [
+      {
+        "Name": "recording-start-visible",
+        "Scope": "result",
+        "Path": "screenshots/recording-start.png",
+        "MustExist": true,
+        "MinimumBytes": 1000,
+        "MinimumNonBlackPixelRatio": 0.05,
+        "NonBlackPixelThreshold": 96,
+        "ImageRegion": null,
+        "ExpectedSha256": null,
+        "ContainsText": null,
+        "EqualsText": null
+      },
+      {
+        "Name": "recording-end-visible",
+        "Scope": "result",
+        "Path": "screenshots/recording-end.png",
+        "MustExist": true,
+        "MinimumBytes": 1000,
+        "MinimumNonBlackPixelRatio": 0.05,
+        "NonBlackPixelThreshold": 96,
+        "ImageRegion": null,
+        "ExpectedSha256": null,
+        "ContainsText": null,
+        "EqualsText": null
+      }
+    ],
+    "EvidenceRequirements": [
+      {
+        "Name": "guest-progress",
+        "Scope": "result",
+        "Path": "guest-frames.log",
+        "MustExist": true,
+        "MinimumBytes": 1000,
+        "MinimumNonBlackPixelRatio": null,
+        "NonBlackPixelThreshold": 0,
+        "ImageRegion": null,
+        "ExpectedSha256": null,
+        "ContainsText": null,
+        "EqualsText": null
+      },
+      {
+        "Name": "measurement-segments",
+        "Scope": "result",
+        "Path": "segments.jsonl",
+        "MustExist": true,
+        "MinimumBytes": 20,
+        "MinimumNonBlackPixelRatio": null,
+        "NonBlackPixelThreshold": 0,
+        "ImageRegion": null,
+        "ExpectedSha256": null,
+        "ContainsText": null,
+        "EqualsText": null
+      }
+    ],
+    "ReportedMetrics": [],
+    "MinimumMetricSamples": 160,
+    "RequirePlanCompletion": true,
+    "Analysis": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 5,
+      "FrameTailSeconds": 25,
+      "MinimumCpuSamples": 55,
+      "MinimumFrameSamples": 160
+    }
+  },
+  "Experiment": {
+    "Id": "research245-linux-pgr2-jump-cache-on-v1",
+    "Variant": "probe-on",
+    "Reference": null,
+    "VariedFactors": [
+      "jump-cache-collection"
+    ],
+    "ControlledFactors": [],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "Operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  }
+}

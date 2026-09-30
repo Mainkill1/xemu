@@ -1,0 +1,4 @@
+COMPLETED | windows | no fatal exception confirmed
+Executable SHA-256: 0d70a1f4403a064636ed717b9a8abc4a03f04f4610addf883626f5b1a04e069d
+Capture: notNeeded; dump: notRequested; analysis: notRequested
+

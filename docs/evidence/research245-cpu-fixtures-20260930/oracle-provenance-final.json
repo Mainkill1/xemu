@@ -1,0 +1,10 @@
+{
+  "defaultOracleSha256": "012286767ceb727d81f4646463cc46dcb13c9e7f30a891eeda74fba63f78401c",
+  "suiteOracleSha256": "fe7ea361d2427e81e58e6addfd745f037023497bebd9ea59bf68e90dbc13848f",
+  "historicalReferenceSha256": "831354e1839e44be382ffd6242be18803d5327998acb1bf0537b38860be13c60",
+  "historicalRecords": 141,
+  "newKnownAnswerRecords": 2,
+  "newOracleMethod": "independent uint32 recurrence; no recorded emulator timings or framebuffer goldens",
+  "suiteWorkSettings": "3 warmups and multiplier4; existing historical records retained unchanged; new known checksum resets state for each invocation and remains invariant under repeated invocations",
+  "fullSuiteCoverage": "partial; missing selected oracles remain a correctness failure"
+}

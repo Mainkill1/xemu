@@ -1,0 +1,61 @@
+{
+  "runId": "20260930-123411941-b798f05dfd0d4d61ae38225385552a87",
+  "attempt": 1,
+  "job": "research245-probe-06168a2f-deck-off2-t001",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu",
+  "executableSha256": "9e2dbe1b9ff3298de99f57c9c00accab7cd25dad6362e7d92d7d4d63aed0bd53",
+  "jobSha256": "4da5f04f22aecfebf7c0356933cf76b40833b469a4f76f7e0a089a3cb35c6ac4",
+  "arguments": [
+    "-qmp",
+    "tcp:127.0.0.1:40015,server=on,wait=off"
+  ],
+  "environmentKeys": [
+    "LD_LIBRARY_PATH",
+    "SDL_VIDEODRIVER",
+    "XDG_CACHE_HOME",
+    "XDG_DATA_HOME",
+    "XEMU_FLIP_LOG",
+    "XEMU_FRAME_LOG",
+    "XEMU_TCG_JUMP_CACHE_PROBE"
+  ],
+  "workingDirectory": ".",
+  "runtimeDirectory": "/home/deck/xemu-research/workspace/Runtime/20260930-123411941-b798f05dfd0d4d61ae38225385552a87",
+  "experiment": {
+    "Id": "research245-linux-pgr2-jump-cache-off-v1",
+    "Variant": "probe-off",
+    "Reference": null,
+    "VariedFactors": [
+      "jump-cache-collection"
+    ],
+    "ControlledFactors": [],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B6089e8b841bce379015500853c0455551d7fd2cf",
+    "machine": "steamdeck",
+    "os": "SteamOS",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 8,
+    "dotnet": "10.0.12"
+  }
+}

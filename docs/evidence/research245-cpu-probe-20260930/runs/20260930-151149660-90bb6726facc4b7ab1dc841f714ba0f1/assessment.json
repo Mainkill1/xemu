@@ -1,0 +1,62 @@
+{
+  "Execution": "completed",
+  "Correctness": "passed",
+  "Evidence": "incomplete",
+  "Comparison": "ineligible",
+  "ComparisonReasons": [
+    "Evidence outcome is Incomplete; complete evidence is required.",
+    "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+  ],
+  "Checks": [
+    {
+      "Name": "guest_hdd_extraction",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+    },
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 1 leaves and 0 groups; received 1. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 1 stable IDs; received 1. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:cpu_translation_blocks.code_stable",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 2 applicable reference hashes."
+    },
+    {
+      "Name": "jit-snapshots",
+      "Passed": false,
+      "Category": "evidence",
+      "Detail": "Required artifact is missing: /home/deck/xemu-research/workspace/Results/20260930-151149660-90bb6726facc4b7ab1dc841f714ba0f1/diagnostic-bundle.json"
+    },
+    {
+      "Name": "plan_completion",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "The declared plan completed."
+    },
+    {
+      "Name": "run_storage_state",
+      "Passed": false,
+      "Category": "state",
+      "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+    }
+  ],
+  "IsExecutionSuccess": true,
+  "IsCorrectnessSuccess": true
+}

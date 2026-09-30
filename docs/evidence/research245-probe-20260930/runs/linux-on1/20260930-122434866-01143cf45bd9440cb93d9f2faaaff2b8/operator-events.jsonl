@@ -1,0 +1,2 @@
+{"timestampUtc":"2026-09-30T12:26:26.4040056+00:00","elapsedMs":111536.8048,"kind":"diagnostic","detail":{"Id":"jit-before","Type":"monitor","Reason":null}}
+{"timestampUtc":"2026-09-30T12:26:57.6323155+00:00","elapsedMs":142765.1144,"kind":"diagnostic","detail":{"Id":"jit-after","Type":"monitor","Reason":null}}

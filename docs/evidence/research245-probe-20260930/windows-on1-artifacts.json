@@ -1,0 +1,125 @@
+{
+  "RunId": "20260930-122442020-f2eb56d465cf4b2193e3566eece73794",
+  "Artifacts": [
+    {
+      "Path": "assessment.json",
+      "Bytes": 1926
+    },
+    {
+      "Path": "diagnostic-bundle.json",
+      "Bytes": 357
+    },
+    {
+      "Path": "diagnostics.zip",
+      "Bytes": 36615
+    },
+    {
+      "Path": "guest-flips.log",
+      "Bytes": 630
+    },
+    {
+      "Path": "guest-frames.log",
+      "Bytes": 174067
+    },
+    {
+      "Path": "host-inventory.json",
+      "Bytes": 854
+    },
+    {
+      "Path": "input-manifest.json",
+      "Bytes": 1934
+    },
+    {
+      "Path": "job.json",
+      "Bytes": 14170
+    },
+    {
+      "Path": "launch.json",
+      "Bytes": 2311
+    },
+    {
+      "Path": "metrics.csv",
+      "Bytes": 35161
+    },
+    {
+      "Path": "operator-events.jsonl",
+      "Bytes": 313
+    },
+    {
+      "Path": "performance.json",
+      "Bytes": 2187
+    },
+    {
+      "Path": "pre-run-environment.json",
+      "Bytes": 1597
+    },
+    {
+      "Path": "preflight.json",
+      "Bytes": 1925
+    },
+    {
+      "Path": "result.json",
+      "Bytes": 13000
+    },
+    {
+      "Path": "runtime-state.json",
+      "Bytes": 392
+    },
+    {
+      "Path": "segments.jsonl",
+      "Bytes": 238
+    },
+    {
+      "Path": "stderr.log",
+      "Bytes": 0
+    },
+    {
+      "Path": "stdout.log",
+      "Bytes": 0
+    },
+    {
+      "Path": "crash/report.json",
+      "Bytes": 453
+    },
+    {
+      "Path": "crash/report.txt",
+      "Bytes": 200
+    },
+    {
+      "Path": "screenshots/recording-end.png",
+      "Bytes": 1241420
+    },
+    {
+      "Path": "screenshots/recording-start.png",
+      "Bytes": 1273848
+    },
+    {
+      "Path": "diagnostics/20260930-122532156-jit-before/monitor.txt",
+      "Bytes": 1484
+    },
+    {
+      "Path": "diagnostics/20260930-122532156-jit-before/request.json",
+      "Bytes": 638
+    },
+    {
+      "Path": "diagnostics/20260930-122532156-jit-before/result.json",
+      "Bytes": 433
+    },
+    {
+      "Path": "diagnostics/20260930-122604826-jit-after/monitor.txt",
+      "Bytes": 1486
+    },
+    {
+      "Path": "diagnostics/20260930-122604826-jit-after/request.json",
+      "Bytes": 637
+    },
+    {
+      "Path": "diagnostics/20260930-122604826-jit-after/result.json",
+      "Bytes": 430
+    },
+    {
+      "Path": "diagnostics/run-state/report.json",
+      "Bytes": 1255
+    }
+  ]
+}

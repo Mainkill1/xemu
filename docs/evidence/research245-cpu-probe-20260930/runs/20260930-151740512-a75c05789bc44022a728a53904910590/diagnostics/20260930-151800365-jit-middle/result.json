@@ -1,0 +1,12 @@
+{
+  "Id": "jit-middle",
+  "Type": "monitor",
+  "Status": "completed",
+  "StartedUtc": "2026-09-30T15:18:00.3656799+00:00",
+  "EndedUtc": "2026-09-30T15:18:00.3806304+00:00",
+  "Directory": "/home/deck/xemu-research/workspace/Results/20260930-151740512-a75c05789bc44022a728a53904910590/diagnostics/20260930-151800365-jit-middle",
+  "Detail": null,
+  "Artifacts": [
+    "monitor.txt"
+  ]
+}
