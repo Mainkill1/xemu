@@ -1,0 +1,279 @@
+ninja: Entering directory `build-probe'
+[1/4] Generating qemu-version.h with a custom command (wrapped by meson to capture output)
+[2/4] Generating xemu-version-macro.h with a custom command (wrapped by meson to capture output)
+[3/4] Compiling C object tests/unit/test-tcg-jump-cache-validity.p/test-tcg-jump-cache-validity.c.o
+FAILED: tests/unit/test-tcg-jump-cache-validity.p/test-tcg-jump-cache-validity.c.o 
+cc -m64 -Itests/unit/test-tcg-jump-cache-validity.p -Itests/unit -I../tests/unit -Itarget/i386 -I../target/i386 -I. -Iqapi -Itrace -Iui -Iui/shader -Idata -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/sysprof-6 -fdiagnostics-color=auto -Wall -Winvalid-pch -std=gnu11 -O2 -g -Wempty-body -Wendif-labels -Wexpansion-to-defined -Wformat-security -Wformat-y2k -Wignored-qualifiers -Wimplicit-fallthrough=2 -Winit-self -Wmissing-format-attribute -Wmissing-prototypes -Wnested-externs -Wold-style-declaration -Wold-style-definition -Wredundant-decls -Wshadow=local -Wstrict-prototypes -Wtype-limits -Wwrite-strings -Wno-missing-include-dirs -Wno-psabi -Wno-shift-negative-value -isystem /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/linux-headers -isystem linux-headers -iquote . -iquote /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache -iquote /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include -iquote /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/host/include/x86_64 -iquote /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/host/include/generic -iquote /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/tcg/i386 -pthread -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIE -DCOMPILING_PER_TARGET '-DCONFIG_TARGET="i386-softmmu-config-target.h"' '-DCONFIG_DEVICES="i386-softmmu-config-devices.h"' -MD -MQ tests/unit/test-tcg-jump-cache-validity.p/test-tcg-jump-cache-validity.c.o -MF tests/unit/test-tcg-jump-cache-validity.p/test-tcg-jump-cache-validity.c.o.d -o tests/unit/test-tcg-jump-cache-validity.p/test-tcg-jump-cache-validity.c.o -c ../tests/unit/test-tcg-jump-cache-validity.c
+In file included from /usr/lib/x86_64-linux-gnu/glib-2.0/include/glibconfig.h:9,
+                 from /usr/include/glib-2.0/glib/gtypes.h:34,
+                 from /usr/include/glib-2.0/glib/galloca.h:34,
+                 from /usr/include/glib-2.0/glib.h:32,
+                 from /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/glib-compat.h:32,
+                 from /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/qemu/osdep.h:175,
+                 from ../tests/unit/test-tcg-jump-cache-validity.c:2:
+../tests/unit/test-tcg-jump-cache-validity.c: In function ‘test_valid_and_invalid’:
+../tests/unit/test-tcg-jump-cache-validity.c:41:19: error: implicit declaration of function ‘tcg_jump_cache_lookup’ [-Wimplicit-function-declaration]
+   41 |     g_assert_null(tcg_jump_cache_lookup(jc, h, s));
+      |                   ^~~~~~~~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:250:59: note: in expansion of macro ‘G_LIKELY’
+  250 | #define g_assert_null(expr)             G_STMT_START { if G_LIKELY ((expr) == NULL) ; else \
+      |                                                           ^~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c:41:5: note: in expansion of macro ‘g_assert_null’
+   41 |     g_assert_null(tcg_jump_cache_lookup(jc, h, s));
+      |     ^~~~~~~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c:41:19: warning: nested extern declaration of ‘tcg_jump_cache_lookup’ [-Wnested-externs]
+   41 |     g_assert_null(tcg_jump_cache_lookup(jc, h, s));
+      |                   ^~~~~~~~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:250:59: note: in expansion of macro ‘G_LIKELY’
+  250 | #define g_assert_null(expr)             G_STMT_START { if G_LIKELY ((expr) == NULL) ; else \
+      |                                                           ^~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c:41:5: note: in expansion of macro ‘g_assert_null’
+   41 |     g_assert_null(tcg_jump_cache_lookup(jc, h, s));
+      |     ^~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:250:76: warning: comparison between pointer and integer
+  250 | #define g_assert_null(expr)             G_STMT_START { if G_LIKELY ((expr) == NULL) ; else \
+      |                                                                            ^~
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:250:59: note: in expansion of macro ‘G_LIKELY’
+  250 | #define g_assert_null(expr)             G_STMT_START { if G_LIKELY ((expr) == NULL) ; else \
+      |                                                           ^~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c:41:5: note: in expansion of macro ‘g_assert_null’
+   41 |     g_assert_null(tcg_jump_cache_lookup(jc, h, s));
+      |     ^~~~~~~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c:43:51: warning: comparison between pointer and integer
+   43 |     g_assert_true(tcg_jump_cache_lookup(jc, h, s) == &tb);
+      |                                                   ^~
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c:43:5: note: in expansion of macro ‘g_assert_true’
+   43 |     g_assert_true(tcg_jump_cache_lookup(jc, h, s) == &tb);
+      |     ^~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:250:76: warning: comparison between pointer and integer
+  250 | #define g_assert_null(expr)             G_STMT_START { if G_LIKELY ((expr) == NULL) ; else \
+      |                                                                            ^~
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:250:59: note: in expansion of macro ‘G_LIKELY’
+  250 | #define g_assert_null(expr)             G_STMT_START { if G_LIKELY ((expr) == NULL) ; else \
+      |                                                           ^~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c:45:5: note: in expansion of macro ‘g_assert_null’
+   45 |     g_assert_null(tcg_jump_cache_lookup(jc, h, s));
+      |     ^~~~~~~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c: In function ‘test_complete_identity’:
+/usr/include/glib-2.0/glib/gtestutils.h:250:76: warning: comparison between pointer and integer
+  250 | #define g_assert_null(expr)             G_STMT_START { if G_LIKELY ((expr) == NULL) ; else \
+      |                                                                            ^~
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:250:59: note: in expansion of macro ‘G_LIKELY’
+  250 | #define g_assert_null(expr)             G_STMT_START { if G_LIKELY ((expr) == NULL) ; else \
+      |                                                           ^~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c:66:5: note: in expansion of macro ‘g_assert_null’
+   66 |     g_assert_null(tcg_jump_cache_lookup(jc, h, wanted));
+      |     ^~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:250:76: warning: comparison between pointer and integer
+  250 | #define g_assert_null(expr)             G_STMT_START { if G_LIKELY ((expr) == NULL) ; else \
+      |                                                                            ^~
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:250:59: note: in expansion of macro ‘G_LIKELY’
+  250 | #define g_assert_null(expr)             G_STMT_START { if G_LIKELY ((expr) == NULL) ; else \
+      |                                                           ^~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c:69:5: note: in expansion of macro ‘g_assert_null’
+   69 |     g_assert_null(tcg_jump_cache_lookup(jc, h, wanted));
+      |     ^~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:250:76: warning: comparison between pointer and integer
+  250 | #define g_assert_null(expr)             G_STMT_START { if G_LIKELY ((expr) == NULL) ; else \
+      |                                                                            ^~
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:250:59: note: in expansion of macro ‘G_LIKELY’
+  250 | #define g_assert_null(expr)             G_STMT_START { if G_LIKELY ((expr) == NULL) ; else \
+      |                                                           ^~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c:72:5: note: in expansion of macro ‘g_assert_null’
+   72 |     g_assert_null(tcg_jump_cache_lookup(jc, h, wanted));
+      |     ^~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:250:76: warning: comparison between pointer and integer
+  250 | #define g_assert_null(expr)             G_STMT_START { if G_LIKELY ((expr) == NULL) ; else \
+      |                                                                            ^~
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:250:59: note: in expansion of macro ‘G_LIKELY’
+  250 | #define g_assert_null(expr)             G_STMT_START { if G_LIKELY ((expr) == NULL) ; else \
+      |                                                           ^~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c:76:9: note: in expansion of macro ‘g_assert_null’
+   76 |         g_assert_null(tcg_jump_cache_lookup(jc, h, wanted));
+      |         ^~~~~~~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c:80:51: warning: comparison between pointer and integer
+   80 |     g_assert_true(tcg_jump_cache_lookup(jc, h, s) == &tb);
+      |                                                   ^~
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c:80:5: note: in expansion of macro ‘g_assert_true’
+   80 |     g_assert_true(tcg_jump_cache_lookup(jc, h, s) == &tb);
+      |     ^~~~~~~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c: In function ‘test_same_slot_replacement’:
+/usr/include/glib-2.0/glib/gtestutils.h:250:76: warning: comparison between pointer and integer
+  250 | #define g_assert_null(expr)             G_STMT_START { if G_LIKELY ((expr) == NULL) ; else \
+      |                                                                            ^~
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:250:59: note: in expansion of macro ‘G_LIKELY’
+  250 | #define g_assert_null(expr)             G_STMT_START { if G_LIKELY ((expr) == NULL) ; else \
+      |                                                           ^~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c:101:5: note: in expansion of macro ‘g_assert_null’
+  101 |     g_assert_null(tcg_jump_cache_lookup(jc, h, first));
+      |     ^~~~~~~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c:102:56: warning: comparison between pointer and integer
+  102 |     g_assert_true(tcg_jump_cache_lookup(jc, h, second) == &valid);
+      |                                                        ^~
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c:102:5: note: in expansion of macro ‘g_assert_true’
+  102 |     g_assert_true(tcg_jump_cache_lookup(jc, h, second) == &valid);
+      |     ^~~~~~~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c: In function ‘test_page_clear’:
+../tests/unit/test-tcg-jump-cache-validity.c:117:5: error: implicit declaration of function ‘tcg_jump_cache_clear_range’ [-Wimplicit-function-declaration]
+  117 |     tcg_jump_cache_clear_range(jc, first, TB_JMP_PAGE_SIZE);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c:117:5: warning: nested extern declaration of ‘tcg_jump_cache_clear_range’ [-Wnested-externs]
+../tests/unit/test-tcg-jump-cache-validity.c: In function ‘test_spanning_page_clear’:
+../tests/unit/test-tcg-jump-cache-validity.c:141:51: warning: comparison between pointer and integer
+  141 |     g_assert_true(tcg_jump_cache_lookup(jc, h, s) == &tb);
+      |                                                   ^~
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c:141:5: note: in expansion of macro ‘g_assert_true’
+  141 |     g_assert_true(tcg_jump_cache_lookup(jc, h, s) == &tb);
+      |     ^~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:250:76: warning: comparison between pointer and integer
+  250 | #define g_assert_null(expr)             G_STMT_START { if G_LIKELY ((expr) == NULL) ; else \
+      |                                                                            ^~
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:250:59: note: in expansion of macro ‘G_LIKELY’
+  250 | #define g_assert_null(expr)             G_STMT_START { if G_LIKELY ((expr) == NULL) ; else \
+      |                                                           ^~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c:144:5: note: in expansion of macro ‘g_assert_null’
+  144 |     g_assert_null(tcg_jump_cache_lookup(jc, h, s));
+      |     ^~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:250:76: warning: comparison between pointer and integer
+  250 | #define g_assert_null(expr)             G_STMT_START { if G_LIKELY ((expr) == NULL) ; else \
+      |                                                                            ^~
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:250:59: note: in expansion of macro ‘G_LIKELY’
+  250 | #define g_assert_null(expr)             G_STMT_START { if G_LIKELY ((expr) == NULL) ; else \
+      |                                                           ^~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c:148:5: note: in expansion of macro ‘g_assert_null’
+  148 |     g_assert_null(tcg_jump_cache_lookup(jc, h, s));
+      |     ^~~~~~~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c: In function ‘test_clear_before_address_reuse’:
+/usr/include/glib-2.0/glib/gtestutils.h:250:76: warning: comparison between pointer and integer
+  250 | #define g_assert_null(expr)             G_STMT_START { if G_LIKELY ((expr) == NULL) ; else \
+      |                                                                            ^~
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:250:59: note: in expansion of macro ‘G_LIKELY’
+  250 | #define g_assert_null(expr)             G_STMT_START { if G_LIKELY ((expr) == NULL) ; else \
+      |                                                           ^~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c:164:5: note: in expansion of macro ‘g_assert_null’
+  164 |     g_assert_null(tcg_jump_cache_lookup(jc, h, s));
+      |     ^~~~~~~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c:166:51: warning: comparison between pointer and integer
+  166 |     g_assert_true(tcg_jump_cache_lookup(jc, h, s) == &tb);
+      |                                                   ^~
+/usr/include/glib-2.0/glib/gmacros.h:1243:8: note: in definition of macro ‘_G_BOOLEAN_EXPR_IMPL’
+ 1243 |    if (expr)                                    \
+      |        ^~~~
+/usr/include/glib-2.0/glib/gmacros.h:1248:43: note: in expansion of macro ‘_G_BOOLEAN_EXPR’
+ 1248 | #define G_LIKELY(expr) (__builtin_expect (_G_BOOLEAN_EXPR(expr), 1))
+      |                                           ^~~~~~~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:228:49: note: in expansion of macro ‘G_LIKELY’
+  228 |                                              if G_LIKELY (expr) ; else \
+      |                                                 ^~~~~~~~
+../tests/unit/test-tcg-jump-cache-validity.c:166:5: note: in expansion of macro ‘g_assert_true’
+  166 |     g_assert_true(tcg_jump_cache_lookup(jc, h, s) == &tb);
+      |     ^~~~~~~~~~~~~
+ninja: build stopped: subcommand failed.

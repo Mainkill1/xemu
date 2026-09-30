@@ -1,0 +1,20 @@
+ninja: Entering directory `build-windows-probe'
+[1/578] Generating qemu-version.h with a custom command (wrapped by meson to capture output)
+[2/577] Compiling C object subprojects/volk/libvolk.a.p/volk.c.obj
+FAILED: subprojects/volk/libvolk.a.p/volk.c.obj 
+x86_64-w64-mingw32.static-gcc -m64 -Isubprojects/volk/libvolk.a.p -Isubprojects/volk -I../subprojects/volk -I/usr/include -fdiagnostics-color=auto -Wall -Winvalid-pch -std=gnu11 -O2 -g -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -fno-pie -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -g -DVK_NO_PROTOTYPES -DVK_USE_PLATFORM_WIN32_KHR=1 -MD -MQ subprojects/volk/libvolk.a.p/volk.c.obj -MF subprojects/volk/libvolk.a.p/volk.c.obj.d -o subprojects/volk/libvolk.a.p/volk.c.obj -c ../subprojects/volk/volk.c
+In file included from ../subprojects/volk/volk.c:3:
+In file included from ../subprojects/volk/volk.h:33:
+In file included from /usr/include/vulkan/vk_platform.h:76:
+/usr/include/stdint.h:26:10: fatal error: 'bits/libc-header-start.h' file not found
+   26 | #include <bits/libc-header-start.h>
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+[3/577] Generating xemu-version-macro.h with a custom command (wrapped by meson to capture output)
+[4/577] Compiling C++ object subprojects/imgui/libimgui.a.p/misc_cpp_imgui_stdlib.cpp.obj
+[5/577] Compiling C++ object subprojects/imgui/libimgui.a.p/imgui.cpp.obj
+../subprojects/imgui/imgui.cpp:13634:20: warning: unused function 'NavUpdateWindowing' [-Wunused-function]
+ 13634 | static void ImGui::NavUpdateWindowing()
+       |                    ^~~~~~~~~~~~~~~~~~
+1 warning generated.
+ninja: build stopped: subcommand failed.

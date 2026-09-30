@@ -1,0 +1,11 @@
+ninja: Entering directory `build-probe'
+[1/13] Generating qemu-version.h with a custom command (wrapped by meson to capture output)
+[2/10] Generating xemu-version-macro.h with a custom command (wrapped by meson to capture output)
+[3/10] Compiling C object libqemu-i386-softmmu.a.p/xemu-version.c.o
+[4/10] Compiling C object tests/unit/test-tcg-jump-cache-validity.p/test-tcg-jump-cache-validity.c.o
+[5/10] Linking target tests/unit/test-tcg-jump-cache-validity
+[6/10] Compiling C object libsystem.a.p/accel_tcg_translate-all.c.o
+[7/10] Compiling C object libsystem.a.p/accel_tcg_tb-maint.c.o
+[8/10] Compiling C object libsystem.a.p/accel_tcg_cpu-exec.c.o
+[9/10] Compiling C object libsystem.a.p/accel_tcg_cputlb.c.o
+[10/10] Linking target qemu-system-i386

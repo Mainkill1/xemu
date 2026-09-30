@@ -69,3 +69,7 @@ also belong to this product draft. No lazy-invalidation speedup has been demonst
 Generated-code [probe windows and retained CPU outcomes](../evidence/research245-cpu-probe-20260930/REPORT.md)
 include the lower-invalidation stable control and the self-modifying workload.
 These wall-clock diagnostic windows are not exact guest phase boundaries.
+
+The [production validity helper checks](../evidence/research245-validity-20260930/REPORT.md)
+verify complete identity rejection and slot-clearing boundaries. They do not
+prove whole guest remapping, reclamation, reset/load or concurrent invalidation.

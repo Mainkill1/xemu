@@ -1,0 +1,13 @@
+{
+  "status": "not-launched",
+  "normalTestsLaunched": false,
+  "snapshotAsset": "research245-morrowind-carrier-d62e336a",
+  "snapshotSha256": "d62e336ae43e9790954604a46c1236c4884e952bf1aace9a56106bed631891c3",
+  "snapshotName": "vm-20260929162035",
+  "snapshotVmStateBytes": 67363427,
+  "discAsset": "missing",
+  "missingRetainedDeckDiscPath": "/home/deck/xemu-performance/games/Elder Scrolls III, The - Morrowind - Game of the Year Edition (USA).iso",
+  "acquisition": "Read-only SFTP asset preparation found neither the retained games directory nor the disc; no target was launched via SSH.",
+  "decision": "No scene, counter, correctness or performance result for Morrowind. Existing Windows test remains active and was not interrupted.",
+  "configurationProvenance": "Observed retained Windows API job config is a preparation reference, not certified historical config bytes; its hash differs from the saved template input hash."
+}
