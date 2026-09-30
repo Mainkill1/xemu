@@ -23,6 +23,7 @@
 #include "exec/helper-proto.h"
 #include "exec/cputlb.h"
 #include "helper-tcg.h"
+#include "trace.h"
 
 /*
  * NOTE: the translator must set DisasContext.cc_op to CC_OP_EFLAGS
@@ -71,6 +72,16 @@ void helper_rdtsc(CPUX86State *env)
     cpu_svm_check_intercept_param(env, SVM_EXIT_RDTSC, 0, GETPC());
 
     val = cpu_get_tsc(env) + env->tsc_offset;
+    /* Temporary issue #266 probe. The game's timer service and alarm
+     * scheduling routines occupy these fixed XBE ranges. */
+    if (trace_event_get_state(TRACE_X86_ISSUE266_RDTSC) &&
+        ((env->eip >= 0x000d7de0 && env->eip < 0x000d7f00) ||
+         (env->eip >= 0x00216410 && env->eip < 0x00216500) ||
+         (env->eip >= 0x002232e0 && env->eip < 0x00223400))) {
+        trace_x86_issue266_rdtsc(env->eip, val,
+                                 qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL),
+                                 g_get_monotonic_time());
+    }
     env->regs[R_EAX] = (uint32_t)(val);
     env->regs[R_EDX] = (uint32_t)(val >> 32);
 }

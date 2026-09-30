@@ -181,6 +181,26 @@ static inline uint64_t get_reg_time(NV2AState *d, PtimerClockSample *sample)
     return PTIMER_INTERNAL_TO_REG_TIME(internal_clock);
 }
 
+/* Temporary opt-in diagnostic for issue #266. Do not share the operation's
+ * cached clock sample: observing the trace must not shift its deadline. */
+static void ptimer_diagnostic(NV2AState *d, const char *event,
+                              uint32_t addr, uint32_t value)
+{
+    if (!trace_event_get_state(TRACE_NV2A_PTIMER_DIAGNOSTIC)) {
+        return;
+    }
+
+    PtimerClockSample sample = { 0 };
+    int64_t vm_ns = ptimer_now_ns(&sample);
+    uint64_t reg_now = get_reg_time(d, &sample);
+    int64_t deadline_ns = timer_pending(&d->ptimer.timer) ?
+                          timer_expire_time_ns(&d->ptimer.timer) : -1;
+    trace_nv2a_ptimer_diagnostic(event, g_get_monotonic_time(), vm_ns,
+                                 reg_now, d->ptimer.alarm_time, deadline_ns,
+                                 d->ptimer.pending_interrupts,
+                                 d->ptimer.enabled_interrupts, addr, value);
+}
+
 static void ptimer_div_ceil(uint64_t *lo, uint64_t *hi, uint64_t divisor)
 {
     uint64_t remainder = divu128(lo, hi, divisor);
@@ -361,6 +381,7 @@ static bool schedule_qemu_timer(NV2AState *d, bool state_changed,
 static void ptimer_alarm_fired(void *opaque)
 {
     NV2AState *d = (NV2AState *)opaque;
+    ptimer_diagnostic(d, "callback-enter", 0, 0);
     PtimerClockSample sample = { 0 };
     bool irq_before = ptimer_irq_contribution(d);
     uint64_t reg_now = get_reg_time(d, &sample);
@@ -370,6 +391,7 @@ static void ptimer_alarm_fired(void *opaque)
      * that removal even if an early wake retains the same desired expiry. */
     schedule_qemu_timer(d, true, &sample);
     ptimer_publish_irq_change(d, irq_before);
+    ptimer_diagnostic(d, "callback-exit", 0, 0);
 }
 
 void ptimer_post_load(NV2AState *d, int version_id)
@@ -457,6 +479,7 @@ uint64_t ptimer_read(void *opaque, hwaddr addr, unsigned int size)
 void ptimer_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
 {
     NV2AState *d = opaque;
+    ptimer_diagnostic(d, "write-before", addr, val);
     PtimerClockSample sample = { 0 };
     bool irq_before = ptimer_irq_contribution(d);
 
@@ -549,4 +572,5 @@ void ptimer_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
         break;
     }
     ptimer_publish_irq_change(d, irq_before);
+    ptimer_diagnostic(d, "write-after", addr, val);
 }
