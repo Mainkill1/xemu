@@ -34,6 +34,7 @@
 #include "util.h"
 #include "swizzle.h"
 #include "nv2a_vsh_emulator.h"
+#include "hw/xbox/nv2a/guest-lock.h"
 
 #define PG_GET_MASK(reg, mask) GET_MASK(pgraph_reg_r(pg, reg), mask)
 #define PG_SET_MASK(reg, mask, value)        \
@@ -74,7 +75,7 @@ uint64_t pgraph_read(void *opaque, hwaddr addr, unsigned int size)
         return fr;
     }
 
-    qemu_mutex_lock(&pg->lock);
+    nv2a_guest_mmio_lock(&pg->lock, "pgraph-read");
 
     uint64_t r = 0;
     switch (addr) {
@@ -117,8 +118,9 @@ void pgraph_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
 
     nv2a_reg_log_write(NV_PGRAPH, addr, size, val);
 
-    qemu_mutex_lock(&d->pfifo.lock); // FIXME: Factor out fifo lock here
-    qemu_mutex_lock(&pg->lock);
+    /* FIXME: Factor out FIFO lock here. */
+    nv2a_guest_mmio_lock(&d->pfifo.lock, "pgraph-write-pfifo");
+    nv2a_guest_mmio_lock(&pg->lock, "pgraph-write");
 
     switch (addr) {
     case NV_PGRAPH_INTR:
