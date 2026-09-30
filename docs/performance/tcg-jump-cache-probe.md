@@ -9,11 +9,25 @@ entries after invalidation.
 ## Enable and collect
 
 Build with `-Dxemu_tcg_jump_cache_probe=true` (the default is `false`), then launch
-with `XEMU_TCG_JUMP_CACHE_PROBE=1`. Other values leave collection disabled. Query
-HMP `info jit` before and after a named workload segment. Counters are cumulative
+with `XEMU_TCG_JUMP_CACHE_PROBE` set to a mode below. Unset, `off`, `0` and
+unrecognized values leave collection disabled. Query HMP `info jit` before and
+after a named workload segment. Counters are cumulative
 per vCPU; subtract matching rows to obtain interval counts. Preserve the complete
 queries, executable hash, source commit, immutable runner test revision, workload
 screenshots and runner performance report.
+
+| Mode | Published mask | Collection |
+| --- | --- | --- |
+| `counters` | 1 | Exact dispatch/clear/publication counts; no clocks or occupancy reads |
+| `occupancy` | 3 | Counters plus occupancy on nominally 1/32 clears; no clocks |
+| `timing` | 5 | Counters plus nominal 1/1024 lookup and 1/32 clear timing; no occupancy reads |
+| `all` / `1` | 7 | Counters, sampled occupancy and sampled timing |
+
+Each vCPU's serialized dispatch thread maintains private lookup totals and
+publishes each changed value with an atomic store. Snapshot readers load only
+published atomic fields. This removes lookup atomic read-modify-write operations;
+it does not make the whole snapshot coherent. Shared invalidation, clear and
+code-generation writers still use atomic read-modify-write accounting.
 
 | Row | Meaning |
 | --- | --- |
@@ -24,9 +38,10 @@ screenshots and runner performance report.
 | `pcrel_flush` | Whole-cache clears caused by individual `CF_PCREL` TB invalidation. |
 | `other_flush` | Other whole-cache clears; page-selective clears in `cputlb.c` are not counted. |
 | `slots` | Slots traversed by the counted whole-cache clears. |
-| `observed_nonnull` | Non-null pointer observations before unconditional clears, without TB dereferences. Concurrent writers mean these are not exact unique evictions. |
-| `maximum_nonnull` | Largest observed occupancy in one counted clear, cumulative since process start. |
-| `occupancy` | Histogram: zero, one, 2–3, 4–7, …, 2048–4095, 4096 or more non-null observations per clear. |
+| `observed_clears` / `observed_slots` | Sampled clears / slots actually scanned for occupancy; zero in counters and timing modes. |
+| `observed_nonnull` | Non-null observations in **sampled** clears, without TB dereferences. Divide by `observed_clears` for sampled mean occupancy, or by `observed_slots` for sampled non-null fraction. Do not divide by all clear calls/slots. |
+| `maximum_nonnull` | Largest occupancy in a **sampled** clear; lower bound on the process maximum, not an exact maximum. |
+| `occupancy` | Sampled-clear histogram: zero, one, 2–3, 4–7, …, 2048–4095, 4096 or more observations. Sum equals `observed_clears` once quiescent. |
 | `targeted_invalidations` / `targeted_removals` | Non-PC-relative individual invalidation attempts and matching jump-cache pointers cleared. |
 | `generated` | New translations reaching TB publication, including a possible duplicate later discarded and temporary translations. |
 | `recycled` | Existing invalid TBs reused at publication; this is not a retranslation count. |
@@ -34,22 +49,29 @@ screenshots and runner performance report.
 ## Timing and interpretation limits
 
 `calls` counts all completed classified operations. `samples` and `sample_ns`
-describe sampled elapsed time. A hash of each event ordinal selects nominally one
-lookup in 1024 and one whole-cache clear in 32, avoiding a fixed sampling stride.
+describe sampled elapsed time. Timing mode uses an owner-local xorshift decision
+for nominally one lookup in 1024. A mixed clear ordinal independently selects
+nominally one clear in 32 for occupancy/timing modes. Counter-only mode skips
+both sampling decisions. Samples avoid a fixed stride; deterministic distribution
+checks do not prove independence from every possible workload.
 Divide interval `sample_ns` by interval `samples` for the sampled mean only when
 the latter is nonzero. Do not treat the measured sum as total uninstrumented cost.
 
-Timers include their read overhead. Flush samples also include the probe's extra
-per-slot occupancy reads. Counter atomics and occupancy scanning can change cache
-pressure and guest cadence. Runtime collection disabled in a diagnostic build
+Timers include read overhead; sequence/sampling decisions before the first clock
+and publication after the second clock are excluded. Flush timings include extra
+occupancy reads only in `all` mode. Never sum sampled durations to estimate total
+observer cost. Atomic publication, shared counters and sampled occupancy scanning
+can change cache pressure and guest cadence. Collection disabled in a diagnostic build
 still leaves conditional hook overhead; a normal build excludes the collector.
 Diagnostic timings are unsuitable for production speedup claims.
 
 Snapshot fields are independently atomic, not a coherent snapshot of all counters.
 CPU activity can continue while HMP formats the rows. Small discrepancies between
 related fields are not evidence of lost updates. Differences across two snapshots
-also include query timing uncertainty. Histogram differences describe interval
-clears, while a difference of cumulative maxima is not an interval maximum.
+also include query timing uncertainty. Histogram differences describe sampled
+interval clears, while a difference of cumulative maxima is not an interval
+maximum. Earlier evidence used **every-clear** occupancy and a heavier lookup
+collector; its numeric definitions must not be applied to this revised collector.
 
 The hooks count dispatch lookups, individual TB invalidations and whole-cache
 clears. They do not attribute a particular miss or new translation to a previous

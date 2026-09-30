@@ -6,7 +6,7 @@
 static void test_clear(void)
 {
     TCGJumpCacheProbeSlot slots[4096] = {};
-    TCGJumpCacheProbe *probe = tcg_jump_cache_probe_new(true);
+    TCGJumpCacheProbe *probe = tcg_jump_cache_probe_new("all");
     TCGJumpCacheProbeStats stats;
     char opaque_tb;
 
@@ -22,9 +22,9 @@ static void test_clear(void)
     tcg_jump_cache_probe_snapshot(probe, &stats);
     g_assert_cmpuint(stats.flush[1].cost.calls, ==, 1);
     g_assert_cmpuint(stats.flush[1].slots, ==, 4096);
-    g_assert_cmpuint(stats.flush[1].observed_nonnull, ==, 3);
-    g_assert_cmpuint(stats.flush[1].maximum_nonnull, ==, 3);
-    g_assert_cmpuint(stats.flush[1].occupancy[2], ==, 1);
+    g_assert_cmpuint(stats.flush[1].observed_nonnull, ==, 0);
+    g_assert_cmpuint(stats.flush[1].maximum_nonnull, ==, 0);
+    g_assert_cmpuint(stats.flush[1].observed_clears, ==, 0);
     g_assert_cmpuint(stats.flush[0].cost.calls, ==, 0);
 
     tcg_jump_cache_probe_clear(probe, slots, G_N_ELEMENTS(slots), true);
@@ -33,9 +33,9 @@ static void test_clear(void)
     }
     tcg_jump_cache_probe_clear(probe, slots, G_N_ELEMENTS(slots), false);
     tcg_jump_cache_probe_snapshot(probe, &stats);
-    g_assert_cmpuint(stats.flush[1].occupancy[0], ==, 1);
-    g_assert_cmpuint(stats.flush[0].maximum_nonnull, ==, 4096);
-    g_assert_cmpuint(stats.flush[0].occupancy[13], ==, 1);
+    g_assert_cmpuint(stats.flush[1].observed_clears, ==, 0);
+    g_assert_cmpuint(stats.flush[0].observed_clears, ==, 0);
+    g_assert_cmpuint(stats.flush[0].maximum_nonnull, ==, 0);
     tcg_jump_cache_probe_free(probe);
 }
 
@@ -44,7 +44,7 @@ static void test_disabled(void)
     char opaque_tb;
     TCGJumpCacheProbeSlot slot = { .tb = (void *)&opaque_tb, .pc = 42 };
     TCGJumpCacheProbeStats stats;
-    g_assert_null(tcg_jump_cache_probe_new(false));
+    g_assert_null(tcg_jump_cache_probe_new(NULL));
     tcg_jump_cache_probe_clear(NULL, &slot, 1, true);
     g_assert_null(slot.tb);
     g_assert_cmpuint(slot.pc, ==, 42);
@@ -57,9 +57,149 @@ static void test_disabled(void)
     tcg_jump_cache_probe_free(NULL);
 }
 
+static void test_sampled_occupancy(void)
+{
+    TCGJumpCacheProbe *probe = tcg_jump_cache_probe_new("all");
+    TCGJumpCacheProbeSlot slots[16] = {};
+    TCGJumpCacheProbeStats stats;
+    char opaque_tb;
+    uint64_t observed_clears = 0;
+
+    for (unsigned n = 0; n < 1024; n++) {
+        for (unsigned i = 0; i < G_N_ELEMENTS(slots); i++) {
+            slots[i].tb = (void *)&opaque_tb;
+            slots[i].pc = i;
+        }
+        tcg_jump_cache_probe_clear(probe, slots, G_N_ELEMENTS(slots), true);
+        for (unsigned i = 0; i < G_N_ELEMENTS(slots); i++) {
+            g_assert_null(slots[i].tb);
+            g_assert_cmpuint(slots[i].pc, ==, i);
+        }
+    }
+    tcg_jump_cache_probe_snapshot(probe, &stats);
+    for (unsigned i = 0; i < TCG_JUMP_CACHE_PROBE_BINS; i++) {
+        observed_clears += stats.flush[1].occupancy[i];
+    }
+    g_assert_cmpuint(stats.flush[1].cost.calls, ==, 1024);
+    g_assert_cmpuint(stats.flush[1].slots, ==, 1024 * 16);
+    g_assert_cmpuint(observed_clears, >, 5);
+    g_assert_cmpuint(observed_clears, <, 80);
+    g_assert_cmpuint(stats.flush[1].observed_clears, ==, observed_clears);
+    g_assert_cmpuint(stats.flush[1].observed_slots, ==, observed_clears * 16);
+    g_assert_cmpuint(stats.flush[1].observed_nonnull, ==, observed_clears * 16);
+    tcg_jump_cache_probe_free(probe);
+}
+
+static void test_modes(void)
+{
+    const char *modes[] = { "counters", "occupancy", "timing", "all", "1" };
+    const unsigned expected[] = {
+        TCG_JUMP_CACHE_PROBE_COUNTERS,
+        TCG_JUMP_CACHE_PROBE_COUNTERS | TCG_JUMP_CACHE_PROBE_OCCUPANCY,
+        TCG_JUMP_CACHE_PROBE_COUNTERS | TCG_JUMP_CACHE_PROBE_TIMING,
+        TCG_JUMP_CACHE_PROBE_COUNTERS | TCG_JUMP_CACHE_PROBE_OCCUPANCY |
+            TCG_JUMP_CACHE_PROBE_TIMING,
+        TCG_JUMP_CACHE_PROBE_COUNTERS | TCG_JUMP_CACHE_PROBE_OCCUPANCY |
+            TCG_JUMP_CACHE_PROBE_TIMING,
+    };
+
+    g_assert_null(tcg_jump_cache_probe_new("off"));
+    g_assert_null(tcg_jump_cache_probe_new("0"));
+    g_assert_null(tcg_jump_cache_probe_new("unrecognized"));
+    for (unsigned m = 0; m < G_N_ELEMENTS(modes); m++) {
+        TCGJumpCacheProbe *probe = tcg_jump_cache_probe_new(modes[m]);
+        TCGJumpCacheProbeStats stats;
+        TCGJumpCacheProbeSlot slots[16] = {};
+        char opaque_tb;
+
+        for (unsigned i = 0; i < 65536; i++) {
+            uint64_t start = tcg_jump_cache_probe_lookup_begin(probe);
+            tcg_jump_cache_probe_lookup_end(probe, i % 3, start);
+        }
+        for (unsigned n = 0; n < 1024; n++) {
+            for (unsigned i = 0; i < G_N_ELEMENTS(slots); i++) {
+                slots[i].tb = (void *)&opaque_tb;
+            }
+            tcg_jump_cache_probe_clear(probe, slots, G_N_ELEMENTS(slots), true);
+            for (unsigned i = 0; i < G_N_ELEMENTS(slots); i++) {
+                g_assert_null(slots[i].tb);
+            }
+        }
+        tcg_jump_cache_probe_snapshot(probe, &stats);
+        g_assert_cmpuint(stats.mode, ==, expected[m]);
+        g_assert_cmpuint(stats.lookup_sequence, ==, 65536);
+        for (unsigned i = 0; i < 3; i++) {
+            g_assert_cmpuint(stats.lookup[i].calls, ==, (65536 + 2 - i) / 3);
+            if (stats.mode & TCG_JUMP_CACHE_PROBE_TIMING) {
+                g_assert_cmpuint(stats.lookup[i].samples, >, 5);
+            } else {
+                g_assert_cmpuint(stats.lookup[i].samples, ==, 0);
+                g_assert_cmpuint(stats.lookup[i].sample_ns, ==, 0);
+            }
+        }
+        g_assert_cmpuint(stats.flush[1].slots, ==, 1024 * 16);
+        if (stats.mode & TCG_JUMP_CACHE_PROBE_OCCUPANCY) {
+            g_assert_cmpuint(stats.flush[1].observed_clears, >, 5);
+            g_assert_cmpuint(stats.flush[1].observed_clears, <, 80);
+        } else {
+            g_assert_cmpuint(stats.flush[1].observed_clears, ==, 0);
+            g_assert_cmpuint(stats.flush[1].observed_slots, ==, 0);
+            g_assert_cmpuint(stats.flush[1].observed_nonnull, ==, 0);
+        }
+        g_assert_cmpuint(stats.flush[1].observed_nonnull, ==,
+                         stats.flush[1].observed_slots);
+        if (stats.mode & TCG_JUMP_CACHE_PROBE_TIMING) {
+            g_assert_cmpuint(stats.flush[1].cost.samples, >, 5);
+        } else {
+            g_assert_cmpuint(stats.flush[1].cost.samples, ==, 0);
+            g_assert_cmpuint(stats.flush[1].cost.sample_ns, ==, 0);
+        }
+        tcg_jump_cache_probe_free(probe);
+    }
+}
+
+typedef struct OwnerReader {
+    TCGJumpCacheProbe *probe;
+    unsigned done;
+} OwnerReader;
+
+static gpointer owner_worker(gpointer opaque)
+{
+    OwnerReader *state = opaque;
+    for (unsigned i = 0; i < 300000; i++) {
+        uint64_t start = tcg_jump_cache_probe_lookup_begin(state->probe);
+        tcg_jump_cache_probe_lookup_end(state->probe, i % 3, start);
+    }
+    qatomic_set(&state->done, 1);
+    return NULL;
+}
+
+static void test_owner_and_reader(void)
+{
+    OwnerReader state = { .probe = tcg_jump_cache_probe_new("timing") };
+    TCGJumpCacheProbeStats stats;
+    uint64_t last[3] = {};
+    GThread *owner = g_thread_new("lookup-owner", owner_worker, &state);
+
+    do {
+        tcg_jump_cache_probe_snapshot(state.probe, &stats);
+        for (unsigned i = 0; i < 3; i++) {
+            g_assert_cmpuint(stats.lookup[i].calls, >=, last[i]);
+            last[i] = stats.lookup[i].calls;
+        }
+    } while (!qatomic_read(&state.done));
+    g_thread_join(owner);
+    tcg_jump_cache_probe_snapshot(state.probe, &stats);
+    g_assert_cmpuint(stats.lookup_sequence, ==, 300000);
+    for (unsigned i = 0; i < 3; i++) {
+        g_assert_cmpuint(stats.lookup[i].calls, ==, 100000);
+    }
+    tcg_jump_cache_probe_free(state.probe);
+}
+
 static void test_counts_and_sampling(void)
 {
-    TCGJumpCacheProbe *probe = tcg_jump_cache_probe_new(true);
+    TCGJumpCacheProbe *probe = tcg_jump_cache_probe_new("all");
     TCGJumpCacheProbeStats stats;
     TCGJumpCacheProbeSlot slots[16] = {};
     GString *out = g_string_new(NULL);
@@ -86,7 +226,8 @@ static void test_counts_and_sampling(void)
         g_assert_cmpuint(stats.flush[i].cost.samples, >, 20);
         g_assert_cmpuint(stats.flush[i].cost.samples, <, 120);
         g_assert_cmpuint(stats.flush[i].observed_nonnull, ==, 0);
-        g_assert_cmpuint(stats.flush[i].occupancy[0], ==, 2048);
+        g_assert_cmpuint(stats.flush[i].occupancy[0], ==,
+                         stats.flush[i].observed_clears);
     }
     g_assert_cmpuint(stats.targeted_invalidations, ==, 2);
     g_assert_cmpuint(stats.targeted_removals, ==, 1);
@@ -102,17 +243,17 @@ static void test_counts_and_sampling(void)
 static gpointer record_worker(gpointer opaque)
 {
     TCGJumpCacheProbe *probe = opaque;
+    TCGJumpCacheProbeSlot slots[16] = {};
     for (unsigned i = 0; i < 30000; i++) {
-        uint64_t start = tcg_jump_cache_probe_lookup_begin(probe);
-        tcg_jump_cache_probe_lookup_end(probe, i % 3, start);
         tcg_jump_cache_probe_targeted(probe, true);
+        tcg_jump_cache_probe_clear(probe, slots, G_N_ELEMENTS(slots), true);
     }
     return NULL;
 }
 
 static void test_concurrent_writers(void)
 {
-    TCGJumpCacheProbe *probe = tcg_jump_cache_probe_new(true);
+    TCGJumpCacheProbe *probe = tcg_jump_cache_probe_new("all");
     TCGJumpCacheProbeStats stats;
     GThread *workers[4];
     for (unsigned i = 0; i < G_N_ELEMENTS(workers); i++) {
@@ -122,11 +263,17 @@ static void test_concurrent_writers(void)
         g_thread_join(workers[i]);
     }
     tcg_jump_cache_probe_snapshot(probe, &stats);
-    g_assert_cmpuint(stats.lookup_sequence, ==, 120000);
+    g_assert_cmpuint(stats.lookup_sequence, ==, 0);
     g_assert_cmpuint(stats.targeted_invalidations, ==, 120000);
     g_assert_cmpuint(stats.targeted_removals, ==, 120000);
+    g_assert_cmpuint(stats.flush[1].cost.calls, ==, 120000);
+    g_assert_cmpuint(stats.flush[1].slots, ==, 120000 * 16);
+    g_assert_cmpuint(stats.flush[1].observed_clears, >, 3000);
+    g_assert_cmpuint(stats.flush[1].observed_clears, <, 4500);
+    g_assert_cmpuint(stats.flush[1].occupancy[0], ==,
+                     stats.flush[1].observed_clears);
     for (unsigned i = 0; i < 3; i++) {
-        g_assert_cmpuint(stats.lookup[i].calls, ==, 40000);
+        g_assert_cmpuint(stats.lookup[i].calls, ==, 0);
     }
     tcg_jump_cache_probe_free(probe);
 }
@@ -136,6 +283,10 @@ int main(int argc, char **argv)
     g_test_init(&argc, &argv, NULL);
     g_test_add_func("/tcg/jump-cache/clear", test_clear);
     g_test_add_func("/tcg/jump-cache/disabled", test_disabled);
+    g_test_add_func("/tcg/jump-cache/sampled-occupancy",
+                    test_sampled_occupancy);
+    g_test_add_func("/tcg/jump-cache/modes", test_modes);
+    g_test_add_func("/tcg/jump-cache/owner-reader", test_owner_and_reader);
     g_test_add_func("/tcg/jump-cache/counts-sampling",
                     test_counts_and_sampling);
     g_test_add_func("/tcg/jump-cache/concurrent-writers",

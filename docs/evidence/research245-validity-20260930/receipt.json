@@ -11,7 +11,8 @@
       "tests/unit/test-tcg-jump-cache-validity.c": "7bb275db49cafc342651bc21ee86e39f4064a8f2362cc6cfbbfbf0e50d487b27"
     },
     "patchSha256": "02d71af23cd39437f336818a57d8cc62cfffa82c7cf2ebd1309d039cf87dda34",
-    "scope": "Existing policy extracted into actual production helpers; unconditional clears and complete cflags comparison retained. No retention candidate."
+    "scope": "Existing policy extracted into actual production helpers; unconditional clears and complete cflags comparison retained. No retention candidate.",
+    "equivalentPublishedCommit": "17334c1b1a93c3c4606c044e2af9768187ad03af"
   },
   "buildEnvironment": {
     "GIT_DIR": "/home/codex/src/steamdeck-xemu/scratch/research245-validity-build-identity.git",

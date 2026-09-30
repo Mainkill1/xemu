@@ -88,6 +88,8 @@ The local source HEAD at test preparation is
 `33508c693dab0638c506d50434949ea700d94c97` plus the retained patch/source hashes.
 The local version build context uses that exact source commit without malformed
 local synthetic version tags; no product version behavior was changed.
+The receipt also identifies source-equivalent published commit `17334c1b`;
+its audit uses those historical source bytes when a later collector changes.
 The test receipt pins changed source bytes and executable hashes. No binary
 code-size comparison is used as performance evidence.
 
