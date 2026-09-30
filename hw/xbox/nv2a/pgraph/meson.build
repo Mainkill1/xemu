@@ -1,5 +1,4 @@
 specific_ss.add(files(
-	'effect-suppression.c',
 	'pgraph.c',
 	'profile.c',
 	'renderer-switch.c',
