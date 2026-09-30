@@ -249,6 +249,12 @@ TranslationBlock *inv_tb_htable_lookup(CPUState *cpu, TCGTBCPUState s)
  *
  * Returns: an existing translation block or NULL.
  */
+/* Optional probe paths must not turn ordinary dispatch into a helper call. */
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+static inline QEMU_ALWAYS_INLINE TranslationBlock *
+tb_lookup(CPUState *cpu, TCGTBCPUState s);
+#endif
+
 static inline TranslationBlock *tb_lookup(CPUState *cpu, TCGTBCPUState s)
 {
     TranslationBlock *tb;
