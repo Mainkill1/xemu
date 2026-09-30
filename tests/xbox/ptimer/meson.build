@@ -32,35 +32,11 @@ test('test-nv2a-ptimer', test_nv2a_ptimer,
      env: test_env,
      suite: ['xbox'])
 
-test_nv2a_guest_lock = executable(
-  'test-nv2a-guest-lock',
+test_pgraph_control = executable(
+  'test-pgraph-control',
   files(
-    'test-nv2a-guest-lock.c',
-    meson.project_source_root() / 'hw/xbox/nv2a/guest-lock.c'
-  ),
-  c_args: [
-    '-DCOMPILING_PER_TARGET',
-    '-DCONFIG_TARGET="i386-softmmu-config-target.h"',
-    '-DCONFIG_DEVICES="i386-softmmu-config-devices.h"',
-  ],
-  include_directories: [include_directories('../../../target/i386')],
-  dependencies: [qemuutil],
-  build_by_default: false,
-)
-test('test-nv2a-guest-lock', test_nv2a_guest_lock,
-     args: ['--tap', '-k'],
-     protocol: 'tap',
-     env: test_env,
-     suite: ['xbox'])
-
-test_nv2a_guest_lock_timer = executable(
-  'test-nv2a-guest-lock-timer',
-  files(
-    'test-nv2a-guest-lock-timer.c',
-    meson.project_source_root() / 'hw/xbox/nv2a/guest-lock.c',
-    meson.project_source_root() / 'hw/xbox/nv2a/ptimer.c',
-    meson.project_source_root() / 'hw/xbox/nv2a/ptimer_core.c',
-    meson.project_source_root() / 'system/cpu-timers.c'
+    'test-pgraph-control.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/pgraph.c'
   ),
   c_args: [
     '-DCOMPILING_PER_TARGET',
@@ -69,12 +45,9 @@ test_nv2a_guest_lock_timer = executable(
     '-ffunction-sections', '-fdata-sections',
   ],
   include_directories: [include_directories('../../../target/i386')],
-  dependencies: [qemuutil],
+  dependencies: [qemuutil, nv2a_vsh_cpu],
   link_args: host_os == 'darwin' ? ['-Wl,-dead_strip'] : ['-Wl,--gc-sections'],
   build_by_default: false,
 )
-test('test-nv2a-guest-lock-timer', test_nv2a_guest_lock_timer,
-     args: ['--tap', '-k'],
-     protocol: 'tap',
-     env: test_env,
-     suite: ['xbox'])
+test('test-pgraph-control', test_pgraph_control,
+     args: ['--tap', '-k'], protocol: 'tap', env: test_env, suite: ['unit', 'xbox'])

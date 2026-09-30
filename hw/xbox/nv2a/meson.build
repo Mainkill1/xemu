@@ -1,6 +1,5 @@
 specific_ss.add(files(
 	'nv2a.c',
-	'guest-lock.c',
 	'pbus.c',
 	'pcrtc.c',
 	'pfb.c',

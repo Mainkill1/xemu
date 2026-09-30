@@ -20,7 +20,6 @@
  */
 
 #include "nv2a_int.h"
-#include "guest-lock.h"
 
 typedef struct RAMHTEntry {
     uint32_t handle;
@@ -39,7 +38,7 @@ uint64_t pfifo_read(void *opaque, hwaddr addr, unsigned int size)
 {
     NV2AState *d = (NV2AState *)opaque;
 
-    nv2a_guest_mmio_lock(&d->pfifo.lock, "pfifo-read");
+    qemu_mutex_lock(&d->pfifo.lock);
 
     uint64_t r = 0;
     switch (addr) {
@@ -69,7 +68,7 @@ void pfifo_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
 
     nv2a_reg_log_write(NV_PFIFO, addr, size, val);
 
-    nv2a_guest_mmio_lock(&d->pfifo.lock, "pfifo-write");
+    qemu_mutex_lock(&d->pfifo.lock);
 
     switch (addr) {
     case NV_PFIFO_INTR_0:
@@ -192,7 +191,7 @@ static ssize_t pfifo_run_puller(NV2AState *d, uint32_t method_entry,
         // Switch contexts if necessary
         if (can_fifo_access(d)) {
             pgraph_context_switch(d, entry.channel_id);
-            if (!d->pgraph.waiting_for_context_switch) {
+            if (!qatomic_read(&d->pgraph.waiting_for_context_switch)) {
                 num_proc =
                     pgraph_method(d, subchannel, 0, entry.instance, parameters,
                                   num_words_available, max_lookahead_words, inc);
