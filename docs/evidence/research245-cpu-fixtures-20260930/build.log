@@ -1,0 +1,216 @@
+[  1%] Creating directories for 'tinyjson_project'
+[  2%] Generating shaders/diffuse_from_uniform.vshinc
+[  3%] Generating shaders/passthrough.vshinc
+[  7%] Building C object _deps/xboxswizzle_fetched-build/CMakeFiles/xbox-swizzle.dir/src/xbox-swizzle/swizzle.c.obj
+[  7%] Building CXX object _deps/xboxmath_fetched-build/CMakeFiles/xbox_math3d.dir/src/xbox_math_d3d.cpp.obj
+[  7%] Creating directories for 'printf_project'
+[  8%] Generating src/shaders/passthrough.vshinc
+[ 10%] Performing download step (git clone) for 'printf_project'
+[ 10%] Built target sync_resource_dirs
+[ 11%] Performing download step (git clone) for 'tinyjson_project'
+[ 12%] Building CXX object _deps/xboxmath_fetched-build/CMakeFiles/xbox_math3d.dir/src/xbox_math_frustum.cpp.obj
+Cloning into 'printf-src'...
+[ 14%] Linking C static library libxbox-swizzle.lib
+Cloning into 'tinyjson-src'...
+[ 15%] Building CXX object _deps/xboxmath_fetched-build/CMakeFiles/xbox_math3d.dir/src/xbox_math_matrix.cpp.obj
+[ 16%] Building CXX object _deps/xboxmath_fetched-build/CMakeFiles/xbox_math3d.dir/src/xbox_math_quaternion.cpp.obj
+[ 16%] Built target _SHADER_FILES_gen
+[ 16%] Built target _VERTEX_SHADER_FILES_gen
+[ 17%] Building CXX object _deps/xboxmath_fetched-build/CMakeFiles/xbox_math3d.dir/src/xbox_math_types.cpp.obj
+[ 19%] Building CXX object _deps/xboxmath_fetched-build/CMakeFiles/xbox_math3d.dir/src/xbox_math_util.cpp.obj
+[ 20%] Building CXX object _deps/xboxmath_fetched-build/CMakeFiles/xbox_math3d.dir/src/xbox_math_vector.cpp.obj
+[ 20%] Built target xbox-swizzle
+[ 21%] Linking CXX static library libxbox_math3d.lib
+[ 21%] Built target xbox_math3d
+[ 23%] Building CXX object _deps/pbkitplusplus-build/CMakeFiles/pbkitplusplus.dir/src/light.cpp.obj
+[ 25%] Building CXX object _deps/pbkitplusplus-build/CMakeFiles/pbkitplusplus.dir/src/models/model_builder.cpp.obj
+[ 25%] Building CXX object _deps/pbkitplusplus-build/CMakeFiles/pbkitplusplus.dir/src/dds_image.cpp.obj
+[ 28%] Building CXX object _deps/pbkitplusplus-build/CMakeFiles/pbkitplusplus.dir/src/nv2astate.cpp.obj
+[ 28%] Building CXX object _deps/pbkitplusplus-build/CMakeFiles/pbkitplusplus.dir/src/pushbuffer.cpp.obj
+[ 29%] Building CXX object _deps/pbkitplusplus-build/CMakeFiles/pbkitplusplus.dir/src/shaders/orthographic_vertex_shader.cpp.obj
+[ 30%] Building CXX object _deps/pbkitplusplus-build/CMakeFiles/pbkitplusplus.dir/src/shaders/passthrough_vertex_shader.cpp.obj
+[ 32%] Building CXX object _deps/pbkitplusplus-build/CMakeFiles/pbkitplusplus.dir/src/shaders/perspective_vertex_shader.cpp.obj
+[ 33%] Building CXX object _deps/pbkitplusplus-build/CMakeFiles/pbkitplusplus.dir/src/shaders/projection_vertex_shader.cpp.obj
+[ 34%] Building CXX object _deps/pbkitplusplus-build/CMakeFiles/pbkitplusplus.dir/src/shaders/vertex_shader_program.cpp.obj
+[ 35%] Building CXX object _deps/pbkitplusplus-build/CMakeFiles/pbkitplusplus.dir/src/texture_format.cpp.obj
+[ 37%] Building CXX object _deps/pbkitplusplus-build/CMakeFiles/pbkitplusplus.dir/src/texture_generator.cpp.obj
+[ 38%] Building CXX object _deps/pbkitplusplus-build/CMakeFiles/pbkitplusplus.dir/src/texture_stage.cpp.obj
+[ 39%] Building CXX object _deps/pbkitplusplus-build/CMakeFiles/pbkitplusplus.dir/src/vertex_buffer.cpp.obj
+[ 41%] Building CXX object _deps/pbkitplusplus-build/CMakeFiles/pbkitplusplus.dir/src/pbkpp_assert.cpp.obj
+[ 42%] Linking CXX static library libpbkitplusplus.lib
+[ 42%] Built target pbkitplusplus
+HEAD is now at 025cdde Merge pull request #14 from void256/master
+[ 43%] Performing update step for 'tinyjson_project'
+-- Already at requested ref: 025cdde5f2574290d8b2a8524bc257db2829bb7c
+[ 44%] No patch step for 'tinyjson_project'
+[ 46%] No configure step for 'tinyjson_project'
+[ 47%] Performing build step for 'tinyjson_project'
+-- tinyjson_project build command succeeded.  See also /home/codex/src/steamdeck-xemu/scratch/research245-cpu-build/third_party/tinyjson_project-prefix/src/tinyjson_project-stamp/tinyjson_project-build-*.log
+[ 48%] No install step for 'tinyjson_project'
+[ 50%] Completed 'tinyjson_project'
+[ 50%] Built target tinyjson_project
+HEAD is now at d3b9846 chore(readme): 2020 announcement
+[ 51%] Performing update step for 'printf_project'
+-- Already at requested ref: d3b984684bb8a8bdc48cc7a1abecb93ce59bbe3e
+[ 52%] No patch step for 'printf_project'
+[ 53%] No configure step for 'printf_project'
+[ 55%] Performing build step for 'printf_project'
+-- printf_project build command succeeded.  See also /home/codex/src/steamdeck-xemu/scratch/research245-cpu-build/third_party/printf_project-prefix/src/printf_project-stamp/printf_project-build-*.log
+[ 56%] No install step for 'printf_project'
+[ 57%] Completed 'printf_project'
+[ 57%] Built target printf_project
+[ 58%] Building CXX object src/CMakeFiles/perf_tests.dir/tests/cpu_floating_point_tests.cpp.obj
+[ 60%] Building CXX object src/CMakeFiles/perf_tests.dir/tests/high_vertex_count_tests.cpp.obj
+[ 65%] Building CXX object src/CMakeFiles/perf_tests.dir/tests/game_load_composite_tests.cpp.obj
+[ 65%] Building CXX object src/CMakeFiles/perf_tests.dir/tests/fill_rate_tests.cpp.obj
+[ 65%] Building CXX object src/CMakeFiles/perf_tests.dir/tests/cpu_translation_block_tests.cpp.obj
+[ 65%] Building CXX object src/CMakeFiles/perf_tests.dir/tests/pfifo_array_element_tests.cpp.obj
+[ 66%] Building CXX object src/CMakeFiles/perf_tests.dir/tests/busy_pfifo_tests.cpp.obj
+[ 67%] Building CXX object src/CMakeFiles/perf_tests.dir/tests/pfifo_packet_boundary_tests.cpp.obj
+/home/codex/src/steamdeck-xemu/worktrees/research245-cpu-fixtures/src/tests/fill_rate_tests.cpp:13:5: warning: array designators are a C99 extension [-Wc99-designator]
+   13 |     [false] = 21,
+      |     ^~~~~~~
+/home/codex/src/steamdeck-xemu/worktrees/research245-cpu-fixtures/src/tests/game_load_composite_tests.cpp:2230:30: warning: lambda capture 'preset' is not required to be captured for this use [-Wunused-lambda-capture]
+ 2230 |   auto begin_stage = [this, &preset](uint32_t stage, const char *name,
+      |                           ~~~^~~~~~
+1 warning generated.
+[ 69%] Building CXX object src/CMakeFiles/perf_tests.dir/tests/pipeline_texture_switch_tests.cpp.obj
+[ 70%] Building CXX object src/CMakeFiles/perf_tests.dir/tests/primitive_type_tests.cpp.obj
+[ 71%] Building CXX object src/CMakeFiles/perf_tests.dir/tests/report_query_tests.cpp.obj
+[ 73%] Building CXX object src/CMakeFiles/perf_tests.dir/tests/surface_rendering_tests.cpp.obj
+/home/codex/src/steamdeck-xemu/worktrees/research245-cpu-fixtures/src/tests/primitive_type_tests.cpp:15:5: warning: array designators are a C99 extension [-Wc99-designator]
+   15 |     [TestHost::PRIMITIVE_POINTS] = 5050,       [TestHost::PRIMITIVE_LINES] = 1430,
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[ 74%] Building CXX object src/CMakeFiles/perf_tests.dir/tests/test_suite.cpp.obj
+[ 75%] Building CXX object src/CMakeFiles/perf_tests.dir/tests/texture_cubemap_fallback_tests.cpp.obj
+[ 76%] Building CXX object src/CMakeFiles/perf_tests.dir/tests/tiny_draw_tests.cpp.obj
+1 warning generated.
+[ 78%] Building CXX object src/CMakeFiles/perf_tests.dir/tests/uniform_thrash_tests.cpp.obj
+[ 79%] Building CXX object src/CMakeFiles/perf_tests.dir/tests/vertex_buffer_allocation_tests.cpp.obj
+1 warning generated.
+[ 80%] Linking CXX static library libperf_tests.lib
+[ 80%] Built target perf_tests
+[ 82%] Building CXX object src/CMakeFiles/xemu-perf-tests.dir/debug_output.cpp.obj
+[ 85%] Building CXX object src/CMakeFiles/xemu-perf-tests.dir/device_info.cpp.obj
+[ 83%] Building CXX object src/CMakeFiles/xemu-perf-tests.dir/main.cpp.obj
+[ 85%] Building CXX object src/CMakeFiles/xemu-perf-tests.dir/logger.cpp.obj
+[ 88%] Building CXX object src/CMakeFiles/xemu-perf-tests.dir/runtime_config.cpp.obj
+[ 88%] Building CXX object src/CMakeFiles/xemu-perf-tests.dir/result_store.cpp.obj
+[ 89%] Building CXX object src/CMakeFiles/xemu-perf-tests.dir/result_statistics.cpp.obj
+[ 91%] Building CXX object src/CMakeFiles/xemu-perf-tests.dir/menu_item.cpp.obj
+[ 92%] Building CXX object src/CMakeFiles/xemu-perf-tests.dir/test_driver.cpp.obj
+[ 93%] Building CXX object src/CMakeFiles/xemu-perf-tests.dir/test_host.cpp.obj
+[ 94%] Building CXX object src/CMakeFiles/xemu-perf-tests.dir/test_catalog.cpp.obj
+/home/codex/src/steamdeck-xemu/worktrees/research245-cpu-fixtures/src/menu_item.cpp:37:27: warning: unused variable 'kLaunchFailureHoldMilliseconds' [-Wunused-const-variable]
+   37 | static constexpr uint32_t kLaunchFailureHoldMilliseconds = 10000;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 warning generated.
+[ 96%] Linking CXX executable xemu-perf-tests.exe
+lld: warning: .edata=.rdata: already merged into .edataxb
+Splitting debug information to reduce binary size...
+[ 96%] Built target xemu-perf-tests
+[ 97%] Generating xbe/xbe_file/default.xbe
+[ 98%] Generating xbe/.xbe_file_resource_dirs_time
+Exe::Exe: Opening Exe file...OK
+Exe::Exe: Reading DOS stub...Found, Ignoring...OK
+Exe::Exe: Reading PE header...OK
+Exe::Exe: Reading Optional Header...OK
+Exe::Exe: Reading Section Headers...
+Exe::Exe: Reading Section Header 0x0000...OK 0
+Exe::Exe: Reading Section Header 0x0001...OK 1
+Exe::Exe: Reading Section Header 0x0002...OK 2
+Exe::Exe: Reading Section Header 0x0003...OK 3
+Exe::Exe: Reading Section Header 0x0004...OK 4
+Exe::Exe: Reading Section Header 0x0005...OK 5
+Exe::Exe: Reading Sections...
+Exe::Exe: Reading Section 0x0000...OK
+Exe::Exe: Reading Section 0x0001...OK
+Exe::Exe: Reading Section 0x0002...OK
+Exe::Exe: Reading Section 0x0003...OK
+Exe::Exe: Reading Section 0x0004...OK
+Exe::Exe: Reading Section 0x0005...OK
+Exe::Exe: Exe /home/codex/src/steamdeck-xemu/scratch/research245-cpu-build/src/xemu-perf-tests.exe was successfully opened.
+Xbe::Xbe: Pass 1 (Simple Pass)...OK
+Xbe::Xbe: Pass 2 (Calculating Requirements)...OK
+Xbe::Xbe: Pass 3 (Generating Xbe)...
+Xbe::Xbe: Encoding Retail Entry Point...OK (0xA8D870FB)
+Xbe::Xbe: Relocating TLS directory...OK (0x002529A0)
+Xbe::Xbe: Found Extra Header Bytes...OK
+Xbe::Xbe: Generating Section Headers...
+Xbe::Xbe: Generating Section Header 0000...OK
+Xbe::Xbe: Generating Section Header 0001...OK
+Xbe::Xbe: Generating Section Header 0002...OK
+Xbe::Xbe: Generating Section Header 0003...OK
+Xbe::Xbe: Generating Section Header 0004...OK
+Xbe::Xbe: Generating Section Header 0005...OK
+Xbe::Xbe: Generating Logo Bitmap...OK (default)
+Xbe::Xbe: Generating Sections...
+Xbe::Xbe: Generating Section 0000...OK
+Xbe::Xbe: Generating Section 0001...OK
+Xbe::Xbe: Generating Section 0002...OK
+Xbe::Xbe: Generating Section 0003...OK
+Xbe::Xbe: Generating Section 0004...OK
+Xbe::Xbe: Generating Section 0005...OK
+Xbe::Xbe: Pass 4 (Finalizing)...
+Xbe::Xbe: Relocating to Base 0x00010000...OK (0 Fixups)
+Xbe::Export: Writing Xbe file...OK
+Xbe::Export: Writing Image Header...OK
+Xbe::Export: Writing Image Header Extra Bytes...OK
+Xbe::Export: Writing Certificate...OK
+Xbe::Export: Writing Section Headers...
+Xbe::Export: Writing Section Header 0x0000...OK
+Xbe::Export: Writing Section Header 0x0001...OK
+Xbe::Export: Writing Section Header 0x0002...OK
+Xbe::Export: Writing Section Header 0x0003...OK
+Xbe::Export: Writing Section Header 0x0004...OK
+Xbe::Export: Writing Section Header 0x0005...OK
+Xbe::Export: Writing Sections...
+Xbe::Export: Writing Section 0x0000 (.text)...OK
+Xbe::Export: Writing Section 0x0001 (.rdata)...OK
+Xbe::Export: Writing Section 0x0002 (.data)...OK
+Xbe::Export: Writing Section 0x0003 (.edataxb)...OK
+Xbe::Export: Writing Section 0x0004 (.tls)...OK
+Xbe::Export: Writing Section 0x0005 (/4)...OK
+Xbe::Export: Writing Zero Padding...OK
+[100%] Generating xiso/xemu-perf-tests_xiso/xemu-perf-tests_xiso.iso
+extract-xiso v2.7.1 (01.11.14) for linux - written by in <in@fishtank.com>
+
+creating xemu-perf-tests_xiso.iso:
+
+generating avl tree from filesystem: pipeline-sampler-only-identity-quick.jsonpfifo-array-elements-fast-smoke.json     pipeline-clear-texture-normal-sustained.jsoncatalog.json                                pipeline-texture-dirty-revalidation-fast-smoke.jsonpfifo-array-elements-quick.json                    report-query-sustained.json    reference-results.txt      pipeline-clear-texture-normal-fast-smoke.jsonpfifo-array-elements-sustained.json          plans                              smoke.jsonvulkan-memory-pressure-config.jsonpipeline-texture-switch-sustained.jsontransient-buffer-growth.json          report-query-quick.json     pipeline-sampler-only-identity-sustained.jsonvulkan-submission-lifetimes-quick.json       pipeline-clear-texture-normal-quick.jsondefault.xbe                             pipeline-texture-switch-quick.jsonpipeline-sampler-only-identity-fast-smoke.jsonreport-query-fast-smoke.json                  pipeline-texture-dirty-revalidation-sustained.jsonpfifo-packet-boundary.json                        vulkan-submission-lifetimes-fast-smoke.jsonvulkan-submission-lifetimes-sustained.json pipeline-texture-switch-fast-smoke.json   pipeline-texture-dirty-revalidation-quick.jsonsample-config.json                            reference-results-provenance.txt                                [OK]
+
+adding / (0 bytes) [OK]
+adding /pipeline-clear-texture-normal-sustained.json (591 bytes) [OK]
+adding /pfifo-array-elements-sustained.json (732 bytes) [OK]
+adding /pfifo-array-elements-fast-smoke.json (721 bytes) [OK]
+adding /catalog.json (121714 bytes) [OK]
+adding /default.xbe (2772992 bytes) [OK]
+adding /pfifo-array-elements-quick.json (732 bytes) [OK]
+adding /pipeline-clear-texture-normal-fast-smoke.json (581 bytes) [OK]
+adding /pfifo-packet-boundary.json (871 bytes) [OK]
+adding /pipeline-clear-texture-normal-quick.json (590 bytes) [OK]
+adding /reference-results.txt (146557 bytes) [OK]
+adding /pipeline-texture-switch-fast-smoke.json (735 bytes) [OK]
+adding /pipeline-texture-dirty-revalidation-fast-smoke.json (663 bytes) [OK]
+adding /pipeline-sampler-only-identity-quick.json (591 bytes) [OK]
+adding /pipeline-sampler-only-identity-fast-smoke.json (582 bytes) [OK]
+adding /pipeline-sampler-only-identity-sustained.json (592 bytes) [OK]
+adding /pipeline-texture-dirty-revalidation-sustained.json (663 bytes) [OK]
+adding /pipeline-texture-dirty-revalidation-quick.json (663 bytes) [OK]
+adding /pipeline-texture-switch-sustained.json (746 bytes) [OK]
+adding /pipeline-texture-switch-quick.json (745 bytes) [OK]
+adding /reference-results-provenance.txt (793 bytes) [OK]
+adding /transient-buffer-growth.json (591 bytes) [OK]
+adding /report-query-quick.json (1020 bytes) [OK]
+adding /report-query-fast-smoke.json (1020 bytes) [OK]
+adding /report-query-sustained.json (1022 bytes) [OK]
+adding /sample-config.json (403 bytes) [OK]
+adding /vulkan-submission-lifetimes-fast-smoke.json (1373 bytes) [OK]
+adding /vulkan-memory-pressure-config.json (396 bytes) [OK]
+adding /vulkan-submission-lifetimes-quick.json (1374 bytes) [OK]
+adding /vulkan-submission-lifetimes-sustained.json (1375 bytes) [OK]
+adding /plans/ (0 bytes) [OK]
+adding /plans/smoke.json (561 bytes) [OK]
+
+sucessfully created xemu-perf-tests_xiso.iso (30 files totalling 3061989 bytes added)
+[100%] Built target xemu-perf-tests_xiso
