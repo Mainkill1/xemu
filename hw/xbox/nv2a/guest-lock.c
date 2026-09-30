@@ -39,10 +39,11 @@ void nv2a_guest_mmio_lock(QemuMutex *lock, const char *name)
     }
     /* KVM/WHPX guest RDTSC is not derived from cpu_get_clock(). Pausing only
      * QEMU_CLOCK_VIRTUAL there would desynchronize PTIMER from the CPU. */
-    bool suspend_guest_clock = tcg_enabled() && vcpu && bql_locked() &&
-                               runstate_is_running();
+    bool suspend_guest_clock =
+        tcg_enabled() && vcpu && bql_locked() && runstate_is_running();
     int64_t start_us = trace_event_get_state(TRACE_NV2A_GUEST_LOCK_WAIT) ?
-                       g_get_monotonic_time() : 0;
+                           g_get_monotonic_time() :
+                           0;
     if (suspend_guest_clock) {
         cpu_disable_ticks();
     }

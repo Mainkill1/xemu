@@ -153,8 +153,7 @@ static void test_contended(bool vcpu, bool bql, bool running, bool tcg,
                            bool expected_pause)
 {
     LockHolder holder = { 0 };
-    LockWaiter waiter = { .holder = &holder,
-                          .initially_holds_bql = bql };
+    LockWaiter waiter = { .holder = &holder, .initially_holds_bql = bql };
     QemuEvent paused;
     QemuThread holder_thread;
     QemuThread waiter_thread;
@@ -231,7 +230,8 @@ int main(int argc, char **argv)
     g_test_init(&argc, &argv, NULL);
     g_test_add_func("/nv2a/guest-lock/uncontended", test_uncontended);
     g_test_add_func("/nv2a/guest-lock/vcpu-wait", test_vcpu_wait);
-    g_test_add_func("/nv2a/guest-lock/ram-callback-wait", test_ram_callback_wait);
+    g_test_add_func("/nv2a/guest-lock/ram-callback-wait",
+                    test_ram_callback_wait);
     g_test_add_func("/nv2a/guest-lock/host-wait", test_host_wait);
     g_test_add_func("/nv2a/guest-lock/paused-vm-wait", test_paused_vm_wait);
     g_test_add_func("/nv2a/guest-lock/accelerator-wait", test_accelerator_wait);

@@ -52,3 +52,29 @@ test('test-nv2a-guest-lock', test_nv2a_guest_lock,
      protocol: 'tap',
      env: test_env,
      suite: ['xbox'])
+
+test_nv2a_guest_lock_timer = executable(
+  'test-nv2a-guest-lock-timer',
+  files(
+    'test-nv2a-guest-lock-timer.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/guest-lock.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/ptimer.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/ptimer_core.c',
+    meson.project_source_root() / 'system/cpu-timers.c'
+  ),
+  c_args: [
+    '-DCOMPILING_PER_TARGET',
+    '-DCONFIG_TARGET="i386-softmmu-config-target.h"',
+    '-DCONFIG_DEVICES="i386-softmmu-config-devices.h"',
+    '-ffunction-sections', '-fdata-sections',
+  ],
+  include_directories: [include_directories('../../../target/i386')],
+  dependencies: [qemuutil],
+  link_args: host_os == 'darwin' ? ['-Wl,-dead_strip'] : ['-Wl,--gc-sections'],
+  build_by_default: false,
+)
+test('test-nv2a-guest-lock-timer', test_nv2a_guest_lock_timer,
+     args: ['--tap', '-k'],
+     protocol: 'tap',
+     env: test_env,
+     suite: ['xbox'])
