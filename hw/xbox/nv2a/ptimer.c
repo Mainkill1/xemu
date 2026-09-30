@@ -72,6 +72,19 @@ static inline bool ptimer_clock_running(const NV2AState *d)
            d->pramdac.core_clock_freq != 0;
 }
 
+static inline bool ptimer_irq_contribution(const NV2AState *d)
+{
+    return (d->ptimer.pending_interrupts &
+            d->ptimer.enabled_interrupts) != 0;
+}
+
+static inline void ptimer_publish_irq_change(NV2AState *d, bool before)
+{
+    if (before != ptimer_irq_contribution(d)) {
+        nv2a_update_irq(d);
+    }
+}
+
 /* PTIMER MMIO, callbacks and migration run under the BQL. Compare the
  * actual queue state at the effect boundary: callback consumption or VMState
  * replacement must not be hidden by a cached deadline from an earlier call.
@@ -329,15 +342,14 @@ static bool schedule_qemu_timer(NV2AState *d, bool state_changed)
 static void ptimer_alarm_fired(void *opaque)
 {
     NV2AState *d = (NV2AState *)opaque;
+    bool irq_before = ptimer_irq_contribution(d);
     uint64_t reg_now = get_reg_time(d);
-    bool caught_up = ptimer_latch_overdue_alarm(d, reg_now);
+    ptimer_latch_overdue_alarm(d, reg_now);
 
     /* QEMU removed the event before calling us. The queue adapter observes
      * that removal even if an early wake retains the same desired expiry. */
-    caught_up |= schedule_qemu_timer(d, true);
-    if (caught_up) {
-        nv2a_update_irq(d);
-    }
+    schedule_qemu_timer(d, true);
+    ptimer_publish_irq_change(d, irq_before);
 }
 
 void ptimer_post_load(NV2AState *d, int version_id)
@@ -364,11 +376,12 @@ void ptimer_set_core_clock(NV2AState *d, uint64_t frequency)
     /* Materialize elapsed state under the old frequency. Retain the
      * existing absolute-time clock model, not an anchored-clock redesign.
      */
+    bool irq_before = ptimer_irq_contribution(d);
     bool caught_up = ptimer_latch_overdue_alarm(d, get_reg_time(d));
     bool state_changed = caught_up || d->pramdac.core_clock_freq != frequency;
     d->pramdac.core_clock_freq = frequency;
     schedule_qemu_timer(d, state_changed);
-    nv2a_update_irq(d);
+    ptimer_publish_irq_change(d, irq_before);
 }
 
 uint64_t ptimer_read(void *opaque, hwaddr addr, unsigned int size)
@@ -378,15 +391,16 @@ uint64_t ptimer_read(void *opaque, hwaddr addr, unsigned int size)
     uint64_t r = 0;
     switch (addr) {
     case NV_PTIMER_INTR_0: {
+        bool irq_before = ptimer_irq_contribution(d);
         if (ptimer_alarm_armed(d)) {
             uint64_t reg_now = get_reg_time(d);
             if (ptimer_latch_overdue_alarm(d, reg_now)) {
                 if (d->ptimer.enabled_interrupts & NV_PTIMER_INTR_0_ALARM) {
                     schedule_qemu_timer(d, true);
                 }
-                nv2a_update_irq(d);
             }
         }
+        ptimer_publish_irq_change(d, irq_before);
         r = d->ptimer.pending_interrupts;
     } break;
     case NV_PTIMER_INTR_EN_0:
@@ -420,6 +434,7 @@ uint64_t ptimer_read(void *opaque, hwaddr addr, unsigned int size)
 void ptimer_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
 {
     NV2AState *d = opaque;
+    bool irq_before = ptimer_irq_contribution(d);
 
     nv2a_reg_log_write(NV_PTIMER, addr, size, val);
 
@@ -506,5 +521,5 @@ void ptimer_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
     default:
         break;
     }
-    nv2a_update_irq(d);
+    ptimer_publish_irq_change(d, irq_before);
 }

@@ -102,6 +102,35 @@ static void test_alarm_assert_and_ack(void)
     ptimer_reset(&d);
 }
 
+static void test_irq_contribution_with_other_source(void)
+{
+    NV2AState d;
+
+    init_nv2a_ptimer(&d);
+    d.pmc.pending_interrupts = NV_PMC_INTR_0_PGRAPH;
+    nv2a_update_irq(&d);
+    g_assert_true(irq_asserted);
+
+    ptimer_write(&d, NV_PTIMER_INTR_EN_0, NV_PTIMER_INTR_EN_0_ALARM, 4);
+    ptimer_write(&d, NV_PTIMER_ALARM_0, TEST_ALARM_LOW, 4);
+    unsigned updates = irq_update_calls;
+    expire_alarm(&d);
+    g_assert_cmpuint(irq_update_calls, ==, updates + 1);
+    g_assert_cmphex(d.pmc.pending_interrupts & NV_PMC_INTR_0_PTIMER, ==,
+                    NV_PMC_INTR_0_PTIMER);
+
+    updates = irq_update_calls;
+    ptimer_write(&d, NV_PTIMER_INTR_0, NV_PTIMER_INTR_0_ALARM, 4);
+    g_assert_cmpuint(irq_update_calls, ==, updates + 1);
+    g_assert_cmphex(d.pmc.pending_interrupts & NV_PMC_INTR_0_PTIMER, ==, 0);
+    g_assert_true(irq_asserted);
+
+    updates = irq_update_calls;
+    ptimer_write(&d, NV_PTIMER_INTR_0, NV_PTIMER_INTR_0_ALARM, 4);
+    g_assert_cmpuint(irq_update_calls, ==, updates);
+    ptimer_reset(&d);
+}
+
 static void test_pending_alarm_asserts_when_enabled(void)
 {
     NV2AState d;
@@ -587,6 +616,7 @@ static void test_noop_queue_operations(gconstpointer opaque)
     uint64_t mods = ptimer_test_timer_mod_calls;
     uint64_t dels = ptimer_test_timer_del_calls;
     uint64_t deadline = timer_expire_time_ns(&d.ptimer.timer);
+    unsigned irq_updates = irq_update_calls;
 
     for (unsigned i = 0; i < 1000; i++) {
         switch (operation) {
@@ -623,6 +653,7 @@ static void test_noop_queue_operations(gconstpointer opaque)
     }
     g_assert_cmpuint(ptimer_test_timer_mod_calls, ==, mods);
     g_assert_cmpuint(ptimer_test_timer_del_calls, ==, dels);
+    g_assert_cmpuint(irq_update_calls, ==, irq_updates);
     g_assert_cmpuint(timer_expire_time_ns(&d.ptimer.timer), ==, deadline);
     g_assert_cmpint(timer_pending(&d.ptimer.timer), ==, mode == 0);
     g_assert_true(d.ptimer.alarm_armed);
@@ -966,6 +997,8 @@ int main(int argc, char **argv)
 
     g_test_add_func("/xbox/nv2a/ptimer/alarm-assert-ack",
                     test_alarm_assert_and_ack);
+    g_test_add_func("/xbox/nv2a/ptimer/irq-with-other-source",
+                    test_irq_contribution_with_other_source);
     g_test_add_func("/xbox/nv2a/ptimer/enable-pending",
                     test_pending_alarm_asserts_when_enabled);
     g_test_add_func("/xbox/nv2a/ptimer/time-registers-epoch",
