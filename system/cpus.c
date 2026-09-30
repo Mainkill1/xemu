@@ -34,6 +34,7 @@
 #include "accel/accel-cpu-ops.h"
 #include "system/hw_accel.h"
 #include "exec/cpu-common.h"
+#include "exec/icount.h"
 #include "qemu/thread.h"
 #include "qemu/main-loop.h"
 #include "qemu/plugin.h"
@@ -573,9 +574,27 @@ void rust_bql_mock_lock(void)
 void bql_lock_impl(const char *file, int line)
 {
     QemuMutexLockFunc bql_lock_fn = qatomic_read(&bql_mutex_lock_func);
+    bool observe = trace_event_get_state(TRACE_QEMU_ISSUE266_BQL_WAIT);
+    /* A RAM callback can acquire BQL mid-TB. An icount VM sample there is
+     * not a read-only observation and can raise "Bad icount read". */
+    bool sample_vm = observe && !icount_enabled();
+    int64_t vm_start_ns = sample_vm ?
+                             qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) : -1;
 
     g_assert(!bql_locked());
+    int64_t host_start_us = observe ? g_get_monotonic_time() : 0;
     bql_lock_fn(&bql, file, line);
+    if (observe) {
+        int64_t host_end_us = g_get_monotonic_time();
+        /* Preserve the original lock call and report only measurable waits.
+         * Avoid logging every uncontended BQL transition in this probe. */
+        if (host_end_us - host_start_us >= 500) {
+            trace_qemu_issue266_bql_wait(
+                qemu_get_thread_id(), qemu_in_vcpu_thread(), file, line,
+                host_start_us, host_end_us, vm_start_ns,
+                sample_vm ? qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) : -1);
+        }
+    }
 }
 
 void bql_unlock(void)
@@ -916,4 +935,3 @@ void qmp_inject_nmi(Error **errp)
 {
     nmi_monitor_handle(monitor_get_cpu_index(monitor_cur()), errp);
 }
-

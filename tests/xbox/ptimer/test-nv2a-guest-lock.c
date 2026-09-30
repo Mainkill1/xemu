@@ -2,10 +2,15 @@
 #include "qemu/osdep.h"
 #include "qemu/thread.h"
 #include "qemu/main-loop.h"
+#include "qemu/log.h"
+#include "qemu/module.h"
+#include "qapi/error.h"
+#include "exec/icount.h"
 #include "system/cpus.h"
 #include "system/cpu-timers.h"
 #include "system/runstate.h"
 #include "system/tcg.h"
+#include "trace/control.h"
 
 #include "hw/xbox/nv2a/guest-lock.h"
 
@@ -20,6 +25,18 @@ static int resumes;
 static int64_t clock_offset_us;
 static int64_t pause_start_us;
 static QemuEvent *pause_observed;
+static QemuMutex *observed_mutex;
+static QemuEvent *lock_entered;
+static __thread bool test_waiter;
+static bool observation_only;
+
+static void observe_lock_entry(QemuMutex *lock, const char *file, int line)
+{
+    if (test_waiter && lock == observed_mutex) {
+        qemu_event_set(lock_entered);
+    }
+    qemu_mutex_lock_impl(lock, file, line);
+}
 
 bool qemu_in_vcpu_thread(void)
 {
@@ -97,6 +114,18 @@ static int64_t guest_clock_us(void)
     return (pause_start_us ? pause_start_us : now) - clock_offset_us;
 }
 
+int64_t cpus_get_virtual_clock(void)
+{
+    /* Mid-TB icount reads are not observational and may abort the guest. */
+    g_assert_cmpint(icount_enabled(), ==, ICOUNT_DISABLED);
+    return guest_clock_us() * 1000;
+}
+
+void cpus_set_virtual_clock(int64_t value)
+{
+    g_assert_not_reached();
+}
+
 typedef struct LockHolder {
     QemuMutex lock;
     QemuEvent acquired;
@@ -129,7 +158,9 @@ static void *wait_for_lock(void *opaque)
     int64_t wall_start = g_get_monotonic_time();
     int64_t guest_start = guest_clock_us();
     qemu_event_set(&waiter->started);
+    test_waiter = true;
     nv2a_guest_mmio_lock(&waiter->holder->lock, "test");
+    test_waiter = false;
     waiter->wall_elapsed = g_get_monotonic_time() - wall_start;
     waiter->guest_elapsed = guest_clock_us() - guest_start;
     waiter->ended_holding_bql = mock_bql_held;
@@ -153,9 +184,10 @@ static void test_contended(bool vcpu, bool bql, bool running, bool tcg,
                            bool expected_pause)
 {
     LockHolder holder = { 0 };
-    LockWaiter waiter = { .holder = &holder,
-                          .initially_holds_bql = bql };
+    LockWaiter waiter = { .holder = &holder, .initially_holds_bql = bql };
     QemuEvent paused;
+    QemuEvent entered;
+    QemuMutexLockFunc saved_lock = qatomic_read(&qemu_mutex_lock_func);
     QemuThread holder_thread;
     QemuThread waiter_thread;
     qemu_mutex_init(&holder.lock);
@@ -163,6 +195,13 @@ static void test_contended(bool vcpu, bool bql, bool running, bool tcg,
     qemu_event_init(&holder.release, false);
     qemu_event_init(&waiter.started, false);
     qemu_event_init(&paused, false);
+    qemu_event_init(&entered, false);
+    if (observation_only) {
+        expected_pause = false;
+        observed_mutex = &holder.lock;
+        lock_entered = &entered;
+        qatomic_set(&qemu_mutex_lock_func, observe_lock_entry);
+    }
     mock_vcpu = vcpu;
     mock_running = running;
     tcg_allowed = tcg;
@@ -175,25 +214,38 @@ static void test_contended(bool vcpu, bool bql, bool running, bool tcg,
     qemu_thread_create(&waiter_thread, "nv2a-lock-waiter", wait_for_lock,
                        &waiter, QEMU_THREAD_JOINABLE);
     qemu_event_wait(&waiter.started);
-    if (expected_pause) {
+    if (observation_only) {
+        qemu_event_wait(&entered);
+        g_usleep(40000);
+    } else if (expected_pause) {
         qemu_event_wait(&paused);
         g_usleep(40000);
     }
     qemu_event_set(&holder.release);
     qemu_thread_join(&waiter_thread);
     qemu_thread_join(&holder_thread);
+    qatomic_set(&qemu_mutex_lock_func, saved_lock);
 
     g_assert_cmpint(pauses, ==, expected_pause ? 1 : 0);
     g_assert_cmpint(resumes, ==, expected_pause ? 1 : 0);
-    g_assert_cmpint(bql_acquires, ==, vcpu && tcg && !bql ? 1 : 0);
-    g_assert_cmpint(bql_releases, ==, vcpu && tcg && !bql ? 1 : 0);
+    g_assert_cmpint(bql_acquires, ==,
+                    !observation_only && vcpu && tcg && !bql ? 1 : 0);
+    g_assert_cmpint(bql_releases, ==,
+                    !observation_only && vcpu && tcg && !bql ? 1 : 0);
     g_assert_cmpint(waiter.ended_holding_bql, ==, bql);
     if (expected_pause) {
         g_assert_cmpint(waiter.wall_elapsed, >, 20000);
         /* A 16 ms guest alarm must not expire during a host GPU wait. */
         g_assert_cmpint(waiter.guest_elapsed, <, 16000);
     }
+    if (observation_only) {
+        g_assert_cmpint(waiter.wall_elapsed, >, 20000);
+        g_assert_cmpint(waiter.guest_elapsed, >, 20000);
+    }
     pause_observed = NULL;
+    observed_mutex = NULL;
+    lock_entered = NULL;
+    qemu_event_destroy(&entered);
     qemu_event_destroy(&paused);
     qemu_event_destroy(&waiter.started);
     qemu_event_destroy(&holder.release);
@@ -226,14 +278,77 @@ static void test_accelerator_wait(void)
     test_contended(true, true, true, false, false);
 }
 
+typedef struct DownloadWait {
+    QemuEvent started;
+    QemuEvent complete;
+    int64_t guest_elapsed;
+    bool ended_holding_bql;
+} DownloadWait;
+
+static void *wait_for_download(void *opaque)
+{
+    DownloadWait *wait = opaque;
+    mock_bql_held = false;
+    int64_t guest_start = guest_clock_us();
+    qemu_event_set(&wait->started);
+    nv2a_guest_download_wait(&wait->complete, "test-download-event");
+    wait->guest_elapsed = guest_clock_us() - guest_start;
+    wait->ended_holding_bql = mock_bql_held;
+    return NULL;
+}
+
+static void test_download_wait(void)
+{
+    DownloadWait wait = { 0 };
+    QemuThread thread;
+    mock_vcpu = true;
+    mock_running = true;
+    tcg_allowed = true;
+    pauses = resumes = bql_acquires = bql_releases = 0;
+    clock_offset_us = pause_start_us = 0;
+    qemu_event_init(&wait.started, false);
+    qemu_event_init(&wait.complete, false);
+    qemu_thread_create(&thread, "nv2a-download-waiter", wait_for_download,
+                       &wait, QEMU_THREAD_JOINABLE);
+    qemu_event_wait(&wait.started);
+    g_usleep(40000);
+    qemu_event_set(&wait.complete);
+    qemu_thread_join(&thread);
+    g_assert_cmpint(pauses, ==, 0);
+    g_assert_cmpint(resumes, ==, 0);
+    g_assert_cmpint(bql_acquires, ==, 0);
+    g_assert_cmpint(bql_releases, ==, 0);
+    g_assert_false(wait.ended_holding_bql);
+    g_assert_cmpint(wait.guest_elapsed, >, 20000);
+    qemu_event_destroy(&wait.complete);
+    qemu_event_destroy(&wait.started);
+}
+
 int main(int argc, char **argv)
 {
+    if (argc > 1 && (strcmp(argv[1], "--observe-only") == 0 ||
+                     strcmp(argv[1], "--observe-icount") == 0)) {
+        use_icount = strcmp(argv[1], "--observe-icount") == 0 ? ICOUNT_PRECISE :
+                                                                ICOUNT_DISABLED;
+        g_setenv("XEMU_ISSUE266_OBSERVE_LOCKS", "1", true);
+        observation_only = true;
+        module_call_init(MODULE_INIT_TRACE);
+        g_assert_nonnull(trace_event_name("nv2a_issue266_gpu_wait"));
+        trace_enable_events("nv2a_issue266_gpu_wait");
+        qemu_set_log(LOG_TRACE, &error_abort);
+        memmove(argv + 1, argv + 2, sizeof(*argv) * (argc - 1));
+        argc--;
+    } else {
+        g_setenv("XEMU_ISSUE266_OBSERVE_LOCKS", "0", true);
+    }
     g_test_init(&argc, &argv, NULL);
     g_test_add_func("/nv2a/guest-lock/uncontended", test_uncontended);
     g_test_add_func("/nv2a/guest-lock/vcpu-wait", test_vcpu_wait);
-    g_test_add_func("/nv2a/guest-lock/ram-callback-wait", test_ram_callback_wait);
+    g_test_add_func("/nv2a/guest-lock/ram-callback-wait",
+                    test_ram_callback_wait);
     g_test_add_func("/nv2a/guest-lock/host-wait", test_host_wait);
     g_test_add_func("/nv2a/guest-lock/paused-vm-wait", test_paused_vm_wait);
     g_test_add_func("/nv2a/guest-lock/accelerator-wait", test_accelerator_wait);
+    g_test_add_func("/nv2a/guest-lock/download-event", test_download_wait);
     return g_test_run();
 }

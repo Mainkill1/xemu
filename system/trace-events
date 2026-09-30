@@ -1,5 +1,8 @@
 # See docs/devel/tracing.rst for syntax documentation.
 
+# cpus.c, temporary issue #266 diagnostic
+qemu_issue266_bql_wait(int thread_id, bool vcpu, const char *file, int line, int64_t host_start_us, int64_t host_end_us, int64_t vm_start_ns, int64_t vm_end_ns) "tid=%d vcpu=%d file=%s line=%d host_start_us=%"PRId64" host_end_us=%"PRId64" vm_start_ns=%"PRId64" vm_end_ns=%"PRId64
+
 # balloon.c
 # Since requests are raised via monitor, not many tracepoints are needed.
 balloon_event(void *opaque, unsigned long addr) "opaque %p addr %lu"

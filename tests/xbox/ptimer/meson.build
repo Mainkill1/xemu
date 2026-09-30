@@ -52,3 +52,15 @@ test('test-nv2a-guest-lock', test_nv2a_guest_lock,
      protocol: 'tap',
      env: test_env,
      suite: ['xbox'])
+
+test('test-nv2a-guest-lock-observe', test_nv2a_guest_lock,
+     args: ['--observe-only', '--tap', '-k'],
+     protocol: 'tap',
+     env: test_env,
+     suite: ['xbox'])
+
+test('test-nv2a-guest-lock-observe-icount', test_nv2a_guest_lock,
+     args: ['--observe-icount', '--tap', '-k'],
+     protocol: 'tap',
+     env: test_env,
+     suite: ['xbox'])

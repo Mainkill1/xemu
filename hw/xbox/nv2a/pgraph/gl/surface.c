@@ -463,7 +463,7 @@ static void surface_access_callback(void *opaque, MemoryRegion *mr, hwaddr addr,
         qatomic_set(&r->downloads_pending, true);
         pfifo_kick(d);
         qemu_mutex_unlock(&d->pfifo.lock);
-        qemu_event_wait(&r->downloads_complete);
+        nv2a_guest_download_wait(&r->downloads_complete, "gl-download-event");
     }
 }
 

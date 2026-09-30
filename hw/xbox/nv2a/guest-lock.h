@@ -5,5 +5,6 @@
 #include "qemu/thread.h"
 
 void nv2a_guest_mmio_lock(QemuMutex *lock, const char *name);
+void nv2a_guest_download_wait(QemuEvent *event, const char *name);
 
 #endif
