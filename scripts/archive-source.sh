@@ -69,7 +69,6 @@ subprojects=(
   volk
   VulkanMemoryAllocator
   xxhash
-  sqlite3
   sdl3
 )
 

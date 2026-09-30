@@ -24,6 +24,34 @@ static void load_tweaks_table(const char *text)
     config_tree.store_to_struct(&g_config);
 }
 
+static void load_config_table(const char *text)
+{
+    toml::table table = toml::parse(text);
+
+    config_tree.reset_to_defaults();
+    config_tree.update_from_table(table);
+    config_tree.free_allocations(&g_config);
+    config_tree.store_to_struct(&g_config);
+}
+
+static void test_dsp_jit_default_migration_policy()
+{
+    auto dsp_jit = config_tree.child("audio")->child("use_dsp_jit");
+    assert(dsp_jit && dsp_jit->type == CNodeType::Boolean);
+
+    load_config_table("");
+    assert(g_config.audio.use_dsp_jit);
+
+    load_config_table("[audio]\nuse_dsp = true\n");
+    assert(g_config.audio.use_dsp_jit);
+
+    load_config_table("[audio]\nuse_dsp_jit = false\n");
+    assert(!g_config.audio.use_dsp_jit);
+
+    load_config_table("[audio]\nuse_dsp_jit = true\n");
+    assert(g_config.audio.use_dsp_jit);
+}
+
 static void test_ubershader_migration()
 {
     load_tweaks_table("[tweaks]\npgraph_bulk_packets = true\n");
@@ -145,16 +173,6 @@ static void test_boolean_tweak_runtime_state()
 
     xemu_tweaks_publish_renderer(XEMU_TWEAK_RENDERER_VULKAN);
     state = xemu_tweak_runtime_state(
-        XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION);
-    assert(!state.requested && !state.selected && !state.effective);
-    assert(state.available && !state.restart_pending);
-    g_config.tweaks.issue149_effect_suppression = true;
-    xemu_tweaks_apply(false);
-    state = xemu_tweak_runtime_state(
-        XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION);
-    assert(state.requested && state.selected && state.effective);
-
-    state = xemu_tweak_runtime_state(
         XEMU_TWEAK_VK_COLOR_DOWNLOAD_FOLDING);
     assert(state.requested && state.selected && state.effective);
     assert(state.available && !state.restart_pending);
@@ -193,15 +211,11 @@ static void test_boolean_tweak_runtime_state()
     assert(state.selected && !state.effective && !state.available);
     state = xemu_tweak_runtime_state(XEMU_TWEAK_GL_NATIVE_S3TC);
     assert(state.effective && state.available);
-    state = xemu_tweak_runtime_state(
-        XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION);
-    assert(state.requested && state.selected && state.effective);
-    g_config.tweaks.issue149_effect_suppression = false;
-    xemu_tweaks_apply(false);
 }
 
 int main()
 {
+    test_dsp_jit_default_migration_policy();
     test_boolean_tweak_runtime_state();
     test_ubershader_migration();
     test_ubershader_runtime_lifecycle();
@@ -225,8 +239,6 @@ int main()
     assert(xemu_tweak_enabled(XEMU_TWEAK_VK_HYBRID_UBERSHADERS));
     assert(g_config.tweaks.vk_shader_fastpath);
     assert(xemu_tweak_enabled(XEMU_TWEAK_VK_SHADER_FASTPATH));
-    assert(!g_config.tweaks.issue149_effect_suppression);
-    assert(!xemu_tweak_enabled(XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION));
     assert(!g_config.tweaks.nv20_vertex_arithmetic);
     assert(!xemu_tweak_enabled(XEMU_TWEAK_NV20_VERTEX_ARITHMETIC));
     assert(g_config.perf.cache_shaders);

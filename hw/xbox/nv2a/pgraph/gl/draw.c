@@ -21,8 +21,6 @@
 
 #include "qemu/fast-hash.h"
 #include "hw/xbox/nv2a/nv2a_int.h"
-#include "hw/xbox/nv2a/pgraph/effect-suppression.h"
-#include "ui/xemu-tweaks.h"
 #include "debug.h"
 #include "draw-lifecycle.h"
 #include "renderer.h"
@@ -433,13 +431,9 @@ static PGRAPHGLDrawResult pgraph_gl_flush_draw_internal(NV2AState *d)
         } else {
             nv2a_profile_inc_counter(NV2A_PROF_GEOM_BUFFER_UPDATE_4_NOTDIRTY);
         }
-        if (!xemu_tweak_enabled(XEMU_TWEAK_ISSUE149_EFFECT_SUPPRESSION) ||
-            !pgraph_matches_issue149_effect(pg, pg->inline_elements_length,
-                                            min_element, max_element)) {
-            glDrawElements(r->shader_binding->gl_primitive_mode,
-                           pg->inline_elements_length, GL_UNSIGNED_INT,
-                           (void *)0);
-        }
+        glDrawElements(r->shader_binding->gl_primitive_mode,
+                       pg->inline_elements_length, GL_UNSIGNED_INT,
+                       (void *)0);
         return PGRAPH_GL_DRAW_SUBMITTED;
     } else if (pg->inline_buffer_length) {
         NV2A_GL_DPRINTF(false, "Inline Buffer");
@@ -499,12 +493,6 @@ void pgraph_gl_flush_draw(NV2AState *d)
     if (!r->draw_lifecycle.prepared) {
         return;
     }
-    PGRAPHGLDrawResult result = pgraph_gl_flush_draw_internal(d);
-    pgraph_gl_draw_lifecycle_record(&r->draw_lifecycle, result);
-    if (result == PGRAPH_GL_DRAW_SUBMITTED && r->shader_binding) {
-        pgraph_shader_browser_record_draw(
-            &d->pgraph.shader_browser_observations,
-            &r->shader_binding->browser, d->pgraph.frame_time,
-            XEMU_SHADER_BROWSER_ROUTE_SPECIALIZED);
-    }
+    pgraph_gl_draw_lifecycle_record(
+        &r->draw_lifecycle, pgraph_gl_flush_draw_internal(d));
 }

@@ -35,7 +35,6 @@
 #include "uniform-source.h"
 #include "util.h"
 #include "vsh_regs.h"
-#include "glsl/shader-browser-observation.h"
 
 typedef struct NV2AState NV2AState;
 typedef struct PGRAPHNullState PGRAPHNullState;
@@ -147,7 +146,6 @@ typedef struct PGRAPHState {
 
     int frame_time;
     int draw_time;
-    PGRAPHShaderBrowserObservations shader_browser_observations;
 
     /* subchannels state we're not sure the location of... */
     ContextSurfaces2DState context_surfaces_2d;
@@ -313,12 +311,18 @@ extern NV2AState *g_nv2a;
 static inline uint32_t pgraph_reg_r(PGRAPHState *pg, unsigned int r)
 {
     assert(r % 4 == 0);
-    return pg->regs_[r];
+    return r == NV_PGRAPH_SURFACE ? qatomic_read(&pg->regs_[r]) :
+                                   pg->regs_[r];
 }
 
 static inline void pgraph_reg_w(PGRAPHState *pg, unsigned int r, uint32_t v)
 {
     assert(r % 4 == 0);
+    if (r == NV_PGRAPH_SURFACE) {
+        /* Flip control is shared with MMIO and is not renderer draw state. */
+        qatomic_set(&pg->regs_[r], v);
+        return;
+    }
     if (pg->regs_[r] == v) {
         return;
     }
@@ -332,6 +336,33 @@ static inline void pgraph_reg_w(PGRAPHState *pg, unsigned int r, uint32_t v)
                                     uniform_stages);
     }
     pg->regs_[r] = v;
+}
+
+/* Both the FIFO worker and guest MMIO update fields of the same flip word.
+ * Rebuild from the latest complete word on contention; do not publish a
+ * stale masked read/modify/write over the other owner's counter. */
+static inline void pgraph_flip_set(PGRAPHState *pg, uint32_t mask,
+                                  uint32_t value)
+{
+    uint32_t old, next;
+    do {
+        old = qatomic_read(&pg->regs_[NV_PGRAPH_SURFACE]);
+        next = old;
+        SET_MASK(next, mask, value);
+    } while (qatomic_cmpxchg(&pg->regs_[NV_PGRAPH_SURFACE], old, next) != old);
+}
+
+/* Return the accepted pre-increment word for matching old/new trace values. */
+static inline uint32_t pgraph_flip_increment(PGRAPHState *pg, uint32_t mask)
+{
+    uint32_t old, next;
+    do {
+        old = qatomic_read(&pg->regs_[NV_PGRAPH_SURFACE]);
+        next = old;
+        SET_MASK(next, mask, (GET_MASK(old, mask) + 1) %
+                            GET_MASK(old, NV_PGRAPH_SURFACE_MODULO_3D));
+    } while (qatomic_cmpxchg(&pg->regs_[NV_PGRAPH_SURFACE], old, next) != old);
+    return old;
 }
 
 static inline void pgraph_uniform_input_touch(PGRAPHState *pg)
@@ -350,7 +381,7 @@ static inline void pgraph_uniform_u32_row_w(PGRAPHState *pg,
                                             bool *dirty_rows,
                                             unsigned int row,
                                             unsigned int slot,
-                                            uint32_t value)
+                                           uint32_t value)
 {
     pgraph_uniform_u32_row_update(rows, dirty_rows, &pg->vsh_rows_dirty_any,
                                  row, slot, value);

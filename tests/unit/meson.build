@@ -33,19 +33,6 @@ tests = {
   'test-xbox-pgraph-texture-layout': [],
   'test-xbox-pgraph-uniform-dirty': [xbox_i386_target_headers],
   'test-xbox-pgraph-uniform-source': [],
-  'test-xbox-shader-browser-recipe': [
-    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/shader-browser-recipe.c',
-    xbox_i386_target_headers,
-  ],
-  'test-xbox-shader-browser-publication': [
-    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/shader-browser-recipe.c',
-    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/shader-browser-publication.c',
-    xbox_i386_target_headers,
-  ],
-  'test-xbox-shader-browser-observation': [
-    meson.project_source_root() / 'hw/xbox/nv2a/pgraph/glsl/shader-browser-observation.c',
-    xbox_i386_target_headers,
-  ],
   'test-xbox-pgraph-renderer-switch-locking': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/renderer-switch.c',
   ],
@@ -138,6 +125,8 @@ tests = {
   'test-xbox-nv2a-ptimer': [
     'ptimer-test-stubs.c',
     meson.project_source_root() / 'hw/xbox/nv2a/ptimer.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/ptimer_core.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/pramdac.c',
     declare_dependency(
       compile_args: [
         '-include',
@@ -492,13 +481,6 @@ xemu_tweaks_test = executable('test-xemu-tweaks-config',
         '../../ui/xemu-settings-migration.cc'), genh,
   dependencies: [qemuutil, genconfig, tomlplusplus])
 test('test-xemu-tweaks-config', xemu_tweaks_test, suite: ['unit'])
-
-issue149_effect_test = executable('test-xbox-pgraph-effect-suppression',
-  files('test-xbox-pgraph-effect-suppression.c',
-        '../../hw/xbox/nv2a/pgraph/effect-suppression.c'),
-  dependencies: [qemuutil, xbox_i386_target_headers])
-test('test-xbox-pgraph-effect-suppression', issue149_effect_test,
-     suite: ['unit'])
 
 test('test-xemu-version', find_program('test-xemu-version.sh'),
      args: [meson.project_source_root() / 'scripts/xemu-version.sh'],

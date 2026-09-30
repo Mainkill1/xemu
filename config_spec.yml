@@ -36,9 +36,6 @@ tweaks:
   gl_native_s3tc:
     type: bool
     default: true
-  issue149_effect_suppression:
-    type: bool
-    default: false
 
 general:
   show_welcome:
@@ -373,7 +370,7 @@ audio:
   use_dsp: bool
   use_dsp_jit:
     type: bool
-    default: false
+    default: true
   hrtf:
     type: bool
     default: true
@@ -430,15 +427,3 @@ perf:
   cache_shaders:
     type: bool
     default: true
-
-shader_browser:
-  database:
-    enabled:
-      type: bool
-      default: false
-    record_performance_sessions:
-      type: bool
-      default: false
-    save_external_artifacts:
-      type: bool
-      default: false
