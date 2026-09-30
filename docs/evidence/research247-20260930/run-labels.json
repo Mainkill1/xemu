@@ -1,0 +1,86 @@
+{
+  "d1": {
+    "name": "Deck setup attempt 1: missing private paths",
+    "host": "Steam Deck",
+    "role": "No emulator launch; setup failure",
+    "runId": "20260930-102509286-47d976bf532941ea8fc870f6700af86a",
+    "source": "runs/d1/20260930-102509286-47d976bf532941ea8fc870f6700af86a/result.json"
+  },
+  "d2": {
+    "name": "Deck setup attempt 2: incompatible slirp",
+    "host": "Steam Deck",
+    "role": "Dependency failure before QMP; no admitted scene",
+    "runId": "20260930-102921311-fc980115e64941698750b19ada203164",
+    "source": "runs/d2/20260930-102921311-fc980115e64941698750b19ada203164/result.json"
+  },
+  "d3": {
+    "name": "Deck setup attempt 3: invalid controller button",
+    "host": "Steam Deck",
+    "role": "Plan failure; forced termination and incomplete trace",
+    "runId": "20260930-103141398-f0af4140332c485a85ee5f7414ea6977",
+    "source": "runs/d3/20260930-103141398-f0af4140332c485a85ee5f7414ea6977/result.json"
+  },
+  "d4": {
+    "name": "Deck probe ON pilot: loading scene",
+    "host": "Steam Deck",
+    "role": "Guest run complete, stationary scene rejected",
+    "runId": "20260930-103401396-f936c1a9fc934be6ac28e1e4e0bfa937",
+    "source": "runs/d4/20260930-103401396-f936c1a9fc934be6ac28e1e4e0bfa937/result.json"
+  },
+  "d5": {
+    "name": "Deck probe ON admitted stationary race",
+    "host": "Steam Deck",
+    "role": "Guest run and stationary scene admitted; cache qualification incomplete",
+    "runId": "20260930-103846385-41140180f8fa4b7fa391d9ba8c6260a1",
+    "source": "runs/d5/20260930-103846385-41140180f8fa4b7fa391d9ba8c6260a1/result.json"
+  },
+  "main-aa1": {
+    "name": "Windows previous-main repeat 1",
+    "host": "Windows",
+    "role": "Previous main, CI build, no voice-write probe",
+    "runId": "20260930-094317816-5901d683a67541b4b186d53405cdb128",
+    "source": "runs/main-aa1/20260930-094317816-5901d683a67541b4b186d53405cdb128/result.json"
+  },
+  "main-aa2": {
+    "name": "Windows previous-main repeat 2",
+    "host": "Windows",
+    "role": "Previous main, CI build, no voice-write probe",
+    "runId": "20260930-095602990-cbfd87824f674b5da2ac62faa5589f61",
+    "source": "runs/main-aa2/20260930-095602990-cbfd87824f674b5da2ac62faa5589f61/result.json"
+  },
+  "off1": {
+    "name": "Windows probe OFF repeat 1",
+    "host": "Windows",
+    "role": "Same diagnostic candidate executable, collection disabled; observer control",
+    "runId": "20260930-103601681-b66b598609c64a7585a681d44682867c",
+    "source": "runs/off1/20260930-103601681-b66b598609c64a7585a681d44682867c/result.json"
+  },
+  "off2": {
+    "name": "Windows probe OFF repeat 2",
+    "host": "Windows",
+    "role": "Same diagnostic candidate executable, collection disabled; observer control",
+    "runId": "20260930-103855885-ce2ede4057de488ca0c4edda5a4c8bd9",
+    "source": "runs/off2/20260930-103855885-ce2ede4057de488ca0c4edda5a4c8bd9/result.json"
+  },
+  "w1": {
+    "name": "Windows probe ON pilot",
+    "host": "Windows",
+    "role": "Diagnostic candidate with collection enabled; initial attribution",
+    "runId": "20260930-102410994-f93b071605734724a8a39ad501582fa8",
+    "source": "runs/w1/20260930-102410994-f93b071605734724a8a39ad501582fa8/result.json"
+  },
+  "w2": {
+    "name": "Windows probe ON repeat 1",
+    "host": "Windows",
+    "role": "Diagnostic candidate with collection enabled; first observer-check endpoint",
+    "runId": "20260930-102727381-805862b9c2ec4c46a7449d919da8604f",
+    "source": "runs/w2/20260930-102727381-805862b9c2ec4c46a7449d919da8604f/result.json"
+  },
+  "w3": {
+    "name": "Windows probe ON repeat 2",
+    "host": "Windows",
+    "role": "Diagnostic candidate with collection enabled; final observer-check endpoint",
+    "runId": "20260930-104035873-7afda96492dc450bbbcce5ff731ae679",
+    "source": "runs/w3/20260930-104035873-7afda96492dc450bbbcce5ff731ae679/result.json"
+  }
+}

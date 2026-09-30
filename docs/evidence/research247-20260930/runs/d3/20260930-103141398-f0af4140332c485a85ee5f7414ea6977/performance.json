@@ -1,0 +1,64 @@
+{
+  "SchemaVersion": 1,
+  "ProfileSha256": "8b1ec7442c67958ab9b1d87348a16165eb3da287383f4beacf146bc739bf89f0",
+  "Profile": {
+    "Segment": "stationary-start",
+    "MetricsPath": "metrics.csv",
+    "GuestFlipsPath": "guest-flips.log",
+    "GuestFramesPath": "guest-frames.log",
+    "FlipTailSamples": 5,
+    "FrameTailSeconds": 25,
+    "MinimumCpuSamples": 55,
+    "MinimumFrameSamples": 160
+  },
+  "Monitoring": null,
+  "Flips": {
+    "Samples": 5,
+    "Frames": 1112,
+    "ElapsedUs": 28275550,
+    "CadenceFps": 39.32726330699138
+  },
+  "Frames": {
+    "WindowStartUs": 19199869391,
+    "WindowEndUs": 19224869391,
+    "FirstSampleUs": 19203665412,
+    "LastSampleUs": 19224869391,
+    "ZeroIntervals": 0,
+    "IntervalsMs": {
+      "Count": 1054,
+      "Mean": 23.86855313092977,
+      "Median": 16.685,
+      "Min": 2.523,
+      "Max": 3953.476,
+      "P95": 44.78245,
+      "P99": 59.80935000000005
+    }
+  },
+  "Sources": [
+    {
+      "Path": "metrics.csv",
+      "Bytes": 20322,
+      "Sha256": "060de45de64ab42bf8816d9e264a569949b8a6a893c4f19a880eba1270717692",
+      "Records": 114,
+      "IgnoredRecords": 113
+    },
+    {
+      "Path": "guest-flips.log",
+      "Bytes": 410,
+      "Sha256": "545fb049e6e7b28360f0f3d50c7de826cac1885e6429c7590777f1529c69252f",
+      "Records": 10,
+      "IgnoredRecords": 0
+    },
+    {
+      "Path": "guest-frames.log",
+      "Bytes": 102677,
+      "Sha256": "12051c1d8328ec5e455efe5b456ac9407bf4887b992e07dc4c5df1ebe6993dc7",
+      "Records": 2035,
+      "IgnoredRecords": 0
+    }
+  ],
+  "Errors": [
+    "monitor: Selected segment has insufficient CPU/duty samples."
+  ],
+  "Complete": false
+}

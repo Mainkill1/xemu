@@ -1,0 +1,89 @@
+{
+  "Schema": 1,
+  "Status": "preparationFailed",
+  "CacheMode": "cold",
+  "CacheShaders": false,
+  "DriverCache": "mesa",
+  "DriverNamespaceVerified": false,
+  "ComparisonReady": false,
+  "AllowUncontrolledDriverCache": false,
+  "ContractSha256": null,
+  "CacheDirectory": null,
+  "PriorCacheDirectory": null,
+  "DriverCacheDirectory": null,
+  "ConfigSourcePath": "/home/deck/xemu-research/workspace/Queue/Testing/agent-research247-diag-abd598cf-d1-t001/xemu.toml",
+  "EffectiveConfigPath": null,
+  "ConfigSha256": "396751469917f3ad18bb8871d42e522ac4d44acf7a72106042c224322053e315",
+  "EffectiveConfigSha256": null,
+  "ConfigAfterSha256": null,
+  "SeedSha256": null,
+  "Before": null,
+  "After": null,
+  "DriverAfter": null,
+  "TargetStopped": false,
+  "Uncontrolled": [
+    "os-page-cache",
+    "driver-cache"
+  ],
+  "Issues": [
+    "preparation_failed"
+  ],
+  "RuntimeSeeds": [
+    {
+      "Source": "state/seed-eeprom.bin",
+      "Destination": "eeprom.bin",
+      "Bytes": 256,
+      "Sha256": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+    },
+    {
+      "Source": "disk-asset:research247-pgr2-save-7b0f55",
+      "Destination": "hdd.qcow2",
+      "Bytes": 1441792,
+      "Sha256": "7b0f55920d8740e9c77183392aad9969f775ba823f1de4612ef461796a055b52",
+      "DiskAssetId": "research247-pgr2-save-7b0f55",
+      "AssetKind": "xiso-seed",
+      "Retention": "deleteAfterEvidence"
+    }
+  ],
+  "ReadOnlyAssets": [
+    {
+      "Field": "bootrom_path",
+      "AssetId": "research247-bootrom-e99e3a",
+      "Path": "/home/deck/xemu-research/workspace/DiskAssets/research247-bootrom-e99e3a/disk.qcow2",
+      "Bytes": 512,
+      "ExpectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335",
+      "BeforeSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335",
+      "AfterSha256": null
+    },
+    {
+      "Field": "flashrom_path",
+      "AssetId": "research247-bios-1de4c8",
+      "Path": "/home/deck/xemu-research/workspace/DiskAssets/research247-bios-1de4c8/disk.qcow2",
+      "Bytes": 1048576,
+      "ExpectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f",
+      "BeforeSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f",
+      "AfterSha256": null
+    },
+    {
+      "Field": "dvd_path",
+      "AssetId": "research247-pgr2-disc-694365",
+      "Path": "/home/deck/xemu-research/workspace/DiskAssets/research247-pgr2-disc-694365/disk.qcow2",
+      "Bytes": 5649793024,
+      "ExpectedSha256": "6943653e6e8540f2c473579cf27c8e710d79ac76f88abaa95ec0c011c5bd69cd",
+      "BeforeSha256": "6943653e6e8540f2c473579cf27c8e710d79ac76f88abaa95ec0c011c5bd69cd",
+      "AfterSha256": null
+    }
+  ],
+  "StoragePaths": {
+    "bootrom_path": "/home/deck/xemu-research/workspace/DiskAssets/research247-bootrom-e99e3a/disk.qcow2",
+    "flashrom_path": "/home/deck/xemu-research/workspace/DiskAssets/research247-bios-1de4c8/disk.qcow2",
+    "dvd_path": "/home/deck/xemu-research/workspace/DiskAssets/research247-pgr2-disc-694365/disk.qcow2"
+  },
+  "CacheEnvironment": {},
+  "Limitations": [
+    "Cold refers to the application cache, not RAM, OS page cache or a fully reset GPU driver.",
+    "The effective file pins authored values and shader caching; omitted build defaults are not introspected.",
+    "Directory redirection is not an OS sandbox and does not prove an arbitrary executable obeyed it.",
+    "Driver namespaces are requested controls, not proof the loaded driver used them."
+  ]
+}

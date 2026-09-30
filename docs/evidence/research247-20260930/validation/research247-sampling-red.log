@@ -1,0 +1,5 @@
+ninja: Entering directory `build-diag'
+[1/4] Generating xemu-version-macro.h with a custom command (wrapped by meson to capture output)
+[2/4] Generating qemu-version.h with a custom command (wrapped by meson to capture output)
+[3/4] Compiling C object tests/unit/test-xbox-mcpx-apu-voice-write-trace.p/test-xbox-mcpx-apu-voice-write-trace.c.o
+[4/4] Linking target tests/unit/test-xbox-mcpx-apu-voice-write-trace

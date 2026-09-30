@@ -1,0 +1,53 @@
+ninja: Entering directory `/home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag'
+[1/4] Generating xemu-version-macro.h with a custom command (wrapped by meson to capture output)
+[2/4] Generating qemu-version.h with a custom command (wrapped by meson to capture output)
+[3/4] Compiling C object tests/unit/test-xbox-mcpx-apu-resampler.p/test-xbox-mcpx-apu-resampler.c.o
+FAILED: tests/unit/test-xbox-mcpx-apu-resampler.p/test-xbox-mcpx-apu-resampler.c.o 
+cc -m64 -Itests/unit/test-xbox-mcpx-apu-resampler.p -Itests/unit -I../tests/unit -I. -Iqapi -Itrace -Iui -Iui/shader -Idata -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/sysprof-6 -fdiagnostics-color=auto -Wall -Winvalid-pch -std=gnu11 -O2 -g -Wempty-body -Wendif-labels -Wexpansion-to-defined -Wformat-security -Wformat-y2k -Wignored-qualifiers -Wimplicit-fallthrough=2 -Winit-self -Wmissing-format-attribute -Wmissing-prototypes -Wnested-externs -Wold-style-declaration -Wold-style-definition -Wredundant-decls -Wshadow=local -Wstrict-prototypes -Wtype-limits -Wwrite-strings -Wno-missing-include-dirs -Wno-psabi -Wno-shift-negative-value -isystem /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/linux-headers -isystem linux-headers -iquote . -iquote /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write -iquote /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/include -iquote /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/host/include/x86_64 -iquote /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/host/include/generic -iquote /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/tcg/i386 -pthread -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIE -MD -MQ tests/unit/test-xbox-mcpx-apu-resampler.p/test-xbox-mcpx-apu-resampler.c.o -MF tests/unit/test-xbox-mcpx-apu-resampler.p/test-xbox-mcpx-apu-resampler.c.o.d -o tests/unit/test-xbox-mcpx-apu-resampler.p/test-xbox-mcpx-apu-resampler.c.o -c ../tests/unit/test-xbox-mcpx-apu-resampler.c
+../tests/unit/test-xbox-mcpx-apu-resampler.c: In function ‘test_sinc_mono_matches_duplicated_stereo’:
+../tests/unit/test-xbox-mcpx-apu-resampler.c:74:25: error: implicit declaration of function ‘sinf’ [-Wimplicit-function-declaration]
+   74 |         mono_input[i] = sinf(i * 0.071f) * 0.75f + cosf(i * 0.019f) * 0.2f;
+      |                         ^~~~
+../tests/unit/test-xbox-mcpx-apu-resampler.c:5:1: note: include ‘<math.h>’ or provide a declaration of ‘sinf’
+    4 | #include "hw/xbox/mcpx/apu/vp/resample.h"
+  +++ |+#include <math.h>
+    5 | 
+../tests/unit/test-xbox-mcpx-apu-resampler.c:74:25: warning: incompatible implicit declaration of built-in function ‘sinf’ [-Wbuiltin-declaration-mismatch]
+   74 |         mono_input[i] = sinf(i * 0.071f) * 0.75f + cosf(i * 0.019f) * 0.2f;
+      |                         ^~~~
+../tests/unit/test-xbox-mcpx-apu-resampler.c:74:25: note: include ‘<math.h>’ or provide a declaration of ‘sinf’
+../tests/unit/test-xbox-mcpx-apu-resampler.c:74:52: error: implicit declaration of function ‘cosf’ [-Wimplicit-function-declaration]
+   74 |         mono_input[i] = sinf(i * 0.071f) * 0.75f + cosf(i * 0.019f) * 0.2f;
+      |                                                    ^~~~
+../tests/unit/test-xbox-mcpx-apu-resampler.c:74:52: note: include ‘<math.h>’ or provide a declaration of ‘cosf’
+../tests/unit/test-xbox-mcpx-apu-resampler.c:74:52: warning: incompatible implicit declaration of built-in function ‘cosf’ [-Wbuiltin-declaration-mismatch]
+../tests/unit/test-xbox-mcpx-apu-resampler.c:74:52: note: include ‘<math.h>’ or provide a declaration of ‘cosf’
+../tests/unit/test-xbox-mcpx-apu-resampler.c: In function ‘run_sinc_streaming_equivalence’:
+../tests/unit/test-xbox-mcpx-apu-resampler.c:132:25: warning: incompatible implicit declaration of built-in function ‘sinf’ [-Wbuiltin-declaration-mismatch]
+  132 |         mono_input[i] = sinf(i * 0.071f) * 0.75f +
+      |                         ^~~~
+../tests/unit/test-xbox-mcpx-apu-resampler.c:132:25: note: include ‘<math.h>’ or provide a declaration of ‘sinf’
+../tests/unit/test-xbox-mcpx-apu-resampler.c:133:25: warning: incompatible implicit declaration of built-in function ‘cosf’ [-Wbuiltin-declaration-mismatch]
+  133 |                         cosf(i * 0.019f) * 0.2f;
+      |                         ^~~~
+../tests/unit/test-xbox-mcpx-apu-resampler.c:133:25: note: include ‘<math.h>’ or provide a declaration of ‘cosf’
+../tests/unit/test-xbox-mcpx-apu-resampler.c: In function ‘test_sinc_channel_change_at_stream_reset’:
+../tests/unit/test-xbox-mcpx-apu-resampler.c:204:25: warning: incompatible implicit declaration of built-in function ‘sinf’ [-Wbuiltin-declaration-mismatch]
+  204 |         mono_input[i] = sinf(i * 0.071f) * 0.75f;
+      |                         ^~~~
+../tests/unit/test-xbox-mcpx-apu-resampler.c:204:25: note: include ‘<math.h>’ or provide a declaration of ‘sinf’
+../tests/unit/test-xbox-mcpx-apu-resampler.c:206:30: warning: incompatible implicit declaration of built-in function ‘cosf’ [-Wbuiltin-declaration-mismatch]
+  206 |         stereo_input[i][1] = cosf(i * 0.053f) * 0.4f;
+      |                              ^~~~
+../tests/unit/test-xbox-mcpx-apu-resampler.c:206:30: note: include ‘<math.h>’ or provide a declaration of ‘cosf’
+../tests/unit/test-xbox-mcpx-apu-resampler.c: In function ‘test_full_reset_discards_resampler_history’:
+../tests/unit/test-xbox-mcpx-apu-resampler.c:277:36: warning: incompatible implicit declaration of built-in function ‘sinf’ [-Wbuiltin-declaration-mismatch]
+  277 |                     0.75f + 0.2f * sinf(frame * 0.071f + channel);
+      |                                    ^~~~
+../tests/unit/test-xbox-mcpx-apu-resampler.c:277:36: note: include ‘<math.h>’ or provide a declaration of ‘sinf’
+../tests/unit/test-xbox-mcpx-apu-resampler.c:279:37: warning: incompatible implicit declaration of built-in function ‘cosf’ [-Wbuiltin-declaration-mismatch]
+  279 |                     -0.75f + 0.2f * cosf(frame * 0.053f + channel);
+      |                                     ^~~~
+../tests/unit/test-xbox-mcpx-apu-resampler.c:279:37: note: include ‘<math.h>’ or provide a declaration of ‘cosf’
+ninja: build stopped: subcommand failed.
+Could not rebuild /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag

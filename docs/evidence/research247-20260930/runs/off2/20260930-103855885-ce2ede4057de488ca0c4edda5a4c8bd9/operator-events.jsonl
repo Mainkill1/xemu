@@ -1,0 +1,3 @@
+{"timestampUtc":"2026-09-30T10:40:16.7280211+00:00","elapsedMs":80846.8737,"kind":"bulk_transfer","detail":{"runId":"20260930-103601681-b66b598609c64a7585a681d44682867c","action":"artifacts"}}
+{"timestampUtc":"2026-09-30T10:40:16.7648247+00:00","elapsedMs":80883.6798,"kind":"bulk_transfer","detail":{"runId":"20260930-103601681-b66b598609c64a7585a681d44682867c","file":"recording-end.png","bytes":1242113}}
+{"timestampUtc":"2026-09-30T10:40:16.7905192+00:00","elapsedMs":80909.3758,"kind":"bulk_transfer","detail":{"runId":"20260930-103601681-b66b598609c64a7585a681d44682867c","file":"recording-start.png","bytes":1287389}}

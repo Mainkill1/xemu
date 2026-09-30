@@ -1,0 +1,1145 @@
+[
+  {
+    "label": "d1",
+    "runId": "20260930-102509286-47d976bf532941ea8fc870f6700af86a",
+    "runName": "Deck setup attempt 1: missing private paths",
+    "host": "Steam Deck",
+    "role": "No emulator launch; setup failure",
+    "executableSha256": "0f00290ec9b03d53b2f7237d884cb1a320c4fd850e76b5eea1250d34c59a155f",
+    "execution": "start_failed",
+    "exitCode": null,
+    "correctness": "failed",
+    "evidence": "incomplete",
+    "runnerComparison": "ineligible",
+    "productionAcceptance": false,
+    "analysis": {
+      "SchemaVersion": 1,
+      "ProfileSha256": "8b1ec7442c67958ab9b1d87348a16165eb3da287383f4beacf146bc739bf89f0",
+      "Profile": {
+        "Segment": "stationary-start",
+        "MetricsPath": "metrics.csv",
+        "GuestFlipsPath": "guest-flips.log",
+        "GuestFramesPath": "guest-frames.log",
+        "FlipTailSamples": 5,
+        "FrameTailSeconds": 25,
+        "MinimumCpuSamples": 55,
+        "MinimumFrameSamples": 160
+      },
+      "Monitoring": null,
+      "Flips": null,
+      "Frames": null,
+      "Sources": [],
+      "Errors": [
+        "monitor: Analysis source is missing: metrics.csv",
+        "flips: Analysis source is missing: guest-flips.log",
+        "frames: Analysis source is missing: guest-frames.log"
+      ],
+      "Complete": false
+    }
+  },
+  {
+    "label": "d2",
+    "runId": "20260930-102921311-fc980115e64941698750b19ada203164",
+    "runName": "Deck setup attempt 2: incompatible slirp",
+    "host": "Steam Deck",
+    "role": "Dependency failure before QMP; no admitted scene",
+    "executableSha256": "0f00290ec9b03d53b2f7237d884cb1a320c4fd850e76b5eea1250d34c59a155f",
+    "execution": "control_error",
+    "exitCode": 1,
+    "correctness": "failed",
+    "evidence": "incomplete",
+    "runnerComparison": "ineligible",
+    "productionAcceptance": false,
+    "analysis": {
+      "SchemaVersion": 1,
+      "ProfileSha256": "8b1ec7442c67958ab9b1d87348a16165eb3da287383f4beacf146bc739bf89f0",
+      "Profile": {
+        "Segment": "stationary-start",
+        "MetricsPath": "metrics.csv",
+        "GuestFlipsPath": "guest-flips.log",
+        "GuestFramesPath": "guest-frames.log",
+        "FlipTailSamples": 5,
+        "FrameTailSeconds": 25,
+        "MinimumCpuSamples": 55,
+        "MinimumFrameSamples": 160
+      },
+      "Monitoring": null,
+      "Flips": null,
+      "Frames": null,
+      "Sources": [
+        {
+          "Path": "metrics.csv",
+          "Bytes": 3146,
+          "Sha256": "01a00f11fed3aeb5f75b4136e76c82777989e491846b071ef50ed489a5265d06",
+          "Records": 21,
+          "IgnoredRecords": 20
+        }
+      ],
+      "Errors": [
+        "monitor: Selected segment has insufficient CPU/duty samples.",
+        "flips: Analysis source is missing: guest-flips.log",
+        "frames: Analysis source is missing: guest-frames.log"
+      ],
+      "Complete": false
+    }
+  },
+  {
+    "label": "d3",
+    "runId": "20260930-103141398-f0af4140332c485a85ee5f7414ea6977",
+    "runName": "Deck setup attempt 3: invalid controller button",
+    "host": "Steam Deck",
+    "role": "Plan failure; forced termination and incomplete trace",
+    "executableSha256": "0f00290ec9b03d53b2f7237d884cb1a320c4fd850e76b5eea1250d34c59a155f",
+    "execution": "plan_failed",
+    "exitCode": 137,
+    "correctness": "failed",
+    "evidence": "incomplete",
+    "runnerComparison": "ineligible",
+    "productionAcceptance": false,
+    "analysis": {
+      "SchemaVersion": 1,
+      "ProfileSha256": "8b1ec7442c67958ab9b1d87348a16165eb3da287383f4beacf146bc739bf89f0",
+      "Profile": {
+        "Segment": "stationary-start",
+        "MetricsPath": "metrics.csv",
+        "GuestFlipsPath": "guest-flips.log",
+        "GuestFramesPath": "guest-frames.log",
+        "FlipTailSamples": 5,
+        "FrameTailSeconds": 25,
+        "MinimumCpuSamples": 55,
+        "MinimumFrameSamples": 160
+      },
+      "Monitoring": null,
+      "Flips": {
+        "Samples": 5,
+        "Frames": 1112,
+        "ElapsedUs": 28275550,
+        "CadenceFps": 39.32726330699138
+      },
+      "Frames": {
+        "WindowStartUs": 19199869391,
+        "WindowEndUs": 19224869391,
+        "FirstSampleUs": 19203665412,
+        "LastSampleUs": 19224869391,
+        "ZeroIntervals": 0,
+        "IntervalsMs": {
+          "Count": 1054,
+          "Mean": 23.86855313092977,
+          "Median": 16.685,
+          "Min": 2.523,
+          "Max": 3953.476,
+          "P95": 44.78245,
+          "P99": 59.80935000000005
+        }
+      },
+      "Sources": [
+        {
+          "Path": "metrics.csv",
+          "Bytes": 20322,
+          "Sha256": "060de45de64ab42bf8816d9e264a569949b8a6a893c4f19a880eba1270717692",
+          "Records": 114,
+          "IgnoredRecords": 113
+        },
+        {
+          "Path": "guest-flips.log",
+          "Bytes": 410,
+          "Sha256": "545fb049e6e7b28360f0f3d50c7de826cac1885e6429c7590777f1529c69252f",
+          "Records": 10,
+          "IgnoredRecords": 0
+        },
+        {
+          "Path": "guest-frames.log",
+          "Bytes": 102677,
+          "Sha256": "12051c1d8328ec5e455efe5b456ac9407bf4887b992e07dc4c5df1ebe6993dc7",
+          "Records": 2035,
+          "IgnoredRecords": 0
+        }
+      ],
+      "Errors": [
+        "monitor: Selected segment has insufficient CPU/duty samples."
+      ],
+      "Complete": false
+    },
+    "attributionComplete": false
+  },
+  {
+    "label": "d4",
+    "runId": "20260930-103401396-f936c1a9fc934be6ac28e1e4e0bfa937",
+    "runName": "Deck probe ON pilot: loading scene",
+    "host": "Steam Deck",
+    "role": "Guest run complete, stationary scene rejected",
+    "executableSha256": "0f00290ec9b03d53b2f7237d884cb1a320c4fd850e76b5eea1250d34c59a155f",
+    "execution": "completed",
+    "exitCode": 0,
+    "correctness": "passed",
+    "evidence": "complete",
+    "runnerComparison": "ineligible",
+    "productionAcceptance": false,
+    "analysis": {
+      "SchemaVersion": 1,
+      "ProfileSha256": "8b1ec7442c67958ab9b1d87348a16165eb3da287383f4beacf146bc739bf89f0",
+      "Profile": {
+        "Segment": "stationary-start",
+        "MetricsPath": "metrics.csv",
+        "GuestFlipsPath": "guest-flips.log",
+        "GuestFramesPath": "guest-frames.log",
+        "FlipTailSamples": 5,
+        "FrameTailSeconds": 25,
+        "MinimumCpuSamples": 55,
+        "MinimumFrameSamples": 160
+      },
+      "Monitoring": {
+        "Segment": "stationary-start",
+        "Rows": 62,
+        "MissingCpuSamples": 0,
+        "MissingDutySamples": 0,
+        "Cpu": {
+          "Count": 62,
+          "Mean": 355.5041774193549,
+          "Median": 341.9895,
+          "Min": 301.622,
+          "Max": 419.632,
+          "P95": 408.0151,
+          "P99": 418.4425
+        },
+        "CollectorDuty": {
+          "Count": 62,
+          "Mean": 0.33487096774193553,
+          "Median": 0.3035,
+          "Min": 0.225,
+          "Max": 0.641,
+          "P95": 0.5501499999999998,
+          "P99": 0.60196
+        },
+        "Overruns": 0
+      },
+      "Flips": {
+        "Samples": 5,
+        "Frames": 475,
+        "ElapsedUs": 25141196,
+        "CadenceFps": 18.893293700108778
+      },
+      "Frames": {
+        "WindowStartUs": 19407393462,
+        "WindowEndUs": 19432393462,
+        "FirstSampleUs": 19407405071,
+        "LastSampleUs": 19432393462,
+        "ZeroIntervals": 0,
+        "IntervalsMs": {
+          "Count": 493,
+          "Mean": 50.84675050709933,
+          "Median": 50.335,
+          "Min": 31.464,
+          "Max": 93.808,
+          "P95": 64.58439999999999,
+          "P99": 79.08684
+        }
+      },
+      "Sources": [
+        {
+          "Path": "metrics.csv",
+          "Bytes": 45791,
+          "Sha256": "57a31876afd6b0813b55e78033edb5620576a708a5699e76ca3ef505a32b4873",
+          "Records": 250,
+          "IgnoredRecords": 187
+        },
+        {
+          "Path": "guest-flips.log",
+          "Bytes": 937,
+          "Sha256": "01ea84205053374f80dec3d4782aef70ba0664478ffe34b719ba1c04eb596461",
+          "Records": 23,
+          "IgnoredRecords": 0
+        },
+        {
+          "Path": "guest-frames.log",
+          "Bytes": 199151,
+          "Sha256": "c115d9fd781467d43dcf5de6a9107dd6eb6d4d028977a94b707bfa51f70db92b",
+          "Records": 3927,
+          "IgnoredRecords": 0
+        }
+      ],
+      "Errors": [],
+      "Complete": true
+    },
+    "attributionComplete": true,
+    "attribution": {
+      "calls": 30677098,
+      "changed": 3229238,
+      "unchanged": 27447860,
+      "unchangedPercent": 89.4734567135392,
+      "frames": 175173,
+      "debugActiveVoiceSum": 5594954,
+      "debugActiveVoiceMax": 91,
+      "storeBytes": 122708392,
+      "changedSamples": 3125,
+      "changedNs": 531808,
+      "unchangedSamples": 26571,
+      "unchangedNs": 4769446,
+      "scope": "entire process, not measurement segment"
+    }
+  },
+  {
+    "label": "d5",
+    "runId": "20260930-103846385-41140180f8fa4b7fa391d9ba8c6260a1",
+    "runName": "Deck probe ON admitted stationary race",
+    "host": "Steam Deck",
+    "role": "Guest run and stationary scene admitted; cache qualification incomplete",
+    "executableSha256": "0f00290ec9b03d53b2f7237d884cb1a320c4fd850e76b5eea1250d34c59a155f",
+    "execution": "completed",
+    "exitCode": 0,
+    "correctness": "passed",
+    "evidence": "complete",
+    "runnerComparison": "ineligible",
+    "productionAcceptance": false,
+    "analysis": {
+      "SchemaVersion": 1,
+      "ProfileSha256": "8b1ec7442c67958ab9b1d87348a16165eb3da287383f4beacf146bc739bf89f0",
+      "Profile": {
+        "Segment": "stationary-start",
+        "MetricsPath": "metrics.csv",
+        "GuestFlipsPath": "guest-flips.log",
+        "GuestFramesPath": "guest-frames.log",
+        "FlipTailSamples": 5,
+        "FrameTailSeconds": 25,
+        "MinimumCpuSamples": 55,
+        "MinimumFrameSamples": 160
+      },
+      "Monitoring": {
+        "Segment": "stationary-start",
+        "Rows": 63,
+        "MissingCpuSamples": 0,
+        "MissingDutySamples": 0,
+        "Cpu": {
+          "Count": 63,
+          "Mean": 320.2412222222223,
+          "Median": 319.911,
+          "Min": 297.969,
+          "Max": 347.842,
+          "P95": 328.7393,
+          "P99": 345.71726
+        },
+        "CollectorDuty": {
+          "Count": 63,
+          "Mean": 0.33761904761904754,
+          "Median": 0.305,
+          "Min": 0.22,
+          "Max": 0.677,
+          "P95": 0.5119,
+          "P99": 0.5883400000000004
+        },
+        "Overruns": 0
+      },
+      "Flips": {
+        "Samples": 5,
+        "Frames": 606,
+        "ElapsedUs": 25122900,
+        "CadenceFps": 24.12141910368628
+      },
+      "Frames": {
+        "WindowStartUs": 19712332892,
+        "WindowEndUs": 19737332892,
+        "FirstSampleUs": 19712355920,
+        "LastSampleUs": 19737332892,
+        "ZeroIntervals": 0,
+        "IntervalsMs": {
+          "Count": 625,
+          "Mean": 40.02976479999996,
+          "Median": 39.619,
+          "Min": 24.066,
+          "Max": 66.155,
+          "P95": 52.182799999999986,
+          "P99": 60.02787999999999
+        }
+      },
+      "Sources": [
+        {
+          "Path": "metrics.csv",
+          "Bytes": 52589,
+          "Sha256": "619eb0048811b5d469657329ed12024b0297c0f4acec87fc342c7483a61ecfbf",
+          "Records": 289,
+          "IgnoredRecords": 225
+        },
+        {
+          "Path": "guest-flips.log",
+          "Bytes": 1103,
+          "Sha256": "9ff47f48ef32f6ff9849376db81eac880476f34bad0412cba9ecb379579c94b0",
+          "Records": 27,
+          "IgnoredRecords": 0
+        },
+        {
+          "Path": "guest-frames.log",
+          "Bytes": 225157,
+          "Sha256": "0e17e1255fa679cfcd957f6091947deff77589a947445430a478eafbe4930d7e",
+          "Records": 4437,
+          "IgnoredRecords": 0
+        }
+      ],
+      "Errors": [],
+      "Complete": true
+    },
+    "attributionComplete": true,
+    "attribution": {
+      "calls": 45014071,
+      "changed": 5122020,
+      "unchanged": 39892051,
+      "unchangedPercent": 88.62129132910462,
+      "frames": 205165,
+      "debugActiveVoiceSum": 7999953,
+      "debugActiveVoiceMax": 96,
+      "storeBytes": 180056284,
+      "changedSamples": 5049,
+      "changedNs": 1003468,
+      "unchangedSamples": 38754,
+      "unchangedNs": 7638428,
+      "scope": "entire process, not measurement segment"
+    }
+  },
+  {
+    "label": "main-aa1",
+    "runId": "20260930-094317816-5901d683a67541b4b186d53405cdb128",
+    "runName": "Windows previous-main repeat 1",
+    "host": "Windows",
+    "role": "Previous main, CI build, no voice-write probe",
+    "executableSha256": "70173532e9057a2dbebce15be1fea4b8482e4e780329375ca49cb7785439503d",
+    "execution": "completed",
+    "exitCode": 0,
+    "correctness": "passed",
+    "evidence": "complete",
+    "runnerComparison": "ineligible",
+    "productionAcceptance": false,
+    "analysis": {
+      "SchemaVersion": 1,
+      "ProfileSha256": "19e37cb7b3d079e76291cea7fc15f06c34bdc938f9a6efe5f43e3337a831cef9",
+      "Profile": {
+        "Segment": "stationary-start",
+        "MetricsPath": "metrics.csv",
+        "GuestFlipsPath": "guest-flips.log",
+        "GuestFramesPath": "guest-frames.log",
+        "FlipTailSamples": 5,
+        "FrameTailSeconds": 25,
+        "MinimumCpuSamples": 55,
+        "MinimumFrameSamples": 160
+      },
+      "Monitoring": {
+        "Segment": "stationary-start",
+        "Rows": 63,
+        "MissingCpuSamples": 0,
+        "MissingDutySamples": 0,
+        "Cpu": {
+          "Count": 63,
+          "Mean": 309.87144444444436,
+          "Median": 304.824,
+          "Min": 212.694,
+          "Max": 416.781,
+          "P95": 379.7717,
+          "P99": 412.50982
+        },
+        "CollectorDuty": {
+          "Count": 63,
+          "Mean": 33.33960317460318,
+          "Median": 13.604,
+          "Min": 12.739,
+          "Max": 56.508,
+          "P95": 55.0485,
+          "P99": 56.23892
+        },
+        "Overruns": 0
+      },
+      "Flips": {
+        "Samples": 5,
+        "Frames": 753,
+        "ElapsedUs": 25099985,
+        "CadenceFps": 30.000017928297567
+      },
+      "Frames": {
+        "WindowStartUs": 998262694794,
+        "WindowEndUs": 998287694794,
+        "FirstSampleUs": 998262728041,
+        "LastSampleUs": 998287694794,
+        "ZeroIntervals": 0,
+        "IntervalsMs": {
+          "Count": 750,
+          "Mean": 33.3333693333333,
+          "Median": 33.333,
+          "Min": 32.316,
+          "Max": 34.327,
+          "P95": 33.640249999999995,
+          "P99": 33.99658
+        }
+      },
+      "Sources": [
+        {
+          "Path": "metrics.csv",
+          "Bytes": 34886,
+          "Sha256": "663f7d8f5d7b0b4fcccb6968ba160557cfed8cdd46b7c8776eb3451b04961da7",
+          "Records": 166,
+          "IgnoredRecords": 102
+        },
+        {
+          "Path": "guest-flips.log",
+          "Bytes": 630,
+          "Sha256": "23a388508a9a19d4d20ed1d2f5ac4e7b040d534a5c6550c3a4c386a3161d93e6",
+          "Records": 15,
+          "IgnoredRecords": 0
+        },
+        {
+          "Path": "guest-frames.log",
+          "Bytes": 170505,
+          "Sha256": "fb7273aac25d402c717dd8ae4209e6dfb360e86ad04e027fecd2ec00ed1b0638",
+          "Records": 3238,
+          "IgnoredRecords": 0
+        }
+      ],
+      "Errors": [],
+      "Complete": true
+    }
+  },
+  {
+    "label": "main-aa2",
+    "runId": "20260930-095602990-cbfd87824f674b5da2ac62faa5589f61",
+    "runName": "Windows previous-main repeat 2",
+    "host": "Windows",
+    "role": "Previous main, CI build, no voice-write probe",
+    "executableSha256": "70173532e9057a2dbebce15be1fea4b8482e4e780329375ca49cb7785439503d",
+    "execution": "completed",
+    "exitCode": 0,
+    "correctness": "passed",
+    "evidence": "complete",
+    "runnerComparison": "ineligible",
+    "productionAcceptance": false,
+    "analysis": {
+      "SchemaVersion": 1,
+      "ProfileSha256": "19e37cb7b3d079e76291cea7fc15f06c34bdc938f9a6efe5f43e3337a831cef9",
+      "Profile": {
+        "Segment": "stationary-start",
+        "MetricsPath": "metrics.csv",
+        "GuestFlipsPath": "guest-flips.log",
+        "GuestFramesPath": "guest-frames.log",
+        "FlipTailSamples": 5,
+        "FrameTailSeconds": 25,
+        "MinimumCpuSamples": 55,
+        "MinimumFrameSamples": 160
+      },
+      "Monitoring": {
+        "Segment": "stationary-start",
+        "Rows": 64,
+        "MissingCpuSamples": 0,
+        "MissingDutySamples": 0,
+        "Cpu": {
+          "Count": 64,
+          "Mean": 311.10007812500004,
+          "Median": 306.79200000000003,
+          "Min": 233.173,
+          "Max": 418.371,
+          "P95": 395.79845,
+          "P99": 407.58854999999994
+        },
+        "CollectorDuty": {
+          "Count": 64,
+          "Mean": 33.693468749999994,
+          "Median": 33.454,
+          "Min": 12.478,
+          "Max": 57.79,
+          "P95": 55.69695,
+          "P99": 57.55564
+        },
+        "Overruns": 0
+      },
+      "Flips": {
+        "Samples": 5,
+        "Frames": 753,
+        "ElapsedUs": 25099997,
+        "CadenceFps": 30.000003585657797
+      },
+      "Frames": {
+        "WindowStartUs": 999027955030,
+        "WindowEndUs": 999052955030,
+        "FirstSampleUs": 999027955041,
+        "LastSampleUs": 999052955030,
+        "ZeroIntervals": 0,
+        "IntervalsMs": {
+          "Count": 751,
+          "Mean": 33.3332063914781,
+          "Median": 33.333,
+          "Min": 32.03,
+          "Max": 34.644,
+          "P95": 33.648,
+          "P99": 34.144499999999994
+        }
+      },
+      "Sources": [
+        {
+          "Path": "metrics.csv",
+          "Bytes": 35137,
+          "Sha256": "5548fc86d733c770a1d5c1f67c783608e1951e70e9be41d35c0aa6440a5997d5",
+          "Records": 167,
+          "IgnoredRecords": 102
+        },
+        {
+          "Path": "guest-flips.log",
+          "Bytes": 630,
+          "Sha256": "e72006ce4e706cf601685f5c9bcda19d605e6fa0b1e4e271836c7ef38f4cf7c2",
+          "Records": 15,
+          "IgnoredRecords": 0
+        },
+        {
+          "Path": "guest-frames.log",
+          "Bytes": 170716,
+          "Sha256": "f34c043b0569b3632258c12d959ef1b949b051399824d7d780ad2f595b4f2dc6",
+          "Records": 3242,
+          "IgnoredRecords": 0
+        }
+      ],
+      "Errors": [],
+      "Complete": true
+    }
+  },
+  {
+    "label": "off1",
+    "runId": "20260930-103601681-b66b598609c64a7585a681d44682867c",
+    "runName": "Windows probe OFF repeat 1",
+    "host": "Windows",
+    "role": "Same diagnostic candidate executable, collection disabled; observer control",
+    "executableSha256": "cdc586252855f926002f7e4337a44aa7e692d6e5c5efc0b5f2b7c5d815089144",
+    "execution": "completed",
+    "exitCode": 0,
+    "correctness": "passed",
+    "evidence": "complete",
+    "runnerComparison": "eligible",
+    "productionAcceptance": false,
+    "analysis": {
+      "SchemaVersion": 1,
+      "ProfileSha256": "19e37cb7b3d079e76291cea7fc15f06c34bdc938f9a6efe5f43e3337a831cef9",
+      "Profile": {
+        "Segment": "stationary-start",
+        "MetricsPath": "metrics.csv",
+        "GuestFlipsPath": "guest-flips.log",
+        "GuestFramesPath": "guest-frames.log",
+        "FlipTailSamples": 5,
+        "FrameTailSeconds": 25,
+        "MinimumCpuSamples": 55,
+        "MinimumFrameSamples": 160
+      },
+      "Monitoring": {
+        "Segment": "stationary-start",
+        "Rows": 64,
+        "MissingCpuSamples": 0,
+        "MissingDutySamples": 0,
+        "Cpu": {
+          "Count": 64,
+          "Mean": 380.021265625,
+          "Median": 376.65,
+          "Min": 228.358,
+          "Max": 535.897,
+          "P95": 485.4482,
+          "P99": 512.01244
+        },
+        "CollectorDuty": {
+          "Count": 64,
+          "Mean": 36.954625,
+          "Median": 36.308499999999995,
+          "Min": 13.323,
+          "Max": 62.79,
+          "P95": 61.9576,
+          "P99": 62.72322
+        },
+        "Overruns": 0
+      },
+      "Flips": {
+        "Samples": 5,
+        "Frames": 752,
+        "ElapsedUs": 25066665,
+        "CadenceFps": 30.000001994680982
+      },
+      "Frames": {
+        "WindowStartUs": 1001426868040,
+        "WindowEndUs": 1001451868040,
+        "FirstSampleUs": 1001426901352,
+        "LastSampleUs": 1001451868040,
+        "ZeroIntervals": 0,
+        "IntervalsMs": {
+          "Count": 750,
+          "Mean": 33.3333706666667,
+          "Median": 33.333,
+          "Min": 31.193,
+          "Max": 35.466,
+          "P95": 33.522749999999995,
+          "P99": 34.32185
+        }
+      },
+      "Sources": [
+        {
+          "Path": "metrics.csv",
+          "Bytes": 35090,
+          "Sha256": "31ee0c8be580657de753d09610c436be0a5c46f552183fe25b02e4b8561580fd",
+          "Records": 167,
+          "IgnoredRecords": 102
+        },
+        {
+          "Path": "guest-flips.log",
+          "Bytes": 630,
+          "Sha256": "97c44101f78ff06849159eebe304a69980c6763152685373588dcaf6c2811a1d",
+          "Records": 15,
+          "IgnoredRecords": 0
+        },
+        {
+          "Path": "guest-frames.log",
+          "Bytes": 174069,
+          "Sha256": "a4c75423d47bbb7acd5232934b7a50d6f2f843fed245e633147751f5e8bc0a56",
+          "Records": 3244,
+          "IgnoredRecords": 0
+        }
+      ],
+      "Errors": [],
+      "Complete": true
+    }
+  },
+  {
+    "label": "off2",
+    "runId": "20260930-103855885-ce2ede4057de488ca0c4edda5a4c8bd9",
+    "runName": "Windows probe OFF repeat 2",
+    "host": "Windows",
+    "role": "Same diagnostic candidate executable, collection disabled; observer control",
+    "executableSha256": "cdc586252855f926002f7e4337a44aa7e692d6e5c5efc0b5f2b7c5d815089144",
+    "execution": "completed",
+    "exitCode": 0,
+    "correctness": "passed",
+    "evidence": "complete",
+    "runnerComparison": "ineligible",
+    "productionAcceptance": false,
+    "analysis": {
+      "SchemaVersion": 1,
+      "ProfileSha256": "19e37cb7b3d079e76291cea7fc15f06c34bdc938f9a6efe5f43e3337a831cef9",
+      "Profile": {
+        "Segment": "stationary-start",
+        "MetricsPath": "metrics.csv",
+        "GuestFlipsPath": "guest-flips.log",
+        "GuestFramesPath": "guest-frames.log",
+        "FlipTailSamples": 5,
+        "FrameTailSeconds": 25,
+        "MinimumCpuSamples": 55,
+        "MinimumFrameSamples": 160
+      },
+      "Monitoring": {
+        "Segment": "stationary-start",
+        "Rows": 63,
+        "MissingCpuSamples": 0,
+        "MissingDutySamples": 0,
+        "Cpu": {
+          "Count": 63,
+          "Mean": 389.5434126984127,
+          "Median": 393.12,
+          "Min": 234.357,
+          "Max": 546.511,
+          "P95": 479.8284,
+          "P99": 542.56346
+        },
+        "CollectorDuty": {
+          "Count": 63,
+          "Mean": 35.1269365079365,
+          "Median": 54.22,
+          "Min": 12.964,
+          "Max": 59.897,
+          "P95": 57.3169,
+          "P99": 58.4245
+        },
+        "Overruns": 0
+      },
+      "Flips": {
+        "Samples": 5,
+        "Frames": 753,
+        "ElapsedUs": 25100540,
+        "CadenceFps": 29.9993545955585
+      },
+      "Frames": {
+        "WindowStartUs": 1001600837975,
+        "WindowEndUs": 1001625837975,
+        "FirstSampleUs": 1001600837981,
+        "LastSampleUs": 1001625837975,
+        "ZeroIntervals": 0,
+        "IntervalsMs": {
+          "Count": 751,
+          "Mean": 33.33331557922771,
+          "Median": 33.333,
+          "Min": 31.818,
+          "Max": 34.864,
+          "P95": 33.793,
+          "P99": 34.4035
+        }
+      },
+      "Sources": [
+        {
+          "Path": "metrics.csv",
+          "Bytes": 35076,
+          "Sha256": "de9bab57e8fa330580f96c610199b78d15a1caafeef027856ffe76399e1ff091",
+          "Records": 167,
+          "IgnoredRecords": 103
+        },
+        {
+          "Path": "guest-flips.log",
+          "Bytes": 630,
+          "Sha256": "9c47b97fb5de133f38153810e1e35e34a2f04e20c2dffda6f1d92ce9ec3c9d56",
+          "Records": 15,
+          "IgnoredRecords": 0
+        },
+        {
+          "Path": "guest-frames.log",
+          "Bytes": 173852,
+          "Sha256": "4628a2244272b958e92308b756e3192eda6599cbe23aee24a282f9e2a59897aa",
+          "Records": 3240,
+          "IgnoredRecords": 0
+        }
+      ],
+      "Errors": [],
+      "Complete": true
+    }
+  },
+  {
+    "label": "w1",
+    "runId": "20260930-102410994-f93b071605734724a8a39ad501582fa8",
+    "runName": "Windows probe ON pilot",
+    "host": "Windows",
+    "role": "Diagnostic candidate with collection enabled; initial attribution",
+    "executableSha256": "cdc586252855f926002f7e4337a44aa7e692d6e5c5efc0b5f2b7c5d815089144",
+    "execution": "completed",
+    "exitCode": 0,
+    "correctness": "passed",
+    "evidence": "complete",
+    "runnerComparison": "eligible",
+    "productionAcceptance": false,
+    "analysis": {
+      "SchemaVersion": 1,
+      "ProfileSha256": "19e37cb7b3d079e76291cea7fc15f06c34bdc938f9a6efe5f43e3337a831cef9",
+      "Profile": {
+        "Segment": "stationary-start",
+        "MetricsPath": "metrics.csv",
+        "GuestFlipsPath": "guest-flips.log",
+        "GuestFramesPath": "guest-frames.log",
+        "FlipTailSamples": 5,
+        "FrameTailSeconds": 25,
+        "MinimumCpuSamples": 55,
+        "MinimumFrameSamples": 160
+      },
+      "Monitoring": {
+        "Segment": "stationary-start",
+        "Rows": 64,
+        "MissingCpuSamples": 0,
+        "MissingDutySamples": 0,
+        "Cpu": {
+          "Count": 64,
+          "Mean": 396.95025000000004,
+          "Median": 392.29449999999997,
+          "Min": 266.186,
+          "Max": 521.135,
+          "P95": 486.60644999999994,
+          "P99": 508.93315999999993
+        },
+        "CollectorDuty": {
+          "Count": 64,
+          "Mean": 36.285593750000004,
+          "Median": 36.30799999999999,
+          "Min": 13.03,
+          "Max": 62.541,
+          "P95": 60.30365,
+          "P99": 61.49582999999999
+        },
+        "Overruns": 0
+      },
+      "Flips": {
+        "Samples": 5,
+        "Frames": 753,
+        "ElapsedUs": 25099987,
+        "CadenceFps": 30.000015537856655
+      },
+      "Frames": {
+        "WindowStartUs": 1000716061441,
+        "WindowEndUs": 1000741061441,
+        "FirstSampleUs": 1000716061593,
+        "LastSampleUs": 1000741061441,
+        "ZeroIntervals": 0,
+        "IntervalsMs": {
+          "Count": 751,
+          "Mean": 33.33334221038612,
+          "Median": 33.334,
+          "Min": 31.652,
+          "Max": 35.115,
+          "P95": 33.6435,
+          "P99": 34.4785
+        }
+      },
+      "Sources": [
+        {
+          "Path": "metrics.csv",
+          "Bytes": 34964,
+          "Sha256": "9b77b4ba49d68730801a9ed34d215cc8826aff5b1f2eca17cf952a48de77bbc6",
+          "Records": 166,
+          "IgnoredRecords": 101
+        },
+        {
+          "Path": "guest-flips.log",
+          "Bytes": 630,
+          "Sha256": "ec63e512d20b46a124cf94d42114a4fe55ecf08d3385f293ac47eb8994f5ef00",
+          "Records": 15,
+          "IgnoredRecords": 0
+        },
+        {
+          "Path": "guest-frames.log",
+          "Bytes": 172931,
+          "Sha256": "91bb5f2c8d1813a1cc1c69810349e42c87bc514543718dd6682c4bca97fbff56",
+          "Records": 3223,
+          "IgnoredRecords": 0
+        }
+      ],
+      "Errors": [],
+      "Complete": true
+    },
+    "attributionComplete": true,
+    "attribution": {
+      "calls": 29768907,
+      "changed": 3514525,
+      "unchanged": 26254382,
+      "unchangedPercent": 88.19397366520712,
+      "frames": 117764,
+      "debugActiveVoiceSum": 5274004,
+      "debugActiveVoiceMax": 108,
+      "storeBytes": 119075628,
+      "changedSamples": 3397,
+      "changedNs": 552900,
+      "unchangedSamples": 25484,
+      "unchangedNs": 4389100,
+      "scope": "entire process, not measurement segment"
+    }
+  },
+  {
+    "label": "w2",
+    "runId": "20260930-102727381-805862b9c2ec4c46a7449d919da8604f",
+    "runName": "Windows probe ON repeat 1",
+    "host": "Windows",
+    "role": "Diagnostic candidate with collection enabled; first observer-check endpoint",
+    "executableSha256": "cdc586252855f926002f7e4337a44aa7e692d6e5c5efc0b5f2b7c5d815089144",
+    "execution": "completed",
+    "exitCode": 0,
+    "correctness": "passed",
+    "evidence": "complete",
+    "runnerComparison": "eligible",
+    "productionAcceptance": false,
+    "analysis": {
+      "SchemaVersion": 1,
+      "ProfileSha256": "19e37cb7b3d079e76291cea7fc15f06c34bdc938f9a6efe5f43e3337a831cef9",
+      "Profile": {
+        "Segment": "stationary-start",
+        "MetricsPath": "metrics.csv",
+        "GuestFlipsPath": "guest-flips.log",
+        "GuestFramesPath": "guest-frames.log",
+        "FlipTailSamples": 5,
+        "FrameTailSeconds": 25,
+        "MinimumCpuSamples": 55,
+        "MinimumFrameSamples": 160
+      },
+      "Monitoring": {
+        "Segment": "stationary-start",
+        "Rows": 64,
+        "MissingCpuSamples": 0,
+        "MissingDutySamples": 0,
+        "Cpu": {
+          "Count": 64,
+          "Mean": 397.82529687500016,
+          "Median": 388.3465,
+          "Min": 245.871,
+          "Max": 622.886,
+          "P95": 521.8334,
+          "P99": 592.3965199999999
+        },
+        "CollectorDuty": {
+          "Count": 64,
+          "Mean": 36.72021875,
+          "Median": 36.405,
+          "Min": 9.828,
+          "Max": 66.539,
+          "P95": 61.315149999999996,
+          "P99": 64.00702999999999
+        },
+        "Overruns": 0
+      },
+      "Flips": {
+        "Samples": 5,
+        "Frames": 751,
+        "ElapsedUs": 25033327,
+        "CadenceFps": 30.00000758988208
+      },
+      "Frames": {
+        "WindowStartUs": 1000912252642,
+        "WindowEndUs": 1000937252642,
+        "FirstSampleUs": 1000912285952,
+        "LastSampleUs": 1000937252642,
+        "ZeroIntervals": 0,
+        "IntervalsMs": {
+          "Count": 750,
+          "Mean": 33.3333506666667,
+          "Median": 33.332,
+          "Min": 31.522,
+          "Max": 35.418,
+          "P95": 33.6308,
+          "P99": 34.5643
+        }
+      },
+      "Sources": [
+        {
+          "Path": "metrics.csv",
+          "Bytes": 35151,
+          "Sha256": "cae348dcb65a265bb096516c2ffaf8a6581db274bcc0ebd3667f7196bb39a58b",
+          "Records": 167,
+          "IgnoredRecords": 102
+        },
+        {
+          "Path": "guest-flips.log",
+          "Bytes": 630,
+          "Sha256": "ef9d3521a83274135ef5e22a9152e87d16157d937cfde9a50deaf1acb419d011",
+          "Records": 15,
+          "IgnoredRecords": 0
+        },
+        {
+          "Path": "guest-frames.log",
+          "Bytes": 173796,
+          "Sha256": "d820301bb46050d6e8f89bd8da7590994efc6c336dc05cac9fa792507080ed8b",
+          "Records": 3239,
+          "IgnoredRecords": 0
+        }
+      ],
+      "Errors": [],
+      "Complete": true
+    },
+    "attributionComplete": true,
+    "attribution": {
+      "calls": 29771497,
+      "changed": 3504883,
+      "unchanged": 26266614,
+      "unchangedPercent": 88.22738742361528,
+      "frames": 117972,
+      "debugActiveVoiceSum": 5279141,
+      "debugActiveVoiceMax": 109,
+      "storeBytes": 119085988,
+      "changedSamples": 3419,
+      "changedNs": 563800,
+      "unchangedSamples": 25460,
+      "unchangedNs": 4504200,
+      "scope": "entire process, not measurement segment"
+    }
+  },
+  {
+    "label": "w3",
+    "runId": "20260930-104035873-7afda96492dc450bbbcce5ff731ae679",
+    "runName": "Windows probe ON repeat 2",
+    "host": "Windows",
+    "role": "Diagnostic candidate with collection enabled; final observer-check endpoint",
+    "executableSha256": "cdc586252855f926002f7e4337a44aa7e692d6e5c5efc0b5f2b7c5d815089144",
+    "execution": "completed",
+    "exitCode": 0,
+    "correctness": "passed",
+    "evidence": "complete",
+    "runnerComparison": "eligible",
+    "productionAcceptance": false,
+    "analysis": {
+      "SchemaVersion": 1,
+      "ProfileSha256": "19e37cb7b3d079e76291cea7fc15f06c34bdc938f9a6efe5f43e3337a831cef9",
+      "Profile": {
+        "Segment": "stationary-start",
+        "MetricsPath": "metrics.csv",
+        "GuestFlipsPath": "guest-flips.log",
+        "GuestFramesPath": "guest-frames.log",
+        "FlipTailSamples": 5,
+        "FrameTailSeconds": 25,
+        "MinimumCpuSamples": 55,
+        "MinimumFrameSamples": 160
+      },
+      "Monitoring": {
+        "Segment": "stationary-start",
+        "Rows": 64,
+        "MissingCpuSamples": 0,
+        "MissingDutySamples": 0,
+        "Cpu": {
+          "Count": 64,
+          "Mean": 393.609375,
+          "Median": 385.756,
+          "Min": 267.632,
+          "Max": 550.886,
+          "P95": 510.16685,
+          "P99": 533.2869499999999
+        },
+        "CollectorDuty": {
+          "Count": 64,
+          "Mean": 34.791140625000004,
+          "Median": 34.6095,
+          "Min": 13.019,
+          "Max": 60.13,
+          "P95": 56.8441,
+          "P99": 58.28535999999999
+        },
+        "Overruns": 0
+      },
+      "Flips": {
+        "Samples": 5,
+        "Frames": 753,
+        "ElapsedUs": 25100973,
+        "CadenceFps": 29.9988370968727
+      },
+      "Frames": {
+        "WindowStartUs": 1001701045698,
+        "WindowEndUs": 1001726045698,
+        "FirstSampleUs": 1001701045709,
+        "LastSampleUs": 1001726045698,
+        "ZeroIntervals": 0,
+        "IntervalsMs": {
+          "Count": 751,
+          "Mean": 33.3329360852197,
+          "Median": 33.334,
+          "Min": 31.899,
+          "Max": 34.757,
+          "P95": 33.6725,
+          "P99": 34.34
+        }
+      },
+      "Sources": [
+        {
+          "Path": "metrics.csv",
+          "Bytes": 35278,
+          "Sha256": "5c115bbcaba8f6d8740c483c4de279012668e3e4be69351e0979908ec1164cb2",
+          "Records": 168,
+          "IgnoredRecords": 103
+        },
+        {
+          "Path": "guest-flips.log",
+          "Bytes": 630,
+          "Sha256": "faeb3d7a89e37cb212dbca01508173fe5b625b6cad16b66a7f1ab42741e9fb14",
+          "Records": 15,
+          "IgnoredRecords": 0
+        },
+        {
+          "Path": "guest-frames.log",
+          "Bytes": 173905,
+          "Sha256": "208b453afaa73b8b3bdd241b827c5a3ca92e0f9052d531d49bf79a02a4a3489c",
+          "Records": 3241,
+          "IgnoredRecords": 0
+        }
+      ],
+      "Errors": [],
+      "Complete": true
+    },
+    "attributionComplete": true,
+    "attribution": {
+      "calls": 29756555,
+      "changed": 3504747,
+      "unchanged": 26251808,
+      "unchangedPercent": 88.22193294889144,
+      "frames": 118148,
+      "debugActiveVoiceSum": 5274540,
+      "debugActiveVoiceMax": 107,
+      "storeBytes": 119026220,
+      "changedSamples": 3429,
+      "changedNs": 564500,
+      "unchangedSamples": 25438,
+      "unchangedNs": 4524700,
+      "scope": "entire process, not measurement segment"
+    }
+  }
+]

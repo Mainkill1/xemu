@@ -1,0 +1,12 @@
+Product source abd598cf596aff497d3b962bb309221f2d3092cc; base 2d289cb349bca95eae81b6a54b0f8d965365ff82
+Native configure: ../configure --target-list=i386-softmmu --disable-werror --extra-cflags=-DXBOX --extra-cxxflags=-DXBOX -Dxemu_apu_voice_write_trace=true
+Windows configure: PATH=/opt/xemu-toolchain/mxe/usr/bin:$PATH PKG_CONFIG_LIBDIR=/opt/xemu-toolchain/mxe/usr/x86_64-w64-mingw32.static/lib/pkgconfig ../configure --cross-prefix=x86_64-w64-mingw32.static- --static --target-list=i386-softmmu --disable-werror --extra-cflags=-DXBOX --extra-cxxflags=-DXBOX -Dxemu_apu_voice_write_trace=true
+Windows CMake reconfiguration used VULKAN_SDK=/opt/xemu-toolchain/mxe/usr/x86_64-w64-mingw32.static after preserving the generated volk CMake directory that held host-header discovery.
+For pinned local version generation, GIT_DIR points at a tag-free bare clone of the measured branch and the source has the ignored metadata file XEMU_VERSION containing 0.8.136. Original repository tags were not changed.
+Build commands: ninja -j8 qemu-system-i386 tests/unit/test-xbox-mcpx-apu-voice-write-trace; ninja -j8 qemu-system-i386w.exe (cross PATH above).
+TMPDIR=/home/codex/src/steamdeck-xemu/scratch/compiler-tmp
+Default-off: meson configure build-diag -Dxemu_apu_voice_write_trace=false; ninja -C build-diag -j8 qemu-system-i386 tests/unit/test-xbox-mcpx-apu-voice-write-trace; execute collector test; inspect config-host.h and nm of emulator for absent collector/TLS/exit symbols.
+New files: clang-format --dry-run --Werror hw/xbox/mcpx/apu/vp/voice-write-trace.c hw/xbox/mcpx/apu/vp/voice-write-trace.h tests/unit/test-xbox-mcpx-apu-voice-write-trace.c
+Sanitizer: cc -std=gnu11 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer -g -I. -Iinclude -Ibuild-diag -Ilinux-headers $(pkg-config --cflags glib-2.0) tests/unit/test-xbox-mcpx-apu-voice-write-trace.c hw/xbox/mcpx/apu/vp/voice-write-trace.c $(pkg-config --libs glib-2.0) -o TRACE_TEST; execute TRACE_TEST.
+Deck current-build bundled dependencies: libslirp.so.0 SHA256 12ee83fb069a5be30b9e450f69a5e07eec4861f2e9b574c46a4052f086c341f3; libpcap.so.0.8 SHA256 221fe09f13b357ef354caf2209c886f1c1f8161c5b26ff8ab73afa47dd922f28.
+Saved test revisions and actual launches are preserved in runs/*/*/job.json and input-manifest.json.

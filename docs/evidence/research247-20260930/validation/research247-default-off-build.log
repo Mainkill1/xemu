@@ -1,0 +1,2322 @@
+ninja: Entering directory `build-diag'
+[0/1] Regenerating build files
+The Meson build system
+Version: 1.9.0
+Source dir: /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write
+Build dir: /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag
+Build type: native build
+Project name: qemu
+Project version: 10.2.0
+C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+C linker for the host machine: cc -m64 ld.bfd 2.44
+C++ compiler for the host machine: c++ -m64 (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+C++ linker for the host machine: c++ -m64 ld.bfd 2.44
+Host machine cpu family: x86_64
+Host machine cpu: x86_64
+Program scripts/symlink-install-tree.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/scripts/symlink-install-tree.py)
+Program sh found: YES (/usr/bin/sh)
+Program python3 found: YES (/home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/pyvenv/bin/python3)
+Compiler for language rust skipped: feature rust disabled
+Program iasl found: NO
+Program bzip2 found: YES (/usr/bin/bzip2)
+Program scripts/xemu-version.sh found: YES (/home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/scripts/xemu-version.sh)
+Compiler for C supports link arguments -Wl,-z,relro: YES (cached)
+Compiler for C supports link arguments -Wl,-z,now: YES (cached)
+Checking if "-fzero-call-used-regs=used-gpr" compiles: YES (cached)
+Compiler for C supports arguments -ftrivial-auto-var-init=zero: YES (cached)
+Compiler for C supports arguments -fzero-call-used-regs=used-gpr: YES (cached)
+Compiler for C supports arguments -Wempty-body: YES (cached)
+Compiler for C supports arguments -Wendif-labels: YES (cached)
+Compiler for C supports arguments -Wexpansion-to-defined: YES (cached)
+Compiler for C supports arguments -Wformat-security: YES (cached)
+Compiler for C supports arguments -Wformat-y2k: YES (cached)
+Compiler for C supports arguments -Wignored-qualifiers: YES (cached)
+Compiler for C supports arguments -Wimplicit-fallthrough=2: YES (cached)
+Compiler for C supports arguments -Winit-self: YES (cached)
+Compiler for C supports arguments -Wmissing-format-attribute: YES (cached)
+Compiler for C supports arguments -Wmissing-prototypes: YES (cached)
+Compiler for C supports arguments -Wnested-externs: YES (cached)
+Compiler for C supports arguments -Wold-style-declaration: YES (cached)
+Compiler for C supports arguments -Wold-style-definition: YES (cached)
+Compiler for C supports arguments -Wredundant-decls: YES (cached)
+Compiler for C supports arguments -Wshadow=local: YES (cached)
+Compiler for C supports arguments -Wstrict-prototypes: YES (cached)
+Compiler for C supports arguments -Wtype-limits: YES (cached)
+Compiler for C supports arguments -Wwrite-strings: YES (cached)
+Compiler for C supports arguments -Wno-gnu-variable-sized-type-not-at-end: NO (cached)
+Compiler for C supports arguments -Wno-initializer-overrides: NO (cached)
+Compiler for C supports arguments -Wno-missing-include-dirs: YES (cached)
+Compiler for C supports arguments -Wno-psabi: YES (cached)
+Compiler for C supports arguments -Wno-shift-negative-value: YES (cached)
+Compiler for C supports arguments -Wno-string-plus-int: NO (cached)
+Compiler for C supports arguments -Wno-tautological-type-limit-compare: NO (cached)
+Compiler for C supports arguments -Wno-typedef-redefinition: NO (cached)
+Compiler for C++ supports arguments -Wempty-body: YES (cached)
+Compiler for C++ supports arguments -Wendif-labels: YES (cached)
+Compiler for C++ supports arguments -Wexpansion-to-defined: YES (cached)
+Compiler for C++ supports arguments -Wformat-security: YES (cached)
+Compiler for C++ supports arguments -Wformat-y2k: YES (cached)
+Compiler for C++ supports arguments -Wignored-qualifiers: YES (cached)
+Compiler for C++ supports arguments -Wimplicit-fallthrough=2: YES (cached)
+Compiler for C++ supports arguments -Winit-self: YES (cached)
+Compiler for C++ supports arguments -Wmissing-format-attribute: YES (cached)
+Compiler for C++ supports arguments -Wmissing-prototypes: NO (cached)
+Compiler for C++ supports arguments -Wnested-externs: NO (cached)
+Compiler for C++ supports arguments -Wold-style-declaration: NO (cached)
+Compiler for C++ supports arguments -Wold-style-definition: NO (cached)
+Compiler for C++ supports arguments -Wredundant-decls: YES (cached)
+Compiler for C++ supports arguments -Wshadow=local: YES (cached)
+Compiler for C++ supports arguments -Wstrict-prototypes: NO (cached)
+Compiler for C++ supports arguments -Wtype-limits: YES (cached)
+Compiler for C++ supports arguments -Wwrite-strings: YES (cached)
+Compiler for C++ supports arguments -Wno-gnu-variable-sized-type-not-at-end: NO (cached)
+Compiler for C++ supports arguments -Wno-initializer-overrides: NO (cached)
+Compiler for C++ supports arguments -Wno-missing-include-dirs: YES (cached)
+Compiler for C++ supports arguments -Wno-psabi: YES (cached)
+Compiler for C++ supports arguments -Wno-shift-negative-value: YES (cached)
+Compiler for C++ supports arguments -Wno-string-plus-int: NO (cached)
+Compiler for C++ supports arguments -Wno-tautological-type-limit-compare: NO (cached)
+Compiler for C++ supports arguments -Wno-typedef-redefinition: NO (cached)
+Program cgcc skipped: feature sparse disabled
+Library m found: YES
+Dependency threads found: YES unknown (cached)
+Library util found: YES
+Dependency glib-2.0 found: YES 2.84.4 (cached)
+Dependency gio-2.0 skipped: feature gio disabled
+Program scripts/xml-preprocess.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/scripts/xml-preprocess.py)
+Dependency pixman-1 skipped: feature pixman disabled
+Dependency zlib found: YES 1.3.1 (cached)
+Library aio skipped: feature linux_aio disabled
+Dependency liburing skipped: feature linux_io_uring disabled
+Dependency libnfs skipped: feature libnfs disabled
+Dependency appleframeworks (modules: Cocoa, CoreVideo, QuartzCore) skipped: feature cocoa disabled
+Dependency appleframeworks (modules: vmnet) skipped: feature vmnet disabled
+Dependency libseccomp skipped: feature seccomp disabled
+Library cap-ng skipped: feature cap_ng disabled
+Dependency xkbcommon skipped: feature xkbcommon disabled
+Dependency slirp found: YES 4.8.0 (cached)
+Library vdeplug skipped: feature vde disabled
+Dependency libpulse skipped: feature pa disabled
+Dependency alsa skipped: feature alsa disabled
+Dependency jack skipped: feature jack disabled
+Dependency libpipewire-0.3 skipped: feature pipewire disabled
+Dependency sndio skipped: feature sndio disabled
+Dependency spice-protocol skipped: feature spice_protocol disabled
+Checking for function "shm_open" : YES (cached)
+Dependency libiscsi skipped: feature libiscsi disabled
+Dependency libzstd skipped: feature zstd disabled
+Dependency qpl skipped: feature qpl disabled
+Dependency libwd skipped: feature uadk disabled
+Dependency libwd_comp skipped: feature uadk disabled
+Dependency qatzip skipped: feature qatzip disabled
+Dependency virglrenderer skipped: feature virglrenderer disabled
+Dependency rutabaga_gfx_ffi skipped: feature rutabaga_gfx disabled
+Dependency blkio skipped: feature blkio disabled
+Dependency libcurl found: YES 8.14.1 (cached)
+Dependency libudev skipped: feature libudev disabled
+Dependency igvm skipped: feature igvm disabled
+Library brlapi skipped: feature brlapi disabled
+Dependency sdl3 found: YES 3.2.10 (cached)
+Dependency SDL3_image skipped: feature sdl_image disabled
+Library rados skipped: feature rbd disabled
+Library rbd skipped: feature rbd disabled
+Dependency glusterfs-api skipped: feature glusterfs disabled
+Dependency libssh skipped: feature libssh disabled
+Library bz2 skipped: feature bzip2 disabled
+Library lzfse skipped: feature lzfse disabled
+Has header "dsound.h" : NO (cached)
+Dependency appleframeworks (modules: CoreAudio) skipped: feature coreaudio disabled
+Dependency epoxy found: YES 1.5.10 (cached)
+Dependency gbm found: YES 25.0.7-2+deb13u1 (cached)
+Dependency libcbor skipped: feature libcbor disabled
+Dependency libgcrypt skipped: feature gcrypt disabled
+Dependency nettle skipped: feature nettle disabled
+Dependency capstone skipped: feature capstone disabled
+Dependency gmp found: YES 6.3.0 (cached)
+Library pam skipped: feature auth_pam disabled
+Library snappy skipped: feature snappy disabled
+Library lzo2 skipped: feature lzo disabled
+Library numa skipped: feature numa disabled
+Library rdmacm skipped: feature rdma disabled
+Library ibverbs skipped: feature rdma disabled
+Dependency libcacard skipped: feature smartcard disabled
+Dependency u2f-emu skipped: feature u2f disabled
+Dependency canokey-qemu skipped: feature canokey disabled
+Dependency libusbredirparser-0.5 skipped: feature usb_redir disabled
+Dependency libusb-1.0 found: YES 1.0.28 (cached)
+Dependency libpmem skipped: feature libpmem disabled
+Dependency libdaxctl skipped: feature libdaxctl disabled
+Dependency libkeyutils skipped: feature libkeyutils disabled
+Checking for function "gettid" : YES (cached)
+Dependency libselinux skipped: feature selinux disabled
+Dependency fuse3 skipped: feature fuse disabled
+Dependency libbpf skipped: feature bpf disabled
+Dependency libdw skipped: feature libdw disabled
+Dependency vulkan found: YES 1.4.309 (cached)
+Found pkg-config: YES (/usr/bin/pkg-config) 1.8.1
+Dependency glslang found: NO. Unknown version, but need: ['>=15.0.0']
+Found CMake: /usr/bin/cmake (3.31.6)
+NOTICE: CMake reported that the package glslang was not found with the following reason:
+glslang could not be found because dependency Threads could not be found.
+Run-time dependency glslang found: NO (tried pkgconfig)
+
+Executing subproject glslang method cmake 
+
+glslang| Found CMake: /usr/bin/cmake (3.31.6)
+
+| Configuring the build directory with CMake version 3.31.6
+| Running CMake with: -G Ninja -DCMAKE_INSTALL_PREFIX=/usr/local -DENABLE_OPT=False -DENABLE_HLSL=False -DCMAKE_BUILD_TYPE=Debug
+| - build directory:          /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/subprojects/glslang/__CMake_build
+| - source directory:         /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/subprojects/glslang
+| - toolchain file:           /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/subprojects/glslang/__CMake_build/CMakeMesonToolchainFile.cmake
+| - preload file:             /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake
+| - trace args:               --trace-expand --trace-format=json-v1 --no-warn-unused-cli --trace-redirect=cmake_trace.txt
+| - disabled policy warnings: [CMP0025, CMP0047, CMP0056, CMP0060, CMP0065, CMP0066, CMP0067, CMP0082, CMP0089, CMP0102]
+
+| Put cmake in trace mode, but with variables expanded.
+| Put cmake in trace mode and sets the trace output format.
+| Not searching for unused variables given on the command line.
+| Put cmake in trace mode and redirect trace output to a file instead of stderr.
+| Trace will be written to cmake_trace.txt
+| -- The C compiler identification is GNU 14.2.0
+| -- The CXX compiler identification is GNU 14.2.0
+| -- Detecting C compiler ABI info
+| -- Detecting C compiler ABI info - done
+| -- Check for working C compiler: /usr/bin/cc - skipped
+| -- Detecting C compile features
+| -- Detecting C compile features - done
+| -- Detecting CXX compiler ABI info
+| -- Detecting CXX compiler ABI info - done
+| -- Check for working CXX compiler: /usr/bin/c++ - skipped
+| -- Detecting CXX compile features
+| -- Detecting CXX compile features - done
+| -- Google Mock was not found - tests based on that will not build
+| CMake Warning at /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake:18 (message):
+| The function 'target_precompile_headers' is disabled in the context of
+| CMake subprojects.
+
+| This should not be an issue but may lead to compilation errors.
+| Call Stack (most recent call first):
+| /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake:76 (meson_ps_disabled_function)
+| CMakeLists.txt:291 (target_precompile_headers)
+| glslang/CMakeLists.txt:184 (glslang_pch)
+
+
+| -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+| -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+| -- Found Threads: TRUE
+| -- Found Python3: /usr/bin/python3 (found version "3.13.5") found components: Interpreter
+| -- Configuring done (0.4s)
+| CMake Warning (dev) at SPIRV/CMakeLists.txt:76 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at glslang/OSDependent/Unix/CMakeLists.txt:42 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at glslang/CMakeLists.txt:170 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at glslang/CMakeLists.txt:136 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at glslang/CMakeLists.txt:54 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at glslang/CMakeLists.txt:220 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at StandAlone/CMakeLists.txt:50 (add_executable):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Generating done (0.0s)
+| -- Build files have been written to: /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/subprojects/glslang/__CMake_build
+
+glslang| CMake configuration: SUCCEEDED
+glslang| WARNING: The CMake function "target_precompile_headers" was disabled to avoid compatibility issues with Meson.
+glslang| CMake project glslang  has 8 build targets.
+glslang| Generated Meson AST: /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/subprojects/glslang/meson.build
+glslang| Project name: glslang
+glslang| Project version: undefined
+glslang| C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+glslang| C linker for the host machine: cc -m64 ld.bfd 2.44
+glslang| C++ compiler for the host machine: c++ -m64 (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+glslang| C++ linker for the host machine: c++ -m64 ld.bfd 2.44
+glslang| Build targets in project: 9
+glslang| Subproject glslang finished.
+
+
+Executing subproject volk method cmake 
+
+
+| Configuring the build directory with CMake version 3.31.6
+| Running CMake with: -G Ninja -DCMAKE_INSTALL_PREFIX=/usr/local -DVOLK_STATIC_DEFINES=VK_NO_PROTOTYPES -DCMAKE_BUILD_TYPE=Debug
+| - build directory:          /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/subprojects/volk/__CMake_build
+| - source directory:         /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/subprojects/volk
+| - toolchain file:           /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/subprojects/volk/__CMake_build/CMakeMesonToolchainFile.cmake
+| - preload file:             /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake
+| - trace args:               --trace-expand --trace-format=json-v1 --no-warn-unused-cli --trace-redirect=cmake_trace.txt
+| - disabled policy warnings: [CMP0025, CMP0047, CMP0056, CMP0060, CMP0065, CMP0066, CMP0067, CMP0082, CMP0089, CMP0102]
+
+| Put cmake in trace mode, but with variables expanded.
+| Put cmake in trace mode and sets the trace output format.
+| Not searching for unused variables given on the command line.
+| Put cmake in trace mode and redirect trace output to a file instead of stderr.
+| Trace will be written to cmake_trace.txt
+| -- The C compiler identification is GNU 14.2.0
+| -- Detecting C compiler ABI info
+| -- Detecting C compiler ABI info - done
+| -- Check for working C compiler: /usr/bin/cc - skipped
+| -- Detecting C compile features
+| -- Detecting C compile features - done
+| volk: using Vulkan_INCLUDE_DIRS from FindVulkan module
+| -- Configuring done (0.1s)
+| CMake Warning (dev) at CMakeLists.txt:35 (add_library):
+| Policy CMP0179 is not set: De-duplication of static libraries on link lines
+| keeps first occurrence.  Run "cmake --help-policy CMP0179" for policy
+| details.  Use the cmake_policy command to set the policy and suppress this
+| warning.
+
+| Since the policy is not set, static libraries de-duplication will keep the
+| last occurrence of the static libraries.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Generating done (0.0s)
+| -- Build files have been written to: /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/subprojects/volk/__CMake_build
+
+volk| CMake configuration: SUCCEEDED
+volk| CMake project volk 350 has 2 build targets.
+volk| Generated Meson AST: /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/subprojects/volk/meson.build
+volk| Project name: volk
+volk| Project version: 350
+volk| C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+volk| C linker for the host machine: cc -m64 ld.bfd 2.44
+volk| Build targets in project: 10
+volk| Subproject volk finished.
+
+
+Executing subproject SPIRV-Reflect method cmake 
+
+
+| Configuring the build directory with CMake version 3.31.6
+| Running CMake with: -G Ninja -DCMAKE_INSTALL_PREFIX=/usr/local -DSPIRV_REFLECT_STATIC_LIB=ON -DCMAKE_BUILD_TYPE=Debug
+| - build directory:          /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/subprojects/SPIRV-Reflect/__CMake_build
+| - source directory:         /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/subprojects/SPIRV-Reflect
+| - toolchain file:           /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/subprojects/SPIRV-Reflect/__CMake_build/CMakeMesonToolchainFile.cmake
+| - preload file:             /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake
+| - trace args:               --trace-expand --trace-format=json-v1 --no-warn-unused-cli --trace-redirect=cmake_trace.txt
+| - disabled policy warnings: [CMP0025, CMP0047, CMP0056, CMP0060, CMP0065, CMP0066, CMP0067, CMP0082, CMP0089, CMP0102]
+
+| Put cmake in trace mode, but with variables expanded.
+| Put cmake in trace mode and sets the trace output format.
+| Not searching for unused variables given on the command line.
+| Put cmake in trace mode and redirect trace output to a file instead of stderr.
+| Trace will be written to cmake_trace.txt
+| -- The C compiler identification is GNU 14.2.0
+| -- The CXX compiler identification is GNU 14.2.0
+| CMake Warning (dev) at /usr/share/cmake-3.31/Modules/CMakeFindBinUtils.cmake:225 (find_program):
+| Policy CMP0126 is not set: set(CACHE) does not remove a normal variable of
+| the same name.  Run "cmake --help-policy CMP0126" for policy details.  Use
+| the cmake_policy command to set the policy and suppress this warning.
+
+| For compatibility with older versions of CMake, normal variable
+| "CMAKE_TAPI" will be removed from the current scope.
+| Call Stack (most recent call first):
+| /usr/share/cmake-3.31/Modules/CMakeDetermineCXXCompiler.cmake:207 (include)
+| CMakeLists.txt:3 (project)
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Detecting C compiler ABI info
+| -- Detecting C compiler ABI info - done
+| -- Check for working C compiler: /usr/bin/cc - skipped
+| -- Detecting C compile features
+| -- Detecting C compile features - done
+| -- Detecting CXX compiler ABI info
+| -- Detecting CXX compiler ABI info - done
+| -- Check for working CXX compiler: /usr/bin/c++ - skipped
+| -- Detecting CXX compile features
+| -- Detecting CXX compile features - done
+| -- Configuring done (0.3s)
+| CMake Warning (dev) at CMakeLists.txt:27 (add_executable):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at CMakeLists.txt:58 (add_executable):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at CMakeLists.txt:116 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Generating done (0.0s)
+| -- Build files have been written to: /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/subprojects/SPIRV-Reflect/__CMake_build
+
+SPIRV-Reflect| CMake configuration: SUCCEEDED
+SPIRV-Reflect| CMake project spirv-reflect  has 3 build targets.
+SPIRV-Reflect| Generated Meson AST: /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/subprojects/SPIRV-Reflect/meson.build
+SPIRV-Reflect| Project name: spirv-reflect
+SPIRV-Reflect| Project version: undefined
+SPIRV-Reflect| C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+SPIRV-Reflect| C linker for the host machine: cc -m64 ld.bfd 2.44
+SPIRV-Reflect| C++ compiler for the host machine: c++ -m64 (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+SPIRV-Reflect| C++ linker for the host machine: c++ -m64 ld.bfd 2.44
+SPIRV-Reflect| Build targets in project: 13
+SPIRV-Reflect| Subproject SPIRV-Reflect finished.
+
+Dependency libpcap found: YES 1.10.5 (cached)
+Dependency samplerate found: YES 0.2.2 (cached)
+
+Executing subproject imgui 
+
+imgui| Project name: imgui
+imgui| Project version: 1.91.8
+imgui| C++ compiler for the host machine: c++ -m64 (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+imgui| C++ linker for the host machine: c++ -m64 ld.bfd 2.44
+imgui| Library d3dcompiler found: NO
+imgui| Library d3d9 skipped: feature dx9 disabled
+imgui| Library d3d10 skipped: feature dx10 disabled
+imgui| Library d3d11 skipped: feature dx11 disabled
+imgui| Library d3d12 skipped: feature dx12 disabled
+imgui| Dependency appleframeworks (modules: Foundation, AppKit, GameController, Metal) skipped: feature metal disabled
+imgui| Dependency gl found: YES 1.2 (cached)
+imgui| Library dl found: YES
+imgui| Dependency sdl2 skipped: feature sdl2_renderer disabled
+imgui| Dependency sdl3 skipped: feature sdl3_renderer disabled
+imgui| Dependency vulkan skipped: feature vulkan disabled
+imgui| Has header "webgpu/webgpu.h" skipped: feature webgpu disabled
+imgui| Dependency sdl2 skipped: feature sdl2 disabled
+imgui| Dependency sdl3 found: YES 3.2.10 (cached)
+imgui| Dependency allegro-5 skipped: feature allegro5 disabled
+imgui| Dependency allegro_primitives-5 skipped: feature allegro5 disabled
+imgui| Build targets in project: 14
+imgui| Subproject imgui finished.
+
+
+Executing subproject implot 
+
+implot| Project name: ImGui Plotting Library
+implot| Project version: 0.16
+implot| C++ compiler for the host machine: c++ -m64 (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+implot| C++ linker for the host machine: c++ -m64 ld.bfd 2.44
+implot| Build targets in project: 15
+implot| Subproject implot finished.
+
+
+Executing subproject genconfig 
+
+genconfig| Project name: genconfig
+genconfig| Project version: 0.1
+genconfig| C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+genconfig| C linker for the host machine: cc -m64 ld.bfd 2.44
+genconfig| Build targets in project: 15
+genconfig| Subproject genconfig finished.
+
+
+Executing subproject VulkanMemoryAllocator method cmake 
+
+
+| Configuring the build directory with CMake version 3.31.6
+| Running CMake with: -G Ninja -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_BUILD_TYPE=Debug
+| - build directory:          /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/subprojects/VulkanMemoryAllocator/__CMake_build
+| - source directory:         /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/subprojects/VulkanMemoryAllocator
+| - toolchain file:           /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/subprojects/VulkanMemoryAllocator/__CMake_build/CMakeMesonToolchainFile.cmake
+| - preload file:             /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake
+| - trace args:               --trace-expand --trace-format=json-v1 --no-warn-unused-cli --trace-redirect=cmake_trace.txt
+| - disabled policy warnings: [CMP0025, CMP0047, CMP0056, CMP0060, CMP0065, CMP0066, CMP0067, CMP0082, CMP0089, CMP0102]
+
+| Put cmake in trace mode, but with variables expanded.
+| Put cmake in trace mode and sets the trace output format.
+| Not searching for unused variables given on the command line.
+| Put cmake in trace mode and redirect trace output to a file instead of stderr.
+| Trace will be written to cmake_trace.txt
+| -- The CXX compiler identification is GNU 14.2.0
+| -- Detecting CXX compiler ABI info
+| -- Detecting CXX compiler ABI info - done
+| -- Check for working CXX compiler: /usr/bin/c++ - skipped
+| -- Detecting CXX compile features
+| -- Detecting CXX compile features - done
+| -- Configuring done (0.1s)
+| -- Generating done (0.0s)
+| -- Build files have been written to: /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/subprojects/VulkanMemoryAllocator/__CMake_build
+
+VulkanMemoryAllocator| CMake configuration: SUCCEEDED
+VulkanMemoryAllocator| CMake project VMA 3.4.0 has 1 build targets.
+VulkanMemoryAllocator| Generated Meson AST: /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/subprojects/VulkanMemoryAllocator/meson.build
+VulkanMemoryAllocator| Project name: VMA
+VulkanMemoryAllocator| Project version: 3.4.0
+VulkanMemoryAllocator| Build targets in project: 15
+VulkanMemoryAllocator| Subproject VulkanMemoryAllocator finished.
+
+Header "linux/fs.h" has symbol "FIFREEZE" : YES (cached)
+Header "linux/fs.h" has symbol "FITRIM" : YES (cached)
+Has header "sys/epoll.h" : YES (cached)
+Has header "linux/magic.h" : YES (cached)
+Has header "linux/btrfs.h" : YES (cached)
+Has header "libdrm/drm.h" : YES (cached)
+Has header "linux/openat2.h" : YES (cached)
+Has header "pty.h" : YES (cached)
+Has header "sys/disk.h" : NO (cached)
+Has header "sys/ioccom.h" : NO (cached)
+Has header "sys/kcov.h" : NO (cached)
+Checking for function "close_range" : YES (cached)
+Checking for function "accept4" : YES (cached)
+Checking for function "clock_adjtime" : YES (cached)
+Checking for function "dup3" : YES (cached)
+Checking for function "fallocate" : YES (cached)
+Checking for function "posix_fallocate" : YES (cached)
+Checking for function "sched_getcpu" : NO (cached)
+Checking for function "posix_memalign" : YES (cached)
+Checking for function "_aligned_malloc" : NO (cached)
+Checking for function "valloc" : YES (cached)
+Checking for function "memalign" : YES (cached)
+Checking for function "ppoll" : YES (cached)
+Checking for function "preadv" : YES (cached)
+Checking for function "pthread_fchdir_np" : NO (cached)
+Checking for function "sendfile" : YES (cached)
+Checking for function "setns" : YES (cached)
+Checking for function "unshare" : YES (cached)
+Checking for function "syncfs" : YES (cached)
+Checking for function "sync_file_range" : YES (cached)
+Checking for function "timerfd_create" : YES (cached)
+Checking for function "getloadavg" : YES (cached)
+Checking for function "htonll" : NO (cached)
+Checking for function "copy_file_range" : YES (cached)
+Checking for function "getifaddrs" : YES (cached)
+Checking for function "openpty" with dependency -lutil: YES (cached)
+Checking for function "strchrnul" : YES (cached)
+Checking for function "system" : YES (cached)
+Header "sys/inotify.h" has symbol "inotify_init" : YES (cached)
+Header "sys/inotify.h" has symbol "inotify_init1" : YES (cached)
+Header "linux/blkzoned.h" has symbol "BLKOPENZONE" : YES (cached)
+Header "sys/epoll.h" has symbol "epoll_create1" : YES (cached)
+Header "linux/falloc.h" has symbol "FALLOC_FL_PUNCH_HOLE" : YES (cached)
+Header "linux/falloc.h" has symbol "FALLOC_FL_KEEP_SIZE" : YES (cached)
+Header "linux/falloc.h" has symbol "FALLOC_FL_ZERO_RANGE" : YES (cached)
+Has header "linux/fiemap.h" : YES (cached)
+Header "linux/fs.h" has symbol "FS_IOC_FIEMAP" : YES (cached)
+Header "sched.h" has symbol "getcpu" : YES (cached)
+Checking for function "getrandom" : YES (cached)
+Header "sys/random.h" has symbol "GRND_NONBLOCK" : YES (cached)
+Header "sys/prctl.h" has symbol "PR_SET_TIMERSLACK" : YES (cached)
+Header "linux/rtnetlink.h" has symbol "IFLA_PROTO_DOWN" : YES (cached)
+Header "sys/sysmacros.h" has symbol "makedev" : YES (cached)
+Header "getopt.h" has symbol "optreset" : NO (cached)
+Header "netinet/in.h" has symbol "IPPROTO_MPTCP" : YES (cached)
+Header "netinet/tcp.h" has symbol "TCP_KEEPCNT" : YES (cached)
+Header "netinet/tcp.h" has symbol "TCP_KEEPIDLE" : YES (cached)
+Header "netinet/tcp.h" has symbol "TCP_KEEPINTVL" : YES (cached)
+Checking whether type "struct sigevent" has member "sigev_notify_thread_id" : NO (cached)
+Checking whether type "struct stat" has member "st_atim" : YES (cached)
+Checking whether type "struct blk_zone" has member "capacity" : YES (cached)
+Checking for type "struct iovec" : YES (cached)
+Checking for type "struct utmpx" : YES (cached)
+Header "asm/hwprobe.h" has symbol "RISCV_HWPROBE_EXT_ZBA" : NO (cached)
+Header "linux/vm_sockets.h" has symbol "AF_VSOCK" : YES (cached)
+Checking for size of "void *" : 8 (cached)
+Program scripts/minikconf.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/scripts/minikconf.py)
+Configuring i386-softmmu-config-target.h using configuration
+Configuring i386-softmmu-config-devices.mak with command
+Reading depfile: /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/meson-private/i386-softmmu-config-devices.mak.d
+Configuring i386-softmmu-config-devices.h using configuration
+Program scripts/make-config-poison.sh found: YES (/home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/scripts/make-config-poison.sh)
+Run-time dependency tomlplusplus found: NO (tried pkgconfig and cmake)
+Looking for a fallback subproject for the dependency tomlplusplus
+
+Executing subproject tomlplusplus 
+
+tomlplusplus| Project name: tomlplusplus
+tomlplusplus| Project version: 3.4.0
+tomlplusplus| C++ compiler for the host machine: c++ -m64 (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+tomlplusplus| C++ linker for the host machine: c++ -m64 ld.bfd 2.44
+tomlplusplus| Message: target cpu_family: x86_64
+tomlplusplus| Message: target cpu: x86_64
+tomlplusplus| Message: target system: linux
+tomlplusplus| Message: target endian: little
+tomlplusplus| Compiler for C++ supports arguments -ferror-limit=5: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -fmax-errors=5: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-unused-command-line-argument: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-reserved-macro-identifier: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-init-list-lifetime: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments -fchar8_t: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments /bigobj: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /Gy: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /GF: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /openmp-: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /permissive-: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /utf-8: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /volatile:iso: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /Zc:__cplusplus: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /Zc:inline: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /Zc:externConstexpr: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /Zc:preprocessor: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /Zc:throwingNew: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -D_HAS_EXCEPTIONS=1: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-c++98-compat: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-c++98-compat-pedantic: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-documentation: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-documentation-unknown-command: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-switch-enum: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-covered-switch-default: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-padded: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-float-equal: YES (cached)
+tomlplusplus| Compiler for C++ supports link arguments /OPT:REF,ICF=3: NO (cached)
+tomlplusplus| Compiler for C++ supports link arguments /INCREMENTAL:NO: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -DTOML_HEADER_ONLY=0: YES (cached)
+tomlplusplus| Build targets in project: 18
+tomlplusplus| Subproject tomlplusplus finished.
+
+Dependency tomlplusplus found: YES 3.4.0 (overridden)
+Run-time dependency libxxhash found: NO (tried pkgconfig and cmake)
+Looking for a fallback subproject for the dependency libxxhash
+
+Executing subproject xxhash 
+
+xxhash| Project name: xxHash
+xxhash| Project version: 0.8.3
+xxhash| C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+xxhash| C linker for the host machine: cc -m64 ld.bfd 2.44
+xxhash| Build targets in project: 20
+xxhash| Subproject xxhash finished.
+
+Dependency libxxhash found: YES 0.8.3 (overridden)
+Configuring config-host.h using configuration
+Program scripts/hxtool found: YES (/home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/scripts/hxtool)
+Program scripts/shaderinclude.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/scripts/shaderinclude.py)
+Program scripts/qapi-gen.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/scripts/qapi-gen.py)
+Program scripts/pack-file.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/scripts/pack-file.py)
+Program scripts/qemu-version.sh found: YES (/home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/scripts/qemu-version.sh)
+Run-time dependency nlohmann_json found: NO (tried pkgconfig and cmake)
+Looking for a fallback subproject for the dependency nlohmann_json
+
+Executing subproject nlohmann_json 
+
+nlohmann_json| Project name: nlohmann_json
+nlohmann_json| Project version: 3.12.0
+nlohmann_json| C++ compiler for the host machine: c++ -m64 (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+nlohmann_json| C++ linker for the host machine: c++ -m64 ld.bfd 2.44
+nlohmann_json| Build targets in project: 459
+nlohmann_json| Subproject nlohmann_json finished.
+
+Dependency nlohmann_json from subproject subprojects/nlohmann_json found: YES 3.12.0
+
+Executing subproject keycodemapdb 
+
+keycodemapdb| Project name: keycodemapdb
+keycodemapdb| Project version: undefined
+keycodemapdb| Program tools/keymap-gen found: YES (/home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/subprojects/keycodemapdb/tools/keymap-gen)
+keycodemapdb| Build targets in project: 460
+keycodemapdb| Subproject keycodemapdb finished.
+
+
+Executing subproject nv2a_vsh_cpu method cmake 
+
+
+| Configuring the build directory with CMake version 3.31.6
+| Running CMake with: -G Ninja -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_OSX_ARCHITECTURES=x86_64 -Dnv2a_vsh_cpu_UNIT_TEST=OFF -DCMAKE_BUILD_TYPE=Debug
+| - build directory:          /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/subprojects/nv2a_vsh_cpu/__CMake_build
+| - source directory:         /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/subprojects/nv2a_vsh_cpu
+| - toolchain file:           /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/subprojects/nv2a_vsh_cpu/__CMake_build/CMakeMesonToolchainFile.cmake
+| - preload file:             /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake
+| - trace args:               --trace-expand --trace-format=json-v1 --no-warn-unused-cli --trace-redirect=cmake_trace.txt
+| - disabled policy warnings: [CMP0025, CMP0047, CMP0056, CMP0060, CMP0065, CMP0066, CMP0067, CMP0082, CMP0089, CMP0102]
+
+| Put cmake in trace mode, but with variables expanded.
+| Put cmake in trace mode and sets the trace output format.
+| Not searching for unused variables given on the command line.
+| Put cmake in trace mode and redirect trace output to a file instead of stderr.
+| Trace will be written to cmake_trace.txt
+| -- The C compiler identification is GNU 14.2.0
+| -- The CXX compiler identification is GNU 14.2.0
+| CMake Warning (dev) at /usr/share/cmake-3.31/Modules/CMakeFindBinUtils.cmake:225 (find_program):
+| Policy CMP0126 is not set: set(CACHE) does not remove a normal variable of
+| the same name.  Run "cmake --help-policy CMP0126" for policy details.  Use
+| the cmake_policy command to set the policy and suppress this warning.
+
+| For compatibility with older versions of CMake, normal variable
+| "CMAKE_TAPI" will be removed from the current scope.
+| Call Stack (most recent call first):
+| /usr/share/cmake-3.31/Modules/CMakeDetermineCXXCompiler.cmake:207 (include)
+| CMakeLists.txt:3 (project)
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Detecting C compiler ABI info
+| -- Detecting C compiler ABI info - done
+| -- Check for working C compiler: /usr/bin/cc - skipped
+| -- Detecting C compile features
+| -- Detecting C compile features - done
+| -- Detecting CXX compiler ABI info
+| -- Detecting CXX compiler ABI info - done
+| -- Check for working CXX compiler: /usr/bin/c++ - skipped
+| -- Detecting CXX compile features
+| -- Detecting CXX compile features - done
+| -- Configuring done (0.3s)
+| CMake Warning (dev) at CMakeLists.txt:32 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at CMakeLists.txt:44 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at CMakeLists.txt:56 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Generating done (0.0s)
+| -- Build files have been written to: /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/subprojects/nv2a_vsh_cpu/__CMake_build
+
+nv2a_vsh_cpu| CMake configuration: SUCCEEDED
+nv2a_vsh_cpu| CMake project nv2a_vsh_cpu  has 3 build targets.
+nv2a_vsh_cpu| Generated Meson AST: /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/subprojects/nv2a_vsh_cpu/meson.build
+nv2a_vsh_cpu| Project name: nv2a_vsh_cpu
+nv2a_vsh_cpu| Project version: undefined
+nv2a_vsh_cpu| C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+nv2a_vsh_cpu| C linker for the host machine: cc -m64 ld.bfd 2.44
+nv2a_vsh_cpu| Build targets in project: 494
+nv2a_vsh_cpu| Subproject nv2a_vsh_cpu finished.
+
+Run-time dependency dsp56300-emu-ffi found: NO (tried pkgconfig and cmake)
+Looking for a fallback subproject for the dependency dsp56300-emu-ffi
+
+Executing subproject dsp56300 
+
+dsp56300| Project name: dsp56300
+dsp56300| Project version: 0.1.3
+dsp56300| Build targets in project: 495
+dsp56300| Subproject dsp56300 finished.
+
+Dependency dsp56300-emu-ffi found: YES 0.1.3 (overridden)
+Program scripts/decodetree.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/scripts/decodetree.py)
+Program ../scripts/modules/module_block.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/block/../scripts/modules/module_block.py)
+Program ../scripts/block-coroutine-wrapper.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/block/../scripts/block-coroutine-wrapper.py)
+Program scripts/modinfo-collect.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/scripts/modinfo-collect.py)
+Program scripts/modinfo-generate.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/scripts/modinfo-generate.py)
+Program nm found: YES
+Program scripts/undefsym.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/scripts/undefsym.py)
+Program scripts/feature_to_c.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/scripts/feature_to_c.py)
+Program scripts/rust/rust_root_crate.sh found: YES (/home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/scripts/rust/rust_root_crate.sh)
+Configuring 50-edk2-i386-secure.json using configuration
+Configuring 50-edk2-x86_64-secure.json using configuration
+Configuring 60-edk2-aarch64.json using configuration
+Configuring 60-edk2-arm.json using configuration
+Configuring 60-edk2-i386.json using configuration
+Configuring 60-edk2-x86_64.json using configuration
+Configuring 60-edk2-loongarch64.json using configuration
+Configuring 60-edk2-riscv64.json using configuration
+Program dtc found: NO
+Program qemu-keymap found: NO
+Program /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/pyvenv/bin/sphinx-build skipped: feature docs disabled
+Program /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/scripts/decodetree.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/scripts/decodetree.py)
+
+Executing subproject berkeley-softfloat-3 
+
+berkeley-softfloat-3| Project name: berkeley-softfloat-3
+berkeley-softfloat-3| Project version: undefined
+berkeley-softfloat-3| C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+berkeley-softfloat-3| C linker for the host machine: cc -m64 ld.bfd 2.44
+berkeley-softfloat-3| Configuring platform.h using configuration
+berkeley-softfloat-3| Build targets in project: 575
+berkeley-softfloat-3| Subproject berkeley-softfloat-3 finished.
+
+
+Executing subproject berkeley-testfloat-3 
+
+berkeley-testfloat-3| Project name: berkeley-testfloat-3
+berkeley-testfloat-3| Project version: undefined
+berkeley-testfloat-3| C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+berkeley-testfloat-3| C linker for the host machine: cc -m64 ld.bfd 2.44
+berkeley-testfloat-3| Configuring platform.h using configuration
+berkeley-testfloat-3| Compiler for C supports arguments -Wno-ignored-pragmas: NO (cached)
+berkeley-testfloat-3| Build targets in project: 577
+berkeley-testfloat-3| Subproject berkeley-testfloat-3 finished.
+
+Compiler for C supports arguments -ffunction-sections: YES (cached)
+Compiler for C supports arguments -fdata-sections: YES (cached)
+Compiler for C supports link arguments -Wl,--gc-sections: YES (cached)
+Compiler for C supports arguments -ffunction-sections: YES (cached)
+Compiler for C supports arguments -fdata-sections: YES (cached)
+Compiler for C supports link arguments -Wl,--gc-sections: YES (cached)
+Program test-xemu-version.sh found: YES (/home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/tests/unit/test-xemu-version.sh)
+Program cc found: YES (/usr/bin/cc)
+Program diff found: YES (/usr/bin/diff)
+Program dbus-daemon found: YES (/usr/bin/dbus-daemon)
+Dependency sysprof-capture-4 found: YES 48.0 (cached)
+Dependency glib-2.0 found: YES 2.84.4 (cached)
+Program initrd-stress.sh found: YES (/home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/tests/migration-stress/initrd-stress.sh)
+Build targets in project: 766
+
+qemu 10.2.0
+
+  Build environment
+    Build directory                 : /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag
+    Source path                     : /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write
+    Download dependencies           : YES
+
+  Directories
+    Build directory                 : /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag
+    Source path                     : /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write
+    Download dependencies           : YES
+    Install prefix                  : /usr/local
+    BIOS directory                  : share/qemu
+    firmware path                   : share/qemu-firmware
+    binary directory                : /usr/local/bin
+    library directory               : /usr/local/lib/x86_64-linux-gnu
+    module directory                : lib/x86_64-linux-gnu/qemu
+    libexec directory               : /usr/local/libexec
+    include directory               : /usr/local/include
+    config directory                : /usr/local/etc
+    local state directory           : /var/local
+    Manual directory                : /usr/local/share/man
+    Doc directory                   : /usr/local/share/doc
+
+  Host binaries
+    python                          : /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/pyvenv/bin/python3 (version: 3.13)
+    sphinx-build                    : NO
+    gdb                             : /usr/bin/gdb
+    iasl                            : NO
+    genisoimage                     : 
+    smbd                            : NO
+
+  Configurable features
+    Documentation                   : NO
+    system-mode emulation           : YES
+    user-mode emulation             : NO
+    block layer                     : YES
+    Install blobs                   : YES
+    module support                  : NO
+    fuzzing support                 : NO
+    Audio drivers                   : sdl
+    Trace backends                  : log
+    QOM debugging                   : YES
+    Relocatable install             : YES
+    vhost-kernel support            : NO
+    vhost-net support               : NO
+    vhost-user support              : NO
+    vhost-user-crypto support       : NO
+    vhost-user-blk server support   : NO
+    vhost-vdpa support              : NO
+    build guest agent               : NO
+
+  Compilation
+    host CPU                        : x86_64
+    host endianness                 : little
+    C compiler                      : cc -m64
+    Host C compiler                 : cc -m64
+    C++ compiler                    : c++ -m64
+    Objective-C compiler            : NO
+    Rust support                    : NO
+    CFLAGS                          : -DXBOX -g -O2
+    CXXFLAGS                        : -DXBOX -DXBOX -g -O2
+    LDFLAGS                         : -DXBOX
+    QEMU_CFLAGS                     : -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr
+    QEMU_CXXFLAGS                   : -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS
+    QEMU_LDFLAGS                    : -Wl,-z,relro -Wl,-z,now
+    link-time optimization (LTO)    : NO
+    PIE                             : YES
+    static build                    : NO
+    malloc trim support             : NO
+    membarrier                      : NO
+    debug graph lock                : NO
+    debug stack usage               : NO
+    mutex debugging                 : NO
+    memory allocator                : system
+    avx2 optimization               : YES
+    avx512bw optimization           : YES
+    gcov                            : NO
+    thread sanitizer                : NO
+    CFI support                     : NO
+    strip binaries                  : NO
+    sparse                          : NO
+    mingw32 support                 : NO
+
+  Cross compilers
+    i386                            : /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/pyvenv/bin/python3 -B /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/tests/docker/docker.py --engine docker cc --cc i686-linux-gnu-gcc -i qemu/debian-i686-cross -s /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write --
+
+  Targets and accelerators
+    KVM support                     : NO
+    HVF support                     : NO
+    WHPX support                    : NO
+    NVMM support                    : NO
+    MSHV support                    : NO
+    Xen support                     : NO
+    Xen emulation                   : NO
+    TCG support                     : YES
+    TCG backend                     : native (x86_64)
+    TCG plugins                     : NO
+    TCG debug enabled               : NO
+    target list                     : i386-softmmu
+    default devices                 : YES
+    out of process emulation        : NO
+    vfio-user server                : NO
+
+  Block layer support
+    coroutine backend               : ucontext
+    coroutine pool                  : YES
+    Block whitelist (rw)            : 
+    Block whitelist (ro)            : 
+    Use block whitelist in tools    : NO
+    VirtFS (9P) support             : NO
+    replication support             : NO
+    bochs support                   : NO
+    cloop support                   : NO
+    dmg support                     : NO
+    qcow v1 support                 : NO
+    vdi support                     : NO
+    vhdx support                    : NO
+    vmdk support                    : NO
+    vpc support                     : NO
+    vvfat support                   : NO
+    qed support                     : NO
+    parallels support               : NO
+    FUSE exports                    : NO
+    VDUSE block exports             : NO
+
+  Crypto
+    TLS priority                    : NORMAL
+    GNUTLS support                  : NO
+    libgcrypt                       : NO
+    nettle                          : NO
+    SM4 ALG support                 : NO
+    SM3 ALG support                 : NO
+    AF_ALG support                  : NO
+    rng-none                        : NO
+    Linux keyring                   : NO
+    Linux keyutils                  : NO
+
+  User interface
+    D-Bus display                   : NO
+    SDL support                     : YES 3.2.10
+    SDL image support               : NO
+    GTK support                     : NO
+    pixman                          : NO
+    VTE support                     : NO
+    PNG support                     : NO
+    VNC support                     : NO
+    spice protocol support          : NO
+    curses support                  : NO
+    brlapi support                  : NO
+
+  Graphics backends
+    VirGL support                   : NO
+    Rutabaga support                : NO
+
+  Audio backends
+    OSS support                     : NO
+    sndio support                   : NO
+    ALSA support                    : NO
+    PulseAudio support              : NO
+    PipeWire support                : NO
+    JACK support                    : NO
+
+  Network backends
+    AF_XDP support                  : NO
+    passt support                   : NO
+    slirp support                   : YES 4.8.0
+    vde support                     : NO
+    netmap support                  : NO
+    l2tpv3 support                  : NO
+
+  Dependencies
+    libtasn1                        : NO
+    PAM                             : NO
+    iconv support                   : NO
+    blkio support                   : NO
+    curl support                    : YES 8.14.1
+    Multipath support               : NO
+    Linux AIO support               : NO
+    Linux io_uring support          : NO
+    ATTR/XATTR support              : NO
+    RDMA support                    : NO
+    fdt support                     : NO
+    libcap-ng support               : NO
+    bpf support                     : NO
+    rbd support                     : NO
+    smartcard support               : NO
+    U2F support                     : NO
+    libusb                          : YES 1.0.28
+    usb net redir                   : NO
+    OpenGL support (epoxy)          : YES
+    Vulkan support                  : YES 1.4.309
+    GBM                             : YES 25.0.7-2+deb13u1
+    libiscsi support                : NO
+    libnfs support                  : NO
+    seccomp support                 : NO
+    GlusterFS support               : NO
+    hv-balloon support              : NO
+    TPM support                     : NO
+    IGVM support                    : NO
+    libssh support                  : NO
+    lzo support                     : NO
+    snappy support                  : NO
+    bzip2 support                   : NO
+    lzfse support                   : NO
+    zstd support                    : NO
+    Query Processing Library support: NO
+    UADK Library support            : NO
+    qatzip support                  : NO
+    NUMA host support               : NO
+    capstone                        : NO
+    libpmem support                 : NO
+    libdaxctl support               : NO
+    libcbor support                 : NO
+    libudev                         : NO
+    FUSE lseek                      : NO
+    selinux                         : NO
+    vtune                           : NO
+    libdw                           : NO
+    valgrind                        : NO
+
+  Subprojects
+    SPIRV-Reflect                   : YES
+    VulkanMemoryAllocator           : YES
+    berkeley-softfloat-3            : YES
+    berkeley-testfloat-3            : YES
+    dsp56300                        : YES
+    genconfig                       : YES
+    glslang                         : YES
+    imgui                           : YES
+    implot                          : YES
+    keycodemapdb                    : YES
+    nlohmann_json                   : YES
+    nv2a_vsh_cpu                    : YES
+    tomlplusplus                    : YES
+    volk                            : YES
+    xxhash                          : YES
+
+  User defined options
+    Native files                    : /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/config-meson.cross
+    auto_features                   : disabled
+    docs                            : disabled
+    gdb                             : /usr/bin/gdb
+    werror                          : false
+    xemu_apu_voice_write_trace      : false
+
+Found ninja-1.12.1 at /usr/bin/ninja
+Generating targets:   0%|          | 0/766 eta ?Generating targets:  65%|██████▌   | 500/766 eta 00:00                                                      Writing build.ninja:   0%|          | 0/3799 eta ?Writing build.ninja:  60%|██████    | 2285/3799 eta 00:00                                                         Cleaning... 1 files.
+Running postconf script '/home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/build-diag/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research247-voice-write/scripts/symlink-install-tree.py'
+[1/1229] Generating qemu-version.h with a custom command (wrapped by meson to capture output)
+[2/1229] Generating xemu-version-macro.h with a custom command (wrapped by meson to capture output)
+[3/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-emit-events.c.o
+[4/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-builtin-types.c.o
+[5/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit.c.o
+[6/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types.c.o
+[7/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands.c.o
+[8/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events.c.o
+[9/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-authz.c.o
+[10/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-init-commands.c.o
+[11/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-authz.c.o
+[12/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-authz.c.o
+[13/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-builtin-visit.c.o
+[14/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-block.c.o
+[15/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-authz.c.o
+[16/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-introspect.c.o
+[17/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-block.c.o
+[18/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-block.c.o
+[19/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-block-core.c.o
+[20/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-block-export.c.o
+[21/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-block.c.o
+[22/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-block-export.c.o
+[23/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-char.c.o
+[24/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-block-export.c.o
+[25/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-char.c.o
+[26/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-block-core.c.o
+[27/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-block-export.c.o
+[28/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-common.c.o
+[29/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-common.c.o
+[30/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-common.c.o
+[31/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-common.c.o
+[32/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-compat.c.o
+[33/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-char.c.o
+[34/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-compat.c.o
+[35/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-compat.c.o
+[36/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-compat.c.o
+[37/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-char.c.o
+[38/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-control.c.o
+[39/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-control.c.o
+[40/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-block-core.c.o
+[41/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-control.c.o
+[42/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-crypto.c.o
+[43/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-control.c.o
+[44/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-crypto.c.o
+[45/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-crypto.c.o
+[46/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-cxl.c.o
+[47/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-cxl.c.o
+[48/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-dump.c.o
+[49/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-dump.c.o
+[50/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-dump.c.o
+[51/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-cxl.c.o
+[52/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-ebpf.c.o
+[53/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-cxl.c.o
+[54/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-dump.c.o
+[55/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-ebpf.c.o
+[56/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-ebpf.c.o
+[57/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-crypto.c.o
+[58/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-ebpf.c.o
+[59/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-error.c.o
+[60/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-error.c.o
+[61/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-error.c.o
+[62/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-error.c.o
+[63/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-introspect.c.o
+[64/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-introspect.c.o
+[65/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-introspect.c.o
+[66/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-job.c.o
+[67/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-job.c.o
+[68/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-job.c.o
+[69/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-machine-common.c.o
+[70/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-machine-common.c.o
+[71/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-machine-common.c.o
+[72/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-machine-common.c.o
+[73/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-introspect.c.o
+[74/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-job.c.o
+[75/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-machine-s390x.c.o
+[76/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-machine.c.o
+[77/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-machine-s390x.c.o
+[78/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-machine-s390x.c.o
+[79/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-machine.c.o
+[80/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-machine-s390x.c.o
+[81/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-migration.c.o
+[82/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-migration.c.o
+[83/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-misc.c.o
+[84/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-misc.c.o
+[85/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-misc.c.o
+[86/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-net.c.o
+[87/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-migration.c.o
+[88/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-machine.c.o
+[89/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-misc.c.o
+[90/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-migration.c.o
+[91/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-pragma.c.o
+[92/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-pragma.c.o
+[93/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-machine.c.o
+[94/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-net.c.o
+[95/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-pragma.c.o
+[96/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-net.c.o
+[97/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-pragma.c.o
+[98/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-qom.c.o
+[99/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-replay.c.o
+[100/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-replay.c.o
+[101/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-qom.c.o
+[102/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-net.c.o
+[103/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-replay.c.o
+[104/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-run-state.c.o
+[105/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-replay.c.o
+[106/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-qom.c.o
+[107/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-block-core.c.o
+[108/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-run-state.c.o
+[109/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-sockets.c.o
+[110/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-run-state.c.o
+[111/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-sockets.c.o
+[112/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-run-state.c.o
+[113/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-sockets.c.o
+[114/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-stats.c.o
+[115/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-stats.c.o
+[116/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-sockets.c.o
+[117/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-trace.c.o
+[118/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-stats.c.o
+[119/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-trace.c.o
+[120/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-trace.c.o
+[121/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-trace.c.o
+[122/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-stats.c.o
+[123/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-vfio.c.o
+[124/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-transaction.c.o
+[125/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-qom.c.o
+[126/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-transaction.c.o
+[127/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-transaction.c.o
+[128/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-vfio.c.o
+[129/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-vfio.c.o
+[130/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-vfio.c.o
+[131/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-virtio.c.o
+[132/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-transaction.c.o
+[133/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-virtio.c.o
+[134/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-yank.c.o
+[135/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-yank.c.o
+[136/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-yank.c.o
+[137/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-accelerator.c.o
+[138/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-yank.c.o
+[139/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-virtio.c.o
+[140/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-accelerator.c.o
+[141/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-accelerator.c.o
+[142/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-virtio.c.o
+[143/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-acpi.c.o
+[144/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-accelerator.c.o
+[145/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-acpi.c.o
+[146/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-acpi-hest.c.o
+[147/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-acpi.c.o
+[148/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-acpi.c.o
+[149/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-acpi-hest.c.o
+[150/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-acpi-hest.c.o
+[151/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-acpi-hest.c.o
+[152/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-audio.c.o
+[153/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-cryptodev.c.o
+[154/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-audio.c.o
+[155/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-audio.c.o
+[156/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-cryptodev.c.o
+[157/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-cryptodev.c.o
+[158/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-cryptodev.c.o
+[159/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-qdev.c.o
+[160/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-pci.c.o
+[161/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-qdev.c.o
+[162/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-qdev.c.o
+[163/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-pci.c.o
+[164/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-qdev.c.o
+[165/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-pci.c.o
+[166/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-audio.c.o
+[167/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-pci.c.o
+[168/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-rocker.c.o
+[169/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-rocker.c.o
+[170/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-misc-arm.c.o
+[171/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-misc-arm.c.o
+[172/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-misc-arm.c.o
+[173/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-rocker.c.o
+[174/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-misc-arm.c.o
+[175/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-misc-i386.c.o
+[176/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-misc-i386.c.o
+[177/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-rocker.c.o
+[178/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-tpm.c.o
+[179/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-tpm.c.o
+[180/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-tpm.c.o
+[181/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-tpm.c.o
+[182/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-uefi.c.o
+[183/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-misc-i386.c.o
+[184/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-uefi.c.o
+[185/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-uefi.c.o
+[186/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-uefi.c.o
+[187/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-misc-i386.c.o
+[188/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-events-ui.c.o
+[189/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-root.c.o
+[190/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-types-ui.c.o
+[191/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-crypto.c.o
+[192/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi.c.o
+[193/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qom.c.o
+[194/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-monitor.c.o
+[195/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-gdbstub.c.o
+[196/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-authz.c.o
+[197/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-util.c.o
+[198/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-block.c.o
+[199/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-commands-ui.c.o
+[200/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-chardev.c.o
+[201/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-io.c.o
+[202/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-accel_hvf.c.o
+[203/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-scsi.c.o
+[204/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-nbd.c.o
+[205/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-accel_mshv.c.o
+[206/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-accel_kvm.c.o
+[207/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-audio.c.o
+[208/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-backends.c.o
+[209/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-ebpf.c.o
+[210/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-backends_tpm.c.o
+[211/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_9pfs.c.o
+[212/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_adc.c.o
+[213/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_acpi.c.o
+[214/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_alpha.c.o
+[215/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_arm.c.o
+[216/1229] Compiling C object libqemuutil.a.p/meson-generated_.._qapi_qapi-visit-ui.c.o
+[217/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_audio.c.o
+[218/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_block.c.o
+[219/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_char.c.o
+[220/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_dma.c.o
+[221/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_display.c.o
+[222/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_fsi.c.o
+[223/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_hyperv.c.o
+[224/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_i386_xen.c.o
+[225/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_i2c.c.o
+[226/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_i386_kvm.c.o
+[227/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_i386.c.o
+[228/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_ide.c.o
+[229/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_input.c.o
+[230/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_isa.c.o
+[231/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_intc.c.o
+[232/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_mem.c.o
+[233/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_mips.c.o
+[234/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_misc_macio.c.o
+[235/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_misc.c.o
+[236/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_net_can.c.o
+[237/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_pci.c.o
+[238/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_nubus.c.o
+[239/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_nvram.c.o
+[240/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_net.c.o
+[241/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_nvme.c.o
+[242/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_pci_host.c.o
+[243/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_ppc.c.o
+[244/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_rtc.c.o
+[245/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_riscv.c.o
+[246/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_s390x.c.o
+[247/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_sd.c.o
+[248/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_sensor.c.o
+[249/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_sh4.c.o
+[250/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_scsi.c.o
+[251/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_sparc.c.o
+[252/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_sparc64.c.o
+[253/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_ssi.c.o
+[254/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_timer.c.o
+[255/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_tpm.c.o
+[256/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_uefi.c.o
+[257/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_ufs.c.o
+[258/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_usb.c.o
+[259/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_vfio_user.c.o
+[260/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_vfio.c.o
+[261/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_watchdog.c.o
+[262/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_vmapple.c.o
+[263/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_virtio.c.o
+[264/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_gpio.c.o
+[265/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_xen.c.o
+[266/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-net.c.o
+[267/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-replay.c.o
+[268/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-migration.c.o
+[269/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_remote.c.o
+[270/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-system.c.o
+[271/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_xbox_mcpx_apu.c.o
+[272/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_xbox_nv2a.c.o
+[273/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-ui.c.o
+[274/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_xbox_mcpx_nvnet.c.o
+[275/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_xbox_mcpx_apu_dsp.c.o
+[276/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-target_arm_hvf.c.o
+[277/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-accel_tcg.c.o
+[278/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-target_arm.c.o
+[279/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-target_hppa.c.o
+[280/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-hw_core.c.o
+[281/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-target_i386.c.o
+[282/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-target_i386_kvm.c.o
+[283/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-target_loongarch.c.o
+[284/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-target_mips_tcg.c.o
+[285/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-target_ppc.c.o
+[286/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-target_riscv.c.o
+[287/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-target_s390x.c.o
+[288/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-target_s390x_kvm.c.o
+[289/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-target_sparc.c.o
+[290/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_authz_trace_events.c.o
+[291/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_block_trace_events.c.o
+[292/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_block_export_trace_events.c.o
+[293/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_char_trace_events.c.o
+[294/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_compat_trace_events.c.o
+[295/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_common_trace_events.c.o
+[296/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_block_core_trace_events.c.o
+[297/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_control_trace_events.c.o
+[298/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_crypto_trace_events.c.o
+[299/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_cxl_trace_events.c.o
+[300/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_dump_trace_events.c.o
+[301/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_ebpf_trace_events.c.o
+[302/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_job_trace_events.c.o
+[303/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_introspect_trace_events.c.o
+[304/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_error_trace_events.c.o
+[305/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_machine_common_trace_events.c.o
+[306/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_machine_s390x_trace_events.c.o
+[307/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_machine_trace_events.c.o
+[308/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_misc_trace_events.c.o
+[309/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_pragma_trace_events.c.o
+[310/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_net_trace_events.c.o
+[311/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_migration_trace_events.c.o
+[312/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_qom_trace_events.c.o
+[313/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_replay_trace_events.c.o
+[314/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_sockets_trace_events.c.o
+[315/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_run_state_trace_events.c.o
+[316/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_trace_trace_events.c.o
+[317/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_stats_trace_events.c.o
+[318/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_transaction_trace_events.c.o
+[319/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_vfio_trace_events.c.o
+[320/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_yank_trace_events.c.o
+[321/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_virtio_trace_events.c.o
+[322/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_acpi_trace_events.c.o
+[323/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_accelerator_trace_events.c.o
+[324/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_acpi_hest_trace_events.c.o
+[325/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_qdev_trace_events.c.o
+[326/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_cryptodev_trace_events.c.o
+[327/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_audio_trace_events.c.o
+[328/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_pci_trace_events.c.o
+[329/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_rocker_trace_events.c.o
+[330/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_misc_arm_trace_events.c.o
+[331/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_misc_i386_trace_events.c.o
+[332/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_ui_trace_events.c.o
+[333/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_uefi_trace_events.c.o
+[334/1229] Compiling C object libqemuutil.a.p/meson-generated_.._trace_trace-qapi_commands_tpm_trace_events.c.o
+[335/1229] Compiling C object libqemuutil.a.p/qapi_qapi-dealloc-visitor.c.o
+[336/1229] Compiling C object libqemuutil.a.p/qapi_qapi-clone-visitor.c.o
+[337/1229] Compiling C object libqemuutil.a.p/qapi_opts-visitor.c.o
+[338/1229] Compiling C object libqemuutil.a.p/qapi_qapi-util.c.o
+[339/1229] Compiling C object libqemuutil.a.p/qapi_qobject-output-visitor.c.o
+[340/1229] Compiling C object libqemuutil.a.p/qapi_qapi-forward-visitor.c.o
+[341/1229] Compiling C object libqemuutil.a.p/qapi_qapi-type-helpers.c.o
+[342/1229] Compiling C object libqemuutil.a.p/qapi_string-input-visitor.c.o
+[343/1229] Compiling C object libqemuutil.a.p/qapi_qmp-event.c.o
+[344/1229] Compiling C object libqemuutil.a.p/qapi_qapi-visit-core.c.o
+[345/1229] Compiling C object libqemuutil.a.p/qapi_string-output-visitor.c.o
+[346/1229] Compiling C object libqemuutil.a.p/qobject_qnull.c.o
+[347/1229] Compiling C object libqemuutil.a.p/qapi_qobject-input-visitor.c.o
+[348/1229] Compiling C object libqemuutil.a.p/qapi_qmp-dispatch.c.o
+[349/1229] Compiling C object libqemuutil.a.p/qapi_qmp-registry.c.o
+[350/1229] Compiling C object libqemuutil.a.p/qobject_qnum.c.o
+[351/1229] Compiling C object libqemuutil.a.p/qobject_qstring.c.o
+[352/1229] Compiling C object libqemuutil.a.p/qobject_qbool.c.o
+[353/1229] Compiling C object libqemuutil.a.p/qobject_qobject.c.o
+[354/1229] Compiling C object libqemuutil.a.p/qobject_qlit.c.o
+[355/1229] Compiling C object libqemuutil.a.p/qobject_qlist.c.o
+[356/1229] Compiling C object libqemuutil.a.p/qobject_qjson.c.o
+[357/1229] Compiling C object libqemuutil.a.p/qobject_json-lexer.c.o
+[358/1229] Compiling C object libqemuutil.a.p/qobject_qdict.c.o
+[359/1229] Compiling C object libqemuutil.a.p/qobject_json-streamer.c.o
+[360/1229] Compiling C object libqemuutil.a.p/qobject_json-writer.c.o
+[361/1229] Compiling C object libqemuutil.a.p/util_unicode.c.o
+[362/1229] Compiling C object libqemuutil.a.p/util_qemu-timer-common.c.o
+[363/1229] Compiling C object libqemuutil.a.p/qobject_json-parser.c.o
+[364/1229] Compiling C object libqemuutil.a.p/util_osdep.c.o
+[365/1229] Compiling C object libqemuutil.a.p/qobject_block-qdict.c.o
+[366/1229] Compiling C object libqemuutil.a.p/util_thread-context.c.o
+[367/1229] Compiling C object libqemuutil.a.p/util_fdmon-poll.c.o
+[368/1229] Compiling C object libqemuutil.a.p/util_compatfd.c.o
+[369/1229] Compiling C object libqemuutil.a.p/util_fdmon-epoll.c.o
+[370/1229] Compiling C object libqemuutil.a.p/util_event_notifier-posix.c.o
+[371/1229] Compiling C object libqemuutil.a.p/util_mmap-alloc.c.o
+[372/1229] Compiling C object libqemuutil.a.p/util_cutils.c.o
+[373/1229] Compiling C object libqemuutil.a.p/util_drm.c.o
+[374/1229] Compiling C object libqemuutil.a.p/util_memfd.c.o
+[375/1229] Compiling C object libqemuutil.a.p/util_aio-posix.c.o
+[376/1229] Compiling C object libqemuutil.a.p/util_defer-call.c.o
+[377/1229] Compiling C object libqemuutil.a.p/util_path.c.o
+[378/1229] Compiling C object libqemuutil.a.p/util_envlist.c.o
+[379/1229] Compiling C object libqemuutil.a.p/util_module.c.o
+[380/1229] Compiling C object libqemuutil.a.p/util_event.c.o
+[381/1229] Compiling C object libqemuutil.a.p/util_qemu-thread-posix.c.o
+[382/1229] Compiling C object libqemuutil.a.p/util_oslib-posix.c.o
+[383/1229] Compiling C object libqemuutil.a.p/util_bitops.c.o
+[384/1229] Compiling C object libqemuutil.a.p/util_host-utils.c.o
+[385/1229] Compiling C object libqemuutil.a.p/util_cacheflush.c.o
+[386/1229] Compiling C object libqemuutil.a.p/util_fifo8.c.o
+[387/1229] Compiling C object libqemuutil.a.p/util_id.c.o
+[388/1229] Compiling C object libqemuutil.a.p/util_notify.c.o
+[389/1229] Compiling C object libqemuutil.a.p/util_bitmap.c.o
+[390/1229] Compiling C object libqemuutil.a.p/util_error.c.o
+[391/1229] Compiling C object libqemuutil.a.p/util_qemu-print.c.o
+[392/1229] Compiling C object libqemuutil.a.p/util_error-report.c.o
+[393/1229] Compiling C object libqemuutil.a.p/util_qemu-config.c.o
+[394/1229] Compiling C object libqemuutil.a.p/util_qemu-progress.c.o
+[395/1229] Compiling C object libqemuutil.a.p/util_crc32c.c.o
+[396/1229] Compiling C object libqemuutil.a.p/util_getauxval.c.o
+[397/1229] Compiling C object libqemuutil.a.p/util_uuid.c.o
+[398/1229] Compiling C object libqemuutil.a.p/util_rcu.c.o
+[399/1229] Compiling C object libqemuutil.a.p/util_keyval.c.o
+[400/1229] Compiling C object libqemuutil.a.p/util_range.c.o
+[401/1229] Compiling C object libqemuutil.a.p/util_log.c.o
+[402/1229] Compiling C object libqemuutil.a.p/util_stats64.c.o
+[403/1229] Compiling C object libqemuutil.a.p/util_qdist.c.o
+[404/1229] Compiling C object libqemuutil.a.p/util_reserved-region.c.o
+[405/1229] Compiling C object libqemuutil.a.p/util_qemu-option.c.o
+[406/1229] Compiling C object libqemuutil.a.p/util_systemd.c.o
+[407/1229] Compiling C object libqemuutil.a.p/util_int128.c.o
+[408/1229] Compiling C object libqemuutil.a.p/util_transactions.c.o
+[409/1229] Compiling C object libqemuutil.a.p/util_guest-random.c.o
+[410/1229] Compiling C object libqemuutil.a.p/util_qsp.c.o
+[411/1229] Compiling C object libqemuutil.a.p/util_qht.c.o
+[412/1229] Compiling C object libqemuutil.a.p/util_memalign.c.o
+[413/1229] Compiling C object libqemuutil.a.p/util_crc-ccitt.c.o
+[414/1229] Compiling C object libqemuutil.a.p/util_aiocb.c.o
+[415/1229] Compiling C object libqemuutil.a.p/util_base64.c.o
+[416/1229] Compiling C object libqemuutil.a.p/util_lockcnt.c.o
+[417/1229] Compiling C object libqemuutil.a.p/util_userfaultfd.c.o
+[418/1229] Compiling C object libqemuutil.a.p/util_interval-tree.c.o
+[419/1229] Compiling C object libqemuutil.a.p/util_qemu-coroutine-io.c.o
+[420/1229] Compiling C object libqemuutil.a.p/util_coroutine-ucontext.c.o
+[421/1229] Compiling C object libqemuutil.a.p/util_qemu-coroutine.c.o
+[422/1229] Compiling C object libqemuutil.a.p/util_main-loop.c.o
+[423/1229] Compiling C object libqemuutil.a.p/util_async.c.o
+[424/1229] Compiling C object libqemuutil.a.p/util_qemu-coroutine-lock.c.o
+[425/1229] Compiling C object libqemuutil.a.p/util_aio-wait.c.o
+[426/1229] Compiling C object libqemuutil.a.p/util_thread-pool.c.o
+[427/1229] Compiling C object libqemuutil.a.p/util_buffer.c.o
+[428/1229] Compiling C object libqemuutil.a.p/util_qemu-timer.c.o
+[429/1229] Compiling C object libqemuutil.a.p/util_hexdump.c.o
+[430/1229] Compiling C object libqemuutil.a.p/util_iova-tree.c.o
+[431/1229] Compiling C object libqemuutil.a.p/util_nvdimm-utils.c.o
+[432/1229] Compiling C object libqemuutil.a.p/util_block-helpers.c.o
+[433/1229] Compiling C object libqemuutil.a.p/util_qemu-coroutine-sleep.c.o
+[434/1229] Compiling C object libqemuutil.a.p/util_hbitmap.c.o
+[435/1229] Compiling C object libqemuutil.a.p/util_qemu-co-shared-resource.c.o
+[436/1229] Compiling C object libqemuutil.a.p/util_qemu-co-timeout.c.o
+[437/1229] Compiling C object libqemuutil.a.p/util_qemu-sockets.c.o
+[438/1229] Compiling C object libqemuutil.a.p/util_iov.c.o
+[439/1229] Compiling C object libqemuutil.a.p/util_timed-average.c.o
+[440/1229] Compiling C object libqemuutil.a.p/util_chardev_open.c.o
+[441/1229] Compiling C object libqemuutil.a.p/util_bufferiszero.c.o
+[442/1229] Compiling C object libqemuutil.a.p/util_readline.c.o
+[443/1229] Compiling C object libqemuutil.a.p/util_throttle.c.o
+[444/1229] Compiling C object libqemuutil.a.p/util_filemonitor-inotify.c.o
+[445/1229] Compiling C object libqemuutil.a.p/util_vhost-user-server.c.o
+[446/1229] Compiling C object libqemuutil.a.p/util_cpuinfo-i386.c.o
+[447/1229] Compiling C object libqemuutil.a.p/util_sha1.c.o
+[448/1229] Compiling C object libqemuutil.a.p/util_yank.c.o
+[449/1229] Compiling C object libqemuutil.a.p/util_http.c.o
+[450/1229] Compiling C object libqemuutil.a.p/crypto_sm4.c.o
+[451/1229] Compiling C object libqemuutil.a.p/crypto_init.c.o
+[452/1229] Compiling C object libqemuutil.a.p/crypto_random-platform.c.o
+[453/1229] Compiling C object libqemuutil.a.p/util_vfio-helpers.c.o
+[454/1229] Compiling C object libqemuutil.a.p/trace_qmp.c.o
+[455/1229] Compiling C object libqemuutil.a.p/stubs_cpu-get-clock.c.o
+[456/1229] Compiling C object libqemuutil.a.p/stubs_error-printf.c.o
+[457/1229] Compiling C object libqemuutil.a.p/trace_control.c.o
+[458/1229] Compiling C object libqemuutil.a.p/stubs_iothread-lock.c.o
+[459/1229] Compiling C object libqemuutil.a.p/stubs_is-daemonized.c.o
+[460/1229] Compiling C object libqemuutil.a.p/stubs_fdset.c.o
+[461/1229] Compiling C object libqemuutil.a.p/stubs_monitor-core.c.o
+[462/1229] Compiling C object libqemuutil.a.p/stubs_replay-mode.c.o
+[463/1229] Compiling C object libqemuutil.a.p/stubs_trace-control.c.o
+[464/1229] Compiling C object libqemuutil.a.p/stubs_blk-exp-close-all.c.o
+[465/1229] Compiling C object libqemuutil.a.p/stubs_bdrv-next-monitor-owned.c.o
+[466/1229] Compiling C object libqemuutil.a.p/stubs_blk-commit-all.c.o
+[467/1229] Compiling C object libqemuutil.a.p/stubs_change-state-handler.c.o
+[468/1229] Compiling C object libqemuutil.a.p/stubs_get-vm-name.c.o
+[469/1229] Compiling C object libqemuutil.a.p/crypto_clmul.c.o
+[470/1229] Compiling C object libqemuutil.a.p/stubs_blockdev-close-all-bdrv-states.c.o
+[471/1229] Compiling C object libqemuutil.a.p/stubs_migr-blocker.c.o
+[472/1229] Compiling C object libqemuutil.a.p/stubs_iothread-lock-block.c.o
+[473/1229] Compiling C object libqemuutil.a.p/stubs_physmem.c.o
+[474/1229] Compiling C object libqemuutil.a.p/stubs_runstate-check.c.o
+[475/1229] Compiling C object libqemuutil.a.p/stubs_uuid.c.o
+[476/1229] Compiling C object libqemuutil.a.p/stubs_ram-block.c.o
+[477/1229] Compiling C object libqemuutil.a.p/stubs_replay-tools.c.o
+[478/1229] Compiling C object libqemuutil.a.p/stubs_icount.c.o
+[479/1229] Compiling C object libqemuutil.a.p/stubs_graph-lock.c.o
+[480/1229] Compiling C object libqemuutil.a.p/stubs_cpus-virtual-clock.c.o
+[481/1229] Compiling C object libqemuutil.a.p/stubs_qemu-timer-notify-cb.c.o
+[482/1229] Compiling C object libqemuutil.a.p/stubs_qmp-command-available.c.o
+[483/1229] Compiling C object libqemuutil.a.p/stubs_monitor-internal.c.o
+[484/1229] Compiling C object libqemuutil.a.p/stubs_qtest.c.o
+[485/1229] Compiling C object libqemuutil.a.p/stubs_vm-stop.c.o
+[486/1229] Compiling C object libqemuutil.a.p/stubs_vmstate.c.o
+[487/1229] Compiling C object libqemuutil.a.p/stubs_dump.c.o
+[488/1229] Compiling C object libqemuutil.a.p/crypto_aes.c.o
+[489/1229] Compiling C object libqemuutil.a.p/stubs_qmp-quit.c.o
+[490/1229] Compiling C object libqemuutil.a.p/stubs_target-get-monitor-def.c.o
+[491/1229] Compiling C object libqemuutil.a.p/stubs_target-monitor-defs.c.o
+[492/1229] Compiling C object libqemuutil.a.p/stubs_igvm.c.o
+[493/1229] Compiling C object libqemuutil.a.p/stubs_cmos.c.o
+[494/1229] Compiling C object libqemuutil.a.p/stubs_win32-kbd-hook.c.o
+[495/1229] Compiling C object libqemuutil.a.p/stubs_monitor-arm-gic.c.o
+[496/1229] Compiling C object libqemuutil.a.p/stubs_fw_cfg.c.o
+[497/1229] Compiling C object libqemuutil.a.p/stubs_monitor-i386-rtc.c.o
+[498/1229] Compiling C object libqemuutil.a.p/stubs_monitor-i386-sgx.c.o
+[499/1229] Compiling C object libqemuutil.a.p/stubs_monitor-i386-sev.c.o
+[500/1229] Compiling C object libqemuutil.a.p/stubs_monitor-i386-xen.c.o
+[501/1229] Compiling C object libqemuutil.a.p/stubs_monitor-cpu.c.o
+[502/1229] Compiling C object libqemuutil.a.p/stubs_monitor-cpu-s390x.c.o
+[503/1229] Compiling C object libqemuutil.a.p/stubs_xen-hw-stub.c.o
+[504/1229] Compiling C object libqemuutil.a.p/stubs_monitor-cpu-s390x-kvm.c.o
+[505/1229] Compiling C object libqemuutil.a.p/stubs_gdbstub.c.o
+[506/1229] Compiling C object libqemuutil.a.p/stubs_replay.c.o
+[507/1229] Compiling C object libqemuutil.a.p/stubs_hotplug-stubs.c.o
+[508/1229] Compiling C object ui/thirdparty/libfatx.a.p/fatx_fatx.c.o
+[509/1229] Compiling C object libqemuutil.a.p/stubs_sysbus.c.o
+[510/1229] Linking static target ui/thirdparty/libfatx.a
+[511/1229] Compiling C object hw/xbox/mcpx/apu/dsp/libdsp.a.p/dsp.c.o
+[512/1229] Compiling C object libqom.a.p/qom_container.c.o
+[513/1229] Compiling C object hw/xbox/mcpx/apu/dsp/libdsp.a.p/dsp_c.c.o
+[514/1229] Linking static target libqemuutil.a
+[515/1229] Compiling C object hw/xbox/mcpx/apu/dsp/libdsp.a.p/dsp_jit.c.o
+[516/1229] Compiling C object hw/xbox/mcpx/apu/dsp/libdsp.a.p/dsp_dma.c.o
+[517/1229] Compiling C object libqom.a.p/qom_qom-qobject.c.o
+[518/1229] Generating block.syms with a custom command (wrapped by meson to capture output)
+[519/1229] Generating qemu.syms with a custom command (wrapped by meson to capture output)
+[520/1229] Compiling C object libevent-loop-base.a.p/event-loop-base.c.o
+[521/1229] Compiling C object libauthz.a.p/authz_base.c.o
+[522/1229] Compiling C object libqom.a.p/qom_object_interfaces.c.o
+[523/1229] Compiling C object libauthz.a.p/authz_list.c.o
+[524/1229] Compiling C object libcrypto.a.p/crypto_akcipher.c.o
+[525/1229] Compiling C object libauthz.a.p/authz_simple.c.o
+[526/1229] Compiling C object libcrypto.a.p/crypto_afsplit.c.o
+[527/1229] Compiling C object libauthz.a.p/authz_listfile.c.o
+[528/1229] Compiling C object libcrypto.a.p/crypto_block-qcow.c.o
+[529/1229] Compiling C object libcrypto.a.p/crypto_cipher.c.o
+[530/1229] Compiling C object libcrypto.a.p/crypto_hash.c.o
+[531/1229] Compiling C object libcrypto.a.p/crypto_der.c.o
+[532/1229] Compiling C object libcrypto.a.p/crypto_block.c.o
+[533/1229] Compiling C object libcrypto.a.p/crypto_hmac.c.o
+[534/1229] Compiling C object libcrypto.a.p/crypto_ivgen-essiv.c.o
+[535/1229] Compiling C object libcrypto.a.p/crypto_ivgen-plain.c.o
+[536/1229] Compiling C object libcrypto.a.p/crypto_ivgen-plain64.c.o
+[537/1229] Compiling C object libcrypto.a.p/crypto_ivgen.c.o
+[538/1229] Compiling C object libcrypto.a.p/crypto_block-luks.c.o
+[539/1229] Compiling C object libcrypto.a.p/crypto_pbkdf.c.o
+[540/1229] Compiling C object libcrypto.a.p/crypto_tlscredsanon.c.o
+[541/1229] Compiling C object libcrypto.a.p/crypto_tlscreds.c.o
+[542/1229] Compiling C object libcrypto.a.p/crypto_secret.c.o
+[543/1229] Compiling C object libcrypto.a.p/crypto_secret_common.c.o
+[544/1229] Compiling C object libcrypto.a.p/crypto_tlscredspsk.c.o
+[545/1229] Compiling C object libcrypto.a.p/crypto_tlscredsx509.c.o
+[546/1229] Compiling C object libcrypto.a.p/crypto_tlssession.c.o
+[547/1229] Compiling C object libcrypto.a.p/crypto_hash-glib.c.o
+[548/1229] Compiling C object libcrypto.a.p/crypto_rsakey.c.o
+[549/1229] Compiling C object libcrypto.a.p/crypto_hmac-glib.c.o
+[550/1229] Compiling C object libqom.a.p/qom_object.c.o
+[551/1229] Compiling C object libcrypto.a.p/crypto_pbkdf-stub.c.o
+[552/1229] Compiling C object libio.a.p/io_channel-buffer.c.o
+[553/1229] Compiling C object libio.a.p/io_channel-util.c.o
+[554/1229] Compiling C object libio.a.p/io_channel-null.c.o
+[555/1229] Compiling C object libio.a.p/io_channel-command.c.o
+[556/1229] Compiling C object libio.a.p/io_channel-file.c.o
+[557/1229] Compiling C object libio.a.p/io_channel-watch.c.o
+[558/1229] Compiling C object libio.a.p/io_channel-tls.c.o
+[559/1229] Compiling C object libio.a.p/io_dns-resolver.c.o
+[560/1229] Compiling C object libio.a.p/io_channel-socket.c.o
+[561/1229] Compiling C object libio.a.p/io_task.c.o
+[562/1229] Compiling C object libmigration.a.p/migration_migration-stats.c.o
+[563/1229] Compiling C object libio.a.p/io_net-listener.c.o
+[564/1229] Compiling C object libio.a.p/io_channel.c.o
+[565/1229] Compiling C object libmigration.a.p/migration_page_cache.c.o
+[566/1229] Compiling C object libio.a.p/io_channel-websock.c.o
+[567/1229] Compiling C object libmigration.a.p/migration_yank_functions.c.o
+[568/1229] Compiling C object libmigration.a.p/migration_vmstate-types.c.o
+[569/1229] Compiling C object libmigration.a.p/migration_vmstate.c.o
+[570/1229] Compiling C object libmigration.a.p/migration_qemu-file.c.o
+[571/1229] Compiling C object libmigration.a.p/migration_xbzrle.c.o
+[572/1229] Compiling C object libblock.a.p/blockjob.c.o
+[573/1229] Compiling C object libblock.a.p/nbd_common.c.o
+[574/1229] Compiling C object libblock.a.p/nbd_client-connection.c.o
+[575/1229] Compiling C object libblock.a.p/job.c.o
+[576/1229] Compiling C object libblock.a.p/meson-generated_.._block_block-gen.c.o
+[577/1229] Compiling C object libblock.a.p/scsi_utils.c.o
+[578/1229] Compiling C object libblock.a.p/scsi_pr-manager.c.o
+[579/1229] Compiling C object libblock.a.p/block_aio_task.c.o
+[580/1229] Compiling C object libblock.a.p/nbd_client.c.o
+[581/1229] Compiling C object libblock.a.p/scsi_pr-manager-helper.c.o
+[582/1229] Compiling C object libblock.a.p/block_accounting.c.o
+[583/1229] Compiling C object libblock.a.p/block_amend.c.o
+[584/1229] Compiling C object libblock.a.p/qemu-io-cmds.c.o
+[585/1229] Compiling C object libblock.a.p/block_backup.c.o
+[586/1229] Compiling C object libblock.a.p/block_blkverify.c.o
+[587/1229] Compiling C object libblock.a.p/block_blklogwrites.c.o
+[588/1229] Compiling C object hw/xbox/mcpx/apu/dsp/interp/libdsp_cpu_interp.a.p/dsp_cpu.c.o
+[589/1229] Compiling C object libblock.a.p/block_blkdebug.c.o
+[590/1229] Compiling C object libblock.a.p/block_copy-on-read.c.o
+[591/1229] Compiling C object libblock.a.p/block_commit.c.o
+[592/1229] Compiling C object libblock.a.p/block_copy-before-write.c.o
+[593/1229] Compiling C object libblock.a.p/block_create.c.o
+[594/1229] Compiling C object libblock.a.p/block_block-copy.c.o
+[595/1229] Compiling C object libblock.a.p/block_filter-compress.c.o
+[596/1229] Compiling C object libblock.a.p/block_graph-lock.c.o
+[597/1229] Compiling C object libblock.a.p/block_crypto.c.o
+[598/1229] Compiling C object libblock.a.p/block_dirty-bitmap.c.o
+[599/1229] Compiling C object libblock.a.p/block_null.c.o
+[600/1229] Compiling C object libblock.a.p/block_block-backend.c.o
+[601/1229] Compiling C object libblock.a.p/block_progress_meter.c.o
+[602/1229] Compiling C object libblock.a.p/block_preallocate.c.o
+[603/1229] Compiling C object libblock.a.p/block.c.o
+[604/1229] Compiling C object libblock.a.p/block_mirror.c.o
+[605/1229] Compiling C object libblock.a.p/block_qcow2-cache.c.o
+[606/1229] Compiling C object libblock.a.p/block_qapi.c.o
+[607/1229] Compiling C object libblock.a.p/block_nbd.c.o
+[608/1229] Compiling C object libblock.a.p/block_qcow2-threads.c.o
+[609/1229] Compiling C object libblock.a.p/block_qcow2-bitmap.c.o
+[610/1229] Compiling C object libblock.a.p/block_reqlist.c.o
+[611/1229] Compiling C object libblock.a.p/block_io.c.o
+[612/1229] Compiling C object libblock.a.p/block_qcow2-snapshot.c.o
+[613/1229] Compiling C object libblock.a.p/block_quorum.c.o
+[614/1229] Compiling C object libblock.a.p/block_raw-format.c.o
+[615/1229] Compiling C object libblock.a.p/block_snapshot-access.c.o
+[616/1229] Compiling C object libblock.a.p/block_throttle.c.o
+[617/1229] Compiling C object libblock.a.p/block_write-threshold.c.o
+[618/1229] Compiling C object libblock.a.p/block_snapshot.c.o
+[619/1229] Compiling C object libblock.a.p/block_throttle-groups.c.o
+[620/1229] Compiling C object libblock.a.p/block_qcow2-cluster.c.o
+[621/1229] Compiling C object libblock.a.p/block_stream.c.o
+[622/1229] Compiling C object libblock.a.p/block_monitor_bitmap-qmp-cmds.c.o
+[623/1229] Compiling C object libblock.a.p/block_qcow2-refcount.c.o
+[624/1229] Compiling C object libblock.a.p/block_qcow2.c.o
+[625/1229] Compiling C object libblockdev.a.p/block_export_export.c.o
+[626/1229] Compiling C object libblock.a.p/block_curl.c.o
+[627/1229] Compiling C object libblock.a.p/block_nvme.c.o
+[628/1229] Compiling C object libblockdev.a.p/job-qmp.c.o
+[629/1229] Compiling C object libblockdev.a.p/blockdev-nbd.c.o
+[630/1229] Compiling C object libblockdev.a.p/iothread.c.o
+[631/1229] Compiling C object libblockdev.a.p/os-posix.c.o
+[632/1229] Compiling C object libblock.a.p/block_file-posix.c.o
+[633/1229] Compiling C object libqmp.a.p/qom_qom-qmp-cmds.c.o
+[634/1229] Compiling C object libqmp.a.p/monitor_qmp-cmds-control.c.o
+[635/1229] Compiling C object libqmp.a.p/monitor_qmp.c.o
+[636/1229] Compiling C object libchardev.a.p/chardev_char-file.c.o
+[637/1229] Compiling C object libchardev.a.p/chardev_char-io.c.o
+[638/1229] Compiling C object libchardev.a.p/chardev_char-fe.c.o
+[639/1229] Compiling C object libqmp.a.p/monitor_monitor.c.o
+[640/1229] Compiling C object libchardev.a.p/chardev_char-null.c.o
+[641/1229] Compiling C object libchardev.a.p/chardev_char-hub.c.o
+[642/1229] Compiling C object libchardev.a.p/chardev_char-pipe.c.o
+[643/1229] Compiling C object libchardev.a.p/chardev_char-mux.c.o
+[644/1229] Compiling C object libchardev.a.p/chardev_char-ringbuf.c.o
+[645/1229] Compiling C object libchardev.a.p/chardev_char-serial.c.o
+[646/1229] Compiling C object libblockdev.a.p/blockdev.c.o
+[647/1229] Compiling C object libchardev.a.p/chardev_char-stdio.c.o
+[648/1229] Compiling C object libchardev.a.p/chardev_char-udp.c.o
+[649/1229] Compiling C object libchardev.a.p/chardev_char-parallel.c.o
+[650/1229] Compiling C object libchardev.a.p/chardev_char-fd.c.o
+[651/1229] Compiling C object libblockdev.a.p/nbd_server.c.o
+[652/1229] Compiling C object libchardev.a.p/chardev_char-pty.c.o
+[653/1229] Compiling C object libhwcore.a.p/hw_core_bus.c.o
+[654/1229] Compiling C object libhwcore.a.p/hw_core_resetcontainer.c.o
+[655/1229] Compiling C object libhwcore.a.p/hw_core_vmstate-if.c.o
+[656/1229] Compiling C object libhwcore.a.p/hw_core_resettable.c.o
+[657/1229] Compiling C object libchardev.a.p/chardev_char-socket.c.o
+[658/1229] Compiling C object libhwcore.a.p/hw_core_irq.c.o
+[659/1229] Compiling C object libchardev.a.p/chardev_char.c.o
+[660/1229] Compiling C object libsystem.a.p/trace_control-target.c.o
+[661/1229] Compiling C object libhwcore.a.p/hw_core_qdev-clock.c.o
+[662/1229] Compiling C object libhwcore.a.p/hw_core_clock.c.o
+[663/1229] Compiling C object libhwcore.a.p/hw_core_qdev-properties.c.o
+[664/1229] Compiling C object libhwcore.a.p/hw_core_qdev.c.o
+[665/1229] Compiling C object libsystem.a.p/trace_trace-hmp-cmds.c.o
+[666/1229] Compiling C object libsystem.a.p/ui_clipboard.c.o
+[667/1229] Compiling C object libsystem.a.p/qom_qom-hmp-cmds.c.o
+[668/1229] Compiling C object libsystem.a.p/ui_dmabuf.c.o
+[669/1229] Compiling C object libsystem.a.p/ui_input-keymap.c.o
+[670/1229] Compiling C object libsystem.a.p/ui_cursor.c.o
+[671/1229] Compiling C object libsystem.a.p/ui_input-legacy.c.o
+[672/1229] Compiling C object libsystem.a.p/ui_keymaps.c.o
+[673/1229] Compiling C object libsystem.a.p/ui_kbd-state.c.o
+[674/1229] Compiling C object libsystem.a.p/ui_input-barrier.c.o
+[675/1229] Compiling C object libsystem.a.p/ui_qemu-pixman.c.o
+[676/1229] Compiling C object libsystem.a.p/ui_ui-qmp-cmds.c.o
+[677/1229] Compiling C object libsystem.a.p/ui_input.c.o
+[678/1229] Compiling C object libsystem.a.p/ui_ui-hmp-cmds.c.o
+[679/1229] Compiling C object libsystem.a.p/ui_xemu-input-topology.c.o
+[680/1229] Compiling C object libsystem.a.p/ui_util.c.o
+[681/1229] Compiling C object libsystem.a.p/ui_xemu-monitor.c.o
+[682/1229] Compiling C object libsystem.a.p/ui_xemu-net.c.o
+[683/1229] Compiling C object libsystem.a.p/ui_console.c.o
+[684/1229] Compiling C object libsystem.a.p/ui_xemu-gpu-launch.c.o
+[685/1229] Compiling C object libsystem.a.p/ui_xemu-tweaks.c.o
+[686/1229] Compiling C object libsystem.a.p/ui_xemu-gpu-info.c.o
+[687/1229] Compiling C object libsystem.a.p/ui_xemu-input.c.o
+[688/1229] Compiling C object libsystem.a.p/ui_xemu-snapshots.c.o
+[689/1229] Compiling C object libsystem.a.p/ui_xemu.c.o
+[690/1229] Compiling C++ object libsystem.a.p/ui_xemu-thumbnail.cc.o
+[691/1229] Compiling C++ object libsystem.a.p/ui_xui_animation.cc.o
+[692/1229] Compiling C++ object libsystem.a.p/ui_xemu-settings-migration.cc.o
+[693/1229] Compiling C++ object libsystem.a.p/ui_xui_font-manager.cc.o
+[694/1229] Compiling C++ object libsystem.a.p/ui_xui_compat.cc.o
+[695/1229] Compiling C++ object libsystem.a.p/ui_xui_actions.cc.o
+[696/1229] Compiling C++ object libsystem.a.p/ui_xui_debug.cc.o
+[697/1229] Compiling C++ object libsystem.a.p/ui_xui_gl-helpers.cc.o
+[698/1229] Compiling C++ object libsystem.a.p/ui_xui_input-manager.cc.o
+[699/1229] Compiling C++ object libsystem.a.p/ui_xui_menubar.cc.o
+[700/1229] Compiling C++ object libsystem.a.p/ui_xui_main.cc.o
+[701/1229] Compiling C++ object libsystem.a.p/ui_xui_monitor.cc.o
+[702/1229] Compiling C++ object libsystem.a.p/ui_xui_misc.cc.o
+[703/1229] Compiling C++ object libsystem.a.p/ui_xemu-settings.cc.o
+[704/1229] Compiling C++ object libsystem.a.p/ui_xui_notifications.cc.o
+[705/1229] Compiling C++ object libsystem.a.p/ui_xui_viewport-manager.cc.o
+[706/1229] Compiling C++ object libsystem.a.p/ui_xui_snapshot-manager.cc.o
+[707/1229] Compiling C object libsystem.a.p/ui_spice-module.c.o
+[708/1229] Compiling C object libsystem.a.p/ui_console-vc-stubs.c.o
+[709/1229] Compiling C++ object libsystem.a.p/ui_xui_scene-components.cc.o
+[710/1229] Compiling C object libsystem.a.p/ui_udmabuf.c.o
+[711/1229] Compiling C object libsystem.a.p/ui_input-linux.c.o
+[712/1229] Compiling C++ object libsystem.a.p/ui_xui_main-menu.cc.o
+[713/1229] Compiling C object libsystem.a.p/ui_vnc-stubs.c.o
+[714/1229] Compiling C object libsystem.a.p/gdbstub_syscalls.c.o
+[715/1229] Compiling C object libsystem.a.p/hw_acpi_ghes-stub.c.o
+[716/1229] Compiling C object libsystem.a.p/hw_acpi_acpi_interface.c.o
+[717/1229] Compiling C object libsystem.a.p/gdbstub_system.c.o
+[718/1229] Compiling C object libsystem.a.p/hw_acpi_bios-linker-loader.c.o
+[719/1229] Compiling C++ object libsystem.a.p/ui_xui_welcome.cc.o
+[720/1229] Compiling C++ object libsystem.a.p/ui_xui_popup-menu.cc.o
+[721/1229] Compiling C object libsystem.a.p/gdbstub_gdbstub.c.o
+[722/1229] Compiling C object libsystem.a.p/hw_acpi_utils.c.o
+[723/1229] Compiling C object libsystem.a.p/hw_acpi_core.c.o
+[724/1229] Compiling C object libsystem.a.p/hw_acpi_cpu_hotplug.c.o
+[725/1229] Compiling C++ object libsystem.a.p/ui_xui_widgets.cc.o
+[726/1229] Compiling C object libsystem.a.p/hw_acpi_cpu.c.o
+[727/1229] Compiling C object libsystem.a.p/hw_acpi_pci.c.o
+[728/1229] Compiling C object libsystem.a.p/hw_acpi_cxl-stub.c.o
+[729/1229] Compiling C object libsystem.a.p/hw_acpi_memory_hotplug.c.o
+[730/1229] Compiling C object libsystem.a.p/hw_acpi_vmgenid.c.o
+[731/1229] Compiling C object libsystem.a.p/hw_acpi_nvdimm.c.o
+[732/1229] Compiling C object libsystem.a.p/hw_acpi_vmclock.c.o
+[733/1229] Compiling C object libsystem.a.p/hw_acpi_hmat.c.o
+[734/1229] Compiling C object libsystem.a.p/hw_acpi_aml-build.c.o
+[735/1229] Compiling C object libsystem.a.p/hw_acpi_pci-bridge.c.o
+[736/1229] Compiling C object libsystem.a.p/hw_acpi_ipmi-stub.c.o
+[737/1229] Compiling C object libsystem.a.p/hw_acpi_viot.c.o
+[738/1229] Compiling C object libsystem.a.p/hw_acpi_ghes_cper_stub.c.o
+[739/1229] Compiling C object libsystem.a.p/hw_acpi_piix4.c.o
+[740/1229] Compiling C object libsystem.a.p/hw_acpi_acpi-qmp-cmds.c.o
+[741/1229] Compiling C object libsystem.a.p/hw_audio_model.c.o
+[742/1229] Compiling C object libsystem.a.p/hw_acpi_erst.c.o
+[743/1229] Compiling C object libsystem.a.p/hw_audio_pcspk.c.o
+[744/1229] Compiling C object libsystem.a.p/hw_acpi_pcihp.c.o
+[745/1229] Compiling C object libsystem.a.p/hw_block_cdrom.c.o
+[746/1229] Compiling C object libsystem.a.p/hw_block_block.c.o
+[747/1229] Compiling C object libsystem.a.p/hw_block_hd-geometry.c.o
+[748/1229] Compiling C object libsystem.a.p/hw_char_parallel-isa.c.o
+[749/1229] Compiling C object libsystem.a.p/hw_audio_ac97.c.o
+[750/1229] Compiling C object libsystem.a.p/hw_char_serial-isa.c.o
+[751/1229] Compiling C object libsystem.a.p/hw_core_fw-path-provider.c.o
+[752/1229] Compiling C object libsystem.a.p/hw_core_generic-loader.c.o
+[753/1229] Compiling C object libsystem.a.p/hw_core_cpu-system.c.o
+[754/1229] Compiling C object libsystem.a.p/hw_core_hotplug.c.o
+[755/1229] Compiling C object libsystem.a.p/hw_char_serial.c.o
+[756/1229] Compiling C object libsystem.a.p/hw_core_gpio.c.o
+[757/1229] Compiling C object libsystem.a.p/hw_block_pflash_cfi01.c.o
+[758/1229] Compiling C object libsystem.a.p/hw_core_machine-hmp-cmds.c.o
+[759/1229] Compiling C object libsystem.a.p/hw_core_nmi.c.o
+[760/1229] Compiling C object libsystem.a.p/hw_core_null-machine.c.o
+[761/1229] Compiling C object libsystem.a.p/hw_core_machine-qmp-cmds.c.o
+[762/1229] Compiling C object libsystem.a.p/hw_core_qdev-fw.c.o
+[763/1229] Compiling C object libsystem.a.p/hw_core_qdev-hotplug.c.o
+[764/1229] Compiling C object libsystem.a.p/hw_core_reset.c.o
+[765/1229] Compiling C object libsystem.a.p/hw_core_numa.c.o
+[766/1229] Compiling C object libsystem.a.p/hw_core_clock-vmstate.c.o
+[767/1229] Compiling C object libsystem.a.p/hw_core_vm-change-state-handler.c.o
+[768/1229] Compiling C object libsystem.a.p/hw_core_sysbus.c.o
+[769/1229] Compiling C++ object libsystem.a.p/ui_xui_reporting.cc.o
+[770/1229] Compiling C object libsystem.a.p/hw_core_machine.c.o
+[771/1229] Compiling C object libsystem.a.p/hw_core_qdev-properties-system.c.o
+[772/1229] Compiling C object libsystem.a.p/hw_cpu_core.c.o
+[773/1229] Compiling C object libsystem.a.p/hw_display_ramfb-stubs.c.o
+[774/1229] Compiling C object libsystem.a.p/hw_cxl_cxl-host-stubs.c.o
+[775/1229] Compiling C object libsystem.a.p/hw_display_edid-region.c.o
+[776/1229] Compiling C object libsystem.a.p/hw_display_edid-generate.c.o
+[777/1229] Compiling C object libsystem.a.p/hw_hyperv_hv-balloon-stub.c.o
+[778/1229] Compiling C object libsystem.a.p/hw_core_loader.c.o
+[779/1229] Compiling C object libsystem.a.p/hw_i2c_smbus_slave.c.o
+[780/1229] Compiling C object libsystem.a.p/hw_display_acpi-vga.c.o
+[781/1229] Compiling C object libsystem.a.p/hw_display_vga-pci.c.o
+[782/1229] Compiling C object libsystem.a.p/hw_i2c_smbus_master.c.o
+[783/1229] Compiling C object libsystem.a.p/hw_i2c_core.c.o
+[784/1229] Compiling C object libsystem.a.p/hw_dma_i8257.c.o
+[785/1229] Compiling C object libsystem.a.p/hw_ide_cf.c.o
+[786/1229] Compiling C object libsystem.a.p/hw_i2c_pm_smbus.c.o
+[787/1229] Compiling C object libsystem.a.p/hw_ide_ide-bus.c.o
+[788/1229] Compiling C object libsystem.a.p/hw_i2c_smbus_eeprom.c.o
+[789/1229] Compiling C object libsystem.a.p/hw_ide_ide-dev.c.o
+[790/1229] Compiling C object libsystem.a.p/hw_ide_ioport.c.o
+[791/1229] Compiling C object libsystem.a.p/hw_ide_piix.c.o
+[792/1229] Compiling C object libsystem.a.p/hw_ide_atapi.c.o
+[793/1229] Compiling C object libsystem.a.p/hw_ide_pci.c.o
+[794/1229] Compiling C object libsystem.a.p/hw_intc_intc.c.o
+[795/1229] Compiling C object libsystem.a.p/hw_input_hid.c.o
+[796/1229] Compiling C object libsystem.a.p/hw_input_pckbd.c.o
+[797/1229] Compiling C object libsystem.a.p/hw_intc_kvm_irqcount.c.o
+[798/1229] Compiling C object libsystem.a.p/hw_intc_i8259_common.c.o
+[799/1229] Compiling C object libsystem.a.p/hw_intc_ioapic_common.c.o
+[800/1229] Compiling C object libsystem.a.p/hw_display_vga.c.o
+[801/1229] Compiling C object libsystem.a.p/hw_intc_i8259.c.o
+[802/1229] Compiling C object libsystem.a.p/hw_isa_apm.c.o
+[803/1229] Compiling C object libsystem.a.p/hw_mem_cxl_type3_stubs.c.o
+[804/1229] Compiling C object libsystem.a.p/hw_input_ps2.c.o
+[805/1229] Compiling C object libsystem.a.p/hw_isa_isa-bus.c.o
+[806/1229] Compiling C object libsystem.a.p/hw_net_rocker_qmp-norocker.c.o
+[807/1229] Compiling C object libsystem.a.p/hw_isa_piix.c.o
+[808/1229] Compiling C object libsystem.a.p/hw_ide_core.c.o
+[809/1229] Compiling C object libsystem.a.p/hw_net_vhost_net-stub.c.o
+[810/1229] Compiling C object libsystem.a.p/hw_mem_pc-dimm.c.o
+[811/1229] Compiling C object libsystem.a.p/hw_misc_pci-testdev.c.o
+[812/1229] Compiling C object libsystem.a.p/hw_mem_memory-device.c.o
+[813/1229] Compiling C object libsystem.a.p/hw_misc_ivshmem-flat.c.o
+[814/1229] Compiling C object libsystem.a.p/hw_nvram_fw_cfg-interface.c.o
+[815/1229] Compiling C object libsystem.a.p/hw_net_rocker_rocker-hmp-cmds.c.o
+[816/1229] Compiling C object libsystem.a.p/hw_pci_msi.c.o
+[817/1229] Compiling C object libsystem.a.p/hw_pci_pci_host.c.o
+[818/1229] Compiling C object libsystem.a.p/hw_pci_pci-hmp-cmds.c.o
+[819/1229] Compiling C object libsystem.a.p/hw_pci_pci_bridge.c.o
+[820/1229] Compiling C object libsystem.a.p/hw_pci_msix.c.o
+[821/1229] Compiling C object libsystem.a.p/hw_pci_pci-qmp-cmds.c.o
+[822/1229] Compiling C object libsystem.a.p/hw_nvram_fw_cfg.c.o
+[823/1229] Compiling C object libsystem.a.p/hw_pci_slotid_cap.c.o
+[824/1229] Compiling C object libsystem.a.p/hw_pci_pcie_sriov.c.o
+[825/1229] Compiling C object libsystem.a.p/hw_pci_pcie_doe.c.o
+[826/1229] Compiling C object libsystem.a.p/hw_pci-host_pam.c.o
+[827/1229] Compiling C object libsystem.a.p/hw_pci-bridge_pci_expander_bridge_stubs.c.o
+[828/1229] Compiling C object libsystem.a.p/hw_pci_shpc.c.o
+[829/1229] Compiling C object libsystem.a.p/hw_scsi_emulation.c.o
+[830/1229] Compiling C object libsystem.a.p/hw_pci_pcie_aer.c.o
+[831/1229] Compiling C object libsystem.a.p/hw_smbios_smbios-stub.c.o
+[832/1229] Compiling C object libsystem.a.p/hw_pci-host_i440fx.c.o
+[833/1229] Compiling C object libsystem.a.p/hw_pci_pcie.c.o
+[834/1229] Compiling C object libsystem.a.p/hw_timer_i8254_common.c.o
+[835/1229] Compiling C object libsystem.a.p/hw_uefi_hardware-info.c.o
+[836/1229] Compiling C object libsystem.a.p/hw_rtc_mc146818rtc.c.o
+[837/1229] Compiling C object libsystem.a.p/hw_scsi_scsi-generic.c.o
+[838/1229] Compiling C object libsystem.a.p/hw_timer_i8254.c.o
+[839/1229] Compiling C object libsystem.a.p/hw_pci_pci.c.o
+[840/1229] Compiling C object libsystem.a.p/hw_usb_combined-packet.c.o
+[841/1229] Compiling C object libsystem.a.p/hw_uefi_ovmf-log.c.o
+[842/1229] Compiling C object libsystem.a.p/hw_usb_desc-msos.c.o
+[843/1229] Compiling C object libsystem.a.p/hw_scsi_scsi-bus.c.o
+[844/1229] Compiling C object libsystem.a.p/hw_usb_bus.c.o
+[845/1229] Compiling C object libsystem.a.p/hw_usb_libhw.c.o
+[846/1229] Compiling C object libsystem.a.p/hw_usb_pcap.c.o
+[847/1229] Compiling C object libsystem.a.p/hw_usb_core.c.o
+[848/1229] Compiling C object libsystem.a.p/hw_usb_desc.c.o
+[849/1229] Compiling C object libsystem.a.p/hw_scsi_scsi-disk.c.o
+[850/1229] Compiling C object libsystem.a.p/hw_usb_imx-usb-phy.c.o
+[851/1229] Compiling C object libsystem.a.p/hw_usb_hcd-ohci-pci.c.o
+[852/1229] Compiling C object libsystem.a.p/hw_usb_dev-hid.c.o
+[853/1229] Compiling C object libsystem.a.p/hw_usb_dev-wacom.c.o
+[854/1229] Compiling C object libsystem.a.p/hw_usb_dev-storage-bot.c.o
+[855/1229] Compiling C object libsystem.a.p/hw_usb_dev-hub.c.o
+[856/1229] Compiling C object libsystem.a.p/hw_usb_dev-storage-classic.c.o
+[857/1229] Compiling C object libsystem.a.p/hw_usb_dev-storage.c.o
+[858/1229] Compiling C object libsystem.a.p/hw_usb_hcd-uhci.c.o
+[859/1229] Compiling C object libsystem.a.p/hw_usb_dev-audio.c.o
+[860/1229] Compiling C object libsystem.a.p/hw_usb_u2f.c.o
+[861/1229] Compiling C object libsystem.a.p/hw_usb_dev-network.c.o
+[862/1229] Compiling C object libsystem.a.p/hw_usb_dev-serial.c.o
+[863/1229] Compiling C object libsystem.a.p/hw_usb_dev-uas.c.o
+[864/1229] Compiling C object libsystem.a.p/hw_usb_hcd-ohci.c.o
+[865/1229] Compiling C object libsystem.a.p/hw_vfio_iommufd-stubs.c.o
+[866/1229] Compiling C object libsystem.a.p/hw_virtio_virtio-stub.c.o
+[867/1229] Compiling C object libsystem.a.p/hw_usb_dev-smartcard-reader.c.o
+[868/1229] Compiling C object libsystem.a.p/hw_virtio_vhost-stub.c.o
+[869/1229] Compiling C object libsystem.a.p/hw_usb_u2f-passthru.c.o
+[870/1229] Compiling C object libsystem.a.p/hw_virtio_virtio-acpi.c.o
+[871/1229] Compiling C object libsystem.a.p/hw_virtio_virtio-md-stubs.c.o
+[872/1229] Compiling C object libsystem.a.p/hw_watchdog_watchdog.c.o
+[873/1229] Compiling C object libsystem.a.p/hw_xen_xen_stubs.c.o
+[874/1229] Compiling C object libsystem.a.p/hw_watchdog_wdt_ib700.c.o
+[875/1229] Compiling C object libsystem.a.p/hw_virtio_virtio-hmp-cmds.c.o
+[876/1229] Compiling C object libsystem.a.p/audio_noaudio.c.o
+[877/1229] Compiling C object libsystem.a.p/audio_wavaudio.c.o
+[878/1229] Compiling C object libsystem.a.p/audio_audio-hmp-cmds.c.o
+[879/1229] Compiling C object libsystem.a.p/audio_wavcapture.c.o
+[880/1229] Compiling C object libsystem.a.p/hw_usb_dev-mtp.c.o
+[881/1229] Compiling C object libsystem.a.p/chardev_char-hmp-cmds.c.o
+[882/1229] Compiling C object libsystem.a.p/fsdev_qemu-fsdev-opts.c.o
+[883/1229] Compiling C object libsystem.a.p/chardev_msmouse.c.o
+[884/1229] Compiling C object libsystem.a.p/chardev_testdev.c.o
+[885/1229] Compiling C object libsystem.a.p/fsdev_qemu-fsdev-dummy.c.o
+[886/1229] Compiling C object libsystem.a.p/chardev_wctablet.c.o
+[887/1229] Compiling C object libsystem.a.p/fsdev_qemu-fsdev-throttle.c.o
+[888/1229] Compiling C object libsystem.a.p/audio_mixeng.c.o
+[889/1229] Compiling C object libsystem.a.p/dump_dump-hmp-cmds.c.o
+[890/1229] Compiling C object libsystem.a.p/block_block-ram-registrar.c.o
+[891/1229] Compiling C object libsystem.a.p/block_blkreplay.c.o
+[892/1229] Compiling C object libsystem.a.p/cpu-target.c.o
+[893/1229] Compiling C object libsystem.a.p/block_qapi-system.c.o
+[894/1229] Compiling C object libsystem.a.p/system_balloon.c.o
+[895/1229] Compiling C object libsystem.a.p/system_datadir.c.o
+[896/1229] Compiling C object libsystem.a.p/block_monitor_block-hmp-cmds.c.o
+[897/1229] Compiling C object libsystem.a.p/system_bootdevice.c.o
+[898/1229] Compiling C object libsystem.a.p/audio_audio.c.o
+[899/1229] Compiling C object libsystem.a.p/system_cpu-timers.c.o
+[900/1229] Compiling C object libsystem.a.p/system_exit-with-parent.c.o
+[901/1229] Compiling C object libsystem.a.p/system_cpus.c.o
+[902/1229] Compiling C object libsystem.a.p/system_globals.c.o
+[903/1229] Compiling C object libsystem.a.p/dump_dump.c.o
+[904/1229] Compiling C object libsystem.a.p/system_dma-helpers.c.o
+[905/1229] Compiling C object libsystem.a.p/system_ioport.c.o
+[906/1229] Compiling C object libsystem.a.p/system_dirtylimit.c.o
+[907/1229] Compiling C object libsystem.a.p/system_memory_mapping.c.o
+[908/1229] Compiling C object libsystem.a.p/system_ram-block-attributes.c.o
+[909/1229] Compiling C object libsystem.a.p/system_runstate-action.c.o
+[910/1229] Compiling C object libsystem.a.p/system_rtc.c.o
+[911/1229] Compiling C object libsystem.a.p/system_runstate-hmp-cmds.c.o
+[912/1229] Compiling C object libsystem.a.p/system_tpm-hmp-cmds.c.o
+[913/1229] Compiling C object libsystem.a.p/system_watchpoint.c.o
+[914/1229] Compiling C object libsystem.a.p/system_qdev-monitor.c.o
+[915/1229] Compiling C object libsystem.a.p/system_device_tree-stub.c.o
+[916/1229] Compiling C object libsystem.a.p/system_qtest.c.o
+[917/1229] Compiling C object libsystem.a.p/system_runstate.c.o
+[918/1229] Compiling C object libsystem.a.p/system_async-teardown.c.o
+[919/1229] Compiling C object libsystem.a.p/target-info-qom.c.o
+[920/1229] Compiling C object libsystem.a.p/backends_cryptodev-hmp-cmds.c.o
+[921/1229] Compiling C object libsystem.a.p/system_vl.c.o
+[922/1229] Compiling C object libsystem.a.p/backends_cryptodev-builtin.c.o
+[923/1229] Compiling C object libsystem.a.p/backends_hostmem-ram.c.o
+[924/1229] Compiling C object libsystem.a.p/backends_rng-builtin.c.o
+[925/1229] Compiling C object libsystem.a.p/backends_confidential-guest-support.c.o
+[926/1229] Compiling C object libsystem.a.p/backends_rng-egd.c.o
+[927/1229] Compiling C object libsystem.a.p/backends_cryptodev.c.o
+[928/1229] Compiling C object libsystem.a.p/backends_rng.c.o
+[929/1229] Compiling C object libsystem.a.p/backends_hostmem.c.o
+[930/1229] Compiling C object libsystem.a.p/backends_rng-random.c.o
+[931/1229] Compiling C object libsystem.a.p/backends_host_iommu_device.c.o
+[932/1229] Compiling C object libsystem.a.p/backends_hostmem-shm.c.o
+[933/1229] Compiling C object libsystem.a.p/backends_spdm-socket.c.o
+[934/1229] Compiling C object libsystem.a.p/backends_hostmem-memfd.c.o
+[935/1229] Compiling C object libsystem.a.p/backends_hostmem-file.c.o
+[936/1229] Compiling C object libsystem.a.p/disas_disas-mon.c.o
+[937/1229] Compiling C object libsystem.a.p/migration_block-active.c.o
+[938/1229] Compiling C object libsystem.a.p/migration_channel.c.o
+[939/1229] Compiling C object libsystem.a.p/migration_channel-block.c.o
+[940/1229] Compiling C object libsystem.a.p/migration_cpr-transfer.c.o
+[941/1229] Compiling C object libsystem.a.p/system_memory.c.o
+[942/1229] Compiling C object libsystem.a.p/migration_cpr.c.o
+[943/1229] Compiling C object libsystem.a.p/migration_cpr-exec.c.o
+[944/1229] Compiling C object libsystem.a.p/migration_cpu-throttle.c.o
+[945/1229] Compiling C object libsystem.a.p/migration_block-dirty-bitmap.c.o
+[946/1229] Compiling C object libsystem.a.p/migration_exec.c.o
+[947/1229] Compiling C object libsystem.a.p/migration_fd.c.o
+[948/1229] Compiling C object libsystem.a.p/migration_global_state.c.o
+[949/1229] Compiling C object libsystem.a.p/migration_file.c.o
+[950/1229] Compiling C object libsystem.a.p/migration_dirtyrate.c.o
+[951/1229] Compiling C object libsystem.a.p/migration_multifd-device-state.c.o
+[952/1229] Compiling C object libsystem.a.p/migration_migration-hmp-cmds.c.o
+[953/1229] Compiling C object libsystem.a.p/migration_multifd-zlib.c.o
+[954/1229] Compiling C object libsystem.a.p/migration_multifd-nocomp.c.o
+[955/1229] Compiling C object libsystem.a.p/migration_multifd-zero-page.c.o
+[956/1229] Compiling C object libsystem.a.p/migration_multifd.c.o
+[957/1229] Compiling C object libsystem.a.p/migration_socket.c.o
+[958/1229] Compiling C object libsystem.a.p/migration_options.c.o
+[959/1229] Compiling C object libsystem.a.p/migration_tls.c.o
+[960/1229] Compiling C object libsystem.a.p/system_physmem.c.o
+[961/1229] Compiling C object libsystem.a.p/migration_colo-stubs.c.o
+[962/1229] Compiling C object libsystem.a.p/migration_threadinfo.c.o
+[963/1229] Compiling C object libsystem.a.p/migration_vfio-stub.c.o
+[964/1229] Compiling C object libsystem.a.p/migration_postcopy-ram.c.o
+[965/1229] Compiling C object libsystem.a.p/monitor_hmp-cmds.c.o
+[966/1229] Compiling C object libsystem.a.p/monitor_fds.c.o
+[967/1229] Compiling C object libsystem.a.p/migration_migration.c.o
+[968/1229] Compiling C object libsystem.a.p/monitor_qemu-config-qmp.c.o
+[969/1229] Compiling C object libsystem.a.p/monitor_qmp-cmds.c.o
+[970/1229] Compiling C object libsystem.a.p/net_checksum.c.o
+[971/1229] Compiling C object libsystem.a.p/net_announce.c.o
+[972/1229] Compiling C object libsystem.a.p/net_dump.c.o
+[973/1229] Compiling C object libsystem.a.p/net_dgram.c.o
+[974/1229] Compiling C object libsystem.a.p/net_filter-buffer.c.o
+[975/1229] Compiling C object libsystem.a.p/monitor_hmp.c.o
+[976/1229] Compiling C object libsystem.a.p/net_eth.c.o
+[977/1229] Compiling C object libsystem.a.p/net_filter-mirror.c.o
+[978/1229] Compiling C object libsystem.a.p/net_filter.c.o
+[979/1229] Compiling C object libsystem.a.p/net_hub.c.o
+[980/1229] Compiling C object libsystem.a.p/net_net-hmp-cmds.c.o
+[981/1229] Compiling C object libsystem.a.p/migration_savevm.c.o
+[982/1229] Compiling C object libsystem.a.p/net_queue.c.o
+[983/1229] Compiling C object libsystem.a.p/migration_ram.c.o
+[984/1229] Compiling C object libsystem.a.p/net_colo-stubs.c.o
+[985/1229] Compiling C object libsystem.a.p/net_util.c.o
+[986/1229] Compiling C object libsystem.a.p/net_stream.c.o
+[987/1229] Compiling C object libsystem.a.p/net_stream_data.c.o
+[988/1229] Compiling C object libsystem.a.p/net_filter-replay.c.o
+[989/1229] Compiling C object libsystem.a.p/net_socket.c.o
+[990/1229] Compiling C object libsystem.a.p/net_pcap.c.o
+[991/1229] Compiling C object libsystem.a.p/net_tap-linux.c.o
+[992/1229] Compiling C object libsystem.a.p/replay_replay.c.o
+[993/1229] Compiling C object libsystem.a.p/replay_replay-events.c.o
+[994/1229] Compiling C object libsystem.a.p/replay_replay-time.c.o
+[995/1229] Compiling C object libsystem.a.p/replay_replay-internal.c.o
+[996/1229] Compiling C object libsystem.a.p/replay_replay-input.c.o
+[997/1229] Compiling C object libsystem.a.p/net_slirp.c.o
+[998/1229] Compiling C object libsystem.a.p/net_tap.c.o
+[999/1229] Compiling C object libsystem.a.p/net_net.c.o
+[1000/1229] Compiling C object libsystem.a.p/replay_replay-char.c.o
+[1001/1229] Compiling C object libsystem.a.p/replay_replay-random.c.o
+[1002/1229] Compiling C object libsystem.a.p/replay_replay-net.c.o
+[1003/1229] Compiling C object libsystem.a.p/replay_replay-audio.c.o
+[1004/1229] Compiling C object libsystem.a.p/replay_replay-snapshot.c.o
+[1005/1229] Compiling C object libsystem.a.p/semihosting_stubs-system.c.o
+[1006/1229] Compiling C object libsystem.a.p/semihosting_arm-compat-semi-stub.c.o
+[1007/1229] Compiling C object libsystem.a.p/stats_stats-qmp-cmds.c.o
+[1008/1229] Compiling C object libsystem.a.p/replay_replay-debugging.c.o
+[1009/1229] Compiling C object libsystem.a.p/tcg_tcg-common.c.o
+[1010/1229] Compiling C object libsystem.a.p/stats_stats-hmp-cmds.c.o
+[1011/1229] Compiling C object libsystem.a.p/tcg_region.c.o
+[1012/1229] Compiling C object libsystem.a.p/tcg_perf.c.o
+[1013/1229] Compiling C object libsystem.a.p/accel_accel-system.c.o
+[1014/1229] Compiling C object libsystem.a.p/tcg_tcg-op-fp.c.o
+[1015/1229] Compiling C object libsystem.a.p/accel_accel-blocker.c.o
+[1016/1229] Compiling C object libsystem.a.p/accel_accel-qmp.c.o
+[1017/1229] Compiling C object libsystem.a.p/tcg_tcg-op-vec.c.o
+[1018/1229] Compiling C object libsystem.a.p/accel_accel-irq.c.o
+[1019/1229] Compiling C object libsystem.a.p/accel_tcg_cpu-exec-common.c.o
+[1020/1229] Compiling C object libsystem.a.p/tcg_tcg-op-ldst.c.o
+[1021/1229] Compiling C object libsystem.a.p/tcg_optimize.c.o
+[1022/1229] Compiling C object libsystem.a.p/accel_tcg_tcg-runtime.c.o
+[1023/1229] Compiling C object libsystem.a.p/accel_tcg_cpu-exec.c.o
+[1024/1229] Compiling C object libsystem.a.p/accel_tcg_tcg-stats.c.o
+[1025/1229] Compiling C object libsystem.a.p/accel_tcg_tcg-all.c.o
+[1026/1229] Compiling C object libsystem.a.p/accel_tcg_tb-maint.c.o
+[1027/1229] Compiling C object libsystem.a.p/tcg_tcg-op.c.o
+[1028/1229] Compiling C object libsystem.a.p/accel_tcg_translate-all.c.o
+[1029/1229] Compiling C object libsystem.a.p/accel_tcg_icount-common.c.o
+[1030/1229] Compiling C object libsystem.a.p/tcg_tcg-op-gvec.c.o
+[1031/1229] Compiling C object libsystem.a.p/accel_tcg_monitor.c.o
+[1032/1229] Compiling C object libsystem.a.p/accel_tcg_tcg-accel-ops-icount.c.o
+[1033/1229] Compiling C object libsystem.a.p/accel_tcg_tcg-accel-ops.c.o
+[1034/1229] Compiling C object libsystem.a.p/accel_tcg_tcg-accel-ops-mttcg.c.o
+[1035/1229] Compiling C object libsystem.a.p/accel_tcg_tcg-accel-ops-rr.c.o
+[1036/1229] Compiling C object libsystem.a.p/accel_dummy-cpus.c.o
+[1037/1229] Compiling C object libsystem.a.p/accel_tcg_watchpoint.c.o
+[1038/1229] Compiling C object libsystem.a.p/ebpf_ebpf_rss-stub.c.o
+[1039/1229] Compiling C object libsystem.a.p/accel_tcg_translator.c.o
+[1040/1229] Compiling C object libcommon.a.p/page-vary-common.c.o
+[1041/1229] Compiling C object libcommon.a.p/target-info.c.o
+[1042/1229] Compiling C object libcommon.a.p/hw_core_cpu-common.c.o
+[1043/1229] Compiling C object libcommon.a.p/hw_core_machine-smp.c.o
+[1044/1229] Compiling C object libcommon.a.p/cpu-common.c.o
+[1045/1229] Compiling C object libcommon.a.p/disas_objdump.c.o
+[1046/1229] Compiling C object libcommon.a.p/disas_disas-host.c.o
+[1047/1229] Compiling C object libcommon.a.p/disas_disas-target.c.o
+[1048/1229] Compiling C object libcommon.a.p/disas_disas-common.c.o
+[1049/1229] Compiling C object libcommon.a.p/semihosting_stubs-all.c.o
+[1050/1229] Compiling C object libqemu-i386-softmmu.a.p/meson-generated_.._i386-softmmu-gdbstub-xml.c.o
+[1051/1229] Compiling C object libcommon.a.p/accel_accel-common.c.o
+[1052/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_arch_dump.c.o
+[1053/1229] Compiling C object libsystem.a.p/hw_usb_host-libusb.c.o
+[1054/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_arch_memory_mapping.c.o
+[1055/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_machine.c.o
+[1056/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_cpu-apic.c.o
+[1057/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_cpu-system.c.o
+[1058/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_monitor.c.o
+[1059/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_sev-system-stub.c.o
+[1060/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_kvm_hyperv-stub.c.o
+[1061/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_tcg_system_tcg-cpu.c.o
+[1062/1229] Compiling C object libsystem.a.p/tcg_tcg.c.o
+[1063/1229] Compiling C object libsystem.a.p/accel_tcg_tcg-runtime-gvec.c.o
+[1064/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_tcg_system_fpu_helper.c.o
+[1065/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_tcg_system_excp_helper.c.o
+[1066/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_tcg_system_smm_helper.c.o
+[1067/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_i386_fw_cfg.c.o
+[1068/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_tcg_system_bpt_helper.c.o
+[1069/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_i386_e820_memory_layout.c.o
+[1070/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_tcg_system_misc_helper.c.o
+[1071/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_i386_monitor.c.o
+[1072/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_i386_x86-cpu.c.o
+[1073/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_tcg_system_seg_helper.c.o
+[1074/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_i386_multiboot.c.o
+[1075/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_i386_x86.c.o
+[1076/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_tcg_system_svm_helper.c.o
+[1077/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_i386_x86-iommu-stub.c.o
+[1078/1229] Compiling C object libsystem.a.p/accel_tcg_cputlb.c.o
+[1079/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_i386_amd_iommu-stub.c.o
+[1080/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_i386_vapic.c.o
+[1081/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_i386_sgx-stub.c.o
+[1082/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_i386_acpi-common.c.o
+[1083/1229] Compiling C object libqemu-i386-softmmu.a.p/target-info-stub.c.o
+[1084/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_i386_pc_sysfw_ovmf-stubs.c.o
+[1085/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_i386_port92.c.o
+[1086/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_i386_pc_sysfw.c.o
+[1087/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_i386_x86-common.c.o
+[1088/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_xsave_helper.c.o
+[1089/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_gdbstub.c.o
+[1090/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_helper.c.o
+[1091/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_cpu-dump.c.o
+[1092/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_i386_pc.c.o
+[1093/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_tcg_access.c.o
+[1094/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_tcg_bpt_helper.c.o
+[1095/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_cpu.c.o
+[1096/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_tcg_cc_helper.c.o
+[1097/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_tcg_excp_helper.c.o
+[1098/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_tcg_int_helper.c.o
+[1099/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_tcg_tcg-cpu.c.o
+[1100/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_tcg_mem_helper.c.o
+[1101/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_tcg_misc_helper.c.o
+[1102/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_i386_kvm_xen-stubs.c.o
+[1103/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_tcg_mpx_helper.c.o
+[1104/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_intc_apic_common.c.o
+[1105/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_intc_ioapic.c.o
+[1106/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_nvram_fw_cfg-acpi.c.o
+[1107/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_intc_apic.c.o
+[1108/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_eeprom_generation.c.o
+[1109/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_tcg_fpu_helper_hard.c.o
+[1110/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_acpi_xbox.c.o
+[1111/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_amd_smbus.c.o
+[1112/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_smbus_adm1032.c.o
+[1113/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_smbus_cx25871.c.o
+[1114/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_lpc47m157.c.o
+[1115/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_smbus_fs454.c.o
+[1116/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_smbus_xcalibur.c.o
+[1117/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_smbus_storage.c.o
+[1118/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_tcg_seg_helper.c.o
+[1119/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_smbus_xbox_smc.c.o
+[1120/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_xbox.c.o
+[1121/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_xbox_pci.c.o
+[1122/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_xblc.c.o
+[1123/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_xid.c.o
+[1124/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_xid-gamepad.c.o
+[1125/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pbus.c.o
+[1126/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_nv2a.c.o
+[1127/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pfb.c.o
+[1128/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pcrtc.c.o
+[1129/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pfifo.c.o
+[1130/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pmc.c.o
+[1131/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_prmcio.c.o
+[1132/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pramdac.c.o
+[1133/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_prmdio.c.o
+[1134/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_ptimer_core.c.o
+[1135/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_prmvio.c.o
+[1136/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pvideo.c.o
+[1137/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_stubs.c.o
+[1138/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_user.c.o
+[1139/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_ptimer.c.o
+[1140/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_renderer-switch.c.o
+[1141/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_profile.c.o
+[1142/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_rdi.c.o
+[1143/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_reports.c.o
+[1144/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_s3tc.c.o
+[1145/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vertex.c.o
+[1146/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_null_renderer.c.o
+[1147/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_texture.c.o
+[1148/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_gl_blit.c.o
+../hw/xbox/nv2a/pgraph/gl/blit.c: In function ‘pgraph_gl_image_blit’:
+../hw/xbox/nv2a/pgraph/gl/blit.c:180:18: warning: declaration of ‘dest’ shadows a previous local [-Wshadow=compatible-local]
+  180 |         uint8_t *dest =
+      |                  ^~~~
+../hw/xbox/nv2a/pgraph/gl/blit.c:112:14: note: shadowed declaration is here
+  112 |     uint8_t *dest = (uint8_t *)nv_dma_map(d, context_surfaces->dma_image_dest,
+      |              ^~~~
+../hw/xbox/nv2a/pgraph/gl/blit.c:212:22: warning: declaration of ‘dest’ shadows a previous local [-Wshadow=compatible-local]
+  212 |             uint8_t *dest =
+      |                      ^~~~
+../hw/xbox/nv2a/pgraph/gl/blit.c:112:14: note: shadowed declaration is here
+  112 |     uint8_t *dest = (uint8_t *)nv_dma_map(d, context_surfaces->dma_image_dest,
+      |              ^~~~
+[1149/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_gl_debug.c.o
+[1150/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_gl_draw-lifecycle.c.o
+[1151/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_gl_display.c.o
+[1152/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_gl_draw.c.o
+[1153/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_gl_gpuprops.c.o
+[1154/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_gl_renderer.c.o
+[1155/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_gl_reports.c.o
+[1156/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_gl_texture-stage.c.o
+[1157/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_tcg_fpu_helper.c.o
+[1158/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_gl_shaders.c.o
+[1159/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_pgraph.c.o
+[1160/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_glsl_common.c.o
+[1161/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_gl_texture.c.o
+[1162/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_glsl_psh-uber.c.o
+[1163/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_gl_vertex.c.o
+[1164/1229] Compiling C object libcommon.a.p/fpu_softfloat.c.o
+[1165/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_glsl_geom.c.o
+[1166/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_gl_surface.c.o
+[1167/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_glsl_shaders.c.o
+[1168/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_device-selection.c.o
+[1169/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_glsl_vsh.c.o
+[1170/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_glsl_vsh-prog.c.o
+[1171/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_glsl_vsh-ff.c.o
+[1172/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_device-inventory.c.o
+[1173/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_blit.c.o
+../hw/xbox/nv2a/pgraph/vk/blit.c: In function ‘pgraph_vk_image_blit’:
+../hw/xbox/nv2a/pgraph/vk/blit.c:191:18: warning: declaration of ‘dest’ shadows a previous local [-Wshadow=compatible-local]
+  191 |         uint8_t *dest =
+      |                  ^~~~
+../hw/xbox/nv2a/pgraph/vk/blit.c:117:14: note: shadowed declaration is here
+  117 |     uint8_t *dest = (uint8_t *)nv_dma_map(d, context_surfaces->dma_image_dest,
+      |              ^~~~
+../hw/xbox/nv2a/pgraph/vk/blit.c:223:22: warning: declaration of ‘dest’ shadows a previous local [-Wshadow=compatible-local]
+  223 |             uint8_t *dest =
+      |                      ^~~~
+../hw/xbox/nv2a/pgraph/vk/blit.c:117:14: note: shadowed declaration is here
+  117 |     uint8_t *dest = (uint8_t *)nv_dma_map(d, context_surfaces->dma_image_dest,
+      |              ^~~~
+[1174/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_buffer.c.o
+[1175/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_glsl_psh.c.o
+[1176/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_command.c.o
+[1177/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_failpoint.c.o
+[1178/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_debug.c.o
+[1179/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_hybrid-compiler.c.o
+[1180/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_gpuprops.c.o
+[1181/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_display.c.o
+[1182/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_glsl.c.o
+[1183/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_hybrid-prewarm.c.o
+[1184/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_hybrid-pipeline-builder.c.o
+[1185/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_hybrid-trace.c.o
+[1186/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_hybrid-family.c.o
+[1187/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_hybrid-family-codec.c.o
+[1188/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_hybrid-prewarm-runtime.c.o
+[1189/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_hybrid-wake.c.o
+[1190/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_image.c.o
+[1191/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_perf.c.o
+[1192/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_instance.c.o
+[1193/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_renderer.c.o
+[1194/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_reports.c.o
+[1195/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_draw.c.o
+[1196/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_mcpx_aci.c.o
+[1197/1229] Compiling C object libqemu-i386-softmmu.a.p/target_i386_tcg_translate.c.o
+[1198/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_surface-compute.c.o
+[1199/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_mcpx_apu_debug.c.o
+[1200/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_vertex.c.o
+[1201/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_mcpx_apu_monitor.c.o
+[1202/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_mcpx_apu_apu.c.o
+[1203/1229] Compiling C object libqemu-i386-softmmu.a.p/dump_win_dump.c.o
+[1204/1229] Compiling C object libqemu-i386-softmmu.a.p/xemu-version.c.o
+[1205/1229] Compiling C object libqemu-i386-softmmu.a.p/xemu-xbe.c.o
+[1206/1229] Compiling C object libqemu-i386-softmmu.a.p/system_arch_init.c.o
+[1207/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_mcpx_apu_dsp_gp_ep.c.o
+[1208/1229] Compiling C object libqemu-i386-softmmu.a.p/system_globals-target.c.o
+[1209/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_texture.c.o
+[1210/1229] Compiling C object libqemu-i386-softmmu.a.p/page-vary-target.c.o
+[1211/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_surface.c.o
+[1212/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_nv2a_pgraph_vk_shaders.c.o
+[1213/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_mcpx_nvnet_nvnet.c.o
+[1214/1229] Compiling C object libqemu-i386-softmmu.a.p/accel_stubs_xen-stub.c.o
+[1215/1229] Compiling C object libqemu-i386-softmmu.a.p/accel_accel-target.c.o
+[1216/1229] Compiling C object libqemu-i386-softmmu.a.p/accel_stubs_hvf-stub.c.o
+[1217/1229] Compiling C object libqemu-i386-softmmu.a.p/accel_stubs_nvmm-stub.c.o
+[1218/1229] Compiling C object libqemu-i386-softmmu.a.p/accel_stubs_kvm-stub.c.o
+[1219/1229] Compiling C object libqemu-i386-softmmu.a.p/monitor_hmp-target.c.o
+[1220/1229] Compiling C object libqemu-i386-softmmu.a.p/accel_stubs_whpx-stub.c.o
+[1221/1229] Compiling C object libqemu-i386-softmmu.a.p/accel_qtest_qtest.c.o
+[1222/1229] Compiling C object libqemu-i386-softmmu.a.p/monitor_hmp-cmds-target.c.o
+[1223/1229] Compiling C object tests/unit/test-xbox-mcpx-apu-voice-write-trace.p/test-xbox-mcpx-apu-voice-write-trace.c.o
+[1224/1229] Compiling C object libqemu-i386-softmmu.a.p/accel_stubs_mshv-stub.c.o
+[1225/1229] Compiling C object tests/unit/test-xbox-mcpx-apu-voice-write-trace.p/acaab0cb1beb2df5fef48c41d799d6ffdb63a1e3_xbox_mcpx_apu_vp_voice-write-trace.c.o
+[1226/1229] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_mcpx_apu_vp_vp.c.o
+[1227/1229] Linking target tests/unit/test-xbox-mcpx-apu-voice-write-trace
+[1228/1229] Linking target qemu-system-i386

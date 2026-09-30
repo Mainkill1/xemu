@@ -1,0 +1,13 @@
+TAP version 14
+# random seed: R02Scd28bd3140b958b396db1fc59bc3988d
+1..4
+# Start of xbox tests
+# Start of apu tests
+# Start of voice-write tests
+ok 1 /xbox/apu/voice-write/counts
+ok 2 /xbox/apu/voice-write/sampling
+ok 3 /xbox/apu/voice-write/concurrent
+ok 4 /xbox/apu/voice-write/disabled-and-range
+# End of voice-write tests
+# End of apu tests
+# End of xbox tests

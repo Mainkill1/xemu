@@ -1,0 +1,11 @@
+{
+  "codeCommit": "abd598cf596aff497d3b962bb309221f2d3092cc",
+  "buildOption": false,
+  "configUndefined": true,
+  "symbolPresence": {
+    "mcpx_apu_voice_write_trace": false,
+    "voice_write_phase": false,
+    "mcpx_apu_voice_write_exit": false
+  },
+  "binarySha256": "200df166422a75fbddf8c0638e475b1c412655e239e6312e8fa70ad45a7585b0"
+}

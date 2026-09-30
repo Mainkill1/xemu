@@ -1,0 +1,362 @@
+{
+  "runId": "20260930-103141398-f0af4140332c485a85ee5f7414ea6977",
+  "job": "research247-diag-abd598cf-d3-t001",
+  "jobPackage": "agent-research247-diag-abd598cf-d3-t001",
+  "attempt": 1,
+  "status": "plan_failed",
+  "detail": "System.IO.InvalidDataException: Unknown Xbox button \u0027Right\u0027.\n   at XemuTestRunner.Control.XemuControlManager.PressButtonAsync(String button, Nullable\u00601 holdMs, CancellationToken cancellationToken, Boolean record, String sessionId) in /_/src/XemuTestRunner/Control/XemuControlManager.cs:line 318\n   at XemuTestRunner.Control.XemuControlManager.ExecutePlanAsync(IReadOnlyList\u00601 plan, CancellationToken cancellationToken, Func\u00603 diagnosticRunner, Action\u00601 segmentStart, Action\u00601 segmentEnd, Func\u00605 artifactWaiter) in /_/src/XemuTestRunner/Control/XemuControlManager.cs:line 531\n   at XemuTestRunner.Control.XemuControlManager.ExecutePlanAsync(IReadOnlyList\u00601 plan, CancellationToken cancellationToken, Func\u00603 diagnosticRunner, Action\u00601 segmentStart, Action\u00601 segmentEnd, Func\u00605 artifactWaiter) in /_/src/XemuTestRunner/Control/XemuControlManager.cs:line 634\n   at XemuTestRunner.Runtime.RunnerEngine.ExecuteJobAsync(String package, Task serverTask, MetricCollector telemetry, CancellationToken ct) in /_/src/XemuTestRunner/Runtime/RunnerEngine.cs:line 838 plan: Unknown Xbox button \u0027Right\u0027.",
+  "startedUtc": "2026-09-30T10:31:41.3988552+00:00",
+  "endedUtc": "2026-09-30T10:32:48.781678+00:00",
+  "durationMs": 67382.8229,
+  "processId": 9038,
+  "exitCode": 137,
+  "crash": {
+    "RunId": "20260930-103141398-f0af4140332c485a85ee5f7414ea6977",
+    "ExecutableSha256": "0f00290ec9b03d53b2f7237d884cb1a320c4fd850e76b5eea1250d34c59a155f",
+    "Platform": "linux",
+    "ProcessId": 9038,
+    "ExitCode": 137,
+    "RunnerTerminated": true,
+    "Crashed": false,
+    "Source": "runner",
+    "Code": null,
+    "Capture": "partial",
+    "Dump": "unavailable",
+    "Analysis": "unavailable",
+    "TopFrames": [],
+    "Issues": [
+      "linux_core_metadata_unavailable:captured"
+    ]
+  },
+  "diagnosticBundle": "diagnostic-bundle.json",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu",
+  "executableSha256": "0f00290ec9b03d53b2f7237d884cb1a320c4fd850e76b5eea1250d34c59a155f",
+  "arguments": [
+    "-qmp",
+    "tcp:127.0.0.1:38375,server=on,wait=off"
+  ],
+  "watchdog": null,
+  "failureCaptureError": null,
+  "automaticDiagnostic": null,
+  "automaticDiagnosticError": null,
+  "diagnostics": [],
+  "operatorActivity": {
+    "Intervened": false,
+    "ManualInputs": 0,
+    "Pauses": 0,
+    "Screenshots": 0,
+    "PreviewCaptures": 0,
+    "BulkTransfers": 0,
+    "Diagnostics": 0,
+    "HostStateChanges": 0
+  },
+  "workload": {
+    "Correctness": "failed",
+    "Evidence": "incomplete",
+    "Checks": [
+      {
+        "Name": "analysis:monitor",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "monitor: Selected segment has insufficient CPU/duty samples."
+      },
+      {
+        "Name": "analysis:flips",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "analysis:frames",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "recording-start-visible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Required artifact is missing: /home/deck/xemu-research/workspace/Results/20260930-103141398-f0af4140332c485a85ee5f7414ea6977/screenshots/recording-start.png"
+      },
+      {
+        "Name": "recording-end-visible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Required artifact is missing: /home/deck/xemu-research/workspace/Results/20260930-103141398-f0af4140332c485a85ee5f7414ea6977/screenshots/recording-end.png"
+      },
+      {
+        "Name": "guest-progress",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:guest-frames.log satisfied the declared requirement."
+      },
+      {
+        "Name": "measurement-segments",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "Artifact has 0 bytes; expected at least 20."
+      },
+      {
+        "Name": "voice-write-shutdown-summary",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "Artifact has 0 bytes; expected at least 250."
+      },
+      {
+        "Name": "minimum_metric_samples",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "Required \u003E= 160; actual 113."
+      },
+      {
+        "Name": "plan_completion",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "The declared plan did not complete."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": false,
+        "Category": "state",
+        "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+      }
+    ],
+    "Measurements": [
+      {
+        "Name": "guest/cadence_fps",
+        "Value": 39.32726330699138,
+        "Unit": "fps",
+        "Direction": "higher",
+        "Source": "result:performance.json#guest/cadence_fps"
+      },
+      {
+        "Name": "guest/flip_frames",
+        "Value": 1112,
+        "Unit": "frames",
+        "Direction": "neutral",
+        "Source": "result:performance.json#guest/flip_frames"
+      },
+      {
+        "Name": "guest/flip_elapsed_s",
+        "Value": 28.27555,
+        "Unit": "s",
+        "Direction": "neutral",
+        "Source": "result:performance.json#guest/flip_elapsed_s"
+      },
+      {
+        "Name": "guest/interval_mean_ms",
+        "Value": 23.86855313092977,
+        "Unit": "ms",
+        "Direction": "lower",
+        "Source": "result:performance.json#guest/interval_mean_ms"
+      },
+      {
+        "Name": "guest/interval_p50_ms",
+        "Value": 16.685,
+        "Unit": "ms",
+        "Direction": "lower",
+        "Source": "result:performance.json#guest/interval_p50_ms"
+      },
+      {
+        "Name": "guest/interval_p95_ms",
+        "Value": 44.78245,
+        "Unit": "ms",
+        "Direction": "lower",
+        "Source": "result:performance.json#guest/interval_p95_ms"
+      },
+      {
+        "Name": "guest/interval_p99_ms",
+        "Value": 59.80935000000005,
+        "Unit": "ms",
+        "Direction": "lower",
+        "Source": "result:performance.json#guest/interval_p99_ms"
+      },
+      {
+        "Name": "guest/interval_samples",
+        "Value": 1054,
+        "Unit": "samples",
+        "Direction": "neutral",
+        "Source": "result:performance.json#guest/interval_samples"
+      }
+    ]
+  },
+  "assessment": {
+    "Execution": "failed",
+    "Correctness": "failed",
+    "Evidence": "incomplete",
+    "Comparison": "ineligible",
+    "ComparisonReasons": [
+      "Execution outcome is Failed.",
+      "Correctness outcome is Failed; a passing correctness contract is required.",
+      "Evidence outcome is Incomplete; complete evidence is required.",
+      "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+    ],
+    "Checks": [
+      {
+        "Name": "analysis:monitor",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "monitor: Selected segment has insufficient CPU/duty samples."
+      },
+      {
+        "Name": "analysis:flips",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "analysis:frames",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "recording-start-visible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Required artifact is missing: /home/deck/xemu-research/workspace/Results/20260930-103141398-f0af4140332c485a85ee5f7414ea6977/screenshots/recording-start.png"
+      },
+      {
+        "Name": "recording-end-visible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Required artifact is missing: /home/deck/xemu-research/workspace/Results/20260930-103141398-f0af4140332c485a85ee5f7414ea6977/screenshots/recording-end.png"
+      },
+      {
+        "Name": "guest-progress",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:guest-frames.log satisfied the declared requirement."
+      },
+      {
+        "Name": "measurement-segments",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "Artifact has 0 bytes; expected at least 20."
+      },
+      {
+        "Name": "voice-write-shutdown-summary",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "Artifact has 0 bytes; expected at least 250."
+      },
+      {
+        "Name": "minimum_metric_samples",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "Required \u003E= 160; actual 113."
+      },
+      {
+        "Name": "plan_completion",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "The declared plan did not complete."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": false,
+        "Category": "state",
+        "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+      }
+    ],
+    "IsExecutionSuccess": false,
+    "IsCorrectnessSuccess": false
+  },
+  "correctnessStatus": "failed",
+  "evidenceStatus": "incomplete",
+  "comparisonStatus": "ineligible",
+  "experiment": {
+    "Id": "research247-deck-pgr2-attribution-v1",
+    "Variant": "diagnostic",
+    "Reference": null,
+    "VariedFactors": [
+      "voice-write-counters"
+    ],
+    "ControlledFactors": [],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  },
+  "inputManifest": "input-manifest.json",
+  "controllerInput": null,
+  "runtimeDirectory": "/home/deck/xemu-research/workspace/Runtime/20260930-103141398-f0af4140332c485a85ee5f7414ea6977",
+  "hostInventory": "host-inventory.json",
+  "workstationStart": {
+    "Supported": false,
+    "Platform": "linux",
+    "SessionLocked": null,
+    "InputDesktop": null,
+    "DisplayState": "unknown",
+    "PowerState": "unknown",
+    "PowerSource": "unknown",
+    "BatteryPercent": null,
+    "BatterySaver": null,
+    "UserIdleSeconds": null,
+    "TimestampUtc": "2026-09-30T09:45:54.5010094+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": null,
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "workstation monitoring is currently implemented for Windows only",
+    "EventSequence": 1,
+    "RenderingRisk": false
+  },
+  "workstationEnd": {
+    "Supported": false,
+    "Platform": "linux",
+    "SessionLocked": null,
+    "InputDesktop": null,
+    "DisplayState": "unknown",
+    "PowerState": "unknown",
+    "PowerSource": "unknown",
+    "BatteryPercent": null,
+    "BatterySaver": null,
+    "UserIdleSeconds": null,
+    "TimestampUtc": "2026-09-30T09:45:54.5010094+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": null,
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "workstation monitoring is currently implemented for Windows only",
+    "EventSequence": 1,
+    "RenderingRisk": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B6089e8b841bce379015500853c0455551d7fd2cf",
+    "machine": "steamdeck",
+    "os": "SteamOS",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 8,
+    "dotnet": "10.0.12"
+  },
+  "monitoring": {
+    "intervalMs": 500,
+    "samples": 113,
+    "overruns": 0,
+    "droppedWriteSamples": 0,
+    "averageCollectorDutyPercent": 0.3474637168141593,
+    "maxCollectorDutyPercent": 1.56194,
+    "maxCollectorDurationMs": 7.8097,
+    "gpuProviders": [
+      "Linux DRM sysfs"
+    ]
+  }
+}

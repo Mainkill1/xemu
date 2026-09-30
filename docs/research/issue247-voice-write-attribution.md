@@ -77,3 +77,7 @@ was opened or copied. Agent: Codex (GPT-6).
 [Retained report, original logs and checksums](https://github.com/Mainkill1/xemu-perf-tests/blob/0b73f81e99a7d1b85d9ae3e1a51b2dc72876f1fc/docs/evidence/research247-20260930/REPORT.md)
 contains 12 runner attempts, the Windows ON/OFF/OFF/ON observer check, Deck
 scene admission, failed attempts and exact executable identities.
+
+## Measured results
+
+See the [named runs, baseline/candidate table and complete evidence](../evidence/research247-20260930/REPORT.md). No production speedup has been demonstrated; the draft only measures existing stores.

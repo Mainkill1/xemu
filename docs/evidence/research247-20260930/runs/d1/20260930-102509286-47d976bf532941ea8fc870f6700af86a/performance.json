@@ -1,0 +1,24 @@
+{
+  "SchemaVersion": 1,
+  "ProfileSha256": "8b1ec7442c67958ab9b1d87348a16165eb3da287383f4beacf146bc739bf89f0",
+  "Profile": {
+    "Segment": "stationary-start",
+    "MetricsPath": "metrics.csv",
+    "GuestFlipsPath": "guest-flips.log",
+    "GuestFramesPath": "guest-frames.log",
+    "FlipTailSamples": 5,
+    "FrameTailSeconds": 25,
+    "MinimumCpuSamples": 55,
+    "MinimumFrameSamples": 160
+  },
+  "Monitoring": null,
+  "Flips": null,
+  "Frames": null,
+  "Sources": [],
+  "Errors": [
+    "monitor: Analysis source is missing: metrics.csv",
+    "flips: Analysis source is missing: guest-flips.log",
+    "frames: Analysis source is missing: guest-frames.log"
+  ],
+  "Complete": false
+}

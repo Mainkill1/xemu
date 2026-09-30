@@ -1,0 +1,14 @@
+ninja: Entering directory `build-diag'
+[1/16] Generating xemu-version-macro.h with a custom command (wrapped by meson to capture output)
+[2/16] Generating qemu-version.h with a custom command (wrapped by meson to capture output)
+[3/13] Compiling C object libqemu-i386-softmmu.a.p/xemu-version.c.o
+[4/13] Compiling C object tests/unit/test-xbox-mcpx-apu-voice-write-trace.p/acaab0cb1beb2df5fef48c41d799d6ffdb63a1e3_xbox_mcpx_apu_vp_voice-write-trace.c.o
+[5/13] Compiling C object tests/unit/test-xbox-mcpx-apu-voice-write-trace.p/test-xbox-mcpx-apu-voice-write-trace.c.o
+[6/13] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_mcpx_apu_vp_voice-write-trace.c.o
+[7/13] Linking target tests/unit/test-xbox-mcpx-apu-voice-write-trace
+[8/13] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_mcpx_apu_monitor.c.o
+[9/13] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_mcpx_apu_debug.c.o
+[10/13] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_mcpx_apu_apu.c.o
+[11/13] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_mcpx_apu_dsp_gp_ep.c.o
+[12/13] Compiling C object libqemu-i386-softmmu.a.p/hw_xbox_mcpx_apu_vp_vp.c.o
+[13/13] Linking target qemu-system-i386

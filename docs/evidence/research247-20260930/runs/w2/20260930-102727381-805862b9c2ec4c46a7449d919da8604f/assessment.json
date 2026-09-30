@@ -1,0 +1,71 @@
+{
+  "Execution": "completed",
+  "Correctness": "passed",
+  "Evidence": "complete",
+  "Comparison": "eligible",
+  "ComparisonReasons": [],
+  "Checks": [
+    {
+      "Name": "analysis:monitor",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+    },
+    {
+      "Name": "analysis:flips",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+    },
+    {
+      "Name": "analysis:frames",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+    },
+    {
+      "Name": "recording-start-visible",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "result:screenshots/recording-start.png satisfied the declared requirement."
+    },
+    {
+      "Name": "recording-end-visible",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "result:screenshots/recording-end.png satisfied the declared requirement."
+    },
+    {
+      "Name": "guest-progress",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "result:guest-frames.log satisfied the declared requirement."
+    },
+    {
+      "Name": "measurement-segments",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "result:segments.jsonl satisfied the declared requirement."
+    },
+    {
+      "Name": "voice-write-shutdown-summary",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "result:voice-writes.csv satisfied the declared requirement."
+    },
+    {
+      "Name": "minimum_metric_samples",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Required \u003E= 160; actual 166."
+    },
+    {
+      "Name": "plan_completion",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "The declared plan completed."
+    }
+  ],
+  "IsExecutionSuccess": true,
+  "IsCorrectnessSuccess": true
+}
