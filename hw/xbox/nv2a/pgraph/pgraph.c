@@ -46,10 +46,99 @@
 
 NV2AState *g_nv2a;
 
+/* IRQ state is owned by the BQL, independently of renderer state. The FIFO
+ * worker drops pg->lock before publishing an interrupt under the BQL. */
+static bool pgraph_control_read(PGRAPHState *pg, hwaddr addr, uint64_t *value)
+{
+    switch (addr) {
+    case NV_PGRAPH_INTR:
+        assert(bql_locked());
+        *value = qatomic_read(&pg->pending_interrupts);
+        return true;
+    case NV_PGRAPH_INTR_EN:
+        assert(bql_locked());
+        *value = pg->enabled_interrupts;
+        return true;
+    case NV_PGRAPH_INCREMENT:
+        assert(bql_locked());
+        *value = pg->regs_[NV_PGRAPH_INCREMENT];
+        return true;
+    case NV_PGRAPH_SURFACE:
+        *value = pgraph_reg_r(pg, NV_PGRAPH_SURFACE);
+        return true;
+    case NV_PGRAPH_FIFO:
+        *value = qatomic_read(&pg->regs_[NV_PGRAPH_FIFO]);
+        return true;
+    default:
+        return false;
+    }
+}
+
+static bool pgraph_control_write(NV2AState *d, hwaddr addr, uint32_t value)
+{
+    PGRAPHState *pg = &d->pgraph;
+    if (addr != NV_PGRAPH_INTR && addr != NV_PGRAPH_INTR_EN &&
+        addr != NV_PGRAPH_FIFO && addr != NV_PGRAPH_INCREMENT &&
+        addr != NV_PGRAPH_SURFACE) {
+        return false;
+    }
+    assert(bql_locked());
+    if (addr == NV_PGRAPH_INTR_EN) {
+        pg->enabled_interrupts = value;
+        nv2a_update_irq(d);
+        return true;
+    }
+    int64_t flip_time = -1;
+    qemu_mutex_lock(&d->pfifo.lock);
+    switch (addr) {
+    case NV_PGRAPH_INTR: {
+        uint32_t pending = qatomic_read(&pg->pending_interrupts) & ~value;
+        qatomic_set(&pg->pending_interrupts, pending);
+        if (!(pending & NV_PGRAPH_INTR_ERROR)) {
+            qatomic_set(&pg->waiting_for_nop, false);
+        }
+        if (!(pending & NV_PGRAPH_INTR_CONTEXT_SWITCH)) {
+            qatomic_set(&pg->waiting_for_context_switch, false);
+        }
+        nv2a_update_irq(d);
+        pfifo_kick(d);
+        break;
+    }
+    case NV_PGRAPH_SURFACE:
+        pgraph_reg_w(pg, NV_PGRAPH_SURFACE, value);
+        pfifo_kick(d);
+        break;
+    case NV_PGRAPH_INCREMENT:
+        if (value & NV_PGRAPH_INCREMENT_READ_3D) {
+            pgraph_flip_increment(pg, NV_PGRAPH_SURFACE_READ_3D);
+            flip_time = nv2a_profile_increment();
+            pfifo_kick(d);
+        }
+        break;
+    case NV_PGRAPH_FIFO:
+        /* Access control has no draw/shader state. Do not mutate the draw
+         * dirty bitmap from a concurrent MMIO writer. */
+        qatomic_set(&pg->regs_[NV_PGRAPH_FIFO], value);
+        pfifo_kick(d);
+        break;
+    }
+    qemu_mutex_unlock(&d->pfifo.lock);
+    if (flip_time >= 0) {
+        nv2a_profile_log_increment(flip_time);
+    }
+    return true;
+}
+
 uint64_t pgraph_read(void *opaque, hwaddr addr, unsigned int size)
 {
     NV2AState *d = (NV2AState *)opaque;
     PGRAPHState *pg = &d->pgraph;
+
+    uint64_t control_value;
+    if (pgraph_control_read(pg, addr, &control_value)) {
+        nv2a_reg_log_read(NV_PGRAPH, addr, size, control_value);
+        return control_value;
+    }
 
     /*
      * Lock-free fast path for the GPU fence register the guest busy-polls.
@@ -78,12 +167,6 @@ uint64_t pgraph_read(void *opaque, hwaddr addr, unsigned int size)
 
     uint64_t r = 0;
     switch (addr) {
-    case NV_PGRAPH_INTR:
-        r = pg->pending_interrupts;
-        break;
-    case NV_PGRAPH_INTR_EN:
-        r = pg->enabled_interrupts;
-        break;
     case NV_PGRAPH_RDI_DATA: {
         unsigned int select = PG_GET_MASK(NV_PGRAPH_RDI_INDEX,
                                        NV_PGRAPH_RDI_INDEX_SELECT);
@@ -117,36 +200,14 @@ void pgraph_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
 
     nv2a_reg_log_write(NV_PGRAPH, addr, size, val);
 
+    if (pgraph_control_write(d, addr, val)) {
+        return;
+    }
+
     qemu_mutex_lock(&d->pfifo.lock); // FIXME: Factor out fifo lock here
     qemu_mutex_lock(&pg->lock);
 
     switch (addr) {
-    case NV_PGRAPH_INTR:
-        pg->pending_interrupts &= ~val;
-
-        if (!(pg->pending_interrupts & NV_PGRAPH_INTR_ERROR)) {
-            pg->waiting_for_nop = false;
-        }
-        if (!(pg->pending_interrupts & NV_PGRAPH_INTR_CONTEXT_SWITCH)) {
-            pg->waiting_for_context_switch = false;
-        }
-        pfifo_kick(d);
-        break;
-    case NV_PGRAPH_INTR_EN:
-        pg->enabled_interrupts = val;
-        break;
-    case NV_PGRAPH_INCREMENT:
-        if (val & NV_PGRAPH_INCREMENT_READ_3D) {
-            PG_SET_MASK(NV_PGRAPH_SURFACE,
-                     NV_PGRAPH_SURFACE_READ_3D,
-                     (PG_GET_MASK(NV_PGRAPH_SURFACE,
-                              NV_PGRAPH_SURFACE_READ_3D)+1)
-                        % PG_GET_MASK(NV_PGRAPH_SURFACE,
-                                   NV_PGRAPH_SURFACE_MODULO_3D) );
-            nv2a_profile_increment();
-            pfifo_kick(d);
-        }
-        break;
     case NV_PGRAPH_RDI_DATA: {
         unsigned int select = PG_GET_MASK(NV_PGRAPH_RDI_INDEX,
                                        NV_PGRAPH_RDI_INDEX_SELECT);
@@ -196,13 +257,6 @@ void pgraph_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
         break;
     }
 
-    // events
-    switch (addr) {
-    case NV_PGRAPH_FIFO:
-        pfifo_kick(d);
-        break;
-    }
-
     qemu_mutex_unlock(&pg->lock);
     qemu_mutex_unlock(&d->pfifo.lock);
 }
@@ -227,10 +281,10 @@ void pgraph_context_switch(NV2AState *d, unsigned int channel_id)
         assert(!PG_GET_MASK(NV_PGRAPH_DEBUG_3,
                             NV_PGRAPH_DEBUG_3_HW_CONTEXT_SWITCH));
 
-        pg->waiting_for_context_switch = true;
         qemu_mutex_unlock(&pg->lock);
         bql_lock();
-        pg->pending_interrupts |= NV_PGRAPH_INTR_CONTEXT_SWITCH;
+        qatomic_set(&pg->waiting_for_context_switch, true);
+        qatomic_or(&pg->pending_interrupts, NV_PGRAPH_INTR_CONTEXT_SWITCH);
         nv2a_update_irq(d);
         bql_unlock();
         qemu_mutex_lock(&pg->lock);
@@ -1033,7 +1087,7 @@ DEF_METHOD(NV097, NO_OPERATION)
     unsigned channel_id =
         PG_GET_MASK(NV_PGRAPH_CTX_USER, NV_PGRAPH_CTX_USER_CHID);
 
-    assert(!(pg->pending_interrupts & NV_PGRAPH_INTR_ERROR));
+    assert(!(qatomic_read(&pg->pending_interrupts) & NV_PGRAPH_INTR_ERROR));
 
     PG_SET_MASK(NV_PGRAPH_TRAPPED_ADDR, NV_PGRAPH_TRAPPED_ADDR_CHID,
              channel_id);
@@ -1044,11 +1098,10 @@ DEF_METHOD(NV097, NO_OPERATION)
     pgraph_reg_w(pg, NV_PGRAPH_TRAPPED_DATA_LOW, parameter);
     pgraph_reg_w(pg, NV_PGRAPH_NSOURCE,
                  NV_PGRAPH_NSOURCE_NOTIFICATION); /* TODO: check this */
-    pg->pending_interrupts |= NV_PGRAPH_INTR_ERROR;
-    pg->waiting_for_nop = true;
-
     qemu_mutex_unlock(&pg->lock);
     bql_lock();
+    qatomic_set(&pg->waiting_for_nop, true);
+    qatomic_or(&pg->pending_interrupts, NV_PGRAPH_INTR_ERROR);
     nv2a_update_irq(d);
     bql_unlock();
     qemu_mutex_lock(&pg->lock);
@@ -1061,36 +1114,24 @@ DEF_METHOD(NV097, WAIT_FOR_IDLE)
 
 DEF_METHOD(NV097, SET_FLIP_READ)
 {
-    PG_SET_MASK(NV_PGRAPH_SURFACE, NV_PGRAPH_SURFACE_READ_3D,
-             parameter);
+    pgraph_flip_set(pg, NV_PGRAPH_SURFACE_READ_3D, parameter);
 }
 
 DEF_METHOD(NV097, SET_FLIP_WRITE)
 {
-    PG_SET_MASK(NV_PGRAPH_SURFACE, NV_PGRAPH_SURFACE_WRITE_3D,
-             parameter);
+    pgraph_flip_set(pg, NV_PGRAPH_SURFACE_WRITE_3D, parameter);
 }
 
 DEF_METHOD(NV097, SET_FLIP_MODULO)
 {
-    PG_SET_MASK(NV_PGRAPH_SURFACE, NV_PGRAPH_SURFACE_MODULO_3D,
-             parameter);
+    pgraph_flip_set(pg, NV_PGRAPH_SURFACE_MODULO_3D, parameter);
 }
 
 DEF_METHOD(NV097, FLIP_INCREMENT_WRITE)
 {
-    uint32_t old =
-        PG_GET_MASK(NV_PGRAPH_SURFACE, NV_PGRAPH_SURFACE_WRITE_3D);
-
-    PG_SET_MASK(NV_PGRAPH_SURFACE,
-             NV_PGRAPH_SURFACE_WRITE_3D,
-             (PG_GET_MASK(NV_PGRAPH_SURFACE,
-                      NV_PGRAPH_SURFACE_WRITE_3D)+1)
-                % PG_GET_MASK(NV_PGRAPH_SURFACE,
-                           NV_PGRAPH_SURFACE_MODULO_3D) );
-
-    uint32_t new =
-        PG_GET_MASK(NV_PGRAPH_SURFACE, NV_PGRAPH_SURFACE_WRITE_3D);
+    uint32_t state = pgraph_flip_increment(pg, NV_PGRAPH_SURFACE_WRITE_3D);
+    uint32_t old = GET_MASK(state, NV_PGRAPH_SURFACE_WRITE_3D);
+    uint32_t new = (old + 1) % GET_MASK(state, NV_PGRAPH_SURFACE_MODULO_3D);
 
     trace_nv2a_pgraph_flip_increment_write(old, new);
     pg->frame_time++;
@@ -1102,7 +1143,7 @@ DEF_METHOD(NV097, FLIP_STALL)
     d->pgraph.renderer->ops.surface_update(d, false, true, true);
     d->pgraph.renderer->ops.flip_stall(d);
     nv2a_profile_flip_stall();
-    pg->waiting_for_flip = true;
+    qatomic_set(&pg->waiting_for_flip, true);
 }
 
 // TODO: these should be loading the dma objects from ramin here?
