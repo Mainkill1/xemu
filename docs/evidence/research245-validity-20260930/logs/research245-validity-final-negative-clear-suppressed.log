@@ -1,0 +1,8 @@
+TAP version 14
+# random seed: R02S1ff2767287581b2cb6b558507e7e537d
+# Start of tcg tests
+# Start of jump-cache tests
+**
+ERROR:../tests/unit/test-tcg-jump-cache-validity.c:172:test_clear_before_address_reuse: 'tcg_jump_cache_lookup(jc, h, s)' should be NULL
+not ok /tcg/jump-cache/address-reuse - ERROR:../tests/unit/test-tcg-jump-cache-validity.c:172:test_clear_before_address_reuse: 'tcg_jump_cache_lookup(jc, h, s)' should be NULL
+Bail out!

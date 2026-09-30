@@ -1,0 +1,11 @@
+TAP version 14
+# random seed: R02S6b02d1a738fa94fdcefc04453e0a9c0e
+1..4
+# Start of tcg tests
+# Start of jump-cache tests
+ok 1 /tcg/jump-cache/clear
+ok 2 /tcg/jump-cache/disabled
+ok 3 /tcg/jump-cache/counts-sampling
+ok 4 /tcg/jump-cache/concurrent-writers
+# End of jump-cache tests
+# End of tcg tests

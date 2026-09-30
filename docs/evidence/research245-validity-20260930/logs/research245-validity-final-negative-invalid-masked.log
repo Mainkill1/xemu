@@ -1,0 +1,8 @@
+TAP version 14
+# random seed: R02S7f6ae9a5bfd6f73590e4f7d20b37ec54
+# Start of tcg tests
+# Start of jump-cache tests
+**
+ERROR:../tests/unit/test-tcg-jump-cache-validity.c:45:test_valid_and_invalid: 'tcg_jump_cache_lookup(jc, h, s)' should be NULL
+not ok /tcg/jump-cache/invalid - ERROR:../tests/unit/test-tcg-jump-cache-validity.c:45:test_valid_and_invalid: 'tcg_jump_cache_lookup(jc, h, s)' should be NULL
+Bail out!

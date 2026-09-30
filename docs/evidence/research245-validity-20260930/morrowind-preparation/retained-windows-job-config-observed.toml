@@ -1,0 +1,30 @@
+[general]
+show_welcome = false
+games_dir = 'C:/xemu-lab/games'
+
+[input]
+background_input_capture = true
+
+[input.virtual_ports]
+port1_connected = 1
+
+[input.bindings]
+port1_driver = 'usb-xbox-gamepad'
+port1 = 'keyboard'
+
+[display]
+renderer = 'VULKAN'
+setup_nvidia_profile = false
+
+[display.vulkan]
+preferred_physical_device = 'NVIDIA GeForce RTX 3070 Ti Laptop GPU'
+
+[display.window]
+vsync = false
+
+[sys.files]
+bootrom_path = 'C:/xemu-lab/XEMU FILES/Boot ROM image/mcpx_1.0.bin'
+flashrom_path = 'C:/xemu-lab/XEMU FILES/BIOS/Complex_4627v1.03.bin'
+eeprom_path = 'state/eeprom.bin'
+dvd_path = 'C:/xemu-lab/games/Elder Scrolls III, The - Morrowind - Game of the Year Edition (USA).iso'
+

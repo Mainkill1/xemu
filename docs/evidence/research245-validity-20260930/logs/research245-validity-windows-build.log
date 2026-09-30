@@ -1,0 +1,20 @@
+ninja: Entering directory `build-windows-probe'
+[0/1] Regenerating build files
+The Meson build system
+Version: 1.9.0
+Source dir: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache
+Build dir: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe
+Build type: cross build
+Project name: qemu
+Project version: 10.2.0
+C compiler for the host machine: x86_64-w64-mingw32.static-gcc -m64 (clang 21.1.8 "clang version 21.1.8")
+C linker for the host machine: x86_64-w64-mingw32.static-gcc -m64 ld.lld 21.1.8
+
+../meson.build:1:0: ERROR: Unknown linker(s): [['x86_64-w64-mingw32.static-ar']]
+The following exception(s) were encountered:
+Running `x86_64-w64-mingw32.static-ar --version` gave "[Errno 2] No such file or directory: 'x86_64-w64-mingw32.static-ar'"
+
+A full log can be found at /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/meson-logs/meson-log.txt
+FAILED: build.ninja 
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/bin/meson --internal regenerate /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache .
+ninja: error: rebuilding 'build.ninja': subcommand failed

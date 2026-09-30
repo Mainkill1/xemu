@@ -1,0 +1,1972 @@
+ninja: Entering directory `build-windows-probe'
+[0/1] Regenerating build files
+The Meson build system
+Version: 1.9.0
+Source dir: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache
+Build dir: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe
+Build type: cross build
+Project name: qemu
+Project version: 10.2.0
+C compiler for the host machine: x86_64-w64-mingw32.static-gcc -m64 (clang 21.1.8 "clang version 21.1.8")
+C linker for the host machine: x86_64-w64-mingw32.static-gcc -m64 ld.lld 21.1.8
+C++ compiler for the host machine: x86_64-w64-mingw32.static-g++ -m64 (clang 21.1.8 "clang version 21.1.8")
+C++ linker for the host machine: x86_64-w64-mingw32.static-g++ -m64 ld.lld 21.1.8
+C compiler for the build machine: cc (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+C linker for the build machine: cc ld.bfd 2.44
+C++ compiler for the build machine: ccache c++ (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+C++ linker for the build machine: c++ ld.bfd 2.44
+Build machine cpu family: x86_64
+Build machine cpu: x86_64
+Host machine cpu family: x86_64
+Host machine cpu: x86_64
+Target machine cpu family: x86_64
+Target machine cpu: x86_64
+Program scripts/symlink-install-tree.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/symlink-install-tree.py)
+Program sh found: YES (/usr/bin/sh)
+Program python3 found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/bin/python3)
+Compiler for language rust skipped: feature rust disabled
+Program iasl found: NO
+Program bzip2 found: YES (/usr/bin/bzip2)
+Program scripts/xemu-version.sh found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/xemu-version.sh)
+Compiler for C supports arguments -fno-pie: YES (cached)
+Compiler for C supports arguments -no-pie: NO (cached)
+Compiler for C supports link arguments -Wl,-z,relro: NO (cached)
+Compiler for C supports link arguments -Wl,-z,now: NO (cached)
+Compiler for C supports link arguments -Wl,--no-seh: YES (cached)
+Compiler for C supports link arguments -Wl,--nxcompat: YES (cached)
+Compiler for C supports link arguments -Wl,--dynamicbase: YES (cached)
+Compiler for C supports link arguments -Wl,--high-entropy-va: YES (cached)
+Checking if "-fzero-call-used-regs=used-gpr" compiles: YES (cached)
+Compiler for C supports arguments -ftrivial-auto-var-init=zero: YES (cached)
+Compiler for C supports arguments -fzero-call-used-regs=used-gpr: YES (cached)
+Compiler for C supports arguments -Wempty-body: YES (cached)
+Compiler for C supports arguments -Wendif-labels: YES (cached)
+Compiler for C supports arguments -Wexpansion-to-defined: YES (cached)
+Compiler for C supports arguments -Wformat-security: YES (cached)
+Compiler for C supports arguments -Wformat-y2k: YES (cached)
+Compiler for C supports arguments -Wignored-qualifiers: YES (cached)
+Compiler for C supports arguments -Wimplicit-fallthrough=2: NO (cached)
+Compiler for C supports arguments -Winit-self: YES (cached)
+Compiler for C supports arguments -Wmissing-format-attribute: YES (cached)
+Compiler for C supports arguments -Wmissing-prototypes: YES (cached)
+Compiler for C supports arguments -Wnested-externs: YES (cached)
+Compiler for C supports arguments -Wold-style-declaration: NO (cached)
+Compiler for C supports arguments -Wold-style-definition: YES (cached)
+Compiler for C supports arguments -Wredundant-decls: YES (cached)
+Compiler for C supports arguments -Wshadow=local: NO (cached)
+Compiler for C supports arguments -Wstrict-prototypes: YES (cached)
+Compiler for C supports arguments -Wtype-limits: YES (cached)
+Compiler for C supports arguments -Wwrite-strings: YES (cached)
+Compiler for C supports arguments -Wno-gnu-variable-sized-type-not-at-end: YES (cached)
+Compiler for C supports arguments -Wno-initializer-overrides: YES (cached)
+Compiler for C supports arguments -Wno-missing-include-dirs: YES (cached)
+Compiler for C supports arguments -Wno-psabi: YES (cached)
+Compiler for C supports arguments -Wno-shift-negative-value: YES (cached)
+Compiler for C supports arguments -Wno-string-plus-int: YES (cached)
+Compiler for C supports arguments -Wno-tautological-type-limit-compare: YES (cached)
+Compiler for C supports arguments -Wno-typedef-redefinition: YES (cached)
+Compiler for C supports arguments -Wthread-safety: YES (cached)
+Compiler for C++ supports arguments -Wempty-body: YES (cached)
+Compiler for C++ supports arguments -Wendif-labels: YES (cached)
+Compiler for C++ supports arguments -Wexpansion-to-defined: YES (cached)
+Compiler for C++ supports arguments -Wformat-security: YES (cached)
+Compiler for C++ supports arguments -Wformat-y2k: YES (cached)
+Compiler for C++ supports arguments -Wignored-qualifiers: YES (cached)
+Compiler for C++ supports arguments -Wimplicit-fallthrough=2: NO (cached)
+Compiler for C++ supports arguments -Winit-self: YES (cached)
+Compiler for C++ supports arguments -Wmissing-format-attribute: YES (cached)
+Compiler for C++ supports arguments -Wmissing-prototypes: YES (cached)
+Compiler for C++ supports arguments -Wnested-externs: YES (cached)
+Compiler for C++ supports arguments -Wold-style-declaration: NO (cached)
+Compiler for C++ supports arguments -Wold-style-definition: YES (cached)
+Compiler for C++ supports arguments -Wredundant-decls: YES (cached)
+Compiler for C++ supports arguments -Wshadow=local: NO (cached)
+Compiler for C++ supports arguments -Wstrict-prototypes: YES (cached)
+Compiler for C++ supports arguments -Wtype-limits: YES (cached)
+Compiler for C++ supports arguments -Wwrite-strings: YES (cached)
+Compiler for C++ supports arguments -Wno-gnu-variable-sized-type-not-at-end: YES (cached)
+Compiler for C++ supports arguments -Wno-initializer-overrides: YES (cached)
+Compiler for C++ supports arguments -Wno-missing-include-dirs: YES (cached)
+Compiler for C++ supports arguments -Wno-psabi: YES (cached)
+Compiler for C++ supports arguments -Wno-shift-negative-value: YES (cached)
+Compiler for C++ supports arguments -Wno-string-plus-int: YES (cached)
+Compiler for C++ supports arguments -Wno-tautological-type-limit-compare: YES (cached)
+Compiler for C++ supports arguments -Wno-typedef-redefinition: YES (cached)
+Compiler for C++ supports arguments -Wthread-safety: YES (cached)
+Program cgcc skipped: feature sparse disabled
+Library m found: YES
+Library util found: NO
+Program midl found: NO
+Program x86_64-w64-mingw32.static-widl found: NO
+Library pathcch found: YES
+Library synchronization found: YES
+Library ws2_32 found: YES
+Library winmm found: YES
+Library crypt32 found: YES
+Windows resource compiler: llvm-windres, compatible with GNU windres
+Dependency glib-2.0 found: YES 2.83.2 (cached)
+Dependency gio-2.0 skipped: feature gio disabled
+Program scripts/xml-preprocess.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/xml-preprocess.py)
+Dependency pixman-1 skipped: feature pixman disabled
+Dependency zlib found: YES 1.3.1 (cached)
+Library aio skipped: feature linux_aio disabled
+Dependency liburing skipped: feature linux_io_uring disabled
+Dependency libnfs skipped: feature libnfs disabled
+Dependency appleframeworks (modules: Cocoa, CoreVideo, QuartzCore) skipped: feature cocoa disabled
+Dependency appleframeworks (modules: vmnet) skipped: feature vmnet disabled
+Dependency libseccomp skipped: feature seccomp disabled
+Library cap-ng skipped: feature cap_ng disabled
+Dependency xkbcommon skipped: feature xkbcommon disabled
+Dependency slirp found: YES 4.7.0 (cached)
+Library vdeplug skipped: feature vde disabled
+Dependency libpulse skipped: feature pa disabled
+Dependency alsa skipped: feature alsa disabled
+Dependency jack skipped: feature jack disabled
+Dependency libpipewire-0.3 skipped: feature pipewire disabled
+Dependency sndio skipped: feature sndio disabled
+Dependency spice-protocol skipped: feature spice_protocol disabled
+Dependency libiscsi skipped: feature libiscsi disabled
+Dependency libzstd skipped: feature zstd disabled
+Dependency qpl skipped: feature qpl disabled
+Dependency libwd skipped: feature uadk disabled
+Dependency libwd_comp skipped: feature uadk disabled
+Dependency qatzip skipped: feature qatzip disabled
+Dependency virglrenderer skipped: feature virglrenderer disabled
+Dependency rutabaga_gfx_ffi skipped: feature rutabaga_gfx disabled
+Dependency blkio skipped: feature blkio disabled
+Dependency libcurl found: YES 8.18.0 (cached)
+Dependency igvm skipped: feature igvm disabled
+Library brlapi skipped: feature brlapi disabled
+Found pkg-config: YES (/opt/xemu-toolchain/mxe/usr/bin/x86_64-w64-mingw32.static-pkg-config) 0.28
+Found CMake: NO
+Run-time dependency sdl3 found: NO (tried pkgconfig and cmake)
+
+Executing subproject sdl3 method cmake 
+
+sdl3| Found CMake: /usr/bin/cmake (3.31.6)
+
+| Configuring the build directory with CMake version 3.31.6
+| Running CMake with: -G Ninja -DCMAKE_INSTALL_PREFIX=/qemu -DSDL_CAMERA=OFF -DSDL_DISKAUDIO=OFF -DSDL_DUMMYVIDEO=OFF -DSDL_FRIBIDI=OFF -DSDL_GPU=OFF -DSDL_HAPTIC=OFF -DSDL_LIBTHAI=OFF -DSDL_POWER=OFF -DSDL_RENDER=OFF -DSDL_SENSOR=OFF -DSDL_SHARED=OFF -DSDL_STATIC=ON -DSDL_TEST_LIBRARY=OFF -DSDL_TRAY=OFF -DSDL_VIRTUAL_JOYSTICK=OFF -DSDL_X11_XTEST=OFF -DCMAKE_BUILD_TYPE=Debug
+| - build directory:          /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/subprojects/sdl3/__CMake_build
+| - source directory:         /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/sdl3
+| - toolchain file:           /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/subprojects/sdl3/__CMake_build/CMakeMesonToolchainFile.cmake
+| - preload file:             /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake
+| - trace args:               --trace-expand --trace-format=json-v1 --no-warn-unused-cli --trace-redirect=cmake_trace.txt
+| - disabled policy warnings: [CMP0025, CMP0047, CMP0056, CMP0060, CMP0065, CMP0066, CMP0067, CMP0082, CMP0089, CMP0102]
+
+| Put cmake in trace mode, but with variables expanded.
+| Put cmake in trace mode and sets the trace output format.
+| Not searching for unused variables given on the command line.
+| Put cmake in trace mode and redirect trace output to a file instead of stderr.
+| Trace will be written to cmake_trace.txt
+| -- The C compiler identification is Clang 21.1.8
+| -- Detecting C compiler ABI info
+| -- Detecting C compiler ABI info - done
+| -- Check for working C compiler: /opt/xemu-toolchain/mxe/usr/bin/x86_64-w64-mingw32.static-gcc - skipped
+| -- Detecting C compile features
+| -- Detecting C compile features - done
+| -- Found PkgConfig: /usr/bin/pkg-config (found version "1.8.1")
+| -- Detecting Target CPU Architecture
+| CMake Warning (dev) at cmake/sdlcpu.cmake:108 (file):
+| Policy CMP0159 is not set: file(STRINGS) with REGEX updates
+| CMAKE_MATCH_<n>.  Run "cmake --help-policy CMP0159" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| For compatibility, CMake is leaving CMAKE_MATCH_<n> unchanged.
+| Call Stack (most recent call first):
+| CMakeLists.txt:83 (SDL_DetectTargetCPUArchitectures)
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Detecting Target CPU Architecture - X64
+| -- Performing Test HAVE_GDWARF_4
+| -- Performing Test HAVE_GDWARF_4 - Success
+| -- Performing Test HAVE_GCC_WALL
+| -- Performing Test HAVE_GCC_WALL - Success
+| -- Performing Test HAVE_GCC_WUNDEF
+| -- Performing Test HAVE_GCC_WUNDEF - Success
+| -- Performing Test HAVE_GCC_WFLOAT_CONVERSION
+| -- Performing Test HAVE_GCC_WFLOAT_CONVERSION - Success
+| -- Performing Test HAVE_GCC_NO_STRICT_ALIASING
+| -- Performing Test HAVE_GCC_NO_STRICT_ALIASING - Success
+| -- Performing Test HAVE_GCC_WDOCUMENTATION
+| -- Performing Test HAVE_GCC_WDOCUMENTATION - Success
+| -- Performing Test HAVE_GCC_WDOCUMENTATION_UNKNOWN_COMMAND
+| -- Performing Test HAVE_GCC_WDOCUMENTATION_UNKNOWN_COMMAND - Success
+| -- Performing Test HAVE_GCC_COMMENT_BLOCK_COMMANDS
+| -- Performing Test HAVE_GCC_COMMENT_BLOCK_COMMANDS - Success
+| -- Performing Test HAVE_GCC_WSHADOW
+| -- Performing Test HAVE_GCC_WSHADOW - Success
+| -- Performing Test HAVE_GCC_WUNUSED_LOCAL_TYPEDEFS
+| -- Performing Test HAVE_GCC_WUNUSED_LOCAL_TYPEDEFS - Success
+| -- Performing Test HAVE_GCC_WIMPLICIT_FALLTHROUGH
+| -- Performing Test HAVE_GCC_WIMPLICIT_FALLTHROUGH - Success
+| -- Performing Test COMPILER_SUPPORTS_FCOLOR_DIAGNOSTICS
+| -- Performing Test COMPILER_SUPPORTS_FCOLOR_DIAGNOSTICS - Success
+| -- Looking for __GLIBC__
+| -- Looking for __GLIBC__ - not found
+| -- Performing Test HAVE_WL_VERSION_SCRIPT
+| -- Performing Test HAVE_WL_VERSION_SCRIPT - Failed
+| -- Performing Test COMPILER_SUPPORTS_GCC_ATOMICS
+| -- Performing Test COMPILER_SUPPORTS_GCC_ATOMICS - Success
+| -- Performing Test HAVE_GCC_FVISIBILITY
+| -- Performing Test HAVE_GCC_FVISIBILITY - Success
+| -- Performing Test LINKER_SUPPORTS_WL_NO_UNDEFINED
+| -- Performing Test LINKER_SUPPORTS_WL_NO_UNDEFINED - Success
+| -- Performing Test COMPILER_SUPPORTS_MMX
+| -- Performing Test COMPILER_SUPPORTS_MMX - Success
+| -- Performing Test COMPILER_SUPPORTS_SSE
+| -- Performing Test COMPILER_SUPPORTS_SSE - Success
+| -- Performing Test COMPILER_SUPPORTS_SSE2
+| -- Performing Test COMPILER_SUPPORTS_SSE2 - Success
+| -- Performing Test COMPILER_SUPPORTS_SSE3
+| -- Performing Test COMPILER_SUPPORTS_SSE3 - Success
+| -- Performing Test COMPILER_SUPPORTS_SSE4_1
+| -- Performing Test COMPILER_SUPPORTS_SSE4_1 - Success
+| -- Performing Test COMPILER_SUPPORTS_SSE4_2
+| -- Performing Test COMPILER_SUPPORTS_SSE4_2 - Success
+| -- Performing Test COMPILER_SUPPORTS_AVX
+| -- Performing Test COMPILER_SUPPORTS_AVX - Success
+| -- Performing Test COMPILER_SUPPORTS_AVX2
+| -- Performing Test COMPILER_SUPPORTS_AVX2 - Success
+| -- Performing Test COMPILER_SUPPORTS_AVX512F
+| -- Performing Test COMPILER_SUPPORTS_AVX512F - Success
+| -- Looking for alloca.h
+| -- Looking for alloca.h - not found
+| -- Looking for float.h
+| -- Looking for float.h - found
+| -- Looking for iconv.h
+| -- Looking for iconv.h - found
+| -- Looking for inttypes.h
+| -- Looking for inttypes.h - found
+| -- Looking for limits.h
+| -- Looking for limits.h - found
+| -- Looking for malloc.h
+| -- Looking for malloc.h - found
+| -- Looking for math.h
+| -- Looking for math.h - found
+| -- Looking for memory.h
+| -- Looking for memory.h - found
+| -- Looking for signal.h
+| -- Looking for signal.h - found
+| -- Looking for stdarg.h
+| -- Looking for stdarg.h - found
+| -- Looking for stdbool.h
+| -- Looking for stdbool.h - found
+| -- Looking for stddef.h
+| -- Looking for stddef.h - found
+| -- Looking for stdint.h
+| -- Looking for stdint.h - found
+| -- Looking for stdio.h
+| -- Looking for stdio.h - found
+| -- Looking for stdlib.h
+| -- Looking for stdlib.h - found
+| -- Looking for string.h
+| -- Looking for string.h - found
+| -- Looking for strings.h
+| -- Looking for strings.h - found
+| -- Looking for sys/types.h
+| -- Looking for sys/types.h - found
+| -- Looking for time.h
+| -- Looking for time.h - found
+| -- Looking for wchar.h
+| -- Looking for wchar.h - found
+| -- Looking for pow in m
+| -- Looking for pow in m - found
+| -- Looking for abs
+| -- Looking for abs - found
+| -- Looking for acos
+| -- Looking for acos - found
+| -- Looking for acosf
+| -- Looking for acosf - found
+| -- Looking for asin
+| -- Looking for asin - found
+| -- Looking for asinf
+| -- Looking for asinf - found
+| -- Looking for atan
+| -- Looking for atan - found
+| -- Looking for atan2
+| -- Looking for atan2 - found
+| -- Looking for atan2f
+| -- Looking for atan2f - found
+| -- Looking for atanf
+| -- Looking for atanf - found
+| -- Looking for atof
+| -- Looking for atof - found
+| -- Looking for atoi
+| -- Looking for atoi - found
+| -- Looking for bcopy
+| -- Looking for bcopy - not found
+| -- Looking for ceil
+| -- Looking for ceil - found
+| -- Looking for ceilf
+| -- Looking for ceilf - found
+| -- Looking for copysign
+| -- Looking for copysign - found
+| -- Looking for copysignf
+| -- Looking for copysignf - found
+| -- Looking for cos
+| -- Looking for cos - found
+| -- Looking for cosf
+| -- Looking for cosf - found
+| -- Looking for _Exit
+| -- Looking for _Exit - found
+| -- Looking for exp
+| -- Looking for exp - found
+| -- Looking for expf
+| -- Looking for expf - found
+| -- Looking for fabs
+| -- Looking for fabs - found
+| -- Looking for fabsf
+| -- Looking for fabsf - found
+| -- Looking for floor
+| -- Looking for floor - found
+| -- Looking for floorf
+| -- Looking for floorf - found
+| -- Looking for fmod
+| -- Looking for fmod - found
+| -- Looking for fmodf
+| -- Looking for fmodf - found
+| -- Looking for fopen64
+| -- Looking for fopen64 - found
+| -- Looking for fseeko
+| -- Looking for fseeko - found
+| -- Looking for fseeko64
+| -- Looking for fseeko64 - found
+| -- Looking for getenv
+| -- Looking for getenv - found
+| -- Looking for _i64toa
+| -- Looking for _i64toa - found
+| -- Looking for index
+| -- Looking for index - not found
+| -- Looking for itoa
+| -- Looking for itoa - found
+| -- Looking for log
+| -- Looking for log - found
+| -- Looking for log10
+| -- Looking for log10 - found
+| -- Looking for log10f
+| -- Looking for log10f - found
+| -- Looking for logf
+| -- Looking for logf - found
+| -- Looking for lround
+| -- Looking for lround - found
+| -- Looking for lroundf
+| -- Looking for lroundf - found
+| -- Looking for _ltoa
+| -- Looking for _ltoa - found
+| -- Looking for malloc
+| -- Looking for malloc - found
+| -- Looking for memcmp
+| -- Looking for memcmp - found
+| -- Looking for memcpy
+| -- Looking for memcpy - found
+| -- Looking for memmove
+| -- Looking for memmove - found
+| -- Looking for memset
+| -- Looking for memset - found
+| -- Looking for modf
+| -- Looking for modf - found
+| -- Looking for modff
+| -- Looking for modff - found
+| -- Looking for pow
+| -- Looking for pow - found
+| -- Looking for powf
+| -- Looking for powf - found
+| -- Looking for putenv
+| -- Looking for putenv - found
+| -- Looking for rindex
+| -- Looking for rindex - not found
+| -- Looking for round
+| -- Looking for round - found
+| -- Looking for roundf
+| -- Looking for roundf - found
+| -- Looking for scalbn
+| -- Looking for scalbn - found
+| -- Looking for scalbnf
+| -- Looking for scalbnf - found
+| -- Looking for setenv
+| -- Looking for setenv - not found
+| -- Looking for sin
+| -- Looking for sin - found
+| -- Looking for sinf
+| -- Looking for sinf - found
+| -- Looking for sqr
+| -- Looking for sqr - not found
+| -- Looking for sqrt
+| -- Looking for sqrt - found
+| -- Looking for sqrtf
+| -- Looking for sqrtf - found
+| -- Looking for sscanf
+| -- Looking for sscanf - found
+| -- Looking for strchr
+| -- Looking for strchr - found
+| -- Looking for strcmp
+| -- Looking for strcmp - found
+| -- Looking for strlcat
+| -- Looking for strlcat - not found
+| -- Looking for strlcpy
+| -- Looking for strlcpy - not found
+| -- Looking for strlen
+| -- Looking for strlen - found
+| -- Looking for strncmp
+| -- Looking for strncmp - found
+| -- Looking for strnlen
+| -- Looking for strnlen - found
+| -- Looking for strpbrk
+| -- Looking for strpbrk - found
+| -- Looking for strrchr
+| -- Looking for strrchr - found
+| -- Looking for strstr
+| -- Looking for strstr - found
+| -- Looking for strnstr
+| -- Looking for strnstr - not found
+| -- Looking for strtod
+| -- Looking for strtod - found
+| -- Looking for strtok_r
+| -- Looking for strtok_r - found
+| -- Looking for strtol
+| -- Looking for strtol - found
+| -- Looking for strtoll
+| -- Looking for strtoll - found
+| -- Looking for strtoul
+| -- Looking for strtoul - found
+| -- Looking for strtoull
+| -- Looking for strtoull - found
+| -- Looking for tan
+| -- Looking for tan - found
+| -- Looking for tanf
+| -- Looking for tanf - found
+| -- Looking for trunc
+| -- Looking for trunc - found
+| -- Looking for truncf
+| -- Looking for truncf - found
+| -- Looking for unsetenv
+| -- Looking for unsetenv - not found
+| -- Looking for vsnprintf
+| -- Looking for vsnprintf - found
+| -- Looking for vsscanf
+| -- Looking for vsscanf - found
+| -- Looking for wcsnlen
+| -- Looking for wcsnlen - found
+| -- Looking for wcscmp
+| -- Looking for wcscmp - found
+| -- Looking for wcsdup
+| -- Looking for wcsdup - found
+| -- Looking for wcslcat
+| -- Looking for wcslcat - not found
+| -- Looking for wcslcpy
+| -- Looking for wcslcpy - not found
+| -- Looking for wcslen
+| -- Looking for wcslen - found
+| -- Looking for wcsncmp
+| -- Looking for wcsncmp - found
+| -- Looking for wcsstr
+| -- Looking for wcsstr - found
+| -- Looking for wcstol
+| -- Looking for wcstol - found
+| -- Looking for _copysign
+| -- Looking for _copysign - found
+| -- Looking for _fseeki64
+| -- Looking for _fseeki64 - found
+| -- Looking for _strrev
+| -- Looking for _strrev - found
+| -- Looking for _ui64toa
+| -- Looking for _ui64toa - found
+| -- Looking for _ultoa
+| -- Looking for _ultoa - found
+| -- Looking for _wcsdup
+| -- Looking for _wcsdup - found
+| -- Performing Test LIBC_HAS_ISINF
+| -- Performing Test LIBC_HAS_ISINF - Success
+| -- Performing Test LIBC_ISINF_HANDLES_FLOAT
+| -- Performing Test LIBC_ISINF_HANDLES_FLOAT - Success
+| -- Performing Test LIBC_HAS_ISINFF
+| -- Performing Test LIBC_HAS_ISINFF - Failed
+| -- Performing Test LIBC_HAS_ISNAN
+| -- Performing Test LIBC_HAS_ISNAN - Success
+| -- Performing Test LIBC_ISNAN_HANDLES_FLOAT
+| -- Performing Test LIBC_ISNAN_HANDLES_FLOAT - Success
+| -- Performing Test LIBC_HAS_ISNANF
+| -- Performing Test LIBC_HAS_ISNANF - Failed
+| -- The CXX compiler identification is Clang 21.1.8
+| CMake Warning (dev) at /usr/share/cmake-3.31/Modules/CMakeFindBinUtils.cmake:225 (find_program):
+| Policy CMP0126 is not set: set(CACHE) does not remove a normal variable of
+| the same name.  Run "cmake --help-policy CMP0126" for policy details.  Use
+| the cmake_policy command to set the policy and suppress this warning.
+
+| For compatibility with older versions of CMake, normal variable
+| "CMAKE_TAPI" will be removed from the current scope.
+| Call Stack (most recent call first):
+| /usr/share/cmake-3.31/Modules/CMakeDetermineCXXCompiler.cmake:207 (include)
+| CMakeLists.txt:2166 (enable_language)
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Detecting CXX compiler ABI info
+| -- Detecting CXX compiler ABI info - done
+| -- Check for working CXX compiler: /opt/xemu-toolchain/mxe/usr/bin/x86_64-w64-mingw32.static-g++ - skipped
+| -- Detecting CXX compile features
+| -- Detecting CXX compile features - done
+| -- Performing Test HAVE_WIN32_CC
+| -- Performing Test HAVE_WIN32_CC - Success
+| -- Performing Test HAVE_D3D9_H
+| -- Performing Test HAVE_D3D9_H - Success
+| -- Performing Test HAVE_D3D11_H
+| -- Performing Test HAVE_D3D11_H - Success
+| -- Performing Test HAVE_DDRAW_H
+| -- Performing Test HAVE_DDRAW_H - Success
+| -- Performing Test HAVE_DSOUND_H
+| -- Performing Test HAVE_DSOUND_H - Success
+| -- Performing Test HAVE_DINPUT_H
+| -- Performing Test HAVE_DINPUT_H - Success
+| -- Looking for dxgi.h
+| -- Looking for dxgi.h - found
+| -- Performing Test HAVE_XINPUT_H
+| -- Performing Test HAVE_XINPUT_H - Success
+| -- Performing Test HAVE_WINDOWS_GAMING_INPUT_H
+| -- Performing Test HAVE_WINDOWS_GAMING_INPUT_H - Success
+| -- Performing Test HAVE_GAMEINPUT_H
+| -- Performing Test HAVE_GAMEINPUT_H - Failed
+| -- Looking for dxgi1_5.h
+| -- Looking for dxgi1_5.h - found
+| -- Looking for dxgi1_6.h
+| -- Looking for dxgi1_6.h - found
+| -- Looking for tpcshrd.h
+| -- Looking for tpcshrd.h - found
+| -- Looking for roapi.h
+| -- Looking for roapi.h - found
+| -- Looking for mmdeviceapi.h
+| -- Looking for mmdeviceapi.h - found
+| -- Looking for audioclient.h
+| -- Looking for audioclient.h - found
+| -- Looking for sensorsapi.h
+| -- Looking for sensorsapi.h - found
+| -- Looking for shellscalingapi.h
+| -- Looking for shellscalingapi.h - found
+| -- Performing Test HAVE_MFAPI_H
+| -- Performing Test HAVE_MFAPI_H - Success
+| -- Checking for module 'libusb-1.0>=1.0.16'
+| --   Found libusb-1.0, version 1.0.28
+| -- Found LibUSB: /usr/lib/x86_64-linux-gnu/libusb-1.0.a (found version "1.0.28")
+| -- Performing Test HAVE_LIBUSB_H
+| -- Performing Test HAVE_LIBUSB_H - Success
+| CMake Warning at cmake/macros.cmake:284 (message):
+| Unable to extract dynamic library from target=LibUSB::LibUSB,
+| type=UNKNOWN_LIBRARY.
+| Call Stack (most recent call first):
+| cmake/sdlchecks.cmake:1276 (target_get_dynamic_library)
+| CMakeLists.txt:2440 (CheckHIDAPI)
+
+
+| CMake Warning at /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake:18 (message):
+| The function 'target_precompile_headers' is disabled in the context of
+| CMake subprojects.
+
+| This should not be an issue but may lead to compilation errors.
+| Call Stack (most recent call first):
+| /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake:76 (meson_ps_disabled_function)
+| CMakeLists.txt:4063 (target_precompile_headers)
+
+
+| --
+| -- SDL3 was configured with the following options:
+| --
+| -- Platform: Windows
+| -- 64-bit:   TRUE
+| -- Compiler: /opt/xemu-toolchain/mxe/usr/bin/x86_64-w64-mingw32.static-gcc
+| -- Revision: SDL-3.4.16-HEAD-HASH-NOTFOUND
+| -- Vendor:
+| --
+| -- Subsystems:
+| --   Audio:    ON
+| --   Video:    ON
+| --   GPU:      OFF
+| --   Render:   OFF
+| --   Camera:   OFF
+| --   Joystick: ON
+| --   Haptic:   OFF
+| --   Hidapi:   ON
+| --   Power:    OFF
+| --   Sensor:   OFF
+| --   Dialog:   ON
+| --   Tray:     OFF
+| --
+| -- Options:
+| --   SDL_ALSA                    (Wanted: OFF): OFF
+| --   SDL_ALSA_SHARED             (Wanted: OFF): OFF
+| --   SDL_ALTIVEC                 (Wanted: OFF): OFF
+| --   SDL_ARMNEON                 (Wanted: OFF): OFF
+| --   SDL_ASAN                    (Wanted: OFF): OFF
+| --   SDL_ASSEMBLY                (Wanted: ON): ON
+| --   SDL_ASSERTIONS              (Wanted: auto): auto
+| --   SDL_AVX                     (Wanted: ON): ON
+| --   SDL_AVX2                    (Wanted: ON): ON
+| --   SDL_AVX512F                 (Wanted: ON): ON
+| --   SDL_BACKGROUNDING_SIGNAL    (Wanted: OFF): OFF
+| --   SDL_CCACHE                  (Wanted: OFF): OFF
+| --   SDL_CLANG_TIDY              (Wanted: OFF): OFF
+| --   SDL_CLOCK_GETTIME           (Wanted: OFF): OFF
+| --   SDL_COCOA                   (Wanted: OFF): OFF
+| --   SDL_DBUS                    (Wanted: OFF): OFF
+| --   SDL_DEPS_SHARED             (Wanted: ON): OFF
+| --   SDL_DIRECTX                 (Wanted: ON): ON
+| --   SDL_DISKAUDIO               (Wanted: OFF): OFF
+| --   SDL_DLOPEN_NOTES            (Wanted: OFF): OFF
+| --   SDL_DUMMYAUDIO              (Wanted: ON): ON
+| --   SDL_DUMMYCAMERA             (Wanted: OFF): OFF
+| --   SDL_DUMMYVIDEO              (Wanted: OFF): OFF
+| --   SDL_EXAMPLES                (Wanted: OFF): OFF
+| --   SDL_EXAMPLES_LINK_SHARED    (Wanted: OFF): OFF
+| --   SDL_FOREGROUNDING_SIGNAL    (Wanted: OFF): OFF
+| --   SDL_FRIBIDI                 (Wanted: OFF): OFF
+| --   SDL_FRIBIDI_SHARED          (Wanted: OFF): OFF
+| --   SDL_GCC_ATOMICS             (Wanted: ON): ON
+| --   SDL_HIDAPI                  (Wanted: ON): ON
+| --   SDL_HIDAPI_JOYSTICK         (Wanted: ON): ON
+| --   SDL_HIDAPI_LIBUSB           (Wanted: ON): ON
+| --   SDL_HIDAPI_LIBUSB_SHARED    (Wanted: ON): ON
+| --   SDL_IBUS                    (Wanted: OFF): OFF
+| --   SDL_INSTALL                 (Wanted: ON): OFF
+| --   SDL_INSTALL_TESTS           (Wanted: OFF): OFF
+| --   SDL_JACK                    (Wanted: OFF): OFF
+| --   SDL_JACK_SHARED             (Wanted: OFF): OFF
+| --   SDL_KMSDRM                  (Wanted: OFF): OFF
+| --   SDL_KMSDRM_SHARED           (Wanted: OFF): OFF
+| --   SDL_LASX                    (Wanted: OFF): OFF
+| --   SDL_LIBC                    (Wanted: ON): ON
+| --   SDL_LIBICONV                (Wanted: OFF): OFF
+| --   SDL_LIBTHAI                 (Wanted: OFF): OFF
+| --   SDL_LIBTHAI_SHARED          (Wanted: OFF): OFF
+| --   SDL_LIBUDEV                 (Wanted: ON): OFF
+| --   SDL_LIBURING                (Wanted: OFF): OFF
+| --   SDL_LSX                     (Wanted: OFF): OFF
+| --   SDL_METAL                   (Wanted: OFF): OFF
+| --   SDL_MMX                     (Wanted: ON): ON
+| --   SDL_OFFSCREEN               (Wanted: ON): ON
+| --   SDL_OPENGL                  (Wanted: ON): ON
+| --   SDL_OPENGLES                (Wanted: ON): ON
+| --   SDL_OPENVR                  (Wanted: OFF): OFF
+| --   SDL_OSS                     (Wanted: OFF): OFF
+| --   SDL_PIPEWIRE                (Wanted: OFF): OFF
+| --   SDL_PIPEWIRE_SHARED         (Wanted: OFF): OFF
+| --   SDL_PTHREADS                (Wanted: OFF): OFF
+| --   SDL_PTHREADS_SEM            (Wanted: OFF): OFF
+| --   SDL_PULSEAUDIO              (Wanted: OFF): OFF
+| --   SDL_PULSEAUDIO_SHARED       (Wanted: OFF): OFF
+| --   SDL_RENDER_D3D              (Wanted: OFF): OFF
+| --   SDL_RENDER_D3D11            (Wanted: OFF): OFF
+| --   SDL_RENDER_D3D12            (Wanted: OFF): OFF
+| --   SDL_RENDER_GPU              (Wanted: OFF): OFF
+| --   SDL_RENDER_METAL            (Wanted: OFF): OFF
+| --   SDL_RENDER_VULKAN           (Wanted: OFF): OFF
+| --   SDL_ROCKCHIP                (Wanted: OFF): OFF
+| --   SDL_RPATH                   (Wanted: OFF): OFF
+| --   SDL_RPI                     (Wanted: OFF): OFF
+| --   SDL_SNDIO                   (Wanted: OFF): OFF
+| --   SDL_SNDIO_SHARED            (Wanted: OFF): OFF
+| --   SDL_SSE                     (Wanted: ON): ON
+| --   SDL_SSE2                    (Wanted: ON): ON
+| --   SDL_SSE3                    (Wanted: ON): ON
+| --   SDL_SSE4_1                  (Wanted: ON): ON
+| --   SDL_SSE4_2                  (Wanted: ON): ON
+| --   SDL_SYSTEM_ICONV            (Wanted: OFF): OFF
+| --   SDL_TESTS                   (Wanted: OFF): OFF
+| --   SDL_TESTS_LINK_SHARED       (Wanted: OFF): OFF
+| --   SDL_UNINSTALL               (Wanted: ON): ON
+| --   SDL_VIRTUAL_JOYSTICK        (Wanted: OFF): OFF
+| --   SDL_VIVANTE                 (Wanted: OFF): OFF
+| --   SDL_VULKAN                  (Wanted: ON): ON
+| --   SDL_WASAPI                  (Wanted: ON): ON
+| --   SDL_WAYLAND                 (Wanted: OFF): OFF
+| --   SDL_WAYLAND_LIBDECOR        (Wanted: OFF): OFF
+| --   SDL_WAYLAND_LIBDECOR_SHARED (Wanted: OFF): OFF
+| --   SDL_WAYLAND_SHARED          (Wanted: OFF): OFF
+| --   SDL_X11                     (Wanted: OFF): OFF
+| --   SDL_X11_SHARED              (Wanted: OFF): OFF
+| --   SDL_X11_XCURSOR             (Wanted: OFF): OFF
+| --   SDL_X11_XDBE                (Wanted: OFF): OFF
+| --   SDL_X11_XFIXES              (Wanted: OFF): OFF
+| --   SDL_X11_XINPUT              (Wanted: OFF): OFF
+| --   SDL_X11_XRANDR              (Wanted: OFF): OFF
+| --   SDL_X11_XSCRNSAVER          (Wanted: OFF): OFF
+| --   SDL_X11_XSHAPE              (Wanted: OFF): OFF
+| --   SDL_X11_XSYNC               (Wanted: OFF): OFF
+| --   SDL_X11_XTEST               (Wanted: OFF): OFF
+| --   SDL_XINPUT                  (Wanted: ON): ON
+| --
+| --  Build Shared Library: OFF
+| --  Build Static Library: ON
+| --
+| -- Enabled backends:
+| --   Video drivers: offscreen windows
+| --   Render drivers: ogl ogl_es2
+| --   GPU drivers: disabled
+| --   Audio drivers: dsound dummy wasapi
+| --   Joystick drivers: dinput hidapi rawinput wgi xinput
+| --   Camera drivers: dummy
+| --
+| -- Configuring done (20.0s)
+| CMake Warning (dev) at CMakeLists.txt:3701 (file):
+| Policy CMP0112 is not set: Target file component generator expressions do
+| not add target dependencies.  Run "cmake --help-policy CMP0112" for policy
+| details.  Use the cmake_policy command to set the policy and suppress this
+| warning.
+
+| Dependency being added to target:
+
+| "LibUSB::LibUSB"
+
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at CMakeLists.txt:3701 (file):
+| Policy CMP0112 is not set: Target file component generator expressions do
+| not add target dependencies.  Run "cmake --help-policy CMP0112" for policy
+| details.  Use the cmake_policy command to set the policy and suppress this
+| warning.
+
+| Dependency being added to target:
+
+| "LibUSB::LibUSB"
+
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at CMakeLists.txt:3701 (file):
+| Policy CMP0112 is not set: Target file component generator expressions do
+| not add target dependencies.  Run "cmake --help-policy CMP0112" for policy
+| details.  Use the cmake_policy command to set the policy and suppress this
+| warning.
+
+| Dependency being added to target:
+
+| "LibUSB::LibUSB"
+
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at CMakeLists.txt:481 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Generating done (0.0s)
+| -- Build files have been written to: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/subprojects/sdl3/__CMake_build
+
+sdl3| CMake configuration: SUCCEEDED
+sdl3| WARNING: The CMake function "target_precompile_headers" was disabled to avoid compatibility issues with Meson.
+sdl3| CMake project SDL3 3.4.16 has 5 build targets.
+sdl3| Generated Meson AST: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/subprojects/sdl3/meson.build
+sdl3| Project name: SDL3
+sdl3| Project version: 3.4.16
+sdl3| C compiler for the host machine: x86_64-w64-mingw32.static-gcc -m64 (clang 21.1.8 "clang version 21.1.8")
+sdl3| C linker for the host machine: x86_64-w64-mingw32.static-gcc -m64 ld.lld 21.1.8
+sdl3| C++ compiler for the host machine: x86_64-w64-mingw32.static-g++ -m64 (clang 21.1.8 "clang version 21.1.8")
+sdl3| C++ linker for the host machine: x86_64-w64-mingw32.static-g++ -m64 ld.lld 21.1.8
+sdl3| C compiler for the build machine: cc (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+sdl3| C linker for the build machine: cc ld.bfd 2.44
+sdl3| C++ compiler for the build machine: ccache c++ (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+sdl3| C++ linker for the build machine: c++ ld.bfd 2.44
+sdl3| Build targets in project: 4
+sdl3| Subproject sdl3 finished.
+
+Dependency SDL3_image skipped: feature sdl_image disabled
+Library rados skipped: feature rbd disabled
+Library rbd skipped: feature rbd disabled
+Dependency glusterfs-api skipped: feature glusterfs disabled
+Dependency libssh skipped: feature libssh disabled
+Library bz2 skipped: feature bzip2 disabled
+Library lzfse skipped: feature lzfse disabled
+Has header "dsound.h" : YES (cached)
+Dependency appleframeworks (modules: CoreAudio) skipped: feature coreaudio disabled
+Dependency epoxy found: YES 1.5.10 (cached)
+Run-time dependency gbm found: NO (tried pkgconfig)
+Dependency libcbor skipped: feature libcbor disabled
+Dependency libgcrypt skipped: feature gcrypt disabled
+Dependency nettle skipped: feature nettle disabled
+Dependency capstone skipped: feature capstone disabled
+Run-time dependency gmp found: NO (tried pkgconfig)
+Library pam skipped: feature auth_pam disabled
+Library snappy skipped: feature snappy disabled
+Library lzo2 skipped: feature lzo disabled
+Library numa skipped: feature numa disabled
+Library rdmacm skipped: feature rdma disabled
+Library ibverbs skipped: feature rdma disabled
+Dependency libcacard skipped: feature smartcard disabled
+Dependency u2f-emu skipped: feature u2f disabled
+Dependency canokey-qemu skipped: feature canokey disabled
+Dependency libusbredirparser-0.5 skipped: feature usb_redir disabled
+Dependency libusb-1.0 found: YES 1.0.27 (cached)
+Dependency libpmem skipped: feature libpmem disabled
+Dependency libdaxctl skipped: feature libdaxctl disabled
+Dependency libkeyutils skipped: feature libkeyutils disabled
+Checking for function "gettid" : NO (cached)
+Dependency libselinux skipped: feature selinux disabled
+Dependency fuse3 skipped: feature fuse disabled
+Dependency libbpf skipped: feature bpf disabled
+Dependency libdw skipped: feature libdw disabled
+Run-time dependency glslang found: NO (tried pkgconfig and cmake)
+
+Executing subproject glslang method cmake 
+
+
+| Configuring the build directory with CMake version 3.31.6
+| Running CMake with: -G Ninja -DCMAKE_INSTALL_PREFIX=/qemu -DENABLE_OPT=False -DENABLE_HLSL=False -DCMAKE_BUILD_TYPE=Debug
+| - build directory:          /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/subprojects/glslang/__CMake_build
+| - source directory:         /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang
+| - toolchain file:           /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/subprojects/glslang/__CMake_build/CMakeMesonToolchainFile.cmake
+| - preload file:             /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake
+| - trace args:               --trace-expand --trace-format=json-v1 --no-warn-unused-cli --trace-redirect=cmake_trace.txt
+| - disabled policy warnings: [CMP0025, CMP0047, CMP0056, CMP0060, CMP0065, CMP0066, CMP0067, CMP0082, CMP0089, CMP0102]
+
+| Put cmake in trace mode, but with variables expanded.
+| Put cmake in trace mode and sets the trace output format.
+| Not searching for unused variables given on the command line.
+| Put cmake in trace mode and redirect trace output to a file instead of stderr.
+| Trace will be written to cmake_trace.txt
+| -- The C compiler identification is Clang 21.1.8
+| -- The CXX compiler identification is Clang 21.1.8
+| -- Detecting C compiler ABI info
+| -- Detecting C compiler ABI info - done
+| -- Check for working C compiler: /opt/xemu-toolchain/mxe/usr/bin/x86_64-w64-mingw32.static-gcc - skipped
+| -- Detecting C compile features
+| -- Detecting C compile features - done
+| -- Detecting CXX compiler ABI info
+| -- Detecting CXX compiler ABI info - done
+| -- Check for working CXX compiler: /opt/xemu-toolchain/mxe/usr/bin/x86_64-w64-mingw32.static-g++ - skipped
+| -- Detecting CXX compile features
+| -- Detecting CXX compile features - done
+| Disabling PCH
+| -- Google Mock was not found - tests based on that will not build
+| -- Found Python3: /usr/bin/python3 (found version "3.13.5") found components: Interpreter
+| -- Configuring done (0.4s)
+| CMake Warning (dev) at SPIRV/CMakeLists.txt:76 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at glslang/OSDependent/Windows/CMakeLists.txt:42 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at glslang/CMakeLists.txt:170 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at glslang/CMakeLists.txt:136 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at glslang/CMakeLists.txt:54 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at glslang/CMakeLists.txt:220 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at StandAlone/CMakeLists.txt:50 (add_executable):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Generating done (0.0s)
+| -- Build files have been written to: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/subprojects/glslang/__CMake_build
+
+glslang| CMake configuration: SUCCEEDED
+glslang| CMake project glslang  has 8 build targets.
+glslang| Generated Meson AST: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/subprojects/glslang/meson.build
+glslang| Project name: glslang
+glslang| Project version: undefined
+glslang| C compiler for the host machine: x86_64-w64-mingw32.static-gcc -m64 (clang 21.1.8 "clang version 21.1.8")
+glslang| C linker for the host machine: x86_64-w64-mingw32.static-gcc -m64 ld.lld 21.1.8
+glslang| C++ compiler for the host machine: x86_64-w64-mingw32.static-g++ -m64 (clang 21.1.8 "clang version 21.1.8")
+glslang| C++ linker for the host machine: x86_64-w64-mingw32.static-g++ -m64 ld.lld 21.1.8
+glslang| C compiler for the build machine: cc (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+glslang| C linker for the build machine: cc ld.bfd 2.44
+glslang| C++ compiler for the build machine: ccache c++ (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+glslang| C++ linker for the build machine: c++ ld.bfd 2.44
+glslang| Build targets in project: 12
+glslang| Subproject glslang finished.
+
+
+Executing subproject volk method cmake 
+
+
+| Configuring the build directory with CMake version 3.31.6
+| Running CMake with: -G Ninja -DCMAKE_INSTALL_PREFIX=/qemu -DVOLK_STATIC_DEFINES=VK_NO_PROTOTYPES -DCMAKE_BUILD_TYPE=Debug
+| - build directory:          /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/subprojects/volk/__CMake_build
+| - source directory:         /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/volk
+| - toolchain file:           /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/subprojects/volk/__CMake_build/CMakeMesonToolchainFile.cmake
+| - preload file:             /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake
+| - trace args:               --trace-expand --trace-format=json-v1 --no-warn-unused-cli --trace-redirect=cmake_trace.txt
+| - disabled policy warnings: [CMP0025, CMP0047, CMP0056, CMP0060, CMP0065, CMP0066, CMP0067, CMP0082, CMP0089, CMP0102]
+
+| Put cmake in trace mode, but with variables expanded.
+| Put cmake in trace mode and sets the trace output format.
+| Not searching for unused variables given on the command line.
+| Put cmake in trace mode and redirect trace output to a file instead of stderr.
+| Trace will be written to cmake_trace.txt
+| -- The C compiler identification is Clang 21.1.8
+| -- Detecting C compiler ABI info
+| -- Detecting C compiler ABI info - done
+| -- Check for working C compiler: /opt/xemu-toolchain/mxe/usr/bin/x86_64-w64-mingw32.static-gcc - skipped
+| -- Detecting C compile features
+| -- Detecting C compile features - done
+| volk: using Vulkan_INCLUDE_DIRS from FindVulkan module
+| -- Configuring done (0.2s)
+| CMake Warning (dev) at CMakeLists.txt:35 (add_library):
+| Policy CMP0179 is not set: De-duplication of static libraries on link lines
+| keeps first occurrence.  Run "cmake --help-policy CMP0179" for policy
+| details.  Use the cmake_policy command to set the policy and suppress this
+| warning.
+
+| Since the policy is not set, static libraries de-duplication will keep the
+| last occurrence of the static libraries.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Generating done (0.0s)
+| -- Build files have been written to: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/subprojects/volk/__CMake_build
+
+volk| CMake configuration: SUCCEEDED
+volk| CMake project volk 350 has 2 build targets.
+volk| Generated Meson AST: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/subprojects/volk/meson.build
+volk| Project name: volk
+volk| Project version: 350
+volk| C compiler for the host machine: x86_64-w64-mingw32.static-gcc -m64 (clang 21.1.8 "clang version 21.1.8")
+volk| C linker for the host machine: x86_64-w64-mingw32.static-gcc -m64 ld.lld 21.1.8
+volk| C compiler for the build machine: cc (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+volk| C linker for the build machine: cc ld.bfd 2.44
+volk| Build targets in project: 13
+volk| Subproject volk finished.
+
+
+Executing subproject SPIRV-Reflect method cmake 
+
+
+| Configuring the build directory with CMake version 3.31.6
+| Running CMake with: -G Ninja -DCMAKE_INSTALL_PREFIX=/qemu -DSPIRV_REFLECT_STATIC_LIB=ON -DCMAKE_BUILD_TYPE=Debug
+| - build directory:          /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/subprojects/SPIRV-Reflect/__CMake_build
+| - source directory:         /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/SPIRV-Reflect
+| - toolchain file:           /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/subprojects/SPIRV-Reflect/__CMake_build/CMakeMesonToolchainFile.cmake
+| - preload file:             /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake
+| - trace args:               --trace-expand --trace-format=json-v1 --no-warn-unused-cli --trace-redirect=cmake_trace.txt
+| - disabled policy warnings: [CMP0025, CMP0047, CMP0056, CMP0060, CMP0065, CMP0066, CMP0067, CMP0082, CMP0089, CMP0102]
+
+| Put cmake in trace mode, but with variables expanded.
+| Put cmake in trace mode and sets the trace output format.
+| Not searching for unused variables given on the command line.
+| Put cmake in trace mode and redirect trace output to a file instead of stderr.
+| Trace will be written to cmake_trace.txt
+| -- The C compiler identification is Clang 21.1.8
+| -- The CXX compiler identification is Clang 21.1.8
+| CMake Warning (dev) at /usr/share/cmake-3.31/Modules/CMakeFindBinUtils.cmake:225 (find_program):
+| Policy CMP0126 is not set: set(CACHE) does not remove a normal variable of
+| the same name.  Run "cmake --help-policy CMP0126" for policy details.  Use
+| the cmake_policy command to set the policy and suppress this warning.
+
+| For compatibility with older versions of CMake, normal variable
+| "CMAKE_TAPI" will be removed from the current scope.
+| Call Stack (most recent call first):
+| /usr/share/cmake-3.31/Modules/CMakeDetermineCXXCompiler.cmake:207 (include)
+| CMakeLists.txt:3 (project)
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Detecting C compiler ABI info
+| -- Detecting C compiler ABI info - done
+| -- Check for working C compiler: /opt/xemu-toolchain/mxe/usr/bin/x86_64-w64-mingw32.static-gcc - skipped
+| -- Detecting C compile features
+| -- Detecting C compile features - done
+| -- Detecting CXX compiler ABI info
+| -- Detecting CXX compiler ABI info - done
+| -- Check for working CXX compiler: /opt/xemu-toolchain/mxe/usr/bin/x86_64-w64-mingw32.static-g++ - skipped
+| -- Detecting CXX compile features
+| -- Detecting CXX compile features - done
+| -- Configuring done (0.4s)
+| CMake Warning (dev) at CMakeLists.txt:27 (add_executable):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at CMakeLists.txt:58 (add_executable):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at CMakeLists.txt:116 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Generating done (0.0s)
+| -- Build files have been written to: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/subprojects/SPIRV-Reflect/__CMake_build
+
+SPIRV-Reflect| CMake configuration: SUCCEEDED
+SPIRV-Reflect| CMake project spirv-reflect  has 3 build targets.
+SPIRV-Reflect| Generated Meson AST: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/subprojects/SPIRV-Reflect/meson.build
+SPIRV-Reflect| Project name: spirv-reflect
+SPIRV-Reflect| Project version: undefined
+SPIRV-Reflect| C compiler for the host machine: x86_64-w64-mingw32.static-gcc -m64 (clang 21.1.8 "clang version 21.1.8")
+SPIRV-Reflect| C linker for the host machine: x86_64-w64-mingw32.static-gcc -m64 ld.lld 21.1.8
+SPIRV-Reflect| C++ compiler for the host machine: x86_64-w64-mingw32.static-g++ -m64 (clang 21.1.8 "clang version 21.1.8")
+SPIRV-Reflect| C++ linker for the host machine: x86_64-w64-mingw32.static-g++ -m64 ld.lld 21.1.8
+SPIRV-Reflect| C compiler for the build machine: cc (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+SPIRV-Reflect| C linker for the build machine: cc ld.bfd 2.44
+SPIRV-Reflect| C++ compiler for the build machine: ccache c++ (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+SPIRV-Reflect| C++ linker for the build machine: c++ ld.bfd 2.44
+SPIRV-Reflect| Build targets in project: 16
+SPIRV-Reflect| Subproject SPIRV-Reflect finished.
+
+Dependency samplerate found: YES 0.2.2 (cached)
+
+Executing subproject imgui 
+
+imgui| Project name: imgui
+imgui| Project version: 1.91.8
+imgui| C++ compiler for the host machine: x86_64-w64-mingw32.static-g++ -m64 (clang 21.1.8 "clang version 21.1.8")
+imgui| C++ linker for the host machine: x86_64-w64-mingw32.static-g++ -m64 ld.lld 21.1.8
+imgui| C++ compiler for the build machine: ccache c++ (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+imgui| C++ linker for the build machine: c++ ld.bfd 2.44
+imgui| Library d3dcompiler found: YES
+imgui| Library d3d9 skipped: feature dx9 disabled
+imgui| Library d3d10 skipped: feature dx10 disabled
+imgui| Library d3d11 skipped: feature dx11 disabled
+imgui| Library d3d12 skipped: feature dx12 disabled
+imgui| Dependency appleframeworks (modules: Foundation, AppKit, GameController, Metal) skipped: feature metal disabled
+imgui| Dependency gl found: YES 0 (cached)
+imgui| Library dl found: NO
+imgui| Dependency sdl2 skipped: feature sdl2_renderer disabled
+imgui| Dependency sdl3 skipped: feature sdl3_renderer disabled
+imgui| Dependency vulkan skipped: feature vulkan disabled
+imgui| Has header "webgpu/webgpu.h" skipped: feature webgpu disabled
+imgui| Dependency sdl2 skipped: feature sdl2 disabled
+imgui| Dependency sdl3 found: YES 3.4.16 (overridden)
+imgui| Dependency allegro-5 skipped: feature allegro5 disabled
+imgui| Dependency allegro_primitives-5 skipped: feature allegro5 disabled
+imgui| Build targets in project: 17
+imgui| Subproject imgui finished.
+
+
+Executing subproject implot 
+
+implot| Project name: ImGui Plotting Library
+implot| Project version: 0.16
+implot| C++ compiler for the host machine: x86_64-w64-mingw32.static-g++ -m64 (clang 21.1.8 "clang version 21.1.8")
+implot| C++ linker for the host machine: x86_64-w64-mingw32.static-g++ -m64 ld.lld 21.1.8
+implot| C++ compiler for the build machine: ccache c++ (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+implot| C++ linker for the build machine: c++ ld.bfd 2.44
+implot| Build targets in project: 18
+implot| Subproject implot finished.
+
+
+Executing subproject genconfig 
+
+genconfig| Project name: genconfig
+genconfig| Project version: 0.1
+genconfig| C compiler for the host machine: x86_64-w64-mingw32.static-gcc -m64 (clang 21.1.8 "clang version 21.1.8")
+genconfig| C linker for the host machine: x86_64-w64-mingw32.static-gcc -m64 ld.lld 21.1.8
+genconfig| C compiler for the build machine: cc (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+genconfig| C linker for the build machine: cc ld.bfd 2.44
+genconfig| Build targets in project: 18
+genconfig| Subproject genconfig finished.
+
+
+Executing subproject VulkanMemoryAllocator method cmake 
+
+
+| Configuring the build directory with CMake version 3.31.6
+| Running CMake with: -G Ninja -DCMAKE_INSTALL_PREFIX=/qemu -DCMAKE_BUILD_TYPE=Debug
+| - build directory:          /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/subprojects/VulkanMemoryAllocator/__CMake_build
+| - source directory:         /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/VulkanMemoryAllocator
+| - toolchain file:           /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/subprojects/VulkanMemoryAllocator/__CMake_build/CMakeMesonToolchainFile.cmake
+| - preload file:             /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake
+| - trace args:               --trace-expand --trace-format=json-v1 --no-warn-unused-cli --trace-redirect=cmake_trace.txt
+| - disabled policy warnings: [CMP0025, CMP0047, CMP0056, CMP0060, CMP0065, CMP0066, CMP0067, CMP0082, CMP0089, CMP0102]
+
+| Put cmake in trace mode, but with variables expanded.
+| Put cmake in trace mode and sets the trace output format.
+| Not searching for unused variables given on the command line.
+| Put cmake in trace mode and redirect trace output to a file instead of stderr.
+| Trace will be written to cmake_trace.txt
+| -- The CXX compiler identification is Clang 21.1.8
+| -- Detecting CXX compiler ABI info
+| -- Detecting CXX compiler ABI info - done
+| -- Check for working CXX compiler: /opt/xemu-toolchain/mxe/usr/bin/x86_64-w64-mingw32.static-g++ - skipped
+| -- Detecting CXX compile features
+| -- Detecting CXX compile features - done
+| -- Configuring done (0.2s)
+| -- Generating done (0.0s)
+| -- Build files have been written to: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/subprojects/VulkanMemoryAllocator/__CMake_build
+
+VulkanMemoryAllocator| CMake configuration: SUCCEEDED
+VulkanMemoryAllocator| CMake project VMA 3.4.0 has 1 build targets.
+VulkanMemoryAllocator| Generated Meson AST: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/subprojects/VulkanMemoryAllocator/meson.build
+VulkanMemoryAllocator| Project name: VMA
+VulkanMemoryAllocator| Project version: 3.4.0
+VulkanMemoryAllocator| Build targets in project: 18
+VulkanMemoryAllocator| Subproject VulkanMemoryAllocator finished.
+
+Has header "sys/epoll.h" : NO (cached)
+Has header "linux/magic.h" : NO (cached)
+Has header "linux/btrfs.h" : NO (cached)
+Has header "libdrm/drm.h" : NO (cached)
+Has header "linux/openat2.h" : NO (cached)
+Has header "pty.h" : NO (cached)
+Has header "sys/disk.h" : NO (cached)
+Has header "sys/ioccom.h" : NO (cached)
+Has header "sys/kcov.h" : NO (cached)
+Has header "afunix.h" : YES (cached)
+Checking for function "close_range" : NO (cached)
+Checking for function "accept4" : NO (cached)
+Checking for function "clock_adjtime" : NO (cached)
+Checking for function "dup3" : NO (cached)
+Checking for function "fallocate" : NO (cached)
+Checking for function "posix_fallocate" : NO (cached)
+Checking for function "sched_getcpu" : NO (cached)
+Checking for function "posix_memalign" : NO (cached)
+Checking for function "_aligned_malloc" : YES (cached)
+Checking for function "valloc" : NO (cached)
+Checking for function "memalign" : NO (cached)
+Checking for function "ppoll" : NO (cached)
+Checking for function "preadv" : NO (cached)
+Checking for function "pthread_fchdir_np" : NO (cached)
+Checking for function "sendfile" : NO (cached)
+Checking for function "setns" : NO (cached)
+Checking for function "syncfs" : NO (cached)
+Checking for function "sync_file_range" : NO (cached)
+Checking for function "timerfd_create" : NO (cached)
+Checking for function "getloadavg" : NO (cached)
+Checking for function "htonll" : NO (cached)
+Checking for function "copy_file_range" : NO (cached)
+Checking for function "getifaddrs" : NO (cached)
+Checking for function "openpty" with dependency -lutil: NO (cached)
+Checking for function "strchrnul" : NO (cached)
+Checking for function "system" : YES (cached)
+Header "sys/inotify.h" has symbol "inotify_init" : NO (cached)
+Header "sys/inotify.h" has symbol "inotify_init1" : NO (cached)
+Header "linux/blkzoned.h" has symbol "BLKOPENZONE" : NO (cached)
+Header "sys/epoll.h" has symbol "epoll_create1" : NO (cached)
+Header "linux/falloc.h" has symbol "FALLOC_FL_PUNCH_HOLE" : NO (cached)
+Header "linux/falloc.h" has symbol "FALLOC_FL_ZERO_RANGE" : NO (cached)
+Has header "linux/fiemap.h" : NO (cached)
+Header "sched.h" has symbol "getcpu" : NO (cached)
+Checking for function "getrandom" : NO (cached)
+Header "sys/prctl.h" has symbol "PR_SET_TIMERSLACK" : NO (cached)
+Header "linux/rtnetlink.h" has symbol "IFLA_PROTO_DOWN" : NO (cached)
+Header "sys/sysmacros.h" has symbol "makedev" : NO (cached)
+Header "getopt.h" has symbol "optreset" : NO (cached)
+Header "netinet/in.h" has symbol "IPPROTO_MPTCP" : NO (cached)
+Header "netinet/tcp.h" has symbol "TCP_KEEPCNT" : NO (cached)
+Checking if "Win32 TCP_KEEPCNT" compiles: YES (cached)
+Header "netinet/tcp.h" has symbol "TCP_KEEPIDLE" : NO (cached)
+Header "netinet/tcp.h" has symbol "TCP_KEEPALIVE" : NO (cached)
+Checking if "Win32 TCP_KEEPIDLE" compiles: YES (cached)
+Header "netinet/tcp.h" has symbol "TCP_KEEPINTVL" : NO (cached)
+Checking if "Win32 TCP_KEEPINTVL" compiles: YES (cached)
+Checking whether type "struct sigevent" has member "sigev_notify_thread_id" : NO (cached)
+Checking whether type "struct stat" has member "st_atim" : NO (cached)
+Checking whether type "struct blk_zone" has member "capacity" : NO (cached)
+Checking for type "struct iovec" : NO (cached)
+Checking for type "struct utmpx" : NO (cached)
+Header "asm/hwprobe.h" has symbol "RISCV_HWPROBE_EXT_ZBA" : NO (cached)
+Header "linux/vm_sockets.h" has symbol "AF_VSOCK" : NO (cached)
+Has header "vscoordint.h" : NO (cached)
+Checking if "_lock_file and _unlock_file" links: YES (cached)
+Checking if "mingw setjmp and longjmp" links: NO (cached)
+Checking for size of "void *" : 8 
+Program scripts/minikconf.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/minikconf.py)
+Configuring i386-softmmu-config-target.h using configuration
+Configuring i386-softmmu-config-devices.mak with command
+Reading depfile: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/meson-private/i386-softmmu-config-devices.mak.d
+Configuring i386-softmmu-config-devices.h using configuration
+Program scripts/make-config-poison.sh found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/make-config-poison.sh)
+Run-time dependency tomlplusplus found: NO (tried pkgconfig and cmake)
+Looking for a fallback subproject for the dependency tomlplusplus
+
+Executing subproject tomlplusplus 
+
+tomlplusplus| Project name: tomlplusplus
+tomlplusplus| Project version: 3.4.0
+tomlplusplus| C++ compiler for the host machine: x86_64-w64-mingw32.static-g++ -m64 (clang 21.1.8 "clang version 21.1.8")
+tomlplusplus| C++ linker for the host machine: x86_64-w64-mingw32.static-g++ -m64 ld.lld 21.1.8
+tomlplusplus| C++ compiler for the build machine: ccache c++ (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+tomlplusplus| C++ linker for the build machine: c++ ld.bfd 2.44
+tomlplusplus| Message: target cpu_family: x86_64
+tomlplusplus| Message: target cpu: x86_64
+tomlplusplus| Message: target system: windows
+tomlplusplus| Message: target endian: little
+tomlplusplus| Compiler for C++ supports arguments -ferror-limit=5: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments -fmax-errors=5: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-unused-command-line-argument: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-reserved-macro-identifier: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-init-list-lifetime: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -fchar8_t: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments /bigobj: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /Gy: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /GF: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /openmp-: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /permissive-: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /utf-8: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /volatile:iso: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /Zc:__cplusplus: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /Zc:inline: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /Zc:externConstexpr: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /Zc:preprocessor: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /Zc:throwingNew: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -D_HAS_EXCEPTIONS=1: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-c++98-compat: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-c++98-compat-pedantic: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-documentation: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-documentation-unknown-command: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-switch-enum: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-covered-switch-default: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-padded: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-float-equal: YES (cached)
+tomlplusplus| Compiler for C++ supports link arguments /OPT:REF,ICF=3: NO (cached)
+tomlplusplus| Compiler for C++ supports link arguments /INCREMENTAL:NO: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -DTOML_HEADER_ONLY=0: YES (cached)
+tomlplusplus| Build targets in project: 22
+tomlplusplus| Subproject tomlplusplus finished.
+
+Dependency tomlplusplus found: YES 3.4.0 (overridden)
+Run-time dependency libxxhash found: NO (tried pkgconfig and cmake)
+Looking for a fallback subproject for the dependency libxxhash
+
+Executing subproject xxhash 
+
+xxhash| Project name: xxHash
+xxhash| Project version: 0.8.3
+xxhash| C compiler for the host machine: x86_64-w64-mingw32.static-gcc -m64 (clang 21.1.8 "clang version 21.1.8")
+xxhash| C linker for the host machine: x86_64-w64-mingw32.static-gcc -m64 ld.lld 21.1.8
+xxhash| C compiler for the build machine: cc (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+xxhash| C linker for the build machine: cc ld.bfd 2.44
+xxhash| Build targets in project: 24
+xxhash| Subproject xxhash finished.
+
+Dependency libxxhash found: YES 0.8.3 (overridden)
+Configuring config-host.h using configuration
+Program scripts/hxtool found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/hxtool)
+Program scripts/shaderinclude.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/shaderinclude.py)
+Program scripts/qapi-gen.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/qapi-gen.py)
+Program scripts/pack-file.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/pack-file.py)
+Program scripts/qemu-version.sh found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/qemu-version.sh)
+Run-time dependency nlohmann_json found: NO (tried pkgconfig and cmake)
+Looking for a fallback subproject for the dependency nlohmann_json
+
+Executing subproject nlohmann_json 
+
+nlohmann_json| Project name: nlohmann_json
+nlohmann_json| Project version: 3.12.0
+nlohmann_json| C++ compiler for the host machine: x86_64-w64-mingw32.static-g++ -m64 (clang 21.1.8 "clang version 21.1.8")
+nlohmann_json| C++ linker for the host machine: x86_64-w64-mingw32.static-g++ -m64 ld.lld 21.1.8
+nlohmann_json| C++ compiler for the build machine: ccache c++ (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+nlohmann_json| C++ linker for the build machine: c++ ld.bfd 2.44
+nlohmann_json| Build targets in project: 463
+nlohmann_json| Subproject nlohmann_json finished.
+
+Dependency nlohmann_json from subproject subprojects/nlohmann_json found: YES 3.12.0
+Library d3d11 found: YES
+Library dxgi found: YES
+
+Executing subproject keycodemapdb 
+
+keycodemapdb| Project name: keycodemapdb
+keycodemapdb| Project version: undefined
+keycodemapdb| Program tools/keymap-gen found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/keycodemapdb/tools/keymap-gen)
+keycodemapdb| Build targets in project: 464
+keycodemapdb| Subproject keycodemapdb finished.
+
+
+Executing subproject nv2a_vsh_cpu method cmake 
+
+
+| Configuring the build directory with CMake version 3.31.6
+| Running CMake with: -G Ninja -DCMAKE_INSTALL_PREFIX=/qemu -DCMAKE_OSX_ARCHITECTURES=x86_64 -Dnv2a_vsh_cpu_UNIT_TEST=OFF -DCMAKE_BUILD_TYPE=Debug
+| - build directory:          /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/subprojects/nv2a_vsh_cpu/__CMake_build
+| - source directory:         /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/nv2a_vsh_cpu
+| - toolchain file:           /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/subprojects/nv2a_vsh_cpu/__CMake_build/CMakeMesonToolchainFile.cmake
+| - preload file:             /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake
+| - trace args:               --trace-expand --trace-format=json-v1 --no-warn-unused-cli --trace-redirect=cmake_trace.txt
+| - disabled policy warnings: [CMP0025, CMP0047, CMP0056, CMP0060, CMP0065, CMP0066, CMP0067, CMP0082, CMP0089, CMP0102]
+
+| Put cmake in trace mode, but with variables expanded.
+| Put cmake in trace mode and sets the trace output format.
+| Not searching for unused variables given on the command line.
+| Put cmake in trace mode and redirect trace output to a file instead of stderr.
+| Trace will be written to cmake_trace.txt
+| -- The C compiler identification is Clang 21.1.8
+| -- The CXX compiler identification is Clang 21.1.8
+| CMake Warning (dev) at /usr/share/cmake-3.31/Modules/CMakeFindBinUtils.cmake:225 (find_program):
+| Policy CMP0126 is not set: set(CACHE) does not remove a normal variable of
+| the same name.  Run "cmake --help-policy CMP0126" for policy details.  Use
+| the cmake_policy command to set the policy and suppress this warning.
+
+| For compatibility with older versions of CMake, normal variable
+| "CMAKE_TAPI" will be removed from the current scope.
+| Call Stack (most recent call first):
+| /usr/share/cmake-3.31/Modules/CMakeDetermineCXXCompiler.cmake:207 (include)
+| CMakeLists.txt:3 (project)
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Detecting C compiler ABI info
+| -- Detecting C compiler ABI info - done
+| -- Check for working C compiler: /opt/xemu-toolchain/mxe/usr/bin/x86_64-w64-mingw32.static-gcc - skipped
+| -- Detecting C compile features
+| -- Detecting C compile features - done
+| -- Detecting CXX compiler ABI info
+| -- Detecting CXX compiler ABI info - done
+| -- Check for working CXX compiler: /opt/xemu-toolchain/mxe/usr/bin/x86_64-w64-mingw32.static-g++ - skipped
+| -- Detecting CXX compile features
+| -- Detecting CXX compile features - done
+| -- Configuring done (0.4s)
+| CMake Warning (dev) at CMakeLists.txt:32 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at CMakeLists.txt:44 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at CMakeLists.txt:56 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Generating done (0.0s)
+| -- Build files have been written to: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/subprojects/nv2a_vsh_cpu/__CMake_build
+
+nv2a_vsh_cpu| CMake configuration: SUCCEEDED
+nv2a_vsh_cpu| CMake project nv2a_vsh_cpu  has 3 build targets.
+nv2a_vsh_cpu| Generated Meson AST: /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/subprojects/nv2a_vsh_cpu/meson.build
+nv2a_vsh_cpu| Project name: nv2a_vsh_cpu
+nv2a_vsh_cpu| Project version: undefined
+nv2a_vsh_cpu| C compiler for the host machine: x86_64-w64-mingw32.static-gcc -m64 (clang 21.1.8 "clang version 21.1.8")
+nv2a_vsh_cpu| C linker for the host machine: x86_64-w64-mingw32.static-gcc -m64 ld.lld 21.1.8
+nv2a_vsh_cpu| C compiler for the build machine: cc (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+nv2a_vsh_cpu| C linker for the build machine: cc ld.bfd 2.44
+nv2a_vsh_cpu| Build targets in project: 498
+nv2a_vsh_cpu| Subproject nv2a_vsh_cpu finished.
+
+Run-time dependency dsp56300-emu-ffi found: NO (tried pkgconfig and cmake)
+Looking for a fallback subproject for the dependency dsp56300-emu-ffi
+
+Executing subproject dsp56300 
+
+dsp56300| Project name: dsp56300
+dsp56300| Project version: 0.1.3
+dsp56300| Build targets in project: 499
+dsp56300| Subproject dsp56300 finished.
+
+Dependency dsp56300-emu-ffi found: YES 0.1.3 (overridden)
+Program scripts/decodetree.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/decodetree.py)
+Program ../scripts/modules/module_block.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/block/../scripts/modules/module_block.py)
+Program ../scripts/block-coroutine-wrapper.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/block/../scripts/block-coroutine-wrapper.py)
+Program scripts/modinfo-collect.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/modinfo-collect.py)
+Program scripts/modinfo-generate.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/modinfo-generate.py)
+Program x86_64-w64-mingw32.static-nm found: YES
+Program scripts/undefsym.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/undefsym.py)
+Program scripts/feature_to_c.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/feature_to_c.py)
+Program scripts/rust/rust_root_crate.sh found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/rust/rust_root_crate.sh)
+Configuring 50-edk2-i386-secure.json using configuration
+Configuring 50-edk2-x86_64-secure.json using configuration
+Configuring 60-edk2-aarch64.json using configuration
+Configuring 60-edk2-arm.json using configuration
+Configuring 60-edk2-i386.json using configuration
+Configuring 60-edk2-x86_64.json using configuration
+Configuring 60-edk2-loongarch64.json using configuration
+Configuring 60-edk2-riscv64.json using configuration
+Program dtc found: NO
+Program qemu-keymap found: NO
+Program /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/bin/sphinx-build skipped: feature docs disabled
+Program /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/decodetree.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/decodetree.py)
+Compiler for C supports arguments -ffunction-sections: YES (cached)
+Compiler for C supports arguments -fdata-sections: YES (cached)
+Compiler for C supports link arguments -Wl,--gc-sections: YES (cached)
+Compiler for C supports arguments -ffunction-sections: YES (cached)
+Compiler for C supports arguments -fdata-sections: YES (cached)
+Compiler for C supports link arguments -Wl,--gc-sections: YES (cached)
+Program test-xemu-version.sh found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/tests/unit/test-xemu-version.sh)
+Program cc found: YES (/usr/bin/cc)
+Program diff found: YES (/usr/bin/diff)
+Program dbus-daemon found: YES (/usr/bin/dbus-daemon)
+Run-time dependency sysprof-capture-4 found: NO (tried pkgconfig)
+Dependency glib-2.0 found: YES 2.83.2 (cached)
+Program initrd-stress.sh found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/tests/migration-stress/initrd-stress.sh)
+Program scripts/nsis.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/nsis.py)
+Build targets in project: 762
+
+qemu 10.2.0
+
+  Build environment
+    Build directory                 : /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe
+    Source path                     : /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache
+    Download dependencies           : YES
+
+  Directories
+    Build directory                 : /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe
+    Source path                     : /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache
+    Download dependencies           : YES
+    Install prefix                  : /qemu
+    BIOS directory                  : share/
+    firmware path                   : share/qemu-firmware
+    binary directory                : /qemu/.
+    library directory               : /qemu/lib
+    module directory                : lib/
+    libexec directory               : /qemu/libexec
+    include directory               : /qemu/include
+    config directory                : /qemu/etc
+    local state directory           : queried at runtime
+    Doc directory                   : /qemu/share/doc
+
+  Host binaries
+    python                          : /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/bin/python3 (version: 3.13)
+    sphinx-build                    : NO
+    gdb                             : /usr/bin/gdb
+    iasl                            : NO
+    genisoimage                     : 
+    smbd                            : NO
+
+  Configurable features
+    Documentation                   : NO
+    system-mode emulation           : YES
+    user-mode emulation             : NO
+    block layer                     : YES
+    Install blobs                   : YES
+    module support                  : NO
+    fuzzing support                 : NO
+    Audio drivers                   : dsound sdl
+    Trace backends                  : log
+    QOM debugging                   : YES
+    Relocatable install             : YES
+    vhost-kernel support            : NO
+    vhost-net support               : NO
+    vhost-user support              : NO
+    vhost-user-crypto support       : NO
+    vhost-user-blk server support   : NO
+    vhost-vdpa support              : NO
+    build guest agent               : NO
+
+  Compilation
+    host CPU                        : x86_64
+    host endianness                 : little
+    C compiler                      : x86_64-w64-mingw32.static-gcc -m64
+    Host C compiler                 : cc
+    C++ compiler                    : x86_64-w64-mingw32.static-g++ -m64
+    Objective-C compiler            : NO
+    Rust support                    : NO
+    CFLAGS                          : -DXBOX -g -O2
+    CXXFLAGS                        : -DXBOX -DXBOX -g -O2
+    LDFLAGS                         : -DXBOX
+    QEMU_CFLAGS                     : -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -fno-pie -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr
+    QEMU_CXXFLAGS                   : -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -fno-pie -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS
+    QEMU_LDFLAGS                    : -static -Wl,--no-seh -Wl,--nxcompat -Wl,--dynamicbase -Wl,--high-entropy-va
+    link-time optimization (LTO)    : NO
+    PIE                             : NO
+    static build                    : YES
+    malloc trim support             : NO
+    membarrier                      : NO
+    debug graph lock                : NO
+    debug stack usage               : NO
+    mutex debugging                 : NO
+    memory allocator                : system
+    avx2 optimization               : YES
+    avx512bw optimization           : YES
+    gcov                            : NO
+    thread sanitizer                : NO
+    CFI support                     : NO
+    strip binaries                  : NO
+    sparse                          : NO
+    mingw32 support                 : YES
+
+  Cross compilers
+    i386                            : /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/bin/python3 -B /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/tests/docker/docker.py --engine docker cc --cc i686-linux-gnu-gcc -i qemu/debian-i686-cross -s /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache --
+
+  Targets and accelerators
+    KVM support                     : NO
+    HVF support                     : NO
+    WHPX support                    : NO
+    NVMM support                    : NO
+    MSHV support                    : NO
+    Xen support                     : NO
+    Xen emulation                   : NO
+    TCG support                     : YES
+    TCG backend                     : native (x86_64)
+    TCG plugins                     : NO
+    TCG debug enabled               : NO
+    target list                     : i386-softmmu
+    default devices                 : YES
+    out of process emulation        : NO
+    vfio-user server                : NO
+
+  Block layer support
+    coroutine backend               : windows
+    coroutine pool                  : YES
+    Block whitelist (rw)            : 
+    Block whitelist (ro)            : 
+    Use block whitelist in tools    : NO
+    VirtFS (9P) support             : NO
+    replication support             : NO
+    bochs support                   : NO
+    cloop support                   : NO
+    dmg support                     : NO
+    qcow v1 support                 : NO
+    vdi support                     : NO
+    vhdx support                    : NO
+    vmdk support                    : NO
+    vpc support                     : NO
+    vvfat support                   : NO
+    qed support                     : NO
+    parallels support               : NO
+    FUSE exports                    : NO
+    VDUSE block exports             : NO
+
+  Crypto
+    TLS priority                    : NORMAL
+    GNUTLS support                  : NO
+    libgcrypt                       : NO
+    nettle                          : NO
+    SM4 ALG support                 : NO
+    SM3 ALG support                 : NO
+    AF_ALG support                  : NO
+    rng-none                        : NO
+    Linux keyring                   : NO
+    Linux keyutils                  : NO
+
+  User interface
+    D-Bus display                   : NO
+    SDL support                     : YES
+    SDL image support               : NO
+    GTK support                     : NO
+    pixman                          : NO
+    VTE support                     : NO
+    PNG support                     : NO
+    VNC support                     : NO
+    spice protocol support          : NO
+    curses support                  : NO
+    brlapi support                  : NO
+
+  Graphics backends
+    VirGL support                   : NO
+    Rutabaga support                : NO
+
+  Audio backends
+    DirectSound support             : YES
+    PipeWire support                : NO
+    JACK support                    : NO
+
+  Network backends
+    AF_XDP support                  : NO
+    passt support                   : NO
+    slirp support                   : YES 4.7.0
+    vde support                     : NO
+    netmap support                  : NO
+    l2tpv3 support                  : NO
+
+  Dependencies
+    libtasn1                        : NO
+    PAM                             : NO
+    iconv support                   : NO
+    blkio support                   : NO
+    curl support                    : YES 8.18.0
+    Multipath support               : NO
+    Linux AIO support               : NO
+    Linux io_uring support          : NO
+    ATTR/XATTR support              : NO
+    RDMA support                    : NO
+    fdt support                     : NO
+    libcap-ng support               : NO
+    bpf support                     : NO
+    rbd support                     : NO
+    smartcard support               : NO
+    U2F support                     : NO
+    libusb                          : YES 1.0.27
+    usb net redir                   : NO
+    OpenGL support (epoxy)          : YES
+    Vulkan support                  : YES
+    GBM                             : NO
+    libiscsi support                : NO
+    libnfs support                  : NO
+    seccomp support                 : NO
+    GlusterFS support               : NO
+    hv-balloon support              : NO
+    TPM support                     : NO
+    IGVM support                    : NO
+    libssh support                  : NO
+    lzo support                     : NO
+    snappy support                  : NO
+    bzip2 support                   : NO
+    lzfse support                   : NO
+    zstd support                    : NO
+    Query Processing Library support: NO
+    UADK Library support            : NO
+    qatzip support                  : NO
+    NUMA host support               : NO
+    capstone                        : NO
+    libpmem support                 : NO
+    libdaxctl support               : NO
+    libcbor support                 : NO
+    libudev                         : NO
+    FUSE lseek                      : NO
+    selinux                         : NO
+    vtune                           : NO
+    libdw                           : NO
+    valgrind                        : NO
+
+  Subprojects
+    SPIRV-Reflect                   : YES
+    VulkanMemoryAllocator           : YES
+    dsp56300                        : YES
+    genconfig                       : YES
+    glslang                         : YES
+    imgui                           : YES
+    implot                          : YES
+    keycodemapdb                    : YES
+    nlohmann_json                   : YES
+    nv2a_vsh_cpu                    : YES
+    sdl3                            : YES
+    tomlplusplus                    : YES
+    volk                            : YES
+    xxhash                          : YES
+
+  User defined options
+    Cross files                     : /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/config-meson.cross
+                                      /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/configs/meson/windows.txt
+    Native files                    : /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/config-meson.native
+    auto_features                   : disabled
+    b_pie                           : false
+    docs                            : disabled
+    gdb                             : /usr/bin/gdb
+    prefer_static                   : true
+    werror                          : false
+    xemu_tcg_jump_cache_probe       : true
+
+Found ninja-1.12.1 at /usr/bin/ninja
+Generating targets:   0%|          | 0/762 eta ?Generating targets:  66%|██████▌   | 504/762 eta 00:00                                                      Writing build.ninja:   0%|          | 0/3560 eta ?Writing build.ninja:  72%|███████▏  | 2579/3560 eta 00:00                                                         Cleaning... 0 files.
+Running postconf script '/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/symlink-install-tree.py'
+[1/834] Generating qemu-version.h with a custom command (wrapped by meson to capture output)
+[2/833] Generating xemu-version-macro.h with a custom command (wrapped by meson to capture output)
+[3/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_SDL_error.c.obj
+[4/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_SDL_assert.c.obj
+[5/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_SDL_guid.c.obj
+[6/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_SDL.c.obj
+[7/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_SDL_hints.c.obj
+[8/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_SDL_list.c.obj
+[9/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_SDL_hashtable.c.obj
+[10/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_SDL_log.c.obj
+[11/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_atomic_SDL_atomic.c.obj
+[12/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_SDL_properties.c.obj
+[13/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_SDL_utils.c.obj
+[14/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_atomic_SDL_spinlock.c.obj
+[15/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_audio_SDL_audiodev.c.obj
+[16/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_audio_SDL_audioqueue.c.obj
+[17/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_audio_SDL_audioresample.c.obj
+[18/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_audio_SDL_audio.c.obj
+[19/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_audio_SDL_mixer.c.obj
+[20/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_audio_SDL_audiotypecvt.c.obj
+[21/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_audio_SDL_audiocvt.c.obj
+[22/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_audio_SDL_wave.c.obj
+[23/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_core_SDL_core_unsupported.c.obj
+[24/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_cpuinfo_SDL_cpuinfo.c.obj
+[25/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_camera_SDL_camera.c.obj
+[26/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_events_SDL_categories.c.obj
+[27/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_events_SDL_clipboardevents.c.obj
+[28/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_events_SDL_displayevents.c.obj
+[29/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_events_SDL_dropevents.c.obj
+[30/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_events_SDL_eventwatch.c.obj
+[31/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_events_SDL_keyboard.c.obj
+[32/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_events_SDL_events.c.obj
+[33/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_events_SDL_keymap.c.obj
+[34/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_events_SDL_keysym_to_keycode.c.obj
+[35/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_events_SDL_keysym_to_scancode.c.obj
+[36/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_events_SDL_pen.c.obj
+[37/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_events_SDL_quit.c.obj
+[38/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_events_SDL_mouse.c.obj
+[39/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_events_SDL_scancode_tables.c.obj
+[40/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_events_SDL_touch.c.obj
+[41/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_events_SDL_windowevents.c.obj
+[42/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_events_imKStoUCS.c.obj
+[43/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_filesystem_SDL_filesystem.c.obj
+[44/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_haptic_SDL_haptic.c.obj
+[45/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_dynapi_SDL_dynapi.c.obj
+[46/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_io_SDL_asyncio.c.obj
+[47/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_gpu_SDL_gpu.c.obj
+[48/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_io_generic_SDL_asyncio_generic.c.obj
+[49/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_io_SDL_iostream.c.obj
+[50/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_SDL_steam_virtual_gamepad.c.obj
+[51/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_SDL_gamepad.c.obj
+[52/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_hidapi_SDL_hidapi.c.obj
+[53/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_controller_type.c.obj
+[54/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_SDL_joystick.c.obj
+[55/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_locale_SDL_locale.c.obj
+[56/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_main_SDL_main_callbacks.c.obj
+[57/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_main_SDL_runapp.c.obj
+[58/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_misc_SDL_url.c.obj
+[59/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_power_SDL_power.c.obj
+[60/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_misc_SDL_libusb.c.obj
+[61/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_SDL_render_unsupported.c.obj
+[62/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_SDL_yuv_sw.c.obj
+[63/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_direct3d_SDL_render_d3d.c.obj
+[64/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_direct3d_SDL_shaders_d3d.c.obj
+[65/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_direct3d11_SDL_render_d3d11.c.obj
+[66/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_direct3d11_SDL_shaders_d3d11.c.obj
+[67/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_direct3d12_SDL_render_d3d12.c.obj
+[68/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_direct3d12_SDL_shaders_d3d12.c.obj
+[69/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_gpu_SDL_pipeline_gpu.c.obj
+[70/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_gpu_SDL_render_gpu.c.obj
+[71/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_gpu_SDL_shaders_gpu.c.obj
+[72/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_SDL_render.c.obj
+[73/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_ngage_SDL_render_ngage.c.obj
+[74/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_opengl_SDL_render_gl.c.obj
+[75/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_opengles2_SDL_render_gles2.c.obj
+[76/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_opengl_SDL_shaders_gl.c.obj
+[77/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_opengles2_SDL_shaders_gles2.c.obj
+[78/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_ps2_SDL_render_ps2.c.obj
+[79/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_psp_SDL_render_psp.c.obj
+[80/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_software_SDL_blendfillrect.c.obj
+[81/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_software_SDL_blendline.c.obj
+[82/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_software_SDL_blendpoint.c.obj
+[83/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_software_SDL_drawpoint.c.obj
+[84/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_software_SDL_drawline.c.obj
+[85/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_software_SDL_render_sw.c.obj
+[86/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_software_SDL_triangle.c.obj
+[87/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_vitagxm_SDL_render_vita_gxm.c.obj
+[88/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_vitagxm_SDL_render_vita_gxm_memory.c.obj
+[89/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_vitagxm_SDL_render_vita_gxm_tools.c.obj
+[90/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_vulkan_SDL_render_vulkan.c.obj
+[91/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_render_vulkan_SDL_shaders_vulkan.c.obj
+[92/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_sensor_SDL_sensor.c.obj
+[93/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_stdlib_SDL_crc16.c.obj
+[94/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_stdlib_SDL_crc32.c.obj
+[95/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_stdlib_SDL_getenv.c.obj
+[96/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_stdlib_SDL_malloc.c.obj
+[97/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_stdlib_SDL_iconv.c.obj
+[98/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_stdlib_SDL_memcpy.c.obj
+[99/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_stdlib_SDL_memmove.c.obj
+[100/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_stdlib_SDL_memset.c.obj
+[101/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_stdlib_SDL_mslibc.c.obj
+[102/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_stdlib_SDL_murmur3.c.obj
+[103/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_stdlib_SDL_random.c.obj
+[104/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_stdlib_SDL_stdlib.c.obj
+[105/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_stdlib_SDL_qsort.c.obj
+[106/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_stdlib_SDL_strtokr.c.obj
+[107/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_stdlib_SDL_string.c.obj
+[108/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_storage_SDL_storage.c.obj
+[109/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_time_SDL_time.c.obj
+[110/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_thread_SDL_thread.c.obj
+[111/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_timer_SDL_timer.c.obj
+[112/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_SDL_blit.c.obj
+[113/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_SDL_blit_1.c.obj
+[114/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_SDL_RLEaccel.c.obj
+[115/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_SDL_blit_0.c.obj
+[116/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_SDL_blit_A.c.obj
+[117/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_SDL_blit_copy.c.obj
+[118/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_SDL_blit_N.c.obj
+[119/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_SDL_bmp.c.obj
+[120/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_SDL_clipboard.c.obj
+[121/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_SDL_blit_slow.c.obj
+[122/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_SDL_fillrect.c.obj
+[123/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_SDL_egl.c.obj
+[124/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_SDL_pixels.c.obj
+[125/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_SDL_rect.c.obj
+[126/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_SDL_rotate.c.obj
+[127/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_SDL_stretch.c.obj
+[128/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_SDL_surface.c.obj
+[129/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_SDL_video_unsupported.c.obj
+[130/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_SDL_vulkan_utils.c.obj
+[131/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_SDL_video.c.obj
+[132/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_yuv2rgb_yuv_rgb_lsx.c.obj
+[133/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_SDL_stb.c.obj
+[134/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_SDL_yuv.c.obj
+[135/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_SDL_blit_auto.c.obj
+[136/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_libm_e_atan2.c.obj
+[137/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_libm_e_exp.c.obj
+[138/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_yuv2rgb_yuv_rgb_sse.c.obj
+[139/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_libm_e_fmod.c.obj
+[140/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_libm_e_log.c.obj
+[141/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_yuv2rgb_yuv_rgb_std.c.obj
+[142/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_libm_e_log10.c.obj
+[143/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_libm_e_rem_pio2.c.obj
+[144/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_libm_e_pow.c.obj
+[145/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_libm_e_sqrt.c.obj
+[146/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_libm_k_cos.c.obj
+[147/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_libm_k_sin.c.obj
+[148/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_libm_k_tan.c.obj
+[149/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_libm_k_rem_pio2.c.obj
+[150/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_libm_s_atan.c.obj
+[151/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_libm_s_copysign.c.obj
+[152/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_libm_s_cos.c.obj
+[153/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_libm_s_fabs.c.obj
+[154/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_libm_s_floor.c.obj
+[155/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_libm_s_isinf.c.obj
+[156/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_libm_s_isinff.c.obj
+[157/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_libm_s_isnan.c.obj
+[158/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_libm_s_isnanf.c.obj
+[159/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_libm_s_modf.c.obj
+[160/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_libm_s_scalbn.c.obj
+[161/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_libm_s_sin.c.obj
+[162/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_libm_s_tan.c.obj
+[163/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_audio_dummy_SDL_dummyaudio.c.obj
+[164/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_core_windows_SDL_hid.c.obj
+[165/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_core_windows_SDL_immdevice.c.obj
+[166/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_core_windows_SDL_windows.c.obj
+[167/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_core_windows_SDL_xinput.c.obj
+[168/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_core_windows_pch.c.obj
+[169/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_io_windows_SDL_asyncio_windows_ioring.c.obj
+[170/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_main_windows_SDL_sysmain_runapp.c.obj
+[171/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_misc_windows_SDL_sysurl.c.obj
+[172/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_audio_directsound_SDL_directsound.c.obj
+[173/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_windows_SDL_windowsclipboard.c.obj
+[174/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_audio_wasapi_SDL_wasapi.c.obj
+[175/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_windows_SDL_windowsframebuffer.c.obj
+[176/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_windows_SDL_windowsevents.c.obj
+[177/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_windows_SDL_windowskeyboard.c.obj
+[178/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_windows_SDL_windowsmessagebox.c.obj
+[179/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_windows_SDL_windowsmodes.c.obj
+[180/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_windows_SDL_windowsmouse.c.obj
+[181/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_windows_SDL_windowsopengles.c.obj
+[182/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_windows_SDL_windowsopengl.c.obj
+[183/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_windows_SDL_windowsrawinput.c.obj
+[184/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_windows_SDL_windowsshape.c.obj
+[185/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_windows_SDL_windowsvulkan.c.obj
+[186/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_windows_SDL_windowsvideo.c.obj
+[187/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_thread_generic_SDL_syscond.c.obj
+[188/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_thread_generic_SDL_sysrwlock.c.obj
+[189/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_thread_windows_SDL_syscond_cv.c.obj
+[190/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_windows_SDL_windowswindow.c.obj
+[191/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_thread_windows_SDL_sysmutex.c.obj
+[192/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_thread_windows_SDL_sysrwlock_srw.c.obj
+[193/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_thread_windows_SDL_syssem.c.obj
+[194/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_thread_windows_SDL_systls.c.obj
+[195/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_thread_windows_SDL_systhread.c.obj
+[196/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_locale_windows_SDL_syslocale.c.obj
+[197/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_storage_generic_SDL_genericstorage.c.obj
+[198/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_filesystem_windows_SDL_sysfsops.c.obj
+[199/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_storage_steam_SDL_steamstorage.c.obj
+[200/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_filesystem_windows_SDL_sysfilesystem.c.obj
+[201/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_time_windows_SDL_systime.c.obj
+[202/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_timer_windows_SDL_systimer.c.obj
+[203/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_loadso_windows_SDL_sysloadso.c.obj
+[204/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_hidapi_8bitdo.c.obj
+[205/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_hidapi_combined.c.obj
+[206/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_hidapi_flydigi.c.obj
+[207/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_hidapi_gamecube.c.obj
+[208/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_hidapi_lg4ff.c.obj
+[209/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_hidapi_luna.c.obj
+[210/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_hidapi_gip.c.obj
+[211/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_hidapi_ps3.c.obj
+[212/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_hidapi_ps4.c.obj
+[213/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_hidapi_rumble.c.obj
+[214/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_hidapi_ps5.c.obj
+[215/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_hidapi_shield.c.obj
+[216/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_hidapi_stadia.c.obj
+[217/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_hidapi_sinput.c.obj
+[218/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_hidapi_steam.c.obj
+[219/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_hidapi_steam_hori.c.obj
+[220/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_hidapi_steam_triton.c.obj
+[221/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_hidapi_steamdeck.c.obj
+[222/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_hidapi_xbox360.c.obj
+[223/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_hidapi_wii.c.obj
+[224/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_hidapi_switch.c.obj
+[225/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_hidapi_switch2.c.obj
+[226/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_hidapi_xbox360w.c.obj
+[227/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_hidapi_xboxone.c.obj
+[228/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_hidapi_zuiki.c.obj
+[229/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_report_descriptor.c.obj
+[230/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_haptic_hidapi_SDL_hidapihaptic.c.obj
+[231/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_hidapi_SDL_hidapijoystick.c.obj
+[232/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_haptic_hidapi_SDL_hidapihaptic_lg4ff.c.obj
+[233/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_windows_SDL_dinputjoystick.c.obj
+[234/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_windows_SDL_windows_gaming_input.c.obj
+[235/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_windows_SDL_windowsjoystick.c.obj
+[236/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_windows_SDL_rawinputjoystick.c.obj
+[237/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_dialog_SDL_dialog.c.obj
+[238/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_joystick_windows_SDL_xinputjoystick.c.obj
+[239/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_dialog_SDL_dialog_utils.c.obj
+[240/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_process_SDL_process.c.obj
+[241/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_process_windows_SDL_windowsprocess.c.obj
+[242/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_offscreen_SDL_offscreenevents.c.obj
+[243/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_dialog_windows_SDL_windowsdialog.c.obj
+[244/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_offscreen_SDL_offscreenframebuffer.c.obj
+[245/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_offscreen_SDL_offscreenopengles.c.obj
+[246/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_offscreen_SDL_offscreenvideo.c.obj
+[247/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_offscreen_SDL_offscreenwindow.c.obj
+[248/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_video_offscreen_SDL_offscreenvulkan.c.obj
+[249/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_haptic_dummy_SDL_syshaptic.c.obj
+[250/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_tray_SDL_tray_utils.c.obj
+[251/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_sensor_dummy_SDL_dummysensor.c.obj
+[252/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_tray_dummy_SDL_tray.c.obj
+[253/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_camera_dummy_SDL_camera_dummy.c.obj
+[254/833] Compiling C object subprojects/sdl3/libSDL3_static.a.p/src_main_generic_SDL_sysmain_callbacks.c.obj
+[255/833] Compiling C object subprojects/volk/libvolk.a.p/volk.c.obj
+FAILED: subprojects/volk/libvolk.a.p/volk.c.obj 
+x86_64-w64-mingw32.static-gcc -m64 -Isubprojects/volk/libvolk.a.p -Isubprojects/volk -I../subprojects/volk -I/usr/include -fdiagnostics-color=auto -Wall -Winvalid-pch -std=gnu11 -O2 -g -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -fno-pie -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -g -DVK_NO_PROTOTYPES -DVK_USE_PLATFORM_WIN32_KHR=1 -MD -MQ subprojects/volk/libvolk.a.p/volk.c.obj -MF subprojects/volk/libvolk.a.p/volk.c.obj.d -o subprojects/volk/libvolk.a.p/volk.c.obj -c ../subprojects/volk/volk.c
+In file included from ../subprojects/volk/volk.c:3:
+In file included from ../subprojects/volk/volk.h:33:
+In file included from /usr/include/vulkan/vk_platform.h:76:
+/usr/include/stdint.h:26:10: fatal error: 'bits/libc-header-start.h' file not found
+   26 | #include <bits/libc-header-start.h>
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+[256/833] Compiling C++ object subprojects/sdl3/libSDL3_static.a.p/src_core_windows_SDL_gameinput.cpp.obj
+[257/833] Compiling C++ object subprojects/sdl3/libSDL3_static.a.p/src_core_windows_pch_cpp.cpp.obj
+[258/833] Compiling C++ object subprojects/sdl3/libSDL3_static.a.p/src_video_windows_SDL_windowsgameinput.cpp.obj
+ninja: build stopped: subcommand failed.

@@ -1,0 +1,114 @@
+{
+  "createdUtc": "2026-09-30T16:48:24.232911+00:00",
+  "source": {
+    "parentHead": "33508c693dab0638c506d50434949ea700d94c97",
+    "sha256": {
+      "accel/tcg/cpu-exec.c": "e4fb706913fe5042ee58ac656fc92a3cc71716451a5adc1271d0062abcda70c8",
+      "accel/tcg/cputlb.c": "a94b52ea1f6e01d6aafddf76e4747880b75bf853f5138df8e7a55e34945fc758",
+      "accel/tcg/tb-jmp-cache.h": "4bdd99b3936639f83e548243b858f8ff7648dcfcf2fa4e0d8f0033ea4794fe36",
+      "accel/tcg/translate-all.c": "7e62af7df6b4a7cd1a3a1c69973bbaccd1ce46e7b528485b080a96287325fc50",
+      "tests/unit/meson.build": "751bfc8fab087e7df8f9e07f749ba331b2a9ce5ca887d5d8b4205d8061934da8",
+      "tests/unit/test-tcg-jump-cache-validity.c": "7bb275db49cafc342651bc21ee86e39f4064a8f2362cc6cfbbfbf0e50d487b27"
+    },
+    "patchSha256": "02d71af23cd39437f336818a57d8cc62cfffa82c7cf2ebd1309d039cf87dda34",
+    "scope": "Existing policy extracted into actual production helpers; unconditional clears and complete cflags comparison retained. No retention candidate."
+  },
+  "buildEnvironment": {
+    "GIT_DIR": "/home/codex/src/steamdeck-xemu/scratch/research245-validity-build-identity.git",
+    "versionContextHead": "33508c693dab0638c506d50434949ea700d94c97",
+    "versionContextHasTags": false,
+    "TMPDIR": "/home/codex/src/steamdeck-xemu/scratch/compiler-tmp",
+    "windowsPathPrefix": "/opt/xemu-toolchain/mxe/usr/bin:/opt/xemu-toolchain/bin",
+    "VULKAN_SDK": "/opt/xemu-toolchain/mxe/usr/x86_64-w64-mingw32.static",
+    "sanitizerEnv": {
+      "ASAN_OPTIONS": "detect_leaks=1:abort_on_error=1",
+      "UBSAN_OPTIONS": "halt_on_error=1"
+    }
+  },
+  "executables": {
+    "worktrees/research245-jump-cache/build-probe/qemu-system-i386": {
+      "sha256": "822ec6cd12eb1f893245765789545a588042cdd92cec3ad4248a00096ccd4d96",
+      "bytes": 136331784,
+      "published": false
+    },
+    "worktrees/research245-jump-cache/build-probe/tests/unit/test-tcg-jump-cache-validity": {
+      "sha256": "3bda5fa5d2770614c41ecb3c8da484efffd42918ed735b616cd4ceacb6e9c9c8",
+      "bytes": 2561400,
+      "published": false
+    },
+    "worktrees/research245-jump-cache/build-probe/tests/unit/test-tcg-jump-cache-probe": {
+      "sha256": "19903e8f59083d69ef59f8e5fd2b81eeb878d3a05dba7c7d488182d2998ec491",
+      "bytes": 2579256,
+      "published": false
+    },
+    "worktrees/research245-jump-cache/build-windows-probe/qemu-system-i386.exe": {
+      "sha256": "2b3be50aea0c980c00c0ffb8940fe725b57191ebf7780685b686535505200f58",
+      "bytes": 136901120,
+      "published": false
+    },
+    "worktrees/research245-jump-cache/build-windows-probe/tests/unit/test-tcg-jump-cache-validity.exe": {
+      "sha256": "067a2876192a1da60c7668ab4ef33528f2755df3521d54a23a5c00b5afcd0b32",
+      "bytes": 5198336,
+      "published": false
+    },
+    "artifacts/research245-validity-asan-ubsan": {
+      "sha256": "65b4d4fe9b3133b54e8af0d09bfd44b2d68a53d1c271f7e4b89487722bf93192",
+      "bytes": 130688,
+      "published": false
+    },
+    "artifacts/research245-validity-probe-enabled-unit": {
+      "sha256": "abb682daf0ead2b873ec701df8bf914c6c4cd7e8f06ec23677109af7036a14fe",
+      "bytes": 44464,
+      "published": false
+    }
+  },
+  "passingUnitLogs": {
+    "research245-validity-verified-validity-unit.log": 6,
+    "research245-validity-verified-collector-unit.log": 4,
+    "research245-validity-verified-sanitizer-unit.log": 6,
+    "research245-validity-verified-alternate-layout-unit.log": 6
+  },
+  "negativeControls": {
+    "research245-validity-final-negative-invalid-masked.log": "/tcg/jump-cache/invalid",
+    "research245-validity-final-negative-clear-suppressed.log": "/tcg/jump-cache/address-reuse"
+  },
+  "setupFailures": {
+    "red": "Malformed local synthetic nearest version tag",
+    "red2": "Missing explicit TCGTBCPUState include in initial test",
+    "red3": "Expected missing helper compile failure before extraction; not a semantic negative control",
+    "emulator-build": "Wrong ninja target name xemu",
+    "windows-build": "Cross archiver missing from PATH",
+    "windows-build2": "Host Vulkan headers selected for Windows cross compile",
+    "windows-build3": "Host Vulkan headers remained selected; fixed by VULKAN_SDK"
+  },
+  "windowsWarnings": {
+    "precedingFullBuildLog": "logs/research245-validity-windows-build4.log",
+    "lineCount": 142,
+    "paths": [
+      "../hw/xbox/nv2a/pgraph/vk/debug.h",
+      "../subprojects/VulkanMemoryAllocator/include/vk_mem_alloc.h",
+      "../subprojects/imgui/imgui_widgets.cpp",
+      "../subprojects/tomlplusplus/include/toml++/impl/parser.hpp",
+      "../subprojects/tomlplusplus/include/toml++/impl/path.hpp",
+      "/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/hw/xbox/nv2a/pgraph/vk/debug.h",
+      "/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/block/graph-lock.h"
+    ],
+    "modifiedSourceWarnings": 0,
+    "finalRebuildWarningLines": 0
+  },
+  "runtimeScope": {
+    "nativeValidity": true,
+    "nativeCollector": true,
+    "nativeSanitizer": true,
+    "nativeAlternateSlotLayout": true,
+    "windowsUnitExecuted": false,
+    "newEmulatorDeployed": false,
+    "wholeGuestRemapSpanningReclamationResetConcurrencyProven": false
+  },
+  "performance": {
+    "earlierMeasuredSource": "06168a2f455b832bc6eb7936ebe725ec530b1b00",
+    "newGuestRuns": 0,
+    "acceptedImprovementPercent": null,
+    "decision": "Existing clears retained. No integration recommendation for lazy retention."
+  }
+}
