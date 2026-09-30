@@ -74,6 +74,6 @@ was opened or copied. Agent: Codex (GPT-6).
 
 ## Evidence
 
-[Retained report, original logs and checksums](https://github.com/Mainkill1/xemu-perf-tests/blob/2f1627203c6f38318b5e4c39f1347342675527c4/docs/evidence/research247-20260930/REPORT.md)
+[Retained report, original logs and checksums](https://github.com/Mainkill1/xemu-perf-tests/blob/0b73f81e99a7d1b85d9ae3e1a51b2dc72876f1fc/docs/evidence/research247-20260930/REPORT.md)
 contains 12 runner attempts, the Windows ON/OFF/OFF/ON observer check, Deck
 scene admission, failed attempts and exact executable identities.
