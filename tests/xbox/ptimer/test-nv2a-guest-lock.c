@@ -5,11 +5,16 @@
 #include "system/cpus.h"
 #include "system/cpu-timers.h"
 #include "system/runstate.h"
+#include "system/tcg.h"
 
 #include "hw/xbox/nv2a/guest-lock.h"
 
 static bool mock_vcpu = true;
 static bool mock_running = true;
+bool tcg_allowed = true;
+static __thread bool mock_bql_held;
+static int bql_acquires;
+static int bql_releases;
 static int pauses;
 static int resumes;
 static int64_t clock_offset_us;
@@ -19,6 +24,48 @@ static QemuEvent *pause_observed;
 bool qemu_in_vcpu_thread(void)
 {
     return mock_vcpu;
+}
+
+bool bql_locked(void)
+{
+    return mock_bql_held;
+}
+
+void bql_lock_impl(const char *file, int line)
+{
+    g_assert_false(mock_bql_held);
+    mock_bql_held = true;
+    bql_acquires++;
+}
+
+void bql_unlock(void)
+{
+    g_assert_true(mock_bql_held);
+    mock_bql_held = false;
+    bql_releases++;
+}
+
+/* Supply the remaining test-only BQL stub symbols so qemuutil does not pull
+ * its global-state stub, which cannot model an initially unlocked vCPU. */
+void rust_bql_mock_lock(void)
+{
+    mock_bql_held = true;
+}
+
+void bql_block_unlock(bool increase)
+{
+    (void)increase;
+}
+
+bool mutex_is_bql(QemuMutex *mutex)
+{
+    (void)mutex;
+    return false;
+}
+
+void bql_update_status(bool locked)
+{
+    mock_bql_held = locked;
 }
 
 bool runstate_is_running(void)
@@ -69,6 +116,8 @@ static void *hold_lock(void *opaque)
 typedef struct LockWaiter {
     LockHolder *holder;
     QemuEvent started;
+    bool initially_holds_bql;
+    bool ended_holding_bql;
     int64_t wall_elapsed;
     int64_t guest_elapsed;
 } LockWaiter;
@@ -76,12 +125,14 @@ typedef struct LockWaiter {
 static void *wait_for_lock(void *opaque)
 {
     LockWaiter *waiter = opaque;
+    mock_bql_held = waiter->initially_holds_bql;
     int64_t wall_start = g_get_monotonic_time();
     int64_t guest_start = guest_clock_us();
     qemu_event_set(&waiter->started);
     nv2a_guest_mmio_lock(&waiter->holder->lock, "test");
     waiter->wall_elapsed = g_get_monotonic_time() - wall_start;
     waiter->guest_elapsed = guest_clock_us() - guest_start;
+    waiter->ended_holding_bql = mock_bql_held;
     qemu_mutex_unlock(&waiter->holder->lock);
     return NULL;
 }
@@ -98,11 +149,12 @@ static void test_uncontended(void)
     qemu_mutex_destroy(&lock);
 }
 
-static void test_contended(bool vcpu, bool running,
+static void test_contended(bool vcpu, bool bql, bool running, bool tcg,
                            bool expected_pause)
 {
     LockHolder holder = { 0 };
-    LockWaiter waiter = { .holder = &holder };
+    LockWaiter waiter = { .holder = &holder,
+                          .initially_holds_bql = bql };
     QemuEvent paused;
     QemuThread holder_thread;
     QemuThread waiter_thread;
@@ -113,7 +165,8 @@ static void test_contended(bool vcpu, bool running,
     qemu_event_init(&paused, false);
     mock_vcpu = vcpu;
     mock_running = running;
-    pauses = resumes = 0;
+    tcg_allowed = tcg;
+    pauses = resumes = bql_acquires = bql_releases = 0;
     clock_offset_us = pause_start_us = 0;
     pause_observed = &paused;
     qemu_thread_create(&holder_thread, "nv2a-lock-holder", hold_lock, &holder,
@@ -132,6 +185,9 @@ static void test_contended(bool vcpu, bool running,
 
     g_assert_cmpint(pauses, ==, expected_pause ? 1 : 0);
     g_assert_cmpint(resumes, ==, expected_pause ? 1 : 0);
+    g_assert_cmpint(bql_acquires, ==, vcpu && tcg && !bql ? 1 : 0);
+    g_assert_cmpint(bql_releases, ==, vcpu && tcg && !bql ? 1 : 0);
+    g_assert_cmpint(waiter.ended_holding_bql, ==, bql);
     if (expected_pause) {
         g_assert_cmpint(waiter.wall_elapsed, >, 20000);
         /* A 16 ms guest alarm must not expire during a host GPU wait. */
@@ -147,26 +203,37 @@ static void test_contended(bool vcpu, bool running,
 
 static void test_vcpu_wait(void)
 {
-    test_contended(true, true, true);
+    test_contended(true, true, true, true, true);
+}
+
+static void test_ram_callback_wait(void)
+{
+    test_contended(true, false, true, true, true);
 }
 
 static void test_host_wait(void)
 {
-    test_contended(false, true, false);
+    test_contended(false, false, true, true, false);
 }
 
 static void test_paused_vm_wait(void)
 {
-    test_contended(true, false, false);
+    test_contended(true, true, false, true, false);
+}
+
+static void test_accelerator_wait(void)
+{
+    test_contended(true, true, true, false, false);
 }
 
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
-    rust_bql_mock_lock();
     g_test_add_func("/nv2a/guest-lock/uncontended", test_uncontended);
     g_test_add_func("/nv2a/guest-lock/vcpu-wait", test_vcpu_wait);
+    g_test_add_func("/nv2a/guest-lock/ram-callback-wait", test_ram_callback_wait);
     g_test_add_func("/nv2a/guest-lock/host-wait", test_host_wait);
     g_test_add_func("/nv2a/guest-lock/paused-vm-wait", test_paused_vm_wait);
+    g_test_add_func("/nv2a/guest-lock/accelerator-wait", test_accelerator_wait);
     return g_test_run();
 }
