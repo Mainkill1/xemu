@@ -61,4 +61,11 @@ self-modification, lifetime and concurrency correctness checks.
 The collector unit test exercises unconditional clearing, preserved PCs, disabled
 collection, accounting, sample distribution, formatting and concurrent updates.
 The initial current-main profiler and reachability evidence is in
-[draft evidence PR #48](https://github.com/Mainkill1/xemu-perf-tests/pull/48).
+[product evidence report](../evidence/research245-20260930/REPORT.md).
+The [probe measurements](../evidence/research245-probe-20260930/REPORT.md)
+and [CPU fixture qualification](../evidence/research245-cpu-fixtures-20260930/REPORT.md)
+also belong to this product draft. No lazy-invalidation speedup has been demonstrated.
+
+Generated-code [probe windows and retained CPU outcomes](../evidence/research245-cpu-probe-20260930/REPORT.md)
+include the lower-invalidation stable control and the self-modifying workload.
+These wall-clock diagnostic windows are not exact guest phase boundaries.

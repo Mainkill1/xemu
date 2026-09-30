@@ -1,0 +1,1492 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 8K of event 'cycles:u'
+# Event count (approx.): 44150888165
+#
+# Overhead       Samples  Command      Shared Object                Symbol                                                                                                                                                                                                                                                                                    IPC   [IPC Coverage]
+# ........  ............  ...........  ...........................  ........................................................................................................................................................................................................................................................................................  ....................
+#
+     7.39%           650  xemu         xemu                         [.] address_space_ldl_internal.llvm.9823001788323054012                                                                                                                                                                                                                                   -      -            
+            |          
+            |--2.15%--address_space_ldl_internal (inlined)
+            |          address_space_ldl_le (inlined)
+            |          ldl_le_phys (inlined)
+            |          |          
+            |          |--1.46%--voice_get_mask (inlined)
+            |          |          |          
+            |          |          |--0.76%--voice_process (inlined)
+            |          |          |          voice_worker_thread (inlined)
+            |          |          |          qemu_thread_start (inlined)
+            |          |          |          0x7fdc514a57ea
+            |          |          |          
+            |          |          |--0.19%--get_voice_bin_src_dst (inlined)
+            |          |          |          voice_work_schedule (inlined)
+            |          |          |          voice_work_dispatch (inlined)
+            |          |          |          mcpx_apu_vp_frame
+            |          |          |          se_frame (inlined)
+            |          |          |          mcpx_apu_frame_thread
+            |          |          |          qemu_thread_start (inlined)
+            |          |          |          0x7fdc514a57ea
+            |          |          |          
+            |          |          |--0.16%--voice_step_envelope
+            |          |          |          voice_process (inlined)
+            |          |          |          voice_worker_thread (inlined)
+            |          |          |          qemu_thread_start (inlined)
+            |          |          |          0x7fdc514a57ea
+            |          |          |          
+            |          |          |--0.16%--voice_get_samples (inlined)
+            |          |          |          voice_resample_callback
+            |          |          |          src_callback_read
+            |          |          |          voice_resample (inlined)
+            |          |          |          voice_process (inlined)
+            |          |          |          voice_worker_thread (inlined)
+            |          |          |          qemu_thread_start (inlined)
+            |          |          |          0x7fdc514a57ea
+            |          |          |          
+            |          |           --0.13%--mcpx_apu_vp_frame
+            |          |                     se_frame (inlined)
+            |          |                     mcpx_apu_frame_thread
+            |          |                     qemu_thread_start (inlined)
+            |          |                     0x7fdc514a57ea
+            |          |          
+            |          |--0.31%--get_data_ptr (inlined)
+            |          |          voice_get_samples (inlined)
+            |          |          voice_resample_callback
+            |          |          src_callback_read
+            |          |          voice_resample (inlined)
+            |          |          voice_process (inlined)
+            |          |          voice_worker_thread (inlined)
+            |          |          qemu_thread_start (inlined)
+            |          |          0x7fdc514a57ea
+            |          |          
+            |          |--0.26%--voice_get_samples (inlined)
+            |          |          voice_resample_callback
+            |          |          src_callback_read
+            |          |          voice_resample (inlined)
+            |          |          voice_process (inlined)
+            |          |          voice_worker_thread (inlined)
+            |          |          qemu_thread_start (inlined)
+            |          |          0x7fdc514a57ea
+            |          |          
+            |           --0.12%--voice_set_mask (inlined)
+            |          
+            |--1.95%--qemu_map_ram_ptr (inlined)
+            |          address_space_ldl_internal (inlined)
+            |          address_space_ldl_le (inlined)
+            |          ldl_le_phys (inlined)
+            |          |          
+            |          |--1.41%--voice_get_mask (inlined)
+            |          |          |          
+            |          |          |--0.89%--voice_process (inlined)
+            |          |          |          voice_worker_thread (inlined)
+            |          |          |          qemu_thread_start (inlined)
+            |          |          |          0x7fdc514a57ea
+            |          |          |          
+            |          |          |--0.30%--voice_get_samples (inlined)
+            |          |          |          voice_resample_callback
+            |          |          |          src_callback_read
+            |          |          |          voice_resample (inlined)
+            |          |          |          voice_process (inlined)
+            |          |          |          voice_worker_thread (inlined)
+            |          |          |          qemu_thread_start (inlined)
+            |          |          |          0x7fdc514a57ea
+            |          |          |          
+            |          |           --0.17%--get_voice_bin_src_dst (inlined)
+            |          |                     voice_work_schedule (inlined)
+            |          |                     voice_work_dispatch (inlined)
+            |          |                     mcpx_apu_vp_frame
+            |          |                     se_frame (inlined)
+            |          |                     mcpx_apu_frame_thread
+            |          |                     qemu_thread_start (inlined)
+            |          |                     0x7fdc514a57ea
+            |          |          
+            |          |--0.23%--get_data_ptr (inlined)
+            |          |          voice_get_samples (inlined)
+            |          |          voice_resample_callback
+            |          |          src_callback_read
+            |          |          voice_resample (inlined)
+            |          |          voice_process (inlined)
+            |          |          voice_worker_thread (inlined)
+            |          |          qemu_thread_start (inlined)
+            |          |          0x7fdc514a57ea
+            |          |          
+            |          |--0.21%--voice_get_samples (inlined)
+            |          |          voice_resample_callback
+            |          |          src_callback_read
+            |          |          voice_resample (inlined)
+            |          |          voice_process (inlined)
+            |          |          voice_worker_thread (inlined)
+            |          |          qemu_thread_start (inlined)
+            |          |          0x7fdc514a57ea
+            |          |          
+            |           --0.10%--voice_set_mask (inlined)
+            |          
+            |--0.93%--rcu_read_unlock (inlined)
+            |          address_space_ldl_internal (inlined)
+            |          address_space_ldl_le (inlined)
+            |          ldl_le_phys (inlined)
+            |          |          
+            |          |--0.61%--voice_get_mask (inlined)
+            |          |          |          
+            |          |          |--0.27%--voice_process (inlined)
+            |          |          |          voice_worker_thread (inlined)
+            |          |          |          qemu_thread_start (inlined)
+            |          |          |          0x7fdc514a57ea
+            |          |          |          
+            |          |           --0.21%--voice_get_samples (inlined)
+            |          |                     voice_resample_callback
+            |          |                     src_callback_read
+            |          |                     voice_resample (inlined)
+            |          |                     voice_process (inlined)
+            |          |                     voice_worker_thread (inlined)
+            |          |                     qemu_thread_start (inlined)
+            |          |                     0x7fdc514a57ea
+            |          |          
+            |          |--0.14%--voice_get_samples (inlined)
+            |          |          voice_resample_callback
+            |          |          src_callback_read
+            |          |          voice_resample (inlined)
+            |          |          voice_process (inlined)
+            |          |          voice_worker_thread (inlined)
+            |          |          qemu_thread_start (inlined)
+            |          |          0x7fdc514a57ea
+            |          |          
+            |           --0.11%--voice_set_mask (inlined)
+            |          
+            |--0.91%--address_space_to_flatview (inlined)
+            |          address_space_translate (inlined)
+            |          address_space_ldl_internal (inlined)
+            |          address_space_ldl_le (inlined)
+            |          ldl_le_phys (inlined)
+            |          |          
+            |          |--0.61%--voice_get_mask (inlined)
+            |          |          |          
+            |          |          |--0.23%--voice_process (inlined)
+            |          |          |          voice_worker_thread (inlined)
+            |          |          |          qemu_thread_start (inlined)
+            |          |          |          0x7fdc514a57ea
+            |          |          |          
+            |          |           --0.23%--get_voice_bin_src_dst (inlined)
+            |          |                     voice_work_schedule (inlined)
+            |          |                     voice_work_dispatch (inlined)
+            |          |                     mcpx_apu_vp_frame
+            |          |                     se_frame (inlined)
+            |          |                     mcpx_apu_frame_thread
+            |          |                     qemu_thread_start (inlined)
+            |          |                     0x7fdc514a57ea
+            |          |          
+            |           --0.12%--voice_get_samples (inlined)
+            |                     voice_resample_callback
+            |                     src_callback_read
+            |                     voice_resample (inlined)
+            |                     voice_process (inlined)
+            |                     voice_worker_thread (inlined)
+            |                     qemu_thread_start (inlined)
+            |                     0x7fdc514a57ea
+            |          
+            |--0.47%--flatview_do_translate (inlined)
+            |          flatview_translate (inlined)
+            |          address_space_translate (inlined)
+            |          address_space_ldl_internal (inlined)
+            |          address_space_ldl_le (inlined)
+            |          ldl_le_phys (inlined)
+            |          |          
+            |          |--0.27%--voice_get_mask (inlined)
+            |          |          |          
+            |          |           --0.11%--voice_process (inlined)
+            |          |                     voice_worker_thread (inlined)
+            |          |                     qemu_thread_start (inlined)
+            |          |                     0x7fdc514a57ea
+            |          |          
+            |           --0.11%--voice_set_mask (inlined)
+            |                     |          
+            |                      --0.10%--voice_step_envelope
+            |                                voice_process (inlined)
+            |                                voice_worker_thread (inlined)
+            |                                qemu_thread_start (inlined)
+            |                                0x7fdc514a57ea
+            |          
+            |--0.30%--rcu_read_lock (inlined)
+            |          address_space_ldl_internal (inlined)
+            |          address_space_ldl_le (inlined)
+            |          ldl_le_phys (inlined)
+            |          |          
+            |           --0.20%--voice_get_mask (inlined)
+            |                     |          
+            |                      --0.12%--voice_process (inlined)
+            |                                voice_worker_thread (inlined)
+            |                                qemu_thread_start (inlined)
+            |                                0x7fdc514a57ea
+            |          
+            |--0.27%--memory_region_is_romd (inlined)
+            |          memory_region_supports_direct_access (inlined)
+            |          memory_access_is_direct (inlined)
+            |          address_space_ldl_internal (inlined)
+            |          address_space_ldl_le (inlined)
+            |          ldl_le_phys (inlined)
+            |          |          
+            |           --0.21%--voice_get_mask (inlined)
+            |                     |          
+            |                      --0.11%--voice_process (inlined)
+            |                                voice_worker_thread (inlined)
+            |                                qemu_thread_start (inlined)
+            |                                0x7fdc514a57ea
+            |          
+            |--0.14%--memory_region_get_iommu (inlined)
+            |          flatview_do_translate (inlined)
+            |          flatview_translate (inlined)
+            |          address_space_translate (inlined)
+            |          address_space_ldl_internal (inlined)
+            |          address_space_ldl_le (inlined)
+            |          ldl_le_phys (inlined)
+            |          |          
+            |           --0.11%--voice_get_mask (inlined)
+            |          
+             --0.12%--flatview_to_dispatch (inlined)
+                       flatview_do_translate (inlined)
+                       flatview_translate (inlined)
+                       address_space_translate (inlined)
+                       address_space_ldl_internal (inlined)
+                       address_space_ldl_le (inlined)
+                       ldl_le_phys (inlined)
+
+     3.51%           282  xemu         xemu                         [.] voice_resample_callback                                                                                                                                                                                                                                                               -      -            
+            |          
+            |--2.35%--adpcm_decode_block (inlined)
+            |          voice_get_samples (inlined)
+            |          voice_resample_callback
+            |          src_callback_read
+            |          voice_resample (inlined)
+            |          voice_process (inlined)
+            |          voice_worker_thread (inlined)
+            |          qemu_thread_start (inlined)
+            |          0x7fdc514a57ea
+            |          
+            |--0.69%--voice_get_samples (inlined)
+            |          voice_resample_callback
+            |          src_callback_read
+            |          voice_resample (inlined)
+            |          voice_process (inlined)
+            |          voice_worker_thread (inlined)
+            |          qemu_thread_start (inlined)
+            |          0x7fdc514a57ea
+            |          
+             --0.19%--voice_resample_callback
+                       src_callback_read
+                       voice_resample (inlined)
+                       voice_process (inlined)
+                       voice_worker_thread (inlined)
+                       qemu_thread_start (inlined)
+                       0x7fdc514a57ea
+
+     3.02%           263  xemu         xemu                         [.] voice_worker_thread.llvm.1301536018277380079                                                                                                                                                                                                                                          -      -            
+            |          
+            |--1.87%--voice_process (inlined)
+            |          voice_worker_thread (inlined)
+            |          qemu_thread_start (inlined)
+            |          0x7fdc514a57ea
+            |          
+            |--0.42%--run_svf (inlined)
+            |          voice_process (inlined)
+            |          voice_worker_thread (inlined)
+            |          qemu_thread_start (inlined)
+            |          0x7fdc514a57ea
+            |          
+            |--0.27%--voice_resample (inlined)
+            |          voice_process (inlined)
+            |          voice_worker_thread (inlined)
+            |          qemu_thread_start (inlined)
+            |          0x7fdc514a57ea
+            |          
+             --0.11%--voice_worker_thread (inlined)
+                       qemu_thread_start (inlined)
+                       0x7fdc514a57ea
+
+     2.58%           202  xemu         libsamplerate.so.0           [.] 0x00000000000031d1                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d81d1
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     2.56%           171  xemu         xemu                         [.] helper_lookup_tb_ptr_i32                                                                                                                                                                                                                                                              -      -            
+            |          
+            |--2.24%--helper_lookup_tb_ptr_i32
+            |          
+             --0.23%--curr_cflags (inlined)
+                       helper_lookup_tb_ptr_i32
+
+     2.38%           190  xemu         libsamplerate.so.0           [.] 0x000000000000328a                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d828a
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     2.23%           151  xemu         xemu                         [.] qht_lookup_custom                                                                                                                                                                                                                                                                     -      -            
+            |          
+            |--1.99%--seqlock_read_begin (inlined)
+            |          qht_lookup_custom
+            |          tb_htable_lookup_common (inlined)
+            |          tb_htable_lookup (inlined)
+            |          tb_lookup (inlined)
+            |          |          
+            |          |--1.67%--lookup_tb_ptr_common
+            |          |          helper_lookup_tb_ptr_i32
+            |          |          
+            |           --0.33%--cpu_exec_loop
+            |                     cpu_exec_setjmp
+            |                     cpu_exec
+            |                     tcg_cpu_exec (inlined)
+            |                     mttcg_cpu_thread_fn
+            |                     qemu_thread_start (inlined)
+            |                     0x7fdc514a57ea
+            |          
+             --0.22%--qht_do_lookup (inlined)
+                       qht_lookup_custom
+                       tb_htable_lookup_common (inlined)
+                       tb_htable_lookup (inlined)
+                       tb_lookup (inlined)
+                       |          
+                        --0.19%--lookup_tb_ptr_common
+                                  helper_lookup_tb_ptr_i32
+
+     2.21%           190  xemu         xemu                         [.] address_space_translate_internal.llvm.9823001788323054012                                                                                                                                                                                                                             -      -            
+            |          
+            |--0.85%--address_space_lookup_region (inlined)
+            |          address_space_translate_internal (inlined)
+            |          |          
+            |           --0.83%--flatview_do_translate (inlined)
+            |                     flatview_translate (inlined)
+            |                     |          
+            |                      --0.82%--address_space_translate (inlined)
+            |                                |          
+            |                                 --0.68%--address_space_ldl_internal (inlined)
+            |                                           address_space_ldl_le (inlined)
+            |                                           ldl_le_phys (inlined)
+            |                                           |          
+            |                                            --0.55%--voice_get_mask (inlined)
+            |                                                      |          
+            |                                                      |--0.29%--voice_process (inlined)
+            |                                                      |          voice_worker_thread (inlined)
+            |                                                      |          qemu_thread_start (inlined)
+            |                                                      |          0x7fdc514a57ea
+            |                                                      |          
+            |                                                       --0.10%--voice_get_samples (inlined)
+            |                                                                 voice_resample_callback
+            |                                                                 src_callback_read
+            |                                                                 voice_resample (inlined)
+            |                                                                 voice_process (inlined)
+            |                                                                 voice_worker_thread (inlined)
+            |                                                                 qemu_thread_start (inlined)
+            |                                                                 0x7fdc514a57ea
+            |          
+            |--0.72%--address_space_translate_internal (inlined)
+            |          flatview_do_translate (inlined)
+            |          flatview_translate (inlined)
+            |          address_space_translate (inlined)
+            |          |          
+            |           --0.64%--address_space_ldl_internal (inlined)
+            |                     address_space_ldl_le (inlined)
+            |                     ldl_le_phys (inlined)
+            |                     |          
+            |                     |--0.39%--voice_get_mask (inlined)
+            |                     |          |          
+            |                     |          |--0.18%--voice_process (inlined)
+            |                     |          |          voice_worker_thread (inlined)
+            |                     |          |          qemu_thread_start (inlined)
+            |                     |          |          0x7fdc514a57ea
+            |                     |          |          
+            |                     |           --0.13%--voice_get_samples (inlined)
+            |                     |                     voice_resample_callback
+            |                     |                     src_callback_read
+            |                     |                     voice_resample (inlined)
+            |                     |                     voice_process (inlined)
+            |                     |                     voice_worker_thread (inlined)
+            |                     |                     qemu_thread_start (inlined)
+            |                     |                     0x7fdc514a57ea
+            |                     |          
+            |                      --0.14%--get_data_ptr (inlined)
+            |                                voice_get_samples (inlined)
+            |                                voice_resample_callback
+            |                                src_callback_read
+            |                                voice_resample (inlined)
+            |                                voice_process (inlined)
+            |                                voice_worker_thread (inlined)
+            |                                qemu_thread_start (inlined)
+            |                                0x7fdc514a57ea
+            |          
+            |--0.24%--section_covers_addr (inlined)
+            |          |          
+            |           --0.23%--address_space_lookup_region (inlined)
+            |                     address_space_translate_internal (inlined)
+            |                     |          
+            |                      --0.20%--flatview_do_translate (inlined)
+            |                                flatview_translate (inlined)
+            |                                address_space_translate (inlined)
+            |                                |          
+            |                                 --0.18%--address_space_ldl_internal (inlined)
+            |                                           address_space_ldl_le (inlined)
+            |                                           ldl_le_phys (inlined)
+            |          
+             --0.23%--int128_min (inlined)
+                       address_space_translate_internal (inlined)
+                       flatview_do_translate (inlined)
+                       flatview_translate (inlined)
+                       address_space_translate (inlined)
+                       |          
+                        --0.19%--address_space_ldl_internal (inlined)
+                                  address_space_ldl_le (inlined)
+                                  ldl_le_phys (inlined)
+                                  |          
+                                   --0.11%--voice_get_mask (inlined)
+
+     2.11%           179  xemu         xemu                         [.] get_ptr_rcu_reader                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---get_ptr_rcu_reader
+               |          
+               |--1.17%--rcu_read_lock (inlined)
+               |          |          
+               |          |--0.76%--address_space_ldl_internal (inlined)
+               |          |          address_space_ldl_le (inlined)
+               |          |          ldl_le_phys (inlined)
+               |          |          |          
+               |          |          |--0.47%--voice_get_mask (inlined)
+               |          |          |          |          
+               |          |          |           --0.28%--voice_process (inlined)
+               |          |          |                     voice_worker_thread (inlined)
+               |          |          |                     qemu_thread_start (inlined)
+               |          |          |                     0x7fdc514a57ea
+               |          |          |          
+               |          |           --0.14%--get_data_ptr (inlined)
+               |          |                     voice_get_samples (inlined)
+               |          |                     voice_resample_callback
+               |          |                     src_callback_read
+               |          |                     voice_resample (inlined)
+               |          |                     voice_process (inlined)
+               |          |                     voice_worker_thread (inlined)
+               |          |                     qemu_thread_start (inlined)
+               |          |                     0x7fdc514a57ea
+               |          |          
+               |           --0.31%--rcu_read_auto_lock (inlined)
+               |                     |          
+               |                      --0.25%--physical_memory_all_dirty
+               |                                physical_memory_range_includes_clean
+               |                                invalidate_and_set_dirty (inlined)
+               |                                address_space_stl_internal (inlined)
+               |                                address_space_stl_le (inlined)
+               |                                stl_le_phys (inlined)
+               |                                voice_set_mask (inlined)
+               |                                |          
+               |                                 --0.21%--voice_step_envelope
+               |                                           voice_process (inlined)
+               |                                           voice_worker_thread (inlined)
+               |                                           qemu_thread_start (inlined)
+               |                                           0x7fdc514a57ea
+               |          
+                --0.94%--rcu_read_unlock (inlined)
+                          |          
+                          |--0.40%--rcu_read_auto_unlock (inlined)
+                          |          |          
+                          |           --0.38%--glib_autoptr_clear_RCUReadAuto (inlined)
+                          |                     glib_autoptr_cleanup_RCUReadAuto (inlined)
+                          |                     |          
+                          |                      --0.37%--physical_memory_all_dirty
+                          |                                physical_memory_range_includes_clean
+                          |                                invalidate_and_set_dirty (inlined)
+                          |                                address_space_stl_internal (inlined)
+                          |                                |          
+                          |                                 --0.35%--address_space_stl_le (inlined)
+                          |                                           stl_le_phys (inlined)
+                          |                                           voice_set_mask (inlined)
+                          |                                           |          
+                          |                                            --0.27%--voice_step_envelope
+                          |                                                      voice_process (inlined)
+                          |                                                      voice_worker_thread (inlined)
+                          |                                                      qemu_thread_start (inlined)
+                          |                                                      0x7fdc514a57ea
+                          |          
+                          |--0.37%--address_space_ldl_internal (inlined)
+                          |          address_space_ldl_le (inlined)
+                          |          ldl_le_phys (inlined)
+                          |          |          
+                          |           --0.27%--voice_get_mask (inlined)
+                          |                     |          
+                          |                      --0.12%--voice_process (inlined)
+                          |                                voice_worker_thread (inlined)
+                          |                                qemu_thread_start (inlined)
+                          |                                0x7fdc514a57ea
+                          |          
+                           --0.15%--address_space_stl_internal (inlined)
+                                     address_space_stl_le (inlined)
+                                     stl_le_phys (inlined)
+                                     voice_set_mask (inlined)
+                                     |          
+                                      --0.10%--voice_step_envelope
+                                                voice_process (inlined)
+                                                voice_worker_thread (inlined)
+                                                qemu_thread_start (inlined)
+                                                0x7fdc514a57ea
+
+     2.09%           141  xemu         xemu                         [.] lookup_tb_ptr_common                                                                                                                                                                                                                                                                  -      -            
+            |          
+            |--1.78%--tb_lookup (inlined)
+            |          lookup_tb_ptr_common
+            |          helper_lookup_tb_ptr_i32
+            |          
+            |--0.11%--tb_jmp_cache_hash_func (inlined)
+            |          tb_lookup (inlined)
+            |          lookup_tb_ptr_common
+            |          helper_lookup_tb_ptr_i32
+            |          
+             --0.10%--lookup_tb_ptr_common
+                       helper_lookup_tb_ptr_i32
+
+     1.85%           160  xemu         [vdso]                       [.] 0x00000000000009cc                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc51f5b9cc
+
+     1.55%           126  xemu         libsamplerate.so.0           [.] 0x000000000000324a                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d824a
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     1.05%            96  xemu         xemu                         [.] physical_memory_all_dirty                                                                                                                                                                                                                                                             -      -            
+            |          
+            |--0.53%--physical_memory_all_dirty
+            |          physical_memory_range_includes_clean
+            |          invalidate_and_set_dirty (inlined)
+            |          address_space_stl_internal (inlined)
+            |          |          
+            |           --0.51%--address_space_stl_le (inlined)
+            |                     stl_le_phys (inlined)
+            |                     voice_set_mask (inlined)
+            |                     |          
+            |                     |--0.33%--voice_step_envelope
+            |                     |          voice_process (inlined)
+            |                     |          voice_worker_thread (inlined)
+            |                     |          qemu_thread_start (inlined)
+            |                     |          0x7fdc514a57ea
+            |                     |          
+            |                      --0.18%--voice_get_samples (inlined)
+            |                                voice_resample_callback
+            |                                src_callback_read
+            |                                voice_resample (inlined)
+            |                                voice_process (inlined)
+            |                                voice_worker_thread (inlined)
+            |                                qemu_thread_start (inlined)
+            |                                0x7fdc514a57ea
+            |          
+             --0.50%--find_next_zero_bit (inlined)
+                       physical_memory_all_dirty
+                       physical_memory_range_includes_clean
+                       invalidate_and_set_dirty (inlined)
+                       address_space_stl_internal (inlined)
+                       |          
+                        --0.46%--address_space_stl_le (inlined)
+                                  stl_le_phys (inlined)
+                                  voice_set_mask (inlined)
+                                  |          
+                                  |--0.31%--voice_step_envelope
+                                  |          voice_process (inlined)
+                                  |          voice_worker_thread (inlined)
+                                  |          qemu_thread_start (inlined)
+                                  |          0x7fdc514a57ea
+                                  |          
+                                   --0.15%--voice_get_samples (inlined)
+                                             voice_resample_callback
+                                             src_callback_read
+                                             voice_resample (inlined)
+                                             voice_process (inlined)
+                                             voice_worker_thread (inlined)
+                                             qemu_thread_start (inlined)
+                                             0x7fdc514a57ea
+
+     1.04%            79  xemu         libsamplerate.so.0           [.] 0x0000000000003292                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d8292
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.98%            68  xemu         [JIT] tid 10216              [.] 0x00007fdb91d3ac3b                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdb91d3ac3b
+
+     0.92%            78  xemu         libsamplerate.so.0           [.] 0x0000000000003242                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d8242
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.91%            72  xemu         libsamplerate.so.0           [.] 0x00000000000031c1                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d81c1
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.88%            71  xemu         libsamplerate.so.0           [.] 0x0000000000003194                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d8194
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.87%            57  xemu         xemu                         [.] float32_mul                                                                                                                                                                                                                                                                           -      -            
+            |          
+            |--0.27%--hard_f32_mul (inlined)
+            |          float32_gen2 (inlined)
+            |          float32_mul
+            |          |          
+            |           --0.18%--helper_mulss
+            |          
+            |--0.15%--f32_is_inf (inlined)
+            |          float32_gen2 (inlined)
+            |          float32_mul
+            |          
+            |--0.14%--float32_gen2 (inlined)
+            |          float32_mul
+            |          helper_mulss
+            |          
+            |--0.12%--float32_mul
+            |          
+             --0.11%--f32_is_zon2 (inlined)
+                       float32_gen2 (inlined)
+                       float32_mul
+
+     0.84%            65  xemu         libsamplerate.so.0           [.] 0x0000000000003174                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d8174
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.84%            72  xemu         libsamplerate.so.0           [.] 0x00000000000031a4                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d81a4
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.83%            70  xemu         libsamplerate.so.0           [.] 0x00000000000031d5                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d81d5
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.74%            58  xemu         libsamplerate.so.0           [.] 0x000000000000321c                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d821c
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.72%            49  xemu         xemu                         [.] float32_add                                                                                                                                                                                                                                                                           -      -            
+            |          
+            |--0.25%--f32_is_inf (inlined)
+            |          float32_gen2 (inlined)
+            |          float32_addsub (inlined)
+            |          float32_add
+            |          |          
+            |          |--0.13%--helper_addss
+            |          |          
+            |           --0.12%--helper_addps_xmm
+            |          
+            |--0.24%--float32_gen2 (inlined)
+            |          float32_addsub (inlined)
+            |          float32_add
+            |          |          
+            |           --0.15%--helper_addss
+            |          
+             --0.14%--hard_f32_add (inlined)
+                       float32_gen2 (inlined)
+                       float32_addsub (inlined)
+                       float32_add
+                       |          
+                        --0.10%--helper_addss
+
+     0.59%            38  xemu         xemu                         [.] tb_lookup_cmp                                                                                                                                                                                                                                                                         -      -            
+            |          
+             --0.54%--tb_lookup_cmp
+                       qht_do_lookup (inlined)
+                       qht_lookup_custom
+                       tb_htable_lookup_common (inlined)
+                       tb_htable_lookup (inlined)
+                       tb_lookup (inlined)
+                       |          
+                        --0.51%--lookup_tb_ptr_common
+                                  helper_lookup_tb_ptr_i32
+
+     0.57%            54  xemu         xemu                         [.] address_space_stl_internal.llvm.9823001788323054012                                                                                                                                                                                                                                   -      -            
+            |          
+            |--0.13%--address_space_stl_internal (inlined)
+            |          address_space_stl_le (inlined)
+            |          stl_le_phys (inlined)
+            |          voice_set_mask (inlined)
+            |          
+            |--0.12%--memory_region_is_romd (inlined)
+            |          memory_region_supports_direct_access (inlined)
+            |          memory_access_is_direct (inlined)
+            |          address_space_stl_internal (inlined)
+            |          address_space_stl_le (inlined)
+            |          stl_le_phys (inlined)
+            |          voice_set_mask (inlined)
+            |          
+             --0.12%--qemu_map_ram_ptr (inlined)
+                       address_space_stl_internal (inlined)
+                       address_space_stl_le (inlined)
+                       stl_le_phys (inlined)
+                       voice_set_mask (inlined)
+
+     0.56%            49  xemu         libsamplerate.so.0           [.] 0x000000000000324e                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d824e
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.56%            37  xemu         xemu                         [.] helper_mulss                                                                                                                                                                                                                                                                          -      -            
+            |
+            ---helper_mulss
+
+     0.53%            41  xemu         libsamplerate.so.0           [.] 0x000000000000326a                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d826a
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.51%            37  xemu         libsamplerate.so.0           [.] 0x00000000000031a8                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d81a8
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.49%            44  xemu         xemu                         [.] qemu_ram_ptr_length.llvm.9823001788323054012                                                                                                                                                                                                                                          -      -            
+            |          
+             --0.46%--qemu_ram_ptr_length (inlined)
+                       |          
+                        --0.46%--qemu_map_ram_ptr (inlined)
+                                  |          
+                                   --0.38%--address_space_ldl_internal (inlined)
+                                             address_space_ldl_le (inlined)
+                                             ldl_le_phys (inlined)
+                                             |          
+                                              --0.19%--voice_get_mask (inlined)
+                                                        |          
+                                                         --0.10%--voice_process (inlined)
+                                                                   voice_worker_thread (inlined)
+                                                                   qemu_thread_start (inlined)
+                                                                   0x7fdc514a57ea
+
+     0.49%            31  xemu         xemu                         [.] soft_f32_mul.llvm.11702124999211424084                                                                                                                                                                                                                                                -      -            
+            |          
+            |--0.18%--parts64_mul (inlined)
+            |          soft_f32_mul (inlined)
+            |          |          
+            |           --0.13%--helper_mulss
+            |          
+             --0.12%--soft_f32_mul (inlined)
+
+     0.49%            36  xemu         libsamplerate.so.0           [.] 0x0000000000003234                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d8234
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.45%            33  xemu         xemu                         [.] pgraph_vk_bind_textures                                                                                                                                                                                                                                                               -      -            
+            |          
+             --0.13%--lru_try_lookup (inlined)
+                       lru_lookup (inlined)
+                       create_texture (inlined)
+                       pgraph_vk_bind_textures
+                       create_pipeline (inlined)
+                       begin_pre_draw
+
+     0.44%            36  xemu         libsamplerate.so.0           [.] 0x0000000000003217                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d8217
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.44%            33  xemu         libsamplerate.so.0           [.] 0x0000000000002fdd                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d7fdd
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.41%            27  xemu         xemu                         [.] float32_sub                                                                                                                                                                                                                                                                           -      -            
+            |          
+            |--0.14%--float32_gen2 (inlined)
+            |          float32_addsub (inlined)
+            |          float32_sub
+            |          |          
+            |           --0.10%--helper_subss
+            |          
+             --0.10%--hard_f32_sub (inlined)
+                       float32_gen2 (inlined)
+                       float32_addsub (inlined)
+                       float32_sub
+
+     0.41%            31  xemu         libc.so.6                    [.] 0x000000000016bbb3                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc5157bbb3
+
+     0.41%            36  xemu         xemu                         [.] tlb_reset_dirty                                                                                                                                                                                                                                                                       -      -            
+            |          
+             --0.32%--tlb_reset_dirty_range_locked (inlined)
+                       tlb_reset_dirty
+                       tlb_reset_dirty_range_all
+                       physical_memory_dirty_bits_cleared (inlined)
+                       |          
+                        --0.30%--physical_memory_test_and_clear_dirty
+                                  |          
+                                   --0.28%--tlb_protect_code (inlined)
+                                             tb_page_add (inlined)
+                                             tb_record (inlined)
+                                             tb_link_page
+                                             tb_gen_code
+                                             cpu_exec_loop
+                                             cpu_exec_setjmp
+                                             cpu_exec
+                                             tcg_cpu_exec (inlined)
+                                             mttcg_cpu_thread_fn
+                                             qemu_thread_start (inlined)
+                                             0x7fdc514a57ea
+
+     0.40%            28  xemu         [JIT] tid 10216              [.] 0x00007fdb91d3ac2e                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdb91d3ac2e
+
+     0.39%            31  xemu         libsamplerate.so.0           [.] 0x000000000000327e                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d827e
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.39%            33  xemu         libsamplerate.so.0           [.] 0x00000000000031cd                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d81cd
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.38%            26  xemu         xemu                         [.] helper_comiss                                                                                                                                                                                                                                                                         -      -            
+            |          
+            |--0.20%--float32_hs_compare (inlined)
+            |          float32_compare (inlined)
+            |          helper_comiss
+            |          
+             --0.12%--helper_comiss
+
+     0.38%            34  xemu         xemu                         [.] pfifo_thread                                                                                                                                                                                                                                                                          -      -            
+            |          
+            |--0.19%--pfifo_run_pusher (inlined)
+            |          pfifo_thread
+            |          qemu_thread_start (inlined)
+            |          0x7fdc514a57ea
+            |          
+             --0.16%--pfifo_run_puller (inlined)
+                       pfifo_run_pusher (inlined)
+                       pfifo_thread
+                       qemu_thread_start (inlined)
+                       0x7fdc514a57ea
+
+     0.36%            31  xemu         libm.so.6                    [.] 0x0000000000059749                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc51e8a749
+
+     0.36%            29  xemu         libglib-2.0.so.0             [.] g_get_monotonic_time                                                                                                                                                                                                                                                                  -      -            
+            |
+            ---g_get_monotonic_time
+               |          
+                --0.35%--pgraph_vk_hybrid_owner_budget_available (inlined)
+                          process_deferred_hybrid_publications (inlined)
+                          pgraph_vk_process_hybrid_completions
+                          |          
+                           --0.35%--pgraph_vk_prepare_shaders
+                                     create_pipeline (inlined)
+                                     begin_pre_draw
+
+     0.36%            25  xemu         xemu                         [.] prepare_vertex_data                                                                                                                                                                                                                                                                   -      -            
+     0.35%            30  xemu         xemu                         [.] address_space_lduw_internal.llvm.9823001788323054012                                                                                                                                                                                                                                  -      -            
+            |          
+            |--0.15%--address_space_lduw_internal (inlined)
+            |          address_space_lduw_le (inlined)
+            |          lduw_le_phys (inlined)
+            |          voice_get_samples (inlined)
+            |          voice_resample_callback
+            |          src_callback_read
+            |          voice_resample (inlined)
+            |          voice_process (inlined)
+            |          voice_worker_thread (inlined)
+            |          qemu_thread_start (inlined)
+            |          0x7fdc514a57ea
+            |          
+             --0.13%--qemu_map_ram_ptr (inlined)
+                       address_space_lduw_internal (inlined)
+                       address_space_lduw_le (inlined)
+                       lduw_le_phys (inlined)
+                       voice_get_samples (inlined)
+                       voice_resample_callback
+                       src_callback_read
+                       voice_resample (inlined)
+                       voice_process (inlined)
+                       voice_worker_thread (inlined)
+                       qemu_thread_start (inlined)
+                       0x7fdc514a57ea
+
+     0.34%            33  xemu         xemu                         [.] dsp56300_emu::core::DspState::write_memory                                                                                                                                                                                                                                            -      -            
+            |
+            ---dsp56300_emu::core::DspState::write_memory
+               dsp56300_write_memory
+               dsp_write_memory (inlined)
+               mcpx_apu_dsp_frame
+               se_frame (inlined)
+               mcpx_apu_frame_thread
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.33%            26  xemu         libc.so.6                    [.] 0x0000000000098dba                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc514a8dba
+
+     0.33%            23  xemu         xemu                         [.] tb_htable_lookup_common.llvm.15934127697401424413                                                                                                                                                                                                                                     -      -            
+            |          
+             --0.22%--qemu_xxhash8 (inlined)
+                       tb_hash_func (inlined)
+                       tb_htable_lookup_common (inlined)
+                       tb_htable_lookup (inlined)
+                       tb_lookup (inlined)
+                       lookup_tb_ptr_common
+                       helper_lookup_tb_ptr_i32
+
+     0.33%            23  xemu         xemu                         [.] pgraph_method                                                                                                                                                                                                                                                                         -      -            
+            |          
+            |--0.21%--pgraph_method
+            |          pfifo_run_puller (inlined)
+            |          pfifo_run_pusher (inlined)
+            |          pfifo_thread
+            |          qemu_thread_start (inlined)
+            |          0x7fdc514a57ea
+            |          
+             --0.12%--pgraph_reg_w (inlined)
+                       pgraph_method
+                       pfifo_run_puller (inlined)
+                       pfifo_run_pusher (inlined)
+                       pfifo_thread
+                       qemu_thread_start (inlined)
+                       0x7fdc514a57ea
+
+     0.30%            26  xemu         libsamplerate.so.0           [.] 0x0000000000003246                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d8246
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.30%            25  xemu         libsamplerate.so.0           [.] 0x0000000000003326                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d8326
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.29%            20  xemu         xemu                         [.] helper_addss                                                                                                                                                                                                                                                                          -      -            
+            |
+            ---helper_addss
+
+     0.28%            20  xemu         xemu                         [.] apply_uniform_updates                                                                                                                                                                                                                                                                 -      -            
+            |          
+             --0.24%--uniform_copy (inlined)
+                       apply_uniform_updates
+                       update_shader_uniforms (inlined)
+                       pgraph_vk_activate_shaders
+
+     0.27%            18  xemu         xemu                         [.] helper_subss                                                                                                                                                                                                                                                                          -      -            
+            |
+            ---helper_subss
+
+     0.27%            23  xemu         libsamplerate.so.0           [.] 0x000000000000330e                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d830e
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.26%            18  xemu         xemu                         [.] tcg_tb_lookup                                                                                                                                                                                                                                                                         -      -            
+            |
+            ---q_tree_find_node (inlined)
+               q_tree_lookup_node (inlined)
+               q_tree_lookup (inlined)
+               tcg_tb_lookup
+               |          
+                --0.25%--cpu_io_recompile
+                          io_prepare (inlined)
+                          |          
+                           --0.16%--do_st_mmio_leN (inlined)
+                                     do_st_4 (inlined)
+                                     do_st4_mmu (inlined)
+
+     0.26%            26  xemu         libsamplerate.so.0           [.] src_callback_read                                                                                                                                                                                                                                                                     -      -            
+            |
+            ---src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.24%            19  xemu         libsamplerate.so.0           [.] 0x0000000000003138                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d8138
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.24%            18  xemu         libsamplerate.so.0           [.] 0x000000000000327b                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d827b
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.24%            18  xemu         libsamplerate.so.0           [.] 0x0000000000003309                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d8309
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.23%            26  xemu         xemu                         [.] mcpx_apu_dsp_frame                                                                                                                                                                                                                                                                    -      -            
+            |          
+             --0.14%--float_to_24b (inlined)
+                       mcpx_apu_dsp_frame
+                       se_frame (inlined)
+                       mcpx_apu_frame_thread
+                       qemu_thread_start (inlined)
+                       0x7fdc514a57ea
+
+     0.22%            18  xemu         libsamplerate.so.0           [.] 0x000000000000313c                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d813c
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.21%            17  xemu         libsamplerate.so.0           [.] 0x00000000000031a0                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d81a0
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.20%            16  xemu         xemu                         [.] cpu_exec_loop                                                                                                                                                                                                                                                                         -      -            
+            |          
+             --0.10%--tb_lookup (inlined)
+                       cpu_exec_loop
+                       cpu_exec_setjmp
+                       cpu_exec
+                       tcg_cpu_exec (inlined)
+                       mttcg_cpu_thread_fn
+                       qemu_thread_start (inlined)
+                       0x7fdc514a57ea
+
+     0.20%            15  xemu         libsamplerate.so.0           [.] 0x0000000000003104                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d8104
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.20%            16  xemu         libsamplerate.so.0           [.] 0x000000000000329e                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d829e
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.19%            14  xemu         xemu                         [.] pgraph_vk_process_hybrid_completions                                                                                                                                                                                                                                                  -      -            
+     0.19%            12  xemu         xemu                         [.] probe_access_internal.llvm.15400734734619096472                                                                                                                                                                                                                                       -      -            
+            |
+            ---probe_access_internal (inlined)
+               |          
+                --0.16%--get_page_addr_code_hostp
+                          get_page_addr_code (inlined)
+                          tb_htable_lookup_common (inlined)
+                          tb_htable_lookup (inlined)
+                          tb_lookup (inlined)
+                          |          
+                           --0.14%--lookup_tb_ptr_common
+                                     helper_lookup_tb_ptr_i32
+
+     0.18%            13  xemu         libsamplerate.so.0           [.] 0x00000000000032ed                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d82ed
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.18%            14  xemu         libsamplerate.so.0           [.] 0x00000000000032c0                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d82c0
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.18%            13  xemu         xemu                         [.] tb_tc_cmp                                                                                                                                                                                                                                                                             -      -            
+            |          
+             --0.14%--ptr_cmp_tb_tc (inlined)
+                       tb_tc_cmp
+                       q_tree_find_node (inlined)
+                       q_tree_lookup_node (inlined)
+                       q_tree_lookup (inlined)
+                       tcg_tb_lookup
+                       |          
+                        --0.12%--cpu_io_recompile
+                                  io_prepare (inlined)
+
+     0.18%            13  xemu         xemu                         [.] pgraph_glsl_set_psh_uniform_values                                                                                                                                                                                                                                                    -      -            
+            |          
+             --0.11%--pgraph_argb_pack32_to_rgba_float (inlined)
+                       pgraph_glsl_get_psh_combiner_constants (inlined)
+                       pgraph_glsl_set_psh_uniform_values
+                       update_shader_uniforms (inlined)
+                       pgraph_vk_activate_shaders
+
+     0.18%            17  xemu         xemu                         [.] physical_memory_range_includes_clean                                                                                                                                                                                                                                                  -      -            
+            |
+            ---physical_memory_range_includes_clean
+               invalidate_and_set_dirty (inlined)
+               address_space_stl_internal (inlined)
+               address_space_stl_le (inlined)
+               stl_le_phys (inlined)
+               voice_set_mask (inlined)
+
+     0.18%            15  xemu         libsamplerate.so.0           [.] 0x000000000000317d                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d817d
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.17%            14  xemu         libsamplerate.so.0           [.] 0x0000000000003162                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d8162
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.16%            11  xemu         xemu                         [.] tlb_set_page_full                                                                                                                                                                                                                                                                     -      -            
+            |          
+             --0.10%--tlb_set_page_full
+                       tlb_set_page_with_attrs (inlined)
+                       x86_cpu_tlb_fill
+                       tlb_fill_align
+
+     0.16%            11  xemu         xemu                         [.] do_ld4_mmu.llvm.15400734734619096472                                                                                                                                                                                                                                                  -      -            
+            |          
+             --0.12%--do_ld4_mmu (inlined)
+                       |          
+                        --0.10%--helper_ldul_mmu
+
+     0.16%            18  xemu         xemu                         [.] ImGui::NewFrame()                                                                                                                                                                                                                                                                     -      -            
+     0.16%            14  xemu         xemu                         [.] qemu_mutex_lock_impl                                                                                                                                                                                                                                                                  -      -            
+            |
+            ---qemu_mutex_lock_impl
+               |          
+                --0.13%--pfifo_run_puller (inlined)
+                          pfifo_run_pusher (inlined)
+                          pfifo_thread
+                          qemu_thread_start (inlined)
+                          0x7fdc514a57ea
+
+     0.16%            12  xemu         xemu                         [.] pgraph_vk_surface_update                                                                                                                                                                                                                                                              -      -            
+            |          
+             --0.11%--expire_old_surfaces (inlined)
+                       pgraph_vk_surface_update
+
+     0.16%            11  xemu         [JIT] tid 10216              [.] 0x00007fdb91d3ac03                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdb91d3ac03
+
+     0.16%            14  xemu         libsamplerate.so.0           [.] 0x0000000000003220                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d8220
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.16%            11  xemu         libsamplerate.so.0           [.] 0x000000000000331e                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d831e
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.15%            11  xemu         libc.so.6                    [.] 0x000000000016c085                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc5157c085
+
+     0.15%            11  xemu         xemu                         [.] physical_memory_take_dirty_pages                                                                                                                                                                                                                                                      -      -            
+            |          
+             --0.11%--bitmap_take_and_clear_atomic (inlined)
+                       physical_memory_take_dirty_pages
+                       memory_region_take_dirty_pages (inlined)
+                       take_surface_dirty_pages (inlined)
+                       pgraph_vk_surface_consume_dirty_range (inlined)
+                       consume_surface_guest_writes (inlined)
+                       update_surface_part
+                       pgraph_vk_surface_update
+                       pgraph_vk_draw_begin
+                       pgraph_method
+                       pfifo_run_puller (inlined)
+                       pfifo_run_pusher (inlined)
+                       pfifo_thread
+                       qemu_thread_start (inlined)
+                       0x7fdc514a57ea
+
+     0.15%            20  xemu         xemu                         [.] mcpx_apu_vp_frame                                                                                                                                                                                                                                                                     -      -            
+     0.15%            11  xemu         xemu                         [.] pgraph_method_log                                                                                                                                                                                                                                                                     -      -            
+            |          
+             --0.10%--pgraph_method_log
+
+     0.14%            12  xemu         libsamplerate.so.0           [.] 0x000000000000341d                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d841d
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.14%            13  xemu         libsamplerate.so.0           [.] 0x00000000000032f9                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d82f9
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.14%            11  xemu         xemu                         [.] physical_memory_test_and_clear_dirty                                                                                                                                                                                                                                                  -      -            
+            |          
+             --0.12%--bitmap_test_and_clear_atomic (inlined)
+                       physical_memory_test_and_clear_dirty
+                       memory_region_test_and_clear_dirty (inlined)
+
+     0.14%            14  xemu         xemu                         [.] ImGui::Begin(char const*, bool*, int)                                                                                                                                                                                                                                                 -      -            
+     0.13%            11  xemu         libsamplerate.so.0           [.] 0x00000000000032f5                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d82f5
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.13%            12  xemu         libc.so.6                    [.] 0x000000000009a7fc                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc514aa7fc
+
+     0.13%            11  xemu         libc.so.6                    [.] 0x000000000016bb9d                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc5157bb9d
+
+     0.13%            10  xemu         libsamplerate.so.0           [.] 0x0000000000002fe1                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d7fe1
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.13%            10  xemu         libvulkan_radeon.so          [.] 0x00000000000d2cf1                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdb306d2cf1
+
+     0.12%            10  xemu         xemu                         [.] begin_pre_draw                                                                                                                                                                                                                                                                        -      -            
+     0.12%             8  xemu         xemu                         [.] do_tb_phys_invalidate.llvm.8758571221256236108                                                                                                                                                                                                                                        -      -            
+            |
+            ---tcg_flush_jmp_cache (inlined)
+               tb_jmp_cache_inval_tb (inlined)
+               do_tb_phys_invalidate (inlined)
+               tb_phys_invalidate__locked (inlined)
+               tb_invalidate_phys_page_range__locked (inlined)
+               tb_invalidate_phys_range_fast
+               notdirty_write (inlined)
+               mmu_watch_or_dirty
+               mmu_lookup (inlined)
+               do_st4_mmu (inlined)
+
+     0.12%             8  xemu         xemu                         [.] helper_shufps_xmm                                                                                                                                                                                                                                                                     -      -            
+            |
+            ---helper_shufps_xmm
+
+     0.12%            10  xemu         libsamplerate.so.0           [.] 0x000000000000318e                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d818e
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.12%             6  xemu:gdrv0   libc.so.6                    [.] 0x000000000016ca93                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc5157ca93
+
+     0.11%             8  xemu         [JIT] tid 10216              [.] 0x00007fdb92e6503b                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdb92e6503b
+
+     0.11%             9  xemu         libsamplerate.so.0           [.] 0x0000000000002ef2                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0x7fdc518d7ef2
+               src_callback_read
+               voice_resample (inlined)
+               voice_process (inlined)
+               voice_worker_thread (inlined)
+               qemu_thread_start (inlined)
+               0x7fdc514a57ea
+
+     0.11%             6  xemu         xemu                         [.] SDL_PeepEventsInternal.llvm.4769681012858742499                                                                                                                                                                                                                                       -      -            
+     0.11%             9  xemu         xemu                         [.] swizzle_box                                                                                                                                                                                                                                                                           -      -            
+     0.11%             7  xemu         xemu                         [.] helper_cc_compute_c                                                                                                                                                                                                                                                                   -      -            
+            |
+            ---helper_cc_compute_c
+
+     0.10%             7  xemu         xemu                         [.] helper_addps_xmm                                                                                                                                                                                                                                                                      -      -            
+            |
+            ---helper_addps_xmm
+
+     0.10%             7  xemu         xemu                         [.] probe_ready_draw_candidate.llvm.17481714659990829360                                                                                                                                                                                                                                  -      -            
+
+
+#
+# (Tip: To not record events from perf itself add --exclude-perf)
+#

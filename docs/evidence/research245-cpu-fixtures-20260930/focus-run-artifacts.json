@@ -1,0 +1,41 @@
+{
+  "RunId": "20260930-134802833-c17f80c9fba04f9abd6371c106620207",
+  "Artifacts": [
+    {
+      "Path": "operator-events.jsonl",
+      "Bytes": 0
+    },
+    {
+      "Path": "diagnostic-bundle.json",
+      "Bytes": 341
+    },
+    {
+      "Path": "diagnostics.zip",
+      "Bytes": 9090
+    },
+    {
+      "Path": "job.json",
+      "Bytes": 6699
+    },
+    {
+      "Path": "preflight.json",
+      "Bytes": 2299
+    },
+    {
+      "Path": "result.json",
+      "Bytes": 6740
+    },
+    {
+      "Path": "host-inventory.json",
+      "Bytes": 466
+    },
+    {
+      "Path": "assessment.json",
+      "Bytes": 1097
+    },
+    {
+      "Path": "pre-run-environment.json",
+      "Bytes": 1558
+    }
+  ]
+}

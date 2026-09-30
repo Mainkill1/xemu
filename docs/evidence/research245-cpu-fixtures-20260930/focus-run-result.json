@@ -1,0 +1,181 @@
+{
+  "runId": "20260930-134802833-c17f80c9fba04f9abd6371c106620207",
+  "job": "xc-research245-cpu-main-focus-v1-001",
+  "jobPackage": "agent-xc-research245-cpu-main-focus-v1-001",
+  "attempt": 1,
+  "status": "preflight_failed",
+  "detail": "System.IO.InvalidDataException: Unsupported QCOW2 features for bounded plan injection.\n   at XemuTestRunner.Runtime.PreallocatedDiskWriter.Write(String path, GuestExtent[] extents, Byte[] bytes, CancellationToken ct) in /_/src/XemuTestRunner/Runtime/PreallocatedDiskWriter.cs:line 24\n   at XemuTestRunner.Runtime.XisoPlanInjector.Inject(XisoExecution plan, String runtimeDirectory, CancellationToken ct) in /_/src/XemuTestRunner/Runtime/XisoPlanInjector.cs:line 31\n   at XemuTestRunner.Runtime.RuntimeStateManager.MaterializeAsync(RuntimeStateDefinition definition, String packageDirectory, String workspace, String runId, CancellationToken cancellationToken) in /_/src/XemuTestRunner/Runtime/RuntimeStateManager.cs:line 93\n   at XemuTestRunner.Runtime.RunnerEngine.ExecuteJobAsync(String package, Task serverTask, MetricCollector telemetry, CancellationToken ct) in /_/src/XemuTestRunner/Runtime/RunnerEngine.cs:line 487",
+  "startedUtc": "2026-09-30T13:48:02.8337254+00:00",
+  "endedUtc": "2026-09-30T13:48:02.8905197+00:00",
+  "durationMs": 56.7944,
+  "processId": null,
+  "exitCode": null,
+  "crash": null,
+  "diagnosticBundle": "diagnostic-bundle.json",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu",
+  "executableSha256": "5b3764acb93ee6d319b9cf7822295ae8748896b87b39ba52702838f1294f22f9",
+  "arguments": [],
+  "watchdog": null,
+  "failureCaptureError": null,
+  "automaticDiagnostic": null,
+  "automaticDiagnosticError": null,
+  "diagnostics": [
+    {
+      "Id": "jit-before",
+      "Type": "monitor",
+      "Status": "completed",
+      "StartedUtc": "2026-09-30T12:44:25.4895443+00:00",
+      "EndedUtc": "2026-09-30T12:44:25.5060897+00:00",
+      "Directory": "/home/deck/xemu-research/workspace/Results/20260930-124316611-f40b32d2974e4b0083713b069ad6bdf8/diagnostics/20260930-124425489-jit-before",
+      "Detail": null,
+      "Artifacts": [
+        "monitor.txt"
+      ]
+    },
+    {
+      "Id": "jit-after",
+      "Type": "monitor",
+      "Status": "completed",
+      "StartedUtc": "2026-09-30T12:44:56.5814171+00:00",
+      "EndedUtc": "2026-09-30T12:44:56.589966+00:00",
+      "Directory": "/home/deck/xemu-research/workspace/Results/20260930-124316611-f40b32d2974e4b0083713b069ad6bdf8/diagnostics/20260930-124456581-jit-after",
+      "Detail": null,
+      "Artifacts": [
+        "monitor.txt"
+      ]
+    }
+  ],
+  "operatorActivity": {
+    "Intervened": false,
+    "ManualInputs": 0,
+    "Pauses": 0,
+    "Screenshots": 0,
+    "PreviewCaptures": 0,
+    "BulkTransfers": 0,
+    "Diagnostics": 0,
+    "HostStateChanges": 0
+  },
+  "workload": {
+    "Correctness": "notEvaluated",
+    "Evidence": "incomplete",
+    "Checks": [
+      {
+        "Name": "guest_hdd_extraction",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "guest_image_owned: extraction requires the matching attempt\u0027s confirmed stopped process."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": false,
+        "Category": "state",
+        "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+      }
+    ],
+    "Measurements": []
+  },
+  "assessment": {
+    "Execution": "invalidInput",
+    "Correctness": "notEvaluated",
+    "Evidence": "incomplete",
+    "Comparison": "ineligible",
+    "ComparisonReasons": [
+      "Execution outcome is InvalidInput.",
+      "Correctness outcome is NotEvaluated; a passing correctness contract is required.",
+      "Evidence outcome is Incomplete; complete evidence is required.",
+      "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+    ],
+    "Checks": [
+      {
+        "Name": "guest_hdd_extraction",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "guest_image_owned: extraction requires the matching attempt\u0027s confirmed stopped process."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": false,
+        "Category": "state",
+        "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+      }
+    ],
+    "IsExecutionSuccess": false,
+    "IsCorrectnessSuccess": true
+  },
+  "correctnessStatus": "notevaluated",
+  "evidenceStatus": "incomplete",
+  "comparisonStatus": "ineligible",
+  "experiment": {
+    "Id": "research245-deck-cpu-main-v1",
+    "Variant": "main-calibration",
+    "Reference": null,
+    "VariedFactors": [],
+    "ControlledFactors": [
+      "main-2d289cb",
+      "fixture-3f0eb995",
+      "fixed-work-1m",
+      "warmups-0",
+      "multiplier-1",
+      "cpuid-both-leaves",
+      "128mb-ram",
+      "vulkan-radv",
+      "cold-private-application-cache",
+      "mesa-driver-cache-unverified"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": false
+  },
+  "operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  },
+  "inputManifest": null,
+  "controllerInput": null,
+  "runtimeDirectory": null,
+  "hostInventory": "host-inventory.json",
+  "workstationStart": null,
+  "workstationEnd": {
+    "Supported": false,
+    "Platform": "linux",
+    "SessionLocked": null,
+    "InputDesktop": null,
+    "DisplayState": "unknown",
+    "PowerState": "unknown",
+    "PowerSource": "unknown",
+    "BatteryPercent": null,
+    "BatterySaver": null,
+    "UserIdleSeconds": null,
+    "TimestampUtc": "2026-09-30T09:45:54.5010094+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": null,
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "workstation monitoring is currently implemented for Windows only",
+    "EventSequence": 1,
+    "RenderingRisk": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B6089e8b841bce379015500853c0455551d7fd2cf",
+    "machine": "steamdeck",
+    "os": "SteamOS",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 8,
+    "dotnet": "10.0.12"
+  },
+  "monitoring": null
+}

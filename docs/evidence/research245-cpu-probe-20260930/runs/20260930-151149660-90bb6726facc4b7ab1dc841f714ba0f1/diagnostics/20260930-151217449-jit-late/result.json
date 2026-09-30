@@ -1,0 +1,12 @@
+{
+  "Id": "jit-late",
+  "Type": "monitor",
+  "Status": "completed",
+  "StartedUtc": "2026-09-30T15:12:17.4491793+00:00",
+  "EndedUtc": "2026-09-30T15:12:17.4629048+00:00",
+  "Directory": "/home/deck/xemu-research/workspace/Results/20260930-151149660-90bb6726facc4b7ab1dc841f714ba0f1/diagnostics/20260930-151217449-jit-late",
+  "Detail": null,
+  "Artifacts": [
+    "monitor.txt"
+  ]
+}

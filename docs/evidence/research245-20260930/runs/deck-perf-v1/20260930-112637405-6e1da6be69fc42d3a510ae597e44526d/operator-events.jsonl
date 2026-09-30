@@ -1,0 +1,4 @@
+{"timestampUtc":"2026-09-30T11:28:28.6726585+00:00","elapsedMs":111267.0116,"kind":"diagnostic","detail":{"Id":"jit-before","Type":"monitor","Reason":"Measure invalidation reachability without a new probe"}}
+{"timestampUtc":"2026-09-30T11:28:59.8422226+00:00","elapsedMs":142436.5758,"kind":"diagnostic","detail":{"Id":"jit-after","Type":"monitor","Reason":"Measure invalidation reachability without a new probe"}}
+{"timestampUtc":"2026-09-30T11:28:59.8551042+00:00","elapsedMs":142449.4572,"kind":"diagnostic","detail":{"Id":"perf-user","Type":"external","Reason":"Userspace cycles avoids kernel sampling permissions; actual runner PID, post-segment diagnostic only"}}
+{"timestampUtc":"2026-09-30T11:29:05.1417239+00:00","elapsedMs":147736.077,"kind":"diagnostic","detail":{"Id":"perf-report","Type":"external","Reason":null}}

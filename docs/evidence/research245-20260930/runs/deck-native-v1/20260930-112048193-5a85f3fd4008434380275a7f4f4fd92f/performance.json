@@ -1,0 +1,32 @@
+{
+  "SchemaVersion": 1,
+  "ProfileSha256": "8b1ec7442c67958ab9b1d87348a16165eb3da287383f4beacf146bc739bf89f0",
+  "Profile": {
+    "Segment": "stationary-start",
+    "MetricsPath": "metrics.csv",
+    "GuestFlipsPath": "guest-flips.log",
+    "GuestFramesPath": "guest-frames.log",
+    "FlipTailSamples": 5,
+    "FrameTailSeconds": 25,
+    "MinimumCpuSamples": 55,
+    "MinimumFrameSamples": 160
+  },
+  "Monitoring": null,
+  "Flips": null,
+  "Frames": null,
+  "Sources": [
+    {
+      "Path": "metrics.csv",
+      "Bytes": 3222,
+      "Sha256": "f74c7ee99160c591c5cbdba6b15f80aceb8727d0f94b1b592651ac933f9c9fea",
+      "Records": 21,
+      "IgnoredRecords": 20
+    }
+  ],
+  "Errors": [
+    "monitor: Selected segment has insufficient CPU/duty samples.",
+    "flips: Analysis source is missing: guest-flips.log",
+    "frames: Analysis source is missing: guest-frames.log"
+  ],
+  "Complete": false
+}

@@ -1,0 +1,12 @@
+{
+  "enabled": true,
+  "directory": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Runtime\\20260930-111718824-6e224a6a4b9e4c9383489454b0ee4de6",
+  "files": [
+    {
+      "Source": "state/seed-hdd.qcow2",
+      "Destination": "hdd.qcow2",
+      "Bytes": 2621702656,
+      "Sha256": "8b4f7c81be6ece5db3fc98d683d86d0515db43b2447e8dff14bfd9b45078c606"
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+[
+  {
+    "schema_version": 1,
+    "id": "texture_cubemap_fallback.unbordered_subblock_dxt1",
+    "revision": 1,
+    "kind": "leaf",
+    "name": "TextureCubemapFallback::UnborderedSubblockDxt1",
+    "outcome": "PASS",
+    "iterations": 32,
+    "sample_count": 8,
+    "measurement_iterations_multiplier": 4,
+    "warmup_iterations": 3,
+    "gpu_completion_mode": "per_iteration",
+    "completion_wait_us": 594,
+    "total_us": 532375,
+    "average_us": 16636,
+    "min_us": 16439,
+    "max_us": 16774,
+    "median_us": 16658,
+    "p95_us": 16774,
+    "mad_us": 51,
+    "unit": "us",
+    "direction": "lower_is_better",
+    "raw_results": [
+      16439,
+      16661,
+      16644,
+      16656,
+      16684,
+      16734,
+      16774,
+      16498
+    ],
+    "framebuffer_fnv1a64": "be0f2013c1997ca5",
+    "metadata": {"schema_version":1,"kind":"unbordered_subblock_cubemap_stride","oracle_status":"PASS","source_kat":4047386751,"failure_count":0,"failure_mask":0,"faces":6,"logical_extents":[1,2],"face_stride":128,"observed_rgb565":[63488,2016,31,65504,63519,2047,63488,2016,31,65504,63519,2047],"observed_alpha":[255,255,255,255,255,255,255,255,255,255,255,255]}
+  }
+]

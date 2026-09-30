@@ -1,0 +1,53 @@
+{
+  "JobId": "research245-probe-06168a2f-win-on1-t001",
+  "CreatedUtc": "2026-09-30T12:24:45.9773134+00:00",
+  "PackageDirectory": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-research245-probe-06168a2f-win-on1-t001",
+  "JobManifestSha256": "46945446a8ec12b1fefa8330dfece5a3460bd68dff78eab5815556c87d5d5ac0",
+  "ExecutableSha256": "0d70a1f4403a064636ed717b9a8abc4a03f04f4610addf883626f5b1a04e069d",
+  "Inputs": [
+    {
+      "Path": "xemu.exe",
+      "Role": "research245-jump-cache-diagnostic",
+      "Bytes": 136901120,
+      "LastWriteUtc": "2026-09-30T12:24:37.5915225Z",
+      "Sha256": "0d70a1f4403a064636ed717b9a8abc4a03f04f4610addf883626f5b1a04e069d",
+      "ExpectedSha256": "0d70a1f4403a064636ed717b9a8abc4a03f04f4610addf883626f5b1a04e069d",
+      "Verified": true
+    },
+    {
+      "Path": "xemu.toml",
+      "Role": "pgr2-vulkan-auto-workers-dsp-jit",
+      "Bytes": 643,
+      "LastWriteUtc": "2026-09-30T12:24:38.0494641Z",
+      "Sha256": "acf59955c532672586e290ae142fb454b7024d4927daae8fac3b744344732e55",
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "state/seed-hdd.qcow2",
+      "Role": "required",
+      "Bytes": 2621702656,
+      "LastWriteUtc": "2026-09-30T12:24:35.0922708Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "state/eeprom.bin",
+      "Role": "isolated-eeprom-seed",
+      "Bytes": 256,
+      "LastWriteUtc": "2026-09-30T12:24:32.3065003Z",
+      "Sha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5",
+      "ExpectedSha256": null,
+      "Verified": true
+    }
+  ],
+  "RuntimeFiles": [
+    {
+      "Source": "state/seed-hdd.qcow2",
+      "Destination": "hdd.qcow2",
+      "Bytes": 2621702656,
+      "Sha256": "8b4f7c81be6ece5db3fc98d683d86d0515db43b2447e8dff14bfd9b45078c606"
+    }
+  ]
+}

@@ -1,0 +1,414 @@
+{
+  "id": "research245-windows-pgr2-jump-cache-on-v1",
+  "executable": "xemu.exe",
+  "arguments": [
+    "-config_path",
+    "{packageDir}\\xemu.toml",
+    "-drive",
+    "index=0,media=disk,file={runtimeDir}\\hdd.qcow2,locked=on",
+    "-name",
+    "xemu-pr184,debug-threads=on",
+    "-msg",
+    "timestamp=on"
+  ],
+  "workingDirectory": ".",
+  "environment": {
+    "XEMU_FRAME_LOG": "{resultDir}\\guest-frames.log",
+    "XEMU_FLIP_LOG": "{resultDir}\\guest-flips.log",
+    "XEMU_TCG_JUMP_CACHE_PROBE": "1"
+  },
+  "timeoutSeconds": 180,
+  "tags": [
+    "research245",
+    "pgr2",
+    "stationary-start",
+    "jump-cache-probe"
+  ],
+  "plan": [
+    {
+      "type": "require_input",
+      "delayMs": 0,
+      "durationMs": 100,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 15000,
+      "durationMs": 100,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 6000,
+      "durationMs": 100,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 2000,
+      "durationMs": 100,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 2000,
+      "durationMs": 100,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 2000,
+      "durationMs": 100,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "LStickRight",
+      "durationMs": 80,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 2000,
+      "durationMs": 100,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 2000,
+      "durationMs": 100,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 2000,
+      "durationMs": 100,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 2000,
+      "durationMs": 100,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 2000,
+      "durationMs": 100,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 6000,
+      "durationMs": 100,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "diagnostic",
+      "diagnosticId": "jit-before"
+    },
+    {
+      "type": "segment_start",
+      "delayMs": 0,
+      "durationMs": 100,
+      "name": "stationary-start",
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "screenshot",
+      "delayMs": 0,
+      "durationMs": 100,
+      "name": "recording-start",
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 30000,
+      "durationMs": 100,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "screenshot",
+      "delayMs": 0,
+      "durationMs": 100,
+      "name": "recording-end",
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "segment_end",
+      "delayMs": 0,
+      "durationMs": 100,
+      "name": "stationary-start",
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "diagnostic",
+      "diagnosticId": "jit-after"
+    },
+    {
+      "type": "wait",
+      "delayMs": 6000,
+      "durationMs": 100,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "quit",
+      "delayMs": 0,
+      "durationMs": 100,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    }
+  ],
+  "targetOs": "windows",
+  "expectedExecutableSha256": "0d70a1f4403a064636ed717b9a8abc4a03f04f4610addf883626f5b1a04e069d",
+  "requiredFiles": [
+    "xemu.exe",
+    "xemu.toml",
+    "state/seed-hdd.qcow2",
+    "state/eeprom.bin"
+  ],
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "requireInput": true,
+  "diagnostics": [
+    {
+      "id": "jit-before",
+      "type": "monitor",
+      "monitorCommand": "info jit",
+      "pauseBefore": false,
+      "pauseAfter": false,
+      "resumeDuring": false
+    },
+    {
+      "id": "jit-after",
+      "type": "monitor",
+      "monitorCommand": "info jit",
+      "pauseBefore": false,
+      "pauseAfter": false,
+      "resumeDuring": false
+    }
+  ],
+  "runtimeState": {
+    "enabled": true,
+    "keepOnSuccess": false,
+    "keepOnFailure": true,
+    "files": [
+      {
+        "source": "state/seed-hdd.qcow2",
+        "destination": "hdd.qcow2",
+        "expectedSha256": null
+      }
+    ],
+    "diskAssets": []
+  },
+  "inputs": [
+    {
+      "path": "xemu.exe",
+      "role": "research245-jump-cache-diagnostic",
+      "hash": true,
+      "expectedSha256": "0d70a1f4403a064636ed717b9a8abc4a03f04f4610addf883626f5b1a04e069d"
+    },
+    {
+      "path": "xemu.toml",
+      "role": "pgr2-vulkan-auto-workers-dsp-jit",
+      "hash": true,
+      "expectedSha256": null
+    },
+    {
+      "path": "state/eeprom.bin",
+      "role": "isolated-eeprom-seed",
+      "hash": true,
+      "expectedSha256": null
+    }
+  ],
+  "workload": {
+    "correctnessChecks": [
+      {
+        "name": "recording-start-visible",
+        "scope": "result",
+        "path": "screenshots/recording-start.png",
+        "mustExist": true,
+        "minimumBytes": 1000,
+        "minimumNonBlackPixelRatio": 0.05,
+        "nonBlackPixelThreshold": 96,
+        "imageRegion": null,
+        "expectedSha256": null,
+        "containsText": null,
+        "equalsText": null
+      },
+      {
+        "name": "recording-end-visible",
+        "scope": "result",
+        "path": "screenshots/recording-end.png",
+        "mustExist": true,
+        "minimumBytes": 1000,
+        "minimumNonBlackPixelRatio": 0.05,
+        "nonBlackPixelThreshold": 96,
+        "imageRegion": null,
+        "expectedSha256": null,
+        "containsText": null,
+        "equalsText": null
+      }
+    ],
+    "evidenceRequirements": [
+      {
+        "name": "guest-progress",
+        "scope": "result",
+        "path": "guest-frames.log",
+        "mustExist": true,
+        "minimumBytes": 1000,
+        "minimumNonBlackPixelRatio": null,
+        "nonBlackPixelThreshold": 0,
+        "imageRegion": null,
+        "expectedSha256": null,
+        "containsText": null,
+        "equalsText": null
+      },
+      {
+        "name": "measurement-segments",
+        "scope": "result",
+        "path": "segments.jsonl",
+        "mustExist": true,
+        "minimumBytes": 20,
+        "minimumNonBlackPixelRatio": null,
+        "nonBlackPixelThreshold": 0,
+        "imageRegion": null,
+        "expectedSha256": null,
+        "containsText": null,
+        "equalsText": null
+      }
+    ],
+    "reportedMetrics": [],
+    "minimumMetricSamples": 160,
+    "requirePlanCompletion": true,
+    "analysis": {
+      "segment": "stationary-start",
+      "metricsPath": "metrics.csv",
+      "guestFlipsPath": "guest-flips.log",
+      "guestFramesPath": "guest-frames.log",
+      "flipTailSamples": 5,
+      "frameTailSeconds": 25,
+      "minimumCpuSamples": 55,
+      "minimumFrameSamples": 160
+    }
+  },
+  "experiment": {
+    "id": "research245-windows-pgr2-jump-cache-on-v1",
+    "variant": "probe-on",
+    "variedFactors": [
+      "jump-cache-collection"
+    ],
+    "controlledFactors": [
+      "same-game-and-input-plan"
+    ],
+    "requireCorrectnessPass": true,
+    "requireCompleteEvidence": true,
+    "allowOperatorIntervention": false,
+    "allowDiagnostics": true
+  },
+  "operations": {
+    "mode": "diagnostic"
+  },
+  "description": "Issue245 opt-in jump-cache attribution, unchanged unconditional invalidation"
+}

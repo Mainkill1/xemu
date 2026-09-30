@@ -1,0 +1,86 @@
+{
+  "SchemaVersion": 1,
+  "ProfileSha256": "19e37cb7b3d079e76291cea7fc15f06c34bdc938f9a6efe5f43e3337a831cef9",
+  "Profile": {
+    "Segment": "stationary-start",
+    "MetricsPath": "metrics.csv",
+    "GuestFlipsPath": "guest-flips.log",
+    "GuestFramesPath": "guest-frames.log",
+    "FlipTailSamples": 5,
+    "FrameTailSeconds": 25,
+    "MinimumCpuSamples": 55,
+    "MinimumFrameSamples": 160
+  },
+  "Monitoring": {
+    "Segment": "stationary-start",
+    "Rows": 64,
+    "MissingCpuSamples": 0,
+    "MissingDutySamples": 0,
+    "Cpu": {
+      "Count": 64,
+      "Mean": 400.07574999999997,
+      "Median": 391.091,
+      "Min": 279.29,
+      "Max": 677.569,
+      "P95": 506.31659999999994,
+      "P99": 577.3580499999996
+    },
+    "CollectorDuty": {
+      "Count": 64,
+      "Mean": 34.715078125,
+      "Median": 34.459,
+      "Min": 12.855,
+      "Max": 58.283,
+      "P95": 57.50915,
+      "P99": 57.9113
+    },
+    "Overruns": 0
+  },
+  "Flips": {
+    "Samples": 5,
+    "Frames": 753,
+    "ElapsedUs": 25093451,
+    "CadenceFps": 30.007829532892867
+  },
+  "Frames": {
+    "WindowStartUs": 1008235681898,
+    "WindowEndUs": 1008260681898,
+    "FirstSampleUs": 1008235681914,
+    "LastSampleUs": 1008260681898,
+    "ZeroIntervals": 0,
+    "IntervalsMs": {
+      "Count": 751,
+      "Mean": 33.33327696404792,
+      "Median": 33.335,
+      "Min": 30.749,
+      "Max": 34.862,
+      "P95": 33.7265,
+      "P99": 34.438500000000005
+    }
+  },
+  "Sources": [
+    {
+      "Path": "metrics.csv",
+      "Bytes": 34939,
+      "Sha256": "79847c9ede8aace92acb55b454e151d27ad4fa22c3732e93cd2373a907ca25b4",
+      "Records": 166,
+      "IgnoredRecords": 101
+    },
+    {
+      "Path": "guest-flips.log",
+      "Bytes": 630,
+      "Sha256": "d8db5b1534f9aa1c938bc500fb8f076096469391622d02e2ebdcd76279b26493",
+      "Records": 15,
+      "IgnoredRecords": 0
+    },
+    {
+      "Path": "guest-frames.log",
+      "Bytes": 173687,
+      "Sha256": "7d3256497481aca3cebb51a3c4b93ae254e9d01dd212532c79e0e30c8af1496f",
+      "Records": 3237,
+      "IgnoredRecords": 0
+    }
+  ],
+  "Errors": [],
+  "Complete": true
+}

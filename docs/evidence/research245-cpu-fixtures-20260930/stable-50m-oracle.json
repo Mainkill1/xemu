@@ -1,0 +1,6 @@
+{
+  "operations": 50000000,
+  "stableExpected": "f5ff3985",
+  "method": "independent integer recurrence, no generated code execution",
+  "elapsedSeconds": 6.180586084024981
+}

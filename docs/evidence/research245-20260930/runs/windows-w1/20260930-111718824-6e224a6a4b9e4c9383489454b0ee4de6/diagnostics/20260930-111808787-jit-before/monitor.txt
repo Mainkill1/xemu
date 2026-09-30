@@ -1,0 +1,20 @@
+Accelerator settings:
+one-insn-per-tb: off
+
+Translation buffer state:
+gen code size       47649903/1073736704
+TB count            65698
+TB avg target size  20 max=1724 bytes
+TB avg host size    474 bytes (expansion ratio: 23.5)
+cross page TB count 197 (0%)
+direct jump count   37711 (57%) (2 jumps=29084 44%)
+TB hash buckets     26770/32768 (81.70% head buckets used)
+TB hash occupancy   40.52% avg chain occ. Histogram: [0,10)%|▅ █  ▆▁▄▁▂|[90,100]%
+TB hash avg chain   1.036 buckets. Histogram: 1|█▁▁|3
+
+Statistics:
+TB flush count      0
+TB invalidate count 39333
+TLB full flushes    0
+TLB partial flushes 597
+TLB elided flushes  9387

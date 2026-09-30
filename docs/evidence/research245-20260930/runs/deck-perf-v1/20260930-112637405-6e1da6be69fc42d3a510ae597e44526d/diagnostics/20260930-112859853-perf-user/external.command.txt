@@ -1,0 +1,16 @@
+/usr/bin/perf
+record
+-e
+cycles:u
+-p
+10216
+-g
+--call-graph
+dwarf
+-F
+499
+-o
+/home/deck/xemu-research/workspace/Results/20260930-112637405-6e1da6be69fc42d3a510ae597e44526d/research245-perf.data
+--
+sleep
+5

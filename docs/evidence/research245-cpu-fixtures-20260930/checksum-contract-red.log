@@ -1,0 +1,17 @@
+.E.
+======================================================================
+ERROR: test_reference_checksum_shape_is_supported_by_host_validator (test_cpu_code_rewrite_contract.CpuCodeRewriteContractTests.test_reference_checksum_shape_is_supported_by_host_validator)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/src/steamdeck-xemu/worktrees/research245-cpu-fixtures/tests/test_cpu_code_rewrite_contract.py", line 63, in test_reference_checksum_shape_is_supported_by_host_validator
+    hashes = oracle_validation.record_hashes(record)
+  File "/home/codex/src/steamdeck-xemu/worktrees/research245-cpu-fixtures/utils/oracle_validation.py", line 162, in record_hashes
+    raise OracleValidationError(
+        f"{name} must provide both work_checksum and result_checksum"
+    )
+oracle_validation.OracleValidationError: cpu_translation_blocks.code_stable must provide both work_checksum and result_checksum
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.473s
+
+FAILED (errors=1)

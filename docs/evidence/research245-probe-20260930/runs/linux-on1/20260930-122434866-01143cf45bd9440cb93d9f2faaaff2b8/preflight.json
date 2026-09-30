@@ -1,0 +1,81 @@
+{
+  "Passed": true,
+  "ExecutableSha256": "9e2dbe1b9ff3298de99f57c9c00accab7cd25dad6362e7d92d7d4d63aed0bd53",
+  "Checks": [
+    {
+      "Name": "target_os",
+      "Passed": true,
+      "Detail": "Host: linux; requested: linux."
+    },
+    {
+      "Name": "executable",
+      "Passed": true,
+      "Detail": "xemu"
+    },
+    {
+      "Name": "executable_stable",
+      "Passed": true,
+      "Detail": "Executable metadata remained unchanged while hashing."
+    },
+    {
+      "Name": "sha256",
+      "Passed": true,
+      "Detail": "9e2dbe1b9ff3298de99f57c9c00accab7cd25dad6362e7d92d7d4d63aed0bd53"
+    },
+    {
+      "Name": "executable_bit",
+      "Passed": true,
+      "Detail": "The Linux package must retain an executable permission bit."
+    },
+    {
+      "Name": "working_directory",
+      "Passed": true,
+      "Detail": "/home/deck/xemu-research/workspace/Queue/Testing/agent-research245-probe-06168a2f-deck-on1-t001"
+    },
+    {
+      "Name": "required_file",
+      "Passed": true,
+      "Detail": "xemu"
+    },
+    {
+      "Name": "required_file",
+      "Passed": true,
+      "Detail": "xemu.toml"
+    },
+    {
+      "Name": "required_file",
+      "Passed": true,
+      "Detail": "state/seed-eeprom.bin"
+    },
+    {
+      "Name": "required_file",
+      "Passed": true,
+      "Detail": "lib/libslirp.so.0"
+    },
+    {
+      "Name": "input_file",
+      "Passed": true,
+      "Detail": "research245-jump-cache-diagnostic: xemu"
+    },
+    {
+      "Name": "input_file",
+      "Passed": true,
+      "Detail": "portable-run-config: xemu.toml"
+    },
+    {
+      "Name": "input_file",
+      "Passed": true,
+      "Detail": "pinned-appimage-bundled-library: lib/libslirp.so.0"
+    },
+    {
+      "Name": "runtime_seed",
+      "Passed": true,
+      "Detail": "state/seed-eeprom.bin -\u003E eeprom.bin"
+    },
+    {
+      "Name": "free_space",
+      "Passed": true,
+      "Detail": "Available=323954012160; required=1073741824 bytes."
+    }
+  ]
+}
