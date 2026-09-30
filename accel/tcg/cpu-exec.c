@@ -1138,7 +1138,7 @@ bool tcg_exec_realizefn(CPUState *cpu, Error **errp)
 #ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
     CPUJumpCache *jc = cpu->tb_jmp_cache;
     jc->probe = tcg_jump_cache_probe_new(
-        g_strcmp0(g_getenv("XEMU_TCG_JUMP_CACHE_PROBE"), "1") == 0);
+        g_getenv("XEMU_TCG_JUMP_CACHE_PROBE"));
 #endif
     tlb_init(cpu);
 #ifndef CONFIG_USER_ONLY
