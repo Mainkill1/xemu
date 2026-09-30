@@ -9,6 +9,7 @@
 #include "system/cpus.h"
 #include "system/cpu-timers.h"
 #include "system/runstate.h"
+#include "system/tcg.h"
 #include "trace.h"
 
 #include "guest-lock.h"
@@ -29,14 +30,16 @@ void nv2a_guest_mmio_lock(QemuMutex *lock, const char *name)
      * The BQL keeps runstate and this single-vCPU clock transition stable.
      */
     bool vcpu = qemu_in_vcpu_thread();
-    bool acquired_bql = vcpu && !bql_locked();
+    bool acquired_bql = vcpu && tcg_enabled() && !bql_locked();
     if (acquired_bql) {
         /* Protected VRAM callbacks also execute from TCG RAM accesses,
          * which arrive without the BQL. Keep the usual BQL -> GPU lock
          * acquisition order while this vCPU is blocked. */
         bql_lock();
     }
-    bool suspend_guest_clock = vcpu && bql_locked() &&
+    /* KVM/WHPX guest RDTSC is not derived from cpu_get_clock(). Pausing only
+     * QEMU_CLOCK_VIRTUAL there would desynchronize PTIMER from the CPU. */
+    bool suspend_guest_clock = tcg_enabled() && vcpu && bql_locked() &&
                                runstate_is_running();
     int64_t start_us = trace_event_get_state(TRACE_NV2A_GUEST_LOCK_WAIT) ?
                        g_get_monotonic_time() : 0;
