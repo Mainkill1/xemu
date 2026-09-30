@@ -232,6 +232,45 @@ static void mask_write(void)
     control_while_renderer_busy(NV_PGRAPH_INTR_EN, true, 0, 0);
 }
 
+static void mask_write_while_pfifo_busy(void)
+{
+    NV2AState *d = g_new0(NV2AState, 1);
+    qemu_mutex_init(&d->pgraph.lock);
+    qemu_mutex_init(&d->pfifo.lock);
+    d->pgraph.pending_interrupts = NV_PGRAPH_INTR_ERROR;
+    ControlCall call = { .d = d,
+                         .address = NV_PGRAPH_INTR_EN,
+                         .write = true,
+                         .value = NV_PGRAPH_INTR_ERROR };
+    g_mutex_init(&call.mutex);
+    g_cond_init(&call.condition);
+    irq_updates = 0;
+    qemu_mutex_lock(&d->pfifo.lock);
+    QemuThread thread;
+    qemu_thread_create(&thread, "pgraph-mask", control_call, &call,
+                       QEMU_THREAD_JOINABLE);
+    g_mutex_lock(&call.mutex);
+    while (!call.entered) {
+        g_cond_wait(&call.condition, &call.mutex);
+    }
+    int64_t deadline = g_get_monotonic_time() + G_USEC_PER_SEC;
+    while (!call.completed &&
+           g_cond_wait_until(&call.condition, &call.mutex, deadline)) {
+    }
+    bool completed_before_release = call.completed;
+    g_mutex_unlock(&call.mutex);
+    qemu_mutex_unlock(&d->pfifo.lock);
+    qemu_thread_join(&thread);
+    g_assert_true(completed_before_release);
+    g_assert_cmpuint(d->pgraph.enabled_interrupts, ==, NV_PGRAPH_INTR_ERROR);
+    g_assert_cmpuint(irq_updates, ==, 1);
+    g_cond_clear(&call.condition);
+    g_mutex_clear(&call.mutex);
+    qemu_mutex_destroy(&d->pfifo.lock);
+    qemu_mutex_destroy(&d->pgraph.lock);
+    g_free(d);
+}
+
 static void fifo_write(void)
 {
     control_while_renderer_busy(NV_PGRAPH_FIFO, true, 0, 0);
@@ -452,6 +491,8 @@ int main(int argc, char **argv)
     g_test_add_func("/nv2a/pgraph/control/fifo-read", fifo_read);
     g_test_add_func("/nv2a/pgraph/control/intr-ack", intr_ack);
     g_test_add_func("/nv2a/pgraph/control/mask-write", mask_write);
+    g_test_add_func("/nv2a/pgraph/control/mask-write-pfifo-busy",
+                    mask_write_while_pfifo_busy);
     g_test_add_func("/nv2a/pgraph/control/fifo-write", fifo_write);
     g_test_add_func("/nv2a/pgraph/control/increment-read", increment_read);
     g_test_add_func("/nv2a/pgraph/control/increment-write", increment_write);

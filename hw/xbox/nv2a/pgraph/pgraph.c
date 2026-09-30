@@ -83,6 +83,11 @@ static bool pgraph_control_write(NV2AState *d, hwaddr addr, uint32_t value)
         return false;
     }
     assert(bql_locked());
+    if (addr == NV_PGRAPH_INTR_EN) {
+        pg->enabled_interrupts = value;
+        nv2a_update_irq(d);
+        return true;
+    }
     int64_t flip_time = -1;
     qemu_mutex_lock(&d->pfifo.lock);
     switch (addr) {
@@ -99,10 +104,6 @@ static bool pgraph_control_write(NV2AState *d, hwaddr addr, uint32_t value)
         pfifo_kick(d);
         break;
     }
-    case NV_PGRAPH_INTR_EN:
-        pg->enabled_interrupts = value;
-        nv2a_update_irq(d);
-        break;
     case NV_PGRAPH_SURFACE:
         pgraph_reg_w(pg, NV_PGRAPH_SURFACE, value);
         pfifo_kick(d);
