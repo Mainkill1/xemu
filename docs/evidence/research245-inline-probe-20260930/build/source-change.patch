@@ -1,0 +1,27 @@
+commit 3a144c6624fec0cd8b926e9956a38740e35167b8
+Author:     Codex <codex@openai.com>
+AuthorDate: Wed Sep 30 13:55:59 2026 -0700
+Commit:     Codex <codex@openai.com>
+CommitDate: Wed Sep 30 13:55:59 2026 -0700
+
+    tcg: Preserve dispatch lookup inlining with the opt-in probe
+    
+    Attach always_inline only in optimized probe-enabled builds so optional counter and timing paths cannot make GCC outline the ordinary lookup wrapper. Preserve the compile-disabled definition and all validation, accounting, clear and lifetime behavior. Qualify emitted code and matched OFF/counters runs before claiming a performance improvement.
+
+diff --git a/accel/tcg/cpu-exec.c b/accel/tcg/cpu-exec.c
+index b3334911e9..d89c893c28 100644
+--- a/accel/tcg/cpu-exec.c
++++ b/accel/tcg/cpu-exec.c
+@@ -249,6 +249,12 @@ TranslationBlock *inv_tb_htable_lookup(CPUState *cpu, TCGTBCPUState s)
+  *
+  * Returns: an existing translation block or NULL.
+  */
++/* Optional probe paths must not turn ordinary dispatch into a helper call. */
++#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
++static inline QEMU_ALWAYS_INLINE TranslationBlock *
++tb_lookup(CPUState *cpu, TCGTBCPUState s);
++#endif
++
+ static inline TranslationBlock *tb_lookup(CPUState *cpu, TCGTBCPUState s)
+ {
+     TranslationBlock *tb;
