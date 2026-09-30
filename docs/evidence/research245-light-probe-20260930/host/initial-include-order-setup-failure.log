@@ -1,0 +1,158 @@
+In file included from /home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:5,
+                 from /home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-bench.c:2:
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/exec/vaddr.h:12:9: error: unknown type name ‘uintptr_t’
+   12 | typedef uintptr_t vaddr;
+      |         ^~~~~~~~~
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/exec/vaddr.h:1:1: note: ‘uintptr_t’ is defined in header ‘<stdint.h>’; this is probably fixable by adding ‘#include <stdint.h>’
+  +++ |+#include <stdint.h>
+    1 | /* Define vaddr.  */
+In file included from /home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:6:
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/qemu/typedefs.h:136:15: error: expected declaration specifiers or ‘...’ before ‘*’ token
+  136 | typedef bool (*MigrationLoadThread)(void *opaque, bool *should_quit,
+      |               ^
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/qemu/typedefs.h:138:15: error: expected declaration specifiers or ‘...’ before ‘*’ token
+  138 | typedef bool (*SaveCompletePrecopyThreadHandler)(SaveCompletePrecopyThreadData *d,
+      |               ^
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:25:5: error: unknown type name ‘uint64_t’
+   25 |     uint64_t calls;
+      |     ^~~~~~~~
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:7:1: note: ‘uint64_t’ is defined in header ‘<stdint.h>’; this is probably fixable by adding ‘#include <stdint.h>’
+    6 | #include "qemu/typedefs.h"
+  +++ |+#include <stdint.h>
+    7 | 
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:26:5: error: unknown type name ‘uint64_t’
+   26 |     uint64_t samples;
+      |     ^~~~~~~~
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:26:5: note: ‘uint64_t’ is defined in header ‘<stdint.h>’; this is probably fixable by adding ‘#include <stdint.h>’
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:27:5: error: unknown type name ‘uint64_t’
+   27 |     uint64_t sample_ns;
+      |     ^~~~~~~~
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:27:5: note: ‘uint64_t’ is defined in header ‘<stdint.h>’; this is probably fixable by adding ‘#include <stdint.h>’
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:32:5: error: unknown type name ‘uint64_t’
+   32 |     uint64_t slots;
+      |     ^~~~~~~~
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:32:5: note: ‘uint64_t’ is defined in header ‘<stdint.h>’; this is probably fixable by adding ‘#include <stdint.h>’
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:33:5: error: unknown type name ‘uint64_t’
+   33 |     uint64_t observed_nonnull;
+      |     ^~~~~~~~
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:33:5: note: ‘uint64_t’ is defined in header ‘<stdint.h>’; this is probably fixable by adding ‘#include <stdint.h>’
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:34:5: error: unknown type name ‘uint64_t’
+   34 |     uint64_t maximum_nonnull;
+      |     ^~~~~~~~
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:34:5: note: ‘uint64_t’ is defined in header ‘<stdint.h>’; this is probably fixable by adding ‘#include <stdint.h>’
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:35:5: error: unknown type name ‘uint64_t’
+   35 |     uint64_t occupancy[TCG_JUMP_CACHE_PROBE_BINS];
+      |     ^~~~~~~~
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:35:5: note: ‘uint64_t’ is defined in header ‘<stdint.h>’; this is probably fixable by adding ‘#include <stdint.h>’
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:39:5: error: unknown type name ‘uint64_t’
+   39 |     uint64_t lookup_sequence;
+      |     ^~~~~~~~
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:39:5: note: ‘uint64_t’ is defined in header ‘<stdint.h>’; this is probably fixable by adding ‘#include <stdint.h>’
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:42:5: error: unknown type name ‘uint64_t’
+   42 |     uint64_t targeted_invalidations;
+      |     ^~~~~~~~
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:42:5: note: ‘uint64_t’ is defined in header ‘<stdint.h>’; this is probably fixable by adding ‘#include <stdint.h>’
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:43:5: error: unknown type name ‘uint64_t’
+   43 |     uint64_t targeted_removals;
+      |     ^~~~~~~~
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:43:5: note: ‘uint64_t’ is defined in header ‘<stdint.h>’; this is probably fixable by adding ‘#include <stdint.h>’
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:44:5: error: unknown type name ‘uint64_t’
+   44 |     uint64_t generated;
+      |     ^~~~~~~~
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:44:5: note: ‘uint64_t’ is defined in header ‘<stdint.h>’; this is probably fixable by adding ‘#include <stdint.h>’
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:45:5: error: unknown type name ‘uint64_t’
+   45 |     uint64_t recycled;
+      |     ^~~~~~~~
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:45:5: note: ‘uint64_t’ is defined in header ‘<stdint.h>’; this is probably fixable by adding ‘#include <stdint.h>’
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:48:45: error: unknown type name ‘bool’
+   48 | TCGJumpCacheProbe *tcg_jump_cache_probe_new(bool enabled);
+      |                                             ^~~~
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:7:1: note: ‘bool’ is defined in header ‘<stdbool.h>’; this is probably fixable by adding ‘#include <stdbool.h>’
+    6 | #include "qemu/typedefs.h"
+  +++ |+#include <stdbool.h>
+    7 | 
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:50:1: error: unknown type name ‘uint64_t’
+   50 | uint64_t tcg_jump_cache_probe_lookup_begin(TCGJumpCacheProbe *probe);
+      | ^~~~~~~~
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:50:1: note: ‘uint64_t’ is defined in header ‘<stdint.h>’; this is probably fixable by adding ‘#include <stdint.h>’
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:53:38: error: unknown type name ‘uint64_t’
+   53 |                                      uint64_t sample_start_ns);
+      |                                      ^~~~~~~~
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:53:38: note: ‘uint64_t’ is defined in header ‘<stdint.h>’; this is probably fixable by adding ‘#include <stdint.h>’
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:56:33: error: unknown type name ‘bool’
+   56 |                                 bool pcrel);
+      |                                 ^~~~
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:56:33: note: ‘bool’ is defined in header ‘<stdbool.h>’; this is probably fixable by adding ‘#include <stdbool.h>’
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:57:62: error: unknown type name ‘bool’
+   57 | void tcg_jump_cache_probe_targeted(TCGJumpCacheProbe *probe, bool removed);
+      |                                                              ^~~~
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:57:62: note: ‘bool’ is defined in header ‘<stdbool.h>’; this is probably fixable by adding ‘#include <stdbool.h>’
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:58:61: error: unknown type name ‘bool’
+   58 | void tcg_jump_cache_probe_codegen(TCGJumpCacheProbe *probe, bool recycled);
+      |                                                             ^~~~
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:58:61: note: ‘bool’ is defined in header ‘<stdbool.h>’; this is probably fixable by adding ‘#include <stdbool.h>’
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-host/reference/jump-cache-probe.h:61:60: error: unknown type name ‘GString’; did you mean ‘QString’?
+   61 | void tcg_jump_cache_probe_format(TCGJumpCacheProbe *probe, GString *out,
+      |                                                            ^~~~~~~
+      |                                                            QString
+In file included from /home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-bench.c:3:
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/qemu/atomic.h:247:9: error: unknown type name ‘int64_t’
+  247 | typedef int64_t aligned_int64_t __attribute__((aligned(8)));
+      |         ^~~~~~~
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/qemu/atomic.h:19:1: note: ‘int64_t’ is defined in header ‘<stdint.h>’; this is probably fixable by adding ‘#include <stdint.h>’
+   18 | #include "compiler.h"
+  +++ |+#include <stdint.h>
+   19 | 
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/qemu/atomic.h:248:9: error: unknown type name ‘uint64_t’
+  248 | typedef uint64_t aligned_uint64_t __attribute__((aligned(8)));
+      |         ^~~~~~~~
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/qemu/atomic.h:248:9: note: ‘uint64_t’ is defined in header ‘<stdint.h>’; this is probably fixable by adding ‘#include <stdint.h>’
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/qemu/atomic.h:265:1: error: unknown type name ‘int64_t’
+  265 | int64_t  qatomic_read_i64(const int64_t *ptr);
+      | ^~~~~~~
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/qemu/atomic.h:265:1: note: ‘int64_t’ is defined in header ‘<stdint.h>’; this is probably fixable by adding ‘#include <stdint.h>’
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/qemu/atomic.h:265:33: error: unknown type name ‘int64_t’
+  265 | int64_t  qatomic_read_i64(const int64_t *ptr);
+      |                                 ^~~~~~~
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/qemu/atomic.h:265:33: note: ‘int64_t’ is defined in header ‘<stdint.h>’; this is probably fixable by adding ‘#include <stdint.h>’
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/qemu/atomic.h:266:1: error: unknown type name ‘uint64_t’
+  266 | uint64_t qatomic_read_u64(const uint64_t *ptr);
+      | ^~~~~~~~
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/qemu/atomic.h:266:1: note: ‘uint64_t’ is defined in header ‘<stdint.h>’; this is probably fixable by adding ‘#include <stdint.h>’
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/qemu/atomic.h:266:33: error: unknown type name ‘uint64_t’
+  266 | uint64_t qatomic_read_u64(const uint64_t *ptr);
+      |                                 ^~~~~~~~
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/qemu/atomic.h:266:33: note: ‘uint64_t’ is defined in header ‘<stdint.h>’; this is probably fixable by adding ‘#include <stdint.h>’
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/qemu/atomic.h:267:22: error: unknown type name ‘int64_t’
+  267 | void qatomic_set_i64(int64_t *ptr, int64_t val);
+      |                      ^~~~~~~
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/qemu/atomic.h:267:22: note: ‘int64_t’ is defined in header ‘<stdint.h>’; this is probably fixable by adding ‘#include <stdint.h>’
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/qemu/atomic.h:267:36: error: unknown type name ‘int64_t’
+  267 | void qatomic_set_i64(int64_t *ptr, int64_t val);
+      |                                    ^~~~~~~
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/qemu/atomic.h:267:36: note: ‘int64_t’ is defined in header ‘<stdint.h>’; this is probably fixable by adding ‘#include <stdint.h>’
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/qemu/atomic.h:268:22: error: unknown type name ‘uint64_t’
+  268 | void qatomic_set_u64(uint64_t *ptr, uint64_t val);
+      |                      ^~~~~~~~
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/qemu/atomic.h:268:22: note: ‘uint64_t’ is defined in header ‘<stdint.h>’; this is probably fixable by adding ‘#include <stdint.h>’
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/qemu/atomic.h:268:37: error: unknown type name ‘uint64_t’
+  268 | void qatomic_set_u64(uint64_t *ptr, uint64_t val);
+      |                                     ^~~~~~~~
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/include/qemu/atomic.h:268:37: note: ‘uint64_t’ is defined in header ‘<stdint.h>’; this is probably fixable by adding ‘#include <stdint.h>’
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-bench.c: In function ‘main’:
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-bench.c:19:30: error: implicit declaration of function ‘tcg_jump_cache_probe_new’; did you mean ‘tcg_jump_cache_probe_free’? [-Wimplicit-function-declaration]
+   19 |   TCGJumpCacheProbe *probe = tcg_jump_cache_probe_new(strcmp(mode, "off") != 0);
+      |                              ^~~~~~~~~~~~~~~~~~~~~~~~
+      |                              tcg_jump_cache_probe_free
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-bench.c:19:30: warning: nested extern declaration of ‘tcg_jump_cache_probe_new’ [-Wnested-externs]
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-bench.c:19:30: error: initialization of ‘TCGJumpCacheProbe *’ from ‘int’ makes pointer from integer without a cast [-Wint-conversion]
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-bench.c:29:5: error: implicit declaration of function ‘tcg_jump_cache_probe_lookup_end’; did you mean ‘tcg_jump_cache_probe_lookup_begin’? [-Wimplicit-function-declaration]
+   29 |     tcg_jump_cache_probe_lookup_end(probe, i % 3, start);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |     tcg_jump_cache_probe_lookup_begin
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-bench.c:29:5: warning: nested extern declaration of ‘tcg_jump_cache_probe_lookup_end’ [-Wnested-externs]
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-bench.c:32:5: error: implicit declaration of function ‘tcg_jump_cache_probe_clear’; did you mean ‘tcg_jump_cache_probe_free’? [-Wimplicit-function-declaration]
+   32 |     tcg_jump_cache_probe_clear(probe, slots, 4096, true);
+      |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+      |     tcg_jump_cache_probe_free
+/home/codex/src/steamdeck-xemu/artifacts/research245-light-probe-bench.c:32:5: warning: nested extern declaration of ‘tcg_jump_cache_probe_clear’ [-Wnested-externs]

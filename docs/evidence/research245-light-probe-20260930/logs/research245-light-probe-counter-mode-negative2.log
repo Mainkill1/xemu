@@ -1,0 +1,8 @@
+TAP version 14
+# random seed: R02S6381c8fd00b0d42dc9a2f71c196dba17
+# Start of tcg tests
+# Start of jump-cache tests
+**
+ERROR:../tests/unit/test-tcg-jump-cache-probe.c:129:test_modes: assertion failed (stats.mode == expected[m]): (5 == 1)
+not ok /tcg/jump-cache/modes - ERROR:../tests/unit/test-tcg-jump-cache-probe.c:129:test_modes: assertion failed (stats.mode == expected[m]): (5 == 1)
+Bail out!

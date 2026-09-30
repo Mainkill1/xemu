@@ -1,0 +1,8 @@
+TAP version 14
+# random seed: R02S19e05253b3ce3390ade84c4b9802f6c8
+# Start of tcg tests
+# Start of jump-cache tests
+**
+ERROR:../tests/unit/test-tcg-jump-cache-probe.c:86:test_sampled_occupancy: assertion failed (observed_clears < 80): (1024 < 80)
+not ok /tcg/jump-cache/sampled-occupancy - ERROR:../tests/unit/test-tcg-jump-cache-probe.c:86:test_sampled_occupancy: assertion failed (observed_clears < 80): (1024 < 80)
+Bail out!

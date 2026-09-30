@@ -1,0 +1,204 @@
+{
+  "Id": "xc-light245-win-rewrite-off-12-001",
+  "Executable": "xemu.exe",
+  "Arguments": [
+    "-config_path",
+    "{packageDir}/xemu.toml",
+    "-name",
+    "xemu-research245-cpu,debug-threads=on",
+    "-msg",
+    "timestamp=on"
+  ],
+  "WorkingDirectory": ".",
+  "Environment": {
+    "XEMU_FRAME_LOG": "{resultDir}/guest-frames.log",
+    "XEMU_FLIP_LOG": "{resultDir}/guest-flips.log",
+    "XEMU_TCG_JUMP_CACHE_PROBE": "off"
+  },
+  "TimeoutSeconds": 600,
+  "Tags": [
+    "research245",
+    "cpu",
+    "xiso",
+    "windows",
+    "jump-cache-probe",
+    "test-definition:xiso-c5fc8893a535ed8fddc8a7b2c828245b@d0890002f00c45d9b7873ffdf2d33a89322daa9acc2944efc718146938eef262"
+  ],
+  "Plan": [],
+  "TargetOs": "windows",
+  "ExpectedExecutableSha256": "fecf6c08a305465de4c2658909e15f94e103f613a7828c8e2c77df12f1a8d44d",
+  "RequiredFiles": [
+    "xemu.exe",
+    "xemu.toml",
+    "state/seed-eeprom.bin",
+    "cpu-code-rewrite-reference.json"
+  ],
+  "LaunchMode": "direct",
+  "SnapshotName": null,
+  "StartPaused": false,
+  "RequireInput": false,
+  "Diagnostics": [],
+  "RuntimeState": {
+    "Enabled": true,
+    "KeepOnSuccess": false,
+    "KeepOnFailure": true,
+    "Files": [
+      {
+        "Source": "state/seed-eeprom.bin",
+        "Destination": "eeprom.bin",
+        "ExpectedSha256": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+      }
+    ],
+    "DiskAssets": [
+      {
+        "AssetId": "research245-cpu-fatx-compat010-78af83a6",
+        "ExpectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+        "Destination": "hdd.qcow2",
+        "Retention": "deleteAfterEvidence"
+      }
+    ],
+    "Isolation": {
+      "CacheMode": "cold",
+      "CacheShaders": false,
+      "DriverCache": "uncontrolled",
+      "AllowUncontrolledDriverCache": false,
+      "SeedDirectory": null,
+      "SeedSha256": null,
+      "RequirePrivateGuestState": true,
+      "MaximumFiles": 4096,
+      "MaximumBytes": 268435456,
+      "DeadlineSeconds": 15,
+      "ReadOnlyAssets": [
+        {
+          "Field": "bootrom_path",
+          "AssetId": "devbox-mcpx10-readonly-v1",
+          "ExpectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+        },
+        {
+          "Field": "flashrom_path",
+          "AssetId": "devbox-complex4627-readonly-v1",
+          "ExpectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+        },
+        {
+          "Field": "dvd_path",
+          "AssetId": "research245-cpu-iso-c02a1a44-74a10c40",
+          "ExpectedSha256": "74a10c400f4fb280dcb4037e38e7e4d3150e73e0061a04f65b3c68cc61a49e63"
+        }
+      ]
+    },
+    "Xiso": {
+      "Image": "hdd.qcow2",
+      "PartitionOffsetBytes": 2884108288,
+      "PartitionLengthBytes": 5120024576,
+      "SuiteRevision": "7e006ebb512cdcd96037291248b7b609f85de116dd413bb68c5682ca6f957b4d",
+      "IsoSha256": "74a10c400f4fb280dcb4037e38e7e4d3150e73e0061a04f65b3c68cc61a49e63",
+      "CatalogId": "sha256:34b8ee7f91f3412b5e7758aab9f4ca08746ef2e97fee8b5c61be8947e145f7f4",
+      "Tests": [
+        "cpu_translation_blocks.code_rewrite"
+      ],
+      "Groups": [],
+      "Settings": {
+        "warmup_iterations": 0,
+        "measurement_iterations_multiplier": 1,
+        "gpu_completion_mode": "per_iteration"
+      }
+    }
+  },
+  "Inputs": [
+    {
+      "Path": "xemu.exe",
+      "Role": "pinned-cpu-fixture-input",
+      "Hash": true,
+      "ExpectedSha256": "fecf6c08a305465de4c2658909e15f94e103f613a7828c8e2c77df12f1a8d44d"
+    },
+    {
+      "Path": "xemu.toml",
+      "Role": "pinned-cpu-fixture-input",
+      "Hash": true,
+      "ExpectedSha256": "aa356a9d7b916ace9b71ff1ef47946db1ac289e36a8b00235c4397f57523b0b8"
+    },
+    {
+      "Path": "state/seed-eeprom.bin",
+      "Role": "pinned-cpu-fixture-input",
+      "Hash": true,
+      "ExpectedSha256": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+    },
+    {
+      "Path": "cpu-code-rewrite-reference.json",
+      "Role": "pinned-cpu-fixture-input",
+      "Hash": true,
+      "ExpectedSha256": "012286767ceb727d81f4646463cc46dcb13c9e7f30a891eeda74fba63f78401c"
+    }
+  ],
+  "Workload": {
+    "CorrectnessChecks": [],
+    "EvidenceRequirements": [],
+    "ReportedMetrics": [],
+    "MinimumMetricSamples": 0,
+    "RequirePlanCompletion": true,
+    "GuestHddResults": {
+      "Image": "hdd.qcow2",
+      "PartitionOffsetBytes": 2884108288,
+      "PartitionLengthBytes": 5120024576,
+      "GuestPath": "xemu_perf_tests/results.txt",
+      "ExpectedResults": "cpu-code-rewrite-reference.json",
+      "ExpectedResultsSha256": "012286767ceb727d81f4646463cc46dcb13c9e7f30a891eeda74fba63f78401c",
+      "MaximumResultBytes": 16777216,
+      "Xiso": {
+        "Image": "hdd.qcow2",
+        "PartitionOffsetBytes": 2884108288,
+        "PartitionLengthBytes": 5120024576,
+        "SuiteRevision": "7e006ebb512cdcd96037291248b7b609f85de116dd413bb68c5682ca6f957b4d",
+        "IsoSha256": "74a10c400f4fb280dcb4037e38e7e4d3150e73e0061a04f65b3c68cc61a49e63",
+        "CatalogId": "sha256:34b8ee7f91f3412b5e7758aab9f4ca08746ef2e97fee8b5c61be8947e145f7f4",
+        "Tests": [
+          "cpu_translation_blocks.code_rewrite"
+        ],
+        "Groups": [],
+        "Settings": {
+          "warmup_iterations": 0,
+          "measurement_iterations_multiplier": 1,
+          "gpu_completion_mode": "per_iteration"
+        }
+      }
+    }
+  },
+  "Experiment": {
+    "Id": "light245-windows-same-executable-cpu-modes",
+    "Variant": "off",
+    "Reference": null,
+    "VariedFactors": [
+      "runtime-collector-mode"
+    ],
+    "ControlledFactors": [
+      "same-executable-fecf6c08a305465de4c2658909e15f94e103f613a7828c8e2c77df12f1a8d44d",
+      "fixture-c02a1a44",
+      "stable-50m-rewrite-1m",
+      "warmups-0",
+      "multiplier-1",
+      "cpuid-both-leaves",
+      "128mb-ram",
+      "vulkan",
+      "cold-private-application-cache",
+      "windows-driver-cache-uncontrolled-no-waiver",
+      "no-HMP-queries"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "Operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  }
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "host": "windows",
+    "leaf": "cpu_translation_blocks.code_stable",
+    "firstOffUs": 1128964.5,
+    "secondOffUs": 1144753.5,
+    "apparentImprovementPercent": -1.3985382179864823,
+    "comparison": "ineligible",
+    "meaning": "Identical executable and mode A/A; labels carry no change"
+  },
+  {
+    "host": "windows",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "firstOffUs": 2516578,
+    "secondOffUs": 2535609,
+    "apparentImprovementPercent": -0.7562253186668564,
+    "comparison": "ineligible",
+    "meaning": "Identical executable and mode A/A; labels carry no change"
+  }
+]

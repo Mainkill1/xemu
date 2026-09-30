@@ -1,0 +1,28 @@
+[
+  {
+    "label": "native",
+    "argv": [
+      "ninja",
+      "-C",
+      "build-probe",
+      "qemu-system-i386"
+    ],
+    "exitCode": 0,
+    "sourceCommit": "3a3d3c390fbb5d3835206d47614a86467e7a9330",
+    "executableSha256": "6887481a8e22e008259f1cbff86e70f538b56ac7680258a9e68f8397216be3f7",
+    "bytes": 136349768
+  },
+  {
+    "label": "windows",
+    "argv": [
+      "ninja",
+      "-C",
+      "build-windows-probe",
+      "qemu-system-i386.exe"
+    ],
+    "exitCode": 0,
+    "sourceCommit": "3a3d3c390fbb5d3835206d47614a86467e7a9330",
+    "executableSha256": "fecf6c08a305465de4c2658909e15f94e103f613a7828c8e2c77df12f1a8d44d",
+    "bytes": 136902656
+  }
+]

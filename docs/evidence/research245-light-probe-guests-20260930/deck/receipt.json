@@ -1,0 +1,16 @@
+{
+  "host": "deck",
+  "sourceCommit": "3a3d3c390fbb5d3835206d47614a86467e7a9330",
+  "executableSha256": "6887481a8e22e008259f1cbff86e70f538b56ac7680258a9e68f8397216be3f7",
+  "runnerClientCommit": "6089e8b841bce379015500853c0455551d7fd2cf",
+  "attempts": 24,
+  "leafResults": 24,
+  "guestSamplesPerAttempt": 10,
+  "collection": "All eligible canonical artifacts downloaded after runner idle; only textual reports/logs/metrics published; hashes inventory exclusions",
+  "driverQualification": false,
+  "allowUncontrolledDriverCache": false,
+  "acceptedProductionImprovementPercent": null,
+  "actualRetentionCandidate": false,
+  "backend": "Vulkan",
+  "scope": "Same executable OFF versus separate counters/occupancy/timing/all observer modes; no old/new emulator, compile-OFF or retention comparison"
+}

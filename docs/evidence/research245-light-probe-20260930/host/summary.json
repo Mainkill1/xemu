@@ -1,0 +1,312 @@
+[
+  {
+    "workload": "lookup-hooks",
+    "comparison": "legacy-all-vs-lighter-all",
+    "reference": [
+      "reference",
+      "all"
+    ],
+    "candidate": [
+      "candidate",
+      "all"
+    ],
+    "repetitionsPerSetting": 4,
+    "statistic": "median process CPU ns",
+    "median": {
+      "A": 47430983.0,
+      "B": 10751270.0
+    },
+    "range": {
+      "A": [
+        47127000,
+        47721276
+      ],
+      "B": [
+        10679780,
+        10894402
+      ]
+    },
+    "absoluteDifferenceNs": -36679713.0,
+    "improvementPercent": 77.33281218312511,
+    "meaning": "Collector host microbenchmark only; no emulator/guest speedup or retention proof"
+  },
+  {
+    "workload": "lookup-hooks",
+    "comparison": "legacy-off-vs-current-off",
+    "reference": [
+      "reference",
+      "off"
+    ],
+    "candidate": [
+      "candidate",
+      "off"
+    ],
+    "repetitionsPerSetting": 4,
+    "statistic": "median process CPU ns",
+    "median": {
+      "A": 8350143.0,
+      "B": 9390432.5
+    },
+    "range": {
+      "A": [
+        8340448,
+        8364339
+      ],
+      "B": [
+        9365327,
+        9405007
+      ]
+    },
+    "absoluteDifferenceNs": 1040289.5,
+    "improvementPercent": -12.458343527769525,
+    "meaning": "Collector host microbenchmark only; no emulator/guest speedup or retention proof"
+  },
+  {
+    "workload": "lookup-hooks",
+    "comparison": "same-executable-off-vs-counters",
+    "reference": [
+      "candidate",
+      "off"
+    ],
+    "candidate": [
+      "candidate",
+      "counters"
+    ],
+    "repetitionsPerSetting": 4,
+    "statistic": "median process CPU ns",
+    "median": {
+      "A": 9403967.5,
+      "B": 10442097.0
+    },
+    "range": {
+      "A": [
+        9371897,
+        9429708
+      ],
+      "B": [
+        10410987,
+        10456768
+      ]
+    },
+    "absoluteDifferenceNs": 1038129.5,
+    "improvementPercent": -11.039271456435808,
+    "meaning": "Collector host microbenchmark only; no emulator/guest speedup or retention proof"
+  },
+  {
+    "workload": "lookup-hooks",
+    "comparison": "same-executable-counters-vs-occupancy",
+    "reference": [
+      "candidate",
+      "counters"
+    ],
+    "candidate": [
+      "candidate",
+      "occupancy"
+    ],
+    "repetitionsPerSetting": 4,
+    "statistic": "median process CPU ns",
+    "median": {
+      "A": 10413612.0,
+      "B": 10401817.0
+    },
+    "range": {
+      "A": [
+        10384367,
+        10433248
+      ],
+      "B": [
+        10387287,
+        10417968
+      ]
+    },
+    "absoluteDifferenceNs": -11795.0,
+    "improvementPercent": 0.113265214797709,
+    "meaning": "Collector host microbenchmark only; no emulator/guest speedup or retention proof"
+  },
+  {
+    "workload": "lookup-hooks",
+    "comparison": "same-executable-counters-vs-timing",
+    "reference": [
+      "candidate",
+      "counters"
+    ],
+    "candidate": [
+      "candidate",
+      "timing"
+    ],
+    "repetitionsPerSetting": 4,
+    "statistic": "median process CPU ns",
+    "median": {
+      "A": 10387206.5,
+      "B": 10571853.5
+    },
+    "range": {
+      "A": [
+        10377617,
+        10401258
+      ],
+      "B": [
+        10551149,
+        10581449
+      ]
+    },
+    "absoluteDifferenceNs": 184647.0,
+    "improvementPercent": -1.7776386750374127,
+    "meaning": "Collector host microbenchmark only; no emulator/guest speedup or retention proof"
+  },
+  {
+    "workload": "empty-cache-clears",
+    "comparison": "legacy-all-vs-lighter-all",
+    "reference": [
+      "reference",
+      "all"
+    ],
+    "candidate": [
+      "candidate",
+      "all"
+    ],
+    "repetitionsPerSetting": 4,
+    "statistic": "median process CPU ns",
+    "median": {
+      "A": 60666991.5,
+      "B": 43218638.5
+    },
+    "range": {
+      "A": [
+        60613386,
+        60725817
+      ],
+      "B": [
+        43148703,
+        43331344
+      ]
+    },
+    "absoluteDifferenceNs": -17448353.0,
+    "improvementPercent": 28.760867431509276,
+    "meaning": "Collector host microbenchmark only; no emulator/guest speedup or retention proof"
+  },
+  {
+    "workload": "empty-cache-clears",
+    "comparison": "legacy-off-vs-current-off",
+    "reference": [
+      "reference",
+      "off"
+    ],
+    "candidate": [
+      "candidate",
+      "off"
+    ],
+    "repetitionsPerSetting": 4,
+    "statistic": "median process CPU ns",
+    "median": {
+      "A": 42865680.0,
+      "B": 42368255.0
+    },
+    "range": {
+      "A": [
+        42839890,
+        42888440
+      ],
+      "B": [
+        42340075,
+        42381445
+      ]
+    },
+    "absoluteDifferenceNs": -497425.0,
+    "improvementPercent": 1.1604271762398264,
+    "meaning": "Collector host microbenchmark only; no emulator/guest speedup or retention proof"
+  },
+  {
+    "workload": "empty-cache-clears",
+    "comparison": "same-executable-off-vs-counters",
+    "reference": [
+      "candidate",
+      "off"
+    ],
+    "candidate": [
+      "candidate",
+      "counters"
+    ],
+    "repetitionsPerSetting": 4,
+    "statistic": "median process CPU ns",
+    "median": {
+      "A": 42357540.0,
+      "B": 42394070.5
+    },
+    "range": {
+      "A": [
+        42336805,
+        42370945
+      ],
+      "B": [
+        42386165,
+        42407696
+      ]
+    },
+    "absoluteDifferenceNs": 36530.5,
+    "improvementPercent": -0.08624320486978233,
+    "meaning": "Collector host microbenchmark only; no emulator/guest speedup or retention proof"
+  },
+  {
+    "workload": "empty-cache-clears",
+    "comparison": "same-executable-counters-vs-occupancy",
+    "reference": [
+      "candidate",
+      "counters"
+    ],
+    "candidate": [
+      "candidate",
+      "occupancy"
+    ],
+    "repetitionsPerSetting": 4,
+    "statistic": "median process CPU ns",
+    "median": {
+      "A": 42381175.0,
+      "B": 43075242.0
+    },
+    "range": {
+      "A": [
+        42359246,
+        42403906
+      ],
+      "B": [
+        43070392,
+        43078332
+      ]
+    },
+    "absoluteDifferenceNs": 694067.0,
+    "improvementPercent": -1.6376775773677819,
+    "meaning": "Collector host microbenchmark only; no emulator/guest speedup or retention proof"
+  },
+  {
+    "workload": "empty-cache-clears",
+    "comparison": "same-executable-counters-vs-timing",
+    "reference": [
+      "candidate",
+      "counters"
+    ],
+    "candidate": [
+      "candidate",
+      "timing"
+    ],
+    "repetitionsPerSetting": 4,
+    "statistic": "median process CPU ns",
+    "median": {
+      "A": 42356865.5,
+      "B": 43009397.0
+    },
+    "range": {
+      "A": [
+        42352686,
+        42366995
+      ],
+      "B": [
+        42996181,
+        43030961
+      ]
+    },
+    "absoluteDifferenceNs": 652531.5,
+    "improvementPercent": -1.5405566306600285,
+    "meaning": "Collector host microbenchmark only; no emulator/guest speedup or retention proof"
+  }
+]
