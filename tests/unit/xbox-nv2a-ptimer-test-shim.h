@@ -33,13 +33,25 @@ typedef struct NV2AState {
         uint32_t enabled_interrupts;
         uint32_t numerator;
         uint32_t denominator;
+        bool alarm_armed;
         uint64_t alarm_time;
         uint64_t time_offset;
         QEMUTimer timer;
     } ptimer;
 
     struct {
+        uint32_t core_clock_coeff;
         uint64_t core_clock_freq;
+        uint32_t memory_clock_coeff;
+        uint32_t video_clock_coeff;
+        uint32_t general_control;
+        uint32_t fp_vdisplay_end;
+        uint32_t fp_vcrtc;
+        uint32_t fp_vsync_end;
+        uint32_t fp_vvalid_end;
+        uint32_t fp_hdisplay_end;
+        uint32_t fp_hcrtc;
+        uint32_t fp_hvalid_end;
     } pramdac;
 } NV2AState;
 
@@ -68,6 +80,9 @@ void ptimer_write(void *opaque, hwaddr addr, uint64_t val,
                   unsigned int size);
 void ptimer_init(NV2AState *d);
 void ptimer_reset(NV2AState *d);
-void ptimer_post_load(NV2AState *d);
+void ptimer_post_load(NV2AState *d, int version_id);
+void ptimer_set_core_clock(NV2AState *d, uint64_t frequency);
+uint64_t pramdac_read(void *opaque, hwaddr addr, unsigned int size);
+void pramdac_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size);
 
 #endif
