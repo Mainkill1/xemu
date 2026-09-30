@@ -1,7 +1,56 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 #include "qemu/osdep.h"
 #include "qemu/atomic.h"
-#include "accel/tcg/jump-cache-probe.h"
+#include "accel/tcg/jump-cache-probe-lookup.h"
+
+static void test_deferred_lookup_publication(void)
+{
+    TCGJumpCacheProbe *probe = tcg_jump_cache_probe_new("counters");
+    TCGJumpCacheProbeStats stats;
+
+    for (unsigned i = 0; i < 7; i++) {
+        uint64_t start = tcg_jump_cache_probe_lookup_begin(probe);
+        tcg_jump_cache_probe_lookup_end(probe, TCG_JUMP_CACHE_HIT, start);
+    }
+    tcg_jump_cache_probe_snapshot(probe, &stats);
+    g_assert_cmpuint(stats.lookup_sequence, ==, 0);
+    g_assert_cmpuint(stats.lookup[TCG_JUMP_CACHE_HIT].calls, ==, 0);
+    tcg_jump_cache_probe_publish_owner(probe);
+    tcg_jump_cache_probe_snapshot(probe, &stats);
+    g_assert_cmpuint(stats.lookup_sequence, ==, 7);
+    g_assert_cmpuint(stats.lookup[TCG_JUMP_CACHE_HIT].calls, ==, 7);
+    /* A fault can leave a started lookup without a completion. */
+    tcg_jump_cache_probe_lookup_begin(probe);
+    tcg_jump_cache_probe_publish_owner(probe);
+    tcg_jump_cache_probe_snapshot(probe, &stats);
+    g_assert_cmpuint(stats.lookup_sequence, ==, 8);
+    g_assert_cmpuint(stats.lookup[TCG_JUMP_CACHE_HIT].calls, ==, 7);
+    tcg_jump_cache_probe_free(probe);
+}
+
+static void test_periodic_lookup_publication(void)
+{
+    TCGJumpCacheProbe *probe = tcg_jump_cache_probe_new("counters");
+    TCGJumpCacheProbeStats stats;
+    for (unsigned i = 1; i < TCG_JUMP_CACHE_PROBE_PUBLICATION_INTERVAL; i++) {
+        uint64_t start = tcg_jump_cache_probe_lookup_begin(probe);
+        tcg_jump_cache_probe_lookup_end(probe, TCG_JUMP_CACHE_HIT, start);
+    }
+    tcg_jump_cache_probe_snapshot(probe, &stats);
+    g_assert_cmpuint(stats.lookup_sequence, ==, 0);
+    uint64_t start = tcg_jump_cache_probe_lookup_begin(probe);
+    tcg_jump_cache_probe_lookup_end(probe, TCG_JUMP_CACHE_HIT, start);
+    tcg_jump_cache_probe_snapshot(probe, &stats);
+    g_assert_cmpuint(stats.lookup_sequence, ==,
+                     TCG_JUMP_CACHE_PROBE_PUBLICATION_INTERVAL);
+    g_assert_cmpuint(stats.lookup[TCG_JUMP_CACHE_HIT].calls, ==,
+                     TCG_JUMP_CACHE_PROBE_PUBLICATION_INTERVAL - 1);
+    tcg_jump_cache_probe_publish_owner(probe);
+    tcg_jump_cache_probe_snapshot(probe, &stats);
+    g_assert_cmpuint(stats.lookup[TCG_JUMP_CACHE_HIT].calls, ==,
+                     TCG_JUMP_CACHE_PROBE_PUBLICATION_INTERVAL);
+    tcg_jump_cache_probe_free(probe);
+}
 
 static void test_clear(void)
 {
@@ -125,6 +174,7 @@ static void test_modes(void)
                 g_assert_null(slots[i].tb);
             }
         }
+        tcg_jump_cache_probe_publish_owner(probe);
         tcg_jump_cache_probe_snapshot(probe, &stats);
         g_assert_cmpuint(stats.mode, ==, expected[m]);
         g_assert_cmpuint(stats.lookup_sequence, ==, 65536);
@@ -170,6 +220,7 @@ static gpointer owner_worker(gpointer opaque)
         uint64_t start = tcg_jump_cache_probe_lookup_begin(state->probe);
         tcg_jump_cache_probe_lookup_end(state->probe, i % 3, start);
     }
+    tcg_jump_cache_probe_publish_owner(state->probe);
     qatomic_set(&state->done, 1);
     return NULL;
 }
@@ -214,6 +265,7 @@ static void test_counts_and_sampling(void)
     tcg_jump_cache_probe_targeted(probe, true);
     tcg_jump_cache_probe_codegen(probe, false);
     tcg_jump_cache_probe_codegen(probe, true);
+    tcg_jump_cache_probe_publish_owner(probe);
     tcg_jump_cache_probe_snapshot(probe, &stats);
     g_assert_cmpuint(stats.lookup_sequence, ==, 1024 * 1024);
     for (unsigned i = 0; i < 3; i++) {
@@ -281,6 +333,10 @@ static void test_concurrent_writers(void)
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
+    g_test_add_func("/tcg/jump-cache/deferred-publication",
+                    test_deferred_lookup_publication);
+    g_test_add_func("/tcg/jump-cache/periodic-publication",
+                    test_periodic_lookup_publication);
     g_test_add_func("/tcg/jump-cache/clear", test_clear);
     g_test_add_func("/tcg/jump-cache/disabled", test_disabled);
     g_test_add_func("/tcg/jump-cache/sampled-occupancy",

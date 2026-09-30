@@ -42,6 +42,9 @@
 #include "exec/helper-proto-common.h"
 #include "tcg-accel-ops.h"
 #include "tb-jmp-cache.h"
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+#include "jump-cache-probe-lookup.h"
+#endif
 #include "tb-hash.h"
 #include "tb-code-hash.h"
 #include "tb-context.h"
@@ -660,6 +663,9 @@ void cpu_exec_step_atomic(CPUState *cpu)
      * the execution.
      */
     g_assert(cpu_in_exclusive_context(cpu));
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+    tcg_jump_cache_probe_publish_owner(cpu->tb_jmp_cache->probe);
+#endif
     cpu->running = false;
     end_exclusive();
 }
@@ -1110,6 +1116,9 @@ int cpu_exec(CPUState *cpu)
 
     ret = cpu_exec_setjmp(cpu, &sc);
 
+#ifdef CONFIG_XEMU_TCG_JUMP_CACHE_PROBE
+    tcg_jump_cache_probe_publish_owner(cpu->tb_jmp_cache->probe);
+#endif
     cpu_exec_exit(cpu);
     return ret;
 }
