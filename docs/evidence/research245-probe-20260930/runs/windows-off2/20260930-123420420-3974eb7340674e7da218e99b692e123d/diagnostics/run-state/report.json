@@ -1,0 +1,40 @@
+{
+  "Schema": 1,
+  "Status": "unmanaged",
+  "CacheMode": "unmanaged",
+  "CacheShaders": null,
+  "DriverCache": "uncontrolled",
+  "DriverNamespaceVerified": false,
+  "ComparisonReady": false,
+  "AllowUncontrolledDriverCache": false,
+  "ContractSha256": null,
+  "CacheDirectory": null,
+  "PriorCacheDirectory": null,
+  "DriverCacheDirectory": null,
+  "ConfigSourcePath": null,
+  "EffectiveConfigPath": null,
+  "ConfigSha256": null,
+  "EffectiveConfigSha256": null,
+  "ConfigAfterSha256": null,
+  "SeedSha256": null,
+  "Before": null,
+  "After": null,
+  "DriverAfter": null,
+  "TargetStopped": true,
+  "Uncontrolled": [
+    "os-page-cache",
+    "driver-cache",
+    "application-cache",
+    "guest-state"
+  ],
+  "Issues": [],
+  "RuntimeSeeds": [],
+  "StoragePaths": {},
+  "CacheEnvironment": {},
+  "Limitations": [
+    "Cold refers to the application cache, not RAM, OS page cache or a fully reset GPU driver.",
+    "The effective file pins authored values and shader caching; omitted build defaults are not introspected.",
+    "Directory redirection is not an OS sandbox and does not prove an arbitrary executable obeyed it.",
+    "Driver namespaces are requested controls, not proof the loaded driver used them."
+  ]
+}

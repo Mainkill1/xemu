@@ -1,0 +1,12 @@
+{
+  "originalSha256": "2cc376a12ff71021fda4172ea00de553d81c711092615ae4dc58d4718f5d8e5c",
+  "convertedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+  "format": "qcow2-v2",
+  "compat": "0.10",
+  "virtualBytes": 8589934592,
+  "qemuImgCompareExitCode": 0,
+  "qemuImgCompare": "Images are identical.",
+  "qemuImgCheckExitCode": 0,
+  "qemuImgCheck": "No errors were found on the image.",
+  "reason": "runner requires v3 headerLength 104; original v3 headerLength is 112; retain original and create supported container with identical guest bytes"
+}

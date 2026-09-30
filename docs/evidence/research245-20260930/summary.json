@@ -1,0 +1,338 @@
+{
+  "sourceCommit": "2d289cb349bca95eae81b6a54b0f8d965365ff82",
+  "productionAcceptance": false,
+  "runs": [
+    {
+      "label": "windows-w1",
+      "runId": "20260930-111718824-6e224a6a4b9e4c9383489454b0ee4de6",
+      "executableSha256": "70173532e9057a2dbebce15be1fea4b8482e4e780329375ca49cb7785439503d",
+      "before": {
+        "TB count": 65698,
+        "TB flush count": 0,
+        "TB invalidate count": 39333
+      },
+      "after": {
+        "TB count": 76080,
+        "TB flush count": 0,
+        "TB invalidate count": 77531
+      },
+      "invalidations": 38198,
+      "diagnosticStartIntervalSeconds": 32.323134,
+      "approximateInvalidationsPerSecond": 1181.754219748617,
+      "runnerAnalysis": {
+        "SchemaVersion": 1,
+        "ProfileSha256": "19e37cb7b3d079e76291cea7fc15f06c34bdc938f9a6efe5f43e3337a831cef9",
+        "Profile": {
+          "Segment": "stationary-start",
+          "MetricsPath": "metrics.csv",
+          "GuestFlipsPath": "guest-flips.log",
+          "GuestFramesPath": "guest-frames.log",
+          "FlipTailSamples": 5,
+          "FrameTailSeconds": 25,
+          "MinimumCpuSamples": 55,
+          "MinimumFrameSamples": 160
+        },
+        "Monitoring": {
+          "Segment": "stationary-start",
+          "Rows": 63,
+          "MissingCpuSamples": 0,
+          "MissingDutySamples": 0,
+          "Cpu": {
+            "Count": 63,
+            "Mean": 327.8091428571428,
+            "Median": 325.535,
+            "Min": 195.647,
+            "Max": 424.056,
+            "P95": 399.6508,
+            "P99": 419.83628
+          },
+          "CollectorDuty": {
+            "Count": 63,
+            "Mean": 33.31877777777778,
+            "Median": 15.275,
+            "Min": 12.625,
+            "Max": 56.927,
+            "P95": 55.525299999999994,
+            "P99": 56.56058
+          },
+          "Overruns": 0
+        },
+        "Flips": {
+          "Samples": 5,
+          "Frames": 753,
+          "ElapsedUs": 25100090,
+          "CadenceFps": 29.99989243066459
+        },
+        "Frames": {
+          "WindowStartUs": 1003903787438,
+          "WindowEndUs": 1003928787438,
+          "FirstSampleUs": 1003903787446,
+          "LastSampleUs": 1003928787438,
+          "ZeroIntervals": 0,
+          "IntervalsMs": {
+            "Count": 751,
+            "Mean": 33.333300932090566,
+            "Median": 33.334,
+            "Min": 32.292,
+            "Max": 34.39,
+            "P95": 33.6065,
+            "P99": 34.0805
+          }
+        },
+        "Sources": [
+          {
+            "Path": "metrics.csv",
+            "Bytes": 34953,
+            "Sha256": "7fc7c206c8d8b28ba069495d2239659fdc4e159335c884960ae011dc32af5543",
+            "Records": 166,
+            "IgnoredRecords": 102
+          },
+          {
+            "Path": "guest-flips.log",
+            "Bytes": 630,
+            "Sha256": "7e52a2a7ef13a0aff72d0f15fad7a08dcd42766e52a369d1c0a7164927639d77",
+            "Records": 15,
+            "IgnoredRecords": 0
+          },
+          {
+            "Path": "guest-frames.log",
+            "Bytes": 173794,
+            "Sha256": "7def8c0eac50a56af35330882da8dbca680c7008f73984596997015ad926955e",
+            "Records": 3239,
+            "IgnoredRecords": 0
+          }
+        ],
+        "Errors": [],
+        "Complete": true
+      },
+      "comparisonStatus": "ineligible",
+      "productionAcceptance": false
+    },
+    {
+      "label": "deck-native-v2",
+      "runId": "20260930-112214473-4260f6b967f148f08ef76b84b013e575",
+      "executableSha256": "5b3764acb93ee6d319b9cf7822295ae8748896b87b39ba52702838f1294f22f9",
+      "before": {
+        "TB count": 79881,
+        "TB flush count": 0,
+        "TB invalidate count": 98078
+      },
+      "after": {
+        "TB count": 85336,
+        "TB flush count": 0,
+        "TB invalidate count": 138051
+      },
+      "invalidations": 39973,
+      "diagnosticStartIntervalSeconds": 31.383629,
+      "approximateInvalidationsPerSecond": 1273.6895404925924,
+      "runnerAnalysis": {
+        "SchemaVersion": 1,
+        "ProfileSha256": "8b1ec7442c67958ab9b1d87348a16165eb3da287383f4beacf146bc739bf89f0",
+        "Profile": {
+          "Segment": "stationary-start",
+          "MetricsPath": "metrics.csv",
+          "GuestFlipsPath": "guest-flips.log",
+          "GuestFramesPath": "guest-frames.log",
+          "FlipTailSamples": 5,
+          "FrameTailSeconds": 25,
+          "MinimumCpuSamples": 55,
+          "MinimumFrameSamples": 160
+        },
+        "Monitoring": {
+          "Segment": "stationary-start",
+          "Rows": 62,
+          "MissingCpuSamples": 0,
+          "MissingDutySamples": 0,
+          "Cpu": {
+            "Count": 62,
+            "Mean": 303.7070483870966,
+            "Median": 302.6545,
+            "Min": 284.161,
+            "Max": 343.632,
+            "P95": 316.3634,
+            "P99": 340.29042
+          },
+          "CollectorDuty": {
+            "Count": 62,
+            "Mean": 0.33182258064516124,
+            "Median": 0.3,
+            "Min": 0.219,
+            "Max": 0.641,
+            "P95": 0.5470999999999999,
+            "P99": 0.60318
+          },
+          "Overruns": 0
+        },
+        "Flips": {
+          "Samples": 5,
+          "Frames": 610,
+          "ElapsedUs": 25125140,
+          "CadenceFps": 24.278471682147842
+        },
+        "Frames": {
+          "WindowStartUs": 22320549336,
+          "WindowEndUs": 22345549336,
+          "FirstSampleUs": 22320583732,
+          "LastSampleUs": 22345549336,
+          "ZeroIntervals": 0,
+          "IntervalsMs": {
+            "Count": 627,
+            "Mean": 39.8906076555024,
+            "Median": 39.368,
+            "Min": 23.888,
+            "Max": 69.246,
+            "P95": 50.58279999999999,
+            "P99": 56.08896000000001
+          }
+        },
+        "Sources": [
+          {
+            "Path": "metrics.csv",
+            "Bytes": 52745,
+            "Sha256": "512c5158ee387207a9204b9a81d8202b29b26281eea04e9769981d4196530d9a",
+            "Records": 290,
+            "IgnoredRecords": 227
+          },
+          {
+            "Path": "guest-flips.log",
+            "Bytes": 1102,
+            "Sha256": "ddd241a8f2c478a83d27f8afe8211fe80b3b661008ed12b299d0bdcd479e612d",
+            "Records": 27,
+            "IgnoredRecords": 0
+          },
+          {
+            "Path": "guest-frames.log",
+            "Bytes": 230046,
+            "Sha256": "d8c3575a1882c6cb027adcac1855e47329af2868025ab2b06bc273818ad5a03a",
+            "Records": 4533,
+            "IgnoredRecords": 0
+          }
+        ],
+        "Errors": [],
+        "Complete": true
+      },
+      "comparisonStatus": "ineligible",
+      "productionAcceptance": false
+    },
+    {
+      "label": "deck-perf-v1",
+      "runId": "20260930-112637405-6e1da6be69fc42d3a510ae597e44526d",
+      "executableSha256": "5b3764acb93ee6d319b9cf7822295ae8748896b87b39ba52702838f1294f22f9",
+      "before": {
+        "TB count": 80192,
+        "TB flush count": 0,
+        "TB invalidate count": 97507
+      },
+      "after": {
+        "TB count": 85716,
+        "TB flush count": 0,
+        "TB invalidate count": 137474
+      },
+      "invalidations": 39967,
+      "diagnosticStartIntervalSeconds": 31.177604,
+      "approximateInvalidationsPerSecond": 1281.913773746052,
+      "runnerAnalysis": {
+        "SchemaVersion": 1,
+        "ProfileSha256": "8b1ec7442c67958ab9b1d87348a16165eb3da287383f4beacf146bc739bf89f0",
+        "Profile": {
+          "Segment": "stationary-start",
+          "MetricsPath": "metrics.csv",
+          "GuestFlipsPath": "guest-flips.log",
+          "GuestFramesPath": "guest-frames.log",
+          "FlipTailSamples": 5,
+          "FrameTailSeconds": 25,
+          "MinimumCpuSamples": 55,
+          "MinimumFrameSamples": 160
+        },
+        "Monitoring": {
+          "Segment": "stationary-start",
+          "Rows": 63,
+          "MissingCpuSamples": 0,
+          "MissingDutySamples": 0,
+          "Cpu": {
+            "Count": 63,
+            "Mean": 302.8682539682539,
+            "Median": 302.138,
+            "Min": 287.754,
+            "Max": 336.381,
+            "P95": 312.55539999999996,
+            "P99": 336.06728
+          },
+          "CollectorDuty": {
+            "Count": 63,
+            "Mean": 0.33055555555555544,
+            "Median": 0.288,
+            "Min": 0.218,
+            "Max": 0.94,
+            "P95": 0.6256,
+            "P99": 0.8476200000000004
+          },
+          "Overruns": 0
+        },
+        "Flips": {
+          "Samples": 5,
+          "Frames": 611,
+          "ElapsedUs": 25067836,
+          "CadenceFps": 24.373862985221383
+        },
+        "Frames": {
+          "WindowStartUs": 22589638133,
+          "WindowEndUs": 22614638133,
+          "FirstSampleUs": 22589654022,
+          "LastSampleUs": 22614638133,
+          "ZeroIntervals": 0,
+          "IntervalsMs": {
+            "Count": 610,
+            "Mean": 41.02641967213116,
+            "Median": 38.2225,
+            "Min": 25.996,
+            "Max": 951.861,
+            "P95": 49.302749999999996,
+            "P99": 57.41524999999997
+          }
+        },
+        "Sources": [
+          {
+            "Path": "metrics.csv",
+            "Bytes": 54890,
+            "Sha256": "b84a7b8527c396102dbd29e376054b26f53c0e5fc72ebd5b2c9c5089dd1cc13f",
+            "Records": 302,
+            "IgnoredRecords": 238
+          },
+          {
+            "Path": "guest-flips.log",
+            "Bytes": 1184,
+            "Sha256": "923c7692dcc84be98280b9944ef97c3381e1c52b1ab78cb4cb3546dad4eded28",
+            "Records": 29,
+            "IgnoredRecords": 0
+          },
+          {
+            "Path": "guest-frames.log",
+            "Bytes": 236836,
+            "Sha256": "131738d9cadabd1519c25ef3a2307935f2b79ce042f096601276923cc42417cd",
+            "Records": 4666,
+            "IgnoredRecords": 0
+          }
+        ],
+        "Errors": [],
+        "Complete": true
+      },
+      "comparisonStatus": "ineligible",
+      "productionAcceptance": false
+    }
+  ],
+  "perf": {
+    "samples": 8714,
+    "lostSamples": 0,
+    "rawSha256": "6293880a2c695c08120c61ea4875f91e1365bfaa6d7f91c4d469e437038f1153",
+    "rawBytes": 73819992,
+    "compressedBytes": 5050193,
+    "event": "cycles:u",
+    "frequency": 499,
+    "durationSeconds": 5,
+    "callGraph": "dwarf",
+    "sampledScope": "process userspace cycles after ordinary segment; not production acceptance",
+    "sourceCommit": "2d289cb349bca95eae81b6a54b0f8d965365ff82",
+    "buildId": "767622c38f0e8f2726c236b62e5b3075f8c31e22"
+  }
+}

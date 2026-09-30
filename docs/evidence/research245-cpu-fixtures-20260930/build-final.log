@@ -1,0 +1,137 @@
+[  1%] Performing update step for 'tinyjson_project'
+[ 11%] Built target xbox_math3d
+[ 14%] Built target _VERTEX_SHADER_FILES_gen
+[ 15%] Built target _SHADER_FILES_gen
+[ 16%] Performing update step for 'printf_project'
+[ 19%] Built target xbox-swizzle
+-- Already at requested ref: 025cdde5f2574290d8b2a8524bc257db2829bb7c
+-- Already at requested ref: d3b984684bb8a8bdc48cc7a1abecb93ce59bbe3e
+[ 39%] Built target pbkitplusplus
+[ 41%] No patch step for 'tinyjson_project'
+[ 42%] No patch step for 'printf_project'
+[ 42%] Built target sync_resource_dirs
+[ 43%] No configure step for 'tinyjson_project'
+[ 44%] No configure step for 'printf_project'
+[ 46%] Performing build step for 'tinyjson_project'
+[ 47%] Performing build step for 'printf_project'
+-- tinyjson_project build command succeeded.  See also /home/codex/src/steamdeck-xemu/scratch/research245-cpu-build/third_party/tinyjson_project-prefix/src/tinyjson_project-stamp/tinyjson_project-build-*.log
+[ 48%] No install step for 'tinyjson_project'
+-- printf_project build command succeeded.  See also /home/codex/src/steamdeck-xemu/scratch/research245-cpu-build/third_party/printf_project-prefix/src/printf_project-stamp/printf_project-build-*.log
+[ 50%] Completed 'tinyjson_project'
+[ 51%] No install step for 'printf_project'
+[ 52%] Completed 'printf_project'
+[ 55%] Built target tinyjson_project
+[ 57%] Built target printf_project
+[ 58%] Building CXX object src/CMakeFiles/perf_tests.dir/tests/cpu_translation_block_tests.cpp.obj
+[ 60%] Linking CXX static library libperf_tests.lib
+[ 80%] Built target perf_tests
+[ 82%] Linking CXX executable xemu-perf-tests.exe
+lld: warning: .edata=.rdata: already merged into .edataxb
+Splitting debug information to reduce binary size...
+[ 96%] Built target xemu-perf-tests
+[ 97%] Generating xbe/xbe_file/default.xbe
+[ 98%] Generating xbe/.xbe_file_resource_dirs_time
+Exe::Exe: Opening Exe file...OK
+Exe::Exe: Reading DOS stub...Found, Ignoring...OK
+Exe::Exe: Reading PE header...OK
+Exe::Exe: Reading Optional Header...OK
+Exe::Exe: Reading Section Headers...
+Exe::Exe: Reading Section Header 0x0000...OK 0
+Exe::Exe: Reading Section Header 0x0001...OK 1
+Exe::Exe: Reading Section Header 0x0002...OK 2
+Exe::Exe: Reading Section Header 0x0003...OK 3
+Exe::Exe: Reading Section Header 0x0004...OK 4
+Exe::Exe: Reading Section Header 0x0005...OK 5
+Exe::Exe: Reading Sections...
+Exe::Exe: Reading Section 0x0000...OK
+Exe::Exe: Reading Section 0x0001...OK
+Exe::Exe: Reading Section 0x0002...OK
+Exe::Exe: Reading Section 0x0003...OK
+Exe::Exe: Reading Section 0x0004...OK
+Exe::Exe: Reading Section 0x0005...OK
+Exe::Exe: Exe /home/codex/src/steamdeck-xemu/scratch/research245-cpu-build/src/xemu-perf-tests.exe was successfully opened.
+Xbe::Xbe: Pass 1 (Simple Pass)...OK
+Xbe::Xbe: Pass 2 (Calculating Requirements)...OK
+Xbe::Xbe: Pass 3 (Generating Xbe)...
+Xbe::Xbe: Encoding Retail Entry Point...OK (0xA8D87F2B)
+Xbe::Xbe: Relocating TLS directory...OK (0x002529A0)
+Xbe::Xbe: Found Extra Header Bytes...OK
+Xbe::Xbe: Generating Section Headers...
+Xbe::Xbe: Generating Section Header 0000...OK
+Xbe::Xbe: Generating Section Header 0001...OK
+Xbe::Xbe: Generating Section Header 0002...OK
+Xbe::Xbe: Generating Section Header 0003...OK
+Xbe::Xbe: Generating Section Header 0004...OK
+Xbe::Xbe: Generating Section Header 0005...OK
+Xbe::Xbe: Generating Logo Bitmap...OK (default)
+Xbe::Xbe: Generating Sections...
+Xbe::Xbe: Generating Section 0000...OK
+Xbe::Xbe: Generating Section 0001...OK
+Xbe::Xbe: Generating Section 0002...OK
+Xbe::Xbe: Generating Section 0003...OK
+Xbe::Xbe: Generating Section 0004...OK
+Xbe::Xbe: Generating Section 0005...OK
+Xbe::Xbe: Pass 4 (Finalizing)...
+Xbe::Xbe: Relocating to Base 0x00010000...OK (0 Fixups)
+Xbe::Export: Writing Xbe file...OK
+Xbe::Export: Writing Image Header...OK
+Xbe::Export: Writing Image Header Extra Bytes...OK
+Xbe::Export: Writing Certificate...OK
+Xbe::Export: Writing Section Headers...
+Xbe::Export: Writing Section Header 0x0000...OK
+Xbe::Export: Writing Section Header 0x0001...OK
+Xbe::Export: Writing Section Header 0x0002...OK
+Xbe::Export: Writing Section Header 0x0003...OK
+Xbe::Export: Writing Section Header 0x0004...OK
+Xbe::Export: Writing Section Header 0x0005...OK
+Xbe::Export: Writing Sections...
+Xbe::Export: Writing Section 0x0000 (.text)...OK
+Xbe::Export: Writing Section 0x0001 (.rdata)...OK
+Xbe::Export: Writing Section 0x0002 (.data)...OK
+Xbe::Export: Writing Section 0x0003 (.edataxb)...OK
+Xbe::Export: Writing Section 0x0004 (.tls)...OK
+Xbe::Export: Writing Section 0x0005 (/4)...OK
+Xbe::Export: Writing Zero Padding...OK
+[100%] Generating xiso/xemu-perf-tests_xiso/xemu-perf-tests_xiso.iso
+extract-xiso v2.7.1 (01.11.14) for linux - written by in <in@fishtank.com>
+
+creating xemu-perf-tests_xiso.iso:
+
+generating avl tree from filesystem: pipeline-sampler-only-identity-quick.jsonpfifo-array-elements-fast-smoke.json     pipeline-clear-texture-normal-sustained.jsoncatalog.json                                pipeline-texture-dirty-revalidation-fast-smoke.jsonpfifo-array-elements-quick.json                    report-query-sustained.json    reference-results.txt      pipeline-clear-texture-normal-fast-smoke.jsonpfifo-array-elements-sustained.json          plans                              smoke.jsonvulkan-memory-pressure-config.jsonpipeline-texture-switch-sustained.jsontransient-buffer-growth.json          report-query-quick.json     pipeline-sampler-only-identity-sustained.jsonvulkan-submission-lifetimes-quick.json       pipeline-clear-texture-normal-quick.jsoncpu-code-rewrite-reference.json         default.xbe                    pipeline-texture-switch-quick.jsonpipeline-sampler-only-identity-fast-smoke.jsonreport-query-fast-smoke.json                  pipeline-texture-dirty-revalidation-sustained.jsonpfifo-packet-boundary.json                        vulkan-submission-lifetimes-fast-smoke.jsonvulkan-submission-lifetimes-sustained.json pipeline-texture-switch-fast-smoke.json   pipeline-texture-dirty-revalidation-quick.jsonsample-config.json                            reference-results-provenance.txt                                [OK]
+
+adding / (0 bytes) [OK]
+adding /pipeline-clear-texture-normal-sustained.json (591 bytes) [OK]
+adding /pfifo-array-elements-sustained.json (732 bytes) [OK]
+adding /pfifo-array-elements-fast-smoke.json (721 bytes) [OK]
+adding /cpu-code-rewrite-reference.json (868 bytes) [OK]
+adding /catalog.json (121716 bytes) [OK]
+adding /default.xbe (2772992 bytes) [OK]
+adding /pfifo-array-elements-quick.json (732 bytes) [OK]
+adding /pipeline-clear-texture-normal-fast-smoke.json (581 bytes) [OK]
+adding /pfifo-packet-boundary.json (871 bytes) [OK]
+adding /pipeline-clear-texture-normal-quick.json (590 bytes) [OK]
+adding /reference-results.txt (146557 bytes) [OK]
+adding /pipeline-texture-switch-fast-smoke.json (735 bytes) [OK]
+adding /pipeline-texture-dirty-revalidation-fast-smoke.json (663 bytes) [OK]
+adding /pipeline-sampler-only-identity-quick.json (591 bytes) [OK]
+adding /pipeline-sampler-only-identity-fast-smoke.json (582 bytes) [OK]
+adding /pipeline-sampler-only-identity-sustained.json (592 bytes) [OK]
+adding /pipeline-texture-dirty-revalidation-sustained.json (663 bytes) [OK]
+adding /pipeline-texture-dirty-revalidation-quick.json (663 bytes) [OK]
+adding /pipeline-texture-switch-sustained.json (746 bytes) [OK]
+adding /pipeline-texture-switch-quick.json (745 bytes) [OK]
+adding /reference-results-provenance.txt (793 bytes) [OK]
+adding /transient-buffer-growth.json (591 bytes) [OK]
+adding /report-query-quick.json (1020 bytes) [OK]
+adding /report-query-fast-smoke.json (1020 bytes) [OK]
+adding /report-query-sustained.json (1022 bytes) [OK]
+adding /sample-config.json (403 bytes) [OK]
+adding /vulkan-submission-lifetimes-fast-smoke.json (1373 bytes) [OK]
+adding /vulkan-memory-pressure-config.json (396 bytes) [OK]
+adding /vulkan-submission-lifetimes-quick.json (1374 bytes) [OK]
+adding /vulkan-submission-lifetimes-sustained.json (1375 bytes) [OK]
+adding /plans/ (0 bytes) [OK]
+adding /plans/smoke.json (561 bytes) [OK]
+
+sucessfully created xemu-perf-tests_xiso.iso (31 files totalling 3062859 bytes added)
+[100%] Built target xemu-perf-tests_xiso

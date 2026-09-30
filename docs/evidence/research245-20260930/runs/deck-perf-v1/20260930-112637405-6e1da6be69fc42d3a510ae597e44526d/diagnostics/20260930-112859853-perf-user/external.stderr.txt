@@ -1,0 +1,2 @@
+[ perf record: Woken up 272 times to write data ]
+[ perf record: Captured and wrote 70.388 MB /home/deck/xemu-research/workspace/Results/20260930-112637405-6e1da6be69fc42d3a510ae597e44526d/research245-perf.data (8714 samples) ]

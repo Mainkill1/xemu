@@ -1,0 +1,14 @@
+{
+  "Id": "perf-report",
+  "Type": "external",
+  "Status": "completed",
+  "StartedUtc": "2026-09-30T11:29:05.1400923+00:00",
+  "EndedUtc": "2026-09-30T11:29:05.9819262+00:00",
+  "Directory": "/home/deck/xemu-research/workspace/Results/20260930-112637405-6e1da6be69fc42d3a510ae597e44526d/diagnostics/20260930-112905140-perf-report",
+  "Detail": null,
+  "Artifacts": [
+    "external.stdout.txt",
+    "external.stderr.txt",
+    "external.command.txt"
+  ]
+}

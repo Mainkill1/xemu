@@ -1,0 +1,26 @@
+{
+  "build-linux.log": {
+    "warningLines": 16,
+    "modifiedSourceWarningLines": []
+  },
+  "build-linux-fixed.log": {
+    "warningLines": 0,
+    "modifiedSourceWarningLines": []
+  },
+  "build-linux-identity.log": {
+    "warningLines": 0,
+    "modifiedSourceWarningLines": []
+  },
+  "build-windows.log": {
+    "warningLines": 1101,
+    "modifiedSourceWarningLines": []
+  },
+  "build-windows-identity.log": {
+    "warningLines": 0,
+    "modifiedSourceWarningLines": []
+  },
+  "build-default-off.log": {
+    "warningLines": 4,
+    "modifiedSourceWarningLines": []
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "RunId": "20260930-112048193-5a85f3fd4008434380275a7f4f4fd92f",
+  "ExecutableSha256": "5b3764acb93ee6d319b9cf7822295ae8748896b87b39ba52702838f1294f22f9",
+  "Platform": "linux",
+  "ProcessId": 9973,
+  "ExitCode": 127,
+  "RunnerTerminated": false,
+  "Crashed": false,
+  "Source": "waitpid",
+  "Code": null,
+  "Capture": "partial",
+  "Dump": "unavailable",
+  "Analysis": "unavailable",
+  "TopFrames": [],
+  "Issues": [
+    "linux_core_metadata_unavailable:captured"
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "Execution": "runnerFailure",
+  "Correctness": "failed",
+  "Evidence": "incomplete",
+  "Comparison": "ineligible",
+  "ComparisonReasons": [
+    "Execution outcome is RunnerFailure.",
+    "Correctness outcome is Failed; a passing correctness contract is required.",
+    "Evidence outcome is Incomplete; complete evidence is required.",
+    "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+  ],
+  "Checks": [
+    {
+      "Name": "analysis:monitor",
+      "Passed": false,
+      "Category": "evidence",
+      "Detail": "monitor: Selected segment has insufficient CPU/duty samples."
+    },
+    {
+      "Name": "analysis:flips",
+      "Passed": false,
+      "Category": "evidence",
+      "Detail": "flips: Analysis source is missing: guest-flips.log"
+    },
+    {
+      "Name": "analysis:frames",
+      "Passed": false,
+      "Category": "evidence",
+      "Detail": "frames: Analysis source is missing: guest-frames.log"
+    },
+    {
+      "Name": "recording-start-visible",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Required artifact is missing: /home/deck/xemu-research/workspace/Results/20260930-112048193-5a85f3fd4008434380275a7f4f4fd92f/screenshots/recording-start.png"
+    },
+    {
+      "Name": "recording-end-visible",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Required artifact is missing: /home/deck/xemu-research/workspace/Results/20260930-112048193-5a85f3fd4008434380275a7f4f4fd92f/screenshots/recording-end.png"
+    },
+    {
+      "Name": "guest-progress",
+      "Passed": false,
+      "Category": "evidence",
+      "Detail": "Required artifact is missing: /home/deck/xemu-research/workspace/Results/20260930-112048193-5a85f3fd4008434380275a7f4f4fd92f/guest-frames.log"
+    },
+    {
+      "Name": "measurement-segments",
+      "Passed": false,
+      "Category": "evidence",
+      "Detail": "Artifact has 0 bytes; expected at least 20."
+    },
+    {
+      "Name": "minimum_metric_samples",
+      "Passed": false,
+      "Category": "evidence",
+      "Detail": "Required \u003E= 160; actual 20."
+    },
+    {
+      "Name": "plan_completion",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "The declared plan completed."
+    },
+    {
+      "Name": "run_storage_state",
+      "Passed": false,
+      "Category": "state",
+      "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+    }
+  ],
+  "IsExecutionSuccess": false,
+  "IsCorrectnessSuccess": false
+}

@@ -1,0 +1,2 @@
+runs/** -text -whitespace
+perf-*.txt -text -whitespace

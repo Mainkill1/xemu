@@ -1,0 +1,548 @@
+{
+  "20260930-151149660-90bb6726facc4b7ab1dc841f714ba0f1": {
+    "comparison": "ineligible",
+    "evidence": "incomplete",
+    "measurementRecord": {
+      "Correct": true,
+      "Id": "cpu_translation_blocks.code_stable",
+      "Kind": "leaf",
+      "MaxUs": 4356509,
+      "MeanUs": 4291994.8,
+      "MedianUs": 4280967.5,
+      "MinUs": 4256109,
+      "P95Us": 4356509,
+      "Samples": 10
+    },
+    "name": "Stable-code original procedure",
+    "windows": [
+      {
+        "approximateSeconds": 10.130086,
+        "clearsPerSecond": 301.7743383422411,
+        "completedLookups": 202284878,
+        "delta": {
+          "global_hit": {
+            "calls": 300228,
+            "sample_ns": 93550,
+            "samples": 302
+          },
+          "global_miss": {
+            "calls": 22075,
+            "sample_ns": 5540,
+            "samples": 18
+          },
+          "hit": {
+            "calls": 201962575,
+            "sample_ns": 5704010,
+            "samples": 196980
+          },
+          "other_flush": {
+            "calls": 10,
+            "observed_nonnull": 2574,
+            "occupancy": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              2,
+              0,
+              1,
+              2,
+              1,
+              3,
+              0,
+              0,
+              0
+            ],
+            "sample_ns": 0,
+            "samples": 0,
+            "slots": 40960
+          },
+          "pcrel_flush": {
+            "calls": 3057,
+            "observed_nonnull": 223706,
+            "occupancy": [
+              532,
+              0,
+              0,
+              68,
+              18,
+              4,
+              1089,
+              1090,
+              165,
+              82,
+              9,
+              0,
+              0,
+              0
+            ],
+            "sample_ns": 736098,
+            "samples": 105,
+            "slots": 12521472
+          },
+          "targeted": {
+            "targeted_invalidations": 0,
+            "targeted_removals": 0
+          },
+          "totals": {
+            "generated": 13427,
+            "lookup_started": 202284878,
+            "recycled": 2994
+          }
+        },
+        "from": "jit-early",
+        "meanNonNullObservationsPerClear": 73.17827935884854,
+        "pcRelativeClears": 3057,
+        "startedMinusCompleted": 0,
+        "to": "jit-middle"
+      },
+      {
+        "approximateSeconds": 8.008584,
+        "clearsPerSecond": 304.5482197601973,
+        "completedLookups": 186197026,
+        "delta": {
+          "global_hit": {
+            "calls": 213718,
+            "sample_ns": 81330,
+            "samples": 223
+          },
+          "global_miss": {
+            "calls": 2557,
+            "sample_ns": 970,
+            "samples": 2
+          },
+          "hit": {
+            "calls": 185980751,
+            "sample_ns": 5217498,
+            "samples": 182185
+          },
+          "other_flush": {
+            "calls": 0,
+            "observed_nonnull": 0,
+            "occupancy": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "sample_ns": 0,
+            "samples": 0,
+            "slots": 0
+          },
+          "pcrel_flush": {
+            "calls": 2439,
+            "observed_nonnull": 163743,
+            "occupancy": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1531,
+              908,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "sample_ns": 737090,
+            "samples": 87,
+            "slots": 9990144
+          },
+          "targeted": {
+            "targeted_invalidations": 0,
+            "targeted_removals": 0
+          },
+          "totals": {
+            "generated": 67,
+            "lookup_started": 186197026,
+            "recycled": 2439
+          }
+        },
+        "from": "jit-middle",
+        "meanNonNullObservationsPerClear": 67.13530135301353,
+        "pcRelativeClears": 2439,
+        "startedMinusCompleted": 0,
+        "to": "jit-late"
+      }
+    ]
+  },
+  "20260930-151640365-5fa535de9f3144aa82fbbeff2c133f46": {
+    "comparison": "ineligible",
+    "evidence": "complete",
+    "measurementRecord": {
+      "Correct": true,
+      "Id": "cpu_translation_blocks.code_stable",
+      "Kind": "leaf",
+      "MaxUs": 4344760,
+      "MeanUs": 4302932.5,
+      "MedianUs": 4295116,
+      "MinUs": 4276082,
+      "P95Us": 4344760,
+      "Samples": 10
+    },
+    "name": "Stable-code corrected procedure",
+    "windows": [
+      {
+        "approximateSeconds": 10.15619,
+        "clearsPerSecond": 302.7710194472533,
+        "completedLookups": 203113676,
+        "delta": {
+          "global_hit": {
+            "calls": 302084,
+            "sample_ns": 80440,
+            "samples": 307
+          },
+          "global_miss": {
+            "calls": 22116,
+            "sample_ns": 8020,
+            "samples": 22
+          },
+          "hit": {
+            "calls": 202789476,
+            "sample_ns": 5781676,
+            "samples": 197849
+          },
+          "other_flush": {
+            "calls": 10,
+            "observed_nonnull": 2478,
+            "occupancy": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              2,
+              3,
+              3,
+              1,
+              0,
+              0,
+              0
+            ],
+            "sample_ns": 0,
+            "samples": 0,
+            "slots": 40960
+          },
+          "pcrel_flush": {
+            "calls": 3075,
+            "observed_nonnull": 225659,
+            "occupancy": [
+              530,
+              0,
+              0,
+              64,
+              22,
+              2,
+              1073,
+              1130,
+              171,
+              73,
+              10,
+              0,
+              0,
+              0
+            ],
+            "sample_ns": 757850,
+            "samples": 106,
+            "slots": 12595200
+          },
+          "targeted": {
+            "targeted_invalidations": 0,
+            "targeted_removals": 0
+          },
+          "totals": {
+            "generated": 13442,
+            "lookup_started": 203113676,
+            "recycled": 3008
+          }
+        },
+        "from": "jit-early",
+        "meanNonNullObservationsPerClear": 73.38504065040651,
+        "pcRelativeClears": 3075,
+        "startedMinusCompleted": 0,
+        "to": "jit-middle"
+      },
+      {
+        "approximateSeconds": 8.035956,
+        "clearsPerSecond": 304.5063960031638,
+        "completedLookups": 187202193,
+        "delta": {
+          "global_hit": {
+            "calls": 214563,
+            "sample_ns": 69240,
+            "samples": 190
+          },
+          "global_miss": {
+            "calls": 2666,
+            "sample_ns": 390,
+            "samples": 1
+          },
+          "hit": {
+            "calls": 186984964,
+            "sample_ns": 5217724,
+            "samples": 183097
+          },
+          "other_flush": {
+            "calls": 0,
+            "observed_nonnull": 0,
+            "occupancy": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "sample_ns": 0,
+            "samples": 0,
+            "slots": 0
+          },
+          "pcrel_flush": {
+            "calls": 2447,
+            "observed_nonnull": 165120,
+            "occupancy": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1443,
+              1004,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "sample_ns": 839459,
+            "samples": 88,
+            "slots": 10022912
+          },
+          "targeted": {
+            "targeted_invalidations": 0,
+            "targeted_removals": 0
+          },
+          "totals": {
+            "generated": 67,
+            "lookup_started": 187202193,
+            "recycled": 2447
+          }
+        },
+        "from": "jit-middle",
+        "meanNonNullObservationsPerClear": 67.47854515733552,
+        "pcRelativeClears": 2447,
+        "startedMinusCompleted": 0,
+        "to": "jit-late"
+      }
+    ]
+  },
+  "20260930-151740512-a75c05789bc44022a728a53904910590": {
+    "comparison": "ineligible",
+    "evidence": "complete",
+    "measurementRecord": {
+      "Correct": true,
+      "Id": "cpu_translation_blocks.code_rewrite",
+      "Kind": "leaf",
+      "MaxUs": 5890422,
+      "MeanUs": 5764821.5,
+      "MedianUs": 5772847,
+      "MinUs": 5584021,
+      "P95Us": 5890422,
+      "Samples": 10
+    },
+    "name": "Code-rewrite corrected procedure",
+    "windows": [
+      {
+        "approximateSeconds": 10.045752,
+        "clearsPerSecond": 87000.55506048726,
+        "completedLookups": 84946819,
+        "delta": {
+          "global_hit": {
+            "calls": 1191787,
+            "sample_ns": 147052,
+            "samples": 1114
+          },
+          "global_miss": {
+            "calls": 1763319,
+            "sample_ns": 149122,
+            "samples": 1759
+          },
+          "hit": {
+            "calls": 81991713,
+            "sample_ns": 2423764,
+            "samples": 80238
+          },
+          "other_flush": {
+            "calls": 10,
+            "observed_nonnull": 2447,
+            "occupancy": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              1,
+              3,
+              3,
+              1,
+              0,
+              0,
+              0
+            ],
+            "sample_ns": 0,
+            "samples": 0,
+            "slots": 40960
+          },
+          "pcrel_flush": {
+            "calls": 873986,
+            "observed_nonnull": 2004717,
+            "occupancy": [
+              1004,
+              0,
+              865204,
+              115,
+              3729,
+              349,
+              2826,
+              510,
+              165,
+              74,
+              10,
+              0,
+              0,
+              0
+            ],
+            "sample_ns": 103227439,
+            "samples": 27492,
+            "slots": 3579846656
+          },
+          "targeted": {
+            "targeted_invalidations": 0,
+            "targeted_removals": 0
+          },
+          "totals": {
+            "generated": 13311,
+            "lookup_started": 84946819,
+            "recycled": 873918
+          }
+        },
+        "from": "jit-early",
+        "meanNonNullObservationsPerClear": 2.293763286826105,
+        "pcRelativeClears": 873986,
+        "startedMinusCompleted": 0,
+        "to": "jit-middle"
+      },
+      {
+        "approximateSeconds": 8.182509,
+        "clearsPerSecond": 170298.2544840464,
+        "completedLookups": 4575850,
+        "delta": {
+          "global_hit": {
+            "calls": 1644975,
+            "sample_ns": 191114,
+            "samples": 1564
+          },
+          "global_miss": {
+            "calls": 2784050,
+            "sample_ns": 229042,
+            "samples": 2715
+          },
+          "hit": {
+            "calls": 146825,
+            "sample_ns": 10501,
+            "samples": 154
+          },
+          "other_flush": {
+            "calls": 0,
+            "observed_nonnull": 0,
+            "occupancy": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "sample_ns": 0,
+            "samples": 0,
+            "slots": 0
+          },
+          "pcrel_flush": {
+            "calls": 1393467,
+            "observed_nonnull": 3013301,
+            "occupancy": [
+              653,
+              0,
+              1381770,
+              112,
+              6066,
+              593,
+              4257,
+              16,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "sample_ns": 162162195,
+            "samples": 43342,
+            "slots": 5707640832
+          },
+          "targeted": {
+            "targeted_invalidations": 0,
+            "targeted_removals": 0
+          },
+          "totals": {
+            "generated": 70,
+            "lookup_started": 4575850,
+            "recycled": 1393463
+          }
+        },
+        "from": "jit-middle",
+        "meanNonNullObservationsPerClear": 2.1624487698668142,
+        "pcRelativeClears": 1393467,
+        "startedMinusCompleted": 0,
+        "to": "jit-late"
+      }
+    ]
+  }
+}

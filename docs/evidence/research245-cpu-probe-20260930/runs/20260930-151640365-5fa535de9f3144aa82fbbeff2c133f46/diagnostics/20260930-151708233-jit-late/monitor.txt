@@ -1,0 +1,32 @@
+Accelerator settings:
+one-insn-per-tb: off
+
+Translation buffer state:
+gen code size       19110707/1073736704
+TB count            26794
+TB avg target size  19 max=2590 bytes
+TB avg host size    463 bytes (expansion ratio: 23.6)
+cross page TB count 65 (0%)
+direct jump count   15311 (57%) (2 jumps=10253 38%)
+TB hash buckets     13023/16384 (79.49% head buckets used)
+TB hash occupancy   37.94% avg chain occ. Histogram: [0,10)%|▅ █  ▆▁▃▁▂|[90,100]%
+TB hash avg chain   1.027 buckets. Histogram: 1|█▁|2
+
+Statistics:
+TB flush count      0
+TB invalidate count 10776
+TLB full flushes    0
+TLB partial flushes 307
+TLB elided flushes  6573
+
+Jump-cache probe CPU 0
+jc diagnostic: independent atomic fields; timings include instrumentation and occupancy reads; whole-cache clears only
+jc lookup_started=442128648 generated=26794 recycled=9785
+jc hit calls=440340031 samples=430269 sample_ns=13086249
+jc global_hit calls=1740509 samples=1757 sample_ns=429300
+jc global_miss calls=48108 samples=47 sample_ns=16680
+jc other_flush calls=432 samples=11 sample_ns=64780
+jc other_flush slots=1769472 observed_nonnull=10816 maximum_nonnull=585 occupancy=273,5,19,3,11,22,45,34,12,7,1,0,0,0
+jc pcrel_flush calls=10776 samples=367 sample_ns=2720748
+jc pcrel_flush slots=44138496 observed_nonnull=827700 maximum_nonnull=790 occupancy=3351,0,0,153,89,94,2959,2723,554,768,85,0,0,0
+jc targeted_invalidations=0 targeted_removals=0

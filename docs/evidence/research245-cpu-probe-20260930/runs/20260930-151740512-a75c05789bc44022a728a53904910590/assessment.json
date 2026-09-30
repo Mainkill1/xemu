@@ -1,0 +1,73 @@
+{
+  "Execution": "completed",
+  "Correctness": "passed",
+  "Evidence": "complete",
+  "Comparison": "ineligible",
+  "ComparisonReasons": [
+    "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+  ],
+  "Checks": [
+    {
+      "Name": "guest_hdd_extraction",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+    },
+    {
+      "Name": "xiso_plan_receipt",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Guest completion receipt matches the injected selection."
+    },
+    {
+      "Name": "xiso_exact_coverage",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Selected 1 leaves and 0 groups; received 1. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest_record_set",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Expected 1 stable IDs; received 1. Missing 0, extra 0."
+    },
+    {
+      "Name": "guest:cpu_translation_blocks.code_rewrite",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "Matched work contract and 2 applicable reference hashes."
+    },
+    {
+      "Name": "jit-early-request-ledger",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "result:operator-events.jsonl satisfied the declared requirement."
+    },
+    {
+      "Name": "jit-middle-request-ledger",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "result:operator-events.jsonl satisfied the declared requirement."
+    },
+    {
+      "Name": "jit-late-request-ledger",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "result:operator-events.jsonl satisfied the declared requirement."
+    },
+    {
+      "Name": "plan_completion",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "The declared plan completed."
+    },
+    {
+      "Name": "run_storage_state",
+      "Passed": false,
+      "Category": "state",
+      "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+    }
+  ],
+  "IsExecutionSuccess": true,
+  "IsCorrectnessSuccess": true
+}
