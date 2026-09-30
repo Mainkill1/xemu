@@ -1,0 +1,14 @@
+[
+  {
+    "host": "deck",
+    "original": "a05db7b2375d9c25fe61b6c914e83bab57fc49ca",
+    "corrected": "458730bf5373f1f0d027450fef7443e3af7a3ae1",
+    "sourceCommit": "0bd18bf26b894852f934a231a29a09b2f5eb480c"
+  },
+  {
+    "host": "windows",
+    "original": "a05db7b2375d9c25fe61b6c914e83bab57fc49ca",
+    "corrected": "458730bf5373f1f0d027450fef7443e3af7a3ae1",
+    "sourceCommit": "0bd18bf26b894852f934a231a29a09b2f5eb480c"
+  }
+]

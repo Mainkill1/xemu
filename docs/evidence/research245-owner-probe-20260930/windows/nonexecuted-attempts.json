@@ -1,0 +1,450 @@
+[
+  {
+    "group": "clean-rewrite",
+    "campaign": "r245-win-0bd18bf2-rewrite-03",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "disabled",
+    "position": 2,
+    "phase": "balanced-mode-sweep",
+    "executableSha256": "44f6a06ca6bf361453e870431fb89d05b5b73c0c50dfe60bb6a0544bceb7a0e2",
+    "execution": "preflight rejected",
+    "failure": {
+      "id": "xc-r245-win-0bd18bf2-rewrite-03-001",
+      "label": "B1",
+      "variant": "candidate",
+      "chunk": 1,
+      "state": "failed",
+      "runId": null,
+      "terminal": true,
+      "execution": null,
+      "correctness": null,
+      "evidence": null,
+      "comparison": null,
+      "error": "The package did not pass preflight."
+    }
+  },
+  {
+    "group": "clean-rewrite",
+    "campaign": "r245-win-0bd18bf2-rewrite-04",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "off",
+    "position": 3,
+    "phase": "balanced-mode-sweep",
+    "executableSha256": "e66a7554f503c1909f4dca1d9528249ffc75e20745167805f7f51b079c5d0cf7",
+    "execution": "not started"
+  },
+  {
+    "group": "clean-rewrite",
+    "campaign": "r245-win-0bd18bf2-rewrite-05",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "counters",
+    "position": 4,
+    "phase": "balanced-mode-sweep",
+    "executableSha256": "e66a7554f503c1909f4dca1d9528249ffc75e20745167805f7f51b079c5d0cf7",
+    "execution": "not started"
+  },
+  {
+    "group": "clean-rewrite",
+    "campaign": "r245-win-0bd18bf2-rewrite-06",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "timing",
+    "position": 5,
+    "phase": "balanced-mode-sweep",
+    "executableSha256": "e66a7554f503c1909f4dca1d9528249ffc75e20745167805f7f51b079c5d0cf7",
+    "execution": "not started"
+  },
+  {
+    "group": "clean-rewrite",
+    "campaign": "r245-win-0bd18bf2-rewrite-07",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "all",
+    "position": 6,
+    "phase": "balanced-mode-sweep",
+    "executableSha256": "e66a7554f503c1909f4dca1d9528249ffc75e20745167805f7f51b079c5d0cf7",
+    "execution": "not started"
+  },
+  {
+    "group": "clean-rewrite",
+    "campaign": "r245-win-0bd18bf2-rewrite-08",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "all",
+    "position": 7,
+    "phase": "balanced-mode-sweep",
+    "executableSha256": "e66a7554f503c1909f4dca1d9528249ffc75e20745167805f7f51b079c5d0cf7",
+    "execution": "not started"
+  },
+  {
+    "group": "clean-rewrite",
+    "campaign": "r245-win-0bd18bf2-rewrite-09",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "timing",
+    "position": 8,
+    "phase": "balanced-mode-sweep",
+    "executableSha256": "e66a7554f503c1909f4dca1d9528249ffc75e20745167805f7f51b079c5d0cf7",
+    "execution": "not started"
+  },
+  {
+    "group": "clean-rewrite",
+    "campaign": "r245-win-0bd18bf2-rewrite-10",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "counters",
+    "position": 9,
+    "phase": "balanced-mode-sweep",
+    "executableSha256": "e66a7554f503c1909f4dca1d9528249ffc75e20745167805f7f51b079c5d0cf7",
+    "execution": "not started"
+  },
+  {
+    "group": "clean-rewrite",
+    "campaign": "r245-win-0bd18bf2-rewrite-11",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "off",
+    "position": 10,
+    "phase": "balanced-mode-sweep",
+    "executableSha256": "e66a7554f503c1909f4dca1d9528249ffc75e20745167805f7f51b079c5d0cf7",
+    "execution": "not started"
+  },
+  {
+    "group": "clean-rewrite",
+    "campaign": "r245-win-0bd18bf2-rewrite-12",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "disabled",
+    "position": 11,
+    "phase": "balanced-mode-sweep",
+    "executableSha256": "44f6a06ca6bf361453e870431fb89d05b5b73c0c50dfe60bb6a0544bceb7a0e2",
+    "execution": "not started"
+  },
+  {
+    "group": "parent-controls",
+    "campaign": "pc245-win-stable-01",
+    "leaf": "cpu_translation_blocks.code_stable",
+    "mode": "parent",
+    "position": 0,
+    "phase": "parent-ABBA",
+    "executableSha256": "9f7de312d0c7b893933edc2c7a567a1145e73f0679605b6c9248013be780addd",
+    "sourceCommit": "458730bf5373f1f0d027450fef7443e3af7a3ae1",
+    "execution": "not started"
+  },
+  {
+    "group": "parent-controls",
+    "campaign": "pc245-win-stable-02",
+    "leaf": "cpu_translation_blocks.code_stable",
+    "mode": "disabled",
+    "position": 1,
+    "phase": "parent-ABBA",
+    "executableSha256": "44f6a06ca6bf361453e870431fb89d05b5b73c0c50dfe60bb6a0544bceb7a0e2",
+    "sourceCommit": "0bd18bf26b894852f934a231a29a09b2f5eb480c",
+    "execution": "not started"
+  },
+  {
+    "group": "parent-controls",
+    "campaign": "pc245-win-stable-03",
+    "leaf": "cpu_translation_blocks.code_stable",
+    "mode": "disabled",
+    "position": 2,
+    "phase": "parent-ABBA",
+    "executableSha256": "44f6a06ca6bf361453e870431fb89d05b5b73c0c50dfe60bb6a0544bceb7a0e2",
+    "sourceCommit": "0bd18bf26b894852f934a231a29a09b2f5eb480c",
+    "execution": "not started"
+  },
+  {
+    "group": "parent-controls",
+    "campaign": "pc245-win-stable-04",
+    "leaf": "cpu_translation_blocks.code_stable",
+    "mode": "parent",
+    "position": 3,
+    "phase": "parent-ABBA",
+    "executableSha256": "9f7de312d0c7b893933edc2c7a567a1145e73f0679605b6c9248013be780addd",
+    "sourceCommit": "458730bf5373f1f0d027450fef7443e3af7a3ae1",
+    "execution": "not started"
+  },
+  {
+    "group": "parent-controls",
+    "campaign": "pc245-win-rewrite-01",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "parent",
+    "position": 0,
+    "phase": "parent-ABBA",
+    "executableSha256": "9f7de312d0c7b893933edc2c7a567a1145e73f0679605b6c9248013be780addd",
+    "sourceCommit": "458730bf5373f1f0d027450fef7443e3af7a3ae1",
+    "execution": "not started"
+  },
+  {
+    "group": "parent-controls",
+    "campaign": "pc245-win-rewrite-02",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "disabled",
+    "position": 1,
+    "phase": "parent-ABBA",
+    "executableSha256": "44f6a06ca6bf361453e870431fb89d05b5b73c0c50dfe60bb6a0544bceb7a0e2",
+    "sourceCommit": "0bd18bf26b894852f934a231a29a09b2f5eb480c",
+    "execution": "not started"
+  },
+  {
+    "group": "parent-controls",
+    "campaign": "pc245-win-rewrite-03",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "disabled",
+    "position": 2,
+    "phase": "parent-ABBA",
+    "executableSha256": "44f6a06ca6bf361453e870431fb89d05b5b73c0c50dfe60bb6a0544bceb7a0e2",
+    "sourceCommit": "0bd18bf26b894852f934a231a29a09b2f5eb480c",
+    "execution": "not started"
+  },
+  {
+    "group": "parent-controls",
+    "campaign": "pc245-win-rewrite-04",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "parent",
+    "position": 3,
+    "phase": "parent-ABBA",
+    "executableSha256": "9f7de312d0c7b893933edc2c7a567a1145e73f0679605b6c9248013be780addd",
+    "sourceCommit": "458730bf5373f1f0d027450fef7443e3af7a3ae1",
+    "execution": "not started"
+  },
+  {
+    "group": "superseded-aa8bb9ab",
+    "campaign": "o245-win-aa8bb9ab-stable-07",
+    "leaf": "cpu_translation_blocks.code_stable",
+    "mode": "all",
+    "position": 6,
+    "phase": "balanced-mode-sweep",
+    "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea",
+    "execution": "not started"
+  },
+  {
+    "group": "superseded-aa8bb9ab",
+    "campaign": "o245-win-aa8bb9ab-stable-08",
+    "leaf": "cpu_translation_blocks.code_stable",
+    "mode": "all",
+    "position": 7,
+    "phase": "balanced-mode-sweep",
+    "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea",
+    "execution": "not started"
+  },
+  {
+    "group": "superseded-aa8bb9ab",
+    "campaign": "o245-win-aa8bb9ab-stable-09",
+    "leaf": "cpu_translation_blocks.code_stable",
+    "mode": "timing",
+    "position": 8,
+    "phase": "balanced-mode-sweep",
+    "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea",
+    "execution": "not started"
+  },
+  {
+    "group": "superseded-aa8bb9ab",
+    "campaign": "o245-win-aa8bb9ab-stable-10",
+    "leaf": "cpu_translation_blocks.code_stable",
+    "mode": "counters",
+    "position": 9,
+    "phase": "balanced-mode-sweep",
+    "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea",
+    "execution": "not started"
+  },
+  {
+    "group": "superseded-aa8bb9ab",
+    "campaign": "o245-win-aa8bb9ab-stable-11",
+    "leaf": "cpu_translation_blocks.code_stable",
+    "mode": "off",
+    "position": 10,
+    "phase": "balanced-mode-sweep",
+    "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea",
+    "execution": "not started"
+  },
+  {
+    "group": "superseded-aa8bb9ab",
+    "campaign": "o245-win-aa8bb9ab-stable-12",
+    "leaf": "cpu_translation_blocks.code_stable",
+    "mode": "disabled",
+    "position": 11,
+    "phase": "balanced-mode-sweep",
+    "executableSha256": "d05494316dc2f441aa39c0afacde9494625de2a13bdb58f32840fbc18cf3c0e0",
+    "execution": "not started"
+  },
+  {
+    "group": "superseded-aa8bb9ab",
+    "campaign": "o245-win-aa8bb9ab-rewrite-01",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "off",
+    "position": 0,
+    "phase": "A/A",
+    "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea",
+    "execution": "not started"
+  },
+  {
+    "group": "superseded-aa8bb9ab",
+    "campaign": "o245-win-aa8bb9ab-rewrite-02",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "off",
+    "position": 1,
+    "phase": "A/A",
+    "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea",
+    "execution": "not started"
+  },
+  {
+    "group": "superseded-aa8bb9ab",
+    "campaign": "o245-win-aa8bb9ab-rewrite-03",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "disabled",
+    "position": 2,
+    "phase": "balanced-mode-sweep",
+    "executableSha256": "d05494316dc2f441aa39c0afacde9494625de2a13bdb58f32840fbc18cf3c0e0",
+    "execution": "not started"
+  },
+  {
+    "group": "superseded-aa8bb9ab",
+    "campaign": "o245-win-aa8bb9ab-rewrite-04",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "off",
+    "position": 3,
+    "phase": "balanced-mode-sweep",
+    "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea",
+    "execution": "not started"
+  },
+  {
+    "group": "superseded-aa8bb9ab",
+    "campaign": "o245-win-aa8bb9ab-rewrite-05",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "counters",
+    "position": 4,
+    "phase": "balanced-mode-sweep",
+    "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea",
+    "execution": "not started"
+  },
+  {
+    "group": "superseded-aa8bb9ab",
+    "campaign": "o245-win-aa8bb9ab-rewrite-06",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "timing",
+    "position": 5,
+    "phase": "balanced-mode-sweep",
+    "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea",
+    "execution": "not started"
+  },
+  {
+    "group": "superseded-aa8bb9ab",
+    "campaign": "o245-win-aa8bb9ab-rewrite-07",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "all",
+    "position": 6,
+    "phase": "balanced-mode-sweep",
+    "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea",
+    "execution": "not started"
+  },
+  {
+    "group": "superseded-aa8bb9ab",
+    "campaign": "o245-win-aa8bb9ab-rewrite-08",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "all",
+    "position": 7,
+    "phase": "balanced-mode-sweep",
+    "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea",
+    "execution": "not started"
+  },
+  {
+    "group": "superseded-aa8bb9ab",
+    "campaign": "o245-win-aa8bb9ab-rewrite-09",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "timing",
+    "position": 8,
+    "phase": "balanced-mode-sweep",
+    "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea",
+    "execution": "not started"
+  },
+  {
+    "group": "superseded-aa8bb9ab",
+    "campaign": "o245-win-aa8bb9ab-rewrite-10",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "counters",
+    "position": 9,
+    "phase": "balanced-mode-sweep",
+    "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea",
+    "execution": "not started"
+  },
+  {
+    "group": "superseded-aa8bb9ab",
+    "campaign": "o245-win-aa8bb9ab-rewrite-11",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "off",
+    "position": 10,
+    "phase": "balanced-mode-sweep",
+    "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea",
+    "execution": "not started"
+  },
+  {
+    "group": "superseded-aa8bb9ab",
+    "campaign": "o245-win-aa8bb9ab-rewrite-12",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "disabled",
+    "position": 11,
+    "phase": "balanced-mode-sweep",
+    "executableSha256": "d05494316dc2f441aa39c0afacde9494625de2a13bdb58f32840fbc18cf3c0e0",
+    "execution": "not started"
+  },
+  {
+    "group": "parent-prelude",
+    "campaign": "p245-win-stable-03",
+    "leaf": "cpu_translation_blocks.code_stable",
+    "mode": "disabled",
+    "position": 2,
+    "phase": "parent-ABBA",
+    "executableSha256": "44f6a06ca6bf361453e870431fb89d05b5b73c0c50dfe60bb6a0544bceb7a0e2",
+    "sourceCommit": "0bd18bf26b894852f934a231a29a09b2f5eb480c",
+    "execution": "not started"
+  },
+  {
+    "group": "parent-prelude",
+    "campaign": "p245-win-stable-04",
+    "leaf": "cpu_translation_blocks.code_stable",
+    "mode": "parent",
+    "position": 3,
+    "phase": "parent-ABBA",
+    "executableSha256": "9f7de312d0c7b893933edc2c7a567a1145e73f0679605b6c9248013be780addd",
+    "sourceCommit": "458730bf5373f1f0d027450fef7443e3af7a3ae1",
+    "execution": "not started"
+  },
+  {
+    "group": "parent-prelude",
+    "campaign": "p245-win-rewrite-01",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "parent",
+    "position": 0,
+    "phase": "parent-ABBA",
+    "executableSha256": "9f7de312d0c7b893933edc2c7a567a1145e73f0679605b6c9248013be780addd",
+    "sourceCommit": "458730bf5373f1f0d027450fef7443e3af7a3ae1",
+    "execution": "not started"
+  },
+  {
+    "group": "parent-prelude",
+    "campaign": "p245-win-rewrite-02",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "disabled",
+    "position": 1,
+    "phase": "parent-ABBA",
+    "executableSha256": "44f6a06ca6bf361453e870431fb89d05b5b73c0c50dfe60bb6a0544bceb7a0e2",
+    "sourceCommit": "0bd18bf26b894852f934a231a29a09b2f5eb480c",
+    "execution": "not started"
+  },
+  {
+    "group": "parent-prelude",
+    "campaign": "p245-win-rewrite-03",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "disabled",
+    "position": 2,
+    "phase": "parent-ABBA",
+    "executableSha256": "44f6a06ca6bf361453e870431fb89d05b5b73c0c50dfe60bb6a0544bceb7a0e2",
+    "sourceCommit": "0bd18bf26b894852f934a231a29a09b2f5eb480c",
+    "execution": "not started"
+  },
+  {
+    "group": "parent-prelude",
+    "campaign": "p245-win-rewrite-04",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "mode": "parent",
+    "position": 3,
+    "phase": "parent-ABBA",
+    "executableSha256": "9f7de312d0c7b893933edc2c7a567a1145e73f0679605b6c9248013be780addd",
+    "sourceCommit": "458730bf5373f1f0d027450fef7443e3af7a3ae1",
+    "execution": "not started"
+  }
+]

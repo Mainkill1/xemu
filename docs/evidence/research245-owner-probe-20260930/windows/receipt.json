@@ -1,0 +1,14 @@
+{
+  "host": "windows",
+  "completedAttempts": 34,
+  "retainedAttempts": 14,
+  "excludedCompletedAttempts": 20,
+  "sourceCommit": "0bd18bf26b894852f934a231a29a09b2f5eb480c",
+  "parentCommit": "458730bf53",
+  "driverQualification": false,
+  "allowUncontrolledDriverCache": false,
+  "acceptedProductionImprovementPercent": null,
+  "actualRetentionCandidate": false,
+  "scope": "Selected canonical text artifacts and complete eligible inventory metadata; binary/cache payloads not downloaded",
+  "windowsStorageGate": "Preflight rejected clean rewrite compiled-out attempt: free 1061818368 bytes, required 1073741824; no cleanup API; later comparisons not launched"
+}

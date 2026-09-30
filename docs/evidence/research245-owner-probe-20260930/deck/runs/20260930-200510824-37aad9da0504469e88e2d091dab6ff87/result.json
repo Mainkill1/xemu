@@ -1,0 +1,294 @@
+{
+  "runId": "20260930-200510824-37aad9da0504469e88e2d091dab6ff87",
+  "job": "xc-o245-dec-0bd18bf2-stable-09-001",
+  "jobPackage": "agent-xc-o245-dec-0bd18bf2-stable-09-001",
+  "attempt": 1,
+  "status": "completed",
+  "detail": null,
+  "startedUtc": "2026-09-30T20:05:10.8245537+00:00",
+  "endedUtc": "2026-09-30T20:06:00.0355065+00:00",
+  "durationMs": 49210.9528,
+  "processId": 19361,
+  "exitCode": 0,
+  "crash": {
+    "RunId": "20260930-200510824-37aad9da0504469e88e2d091dab6ff87",
+    "ExecutableSha256": "97a3264d2bf35ef45f2fdac323482d4b279d20cd577a730477699c2a673ba196",
+    "Platform": "linux",
+    "ProcessId": 19361,
+    "ExitCode": 0,
+    "RunnerTerminated": false,
+    "Crashed": false,
+    "Source": "waitpid",
+    "Code": null,
+    "Capture": "notNeeded",
+    "Dump": "notRequested",
+    "Analysis": "notRequested",
+    "TopFrames": [],
+    "Issues": []
+  },
+  "diagnosticBundle": "diagnostic-bundle.json",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu",
+  "executableSha256": "97a3264d2bf35ef45f2fdac323482d4b279d20cd577a730477699c2a673ba196",
+  "arguments": [
+    "-config_path",
+    "/home/deck/xemu-research/workspace/Queue/Testing/agent-xc-o245-dec-0bd18bf2-stable-09-001/xemu.toml",
+    "-name",
+    "xemu-research245-cpu,debug-threads=on",
+    "-msg",
+    "timestamp=on",
+    "-qmp",
+    "tcp:127.0.0.1:36565,server=on,wait=off"
+  ],
+  "watchdog": null,
+  "failureCaptureError": null,
+  "automaticDiagnostic": null,
+  "automaticDiagnosticError": null,
+  "diagnostics": [],
+  "operatorActivity": {
+    "Intervened": false,
+    "ManualInputs": 0,
+    "Pauses": 0,
+    "Screenshots": 0,
+    "PreviewCaptures": 0,
+    "BulkTransfers": 0,
+    "Diagnostics": 0,
+    "HostStateChanges": 0
+  },
+  "workload": {
+    "Correctness": "passed",
+    "Evidence": "complete",
+    "Checks": [
+      {
+        "Name": "guest_hdd_extraction",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+      },
+      {
+        "Name": "xiso_plan_receipt",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Guest completion receipt matches the injected selection."
+      },
+      {
+        "Name": "xiso_exact_coverage",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Selected 1 leaves and 0 groups; received 1. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest_record_set",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Expected 1 stable IDs; received 1. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest:cpu_translation_blocks.code_stable",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 2 applicable reference hashes."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": false,
+        "Category": "state",
+        "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+      }
+    ],
+    "Measurements": [
+      {
+        "Name": "xiso/cpu_translation_blocks/code_stable/mean_us",
+        "Value": 3446350.3,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_translation_blocks.code_stable"
+      },
+      {
+        "Name": "xiso/cpu_translation_blocks/code_stable/median_us",
+        "Value": 3435376,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_translation_blocks.code_stable"
+      },
+      {
+        "Name": "xiso/cpu_translation_blocks/code_stable/min_us",
+        "Value": 3408721,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_translation_blocks.code_stable"
+      },
+      {
+        "Name": "xiso/cpu_translation_blocks/code_stable/max_us",
+        "Value": 3491235,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_translation_blocks.code_stable"
+      },
+      {
+        "Name": "xiso/cpu_translation_blocks/code_stable/p95_us",
+        "Value": 3491235,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_translation_blocks.code_stable"
+      }
+    ]
+  },
+  "assessment": {
+    "Execution": "completed",
+    "Correctness": "passed",
+    "Evidence": "complete",
+    "Comparison": "ineligible",
+    "ComparisonReasons": [
+      "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+    ],
+    "Checks": [
+      {
+        "Name": "guest_hdd_extraction",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+      },
+      {
+        "Name": "xiso_plan_receipt",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Guest completion receipt matches the injected selection."
+      },
+      {
+        "Name": "xiso_exact_coverage",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Selected 1 leaves and 0 groups; received 1. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest_record_set",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Expected 1 stable IDs; received 1. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest:cpu_translation_blocks.code_stable",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 2 applicable reference hashes."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": false,
+        "Category": "state",
+        "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+      }
+    ],
+    "IsExecutionSuccess": true,
+    "IsCorrectnessSuccess": true
+  },
+  "correctnessStatus": "passed",
+  "evidenceStatus": "complete",
+  "comparisonStatus": "ineligible",
+  "experiment": {
+    "Id": "owner245-deck-0bd18bf2-build-runtime-matrix",
+    "Variant": "timing",
+    "Reference": null,
+    "VariedFactors": [
+      "compile-time-probe",
+      "runtime-collector-mode"
+    ],
+    "ControlledFactors": [
+      "0bd18bf26b894852f934a231a29a09b2f5eb480c",
+      "matched-compiler-options-except-probe",
+      "fixture-c02a1a44",
+      "stable-50m-rewrite-1m",
+      "warmups0-multiplier1",
+      "128mb",
+      "vulkan",
+      "same-firmware-private-seed-reference",
+      "no-HMP",
+      "driver-cache-unverified-no-waiver"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  },
+  "inputManifest": "input-manifest.json",
+  "controllerInput": null,
+  "runtimeDirectory": "/home/deck/xemu-research/workspace/Runtime/20260930-200510824-37aad9da0504469e88e2d091dab6ff87",
+  "hostInventory": "host-inventory.json",
+  "workstationStart": {
+    "Supported": false,
+    "Platform": "linux",
+    "SessionLocked": null,
+    "InputDesktop": null,
+    "DisplayState": "unknown",
+    "PowerState": "unknown",
+    "PowerSource": "unknown",
+    "BatteryPercent": null,
+    "BatterySaver": null,
+    "UserIdleSeconds": null,
+    "TimestampUtc": "2026-09-30T09:45:54.5010094+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": null,
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "workstation monitoring is currently implemented for Windows only",
+    "EventSequence": 1,
+    "RenderingRisk": false
+  },
+  "workstationEnd": {
+    "Supported": false,
+    "Platform": "linux",
+    "SessionLocked": null,
+    "InputDesktop": null,
+    "DisplayState": "unknown",
+    "PowerState": "unknown",
+    "PowerSource": "unknown",
+    "BatteryPercent": null,
+    "BatterySaver": null,
+    "UserIdleSeconds": null,
+    "TimestampUtc": "2026-09-30T09:45:54.5010094+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": null,
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "workstation monitoring is currently implemented for Windows only",
+    "EventSequence": 1,
+    "RenderingRisk": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B6089e8b841bce379015500853c0455551d7fd2cf",
+    "machine": "steamdeck",
+    "os": "SteamOS",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 8,
+    "dotnet": "10.0.12"
+  },
+  "monitoring": {
+    "intervalMs": 500,
+    "samples": 98,
+    "overruns": 0,
+    "droppedWriteSamples": 0,
+    "averageCollectorDutyPercent": 0.3151204081632652,
+    "maxCollectorDutyPercent": 0.7095799999999999,
+    "maxCollectorDurationMs": 3.5479,
+    "gpuProviders": [
+      "Linux DRM sysfs"
+    ]
+  }
+}

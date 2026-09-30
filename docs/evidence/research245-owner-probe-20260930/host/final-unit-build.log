@@ -1,0 +1,9 @@
+ninja: Entering directory `build-probe'
+[1/7] Generating xemu-version-macro.h with a custom command (wrapped by meson to capture output)
+FAILED: xemu-version-macro.h 
+/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-probe/pyvenv/bin/meson --internal exe --capture xemu-version-macro.h -- /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/scripts/xemu-version.sh /home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache
+--- stderr ---
+xemu: no valid version tag or XEMU_VERSION file
+
+[2/7] Generating qemu-version.h with a custom command (wrapped by meson to capture output)
+ninja: build stopped: subcommand failed.

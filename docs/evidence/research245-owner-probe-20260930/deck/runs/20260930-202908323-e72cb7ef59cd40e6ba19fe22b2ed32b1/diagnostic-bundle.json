@@ -1,0 +1,11 @@
+{
+  "State": "captured",
+  "Artifact": "diagnostics.zip",
+  "Sha256": "6b2e4630839cc624b703cd11bc69dae5521934640c5a5ff6cdd13987e1c46560",
+  "Bytes": 46657,
+  "IncludedFiles": 21,
+  "OmittedFiles": 0,
+  "BesideExecutable": "xemu.20260930-202908323-e72cb7ef59cd40e6ba19fe22b2ed32b1.diagnostics.zip",
+  "MirrorState": "captured",
+  "Issues": []
+}

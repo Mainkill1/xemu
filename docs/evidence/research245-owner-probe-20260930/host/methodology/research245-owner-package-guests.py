@@ -1,0 +1,53 @@
+import hashlib,json,shutil,statistics,sys
+from pathlib import Path
+ROOT=Path('/home/codex/src/steamdeck-xemu');host=sys.argv[1];WT=ROOT/'worktrees/research245-jump-cache';OUT=WT/'docs/evidence/research245-owner-probe-20260930'/host;OUT.mkdir(exist_ok=True)
+observations=[];inventory=[];nonexecuted=[]
+for kind in (['20260930','clean-rewrite','clean-dormant','parent-controls','superseded-aa8bb9ab','parent-prelude'] if host=='deck' else ['20260930','clean-rewrite','parent-controls','superseded-aa8bb9ab','parent-prelude']):
+ folder=ROOT/f'evidence/research245-owner-probe-{host}-{kind}';schedule=json.loads((folder/'schedule.json').read_text())
+ for f in folder.glob('*'):
+  if f.is_file() and f.suffix in ['.json','.log']:
+   target=OUT/'plans'/kind/f.name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(f,target)
+ for planned in schedule['attempts']:
+  cid=planned['campaign'];attemptfile=folder/(cid+'-attempts.json')
+  if not attemptfile.exists():
+   nonexecuted.append(dict(group=kind,**planned,execution='not started'));continue
+  attempt=json.loads(attemptfile.read_text())['items'][0]
+  if not attempt.get('runId'):
+   nonexecuted.append(dict(group=kind,**planned,execution='preflight rejected',failure=attempt));continue
+  run=folder/'canonical'/attempt['runId'];assert run.exists(),run
+  for f in run.rglob('*'):
+   if f.is_file():
+    relative=f.relative_to(run);target=OUT/'runs'/attempt['runId']/relative;target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(f,target)
+    inventory.append(dict(runId=attempt['runId'],path=relative.as_posix(),bytes=f.stat().st_size,sha256=hashlib.sha256(f.read_bytes()).hexdigest(),published=True))
+  normalized=json.loads((run/'guest/normalized-results.json').read_text());record=normalized['records'][0]
+  assessment=json.loads((run/'assessment.json').read_text());launch=json.loads((run/'launch.json').read_text());assert launch['executableSha256']==planned['executableSha256']
+  retained=kind in ['clean-rewrite','clean-dormant','parent-controls'] or (kind=='20260930' and planned['leaf'].endswith('code_stable') and not (host=='deck' and planned['mode']=='disabled'))
+  reason=None if retained else ('Earlier source before rebase' if kind=='superseded-aa8bb9ab' else 'Dormant pair replaced: last compiled-out stable run had31 bulk-transfer events' if host=='deck' and kind=='20260930' and planned['leaf'].endswith('code_stable') else 'Parent controls launched during original rewrite sweep; whole affected sweep and prelude excluded from clean comparisons')
+  observations.append(dict(host=host,group=kind,**{k:v for k,v in planned.items() if k!='sourceCommit'},runId=attempt['runId'],jobId=attempt['id'],sourceCommit=planned.get('sourceCommit',schedule['sourceCommit']),retained=retained,exclusionReason=reason,medianUs=record['MedianUs'],samples=record['Samples'],correctness=attempt['correctness'],evidence=attempt['evidence'],comparison=attempt['comparison'],comparisonReasons=assessment['ComparisonReasons']))
+comparisons=[];controls=[]
+for leaf in ['cpu_translation_blocks.code_stable','cpu_translation_blocks.code_rewrite']:
+ rows=[r for r in observations if r['retained'] and r['leaf']==leaf]
+ for phase,a,b in [('balanced-mode-sweep','disabled','off'),('balanced-mode-sweep','off','counters'),('balanced-mode-sweep','off','timing'),('balanced-mode-sweep','off','all'),('parent-ABBA','parent','disabled')]:
+  values={m:[r['medianUs'] for r in rows if r['phase']==phase and r['mode']==m] for m in [a,b]}
+  if host=='deck' and leaf.endswith('code_stable') and a=='disabled':
+   phase='dormant-ABBA';values={m:[r['medianUs'] for r in rows if r['phase']==phase and r['mode']==m] for m in [a,b]}
+  if not all(len(v)==2 for v in values.values()):continue
+  x,y=[statistics.median(values[m]) for m in [a,b]]
+  comparisons.append(dict(host=host,backend='Vulkan',leaf=leaf,phase=phase,referenceMode=a,candidateMode=b,referenceMedianUs=x,candidateMedianUs=y,absoluteDeltaUs=y-x,improvementPercent=100*(x-y)/x,runsPerSetting=2,samplesPerRun=10,statistic='median of two process-attempt guest medians',correctness='PASS',comparison='ineligible'))
+ aa=[r for r in rows if r['phase']=='A/A']
+ if len(aa)==2:
+  x,y=[r['medianUs'] for r in aa];controls.append(dict(host=host,leaf=leaf,firstOffUs=x,secondOffUs=y,apparentImprovementPercent=100*(x-y)/x,comparison='ineligible'))
+for name,value in [('observations.json',observations),('comparisons.json',comparisons),('aa-controls.json',controls),('selected-artifact-inventory.json',inventory),('nonexecuted-attempts.json',nonexecuted)]:
+ (OUT/name).write_text(json.dumps(value,indent=2)+'\n')
+receipt=dict(host=host,completedAttempts=len(observations),retainedAttempts=sum(r['retained'] for r in observations),excludedCompletedAttempts=sum(not r['retained'] for r in observations),sourceCommit='0bd18bf26b894852f934a231a29a09b2f5eb480c',parentCommit='458730bf53',driverQualification=False,allowUncontrolledDriverCache=False,acceptedProductionImprovementPercent=None,actualRetentionCandidate=False,scope='Selected canonical text artifacts and complete eligible inventory metadata; binary/cache payloads not downloaded',windowsStorageGate='Preflight rejected clean rewrite compiled-out attempt: free 1061818368 bytes, required 1073741824; no cleanup API; later comparisons not launched' if host=='windows' else None)
+(OUT/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+lines=[f'# {host.title()}: matched-source observer and parent controls','','## Recommendation: HOLD','',f"{len(observations)} completed guest attempts: {receipt['retainedAttempts']} clean retained, {receipt['excludedCompletedAttempts']} excluded. Correctness PASS for every executed leaf; comparisons are cache-unqualified. Guest source is `0bd18bf2` on parent `458730bf53`; earlier-source attempts are explicitly excluded.",'','| Test ID / Vulkan | Baseline | Candidate | Guest median difference | Improvement % | Correctness / qualification |','| --- | ---: | ---: | ---: | ---: | --- |']
+for c in comparisons:
+ lines.append(f"| `{c['leaf']}` | {c['referenceMode']} {c['referenceMedianUs']/1e6:.6f} s | {c['candidateMode']} {c['candidateMedianUs']/1e6:.6f} s | {c['absoluteDeltaUs']/1e6:+.6f} s | **{c['improvementPercent']:+.2f}%** | PASS / ineligible |")
+lines+=['','Positive Improvement means less guest-reported work time. Median of two independent process-attempt medians; each attempt contains ten samples of 50M stable-code or 1M rewrite operations. This is two repetitions per setting, not twenty independent observations. These are guest fixed-work times, not host CPU cost, FPS, game frame time, or cache-retention savings. Matched compiler/options/dependencies and immutable firmware/seed/EEPROM/reference/ISO/catalog/settings; 128MiB RAM, Vulkan, warmups0, multiplier1; no HMP queries. Source and executable pins appear in every observation and raw launch/input receipts. Hosts are not compared to one another.','','`parent` is exact upstream458730bf; `disabled` is candidate source with probe compilation disabled; `off` is the enabled executable with collection OFF. Active modes use the same enabled executable. The mode sweep is symmetric disabled/OFF/counters/timing/all/all/timing/counters/OFF/disabled, preceded by two OFF A/A attempts per leaf. Parent controls use parent/disabled/disabled/parent. No small difference is accepted as a production improvement. Power/frequency/thermal state was not locked. Cache qualification failed, and no waiver is enabled.','','## Identical OFF A/A','','| Leaf | First | Second | Apparent Improvement % |','| --- | ---: | ---: | ---: |']
+for c in controls:lines.append(f"| `{c['leaf']}` | {c['firstOffUs']/1e6:.6f} s | {c['secondOffUs']/1e6:.6f} s | {c['apparentImprovementPercent']:+.2f}% |")
+if host=='windows':lines+=['','## Missing Windows comparisons','','The runner rejected the third clean rewrite attempt before execution because available storage was 1,061,818,368 bytes, below its 1,073,741,824-byte floor. Remaining rewrite modes and all clean parent controls were not launched. The HTTP API has no supported storage cleanup action. No gate was lowered and no SSH bypass was used. See [structured preflight rejection](plans/clean-rewrite/preflight-operation-failure.json) and [nonexecuted plans](nonexecuted-attempts.json).']
+lines+=['','## Exclusions and all executed attempts','','An upstream advance required new binaries. Four Deck/six Windows earlier-source attempts were retained separately. A wait on a prepared campaign returned `attention`, not terminal; the local followup launcher mistakenly inserted two parent-control attempts per host during the first rewrite sweep. Every original rewrite attempt and those preludes are excluded from clean arithmetic, regardless of outcome. Recorded bulk transfers also occurred during excluded rewrite runs; all clean retained runs are checked for intervention. Deck completed a new clean rewrite sweep. Windows completed only its two clean A/A attempts before the storage rejection. The Deck dormant pair was also replaced with a clean four-run ABBA control because its final compiled-out stable run recorded31 bulk-transfer events; both original compiled-out observations are excluded. No unfavorable observation is removed from the archive.','','| Group / order | Leaf | Mode | Guest median | Inclusion | Run / raw normalized result |','| --- | --- | --- | ---: | --- | --- |']
+for r in observations:lines.append(f"| {r['group']} / {r['position']+1} | `{r['leaf']}` | {r['mode']} | {r['medianUs']/1e6:.6f} s | {'retained' if r['retained'] else 'excluded'} | [{r['runId']}](runs/{r['runId']}/guest/normalized-results.json) |")
+lines+=['','[All observations and exclusion reasons](observations.json), [full comparison arithmetic](comparisons.json), [A/A controls](aa-controls.json), [receipt](receipt.json), [selected artifact hashes](selected-artifact-inventory.json), [unexecuted plans](nonexecuted-attempts.json). Complete eligible inventory metadata and original immutable plans are under `plans/`; only canonical text files were downloaded. Raw metrics.csv retains sampled process CPU utilization, sampler duty and memory. It does not identify guest workload boundaries or thread-specific utilization; host CPU per guest operation and game FPS/p95/p99 remain unqualified. OpenGL/unaffected graphics/game controls and production lifetime/remapping/reset/concurrency safety remain outstanding.']
+(OUT/'REPORT.md').write_text('\n'.join(lines)+'\n');print(host,'PACKAGED',receipt['retainedAttempts'],'retained',receipt['excludedCompletedAttempts'],'excluded',len(comparisons),'comparisons',flush=True)

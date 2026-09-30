@@ -1,0 +1,18 @@
+[
+  {
+    "host": "windows",
+    "leaf": "cpu_translation_blocks.code_stable",
+    "firstOffUs": 1087567,
+    "secondOffUs": 1127000.5,
+    "apparentImprovementPercent": -3.625845580088399,
+    "comparison": "ineligible"
+  },
+  {
+    "host": "windows",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "firstOffUs": 2504222.5,
+    "secondOffUs": 2085453,
+    "apparentImprovementPercent": 16.722535637308585,
+    "comparison": "ineligible"
+  }
+]

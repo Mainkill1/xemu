@@ -1,0 +1,1 @@
+{"ok":false,"code":"request_invalid","error":"Campaign ID must be a runner ID of at most 38 characters.","hint":"Check IDs, revision and bounded fields. Missing evidence does not imply a pass.","status":400}

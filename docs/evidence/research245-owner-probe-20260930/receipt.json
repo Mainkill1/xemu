@@ -1,0 +1,12 @@
+{
+  "sourceCommit": "0bd18bf26b894852f934a231a29a09b2f5eb480c",
+  "parentCommit": "458730bf53",
+  "guestExecuted": 88,
+  "guestRetained": 48,
+  "guestExcluded": 40,
+  "guestPreflightNoExecution": 1,
+  "guestComparisons": 14,
+  "acceptedProductionImprovementPercent": null,
+  "retentionCandidate": false,
+  "scope": "Observer correction only; mixed/incomplete qualification; HOLD; draft only"
+}

@@ -1,0 +1,16 @@
+{
+  "RunId": "20260930-201507611-9009fb85133e4c5a8047bd797a05e1bc",
+  "ExecutableSha256": "44f6a06ca6bf361453e870431fb89d05b5b73c0c50dfe60bb6a0544bceb7a0e2",
+  "Platform": "windows",
+  "ProcessId": 296100,
+  "ExitCode": 0,
+  "RunnerTerminated": false,
+  "Crashed": false,
+  "Source": "windowsExitStatus",
+  "Code": null,
+  "Capture": "notNeeded",
+  "Dump": "notRequested",
+  "Analysis": "notRequested",
+  "TopFrames": [],
+  "Issues": []
+}

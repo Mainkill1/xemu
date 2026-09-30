@@ -1,0 +1,28 @@
+{
+  "sourceCommit": "458730bf5373f1f0d027450fef7443e3af7a3ae1",
+  "commands": [
+    {
+      "argv": [
+        "../configure",
+        "--target-list=i386-softmmu",
+        "--disable-werror",
+        "--extra-cflags=-DXBOX",
+        "--extra-cxxflags=-DXBOX"
+      ],
+      "cwd": "/home/codex/src/steamdeck-xemu/worktrees/research245-parent-458730bf/build-native",
+      "exitCode": 0
+    },
+    {
+      "argv": [
+        "ninja",
+        "-j",
+        "12",
+        "qemu-system-i386"
+      ],
+      "cwd": "/home/codex/src/steamdeck-xemu/worktrees/research245-parent-458730bf/build-native",
+      "exitCode": 0
+    }
+  ],
+  "package": "/home/codex/src/steamdeck-xemu/artifacts/research245-owner-deck-458730bf-parent",
+  "executableSha256": "2d74ccd884e87c5b4b135139fcdf78ddc7b250a6e9da5e328bfc0b953a3878d2"
+}

@@ -1,0 +1,78 @@
+{
+  "sourceCommit": "0bd18bf26b894852f934a231a29a09b2f5eb480c",
+  "parentCommit": "458730bf5373f1f0d027450fef7443e3af7a3ae1",
+  "attempts": [
+    {
+      "campaign": "pc245-dec-stable-01",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "parent",
+      "position": 0,
+      "phase": "parent-ABBA",
+      "executableSha256": "2d74ccd884e87c5b4b135139fcdf78ddc7b250a6e9da5e328bfc0b953a3878d2",
+      "sourceCommit": "458730bf5373f1f0d027450fef7443e3af7a3ae1"
+    },
+    {
+      "campaign": "pc245-dec-stable-02",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "disabled",
+      "position": 1,
+      "phase": "parent-ABBA",
+      "executableSha256": "2e99f64682c15b8a90fbe0953af1e997087c67dd34c67c96e8fdd613349ba874",
+      "sourceCommit": "0bd18bf26b894852f934a231a29a09b2f5eb480c"
+    },
+    {
+      "campaign": "pc245-dec-stable-03",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "disabled",
+      "position": 2,
+      "phase": "parent-ABBA",
+      "executableSha256": "2e99f64682c15b8a90fbe0953af1e997087c67dd34c67c96e8fdd613349ba874",
+      "sourceCommit": "0bd18bf26b894852f934a231a29a09b2f5eb480c"
+    },
+    {
+      "campaign": "pc245-dec-stable-04",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "parent",
+      "position": 3,
+      "phase": "parent-ABBA",
+      "executableSha256": "2d74ccd884e87c5b4b135139fcdf78ddc7b250a6e9da5e328bfc0b953a3878d2",
+      "sourceCommit": "458730bf5373f1f0d027450fef7443e3af7a3ae1"
+    },
+    {
+      "campaign": "pc245-dec-rewrite-01",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "parent",
+      "position": 0,
+      "phase": "parent-ABBA",
+      "executableSha256": "2d74ccd884e87c5b4b135139fcdf78ddc7b250a6e9da5e328bfc0b953a3878d2",
+      "sourceCommit": "458730bf5373f1f0d027450fef7443e3af7a3ae1"
+    },
+    {
+      "campaign": "pc245-dec-rewrite-02",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "disabled",
+      "position": 1,
+      "phase": "parent-ABBA",
+      "executableSha256": "2e99f64682c15b8a90fbe0953af1e997087c67dd34c67c96e8fdd613349ba874",
+      "sourceCommit": "0bd18bf26b894852f934a231a29a09b2f5eb480c"
+    },
+    {
+      "campaign": "pc245-dec-rewrite-03",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "disabled",
+      "position": 2,
+      "phase": "parent-ABBA",
+      "executableSha256": "2e99f64682c15b8a90fbe0953af1e997087c67dd34c67c96e8fdd613349ba874",
+      "sourceCommit": "0bd18bf26b894852f934a231a29a09b2f5eb480c"
+    },
+    {
+      "campaign": "pc245-dec-rewrite-04",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "parent",
+      "position": 3,
+      "phase": "parent-ABBA",
+      "executableSha256": "2d74ccd884e87c5b4b135139fcdf78ddc7b250a6e9da5e328bfc0b953a3878d2",
+      "sourceCommit": "458730bf5373f1f0d027450fef7443e3af7a3ae1"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+TAP version 14
+# random seed: R02Sa8bbe2135609efbe15710923aa4563d0
+# Start of tcg tests
+# Start of jump-cache tests
+**
+ERROR:../tests/unit/test-tcg-jump-cache-probe.c:16:test_deferred_lookup_publication: assertion failed (stats.lookup_sequence == 0): (7 == 0)
+not ok /tcg/jump-cache/deferred-publication - ERROR:../tests/unit/test-tcg-jump-cache-probe.c:16:test_deferred_lookup_publication: assertion failed (stats.lookup_sequence == 0): (7 == 0)
+Bail out!

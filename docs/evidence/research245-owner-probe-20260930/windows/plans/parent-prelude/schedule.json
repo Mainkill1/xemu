@@ -1,0 +1,78 @@
+{
+  "sourceCommit": "0bd18bf26b894852f934a231a29a09b2f5eb480c",
+  "parentCommit": "458730bf5373f1f0d027450fef7443e3af7a3ae1",
+  "attempts": [
+    {
+      "campaign": "p245-win-stable-01",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "parent",
+      "position": 0,
+      "phase": "parent-ABBA",
+      "executableSha256": "9f7de312d0c7b893933edc2c7a567a1145e73f0679605b6c9248013be780addd",
+      "sourceCommit": "458730bf5373f1f0d027450fef7443e3af7a3ae1"
+    },
+    {
+      "campaign": "p245-win-stable-02",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "disabled",
+      "position": 1,
+      "phase": "parent-ABBA",
+      "executableSha256": "44f6a06ca6bf361453e870431fb89d05b5b73c0c50dfe60bb6a0544bceb7a0e2",
+      "sourceCommit": "0bd18bf26b894852f934a231a29a09b2f5eb480c"
+    },
+    {
+      "campaign": "p245-win-stable-03",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "disabled",
+      "position": 2,
+      "phase": "parent-ABBA",
+      "executableSha256": "44f6a06ca6bf361453e870431fb89d05b5b73c0c50dfe60bb6a0544bceb7a0e2",
+      "sourceCommit": "0bd18bf26b894852f934a231a29a09b2f5eb480c"
+    },
+    {
+      "campaign": "p245-win-stable-04",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "parent",
+      "position": 3,
+      "phase": "parent-ABBA",
+      "executableSha256": "9f7de312d0c7b893933edc2c7a567a1145e73f0679605b6c9248013be780addd",
+      "sourceCommit": "458730bf5373f1f0d027450fef7443e3af7a3ae1"
+    },
+    {
+      "campaign": "p245-win-rewrite-01",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "parent",
+      "position": 0,
+      "phase": "parent-ABBA",
+      "executableSha256": "9f7de312d0c7b893933edc2c7a567a1145e73f0679605b6c9248013be780addd",
+      "sourceCommit": "458730bf5373f1f0d027450fef7443e3af7a3ae1"
+    },
+    {
+      "campaign": "p245-win-rewrite-02",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "disabled",
+      "position": 1,
+      "phase": "parent-ABBA",
+      "executableSha256": "44f6a06ca6bf361453e870431fb89d05b5b73c0c50dfe60bb6a0544bceb7a0e2",
+      "sourceCommit": "0bd18bf26b894852f934a231a29a09b2f5eb480c"
+    },
+    {
+      "campaign": "p245-win-rewrite-03",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "disabled",
+      "position": 2,
+      "phase": "parent-ABBA",
+      "executableSha256": "44f6a06ca6bf361453e870431fb89d05b5b73c0c50dfe60bb6a0544bceb7a0e2",
+      "sourceCommit": "0bd18bf26b894852f934a231a29a09b2f5eb480c"
+    },
+    {
+      "campaign": "p245-win-rewrite-04",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "parent",
+      "position": 3,
+      "phase": "parent-ABBA",
+      "executableSha256": "9f7de312d0c7b893933edc2c7a567a1145e73f0679605b6c9248013be780addd",
+      "sourceCommit": "458730bf5373f1f0d027450fef7443e3af7a3ae1"
+    }
+  ]
+}

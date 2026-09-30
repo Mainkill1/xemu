@@ -1,0 +1,68 @@
+{
+  "measuredCommit": "aa8bb9abdd",
+  "rebasedCodeCommit": "0bd18bf26b894852f934a231a29a09b2f5eb480c",
+  "baseCommit": "458730bf53",
+  "files": [
+    {
+      "path": "accel/tcg/cpu-exec.c",
+      "equal": true,
+      "sha256": "7d239306ae3fff9f1549d288ee59ba6a33d9ce056463474d5b57a963bcfd487e"
+    },
+    {
+      "path": "accel/tcg/jump-cache-probe.c",
+      "equal": true,
+      "sha256": "628bbfa760d915febafe7e21dafad11be8fdc3fa7cf83f64df48dbce77062776"
+    },
+    {
+      "path": "accel/tcg/jump-cache-probe.h",
+      "equal": true,
+      "sha256": "79a58d8a7661b12a7c9677a3d81371d27ec942d9b460aa573e64232cdad90de8"
+    },
+    {
+      "path": "accel/tcg/jump-cache-probe-lookup.h",
+      "equal": true,
+      "sha256": "5d72455ef5f0951f72de32a3327e27d0c149ca07669294dc20722ce31ef10a51"
+    },
+    {
+      "path": "accel/tcg/tb-jmp-cache.h",
+      "equal": true,
+      "sha256": "4bdd99b3936639f83e548243b858f8ff7648dcfcf2fa4e0d8f0033ea4794fe36"
+    },
+    {
+      "path": "include/accel/tcg/tb-cpu-state.h",
+      "equal": true,
+      "sha256": "ae8bf629ebb4e9bc1c19af29372804a0ad6262805a70d63dc4563e87c2194174"
+    },
+    {
+      "path": "accel/tcg/tb-hash.h",
+      "equal": true,
+      "sha256": "3d833346ba7c0ebe74827d796efd46104f0c004c8c627ef57f6b07f062bd997d"
+    },
+    {
+      "path": "include/qemu/atomic.h",
+      "equal": true,
+      "sha256": "0a973eaf2fc9c203cb73b13f4f1ceb39949a671faa78c4d5c6466d8c7ec358c5"
+    },
+    {
+      "path": "include/qemu/timer.h",
+      "equal": true,
+      "sha256": "20438907799f4d8c67ec99ced040d61d58ec1e82c9e35d83f57efd70e42a9a69"
+    },
+    {
+      "path": "util/qemu-timer-common.c",
+      "equal": true,
+      "sha256": "ebe257e0fdfdf21820dfca5b64e56de80c933c1a952b722b6607f49d1c16a1f3"
+    },
+    {
+      "path": "tests/unit/test-tcg-jump-cache-probe.c",
+      "equal": true,
+      "sha256": "c522ca2ecdfd414351594ef3afad8333cd96349c4f9bace3fae158c572ec1aaa"
+    },
+    {
+      "path": "tests/unit/test-tcg-jump-cache-validity.c",
+      "equal": true,
+      "sha256": "7bb275db49cafc342651bc21ee86e39f4064a8f2362cc6cfbbfbf0e50d487b27"
+    }
+  ],
+  "scope": "Host lookup/collector experiment equivalence; guest results bind to their own exact binary and source"
+}

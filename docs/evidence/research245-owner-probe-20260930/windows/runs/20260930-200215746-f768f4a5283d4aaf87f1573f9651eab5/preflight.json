@@ -1,0 +1,81 @@
+{
+  "Passed": true,
+  "ExecutableSha256": "44f6a06ca6bf361453e870431fb89d05b5b73c0c50dfe60bb6a0544bceb7a0e2",
+  "Checks": [
+    {
+      "Name": "target_os",
+      "Passed": true,
+      "Detail": "Host: windows; requested: windows."
+    },
+    {
+      "Name": "executable",
+      "Passed": true,
+      "Detail": "xemu.exe"
+    },
+    {
+      "Name": "executable_stable",
+      "Passed": true,
+      "Detail": "Executable metadata remained unchanged while hashing."
+    },
+    {
+      "Name": "sha256",
+      "Passed": true,
+      "Detail": "44f6a06ca6bf361453e870431fb89d05b5b73c0c50dfe60bb6a0544bceb7a0e2"
+    },
+    {
+      "Name": "working_directory",
+      "Passed": true,
+      "Detail": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-xc-o245-win-0bd18bf2-stable-03-001"
+    },
+    {
+      "Name": "required_file",
+      "Passed": true,
+      "Detail": "xemu.exe"
+    },
+    {
+      "Name": "required_file",
+      "Passed": true,
+      "Detail": "xemu.toml"
+    },
+    {
+      "Name": "required_file",
+      "Passed": true,
+      "Detail": "state/seed-eeprom.bin"
+    },
+    {
+      "Name": "required_file",
+      "Passed": true,
+      "Detail": "cpu-code-rewrite-reference.json"
+    },
+    {
+      "Name": "input_file",
+      "Passed": true,
+      "Detail": "pinned-cpu-fixture-input: xemu.exe"
+    },
+    {
+      "Name": "input_file",
+      "Passed": true,
+      "Detail": "pinned-cpu-fixture-input: xemu.toml"
+    },
+    {
+      "Name": "input_file",
+      "Passed": true,
+      "Detail": "pinned-cpu-fixture-input: state/seed-eeprom.bin"
+    },
+    {
+      "Name": "input_file",
+      "Passed": true,
+      "Detail": "pinned-cpu-fixture-input: cpu-code-rewrite-reference.json"
+    },
+    {
+      "Name": "runtime_seed",
+      "Passed": true,
+      "Detail": "state/seed-eeprom.bin -\u003E eeprom.bin"
+    },
+    {
+      "Name": "free_space",
+      "Passed": true,
+      "Detail": "Available=4765794304; required=1073741824 bytes."
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "runId": "20260930-200916575-4aee3c7c42034a65a84dd47e07f1c70d",
+  "attempt": 1,
+  "job": "xc-o245-dec-0bd18bf2-rewrite-02-001",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu",
+  "executableSha256": "97a3264d2bf35ef45f2fdac323482d4b279d20cd577a730477699c2a673ba196",
+  "jobSha256": "af6bb82758c2c905353b6df041fb5eb387f99e908812343b406987ddc49e4b74",
+  "arguments": [
+    "-config_path",
+    "/home/deck/xemu-research/workspace/Queue/Testing/agent-xc-o245-dec-0bd18bf2-rewrite-02-001/xemu.toml",
+    "-name",
+    "xemu-research245-cpu,debug-threads=on",
+    "-msg",
+    "timestamp=on",
+    "-qmp",
+    "tcp:127.0.0.1:42483,server=on,wait=off"
+  ],
+  "environmentKeys": [
+    "LD_LIBRARY_PATH",
+    "SDL_VIDEODRIVER",
+    "XDG_CACHE_HOME",
+    "XDG_DATA_HOME",
+    "XEMU_FLIP_LOG",
+    "XEMU_FRAME_LOG",
+    "XEMU_TCG_JUMP_CACHE_PROBE"
+  ],
+  "workingDirectory": ".",
+  "runtimeDirectory": "/home/deck/xemu-research/workspace/Runtime/20260930-200916575-4aee3c7c42034a65a84dd47e07f1c70d",
+  "experiment": {
+    "Id": "owner245-deck-0bd18bf2-build-runtime-matrix",
+    "Variant": "off",
+    "Reference": null,
+    "VariedFactors": [
+      "compile-time-probe",
+      "runtime-collector-mode"
+    ],
+    "ControlledFactors": [
+      "0bd18bf26b894852f934a231a29a09b2f5eb480c",
+      "matched-compiler-options-except-probe",
+      "fixture-c02a1a44",
+      "stable-50m-rewrite-1m",
+      "warmups0-multiplier1",
+      "128mb",
+      "vulkan",
+      "same-firmware-private-seed-reference",
+      "no-HMP",
+      "driver-cache-unverified-no-waiver"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B6089e8b841bce379015500853c0455551d7fd2cf",
+    "machine": "steamdeck",
+    "os": "SteamOS",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 8,
+    "dotnet": "10.0.12"
+  }
+}

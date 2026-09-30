@@ -1,0 +1,294 @@
+{
+  "runId": "20260930-201051499-711b9dc747664939bcea95f450aaa843",
+  "job": "xc-o245-win-0bd18bf2-rewrite-06-001",
+  "jobPackage": "agent-xc-o245-win-0bd18bf2-rewrite-06-001",
+  "attempt": 1,
+  "status": "completed",
+  "detail": null,
+  "startedUtc": "2026-09-30T20:10:51.4995407+00:00",
+  "endedUtc": "2026-09-30T20:11:30.2995701+00:00",
+  "durationMs": 38800.0299,
+  "processId": 296224,
+  "exitCode": 0,
+  "crash": {
+    "RunId": "20260930-201051499-711b9dc747664939bcea95f450aaa843",
+    "ExecutableSha256": "e66a7554f503c1909f4dca1d9528249ffc75e20745167805f7f51b079c5d0cf7",
+    "Platform": "windows",
+    "ProcessId": 296224,
+    "ExitCode": 0,
+    "RunnerTerminated": false,
+    "Crashed": false,
+    "Source": "windowsExitStatus",
+    "Code": null,
+    "Capture": "notNeeded",
+    "Dump": "notRequested",
+    "Analysis": "notRequested",
+    "TopFrames": [],
+    "Issues": []
+  },
+  "diagnosticBundle": "diagnostic-bundle.json",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu.exe",
+  "executableSha256": "e66a7554f503c1909f4dca1d9528249ffc75e20745167805f7f51b079c5d0cf7",
+  "arguments": [
+    "-config_path",
+    "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing\\agent-xc-o245-win-0bd18bf2-rewrite-06-001/xemu.toml",
+    "-name",
+    "xemu-research245-cpu,debug-threads=on",
+    "-msg",
+    "timestamp=on",
+    "-qmp",
+    "tcp:127.0.0.1:54498,server=on,wait=off"
+  ],
+  "watchdog": null,
+  "failureCaptureError": null,
+  "automaticDiagnostic": null,
+  "automaticDiagnosticError": null,
+  "diagnostics": [],
+  "operatorActivity": {
+    "Intervened": false,
+    "ManualInputs": 0,
+    "Pauses": 0,
+    "Screenshots": 0,
+    "PreviewCaptures": 0,
+    "BulkTransfers": 0,
+    "Diagnostics": 0,
+    "HostStateChanges": 0
+  },
+  "workload": {
+    "Correctness": "passed",
+    "Evidence": "complete",
+    "Checks": [
+      {
+        "Name": "guest_hdd_extraction",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+      },
+      {
+        "Name": "xiso_plan_receipt",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Guest completion receipt matches the injected selection."
+      },
+      {
+        "Name": "xiso_exact_coverage",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Selected 1 leaves and 0 groups; received 1. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest_record_set",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Expected 1 stable IDs; received 1. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest:cpu_translation_blocks.code_rewrite",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 2 applicable reference hashes."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": false,
+        "Category": "state",
+        "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+      }
+    ],
+    "Measurements": [
+      {
+        "Name": "xiso/cpu_translation_blocks/code_rewrite/mean_us",
+        "Value": 2562173.8,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_translation_blocks.code_rewrite"
+      },
+      {
+        "Name": "xiso/cpu_translation_blocks/code_rewrite/median_us",
+        "Value": 2554787.5,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_translation_blocks.code_rewrite"
+      },
+      {
+        "Name": "xiso/cpu_translation_blocks/code_rewrite/min_us",
+        "Value": 2543740,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_translation_blocks.code_rewrite"
+      },
+      {
+        "Name": "xiso/cpu_translation_blocks/code_rewrite/max_us",
+        "Value": 2613505,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_translation_blocks.code_rewrite"
+      },
+      {
+        "Name": "xiso/cpu_translation_blocks/code_rewrite/p95_us",
+        "Value": 2613505,
+        "Unit": "us",
+        "Direction": "lower",
+        "Source": "result:guest/results.txt#cpu_translation_blocks.code_rewrite"
+      }
+    ]
+  },
+  "assessment": {
+    "Execution": "completed",
+    "Correctness": "passed",
+    "Evidence": "complete",
+    "Comparison": "ineligible",
+    "ComparisonReasons": [
+      "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+    ],
+    "Checks": [
+      {
+        "Name": "guest_hdd_extraction",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Read-only extraction retained byte-exact guest output and validated its pinned reference."
+      },
+      {
+        "Name": "xiso_plan_receipt",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Guest completion receipt matches the injected selection."
+      },
+      {
+        "Name": "xiso_exact_coverage",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Selected 1 leaves and 0 groups; received 1. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest_record_set",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Expected 1 stable IDs; received 1. Missing 0, extra 0."
+      },
+      {
+        "Name": "guest:cpu_translation_blocks.code_rewrite",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "Matched work contract and 2 applicable reference hashes."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": false,
+        "Category": "state",
+        "Detail": "State is unmanaged, incomplete, inherited, inconsistent with its policy, or lacks explicit acceptance of uncontrolled driver caching. Read the run state summary."
+      }
+    ],
+    "IsExecutionSuccess": true,
+    "IsCorrectnessSuccess": true
+  },
+  "correctnessStatus": "passed",
+  "evidenceStatus": "complete",
+  "comparisonStatus": "ineligible",
+  "experiment": {
+    "Id": "owner245-windows-0bd18bf2-build-runtime-matrix",
+    "Variant": "timing",
+    "Reference": null,
+    "VariedFactors": [
+      "compile-time-probe",
+      "runtime-collector-mode"
+    ],
+    "ControlledFactors": [
+      "0bd18bf26b894852f934a231a29a09b2f5eb480c",
+      "matched-compiler-options-except-probe",
+      "fixture-c02a1a44",
+      "stable-50m-rewrite-1m",
+      "warmups0-multiplier1",
+      "128mb",
+      "vulkan",
+      "same-firmware-private-seed-reference",
+      "no-HMP",
+      "driver-cache-unverified-no-waiver"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  },
+  "inputManifest": "input-manifest.json",
+  "runtimeDirectory": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Runtime\\20260930-201051499-711b9dc747664939bcea95f450aaa843",
+  "hostInventory": "host-inventory.json",
+  "workstationStart": {
+    "Supported": true,
+    "Platform": "windows",
+    "SessionLocked": false,
+    "InputDesktop": "Default",
+    "DisplayState": "on",
+    "PowerState": "awake",
+    "PowerSource": "ac",
+    "BatteryPercent": 56,
+    "BatterySaver": false,
+    "UserIdleSeconds": 1503,
+    "TimestampUtc": "2026-09-30T20:10:51.2607759+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": "2026-09-29T22:25:03.9756619+00:00",
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "display_on",
+    "EventSequence": 2,
+    "RenderingRisk": false
+  },
+  "workstationEnd": {
+    "Supported": true,
+    "Platform": "windows",
+    "SessionLocked": false,
+    "InputDesktop": "Default",
+    "DisplayState": "on",
+    "PowerState": "awake",
+    "PowerSource": "ac",
+    "BatteryPercent": 56,
+    "BatterySaver": false,
+    "UserIdleSeconds": 1541,
+    "TimestampUtc": "2026-09-30T20:11:29.3053199+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": "2026-09-29T22:25:03.9756619+00:00",
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "display_on",
+    "EventSequence": 2,
+    "RenderingRisk": false
+  },
+  "host": {
+    "runnerVersion": "0.1.0\u002B079e3d483523b3e53a11983efd40e2c530747b5f",
+    "machine": "DESKTOP-52C4KS5",
+    "os": "Microsoft Windows 10.0.19045",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 16,
+    "dotnet": "10.0.12"
+  },
+  "monitoring": {
+    "intervalMs": 500,
+    "samples": 75,
+    "overruns": 0,
+    "droppedWriteSamples": 0,
+    "averageCollectorDutyPercent": 30.294063466666678,
+    "maxCollectorDutyPercent": 53.99607999999999,
+    "maxCollectorDurationMs": 269.9804,
+    "gpuProviders": [
+      "NVIDIA NVML",
+      "Windows GPU performance counters"
+    ]
+  }
+}

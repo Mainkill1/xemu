@@ -1,0 +1,26 @@
+[
+  {
+    "platform": "native",
+    "configEquivalentExceptProbeMacro": true,
+    "buildOptionDifferences": [
+      {
+        "name": "xemu_tcg_jump_cache_probe",
+        "parent": null,
+        "candidate": false
+      }
+    ],
+    "scope": "Generated host defines and root build options; raw Meson option/compilers metadata retained separately, including inherited subproject namespaces."
+  },
+  {
+    "platform": "windows",
+    "configEquivalentExceptProbeMacro": true,
+    "buildOptionDifferences": [
+      {
+        "name": "xemu_tcg_jump_cache_probe",
+        "parent": null,
+        "candidate": false
+      }
+    ],
+    "scope": "Generated host defines and root build options; raw Meson option/compilers metadata retained separately, including inherited subproject namespaces."
+  }
+]

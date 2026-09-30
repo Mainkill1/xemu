@@ -1,0 +1,33 @@
+[general]
+show_welcome = false
+screenshot_dir = 'C:\xemu-lab\incoming\pr184-register-read-windows\workspace-v2\Results\20260930-200903155-d8303964eda14e5a8c462a5d221ef1e3\screenshots'
+
+[input]
+background_input_capture = true
+
+[input.virtual_ports]
+port1_connected = 1
+
+[input.bindings]
+port1_driver = 'usb-xbox-gamepad'
+port1 = 'keyboard'
+
+[display]
+renderer = 'VULKAN'
+
+[display.window]
+vsync = false
+
+[sys]
+mem_limit = '128'
+
+[sys.files]
+bootrom_path = 'C:\xemu-lab\incoming\pr184-register-read-windows\workspace-v2\DiskAssets\devbox-mcpx10-readonly-v1\disk.qcow2'
+flashrom_path = 'C:\xemu-lab\incoming\pr184-register-read-windows\workspace-v2\DiskAssets\devbox-complex4627-readonly-v1\disk.qcow2'
+eeprom_path = 'C:\xemu-lab\incoming\pr184-register-read-windows\workspace-v2\Runtime\20260930-200903155-d8303964eda14e5a8c462a5d221ef1e3\eeprom.bin'
+hdd_path = 'C:\xemu-lab\incoming\pr184-register-read-windows\workspace-v2\Runtime\20260930-200903155-d8303964eda14e5a8c462a5d221ef1e3\hdd.qcow2'
+dvd_path = 'C:\xemu-lab\incoming\pr184-register-read-windows\workspace-v2\DiskAssets\research245-cpu-iso-c02a1a44-74a10c40\disk.qcow2'
+
+[perf]
+cache_shaders = false
+

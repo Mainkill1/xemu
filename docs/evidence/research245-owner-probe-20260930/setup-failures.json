@@ -1,0 +1,8 @@
+{
+  "buildReceiptCorrection": "Original stale parent field retained; corrected actual458730bf parent from git merge-base.",
+  "localBuildSetup": "One unit build omitted identity GIT_DIR and failed version generation; corrected build passed. Harness first setup called private init_get_clock and failed compile; constructor supplies initialization, corrected harness passed.",
+  "campaignIds": "Initial stage IDs exceeded38 characters; runner rejected before execution, shortened IDs accepted.",
+  "preparedWait": "Prepared campaign wait returned attention terminal=false. Local followup orchestration mistakenly continued; two parent controls perhost interleaved original rewrite sweeps. All24originalrewrite+4prelude observations excluded; clean Decksweep completed, Windows stopped on storage preflight aftertwo A/A.",
+  "windowsPreflight": "No guest launched for rejected compiled-out clean-rewrite job; only free_space failed. Remaining clean-rewrite and parent comparisons not launched. HTTP has no supported cleanup action; no bypass.",
+  "pmu": "perf requested six event categories and failed permissions; no counters invented."
+}

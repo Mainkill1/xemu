@@ -1,0 +1,8 @@
+ninja: Entering directory `build-probe'
+[1/7] Generating qemu-version.h with a custom command (wrapped by meson to capture output)
+[2/7] Generating xemu-version-macro.h with a custom command (wrapped by meson to capture output)
+[3/7] Compiling C object tests/unit/test-tcg-jump-cache-probe.p/_home_codex_src_steamdeck-xemu_worktrees_research245-jump-cache_accel_tcg_jump-cache-probe.c.o
+[4/7] Compiling C object tests/unit/test-tcg-jump-cache-validity.p/test-tcg-jump-cache-validity.c.o
+[5/7] Linking target tests/unit/test-tcg-jump-cache-validity
+[6/7] Compiling C object tests/unit/test-tcg-jump-cache-probe.p/test-tcg-jump-cache-probe.c.o
+[7/7] Linking target tests/unit/test-tcg-jump-cache-probe

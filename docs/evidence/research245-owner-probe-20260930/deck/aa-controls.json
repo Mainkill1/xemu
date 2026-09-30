@@ -1,0 +1,18 @@
+[
+  {
+    "host": "deck",
+    "leaf": "cpu_translation_blocks.code_stable",
+    "firstOffUs": 3446490,
+    "secondOffUs": 3408810.5,
+    "apparentImprovementPercent": 1.093271705416235,
+    "comparison": "ineligible"
+  },
+  {
+    "host": "deck",
+    "leaf": "cpu_translation_blocks.code_rewrite",
+    "firstOffUs": 3056695,
+    "secondOffUs": 3008218.5,
+    "apparentImprovementPercent": 1.585912235273719,
+    "comparison": "ineligible"
+  }
+]

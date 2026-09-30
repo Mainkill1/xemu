@@ -1,0 +1,66 @@
+{
+  "sourceCommit": "aa8bb9abdd68e54af0d8021414496c366e4ba5bd",
+  "baseCommit": "a05db7b2375d9c25fe61b6c914e83bab57fc49ca",
+  "host": "windows",
+  "checks": [
+    {
+      "argv": [
+        "/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/bin/meson",
+        "configure",
+        "build-windows-probe",
+        "-Dxemu_tcg_jump_cache_probe=true"
+      ],
+      "exitCode": 0,
+      "log": "windows-enabled-0.log"
+    },
+    {
+      "argv": [
+        "ninja",
+        "-j",
+        "12",
+        "-C",
+        "build-windows-probe",
+        "qemu-system-i386.exe"
+      ],
+      "exitCode": 0,
+      "log": "windows-enabled-1.log"
+    },
+    {
+      "argv": [
+        "/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/build-windows-probe/pyvenv/bin/meson",
+        "configure",
+        "build-windows-probe",
+        "-Dxemu_tcg_jump_cache_probe=false"
+      ],
+      "exitCode": 0,
+      "log": "windows-disabled-0.log"
+    },
+    {
+      "argv": [
+        "ninja",
+        "-j",
+        "12",
+        "-C",
+        "build-windows-probe",
+        "qemu-system-i386.exe"
+      ],
+      "exitCode": 0,
+      "log": "windows-disabled-1.log"
+    }
+  ],
+  "binaries": [
+    {
+      "mode": "enabled",
+      "package": "/home/codex/src/steamdeck-xemu/artifacts/research245-owner-windows-aa8bb9ab-enabled",
+      "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea",
+      "bytes": 136908288
+    },
+    {
+      "mode": "disabled",
+      "package": "/home/codex/src/steamdeck-xemu/artifacts/research245-owner-windows-aa8bb9ab-disabled",
+      "executableSha256": "d05494316dc2f441aa39c0afacde9494625de2a13bdb58f32840fbc18cf3c0e0",
+      "bytes": 136881664
+    }
+  ],
+  "utc": "2026-09-30T19:48:47.275300+00:00"
+}

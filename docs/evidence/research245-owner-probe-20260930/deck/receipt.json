@@ -1,0 +1,14 @@
+{
+  "host": "deck",
+  "completedAttempts": 54,
+  "retainedAttempts": 34,
+  "excludedCompletedAttempts": 20,
+  "sourceCommit": "0bd18bf26b894852f934a231a29a09b2f5eb480c",
+  "parentCommit": "458730bf53",
+  "driverQualification": false,
+  "allowUncontrolledDriverCache": false,
+  "acceptedProductionImprovementPercent": null,
+  "actualRetentionCandidate": false,
+  "scope": "Selected canonical text artifacts and complete eligible inventory metadata; binary/cache payloads not downloaded",
+  "windowsStorageGate": null
+}

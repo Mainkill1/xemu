@@ -1,0 +1,53 @@
+{
+  "scope": "Recompile exact harness/current equivalent source against regenerated probe-disabled native configuration; all8 executable bytes equal the measured binaries.",
+  "stages": [
+    {
+      "stage": 0,
+      "recordedSha256": "e42b30c7483da0d46b50797dbea7ffba7f7aa589d9921578f48075f61e6d1899",
+      "regeneratedConfigBinarySha256": "e42b30c7483da0d46b50797dbea7ffba7f7aa589d9921578f48075f61e6d1899",
+      "equal": true
+    },
+    {
+      "stage": 1,
+      "recordedSha256": "69c58531019f13e0a9e075a186f4196c857ce8c8ee31918349f18f2f62937173",
+      "regeneratedConfigBinarySha256": "69c58531019f13e0a9e075a186f4196c857ce8c8ee31918349f18f2f62937173",
+      "equal": true
+    },
+    {
+      "stage": 2,
+      "recordedSha256": "1b08f131587d1b1494b351d2e619fdec5251e5340b93c160447847cfa71fb042",
+      "regeneratedConfigBinarySha256": "1b08f131587d1b1494b351d2e619fdec5251e5340b93c160447847cfa71fb042",
+      "equal": true
+    },
+    {
+      "stage": 3,
+      "recordedSha256": "14880bb2527c68924f3e95dac90c8a315cce39bc534bae67192f1445c064013c",
+      "regeneratedConfigBinarySha256": "14880bb2527c68924f3e95dac90c8a315cce39bc534bae67192f1445c064013c",
+      "equal": true
+    },
+    {
+      "stage": 4,
+      "recordedSha256": "0c8ef5b89a8f46dd7eb25ba3c7be56fe1c84038148814067f8c96e1f4f12b289",
+      "regeneratedConfigBinarySha256": "0c8ef5b89a8f46dd7eb25ba3c7be56fe1c84038148814067f8c96e1f4f12b289",
+      "equal": true
+    },
+    {
+      "stage": 5,
+      "recordedSha256": "0213e9a8d7ea6901697123a0dcc5a019a148e47df3653f993aaed0439ac9be78",
+      "regeneratedConfigBinarySha256": "0213e9a8d7ea6901697123a0dcc5a019a148e47df3653f993aaed0439ac9be78",
+      "equal": true
+    },
+    {
+      "stage": 6,
+      "recordedSha256": "7c195f34cc50985bc2356c4525ea29152ce3558a6b0a8fcd34947bee2c94f70f",
+      "regeneratedConfigBinarySha256": "7c195f34cc50985bc2356c4525ea29152ce3558a6b0a8fcd34947bee2c94f70f",
+      "equal": true
+    },
+    {
+      "stage": 7,
+      "recordedSha256": "52f2b2f3954c941dcf9559e3ad7329bf977ca2f0d3a97a69a26ed308ae5b4dc9",
+      "regeneratedConfigBinarySha256": "52f2b2f3954c941dcf9559e3ad7329bf977ca2f0d3a97a69a26ed308ae5b4dc9",
+      "equal": true
+    }
+  ]
+}

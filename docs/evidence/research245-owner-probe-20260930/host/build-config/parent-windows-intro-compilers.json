@@ -1,0 +1,109 @@
+{
+  "host": {
+    "c": {
+      "id": "clang",
+      "exelist": [
+        "x86_64-w64-mingw32.static-gcc",
+        "-m64"
+      ],
+      "linker_exelist": [
+        "x86_64-w64-mingw32.static-gcc",
+        "-m64"
+      ],
+      "file_suffixes": [
+        "c"
+      ],
+      "default_suffix": "c",
+      "version": "21.1.8",
+      "full_version": "clang version 21.1.8",
+      "linker_id": "ld.lld"
+    },
+    "cpp": {
+      "id": "clang",
+      "exelist": [
+        "x86_64-w64-mingw32.static-g++",
+        "-m64"
+      ],
+      "linker_exelist": [
+        "x86_64-w64-mingw32.static-g++",
+        "-m64"
+      ],
+      "file_suffixes": [
+        "cpp",
+        "cppm",
+        "cc",
+        "cp",
+        "cxx",
+        "c++",
+        "hh",
+        "hp",
+        "hpp",
+        "ipp",
+        "hxx",
+        "h++",
+        "ino",
+        "ixx",
+        "CPP",
+        "C",
+        "HPP",
+        "H"
+      ],
+      "default_suffix": "cpp",
+      "version": "21.1.8",
+      "full_version": "clang version 21.1.8",
+      "linker_id": "ld.lld"
+    }
+  },
+  "build": {
+    "c": {
+      "id": "gcc",
+      "exelist": [
+        "cc"
+      ],
+      "linker_exelist": [
+        "cc"
+      ],
+      "file_suffixes": [
+        "c"
+      ],
+      "default_suffix": "c",
+      "version": "14.2.0",
+      "full_version": "cc (Debian 14.2.0-19) 14.2.0",
+      "linker_id": "ld.bfd"
+    },
+    "cpp": {
+      "id": "gcc",
+      "exelist": [
+        "ccache",
+        "c++"
+      ],
+      "linker_exelist": [
+        "c++"
+      ],
+      "file_suffixes": [
+        "cpp",
+        "cppm",
+        "cc",
+        "cp",
+        "cxx",
+        "c++",
+        "hh",
+        "hp",
+        "hpp",
+        "ipp",
+        "hxx",
+        "h++",
+        "ino",
+        "ixx",
+        "CPP",
+        "C",
+        "HPP",
+        "H"
+      ],
+      "default_suffix": "cpp",
+      "version": "14.2.0",
+      "full_version": "c++ (Debian 14.2.0-19) 14.2.0",
+      "linker_id": "ld.bfd"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+[
+  {
+    "pid": 3398267,
+    "action": "Stop premature parent control orchestration. Prepared-campaign wait returned attention, not terminal."
+  },
+  {
+    "pid": 3398268,
+    "action": "Stop premature parent control orchestration. Prepared-campaign wait returned attention, not terminal."
+  }
+]

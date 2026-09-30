@@ -1,0 +1,222 @@
+{
+  "Id": "xc-o245-dec-aa8bb9ab-stable-01-001",
+  "Executable": "xemu",
+  "Arguments": [
+    "-config_path",
+    "{packageDir}/xemu.toml",
+    "-name",
+    "xemu-research245-cpu,debug-threads=on",
+    "-msg",
+    "timestamp=on"
+  ],
+  "WorkingDirectory": ".",
+  "Environment": {
+    "SDL_VIDEODRIVER": "x11",
+    "XDG_DATA_HOME": "{runtimeDir}/xdg-data",
+    "XDG_CACHE_HOME": "{runtimeDir}/xdg-cache",
+    "XEMU_FRAME_LOG": "{resultDir}/guest-frames.log",
+    "XEMU_FLIP_LOG": "{resultDir}/guest-flips.log",
+    "LD_LIBRARY_PATH": "{packageDir}/lib",
+    "XEMU_TCG_JUMP_CACHE_PROBE": "off"
+  },
+  "TimeoutSeconds": 600,
+  "Tags": [
+    "research245",
+    "cpu",
+    "xiso",
+    "steam-deck",
+    "jump-cache-probe",
+    "test-definition:xiso-15d7579f5a298b6f89189800d21a94a8@9d24449f54c9f28564179337eba2abd68af07385ee4040d1c0e61717626d9967"
+  ],
+  "Plan": [],
+  "TargetOs": "linux",
+  "ExpectedExecutableSha256": "c9cc3c8b49d2fe068d1be0e9c256da74e55dd4095c1265d838e3c61dfc6fb3b3",
+  "RequiredFiles": [
+    "xemu",
+    "xemu.toml",
+    "state/seed-eeprom.bin",
+    "lib/libslirp.so.0",
+    "cpu-code-rewrite-reference.json",
+    "lib/libpcap.so.0.8"
+  ],
+  "LaunchMode": "direct",
+  "SnapshotName": null,
+  "StartPaused": false,
+  "RequireInput": false,
+  "Diagnostics": [],
+  "RuntimeState": {
+    "Enabled": true,
+    "KeepOnSuccess": false,
+    "KeepOnFailure": true,
+    "Files": [
+      {
+        "Source": "state/seed-eeprom.bin",
+        "Destination": "eeprom.bin",
+        "ExpectedSha256": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+      }
+    ],
+    "DiskAssets": [
+      {
+        "AssetId": "research245-cpu-fatx-compat010-78af83a6",
+        "ExpectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+        "Destination": "hdd.qcow2",
+        "Retention": "deleteAfterEvidence"
+      }
+    ],
+    "Isolation": {
+      "CacheMode": "cold",
+      "CacheShaders": false,
+      "DriverCache": "mesa",
+      "AllowUncontrolledDriverCache": false,
+      "SeedDirectory": null,
+      "SeedSha256": null,
+      "RequirePrivateGuestState": true,
+      "MaximumFiles": 4096,
+      "MaximumBytes": 268435456,
+      "DeadlineSeconds": 15,
+      "ReadOnlyAssets": [
+        {
+          "Field": "bootrom_path",
+          "AssetId": "research247-bootrom-e99e3a",
+          "ExpectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+        },
+        {
+          "Field": "flashrom_path",
+          "AssetId": "research247-bios-1de4c8",
+          "ExpectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+        },
+        {
+          "Field": "dvd_path",
+          "AssetId": "research245-cpu-iso-c02a1a44-74a10c40",
+          "ExpectedSha256": "74a10c400f4fb280dcb4037e38e7e4d3150e73e0061a04f65b3c68cc61a49e63"
+        }
+      ]
+    },
+    "Xiso": {
+      "Image": "hdd.qcow2",
+      "PartitionOffsetBytes": 2884108288,
+      "PartitionLengthBytes": 5120024576,
+      "SuiteRevision": "06de3b62b34774e0a3a9b6dcd7e186fc02d6799ad5a8e8ef43e88235def1ef32",
+      "IsoSha256": "74a10c400f4fb280dcb4037e38e7e4d3150e73e0061a04f65b3c68cc61a49e63",
+      "CatalogId": "sha256:34b8ee7f91f3412b5e7758aab9f4ca08746ef2e97fee8b5c61be8947e145f7f4",
+      "Tests": [
+        "cpu_translation_blocks.code_stable"
+      ],
+      "Groups": [],
+      "Settings": {
+        "warmup_iterations": 0,
+        "measurement_iterations_multiplier": 1,
+        "gpu_completion_mode": "per_iteration"
+      }
+    }
+  },
+  "Inputs": [
+    {
+      "Path": "xemu",
+      "Role": "pinned-cpu-fixture-input",
+      "Hash": true,
+      "ExpectedSha256": "c9cc3c8b49d2fe068d1be0e9c256da74e55dd4095c1265d838e3c61dfc6fb3b3"
+    },
+    {
+      "Path": "xemu.toml",
+      "Role": "pinned-cpu-fixture-input",
+      "Hash": true,
+      "ExpectedSha256": "aa356a9d7b916ace9b71ff1ef47946db1ac289e36a8b00235c4397f57523b0b8"
+    },
+    {
+      "Path": "state/seed-eeprom.bin",
+      "Role": "pinned-cpu-fixture-input",
+      "Hash": true,
+      "ExpectedSha256": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+    },
+    {
+      "Path": "lib/libslirp.so.0",
+      "Role": "pinned-cpu-fixture-input",
+      "Hash": true,
+      "ExpectedSha256": "12ee83fb069a5be30b9e450f69a5e07eec4861f2e9b574c46a4052f086c341f3"
+    },
+    {
+      "Path": "cpu-code-rewrite-reference.json",
+      "Role": "pinned-cpu-fixture-input",
+      "Hash": true,
+      "ExpectedSha256": "012286767ceb727d81f4646463cc46dcb13c9e7f30a891eeda74fba63f78401c"
+    },
+    {
+      "Path": "lib/libpcap.so.0.8",
+      "Role": "pinned-cpu-probe-input",
+      "Hash": true,
+      "ExpectedSha256": "221fe09f13b357ef354caf2209c886f1c1f8161c5b26ff8ab73afa47dd922f28"
+    }
+  ],
+  "Workload": {
+    "CorrectnessChecks": [],
+    "EvidenceRequirements": [],
+    "ReportedMetrics": [],
+    "MinimumMetricSamples": 0,
+    "RequirePlanCompletion": true,
+    "GuestHddResults": {
+      "Image": "hdd.qcow2",
+      "PartitionOffsetBytes": 2884108288,
+      "PartitionLengthBytes": 5120024576,
+      "GuestPath": "xemu_perf_tests/results.txt",
+      "ExpectedResults": "cpu-code-rewrite-reference.json",
+      "ExpectedResultsSha256": "012286767ceb727d81f4646463cc46dcb13c9e7f30a891eeda74fba63f78401c",
+      "MaximumResultBytes": 16777216,
+      "Xiso": {
+        "Image": "hdd.qcow2",
+        "PartitionOffsetBytes": 2884108288,
+        "PartitionLengthBytes": 5120024576,
+        "SuiteRevision": "06de3b62b34774e0a3a9b6dcd7e186fc02d6799ad5a8e8ef43e88235def1ef32",
+        "IsoSha256": "74a10c400f4fb280dcb4037e38e7e4d3150e73e0061a04f65b3c68cc61a49e63",
+        "CatalogId": "sha256:34b8ee7f91f3412b5e7758aab9f4ca08746ef2e97fee8b5c61be8947e145f7f4",
+        "Tests": [
+          "cpu_translation_blocks.code_stable"
+        ],
+        "Groups": [],
+        "Settings": {
+          "warmup_iterations": 0,
+          "measurement_iterations_multiplier": 1,
+          "gpu_completion_mode": "per_iteration"
+        }
+      }
+    }
+  },
+  "Experiment": {
+    "Id": "owner245-deck-aa8bb9ab-build-runtime-matrix",
+    "Variant": "off",
+    "Reference": null,
+    "VariedFactors": [
+      "compile-time-probe",
+      "runtime-collector-mode"
+    ],
+    "ControlledFactors": [
+      "aa8bb9abdd68e54af0d8021414496c366e4ba5bd",
+      "matched-compiler-options-except-probe",
+      "fixture-c02a1a44",
+      "stable-50m-rewrite-1m",
+      "warmups0-multiplier1",
+      "128mb",
+      "vulkan",
+      "same-firmware-private-seed-reference",
+      "no-HMP",
+      "driver-cache-unverified-no-waiver"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "Operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  }
+}

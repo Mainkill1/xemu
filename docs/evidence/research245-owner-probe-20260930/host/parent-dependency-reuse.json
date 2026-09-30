@@ -1,0 +1,77 @@
+[
+  {
+    "path": "glslang",
+    "source": "/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/glslang",
+    "reuse": "same downloaded dependency source as candidate"
+  },
+  {
+    "path": "nlohmann_json",
+    "source": "/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/nlohmann_json",
+    "reuse": "same downloaded dependency source as candidate"
+  },
+  {
+    "path": "VulkanMemoryAllocator",
+    "source": "/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/VulkanMemoryAllocator",
+    "reuse": "same downloaded dependency source as candidate"
+  },
+  {
+    "path": "berkeley-softfloat-3",
+    "source": "/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/berkeley-softfloat-3",
+    "reuse": "same downloaded dependency source as candidate"
+  },
+  {
+    "path": "genconfig",
+    "source": "/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/genconfig",
+    "reuse": "same downloaded dependency source as candidate"
+  },
+  {
+    "path": "sdl3",
+    "source": "/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/sdl3",
+    "reuse": "same downloaded dependency source as candidate"
+  },
+  {
+    "path": "nv2a_vsh_cpu",
+    "source": "/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/nv2a_vsh_cpu",
+    "reuse": "same downloaded dependency source as candidate"
+  },
+  {
+    "path": "imgui",
+    "source": "/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/imgui",
+    "reuse": "same downloaded dependency source as candidate"
+  },
+  {
+    "path": "berkeley-testfloat-3",
+    "source": "/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/berkeley-testfloat-3",
+    "reuse": "same downloaded dependency source as candidate"
+  },
+  {
+    "path": "implot",
+    "source": "/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/implot",
+    "reuse": "same downloaded dependency source as candidate"
+  },
+  {
+    "path": "SPIRV-Reflect",
+    "source": "/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/SPIRV-Reflect",
+    "reuse": "same downloaded dependency source as candidate"
+  },
+  {
+    "path": "volk",
+    "source": "/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/volk",
+    "reuse": "same downloaded dependency source as candidate"
+  },
+  {
+    "path": "keycodemapdb",
+    "source": "/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/keycodemapdb",
+    "reuse": "same downloaded dependency source as candidate"
+  },
+  {
+    "path": "tomlplusplus",
+    "source": "/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/tomlplusplus",
+    "reuse": "same downloaded dependency source as candidate"
+  },
+  {
+    "path": "xxHash-0.8.3",
+    "source": "/home/codex/src/steamdeck-xemu/worktrees/research245-jump-cache/subprojects/xxHash-0.8.3",
+    "reuse": "same downloaded dependency source as candidate"
+  }
+]

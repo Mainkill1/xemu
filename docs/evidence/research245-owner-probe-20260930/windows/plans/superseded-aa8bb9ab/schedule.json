@@ -1,0 +1,209 @@
+{
+  "sourceCommit": "aa8bb9abdd68e54af0d8021414496c366e4ba5bd",
+  "packages": {
+    "enabled": {
+      "application": "owner245-windows-aa8bb9ab-enabled",
+      "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea"
+    },
+    "disabled": {
+      "application": "owner245-windows-aa8bb9ab-disabled",
+      "executableSha256": "d05494316dc2f441aa39c0afacde9494625de2a13bdb58f32840fbc18cf3c0e0"
+    }
+  },
+  "application": "owner245-windows-aa8bb9ab-enabled",
+  "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea",
+  "attempts": [
+    {
+      "campaign": "o245-win-aa8bb9ab-stable-01",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "off",
+      "position": 0,
+      "phase": "A/A",
+      "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea"
+    },
+    {
+      "campaign": "o245-win-aa8bb9ab-stable-02",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "off",
+      "position": 1,
+      "phase": "A/A",
+      "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea"
+    },
+    {
+      "campaign": "o245-win-aa8bb9ab-stable-03",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "disabled",
+      "position": 2,
+      "phase": "balanced-mode-sweep",
+      "executableSha256": "d05494316dc2f441aa39c0afacde9494625de2a13bdb58f32840fbc18cf3c0e0"
+    },
+    {
+      "campaign": "o245-win-aa8bb9ab-stable-04",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "off",
+      "position": 3,
+      "phase": "balanced-mode-sweep",
+      "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea"
+    },
+    {
+      "campaign": "o245-win-aa8bb9ab-stable-05",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "counters",
+      "position": 4,
+      "phase": "balanced-mode-sweep",
+      "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea"
+    },
+    {
+      "campaign": "o245-win-aa8bb9ab-stable-06",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "timing",
+      "position": 5,
+      "phase": "balanced-mode-sweep",
+      "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea"
+    },
+    {
+      "campaign": "o245-win-aa8bb9ab-stable-07",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "all",
+      "position": 6,
+      "phase": "balanced-mode-sweep",
+      "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea"
+    },
+    {
+      "campaign": "o245-win-aa8bb9ab-stable-08",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "all",
+      "position": 7,
+      "phase": "balanced-mode-sweep",
+      "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea"
+    },
+    {
+      "campaign": "o245-win-aa8bb9ab-stable-09",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "timing",
+      "position": 8,
+      "phase": "balanced-mode-sweep",
+      "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea"
+    },
+    {
+      "campaign": "o245-win-aa8bb9ab-stable-10",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "counters",
+      "position": 9,
+      "phase": "balanced-mode-sweep",
+      "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea"
+    },
+    {
+      "campaign": "o245-win-aa8bb9ab-stable-11",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "off",
+      "position": 10,
+      "phase": "balanced-mode-sweep",
+      "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea"
+    },
+    {
+      "campaign": "o245-win-aa8bb9ab-stable-12",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "disabled",
+      "position": 11,
+      "phase": "balanced-mode-sweep",
+      "executableSha256": "d05494316dc2f441aa39c0afacde9494625de2a13bdb58f32840fbc18cf3c0e0"
+    },
+    {
+      "campaign": "o245-win-aa8bb9ab-rewrite-01",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "off",
+      "position": 0,
+      "phase": "A/A",
+      "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea"
+    },
+    {
+      "campaign": "o245-win-aa8bb9ab-rewrite-02",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "off",
+      "position": 1,
+      "phase": "A/A",
+      "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea"
+    },
+    {
+      "campaign": "o245-win-aa8bb9ab-rewrite-03",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "disabled",
+      "position": 2,
+      "phase": "balanced-mode-sweep",
+      "executableSha256": "d05494316dc2f441aa39c0afacde9494625de2a13bdb58f32840fbc18cf3c0e0"
+    },
+    {
+      "campaign": "o245-win-aa8bb9ab-rewrite-04",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "off",
+      "position": 3,
+      "phase": "balanced-mode-sweep",
+      "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea"
+    },
+    {
+      "campaign": "o245-win-aa8bb9ab-rewrite-05",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "counters",
+      "position": 4,
+      "phase": "balanced-mode-sweep",
+      "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea"
+    },
+    {
+      "campaign": "o245-win-aa8bb9ab-rewrite-06",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "timing",
+      "position": 5,
+      "phase": "balanced-mode-sweep",
+      "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea"
+    },
+    {
+      "campaign": "o245-win-aa8bb9ab-rewrite-07",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "all",
+      "position": 6,
+      "phase": "balanced-mode-sweep",
+      "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea"
+    },
+    {
+      "campaign": "o245-win-aa8bb9ab-rewrite-08",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "all",
+      "position": 7,
+      "phase": "balanced-mode-sweep",
+      "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea"
+    },
+    {
+      "campaign": "o245-win-aa8bb9ab-rewrite-09",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "timing",
+      "position": 8,
+      "phase": "balanced-mode-sweep",
+      "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea"
+    },
+    {
+      "campaign": "o245-win-aa8bb9ab-rewrite-10",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "counters",
+      "position": 9,
+      "phase": "balanced-mode-sweep",
+      "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea"
+    },
+    {
+      "campaign": "o245-win-aa8bb9ab-rewrite-11",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "off",
+      "position": 10,
+      "phase": "balanced-mode-sweep",
+      "executableSha256": "e3c67292e146e9f32bffd8900ce04bcf07d2412e38672eb843c3f4c7e2c8ebea"
+    },
+    {
+      "campaign": "o245-win-aa8bb9ab-rewrite-12",
+      "leaf": "cpu_translation_blocks.code_rewrite",
+      "mode": "disabled",
+      "position": 11,
+      "phase": "balanced-mode-sweep",
+      "executableSha256": "d05494316dc2f441aa39c0afacde9494625de2a13bdb58f32840fbc18cf3c0e0"
+    }
+  ]
+}

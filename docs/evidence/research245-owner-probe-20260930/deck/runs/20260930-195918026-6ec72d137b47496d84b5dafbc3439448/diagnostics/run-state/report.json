@@ -1,0 +1,1467 @@
+{
+  "Schema": 1,
+  "Status": "complete",
+  "CacheMode": "cold",
+  "CacheShaders": false,
+  "DriverCache": "mesa",
+  "DriverNamespaceVerified": false,
+  "ComparisonReady": false,
+  "AllowUncontrolledDriverCache": false,
+  "ContractSha256": "bff2228a1e002478befc7ea875b9b16a806260ac9a82738fba347dc079050c81",
+  "CacheDirectory": "/home/deck/xemu-research/workspace/Queue/Testing/agent-xc-o245-dec-0bd18bf2-stable-02-001/cache",
+  "PriorCacheDirectory": null,
+  "DriverCacheDirectory": "/home/deck/xemu-research/workspace/Results/20260930-195918026-6ec72d137b47496d84b5dafbc3439448/state/driver-cache",
+  "ConfigSourcePath": "/home/deck/xemu-research/workspace/Queue/Testing/agent-xc-o245-dec-0bd18bf2-stable-02-001/xemu.toml",
+  "EffectiveConfigPath": "/home/deck/xemu-research/workspace/Results/20260930-195918026-6ec72d137b47496d84b5dafbc3439448/diagnostics/run-state/effective-live.toml",
+  "ConfigSha256": "aa356a9d7b916ace9b71ff1ef47946db1ac289e36a8b00235c4397f57523b0b8",
+  "EffectiveConfigSha256": "cd1203a6e587cb0251737095a609fb476dce6363c186b3d102e73aba6e15e7f0",
+  "ConfigAfterSha256": "22fde2c2c4f8368e3c31873c4fe263620644df4b6da7e104161409ed919a380a",
+  "SeedSha256": null,
+  "Before": {
+    "Complete": true,
+    "TreeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "Bytes": 0,
+    "Files": [],
+    "Issues": []
+  },
+  "After": {
+    "Complete": true,
+    "TreeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "Bytes": 0,
+    "Files": [],
+    "Issues": []
+  },
+  "DriverAfter": {
+    "Complete": true,
+    "TreeSha256": "b5ef4b3d86ef675c9e6716eaa4662c1c82814cb654443e0a0ddca219b8ace3f3",
+    "Bytes": 2871260,
+    "Files": [
+      {
+        "Path": "mesa_shader_cache/00/6708891966328bb198bab492bf4dd700b8759b",
+        "Bytes": 2213,
+        "Sha256": "67acdc10b3bd2ffc6df1249f27ea7d85b10c9298d7a8e016af9c9c489dbb2f13"
+      },
+      {
+        "Path": "mesa_shader_cache/00/674366a5d7b357b9209f64ae79f01307be4a47",
+        "Bytes": 153,
+        "Sha256": "cca917a9f6f132a207c039826e14b4e1ed914670da6b854404e41baacbff194b"
+      },
+      {
+        "Path": "mesa_shader_cache/00/c29f74519cb7d314a03df9bd16c2619eed7070",
+        "Bytes": 153,
+        "Sha256": "38ff029712a8343f8d3a21644451ce818a8a3d27dd2fe44547cab788aba84976"
+      },
+      {
+        "Path": "mesa_shader_cache/01/aab4400fff7b98cb01d751651440f735283771",
+        "Bytes": 2531,
+        "Sha256": "4ca61e7e194c4fc833593c8405fbd560b0730788eb5811ab6615cd7aac922f2b"
+      },
+      {
+        "Path": "mesa_shader_cache/02/c2b340b537e7e1fe462d427b627e6d548ccae4",
+        "Bytes": 2752,
+        "Sha256": "a0eaf3776abf1520c37b8b1c85ad6c5ddf06a652267878f631d05389b0638f39"
+      },
+      {
+        "Path": "mesa_shader_cache/04/71864d7dc1ac04e9d745e5115b0358b369ea33",
+        "Bytes": 153,
+        "Sha256": "5282ec52dbd0c88044800898ac334e8b6e74c7c20f94017f5b177e345f22ce66"
+      },
+      {
+        "Path": "mesa_shader_cache/04/be1c064af3d32a995080bbe9794681ed225c2d",
+        "Bytes": 153,
+        "Sha256": "5282ec52dbd0c88044800898ac334e8b6e74c7c20f94017f5b177e345f22ce66"
+      },
+      {
+        "Path": "mesa_shader_cache/0a/690d99076da4a3fafca18c0a2c98e90e17d583",
+        "Bytes": 6713,
+        "Sha256": "ab8efb52fa75b0fdea1665da73237bee32f5c71183c6b612a3804fbd1a498e71"
+      },
+      {
+        "Path": "mesa_shader_cache/0c/3b5e8d92169616d4ab7c28b5ba492902d7554c",
+        "Bytes": 153,
+        "Sha256": "38ff029712a8343f8d3a21644451ce818a8a3d27dd2fe44547cab788aba84976"
+      },
+      {
+        "Path": "mesa_shader_cache/0c/64051f408cf0ddbafc2899c5d3b1a8f141b440",
+        "Bytes": 121,
+        "Sha256": "1c2fea5341fd50ac4634769d20dd6dcda89ca95e1398aade98bc2b878045acc7"
+      },
+      {
+        "Path": "mesa_shader_cache/0d/32a6015301127d8dc4d868ec5be9fd93a0fd94",
+        "Bytes": 153,
+        "Sha256": "2e478c9c4887f198d3162aabd848cd0dc10ddf17293de13a99fec6e72e72dce8"
+      },
+      {
+        "Path": "mesa_shader_cache/0e/8c76f1ac7a04b9e9fa93278faaab826656760c",
+        "Bytes": 1309,
+        "Sha256": "4af9b7a3e46ed9da4bfd36b45f5ebc8b2b9e472d4cef2e66291a361efb6a89a5"
+      },
+      {
+        "Path": "mesa_shader_cache/13/764d9952cc613b7fec9b81d1e4cc437cecab68",
+        "Bytes": 153,
+        "Sha256": "38ff029712a8343f8d3a21644451ce818a8a3d27dd2fe44547cab788aba84976"
+      },
+      {
+        "Path": "mesa_shader_cache/17/342a07592cb212a1ec8dbdbd7c6ef889deb760",
+        "Bytes": 153,
+        "Sha256": "5282ec52dbd0c88044800898ac334e8b6e74c7c20f94017f5b177e345f22ce66"
+      },
+      {
+        "Path": "mesa_shader_cache/1a/69db460d9df977e96d042d2d9cdaf7ef079d37",
+        "Bytes": 6613,
+        "Sha256": "88cab1a5745ad766919f7e85d5ad0afa00544eaf6bedaf8e150018d5c5aeaa93"
+      },
+      {
+        "Path": "mesa_shader_cache/1b/974230122cb43e869dec1a238bd73f561907a9",
+        "Bytes": 121,
+        "Sha256": "1c8d529243c79a9a4a207cdc4e14d248edfae2f5a59a55de5bf3fe8f518e208a"
+      },
+      {
+        "Path": "mesa_shader_cache/1c/1c63124058d7a351f36104907b53125a10cf04",
+        "Bytes": 153,
+        "Sha256": "8989319ec2b9c2fc35aa1deb316fa572759dda9cf4d6707ae5beb700e082c521"
+      },
+      {
+        "Path": "mesa_shader_cache/1c/ae5f4ecff7c7f7f9b9feda40d5c89cf80672a6",
+        "Bytes": 153,
+        "Sha256": "eff2535685930ee7e328af9f8f5d5ec2d09665f2151d3e675e62d8d962d1b9b7"
+      },
+      {
+        "Path": "mesa_shader_cache/1d/b1e903285d6d6044e085aa1db0d2214e80ebe2",
+        "Bytes": 892,
+        "Sha256": "ecb4837c625a6ff3e85f47386d18eab8b8f93286fb0924f907ace26110a807ee"
+      },
+      {
+        "Path": "mesa_shader_cache/1f/e2f62b736f42495a74d0f3aa72ee54c7062bef",
+        "Bytes": 2862,
+        "Sha256": "84cd336d8d447dc814ca92544549f2659353555d68048d6bad565878a4c38ed0"
+      },
+      {
+        "Path": "mesa_shader_cache/20/ab34294822c50af7bd406e76f4de9c266340ac",
+        "Bytes": 153,
+        "Sha256": "1d8a653c84b1de2e67ae244f652837d6ee049b6f3d70e08682f0d2129c8b3ef4"
+      },
+      {
+        "Path": "mesa_shader_cache/20/d7f527a7a6c05584126c1c5f44a2fd5343ec18",
+        "Bytes": 980,
+        "Sha256": "3ac000c876aa1fc50c3e632a8689932941708aac7e88398277c3161ef746ae1a"
+      },
+      {
+        "Path": "mesa_shader_cache/21/fd43199bc99a7f1f4250e0d4f85a16693e3619",
+        "Bytes": 153,
+        "Sha256": "eff2535685930ee7e328af9f8f5d5ec2d09665f2151d3e675e62d8d962d1b9b7"
+      },
+      {
+        "Path": "mesa_shader_cache/25/39455cdec7200465dcad4c892c110b8bf7d39b",
+        "Bytes": 153,
+        "Sha256": "4d042136c5043e62ccf80ebcc031100e49571c70f6f7825635958bb1de8badd5"
+      },
+      {
+        "Path": "mesa_shader_cache/26/d9e368a9eb70424ba0f6ba01346a60d1e0418f",
+        "Bytes": 1349,
+        "Sha256": "4647ef5fcca04034861f4b202ea921e8e97de9e6193611504714f80aedf40436"
+      },
+      {
+        "Path": "mesa_shader_cache/28/631d9545528394a3c811d9afee29f65778e95c",
+        "Bytes": 153,
+        "Sha256": "7b166f900cf783235e11a32ef347f37a035efc152e69337ec1e33499c3dd1c5a"
+      },
+      {
+        "Path": "mesa_shader_cache/28/f282e8058930d33d65387c4afc1a77b67de877",
+        "Bytes": 1103,
+        "Sha256": "dfdda199b146b588baff76cb747380ce1fd139ae48239f6fe2acc9a3b83b0708"
+      },
+      {
+        "Path": "mesa_shader_cache/2a/553a0dced45d65b5f30ae9a686d0b7f9dceb67",
+        "Bytes": 6438,
+        "Sha256": "b69df11dc6d6870ec9bc90845b601f0834ded2f9c22045e94bed1333299318da"
+      },
+      {
+        "Path": "mesa_shader_cache/2a/9ff7ab02372ce60cc07a97413e0a3bb1189a9e",
+        "Bytes": 153,
+        "Sha256": "38ff029712a8343f8d3a21644451ce818a8a3d27dd2fe44547cab788aba84976"
+      },
+      {
+        "Path": "mesa_shader_cache/2b/02f0f774f3c5a606801fb8dfe57925c98f2b8a",
+        "Bytes": 1248,
+        "Sha256": "685a29a4fd67e20d3edcc5a15ec4ab7ba8503a25bbb25671dc711b4df85dd023"
+      },
+      {
+        "Path": "mesa_shader_cache/2b/93617699833f2949f42811cbaf941654c44d10",
+        "Bytes": 6517,
+        "Sha256": "38decd5419eecf42c923c14b9cce77d53ea89fc074198c52c674b4623e840fa6"
+      },
+      {
+        "Path": "mesa_shader_cache/2b/c602f293163f9010c0ec46bfc2e91c08c3b883",
+        "Bytes": 294,
+        "Sha256": "4c75873e40b3a5716943b269ffdd86a827e8796efc33a240e750ebc42d56c4bc"
+      },
+      {
+        "Path": "mesa_shader_cache/2d/bd8cce1fce24ddd849ad4c325087e3e6e49dca",
+        "Bytes": 153,
+        "Sha256": "99de050630c3b7edd8410201c85ee0caf17a9ffc3b06d8a31a979cb318dff7d8"
+      },
+      {
+        "Path": "mesa_shader_cache/2d/d41df1991e8cf4c98e52fec33c97151d68fbf6",
+        "Bytes": 1640,
+        "Sha256": "e14bf13b297bd1d412897a6467e193d9bc26f76ad7d97a8beda7f8a031dde461"
+      },
+      {
+        "Path": "mesa_shader_cache/2d/e1c8e40e47a84c644d4a99f605186941d4edad",
+        "Bytes": 153,
+        "Sha256": "4f622ddab53eeb47b31f120f8f6fccaad05010e70afdbdd6d6fa2b190efaa878"
+      },
+      {
+        "Path": "mesa_shader_cache/2f/9c4382b9b3759b28145dff76c3a60650101320",
+        "Bytes": 153,
+        "Sha256": "38ff029712a8343f8d3a21644451ce818a8a3d27dd2fe44547cab788aba84976"
+      },
+      {
+        "Path": "mesa_shader_cache/30/665eebb24f20f5083298cb454e7bc3ef46878d",
+        "Bytes": 153,
+        "Sha256": "e74b37eeb1676eb3a1ee3a4a46c599d6d53a12c8cbd85e6a25215a2d4c437ab0"
+      },
+      {
+        "Path": "mesa_shader_cache/32/69132af340459089c73c63e12bf3c9abd4669c",
+        "Bytes": 956,
+        "Sha256": "d2609da37feca0d12f8879f6ab56aa34b17cbcbc93c02bf6c943b6ddea4a431f"
+      },
+      {
+        "Path": "mesa_shader_cache/34/9b689fada48d80c91a11a7438e072bb1581586",
+        "Bytes": 624,
+        "Sha256": "0a80c812c93753b31f47bb9e6b728d7eda9dc3a2e8b7ca6b84d988bae7e02975"
+      },
+      {
+        "Path": "mesa_shader_cache/36/e7e62b694a63d5a89e6f899f23a759d18e3897",
+        "Bytes": 656,
+        "Sha256": "6826e2063e661074dcf9d9b758015cb110a19074208b977c3e0fa70f809948d9"
+      },
+      {
+        "Path": "mesa_shader_cache/37/688a0317f8997faef1b75d42645479d5d99054",
+        "Bytes": 6334,
+        "Sha256": "5fad65f8f47fc0f85ab190fd61228df4e7dfa67c5944a3eef547d0945bf426d9"
+      },
+      {
+        "Path": "mesa_shader_cache/37/e234181c7e00679a041d5a7b6b55f89f9b6ee2",
+        "Bytes": 6671,
+        "Sha256": "17666ceb67a97d223ceadc43de2099bc1b8927bf15e8089c4929f4eb58fda7cc"
+      },
+      {
+        "Path": "mesa_shader_cache/3a/7ccd3c2a9914cf1a65fb8f79d56346865e90f3",
+        "Bytes": 3071,
+        "Sha256": "e5a223b65baa7c39813c95d33ba536031abea521c205993552a143c16718398f"
+      },
+      {
+        "Path": "mesa_shader_cache/3a/b7a6f4dd43bcf43944ffb93ed8eb6b54d3e838",
+        "Bytes": 153,
+        "Sha256": "38ff029712a8343f8d3a21644451ce818a8a3d27dd2fe44547cab788aba84976"
+      },
+      {
+        "Path": "mesa_shader_cache/3d/7667515782d390a9b4fd7d638b808aa83c5ab6",
+        "Bytes": 1440,
+        "Sha256": "44730a96007d5128d59f57b66c6112ff0191213fba540c5cbde5c23841501064"
+      },
+      {
+        "Path": "mesa_shader_cache/3e/e1fe16b33506f73471f8957ead3f0c6a9027ea",
+        "Bytes": 153,
+        "Sha256": "fe0768719a60528f79674313452a3011f6bcd816450a52bcf56de2a5ed540710"
+      },
+      {
+        "Path": "mesa_shader_cache/43/6de0a1f1f7c4b9e9773b8f185b98239a257a65",
+        "Bytes": 6631,
+        "Sha256": "b421680dd1ad00b50b0696aa933e71d0c81f83fdf829adf3e417c4bf382cc0b1"
+      },
+      {
+        "Path": "mesa_shader_cache/43/f6b1e1b94a0c275592e177419f090473db2600",
+        "Bytes": 153,
+        "Sha256": "dc0b5607b50a94fde6b0419ea3293160741ae1620dcfbdbe2209ab6c8dba4a2d"
+      },
+      {
+        "Path": "mesa_shader_cache/44/fb5365a00c45df725724d1d7187eb2508c0151",
+        "Bytes": 7390,
+        "Sha256": "c6041bb34ad6e94b9fd0b4e615035db7a8157a914c477cd21516240d5851c32a"
+      },
+      {
+        "Path": "mesa_shader_cache/45/113480e4548c1331bf398e672f6f57000ba965",
+        "Bytes": 1098,
+        "Sha256": "f6610492bd2a57fea5e9b3744469201d785d4c09b7e14f08fb8b4e61d176827e"
+      },
+      {
+        "Path": "mesa_shader_cache/47/5f444c625f793b42d044b6aae9e9bf50cc8868",
+        "Bytes": 256,
+        "Sha256": "1243c7822f2db87786bc977becee9cdc7e2776cd4f7533bc3e53b89c3017738d"
+      },
+      {
+        "Path": "mesa_shader_cache/48/e225bbe50078a1291d5d0c31dfcd4733555db8",
+        "Bytes": 153,
+        "Sha256": "7fa57ac58ac2ed220847588fa1e67f6a1dcbd241f3d62e16a631e49813c42681"
+      },
+      {
+        "Path": "mesa_shader_cache/48/fc7604c8de52a4b2c94f7b8304acf54a1c3119",
+        "Bytes": 153,
+        "Sha256": "98f96be4840c166d23b8f332573a384d47b2b7718b9edaf9f270b4af04ab042b"
+      },
+      {
+        "Path": "mesa_shader_cache/49/04584dd7cf5138c811889317f3e6cbc4732856",
+        "Bytes": 2851,
+        "Sha256": "0efdd73765eba11d102834aa7b4ec8dfb9564c161868757865e7f6bed1d36075"
+      },
+      {
+        "Path": "mesa_shader_cache/49/3925182376cd2a7912afc527813b4186c4f0b1",
+        "Bytes": 153,
+        "Sha256": "0f12c0a3d69af76b644e019a58add505d75ea48378c977f61dff42baba94c506"
+      },
+      {
+        "Path": "mesa_shader_cache/4a/02f166c9e085004f379224ff83652111f82972",
+        "Bytes": 2827,
+        "Sha256": "e978af58373d267a223ad0d11682ee672f5b73d0f291829d3326d140261d2788"
+      },
+      {
+        "Path": "mesa_shader_cache/4a/0620044b04b747a9f9be8cb58b0b84c1bdcfda",
+        "Bytes": 3212,
+        "Sha256": "bb1727c5d982704c1bb4d020a3ec8f99c6a607fa0608316cb1f94fa554c52def"
+      },
+      {
+        "Path": "mesa_shader_cache/4b/9a1666ab098163c9d766a5825b849838f61f2e",
+        "Bytes": 6643,
+        "Sha256": "3dc4990b0d85ba34b05ef03e01f809c7512aa80cac7eebbceccd618d2bbf279c"
+      },
+      {
+        "Path": "mesa_shader_cache/4c/e6d3de1239f487afab7e4624be6039d173f6e3",
+        "Bytes": 153,
+        "Sha256": "767b1c867c96c561fd77bae716787cf556c8d0a06400f25abc89c68f55718d34"
+      },
+      {
+        "Path": "mesa_shader_cache/52/57ae7102ee6a5b57b597316cadfedfd61e3c57",
+        "Bytes": 1957,
+        "Sha256": "adb97cee062fc721286fa95124797bececf7897855897e94f682263389f7b949"
+      },
+      {
+        "Path": "mesa_shader_cache/54/06136b0ff8c2ce61c1a2d3e5caab0f788e48b1",
+        "Bytes": 6760,
+        "Sha256": "6e611725c5e80132d0e1f0856a46aedc916cac3c48ce7218f0d7ce9e6a8ca022"
+      },
+      {
+        "Path": "mesa_shader_cache/56/7d142419518a7b9035884bfe861c1ed5e0be5c",
+        "Bytes": 895,
+        "Sha256": "fae19bcb2b65b83b78237363a8f0f30f04149a5ba5d6a334bb688cea1e2daf51"
+      },
+      {
+        "Path": "mesa_shader_cache/57/bd6139bf34a073f5af7d49ab4f669337188801",
+        "Bytes": 153,
+        "Sha256": "9c64f06fd2ea2a2a85b4e00aa52e346bb81f1d6bb8534da75bbbc3a63dad2442"
+      },
+      {
+        "Path": "mesa_shader_cache/57/e374fe9dfb18b8c5c7bf1e243fe86ef7e1668c",
+        "Bytes": 153,
+        "Sha256": "f3484f6448a75926181c6f36ac7247171a3451ad6b1acb2c2e06060a834e30c1"
+      },
+      {
+        "Path": "mesa_shader_cache/5c/7a398999a45c08d54014cba7b68dcb3e5994da",
+        "Bytes": 2116,
+        "Sha256": "ff1bafcf4670e0a5711ec6253cb5c30aa500b5d78bb27b65faad0d3f47f61286"
+      },
+      {
+        "Path": "mesa_shader_cache/5c/bb89373e9d7894931d45e6a6543f9723aec074",
+        "Bytes": 153,
+        "Sha256": "cca917a9f6f132a207c039826e14b4e1ed914670da6b854404e41baacbff194b"
+      },
+      {
+        "Path": "mesa_shader_cache/5d/3b65bb46203314514a13ab8eccdc43552cfa19",
+        "Bytes": 153,
+        "Sha256": "9c64f06fd2ea2a2a85b4e00aa52e346bb81f1d6bb8534da75bbbc3a63dad2442"
+      },
+      {
+        "Path": "mesa_shader_cache/60/3e7f61ededbae9c45350dc7e13ec157101077e",
+        "Bytes": 153,
+        "Sha256": "dc0b5607b50a94fde6b0419ea3293160741ae1620dcfbdbe2209ab6c8dba4a2d"
+      },
+      {
+        "Path": "mesa_shader_cache/61/5cb240ff350ae9441a27ae55504600b4d3863c",
+        "Bytes": 3084,
+        "Sha256": "89b2719f351506cfff676faf75e7de237b9e9d483f791cce594ef2f09b7e71a0"
+      },
+      {
+        "Path": "mesa_shader_cache/61/6af4f6e9555c6e2f51b791e75d5e8ad66c5a10",
+        "Bytes": 2469,
+        "Sha256": "8fc058fd8f569e3d47fe28fc38a274c7721916cf961ba65f672e1fbc9b8f3b04"
+      },
+      {
+        "Path": "mesa_shader_cache/63/a670a1b64e6225dbefe1b8b1069a147617c50d",
+        "Bytes": 153,
+        "Sha256": "0e2d177221bc5d120152537bcda3360bae05e44481fc5a640b73dbb9f18ffca5"
+      },
+      {
+        "Path": "mesa_shader_cache/65/647bfa7aabb244ab76d911c600fd649a950723",
+        "Bytes": 153,
+        "Sha256": "4d042136c5043e62ccf80ebcc031100e49571c70f6f7825635958bb1de8badd5"
+      },
+      {
+        "Path": "mesa_shader_cache/65/9a9af95c8eaa79c8ecd2fdb15f2a7cc7d29466",
+        "Bytes": 153,
+        "Sha256": "0d27608cced8b7a85c41617ba321c2cf060b8f5ee5d52ce7f37e1212259e4d26"
+      },
+      {
+        "Path": "mesa_shader_cache/6a/70ce20ce9b4c94e1aba8a34bb28d8bf3af557a",
+        "Bytes": 153,
+        "Sha256": "edc8c8f4ca66a6a32a11ca2684c6f7b2cb1e73a5615435d247b2434436d32699"
+      },
+      {
+        "Path": "mesa_shader_cache/6b/94b77a99c06191ef40614068d8517352cfcf13",
+        "Bytes": 153,
+        "Sha256": "38ff029712a8343f8d3a21644451ce818a8a3d27dd2fe44547cab788aba84976"
+      },
+      {
+        "Path": "mesa_shader_cache/6e/0e2457eee33b52d77add61de8b5a182d8e72d0",
+        "Bytes": 1386,
+        "Sha256": "6bbf02b9ad105e77ffac165ef73faed2ad71bcb40e076480274cc0a6adb5b103"
+      },
+      {
+        "Path": "mesa_shader_cache/6e/9a30dbcdd1f41f8d07050700e913e167b0a122",
+        "Bytes": 6453,
+        "Sha256": "cf94736c40218f75c3c48a9e5902a3362650177e7153eb3803af1997d66b6515"
+      },
+      {
+        "Path": "mesa_shader_cache/71/400fde59ca04136dce0f1ed3a13cd425b9b066",
+        "Bytes": 153,
+        "Sha256": "38ff029712a8343f8d3a21644451ce818a8a3d27dd2fe44547cab788aba84976"
+      },
+      {
+        "Path": "mesa_shader_cache/72/d2de3344adf70a20f50f23f3e96e9ded6d1769",
+        "Bytes": 2164,
+        "Sha256": "63e6943439a963848b1ad3f3fcaf978d7fcaf896117f253d04593bb0d42e7617"
+      },
+      {
+        "Path": "mesa_shader_cache/73/b12e54bdf3c2d2d722012fa8970d62dfdf7998",
+        "Bytes": 153,
+        "Sha256": "c359979c2508b07481c44344c7d0aaaa6df7d1a2dcf1a8dab57af07689e2c361"
+      },
+      {
+        "Path": "mesa_shader_cache/73/e679fb175a29c29ccaf2775b7ce3648116cfda",
+        "Bytes": 1002,
+        "Sha256": "7dac07689927963fa675650851d13f27f77c10d91d4a1a6d54e1ad23cf74193f"
+      },
+      {
+        "Path": "mesa_shader_cache/74/ae0f8f9c1c877d882109746d251800ceedd040",
+        "Bytes": 1377,
+        "Sha256": "58b0347ae09e85e1e6ee67286e3065e25912cbf5ca0d6a75ef17da0a9cc91f05"
+      },
+      {
+        "Path": "mesa_shader_cache/77/110c47de02569dff4591a6a48ba116bf32f689",
+        "Bytes": 153,
+        "Sha256": "38ff029712a8343f8d3a21644451ce818a8a3d27dd2fe44547cab788aba84976"
+      },
+      {
+        "Path": "mesa_shader_cache/79/b7a4659cd5eeb8fe030000a78d927fcbeb0665",
+        "Bytes": 153,
+        "Sha256": "0842cb9ab854b73bd5d8b9b0120d4daa533a2d3a8bbf6e767e5c329a4aaa9490"
+      },
+      {
+        "Path": "mesa_shader_cache/7a/9caa7d40903a01dc83064e23d6c61a83a8f617",
+        "Bytes": 153,
+        "Sha256": "9f2f0ad98eabda8cf2044425d07a401ec87caad3eebe20861deb92ad2f7d7e18"
+      },
+      {
+        "Path": "mesa_shader_cache/7b/a4fd065274c59a421dfc14f4cc4107f49ecef3",
+        "Bytes": 153,
+        "Sha256": "38ff029712a8343f8d3a21644451ce818a8a3d27dd2fe44547cab788aba84976"
+      },
+      {
+        "Path": "mesa_shader_cache/7d/ddf13d533ac7c937492887b294545ef4c4989b",
+        "Bytes": 153,
+        "Sha256": "0d27608cced8b7a85c41617ba321c2cf060b8f5ee5d52ce7f37e1212259e4d26"
+      },
+      {
+        "Path": "mesa_shader_cache/7f/c478eb1fa7e78f67785af9ff314138c91293fa",
+        "Bytes": 1057,
+        "Sha256": "ef51587c0c0dbc1c639eaaff5612e62733678e6b0fde7435e45e0737a47bbf1f"
+      },
+      {
+        "Path": "mesa_shader_cache/84/6433ef77dd38d8e781d2033272e6786b09a40f",
+        "Bytes": 153,
+        "Sha256": "9c64f06fd2ea2a2a85b4e00aa52e346bb81f1d6bb8534da75bbbc3a63dad2442"
+      },
+      {
+        "Path": "mesa_shader_cache/88/0d1e3d095ea4f8d691f6f89d30c861ff9a13ae",
+        "Bytes": 3380,
+        "Sha256": "297ae2b5bf089c620dc3026ca2585c3ce1e0abd6566cd521fcd0184b17774db9"
+      },
+      {
+        "Path": "mesa_shader_cache/88/2a0e079b8a30e9dfb736ce40b86d28c82170a6",
+        "Bytes": 1474,
+        "Sha256": "f04e23b7b6132992a844e9f9f115102850f7f36951209b8f1fd7fa565345c2f1"
+      },
+      {
+        "Path": "mesa_shader_cache/88/8f22ff742bb644005ff6214da101f6e4e252e0",
+        "Bytes": 6385,
+        "Sha256": "98dcc64b06a8780b360f966a76cc6ac49ae3c19721e9ae1faceb2a9fc1dd664d"
+      },
+      {
+        "Path": "mesa_shader_cache/89/f5b3f13e17a439963cd6949e896cfa963fe6b8",
+        "Bytes": 153,
+        "Sha256": "c45c1d082e680b696cf56970a56314e439a81de7116132753810f164fa06f39a"
+      },
+      {
+        "Path": "mesa_shader_cache/8a/6f139815766db17a4bb4f44f5710c612b664ac",
+        "Bytes": 587,
+        "Sha256": "bd26ab3e5fd721393305e27fd698aa4bf630a50b75d06c9d73beec3715c523ac"
+      },
+      {
+        "Path": "mesa_shader_cache/8c/df81ade636238d970d728e6c1ae87088902a26",
+        "Bytes": 2751,
+        "Sha256": "3c90b947dcad9c0d78a3d813dd7ecec728a6621582130b8c7e2da057e86075c6"
+      },
+      {
+        "Path": "mesa_shader_cache/8d/7b474eeadd491fe290f0a8f7542f1e5407ccd3",
+        "Bytes": 153,
+        "Sha256": "8aef0b6e2287499cfdd399d3bcc39b465d959656391f6cba2562762dd773fd2f"
+      },
+      {
+        "Path": "mesa_shader_cache/8d/a1734e90fe1a3dd9a606df00526fdfc0599a52",
+        "Bytes": 153,
+        "Sha256": "e4d995a8ae0f37e9f41340b8ea637f570310d68fdc046f13905cbb91fb48844a"
+      },
+      {
+        "Path": "mesa_shader_cache/8e/5ec1b05056bae3be77064627de32ba5e08d813",
+        "Bytes": 462,
+        "Sha256": "99d82221b5bad3bc0a86c1cbe5de112290f663dfbca475c619fe7198269ab671"
+      },
+      {
+        "Path": "mesa_shader_cache/90/363087d1f3f9941b32425be426d15a833a25ea",
+        "Bytes": 300,
+        "Sha256": "611f2d1539e7008165cf9d7264ca7b2ee56afbac2235a728fff3a9a9d1ab0773"
+      },
+      {
+        "Path": "mesa_shader_cache/90/a795c4b4bb5ea5f922c644f802be34c03dd8cd",
+        "Bytes": 956,
+        "Sha256": "f1c998a0a7a9706ce4bad6e3f24a3e269e2257412ff0bfe0afdcbf05f8f45cbe"
+      },
+      {
+        "Path": "mesa_shader_cache/96/412f75ffa96c65ece3fc069167bc7fca44e5ca",
+        "Bytes": 944,
+        "Sha256": "f7e08ddc9553c9da715dd61cba5559be16cde1e75cf9a65c27c2e0dd8759b0ce"
+      },
+      {
+        "Path": "mesa_shader_cache/96/dce281e5799665775d525b599dba8a5a412e10",
+        "Bytes": 2424,
+        "Sha256": "b15664e5be96c7604074bd3f8315298a5c34eda99038f46a9cccb10426a3ebe0"
+      },
+      {
+        "Path": "mesa_shader_cache/97/1fbe0969718c4efeb19701f9e5a16667ca6538",
+        "Bytes": 6765,
+        "Sha256": "bfac779f486d31edad72c827d11170912e8153a975c172a9524331f1515c6b1b"
+      },
+      {
+        "Path": "mesa_shader_cache/97/b6d494208c29c8775af2fb39b826c3c88857c6",
+        "Bytes": 1146,
+        "Sha256": "1fe17d02d7ec234b2d54ece49c1da394081c645f7faad888ff07d006b70924eb"
+      },
+      {
+        "Path": "mesa_shader_cache/99/d9052ac71473393eb52b19223f02703056c785",
+        "Bytes": 2011,
+        "Sha256": "2dff97ea8c8a3d39ddc124590b1045ff96797426303d1d50dbb991a92d1ea704"
+      },
+      {
+        "Path": "mesa_shader_cache/9a/c88ade6f5862e68a3fa423527fc0a371625b49",
+        "Bytes": 153,
+        "Sha256": "7b166f900cf783235e11a32ef347f37a035efc152e69337ec1e33499c3dd1c5a"
+      },
+      {
+        "Path": "mesa_shader_cache/9b/f516a9b3132bcae8a934761b3c5c7abb3dcca5",
+        "Bytes": 1492,
+        "Sha256": "ac3ddb30efea2d0f525447dd2f97cdd902cc8a30bfa7bcb7d8e9e95d94156f29"
+      },
+      {
+        "Path": "mesa_shader_cache/9e/f02b422029eca6fc24c4b103ea9296eadcbf24",
+        "Bytes": 153,
+        "Sha256": "c45c1d082e680b696cf56970a56314e439a81de7116132753810f164fa06f39a"
+      },
+      {
+        "Path": "mesa_shader_cache/9f/76f75e7c7b1b76a1fd72ad92a27c4977119356",
+        "Bytes": 121,
+        "Sha256": "1c8d529243c79a9a4a207cdc4e14d248edfae2f5a59a55de5bf3fe8f518e208a"
+      },
+      {
+        "Path": "mesa_shader_cache/9f/ca6584f8d62c78ea33dc6a8ca706b87ba9d857",
+        "Bytes": 2147,
+        "Sha256": "a11c5855d544517975e262ff52a23c6d5515a8932962dd28d9ddae0501b0a088"
+      },
+      {
+        "Path": "mesa_shader_cache/a1/63eb4e8878d765112f324d7e2a86b88567b98c",
+        "Bytes": 2182,
+        "Sha256": "f0c82e3a20026b73ff33537bab8d081ea292225c45f5ec0dddac76a46f40f4fe"
+      },
+      {
+        "Path": "mesa_shader_cache/a1/eacbbfd77406e81d79405c0167b684481c6178",
+        "Bytes": 837,
+        "Sha256": "17d7df05cc2a73d4740c908b06101b541a9fe66af98a23aca7d127bec06933ea"
+      },
+      {
+        "Path": "mesa_shader_cache/a4/0a834c657664c85a7aa0e093e0642de66c1279",
+        "Bytes": 153,
+        "Sha256": "784f29be37c2ef77379502bdd72aeb57ef63e8c053956a8c68b388d83b242190"
+      },
+      {
+        "Path": "mesa_shader_cache/a5/4223f81ae9e73de1f9d23a7ae279b924c8ec55",
+        "Bytes": 6392,
+        "Sha256": "426147a4e7a06c4397c5550c0e76133622453184999bf017d74f33422a86ffec"
+      },
+      {
+        "Path": "mesa_shader_cache/a6/62aa96b2a5ed05aa5802987641764aeeb9b323",
+        "Bytes": 6608,
+        "Sha256": "e7aa037b0c6fb892a50602916e7d8983e3245f286990dd42f9d09daffea76367"
+      },
+      {
+        "Path": "mesa_shader_cache/aa/b620213335fd12f3815f2154b25b6d72f8fb84",
+        "Bytes": 1180,
+        "Sha256": "a1f9c7f899d8935d1641ac484fc5b6162a900cd90bf700f7323296442ead42c2"
+      },
+      {
+        "Path": "mesa_shader_cache/ab/62140843a683c756d48498c659a53831d70f23",
+        "Bytes": 1222,
+        "Sha256": "32b49a289a920ca525b4ea4592bb923424d3ce8ee44451af9e0641e6adc9d7ae"
+      },
+      {
+        "Path": "mesa_shader_cache/ab/c1436f76e8bdc2c3c86386436f31a326fe8fa7",
+        "Bytes": 6308,
+        "Sha256": "af2e99c93c76f96632f8754403f4c8474ff60cea0d99ee00130007c716c2fc39"
+      },
+      {
+        "Path": "mesa_shader_cache/ac/fd14db4b12db64cbfd542a95dcea92417270a0",
+        "Bytes": 153,
+        "Sha256": "dc0b5607b50a94fde6b0419ea3293160741ae1620dcfbdbe2209ab6c8dba4a2d"
+      },
+      {
+        "Path": "mesa_shader_cache/b0/d7706960f568735545ecc23a14f62a0c811b9e",
+        "Bytes": 1925,
+        "Sha256": "e5a7e1fccdb4cc0fa66ea60d32f327331501045a7c9240a7e04a54dbf4aa0b80"
+      },
+      {
+        "Path": "mesa_shader_cache/b5/e0e65f8acc4685999a061368dcca9daa6ce2ec",
+        "Bytes": 1372,
+        "Sha256": "12a6aa821ba46ed09ef1eccdba8d8964b1bbe80838f68915153510f0650d2f48"
+      },
+      {
+        "Path": "mesa_shader_cache/b6/08709690ce565a264b6a8f07d53c33d5f7bf8c",
+        "Bytes": 153,
+        "Sha256": "d00890a27d66ce4e80a3fbe08ca8cac5fb1a33f8ce70993444637c1c702fc248"
+      },
+      {
+        "Path": "mesa_shader_cache/b7/0eb866fafe1df91d6620f431a941428e82a6ab",
+        "Bytes": 1648,
+        "Sha256": "e7e12b1654adf2d8301520aff0f961a537b8fdd75cd5fd558f8eadba7e979f4f"
+      },
+      {
+        "Path": "mesa_shader_cache/b7/5934c8c417b78ce409082b084a38c3d484f0bc",
+        "Bytes": 1119,
+        "Sha256": "c26c86e629f6bdc7edbb1a38774ad3a589f900dbd10f11102e2d514dd1b54549"
+      },
+      {
+        "Path": "mesa_shader_cache/b8/20d95173eda1b3f1752624c87c3562a0d903e0",
+        "Bytes": 3352,
+        "Sha256": "022d575bb7adb3b28d29262934a9ef9a1113447cf4b533d26fba2209e98a3996"
+      },
+      {
+        "Path": "mesa_shader_cache/b9/6f6003a54ea1f3cdac2cbc39a8d5baee101386",
+        "Bytes": 153,
+        "Sha256": "96ac6d1bd0c4411a13f3d738733bf9d6569396fedd5db105171fc280e454e05f"
+      },
+      {
+        "Path": "mesa_shader_cache/bb/510731a8a01e2021cafc04987c255c48195d27",
+        "Bytes": 153,
+        "Sha256": "0d27608cced8b7a85c41617ba321c2cf060b8f5ee5d52ce7f37e1212259e4d26"
+      },
+      {
+        "Path": "mesa_shader_cache/bf/d05cdbb490ed755e4e9aa6f5eee9910a1e5d23",
+        "Bytes": 6356,
+        "Sha256": "5b85c44945dcccc20c0bc5b2a6740334faec95178c3e60b939dece2da73de8a4"
+      },
+      {
+        "Path": "mesa_shader_cache/c0/981d47ab4866b22486cdbb3555db8c997e335e",
+        "Bytes": 1896,
+        "Sha256": "86bd6d538b2d2fc348c20ca0f969ac7be2eeef2602f25760f6f6f70169a7808e"
+      },
+      {
+        "Path": "mesa_shader_cache/c3/1016161335ab26a31115ddadae7391b0d2388c",
+        "Bytes": 153,
+        "Sha256": "98f96be4840c166d23b8f332573a384d47b2b7718b9edaf9f270b4af04ab042b"
+      },
+      {
+        "Path": "mesa_shader_cache/c3/20f5d4e9dfff11653f615e500925f9268a886f",
+        "Bytes": 2172,
+        "Sha256": "26202951973fe852849e6df3674c3fe7664faa56932b709f56357b8e75f65b38"
+      },
+      {
+        "Path": "mesa_shader_cache/c5/60bce06e8ac00f37cd53533b6ab3b8e1b949e1",
+        "Bytes": 956,
+        "Sha256": "dbf80ade733ff5ef2bbc3a86d564c4accca6004ec6f9249d8dab2f4d46b84c4b"
+      },
+      {
+        "Path": "mesa_shader_cache/c5/c20fbbf18aa470e12ae186de55db146ce31bdf",
+        "Bytes": 823,
+        "Sha256": "d2ca719fbb48e2a8afe1e1122960ee8ac030a9334a56e0cbbe18a8c3f235b356"
+      },
+      {
+        "Path": "mesa_shader_cache/c7/78af9c249cedf7e5ae6a68d225b2f0df85351f",
+        "Bytes": 153,
+        "Sha256": "92290e557ad404a9d2f9369cfe14a14787483bac7a88b2f5b54dead42a5563dd"
+      },
+      {
+        "Path": "mesa_shader_cache/c8/118bd948c2c4e1679e4153b39ce1d1c2fd3548",
+        "Bytes": 153,
+        "Sha256": "45d5d9d74ca44b502c5e2717c38263409a0749672d30e876f5d189d8a2f96e4b"
+      },
+      {
+        "Path": "mesa_shader_cache/cc/2a847af380eeb5feac6c95acb114891eb5f16a",
+        "Bytes": 153,
+        "Sha256": "a9d4f04ca7952c93086d0b0793a07defc83a27cc6bb2be6180f2540c567da8b8"
+      },
+      {
+        "Path": "mesa_shader_cache/cc/352d8032a55768d15db013e71536af0bb50899",
+        "Bytes": 153,
+        "Sha256": "8aef0b6e2287499cfdd399d3bcc39b465d959656391f6cba2562762dd773fd2f"
+      },
+      {
+        "Path": "mesa_shader_cache/ce/046ceedddd0012efa94daefae2be0e553f8822",
+        "Bytes": 1531,
+        "Sha256": "396e7a71322e5e2938608bbc59cc7e7cab868dcbc1fe144a75308c55d54dbae4"
+      },
+      {
+        "Path": "mesa_shader_cache/d2/6173963c4287fe3939507496548dd9b4c851f6",
+        "Bytes": 680,
+        "Sha256": "fd7b42f002aac8553a19d5448fbc0308049c98d6a4216bbf181d7bb6d39eea40"
+      },
+      {
+        "Path": "mesa_shader_cache/d3/195c3a175672fb168b6af414b47a34ba6ec227",
+        "Bytes": 153,
+        "Sha256": "cca917a9f6f132a207c039826e14b4e1ed914670da6b854404e41baacbff194b"
+      },
+      {
+        "Path": "mesa_shader_cache/d5/cf75103898a4213fe452dd71ecbb468069cbab",
+        "Bytes": 1611,
+        "Sha256": "b984714c063a71f505d51e0450c1215392688f625159ea774ca2a4d7bd5ebba6"
+      },
+      {
+        "Path": "mesa_shader_cache/d6/8bada043dcf04c931a657b584c39a147e265ce",
+        "Bytes": 1186,
+        "Sha256": "8b7af1c9e735b30c2f859f5ebb7e8801646e028f7e2b663c242ad5c46590bb50"
+      },
+      {
+        "Path": "mesa_shader_cache/d6/e5f6dc874c1d2e63340b9da24e2cd6d408954a",
+        "Bytes": 2807,
+        "Sha256": "f0310c918831945777a47fa3d4ea0360a850536cdb5d0346441b3a37fc2b74a0"
+      },
+      {
+        "Path": "mesa_shader_cache/d8/fd140cbe1ec0548dfa572bf2ce9b8c505af75b",
+        "Bytes": 1045,
+        "Sha256": "5ec2fa8517ad9b9ff3593a42b4fc73af217d290200a5db2bb68374d2954cdf59"
+      },
+      {
+        "Path": "mesa_shader_cache/db/e8e82eafcec571e5d881e86f0c2ab10c81b6a7",
+        "Bytes": 121,
+        "Sha256": "12e63d375003348625c8a04ab159d8cb0dbae6f99af6b32ddf9457cf5060c290"
+      },
+      {
+        "Path": "mesa_shader_cache/dc/4ba16a024d19a89a5750fee4886028d6e456e4",
+        "Bytes": 976,
+        "Sha256": "d11900f22333dfd8106a9267bba29a41db4dfc0ca5d3a4183c98d9d330557a8e"
+      },
+      {
+        "Path": "mesa_shader_cache/dc/76372eef53a2517da7fe7188fea3d89cd70f44",
+        "Bytes": 153,
+        "Sha256": "38ff029712a8343f8d3a21644451ce818a8a3d27dd2fe44547cab788aba84976"
+      },
+      {
+        "Path": "mesa_shader_cache/dc/f9265acda5a7d31f3e189f44015bd80927ffcd",
+        "Bytes": 153,
+        "Sha256": "5a683cd6512f69d2acb773701cd2ef1360f1a830f8e3283bbc78f2036a4a92e2"
+      },
+      {
+        "Path": "mesa_shader_cache/e0/3b4ac7494ed4755c88e03f3f81989032804386",
+        "Bytes": 2237,
+        "Sha256": "1da6ae061887e9a6ad9f75ab77751d926e64066408f3149885b112fa45eb106f"
+      },
+      {
+        "Path": "mesa_shader_cache/e3/2ba5f6746842c1a0ecfef801d0a69734cf82b9",
+        "Bytes": 153,
+        "Sha256": "201cfd76a91a2d0075ef33769c6730a8b653d1900bef6c22f7f413c97dedca88"
+      },
+      {
+        "Path": "mesa_shader_cache/e4/5ef234555a2eaf0685320ba44b4aa6a2978e48",
+        "Bytes": 153,
+        "Sha256": "38ff029712a8343f8d3a21644451ce818a8a3d27dd2fe44547cab788aba84976"
+      },
+      {
+        "Path": "mesa_shader_cache/e4/f359e990093573de2e3a5ec4354aee420b633c",
+        "Bytes": 153,
+        "Sha256": "38ff029712a8343f8d3a21644451ce818a8a3d27dd2fe44547cab788aba84976"
+      },
+      {
+        "Path": "mesa_shader_cache/e6/33fb7477966afd764e5e3afb53d3d7719ca27e",
+        "Bytes": 153,
+        "Sha256": "38ff029712a8343f8d3a21644451ce818a8a3d27dd2fe44547cab788aba84976"
+      },
+      {
+        "Path": "mesa_shader_cache/e6/61d74bf5098e466be87093cadd68b1dd09aeed",
+        "Bytes": 1244,
+        "Sha256": "249c67846b04cf963f7447adafa671d5fdcad75c1a931e625b222bb6e22aa16b"
+      },
+      {
+        "Path": "mesa_shader_cache/e9/1abcbe3534c28c432cf5c003f9a24ee3ef2c57",
+        "Bytes": 998,
+        "Sha256": "24edbbb209bcd234b76a2fd0cafd154f9ebb53c6e191e537dd8e880ef778b8d6"
+      },
+      {
+        "Path": "mesa_shader_cache/e9/cdcef038d7e511ad103aa9e3618d7e9c9a752a",
+        "Bytes": 121,
+        "Sha256": "1c8d529243c79a9a4a207cdc4e14d248edfae2f5a59a55de5bf3fe8f518e208a"
+      },
+      {
+        "Path": "mesa_shader_cache/eb/2853c0978d5dea99084d8f44b82a810c694c61",
+        "Bytes": 153,
+        "Sha256": "36bfc0ce4688704876701d63280cd4da365153d1e3e5f15320b7a10ca597a069"
+      },
+      {
+        "Path": "mesa_shader_cache/ed/2d4e3150dfcca50e9c0f68e83c103ce6335545",
+        "Bytes": 153,
+        "Sha256": "c45c1d082e680b696cf56970a56314e439a81de7116132753810f164fa06f39a"
+      },
+      {
+        "Path": "mesa_shader_cache/ed/decdd09383c2b0748270c71ad7d12c9637bda1",
+        "Bytes": 1973,
+        "Sha256": "a4ada2d9554f1965e19571a5fe4bbcbc71b35710353208e4d6e23d168ab36e94"
+      },
+      {
+        "Path": "mesa_shader_cache/f2/a7e5dbc6bde0ef4a23b9fe491340fe930d3ffb",
+        "Bytes": 1188,
+        "Sha256": "b148a0dc93118b80c3b7365c65daf613e9f4bb6c991998bb5e0ef99d2d386360"
+      },
+      {
+        "Path": "mesa_shader_cache/f3/0bc08f6e6634ad10d554317d3b0fd29eec799f",
+        "Bytes": 3231,
+        "Sha256": "5a971d073157d9107df0f265959fa2fdf2c510e4e64fbf2f7789319857421f72"
+      },
+      {
+        "Path": "mesa_shader_cache/f4/3bfa196e39d4ff8fd0d75e05b352e4e3f18295",
+        "Bytes": 153,
+        "Sha256": "da4a57fd2d2f7b129ddd6ec34cd17a28bd14aac19a9e3a60952da3013e25d14a"
+      },
+      {
+        "Path": "mesa_shader_cache/f7/3bafc4aa1d9417dafaa74bbf82ecbc25d33e4d",
+        "Bytes": 153,
+        "Sha256": "7b166f900cf783235e11a32ef347f37a035efc152e69337ec1e33499c3dd1c5a"
+      },
+      {
+        "Path": "mesa_shader_cache/f8/c642786c01a62f4757082d4c9056820a16b887",
+        "Bytes": 153,
+        "Sha256": "1aa09452e541aeaf2c3f0b47394283a62359781e66e7a7b6e8c9818d436eda16"
+      },
+      {
+        "Path": "mesa_shader_cache/fa/122eb0196f7b06ff335ae7cac61675593dbe30",
+        "Bytes": 153,
+        "Sha256": "38ff029712a8343f8d3a21644451ce818a8a3d27dd2fe44547cab788aba84976"
+      },
+      {
+        "Path": "mesa_shader_cache/fc/35d3eac1ac58e73f36610797b29bea8b984e0e",
+        "Bytes": 153,
+        "Sha256": "6c8550d9c7a4da184263066e42162e14e16ef6f52357693d5a57f54712378f6f"
+      },
+      {
+        "Path": "mesa_shader_cache/fd/92de980bc97cfb9e5af31bbafa75a60a725d95",
+        "Bytes": 153,
+        "Sha256": "1af89019f125bed976bda2590567c3759a889fb80d2051ddf8eb3066664c12e0"
+      },
+      {
+        "Path": "mesa_shader_cache/fe/6e9441c0734a6caa47368f703fc3cc45c04def",
+        "Bytes": 1117,
+        "Sha256": "be3b8f701cb09d0391c0a41a96f039201310697122608db1086dbee9b4f244ee"
+      },
+      {
+        "Path": "mesa_shader_cache/index",
+        "Bytes": 1310728,
+        "Sha256": "d3259266f35c20d41a292ce84cec112f7e91b34eb54a0c0844a6323f8be5fe21"
+      },
+      {
+        "Path": "radv_builtin_shaders/index",
+        "Bytes": 1310728,
+        "Sha256": "6d0552c4e71fe85e6cdc7e7745882ea91b382fbc56448f2e9e1c2d77dcf67d81"
+      },
+      {
+        "Path": "radv_builtin_shaders/part0/mesa_cache.db",
+        "Bytes": 6883,
+        "Sha256": "801bc2cdb5fe18d797e1d01d0170404939505c140f0f9aee84497a76ae176620"
+      },
+      {
+        "Path": "radv_builtin_shaders/part0/mesa_cache.idx",
+        "Bytes": 804,
+        "Sha256": "8e53afac0cd2a0d58540fed7a4c8cdfc225fe9a174caabb80b4eee2ccb69701b"
+      },
+      {
+        "Path": "radv_builtin_shaders/part1/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "e8e4653399c6ed8a4abaf9da9a65884048589df8d27cf8f718266da813e9e31f"
+      },
+      {
+        "Path": "radv_builtin_shaders/part1/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "e8e4653399c6ed8a4abaf9da9a65884048589df8d27cf8f718266da813e9e31f"
+      },
+      {
+        "Path": "radv_builtin_shaders/part10/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "d5d93c86d5217cec71c958f491b332cd5d9481c6f2a2686ceefed9fc6852367c"
+      },
+      {
+        "Path": "radv_builtin_shaders/part10/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "d5d93c86d5217cec71c958f491b332cd5d9481c6f2a2686ceefed9fc6852367c"
+      },
+      {
+        "Path": "radv_builtin_shaders/part11/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "cbb503c778727eac9aa4f3044f27857222e4d334e5a284ad4cc21b078458437a"
+      },
+      {
+        "Path": "radv_builtin_shaders/part11/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "cbb503c778727eac9aa4f3044f27857222e4d334e5a284ad4cc21b078458437a"
+      },
+      {
+        "Path": "radv_builtin_shaders/part12/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "6de3ca1716dec2782da794dfc5251e22dce9dc9b6852b2cb3f5b21a0a200fa5d"
+      },
+      {
+        "Path": "radv_builtin_shaders/part12/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "6de3ca1716dec2782da794dfc5251e22dce9dc9b6852b2cb3f5b21a0a200fa5d"
+      },
+      {
+        "Path": "radv_builtin_shaders/part13/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "cf44bc2c4480f9c5e4d501530e44059756362344854ac91016042f9e2fa35d4b"
+      },
+      {
+        "Path": "radv_builtin_shaders/part13/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "cf44bc2c4480f9c5e4d501530e44059756362344854ac91016042f9e2fa35d4b"
+      },
+      {
+        "Path": "radv_builtin_shaders/part14/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "af526332f90366fb89c9205364047a1cb0a60a26dd241ed424dea81bb1e7a5ff"
+      },
+      {
+        "Path": "radv_builtin_shaders/part14/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "af526332f90366fb89c9205364047a1cb0a60a26dd241ed424dea81bb1e7a5ff"
+      },
+      {
+        "Path": "radv_builtin_shaders/part15/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "bb2bbbf6bac5771d7706dbefc89f3e726d7aec149164a71c0a7398ca7944ca1e"
+      },
+      {
+        "Path": "radv_builtin_shaders/part15/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "bb2bbbf6bac5771d7706dbefc89f3e726d7aec149164a71c0a7398ca7944ca1e"
+      },
+      {
+        "Path": "radv_builtin_shaders/part16/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "d22a6306b1e28a625fdab39ed1a8a60cf4c46cc739952d23d67dd2f43cb3acbd"
+      },
+      {
+        "Path": "radv_builtin_shaders/part16/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "d22a6306b1e28a625fdab39ed1a8a60cf4c46cc739952d23d67dd2f43cb3acbd"
+      },
+      {
+        "Path": "radv_builtin_shaders/part17/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "52a03281c61a5861371221984196c5b0b30af483c8c4f1fdbcaeaa4c684c4bf0"
+      },
+      {
+        "Path": "radv_builtin_shaders/part17/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "52a03281c61a5861371221984196c5b0b30af483c8c4f1fdbcaeaa4c684c4bf0"
+      },
+      {
+        "Path": "radv_builtin_shaders/part18/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "a60733beb1b443d167c243d1b25469e2e9565c560bed62e84eac6a2bef70f28a"
+      },
+      {
+        "Path": "radv_builtin_shaders/part18/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "a60733beb1b443d167c243d1b25469e2e9565c560bed62e84eac6a2bef70f28a"
+      },
+      {
+        "Path": "radv_builtin_shaders/part19/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "935f062bed1e144e845ba4ead3bba50d0763babeb6eda32193cfc59141a90a0c"
+      },
+      {
+        "Path": "radv_builtin_shaders/part19/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "935f062bed1e144e845ba4ead3bba50d0763babeb6eda32193cfc59141a90a0c"
+      },
+      {
+        "Path": "radv_builtin_shaders/part2/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "8920c45c9828ec7b524c7f76ed09f25c068673ef0d6b87e22ed0585f2b9a10f3"
+      },
+      {
+        "Path": "radv_builtin_shaders/part2/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "8920c45c9828ec7b524c7f76ed09f25c068673ef0d6b87e22ed0585f2b9a10f3"
+      },
+      {
+        "Path": "radv_builtin_shaders/part20/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "9a811bb82144551cd29cbe9570c3e4e98becf7c4a6e7b16813ccc7e8537227b3"
+      },
+      {
+        "Path": "radv_builtin_shaders/part20/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "9a811bb82144551cd29cbe9570c3e4e98becf7c4a6e7b16813ccc7e8537227b3"
+      },
+      {
+        "Path": "radv_builtin_shaders/part21/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "9db3393fd4830e10c3f366dd377196e5d3b0a1f1aaa5cc107f21c17a9a3a1cf4"
+      },
+      {
+        "Path": "radv_builtin_shaders/part21/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "9db3393fd4830e10c3f366dd377196e5d3b0a1f1aaa5cc107f21c17a9a3a1cf4"
+      },
+      {
+        "Path": "radv_builtin_shaders/part22/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "85eb45f3637d9c7af6795db6330076575c9782d508ac626445ae12dae55900e8"
+      },
+      {
+        "Path": "radv_builtin_shaders/part22/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "85eb45f3637d9c7af6795db6330076575c9782d508ac626445ae12dae55900e8"
+      },
+      {
+        "Path": "radv_builtin_shaders/part23/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "e40d1e2b65b0da39fb93c4e259865b2cf041d61f16fb1159787b365ffe1e066e"
+      },
+      {
+        "Path": "radv_builtin_shaders/part23/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "e40d1e2b65b0da39fb93c4e259865b2cf041d61f16fb1159787b365ffe1e066e"
+      },
+      {
+        "Path": "radv_builtin_shaders/part24/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "53cbe65223af023007b132df30967fdaacb772730ef70fb0ae9cb64a43e9101a"
+      },
+      {
+        "Path": "radv_builtin_shaders/part24/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "53cbe65223af023007b132df30967fdaacb772730ef70fb0ae9cb64a43e9101a"
+      },
+      {
+        "Path": "radv_builtin_shaders/part25/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "77e13d25a809052aaca7c066fb052815ab0059771f6e21fa927bcb68ef960c5c"
+      },
+      {
+        "Path": "radv_builtin_shaders/part25/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "77e13d25a809052aaca7c066fb052815ab0059771f6e21fa927bcb68ef960c5c"
+      },
+      {
+        "Path": "radv_builtin_shaders/part26/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "8be085e4148fd5d4d4b18ace834d3f7fecf503f3e3d75a4c673141797544a15e"
+      },
+      {
+        "Path": "radv_builtin_shaders/part26/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "8be085e4148fd5d4d4b18ace834d3f7fecf503f3e3d75a4c673141797544a15e"
+      },
+      {
+        "Path": "radv_builtin_shaders/part27/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "f4d923097d8ff5d04bc1564af9443560da968c5552f35a2446e490bc4ebb1355"
+      },
+      {
+        "Path": "radv_builtin_shaders/part27/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "f4d923097d8ff5d04bc1564af9443560da968c5552f35a2446e490bc4ebb1355"
+      },
+      {
+        "Path": "radv_builtin_shaders/part28/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "517c0145549137a1eced30d14f59f140386b94d5a6c28730cd2c5a872e630932"
+      },
+      {
+        "Path": "radv_builtin_shaders/part28/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "517c0145549137a1eced30d14f59f140386b94d5a6c28730cd2c5a872e630932"
+      },
+      {
+        "Path": "radv_builtin_shaders/part29/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "eef59e39d8161e5bcf7344eb6cfdfb270754afffde201ae5a62067dd017c3419"
+      },
+      {
+        "Path": "radv_builtin_shaders/part29/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "eef59e39d8161e5bcf7344eb6cfdfb270754afffde201ae5a62067dd017c3419"
+      },
+      {
+        "Path": "radv_builtin_shaders/part3/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "c388fe17328f00a3a00a09e6cf3c23de2c517184adb10edf79f16fb8f61fa591"
+      },
+      {
+        "Path": "radv_builtin_shaders/part3/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "c388fe17328f00a3a00a09e6cf3c23de2c517184adb10edf79f16fb8f61fa591"
+      },
+      {
+        "Path": "radv_builtin_shaders/part30/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "6e37dbf8bade19760cbd6b08b802cc97a920c9ffc8f4654cec1d0ab3373b5a56"
+      },
+      {
+        "Path": "radv_builtin_shaders/part30/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "6e37dbf8bade19760cbd6b08b802cc97a920c9ffc8f4654cec1d0ab3373b5a56"
+      },
+      {
+        "Path": "radv_builtin_shaders/part31/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "2ee6f2ceebd046e9a1c2ed72b014c28d6915a557e8171840af1850c4ad586232"
+      },
+      {
+        "Path": "radv_builtin_shaders/part31/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "2ee6f2ceebd046e9a1c2ed72b014c28d6915a557e8171840af1850c4ad586232"
+      },
+      {
+        "Path": "radv_builtin_shaders/part32/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "e0268a467f26b8ae1737b12dad9278967df43941171213d48eb60dfa395062e3"
+      },
+      {
+        "Path": "radv_builtin_shaders/part32/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "e0268a467f26b8ae1737b12dad9278967df43941171213d48eb60dfa395062e3"
+      },
+      {
+        "Path": "radv_builtin_shaders/part33/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "1d624b8c3cdb5d503271a14f21d51dfcb9d38b116b121837b497465dd9bb5749"
+      },
+      {
+        "Path": "radv_builtin_shaders/part33/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "1d624b8c3cdb5d503271a14f21d51dfcb9d38b116b121837b497465dd9bb5749"
+      },
+      {
+        "Path": "radv_builtin_shaders/part34/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "470d468f73d410529945e7ffa678004d5c2025bec8047325ba2471826678d155"
+      },
+      {
+        "Path": "radv_builtin_shaders/part34/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "470d468f73d410529945e7ffa678004d5c2025bec8047325ba2471826678d155"
+      },
+      {
+        "Path": "radv_builtin_shaders/part35/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "d2056460474e408ebf2dbceee5d18c2eeee9731fb0fa800bf82fa57eba6866ba"
+      },
+      {
+        "Path": "radv_builtin_shaders/part35/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "d2056460474e408ebf2dbceee5d18c2eeee9731fb0fa800bf82fa57eba6866ba"
+      },
+      {
+        "Path": "radv_builtin_shaders/part36/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "3ab6fe4c93c9769a279ba81ebe6ff8ec828b5d76adccf744aaa26b4134aea711"
+      },
+      {
+        "Path": "radv_builtin_shaders/part36/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "3ab6fe4c93c9769a279ba81ebe6ff8ec828b5d76adccf744aaa26b4134aea711"
+      },
+      {
+        "Path": "radv_builtin_shaders/part37/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "014b7fb00de277fc3d4fa64b2cf7597af672e51ee70631360c2971089f333ee3"
+      },
+      {
+        "Path": "radv_builtin_shaders/part37/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "014b7fb00de277fc3d4fa64b2cf7597af672e51ee70631360c2971089f333ee3"
+      },
+      {
+        "Path": "radv_builtin_shaders/part38/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "4dc41c94f40bb9fa5cf349adf6f506b475cd9675b5fc6a674b2b81e65e64570d"
+      },
+      {
+        "Path": "radv_builtin_shaders/part38/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "4dc41c94f40bb9fa5cf349adf6f506b475cd9675b5fc6a674b2b81e65e64570d"
+      },
+      {
+        "Path": "radv_builtin_shaders/part39/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "4ebd3b0aefef0b3020aec97f2b4514713a1cb310c1cf516dbaac3b72e422a450"
+      },
+      {
+        "Path": "radv_builtin_shaders/part39/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "4ebd3b0aefef0b3020aec97f2b4514713a1cb310c1cf516dbaac3b72e422a450"
+      },
+      {
+        "Path": "radv_builtin_shaders/part4/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "9e3ff6eb0a900caba23c94d265a56e9f82b86aaa4ffbf91a8a97b99c48518360"
+      },
+      {
+        "Path": "radv_builtin_shaders/part4/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "9e3ff6eb0a900caba23c94d265a56e9f82b86aaa4ffbf91a8a97b99c48518360"
+      },
+      {
+        "Path": "radv_builtin_shaders/part40/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "f5e1a28a4c26f426f9c7ae0fffd75a1b311cc9b486b788a617cfae6745d4b209"
+      },
+      {
+        "Path": "radv_builtin_shaders/part40/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "f5e1a28a4c26f426f9c7ae0fffd75a1b311cc9b486b788a617cfae6745d4b209"
+      },
+      {
+        "Path": "radv_builtin_shaders/part41/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "771f803e70514ebb672b2448749ce3eef8a43506136d292a7ff00ab0ae40324d"
+      },
+      {
+        "Path": "radv_builtin_shaders/part41/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "771f803e70514ebb672b2448749ce3eef8a43506136d292a7ff00ab0ae40324d"
+      },
+      {
+        "Path": "radv_builtin_shaders/part42/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "992dcc830f7c6e137b0eb92bf612c6b1141f33c05bd0a32a30b1f402eb03435b"
+      },
+      {
+        "Path": "radv_builtin_shaders/part42/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "992dcc830f7c6e137b0eb92bf612c6b1141f33c05bd0a32a30b1f402eb03435b"
+      },
+      {
+        "Path": "radv_builtin_shaders/part43/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "412d788847fead28aa49a41a9b36865a592454e7bd51920048c22acff95c32a5"
+      },
+      {
+        "Path": "radv_builtin_shaders/part43/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "412d788847fead28aa49a41a9b36865a592454e7bd51920048c22acff95c32a5"
+      },
+      {
+        "Path": "radv_builtin_shaders/part44/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "7bb6288749ff6d910b3608591f6b4bd3cf21c0d7f36b16ec9636cf669466a59f"
+      },
+      {
+        "Path": "radv_builtin_shaders/part44/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "7bb6288749ff6d910b3608591f6b4bd3cf21c0d7f36b16ec9636cf669466a59f"
+      },
+      {
+        "Path": "radv_builtin_shaders/part45/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "ea1fe5938b98a7438d0a31817f84b67146c4b38d2a6ee67beda25f5ba34ab35c"
+      },
+      {
+        "Path": "radv_builtin_shaders/part45/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "ea1fe5938b98a7438d0a31817f84b67146c4b38d2a6ee67beda25f5ba34ab35c"
+      },
+      {
+        "Path": "radv_builtin_shaders/part46/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "09a92feb976ceb728cace76f30caebd4b91e3a383e6e3c4759d3552b5f9ed199"
+      },
+      {
+        "Path": "radv_builtin_shaders/part46/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "09a92feb976ceb728cace76f30caebd4b91e3a383e6e3c4759d3552b5f9ed199"
+      },
+      {
+        "Path": "radv_builtin_shaders/part47/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "3eff4a8e5d4534e6716509096b03a718a994cfc5e6733e7b6932c7b7a3cab2bf"
+      },
+      {
+        "Path": "radv_builtin_shaders/part47/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "3eff4a8e5d4534e6716509096b03a718a994cfc5e6733e7b6932c7b7a3cab2bf"
+      },
+      {
+        "Path": "radv_builtin_shaders/part48/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "8d58563d4d98261d557417f28530a3a3c62eef67347f7eb586cefe491bf27677"
+      },
+      {
+        "Path": "radv_builtin_shaders/part48/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "8d58563d4d98261d557417f28530a3a3c62eef67347f7eb586cefe491bf27677"
+      },
+      {
+        "Path": "radv_builtin_shaders/part49/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "05d0ab19c67852d7b0faed716c730c8b0a8c82960e3178945ff6ba38d2986e00"
+      },
+      {
+        "Path": "radv_builtin_shaders/part49/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "05d0ab19c67852d7b0faed716c730c8b0a8c82960e3178945ff6ba38d2986e00"
+      },
+      {
+        "Path": "radv_builtin_shaders/part5/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "dd581b1024f0a8b36188c47823deb05f77d6f98d981cde2ef492c621da64d8ad"
+      },
+      {
+        "Path": "radv_builtin_shaders/part5/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "dd581b1024f0a8b36188c47823deb05f77d6f98d981cde2ef492c621da64d8ad"
+      },
+      {
+        "Path": "radv_builtin_shaders/part6/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "970af4e90a553c39422eb33baab1f4202d9f094f0f50bb4232ac433bc2f75018"
+      },
+      {
+        "Path": "radv_builtin_shaders/part6/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "970af4e90a553c39422eb33baab1f4202d9f094f0f50bb4232ac433bc2f75018"
+      },
+      {
+        "Path": "radv_builtin_shaders/part7/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "85a329f8320d8d3bd099fd356d9a51291d02707c84578d7957e517fffca8ff2e"
+      },
+      {
+        "Path": "radv_builtin_shaders/part7/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "85a329f8320d8d3bd099fd356d9a51291d02707c84578d7957e517fffca8ff2e"
+      },
+      {
+        "Path": "radv_builtin_shaders/part8/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "3ad36e031ec8a5d062084ff330b085b94ce694df4bce7bee2493268d657fc39f"
+      },
+      {
+        "Path": "radv_builtin_shaders/part8/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "3ad36e031ec8a5d062084ff330b085b94ce694df4bce7bee2493268d657fc39f"
+      },
+      {
+        "Path": "radv_builtin_shaders/part9/mesa_cache.db",
+        "Bytes": 20,
+        "Sha256": "108fc387abaa74538d1836fd9bf0e10d8271ce17c5d407cae4ed010f2d40c9f2"
+      },
+      {
+        "Path": "radv_builtin_shaders/part9/mesa_cache.idx",
+        "Bytes": 20,
+        "Sha256": "108fc387abaa74538d1836fd9bf0e10d8271ce17c5d407cae4ed010f2d40c9f2"
+      }
+    ],
+    "Issues": []
+  },
+  "TargetStopped": true,
+  "Uncontrolled": [
+    "os-page-cache",
+    "driver-cache"
+  ],
+  "Issues": [],
+  "RuntimeSeeds": [
+    {
+      "Source": "state/seed-eeprom.bin",
+      "Destination": "eeprom.bin",
+      "Bytes": 256,
+      "Sha256": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+    },
+    {
+      "Source": "disk-asset:research245-cpu-fatx-compat010-78af83a6",
+      "Destination": "hdd.qcow2",
+      "Bytes": 1310720,
+      "Sha256": "032554ef8771c0e1a88b64f5dff2570d44f64cc3068449807d29a449d7cb266f",
+      "DiskAssetId": "research245-cpu-fatx-compat010-78af83a6",
+      "AssetKind": "xiso-seed",
+      "Retention": "deleteAfterEvidence",
+      "SeedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b"
+    }
+  ],
+  "ReadOnlyAssets": [
+    {
+      "Field": "bootrom_path",
+      "AssetId": "research247-bootrom-e99e3a",
+      "Path": "/home/deck/xemu-research/workspace/DiskAssets/research247-bootrom-e99e3a/disk.qcow2",
+      "Bytes": 512,
+      "ExpectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335",
+      "BeforeSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335",
+      "AfterSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+    },
+    {
+      "Field": "flashrom_path",
+      "AssetId": "research247-bios-1de4c8",
+      "Path": "/home/deck/xemu-research/workspace/DiskAssets/research247-bios-1de4c8/disk.qcow2",
+      "Bytes": 1048576,
+      "ExpectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f",
+      "BeforeSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f",
+      "AfterSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+    },
+    {
+      "Field": "dvd_path",
+      "AssetId": "research245-cpu-iso-c02a1a44-74a10c40",
+      "Path": "/home/deck/xemu-research/workspace/DiskAssets/research245-cpu-iso-c02a1a44-74a10c40/disk.qcow2",
+      "Bytes": 3670016,
+      "ExpectedSha256": "74a10c400f4fb280dcb4037e38e7e4d3150e73e0061a04f65b3c68cc61a49e63",
+      "BeforeSha256": "74a10c400f4fb280dcb4037e38e7e4d3150e73e0061a04f65b3c68cc61a49e63",
+      "AfterSha256": "74a10c400f4fb280dcb4037e38e7e4d3150e73e0061a04f65b3c68cc61a49e63"
+    }
+  ],
+  "StoragePaths": {
+    "bootrom_path": "/home/deck/xemu-research/workspace/DiskAssets/research247-bootrom-e99e3a/disk.qcow2",
+    "flashrom_path": "/home/deck/xemu-research/workspace/DiskAssets/research247-bios-1de4c8/disk.qcow2",
+    "dvd_path": "/home/deck/xemu-research/workspace/DiskAssets/research245-cpu-iso-c02a1a44-74a10c40/disk.qcow2",
+    "hdd_path": "/home/deck/xemu-research/workspace/Runtime/20260930-195918026-6ec72d137b47496d84b5dafbc3439448/hdd.qcow2",
+    "eeprom_path": "/home/deck/xemu-research/workspace/Runtime/20260930-195918026-6ec72d137b47496d84b5dafbc3439448/eeprom.bin",
+    "screenshots": "/home/deck/xemu-research/workspace/Results/20260930-195918026-6ec72d137b47496d84b5dafbc3439448/screenshots",
+    "applicationBase": "/home/deck/xemu-research/workspace/Queue/Testing/agent-xc-o245-dec-0bd18bf2-stable-02-001",
+    "openglShaders": "/home/deck/xemu-research/workspace/Queue/Testing/agent-xc-o245-dec-0bd18bf2-stable-02-001/shaders",
+    "openglReloadList": "/home/deck/xemu-research/workspace/Queue/Testing/agent-xc-o245-dec-0bd18bf2-stable-02-001/shader_cache_list"
+  },
+  "CacheEnvironment": {
+    "effective:MESA_SHADER_CACHE_DIR": "/home/deck/xemu-research/workspace/Results/20260930-195918026-6ec72d137b47496d84b5dafbc3439448/state/driver-cache",
+    "effective:MESA_SHADER_CACHE_DISABLE": "false",
+    "effective:MESA_SHADER_CACHE_MAX_SIZE": "256M"
+  },
+  "Limitations": [
+    "Cold refers to the application cache, not RAM, OS page cache or a fully reset GPU driver.",
+    "The effective file pins authored values and shader caching; omitted build defaults are not introspected.",
+    "Directory redirection is not an OS sandbox and does not prove an arbitrary executable obeyed it.",
+    "Driver namespaces are requested controls, not proof the loaded driver used them."
+  ]
+}

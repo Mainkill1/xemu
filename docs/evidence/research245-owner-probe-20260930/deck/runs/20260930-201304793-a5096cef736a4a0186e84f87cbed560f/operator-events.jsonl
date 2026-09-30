@@ -1,0 +1,4 @@
+{"timestampUtc":"2026-09-30T20:13:05.1645261+00:00","elapsedMs":370.8113,"kind":"bulk_transfer","detail":{"action":"createXisoCampaign","Id":"pc245-dec-rewrite-01"}}
+{"timestampUtc":"2026-09-30T20:13:05.3012829+00:00","elapsedMs":507.5681,"kind":"bulk_transfer","detail":{"action":"createXisoCampaign","Id":"pc245-dec-rewrite-02"}}
+{"timestampUtc":"2026-09-30T20:13:05.4374132+00:00","elapsedMs":643.6981,"kind":"bulk_transfer","detail":{"action":"createXisoCampaign","Id":"pc245-dec-rewrite-03"}}
+{"timestampUtc":"2026-09-30T20:13:05.5782314+00:00","elapsedMs":784.5162,"kind":"bulk_transfer","detail":{"action":"createXisoCampaign","Id":"pc245-dec-rewrite-04"}}

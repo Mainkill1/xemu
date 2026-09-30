@@ -1,0 +1,26 @@
+[general]
+show_welcome = false
+screenshot_dir = "/home/deck/xemu-research/workspace/Results/20260930-202908323-e72cb7ef59cd40e6ba19fe22b2ed32b1/screenshots"
+[input]
+background_input_capture = true
+[input.virtual_ports]
+port1_connected = 1
+[input.bindings]
+port1_driver = "usb-xbox-gamepad"
+port1 = "keyboard"
+[display]
+renderer = "VULKAN"
+[display.window]
+vsync = false
+[audio]
+use_dsp_jit = true
+[sys]
+mem_limit = "128"
+[sys.files]
+hdd_path = "/home/deck/xemu-research/workspace/Runtime/20260930-202908323-e72cb7ef59cd40e6ba19fe22b2ed32b1/hdd.qcow2"
+eeprom_path = "/home/deck/xemu-research/workspace/Runtime/20260930-202908323-e72cb7ef59cd40e6ba19fe22b2ed32b1/eeprom.bin"
+bootrom_path = "/home/deck/xemu-research/workspace/DiskAssets/research247-bootrom-e99e3a/disk.qcow2"
+flashrom_path = "/home/deck/xemu-research/workspace/DiskAssets/research247-bios-1de4c8/disk.qcow2"
+dvd_path = "/home/deck/xemu-research/workspace/DiskAssets/research245-cpu-iso-c02a1a44-74a10c40/disk.qcow2"
+[perf]
+cache_shaders = false

@@ -1,0 +1,322 @@
+[
+  {
+    "work": 0,
+    "comparison": "0-vs-1",
+    "baselineStage": 0,
+    "candidateStage": 1,
+    "pairs": 30,
+    "medianCpuNs": {
+      "0": 3092988.5,
+      "1": 3092769.0
+    },
+    "absoluteDeltaNs": -219.5,
+    "improvementPercent": 0.007096696285809016,
+    "pairedMedianImprovementPercent": -0.04196924689187044,
+    "pairedBootstrapMedianCI95": [
+      -0.12440212315096459,
+      0.18591563053298768
+    ],
+    "p95SlowdownPercent": 0.7852876521317165,
+    "worstSlowdownPercent": 10.701418450771929
+  },
+  {
+    "work": 0,
+    "comparison": "1-vs-2",
+    "baselineStage": 1,
+    "candidateStage": 2,
+    "pairs": 30,
+    "medianCpuNs": {
+      "1": 3101389.0,
+      "2": 3104074.0
+    },
+    "absoluteDeltaNs": 2685.0,
+    "improvementPercent": -0.08657411243800761,
+    "pairedMedianImprovementPercent": -0.0737098435351442,
+    "pairedBootstrapMedianCI95": [
+      -0.3458769407789384,
+      0.08174869503402177
+    ],
+    "p95SlowdownPercent": 33.09271643821347,
+    "worstSlowdownPercent": 33.570739971217755
+  },
+  {
+    "work": 0,
+    "comparison": "2-vs-3",
+    "baselineStage": 2,
+    "candidateStage": 3,
+    "pairs": 30,
+    "medianCpuNs": {
+      "2": 3115549.0,
+      "3": 5500061.0
+    },
+    "absoluteDeltaNs": 2384512.0,
+    "improvementPercent": -76.5358529106748,
+    "pairedMedianImprovementPercent": -67.30678877160715,
+    "pairedBootstrapMedianCI95": [
+      -81.16096441343171,
+      -65.70123941651892
+    ],
+    "p95SlowdownPercent": 101.0762297110663,
+    "worstSlowdownPercent": 106.11798438944744
+  },
+  {
+    "work": 0,
+    "comparison": "3-vs-4",
+    "baselineStage": 3,
+    "candidateStage": 4,
+    "pairs": 30,
+    "medianCpuNs": {
+      "3": 5416410.5,
+      "4": 6215878.0
+    },
+    "absoluteDeltaNs": 799467.5,
+    "improvementPercent": -14.760098039098034,
+    "pairedMedianImprovementPercent": -20.022551024194755,
+    "pairedBootstrapMedianCI95": [
+      -20.83310700390011,
+      -13.390903848664063
+    ],
+    "p95SlowdownPercent": 32.14794566305732,
+    "worstSlowdownPercent": 36.119249554235026
+  },
+  {
+    "work": 0,
+    "comparison": "4-vs-5",
+    "baselineStage": 4,
+    "candidateStage": 5,
+    "pairs": 30,
+    "medianCpuNs": {
+      "4": 6208743.0,
+      "5": 6479675.5
+    },
+    "absoluteDeltaNs": 270932.5,
+    "improvementPercent": -4.363725475510905,
+    "pairedMedianImprovementPercent": -4.297084729832441,
+    "pairedBootstrapMedianCI95": [
+      -4.625537387992627,
+      -3.5891776179282884
+    ],
+    "p95SlowdownPercent": 4.893217134851749,
+    "worstSlowdownPercent": 5.074621514561903
+  },
+  {
+    "work": 0,
+    "comparison": "6-vs-4",
+    "baselineStage": 6,
+    "candidateStage": 4,
+    "pairs": 30,
+    "medianCpuNs": {
+      "6": 13576161.5,
+      "4": 6220308.0
+    },
+    "absoluteDeltaNs": -7355853.5,
+    "improvementPercent": 54.18213019932033,
+    "pairedMedianImprovementPercent": 54.1374243027408,
+    "pairedBootstrapMedianCI95": [
+      53.645899752977,
+      54.25618819101895
+    ],
+    "p95SlowdownPercent": -49.826549465543465,
+    "worstSlowdownPercent": -49.678858252209736
+  },
+  {
+    "work": 0,
+    "comparison": "7-vs-1",
+    "baselineStage": 7,
+    "candidateStage": 1,
+    "pairs": 30,
+    "medianCpuNs": {
+      "7": 3093209.0,
+      "1": 3092349.0
+    },
+    "absoluteDeltaNs": -860.0,
+    "improvementPercent": 0.02780284164438937,
+    "pairedMedianImprovementPercent": 0.05243632249424865,
+    "pairedBootstrapMedianCI95": [
+      -0.1084775851473555,
+      0.14757130348352426
+    ],
+    "p95SlowdownPercent": 0.8489604748565468,
+    "worstSlowdownPercent": 7.79820341772414
+  },
+  {
+    "work": 0,
+    "comparison": "0-vs-4",
+    "baselineStage": 0,
+    "candidateStage": 4,
+    "pairs": 30,
+    "medianCpuNs": {
+      "0": 3095274.0,
+      "4": 6202388.0
+    },
+    "absoluteDeltaNs": 3107114.0,
+    "improvementPercent": -100.38251863970686,
+    "pairedMedianImprovementPercent": -100.07167038531412,
+    "pairedBootstrapMedianCI95": [
+      -102.3464793124923,
+      -99.73777781004259
+    ],
+    "p95SlowdownPercent": 133.44357950060993,
+    "worstSlowdownPercent": 136.00907534484918
+  },
+  {
+    "work": 16,
+    "comparison": "0-vs-1",
+    "baselineStage": 0,
+    "candidateStage": 1,
+    "pairs": 30,
+    "medianCpuNs": {
+      "0": 98308438.0,
+      "1": 98302663.0
+    },
+    "absoluteDeltaNs": -5775.0,
+    "improvementPercent": 0.005874368586753459,
+    "pairedMedianImprovementPercent": 0.016310172820443065,
+    "pairedBootstrapMedianCI95": [
+      0.009251480684735743,
+      0.026159085622892
+    ],
+    "p95SlowdownPercent": 0.06501047506261082,
+    "worstSlowdownPercent": 0.09003678056921417
+  },
+  {
+    "work": 16,
+    "comparison": "1-vs-2",
+    "baselineStage": 1,
+    "candidateStage": 2,
+    "pairs": 30,
+    "medianCpuNs": {
+      "1": 98364908.0,
+      "2": 98387008.0
+    },
+    "absoluteDeltaNs": 22100.0,
+    "improvementPercent": -0.022467362039315892,
+    "pairedMedianImprovementPercent": -0.0356802434154484,
+    "pairedBootstrapMedianCI95": [
+      -0.07397949681499565,
+      -0.02005413028745399
+    ],
+    "p95SlowdownPercent": 1.0891254652611888,
+    "worstSlowdownPercent": 2.595231814948496
+  },
+  {
+    "work": 16,
+    "comparison": "2-vs-3",
+    "baselineStage": 2,
+    "candidateStage": 3,
+    "pairs": 30,
+    "medianCpuNs": {
+      "2": 98342393.0,
+      "3": 98357768.5
+    },
+    "absoluteDeltaNs": 15375.5,
+    "improvementPercent": -0.01563466123912604,
+    "pairedMedianImprovementPercent": -0.023434595021582343,
+    "pairedBootstrapMedianCI95": [
+      -0.03928925799303433,
+      -0.004226122182094042
+    ],
+    "p95SlowdownPercent": 0.05717793140710846,
+    "worstSlowdownPercent": 0.05963780057833948
+  },
+  {
+    "work": 16,
+    "comparison": "3-vs-4",
+    "baselineStage": 3,
+    "candidateStage": 4,
+    "pairs": 30,
+    "medianCpuNs": {
+      "3": 98354188.0,
+      "4": 98358032.5
+    },
+    "absoluteDeltaNs": 3844.5,
+    "improvementPercent": -0.00390883202655285,
+    "pairedMedianImprovementPercent": 0.004265209679961775,
+    "pairedBootstrapMedianCI95": [
+      -0.030613100235667587,
+      0.01008280886531731
+    ],
+    "p95SlowdownPercent": 0.09686446207628158,
+    "worstSlowdownPercent": 0.11545903158363449
+  },
+  {
+    "work": 16,
+    "comparison": "4-vs-5",
+    "baselineStage": 4,
+    "candidateStage": 5,
+    "pairs": 30,
+    "medianCpuNs": {
+      "4": 98316137.0,
+      "5": 98483809.5
+    },
+    "absoluteDeltaNs": 167672.5,
+    "improvementPercent": -0.17054423120794504,
+    "pairedMedianImprovementPercent": -0.17267670403909563,
+    "pairedBootstrapMedianCI95": [
+      -0.18463847068070366,
+      -0.1530631292318237
+    ],
+    "p95SlowdownPercent": 0.28099207455064446,
+    "worstSlowdownPercent": 0.4476147370055438
+  },
+  {
+    "work": 16,
+    "comparison": "6-vs-4",
+    "baselineStage": 6,
+    "candidateStage": 4,
+    "pairs": 30,
+    "medianCpuNs": {
+      "6": 98446983.5,
+      "4": 98359378.0
+    },
+    "absoluteDeltaNs": -87605.5,
+    "improvementPercent": 0.0889874904089875,
+    "pairedMedianImprovementPercent": 0.09329536833551438,
+    "pairedBootstrapMedianCI95": [
+      0.07644045564448201,
+      0.12071361751992626
+    ],
+    "p95SlowdownPercent": -0.03670075110902177,
+    "worstSlowdownPercent": 0.2149778959184969
+  },
+  {
+    "work": 16,
+    "comparison": "7-vs-1",
+    "baselineStage": 7,
+    "candidateStage": 1,
+    "pairs": 30,
+    "medianCpuNs": {
+      "7": 98312633.0,
+      "1": 98296782.0
+    },
+    "absoluteDeltaNs": -15851.0,
+    "improvementPercent": 0.016123055111340573,
+    "pairedMedianImprovementPercent": 0.008734170190840463,
+    "pairedBootstrapMedianCI95": [
+      -0.015583330085558983,
+      0.030891249980263553
+    ],
+    "p95SlowdownPercent": 0.32137590080593104,
+    "worstSlowdownPercent": 0.6909749549770456
+  },
+  {
+    "work": 16,
+    "comparison": "0-vs-4",
+    "baselineStage": 0,
+    "candidateStage": 4,
+    "pairs": 30,
+    "medianCpuNs": {
+      "0": 98282297.5,
+      "4": 98307397.5
+    },
+    "absoluteDeltaNs": 25100.0,
+    "improvementPercent": -0.025538678519394602,
+    "pairedMedianImprovementPercent": -0.02084620459790671,
+    "pairedBootstrapMedianCI95": [
+      -0.03983481900417461,
+      -0.003322270318185205
+    ],
+    "p95SlowdownPercent": 0.08309961348245892,
+    "worstSlowdownPercent": 0.10163377333529852
+  }
+]

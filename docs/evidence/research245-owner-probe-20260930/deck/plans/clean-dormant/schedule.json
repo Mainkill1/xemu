@@ -1,0 +1,49 @@
+{
+  "sourceCommit": "0bd18bf26b894852f934a231a29a09b2f5eb480c",
+  "packages": {
+    "disabled": {
+      "application": "owner245-deck-0bd18bf2-disabled",
+      "executableSha256": "2e99f64682c15b8a90fbe0953af1e997087c67dd34c67c96e8fdd613349ba874"
+    },
+    "enabled": {
+      "application": "owner245-deck-0bd18bf2-enabled",
+      "executableSha256": "97a3264d2bf35ef45f2fdac323482d4b279d20cd577a730477699c2a673ba196"
+    }
+  },
+  "application": "owner245-deck-0bd18bf2-enabled",
+  "executableSha256": "97a3264d2bf35ef45f2fdac323482d4b279d20cd577a730477699c2a673ba196",
+  "attempts": [
+    {
+      "campaign": "d245-dec-0bd18bf2-stable-01",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "disabled",
+      "position": 0,
+      "phase": "dormant-ABBA",
+      "executableSha256": "2e99f64682c15b8a90fbe0953af1e997087c67dd34c67c96e8fdd613349ba874"
+    },
+    {
+      "campaign": "d245-dec-0bd18bf2-stable-02",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "off",
+      "position": 1,
+      "phase": "dormant-ABBA",
+      "executableSha256": "97a3264d2bf35ef45f2fdac323482d4b279d20cd577a730477699c2a673ba196"
+    },
+    {
+      "campaign": "d245-dec-0bd18bf2-stable-03",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "off",
+      "position": 2,
+      "phase": "dormant-ABBA",
+      "executableSha256": "97a3264d2bf35ef45f2fdac323482d4b279d20cd577a730477699c2a673ba196"
+    },
+    {
+      "campaign": "d245-dec-0bd18bf2-stable-04",
+      "leaf": "cpu_translation_blocks.code_stable",
+      "mode": "disabled",
+      "position": 3,
+      "phase": "dormant-ABBA",
+      "executableSha256": "2e99f64682c15b8a90fbe0953af1e997087c67dd34c67c96e8fdd613349ba874"
+    }
+  ]
+}
