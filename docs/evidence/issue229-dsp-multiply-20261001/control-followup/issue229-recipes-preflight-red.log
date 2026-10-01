@@ -1,0 +1,45 @@
+........FF
+======================================================================
+FAIL: test_preflight_failure_without_executable_identity_is_retained (__main__.Recipes.test_preflight_failure_without_executable_identity_is_retained)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/src/steamdeck-xemu/scratch/issue229-check-evidence-recipes.py", line 107, in test_preflight_failure_without_executable_identity_is_retained
+    self.assertEqual(self.summarize()['comparisons'], [])
+                     ~~~~~~~~~~~~~~^^
+  File "/home/codex/src/steamdeck-xemu/scratch/issue229-check-evidence-recipes.py", line 57, in summarize
+    self.run_recipe('issue229-summarize-native-balanced-v3.py')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/codex/src/steamdeck-xemu/scratch/issue229-check-evidence-recipes.py", line 54, in run_recipe
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 41, in <module>
+    assert result['executableSha256'] == attempt['executableSha256']
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+
+
+======================================================================
+FAIL: test_rejected_executable_identity_is_retained (__main__.Recipes.test_rejected_executable_identity_is_retained)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/src/steamdeck-xemu/scratch/issue229-check-evidence-recipes.py", line 114, in test_rejected_executable_identity_is_retained
+    self.assertEqual(self.summarize()['comparisons'], [])
+                     ~~~~~~~~~~~~~~^^
+  File "/home/codex/src/steamdeck-xemu/scratch/issue229-check-evidence-recipes.py", line 57, in summarize
+    self.run_recipe('issue229-summarize-native-balanced-v3.py')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/codex/src/steamdeck-xemu/scratch/issue229-check-evidence-recipes.py", line 54, in run_recipe
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 41, in <module>
+    assert result['executableSha256'] == attempt['executableSha256']
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
+
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.529s
+
+FAILED (failures=2)

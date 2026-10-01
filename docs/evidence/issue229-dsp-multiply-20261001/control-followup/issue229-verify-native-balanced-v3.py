@@ -12,12 +12,26 @@ contracts = set()
 for directory in sorted(ROOT.iterdir()):
     if not directory.is_dir():
         continue
+    result_path = directory / 'result.json'
+    if not result_path.exists():
+        print(directory.name, 'incomplete collection; no verification claim')
+        continue
+    result = json.loads(result_path.read_text())
+    required = ['performance.json', 'diagnostics/run-state/report.json']
+    missing = [name for name in required if not (directory / name).exists()]
+    if missing:
+        assert result.get('assessment', {}).get('Comparison') != 'eligible', 'Eligible result is missing evidence'
+        print(directory.name, 'terminal failure retained; unavailable verification:', ', '.join(missing))
+        continue
     performance = json.loads((directory / 'performance.json').read_text())
     storage = json.loads((directory / 'diagnostics/run-state/report.json').read_text())
-    assert storage['TargetStopped'] and not storage['Issues']
-    assert storage['DriverQualification'] == 'mesa_private_disk_writes_observed'
-    assert not storage['AllowUncontrolledDriverCache']
-    contracts.add(storage['ContractSha256'])
+    if result.get('assessment', {}).get('Comparison') == 'eligible':
+        assert storage['TargetStopped'] and not storage['Issues']
+        assert storage['DriverQualification'] == 'mesa_private_disk_writes_observed'
+        assert not storage['AllowUncontrolledDriverCache']
+        contracts.add(storage['ContractSha256'])
+    else:
+        print(directory.name, 'canonical result ineligible; available statistics only')
     for source in performance['Sources']:
         blob = (directory / source['Path']).read_bytes()
         assert len(blob) == source['Bytes'] and hashlib.sha256(blob).hexdigest() == source['Sha256']
@@ -59,6 +73,6 @@ for directory in sorted(ROOT.iterdir()):
         assert len(tail) == expected['Samples'] and elapsed == expected['ElapsedUs']
         assert frames == expected['Frames']
         assert math.isclose(frames * 1000000 / elapsed, expected['CadenceFps'], abs_tol=1e-12)
-    print(directory.name, 'source hashes, raw statistics and Mesa qualification verified')
+    print(directory.name, 'available source hashes and raw statistics verified; eligibility remains canonical')
 assert len(contracts) <= 1, 'Fixed storage contract differs between campaign attempts'
 print('One fixed storage contract across collected attempts:', next(iter(contracts), None))

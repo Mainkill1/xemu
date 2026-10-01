@@ -1,0 +1,8 @@
+{
+  "runId": "20261001-203212222-8f4cf4440d8e44a197b776c0a2aa6bc7",
+  "positiveIntervals": 150,
+  "required": 160,
+  "tailSeconds": 300,
+  "canonicalFrames": null,
+  "interpretation": "Independent raw interval count confirms canonical failed evidence gate; no gate waiver, replacement or aggregate A/B comparison."
+}

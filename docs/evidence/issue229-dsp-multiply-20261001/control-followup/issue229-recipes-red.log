@@ -1,0 +1,105 @@
+FFFF.F
+======================================================================
+FAIL: test_changed_workload_does_not_compare (__main__.Recipes.test_changed_workload_does_not_compare)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/src/steamdeck-xemu/scratch/issue229-check-evidence-recipes.py", line 76, in test_changed_workload_does_not_compare
+    self.assertEqual(self.summarize()['comparisons'], [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [{'order': 'abba', 'metric': 'flipControlF[5326 chars]19]}] != []
+
+First list contains 15 additional elements.
+First extra element 0:
+{'order': 'abba', 'metric': 'flipControlFps', 'unit': 'fps', 'direction': 'higher', 'parentMedian': 0.8044390278883233, 'candidateMedian': 0.8044390278883233, 'afterMinusBefore': 0.0, 'improvementPercent': 0.0, 'parentCount': 2, 'candidateCount': 2, 'parentRange': [0.8044390278883233, 0.8044390278883233], 'candidateRange': [0.8044390278883233, 0.8044390278883233]}
+
+Diff is 6083 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_different_profiles_do_not_compare (__main__.Recipes.test_different_profiles_do_not_compare)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/src/steamdeck-xemu/scratch/issue229-check-evidence-recipes.py", line 66, in test_different_profiles_do_not_compare
+    self.assertEqual(self.summarize()['comparisons'], [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [{'order': 'abba', 'metric': 'flipControlF[5326 chars]19]}] != []
+
+First list contains 15 additional elements.
+First extra element 0:
+{'order': 'abba', 'metric': 'flipControlFps', 'unit': 'fps', 'direction': 'higher', 'parentMedian': 0.8044390278883233, 'candidateMedian': 0.8044390278883233, 'afterMinusBefore': 0.0, 'improvementPercent': 0.0, 'parentCount': 2, 'candidateCount': 2, 'parentRange': [0.8044390278883233, 0.8044390278883233], 'candidateRange': [0.8044390278883233, 0.8044390278883233]}
+
+Diff is 6083 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_different_storage_does_not_compare (__main__.Recipes.test_different_storage_does_not_compare)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/src/steamdeck-xemu/scratch/issue229-check-evidence-recipes.py", line 71, in test_different_storage_does_not_compare
+    self.assertEqual(self.summarize()['comparisons'], [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [{'order': 'abba', 'metric': 'flipControlF[5326 chars]19]}] != []
+
+First list contains 15 additional elements.
+First extra element 0:
+{'order': 'abba', 'metric': 'flipControlFps', 'unit': 'fps', 'direction': 'higher', 'parentMedian': 0.8044390278883233, 'candidateMedian': 0.8044390278883233, 'afterMinusBefore': 0.0, 'improvementPercent': 0.0, 'parentCount': 2, 'candidateCount': 2, 'parentRange': [0.8044390278883233, 0.8044390278883233], 'candidateRange': [0.8044390278883233, 0.8044390278883233]}
+
+Diff is 6083 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_early_failure_retained_and_not_compared (__main__.Recipes.test_early_failure_retained_and_not_compared)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/src/steamdeck-xemu/scratch/issue229-check-evidence-recipes.py", line 86, in test_early_failure_retained_and_not_compared
+    self.assertEqual(self.summarize()['comparisons'], [])
+                     ~~~~~~~~~~~~~~^^
+  File "/home/codex/src/steamdeck-xemu/scratch/issue229-check-evidence-recipes.py", line 57, in summarize
+    self.run_recipe('issue229-summarize-native-balanced-v3.py')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/codex/src/steamdeck-xemu/scratch/issue229-check-evidence-recipes.py", line 54, in run_recipe
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 28, in <module>
+    performance = json.loads((directory / 'performance.json').read_text())
+                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/codex/src/steamdeck-xemu/scratch/tmphrijxn0p/artifacts/issue229-dsp-multiply/native-balanced-v3/collected/7/performance.json'
+
+
+======================================================================
+FAIL: test_partial_publication_is_preserved_and_repaired (__main__.Recipes.test_partial_publication_is_preserved_and_repaired)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/src/steamdeck-xemu/scratch/issue229-check-evidence-recipes.py", line 96, in test_partial_publication_is_preserved_and_repaired
+    self.run_recipe('issue229-package-native-balanced-v3.py')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/codex/src/steamdeck-xemu/scratch/issue229-check-evidence-recipes.py", line 54, in run_recipe
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 49, in <module>
+    rows = json.loads((destination / 'inventory.json').read_text())['files']
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 548, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/pathlib/_local.py", line 539, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/codex/src/steamdeck-xemu/scratch/tmpka09j4j6/worktrees/issue229-dsp-multiply/docs/evidence/issue229-dsp-multiply-20261001/control-followup/native-balanced-v3/raw/issue229-deck-native-c-v3-abba-1-20261001/inventory.json'
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.206s
+
+FAILED (failures=5)

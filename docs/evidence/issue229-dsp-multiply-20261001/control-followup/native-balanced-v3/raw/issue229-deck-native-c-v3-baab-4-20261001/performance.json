@@ -1,0 +1,73 @@
+{
+  "SchemaVersion": 1,
+  "ProfileSha256": "c24dfe3e05bdc7bc9260be10fb3943a745282103a3be85aa4ff9c182a3c712e4",
+  "Profile": {
+    "Segment": "stationary-grid",
+    "MetricsPath": "metrics.csv",
+    "GuestFlipsPath": "guest-flips.log",
+    "GuestFramesPath": "guest-frames.log",
+    "FlipTailSamples": 40,
+    "FrameTailSeconds": 300,
+    "MinimumCpuSamples": 540,
+    "MinimumFrameSamples": 160
+  },
+  "Monitoring": {
+    "Segment": "stationary-grid",
+    "Rows": 603,
+    "MissingCpuSamples": 0,
+    "MissingDutySamples": 0,
+    "Cpu": {
+      "Count": 603,
+      "Mean": 188.33206135986705,
+      "Median": 188.158,
+      "Min": 174.119,
+      "Max": 248.143,
+      "P95": 196.2927,
+      "P99": 213.92140000000003
+    },
+    "CollectorDuty": {
+      "Count": 603,
+      "Mean": 0.36373466003316773,
+      "Median": 0.342,
+      "Min": 0.229,
+      "Max": 0.844,
+      "P95": 0.5418,
+      "P99": 0.6966400000000003
+    },
+    "Overruns": 0
+  },
+  "Flips": {
+    "Samples": 40,
+    "Frames": 114,
+    "ElapsedUs": 243989269,
+    "CadenceFps": 0.46723366346083034
+  },
+  "Frames": null,
+  "Sources": [
+    {
+      "Path": "metrics.csv",
+      "Bytes": 179213,
+      "Sha256": "eea8edc6174bc2d460b7edc449b085bb3d225de1178abd67cee1c2035d30cd29",
+      "Records": 950,
+      "IgnoredRecords": 346
+    },
+    {
+      "Path": "guest-flips.log",
+      "Bytes": 3089,
+      "Sha256": "bee88ce6892cb84a40ab441101b479c6e939f417868e7fe32ad859c5af11f012",
+      "Records": 80,
+      "IgnoredRecords": 0
+    },
+    {
+      "Path": "guest-frames.log",
+      "Bytes": 162070,
+      "Sha256": "1cdcbb98781f7c2e6b0e37aa92e77c287aed6eab102edeb8ef3965b6e993385c",
+      "Records": 3131,
+      "IgnoredRecords": 0
+    }
+  ],
+  "Errors": [
+    "frames: Insufficient positive frame intervals."
+  ],
+  "Complete": false
+}
