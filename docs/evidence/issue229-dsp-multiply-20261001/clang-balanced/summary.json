@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "results": [
+    {
+      "mode": "helper",
+      "iterations": 50000000,
+      "checksum": "000301b14d7493d6",
+      "aaMinNs": 2.8734,
+      "aaMaxNs": 2.9323,
+      "orders": {
+        "ABBA": {
+          "parentMedianNs": 2.8535399999999997,
+          "candidateMedianNs": 1.15057,
+          "timeReductionPercent": 59.67920547810789,
+          "samplesPerVariant": 16
+        },
+        "BAAB": {
+          "parentMedianNs": 2.85248,
+          "candidateMedianNs": 1.14971,
+          "timeReductionPercent": 59.69437121382095,
+          "samplesPerVariant": 16
+        }
+      }
+    },
+    {
+      "mode": "mac",
+      "iterations": 10000000,
+      "checksum": "000098970e587ae7",
+      "aaMinNs": 7.8467,
+      "aaMaxNs": 7.8719,
+      "orders": {
+        "ABBA": {
+          "parentMedianNs": 7.907,
+          "candidateMedianNs": 7.0938,
+          "timeReductionPercent": 10.284557986594159,
+          "samplesPerVariant": 16
+        },
+        "BAAB": {
+          "parentMedianNs": 7.8582,
+          "candidateMedianNs": 7.083500000000001,
+          "timeReductionPercent": 9.858491766562308,
+          "samplesPerVariant": 16
+        }
+      }
+    },
+    {
+      "mode": "mixed",
+      "iterations": 10000000,
+      "checksum": "0000c8812842b58b",
+      "aaMinNs": 10.2894,
+      "aaMaxNs": 10.4047,
+      "orders": {
+        "ABBA": {
+          "parentMedianNs": 10.3749,
+          "candidateMedianNs": 9.5954,
+          "timeReductionPercent": 7.5133254296427,
+          "samplesPerVariant": 16
+        },
+        "BAAB": {
+          "parentMedianNs": 10.390699999999999,
+          "candidateMedianNs": 9.5988,
+          "timeReductionPercent": 7.621238222641384,
+          "samplesPerVariant": 16
+        }
+      }
+    }
+  ]
+}

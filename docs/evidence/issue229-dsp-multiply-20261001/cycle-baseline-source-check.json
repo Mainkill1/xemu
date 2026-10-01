@@ -1,0 +1,54 @@
+{
+  "parent": "ee5ce48b48784f999af374c1452003f8b2b1230f",
+  "cycleBaseline": "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+  "sameInterpreterSourceFiles": [
+    {
+      "file": "hw/xbox/mcpx/apu/dsp/interp/dsp_cpu.c",
+      "identical": true,
+      "parentSha256": "b2879f6895ac5b4702a3a77dbd94fc5e4517928f5ef449030d44557860833e5b",
+      "baselineSha256": "b2879f6895ac5b4702a3a77dbd94fc5e4517928f5ef449030d44557860833e5b"
+    },
+    {
+      "file": "hw/xbox/mcpx/apu/dsp/interp/dsp_cpu.h",
+      "identical": true,
+      "parentSha256": "314ab9afc8a01f9ceeafd6d0cb9a3e2446b0aa7e1bede758c5d7ad2b141163cf",
+      "baselineSha256": "314ab9afc8a01f9ceeafd6d0cb9a3e2446b0aa7e1bede758c5d7ad2b141163cf"
+    },
+    {
+      "file": "hw/xbox/mcpx/apu/dsp/interp/dsp_cpu_regs.h",
+      "identical": true,
+      "parentSha256": "5373cbe8cb5326f39cbebfbbb13a85d78b4f8d47d7ebd3e4f2291e2fcde2c926",
+      "baselineSha256": "5373cbe8cb5326f39cbebfbbb13a85d78b4f8d47d7ebd3e4f2291e2fcde2c926"
+    },
+    {
+      "file": "hw/xbox/mcpx/apu/dsp/interp/dsp_emu.c.inc",
+      "identical": true,
+      "parentSha256": "ffc744df58e3fea9df1fd2acffe267cb4126b5ecb6c82518009bcea17fbb6e5f",
+      "baselineSha256": "ffc744df58e3fea9df1fd2acffe267cb4126b5ecb6c82518009bcea17fbb6e5f"
+    },
+    {
+      "file": "hw/xbox/mcpx/apu/dsp/interp/dsp_dis.c.inc",
+      "identical": true,
+      "parentSha256": "2a624a326c7633ff8a866bea4b379ac23aef3c3768a0873bf7d85a6b3e35911d",
+      "baselineSha256": "2a624a326c7633ff8a866bea4b379ac23aef3c3768a0873bf7d85a6b3e35911d"
+    },
+    {
+      "file": "hw/xbox/mcpx/apu/dsp/debug.h",
+      "identical": true,
+      "parentSha256": "1773c7f3b3db5318886ce48b01e42e00c94b80a8364089dc6276d6c7ed26eeef",
+      "baselineSha256": "1773c7f3b3db5318886ce48b01e42e00c94b80a8364089dc6276d6c7ed26eeef"
+    },
+    {
+      "file": "hw/xbox/mcpx/apu/dsp/trace.h",
+      "identical": true,
+      "parentSha256": "c4e97d9ea31a30015eb19eeedce0498f802fe3d099b295679e7a213245b45ff2",
+      "baselineSha256": "c4e97d9ea31a30015eb19eeedce0498f802fe3d099b295679e7a213245b45ff2"
+    },
+    {
+      "file": "hw/xbox/mcpx/apu/dsp/trace-events",
+      "identical": true,
+      "parentSha256": "b189bcb31ed711e48a99d7eb3f489d2c726c240d30e0f638c0ff1c984d4cf0d6",
+      "baselineSha256": "b189bcb31ed711e48a99d7eb3f489d2c726c240d30e0f638c0ff1c984d4cf0d6"
+    }
+  ]
+}
