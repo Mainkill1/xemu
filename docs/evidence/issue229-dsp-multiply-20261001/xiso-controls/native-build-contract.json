@@ -1,0 +1,38 @@
+{
+  "variants": {
+    "parent": {
+      "source": "ee5ce48b48784f999af374c1452003f8b2b1230f",
+      "ciJobId": "110295040510",
+      "jobName": "Build / Linux / Build for Ubuntu (x86_64, release)",
+      "jobConclusion": "success",
+      "prescribedBuildFileHashes": {
+        ".github/workflows/build-linux.yml": "f7e5e5c541b3739f4f6ad2a2d7fa3b39a6dc7abfa9fb23a411bde10233f9521b",
+        ".github/workflows/build.yml": "0b5af0c8a3be7deea3494c452cc0e82551f2644aca0859bbea665215cd0c10b4",
+        "build.sh": "b6ccae50441b2a953bce072b7e36e63a3dac401488c74ef20ceb2291c39a2b84",
+        "debian/rules": "e6a5a989ad331e18508b5f3901d8310ad6899b85feef9a9290be693ae579dd75",
+        "debian/control": "2f65a7e83a3cd808cc69197076911b8d301fbfb906f74ab3059f485e2193d0b0",
+        "meson.build": "51a0af85a032b217d249314e226d18cf662d80d04fceea20629f2bcd7c6d9acc",
+        "meson_options.txt": "785e75233426907021df4997f36558a6a555c622f83df4a985315250167b45e8",
+        "configure": "4f1d4c7f3292681f6ecc398455865966f2dabfef3501bab8c0a1289828ca690d"
+      }
+    },
+    "candidate": {
+      "source": "b9359dbf55c72bd7e8569f677dc4aafd771592d7",
+      "ciJobId": "110435040309",
+      "jobName": "Build / Linux / Build for Ubuntu (x86_64, release)",
+      "jobConclusion": "success",
+      "prescribedBuildFileHashes": {
+        ".github/workflows/build-linux.yml": "f7e5e5c541b3739f4f6ad2a2d7fa3b39a6dc7abfa9fb23a411bde10233f9521b",
+        ".github/workflows/build.yml": "0b5af0c8a3be7deea3494c452cc0e82551f2644aca0859bbea665215cd0c10b4",
+        "build.sh": "b6ccae50441b2a953bce072b7e36e63a3dac401488c74ef20ceb2291c39a2b84",
+        "debian/rules": "e6a5a989ad331e18508b5f3901d8310ad6899b85feef9a9290be693ae579dd75",
+        "debian/control": "2f65a7e83a3cd808cc69197076911b8d301fbfb906f74ab3059f485e2193d0b0",
+        "meson.build": "51a0af85a032b217d249314e226d18cf662d80d04fceea20629f2bcd7c6d9acc",
+        "meson_options.txt": "785e75233426907021df4997f36558a6a555c622f83df4a985315250167b45e8",
+        "configure": "4f1d4c7f3292681f6ecc398455865966f2dabfef3501bab8c0a1289828ca690d"
+      }
+    }
+  },
+  "matchingPrescribedBuildFiles": true,
+  "exactCompileCommandCaptured": false
+}

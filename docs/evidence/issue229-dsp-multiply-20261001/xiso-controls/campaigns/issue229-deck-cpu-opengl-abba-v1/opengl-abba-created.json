@@ -1,0 +1,22 @@
+{
+  "id": "issue229-deck-cpu-opengl-abba-v1",
+  "revision": "2426c6e22ead1d39f9a234da907ac7cf9782bf877ef4da1d808cafef6a609746",
+  "state": "uploaded",
+  "event": "attention",
+  "terminal": false,
+  "startRequested": false,
+  "selectedLeaves": 2,
+  "chunkCount": 1,
+  "attemptCount": 4,
+  "finished": 0,
+  "passed": 0,
+  "failed": 0,
+  "incomplete": 0,
+  "remaining": 4,
+  "active": null,
+  "error": null,
+  "next": "/api/v1/xiso-campaigns/issue229-deck-cpu-opengl-abba-v1/wait",
+  "details": "/api/v1/xiso-campaigns/issue229-deck-cpu-opengl-abba-v1/attempts",
+  "comparisonEligible": 0,
+  "qualification": "unverified"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "issue229-deck-cpu-vulkan-abba-v1",
+  "revision": "50249ca2af2419a4403cfc929f0e2de33299b649c85eb2916940f521221f7dcf",
+  "state": "uploaded",
+  "event": "attention",
+  "terminal": false,
+  "startRequested": false,
+  "selectedLeaves": 2,
+  "chunkCount": 1,
+  "attemptCount": 4,
+  "finished": 0,
+  "passed": 0,
+  "failed": 0,
+  "incomplete": 0,
+  "remaining": 4,
+  "active": null,
+  "error": null,
+  "next": "/api/v1/xiso-campaigns/issue229-deck-cpu-vulkan-abba-v1/wait",
+  "details": "/api/v1/xiso-campaigns/issue229-deck-cpu-vulkan-abba-v1/attempts",
+  "comparisonEligible": 0,
+  "qualification": "unverified"
+}

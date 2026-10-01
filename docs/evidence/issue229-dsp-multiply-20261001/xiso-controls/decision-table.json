@@ -1,0 +1,66 @@
+[
+  {
+    "renderer": "vulkan",
+    "leaf": "cpu_floating_point.sse_scalar",
+    "metric": "mean_us",
+    "parentUs": 1175755.85,
+    "candidateUs": 1187375.25,
+    "improvementPercent": -0.988249,
+    "stats": {
+      "a_min": "1174499.3",
+      "a_max": "1204951.4",
+      "a_sample_stddev": "14848.81543715406",
+      "b_min": "1182096.6",
+      "b_max": "1190485.9",
+      "b_sample_stddev": "3632.5244413033442"
+    }
+  },
+  {
+    "renderer": "vulkan",
+    "leaf": "cpu_translation_blocks.direct_loop",
+    "metric": "mean_us",
+    "parentUs": 19870.1,
+    "candidateUs": 19725.8,
+    "improvementPercent": 0.726217,
+    "stats": {
+      "a_min": "19799.4",
+      "a_max": "20413.4",
+      "a_sample_stddev": "289.5742334301634",
+      "b_min": "19654.5",
+      "b_max": "19933.8",
+      "b_sample_stddev": "123.28553240344125"
+    }
+  },
+  {
+    "renderer": "opengl",
+    "leaf": "cpu_floating_point.sse_scalar",
+    "metric": "mean_us",
+    "parentUs": 1178236.5,
+    "candidateUs": 1196858.4,
+    "improvementPercent": -1.580489,
+    "stats": {
+      "a_min": "1169066.2",
+      "a_max": "1190990.6",
+      "a_sample_stddev": "9247.291671439125",
+      "b_min": "1193225.5",
+      "b_max": "1212806.9",
+      "b_sample_stddev": "8773.515673510428"
+    }
+  },
+  {
+    "renderer": "opengl",
+    "leaf": "cpu_translation_blocks.direct_loop",
+    "metric": "mean_us",
+    "parentUs": 19890.75,
+    "candidateUs": 20090.55,
+    "improvementPercent": -1.004487,
+    "stats": {
+      "a_min": "19669.4",
+      "a_max": "20865",
+      "a_sample_stddev": "537.623439314172",
+      "b_min": "19893.5",
+      "b_max": "21223.9",
+      "b_sample_stddev": "615.0001917343881"
+    }
+  }
+]

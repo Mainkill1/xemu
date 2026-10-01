@@ -1,0 +1,390 @@
+{
+  "schema": 1,
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 9490,
+      "sha256": "0d8e36282916a64380c782d0e11036153e86f04dba8cc2bc3ece11463d4cda9f"
+    },
+    {
+      "path": "attempts-audit.json",
+      "bytes": 28627,
+      "sha256": "6f4ca128306fd1cc9ccf057454f10392bb2651b01a2d1028ade7fbdf78cff376"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-opengl-abba-v1/attempts.json",
+      "bytes": 1646,
+      "sha256": "e3f3eb43bc5dc2ae201fa5538d725a939123048f08b33c530a791d684cdaa580"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-opengl-abba-v1/opengl-abba-collection.log",
+      "bytes": 592,
+      "sha256": "c3fd5ba369fd2dbe2f152784d6838422a37740194a1a253ec7930529dbec6642"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-opengl-abba-v1/opengl-abba-created.json",
+      "bytes": 621,
+      "sha256": "48cd1d31c57e95daab54a827f5adff4192fdf501ea453150e71b27b8370da77a"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-opengl-abba-v1/opengl-abba-started.json",
+      "bytes": 537,
+      "sha256": "304bd8f8e3e051cf706585367d76594ac4f9e03db504abf7e859bf1fc9460da6"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-opengl-abba-v1/opengl-abba-wait.log",
+      "bytes": 8010,
+      "sha256": "2907a00fabdc0238b2ba6af54b732724365f8db44efd7db6e4988a549ea2ebb4"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-opengl-abba-v1/plan.json",
+      "bytes": 4829,
+      "sha256": "5efdae80abdff9f60dc9803e70ce76c2aedf1935eb3c0f7f21cb9dfda3fefa3a"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-opengl-abba-v1/status.json",
+      "bytes": 616,
+      "sha256": "2f3c8e8a86cefaa7c36860994390fae0cfb5411d6b679f4c98efb153f61203fc"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-opengl-baab-v1/attempts.json",
+      "bytes": 1646,
+      "sha256": "25ac156187e1412b20a2915f60171c83ac42abe204beeb4263ae9824a3cac19a"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-opengl-baab-v1/opengl-baab-collection.log",
+      "bytes": 592,
+      "sha256": "5f88fdb16401d043440a24a5d01c94cc963ba878effe1acfc3aebb88465e3797"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-opengl-baab-v1/opengl-baab-created.json",
+      "bytes": 621,
+      "sha256": "ad6256d348e32539274827be8f470851fb09fe870499e98dfb726263d673b619"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-opengl-baab-v1/opengl-baab-started.json",
+      "bytes": 537,
+      "sha256": "7a0f8bcd132cbf7e4a97bbca0759f1129bec246021fb235f345be50841300738"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-opengl-baab-v1/opengl-baab-wait.log",
+      "bytes": 8010,
+      "sha256": "9c6acb6aa5daf03c2caf6d4fef71ca72665ec7751f5e96e5778fae0cecc085b3"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-opengl-baab-v1/plan.json",
+      "bytes": 4829,
+      "sha256": "e253273f737e5095965e66bd799c3713c2ffe928a4da0244904c71a0684664c1"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-opengl-baab-v1/status.json",
+      "bytes": 616,
+      "sha256": "8574932de2728f55c752bc6604f223092b08cfa29bdd53d16ac92a165f0da8e4"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-vulkan-abba-v1/attempts.json",
+      "bytes": 1646,
+      "sha256": "504298514a183c4b0139b16b5b730e7daf2d07ad546042c2d0c2ca83e3888fe3"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-vulkan-abba-v1/plan.json",
+      "bytes": 4829,
+      "sha256": "f88e0c25519b019ab61fe6bd448d897ba1ae5d64c45fd7764728376f7bfda366"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-vulkan-abba-v1/status.json",
+      "bytes": 616,
+      "sha256": "80789dd7603d997f53a2964a90bd59feb846f2ac7953fc51c33ad20b289071d5"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-vulkan-abba-v1/vulkan-abba-collection.log",
+      "bytes": 592,
+      "sha256": "7dce166e9138238d9eccad81d9a15d389ec57869307dd609dd078f1511bcc09e"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-vulkan-abba-v1/vulkan-abba-created.json",
+      "bytes": 621,
+      "sha256": "21e3325534f7093c596925cd9e4a56b206a9bb267e9053a62ff499f97825e9a3"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-vulkan-abba-v1/vulkan-abba-started.json",
+      "bytes": 537,
+      "sha256": "70e5e002ab8ee1cb7bb4e467af319c57bb2478e17d0c1d68e4def033d53bd0bc"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-vulkan-abba-v1/vulkan-abba-wait.log",
+      "bytes": 8010,
+      "sha256": "fa8028499d9e9fdfa5c9918ac3e22d1a8b2e93986d6aa6ee580ded6919da45c1"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-vulkan-baab-v1/attempts.json",
+      "bytes": 1646,
+      "sha256": "c09b9431e25ead6c8d4dba7294350a317da51037fec8637a068eaa48553cf33b"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-vulkan-baab-v1/plan.json",
+      "bytes": 4829,
+      "sha256": "fd2919ea7d441235561930be172544c0a5b37f5f30a4986aac3fef5d3e29c246"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-vulkan-baab-v1/status.json",
+      "bytes": 616,
+      "sha256": "f5efdd54afe56b6d1d19afecdbfebf948a2c1a112b5a06f797a59ad5f115c0e8"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-vulkan-baab-v1/vulkan-baab-collection.log",
+      "bytes": 592,
+      "sha256": "1a992035c6dc467b1835b5e5ca903e53da27046c3111c790c738a128c9fd24b4"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-vulkan-baab-v1/vulkan-baab-created.json",
+      "bytes": 621,
+      "sha256": "c419a06dfb07d760bbaa58424e02341205aadd1979365167fae7e82b9d5c7656"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-vulkan-baab-v1/vulkan-baab-started.json",
+      "bytes": 537,
+      "sha256": "7e61aa102495cadb3e4f5cb4c863ad2887922a49c409906712f070d8ef47dd85"
+    },
+    {
+      "path": "campaigns/issue229-deck-cpu-vulkan-baab-v1/vulkan-baab-wait.log",
+      "bytes": 8010,
+      "sha256": "d95a3f40f48a330ed0d3923714d3fd13dd8a9fbc0b7b68a9aa4605392ae6cfac"
+    },
+    {
+      "path": "candidate-application.json",
+      "bytes": 284,
+      "sha256": "5b074e62ee64ac017d140e871d64fb24858e5d8d214be2506ab5c07b9e444a00"
+    },
+    {
+      "path": "candidate-native-ci-job.json",
+      "bytes": 4735,
+      "sha256": "d69d0941c63cc846dea9aa26f40b43fa75d18225d71b7075bf0f72a795fb7057"
+    },
+    {
+      "path": "decision-table.json",
+      "bytes": 1683,
+      "sha256": "ddc193406ed4b5265ec75c29898fa076783edac82981d17912fd94d0839106cf"
+    },
+    {
+      "path": "deck-after.json",
+      "bytes": 2083,
+      "sha256": "e251336902aa9b5c6e7769932f502ffa4e7d58939456abad15349f23a03786f8"
+    },
+    {
+      "path": "discovery-after.json",
+      "bytes": 1035,
+      "sha256": "a0987d092cbc7f1fb580b6df43f3e96f1838472ef4972ac4b8f70a2ffb24abe5"
+    },
+    {
+      "path": "final-comparison.csv",
+      "bytes": 10304,
+      "sha256": "bbe0d72a0083f6071e7a40b33099197af6dd0e2d704475157c773c7197f72ef9"
+    },
+    {
+      "path": "final-comparison.json",
+      "bytes": 4017,
+      "sha256": "e7518f13058f3bd10a25aa94c172d53d647d707c4d1c8d7aa367b843b2c973c2"
+    },
+    {
+      "path": "frozen-procedures/issue229-deck-xiso-cpu-opengl-v1/baked.json",
+      "bytes": 512,
+      "sha256": "6a05cb955c41fbf248276dceb4c9b7313891baf44bb160953fc595c29caeeb9f"
+    },
+    {
+      "path": "frozen-procedures/issue229-deck-xiso-cpu-opengl-v1/created.json",
+      "bytes": 24803,
+      "sha256": "775c4237edc85364899fd91d0e8a72df3a6d38dbfe3e6cde01fd75e46b6c09c5"
+    },
+    {
+      "path": "frozen-procedures/issue229-deck-xiso-cpu-opengl-v1/files-ready.json",
+      "bytes": 26552,
+      "sha256": "2a32a4f243f14c3196794267332a8b2ef1ba30ae896ab5c9140823982489fd9d"
+    },
+    {
+      "path": "frozen-procedures/issue229-deck-xiso-cpu-opengl-v1/manifest.json",
+      "bytes": 22863,
+      "sha256": "6851e8eddaa669f056bc25fe0cda5f2442f70e729b4722831fea2266f9f140af"
+    },
+    {
+      "path": "frozen-procedures/issue229-deck-xiso-cpu-opengl-v1/suite.json",
+      "bytes": 789,
+      "sha256": "b0b3b2b4d657dc414b871fc4b8a2ac6d3e577df3bd229f8270eb49dd1a8ab58c"
+    },
+    {
+      "path": "frozen-procedures/issue229-deck-xiso-cpu-opengl-v1/xemu.toml",
+      "bytes": 399,
+      "sha256": "796b6d58943128c0e12080e73cb3d79c10b95de5e8cdadec15353714884fe77b"
+    },
+    {
+      "path": "frozen-procedures/issue229-deck-xiso-cpu-vulkan-v1/baked.json",
+      "bytes": 512,
+      "sha256": "dbd2e73de30da9d90485b0a40ea83a79c006efdfd68776fa26c67b675b430f7f"
+    },
+    {
+      "path": "frozen-procedures/issue229-deck-xiso-cpu-vulkan-v1/created.json",
+      "bytes": 24803,
+      "sha256": "61c61acce5cc558145a212edaf3740e6d32304f13a83bf3ef1c5f396e8a59600"
+    },
+    {
+      "path": "frozen-procedures/issue229-deck-xiso-cpu-vulkan-v1/files-ready.json",
+      "bytes": 26552,
+      "sha256": "2d84bb635fb8df772314bc0236cbfb187939344305ddeda1a09979da92012f50"
+    },
+    {
+      "path": "frozen-procedures/issue229-deck-xiso-cpu-vulkan-v1/manifest.json",
+      "bytes": 22863,
+      "sha256": "045b177165af68318598795e958c740a4549583e55d8960d836139c54cad4af9"
+    },
+    {
+      "path": "frozen-procedures/issue229-deck-xiso-cpu-vulkan-v1/suite.json",
+      "bytes": 789,
+      "sha256": "59742367cee4c93911854f6d479f2e4c43b14c55fcf08ac9dc945c3390acc34b"
+    },
+    {
+      "path": "frozen-procedures/issue229-deck-xiso-cpu-vulkan-v1/xemu.toml",
+      "bytes": 399,
+      "sha256": "b3323abcf9761c1fd14f41a3fa876c84eb06cfc847f494e8721d2ba5cccacb9d"
+    },
+    {
+      "path": "historical-correctness-reference.json",
+      "bytes": 164935,
+      "sha256": "fe7ea361d2427e81e58e6addfd745f037023497bebd9ea59bf68e90dbc13848f"
+    },
+    {
+      "path": "issue229-audit-xiso-controls.py",
+      "bytes": 4245,
+      "sha256": "7a319417680f7927f6a34fcd4da78bd70a6026f8713f602d4a87026a85419d09"
+    },
+    {
+      "path": "issue229-collect-xiso-campaign.py",
+      "bytes": 1440,
+      "sha256": "8c68bad8ef35f87f12adc5a1bea8f296de09b82b289ac577f9cda5eb72c1c6ff"
+    },
+    {
+      "path": "issue229-freeze-xiso-campaigns.py",
+      "bytes": 2034,
+      "sha256": "3677d48237bfedfcbc7b9cc9ecd0d6a6864bbbc89b7cde49630eb8e859f6b202"
+    },
+    {
+      "path": "issue229-prepare-xiso-controls.py",
+      "bytes": 4584,
+      "sha256": "993d4b29d640c298708aaf3670e2ca0fb5838aba6d1190d37c6fc030c4e10918"
+    },
+    {
+      "path": "issue229-read-native-toolchains.py",
+      "bytes": 2017,
+      "sha256": "e9709c839d44c99f7aa50637dd6408a8eeeb4a8b522fc2d396bb360835ddcd8c"
+    },
+    {
+      "path": "mean_us-table.md",
+      "bytes": 554,
+      "sha256": "c957ca1cfb0e8678018bb25e4775f796d140e7a03d5e75f4624cbcb6958e94d8"
+    },
+    {
+      "path": "native-build-contract.json",
+      "bytes": 2178,
+      "sha256": "84a4d67880108f25e43e4d4901ed21a700e902b5266402e6e429755f85acc09d"
+    },
+    {
+      "path": "native-toolchains.json",
+      "bytes": 1972,
+      "sha256": "f6b57e64d5d067b4a995640413ab50d0a19c6013da804cdb4089bb43aab2b39f"
+    },
+    {
+      "path": "native-toolchains.log",
+      "bytes": 697,
+      "sha256": "77a3d2139015bfbdce50967682689440945f1b104c343d5f585b2bfc22d79412"
+    },
+    {
+      "path": "opengl-abba-comparison.csv",
+      "bytes": 10272,
+      "sha256": "1c821711cfa3633f3d02df3ab779d0c777ebbc2f7d6b2b2b26f874e85f21509a"
+    },
+    {
+      "path": "opengl-abba-comparison.json",
+      "bytes": 4017,
+      "sha256": "af6314395ddef571fa41658a3ba7cb746e602ff35f265d51a118074ac7606f8d"
+    },
+    {
+      "path": "p95_us-table.md",
+      "bytes": 554,
+      "sha256": "c6bf72e352e94951075a1a401314fdfcf2dd8c4482ab392623d6d3400a2ca0fc"
+    },
+    {
+      "path": "parent-application.json",
+      "bytes": 278,
+      "sha256": "354d044926bbb822480e2b091386d9dc518e2fd17eb5726551e12178cb025ed0"
+    },
+    {
+      "path": "parent-native-ci-job.json",
+      "bytes": 4706,
+      "sha256": "11d1c7c6afc08934468f5f74f65be469240ddca97d2e51c458777e0d36917c56"
+    },
+    {
+      "path": "preparation.log",
+      "bytes": 982,
+      "sha256": "ec43ce343abaf94e1d4769a389691a23337b501b6a597f873c3147ebbe38c509"
+    },
+    {
+      "path": "raw/issue229-deck-cpu-opengl-abba-v1-inventory.json",
+      "bytes": 160513,
+      "sha256": "0cef0be17a30c28ebe2f6ba23482ff01ee0134f44fc4f1d1c2b5af79b7fd2b32"
+    },
+    {
+      "path": "raw/issue229-deck-cpu-opengl-abba-v1.tar.gz",
+      "bytes": 2157365,
+      "sha256": "05b1f6a026c0a481e5c2b81ef59a5ef5d27093a80074b3aadcd73e479f60aa16"
+    },
+    {
+      "path": "raw/issue229-deck-cpu-opengl-baab-v1-inventory.json",
+      "bytes": 160513,
+      "sha256": "cf4a6ae46ec15f6e7aaa3f459d14b08753865f763055f58a4e14ba1279b9c944"
+    },
+    {
+      "path": "raw/issue229-deck-cpu-opengl-baab-v1.tar.gz",
+      "bytes": 2156798,
+      "sha256": "b8c198cc26c3b96e601304366b794ac6938e524287c1157e9b23d5162e68aace"
+    },
+    {
+      "path": "raw/issue229-deck-cpu-vulkan-abba-v1-inventory.json",
+      "bytes": 313325,
+      "sha256": "6e626cb66d17d31e740eafddbf9b8652f1f53e9ae049c5ef58feeeea3069f806"
+    },
+    {
+      "path": "raw/issue229-deck-cpu-vulkan-abba-v1.tar.gz",
+      "bytes": 1440703,
+      "sha256": "a49da64a4b2681d051dcc5b539cf61e0450624c0bfc9d2f2d688164deaa68850"
+    },
+    {
+      "path": "raw/issue229-deck-cpu-vulkan-baab-v1-inventory.json",
+      "bytes": 313325,
+      "sha256": "4413229cb4bc3dc0f253d2d892be80c8081183b3e274da28950091a48e17d1ab"
+    },
+    {
+      "path": "raw/issue229-deck-cpu-vulkan-baab-v1.tar.gz",
+      "bytes": 1440464,
+      "sha256": "eb9e3a2a1adfaa450c228c942cc9561a38877bbd9cef5dde3aa3f815d73ea601"
+    },
+    {
+      "path": "reference-source-definition.json",
+      "bytes": 14879,
+      "sha256": "6cbcaecc54f17debc770a212c5c2fda4ae61f9b9c9cbb228b621a58604494eef"
+    },
+    {
+      "path": "vulkan-abba-comparison.json",
+      "bytes": 4001,
+      "sha256": "f3f0d83771fac922d6ac5e9fa7276200f6b3ff2ff7cf6a8a47231478c6116865"
+    },
+    {
+      "path": "vulkan-balanced-comparison.csv",
+      "bytes": 7392,
+      "sha256": "5cf853edc64c84ffdc56da165cee8611369d07e2ad755e37151c58e13058a07a"
+    },
+    {
+      "path": "vulkan-balanced-comparison.json",
+      "bytes": 4016,
+      "sha256": "c16ad6dac2780bc72d86327c47e5a609973fb098366c8b76d31281e6b813f2fa"
+    }
+  ]
+}

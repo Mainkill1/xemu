@@ -1,0 +1,61 @@
+{
+  "items": [
+    {
+      "id": "xc-issue229-deck-cpu-opengl-abba-v1-001",
+      "label": "A1",
+      "variant": "reference",
+      "chunk": 1,
+      "state": "tested",
+      "runId": "20261001-174157627-d046ff37e53d45ddb9d74e3b3fd765f9",
+      "terminal": true,
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible",
+      "error": null
+    },
+    {
+      "id": "xc-issue229-deck-cpu-opengl-abba-v1-002",
+      "label": "B1",
+      "variant": "candidate",
+      "chunk": 1,
+      "state": "tested",
+      "runId": "20261001-174305184-ca2a64d59ea345fa936191967b33eaa6",
+      "terminal": true,
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible",
+      "error": null
+    },
+    {
+      "id": "xc-issue229-deck-cpu-opengl-abba-v1-003",
+      "label": "B2",
+      "variant": "candidate",
+      "chunk": 1,
+      "state": "tested",
+      "runId": "20261001-174413909-66b5169207e346a59cdc88bc8ca75d27",
+      "terminal": true,
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible",
+      "error": null
+    },
+    {
+      "id": "xc-issue229-deck-cpu-opengl-abba-v1-004",
+      "label": "A2",
+      "variant": "reference",
+      "chunk": 1,
+      "state": "tested",
+      "runId": "20261001-174522884-c141f916dee9493a9956076c7c54c913",
+      "terminal": true,
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible",
+      "error": null
+    }
+  ],
+  "nextOffset": null
+}

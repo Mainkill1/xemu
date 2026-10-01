@@ -1,0 +1,61 @@
+{
+  "items": [
+    {
+      "id": "xc-issue229-deck-cpu-vulkan-baab-v1-001",
+      "label": "A1",
+      "variant": "reference",
+      "chunk": 1,
+      "state": "tested",
+      "runId": "20261001-173609764-3df1bb13eded4e2892afafda9fa4822b",
+      "terminal": true,
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible",
+      "error": null
+    },
+    {
+      "id": "xc-issue229-deck-cpu-vulkan-baab-v1-002",
+      "label": "B1",
+      "variant": "candidate",
+      "chunk": 1,
+      "state": "tested",
+      "runId": "20261001-173717773-606cd74dfc76490bacb28046567b84c5",
+      "terminal": true,
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible",
+      "error": null
+    },
+    {
+      "id": "xc-issue229-deck-cpu-vulkan-baab-v1-003",
+      "label": "B2",
+      "variant": "candidate",
+      "chunk": 1,
+      "state": "tested",
+      "runId": "20261001-173825797-b9d064cff2ff4baba2f43c0705859819",
+      "terminal": true,
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible",
+      "error": null
+    },
+    {
+      "id": "xc-issue229-deck-cpu-vulkan-baab-v1-004",
+      "label": "A2",
+      "variant": "reference",
+      "chunk": 1,
+      "state": "tested",
+      "runId": "20261001-173933364-c5c337af402945799c0b38d6b5f8452a",
+      "terminal": true,
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible",
+      "error": null
+    }
+  ],
+  "nextOffset": null
+}

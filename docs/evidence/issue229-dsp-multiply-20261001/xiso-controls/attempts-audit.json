@@ -1,0 +1,771 @@
+{
+  "attempts": 16,
+  "leafRecords": 32,
+  "allExpectedHashesAndSettingsVerified": true,
+  "fixedInputsPerRenderer": {
+    "vulkan": {
+      "cpu-code-rewrite-reference.json": "012286767ceb727d81f4646463cc46dcb13c9e7f30a891eeda74fba63f78401c",
+      "cpu-code-rewrite-suite-reference.json": "fe7ea361d2427e81e58e6addfd745f037023497bebd9ea59bf68e90dbc13848f",
+      "lib/libbrotlicommon.so.1": "bfe785ce98c25bb854e2cf998561be74f78f743029b13ad7476beab5440408b5",
+      "lib/libbrotlidec.so.1": "86f803ed147ee2d8395f2be189057e04337188efdfa73e8842bf523c490a52c9",
+      "lib/libcap.so.2": "507b03ad6351343928e8b46ba0a29835f5d2862b5d9161fa15620e5e0403d137",
+      "lib/libcrypto.so.3": "b771991f547901bd67531100069cc24e00bda385b6876924b5ce09519a2057ac",
+      "lib/libcurl-gnutls.so.4": "71c96d9e1800ffb5670e1cd0d3960d15994a3c77dc9f177678a8a83298206cff",
+      "lib/libdbus-1.so.3": "75ab39f40f3c0852b0cc1950e5097ae67ed416717bec51b51d7b400dc7f2705d",
+      "lib/libepoxy.so.0": "c71a2b95acabb06e7c957699922946134aeebae6b3e7d84ea5673b6ba08f5907",
+      "lib/libffi.so.8": "3c79d61c14b340560e10cecfaf36085efab30318076bde0f081fded2a1ee5641",
+      "lib/libgcrypt.so.20": "3543f9144edc85fac43fafc012f50dfa0b623981fda2e87416d6a4c30472e5b8",
+      "lib/libglib-2.0.so.0": "96dbcd8324a278f45945c5745051dc0c669abed1238c323be70ea012b3a571c5",
+      "lib/libgnutls.so.30": "073c16a6bccefd026a4e5aeb56ec7e096110f30b828ba26f8cef2ad73b961bce",
+      "lib/libgssapi_krb5.so.2": "84d71a0ad21288aeca10816647e0ee809720aaa72062051b227f4db50517c565",
+      "lib/libhogweed.so.6": "ff69a96e5af06a9638d38189bc41cd345b23c53b1ddf3fe91a11a6818791f0ab",
+      "lib/libidn2.so.0": "7534a45c32036fe0ad27733d27ce8849c2f63849ef2462118ca6d177f603897e",
+      "lib/libk5crypto.so.3": "20033c4eec975ee2d1c28e048d74bb2f9c3f8dc657360994eb50b138a7346a50",
+      "lib/libkeyutils.so.1": "40ef65dad8898edcdaa3e3b4a518749047b088e814da32ac8915cac64ee55b3c",
+      "lib/libkrb5.so.3": "158676f5a0a250fd13b3465245c4d61cfb0006b92d321d3bc00ce3910940dae1",
+      "lib/libkrb5support.so.0": "23fe85bd3bc1b5dcabbd79d10b359cdb9ca5c9fb62952d82d8a4046cef59ecad",
+      "lib/liblber-2.5.so.0": "4d923a63a3c28c3f40683d8cb6ab9bc9173caf12e1f71d9c2c3f0e150550963d",
+      "lib/libldap-2.5.so.0": "58b50e0fa0c56d80590123789265374a2961b7d5dbf8f6e54ae516dd989b2a42",
+      "lib/liblz4.so.1": "bd788ffde800b619613d9f800f56a7ad6ecdf320b43e2c37bf3f0fd712576bfb",
+      "lib/liblzma.so.5": "f753a25e71d2c84a36985afa986c8a3f4372ba3ff520ae1da0ed0562fdcd4dc3",
+      "lib/libnettle.so.8": "84eb28e7628edd01df3c58f03765aa096faf6049ea8c352c3596d9bbb3068706",
+      "lib/libnghttp2.so.14": "b7565ca44181a4618b6cfe6dcf7c38d6975673d8ea90d0e7cc1c9629d7c64fde",
+      "lib/libp11-kit.so.0": "f77e4489c68f501c8cdf0525c5ac6b281a9f3ea6cb71ebb5122f0d474fff9de2",
+      "lib/libpcap.so.0.8": "4d6ab2b00affdb7cd7d4d486a0ddb3541e7a7a67e9d5a53de3ff7502e797b3e7",
+      "lib/libpcre.so.3": "d93d66b7507debfff14d7cae606997a496ccbe3ad6a2dd54b9ac5c6371489101",
+      "lib/libpsl.so.5": "88ff48b87eae6a0b8a24fb2b8f042558f8d844b978938800850cec5460d693f9",
+      "lib/librtmp.so.1": "548c4794c71c4b9e3c1ff267c6406c0888e1f7bb6f97b7cde988583a16823c97",
+      "lib/libsamplerate.so.0": "a3f494838886b6669bf9cf5312b63e744a7f3734c4d82130d158f7bb6520bb41",
+      "lib/libsasl2.so.2": "529fafde8492ce12c03fe74e496676eea5e672bdf087c0c4c0ec7eb7c0138ff5",
+      "lib/libslirp.so.0": "0e343afd0a6073b6ac5405618c0ec2c04e14ec138d964233603ac34dfd1ea8df",
+      "lib/libssh.so.4": "7a52c294894982872a8c19a39aae5ff6e9089cc0bacaa817cac10b2d0e20f765",
+      "lib/libsystemd.so.0": "06afffb54d5b82ed67dbd3ff8f73f816980dd4851667ba35c76e8d3adcc7909a",
+      "lib/libtasn1.so.6": "140770ecfef43bc1390a8e0483a63ec02cc15419c2b4dc6d9aca0797fe84d99a",
+      "lib/libudev.so.1": "274c8783556224e7499427c1806599f7e3d51864b6557e48aea70a19cd012409",
+      "lib/libunistring.so.2": "3185897de7a8125f7bcc2b61a5fd458854d6d14e357b2ec4d34d682bab4137ed",
+      "lib/libzstd.so.1": "f908cc9e1ba594a313d7a316a4dadfbde456da35be934ad1be40344a01c382df",
+      "reference-results.txt": "831354e1839e44be382ffd6242be18803d5327998acb1bf0537b38860be13c60",
+      "state/seed-eeprom.bin": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3",
+      "xemu.toml": "b3323abcf9761c1fd14f41a3fa876c84eb06cfc847f494e8721d2ba5cccacb9d"
+    },
+    "opengl": {
+      "cpu-code-rewrite-reference.json": "012286767ceb727d81f4646463cc46dcb13c9e7f30a891eeda74fba63f78401c",
+      "cpu-code-rewrite-suite-reference.json": "fe7ea361d2427e81e58e6addfd745f037023497bebd9ea59bf68e90dbc13848f",
+      "lib/libbrotlicommon.so.1": "bfe785ce98c25bb854e2cf998561be74f78f743029b13ad7476beab5440408b5",
+      "lib/libbrotlidec.so.1": "86f803ed147ee2d8395f2be189057e04337188efdfa73e8842bf523c490a52c9",
+      "lib/libcap.so.2": "507b03ad6351343928e8b46ba0a29835f5d2862b5d9161fa15620e5e0403d137",
+      "lib/libcrypto.so.3": "b771991f547901bd67531100069cc24e00bda385b6876924b5ce09519a2057ac",
+      "lib/libcurl-gnutls.so.4": "71c96d9e1800ffb5670e1cd0d3960d15994a3c77dc9f177678a8a83298206cff",
+      "lib/libdbus-1.so.3": "75ab39f40f3c0852b0cc1950e5097ae67ed416717bec51b51d7b400dc7f2705d",
+      "lib/libepoxy.so.0": "c71a2b95acabb06e7c957699922946134aeebae6b3e7d84ea5673b6ba08f5907",
+      "lib/libffi.so.8": "3c79d61c14b340560e10cecfaf36085efab30318076bde0f081fded2a1ee5641",
+      "lib/libgcrypt.so.20": "3543f9144edc85fac43fafc012f50dfa0b623981fda2e87416d6a4c30472e5b8",
+      "lib/libglib-2.0.so.0": "96dbcd8324a278f45945c5745051dc0c669abed1238c323be70ea012b3a571c5",
+      "lib/libgnutls.so.30": "073c16a6bccefd026a4e5aeb56ec7e096110f30b828ba26f8cef2ad73b961bce",
+      "lib/libgssapi_krb5.so.2": "84d71a0ad21288aeca10816647e0ee809720aaa72062051b227f4db50517c565",
+      "lib/libhogweed.so.6": "ff69a96e5af06a9638d38189bc41cd345b23c53b1ddf3fe91a11a6818791f0ab",
+      "lib/libidn2.so.0": "7534a45c32036fe0ad27733d27ce8849c2f63849ef2462118ca6d177f603897e",
+      "lib/libk5crypto.so.3": "20033c4eec975ee2d1c28e048d74bb2f9c3f8dc657360994eb50b138a7346a50",
+      "lib/libkeyutils.so.1": "40ef65dad8898edcdaa3e3b4a518749047b088e814da32ac8915cac64ee55b3c",
+      "lib/libkrb5.so.3": "158676f5a0a250fd13b3465245c4d61cfb0006b92d321d3bc00ce3910940dae1",
+      "lib/libkrb5support.so.0": "23fe85bd3bc1b5dcabbd79d10b359cdb9ca5c9fb62952d82d8a4046cef59ecad",
+      "lib/liblber-2.5.so.0": "4d923a63a3c28c3f40683d8cb6ab9bc9173caf12e1f71d9c2c3f0e150550963d",
+      "lib/libldap-2.5.so.0": "58b50e0fa0c56d80590123789265374a2961b7d5dbf8f6e54ae516dd989b2a42",
+      "lib/liblz4.so.1": "bd788ffde800b619613d9f800f56a7ad6ecdf320b43e2c37bf3f0fd712576bfb",
+      "lib/liblzma.so.5": "f753a25e71d2c84a36985afa986c8a3f4372ba3ff520ae1da0ed0562fdcd4dc3",
+      "lib/libnettle.so.8": "84eb28e7628edd01df3c58f03765aa096faf6049ea8c352c3596d9bbb3068706",
+      "lib/libnghttp2.so.14": "b7565ca44181a4618b6cfe6dcf7c38d6975673d8ea90d0e7cc1c9629d7c64fde",
+      "lib/libp11-kit.so.0": "f77e4489c68f501c8cdf0525c5ac6b281a9f3ea6cb71ebb5122f0d474fff9de2",
+      "lib/libpcap.so.0.8": "4d6ab2b00affdb7cd7d4d486a0ddb3541e7a7a67e9d5a53de3ff7502e797b3e7",
+      "lib/libpcre.so.3": "d93d66b7507debfff14d7cae606997a496ccbe3ad6a2dd54b9ac5c6371489101",
+      "lib/libpsl.so.5": "88ff48b87eae6a0b8a24fb2b8f042558f8d844b978938800850cec5460d693f9",
+      "lib/librtmp.so.1": "548c4794c71c4b9e3c1ff267c6406c0888e1f7bb6f97b7cde988583a16823c97",
+      "lib/libsamplerate.so.0": "a3f494838886b6669bf9cf5312b63e744a7f3734c4d82130d158f7bb6520bb41",
+      "lib/libsasl2.so.2": "529fafde8492ce12c03fe74e496676eea5e672bdf087c0c4c0ec7eb7c0138ff5",
+      "lib/libslirp.so.0": "0e343afd0a6073b6ac5405618c0ec2c04e14ec138d964233603ac34dfd1ea8df",
+      "lib/libssh.so.4": "7a52c294894982872a8c19a39aae5ff6e9089cc0bacaa817cac10b2d0e20f765",
+      "lib/libsystemd.so.0": "06afffb54d5b82ed67dbd3ff8f73f816980dd4851667ba35c76e8d3adcc7909a",
+      "lib/libtasn1.so.6": "140770ecfef43bc1390a8e0483a63ec02cc15419c2b4dc6d9aca0797fe84d99a",
+      "lib/libudev.so.1": "274c8783556224e7499427c1806599f7e3d51864b6557e48aea70a19cd012409",
+      "lib/libunistring.so.2": "3185897de7a8125f7bcc2b61a5fd458854d6d14e357b2ec4d34d682bab4137ed",
+      "lib/libzstd.so.1": "f908cc9e1ba594a313d7a316a4dadfbde456da35be934ad1be40344a01c382df",
+      "reference-results.txt": "831354e1839e44be382ffd6242be18803d5327998acb1bf0537b38860be13c60",
+      "state/seed-eeprom.bin": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3",
+      "xemu.toml": "796b6d58943128c0e12080e73cb3d79c10b95de5e8cdadec15353714884fe77b"
+    }
+  },
+  "records": [
+    {
+      "renderer": "vulkan",
+      "order": "ABBA",
+      "variant": "parent",
+      "attempt": "xc-issue229-deck-cpu-vulkan-abba-v1-001",
+      "runId": "20261001-172949467-c5c82adcce9d45abba5a974773037db1",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "passed",
+        "Evidence": "complete",
+        "Comparison": "eligible"
+      },
+      "leafTimings": [
+        {
+          "Id": "cpu_floating_point.sse_scalar",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 1176906.9,
+          "MedianUs": 1176074.5,
+          "MinUs": 1162137,
+          "MaxUs": 1192610,
+          "P95Us": 1192610
+        },
+        {
+          "Id": "cpu_translation_blocks.direct_loop",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 19799.4,
+          "MedianUs": 19661,
+          "MinUs": 19244,
+          "MaxUs": 20683,
+          "P95Us": 20683
+        }
+      ],
+      "storageQualification": "mesa_private_disk_writes_observed",
+      "driverFilesBefore": 0,
+      "driverFilesAfter": 275,
+      "driverBytesAfter": 2886759
+    },
+    {
+      "renderer": "vulkan",
+      "order": "ABBA",
+      "variant": "candidate",
+      "attempt": "xc-issue229-deck-cpu-vulkan-abba-v1-002",
+      "runId": "20261001-173057277-33884f0be42441729e1d8f31e42d4f19",
+      "executableSha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "passed",
+        "Evidence": "complete",
+        "Comparison": "eligible"
+      },
+      "leafTimings": [
+        {
+          "Id": "cpu_floating_point.sse_scalar",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 1182096.6,
+          "MedianUs": 1181262.5,
+          "MinUs": 1159540,
+          "MaxUs": 1197845,
+          "P95Us": 1197845
+        },
+        {
+          "Id": "cpu_translation_blocks.direct_loop",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 19933.8,
+          "MedianUs": 19727.5,
+          "MinUs": 19577,
+          "MaxUs": 20612,
+          "P95Us": 20612
+        }
+      ],
+      "storageQualification": "mesa_private_disk_writes_observed",
+      "driverFilesBefore": 0,
+      "driverFilesAfter": 275,
+      "driverBytesAfter": 2886759
+    },
+    {
+      "renderer": "vulkan",
+      "order": "ABBA",
+      "variant": "candidate",
+      "attempt": "xc-issue229-deck-cpu-vulkan-abba-v1-003",
+      "runId": "20261001-173205591-5e0457b1cf8b450a9083ba5389de5509",
+      "executableSha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "passed",
+        "Evidence": "complete",
+        "Comparison": "eligible"
+      },
+      "leafTimings": [
+        {
+          "Id": "cpu_floating_point.sse_scalar",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 1186106.3,
+          "MedianUs": 1189505.5,
+          "MinUs": 1167069,
+          "MaxUs": 1205803,
+          "P95Us": 1205803
+        },
+        {
+          "Id": "cpu_translation_blocks.direct_loop",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 19756.8,
+          "MedianUs": 19519.5,
+          "MinUs": 19393,
+          "MaxUs": 21202,
+          "P95Us": 21202
+        }
+      ],
+      "storageQualification": "mesa_private_disk_writes_observed",
+      "driverFilesBefore": 0,
+      "driverFilesAfter": 275,
+      "driverBytesAfter": 2886759
+    },
+    {
+      "renderer": "vulkan",
+      "order": "ABBA",
+      "variant": "parent",
+      "attempt": "xc-issue229-deck-cpu-vulkan-abba-v1-004",
+      "runId": "20261001-173313543-ca57f259ff894d1189462199cc568455",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "passed",
+        "Evidence": "complete",
+        "Comparison": "eligible"
+      },
+      "leafTimings": [
+        {
+          "Id": "cpu_floating_point.sse_scalar",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 1204951.4,
+          "MedianUs": 1209253.5,
+          "MinUs": 1166029,
+          "MaxUs": 1265160,
+          "P95Us": 1265160
+        },
+        {
+          "Id": "cpu_translation_blocks.direct_loop",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 20413.4,
+          "MedianUs": 20417.5,
+          "MinUs": 19279,
+          "MaxUs": 21822,
+          "P95Us": 21822
+        }
+      ],
+      "storageQualification": "mesa_private_disk_writes_observed",
+      "driverFilesBefore": 0,
+      "driverFilesAfter": 275,
+      "driverBytesAfter": 2886759
+    },
+    {
+      "renderer": "vulkan",
+      "order": "BAAB",
+      "variant": "candidate",
+      "attempt": "xc-issue229-deck-cpu-vulkan-baab-v1-001",
+      "runId": "20261001-173609764-3df1bb13eded4e2892afafda9fa4822b",
+      "executableSha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "passed",
+        "Evidence": "complete",
+        "Comparison": "eligible"
+      },
+      "leafTimings": [
+        {
+          "Id": "cpu_floating_point.sse_scalar",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 1188644.2,
+          "MedianUs": 1189800.5,
+          "MinUs": 1167933,
+          "MaxUs": 1203645,
+          "P95Us": 1203645
+        },
+        {
+          "Id": "cpu_translation_blocks.direct_loop",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 19694.8,
+          "MedianUs": 19588.5,
+          "MinUs": 19255,
+          "MaxUs": 20421,
+          "P95Us": 20421
+        }
+      ],
+      "storageQualification": "mesa_private_disk_writes_observed",
+      "driverFilesBefore": 0,
+      "driverFilesAfter": 275,
+      "driverBytesAfter": 2886759
+    },
+    {
+      "renderer": "vulkan",
+      "order": "BAAB",
+      "variant": "parent",
+      "attempt": "xc-issue229-deck-cpu-vulkan-baab-v1-002",
+      "runId": "20261001-173717773-606cd74dfc76490bacb28046567b84c5",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "passed",
+        "Evidence": "complete",
+        "Comparison": "eligible"
+      },
+      "leafTimings": [
+        {
+          "Id": "cpu_floating_point.sse_scalar",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 1174604.8,
+          "MedianUs": 1174244.5,
+          "MinUs": 1159679,
+          "MaxUs": 1186103,
+          "P95Us": 1186103
+        },
+        {
+          "Id": "cpu_translation_blocks.direct_loop",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 19810,
+          "MedianUs": 19679.5,
+          "MinUs": 19630,
+          "MaxUs": 20201,
+          "P95Us": 20201
+        }
+      ],
+      "storageQualification": "mesa_private_disk_writes_observed",
+      "driverFilesBefore": 0,
+      "driverFilesAfter": 275,
+      "driverBytesAfter": 2886759
+    },
+    {
+      "renderer": "vulkan",
+      "order": "BAAB",
+      "variant": "parent",
+      "attempt": "xc-issue229-deck-cpu-vulkan-baab-v1-003",
+      "runId": "20261001-173825797-b9d064cff2ff4baba2f43c0705859819",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "passed",
+        "Evidence": "complete",
+        "Comparison": "eligible"
+      },
+      "leafTimings": [
+        {
+          "Id": "cpu_floating_point.sse_scalar",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 1174499.3,
+          "MedianUs": 1178117,
+          "MinUs": 1161094,
+          "MaxUs": 1183396,
+          "P95Us": 1183396
+        },
+        {
+          "Id": "cpu_translation_blocks.direct_loop",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 19930.2,
+          "MedianUs": 19962,
+          "MinUs": 19320,
+          "MaxUs": 20525,
+          "P95Us": 20525
+        }
+      ],
+      "storageQualification": "mesa_private_disk_writes_observed",
+      "driverFilesBefore": 0,
+      "driverFilesAfter": 275,
+      "driverBytesAfter": 2886759
+    },
+    {
+      "renderer": "vulkan",
+      "order": "BAAB",
+      "variant": "candidate",
+      "attempt": "xc-issue229-deck-cpu-vulkan-baab-v1-004",
+      "runId": "20261001-173933364-c5c337af402945799c0b38d6b5f8452a",
+      "executableSha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "passed",
+        "Evidence": "complete",
+        "Comparison": "eligible"
+      },
+      "leafTimings": [
+        {
+          "Id": "cpu_floating_point.sse_scalar",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 1190485.9,
+          "MedianUs": 1184929.5,
+          "MinUs": 1175325,
+          "MaxUs": 1213123,
+          "P95Us": 1213123
+        },
+        {
+          "Id": "cpu_translation_blocks.direct_loop",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 19654.5,
+          "MedianUs": 19529.5,
+          "MinUs": 19289,
+          "MaxUs": 20474,
+          "P95Us": 20474
+        }
+      ],
+      "storageQualification": "mesa_private_disk_writes_observed",
+      "driverFilesBefore": 0,
+      "driverFilesAfter": 275,
+      "driverBytesAfter": 2886759
+    },
+    {
+      "renderer": "opengl",
+      "order": "ABBA",
+      "variant": "parent",
+      "attempt": "xc-issue229-deck-cpu-opengl-abba-v1-001",
+      "runId": "20261001-174157627-d046ff37e53d45ddb9d74e3b3fd765f9",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "passed",
+        "Evidence": "complete",
+        "Comparison": "eligible"
+      },
+      "leafTimings": [
+        {
+          "Id": "cpu_floating_point.sse_scalar",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 1169066.2,
+          "MedianUs": 1168907.5,
+          "MinUs": 1154771,
+          "MaxUs": 1183397,
+          "P95Us": 1183397
+        },
+        {
+          "Id": "cpu_translation_blocks.direct_loop",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 20865,
+          "MedianUs": 20961.5,
+          "MinUs": 19937,
+          "MaxUs": 21835,
+          "P95Us": 21835
+        }
+      ],
+      "storageQualification": "mesa_private_disk_writes_observed",
+      "driverFilesBefore": 0,
+      "driverFilesAfter": 123,
+      "driverBytesAfter": 1762414
+    },
+    {
+      "renderer": "opengl",
+      "order": "ABBA",
+      "variant": "candidate",
+      "attempt": "xc-issue229-deck-cpu-opengl-abba-v1-002",
+      "runId": "20261001-174305184-ca2a64d59ea345fa936191967b33eaa6",
+      "executableSha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "passed",
+        "Evidence": "complete",
+        "Comparison": "eligible"
+      },
+      "leafTimings": [
+        {
+          "Id": "cpu_floating_point.sse_scalar",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 1197661.4,
+          "MedianUs": 1195620,
+          "MinUs": 1177079,
+          "MaxUs": 1218624,
+          "P95Us": 1218624
+        },
+        {
+          "Id": "cpu_translation_blocks.direct_loop",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 19967,
+          "MedianUs": 19699,
+          "MinUs": 19409,
+          "MaxUs": 22306,
+          "P95Us": 22306
+        }
+      ],
+      "storageQualification": "mesa_private_disk_writes_observed",
+      "driverFilesBefore": 0,
+      "driverFilesAfter": 123,
+      "driverBytesAfter": 1762414
+    },
+    {
+      "renderer": "opengl",
+      "order": "ABBA",
+      "variant": "candidate",
+      "attempt": "xc-issue229-deck-cpu-opengl-abba-v1-003",
+      "runId": "20261001-174413909-66b5169207e346a59cdc88bc8ca75d27",
+      "executableSha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "passed",
+        "Evidence": "complete",
+        "Comparison": "eligible"
+      },
+      "leafTimings": [
+        {
+          "Id": "cpu_floating_point.sse_scalar",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 1193225.5,
+          "MedianUs": 1196301.5,
+          "MinUs": 1173212,
+          "MaxUs": 1203634,
+          "P95Us": 1203634
+        },
+        {
+          "Id": "cpu_translation_blocks.direct_loop",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 20214.1,
+          "MedianUs": 19861.5,
+          "MinUs": 19421,
+          "MaxUs": 21904,
+          "P95Us": 21904
+        }
+      ],
+      "storageQualification": "mesa_private_disk_writes_observed",
+      "driverFilesBefore": 0,
+      "driverFilesAfter": 123,
+      "driverBytesAfter": 1762414
+    },
+    {
+      "renderer": "opengl",
+      "order": "ABBA",
+      "variant": "parent",
+      "attempt": "xc-issue229-deck-cpu-opengl-abba-v1-004",
+      "runId": "20261001-174522884-c141f916dee9493a9956076c7c54c913",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "passed",
+        "Evidence": "complete",
+        "Comparison": "eligible"
+      },
+      "leafTimings": [
+        {
+          "Id": "cpu_floating_point.sse_scalar",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 1180784.7,
+          "MedianUs": 1180736,
+          "MinUs": 1164813,
+          "MaxUs": 1195090,
+          "P95Us": 1195090
+        },
+        {
+          "Id": "cpu_translation_blocks.direct_loop",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 19669.4,
+          "MedianUs": 19626.5,
+          "MinUs": 19232,
+          "MaxUs": 20129,
+          "P95Us": 20129
+        }
+      ],
+      "storageQualification": "mesa_private_disk_writes_observed",
+      "driverFilesBefore": 0,
+      "driverFilesAfter": 123,
+      "driverBytesAfter": 1762414
+    },
+    {
+      "renderer": "opengl",
+      "order": "BAAB",
+      "variant": "candidate",
+      "attempt": "xc-issue229-deck-cpu-opengl-baab-v1-001",
+      "runId": "20261001-174759334-cd3f3f853909461dbb86a5ea48ec9f6a",
+      "executableSha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "passed",
+        "Evidence": "complete",
+        "Comparison": "eligible"
+      },
+      "leafTimings": [
+        {
+          "Id": "cpu_floating_point.sse_scalar",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 1212806.9,
+          "MedianUs": 1206075,
+          "MinUs": 1195857,
+          "MaxUs": 1282649,
+          "P95Us": 1282649
+        },
+        {
+          "Id": "cpu_translation_blocks.direct_loop",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 21223.9,
+          "MedianUs": 21249,
+          "MinUs": 19519,
+          "MaxUs": 22384,
+          "P95Us": 22384
+        }
+      ],
+      "storageQualification": "mesa_private_disk_writes_observed",
+      "driverFilesBefore": 0,
+      "driverFilesAfter": 123,
+      "driverBytesAfter": 1762414
+    },
+    {
+      "renderer": "opengl",
+      "order": "BAAB",
+      "variant": "parent",
+      "attempt": "xc-issue229-deck-cpu-opengl-baab-v1-002",
+      "runId": "20261001-174909310-74ae18757c894014b2106309b63bb3d2",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "passed",
+        "Evidence": "complete",
+        "Comparison": "eligible"
+      },
+      "leafTimings": [
+        {
+          "Id": "cpu_floating_point.sse_scalar",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 1175688.3,
+          "MedianUs": 1174924,
+          "MinUs": 1159351,
+          "MaxUs": 1199947,
+          "P95Us": 1199947
+        },
+        {
+          "Id": "cpu_translation_blocks.direct_loop",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 19817.7,
+          "MedianUs": 19555.5,
+          "MinUs": 19380,
+          "MaxUs": 20768,
+          "P95Us": 20768
+        }
+      ],
+      "storageQualification": "mesa_private_disk_writes_observed",
+      "driverFilesBefore": 0,
+      "driverFilesAfter": 123,
+      "driverBytesAfter": 1762414
+    },
+    {
+      "renderer": "opengl",
+      "order": "BAAB",
+      "variant": "parent",
+      "attempt": "xc-issue229-deck-cpu-opengl-baab-v1-003",
+      "runId": "20261001-175017008-56367c5865ef440c91bf338881d825de",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "passed",
+        "Evidence": "complete",
+        "Comparison": "eligible"
+      },
+      "leafTimings": [
+        {
+          "Id": "cpu_floating_point.sse_scalar",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 1190990.6,
+          "MedianUs": 1197397.5,
+          "MinUs": 1167673,
+          "MaxUs": 1202740,
+          "P95Us": 1202740
+        },
+        {
+          "Id": "cpu_translation_blocks.direct_loop",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 19963.8,
+          "MedianUs": 19861.5,
+          "MinUs": 19373,
+          "MaxUs": 21136,
+          "P95Us": 21136
+        }
+      ],
+      "storageQualification": "mesa_private_disk_writes_observed",
+      "driverFilesBefore": 0,
+      "driverFilesAfter": 123,
+      "driverBytesAfter": 1762414
+    },
+    {
+      "renderer": "opengl",
+      "order": "BAAB",
+      "variant": "candidate",
+      "attempt": "xc-issue229-deck-cpu-opengl-baab-v1-004",
+      "runId": "20261001-175125939-3ce7a3660d854552a38652360b7b9a6a",
+      "executableSha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "passed",
+        "Evidence": "complete",
+        "Comparison": "eligible"
+      },
+      "leafTimings": [
+        {
+          "Id": "cpu_floating_point.sse_scalar",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 1196055.4,
+          "MedianUs": 1199207.5,
+          "MinUs": 1180920,
+          "MaxUs": 1213230,
+          "P95Us": 1213230
+        },
+        {
+          "Id": "cpu_translation_blocks.direct_loop",
+          "Kind": "leaf",
+          "Correct": true,
+          "Samples": 10,
+          "MeanUs": 19893.5,
+          "MedianUs": 19475.5,
+          "MinUs": 19108,
+          "MaxUs": 21652,
+          "P95Us": 21652
+        }
+      ],
+      "storageQualification": "mesa_private_disk_writes_observed",
+      "driverFilesBefore": 0,
+      "driverFilesAfter": 123,
+      "driverBytesAfter": 1762414
+    }
+  ]
+}

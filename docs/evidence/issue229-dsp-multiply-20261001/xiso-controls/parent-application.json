@@ -1,0 +1,6 @@
+{
+  "id": "issue229-parent-native-linux-v1",
+  "sha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+  "source": "/home/codex/src/steamdeck-xemu/artifacts/issue229-dsp-multiply/native-builds/parent-linux/squashfs-root/usr/bin/xemu",
+  "started": false
+}

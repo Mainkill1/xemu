@@ -66,20 +66,30 @@ The four A/A controls are a small noise check, not a confidence interval. GCC pa
 
 Three short PGR2 Vulkan pilots ran on the Deck with full DSP enabled: C parent, C candidate and JIT parent. **All are NOT COMPARABLE** because each failed the 160-frame/25-second evidence gate; the C pilots also failed whole-image brightness checks. Screenshots show countdown/startup rather than a verified steady racing window. The [native pilot report](native-pilot/README.md), [summary](native-pilot/SUMMARY.json), frozen definitions and raw artifacts preserve every attempt. No game improvement percentage is claimed. This procedure must be corrected under a new frozen revision before a native ABBA/BAAB campaign.
 
-No PCM parity, qualified native C-versus-C game comparison or balanced JIT control exists yet. Required qualification includes ordinary and reduced-work DSP settings, controlled warm-cache state and matching builds; instrumented profiling remains separate from throughput runs. Windows preparation initially failed for lack of disk space; its pilot was never executed. Operator recovery preserves original assets/evidence and moves runtime/catalog storage to D without lowering free-space gates.
+No PCM parity, qualified native C-versus-C game comparison or balanced JIT game control exists yet. Required qualification includes ordinary and reduced-work DSP settings, controlled warm-cache state and matching builds; instrumented profiling remains separate from throughput runs. Windows preparation initially failed for lack of disk space; its pilot was never executed. Operator recovery preserves original assets/evidence and moves runtime/catalog storage to D without lowering free-space gates.
 
-The maintained shader XISO categories have no direct DSP/audio workload. A focused bare-metal-capable DSP XBE covering signed multiply/MAC/rounding/flags and PCM output is suggested; it is not implemented on this branch. Existing CPU/XISO leaves are unaffected whole-emulator controls, not proof of DSP correctness. Read-only inspection of the registered catalog identifies `cpu_floating_point.sse_scalar` (revision 1) and `cpu_translation_blocks.direct_loop` (revision 1) as planned unaffected controls. The [catalog response](deck-cpu-control-catalog.json) and [inventory identity](deck-control-catalog-identity.json) retain all seven CPU leaves without truncation. This older suite is unverified inventory, not a qualified #229 campaign; a compatible parent/candidate campaign and references still need to be frozen before execution.
+The maintained shader XISO categories have no direct DSP/audio workload. A focused bare-metal-capable DSP XBE covering signed multiply/MAC/rounding/flags and PCM output is suggested; it is not implemented on this branch. Existing CPU/XISO leaves are unaffected whole-emulator controls, not proof of DSP correctness. The two existing revision-1 CPU leaves `cpu_floating_point.sse_scalar` and `cpu_translation_blocks.direct_loop` now have a [balanced native control campaign](xiso-controls/README.md): 16/16 attempts pass correctness/evidence and are eligible, with 32 exact leaf-oracle checks. OpenGL and Vulkan use separate frozen definitions, shared parent runtime libraries and unchanged historical oracles. These are JIT-enabled, unrelated controls, not C DSP or whole-ISO qualification. Mean timings are mixed and OpenGL direct-loop p95 is 5.50% worse; the cause remains unresolved. Initial inventory queries remain retained.
 
 | Required measurement | Backend | Parent | Candidate | Difference | Improvement | Correctness |
 |---|---|---|---|---|---|---|
-| `cpu_floating_point.sse_scalar`, `cpu_translation_blocks.direct_loop` | OpenGL | Not yet measured | Not yet measured | N/A | N/A | Not run |
-| `cpu_floating_point.sse_scalar`, `cpu_translation_blocks.direct_loop` | Vulkan | Not yet measured | Not yet measured | N/A | N/A | Not run |
+| `cpu_floating_point.sse_scalar` | Vulkan | 1175.756 ms | 1187.375 ms | -11.619 ms | -0.99% | 8/8 leaf checks pass |
+| `cpu_translation_blocks.direct_loop` | Vulkan | 19.870 ms | 19.726 ms | +0.144 ms | +0.73% | 8/8 leaf checks pass |
+| `cpu_floating_point.sse_scalar` | Opengl | 1178.236 ms | 1196.858 ms | -18.622 ms | -1.58% | 8/8 leaf checks pass |
+| `cpu_translation_blocks.direct_loop` | Opengl | 19.891 ms | 20.091 ms | -0.200 ms | -1.00% | 8/8 leaf checks pass |
 | PGR2 full-DSP C pilot | Vulkan | Frame/image gates failed | Frame/image gates failed | N/A | NOT COMPARABLE | Both ineligible |
 | Native title, qualified C backend and PCM parity | OpenGL/Vulkan separately | Not yet qualified | Not yet qualified | N/A | N/A | PCM not captured |
 | PGR2 full-DSP JIT pilot | Vulkan | Frame gate failed; image checks passed | Not yet run | N/A | NOT COMPARABLE | Parent ineligible |
 | Balanced unaffected JIT controls | OpenGL/Vulkan separately | Not yet qualified | Not yet qualified | N/A | N/A | Incomplete |
 
 Runner draft [#80](https://github.com/Mainkill1/Xemu-Test-Runner/pull/80) is deployed on the Deck and all three native pilots pass the schema-2 Mesa storage gate without a waiver. This resolves the disk-namespace qualification blocker for these fresh runs, not their failed game evidence contracts. Complete storage ledgers stay in this xemu evidence package. Native performance remains HOLD; PR #187 remains deferred.
+
+## Native CPU controls: passing correctness, mixed timings
+
+A=parent and B=candidate; one ABBA and one BAAB block per renderer yield four independent attempts per build/backend. The table above uses the runner's median of per-attempt leaf means, guest-reported fixed-work milliseconds, with 10 nested samples per attempt and warmups3/multiplier4. This is not host CPU time or FPS. All 16 attempts pass schema-2 private Mesa storage qualification without a waiver, and all fixed inputs match within each backend. The stored suite remains unverified as a whole.
+
+[All 48 server comparison rows](xiso-controls/final-comparison.csv), raw guest results/receipts, per-attempt timing records, frozen procedures and verified archives are retained in [xiso-controls/](xiso-controls/README.md). Controls worsen by 0.99–1.58% in three mean-time rows, improve 0.73% in one, and OpenGL direct-loop p95 worsens 5.50% (+1.153 ms). Power/frequency were not fixed; the causes remain unclassified. No regression-free or native game gain claim follows from these passes. Controlled repeat/build-layout checks remain needed.
+
+Matching debug packages identify Ubuntu Clang 21.1.8 for both native DSP translation units, and eight prescribed build/workflow files match. Exact native compiler-command logs remain absent. Earlier standalone Clang 19.1 measurements retain their original identity.
 
 ## Native profiling and runner reliability
 
