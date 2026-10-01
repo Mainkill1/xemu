@@ -54,7 +54,16 @@
       "result": "expected assertion failure"
     }
   },
-  "CI": "pending draft PR build; standalone checks reuse disclosed generated support build",
+  "CI": {
+    "result": "20/20 jobs successful",
+    "run": "https://github.com/Mainkill1/xemu/actions/runs/36881642099",
+    "branchHead": "778338b8ba38484ff1afecf6e69e513e482658e9",
+    "sourcePackageCommit": "b9359dbf55c72bd7e8569f677dc4aafd771592d7",
+    "unitPassed": 137,
+    "unitSkipped": 16,
+    "unitFailed": 0,
+    "productAndTestSourceHashesUnchanged": true
+  },
   "nativeGames": "not measured",
   "pcmParity": "not measured",
   "jitControl": "not measured; JIT sources unchanged"

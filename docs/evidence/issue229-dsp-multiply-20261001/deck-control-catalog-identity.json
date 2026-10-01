@@ -1,0 +1,27 @@
+{
+  "source": "read-only catalog query; no run or registration performed",
+  "runnerUrl": "http://10.0.0.123:9368",
+  "suiteInventoryOnly": {
+    "id": "inline245-deck-3a144c66-all-suite",
+    "revision": "32085433729c0a47ce3e0809789283fb92a0f6423f2ba55b9a995fe24be99ccb",
+    "qualification": "unverified",
+    "target": null,
+    "isoSha256": "74a10c400f4fb280dcb4037e38e7e4d3150e73e0061a04f65b3c68cc61a49e63",
+    "catalogId": "sha256:34b8ee7f91f3412b5e7758aab9f4ca08746ef2e97fee8b5c61be8947e145f7f4",
+    "catalogSha256": "c78f03d06d1ae014c10783c736fe03f934d95055e69dc0304d881ed701a268a9",
+    "leafCount": 156,
+    "groupCount": 5,
+    "settings": {
+      "warmup_iterations": 0,
+      "measurement_iterations_multiplier": 1,
+      "gpu_completion_mode": "per_iteration"
+    },
+    "categories": "/api/v1/xiso-suites/inline245-deck-3a144c66-all-suite/categories",
+    "tests": "/api/v1/xiso-suites/inline245-deck-3a144c66-all-suite/tests"
+  },
+  "plannedControls": [
+    "cpu_floating_point.sse_scalar",
+    "cpu_translation_blocks.direct_loop"
+  ],
+  "qualification": "not qualified; requires compatible frozen parent/candidate campaign and references"
+}

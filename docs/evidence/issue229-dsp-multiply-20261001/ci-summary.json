@@ -1,0 +1,166 @@
+{
+  "databaseId": 36881642099,
+  "status": "completed",
+  "conclusion": "success",
+  "event": "pull_request",
+  "headSha": "778338b8ba38484ff1afecf6e69e513e482658e9",
+  "url": "https://github.com/Mainkill1/xemu/actions/runs/36881642099",
+  "sourcePackageCommit": "b9359dbf55c72bd7e8569f677dc4aafd771592d7",
+  "jobs": [
+    {
+      "databaseId": 110434602150,
+      "name": "Build / Create source package",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Mainkill1/xemu/actions/runs/36881642099/job/110434602150"
+    },
+    {
+      "databaseId": 110435039909,
+      "name": "Build / macOS / Build for macOS (arm64, release)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Mainkill1/xemu/actions/runs/36881642099/job/110435039909"
+    },
+    {
+      "databaseId": 110435039960,
+      "name": "Build / Unit tests / Run unit tests",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Mainkill1/xemu/actions/runs/36881642099/job/110435039960"
+    },
+    {
+      "databaseId": 110435039978,
+      "name": "Build / macOS / Build for macOS (x86_64, debug)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Mainkill1/xemu/actions/runs/36881642099/job/110435039978"
+    },
+    {
+      "databaseId": 110435040007,
+      "name": "Build / macOS / Build for macOS (x86_64, release)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Mainkill1/xemu/actions/runs/36881642099/job/110435040007"
+    },
+    {
+      "databaseId": 110435040023,
+      "name": "Build / macOS / Build for macOS (arm64, debug)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Mainkill1/xemu/actions/runs/36881642099/job/110435040023"
+    },
+    {
+      "databaseId": 110435040082,
+      "name": "Build / Linux / Build for Ubuntu (aarch64, debug)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Mainkill1/xemu/actions/runs/36881642099/job/110435040082"
+    },
+    {
+      "databaseId": 110435040093,
+      "name": "Build / Linux / Build for Ubuntu (x86_64, debug)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Mainkill1/xemu/actions/runs/36881642099/job/110435040093"
+    },
+    {
+      "databaseId": 110435040309,
+      "name": "Build / Linux / Build for Ubuntu (x86_64, release)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Mainkill1/xemu/actions/runs/36881642099/job/110435040309"
+    },
+    {
+      "databaseId": 110435040311,
+      "name": "Build / Windows / Build for Windows (x86_64, debug)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Mainkill1/xemu/actions/runs/36881642099/job/110435040311"
+    },
+    {
+      "databaseId": 110435040320,
+      "name": "Build / Windows / Build for Windows (arm64, release)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Mainkill1/xemu/actions/runs/36881642099/job/110435040320"
+    },
+    {
+      "databaseId": 110435040348,
+      "name": "Build / Windows / Build for Windows (arm64, debug)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Mainkill1/xemu/actions/runs/36881642099/job/110435040348"
+    },
+    {
+      "databaseId": 110435040447,
+      "name": "Build / Windows / Build for Windows (x86_64, release)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Mainkill1/xemu/actions/runs/36881642099/job/110435040447"
+    },
+    {
+      "databaseId": 110435040452,
+      "name": "Build / Linux / Build for Ubuntu (aarch64, release)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Mainkill1/xemu/actions/runs/36881642099/job/110435040452"
+    },
+    {
+      "databaseId": 110436078097,
+      "name": "Build / macOS / Build macOS Universal bundle (release)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Mainkill1/xemu/actions/runs/36881642099/job/110436078097"
+    },
+    {
+      "databaseId": 110436078272,
+      "name": "Build / macOS / Build macOS Universal bundle (debug)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Mainkill1/xemu/actions/runs/36881642099/job/110436078272"
+    },
+    {
+      "databaseId": 110436814615,
+      "name": "Build / Windows / Generate PDB for Windows (x86_64, debug)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Mainkill1/xemu/actions/runs/36881642099/job/110436814615"
+    },
+    {
+      "databaseId": 110436814661,
+      "name": "Build / Windows / Generate PDB for Windows (x86_64, release)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Mainkill1/xemu/actions/runs/36881642099/job/110436814661"
+    },
+    {
+      "databaseId": 110436814729,
+      "name": "Build / Windows / Generate PDB for Windows (arm64, debug)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Mainkill1/xemu/actions/runs/36881642099/job/110436814729"
+    },
+    {
+      "databaseId": 110436814785,
+      "name": "Build / Windows / Generate PDB for Windows (arm64, release)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/Mainkill1/xemu/actions/runs/36881642099/job/110436814785"
+    }
+  ],
+  "unitSummary": {
+    "passed": 137,
+    "skipped": 16,
+    "failed": 0,
+    "dspSubtestsPassed": 4,
+    "mesaDepthSubtestsPassed": 17,
+    "summaryLog": "ci-unit-summary.txt",
+    "rawLogUrl": "https://github.com/Mainkill1/xemu/actions/runs/36881642099/job/110435039960"
+  },
+  "duplicatedPushRun": {
+    "id": 36881632528,
+    "state": "canceled deliberately; identical head, pull_request run retained",
+    "url": "https://github.com/Mainkill1/xemu/actions/runs/36881632528"
+  },
+  "applicability": "CI merge tree equals branch head 778338b8ba. Subsequent evidence-only changes preserve all product and test sources; hashes remain those of code commit 1e6cebe0cb."
+}

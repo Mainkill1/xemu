@@ -2,7 +2,7 @@
 
 ## Decision: HOLD
 
-The independently implemented native multiply is faster in both compilers and both balanced orders on this authoring host. Actual synthetic C interpreter instruction execution improves by 19.85–25.08% with GCC and 6.66–9.72% with Clang. These are fixed-work arithmetic/instruction results, not game FPS, audio-thread savings, Steam Deck results or default JIT gains. Full product CI, PCM/native C-backend qualification and unaffected JIT controls remain required.
+The independently implemented native multiply is faster in both compilers and both balanced orders on this authoring host. Actual synthetic C interpreter instruction execution improves by 19.85–25.08% with GCC and 6.66–9.72% with Clang. These are fixed-work arithmetic/instruction results, not game FPS, audio-thread savings, Steam Deck results or default JIT gains. All 20 platform/project CI jobs pass; PCM/native C-backend qualification and unaffected JIT controls remain required.
 
 ## Baseline, candidate and scope
 
@@ -59,19 +59,19 @@ The four A/A controls are a small noise check, not a confidence interval. GCC pa
 - Corpus: 242 boundary/sign combinations, 2,000,000 deterministic random/sign comparisons, 22 operand-high-bit checks, plus 46,464 real instruction executions across all 128 opcode variants and three scaling modes. Cross-register initialization covers fewer independent pairs for some opcode variants; helper arithmetic still receives the full Cartesian boundary/random corpus. This is not full DSP instruction conformance.
 - Complete register/status/PC/cycle/idle digest matches parent: `7591ff4ee4a7f31b8971da505208bda80e84b492c451fb27164c860f39e07772`.
 - Deliberate negative controls remove fractional scaling or swap words in separate parent source copies. Both fail the boundary assertion (exit −6), proving the oracle detects those defects; [scaling failure](missing-fractional-shift.log), [word-order failure](swapped-result-words.log). They do not alter the committed product.
-- Standalone compilation reuses generated headers and `libqemuutil.a` from support source `b7adeca8281b1c30983df58f8a845b7fb8355677` and compiles the exact parent/candidate DSP translation unit. It is **not a fresh full product build**. Project Meson registration and platform builds are to be checked by this draft's CI.
+- Standalone compilation reuses generated headers and `libqemuutil.a` from support source `b7adeca8281b1c30983df58f8a845b7fb8355677` and compiles the exact parent/candidate DSP translation unit. It is **not a fresh full product build**. Project Meson registration and full platform builds are now independently verified by [CI run 36881642099](https://github.com/Mainkill1/xemu/actions/runs/36881642099): 20/20 jobs pass, covering Linux/Windows/macOS x86-64 and ARM64 debug/release builds and packaging. The project unit suite reports 137 passed, 16 skipped and 0 failed; the new DSP test passes 4 subtests in 0.28 seconds. The separate Xvfb/Mesa depth draw test passes 17 subtests. [CI summary](ci-summary.json) and [unit/skip record](ci-unit-summary.txt) retain exact job links and all skipped test names. CI packages merge commit `b9359dbf55c72bd7e8569f677dc4aafd771592d7`, whose tree is verified identical to branch head `778338b8ba38484ff1afecf6e69e513e482658e9`. Subsequent evidence-only commits leave every product/test source unchanged; their documented equivalence avoids repeating platform builds for report updates. An identical-head push-triggered run was deliberately canceled to keep one complete PR-triggered build matrix.
 - Read-only review found no blocking arithmetic defect; two benchmark checks were corrected: matched warmup checksums and rejection of below-resolution timing attempts.
 
 ## Native/XISO coverage still missing
 
 No audio PCM comparison, native C-versus-C title benchmark, JIT-versus-JIT control, Deck or Windows run is included. Do not infer a normal-game gain from the synthetic table. Required qualification retains audio settings and compares matched backends/settings/builds; instrumented profiling is separate from throughput runs.
 
-The maintained shader XISO categories have no direct DSP/audio workload. A focused bare-metal-capable DSP XBE covering signed multiply/MAC/rounding/flags and PCM output is suggested; it is not implemented on this branch. Existing CPU/XISO leaves are unaffected whole-emulator controls, not proof of DSP correctness. Their exact selection must come from the frozen runner catalog, not invented test names.
+The maintained shader XISO categories have no direct DSP/audio workload. A focused bare-metal-capable DSP XBE covering signed multiply/MAC/rounding/flags and PCM output is suggested; it is not implemented on this branch. Existing CPU/XISO leaves are unaffected whole-emulator controls, not proof of DSP correctness. Read-only inspection of the registered catalog identifies `cpu_floating_point.sse_scalar` (revision 1) and `cpu_translation_blocks.direct_loop` (revision 1) as planned unaffected controls. The [catalog response](deck-cpu-control-catalog.json) and [inventory identity](deck-control-catalog-identity.json) retain all seven CPU leaves without truncation. This older suite is unverified inventory, not a qualified #229 campaign; a compatible parent/candidate campaign and references still need to be frozen before execution.
 
 | Required measurement | Backend | Parent | Candidate | Difference | Improvement | Correctness |
 |---|---|---|---|---|---|---|
-| Frozen CPU/XISO controls, per catalog leaf | OpenGL | Not yet measured | Not yet measured | N/A | N/A | Not run |
-| Frozen CPU/XISO controls, per catalog leaf | Vulkan | Not yet measured | Not yet measured | N/A | N/A | Not run |
+| `cpu_floating_point.sse_scalar`, `cpu_translation_blocks.direct_loop` | OpenGL | Not yet measured | Not yet measured | N/A | N/A | Not run |
+| `cpu_floating_point.sse_scalar`, `cpu_translation_blocks.direct_loop` | Vulkan | Not yet measured | Not yet measured | N/A | N/A | Not run |
 | Native DSP-using title, C backend and PCM parity | OpenGL/Vulkan separately | Not yet measured | Not yet measured | N/A | N/A | Not run |
 | Same title, unaffected JIT control | OpenGL/Vulkan separately | Not yet measured | Not yet measured | N/A | N/A | Not run |
 

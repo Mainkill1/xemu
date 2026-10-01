@@ -1,0 +1,68 @@
+{
+  "items": [
+    {
+      "id": "cpu_floating_point.sse_scalar",
+      "revision": 1,
+      "name": "SSEScalar",
+      "category": "cpu",
+      "route": "CpuFloatingPoint::SSEScalar",
+      "freshProcess": false,
+      "timeoutMs": 30000
+    },
+    {
+      "id": "cpu_floating_point.x87_scalar",
+      "revision": 1,
+      "name": "X87Scalar",
+      "category": "cpu",
+      "route": "CpuFloatingPoint::X87Scalar",
+      "freshProcess": false,
+      "timeoutMs": 30000
+    },
+    {
+      "id": "cpu_translation_blocks.direct_loop",
+      "revision": 1,
+      "name": "DirectLoop",
+      "category": "cpu",
+      "route": "CpuTranslationBlocks::DirectLoop",
+      "freshProcess": false,
+      "timeoutMs": 30000
+    },
+    {
+      "id": "cpu_translation_blocks.indirect_dispatch",
+      "revision": 1,
+      "name": "IndirectDispatch",
+      "category": "cpu",
+      "route": "CpuTranslationBlocks::IndirectDispatch",
+      "freshProcess": false,
+      "timeoutMs": 30000
+    },
+    {
+      "id": "cpu_translation_blocks.indirect_dispatch_stress",
+      "revision": 1,
+      "name": "IndirectDispatchStress",
+      "category": "cpu",
+      "route": "CpuTranslationBlocks::IndirectDispatchStress",
+      "freshProcess": false,
+      "timeoutMs": 120000
+    },
+    {
+      "id": "cpu_translation_blocks.code_stable",
+      "revision": 2,
+      "name": "CodeStable",
+      "category": "cpu",
+      "route": "CpuTranslationBlocks::CodeStable",
+      "freshProcess": false,
+      "timeoutMs": 300000
+    },
+    {
+      "id": "cpu_translation_blocks.code_rewrite",
+      "revision": 2,
+      "name": "CodeRewrite",
+      "category": "cpu",
+      "route": "CpuTranslationBlocks::CodeRewrite",
+      "freshProcess": false,
+      "timeoutMs": 300000
+    }
+  ],
+  "nextOffset": null
+}
