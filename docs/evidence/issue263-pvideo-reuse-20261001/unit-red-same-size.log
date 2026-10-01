@@ -1,0 +1,7 @@
+TAP version 14
+# random seed: R02S752fefdc025c28ca0c069d40f6e84a30
+# Start of pvideo tests
+**
+ERROR:../tests/unit/test-xbox-vk-pvideo.c:197:test_same_size_reuses_resources: assertion failed (images == 1): (10001 == 1)
+not ok /pvideo/same-size - ERROR:../tests/unit/test-xbox-vk-pvideo.c:197:test_same_size_reuses_resources: assertion failed (images == 1): (10001 == 1)
+Bail out!

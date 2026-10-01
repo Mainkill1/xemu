@@ -173,6 +173,33 @@ if host_os == 'windows'
 endif
 
 if vulkan.found()
+  # The unit includes the production display/upload and image-barrier functions;
+  # discard unrelated display entry points rather than substituting their logic.
+  pvideo_gc_args = []
+  foreach flag: ['-Wl,--gc-sections', '-Wl,-dead_strip']
+    if cc.has_link_argument(flag)
+      pvideo_gc_args = [flag]
+      break
+    endif
+  endforeach
+  if cc.has_argument('-ffunction-sections') and pvideo_gc_args.length() == 1
+    pvideo_test_sections = declare_dependency(
+      compile_args: ['-ffunction-sections', '-fdata-sections'],
+      link_args: pvideo_gc_args,
+    )
+    tests += {
+      'test-xbox-vk-pvideo': [
+        xbox_i386_target_headers, pvideo_test_sections, volk, libglslang, vma,
+        vulkan, spirv_reflect,
+      ],
+      'test-xbox-vk-pvideo-gpu': [
+        xbox_i386_target_headers, pvideo_test_sections, volk, libglslang, vma,
+        vulkan, spirv_reflect,
+      ],
+    }
+  else
+    message('Skipping production PVIDEO units: section GC unsupported')
+  endif
   tests += {
     'test-xbox-vk-hybrid-prewarm': [
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-prewarm.c',

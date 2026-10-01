@@ -1,0 +1,8 @@
+{
+  "source": "ee5ce48b48784f999af374c1452003f8b2b1230f",
+  "sha256": "d406d6072238c81ebed3b144257fcfb23a5fd12b5215769f853d9365d33d5471",
+  "bytes": 136336688,
+  "plugins": false,
+  "build": "GCC 14.2.0, O2, debug symbols, no LTO, i386-softmmu, DXBOX, disable-werror",
+  "scope": "unmodified product baseline; test/meson-only additions not linked into emulator"
+}

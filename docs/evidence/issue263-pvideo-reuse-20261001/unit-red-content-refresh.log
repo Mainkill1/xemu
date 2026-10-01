@@ -1,0 +1,7 @@
+TAP version 14
+# random seed: R02Sa2045fae51b00c5d2c4ed43f9670b535
+# Start of pvideo tests
+**
+ERROR:../tests/unit/test-xbox-vk-pvideo.c:266:test_upload_refreshes_same_size_content: assertion failed (images == 1): (2 == 1)
+not ok /pvideo/content-refresh - ERROR:../tests/unit/test-xbox-vk-pvideo.c:266:test_upload_refreshes_same_size_content: assertion failed (images == 1): (2 == 1)
+Bail out!

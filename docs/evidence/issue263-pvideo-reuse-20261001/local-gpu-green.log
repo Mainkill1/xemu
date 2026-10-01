@@ -1,0 +1,10 @@
+ninja: Entering directory `/home/codex/src/steamdeck-xemu/worktrees/issue263-pvideo-reuse/build-profile'
+[1/2] Generating qemu-version.h with a custom command (wrapped by meson to capture output)
+[2/2] Generating xemu-version-macro.h with a custom command (wrapped by meson to capture output)
+1/2 qemu:unit / test-xbox-vk-pvideo     OK              0.01s   7 subtests passed
+2/2 qemu:unit / test-xbox-vk-pvideo-gpu OK              0.05s   1 subtests passed
+
+Ok:                2   
+Fail:              0   
+
+Full log written to /home/codex/src/steamdeck-xemu/worktrees/issue263-pvideo-reuse/build-profile/meson-logs/testlog.txt

@@ -70,6 +70,9 @@ static void destroy_pvideo_image(PGRAPHState *pg)
         d->pvideo.image = VK_NULL_HANDLE;
         d->pvideo.allocation = VK_NULL_HANDLE;
     }
+
+    d->pvideo.width = d->pvideo.height = 0;
+    d->pvideo.current_layout = VK_IMAGE_LAYOUT_UNDEFINED;
 }
 
 static void create_pvideo_image(PGRAPHState *pg, int width, int height)
@@ -77,10 +80,16 @@ static void create_pvideo_image(PGRAPHState *pg, int width, int height)
     PGRAPHVkState *r = pg->vk_renderer_state;
     PGRAPHVkDisplayState *d = &r->display;
 
-    if (d->pvideo.image == VK_NULL_HANDLE || d->pvideo.width != width ||
-        d->pvideo.height != height) {
-        destroy_pvideo_image(pg);
+    if (d->pvideo.image != VK_NULL_HANDLE &&
+        d->pvideo.image_view != VK_NULL_HANDLE &&
+        d->pvideo.sampler != VK_NULL_HANDLE && d->pvideo.width == width &&
+        d->pvideo.height == height) {
+        return;
     }
+
+    /* Previous display/upload auxiliary submissions have completed their
+     * existing queue-idle wait before this resource set can be replaced. */
+    destroy_pvideo_image(pg);
 
     VkImageCreateInfo image_create_info = {
         .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
@@ -131,6 +140,9 @@ static void create_pvideo_image(PGRAPHState *pg, int width, int height)
     };
     VK_CHECK(vkCreateSampler(r->device, &sampler_create_info, NULL,
                              &d->pvideo.sampler));
+
+    d->pvideo.width = width;
+    d->pvideo.height = height;
 }
 
 static void upload_pvideo_image(PGRAPHState *pg, PvideoState state)
@@ -179,8 +191,8 @@ static void upload_pvideo_image(PGRAPHState *pg, PvideoState state)
                          &host_barrier, 0, NULL);
 
     pgraph_vk_transition_image_layout(
-        pg, cmd, disp->pvideo.image, VK_FORMAT_R8_UNORM,
-        VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+        pg, cmd, disp->pvideo.image, VK_FORMAT_R8G8B8A8_UNORM,
+        disp->pvideo.current_layout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
     VkBufferImageCopy region = {
         .bufferOffset = 0,
@@ -204,6 +216,7 @@ static void upload_pvideo_image(PGRAPHState *pg, PvideoState state)
     pgraph_vk_end_single_time_commands(
         pg, cmd, VK_SINGLE_TIME_PVIDEO_UPLOAD,
         (uint64_t)state.in_width * state.in_height * 4);
+    disp->pvideo.current_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 }
 
 static const char *display_frag_glsl =
