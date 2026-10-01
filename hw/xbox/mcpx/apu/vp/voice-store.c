@@ -16,10 +16,10 @@ void mcpx_apu_voice_store_masked_from_read(AddressSpace *as, MemoryRegion *ram,
     /*
      * Equal-write elision follows the prototype in izzy2lost/xemu:
      * https://github.com/izzy2lost/xemu/commit/a7765290d17750e10a2bfc2d94cd85279f3b591e
-     * A direct, aligned RAM compare-exchange is the write point. If another
-     * writer changes the word after our read, the original physical store
-     * below wins instead. Unchanged bytes do not require dirty tracking or
-     * code invalidation; Xen observes writes independently, so it falls back.
+     * A direct, aligned RAM compare-exchange validates the word. If another
+     * writer changes it between our read and that validation, the original
+     * physical store below wins instead. An unchanged RAM word needs no
+     * content dirty mark; Xen observes writes independently, so it falls back.
      */
     if (!mcpx_apu_voice_store_required(address, memory_region_size(ram),
                                         old_value, new_value)) {

@@ -127,6 +127,14 @@ static const MemoryRegionOps partial_ops = {
     },
 };
 
+static gpointer overwrite_voice_word(gpointer opaque)
+{
+    uint32_t *word = opaque;
+
+    stl_le_p(word, 0xaabbccdd);
+    return NULL;
+}
+
 static void test_real_address_space_ram_and_overlay(void)
 {
     static VoiceStoreFixture f;
@@ -182,10 +190,17 @@ static void test_real_address_space_ram_and_overlay(void)
     mcpx_apu_voice_store_masked(&f.as, &f.ram, base + 16, 0xff, 0x78);
     g_assert_cmpuint(f.partial_writes, ==, 1);
 
-    /* The guest changes RAM after the APU read and before validation. */
-    stl_le_p(f.bytes + base, 0xaabbccdd);
+    /* A synchronized guest writer changes RAM after the APU read. */
+    uint32_t old_value = ldl_le_phys(&f.as, base);
+    GThread *writer;
+
+    g_assert_cmphex(old_value, ==, 0x12345634);
+    writer = g_thread_new("voice-guest-write", overwrite_voice_word,
+                          f.bytes + base);
+
+    g_thread_join(writer);
     mcpx_apu_voice_store_masked_from_read(&f.as, &f.ram, base, 0xff,
-                                           0x34, 0x12345634);
+                                           0x34, old_value);
     g_assert_cmphex(ldl_le_p(f.bytes + base), ==, 0x12345634);
 
     /* FlatViews may outlive a callback; fixture storage lasts to exit. */
