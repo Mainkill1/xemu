@@ -1,0 +1,76 @@
+{
+  "Execution": "unresponsive",
+  "Correctness": "failed",
+  "Evidence": "incomplete",
+  "Comparison": "ineligible",
+  "ComparisonReasons": [
+    "Execution outcome is Unresponsive.",
+    "Correctness outcome is Failed; a passing correctness contract is required.",
+    "Evidence outcome is Incomplete; complete evidence is required.",
+    "Operator, transfer, preview, or host-state intervention was recorded."
+  ],
+  "Checks": [
+    {
+      "Name": "analysis:monitor",
+      "Passed": false,
+      "Category": "evidence",
+      "Detail": "monitor: Selected segment has insufficient CPU/duty samples."
+    },
+    {
+      "Name": "analysis:flips",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+    },
+    {
+      "Name": "analysis:frames",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+    },
+    {
+      "Name": "recording-start-visible",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "PNG has 4.721% non-black pixels above RGB threshold 96; expected at least 5.000%."
+    },
+    {
+      "Name": "recording-end-visible",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "Required artifact is missing: /home/deck/xemu-research/workspace/Results/20261001-163656280-a3546f341dc74aaab9b0a8b56ae49005/screenshots/recording-end.png"
+    },
+    {
+      "Name": "guest-progress",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "result:guest-frames.log satisfied the declared requirement."
+    },
+    {
+      "Name": "measurement-segments",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "result:segments.jsonl satisfied the declared requirement."
+    },
+    {
+      "Name": "minimum_metric_samples",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Required \u003E= 160; actual 217."
+    },
+    {
+      "Name": "plan_completion",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "The declared plan completed."
+    },
+    {
+      "Name": "run_storage_state",
+      "Passed": true,
+      "Category": "state",
+      "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+    }
+  ],
+  "IsExecutionSuccess": false,
+  "IsCorrectnessSuccess": false
+}

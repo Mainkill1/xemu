@@ -1,0 +1,213 @@
+{
+  "runId": "20261001-170325961-be9789a08bcc4f5aa3dc3c365a7ebc17",
+  "job": "runner848-deck-diagnostic-timeout-canary-20261001",
+  "jobPackage": "agent-runner848-deck-diagnostic-timeout-canary-20261001",
+  "attempt": 1,
+  "status": "plan_failed",
+  "detail": "System.TimeoutException: Diagnostic tool or output drain exceeded 15000 ms: /usr/bin/sleep\n   at XemuTestRunner.Diagnostics.ToolProcess.RunAsync(String executable, IEnumerable\u00601 arguments, String workingDirectory, Int32 timeoutMs, CancellationToken cancellationToken, IReadOnlyDictionary\u00602 environment) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Diagnostics/ToolProcess.cs:line 115\n   at XemuTestRunner.Diagnostics.ToolProcess.RunAsync(String executable, IEnumerable\u00601 arguments, String workingDirectory, Int32 timeoutMs, CancellationToken cancellationToken, IReadOnlyDictionary\u00602 environment) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Diagnostics/ToolProcess.cs:line 126\n   at XemuTestRunner.Diagnostics.DiagnosticHub.RunExternalAsync(ActiveContext context, DiagnosticRecipe recipe, String directory, CancellationToken ct) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 741\n   at XemuTestRunner.Diagnostics.DiagnosticHub.RunAsync(ActiveContext context, DiagnosticRecipe recipe, CancellationToken cancellationToken, Boolean linkRunLifetime) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 239\n   at XemuTestRunner.Diagnostics.DiagnosticHub.RunAsync(ActiveContext context, DiagnosticRecipe recipe, CancellationToken cancellationToken, Boolean linkRunLifetime) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 290\n   at XemuTestRunner.Diagnostics.DiagnosticHub.RunByIdAsync(String id, CancellationToken cancellationToken) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 102\n   at XemuTestRunner.Runtime.RunnerEngine.\u003C\u003Ec__DisplayClass13_0.\u003C\u003CExecuteJobAsync\u003Eb__7\u003Ed.MoveNext() in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Runtime/RunnerEngine.cs:line 746\n--- End of stack trace from previous location ---\n   at XemuTestRunner.Control.XemuControlManager.ExecutePlanAsync(IReadOnlyList\u00601 plan, CancellationToken cancellationToken, Func\u00603 diagnosticRunner, Action\u00601 segmentStart, Action\u00601 segmentEnd, Func\u00605 artifactWaiter) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Control/XemuControlManager.cs:line 594\n   at XemuTestRunner.Control.XemuControlManager.ExecutePlanAsync(IReadOnlyList\u00601 plan, CancellationToken cancellationToken, Func\u00603 diagnosticRunner, Action\u00601 segmentStart, Action\u00601 segmentEnd, Func\u00605 artifactWaiter) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Control/XemuControlManager.cs:line 634\n   at XemuTestRunner.Runtime.RunnerEngine.ExecuteJobAsync(String package, Task serverTask, MetricCollector telemetry, CancellationToken ct) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Runtime/RunnerEngine.cs:line 838 plan: Diagnostic tool or output drain exceeded 15000 ms: /usr/bin/sleep",
+  "startedUtc": "2026-10-01T17:03:25.9611332+00:00",
+  "endedUtc": "2026-10-01T17:03:53.828861+00:00",
+  "durationMs": 27867.7279,
+  "processId": 33674,
+  "exitCode": 137,
+  "crash": {
+    "RunId": "20261001-170325961-be9789a08bcc4f5aa3dc3c365a7ebc17",
+    "ExecutableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+    "Platform": "linux",
+    "ProcessId": 33674,
+    "ExitCode": 137,
+    "RunnerTerminated": true,
+    "Crashed": false,
+    "Source": "runner",
+    "Code": null,
+    "Capture": "partial",
+    "Dump": "unavailable",
+    "Analysis": "unavailable",
+    "TopFrames": [],
+    "Issues": [
+      "linux_core_metadata_unavailable:captured"
+    ]
+  },
+  "diagnosticBundle": "diagnostic-bundle.json",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu",
+  "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+  "arguments": [
+    "-config_path",
+    "xemu.toml",
+    "-qmp",
+    "tcp:127.0.0.1:39053,server=on,wait=off"
+  ],
+  "watchdog": null,
+  "failureCaptureError": null,
+  "automaticDiagnostic": null,
+  "automaticDiagnosticError": null,
+  "diagnostics": [
+    {
+      "Id": "expected-timeout",
+      "Type": "external",
+      "Status": "failed",
+      "StartedUtc": "2026-10-01T17:03:31.4445719+00:00",
+      "EndedUtc": "2026-10-01T17:03:46.6832431+00:00",
+      "Directory": "/home/deck/xemu-research/workspace/Results/20261001-170325961-be9789a08bcc4f5aa3dc3c365a7ebc17/diagnostics/20261001-170331444-expected-timeout",
+      "Detail": "System.TimeoutException: Diagnostic tool or output drain exceeded 15000 ms: /usr/bin/sleep\n   at XemuTestRunner.Diagnostics.ToolProcess.RunAsync(String executable, IEnumerable\u00601 arguments, String workingDirectory, Int32 timeoutMs, CancellationToken cancellationToken, IReadOnlyDictionary\u00602 environment) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Diagnostics/ToolProcess.cs:line 115\n   at XemuTestRunner.Diagnostics.ToolProcess.RunAsync(String executable, IEnumerable\u00601 arguments, String workingDirectory, Int32 timeoutMs, CancellationToken cancellationToken, IReadOnlyDictionary\u00602 environment) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Diagnostics/ToolProcess.cs:line 126\n   at XemuTestRunner.Diagnostics.DiagnosticHub.RunExternalAsync(ActiveContext context, DiagnosticRecipe recipe, String directory, CancellationToken ct) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 741\n   at XemuTestRunner.Diagnostics.DiagnosticHub.RunAsync(ActiveContext context, DiagnosticRecipe recipe, CancellationToken cancellationToken, Boolean linkRunLifetime) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 239",
+      "Artifacts": []
+    }
+  ],
+  "operatorActivity": {
+    "Intervened": true,
+    "ManualInputs": 0,
+    "Pauses": 0,
+    "Screenshots": 0,
+    "PreviewCaptures": 0,
+    "BulkTransfers": 0,
+    "Diagnostics": 1,
+    "HostStateChanges": 0
+  },
+  "workload": {
+    "Correctness": "notEvaluated",
+    "Evidence": "incomplete",
+    "Checks": [
+      {
+        "Name": "plan_completion",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "The declared plan did not complete."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": true,
+        "Category": "state",
+        "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+      }
+    ],
+    "Measurements": []
+  },
+  "assessment": {
+    "Execution": "failed",
+    "Correctness": "notEvaluated",
+    "Evidence": "incomplete",
+    "Comparison": "ineligible",
+    "ComparisonReasons": [
+      "Execution outcome is Failed.",
+      "Correctness outcome is NotEvaluated; a passing correctness contract is required.",
+      "Evidence outcome is Incomplete; complete evidence is required."
+    ],
+    "Checks": [
+      {
+        "Name": "plan_completion",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "The declared plan did not complete."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": true,
+        "Category": "state",
+        "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+      }
+    ],
+    "IsExecutionSuccess": false,
+    "IsCorrectnessSuccess": true
+  },
+  "correctnessStatus": "notevaluated",
+  "evidenceStatus": "incomplete",
+  "comparisonStatus": "ineligible",
+  "experiment": {
+    "Id": "runner848-native-failure-canary",
+    "Variant": "diagnostic-timeout",
+    "Reference": "ee5ce48b4878",
+    "VariedFactors": [
+      "expected diagnostic failure"
+    ],
+    "ControlledFactors": [
+      "fixed-full-DSP-setting",
+      "same-native-procedure",
+      "matching-runtime-dependencies"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "operations": {
+    "Mode": "smoke",
+    "AllowPreview": false,
+    "AllowManualInput": false,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": true,
+    "AllowBulkTransfers": false,
+    "PreviewAllowed": false,
+    "ManualInputAllowed": false,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": false
+  },
+  "inputManifest": "input-manifest.json",
+  "controllerInput": null,
+  "runtimeDirectory": "/home/deck/xemu-research/workspace/Runtime/20261001-170325961-be9789a08bcc4f5aa3dc3c365a7ebc17",
+  "hostInventory": "host-inventory.json",
+  "workstationStart": {
+    "Supported": false,
+    "Platform": "linux",
+    "SessionLocked": null,
+    "InputDesktop": null,
+    "DisplayState": "unknown",
+    "PowerState": "unknown",
+    "PowerSource": "unknown",
+    "BatteryPercent": null,
+    "BatterySaver": null,
+    "UserIdleSeconds": null,
+    "TimestampUtc": "2026-10-01T17:01:58.7815889+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": null,
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "workstation monitoring is currently implemented for Windows only",
+    "EventSequence": 1,
+    "RenderingRisk": false
+  },
+  "workstationEnd": {
+    "Supported": false,
+    "Platform": "linux",
+    "SessionLocked": null,
+    "InputDesktop": null,
+    "DisplayState": "unknown",
+    "PowerState": "unknown",
+    "PowerSource": "unknown",
+    "BatteryPercent": null,
+    "BatterySaver": null,
+    "UserIdleSeconds": null,
+    "TimestampUtc": "2026-10-01T17:01:58.7815889+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": null,
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "workstation monitoring is currently implemented for Windows only",
+    "EventSequence": 1,
+    "RenderingRisk": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B848dca74e1ff79f9fc886769a785c23a0945a87e",
+    "machine": "steamdeck",
+    "os": "SteamOS",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 8,
+    "dotnet": "10.0.12"
+  },
+  "monitoring": {
+    "intervalMs": 500,
+    "samples": 34,
+    "overruns": 0,
+    "droppedWriteSamples": 0,
+    "averageCollectorDutyPercent": 0.40704529411764717,
+    "maxCollectorDutyPercent": 1.36276,
+    "maxCollectorDurationMs": 6.8138,
+    "gpuProviders": [
+      "Linux DRM sysfs"
+    ]
+  }
+}

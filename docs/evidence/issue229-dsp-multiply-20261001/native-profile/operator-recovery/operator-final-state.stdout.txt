@@ -1,0 +1,141 @@
+{"Workspace": "/home/deck/xemu-research/workspace", "Queue": {"Pending": "Queue/Pending", "Testing": "Queue/Testing", "Tested": "Queue/Tested", "Results": "Results", "ScanIntervalMs": 500, "InterruptedAction": "retry", "PackageStabilityMs": 750, "FiniteWaitTimeoutSeconds": 30}, "Reliability": {"Preflight": {"MinimumFreeSpaceBytes": 1073741824}, "MaxInterruptedRetries": 2, "ProcessExitTimeoutMs": 10000, "EvidenceListLimit": 100, "MaxPreviewBytes": 16777216, "Watchdog": {"Enabled": true, "StartupGraceMs": 10000, "IntervalMs": 2000, "RequestTimeoutMs": 5000, "FailureThreshold": 3}, "PreserveTargetOnRunnerError": true}}
+testing /home/deck/xemu-research/workspace/Queue/Testing
+attempt /home/deck/xemu-research/workspace/Queue/Testing/agent-issue229-deck-c-parent-profile-20261001/.runner-attempt.json {
+  "RunId": "20261001-162746650-9a3fecbf40d5444aa610e51450f3972d",
+  "Attempt": 1,
+  "Phase": "exited",
+  "ProcessId": 32843,
+  "ProcessStartedUtc": "2026-10-01T16:27:50.9512931Z",
+  "UpdatedUtc": "2026-10-01T16:31:39.8268506+00:00"
+}
+run /home/deck/xemu-research/workspace/Results/20261001-162746650-9a3fecbf40d5444aa610e51450f3972d
+file stderr.log 1297
+file operator-events.jsonl 159
+file crash 4096
+file diagnostic-bundle.json 345
+file diagnostics.zip 6572643
+file metrics.csv 84088
+file launch.json 1899
+file input-manifest.json 10752
+file performance.json 1777
+file job.json 15084
+file runtime-cleanup.json 531
+file preflight.json 5770
+file result.json 16586
+file segments.jsonl 238
+file host-inventory.json 466
+file guest-frames.log 185118
+file diagnostics 4096
+file runtime-state.json 683
+file stdout.log 0
+file state 4096
+file assessment.json 2285
+file guest-flips.log 1649
+file pre-run-environment.json 1562
+file screenshots 4096
+result.json {
+  "runId": "20261001-162746650-9a3fecbf40d5444aa610e51450f3972d",
+  "job": "issue229-deck-c-parent-profile-20261001",
+  "jobPackage": "agent-issue229-deck-c-parent-profile-20261001",
+  "attempt": 1,
+  "status": "cleanup_failed",
+  "detail": "System.TimeoutException: Diagnostic tool or output drain exceeded 60000 ms: /usr/bin/perf\n   at XemuTestRunner.Diagnostics.ToolProcess.RunAsync(String executable, IEnumerable\u00601 arguments, String workingDirectory, Int32 timeoutMs, CancellationToken cancellationToken, IReadOnlyDictionary\u00602 environment) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Diagnostics/ToolProcess.cs:line 115\n   at XemuTestRunner.Diagnostics.ToolProcess.RunAsync(String executable, IEnumerable\u00601 arguments, String workingDirectory, Int32 timeoutMs, CancellationToken cancellationToken, IReadOnlyDictionary\u00602 environment) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Diagnostics/ToolProcess.cs:line 126\n   at XemuTestRunner.Diagnostics.DiagnosticHub.CapturePerfAsync(ActiveContext context, DiagnosticRecipe recipe, String directory, CancellationToken ct) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 472\n   at XemuTestRunner.Diagnostics.DiagnosticHub.CapturePerfAsync(ActiveContext context, DiagnosticRecipe recipe, String directory, CancellationToken ct) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 480\n   at XemuTestRunner.Diagnostics.DiagnosticHub.RunAsync(ActiveContext context, DiagnosticRecipe recipe, CancellationToken cancellationToken, Boolean linkRunLifetime) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 218\n   at XemuTestRunner.Diagnostics.DiagnosticHub.RunAsync(ActiveContext context, DiagnosticRecipe recipe, CancellationToken cancellationToken, Boolean linkRunLifetime) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 290\n   at XemuTestRunner.Diagnostics.DiagnosticHub.RunByIdAsync(String id, CancellationToken cancellationToken) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 102\n   at XemuTestRunner.Runtime.RunnerEngine.\u003C\u003Ec__DisplayClass13_0.\u003C\u003CExecuteJobAsync\u003Eb__7\u003Ed.MoveNext() in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Runtime/RunnerEngine.cs:line 746\n--- End of stack trace from previous location ---\n   at XemuTestRunner.Control.XemuControlManager.ExecutePlanAsync(IReadOnlyList\u00601 plan, CancellationToken cancellationToken, Func\u00603 diagnosticRunner, Action\u00601 segmentStart, Action\u00601 segmentEnd, Func\u00605 artifactWaiter) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Control/XemuControlManager.cs:line 594\n   at XemuTestRunner.Control.XemuControlManager.ExecutePlanAsync(IReadOnlyList\u00601 plan, CancellationToken cancellationToken, Func\u00603 diagnosticRunner, Action\u00601 segmentStart, Action\u00601 segmentEnd, Func\u00605 artifactWaiter) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Control/XemuControlManager.cs:line 634\n   at XemuTestRunner.Runtime.RunnerEngine.ExecuteJobAsync(String package, Task serverTask, MetricCollector telemetry, CancellationToken ct) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Runtime/RunnerEngine.cs:line 838 plan did not stop: Diagnostic tool or output drain exceeded 60000 ms: /usr/bin/perf",
+  "startedUtc": "2026-10-01T16:27:46.6507066+00:00",
+  "endedUtc": "2026-10-01T16:31:46.0660732+00:00",
+  "durationMs": 239415.3667,
+  "processId": 32843,
+  "exitCode": 137,
+  "crash": {
+    "RunId": "20261001-162746650-9a3fecbf40d5444aa610e51450f3972d",
+    "ExecutableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+    "Platform": "linux",
+    "ProcessId": 32843,
+    "ExitCode": 137,
+    "RunnerTerminated": true,
+    "Crashed": false,
+    "Source": "runner",
+    "Code": null,
+    "Capture": "partial",
+    "Dump": "unavailable",
+    "Analysis": "unavailable",
+    "TopFrames": [],
+    "Issues": [
+      "linux_core_metadata_unavailable:captured"
+    ]
+  },
+ 
+assessment.json {
+  "Execution": "cleanupFailure",
+  "Correctness": "failed",
+  "Evidence": "incomplete",
+  "Comparison": "ineligible",
+  "ComparisonReasons": [
+    "Execution outcome is CleanupFailure.",
+    "Correctness outcome is Failed; a passing correctness contract is required.",
+    "Evidence outcome is Incomplete; complete evidence is required."
+  ],
+  "Checks": [
+    {
+      "Name": "analysis:monitor",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+    },
+    {
+      "Name": "analysis:flips",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+    },
+    {
+      "Name": "analysis:frames",
+      "Passed": false,
+      "Category": "evidence",
+      "Detail": "frames: Insufficient positive frame intervals."
+    },
+    {
+      "Name": "recording-start-visible",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "PNG has 4.908% non-black pixels above RGB threshold 96; expected at least 5.000%."
+    },
+    {
+      "Name": "recording-end-visible",
+      "Passed": true,
+      "Category": "correctness",
+      "Detail": "result:screenshots/recording-end.png satisfied the declared requirement."
+    },
+    {
+      "Name": "guest-progress",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "result:guest-frames.log satisfied the declared requirement."
+    },
+    {
+      "Name": "measurement-segments",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "result:segments.jsonl satisfied the declared requirement."
+    },
+    {
+      "Name": "minimum_metric_samples",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Required \u003E= 160; actual 458."
+    },
+    {
+      "Name": "plan_completion",
+      "Passed": false,
+      "Category": "evidence",
+      "Detail": "The declared plan did not complete."
+    },
+    {
+      "Name": "run_storage_state",
+      "Passed": true,
+      "Category": "state",
+      "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+    }
+  ],
+  "IsExecutionSuccess": false,
+  "IsCorrectnessSuccess": false
+}

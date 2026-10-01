@@ -1,0 +1,9 @@
+Failed to start xemu-research-runner-20261001-mesa.service: Unit xemu-research-runner-20261001-mesa.service not found.
+Traceback (most recent call last):
+  File "<string>", line 7, in <module>
+    subprocess.run(['systemctl','--user','start','xemu-research-runner-20261001-mesa.service'],check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['systemctl', '--user', 'start', 'xemu-research-runner-20261001-mesa.service']' returned non-zero exit status 5.

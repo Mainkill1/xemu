@@ -81,6 +81,14 @@ The maintained shader XISO categories have no direct DSP/audio workload. A focus
 
 Runner draft [#80](https://github.com/Mainkill1/Xemu-Test-Runner/pull/80) is deployed on the Deck and all three native pilots pass the schema-2 Mesa storage gate without a waiver. This resolves the disk-namespace qualification blocker for these fresh runs, not their failed game evidence contracts. Complete storage ledgers stay in this xemu evidence package. Native performance remains HOLD; PR #187 remains deferred.
 
+## Native profiling and runner reliability
+
+The [recovered Deck parent profile](native-profile/README.md) confirms C-backend reachability in PGR2 with full DSP/JIT disabled. Weighted self-cycle shares: named C/DSP functions 38.50%, multiply-family instruction functions 3.31%, libsamplerate 24.11%. Groups overlap; multiply functions include instruction work beyond the inlined helper. These are one diagnostic window, not an A/B comparison, FPS prediction or hard upper bound. No candidate profile exists.
+
+The raw capture succeeded, but reporting timed out and exposed a runner exception-classification bug. Both the original `cleanup_failed` attempt and the automatically retried, operator-stopped attempt remain retained and ineligible. Draft [runner #82](https://github.com/Mainkill1/Xemu-Test-Runner/pull/82) fixes the completed-task timeout classification and keeps the live-task gate. Its retained integration check fails before the fix and passes afterward; all 21 CI checks pass. Deck native canaries independently show the expected diagnostic `plan_failed`, immediately followed by `completed` on the same runner instance. These check runner reliability; canonical game correctness remains unevaluated. The Deck now runs `848dca74e1ff79f9fc886769a785c23a0945a87e`; Windows remains on `0ba533ed`.
+
+The prior pilot clock explanation is corrected: flip-control timestamps use host `QEMU_CLOCK_REALTIME`, not guest virtual time. Their last-five window still does not establish a matched steady-scene measurement. No values or assessment gates were changed.
+
 ## Reuse and raw evidence
 
 Retained tests live in `tests/unit/test-xbox-mcpx-dsp-mul.c` and its Meson registration. The opt-in balanced driver is `tests/unit/benchmark-xbox-mcpx-dsp-mul.py`. It records executable SHA-256, affinity, all stdout/stderr and failures before rejecting bad attempts; output directories cannot overwrite a campaign.

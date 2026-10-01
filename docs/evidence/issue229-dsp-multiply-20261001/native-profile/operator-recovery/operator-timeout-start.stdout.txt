@@ -1,0 +1,1 @@
+Started new runner from verified848dca7 binary; config and prior executable retained.

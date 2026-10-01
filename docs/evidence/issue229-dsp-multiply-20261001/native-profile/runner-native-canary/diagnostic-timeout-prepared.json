@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "id": "runner848-deck-diagnostic-timeout-canary-20261001",
+  "testId": "runner848-deck-native-diagnostic-timeout-v1",
+  "revision": "a8c802b2af5ee552d8e22b6adec3015792cad9af8cf7b7a565ed9dc33dd532f0",
+  "state": "queued",
+  "operation": "/api/v1/jobs/runner848-deck-diagnostic-timeout-canary-20261001/operation",
+  "next": "/api/v1/jobs/runner848-deck-diagnostic-timeout-canary-20261001?view=summary"
+}

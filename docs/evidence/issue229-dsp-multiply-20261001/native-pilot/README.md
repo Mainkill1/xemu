@@ -8,7 +8,7 @@ These three short PGR2 Vulkan pilots qualify the runner deployment and expose a 
 | C candidate | `b9359dbf55c7` | Full DSP, C | 190.145 | 1.283 | Failed | Incomplete | Ineligible |
 | JIT parent control | `ee5ce48b4878` | Full DSP, JIT | 243.194 | 0.421 | Passed | Incomplete | Ineligible |
 
-The CPU values are runner process core-percent averages in the `in-game-throttle` host segment. Flip cadence is the runner's weighted last-five guest-flip records; its guest clock/window is separate from the host segment. These diagnostic rows are not aligned fixed-work comparisons. Frame-tail statistics are absent; percentages and confidence intervals are therefore N/A. Screenshots show the race countdown or its immediate completion, rather than a validated steady racing workload. Do not promote the observed CPU reduction or cadence difference to a patch effect.
+The CPU values are runner process core-percent averages in the `in-game-throttle` host segment. Flip cadence is the runner's weighted last-five flip-control records, timestamped with the host `QEMU_CLOCK_REALTIME` clock. This last-five window is not established as aligned with the selected host CPU segment or as a count of presented frames. These diagnostic rows are not aligned fixed-work comparisons. Frame-tail statistics are absent; percentages and confidence intervals are therefore N/A. Screenshots show the race countdown or its immediate completion, rather than a validated steady racing workload. Do not promote the observed CPU reduction or cadence difference to a patch effect.
 
 ## Exact procedure and artifacts
 

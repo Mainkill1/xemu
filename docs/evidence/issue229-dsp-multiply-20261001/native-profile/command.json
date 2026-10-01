@@ -1,0 +1,20 @@
+[
+  "perf",
+  "report",
+  "-i",
+  "/home/codex/src/steamdeck-xemu/artifacts/issue229-dsp-multiply/deck-c-parent-profile-bundle/diagnostics/20261001-163008587-dsp-cpu-profile/dsp-cpu-profile.data",
+  "--stdio",
+  "--no-children",
+  "--call-graph",
+  "none",
+  "--symfs",
+  "/home/codex/src/steamdeck-xemu/artifacts/issue229-dsp-multiply/native-builds/parent-linux/debug-root",
+  "--sort",
+  "comm,dso,symbol",
+  "-n",
+  "--show-total-period",
+  "--field-separator",
+  "\t",
+  "--percent-limit",
+  "0"
+]

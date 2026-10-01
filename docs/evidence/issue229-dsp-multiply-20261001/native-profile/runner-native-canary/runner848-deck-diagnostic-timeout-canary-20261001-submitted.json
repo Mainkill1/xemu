@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "id": "runner848-deck-diagnostic-timeout-canary-20261001",
+  "state": "queued",
+  "runId": null,
+  "cursor": "63e6c849eb694b3a9d11848efe26d08a:42be5c46b984c0c2",
+  "changed": true,
+  "next": {
+    "method": "GET",
+    "href": "/api/v1/jobs/runner848-deck-diagnostic-timeout-canary-20261001?view=summary&since=63e6c849eb694b3a9d11848efe26d08a%3A42be5c46b984c0c2&wait=20"
+  },
+  "blocker": null,
+  "operation": {
+    "id": "9cd34fbac65a489d91416453bd86e0a7",
+    "action": "submit",
+    "state": "completed",
+    "filesChecked": 41,
+    "errorCode": null
+  }
+}
