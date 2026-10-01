@@ -22,6 +22,7 @@
 #include "hw/xbox/mcpx/apu/apu_int.h"
 #include "adpcm.h"
 #include "resample.h"
+#include "voice-store.h"
 
 static const struct {
     hwaddr top, current, next;
@@ -116,9 +117,28 @@ static void voice_set_mask(MCPXAPUState *d, uint16_t voice_handle,
 {
     hwaddr voice = d->regs[NV_PAPU_VPVADDR]
                     + voice_handle * NV_PAVS_SIZE;
-    uint32_t v = ldl_le_phys(&address_space_memory, voice + offset) & ~mask;
-    stl_le_phys(&address_space_memory, voice + offset,
-                v | ((val << ctz32(mask)) & mask));
+    hwaddr address = voice + offset;
+    uint32_t old_value = ldl_le_phys(&address_space_memory, address);
+    uint32_t new_value =
+        (old_value & ~mask) | ((val << ctz32(mask)) & mask);
+
+    /* Equal-write elision inspired by izzy2lost/xemu:
+     * https://github.com/izzy2lost/xemu/commit/e8e92c077a50ab7ec7075a88e0f0014be1071699
+     * Check the current physical mapping as well as the numeric RAM range:
+     * a device overlay must still receive equal-value writes. */
+    if (!mcpx_apu_voice_store_required(address, memory_region_size(d->ram),
+                                        old_value, new_value)) {
+        RCU_READ_LOCK_GUARD();
+        hwaddr translated, len = sizeof(new_value);
+        MemoryRegion *region = address_space_translate(
+            &address_space_memory, address, &translated, &len, true,
+            MEMTXATTRS_UNSPECIFIED);
+
+        if (region == d->ram && len == sizeof(new_value)) {
+            return;
+        }
+    }
+    stl_le_phys(&address_space_memory, address, new_value);
 }
 
 static void voice_off(MCPXAPUState *d, uint16_t v)
