@@ -425,6 +425,17 @@ endif
 
 if have_system
   tests += {
+    'test-xbox-mcpx-apu-voice-store-memory': [
+      meson.project_source_root() / 'system/memory.c',
+      meson.project_source_root() / 'system/physmem.c',
+      meson.project_source_root() / 'hw/xbox/mcpx/apu/vp/voice-store.c',
+      declare_dependency(
+        dependencies: [qom],
+        compile_args: ['-ffunction-sections', '-fdata-sections'],
+        link_args: ['-Wl,--gc-sections'],
+      ),
+      xbox_i386_target_headers,
+    ],
     'ptimer-test': ['ptimer-test-stubs.c', meson.project_source_root() / 'hw/core/ptimer.c'],
     'test-iov': [],
     'test-opts-visitor': [testqapi],
