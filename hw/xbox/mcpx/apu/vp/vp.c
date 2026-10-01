@@ -689,17 +689,16 @@ static void read_adpcm_block(hwaddr sge_base, uint32_t linear_addr,
     while (word_count) {
         size_t chunk_bytes = mcpx_apu_adpcm_chunk_bytes(
             linear_addr, word_count * sizeof(*words), TARGET_PAGE_SIZE);
-        unsigned int chunk_words = MIN(word_count,
-                                       DIV_ROUND_UP(chunk_bytes,
-                                                    sizeof(*words)));
-        hwaddr mapped_physical = get_data_ptr(sge_base, 0xFFFFFFFF,
-                                              linear_addr);
+        unsigned int chunk_words =
+            MIN(word_count, DIV_ROUND_UP(chunk_bytes, sizeof(*words)));
+        hwaddr mapped_physical =
+            get_data_ptr(sge_base, 0xFFFFFFFF, linear_addr);
         MemoryRegionCache cache = { 0 };
         int64_t mapped_bytes = 0;
         if (chunk_words > 1) {
-            mapped_bytes = address_space_cache_init(
-                &cache, &address_space_memory, mapped_physical,
-                chunk_bytes, false);
+            mapped_bytes =
+                address_space_cache_init(&cache, &address_space_memory,
+                                         mapped_physical, chunk_bytes, false);
         }
 
         for (unsigned int i = 0; i < chunk_words; i++) {
@@ -710,8 +709,8 @@ static void read_adpcm_block(hwaddr sge_base, uint32_t linear_addr,
             }
             size_t offset = i * sizeof(*words);
             if (mapped_bytes > 0 && cache.ptr &&
-                mcpx_apu_cached_word_eligible(mapped_physical, physical,
-                                              offset, mapped_bytes)) {
+                mcpx_apu_cached_word_eligible(mapped_physical, physical, offset,
+                                              mapped_bytes)) {
                 words[i] = address_space_ldl_le_cached(
                     &cache, offset, MEMTXATTRS_UNSPECIFIED, NULL);
             } else {
