@@ -122,10 +122,12 @@ static void voice_set_mask(MCPXAPUState *d, uint16_t voice_handle,
     uint32_t new_value =
         (old_value & ~mask) | ((val << ctz32(mask)) & mask);
 
-    /* Equal-write elision inspired by izzy2lost/xemu:
-     * https://github.com/izzy2lost/xemu/commit/e8e92c077a50ab7ec7075a88e0f0014be1071699
+    /*
+     * Equal-write elision inspired by izzy2lost/xemu:
+     * https://github.com/izzy2lost/xemu/commit/a7765290d17750e10a2bfc2d94cd85279f3b591e
      * Check the current physical mapping as well as the numeric RAM range:
-     * a device overlay must still receive equal-value writes. */
+     * a device overlay must still receive equal-value writes.
+     */
     if (!mcpx_apu_voice_store_required(address, memory_region_size(d->ram),
                                         old_value, new_value)) {
         RCU_READ_LOCK_GUARD();
