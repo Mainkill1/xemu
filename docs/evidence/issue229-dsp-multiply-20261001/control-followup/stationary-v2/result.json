@@ -1,0 +1,344 @@
+{
+  "runId": "20261001-185009712-57d17139e3434e3daf4d07eeb402e64b",
+  "job": "issue229-deck-parent-stationary-v2-20261001",
+  "jobPackage": "agent-issue229-deck-parent-stationary-v2-20261001",
+  "attempt": 1,
+  "status": "plan_failed",
+  "detail": "System.TimeoutException: QMP quit exceeded 10000 ms.\n   at XemuTestRunner.Control.XemuQmpClient.ExecuteAsync(String command, Object arguments, TimeSpan timeout, CancellationToken cancellationToken) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Control/XemuQmpClient.cs:line 38\n   at XemuTestRunner.Control.XemuControlManager.QuitAsync(CancellationToken cancellationToken) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Control/XemuControlManager.cs:line 234\n   at XemuTestRunner.Control.XemuControlManager.ExecutePlanAsync(IReadOnlyList\u00601 plan, CancellationToken cancellationToken, Func\u00603 diagnosticRunner, Action\u00601 segmentStart, Action\u00601 segmentEnd, Func\u00605 artifactWaiter) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Control/XemuControlManager.cs:line 583\n   at XemuTestRunner.Control.XemuControlManager.ExecutePlanAsync(IReadOnlyList\u00601 plan, CancellationToken cancellationToken, Func\u00603 diagnosticRunner, Action\u00601 segmentStart, Action\u00601 segmentEnd, Func\u00605 artifactWaiter) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Control/XemuControlManager.cs:line 634\n   at XemuTestRunner.Runtime.RunnerEngine.ExecuteJobAsync(String package, Task serverTask, MetricCollector telemetry, CancellationToken ct) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Runtime/RunnerEngine.cs:line 838 plan: QMP quit exceeded 10000 ms.",
+  "startedUtc": "2026-10-01T18:50:09.712675+00:00",
+  "endedUtc": "2026-10-01T18:56:25.2060982+00:00",
+  "durationMs": 375493.4233,
+  "processId": 36328,
+  "exitCode": 137,
+  "crash": {
+    "RunId": "20261001-185009712-57d17139e3434e3daf4d07eeb402e64b",
+    "ExecutableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+    "Platform": "linux",
+    "ProcessId": 36328,
+    "ExitCode": 137,
+    "RunnerTerminated": true,
+    "Crashed": false,
+    "Source": "runner",
+    "Code": null,
+    "Capture": "partial",
+    "Dump": "unavailable",
+    "Analysis": "unavailable",
+    "TopFrames": [],
+    "Issues": [
+      "linux_core_metadata_unavailable:captured"
+    ]
+  },
+  "diagnosticBundle": "diagnostic-bundle.json",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu",
+  "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+  "arguments": [
+    "-config_path",
+    "xemu.toml",
+    "-qmp",
+    "tcp:127.0.0.1:39925,server=on,wait=off"
+  ],
+  "watchdog": null,
+  "failureCaptureError": null,
+  "automaticDiagnostic": null,
+  "automaticDiagnosticError": null,
+  "diagnostics": [],
+  "operatorActivity": {
+    "Intervened": false,
+    "ManualInputs": 0,
+    "Pauses": 0,
+    "Screenshots": 0,
+    "PreviewCaptures": 0,
+    "BulkTransfers": 0,
+    "Diagnostics": 0,
+    "HostStateChanges": 0
+  },
+  "workload": {
+    "Correctness": "passed",
+    "Evidence": "incomplete",
+    "Checks": [
+      {
+        "Name": "analysis:monitor",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "analysis:flips",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "flips: Insufficient flip tail records."
+      },
+      {
+        "Name": "analysis:frames",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "frames: Insufficient positive frame intervals."
+      },
+      {
+        "Name": "recording-start-visible",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "result:screenshots/recording-start.png satisfied the declared requirement."
+      },
+      {
+        "Name": "recording-end-visible",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "result:screenshots/recording-end.png satisfied the declared requirement."
+      },
+      {
+        "Name": "guest-progress",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:guest-frames.log satisfied the declared requirement."
+      },
+      {
+        "Name": "measurement-segments",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:segments.jsonl satisfied the declared requirement."
+      },
+      {
+        "Name": "minimum_metric_samples",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Required \u003E= 160; actual 729."
+      },
+      {
+        "Name": "plan_completion",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "The declared plan completed."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": true,
+        "Category": "state",
+        "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+      }
+    ],
+    "Measurements": [
+      {
+        "Name": "monitor/cpu_mean",
+        "Value": 197.9017245179064,
+        "Unit": "core_pct",
+        "Direction": "lower",
+        "Source": "result:performance.json#monitor/cpu_mean"
+      },
+      {
+        "Name": "monitor/cpu_median",
+        "Value": 197.878,
+        "Unit": "core_pct",
+        "Direction": "lower",
+        "Source": "result:performance.json#monitor/cpu_median"
+      },
+      {
+        "Name": "monitor/cpu_samples",
+        "Value": 363,
+        "Unit": "samples",
+        "Direction": "neutral",
+        "Source": "result:performance.json#monitor/cpu_samples"
+      },
+      {
+        "Name": "monitor/collector_duty_mean",
+        "Value": 0.393077134986226,
+        "Unit": "pct",
+        "Direction": "lower",
+        "Source": "result:performance.json#monitor/collector_duty_mean"
+      },
+      {
+        "Name": "monitor/duty_samples",
+        "Value": 363,
+        "Unit": "samples",
+        "Direction": "neutral",
+        "Source": "result:performance.json#monitor/duty_samples"
+      },
+      {
+        "Name": "monitor/overruns",
+        "Value": 0,
+        "Unit": "count",
+        "Direction": "lower",
+        "Source": "result:performance.json#monitor/overruns"
+      }
+    ]
+  },
+  "assessment": {
+    "Execution": "failed",
+    "Correctness": "passed",
+    "Evidence": "incomplete",
+    "Comparison": "ineligible",
+    "ComparisonReasons": [
+      "Execution outcome is Failed.",
+      "Evidence outcome is Incomplete; complete evidence is required."
+    ],
+    "Checks": [
+      {
+        "Name": "analysis:monitor",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "analysis:flips",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "flips: Insufficient flip tail records."
+      },
+      {
+        "Name": "analysis:frames",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "frames: Insufficient positive frame intervals."
+      },
+      {
+        "Name": "recording-start-visible",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "result:screenshots/recording-start.png satisfied the declared requirement."
+      },
+      {
+        "Name": "recording-end-visible",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "result:screenshots/recording-end.png satisfied the declared requirement."
+      },
+      {
+        "Name": "guest-progress",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:guest-frames.log satisfied the declared requirement."
+      },
+      {
+        "Name": "measurement-segments",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:segments.jsonl satisfied the declared requirement."
+      },
+      {
+        "Name": "minimum_metric_samples",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Required \u003E= 160; actual 729."
+      },
+      {
+        "Name": "plan_completion",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "The declared plan completed."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": true,
+        "Category": "state",
+        "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+      }
+    ],
+    "IsExecutionSuccess": false,
+    "IsCorrectnessSuccess": true
+  },
+  "correctnessStatus": "passed",
+  "evidenceStatus": "incomplete",
+  "comparisonStatus": "ineligible",
+  "experiment": {
+    "Id": "issue229-pgr2-stationary-full-c-v2",
+    "Variant": "parent",
+    "Reference": "ee5ce48b48784f999af374c1452003f8b2b1230f",
+    "VariedFactors": [
+      "C DSP multiply"
+    ],
+    "ControlledFactors": [
+      "same-parent-runtime-libraries",
+      "private guest state",
+      "cold Mesa namespace at launch",
+      "60-second stationary warmup",
+      "180-second observation",
+      "fullscreen 4:3 viewport",
+      "full DSP C VPworkers0 Vulkan vsyncoff"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": false
+  },
+  "operations": {
+    "Mode": "benchmark",
+    "AllowPreview": false,
+    "AllowManualInput": false,
+    "AllowPauseResume": false,
+    "AllowDiagnostics": false,
+    "AllowBulkTransfers": false,
+    "PreviewAllowed": false,
+    "ManualInputAllowed": false,
+    "PauseResumeAllowed": false,
+    "DiagnosticsAllowed": false,
+    "BulkTransfersAllowed": false
+  },
+  "inputManifest": "input-manifest.json",
+  "controllerInput": null,
+  "runtimeDirectory": "/home/deck/xemu-research/workspace/Runtime/20261001-185009712-57d17139e3434e3daf4d07eeb402e64b",
+  "hostInventory": "host-inventory.json",
+  "workstationStart": {
+    "Supported": false,
+    "Platform": "linux",
+    "SessionLocked": null,
+    "InputDesktop": null,
+    "DisplayState": "unknown",
+    "PowerState": "unknown",
+    "PowerSource": "unknown",
+    "BatteryPercent": null,
+    "BatterySaver": null,
+    "UserIdleSeconds": null,
+    "TimestampUtc": "2026-10-01T17:01:58.7815889+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": null,
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "workstation monitoring is currently implemented for Windows only",
+    "EventSequence": 1,
+    "RenderingRisk": false
+  },
+  "workstationEnd": {
+    "Supported": false,
+    "Platform": "linux",
+    "SessionLocked": null,
+    "InputDesktop": null,
+    "DisplayState": "unknown",
+    "PowerState": "unknown",
+    "PowerSource": "unknown",
+    "BatteryPercent": null,
+    "BatterySaver": null,
+    "UserIdleSeconds": null,
+    "TimestampUtc": "2026-10-01T17:01:58.7815889+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": null,
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "workstation monitoring is currently implemented for Windows only",
+    "EventSequence": 1,
+    "RenderingRisk": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B848dca74e1ff79f9fc886769a785c23a0945a87e",
+    "machine": "steamdeck",
+    "os": "SteamOS",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 8,
+    "dotnet": "10.0.12"
+  },
+  "monitoring": {
+    "intervalMs": 500,
+    "samples": 729,
+    "overruns": 0,
+    "droppedWriteSamples": 0,
+    "averageCollectorDutyPercent": 0.3661380795610425,
+    "maxCollectorDutyPercent": 0.7887400000000001,
+    "maxCollectorDurationMs": 3.9437,
+    "gpuProviders": [
+      "Linux DRM sysfs"
+    ]
+  }
+}

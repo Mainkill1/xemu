@@ -26,7 +26,7 @@ The server reports a median of four independent per-attempt values for each buil
 
 These are descriptive comparisons. The runner's nearest-rank p95 for ten within-attempt samples is the maximum sample, followed here by the median of four attempt p95s. These values do not establish frame-time tails. No confidence interval or universal overhead percentage is claimed.
 
-The Vulkan SSE result changed from +0.57% improvement in the first ABBA snapshot to −0.99% after BAAB. OpenGL SSE attempt means range 1169.066–1190.991 ms for parent and 1193.226–1212.807 ms for candidate. These observations warrant investigation; they are not dismissed as noise. Power policy/frequency were not fixed, and code/build layout remains a possible cause. This campaign cannot assign the cause of the observed slowdowns. A controlled repeat and build/layout check are required before declaring an unaffected-path regression absent.
+The Vulkan SSE result changed from +0.57% improvement in the first ABBA snapshot to −0.99% after BAAB. OpenGL SSE attempt means range 1169.066–1190.991 ms for parent and 1193.226–1212.807 ms for candidate. These observations warrant investigation; they are not dismissed as noise. Power policy/frequency were not fixed, and code/build layout remains a possible cause. This campaign cannot assign the cause of the observed slowdowns. A controlled repeat and build/layout check are required before declaring an unaffected-path regression absent. The [separate follow-up](../control-followup/README.md) now retains four unchanged-parent A/A attempts and a bounded binary study; neither establishes that the candidate is regression-free. This table and its original 16-attempt cohort remain fixed.
 
 ## How this connects to the existing tests
 

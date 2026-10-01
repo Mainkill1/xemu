@@ -1,0 +1,146 @@
+{
+  "method": "Keep instructions/registers/constants; resolve branch/RIP targets by matching debug symbols, validated x86-64 PLT slots, or identical printable NUL-terminated rodata strings. Unknown targets stay literal. This is limited instruction-sequence comparison, not a whole-binary equivalence proof.",
+  "functions": [
+    {
+      "symbol": "cpu_exec",
+      "instructionCountParent": 153,
+      "instructionCountCandidate": 153,
+      "equalAfterTargetResolution": true,
+      "addressDifference": -96,
+      "parentStartMod64": 32,
+      "candidateStartMod64": 0,
+      "differences": []
+    },
+    {
+      "symbol": "cpu_tb_exec",
+      "instructionCountParent": 149,
+      "instructionCountCandidate": 149,
+      "equalAfterTargetResolution": true,
+      "addressDifference": -96,
+      "parentStartMod64": 32,
+      "candidateStartMod64": 0,
+      "differences": []
+    },
+    {
+      "symbol": "dsp56k_execute_instruction",
+      "instructionCountParent": 447,
+      "instructionCountCandidate": 447,
+      "equalAfterTargetResolution": false,
+      "addressDifference": -96,
+      "parentStartMod64": 0,
+      "candidateStartMod64": 32,
+      "differences": [
+        {
+          "index": 49,
+          "parent": "leaq nonparallel_opcodes.llvm.12752694138931587586+0x0(%rip), %r15",
+          "candidate": "leaq nonparallel_opcodes.llvm.3804879268900391266+0x0(%rip), %r15"
+        },
+        {
+          "index": 51,
+          "parent": "leaq nonparallel_matches.llvm.12752694138931587586+0x0(%rip), %rbp",
+          "candidate": "leaq nonparallel_matches.llvm.3804879268900391266+0x0(%rip), %rbp"
+        },
+        {
+          "index": 415,
+          "parent": "movq unresolved@0x176dbb8(%rip), %rax",
+          "candidate": "movq unresolved@0x1769428(%rip), %rax"
+        },
+        {
+          "index": 423,
+          "parent": "leaq .str.1.llvm.12752694138931587586+0x0(%rip), %rsi",
+          "candidate": "leaq .str.1.llvm.3804879268900391266+0x0(%rip), %rsi"
+        },
+        {
+          "index": 427,
+          "parent": "leaq .str.827.llvm.12752694138931587586+0x0(%rip), %rdi",
+          "candidate": "leaq .str.827.llvm.3804879268900391266+0x0(%rip), %rdi"
+        },
+        {
+          "index": 428,
+          "parent": "leaq .str.1.llvm.12752694138931587586+0x0(%rip), %rsi",
+          "candidate": "leaq .str.1.llvm.3804879268900391266+0x0(%rip), %rsi"
+        },
+        {
+          "index": 429,
+          "parent": "leaq __PRETTY_FUNCTION__.read_memory_p.llvm.12752694138931587586+0x0(%rip), %rcx",
+          "candidate": "leaq __PRETTY_FUNCTION__.read_memory_p.llvm.3804879268900391266+0x0(%rip), %rcx"
+        },
+        {
+          "index": 432,
+          "parent": "leaq .str.828.llvm.12752694138931587586+0x0(%rip), %rdi",
+          "candidate": "leaq .str.828.llvm.3804879268900391266+0x0(%rip), %rdi"
+        },
+        {
+          "index": 433,
+          "parent": "leaq .str.1.llvm.12752694138931587586+0x0(%rip), %rsi",
+          "candidate": "leaq .str.1.llvm.3804879268900391266+0x0(%rip), %rsi"
+        },
+        {
+          "index": 434,
+          "parent": "leaq __PRETTY_FUNCTION__.read_memory_p.llvm.12752694138931587586+0x0(%rip), %rcx",
+          "candidate": "leaq __PRETTY_FUNCTION__.read_memory_p.llvm.3804879268900391266+0x0(%rip), %rcx"
+        },
+        {
+          "index": 437,
+          "parent": "leaq .str.2.llvm.12752694138931587586+0x0(%rip), %rdi",
+          "candidate": "leaq .str.2.llvm.3804879268900391266+0x0(%rip), %rdi"
+        },
+        {
+          "index": 438,
+          "parent": "leaq .str.1.llvm.12752694138931587586+0x0(%rip), %rsi",
+          "candidate": "leaq .str.1.llvm.3804879268900391266+0x0(%rip), %rsi"
+        },
+        {
+          "index": 439,
+          "parent": "leaq __PRETTY_FUNCTION__.read_memory_p.llvm.12752694138931587586+0x0(%rip), %rcx",
+          "candidate": "leaq __PRETTY_FUNCTION__.read_memory_p.llvm.3804879268900391266+0x0(%rip), %rcx"
+        },
+        {
+          "index": 443,
+          "parent": "leaq .str.1.llvm.12752694138931587586+0x0(%rip), %rsi",
+          "candidate": "leaq .str.1.llvm.3804879268900391266+0x0(%rip), %rsi"
+        }
+      ]
+    },
+    {
+      "symbol": "dsp_c_run.llvm.5225988660000961437",
+      "instructionCountParent": 27,
+      "instructionCountCandidate": 27,
+      "equalAfterTargetResolution": true,
+      "addressDifference": -96,
+      "parentStartMod64": 48,
+      "candidateStartMod64": 16,
+      "differences": []
+    },
+    {
+      "symbol": "helper_addss",
+      "instructionCountParent": 26,
+      "instructionCountCandidate": 26,
+      "equalAfterTargetResolution": true,
+      "addressDifference": -96,
+      "parentStartMod64": 48,
+      "candidateStartMod64": 16,
+      "differences": []
+    },
+    {
+      "symbol": "helper_divss",
+      "instructionCountParent": 26,
+      "instructionCountCandidate": 26,
+      "equalAfterTargetResolution": true,
+      "addressDifference": -96,
+      "parentStartMod64": 0,
+      "candidateStartMod64": 32,
+      "differences": []
+    },
+    {
+      "symbol": "helper_mulss",
+      "instructionCountParent": 26,
+      "instructionCountCandidate": 26,
+      "equalAfterTargetResolution": true,
+      "addressDifference": -96,
+      "parentStartMod64": 16,
+      "candidateStartMod64": 48,
+      "differences": []
+    }
+  ]
+}

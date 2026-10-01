@@ -1,0 +1,114 @@
+[
+  {
+    "label": "A1",
+    "runId": "20261001-181138874-d69af6b4ac3549f3857662dc1fe9debf",
+    "leafTimings": [
+      {
+        "Id": "cpu_floating_point.sse_scalar",
+        "Kind": "leaf",
+        "Correct": true,
+        "Samples": 10,
+        "MeanUs": 1179972.7,
+        "MedianUs": 1179878,
+        "MinUs": 1166197,
+        "MaxUs": 1197807,
+        "P95Us": 1197807
+      },
+      {
+        "Id": "cpu_translation_blocks.direct_loop",
+        "Kind": "leaf",
+        "Correct": true,
+        "Samples": 10,
+        "MeanUs": 19699.8,
+        "MedianUs": 19694,
+        "MinUs": 19217,
+        "MaxUs": 20403,
+        "P95Us": 20403
+      }
+    ]
+  },
+  {
+    "label": "B1",
+    "runId": "20261001-181247254-74316bce0ac547759940d5b624458880",
+    "leafTimings": [
+      {
+        "Id": "cpu_floating_point.sse_scalar",
+        "Kind": "leaf",
+        "Correct": true,
+        "Samples": 10,
+        "MeanUs": 1207893.1,
+        "MedianUs": 1193673,
+        "MinUs": 1167161,
+        "MaxUs": 1276916,
+        "P95Us": 1276916
+      },
+      {
+        "Id": "cpu_translation_blocks.direct_loop",
+        "Kind": "leaf",
+        "Correct": true,
+        "Samples": 10,
+        "MeanUs": 21530.7,
+        "MedianUs": 21729,
+        "MinUs": 20197,
+        "MaxUs": 22604,
+        "P95Us": 22604
+      }
+    ]
+  },
+  {
+    "label": "B2",
+    "runId": "20261001-181357019-0dc237a205cc4853aaf93ac65a2a1dd9",
+    "leafTimings": [
+      {
+        "Id": "cpu_floating_point.sse_scalar",
+        "Kind": "leaf",
+        "Correct": true,
+        "Samples": 10,
+        "MeanUs": 1177912.7,
+        "MedianUs": 1178224,
+        "MinUs": 1148397,
+        "MaxUs": 1193910,
+        "P95Us": 1193910
+      },
+      {
+        "Id": "cpu_translation_blocks.direct_loop",
+        "Kind": "leaf",
+        "Correct": true,
+        "Samples": 10,
+        "MeanUs": 19779.7,
+        "MedianUs": 19656.5,
+        "MinUs": 19312,
+        "MaxUs": 21168,
+        "P95Us": 21168
+      }
+    ]
+  },
+  {
+    "label": "A2",
+    "runId": "20261001-181504830-4c6f35fd1e9c46568fb2b2bf61addced",
+    "leafTimings": [
+      {
+        "Id": "cpu_floating_point.sse_scalar",
+        "Kind": "leaf",
+        "Correct": true,
+        "Samples": 10,
+        "MeanUs": 1179622.8,
+        "MedianUs": 1181194,
+        "MinUs": 1156217,
+        "MaxUs": 1194216,
+        "P95Us": 1194216
+      },
+      {
+        "Id": "cpu_translation_blocks.direct_loop",
+        "Kind": "leaf",
+        "Correct": true,
+        "Samples": 10,
+        "MeanUs": 19428.9,
+        "MedianUs": 19410,
+        "MinUs": 19159,
+        "MaxUs": 19733,
+        "P95Us": 19733
+      }
+    ]
+  }
+]

@@ -1,0 +1,153 @@
+pushq %rbp
+pushq %r15
+pushq %r14
+pushq %rbx
+subq $0x28, %rsp
+movq %rdi, %rbx
+movq %fs:0x28, %rax
+movq %rax, 0x20(%rsp)
+vxorps %xmm0, %xmm0, %xmm0
+vmovaps %xmm0, (%rsp)
+movq $0x0, 0x10(%rsp)
+movq %fs:0x0, %rax
+leaq -0x310(%rax), %rax
+movq %rbx, (%rax)
+cmpl $0x0, 0x2cc(%rbx)
+je self+0x74
+movq 0x98(%rbx), %rax
+movq 0x150(%rax), %rax
+movq %rbx, %rdi
+callq *_ZN17cranelift_codegen6timing7enabled9PASS_TIME29_$u7b$$u7b$constant$u7d$$u7d$28_$u7b$$u7b$closure$u7d$$u7d$23__RUST_STD_INTERNAL_VAL17h61b25d95c795a40aE+0x0(%rax)
+movl $0x10003, %ebp
+testb %al, %al
+je self+0x241
+movl $0x0, 0x2cc(%rbx)
+callq get_ptr_rcu_reader+0x0
+movl 0xc(%rax), %ecx
+leal 0x1(%rcx), %edx
+movl %edx, 0xc(%rax)
+testl %ecx, %ecx
+jne self+0x9b
+leaq rcu_gp_ctr+0x0(%rip), %rcx
+movq (%rcx), %rcx
+movl %ecx, %ecx
+movq %rcx, (%rax)
+lock 
+orl $0x0, -0x40(%rsp)
+movq 0x98(%rbx), %rax
+movq 0x150(%rax), %rax
+movq 0x30(%rax), %rax
+testq %rax, %rax
+je self+0xb7
+movq %rbx, %rdi
+callq *%rax
+leaq icount_align_option+0x0(%rip), %r15
+cmpb $0x1, (%r15)
+jne self+0x1ef
+movl $0x3, %edi
+callq qemu_clock_get_ns+0x0
+movq %rax, %r14
+movq %rax, 0x10(%rsp)
+callq cpus_get_virtual_clock+0x0
+subq %r14, %rax
+movq %rax, (%rsp)
+movzwl 0x4b50(%rbx), %ecx
+addq 0xe0(%rbx), %rcx
+movq %rcx, 0x8(%rsp)
+cmpq max_delay+0x0(%rip), %rax
+jl self+0x116
+cmpq max_advance+0x0(%rip), %rax
+jg self+0x126
+cmpb $0x1, (%r15)
+je self+0x137
+jmp self+0x1ef
+movq %rax, max_delay+0x0(%rip)
+cmpq max_advance+0x0(%rip), %rax
+jle self+0x10b
+movq %rax, max_advance+0x0(%rip)
+cmpb $0x1, (%r15)
+jne self+0x1ef
+movq %r14, %rcx
+subq print_delay.last_realtime_clock+0x0(%rip), %rcx
+cmpq $0x77359400, %rcx
+jl self+0x1ef
+cmpl $0x63, print_delay.nb_prints+0x0(%rip)
+jg self+0x1ef
+negq %rax
+vxorps %xmm15, %xmm15, %xmm15
+vcvtsi2ss %rax, %xmm15, %xmm0
+vdivss unresolved@0x1ebd54(%rip), %xmm0, %xmm0
+vmovss print_delay.threshold_delay+0x0(%rip), %xmm1
+vucomiss %xmm1, %xmm0
+ja self+0x194
+vcvtss2sd %xmm0, %xmm0, %xmm0
+vcvtss2sd %xmm1, %xmm1, %xmm1
+vaddsd unresolved@0x378848(%rip), %xmm1, %xmm1
+vucomisd %xmm0, %xmm1
+jbe self+0x1ef
+movabsq $0x112e0be826d694b3, %rcx
+imulq %rcx
+movq %rdx, %rax
+shrq $0x3f, %rax
+sarq $0x1a, %rdx
+addq %rdx, %rax
+incq %rax
+vxorps %xmm15, %xmm15, %xmm15
+vcvtsi2ss %rax, %xmm15, %xmm1
+vmovss %xmm1, print_delay.threshold_delay+0x0(%rip)
+vaddss unresolved@0x1eb290(%rip), %xmm1, %xmm0
+vcvtss2sd %xmm0, %xmm0, %xmm0
+vcvtss2sd %xmm1, %xmm1, %xmm1
+leaq rodata-string:5ea8dcae70355a9f71b137b9c4022a809d34455897a2cfd2c755da6e224cbe4b(%rip), %rdi
+movb $0x2, %al
+callq qemu_printf+0x0
+incl print_delay.nb_prints+0x0(%rip)
+movq %r14, print_delay.last_realtime_clock+0x0(%rip)
+movq %rsp, %rsi
+movq %rbx, %rdi
+callq cpu_exec_setjmp+0x0
+movl %eax, %ebp
+movq 0x98(%rbx), %rax
+movq 0x150(%rax), %rax
+movq 0x38(%rax), %rax
+testq %rax, %rax
+je self+0x218
+movq %rbx, %rdi
+callq *%rax
+callq get_ptr_rcu_reader+0x0
+movl 0xc(%rax), %ecx
+testl %ecx, %ecx
+je self+0x27d
+decl %ecx
+movl %ecx, 0xc(%rax)
+jne self+0x241
+movq $0x0, (%rax)
+lock 
+orl $0x0, -0x40(%rsp)
+movzbl 0x8(%rax), %ecx
+cmpb $0x1, %cl
+je self+0x266
+movq %fs:0x28, %rax
+cmpq 0x20(%rsp), %rax
+jne self+0x278
+movl %ebp, %eax
+addq $0x28, %rsp
+popq %rbx
+popq %r14
+popq %r15
+popq %rbp
+xorl %ecx, %ecx
+xorl %edi, %edi
+xorl %edx, %edx
+xorl %esi, %esi
+retq 
+movb $0x0, 0x8(%rax)
+leaq rcu_gp_event+0x0(%rip), %rdi
+callq qemu_event_set+0x0
+jmp self+0x241
+callq __stack_chk_fail@GLIBC_2.4@plt
+leaq .str.60.llvm.10603651962656422115+0x0(%rip), %rdi
+leaq .str.61.llvm.10603651962656422115+0x0(%rip), %rsi
+leaq __PRETTY_FUNCTION__.rcu_read_unlock.llvm.9823001788323054012+0x0(%rip), %rcx
+movl $0x65, %edx
+callq __assert_fail@GLIBC_2.2.5@plt

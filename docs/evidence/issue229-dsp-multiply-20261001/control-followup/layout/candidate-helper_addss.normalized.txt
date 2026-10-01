@@ -1,0 +1,26 @@
+pushq %r14
+pushq %rbx
+pushq %rax
+movq %rdx, %rbx
+movq %rsi, %r14
+movl (%rdx), %eax
+movl (%rcx), %esi
+leaq 0x272(%rdi), %rdx
+movl %eax, %edi
+callq float32_add+0x0
+movl %eax, (%r14)
+movl 0x4(%rbx), %eax
+movl %eax, 0x4(%r14)
+movl 0x8(%rbx), %eax
+movl %eax, 0x8(%r14)
+movl 0xc(%rbx), %eax
+movl %eax, 0xc(%r14)
+addq $0x8, %rsp
+popq %rbx
+popq %r14
+xorl %eax, %eax
+xorl %ecx, %ecx
+xorl %edi, %edi
+xorl %edx, %edx
+xorl %esi, %esi
+retq 

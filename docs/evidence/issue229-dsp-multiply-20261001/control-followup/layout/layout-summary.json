@@ -1,0 +1,106 @@
+{
+  "variants": {
+    "parent": {
+      "buildId": "7cc47cc0deb81956e198d71935d1a198116cdb02",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a"
+    },
+    "candidate": {
+      "buildId": "f2651a0697422ddca5f707ac1cbd8f1d2691363a",
+      "executableSha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418"
+    }
+  },
+  "sharedTextSymbols": 38217,
+  "symbols": [
+    {
+      "symbol": "cpu_exec",
+      "parent": {
+        "address": 14526240,
+        "size": 668
+      },
+      "candidate": {
+        "address": 14526144,
+        "size": 668
+      },
+      "addressDifference": -96,
+      "sizeDifference": 0
+    },
+    {
+      "symbol": "cpu_tb_exec",
+      "parent": {
+        "address": 14525152,
+        "size": 567
+      },
+      "candidate": {
+        "address": 14525056,
+        "size": 567
+      },
+      "addressDifference": -96,
+      "sizeDifference": 0
+    },
+    {
+      "symbol": "dsp56k_execute_instruction",
+      "parent": {
+        "address": 17088128,
+        "size": 2077
+      },
+      "candidate": {
+        "address": 17088032,
+        "size": 2077
+      },
+      "addressDifference": -96,
+      "sizeDifference": 0
+    },
+    {
+      "symbol": "dsp_c_run.llvm.5225988660000961437",
+      "parent": {
+        "address": 17079792,
+        "size": 90
+      },
+      "candidate": {
+        "address": 17079696,
+        "size": 90
+      },
+      "addressDifference": -96,
+      "sizeDifference": 0
+    },
+    {
+      "symbol": "helper_addss",
+      "parent": {
+        "address": 14872240,
+        "size": 70
+      },
+      "candidate": {
+        "address": 14872144,
+        "size": 70
+      },
+      "addressDifference": -96,
+      "sizeDifference": 0
+    },
+    {
+      "symbol": "helper_divss",
+      "parent": {
+        "address": 14873344,
+        "size": 70
+      },
+      "candidate": {
+        "address": 14873248,
+        "size": 70
+      },
+      "addressDifference": -96,
+      "sizeDifference": 0
+    },
+    {
+      "symbol": "helper_mulss",
+      "parent": {
+        "address": 14872976,
+        "size": 70
+      },
+      "candidate": {
+        "address": 14872880,
+        "size": 70
+      },
+      "addressDifference": -96,
+      "sizeDifference": 0
+    }
+  ]
+}

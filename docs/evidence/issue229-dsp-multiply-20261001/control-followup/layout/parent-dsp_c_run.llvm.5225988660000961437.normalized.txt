@@ -1,0 +1,27 @@
+pushq %r14
+pushq %rbx
+pushq %rax
+movq 0xb438(%rdi), %r14
+addl 0xb428(%rdi), %esi
+movl %esi, 0xb428(%rdi)
+testl %esi, %esi
+jle self+0x4c
+movq %rdi, %rbx
+nop 
+movq %r14, %rdi
+callq dsp56k_execute_instruction+0x0
+movzwl 0x8(%r14), %eax
+subl %eax, 0xb428(%rbx)
+movzwl 0x8(%r14), %eax
+addl %eax, 0x4(%r14)
+cmpb $0x1, 0x1(%r14)
+je self+0x4c
+cmpl $0x0, 0xb428(%rbx)
+jg self+0x20
+addq $0x8, %rsp
+popq %rbx
+popq %r14
+xorl %eax, %eax
+xorl %edi, %edi
+xorl %esi, %esi
+retq 

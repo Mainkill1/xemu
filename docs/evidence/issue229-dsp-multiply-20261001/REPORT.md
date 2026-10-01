@@ -9,7 +9,7 @@ The independently implemented native multiply is faster in both compilers and bo
 - **A / parent:** accepted fork main `ee5ce48b48784f999af374c1452003f8b2b1230f`.
 - **B / candidate code:** `1e6cebe0cb6452f875329710fa19795f8644ad2d`.
 - Product change: only `dsp_mul56()` in `hw/xbox/mcpx/apu/dsp/interp/dsp_cpu.c`. Four partial multiplies/carries and multiword shift/subtraction become signed 24-bit decoding, one native 64-bit multiply, optional negation and unsigned fractional scaling/splitting. Existing 8/24/24 results, caller flags, accumulation, rounding and dispatch are retained.
-- Default `use_dsp_jit=true` and all JIT code remain unchanged. The retained C path is reached when JIT is disabled; no native title profile has established its share of host time.
+- Default `use_dsp_jit=true` and all JIT code remain unchanged. The retained C path is reached when JIT is disabled; the parent-only native profile below confirms reachability but does not isolate multiplier cost or establish an A/B game gain.
 - Interpreter inputs are byte-identical between the parent and fixed `baseline/cycle-01-start` (`9f618d6d8c4c446ef023955f3d4de22f661f61a4`): see [source-equivalence manifest](cycle-baseline-source-check.json). This is module equivalence, not cumulative full-emulator qualification. The fixed baseline was not moved.
 - [Identity manifest](IDENTITY.json) binds exact source, test and executable hashes. Later evidence-only commits retain the measured product and tests unchanged.
 
@@ -90,6 +90,18 @@ A=parent and B=candidate; one ABBA and one BAAB block per renderer yield four in
 [All 48 server comparison rows](xiso-controls/final-comparison.csv), raw guest results/receipts, per-attempt timing records, frozen procedures and verified archives are retained in [xiso-controls/](xiso-controls/README.md). Controls worsen by 0.99–1.58% in three mean-time rows, improve 0.73% in one, and OpenGL direct-loop p95 worsens 5.50% (+1.153 ms). Power/frequency were not fixed; the causes remain unclassified. No regression-free or native game gain claim follows from these passes. Controlled repeat/build-layout checks remain needed.
 
 Matching debug packages identify Ubuntu Clang 21.1.8 for both native DSP translation units, and eight prescribed build/workflow files match. Exact native compiler-command logs remain absent. Earlier standalone Clang 19.1 measurements retain their original identity.
+
+## Control follow-up and revised native pilot
+
+Four additional OpenGL A/A attempts all use the exact unchanged parent executable and pass both CPU leaf oracles, evidence and comparison gates. SSE attempt means span **1177.913–1207.893 ms**, direct-loop means **19.429–21.531 ms**, and direct-loop p95 **19.733–22.604 ms**. Original candidate points fall inside these parent ranges; this demonstrates variation, not candidate equivalence or a causal explanation. The original 16-run A/B snapshot stays fixed and is not recomputed with these additional parent samples.
+
+The pinned native binary study finds matching resolved instruction sequences in `cpu_exec`, `cpu_tb_exec`, three SSE helpers and `dsp_c_run`; all seven selected functions move by −96 bytes. The dispatcher still has 14 unresolved target/symbol differences. Instruction alignment is a possible performance factor, not a proven cause; there is no whole-binary equivalence claim or layout workaround.
+
+The longer, fullscreen parent-only PGR2 v2 pilot passes image gates and visibly progresses from GO to opponents farther down the road. It remains **ineligible**: 135 positive intervals in the final 180 seconds fall short of the unchanged 160 minimum, and the erroneous `flipTailSamples=256` asks for aggregate five-second records rather than individual frames. It also fails its existing 10-second QMP quit deadline and exits 137. The canonical `plan_completion` subcheck says passed, but the overall execution failure is authoritative. Mesa qualification passes without a waiver. All failed artifacts and definitions remain unchanged.
+
+The corrected v3 parent-only pilot now **completes with exit 0 and passes all canonical gates**: 603 CPU samples, 236 positive frame intervals in the final 300 seconds (minimum 160), and 179 flips across the final 40 aggregate records / 227.405 seconds. Its diagnostic cadence is 0.787 fps and frame-control interval p95 1781.167 ms. Those are host-clock flip-control observations, not necessarily rendered frames. Private Mesa writes remain qualified without a waiver. Both captures show progression, but fully warm shaders, fixed power and PCM parity remain unqualified. A single passing parent establishes the procedure, not a candidate gain.
+
+[Complete A/A table, static analysis, pilot outcomes, reproducible recipes and verified archives](control-followup/README.md) retain this follow-up in the owning xemu repository. Native game gains, PCM parity, power controls and the original unaffected-control slowdowns remain unresolved; #278 stays draft/HOLD.
 
 ## Native profiling and runner reliability
 
