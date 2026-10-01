@@ -150,3 +150,33 @@ matched warm-scene C/JIT comparisons, ordinary/reduced C settings, PCM parity
 and audio underruns remain unresolved. The retained scripts reproduce the
 workspace-specific inspection, freezing and evidence packaging. No evidence
 is stored in either tool repository; PR #278 remains draft.
+
+## Native C comparison: prepared before launch
+
+[The frozen eight-attempt plan](native-balanced-v3/plan.json) declares **ABBA
+then BAAB**, four independent launches per build. It uses the exact v3
+revision, same 40 non-executable files and parent runtime libraries. The
+[prelaunch audit](native-balanced-v3/audit.json) checks every materialized
+server draft: only executable identity and parent/candidate label differ in
+the fixed contract. All eight drafts were prepared before the first launch.
+The passing procedure pilot is excluded from these eight comparison attempts.
+
+A1 has been submitted; the other seven remain drafts. This is ongoing work,
+with **no candidate result yet**. The runner owns execution and cleanup.
+Because benchmark policy blocks job mutations during execution, submit each
+next frozen ID only after the preceding run is archived and the target has
+stopped; preserve its failed outcome if it fails. Do not create replacements,
+filter failures, promote a baseline, or reinterpret the completed pilot as a
+campaign A1. Normal commands use the maintained HTTP client:
+
+```sh
+python scripts/runner_api.py --url http://10.0.0.123:9368 submit-draft FROZEN_JOB_ID
+python scripts/runner_tests.py --url http://10.0.0.123:9368 wait FROZEN_JOB_ID --job --updates
+```
+
+This native-title sequence is separate from the existing server-owned XISO
+campaign planner. The preparation recipe creates drafts without starting;
+the [initial submission receipt](native-balanced-v3/abba-1-submitted.json)
+records the explicit first launch. Declared cache state remains cold private
+launch plus scene warmup; fully warm shaders, fixed power and PCM are not
+qualified. Passing coarse gates will not resolve those limits.

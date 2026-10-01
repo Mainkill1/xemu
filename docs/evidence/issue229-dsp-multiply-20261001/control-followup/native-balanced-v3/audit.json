@@ -1,0 +1,70 @@
+{
+  "planSha256": "4eaeae1c3b726a909f994042c5ee2b37b3e49e73a6c9b47497b6a55db28e79c1",
+  "fixedContractSha256": "1b96038ad6f89e147c4abae0e84a8bbc0eabb5982306aab34afce33278fefcc0",
+  "attempts": [
+    {
+      "id": "issue229-deck-native-c-v3-abba-1-20261001",
+      "physicalVariant": "A",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "fixedContractMatches": true,
+      "sharedNonExecutableFiles": 40,
+      "state": "draft"
+    },
+    {
+      "id": "issue229-deck-native-c-v3-abba-2-20261001",
+      "physicalVariant": "B",
+      "executableSha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+      "fixedContractMatches": true,
+      "sharedNonExecutableFiles": 40,
+      "state": "draft"
+    },
+    {
+      "id": "issue229-deck-native-c-v3-abba-3-20261001",
+      "physicalVariant": "B",
+      "executableSha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+      "fixedContractMatches": true,
+      "sharedNonExecutableFiles": 40,
+      "state": "draft"
+    },
+    {
+      "id": "issue229-deck-native-c-v3-abba-4-20261001",
+      "physicalVariant": "A",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "fixedContractMatches": true,
+      "sharedNonExecutableFiles": 40,
+      "state": "draft"
+    },
+    {
+      "id": "issue229-deck-native-c-v3-baab-1-20261001",
+      "physicalVariant": "B",
+      "executableSha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+      "fixedContractMatches": true,
+      "sharedNonExecutableFiles": 40,
+      "state": "draft"
+    },
+    {
+      "id": "issue229-deck-native-c-v3-baab-2-20261001",
+      "physicalVariant": "A",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "fixedContractMatches": true,
+      "sharedNonExecutableFiles": 40,
+      "state": "draft"
+    },
+    {
+      "id": "issue229-deck-native-c-v3-baab-3-20261001",
+      "physicalVariant": "A",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "fixedContractMatches": true,
+      "sharedNonExecutableFiles": 40,
+      "state": "draft"
+    },
+    {
+      "id": "issue229-deck-native-c-v3-baab-4-20261001",
+      "physicalVariant": "B",
+      "executableSha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+      "fixedContractMatches": true,
+      "sharedNonExecutableFiles": 40,
+      "state": "draft"
+    }
+  ]
+}
