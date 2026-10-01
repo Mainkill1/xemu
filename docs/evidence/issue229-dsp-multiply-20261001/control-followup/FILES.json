@@ -2,8 +2,8 @@
   "files": [
     {
       "path": "README.md",
-      "bytes": 14379,
-      "sha256": "d3ff59704b75ac2d40c8c00fc580f18136225637785cf50ac843862d390d4b90"
+      "bytes": 15031,
+      "sha256": "ba75e21be29451b50b719d34922f15ee02054b2f377bc6bc7960db698f5b3e4f"
     },
     {
       "path": "aa-campaign/attempts.json",
@@ -306,14 +306,29 @@
       "sha256": "33716abb50fadea53c0adb4d39016230085dc782966ea958164e3a60c3f7ac1d"
     },
     {
+      "path": "native-balanced-v3/abba-4-collected.json",
+      "bytes": 376,
+      "sha256": "2459a6c9b50c26dc92a0c61c82e1dfdadaac77ab5e5e75d143cfe1d005fcb833"
+    },
+    {
       "path": "native-balanced-v3/abba-4-submitted.json",
       "bytes": 476,
       "sha256": "985ae827ce09aac4f62f6b2ec0dc5c53daca82ee1cd6c8aa39e9a6c30a3f3692"
     },
     {
+      "path": "native-balanced-v3/abba-4-wait.log",
+      "bytes": 7475,
+      "sha256": "a2c8553cc0514ea85bead4bc3f18716bebe2aa754d72f05572486a78b3e988d1"
+    },
+    {
       "path": "native-balanced-v3/audit.json",
       "bytes": 2528,
       "sha256": "abda7ddb51261347d73b01f63e8db879e3f4af9f7e82fe86c8f68120380571b7"
+    },
+    {
+      "path": "native-balanced-v3/baab-1-submitted.json",
+      "bytes": 476,
+      "sha256": "8093f49a7e714b3f8aa9d6bb909ffd296987a298ff213321e9ed805873f914d0"
     },
     {
       "path": "native-balanced-v3/before.json",
@@ -506,19 +521,64 @@
       "sha256": "60e794e6d8f3285c98635a2216123e46973789db54bf15afb404a96262d25693"
     },
     {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-4-20261001/artifacts.tar.gz",
+      "bytes": 2801952,
+      "sha256": "c3c890d2abd9b557b8b99494b2534e3f22eccff2971c54154cd3839382b92045"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-4-20261001/assessment.json",
+      "bytes": 2092,
+      "sha256": "36c1abcb40f69ced05e9d8659bfad4799ff8789ad02e0a4a20a033d487458629"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-4-20261001/inventory.json",
+      "bytes": 180020,
+      "sha256": "198c2814c34f073666fa64ac33487bd1591a226934fce344d41bcb0f35f3e93f"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-4-20261001/performance.json",
+      "bytes": 2089,
+      "sha256": "66b7223f8688006ab04938cf3388070f021f97106d0bcf31fff9a70800f9c9e5"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-4-20261001/result.json",
+      "bytes": 11976,
+      "sha256": "5b049c74b0cd5c35d4a26bcaa44f4f04ac7b89defdf71492e0c68835b79b48b3"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-4-20261001/runtime-cleanup.json",
+      "bytes": 531,
+      "sha256": "b2fe2af4c63e4d3b9644ec2a6a366ee494b57f180b1caf919ab01a4f20ac157a"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-4-20261001/screenshots/recording-end.png",
+      "bytes": 638598,
+      "sha256": "ec1b4a58facfa3a85ba4cd87c4a927a021302442a602083040647af733d19296"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-4-20261001/screenshots/recording-start.png",
+      "bytes": 655642,
+      "sha256": "87405a6b97b5e068afb81c89810754a79cfab8f5b5b263734476418bb369518e"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-4-20261001/segments.jsonl",
+      "bytes": 236,
+      "sha256": "27dfa503142c4a9a99aa1d0b93ae3b62158544a6ebe38977dbbc43621f5f801b"
+    },
+    {
       "path": "native-balanced-v3/resource-audit.json",
       "bytes": 4088,
       "sha256": "cfb7bd3cd57d01a443c0871926b2850f437b2dd8e1f7d79552e0836431dddcf9"
     },
     {
       "path": "native-balanced-v3/summary.json",
-      "bytes": 12113,
-      "sha256": "057de882dbd17ba74b3b1706d89795f9f6f837d679a690a3eecdb92303be9bd5"
+      "bytes": 15514,
+      "sha256": "7ace89f84f38c269d3bdc1b6161805b0d177b08ec2d31b80af67ac2267a38d00"
     },
     {
       "path": "native-balanced-v3/verified-statistics.log",
-      "bytes": 461,
-      "sha256": "984760dc79d147fc2604dc381a8029b1bc53532546596064166bdf87b620943f"
+      "bytes": 575,
+      "sha256": "ea8cdd615e29463016368a02c359605613b72d1df0c8788520883284f7162a96"
     },
     {
       "path": "opengl-aa-artifacts.tar.gz",

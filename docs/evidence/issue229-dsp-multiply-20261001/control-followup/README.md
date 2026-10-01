@@ -161,8 +161,8 @@ server draft: only executable identity and parent/candidate label differ in
 the fixed contract. All eight drafts were prepared before the first launch.
 The passing procedure pilot is excluded from these eight comparison attempts.
 
-The first parent and both predeclared ABBA candidates are archived and
-eligible. ABBA position 4 (parent) is running; four BAAB attempts remain drafts. This campaign is incomplete. The runner owns execution and cleanup.
+All four ABBA attempts are archived and eligible. BAAB position 1 (candidate)
+is running; the other three BAAB attempts remain drafts. This campaign is incomplete. The runner owns execution and cleanup.
 Because benchmark policy blocks job mutations during execution, submit each
 next frozen ID only after the preceding run is archived and the target has
 stopped; preserve its failed outcome if it fails. Do not create replacements,
@@ -199,7 +199,7 @@ checks do not establish PCM parity or complete game correctness.
 | Frame-control interval p99 | 1951.831 | 1892.499 | ms |
 | Positive frame intervals, 300 s tail | 252 | 239 | count; minimum 160 |
 
-No balanced comparison or game gain is established by three of eight attempts.
+No balanced comparison or game gain is established by four of eight attempts.
 The separate parent procedure pilot measured 0.787 flips/s, versus campaign
 A1's 0.820; these remain separate observations of baseline variation, not an
 extra parent sample in the campaign. [Per-attempt numeric summary](native-balanced-v3/summary.json)
@@ -209,7 +209,7 @@ The retained analyzer never pools individual frame/CPU samples across launches.
 
 Complete, individually verified archives are retained under
 [native-balanced-v3/raw/](native-balanced-v3/raw/), one directory per planned job.
-All three contain 865 files. Canonical results, source metrics, captures, frozen
+All four contain 865 files. Canonical results, source metrics, captures, frozen
 inputs and cache ledgers stay intact. [Raw-statistic verification](native-balanced-v3/verified-statistics.log)
 and the retained packaging/analysis recipes reproduce these checks.
 
@@ -232,6 +232,17 @@ files in each attempt. That does not establish the slowdown's cause. CPU
 clocks, Linux temperatures and fixed power policy are unavailable; no
 thermal or scheduler attribution is made. The full eight-run comparison
 remains pending and every attempt stays in the declared sequence.
+
+### Final ABBA parent: variation also affects unchanged code
+
+ABBA A2 completes with exit 0 and passes all declared gates. It measures
+**0.654 flips/s**, **1516.223 ms mean / 2203.458 ms p95 / 2491.559 ms p99**
+frame-control intervals, **196.064 core-percent** mean CPU and **198** positive
+intervals. Its capture shows the stationary player and advanced opponent
+markers. The later parent also slows substantially relative to A1's 0.820
+flips/s; that is direct unchanged-binary variation, not proof of a thermal
+cause or candidate equivalence. Both low-cadence attempts stay in the dataset.
+ABBA is complete, but the predeclared full ABBA/BAAB summary remains pending.
 
 ### Windows readiness: separate qualification gap
 
