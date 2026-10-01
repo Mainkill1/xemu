@@ -352,7 +352,13 @@ static int pgraph_vk_get_framebuffer_surface(NV2AState *d)
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     pgraph_vk_perf_record_framebuffer_acquire(r);
+    int64_t lock_start_us = r->perf.enabled ?
+        qemu_clock_get_us(QEMU_CLOCK_REALTIME) : 0;
     qemu_mutex_lock(&d->pfifo.lock);
+    if (r->perf.enabled) {
+        pgraph_vk_perf_record_framebuffer_pfifo_lock_wait(
+            r, MAX(qemu_clock_get_us(QEMU_CLOCK_REALTIME) - lock_start_us, 0));
+    }
 
     VGADisplayParams vga_display_params;
     d->vga.get_params(&d->vga, &vga_display_params);
@@ -369,12 +375,18 @@ static int pgraph_vk_get_framebuffer_surface(NV2AState *d)
     surface->frame_time = pg->frame_time;
 
     pgraph_vk_perf_record_valid_sync_request(r);
+    int64_t sync_start_us = r->perf.enabled ?
+        qemu_clock_get_us(QEMU_CLOCK_REALTIME) : 0;
     qemu_event_reset(&d->pgraph.sync_complete);
     qatomic_set(&pg->sync_pending, true);
     qemu_event_set(&pg->renderer_switch_progress);
     pfifo_kick(d);
     qemu_mutex_unlock(&d->pfifo.lock);
     qemu_event_wait(&d->pgraph.sync_complete);
+    if (r->perf.enabled) {
+        pgraph_vk_perf_record_framebuffer_sync_request(
+            r, MAX(qemu_clock_get_us(QEMU_CLOCK_REALTIME) - sync_start_us, 0));
+    }
 
 #if HAVE_EXTERNAL_MEMORY
     if (r->display.shared_presentation) {

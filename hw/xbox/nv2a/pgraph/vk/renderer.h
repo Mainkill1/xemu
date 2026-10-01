@@ -696,9 +696,12 @@ typedef struct PGRAPHVkPerfTelemetry {
     uint64_t report_cpu_only_retirements;
     uint64_t report_enqueue_to_retire_frames_total;
     uint64_t report_enqueue_to_retire_frames_max;
+    uint64_t display_reuse_hits;
     /* Cumulative UI-thread totals, read by the renderer-thread perf writer. */
     uint64_t framebuffer_acquire_calls_total QEMU_ALIGNED(8);
+    uint64_t framebuffer_pfifo_lock_wait_us_total QEMU_ALIGNED(8);
     uint64_t valid_sync_requests_total QEMU_ALIGNED(8);
+    uint64_t framebuffer_sync_request_us_total QEMU_ALIGNED(8);
     uint64_t host_copy_uploads_total QEMU_ALIGNED(8);
     uint64_t host_copy_upload_skips_total QEMU_ALIGNED(8);
     uint64_t host_copy_uploaded_bytes_total QEMU_ALIGNED(8);
@@ -1010,7 +1013,11 @@ void pgraph_vk_perf_record_bc_upload(PGRAPHVkState *r, bool native,
 void pgraph_vk_perf_record_cpu_region(PGRAPHVkState *r, PerfCpuRegion region,
                                       uint64_t cpu_us);
 void pgraph_vk_perf_record_framebuffer_acquire(PGRAPHVkState *r);
+void pgraph_vk_perf_record_framebuffer_pfifo_lock_wait(PGRAPHVkState *r,
+                                                       uint64_t wait_us);
 void pgraph_vk_perf_record_valid_sync_request(PGRAPHVkState *r);
+void pgraph_vk_perf_record_framebuffer_sync_request(PGRAPHVkState *r,
+                                                    uint64_t request_us);
 void pgraph_vk_perf_record_host_copy_result(PGRAPHVkState *r, bool skipped,
                                             uint64_t uploaded_bytes);
 void pgraph_vk_perf_frame(PGRAPHVkState *r);

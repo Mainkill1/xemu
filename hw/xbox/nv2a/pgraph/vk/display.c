@@ -1272,6 +1272,9 @@ void pgraph_vk_render_display(PGRAPHState *pg)
                         disp, surface, pg->frame_time, scanout_address,
                         vga_display_params.line_offset, width, height,
                         pg->surface_scale_factor, interlace_mode)) {
+        if (r->perf.enabled) {
+            r->perf.display_reuse_hits++;
+        }
         return;
     }
 
