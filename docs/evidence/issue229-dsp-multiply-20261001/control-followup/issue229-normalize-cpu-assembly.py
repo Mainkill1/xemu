@@ -49,7 +49,7 @@ def normalize(variant,row):
   if '(%rip)' in operands and comment:
    ref=re.search(r'0x([a-f0-9]+)',comment)
    if ref:operands=re.sub(r'-?0x[a-f0-9]+\(%rip\)',target(variant,int(ref[1],16),entry['address'],entry['size'])+'(%rip)',operands)
-  out.append(mnemonic+' '+operands)
+  out.append((mnemonic+' '+operands).rstrip())
  (R/(variant+'-'+re.sub('[^a-zA-Z0-9_.-]','_',name)+'.normalized.txt')).write_text('\n'.join(out)+'\n')
  return out
 for row in summary['symbols']:

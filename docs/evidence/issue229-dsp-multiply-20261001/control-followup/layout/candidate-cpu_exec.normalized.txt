@@ -32,7 +32,7 @@ leaq rcu_gp_ctr+0x0(%rip), %rcx
 movq (%rcx), %rcx
 movl %ecx, %ecx
 movq %rcx, (%rax)
-lock 
+lock
 orl $0x0, -0x40(%rsp)
 movq 0x98(%rbx), %rax
 movq 0x150(%rax), %rax
@@ -122,7 +122,7 @@ decl %ecx
 movl %ecx, 0xc(%rax)
 jne self+0x241
 movq $0x0, (%rax)
-lock 
+lock
 orl $0x0, -0x40(%rsp)
 movzbl 0x8(%rax), %ecx
 cmpb $0x1, %cl
@@ -140,7 +140,7 @@ xorl %ecx, %ecx
 xorl %edi, %edi
 xorl %edx, %edx
 xorl %esi, %esi
-retq 
+retq
 movb $0x0, 0x8(%rax)
 leaq rcu_gp_event+0x0(%rip), %rdi
 callq qemu_event_set+0x0

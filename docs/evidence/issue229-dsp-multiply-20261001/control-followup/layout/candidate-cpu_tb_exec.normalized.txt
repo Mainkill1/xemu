@@ -124,7 +124,7 @@ xorl %ecx, %ecx
 xorl %edi, %edi
 xorl %edx, %edx
 xorl %esi, %esi
-retq 
+retq
 leaq _TRACE_EXEC_TB_EXIT_DSTATE+0x0(%rip), %rcx
 cmpw $0x0, (%rcx)
 je self+0xa2

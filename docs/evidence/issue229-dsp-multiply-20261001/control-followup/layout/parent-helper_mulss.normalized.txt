@@ -23,4 +23,4 @@ xorl %ecx, %ecx
 xorl %edi, %edi
 xorl %edx, %edx
 xorl %esi, %esi
-retq 
+retq

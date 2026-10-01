@@ -316,7 +316,7 @@ xorl %r8d, %r8d
 xorl %r9d, %r9d
 xorl %r10d, %r10d
 xorl %r11d, %r11d
-retq 
+retq
 movw %si, 0x1339c(%rbx)
 movzwl 0x1339a(%rbx), %eax
 movl %eax, 0xc(%rbx)

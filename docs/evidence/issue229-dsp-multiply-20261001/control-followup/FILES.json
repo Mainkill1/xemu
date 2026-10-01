@@ -47,8 +47,8 @@
     },
     {
       "path": "issue229-normalize-cpu-assembly.py",
-      "bytes": 4391,
-      "sha256": "744055b191a9aa87d7af18f5148ab20b6511eec03040d62ae6a67d00c79278c7"
+      "bytes": 4402,
+      "sha256": "32a12ea7d9636604c9722e13892d38efda58720f3c51170eb0a098025c63d2b4"
     },
     {
       "path": "issue229-prepare-stationary-pilot.py",
@@ -87,8 +87,8 @@
     },
     {
       "path": "layout/candidate-cpu_exec.normalized.txt",
-      "bytes": 3605,
-      "sha256": "e17f88161defe9af38ffdaa7cbe050e1135dd46aff1a6a2bdc1abb61cdf44f62"
+      "bytes": 3602,
+      "sha256": "dc94978adb3dcb63f88cd84cbb838e2de478fb1e00c4c0d875dd9cb3049956f1"
     },
     {
       "path": "layout/candidate-cpu_tb_exec.asm",
@@ -97,8 +97,8 @@
     },
     {
       "path": "layout/candidate-cpu_tb_exec.normalized.txt",
-      "bytes": 3424,
-      "sha256": "72dcc991cbeb886c9864d780afd55716d04696db70363a0b9499378b9b5179e7"
+      "bytes": 3423,
+      "sha256": "084247230f3b306d5e74ed29f0350e5417005b7116d5b85634741e814290863e"
     },
     {
       "path": "layout/candidate-dsp56k_execute_instruction.asm",
@@ -107,8 +107,8 @@
     },
     {
       "path": "layout/candidate-dsp56k_execute_instruction.normalized.txt",
-      "bytes": 9990,
-      "sha256": "cf2568952c7e1b36f178413651f92e17322a2bd216ffab7ef1261c12dfbeca49"
+      "bytes": 9989,
+      "sha256": "e01e61d6aa3f14c9102cd81681daa71ac1a4e70bb99e35514d91533545235bc9"
     },
     {
       "path": "layout/candidate-dsp_c_run.llvm.5225988660000961437.asm",
@@ -117,8 +117,8 @@
     },
     {
       "path": "layout/candidate-dsp_c_run.llvm.5225988660000961437.normalized.txt",
-      "bytes": 462,
-      "sha256": "411d0362dadab1b0abedc20b04e402f5088e459f6ed4a2d20b2b62c032000209"
+      "bytes": 460,
+      "sha256": "62a8b5f426644d72094500fb55923fe609fb8aa0f16c6d36ffaa75e914078233"
     },
     {
       "path": "layout/candidate-helper_addss.asm",
@@ -127,8 +127,8 @@
     },
     {
       "path": "layout/candidate-helper_addss.normalized.txt",
-      "bytes": 428,
-      "sha256": "43b126567602796f1837c1ce9349b6f0db58183d66487d06ed481869283094dd"
+      "bytes": 427,
+      "sha256": "42d685472c21ebf042b8b09c83a22d73b5ab1adc9dcfc0f1a457369670e524ac"
     },
     {
       "path": "layout/candidate-helper_divss.asm",
@@ -137,8 +137,8 @@
     },
     {
       "path": "layout/candidate-helper_divss.normalized.txt",
-      "bytes": 428,
-      "sha256": "fb0aafcfe261c3e7497e30b51f93723619dfbf15bce334350fdaad31ea530201"
+      "bytes": 427,
+      "sha256": "f34c28a9c0f30992522e32ae68d3b7aeec87baae2265af8b2e42507c19dc7c8f"
     },
     {
       "path": "layout/candidate-helper_mulss.asm",
@@ -147,8 +147,8 @@
     },
     {
       "path": "layout/candidate-helper_mulss.normalized.txt",
-      "bytes": 428,
-      "sha256": "6f040104f47e78a92affdced8b25e75d36149b5c0372622739176952ab1b6b7a"
+      "bytes": 427,
+      "sha256": "73b6983a6a09d1dfe486106f56e5a26a230b8463b56a90d29006628bd9117232"
     },
     {
       "path": "layout/candidate-sections.txt",
@@ -172,8 +172,8 @@
     },
     {
       "path": "layout/parent-cpu_exec.normalized.txt",
-      "bytes": 3605,
-      "sha256": "e17f88161defe9af38ffdaa7cbe050e1135dd46aff1a6a2bdc1abb61cdf44f62"
+      "bytes": 3602,
+      "sha256": "dc94978adb3dcb63f88cd84cbb838e2de478fb1e00c4c0d875dd9cb3049956f1"
     },
     {
       "path": "layout/parent-cpu_tb_exec.asm",
@@ -182,8 +182,8 @@
     },
     {
       "path": "layout/parent-cpu_tb_exec.normalized.txt",
-      "bytes": 3424,
-      "sha256": "72dcc991cbeb886c9864d780afd55716d04696db70363a0b9499378b9b5179e7"
+      "bytes": 3423,
+      "sha256": "084247230f3b306d5e74ed29f0350e5417005b7116d5b85634741e814290863e"
     },
     {
       "path": "layout/parent-dsp56k_execute_instruction.asm",
@@ -192,8 +192,8 @@
     },
     {
       "path": "layout/parent-dsp56k_execute_instruction.normalized.txt",
-      "bytes": 10003,
-      "sha256": "35d5f57807ec0997987dbf43a7861aa128a175fc432b70e9c0dba3f339b9a673"
+      "bytes": 10002,
+      "sha256": "329be8820e520758e24dfbd5af6cb2f92ce5dbf50b1670e815a8ead7d70e3964"
     },
     {
       "path": "layout/parent-dsp_c_run.llvm.5225988660000961437.asm",
@@ -202,8 +202,8 @@
     },
     {
       "path": "layout/parent-dsp_c_run.llvm.5225988660000961437.normalized.txt",
-      "bytes": 462,
-      "sha256": "411d0362dadab1b0abedc20b04e402f5088e459f6ed4a2d20b2b62c032000209"
+      "bytes": 460,
+      "sha256": "62a8b5f426644d72094500fb55923fe609fb8aa0f16c6d36ffaa75e914078233"
     },
     {
       "path": "layout/parent-helper_addss.asm",
@@ -212,8 +212,8 @@
     },
     {
       "path": "layout/parent-helper_addss.normalized.txt",
-      "bytes": 428,
-      "sha256": "43b126567602796f1837c1ce9349b6f0db58183d66487d06ed481869283094dd"
+      "bytes": 427,
+      "sha256": "42d685472c21ebf042b8b09c83a22d73b5ab1adc9dcfc0f1a457369670e524ac"
     },
     {
       "path": "layout/parent-helper_divss.asm",
@@ -222,8 +222,8 @@
     },
     {
       "path": "layout/parent-helper_divss.normalized.txt",
-      "bytes": 428,
-      "sha256": "fb0aafcfe261c3e7497e30b51f93723619dfbf15bce334350fdaad31ea530201"
+      "bytes": 427,
+      "sha256": "f34c28a9c0f30992522e32ae68d3b7aeec87baae2265af8b2e42507c19dc7c8f"
     },
     {
       "path": "layout/parent-helper_mulss.asm",
@@ -232,8 +232,8 @@
     },
     {
       "path": "layout/parent-helper_mulss.normalized.txt",
-      "bytes": 428,
-      "sha256": "6f040104f47e78a92affdced8b25e75d36149b5c0372622739176952ab1b6b7a"
+      "bytes": 427,
+      "sha256": "73b6983a6a09d1dfe486106f56e5a26a230b8463b56a90d29006628bd9117232"
     },
     {
       "path": "layout/parent-sections.txt",

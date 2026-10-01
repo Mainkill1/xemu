@@ -7,7 +7,7 @@ movl %esi, 0xb428(%rdi)
 testl %esi, %esi
 jle self+0x4c
 movq %rdi, %rbx
-nop 
+nop
 movq %r14, %rdi
 callq dsp56k_execute_instruction+0x0
 movzwl 0x8(%r14), %eax
@@ -24,4 +24,4 @@ popq %r14
 xorl %eax, %eax
 xorl %edi, %edi
 xorl %esi, %esi
-retq 
+retq
