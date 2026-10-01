@@ -1,0 +1,9 @@
+TAP version 14
+# random seed: R02S54519320eac54f3e1bc1372e41061ed2
+1..1
+# Start of nv2a tests
+# Start of contention tests
+# recurring callback_count=1 alarm_write_count=1 past_target_rejections=1 maximum_callback_lateness_ns=25666666 maximum_BQL_wait_virtual_ns=25666666 forbidden_renderer_waits=1 PGRAPH_control_accesses=4 CAS_retries=0 PFIFO_evaluations=0 PFIFO_wakeups=0 flip_stall_transitions=0
+ok 1 /nv2a/contention/recurring-chain
+# End of contention tests
+# End of nv2a tests

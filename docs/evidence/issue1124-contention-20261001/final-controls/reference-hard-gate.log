@@ -1,0 +1,9 @@
+TAP version 14
+# random seed: R02S2cd706432458e81aa11ae285937cdaf4
+# Start of nv2a tests
+# Start of contention tests
+# recurring callback_count=1 alarm_write_count=1 past_target_rejections=1 maximum_callback_lateness_ns=25666666 maximum_BQL_wait_virtual_ns=25666666 forbidden_renderer_waits=1 PGRAPH_control_accesses=4 CAS_retries=0 PFIFO_evaluations=0 PFIFO_wakeups=0 flip_stall_transitions=0
+**
+ERROR:/home/codex/src/steamdeck-xemu/worktrees/issue1124-contention/tests/xbox/ptimer/test-pgraph-ptimer-contention.c:386:recurring_chain: assertion failed (renderer_waits == 0): (1 == 0)
+not ok /nv2a/contention/recurring-chain - ERROR:/home/codex/src/steamdeck-xemu/worktrees/issue1124-contention/tests/xbox/ptimer/test-pgraph-ptimer-contention.c:386:recurring_chain: assertion failed (renderer_waits == 0): (1 == 0)
+Bail out!

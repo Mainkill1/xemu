@@ -1,0 +1,7 @@
+ninja: Entering directory `build-native'
+[1/6] Generating qemu-version.h with a custom command (wrapped by meson to capture output)
+[2/6] Generating xemu-version-macro.h with a custom command (wrapped by meson to capture output)
+[3/6] Compiling C object tests/xbox/ptimer/benchmark-pgraph-control-cost.p/test-pgraph-ptimer-contention.c.o
+[4/6] Linking target tests/xbox/ptimer/benchmark-pgraph-control-cost
+[5/6] Compiling C object tests/xbox/ptimer/test-pgraph-ptimer-contention.p/test-pgraph-ptimer-contention.c.o
+[6/6] Linking target tests/xbox/ptimer/test-pgraph-ptimer-contention

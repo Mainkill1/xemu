@@ -17,6 +17,8 @@ def main():
     parser.add_argument('--cpu', type=int)
     args = parser.parse_args()
     output = args.output.resolve()
+    if output.exists() and any(output.iterdir()):
+        parser.error('output is not empty; use a new directory to preserve prior observations')
     output.mkdir(parents=True, exist_ok=True)
     allowed = sorted(os.sched_getaffinity(0))
     cpu = args.cpu if args.cpu is not None else allowed[-1]

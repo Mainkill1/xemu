@@ -1,0 +1,483 @@
+{
+  "argv": [
+    "/home/codex/src/steamdeck-xemu/worktrees/issue1124-contention/build-native/tests/xbox/ptimer/benchmark-pgraph-control-cost",
+    "--tap"
+  ],
+  "exitCode": 0,
+  "pinnedCpu": 31,
+  "allowedCpus": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+  ],
+  "frequencyPolicy": {
+    "scaling_driver": "amd-pstate-epp",
+    "scaling_governor": "powersave",
+    "energy_performance_preference": "performance",
+    "scaling_min_freq": "599000",
+    "scaling_max_freq": "5185000"
+  },
+  "frequencyLocked": false,
+  "executableSha256": "2f6cc87e281611794fb798929bf49a79b6b3bdf6ebe0e1a2c526dd878716490e",
+  "clock": "CLOCK_PROCESS_CPUTIME_ID",
+  "samples": [
+    {
+      "pair": 0,
+      "position": 0,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 21451
+    },
+    {
+      "pair": 0,
+      "position": 1,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3894066
+    },
+    {
+      "pair": 1,
+      "position": 0,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3878196
+    },
+    {
+      "pair": 1,
+      "position": 1,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 20770
+    },
+    {
+      "pair": 2,
+      "position": 0,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 20751
+    },
+    {
+      "pair": 2,
+      "position": 1,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3862486
+    },
+    {
+      "pair": 3,
+      "position": 0,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3864826
+    },
+    {
+      "pair": 3,
+      "position": 1,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 20790
+    },
+    {
+      "pair": 4,
+      "position": 0,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 20770
+    },
+    {
+      "pair": 4,
+      "position": 1,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3860996
+    },
+    {
+      "pair": 5,
+      "position": 0,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3866066
+    },
+    {
+      "pair": 5,
+      "position": 1,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 20771
+    },
+    {
+      "pair": 6,
+      "position": 0,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 20770
+    },
+    {
+      "pair": 6,
+      "position": 1,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3861556
+    },
+    {
+      "pair": 7,
+      "position": 0,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3877586
+    },
+    {
+      "pair": 7,
+      "position": 1,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 20730
+    },
+    {
+      "pair": 8,
+      "position": 0,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 20761
+    },
+    {
+      "pair": 8,
+      "position": 1,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3863766
+    },
+    {
+      "pair": 9,
+      "position": 0,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3862556
+    },
+    {
+      "pair": 9,
+      "position": 1,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 20740
+    },
+    {
+      "pair": 10,
+      "position": 0,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 20750
+    },
+    {
+      "pair": 10,
+      "position": 1,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3877216
+    },
+    {
+      "pair": 11,
+      "position": 0,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3879757
+    },
+    {
+      "pair": 11,
+      "position": 1,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 20750
+    },
+    {
+      "pair": 12,
+      "position": 0,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 20750
+    },
+    {
+      "pair": 12,
+      "position": 1,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3878586
+    },
+    {
+      "pair": 13,
+      "position": 0,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3876217
+    },
+    {
+      "pair": 13,
+      "position": 1,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 20760
+    },
+    {
+      "pair": 14,
+      "position": 0,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 20720
+    },
+    {
+      "pair": 14,
+      "position": 1,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3873606
+    },
+    {
+      "pair": 15,
+      "position": 0,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3863796
+    },
+    {
+      "pair": 15,
+      "position": 1,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 20720
+    },
+    {
+      "pair": 16,
+      "position": 0,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 20721
+    },
+    {
+      "pair": 16,
+      "position": 1,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3885726
+    },
+    {
+      "pair": 17,
+      "position": 0,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3903826
+    },
+    {
+      "pair": 17,
+      "position": 1,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 20961
+    },
+    {
+      "pair": 18,
+      "position": 0,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 20960
+    },
+    {
+      "pair": 18,
+      "position": 1,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3917656
+    },
+    {
+      "pair": 19,
+      "position": 0,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3922627
+    },
+    {
+      "pair": 19,
+      "position": 1,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 21020
+    },
+    {
+      "pair": 20,
+      "position": 0,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 21020
+    },
+    {
+      "pair": 20,
+      "position": 1,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3918316
+    },
+    {
+      "pair": 21,
+      "position": 0,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3931067
+    },
+    {
+      "pair": 21,
+      "position": 1,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 21060
+    },
+    {
+      "pair": 22,
+      "position": 0,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 21060
+    },
+    {
+      "pair": 22,
+      "position": 1,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3925897
+    },
+    {
+      "pair": 23,
+      "position": 0,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3933327
+    },
+    {
+      "pair": 23,
+      "position": 1,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 21030
+    },
+    {
+      "pair": 24,
+      "position": 0,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 21030
+    },
+    {
+      "pair": 24,
+      "position": 1,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3938727
+    },
+    {
+      "pair": 25,
+      "position": 0,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3918446
+    },
+    {
+      "pair": 25,
+      "position": 1,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 21011
+    },
+    {
+      "pair": 26,
+      "position": 0,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 21010
+    },
+    {
+      "pair": 26,
+      "position": 1,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3937667
+    },
+    {
+      "pair": 27,
+      "position": 0,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3928606
+    },
+    {
+      "pair": 27,
+      "position": 1,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 21070
+    },
+    {
+      "pair": 28,
+      "position": 0,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 21071
+    },
+    {
+      "pair": 28,
+      "position": 1,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3937176
+    },
+    {
+      "pair": 29,
+      "position": 0,
+      "mmio": 1,
+      "iterations": 100000,
+      "cpuNs": 3937827
+    },
+    {
+      "pair": 29,
+      "position": 1,
+      "mmio": 0,
+      "iterations": 100000,
+      "cpuNs": 21070
+    }
+  ],
+  "emptyLoopMedianNs": 20780.5,
+  "fixedMmioMedianNs": 3882741.5,
+  "pairedMedianAdditionalNsPerReadWrite": 38.620059999999995,
+  "minimumAdditionalNs": 38.40226,
+  "maximumAdditionalNs": 39.17697,
+  "hypotheticalCpuPercentAt60PairsPerSecond": 0.00023172035999999998,
+  "runtimeCandidate": false,
+  "acceptedPerformanceImprovementPercent": null,
+  "scope": "Uncontended production INCREMENT read/write, including CAS, PFIFO wake and profiling. Idealized removal ceiling only; not game throughput, GPU contention or total emulator overhead."
+}

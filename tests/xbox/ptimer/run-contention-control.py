@@ -29,6 +29,8 @@ def main():
     build, reference, output = (p.resolve() for p in
                                 (args.build_dir, args.reference_source, args.output))
     source = Path(__file__).resolve().parents[3]
+    if output.exists() and any(output.iterdir()):
+        parser.error('output is not empty; use a new directory to preserve prior observations')
     output.mkdir(parents=True, exist_ok=True)
     def git(directory, *argv):
         return subprocess.check_output(['git', *argv], cwd=directory).decode().strip()

@@ -1,0 +1,10 @@
+run-control-cost.py: exit=2; existing receipt unchanged sha256=41c3a84d6312296297ef8e208b0270fc75c95c37cddafc0250991121c7a36f7e
+usage: run-control-cost.py [-h] --build-dir BUILD_DIR --output OUTPUT
+                           [--cpu CPU]
+run-control-cost.py: error: output is not empty; use a new directory to preserve prior observations
+
+run-contention-control.py: exit=2; existing receipt unchanged sha256=cd2d9e1b9d7a12812ad5a14a0315cf0705ddb6e7dbce8c57fd9837d83a2af0d9
+usage: run-contention-control.py [-h] --build-dir BUILD_DIR
+                                 --reference-source REFERENCE_SOURCE
+                                 --output OUTPUT [--test-timeout TEST_TIMEOUT]
+run-contention-control.py: error: output is not empty; use a new directory to preserve prior observations

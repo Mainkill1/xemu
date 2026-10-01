@@ -1,0 +1,168 @@
+{
+  "Id": "issue1124-short-vulkan-v1",
+  "Executable": "xemu.exe",
+  "Arguments": [
+    "-config_path",
+    "{packageDir}\\xemu.toml",
+    "-name",
+    "xemu-defjam-mask-a3ad2f80,debug-threads=on",
+    "-msg",
+    "timestamp=on",
+    "-trace",
+    "events={packageDir}\\trace-events.txt,file={resultDir}\\ptimer-trace.log"
+  ],
+  "WorkingDirectory": ".",
+  "Environment": {
+    "XEMU_VK_HYBRID_TRACE": "{resultDir}\\hybrid-trace.jsonl",
+    "XEMU_VK_PERF_LOG": "{resultDir}\\vk-perf.jsonl",
+    "XEMU_ISSUE266_OBSERVE_LOCKS": "1"
+  },
+  "TimeoutSeconds": 360,
+  "Tags": [],
+  "Plan": [
+    {
+      "Type": "wait",
+      "DelayMs": 240000
+    },
+    {
+      "Type": "screenshot",
+      "Name": "short-smoke-end"
+    },
+    {
+      "Type": "quit"
+    }
+  ],
+  "TargetOs": "windows",
+  "ExpectedExecutableSha256": "0b485d4a06cba9b1b988ba3e5385f19dffd3597d54621a2d9ed4e7e319052171",
+  "RequiredFiles": [
+    "xemu.exe",
+    "xemu.toml",
+    "state/eeprom.bin",
+    "window-diagnostic.exe",
+    "trace-events.txt"
+  ],
+  "LaunchMode": "direct",
+  "SnapshotName": null,
+  "StartPaused": false,
+  "RequireInput": true,
+  "Diagnostics": [],
+  "RuntimeState": {
+    "Enabled": true,
+    "KeepOnSuccess": false,
+    "KeepOnFailure": true,
+    "Files": [
+      {
+        "Source": "state/eeprom.bin",
+        "Destination": "eeprom.bin",
+        "ExpectedSha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5"
+      }
+    ],
+    "DiskAssets": [
+      {
+        "AssetId": "pgr2-freshboot-base-v1",
+        "ExpectedSha256": "8b4f7c81be6ece5db3fc98d683d86d0515db43b2447e8dff14bfd9b45078c606",
+        "Destination": "hdd.qcow2",
+        "Retention": "deleteAfterEvidence"
+      }
+    ],
+    "Isolation": {
+      "CacheMode": "cold",
+      "CacheShaders": true,
+      "DriverCache": "uncontrolled",
+      "AllowUncontrolledDriverCache": false,
+      "SeedDirectory": null,
+      "SeedSha256": null,
+      "RequirePrivateGuestState": true,
+      "MaximumFiles": 4096,
+      "MaximumBytes": 268435456,
+      "DeadlineSeconds": 60,
+      "ReadOnlyAssets": [
+        {
+          "Field": "bootrom_path",
+          "AssetId": "devbox-mcpx10-readonly-v1",
+          "ExpectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+        },
+        {
+          "Field": "flashrom_path",
+          "AssetId": "devbox-complex4627-readonly-v1",
+          "ExpectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+        },
+        {
+          "Field": "dvd_path",
+          "AssetId": "defjam-usa-readonly-v1",
+          "ExpectedSha256": "ac70b2be01ca17c812398a21ad325814b9e671ac3df01a90c98a480ea5059ac7"
+        }
+      ]
+    }
+  },
+  "Inputs": [
+    {
+      "Path": "xemu.exe",
+      "Role": "issue266-mask-a3ad2f80-windows-x86_64",
+      "Hash": true,
+      "ExpectedSha256": "0b485d4a06cba9b1b988ba3e5385f19dffd3597d54621a2d9ed4e7e319052171"
+    },
+    {
+      "Path": "xemu.toml",
+      "Role": "defjam-vulkan-control-config",
+      "Hash": true,
+      "ExpectedSha256": "31df895c81bf12de4b32f2a1361045b2b329d5e646fd9e5c7bb7aec304412d56"
+    },
+    {
+      "Path": "state/eeprom.bin",
+      "Role": "isolated-eeprom-seed",
+      "Hash": true,
+      "ExpectedSha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5"
+    },
+    {
+      "Path": "window-diagnostic.exe",
+      "Role": "owned-window-ui-diagnostic",
+      "Hash": true,
+      "ExpectedSha256": "ef91c8bf44b147a21ddb7809a83cc4b9004e88ea7615c239f92d46b72e72e9b6"
+    },
+    {
+      "Path": "trace-events.txt",
+      "Role": "opt-in PTIMER/RDTSC/NV2A-lock-wait-trace-event-selection",
+      "Hash": true,
+      "ExpectedSha256": "55a631935309bbdfc4410c079fdf8355fe5463a3e82c0453127a998f2ffc5f56"
+    }
+  ],
+  "Workload": {
+    "CorrectnessChecks": [],
+    "EvidenceRequirements": [],
+    "ReportedMetrics": [],
+    "MinimumMetricSamples": 0,
+    "RequirePlanCompletion": true
+  },
+  "Experiment": {
+    "Id": "issue1124-short-renderer-smoke",
+    "Variant": "vulkan",
+    "Reference": null,
+    "VariedFactors": [
+      "PGRAPH IRQ/FIFO/flip control ownership candidate86db8f664a",
+      "Opt-in addressed timer/RDTSC/BQL/PFIFO/PGRAPH wait probes"
+    ],
+    "ControlledFactors": [
+      "Normal guest clock; no shared-clock suspension",
+      "Same Vulkan Prewarm config and private cold HDD/EEPROM seeds",
+      "Frame and flip file logging disabled during native timing validation"
+    ],
+    "RequireCorrectnessPass": false,
+    "RequireCompleteEvidence": false,
+    "AllowOperatorIntervention": true,
+    "AllowDiagnostics": true
+  },
+  "Operations": {
+    "Mode": "diagnostic",
+    "AllowPreview": null,
+    "AllowManualInput": null,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": null,
+    "AllowBulkTransfers": null,
+    "PreviewAllowed": true,
+    "ManualInputAllowed": true,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": true
+  }
+}
