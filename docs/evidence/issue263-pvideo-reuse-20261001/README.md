@@ -13,6 +13,9 @@ recorded their dimensions. Repeated uploads normally destroyed and recreated
 the resources. A synthetic matching-dimension/incomplete-resource case also
 exposes its handle-overwrite branch; this is not a measured gameplay leak.
 
+Candidate production source is commit `b0f0661860fc5c70a0be2bd2c20bb1bfc8c7e069`;
+measurement manifests bind its file fingerprints. The pre-commit emulator
+binary was used only to check compilation, not for any game comparison.
 The candidate returns for a complete matching resource set, records dimensions
 after successful creation, and resets dimensions/layout at destruction. Every
 upload still converts and copies current pixels. `current_layout` selects the
@@ -83,7 +86,7 @@ corrected recipe and is the canonical table above.
   the two original resize/destruction controls pass.
 - One opt-in real Vulkan test passes with actual VMA allocation/replacement/
   teardown on llvmpipe. It does **not** upload, sample, or submit GPU work.
-- [Formatted focused tests](formatted-tests.log): seven boundary subtests and
+- [Formatted focused tests](formatted-tests.log.gz): seven boundary subtests and
   one real GPU lifecycle subtest pass through Meson's normal `--tap -k` entry.
 - Reference and candidate emulator builds succeed. Existing warnings in
   unrelated `blit.c`/third-party code remain in compressed logs; no changed

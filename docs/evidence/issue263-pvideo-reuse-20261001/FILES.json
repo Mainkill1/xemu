@@ -1,8 +1,8 @@
 [
   {
     "path": "README.md",
-    "bytes": 6693,
-    "sha256": "c2827cc83481c7714d6d142bd0b8b30038fd07829a4529bfbf9efad4913e6ad4"
+    "bytes": 6924,
+    "sha256": "d20ba118f433a487264c21d8ed6102a538c79bcb225c52a0d6292cf1c049134c"
   },
   {
     "path": "candidate-build-source-binding.json",
@@ -25,9 +25,9 @@
     "sha256": "6077548fd9ff15d28b0115c04ed55cb7b23d1bc42fe08e5b73382b2a04d94e8e"
   },
   {
-    "path": "formatted-tests.log",
-    "bytes": 627,
-    "sha256": "137e300d10508a693d725756d4ed3615ee6df3ac59bd25374ebb97f1f8e89794"
+    "path": "formatted-tests.log.gz",
+    "bytes": 323,
+    "sha256": "95fe21487513a21a3d6501608ad11df5bbfb6c2171eb676d7661e49d457ae98a"
   },
   {
     "path": "full-unit.log.gz",
@@ -35,9 +35,9 @@
     "sha256": "2d226616d6027fb4d3633aa9224ab16796123237227c26087ac7765360c805c8"
   },
   {
-    "path": "local-gpu-green.log",
-    "bytes": 627,
-    "sha256": "24ef00bb4a2a935a178cb2fe74001299fef8f1b891f9ef1eeaa131ccf3e527bb"
+    "path": "local-gpu-green.log.gz",
+    "bytes": 323,
+    "sha256": "88f435014502f8132602ce6a08b3b4daa43dc0fb0d4c4957b3d07fe655100777"
   },
   {
     "path": "local-resource-balanced-v1/aa-1-A/stdout.log",
@@ -215,9 +215,9 @@
     "sha256": "8b31d4a216a312112a8e8e9768c8f4ce18dc0cd02e92162d0640edc0c14990eb"
   },
   {
-    "path": "unit-green.log",
-    "bytes": 541,
-    "sha256": "d139905c4235c1ede4844b9cbb486e7854f0fd6a814c6b931a4350b6ba2a192c"
+    "path": "unit-green.log.gz",
+    "bytes": 299,
+    "sha256": "bc6694917e76b7751a14f95990548435d712b4ded14e76575e4ed35fd03e0747"
   },
   {
     "path": "unit-red-content-refresh.log",
