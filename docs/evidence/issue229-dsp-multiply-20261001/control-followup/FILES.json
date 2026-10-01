@@ -2,8 +2,8 @@
   "files": [
     {
       "path": "README.md",
-      "bytes": 10691,
-      "sha256": "e8dfebc12b68aa5abfb1ef10d680af41875433bf8010d42f6d281c6473a915ba"
+      "bytes": 14379,
+      "sha256": "d3ff59704b75ac2d40c8c00fc580f18136225637785cf50ac843862d390d4b90"
     },
     {
       "path": "aa-campaign/attempts.json",
@@ -51,6 +51,11 @@
       "sha256": "32a12ea7d9636604c9722e13892d38efda58720f3c51170eb0a098025c63d2b4"
     },
     {
+      "path": "issue229-package-native-balanced-v3.py",
+      "bytes": 3127,
+      "sha256": "27fb7c4b3d2051923740cf5ade3dad4f27dcdb88b4ffd34215a34d9f3dd94607"
+    },
+    {
       "path": "issue229-prepare-native-balanced-v3.py",
       "bytes": 3894,
       "sha256": "41ae3875d8595efe33c01c3dc48538805bb11a4cc1f1fa320e97b6971766126d"
@@ -79,6 +84,16 @@
       "path": "issue229-start-stationary-v3-parent.py",
       "bytes": 819,
       "sha256": "71320300e39081f6305b40d645308e5b07e413e230225899fc0c8c46469f47e3"
+    },
+    {
+      "path": "issue229-summarize-native-balanced-v3.py",
+      "bytes": 5126,
+      "sha256": "1ec141e1f11f4709492c9283b63ac70d50693da8482acb309eea179f113f5cb7"
+    },
+    {
+      "path": "issue229-verify-native-balanced-v3.py",
+      "bytes": 3544,
+      "sha256": "7f3776bf4283a470bcdf1cb5383995f3867032b183421e9e45ce4f1b044f4988"
     },
     {
       "path": "layout/aa-records.json",
@@ -246,9 +261,54 @@
       "sha256": "465ba29b12879d38a04b2692a1d7cf10f727ec8a04adfed06757f7f34960578a"
     },
     {
+      "path": "native-balanced-v3/abba-1-collected.json",
+      "bytes": 376,
+      "sha256": "e1de3742bc51352d0e8c0e3cbf275b631bcd5a7a5ba62d8762fabaf6dcae1f3a"
+    },
+    {
       "path": "native-balanced-v3/abba-1-submitted.json",
       "bytes": 476,
       "sha256": "a2dfc4261d4b2ca8f5efba97527a1e525a696999c4c5c55b10f281e37978b85c"
+    },
+    {
+      "path": "native-balanced-v3/abba-1-wait.log",
+      "bytes": 6602,
+      "sha256": "3550653c6b3ff5818d5a22400ea899b26d168f857308a1b6cac0bfa04407f206"
+    },
+    {
+      "path": "native-balanced-v3/abba-2-collected.json",
+      "bytes": 376,
+      "sha256": "5fb6d0c76eaa0a4e0aafae2fde9828cb0d500e29024e8fb207213faa96def218"
+    },
+    {
+      "path": "native-balanced-v3/abba-2-submitted.json",
+      "bytes": 476,
+      "sha256": "a6ddda9e30fc1a14a1e55b012a55d8566dfd8855b3bd8e400a55c1b4e5a934c9"
+    },
+    {
+      "path": "native-balanced-v3/abba-2-wait.log",
+      "bytes": 7184,
+      "sha256": "e8ed7aceebe857f5229061da4803dcf1c5c183961d2dad1f63f7994a086d5a09"
+    },
+    {
+      "path": "native-balanced-v3/abba-3-collected.json",
+      "bytes": 376,
+      "sha256": "9d48a47d271cb9934330baa355ea3e4ad5bb6c04d9d64aa4f1db069cc9164171"
+    },
+    {
+      "path": "native-balanced-v3/abba-3-submitted.json",
+      "bytes": 476,
+      "sha256": "d90caf95355ddcfdbef5cba11fbb5748b53394ab9a90149dfd37c9d5dd698bf4"
+    },
+    {
+      "path": "native-balanced-v3/abba-3-wait.log",
+      "bytes": 6893,
+      "sha256": "33716abb50fadea53c0adb4d39016230085dc782966ea958164e3a60c3f7ac1d"
+    },
+    {
+      "path": "native-balanced-v3/abba-4-submitted.json",
+      "bytes": 476,
+      "sha256": "985ae827ce09aac4f62f6b2ec0dc5c53daca82ee1cd6c8aa39e9a6c30a3f3692"
     },
     {
       "path": "native-balanced-v3/audit.json",
@@ -309,6 +369,156 @@
       "path": "native-balanced-v3/preparation.log",
       "bytes": 669,
       "sha256": "190cbc3400909b6d67599a7cb4352c50258f3cdfdea13c1d893749147c6d6100"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-1-20261001/artifacts.tar.gz",
+      "bytes": 2799369,
+      "sha256": "44edbb7c13912a409c21b53684c35648e4a3cabde9d42d8e99de000674f79776"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-1-20261001/assessment.json",
+      "bytes": 2092,
+      "sha256": "2dcdb3e793bf3185659e96b78b8715e818f391b87b929f654066f2577db54f3e"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-1-20261001/inventory.json",
+      "bytes": 180020,
+      "sha256": "096ddfcaf49aab09af3ec8a577a7d52ba7ba63d984e0ca847489cfef5bb5fcc5"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-1-20261001/performance.json",
+      "bytes": 2113,
+      "sha256": "fb752550d233c3445bd591d59826cc4edc7018477de98c0e9905845ff77c6dd4"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-1-20261001/result.json",
+      "bytes": 11965,
+      "sha256": "4e47b48275e68369b086bcee11f8e92bb57cd50c8e03455ac0691a9b2cba113d"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-1-20261001/runtime-cleanup.json",
+      "bytes": 531,
+      "sha256": "6c3580cf49b73f29e3df56983c42197ee9c5d56fc19c17e79d87672b9b55cfe1"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-1-20261001/screenshots/recording-end.png",
+      "bytes": 637823,
+      "sha256": "ce0bcda096e842df5efa8798f27a42866ed5c32f58c14a49c805692a404a0044"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-1-20261001/screenshots/recording-start.png",
+      "bytes": 652261,
+      "sha256": "9483f4bdb08d03ebed0b38f6182ab30088a7c3cf27cd89b7e64065595f31ddbc"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-1-20261001/segments.jsonl",
+      "bytes": 236,
+      "sha256": "a9094d59c5786c3a50ed6cb7018f4cef9ccb4d7a68f4d3e6defccf8478385c72"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-2-20261001/artifacts.tar.gz",
+      "bytes": 2797526,
+      "sha256": "bd1c9e18c36211b841cad2deba8b68feed6881a939f78b4b2df6097f8e3d4940"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-2-20261001/assessment.json",
+      "bytes": 2092,
+      "sha256": "2dcdb3e793bf3185659e96b78b8715e818f391b87b929f654066f2577db54f3e"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-2-20261001/inventory.json",
+      "bytes": 180020,
+      "sha256": "ac240004fd9c48b1af0d2defe7e9665b49a697f5f3a3b5b3d00ec7e2959896c6"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-2-20261001/performance.json",
+      "bytes": 2108,
+      "sha256": "c1c4badbe8b1e11786b6e863395140ea241edd81818e463c64d851d67628b8be"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-2-20261001/result.json",
+      "bytes": 11971,
+      "sha256": "e289fc5975553470499ff049ada2fb8a4caae0674302d0bd917ab849a46860ed"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-2-20261001/runtime-cleanup.json",
+      "bytes": 531,
+      "sha256": "19f42956b2dfeb22389b676956f245a590d8d52e463cca9a18dc7607bc967d6a"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-2-20261001/screenshots/recording-end.png",
+      "bytes": 638441,
+      "sha256": "b33b905a5b7c569a15b2b64ed9efe6fdb9b63a6e00af6711741f3265947b6135"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-2-20261001/screenshots/recording-start.png",
+      "bytes": 648573,
+      "sha256": "5f944ba872adf2477754e0feddc797a76c0d1667cc317595af6aa3b26dde2609"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-2-20261001/segments.jsonl",
+      "bytes": 236,
+      "sha256": "e203d55148fd3265b0993b0765f3e19c19f3206f66aeb90827591a9a8b76286b"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-3-20261001/artifacts.tar.gz",
+      "bytes": 2802881,
+      "sha256": "7cff77f144e3974fb265271acc96fbc3c49b9fe8497bb937624b378f9ca14ac6"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-3-20261001/assessment.json",
+      "bytes": 2092,
+      "sha256": "fb7148eaa6b08655533c64aacaa58f6962072495bd3bd8f1f6e7dabae4032cba"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-3-20261001/inventory.json",
+      "bytes": 180020,
+      "sha256": "cdac69755366f24b0d9ceabe8e3c45cb02bf4e8fbd4811f50e081917cabb40a1"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-3-20261001/performance.json",
+      "bytes": 2121,
+      "sha256": "531bad0a8c906d4298abd1525a4279b2709aa65bb755ce8952e12c2628e4b59f"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-3-20261001/result.json",
+      "bytes": 11976,
+      "sha256": "646dfcc24766cc97681e6ae80f489be4ba76b6fa11e3d9ae15483466f9034ae8"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-3-20261001/runtime-cleanup.json",
+      "bytes": 531,
+      "sha256": "655cb65ffc86d92d6cfc82e4b13d417d87ec2bb88757a34b879e9d48b36cb848"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-3-20261001/screenshots/recording-end.png",
+      "bytes": 638627,
+      "sha256": "e04f780109d65128c45bb066c0697e70d2afc33cb8b7d20fcff69fc0fed7857b"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-3-20261001/screenshots/recording-start.png",
+      "bytes": 656900,
+      "sha256": "e9ccbe8148afc06ba09bc66a7afec8ecb607b1b8541105326819c0417e5f2422"
+    },
+    {
+      "path": "native-balanced-v3/raw/issue229-deck-native-c-v3-abba-3-20261001/segments.jsonl",
+      "bytes": 236,
+      "sha256": "60e794e6d8f3285c98635a2216123e46973789db54bf15afb404a96262d25693"
+    },
+    {
+      "path": "native-balanced-v3/resource-audit.json",
+      "bytes": 4088,
+      "sha256": "cfb7bd3cd57d01a443c0871926b2850f437b2dd8e1f7d79552e0836431dddcf9"
+    },
+    {
+      "path": "native-balanced-v3/summary.json",
+      "bytes": 12113,
+      "sha256": "057de882dbd17ba74b3b1706d89795f9f6f837d679a690a3eecdb92303be9bd5"
+    },
+    {
+      "path": "native-balanced-v3/verified-statistics.log",
+      "bytes": 461,
+      "sha256": "984760dc79d147fc2604dc381a8029b1bc53532546596064166bdf87b620943f"
     },
     {
       "path": "opengl-aa-artifacts.tar.gz",
@@ -529,6 +739,16 @@
       "path": "stationary-v3-preparation.log",
       "bytes": 239,
       "sha256": "288b83fdd4593cc75cf5b2259d5e76a96c3852cfc03a17efea3537f8c92c1279"
+    },
+    {
+      "path": "windows-current-status.json",
+      "bytes": 1879,
+      "sha256": "b5299ac6e027f5b5348a18bbb3d7e97ca0f06aec0a62ac0b2fe39f00b6c849bc"
+    },
+    {
+      "path": "windows-readiness-followup.json",
+      "bytes": 976,
+      "sha256": "81c35aa2934814666b4c63a1815cbb14c52436fdb04a1dce61b08f3f115a2fc8"
     }
   ]
 }

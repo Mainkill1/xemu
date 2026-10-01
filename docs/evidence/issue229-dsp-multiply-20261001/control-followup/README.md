@@ -161,8 +161,8 @@ server draft: only executable identity and parent/candidate label differ in
 the fixed contract. All eight drafts were prepared before the first launch.
 The passing procedure pilot is excluded from these eight comparison attempts.
 
-A1 has been submitted; the other seven remain drafts. This is ongoing work,
-with **no candidate result yet**. The runner owns execution and cleanup.
+The first parent and both predeclared ABBA candidates are archived and
+eligible. ABBA position 4 (parent) is running; four BAAB attempts remain drafts. This campaign is incomplete. The runner owns execution and cleanup.
 Because benchmark policy blocks job mutations during execution, submit each
 next frozen ID only after the preceding run is archived and the target has
 stopped; preserve its failed outcome if it fails. Do not create replacements,
@@ -180,3 +180,67 @@ the [initial submission receipt](native-balanced-v3/abba-1-submitted.json)
 records the explicit first launch. Declared cache state remains cold private
 launch plus scene warmup; fully warm shaders, fixed power and PCM are not
 qualified. Passing coarse gates will not resolve those limits.
+
+### First two campaign attempts: descriptive, incomplete
+
+These are the frozen campaign A1/B1, not the earlier procedure pilot. Both
+complete with exit 0, pass the declared image/evidence gates and qualify Mesa
+private disk writes without a waiver. Their raw statistics/source hashes were
+independently recomputed; their storage-contract hashes match. Final captures
+show the stationary player and opponents farther down the road. These coarse
+checks do not establish PCM parity or complete game correctness.
+
+| Diagnostic | Parent A1 | Candidate B1 | Unit |
+|---|---:|---:|---|
+| Host CPU, named segment | 197.961 | 200.409 | core-percent mean |
+| Flip-control cadence, final 40 summaries | 0.820 | 0.804 | host-clock flips/s |
+| Frame-control interval mean | 1190.891 | 1256.354 | ms |
+| Frame-control interval p95 | 1726.043 | 1781.299 | ms |
+| Frame-control interval p99 | 1951.831 | 1892.499 | ms |
+| Positive frame intervals, 300 s tail | 252 | 239 | count; minimum 160 |
+
+No balanced comparison or game gain is established by three of eight attempts.
+The separate parent procedure pilot measured 0.787 flips/s, versus campaign
+A1's 0.820; these remain separate observations of baseline variation, not an
+extra parent sample in the campaign. [Per-attempt numeric summary](native-balanced-v3/summary.json)
+keeps all eight IDs and marks uncollected work explicitly; its A/B comparison
+array stays empty until all eight canonical outcomes are available and eligible.
+The retained analyzer never pools individual frame/CPU samples across launches.
+
+Complete, individually verified archives are retained under
+[native-balanced-v3/raw/](native-balanced-v3/raw/), one directory per planned job.
+All three contain 865 files. Canonical results, source metrics, captures, frozen
+inputs and cache ledgers stay intact. [Raw-statistic verification](native-balanced-v3/verified-statistics.log)
+and the retained packaging/analysis recipes reproduce these checks.
+
+### Second predeclared candidate: slowdown retained
+
+ABBA B2 completes with exit 0 and passes all declared gates. Its final
+capture shows the same stationary scene with opponents farther away. It is
+substantially slower than the preceding candidate, and is not excluded:
+
+| Diagnostic | Candidate B2 |
+|---|---:|
+| Host CPU mean | 195.686 core-percent |
+| Flip-control cadence | 0.626 flips/s |
+| Frame-control interval mean / p95 / p99 | 1562.774 / 2204.539 / 2339.992 ms |
+| Positive frame intervals | 193; minimum 160 |
+
+The [recorded resource audit](native-balanced-v3/resource-audit.json) finds
+whole-host CPU means of 28.03% for A1 and 28.14% for B2, and 833 driver-cache
+files in each attempt. That does not establish the slowdown's cause. CPU
+clocks, Linux temperatures and fixed power policy are unavailable; no
+thermal or scheduler attribution is made. The full eight-run comparison
+remains pending and every attempt stays in the declared sequence.
+
+### Windows readiness: separate qualification gap
+
+Windows remains reachable, idle, unlocked and on AC with battery saver off.
+Its original PGR2 saved definition lacks a managed isolation contract. The
+current runner driver-cache adapter explicitly supports Linux only; Windows
+NVIDIA game timing therefore needs its own deliberate cache/private-state
+contract. Deck Mesa proof does not cover Windows. The [readiness finding](windows-readiness-followup.json)
+pins the runner/source guard and [host observation](windows-current-status.json).
+No Windows game measurement, driver-cache waiver, purge or performance claim
+was made during this inspection. This does not block the continuing Deck
+sequence.

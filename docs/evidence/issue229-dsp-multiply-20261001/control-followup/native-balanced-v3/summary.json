@@ -1,0 +1,337 @@
+{
+  "planSha256": "4eaeae1c3b726a909f994042c5ee2b37b3e49e73a6c9b47497b6a55db28e79c1",
+  "plannedAttempts": 8,
+  "archivedAttempts": 3,
+  "complete": false,
+  "allCanonicallyEligible": false,
+  "attempts": [
+    {
+      "id": "issue229-deck-native-c-v3-abba-1-20261001",
+      "variant": "parent",
+      "order": "abba",
+      "position": 1,
+      "state": "archived",
+      "runId": "20261001-192105153-9ef78b39a0124c9e88671ba5967f247d",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "execution": "completed",
+      "exitCode": 0,
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "passed",
+        "Evidence": "complete",
+        "Comparison": "eligible",
+        "ComparisonReasons": [],
+        "Checks": [
+          {
+            "Name": "analysis:monitor",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+          },
+          {
+            "Name": "analysis:flips",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+          },
+          {
+            "Name": "analysis:frames",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+          },
+          {
+            "Name": "recording-start-visible",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "result:screenshots/recording-start.png satisfied the declared requirement."
+          },
+          {
+            "Name": "recording-end-visible",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "result:screenshots/recording-end.png satisfied the declared requirement."
+          },
+          {
+            "Name": "guest-progress",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "result:guest-frames.log satisfied the declared requirement."
+          },
+          {
+            "Name": "measurement-segments",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "result:segments.jsonl satisfied the declared requirement."
+          },
+          {
+            "Name": "minimum_metric_samples",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Required >= 160; actual 949."
+          },
+          {
+            "Name": "plan_completion",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "The declared plan completed."
+          },
+          {
+            "Name": "run_storage_state",
+            "Passed": true,
+            "Category": "state",
+            "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+          }
+        ],
+        "IsExecutionSuccess": true,
+        "IsCorrectnessSuccess": true
+      },
+      "performanceProfileSha256": "c24dfe3e05bdc7bc9260be10fb3943a745282103a3be85aa4ff9c182a3c712e4",
+      "storageContractSha256": "25cee8a50956c52a6091a1adadd0371087ab4fbe17eeec4bdfe98db511d51d6f",
+      "driverQualification": "mesa_private_disk_writes_observed",
+      "driverIssues": [],
+      "targetStopped": true,
+      "cacheWaiver": false,
+      "values": {
+        "cpuCorePercent": 197.96096351575468,
+        "cpuSamples": 603,
+        "flipControlFps": 0.8197031215185464,
+        "frameControlMean": 1190.8909801587315,
+        "frameControlP95": 1726.04315,
+        "frameControlP99": 1951.8307000000004,
+        "frameControlCount": 252
+      }
+    },
+    {
+      "id": "issue229-deck-native-c-v3-abba-2-20261001",
+      "variant": "candidate",
+      "order": "abba",
+      "position": 2,
+      "state": "archived",
+      "runId": "20261001-193003200-d219227f3a1c449eb510444af66f20e0",
+      "executableSha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+      "execution": "completed",
+      "exitCode": 0,
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "passed",
+        "Evidence": "complete",
+        "Comparison": "eligible",
+        "ComparisonReasons": [],
+        "Checks": [
+          {
+            "Name": "analysis:monitor",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+          },
+          {
+            "Name": "analysis:flips",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+          },
+          {
+            "Name": "analysis:frames",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+          },
+          {
+            "Name": "recording-start-visible",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "result:screenshots/recording-start.png satisfied the declared requirement."
+          },
+          {
+            "Name": "recording-end-visible",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "result:screenshots/recording-end.png satisfied the declared requirement."
+          },
+          {
+            "Name": "guest-progress",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "result:guest-frames.log satisfied the declared requirement."
+          },
+          {
+            "Name": "measurement-segments",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "result:segments.jsonl satisfied the declared requirement."
+          },
+          {
+            "Name": "minimum_metric_samples",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Required >= 160; actual 949."
+          },
+          {
+            "Name": "plan_completion",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "The declared plan completed."
+          },
+          {
+            "Name": "run_storage_state",
+            "Passed": true,
+            "Category": "state",
+            "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+          }
+        ],
+        "IsExecutionSuccess": true,
+        "IsCorrectnessSuccess": true
+      },
+      "performanceProfileSha256": "c24dfe3e05bdc7bc9260be10fb3943a745282103a3be85aa4ff9c182a3c712e4",
+      "storageContractSha256": "25cee8a50956c52a6091a1adadd0371087ab4fbe17eeec4bdfe98db511d51d6f",
+      "driverQualification": "mesa_private_disk_writes_observed",
+      "driverIssues": [],
+      "targetStopped": true,
+      "cacheWaiver": false,
+      "values": {
+        "cpuCorePercent": 200.408847429519,
+        "cpuSamples": 603,
+        "flipControlFps": 0.8044390278883233,
+        "frameControlMean": 1256.3542552301255,
+        "frameControlP95": 1781.2985999999999,
+        "frameControlP99": 1892.49912,
+        "frameControlCount": 239
+      }
+    },
+    {
+      "id": "issue229-deck-native-c-v3-abba-3-20261001",
+      "variant": "candidate",
+      "order": "abba",
+      "position": 3,
+      "state": "archived",
+      "runId": "20261001-193947547-cc91248e125a4bdaa110ba4daca82cfb",
+      "executableSha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+      "execution": "completed",
+      "exitCode": 0,
+      "assessment": {
+        "Execution": "completed",
+        "Correctness": "passed",
+        "Evidence": "complete",
+        "Comparison": "eligible",
+        "ComparisonReasons": [],
+        "Checks": [
+          {
+            "Name": "analysis:monitor",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+          },
+          {
+            "Name": "analysis:flips",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+          },
+          {
+            "Name": "analysis:frames",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+          },
+          {
+            "Name": "recording-start-visible",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "result:screenshots/recording-start.png satisfied the declared requirement."
+          },
+          {
+            "Name": "recording-end-visible",
+            "Passed": true,
+            "Category": "correctness",
+            "Detail": "result:screenshots/recording-end.png satisfied the declared requirement."
+          },
+          {
+            "Name": "guest-progress",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "result:guest-frames.log satisfied the declared requirement."
+          },
+          {
+            "Name": "measurement-segments",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "result:segments.jsonl satisfied the declared requirement."
+          },
+          {
+            "Name": "minimum_metric_samples",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "Required >= 160; actual 950."
+          },
+          {
+            "Name": "plan_completion",
+            "Passed": true,
+            "Category": "evidence",
+            "Detail": "The declared plan completed."
+          },
+          {
+            "Name": "run_storage_state",
+            "Passed": true,
+            "Category": "state",
+            "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+          }
+        ],
+        "IsExecutionSuccess": true,
+        "IsCorrectnessSuccess": true
+      },
+      "performanceProfileSha256": "c24dfe3e05bdc7bc9260be10fb3943a745282103a3be85aa4ff9c182a3c712e4",
+      "storageContractSha256": "25cee8a50956c52a6091a1adadd0371087ab4fbe17eeec4bdfe98db511d51d6f",
+      "driverQualification": "mesa_private_disk_writes_observed",
+      "driverIssues": [],
+      "targetStopped": true,
+      "cacheWaiver": false,
+      "values": {
+        "cpuCorePercent": 195.68628192371466,
+        "cpuSamples": 603,
+        "flipControlFps": 0.6262266187269032,
+        "frameControlMean": 1562.7742227979268,
+        "frameControlP95": 2204.538999999999,
+        "frameControlP99": 2339.9917199999963,
+        "frameControlCount": 193
+      }
+    },
+    {
+      "id": "issue229-deck-native-c-v3-abba-4-20261001",
+      "variant": "parent",
+      "order": "abba",
+      "position": 4,
+      "state": "not-collected"
+    },
+    {
+      "id": "issue229-deck-native-c-v3-baab-1-20261001",
+      "variant": "candidate",
+      "order": "baab",
+      "position": 1,
+      "state": "not-collected"
+    },
+    {
+      "id": "issue229-deck-native-c-v3-baab-2-20261001",
+      "variant": "parent",
+      "order": "baab",
+      "position": 2,
+      "state": "not-collected"
+    },
+    {
+      "id": "issue229-deck-native-c-v3-baab-3-20261001",
+      "variant": "parent",
+      "order": "baab",
+      "position": 3,
+      "state": "not-collected"
+    },
+    {
+      "id": "issue229-deck-native-c-v3-baab-4-20261001",
+      "variant": "candidate",
+      "order": "baab",
+      "position": 4,
+      "state": "not-collected"
+    }
+  ],
+  "comparisons": [],
+  "interpretation": "Median of per-attempt metrics; no pooled samples. Core-percent is diagnostic, not fixed-work cost. Host-clock flip-control cadence is not necessarily rendered FPS. Cold launch plus scene warmup; power/driver RAM/OS page cache uncontrolled; PCM absent."
+}
