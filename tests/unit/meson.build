@@ -29,6 +29,9 @@ tests = {
   'test-string-output-visitor': [testqapi],
   'test-visitor-serialization': [testqapi],
   'test-bitmap': [],
+  'test-xbox-mcpx-dsp-mul': [declare_dependency(
+    include_directories: include_directories('../../hw/xbox/mcpx/apu/dsp'),
+  )],
   'test-xbox-pgraph-texture-state': [],
   'test-xbox-pgraph-texture-layout': [],
   'test-xbox-pgraph-uniform-dirty': [xbox_i386_target_headers],
