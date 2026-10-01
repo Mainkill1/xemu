@@ -1,0 +1,9 @@
+{
+  "upgraded": true,
+  "version": "0.2.0+0ba533ed89c8bb3cf530c4bfff8dbb190b3f08be",
+  "instance": "ab50c5cb96884152998523afb762d683",
+  "service": "xemu-research-runner-20261001-mesa",
+  "configSha256": "8d0265ba728e1f01100a9c579ef9c888abdb5053a12b7277ba7f3eba34b0bd60",
+  "oldServiceRetained": "xemu-research-runner-20260930.service",
+  "newExeSha256": "c8401b17d162d1417b456ede037b7676216bf3c69707209369cbff1ea45e58c9"
+}

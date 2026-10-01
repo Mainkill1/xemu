@@ -1,0 +1,230 @@
+[
+  {
+    "path": "lib/libbrotlicommon.so.1",
+    "parent": "bfe785ce98c25bb854e2cf998561be74f78f743029b13ad7476beab5440408b5",
+    "candidate": "bfe785ce98c25bb854e2cf998561be74f78f743029b13ad7476beab5440408b5",
+    "same": true
+  },
+  {
+    "path": "lib/libbrotlidec.so.1",
+    "parent": "86f803ed147ee2d8395f2be189057e04337188efdfa73e8842bf523c490a52c9",
+    "candidate": "86f803ed147ee2d8395f2be189057e04337188efdfa73e8842bf523c490a52c9",
+    "same": true
+  },
+  {
+    "path": "lib/libcap.so.2",
+    "parent": "507b03ad6351343928e8b46ba0a29835f5d2862b5d9161fa15620e5e0403d137",
+    "candidate": "507b03ad6351343928e8b46ba0a29835f5d2862b5d9161fa15620e5e0403d137",
+    "same": true
+  },
+  {
+    "path": "lib/libcrypto.so.3",
+    "parent": "b771991f547901bd67531100069cc24e00bda385b6876924b5ce09519a2057ac",
+    "candidate": "b771991f547901bd67531100069cc24e00bda385b6876924b5ce09519a2057ac",
+    "same": true
+  },
+  {
+    "path": "lib/libcurl-gnutls.so.4",
+    "parent": "71c96d9e1800ffb5670e1cd0d3960d15994a3c77dc9f177678a8a83298206cff",
+    "candidate": "71c96d9e1800ffb5670e1cd0d3960d15994a3c77dc9f177678a8a83298206cff",
+    "same": true
+  },
+  {
+    "path": "lib/libdbus-1.so.3",
+    "parent": "75ab39f40f3c0852b0cc1950e5097ae67ed416717bec51b51d7b400dc7f2705d",
+    "candidate": "75ab39f40f3c0852b0cc1950e5097ae67ed416717bec51b51d7b400dc7f2705d",
+    "same": true
+  },
+  {
+    "path": "lib/libepoxy.so.0",
+    "parent": "c71a2b95acabb06e7c957699922946134aeebae6b3e7d84ea5673b6ba08f5907",
+    "candidate": "c71a2b95acabb06e7c957699922946134aeebae6b3e7d84ea5673b6ba08f5907",
+    "same": true
+  },
+  {
+    "path": "lib/libffi.so.8",
+    "parent": "3c79d61c14b340560e10cecfaf36085efab30318076bde0f081fded2a1ee5641",
+    "candidate": "3c79d61c14b340560e10cecfaf36085efab30318076bde0f081fded2a1ee5641",
+    "same": true
+  },
+  {
+    "path": "lib/libgcrypt.so.20",
+    "parent": "3543f9144edc85fac43fafc012f50dfa0b623981fda2e87416d6a4c30472e5b8",
+    "candidate": "3543f9144edc85fac43fafc012f50dfa0b623981fda2e87416d6a4c30472e5b8",
+    "same": true
+  },
+  {
+    "path": "lib/libglib-2.0.so.0",
+    "parent": "96dbcd8324a278f45945c5745051dc0c669abed1238c323be70ea012b3a571c5",
+    "candidate": "5bff7cc1178909087dd46f1ca3bbf9cdb28f95d7a7c68235835c10d4555f1e9e",
+    "same": false
+  },
+  {
+    "path": "lib/libgnutls.so.30",
+    "parent": "073c16a6bccefd026a4e5aeb56ec7e096110f30b828ba26f8cef2ad73b961bce",
+    "candidate": "073c16a6bccefd026a4e5aeb56ec7e096110f30b828ba26f8cef2ad73b961bce",
+    "same": true
+  },
+  {
+    "path": "lib/libgssapi_krb5.so.2",
+    "parent": "84d71a0ad21288aeca10816647e0ee809720aaa72062051b227f4db50517c565",
+    "candidate": "84d71a0ad21288aeca10816647e0ee809720aaa72062051b227f4db50517c565",
+    "same": true
+  },
+  {
+    "path": "lib/libhogweed.so.6",
+    "parent": "ff69a96e5af06a9638d38189bc41cd345b23c53b1ddf3fe91a11a6818791f0ab",
+    "candidate": "ff69a96e5af06a9638d38189bc41cd345b23c53b1ddf3fe91a11a6818791f0ab",
+    "same": true
+  },
+  {
+    "path": "lib/libidn2.so.0",
+    "parent": "7534a45c32036fe0ad27733d27ce8849c2f63849ef2462118ca6d177f603897e",
+    "candidate": "7534a45c32036fe0ad27733d27ce8849c2f63849ef2462118ca6d177f603897e",
+    "same": true
+  },
+  {
+    "path": "lib/libk5crypto.so.3",
+    "parent": "20033c4eec975ee2d1c28e048d74bb2f9c3f8dc657360994eb50b138a7346a50",
+    "candidate": "20033c4eec975ee2d1c28e048d74bb2f9c3f8dc657360994eb50b138a7346a50",
+    "same": true
+  },
+  {
+    "path": "lib/libkeyutils.so.1",
+    "parent": "40ef65dad8898edcdaa3e3b4a518749047b088e814da32ac8915cac64ee55b3c",
+    "candidate": "40ef65dad8898edcdaa3e3b4a518749047b088e814da32ac8915cac64ee55b3c",
+    "same": true
+  },
+  {
+    "path": "lib/libkrb5.so.3",
+    "parent": "158676f5a0a250fd13b3465245c4d61cfb0006b92d321d3bc00ce3910940dae1",
+    "candidate": "158676f5a0a250fd13b3465245c4d61cfb0006b92d321d3bc00ce3910940dae1",
+    "same": true
+  },
+  {
+    "path": "lib/libkrb5support.so.0",
+    "parent": "23fe85bd3bc1b5dcabbd79d10b359cdb9ca5c9fb62952d82d8a4046cef59ecad",
+    "candidate": "23fe85bd3bc1b5dcabbd79d10b359cdb9ca5c9fb62952d82d8a4046cef59ecad",
+    "same": true
+  },
+  {
+    "path": "lib/liblber-2.5.so.0",
+    "parent": "4d923a63a3c28c3f40683d8cb6ab9bc9173caf12e1f71d9c2c3f0e150550963d",
+    "candidate": "4d923a63a3c28c3f40683d8cb6ab9bc9173caf12e1f71d9c2c3f0e150550963d",
+    "same": true
+  },
+  {
+    "path": "lib/libldap-2.5.so.0",
+    "parent": "58b50e0fa0c56d80590123789265374a2961b7d5dbf8f6e54ae516dd989b2a42",
+    "candidate": "58b50e0fa0c56d80590123789265374a2961b7d5dbf8f6e54ae516dd989b2a42",
+    "same": true
+  },
+  {
+    "path": "lib/liblz4.so.1",
+    "parent": "bd788ffde800b619613d9f800f56a7ad6ecdf320b43e2c37bf3f0fd712576bfb",
+    "candidate": "bd788ffde800b619613d9f800f56a7ad6ecdf320b43e2c37bf3f0fd712576bfb",
+    "same": true
+  },
+  {
+    "path": "lib/liblzma.so.5",
+    "parent": "f753a25e71d2c84a36985afa986c8a3f4372ba3ff520ae1da0ed0562fdcd4dc3",
+    "candidate": "f753a25e71d2c84a36985afa986c8a3f4372ba3ff520ae1da0ed0562fdcd4dc3",
+    "same": true
+  },
+  {
+    "path": "lib/libnettle.so.8",
+    "parent": "84eb28e7628edd01df3c58f03765aa096faf6049ea8c352c3596d9bbb3068706",
+    "candidate": "84eb28e7628edd01df3c58f03765aa096faf6049ea8c352c3596d9bbb3068706",
+    "same": true
+  },
+  {
+    "path": "lib/libnghttp2.so.14",
+    "parent": "b7565ca44181a4618b6cfe6dcf7c38d6975673d8ea90d0e7cc1c9629d7c64fde",
+    "candidate": "b7565ca44181a4618b6cfe6dcf7c38d6975673d8ea90d0e7cc1c9629d7c64fde",
+    "same": true
+  },
+  {
+    "path": "lib/libp11-kit.so.0",
+    "parent": "f77e4489c68f501c8cdf0525c5ac6b281a9f3ea6cb71ebb5122f0d474fff9de2",
+    "candidate": "f77e4489c68f501c8cdf0525c5ac6b281a9f3ea6cb71ebb5122f0d474fff9de2",
+    "same": true
+  },
+  {
+    "path": "lib/libpcap.so.0.8",
+    "parent": "4d6ab2b00affdb7cd7d4d486a0ddb3541e7a7a67e9d5a53de3ff7502e797b3e7",
+    "candidate": "4d6ab2b00affdb7cd7d4d486a0ddb3541e7a7a67e9d5a53de3ff7502e797b3e7",
+    "same": true
+  },
+  {
+    "path": "lib/libpcre.so.3",
+    "parent": "d93d66b7507debfff14d7cae606997a496ccbe3ad6a2dd54b9ac5c6371489101",
+    "candidate": "d93d66b7507debfff14d7cae606997a496ccbe3ad6a2dd54b9ac5c6371489101",
+    "same": true
+  },
+  {
+    "path": "lib/libpsl.so.5",
+    "parent": "88ff48b87eae6a0b8a24fb2b8f042558f8d844b978938800850cec5460d693f9",
+    "candidate": "88ff48b87eae6a0b8a24fb2b8f042558f8d844b978938800850cec5460d693f9",
+    "same": true
+  },
+  {
+    "path": "lib/librtmp.so.1",
+    "parent": "548c4794c71c4b9e3c1ff267c6406c0888e1f7bb6f97b7cde988583a16823c97",
+    "candidate": "548c4794c71c4b9e3c1ff267c6406c0888e1f7bb6f97b7cde988583a16823c97",
+    "same": true
+  },
+  {
+    "path": "lib/libsamplerate.so.0",
+    "parent": "a3f494838886b6669bf9cf5312b63e744a7f3734c4d82130d158f7bb6520bb41",
+    "candidate": "a3f494838886b6669bf9cf5312b63e744a7f3734c4d82130d158f7bb6520bb41",
+    "same": true
+  },
+  {
+    "path": "lib/libsasl2.so.2",
+    "parent": "529fafde8492ce12c03fe74e496676eea5e672bdf087c0c4c0ec7eb7c0138ff5",
+    "candidate": "529fafde8492ce12c03fe74e496676eea5e672bdf087c0c4c0ec7eb7c0138ff5",
+    "same": true
+  },
+  {
+    "path": "lib/libslirp.so.0",
+    "parent": "0e343afd0a6073b6ac5405618c0ec2c04e14ec138d964233603ac34dfd1ea8df",
+    "candidate": "0e343afd0a6073b6ac5405618c0ec2c04e14ec138d964233603ac34dfd1ea8df",
+    "same": true
+  },
+  {
+    "path": "lib/libssh.so.4",
+    "parent": "7a52c294894982872a8c19a39aae5ff6e9089cc0bacaa817cac10b2d0e20f765",
+    "candidate": "7a52c294894982872a8c19a39aae5ff6e9089cc0bacaa817cac10b2d0e20f765",
+    "same": true
+  },
+  {
+    "path": "lib/libsystemd.so.0",
+    "parent": "06afffb54d5b82ed67dbd3ff8f73f816980dd4851667ba35c76e8d3adcc7909a",
+    "candidate": "06afffb54d5b82ed67dbd3ff8f73f816980dd4851667ba35c76e8d3adcc7909a",
+    "same": true
+  },
+  {
+    "path": "lib/libtasn1.so.6",
+    "parent": "140770ecfef43bc1390a8e0483a63ec02cc15419c2b4dc6d9aca0797fe84d99a",
+    "candidate": "140770ecfef43bc1390a8e0483a63ec02cc15419c2b4dc6d9aca0797fe84d99a",
+    "same": true
+  },
+  {
+    "path": "lib/libudev.so.1",
+    "parent": "274c8783556224e7499427c1806599f7e3d51864b6557e48aea70a19cd012409",
+    "candidate": "274c8783556224e7499427c1806599f7e3d51864b6557e48aea70a19cd012409",
+    "same": true
+  },
+  {
+    "path": "lib/libunistring.so.2",
+    "parent": "3185897de7a8125f7bcc2b61a5fd458854d6d14e357b2ec4d34d682bab4137ed",
+    "candidate": "3185897de7a8125f7bcc2b61a5fd458854d6d14e357b2ec4d34d682bab4137ed",
+    "same": true
+  },
+  {
+    "path": "lib/libzstd.so.1",
+    "parent": "f908cc9e1ba594a313d7a316a4dadfbde456da35be934ad1be40344a01c382df",
+    "candidate": "f908cc9e1ba594a313d7a316a4dadfbde456da35be934ad1be40344a01c382df",
+    "same": true
+  }
+]

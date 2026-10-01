@@ -2,7 +2,7 @@
 
 ## Decision: HOLD
 
-The independently implemented native multiply is faster in both compilers and both balanced orders on this authoring host. Actual synthetic C interpreter instruction execution improves by 19.85–25.08% with GCC and 6.66–9.72% with Clang. These are fixed-work arithmetic/instruction results, not game FPS, audio-thread savings, Steam Deck results or default JIT gains. All 20 platform/project CI jobs pass; PCM/native C-backend qualification and unaffected JIT controls remain required.
+The independently implemented native multiply is faster in both compilers and both balanced orders on this authoring host. Actual synthetic C interpreter instruction execution improves by 19.85–25.08% with GCC and 6.66–9.72% with Clang. These are fixed-work arithmetic/instruction results, not game FPS, audio-thread savings, Steam Deck results or default JIT gains. All 20 platform/project CI jobs pass. Three native Deck pilots are now retained, all ineligible under their declared frame contract; PCM/native C-backend qualification and unaffected JIT controls remain required.
 
 ## Baseline, candidate and scope
 
@@ -62,9 +62,11 @@ The four A/A controls are a small noise check, not a confidence interval. GCC pa
 - Standalone compilation reuses generated headers and `libqemuutil.a` from support source `b7adeca8281b1c30983df58f8a845b7fb8355677` and compiles the exact parent/candidate DSP translation unit. It is **not a fresh full product build**. Project Meson registration and full platform builds are now independently verified by [CI run 36881642099](https://github.com/Mainkill1/xemu/actions/runs/36881642099): 20/20 jobs pass, covering Linux/Windows/macOS x86-64 and ARM64 debug/release builds and packaging. The project unit suite reports 137 passed, 16 skipped and 0 failed; the new DSP test passes 4 subtests in 0.28 seconds. The separate Xvfb/Mesa depth draw test passes 17 subtests. [CI summary](ci-summary.json) and [unit/skip record](ci-unit-summary.txt) retain exact job links and all skipped test names. CI packages merge commit `b9359dbf55c72bd7e8569f677dc4aafd771592d7`, whose tree is verified identical to branch head `778338b8ba38484ff1afecf6e69e513e482658e9`. Subsequent evidence-only commits leave every product/test source unchanged; their documented equivalence avoids repeating platform builds for report updates. An identical-head push-triggered run was deliberately canceled to keep one complete PR-triggered build matrix.
 - Read-only review found no blocking arithmetic defect; two benchmark checks were corrected: matched warmup checksums and rejection of below-resolution timing attempts.
 
-## Native/XISO coverage still missing
+## Native pilots and remaining qualification
 
-No audio PCM comparison, native C-versus-C title benchmark, JIT-versus-JIT control, Deck or Windows run is included. Do not infer a normal-game gain from the synthetic table. Required qualification retains audio settings and compares matched backends/settings/builds; instrumented profiling is separate from throughput runs.
+Three short PGR2 Vulkan pilots ran on the Deck with full DSP enabled: C parent, C candidate and JIT parent. **All are NOT COMPARABLE** because each failed the 160-frame/25-second evidence gate; the C pilots also failed whole-image brightness checks. Screenshots show countdown/startup rather than a verified steady racing window. The [native pilot report](native-pilot/README.md), [summary](native-pilot/SUMMARY.json), frozen definitions and raw artifacts preserve every attempt. No game improvement percentage is claimed. This procedure must be corrected under a new frozen revision before a native ABBA/BAAB campaign.
+
+No PCM parity, qualified native C-versus-C game comparison or balanced JIT control exists yet. Required qualification includes ordinary and reduced-work DSP settings, controlled warm-cache state and matching builds; instrumented profiling remains separate from throughput runs. Windows preparation initially failed for lack of disk space; its pilot was never executed. Operator recovery preserves original assets/evidence and moves runtime/catalog storage to D without lowering free-space gates.
 
 The maintained shader XISO categories have no direct DSP/audio workload. A focused bare-metal-capable DSP XBE covering signed multiply/MAC/rounding/flags and PCM output is suggested; it is not implemented on this branch. Existing CPU/XISO leaves are unaffected whole-emulator controls, not proof of DSP correctness. Read-only inspection of the registered catalog identifies `cpu_floating_point.sse_scalar` (revision 1) and `cpu_translation_blocks.direct_loop` (revision 1) as planned unaffected controls. The [catalog response](deck-cpu-control-catalog.json) and [inventory identity](deck-control-catalog-identity.json) retain all seven CPU leaves without truncation. This older suite is unverified inventory, not a qualified #229 campaign; a compatible parent/candidate campaign and references still need to be frozen before execution.
 
@@ -72,10 +74,12 @@ The maintained shader XISO categories have no direct DSP/audio workload. A focus
 |---|---|---|---|---|---|---|
 | `cpu_floating_point.sse_scalar`, `cpu_translation_blocks.direct_loop` | OpenGL | Not yet measured | Not yet measured | N/A | N/A | Not run |
 | `cpu_floating_point.sse_scalar`, `cpu_translation_blocks.direct_loop` | Vulkan | Not yet measured | Not yet measured | N/A | N/A | Not run |
-| Native DSP-using title, C backend and PCM parity | OpenGL/Vulkan separately | Not yet measured | Not yet measured | N/A | N/A | Not run |
-| Same title, unaffected JIT control | OpenGL/Vulkan separately | Not yet measured | Not yet measured | N/A | N/A | Not run |
+| PGR2 full-DSP C pilot | Vulkan | Frame/image gates failed | Frame/image gates failed | N/A | NOT COMPARABLE | Both ineligible |
+| Native title, qualified C backend and PCM parity | OpenGL/Vulkan separately | Not yet qualified | Not yet qualified | N/A | N/A | PCM not captured |
+| PGR2 full-DSP JIT pilot | Vulkan | Frame gate failed; image checks passed | Not yet run | N/A | NOT COMPARABLE | Parent ineligible |
+| Balanced unaffected JIT controls | OpenGL/Vulkan separately | Not yet qualified | Not yet qualified | N/A | N/A | Incomplete |
 
-The Deck's existing Mesa cache qualification blocker is independent of these CPU-only tests. Runner draft [#80](https://github.com/Mainkill1/Xemu-Test-Runner/pull/80) addresses that tool behavior; no evidence is stored in the runner or test-tool repositories. Native qualification remains HOLD until trustworthy measurements are available. PR #187 remains deferred for later review.
+Runner draft [#80](https://github.com/Mainkill1/Xemu-Test-Runner/pull/80) is deployed on the Deck and all three native pilots pass the schema-2 Mesa storage gate without a waiver. This resolves the disk-namespace qualification blocker for these fresh runs, not their failed game evidence contracts. Complete storage ledgers stay in this xemu evidence package. Native performance remains HOLD; PR #187 remains deferred.
 
 ## Reuse and raw evidence
 

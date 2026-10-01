@@ -1,0 +1,12 @@
+{
+  "parentSource": "ee5ce48b48784f999af374c1452003f8b2b1230f",
+  "candidateProductSource": "1e6cebe0cb6452f875329710fa19795f8644ad2d",
+  "candidateCiPackageSource": "b9359dbf55c72bd7e8569f677dc4aafd771592d7",
+  "runnerSource": "0ba533ed89c8bb3cf530c4bfff8dbb190b3f08be",
+  "nativeExecutableSha256": {
+    "parentLinux": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+    "candidateLinux": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+    "parentWindows": "a89521cb6ff76916e248b002f253df0c2d5aafb3867d13384d96a498c36622e2",
+    "candidateWindows": "5db6811a1b7eb6522807283f909870286cf6be80139a6bd84648208c986cb76c"
+  }
+}

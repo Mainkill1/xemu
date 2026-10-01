@@ -1,0 +1,212 @@
+[
+  {
+    "Path": "defjam-usa-readonly-v1\\asset.json",
+    "Bytes": 343,
+    "SourceSha256": "8841f42b757d78ef4cc746904340dfb2d4de1cf332aa0b8db05efe9adbf8829e",
+    "DestinationSha256": "8841f42b757d78ef4cc746904340dfb2d4de1cf332aa0b8db05efe9adbf8829e",
+    "Equal": true
+  },
+  {
+    "Path": "defjam-usa-readonly-v1\\disk.qcow2",
+    "Bytes": 3023831040,
+    "SourceSha256": "ac70b2be01ca17c812398a21ad325814b9e671ac3df01a90c98a480ea5059ac7",
+    "DestinationSha256": "ac70b2be01ca17c812398a21ad325814b9e671ac3df01a90c98a480ea5059ac7",
+    "Equal": true
+  },
+  {
+    "Path": "devbox-complex4627-readonly-v1\\asset.json",
+    "Bytes": 338,
+    "SourceSha256": "1963a762ffb76049b009f91104f86733f04a99a82d25bd350eb052aacc711980",
+    "DestinationSha256": "1963a762ffb76049b009f91104f86733f04a99a82d25bd350eb052aacc711980",
+    "Equal": true
+  },
+  {
+    "Path": "devbox-complex4627-readonly-v1\\disk.qcow2",
+    "Bytes": 1048576,
+    "SourceSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f",
+    "DestinationSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f",
+    "Equal": true
+  },
+  {
+    "Path": "devbox-mcpx10-readonly-v1\\asset.json",
+    "Bytes": 325,
+    "SourceSha256": "fb62ea873813699a9dab19018dd0d18a7e4227a2ca227d51d69af7e2d7ec514d",
+    "DestinationSha256": "fb62ea873813699a9dab19018dd0d18a7e4227a2ca227d51d69af7e2d7ec514d",
+    "Equal": true
+  },
+  {
+    "Path": "devbox-mcpx10-readonly-v1\\disk.qcow2",
+    "Bytes": 512,
+    "SourceSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335",
+    "DestinationSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335",
+    "Equal": true
+  },
+  {
+    "Path": "ghoulies-user-snapshot-20260929\\asset.json",
+    "Bytes": 385,
+    "SourceSha256": "7fcf85facb6362d11955a86e7bd97f1abb9f038fe19f7e62907e18b6cc06391a",
+    "DestinationSha256": "7fcf85facb6362d11955a86e7bd97f1abb9f038fe19f7e62907e18b6cc06391a",
+    "Equal": true
+  },
+  {
+    "Path": "ghoulies-user-snapshot-20260929\\disk.qcow2",
+    "Bytes": 1914110464,
+    "SourceSha256": "13ea4baa206bb7c8cc37c8da2203ce8cea1f073dfcf8d0d9247b1077bcdc4ea6",
+    "DestinationSha256": "13ea4baa206bb7c8cc37c8da2203ce8cea1f073dfcf8d0d9247b1077bcdc4ea6",
+    "Equal": true
+  },
+  {
+    "Path": "morrowind-heavy-vm-20260905015459-pr267\\asset.json",
+    "Bytes": 339,
+    "SourceSha256": "954e206b00c336f828c926901df831c5eb30c26e15f2132096c75eceff9878a3",
+    "DestinationSha256": "954e206b00c336f828c926901df831c5eb30c26e15f2132096c75eceff9878a3",
+    "Equal": true
+  },
+  {
+    "Path": "morrowind-heavy-vm-20260905015459-pr267\\disk.qcow2",
+    "Bytes": 2690581504,
+    "SourceSha256": "d178ecc4154abad5fc7cb9e428f380a1c8d49d20cbed66ba552eaaa6ed7514ad",
+    "DestinationSha256": "d178ecc4154abad5fc7cb9e428f380a1c8d49d20cbed66ba552eaaa6ed7514ad",
+    "Equal": true
+  },
+  {
+    "Path": "pgr2-freshboot-base-v1\\asset.json",
+    "Bytes": 326,
+    "SourceSha256": "9801ebd6431e50e78d7b8384f4ca58a819a86817b48986174420227822374da4",
+    "DestinationSha256": "9801ebd6431e50e78d7b8384f4ca58a819a86817b48986174420227822374da4",
+    "Equal": true
+  },
+  {
+    "Path": "pgr2-freshboot-base-v1\\disk.qcow2",
+    "Bytes": 2621702656,
+    "SourceSha256": "8b4f7c81be6ece5db3fc98d683d86d0515db43b2447e8dff14bfd9b45078c606",
+    "DestinationSha256": "8b4f7c81be6ece5db3fc98d683d86d0515db43b2447e8dff14bfd9b45078c606",
+    "Equal": true
+  },
+  {
+    "Path": "pr267-morrowind-archive-restored-v1\\asset.json",
+    "Bytes": 387,
+    "SourceSha256": "72ac20104ffedc4d916207fe63a3bb01c6e6c0f650f1ac0dbfacc889fdf6cc9c",
+    "DestinationSha256": "72ac20104ffedc4d916207fe63a3bb01c6e6c0f650f1ac0dbfacc889fdf6cc9c",
+    "Equal": true
+  },
+  {
+    "Path": "pr267-morrowind-archive-restored-v1\\disk.qcow2",
+    "Bytes": 557449216,
+    "SourceSha256": "d62e336ae43e9790954604a46c1236c4884e952bf1aace9a56106bed631891c3",
+    "DestinationSha256": "d62e336ae43e9790954604a46c1236c4884e952bf1aace9a56106bed631891c3",
+    "Equal": true
+  },
+  {
+    "Path": "pr267-morrowind-user-snapshot-20260929-v1\\asset.json",
+    "Bytes": 360,
+    "SourceSha256": "ebd950ba5fabe44aa1fe52a147d12c33211045a4a9b8929e2f88182190a47a1d",
+    "DestinationSha256": "ebd950ba5fabe44aa1fe52a147d12c33211045a4a9b8929e2f88182190a47a1d",
+    "Equal": true
+  },
+  {
+    "Path": "pr267-morrowind-user-snapshot-20260929-v1\\disk.qcow2",
+    "Bytes": 557449216,
+    "SourceSha256": "d62e336ae43e9790954604a46c1236c4884e952bf1aace9a56106bed631891c3",
+    "DestinationSha256": "d62e336ae43e9790954604a46c1236c4884e952bf1aace9a56106bed631891c3",
+    "Equal": true
+  },
+  {
+    "Path": "pr267-pfifo-saturation-fatx-v4\\asset.json",
+    "Bytes": 274,
+    "SourceSha256": "7da082bdf77830da96c5b93ff16e2ad1cd8029ac3f181ee9bedb2fbf3d4577a5",
+    "DestinationSha256": "7da082bdf77830da96c5b93ff16e2ad1cd8029ac3f181ee9bedb2fbf3d4577a5",
+    "Equal": true
+  },
+  {
+    "Path": "pr267-pfifo-saturation-fatx-v4\\disk.qcow2",
+    "Bytes": 1310720,
+    "SourceSha256": "2cc376a12ff71021fda4172ea00de553d81c711092615ae4dc58d4718f5d8e5c",
+    "DestinationSha256": "2cc376a12ff71021fda4172ea00de553d81c711092615ae4dc58d4718f5d8e5c",
+    "Equal": true
+  },
+  {
+    "Path": "pr267-pgr2-save-portable-v1\\asset.json",
+    "Bytes": 357,
+    "SourceSha256": "e32a8f4de2dba803d7e115fe732c55e8158a22dc649c6b464fff84c22ed376c3",
+    "DestinationSha256": "e32a8f4de2dba803d7e115fe732c55e8158a22dc649c6b464fff84c22ed376c3",
+    "Equal": true
+  },
+  {
+    "Path": "pr267-pgr2-save-portable-v1\\disk.qcow2",
+    "Bytes": 1441792,
+    "SourceSha256": "7b0f55920d8740e9c77183392aad9969f775ba823f1de4612ef461796a055b52",
+    "DestinationSha256": "7b0f55920d8740e9c77183392aad9969f775ba823f1de4612ef461796a055b52",
+    "Equal": true
+  },
+  {
+    "Path": "pr267-shader-pilot-prepared-fatx-v1\\asset.json",
+    "Bytes": 388,
+    "SourceSha256": "d8f8df2f3388f37a0011ed57cf0a7da0a0299320af34e09cdaca71b913fb32ca",
+    "DestinationSha256": "d8f8df2f3388f37a0011ed57cf0a7da0a0299320af34e09cdaca71b913fb32ca",
+    "Equal": true
+  },
+  {
+    "Path": "pr267-shader-pilot-prepared-fatx-v1\\disk.qcow2",
+    "Bytes": 1310720,
+    "SourceSha256": "eab70873f2927626f0ad9c7cc48afb0bc118a468f69e6c5c6757c25871984c51",
+    "DestinationSha256": "eab70873f2927626f0ad9c7cc48afb0bc118a468f69e6c5c6757c25871984c51",
+    "Equal": true
+  },
+  {
+    "Path": "pr267-shader-pilot-prepared-fatx-v2\\asset.json",
+    "Bytes": 408,
+    "SourceSha256": "0e41abf82864bebea92be6b1feb5634402a78babb76766a5041c5a0f790f1011",
+    "DestinationSha256": "0e41abf82864bebea92be6b1feb5634402a78babb76766a5041c5a0f790f1011",
+    "Equal": true
+  },
+  {
+    "Path": "pr267-shader-pilot-prepared-fatx-v2\\disk.qcow2",
+    "Bytes": 1310720,
+    "SourceSha256": "26d86011519337a5317669965e10777420331cd7bc5292a832411dc5e018c467",
+    "DestinationSha256": "26d86011519337a5317669965e10777420331cd7bc5292a832411dc5e018c467",
+    "Equal": true
+  },
+  {
+    "Path": "pr267-shader-pilot-prepared-fatx-v3\\asset.json",
+    "Bytes": 279,
+    "SourceSha256": "2acff994068ff33dbc1ebb0d0fb3e4c432184e72d816d8dbb4ac974bcd8ac19d",
+    "DestinationSha256": "2acff994068ff33dbc1ebb0d0fb3e4c432184e72d816d8dbb4ac974bcd8ac19d",
+    "Equal": true
+  },
+  {
+    "Path": "pr267-shader-pilot-prepared-fatx-v3\\disk.qcow2",
+    "Bytes": 1310720,
+    "SourceSha256": "65b576a391832307c3ffd4671696319d6a4008b2b6e6e8749d4de67217307af7",
+    "DestinationSha256": "65b576a391832307c3ffd4671696319d6a4008b2b6e6e8749d4de67217307af7",
+    "Equal": true
+  },
+  {
+    "Path": "research245-cpu-fatx-compat010-78af83a6\\asset.json",
+    "Bytes": 344,
+    "SourceSha256": "90d13a51d92bf475a54a6fa531e2ff1dffc316548ddd9e4c4750e323e7d616dd",
+    "DestinationSha256": "90d13a51d92bf475a54a6fa531e2ff1dffc316548ddd9e4c4750e323e7d616dd",
+    "Equal": true
+  },
+  {
+    "Path": "research245-cpu-fatx-compat010-78af83a6\\disk.qcow2",
+    "Bytes": 1310720,
+    "SourceSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+    "DestinationSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+    "Equal": true
+  },
+  {
+    "Path": "research245-cpu-iso-c02a1a44-74a10c40\\asset.json",
+    "Bytes": 335,
+    "SourceSha256": "c2aed50138c0c65920768bfcf3127bc15c317f1f85529fc24b8f3759eadbb5be",
+    "DestinationSha256": "c2aed50138c0c65920768bfcf3127bc15c317f1f85529fc24b8f3759eadbb5be",
+    "Equal": true
+  },
+  {
+    "Path": "research245-cpu-iso-c02a1a44-74a10c40\\disk.qcow2",
+    "Bytes": 3670016,
+    "SourceSha256": "74a10c400f4fb280dcb4037e38e7e4d3150e73e0061a04f65b3c68cc61a49e63",
+    "DestinationSha256": "74a10c400f4fb280dcb4037e38e7e4d3150e73e0061a04f65b3c68cc61a49e63",
+    "Equal": true
+  }
+]

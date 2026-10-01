@@ -1,0 +1,24 @@
+{
+  "Schema": 2,
+  "DriverCache": "mesa",
+  "DriverNamespaceVerified": true,
+  "DriverQualification": "mesa_private_disk_writes_observed",
+  "ComparisonReady": true,
+  "AllowUncontrolledDriverCache": false,
+  "TargetStopped": true,
+  "Uncontrolled": [
+    "os-page-cache",
+    "driver-memory-cache"
+  ],
+  "Issues": [],
+  "DriverBefore": {
+    "Files": 0,
+    "Bytes": 0,
+    "TreeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "DriverAfter": {
+    "Files": 795,
+    "Bytes": 3797539,
+    "TreeSha256": "82e7df906f3fe98562d19e06527d54250d418d25b19a1ce1389e19f543aeac21"
+  }
+}

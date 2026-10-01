@@ -1,0 +1,10 @@
+{
+  "id": "issue229-deck-pgr2-full-dsp-jit-v1",
+  "revision": "65a2c44d2b5e1f3f3eb07f386f6b5b4639a40a84003c79307522b5b22bd089aa",
+  "description": "Issue229 matched full DSP JIT backend; PGR2 fixed input path and 30s window; same runtime dependencies; kernel change only",
+  "sourceJobId": "issue229-deck-pgr2-full-dsp-jit-v1-seed",
+  "stepCount": 31,
+  "fileCount": 41,
+  "buildFileCount": 1,
+  "self": "/api/v1/tests/issue229-deck-pgr2-full-dsp-jit-v1/65a2c44d2b5e1f3f3eb07f386f6b5b4639a40a84003c79307522b5b22bd089aa"
+}
