@@ -1,7 +1,7 @@
 # Issue #263: PVIDEO resource reuse
 
-**HOLD: allocation-path improvement established locally; native overlay and
-whole-emulator qualification remain open.** No Steam Deck or Windows game
+**HOLD: allocation-path improvement established locally; Deck rendered overlay
+checks pass, but no useful guest throughput gain is demonstrated.** No Steam Deck or Windows game
 performance result is claimed. The affected path is Vulkan PVIDEO overlays;
 ordinary 3D draws may never exercise it.
 
@@ -74,6 +74,71 @@ candidate rebuild, corrected working-directory metadata and complete cache
 inventories; its measured binary/source fingerprints matched. v2 reruns the
 corrected recipe and is the canonical table above.
 
+## Native Steam Deck validation
+
+Both native full-emulator builds complete a 50-capture, 4x-work synthetic overlay
+procedure. The retained host oracle maps guest 640×480 to the explicit
+`107,0,1066,800` viewport in 1280×800 screenshots. It matches black/white
+quadrants and RGB(51,76,153) background at 100 interior/exterior probes with
+2/255 tolerance, and requires the ordered resize/off/on cycle. This checks
+sampled colors and bounds plus a visual sequence; it does not prove every
+pixel/frame, authenticate source-address phases or qualify delayed GPU use.
+The source and background known answers are checked separately.
+
+The [native report](native/README.md) retains exact binaries, fixture identities,
+run IDs, source/hash oracles, raw failed attempts and full server comparisons.
+The maintained test tools are [xemu-perf-tests draft #50](https://github.com/Mainkill1/xemu-perf-tests/pull/50);
+emulator measurements remain here.
+
+Four identical-parent controls precede ABBA and BAAB; `A` is the parent full
+emulator, `B` the candidate full emulator. Each process runs both leaves, each
+with eight 128-frame-submission batches, no warmup, multiplier 1 and
+per-iteration completion. Cells below are medians of two per-run means per
+build/order. Vblank pacing limits guest cadence; these are guest batch times,
+not host display FPS. Improvement is `100*(before-after)/before`.
+
+| Test / order | Backend | Before µs/batch | After µs/batch | Saved µs/batch | Improvement | Source correctness |
+| --- | --- | ---: | ---: | ---: | ---: | --- |
+| steady_upload / ABBA | Vulkan | 2,133,067.688 | 2,132,867.188 | 200.500 | +0.0094% | PASS |
+| steady_upload / BAAB | Vulkan | 2,132,599.750 | 2,133,001.625 | −401.875 | −0.0188% | PASS |
+| resize_toggle / ABBA | Vulkan | 2,134,551.188 | 2,133,700.125 | 851.063 | +0.0399% | PASS |
+| resize_toggle / BAAB | Vulkan | 2,132,485.313 | 2,132,518.563 | −33.250 | −0.0016% | PASS |
+
+All 12 attempts complete with passing source/background oracles, complete
+evidence and verified cold private Mesa disk writes. Reference A/A per-run
+means span 2,131,634.625–2,133,453.250 µs for steady uploads and
+2,132,628.625–2,133,581.250 µs for resize/toggle. The tiny sign-changing
+differences do **not** establish a useful native throughput gain. The second
+frozen campaign adds built-in host CPU analysis, described below.
+
+## Native host CPU cost
+
+The second frozen A/A → ABBA → BAAB uses the same complete emulators and guest
+work. After a `frame=600 ` readiness marker, an authored 16-second segment
+records host CPU through the runner's existing sampler and built-in analyzer.
+This window is bounded by a guest frame marker and host duration; it is not the
+exact guest batch boundary or isolated PVIDEO function cost.
+
+Cells are medians of two per-run CPU means per build/order. **100 core % means
+one fully occupied logical CPU**; savings in percentage points and relative
+improvement are separate quantities.
+
+| Order | Before core % | After core % | Saved percentage points | Improvement |
+| --- | ---: | ---: | ---: | ---: |
+| ABBA | 162.740328 | 162.143178 | 0.597151 | +0.3669% |
+| BAAB | 162.652391 | 162.324859 | 0.327531 | +0.2014% |
+
+All 12 second-campaign attempts pass. Each has 32/33 CPU samples, no missing
+cells and zero collector overruns; collector duty averages 0.2832–0.3102%.
+A/A controls span 162.874219–163.082281 core %; all eight reference means
+including those controls span 162.433688–163.082281. The observed CPU reduction
+is small relative to reference variation and differs between orders. Native
+power policy is not fixed, and gameplay remains unmeasured; **a worthwhile
+game speedup is not established**. The local resource reduction remains real.
+Full server comparisons, both native campaigns' per-test timings/tails and
+all failed diagnostics are in the [verified 3.07 MB packet](native/native-evidence.tar.gz).
+No negative first-campaign row was discarded.
+
 ## Correctness/build evidence
 
 - Seven GPU-boundary tests include actual production `display.c` and `image.c`.
@@ -88,7 +153,9 @@ corrected recipe and is the canonical table above.
   teardown on llvmpipe. It does **not** upload, sample, or submit GPU work.
 - [Formatted focused tests](formatted-tests.log.gz): seven boundary subtests and
   one real GPU lifecycle subtest pass through Meson's normal `--tap -k` entry.
-- Reference and candidate emulator builds succeed. Existing warnings in
+- All **40 CI checks pass** at measured candidate head
+  `aeeb9554a87f5e4cb706ff6c58b3825b16f320f1`, including CI unit builds.
+  Reference and candidate local emulator builds succeed. Existing warnings in
   unrelated `blit.c`/third-party code remain in compressed logs; no changed
   production function or new test emits a warning.
 - **Full unit build blocked:** unchanged `test-xbox-mcpx-apu-resampler.c:74`
@@ -101,15 +168,15 @@ corrected recipe and is the canonical table above.
 
 ## Remaining gates
 
-1. Run an overlay-heavy title/retained rendered fixture on Steam Deck with
-   exact matched builds, A/A then ABBA/BAAB; measure creation counts, full
-   upload/display CPU and GPU cost, resource usage and frame tails.
+1. Confirm whether the small native CPU saving justifies investment with
+   representative overlay-heavy work. Whole-game/upload GPU cost, native
+   creation/resource counts and resource growth/frame tails remain unmeasured.
 2. Validate changed pixels/source, resizing, disable/re-enable, reset/load,
    renderer restart and teardown with real rendered output and Vulkan
    validation, including delayed GPU use and scale/interlace/clipping/color key.
 3. Collect affected XISO correctness/per-test timings and an unaffected control,
-   separately for Vulkan and OpenGL. There is no XISO timing claim here.
-4. Resolve or separately fix the baseline unit-build blocker; complete CI and
+   separately for Vulkan and OpenGL. Focused Vulkan guest batch timings are above; unaffected and OpenGL controls remain open.
+4. Classify or separately fix the unchanged local unit-build blocker; complete
    required native correctness/resource gates before any readiness decision.
 
 No Mesa waiver, global cache purge, extended endurance run, or merge occurred.
