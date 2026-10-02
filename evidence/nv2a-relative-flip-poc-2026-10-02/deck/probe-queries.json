@@ -1,0 +1,325 @@
+{
+  "hold-stability": {
+    "enabled": true,
+    "target-read3d": 3038,
+    "current": {
+      "guest-read3d": 3038,
+      "vblank": 10758,
+      "timestamp-us": 936366144753,
+      "host-present": 192928,
+      "completed-flip-stall": 3038
+    },
+    "phase": "paused",
+    "pause": {
+      "guest-read3d": 3038,
+      "vblank": 7690,
+      "timestamp-us": 936315023664,
+      "host-present": 59572,
+      "completed-flip-stall": 3038
+    },
+    "epoch": 2,
+    "presented-generation": 1,
+    "generation": 1,
+    "quiesce": {
+      "guest-read3d": 3038,
+      "vblank": 7690,
+      "timestamp-us": 936315017877,
+      "host-present": 59572,
+      "completed-flip-stall": 3038
+    },
+    "arm": {
+      "guest-read3d": 2878,
+      "vblank": 6987,
+      "timestamp-us": 936303302112,
+      "host-present": 58370,
+      "completed-flip-stall": 2878
+    }
+  },
+  "resume-first": {},
+  "arm-160": {
+    "enabled": true,
+    "target-read3d": 3038,
+    "current": {
+      "guest-read3d": 2878,
+      "vblank": 6987,
+      "timestamp-us": 936303302113,
+      "host-present": 58370,
+      "completed-flip-stall": 2878
+    },
+    "phase": "armed",
+    "epoch": 2,
+    "presented-generation": 0,
+    "generation": 1,
+    "arm": {
+      "guest-read3d": 2878,
+      "vblank": 6987,
+      "timestamp-us": 936303302112,
+      "host-present": 58370,
+      "completed-flip-stall": 2878
+    }
+  },
+  "after-disarm-resume": {
+    "enabled": true,
+    "target-read3d": 3094,
+    "current": {
+      "guest-read3d": 3109,
+      "vblank": 12026,
+      "timestamp-us": 936387421497,
+      "host-present": 231016,
+      "completed-flip-stall": 3109
+    },
+    "phase": "cancelled",
+    "pause": {
+      "guest-read3d": 3094,
+      "vblank": 11105,
+      "timestamp-us": 936371989985,
+      "host-present": 195546,
+      "completed-flip-stall": 3094
+    },
+    "epoch": 2,
+    "cancel-reason": "disarm",
+    "presented-generation": 2,
+    "generation": 2,
+    "quiesce": {
+      "guest-read3d": 3094,
+      "vblank": 11105,
+      "timestamp-us": 936371989832,
+      "host-present": 195546,
+      "completed-flip-stall": 3094
+    },
+    "arm": {
+      "guest-read3d": 3064,
+      "vblank": 10942,
+      "timestamp-us": 936369281413,
+      "host-present": 194768,
+      "completed-flip-stall": 3064
+    }
+  },
+  "arm-30": {
+    "enabled": true,
+    "target-read3d": 3094,
+    "current": {
+      "guest-read3d": 3064,
+      "vblank": 10942,
+      "timestamp-us": 936369281414,
+      "host-present": 194768,
+      "completed-flip-stall": 3064
+    },
+    "phase": "armed",
+    "epoch": 2,
+    "presented-generation": 0,
+    "generation": 2,
+    "arm": {
+      "guest-read3d": 3064,
+      "vblank": 10942,
+      "timestamp-us": 936369281413,
+      "host-present": 194768,
+      "completed-flip-stall": 3064
+    }
+  },
+  "after-resume": {
+    "enabled": true,
+    "target-read3d": 3038,
+    "current": {
+      "guest-read3d": 3064,
+      "vblank": 10941,
+      "timestamp-us": 936369270488,
+      "host-present": 194766,
+      "completed-flip-stall": 3064
+    },
+    "phase": "released",
+    "pause": {
+      "guest-read3d": 3038,
+      "vblank": 7690,
+      "timestamp-us": 936315023664,
+      "host-present": 59572,
+      "completed-flip-stall": 3038
+    },
+    "epoch": 2,
+    "presented-generation": 1,
+    "generation": 1,
+    "quiesce": {
+      "guest-read3d": 3038,
+      "vblank": 7690,
+      "timestamp-us": 936315017877,
+      "host-present": 59572,
+      "completed-flip-stall": 3038
+    },
+    "arm": {
+      "guest-read3d": 2878,
+      "vblank": 6987,
+      "timestamp-us": 936303302112,
+      "host-present": 58370,
+      "completed-flip-stall": 2878
+    }
+  },
+  "retry-paused-save": "Error: Flip probe cancelled; resume the VM before saving\r\n",
+  "after-save-cancel": {
+    "enabled": true,
+    "target-read3d": 3094,
+    "current": {
+      "guest-read3d": 3094,
+      "vblank": 11896,
+      "timestamp-us": 936385178819,
+      "host-present": 229831,
+      "completed-flip-stall": 3094
+    },
+    "phase": "cancelled",
+    "pause": {
+      "guest-read3d": 3094,
+      "vblank": 11105,
+      "timestamp-us": 936371989985,
+      "host-present": 195546,
+      "completed-flip-stall": 3094
+    },
+    "epoch": 2,
+    "cancel-reason": "save",
+    "presented-generation": 2,
+    "generation": 2,
+    "quiesce": {
+      "guest-read3d": 3094,
+      "vblank": 11105,
+      "timestamp-us": 936371989832,
+      "host-present": 195546,
+      "completed-flip-stall": 3094
+    },
+    "arm": {
+      "guest-read3d": 3064,
+      "vblank": 10942,
+      "timestamp-us": 936369281413,
+      "host-present": 194768,
+      "completed-flip-stall": 3064
+    }
+  },
+  "disarm": {
+    "enabled": true,
+    "target-read3d": 3094,
+    "current": {
+      "guest-read3d": 3094,
+      "vblank": 11897,
+      "timestamp-us": 936385198911,
+      "host-present": 229863,
+      "completed-flip-stall": 3094
+    },
+    "phase": "cancelled",
+    "pause": {
+      "guest-read3d": 3094,
+      "vblank": 11105,
+      "timestamp-us": 936371989985,
+      "host-present": 195546,
+      "completed-flip-stall": 3094
+    },
+    "epoch": 2,
+    "cancel-reason": "disarm",
+    "presented-generation": 2,
+    "generation": 2,
+    "quiesce": {
+      "guest-read3d": 3094,
+      "vblank": 11105,
+      "timestamp-us": 936371989832,
+      "host-present": 195546,
+      "completed-flip-stall": 3094
+    },
+    "arm": {
+      "guest-read3d": 3064,
+      "vblank": 10942,
+      "timestamp-us": 936369281413,
+      "host-present": 194768,
+      "completed-flip-stall": 3064
+    }
+  },
+  "resume-disarmed": {},
+  "first-stop": {
+    "enabled": true,
+    "target-read3d": 3038,
+    "current": {
+      "guest-read3d": 3038,
+      "vblank": 10588,
+      "timestamp-us": 936363316686,
+      "host-present": 186091,
+      "completed-flip-stall": 3038
+    },
+    "phase": "paused",
+    "pause": {
+      "guest-read3d": 3038,
+      "vblank": 7690,
+      "timestamp-us": 936315023664,
+      "host-present": 59572,
+      "completed-flip-stall": 3038
+    },
+    "epoch": 2,
+    "presented-generation": 1,
+    "generation": 1,
+    "quiesce": {
+      "guest-read3d": 3038,
+      "vblank": 7690,
+      "timestamp-us": 936315017877,
+      "host-present": 59572,
+      "completed-flip-stall": 3038
+    },
+    "arm": {
+      "guest-read3d": 2878,
+      "vblank": 6987,
+      "timestamp-us": 936303302112,
+      "host-present": 58370,
+      "completed-flip-stall": 2878
+    }
+  },
+  "before-arm": {
+    "enabled": true,
+    "target-read3d": 0,
+    "current": {
+      "guest-read3d": 2878,
+      "vblank": 6986,
+      "timestamp-us": 936303286058,
+      "host-present": 58368,
+      "completed-flip-stall": 2878
+    },
+    "phase": "cancelled",
+    "epoch": 2,
+    "cancel-reason": "reset",
+    "presented-generation": 0,
+    "generation": 0
+  },
+  "save-paused-probe": "Error: Flip probe cancelled; resume the VM before saving\r\n",
+  "disarmed-cpu-status": {
+    "status": "paused",
+    "running": false
+  },
+  "second-stop": {
+    "enabled": true,
+    "target-read3d": 3094,
+    "current": {
+      "guest-read3d": 3094,
+      "vblank": 11851,
+      "timestamp-us": 936384421680,
+      "host-present": 228137,
+      "completed-flip-stall": 3094
+    },
+    "phase": "paused",
+    "pause": {
+      "guest-read3d": 3094,
+      "vblank": 11105,
+      "timestamp-us": 936371989985,
+      "host-present": 195546,
+      "completed-flip-stall": 3094
+    },
+    "epoch": 2,
+    "presented-generation": 2,
+    "generation": 2,
+    "quiesce": {
+      "guest-read3d": 3094,
+      "vblank": 11105,
+      "timestamp-us": 936371989832,
+      "host-present": 195546,
+      "completed-flip-stall": 3094
+    },
+    "arm": {
+      "guest-read3d": 3064,
+      "vblank": 10942,
+      "timestamp-us": 936369281413,
+      "host-present": 194768,
+      "completed-flip-stall": 3064
+    }
+  }
+}

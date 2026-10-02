@@ -1,0 +1,111 @@
+{
+  "windows": {
+    "runId": "20261002-091210709-ffde7ce7d7244457b99595f2becb5dc7",
+    "status": "completed",
+    "durationMs": 203474.1049,
+    "exitCode": 0,
+    "executableSha256": "4bb00d842abf9cef48eded1663480c6b72498db17958b79f74e791eabb762327",
+    "evidenceStatus": "complete",
+    "comparisonStatus": "ineligible",
+    "correctnessStatus": "notevaluated",
+    "host": {
+      "runnerVersion": "0.1.0+2a872c5408c3f23220bcdd31e46f843e7970de65",
+      "machine": "DESKTOP-52C4KS5",
+      "os": "Microsoft Windows 10.0.19045",
+      "architecture": "X64",
+      "processArchitecture": "X64",
+      "processorCount": 16,
+      "dotnet": "10.0.12"
+    },
+    "rigFinalIdle": true,
+    "stops": {
+      "first-stop": {
+        "guest-read3d": 160,
+        "completed-flip-stall": 160,
+        "vblank": 1054,
+        "host-present": 17395,
+        "elapsedSeconds": 17.573892,
+        "generation": 1,
+        "read3dOvershoot": 0
+      },
+      "second-stop": {
+        "guest-read3d": 30,
+        "completed-flip-stall": 30,
+        "vblank": 187,
+        "host-present": 3178,
+        "elapsedSeconds": 3.12916,
+        "generation": 2,
+        "read3dOvershoot": 0
+      }
+    },
+    "heldDelta": {
+      "guest-read3d": 0,
+      "completed-flip-stall": 0,
+      "vblank": 171,
+      "host-present": 5528
+    },
+    "heldSeconds": 2.861875,
+    "saveRejected": true,
+    "retrySaveRejected": true
+  },
+  "deck": {
+    "runId": "20261002-091208896-719cd88a9ed14a14ab05ed20b9621e3a",
+    "status": "completed",
+    "durationMs": 222453.7068,
+    "exitCode": 0,
+    "executableSha256": "13db984e5b7c73c7ccc2f3c0b9ff7f4cb24a86f86c3c12eef0b3be429240c97d",
+    "evidenceStatus": "complete",
+    "comparisonStatus": "ineligible",
+    "correctnessStatus": "notevaluated",
+    "host": {
+      "runnerVersion": "0.1.0+05b2e062923a38e54bef9faa6dbc8354c79c8a2f",
+      "machine": "MainDeck",
+      "os": "SteamOS",
+      "architecture": "X64",
+      "processArchitecture": "X64",
+      "processorCount": 8,
+      "dotnet": "10.0.12"
+    },
+    "rigFinalIdle": true,
+    "stops": {
+      "first-stop": {
+        "guest-read3d": 160,
+        "completed-flip-stall": 160,
+        "vblank": 703,
+        "host-present": 1202,
+        "elapsedSeconds": 11.715765,
+        "generation": 1,
+        "read3dOvershoot": 0
+      },
+      "second-stop": {
+        "guest-read3d": 30,
+        "completed-flip-stall": 30,
+        "vblank": 163,
+        "host-present": 778,
+        "elapsedSeconds": 2.708419,
+        "generation": 2,
+        "read3dOvershoot": 0
+      }
+    },
+    "heldDelta": {
+      "guest-read3d": 0,
+      "completed-flip-stall": 0,
+      "vblank": 170,
+      "host-present": 6837
+    },
+    "heldSeconds": 2.828067,
+    "saveRejected": true,
+    "retrySaveRejected": true,
+    "controller": {
+      "backend": "native-os-gamepad",
+      "nativeBackend": "linux-uinput",
+      "helperSha256": "d49adfb6196ad6fd27a3a48656f4b7e0cf5593257c1178f40ce7ebf94e018e5e",
+      "mappingSha256": "e0ae9837942f19c4293d2016a98676fa681cedc14f80db33aa35ebe14caeb9c1",
+      "receiptMeaning": "OS submission; guest consumption not confirmed",
+      "refreshCount": 5253,
+      "failure": null,
+      "cleanup": "complete",
+      "transitions": 25
+    }
+  }
+}

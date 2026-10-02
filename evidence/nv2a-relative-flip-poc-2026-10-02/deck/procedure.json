@@ -1,0 +1,505 @@
+{
+  "id": "nv2a-relative-flip-deck-v2",
+  "description": "Opt-in current-main relative flip POC: parked checkpoint, 160 then 30 additional READ_3D increments, PFIFO hold and presentation marker; not a performance benchmark",
+  "plan": [
+    {
+      "type": "require_input",
+      "delayMs": 0,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 30000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 12000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 4000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 4000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 4000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "LStickRight",
+      "durationMs": 80,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 4000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 4000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 4000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 4000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 4000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 10000,
+      "button": null,
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "button",
+      "delayMs": 0,
+      "button": "A",
+      "durationMs": 100,
+      "name": null,
+      "diagnosticId": null,
+      "condition": null,
+      "timeoutMs": 10000,
+      "pollIntervalMs": 100
+    },
+    {
+      "type": "wait",
+      "delayMs": 30000
+    },
+    {
+      "type": "screenshot",
+      "name": "parked-checkpoint"
+    },
+    {
+      "type": "diagnostic",
+      "diagnosticId": "before-arm"
+    },
+    {
+      "type": "diagnostic",
+      "diagnosticId": "arm-160"
+    },
+    {
+      "type": "wait",
+      "delayMs": 60000
+    },
+    {
+      "type": "diagnostic",
+      "diagnosticId": "first-stop"
+    },
+    {
+      "type": "screenshot",
+      "name": "relative-160-stop"
+    },
+    {
+      "type": "wait",
+      "delayMs": 2000
+    },
+    {
+      "type": "diagnostic",
+      "diagnosticId": "hold-stability"
+    },
+    {
+      "type": "diagnostic",
+      "diagnosticId": "resume-first"
+    },
+    {
+      "type": "wait",
+      "delayMs": 3000
+    },
+    {
+      "type": "diagnostic",
+      "diagnosticId": "after-resume"
+    },
+    {
+      "type": "diagnostic",
+      "diagnosticId": "arm-30"
+    },
+    {
+      "type": "wait",
+      "delayMs": 15000
+    },
+    {
+      "type": "diagnostic",
+      "diagnosticId": "second-stop"
+    },
+    {
+      "type": "screenshot",
+      "name": "relative-30-stop"
+    },
+    {
+      "type": "diagnostic",
+      "diagnosticId": "save-paused-probe"
+    },
+    {
+      "type": "diagnostic",
+      "diagnosticId": "after-save-cancel"
+    },
+    {
+      "type": "diagnostic",
+      "diagnosticId": "retry-paused-save"
+    },
+    {
+      "type": "diagnostic",
+      "diagnosticId": "disarm"
+    },
+    {
+      "type": "diagnostic",
+      "diagnosticId": "disarmed-cpu-status"
+    },
+    {
+      "type": "diagnostic",
+      "diagnosticId": "resume-disarmed"
+    },
+    {
+      "type": "wait",
+      "delayMs": 2000
+    },
+    {
+      "type": "diagnostic",
+      "diagnosticId": "after-disarm-resume"
+    },
+    {
+      "type": "quit"
+    }
+  ],
+  "diagnostics": [
+    {
+      "id": "before-arm",
+      "type": "qmp",
+      "qmpCommand": "x-nv2a-flip-query",
+      "qmpArguments": {},
+      "pauseBefore": false,
+      "resumeDuring": false,
+      "pauseAfter": false
+    },
+    {
+      "id": "arm-160",
+      "type": "qmp",
+      "qmpCommand": "x-nv2a-flip-arm",
+      "qmpArguments": {
+        "delta": 160
+      },
+      "pauseBefore": false,
+      "resumeDuring": false,
+      "pauseAfter": false
+    },
+    {
+      "id": "first-stop",
+      "type": "qmp",
+      "qmpCommand": "x-nv2a-flip-query",
+      "qmpArguments": {},
+      "pauseBefore": false,
+      "resumeDuring": false,
+      "pauseAfter": false
+    },
+    {
+      "id": "hold-stability",
+      "type": "qmp",
+      "qmpCommand": "x-nv2a-flip-query",
+      "qmpArguments": {},
+      "pauseBefore": false,
+      "resumeDuring": false,
+      "pauseAfter": false
+    },
+    {
+      "id": "resume-first",
+      "type": "qmp",
+      "qmpCommand": "cont",
+      "qmpArguments": {},
+      "pauseBefore": false,
+      "resumeDuring": false,
+      "pauseAfter": false
+    },
+    {
+      "id": "after-resume",
+      "type": "qmp",
+      "qmpCommand": "x-nv2a-flip-query",
+      "qmpArguments": {},
+      "pauseBefore": false,
+      "resumeDuring": false,
+      "pauseAfter": false
+    },
+    {
+      "id": "arm-30",
+      "type": "qmp",
+      "qmpCommand": "x-nv2a-flip-arm",
+      "qmpArguments": {
+        "delta": 30
+      },
+      "pauseBefore": false,
+      "resumeDuring": false,
+      "pauseAfter": false
+    },
+    {
+      "id": "second-stop",
+      "type": "qmp",
+      "qmpCommand": "x-nv2a-flip-query",
+      "qmpArguments": {},
+      "pauseBefore": false,
+      "resumeDuring": false,
+      "pauseAfter": false
+    },
+    {
+      "id": "save-paused-probe",
+      "type": "qmp",
+      "qmpCommand": "human-monitor-command",
+      "qmpArguments": {
+        "command-line": "savevm relative-probe-paused-save-check"
+      },
+      "pauseBefore": false,
+      "resumeDuring": false,
+      "pauseAfter": false
+    },
+    {
+      "id": "after-save-cancel",
+      "type": "qmp",
+      "qmpCommand": "x-nv2a-flip-query",
+      "qmpArguments": {},
+      "pauseBefore": false,
+      "resumeDuring": false,
+      "pauseAfter": false
+    },
+    {
+      "id": "retry-paused-save",
+      "type": "qmp",
+      "qmpCommand": "human-monitor-command",
+      "qmpArguments": {
+        "command-line": "savevm relative-probe-paused-save-check"
+      },
+      "pauseBefore": false,
+      "resumeDuring": false,
+      "pauseAfter": false
+    },
+    {
+      "id": "disarm",
+      "type": "qmp",
+      "qmpCommand": "x-nv2a-flip-disarm",
+      "qmpArguments": {},
+      "pauseBefore": false,
+      "resumeDuring": false,
+      "pauseAfter": false
+    },
+    {
+      "id": "disarmed-cpu-status",
+      "type": "qmp",
+      "qmpCommand": "query-status",
+      "qmpArguments": {},
+      "pauseBefore": false,
+      "resumeDuring": false,
+      "pauseAfter": false
+    },
+    {
+      "id": "resume-disarmed",
+      "type": "qmp",
+      "qmpCommand": "cont",
+      "qmpArguments": {},
+      "pauseBefore": false,
+      "resumeDuring": false,
+      "pauseAfter": false
+    },
+    {
+      "id": "after-disarm-resume",
+      "type": "qmp",
+      "qmpCommand": "x-nv2a-flip-query",
+      "qmpArguments": {},
+      "pauseBefore": false,
+      "resumeDuring": false,
+      "pauseAfter": false
+    }
+  ],
+  "timeoutSeconds": 360,
+  "expectedExecutableSha256": "13db984e5b7c73c7ccc2f3c0b9ff7f4cb24a86f86c3c12eef0b3be429240c97d"
+}

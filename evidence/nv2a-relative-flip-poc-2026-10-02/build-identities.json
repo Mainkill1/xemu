@@ -1,0 +1,11 @@
+{
+  "head": "0b2be47fe9af1baa3f174d51a6ee0acb4a14b4da",
+  "ci": 36987622322,
+  "configuration": "debug",
+  "windows": "4bb00d842abf9cef48eded1663480c6b72498db17958b79f74e791eabb762327",
+  "deck": "13db984e5b7c73c7ccc2f3c0b9ff7f4cb24a86f86c3c12eef0b3be429240c97d",
+  "planSha256": "3e5462711aa5246df6882eba65e4a0251d27624e0ad9d1f1f1a6cb118c28e2f0",
+  "branchHead": "d6fabace38137d35312a82ec13b0fada97d63284",
+  "runtimeSourceEquivalence": "The only change after tested runtime head 0b2be47 is tests/unit/test-xbox-nv2a-flip-probe.c TAP registration; emulator runtime sources are identical.",
+  "publicEvidencePolicy": "Only counter packets, manifest, procedure inputs and screenshots; no firmware, EEPROM, RAM, ISO, game resource bytes or caches."
+}

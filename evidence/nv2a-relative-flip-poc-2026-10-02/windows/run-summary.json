@@ -1,0 +1,49 @@
+{
+  "runId": "20261002-091210709-ffde7ce7d7244457b99595f2becb5dc7",
+  "status": "completed",
+  "durationMs": 203474.1049,
+  "exitCode": 0,
+  "executableSha256": "4bb00d842abf9cef48eded1663480c6b72498db17958b79f74e791eabb762327",
+  "evidenceStatus": "complete",
+  "comparisonStatus": "ineligible",
+  "correctnessStatus": "notevaluated",
+  "host": {
+    "runnerVersion": "0.1.0+2a872c5408c3f23220bcdd31e46f843e7970de65",
+    "machine": "DESKTOP-52C4KS5",
+    "os": "Microsoft Windows 10.0.19045",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 16,
+    "dotnet": "10.0.12"
+  },
+  "rigFinalIdle": true,
+  "stops": {
+    "first-stop": {
+      "guest-read3d": 160,
+      "completed-flip-stall": 160,
+      "vblank": 1054,
+      "host-present": 17395,
+      "elapsedSeconds": 17.573892,
+      "generation": 1,
+      "read3dOvershoot": 0
+    },
+    "second-stop": {
+      "guest-read3d": 30,
+      "completed-flip-stall": 30,
+      "vblank": 187,
+      "host-present": 3178,
+      "elapsedSeconds": 3.12916,
+      "generation": 2,
+      "read3dOvershoot": 0
+    }
+  },
+  "heldDelta": {
+    "guest-read3d": 0,
+    "completed-flip-stall": 0,
+    "vblank": 171,
+    "host-present": 5528
+  },
+  "heldSeconds": 2.861875,
+  "saveRejected": true,
+  "retrySaveRejected": true
+}
