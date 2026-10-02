@@ -108,3 +108,7 @@ The procedure retains #278's 60 s scene warmup / 300 s stationary observation an
 ## Windows reachability
 
 [Current connectivity evidence](windows-connectivity/README.md) records restored LAN HTTP access after a runner/workspace change. The idle Windows instance lacks current performance/XISO APIs; no #234 Windows workload was executed and the service was preserved. This does not block the running Deck campaign.
+
+## Native audit recipe
+
+[Retained audit and measurement definitions](native-balanced-v1/AUDIT.md) separate AAAA variation controls from ABBA/BAAB, preserve incomplete attempts, and check source bytes before local descriptive comparisons. Native frame logs represent flip-control events, not independently verified rendered FPS. No native candidate comparison is complete yet.
