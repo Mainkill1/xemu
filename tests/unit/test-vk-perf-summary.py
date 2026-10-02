@@ -129,6 +129,81 @@ class SummaryTests(unittest.TestCase):
                 self.module.write_report(path, {'schemaVersion': 8})
             self.assertEqual(path.read_text(), 'original')
 
+    def auxiliary_records(self):
+        names = ['pvideo_upload', 'display_render', 'surface_download',
+                 'surface_create', 'surface_upload', 'texture_upload',
+                 'dummy_texture_create']
+        rows = [{'type': 'schema', 'schema_version': 8,
+                 'single_time_callers': names}]
+        for frame, timestamp, calls in [(1, 0, 1), (2, 2000000, 2),
+                                         (3, 4000000, 7), (4, 5000000, 3)]:
+            rows.append({
+                'type': 'frame', 'schema_version': 8, 'guest_frame': frame,
+                'timestamp_us': timestamp,
+                'single_time_submit_count_per_guest_frame': [0, 0, 0, 0, calls, 0, 0],
+                'single_time_timed_submit_count_per_guest_frame': [0, 0, 0, 0, calls, 0, 0],
+                'queue_wait_idle_count_per_guest_frame': [0, 0, 0, 0, calls, 0, 0],
+                'single_time_sampled_submit_cpu_us_per_guest_frame': [0, 0, 0, 0, calls * 100, 0, 0],
+                'single_time_sampled_wait_us_per_guest_frame': [0, 0, 0, 0, calls * 200, 0, 0],
+            })
+        return rows
+
+    def summarize_auxiliary(self, rows, tail_seconds=2):
+        summarize = getattr(self.module, 'summarize_auxiliary', None)
+        self.assertTrue(callable(summarize), 'Auxiliary window analysis is not implemented')
+        return summarize(io.StringIO(
+            ''.join(json.dumps(x) + '\n' for x in rows)), tail_seconds)
+
+    def test_auxiliary_tail_does_not_credit_a_straddling_bucket(self):
+        # Including the bucket (2s,4s] in the (3s,5s] window would invent
+        # seven in-window calls; the reader cannot locate those events.
+        result = self.summarize_auxiliary(self.auxiliary_records())
+        all_calls = result['all']['callers']['surface_upload']
+        self.assertEqual(all_calls['submits'], 13)
+        self.assertEqual(all_calls['submitHostElapsedMs'], 1.3)
+        self.assertEqual(all_calls['queueIdleWaitHostElapsedMs'], 2.6)
+        tail = result['tail']
+        self.assertEqual(tail['startTimestampUs'], 3000000)
+        self.assertEqual(tail['endTimestampUs'], 5000000)
+        self.assertEqual(tail['completeBucketCount'], 1)
+        self.assertEqual(tail['completeBuckets']['surface_upload']['submits'], 3)
+        self.assertEqual(tail['straddlingBucket']['guestFrame'], 3)
+        self.assertEqual(tail['straddlingBucket']['callers']['surface_upload']['submits'], 7)
+        self.assertEqual(tail['completeBuckets']['display_render']['submits'], 0)
+        self.assertNotIn('improvementPercent', result)
+
+    def test_auxiliary_short_or_nonpositive_window_is_not_empty_success(self):
+        for seconds in (6, 0, -1, True, 1.5):
+            with self.subTest(seconds=seconds), self.assertRaises(ValueError):
+                self.summarize_auxiliary(self.auxiliary_records(), seconds)
+
+    def test_auxiliary_exact_boundary_excludes_previous_bucket(self):
+        result = self.summarize_auxiliary(self.auxiliary_records(), 3)['tail']
+        self.assertEqual(result['startTimestampUs'], 2000000)
+        self.assertEqual(result['completeBucketCount'], 2)
+        self.assertEqual(result['completeBuckets']['surface_upload']['submits'], 10)
+        self.assertIsNone(result['straddlingBucket'])
+        # Starting at the first timestamp still cannot locate the first
+        # bucket's one submit, because its beginning is not recorded.
+        result = self.summarize_auxiliary(self.auxiliary_records(), 5)['tail']
+        self.assertEqual(result['completeBucketCount'], 3)
+        self.assertEqual(result['completeBuckets']['surface_upload']['submits'], 12)
+        self.assertIsNone(result['straddlingBucket'])
+
+    def test_auxiliary_missing_or_contradictory_counters_fail(self):
+        field = 'single_time_submit_count_per_guest_frame'
+        for change in ('missing', 'duplicate-name', 'unknown-name',
+                       'short-array', 'bool-counter', 'wait-without-submit'):
+            rows = self.auxiliary_records()
+            if change == 'missing': del rows[1][field]
+            if change == 'duplicate-name': rows[0]['single_time_callers'][1] = 'pvideo_upload'
+            if change == 'unknown-name': rows[0]['single_time_callers'][1] = 'unknown'
+            if change == 'short-array': rows[1][field] = [0]
+            if change == 'bool-counter': rows[1][field][4] = True
+            if change == 'wait-without-submit': rows[1][field][4] = 0
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                self.summarize_auxiliary(rows)
+
 
 if __name__ == '__main__':
     unittest.main()
