@@ -31,5 +31,6 @@ const uint8_t *nv2a_get_dac_palette(void);
 int nv2a_get_screen_off(void);
 uint64_t nv2a_flip_probe_present_begin(void);
 void nv2a_flip_probe_present_end(uint64_t generation);
+bool nv2a_flip_probe_before_save(Error **errp);
 
 #endif

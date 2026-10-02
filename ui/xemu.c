@@ -908,10 +908,13 @@ static void gl_render_frame(struct xemu_console *scon)
     if (present_route == XEMU_WIN32_PRESENT_SDL) {
         SDL_GL_SwapWindow(scon->real_window);
     }
+    if (xemu_win32_present_route_completed(present_route)) {
+        nv2a_flip_probe_present_end(probe_generation);
+    }
 #else
     SDL_GL_SwapWindow(scon->real_window);
-#endif
     nv2a_flip_probe_present_end(probe_generation);
+#endif
     assert(glGetError() == GL_NO_ERROR);
 
     qatomic_set(&rendering, false);

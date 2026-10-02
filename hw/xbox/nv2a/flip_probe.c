@@ -87,6 +87,18 @@ static void stop_on_main_loop(void *opaque)
     vm_stop(RUN_STATE_PAUSED);
 
     qemu_mutex_lock(&d->pfifo.lock);
+    /* vm_stop drains block I/O and can dispatch nested main-loop work. */
+    if (probe->gate.generation != generation ||
+        probe->gate.phase != NV2A_FLIP_PROBE_PAUSED) {
+        qemu_mutex_unlock(&d->pfifo.lock);
+        return;
+    }
+    if (!runstate_check(RUN_STATE_PAUSED)) {
+        nv2a_flip_probe_cancel_locked(d, "stop-interrupted", false);
+        pfifo_kick(d);
+        qemu_mutex_unlock(&d->pfifo.lock);
+        return;
+    }
     paused = snapshot(probe);
     probe->pause = paused;
     probe->has_pause = true;
@@ -169,6 +181,33 @@ void nv2a_flip_probe_resume_locked(NV2AState *d)
 {
     nv2a_flip_probe_release(&d->flip_probe.gate);
     qatomic_set(&d->flip_probe.paused_generation, 0);
+}
+
+bool nv2a_flip_probe_before_save(Error **errp)
+{
+    if (!g_nv2a || !qatomic_read(&g_nv2a->flip_probe.enabled)) {
+        return true;
+    }
+    NV2AState *d = g_nv2a;
+    qemu_mutex_lock(&d->pfifo.lock);
+    bool active = d->flip_probe.gate.phase == NV2A_FLIP_PROBE_ARMED ||
+                  nv2a_flip_probe_held(&d->flip_probe.gate);
+    if (active) {
+        nv2a_flip_probe_cancel_locked(d, "save", false);
+        pfifo_kick(d);
+    }
+    qemu_mutex_unlock(&d->pfifo.lock);
+
+    /*
+     * The existing NV2A save preparation requires a live-state notification.
+     * Reject paused saves while this diagnostic is enabled, including retries;
+     * repairing general paused-save ownership is a separate change.
+     */
+    if (!runstate_is_running()) {
+        error_setg(errp, "Flip probe cancelled; resume the VM before saving");
+        return false;
+    }
+    return true;
 }
 
 uint64_t nv2a_flip_probe_present_begin(void)

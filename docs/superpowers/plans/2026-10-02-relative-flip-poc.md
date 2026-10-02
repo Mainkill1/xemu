@@ -18,3 +18,11 @@
 6. Capture query summaries and images on both rigs, test disarm/resume and a second arm, confirm final idle state, and publish a concrete POC report with limitations.
 
 Review focus: a reached READ_3D count must not imply a completed stall; held PFIFO must still service renderer sync; a stale bottom half must not pause a re-armed request; reset must invalidate the generation; an image acquired before the pause must not receive the stopped generation.
+
+Final review corrections: revalidate the generation and VM state after nested
+work inside vm_stop; count only completed SDL/DXGI presentation routes; cancel
+active requests before saves. While the experimental probe is enabled, saving
+a non-running VM is rejected until resume, including retries after disarm. This
+avoids the inherited paused-save ownership problem without changing the normal
+probe-disabled snapshot path. Focused tests exercise the actual callback, nested
+disarm/resume/re-arm, repeated save attempts, and failed presentation routes.

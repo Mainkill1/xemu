@@ -73,6 +73,9 @@
 #include "options.h"
 
 #include "ui/xemu-snapshots.h"
+#ifdef XBOX
+#include "hw/xbox/nv2a/nv2a.h"
+#endif
 
 const unsigned int postcopy_ram_discard_version;
 
@@ -3212,6 +3215,11 @@ bool save_snapshot(const char *name, bool overwrite, const char *vmstate,
     g_autoptr(GDateTime) now = g_date_time_new_now_local();
 
     GLOBAL_STATE_CODE();
+#ifdef XBOX
+    if (!nv2a_flip_probe_before_save(errp)) {
+        return false;
+    }
+#endif
 
     if (!migrate_can_snapshot(errp)) {
         return false;

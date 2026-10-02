@@ -453,9 +453,38 @@ static void test_resize_failure_rejects_dxgi_frame(void)
     g_assert_cmpuint(fixture.begins, ==, 1);
 }
 
+static void test_presentation_evidence_uses_finished_route(void)
+{
+    PresentFixture fixture = { .init_result = true, .begin_result = true };
+    XemuWin32DxgiPresentState state = XEMU_WIN32_DXGI_PRESENT_STATE_INIT;
+    XemuWin32PresentRoute route = xemu_win32_dxgi_present_prepare(
+        &state, &present_ops, &fixture, true, XEMU_WIN32_CAPTURE_NONE);
+    g_assert_cmpint(route, ==, XEMU_WIN32_PRESENT_DXGI);
+    route = xemu_win32_dxgi_present_finish(
+        &state, &present_ops, &fixture, route, XEMU_WIN32_CAPTURE_NONE);
+    g_assert_false(xemu_win32_present_route_completed(route));
+    fixture.quarantined = true;
+    route = xemu_win32_dxgi_present_prepare(
+        &state, &present_ops, &fixture, true, XEMU_WIN32_CAPTURE_NONE);
+    g_assert_false(xemu_win32_present_route_completed(route));
+    fixture.quarantined = false;
+    route = xemu_win32_dxgi_present_prepare(
+        &state, &present_ops, &fixture, false, XEMU_WIN32_CAPTURE_NONE);
+    g_assert_true(xemu_win32_present_route_completed(route));
+    state = (XemuWin32DxgiPresentState)XEMU_WIN32_DXGI_PRESENT_STATE_INIT;
+    fixture.end_result = true;
+    route = xemu_win32_dxgi_present_prepare(
+        &state, &present_ops, &fixture, true, XEMU_WIN32_CAPTURE_NONE);
+    route = xemu_win32_dxgi_present_finish(
+        &state, &present_ops, &fixture, route, XEMU_WIN32_CAPTURE_NONE);
+    g_assert_true(xemu_win32_present_route_completed(route));
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
+    g_test_add_func("/xemu/win32-dxgi/presentation-evidence",
+                    test_presentation_evidence_uses_finished_route);
     g_test_add_func("/xemu/win32-dxgi/success", test_successful_transfer);
     g_test_add_func("/xemu/win32-dxgi/lock-failure",
                     test_lock_failure_stops_transfer);

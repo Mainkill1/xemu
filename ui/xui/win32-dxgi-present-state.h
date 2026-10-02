@@ -18,6 +18,12 @@ typedef enum XemuWin32PresentRoute {
     XEMU_WIN32_PRESENT_QUARANTINED,
 } XemuWin32PresentRoute;
 
+/* Use after finish and, for SDL, after the swap call. */
+static inline bool xemu_win32_present_route_completed(XemuWin32PresentRoute route)
+{
+    return route == XEMU_WIN32_PRESENT_SDL || route == XEMU_WIN32_PRESENT_DXGI;
+}
+
 typedef struct XemuWin32DxgiPresentState {
     bool init_attempted;
     bool active;
