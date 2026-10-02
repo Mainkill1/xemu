@@ -111,6 +111,7 @@ static bool pgraph_control_write(NV2AState *d, hwaddr addr, uint32_t value)
     case NV_PGRAPH_INCREMENT:
         if (value & NV_PGRAPH_INCREMENT_READ_3D) {
             pgraph_flip_increment(pg, NV_PGRAPH_SURFACE_READ_3D);
+            nv2a_flip_probe_read3d(d);
             flip_time = nv2a_profile_increment();
             pfifo_kick(d);
         }

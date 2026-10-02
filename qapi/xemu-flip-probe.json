@@ -1,0 +1,74 @@
+# Experimental xemu diagnostic interface.
+
+##
+# @XemuFlipCounters:
+#
+# Independently counted events; no ratio or game-state equivalence is
+#     implied.
+#
+# @guest-read3d: Guest READ_3D increments.
+# @completed-flip-stall: PFIFO flip stalls observed complete.
+# @vblank: NV2A display-update vblank callbacks.
+# @host-present: Completed host presentation calls, including repeated
+#     images.
+# @timestamp-us: Snapshot host monotonic timestamp in microseconds.
+##
+{ 'struct': 'XemuFlipCounters',
+  'data': { 'guest-read3d': 'uint64', 'completed-flip-stall': 'uint64',
+            'vblank': 'uint64', 'host-present': 'uint64',
+            'timestamp-us': 'int64' } }
+
+##
+# @XemuFlipProbeStatus:
+#
+# State of the temporary relative flip diagnostic.
+#
+# @enabled: Counters were enabled at startup with
+#     XEMU_NV2A_FLIP_PROBE=1.
+# @epoch: Changes on reset or restore; diagnostic state is not
+#     migrated.
+# @generation: Identity of the most recently armed request.
+# @phase: idle, armed, held, paused, released or cancelled.
+# @target-read3d: Absolute target derived from the arm snapshot plus
+#     delta.
+# @presented-generation: Last paused generation acquired and presented
+#     by UI.
+# @cancel-reason: Reason for diagnostic cancellation, if any.
+# @current: Current independently sampled counters.
+# @arm: Counters sampled when the request was armed.
+# @quiesce: Counters when PFIFO was held at a completed flip stall.
+# @pause: Counters after the main loop stopped the CPU.
+##
+{ 'struct': 'XemuFlipProbeStatus',
+  'data': { 'enabled': 'bool', 'epoch': 'uint64', 'generation': 'uint64',
+            'phase': 'str', 'target-read3d': 'uint64',
+            'presented-generation': 'uint64', '*cancel-reason': 'str',
+            'current': 'XemuFlipCounters', '*arm': 'XemuFlipCounters',
+            '*quiesce': 'XemuFlipCounters', '*pause': 'XemuFlipCounters' } }
+
+##
+# @x-nv2a-flip-query:
+#
+# Query the experimental counters and most recent diagnostic request.
+##
+{ 'command': 'x-nv2a-flip-query', 'returns': 'XemuFlipProbeStatus' }
+
+##
+# @x-nv2a-flip-arm:
+#
+# Arm a relative READ_3D target.  Hold PFIFO at the first completed
+#     flip stall
+# at or beyond that target, then request CPU pause from the main loop.
+#
+# @delta: Positive additional guest increments, at most 100000.
+##
+{ 'command': 'x-nv2a-flip-arm', 'data': { 'delta': 'uint64' },
+  'returns': 'XemuFlipProbeStatus' }
+
+##
+# @x-nv2a-flip-disarm:
+#
+# Cancel the diagnostic hold.  This releases PFIFO but does not resume
+#     the CPU.
+##
+{ 'command': 'x-nv2a-flip-disarm', 'returns': 'XemuFlipProbeStatus' }

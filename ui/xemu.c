@@ -857,6 +857,7 @@ static void gl_render_frame(struct xemu_console *scon)
      * the guest code isn't using HW accelerated rendering, but just blitting
      * to the framebuffer, fall back to the VGA path.
      */
+    uint64_t probe_generation = nv2a_flip_probe_present_begin();
     GLuint tex = nv2a_get_framebuffer_surface();
 
     assert(glGetError() == GL_NO_ERROR);
@@ -910,6 +911,7 @@ static void gl_render_frame(struct xemu_console *scon)
 #else
     SDL_GL_SwapWindow(scon->real_window);
 #endif
+    nv2a_flip_probe_present_end(probe_generation);
     assert(glGetError() == GL_NO_ERROR);
 
     qatomic_set(&rendering, false);

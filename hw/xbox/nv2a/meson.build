@@ -1,5 +1,7 @@
 specific_ss.add(files(
 	'nv2a.c',
+	'flip_probe.c',
+	'flip_probe_core.c',
 	'pbus.c',
 	'pcrtc.c',
 	'pfb.c',

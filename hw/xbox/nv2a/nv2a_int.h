@@ -51,6 +51,7 @@
 #include "pgraph/pgraph.h"
 #include "debug.h"
 #include "nv2a_regs.h"
+#include "flip_probe.h"
 
 #define NV2A_DEVICE(obj) OBJECT_CHECK(NV2AState, (obj), "nv2a")
 
@@ -74,6 +75,7 @@ typedef struct NV2AState {
 
     qemu_irq irq;
     bool exiting;
+    NV2AFlipProbe flip_probe;
 
     VGACommonState vga;
     GraphicHwOps hw_ops;

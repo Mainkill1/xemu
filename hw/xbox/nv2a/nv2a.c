@@ -213,6 +213,7 @@ static void nv2a_vga_gfx_update(void *opaque)
     vga->hw_ops->gfx_update(vga);
 
     NV2AState *d = container_of(vga, NV2AState, vga);
+    nv2a_flip_probe_vblank(d);
     d->pcrtc.pending_interrupts |= NV_PCRTC_INTR_0_VBLANK;
     d->pcrtc.raster = 0;
 
@@ -297,6 +298,7 @@ static void nv2a_unlock_fifo(NV2AState *d)
 static void nv2a_reset(NV2AState *d)
 {
     nv2a_lock_fifo(d);
+    nv2a_flip_probe_cancel_locked(d, "reset", true);
     bool halted = qatomic_read(&d->pfifo.halt);
     if (!halted) {
         qatomic_set(&d->pfifo.halt, true);
@@ -378,6 +380,7 @@ static void nv2a_realize(PCIDevice *dev, Error **errp)
     qemu_mutex_init(&d->pfifo.lock);
     qemu_cond_init(&d->pfifo.fifo_cond);
     qemu_cond_init(&d->pfifo.fifo_idle_cond);
+    nv2a_flip_probe_init(d);
 }
 
 static void nv2a_exitfn(PCIDevice *dev)
@@ -389,6 +392,7 @@ static void nv2a_exitfn(PCIDevice *dev)
 
     qemu_cond_broadcast(&d->pfifo.fifo_cond);
     qemu_thread_join(&d->pfifo.thread);
+    nv2a_flip_probe_destroy(d);
 
     pgraph_destroy(&d->pgraph);
 }
@@ -407,6 +411,7 @@ static void nv2a_vm_state_change(void *opaque, bool running, RunState state)
     NV2AState *d = opaque;
     if (state == RUN_STATE_SAVE_VM) {
         nv2a_lock_fifo(d);
+        nv2a_flip_probe_cancel_locked(d, "save", false);
         qatomic_set(&d->pfifo.halt, true);
         pgraph_pre_savevm_trigger(d);
         nv2a_unlock_fifo(d);
@@ -416,14 +421,17 @@ static void nv2a_vm_state_change(void *opaque, bool running, RunState state)
         nv2a_lock_fifo(d);
     } else if (state == RUN_STATE_RESTORE_VM) {
         nv2a_lock_fifo(d);
+        nv2a_flip_probe_cancel_locked(d, "restore", true);
         qatomic_set(&d->pfifo.halt, true);
         nv2a_unlock_fifo(d);
     } else if (state == RUN_STATE_RUNNING) {
         nv2a_lock_fifo(d);
+        nv2a_flip_probe_resume_locked(d);
         qatomic_set(&d->pfifo.halt, false);
         nv2a_unlock_fifo(d);
     } else if (state == RUN_STATE_SHUTDOWN) {
         nv2a_lock_fifo(d);
+        nv2a_flip_probe_cancel_locked(d, "shutdown", false);
         pgraph_pre_shutdown_trigger(d);
         nv2a_unlock_fifo(d);
         bql_unlock();

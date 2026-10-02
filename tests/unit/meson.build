@@ -116,6 +116,9 @@ tests = {
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-trace.c',
   ],
   'test-xbox-vk-uniform-layout': [],
+  'test-xbox-nv2a-flip-probe': [
+    meson.project_source_root() / 'hw/xbox/nv2a/flip_probe_core.c',
+  ],
   'test-xbox-vk-spirv-prewarm': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/spirv-prewarm.c',
   ],

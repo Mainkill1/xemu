@@ -54,6 +54,7 @@ qapi_all_modules = [
   'vfio',
   'virtio',
   'yank',
+  'xemu-flip-probe',
 ]
 if have_system
   qapi_all_modules += [

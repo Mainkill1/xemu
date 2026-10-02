@@ -126,11 +126,16 @@ static bool pfifo_stall_for_flip(NV2AState *d)
 {
     bool should_stall = false;
 
+    if (nv2a_flip_probe_held(&d->flip_probe.gate)) {
+        return true;
+    }
+
     if (qatomic_read(&d->pgraph.waiting_for_flip)) {
         if (!is_flip_stall_complete(d)) {
             should_stall = true;
         } else {
             qatomic_set(&d->pgraph.waiting_for_flip, false);
+            should_stall = nv2a_flip_probe_complete_stall(d);
         }
     }
 
