@@ -1449,9 +1449,10 @@ static bool create_texture(PGRAPHState *pg, int texture_idx)
         .usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,
     };
 
-    VK_CHECK(vmaCreateImage(r->allocator, &image_create_info,
-                            &alloc_create_info, &snode->image,
-                            &snode->allocation, NULL));
+    VK_CHECK(pgraph_vk_texture_image_create(
+        r->texture_allocation_trace, r->allocator, &image_create_info,
+        &alloc_create_info, &snode->image, &snode->allocation,
+        surface_to_texture, r->submit_count));
 
     VkImageViewCreateInfo image_view_create_info = {
         .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
@@ -1821,7 +1822,9 @@ static void texture_cache_release_node_resources(PGRAPHVkState *r, TextureBindin
     vkDestroyImageView(r->device, snode->image_view, NULL);
     snode->image_view = VK_NULL_HANDLE;
 
-    vmaDestroyImage(r->allocator, snode->image, snode->allocation);
+    pgraph_vk_texture_image_destroy(
+        snode == &r->dummy_texture ? NULL : r->texture_allocation_trace,
+        r->allocator, snode->image, snode->allocation, r->submit_count);
     snode->image = VK_NULL_HANDLE;
     snode->allocation = VK_NULL_HANDLE;
 }

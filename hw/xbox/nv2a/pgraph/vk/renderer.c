@@ -139,6 +139,15 @@ static void pgraph_vk_init(NV2AState *d, Error **errp)
 #endif
 
     pgraph_vk_perf_init(pg->vk_renderer_state);
+    const char *allocation_trace_path =
+        g_getenv("XEMU_VK_TEXTURE_ALLOCATION_LOG");
+    pg->vk_renderer_state->texture_allocation_trace =
+        pgraph_vk_texture_allocation_trace_open(allocation_trace_path, 100000);
+    if (allocation_trace_path && allocation_trace_path[0] &&
+        !pg->vk_renderer_state->texture_allocation_trace) {
+        error_report("nv2a/vk: could not open new texture allocation trace; "
+                     "allocation measurement incomplete");
+    }
     const char *hybrid_trace_path = g_getenv("XEMU_VK_HYBRID_TRACE");
     if (hybrid_trace_path && hybrid_trace_path[0]) {
         pg->vk_renderer_state->hybrid_trace =
@@ -183,6 +192,8 @@ static void pgraph_vk_finalize(NV2AState *d)
     pgraph_vk_finalize_display(pg);
     pgraph_vk_finalize_compute(pg);
     pgraph_vk_finalize_reports(pg);
+    pgraph_vk_texture_allocation_trace_teardown(
+        pg->vk_renderer_state->texture_allocation_trace);
     pgraph_vk_finalize_textures(pg);
     pgraph_vk_finalize_pipelines(pg);
     pgraph_vk_finalize_shaders(pg);
@@ -190,6 +201,11 @@ static void pgraph_vk_finalize(NV2AState *d)
     pgraph_vk_finalize_buffers(d);
     pgraph_vk_finalize_command_buffers(pg);
     pgraph_vk_perf_finalize(pg->vk_renderer_state);
+    if (!pgraph_vk_texture_allocation_trace_close(
+            pg->vk_renderer_state->texture_allocation_trace)) {
+        error_report("nv2a/vk: texture allocation trace incomplete");
+    }
+    pg->vk_renderer_state->texture_allocation_trace = NULL;
     pgraph_vk_hybrid_trace_close(pg->vk_renderer_state->hybrid_trace);
     pgraph_vk_finalize_instance(pg);
     pgraph_vk_failpoint_report();
@@ -298,6 +314,8 @@ static void pgraph_vk_flip_stall(NV2AState *d)
     pgraph_vk_process_hybrid_prewarm(&d->pgraph);
     pgraph_vk_process_fallback_families(&d->pgraph);
     pgraph_vk_perf_frame(d->pgraph.vk_renderer_state);
+    pgraph_vk_texture_allocation_trace_frame(
+        d->pgraph.vk_renderer_state->texture_allocation_trace);
     pgraph_vk_hybrid_trace_frame(
         d->pgraph.vk_renderer_state->hybrid_trace);
     pgraph_vk_debug_frame_terminator();

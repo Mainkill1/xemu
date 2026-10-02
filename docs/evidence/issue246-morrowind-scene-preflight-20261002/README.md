@@ -9,6 +9,10 @@ The [first three attempts and reader tests](../issue246-allocation-preflight-202
 remain intact. These two additional attempts have separate immutable saved
 recipes, complete original evidence and explicit visual scene audits.
 
+This is a historical parent-only packet. The later
+[collector validation](../issue246-allocation-trace-local-20261002/README.md)
+adds optional runtime measurement; no collector candidate was used here.
+
 ## Before/candidate distinction
 
 **A:** exact main `ee5ce48b48784f999af374c1452003f8b2b1230f`, the same executable

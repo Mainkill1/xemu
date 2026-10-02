@@ -1,0 +1,42 @@
+[
+  {
+    "path": "hw/xbox/nv2a/pgraph/vk/texture-allocation-trace.c",
+    "sha256": "7698c01481c6f88ffe91e4c22d12546d8deb5dabd1ee9a433e95f891a81ed380"
+  },
+  {
+    "path": "hw/xbox/nv2a/pgraph/vk/texture-allocation-trace.h",
+    "sha256": "c0657b32428ec34989ea44d4fd0d1f9d8d7b9c4cb4ec1c2c22e94148aadfe3e1"
+  },
+  {
+    "path": "hw/xbox/nv2a/pgraph/vk/renderer.c",
+    "sha256": "0412dd0283c7ab57d19e912915e576c2e4c8dea90c92a9485473876607f1ce95"
+  },
+  {
+    "path": "hw/xbox/nv2a/pgraph/vk/renderer.h",
+    "sha256": "76583b7177f9dc5e3981afdd13c80bb6f89fbc08bd28301facf990a84e7d185b"
+  },
+  {
+    "path": "hw/xbox/nv2a/pgraph/vk/texture.c",
+    "sha256": "a127d6e87c7faaae27ffad2c4b6f510b400b4dbc7b1db44141ce1cdb1c8109af"
+  },
+  {
+    "path": "hw/xbox/nv2a/pgraph/vk/meson.build",
+    "sha256": "b2fb9a277c93e052c2dbd4f466c9455bc08d6b3c09a97fe99b6c6fd49fa52041"
+  },
+  {
+    "path": "tests/unit/meson.build",
+    "sha256": "41f63ebfcfd5abfed34432f24a1f4ff93e6e1dcb462623ab6127b4c3345e4aca"
+  },
+  {
+    "path": "tests/unit/test-xbox-vk-texture-allocation-trace.c",
+    "sha256": "7ba5edb25251c2bc6ab0b5f69ad168e02a1d95d5d4679439eb7d68527309ec8e"
+  },
+  {
+    "path": "scripts/performance/vk-texture-allocation-summary.py",
+    "sha256": "d38351fafd86325883c9bfba3651376eef10a43048e5fd08cb61763802212132"
+  },
+  {
+    "path": "tests/unit/test-vk-texture-allocation-summary.py",
+    "sha256": "5aef17da66c1f3354d243b980168e02aa70842c8115ea240f3c3722712c21e0d"
+  }
+]

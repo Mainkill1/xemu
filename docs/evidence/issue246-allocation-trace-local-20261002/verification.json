@@ -1,0 +1,88 @@
+{
+  "parent": "ee5ce48b48784f999af374c1452003f8b2b1230f",
+  "previousHead": "63bd5bc4b976b047bd5c7ac76e29cbe8f2966ddf",
+  "candidateIdentity": "Uncommitted collector source; exact per-file SHA256 inventory included. Commit publishing this packet binds it to the candidate.",
+  "host": "Local Linux build host, not the Steam Deck",
+  "compiler": "cc (Debian 14.2.0-19) 14.2.0",
+  "commands": [
+    {
+      "command": [
+        "ninja",
+        "-j12",
+        "-C",
+        "build-trace",
+        "qemu-system-i386",
+        "tests/unit/test-xbox-vk-texture-allocation-trace"
+      ],
+      "exitCode": 0,
+      "log": "final-product-build.log"
+    },
+    {
+      "command": [
+        "build-trace/pyvenv/bin/meson",
+        "test",
+        "-C",
+        "build-trace",
+        "--no-rebuild",
+        "--suite",
+        "unit",
+        "--print-errorlogs",
+        "test-xbox-vk-texture-binding",
+        "test-xbox-vk-bc-layout",
+        "test-xbox-vk-texture-allocation-trace",
+        "test-xbox-pgraph-vk-reports"
+      ],
+      "exitCode": 0,
+      "log": "final-focused-tests.log"
+    },
+    {
+      "command": [
+        "python3",
+        "tests/unit/test-vk-texture-allocation-summary.py"
+      ],
+      "exitCode": 0,
+      "log": "final-reader.log"
+    },
+    {
+      "command": [
+        "python3",
+        "tests/unit/test-vk-perf-summary.py"
+      ],
+      "exitCode": 0,
+      "log": "final-perf-reader.log"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "scripts/performance/vk-texture-allocation-summary.py",
+        "scripts/performance/vk-perf-summary.py",
+        "tests/unit/test-vk-texture-allocation-summary.py",
+        "tests/unit/test-vk-perf-summary.py"
+      ],
+      "exitCode": 0,
+      "log": "final-python-compile.log"
+    },
+    {
+      "command": [
+        "/home/codex/src/steamdeck-xemu/scratch/format-tools/bin/clang-format",
+        "--dry-run",
+        "--Werror",
+        "hw/xbox/nv2a/pgraph/vk/texture-allocation-trace.c",
+        "hw/xbox/nv2a/pgraph/vk/texture-allocation-trace.h",
+        "tests/unit/test-xbox-vk-texture-allocation-trace.c"
+      ],
+      "exitCode": 0,
+      "log": "final-format.log"
+    }
+  ],
+  "fullUnitSuite": {
+    "exitCode": 125,
+    "status": "Build failed before tests in unchanged tests/unit/test-xbox-mcpx-apu-resampler.c: implicit sinf/cosf declarations; parent bytes compile with same failure",
+    "log": "unit-suite.log",
+    "parentControlLog": "parent-resampler-failure.log"
+  },
+  "native": "Not run for this collector; no performance result or speedup",
+  "review": "Read-only reviewer found no correctness findings; native/default-off/observer/pool safety excluded from that assessment"
+}

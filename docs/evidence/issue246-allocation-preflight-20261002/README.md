@@ -1,8 +1,11 @@
 # Issue #246: texture allocation attribution preflight
 
-**HOLD: the first allocation-churn gate remains incomplete.** This branch keeps
-an offline reader and all three native attempts. It introduces no texture pool
-or emulator runtime instrumentation. No performance improvement was measured.
+**HOLD: the first allocation-churn gate remains incomplete.** At the time of
+these original attempts the branch contained only an offline reader and evidence;
+there was no runtime collector or texture pool. No performance improvement was
+measured. The later [collector validation](../issue246-allocation-trace-local-20261002/README.md)
+adds optional runtime measurement; it does not make these parent captures
+candidate measurements.
 
 This packet covers the original three attempts. The later
 [Morrowind scene follow-up](../issue246-morrowind-scene-preflight-20261002/README.md)

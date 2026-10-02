@@ -174,6 +174,11 @@ endif
 
 if vulkan.found()
   tests += {
+    'test-xbox-vk-texture-allocation-trace': [
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/texture-allocation-trace.c',
+      vma.partial_dependency(compile_args: true, includes: true),
+      vulkan.partial_dependency(compile_args: true, includes: true),
+    ],
     'test-xbox-vk-hybrid-prewarm': [
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-prewarm.c',
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-prewarm-runtime.c',
