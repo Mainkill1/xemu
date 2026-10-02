@@ -1990,7 +1990,8 @@ void pgraph_vk_surface_update(NV2AState *d, bool upload, bool color_write,
 
     color_write = color_write &&
             (pg->clearing || pgraph_color_write_enabled(pg));
-    zeta_write = zeta_write && (pg->clearing || pgraph_zeta_write_enabled(pg));
+    /* The caller passes whether depth or stencil is accessed. A read-only
+     * depth test still needs the matching zeta surface bound. */
 
     if (upload) {
         bool fb_dirty = framebuffer_dirty(pg);

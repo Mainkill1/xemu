@@ -3124,7 +3124,7 @@ void pgraph_vk_draw_end(NV2AState *d)
     if (r->color_binding && pgraph_color_write_enabled(pg)) {
         r->color_binding->draw_time = pg->draw_time;
     }
-    if (r->zeta_binding && pgraph_zeta_write_enabled(pg)) {
+    if (r->zeta_binding && pgraph_zeta_draw_write_enabled(pg)) {
         r->zeta_binding->draw_time = pg->draw_time;
     }
 
@@ -3489,9 +3489,9 @@ void pgraph_vk_clear_surface(NV2AState *d, uint32_t parameter)
     end_draw(pg);
     pgraph_vk_end_debug_marker(r, r->command_buffer);
 
-    pg->clearing = false;
-
     pgraph_vk_set_surface_dirty(pg, write_color, write_zeta);
+
+    pg->clearing = false;
 
     NV2A_VK_DGROUP_END();
 }
@@ -3563,8 +3563,8 @@ void pgraph_vk_set_surface_dirty(PGRAPHState *pg, bool color, bool zeta)
     PGRAPHVkState *r = pg->vk_renderer_state;
 
     /* FIXME: Does this apply to CLEARs too? */
-    color = color && pgraph_color_write_enabled(pg);
-    zeta = zeta && pgraph_zeta_write_enabled(pg);
+    color = color && (pg->clearing || pgraph_color_write_enabled(pg));
+    zeta = zeta && (pg->clearing || pgraph_zeta_draw_write_enabled(pg));
     pg->surface_color.draw_dirty |= color;
     pg->surface_zeta.draw_dirty |= zeta;
 

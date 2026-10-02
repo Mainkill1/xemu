@@ -33,6 +33,7 @@ tests = {
   'test-xbox-mcpx-apu-worker-count': [],
   'test-xbox-pgraph-texture-layout': [],
   'test-xbox-pgraph-uniform-dirty': [xbox_i386_target_headers],
+  'test-xbox-pgraph-zeta-write': [xbox_i386_target_headers],
   'test-xbox-pgraph-uniform-source': [],
   'test-xbox-pgraph-renderer-switch-locking': [
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/renderer-switch.c',
