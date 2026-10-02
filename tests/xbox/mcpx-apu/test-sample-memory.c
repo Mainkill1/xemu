@@ -7,6 +7,7 @@
 #include "qemu/thread.h"
 #include "qapi/error.h"
 #include "system/cpus.h"
+#include "system/ram_addr.h"
 #include "hw/boards.h"
 #include "hw/xbox/mcpx/apu/vp/sample-memory.h"
 #include "hw/xbox/mcpx/apu/vp/adpcm.h"
@@ -23,6 +24,58 @@ static uint32_t descriptor_page = 0x4000;
 static unsigned payload_reads;
 static QemuEvent remap_requested, remap_finished;
 static const unsigned warmup_blocks = 4096;
+
+typedef struct LifetimeRam {
+    Object parent_obj;
+    MemoryRegion ram;
+    unsigned *finalized;
+} LifetimeRam;
+
+static void lifetime_ram_finalize(Object *obj)
+{
+    LifetimeRam *bank = (LifetimeRam *)obj;
+    qatomic_inc(bank->finalized);
+}
+
+static const TypeInfo lifetime_ram_type = {
+    .name = "test-mcpx-lifetime-ram",
+    .parent = TYPE_OBJECT,
+    .instance_size = sizeof(LifetimeRam),
+    .instance_finalize = lifetime_ram_finalize,
+};
+
+static LifetimeRam *lifetime_ram_new(unsigned *finalized, bool resizable)
+{
+    LifetimeRam *bank = (LifetimeRam *)object_new(lifetime_ram_type.name);
+    bank->finalized = finalized;
+    if (resizable) {
+        memory_region_init_resizeable_ram(&bank->ram, OBJECT(bank),
+                                          "test-resizable-payload", 8192, 8192,
+                                          NULL, &error_fatal);
+    } else {
+        memory_region_init_ram_nomigrate(
+            &bank->ram, OBJECT(bank), "test-owned-payload", 4096, &error_fatal);
+    }
+    return bank;
+}
+
+static unsigned resize_payload_reads;
+
+static uint64_t read_resize_payload(void *opaque, hwaddr addr, unsigned size)
+{
+    g_assert_cmpuint(size, ==, 4);
+    g_assert_cmphex(addr, ==, 4096 + resize_payload_reads * 4);
+    return 0x55660000U + resize_payload_reads++;
+}
+
+static const MemoryRegionOps resize_payload_ops = {
+    .read = read_resize_payload,
+    .endianness = DEVICE_LITTLE_ENDIAN,
+    .valid.min_access_size = 4,
+    .valid.max_access_size = 4,
+};
+
+static MemoryRegion resize_fallback;
 
 /* Original non-streaming ADPCM loads, retained as a component control. */
 static void read_original_block(uint32_t linear, uint32_t *words,
@@ -225,6 +278,105 @@ static void test_mmio_payload(void)
     }
 }
 
+typedef struct LifetimeRead {
+    uint32_t words[9];
+    unsigned word_count;
+} LifetimeRead;
+
+static void *lifetime_reader(void *opaque)
+{
+    LifetimeRead *read = opaque;
+    rcu_register_thread();
+    read_block(0, read->words, read->word_count);
+    /* The reader can release the last cached view reference. Drain on the
+     * thread that queued it; the main thread releases BQL while joining. */
+    drain_call_rcu();
+    rcu_unregister_thread();
+    return NULL;
+}
+
+/* Dropping the view guard would reuse stale RAM after either an owned region
+ * retires or a shrink exposes MMIO. Events stop the reader at descriptor 2;
+ * every payload expectation is independent of the cache implementation. */
+static void test_owned_memory_lifetime(gconstpointer opaque)
+{
+    bool resizing = GPOINTER_TO_UINT(opaque);
+    unsigned finalized = 0;
+    qemu_event_init(&remap_requested, false);
+    qemu_event_init(&remap_finished, false);
+    for (unsigned generation = 0; generation < 64; generation++) {
+        reset_memory();
+        resize_payload_reads = 0;
+        LifetimeRam *old = lifetime_ram_new(&finalized, resizing);
+        LifetimeRam *replacement =
+            resizing ? NULL : lifetime_ram_new(&finalized, false);
+        uint8_t *data = memory_region_get_ram_ptr(&old->ram);
+        unsigned offset = resizing ? 4092 : 0;
+        stl_le_p(data + offset, 0x11223344);
+        for (unsigned i = 1; i < 9; i++) {
+            stl_le_p(data + offset + 4 * i, 0xdeadbeef);
+        }
+        if (replacement) {
+            uint8_t *next = memory_region_get_ram_ptr(&replacement->ram);
+            stl_le_p(next + 4, 0x55667788);
+            stl_le_p(next + 8, 0x99aabbcc);
+        }
+        memory_region_add_subregion_overlap(get_system_memory(), 0x40000,
+                                            &old->ram, 1);
+        descriptor_page = 0x40000 + offset;
+        threaded_change = true;
+        qemu_event_reset(&remap_requested);
+        qemu_event_reset(&remap_finished);
+        LifetimeRead read = { .word_count = resizing ? 9 : 3 };
+        QemuThread reader;
+        qemu_thread_create(&reader, "lifetime-reader", lifetime_reader, &read,
+                           QEMU_THREAD_JOINABLE);
+        qemu_event_wait(&remap_requested);
+        if (resizing) {
+            g_assert_cmpint(
+                qemu_ram_resize(old->ram.ram_block, 4096, &error_fatal), ==, 0);
+        } else {
+            memory_region_transaction_begin();
+            memory_region_del_subregion(get_system_memory(), &old->ram);
+            memory_region_add_subregion_overlap(get_system_memory(), 0x40000,
+                                                &replacement->ram, 1);
+            memory_region_transaction_commit();
+            /* Release the last fixture reference. The live read must keep
+             * its old backing alive until it stops using that mapping. */
+            object_unref(OBJECT(old));
+            old = NULL;
+        }
+        g_assert_cmpuint(qatomic_read(&finalized), ==,
+                         generation * (resizing ? 1 : 2));
+        qemu_event_set(&remap_finished);
+        bql_unlock();
+        qemu_thread_join(&reader);
+        bql_lock();
+        g_assert_cmphex(read.words[0], ==, 0x11223344);
+        if (resizing) {
+            for (unsigned i = 1; i < 9; i++) {
+                g_assert_cmphex(read.words[i], ==, 0x55660000U + i - 1);
+            }
+            g_assert_cmpuint(resize_payload_reads, ==, 8);
+        } else {
+            g_assert_cmphex(read.words[1], ==, 0x55667788);
+            g_assert_cmphex(read.words[2], ==, 0x99aabbcc);
+        }
+        g_assert_cmpuint(descriptor_reads, ==, read.word_count);
+        LifetimeRam *remaining = resizing ? old : replacement;
+        memory_region_del_subregion(get_system_memory(), &remaining->ram);
+        object_unref(OBJECT(remaining));
+        /* The retired reader view was drained by its own thread. Drain the
+         * final unmapping here; a cache leak prevents owner finalization. */
+        drain_call_rcu();
+        g_assert_cmpuint(qatomic_read(&finalized), ==,
+                         (generation + 1) * (resizing ? 1 : 2));
+    }
+    threaded_change = false;
+    qemu_event_destroy(&remap_finished);
+    qemu_event_destroy(&remap_requested);
+}
+
 static void *remap_reader(void *opaque)
 {
     rcu_register_thread();
@@ -380,6 +532,7 @@ int __wrap_main(int argc, char **argv)
     qemu_init_cpu_loop();
     bql_lock();
     module_call_init(MODULE_INIT_QOM);
+    type_register_static(&lifetime_ram_type);
     current_machine = MACHINE(object_new("xbox-machine"));
     object_property_add_child(object_get_root(), "machine",
                               OBJECT(current_machine));
@@ -389,6 +542,10 @@ int __wrap_main(int argc, char **argv)
     if (benchmark) {
         return run_benchmark(words, blocks);
     }
+    memory_region_init_io(&resize_fallback, NULL, &resize_payload_ops, NULL,
+                          "test-resize-fallback", 8192);
+    memory_region_add_subregion_overlap(get_system_memory(), 0x40000,
+                                        &resize_fallback, 0);
     g_test_add_func(
         "/mcpx-apu/sample-memory/real-mapping-replaced-between-words",
         test_mapping_replaced_between_words);
@@ -414,5 +571,9 @@ int __wrap_main(int argc, char **argv)
     g_test_add_data_func("/mcpx-apu/sample-memory/threaded-descriptor-change",
                          GUINT_TO_POINTER(DESCRIPTOR_CHANGE),
                          test_threaded_observation_change);
+    g_test_add_data_func("/mcpx-apu/sample-memory/owned-ram-retirement",
+                         GUINT_TO_POINTER(0), test_owned_memory_lifetime);
+    g_test_add_data_func("/mcpx-apu/sample-memory/owned-ram-resize",
+                         GUINT_TO_POINTER(1), test_owned_memory_lifetime);
     return g_test_run();
 }
