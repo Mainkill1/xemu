@@ -14,7 +14,7 @@ build/test-xbox-mcpx-apu-real-memory --tap
 build/test-xbox-mcpx-apu-real-memory --baseline --tap
 ```
 
-The eleven real-memory cases run against both readers:
+The thirteen real-memory cases run against both readers:
 
 - Nine-word mono and eighteen-word stereo RAM payloads.
 - Same-address RAM replacement between the first and second encoded word.
@@ -27,12 +27,20 @@ The eleven real-memory cases run against both readers:
   second descriptor callback while the BQL owner publishes the change. The
   reader registers with RCU; the synthetic descriptor uses lockless MMIO to
   avoid acquiring BQL while the owner waits for the event.
+- Owned RAM retirement/replacement and resizable RAM shrinking to expose
+  MMIO, with 64 generations per scenario. The same descriptor events order
+  the changes. Every returned word is checked; the shrink checks all eight
+  fallback MMIO accesses. Reader and map-writer RCU drains complete before
+  checking that all retired QOM owners have finalized.
 
 Both readers must observe each change at the same word boundary. The table-base
 case distinguishes the second word's already-selected descriptor from the
 third word's newly selected table. No sleeps establish correctness. These are
-event-ordered component checks, not qualification of arbitrary unsynchronized
-topology changes, RAM destruction/resize, voice mixing, or native sound output.
+event-ordered component checks. They cover legal owned-region retirement and
+resize; they do not qualify arbitrary unsynchronized topology changes,
+same-map backing-pointer replacement, destruction that violates QEMU ownership,
+voice mixing, or native sound output. Owner finalization is checked, rather
+than the completion of every subsequent deferred physical RAM allocation free.
 
 For fixed-work measurements, use the **same executable** for both modes:
 
