@@ -4646,6 +4646,24 @@ foreach target : target_dirs
       'dependencies': []
     }]
   endif
+  # Use the actual system memory implementation, without starting the UI.
+  # GNU ld/lld wrapping is Linux-only; API-double tests cover other hosts.
+  if target == 'i386-softmmu' and host_os == 'linux'
+    sample_memory_test = executable('test-xbox-mcpx-apu-real-memory',
+      files('tests/xbox/mcpx-apu/test-sample-memory.c'),
+      c_args: c_args,
+      dependencies: arch_deps + [sdl],
+      objects: lib.extract_all_objects(recursive: true),
+      include_directories: target_inc,
+      link_depends: [block_syms, qemu_syms],
+      link_args: link_args + ['-Wl,--wrap=main'],
+      build_by_default: false)
+    test('test-xbox-mcpx-apu-real-memory', sample_memory_test,
+      args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+    test('test-xbox-mcpx-apu-real-memory-baseline', sample_memory_test,
+      args: ['--baseline', '--tap', '-k'], protocol: 'tap', suite: ['unit'])
+  endif
+
   foreach exe: execs
     exe_name = exe['name']
     if host_os == 'darwin'

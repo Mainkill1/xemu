@@ -1,0 +1,10 @@
+TAP version 14
+# random seed: R02S3b493cba3679179f9f06701b8564b6bd
+1..3
+# Start of mcpx-apu tests
+# Start of sample-memory tests
+ok 1 /mcpx-apu/sample-memory/real-mapping-replaced-between-words
+ok 2 /mcpx-apu/sample-memory/real-ram-mono
+ok 3 /mcpx-apu/sample-memory/real-ram-stereo
+# End of sample-memory tests
+# End of mcpx-apu tests

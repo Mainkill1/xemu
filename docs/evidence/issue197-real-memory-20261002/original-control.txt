@@ -1,0 +1,10 @@
+TAP version 14
+# random seed: R02Sa929c81d1a3387414f9c27cba7b80720
+1..1
+# Start of mcpx-apu tests
+# Start of sample-memory tests
+ok 1 /mcpx-apu/sample-memory/real-mapping-replaced-between-words
+# End of sample-memory tests
+# End of mcpx-apu tests
+
+Exit: 0

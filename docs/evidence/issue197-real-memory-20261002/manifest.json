@@ -1,0 +1,139 @@
+{
+  "base": "ee5ce48b48784f999af374c1452003f8b2b1230f",
+  "previousHead": "a3f067c796691a6156402c7e4d40632e50595b06",
+  "host": "local Linux, GCC14; not Steam Deck",
+  "nativeHostForNextStage": "10.0.0.123",
+  "recommendation": "HOLD",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 3877,
+      "sha256": "cf83e45042d72a5d69381f79096e7bb70160ff13f2962cb5b1acc8c4e9a7f834"
+    },
+    {
+      "path": "api-double-green.txt",
+      "bytes": 697,
+      "sha256": "b89512a8414d96590efa4a065fcd55e54dde7ad461de179ab191a2d524488458"
+    },
+    {
+      "path": "benchmark-baseline-18-local.json",
+      "bytes": 161,
+      "sha256": "34f8d5a4d6aed3947f7b9fb4e8ba03e38720d4e35cf5b5f35973e09fe4551f5d"
+    },
+    {
+      "path": "benchmark-baseline-9-local.json",
+      "bytes": 160,
+      "sha256": "2abff4f578f443a82779a067a43e0cd0d6ad7aaa704eb4ee10d521f6f369c202"
+    },
+    {
+      "path": "benchmark-candidate-18-local.json",
+      "bytes": 162,
+      "sha256": "5e9281c4e8b2a4cd6d6cf3407ee9befdf00e1a2f5759f5453a8161d6ba971fad"
+    },
+    {
+      "path": "benchmark-candidate-9-local.json",
+      "bytes": 161,
+      "sha256": "80242e4f8fa02b159a36869438a233951202285b826912cab968c4464f9dbcad"
+    },
+    {
+      "path": "build-probe.py",
+      "bytes": 1723,
+      "sha256": "4d60a161e9216dbc7f3a8d994a2f0230d6cac450cbb759434148700fe0ae597f"
+    },
+    {
+      "path": "candidate-red.txt",
+      "bytes": 645,
+      "sha256": "7d600dafe5524fec8fdb513dbf422a78e63dc582075d94443fb48a0b8a3ce4af"
+    },
+    {
+      "path": "commands.json",
+      "bytes": 37958,
+      "sha256": "569ef62ed3229238a07ac12486eabb4d556e53b371174bb9c5d9abe20c9e429d"
+    },
+    {
+      "path": "first-run.txt",
+      "bytes": 160,
+      "sha256": "15e2102c092a475d097127f43edb891612cef2fd049e8fcb8f99ab175cedd660"
+    },
+    {
+      "path": "focused-meson-tests.log",
+      "bytes": 471,
+      "sha256": "f83f1ad8dd188c826f5facd88c438c3880aca0293576e0ddb30b6ce9f9bf7b92"
+    },
+    {
+      "path": "focused-target-build.log",
+      "bytes": 420,
+      "sha256": "dbc3ff65e5739c4353548b403858360a3e2681f41264e01980cfdffe2983cc4e"
+    },
+    {
+      "path": "fourth-run.txt",
+      "bytes": 645,
+      "sha256": "f95e8d2fcc9f396922f7a95554552295d37c7c9d50ae435fe5ab5a4b16ccaef1"
+    },
+    {
+      "path": "full-unit-suite.log",
+      "bytes": 150087,
+      "sha256": "4d0e1a0ee51da11d817a0945ad68dfa266070357abd81b957b848831b404249b"
+    },
+    {
+      "path": "gdb-third-run.txt",
+      "bytes": 2545,
+      "sha256": "f76c593bd0d7ee8a589311473c9d85f1a587b5f56609510defb1350eec1d9f66"
+    },
+    {
+      "path": "guard.patch",
+      "bytes": 1094,
+      "sha256": "fbdacc59da5cf6345519d9c62b9c739ac5dff4fed00c15e0e85242d2b24b69a9"
+    },
+    {
+      "path": "original-control.txt",
+      "bytes": 256,
+      "sha256": "f382d8191d0e566a135f39f584de57965170613a962118fc5a4be21f5c5ee9b8"
+    },
+    {
+      "path": "real-current-green.txt",
+      "bytes": 335,
+      "sha256": "1891c27d79b70d15315c88bb0be8804fe13e17ec3ca3238f5be4b0f90730b360"
+    },
+    {
+      "path": "real-original-control.txt",
+      "bytes": 335,
+      "sha256": "93c131bf084b39682ca3630b30385c8c09a10f4bb4d643c71993ff78e24f2a3a"
+    },
+    {
+      "path": "real-target-verification-commands.json",
+      "bytes": 1028,
+      "sha256": "e3101a943a712505f884532e384a387669b2dc88133f81c70f78e8436d44ba0b"
+    },
+    {
+      "path": "repair-plan.md",
+      "bytes": 1035,
+      "sha256": "73a212e69c6ac39d7ef0e46f49f4f7607cea2220e0a19f89e1f3e65ee283464f"
+    },
+    {
+      "path": "review.txt",
+      "bytes": 493,
+      "sha256": "3c804e8c365d3791fb632ba3786531fc91b4311f278cefc147ea9cf6fbe27b06"
+    },
+    {
+      "path": "second-run.txt",
+      "bytes": 208,
+      "sha256": "a49e3a3258c4de09193db9d5ea642a48b51dfafc93c5a4cbe13b8ca0800d002d"
+    },
+    {
+      "path": "stale-mapping-reader.h",
+      "bytes": 3318,
+      "sha256": "a69a820600c708f2524acd8c05a6915129b4bbf5c329c62600e587cd7e2bb737"
+    },
+    {
+      "path": "test-memory.c",
+      "bytes": 3460,
+      "sha256": "2b94a5357e96c5e753ad59336c3a0d7a7b7165918eae2f900332d2c456781cdd"
+    },
+    {
+      "path": "third-run.txt",
+      "bytes": 140,
+      "sha256": "8c330af9729f8c4c99ec8067e3b5c3b4b7e7d01a9cdb6b089a89bee6d3390062"
+    }
+  ]
+}

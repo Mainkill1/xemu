@@ -1,0 +1,1950 @@
+[0/1] Regenerating build files
+The Meson build system
+Version: 1.9.0
+Source dir: /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory
+Build dir: /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory
+Build type: native build
+Project name: qemu
+Project version: 10.2.0
+C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+C linker for the host machine: cc -m64 ld.bfd 2.44
+C++ compiler for the host machine: c++ -m64 (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+C++ linker for the host machine: c++ -m64 ld.bfd 2.44
+Host machine cpu family: x86_64
+Host machine cpu: x86_64
+Program scripts/symlink-install-tree.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/scripts/symlink-install-tree.py)
+Program sh found: YES (/usr/bin/sh)
+Program python3 found: YES (/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/pyvenv/bin/python3)
+Compiler for language rust skipped: feature rust disabled
+Program iasl found: NO
+Program bzip2 found: YES (/usr/bin/bzip2)
+Program scripts/xemu-version.sh found: YES (/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/scripts/xemu-version.sh)
+Compiler for C supports link arguments -Wl,-z,relro: YES (cached)
+Compiler for C supports link arguments -Wl,-z,now: YES (cached)
+Checking if "-fzero-call-used-regs=used-gpr" compiles: YES (cached)
+Compiler for C supports arguments -ftrivial-auto-var-init=zero: YES (cached)
+Compiler for C supports arguments -fzero-call-used-regs=used-gpr: YES (cached)
+Compiler for C supports arguments -Wempty-body: YES (cached)
+Compiler for C supports arguments -Wendif-labels: YES (cached)
+Compiler for C supports arguments -Wexpansion-to-defined: YES (cached)
+Compiler for C supports arguments -Wformat-security: YES (cached)
+Compiler for C supports arguments -Wformat-y2k: YES (cached)
+Compiler for C supports arguments -Wignored-qualifiers: YES (cached)
+Compiler for C supports arguments -Wimplicit-fallthrough=2: YES (cached)
+Compiler for C supports arguments -Winit-self: YES (cached)
+Compiler for C supports arguments -Wmissing-format-attribute: YES (cached)
+Compiler for C supports arguments -Wmissing-prototypes: YES (cached)
+Compiler for C supports arguments -Wnested-externs: YES (cached)
+Compiler for C supports arguments -Wold-style-declaration: YES (cached)
+Compiler for C supports arguments -Wold-style-definition: YES (cached)
+Compiler for C supports arguments -Wredundant-decls: YES (cached)
+Compiler for C supports arguments -Wshadow=local: YES (cached)
+Compiler for C supports arguments -Wstrict-prototypes: YES (cached)
+Compiler for C supports arguments -Wtype-limits: YES (cached)
+Compiler for C supports arguments -Wwrite-strings: YES (cached)
+Compiler for C supports arguments -Wno-gnu-variable-sized-type-not-at-end: NO (cached)
+Compiler for C supports arguments -Wno-initializer-overrides: NO (cached)
+Compiler for C supports arguments -Wno-missing-include-dirs: YES (cached)
+Compiler for C supports arguments -Wno-psabi: YES (cached)
+Compiler for C supports arguments -Wno-shift-negative-value: YES (cached)
+Compiler for C supports arguments -Wno-string-plus-int: NO (cached)
+Compiler for C supports arguments -Wno-tautological-type-limit-compare: NO (cached)
+Compiler for C supports arguments -Wno-typedef-redefinition: NO (cached)
+Compiler for C++ supports arguments -Wempty-body: YES (cached)
+Compiler for C++ supports arguments -Wendif-labels: YES (cached)
+Compiler for C++ supports arguments -Wexpansion-to-defined: YES (cached)
+Compiler for C++ supports arguments -Wformat-security: YES (cached)
+Compiler for C++ supports arguments -Wformat-y2k: YES (cached)
+Compiler for C++ supports arguments -Wignored-qualifiers: YES (cached)
+Compiler for C++ supports arguments -Wimplicit-fallthrough=2: YES (cached)
+Compiler for C++ supports arguments -Winit-self: YES (cached)
+Compiler for C++ supports arguments -Wmissing-format-attribute: YES (cached)
+Compiler for C++ supports arguments -Wmissing-prototypes: NO (cached)
+Compiler for C++ supports arguments -Wnested-externs: NO (cached)
+Compiler for C++ supports arguments -Wold-style-declaration: NO (cached)
+Compiler for C++ supports arguments -Wold-style-definition: NO (cached)
+Compiler for C++ supports arguments -Wredundant-decls: YES (cached)
+Compiler for C++ supports arguments -Wshadow=local: YES (cached)
+Compiler for C++ supports arguments -Wstrict-prototypes: NO (cached)
+Compiler for C++ supports arguments -Wtype-limits: YES (cached)
+Compiler for C++ supports arguments -Wwrite-strings: YES (cached)
+Compiler for C++ supports arguments -Wno-gnu-variable-sized-type-not-at-end: NO (cached)
+Compiler for C++ supports arguments -Wno-initializer-overrides: NO (cached)
+Compiler for C++ supports arguments -Wno-missing-include-dirs: YES (cached)
+Compiler for C++ supports arguments -Wno-psabi: YES (cached)
+Compiler for C++ supports arguments -Wno-shift-negative-value: YES (cached)
+Compiler for C++ supports arguments -Wno-string-plus-int: NO (cached)
+Compiler for C++ supports arguments -Wno-tautological-type-limit-compare: NO (cached)
+Compiler for C++ supports arguments -Wno-typedef-redefinition: NO (cached)
+Program cgcc skipped: feature sparse disabled
+Library m found: YES
+Dependency threads found: YES unknown (cached)
+Library util found: YES
+Dependency glib-2.0 found: YES 2.84.4 (cached)
+Dependency gio-2.0 skipped: feature gio disabled
+Program scripts/xml-preprocess.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/scripts/xml-preprocess.py)
+Dependency pixman-1 skipped: feature pixman disabled
+Dependency zlib found: YES 1.3.1 (cached)
+Library aio skipped: feature linux_aio disabled
+Dependency liburing skipped: feature linux_io_uring disabled
+Dependency libnfs skipped: feature libnfs disabled
+Dependency appleframeworks (modules: Cocoa, CoreVideo, QuartzCore) skipped: feature cocoa disabled
+Dependency appleframeworks (modules: vmnet) skipped: feature vmnet disabled
+Dependency libseccomp skipped: feature seccomp disabled
+Library cap-ng skipped: feature cap_ng disabled
+Dependency xkbcommon skipped: feature xkbcommon disabled
+Dependency slirp found: YES 4.8.0 (cached)
+Library vdeplug skipped: feature vde disabled
+Dependency libpulse skipped: feature pa disabled
+Dependency alsa skipped: feature alsa disabled
+Dependency jack skipped: feature jack disabled
+Dependency libpipewire-0.3 skipped: feature pipewire disabled
+Dependency sndio skipped: feature sndio disabled
+Dependency spice-protocol skipped: feature spice_protocol disabled
+Checking for function "shm_open" : YES (cached)
+Dependency libiscsi skipped: feature libiscsi disabled
+Dependency libzstd skipped: feature zstd disabled
+Dependency qpl skipped: feature qpl disabled
+Dependency libwd skipped: feature uadk disabled
+Dependency libwd_comp skipped: feature uadk disabled
+Dependency qatzip skipped: feature qatzip disabled
+Dependency virglrenderer skipped: feature virglrenderer disabled
+Dependency rutabaga_gfx_ffi skipped: feature rutabaga_gfx disabled
+Dependency blkio skipped: feature blkio disabled
+Dependency libcurl found: YES 8.14.1 (cached)
+Dependency libudev skipped: feature libudev disabled
+Dependency igvm skipped: feature igvm disabled
+Library brlapi skipped: feature brlapi disabled
+Dependency sdl3 found: YES 3.2.10 (cached)
+Dependency SDL3_image skipped: feature sdl_image disabled
+Library rados skipped: feature rbd disabled
+Library rbd skipped: feature rbd disabled
+Dependency glusterfs-api skipped: feature glusterfs disabled
+Dependency libssh skipped: feature libssh disabled
+Library bz2 skipped: feature bzip2 disabled
+Library lzfse skipped: feature lzfse disabled
+Has header "dsound.h" : NO (cached)
+Dependency appleframeworks (modules: CoreAudio) skipped: feature coreaudio disabled
+Dependency epoxy found: YES 1.5.10 (cached)
+Dependency gbm found: YES 25.0.7-2+deb13u1 (cached)
+Dependency libcbor skipped: feature libcbor disabled
+Dependency libgcrypt skipped: feature gcrypt disabled
+Dependency nettle skipped: feature nettle disabled
+Dependency capstone skipped: feature capstone disabled
+Dependency gmp found: YES 6.3.0 (cached)
+Library pam skipped: feature auth_pam disabled
+Library snappy skipped: feature snappy disabled
+Library lzo2 skipped: feature lzo disabled
+Library numa skipped: feature numa disabled
+Library rdmacm skipped: feature rdma disabled
+Library ibverbs skipped: feature rdma disabled
+Dependency libcacard skipped: feature smartcard disabled
+Dependency u2f-emu skipped: feature u2f disabled
+Dependency canokey-qemu skipped: feature canokey disabled
+Dependency libusbredirparser-0.5 skipped: feature usb_redir disabled
+Dependency libusb-1.0 found: YES 1.0.28 (cached)
+Dependency libpmem skipped: feature libpmem disabled
+Dependency libdaxctl skipped: feature libdaxctl disabled
+Dependency libkeyutils skipped: feature libkeyutils disabled
+Checking for function "gettid" : YES (cached)
+Dependency libselinux skipped: feature selinux disabled
+Dependency fuse3 skipped: feature fuse disabled
+Dependency libbpf skipped: feature bpf disabled
+Dependency libdw skipped: feature libdw disabled
+Dependency vulkan found: YES 1.4.309 (cached)
+Found pkg-config: YES (/usr/bin/pkg-config) 1.8.1
+Dependency glslang found: NO. Unknown version, but need: ['>=15.0.0']
+Found CMake: /usr/bin/cmake (3.31.6)
+NOTICE: CMake reported that the package glslang was not found with the following reason:
+glslang could not be found because dependency Threads could not be found.
+Run-time dependency glslang found: NO (tried pkgconfig)
+
+Executing subproject glslang method cmake 
+
+glslang| Found CMake: /usr/bin/cmake (3.31.6)
+
+| Configuring the build directory with CMake version 3.31.6
+| Running CMake with: -G Ninja -DCMAKE_INSTALL_PREFIX=/usr/local -DENABLE_OPT=False -DENABLE_HLSL=False -DCMAKE_BUILD_TYPE=Debug
+| - build directory:          /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/subprojects/glslang/__CMake_build
+| - source directory:         /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/subprojects/glslang
+| - toolchain file:           /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/subprojects/glslang/__CMake_build/CMakeMesonToolchainFile.cmake
+| - preload file:             /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake
+| - trace args:               --trace-expand --trace-format=json-v1 --no-warn-unused-cli --trace-redirect=cmake_trace.txt
+| - disabled policy warnings: [CMP0025, CMP0047, CMP0056, CMP0060, CMP0065, CMP0066, CMP0067, CMP0082, CMP0089, CMP0102]
+
+| Put cmake in trace mode, but with variables expanded.
+| Put cmake in trace mode and sets the trace output format.
+| Not searching for unused variables given on the command line.
+| Put cmake in trace mode and redirect trace output to a file instead of stderr.
+| Trace will be written to cmake_trace.txt
+| -- The C compiler identification is GNU 14.2.0
+| -- The CXX compiler identification is GNU 14.2.0
+| -- Detecting C compiler ABI info
+| -- Detecting C compiler ABI info - done
+| -- Check for working C compiler: /usr/bin/cc - skipped
+| -- Detecting C compile features
+| -- Detecting C compile features - done
+| -- Detecting CXX compiler ABI info
+| -- Detecting CXX compiler ABI info - done
+| -- Check for working CXX compiler: /usr/bin/c++ - skipped
+| -- Detecting CXX compile features
+| -- Detecting CXX compile features - done
+| -- Google Mock was not found - tests based on that will not build
+| CMake Warning at /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake:18 (message):
+| The function 'target_precompile_headers' is disabled in the context of
+| CMake subprojects.
+
+| This should not be an issue but may lead to compilation errors.
+| Call Stack (most recent call first):
+| /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake:76 (meson_ps_disabled_function)
+| CMakeLists.txt:291 (target_precompile_headers)
+| glslang/CMakeLists.txt:184 (glslang_pch)
+
+
+| -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+| -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+| -- Found Threads: TRUE
+| -- Found Python3: /usr/bin/python3 (found version "3.13.5") found components: Interpreter
+| -- Configuring done (0.4s)
+| CMake Warning (dev) at SPIRV/CMakeLists.txt:76 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at glslang/OSDependent/Unix/CMakeLists.txt:42 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at glslang/CMakeLists.txt:170 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at glslang/CMakeLists.txt:136 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at glslang/CMakeLists.txt:54 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at glslang/CMakeLists.txt:220 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at StandAlone/CMakeLists.txt:50 (add_executable):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Generating done (0.0s)
+| -- Build files have been written to: /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/subprojects/glslang/__CMake_build
+
+glslang| CMake configuration: SUCCEEDED
+glslang| WARNING: The CMake function "target_precompile_headers" was disabled to avoid compatibility issues with Meson.
+glslang| CMake project glslang  has 8 build targets.
+glslang| Generated Meson AST: /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/subprojects/glslang/meson.build
+glslang| Project name: glslang
+glslang| Project version: undefined
+glslang| C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+glslang| C linker for the host machine: cc -m64 ld.bfd 2.44
+glslang| C++ compiler for the host machine: c++ -m64 (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+glslang| C++ linker for the host machine: c++ -m64 ld.bfd 2.44
+glslang| Build targets in project: 9
+glslang| Subproject glslang finished.
+
+
+Executing subproject volk method cmake 
+
+
+| Configuring the build directory with CMake version 3.31.6
+| Running CMake with: -G Ninja -DCMAKE_INSTALL_PREFIX=/usr/local -DVOLK_STATIC_DEFINES=VK_NO_PROTOTYPES -DCMAKE_BUILD_TYPE=Debug
+| - build directory:          /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/subprojects/volk/__CMake_build
+| - source directory:         /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/subprojects/volk
+| - toolchain file:           /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/subprojects/volk/__CMake_build/CMakeMesonToolchainFile.cmake
+| - preload file:             /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake
+| - trace args:               --trace-expand --trace-format=json-v1 --no-warn-unused-cli --trace-redirect=cmake_trace.txt
+| - disabled policy warnings: [CMP0025, CMP0047, CMP0056, CMP0060, CMP0065, CMP0066, CMP0067, CMP0082, CMP0089, CMP0102]
+
+| Put cmake in trace mode, but with variables expanded.
+| Put cmake in trace mode and sets the trace output format.
+| Not searching for unused variables given on the command line.
+| Put cmake in trace mode and redirect trace output to a file instead of stderr.
+| Trace will be written to cmake_trace.txt
+| -- The C compiler identification is GNU 14.2.0
+| -- Detecting C compiler ABI info
+| -- Detecting C compiler ABI info - done
+| -- Check for working C compiler: /usr/bin/cc - skipped
+| -- Detecting C compile features
+| -- Detecting C compile features - done
+| volk: using Vulkan_INCLUDE_DIRS from FindVulkan module
+| -- Configuring done (0.2s)
+| CMake Warning (dev) at CMakeLists.txt:35 (add_library):
+| Policy CMP0179 is not set: De-duplication of static libraries on link lines
+| keeps first occurrence.  Run "cmake --help-policy CMP0179" for policy
+| details.  Use the cmake_policy command to set the policy and suppress this
+| warning.
+
+| Since the policy is not set, static libraries de-duplication will keep the
+| last occurrence of the static libraries.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Generating done (0.0s)
+| -- Build files have been written to: /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/subprojects/volk/__CMake_build
+
+volk| CMake configuration: SUCCEEDED
+volk| CMake project volk 350 has 2 build targets.
+volk| Generated Meson AST: /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/subprojects/volk/meson.build
+volk| Project name: volk
+volk| Project version: 350
+volk| C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+volk| C linker for the host machine: cc -m64 ld.bfd 2.44
+volk| Build targets in project: 10
+volk| Subproject volk finished.
+
+
+Executing subproject SPIRV-Reflect method cmake 
+
+
+| Configuring the build directory with CMake version 3.31.6
+| Running CMake with: -G Ninja -DCMAKE_INSTALL_PREFIX=/usr/local -DSPIRV_REFLECT_STATIC_LIB=ON -DCMAKE_BUILD_TYPE=Debug
+| - build directory:          /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/subprojects/SPIRV-Reflect/__CMake_build
+| - source directory:         /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/subprojects/SPIRV-Reflect
+| - toolchain file:           /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/subprojects/SPIRV-Reflect/__CMake_build/CMakeMesonToolchainFile.cmake
+| - preload file:             /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake
+| - trace args:               --trace-expand --trace-format=json-v1 --no-warn-unused-cli --trace-redirect=cmake_trace.txt
+| - disabled policy warnings: [CMP0025, CMP0047, CMP0056, CMP0060, CMP0065, CMP0066, CMP0067, CMP0082, CMP0089, CMP0102]
+
+| Put cmake in trace mode, but with variables expanded.
+| Put cmake in trace mode and sets the trace output format.
+| Not searching for unused variables given on the command line.
+| Put cmake in trace mode and redirect trace output to a file instead of stderr.
+| Trace will be written to cmake_trace.txt
+| -- The C compiler identification is GNU 14.2.0
+| -- The CXX compiler identification is GNU 14.2.0
+| CMake Warning (dev) at /usr/share/cmake-3.31/Modules/CMakeFindBinUtils.cmake:225 (find_program):
+| Policy CMP0126 is not set: set(CACHE) does not remove a normal variable of
+| the same name.  Run "cmake --help-policy CMP0126" for policy details.  Use
+| the cmake_policy command to set the policy and suppress this warning.
+
+| For compatibility with older versions of CMake, normal variable
+| "CMAKE_TAPI" will be removed from the current scope.
+| Call Stack (most recent call first):
+| /usr/share/cmake-3.31/Modules/CMakeDetermineCXXCompiler.cmake:207 (include)
+| CMakeLists.txt:3 (project)
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Detecting C compiler ABI info
+| -- Detecting C compiler ABI info - done
+| -- Check for working C compiler: /usr/bin/cc - skipped
+| -- Detecting C compile features
+| -- Detecting C compile features - done
+| -- Detecting CXX compiler ABI info
+| -- Detecting CXX compiler ABI info - done
+| -- Check for working CXX compiler: /usr/bin/c++ - skipped
+| -- Detecting CXX compile features
+| -- Detecting CXX compile features - done
+| -- Configuring done (0.3s)
+| CMake Warning (dev) at CMakeLists.txt:27 (add_executable):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at CMakeLists.txt:58 (add_executable):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at CMakeLists.txt:116 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Generating done (0.0s)
+| -- Build files have been written to: /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/subprojects/SPIRV-Reflect/__CMake_build
+
+SPIRV-Reflect| CMake configuration: SUCCEEDED
+SPIRV-Reflect| CMake project spirv-reflect  has 3 build targets.
+SPIRV-Reflect| Generated Meson AST: /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/subprojects/SPIRV-Reflect/meson.build
+SPIRV-Reflect| Project name: spirv-reflect
+SPIRV-Reflect| Project version: undefined
+SPIRV-Reflect| C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+SPIRV-Reflect| C linker for the host machine: cc -m64 ld.bfd 2.44
+SPIRV-Reflect| C++ compiler for the host machine: c++ -m64 (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+SPIRV-Reflect| C++ linker for the host machine: c++ -m64 ld.bfd 2.44
+SPIRV-Reflect| Build targets in project: 13
+SPIRV-Reflect| Subproject SPIRV-Reflect finished.
+
+Dependency libpcap found: YES 1.10.5 (cached)
+Dependency samplerate found: YES 0.2.2 (cached)
+
+Executing subproject imgui 
+
+imgui| Project name: imgui
+imgui| Project version: 1.91.8
+imgui| C++ compiler for the host machine: c++ -m64 (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+imgui| C++ linker for the host machine: c++ -m64 ld.bfd 2.44
+imgui| Library d3dcompiler found: NO
+imgui| Library d3d9 skipped: feature dx9 disabled
+imgui| Library d3d10 skipped: feature dx10 disabled
+imgui| Library d3d11 skipped: feature dx11 disabled
+imgui| Library d3d12 skipped: feature dx12 disabled
+imgui| Dependency appleframeworks (modules: Foundation, AppKit, GameController, Metal) skipped: feature metal disabled
+imgui| Dependency gl found: YES 1.2 (cached)
+imgui| Library dl found: YES
+imgui| Dependency sdl2 skipped: feature sdl2_renderer disabled
+imgui| Dependency sdl3 skipped: feature sdl3_renderer disabled
+imgui| Dependency vulkan skipped: feature vulkan disabled
+imgui| Has header "webgpu/webgpu.h" skipped: feature webgpu disabled
+imgui| Dependency sdl2 skipped: feature sdl2 disabled
+imgui| Dependency sdl3 found: YES 3.2.10 (cached)
+imgui| Dependency allegro-5 skipped: feature allegro5 disabled
+imgui| Dependency allegro_primitives-5 skipped: feature allegro5 disabled
+imgui| Build targets in project: 14
+imgui| Subproject imgui finished.
+
+
+Executing subproject implot 
+
+implot| Project name: ImGui Plotting Library
+implot| Project version: 0.16
+implot| C++ compiler for the host machine: c++ -m64 (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+implot| C++ linker for the host machine: c++ -m64 ld.bfd 2.44
+implot| Build targets in project: 15
+implot| Subproject implot finished.
+
+
+Executing subproject genconfig 
+
+genconfig| Project name: genconfig
+genconfig| Project version: 0.1
+genconfig| C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+genconfig| C linker for the host machine: cc -m64 ld.bfd 2.44
+genconfig| Build targets in project: 15
+genconfig| Subproject genconfig finished.
+
+
+Executing subproject VulkanMemoryAllocator method cmake 
+
+
+| Configuring the build directory with CMake version 3.31.6
+| Running CMake with: -G Ninja -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_BUILD_TYPE=Debug
+| - build directory:          /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/subprojects/VulkanMemoryAllocator/__CMake_build
+| - source directory:         /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/subprojects/VulkanMemoryAllocator
+| - toolchain file:           /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/subprojects/VulkanMemoryAllocator/__CMake_build/CMakeMesonToolchainFile.cmake
+| - preload file:             /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake
+| - trace args:               --trace-expand --trace-format=json-v1 --no-warn-unused-cli --trace-redirect=cmake_trace.txt
+| - disabled policy warnings: [CMP0025, CMP0047, CMP0056, CMP0060, CMP0065, CMP0066, CMP0067, CMP0082, CMP0089, CMP0102]
+
+| Put cmake in trace mode, but with variables expanded.
+| Put cmake in trace mode and sets the trace output format.
+| Not searching for unused variables given on the command line.
+| Put cmake in trace mode and redirect trace output to a file instead of stderr.
+| Trace will be written to cmake_trace.txt
+| -- The CXX compiler identification is GNU 14.2.0
+| -- Detecting CXX compiler ABI info
+| -- Detecting CXX compiler ABI info - done
+| -- Check for working CXX compiler: /usr/bin/c++ - skipped
+| -- Detecting CXX compile features
+| -- Detecting CXX compile features - done
+| -- Configuring done (0.2s)
+| -- Generating done (0.0s)
+| -- Build files have been written to: /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/subprojects/VulkanMemoryAllocator/__CMake_build
+
+VulkanMemoryAllocator| CMake configuration: SUCCEEDED
+VulkanMemoryAllocator| CMake project VMA 3.4.0 has 1 build targets.
+VulkanMemoryAllocator| Generated Meson AST: /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/subprojects/VulkanMemoryAllocator/meson.build
+VulkanMemoryAllocator| Project name: VMA
+VulkanMemoryAllocator| Project version: 3.4.0
+VulkanMemoryAllocator| Build targets in project: 15
+VulkanMemoryAllocator| Subproject VulkanMemoryAllocator finished.
+
+Header "linux/fs.h" has symbol "FIFREEZE" : YES (cached)
+Header "linux/fs.h" has symbol "FITRIM" : YES (cached)
+Has header "sys/epoll.h" : YES (cached)
+Has header "linux/magic.h" : YES (cached)
+Has header "linux/btrfs.h" : YES (cached)
+Has header "libdrm/drm.h" : YES (cached)
+Has header "linux/openat2.h" : YES (cached)
+Has header "pty.h" : YES (cached)
+Has header "sys/disk.h" : NO (cached)
+Has header "sys/ioccom.h" : NO (cached)
+Has header "sys/kcov.h" : NO (cached)
+Checking for function "close_range" : YES (cached)
+Checking for function "accept4" : YES (cached)
+Checking for function "clock_adjtime" : YES (cached)
+Checking for function "dup3" : YES (cached)
+Checking for function "fallocate" : YES (cached)
+Checking for function "posix_fallocate" : YES (cached)
+Checking for function "sched_getcpu" : NO (cached)
+Checking for function "posix_memalign" : YES (cached)
+Checking for function "_aligned_malloc" : NO (cached)
+Checking for function "valloc" : YES (cached)
+Checking for function "memalign" : YES (cached)
+Checking for function "ppoll" : YES (cached)
+Checking for function "preadv" : YES (cached)
+Checking for function "pthread_fchdir_np" : NO (cached)
+Checking for function "sendfile" : YES (cached)
+Checking for function "setns" : YES (cached)
+Checking for function "unshare" : YES (cached)
+Checking for function "syncfs" : YES (cached)
+Checking for function "sync_file_range" : YES (cached)
+Checking for function "timerfd_create" : YES (cached)
+Checking for function "getloadavg" : YES (cached)
+Checking for function "htonll" : NO (cached)
+Checking for function "copy_file_range" : YES (cached)
+Checking for function "getifaddrs" : YES (cached)
+Checking for function "openpty" with dependency -lutil: YES (cached)
+Checking for function "strchrnul" : YES (cached)
+Checking for function "system" : YES (cached)
+Header "sys/inotify.h" has symbol "inotify_init" : YES (cached)
+Header "sys/inotify.h" has symbol "inotify_init1" : YES (cached)
+Header "linux/blkzoned.h" has symbol "BLKOPENZONE" : YES (cached)
+Header "sys/epoll.h" has symbol "epoll_create1" : YES (cached)
+Header "linux/falloc.h" has symbol "FALLOC_FL_PUNCH_HOLE" : YES (cached)
+Header "linux/falloc.h" has symbol "FALLOC_FL_KEEP_SIZE" : YES (cached)
+Header "linux/falloc.h" has symbol "FALLOC_FL_ZERO_RANGE" : YES (cached)
+Has header "linux/fiemap.h" : YES (cached)
+Header "linux/fs.h" has symbol "FS_IOC_FIEMAP" : YES (cached)
+Header "sched.h" has symbol "getcpu" : YES (cached)
+Checking for function "getrandom" : YES (cached)
+Header "sys/random.h" has symbol "GRND_NONBLOCK" : YES (cached)
+Header "sys/prctl.h" has symbol "PR_SET_TIMERSLACK" : YES (cached)
+Header "linux/rtnetlink.h" has symbol "IFLA_PROTO_DOWN" : YES (cached)
+Header "sys/sysmacros.h" has symbol "makedev" : YES (cached)
+Header "getopt.h" has symbol "optreset" : NO (cached)
+Header "netinet/in.h" has symbol "IPPROTO_MPTCP" : YES (cached)
+Header "netinet/tcp.h" has symbol "TCP_KEEPCNT" : YES (cached)
+Header "netinet/tcp.h" has symbol "TCP_KEEPIDLE" : YES (cached)
+Header "netinet/tcp.h" has symbol "TCP_KEEPINTVL" : YES (cached)
+Checking whether type "struct sigevent" has member "sigev_notify_thread_id" : NO (cached)
+Checking whether type "struct stat" has member "st_atim" : YES (cached)
+Checking whether type "struct blk_zone" has member "capacity" : YES (cached)
+Checking for type "struct iovec" : YES (cached)
+Checking for type "struct utmpx" : YES (cached)
+Header "asm/hwprobe.h" has symbol "RISCV_HWPROBE_EXT_ZBA" : NO (cached)
+Header "linux/vm_sockets.h" has symbol "AF_VSOCK" : YES (cached)
+Checking for size of "void *" : 8 (cached)
+Program scripts/minikconf.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/scripts/minikconf.py)
+Configuring i386-softmmu-config-target.h using configuration
+Configuring i386-softmmu-config-devices.mak with command
+Reading depfile: /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/meson-private/i386-softmmu-config-devices.mak.d
+Configuring i386-softmmu-config-devices.h using configuration
+Program scripts/make-config-poison.sh found: YES (/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/scripts/make-config-poison.sh)
+Run-time dependency tomlplusplus found: NO (tried pkgconfig and cmake)
+Looking for a fallback subproject for the dependency tomlplusplus
+
+Executing subproject tomlplusplus 
+
+tomlplusplus| Project name: tomlplusplus
+tomlplusplus| Project version: 3.4.0
+tomlplusplus| C++ compiler for the host machine: c++ -m64 (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+tomlplusplus| C++ linker for the host machine: c++ -m64 ld.bfd 2.44
+tomlplusplus| Message: target cpu_family: x86_64
+tomlplusplus| Message: target cpu: x86_64
+tomlplusplus| Message: target system: linux
+tomlplusplus| Message: target endian: little
+tomlplusplus| Compiler for C++ supports arguments -ferror-limit=5: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -fmax-errors=5: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-unused-command-line-argument: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-reserved-macro-identifier: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-init-list-lifetime: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments -fchar8_t: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments /bigobj: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /Gy: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /GF: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /openmp-: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /permissive-: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /utf-8: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /volatile:iso: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /Zc:__cplusplus: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /Zc:inline: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /Zc:externConstexpr: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /Zc:preprocessor: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments /Zc:throwingNew: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -D_HAS_EXCEPTIONS=1: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-c++98-compat: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-c++98-compat-pedantic: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-documentation: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-documentation-unknown-command: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-switch-enum: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-covered-switch-default: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-padded: YES (cached)
+tomlplusplus| Compiler for C++ supports arguments -Wno-float-equal: YES (cached)
+tomlplusplus| Compiler for C++ supports link arguments /OPT:REF,ICF=3: NO (cached)
+tomlplusplus| Compiler for C++ supports link arguments /INCREMENTAL:NO: NO (cached)
+tomlplusplus| Compiler for C++ supports arguments -DTOML_HEADER_ONLY=0: YES (cached)
+tomlplusplus| Build targets in project: 18
+tomlplusplus| Subproject tomlplusplus finished.
+
+Dependency tomlplusplus found: YES 3.4.0 (overridden)
+Run-time dependency libxxhash found: NO (tried pkgconfig and cmake)
+Looking for a fallback subproject for the dependency libxxhash
+
+Executing subproject xxhash 
+
+xxhash| Project name: xxHash
+xxhash| Project version: 0.8.3
+xxhash| C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+xxhash| C linker for the host machine: cc -m64 ld.bfd 2.44
+xxhash| Build targets in project: 20
+xxhash| Subproject xxhash finished.
+
+Dependency libxxhash found: YES 0.8.3 (overridden)
+Configuring config-host.h using configuration
+Program scripts/hxtool found: YES (/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/scripts/hxtool)
+Program scripts/shaderinclude.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/scripts/shaderinclude.py)
+Program scripts/qapi-gen.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/scripts/qapi-gen.py)
+Program scripts/pack-file.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/scripts/pack-file.py)
+Program scripts/qemu-version.sh found: YES (/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/scripts/qemu-version.sh)
+Run-time dependency nlohmann_json found: NO (tried pkgconfig and cmake)
+Looking for a fallback subproject for the dependency nlohmann_json
+
+Executing subproject nlohmann_json 
+
+nlohmann_json| Project name: nlohmann_json
+nlohmann_json| Project version: 3.12.0
+nlohmann_json| C++ compiler for the host machine: c++ -m64 (gcc 14.2.0 "c++ (Debian 14.2.0-19) 14.2.0")
+nlohmann_json| C++ linker for the host machine: c++ -m64 ld.bfd 2.44
+nlohmann_json| Build targets in project: 459
+nlohmann_json| Subproject nlohmann_json finished.
+
+Dependency nlohmann_json from subproject subprojects/nlohmann_json found: YES 3.12.0
+
+Executing subproject keycodemapdb 
+
+keycodemapdb| Project name: keycodemapdb
+keycodemapdb| Project version: undefined
+keycodemapdb| Program tools/keymap-gen found: YES (/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/subprojects/keycodemapdb/tools/keymap-gen)
+keycodemapdb| Build targets in project: 460
+keycodemapdb| Subproject keycodemapdb finished.
+
+
+Executing subproject nv2a_vsh_cpu method cmake 
+
+
+| Configuring the build directory with CMake version 3.31.6
+| Running CMake with: -G Ninja -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_OSX_ARCHITECTURES=x86_64 -Dnv2a_vsh_cpu_UNIT_TEST=OFF -DCMAKE_BUILD_TYPE=Debug
+| - build directory:          /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/subprojects/nv2a_vsh_cpu/__CMake_build
+| - source directory:         /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/subprojects/nv2a_vsh_cpu
+| - toolchain file:           /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/subprojects/nv2a_vsh_cpu/__CMake_build/CMakeMesonToolchainFile.cmake
+| - preload file:             /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/pyvenv/lib/python3.13/site-packages/mesonbuild/cmake/data/preload.cmake
+| - trace args:               --trace-expand --trace-format=json-v1 --no-warn-unused-cli --trace-redirect=cmake_trace.txt
+| - disabled policy warnings: [CMP0025, CMP0047, CMP0056, CMP0060, CMP0065, CMP0066, CMP0067, CMP0082, CMP0089, CMP0102]
+
+| Put cmake in trace mode, but with variables expanded.
+| Put cmake in trace mode and sets the trace output format.
+| Not searching for unused variables given on the command line.
+| Put cmake in trace mode and redirect trace output to a file instead of stderr.
+| Trace will be written to cmake_trace.txt
+| -- The C compiler identification is GNU 14.2.0
+| -- The CXX compiler identification is GNU 14.2.0
+| CMake Warning (dev) at /usr/share/cmake-3.31/Modules/CMakeFindBinUtils.cmake:225 (find_program):
+| Policy CMP0126 is not set: set(CACHE) does not remove a normal variable of
+| the same name.  Run "cmake --help-policy CMP0126" for policy details.  Use
+| the cmake_policy command to set the policy and suppress this warning.
+
+| For compatibility with older versions of CMake, normal variable
+| "CMAKE_TAPI" will be removed from the current scope.
+| Call Stack (most recent call first):
+| /usr/share/cmake-3.31/Modules/CMakeDetermineCXXCompiler.cmake:207 (include)
+| CMakeLists.txt:3 (project)
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Detecting C compiler ABI info
+| -- Detecting C compiler ABI info - done
+| -- Check for working C compiler: /usr/bin/cc - skipped
+| -- Detecting C compile features
+| -- Detecting C compile features - done
+| -- Detecting CXX compiler ABI info
+| -- Detecting CXX compiler ABI info - done
+| -- Check for working CXX compiler: /usr/bin/c++ - skipped
+| -- Detecting CXX compile features
+| -- Detecting CXX compile features - done
+| -- Configuring done (0.3s)
+| CMake Warning (dev) at CMakeLists.txt:32 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at CMakeLists.txt:44 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| CMake Warning (dev) at CMakeLists.txt:56 (add_library):
+| Policy CMP0156 is not set: De-duplicate libraries on link lines based on
+| linker capabilities.  Run "cmake --help-policy CMP0156" for policy details.
+| Use the cmake_policy command to set the policy and suppress this warning.
+
+| Since the policy is not set, legacy libraries de-duplication strategy will
+| be applied.
+| This warning is for project developers.  Use -Wno-dev to suppress it.
+
+| -- Generating done (0.0s)
+| -- Build files have been written to: /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/subprojects/nv2a_vsh_cpu/__CMake_build
+
+nv2a_vsh_cpu| CMake configuration: SUCCEEDED
+nv2a_vsh_cpu| CMake project nv2a_vsh_cpu  has 3 build targets.
+nv2a_vsh_cpu| Generated Meson AST: /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/subprojects/nv2a_vsh_cpu/meson.build
+nv2a_vsh_cpu| Project name: nv2a_vsh_cpu
+nv2a_vsh_cpu| Project version: undefined
+nv2a_vsh_cpu| C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+nv2a_vsh_cpu| C linker for the host machine: cc -m64 ld.bfd 2.44
+nv2a_vsh_cpu| Build targets in project: 494
+nv2a_vsh_cpu| Subproject nv2a_vsh_cpu finished.
+
+Run-time dependency dsp56300-emu-ffi found: NO (tried pkgconfig and cmake)
+Looking for a fallback subproject for the dependency dsp56300-emu-ffi
+
+Executing subproject dsp56300 
+
+dsp56300| Project name: dsp56300
+dsp56300| Project version: 0.1.3
+dsp56300| Build targets in project: 495
+dsp56300| Subproject dsp56300 finished.
+
+Dependency dsp56300-emu-ffi found: YES 0.1.3 (overridden)
+Program scripts/decodetree.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/scripts/decodetree.py)
+Program ../scripts/modules/module_block.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/block/../scripts/modules/module_block.py)
+Program ../scripts/block-coroutine-wrapper.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/block/../scripts/block-coroutine-wrapper.py)
+Program scripts/modinfo-collect.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/scripts/modinfo-collect.py)
+Program scripts/modinfo-generate.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/scripts/modinfo-generate.py)
+Program nm found: YES
+Program scripts/undefsym.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/scripts/undefsym.py)
+Program scripts/feature_to_c.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/scripts/feature_to_c.py)
+Program scripts/rust/rust_root_crate.sh found: YES (/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/scripts/rust/rust_root_crate.sh)
+Configuring 50-edk2-i386-secure.json using configuration
+Configuring 50-edk2-x86_64-secure.json using configuration
+Configuring 60-edk2-aarch64.json using configuration
+Configuring 60-edk2-arm.json using configuration
+Configuring 60-edk2-i386.json using configuration
+Configuring 60-edk2-x86_64.json using configuration
+Configuring 60-edk2-loongarch64.json using configuration
+Configuring 60-edk2-riscv64.json using configuration
+Program dtc found: NO
+Program qemu-keymap found: NO
+Program /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/pyvenv/bin/sphinx-build skipped: feature docs disabled
+Program /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/scripts/decodetree.py found: YES (/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/scripts/decodetree.py)
+
+Executing subproject berkeley-softfloat-3 
+
+berkeley-softfloat-3| Project name: berkeley-softfloat-3
+berkeley-softfloat-3| Project version: undefined
+berkeley-softfloat-3| C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+berkeley-softfloat-3| C linker for the host machine: cc -m64 ld.bfd 2.44
+berkeley-softfloat-3| Configuring platform.h using configuration
+berkeley-softfloat-3| Build targets in project: 576
+berkeley-softfloat-3| Subproject berkeley-softfloat-3 finished.
+
+
+Executing subproject berkeley-testfloat-3 
+
+berkeley-testfloat-3| Project name: berkeley-testfloat-3
+berkeley-testfloat-3| Project version: undefined
+berkeley-testfloat-3| C compiler for the host machine: cc -m64 (gcc 14.2.0 "cc (Debian 14.2.0-19) 14.2.0")
+berkeley-testfloat-3| C linker for the host machine: cc -m64 ld.bfd 2.44
+berkeley-testfloat-3| Configuring platform.h using configuration
+berkeley-testfloat-3| Compiler for C supports arguments -Wno-ignored-pragmas: NO (cached)
+berkeley-testfloat-3| Build targets in project: 578
+berkeley-testfloat-3| Subproject berkeley-testfloat-3 finished.
+
+Compiler for C supports arguments -ffunction-sections: YES (cached)
+Compiler for C supports arguments -fdata-sections: YES (cached)
+Compiler for C supports link arguments -Wl,--gc-sections: YES (cached)
+Compiler for C supports arguments -ffunction-sections: YES (cached)
+Compiler for C supports arguments -fdata-sections: YES (cached)
+Compiler for C supports link arguments -Wl,--gc-sections: YES (cached)
+Program test-xemu-version.sh found: YES (/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/tests/unit/test-xemu-version.sh)
+Program cc found: YES (/usr/bin/cc)
+Program diff found: YES (/usr/bin/diff)
+Program dbus-daemon found: YES (/usr/bin/dbus-daemon)
+Dependency sysprof-capture-4 found: YES 48.0 (cached)
+Dependency glib-2.0 found: YES 2.84.4 (cached)
+Program initrd-stress.sh found: YES (/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/tests/migration-stress/initrd-stress.sh)
+Build targets in project: 770
+
+qemu 10.2.0
+
+  Build environment
+    Build directory                 : /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory
+    Source path                     : /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory
+    Download dependencies           : YES
+
+  Directories
+    Build directory                 : /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory
+    Source path                     : /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory
+    Download dependencies           : YES
+    Install prefix                  : /usr/local
+    BIOS directory                  : share/qemu
+    firmware path                   : share/qemu-firmware
+    binary directory                : /usr/local/bin
+    library directory               : /usr/local/lib/x86_64-linux-gnu
+    module directory                : lib/x86_64-linux-gnu/qemu
+    libexec directory               : /usr/local/libexec
+    include directory               : /usr/local/include
+    config directory                : /usr/local/etc
+    local state directory           : /var/local
+    Manual directory                : /usr/local/share/man
+    Doc directory                   : /usr/local/share/doc
+
+  Host binaries
+    python                          : /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/pyvenv/bin/python3 (version: 3.13)
+    sphinx-build                    : NO
+    gdb                             : /usr/bin/gdb
+    iasl                            : NO
+    genisoimage                     : 
+    smbd                            : NO
+
+  Configurable features
+    Documentation                   : NO
+    system-mode emulation           : YES
+    user-mode emulation             : NO
+    block layer                     : YES
+    Install blobs                   : YES
+    module support                  : NO
+    fuzzing support                 : NO
+    Audio drivers                   : sdl
+    Trace backends                  : log
+    QOM debugging                   : YES
+    Relocatable install             : YES
+    vhost-kernel support            : NO
+    vhost-net support               : NO
+    vhost-user support              : NO
+    vhost-user-crypto support       : NO
+    vhost-user-blk server support   : NO
+    vhost-vdpa support              : NO
+    build guest agent               : NO
+
+  Compilation
+    host CPU                        : x86_64
+    host endianness                 : little
+    C compiler                      : cc -m64
+    Host C compiler                 : cc -m64
+    C++ compiler                    : c++ -m64
+    Objective-C compiler            : NO
+    Rust support                    : NO
+    CFLAGS                          : -DXBOX -g -O2
+    CXXFLAGS                        : -DXBOX -DXBOX -g -O2
+    LDFLAGS                         : -DXBOX
+    QEMU_CFLAGS                     : -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr
+    QEMU_CXXFLAGS                   : -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS
+    QEMU_LDFLAGS                    : -Wl,-z,relro -Wl,-z,now
+    link-time optimization (LTO)    : NO
+    PIE                             : YES
+    static build                    : NO
+    malloc trim support             : NO
+    membarrier                      : NO
+    debug graph lock                : NO
+    debug stack usage               : NO
+    mutex debugging                 : NO
+    memory allocator                : system
+    avx2 optimization               : YES
+    avx512bw optimization           : YES
+    gcov                            : NO
+    thread sanitizer                : NO
+    CFI support                     : NO
+    strip binaries                  : NO
+    sparse                          : NO
+    mingw32 support                 : NO
+
+  Cross compilers
+    i386                            : /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/pyvenv/bin/python3 -B /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/tests/docker/docker.py --engine docker cc --cc i686-linux-gnu-gcc -i qemu/debian-i686-cross -s /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory --
+
+  Targets and accelerators
+    KVM support                     : NO
+    HVF support                     : NO
+    WHPX support                    : NO
+    NVMM support                    : NO
+    MSHV support                    : NO
+    Xen support                     : NO
+    Xen emulation                   : NO
+    TCG support                     : YES
+    TCG backend                     : native (x86_64)
+    TCG plugins                     : NO
+    TCG debug enabled               : NO
+    target list                     : i386-softmmu
+    default devices                 : YES
+    out of process emulation        : NO
+    vfio-user server                : NO
+
+  Block layer support
+    coroutine backend               : ucontext
+    coroutine pool                  : YES
+    Block whitelist (rw)            : 
+    Block whitelist (ro)            : 
+    Use block whitelist in tools    : NO
+    VirtFS (9P) support             : NO
+    replication support             : NO
+    bochs support                   : NO
+    cloop support                   : NO
+    dmg support                     : NO
+    qcow v1 support                 : NO
+    vdi support                     : NO
+    vhdx support                    : NO
+    vmdk support                    : NO
+    vpc support                     : NO
+    vvfat support                   : NO
+    qed support                     : NO
+    parallels support               : NO
+    FUSE exports                    : NO
+    VDUSE block exports             : NO
+
+  Crypto
+    TLS priority                    : NORMAL
+    GNUTLS support                  : NO
+    libgcrypt                       : NO
+    nettle                          : NO
+    SM4 ALG support                 : NO
+    SM3 ALG support                 : NO
+    AF_ALG support                  : NO
+    rng-none                        : NO
+    Linux keyring                   : NO
+    Linux keyutils                  : NO
+
+  User interface
+    D-Bus display                   : NO
+    SDL support                     : YES 3.2.10
+    SDL image support               : NO
+    GTK support                     : NO
+    pixman                          : NO
+    VTE support                     : NO
+    PNG support                     : NO
+    VNC support                     : NO
+    spice protocol support          : NO
+    curses support                  : NO
+    brlapi support                  : NO
+
+  Graphics backends
+    VirGL support                   : NO
+    Rutabaga support                : NO
+
+  Audio backends
+    OSS support                     : NO
+    sndio support                   : NO
+    ALSA support                    : NO
+    PulseAudio support              : NO
+    PipeWire support                : NO
+    JACK support                    : NO
+
+  Network backends
+    AF_XDP support                  : NO
+    passt support                   : NO
+    slirp support                   : YES 4.8.0
+    vde support                     : NO
+    netmap support                  : NO
+    l2tpv3 support                  : NO
+
+  Dependencies
+    libtasn1                        : NO
+    PAM                             : NO
+    iconv support                   : NO
+    blkio support                   : NO
+    curl support                    : YES 8.14.1
+    Multipath support               : NO
+    Linux AIO support               : NO
+    Linux io_uring support          : NO
+    ATTR/XATTR support              : NO
+    RDMA support                    : NO
+    fdt support                     : NO
+    libcap-ng support               : NO
+    bpf support                     : NO
+    rbd support                     : NO
+    smartcard support               : NO
+    U2F support                     : NO
+    libusb                          : YES 1.0.28
+    usb net redir                   : NO
+    OpenGL support (epoxy)          : YES
+    Vulkan support                  : YES 1.4.309
+    GBM                             : YES 25.0.7-2+deb13u1
+    libiscsi support                : NO
+    libnfs support                  : NO
+    seccomp support                 : NO
+    GlusterFS support               : NO
+    hv-balloon support              : NO
+    TPM support                     : NO
+    IGVM support                    : NO
+    libssh support                  : NO
+    lzo support                     : NO
+    snappy support                  : NO
+    bzip2 support                   : NO
+    lzfse support                   : NO
+    zstd support                    : NO
+    Query Processing Library support: NO
+    UADK Library support            : NO
+    qatzip support                  : NO
+    NUMA host support               : NO
+    capstone                        : NO
+    libpmem support                 : NO
+    libdaxctl support               : NO
+    libcbor support                 : NO
+    libudev                         : NO
+    FUSE lseek                      : NO
+    selinux                         : NO
+    vtune                           : NO
+    libdw                           : NO
+    valgrind                        : NO
+
+  Subprojects
+    SPIRV-Reflect                   : YES
+    VulkanMemoryAllocator           : YES
+    berkeley-softfloat-3            : YES
+    berkeley-testfloat-3            : YES
+    dsp56300                        : YES
+    genconfig                       : YES
+    glslang                         : YES
+    imgui                           : YES
+    implot                          : YES
+    keycodemapdb                    : YES
+    nlohmann_json                   : YES
+    nv2a_vsh_cpu                    : YES
+    tomlplusplus                    : YES
+    volk                            : YES
+    xxhash                          : YES
+
+  User defined options
+    Native files                    : /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/config-meson.cross
+    auto_features                   : disabled
+    docs                            : disabled
+    gdb                             : /usr/bin/gdb
+    werror                          : false
+
+Found ninja-1.12.1 at /usr/bin/ninja
+Generating targets:   0%|          | 0/770 eta ?Generating targets:  65%|██████▍   | 500/770 eta 00:00                                                      Writing build.ninja:   0%|          | 0/3810 eta ?Writing build.ninja:  60%|██████    | 2287/3810 eta 00:00                                                         Cleaning... 0 files.
+Running postconf script '/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory/pyvenv/bin/python3 /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/scripts/symlink-install-tree.py'
+ninja: no work to do.
+ninja: Entering directory `/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory'
+[1/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_countLeadingZeros8.c.o
+[2/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_shortShiftRightJam64.c.o
+[3/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_shiftRightJam64Extra.c.o
+[4/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_eq128.c.o
+[5/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_le128.c.o
+[6/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_shortShiftRightJam64Extra.c.o
+[7/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_countLeadingZeros16.c.o
+[8/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_approxRecipSqrt_1Ks.c.o
+[9/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_lt128.c.o
+[10/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_shortShiftLeft128.c.o
+[11/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_shortShiftRight128.c.o
+[12/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_shortShiftRightJam128.c.o
+[13/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_mul64ByShifted32To128.c.o
+[14/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_shortShiftRightJam128Extra.c.o
+[15/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_shiftRightJam32.c.o
+[16/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_shiftRightJam64.c.o
+[17/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_add128.c.o
+[18/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_sub128.c.o
+[19/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_shiftRightJam128.c.o
+[20/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_countLeadingZeros32.c.o
+[21/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_countLeadingZeros64.c.o
+[22/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_add256M.c.o
+[23/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_mul64To128.c.o
+[24/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_shiftRightJam128Extra.c.o
+[25/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_approxRecip_1Ks.c.o
+[26/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_mul128To256M.c.o
+[27/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_approxRecipSqrt32_1.c.o
+[28/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_sub256M.c.o
+[29/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_approxRecip32_1.c.o
+[30/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_mul128By32.c.o
+[31/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_normSubnormalF64Sig.c.o
+[32/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_normSubnormalF32Sig.c.o
+[33/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_normSubnormalF16Sig.c.o
+[34/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_normRoundPackToF64.c.o
+[35/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_normRoundPackToF16.c.o
+[36/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_roundToUI32.c.o
+[37/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_normSubnormalExtF80Sig.c.o
+[38/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_shiftRightJam256M.c.o
+[39/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_roundToUI64.c.o
+[40/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_normRoundPackToF32.c.o
+[41/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_normSubnormalF128Sig.c.o
+[42/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_roundToI32.c.o
+[43/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_roundPackToF16.c.o
+[44/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_roundPackToF64.c.o
+[45/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_roundPackToF32.c.o
+[46/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_softfloat_state.c.o
+[47/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_addMagsExtF80.c.o
+[48/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_addMagsF32.c.o
+[49/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_addMagsF64.c.o
+[50/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_ui32_to_f32.c.o
+[51/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_addMagsF16.c.o
+[52/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_subMagsF32.c.o
+[53/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_normRoundPackToExtF80.c.o
+[54/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_subMagsF64.c.o
+[55/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_ui32_to_extF80.c.o
+[56/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_ui32_to_extF80M.c.o
+[57/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_ui32_to_f128M.c.o
+[58/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_subMagsF16.c.o
+[59/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_ui32_to_f64.c.o
+[60/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_ui32_to_f128.c.o
+[61/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_ui64_to_extF80M.c.o
+[62/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_ui32_to_f16.c.o
+[63/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_mulAddF32.c.o
+[64/1069] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_ui64_to_f64.c.o
+[65/1069] Generating qemu-version.h with a custom command (wrapped by meson to capture output)
+[66/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_ui64_to_extF80.c.o
+[67/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_roundPackToF128.c.o
+[68/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_normRoundPackToF128.c.o
+[69/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_addMagsF128.c.o
+[70/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_subMagsF128.c.o
+[71/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_ui64_to_f16.c.o
+[72/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_ui64_to_f32.c.o
+[73/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_ui64_to_f128M.c.o
+[74/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_roundToI64.c.o
+[75/1066] Generating xemu-version-macro.h with a custom command (wrapped by meson to capture output)
+[76/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_mulAddF16.c.o
+[77/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_ui64_to_f128.c.o
+[78/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_i32_to_f32.c.o
+[79/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_i32_to_f64.c.o
+[80/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_i32_to_extF80M.c.o
+[81/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_mulAddF64.c.o
+[82/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_subMagsExtF80.c.o
+[83/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_i32_to_extF80.c.o
+[84/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_i32_to_f128M.c.o
+[85/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_i64_to_extF80.c.o
+[86/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_i64_to_extF80M.c.o
+[87/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_i64_to_f128M.c.o
+[88/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_i32_to_f16.c.o
+[89/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_i32_to_f128.c.o
+[90/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_i64_to_f32.c.o
+[91/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_i64_to_f64.c.o
+[92/1066] Generating tests/Test QAPI files with a custom command
+[93/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_i64_to_f128.c.o
+[94/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_to_ui64.c.o
+[95/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_i64_to_f16.c.o
+[96/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_to_i32.c.o
+[97/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_roundPackToExtF80.c.o
+[98/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_to_ui32.c.o
+[99/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_to_ui64_r_minMag.c.o
+[100/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_to_extF80M.c.o
+[101/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_to_ui32_r_minMag.c.o
+[102/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_to_i64_r_minMag.c.o
+[103/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_to_f32.c.o
+[104/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_sub.c.o
+[105/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_to_f128M.c.o
+[106/1066] Generating tests/include/QAPI test (include) with a custom command
+[107/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_to_i64.c.o
+[108/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_to_extF80.c.o
+[109/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_to_i32_r_minMag.c.o
+[110/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_to_f64.c.o
+[111/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_add.c.o
+[112/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_mulAdd.c.o
+[113/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_le.c.o
+[114/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_eq_signaling.c.o
+[115/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_isSignalingNaN.c.o
+[116/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_to_f128.c.o
+[117/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_eq.c.o
+[118/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_lt.c.o
+[119/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_le_quiet.c.o
+[120/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_to_ui32.c.o
+[121/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_div.c.o
+[122/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_roundToInt.c.o
+[123/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_mul.c.o
+[124/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_lt_quiet.c.o
+[125/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_to_ui64.c.o
+[126/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_to_i32.c.o
+[127/1066] Compiling C object tests/libtestqapi.a.p/meson-generated_.._test-qapi-features.c.o
+[128/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_s_mulAddF128.c.o
+[129/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_to_extF80M.c.o
+[130/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_to_ui32_r_minMag.c.o
+[131/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_sqrt.c.o
+[132/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_to_i64.c.o
+[133/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_to_ui64_r_minMag.c.o
+[134/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_to_i32_r_minMag.c.o
+[135/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_to_f16.c.o
+[136/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_to_i64_r_minMag.c.o
+[137/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_to_f64.c.o
+[138/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_to_extF80.c.o
+[139/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f16_rem.c.o
+[140/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_to_f128.c.o
+[141/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_mulAdd.c.o
+[142/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_add.c.o
+[143/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_sub.c.o
+[144/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_to_f128M.c.o
+[145/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_eq_signaling.c.o
+[146/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_lt.c.o
+[147/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_roundToInt.c.o
+[148/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_mul.c.o
+[149/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_div.c.o
+[150/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_eq.c.o
+[151/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_le.c.o
+[152/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_le_quiet.c.o
+[153/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_lt_quiet.c.o
+[154/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_isSignalingNaN.c.o
+[155/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_to_ui32.c.o
+[156/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_rem.c.o
+[157/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_to_i32.c.o
+[158/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f32_sqrt.c.o
+[159/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_to_ui64.c.o
+[160/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_to_i64.c.o
+[161/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_to_ui32_r_minMag.c.o
+[162/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_to_ui64_r_minMag.c.o
+[163/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_to_i32_r_minMag.c.o
+[164/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_to_extF80M.c.o
+[165/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_to_f32.c.o
+[166/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_to_f16.c.o
+[167/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_to_i64_r_minMag.c.o
+[168/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_to_extF80.c.o
+[169/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_to_f128M.c.o
+[170/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_add.c.o
+[171/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_sub.c.o
+[172/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_to_f128.c.o
+[173/1066] Compiling C object tests/libtestqapi.a.p/meson-generated_.._test-qapi-events-sub-sub-module.c.o
+[174/1066] Compiling C object tests/libtestqapi.a.p/meson-generated_.._test-qapi-commands-sub-sub-module.c.o
+[175/1066] Compiling C object tests/libtestqapi.a.p/meson-generated_.._test-qapi-emit-events.c.o
+[176/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_mulAdd.c.o
+[177/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_mul.c.o
+[178/1066] Compiling C object tests/libtestqapi.a.p/meson-generated_.._test-qapi-visit-sub-sub-module.c.o
+[179/1066] Compiling C object tests/libtestqapi.a.p/meson-generated_.._test-qapi-types-sub-sub-module.c.o
+[180/1066] Compiling C object tests/libtestqapi.a.p/meson-generated_.._include_test-qapi-commands-sub-module.c.o
+[181/1066] Compiling C object tests/libtestqapi.a.p/meson-generated_.._include_test-qapi-events-sub-module.c.o
+[182/1066] Compiling C object tests/libtestqapi.a.p/meson-generated_.._include_test-qapi-types-sub-module.c.o
+[183/1066] Compiling C object tests/libtestqapi.a.p/meson-generated_.._include_test-qapi-visit-sub-module.c.o
+[184/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_roundToInt.c.o
+[185/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_isSignalingNaN.c.o
+[186/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_le.c.o
+[187/1066] Compiling C object tests/libtestqapi.a.p/meson-generated_.._test-qapi-introspect.c.o
+[188/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_eq_signaling.c.o
+[189/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_eq.c.o
+[190/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_lt.c.o
+[191/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80_to_ui32.c.o
+[192/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80_to_ui64.c.o
+[193/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80_to_i64.c.o
+[194/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_sqrt.c.o
+[195/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_le_quiet.c.o
+[196/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80_to_i32.c.o
+[197/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80_to_ui32_r_minMag.c.o
+[198/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_lt_quiet.c.o
+[199/1066] Compiling C object tests/libtestqapi.a.p/meson-generated_.._qapi-builtin-types.c.o
+[200/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80_to_ui64_r_minMag.c.o
+[201/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80_to_i64_r_minMag.c.o
+[202/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_div.c.o
+[203/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80_to_i32_r_minMag.c.o
+[204/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80_to_f16.c.o
+[205/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80_add.c.o
+[206/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80_sub.c.o
+[207/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f64_rem.c.o
+[208/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80_to_f128.c.o
+[209/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80_to_f32.c.o
+[210/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80_to_f64.c.o
+[211/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80_isSignalingNaN.c.o
+[212/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80_eq.c.o
+[213/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80_eq_signaling.c.o
+[214/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80M_to_ui32.c.o
+[215/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80_le.c.o
+[216/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80_lt.c.o
+[217/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80M_to_ui64.c.o
+[218/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80M_to_i32.c.o
+[219/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80M_to_i64.c.o
+[220/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80M_to_ui32_r_minMag.c.o
+[221/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80_mul.c.o
+[222/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80_le_quiet.c.o
+[223/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80M_to_ui64_r_minMag.c.o
+[224/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80M_to_i32_r_minMag.c.o
+[225/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80M_to_i64_r_minMag.c.o
+[226/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80M_to_f32.c.o
+[227/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80M_to_f64.c.o
+[228/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80M_to_f128M.c.o
+[229/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80_lt_quiet.c.o
+[230/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80M_to_f16.c.o
+[231/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80M_roundToInt.c.o
+[232/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80M_add.c.o
+[233/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80M_sub.c.o
+[234/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80M_mul.c.o
+[235/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80M_rem.c.o
+[236/1066] Compiling C object tests/libtestqapi.a.p/meson-generated_.._test-qapi-init-commands.c.o
+[237/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80M_div.c.o
+[238/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80M_sqrt.c.o
+[239/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80_roundToInt.c.o
+[240/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80_sqrt.c.o
+[241/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80M_eq.c.o
+[242/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80M_le.c.o
+[243/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80M_lt.c.o
+[244/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80M_eq_signaling.c.o
+[245/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80M_le_quiet.c.o
+[246/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80M_lt_quiet.c.o
+[247/1066] Compiling C object tests/libtestqapi.a.p/meson-generated_.._qapi-builtin-visit.c.o
+[248/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80_div.c.o
+[249/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_extF80_rem.c.o
+[250/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_to_ui32.c.o
+[251/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_to_ui32_r_minMag.c.o
+[252/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_mulAdd.c.o
+[253/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_to_i32.c.o
+[254/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_to_i32_r_minMag.c.o
+[255/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_to_f32.c.o
+[256/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_add.c.o
+[257/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_to_ui64.c.o
+[258/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_to_i64.c.o
+[259/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_to_ui64_r_minMag.c.o
+[260/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_to_i64_r_minMag.c.o
+[261/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_to_f16.c.o
+[262/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_to_extF80.c.o
+[263/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_to_f64.c.o
+[264/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_sub.c.o
+[265/1066] Compiling C object tests/libtestqapi.a.p/meson-generated_.._test-qapi-events.c.o
+[266/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_le.c.o
+[267/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_lt.c.o
+[268/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_eq_signaling.c.o
+[269/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128M_to_ui32.c.o
+[270/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_eq.c.o
+[271/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_isSignalingNaN.c.o
+[272/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_le_quiet.c.o
+[273/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128M_to_ui64.c.o
+[274/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128M_to_i32.c.o
+[275/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128M_to_i64.c.o
+[276/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128M_to_ui32_r_minMag.c.o
+[277/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128M_to_ui64_r_minMag.c.o
+[278/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128M_to_i32_r_minMag.c.o
+[279/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_mul.c.o
+[280/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128M_to_i64_r_minMag.c.o
+[281/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128M_to_f16.c.o
+[282/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_lt_quiet.c.o
+[283/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128M_to_f32.c.o
+[284/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128M_to_extF80M.c.o
+[285/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128M_roundToInt.c.o
+[286/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128M_eq.c.o
+[287/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128M_to_f64.c.o
+[288/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128M_mul.c.o
+[289/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128M_div.c.o
+[290/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128M_rem.c.o
+[291/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128M_add.c.o
+[292/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128M_sub.c.o
+[293/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128M_mulAdd.c.o
+[294/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128M_le.c.o
+[295/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128M_eq_signaling.c.o
+[296/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_roundToInt.c.o
+[297/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128M_sqrt.c.o
+[298/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128M_lt.c.o
+[299/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128M_le_quiet.c.o
+[300/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128M_lt_quiet.c.o
+[301/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_8086-SSE_softfloat_raiseFlags.c.o
+[302/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_8086-SSE_s_f32UIToCommonNaN.c.o
+[303/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_8086-SSE_s_commonNaNToF16UI.c.o
+[304/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_rem.c.o
+[305/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_8086-SSE_s_f16UIToCommonNaN.c.o
+[306/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_div.c.o
+[307/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_8086-SSE_s_propagateNaNF16UI.c.o
+[308/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_functions_common.c.o
+[309/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_8086-SSE_s_commonNaNToF64UI.c.o
+[310/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_functionInfos.c.o
+[311/1066] Compiling C object tests/libtestqapi.a.p/meson-generated_.._test-qapi-types.c.o
+[312/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_standardFunctionInfos.c.o
+[313/1066] Compiling C object tests/libtestqapi.a.p/meson-generated_.._test-qapi-commands.c.o
+[314/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_8086-SSE_s_commonNaNToF32UI.c.o
+[315/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_f128_sqrt.c.o
+[316/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_8086-SSE_s_f64UIToCommonNaN.c.o
+[317/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_8086-SSE_s_commonNaNToExtF80UI.c.o
+[318/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_8086-SSE_f128M_isSignalingNaN.c.o
+[319/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_8086-SSE_s_propagateNaNF64UI.c.o
+[320/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_8086-SSE_s_commonNaNToF128UI.c.o
+[321/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_uint128_inline.c.o
+[322/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_8086-SSE_s_propagateNaNF32UI.c.o
+[323/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_8086-SSE_extF80M_isSignalingNaN.c.o
+[324/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_8086-SSE_s_extF80UIToCommonNaN.c.o
+[325/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_8086-SSE_s_f128UIToCommonNaN.c.o
+[326/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_8086-SSE_s_propagateNaNF128UI.c.o
+[327/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_fail.c.o
+[328/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_genCases_common.c.o
+[329/1066] Compiling C object subprojects/berkeley-softfloat-3/libsoftfloat.a.p/source_8086-SSE_s_propagateNaNExtF80UI.c.o
+[330/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_uint128.c.o
+[331/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_writeCase_a_ui32.c.o
+[332/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_writeCase_a_ui64.c.o
+[333/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_writeCase_ab_f16.c.o
+[334/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_genCases_ui32.c.o
+[335/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_genCases_ui64.c.o
+[336/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_genCases_i32.c.o
+[337/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_genCases_writeTestsTotal.c.o
+[338/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_writeCase_a_f16.c.o
+[339/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_writeCase_abc_f16.c.o
+[340/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_writeCase_a_f32.c.o
+[341/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_writeCase_ab_f32.c.o
+[342/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_writeCase_abc_f32.c.o
+[343/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_writeCase_a_f64.c.o
+[344/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_genCases_i64.c.o
+[345/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_verCases_inline.c.o
+[346/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_verCases_writeFunctionName.c.o
+[347/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_writeCase_ab_f64.c.o
+[348/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_writeCase_a_extF80M.c.o
+[349/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_writeCase_abc_f64.c.o
+[350/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_random.c.o
+[351/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_verCases_common.c.o
+[352/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_writeCase_ab_extF80M.c.o
+[353/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_writeCase_a_f128M.c.o
+[354/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_writeCase_ab_f128M.c.o
+[355/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_writeCase_z_bool.c.o
+[356/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_writeCase_abc_f128M.c.o
+[357/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_writeCase_z_ui32.c.o
+[358/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_writeCase_z_ui64.c.o
+[359/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_writeCase_z_f16.c.o
+[360/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_writeCase_z_f32.c.o
+[361/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_writeCase_z_f64.c.o
+[362/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_writeCase_z_extF80M.c.o
+[363/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_writeCase_z_f128M.c.o
+[364/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_testLoops_common.c.o
+[365/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_readHex.c.o
+[366/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_ui32_z_f16.c.o
+[367/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_ui32_z_extF80.c.o
+[368/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_ui64_z_f16.c.o
+[369/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_ui64_z_f32.c.o
+[370/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_genCases_f16.c.o
+[371/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_writeHex.c.o
+[372/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_ui32_z_f32.c.o
+[373/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_ui32_z_f64.c.o
+[374/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_ui64_z_f64.c.o
+[375/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_ui32_z_f128.c.o
+[376/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_ui64_z_extF80.c.o
+[377/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_ui64_z_f128.c.o
+[378/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_i32_z_f16.c.o
+[379/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_genCases_f64.c.o
+[380/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_i32_z_f32.c.o
+[381/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_genCases_f32.c.o
+[382/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_i32_z_f64.c.o
+[383/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_i64_z_f16.c.o
+[384/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_i64_z_f32.c.o
+[385/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_genCases_extF80.c.o
+[386/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_genCases_f128.c.o
+[387/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_i32_z_extF80.c.o
+[388/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_i32_z_f128.c.o
+[389/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_i64_z_f64.c.o
+[390/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f16_z_ui32_rx.c.o
+[391/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f16_z_ui64_rx.c.o
+[392/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_i64_z_extF80.c.o
+[393/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_i64_z_f128.c.o
+[394/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f16_z_i32_rx.c.o
+[395/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f16_z_i64_rx.c.o
+[396/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f16_z_ui32_x.c.o
+[397/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f16_z_ui64_x.c.o
+[398/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f16_z_i32_x.c.o
+[399/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f16_z_i64_x.c.o
+[400/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f16_z_f32.c.o
+[401/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f16_z_f64.c.o
+[402/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f32_z_ui64_rx.c.o
+[403/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f16_z_f128.c.o
+[404/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_az_f16_rx.c.o
+[405/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_abcz_f16.c.o
+[406/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_ab_f16_z_bool.c.o
+[407/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f16_z_extF80.c.o
+[408/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_az_f16.c.o
+[409/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_abz_f16.c.o
+[410/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f32_z_i32_rx.c.o
+[411/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f32_z_ui32_rx.c.o
+[412/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f32_z_i64_rx.c.o
+[413/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f32_z_ui32_x.c.o
+[414/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f32_z_ui64_x.c.o
+[415/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f32_z_i32_x.c.o
+[416/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f32_z_i64_x.c.o
+[417/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f32_z_f16.c.o
+[418/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_ab_f32_z_bool.c.o
+[419/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f32_z_f128.c.o
+[420/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_az_f32.c.o
+[421/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_az_f32_rx.c.o
+[422/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_abz_f32.c.o
+[423/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f32_z_f64.c.o
+[424/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f32_z_extF80.c.o
+[425/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_abcz_f32.c.o
+[426/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f64_z_ui64_rx.c.o
+[427/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f64_z_ui32_rx.c.o
+[428/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f64_z_i32_x.c.o
+[429/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f64_z_i32_rx.c.o
+[430/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f64_z_i64_x.c.o
+[431/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f64_z_f32.c.o
+[432/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f64_z_ui64_x.c.o
+[433/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f64_z_f16.c.o
+[434/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f64_z_extF80.c.o
+[435/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f64_z_f128.c.o
+[436/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_az_f64_rx.c.o
+[437/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_extF80_z_ui64_rx.c.o
+[438/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f64_z_i64_rx.c.o
+[439/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_az_f64.c.o
+[440/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_abz_f64.c.o
+[441/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_ab_f64_z_bool.c.o
+[442/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_abcz_f64.c.o
+[443/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_extF80_z_ui32_rx.c.o
+[444/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f64_z_ui32_x.c.o
+[445/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_extF80_z_i32_rx.c.o
+[446/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_extF80_z_i64_rx.c.o
+[447/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_extF80_z_ui64_x.c.o
+[448/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_extF80_z_ui32_x.c.o
+[449/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_extF80_z_i32_x.c.o
+[450/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_extF80_z_i64_x.c.o
+[451/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_extF80_z_f16.c.o
+[452/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_extF80_z_f64.c.o
+[453/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_az_extF80.c.o
+[454/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_extF80_z_f32.c.o
+[455/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_extF80_z_f128.c.o
+[456/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f128_z_ui32_rx.c.o
+[457/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_abz_extF80.c.o
+[458/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f128_z_ui32_x.c.o
+[459/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_az_extF80_rx.c.o
+[460/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f128_z_i32_rx.c.o
+[461/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f128_z_ui64_x.c.o
+[462/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f128_z_ui64_rx.c.o
+[463/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f128_z_i64_rx.c.o
+[464/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f128_z_f16.c.o
+[465/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f128_z_f32.c.o
+[466/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f128_z_i32_x.c.o
+[467/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f128_z_i64_x.c.o
+[468/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_az_f128.c.o
+[469/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f128_z_extF80.c.o
+[470/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_abcz_f128.c.o
+[471/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_abz_f128.c.o
+[472/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_a_f128_z_f64.c.o
+[473/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_az_f128_rx.c.o
+[474/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_ab_extF80_z_bool.c.o
+[475/1066] Compiling C object subprojects/berkeley-testfloat-3/libtestfloat.a.p/source_test_ab_f128_z_bool.c.o
+[476/1066] Compiling C object tests/qtest/libqos/libqos.a.p/malloc-spapr.c.o
+[477/1066] Compiling C object tests/qtest/libqos/libqos.a.p/libqos-pc.c.o
+[478/1066] Compiling C object tests/qtest/libqos/libqos.a.p/libqos-spapr.c.o
+[479/1066] Compiling C object tests/qtest/libqos/libqos.a.p/malloc-pc.c.o
+[480/1066] Compiling C object tests/qtest/libqos/libqos.a.p/sdhci-cmd.c.o
+[481/1066] Compiling C object tests/qtest/libqos/libqos.a.p/usb.c.o
+[482/1066] Compiling C object tests/qtest/libqos/libqos.a.p/vhost-user-blk.c.o
+[483/1066] Compiling C object tests/qtest/libqos/libqos.a.p/rtas.c.o
+[484/1066] Compiling C object tests/qtest/libqos/libqos.a.p/pci-pc.c.o
+[485/1066] Compiling C object tests/qtest/libqos/libqos.a.p/qos_external.c.o
+[486/1066] Compiling C object tests/qtest/libqos/libqos.a.p/libqos.c.o
+[487/1066] Compiling C object tests/qtest/libqos/libqos.a.p/i2c.c.o
+[488/1066] Compiling C object tests/qtest/libqos/libqos.a.p/virtio-blk.c.o
+[489/1066] Compiling C object tests/qtest/libqos/libqos.a.p/.._libqmp.c.o
+[490/1066] Compiling C object tests/qtest/libqos/libqos.a.p/igb.c.o
+[491/1066] Compiling C object tests/qtest/libqos/libqos.a.p/virtio-balloon.c.o
+[492/1066] Compiling C object tests/qtest/libqos/libqos.a.p/i2c-omap.c.o
+[493/1066] Compiling C object tests/qtest/libqos/libqos.a.p/e1000e.c.o
+[494/1066] Compiling C object tests/qtest/libqos/libqos.a.p/virtio-mmio.c.o
+[495/1066] Compiling C object tests/qtest/libqos/libqos.a.p/libqos-malloc.c.o
+[496/1066] Compiling C object qemu-system-i386.p/system_main.c.o
+[497/1066] Compiling C object tests/qtest/libqos/libqos.a.p/virtio-rng.c.o
+[498/1066] Compiling C object libqemu-i386-softmmu.a.p/xemu-version.c.o
+[499/1066] Compiling C object tests/qtest/libqos/libqos.a.p/sdhci.c.o
+[500/1066] Compiling C object tests/qtest/libqos/libqos.a.p/virtio-net.c.o
+[501/1066] Compiling C object tests/qtest/libqos/libqos.a.p/virtio-pci-modern.c.o
+[502/1066] Compiling C object tests/qtest/libqos/libqos.a.p/virtio-scsi.c.o
+[503/1066] Compiling C object tests/qtest/libqos/libqos.a.p/pci-spapr.c.o
+[504/1066] Compiling C object tests/qtest/libqos/libqos.a.p/qgraph.c.o
+[505/1066] Compiling C object tests/qtest/libqos/libqos.a.p/fw_cfg.c.o
+[506/1066] Compiling C object tests/qtest/libqos/libqos.a.p/virtio-serial.c.o
+[507/1066] Compiling C object tests/qtest/libqos/libqos.a.p/virtio-gpio.c.o
+[508/1066] Compiling C object tests/qtest/libqos/libqos.a.p/arm-smdkc210-machine.c.o
+[509/1066] Compiling C object tests/qtest/libqos/libqos.a.p/arm-raspi2-machine.c.o
+[510/1066] Compiling C object tests/qtest/libqos/libqos.a.p/virtio-scmi.c.o
+[511/1066] Compiling C object tests/qtest/libqos/libqos.a.p/arm-sabrelite-machine.c.o
+[512/1066] Compiling C object tests/qtest/libqos/libqos.a.p/aarch64-xlnx-zcu102-machine.c.o
+[513/1066] Compiling C object tests/qtest/libqos/libqos.a.p/arm-virt-machine.c.o
+[514/1066] Linking static target subprojects/berkeley-testfloat-3/libtestfloat.a
+[515/1066] Compiling C object tests/qtest/libqos/libqos.a.p/arm-xilinx-zynq-a9-machine.c.o
+[516/1066] Compiling C object tests/qtest/libqos/libqos.a.p/i2c-imx.c.o
+[517/1066] Compiling C object tests/qtest/libqos/libqos.a.p/riscv-virt-machine.c.o
+[518/1066] Linking static target subprojects/berkeley-softfloat-3/libsoftfloat.a
+[519/1066] Compiling C object tests/qtest/libqos/libqos.a.p/arm-imx25-pdk-machine.c.o
+[520/1066] Compiling C object tests/qtest/libqos/libqos.a.p/generic-pcihost.c.o
+[521/1066] Compiling C object tests/qtest/libqos/libqos.a.p/ppc64_pseries-machine.c.o
+[522/1066] Compiling C object tests/qtest/libqos/libqos.a.p/x86_64_pc-machine.c.o
+[523/1066] Compiling C object tests/qtest/libqos/libqos.a.p/virtio-iommu.c.o
+[524/1066] Compiling C object tests/qtest/libqos/libqos.a.p/loongarch-virt-machine.c.o
+[525/1066] Compiling C object tests/qtest/libqos/libqos.a.p/virtio.c.o
+[526/1066] Compiling C object tests/qtest/libqos/libqos.a.p/pci.c.o
+[527/1066] Compiling C object tests/libtestqapi.a.p/meson-generated_.._test-qapi-visit.c.o
+[528/1066] Compiling C object tests/qtest/libqos/libqos.a.p/virtio-pci.c.o
+[529/1066] Compiling C object tests/unit/test-xbox-pgraph-texture-state.p/test-xbox-pgraph-texture-state.c.o
+[530/1066] Compiling C object tests/fp/fp-test-log2.p/fp-test-log2.c.o
+[531/1066] Compiling C object tests/unit/check-qnull.p/check-qnull.c.o
+[532/1066] Compiling C object tests/unit/check-qstring.p/check-qstring.c.o
+[533/1066] Linking static target tests/libtestqapi.a
+[534/1066] Compiling C object tests/unit/check-qlist.p/check-qlist.c.o
+[535/1066] Compiling C object tests/unit/check-qlit.p/check-qlit.c.o
+[536/1066] Compiling C object tests/unit/test-xemu-tweaks-config.p/.._.._ui_xemu-tweaks.c.o
+[537/1066] Compiling C object tests/unit/test-error-report.p/test-error-report.c.o
+[538/1066] Compiling C object tests/unit/check-qnum.p/check-qnum.c.o
+[539/1066] Compiling C object tests/unit/check-qobject.p/check-qobject.c.o
+[540/1066] Compiling C object tests/unit/test-xbox-pgraph-renderer-switch-locking.p/2d3de63e0f945977f2d649b76ea2d792fafde6f5_hw_xbox_nv2a_pgraph_renderer-switch.c.o
+[541/1066] Compiling C object tests/unit/test-xbox-nv2a-profile-event-log.p/test-xbox-nv2a-profile-event-log.c.o
+[542/1066] Compiling C object tests/unit/test-xbox-pgraph-uniform-source.p/test-xbox-pgraph-uniform-source.c.o
+[543/1066] Compiling C object tests/unit/check-qdict.p/check-qdict.c.o
+[544/1066] Compiling C object tests/unit/test-bitmap.p/test-bitmap.c.o
+[545/1066] Compiling C object tests/unit/test-xbox-pgraph-reports.p/test-xbox-pgraph-reports.c.o
+[546/1066] Compiling C object tests/unit/test-string-output-visitor.p/test-string-output-visitor.c.o
+[547/1066] Compiling C object tests/unit/test-xbox-vk-debug-macros.p/test-xbox-vk-debug-macros.c.o
+[548/1066] Compiling C object tests/unit/test-xbox-vk-texture-binding.p/test-xbox-vk-texture-binding.c.o
+[549/1066] Compiling C object tests/unit/test-clone-visitor.p/test-clone-visitor.c.o
+[550/1066] Compiling C object tests/unit/test-xbox-vk-display-output-state.p/test-xbox-vk-display-output-state.c.o
+[551/1066] Compiling C object tests/unit/test-forward-visitor.p/test-forward-visitor.c.o
+[552/1066] Compiling C object tests/unit/test-xbox-pgraph-renderer-switch-locking.p/test-xbox-pgraph-renderer-switch-locking.c.o
+[553/1066] Compiling C object tests/unit/test-xbox-vk-device-selection.p/test-xbox-vk-device-selection.c.o
+[554/1066] Compiling C object tests/unit/test-string-input-visitor.p/test-string-input-visitor.c.o
+[555/1066] Compiling C object tests/unit/test-xbox-vk-blend-constants.p/test-xbox-vk-blend-constants.c.o
+[556/1066] Compiling C object tests/unit/test-xbox-pgraph-texture-layout.p/test-xbox-pgraph-texture-layout.c.o
+In file included from /usr/include/glib-2.0/glib.h:89,
+                 from /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/glib-compat.h:32,
+                 from /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/osdep.h:175,
+                 from ../tests/unit/test-xbox-pgraph-texture-layout.c:7:
+../tests/unit/test-xbox-pgraph-texture-layout.c: In function ‘test_compressed_subblock_levels’:
+/usr/include/glib-2.0/glib/gtestutils.h:80:49: warning: ‘level_size’ may be used uninitialized [-Wmaybe-uninitialized]
+   80 |                                              if (__n1 cmp __n2) ; else \
+      |                                                 ^
+../tests/unit/test-xbox-pgraph-texture-layout.c:40:9: note: in expansion of macro ‘g_assert_cmpuint’
+   40 |         g_assert_cmpuint(level_size, ==, 8);
+      |         ^~~~~~~~~~~~~~~~
+../tests/unit/test-xbox-pgraph-texture-layout.c:36:16: note: ‘level_size’ was declared here
+   36 |         size_t level_size;
+      |                ^~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:80:49: warning: ‘level_size’ may be used uninitialized [-Wmaybe-uninitialized]
+   80 |                                              if (__n1 cmp __n2) ; else \
+      |                                                 ^
+../tests/unit/test-xbox-pgraph-texture-layout.c:47:13: note: in expansion of macro ‘g_assert_cmpuint’
+   47 |             g_assert_cmpuint(level_size, ==, 16);
+      |             ^~~~~~~~~~~~~~~~
+../tests/unit/test-xbox-pgraph-texture-layout.c:36:16: note: ‘level_size’ was declared here
+   36 |         size_t level_size;
+      |                ^~~~~~~~~~
+../tests/unit/test-xbox-pgraph-texture-layout.c: In function ‘test_bordered_storage_extent’:
+/usr/include/glib-2.0/glib/gtestutils.h:80:49: warning: ‘stride’ may be used uninitialized [-Wmaybe-uninitialized]
+   80 |                                              if (__n1 cmp __n2) ; else \
+      |                                                 ^
+../tests/unit/test-xbox-pgraph-texture-layout.c:135:5: note: in expansion of macro ‘g_assert_cmpuint’
+  135 |     g_assert_cmpuint(stride, ==, 2 * NV2A_CUBEMAP_FACE_ALIGNMENT);
+      |     ^~~~~~~~~~~~~~~~
+../tests/unit/test-xbox-pgraph-texture-layout.c:130:12: note: ‘stride’ was declared here
+  130 |     size_t stride;
+      |            ^~~~~~
+../tests/unit/test-xbox-pgraph-texture-layout.c: In function ‘test_compressed_mip_chain’:
+/usr/include/glib-2.0/glib/gtestutils.h:80:49: warning: ‘level_size’ may be used uninitialized [-Wmaybe-uninitialized]
+   80 |                                              if (__n1 cmp __n2) ; else \
+      |                                                 ^
+../tests/unit/test-xbox-pgraph-texture-layout.c:65:9: note: in expansion of macro ‘g_assert_cmpuint’
+   65 |         g_assert_cmpuint(level_size, ==, expected_sizes[i]);
+      |         ^~~~~~~~~~~~~~~~
+../tests/unit/test-xbox-pgraph-texture-layout.c:62:16: note: ‘level_size’ was declared here
+   62 |         size_t level_size;
+      |                ^~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:80:49: warning: ‘stride’ may be used uninitialized [-Wmaybe-uninitialized]
+   80 |                                              if (__n1 cmp __n2) ; else \
+      |                                                 ^
+../tests/unit/test-xbox-pgraph-texture-layout.c:75:5: note: in expansion of macro ‘g_assert_cmpuint’
+   75 |     g_assert_cmpuint(stride, ==, NV2A_CUBEMAP_FACE_ALIGNMENT);
+      |     ^~~~~~~~~~~~~~~~
+../tests/unit/test-xbox-pgraph-texture-layout.c:72:12: note: ‘stride’ was declared here
+   72 |     size_t stride;
+      |            ^~~~~~
+../tests/unit/test-xbox-pgraph-texture-layout.c: In function ‘test_uncompressed_mips_and_alignment’:
+/usr/include/glib-2.0/glib/gtestutils.h:80:49: warning: ‘level_size’ may be used uninitialized [-Wmaybe-uninitialized]
+   80 |                                              if (__n1 cmp __n2) ; else \
+      |                                                 ^
+../tests/unit/test-xbox-pgraph-texture-layout.c:90:9: note: in expansion of macro ‘g_assert_cmpuint’
+   90 |         g_assert_cmpuint(level_size, ==, bytes_per_pixel[i]);
+      |         ^~~~~~~~~~~~~~~~
+../tests/unit/test-xbox-pgraph-texture-layout.c:85:16: note: ‘level_size’ was declared here
+   85 |         size_t level_size;
+      |                ^~~~~~~~~~
+/usr/include/glib-2.0/glib/gtestutils.h:79:54: warning: ‘stride’ may be used uninitialized [-Wmaybe-uninitialized]
+   79 |                                              guint64 __n1 = (n1), __n2 = (n2); \
+      |                                                      ^~~~
+../tests/unit/test-xbox-pgraph-texture-layout.c:93:9: note: in expansion of macro ‘g_assert_cmpuint’
+   93 |         g_assert_cmpuint(stride % NV2A_CUBEMAP_FACE_ALIGNMENT, ==, 0);
+      |         ^~~~~~~~~~~~~~~~
+../tests/unit/test-xbox-pgraph-texture-layout.c:86:16: note: ‘stride’ was declared here
+   86 |         size_t stride;
+      |                ^~~~~~
+[557/1066] Compiling C object tests/unit/test-xbox-pgraph-uniform-dirty.p/test-xbox-pgraph-uniform-dirty.c.o
+[558/1066] Compiling C object tests/unit/test-visitor-serialization.p/test-visitor-serialization.c.o
+[559/1066] Compiling C object tests/unit/test-xemu-gpu-launch.p/test-xemu-gpu-launch.c.o
+../tests/unit/test-xemu-gpu-launch.c: In function ‘test_cli_uuid_is_process_local_and_removed’:
+../tests/unit/test-xemu-gpu-launch.c:13:9: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   13 |         "xemu", "-gpu", "uuid:00112233445566778899AABBCCDDEEFF",
+      |         ^~~~~~
+../tests/unit/test-xemu-gpu-launch.c:13:17: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   13 |         "xemu", "-gpu", "uuid:00112233445566778899AABBCCDDEEFF",
+      |                 ^~~~~~
+../tests/unit/test-xemu-gpu-launch.c:13:25: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   13 |         "xemu", "-gpu", "uuid:00112233445566778899AABBCCDDEEFF",
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../tests/unit/test-xemu-gpu-launch.c:14:9: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   14 |         "-gpu-strict", "-config_path", "config.toml",
+      |         ^~~~~~~~~~~~~
+../tests/unit/test-xemu-gpu-launch.c:14:24: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   14 |         "-gpu-strict", "-config_path", "config.toml",
+      |                        ^~~~~~~~~~~~~~
+../tests/unit/test-xemu-gpu-launch.c:14:40: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   14 |         "-gpu-strict", "-config_path", "config.toml",
+      |                                        ^~~~~~~~~~~~~
+../tests/unit/test-xemu-gpu-launch.c: In function ‘test_cli_auto_and_listing_options’:
+../tests/unit/test-xemu-gpu-launch.c:32:9: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   32 |         "xemu", "-list-gpus", "-gpu", "auto", "-gpu-info", "gpu.json",
+      |         ^~~~~~
+../tests/unit/test-xemu-gpu-launch.c:32:17: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   32 |         "xemu", "-list-gpus", "-gpu", "auto", "-gpu-info", "gpu.json",
+      |                 ^~~~~~~~~~~~
+../tests/unit/test-xemu-gpu-launch.c:32:31: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   32 |         "xemu", "-list-gpus", "-gpu", "auto", "-gpu-info", "gpu.json",
+      |                               ^~~~~~
+../tests/unit/test-xemu-gpu-launch.c:32:39: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   32 |         "xemu", "-list-gpus", "-gpu", "auto", "-gpu-info", "gpu.json",
+      |                                       ^~~~~~
+../tests/unit/test-xemu-gpu-launch.c:32:47: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   32 |         "xemu", "-list-gpus", "-gpu", "auto", "-gpu-info", "gpu.json",
+      |                                               ^~~~~~~~~~~
+../tests/unit/test-xemu-gpu-launch.c:32:60: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   32 |         "xemu", "-list-gpus", "-gpu", "auto", "-gpu-info", "gpu.json",
+      |                                                            ^~~~~~~~~~
+../tests/unit/test-xemu-gpu-launch.c: In function ‘test_cli_rejects_missing_malformed_and_conflicting_values’:
+../tests/unit/test-xemu-gpu-launch.c:50:25: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   50 |     char *missing[] = { "xemu", "-gpu" };
+      |                         ^~~~~~
+../tests/unit/test-xemu-gpu-launch.c:50:33: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   50 |     char *missing[] = { "xemu", "-gpu" };
+      |                                 ^~~~~~
+../tests/unit/test-xemu-gpu-launch.c:51:27: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   51 |     char *malformed[] = { "xemu", "-gpu", "uuid:not-a-uuid" };
+      |                           ^~~~~~
+../tests/unit/test-xemu-gpu-launch.c:51:35: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   51 |     char *malformed[] = { "xemu", "-gpu", "uuid:not-a-uuid" };
+      |                                   ^~~~~~
+../tests/unit/test-xemu-gpu-launch.c:51:43: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   51 |     char *malformed[] = { "xemu", "-gpu", "uuid:not-a-uuid" };
+      |                                           ^~~~~~~~~~~~~~~~~
+../tests/unit/test-xemu-gpu-launch.c:52:22: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   52 |     char *name[] = { "xemu", "-gpu", "AMD Radeon" };
+      |                      ^~~~~~
+../tests/unit/test-xemu-gpu-launch.c:52:30: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   52 |     char *name[] = { "xemu", "-gpu", "AMD Radeon" };
+      |                              ^~~~~~
+../tests/unit/test-xemu-gpu-launch.c:52:38: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   52 |     char *name[] = { "xemu", "-gpu", "AMD Radeon" };
+      |                                      ^~~~~~~~~~~~
+../tests/unit/test-xemu-gpu-launch.c:53:27: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   53 |     char *duplicate[] = { "xemu", "-gpu", "auto", "-gpu", "auto" };
+      |                           ^~~~~~
+../tests/unit/test-xemu-gpu-launch.c:53:35: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   53 |     char *duplicate[] = { "xemu", "-gpu", "auto", "-gpu", "auto" };
+      |                                   ^~~~~~
+../tests/unit/test-xemu-gpu-launch.c:53:43: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   53 |     char *duplicate[] = { "xemu", "-gpu", "auto", "-gpu", "auto" };
+      |                                           ^~~~~~
+../tests/unit/test-xemu-gpu-launch.c:53:51: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   53 |     char *duplicate[] = { "xemu", "-gpu", "auto", "-gpu", "auto" };
+      |                                                   ^~~~~~
+../tests/unit/test-xemu-gpu-launch.c:53:59: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   53 |     char *duplicate[] = { "xemu", "-gpu", "auto", "-gpu", "auto" };
+      |                                                           ^~~~~~
+../tests/unit/test-xemu-gpu-launch.c:54:30: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   54 |     char *info_missing[] = { "xemu", "-gpu-info" };
+      |                              ^~~~~~
+../tests/unit/test-xemu-gpu-launch.c:54:38: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+   54 |     char *info_missing[] = { "xemu", "-gpu-info" };
+      |                                      ^~~~~~~~~~~
+../tests/unit/test-xemu-gpu-launch.c: In function ‘test_cli_precedence_ignores_saved_values’:
+../tests/unit/test-xemu-gpu-launch.c:111:22: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  111 |     char *argv[] = { "xemu", "-gpu", "auto" };
+      |                      ^~~~~~
+../tests/unit/test-xemu-gpu-launch.c:111:30: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  111 |     char *argv[] = { "xemu", "-gpu", "auto" };
+      |                              ^~~~~~
+../tests/unit/test-xemu-gpu-launch.c:111:38: warning: initialization discards ‘const’ qualifier from pointer target type [-Wdiscarded-qualifiers]
+  111 |     char *argv[] = { "xemu", "-gpu", "auto" };
+      |                                      ^~~~~~
+[560/1066] Compiling C object tests/unit/test-xbox-vk-device-inventory.p/test-xbox-vk-device-inventory.c.o
+[561/1066] Compiling C object tests/unit/test-xbox-vk-failure-state.p/test-xbox-vk-failure-state.c.o
+[562/1066] Compiling C object tests/unit/check-block-qdict.p/check-block-qdict.c.o
+[563/1066] Compiling C object tests/unit/test-xbox-vk-device-inventory.p/c6c4b88994750492d120999b3d0cbc134a98801f_xbox_nv2a_pgraph_vk_device-inventory.c.o
+[564/1066] Compiling C object tests/unit/test-xbox-vk-device-selection.p/9dbe0d0ab8c09cfd8344a4bdd879df045bcc0130_xbox_nv2a_pgraph_vk_device-selection.c.o
+[565/1066] Compiling C object tests/unit/test-xemu-gpu-launch.p/_home_codex_src_steamdeck-xemu_worktrees_issue197-sample-memory_ui_xemu-gpu-launch.c.o
+[566/1066] Compiling C object tests/qtest/libqos/libqos.a.p/ahci.c.o
+[567/1066] Compiling C object tests/unit/test-xbox-vk-surface-coherence.p/test-xbox-vk-surface-coherence.c.o
+[568/1066] Compiling C object tests/unit/test-xbox-vk-pipeline-cache-data.p/test-xbox-vk-pipeline-cache-data.c.o
+[569/1066] Compiling C object tests/unit/test-xbox-pgraph-vertex-fetch-span.p/test-xbox-pgraph-vertex-fetch-span.c.o
+[570/1066] Compiling C object tests/unit/test-xemu-win32-dxgi-interop.p/test-xemu-win32-dxgi-interop.c.o
+[571/1066] Compiling C object tests/unit/test-xbox-vk-pipeline-cache-data.p/4a4d6d71e95eedc4523c762f8586f8e97c1c49e3_xbox_nv2a_pgraph_vk_pipeline-cache-data.c.o
+[572/1066] Compiling C object tests/unit/test-xemu-gpu-launch.p/9dbe0d0ab8c09cfd8344a4bdd879df045bcc0130_xbox_nv2a_pgraph_vk_device-selection.c.o
+[573/1066] Compiling C object tests/unit/test-xemu-gpu-info.p/_home_codex_src_steamdeck-xemu_worktrees_issue197-sample-memory_ui_xemu-gpu-launch.c.o
+[574/1066] Compiling C object tests/unit/test-xbox-pgraph-reports.p/xbox-pgraph-report-test-support.c.o
+[575/1066] Compiling C object tests/qtest/libqos/libqos.a.p/.._libqtest.c.o
+[576/1066] Compiling C object tests/unit/test-xemu-gpu-info.p/9dbe0d0ab8c09cfd8344a4bdd879df045bcc0130_xbox_nv2a_pgraph_vk_device-selection.c.o
+[577/1066] Compiling C object tests/unit/test-xbox-vk-bc-layout.p/test-xbox-vk-bc-layout.c.o
+[578/1066] Compiling C object tests/unit/test-xbox-vk-pipeline-lifetime.p/test-xbox-vk-pipeline-lifetime.c.o
+[579/1066] Compiling C object tests/unit/test-xbox-pgraph-report-wrapper.p/test-xbox-pgraph-report-wrapper.c.o
+[580/1066] Compiling C object tests/unit/test-xemu-gpu-info.p/test-xemu-gpu-info.c.o
+[581/1066] Compiling C object tests/unit/test-qobject-output-visitor.p/test-qobject-output-visitor.c.o
+[582/1066] Compiling C object tests/unit/test-xbox-nv2a-profile-event-log.p/b3763280816d7e2b899308d598f0a6d4b2bdd14d_hw_xbox_nv2a_pgraph_profile.c.o
+[583/1066] Compiling C object tests/unit/test-xbox-vk-failpoint.p/test-xbox-vk-failpoint.c.o
+[584/1066] Compiling C object tests/unit/test-xbox-vk-ubershader-combiner.p/1d84474634928d3f4f7c846b84b7c3d611271925_xbox_nv2a_pgraph_vk_ubershader-controls.c.o
+[585/1066] Compiling C object tests/unit/test-xbox-pgraph-reports.p/f1427c5502f454283bda88eb939baabc934ba585_hw_xbox_nv2a_pgraph_reports.c.o
+[586/1066] Compiling C object tests/unit/test-xbox-pgraph-report-wrapper.p/xbox-pgraph-report-test-support.c.o
+[587/1066] Compiling C object tests/unit/test-xbox-vk-ubershader-controls.p/test-xbox-vk-ubershader-controls.c.o
+[588/1066] Compiling C object tests/unit/test-xemu-gpu-info.p/_home_codex_src_steamdeck-xemu_worktrees_issue197-sample-memory_ui_xemu-gpu-info.c.o
+[589/1066] Compiling C object tests/unit/test-xbox-vk-failpoint.p/6c0e72634821fd8b28de6b870b56945f9205813d_xbox_nv2a_pgraph_vk_failpoint.c.o
+[590/1066] Compiling C object tests/unit/check-qjson.p/check-qjson.c.o
+[591/1066] Compiling C object tests/unit/test-xbox-pgraph-report-wrapper.p/f1427c5502f454283bda88eb939baabc934ba585_hw_xbox_nv2a_pgraph_reports.c.o
+[592/1066] Compiling C object tests/unit/test-xbox-vk-vertex-version-policy.p/test-xbox-vk-vertex-version-policy.c.o
+[593/1066] Compiling C object tests/unit/test-xbox-vk-ubershader-controls.p/1d84474634928d3f4f7c846b84b7c3d611271925_xbox_nv2a_pgraph_vk_ubershader-controls.c.o
+[594/1066] Compiling C object tests/fp/fp-test.p/fp-test.c.o
+[595/1066] Compiling C object tests/unit/test-xbox-vk-ubershader-glsl.p/dbf55eef6afbeff9b553d4423c86698ee41b25c1_xbox_nv2a_pgraph_glsl_psh-uber.c.o
+[596/1066] Compiling C object tests/unit/test-xbox-vk-hybrid-compiler.p/6f8609582f45199fe142b83be8a30a5a1b0d9973_xbox_nv2a_pgraph_vk_hybrid-policy.c.o
+[597/1066] Compiling C object tests/unit/test-qobject-input-visitor.p/test-qobject-input-visitor.c.o
+[598/1066] Compiling C object tests/unit/test-xbox-vk-ubershader-glsl.p/945d7fc77c747bb698659695815a9f6e190bb0f2_xbox_nv2a_pgraph_glsl_common.c.o
+[599/1066] Compiling C object tests/unit/test-xbox-vk-hybrid-policy.p/test-xbox-vk-hybrid-policy.c.o
+[600/1066] Compiling C object tests/unit/test-xbox-vk-hybrid-policy.p/6f8609582f45199fe142b83be8a30a5a1b0d9973_xbox_nv2a_pgraph_vk_hybrid-policy.c.o
+[601/1066] Compiling C object tests/unit/test-xbox-vk-uniform-layout.p/test-xbox-vk-uniform-layout.c.o
+[602/1066] Compiling C object tests/unit/test-xbox-vk-ubershader-combiner.p/37bb1dc450602bb20d66213409e42c6e0e14dc98_xbox_nv2a_pgraph_vk_ubershader-combiner-oracle.c.o
+[603/1066] Compiling C object tests/unit/test-xbox-vk-hybrid-trace.p/test-xbox-vk-hybrid-trace.c.o
+[604/1066] Compiling C object tests/unit/test-xbox-nv2a-ptimer.p/_home_codex_src_steamdeck-xemu_worktrees_issue197-sample-memory_hw_xbox_nv2a_ptimer_core.c.o
+[605/1066] Compiling C object tests/unit/test-xbox-vk-ubershader-glsl.p/test-xbox-vk-ubershader-glsl.c.o
+[606/1066] Compiling C object tests/unit/test-xbox-vk-hybrid-trace.p/17f32737d841b59026d1a10db5e437a9ff9f3cb0_xbox_nv2a_pgraph_vk_hybrid-trace.c.o
+[607/1066] Compiling C object tests/unit/test-xbox-gl-draw-lifecycle.p/0928dbe2cf62156d03edfed7bf76d2ce34650e3d_xbox_nv2a_pgraph_gl_draw-lifecycle.c.o
+[608/1066] Compiling C object tests/unit/test-xbox-gl-draw-lifecycle.p/test-xbox-gl-draw-lifecycle.c.o
+[609/1066] Compiling C object tests/unit/test-xbox-nv2a-ptimer.p/_home_codex_src_steamdeck-xemu_worktrees_issue197-sample-memory_hw_xbox_nv2a_pramdac.c.o
+[610/1066] Compiling C object tests/unit/test-xbox-nv2a-ptimer.p/ptimer-test-stubs.c.o
+[611/1066] Compiling C object tests/unit/test-xbox-vk-hybrid-family-history.p/d4897cc950146558ef203a3876ab8ecbae0a581b_xbox_nv2a_pgraph_vk_hybrid-family-history.c.o
+[612/1066] Compiling C object tests/unit/test-div128.p/test-div128.c.o
+[613/1066] Compiling C object tests/unit/test-xbox-vk-hybrid-family-history.p/test-xbox-vk-hybrid-family-history.c.o
+[614/1066] Compiling C object tests/unit/test-shift128.p/test-shift128.c.o
+[615/1066] Compiling C object tests/unit/test-mul64.p/test-mul64.c.o
+[616/1066] Compiling C object tests/unit/test-xbox-vk-hybrid-compiler.p/14f5735bfe2e814f3bfda4a383852c57c38bad04_xbox_nv2a_pgraph_vk_hybrid-compiler.c.o
+[617/1066] Compiling C object tests/unit/test-x86-topo.p/test-x86-topo.c.o
+[618/1066] Compiling C object tests/unit/test-resv-mem.p/test-resv-mem.c.o
+[619/1066] Compiling C object tests/unit/test-rcu-list.p/test-rcu-list.c.o
+[620/1066] Compiling C object tests/unit/test-xbox-vk-hybrid-pipeline-builder.p/d419f487dca05cb55a61a1750299be596c6ab30b_xbox_nv2a_pgraph_vk_hybrid-pipeline-builder.c.o
+[621/1066] Compiling C object tests/unit/test-xbox-vk-ubershader-combiner.p/test-xbox-vk-ubershader-combiner.c.o
+[622/1066] Compiling C object tests/unit/test-xbox-nv2a-ptimer.p/_home_codex_src_steamdeck-xemu_worktrees_issue197-sample-memory_hw_xbox_nv2a_ptimer.c.o
+[623/1066] Compiling C object tests/unit/test-rcu-simpleq.p/test-rcu-simpleq.c.o
+[624/1066] Compiling C object tests/unit/test-int128.p/test-int128.c.o
+[625/1066] Compiling C object tests/unit/test-xbox-vk-spirv-prewarm.p/35ed14fd6cef12d0091c38b7c1cb1a1d982c847b_xbox_nv2a_pgraph_vk_spirv-prewarm.c.o
+[626/1066] Compiling C object tests/unit/test-bitcnt.p/test-bitcnt.c.o
+[627/1066] Compiling C object tests/unit/rcutorture.p/rcutorture.c.o
+[628/1066] Compiling C object tests/unit/check-qom-interface.p/check-qom-interface.c.o
+[629/1066] Compiling C object tests/unit/test-xbox-vk-spirv-prewarm.p/test-xbox-vk-spirv-prewarm.c.o
+[630/1066] Compiling C object tests/unit/test-rcu-slist.p/test-rcu-slist.c.o
+[631/1066] Compiling C object tests/unit/test-rcu-tailq.p/test-rcu-tailq.c.o
+[632/1066] Compiling C object tests/unit/test-qht.p/test-qht.c.o
+[633/1066] Compiling C object tests/unit/test-qtree.p/test-qtree.c.o
+[634/1066] Compiling C object tests/unit/test-bitops.p/test-bitops.c.o
+[635/1066] Compiling C object tests/unit/test-xbox-mcpx-apu-resampler.p/test-xbox-mcpx-apu-resampler.c.o
+FAILED: tests/unit/test-xbox-mcpx-apu-resampler.p/test-xbox-mcpx-apu-resampler.c.o 
+cc -m64 -Itests/unit/test-xbox-mcpx-apu-resampler.p -Itests/unit -I../tests/unit -I. -Iqapi -Itrace -Iui -Iui/shader -Idata -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/sysprof-6 -fdiagnostics-color=auto -Wall -Winvalid-pch -std=gnu11 -O2 -g -Wempty-body -Wendif-labels -Wexpansion-to-defined -Wformat-security -Wformat-y2k -Wignored-qualifiers -Wimplicit-fallthrough=2 -Winit-self -Wmissing-format-attribute -Wmissing-prototypes -Wnested-externs -Wold-style-declaration -Wold-style-definition -Wredundant-decls -Wshadow=local -Wstrict-prototypes -Wtype-limits -Wwrite-strings -Wno-missing-include-dirs -Wno-psabi -Wno-shift-negative-value -isystem /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/linux-headers -isystem linux-headers -iquote . -iquote /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory -iquote /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include -iquote /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/host/include/x86_64 -iquote /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/host/include/generic -iquote /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/tcg/i386 -pthread -mcx16 -msse2 -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fno-common -fwrapv -ftrivial-auto-var-init=zero -fzero-call-used-regs=used-gpr -DXBOX -fPIE -MD -MQ tests/unit/test-xbox-mcpx-apu-resampler.p/test-xbox-mcpx-apu-resampler.c.o -MF tests/unit/test-xbox-mcpx-apu-resampler.p/test-xbox-mcpx-apu-resampler.c.o.d -o tests/unit/test-xbox-mcpx-apu-resampler.p/test-xbox-mcpx-apu-resampler.c.o -c ../tests/unit/test-xbox-mcpx-apu-resampler.c
+../tests/unit/test-xbox-mcpx-apu-resampler.c: In function ‘test_sinc_mono_matches_duplicated_stereo’:
+../tests/unit/test-xbox-mcpx-apu-resampler.c:74:25: error: implicit declaration of function ‘sinf’ [-Wimplicit-function-declaration]
+   74 |         mono_input[i] = sinf(i * 0.071f) * 0.75f + cosf(i * 0.019f) * 0.2f;
+      |                         ^~~~
+../tests/unit/test-xbox-mcpx-apu-resampler.c:5:1: note: include ‘<math.h>’ or provide a declaration of ‘sinf’
+    4 | #include "hw/xbox/mcpx/apu/vp/resample.h"
+  +++ |+#include <math.h>
+    5 | 
+../tests/unit/test-xbox-mcpx-apu-resampler.c:74:25: warning: incompatible implicit declaration of built-in function ‘sinf’ [-Wbuiltin-declaration-mismatch]
+   74 |         mono_input[i] = sinf(i * 0.071f) * 0.75f + cosf(i * 0.019f) * 0.2f;
+      |                         ^~~~
+../tests/unit/test-xbox-mcpx-apu-resampler.c:74:25: note: include ‘<math.h>’ or provide a declaration of ‘sinf’
+../tests/unit/test-xbox-mcpx-apu-resampler.c:74:52: error: implicit declaration of function ‘cosf’ [-Wimplicit-function-declaration]
+   74 |         mono_input[i] = sinf(i * 0.071f) * 0.75f + cosf(i * 0.019f) * 0.2f;
+      |                                                    ^~~~
+../tests/unit/test-xbox-mcpx-apu-resampler.c:74:52: note: include ‘<math.h>’ or provide a declaration of ‘cosf’
+../tests/unit/test-xbox-mcpx-apu-resampler.c:74:52: warning: incompatible implicit declaration of built-in function ‘cosf’ [-Wbuiltin-declaration-mismatch]
+../tests/unit/test-xbox-mcpx-apu-resampler.c:74:52: note: include ‘<math.h>’ or provide a declaration of ‘cosf’
+../tests/unit/test-xbox-mcpx-apu-resampler.c: In function ‘run_sinc_streaming_equivalence’:
+../tests/unit/test-xbox-mcpx-apu-resampler.c:132:25: warning: incompatible implicit declaration of built-in function ‘sinf’ [-Wbuiltin-declaration-mismatch]
+  132 |         mono_input[i] = sinf(i * 0.071f) * 0.75f +
+      |                         ^~~~
+../tests/unit/test-xbox-mcpx-apu-resampler.c:132:25: note: include ‘<math.h>’ or provide a declaration of ‘sinf’
+../tests/unit/test-xbox-mcpx-apu-resampler.c:133:25: warning: incompatible implicit declaration of built-in function ‘cosf’ [-Wbuiltin-declaration-mismatch]
+  133 |                         cosf(i * 0.019f) * 0.2f;
+      |                         ^~~~
+../tests/unit/test-xbox-mcpx-apu-resampler.c:133:25: note: include ‘<math.h>’ or provide a declaration of ‘cosf’
+../tests/unit/test-xbox-mcpx-apu-resampler.c: In function ‘test_sinc_channel_change_at_stream_reset’:
+../tests/unit/test-xbox-mcpx-apu-resampler.c:204:25: warning: incompatible implicit declaration of built-in function ‘sinf’ [-Wbuiltin-declaration-mismatch]
+  204 |         mono_input[i] = sinf(i * 0.071f) * 0.75f;
+      |                         ^~~~
+../tests/unit/test-xbox-mcpx-apu-resampler.c:204:25: note: include ‘<math.h>’ or provide a declaration of ‘sinf’
+../tests/unit/test-xbox-mcpx-apu-resampler.c:206:30: warning: incompatible implicit declaration of built-in function ‘cosf’ [-Wbuiltin-declaration-mismatch]
+  206 |         stereo_input[i][1] = cosf(i * 0.053f) * 0.4f;
+      |                              ^~~~
+../tests/unit/test-xbox-mcpx-apu-resampler.c:206:30: note: include ‘<math.h>’ or provide a declaration of ‘cosf’
+../tests/unit/test-xbox-mcpx-apu-resampler.c: In function ‘test_full_reset_discards_resampler_history’:
+../tests/unit/test-xbox-mcpx-apu-resampler.c:277:36: warning: incompatible implicit declaration of built-in function ‘sinf’ [-Wbuiltin-declaration-mismatch]
+  277 |                     0.75f + 0.2f * sinf(frame * 0.071f + channel);
+      |                                    ^~~~
+../tests/unit/test-xbox-mcpx-apu-resampler.c:277:36: note: include ‘<math.h>’ or provide a declaration of ‘sinf’
+../tests/unit/test-xbox-mcpx-apu-resampler.c:279:37: warning: incompatible implicit declaration of built-in function ‘cosf’ [-Wbuiltin-declaration-mismatch]
+  279 |                     -0.75f + 0.2f * cosf(frame * 0.053f + channel);
+      |                                     ^~~~
+../tests/unit/test-xbox-mcpx-apu-resampler.c:279:37: note: include ‘<math.h>’ or provide a declaration of ‘cosf’
+[636/1066] Compiling C object tests/unit/test-qgraph.p/test-qgraph.c.o
+[637/1066] Compiling C object tests/unit/test-logging.p/test-logging.c.o
+[638/1066] Compiling C object tests/unit/test-qdist.p/test-qdist.c.o
+[639/1066] Compiling C object tests/unit/test-xbox-vk-hybrid-prewarm.p/61a726459eb5d402ff597fcbf9e078e83f79e993_xbox_nv2a_pgraph_vk_hybrid-prewarm.c.o
+[640/1066] Compiling C object tests/unit/test-interval-tree.p/test-interval-tree.c.o
+[641/1066] Compiling C object tests/unit/test-qapi-util.p/test-qapi-util.c.o
+[642/1066] Compiling C object tests/unit/test-xbox-vk-hybrid-pipeline-builder.p/test-xbox-vk-hybrid-pipeline-builder.c.o
+[643/1066] Compiling C object tests/unit/test-lru-active.p/test-lru-active.c.o
+[644/1066] Compiling C object tests/unit/test-qgraph.p/.._qtest_libqos_qgraph.c.o
+[645/1066] Compiling C object tests/unit/test-fifo.p/test-fifo.c.o
+[646/1066] Compiling C object tests/unit/test-xbox-mcpx-apu-sample-memory.p/test-xbox-mcpx-apu-sample-memory.c.o
+[647/1066] Compiling C object tests/unit/check-qom-proplist.p/check-qom-proplist.c.o
+[648/1066] Compiling C object tests/unit/test-xbox-vk-ubershader-glsl-integration.p/945d7fc77c747bb698659695815a9f6e190bb0f2_xbox_nv2a_pgraph_glsl_common.c.o
+[649/1066] Compiling C object tests/unit/test-xbox-vk-hybrid-compiler.p/test-xbox-vk-hybrid-compiler.c.o
+[650/1066] Compiling C object tests/unit/test-xbox-vk-hybrid-prewarm.p/d4897cc950146558ef203a3876ab8ecbae0a581b_xbox_nv2a_pgraph_vk_hybrid-family-history.c.o
+[651/1066] Compiling C object tests/unit/test-xbox-vk-staging-flush.p/test-xbox-vk-staging-flush.c.o
+[652/1066] Compiling C object tests/unit/test-xbox-vk-ubershader-glsl-integration.p/494bc90acb15fdd2d4635ac2cf88ddbb80bde002_xbox_nv2a_pgraph_glsl_geom.c.o
+[653/1066] Compiling C object tests/unit/test-xbox-nv2a-ptimer.p/test-xbox-nv2a-ptimer.c.o
+[654/1066] Compiling C object subprojects/berkeley-testfloat-3/libslowfloat.a.p/source_slowfloat.c.o
+[655/1066] Compiling C object tests/unit/test-keyval.p/test-keyval.c.o
+[656/1066] Compiling C object tests/unit/test-qemu-opts.p/test-qemu-opts.c.o
+[657/1066] Compiling C object tests/unit/test-xbox-vk-ubershader-glsl.p/36ea489a0742c29b0cb5f9b3d4193f0ad82c04f6_xbox_nv2a_pgraph_glsl_psh.c.o
+[658/1066] Compiling C object tests/unit/test-xbox-vk-hybrid-prewarm.p/05a683546d2f5c6b2f2607e8f2cea1c08b0e88ac_xbox_nv2a_pgraph_vk_hybrid-prewarm-runtime.c.o
+[659/1066] Compiling C object tests/unit/test-xbox-vk-hybrid-family-codec.p/test-xbox-vk-hybrid-family-codec.c.o
+[660/1066] Compiling C object tests/unit/test-xbox-vk-hybrid-prewarm.p/test-xbox-vk-hybrid-prewarm.c.o
+[661/1066] Compiling C object tests/unit/test-xbox-vk-ubershader-glsl-integration.p/test-xbox-vk-ubershader-glsl-integration.c.o
+[662/1066] Compiling C object tests/unit/test-xbox-vk-hybrid-prewarm.p/b0b8b87201db7eb01e046b508261fdcf6485c181_xbox_nv2a_pgraph_vk_hybrid-family-codec.c.o
+[663/1066] Compiling C object tests/unit/test-xbox-vk-hybrid-family-codec.p/b0b8b87201db7eb01e046b508261fdcf6485c181_xbox_nv2a_pgraph_vk_hybrid-family-codec.c.o
+[664/1066] Compiling C++ object tests/unit/test-xemu-tweaks-config.p/.._.._ui_xemu-settings-migration.cc.o
+[665/1066] Compiling C object tests/unit/test-cutils.p/test-cutils.c.o
+[666/1066] Compiling C++ object tests/unit/test-xemu-tweaks-config.p/test-xemu-tweaks-config.cc.o
+[667/1066] Compiling C object tests/fp/fp-test.p/.._.._fpu_softfloat.c.o
+[668/1066] Compiling C object tests/fp/fp-test-log2.p/.._.._fpu_softfloat.c.o
+ninja: build stopped: subcommand failed.
+Could not rebuild /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/build-sample-memory

@@ -1,0 +1,11 @@
+TAP version 14
+# random seed: R02Sef3d4722731c2fbd17892abac9c10aeb
+1..1
+# Start of mcpx-apu tests
+# Start of sample-memory tests
+not ok /mcpx-apu/sample-memory/real-mapping-replaced-between-words - ERROR:/home/codex/src/steamdeck-xemu/artifacts/issue197-sample-memory/real-memory-probe/test-memory.c:59:test_mapping_replaced_between_words: assertion failed (words[1] == 0x55667788): (0xdeadbeef == 0x55667788)
+Bail out!
+**
+ERROR:/home/codex/src/steamdeck-xemu/artifacts/issue197-sample-memory/real-memory-probe/test-memory.c:59:test_mapping_replaced_between_words: assertion failed (words[1] == 0x55667788): (0xdeadbeef == 0x55667788)
+
+Exit: -6

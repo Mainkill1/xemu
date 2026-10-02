@@ -66,12 +66,7 @@ static inline void mcpx_apu_read_adpcm_block(const uint32_t *sge_base_reg,
                     mcpx_apu_adpcm_word_address(*sge_base_reg, linear_addr);
             }
             size_t offset = i * sizeof(*words);
-            /* The cache owns a reference to its view, so comparing identities
-             * cannot mistake a freed/reused view for the cached one. Do not
-             * dereference the current-map pointer here. A changed map must
-             * use the original physical read even if the SGE is unchanged. */
             if (mapped_bytes > 0 && cache.ptr &&
-                address_space_to_flatview(&address_space_memory) == cache.fv &&
                 mcpx_apu_cached_word_eligible(mapped_physical, physical, offset,
                                               mapped_bytes)) {
                 words[i] = address_space_ldl_le_cached(

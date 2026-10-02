@@ -1,0 +1,24 @@
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+[New Thread 0x7ffff4fff6c0 (LWP 1173721)]
+TAP version 14
+# random seed: R02S9979b5eeb54866515d77f597750b7f13
+1..1
+# Start of mcpx-apu tests
+# Start of sample-memory tests
+
+Thread 1 "test-real-memor" received signal SIGSEGV, Segmentation fault.
+0x00005555558d12c7 in qemu_ram_alloc_internal (size=size@entry=4096, max_size=max_size@entry=4096, resized=resized@entry=0x0, host=host@entry=0x0, ram_flags=ram_flags@entry=0, mr=mr@entry=0x555556c9c8c0 <old_bank>, errp=0x7fffffffd778) at ../system/physmem.c:2786
+2786	        if (!share_flags && current_machine->aux_ram_share) {
+#0  0x00005555558d12c7 in qemu_ram_alloc_internal (size=size@entry=4096, max_size=max_size@entry=4096, resized=resized@entry=0x0, host=host@entry=0x0, ram_flags=ram_flags@entry=0, mr=mr@entry=0x555556c9c8c0 <old_bank>, errp=0x7fffffffd778) at ../system/physmem.c:2786
+#1  0x00005555558d1657 in qemu_ram_alloc (size=size@entry=4096, ram_flags=ram_flags@entry=0, mr=mr@entry=0x555556c9c8c0 <old_bank>, errp=errp@entry=0x7fffffffd778) at ../system/physmem.c:2864
+#2  0x00005555558c5337 in memory_region_init_ram_flags_nomigrate (mr=mr@entry=0x555556c9c8c0 <old_bank>, owner=owner@entry=0x0, name=name@entry=0x5555565c5dac "test-old-bank", size=size@entry=4096, ram_flags=ram_flags@entry=0, errp=0x555556c9ec50 <error_fatal>) at ../system/memory.c:1621
+#3  0x00005555558cafc5 in memory_region_init_ram_nomigrate (mr=0x555556c9c8c0 <old_bank>, owner=0x0, name=0x5555565c5dac "test-old-bank", size=4096, errp=<optimized out>) at ../system/memory.c:1605
+#4  memory_region_init_ram (mr=mr@entry=0x555556c9c8c0 <old_bank>, owner=owner@entry=0x0, name=name@entry=0x5555565c5dac "test-old-bank", size=size@entry=4096, errp=<optimized out>) at ../system/memory.c:3847
+#5  0x0000555555b2f83d in prepare_memory () at /home/codex/src/steamdeck-xemu/artifacts/issue197-sample-memory/real-memory-probe/test-memory.c:38
+#6  test_mapping_replaced_between_words () at /home/codex/src/steamdeck-xemu/artifacts/issue197-sample-memory/real-memory-probe/test-memory.c:55
+#7  0x00007ffff7a02e19 in ?? () from /lib/x86_64-linux-gnu/libglib-2.0.so.0
+#8  0x00007ffff7a02d93 in ?? () from /lib/x86_64-linux-gnu/libglib-2.0.so.0
+#9  0x00007ffff7a02d93 in ?? () from /lib/x86_64-linux-gnu/libglib-2.0.so.0
+#10 0x00007ffff7a03322 in g_test_run_suite () from /lib/x86_64-linux-gnu/libglib-2.0.so.0
+#11 0x00007ffff7a033a8 in g_test_run () from /lib/x86_64-linux-gnu/libglib-2.0.so.0
