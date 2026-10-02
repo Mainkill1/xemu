@@ -1,0 +1,418 @@
+{
+  "c": {
+    "runId": "20261001-235059559-3e9986b3fc7b4b5e856691af1bdffbe3",
+    "binarySha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+    "elfBuildId": "7cc47cc0deb81956e198d71935d1a198116cdb02",
+    "perfDataSha256": "0bee831e1c604f2df1cb8c9e06559c8bb8137980433139b6146642289e7813a6",
+    "samples": 6418,
+    "period": 145149891370,
+    "canonicalOutcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "incomplete",
+      "comparison": "ineligible"
+    },
+    "groups": {
+      "named-C-interpreter": {
+        "samples": 2109,
+        "period": 57438843246,
+        "processPercent": 39.57208834527011
+      }
+    },
+    "executeFunction": {
+      "samples": 641,
+      "period": 17308485835,
+      "processPercent": 11.924559964622452
+    },
+    "executeRegions": {
+      "selection/classification": {
+        "samples": 146,
+        "period": 3949791300,
+        "processPercent": 2.7211810237815683
+      },
+      "normal decode miss": {
+        "samples": 1,
+        "period": 31091466,
+        "processPercent": 0.0214202475155459
+      },
+      "normal handler indirection": {
+        "samples": 19,
+        "period": 484229459,
+        "processPercent": 0.3336064908003658
+      },
+      "parallel selection": {
+        "samples": 7,
+        "period": 180341354,
+        "processPercent": 0.12424491144832746
+      },
+      "retained call": {
+        "samples": 119,
+        "period": 3290017581,
+        "processPercent": 2.2666345458113035
+      }
+    },
+    "frameRecords": 3496,
+    "positiveIntervalsLast90s": 60,
+    "requiredIntervals": 160,
+    "topSymbols": [
+      {
+        "symbol": "[unknown]",
+        "samples": 2349,
+        "period": 44882324351,
+        "processPercent": 30.92136268747936
+      },
+      {
+        "symbol": "dsp56k_execute_instruction",
+        "samples": 641,
+        "period": 17308485835,
+        "processPercent": 11.924559964622452
+      },
+      {
+        "symbol": "address_space_ldl_internal.llvm.9823001788323054012",
+        "samples": 449,
+        "period": 10294951553,
+        "processPercent": 7.092634693578414
+      },
+      {
+        "symbol": "emu_update_rn",
+        "samples": 290,
+        "period": 8350632941,
+        "processPercent": 5.753110017639278
+      },
+      {
+        "symbol": "dsp_c_run.llvm.5225988660000961437",
+        "samples": 260,
+        "period": 6992116018,
+        "processPercent": 4.817169308226675
+      },
+      {
+        "symbol": "voice_worker_thread.llvm.1301536018277380079",
+        "samples": 213,
+        "period": 4424676526,
+        "processPercent": 3.0483498707698686
+      },
+      {
+        "symbol": "voice_resample_callback",
+        "samples": 172,
+        "period": 4406837350,
+        "processPercent": 3.0360596955367876
+      },
+      {
+        "symbol": "emu_pm_5",
+        "samples": 121,
+        "period": 3286773234,
+        "processPercent": 2.2643993756920717
+      },
+      {
+        "symbol": "address_space_translate_internal.llvm.9823001788323054012",
+        "samples": 138,
+        "period": 3047396087,
+        "processPercent": 2.099482168561819
+      },
+      {
+        "symbol": "emu_calc_ea",
+        "samples": 100,
+        "period": 2786281476,
+        "processPercent": 1.9195890880121436
+      },
+      {
+        "symbol": "get_ptr_rcu_reader",
+        "samples": 120,
+        "period": 2681421505,
+        "processPercent": 1.8473465461746834
+      },
+      {
+        "symbol": "emu_mac_p_y0_x0_a",
+        "samples": 85,
+        "period": 2331553864,
+        "processPercent": 1.60630768786224
+      },
+      {
+        "symbol": "physical_memory_all_dirty",
+        "samples": 96,
+        "period": 2180882081,
+        "processPercent": 1.5025034193382463
+      },
+      {
+        "symbol": "emu_pm_2",
+        "samples": 69,
+        "period": 1944690418,
+        "processPercent": 1.3397808290760693
+      },
+      {
+        "symbol": "emu_ccr_update_e_u_n_z",
+        "samples": 69,
+        "period": 1853580540,
+        "processPercent": 1.277011317407781
+      },
+      {
+        "symbol": "dsp56k_read_memory",
+        "samples": 67,
+        "period": 1826413357,
+        "processPercent": 1.2582946771515726
+      },
+      {
+        "symbol": "emu_move_xy_imm",
+        "samples": 61,
+        "period": 1635159930,
+        "processPercent": 1.1265319695154519
+      },
+      {
+        "symbol": "emu_pm_8",
+        "samples": 58,
+        "period": 1537456962,
+        "processPercent": 1.0592201947164295
+      },
+      {
+        "symbol": "qht_lookup_custom",
+        "samples": 43,
+        "period": 1199989582,
+        "processPercent": 0.8267244092805551
+      },
+      {
+        "symbol": "emu_pm_4",
+        "samples": 41,
+        "period": 1069451827,
+        "processPercent": 0.7367913381856223
+      },
+      {
+        "symbol": "address_space_stl_internal.llvm.9823001788323054012",
+        "samples": 38,
+        "period": 1012351891,
+        "processPercent": 0.6974527376113736
+      },
+      {
+        "symbol": "address_space_lduw_internal.llvm.9823001788323054012",
+        "samples": 30,
+        "period": 998909668,
+        "processPercent": 0.6881918123201969
+      },
+      {
+        "symbol": "dsp56k_write_memory",
+        "samples": 38,
+        "period": 968589914,
+        "processPercent": 0.6673032303765065
+      },
+      {
+        "symbol": "tlb_reset_dirty",
+        "samples": 52,
+        "period": 853398418,
+        "processPercent": 0.5879428568255772
+      },
+      {
+        "symbol": "emu_move",
+        "samples": 30,
+        "period": 830057258,
+        "processPercent": 0.5718621282906166
+      }
+    ]
+  },
+  "jit": {
+    "runId": "20261001-235605297-a17798163c884a8ca1b4cae5b6cba65d",
+    "binarySha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+    "elfBuildId": "7cc47cc0deb81956e198d71935d1a198116cdb02",
+    "perfDataSha256": "a836e2c8d058cb3abcff0696e476e84b81c7ddbf0ad90011348745671845fd1a",
+    "samples": 8060,
+    "period": 153341128693,
+    "canonicalOutcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "incomplete",
+      "comparison": "ineligible"
+    },
+    "groups": {
+      "named-JIT-wrapper": {
+        "samples": 13,
+        "period": 262399755,
+        "processPercent": 0.17112157529852492
+      }
+    },
+    "executeFunction": {
+      "samples": 0,
+      "period": 0,
+      "processPercent": 0.0
+    },
+    "executeRegions": {
+      "selection/classification": {
+        "samples": 0,
+        "period": 0,
+        "processPercent": 0.0
+      },
+      "normal decode miss": {
+        "samples": 0,
+        "period": 0,
+        "processPercent": 0.0
+      },
+      "normal handler indirection": {
+        "samples": 0,
+        "period": 0,
+        "processPercent": 0.0
+      },
+      "parallel selection": {
+        "samples": 0,
+        "period": 0,
+        "processPercent": 0.0
+      },
+      "retained call": {
+        "samples": 0,
+        "period": 0,
+        "processPercent": 0.0
+      }
+    },
+    "frameRecords": 3774,
+    "positiveIntervalsLast90s": 53,
+    "requiredIntervals": 160,
+    "topSymbols": [
+      {
+        "symbol": "[unknown]",
+        "samples": 4574,
+        "period": 87621471504,
+        "processPercent": 57.141532901733434
+      },
+      {
+        "symbol": "address_space_ldl_internal.llvm.9823001788323054012",
+        "samples": 784,
+        "period": 16673219904,
+        "processPercent": 10.8732862775394
+      },
+      {
+        "symbol": "voice_resample_callback",
+        "samples": 293,
+        "period": 6205338719,
+        "processPercent": 4.046754299965755
+      },
+      {
+        "symbol": "voice_worker_thread.llvm.1301536018277380079",
+        "samples": 314,
+        "period": 6032132040,
+        "processPercent": 3.9337991649173025
+      },
+      {
+        "symbol": "address_space_translate_internal.llvm.9823001788323054012",
+        "samples": 243,
+        "period": 4980271444,
+        "processPercent": 3.24783799783479
+      },
+      {
+        "symbol": "get_ptr_rcu_reader",
+        "samples": 217,
+        "period": 4450046139,
+        "processPercent": 2.9020564651700935
+      },
+      {
+        "symbol": "jit_read_accu24",
+        "samples": 125,
+        "period": 2791273780,
+        "processPercent": 1.8203034005236334
+      },
+      {
+        "symbol": "dsp56300_emu::jit::<impl dsp56300_emu::core::DspState>::run",
+        "samples": 118,
+        "period": 2736010296,
+        "processPercent": 1.7842638301415468
+      },
+      {
+        "symbol": "physical_memory_all_dirty",
+        "samples": 130,
+        "period": 2707709179,
+        "processPercent": 1.7658075182301736
+      },
+      {
+        "symbol": "dsp56300_emu::core::jit_update_nz",
+        "samples": 82,
+        "period": 1862699435,
+        "processPercent": 1.2147422227009028
+      },
+      {
+        "symbol": "address_space_stl_internal.llvm.9823001788323054012",
+        "samples": 55,
+        "period": 1151460594,
+        "processPercent": 0.7509143853410047
+      },
+      {
+        "symbol": "qemu_ram_ptr_length.llvm.9823001788323054012",
+        "samples": 43,
+        "period": 947014151,
+        "processPercent": 0.617586526897158
+      },
+      {
+        "symbol": "dsp56300_emu::core::DspState::read_memory",
+        "samples": 42,
+        "period": 943258935,
+        "processPercent": 0.6151375974859767
+      },
+      {
+        "symbol": "qht_lookup_custom",
+        "samples": 36,
+        "period": 932480435,
+        "processPercent": 0.6081084983187343
+      },
+      {
+        "symbol": "address_space_lduw_internal.llvm.9823001788323054012",
+        "samples": 42,
+        "period": 894754517,
+        "processPercent": 0.5835058895329792
+      },
+      {
+        "symbol": "dsp56300_emu::core::DspState::write_memory",
+        "samples": 29,
+        "period": 604747926,
+        "processPercent": 0.3943807712611461
+      },
+      {
+        "symbol": "tlb_reset_dirty",
+        "samples": 38,
+        "period": 524035193,
+        "processPercent": 0.34174470832881126
+      },
+      {
+        "symbol": "dsp_dma_write",
+        "samples": 22,
+        "period": 497206323,
+        "processPercent": 0.3242485086929567
+      },
+      {
+        "symbol": "helper_lookup_tb_ptr_i32",
+        "samples": 20,
+        "period": 493329495,
+        "processPercent": 0.3217202711398331
+      },
+      {
+        "symbol": "lookup_tb_ptr_common",
+        "samples": 17,
+        "period": 473608274,
+        "processPercent": 0.30885925911514445
+      },
+      {
+        "symbol": "physical_memory_set_dirty_range",
+        "samples": 25,
+        "period": 463629916,
+        "processPercent": 0.30235196515881957
+      },
+      {
+        "symbol": "voice_step_envelope",
+        "samples": 22,
+        "period": 433398496,
+        "processPercent": 0.28263682398457823
+      },
+      {
+        "symbol": "dsp56300_emu::core::jit_saturate_sm",
+        "samples": 16,
+        "period": 363827493,
+        "processPercent": 0.23726673730725492
+      },
+      {
+        "symbol": "tb_lookup_cmp",
+        "samples": 9,
+        "period": 359155291,
+        "processPercent": 0.234219803950351
+      },
+      {
+        "symbol": "mcpx_apu_dsp_frame",
+        "samples": 17,
+        "period": 350331930,
+        "processPercent": 0.22846573061385886
+      }
+    ]
+  }
+}

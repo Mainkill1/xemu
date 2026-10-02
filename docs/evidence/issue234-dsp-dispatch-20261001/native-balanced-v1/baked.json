@@ -1,0 +1,10 @@
+{
+  "id": "issue234-deck-pgr2-stationary-c-v1",
+  "revision": "9f23dbe0bf56df434afd5bdfe571386c8cafd2b93a43989325fc34ba43401dd7",
+  "description": "Issue234 typed C DSP dispatch: same parent runtime libraries and fixed PGR2 stationary scene; 60s warmup/300s observation; original 160-frame and540-CPU floors; no profiling in windows",
+  "sourceJobId": "issue234-deck-pgr2-stationary-c-v1-seed",
+  "stepCount": 32,
+  "fileCount": 41,
+  "buildFileCount": 1,
+  "self": "/api/v1/tests/issue234-deck-pgr2-stationary-c-v1/9f23dbe0bf56df434afd5bdfe571386c8cafd2b93a43989325fc34ba43401dd7"
+}
