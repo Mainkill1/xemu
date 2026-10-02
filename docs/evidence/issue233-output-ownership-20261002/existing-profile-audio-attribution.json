@@ -1,0 +1,77 @@
+{
+  "groups": {
+    "c": {
+      "runId": "20261001-235059559-3e9986b3fc7b4b5e856691af1bdffbe3",
+      "canonicalOutcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "incomplete",
+        "comparison": "ineligible"
+      },
+      "perfDataSha256": "0bee831e1c604f2df1cb8c9e06559c8bb8137980433139b6146642289e7813a6",
+      "leafSha256": "0ebb744d62e183a620a3678967f5604a046d3cc044d44edfbb14a8045034ef00",
+      "allSamples": 6418,
+      "allPeriod": 145149891370,
+      "matchingSamples": 0,
+      "matchingPeriod": 0,
+      "matchingPercent": 0.0,
+      "rows": []
+    },
+    "jit": {
+      "runId": "20261001-235605297-a17798163c884a8ca1b4cae5b6cba65d",
+      "canonicalOutcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "incomplete",
+        "comparison": "ineligible"
+      },
+      "perfDataSha256": "a836e2c8d058cb3abcff0696e476e84b81c7ddbf0ad90011348745671845fd1a",
+      "leafSha256": "5153add6feecd7242912d6f969240803767d6408a0f04ec567bcaeaf42d7fd04",
+      "allSamples": 8060,
+      "allPeriod": 153341128693,
+      "matchingSamples": 16,
+      "matchingPeriod": 64970472,
+      "matchingPercent": 0.04236989290073348,
+      "rows": [
+        {
+          "symbol": "st_rate_flow_mix",
+          "samples": 6,
+          "period": 33580084,
+          "processSampledPeriodPercent": 0.02189894145570674
+        },
+        {
+          "symbol": "AUD_write",
+          "samples": 3,
+          "period": 10901636,
+          "processSampledPeriodPercent": 0.007109401171701208
+        },
+        {
+          "symbol": "audio_timer",
+          "samples": 3,
+          "period": 8689773,
+          "processSampledPeriodPercent": 0.005666955156823941
+        },
+        {
+          "symbol": "po_callback",
+          "samples": 2,
+          "period": 6456113,
+          "processSampledPeriodPercent": 0.004210294429830111
+        },
+        {
+          "symbol": "mixeng_volume",
+          "samples": 1,
+          "period": 2730611,
+          "processSampledPeriodPercent": 0.0017807427291518638
+        },
+        {
+          "symbol": "audio_reset_timer.llvm.3474175654964629063",
+          "samples": 1,
+          "period": 2612255,
+          "processSampledPeriodPercent": 0.0017035579575196181
+        }
+      ]
+    }
+  },
+  "method": "Exact native-xemu leaf symbol names only, existing C/JIT diagnostic profiles; not a live AC97 trace or a speedup estimate",
+  "limits": "Sampling/inlining/skid and shared generic names limit attribution. Zero or low samples do not prove zero cost. Both existing profiles are canonically ineligible for performance comparison. No generated-code, unresolved or external-library time is assigned to AC97."
+}

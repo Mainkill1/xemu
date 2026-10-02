@@ -1,0 +1,21 @@
+{
+  "jobId": "issue233-deck-parent-audio-owner-v2",
+  "state": "tested",
+  "ok": true,
+  "runId": "20261002-024546727-7f7556cb3d5c465d9187e76446fc2b80",
+  "available": true,
+  "code": null,
+  "outcome": {
+    "execution": "completed",
+    "correctness": "passed",
+    "evidence": "complete",
+    "comparison": "eligible"
+  },
+  "reasons": [],
+  "moreReasons": 0,
+  "failures": [],
+  "moreFailures": 0,
+  "truncated": false,
+  "detail": "/api/v1/runs/20261002-024546727-7f7556cb3d5c465d9187e76446fc2b80/artifacts/assessment.json",
+  "diagnostics": "/api/v1/runs/20261002-024546727-7f7556cb3d5c465d9187e76446fc2b80/diagnostics"
+}

@@ -1,0 +1,45 @@
+{
+  "checkedUtc": "2026-10-02T01:33:27.481557+00:00",
+  "parentExecutableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+  "parentConfiguredPriority": [
+    {
+      "address": "0x1777e00",
+      "relocation": "0000000001777e00 R_X86_64_RELATIVE  *ABS*+0x000000000033e02b",
+      "target": "0x33e02b",
+      "name": "spice"
+    },
+    {
+      "address": "0x1777e08",
+      "relocation": "0000000001777e08 R_X86_64_RELATIVE  *ABS*+0x000000000030d980",
+      "target": "0x30d980",
+      "name": "sdl"
+    },
+    {
+      "address": "0x1777e10",
+      "relocation": "0000000001777e10 R_X86_64_RELATIVE  *ABS*+0x00000000002e9fd8",
+      "target": "0x2e9fd8",
+      "name": "none"
+    }
+  ],
+  "candidateCIJob": 110642263052,
+  "candidateProductTree": "58df82fe70dfc5ad07cecac974ce84db81559dac",
+  "candidateCIConfigurationLines": [
+    "2026-10-02T00:06:52.2199644Z     module support                  : NO",
+    "2026-10-02T00:06:52.2200177Z     Audio drivers                   : sdl",
+    "2026-10-02T00:06:56.2597491Z     ALSA support                    : NO",
+    "2026-10-02T00:06:56.2598225Z     PulseAudio support              : NO",
+    "2026-10-02T00:06:56.2598647Z     PipeWire support                : NO"
+  ],
+  "candidateCILogSha256": "18554e7257337fbdb79bdcce84e5844bc38a990bfe4c614129b307ad8a04f053",
+  "sourceFacts": {
+    "audio/meson.build": "QEMU SDL backend entry commented out; none/wav always linked.",
+    "audio/audio.c": "Default candidates are considered only when driver lookup succeeds; none is the last fallback.",
+    "audio/noaudio.c": "none uses rate-controlled consumption, without a physical output device."
+  },
+  "inference": "Release QEMU AC97 playback may fall back to none despite sdl being listed as configured. APU SDL3 output is separate. Verify live backend selection and audible AC97 playback before treating shared output as a performance alternative.",
+  "limits": [
+    "Static configured priority is not a live backend observation.",
+    "Backend symbol absence alone is not proof because of LTO or module loading.",
+    "No new tester diagnostic or launch was executed during the frozen campaign."
+  ]
+}

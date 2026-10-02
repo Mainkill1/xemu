@@ -1,0 +1,37 @@
+test_ancestry_cycle_is_rejected (test_runner_debug_launch.OwnerChecks.test_ancestry_cycle_is_rejected) ... FAIL
+test_dotnet_host_resolves_application_argument (test_runner_debug_launch.OwnerChecks.test_dotnet_host_resolves_application_argument) ... FAIL
+test_name_in_unrelated_process_arguments_is_not_an_owner (test_runner_debug_launch.OwnerChecks.test_name_in_unrelated_process_arguments_is_not_an_owner) ... ok
+test_native_supervisor_resolves_only_owning_runner (test_runner_debug_launch.OwnerChecks.test_native_supervisor_resolves_only_owning_runner) ... FAIL
+test_unrelated_process_is_not_an_owner (test_runner_debug_launch.OwnerChecks.test_unrelated_process_is_not_an_owner) ... ok
+
+======================================================================
+FAIL: test_ancestry_cycle_is_rejected (test_runner_debug_launch.OwnerChecks.test_ancestry_cycle_is_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/src/steamdeck-xemu/worktrees/runner-diagnostic-owner/tests/test_runner_debug_launch.py", line 47, in test_ancestry_cycle_is_rejected
+    with self.assertRaises(ValueError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_dotnet_host_resolves_application_argument (test_runner_debug_launch.OwnerChecks.test_dotnet_host_resolves_application_argument)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/src/steamdeck-xemu/worktrees/runner-diagnostic-owner/tests/test_runner_debug_launch.py", line 33, in test_dotnet_host_resolves_application_argument
+    self.assertEqual(launcher.find_runner_owner(15, self.root), 13)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: None != 13
+
+======================================================================
+FAIL: test_native_supervisor_resolves_only_owning_runner (test_runner_debug_launch.OwnerChecks.test_native_supervisor_resolves_only_owning_runner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/src/steamdeck-xemu/worktrees/runner-diagnostic-owner/tests/test_runner_debug_launch.py", line 28, in test_native_supervisor_resolves_only_owning_runner
+    self.assertEqual(launcher.find_runner_owner(15, self.root), 13)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: None != 13
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.001s
+
+FAILED (failures=3)

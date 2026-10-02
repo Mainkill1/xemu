@@ -1,0 +1,18 @@
+{
+  "debugFile": "artifacts/issue229-dsp-multiply/native-builds/parent-linux/debug-root/usr/lib/debug/.build-id/7c/c47cc0deb81956e198d71935d1a198116cdb02.debug",
+  "debugSha256": "614ec7555af52d876e51de31263126b7fe700aac87c9592c218a959a24fffb0b",
+  "parentExecutableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+  "symbols": {
+    "pa_audio_init": [],
+    "alsa_audio_init": [],
+    "pipewire_audio_init": [],
+    "qpa_audio_init": [],
+    "qmp_query_audiodevs": [
+      "0000000000ce0f40 T qmp_query_audiodevs"
+    ],
+    "audio_init": [],
+    "sdl_audio_init": [],
+    "audio_driver_init": []
+  },
+  "limit": "Symbol presence proves linked code only; LTO can remove or rename symbols. It does not identify the runtime selected backend or active guest AC97 playback."
+}
