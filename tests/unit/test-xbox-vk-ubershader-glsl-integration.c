@@ -189,6 +189,22 @@ static void test_depth_alias_compute_compiles(void)
     pgraph_vk_finalize_glsl_compiler();
 }
 
+static void test_depth_alias_pipeline_identity(void)
+{
+    ComputePipelineKey pack = pgraph_vk_compute_pipeline_key(
+        VK_FORMAT_D24_UNORM_S8_UINT, PGRAPH_VK_COMPUTE_PACK_DEPTH_STENCIL,
+        256);
+    ComputePipelineKey unpack = pgraph_vk_compute_pipeline_key(
+        VK_FORMAT_D24_UNORM_S8_UINT, PGRAPH_VK_COMPUTE_UNPACK_DEPTH_STENCIL,
+        256);
+    ComputePipelineKey alias = pgraph_vk_compute_pipeline_key(
+        VK_FORMAT_UNDEFINED, PGRAPH_VK_COMPUTE_UNSWIZZLE_PACKED_DEPTH, 256);
+
+    g_assert_true(memcmp(&pack, &unpack, sizeof(pack)) != 0);
+    g_assert_true(memcmp(&pack, &alias, sizeof(pack)) != 0);
+    g_assert_true(memcmp(&unpack, &alias, sizeof(pack)) != 0);
+}
+
 static void test_depth_replace_compiles_for_both_fragment_routes(void)
 {
     PGRAPHVkGlslCompileConfig config = { .api_version = VK_API_VERSION_1_1 };
@@ -492,6 +508,8 @@ int main(int argc, char **argv)
                     test_invalid_glsl_returns_failure);
     g_test_add_func("/xbox/vk/surface-alias/compute-compile",
                     test_depth_alias_compute_compiles);
+    g_test_add_func("/xbox/vk/surface-alias/pipeline-identity",
+                    test_depth_alias_pipeline_identity);
     g_test_add_func("/xbox/vk/psh/depth-replace-compile",
                     test_depth_replace_compiles_for_both_fragment_routes);
     g_test_add_func("/xbox/vk/vsh/nv20-arithmetic-compile",
