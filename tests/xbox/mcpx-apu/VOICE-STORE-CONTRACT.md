@@ -1,4 +1,6 @@
-<!-- SPDX-License-Identifier: GPL-2.0-or-later -->
+<!--
+SPDX-License-Identifier: GPL-2.0-or-later
+-->
 # Voice-store memory contract checks for #247
 
 This retained integration target links the production voice-store helper and
