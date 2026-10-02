@@ -4671,6 +4671,17 @@ foreach target : target_dirs
       build_by_default: false)
     test('test-xbox-mcpx-apu-voice-frame-stores', voice_store_diagnostic,
       args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+    voice_store_integration = executable('test-xbox-mcpx-apu-voice-store-integration',
+      files('tests/xbox/mcpx-apu/test-voice-store-integration.c'),
+      c_args: c_args,
+      dependencies: arch_deps + [sdl],
+      objects: lib.extract_all_objects(recursive: true),
+      include_directories: target_inc,
+      link_depends: [block_syms, qemu_syms],
+      link_args: link_args + ['-Wl,--wrap=main'],
+      build_by_default: false)
+    test('test-xbox-mcpx-apu-voice-store-integration', voice_store_integration,
+      args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
   endif
 
   foreach exe: execs
