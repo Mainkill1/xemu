@@ -22,6 +22,7 @@
 #include "hw/xbox/mcpx/apu/apu_int.h"
 #include "adpcm.h"
 #include "resample.h"
+#include "voice-store.h"
 
 static const struct {
     hwaddr top, current, next;
@@ -116,9 +117,9 @@ static void voice_set_mask(MCPXAPUState *d, uint16_t voice_handle,
 {
     hwaddr voice = d->regs[NV_PAPU_VPVADDR]
                     + voice_handle * NV_PAVS_SIZE;
-    uint32_t v = ldl_le_phys(&address_space_memory, voice + offset) & ~mask;
-    stl_le_phys(&address_space_memory, voice + offset,
-                v | ((val << ctz32(mask)) & mask));
+
+    mcpx_apu_voice_store_masked(&address_space_memory, d->ram,
+                                 voice + offset, mask, val);
 }
 
 static void voice_off(MCPXAPUState *d, uint16_t v)

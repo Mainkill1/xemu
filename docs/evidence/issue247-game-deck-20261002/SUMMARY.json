@@ -1,0 +1,120 @@
+{
+  "identitySha256": "8fa6576f06f3a33c87bdcedce025ac7e9e26179f11839960a19c0a05a65fbb50",
+  "phases": {
+    "controls": {
+      "submitted": 2,
+      "plannedOrder": "AA",
+      "observedOrder": "AA",
+      "runs": [
+        {
+          "ordinal": 1,
+          "label": "01-A",
+          "jobId": "issue247-game-controls-01-a-20261002",
+          "runId": "20261002-184920761-5e122219381449e19ed9703a8f5e9636",
+          "mode": "A",
+          "outcome": {
+            "execution": "completed",
+            "correctness": "passed",
+            "evidence": "complete",
+            "comparison": "eligible"
+          },
+          "exitCode": 0,
+          "mesa": {
+            "DriverNamespaceVerified": true,
+            "DriverQualification": "mesa_private_disk_writes_observed",
+            "ComparisonReady": true,
+            "AllowUncontrolledDriverCache": false
+          },
+          "driverFiles": {
+            "before": 0,
+            "after": 830,
+            "afterBytes": 3861139
+          },
+          "sceneReview": {
+            "qualified": true,
+            "observation": "Both retained screenshots show the red car at the same city-track starting position, 000 MPH, position 6/6 and race HUD. The start shows GO and other cars; the end shows the other cars departed while the player stays parked. This is the intended stationary race scene, not a menu. No displayed-FPS or audio-parity judgment.",
+            "sha256": {
+              "screenshots/recording-start.png": "f569cd3c773e9c27c091fe2266aa4c2bd7aa73175e7e73036cc4ec7c73cce257",
+              "screenshots/recording-end.png": "4f23b6f645e28a506254253af468811d8e421154f9de8b94989f169689dcc8bc"
+            },
+            "runId": "20261002-184920761-5e122219381449e19ed9703a8f5e9636",
+            "reviewer": "Codex / GPT-6",
+            "scope": "Visual parked-scene admission only; no audio parity, guest-input counter proof, hardware reference, or displayed-FPS claim."
+          },
+          "qualified": true,
+          "metrics": {
+            "processCpuCorePercent": 244.7665645695364,
+            "controlMeanMs": 1578.0670052356027,
+            "controlP95Ms": 2258.8045,
+            "controlP99Ms": 2433.5638,
+            "controlMaximumMs": 2682.237
+          },
+          "cpuSamples": 604,
+          "controlIntervals": 191,
+          "flipTailCadence": 0.5538258053443375
+        },
+        {
+          "ordinal": 2,
+          "label": "02-A",
+          "jobId": "issue247-game-controls-02-a-20261002",
+          "runId": "20261002-185847126-77f6b7b8836c45cb89262ce473546f12",
+          "mode": "A",
+          "outcome": {
+            "execution": "completed",
+            "correctness": "passed",
+            "evidence": "complete",
+            "comparison": "eligible"
+          },
+          "exitCode": 0,
+          "mesa": {
+            "DriverNamespaceVerified": true,
+            "DriverQualification": "mesa_private_disk_writes_observed",
+            "ComparisonReady": true,
+            "AllowUncontrolledDriverCache": false
+          },
+          "driverFiles": {
+            "before": 0,
+            "after": 833,
+            "afterBytes": 3864265
+          },
+          "sceneReview": {
+            "qualified": true,
+            "observation": "Both screenshots show the same city-track starting position, red player car at 000 MPH, position 6/6 and race HUD. Other cars appear ahead at the start and are absent at the end; player remains parked. Unlike control1, no GO overlay is visible at this start boundary. Both are the intended race scene, but this does not prove identical guest progression or audio.",
+            "sha256": {
+              "screenshots/recording-start.png": "9d6906640c3e56ae0be92101410a2f2ad84916b6e627293cf2fbe9d093ab7b33",
+              "screenshots/recording-end.png": "dfcc8c4e990dcb9fc13d71003737168476ef10fd4c53961c9f2b3ddb53df5c54"
+            },
+            "runId": "20261002-185847126-77f6b7b8836c45cb89262ce473546f12",
+            "reviewer": "Codex / GPT-6",
+            "scope": "Visual parked-scene admission only; no audio parity, guest-input counter proof, hardware reference, or displayed-FPS claim."
+          },
+          "qualified": true,
+          "metrics": {
+            "processCpuCorePercent": 246.22953807947025,
+            "controlMeanMs": 1428.9455904761899,
+            "controlP95Ms": 2238.1042999999995,
+            "controlP99Ms": 2517.793669999999,
+            "controlMaximumMs": 2663.592
+          },
+          "cpuSamples": 604,
+          "controlIntervals": 210,
+          "flipTailCadence": 0.5778718257753429
+        }
+      ],
+      "allRunsQualified": true,
+      "spreadsPercentOfMedian": {
+        "meanControlInterval": 9.918243440155205,
+        "meanProcessCpu": 0.5959206201600614
+      },
+      "numericControlsQualified": false,
+      "controlsQualified": false
+    },
+    "balanced": {
+      "submitted": 0,
+      "plannedOrder": "ABBABAAB"
+    }
+  },
+  "scope": "Mean process CPU and PGRAPH_INCREMENT control intervals; not displayed FPS, audio parity, or XISO qualification.",
+  "improvementFormula": "100 * (baseline - candidate) / baseline; positive is better for cost/interval.",
+  "statisticalScope": "Descriptive medians and adjacent pairs. No population confidence bound; two A/A controls are preliminary repeatability only."
+}

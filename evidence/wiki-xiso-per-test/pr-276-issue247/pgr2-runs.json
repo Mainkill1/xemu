@@ -1,0 +1,278 @@
+{
+  "windows": [
+    {
+      "label": "A1",
+      "run_id": "20261001-110513209-21e515a500564f7cb52f6f02a7e12799",
+      "executable_sha256": "a89521cb6ff76916e248b002f253df0c2d5aafb3867d13384d96a498c36622e2",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "cpu_mean_core_pct": 317.65258730158746,
+      "guest_cadence_fps": 30.00030000300003,
+      "frame_mean_ms": 33.33324900133158,
+      "frame_p95_ms": 33.557,
+      "frame_p99_ms": 34.048,
+      "frame_max_ms": 34.374
+    },
+    {
+      "label": "B1",
+      "run_id": "20261001-110652588-1bc335f462cb4556b851bdec82b7e463",
+      "executable_sha256": "ba5afaca0408f77bf7bd43a96d1570cf4c8035174b075578bcecc695b2748940",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "cpu_mean_core_pct": 306.30025396825414,
+      "guest_cadence_fps": 29.99940359751414,
+      "frame_mean_ms": 33.333336884154456,
+      "frame_p95_ms": 33.617999999999995,
+      "frame_p99_ms": 34.189499999999995,
+      "frame_max_ms": 34.493
+    },
+    {
+      "label": "B2",
+      "run_id": "20261001-110831764-23b0105dc84346eeaef6467cb51847d2",
+      "executable_sha256": "ba5afaca0408f77bf7bd43a96d1570cf4c8035174b075578bcecc695b2748940",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "cpu_mean_core_pct": 309.0441875,
+      "guest_cadence_fps": 30.00015079651395,
+      "frame_mean_ms": 33.33324500665779,
+      "frame_p95_ms": 33.584,
+      "frame_p99_ms": 33.8865,
+      "frame_max_ms": 34.313
+    },
+    {
+      "label": "A2",
+      "run_id": "20261001-111010672-a8b5e0383d7348e2aaf5929985018d00",
+      "executable_sha256": "a89521cb6ff76916e248b002f253df0c2d5aafb3867d13384d96a498c36622e2",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "cpu_mean_core_pct": 319.2446666666667,
+      "guest_cadence_fps": 30.000015537856655,
+      "frame_mean_ms": 33.33384266666667,
+      "frame_p95_ms": 33.58575,
+      "frame_p99_ms": 33.99236,
+      "frame_max_ms": 34.187
+    },
+    {
+      "label": "B3",
+      "run_id": "20261001-111150159-b465647a2c8449b2adfeedd619ba1ff5",
+      "executable_sha256": "ba5afaca0408f77bf7bd43a96d1570cf4c8035174b075578bcecc695b2748940",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "cpu_mean_core_pct": 305.91753968253977,
+      "guest_cadence_fps": 30.00019257418045,
+      "frame_mean_ms": 33.33337683089212,
+      "frame_p95_ms": 33.545,
+      "frame_p99_ms": 33.873,
+      "frame_max_ms": 34.382
+    },
+    {
+      "label": "A3",
+      "run_id": "20261001-111330084-9e638ac360aa4c8faaa9460be280c4ff",
+      "executable_sha256": "a89521cb6ff76916e248b002f253df0c2d5aafb3867d13384d96a498c36622e2",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "cpu_mean_core_pct": 329.4954444444445,
+      "guest_cadence_fps": 30.000051394510358,
+      "frame_mean_ms": 33.33339014647138,
+      "frame_p95_ms": 33.578,
+      "frame_p99_ms": 33.9,
+      "frame_max_ms": 34.283
+    },
+    {
+      "label": "A4",
+      "run_id": "20261001-111509402-f9bd09b9a3a64b89ab198ca652c6c0a6",
+      "executable_sha256": "a89521cb6ff76916e248b002f253df0c2d5aafb3867d13384d96a498c36622e2",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "cpu_mean_core_pct": 314.65926984126975,
+      "guest_cadence_fps": 30.00000597609681,
+      "frame_mean_ms": 33.333380000000034,
+      "frame_p95_ms": 33.61065,
+      "frame_p99_ms": 33.77112,
+      "frame_max_ms": 34.206
+    },
+    {
+      "label": "B4",
+      "run_id": "20261001-111648751-69a0c58539af41ebaae8a1a0e384df00",
+      "executable_sha256": "ba5afaca0408f77bf7bd43a96d1570cf4c8035174b075578bcecc695b2748940",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "cpu_mean_core_pct": 334.40915624999997,
+      "guest_cadence_fps": 29.999740348452377,
+      "frame_mean_ms": 33.33445066666662,
+      "frame_p95_ms": 33.6372,
+      "frame_p99_ms": 33.92302,
+      "frame_max_ms": 34.473
+    }
+  ],
+  "steam_deck": [
+    {
+      "label": "A1",
+      "run_id": "20261001-110501390-697d2744f33542e7ba66138cf1d662ba",
+      "executable_sha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "ineligible"
+      },
+      "cpu_mean_core_pct": 316.0247936507936,
+      "guest_cadence_fps": 18.453257520071105,
+      "frame_mean_ms": 52.40731799163182,
+      "frame_p95_ms": 69.2135,
+      "frame_p99_ms": 103.28646000000013,
+      "frame_max_ms": 146.679
+    },
+    {
+      "label": "B1",
+      "run_id": "20261001-110758431-acea2e4308f8434493d36be947d4f602",
+      "executable_sha256": "1fa82da6e460463d16e3664f6b2f5c139456614e90241bef4887bc06e30edffe",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "ineligible"
+      },
+      "cpu_mean_core_pct": 309.340296875,
+      "guest_cadence_fps": 19.235717838677935,
+      "frame_mean_ms": 50.82819878296143,
+      "frame_p95_ms": 68.2594,
+      "frame_p99_ms": 103.2457599999999,
+      "frame_max_ms": 187.788
+    },
+    {
+      "label": "B2",
+      "run_id": "20261001-111054469-d97c0e8ba44b429b885395b35f21d484",
+      "executable_sha256": "1fa82da6e460463d16e3664f6b2f5c139456614e90241bef4887bc06e30edffe",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "ineligible"
+      },
+      "cpu_mean_core_pct": 307.95504761904755,
+      "guest_cadence_fps": 18.85682225706535,
+      "frame_mean_ms": 51.403229979466126,
+      "frame_p95_ms": 68.6909,
+      "frame_p99_ms": 95.5232199999999,
+      "frame_max_ms": 156.79
+    },
+    {
+      "label": "A2",
+      "run_id": "20261001-111351308-9ac1bc5d9e6745d3a012de6bd3a74b12",
+      "executable_sha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "ineligible"
+      },
+      "cpu_mean_core_pct": 314.41561904761903,
+      "guest_cadence_fps": 18.670694239971652,
+      "frame_mean_ms": 51.551952577319554,
+      "frame_p95_ms": 66.1322,
+      "frame_p99_ms": 105.90412,
+      "frame_max_ms": 163.059
+    },
+    {
+      "label": "B3",
+      "run_id": "20261001-111647887-10c6c90393e345fa935f8e7543ee46a7",
+      "executable_sha256": "1fa82da6e460463d16e3664f6b2f5c139456614e90241bef4887bc06e30edffe",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "ineligible"
+      },
+      "cpu_mean_core_pct": 308.57217460317463,
+      "guest_cadence_fps": 19.5055020841629,
+      "frame_mean_ms": 50.15058517034068,
+      "frame_p95_ms": 66.47869999999998,
+      "frame_p99_ms": 89.15445999999996,
+      "frame_max_ms": 155.189
+    },
+    {
+      "label": "A3",
+      "run_id": "20261001-111945203-403059ad9644461b84179f308daa66a5",
+      "executable_sha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "ineligible"
+      },
+      "cpu_mean_core_pct": 314.8946984126984,
+      "guest_cadence_fps": 18.392086715312345,
+      "frame_mean_ms": 52.54990566037733,
+      "frame_p95_ms": 69.27699999999999,
+      "frame_p99_ms": 92.0484,
+      "frame_max_ms": 173.989
+    },
+    {
+      "label": "A4",
+      "run_id": "20261001-112241481-6a2ef14510ae4cb3b9652063b8681f11",
+      "executable_sha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "ineligible"
+      },
+      "cpu_mean_core_pct": 316.75373015873004,
+      "guest_cadence_fps": 18.42507736852096,
+      "frame_mean_ms": 52.23149791666667,
+      "frame_p95_ms": 72.10355,
+      "frame_p99_ms": 102.26994999999995,
+      "frame_max_ms": 192.039
+    },
+    {
+      "label": "B4",
+      "run_id": "20261001-112539010-853a48eb70f8495bb96a821d7f9d5126",
+      "executable_sha256": "1fa82da6e460463d16e3664f6b2f5c139456614e90241bef4887bc06e30edffe",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "ineligible"
+      },
+      "cpu_mean_core_pct": 308.99295238095226,
+      "guest_cadence_fps": 19.019897883484106,
+      "frame_mean_ms": 50.658736842105256,
+      "frame_p95_ms": 70.6991,
+      "frame_p99_ms": 85.21329999999998,
+      "frame_max_ms": 202.383
+    }
+  ]
+}
