@@ -36,6 +36,8 @@ test_pgraph_control = executable(
   'test-pgraph-control',
   files(
     'test-pgraph-control.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/flip_probe.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/flip_probe_core.c',
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/pgraph.c'
   ),
   c_args: [
@@ -53,7 +55,11 @@ test('test-pgraph-control', test_pgraph_control,
      args: ['--tap', '-k'], protocol: 'tap', env: test_env, suite: ['unit', 'xbox'])
 
 test_pfifo_flip = executable(
-  'test-pfifo-flip', files('test-pfifo-flip.c'),
+  'test-pfifo-flip', files(
+    'test-pfifo-flip.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/flip_probe.c',
+    meson.project_source_root() / 'hw/xbox/nv2a/flip_probe_core.c'
+  ),
   c_args: [
     '-DCOMPILING_PER_TARGET',
     '-DCONFIG_TARGET="i386-softmmu-config-target.h"',
