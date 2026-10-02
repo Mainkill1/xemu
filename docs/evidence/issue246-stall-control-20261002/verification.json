@@ -1,0 +1,51 @@
+{
+  "testedRuntimeCommit": "8079502ae25a602e1395fa9ee87ec1ef8b57c9d6",
+  "parentCommit": "ee5ce48b48784f999af374c1452003f8b2b1230f",
+  "archiveBytes": 13246997,
+  "archiveSha256": "c107d2ffcfb80e609e4fab7d9674fc2c8dab3198d9788dc9e260db12664f5da7",
+  "payloadFilesRehashed": 162,
+  "omittedStateFiles": 1655,
+  "runs": [
+    {
+      "label": "pgr2-throttle-off",
+      "collection": {
+        "ok": true,
+        "jobId": "issue246-deck-collector-pgr2-throttle-off-v1",
+        "runId": "20261002-071800687-e136dd0995744f5c8932e1eb209b9a43",
+        "fileCount": 873,
+        "bytes": 24141516,
+        "directory": "/home/codex/src/steamdeck-xemu/artifacts/issue246-texture-allocation/native-collector/pgr2-throttle-off-v1/collected/20261002-071800687-e136dd0995744f5c8932e1eb209b9a43",
+        "complete": true,
+        "scope": "allEligibleArtifacts",
+        "excluded": 0
+      },
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "pgr2-stall-profile",
+      "collection": {
+        "ok": true,
+        "jobId": "issue246-deck-pgr2-stall-profile-v1",
+        "runId": "20261002-072654622-a1fc8fb51e57422185da95af1dfaab76",
+        "fileCount": 894,
+        "bytes": 25339423,
+        "directory": "/home/codex/src/steamdeck-xemu/artifacts/issue246-texture-allocation/native-collector/pgr2-stall-profile-v1/collected/20261002-072654622-a1fc8fb51e57422185da95af1dfaab76",
+        "complete": true,
+        "scope": "allEligibleArtifacts",
+        "excluded": 0
+      },
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    }
+  ],
+  "performanceComparison": "Not measured: no A/A, ABBA/BAAB or per-leaf XISO acceptance"
+}
