@@ -1,0 +1,6 @@
+{
+  "exitCode": 1,
+  "priorManifestUnchanged": true,
+  "newFilesCreated": false,
+  "stderr": "Traceback (most recent call last):\n  File \"/home/codex/src/steamdeck-xemu/worktrees/issue234-dsp-dispatch/tests/unit/dsp-dispatch-benchmark.py\", line 98, in <module>\n    main()\n    ~~~~^^\n  File \"/home/codex/src/steamdeck-xemu/worktrees/issue234-dsp-dispatch/tests/unit/dsp-dispatch-benchmark.py\", line 33, in main\n    args.output.mkdir(parents=True, exist_ok=False)\n    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3.13/pathlib/_local.py\", line 724, in mkdir\n    os.mkdir(self, mode)\n    ~~~~~~~~^^^^^^^^^^^^\nFileExistsError: [Errno 17] File exists: '/home/codex/src/steamdeck-xemu/scratch/tmpguz3c2zm'\n"
+}

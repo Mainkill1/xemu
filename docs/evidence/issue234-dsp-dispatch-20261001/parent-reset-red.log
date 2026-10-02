@@ -1,0 +1,8 @@
+TAP version 14
+# random seed: R02S589909ef18a1c05564afba8cd4c91931
+# Start of dsp tests
+# Start of dispatch tests
+**
+ERROR:/home/codex/src/steamdeck-xemu/worktrees/issue234-dsp-dispatch/tests/unit/test-xbox-mcpx-dsp-dispatch.c:86:test_reset_discards_derived_cache: 'core->pram_opcache[0]' should be NULL
+not ok /dsp/dispatch/reset - ERROR:/home/codex/src/steamdeck-xemu/worktrees/issue234-dsp-dispatch/tests/unit/test-xbox-mcpx-dsp-dispatch.c:86:test_reset_discards_derived_cache: 'core->pram_opcache[0]' should be NULL
+Bail out!
