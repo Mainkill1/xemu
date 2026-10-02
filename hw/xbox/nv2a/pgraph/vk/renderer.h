@@ -563,11 +563,28 @@ typedef struct PGRAPHVkDisplayState {
     GLuint gl_texture_id;
 } PGRAPHVkDisplayState;
 
+typedef enum PGRAPHVkComputeOperation {
+    PGRAPH_VK_COMPUTE_UNPACK_DEPTH_STENCIL,
+    PGRAPH_VK_COMPUTE_PACK_DEPTH_STENCIL,
+    PGRAPH_VK_COMPUTE_UNSWIZZLE_PACKED_DEPTH,
+} PGRAPHVkComputeOperation;
+
 typedef struct ComputePipelineKey {
     VkFormat host_fmt;
-    bool pack;
+    PGRAPHVkComputeOperation operation;
     int workgroup_size;
 } ComputePipelineKey;
+
+static inline ComputePipelineKey pgraph_vk_compute_pipeline_key(
+    VkFormat host_fmt, PGRAPHVkComputeOperation operation, int workgroup_size)
+{
+    ComputePipelineKey key = { 0 };
+
+    key.host_fmt = host_fmt;
+    key.operation = operation;
+    key.workgroup_size = workgroup_size;
+    return key;
+}
 
 typedef struct ComputePipeline {
     LruNode node;
@@ -1082,6 +1099,10 @@ void pgraph_vk_pack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
 void pgraph_vk_unpack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
                                     VkCommandBuffer cmd, VkBuffer src,
                                     VkBuffer dst);
+bool pgraph_vk_unswizzle_packed_depth(PGRAPHState *pg, VkCommandBuffer cmd,
+                                     VkBuffer src, VkDeviceSize src_size,
+                                     VkBuffer dst, VkDeviceSize dst_size,
+                                     uint32_t width, uint32_t height);
 
 // display.c
 void pgraph_vk_init_display(PGRAPHState *pg);
