@@ -142,8 +142,12 @@ jobs:
 
         mkdir -p deb
         mv *.deb *.ddeb deb
-    - name: Build retained MCPX sample-memory test and benchmark
-      run: ninja -C src/build test-xbox-mcpx-apu-real-memory
+    - name: Build and verify retained MCPX sample-memory test and benchmark
+      run: |
+        ninja -C src/build test-xbox-mcpx-apu-real-memory
+        src/build/pyvenv/bin/meson test -C src/build --no-rebuild \
+          test-xbox-mcpx-apu-real-memory \
+          test-xbox-mcpx-apu-real-memory-baseline --print-errorlogs
     - name: Report ccache stats
       run: ccache -s
     - name: Generate AppImage

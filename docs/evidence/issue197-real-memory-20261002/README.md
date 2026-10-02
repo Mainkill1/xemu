@@ -70,3 +70,18 @@ by the cache. It never dereferences that current pointer; cache references
 prevent the retained view's address from being freed/reused. A changed map
 forces the original physical load. This is not synchronization across all
 possible concurrent topology changes.
+
+## CI configuration findings
+
+CI36991467031 built all native artifacts, but its unit job lacked `XBOX`
+defines while the new target pulled in full emulator objects; compilation
+failed in the Xbox UI. CI36992331851 added global `XBOX` defines: both new
+real-memory modes passed, but `test-util-filemonitor` crashed and `test-char`
+asserted under that altered upstream unit configuration (153/155 passed).
+Both original job logs are in `ci-failures.tar.gz`, with individual hashes
+in `ci-failures-manifest.json`; no outcome was changed.
+
+The correction keeps the ordinary unit configuration intact and instantiates
+the full memory target only in production builds with `XBOX`. Linux release
+and debug CI explicitly build/run candidate and original controls there.
+The corrected production target passes locally; new complete CI is required.

@@ -4648,7 +4648,7 @@ foreach target : target_dirs
   endif
   # Use the actual system memory implementation, without starting the UI.
   # GNU ld/lld wrapping is Linux-only; API-double tests cover other hosts.
-  if target == 'i386-softmmu' and host_os == 'linux'
+  if target == 'i386-softmmu' and host_os == 'linux' and cc.get_define('XBOX') != ''
     sample_memory_test = executable('test-xbox-mcpx-apu-real-memory',
       files('tests/xbox/mcpx-apu/test-sample-memory.c'),
       c_args: c_args,

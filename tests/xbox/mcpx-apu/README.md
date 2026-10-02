@@ -1,9 +1,11 @@
 # MCPX sample-memory integration test and benchmark
 
-On Linux, build `test-xbox-mcpx-apu-real-memory` with Ninja in an existing
+In a Linux production build configured with `-DXBOX` (as by `build.sh`), build `test-xbox-mcpx-apu-real-memory` with Ninja in an existing
 xemu build directory. The target links the emulator's system-memory objects
 and wraps `main`; it initializes QEMU memory without launching the UI or a
-ROM. It is registered in the `unit` suite, including the original-reader
+ROM. The ordinary upstream-style unit configuration has no `XBOX` defines
+and does not instantiate this full-emulator target. Production Linux CI builds
+and executes both controls separately. In production builds it is registered in the `unit` suite, including the original-reader
 control. Other platforms retain the smaller API-double unit test.
 
 ```sh
