@@ -1,0 +1,107 @@
+{
+  "available": true,
+  "runId": "20261002-115310016-0161152f8b6b4d98a0fddb3d96e3f192",
+  "code": null,
+  "analysis": {
+    "schemaVersion": 1,
+    "profileSha256": "19e37cb7b3d079e76291cea7fc15f06c34bdc938f9a6efe5f43e3337a831cef9",
+    "profile": {
+      "segment": "stationary-start",
+      "metricsPath": "metrics.csv",
+      "guestFlipsPath": "guest-flips.log",
+      "guestFramesPath": "guest-frames.log",
+      "flipTailSamples": 5,
+      "frameTailSeconds": 25,
+      "minimumCpuSamples": 55,
+      "minimumFrameSamples": 160
+    },
+    "monitoring": {
+      "segment": "stationary-start",
+      "rows": 63,
+      "missingCpuSamples": 0,
+      "missingDutySamples": 0,
+      "cpu": {
+        "count": 63,
+        "mean": 253.64636507936507,
+        "median": 252.164,
+        "min": 205.248,
+        "max": 303.862,
+        "p95": 290.44829999999996,
+        "p99": 297.21994000000007
+      },
+      "collectorDuty": {
+        "count": 63,
+        "mean": 10.127634920634923,
+        "median": 9.983,
+        "min": 9.332,
+        "max": 11.102,
+        "p95": 10.876000000000001,
+        "p99": 11.09952
+      },
+      "overruns": 0
+    },
+    "flips": {
+      "samples": 5,
+      "frames": 1503,
+      "elapsedUs": 25049930,
+      "cadenceFps": 60.00016766513919
+    },
+    "frames": {
+      "windowStartUs": 1178904130205,
+      "windowEndUs": 1178929130205,
+      "firstSampleUs": 1178904147203,
+      "lastSampleUs": 1178929130205,
+      "zeroIntervals": 0,
+      "intervalsMs": {
+        "count": 1500,
+        "mean": 16.666690666666657,
+        "median": 16.667,
+        "min": 15.659,
+        "max": 17.589,
+        "p95": 16.89415,
+        "p99": 17.034019999999998
+      }
+    },
+    "sources": [
+      {
+        "path": "metrics.csv",
+        "bytes": 50344,
+        "sha256": "26cc7a038290a8ced4ebd97e72d77fb91e6588d511118d82afba2abc8501e479",
+        "records": 256,
+        "ignoredRecords": 192
+      },
+      {
+        "path": "guest-flips.log",
+        "bytes": 1050,
+        "sha256": "48acefdef4cff686e9e50b21e6cc43a6ae17ac5c1820cdd4bcf4295b26e17374",
+        "records": 25,
+        "ignoredRecords": 0
+      },
+      {
+        "path": "guest-frames.log",
+        "bytes": 323107,
+        "sha256": "d07dfafe58611936f26a075fab1e8dcb06e7ba3703565c1e36bf49d841c5366b",
+        "records": 6004,
+        "ignoredRecords": 0
+      }
+    ],
+    "errors": [],
+    "complete": true
+  },
+  "outcome": {
+    "execution": "completed",
+    "correctness": "passed",
+    "evidence": "complete",
+    "comparison": "eligible"
+  },
+  "executableSha256": "a89521cb6ff76916e248b002f253df0c2d5aafb3867d13384d96a498c36622e2",
+  "launchExecutableSha256": "a89521cb6ff76916e248b002f253df0c2d5aafb3867d13384d96a498c36622e2",
+  "identityCode": null,
+  "cleanup": {
+    "state": "complete",
+    "files": 1,
+    "deletedFiles": 1,
+    "hddDeleted": true
+  },
+  "detail": "/api/v1/runs/20261002-115310016-0161152f8b6b4d98a0fddb3d96e3f192?view=summary"
+}

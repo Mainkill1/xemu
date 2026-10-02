@@ -1,0 +1,196 @@
+{
+  "host": "windows",
+  "game": "pgr2",
+  "order": "ABBA/BAAB",
+  "testId": "fresh-windows-pgr2-balanced-v1",
+  "testRevision": "f80f332c4606260aac30f7d77450c4a348ea4631a33dbc6c12af0af4c0984a09",
+  "procedure": {
+    "ok": true,
+    "procedureId": "pgr2-parked-v1",
+    "procedureSha256": "138d85703e09c6d45027f6784ba6df7fafe8410bd0c9b2ec636b7e1e78a01f0f",
+    "buttonCount": 11,
+    "transport": "host-keyboard",
+    "errors": []
+  },
+  "executionRunner": "0.2.0+0186f52f18ab983954c473dd42f80c2ff660cbda",
+  "analysisRunner": "0.2.0+81b151e3298e437d903269e0c62ab530089c4081",
+  "recordSet": "8d7650ba0adac5a527b4a1754bf3c1488f7a39b5b80347ec5049035f9223f470",
+  "attempts": [
+    {
+      "stateContractSha256": "6bcdd14bcf55c291764a3e377d9555fbaa954ed1a2595cfea4e90162b2402137",
+      "packagedConfigSha256": "207e2424d13fd83b89675e59cc931d44540c9020182e2da0da9c6a11e8cec470",
+      "effectiveConfigSha256": "cd5df674b82e9a07fb319162dcd1c9f49667bc4a624fd8edfe415dafb47030cd",
+      "cache": {
+        "mode": "cold",
+        "driverPolicy": "uncontrolled",
+        "driverVerified": false,
+        "explicitlyAccepted": true
+      },
+      "number": 1,
+      "block": "ABBA",
+      "variant": "a",
+      "runId": "20261002-111227959-4367e70ac1df41f0bbc06fb6b67e7491",
+      "executableSha256": "717de396f5a69dedeb124a871f698b6d13fc1ae3e448003bb599b6fb17e1ca1a",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "stateContractSha256": "6bcdd14bcf55c291764a3e377d9555fbaa954ed1a2595cfea4e90162b2402137",
+      "packagedConfigSha256": "207e2424d13fd83b89675e59cc931d44540c9020182e2da0da9c6a11e8cec470",
+      "effectiveConfigSha256": "e2a5a368a91587abb40ebc52b606c6e94eed817c2a0a1558da7b91d2b803ef5a",
+      "cache": {
+        "mode": "cold",
+        "driverPolicy": "uncontrolled",
+        "driverVerified": false,
+        "explicitlyAccepted": true
+      },
+      "number": 2,
+      "block": "ABBA",
+      "variant": "b",
+      "runId": "20261002-111441323-96e2899e03a849d2ba10d2adb6815bcf",
+      "executableSha256": "a89521cb6ff76916e248b002f253df0c2d5aafb3867d13384d96a498c36622e2",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "stateContractSha256": "6bcdd14bcf55c291764a3e377d9555fbaa954ed1a2595cfea4e90162b2402137",
+      "packagedConfigSha256": "207e2424d13fd83b89675e59cc931d44540c9020182e2da0da9c6a11e8cec470",
+      "effectiveConfigSha256": "2f7a55f72359bf8c83213a8cd243102e50349c521783d8a050aad0616705b9a5",
+      "cache": {
+        "mode": "cold",
+        "driverPolicy": "uncontrolled",
+        "driverVerified": false,
+        "explicitlyAccepted": true
+      },
+      "number": 3,
+      "block": "ABBA",
+      "variant": "b",
+      "runId": "20261002-111654443-f420be20252340b1ad6d99a134516c97",
+      "executableSha256": "a89521cb6ff76916e248b002f253df0c2d5aafb3867d13384d96a498c36622e2",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "stateContractSha256": "6bcdd14bcf55c291764a3e377d9555fbaa954ed1a2595cfea4e90162b2402137",
+      "packagedConfigSha256": "207e2424d13fd83b89675e59cc931d44540c9020182e2da0da9c6a11e8cec470",
+      "effectiveConfigSha256": "6c3f081a6c31c0b4b86ea48cfe564f588f05f33e3482021da36ee4ccd743ec77",
+      "cache": {
+        "mode": "cold",
+        "driverPolicy": "uncontrolled",
+        "driverVerified": false,
+        "explicitlyAccepted": true
+      },
+      "number": 4,
+      "block": "ABBA",
+      "variant": "a",
+      "runId": "20261002-111907450-8a757cc9fc0f40329b74751a6654295d",
+      "executableSha256": "717de396f5a69dedeb124a871f698b6d13fc1ae3e448003bb599b6fb17e1ca1a",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "stateContractSha256": "6bcdd14bcf55c291764a3e377d9555fbaa954ed1a2595cfea4e90162b2402137",
+      "packagedConfigSha256": "207e2424d13fd83b89675e59cc931d44540c9020182e2da0da9c6a11e8cec470",
+      "effectiveConfigSha256": "4d9a1e2f79eca39fe86f2faeee750e0adc2e178c8be426a009f75920163bbad1",
+      "cache": {
+        "mode": "cold",
+        "driverPolicy": "uncontrolled",
+        "driverVerified": false,
+        "explicitlyAccepted": true
+      },
+      "number": 5,
+      "block": "BAAB",
+      "variant": "b",
+      "runId": "20261002-112120813-7f285dc5937d43989324973b50df9c78",
+      "executableSha256": "a89521cb6ff76916e248b002f253df0c2d5aafb3867d13384d96a498c36622e2",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "stateContractSha256": "6bcdd14bcf55c291764a3e377d9555fbaa954ed1a2595cfea4e90162b2402137",
+      "packagedConfigSha256": "207e2424d13fd83b89675e59cc931d44540c9020182e2da0da9c6a11e8cec470",
+      "effectiveConfigSha256": "9c318c816024ac4d03cd8f341981e8c5ac18d492c3eeaffd32ed686732b23f70",
+      "cache": {
+        "mode": "cold",
+        "driverPolicy": "uncontrolled",
+        "driverVerified": false,
+        "explicitlyAccepted": true
+      },
+      "number": 6,
+      "block": "BAAB",
+      "variant": "a",
+      "runId": "20261002-112333421-bb9f48136f794a5a9b5faa3b21d70739",
+      "executableSha256": "717de396f5a69dedeb124a871f698b6d13fc1ae3e448003bb599b6fb17e1ca1a",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "stateContractSha256": "6bcdd14bcf55c291764a3e377d9555fbaa954ed1a2595cfea4e90162b2402137",
+      "packagedConfigSha256": "207e2424d13fd83b89675e59cc931d44540c9020182e2da0da9c6a11e8cec470",
+      "effectiveConfigSha256": "ec591942e6a14bef47784ece6b21617ebe4a789d59bf7bacfcd6909e892f6560",
+      "cache": {
+        "mode": "cold",
+        "driverPolicy": "uncontrolled",
+        "driverVerified": false,
+        "explicitlyAccepted": true
+      },
+      "number": 7,
+      "block": "BAAB",
+      "variant": "a",
+      "runId": "20261002-112546355-609a03cd51f9402699f5c86e273911c5",
+      "executableSha256": "717de396f5a69dedeb124a871f698b6d13fc1ae3e448003bb599b6fb17e1ca1a",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "stateContractSha256": "6bcdd14bcf55c291764a3e377d9555fbaa954ed1a2595cfea4e90162b2402137",
+      "packagedConfigSha256": "207e2424d13fd83b89675e59cc931d44540c9020182e2da0da9c6a11e8cec470",
+      "effectiveConfigSha256": "e6f6373b9f758630be9e773b46041f9071db3ada2670c510379e0ccdbf26cbb1",
+      "cache": {
+        "mode": "cold",
+        "driverPolicy": "uncontrolled",
+        "driverVerified": false,
+        "explicitlyAccepted": true
+      },
+      "number": 8,
+      "block": "BAAB",
+      "variant": "b",
+      "runId": "20261002-112759736-0b69b292b33d4ec0bc5b7f7195422aa7",
+      "executableSha256": "a89521cb6ff76916e248b002f253df0c2d5aafb3867d13384d96a498c36622e2",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    }
+  ]
+}

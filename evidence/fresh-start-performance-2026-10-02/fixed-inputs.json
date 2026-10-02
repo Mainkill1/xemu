@@ -1,0 +1,761 @@
+[
+  {
+    "host": "windows",
+    "game": "pgr2",
+    "readOnlyAssets": [
+      {
+        "field": "bootrom_path",
+        "sha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+      },
+      {
+        "field": "flashrom_path",
+        "sha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+      },
+      {
+        "field": "dvd_path",
+        "sha256": "6943653e6e8540f2c473579cf27c8e710d79ac76f88abaa95ec0c011c5bd69cd"
+      }
+    ],
+    "privateHddSeeds": [
+      {
+        "destination": "hdd.qcow2",
+        "sha256": "7b0f55920d8740e9c77183392aad9969f775ba823f1de4612ef461796a055b52",
+        "retention": "deleteAfterEvidence"
+      }
+    ],
+    "eepromSeedSha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5",
+    "settings": "settings-windows-pgr2.toml",
+    "settingsSha256": "207e2424d13fd83b89675e59cc931d44540c9020182e2da0da9c6a11e8cec470",
+    "driverCachePolicy": "uncontrolled",
+    "allowUncontrolledDriverCache": true,
+    "bundledLibraries": []
+  },
+  {
+    "host": "windows",
+    "game": "conker",
+    "readOnlyAssets": [
+      {
+        "field": "bootrom_path",
+        "sha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+      },
+      {
+        "field": "flashrom_path",
+        "sha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+      },
+      {
+        "field": "dvd_path",
+        "sha256": "9f9f4e20224865436d96664198d56559ed1f5762cf29410343bdcec4e70692ba"
+      }
+    ],
+    "privateHddSeeds": [
+      {
+        "destination": "hdd.qcow2",
+        "sha256": "7b0f55920d8740e9c77183392aad9969f775ba823f1de4612ef461796a055b52",
+        "retention": "deleteAfterEvidence"
+      }
+    ],
+    "eepromSeedSha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5",
+    "settings": "settings-windows-conker.toml",
+    "settingsSha256": "5694b7b82372b6c0d9c913816ddf3ffb8f5c98c423918b720df01efb4acfdbad",
+    "driverCachePolicy": "uncontrolled",
+    "allowUncontrolledDriverCache": true,
+    "bundledLibraries": []
+  },
+  {
+    "host": "windows",
+    "game": "doaxbv",
+    "readOnlyAssets": [
+      {
+        "field": "bootrom_path",
+        "sha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+      },
+      {
+        "field": "flashrom_path",
+        "sha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+      },
+      {
+        "field": "dvd_path",
+        "sha256": "54ab77f28eec03bb5d37bb73c81674569565171305425a92ee211a3d99867419"
+      }
+    ],
+    "privateHddSeeds": [
+      {
+        "destination": "hdd.qcow2",
+        "sha256": "7b0f55920d8740e9c77183392aad9969f775ba823f1de4612ef461796a055b52",
+        "retention": "deleteAfterEvidence"
+      }
+    ],
+    "eepromSeedSha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5",
+    "settings": "settings-windows-doaxbv.toml",
+    "settingsSha256": "5694b7b82372b6c0d9c913816ddf3ffb8f5c98c423918b720df01efb4acfdbad",
+    "driverCachePolicy": "uncontrolled",
+    "allowUncontrolledDriverCache": true,
+    "bundledLibraries": []
+  },
+  {
+    "host": "deck",
+    "game": "pgr2",
+    "readOnlyAssets": [
+      {
+        "field": "bootrom_path",
+        "sha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+      },
+      {
+        "field": "flashrom_path",
+        "sha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+      },
+      {
+        "field": "dvd_path",
+        "sha256": "6943653e6e8540f2c473579cf27c8e710d79ac76f88abaa95ec0c011c5bd69cd"
+      }
+    ],
+    "privateHddSeeds": [
+      {
+        "destination": "hdd.qcow2",
+        "sha256": "7b0f55920d8740e9c77183392aad9969f775ba823f1de4612ef461796a055b52",
+        "retention": "deleteAfterEvidence"
+      }
+    ],
+    "eepromSeedSha256": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3",
+    "settings": "settings-deck-pgr2.toml",
+    "settingsSha256": "1592759b01f48044ec98d8c50646054bdff37b0a95ded8a07c96387fdf5e7a7f",
+    "driverCachePolicy": "mesa",
+    "allowUncontrolledDriverCache": false,
+    "bundledLibraries": [
+      {
+        "name": "libbrotlicommon.so.1",
+        "bytes": 140592,
+        "sha256": "bfe785ce98c25bb854e2cf998561be74f78f743029b13ad7476beab5440408b5"
+      },
+      {
+        "name": "libbrotlidec.so.1",
+        "bytes": 55376,
+        "sha256": "86f803ed147ee2d8395f2be189057e04337188efdfa73e8842bf523c490a52c9"
+      },
+      {
+        "name": "libcap.so.2",
+        "bytes": 43336,
+        "sha256": "507b03ad6351343928e8b46ba0a29835f5d2862b5d9161fa15620e5e0403d137"
+      },
+      {
+        "name": "libcrypto.so.3",
+        "bytes": 4611672,
+        "sha256": "b771991f547901bd67531100069cc24e00bda385b6876924b5ce09519a2057ac"
+      },
+      {
+        "name": "libcurl-gnutls.so.4",
+        "bytes": 669480,
+        "sha256": "71c96d9e1800ffb5670e1cd0d3960d15994a3c77dc9f177678a8a83298206cff"
+      },
+      {
+        "name": "libdbus-1.so.3",
+        "bytes": 336328,
+        "sha256": "75ab39f40f3c0852b0cc1950e5097ae67ed416717bec51b51d7b400dc7f2705d"
+      },
+      {
+        "name": "libepoxy.so.0",
+        "bytes": 1390520,
+        "sha256": "c71a2b95acabb06e7c957699922946134aeebae6b3e7d84ea5673b6ba08f5907"
+      },
+      {
+        "name": "libffi.so.8",
+        "bytes": 51360,
+        "sha256": "3c79d61c14b340560e10cecfaf36085efab30318076bde0f081fded2a1ee5641"
+      },
+      {
+        "name": "libgcrypt.so.20",
+        "bytes": 1313912,
+        "sha256": "3543f9144edc85fac43fafc012f50dfa0b623981fda2e87416d6a4c30472e5b8"
+      },
+      {
+        "name": "libglib-2.0.so.0",
+        "bytes": 1335888,
+        "sha256": "5bff7cc1178909087dd46f1ca3bbf9cdb28f95d7a7c68235835c10d4555f1e9e"
+      },
+      {
+        "name": "libgnutls.so.30",
+        "bytes": 2071960,
+        "sha256": "073c16a6bccefd026a4e5aeb56ec7e096110f30b828ba26f8cef2ad73b961bce"
+      },
+      {
+        "name": "libgssapi_krb5.so.2",
+        "bytes": 351720,
+        "sha256": "84d71a0ad21288aeca10816647e0ee809720aaa72062051b227f4db50517c565"
+      },
+      {
+        "name": "libhogweed.so.6",
+        "bytes": 303152,
+        "sha256": "ff69a96e5af06a9638d38189bc41cd345b23c53b1ddf3fe91a11a6818791f0ab"
+      },
+      {
+        "name": "libidn2.so.0",
+        "bytes": 132848,
+        "sha256": "7534a45c32036fe0ad27733d27ce8849c2f63849ef2462118ca6d177f603897e"
+      },
+      {
+        "name": "libk5crypto.so.3",
+        "bytes": 188760,
+        "sha256": "20033c4eec975ee2d1c28e048d74bb2f9c3f8dc657360994eb50b138a7346a50"
+      },
+      {
+        "name": "libkeyutils.so.1",
+        "bytes": 26928,
+        "sha256": "40ef65dad8898edcdaa3e3b4a518749047b088e814da32ac8915cac64ee55b3c"
+      },
+      {
+        "name": "libkrb5.so.3",
+        "bytes": 856536,
+        "sha256": "158676f5a0a250fd13b3465245c4d61cfb0006b92d321d3bc00ce3910940dae1"
+      },
+      {
+        "name": "libkrb5support.so.0",
+        "bytes": 57512,
+        "sha256": "23fe85bd3bc1b5dcabbd79d10b359cdb9ca5c9fb62952d82d8a4046cef59ecad"
+      },
+      {
+        "name": "liblber-2.5.so.0",
+        "bytes": 69792,
+        "sha256": "4d923a63a3c28c3f40683d8cb6ab9bc9173caf12e1f71d9c2c3f0e150550963d"
+      },
+      {
+        "name": "libldap-2.5.so.0",
+        "bytes": 403000,
+        "sha256": "58b50e0fa0c56d80590123789265374a2961b7d5dbf8f6e54ae516dd989b2a42"
+      },
+      {
+        "name": "liblz4.so.1",
+        "bytes": 130848,
+        "sha256": "bd788ffde800b619613d9f800f56a7ad6ecdf320b43e2c37bf3f0fd712576bfb"
+      },
+      {
+        "name": "liblzma.so.5",
+        "bytes": 176296,
+        "sha256": "f753a25e71d2c84a36985afa986c8a3f4372ba3ff520ae1da0ed0562fdcd4dc3"
+      },
+      {
+        "name": "libnettle.so.8",
+        "bytes": 299128,
+        "sha256": "84eb28e7628edd01df3c58f03765aa096faf6049ea8c352c3596d9bbb3068706"
+      },
+      {
+        "name": "libnghttp2.so.14",
+        "bytes": 175504,
+        "sha256": "b7565ca44181a4618b6cfe6dcf7c38d6975673d8ea90d0e7cc1c9629d7c64fde"
+      },
+      {
+        "name": "libp11-kit.so.0",
+        "bytes": 1291592,
+        "sha256": "f77e4489c68f501c8cdf0525c5ac6b281a9f3ea6cb71ebb5122f0d474fff9de2"
+      },
+      {
+        "name": "libpcap.so.0.8",
+        "bytes": 315728,
+        "sha256": "4d6ab2b00affdb7cd7d4d486a0ddb3541e7a7a67e9d5a53de3ff7502e797b3e7"
+      },
+      {
+        "name": "libpcre.so.3",
+        "bytes": 481040,
+        "sha256": "d93d66b7507debfff14d7cae606997a496ccbe3ad6a2dd54b9ac5c6371489101"
+      },
+      {
+        "name": "libpsl.so.5",
+        "bytes": 79528,
+        "sha256": "88ff48b87eae6a0b8a24fb2b8f042558f8d844b978938800850cec5460d693f9"
+      },
+      {
+        "name": "librtmp.so.1",
+        "bytes": 128056,
+        "sha256": "548c4794c71c4b9e3c1ff267c6406c0888e1f7bb6f97b7cde988583a16823c97"
+      },
+      {
+        "name": "libsamplerate.so.0",
+        "bytes": 1500560,
+        "sha256": "a3f494838886b6669bf9cf5312b63e744a7f3734c4d82130d158f7bb6520bb41"
+      },
+      {
+        "name": "libsasl2.so.2",
+        "bytes": 109664,
+        "sha256": "529fafde8492ce12c03fe74e496676eea5e672bdf087c0c4c0ec7eb7c0138ff5"
+      },
+      {
+        "name": "libslirp.so.0",
+        "bytes": 133360,
+        "sha256": "0e343afd0a6073b6ac5405618c0ec2c04e14ec138d964233603ac34dfd1ea8df"
+      },
+      {
+        "name": "libssh.so.4",
+        "bytes": 465064,
+        "sha256": "7a52c294894982872a8c19a39aae5ff6e9089cc0bacaa817cac10b2d0e20f765"
+      },
+      {
+        "name": "libsystemd.so.0",
+        "bytes": 834768,
+        "sha256": "06afffb54d5b82ed67dbd3ff8f73f816980dd4851667ba35c76e8d3adcc7909a"
+      },
+      {
+        "name": "libtasn1.so.6",
+        "bytes": 96480,
+        "sha256": "140770ecfef43bc1390a8e0483a63ec02cc15419c2b4dc6d9aca0797fe84d99a"
+      },
+      {
+        "name": "libudev.so.1",
+        "bytes": 173424,
+        "sha256": "274c8783556224e7499427c1806599f7e3d51864b6557e48aea70a19cd012409"
+      },
+      {
+        "name": "libunistring.so.2",
+        "bytes": 1766104,
+        "sha256": "3185897de7a8125f7bcc2b61a5fd458854d6d14e357b2ec4d34d682bab4137ed"
+      },
+      {
+        "name": "libzstd.so.1",
+        "bytes": 863128,
+        "sha256": "f908cc9e1ba594a313d7a316a4dadfbde456da35be934ad1be40344a01c382df"
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "game": "conker",
+    "readOnlyAssets": [
+      {
+        "field": "bootrom_path",
+        "sha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+      },
+      {
+        "field": "flashrom_path",
+        "sha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+      },
+      {
+        "field": "dvd_path",
+        "sha256": "9f9f4e20224865436d96664198d56559ed1f5762cf29410343bdcec4e70692ba"
+      }
+    ],
+    "privateHddSeeds": [
+      {
+        "destination": "hdd.qcow2",
+        "sha256": "7b0f55920d8740e9c77183392aad9969f775ba823f1de4612ef461796a055b52",
+        "retention": "deleteAfterEvidence"
+      }
+    ],
+    "eepromSeedSha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5",
+    "settings": "settings-deck-conker.toml",
+    "settingsSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+    "driverCachePolicy": "mesa",
+    "allowUncontrolledDriverCache": false,
+    "bundledLibraries": [
+      {
+        "name": "libbrotlicommon.so.1",
+        "bytes": 140592,
+        "sha256": "bfe785ce98c25bb854e2cf998561be74f78f743029b13ad7476beab5440408b5"
+      },
+      {
+        "name": "libbrotlidec.so.1",
+        "bytes": 55376,
+        "sha256": "86f803ed147ee2d8395f2be189057e04337188efdfa73e8842bf523c490a52c9"
+      },
+      {
+        "name": "libcap.so.2",
+        "bytes": 43336,
+        "sha256": "507b03ad6351343928e8b46ba0a29835f5d2862b5d9161fa15620e5e0403d137"
+      },
+      {
+        "name": "libcrypto.so.3",
+        "bytes": 4611672,
+        "sha256": "b771991f547901bd67531100069cc24e00bda385b6876924b5ce09519a2057ac"
+      },
+      {
+        "name": "libcurl-gnutls.so.4",
+        "bytes": 669480,
+        "sha256": "71c96d9e1800ffb5670e1cd0d3960d15994a3c77dc9f177678a8a83298206cff"
+      },
+      {
+        "name": "libdbus-1.so.3",
+        "bytes": 336328,
+        "sha256": "75ab39f40f3c0852b0cc1950e5097ae67ed416717bec51b51d7b400dc7f2705d"
+      },
+      {
+        "name": "libepoxy.so.0",
+        "bytes": 1390520,
+        "sha256": "c71a2b95acabb06e7c957699922946134aeebae6b3e7d84ea5673b6ba08f5907"
+      },
+      {
+        "name": "libffi.so.8",
+        "bytes": 51360,
+        "sha256": "3c79d61c14b340560e10cecfaf36085efab30318076bde0f081fded2a1ee5641"
+      },
+      {
+        "name": "libgcrypt.so.20",
+        "bytes": 1313912,
+        "sha256": "3543f9144edc85fac43fafc012f50dfa0b623981fda2e87416d6a4c30472e5b8"
+      },
+      {
+        "name": "libglib-2.0.so.0",
+        "bytes": 1335888,
+        "sha256": "5bff7cc1178909087dd46f1ca3bbf9cdb28f95d7a7c68235835c10d4555f1e9e"
+      },
+      {
+        "name": "libgnutls.so.30",
+        "bytes": 2071960,
+        "sha256": "073c16a6bccefd026a4e5aeb56ec7e096110f30b828ba26f8cef2ad73b961bce"
+      },
+      {
+        "name": "libgssapi_krb5.so.2",
+        "bytes": 351720,
+        "sha256": "84d71a0ad21288aeca10816647e0ee809720aaa72062051b227f4db50517c565"
+      },
+      {
+        "name": "libhogweed.so.6",
+        "bytes": 303152,
+        "sha256": "ff69a96e5af06a9638d38189bc41cd345b23c53b1ddf3fe91a11a6818791f0ab"
+      },
+      {
+        "name": "libidn2.so.0",
+        "bytes": 132848,
+        "sha256": "7534a45c32036fe0ad27733d27ce8849c2f63849ef2462118ca6d177f603897e"
+      },
+      {
+        "name": "libk5crypto.so.3",
+        "bytes": 188760,
+        "sha256": "20033c4eec975ee2d1c28e048d74bb2f9c3f8dc657360994eb50b138a7346a50"
+      },
+      {
+        "name": "libkeyutils.so.1",
+        "bytes": 26928,
+        "sha256": "40ef65dad8898edcdaa3e3b4a518749047b088e814da32ac8915cac64ee55b3c"
+      },
+      {
+        "name": "libkrb5.so.3",
+        "bytes": 856536,
+        "sha256": "158676f5a0a250fd13b3465245c4d61cfb0006b92d321d3bc00ce3910940dae1"
+      },
+      {
+        "name": "libkrb5support.so.0",
+        "bytes": 57512,
+        "sha256": "23fe85bd3bc1b5dcabbd79d10b359cdb9ca5c9fb62952d82d8a4046cef59ecad"
+      },
+      {
+        "name": "liblber-2.5.so.0",
+        "bytes": 69792,
+        "sha256": "4d923a63a3c28c3f40683d8cb6ab9bc9173caf12e1f71d9c2c3f0e150550963d"
+      },
+      {
+        "name": "libldap-2.5.so.0",
+        "bytes": 403000,
+        "sha256": "58b50e0fa0c56d80590123789265374a2961b7d5dbf8f6e54ae516dd989b2a42"
+      },
+      {
+        "name": "liblz4.so.1",
+        "bytes": 130848,
+        "sha256": "bd788ffde800b619613d9f800f56a7ad6ecdf320b43e2c37bf3f0fd712576bfb"
+      },
+      {
+        "name": "liblzma.so.5",
+        "bytes": 176296,
+        "sha256": "f753a25e71d2c84a36985afa986c8a3f4372ba3ff520ae1da0ed0562fdcd4dc3"
+      },
+      {
+        "name": "libnettle.so.8",
+        "bytes": 299128,
+        "sha256": "84eb28e7628edd01df3c58f03765aa096faf6049ea8c352c3596d9bbb3068706"
+      },
+      {
+        "name": "libnghttp2.so.14",
+        "bytes": 175504,
+        "sha256": "b7565ca44181a4618b6cfe6dcf7c38d6975673d8ea90d0e7cc1c9629d7c64fde"
+      },
+      {
+        "name": "libp11-kit.so.0",
+        "bytes": 1291592,
+        "sha256": "f77e4489c68f501c8cdf0525c5ac6b281a9f3ea6cb71ebb5122f0d474fff9de2"
+      },
+      {
+        "name": "libpcap.so.0.8",
+        "bytes": 315728,
+        "sha256": "4d6ab2b00affdb7cd7d4d486a0ddb3541e7a7a67e9d5a53de3ff7502e797b3e7"
+      },
+      {
+        "name": "libpcre.so.3",
+        "bytes": 481040,
+        "sha256": "d93d66b7507debfff14d7cae606997a496ccbe3ad6a2dd54b9ac5c6371489101"
+      },
+      {
+        "name": "libpsl.so.5",
+        "bytes": 79528,
+        "sha256": "88ff48b87eae6a0b8a24fb2b8f042558f8d844b978938800850cec5460d693f9"
+      },
+      {
+        "name": "librtmp.so.1",
+        "bytes": 128056,
+        "sha256": "548c4794c71c4b9e3c1ff267c6406c0888e1f7bb6f97b7cde988583a16823c97"
+      },
+      {
+        "name": "libsamplerate.so.0",
+        "bytes": 1500560,
+        "sha256": "a3f494838886b6669bf9cf5312b63e744a7f3734c4d82130d158f7bb6520bb41"
+      },
+      {
+        "name": "libsasl2.so.2",
+        "bytes": 109664,
+        "sha256": "529fafde8492ce12c03fe74e496676eea5e672bdf087c0c4c0ec7eb7c0138ff5"
+      },
+      {
+        "name": "libslirp.so.0",
+        "bytes": 133360,
+        "sha256": "0e343afd0a6073b6ac5405618c0ec2c04e14ec138d964233603ac34dfd1ea8df"
+      },
+      {
+        "name": "libssh.so.4",
+        "bytes": 465064,
+        "sha256": "7a52c294894982872a8c19a39aae5ff6e9089cc0bacaa817cac10b2d0e20f765"
+      },
+      {
+        "name": "libsystemd.so.0",
+        "bytes": 834768,
+        "sha256": "06afffb54d5b82ed67dbd3ff8f73f816980dd4851667ba35c76e8d3adcc7909a"
+      },
+      {
+        "name": "libtasn1.so.6",
+        "bytes": 96480,
+        "sha256": "140770ecfef43bc1390a8e0483a63ec02cc15419c2b4dc6d9aca0797fe84d99a"
+      },
+      {
+        "name": "libudev.so.1",
+        "bytes": 173424,
+        "sha256": "274c8783556224e7499427c1806599f7e3d51864b6557e48aea70a19cd012409"
+      },
+      {
+        "name": "libunistring.so.2",
+        "bytes": 1766104,
+        "sha256": "3185897de7a8125f7bcc2b61a5fd458854d6d14e357b2ec4d34d682bab4137ed"
+      },
+      {
+        "name": "libzstd.so.1",
+        "bytes": 863128,
+        "sha256": "f908cc9e1ba594a313d7a316a4dadfbde456da35be934ad1be40344a01c382df"
+      }
+    ]
+  },
+  {
+    "host": "deck",
+    "game": "doaxbv",
+    "readOnlyAssets": [
+      {
+        "field": "bootrom_path",
+        "sha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+      },
+      {
+        "field": "flashrom_path",
+        "sha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+      },
+      {
+        "field": "dvd_path",
+        "sha256": "54ab77f28eec03bb5d37bb73c81674569565171305425a92ee211a3d99867419"
+      }
+    ],
+    "privateHddSeeds": [
+      {
+        "destination": "hdd.qcow2",
+        "sha256": "7b0f55920d8740e9c77183392aad9969f775ba823f1de4612ef461796a055b52",
+        "retention": "deleteAfterEvidence"
+      }
+    ],
+    "eepromSeedSha256": "d8ad01ff8c028aca874c82940b6cb54b4f81b53204fe42716729c549fb3728f5",
+    "settings": "settings-deck-doaxbv.toml",
+    "settingsSha256": "01bb08a6f90715a909739fbb4e0a14c9112c651aa70864c647b7274674d24f12",
+    "driverCachePolicy": "mesa",
+    "allowUncontrolledDriverCache": false,
+    "bundledLibraries": [
+      {
+        "name": "libbrotlicommon.so.1",
+        "bytes": 140592,
+        "sha256": "bfe785ce98c25bb854e2cf998561be74f78f743029b13ad7476beab5440408b5"
+      },
+      {
+        "name": "libbrotlidec.so.1",
+        "bytes": 55376,
+        "sha256": "86f803ed147ee2d8395f2be189057e04337188efdfa73e8842bf523c490a52c9"
+      },
+      {
+        "name": "libcap.so.2",
+        "bytes": 43336,
+        "sha256": "507b03ad6351343928e8b46ba0a29835f5d2862b5d9161fa15620e5e0403d137"
+      },
+      {
+        "name": "libcrypto.so.3",
+        "bytes": 4611672,
+        "sha256": "b771991f547901bd67531100069cc24e00bda385b6876924b5ce09519a2057ac"
+      },
+      {
+        "name": "libcurl-gnutls.so.4",
+        "bytes": 669480,
+        "sha256": "71c96d9e1800ffb5670e1cd0d3960d15994a3c77dc9f177678a8a83298206cff"
+      },
+      {
+        "name": "libdbus-1.so.3",
+        "bytes": 336328,
+        "sha256": "75ab39f40f3c0852b0cc1950e5097ae67ed416717bec51b51d7b400dc7f2705d"
+      },
+      {
+        "name": "libepoxy.so.0",
+        "bytes": 1390520,
+        "sha256": "c71a2b95acabb06e7c957699922946134aeebae6b3e7d84ea5673b6ba08f5907"
+      },
+      {
+        "name": "libffi.so.8",
+        "bytes": 51360,
+        "sha256": "3c79d61c14b340560e10cecfaf36085efab30318076bde0f081fded2a1ee5641"
+      },
+      {
+        "name": "libgcrypt.so.20",
+        "bytes": 1313912,
+        "sha256": "3543f9144edc85fac43fafc012f50dfa0b623981fda2e87416d6a4c30472e5b8"
+      },
+      {
+        "name": "libglib-2.0.so.0",
+        "bytes": 1335888,
+        "sha256": "5bff7cc1178909087dd46f1ca3bbf9cdb28f95d7a7c68235835c10d4555f1e9e"
+      },
+      {
+        "name": "libgnutls.so.30",
+        "bytes": 2071960,
+        "sha256": "073c16a6bccefd026a4e5aeb56ec7e096110f30b828ba26f8cef2ad73b961bce"
+      },
+      {
+        "name": "libgssapi_krb5.so.2",
+        "bytes": 351720,
+        "sha256": "84d71a0ad21288aeca10816647e0ee809720aaa72062051b227f4db50517c565"
+      },
+      {
+        "name": "libhogweed.so.6",
+        "bytes": 303152,
+        "sha256": "ff69a96e5af06a9638d38189bc41cd345b23c53b1ddf3fe91a11a6818791f0ab"
+      },
+      {
+        "name": "libidn2.so.0",
+        "bytes": 132848,
+        "sha256": "7534a45c32036fe0ad27733d27ce8849c2f63849ef2462118ca6d177f603897e"
+      },
+      {
+        "name": "libk5crypto.so.3",
+        "bytes": 188760,
+        "sha256": "20033c4eec975ee2d1c28e048d74bb2f9c3f8dc657360994eb50b138a7346a50"
+      },
+      {
+        "name": "libkeyutils.so.1",
+        "bytes": 26928,
+        "sha256": "40ef65dad8898edcdaa3e3b4a518749047b088e814da32ac8915cac64ee55b3c"
+      },
+      {
+        "name": "libkrb5.so.3",
+        "bytes": 856536,
+        "sha256": "158676f5a0a250fd13b3465245c4d61cfb0006b92d321d3bc00ce3910940dae1"
+      },
+      {
+        "name": "libkrb5support.so.0",
+        "bytes": 57512,
+        "sha256": "23fe85bd3bc1b5dcabbd79d10b359cdb9ca5c9fb62952d82d8a4046cef59ecad"
+      },
+      {
+        "name": "liblber-2.5.so.0",
+        "bytes": 69792,
+        "sha256": "4d923a63a3c28c3f40683d8cb6ab9bc9173caf12e1f71d9c2c3f0e150550963d"
+      },
+      {
+        "name": "libldap-2.5.so.0",
+        "bytes": 403000,
+        "sha256": "58b50e0fa0c56d80590123789265374a2961b7d5dbf8f6e54ae516dd989b2a42"
+      },
+      {
+        "name": "liblz4.so.1",
+        "bytes": 130848,
+        "sha256": "bd788ffde800b619613d9f800f56a7ad6ecdf320b43e2c37bf3f0fd712576bfb"
+      },
+      {
+        "name": "liblzma.so.5",
+        "bytes": 176296,
+        "sha256": "f753a25e71d2c84a36985afa986c8a3f4372ba3ff520ae1da0ed0562fdcd4dc3"
+      },
+      {
+        "name": "libnettle.so.8",
+        "bytes": 299128,
+        "sha256": "84eb28e7628edd01df3c58f03765aa096faf6049ea8c352c3596d9bbb3068706"
+      },
+      {
+        "name": "libnghttp2.so.14",
+        "bytes": 175504,
+        "sha256": "b7565ca44181a4618b6cfe6dcf7c38d6975673d8ea90d0e7cc1c9629d7c64fde"
+      },
+      {
+        "name": "libp11-kit.so.0",
+        "bytes": 1291592,
+        "sha256": "f77e4489c68f501c8cdf0525c5ac6b281a9f3ea6cb71ebb5122f0d474fff9de2"
+      },
+      {
+        "name": "libpcap.so.0.8",
+        "bytes": 315728,
+        "sha256": "4d6ab2b00affdb7cd7d4d486a0ddb3541e7a7a67e9d5a53de3ff7502e797b3e7"
+      },
+      {
+        "name": "libpcre.so.3",
+        "bytes": 481040,
+        "sha256": "d93d66b7507debfff14d7cae606997a496ccbe3ad6a2dd54b9ac5c6371489101"
+      },
+      {
+        "name": "libpsl.so.5",
+        "bytes": 79528,
+        "sha256": "88ff48b87eae6a0b8a24fb2b8f042558f8d844b978938800850cec5460d693f9"
+      },
+      {
+        "name": "librtmp.so.1",
+        "bytes": 128056,
+        "sha256": "548c4794c71c4b9e3c1ff267c6406c0888e1f7bb6f97b7cde988583a16823c97"
+      },
+      {
+        "name": "libsamplerate.so.0",
+        "bytes": 1500560,
+        "sha256": "a3f494838886b6669bf9cf5312b63e744a7f3734c4d82130d158f7bb6520bb41"
+      },
+      {
+        "name": "libsasl2.so.2",
+        "bytes": 109664,
+        "sha256": "529fafde8492ce12c03fe74e496676eea5e672bdf087c0c4c0ec7eb7c0138ff5"
+      },
+      {
+        "name": "libslirp.so.0",
+        "bytes": 133360,
+        "sha256": "0e343afd0a6073b6ac5405618c0ec2c04e14ec138d964233603ac34dfd1ea8df"
+      },
+      {
+        "name": "libssh.so.4",
+        "bytes": 465064,
+        "sha256": "7a52c294894982872a8c19a39aae5ff6e9089cc0bacaa817cac10b2d0e20f765"
+      },
+      {
+        "name": "libsystemd.so.0",
+        "bytes": 834768,
+        "sha256": "06afffb54d5b82ed67dbd3ff8f73f816980dd4851667ba35c76e8d3adcc7909a"
+      },
+      {
+        "name": "libtasn1.so.6",
+        "bytes": 96480,
+        "sha256": "140770ecfef43bc1390a8e0483a63ec02cc15419c2b4dc6d9aca0797fe84d99a"
+      },
+      {
+        "name": "libudev.so.1",
+        "bytes": 173424,
+        "sha256": "274c8783556224e7499427c1806599f7e3d51864b6557e48aea70a19cd012409"
+      },
+      {
+        "name": "libunistring.so.2",
+        "bytes": 1766104,
+        "sha256": "3185897de7a8125f7bcc2b61a5fd458854d6d14e357b2ec4d34d682bab4137ed"
+      },
+      {
+        "name": "libzstd.so.1",
+        "bytes": 863128,
+        "sha256": "f908cc9e1ba594a313d7a316a4dadfbde456da35be934ad1be40344a01c382df"
+      }
+    ]
+  }
+]

@@ -1,0 +1,401 @@
+{
+  "records": [
+    {
+      "host": "deck",
+      "game": "conker",
+      "requestId": "fresh-deck-conker-qual-a-v6-t001",
+      "runId": "20261002-115848526-4ce6c0b177e34a0dba0891f2782d3f66",
+      "state": "tested",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "use": "startup qualification; excluded from scheduled performance comparison"
+    },
+    {
+      "host": "deck",
+      "game": "conker",
+      "requestId": "fresh-deck-conker-qual-b-v1-t001",
+      "runId": "20261002-103926753-71d2dc01a5084eafbbdab374dd8d10ad",
+      "state": "tested",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "ineligible"
+      },
+      "use": "startup qualification; excluded from scheduled performance comparison"
+    },
+    {
+      "host": "deck",
+      "game": "conker",
+      "requestId": "fresh-deck-conker-qual-b-v2-t001",
+      "runId": "20261002-105331922-647be8f7ece446c68a67c813b91f3228",
+      "state": "tested",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "use": "startup qualification; excluded from scheduled performance comparison"
+    },
+    {
+      "host": "deck",
+      "game": "conker",
+      "requestId": "fresh-deck-conker-qual-b-v6-space-retry1-t001",
+      "runId": "20261002-120606344-a58042074a93453cbf60c2fb00b4d1ab",
+      "state": "tested",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "use": "startup qualification; excluded from scheduled performance comparison"
+    },
+    {
+      "host": "deck",
+      "game": "doaxbv",
+      "requestId": "fresh-deck-doaxbv-qual-a-v3-t001",
+      "runId": "20261002-113408331-953905e2c4e4451baecfd01c2d1638b5",
+      "state": "tested",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "use": "startup qualification; excluded from scheduled performance comparison"
+    },
+    {
+      "host": "deck",
+      "game": "doaxbv",
+      "requestId": "fresh-deck-doaxbv-qual-b-v1-t001",
+      "runId": "20261002-104825456-3a6cbd7a904e40e79785b8592fd47c2c",
+      "state": "tested",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "failed",
+        "evidence": "complete",
+        "comparison": "ineligible"
+      },
+      "use": "startup qualification; excluded from scheduled performance comparison"
+    },
+    {
+      "host": "deck",
+      "game": "doaxbv",
+      "requestId": "fresh-deck-doaxbv-qual-b-v3-t001",
+      "runId": "20261002-110045322-d2aed830848f47f3b08b9c38bf8c23aa",
+      "state": "tested",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "use": "startup qualification; excluded from scheduled performance comparison"
+    },
+    {
+      "host": "deck",
+      "game": "pgr2",
+      "requestId": "fresh-deck-pgr2-qual-a-v3-t001",
+      "runId": "20261002-110840005-ac11b61cf3bc4115abc800cf9a30c07a",
+      "state": "tested",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "use": "startup qualification; excluded from scheduled performance comparison"
+    },
+    {
+      "host": "deck",
+      "game": "pgr2",
+      "requestId": "fresh-deck-pgr2-qual-b-v3-t001",
+      "runId": "20261002-111234564-abaf2ce724064f559b77ab386deb270c",
+      "state": "tested",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "use": "startup qualification; excluded from scheduled performance comparison"
+    },
+    {
+      "host": "windows",
+      "game": "conker",
+      "requestId": "fresh-win-conker-qual-b-v2-t001",
+      "runId": "20261002-105233381-32f85f999f2c407b8b203374bb3eaa51",
+      "state": "tested",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "ineligible"
+      },
+      "use": "startup qualification; excluded from scheduled performance comparison"
+    },
+    {
+      "host": "windows",
+      "game": "conker",
+      "requestId": "fresh-windows-conker-qual-a-v3-t001",
+      "runId": "20261002-113416417-76f7190339304f89a2dd56eaec14c2df",
+      "state": "tested",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "use": "startup qualification; excluded from scheduled performance comparison"
+    },
+    {
+      "host": "windows",
+      "game": "conker",
+      "requestId": "fresh-windows-conker-qual-a-v5-t001",
+      "runId": "20261002-114609797-7581673f8a4b48c9a7c4b2ae5e289747",
+      "state": "tested",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "use": "startup qualification; excluded from scheduled performance comparison"
+    },
+    {
+      "host": "windows",
+      "game": "conker",
+      "requestId": "fresh-windows-conker-qual-a-v6-t001",
+      "runId": "20261002-121124899-b9bdce25284248bf94b07143952251a6",
+      "state": "tested",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "use": "startup qualification; excluded from scheduled performance comparison"
+    },
+    {
+      "host": "windows",
+      "game": "conker",
+      "requestId": "fresh-windows-conker-qual-b-v3-t001",
+      "runId": "20261002-113058921-927ebd7c77ab48b0b117e26b58fee04a",
+      "state": "tested",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "use": "startup qualification; excluded from scheduled performance comparison"
+    },
+    {
+      "host": "windows",
+      "game": "conker",
+      "requestId": "fresh-windows-conker-qual-b-v4-t001",
+      "runId": "20261002-114142074-a1fd305854654e24bcf974affc41c371",
+      "state": "tested",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "use": "startup qualification; excluded from scheduled performance comparison"
+    },
+    {
+      "host": "windows",
+      "game": "conker",
+      "requestId": "fresh-windows-conker-qual-b-v6-t001",
+      "runId": "20261002-121356011-8c11e51f426447f885680bc5df9c0ca5",
+      "state": "tested",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "use": "startup qualification; excluded from scheduled performance comparison"
+    },
+    {
+      "host": "windows",
+      "game": "doaxbv",
+      "requestId": "fresh-win-doaxbv-qual-b-v1-t001",
+      "runId": "20261002-103737427-7bd8b1253222495abdc949611eaf55e6",
+      "state": "tested",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "ineligible"
+      },
+      "use": "startup qualification; excluded from scheduled performance comparison"
+    },
+    {
+      "host": "windows",
+      "game": "doaxbv",
+      "requestId": "fresh-windows-doaxbv-qual-a-v3-t001",
+      "runId": "20261002-110146289-d14df4600e6e4e17bced2405afae60b5",
+      "state": "tested",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "use": "startup qualification; excluded from scheduled performance comparison"
+    },
+    {
+      "host": "windows",
+      "game": "pgr2",
+      "requestId": "fresh-win-pgr2-qual-b-v1-t001",
+      "runId": "20261002-104424110-c61680edf68a4211b19fa8292acfdd3b",
+      "state": "tested",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "ineligible"
+      },
+      "use": "startup qualification; excluded from scheduled performance comparison"
+    },
+    {
+      "host": "windows",
+      "game": "pgr2",
+      "requestId": "fresh-windows-pgr2-qual-a-v3-t001",
+      "runId": "20261002-105922681-6b81d0b052f74f34957dc9953e25f2af",
+      "state": "tested",
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      },
+      "use": "startup qualification; excluded from scheduled performance comparison"
+    },
+    {
+      "host": "deck",
+      "game": "conker",
+      "requestId": "fresh-deck-conker-qual-b-v6-t001",
+      "runId": null,
+      "state": "failed",
+      "reason": "Preparation rejected: 1032724480 free bytes below1073741824 safety floor. No emulator launched. Retained; same procedure subsequently qualified under a new request after archival."
+    }
+  ],
+  "visualLimitations": [
+    "Original one-A Conker candidates remained in the movie; Start also failed; a three-A Windows candidate entered Profiles. The new two-A route with a 15-second transition wait qualified the bar menu.",
+    "DOAXBV Deck first attempt 20261002-104825456-3a6cbd7a904e40e79785b8592fd47c2c displayed a disc error. Its cause remains unproven. Later matched-EEPROM attempts reach the menu.",
+    "PGR2 Deck begins during the Hong Kong transition; Windows begins at countdown. Both end parked with the same car/course.",
+    "DOAXBV Deck begins during the title-to-menu transition; Windows begins at island options. Menu camera and animation phase differ; identical simulation time is not established."
+  ],
+  "abortedSchedules": [
+    {
+      "host": "windows",
+      "game": "conker",
+      "order": "ABBA/BAAB",
+      "reason": "Attempt 6 stopped on disk-full while writing metrics.csv; no end screenshot and incomplete CPU segment. Attempts 7/8 not started. The whole schedule is superseded by a new complete eight-attempt schedule after hash-verified archival of inactive staging. All original records retained; none pooled with the final report.",
+      "testRevision": "55de9093adb1973176ea176e4234f58adebb4182d2a1aced6a658e7b88d0b1be",
+      "attempts": [
+        {
+          "number": 1,
+          "variant": "a",
+          "requestId": "fresh-windows-conker-balanced-v1-01-a-t001",
+          "runId": "20261002-121758750-657037aa7d4c44c3a3601921f75a9e57",
+          "state": "tested",
+          "outcome": {
+            "execution": "completed",
+            "correctness": "passed",
+            "evidence": "complete",
+            "comparison": "eligible"
+          }
+        },
+        {
+          "number": 2,
+          "variant": "b",
+          "requestId": "fresh-windows-conker-balanced-v1-02-b-t001",
+          "runId": "20261002-121950946-5be110720fb545839724abfa5222303e",
+          "state": "tested",
+          "outcome": {
+            "execution": "completed",
+            "correctness": "passed",
+            "evidence": "complete",
+            "comparison": "eligible"
+          }
+        },
+        {
+          "number": 3,
+          "variant": "b",
+          "requestId": "fresh-windows-conker-balanced-v1-03-b-t001",
+          "runId": "20261002-122141934-285c568943c54ed0b3875258d29e90f6",
+          "state": "tested",
+          "outcome": {
+            "execution": "completed",
+            "correctness": "passed",
+            "evidence": "complete",
+            "comparison": "eligible"
+          }
+        },
+        {
+          "number": 4,
+          "variant": "a",
+          "requestId": "fresh-windows-conker-balanced-v1-04-a-t001",
+          "runId": "20261002-122332476-c8543eda78ed42daab3111731d47fd26",
+          "state": "tested",
+          "outcome": {
+            "execution": "completed",
+            "correctness": "passed",
+            "evidence": "complete",
+            "comparison": "eligible"
+          }
+        },
+        {
+          "number": 5,
+          "variant": "b",
+          "requestId": "fresh-windows-conker-balanced-v1-05-b-t001",
+          "runId": "20261002-122524036-deb68b12f32b4277825a29fcbea8a941",
+          "state": "tested",
+          "outcome": {
+            "execution": "completed",
+            "correctness": "passed",
+            "evidence": "complete",
+            "comparison": "eligible"
+          }
+        },
+        {
+          "number": 6,
+          "variant": "a",
+          "requestId": "fresh-windows-conker-balanced-v1-06-a-t001",
+          "runId": "20261002-122714670-66475159c6de4949b2fca56f3f5a02e3",
+          "state": "tested",
+          "outcome": {
+            "execution": "runnerFailure",
+            "correctness": "failed",
+            "evidence": "incomplete",
+            "comparison": "ineligible"
+          }
+        },
+        {
+          "number": 7,
+          "variant": "a",
+          "requestId": "fresh-windows-conker-balanced-v1-07-a-t001",
+          "runId": null,
+          "state": "uploaded"
+        },
+        {
+          "number": 8,
+          "variant": "b",
+          "requestId": "fresh-windows-conker-balanced-v1-08-b-t001",
+          "runId": null,
+          "state": "uploaded"
+        }
+      ]
+    }
+  ]
+}

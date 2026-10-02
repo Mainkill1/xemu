@@ -2,6 +2,53 @@
 
 This fork uses the existing stable main tree as its accepted baseline foundation, including its known fixes and testing addons.
 
+## Current measured comparison — 2026-10-02
+
+**A:** upstream v0.8.136 **with matched guest-flip telemetry**. **B:** fork main `ee5ce48`, Vulkan 1×, ABBA then BAAB: **48 attempts**, four per build/game/host. Values are descriptive observations from the existing runner, not a universal speedup or isolated PR attribution.
+
+| Rig / scene | Guest flips/s A → B | Cadence change | xemu CPU core % A → B | Device GPU % A → B | p99 ms A → B |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Windows / PGR2 parked start | 14.66 → 30.00 | +104.67% | 316.7 → 321.2 | 37.7 → 43.5 | 83.18 → 34.00 |
+| Windows / Conker bar menu | 29.18 → 30.00 | +2.80% | 252.6 → 248.2 | 52.2 → 56.1 | 50.06 → 33.75 |
+| Windows / DOAXBV island menu | 60.00 → 60.00 | 0.00% | 280.6 → 247.4 | 39.5 → 45.0 | 17.49 → 17.04 |
+| Steam Deck / PGR2 parked start | 7.38 → 7.15 | -3.18% | 299.8 → 403.5 | 30.2 → 57.8 | 242.72 → 335.92 |
+| Steam Deck / Conker bar menu | 9.12 → 9.59 | +5.17% | 210.2 → 185.3 | 28.4 → 60.7 | 140.70 → 161.21 |
+| Steam Deck / DOAXBV island menu | 42.74 → 47.95 | +12.19% | 189.6 → 196.3 | 42.5 → 59.2 | 37.13 → 26.51 |
+
+<details>
+<summary>Mean, worst maximum, p95 and p99 frame intervals</summary>
+
+| Rig / scene | Build | Flips/s | Mean ms | Worst max ms | p95 ms | p99 ms | CPU core % | GPU device % |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Windows / PGR2 parked start | A | 14.66 | 68.60 | 101.00 | 80.46 | 83.18 | 316.7 | 37.7 |
+| Windows / PGR2 parked start | B | 30.00 | 33.33 | 34.66 | 33.61 | 34.00 | 321.2 | 43.5 |
+| Windows / Conker bar menu | A | 29.18 | 34.41 | 53.34 | 49.68 | 50.06 | 252.6 | 52.2 |
+| Windows / Conker bar menu | B | 30.00 | 33.33 | 34.72 | 33.57 | 33.75 | 248.2 | 56.1 |
+| Windows / DOAXBV island menu | A | 60.00 | 16.67 | 24.69 | 16.87 | 17.49 | 280.6 | 39.5 |
+| Windows / DOAXBV island menu | B | 60.00 | 16.67 | 17.67 | 16.91 | 17.04 | 247.4 | 45.0 |
+| Steam Deck / PGR2 parked start | A | 7.38 | 137.31 | 333.80 | 189.23 | 242.72 | 299.8 | 30.2 |
+| Steam Deck / PGR2 parked start | B | 7.15 | 133.63 | 618.87 | 270.16 | 335.92 | 403.5 | 57.8 |
+| Steam Deck / Conker bar menu | A | 9.12 | 110.36 | 213.83 | 132.85 | 140.70 | 210.2 | 28.4 |
+| Steam Deck / Conker bar menu | B | 9.59 | 105.05 | 208.60 | 137.04 | 161.21 | 185.3 | 60.7 |
+| Steam Deck / DOAXBV island menu | A | 42.74 | 23.51 | 191.20 | 30.23 | 37.13 | 189.6 | 42.5 |
+| Steam Deck / DOAXBV island menu | B | 47.95 | 20.68 | 100.01 | 24.85 | 26.51 | 196.3 | 59.2 |
+
+Mean/p95/p99 are medians of four per-attempt estimates. Worst maximum is the highest of the four per-attempt maxima, not a pooled percentile.
+
+</details>
+
+CPU 100% is one logical core. GPU is whole-device usage. Guest flips/s are not host-presented FPS. Frame mean/max/p95/p99, all changes over 1%, exact hardware/build/settings, all attempts and scene/cache limits are in the [full comparison](docs/performance/2026-10-02-fresh-start-comparison.md).
+
+| Rig | CPU / memory | GPU / driver |
+| --- | --- | --- |
+| Windows 10 | Ryzen 9 6900HX, 16 logical processors, 16 GB RAM | RTX 3070 Ti Laptop 8 GiB, NVIDIA 581.95 |
+| Steam Deck / SteamOS | AMD Custom APU 0405, 8 logical processors, 16 GB RAM | RADV VANGOGH, Mesa 25.3.0 git 59b552c765 |
+
+PGR2 remains parked with its unchanged input sequence. Conker uses the separately qualified two-A bar-menu startup revision; DOAXBV uses 90 s/A/5 s/A. The Deck starts PGR2/DOAXBV during transitions; scene animation and guest time are not identical across rigs. Windows driver cache is uncontrolled, and power/thermal state is not pinned. Deck PGR2 used 34.6% more CPU and had a 38.4% worse p99; Deck Conker also had a 14.6% worse p99 despite higher throughput. These regressions need investigation. [Evidence and all 48 run identities](evidence/fresh-start-performance-2026-10-02/campaign.json).
+
+<details>
+<summary>Historical September 19 Windows comparison and XISO corrections</summary>
+
 The Windows comparison below used the published `main` product build at `ef1a7fc4` and the [official upstream v0.8.136 release](https://github.com/xemu-project/xemu/releases/tag/v0.8.136). Values are two-run means from the same guest display-write trace source. Cadence is guest display writes per second; p95/p99 are intervals between those writes, **not displayed FPS**. Both roles used Vulkan at 1× scale with VSync off; the fork test profile explicitly enabled its Advanced controls and selected Ubershader Prewarm.
 
 | Workload | Official upstream: cadence; p95 / p99 | Fork `main`: cadence; p95 / p99 |
@@ -17,6 +64,8 @@ In that PGR2 race, fork `main` had **110.8% higher guest-write cadence** and 52.
 The [matched XISO rerun](docs/performance/2026-09-19-xiso-matched-rerun.md) explicitly enabled Prewarm and shader fastpath on both existing fork executables in main–candidate–candidate–main order. All four runs passed 157/157 records. Among 150 framebuffer-hash-matched leaves, 54 favored the candidate, 95 favored main, and one tied; median candidate speedup was −0.59%. A repeated sampler-only texture leaf showed −4.62% candidate speedup, equivalent to 4.84% longer candidate latency. These are guest microbenchmark timings with live-marker correlation unavailable, so they are diagnostic rather than gameplay FPS or PR-grade timing proof. They do not show an across-the-board #135 improvement.
 
 A separate third PGR2 full-start pass sampled resource usage at approximately 1 Hz. In-race xemu CPU averaged **3.08 core equivalents** on fork `main` versus **2.96** upstream. Whole-GPU utilization averaged **38.4%** versus **37.3%**; that device-wide counter is not specific to xemu and does not identify the performance bottleneck. The [per-run results and limitations](docs/performance/2026-09-19-official-upstream-comparison.md) include the separate profile, XISO timing definitions, and the draft #135 candidate comparison.
+
+</details>
 
 | Branch | Role |
 | --- | --- |
