@@ -1,0 +1,1616 @@
+{
+  "archive": "EVIDENCE.tar.gz",
+  "bytes": 341675,
+  "sha256": "08778777eadb39e2c249e3e8ff540e549a91a3f94fe0b27c3f04b4a761e40a5a",
+  "payloads": [
+    {
+      "path": "SUMMARY.json",
+      "bytes": 1213,
+      "sha256": "2aa5246ac660ba5c1ea3f4767de00d407bef7c47c87cdb6ad3bef878b0e83648"
+    },
+    {
+      "path": "local-meson/testlog.json",
+      "bytes": 25702,
+      "sha256": "3435b1d073d354feed06faab019e313f2b5034b0336bc26c99274aaae27df32d"
+    },
+    {
+      "path": "local-meson/testlog.txt",
+      "bytes": 10375,
+      "sha256": "f5018c0f319435ec5301e4c849b0126cbba16dba422bdd95c809faf08fc937d6"
+    },
+    {
+      "path": "raw/VERIFIED-SUMMARY.json",
+      "bytes": 1213,
+      "sha256": "2aa5246ac660ba5c1ea3f4767de00d407bef7c47c87cdb6ad3bef878b0e83648"
+    },
+    {
+      "path": "raw/build-qualification.json",
+      "bytes": 20684,
+      "sha256": "eb621f428d40b4227c70dd594b07d1b5597e28b3ee9139f797097afbb7159b1f"
+    },
+    {
+      "path": "raw/check-mutations.py",
+      "bytes": 4593,
+      "sha256": "2e5fc1d28c1ac3b3586a940c7f25defd279b000392ddc483b88e01a0b7e8e724"
+    },
+    {
+      "path": "raw/checkpatch-commit.log",
+      "bytes": 691,
+      "sha256": "84a9c6488d14fbb78e3e90c769ec06116124ed9f49fddb6b6914491c789990a3"
+    },
+    {
+      "path": "raw/checkpatch-final-tree.log",
+      "bytes": 531,
+      "sha256": "a0b905ab753e66fc6b9057d39bc0e909da2eb0632095f1f789b699fd65116f57"
+    },
+    {
+      "path": "raw/checkpatch-source.log",
+      "bytes": 691,
+      "sha256": "8d5773ff5195fbc249499db849250a23c7820fc4261a82424cc39db85f3b2bd1"
+    },
+    {
+      "path": "raw/checkpatch.log",
+      "bytes": 3347,
+      "sha256": "7d212f479534384d99a9dd1ebdce5735e4cf254e4d7c7a6da50503a6ab2fdc76"
+    },
+    {
+      "path": "raw/ci-after-license.json",
+      "bytes": 492,
+      "sha256": "13702515ab70c968f8a1d4ac4815d176b590f57afca9432bf4c8c063033f7508"
+    },
+    {
+      "path": "raw/deck-driver.log",
+      "bytes": 2025,
+      "sha256": "b5ae14a544ee058d6bd991ba275b22d179dbe0c84b98966c6167caf8f50eac4a"
+    },
+    {
+      "path": "raw/deck-native/assets.json",
+      "bytes": 512,
+      "sha256": "cc587133b8a1553ac073455dd19a487b9a0f8f7338d3613b73a1bc523c26f6bf"
+    },
+    {
+      "path": "raw/deck-native/collected/20261002-183109816-d52ff144677741a39c3bf7e8ef1718b2/assessment.json",
+      "bytes": 2093,
+      "sha256": "816dd210ea9bfb61d0e97b7322f9ae9f4ea16cac0cfa1b275ca823d856ef28c9"
+    },
+    {
+      "path": "raw/deck-native/collected/20261002-183109816-d52ff144677741a39c3bf7e8ef1718b2/crash/native/exit-native.json",
+      "bytes": 139,
+      "sha256": "494fb044b93222782e5c39c9dce5c3fa6ac446534ec6f70abdade1acf9e24435"
+    },
+    {
+      "path": "raw/deck-native/collected/20261002-183109816-d52ff144677741a39c3bf7e8ef1718b2/crash/native/ready.json",
+      "bytes": 59,
+      "sha256": "80c7d1a62ead068ff68fdf369ad0eb4298f3ef9b805ecffd03253d7a1560c88a"
+    },
+    {
+      "path": "raw/deck-native/collected/20261002-183109816-d52ff144677741a39c3bf7e8ef1718b2/crash/native/start",
+      "bytes": 1,
+      "sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "path": "raw/deck-native/collected/20261002-183109816-d52ff144677741a39c3bf7e8ef1718b2/crash/report.json",
+      "bytes": 425,
+      "sha256": "2362999f223f2f6303b6aba596588dd035b11dc05cd047e0b673a3b80025bd1a"
+    },
+    {
+      "path": "raw/deck-native/collected/20261002-183109816-d52ff144677741a39c3bf7e8ef1718b2/crash/report.txt",
+      "bytes": 198,
+      "sha256": "300cee3159b1e9e3bc59c5fc1f79f735436664bb181eb13b863053314dfbcb74"
+    },
+    {
+      "path": "raw/deck-native/collected/20261002-183109816-d52ff144677741a39c3bf7e8ef1718b2/diagnostic-bundle.json",
+      "bytes": 381,
+      "sha256": "67bfada2da5a55c1cca541a7a80a63f4158af5f2d134698ec1d0e24826e7ba5b"
+    },
+    {
+      "path": "raw/deck-native/collected/20261002-183109816-d52ff144677741a39c3bf7e8ef1718b2/diagnostics.zip",
+      "bytes": 14066,
+      "sha256": "973e0a272a17aed616b94f2cc7ecd6eb0695e4fc06dbec14918ed95273632ca6"
+    },
+    {
+      "path": "raw/deck-native/collected/20261002-183109816-d52ff144677741a39c3bf7e8ef1718b2/diagnostics/run-state/report.json",
+      "bytes": 1281,
+      "sha256": "678e110a760b7c41f1829d0fb38588d04c0a408a2ef8ef2faf96164a45618d0f"
+    },
+    {
+      "path": "raw/deck-native/collected/20261002-183109816-d52ff144677741a39c3bf7e8ef1718b2/host-inventory.json",
+      "bytes": 466,
+      "sha256": "404ccb2e524dc27acdfe9436e6619112aa1a0089e0b4169b5f2eb091d7c7ea1f"
+    },
+    {
+      "path": "raw/deck-native/collected/20261002-183109816-d52ff144677741a39c3bf7e8ef1718b2/input-manifest.json",
+      "bytes": 9355,
+      "sha256": "612943a5aeff7adb828eadc2ab513d2c783bb298f7296a40ef21e33f9df16ce4"
+    },
+    {
+      "path": "raw/deck-native/collected/20261002-183109816-d52ff144677741a39c3bf7e8ef1718b2/job.json",
+      "bytes": 7051,
+      "sha256": "dd64fc63a0611926224bf41379e8c839d85b414a09e34ae7221a04902359060f"
+    },
+    {
+      "path": "raw/deck-native/collected/20261002-183109816-d52ff144677741a39c3bf7e8ef1718b2/launch.json",
+      "bytes": 1555,
+      "sha256": "6d1112c0a78f14469f8d2184055df8971c29aae42821cee71be850879e84fc69"
+    },
+    {
+      "path": "raw/deck-native/collected/20261002-183109816-d52ff144677741a39c3bf7e8ef1718b2/metrics.csv",
+      "bytes": 510,
+      "sha256": "26a24639d902e5ccff5e0433aa6d4822df327304355828188b874a24bcdc0ec9"
+    },
+    {
+      "path": "raw/deck-native/collected/20261002-183109816-d52ff144677741a39c3bf7e8ef1718b2/operator-events.jsonl",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "raw/deck-native/collected/20261002-183109816-d52ff144677741a39c3bf7e8ef1718b2/pre-run-environment.json",
+      "bytes": 1563,
+      "sha256": "d1a2fd74b6cd8ab79773cecfb142426eb32fd739cfa808c116213b9bef2bffb7"
+    },
+    {
+      "path": "raw/deck-native/collected/20261002-183109816-d52ff144677741a39c3bf7e8ef1718b2/preflight.json",
+      "bytes": 5168,
+      "sha256": "b59d599149121c735ad242e44d5bf8e25d0bbbe79fbff9f2b8bd53f97c870204"
+    },
+    {
+      "path": "raw/deck-native/collected/20261002-183109816-d52ff144677741a39c3bf7e8ef1718b2/result.json",
+      "bytes": 8673,
+      "sha256": "278122dae1d9e909ee6d1e640491465447d8cdb2b9e2e94348cb66584288f48f"
+    },
+    {
+      "path": "raw/deck-native/collected/20261002-183109816-d52ff144677741a39c3bf7e8ef1718b2/runtime-state.json",
+      "bytes": 58,
+      "sha256": "84a3230f7043fd79213906fbf46592e64d8eada284b1bd51100e9347363934ef"
+    },
+    {
+      "path": "raw/deck-native/collected/20261002-183109816-d52ff144677741a39c3bf7e8ef1718b2/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "raw/deck-native/collected/20261002-183109816-d52ff144677741a39c3bf7e8ef1718b2/stdout.log",
+      "bytes": 533,
+      "sha256": "3c3c9e88a98d5901d2a9287029cff71be055af807351766bd41db03154cfbfff"
+    },
+    {
+      "path": "raw/deck-native/collection.json",
+      "bytes": 422,
+      "sha256": "c39f96e82467b633630562f9730c5a666a0af042506b150118b9e117684d67ad"
+    },
+    {
+      "path": "raw/deck-native/index-observations-0.json",
+      "bytes": 48,
+      "sha256": "5ea62a283bd8d9b7d3176abbaabf2ada6cf737f4a97ff81e5e5ec27c858a36ab"
+    },
+    {
+      "path": "raw/deck-native/manifest.json",
+      "bytes": 20684,
+      "sha256": "eb621f428d40b4227c70dd594b07d1b5597e28b3ee9139f797097afbb7159b1f"
+    },
+    {
+      "path": "raw/deck-native/post-status.json",
+      "bytes": 2541,
+      "sha256": "f7c850eaf9e7e0042e9408d1b4a0342dcc48b46a475c8957717ede9fdb655443"
+    },
+    {
+      "path": "raw/deck-native/preflight.json",
+      "bytes": 2525,
+      "sha256": "fa8d1c81c2bb319e97c13cb364d33c4bc8f68b7df71827c8f841a7b69cb7462b"
+    },
+    {
+      "path": "raw/deck-native/result-summary.json",
+      "bytes": 637,
+      "sha256": "8f9c875aaa4fa9b5d9fd684b3852ba0616e25a40af62409f04b981a88a036154"
+    },
+    {
+      "path": "raw/deck-native/saved-test-request.json",
+      "bytes": 5804,
+      "sha256": "cc759b2a2906e251ec72bb2783ea771fe56ceb1cedbcb868751b60072f115739"
+    },
+    {
+      "path": "raw/deck-native/saved-test.json",
+      "bytes": 549,
+      "sha256": "28e3c8f052020a4944636e6effafc5ded9c647c6fbf626ab5976f769c0cd5e79"
+    },
+    {
+      "path": "raw/deck-native/submission.json",
+      "bytes": 190,
+      "sha256": "c1af46d0de3d9dfe9fe3769b3b78110b4f3583f5cabaf904eb92387bdf02d271"
+    },
+    {
+      "path": "raw/deck-native/submit.json",
+      "bytes": 567,
+      "sha256": "dd467e011d3911872dd37433aae80674cc3c5c8048448582772d127eaf40407e"
+    },
+    {
+      "path": "raw/deck-native/wait.json",
+      "bytes": 938,
+      "sha256": "4480af7ef0d09139eab8990e5d71b387a64064c536684d132e4c64423a119e05"
+    },
+    {
+      "path": "raw/deck-preflight-now.json",
+      "bytes": 2525,
+      "sha256": "9c66d1ffa064e2de3f3a4d7549f7387faaa21e23a3759f133be2d0b806fd712b"
+    },
+    {
+      "path": "raw/deck-resume-driver.log",
+      "bytes": 1113,
+      "sha256": "6b95315e17ae1a3a63efe5a648132ea3e4d0018ef4e33abde0853db57fb3e73d"
+    },
+    {
+      "path": "raw/download-release.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "raw/extract-appimage.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "raw/independent-negative-verification.json",
+      "bytes": 247,
+      "sha256": "7e5f511be1e114d92a72ba7bb1fd9c833a76167354a12f87cd209676b88edac1"
+    },
+    {
+      "path": "raw/local-build-final-cases.log",
+      "bytes": 488,
+      "sha256": "ec1d8f708fe0643eeae45228ec68023b0feca82a59c97e2fe75a9e8effab0b86"
+    },
+    {
+      "path": "raw/local-build-headers.log",
+      "bytes": 488,
+      "sha256": "ec1d8f708fe0643eeae45228ec68023b0feca82a59c97e2fe75a9e8effab0b86"
+    },
+    {
+      "path": "raw/local-build-unsigned-oracle.log",
+      "bytes": 488,
+      "sha256": "ec1d8f708fe0643eeae45228ec68023b0feca82a59c97e2fe75a9e8effab0b86"
+    },
+    {
+      "path": "raw/local-build.log",
+      "bytes": 75617,
+      "sha256": "77a2f13f74b011ba527284b4c1ac17ccf3b47b7414020bd5384e4e2adfab33e1"
+    },
+    {
+      "path": "raw/local-final-focused-pyvenv.log",
+      "bytes": 1323,
+      "sha256": "c033285268602654c9998dae9445aa4234ac6c4fa674b274fed99aff4f34b595"
+    },
+    {
+      "path": "raw/local-final-focused.log",
+      "bytes": 44,
+      "sha256": "71cd2a8c9d789b5a7b59289496f22517643b9eb34dd6cfb87b9dda07076810fb"
+    },
+    {
+      "path": "raw/local-first-exit.json",
+      "bytes": 17,
+      "sha256": "195a804411f012f9ae51e15a07996fc60f70d886f9d6b8b9598736f6bfeed829"
+    },
+    {
+      "path": "raw/local-first.log",
+      "bytes": 587,
+      "sha256": "36a2ef0c3774d548f9f7724e2758f7c8ad1a72f3f4b3be52d56f67cf6827ae89"
+    },
+    {
+      "path": "raw/local-formatted-focused.log",
+      "bytes": 1216,
+      "sha256": "f42852f49a33b0b8c650262e3d1ecb259a369b733a0eecfe77cf6c10b04a8431"
+    },
+    {
+      "path": "raw/local-unsigned-oracle-exit.json",
+      "bytes": 16,
+      "sha256": "982b9e9bfb10ffe83cad665807abcfd3fa97b37822db5ab7831157a499548a9e"
+    },
+    {
+      "path": "raw/local-unsigned-oracle.log",
+      "bytes": 548,
+      "sha256": "4cfe711090ebe321aa9cd15714afaa33d8ebcf150d6fe418ac64efd92ed0db66"
+    },
+    {
+      "path": "raw/local-whole-unit.log",
+      "bytes": 11786,
+      "sha256": "968998779faa49f0ed4d5b0f193853174f03ec612eb23266da95257da77606ee"
+    },
+    {
+      "path": "raw/mutation-driver.log",
+      "bytes": 77,
+      "sha256": "2d105873643f382b06fe63b8ccc7c78339345b389d1b1c9988086e2c10f8d68f"
+    },
+    {
+      "path": "raw/mutation-final-driver.log",
+      "bytes": 77,
+      "sha256": "2d105873643f382b06fe63b8ccc7c78339345b389d1b1c9988086e2c10f8d68f"
+    },
+    {
+      "path": "raw/mutations-final/drop-changed/build.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "raw/mutations-final/drop-changed/changed-masks-receipt.json",
+      "bytes": 117,
+      "sha256": "f8dea64cb2e7a7f7d19084a98df18b1852bdf0fbd0a7ed6250a616cfd425c280"
+    },
+    {
+      "path": "raw/mutations-final/drop-changed/changed-masks.log",
+      "bytes": 586,
+      "sha256": "d960756a4f71c5906584b4cd16a5d9ba3846e6f02f92f51599df7cb7ad7f9a96"
+    },
+    {
+      "path": "raw/mutations-final/drop-changed/voice-store.c",
+      "bytes": 2297,
+      "sha256": "18d183bf303f971054417fd908b5791ea0b7af2761176ce4cf681e0a61226b85"
+    },
+    {
+      "path": "raw/mutations-final/drop-changed/voice-store.d",
+      "bytes": 18519,
+      "sha256": "2daa49e3e38b8aa8e63e222ce308e38f608a120cd3620d98a9c643db5350bbe9"
+    },
+    {
+      "path": "raw/mutations-final/masked-validation/build.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "raw/mutations-final/masked-validation/ordered-writers-receipt.json",
+      "bytes": 124,
+      "sha256": "119d8046ce773d28c8658e818e78206497e0d386f791e8cbc6a827a3f65d68f7"
+    },
+    {
+      "path": "raw/mutations-final/masked-validation/ordered-writers.log",
+      "bytes": 540,
+      "sha256": "01f594e4dae4eef52efb7a594b913d41f8e84b33fe902e3920e2fb1b27a1894f"
+    },
+    {
+      "path": "raw/mutations-final/masked-validation/voice-store.c",
+      "bytes": 2320,
+      "sha256": "c41e7cfec25a7a53285b8a7c8aa8ebf332baebd5169bb9fd958fb481219e10aa"
+    },
+    {
+      "path": "raw/mutations-final/masked-validation/voice-store.d",
+      "bytes": 18524,
+      "sha256": "4301208851cee9d769b6fca725f61905373630ec62a0ce2ba06f82bf97d93672"
+    },
+    {
+      "path": "raw/mutations-final/owner-check/build.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "raw/mutations-final/owner-check/other-ram-owner-receipt.json",
+      "bytes": 116,
+      "sha256": "058ff995b82a05fe17642f79299d2c0a38906825e9c4ac85e64aff19d068cf36"
+    },
+    {
+      "path": "raw/mutations-final/owner-check/other-ram-owner.log",
+      "bytes": 576,
+      "sha256": "0b5235bf30fd5a64c0f0aae0ef99b41979cd47143ae19366b8773472b7e5c7bf"
+    },
+    {
+      "path": "raw/mutations-final/owner-check/voice-store.c",
+      "bytes": 2294,
+      "sha256": "c6d137418fec2d3b64b5a08afbc43e7e784d398215030a5bd295f71a08e58e65"
+    },
+    {
+      "path": "raw/mutations-final/owner-check/voice-store.d",
+      "bytes": 18518,
+      "sha256": "1605ccd13b99083f0eef6bf71a1b92ff69308ef59a5c82939d0ca0d20ec4359e"
+    },
+    {
+      "path": "raw/mutations-final/prepare.log",
+      "bytes": 719,
+      "sha256": "04d6c241b8d1ce4416754daefc7445b2755bfb0a956770336d3f60973a332404"
+    },
+    {
+      "path": "raw/mutations-final/read-equality/build.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "raw/mutations-final/read-equality/mmio-remap-receipt.json",
+      "bytes": 114,
+      "sha256": "629304265979fb9c28fc155824ebfecff5aacfabe288644110bf3b5e02b7159e"
+    },
+    {
+      "path": "raw/mutations-final/read-equality/mmio-remap.log",
+      "bytes": 427,
+      "sha256": "ae397b91c2f91fede9da7c94bb4cce2dffe906a5ca68145dd521372422345469"
+    },
+    {
+      "path": "raw/mutations-final/read-equality/ordered-writers-receipt.json",
+      "bytes": 120,
+      "sha256": "96f6196d555ec50d51d41b1260c41e25a0d91c225458939dd6631bce1ad51a44"
+    },
+    {
+      "path": "raw/mutations-final/read-equality/ordered-writers.log",
+      "bytes": 540,
+      "sha256": "e20c916543f6fba12c36c663f2eeb55e899a8632e342aff5f95bb1bdeec3d22c"
+    },
+    {
+      "path": "raw/mutations-final/read-equality/voice-store.c",
+      "bytes": 2323,
+      "sha256": "31703cc9a4dbce6ce8366617648d7e58fd1b2ee12e47668e1cd310e97a08d4f5"
+    },
+    {
+      "path": "raw/mutations-final/read-equality/voice-store.d",
+      "bytes": 18520,
+      "sha256": "1aeede38db51c68f5da46dc7a53ae1ed77fe3e6022b610ecf01e346b4251e5c6"
+    },
+    {
+      "path": "raw/mutations-final/receipts.json",
+      "bytes": 659,
+      "sha256": "dd85f519f2772117565ed61564f6f0e3ee6e1874115e3d9c230de2097fb7dba7"
+    },
+    {
+      "path": "raw/mutations-final/source-identity.json",
+      "bytes": 230,
+      "sha256": "e7975fb63822be511d6658a53bd4d6e49fe5092ddedc517249b91d607e88a388"
+    },
+    {
+      "path": "raw/mutations-final/test-voice-store-integration.c",
+      "bytes": 16857,
+      "sha256": "2d5e3c09464039adb2eee2c0595904e05ea144f06483020b63fd26af4b8572f0"
+    },
+    {
+      "path": "raw/mutations/drop-changed/build.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "raw/mutations/drop-changed/changed-masks-receipt.json",
+      "bytes": 117,
+      "sha256": "f8dea64cb2e7a7f7d19084a98df18b1852bdf0fbd0a7ed6250a616cfd425c280"
+    },
+    {
+      "path": "raw/mutations/drop-changed/changed-masks.log",
+      "bytes": 586,
+      "sha256": "9f4f8d4a30c3b87434c0f7ab1a5db1bfb8c300f81b3dff40d60d6cb5e199d01b"
+    },
+    {
+      "path": "raw/mutations/drop-changed/voice-store.c",
+      "bytes": 2297,
+      "sha256": "18d183bf303f971054417fd908b5791ea0b7af2761176ce4cf681e0a61226b85"
+    },
+    {
+      "path": "raw/mutations/drop-changed/voice-store.d",
+      "bytes": 18513,
+      "sha256": "a3d7c0d0793348f5fb37bb3a9bbf203fb1585e52874b62eccfe3dd1d10dc80a9"
+    },
+    {
+      "path": "raw/mutations/masked-validation/build.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "raw/mutations/masked-validation/ordered-writers-receipt.json",
+      "bytes": 124,
+      "sha256": "119d8046ce773d28c8658e818e78206497e0d386f791e8cbc6a827a3f65d68f7"
+    },
+    {
+      "path": "raw/mutations/masked-validation/ordered-writers.log",
+      "bytes": 540,
+      "sha256": "3ab7ce6d20d4542a7f8c68bcac0a859b8cd3ef9632e49f6190df5e3fb9aa64bb"
+    },
+    {
+      "path": "raw/mutations/masked-validation/voice-store.c",
+      "bytes": 2320,
+      "sha256": "c41e7cfec25a7a53285b8a7c8aa8ebf332baebd5169bb9fd958fb481219e10aa"
+    },
+    {
+      "path": "raw/mutations/masked-validation/voice-store.d",
+      "bytes": 18518,
+      "sha256": "40ac1eeed379270992b876f1934bc7ccafbcb9bc4cf548da35ea64f2f623dfee"
+    },
+    {
+      "path": "raw/mutations/owner-check/build.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "raw/mutations/owner-check/other-ram-owner-receipt.json",
+      "bytes": 116,
+      "sha256": "058ff995b82a05fe17642f79299d2c0a38906825e9c4ac85e64aff19d068cf36"
+    },
+    {
+      "path": "raw/mutations/owner-check/other-ram-owner.log",
+      "bytes": 576,
+      "sha256": "c4b91e8079c7307707d58ef9c6aae88e4ebc96bf488fbad087443e335d0bb2d3"
+    },
+    {
+      "path": "raw/mutations/owner-check/voice-store.c",
+      "bytes": 2294,
+      "sha256": "c6d137418fec2d3b64b5a08afbc43e7e784d398215030a5bd295f71a08e58e65"
+    },
+    {
+      "path": "raw/mutations/owner-check/voice-store.d",
+      "bytes": 18512,
+      "sha256": "02cbac9a5aa6d480aeceb18ce98fdf069f011d11a891cb4904899be64b89a77b"
+    },
+    {
+      "path": "raw/mutations/prepare.log",
+      "bytes": 550,
+      "sha256": "8f4a07eadc116aa77e06842e7763462fac2017841208b5673bfbdf086a53518a"
+    },
+    {
+      "path": "raw/mutations/read-equality/build.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "raw/mutations/read-equality/mmio-remap-receipt.json",
+      "bytes": 114,
+      "sha256": "629304265979fb9c28fc155824ebfecff5aacfabe288644110bf3b5e02b7159e"
+    },
+    {
+      "path": "raw/mutations/read-equality/mmio-remap.log",
+      "bytes": 427,
+      "sha256": "d38dde2d4f97013e671c54d1c9f96e98dc4ee5f95f9f78fd03c6a06ba670ddfa"
+    },
+    {
+      "path": "raw/mutations/read-equality/ordered-writers-receipt.json",
+      "bytes": 120,
+      "sha256": "96f6196d555ec50d51d41b1260c41e25a0d91c225458939dd6631bce1ad51a44"
+    },
+    {
+      "path": "raw/mutations/read-equality/ordered-writers.log",
+      "bytes": 540,
+      "sha256": "4a266aac7840e48995566c6576dab230b4b70c68c5ff4cd10c4ed52061ec9e98"
+    },
+    {
+      "path": "raw/mutations/read-equality/voice-store.c",
+      "bytes": 2323,
+      "sha256": "31703cc9a4dbce6ce8366617648d7e58fd1b2ee12e47668e1cd310e97a08d4f5"
+    },
+    {
+      "path": "raw/mutations/read-equality/voice-store.d",
+      "bytes": 18514,
+      "sha256": "bedb4ae2e1bcbb9142adbb88f9ee94314f6e0e80db71d67f69fec927ebb9f08a"
+    },
+    {
+      "path": "raw/mutations/receipts.json",
+      "bytes": 659,
+      "sha256": "dd85f519f2772117565ed61564f6f0e3ee6e1874115e3d9c230de2097fb7dba7"
+    },
+    {
+      "path": "raw/package-evidence.py",
+      "bytes": 12393,
+      "sha256": "c4b69903bd1ae5578c60a76d22f4da0381d1bb42a2ac930cdc7a89ae2afefb52"
+    },
+    {
+      "path": "raw/pr-before.json",
+      "bytes": 10855,
+      "sha256": "e7fe652e457b04102cbfde29577f9d5d190ea6e54c301dddd0b8c96f054153f8"
+    },
+    {
+      "path": "raw/pr-source-body.md",
+      "bytes": 12634,
+      "sha256": "b81e41c1c32efae8b3578dc3bc439eb8bc733ae9ea0dbc949ecdeeb24f8868b9"
+    },
+    {
+      "path": "raw/pr-source-readback.json",
+      "bytes": 30635,
+      "sha256": "6cdc40a3a6423c1d4c3f1e3ecae88109437606153ae3f9301b59830a4c0bce7d"
+    },
+    {
+      "path": "raw/pr-source-request.json",
+      "bytes": 12736,
+      "sha256": "f604a96769e0078e4b37fc665bef5dc6e94bdd0a502abb6661ff92f689d50373"
+    },
+    {
+      "path": "raw/pr-source-response.json",
+      "bytes": 27972,
+      "sha256": "972ea76ed19d030b8847f439df9669ceebb210cf8c03c2d0728a70e2c69eecac"
+    },
+    {
+      "path": "raw/qualify-build-api.log",
+      "bytes": 945,
+      "sha256": "70a4cebf97fd1b5b8d07a0a4a628cdef454d9995bfd0fe2a1aa77f2b623fb128"
+    },
+    {
+      "path": "raw/qualify-build.log",
+      "bytes": 319,
+      "sha256": "b02418116c00ec1e103805e86af14ab5532747496e81e63cdf96f9803345bf05"
+    },
+    {
+      "path": "raw/qualify-build.py",
+      "bytes": 3148,
+      "sha256": "9abc2e2dfac4e96e2c4ae337bc26795c4424f8477267500c4d1b5f8c915eecb8"
+    },
+    {
+      "path": "raw/release-ci-api.log",
+      "bytes": 1646016,
+      "sha256": "e55aec56f4db16a081dd12cea9c0b84491eb4a755c11d68309bc8411371d672a"
+    },
+    {
+      "path": "raw/release-ci-retrieved.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "raw/release-ci.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "raw/review.json",
+      "bytes": 840,
+      "sha256": "7691d6435236afcefb63122a1482c32bd8970ef45f731f8e66ff55cc920e4eb3"
+    },
+    {
+      "path": "raw/run-deck.py",
+      "bytes": 6660,
+      "sha256": "86da3af69092a84c33f3d11c2b62c5884d17d2b0e277b23d925939471f4ec5c5"
+    },
+    {
+      "path": "raw/server-requery.json",
+      "bytes": 884,
+      "sha256": "4125e2347b4519c9606fc6bc27f553355cef885da498aa972d0642534467d171"
+    },
+    {
+      "path": "raw/server-runs.json",
+      "bytes": 1864,
+      "sha256": "63735a590bf650eacab9f2ba65f40c3459b3b50327029e918c33dc8903b64ace"
+    },
+    {
+      "path": "raw/source-ci-final.json",
+      "bytes": 27644,
+      "sha256": "1c7604f80a8c10f4d95d9e37fc8e92dcf3848f0a4c2075c2a92620e42a0f5ccf"
+    },
+    {
+      "path": "raw/source-ci-live.json",
+      "bytes": 27405,
+      "sha256": "29323492bd75ea569a507038ab73dc199e4b2efaa5ebf04d833605d18ed48749"
+    },
+    {
+      "path": "raw/source-equivalence.json",
+      "bytes": 844,
+      "sha256": "f8e3d6573069faa4f46e46267aa8dcc0af9aebfc943552b0f5df765363bc8508"
+    },
+    {
+      "path": "raw/source-head.json",
+      "bytes": 53,
+      "sha256": "5bc0e9dc05e170011a5bb7a7f7d3f411150387fdedce3228ca43c665e788e46a"
+    },
+    {
+      "path": "raw/source/.github/workflows/build-linux.yml",
+      "bytes": 6794,
+      "sha256": "8a6a98db67377bb804f473df43fc1e28ad2fdbc0a090c14467ecc861e93b88fe"
+    },
+    {
+      "path": "raw/source/hw/xbox/mcpx/apu/vp/voice-store.c",
+      "bytes": 2279,
+      "sha256": "eb753fba4b23369bd1021798f432b83da5ef9a901d2e204ed6fc9acb94996bc9"
+    },
+    {
+      "path": "raw/source/hw/xbox/mcpx/apu/vp/voice-store.h",
+      "bytes": 1859,
+      "sha256": "f098ac1fd20fdc18797fc7fd03edc7119aacb021cbcd161ceaa46c9b16b1e156"
+    },
+    {
+      "path": "raw/source/hw/xbox/mcpx/apu/vp/vp.c",
+      "bytes": 75517,
+      "sha256": "1623625f913bd511198102cdd5ca8dca0e58487edf207a268ed353564b7817b2"
+    },
+    {
+      "path": "raw/source/meson.build",
+      "bytes": 195193,
+      "sha256": "f12f14131081ddabe3bb5cd1b0fbd60b2224bddf09d27f7426e9f8cc9d03a1e0"
+    },
+    {
+      "path": "raw/source/tests/xbox/mcpx-apu/VOICE-STORE-CONTRACT.md",
+      "bytes": 4428,
+      "sha256": "355c37ca63bce4f032e06c715a871f50ec6a178b1bab6643d7be2740607aeb64"
+    },
+    {
+      "path": "raw/source/tests/xbox/mcpx-apu/test-voice-store-integration.c",
+      "bytes": 16857,
+      "sha256": "2d5e3c09464039adb2eee2c0595904e05ea144f06483020b63fd26af4b8572f0"
+    },
+    {
+      "path": "raw/superseded-ci.json",
+      "bytes": 422,
+      "sha256": "b6bbbfdbe36cefde6f9d341f5675e77408b43a1dcb46492996b0754b25b9d3c3"
+    },
+    {
+      "path": "raw/update-github.py",
+      "bytes": 6687,
+      "sha256": "46dd5be1582bc2c40244b079bf1d086159df9cfcfbec7d332cd617f58a4f5c82"
+    },
+    {
+      "path": "raw/verify-source.py",
+      "bytes": 1255,
+      "sha256": "b0998523111ae87e88802b6c9e53dcb963788dd62fca06a0165dd5fcad76b66e"
+    },
+    {
+      "path": "source/contract.patch",
+      "bytes": 24710,
+      "sha256": "118103695d8fdf0e97f7c742d5841ffa3d62d3d40cc14b7f3721b79b1152b4a2"
+    }
+  ],
+  "omissions": [
+    {
+      "path": "deck-native/package/lib/libbrotlicommon.so.1",
+      "bytes": 140592,
+      "sha256": "bfe785ce98c25bb854e2cf998561be74f78f743029b13ad7476beab5440408b5",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libbrotlidec.so.1",
+      "bytes": 55376,
+      "sha256": "86f803ed147ee2d8395f2be189057e04337188efdfa73e8842bf523c490a52c9",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libcap.so.2",
+      "bytes": 43336,
+      "sha256": "507b03ad6351343928e8b46ba0a29835f5d2862b5d9161fa15620e5e0403d137",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libcrypto.so.3",
+      "bytes": 4611672,
+      "sha256": "b771991f547901bd67531100069cc24e00bda385b6876924b5ce09519a2057ac",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libcurl-gnutls.so.4",
+      "bytes": 669480,
+      "sha256": "71c96d9e1800ffb5670e1cd0d3960d15994a3c77dc9f177678a8a83298206cff",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libdbus-1.so.3",
+      "bytes": 336328,
+      "sha256": "75ab39f40f3c0852b0cc1950e5097ae67ed416717bec51b51d7b400dc7f2705d",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libepoxy.so.0",
+      "bytes": 1390520,
+      "sha256": "c71a2b95acabb06e7c957699922946134aeebae6b3e7d84ea5673b6ba08f5907",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libffi.so.8",
+      "bytes": 51360,
+      "sha256": "3c79d61c14b340560e10cecfaf36085efab30318076bde0f081fded2a1ee5641",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libgcrypt.so.20",
+      "bytes": 1313912,
+      "sha256": "3543f9144edc85fac43fafc012f50dfa0b623981fda2e87416d6a4c30472e5b8",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libglib-2.0.so.0",
+      "bytes": 1335888,
+      "sha256": "5bff7cc1178909087dd46f1ca3bbf9cdb28f95d7a7c68235835c10d4555f1e9e",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libgnutls.so.30",
+      "bytes": 2071960,
+      "sha256": "073c16a6bccefd026a4e5aeb56ec7e096110f30b828ba26f8cef2ad73b961bce",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libgssapi_krb5.so.2",
+      "bytes": 351720,
+      "sha256": "84d71a0ad21288aeca10816647e0ee809720aaa72062051b227f4db50517c565",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libhogweed.so.6",
+      "bytes": 303152,
+      "sha256": "ff69a96e5af06a9638d38189bc41cd345b23c53b1ddf3fe91a11a6818791f0ab",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libidn2.so.0",
+      "bytes": 132848,
+      "sha256": "7534a45c32036fe0ad27733d27ce8849c2f63849ef2462118ca6d177f603897e",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libk5crypto.so.3",
+      "bytes": 188760,
+      "sha256": "20033c4eec975ee2d1c28e048d74bb2f9c3f8dc657360994eb50b138a7346a50",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libkeyutils.so.1",
+      "bytes": 26928,
+      "sha256": "40ef65dad8898edcdaa3e3b4a518749047b088e814da32ac8915cac64ee55b3c",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libkrb5.so.3",
+      "bytes": 856536,
+      "sha256": "158676f5a0a250fd13b3465245c4d61cfb0006b92d321d3bc00ce3910940dae1",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libkrb5support.so.0",
+      "bytes": 57512,
+      "sha256": "23fe85bd3bc1b5dcabbd79d10b359cdb9ca5c9fb62952d82d8a4046cef59ecad",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/liblber-2.5.so.0",
+      "bytes": 69792,
+      "sha256": "4d923a63a3c28c3f40683d8cb6ab9bc9173caf12e1f71d9c2c3f0e150550963d",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libldap-2.5.so.0",
+      "bytes": 403000,
+      "sha256": "58b50e0fa0c56d80590123789265374a2961b7d5dbf8f6e54ae516dd989b2a42",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/liblz4.so.1",
+      "bytes": 130848,
+      "sha256": "bd788ffde800b619613d9f800f56a7ad6ecdf320b43e2c37bf3f0fd712576bfb",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/liblzma.so.5",
+      "bytes": 176296,
+      "sha256": "f753a25e71d2c84a36985afa986c8a3f4372ba3ff520ae1da0ed0562fdcd4dc3",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libnettle.so.8",
+      "bytes": 299128,
+      "sha256": "84eb28e7628edd01df3c58f03765aa096faf6049ea8c352c3596d9bbb3068706",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libnghttp2.so.14",
+      "bytes": 175504,
+      "sha256": "b7565ca44181a4618b6cfe6dcf7c38d6975673d8ea90d0e7cc1c9629d7c64fde",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libp11-kit.so.0",
+      "bytes": 1291592,
+      "sha256": "f77e4489c68f501c8cdf0525c5ac6b281a9f3ea6cb71ebb5122f0d474fff9de2",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libpcap.so.0.8",
+      "bytes": 315728,
+      "sha256": "4d6ab2b00affdb7cd7d4d486a0ddb3541e7a7a67e9d5a53de3ff7502e797b3e7",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libpcre.so.3",
+      "bytes": 481040,
+      "sha256": "d93d66b7507debfff14d7cae606997a496ccbe3ad6a2dd54b9ac5c6371489101",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libpsl.so.5",
+      "bytes": 79528,
+      "sha256": "88ff48b87eae6a0b8a24fb2b8f042558f8d844b978938800850cec5460d693f9",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/librtmp.so.1",
+      "bytes": 128056,
+      "sha256": "548c4794c71c4b9e3c1ff267c6406c0888e1f7bb6f97b7cde988583a16823c97",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libsamplerate.so.0",
+      "bytes": 1500560,
+      "sha256": "a3f494838886b6669bf9cf5312b63e744a7f3734c4d82130d158f7bb6520bb41",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libsasl2.so.2",
+      "bytes": 109664,
+      "sha256": "529fafde8492ce12c03fe74e496676eea5e672bdf087c0c4c0ec7eb7c0138ff5",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libslirp.so.0",
+      "bytes": 133360,
+      "sha256": "0e343afd0a6073b6ac5405618c0ec2c04e14ec138d964233603ac34dfd1ea8df",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libssh.so.4",
+      "bytes": 465064,
+      "sha256": "7a52c294894982872a8c19a39aae5ff6e9089cc0bacaa817cac10b2d0e20f765",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libsystemd.so.0",
+      "bytes": 834768,
+      "sha256": "06afffb54d5b82ed67dbd3ff8f73f816980dd4851667ba35c76e8d3adcc7909a",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libtasn1.so.6",
+      "bytes": 96480,
+      "sha256": "140770ecfef43bc1390a8e0483a63ec02cc15419c2b4dc6d9aca0797fe84d99a",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libudev.so.1",
+      "bytes": 173424,
+      "sha256": "274c8783556224e7499427c1806599f7e3d51864b6557e48aea70a19cd012409",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libunistring.so.2",
+      "bytes": 1766104,
+      "sha256": "3185897de7a8125f7bcc2b61a5fd458854d6d14e357b2ec4d34d682bab4137ed",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/lib/libzstd.so.1",
+      "bytes": 863128,
+      "sha256": "f908cc9e1ba594a313d7a316a4dadfbde456da35be934ad1be40344a01c382df",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "deck-native/package/test-xbox-mcpx-apu-voice-store-integration",
+      "bytes": 136352680,
+      "sha256": "bb5c37ebe1a581bda62006333ef2399556b76704cab8f3a5e9ce56a6798985d7",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "mutations/drop-changed/negative-integration",
+      "bytes": 136429000,
+      "sha256": "3a5cc4c57debd5d46ac08d95f0a312b40f31f8b4c490cca6082f360383bb9207",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "mutations/drop-changed/voice-store.o",
+      "bytes": 38584,
+      "sha256": "ac830a009374aa89e012ed9616cf1e74bf79ef2f27d8da7f1e9b49093665c39b",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "mutations/masked-validation/negative-integration",
+      "bytes": 136429656,
+      "sha256": "9f4e601d593eca7baee8098b5e3dbeb52610157362257dd252ad7730ac1aa015",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "mutations/masked-validation/voice-store.o",
+      "bytes": 39984,
+      "sha256": "e6797f3803bbe52451dc8a03a2236f22d59b012ae7357ebd6cb6d87e6ce106a0",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "mutations/owner-check/negative-integration",
+      "bytes": 136429752,
+      "sha256": "fb50a7b0dc881ba8541072641f1c98bc4396a958d6fcff8bee599264107af81c",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "mutations/owner-check/voice-store.o",
+      "bytes": 40528,
+      "sha256": "080e4665b83a96b2d92770022daf057cc00292e86a43e151820375ab387ae551",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "mutations/read-equality/negative-integration",
+      "bytes": 136427520,
+      "sha256": "ed632c32653074a1f4f478e06fbe2a386247988608901d59165fb008973dc153",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "mutations/read-equality/voice-store.o",
+      "bytes": 32352,
+      "sha256": "b6f260fba1dec594257d63ee2030de2f4a87f9130e7c1099f2233274d76c6d27",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "mutations-final/drop-changed/negative-integration",
+      "bytes": 136429000,
+      "sha256": "d75d781f321ce86f8980f10751db6d8ff383f75aa5e127182ce572bc161c2e98",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "mutations-final/drop-changed/voice-store.o",
+      "bytes": 38600,
+      "sha256": "6f07861787a34617874115eb9f73de46671b29d5a49141bea886305d1a316c20",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "mutations-final/masked-validation/negative-integration",
+      "bytes": 136429656,
+      "sha256": "85ab57b04d55dafe5dd3d9d3d74578e4ba6605aa7d411dce942509dff5cc085b",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "mutations-final/masked-validation/voice-store.o",
+      "bytes": 39992,
+      "sha256": "22ded8811d64765dc677dab4393b219536b7816677cd904f929a4b2163eb0a5e",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "mutations-final/owner-check/negative-integration",
+      "bytes": 136429752,
+      "sha256": "19ec80aafc0bd63e6b67d5564bbdce835cf78364781f5de5429480b495b354b5",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "mutations-final/owner-check/voice-store.o",
+      "bytes": 40536,
+      "sha256": "c74b145df26947fc5048ddd0b6a0705c16cdd04c84a6d9f305ae20f296e3fa23",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "mutations-final/read-equality/negative-integration",
+      "bytes": 136427520,
+      "sha256": "27fee1e0ade6b0a38ffbb03564d45f98dd3962f9e26ca5d2c21f6dc16612c7f5",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "mutations-final/read-equality/voice-store.o",
+      "bytes": 32360,
+      "sha256": "7ab2b42a5eeeaf851e0e0dd5ae7130becd3f3efb85a380ed6e7c56f9b4b2876a",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/source/xemu-0.8.136-0-gabcb752ca421.tar.zst",
+      "bytes": 102912812,
+      "sha256": "750c97e028f6d6ebddfeb45eddb4dc53a10014031f8a243beac12412f6e20011",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/.DirIcon",
+      "bytes": 3327,
+      "sha256": "18840d9065be2f390b0ffb41e0130be092f03eb3127741016375622a2d7a3aca",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/AppRun",
+      "bytes": 25548144,
+      "sha256": "e2cb794eaadb89fb29aa1d7eeb4449f766d6058dca9c4f9345c5cb5d9ae2d302",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/bin/xemu",
+      "bytes": 25548144,
+      "sha256": "e2cb794eaadb89fb29aa1d7eeb4449f766d6058dca9c4f9345c5cb5d9ae2d302",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libbrotlicommon.so.1",
+      "bytes": 140592,
+      "sha256": "bfe785ce98c25bb854e2cf998561be74f78f743029b13ad7476beab5440408b5",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libbrotlidec.so.1",
+      "bytes": 55376,
+      "sha256": "86f803ed147ee2d8395f2be189057e04337188efdfa73e8842bf523c490a52c9",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libcap.so.2",
+      "bytes": 43336,
+      "sha256": "507b03ad6351343928e8b46ba0a29835f5d2862b5d9161fa15620e5e0403d137",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libcrypto.so.3",
+      "bytes": 4611672,
+      "sha256": "b771991f547901bd67531100069cc24e00bda385b6876924b5ce09519a2057ac",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libcurl-gnutls.so.4",
+      "bytes": 669480,
+      "sha256": "71c96d9e1800ffb5670e1cd0d3960d15994a3c77dc9f177678a8a83298206cff",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libdbus-1.so.3",
+      "bytes": 336328,
+      "sha256": "75ab39f40f3c0852b0cc1950e5097ae67ed416717bec51b51d7b400dc7f2705d",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libepoxy.so.0",
+      "bytes": 1390520,
+      "sha256": "c71a2b95acabb06e7c957699922946134aeebae6b3e7d84ea5673b6ba08f5907",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libffi.so.8",
+      "bytes": 51360,
+      "sha256": "3c79d61c14b340560e10cecfaf36085efab30318076bde0f081fded2a1ee5641",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libgcrypt.so.20",
+      "bytes": 1313912,
+      "sha256": "3543f9144edc85fac43fafc012f50dfa0b623981fda2e87416d6a4c30472e5b8",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libglib-2.0.so.0",
+      "bytes": 1335888,
+      "sha256": "5bff7cc1178909087dd46f1ca3bbf9cdb28f95d7a7c68235835c10d4555f1e9e",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libgnutls.so.30",
+      "bytes": 2071960,
+      "sha256": "073c16a6bccefd026a4e5aeb56ec7e096110f30b828ba26f8cef2ad73b961bce",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libgssapi_krb5.so.2",
+      "bytes": 351720,
+      "sha256": "84d71a0ad21288aeca10816647e0ee809720aaa72062051b227f4db50517c565",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libhogweed.so.6",
+      "bytes": 303152,
+      "sha256": "ff69a96e5af06a9638d38189bc41cd345b23c53b1ddf3fe91a11a6818791f0ab",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libidn2.so.0",
+      "bytes": 132848,
+      "sha256": "7534a45c32036fe0ad27733d27ce8849c2f63849ef2462118ca6d177f603897e",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libk5crypto.so.3",
+      "bytes": 188760,
+      "sha256": "20033c4eec975ee2d1c28e048d74bb2f9c3f8dc657360994eb50b138a7346a50",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libkeyutils.so.1",
+      "bytes": 26928,
+      "sha256": "40ef65dad8898edcdaa3e3b4a518749047b088e814da32ac8915cac64ee55b3c",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libkrb5.so.3",
+      "bytes": 856536,
+      "sha256": "158676f5a0a250fd13b3465245c4d61cfb0006b92d321d3bc00ce3910940dae1",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libkrb5support.so.0",
+      "bytes": 57512,
+      "sha256": "23fe85bd3bc1b5dcabbd79d10b359cdb9ca5c9fb62952d82d8a4046cef59ecad",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/liblber-2.5.so.0",
+      "bytes": 69792,
+      "sha256": "4d923a63a3c28c3f40683d8cb6ab9bc9173caf12e1f71d9c2c3f0e150550963d",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libldap-2.5.so.0",
+      "bytes": 403000,
+      "sha256": "58b50e0fa0c56d80590123789265374a2961b7d5dbf8f6e54ae516dd989b2a42",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/liblz4.so.1",
+      "bytes": 130848,
+      "sha256": "bd788ffde800b619613d9f800f56a7ad6ecdf320b43e2c37bf3f0fd712576bfb",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/liblzma.so.5",
+      "bytes": 176296,
+      "sha256": "f753a25e71d2c84a36985afa986c8a3f4372ba3ff520ae1da0ed0562fdcd4dc3",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libnettle.so.8",
+      "bytes": 299128,
+      "sha256": "84eb28e7628edd01df3c58f03765aa096faf6049ea8c352c3596d9bbb3068706",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libnghttp2.so.14",
+      "bytes": 175504,
+      "sha256": "b7565ca44181a4618b6cfe6dcf7c38d6975673d8ea90d0e7cc1c9629d7c64fde",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libp11-kit.so.0",
+      "bytes": 1291592,
+      "sha256": "f77e4489c68f501c8cdf0525c5ac6b281a9f3ea6cb71ebb5122f0d474fff9de2",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libpcap.so.0.8",
+      "bytes": 315728,
+      "sha256": "4d6ab2b00affdb7cd7d4d486a0ddb3541e7a7a67e9d5a53de3ff7502e797b3e7",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libpcre.so.3",
+      "bytes": 481040,
+      "sha256": "d93d66b7507debfff14d7cae606997a496ccbe3ad6a2dd54b9ac5c6371489101",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libpsl.so.5",
+      "bytes": 79528,
+      "sha256": "88ff48b87eae6a0b8a24fb2b8f042558f8d844b978938800850cec5460d693f9",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/librtmp.so.1",
+      "bytes": 128056,
+      "sha256": "548c4794c71c4b9e3c1ff267c6406c0888e1f7bb6f97b7cde988583a16823c97",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libsamplerate.so.0",
+      "bytes": 1500560,
+      "sha256": "a3f494838886b6669bf9cf5312b63e744a7f3734c4d82130d158f7bb6520bb41",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libsasl2.so.2",
+      "bytes": 109664,
+      "sha256": "529fafde8492ce12c03fe74e496676eea5e672bdf087c0c4c0ec7eb7c0138ff5",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libslirp.so.0",
+      "bytes": 133360,
+      "sha256": "0e343afd0a6073b6ac5405618c0ec2c04e14ec138d964233603ac34dfd1ea8df",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libssh.so.4",
+      "bytes": 465064,
+      "sha256": "7a52c294894982872a8c19a39aae5ff6e9089cc0bacaa817cac10b2d0e20f765",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libsystemd.so.0",
+      "bytes": 834768,
+      "sha256": "06afffb54d5b82ed67dbd3ff8f73f816980dd4851667ba35c76e8d3adcc7909a",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libtasn1.so.6",
+      "bytes": 96480,
+      "sha256": "140770ecfef43bc1390a8e0483a63ec02cc15419c2b4dc6d9aca0797fe84d99a",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libudev.so.1",
+      "bytes": 173424,
+      "sha256": "274c8783556224e7499427c1806599f7e3d51864b6557e48aea70a19cd012409",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libunistring.so.2",
+      "bytes": 1766104,
+      "sha256": "3185897de7a8125f7bcc2b61a5fd458854d6d14e357b2ec4d34d682bab4137ed",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/lib/libzstd.so.1",
+      "bytes": 863128,
+      "sha256": "f908cc9e1ba594a313d7a316a4dadfbde456da35be934ad1be40344a01c382df",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/applications/xemu.desktop",
+      "bytes": 214,
+      "sha256": "5fe61f79541ae15fd1ee67d4683d38dcfd7aabec6ee3049feaac76f1d6a74cb3",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libbrotli1/copyright",
+      "bytes": 1354,
+      "sha256": "24a64e5bb83d0960d1835696a1e23c0896ad6055b0ca47c66ab0eb9a766324b1",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libcurl3-gnutls/copyright",
+      "bytes": 11400,
+      "sha256": "d8fef27baefaf797112424a88959cfc1122b884cdfe215e84e4c07df49a35189",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libepoxy0/copyright",
+      "bytes": 1352,
+      "sha256": "a8be83fe8a66a6ecc1a9fbcec9cf1b43aacca69d38220a94fb37632f090b611e",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libffi8/copyright",
+      "bytes": 3440,
+      "sha256": "7258c8acc378030d8dbe1fcdf394e915769fa31dcbaf3d2991d9a79891f3bcdc",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libgcrypt20/copyright",
+      "bytes": 24424,
+      "sha256": "8bf0ea526b7b497bf7b31842e799c37caa69090cc53fd080c76403cc8b79f659",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libglib2.0-0/copyright",
+      "bytes": 4119,
+      "sha256": "607a2dbcf41b82733bc93345da5470995a7f80515774fbabc4689158fae956c2",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libgnutls30/copyright",
+      "bytes": 49592,
+      "sha256": "c2a08ee31ea9f0a4fc0f4d590c5481f5b7fc2d325b04ae74c719fa7894dcbdd7",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libgssapi-krb5-2/copyright",
+      "bytes": 61825,
+      "sha256": "4a2d321ab57260e8de4b67bde8cff76c07d28be69c2d8b22dfc2bfa42f5c41b9",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libhogweed6/copyright",
+      "bytes": 20902,
+      "sha256": "d8b51ce04d337e49df2f6258a5c8558f3080ff2cf629deb9f07c0361d1757e7b",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libidn2-0/copyright",
+      "bytes": 5348,
+      "sha256": "41702469f28e8ff406345e3d1dd0c741f11bdfca319264f67036efd6aaa79e4b",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libk5crypto3/copyright",
+      "bytes": 61825,
+      "sha256": "4a2d321ab57260e8de4b67bde8cff76c07d28be69c2d8b22dfc2bfa42f5c41b9",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libkrb5-3/copyright",
+      "bytes": 61825,
+      "sha256": "4a2d321ab57260e8de4b67bde8cff76c07d28be69c2d8b22dfc2bfa42f5c41b9",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libkrb5support0/copyright",
+      "bytes": 61825,
+      "sha256": "4a2d321ab57260e8de4b67bde8cff76c07d28be69c2d8b22dfc2bfa42f5c41b9",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libldap-2.5-0/copyright",
+      "bytes": 20216,
+      "sha256": "0690f1ee382f98e95b446743db55395641d5e258de65939e9cb1c660d67a43a8",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/liblz4-1/copyright",
+      "bytes": 3574,
+      "sha256": "a82c5d50439c6d9f32b874dbc75ae5292ba5a3e50318bed80e82a8f5254689ca",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libnettle8/copyright",
+      "bytes": 20902,
+      "sha256": "d8b51ce04d337e49df2f6258a5c8558f3080ff2cf629deb9f07c0361d1757e7b",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libnghttp2-14/copyright",
+      "bytes": 11911,
+      "sha256": "2310a85e31051d9d60e22be1b35e20ee447ad1de8b80a88bb46711154374318e",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libp11-kit0/copyright",
+      "bytes": 8646,
+      "sha256": "b19d4f3a62c6257c770607ba0e872ac21ba22806710ede0384c622882f84d61b",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libpcap0.8/copyright",
+      "bytes": 4480,
+      "sha256": "6b0e609cf98f7abd39d3b81100fdb2bed24dcaee6656b500fcecb392db70dc60",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libpsl5/copyright",
+      "bytes": 2943,
+      "sha256": "a530da63c89b707cb51a9c84667aecd0f2a138b0503734cbc8e73ea7cc6fbae0",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/librtmp1/copyright",
+      "bytes": 2726,
+      "sha256": "4302abcc1ea1b6cbe8d19c79b892acf78878030220210707c19006828866207c",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libsamplerate0/copyright",
+      "bytes": 4259,
+      "sha256": "870b641e1bbc7459889f632a691d410e8be634cdd1d33e187b27bcbb2290ea73",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libsasl2-2/copyright",
+      "bytes": 29707,
+      "sha256": "071d60cc8a42129b80fd2b8b6a8873971a0a06738eabdf5c87bc1df2424e7fd1",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libslirp0/copyright",
+      "bytes": 4660,
+      "sha256": "72bbbaf2539f2ad3a568da80758a6417b119bee5b19b988f8d99e2b3b80ae4a3",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libssh-4/copyright",
+      "bytes": 12383,
+      "sha256": "7e8414e138a9170e3a463e80020a8a7e168a6e736bac37a4f38fdb1ce4180d65",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libssl3/copyright",
+      "bytes": 2543,
+      "sha256": "6a7da622fe0637a334d2a8fc470852d2ffb77d9a2b2f930f854e32a41ad6ef35",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libsystemd0/copyright",
+      "bytes": 10893,
+      "sha256": "8541750aba2193c885f0c77df20870ef454c2ae8f905077105922bf3130108ad",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libtasn1-6/copyright",
+      "bytes": 3451,
+      "sha256": "88a94e40a34bb28145805747cad4018e7eb976b5fd0bf2329dedf90088ebc6e4",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libudev1/copyright",
+      "bytes": 10893,
+      "sha256": "8541750aba2193c885f0c77df20870ef454c2ae8f905077105922bf3130108ad",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libunistring2/copyright",
+      "bytes": 6068,
+      "sha256": "0035f89e5317f3cec389383e8727788521b0fde3e75cea881fa0e92e1d48cb57",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/libzstd1/copyright",
+      "bytes": 5268,
+      "sha256": "8cf66791fbe72801cb1d701c832b7e395dad0000bb9699dc42df94b49d699e91",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/xemu/changelog.Debian.gz",
+      "bytes": 153,
+      "sha256": "2dde0f14f03063b81e54f7c32079a746e211b9951e30ad8b753839819cdc0b72",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/xemu/copyright",
+      "bytes": 195999,
+      "sha256": "e6452ef3c091029993f48161273e3eb79ef924f82106e1b38e16b6b886819789",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/doc/xemu/qemu.deb.copyright.gz",
+      "bytes": 10444,
+      "sha256": "b2660c7c9b5c683ce9bddfdb3cdace9234136792e19f83a1738c1d93d99ea7f9",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/icons/hicolor/16x16/apps/xemu.png",
+      "bytes": 769,
+      "sha256": "28c4a06e9952b1ff70f70fc39fbde57e826316b1644dd1e6043eccfbbc0ad139",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/icons/hicolor/24x24/apps/xemu.png",
+      "bytes": 1269,
+      "sha256": "6d9d5cb1c04834d6654908865350e87f404968f0df2196db7695186f7bdaaae8",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/icons/hicolor/256x256/apps/xemu.png",
+      "bytes": 22033,
+      "sha256": "8b911c086f64a81db8cbd0d2a94636ad35a9df10cb9d5a1e6c6f6aea532e2c1b",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/icons/hicolor/32x32/apps/xemu.png",
+      "bytes": 1828,
+      "sha256": "70320427c974cd6c407be259e44a9f6ef0ea225912cf7d42100927548ce9933f",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/icons/hicolor/48x48/apps/xemu.png",
+      "bytes": 3176,
+      "sha256": "374a9ae22483bdf8b2f93983b0c405e9571921817e9030c4d932675f906e08a1",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/icons/hicolor/512x512/apps/xemu.png",
+      "bytes": 44772,
+      "sha256": "a6995ffec85bbb9f4a1d5fc922dd6192864e367340438b04d5793134e6b33c9f",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/icons/hicolor/scalable/apps/xemu.svg",
+      "bytes": 3327,
+      "sha256": "18840d9065be2f390b0ffb41e0130be092f03eb3127741016375622a2d7a3aca",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/usr/share/metainfo/xemu.metainfo.xml",
+      "bytes": 2169,
+      "sha256": "8a1eace1ec98b0a15f8ca569622ca7150990bd826474cd33603f157fff31520a",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/xemu.desktop",
+      "bytes": 257,
+      "sha256": "506419416306784d1e1994db04f9021ed7ec54fde2ed29c43129179130e21657",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/squashfs-root/xemu.svg",
+      "bytes": 3327,
+      "sha256": "18840d9065be2f390b0ffb41e0130be092f03eb3127741016375622a2d7a3aca",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/test-xbox-mcpx-apu-voice-frame",
+      "bytes": 136303904,
+      "sha256": "8550a872025e085bddb0d2b47cfe2ed466e4ca0fe5fa6e4f49c98b5de5278f5f",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/test-xbox-mcpx-apu-voice-frame-stores",
+      "bytes": 136293056,
+      "sha256": "b958f42ca8316bcf30eeda948111af1ab53f7c07a5206e3344febbc80994148d",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/test-xbox-mcpx-apu-voice-store-integration",
+      "bytes": 136352680,
+      "sha256": "bb5c37ebe1a581bda62006333ef2399556b76704cab8f3a5e9ce56a6798985d7",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/xemu-0.8.136-0-gabcb752ca421-x86_64.AppImage",
+      "bytes": 18541048,
+      "sha256": "9fbc1ddce13738cab3819545643895fd2d0f7e42ca8e442f71cc66fec81a9d12",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    },
+    {
+      "path": "native-build/xemu-ubuntu-x86_64-release.tgz",
+      "bytes": 41675831,
+      "sha256": "b20616ca7701cfee638c4d2beaab2f829dea90bfe74e0f77941d9851f42be380",
+      "reason": "Large binary/archive retained locally; exact source, CI build identities and hashes retained in packet."
+    }
+  ]
+}

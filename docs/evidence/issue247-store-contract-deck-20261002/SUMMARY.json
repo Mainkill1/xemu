@@ -1,0 +1,34 @@
+{
+  "passed": 9,
+  "jobId": "issue247-store-contract-correctness-20261002",
+  "runId": "20261002-183109816-d52ff144677741a39c3bf7e8ef1718b2",
+  "exeSha256": "bb5c37ebe1a581bda62006333ef2399556b76704cab8f3a5e9ce56a6798985d7",
+  "sourceHead": "abcb752ca4211922511eb76de32b6b9d2e803daa",
+  "ciRun": 37046677970,
+  "negativeRejected": 5,
+  "ownerFinalizations": 73,
+  "orderedWrites": 20000,
+  "ownerRetirements": 64,
+  "nativeAttempts": 1,
+  "collection": {
+    "ok": true,
+    "jobId": "issue247-store-contract-correctness-20261002",
+    "runId": "20261002-183109816-d52ff144677741a39c3bf7e8ef1718b2",
+    "fileCount": 21,
+    "bytes": 53575,
+    "directory": "/home/codex/src/steamdeck-xemu/artifacts/issue247-store-contract-deck-20261002/deck-native/collected/20261002-183109816-d52ff144677741a39c3bf7e8ef1718b2",
+    "complete": true,
+    "scope": "allEligibleArtifacts",
+    "excluded": 0
+  },
+  "outcome": {
+    "execution": "completed",
+    "correctness": "passed",
+    "evidence": "complete",
+    "comparison": "eligible"
+  },
+  "performanceIndexIssues": [
+    "metrics_missing"
+  ],
+  "scope": "Correctness only. No new timing metric. Event-ordered C accesses do not qualify unsynchronized guest stores."
+}
