@@ -1,0 +1,103 @@
+{
+  "archive": "EVIDENCE.tar.gz",
+  "bytes": 387970,
+  "sha256": "f2c24c8aeb49a75621f87c916c7c423ea0331d3f4a656c40ba512ff4ced9fc8c",
+  "payloads": [
+    {
+      "path": "SUMMARY.json",
+      "bytes": 1860,
+      "sha256": "3804a4f5f952ec4b4cf57bb6039ec1e3a0e6c0bac0bc6b666de0dc539cdc6308"
+    },
+    {
+      "path": "candidate-ci/compiler-log.txt",
+      "bytes": 1643116,
+      "sha256": "a649f1afe6e101049bf2bc1b381d9a8b9a84dc5d5643512b254358d872a4633b"
+    },
+    {
+      "path": "candidate/source-equivalence.json",
+      "bytes": 758,
+      "sha256": "60bdc232ab315e0929a09fa2514c66fde0f6b7aa2478c3fca66c496d57159da0"
+    },
+    {
+      "path": "ci/issue197-reference-ci-aarch64-debug-failure.log",
+      "bytes": 120637,
+      "sha256": "8edbf6dbfd0fc5446ac30e47b6b68e22ee98d6cacea2b142abc71f5d93b9ae7b"
+    },
+    {
+      "path": "ci/issue197-reference-ci-attempt1-final.json",
+      "bytes": 57829,
+      "sha256": "4c88d97ba8cbba56b8fc73bb99b6d886de2bd4d6639055c6ce7da5bfbd8d1907"
+    },
+    {
+      "path": "ci/issue197-reference-ci-attempt2-final.json",
+      "bytes": 55118,
+      "sha256": "fb40efc75dac9409f327c73b42809ae99c1a1583b2191ef498109a17325f1621"
+    },
+    {
+      "path": "ci/issue197-reference-ci-attempt3-final.json",
+      "bytes": 57865,
+      "sha256": "09e3865f4095d2d44b798f9b0b1ec6b28a510133e5552d974587bb88f0cd295a"
+    },
+    {
+      "path": "ci/issue197-reference-ci-x86-attempt2.log",
+      "bytes": 215,
+      "sha256": "0806daee1d232585097820c03ade69fbce3b17604ec713241de3afe481c00ed7"
+    },
+    {
+      "path": "ci/issue197-reference-ci-x86-release-attempt3.log",
+      "bytes": 1638450,
+      "sha256": "8b04ad88f0bda09567209a4583b2e3f8378f8906657999c5c4fa051d03594eff"
+    },
+    {
+      "path": "matched-game-controls/01-A/submitted.json",
+      "bytes": 591,
+      "sha256": "1e73a779c50b51b7655b9ad25db4585860f959676f34930eff02d3b105cc3302"
+    },
+    {
+      "path": "matched-game-controls/deck-before.json",
+      "bytes": 2536,
+      "sha256": "604a7ba38730a93a351c72970a862126b9a3be1ed2a89378ec4ce206818e45d5"
+    },
+    {
+      "path": "matched-game-controls/first-control-observation.json",
+      "bytes": 641,
+      "sha256": "a0c757750a92412bed64b86220ac0cc0a575f86e313b8472d8031d9a140e8d1b"
+    },
+    {
+      "path": "matched-game-controls/frozen-plan.json",
+      "bytes": 32768,
+      "sha256": "d67cd0dfb9e9eb61a1c7f20bc955f3e458925c52e99680dda095b6c0782a7fbc"
+    },
+    {
+      "path": "matched-runtime-builds/identity.json",
+      "bytes": 31354,
+      "sha256": "3f7e12b5268518cd9ec7a62cf5c95fc8e757644514be1bdf2fc0412e1c0ccf66"
+    },
+    {
+      "path": "qualify-matched-game-builds.py",
+      "bytes": 5022,
+      "sha256": "5f33f4870fbea499b7bfdc82916a51abb8b137077fe27f129b79b1ed6ffc554a"
+    },
+    {
+      "path": "reference-rebuild-state.json",
+      "bytes": 1496,
+      "sha256": "0b9f875b81c57fca91697a6146905b730c2dbcfcb89145b153c6a7281014e512"
+    },
+    {
+      "path": "reference/source-equivalence.json",
+      "bytes": 662,
+      "sha256": "ce3972d51c45f1e4442ee4269b80d72bc07b8fa066f878e893511ba3f6636ae3"
+    },
+    {
+      "path": "run-matched-game-cohort.py",
+      "bytes": 7562,
+      "sha256": "ff1b8c1b88f8231321e027cd2bf892c7af1fc9d865b86b3cd8e69a4ae2cb5ca1"
+    },
+    {
+      "path": "warmed-game-controls/saved-test.json",
+      "bytes": 645,
+      "sha256": "01078c771f65d6202b2496f79f92ead4eef78aae3f28f1eeac568a2ec3cfac92"
+    }
+  ],
+  "largeArtifacts": "Corresponding AppImages/executables/libraries and source archives retained locally and in linked CI, with all identities in archived ledger; not duplicated here."
+}

@@ -1,0 +1,34 @@
+{
+  "recommendation": "HOLD",
+  "referenceCommit": "ee5ce48b48784f999af374c1452003f8b2b1230f",
+  "candidateCommit": "c4cdef6cad3dd22d516e16ec2cb1aa9c06ec11f6",
+  "runtimeLibrariesIdentical": 38,
+  "buildSlots": 39,
+  "compilerSettingsIdentical": {
+    "XEMU_BUILD_OPTIONS": "--extra-ldflags=-Wl,--thinlto-cache-policy=cache_size_bytes=512m -Db_lto=true -Db_lto_mode=thin -Db_thinlto_cache=true -Db_thinlto_cache_dir=/tmp/xemu-lto-cache -Dx86_version=3",
+    "C compiler for the host machine": "ccache clang-21 -m64 (clang 21.1.8 \"Ubuntu clang version 21.1.8 (++20251221032842+2078da43e25a-1~exp1~20251221153008.77)\")",
+    "C linker for the host machine": "clang-21 -m64 ld.lld 21.1.8",
+    "C++ compiler for the host machine": "ccache clang++-21 -m64 (clang 21.1.8 \"Ubuntu clang version 21.1.8 (++20251221032842+2078da43e25a-1~exp1~20251221153008.77)\")"
+  },
+  "referenceExecutable": {
+    "bytes": 25548144,
+    "sha256": "5b6ccf357cfab428e92692b82dc3a5cc75cb50e4065608defbf1cc66b68a597c"
+  },
+  "candidateExecutable": {
+    "bytes": 25552240,
+    "sha256": "95f81f33d932cb297d6f637eb0635ac2faa2b895d330bae6871e3012d6353667"
+  },
+  "referenceCiRun": 37004023200,
+  "referenceSuccessfulAttempt": 3,
+  "referenceCiJobsPassed": 20,
+  "candidateCiRun": 36999719003,
+  "nativeHost": "Steam Deck 10.0.0.123",
+  "gamePerformance": "Not yet measured: matched-original controls started; ABBA/BAAB not started.",
+  "retainedTest": "issue197-deck-pgr2-parked-warm60-300-v3",
+  "revision": "3e72921bec480a32d141fe3b8c3894b6a64a864de037cee803d8fde52d7ef919",
+  "retainedTools": [
+    "qualify-matched-game-builds.py",
+    "run-matched-game-cohort.py"
+  ],
+  "qualificationLimits": "Corresponding bundled libraries and recorded compiler/release settings match; host OS/driver, power/affinity and embedded executable code layout remain explicit measurement factors."
+}
