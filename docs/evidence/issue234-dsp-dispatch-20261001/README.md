@@ -1,6 +1,6 @@
 # Issue #234: retained C DSP dispatch experiment
 
-**HOLD / draft. Synthetic replay gains are real for these batches, but several lanes regress and native candidate qualification is pending. No game or JIT speedup is established.**
+**HOLD / draft. Synthetic replay gains are real for these batches, but several lanes regress and the completed native campaign is comparison-ineligible. No game or JIT speedup is established.**
 
 Baseline **A** is fork main `ee5ce48b48784f999af374c1452003f8b2b1230f`. Candidate **B** changes only the C interpreter's dispatch/cache representation and reset invalidation. It does not include #229's multiply patch. The C interpreter remains selectable; JIT is the default. Upstream #3047 was still open and unmerged at the start of this investigation.
 
@@ -72,7 +72,7 @@ Ten production-boundary tests pass with GCC, Clang and UBSan: warmed normal/para
 
 The unchanged parent fails the parallel-cache and reset-cache checks as expected. Independent semantic expectations pass the parent. Two deliberate negative controls fail their architectural-state assertions: omitted P-write invalidation and forced NOP dispatch. [Negative controls](negative-controls.json) and associated logs are retained.
 
-The new target passes through the normal Meson test path: **10 subtests, 0 failures**. Expected production undefined-instruction text is retained; the TAP reader labels those five extra diagnostic lines `UNKNOWN` and ignores them. Standalone modified translation units compile with `-Wall -Werror`. A full local `qemu-system-i386` build succeeds. Existing third-party VMA/fpng/stb warnings remain in its log. The full local unit-suite command cannot finish building because unchanged `test-xbox-mcpx-apu-resampler.c:74` lacks declarations for `sinf`/`cosf` under GCC 14. The failure is retained; the whole suite is **not** claimed green. All **40 CI checks passed** at product head `58df82fe70dfc5ad07cecac974ce84db81559dac` ([snapshot](ci-head58.json)). Native candidate qualification is underway, not complete. This later evidence-only head has no claim of having completed its own CI checks.
+The new target passes through the normal Meson test path: **10 subtests, 0 failures**. Expected production undefined-instruction text is retained; the TAP reader labels those five extra diagnostic lines `UNKNOWN` and ignores them. Standalone modified translation units compile with `-Wall -Werror`. A full local `qemu-system-i386` build succeeds. Existing third-party VMA/fpng/stb warnings remain in its log. The full local unit-suite command cannot finish building because unchanged `test-xbox-mcpx-apu-resampler.c:74` lacks declarations for `sinf`/`cosf` under GCC 14. The failure is retained; the whole suite is **not** claimed green. All **40 CI checks passed** at product head `58df82fe70dfc5ad07cecac974ce84db81559dac` ([snapshot](ci-head58.json)). All 12 native attempts are collected; both balanced orders are ineligible. This later evidence-only head has no claim of having completed its own CI checks.
 
 A review found that the benchmark driver could overwrite a prior output campaign. It now refuses an existing output directory before writing any file. [Preservation check](output-preservation-check.json) verifies a pre-existing manifest remains unchanged. No previous campaign was overwritten in this investigation.
 
@@ -89,17 +89,17 @@ The new output directory must not already exist. Modes are `normal`, `parallel`,
 
 ## Decision
 
-Keep this draft on hold. The typed cache is small and correctness checks support continuing, but compiler/workload regressions prevent a general performance recommendation. The diagnostic controls and their frame-evidence limitation are retained. Matching release executables are now prepared, and the frozen native sequence is underway: C-native AAAA controls plus ABBA/BAAB. The separate parent JIT profile confirms backend scope; native candidate JIT qualification remains outstanding before deciding whether the native benefit warrants further investment. Do not turn the roughly 3.36% sampled selection region or 7–30% synthetic gains into a game-speedup claim.
+Keep this draft on hold. The typed cache is small and correctness checks support continuing, but compiler/workload regressions prevent a general performance recommendation. The diagnostic controls and their frame-evidence limitation are retained. Matching release executables completed the frozen native sequence: four C-native AAAA controls, then ABBA and BAAB. All 12 attempts pass private Mesa disk-cache qualification; two QMP shutdown timeouts and two frame-coverage failures leave both orders ineligible. Full raw evidence is collected and [published with every failure](native-balanced-v1/README.md). No native improvement estimate is available. The separate parent JIT profile confirms backend scope; native candidate JIT qualification remains outstanding before deciding whether the native benefit warrants further investment. Do not turn the roughly 3.36% sampled selection region or 7–30% synthetic gains into a game-speedup claim.
 
 > Agent declaration: implementation, tests and evidence prepared with Codex (GPT-6).
 
-## Native qualification in progress
+## Native qualification: completed, comparison ineligible
 
 [The frozen 12-attempt plan](native-balanced-v1/plan.json) uses four parent controls (AAAA), then ABBA and BAAB, through the maintained runner HTTP workflow. Only the executable build slot varies. Both variants use the exact parent runtime libraries: the new candidate AppImage's bundled GLib differs, and is deliberately not used in this causal comparison. Parent/candidate DWARF producer identities match: Ubuntu Clang 21.1.8 and Rust 1.96.0. [Build/source/library identities](native-build-identities/identity.json), [producer check](native-build-identities/toolchain-producers.json), [bundle-library difference and selected control](native-build-identities/artifact-libraries.json).
 
 Candidate executable SHA-256 is `4e7bf9783374901cb1b81b24d3932f0018900a638a8989ff1ccea0d1f36c5c26`. CI ran its standard temporary PR test commit `ecb2a59e3a89f34f079787dd7b02c06b30578e2b`; GitHub tree identity was checked equal to product commit `58df82fe70dfc5ad07cecac974ce84db81559dac`. The PR remains draft and has not been merged.
 
-The procedure retains #278's 60 s scene warmup / 300 s stationary observation and unchanged 160-frame / 540-CPU sample floors, with no diagnostic capture in timed windows. Each attempt is a separate cold/private launch. No failures are retried or excluded. Inputs are prepared before launching the first control, and each next attempt waits for its owned predecessor's terminal result. Power/frequency and audio-output limitations remain. Results will be reported by exact executable hashes and physical order; no native improvement is claimed while this sequence is running.
+The procedure retains #278's 60 s scene warmup / 300 s stationary observation and unchanged 160-frame / 540-CPU sample floors, with no diagnostic capture in timed windows. Each attempt is a separate cold/private launch. No failures are retried or excluded. Inputs are prepared before launching the first control, and each next attempt waits for its owned predecessor's terminal result. Power/frequency and audio-output limitations remain. Results are reported by exact executable hashes and physical order in the [complete campaign report](native-balanced-v1/README.md). Nine attempts are canonically eligible and three ineligible; both balanced orders are ineligible. All 24 captures were reviewed, with countdown/camera phase differences disclosed. No native improvement is claimed.
 
 ## Assembly follow-up
 
@@ -107,8 +107,8 @@ The procedure retains #278's 60 s scene warmup / 300 s stationary observation an
 
 ## Windows reachability
 
-[Current connectivity evidence](windows-connectivity/README.md) records restored LAN HTTP access after a runner/workspace change. The idle Windows instance lacks current performance/XISO APIs; no #234 Windows workload was executed and the service was preserved. This does not block the running Deck campaign.
+[Current connectivity evidence](windows-connectivity/README.md) records restored LAN HTTP access after a runner/workspace change. The idle Windows instance lacks current performance/XISO APIs; no #234 Windows workload was executed and the service was preserved. No Windows qualification is claimed. Current testing stays on the Deck at 10.0.0.123.
 
 ## Native audit recipe
 
-[Retained audit and measurement definitions](native-balanced-v1/AUDIT.md) separate AAAA variation controls from ABBA/BAAB, preserve incomplete attempts, and check source bytes before local descriptive comparisons. Native frame logs represent flip-control events, not independently verified rendered FPS. No native candidate comparison is complete yet.
+[Retained audit and measurement definitions](native-balanced-v1/AUDIT.md) separate AAAA variation controls from ABBA/BAAB, preserve incomplete attempts, and check source bytes before local descriptive comparisons. Native frame logs represent flip-control events, not independently verified rendered FPS. All native artifacts are collected and checked; neither balanced order qualifies. See the [complete report and raw packet](native-balanced-v1/README.md).

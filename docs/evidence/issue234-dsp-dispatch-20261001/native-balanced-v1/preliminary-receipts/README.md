@@ -1,5 +1,9 @@
 # Preliminary runner receipts — campaign incomplete
 
+**Historical checkpoint, superseded by the [complete campaign report](../README.md).**
+All twelve attempts are now collected and audited. The final report classifies
+the shutdown failures and retains these preliminary receipts unchanged.
+
 Steam Deck `10.0.0.123`; the unchanged frozen plan contains four AAAA
 controls followed by ABBA and BAAB. These are the saved reports from the
 first seven terminal attempts. They are retained here because the second
