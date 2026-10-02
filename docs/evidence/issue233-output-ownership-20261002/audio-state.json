@@ -1,0 +1,31 @@
+{
+  "pid": 48815,
+  "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+  "defaultBackendPresent": true,
+  "limitation": "Paused instantaneous ownership/activity snapshot; no PCM audibility, timing, playback coverage or performance claim",
+  "driverName": "none",
+  "driverEnum": "AUDIODEV_DRIVER_NONE",
+  "deviceId": "#default",
+  "timerPeriodTicks": 10000000,
+  "timerRunning": true,
+  "vmRunning": false,
+  "hardwareOutputVoices": [
+    {
+      "enabled": true,
+      "frequency": 44100,
+      "channels": 2,
+      "hardwareTimestampHelper": 1295985,
+      "softwareVoices": [
+        {
+          "name": "ac97.po",
+          "active": true,
+          "empty": true,
+          "frequency": 48000,
+          "channels": 2,
+          "totalHardwareSamplesMixed": 0,
+          "mute": false
+        }
+      ]
+    }
+  ]
+}

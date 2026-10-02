@@ -1,0 +1,9 @@
+{
+  "archiveSha256": "d8b08f4d04b758d32b17a0744ad734bb12841536922342a0530e082026caeb23",
+  "archiveBytes": 1026094,
+  "verifiedPayloadFiles": 109,
+  "omittedFiles": 553,
+  "attempts": 2,
+  "completedNativeSnapshots": 1,
+  "failedNativeSnapshots": 1
+}

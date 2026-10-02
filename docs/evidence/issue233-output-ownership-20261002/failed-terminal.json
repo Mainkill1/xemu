@@ -1,0 +1,36 @@
+{
+  "jobId": "issue233-deck-parent-audio-owner-v1",
+  "state": "tested",
+  "ok": true,
+  "runId": "20261002-023804001-0fe7111eb706457897ff17a0e9f891c9",
+  "available": true,
+  "code": null,
+  "outcome": {
+    "execution": "failed",
+    "correctness": "notEvaluated",
+    "evidence": "incomplete",
+    "comparison": "ineligible"
+  },
+  "reasons": [
+    "Execution outcome is Failed.",
+    "Correctness outcome is NotEvaluated; a passing correctness contract is required.",
+    "Evidence outcome is Incomplete; complete evidence is required."
+  ],
+  "moreReasons": 0,
+  "failures": [
+    {
+      "name": "backend-debugger-state",
+      "category": "evidence",
+      "detail": "Required artifact is missing: /home/deck/xemu-research/workspace/Results/20261002-023804001-0fe7111eb706457897ff17a0e9f891c9/audio-state.json"
+    },
+    {
+      "name": "plan_completion",
+      "category": "evidence",
+      "detail": "The declared plan did not complete."
+    }
+  ],
+  "moreFailures": 0,
+  "truncated": false,
+  "detail": "/api/v1/runs/20261002-023804001-0fe7111eb706457897ff17a0e9f891c9/artifacts/assessment.json",
+  "diagnostics": "/api/v1/runs/20261002-023804001-0fe7111eb706457897ff17a0e9f891c9/diagnostics"
+}

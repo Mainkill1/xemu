@@ -1,0 +1,82 @@
+{
+  "checkedUtc": "2026-10-02T01:13:43.574891+00:00",
+  "issue": "https://github.com/Mainkill1/xemu/issues/233",
+  "status": "read-only target preflight; no implementation or native AC97-heavy profile",
+  "inspectedProductBase": "ee5ce48b48784f999af374c1452003f8b2b1230f",
+  "currentWork": "Issue234 Deck campaign stays active; no tester change made for issue233",
+  "files": {
+    "hw/audio/ac97.c": "bd2a95fdd9f90f0c7391fd0c83ebc7768179296a50b6a056839a22ec49ee554b",
+    "hw/xbox/mcpx/aci.c": "9a7848267f709ae0bd1ded57c8803c551c09e69f28eb0798a51ec9d1199986d2",
+    "hw/xbox/mcpx/apu/monitor.c": "5cef8064a2daaa807cc2b6eaf559b8f16a534a696e0a02b65721dfd45eca7b95",
+    "audio/audio.c": "5c187284e276fd9489d2e4c7fd995b60286440542f7edbdf844de5ea586ddcef",
+    "audio/alsaaudio.c": "3e3d2d2ab345a926a72c18ce0ee9da089cc452757b50c1cd419695106cc8393d",
+    "audio/meson.build": "bf4305d8b88054497d6216a091ed6b7dbc82827f9c71ae366dc6c70ca87f2b08",
+    "audio/noaudio.c": "819e4bb38b8174f514b1db4412e26ce376f016621c78cd70691b966664fbb236",
+    "hw/xbox/mcpx/apu/apu.c": "0cfa1f28ef003ed75776304294ebc965786ab05409b6433dbd0920feb4280791"
+  },
+  "prReferences": [
+    {
+      "number": 81,
+      "state": "CLOSED",
+      "title": "NV2A: replace PTIMER host scheduling with explicit deadlines",
+      "url": "https://github.com/Mainkill1/xemu/pull/81"
+    },
+    {
+      "number": 48,
+      "state": "CLOSED",
+      "title": "nv2a: correct PTIMER deadlines, masked alarms and PLL transitions",
+      "url": "https://github.com/Mainkill1/xemu/pull/48"
+    },
+    {
+      "number": 12,
+      "state": "CLOSED",
+      "title": "ENG-2026-523: Hold Vulkan texture pipeline fast path after GPU-load gate",
+      "url": "https://github.com/Mainkill1/xemu/pull/12"
+    },
+    {
+      "number": 3,
+      "state": "CLOSED",
+      "title": "ENG-2026-523: drain query budgets and make draw preparation transactional",
+      "url": "https://github.com/Mainkill1/xemu/pull/3"
+    }
+  ],
+  "baselineFacts": [
+    "Current AC97 write_audio stages up to4096 bytes and honors the accepted byte count from AUD_write; it is already a block path.",
+    "APU monitor opens SDL_OpenAudioDeviceStream for48000Hz S16LE stereo, queues frame buffers and destroys the stream at finalize.",
+    "Current ACI owns its AC97LinkState but has no shared APU output seam.",
+    "Replacement must preserve partial accepted writes, guest DMA advancement, volume/mute, BUP, independent AC97 playback, callback lifetime and queue latency.",
+    "AUD_write already has a non-mixing backend path selected by mixing_engine=false. That is a useful diagnostic baseline, not proof of shared output or preserved volume/rate semantics.",
+    "Without a backend volume_out callback, codec gain/mute is applied in audio_pcm_sw_write. The non-mixing AUD_write branch bypasses that software path, so it cannot be proposed as a universal gain-preserving switch.",
+    "Current audio/meson.build comments out the SDL QEMU backend, although the APU uses SDL3 directly. The old SDL2 sdlaudio.c is not the live AC97 backend just because it remains in the tree.",
+    "APU output is submitted after every eighth EP frame. Its throttle reads this stream queue and pauses/backoffs under the APU mutex, independently of AC97 guest DMA.",
+    "APU off/halt/trap takes a timed wait and skips se_frame; a shared AC97 consumer placed only in se_frame would stop servicing independent AC97 playback.",
+    "query-audiodevs iterates explicit audiodevs; implicit #default is created through a separate default list and registered under /audiodevs. An empty query result alone cannot identify or rule out a selected default backend.",
+    "The retained PGR2 launch has no explicit -audiodev argument. Retained stdout/stderr have no backend identification. No current AC97-heavy cost is established."
+  ],
+  "officialSources": [
+    {
+      "url": "https://wiki.libsdl.org/SDL3/SDL_OpenAudioDeviceStream",
+      "lesson": "Convenience stream owns device lifetime; destroying it closes the associated device."
+    },
+    {
+      "url": "https://wiki.libsdl.org/SDL3/SDL_OpenAudioDevice",
+      "lesson": "Multiple logical devices may share one physical device; opening twice is not proof of two hardware devices."
+    },
+    {
+      "url": "https://wiki.libsdl.org/SDL3/SDL_BindAudioStreams",
+      "lesson": "SDL can mix multiple bound streams; already-bound streams need explicit unbinding."
+    }
+  ],
+  "remaining": [
+    "Resolve inferred AC97 none-backend fallback in the exact native release build before proposing a shared audible-output performance comparison; adding audible output is a functionality change, not an equivalent-work speedup.",
+    "Profile actual AC97-heavy playback and establish its host-output cost before a candidate.",
+    "Identify current QEMU host backend and actual physical/logical SDL devices; separate dispatch/mixing from output cost.",
+    "Recheck main/upstream and closed/open PR work at implementation time.",
+    "Compare SDL-managed shared-device ownership before inventing a ring transport.",
+    "Compare existing QEMU non-mixing output when supported, retaining codec gain, format/rate and queue/progress semantics; do not treat disabling behavior as performance.",
+    "Capture default /audiodevs ownership as well as explicit device queries on the next diagnostic run; bind backend identity to real AC97 activity before comparing output cost."
+  ],
+  "performanceMeasured": false,
+  "followUpUtc": "2026-10-02T01:29:36.199741+00:00",
+  "releaseConfigurationReceipt": "release-audio-configuration.json"
+}
