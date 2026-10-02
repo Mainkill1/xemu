@@ -1,0 +1,23 @@
+.....FF.....
+======================================================================
+FAIL: test_missing_initial_or_interior_frame_fails (__main__.SummaryTests.test_missing_initial_or_interior_frame_fails) (change='missing-first')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/src/steamdeck-xemu/worktrees/issue246-allocation-attribution/tests/unit/test-vk-perf-summary.py", line 90, in test_missing_initial_or_interior_frame_fails
+    with self.subTest(change=change), self.assertRaises(ValueError):
+                                      ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_missing_initial_or_interior_frame_fails (__main__.SummaryTests.test_missing_initial_or_interior_frame_fails) (change='missing-interior')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/src/steamdeck-xemu/worktrees/issue246-allocation-attribution/tests/unit/test-vk-perf-summary.py", line 90, in test_missing_initial_or_interior_frame_fails
+    with self.subTest(change=change), self.assertRaises(ValueError):
+                                      ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.324s
+
+FAILED (failures=2)

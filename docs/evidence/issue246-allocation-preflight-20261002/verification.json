@@ -1,0 +1,13 @@
+{
+  "archiveBytes": 88024695,
+  "archiveSha256": "f63ab6c457a2f56400634b0d67aab49ba142a12b8691cf3e6ce49a709f61a301",
+  "payloadFilesRehashed": 308,
+  "omittedCacheFiles": 1391,
+  "omittedCacheBytes": 9630453,
+  "archivedAttempts": 3,
+  "comparisonEligibleAttempts": 1,
+  "profilerRecordings": 9,
+  "reviewedScreenshots": 14,
+  "candidateImplemented": false,
+  "speedupMeasured": false
+}
