@@ -29,6 +29,7 @@
 #include "ui/xemu-tweaks.h"
 #include "debug.h"
 #include "renderer.h"
+#include "texture-source-identity.h"
 
 static TextureBinding* generate_texture(const TextureShape s, const uint8_t *texture_data, const uint8_t *palette_data);
 
@@ -264,9 +265,15 @@ void pgraph_gl_bind_textures(NV2AState *d)
         TextureBinding *tbind = r->texture_binding[i];
         if (!pg->texture_dirty[i] && tbind) {
             bool reusable = false;
-            if (surface && tbind->draw_time == surface->draw_time) {
+            bool source_matches =
+                pgraph_gl_texture_source_identity_matches(
+                    texture_vram_offset, tbind->texture_vram_offset,
+                    is_indexed, palette_vram_offset,
+                    tbind->palette_vram_offset);
+            if (source_matches && surface &&
+                tbind->draw_time == surface->draw_time) {
                 reusable = true;
-            } else if (!surface) {
+            } else if (source_matches && !surface) {
                 possibly_dirty = check_texture_possibly_dirty(
                         d,
                         texture_vram_offset,
@@ -378,6 +385,9 @@ void pgraph_gl_bind_textures(NV2AState *d)
                 continue;
             }
             key_out->binding->data_hash = tex_data_hash;
+            key_out->binding->texture_vram_offset = texture_vram_offset;
+            key_out->binding->palette_vram_offset =
+                is_indexed ? palette_vram_offset : 0;
             key_out->binding->scale = 1;
         } else {
             // Saved an upload! Reuse existing texture in graphics memory.
@@ -793,6 +803,8 @@ static TextureBinding* generate_texture(const TextureShape s,
     ret->refcnt = 1;
     ret->draw_time = 0;
     ret->data_hash = 0;
+    ret->texture_vram_offset = 0;
+    ret->palette_vram_offset = 0;
     ret->min_filter = 0xFFFFFFFF;
     ret->mag_filter = 0xFFFFFFFF;
     ret->lod_bias = 0xFFFFFFFF;
