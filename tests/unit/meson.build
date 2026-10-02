@@ -164,7 +164,7 @@ tests = {
   'test-fifo': [],
   'test-lru-active': [],
   'test-xbox-mcpx-apu-resampler': [libsamplerate],
-  'test-xbox-mcpx-apu-sample-memory': [],
+  'test-xbox-mcpx-apu-sample-memory': [xbox_i386_target_headers],
 }
 
 if host_os == 'windows'

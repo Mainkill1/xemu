@@ -29,26 +29,28 @@ static inline bool mcpx_apu_cached_word_eligible(uint64_t mapped_physical,
            offset <= mapped_bytes && 4 <= mapped_bytes - offset;
 }
 
-static inline hwaddr mcpx_apu_adpcm_word_address(hwaddr sge_base, uint32_t addr)
+static inline hwaddr mcpx_apu_sample_address(hwaddr sge_base, unsigned int max_sge, uint32_t addr)
 {
     unsigned int entry = addr / TARGET_PAGE_SIZE;
+    assert(entry <= max_sge);
     uint32_t prd_address =
         ldl_le_phys(&address_space_memory, sge_base + entry * 4 * 2);
     return prd_address + addr % TARGET_PAGE_SIZE;
 }
 
 static inline void mcpx_apu_read_adpcm_block(const uint32_t *sge_base_reg,
-                                             uint32_t linear_addr,
-                                             uint32_t *words,
-                                             unsigned int word_count)
+                                           uint32_t linear_addr,
+                             uint32_t *words, unsigned int word_count)
 {
+    hwaddr sge_base = *sge_base_reg;
+
     while (word_count) {
         size_t chunk_bytes = mcpx_apu_adpcm_chunk_bytes(
             linear_addr, word_count * sizeof(*words), TARGET_PAGE_SIZE);
         unsigned int chunk_words =
             MIN(word_count, DIV_ROUND_UP(chunk_bytes, sizeof(*words)));
         hwaddr mapped_physical =
-            mcpx_apu_adpcm_word_address(*sge_base_reg, linear_addr);
+            mcpx_apu_sample_address(sge_base, 0xFFFFFFFF, linear_addr);
         MemoryRegionCache cache = { 0 };
         int64_t mapped_bytes = 0;
         if (chunk_words > 1) {
@@ -60,10 +62,8 @@ static inline void mcpx_apu_read_adpcm_block(const uint32_t *sge_base_reg,
         for (unsigned int i = 0; i < chunk_words; i++) {
             hwaddr physical = mapped_physical;
             if (i) {
-                /* Both the table base and its entries can change between words.
-                 */
-                physical =
-                    mcpx_apu_adpcm_word_address(*sge_base_reg, linear_addr);
+                /* An SGE entry can change between words in the same block. */
+                physical = mcpx_apu_sample_address(sge_base, 0xFFFFFFFF, linear_addr);
             }
             size_t offset = i * sizeof(*words);
             if (mapped_bytes > 0 && cache.ptr &&

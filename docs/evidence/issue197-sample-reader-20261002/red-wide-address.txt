@@ -1,0 +1,10 @@
+TAP version 14
+# random seed: R02Sa48572878fea44dd359c44efe26d1810
+# Start of mcpx-apu tests
+# Start of sample-memory tests
+not ok /mcpx-apu/sample-memory/descriptor-address-does-not-wrap - ERROR:/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/tests/unit/test-xbox-mcpx-apu-sample-memory.c:211:test_descriptor_address_does_not_wrap: assertion failed (mcpx_apu_adpcm_word_address(0xfffffff8, 0x1000) == 0x4000): (0x00000000 == 0x00004000)
+Bail out!
+**
+ERROR:/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/tests/unit/test-xbox-mcpx-apu-sample-memory.c:211:test_descriptor_address_does_not_wrap: assertion failed (mcpx_apu_adpcm_word_address(0xfffffff8, 0x1000) == 0x4000): (0x00000000 == 0x00004000)
+
+Exit: -6

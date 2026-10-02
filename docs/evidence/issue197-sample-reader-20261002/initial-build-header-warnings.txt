@@ -1,0 +1,110 @@
+In file included from /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/hw/qdev-core.h:6,
+                 from /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/hw/core/cpu.h:23,
+                 from /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/exec/cpu-common.h:13,
+                 from /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/system/memory.h:17,
+                 from /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/tests/unit/test-xbox-mcpx-apu-sample-memory.c:5:
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h: In function ‘bitmap_zero’:
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h:81:18: error: comparison of integer expressions of different signedness: ‘long int’ and ‘long unsigned int’ [-Werror=sign-compare]
+   81 |         ((nbits) <= BITS_PER_LONG)
+      |                  ^~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h:115:9: note: in expansion of macro ‘small_nbits’
+  115 |     if (small_nbits(nbits)) {
+      |         ^~~~~~~~~~~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h: In function ‘bitmap_fill’:
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h:81:18: error: comparison of integer expressions of different signedness: ‘long int’ and ‘long unsigned int’ [-Werror=sign-compare]
+   81 |         ((nbits) <= BITS_PER_LONG)
+      |                  ^~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h:126:10: note: in expansion of macro ‘small_nbits’
+  126 |     if (!small_nbits(nbits)) {
+      |          ^~~~~~~~~~~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h: In function ‘bitmap_copy’:
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h:81:18: error: comparison of integer expressions of different signedness: ‘long int’ and ‘long unsigned int’ [-Werror=sign-compare]
+   81 |         ((nbits) <= BITS_PER_LONG)
+      |                  ^~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h:136:9: note: in expansion of macro ‘small_nbits’
+  136 |     if (small_nbits(nbits)) {
+      |         ^~~~~~~~~~~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h: In function ‘bitmap_and’:
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h:81:18: error: comparison of integer expressions of different signedness: ‘long int’ and ‘long unsigned int’ [-Werror=sign-compare]
+   81 |         ((nbits) <= BITS_PER_LONG)
+      |                  ^~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h:147:9: note: in expansion of macro ‘small_nbits’
+  147 |     if (small_nbits(nbits)) {
+      |         ^~~~~~~~~~~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h: In function ‘bitmap_or’:
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h:81:18: error: comparison of integer expressions of different signedness: ‘long int’ and ‘long unsigned int’ [-Werror=sign-compare]
+   81 |         ((nbits) <= BITS_PER_LONG)
+      |                  ^~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h:156:9: note: in expansion of macro ‘small_nbits’
+  156 |     if (small_nbits(nbits)) {
+      |         ^~~~~~~~~~~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h: In function ‘bitmap_xor’:
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h:81:18: error: comparison of integer expressions of different signedness: ‘long int’ and ‘long unsigned int’ [-Werror=sign-compare]
+   81 |         ((nbits) <= BITS_PER_LONG)
+      |                  ^~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h:166:9: note: in expansion of macro ‘small_nbits’
+  166 |     if (small_nbits(nbits)) {
+      |         ^~~~~~~~~~~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h: In function ‘bitmap_andnot’:
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h:81:18: error: comparison of integer expressions of different signedness: ‘long int’ and ‘long unsigned int’ [-Werror=sign-compare]
+   81 |         ((nbits) <= BITS_PER_LONG)
+      |                  ^~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h:176:9: note: in expansion of macro ‘small_nbits’
+  176 |     if (small_nbits(nbits)) {
+      |         ^~~~~~~~~~~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h: In function ‘bitmap_complement’:
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h:81:18: error: comparison of integer expressions of different signedness: ‘long int’ and ‘long unsigned int’ [-Werror=sign-compare]
+   81 |         ((nbits) <= BITS_PER_LONG)
+      |                  ^~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h:186:9: note: in expansion of macro ‘small_nbits’
+  186 |     if (small_nbits(nbits)) {
+      |         ^~~~~~~~~~~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h: In function ‘bitmap_equal’:
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h:81:18: error: comparison of integer expressions of different signedness: ‘long int’ and ‘long unsigned int’ [-Werror=sign-compare]
+   81 |         ((nbits) <= BITS_PER_LONG)
+      |                  ^~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h:196:9: note: in expansion of macro ‘small_nbits’
+  196 |     if (small_nbits(nbits)) {
+      |         ^~~~~~~~~~~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h: In function ‘bitmap_empty’:
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h:81:18: error: comparison of integer expressions of different signedness: ‘long int’ and ‘long unsigned int’ [-Werror=sign-compare]
+   81 |         ((nbits) <= BITS_PER_LONG)
+      |                  ^~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h:205:9: note: in expansion of macro ‘small_nbits’
+  205 |     if (small_nbits(nbits)) {
+      |         ^~~~~~~~~~~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h: In function ‘bitmap_full’:
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h:81:18: error: comparison of integer expressions of different signedness: ‘long int’ and ‘long unsigned int’ [-Werror=sign-compare]
+   81 |         ((nbits) <= BITS_PER_LONG)
+      |                  ^~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h:214:9: note: in expansion of macro ‘small_nbits’
+  214 |     if (small_nbits(nbits)) {
+      |         ^~~~~~~~~~~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h: In function ‘bitmap_intersects’:
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h:81:18: error: comparison of integer expressions of different signedness: ‘long int’ and ‘long unsigned int’ [-Werror=sign-compare]
+   81 |         ((nbits) <= BITS_PER_LONG)
+      |                  ^~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h:224:9: note: in expansion of macro ‘small_nbits’
+  224 |     if (small_nbits(nbits)) {
+      |         ^~~~~~~~~~~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h: In function ‘bitmap_count_one’:
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h:81:18: error: comparison of integer expressions of different signedness: ‘long int’ and ‘long unsigned int’ [-Werror=sign-compare]
+   81 |         ((nbits) <= BITS_PER_LONG)
+      |                  ^~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/qemu/bitmap.h:237:9: note: in expansion of macro ‘small_nbits’
+  237 |     if (small_nbits(nbits)) {
+      |         ^~~~~~~~~~~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/hw/qdev-core.h: In function ‘compat_props_add’:
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/hw/qdev-core.h:429:19: error: comparison of integer expressions of different signedness: ‘int’ and ‘size_t’ {aka ‘long unsigned int’} [-Werror=sign-compare]
+  429 |     for (i = 0; i < nelem; i++) {
+      |                   ^
+In file included from /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/hw/xbox/mcpx/apu/vp/sample-memory.h:10,
+                 from /home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/tests/unit/test-xbox-mcpx-apu-sample-memory.c:58:
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/exec/target_page.h: In function ‘qemu_target_page_mask’:
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/exec/target_page.h:45:52: error: left shift of negative value [-Werror=shift-negative-value]
+   45 | # define TARGET_PAGE_MASK    ((TARGET_PAGE_TYPE)-1 << TARGET_PAGE_BITS)
+      |                                                    ^~
+/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/include/exec/target_page.h:57:12: note: in expansion of macro ‘TARGET_PAGE_MASK’
+   57 |     return TARGET_PAGE_MASK;
+      |            ^~~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors

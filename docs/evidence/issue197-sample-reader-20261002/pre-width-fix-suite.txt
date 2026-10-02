@@ -1,0 +1,18 @@
+TAP version 14
+# random seed: R02Sea9291129f00475c9b1f309926d01335
+1..9
+# Start of mcpx-apu tests
+# Start of sample-memory tests
+ok 1 /mcpx-apu/sample-memory/sge-page-chunk
+ok 2 /mcpx-apu/sample-memory/cached-word-eligibility
+ok 3 /mcpx-apu/sample-memory/table-base-changes-between-words
+ok 4 /mcpx-apu/sample-memory/descriptor-changes-between-words
+ok 5 /mcpx-apu/sample-memory/noncontiguous-sge-pages
+ok 6 /mcpx-apu/sample-memory/unaligned-word-crosses-sge-page
+ok 7 /mcpx-apu/sample-memory/short-or-unavailable-mapping
+not ok /mcpx-apu/sample-memory/descriptor-address-does-not-wrap - ERROR:/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/tests/unit/test-xbox-mcpx-apu-sample-memory.c:211:test_descriptor_address_does_not_wrap: assertion failed (mcpx_apu_adpcm_word_address(0xfffffff8, 0x1000) == 0x4000): (0x00000000 == 0x00004000)
+Bail out!
+**
+ERROR:/home/codex/src/steamdeck-xemu/worktrees/issue197-sample-memory/tests/unit/test-xbox-mcpx-apu-sample-memory.c:211:test_descriptor_address_does_not_wrap: assertion failed (mcpx_apu_adpcm_word_address(0xfffffff8, 0x1000) == 0x4000): (0x00000000 == 0x00004000)
+
+Exit: -6

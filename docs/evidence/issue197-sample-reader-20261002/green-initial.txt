@@ -1,0 +1,12 @@
+TAP version 14
+# random seed: R02Sd5777167b37fb96dd5a7f465fc77b63e
+1..3
+# Start of mcpx-apu tests
+# Start of sample-memory tests
+ok 1 /mcpx-apu/sample-memory/sge-page-chunk
+ok 2 /mcpx-apu/sample-memory/cached-word-eligibility
+ok 3 /mcpx-apu/sample-memory/table-base-changes-between-words
+# End of sample-memory tests
+# End of mcpx-apu tests
+
+Exit: 0

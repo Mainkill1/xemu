@@ -683,48 +683,6 @@ static hwaddr get_data_ptr(hwaddr sge_base, unsigned int max_sge, uint32_t addr)
     return prd_address + addr % TARGET_PAGE_SIZE;
 }
 
-static void read_adpcm_block(hwaddr sge_base, uint32_t linear_addr,
-                             uint32_t *words, unsigned int word_count)
-{
-    while (word_count) {
-        size_t chunk_bytes = mcpx_apu_adpcm_chunk_bytes(
-            linear_addr, word_count * sizeof(*words), TARGET_PAGE_SIZE);
-        unsigned int chunk_words =
-            MIN(word_count, DIV_ROUND_UP(chunk_bytes, sizeof(*words)));
-        hwaddr mapped_physical =
-            get_data_ptr(sge_base, 0xFFFFFFFF, linear_addr);
-        MemoryRegionCache cache = { 0 };
-        int64_t mapped_bytes = 0;
-        if (chunk_words > 1) {
-            mapped_bytes =
-                address_space_cache_init(&cache, &address_space_memory,
-                                         mapped_physical, chunk_bytes, false);
-        }
-
-        for (unsigned int i = 0; i < chunk_words; i++) {
-            hwaddr physical = mapped_physical;
-            if (i) {
-                /* An SGE entry can change between words in the same block. */
-                physical = get_data_ptr(sge_base, 0xFFFFFFFF, linear_addr);
-            }
-            size_t offset = i * sizeof(*words);
-            if (mapped_bytes > 0 && cache.ptr &&
-                mcpx_apu_cached_word_eligible(mapped_physical, physical, offset,
-                                              mapped_bytes)) {
-                words[i] = address_space_ldl_le_cached(
-                    &cache, offset, MEMTXATTRS_UNSPECIFIED, NULL);
-            } else {
-                words[i] = ldl_le_phys(&address_space_memory, physical);
-            }
-            linear_addr += sizeof(*words);
-        }
-
-        address_space_cache_destroy(&cache);
-        words += chunk_words;
-        word_count -= chunk_words;
-    }
-}
-
 static float voice_step_envelope(MCPXAPUState *d, uint16_t v, uint32_t reg_0,
                            uint32_t reg_a, uint32_t rr_reg, uint32_t rr_mask,
                            uint32_t lvl_reg, uint32_t lvl_mask,
@@ -1073,8 +1031,9 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
                            block_size); // FIXME: Use idiomatic DMA function
                 } else {
                     linear_addr += ba;
-                    read_adpcm_block(d->regs[NV_PAPU_VPSGEADDR], linear_addr,
-                                     adpcm_block, 9 * samples_per_block);
+                    mcpx_apu_read_adpcm_block(&d->regs[NV_PAPU_VPSGEADDR],
+                                             linear_addr, adpcm_block,
+                                             9 * samples_per_block);
                 }
                 adpcm_decode_block(adpcm_decoded, (uint8_t *)adpcm_block,
                                    block_size, channels);
