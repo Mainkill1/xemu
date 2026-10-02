@@ -104,3 +104,7 @@ The procedure retains #278's 60 s scene warmup / 300 s stationary observation an
 ## Assembly follow-up
 
 [Exact-binary dispatch assembly and symbol-size check](dispatch-assembly/README.md) confirms flatter warmed dispatch and smaller function code in both standalone compilers and native CI. It also records a changed GCC REP branch layout and additional cold parallel cache writes as investigation targets. Neither is claimed to explain a measured percentage; the native candidate stays fixed.
+
+## Windows reachability
+
+[Current connectivity evidence](windows-connectivity/README.md) records restored LAN HTTP access after a runner/workspace change. The idle Windows instance lacks current performance/XISO APIs; no #234 Windows workload was executed and the service was preserved. This does not block the running Deck campaign.

@@ -1,0 +1,106 @@
+{
+    "Computer":  "DESKTOP-52C4KS5",
+    "RunnerProcesses":  [
+                            {
+                                "Id":  301312,
+                                "StartTime":  "\/Date(1790901843245)\/",
+                                "Path":  "C:\\xemu-lab\\incoming\\runner-pr30-669e658\\XemuTestRunner.exe"
+                            }
+                        ],
+    "XemuProcesses":  [
+
+                      ],
+    "Listener":  [
+                     {
+                         "LocalAddress":  "0.0.0.0",
+                         "LocalPort":  9368,
+                         "OwningProcess":  301312
+                     }
+                 ],
+    "LocalHttpStatus":  200,
+    "LocalRunnerStatus":  {
+                              "StartedUtc":  "2026-10-02T00:44:03.4733722+00:00",
+                              "Uptime":  "00:03:29.0830693",
+                              "UptimeMs":  209083,
+                              "Phase":  "idle",
+                              "CurrentJob":  null,
+                              "RunId":  null,
+                              "ProcessId":  null,
+                              "JobStartedUtc":  null,
+                              "LatestMetric":  {
+                                                   "TimestampUtc":  "2026-10-02T00:47:32.1323347+00:00",
+                                                   "MeasurementSegment":  null,
+                                                   "HostCpuPercent":  9.487666034155595,
+                                                   "ProcessCpuPercent":  null,
+                                                   "HostMemoryTotalBytes":  16361480192,
+                                                   "HostMemoryUsedBytes":  4571131904,
+                                                   "HostMemoryAvailableBytes":  11790348288,
+                                                   "ProcessWorkingSetBytes":  null,
+                                                   "ProcessPrivateBytes":  null,
+                                                   "SwapTotalBytes":  null,
+                                                   "SwapUsedBytes":  null,
+                                                   "PageFileUsagePercent":  53.76700958875962,
+                                                   "ProcessReadBytesPerSecond":  null,
+                                                   "ProcessWriteBytesPerSecond":  null,
+                                                   "GpuUtilizationPercent":  0,
+                                                   "ProcessGpuUtilizationPercent":  null,
+                                                   "VramTotalBytes":  8589934592,
+                                                   "VramUsedBytes":  714883072,
+                                                   "ProcessVramBytes":  null,
+                                                   "GpuTemperatureC":  39,
+                                                   "GpuPowerWatts":  13.967,
+                                                   "CollectorDurationMs":  0.0798,
+                                                   "CollectorDutyPercent":  0.015960000000000002,
+                                                   "Overrun":  false,
+                                                   "Errors":  [
+
+                                                              ]
+                                               },
+                              "Queue":  {
+                                            "Pending":  0,
+                                            "Testing":  0,
+                                            "Tested":  384
+                                        },
+                              "HttpEndpoint":  "http://10.0.7.1:9368",
+                              "LastJob":  null,
+                              "LastResult":  null,
+                              "LastFinishedUtc":  null,
+                              "Workstation":  {
+                                                  "Supported":  true,
+                                                  "Platform":  "windows",
+                                                  "SessionLocked":  false,
+                                                  "InputDesktop":  "Default",
+                                                  "DisplayState":  "on",
+                                                  "PowerState":  "awake",
+                                                  "PowerSource":  "ac",
+                                                  "BatteryPercent":  56,
+                                                  "BatterySaver":  false,
+                                                  "UserIdleSeconds":  6879,
+                                                  "TimestampUtc":  "2026-10-02T00:47:31.7205492+00:00",
+                                                  "LastSessionChangeUtc":  null,
+                                                  "LastDisplayChangeUtc":  "2026-10-02T00:44:05.5252677+00:00",
+                                                  "LastSuspendUtc":  null,
+                                                  "LastResumeUtc":  null,
+                                                  "LastEvent":  "display_on",
+                                                  "EventSequence":  2,
+                                                  "RenderingRisk":  false
+                                              },
+                              "QueueIssue":  null,
+                              "JobsFinished":  0,
+                              "FailedJobs":  0,
+                              "LastResultDirectory":  null,
+                              "Operations":  {
+                                                 "Mode":  "smoke",
+                                                 "AllowPreview":  null,
+                                                 "AllowManualInput":  null,
+                                                 "AllowPauseResume":  null,
+                                                 "AllowDiagnostics":  null,
+                                                 "AllowBulkTransfers":  null,
+                                                 "PreviewAllowed":  true,
+                                                 "ManualInputAllowed":  true,
+                                                 "PauseResumeAllowed":  true,
+                                                 "DiagnosticsAllowed":  true,
+                                                 "BulkTransfersAllowed":  true
+                                             }
+                          }
+}
