@@ -183,6 +183,10 @@ if vulkan.found()
       xbox_i386_target_headers, volk, libglslang, vma, vulkan, spirv_reflect,
     ],
     'test-xbox-vk-staging-flush': [volk, vma],
+    'test-xbox-vk-surface-alias-map': [
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/swizzle.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/surface-alias-map.c',
+    ],
     'test-xbox-vk-hybrid-family-codec': [
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-family-codec.c',
       xbox_i386_target_headers, volk, libglslang, vma, vulkan, spirv_reflect,
@@ -198,6 +202,7 @@ if vulkan.found()
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-compiler.c',
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/hybrid-policy.c',
       meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/spirv-prewarm.c',
+      meson.project_source_root() / 'hw/xbox/nv2a/pgraph/vk/surface-alias-map.c',
       xbox_i386_target_headers,
       volk, libglslang, vma, vulkan, spirv_reflect,
     ],

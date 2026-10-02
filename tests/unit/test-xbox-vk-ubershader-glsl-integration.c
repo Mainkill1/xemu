@@ -13,6 +13,7 @@
 #include "hw/xbox/nv2a/pgraph/vsh_regs.h"
 #include "hw/xbox/nv2a/pgraph/vk/renderer.h"
 #include "hw/xbox/nv2a/pgraph/vk/hybrid-ready.h"
+#include "hw/xbox/nv2a/pgraph/vk/surface-alias-map.h"
 #include "ui/xemu-settings.h"
 
 struct config g_config;
@@ -166,6 +167,25 @@ static void test_invalid_glsl_returns_failure(void)
         &config, GLSLANG_STAGE_FRAGMENT,
         "#version 460\nvoid main() { this is invalid GLSL; }\n");
     g_assert_null(spirv);
+    pgraph_vk_finalize_glsl_compiler();
+}
+
+static void test_depth_alias_compute_compiles(void)
+{
+    PGRAPHVkGlslCompileConfig config = { .api_version = VK_API_VERSION_1_1 };
+    const unsigned int workgroup_sizes[] = { 1, 256 };
+
+    pgraph_vk_init_glsl_compiler();
+    for (size_t i = 0; i < G_N_ELEMENTS(workgroup_sizes); i++) {
+        g_autofree char *source = pgraph_vk_alias_unswizzle_glsl(
+            workgroup_sizes[i]);
+        GByteArray *spirv = pgraph_vk_compile_glsl_to_spv_config(
+            &config, GLSLANG_STAGE_COMPUTE, source);
+
+        g_assert_nonnull(spirv);
+        g_assert_cmpuint(spirv->len, >, sizeof(uint32_t));
+        g_byte_array_unref(spirv);
+    }
     pgraph_vk_finalize_glsl_compiler();
 }
 
@@ -470,6 +490,8 @@ int main(int argc, char **argv)
                     test_real_compiler_and_reflection_accept_uber_abi);
     g_test_add_func("/xbox/vk/ubershader/glsl/invalid-source",
                     test_invalid_glsl_returns_failure);
+    g_test_add_func("/xbox/vk/surface-alias/compute-compile",
+                    test_depth_alias_compute_compiles);
     g_test_add_func("/xbox/vk/psh/depth-replace-compile",
                     test_depth_replace_compiles_for_both_fragment_routes);
     g_test_add_func("/xbox/vk/vsh/nv20-arithmetic-compile",
