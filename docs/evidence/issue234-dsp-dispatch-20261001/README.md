@@ -100,3 +100,7 @@ Keep this draft on hold. The typed cache is small and correctness checks support
 Candidate executable SHA-256 is `4e7bf9783374901cb1b81b24d3932f0018900a638a8989ff1ccea0d1f36c5c26`. CI ran its standard temporary PR test commit `ecb2a59e3a89f34f079787dd7b02c06b30578e2b`; GitHub tree identity was checked equal to product commit `58df82fe70dfc5ad07cecac974ce84db81559dac`. The PR remains draft and has not been merged.
 
 The procedure retains #278's 60 s scene warmup / 300 s stationary observation and unchanged 160-frame / 540-CPU sample floors, with no diagnostic capture in timed windows. Each attempt is a separate cold/private launch. No failures are retried or excluded. Inputs are prepared before launching the first control, and each next attempt waits for its owned predecessor's terminal result. Power/frequency and audio-output limitations remain. Results will be reported by exact executable hashes and physical order; no native improvement is claimed while this sequence is running.
+
+## Assembly follow-up
+
+[Exact-binary dispatch assembly and symbol-size check](dispatch-assembly/README.md) confirms flatter warmed dispatch and smaller function code in both standalone compilers and native CI. It also records a changed GCC REP branch layout and additional cold parallel cache writes as investigation targets. Neither is claimed to explain a measured percentage; the native candidate stays fixed.
