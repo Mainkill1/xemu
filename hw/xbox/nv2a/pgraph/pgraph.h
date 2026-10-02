@@ -462,6 +462,17 @@ static inline bool pgraph_zeta_write_enabled(PGRAPHState *pg)
         | NV_PGRAPH_CONTROL_0_STENCIL_WRITE_ENABLE);
 }
 
+static inline bool pgraph_zeta_draw_write_enabled(PGRAPHState *pg)
+{
+    uint32_t control_0 = pgraph_reg_r(pg, NV_PGRAPH_CONTROL_0);
+    uint32_t control_1 = pgraph_reg_r(pg, NV_PGRAPH_CONTROL_1);
+
+    return ((control_0 & NV_PGRAPH_CONTROL_0_ZENABLE) &&
+            (control_0 & NV_PGRAPH_CONTROL_0_ZWRITEENABLE)) ||
+           ((control_1 & NV_PGRAPH_CONTROL_1_STENCIL_TEST_ENABLE) &&
+            (control_0 & NV_PGRAPH_CONTROL_0_STENCIL_WRITE_ENABLE));
+}
+
 static inline void pgraph_apply_anti_aliasing_factor(PGRAPHState *pg,
                                               unsigned int *width,
                                               unsigned int *height)
