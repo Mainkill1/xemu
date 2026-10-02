@@ -43,7 +43,7 @@ void nv2a_flip_probe_read3d(NV2AState *d);
 void nv2a_flip_probe_vblank(NV2AState *d);
 bool nv2a_flip_probe_complete_stall(NV2AState *d);
 void nv2a_flip_probe_cancel_locked(NV2AState *d, const char *reason,
-                                  bool new_epoch);
+                                   bool new_epoch);
 void nv2a_flip_probe_resume_locked(NV2AState *d);
 
 #endif

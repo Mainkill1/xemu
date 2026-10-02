@@ -4,7 +4,7 @@
 
 int main(void)
 {
-    NV2AFlipProbeGate gate = {0};
+    NV2AFlipProbeGate gate = { 0 };
     uint64_t first;
 
     g_assert_false(nv2a_flip_probe_arm(&gate, 20, 10, 0));

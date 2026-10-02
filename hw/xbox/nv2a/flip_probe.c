@@ -6,12 +6,13 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  */
+#include "qemu/osdep.h"
 #include "hw/xbox/nv2a/nv2a_int.h"
 #include "qapi/qapi-commands-xemu-flip-probe.h"
 
 static NV2AFlipProbeCounters snapshot(NV2AFlipProbe *probe)
 {
-    return (NV2AFlipProbeCounters) {
+    return (NV2AFlipProbeCounters){
         .guest_read3d = qatomic_read(&probe->counters.guest_read3d),
         .completed_flip_stall =
             qatomic_read(&probe->counters.completed_flip_stall),
@@ -92,11 +93,11 @@ static void stop_on_main_loop(void *opaque)
     qatomic_set(&probe->paused_generation, generation);
     qemu_mutex_unlock(&d->pfifo.lock);
 
-    fprintf(stderr, "nv2a relative POC: generation=%" PRIu64
-            " paused read3d=%" PRIu64 " completed=%" PRIu64
-            " vblank=%" PRIu64 " present=%" PRIu64
-            " timestamp_us=%" PRId64 "\n", generation,
-            paused.guest_read3d, paused.completed_flip_stall,
+    fprintf(stderr,
+            "nv2a relative POC: generation=%" PRIu64 " paused read3d=%" PRIu64
+            " completed=%" PRIu64 " vblank=%" PRIu64 " present=%" PRIu64
+            " timestamp_us=%" PRId64 "\n",
+            generation, paused.guest_read3d, paused.completed_flip_stall,
             paused.vblank, paused.host_present, paused.timestamp_us);
 }
 
@@ -135,8 +136,8 @@ bool nv2a_flip_probe_complete_stall(NV2AState *d)
         return false;
     }
     qatomic_inc(&probe->counters.completed_flip_stall);
-    if (!nv2a_flip_probe_complete(&probe->gate,
-            qatomic_read(&probe->counters.guest_read3d),
+    if (!nv2a_flip_probe_complete(
+            &probe->gate, qatomic_read(&probe->counters.guest_read3d),
             qatomic_read(&probe->counters.completed_flip_stall))) {
         return false;
     }
@@ -148,7 +149,7 @@ bool nv2a_flip_probe_complete_stall(NV2AState *d)
 }
 
 void nv2a_flip_probe_cancel_locked(NV2AState *d, const char *reason,
-                                  bool new_epoch)
+                                   bool new_epoch)
 {
     NV2AFlipProbe *probe = &d->flip_probe;
     nv2a_flip_probe_cancel(&probe->gate);
@@ -173,7 +174,8 @@ void nv2a_flip_probe_resume_locked(NV2AState *d)
 uint64_t nv2a_flip_probe_present_begin(void)
 {
     return g_nv2a && qatomic_read(&g_nv2a->flip_probe.enabled) ?
-        qatomic_read(&g_nv2a->flip_probe.paused_generation) : 0;
+               qatomic_read(&g_nv2a->flip_probe.paused_generation) :
+               0;
 }
 
 void nv2a_flip_probe_present_end(uint64_t generation)
@@ -205,14 +207,14 @@ XemuFlipProbeStatus *qmp_x_nv2a_flip_arm(uint64_t delta, Error **errp)
     if (!g_nv2a || !qatomic_read(&g_nv2a->flip_probe.enabled) ||
         !runstate_is_running()) {
         error_setg(errp, "Probe requires XEMU_NV2A_FLIP_PROBE=1 "
-                   "and a running VM");
+                         "and a running VM");
         return NULL;
     }
     NV2AFlipProbe *probe = &g_nv2a->flip_probe;
     qemu_mutex_lock(&g_nv2a->pfifo.lock);
     NV2AFlipProbeCounters current = snapshot(probe);
     if (!nv2a_flip_probe_arm(&probe->gate, current.guest_read3d,
-                            current.completed_flip_stall, delta)) {
+                             current.completed_flip_stall, delta)) {
         qemu_mutex_unlock(&g_nv2a->pfifo.lock);
         error_setg(errp, "Invalid delta (1..100000), overflow or active probe");
         return NULL;

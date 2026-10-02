@@ -46,8 +46,7 @@ bool nv2a_flip_probe_complete(NV2AFlipProbeGate *gate, uint64_t read3d,
 
 bool nv2a_flip_probe_pause(NV2AFlipProbeGate *gate, uint64_t generation)
 {
-    if (gate->phase != NV2A_FLIP_PROBE_HELD ||
-        generation != gate->generation) {
+    if (gate->phase != NV2A_FLIP_PROBE_HELD || generation != gate->generation) {
         return false;
     }
     gate->phase = NV2A_FLIP_PROBE_PAUSED;
