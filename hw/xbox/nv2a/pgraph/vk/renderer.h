@@ -1122,6 +1122,9 @@ bool pgraph_vk_unswizzle_packed_depth(PGRAPHState *pg, VkCommandBuffer cmd,
                                      VkBuffer src, VkDeviceSize src_size,
                                      VkBuffer dst, VkDeviceSize dst_size,
                                      uint32_t width, uint32_t height);
+bool pgraph_vk_convert_depth_alias(PGRAPHState *pg,
+                                   SurfaceBinding *producer,
+                                   SurfaceBinding *view);
 
 // display.c
 void pgraph_vk_init_display(PGRAPHState *pg);
