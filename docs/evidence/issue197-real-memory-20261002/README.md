@@ -2,7 +2,9 @@
 
 **Decision: HOLD.** The previous cached reader returns stale payload data after
 a same-address RAM remap. A per-word FlatView identity check repairs this
-synchronous case. Performance remains unqualified on the Deck.
+synchronous case. The later [Deck component packet](../issue197-deck-component-20261002/README.md)
+records completed A/A, ABBA and BAAB reader measurements; whole-game/audio
+performance remains unqualified.
 
 ## Correctness result
 
@@ -38,7 +40,7 @@ with zero failures (15 subtests, including repeated original-control cases).
 A full unit-suite invocation failed while compiling the unchanged
 `test-xbox-mcpx-apu-resampler.c`: missing `sinf`/`cosf` declarations are errors
 under local GCC14. `full-unit-suite.log` preserves that failure. It is not a
-passing full suite; the new CI results are still required.
+passing local full suite. Corrected portable CI now passes; see the later Deck packet.
 
 The retained benchmark uses the same executable for original and candidate
 modes, real RAM descriptors/payloads and a fixed number of blocks. Nine words
@@ -59,9 +61,9 @@ remain too variable for small-gain interpretation. No new Windows runs.
 
 ## Remaining gates
 
-- Portable CI test/benchmark artifact and full-suite/build results.
-- Maintained HTTP runner support for a non-QMP component process, then Deck
-  `10.0.0.123` A/A and physical ABBA/BAAB. Current runner forces QMP.
+- Portable CI and maintained HTTP process support are now verified, and Deck
+  `10.0.0.123` component A/A plus physical ABBA/BAAB are complete. See the
+  [later packet](../issue197-deck-component-20261002/README.md) for original evidence.
 - Concurrent memory/register activity, affected ADPCM native sound parity,
   and affected/control XISO correctness plus per-leaf timing evidence.
 
@@ -84,4 +86,7 @@ in `ci-failures-manifest.json`; no outcome was changed.
 The correction keeps the ordinary unit configuration intact and instantiates
 the full memory target only in production builds with `XBOX`. Linux release
 and debug CI explicitly build/run candidate and original controls there.
-The corrected production target passes locally; new complete CI is required.
+Corrected CI36993825114 passes all platform builds and the ordinary 137-unit
+suite, plus the separate API-double target and both actual-memory modes in
+production Linux builds. Prior failures remain preserved. Raw successful CI
+logs and source/artifact identity are in the later Deck component packet.
