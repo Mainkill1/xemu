@@ -56,6 +56,105 @@ static void test_invalid_morton_layout(void)
     g_assert_false(pgraph_vk_alias_morton_index(0, 0, 32, 32, NULL));
 }
 
+static void test_read_only_alias_eligibility(void)
+{
+    PGRAPHVkDepthAliasView producer = {
+        .address = 0x200000,
+        .dma_address = 0x100000,
+        .dma_length = 0x800000,
+        .extent = 640 * 480 * 4,
+        .width = 640,
+        .height = 480,
+        .pitch = 640 * 4,
+        .host_format = 1,
+        .guest_z24s8 = true,
+        .host_supported = true,
+        .initialized = true,
+    };
+    PGRAPHVkDepthAliasView view = producer;
+
+    view.width = 32;
+    view.height = 32;
+    view.extent = 32 * producer.pitch;
+    view.swizzled = true;
+
+    g_assert_true(pgraph_vk_depth_alias_read_only_eligible(
+        &producer, &view, false, false, 1, false));
+
+    producer.upload_pending = true;
+    g_assert_false(pgraph_vk_depth_alias_read_only_eligible(
+        &producer, &view, false, false, 1, false));
+    producer.upload_pending = false;
+
+    view.dma_address++;
+    g_assert_false(pgraph_vk_depth_alias_read_only_eligible(
+        &producer, &view, false, false, 1, false));
+    view.dma_address--;
+
+    view.address += 4;
+    g_assert_false(pgraph_vk_depth_alias_read_only_eligible(
+        &producer, &view, false, false, 1, false));
+    view.address -= 4;
+
+    producer.pitch += 4;
+    view.pitch += 4;
+    g_assert_false(pgraph_vk_depth_alias_read_only_eligible(
+        &producer, &view, false, false, 1, false));
+    producer.pitch -= 4;
+    view.pitch -= 4;
+
+    producer.extent = view.extent;
+    g_assert_false(pgraph_vk_depth_alias_read_only_eligible(
+        &producer, &view, false, false, 1, false));
+    producer.extent = 640 * 480 * 4;
+
+    producer.host_supported = false;
+    g_assert_false(pgraph_vk_depth_alias_read_only_eligible(
+        &producer, &view, false, false, 1, false));
+    producer.host_supported = true;
+
+    producer.superseded_by_guest = true;
+    g_assert_false(pgraph_vk_depth_alias_read_only_eligible(
+        &producer, &view, false, false, 1, false));
+    producer.superseded_by_guest = false;
+
+    g_assert_false(pgraph_vk_depth_alias_read_only_eligible(
+        &producer, &view, true, false, 1, false));
+    g_assert_false(pgraph_vk_depth_alias_read_only_eligible(
+        &producer, &view, false, true, 1, false));
+    g_assert_false(pgraph_vk_depth_alias_read_only_eligible(
+        &producer, &view, false, false, 2, false));
+    g_assert_false(pgraph_vk_depth_alias_read_only_eligible(
+        &producer, &view, false, false, 1, true));
+
+    view.width = 30;
+    g_assert_false(pgraph_vk_depth_alias_read_only_eligible(
+        &producer, &view, false, false, 1, false));
+}
+
+static void test_depth_alias_buffer_plan(void)
+{
+    PGRAPHVkDepthAliasPlan plan;
+
+    g_assert_true(pgraph_vk_depth_alias_plan(640, 480, 32, 32, 256,
+                                             2 * 1024 * 1024, &plan));
+    g_assert_cmpuint(plan.producer_pixels, ==, 307200);
+    g_assert_cmpuint(plan.view_pixels, ==, 1024);
+    g_assert_cmpuint(plan.producer_stencil_offset, ==, 1228800);
+    g_assert_cmpuint(plan.view_stencil_offset, ==, 4096);
+    g_assert_cmpuint(plan.compute_dst_bytes, ==, 1536000);
+    g_assert_cmpuint(plan.compute_src_bytes, ==, 1228800);
+
+    g_assert_false(pgraph_vk_depth_alias_plan(640, 480, 32, 32, 3,
+                                              2 * 1024 * 1024, &plan));
+    g_assert_false(pgraph_vk_depth_alias_plan(640, 480, 32, 32, 256,
+                                              1000000, &plan));
+    g_assert_false(pgraph_vk_depth_alias_plan(640, 480, 0, 32, 256,
+                                              2 * 1024 * 1024, &plan));
+    g_assert_false(pgraph_vk_depth_alias_plan(640, 480, 32, 32, 256,
+                                              2 * 1024 * 1024, NULL));
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -63,5 +162,9 @@ int main(int argc, char **argv)
                     test_guest_morton_layout);
     g_test_add_func("/xbox/vk/surface-alias/reject-invalid-shapes",
                     test_invalid_morton_layout);
+    g_test_add_func("/xbox/vk/surface-alias/read-only-eligibility",
+                    test_read_only_alias_eligibility);
+    g_test_add_func("/xbox/vk/surface-alias/buffer-plan",
+                    test_depth_alias_buffer_plan);
     return g_test_run();
 }
