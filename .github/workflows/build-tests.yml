@@ -25,7 +25,7 @@ jobs:
         sudo apt-get install -qy xvfb libgl1-mesa-dri
     - name: Configure
       working-directory: src
-      run: ./configure --target-list=i386-softmmu --disable-werror
+      run: ./configure --target-list=i386-softmmu --disable-werror --extra-cflags=-DXBOX --extra-cxxflags=-DXBOX
     - name: Run unit tests
       working-directory: src
       run: make -j$(nproc) check-unit
