@@ -5,6 +5,19 @@
 
 #include <samplerate.h>
 
+#include "xemu-config.h"
+
+static inline int mcpx_apu_resampler_type(CONFIG_AUDIO_VP_RESAMPLER mode)
+{
+    switch (mode) {
+    case CONFIG_AUDIO_VP_RESAMPLER_LINEAR:
+        return SRC_LINEAR;
+    case CONFIG_AUDIO_VP_RESAMPLER_SINC:
+    default:
+        return SRC_SINC_FASTEST;
+    }
+}
+
 static inline void mcpx_apu_resampler_destroy(SRC_STATE **resampler,
                                                int *channels)
 {
