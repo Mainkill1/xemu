@@ -336,6 +336,15 @@ static void pgraph_vk_pre_shutdown_trigger(NV2AState *d)
 {
     PGRAPHVkState *r = d->pgraph.vk_renderer_state;
 
+    /* nv2a_vm_state_change holds PFIFO and PGRAPH after waiting for FIFO idle.
+     * Normal QEMU cleanup does not unrealize NV2A or finalize this renderer.
+     * End the observation window here without changing resource ownership. */
+    if (!pgraph_vk_texture_allocation_trace_shutdown_checkpoint(
+            r->texture_allocation_trace)) {
+        error_report("nv2a/vk: texture allocation shutdown checkpoint incomplete");
+    }
+    r->texture_allocation_trace = NULL;
+
     if (r->hybrid_compiler_initialized) {
         /* The worker owns no Vulkan objects and cannot publish after stop. */
         pgraph_vk_hybrid_compiler_stop(&r->hybrid_compiler);

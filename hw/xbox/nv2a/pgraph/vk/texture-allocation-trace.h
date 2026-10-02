@@ -15,6 +15,10 @@ PGRAPHVkTextureAllocationTrace *
 pgraph_vk_texture_allocation_trace_open(const char *path, uint64_t max_records);
 bool pgraph_vk_texture_allocation_trace_close(
     PGRAPHVkTextureAllocationTrace *trace);
+/* Close a complete observation window at the existing idle shutdown handoff.
+ * Live resources are reported as live, not destroyed by this diagnostic. */
+bool pgraph_vk_texture_allocation_trace_shutdown_checkpoint(
+    PGRAPHVkTextureAllocationTrace *trace);
 void pgraph_vk_texture_allocation_trace_frame(
     PGRAPHVkTextureAllocationTrace *trace);
 void pgraph_vk_texture_allocation_trace_teardown(

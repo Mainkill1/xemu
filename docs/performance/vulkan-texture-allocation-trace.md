@@ -17,9 +17,11 @@ python3 scripts/performance/vk-texture-allocation-summary.py trace.jsonl --out s
 
 The output path must also be new. Python 3.11 or later is required for full-file
 hashing. The finalized reader verifies sequence, configuration types, handle
-generations, balanced lifetimes and footer accounting, then hashes the original
-file. Truncation, missing footer, dropped records, clock errors and live images
-at exit invalidate the report. A failed allocation remains an event with its
+generations and footer accounting, then hashes the original file. Schema 2
+distinguishes a complete renderer teardown from an idle shutdown checkpoint.
+Teardown requires balanced lifetimes; a checkpoint reports images/bytes still
+live without inventing destruction events. Truncation, missing footer, dropped
+records and clock errors invalidate either report. A failed allocation remains an event with its
 original Vulkan return code; it is never retried by the trace.
 
 For a planned runner diagnostic while xemu is still running:
@@ -48,7 +50,10 @@ the final outcome, or report allocation totals. Each input record is limited to
   generations; peak live bytes cover traced images only, not the device heap,
   resident VRAM or VMA's complete budget.
 
-The renderer owns the trace and calls it serially. There is no polling thread,
+The renderer owns the trace and calls it serially. At shutdown the existing
+`nv2a_lock_fifo` handoff waits for FIFO idle and holds PFIFO and PGRAPH locks;
+its pre-shutdown callback closes and detaches the trace while the producer is
+quiescent. It adds no lock or resource destruction. There is no polling thread,
 per-binding counter or atomic publication. The 100,000-event cap bounds output.
 After the cap, calls still execute and aggregate totals continue, but dropped
 events invalidate lifecycle analysis. Output/clock errors are diagnostic
@@ -76,7 +81,9 @@ Before: ordinary create/destroy -> unchanged VMA call
 After, trace OFF: wrapper -> unchanged VMA call
 After, trace ON: start clock -> unchanged VMA call -> end clock
                 -> allocation metadata on successful creation -> bounded JSON event
-Renderer shutdown: mark teardown -> existing texture destruction -> final footer
+Renderer finalization: mark teardown -> existing texture destruction -> teardown footer
+Normal process shutdown: existing idle PFIFO/PGRAPH handoff -> checkpoint footer
+                         -> detach trace; resource ownership remains unchanged
 ```
 
 The disabled wrappers preserve original parameters and results and perform no
@@ -93,7 +100,10 @@ profiler use identical between compared runs. Preserve original failures.
 Report per-leaf XISO correctness/timings, representative gameplay frame costs
 and variability separately from allocation-call durations.
 
-The current trace covers one Vulkan renderer lifetime. Reset or backend
+The current trace covers one Vulkan renderer observation window. Normal QEMU
+cleanup does not unrealize NV2A, so a process-exit checkpoint cannot establish
+that all resources were destroyed or measure their later destruction cost.
+Finalization through renderer teardown remains a separate end reason. Reset or backend
 reactivation with the same path refuses the existing file; those sequences are
 not qualified. Abnormal termination may omit teardown/footer and is rejected.
 The trace does not yet attribute LRU/in-flight exclusions, upload bytes, trim

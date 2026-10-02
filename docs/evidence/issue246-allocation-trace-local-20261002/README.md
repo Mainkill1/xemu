@@ -1,5 +1,10 @@
 # Issue #246: allocation collector local validation
 
+This historical packet validates the schema-1 collector at
+`0ef8d9bf5c8dbf9b09895827ea615a3a789a82c0`. The subsequent native shutdown
+failure and schema-2 correction are documented in
+[the shutdown packet](../issue246-allocation-shutdown-20261002/README.md).
+
 This packet validates the opt-in Vulkan texture allocation collector and its
 reader. It contains **no Steam Deck candidate measurement or performance gain**.
 The commit containing this packet identifies the candidate; the exact tested

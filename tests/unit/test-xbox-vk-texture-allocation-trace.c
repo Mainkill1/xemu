@@ -155,7 +155,7 @@ static void test_actual_configuration(void)
     g_assert_true(pgraph_vk_texture_allocation_trace_close(trace));
     char *output = read_and_remove(path);
     const char *fields[] = {
-        "\"schema_version\":1",
+        "\"schema_version\":2",
         "\"duration_unit\":\"host_elapsed_us\"",
         "\"frame\":1",
         "\"submission\":9",
@@ -295,6 +295,31 @@ static void test_null_destruction(void)
     g_free(output);
 }
 
+static void test_shutdown_checkpoint(void)
+{
+    reset();
+    char *path = new_path();
+    PGRAPHVkTextureAllocationTrace *trace =
+        pgraph_vk_texture_allocation_trace_open(path, 10);
+    create(trace, false);
+    g_assert_true(
+        pgraph_vk_texture_allocation_trace_shutdown_checkpoint(trace));
+    g_assert_cmpuint(creates, ==, 1);
+    g_assert_cmpuint(destroys, ==, 0);
+    char *output = read_and_remove(path);
+    has(output, "\"end_reason\":\"shutdown_checkpoint\"");
+    has(output, "\"create_calls\":1");
+    has(output, "\"destroy_calls\":0");
+    has(output, "\"complete\":true");
+    g_assert_null(strstr(output, "\"type\":\"destroy\""));
+    const char *fixture = g_getenv("XEMU_TEST_ALLOCATION_CHECKPOINT_PATH");
+    if (fixture) {
+        g_assert_true(g_file_set_contents(fixture, output, -1, NULL));
+    }
+    g_free(output);
+    g_assert_true(pgraph_vk_texture_allocation_trace_shutdown_checkpoint(NULL));
+}
+
 static void test_record_cap(void)
 {
     reset();
@@ -338,6 +363,8 @@ int main(int argc, char **argv)
     g_test_add_func("/texture-allocation/record-cap", test_record_cap);
     g_test_add_func("/texture-allocation/null-destruction",
                     test_null_destruction);
+    g_test_add_func("/texture-allocation/shutdown-checkpoint",
+                    test_shutdown_checkpoint);
     g_test_add_func("/texture-allocation/existing-output",
                     test_existing_output);
     return g_test_run();

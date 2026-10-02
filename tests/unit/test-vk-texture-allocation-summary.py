@@ -41,7 +41,7 @@ class AllocationSummaryTests(unittest.TestCase):
         second.update(seq=3, frame=1, submission=2, start_us=120,
                       elapsed_us=5, allocation='0000000000000012')
         return [
-            {'type': 'schema', 'schema_version': 1,
+            {'type': 'schema', 'schema_version': 2,
              'duration_unit': 'host_elapsed_us',
              'frame_meaning': 'completed_renderer_flip_stalls',
              'scope': 'ordinary_texture_cache_including_surface_copy_excluding_dummy',
@@ -56,7 +56,7 @@ class AllocationSummaryTests(unittest.TestCase):
              'start_us': 130, 'elapsed_us': 4,
              'image': '0000000000000001', 'allocation': '0000000000000012',
              'teardown': True},
-            {'type': 'summary', 'records': 4, 'dropped': 0, 'complete': True,
+            {'type': 'summary', 'end_reason': 'renderer_teardown', 'records': 4, 'dropped': 0, 'complete': True,
              'clock_errors': 0, 'create_calls': 2, 'successful_creates': 2,
              'destroy_calls': 2, 'create_elapsed_total_us': 12,
              'destroy_elapsed_total_us': 7, 'create_elapsed_max_us': 7,
@@ -126,6 +126,26 @@ class AllocationSummaryTests(unittest.TestCase):
             with self.subTest(footer=rows[-1]), self.assertRaises(ValueError):
                 self.summarize(rows)
 
+    def test_shutdown_checkpoint_reports_live_images_without_inventing_destroys(self):
+        rows = self.records()
+        rows.pop(4)
+        rows[-1].update(end_reason='shutdown_checkpoint', records=3,
+                        destroy_calls=1, destroy_elapsed_total_us=3,
+                        destroy_elapsed_max_us=3)
+        result = self.summarize(rows)
+        self.assertEqual(result['endReason'], 'shutdown_checkpoint')
+        self.assertEqual(result['liveImagesAtEnd'], 1)
+        self.assertEqual(result['liveBytesAtEnd'], 64)
+        self.assertEqual(result['destroys']['calls'], 1)
+        self.assertEqual(result['creates']['calls'], 2)
+        self.assertIn('checkpoint', result['lifecycleCoverage'])
+        rows[-1]['end_reason'] = 'renderer_teardown'
+        with self.assertRaises(ValueError):
+            self.summarize(rows)
+        rows[-1]['end_reason'] = 'unknown'
+        with self.assertRaises(ValueError):
+            self.summarize(rows)
+
     def test_gaps_order_and_lifetime_errors_rejected(self):
         mutations = [(1, 'seq', 2), (3, 'seq', 4), (3, 'frame', 0),
                      (3, 'start_us', 105), (4, 'allocation', '0000000000000011')]
@@ -145,7 +165,7 @@ class AllocationSummaryTests(unittest.TestCase):
                 self.summarize(rows)
         rows = self.records(); del rows[1]['config']['min_alignment']
         with self.assertRaises(ValueError): self.summarize(rows)
-        for field, value in [('schema_version', 2), ('duration_unit', 'ticks'),
+        for field, value in [('schema_version', 3), ('duration_unit', 'ticks'),
                              ('scope', 'all_images'), ('max_records', 1)]:
             rows = self.records(); rows[0][field] = value
             with self.subTest(field=field), self.assertRaises(ValueError):
@@ -160,7 +180,7 @@ class AllocationSummaryTests(unittest.TestCase):
     def test_live_header_does_not_claim_complete_lifecycle(self):
         stream = io.StringIO(json.dumps(self.records()[0]) + '\n' + '{unfinished')
         result = self.module.read_schema(stream)
-        self.assertEqual(result['schemaVersion'], 1)
+        self.assertEqual(result['schemaVersion'], 2)
         self.assertEqual(result['mode'], 'liveHeaderOnly')
         self.assertNotIn('creates', result)
         self.assertEqual(stream.read(), '{unfinished')

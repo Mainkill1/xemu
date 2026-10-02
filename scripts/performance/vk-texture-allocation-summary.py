@@ -61,13 +61,13 @@ def read_record(stream):
 def read_schema(stream):
     row = read_record(stream)
     if (not row or row.get('type') != 'schema'
-            or uint(row, 'schema_version') != 1
+            or uint(row, 'schema_version') != 2
             or row.get('duration_unit') != 'host_elapsed_us'
             or row.get('frame_meaning') != 'completed_renderer_flip_stalls'
             or row.get('scope') != SCOPE
             or not 1 <= uint(row, 'max_records') <= 100000):
         raise ValueError('Unsupported allocation trace schema')
-    return {'schemaVersion': 1, 'mode': 'liveHeaderOnly',
+    return {'schemaVersion': 2, 'mode': 'liveHeaderOnly',
             'maxRecords': row['max_records'], 'durationMeaning': 'Host elapsed microseconds'}
 
 
@@ -98,8 +98,13 @@ def summarize(stream):
                     or uint(row, 'clock_errors') or uint(row, 'records') != records
                     or any(uint(row, field) != value for field, value in totals.items())):
                 raise ValueError('Incomplete or inconsistent lifecycle summary')
-            if read_record(stream) is not None or live:
-                raise ValueError('Trailing records or unaccounted live images')
+            end_reason = row.get('end_reason')
+            if end_reason not in ('renderer_teardown', 'shutdown_checkpoint'):
+                raise ValueError('Missing or unknown observation end reason')
+            if (read_record(stream) is not None
+                    or (end_reason == 'renderer_teardown' and live)
+                    or (end_reason == 'shutdown_checkpoint' and teardown_started)):
+                raise ValueError('Trailing records or inconsistent resource end state')
             break
         kind = row.get('type')
         if kind not in ('create', 'destroy'):
@@ -183,7 +188,12 @@ def summarize(stream):
             if item[3] and not teardown:
                 retired[item[2]] += 1
     return {
-        'schemaVersion': 1, 'mode': 'finalizedFullLog', 'records': records,
+        'schemaVersion': 2, 'mode': 'finalizedFullLog', 'records': records,
+        'endReason': end_reason,
+        'lifecycleCoverage': ('Complete observation window through idle shutdown checkpoint; '
+                              'live images are not destruction events; later cleanup unobserved.'
+                              if end_reason == 'shutdown_checkpoint' else
+                              'Complete renderer lifetime through resource teardown.'),
         'durationMeaning': 'Host elapsed milliseconds bracketing VMA calls; not CPU time. '
                            'Metadata/output cost and whole probe overhead are not measured.',
         'creates': {'calls': totals['create_calls'], 'successful': totals['successful_creates'],
@@ -193,7 +203,8 @@ def summarize(stream):
                      'elapsedTotalMs': totals['destroy_elapsed_total_us'] / 1000,
                      'elapsedMaxMs': totals['destroy_elapsed_max_us'] / 1000},
         'totalCreatedBytes': created_bytes, 'peakLiveBytes': peak_bytes,
-        'liveImagesAtEnd': len(live), 'configurationCount': len(classes),
+        'liveImagesAtEnd': len(live), 'liveBytesAtEnd': live_bytes,
+        'configurationCount': len(classes),
         'excludedSuccessfulCreates': excluded,
         'unboundedReuseOpportunities': opportunities, 'unboundedReuseBytes': opportunity_bytes,
         'reuseMeaning': 'Compatible ordinary image creation after destruction, ignoring retention '

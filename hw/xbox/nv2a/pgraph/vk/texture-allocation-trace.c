@@ -18,6 +18,7 @@ struct PGRAPHVkTextureAllocationTrace {
     uint64_t destroy_max_us;
     uint64_t clock_errors;
     bool teardown;
+    bool shutdown_checkpoint;
     bool io_failed;
 };
 
@@ -46,7 +47,7 @@ pgraph_vk_texture_allocation_trace_open(const char *path, uint64_t max_records)
         return NULL;
     }
     if (fprintf(file,
-                "{\"type\":\"schema\",\"schema_version\":1,"
+                "{\"type\":\"schema\",\"schema_version\":2,"
                 "\"duration_unit\":\"host_elapsed_us\","
                 "\"frame_meaning\":\"completed_renderer_flip_stalls\","
                 "\"scope\":\"ordinary_texture_cache_including_surface_copy_"
@@ -76,6 +77,7 @@ bool pgraph_vk_texture_allocation_trace_close(
         trace->file,
         "{\"type\":\"summary\",\"records\":%" PRIu64 ",\"dropped\":%" PRIu64
         ",\"complete\":%s"
+        ",\"end_reason\":\"%s\""
         ",\"clock_errors\":%" PRIu64 ",\"create_calls\":%" PRIu64
         ",\"successful_creates\":%" PRIu64 ",\"destroy_calls\":%" PRIu64
         ",\"create_elapsed_total_us\":%" PRIu64
@@ -83,6 +85,8 @@ bool pgraph_vk_texture_allocation_trace_close(
         ",\"create_elapsed_max_us\":%" PRIu64
         ",\"destroy_elapsed_max_us\":%" PRIu64 "}\n",
         trace->records, trace->dropped, json_bool(complete),
+        trace->shutdown_checkpoint ? "shutdown_checkpoint" :
+                                     "renderer_teardown",
         trace->clock_errors, trace->create_calls, trace->successful_creates,
         trace->destroy_calls, trace->create_elapsed_us,
         trace->destroy_elapsed_us, trace->create_max_us, trace->destroy_max_us);
@@ -91,6 +95,15 @@ bool pgraph_vk_texture_allocation_trace_close(
     complete &= fclose(trace->file) == 0;
     g_free(trace);
     return complete;
+}
+
+bool pgraph_vk_texture_allocation_trace_shutdown_checkpoint(
+    PGRAPHVkTextureAllocationTrace *trace)
+{
+    if (trace) {
+        trace->shutdown_checkpoint = true;
+    }
+    return pgraph_vk_texture_allocation_trace_close(trace);
 }
 
 void pgraph_vk_texture_allocation_trace_frame(
