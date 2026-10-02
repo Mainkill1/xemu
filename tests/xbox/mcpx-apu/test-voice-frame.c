@@ -71,9 +71,9 @@ static uint32_t expected_buffer_offset(enum Payload payload, uint64_t frames)
      * Each supplied sample advances the fixture's 4096-sample loop once. */
     ProgressOracle oracle = { 0 };
     int error;
-    SRC_STATE *src = src_callback_new(supply_oracle_samples, SRC_SINC_FASTEST,
-                                      payload == STEREO_ADPCM ? 2 : 1,
-                                      &error, &oracle);
+    SRC_STATE *src =
+        src_callback_new(supply_oracle_samples, SRC_SINC_FASTEST,
+                         payload == STEREO_ADPCM ? 2 : 1, &error, &oracle);
     g_assert_nonnull(src);
     float output[32 * 2];
     for (uint64_t i = 0; i < warmup_frames + 1 + frames; i++) {
@@ -260,8 +260,7 @@ static void run_workload(enum Payload payload, unsigned workers,
                payload == STEREO_ADPCM ? "stereo-adpcm" :
                                          "mono-adpcm",
                workers, frames, elapsed, checksum, frames * 184320, final_cbo,
-               expected_cbo,
-               max_error * 8388608.0);
+               expected_cbo, max_error * 8388608.0);
 #ifdef MCPX_VOICE_FRAME_STORE_DIAGNOSTIC
         printf(",\"diagnostic_physical_stores\":%" PRIu64
                ",\"diagnostic_unchanged_physical_stores\":%" PRIu64
