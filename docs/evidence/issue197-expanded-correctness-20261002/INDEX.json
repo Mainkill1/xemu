@@ -1,0 +1,283 @@
+{
+  "archive": "EVIDENCE.tar.gz",
+  "bytes": 49417,
+  "sha256": "92d7017fa3a8f60ad5450b4aac42c424a3d1322152970ab156e985115b866eb6",
+  "payloads": [
+    {
+      "path": "SUMMARY.json",
+      "bytes": 1097,
+      "sha256": "b0b32a16450beebbde0632f03e9b0242492d1ea5446e9cd920e9893093ab8079"
+    },
+    {
+      "path": "fixture/README.md",
+      "bytes": 3385,
+      "sha256": "494768175a50eff8790c3c5821838a602923f5a44fffec176588cfffb86cd377"
+    },
+    {
+      "path": "fixture/current-diff.patch",
+      "bytes": 13889,
+      "sha256": "3de2928e103c2a65e0e7471591113dd52fafd5938fdf3bfd721c603a67685429"
+    },
+    {
+      "path": "fixture/test-sample-memory.c",
+      "bytes": 16860,
+      "sha256": "e4640400db5c407516b2c39b2427be5a6c26a185c149a9191d801bb9afa4ebe5"
+    },
+    {
+      "path": "local/issue197-expanded-memory-build-final.log",
+      "bytes": 456,
+      "sha256": "85fb287e57845c22180eee983d0ad069183879704e2671022bddde26a6b0afb1"
+    },
+    {
+      "path": "local/issue197-expanded-memory-build-publish.log",
+      "bytes": 456,
+      "sha256": "85fb287e57845c22180eee983d0ad069183879704e2671022bddde26a6b0afb1"
+    },
+    {
+      "path": "local/issue197-expanded-memory-build-reviewed.log",
+      "bytes": 456,
+      "sha256": "85fb287e57845c22180eee983d0ad069183879704e2671022bddde26a6b0afb1"
+    },
+    {
+      "path": "local/issue197-expanded-memory-build.log",
+      "bytes": 625,
+      "sha256": "797b81713599057b1a645a9f7b4a1858b59f0fdf3f03b2274e24626aa430b602"
+    },
+    {
+      "path": "local/issue197-expanded-memory-candidate-first.log",
+      "bytes": 638,
+      "sha256": "17dcbc560eb228a26ae213334e2195e79ede31ee26320261340ce66ba8268493"
+    },
+    {
+      "path": "local/issue197-expanded-memory-candidate.log",
+      "bytes": 753,
+      "sha256": "935f0deb799854907789ef59525de34410960230ed928fef6b73dccb28fbe911"
+    },
+    {
+      "path": "local/issue197-expanded-memory-focused-meson.log",
+      "bytes": 473,
+      "sha256": "169dd6e07a40c3f5871fe690ea921d1af506fa3c736180d41add951b1dce40f3"
+    },
+    {
+      "path": "local/issue197-expanded-memory-meson-command-error.log",
+      "bytes": 44,
+      "sha256": "71cd2a8c9d789b5a7b59289496f22517643b9eb34dd6cfb87b9dda07076810fb"
+    },
+    {
+      "path": "local/issue197-expanded-memory-original-final.log",
+      "bytes": 753,
+      "sha256": "2ed3195f83f9955b44f58ba4c26d167832f76855d8503d9bf25cfb82e4e6efa2"
+    },
+    {
+      "path": "local/issue197-expanded-memory-original.log",
+      "bytes": 638,
+      "sha256": "cbdc6892caf74bda586d003e7ec724a7b837f910e092f538caaab173e5ea3c96"
+    },
+    {
+      "path": "local/issue197-expanded-memory-publish-meson.log",
+      "bytes": 892,
+      "sha256": "3a918a5b388084e71d8a3f0bc2ee5424139924efb137b9ad093890de876e1459"
+    },
+    {
+      "path": "local/issue197-expanded-memory-reviewed-meson.log",
+      "bytes": 473,
+      "sha256": "169dd6e07a40c3f5871fe690ea921d1af506fa3c736180d41add951b1dce40f3"
+    },
+    {
+      "path": "local/issue197-threaded-negative-control.log",
+      "bytes": 24,
+      "sha256": "4e8b348d47854cc95cd04c445157d880d7d1f6ab07551afe26c9dcbb05426d17"
+    },
+    {
+      "path": "local/issue197-threaded-negative-expanded.log",
+      "bytes": 24,
+      "sha256": "4e8b348d47854cc95cd04c445157d880d7d1f6ab07551afe26c9dcbb05426d17"
+    },
+    {
+      "path": "local/issue197-threaded-negative-reviewed.log",
+      "bytes": 24,
+      "sha256": "4e8b348d47854cc95cd04c445157d880d7d1f6ab07551afe26c9dcbb05426d17"
+    },
+    {
+      "path": "local/meson-testlog.txt",
+      "bytes": 8727,
+      "sha256": "fb0ccd3d0ce5fa195636f4f06195975bf9a1f6769052778113ab43d13d2d4535"
+    },
+    {
+      "path": "negative-expanded/build-negative-control.py",
+      "bytes": 2741,
+      "sha256": "8c7527c4ed99067911d52a0b5c39132f66bd9caed915f818abe66a7a4506cffd"
+    },
+    {
+      "path": "negative-expanded/negative-build-commands.json",
+      "bytes": 40988,
+      "sha256": "96356047bac962b7ce7394c6bd7d0d0a10c9dbab310e6fcf31568ab7ffa5154d"
+    },
+    {
+      "path": "negative-expanded/negative-compile.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "negative-expanded/negative-link.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "negative-expanded/negative-test-memory.c",
+      "bytes": 16496,
+      "sha256": "67bb9e1067107b1d5c6c4d24bd8fd8266f8ead4b374beec471c09d254e6fecd7"
+    },
+    {
+      "path": "negative-expanded/threaded-original-exit.json",
+      "bytes": 253,
+      "sha256": "19b5343e16180b7eccf49d7ddc66f8a8203c9886a19777e63fa863ad709caf5a"
+    },
+    {
+      "path": "negative-expanded/threaded-original.log",
+      "bytes": 237,
+      "sha256": "9620d41dd243e09c3d54d781e53367916263662068ffdd226c2c0ca61d33a722"
+    },
+    {
+      "path": "negative-expanded/threaded-unguarded-exit.json",
+      "bytes": 241,
+      "sha256": "ca1826d45203a89bfb32e700303877d3d1afe318e0a2ca16b343cedbef2f438e"
+    },
+    {
+      "path": "negative-expanded/threaded-unguarded.log",
+      "bytes": 686,
+      "sha256": "c95c1c1804b22c170bc37f99690f0a1a1a56eefbfd1a03adee53b4083427c69a"
+    },
+    {
+      "path": "negative-expanded/unguarded-reader.h",
+      "bytes": 3629,
+      "sha256": "be0e009fc19d9f7e44e8c520816e7591613f5487c31755509be49416cc484c43"
+    },
+    {
+      "path": "negative-initial/build-negative-control.py",
+      "bytes": 2741,
+      "sha256": "8c7527c4ed99067911d52a0b5c39132f66bd9caed915f818abe66a7a4506cffd"
+    },
+    {
+      "path": "negative-initial/negative-build-commands.json",
+      "bytes": 40916,
+      "sha256": "138ffd3621085f62ee50de2566e1a603945d4d0e6b0e5f9c0ac6da346b318737"
+    },
+    {
+      "path": "negative-initial/negative-compile.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "negative-initial/negative-link.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "negative-initial/negative-test-memory.c",
+      "bytes": 14859,
+      "sha256": "bfdef78f82cf3fcd5184e115440b6438bf8b915dfa9a6d1b56b6ffd7bdfbaea4"
+    },
+    {
+      "path": "negative-initial/threaded-original-exit.json",
+      "bytes": 235,
+      "sha256": "29393dcf43a75a40579d5d02fd001cb5a49e24ba1a1c3d7f8aa56cd3e0af0793"
+    },
+    {
+      "path": "negative-initial/threaded-original.log",
+      "bytes": 237,
+      "sha256": "de7da4d182439c99f6459c184447b78b9f74458524e71c60f79fcd69aee984a0"
+    },
+    {
+      "path": "negative-initial/threaded-unguarded-exit.json",
+      "bytes": 223,
+      "sha256": "fb0aa04f97f426aa7e1115d8b442a8b73ce767a7e4f4414a27212dd80fff9a20"
+    },
+    {
+      "path": "negative-initial/threaded-unguarded.log",
+      "bytes": 646,
+      "sha256": "8da119650916499e1c6d56af9afba5f43c77c5d1647edc41b3241a5ecf446f4e"
+    },
+    {
+      "path": "negative-initial/unguarded-reader.h",
+      "bytes": 3629,
+      "sha256": "be0e009fc19d9f7e44e8c520816e7591613f5487c31755509be49416cc484c43"
+    },
+    {
+      "path": "negative-reviewed/build-negative-control.py",
+      "bytes": 2741,
+      "sha256": "8c7527c4ed99067911d52a0b5c39132f66bd9caed915f818abe66a7a4506cffd"
+    },
+    {
+      "path": "negative-reviewed/negative-build-commands.json",
+      "bytes": 40988,
+      "sha256": "5b6a5a29ca747b672db53a430c7a41dcdbd6512a38b03d3d719347167a610021"
+    },
+    {
+      "path": "negative-reviewed/negative-compile.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "negative-reviewed/negative-link.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "negative-reviewed/negative-test-memory.c",
+      "bytes": 16843,
+      "sha256": "cb27ef380a493f3b07f6dbc1c00d2186b098f005887307e8ffa304ab7061e5d5"
+    },
+    {
+      "path": "negative-reviewed/threaded-original-exit.json",
+      "bytes": 253,
+      "sha256": "a4fc4c4f81961a95f8b5a9215771273151788568b3a18c6c217b9be17e6ef823"
+    },
+    {
+      "path": "negative-reviewed/threaded-original.log",
+      "bytes": 237,
+      "sha256": "7b00c83e69b44a2076baabcb47e80c2fd075c7b690a8bf2bba6b3988e5ad297b"
+    },
+    {
+      "path": "negative-reviewed/threaded-unguarded-exit.json",
+      "bytes": 241,
+      "sha256": "dbb3e4d92c93739f0d98926c4cdcb94be3696a23bcafeae09e6e149eea004305"
+    },
+    {
+      "path": "negative-reviewed/threaded-unguarded.log",
+      "bytes": 686,
+      "sha256": "0031e266e52f2e65d081221d42768c360b195a98512ba3dbaad0af77df3f21e8"
+    },
+    {
+      "path": "negative-reviewed/unguarded-reader.h",
+      "bytes": 3629,
+      "sha256": "be0e009fc19d9f7e44e8c520816e7591613f5487c31755509be49416cc484c43"
+    }
+  ],
+  "omissions": [
+    {
+      "path": "negative-expanded/negative-test-memory.o",
+      "bytes": 165904,
+      "sha256": "2a97580817f6d3e233f74056746b1c533580deb24b3e470246124b8ac5a15752",
+      "reason": "large local executable/object; retained locally, reproducible from included source and build arguments"
+    },
+    {
+      "path": "negative-expanded/test-negative-memory",
+      "bytes": 136409248,
+      "sha256": "8b0ee56d4e110c983b7edc2e6de9edb05c1c511f2553ee26dbd97c5b0ba0ec8a",
+      "reason": "large local executable/object; retained locally, reproducible from included source and build arguments"
+    },
+    {
+      "path": "negative-reviewed/negative-test-memory.o",
+      "bytes": 166584,
+      "sha256": "e40c6f77d73cb6036671c30e181b4f7950039cfb5a3b58d75416d1fe0efe02d2",
+      "reason": "large local executable/object; retained locally, reproducible from included source and build arguments"
+    },
+    {
+      "path": "negative-reviewed/test-negative-memory",
+      "bytes": 136409528,
+      "sha256": "3c10c20c9806d126e8f4b822f195812d7561cab32aa76377e89ce7d8853fb30c",
+      "reason": "large local executable/object; retained locally, reproducible from included source and build arguments"
+    }
+  ]
+}

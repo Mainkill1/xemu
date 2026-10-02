@@ -14,10 +14,25 @@ build/test-xbox-mcpx-apu-real-memory --tap
 build/test-xbox-mcpx-apu-real-memory --baseline --tap
 ```
 
-The real-memory cases check nine-word mono and eighteen-word stereo payloads,
-plus an MMIO SGE descriptor that replaces the RAM backing at the same physical
-address between the first and second word. The original reader must see the
-new backing for subsequent words, as must the candidate.
+The eleven real-memory cases run against both readers:
+
+- Nine-word mono and eighteen-word stereo RAM payloads.
+- Same-address RAM replacement between the first and second encoded word.
+- Valid mono/stereo IMA blocks within a page and across an SGE page boundary.
+  Encoded bytes are checked before the production decoder's 65 samples are
+  compared with independently calculated ascending/descending ramps.
+- Actual MMIO payload reads, checking every access address and exact count.
+- Foreign-thread changes to RAM mapping, SGE table base and descriptor page,
+  with 256 generations per scenario. QemuEvents stop the reader inside its
+  second descriptor callback while the BQL owner publishes the change. The
+  reader registers with RCU; the synthetic descriptor uses lockless MMIO to
+  avoid acquiring BQL while the owner waits for the event.
+
+Both readers must observe each change at the same word boundary. The table-base
+case distinguishes the second word's already-selected descriptor from the
+third word's newly selected table. No sleeps establish correctness. These are
+event-ordered component checks, not qualification of arbitrary unsynchronized
+topology changes, RAM destruction/resize, voice mixing, or native sound output.
 
 For fixed-work measurements, use the **same executable** for both modes:
 

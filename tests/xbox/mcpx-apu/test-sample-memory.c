@@ -3,17 +3,25 @@
 #include "qemu/module.h"
 #include "qemu/cutils.h"
 #include "qemu/main-loop.h"
+#include "qemu/rcu.h"
+#include "qemu/thread.h"
 #include "qapi/error.h"
 #include "system/cpus.h"
 #include "hw/boards.h"
 #include "hw/xbox/mcpx/apu/vp/sample-memory.h"
+#include "hw/xbox/mcpx/apu/vp/adpcm.h"
 
 static MemoryRegion table, ram_table, old_bank, new_bank;
+static MemoryRegion tail_bank, io_bank, other_table;
 static unsigned descriptor_reads;
 static bool remap_enabled;
 static uint32_t table_base = 0x1000;
 static bool original_reader;
 static bool new_bank_mapped;
+static bool threaded_change;
+static uint32_t descriptor_page = 0x4000;
+static unsigned payload_reads;
+static QemuEvent remap_requested, remap_finished;
 static const unsigned warmup_blocks = 4096;
 
 /* Original non-streaming ADPCM loads, retained as a component control. */
@@ -46,9 +54,13 @@ static uint32_t fixture_word(unsigned index)
 
 static uint64_t read_table(void *opaque, hwaddr addr, unsigned size)
 {
-    g_assert_cmpuint(addr, ==, 0);
+    g_assert_true(addr == 0 || addr == 8);
     g_assert_cmpuint(size, ==, 4);
     descriptor_reads++;
+    if (threaded_change && descriptor_reads == 2) {
+        qemu_event_set(&remap_requested);
+        qemu_event_wait(&remap_finished);
+    }
     if (remap_enabled && descriptor_reads == 2) {
         memory_region_transaction_begin();
         memory_region_del_subregion(get_system_memory(), &old_bank);
@@ -56,10 +68,24 @@ static uint64_t read_table(void *opaque, hwaddr addr, unsigned size)
         memory_region_transaction_commit();
         new_bank_mapped = true;
     }
-    return 0x4000;
+    return addr == 0 ? descriptor_page : 0x8000;
 }
 static const MemoryRegionOps table_ops = {
     .read = read_table,
+    .endianness = DEVICE_LITTLE_ENDIAN,
+    .valid.min_access_size = 4,
+    .valid.max_access_size = 4,
+};
+
+static uint64_t read_payload(void *opaque, hwaddr addr, unsigned size)
+{
+    g_assert_cmpuint(size, ==, 4);
+    g_assert_cmpuint(addr, ==, payload_reads * 4);
+    return fixture_word(payload_reads++);
+}
+
+static const MemoryRegionOps payload_ops = {
+    .read = read_payload,
     .endianness = DEVICE_LITTLE_ENDIAN,
     .valid.min_access_size = 4,
     .valid.max_access_size = 4,
@@ -69,15 +95,28 @@ static void initialize_memory(void)
 {
     memory_region_init_io(&table, NULL, &table_ops, NULL, "test-sge-table",
                           4096);
+    /* This synthetic descriptor is synchronized by events. Its reader must
+     * not take BQL while the main thread owns BQL to change the RAM map. */
+    memory_region_enable_lockless_io(&table);
     memory_region_init_ram(&ram_table, NULL, "test-ram-table", 4096,
                            &error_fatal);
     memory_region_init_ram(&old_bank, NULL, "test-old-bank", 4096,
                            &error_fatal);
     memory_region_init_ram(&new_bank, NULL, "test-new-bank", 4096,
                            &error_fatal);
+    memory_region_init_ram(&other_table, NULL, "test-other-table", 4096,
+                           &error_fatal);
+    stl_le_p(memory_region_get_ram_ptr(&other_table), 0x8000);
+    memory_region_add_subregion(get_system_memory(), 0x2000, &other_table);
+    memory_region_init_ram(&tail_bank, NULL, "test-tail-bank", 4096,
+                           &error_fatal);
+    memory_region_init_io(&io_bank, NULL, &payload_ops, NULL,
+                          "test-payload-mmio", 4096);
     stl_le_p(memory_region_get_ram_ptr(&ram_table), 0x4000);
     memory_region_add_subregion(get_system_memory(), 0x1000, &table);
     memory_region_add_subregion(get_system_memory(), 0x4000, &old_bank);
+    memory_region_add_subregion(get_system_memory(), 0x8000, &tail_bank);
+    memory_region_add_subregion(get_system_memory(), 0xc000, &io_bank);
 }
 
 static void reset_memory(void)
@@ -91,6 +130,10 @@ static void reset_memory(void)
     }
     descriptor_reads = 0;
     remap_enabled = false;
+    threaded_change = false;
+    descriptor_page = 0x4000;
+    table_base = 0x1000;
+    payload_reads = 0;
     uint8_t *data = memory_region_get_ram_ptr(&old_bank);
     for (unsigned i = 0; i < 4096 / sizeof(uint32_t); i++) {
         stl_le_p(data + i * sizeof(uint32_t), fixture_word(i));
@@ -125,6 +168,138 @@ static void test_mapping_replaced_between_words(void)
     g_assert_cmphex(words[0], ==, 0x11223344);
     g_assert_cmphex(words[1], ==, 0x55667788);
     g_assert_cmphex(words[2], ==, 0x99aabbcc);
+}
+
+/* Valid IMA blocks whose known decoded samples are independent ramps.
+ * Nibble 1 at step index 0 adds exactly one and keeps the index clamped at 0;
+ * nibble 9 subtracts one. Stereo payload is interleaved in four-byte chunks. */
+static void test_decoded_ramp(gconstpointer opaque)
+{
+    unsigned variant = GPOINTER_TO_UINT(opaque);
+    unsigned channels = variant < 2 ? 1 : 2;
+    bool crossing = variant & 1;
+    unsigned bytes = 36 * channels;
+    uint32_t linear = crossing ? TARGET_PAGE_SIZE - 8 * channels : 128;
+    uint8_t encoded[72] = { 0 };
+    uint32_t words[18];
+    int16_t decoded[65 * 2] = { 0 };
+    reset_memory();
+    for (unsigned channel = 0; channel < channels; channel++) {
+        stw_le_p(encoded + 4 * channel, channel ? -1000 : 1000);
+    }
+    for (unsigned chunk = 0; chunk < 8; chunk++) {
+        for (unsigned channel = 0; channel < channels; channel++) {
+            memset(encoded + 4 * channels + (chunk * channels + channel) * 4,
+                   channel ? 0x99 : 0x11, 4);
+        }
+    }
+    for (unsigned i = 0; i < bytes; i++) {
+        uint32_t address = linear + i;
+        MemoryRegion *bank = address < TARGET_PAGE_SIZE ? &old_bank : &tail_bank;
+        uint8_t *data = memory_region_get_ram_ptr(bank);
+        data[address % TARGET_PAGE_SIZE] = encoded[i];
+    }
+    read_block(linear, words, bytes / 4);
+    g_assert_cmpmem(words, bytes, encoded, bytes);
+    g_assert_cmpuint(descriptor_reads, ==, bytes / 4);
+    g_assert_cmpint(adpcm_decode_block(decoded, (uint8_t *)words,
+                                      bytes, channels), ==, 65);
+    for (unsigned sample = 0; sample < 65; sample++) {
+        for (unsigned channel = 0; channel < channels; channel++) {
+            int expected = channel ? -1000 - (int)sample : 1000 + sample;
+            g_assert_cmpint(decoded[sample * channels + channel], ==, expected);
+        }
+    }
+}
+
+static void test_mmio_payload(void)
+{
+    uint32_t words[9];
+    reset_memory();
+    descriptor_page = 0xc000;
+    read_block(0, words, G_N_ELEMENTS(words));
+    g_assert_cmpuint(payload_reads, ==, G_N_ELEMENTS(words));
+    g_assert_cmpuint(descriptor_reads, ==, G_N_ELEMENTS(words));
+    for (unsigned i = 0; i < G_N_ELEMENTS(words); i++) {
+        g_assert_cmphex(words[i], ==, fixture_word(i));
+    }
+}
+
+static void *remap_reader(void *opaque)
+{
+    rcu_register_thread();
+    read_block(0, opaque, 3);
+    rcu_unregister_thread();
+    return NULL;
+}
+
+enum ReaderChange {
+    RAM_REMAP,
+    TABLE_BASE_CHANGE,
+    DESCRIPTOR_CHANGE,
+};
+
+static void test_threaded_observation_change(gconstpointer opaque)
+{
+    enum ReaderChange change = GPOINTER_TO_UINT(opaque);
+    QemuThread reader;
+    unsigned remaps = 256;
+    qemu_event_init(&remap_requested, false);
+    qemu_event_init(&remap_finished, false);
+    for (unsigned generation = 1; generation <= remaps; generation++) {
+        uint32_t words[3];
+        reset_memory();
+        uint8_t *old_data = memory_region_get_ram_ptr(&old_bank);
+        uint8_t *new_data = memory_region_get_ram_ptr(&new_bank);
+        stl_le_p(old_data, generation);
+        stl_le_p(old_data + 4, change == TABLE_BASE_CHANGE
+                              ? generation + 0x10000 : 0xdeadbeef);
+        stl_le_p(old_data + 8, 0xbad0cafe);
+        stl_le_p(new_data + 4, generation + 0x10000);
+        stl_le_p(new_data + 8, generation + 0x20000);
+        uint8_t *tail_data = memory_region_get_ram_ptr(&tail_bank);
+        /* Distinguish the already-selected old word 2 from a premature
+         * retranslation through the newly published table base. */
+        stl_le_p(tail_data + 4, change == TABLE_BASE_CHANGE
+                               ? 0xfeedbabe : generation + 0x10000);
+        stl_le_p(tail_data + 8, generation + 0x20000);
+        threaded_change = true;
+        qemu_event_reset(&remap_requested);
+        qemu_event_reset(&remap_finished);
+        qemu_thread_create(&reader, "sample-reader", remap_reader, words,
+                           QEMU_THREAD_JOINABLE);
+        qemu_event_wait(&remap_requested);
+        /* The descriptor callback holds the reader here. BQL owns the map
+         * update; events establish ordering without sleep or scheduling luck. */
+        switch (change) {
+        case RAM_REMAP:
+            memory_region_transaction_begin();
+            memory_region_del_subregion(get_system_memory(), &old_bank);
+            memory_region_add_subregion(get_system_memory(), 0x4000, &new_bank);
+            memory_region_transaction_commit();
+            new_bank_mapped = true;
+            break;
+        case TABLE_BASE_CHANGE:
+            /* Word 2 already chose the old descriptor address. Word 3 must
+             * reload the table base and use the other table in actual RAM. */
+            table_base = 0x2000;
+            break;
+        case DESCRIPTOR_CHANGE:
+            /* The blocked MMIO descriptor read returns this changed page. */
+            descriptor_page = 0x8000;
+            break;
+        }
+        qemu_event_set(&remap_finished);
+        qemu_thread_join(&reader);
+        g_assert_cmphex(words[0], ==, generation);
+        g_assert_cmphex(words[1], ==, generation + 0x10000);
+        g_assert_cmphex(words[2], ==, generation + 0x20000);
+        g_assert_cmpuint(descriptor_reads, ==,
+                         change == TABLE_BASE_CHANGE ? 2 : 3);
+    }
+    qemu_event_destroy(&remap_finished);
+    qemu_event_destroy(&remap_requested);
+    threaded_change = false;
 }
 
 /* Both variants use this same executable, RAM fixture and fixed work.
@@ -221,5 +396,23 @@ int __wrap_main(int argc, char **argv)
                          GUINT_TO_POINTER(9), test_stable_block);
     g_test_add_data_func("/mcpx-apu/sample-memory/real-ram-stereo",
                          GUINT_TO_POINTER(18), test_stable_block);
+    g_test_add_data_func("/mcpx-apu/sample-memory/decoded-mono-ram",
+                         GUINT_TO_POINTER(0), test_decoded_ramp);
+    g_test_add_data_func("/mcpx-apu/sample-memory/decoded-mono-sge-crossing",
+                         GUINT_TO_POINTER(1), test_decoded_ramp);
+    g_test_add_data_func("/mcpx-apu/sample-memory/decoded-stereo-ram",
+                         GUINT_TO_POINTER(2), test_decoded_ramp);
+    g_test_add_data_func("/mcpx-apu/sample-memory/decoded-stereo-sge-crossing",
+                         GUINT_TO_POINTER(3), test_decoded_ramp);
+    g_test_add_func("/mcpx-apu/sample-memory/mmio-payload", test_mmio_payload);
+    g_test_add_data_func("/mcpx-apu/sample-memory/threaded-mapping-replaced",
+                         GUINT_TO_POINTER(RAM_REMAP),
+                         test_threaded_observation_change);
+    g_test_add_data_func("/mcpx-apu/sample-memory/threaded-table-base-change",
+                         GUINT_TO_POINTER(TABLE_BASE_CHANGE),
+                         test_threaded_observation_change);
+    g_test_add_data_func("/mcpx-apu/sample-memory/threaded-descriptor-change",
+                         GUINT_TO_POINTER(DESCRIPTOR_CHANGE),
+                         test_threaded_observation_change);
     return g_test_run();
 }
