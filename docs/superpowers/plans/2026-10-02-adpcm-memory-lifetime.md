@@ -37,13 +37,13 @@ and testing without further questions.
 **Interfaces:** Use `read_block`, the existing descriptor events, QOM-owned
 MemoryRegion, `qemu_ram_resize`, and `drain_call_rcu`; add two registered TAP cases.
 
-- [ ] Add owned hot-unplug/replacement and resizable-RAM shrink cases, repeated
+- [x] Add owned hot-unplug/replacement and resizable-RAM shrink cases, repeated
   64 times each. Check every returned word, callback count and owner finalization.
-- [ ] Build a separate guard-deleted executable; each new case must fail on
+- [x] Build a separate guard-deleted executable; each new case must fail on
   stale payload data, while its original-reader control passes.
-- [ ] Run all 13 real-memory cases in original and candidate modes; run the
+- [x] Run all 13 real-memory cases in original and candidate modes; run the
   configured broader test suite and preserve any existing failures.
-- [ ] Obtain one fresh review, address material findings, build native artifact
+- [x] Obtain one fresh review, address material findings, build native artifact
   and run both correctness modes on the Deck using retained HTTP definitions.
-- [ ] Publish raw output, source/executable identities and applicability limits;
+- [x] Publish raw output, source/executable identities and applicability limits;
   commit and push tests/evidence, edit PR 275 in place, leave draft/HOLD.

@@ -1,0 +1,78 @@
+{
+  "testedSourceCommit": "0024d1343d28340638f0f4455c16f42b5b3e6912",
+  "native": {
+    "host": "10.0.0.123",
+    "sourceCI": 37024778087,
+    "prHead": "0024d1343d28340638f0f4455c16f42b5b3e6912",
+    "executableSha256": "26ad98da1159c0a33c1e2cc09a14df59090da2ee71324612d205db344d2959cd",
+    "attempts": [
+      {
+        "mode": "candidate",
+        "jobId": "issue197-lifetime-candidate-controls-20261002",
+        "runId": "20261002-151402893-e91f5a2fb2dc4b479ce2cd5b3499d3d9",
+        "passed": 13,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "completeCollection": true
+      },
+      {
+        "mode": "original",
+        "jobId": "issue197-lifetime-original-controls-20261002",
+        "runId": "20261002-151407349-2c4f9003ebe14a04b7cb049696a3562e",
+        "passed": 13,
+        "outcome": {
+          "execution": "completed",
+          "correctness": "passed",
+          "evidence": "complete",
+          "comparison": "eligible"
+        },
+        "completeCollection": true
+      }
+    ],
+    "scope": "component correctness only; no new performance measurement"
+  },
+  "ci": {
+    "runId": 37024778087,
+    "jobsPassed": 20,
+    "ordinaryUnitPass": 137,
+    "ordinaryUnitSkip": 16,
+    "ordinaryUnitFail": 0,
+    "requiredMesaDepthDrawCheck": "passed"
+  },
+  "localFocused": {
+    "apiDouble": 9,
+    "originalRealMemory": 13,
+    "candidateRealMemory": 13,
+    "failedTargets": 0
+  },
+  "localBroader": {
+    "passed": 135,
+    "skipped": 15,
+    "failed": 3,
+    "timeout": 1,
+    "excludedCompileFailure": "test-xbox-mcpx-apu-resampler sinf/cosf",
+    "failures": [
+      "test-xbox-gl-draw-lifecycle SIGSEGV",
+      "test-util-filemonitor mutex initialized assertion SIGABRT",
+      "test-char GCONTEXT assertion SIGABRT",
+      "test-aio 30-second timeout"
+    ]
+  },
+  "controlledChangesPerReader": {
+    "existingMapAndRegisterChanges": 768,
+    "ownedRamRetirements": 64,
+    "resizes": 64,
+    "finalizedOwners": 192
+  },
+  "productionEquivalentTo": "e25b0ba239c8146d2d661f26ec5ad29e82a14853",
+  "productionSha256": {
+    "hw/xbox/mcpx/apu/vp/sample-memory.h": "de5d6a1ebe1d713ed384024b3f6ade518553bdbb67a1443e6049b6dbd86c5dce",
+    "hw/xbox/mcpx/apu/vp/vp.c": "ea22748e7b9207d828d6fdad6447360ddbc0bcb57f163591ccf2d19ef812ab7a"
+  },
+  "performance": "N/A: retained component correctness extension, no production change or new performance measurement",
+  "recommendation": "HOLD; existing component speedup retained, whole-game gain inconclusive and audible/timing gates unresolved"
+}
