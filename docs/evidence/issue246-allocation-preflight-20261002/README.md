@@ -4,6 +4,11 @@
 an offline reader and all three native attempts. It introduces no texture pool
 or emulator runtime instrumentation. No performance improvement was measured.
 
+This packet covers the original three attempts. The later
+[Morrowind scene follow-up](../issue246-morrowind-scene-preflight-20261002/README.md)
+retains Load v3 (No Saved Games) and New Game v4 (initial 3D ship interior behind
+name-entry UI). The new captures do not replace the original failures.
+
 ## Baseline and candidate
 
 **A** is exact fork main `ee5ce48b48784f999af374c1452003f8b2b1230f`, rechecked
@@ -161,14 +166,17 @@ live in this xemu branch, not the test runner repository.
 ## Remaining decision
 
 The source audit confirms 1,024 LRU entries, separate dummy-image allocation,
-current-bound/current-command-buffer eviction guards, synchronous submission
-fence waits, and quarter-cache pressure trimming. Native BC normalization and
+current-bound/current-command-buffer eviction guards and synchronous submission
+fence waits. Quarter-cache trimming is defined, but the budget query and its
+pressure-triggered invocation are compiled out inside `#if 0`; an active
+pressure drain is not established. Native BC normalization and
 surface scaling can change the actual creation extent. Guest dimensions and
 format alone are insufficient for compatibility. No external fork implementation
 was copied or studied during this preflight.
 
 PGR2's current diagnostic evidence does not establish material allocation
-churn. Qualified Morrowind world/transition captures, another texture-heavy
+churn. Morrowind v4 now qualifies an initial 3D interior with modal UI, but
+world/transition captures, another texture-heavy
 title, actual create/destroy counts and duration, normalized configuration
 repetition, eviction/in-flight reasons, allocation bytes and budget/pressure
 behavior are still missing. Do not prototype a pool from this capture, claim a
