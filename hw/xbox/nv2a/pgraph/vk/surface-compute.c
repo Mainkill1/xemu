@@ -21,6 +21,7 @@
 #include "qemu/fast-hash.h"
 #include "qemu/lru.h"
 #include "renderer.h"
+#include "surface-alias-map.h"
 #include <vulkan/vulkan_core.h>
 
 // TODO: Swizzle/Unswizzle
@@ -118,19 +119,28 @@ const char *unpack_z24s8_to_d32_sfloat_s8_uint_glsl =
     "    }\n"
     "}\n";
 
-static gchar *get_compute_shader_glsl(VkFormat host_fmt, bool pack,
+static gchar *get_compute_shader_glsl(VkFormat host_fmt,
+                                      PGRAPHVkComputeOperation operation,
                                       int workgroup_size)
 {
     const char *template;
 
+    if (operation == PGRAPH_VK_COMPUTE_UNSWIZZLE_PACKED_DEPTH) {
+        return pgraph_vk_alias_unswizzle_glsl(workgroup_size);
+    }
+    assert(operation == PGRAPH_VK_COMPUTE_PACK_DEPTH_STENCIL ||
+           operation == PGRAPH_VK_COMPUTE_UNPACK_DEPTH_STENCIL);
+
     switch (host_fmt) {
     case VK_FORMAT_D24_UNORM_S8_UINT:
-        template = pack ? pack_d24_unorm_s8_uint_to_z24s8_glsl :
-                          unpack_z24s8_to_d24_unorm_s8_uint_glsl;
+        template = operation == PGRAPH_VK_COMPUTE_PACK_DEPTH_STENCIL ?
+            pack_d24_unorm_s8_uint_to_z24s8_glsl :
+            unpack_z24s8_to_d24_unorm_s8_uint_glsl;
         break;
     case VK_FORMAT_D32_SFLOAT_S8_UINT:
-        template = pack ? pack_d32_sfloat_s8_uint_to_z24s8_glsl :
-                          unpack_z24s8_to_d32_sfloat_s8_uint_glsl;
+        template = operation == PGRAPH_VK_COMPUTE_PACK_DEPTH_STENCIL ?
+            pack_d32_sfloat_s8_uint_to_z24s8_glsl :
+            unpack_z24s8_to_d32_sfloat_s8_uint_glsl;
         break;
     default:
         assert(!"Unsupported host fmt");
@@ -353,16 +363,13 @@ static int get_workgroup_size_for_output_units(PGRAPHVkState *r, int output_unit
     return group_size;
 }
 
-static ComputePipeline *get_compute_pipeline(PGRAPHVkState *r, VkFormat host_fmt, bool pack, int output_units)
+static ComputePipeline *get_compute_pipeline(PGRAPHVkState *r,
+                                             VkFormat host_fmt,
+                                             PGRAPHVkComputeOperation operation,
+                                             int workgroup_size)
 {
-    int workgroup_size = get_workgroup_size_for_output_units(r, output_units);
-
-    ComputePipelineKey key;
-    memset(&key, 0, sizeof(key));
-
-    key.host_fmt = host_fmt;
-    key.pack = pack;
-    key.workgroup_size = workgroup_size;
+    ComputePipelineKey key = pgraph_vk_compute_pipeline_key(
+        host_fmt, operation, workgroup_size);
 
     LruNode *node = lru_lookup(&r->compute.pipeline_cache,
                       fast_hash((void *)&key, sizeof(key)), &key);
@@ -424,7 +431,9 @@ void pgraph_vk_pack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
 
     size_t output_size_in_units = output_width * output_height;
     ComputePipeline *pipeline = get_compute_pipeline(
-        r, surface->host_fmt.vk_format, true, output_size_in_units);
+        r, surface->host_fmt.vk_format,
+        PGRAPH_VK_COMPUTE_PACK_DEPTH_STENCIL,
+        get_workgroup_size_for_output_units(r, output_size_in_units));
 
     size_t workgroup_size_in_units = pipeline->key.workgroup_size;
     assert(output_size_in_units % workgroup_size_in_units == 0);
@@ -497,7 +506,9 @@ void pgraph_vk_unpack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
 
     size_t output_size_in_units = output_width * output_height;
     ComputePipeline *pipeline = get_compute_pipeline(
-        r, surface->host_fmt.vk_format, false, output_size_in_units);
+        r, surface->host_fmt.vk_format,
+        PGRAPH_VK_COMPUTE_UNPACK_DEPTH_STENCIL,
+        get_workgroup_size_for_output_units(r, output_size_in_units));
 
     size_t workgroup_size_in_units = pipeline->key.workgroup_size;
     assert(output_size_in_units % workgroup_size_in_units == 0);
@@ -525,6 +536,61 @@ void pgraph_vk_unpack_depth_stencil(PGRAPHState *pg, SurfaceBinding *surface,
     pgraph_vk_end_debug_marker(r, cmd);
 }
 
+/* Convert the guest-order packed words of a swizzled depth view into a
+ * linear packed buffer. The caller owns source/destination lifetimes and
+ * barriers between the surrounding pack and unpack commands. */
+bool pgraph_vk_unswizzle_packed_depth(PGRAPHState *pg, VkCommandBuffer cmd,
+                                     VkBuffer src, VkDeviceSize src_size,
+                                     VkBuffer dst, VkDeviceSize dst_size,
+                                     uint32_t width, uint32_t height)
+{
+    PGRAPHVkState *r = pg->vk_renderer_state;
+    uint32_t unused_index;
+    const uint32_t workgroup_size = 64;
+
+    if (!pgraph_vk_alias_morton_index(0, 0, width, height, &unused_index)) {
+        return false;
+    }
+
+    uint64_t units = (uint64_t)width * height;
+    uint64_t bytes = units * sizeof(uint32_t);
+    uint64_t groups = (units + workgroup_size - 1) / workgroup_size;
+
+    if (src == VK_NULL_HANDLE || dst == VK_NULL_HANDLE || src == dst ||
+        src_size < bytes || dst_size < bytes ||
+        bytes > r->device_props.limits.maxStorageBufferRange ||
+        workgroup_size > r->device_props.limits.maxComputeWorkGroupSize[0] ||
+        groups > r->device_props.limits.maxComputeWorkGroupCount[0] ||
+        pgraph_vk_compute_needs_finish(r)) {
+        return false;
+    }
+
+    VkDescriptorBufferInfo buffers[] = {
+        { .buffer = src, .range = bytes },
+        { .buffer = src, .range = bytes },
+        { .buffer = dst, .range = bytes },
+    };
+    update_descriptor_sets(pg, buffers, ARRAY_SIZE(buffers));
+
+    ComputePipeline *pipeline = get_compute_pipeline(
+        r, VK_FORMAT_UNDEFINED,
+        PGRAPH_VK_COMPUTE_UNSWIZZLE_PACKED_DEPTH, workgroup_size);
+
+    pgraph_vk_begin_debug_marker(r, cmd, RGBA_PINK, __func__);
+    vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline->pipeline);
+    vkCmdBindDescriptorSets(
+        cmd, VK_PIPELINE_BIND_POINT_COMPUTE, r->compute.pipeline_layout, 0, 1,
+        &r->compute.descriptor_sets[r->compute.descriptor_set_index - 1], 0,
+        NULL);
+    uint32_t push_constants[2] = { width, height };
+    vkCmdPushConstants(cmd, r->compute.pipeline_layout,
+                       VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(push_constants),
+                       push_constants);
+    vkCmdDispatch(cmd, groups, 1, 1);
+    pgraph_vk_end_debug_marker(r, cmd);
+    return true;
+}
+
 static void pipeline_cache_entry_init(Lru *lru, LruNode *node,
                                       const void *state)
 {
@@ -539,7 +605,8 @@ static void pipeline_cache_entry_init(Lru *lru, LruNode *node,
     }
 
     gchar *glsl = get_compute_shader_glsl(
-        snode->key.host_fmt, snode->key.pack, snode->key.workgroup_size);
+        snode->key.host_fmt, snode->key.operation,
+        snode->key.workgroup_size);
     assert(glsl);
     snode->pipeline = create_compute_pipeline(r, glsl);
     g_free(glsl);
