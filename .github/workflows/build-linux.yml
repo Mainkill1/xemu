@@ -142,6 +142,11 @@ jobs:
 
         mkdir -p deb
         mv *.deb *.ddeb deb
+    - name: Build and verify retained MCPX voice-frame fixtures
+      run: |
+        ninja -C src/build test-xbox-mcpx-apu-voice-frame test-xbox-mcpx-apu-voice-frame-stores
+        src/build/pyvenv/bin/meson test -C src/build --no-rebuild \
+          test-xbox-mcpx-apu-voice-frame test-xbox-mcpx-apu-voice-frame-stores --print-errorlogs
     - name: Report ccache stats
       run: ccache -s
     - name: Generate AppImage
@@ -162,6 +167,8 @@ jobs:
         mkdir -p dist
         tar -czvf ./dist/${{ env.ARTIFACT_NAME }}.tgz --transform "s#^dist#${{ env.ARTIFACT_NAME }}#" deb
         mv xemu-*.AppImage dist
+        cp src/build/test-xbox-mcpx-apu-voice-frame dist/
+        cp src/build/test-xbox-mcpx-apu-voice-frame-stores dist/
     - name: Upload build artifact
       uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v4
       with:

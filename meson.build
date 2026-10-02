@@ -4646,6 +4646,33 @@ foreach target : target_dirs
       'dependencies': []
     }]
   endif
+  # Exercise the actual VP and QEMU memory without the UI.
+  if target == 'i386-softmmu' and host_os == 'linux' and cc.get_define('XBOX') != ''
+    voice_frame_test = executable('test-xbox-mcpx-apu-voice-frame',
+      files('tests/xbox/mcpx-apu/test-voice-frame.c'),
+      c_args: c_args,
+      dependencies: arch_deps + [sdl],
+      objects: lib.extract_all_objects(recursive: true),
+      include_directories: target_inc,
+      link_depends: [block_syms, qemu_syms],
+      link_args: link_args + ['-Wl,--wrap=main'],
+      build_by_default: false)
+    test('test-xbox-mcpx-apu-voice-frame', voice_frame_test,
+      args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+    voice_store_diagnostic = executable('test-xbox-mcpx-apu-voice-frame-stores',
+      files('tests/xbox/mcpx-apu/test-voice-frame.c'),
+      c_args: c_args + ['-DMCPX_VOICE_FRAME_STORE_DIAGNOSTIC'],
+      dependencies: arch_deps + [sdl],
+      objects: lib.extract_all_objects(recursive: true),
+      include_directories: target_inc,
+      link_depends: [block_syms, qemu_syms],
+      link_args: link_args + ['-Wl,--wrap=main',
+                              '-Wl,--wrap=address_space_stl_le'],
+      build_by_default: false)
+    test('test-xbox-mcpx-apu-voice-frame-stores', voice_store_diagnostic,
+      args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+  endif
+
   foreach exe: execs
     exe_name = exe['name']
     if host_os == 'darwin'
