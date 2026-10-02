@@ -1,0 +1,29 @@
+{
+  "ok": true,
+  "runId": "20261002-012000249-9b161940b632443da9c5525604bba274",
+  "available": true,
+  "crash": {
+    "crashed": false,
+    "platform": "linux",
+    "code": null,
+    "source": "runner",
+    "capture": "partial",
+    "dump": "unavailable",
+    "analysis": "unavailable",
+    "topFrames": [],
+    "issues": [
+      "linux_core_metadata_unavailable:captured"
+    ]
+  },
+  "bundle": {
+    "state": "captured",
+    "bytes": 147360,
+    "sha256": "f856fcaaf45910528cfe7a03e4b923d19f960acc3a040356ddcb0c25696d35cb",
+    "href": "/api/v1/runs/20261002-012000249-9b161940b632443da9c5525604bba274/artifacts/diagnostics.zip",
+    "mirrorState": "captured",
+    "omittedFiles": 0,
+    "issues": []
+  },
+  "report": "/api/v1/runs/20261002-012000249-9b161940b632443da9c5525604bba274/artifacts/crash/report.json",
+  "bundleReceipt": "/api/v1/runs/20261002-012000249-9b161940b632443da9c5525604bba274/artifacts/diagnostic-bundle.json"
+}
