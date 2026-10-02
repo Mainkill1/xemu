@@ -2857,6 +2857,36 @@ static bool qemu_machine_creation_done(Error **errp)
     return true;
 }
 
+#ifdef XBOX
+static void xemu_poc_resume_prelaunch(void *opaque)
+{
+    fprintf(stderr, "nv2a flip POC: resuming prelaunch after timer\n");
+    qmp_cont(NULL);
+}
+
+static void xemu_poc_schedule_prelaunch_resume(void)
+{
+    const char *value = getenv("XEMU_POC_RESUME_PRELAUNCH_MS");
+    char *end;
+    unsigned long delay;
+    QEMUTimer *timer;
+
+    if (!value || !*value) {
+        return;
+    }
+
+    errno = 0;
+    delay = strtoul(value, &end, 10);
+    if (errno || *end || delay < 1000 || delay > 30000) {
+        fprintf(stderr, "nv2a flip POC: invalid prelaunch delay '%s'\n", value);
+        return;
+    }
+
+    timer = timer_new_ms(QEMU_CLOCK_REALTIME, xemu_poc_resume_prelaunch, NULL);
+    timer_mod(timer, qemu_clock_get_ms(QEMU_CLOCK_REALTIME) + delay);
+}
+#endif
+
 void qmp_x_exit_preconfig(Error **errp)
 {
     if (phase_check(PHASE_MACHINE_INITIALIZED)) {
@@ -2903,6 +2933,10 @@ void qmp_x_exit_preconfig(Error **errp)
         }
     } else if (autostart) {
         qmp_cont(NULL);
+#ifdef XBOX
+    } else {
+        xemu_poc_schedule_prelaunch_resume();
+#endif
     }
 }
 
