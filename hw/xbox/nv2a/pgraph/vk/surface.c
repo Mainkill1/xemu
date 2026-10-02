@@ -1199,7 +1199,8 @@ get_any_compatible_invalid_surface(PGRAPHVkState *r, SurfaceBinding *target)
 {
     SurfaceBinding *surface, *next;
     QTAILQ_FOREACH_SAFE(surface, &r->invalid_surfaces, entry, next) {
-        if (check_invalid_surface_is_compatibile(surface, target)) {
+        if (!surface->retained_guest_bytes &&
+            check_invalid_surface_is_compatibile(surface, target)) {
             QTAILQ_REMOVE(&r->invalid_surfaces, surface, entry);
             return surface;
         }
@@ -1217,6 +1218,7 @@ static void prune_invalid_surfaces(PGRAPHVkState *r, int keep)
         num_surfaces += 1;
         if (num_surfaces > keep) {
             QTAILQ_REMOVE(&r->invalid_surfaces, surface, entry);
+            g_free(surface->retained_guest_bytes);
             destroy_surface_image(r, surface);
             g_free(surface);
         }
@@ -1257,6 +1259,57 @@ static bool check_surface_compatibility(SurfaceBinding const *s1,
     } else {
         return (s1->width == s2->width) && (s1->height == s2->height);
     }
+}
+
+static SurfaceBinding *get_retained_surface(NV2AState *d,
+                                            const SurfaceBinding *target)
+{
+    PGRAPHVkState *r = d->pgraph.vk_renderer_state;
+    SurfaceBinding *surface;
+
+    if (target->color) {
+        return NULL;
+    }
+
+    /* A dirty overlapping image may be downloaded after this lookup. Its
+     * writes have not yet reached guest RAM, so comparison would be stale. */
+    QTAILQ_FOREACH(surface, &r->surfaces, entry) {
+        if (surface->draw_dirty &&
+            check_surface_overlaps_range(surface, target->vram_addr,
+                                         target->size)) {
+            return NULL;
+        }
+    }
+
+    QTAILQ_FOREACH(surface, &r->invalid_surfaces, entry) {
+        if (!surface->retained_guest_bytes ||
+            surface->vram_addr != target->vram_addr ||
+            surface->size != target->size ||
+            surface->swizzle != target->swizzle ||
+            surface->fmt.bytes_per_pixel != target->fmt.bytes_per_pixel ||
+            surface->host_fmt.usage != target->host_fmt.usage ||
+            surface->dma_addr != target->dma_addr ||
+            surface->dma_len != target->dma_len ||
+            memcmp(&surface->shape, &target->shape,
+                   sizeof(target->shape)) != 0 ||
+            !check_surface_compatibility(surface, target, true)) {
+            continue;
+        }
+
+        if (memcmp(surface->retained_guest_bytes,
+                   d->vram_ptr + target->vram_addr, target->size) != 0) {
+            g_free(surface->retained_guest_bytes);
+            surface->retained_guest_bytes = NULL;
+            continue;
+        }
+
+        QTAILQ_REMOVE(&r->invalid_surfaces, surface, entry);
+        g_free(surface->retained_guest_bytes);
+        surface->retained_guest_bytes = NULL;
+        return surface;
+    }
+
+    return NULL;
 }
 
 bool pgraph_vk_surface_download_if_dirty(NV2AState *d, SurfaceBinding *surface)
@@ -1900,12 +1953,24 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
                     error_report("Vulkan surface readback failed before replacement");
                     abort();
                 }
+                if (!surface->color && surface->initialized &&
+                    !surface->upload_pending &&
+                    !surface->readback_superseded_by_guest &&
+                    surface->vram_addr == target.vram_addr &&
+                    surface->size <= 2 * MiB) {
+                    surface->retained_guest_bytes = g_memdup2(
+                        d->vram_ptr + surface->vram_addr, surface->size);
+                }
                 invalidate_surface(d, surface);
             }
         }
 
         if (should_create) {
-            surface = get_any_compatible_invalid_surface(r, &target);
+            surface = get_retained_surface(d, &target);
+            bool retained = surface != NULL;
+            if (!retained) {
+                surface = get_any_compatible_invalid_surface(r, &target);
+            }
             if (surface) {
                 migrate_surface_image(&target, surface);
             } else {
@@ -1913,9 +1978,16 @@ static void update_surface_part(NV2AState *d, bool upload, bool color)
                 create_surface_image(pg, &target);
             }
 
+            if (retained) {
+                target.upload_pending = false;
+                target.initialized = true;
+            }
+
             *surface = target;
-            record_surface_upload_pending_cause(
-                r, SURFACE_UPLOAD_PENDING_NEW);
+            if (!retained) {
+                record_surface_upload_pending_cause(
+                    r, SURFACE_UPLOAD_PENDING_NEW);
+            }
             surface->lifetime_id = ++r->next_surface_lifetime_id;
             if (surface->lifetime_id == 0) {
                 surface->lifetime_id = ++r->next_surface_lifetime_id;
