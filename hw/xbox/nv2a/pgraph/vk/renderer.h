@@ -251,6 +251,10 @@ typedef struct SurfaceBinding {
 
     bool initialized;
 
+    /* Guest bytes corresponding to an evicted image that can be restored
+     * without another upload if no overlapping resource changed them. */
+    uint8_t *retained_guest_bytes;
+
     /* Identifies this logical binding even when its allocation is recycled. */
     uint64_t lifetime_id;
 } SurfaceBinding;
