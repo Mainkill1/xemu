@@ -27,6 +27,36 @@ typedef struct TextureShape {
     unsigned int pitch;
 } TextureShape;
 
+typedef struct PGRAPHTextureMipCrop {
+    unsigned int width;
+    unsigned int height;
+    unsigned int skip_pixels;
+    unsigned int skip_rows;
+} PGRAPHTextureMipCrop;
+
+static inline PGRAPHTextureMipCrop pgraph_bordered_texture_mip_crop(
+    unsigned int base_width, unsigned int base_height,
+    unsigned int stored_width, unsigned int stored_height, unsigned int level)
+{
+    unsigned int logical_width = base_width;
+    unsigned int logical_height = base_height;
+
+    for (unsigned int i = 0; i < level; i++) {
+        logical_width = MAX(logical_width / 2, 1U);
+        logical_height = MAX(logical_height / 2, 1U);
+    }
+    logical_width = MIN(logical_width, stored_width);
+    logical_height = MIN(logical_height, stored_height);
+    unsigned int border = level < 3 ? 4U >> level : 0;
+
+    return (PGRAPHTextureMipCrop) {
+        .width = logical_width,
+        .height = logical_height,
+        .skip_pixels = MIN(border, stored_width - logical_width),
+        .skip_rows = MIN(border, stored_height - logical_height),
+    };
+}
+
 static inline bool pgraph_texture_size_mul(size_t a, size_t b, size_t *result)
 {
     if (b && a > SIZE_MAX / b) {

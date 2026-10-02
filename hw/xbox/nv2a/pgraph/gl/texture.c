@@ -571,28 +571,47 @@ static void upload_gl_texture(GLenum gl_target,
                 uint8_t *unswizzled = (uint8_t*)g_malloc(height * pitch);
                 unswizzle_rect(texture_data, width, height,
                                unswizzled, pitch, f.bytes_per_pixel);
+                size_t converted_size = 0;
                 uint8_t *converted = pgraph_convert_texture_data(
                     s, unswizzled, palette_data, width, height, 1, pitch, 0,
-                    NULL);
+                    &converted_size);
                 uint8_t *pixel_data = converted ? converted : unswizzled;
                 unsigned int tex_width = width;
                 unsigned int tex_height = height;
+                GLint previous_unpack_alignment = 4;
+                bool cropped = s.cubemap && adjusted_width != s.width;
 
-                if (s.cubemap && adjusted_width != s.width) {
+                if (cropped) {
                     // FIXME: Consider preserving the border.
                     // There does not seem to be a way to reference the border
                     // texels in a cubemap, so they are discarded.
-                    glPixelStorei(GL_UNPACK_ROW_LENGTH, adjusted_width);
-                    tex_width = s.width;
-                    tex_height = s.height;
-                    pixel_data += 4 * f.bytes_per_pixel + 4 * pitch;
+                    PGRAPHTextureMipCrop crop =
+                        pgraph_bordered_texture_mip_crop(
+                            s.width, s.height, width, height, level);
+                    size_t upload_bytes_per_pixel = f.bytes_per_pixel;
+                    if (converted) {
+                        size_t pixels = (size_t)width * height;
+                        assert(pixels && converted_size >= pixels &&
+                               converted_size % pixels == 0);
+                        upload_bytes_per_pixel = converted_size / pixels;
+                    }
+                    glGetIntegerv(GL_UNPACK_ALIGNMENT,
+                                  &previous_unpack_alignment);
+                    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+                    glPixelStorei(GL_UNPACK_ROW_LENGTH, width);
+                    tex_width = crop.width;
+                    tex_height = crop.height;
+                    pixel_data += ((size_t)crop.skip_rows * width +
+                                   crop.skip_pixels) * upload_bytes_per_pixel;
                 }
 
                 glTexImage2D(gl_target, level, f.gl_internal_format, tex_width,
                              tex_height, 0, f.gl_format, f.gl_type,
                              pixel_data);
-                if (s.cubemap && s.border) {
+                if (cropped) {
                     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+                    glPixelStorei(GL_UNPACK_ALIGNMENT,
+                                  previous_unpack_alignment);
                 }
                 if (converted) {
                     g_free(converted);

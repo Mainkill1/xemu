@@ -33,7 +33,7 @@ static void test_compressed_subblock_levels(void)
         TextureShape dxt1 =
             cubemap_shape(NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT1_A1R5G5B5, 1,
                           dimensions[i], dimensions[i]);
-        size_t level_size;
+        size_t level_size = SIZE_MAX;
 
         g_assert_true(pgraph_calculate_texture_level_size(
             &dxt1, dimensions[i], dimensions[i], true, 4, &level_size));
@@ -59,7 +59,7 @@ static void test_compressed_mip_chain(void)
     size_t total = 0;
 
     for (size_t i = 0; i < ARRAY_SIZE(expected_sizes); i++) {
-        size_t level_size;
+        size_t level_size = SIZE_MAX;
         g_assert_true(pgraph_calculate_texture_level_size(
             &shape, width, height, true, 4, &level_size));
         g_assert_cmpuint(level_size, ==, expected_sizes[i]);
@@ -69,7 +69,7 @@ static void test_compressed_mip_chain(void)
     }
     g_assert_cmpuint(total, ==, 56);
 
-    size_t stride;
+    size_t stride = SIZE_MAX;
     g_assert_true(
         pgraph_calculate_texture_cubemap_face_stride(&shape, true, 4, &stride));
     g_assert_cmpuint(stride, ==, NV2A_CUBEMAP_FACE_ALIGNMENT);
@@ -82,8 +82,8 @@ static void test_uncompressed_mips_and_alignment(void)
     for (size_t i = 0; i < ARRAY_SIZE(bytes_per_pixel); i++) {
         TextureShape shape =
             cubemap_shape(NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8R8G8B8, 4, 8, 8);
-        size_t level_size;
-        size_t stride;
+        size_t level_size = SIZE_MAX;
+        size_t stride = SIZE_MAX;
 
         g_assert_true(pgraph_calculate_texture_level_size(
             &shape, 1, 1, false, bytes_per_pixel[i], &level_size));
@@ -96,7 +96,7 @@ static void test_uncompressed_mips_and_alignment(void)
     TextureShape exact = cubemap_shape(
         NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT1_A1R5G5B5, 1, 16, 16);
     TextureShape crossed = exact;
-    size_t stride;
+    size_t stride = SIZE_MAX;
 
     g_assert_true(
         pgraph_calculate_texture_cubemap_face_stride(&exact, true, 4, &stride));
@@ -111,7 +111,7 @@ static void test_face_offsets_and_storage_levels(void)
 {
     TextureShape shape = cubemap_shape(
         NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT1_A1R5G5B5, 1, 16, 16);
-    size_t stride;
+    size_t stride = SIZE_MAX;
 
     shape.storage_levels = 2;
     g_assert_true(
@@ -127,12 +127,47 @@ static void test_bordered_storage_extent(void)
 {
     TextureShape shape =
         cubemap_shape(NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT1_A1R5G5B5, 4, 8, 8);
-    size_t stride;
+    size_t stride = SIZE_MAX;
 
     shape.border = true;
     g_assert_true(
         pgraph_calculate_texture_cubemap_face_stride(&shape, true, 4, &stride));
     g_assert_cmpuint(stride, ==, 2 * NV2A_CUBEMAP_FACE_ALIGNMENT);
+}
+
+static void test_bordered_mip_crop(void)
+{
+    typedef struct BorderedCropCase {
+        unsigned int base_width, base_height;
+        unsigned int stored_width, stored_height, level;
+        unsigned int width, height, skip_pixels, skip_rows;
+    } BorderedCropCase;
+    const BorderedCropCase cases[] = {
+        { 8, 8, 16, 16, 0, 8, 8, 4, 4 },
+        { 8, 8, 8, 8, 1, 4, 4, 2, 2 },
+        { 8, 8, 4, 4, 2, 2, 2, 1, 1 },
+        { 8, 8, 2, 2, 3, 1, 1, 0, 0 },
+        { 4, 4, 16, 16, 0, 4, 4, 4, 4 },
+        { 2, 2, 16, 16, 0, 2, 2, 4, 4 },
+        { 1, 1, 16, 16, 0, 1, 1, 4, 4 },
+        { 8, 4, 8, 8, 1, 4, 2, 2, 2 },
+        { 8, 8, 1, 1, 0, 1, 1, 0, 0 },
+    };
+
+    for (size_t i = 0; i < ARRAY_SIZE(cases); i++) {
+        const BorderedCropCase *c = &cases[i];
+        PGRAPHTextureMipCrop crop = pgraph_bordered_texture_mip_crop(
+            c->base_width, c->base_height, c->stored_width,
+            c->stored_height, c->level);
+        g_assert_cmpuint(crop.width, ==, c->width);
+        g_assert_cmpuint(crop.height, ==, c->height);
+        g_assert_cmpuint(crop.skip_pixels, ==, c->skip_pixels);
+        g_assert_cmpuint(crop.skip_rows, ==, c->skip_rows);
+        g_assert_cmpuint(crop.width + crop.skip_pixels, <=,
+                         c->stored_width);
+        g_assert_cmpuint(crop.height + crop.skip_rows, <=,
+                         c->stored_height);
+    }
 }
 
 static void test_invalid_and_overflow(void)
@@ -190,6 +225,8 @@ int main(int argc, char **argv)
                     test_face_offsets_and_storage_levels);
     g_test_add_func("/xbox/pgraph/texture-layout/bordered-storage",
                     test_bordered_storage_extent);
+    g_test_add_func("/xbox/pgraph/texture-layout/bordered-crop",
+                    test_bordered_mip_crop);
     g_test_add_func("/xbox/pgraph/texture-layout/invalid-overflow",
                     test_invalid_and_overflow);
     return g_test_run();
