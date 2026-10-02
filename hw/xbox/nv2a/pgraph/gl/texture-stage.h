@@ -14,6 +14,8 @@ typedef struct TextureBinding {
     unsigned int refcnt;
     int draw_time;
     uint64_t data_hash;
+    uint64_t texture_vram_offset;
+    uint64_t palette_vram_offset;
     unsigned int scale;
     unsigned int min_filter;
     unsigned int mag_filter;

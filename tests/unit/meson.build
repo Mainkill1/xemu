@@ -76,6 +76,7 @@ tests = {
     meson.project_source_root() / 'hw/xbox/nv2a/pgraph/gl/draw-lifecycle.c',
     xbox_i386_target_headers, gloffscreen, epoxy,
   ],
+  'test-xbox-gl-texture-binding': [],
   'test-xbox-vk-failure-state': [],
   'test-xbox-vk-surface-coherence': [],
   'test-xbox-vk-failpoint': [
