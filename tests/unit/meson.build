@@ -467,6 +467,26 @@ test_env = environment()
 test_env.set('G_TEST_SRCDIR', meson.current_source_dir())
 test_env.set('G_TEST_BUILDDIR', meson.current_build_dir())
 
+# This test includes the private production upload implementation. Discard
+# unrelated renderer entry points rather than replacing its converters/GL calls.
+if host_os == 'linux' and epoxy.found()
+  gl_upload_test = executable('test-xbox-gl-texture-upload',
+    files('test-xbox-gl-texture-upload.c',
+          '../../hw/xbox/nv2a/pgraph/texture.c',
+          '../../hw/xbox/nv2a/pgraph/swizzle.c',
+          '../../hw/xbox/nv2a/pgraph/s3tc.c'), genh,
+    dependencies: [qemuutil, xbox_i386_target_headers, epoxy],
+    include_directories: include_directories(
+      '../../hw/xbox/nv2a/pgraph/thirdparty/gloffscreen'),
+    c_args: ['-ffunction-sections', '-fdata-sections'],
+    link_args: ['-Wl,--gc-sections'])
+  gl_upload_env = environment()
+  gl_upload_env.set('EGL_PLATFORM', 'surfaceless')
+  gl_upload_env.set('LIBGL_ALWAYS_SOFTWARE', '1')
+  test('test-xbox-gl-texture-upload', gl_upload_test,
+       env: gl_upload_env, args: ['--tap', '-k'], protocol: 'tap', suite: ['unit'])
+endif
+
 slow_tests = {
   'test-aio-multithread' : 120,
   'test-bufferiszero': 60,
