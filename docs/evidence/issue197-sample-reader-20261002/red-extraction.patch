@@ -1,0 +1,271 @@
+diff --git a/hw/xbox/mcpx/apu/vp/sample-memory.h b/hw/xbox/mcpx/apu/vp/sample-memory.h
+index 723a489f02f..12ef4821cf0 100644
+--- a/hw/xbox/mcpx/apu/vp/sample-memory.h
++++ b/hw/xbox/mcpx/apu/vp/sample-memory.h
+@@ -7,6 +7,10 @@
+ #include <stddef.h>
+ #include <stdint.h>
+ 
++#include "exec/target_page.h"
++#include "system/address-spaces.h"
++#include "system/memory.h"
++
+ static inline size_t mcpx_apu_adpcm_chunk_bytes(uint32_t linear_address,
+                                                 size_t remaining_bytes,
+                                                 uint32_t page_size)
+@@ -25,4 +29,58 @@ static inline bool mcpx_apu_cached_word_eligible(uint64_t mapped_physical,
+            offset <= mapped_bytes && 4 <= mapped_bytes - offset;
+ }
+ 
++static inline hwaddr mcpx_apu_sample_address(hwaddr sge_base, unsigned int max_sge, uint32_t addr)
++{
++    unsigned int entry = addr / TARGET_PAGE_SIZE;
++    assert(entry <= max_sge);
++    uint32_t prd_address =
++        ldl_le_phys(&address_space_memory, sge_base + entry * 4 * 2);
++    return prd_address + addr % TARGET_PAGE_SIZE;
++}
++
++static inline void mcpx_apu_read_adpcm_block(const uint32_t *sge_base_reg,
++                                           uint32_t linear_addr,
++                             uint32_t *words, unsigned int word_count)
++{
++    hwaddr sge_base = *sge_base_reg;
++
++    while (word_count) {
++        size_t chunk_bytes = mcpx_apu_adpcm_chunk_bytes(
++            linear_addr, word_count * sizeof(*words), TARGET_PAGE_SIZE);
++        unsigned int chunk_words =
++            MIN(word_count, DIV_ROUND_UP(chunk_bytes, sizeof(*words)));
++        hwaddr mapped_physical =
++            mcpx_apu_sample_address(sge_base, 0xFFFFFFFF, linear_addr);
++        MemoryRegionCache cache = { 0 };
++        int64_t mapped_bytes = 0;
++        if (chunk_words > 1) {
++            mapped_bytes =
++                address_space_cache_init(&cache, &address_space_memory,
++                                         mapped_physical, chunk_bytes, false);
++        }
++
++        for (unsigned int i = 0; i < chunk_words; i++) {
++            hwaddr physical = mapped_physical;
++            if (i) {
++                /* An SGE entry can change between words in the same block. */
++                physical = mcpx_apu_sample_address(sge_base, 0xFFFFFFFF, linear_addr);
++            }
++            size_t offset = i * sizeof(*words);
++            if (mapped_bytes > 0 && cache.ptr &&
++                mcpx_apu_cached_word_eligible(mapped_physical, physical, offset,
++                                              mapped_bytes)) {
++                words[i] = address_space_ldl_le_cached(
++                    &cache, offset, MEMTXATTRS_UNSPECIFIED, NULL);
++            } else {
++                words[i] = ldl_le_phys(&address_space_memory, physical);
++            }
++            linear_addr += sizeof(*words);
++        }
++
++        address_space_cache_destroy(&cache);
++        words += chunk_words;
++        word_count -= chunk_words;
++    }
++}
++
+ #endif
+diff --git a/hw/xbox/mcpx/apu/vp/vp.c b/hw/xbox/mcpx/apu/vp/vp.c
+index 733c245e548..5cba7d635f3 100644
+--- a/hw/xbox/mcpx/apu/vp/vp.c
++++ b/hw/xbox/mcpx/apu/vp/vp.c
+@@ -671,60 +671,6 @@ const MemoryRegionOps vp_ops = {
+     .write = vp_write,
+ };
+ 
+-static hwaddr get_data_ptr(hwaddr sge_base, unsigned int max_sge, uint32_t addr)
+-{
+-    unsigned int entry = addr / TARGET_PAGE_SIZE;
+-    assert(entry <= max_sge);
+-    uint32_t prd_address =
+-        ldl_le_phys(&address_space_memory, sge_base + entry * 4 * 2);
+-    // uint32_t prd_control =
+-    //     ldl_le_phys(&address_space_memory, sge_base + entry * 4 * 2 + 4);
+-    DPRINTF("Addr: 0x%08X, control: 0x%08X\n", prd_address, prd_control);
+-    return prd_address + addr % TARGET_PAGE_SIZE;
+-}
+-
+-static void read_adpcm_block(hwaddr sge_base, uint32_t linear_addr,
+-                             uint32_t *words, unsigned int word_count)
+-{
+-    while (word_count) {
+-        size_t chunk_bytes = mcpx_apu_adpcm_chunk_bytes(
+-            linear_addr, word_count * sizeof(*words), TARGET_PAGE_SIZE);
+-        unsigned int chunk_words =
+-            MIN(word_count, DIV_ROUND_UP(chunk_bytes, sizeof(*words)));
+-        hwaddr mapped_physical =
+-            get_data_ptr(sge_base, 0xFFFFFFFF, linear_addr);
+-        MemoryRegionCache cache = { 0 };
+-        int64_t mapped_bytes = 0;
+-        if (chunk_words > 1) {
+-            mapped_bytes =
+-                address_space_cache_init(&cache, &address_space_memory,
+-                                         mapped_physical, chunk_bytes, false);
+-        }
+-
+-        for (unsigned int i = 0; i < chunk_words; i++) {
+-            hwaddr physical = mapped_physical;
+-            if (i) {
+-                /* An SGE entry can change between words in the same block. */
+-                physical = get_data_ptr(sge_base, 0xFFFFFFFF, linear_addr);
+-            }
+-            size_t offset = i * sizeof(*words);
+-            if (mapped_bytes > 0 && cache.ptr &&
+-                mcpx_apu_cached_word_eligible(mapped_physical, physical, offset,
+-                                              mapped_bytes)) {
+-                words[i] = address_space_ldl_le_cached(
+-                    &cache, offset, MEMTXATTRS_UNSPECIFIED, NULL);
+-            } else {
+-                words[i] = ldl_le_phys(&address_space_memory, physical);
+-            }
+-            linear_addr += sizeof(*words);
+-        }
+-
+-        address_space_cache_destroy(&cache);
+-        words += chunk_words;
+-        word_count -= chunk_words;
+-    }
+-}
+-
+ static float voice_step_envelope(MCPXAPUState *d, uint16_t v, uint32_t reg_0,
+                            uint32_t reg_a, uint32_t rr_reg, uint32_t rr_mask,
+                            uint32_t lvl_reg, uint32_t lvl_mask,
+@@ -1073,7 +1019,7 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
+                            block_size); // FIXME: Use idiomatic DMA function
+                 } else {
+                     linear_addr += ba;
+-                    read_adpcm_block(d->regs[NV_PAPU_VPSGEADDR], linear_addr,
++                    mcpx_apu_read_adpcm_block(&d->regs[NV_PAPU_VPSGEADDR], linear_addr,
+                                      adpcm_block, 9 * samples_per_block);
+                 }
+                 adpcm_decode_block(adpcm_decoded, (uint8_t *)adpcm_block,
+@@ -1095,7 +1041,7 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
+                 addr = segment_offset + cbo * block_size;
+             } else {
+                 uint32_t linear_addr = ba + cbo * block_size;
+-                addr = get_data_ptr(d->regs[NV_PAPU_VPSGEADDR], 0xFFFFFFFF,
++                addr = mcpx_apu_sample_address(d->regs[NV_PAPU_VPSGEADDR], 0xFFFFFFFF,
+                                     linear_addr);
+             }
+ 
+diff --git a/tests/unit/meson.build b/tests/unit/meson.build
+index d0799f4395f..3cf6d9d395b 100644
+--- a/tests/unit/meson.build
++++ b/tests/unit/meson.build
+@@ -164,7 +164,7 @@ tests = {
+   'test-fifo': [],
+   'test-lru-active': [],
+   'test-xbox-mcpx-apu-resampler': [libsamplerate],
+-  'test-xbox-mcpx-apu-sample-memory': [],
++  'test-xbox-mcpx-apu-sample-memory': [xbox_i386_target_headers],
+ }
+ 
+ if host_os == 'windows'
+diff --git a/tests/unit/test-xbox-mcpx-apu-sample-memory.c b/tests/unit/test-xbox-mcpx-apu-sample-memory.c
+index 3fb9a5020d5..27567cbbae3 100644
+--- a/tests/unit/test-xbox-mcpx-apu-sample-memory.c
++++ b/tests/unit/test-xbox-mcpx-apu-sample-memory.c
+@@ -1,9 +1,87 @@
+ /* SPDX-License-Identifier: GPL-2.0-or-later */
+ 
+-#include <glib.h>
++#include "qemu/osdep.h"
++#include "system/address-spaces.h"
++#include "system/memory.h"
++
++/* Deterministic physical-memory boundary; the production block reader runs
++ * unchanged. This does not qualify QEMU's mapping lifetime or real MMIO. */
++AddressSpace address_space_memory;
++static uint8_t ram[0x10000];
++static uint32_t table_base;
++static bool switch_table_on_map;
++static unsigned live_maps;
++
++static uint32_t test_phys_load(AddressSpace *as, hwaddr addr)
++{
++    g_assert_true(as == &address_space_memory);
++    g_assert_cmpuint(addr + 4, <=, sizeof(ram));
++    return ldl_le_p(ram + addr);
++}
++
++static int64_t test_cache_init(MemoryRegionCache *cache, AddressSpace *as,
++                               hwaddr addr, hwaddr len, bool is_write)
++{
++    g_assert_true(as == &address_space_memory);
++    g_assert_false(is_write);
++    g_assert_cmpuint(addr + len, <=, sizeof(ram));
++    cache->ptr = ram + addr;
++    cache->len = len;
++    live_maps++;
++    if (switch_table_on_map) {
++        table_base = 0x1800;
++        switch_table_on_map = false;
++    }
++    return len;
++}
++
++static void test_cache_destroy(MemoryRegionCache *cache)
++{
++    if (cache->ptr) {
++        g_assert_cmpuint(live_maps, >, 0);
++        live_maps--;
++    }
++}
++
++static uint32_t test_cached_load(MemoryRegionCache *cache, hwaddr offset,
++                                 MemTxAttrs attrs, MemTxResult *result)
++{
++    g_assert_cmpuint(offset + 4, <=, cache->len);
++    return ldl_le_p(cache->ptr + offset);
++}
++
++#define ldl_le_phys test_phys_load
++#define address_space_cache_init test_cache_init
++#define address_space_cache_destroy test_cache_destroy
++#define address_space_ldl_le_cached test_cached_load
+ 
+ #include "hw/xbox/mcpx/apu/vp/sample-memory.h"
+ 
++static void test_table_base_changes_between_words(void)
++{
++    uint32_t words[3];
++
++    memset(ram, 0, sizeof(ram));
++    table_base = 0x1000;
++    live_maps = 0;
++    switch_table_on_map = true;
++    stl_le_p(ram + 0x1000, 0x4000);
++    stl_le_p(ram + 0x1800, 0x6000);
++    stl_le_p(ram + 0x4000, 0x11223344);
++    stl_le_p(ram + 0x4004, 0xdeadbeef);
++    stl_le_p(ram + 0x4008, 0xbad0cafe);
++    stl_le_p(ram + 0x6004, 0x55667788);
++    stl_le_p(ram + 0x6008, 0x99aabbcc);
++
++    mcpx_apu_read_adpcm_block(&table_base, 0, words, G_N_ELEMENTS(words));
++
++    /* Word zero was translated before the table-base update. */
++    g_assert_cmphex(words[0], ==, 0x11223344);
++    g_assert_cmphex(words[1], ==, 0x55667788);
++    g_assert_cmphex(words[2], ==, 0x99aabbcc);
++    g_assert_cmpuint(live_maps, ==, 0);
++}
++
+ static void test_sge_page_chunk(void)
+ {
+     g_assert_cmpuint(mcpx_apu_adpcm_chunk_bytes(0x1000, 36, 4096), ==, 36);
+@@ -32,5 +110,7 @@ int main(int argc, char **argv)
+                     test_sge_page_chunk);
+     g_test_add_func("/mcpx-apu/sample-memory/cached-word-eligibility",
+                     test_cached_word_eligibility);
++    g_test_add_func("/mcpx-apu/sample-memory/table-base-changes-between-words",
++                    test_table_base_changes_between_words);
+     return g_test_run();
+ }
