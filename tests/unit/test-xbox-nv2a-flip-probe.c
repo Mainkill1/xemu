@@ -2,7 +2,7 @@
 #include "qemu/osdep.h"
 #include "hw/xbox/nv2a/flip_probe_core.h"
 
-int main(void)
+static void check_relative_gate(void)
 {
     NV2AFlipProbeGate gate = { 0 };
     uint64_t first;
@@ -34,5 +34,11 @@ int main(void)
     g_assert_false(nv2a_flip_probe_complete(&gate, 34, 18));
     gate.generation = UINT64_MAX;
     g_assert_false(nv2a_flip_probe_arm(&gate, 34, 18, 1));
-    return 0;
+}
+
+int main(int argc, char **argv)
+{
+    g_test_init(&argc, &argv, NULL);
+    g_test_add_func("/nv2a/flip-probe/relative-gate", check_relative_gate);
+    return g_test_run();
 }
