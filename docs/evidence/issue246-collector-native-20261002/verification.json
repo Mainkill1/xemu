@@ -1,0 +1,111 @@
+{
+  "testedRuntimeCommit": "8079502ae25a602e1395fa9ee87ec1ef8b57c9d6",
+  "parentCommit": "ee5ce48b48784f999af374c1452003f8b2b1230f",
+  "archiveBytes": 31975347,
+  "archiveSha256": "7042b509f753515d756a3d2d9041b5fe6e658228c58d77ff793d7844b1ef8ac6",
+  "payloadFilesRehashed": 288,
+  "omittedStateFiles": 2173,
+  "runs": [
+    {
+      "label": "morrowind-profiled-failure",
+      "collection": {
+        "ok": true,
+        "jobId": "issue246-deck-collector-morrowind-newgame-v2",
+        "runId": "20261002-060754813-fa14ba135a464ae7b14e0ff204ebfdf0",
+        "fileCount": 318,
+        "bytes": 63959144,
+        "directory": "/home/codex/src/steamdeck-xemu/artifacts/issue246-texture-allocation/native-collector/morrowind-v2/collected/20261002-060754813-fa14ba135a464ae7b14e0ff204ebfdf0",
+        "complete": true,
+        "scope": "allEligibleArtifacts",
+        "excluded": 0
+      },
+      "outcome": {
+        "execution": "failed",
+        "correctness": "failed",
+        "evidence": "incomplete",
+        "comparison": "ineligible"
+      }
+    },
+    {
+      "label": "morrowind-on-abort",
+      "collection": {
+        "ok": true,
+        "jobId": "issue246-deck-collector-morrowind-newgame-v3",
+        "runId": "20261002-061232591-604835e9e8f84162927b14a4e09fe595",
+        "fileCount": 319,
+        "bytes": 22629339,
+        "directory": "/home/codex/src/steamdeck-xemu/artifacts/issue246-texture-allocation/native-collector/morrowind-v3/collected/20261002-061232591-604835e9e8f84162927b14a4e09fe595",
+        "complete": true,
+        "scope": "allEligibleArtifacts",
+        "excluded": 0
+      },
+      "outcome": {
+        "execution": "crashed",
+        "correctness": "failed",
+        "evidence": "incomplete",
+        "comparison": "ineligible"
+      }
+    },
+    {
+      "label": "morrowind-parent-control",
+      "collection": {
+        "ok": true,
+        "jobId": "issue246-deck-parent-morrowind-unprofiled-v1",
+        "runId": "20261002-061742118-accd14a63ead451081d9e604fecac64a",
+        "fileCount": 436,
+        "bytes": 38977029,
+        "directory": "/home/codex/src/steamdeck-xemu/artifacts/issue246-texture-allocation/native-preflight/morrowind-unprofiled-v1/collected/20261002-061742118-accd14a63ead451081d9e604fecac64a",
+        "complete": true,
+        "scope": "allEligibleArtifacts",
+        "excluded": 0
+      },
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "morrowind-off-control",
+      "collection": {
+        "ok": true,
+        "jobId": "issue246-deck-collector-off-morrowind-unprofiled-v1",
+        "runId": "20261002-062420291-70415e0a4aba429ba9a0001eaebb2493",
+        "fileCount": 436,
+        "bytes": 39084521,
+        "directory": "/home/codex/src/steamdeck-xemu/artifacts/issue246-texture-allocation/native-collector/morrowind-off-v1/collected/20261002-062420291-70415e0a4aba429ba9a0001eaebb2493",
+        "complete": true,
+        "scope": "allEligibleArtifacts",
+        "excluded": 0
+      },
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "pgr2-on-checkpoint",
+      "collection": {
+        "ok": true,
+        "jobId": "issue246-deck-collector-pgr2-preflight-v1",
+        "runId": "20261002-063023515-b3b4572c8e90494aa88319ceed4e7c9c",
+        "fileCount": 874,
+        "bytes": 22236849,
+        "directory": "/home/codex/src/steamdeck-xemu/artifacts/issue246-texture-allocation/native-collector/pgr2-v1/collected/20261002-063023515-b3b4572c8e90494aa88319ceed4e7c9c",
+        "complete": true,
+        "scope": "allEligibleArtifacts",
+        "excluded": 0
+      },
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    }
+  ],
+  "performanceComparison": "Not measured: no A/A, ABBA/BAAB or per-leaf XISO acceptance"
+}
