@@ -20,7 +20,7 @@ jobs:
       pkg_version: ${{ steps.version.outputs.pkg_version }}
     steps:
     - name: Clone tree
-      uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v4
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
       with:
         fetch-depth: 0
         ref: ${{ inputs.ref }}
@@ -32,8 +32,8 @@ jobs:
         if TAG=$(git describe --tags --match 'v*' 2>/dev/null); then
           echo "pkg_version=${TAG#v}" >> $GITHUB_OUTPUT
         else
-          SHORT_HASH=$(git rev-parse --short HEAD)
-          echo "pkg_version=0.0.0-0-unofficial-${SHORT_HASH}" >> $GITHUB_OUTPUT
+          SHORT_HASH=$(git rev-parse --short=12 HEAD)
+          echo "pkg_version=0.8.136-telemetry-${SHORT_HASH}" >> $GITHUB_OUTPUT
         fi
     - name: Create source package
       id: package

@@ -84,6 +84,7 @@ void pgraph_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
 {
     NV2AState *d = (NV2AState *)opaque;
     PGRAPHState *pg = &d->pgraph;
+    int64_t flip_time = -1;
 
     nv2a_reg_log_write(NV_PGRAPH, addr, size, val);
 
@@ -113,7 +114,7 @@ void pgraph_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
                               NV_PGRAPH_SURFACE_READ_3D)+1)
                         % PG_GET_MASK(NV_PGRAPH_SURFACE,
                                    NV_PGRAPH_SURFACE_MODULO_3D) );
-            nv2a_profile_increment();
+            flip_time = nv2a_profile_increment();
             pfifo_kick(d);
         }
         break;
@@ -175,6 +176,10 @@ void pgraph_write(void *opaque, hwaddr addr, uint64_t val, unsigned int size)
 
     qemu_mutex_unlock(&pg->lock);
     qemu_mutex_unlock(&d->pfifo.lock);
+
+    if (flip_time >= 0) {
+        nv2a_profile_log_increment(flip_time);
+    }
 }
 
 void pgraph_context_switch(NV2AState *d, unsigned int channel_id)

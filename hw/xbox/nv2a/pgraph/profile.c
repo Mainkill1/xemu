@@ -21,7 +21,92 @@
 
 NV2AStats g_nv2a_stats;
 
-void nv2a_profile_increment(void)
+static void nv2a_profile_write_frame_log(int64_t now)
+{
+    static FILE *file;
+    static bool initialized;
+    static int64_t previous_frame;
+    static int64_t last_flush;
+    static uint64_t frame;
+
+    if (!initialized) {
+        const char *path;
+
+        initialized = true;
+        path = g_getenv("XEMU_FRAME_LOG");
+        if (path == NULL || path[0] == '\0') {
+            return;
+        }
+        file = qemu_fopen(path, "w");
+        if (file == NULL) {
+            fprintf(stderr, "nv2a: failed to open frame log '%s'\n", path);
+            return;
+        }
+        previous_frame = now;
+        last_flush = now;
+    }
+
+    if (file == NULL) {
+        return;
+    }
+
+    frame++;
+    fprintf(file, "timestamp_us=%" PRId64 " frame=%" PRIu64
+                  " delta_us=%" PRId64 "\n",
+            now, frame, now - previous_frame);
+    previous_frame = now;
+
+    /* Keep live stall detection within one second without forcing a disk
+     * flush on every emulated frame. */
+    if (now - last_flush >= G_USEC_PER_SEC) {
+        fflush(file);
+        last_flush = now;
+    }
+}
+
+static void nv2a_profile_write_flip_log(int64_t now)
+{
+    static FILE *file;
+    static bool initialized;
+    static int64_t window_start;
+    static uint64_t window_frames;
+
+    if (!initialized) {
+        const char *path;
+
+        initialized = true;
+        path = g_getenv("XEMU_FLIP_LOG");
+        if (path == NULL || path[0] == '\0') {
+            return;
+        }
+        file = qemu_fopen(path, "w");
+        if (file == NULL) {
+            fprintf(stderr, "nv2a: failed to open flip log '%s'\n", path);
+            return;
+        }
+        window_start = now;
+    }
+
+    if (file == NULL) {
+        return;
+    }
+
+    window_frames++;
+    int64_t elapsed_us = now - window_start;
+    if (elapsed_us < 5 * G_USEC_PER_SEC) {
+        return;
+    }
+
+    fprintf(file, "elapsed_us=%" PRId64 " frames=%" PRIu64
+                  " fps=%.3f\n",
+            elapsed_us, window_frames,
+            window_frames * (double)G_USEC_PER_SEC / elapsed_us);
+    fflush(file);
+    window_start = now;
+    window_frames = 0;
+}
+
+int64_t nv2a_profile_increment(void)
 {
     int64_t now = qemu_clock_get_us(QEMU_CLOCK_REALTIME);
     const int64_t fps_update_interval = 250000;
@@ -37,6 +122,13 @@ void nv2a_profile_increment(void)
         ts = now;
         frame_count = 0;
     }
+    return now;
+}
+
+void nv2a_profile_log_increment(int64_t now)
+{
+    nv2a_profile_write_flip_log(now);
+    nv2a_profile_write_frame_log(now);
 }
 
 void nv2a_profile_flip_stall(void)
