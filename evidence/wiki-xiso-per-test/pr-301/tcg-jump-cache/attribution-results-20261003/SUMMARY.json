@@ -1,0 +1,153 @@
+{
+  "aa": {
+    "campaign": "i167-abl-aa-20261003-002",
+    "verdict": "inconclusive",
+    "rows": [
+      {
+        "testId": "cpu_translation_blocks.code_stable",
+        "baselineSeconds": 2.5302787999999996,
+        "candidateSeconds": 2.5121419000000005,
+        "timeSavedSeconds": 0.018136899999999442,
+        "improvementPercent": 0.716795,
+        "abbaImprovementPercent": 1.108365,
+        "baabImprovementPercent": -0.043969,
+        "aSamplesSeconds": [
+          2.5184511,
+          2.5447897000000004,
+          2.537743,
+          2.5228146000000002
+        ],
+        "bSamplesSeconds": [
+          2.5130016,
+          2.49412,
+          2.5515005,
+          2.5112822
+        ]
+      },
+      {
+        "testId": "cpu_translation_blocks.code_rewrite",
+        "baselineSeconds": 3.0596119500000003,
+        "candidateSeconds": 3.1200645,
+        "timeSavedSeconds": -0.06045254999999981,
+        "improvementPercent": -1.975824,
+        "abbaImprovementPercent": -4.18584,
+        "baabImprovementPercent": 2.258264,
+        "aSamplesSeconds": [
+          2.9893394,
+          3.0087012,
+          3.1182675,
+          3.1105227
+        ],
+        "bSamplesSeconds": [
+          3.1280523,
+          3.1210567,
+          3.1190723,
+          2.9690554
+        ]
+      }
+    ]
+  },
+  "inline": {
+    "campaign": "i167-abl-inline-20261003-002",
+    "verdict": "eligible",
+    "rows": [
+      {
+        "testId": "cpu_translation_blocks.code_stable",
+        "baselineSeconds": 2.513865,
+        "candidateSeconds": 2.4517822999999996,
+        "timeSavedSeconds": 0.062082700000000185,
+        "improvementPercent": 2.469612,
+        "abbaImprovementPercent": 2.640886,
+        "baabImprovementPercent": 2.840775,
+        "aSamplesSeconds": [
+          2.5121885,
+          2.5146437,
+          2.5130863,
+          2.5338504
+        ],
+        "bSamplesSeconds": [
+          2.4372565,
+          2.4568228,
+          2.4529881000000002,
+          2.4505765
+        ]
+      },
+      {
+        "testId": "cpu_translation_blocks.code_rewrite",
+        "baselineSeconds": 2.9847156500000005,
+        "candidateSeconds": 3.0672256500000006,
+        "timeSavedSeconds": -0.08251,
+        "improvementPercent": -2.764417,
+        "abbaImprovementPercent": -3.019571,
+        "baabImprovementPercent": -2.032486,
+        "aSamplesSeconds": [
+          2.9788472,
+          2.9905841,
+          3.0009155,
+          2.9760176
+        ],
+        "bSamplesSeconds": [
+          3.0181836,
+          3.1314989,
+          3.1162677000000003,
+          2.9821457000000002
+        ]
+      }
+    ]
+  },
+  "recovery": {
+    "campaign": "i167-abl-recovery-20261003-002",
+    "verdict": "inconclusive",
+    "rows": [
+      {
+        "testId": "cpu_translation_blocks.code_stable",
+        "baselineSeconds": 2.4456956499999998,
+        "candidateSeconds": 2.44420565,
+        "timeSavedSeconds": 0.00149,
+        "improvementPercent": 0.060923,
+        "abbaImprovementPercent": 4.814262,
+        "baabImprovementPercent": -0.932368,
+        "aSamplesSeconds": [
+          2.435693,
+          2.6701571,
+          2.4355774,
+          2.4556983
+        ],
+        "bSamplesSeconds": [
+          2.4302005,
+          2.4298406,
+          2.4786696,
+          2.4582108
+        ]
+      },
+      {
+        "testId": "cpu_translation_blocks.code_rewrite",
+        "baselineSeconds": 3.24616215,
+        "candidateSeconds": 3.16788995,
+        "timeSavedSeconds": 0.07827219999999972,
+        "improvementPercent": 2.411223,
+        "abbaImprovementPercent": 2.368235,
+        "baabImprovementPercent": 1.68397,
+        "aSamplesSeconds": [
+          3.173991,
+          3.275976,
+          3.2692753999999997,
+          3.2230488999999998
+        ],
+        "bSamplesSeconds": [
+          3.0924426,
+          3.204774,
+          3.2519896,
+          3.1310059
+        ]
+      }
+    ]
+  },
+  "decision": "HOLD",
+  "attempts": 24,
+  "allCorrect": true,
+  "allMesaQualified": true,
+  "newRunner": "0e05af4a240576638df4ed6611439273f6cdf584",
+  "recoveryBenefitEstablished": false,
+  "zipSha256": "8af8cd1cf12f35943d43efc11c3dedd6d8f2860919dad9c720e1a94b81013606"
+}
