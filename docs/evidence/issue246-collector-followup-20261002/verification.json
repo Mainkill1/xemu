@@ -1,0 +1,51 @@
+{
+  "testedRuntimeCommit": "8079502ae25a602e1395fa9ee87ec1ef8b57c9d6",
+  "parentCommit": "ee5ce48b48784f999af374c1452003f8b2b1230f",
+  "archiveBytes": 13459674,
+  "archiveSha256": "93c8201fc73a1fb03737b2bdbe9f62d2c89c08da6c9e606ea2799c26088f1842",
+  "payloadFilesRehashed": 148,
+  "omittedStateFiles": 1221,
+  "runs": [
+    {
+      "label": "morrowind-on-repeat",
+      "collection": {
+        "ok": true,
+        "jobId": "issue246-deck-collector-morrowind-on-repro-v1",
+        "runId": "20261002-065419840-3bfbca7e36a34b0e945412cf3724f229",
+        "fileCount": 443,
+        "bytes": 39057137,
+        "directory": "/home/codex/src/steamdeck-xemu/artifacts/issue246-texture-allocation/native-collector/morrowind-on-repro-v1/collected/20261002-065419840-3bfbca7e36a34b0e945412cf3724f229",
+        "complete": true,
+        "scope": "allEligibleArtifacts",
+        "excluded": 0
+      },
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    },
+    {
+      "label": "pgr2-throttle-attempt",
+      "collection": {
+        "ok": true,
+        "jobId": "issue246-deck-collector-pgr2-throttle-v1",
+        "runId": "20261002-065934927-b3b606aa22ca49b293d4fde0fb92959c",
+        "fileCount": 879,
+        "bytes": 24836781,
+        "directory": "/home/codex/src/steamdeck-xemu/artifacts/issue246-texture-allocation/native-collector/pgr2-throttle-v1/collected/20261002-065934927-b3b606aa22ca49b293d4fde0fb92959c",
+        "complete": true,
+        "scope": "allEligibleArtifacts",
+        "excluded": 0
+      },
+      "outcome": {
+        "execution": "completed",
+        "correctness": "passed",
+        "evidence": "complete",
+        "comparison": "eligible"
+      }
+    }
+  ],
+  "performanceComparison": "Not measured: no A/A, ABBA/BAAB or per-leaf XISO acceptance"
+}

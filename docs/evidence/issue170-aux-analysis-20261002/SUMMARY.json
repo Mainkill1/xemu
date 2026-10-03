@@ -1,0 +1,31 @@
+{
+  "currentMain": "ee5ce48b48784f999af374c1452003f8b2b1230f",
+  "measuredRuntime": "8079502ae25a602e1395fa9ee87ec1ef8b57c9d6",
+  "nativeAttemptsAdded": 0,
+  "nativeHost": "Steam Deck 10.0.0.123",
+  "nativeRunner": "848dca74e1ff79f9fc886769a785c23a0945a87e",
+  "sourceEquivalentFiles": {
+    "hw/xbox/nv2a/pgraph/vk/command.c": "8088b0a0eca9fa2e876f0f1e983b8647188f1dbe1bccf8cfbd0d41abf0459281",
+    "hw/xbox/nv2a/pgraph/vk/perf.c": "f1a723147259a4f5692f3af1d90254cfe3ffe482b2246e83b7a1cf83a40985cc",
+    "hw/xbox/nv2a/pgraph/vk/surface.c": "ade66a899b3fe4d64f5292fd2e74ade6f7dd0025b43e6404766d8a79c2c537e4",
+    "hw/xbox/nv2a/pgraph/vk/display.c": "4852bf6f370e109e102015efbb9387e7fce1ffa11cd88e3b0c4bc50defbaf399"
+  },
+  "runs": [
+    {
+      "tag": "pgr2-v1",
+      "runId": "20261002-063023515-b3b4572c8e90494aa88319ceed4e7c9c",
+      "sourceSha256": "13e6f1c82d24da90526832515d3dbb11656382aa38620ce6ee7d96978181b336",
+      "sourceBytes": 14244709,
+      "nativeExitCode": 0,
+      "sourceStatisticsIndependentlyVerified": true
+    },
+    {
+      "tag": "morrowind-off-v1",
+      "runId": "20261002-062420291-70415e0a4aba429ba9a0001eaebb2493",
+      "sourceSha256": "f13a45b70a1c1a638017167de1b8fce64fd484f5ed253cb46d271a70bda363e8",
+      "sourceBytes": 29047362,
+      "nativeExitCode": 0,
+      "sourceStatisticsIndependentlyVerified": true
+    }
+  ]
+}

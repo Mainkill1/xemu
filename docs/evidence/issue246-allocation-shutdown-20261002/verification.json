@@ -1,0 +1,23 @@
+{
+  "archiveBytes": 28396221,
+  "archiveSha256": "dbb5600e1bd35d05503e6c6be2896b3c7105ef3bb6561cfee37088ae7e9d49ed",
+  "payloadFilesRehashed": 163,
+  "omittedCacheFiles": 394,
+  "originalCollection": {
+    "ok": true,
+    "jobId": "issue246-deck-collector-morrowind-newgame-v1",
+    "runId": "20261002-054517618-93365480ae4647ad81820e2306e55b01",
+    "fileCount": 476,
+    "bytes": 148621387,
+    "directory": "/home/codex/src/steamdeck-xemu/artifacts/issue246-texture-allocation/native-collector/morrowind-v1/collected/20261002-054517618-93365480ae4647ad81820e2306e55b01",
+    "complete": true,
+    "scope": "allEligibleArtifacts",
+    "excluded": 0
+  },
+  "nativeCollectorCommit": "0ef8d9bf5c8dbf9b09895827ea615a3a789a82c0",
+  "nativeCollectorFullValidation": "FAIL: Missing final lifecycle summary",
+  "localCorrection": "Uncommitted source hashes included; publishing commit binds current correction",
+  "localChecks": "Product build, 27 focused C subtests, new reader11, prior reader11, actual production checkpoint writer->reader passed",
+  "nativeCorrection": "Not yet run",
+  "performanceComparison": "Not measured"
+}

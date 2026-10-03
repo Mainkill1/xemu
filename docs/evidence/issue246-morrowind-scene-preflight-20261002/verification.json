@@ -1,0 +1,28 @@
+[
+  {
+    "attempt": "morrowind-v3",
+    "archive": "morrowind-v3-records.tar.gz",
+    "archiveBytes": 28765635,
+    "archiveSha256": "1c14316c14902bcd25f9e48169ee0d04fcc4b167859320d8e703e716f6528c72",
+    "payloadFilesRehashed": 109,
+    "omittedCacheFiles": 283,
+    "omittedCacheBytes": 2883305,
+    "profilerRecordings": 3,
+    "reviewedScreenshots": 7,
+    "candidateImplemented": false,
+    "speedupMeasured": false
+  },
+  {
+    "attempt": "morrowind-v4",
+    "archive": "morrowind-v4-records.tar.gz",
+    "archiveBytes": 27840905,
+    "archiveSha256": "bb312eb3046722ee07e4b68d25fe6ff212adb699706b53e172d3f96cc4f2222f",
+    "payloadFilesRehashed": 108,
+    "omittedCacheFiles": 394,
+    "omittedCacheBytes": 3053014,
+    "profilerRecordings": 3,
+    "reviewedScreenshots": 6,
+    "candidateImplemented": false,
+    "speedupMeasured": false
+  }
+]

@@ -1,0 +1,238 @@
+{
+  "archive": "EVIDENCE.tar.gz",
+  "sha256": "f27af108377cff7a07c3e9523f48bd683a2a794a62e606b81d6792cfbfd44f4f",
+  "bytes": 988625,
+  "payloads": [
+    {
+      "path": "inputs/morrowind-off-v1/assessment.json",
+      "bytes": 1793,
+      "sha256": "8146f2733b69e96fa28d075d47d20dc2a7cac3d48bc2c2f68f14ef02f2c6673a"
+    },
+    {
+      "path": "inputs/morrowind-off-v1/build-identity.json",
+      "bytes": 563,
+      "sha256": "1e4ee7fb74eacccb3b7ffb1f52091eb9daa9d96fa0a73e0a68d3e6c0ba75791c"
+    },
+    {
+      "path": "inputs/morrowind-off-v1/collection.json",
+      "bytes": 445,
+      "sha256": "4b241b73a69876120173ba6b36df9cbdfa977ae4ae29c531017d2e6bda153f07"
+    },
+    {
+      "path": "inputs/morrowind-off-v1/diagnostics/run-state/report.json",
+      "bytes": 84840,
+      "sha256": "a1379649d48a28d83b7708b7153b841fc0416fb69f1337540f861153951c9e1b"
+    },
+    {
+      "path": "inputs/morrowind-off-v1/host-inventory.json",
+      "bytes": 466,
+      "sha256": "4e3903e20fe5653b8140e0bf55c2de9b7d8695a3b7ce9131a388b0fc8cc59d67"
+    },
+    {
+      "path": "inputs/morrowind-off-v1/input-manifest.json",
+      "bytes": 10945,
+      "sha256": "2f88ea852630aecf1ea2dfd64b95cae80c250253eaf6cb1029d5fa677e5fec2b"
+    },
+    {
+      "path": "inputs/morrowind-off-v1/launch.json",
+      "bytes": 2659,
+      "sha256": "18c6833654c9d2cc064fa97c5a7c4655345651116eb707edd2b00524d8397579"
+    },
+    {
+      "path": "inputs/morrowind-off-v1/result.json",
+      "bytes": 9518,
+      "sha256": "1fd63c133d6453a3df77a6c315ebb24640e5cf6cb3365fe8d50c9fe5066d1fa9"
+    },
+    {
+      "path": "inputs/morrowind-off-v1/scene-audit.json",
+      "bytes": 260,
+      "sha256": "986ddef13a52929891f89d2cf32e8bd9b8f0572fc61843189947e222b22cf9c5"
+    },
+    {
+      "path": "inputs/morrowind-off-v1/vk-perf.jsonl",
+      "bytes": 29047362,
+      "sha256": "f13a45b70a1c1a638017167de1b8fce64fd484f5ed253cb46d271a70bda363e8"
+    },
+    {
+      "path": "inputs/morrowind-off-v1/xemu.toml",
+      "bytes": 519,
+      "sha256": "d097766f036ca1cf3d2b59fa2d752d36b0c747b546dcb350b07811103f779058"
+    },
+    {
+      "path": "inputs/pgr2-v1/assessment.json",
+      "bytes": 2140,
+      "sha256": "1decb8f60f9e8da27d0903eb02807776ea3d13227b9b0334b09e972742afee78"
+    },
+    {
+      "path": "inputs/pgr2-v1/build-identity.json",
+      "bytes": 563,
+      "sha256": "1e4ee7fb74eacccb3b7ffb1f52091eb9daa9d96fa0a73e0a68d3e6c0ba75791c"
+    },
+    {
+      "path": "inputs/pgr2-v1/collection.json",
+      "bytes": 426,
+      "sha256": "902818add08bd075ae668489750a3ed8e093411874cb604bec0ceab078519502"
+    },
+    {
+      "path": "inputs/pgr2-v1/diagnostics/run-state/report.json",
+      "bytes": 172666,
+      "sha256": "bf9375ff0bf32da99358f8955d3d023f516666e95b7a5be779c256bd988cc781"
+    },
+    {
+      "path": "inputs/pgr2-v1/host-inventory.json",
+      "bytes": 466,
+      "sha256": "8a2cf3c301ddb5eb4a7588a75505a4e86af87dcff2bf54fb2994cbe9da06db18"
+    },
+    {
+      "path": "inputs/pgr2-v1/input-manifest.json",
+      "bytes": 11229,
+      "sha256": "e3cbe8614694dbc4ecd569610d8370214bd104cd635cd79837bd882336ca3ac3"
+    },
+    {
+      "path": "inputs/pgr2-v1/launch.json",
+      "bytes": 2475,
+      "sha256": "82e2835977d91bfbfd62d7747b7f75b89dde5e2125f6eea467a7c51a0dffb243"
+    },
+    {
+      "path": "inputs/pgr2-v1/result.json",
+      "bytes": 10552,
+      "sha256": "5077d411c289b4079a3fb6120c7e05038d00c54cb371cdff75f2cfd39bb63ee4"
+    },
+    {
+      "path": "inputs/pgr2-v1/scene-audit.json",
+      "bytes": 473,
+      "sha256": "464b5a0e7a6151e12aed55d83da8df4bbc8e4a67d8ff397f1db3d4920e2924ed"
+    },
+    {
+      "path": "inputs/pgr2-v1/vk-perf.jsonl",
+      "bytes": 14244709,
+      "sha256": "13e6f1c82d24da90526832515d3dbb11656382aa38620ce6ee7d96978181b336"
+    },
+    {
+      "path": "inputs/pgr2-v1/xemu.toml",
+      "bytes": 519,
+      "sha256": "d097766f036ca1cf3d2b59fa2d752d36b0c747b546dcb350b07811103f779058"
+    },
+    {
+      "path": "raw/boundary-mutant.log",
+      "bytes": 906,
+      "sha256": "157cc1f47970084920bd3cf524f2abcf0e967ebba09d9af36dad2e51229b25cb"
+    },
+    {
+      "path": "raw/check-boundary-mutant.py",
+      "bytes": 1484,
+      "sha256": "a5f587570a91f70976749b84a5587259b53748698d24a0f57df3ad6b7fdcd710"
+    },
+    {
+      "path": "raw/full-unit.log",
+      "bytes": 11798,
+      "sha256": "ceebbf8698b9b98b790a73f5b301fa7242d312d965fc7db0cea44f13420a39e4"
+    },
+    {
+      "path": "raw/issue-before.json",
+      "bytes": 12298,
+      "sha256": "34eb545b5288384308caa07f300997e21f3acc53d52cdba7e5e2e1dcce73ddb4"
+    },
+    {
+      "path": "raw/meson-reconfigure.log",
+      "bytes": 60842,
+      "sha256": "b77a77a4544a4d69bcc0bb5039cec554bd7c3a8e11513f623e6a2f6c0577f5e5"
+    },
+    {
+      "path": "raw/morrowind-off-v1-auxiliary.json",
+      "bytes": 5323,
+      "sha256": "6ab0cb646e0ba3fa6194b6f60e898b1257c9bf806cb4ff1bb23efd5e5500114a"
+    },
+    {
+      "path": "raw/package-evidence.py",
+      "bytes": 12457,
+      "sha256": "305623de204c40e3dd8e352a37865602921efd8f25736e27d582a78f47dcfa59"
+    },
+    {
+      "path": "raw/pgr2-v1-auxiliary.json",
+      "bytes": 5320,
+      "sha256": "5920a490997f9528bc5d8e32c5e7d95a5c1e939df0f9fa3783704052f527dd69"
+    },
+    {
+      "path": "raw/pr-before.json",
+      "bytes": 21755,
+      "sha256": "1c09bf50371e6c3d6569372a64866a8ca5de9435d155355eee05b29002b6d453"
+    },
+    {
+      "path": "raw/provenance-verified.json",
+      "bytes": 1361,
+      "sha256": "fa2ac75eb71de7d3157d74f32086e293bdff54ad1b4dca40c5197e043b5d0ddb"
+    },
+    {
+      "path": "raw/python-suite.log",
+      "bytes": 108,
+      "sha256": "e70fec2825d9bf206d27463a792768195039599cb39bcca66339f47283f84cce"
+    },
+    {
+      "path": "raw/reader-baseline.log",
+      "bytes": 1396,
+      "sha256": "87f587da48365b35da3f9c4a760a2fb54d32b6f7e9c3bdb214e9fd380ee812e3"
+    },
+    {
+      "path": "raw/reader-green.log",
+      "bytes": 1837,
+      "sha256": "99bb83bd28b3bf903fe7ce025443bd2aa34892e124c555dfe30d755174d052ce"
+    },
+    {
+      "path": "raw/reader-red-assertions.log",
+      "bytes": 16164,
+      "sha256": "b8a8c0414f5802ef09ed73917da1128d5f76e9f5c1ca27eba7c6e970d67d5e3d"
+    },
+    {
+      "path": "raw/reader-red.log",
+      "bytes": 15226,
+      "sha256": "f8d7641469a0cbf787ea7cd7ce4d9242498d088acbcc0a856fbde7fdbb1cf175"
+    },
+    {
+      "path": "raw/registered-readers-final.log",
+      "bytes": 324,
+      "sha256": "4fcb7fafc0ed36afe9e75bf78e725410c6c632ce4b7535356e9977008565066b"
+    },
+    {
+      "path": "raw/registered-readers.log",
+      "bytes": 324,
+      "sha256": "1161fa9d42dc1839b28b0db3144b7cb1d2f78d07f2f36600412e96e3c2431727"
+    },
+    {
+      "path": "raw/review.txt",
+      "bytes": 809,
+      "sha256": "f21e308517b46d8100b52f2a6ed1104f5941db63684a382e7df2ae3b11de1eba"
+    },
+    {
+      "path": "raw/update-github.py",
+      "bytes": 7384,
+      "sha256": "481425dc67009c999b890fead44f4f23801045f9bb4c49ba1f084e0ecb8be4dd"
+    },
+    {
+      "path": "registered-tests/testlog.json",
+      "bytes": 9717,
+      "sha256": "f097bdc4a0211080a6fff32c96da6e50f830d43292e5f01d57e6a4a98a61b5e8"
+    },
+    {
+      "path": "registered-tests/testlog.txt",
+      "bytes": 5938,
+      "sha256": "841b05303939b8217cb7554c60dd11bafb3da32778a0933dd2db6603ce40d536"
+    },
+    {
+      "path": "source/scripts/performance/vk-perf-summary.py",
+      "bytes": 11560,
+      "sha256": "9256d3e47a85fda5bd123680e0bbece1566eba7d6415468217fd1070936badc4"
+    },
+    {
+      "path": "source/tests/unit/meson.build",
+      "bytes": 19806,
+      "sha256": "f26453d345b45361aada878458964f5bf9a2339aca7304e1abf3f152af5d8bd0"
+    },
+    {
+      "path": "source/tests/unit/test-vk-perf-summary.py",
+      "bytes": 10747,
+      "sha256": "b94a065a71b88121bb9f743cd193bda9361be6aa9116c8d9d22d8803dfe6d5e8"
+    }
+  ],
+  "scope": "Complete selected telemetry logs, native provenance and new reader checks. Original full campaigns/failures remain in PR293 prior packets; no build, game, firmware or private EEPROM bytes copied."
+}

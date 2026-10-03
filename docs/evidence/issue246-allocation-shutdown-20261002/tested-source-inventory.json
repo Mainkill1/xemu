@@ -1,0 +1,26 @@
+[
+  {
+    "path": "hw/xbox/nv2a/pgraph/vk/renderer.c",
+    "sha256": "c903c4a20f5848d40b72ed90e21c0c0e70b0a7941653932eb49f1c8875eba578"
+  },
+  {
+    "path": "hw/xbox/nv2a/pgraph/vk/texture-allocation-trace.c",
+    "sha256": "18eee92609dfdc10ee329bbfbeab55229547f816c9958563677f332089238305"
+  },
+  {
+    "path": "hw/xbox/nv2a/pgraph/vk/texture-allocation-trace.h",
+    "sha256": "5b4d94a83c55e986db0650f799823c433abffb7763f1a8f90cbb8eaa5af43529"
+  },
+  {
+    "path": "scripts/performance/vk-texture-allocation-summary.py",
+    "sha256": "10781cbcffbc61803989ed107f3d9a19ee64ec43535472a797d64d5bd21223c1"
+  },
+  {
+    "path": "tests/unit/test-xbox-vk-texture-allocation-trace.c",
+    "sha256": "c81496ebedef57c8ab023c4a7da15a976a15bf1d0981a079202df45289df7e7c"
+  },
+  {
+    "path": "tests/unit/test-vk-texture-allocation-summary.py",
+    "sha256": "060ceecb1253b5d774e65060cef9659c1f4eaee62de0c816f9ff06e07890f687"
+  }
+]

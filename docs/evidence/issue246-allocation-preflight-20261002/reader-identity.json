@@ -1,0 +1,8 @@
+{
+  "canonicalSha256": "aa8273a2bc0fb5a99120dcd845aed26ec1d3b669b4008544e68efc741b1cfd63",
+  "nativeFrozenSha256": "23997fbdbff0bfca82bc70dd6d9cf6dd5dfd340f75ac846c340a0eaab99b62a1",
+  "liveHeaderFunctionsAstIdentical": true,
+  "difference": "Canonical offline mode additionally rejects missing frame records after independent review; native mode only validates the unchanged live header. Statement formatting also differs.",
+  "testsPassed": 11,
+  "allThreeOriginalFullLogsContiguous": true
+}
