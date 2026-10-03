@@ -19,7 +19,7 @@ build directory inside a checkout with the usual build dependencies:
 
 ```sh
 ../configure --target-list=i386-softmmu --extra-cflags=-DXBOX --extra-cxxflags=-DXBOX
-ninja test-xbox-mcpx-apu-resampler-state tests/unit/test-xbox-mcpx-apu-resampler
+ninja test-xbox-mcpx-apu-resampler-state test-xbox-mcpx-apu-resampler-throughput tests/unit/test-xbox-mcpx-apu-resampler
 meson test --no-rebuild --print-errorlogs test-xbox-mcpx-apu-resampler-state test-xbox-mcpx-apu-resampler-throughput test-xbox-mcpx-apu-resampler
 ./test-xbox-mcpx-apu-resampler-state --matrix > state-matrix.jsonl
 ./test-xbox-mcpx-apu-resampler-state --trace > state-trace.jsonl
