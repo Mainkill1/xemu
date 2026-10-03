@@ -1,0 +1,41 @@
+{
+  "issue": 188,
+  "runtime_pr": 189,
+  "recommendation": "HOLD",
+  "reference_commit": "76c23c7d444a6f12c9778bb2c35fab513f6c8056",
+  "candidate_commit": "c36385e2381fdde9ff3f00a9a8aff9f409c979c5",
+  "fixture_commit": "d9d56e2f2d02ac7a0b6a7fb5e90df2531dbb57fd",
+  "runner_version": "0.2.0+e17919c849b840d43171a615b288f559fbec9e4c",
+  "host": "steamdeck .123",
+  "state": {
+    "cases": 600,
+    "reference_complete_payload": 440,
+    "candidate_complete_payload": 600,
+    "reference_duration_delta_samples": [-324, 0],
+    "candidate_duration_delta_samples": [-1, 4],
+    "candidate_strict_finite_tail": "passed"
+  },
+  "throughput": {
+    "workload": "45 looping mono ADPCM voices; 8 workers; 256 frame warmup; 20000 measured VP frames",
+    "executable_sha256": "c3cdff94f98541e877df769dfd79a909622b7d9cab054ba3753aeaebb8712b1d",
+    "aa_elapsed_us": [6229583, 6165407],
+    "aa_range_over_mean_percent": 1.0355151557,
+    "sinc_elapsed_us": [6130907, 6231530, 6217633, 6193829],
+    "linear_elapsed_us": [3584132, 3841320, 3739798, 3738208],
+    "sinc_mean_us": 6193474.75,
+    "linear_mean_us": 3725864.50,
+    "absolute_difference_us": -2467610.25,
+    "improvement_percent": 39.8420975237,
+    "abba_improvement_percent": 39.9353703481,
+    "baab_improvement_percent": 39.7491931249,
+    "checksum": 3686400000,
+    "all_assessments": "passed/complete/eligible"
+  },
+  "limitations": [
+    "Component benchmark; no game or FPS claim",
+    "Looping benchmark isolates converter cost and excludes finite drain",
+    "No native audio acceptance",
+    "No current-head XISO timings",
+    "No save/load or starvation/recovery qualification"
+  ]
+}
