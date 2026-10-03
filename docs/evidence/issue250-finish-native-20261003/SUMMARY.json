@@ -1,0 +1,576 @@
+{
+  "recommendation": "HOLD",
+  "runtimeChange": false,
+  "newNativeAttempts": 1,
+  "runId": "20261003-155542759-ab6ec0c1fba545c3a720fdf81dc8ee15",
+  "measuredProduct": "76c23c7d444a6f12c9778bb2c35fab513f6c8056",
+  "executableSha256": "5a3e3d8bc02abb602c1167ec19bff60afdbd072db791196f764cb34dad01c97b",
+  "runner": {
+    "runnerVersion": "0.2.0+e17919c849b840d43171a615b288f559fbec9e4c",
+    "machine": "steamdeck",
+    "os": "SteamOS",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 8,
+    "dotnet": "10.0.12"
+  },
+  "assessment": {
+    "Execution": "completed",
+    "Correctness": "passed",
+    "Evidence": "incomplete",
+    "Comparison": "ineligible",
+    "ComparisonReasons": [
+      "Evidence outcome is Incomplete; complete evidence is required."
+    ],
+    "Checks": [
+      {
+        "Name": "analysis:monitor",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "analysis:flips",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "analysis:frames",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "frames: Insufficient positive frame intervals."
+      },
+      {
+        "Name": "diagnostic-parked-start-visible",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "result:screenshots/recording-start.png satisfied the declared requirement."
+      },
+      {
+        "Name": "diagnostic-parked-midpoint-visible",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "result:screenshots/recording-midpoint.png satisfied the declared requirement."
+      },
+      {
+        "Name": "diagnostic-parked-end-visible",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "result:screenshots/recording-end.png satisfied the declared requirement."
+      },
+      {
+        "Name": "measurement-boundaries",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:segments.jsonl satisfied the declared requirement."
+      },
+      {
+        "Name": "guest-frame-progress",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:guest-frames.log satisfied the declared requirement."
+      },
+      {
+        "Name": "vulkan-finish-telemetry",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:vk-perf.jsonl satisfied the declared requirement."
+      },
+      {
+        "Name": "schema-validation",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:vk-schema-check.json satisfied the declared requirement."
+      },
+      {
+        "Name": "plan_completion",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "The declared plan completed."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": true,
+        "Category": "state",
+        "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+      }
+    ],
+    "IsExecutionSuccess": true,
+    "IsCorrectnessSuccess": true
+  },
+  "performance": {
+    "SchemaVersion": 1,
+    "ProfileSha256": "7964a0559ec43fafeb310283f65c54a7f3f65410ad170f6dea89963dba1961a1",
+    "Profile": {
+      "Segment": "stationary-start",
+      "MetricsPath": "metrics.csv",
+      "GuestFlipsPath": "guest-flips.log",
+      "GuestFramesPath": "guest-frames.log",
+      "FlipTailSamples": 6,
+      "FrameTailSeconds": 300,
+      "MinimumCpuSamples": 540,
+      "MinimumFrameSamples": 160
+    },
+    "Monitoring": {
+      "Segment": "stationary-start",
+      "Rows": 606,
+      "MissingCpuSamples": 0,
+      "MissingDutySamples": 0,
+      "Cpu": {
+        "Count": 606,
+        "Mean": 244.84181353135324,
+        "Median": 244.4525,
+        "Min": 208.045,
+        "Max": 279.745,
+        "P95": 253.95175,
+        "P99": 258.22950000000003
+      },
+      "CollectorDuty": {
+        "Count": 606,
+        "Mean": 0.3842112211221121,
+        "Median": 0.3595,
+        "Min": 0.266,
+        "Max": 0.815,
+        "P95": 0.57,
+        "P99": 0.6952000000000007
+      },
+      "Overruns": 0
+    },
+    "Flips": {
+      "Samples": 6,
+      "Frames": 13,
+      "ElapsedUs": 35570917,
+      "CadenceFps": 0.3654671033642456
+    },
+    "Frames": null,
+    "Sources": [
+      {
+        "Path": "metrics.csv",
+        "Bytes": 174200,
+        "Sha256": "e60fa9018ff6d605a0298bf4cec19b5a6d2e1ec1693e9c58020dcd01a3c9f041",
+        "Records": 901,
+        "IgnoredRecords": 294
+      },
+      {
+        "Path": "guest-flips.log",
+        "Bytes": 2902,
+        "Sha256": "6fa9e7f8db72f0d03ac4f8802b27ffe13b07946050704612c1c56549ea781b3f",
+        "Records": 75,
+        "IgnoredRecords": 0
+      },
+      {
+        "Path": "guest-frames.log",
+        "Bytes": 195548,
+        "Sha256": "066b806aba51d07ef170401081294d15a48c71bd47edfd0f529621c559749aa5",
+        "Records": 3777,
+        "IgnoredRecords": 0
+      }
+    ],
+    "Errors": [
+      "frames: Insufficient positive frame intervals."
+    ],
+    "Complete": false
+  },
+  "finish": {
+    "schemaVersion": 8,
+    "mode": "finalizedFinishLog",
+    "frameRecords": 3777,
+    "observedTimestampSpanMs": 447519.068,
+    "durationSampling": {
+      "initial_per_reason_per_frame": 8,
+      "hot_stride": 16
+    },
+    "durationMeaning": "Host elapsed sampled submit/fence-wait milliseconds, not CPU time, GPU work or predicted savings. Durations are not extrapolated; partial coverage omits untimed submissions.",
+    "coverageMeaning": "Counters are grouped at PGRAPH control-frame boundaries; first bucket start and activity after the final record are unobserved. Not displayed FPS.",
+    "all": {
+      "reasons": {
+        "vertex_buffer_dirty": {
+          "calls": 0,
+          "submits": 0,
+          "timingSamples": 0,
+          "fenceWaits": 0,
+          "sampledSubmitHostElapsedMs": 0.0,
+          "sampledFenceWaitHostElapsedMs": 0.0,
+          "durationCoverage": "no_submissions"
+        },
+        "surface_create": {
+          "calls": 93,
+          "submits": 77,
+          "timingSamples": 36,
+          "fenceWaits": 77,
+          "sampledSubmitHostElapsedMs": 2.564,
+          "sampledFenceWaitHostElapsedMs": 14.793,
+          "durationCoverage": "partial"
+        },
+        "surface_down": {
+          "calls": 108,
+          "submits": 39,
+          "timingSamples": 39,
+          "fenceWaits": 39,
+          "sampledSubmitHostElapsedMs": 4.063,
+          "sampledFenceWaitHostElapsedMs": 124.16,
+          "durationCoverage": "all_submissions"
+        },
+        "need_buffer_space": {
+          "calls": 448,
+          "submits": 448,
+          "timingSamples": 448,
+          "fenceWaits": 448,
+          "sampledSubmitHostElapsedMs": 59.246,
+          "sampledFenceWaitHostElapsedMs": 1785.359,
+          "durationCoverage": "all_submissions"
+        },
+        "framebuffer_dirty": {
+          "calls": 0,
+          "submits": 0,
+          "timingSamples": 0,
+          "fenceWaits": 0,
+          "sampledSubmitHostElapsedMs": 0.0,
+          "sampledFenceWaitHostElapsedMs": 0.0,
+          "durationCoverage": "no_submissions"
+        },
+        "presenting": {
+          "calls": 3508,
+          "submits": 3508,
+          "timingSamples": 3508,
+          "fenceWaits": 3508,
+          "sampledSubmitHostElapsedMs": 337.733,
+          "sampledFenceWaitHostElapsedMs": 2963.804,
+          "durationCoverage": "all_submissions"
+        },
+        "flip_stall": {
+          "calls": 3777,
+          "submits": 2443,
+          "timingSamples": 2443,
+          "fenceWaits": 2443,
+          "sampledSubmitHostElapsedMs": 275.634,
+          "sampledFenceWaitHostElapsedMs": 4815.008,
+          "durationCoverage": "all_submissions"
+        },
+        "flush": {
+          "calls": 1,
+          "submits": 0,
+          "timingSamples": 0,
+          "fenceWaits": 0,
+          "sampledSubmitHostElapsedMs": 0.0,
+          "sampledFenceWaitHostElapsedMs": 0.0,
+          "durationCoverage": "no_submissions"
+        },
+        "stalled": {
+          "calls": 131,
+          "submits": 131,
+          "timingSamples": 131,
+          "fenceWaits": 131,
+          "sampledSubmitHostElapsedMs": 16.782,
+          "sampledFenceWaitHostElapsedMs": 183.146,
+          "durationCoverage": "all_submissions"
+        },
+        "texture_dirty": {
+          "calls": 0,
+          "submits": 0,
+          "timingSamples": 0,
+          "fenceWaits": 0,
+          "sampledSubmitHostElapsedMs": 0.0,
+          "sampledFenceWaitHostElapsedMs": 0.0,
+          "durationCoverage": "no_submissions"
+        }
+      }
+    },
+    "tail": {
+      "seconds": 300,
+      "startTimestampUs": 297960107288,
+      "endTimestampUs": 298260107288,
+      "completeBucketCount": 108,
+      "completeBuckets": {
+        "vertex_buffer_dirty": {
+          "calls": 0,
+          "submits": 0,
+          "timingSamples": 0,
+          "fenceWaits": 0,
+          "sampledSubmitHostElapsedMs": 0.0,
+          "sampledFenceWaitHostElapsedMs": 0.0,
+          "durationCoverage": "no_submissions"
+        },
+        "surface_create": {
+          "calls": 0,
+          "submits": 0,
+          "timingSamples": 0,
+          "fenceWaits": 0,
+          "sampledSubmitHostElapsedMs": 0.0,
+          "sampledFenceWaitHostElapsedMs": 0.0,
+          "durationCoverage": "no_submissions"
+        },
+        "surface_down": {
+          "calls": 0,
+          "submits": 0,
+          "timingSamples": 0,
+          "fenceWaits": 0,
+          "sampledSubmitHostElapsedMs": 0.0,
+          "sampledFenceWaitHostElapsedMs": 0.0,
+          "durationCoverage": "no_submissions"
+        },
+        "need_buffer_space": {
+          "calls": 189,
+          "submits": 189,
+          "timingSamples": 189,
+          "fenceWaits": 189,
+          "sampledSubmitHostElapsedMs": 27.268,
+          "sampledFenceWaitHostElapsedMs": 524.04,
+          "durationCoverage": "all_submissions"
+        },
+        "framebuffer_dirty": {
+          "calls": 0,
+          "submits": 0,
+          "timingSamples": 0,
+          "fenceWaits": 0,
+          "sampledSubmitHostElapsedMs": 0.0,
+          "sampledFenceWaitHostElapsedMs": 0.0,
+          "durationCoverage": "no_submissions"
+        },
+        "presenting": {
+          "calls": 108,
+          "submits": 108,
+          "timingSamples": 108,
+          "fenceWaits": 108,
+          "sampledSubmitHostElapsedMs": 12.631,
+          "sampledFenceWaitHostElapsedMs": 84.826,
+          "durationCoverage": "all_submissions"
+        },
+        "flip_stall": {
+          "calls": 108,
+          "submits": 108,
+          "timingSamples": 108,
+          "fenceWaits": 108,
+          "sampledSubmitHostElapsedMs": 14.287,
+          "sampledFenceWaitHostElapsedMs": 126.24,
+          "durationCoverage": "all_submissions"
+        },
+        "flush": {
+          "calls": 0,
+          "submits": 0,
+          "timingSamples": 0,
+          "fenceWaits": 0,
+          "sampledSubmitHostElapsedMs": 0.0,
+          "sampledFenceWaitHostElapsedMs": 0.0,
+          "durationCoverage": "no_submissions"
+        },
+        "stalled": {
+          "calls": 87,
+          "submits": 87,
+          "timingSamples": 87,
+          "fenceWaits": 87,
+          "sampledSubmitHostElapsedMs": 11.821,
+          "sampledFenceWaitHostElapsedMs": 111.124,
+          "durationCoverage": "all_submissions"
+        },
+        "texture_dirty": {
+          "calls": 0,
+          "submits": 0,
+          "timingSamples": 0,
+          "fenceWaits": 0,
+          "sampledSubmitHostElapsedMs": 0.0,
+          "sampledFenceWaitHostElapsedMs": 0.0,
+          "durationCoverage": "no_submissions"
+        }
+      },
+      "straddlingBucket": {
+        "guestFrame": 3669,
+        "startTimestampUs": 297959891954,
+        "endTimestampUs": 297960109352,
+        "reasons": {
+          "vertex_buffer_dirty": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          },
+          "surface_create": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          },
+          "surface_down": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          },
+          "need_buffer_space": {
+            "calls": 1,
+            "submits": 1,
+            "timingSamples": 1,
+            "fenceWaits": 1,
+            "sampledSubmitHostElapsedMs": 0.117,
+            "sampledFenceWaitHostElapsedMs": 2.477,
+            "durationCoverage": "all_submissions"
+          },
+          "framebuffer_dirty": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          },
+          "presenting": {
+            "calls": 1,
+            "submits": 1,
+            "timingSamples": 1,
+            "fenceWaits": 1,
+            "sampledSubmitHostElapsedMs": 0.088,
+            "sampledFenceWaitHostElapsedMs": 0.333,
+            "durationCoverage": "all_submissions"
+          },
+          "flip_stall": {
+            "calls": 1,
+            "submits": 1,
+            "timingSamples": 1,
+            "fenceWaits": 1,
+            "sampledSubmitHostElapsedMs": 0.177,
+            "sampledFenceWaitHostElapsedMs": 0.197,
+            "durationCoverage": "all_submissions"
+          },
+          "flush": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          },
+          "stalled": {
+            "calls": 2,
+            "submits": 2,
+            "timingSamples": 2,
+            "fenceWaits": 2,
+            "sampledSubmitHostElapsedMs": 0.243,
+            "sampledFenceWaitHostElapsedMs": 3.733,
+            "durationCoverage": "all_submissions"
+          },
+          "texture_dirty": {
+            "calls": 0,
+            "submits": 0,
+            "timingSamples": 0,
+            "fenceWaits": 0,
+            "sampledSubmitHostElapsedMs": 0.0,
+            "sampledFenceWaitHostElapsedMs": 0.0,
+            "durationCoverage": "no_submissions"
+          }
+        }
+      }
+    },
+    "sourcePath": "collected/20261003-155542759-ab6ec0c1fba545c3a720fdf81dc8ee15/vk-perf.jsonl",
+    "sourceSha256": "1c8545c6cb146bdf06abfe796b2cecd3a55f7abed8ab82fdb4c805b42b57c1a2",
+    "sourceBytes": 14529127
+  },
+  "cpuRegions": {
+    "schemaVersion": 8,
+    "mode": "finalizedFullLog",
+    "frameRecords": 3777,
+    "observedTimestampSpanMs": 447519.068,
+    "durationMeaning": "Host elapsed milliseconds; regions are nested. Do not sum them or interpret them as allocation cost.",
+    "regions": {
+      "draw_begin_surface_update": {
+        "calls": 984633,
+        "elapsedTotalMs": 492.57,
+        "maximumFrameElapsedMs": 12.661,
+        "maximumFrame": 374
+      },
+      "draw_flush": {
+        "calls": 984633,
+        "elapsedTotalMs": 18372.492,
+        "maximumFrameElapsedMs": 1556.975,
+        "maximumFrame": 3554
+      },
+      "pipeline_prepare": {
+        "calls": 984525,
+        "elapsedTotalMs": 13080.613,
+        "maximumFrameElapsedMs": 1502.99,
+        "maximumFrame": 3554
+      },
+      "bind_textures": {
+        "calls": 984525,
+        "elapsedTotalMs": 3986.798,
+        "maximumFrameElapsedMs": 29.805,
+        "maximumFrame": 3554
+      },
+      "texture_upload": {
+        "calls": 2621,
+        "elapsedTotalMs": 2380.431,
+        "maximumFrameElapsedMs": 6.164,
+        "maximumFrame": 3554
+      },
+      "update_descriptor_sets": {
+        "calls": 984525,
+        "elapsedTotalMs": 2003.896,
+        "maximumFrameElapsedMs": 36.114,
+        "maximumFrame": 3554
+      }
+    },
+    "sourcePath": "collected/20261003-155542759-ab6ec0c1fba545c3a720fdf81dc8ee15/vk-perf.jsonl",
+    "sourceSha256": "1c8545c6cb146bdf06abfe796b2cecd3a55f7abed8ab82fdb4c805b42b57c1a2",
+    "sourceBytes": 14529127
+  },
+  "sceneAudit": {
+    "method": "Direct visual inspection of all three original full-size captures",
+    "captures": {
+      "start": {
+        "sha256": "e2d5858b5493dc8f0d0354494ae96af7453dc8c6c5fd637231272b57b2e4a503",
+        "observed": "Hong Kong race, player at 0 MPH in gear 1; position 6/6. GO overlay and nearby rivals.",
+        "sceneReached": true,
+        "drivingPressureQualified": false
+      },
+      "midpoint": {
+        "sha256": "8d865abeacd38e8bc51d711d4596974a20eb8e331bab4a0272382b8c95670beb",
+        "observed": "Hong Kong race, player at 0 MPH in gear 1; position 6/6. No GO overlay; rivals farther ahead.",
+        "sceneReached": true,
+        "drivingPressureQualified": false
+      },
+      "end": {
+        "sha256": "ffbacc393525cd2893812b4d3df6fdbdb10fda5533657a211c36468b489434a8",
+        "observed": "Hong Kong race, player at 0 MPH in gear 1; position 6/6. No GO overlay; rivals farther ahead.",
+        "sceneReached": true,
+        "drivingPressureQualified": false
+      }
+    },
+    "verdict": "Race scene reached, stationary player. Not driving/streaming or performance approval."
+  },
+  "sourceProof": {
+    "hw/xbox/nv2a/pgraph/vk/draw.c": {
+      "currentSha256": "529535c210b6e3900d9223b077545b3e2f171f82d15eccf92bc28363e6a736ed",
+      "measuredMainSha256": "529535c210b6e3900d9223b077545b3e2f171f82d15eccf92bc28363e6a736ed"
+    },
+    "hw/xbox/nv2a/pgraph/vk/perf.c": {
+      "currentSha256": "f1a723147259a4f5692f3af1d90254cfe3ffe482b2246e83b7a1cf83a40985cc",
+      "measuredMainSha256": "f1a723147259a4f5692f3af1d90254cfe3ffe482b2246e83b7a1cf83a40985cc"
+    },
+    "scripts/performance/vk-perf-summary.py": {
+      "currentSha256": "0f2a1b13d567ce183c3a341989c0071f9e218c8f85a8ee9bd2e613a6a20b84da"
+    },
+    "changedProductionFiles": []
+  },
+  "allCollectedFiles": 873,
+  "publicPayloads": 61,
+  "publicExclusion": "Binary state cache payloads only, retained locally and fully hashed; no measurement omitted",
+  "ciAtPriorHead": {
+    "commit": "2dcfd758e7d674ac868a4788e65b1b7388cf1976",
+    "checks": 40,
+    "allSuccess": true
+  },
+  "readerTests": 24,
+  "shutdownAssertionPreserved": true,
+  "zipSha256": "c91aff46d43fd4c8f9ef812f059c06cb1dd97c145fffb6e4a450739cdf555b86"
+}

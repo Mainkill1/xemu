@@ -1,0 +1,2785 @@
+{
+  "recommendation": "HOLD",
+  "nextResearchIssue": 188,
+  "runtimeChange": false,
+  "newNativeAttempts": 1,
+  "runId": "20261003-162005404-45b117287d1041c99ca8628fc5a74e41",
+  "originalAssessment": {
+    "Execution": "failed",
+    "Correctness": "failed",
+    "Evidence": "incomplete",
+    "Comparison": "ineligible",
+    "ComparisonReasons": [
+      "Execution outcome is Failed.",
+      "Correctness outcome is Failed; a passing correctness contract is required.",
+      "Evidence outcome is Incomplete; complete evidence is required."
+    ],
+    "Checks": [
+      {
+        "Name": "profile-scene-start-visible",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "result:screenshots/profile-start.png satisfied the declared requirement."
+      },
+      {
+        "Name": "profile-scene-end-visible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Required artifact is missing: /home/deck/xemu-research/workspace/Results/20261003-162005404-45b117287d1041c99ca8628fc5a74e41/screenshots/profile-end.png"
+      },
+      {
+        "Name": "measurement-boundaries",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:segments.jsonl satisfied the declared requirement."
+      },
+      {
+        "Name": "guest-frame-progress",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:guest-frames.log satisfied the declared requirement."
+      },
+      {
+        "Name": "vulkan-finish-telemetry",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:vk-perf.jsonl satisfied the declared requirement."
+      },
+      {
+        "Name": "plan_completion",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "The declared plan did not complete."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": true,
+        "Category": "state",
+        "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+      }
+    ],
+    "IsExecutionSuccess": false,
+    "IsCorrectnessSuccess": false
+  },
+  "result": {
+    "runId": "20261003-162005404-45b117287d1041c99ca8628fc5a74e41",
+    "job": "i250-host-profile-20261003-001-t001",
+    "jobPackage": "agent-i250-host-profile-20261003-001-t001",
+    "attempt": 1,
+    "status": "plan_failed",
+    "detail": "System.TimeoutException: Diagnostic tool or output drain exceeded 60000 ms: /usr/bin/perf\n   at XemuTestRunner.Diagnostics.ToolProcess.RunAsync(String executable, IEnumerable`1 arguments, String workingDirectory, Int32 timeoutMs, CancellationToken cancellationToken, IReadOnlyDictionary`2 environment) in /home/codex/src/steamdeck-xemu/worktrees/runner-standalone-process/src/XemuTestRunner/Diagnostics/ToolProcess.cs:line 115\n   at XemuTestRunner.Diagnostics.ToolProcess.RunAsync(String executable, IEnumerable`1 arguments, String workingDirectory, Int32 timeoutMs, CancellationToken cancellationToken, IReadOnlyDictionary`2 environment) in /home/codex/src/steamdeck-xemu/worktrees/runner-standalone-process/src/XemuTestRunner/Diagnostics/ToolProcess.cs:line 126\n   at XemuTestRunner.Diagnostics.DiagnosticHub.CapturePerfAsync(ActiveContext context, DiagnosticRecipe recipe, String directory, CancellationToken ct) in /home/codex/src/steamdeck-xemu/worktrees/runner-standalone-process/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 484\n   at XemuTestRunner.Diagnostics.DiagnosticHub.CapturePerfAsync(ActiveContext context, DiagnosticRecipe recipe, String directory, CancellationToken ct) in /home/codex/src/steamdeck-xemu/worktrees/runner-standalone-process/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 492\n   at XemuTestRunner.Diagnostics.DiagnosticHub.RunAsync(ActiveContext context, DiagnosticRecipe recipe, CancellationToken cancellationToken, Boolean linkRunLifetime) in /home/codex/src/steamdeck-xemu/worktrees/runner-standalone-process/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 230\n   at XemuTestRunner.Diagnostics.DiagnosticHub.RunAsync(ActiveContext context, DiagnosticRecipe recipe, CancellationToken cancellationToken, Boolean linkRunLifetime) in /home/codex/src/steamdeck-xemu/worktrees/runner-standalone-process/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 302\n   at XemuTestRunner.Diagnostics.DiagnosticHub.RunByIdAsync(String id, CancellationToken cancellationToken) in /home/codex/src/steamdeck-xemu/worktrees/runner-standalone-process/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 114\n   at XemuTestRunner.Runtime.RunnerEngine.<>c__DisplayClass13_0.<<ExecuteJobAsync>b__7>d.MoveNext() in /home/codex/src/steamdeck-xemu/worktrees/runner-standalone-process/src/XemuTestRunner/Runtime/RunnerEngine.cs:line 752\n--- End of stack trace from previous location ---\n   at XemuTestRunner.Control.XemuControlManager.ExecutePlanAsync(IReadOnlyList`1 plan, CancellationToken cancellationToken, Func`3 diagnosticRunner, Action`1 segmentStart, Action`1 segmentEnd, Func`5 artifactWaiter, Func`5 sceneWaiter) in /home/codex/src/steamdeck-xemu/worktrees/runner-standalone-process/src/XemuTestRunner/Control/XemuControlManager.cs:line 595\n   at XemuTestRunner.Control.XemuControlManager.ExecutePlanAsync(IReadOnlyList`1 plan, CancellationToken cancellationToken, Func`3 diagnosticRunner, Action`1 segmentStart, Action`1 segmentEnd, Func`5 artifactWaiter, Func`5 sceneWaiter) in /home/codex/src/steamdeck-xemu/worktrees/runner-standalone-process/src/XemuTestRunner/Control/XemuControlManager.cs:line 646\n   at XemuTestRunner.Runtime.RunnerEngine.ExecuteJobAsync(String package, Task serverTask, MetricCollector telemetry, CancellationToken ct) in /home/codex/src/steamdeck-xemu/worktrees/runner-standalone-process/src/XemuTestRunner/Runtime/RunnerEngine.cs:line 860 plan: Diagnostic tool or output drain exceeded 60000 ms: /usr/bin/perf",
+    "startedUtc": "2026-10-03T16:20:05.404702+00:00",
+    "endedUtc": "2026-10-03T16:24:18.0594233+00:00",
+    "durationMs": 252654.7214,
+    "processId": 99042,
+    "exitCode": 137,
+    "crash": {
+      "RunId": "20261003-162005404-45b117287d1041c99ca8628fc5a74e41",
+      "ExecutableSha256": "5a3e3d8bc02abb602c1167ec19bff60afdbd072db791196f764cb34dad01c97b",
+      "Platform": "linux",
+      "ProcessId": 99042,
+      "ExitCode": 137,
+      "RunnerTerminated": true,
+      "Crashed": false,
+      "Source": "runner",
+      "Code": null,
+      "Capture": "partial",
+      "Dump": "unavailable",
+      "Analysis": "unavailable",
+      "TopFrames": [],
+      "Issues": [
+        "linux_core_metadata_unavailable:captured"
+      ]
+    },
+    "diagnosticBundle": "diagnostic-bundle.json",
+    "targetKind": "xemu",
+    "launchMode": "direct",
+    "snapshotName": null,
+    "startPaused": false,
+    "executable": "xemu",
+    "executableSha256": "5a3e3d8bc02abb602c1167ec19bff60afdbd072db791196f764cb34dad01c97b",
+    "arguments": [
+      "-config_path",
+      "xemu.toml",
+      "-qmp",
+      "tcp:127.0.0.1:42137,server=on,wait=off"
+    ],
+    "watchdog": null,
+    "failureCaptureError": null,
+    "automaticDiagnostic": null,
+    "automaticDiagnosticError": null,
+    "diagnostics": [
+      {
+        "Id": "context-before",
+        "Type": "external",
+        "Status": "completed",
+        "StartedUtc": "2026-10-03T16:22:38.8934103+00:00",
+        "EndedUtc": "2026-10-03T16:22:38.98114+00:00",
+        "Directory": "/home/deck/xemu-research/workspace/Results/20261003-162005404-45b117287d1041c99ca8628fc5a74e41/diagnostics/20261003-162238893-context-before",
+        "Detail": null,
+        "Artifacts": [
+          "external.stdout.txt",
+          "external.stderr.txt",
+          "external.command.txt"
+        ]
+      },
+      {
+        "Id": "host-cpu-profile",
+        "Type": "perf",
+        "Status": "failed",
+        "StartedUtc": "2026-10-03T16:22:38.9854404+00:00",
+        "EndedUtc": "2026-10-03T16:24:09.6364182+00:00",
+        "Directory": "/home/deck/xemu-research/workspace/Results/20261003-162005404-45b117287d1041c99ca8628fc5a74e41/diagnostics/20261003-162238985-host-cpu-profile",
+        "Detail": "System.TimeoutException: Diagnostic tool or output drain exceeded 60000 ms: /usr/bin/perf\n   at XemuTestRunner.Diagnostics.ToolProcess.RunAsync(String executable, IEnumerable`1 arguments, String workingDirectory, Int32 timeoutMs, CancellationToken cancellationToken, IReadOnlyDictionary`2 environment) in /home/codex/src/steamdeck-xemu/worktrees/runner-standalone-process/src/XemuTestRunner/Diagnostics/ToolProcess.cs:line 115\n   at XemuTestRunner.Diagnostics.ToolProcess.RunAsync(String executable, IEnumerable`1 arguments, String workingDirectory, Int32 timeoutMs, CancellationToken cancellationToken, IReadOnlyDictionary`2 environment) in /home/codex/src/steamdeck-xemu/worktrees/runner-standalone-process/src/XemuTestRunner/Diagnostics/ToolProcess.cs:line 126\n   at XemuTestRunner.Diagnostics.DiagnosticHub.CapturePerfAsync(ActiveContext context, DiagnosticRecipe recipe, String directory, CancellationToken ct) in /home/codex/src/steamdeck-xemu/worktrees/runner-standalone-process/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 484\n   at XemuTestRunner.Diagnostics.DiagnosticHub.CapturePerfAsync(ActiveContext context, DiagnosticRecipe recipe, String directory, CancellationToken ct) in /home/codex/src/steamdeck-xemu/worktrees/runner-standalone-process/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 492\n   at XemuTestRunner.Diagnostics.DiagnosticHub.RunAsync(ActiveContext context, DiagnosticRecipe recipe, CancellationToken cancellationToken, Boolean linkRunLifetime) in /home/codex/src/steamdeck-xemu/worktrees/runner-standalone-process/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 230",
+        "Artifacts": []
+      }
+    ],
+    "operatorActivity": {
+      "Intervened": true,
+      "ManualInputs": 0,
+      "Pauses": 0,
+      "Screenshots": 0,
+      "PreviewCaptures": 0,
+      "BulkTransfers": 0,
+      "Diagnostics": 2,
+      "HostStateChanges": 0
+    },
+    "workload": {
+      "Correctness": "failed",
+      "Evidence": "incomplete",
+      "Checks": [
+        {
+          "Name": "profile-scene-start-visible",
+          "Passed": true,
+          "Category": "correctness",
+          "Detail": "result:screenshots/profile-start.png satisfied the declared requirement."
+        },
+        {
+          "Name": "profile-scene-end-visible",
+          "Passed": false,
+          "Category": "correctness",
+          "Detail": "Required artifact is missing: /home/deck/xemu-research/workspace/Results/20261003-162005404-45b117287d1041c99ca8628fc5a74e41/screenshots/profile-end.png"
+        },
+        {
+          "Name": "measurement-boundaries",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "result:segments.jsonl satisfied the declared requirement."
+        },
+        {
+          "Name": "guest-frame-progress",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "result:guest-frames.log satisfied the declared requirement."
+        },
+        {
+          "Name": "vulkan-finish-telemetry",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "result:vk-perf.jsonl satisfied the declared requirement."
+        },
+        {
+          "Name": "plan_completion",
+          "Passed": false,
+          "Category": "evidence",
+          "Detail": "The declared plan did not complete."
+        },
+        {
+          "Name": "run_storage_state",
+          "Passed": true,
+          "Category": "state",
+          "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+        }
+      ],
+      "Measurements": []
+    },
+    "assessment": {
+      "Execution": "failed",
+      "Correctness": "failed",
+      "Evidence": "incomplete",
+      "Comparison": "ineligible",
+      "ComparisonReasons": [
+        "Execution outcome is Failed.",
+        "Correctness outcome is Failed; a passing correctness contract is required.",
+        "Evidence outcome is Incomplete; complete evidence is required."
+      ],
+      "Checks": [
+        {
+          "Name": "profile-scene-start-visible",
+          "Passed": true,
+          "Category": "correctness",
+          "Detail": "result:screenshots/profile-start.png satisfied the declared requirement."
+        },
+        {
+          "Name": "profile-scene-end-visible",
+          "Passed": false,
+          "Category": "correctness",
+          "Detail": "Required artifact is missing: /home/deck/xemu-research/workspace/Results/20261003-162005404-45b117287d1041c99ca8628fc5a74e41/screenshots/profile-end.png"
+        },
+        {
+          "Name": "measurement-boundaries",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "result:segments.jsonl satisfied the declared requirement."
+        },
+        {
+          "Name": "guest-frame-progress",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "result:guest-frames.log satisfied the declared requirement."
+        },
+        {
+          "Name": "vulkan-finish-telemetry",
+          "Passed": true,
+          "Category": "evidence",
+          "Detail": "result:vk-perf.jsonl satisfied the declared requirement."
+        },
+        {
+          "Name": "plan_completion",
+          "Passed": false,
+          "Category": "evidence",
+          "Detail": "The declared plan did not complete."
+        },
+        {
+          "Name": "run_storage_state",
+          "Passed": true,
+          "Category": "state",
+          "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+        }
+      ],
+      "IsExecutionSuccess": false,
+      "IsCorrectnessSuccess": false
+    },
+    "correctnessStatus": "failed",
+    "evidenceStatus": "incomplete",
+    "comparisonStatus": "ineligible",
+    "experiment": {
+      "Id": "issue250-host-root-cause-20261003",
+      "Variant": "main-host-profile-diagnostic",
+      "Reference": "76c23c7d444a6f12c9778bb2c35fab513f6c8056",
+      "VariedFactors": [
+        "Explicit 30-second 99 Hz perf sampling plus before/after procfs/sysfs context; no performance comparison"
+      ],
+      "ControlledFactors": [
+        "Same navigation and 60-second settling as preserved failed 300-second attempt; new diagnostic recipe, no frame evidence qualification",
+        "Fixed controller auto_bind=false and virtual port 1 connected",
+        "Vulkan/RADV, full DSP/JIT, VP workers 0, 128 MiB, private guest/Mesa disk state",
+        "Declared non-pausing offline schema-header query; no TCG observer"
+      ],
+      "RequireCorrectnessPass": true,
+      "RequireCompleteEvidence": true,
+      "AllowOperatorIntervention": false,
+      "AllowDiagnostics": true
+    },
+    "operations": {
+      "Mode": "diagnostic",
+      "AllowPreview": false,
+      "AllowManualInput": false,
+      "AllowPauseResume": false,
+      "AllowDiagnostics": true,
+      "AllowBulkTransfers": false,
+      "PreviewAllowed": false,
+      "ManualInputAllowed": false,
+      "PauseResumeAllowed": false,
+      "DiagnosticsAllowed": true,
+      "BulkTransfersAllowed": false
+    },
+    "inputManifest": "input-manifest.json",
+    "controllerInput": null,
+    "runtimeDirectory": "/home/deck/xemu-research/workspace/Runtime/20261003-162005404-45b117287d1041c99ca8628fc5a74e41",
+    "hostInventory": "host-inventory.json",
+    "workstationStart": {
+      "Supported": false,
+      "Platform": "linux",
+      "SessionLocked": null,
+      "InputDesktop": null,
+      "DisplayState": "unknown",
+      "PowerState": "unknown",
+      "PowerSource": "unknown",
+      "BatteryPercent": null,
+      "BatterySaver": null,
+      "UserIdleSeconds": null,
+      "TimestampUtc": "2026-10-03T14:03:03.9635947+00:00",
+      "LastSessionChangeUtc": null,
+      "LastDisplayChangeUtc": null,
+      "LastSuspendUtc": null,
+      "LastResumeUtc": null,
+      "LastEvent": "workstation monitoring is currently implemented for Windows only",
+      "EventSequence": 1,
+      "RenderingRisk": false
+    },
+    "workstationEnd": {
+      "Supported": false,
+      "Platform": "linux",
+      "SessionLocked": null,
+      "InputDesktop": null,
+      "DisplayState": "unknown",
+      "PowerState": "unknown",
+      "PowerSource": "unknown",
+      "BatteryPercent": null,
+      "BatterySaver": null,
+      "UserIdleSeconds": null,
+      "TimestampUtc": "2026-10-03T14:03:03.9635947+00:00",
+      "LastSessionChangeUtc": null,
+      "LastDisplayChangeUtc": null,
+      "LastSuspendUtc": null,
+      "LastResumeUtc": null,
+      "LastEvent": "workstation monitoring is currently implemented for Windows only",
+      "EventSequence": 1,
+      "RenderingRisk": false
+    },
+    "host": {
+      "runnerVersion": "0.2.0+e17919c849b840d43171a615b288f559fbec9e4c",
+      "machine": "steamdeck",
+      "os": "SteamOS",
+      "architecture": "X64",
+      "processArchitecture": "X64",
+      "processorCount": 8,
+      "dotnet": "10.0.12"
+    },
+    "monitoring": {
+      "intervalMs": 500,
+      "samples": 479,
+      "overruns": 0,
+      "droppedWriteSamples": 0,
+      "averageCollectorDutyPercent": 0.345321043841336,
+      "maxCollectorDutyPercent": 0.86558,
+      "maxCollectorDurationMs": 4.3279,
+      "gpuProviders": [
+        "Linux DRM sysfs"
+      ]
+    }
+  },
+  "offlineAttribution": {
+    "samples": 8224,
+    "period": 161286694382,
+    "lostSamples": 0,
+    "originalOutcome": "failed/failed/incomplete/ineligible",
+    "offlineOnly": true,
+    "elfBuildId": "030e46aa0d358865bf27ecdfc6c21e928d9994a8",
+    "topLeafSymbols": [
+      {
+        "symbol": "[unknown] in /usr/lib/libsamplerate.so.0.2.2",
+        "samples": 2255,
+        "period": 48346278187,
+        "processPeriodPercent": 29.975366766767568
+      },
+      {
+        "symbol": "[unknown] in /tmp/perf-99042.map",
+        "samples": 1231,
+        "period": 28818188737,
+        "processPeriodPercent": 17.867678947369004
+      },
+      {
+        "symbol": "address_space_ldl_le",
+        "samples": 535,
+        "period": 11254391409,
+        "processPeriodPercent": 6.977879639807423
+      },
+      {
+        "symbol": "voice_process",
+        "samples": 357,
+        "period": 7419360304,
+        "processPeriodPercent": 4.600106867109318
+      },
+      {
+        "symbol": "address_space_translate_internal",
+        "samples": 300,
+        "period": 6206654269,
+        "processPeriodPercent": 3.8482122116656625
+      },
+      {
+        "symbol": "flatview_do_translate.isra.0",
+        "samples": 267,
+        "period": 5554519302,
+        "processPeriodPercent": 3.44387943672798
+      },
+      {
+        "symbol": "voice_get_samples",
+        "samples": 196,
+        "period": 4070820670,
+        "processPeriodPercent": 2.523965591580947
+      },
+      {
+        "symbol": "flatview_translate",
+        "samples": 171,
+        "period": 3686983325,
+        "processPeriodPercent": 2.2859810842595314
+      },
+      {
+        "symbol": "[unknown] in /usr/lib/libm.so.6",
+        "samples": 144,
+        "period": 3070556613,
+        "processPeriodPercent": 1.903787925448785
+      },
+      {
+        "symbol": "qemu_ram_ptr_length",
+        "samples": 134,
+        "period": 2732527098,
+        "processPeriodPercent": 1.6942049116141826
+      },
+      {
+        "symbol": "jit_read_accu24",
+        "samples": 110,
+        "period": 2555784244,
+        "processPeriodPercent": 1.5846218770822746
+      },
+      {
+        "symbol": "dsp56300_emu::jit::<impl dsp56300_emu::core::DspState>::run",
+        "samples": 102,
+        "period": 2324438535,
+        "processPeriodPercent": 1.4411843108983782
+      },
+      {
+        "symbol": "physical_memory_all_dirty",
+        "samples": 111,
+        "period": 2285087075,
+        "processPeriodPercent": 1.4167858568592633
+      },
+      {
+        "symbol": "[unknown] in /usr/lib/libgallium-25.3.0.so",
+        "samples": 227,
+        "period": 2255271925,
+        "processPeriodPercent": 1.3983000480241066
+      },
+      {
+        "symbol": "fmax",
+        "samples": 97,
+        "period": 2222140857,
+        "processPeriodPercent": 1.377758323781479
+      },
+      {
+        "symbol": "dsp56300_emu::core::jit_update_nz",
+        "samples": 80,
+        "period": 1964319971,
+        "processPeriodPercent": 1.2179057786053944
+      },
+      {
+        "symbol": "[unknown] in /usr/lib/libc.so.6",
+        "samples": 259,
+        "period": 1745750654,
+        "processPeriodPercent": 1.082389753655234
+      },
+      {
+        "symbol": "[unknown] in [unknown]",
+        "samples": 228,
+        "period": 1193932257,
+        "processPeriodPercent": 0.7402546512437208
+      },
+      {
+        "symbol": "find_next_zero_bit",
+        "samples": 63,
+        "period": 1156242942,
+        "processPeriodPercent": 0.716886750286724
+      },
+      {
+        "symbol": "get_ptr_rcu_reader",
+        "samples": 56,
+        "period": 1074043807,
+        "processPeriodPercent": 0.6659221401464013
+      },
+      {
+        "symbol": "fmin",
+        "samples": 52,
+        "period": 1065023073,
+        "processPeriodPercent": 0.660329159253238
+      },
+      {
+        "symbol": "qht_lookup_custom",
+        "samples": 47,
+        "period": 1059890039,
+        "processPeriodPercent": 0.6571466065822515
+      },
+      {
+        "symbol": "address_space_stl_le",
+        "samples": 48,
+        "period": 1006251399,
+        "processPeriodPercent": 0.6238899016782752
+      },
+      {
+        "symbol": "voice_worker_thread",
+        "samples": 79,
+        "period": 761588778,
+        "processPeriodPercent": 0.47219566432195115
+      },
+      {
+        "symbol": "address_space_lduw_le",
+        "samples": 33,
+        "period": 738701052,
+        "processPeriodPercent": 0.45800495498433436
+      },
+      {
+        "symbol": "dsp56300_emu::core::DspState::read_memory",
+        "samples": 33,
+        "period": 737453251,
+        "processPeriodPercent": 0.45723130096111736
+      },
+      {
+        "symbol": "dsp56300_emu::core::DspState::write_memory",
+        "samples": 34,
+        "period": 730033948,
+        "processPeriodPercent": 0.4526312296232873
+      },
+      {
+        "symbol": "lookup_tb_ptr_common",
+        "samples": 21,
+        "period": 689729989,
+        "processPeriodPercent": 0.42764221291956467
+      },
+      {
+        "symbol": "[unknown] in /usr/lib/libvulkan_radeon.so",
+        "samples": 28,
+        "period": 648290868,
+        "processPeriodPercent": 0.40194937994361357
+      },
+      {
+        "symbol": "[unknown] in [vdso]",
+        "samples": 65,
+        "period": 617120861,
+        "processPeriodPercent": 0.38262354087211814
+      },
+      {
+        "symbol": "physical_memory_set_dirty_range",
+        "samples": 26,
+        "period": 609259644,
+        "processPeriodPercent": 0.37774947669086517
+      },
+      {
+        "symbol": "dsp56300_emu::core::jit_saturate_sm",
+        "samples": 25,
+        "period": 576169702,
+        "processPeriodPercent": 0.35723325114182636
+      },
+      {
+        "symbol": "[unknown] in /usr/lib/libSDL3.so.0.2.18",
+        "samples": 51,
+        "period": 529305599,
+        "processPeriodPercent": 0.32817685366305815
+      },
+      {
+        "symbol": "[unknown] in /usr/lib/libglib-2.0.so.0.8400.3",
+        "samples": 65,
+        "period": 460761864,
+        "processPeriodPercent": 0.28567878197609226
+      },
+      {
+        "symbol": "mcpx_apu_dsp_frame",
+        "samples": 20,
+        "period": 406077665,
+        "processPeriodPercent": 0.2517738159095902
+      },
+      {
+        "symbol": "float32_mul",
+        "samples": 6,
+        "period": 381862595,
+        "processPeriodPercent": 0.23676013477936145
+      },
+      {
+        "symbol": "dsp56300_emu::core::DspState::process_pending_interrupts",
+        "samples": 17,
+        "period": 377160260,
+        "processPeriodPercent": 0.2338446214953811
+      },
+      {
+        "symbol": "mcpx_apu_vp_frame",
+        "samples": 28,
+        "period": 358613401,
+        "processPeriodPercent": 0.2223453102403109
+      },
+      {
+        "symbol": "helper_lookup_tb_ptr_i32",
+        "samples": 16,
+        "period": 343632847,
+        "processPeriodPercent": 0.21305715782488643
+      },
+      {
+        "symbol": "tb_lookup_cmp",
+        "samples": 14,
+        "period": 317568731,
+        "processPeriodPercent": 0.19689704238581102
+      }
+    ],
+    "threads": [
+      {
+        "tid": "99103",
+        "samples": 1814,
+        "period": 41382336518,
+        "processPeriodPercent": 25.657625805131744
+      },
+      {
+        "tid": "99090",
+        "samples": 647,
+        "period": 13108745638,
+        "processPeriodPercent": 8.127605124668591
+      },
+      {
+        "tid": "99094",
+        "samples": 632,
+        "period": 13058054849,
+        "processPeriodPercent": 8.096176128498614
+      },
+      {
+        "tid": "99097",
+        "samples": 641,
+        "period": 12939810327,
+        "processPeriodPercent": 8.022862875689338
+      },
+      {
+        "tid": "99095",
+        "samples": 640,
+        "period": 12814945008,
+        "processPeriodPercent": 7.945444636399083
+      },
+      {
+        "tid": "99092",
+        "samples": 634,
+        "period": 12790121377,
+        "processPeriodPercent": 7.930053638961187
+      },
+      {
+        "tid": "99093",
+        "samples": 626,
+        "period": 12738891311,
+        "processPeriodPercent": 7.898290283529856
+      },
+      {
+        "tid": "99091",
+        "samples": 626,
+        "period": 12708908172,
+        "processPeriodPercent": 7.8797003191717385
+      },
+      {
+        "tid": "99096",
+        "samples": 608,
+        "period": 12273650477,
+        "processPeriodPercent": 7.609834477685079
+      },
+      {
+        "tid": "99089",
+        "samples": 419,
+        "period": 9417592629,
+        "processPeriodPercent": 5.839038778174021
+      },
+      {
+        "tid": "99042",
+        "samples": 262,
+        "period": 4016375015,
+        "processPeriodPercent": 2.490208526121444
+      },
+      {
+        "tid": "99104",
+        "samples": 124,
+        "period": 1801938813,
+        "processPeriodPercent": 1.1172271958976308
+      },
+      {
+        "tid": "99057",
+        "samples": 86,
+        "period": 661419322,
+        "processPeriodPercent": 0.41008920452759684
+      },
+      {
+        "tid": "99113",
+        "samples": 26,
+        "period": 535008954,
+        "processPeriodPercent": 0.3317130133083739
+      },
+      {
+        "tid": "99085",
+        "samples": 62,
+        "period": 448250122,
+        "processPeriodPercent": 0.27792132743345865
+      },
+      {
+        "tid": "99120",
+        "samples": 108,
+        "period": 447599120,
+        "processPeriodPercent": 0.2775176971138626
+      },
+      {
+        "tid": "99045",
+        "samples": 90,
+        "period": 132911849,
+        "processPeriodPercent": 0.08240720011608924
+      },
+      {
+        "tid": "99102",
+        "samples": 43,
+        "period": 9500212,
+        "processPeriodPercent": 0.005890263940495421
+      },
+      {
+        "tid": "99087",
+        "samples": 40,
+        "period": 186210,
+        "processPeriodPercent": 0.00011545279709122831
+      },
+      {
+        "tid": "99088",
+        "samples": 40,
+        "period": 176042,
+        "processPeriodPercent": 0.00010914849527702065
+      },
+      {
+        "tid": "99127",
+        "samples": 34,
+        "period": 127259,
+        "processPeriodPercent": 7.890235489518621e-05
+      },
+      {
+        "tid": "99115",
+        "samples": 5,
+        "period": 62264,
+        "processPeriodPercent": 3.860454840281532e-05
+      },
+      {
+        "tid": "99117",
+        "samples": 5,
+        "period": 43010,
+        "processPeriodPercent": 2.6666799865172277e-05
+      },
+      {
+        "tid": "99105",
+        "samples": 5,
+        "period": 24287,
+        "processPeriodPercent": 1.5058278733444295e-05
+      },
+      {
+        "tid": "99116",
+        "samples": 7,
+        "period": 15597,
+        "processPeriodPercent": 9.670357533064218e-06
+      }
+    ],
+    "dsos": [
+      {
+        "dso": "/home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/xemu",
+        "samples": 3618,
+        "period": 73012085570,
+        "processPeriodPercent": 45.26851136093985
+      },
+      {
+        "dso": "/usr/lib/libsamplerate.so.0.2.2",
+        "samples": 2255,
+        "period": 48346278187,
+        "processPeriodPercent": 29.975366766767568
+      },
+      {
+        "dso": "/tmp/perf-99042.map",
+        "samples": 1231,
+        "period": 28818188737,
+        "processPeriodPercent": 17.867678947369004
+      },
+      {
+        "dso": "/usr/lib/libm.so.6",
+        "samples": 144,
+        "period": 3070556613,
+        "processPeriodPercent": 1.903787925448785
+      },
+      {
+        "dso": "/usr/lib/libgallium-25.3.0.so",
+        "samples": 227,
+        "period": 2255271925,
+        "processPeriodPercent": 1.3983000480241066
+      },
+      {
+        "dso": "/usr/lib/libc.so.6",
+        "samples": 259,
+        "period": 1745750654,
+        "processPeriodPercent": 1.082389753655234
+      },
+      {
+        "dso": "[unknown]",
+        "samples": 228,
+        "period": 1193932257,
+        "processPeriodPercent": 0.7402546512437208
+      },
+      {
+        "dso": "/usr/lib/libvulkan_radeon.so",
+        "samples": 28,
+        "period": 648290868,
+        "processPeriodPercent": 0.40194937994361357
+      },
+      {
+        "dso": "[vdso]",
+        "samples": 65,
+        "period": 617120861,
+        "processPeriodPercent": 0.38262354087211814
+      },
+      {
+        "dso": "/usr/lib/libSDL3.so.0.2.18",
+        "samples": 51,
+        "period": 529305599,
+        "processPeriodPercent": 0.32817685366305815
+      },
+      {
+        "dso": "/usr/lib/libglib-2.0.so.0.8400.3",
+        "samples": 65,
+        "period": 460761864,
+        "processPeriodPercent": 0.28567878197609226
+      },
+      {
+        "dso": "/usr/lib/libdrm.so.2.129.0",
+        "samples": 6,
+        "period": 137756555,
+        "processPeriodPercent": 0.0854109854057335
+      },
+      {
+        "dso": "/usr/lib/libxcb.so.1.1.0",
+        "samples": 6,
+        "period": 118077398,
+        "processPeriodPercent": 0.07320963359837929
+      },
+      {
+        "dso": "/usr/lib/libOpenGL.so.0.0.0",
+        "samples": 6,
+        "period": 91169161,
+        "processPeriodPercent": 0.05652615136625598
+      },
+      {
+        "dso": "/usr/lib/libGLX.so.0.0.0",
+        "samples": 3,
+        "period": 68579271,
+        "processPeriodPercent": 0.0425201045025904
+      },
+      {
+        "dso": "/usr/lib/libdbus-1.so.3.38.3",
+        "samples": 3,
+        "period": 48681887,
+        "processPeriodPercent": 0.030183448911600373
+      },
+      {
+        "dso": "/usr/lib/libX11.so.6.4.0",
+        "samples": 2,
+        "period": 28148506,
+        "processPeriodPercent": 0.017452466310290654
+      },
+      {
+        "dso": "/usr/lib/libudev.so.1.7.10",
+        "samples": 1,
+        "period": 23744311,
+        "processPeriodPercent": 0.014721803984501479
+      },
+      {
+        "dso": "/usr/lib/libgcc_s.so.1",
+        "samples": 1,
+        "period": 19791240,
+        "processPeriodPercent": 0.012270844830588054
+      },
+      {
+        "dso": "/usr/lib/libGL.so.1.7.0",
+        "samples": 3,
+        "period": 16951960,
+        "processPeriodPercent": 0.010510451630839475
+      },
+      {
+        "dso": "/usr/lib/libGLX_mesa.so.0.0.0",
+        "samples": 2,
+        "period": 15443975,
+        "processPeriodPercent": 0.009575479898807812
+      },
+      {
+        "dso": "/usr/lib/libxcb-present.so.0.0.0",
+        "samples": 1,
+        "period": 12897706,
+        "processPeriodPercent": 0.007996757605715686
+      },
+      {
+        "dso": "/usr/lib/spa-0.2/support/libspa-support.so",
+        "samples": 14,
+        "period": 6373320,
+        "processPeriodPercent": 0.003951547289390834
+      },
+      {
+        "dso": "/usr/lib/libpipewire-0.3.so.0.1604.0",
+        "samples": 2,
+        "period": 1395022,
+        "processPeriodPercent": 0.0008649330965243516
+      },
+      {
+        "dso": "/usr/lib/spa-0.2/audioconvert/libspa-audioconvert.so",
+        "samples": 3,
+        "period": 140935,
+        "processPeriodPercent": 8.738166563585341e-05
+      }
+    ],
+    "contextBefore": {
+      "type": "sample",
+      "pid": 99042,
+      "startTicks": 29927393,
+      "timestampUtc": "2026-10-03T16:22:38.954403+00:00",
+      "monotonicNs": 299421531569780,
+      "errors": [
+        "/sys/devices/system/cpu/cpufreq/policy0/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy0/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy1/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy1/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy2/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy2/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy3/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy3/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy4/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy4/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy5/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy5/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy6/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy6/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy7/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy7/cpuinfo_cur_freq'"
+      ],
+      "threads": [
+        {
+          "tid": 99042,
+          "pid": 99042,
+          "name": "xemu",
+          "state": "S",
+          "userTicks": 2135,
+          "systemTicks": 763,
+          "startTicks": 29927393,
+          "lastProcessor": 7,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 819940,
+          "involuntaryContextSwitches": 16627
+        },
+        {
+          "tid": 99043,
+          "pid": 99043,
+          "name": "xemu",
+          "state": "S",
+          "userTicks": 0,
+          "systemTicks": 0,
+          "startTicks": 29927397,
+          "lastProcessor": 6,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 21,
+          "involuntaryContextSwitches": 1
+        },
+        {
+          "tid": 99045,
+          "pid": 99045,
+          "name": "xemu:cs0",
+          "state": "S",
+          "userTicks": 81,
+          "systemTicks": 1007,
+          "startTicks": 29927406,
+          "lastProcessor": 5,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 299372,
+          "involuntaryContextSwitches": 11363
+        },
+        {
+          "tid": 99046,
+          "pid": 99046,
+          "name": "xemu:disk$0",
+          "state": "S",
+          "userTicks": 0,
+          "systemTicks": 0,
+          "startTicks": 29927406,
+          "lastProcessor": 1,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 23,
+          "involuntaryContextSwitches": 2
+        },
+        {
+          "tid": 99047,
+          "pid": 99047,
+          "name": "xemu:sh0",
+          "state": "S",
+          "userTicks": 2,
+          "systemTicks": 0,
+          "startTicks": 29927406,
+          "lastProcessor": 3,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 13,
+          "involuntaryContextSwitches": 3
+        },
+        {
+          "tid": 99048,
+          "pid": 99048,
+          "name": "xemu:sh_opt0",
+          "state": "S",
+          "userTicks": 5,
+          "systemTicks": 0,
+          "startTicks": 29927406,
+          "lastProcessor": 4,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 6,
+          "involuntaryContextSwitches": 0
+        },
+        {
+          "tid": 99049,
+          "pid": 99049,
+          "name": "xemu:traceq0",
+          "state": "S",
+          "userTicks": 0,
+          "systemTicks": 0,
+          "startTicks": 29927406,
+          "lastProcessor": 0,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 2,
+          "involuntaryContextSwitches": 0
+        },
+        {
+          "tid": 99050,
+          "pid": 99050,
+          "name": "xemu:traceq0",
+          "state": "S",
+          "userTicks": 0,
+          "systemTicks": 0,
+          "startTicks": 29927406,
+          "lastProcessor": 3,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 1,
+          "involuntaryContextSwitches": 0
+        },
+        {
+          "tid": 99051,
+          "pid": 99051,
+          "name": "xemu:traceq0",
+          "state": "S",
+          "userTicks": 0,
+          "systemTicks": 0,
+          "startTicks": 29927406,
+          "lastProcessor": 4,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 1,
+          "involuntaryContextSwitches": 0
+        },
+        {
+          "tid": 99056,
+          "pid": 99056,
+          "name": "xemu:traceq0",
+          "state": "S",
+          "userTicks": 0,
+          "systemTicks": 0,
+          "startTicks": 29927410,
+          "lastProcessor": 0,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 1,
+          "involuntaryContextSwitches": 0
+        },
+        {
+          "tid": 99057,
+          "pid": 99057,
+          "name": "xemu:gdrv0",
+          "state": "S",
+          "userTicks": 468,
+          "systemTicks": 193,
+          "startTicks": 29927410,
+          "lastProcessor": 6,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 301278,
+          "involuntaryContextSwitches": 5363
+        },
+        {
+          "tid": 99062,
+          "pid": 99062,
+          "name": "xemu:gl0",
+          "state": "S",
+          "userTicks": 1,
+          "systemTicks": 0,
+          "startTicks": 29927410,
+          "lastProcessor": 1,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 6,
+          "involuntaryContextSwitches": 2
+        },
+        {
+          "tid": 99065,
+          "pid": 99065,
+          "name": "xemu:traceq0",
+          "state": "S",
+          "userTicks": 0,
+          "systemTicks": 0,
+          "startTicks": 29927411,
+          "lastProcessor": 6,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 1,
+          "involuntaryContextSwitches": 0
+        },
+        {
+          "tid": 99066,
+          "pid": 99066,
+          "name": "xemu:gdrv0",
+          "state": "S",
+          "userTicks": 0,
+          "systemTicks": 0,
+          "startTicks": 29927411,
+          "lastProcessor": 3,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 1,
+          "involuntaryContextSwitches": 0
+        },
+        {
+          "tid": 99067,
+          "pid": 99067,
+          "name": "xemu:gl0",
+          "state": "S",
+          "userTicks": 0,
+          "systemTicks": 0,
+          "startTicks": 29927411,
+          "lastProcessor": 0,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 2,
+          "involuntaryContextSwitches": 0
+        },
+        {
+          "tid": 99068,
+          "pid": 99068,
+          "name": "xemu:traceq0",
+          "state": "S",
+          "userTicks": 0,
+          "systemTicks": 0,
+          "startTicks": 29927411,
+          "lastProcessor": 0,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 1,
+          "involuntaryContextSwitches": 0
+        },
+        {
+          "tid": 99069,
+          "pid": 99069,
+          "name": "xemu:gdrv0",
+          "state": "S",
+          "userTicks": 0,
+          "systemTicks": 0,
+          "startTicks": 29927411,
+          "lastProcessor": 0,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 1,
+          "involuntaryContextSwitches": 0
+        },
+        {
+          "tid": 99070,
+          "pid": 99070,
+          "name": "xemu:gl0",
+          "state": "S",
+          "userTicks": 0,
+          "systemTicks": 0,
+          "startTicks": 29927411,
+          "lastProcessor": 0,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 2,
+          "involuntaryContextSwitches": 0
+        },
+        {
+          "tid": 99080,
+          "pid": 99080,
+          "name": "xemu:sh1",
+          "state": "S",
+          "userTicks": 4,
+          "systemTicks": 1,
+          "startTicks": 29927414,
+          "lastProcessor": 0,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 12,
+          "involuntaryContextSwitches": 10
+        },
+        {
+          "tid": 99081,
+          "pid": 99081,
+          "name": "xemu:sh2",
+          "state": "S",
+          "userTicks": 2,
+          "systemTicks": 0,
+          "startTicks": 29927414,
+          "lastProcessor": 2,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 8,
+          "involuntaryContextSwitches": 5
+        },
+        {
+          "tid": 99082,
+          "pid": 99082,
+          "name": "xemu:traceq0",
+          "state": "S",
+          "userTicks": 0,
+          "systemTicks": 0,
+          "startTicks": 29927421,
+          "lastProcessor": 1,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 1,
+          "involuntaryContextSwitches": 0
+        },
+        {
+          "tid": 99083,
+          "pid": 99083,
+          "name": "xemu:gdrv0",
+          "state": "S",
+          "userTicks": 0,
+          "systemTicks": 0,
+          "startTicks": 29927421,
+          "lastProcessor": 1,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 1,
+          "involuntaryContextSwitches": 0
+        },
+        {
+          "tid": 99084,
+          "pid": 99084,
+          "name": "xemu:gl0",
+          "state": "S",
+          "userTicks": 0,
+          "systemTicks": 0,
+          "startTicks": 29927421,
+          "lastProcessor": 1,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 2,
+          "involuntaryContextSwitches": 0
+        },
+        {
+          "tid": 99085,
+          "pid": 99085,
+          "name": "xemu",
+          "state": "S",
+          "userTicks": 403,
+          "systemTicks": 406,
+          "startTicks": 29927422,
+          "lastProcessor": 1,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 455439,
+          "involuntaryContextSwitches": 7026
+        },
+        {
+          "tid": 99086,
+          "pid": 99086,
+          "name": "xemu:sh3",
+          "state": "S",
+          "userTicks": 3,
+          "systemTicks": 0,
+          "startTicks": 29927424,
+          "lastProcessor": 0,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 3,
+          "involuntaryContextSwitches": 4
+        },
+        {
+          "tid": 99087,
+          "pid": 99087,
+          "name": "xemu",
+          "state": "S",
+          "userTicks": 1,
+          "systemTicks": 20,
+          "startTicks": 29927428,
+          "lastProcessor": 5,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 5177,
+          "involuntaryContextSwitches": 155
+        },
+        {
+          "tid": 99088,
+          "pid": 99088,
+          "name": "xemu",
+          "state": "S",
+          "userTicks": 2,
+          "systemTicks": 2,
+          "startTicks": 29927428,
+          "lastProcessor": 6,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 432,
+          "involuntaryContextSwitches": 17
+        },
+        {
+          "tid": 99089,
+          "pid": 99089,
+          "name": "xemu",
+          "state": "S",
+          "userTicks": 8564,
+          "systemTicks": 80,
+          "startTicks": 29927428,
+          "lastProcessor": 3,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 267683,
+          "involuntaryContextSwitches": 8955
+        },
+        {
+          "tid": 99090,
+          "pid": 99090,
+          "name": "xemu",
+          "state": "S",
+          "userTicks": 1292,
+          "systemTicks": 200,
+          "startTicks": 29927429,
+          "lastProcessor": 1,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 300279,
+          "involuntaryContextSwitches": 17024
+        },
+        {
+          "tid": 99091,
+          "pid": 99091,
+          "name": "xemu",
+          "state": "S",
+          "userTicks": 1218,
+          "systemTicks": 195,
+          "startTicks": 29927429,
+          "lastProcessor": 2,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 314548,
+          "involuntaryContextSwitches": 15353
+        },
+        {
+          "tid": 99092,
+          "pid": 99092,
+          "name": "xemu",
+          "state": "R",
+          "userTicks": 1197,
+          "systemTicks": 195,
+          "startTicks": 29927429,
+          "lastProcessor": 1,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 315343,
+          "involuntaryContextSwitches": 14613
+        },
+        {
+          "tid": 99093,
+          "pid": 99093,
+          "name": "xemu",
+          "state": "S",
+          "userTicks": 1185,
+          "systemTicks": 193,
+          "startTicks": 29927429,
+          "lastProcessor": 4,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 319274,
+          "involuntaryContextSwitches": 13764
+        },
+        {
+          "tid": 99094,
+          "pid": 99094,
+          "name": "xemu",
+          "state": "S",
+          "userTicks": 1199,
+          "systemTicks": 194,
+          "startTicks": 29927429,
+          "lastProcessor": 1,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 316962,
+          "involuntaryContextSwitches": 14164
+        },
+        {
+          "tid": 99095,
+          "pid": 99095,
+          "name": "xemu",
+          "state": "S",
+          "userTicks": 1178,
+          "systemTicks": 196,
+          "startTicks": 29927429,
+          "lastProcessor": 5,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 321559,
+          "involuntaryContextSwitches": 12418
+        },
+        {
+          "tid": 99096,
+          "pid": 99096,
+          "name": "xemu",
+          "state": "R",
+          "userTicks": 1236,
+          "systemTicks": 191,
+          "startTicks": 29927429,
+          "lastProcessor": 3,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 312709,
+          "involuntaryContextSwitches": 14874
+        },
+        {
+          "tid": 99097,
+          "pid": 99097,
+          "name": "xemu",
+          "state": "S",
+          "userTicks": 1213,
+          "systemTicks": 195,
+          "startTicks": 29927429,
+          "lastProcessor": 7,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 317435,
+          "involuntaryContextSwitches": 14350
+        },
+        {
+          "tid": 99098,
+          "pid": 99098,
+          "name": "module-rt",
+          "state": "S",
+          "userTicks": 0,
+          "systemTicks": 0,
+          "startTicks": 29927429,
+          "lastProcessor": 7,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 6,
+          "involuntaryContextSwitches": 0
+        },
+        {
+          "tid": 99099,
+          "pid": 99099,
+          "name": "SDLPwAudioPlug",
+          "state": "S",
+          "userTicks": 0,
+          "systemTicks": 0,
+          "startTicks": 29927429,
+          "lastProcessor": 2,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 18,
+          "involuntaryContextSwitches": 0
+        },
+        {
+          "tid": 99100,
+          "pid": 99100,
+          "name": "module-rt",
+          "state": "S",
+          "userTicks": 0,
+          "systemTicks": 0,
+          "startTicks": 29927431,
+          "lastProcessor": 3,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 6,
+          "involuntaryContextSwitches": 1
+        },
+        {
+          "tid": 99101,
+          "pid": 99101,
+          "name": "module-rt",
+          "state": "S",
+          "userTicks": 0,
+          "systemTicks": 0,
+          "startTicks": 29927431,
+          "lastProcessor": 5,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 6,
+          "involuntaryContextSwitches": 0
+        },
+        {
+          "tid": 99102,
+          "pid": 99102,
+          "name": "SDLAudioP15",
+          "state": "S",
+          "userTicks": 13,
+          "systemTicks": 5,
+          "startTicks": 29927431,
+          "lastProcessor": 3,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 6911,
+          "involuntaryContextSwitches": 107
+        },
+        {
+          "tid": 99103,
+          "pid": 99103,
+          "name": "xemu",
+          "state": "S",
+          "userTicks": 6780,
+          "systemTicks": 450,
+          "startTicks": 29927434,
+          "lastProcessor": 5,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 286534,
+          "involuntaryContextSwitches": 15181
+        },
+        {
+          "tid": 99104,
+          "pid": 99104,
+          "name": "xemu",
+          "state": "S",
+          "userTicks": 1912,
+          "systemTicks": 353,
+          "startTicks": 29927434,
+          "lastProcessor": 5,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 305747,
+          "involuntaryContextSwitches": 10706
+        },
+        {
+          "tid": 99105,
+          "pid": 99105,
+          "name": "xemu:disk$0",
+          "state": "S",
+          "userTicks": 1,
+          "systemTicks": 5,
+          "startTicks": 29927436,
+          "lastProcessor": 3,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 300,
+          "involuntaryContextSwitches": 40
+        },
+        {
+          "tid": 99106,
+          "pid": 99106,
+          "name": "xemu:disk$0",
+          "state": "S",
+          "userTicks": 0,
+          "systemTicks": 0,
+          "startTicks": 29927436,
+          "lastProcessor": 2,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 23,
+          "involuntaryContextSwitches": 2
+        },
+        {
+          "tid": 99111,
+          "pid": 99111,
+          "name": "xemu",
+          "state": "S",
+          "userTicks": 60,
+          "systemTicks": 0,
+          "startTicks": 29927450,
+          "lastProcessor": 3,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 41,
+          "involuntaryContextSwitches": 94
+        },
+        {
+          "tid": 99112,
+          "pid": 99112,
+          "name": "xemu",
+          "state": "S",
+          "userTicks": 156,
+          "systemTicks": 4,
+          "startTicks": 29927450,
+          "lastProcessor": 6,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 203,
+          "involuntaryContextSwitches": 164
+        },
+        {
+          "tid": 99113,
+          "pid": 99113,
+          "name": "xemu",
+          "state": "S",
+          "userTicks": 2814,
+          "systemTicks": 3,
+          "startTicks": 29927472,
+          "lastProcessor": 5,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 91,
+          "involuntaryContextSwitches": 1325
+        },
+        {
+          "tid": 99114,
+          "pid": 99114,
+          "name": "xemu:disk$1",
+          "state": "S",
+          "userTicks": 0,
+          "systemTicks": 0,
+          "startTicks": 29927473,
+          "lastProcessor": 5,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 18,
+          "involuntaryContextSwitches": 2
+        },
+        {
+          "tid": 99115,
+          "pid": 99115,
+          "name": "xemu:disk$1",
+          "state": "S",
+          "userTicks": 1,
+          "systemTicks": 5,
+          "startTicks": 29927474,
+          "lastProcessor": 4,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 302,
+          "involuntaryContextSwitches": 27
+        },
+        {
+          "tid": 99116,
+          "pid": 99116,
+          "name": "xemu:disk$2",
+          "state": "S",
+          "userTicks": 1,
+          "systemTicks": 5,
+          "startTicks": 29927479,
+          "lastProcessor": 0,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 281,
+          "involuntaryContextSwitches": 33
+        },
+        {
+          "tid": 99117,
+          "pid": 99117,
+          "name": "xemu:disk$3",
+          "state": "S",
+          "userTicks": 1,
+          "systemTicks": 5,
+          "startTicks": 29927479,
+          "lastProcessor": 6,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 292,
+          "involuntaryContextSwitches": 22
+        },
+        {
+          "tid": 99118,
+          "pid": 99118,
+          "name": "xemu:disk$2",
+          "state": "S",
+          "userTicks": 0,
+          "systemTicks": 0,
+          "startTicks": 29927480,
+          "lastProcessor": 0,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 22,
+          "involuntaryContextSwitches": 3
+        },
+        {
+          "tid": 99119,
+          "pid": 99119,
+          "name": "xemu:disk$3",
+          "state": "S",
+          "userTicks": 0,
+          "systemTicks": 0,
+          "startTicks": 29927480,
+          "lastProcessor": 3,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 18,
+          "involuntaryContextSwitches": 1
+        },
+        {
+          "tid": 99120,
+          "pid": 99120,
+          "name": "xemu",
+          "state": "S",
+          "userTicks": 108,
+          "systemTicks": 47,
+          "startTicks": 29927481,
+          "lastProcessor": 6,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 160360,
+          "involuntaryContextSwitches": 706
+        },
+        {
+          "tid": 99121,
+          "pid": 99121,
+          "name": "xemu:sh4",
+          "state": "S",
+          "userTicks": 0,
+          "systemTicks": 0,
+          "startTicks": 29927482,
+          "lastProcessor": 7,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 1,
+          "involuntaryContextSwitches": 0
+        },
+        {
+          "tid": 99123,
+          "pid": 99123,
+          "name": "libusb_event",
+          "state": "S",
+          "userTicks": 0,
+          "systemTicks": 0,
+          "startTicks": 29927485,
+          "lastProcessor": 3,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 1,
+          "involuntaryContextSwitches": 0
+        },
+        {
+          "tid": 99127,
+          "pid": 99127,
+          "name": "xemu",
+          "state": "S",
+          "userTicks": 1,
+          "systemTicks": 21,
+          "startTicks": 29928497,
+          "lastProcessor": 2,
+          "allowedCpus": "0-7",
+          "voluntaryContextSwitches": 5215,
+          "involuntaryContextSwitches": 136
+        }
+      ],
+      "cpuPolicies": {
+        "policy0": {
+          "affected_cpus": "0",
+          "related_cpus": "0",
+          "scaling_driver": "amd-pstate-epp",
+          "scaling_governor": "powersave",
+          "scaling_min_freq": "1702569",
+          "scaling_max_freq": "3501250",
+          "scaling_cur_freq": "3124809",
+          "cpuinfo_cur_freq": null
+        },
+        "policy1": {
+          "affected_cpus": "1",
+          "related_cpus": "1",
+          "scaling_driver": "amd-pstate-epp",
+          "scaling_governor": "powersave",
+          "scaling_min_freq": "1702569",
+          "scaling_max_freq": "3501250",
+          "scaling_cur_freq": "3135500",
+          "cpuinfo_cur_freq": null
+        },
+        "policy2": {
+          "affected_cpus": "2",
+          "related_cpus": "2",
+          "scaling_driver": "amd-pstate-epp",
+          "scaling_governor": "powersave",
+          "scaling_min_freq": "1702569",
+          "scaling_max_freq": "3501250",
+          "scaling_cur_freq": "3124990",
+          "cpuinfo_cur_freq": null
+        },
+        "policy3": {
+          "affected_cpus": "3",
+          "related_cpus": "3",
+          "scaling_driver": "amd-pstate-epp",
+          "scaling_governor": "powersave",
+          "scaling_min_freq": "1702569",
+          "scaling_max_freq": "3501250",
+          "scaling_cur_freq": "3136769",
+          "cpuinfo_cur_freq": null
+        },
+        "policy4": {
+          "affected_cpus": "4",
+          "related_cpus": "4",
+          "scaling_driver": "amd-pstate-epp",
+          "scaling_governor": "powersave",
+          "scaling_min_freq": "1702569",
+          "scaling_max_freq": "3501250",
+          "scaling_cur_freq": "3149560",
+          "cpuinfo_cur_freq": null
+        },
+        "policy5": {
+          "affected_cpus": "5",
+          "related_cpus": "5",
+          "scaling_driver": "amd-pstate-epp",
+          "scaling_governor": "powersave",
+          "scaling_min_freq": "1702569",
+          "scaling_max_freq": "3501250",
+          "scaling_cur_freq": "3149727",
+          "cpuinfo_cur_freq": null
+        },
+        "policy6": {
+          "affected_cpus": "6",
+          "related_cpus": "6",
+          "scaling_driver": "amd-pstate-epp",
+          "scaling_governor": "powersave",
+          "scaling_min_freq": "1702569",
+          "scaling_max_freq": "3501250",
+          "scaling_cur_freq": "3149726",
+          "cpuinfo_cur_freq": null
+        },
+        "policy7": {
+          "affected_cpus": "7",
+          "related_cpus": "7",
+          "scaling_driver": "amd-pstate-epp",
+          "scaling_governor": "powersave",
+          "scaling_min_freq": "1702569",
+          "scaling_max_freq": "3501250",
+          "scaling_cur_freq": "3149743",
+          "cpuinfo_cur_freq": null
+        }
+      },
+      "gpu": {
+        "card0": {
+          "gpu_busy_percent": "56",
+          "pp_dpm_sclk": "0: 200Mhz \n1: 1040Mhz *\n2: 1600Mhz",
+          "pp_dpm_mclk": "0: 400Mhz \n1: 600Mhz \n2: 687Mhz *\n3: 687Mhz *",
+          "power_dpm_force_performance_level": "auto",
+          "hwmon": {
+            "hwmon5": {
+              "name": "amdgpu",
+              "freq1_input": "1040000000",
+              "power1_average": "9233000",
+              "power1_cap": "15000000",
+              "power1_input": "16206000",
+              "power2_average": "9233000",
+              "power2_cap": "15000000",
+              "temp1_input": "56000",
+              "temp1_label": "edge"
+            }
+          }
+        }
+      },
+      "randomizeVaSpace": "2",
+      "maps": "556508f40000-556509115000 r--p 00000000 103:08 7047835                   /home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/xemu\n556509115000-556509f84000 r-xp 001d5000 103:08 7047835                   /home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/xemu\n556509f84000-55650a494000 r--p 01044000 103:08 7047835                   /home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/xemu\n55650a494000-55650a532000 r--p 01554000 103:08 7047835                   /home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/xemu\n55650a532000-55650a623000 rw-p 015f2000 103:08 7047835                   /home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/xemu\n55650a623000-55650a6a2000 rw-p 00000000 00:00 0 \n55652d2f9000-55652e3fc000 rw-p 00000000 00:00 0                          [heap]\n7f5f20000000-7f5f20ac0000 rw-p 00000000 00:00 0 \n7f5f20ac0000-7f5f24000000 ---p 00000000 00:00 0 \n7f5f254bc000-7f5f25de2000 rw-s 15e295000 00:06 1394                      /dev/dri/renderD128\n7f5f25de2000-7f5f25fe2000 rw-s 129653000 00:06 1394                      /dev/dri/renderD128\n7f5f25fe2000-7f5f260e2000 rw-s 125372000 00:06 1394                      /dev/dri/renderD128\n7f5f260e2000-7f5f261e2000 rw-s 1622f9000 00:06 1394                      /dev/dri/renderD128\n7f5f261e2000-7f5f261e3000 ---p 00000000 00:00 0 \n7f5f261e3000-7f5f262e3000 rw-p 00000000 00:00 0 \n7f5f262e3000-7f5f262e4000 ---p 00000000 00:00 0 \n7f5f262e4000-7f5f263e4000 rw-p 00000000 00:00 0 \n7f5f263e4000-7f5f263e5000 ---p 00000000 00:00 0 \n7f5f263e5000-7f5f264e5000 rw-p 00000000 00:00 0 \n7f5f264e5000-7f5f264e6000 ---p 00000000 00:00 0 \n7f5f264e6000-7f5f265e6000 rw-p 00000000 00:00 0 \n7f5f265e6000-7f5f265e7000 ---p 00000000 00:00 0 \n7f5f265e7000-7f5f266e7000 rw-p 00000000 00:00 0 \n7f5f266e7000-7f5f266e8000 ---p 00000000 00:00 0 \n7f5f266e8000-7f5f267e8000 rw-p 00000000 00:00 0 \n7f5f267e8000-7f5f267e9000 ---p 00000000 00:00 0 \n7f5f267e9000-7f5f268e9000 rw-p 00000000 00:00 0 \n7f5f268e9000-7f5f268ea000 ---p 00000000 00:00 0 \n7f5f268ea000-7f5f269ea000 rw-p 00000000 00:00 0 \n7f5f269ea000-7f5f269eb000 ---p 00000000 00:00 0 \n7f5f269eb000-7f5f26aeb000 rw-p 00000000 00:00 0 \n7f5f26aeb000-7f5f26aec000 ---p 00000000 00:00 0 \n7f5f26aec000-7f5f26bec000 rw-p 00000000 00:00 0 \n7f5f26bec000-7f5f26bed000 ---p 00000000 00:00 0 \n7f5f26bed000-7f5f26ced000 rw-p 00000000 00:00 0 \n7f5f26ced000-7f5f26cee000 ---p 00000000 00:00 0 \n7f5f26cee000-7f5f26dee000 rw-p 00000000 00:00 0 \n7f5f26dee000-7f5f26def000 ---p 00000000 00:00 0 \n7f5f26def000-7f5f26eef000 rw-p 00000000 00:00 0 \n7f5f26eef000-7f5f26ef0000 ---p 00000000 00:00 0 \n7f5f26ef0000-7f5f26ff0000 rw-p 00000000 00:00 0 \n7f5f26ff0000-7f5f26ff1000 ---p 00000000 00:00 0 \n7f5f26ff1000-7f5f270f1000 rw-p 00000000 00:00 0 \n7f5f270f1000-7f5f270f2000 ---p 00000000 00:00 0 \n7f5f270f2000-7f5f271f2000 rw-p 00000000 00:00 0 \n7f5f271f2000-7f5f271f3000 ---p 00000000 00:00 0 \n7f5f271f3000-7f5f272f3000 rw-p 00000000 00:00 0 \n7f5f272f3000-7f5f272f4000 ---p 00000000 00:00 0 \n7f5f272f4000-7f5f273f4000 rw-p 00000000 00:00 0 \n7f5f273f4000-7f5f273f5000 ---p 00000000 00:00 0 \n7f5f273f5000-7f5f274f5000 rw-p 00000000 00:00 0 \n7f5f274f5000-7f5f274f6000 ---p 00000000 00:00 0 \n7f5f274f6000-7f5f275f6000 rw-p 00000000 00:00 0 \n7f5f275f6000-7f5f275f7000 ---p 00000000 00:00 0 \n7f5f275f7000-7f5f276f7000 rw-p 00000000 00:00 0 \n7f5f276f7000-7f5f276f8000 ---p 00000000 00:00 0 \n7f5f276f8000-7f5f277f8000 rw-p 00000000 00:00 0 \n7f5f277f8000-7f5f277f9000 ---p 00000000 00:00 0 \n7f5f277f9000-7f5f278f9000 rw-p 00000000 00:00 0 \n7f5f278f9000-7f5f278fa000 ---p 00000000 00:00 0 \n7f5f278fa000-7f5f279fa000 rw-p 00000000 00:00 0 \n7f5f279fa000-7f5f279fb000 ---p 00000000 00:00 0 \n7f5f279fb000-7f5f27afb000 rw-p 00000000 00:00 0 \n7f5f27afb000-7f5f27afc000 ---p 00000000 00:00 0 \n7f5f27afc000-7f5f27bfc000 rw-p 00000000 00:00 0 \n7f5f27bfc000-7f5f27bfd000 ---p 00000000 00:00 0 \n7f5f27bfd000-7f5f27cfd000 rw-p 00000000 00:00 0 \n7f5f27cfd000-7f5f27cfe000 ---p 00000000 00:00 0 \n7f5f27cfe000-7f5f27dfe000 rw-p 00000000 00:00 0 \n7f5f27dfe000-7f5f27dff000 ---p 00000000 00:00 0 \n7f5f27dff000-7f5f27eff000 rw-p 00000000 00:00 0 \n7f5f27eff000-7f5f27f00000 ---p 00000000 00:00 0 \n7f5f27f00000-7f5f28021000 rw-p 00000000 00:00 0 \n7f5f28021000-7f5f2c000000 ---p 00000000 00:00 0 \n7f5f2c04a000-7f5f2c04b000 ---p 00000000 00:00 0 \n7f5f2c04b000-7f5f2c14b000 rw-p 00000000 00:00 0 \n7f5f2c14b000-7f5f2c14c000 ---p 00000000 00:00 0 \n7f5f2c14c000-7f5f2c24c000 rw-p 00000000 00:00 0 \n7f5f2c24c000-7f5f2c24d000 ---p 00000000 00:00 0 \n7f5f2c24d000-7f5f2c34d000 rw-p 00000000 00:00 0 \n7f5f2c34d000-7f5f2c34e000 ---p 00000000 00:00 0 \n7f5f2c34e000-7f5f2c44e000 rw-p 00000000 00:00 0 \n7f5f2c44e000-7f5f2c44f000 ---p 00000000 00:00 0 \n7f5f2c44f000-7f5f2c54f000 rw-p 00000000 00:00 0 \n7f5f2c54f000-7f5f2c550000 ---p 00000000 00:00 0 \n7f5f2c550000-7f5f2c650000 rw-p 00000000 00:00 0 \n7f5f2c650000-7f5f2c651000 ---p 00000000 00:00 0 \n7f5f2c651000-7f5f2c751000 rw-p 00000000 00:00 0 \n7f5f2c751000-7f5f2c752000 ---p 00000000 00:00 0 \n7f5f2c752000-7f5f2c852000 rw-p 00000000 00:00 0 \n7f5f2c852000-7f5f2c853000 ---p 00000000 00:00 0 \n7f5f2c853000-7f5f2c953000 rw-p 00000000 00:00 0 \n7f5f2c953000-7f5f2c954000 ---p 00000000 00:00 0 \n7f5f2c954000-7f5f2ca54000 rw-p 00000000 00:00 0 \n7f5f2ca54000-7f5f2ca55000 ---p 00000000 00:00 0 \n7f5f2ca55000-7f5f2cb55000 rw-p 00000000 00:00 0 \n7f5f2cb55000-7f5f2cb56000 ---p 00000000 00:00 0 \n7f5f2cb56000-7f5f2cc56000 rw-p 00000000 00:00 0 \n7f5f2cc56000-7f5f2cc57000 ---p 00000000 00:00 0 \n7f5f2cc57000-7f5f2cd57000 rw-p 00000000 00:00 0 \n7f5f2cd57000-7f5f2cd58000 ---p 00000000 00:00 0 \n7f5f2cd58000-7f5f2ce58000 rw-p 00000000 00:00 0 \n7f5f2ce58000-7f5f2ce59000 ---p 00000000 00:00 0 \n7f5f2ce59000-7f5f2cf59000 rw-p 00000000 00:00 0 \n7f5f2cf59000-7f5f2cf5a000 ---p 00000000 00:00 0 \n7f5f2cf5a000-7f5f2d05a000 rw-p 00000000 00:00 0 \n7f5f2d05a000-7f5f2d05b000 ---p 00000000 00:00 0 \n7f5f2d05b000-7f5f2d15b000 rw-p 00000000 00:00 0 \n7f5f2d15b000-7f5f2d15c000 ---p 00000000 00:00 0 \n7f5f2d15c000-7f5f2d25c000 rw-p 00000000 00:00 0 \n7f5f2d25c000-7f5f2d25d000 ---p 00000000 00:00 0 \n7f5f2d25d000-7f5f2d35d000 rw-p 00000000 00:00 0 \n7f5f2d35d000-7f5f2d35e000 ---p 00000000 00:00 0 \n7f5f2d35e000-7f5f2d45e000 rw-p 00000000 00:00 0 \n7f5f2d45e000-7f5f2d45f000 ---p 00000000 00:00 0 \n7f5f2d45f000-7f5f2d55f000 rw-p 00000000 00:00 0 \n7f5f2d55f000-7f5f2d560000 ---p 00000000 00:00 0 \n7f5f2d560000-7f5f2d660000 rw-p 00000000 00:00 0 \n7f5f2d660000-7f5f2d661000 ---p 00000000 00:00 0 \n7f5f2d661000-7f5f2d761000 rw-p 00000000 00:00 0 \n7f5f2d761000-7f5f2d762000 ---p 00000000 00:00 0 \n7f5f2d762000-7f5f2d862000 rw-p 00000000 00:00 0 \n7f5f2d862000-7f5f2d863000 ---p 00000000 00:00 0 \n7f5f2d863000-7f5f2d963000 rw-p 00000000 00:00 0 \n7f5f2d963000-7f5f2d964000 ---p 00000000 00:00 0 \n7f5f2d964000-7f5f2da64000 rw-p 00000000 00:00 0 \n7f5f2da64000-7f5f2da65000 ---p 00000000 00:00 0 \n7f5f2da65000-7f5f2db65000 rw-p 00000000 00:00 0 \n7f5f2db65000-7f5f2db66000 ---p 00000000 00:00 0 \n7f5f2db66000-7f5f2dc66000 rw-p 00000000 00:00 0 \n7f5f2dc66000-7f5f2dc67000 ---p 00000000 00:00 0 \n7f5f2dc67000-7f5f2dd67000 rw-p 00000000 00:00 0 \n7f5f2dd67000-7f5f2dd68000 ---p 00000000 00:00 0 \n7f5f2dd68000-7f5f2de68000 rw-p 00000000 00:00 0 \n7f5f2de68000-7f5f2de69000 ---p 00000000 00:00 0 \n7f5f2de69000-7f5f2df69000 rw-p 00000000 00:00 0 \n7f5f2df69000-7f5f2df6a000 ---p 00000000 00:00 0 \n7f5f2df6a000-7f5f2e06a000 rw-p 00000000 00:00 0 \n7f5f2e06a000-7f5f2e06b000 ---p 00000000 00:00 0 \n7f5f2e06b000-7f5f2e16b000 rw-p 00000000 00:00 0 \n7f5f2e16b000-7f5f2e16c000 ---p 00000000 00:00 0 \n7f5f2e16c000-7f5f2e26c000 rw-p 00000000 00:00 0 \n7f5f2e26c000-7f5f2e26d000 ---p 00000000 00:00 0 \n7f5f2e26d000-7f5f2e36d000 rw-p 00000000 00:00 0 \n7f5f2e36d000-7f5f2e36e000 ---p 00000000 00:00 0 \n7f5f2e36e000-7f5f2e46e000 rw-p 00000000 00:00 0 \n7f5f2e46e000-7f5f2e46f000 ---p 00000000 00:00 0 \n7f5f2e46f000-7f5f2e56f000 rw-p 00000000 00:00 0 \n7f5f2e56f000-7f5f2e570000 ---p 00000000 00:00 0 \n7f5f2e570000-7f5f2e670000 rw-p 00000000 00:00 0 \n7f5f2e670000-7f5f2e671000 ---p 00000000 00:00 0 \n7f5f2e671000-7f5f2e771000 rw-p 00000000 00:00 0 \n7f5f2e771000-7f5f2e772000 ---p 00000000 00:00 0 \n7f5f2e772000-7f5f2e872000 rw-p 00000000 00:00 0 \n7f5f2e872000-7f5f2e873000 ---p 00000000 00:00 0 \n7f5f2e873000-7f5f2e973000 rw-p 00000000 00:00 0 \n7f5f2e973000-7f5f2e974000 ---p 00000000 00:00 0 \n7f5f2e974000-7f5f2ea74000 rw-p 00000000 00:00 0 \n7f5f2ea74000-7f5f2ea75000 ---p 00000000 00:00 0 \n7f5f2ea75000-7f5f2eb75000 rw-p 00000000 00:00 0 \n7f5f2eb75000-7f5f2eb76000 ---p 00000000 00:00 0 \n7f5f2eb76000-7f5f2ec76000 rw-p 00000000 00:00 0 \n7f5f2ec76000-7f5f2ec77000 ---p 00000000 00:00 0 \n7f5f2ec77000-7f5f2ed77000 rw-p 00000000 00:00 0 \n7f5f2ed77000-7f5f2ed78000 ---p 00000000 00:00 0 \n7f5f2ed78000-7f5f2ee78000 rw-p 00000000 00:00 0 \n7f5f2ee78000-7f5f2ee79000 ---p 00000000 00:00 0 \n7f5f2ee79000-7f5f2ef79000 rw-p 00000000 00:00 0 \n7f5f2ef79000-7f5f2ef7a000 ---p 00000000 00:00 0 \n7f5f2ef7a000-7f5f2f77a000 rw-p 00000000 00:00 0 \n7f5f2f77a000-7f5f2f77b000 ---p 00000000 00:00 0 \n7f5f2f77b000-7f5f2f87b000 rw-p 00000000 00:00 0 \n7f5f2f87b000-7f5f2f87c000 ---p 00000000 00:00 0 \n7f5f2f87c000-7f5f2f97c000 rw-p 00000000 00:00 0 \n7f5f2f97c000-7f5f2f97d000 ---p 00000000 00:00 0 \n7f5f2f97d000-7f5f2fa7d000 rw-p 00000000 00:00 0 \n7f5f2fa7d000-7f5f2fa7e000 ---p 00000000 00:00 0 \n7f5f2fa7e000-7f5f2fb7e000 rw-p 00000000 00:00 0 \n7f5f2fb7e000-7f5f2fb7f000 ---p 00000000 00:00 0 \n7f5f2fb7f000-7f5f2fc7f000 rw-p 00000000 00:00 0 \n7f5f2fc7f000-7f5f2fc80000 ---p 00000000 00:00 0 \n7f5f2fc80000-7f5f2fd80000 rw-p 00000000 00:00 0 \n7f5f2fd80000-7f5f2fd81000 ---p 00000000 00:00 0 \n7f5f2fd81000-7f5f2fe81000 rw-p 00000000 00:00 0 \n7f5f2fe81000-7f5f2fe82000 ---p 00000000 00:00 0 \n7f5f2fe82000-7f5f2ff82000 rw-p 00000000 00:00 0 \n7f5f2ff82000-7f5f2ff83000 ---p 00000000 00:00 0 \n7f5f2ff83000-7f5f30083000 rw-p 00000000 00:00 0 \n7f5f30083000-7f5f30084000 ---p 00000000 00:00 0 \n7f5f30084000-7f5f30184000 rw-p 00000000 00:00 0 \n7f5f30184000-7f5f30185000 ---p 00000000 00:00 0 \n7f5f30185000-7f5f30285000 rw-p 00000000 00:00 0 \n7f5f30285000-7f5f30286000 ---p 00000000 00:00 0 \n7f5f30286000-7f5f30386000 rw-p 00000000 00:00 0 \n7f5f30386000-7f5f30387000 ---p 00000000 00:00 0 \n7f5f30387000-7f5f30487000 rw-p 00000000 00:00 0 \n7f5f30487000-7f5f30488000 ---p 00000000 00:00 0 \n7f5f30488000-7f5f30588000 rw-p 00000000 00:00 0 \n7f5f30588000-7f5f30589000 ---p 00000000 00:00 0 \n7f5f30589000-7f5f30689000 rw-p 00000000 00:00 0 \n7f5f30689000-7f5f3068a000 ---p 00000000 00:00 0 \n7f5f3068a000-7f5f3078a000 rw-p 00000000 00:00 0 \n7f5f3078a000-7f5f3078b000 ---p 00000000 00:00 0 \n7f5f3078b000-7f5f3088b000 rw-p 00000000 00:00 0 \n7f5f3088b000-7f5f3088c000 ---p 00000000 00:00 0 \n7f5f3088c000-7f5f3098c000 rw-p 00000000 00:00 0 \n7f5f3098c000-7f5f3098d000 ---p 00000000 00:00 0 \n7f5f3098d000-7f5f30a8d000 rw-p 00000000 00:00 0 \n7f5f30a8d000-7f5f30a8e000 ---p 00000000 00:00 0 \n7f5f30a8e000-7f5f30b8e000 rw-p 00000000 00:00 0 \n7f5f30b8e000-7f5f30b8f000 ---p 00000000 00:00 0 \n7f5f30b8f000-7f5f30c8f000 rw-p 00000000 00:00 0 \n7f5f30c8f000-7f5f30c90000 ---p 00000000 00:00 0 \n7f5f30c90000-7f5f30d90000 rw-p 00000000 00:00 0 \n7f5f30d90000-7f5f30d91000 ---p 00000000 00:00 0 \n7f5f30d91000-7f5f30e91000 rw-p 00000000 00:00 0 \n7f5f30e91000-7f5f30e92000 ---p 00000000 00:00 0 \n7f5f30e92000-7f5f30f92000 rw-p 00000000 00:00 0 \n7f5f30f92000-7f5f30f93000 ---p 00000000 00:00 0 \n7f5f30f93000-7f5f31093000 rw-p 00000000 00:00 0 \n7f5f31093000-7f5f31094000 ---p 00000000 00:00 0 \n7f5f31094000-7f5f31194000 rw-p 00000000 00:00 0 \n7f5f31194000-7f5f31195000 ---p 00000000 00:00 0 \n7f5f31195000-7f5f31295000 rw-p 00000000 00:00 0 \n7f5f31295000-7f5f31296000 ---p 00000000 00:00 0 \n7f5f31296000-7f5f31396000 rw-p 00000000 00:00 0 \n7f5f31396000-7f5f31397000 ---p 00000000 00:00 0 \n7f5f31397000-7f5f31497000 rw-p 00000000 00:00 0 \n7f5f31497000-7f5f31498000 ---p 00000000 00:00 0 \n7f5f31498000-7f5f31598000 rw-p 00000000 00:00 0 \n7f5f31598000-7f5f31599000 ---p 00000000 00:00 0 \n7f5f31599000-7f5f31699000 rw-p 00000000 00:00 0 \n7f5f31699000-7f5f3169a000 ---p 00000000 00:00 0 \n7f5f3169a000-7f5f3179a000 rw-p 00000000 00:00 0 \n7f5f3179a000-7f5f3179b000 ---p 00000000 00:00 0 \n7f5f3179b000-7f5f3189b000 rw-p 00000000 00:00 0 \n7f5f3189b000-7f5f3189c000 ---p 00000000 00:00 0 \n7f5f3189c000-7f5f3199c000 rw-p 00000000 00:00 0 \n7f5f3199c000-7f5f3199d000 ---p 00000000 00:00 0 \n7f5f3199d000-7f5f31a9d000 rw-p 00000000 00:00 0 \n7f5f31a9d000-7f5f31a9e000 ---p 00000000 00:00 0 \n7f5f31a9e000-7f5f31b9e000 rw-p 00000000 00:00 0 \n7f5f31b9e000-7f5f31b9f000 ---p 00000000 00:00 0 \n7f5f31b9f000-7f5f31c9f000 rw-p 00000000 00:00 0 \n7f5f31c9f000-7f5f31ca0000 ---p 00000000 00:00 0 \n7f5f31ca0000-7f5f31da0000 rw-p 00000000 00:00 0 \n7f5f31da0000-7f5f31da1000 ---p 00000000 00:00 0 \n7f5f31da1000-7f5f31ea1000 rw-p 00000000 00:00 0 \n7f5f31ea1000-7f5f31ea2000 ---p 00000000 00:00 0 \n7f5f31ea2000-7f5f31fa2000 rw-p 00000000 00:00 0 \n7f5f31fa2000-7f5f31fa3000 ---p 00000000 00:00 0 \n7f5f31fa3000-7f5f320a3000 rw-p 00000000 00:00 0 \n7f5f320a3000-7f5f320a4000 ---p 00000000 00:00 0 \n7f5f320a4000-7f5f321a4000 rw-p 00000000 00:00 0 \n7f5f321a4000-7f5f321a5000 ---p 00000000 00:00 0 \n7f5f321a5000-7f5f322a5000 rw-p 00000000 00:00 0 \n7f5f322a5000-7f5f322a6000 ---p 00000000 00:00 0 \n7f5f322a6000-7f5f323a6000 rw-p 00000000 00:00 0 \n7f5f323a6000-7f5f323a7000 ---p 00000000 00:00 0 \n7f5f323a7000-7f5f324a7000 rw-p 00000000 00:00 0 \n7f5f324a7000-7f5f324a8000 ---p 00000000 00:00 0 \n7f5f324a8000-7f5f325a8000 rw-p 00000000 00:00 0 \n7f5f325a8000-7f5f325a9000 ---p 00000000 00:00 0 \n7f5f325a9000-7f5f326a9000 rw-p 00000000 00:00 0 \n7f5f326a9000-7f5f326aa000 ---p 00000000 00:00 0 \n7f5f326aa000-7f5f327aa000 rw-p 00000000 00:00 0 \n7f5f327aa000-7f5f327ab000 ---p 00000000 00:00 0 \n7f5f327ab000-7f5f328ab000 rw-p 00000000 00:00 0 \n7f5f328ab000-7f5f328ac000 ---p 00000000 00:00 0 \n7f5f328ac000-7f5f329ac000 rw-p 00000000 00:00 0 \n7f5f329ac000-7f5f329ad000 ---p 00000000 00:00 0 \n7f5f329ad000-7f5f32aad000 rw-p 00000000 00:00 0 \n7f5f32aad000-7f5f32aae000 ---p 00000000 00:00 0 \n7f5f32aae000-7f5f32bae000 rw-p 00000000 00:00 0 \n7f5f32bae000-7f5f32baf000 ---p 00000000 00:00 0 \n7f5f32baf000-7f5f32caf000 rw-p 00000000 00:00 0 \n7f5f32caf000-7f5f32cb0000 ---p 00000000 00:00 0 \n7f5f32cb0000-7f5f32db0000 rw-p 00000000 00:00 0 \n7f5f32db0000-7f5f32db1000 ---p 00000000 00:00 0 \n7f5f32db1000-7f5f32eb1000 rw-p 00000000 00:00 0 \n7f5f32eb1000-7f5f32eb2000 ---p 00000000 00:00 0 \n7f5f32eb2000-7f5f32fb2000 rw-p 00000000 00:00 0 \n7f5f32fb2000-7f5f32fb3000 ---p 00000000 00:00 0 \n7f5f32fb3000-7f5f330b3000 rw-p 00000000 00:00 0 \n7f5f330b3000-7f5f330b4000 ---p 00000000 00:00 0 \n7f5f330b4000-7f5f331b4000 rw-p 00000000 00:00 0 \n7f5f331b4000-7f5f331b5000 ---p 00000000 00:00 0 \n7f5f331b5000-7f5f332b5000 rw-p 00000000 00:00 0 \n7f5f332b5000-7f5f332b6000 ---p 00000000 00:00 0 \n7f5f332b6000-7f5f333b6000 rw-p 00000000 00:00 0 \n7f5f333b6000-7f5f333b7000 ---p 00000000 00:00 0 \n7f5f333b7000-7f5f334b7000 rw-p 00000000 00:00 0 \n7f5f334b7000-7f5f334b8000 ---p 00000000 00:00 0 \n7f5f334b8000-7f5f335b8000 rw-p 00000000 00:00 0 \n7f5f335b8000-7f5f335b9000 ---p 00000000 00:00 0 \n7f5f335b9000-7f5f336b9000 rw-p 00000000 00:00 0 \n7f5f336b9000-7f5f336ba000 ---p 00000000 00:00 0 \n7f5f336ba000-7f5f337ba000 rw-p 00000000 00:00 0 \n7f5f337ba000-7f5f337bb000 ---p 00000000 00:00 0 \n7f5f337bb000-7f5f338bb000 rw-p 00000000 00:00 0 \n7f5f338bb000-7f5f338bc000 ---p 00000000 00:00 0 \n7f5f338bc000-7f5f339bc000 rw-p 00000000 00:00 0 \n7f5f339bc000-7f5f339bd000 ---p 00000000 00:00 0 \n7f5f339bd000-7f5f33abd000 rw-p 00000000 00:00 0 \n7f5f33abd000-7f5f33abe000 ---p 00000000 00:00 0 \n7f5f33abe000-7f5f33bbe000 rw-p 00000000 00:00 0 \n7f5f33bbe000-7f5f33bbf000 ---p 00000000 00:00 0 \n7f5f33bbf000-7f5f33cbf000 rw-p 00000000 00:00 0 \n7f5f33cbf000-7f5f33cc0000 ---p 00000000 00:00 0 \n7f5f33cc0000-7f5f33dc0000 rw-p 00000000 00:00 0 \n7f5f33dc0000-7f5f33dc1000 ---p 00000000 00:00 0 \n7f5f33dc1000-7f5f33ec1000 rw-p 00000000 00:00 0 \n7f5f33ec1000-7f5f33ec2000 ---p 00000000 00:00 0 \n7f5f33ec2000-7f5f33fc2000 rw-p 00000000 00:00 0 \n7f5f33fc2000-7f5f33fc3000 ---p 00000000 00:00 0 \n7f5f33fc3000-7f5f340c3000 rw-p 00000000 00:00 0 \n7f5f340c3000-7f5f340c4000 ---p 00000000 00:00 0 \n7f5f340c4000-7f5f341c4000 rw-p 00000000 00:00 0 \n7f5f341c4000-7f5f341c5000 ---p 00000000 00:00 0 \n7f5f341c5000-7f5f342c5000 rw-p 00000000 00:00 0 \n7f5f342c5000-7f5f342c6000 ---p 00000000 00:00 0 \n7f5f342c6000-7f5f343c6000 rw-p 00000000 00:00 0 \n7f5f343c6000-7f5f343c7000 ---p 00000000 00:00 0 \n7f5f343c7000-7f5f344c7000 rw-p 00000000 00:00 0 \n7f5f344c7000-7f5f344c8000 ---p 00000000 00:00 0 \n7f5f344c8000-7f5f345c8000 rw-p 00000000 00:00 0 \n7f5f345c8000-7f5f345c9000 ---p 00000000 00:00 0 \n7f5f345c9000-7f5f346c9000 rw-p 00000000 00:00 0 \n7f5f346c9000-7f5f346ca000 ---p 00000000 00:00 0 \n7f5f346ca000-7f5f347ca000 rw-p 00000000 00:00 0 \n7f5f347ca000-7f5f347cb000 ---p 00000000 00:00 0 \n7f5f347cb000-7f5f348cb000 rw-p 00000000 00:00 0 \n7f5f348cb000-7f5f348cc000 ---p 00000000 00:00 0 \n7f5f348cc000-7f5f349cc000 rw-p 00000000 00:00 0 \n7f5f349cc000-7f5f349cd000 ---p 00000000 00:00 0 \n7f5f349cd000-7f5f34acd000 rw-p 00000000 00:00 0 \n7f5f34acd000-7f5f34ace000 ---p 00000000 00:00 0 \n7f5f34ace000-7f5f34bce000 rw-p 00000000 00:00 0 \n7f5f34bce000-7f5f34bcf000 ---p 00000000 00:00 0 \n7f5f34bcf000-7f5f34ccf000 rw-p 00000000 00:00 0 \n7f5f34ccf000-7f5f34cd0000 ---p 00000000 00:00 0 \n7f5f34cd0000-7f5f34dd0000 rw-p 00000000 00:00 0 \n7f5f34dd0000-7f5f34dd1000 ---p 00000000 00:00 0 \n7f5f34dd1000-7f5f34ed1000 rw-p 00000000 00:00 0 \n7f5f34ed1000-7f5f34ed2000 ---p 00000000 00:00 0 \n7f5f34ed2000-7f5f34fd2000 rw-p 00000000 00:00 0 \n7f5f34fd2000-7f5f34fd3000 ---p 00000000 00:00 0 \n7f5f34fd3000-7f5f350d3000 rw-p 00000000 00:00 0 \n7f5f350d3000-7f5f350d4000 ---p 00000000 00:00 0 \n7f5f350d4000-7f5f351d4000 rw-p 00000000 00:00 0 \n7f5f351d4000-7f5f351d5000 ---p 00000000 00:00 0 \n7f5f351d5000-7f5f352d5000 rw-p 00000000 00:00 0 \n7f5f352d5000-7f5f352d6000 ---p 00000000 00:00 0 \n7f5f352d6000-7f5f353d6000 rw-p 00000000 00:00 0 \n7f5f353d6000-7f5f353d7000 ---p 00000000 00:00 0 \n7f5f353d7000-7f5f354d7000 rw-p 00000000 00:00 0 \n7f5f354d7000-7f5f354d8000 ---p 00000000 00:00 0 \n7f5f354d8000-7f5f355d8000 rw-p 00000000 00:00 0 \n7f5f355d8000-7f5f355d9000 ---p 00000000 00:00 0 \n7f5f355d9000-7f5f356d9000 rw-p 00000000 00:00 0 \n7f5f356d9000-7f5f356da000 ---p 00000000 00:00 0 \n7f5f356da000-7f5f357da000 rw-p 00000000 00:00 0 \n7f5f357da000-7f5f357db000 ---p 00000000 00:00 0 \n7f5f357db000-7f5f358db000 rw-p 00000000 00:00 0 \n7f5f358db000-7f5f358dc000 ---p 00000000 00:00 0 \n7f5f358dc000-7f5f359dc000 rw-p 00000000 00:00 0 \n7f5f359dc000-7f5f359dd000 ---p 00000000 00:00 0 \n7f5f359dd000-7f5f35add000 rw-p 00000000 00:00 0 \n7f5f35add000-7f5f35ade000 ---p 00000000 00:00 0 \n7f5f35ade000-7f5f35bde000 rw-p 00000000 00:00 0 \n7f5f35bde000-7f5f35bdf000 ---p 00000000 00:00 0 \n7f5f35bdf000-7f5f35cdf000 rw-p 00000000 00:00 0 \n7f5f35cdf000-7f5f35ce0000 ---p 00000000 00:00 0 \n7f5f35ce0000-7f5f35de0000 rw-p 00000000 00:00 0 \n7f5f35de0000-7f5f35de1000 ---p 00000000 00:00 0 \n7f5f35de1000-7f5f35ee1000 rw-p 00000000 00:00 0 \n7f5f35ee1000-7f5f35ee2000 ---p 00000000 00:00 0 \n7f5f35ee2000-7f5f35fe2000 rw-p 00000000 00:00 0 \n7f5f35fe2000-7f5f35fe3000 ---p 00000000 00:00 0 \n7f5f35fe3000-7f5f360e3000 rw-p 00000000 00:00 0 \n7f5f360e3000-7f5f360e4000 ---p 00000000 00:00 0 \n7f5f360e4000-7f5f361e4000 rw-p 00000000 00:00 0 \n7f5f361e4000-7f5f361e5000 ---p 00000000 00:00 0 \n7f5f361e5000-7f5f362e5000 rw-p 00000000 00:00 0 \n7f5f362e5000-7f5f362e6000 ---p 00000000 00:00 0 \n7f5f362e6000-7f5f363e6000 rw-p 00000000 00:00 0 \n7f5f363e6000-7f5f363e7000 ---p 00000000 00:00 0 \n7f5f363e7000-7f5f364e7000 rw-p 00000000 00:00 0 \n7f5f364e7000-7f5f364e8000 ---p 00000000 00:00 0 \n7f5f364e8000-7f5f365e8000 rw-p 00000000 00:00 0 \n7f5f365e8000-7f5f365e9000 ---p 00000000 00:00 0 \n7f5f365e9000-7f5f366e9000 rw-p 00000000 00:00 0 \n7f5f366e9000-7f5f366ea000 ---p 00000000 00:00 0 \n7f5f366ea000-7f5f367ea000 rw-p 00000000 00:00 0 \n7f5f367ea000-7f5f367eb000 ---p 00000000 00:00 0 \n7f5f367eb000-7f5f368eb000 rw-p 00000000 00:00 0 \n7f5f368eb000-7f5f368ec000 ---p 00000000 00:00 0 \n7f5f368ec000-7f5f369ec000 rw-p 00000000 00:00 0 \n7f5f369ec000-7f5f369ed000 ---p 00000000 00:00 0 \n7f5f369ed000-7f5f36aed000 rw-p 00000000 00:00 0 \n7f5f36aed000-7f5f36aee000 ---p 00000000 00:00 0 \n7f5f36aee000-7f5f36bee000 rw-p 00000000 00:00 0 \n7f5f36bee000-7f5f36bef000 ---p 00000000 00:00 0 \n7f5f36bef000-7f5f36cef000 rw-p 00000000 00:00 0 \n7f5f36cef000-7f5f36cf0000 ---p 00000000 00:00 0 \n7f5f36cf0000-7f5f36df0000 rw-p 00000000 00:00 0 \n7f5f36df0000-7f5f36df1000 ---p 00000000 00:00 0 \n7f5f36df1000-7f5f36ef1000 rw-p 00000000 00:00 0 \n7f5f36ef1000-7f5f36ef2000 ---p 00000000 00:00 0 \n7f5f36ef2000-7f5f36ff2000 rw-p 00000000 00:00 0 \n7f5f36ff2000-7f5f36ff3000 ---p 00000000 00:00 0 \n7f5f36ff3000-7f5f370f3000 rw-p 00000000 00:00 0 \n7f5f370f3000-7f5f370f4000 ---p 00000000 00:00 0 \n7f5f370f4000-7f5f371f4000 rw-p 00000000 00:00 0 \n7f5f371f4000-7f5f371f5000 ---p 00000000 00:00 0 \n7f5f371f5000-7f5f372f5000 rw-p 00000000 00:00 0 \n7f5f372f5000-7f5f372f6000 ---p 00000000 00:00 0 \n7f5f372f6000-7f5f373f6000 rw-p 00000000 00:00 0 \n7f5f373f6000-7f5f375f6000 rw-s 12c47f000 00:06 1394                      /dev/dri/renderD128\n7f5f375f6000-7f5f375f7000 ---p 00000000 00:00 0 \n7f5f375f7000-7f5f376f7000 rw-p 00000000 00:00 0 \n7f5f376f7000-7f5f376f8000 ---p 00000000 00:00 0 \n7f5f376f8000-7f5f377f8000 rw-p 00000000 00:00 0 \n7f5f377f8000-7f5f377f9000 ---p 00000000 00:00 0 \n7f5f377f9000-7f5f378f9000 rw-p 00000000 00:00 0 \n7f5f378f9000-7f5f378fa000 ---p 00000000 00:00 0 \n7f5f378fa000-7f5f379fa000 rw-p 00000000 00:00 0 \n7f5f379fa000-7f5f379fb000 ---p 00000000 00:00 0 \n7f5f379fb000-7f5f37afb000 rw-p 00000000 00:00 0 \n7f5f37afb000-7f5f37afc000 ---p 00000000 00:00 0 \n7f5f37afc000-7f5f37bfc000 rw-p 00000000 00:00 0 \n7f5f37bfc000-7f5f37bfd000 ---p 00000000 00:00 0 \n7f5f37bfd000-7f5f37cfd000 rw-p 00000000 00:00 0 \n7f5f37cfd000-7f5f37cfe000 ---p 00000000 00:00 0 \n7f5f37cfe000-7f5f37dfe000 rw-p 00000000 00:00 0 \n7f5f37dfe000-7f5f37dff000 ---p 00000000 00:00 0 \n7f5f37dff000-7f5f37eff000 rw-p 00000000 00:00 0 \n7f5f37eff000-7f5f37f00000 ---p 00000000 00:00 0 \n7f5f37f00000-7f5f38021000 rw-p 00000000 00:00 0 \n7f5f38021000-7f5f3c000000 ---p 00000000 00:00 0 \n7f5f3c000000-7f5f3c021000 rw-p 00000000 00:00 0 \n7f5f3c021000-7f5f40000000 ---p 00000000 00:00 0 \n7f5f40000000-7f5f40021000 rw-p 00000000 00:00 0 \n7f5f40021000-7f5f44000000 ---p 00000000 00:00 0 \n7f5f44000000-7f5f44021000 rw-p 00000000 00:00 0 \n7f5f44021000-7f5f48000000 ---p 00000000 00:00 0 \n7f5f480dd000-7f5f480de000 ---p 00000000 00:00 0 \n7f5f480de000-7f5f481de000 rw-p 00000000 00:00 0 \n7f5f481de000-7f5f481df000 ---p 00000000 00:00 0 \n7f5f481df000-7f5f482df000 rw-p 00000000 00:00 0 \n7f5f482df000-7f5f482e0000 ---p 00000000 00:00 0 \n7f5f482e0000-7f5f483e0000 rw-p 00000000 00:00 0 \n7f5f483e0000-7f5f483e1000 ---p 00000000 00:00 0 \n7f5f483e1000-7f5f484e1000 rw-p 00000000 00:00 0 \n7f5f484e1000-7f5f484e2000 ---p 00000000 00:00 0 \n7f5f484e2000-7f5f485e2000 rw-p 00000000 00:00 0 \n7f5f485e2000-7f5f485e3000 ---p 00000000 00:00 0 \n7f5f485e3000-7f5f486e3000 rw-p 00000000 00:00 0 \n7f5f486e3000-7f5f486e4000 ---p 00000000 00:00 0 \n7f5f486e4000-7f5f487e4000 rw-p 00000000 00:00 0 \n7f5f487e4000-7f5f487e5000 ---p 00000000 00:00 0 \n7f5f487e5000-7f5f488e5000 rw-p 00000000 00:00 0 \n7f5f488e5000-7f5f488e6000 ---p 00000000 00:00 0 \n7f5f488e6000-7f5f489e6000 rw-p 00000000 00:00 0 \n7f5f489e6000-7f5f489e7000 ---p 00000000 00:00 0 \n7f5f489e7000-7f5f48ae7000 rw-p 00000000 00:00 0 \n7f5f48ae7000-7f5f48ae8000 ---p 00000000 00:00 0 \n7f5f48ae8000-7f5f48be8000 rw-p 00000000 00:00 0 \n7f5f48be8000-7f5f48be9000 ---p 00000000 00:00 0 \n7f5f48be9000-7f5f48ce9000 rw-p 00000000 00:00 0 \n7f5f48ce9000-7f5f48cea000 ---p 00000000 00:00 0 \n7f5f48cea000-7f5f48dea000 rw-p 00000000 00:00 0 \n7f5f48dea000-7f5f48deb000 ---p 00000000 00:00 0 \n7f5f48deb000-7f5f48eeb000 rw-p 00000000 00:00 0 \n7f5f48eeb000-7f5f48eec000 ---p 00000000 00:00 0 \n7f5f48eec000-7f5f48fec000 rw-p 00000000 00:00 0 \n7f5f48fec000-7f5f48fed000 ---p 00000000 00:00 0 \n7f5f48fed000-7f5f490ed000 rw-p 00000000 00:00 0 \n7f5f490ed000-7f5f490ee000 ---p 00000000 00:00 0 \n7f5f490ee000-7f5f491ee000 rw-p 00000000 00:00 0 \n7f5f491ee000-7f5f491ef000 ---p 00000000 00:00 0 \n7f5f491ef000-7f5f492ef000 rw-p 00000000 00:00 0 \n7f5f492ef000-7f5f492f0000 ---p 00000000 00:00 0 \n7f5f492f0000-7f5f493f0000 rw-p 00000000 00:00 0 \n7f5f493f0000-7f5f493f1000 ---p 00000000 00:00 0 \n7f5f493f1000-7f5f494f1000 rw-p 00000000 00:00 0 \n7f5f494f1000-7f5f494f2000 ---p 00000000 00:00 0 \n7f5f494f2000-7f5f495f2000 rw-p 00000000 00:00 0 \n7f5f495f2000-7f5f495f3000 ---p 00000000 00:00 0 \n7f5f495f3000-7f5f496f3000 rw-p 00000000 00:00 0 \n7f5f496f3000-7f5f496f4000 ---p 00000000 00:00 0 \n7f5f496f4000-7f5f497f4000 rw-p 00000000 00:00 0 \n7f5f497f4000-7f5f497f5000 ---p 00000000 00:00 0 \n7f5f497f5000-7f5f498f5000 rw-p 00000000 00:00 0 \n7f5f498f5000-7f5f498f6000 ---p 00000000 00:00 0 \n7f5f498f6000-7f5f499f6000 rw-p 00000000 00:00 0 \n7f5f499f6000-7f5f499f7000 ---p 00000000 00:00 0 \n7f5f499f7000-7f5f49af7000 rw-p 00000000 00:00 0 \n7f5f49af7000-7f5f49af8000 ---p 00000000 00:00 0 \n7f5f49af8000-7f5f49bf8000 rw-p 00000000 00:00 0 \n7f5f49bf8000-7f5f49bf9000 ---p 00000000 00:00 0 \n7f5f49bf9000-7f5f49cf9000 rw-p 00000000 00:00 0 \n7f5f49cf9000-7f5f49cfa000 ---p 00000000 00:00 0 \n7f5f49cfa000-7f5f49dfa000 rw-p 00000000 00:00 0 \n7f5f49dfa000-7f5f49dfb000 ---p 00000000 00:00 0 \n7f5f49dfb000-7f5f49efb000 rw-p 00000000 00:00 0 \n7f5f49efb000-7f5f49efc000 ---p 00000000 00:00 0 \n7f5f49efc000-7f5f49ffc000 rw-p 00000000 00:00 0 \n7f5f49ffc000-7f5f49ffd000 ---p 00000000 00:00 0 \n7f5f49ffd000-7f5f4a7fd000 rw-p 00000000 00:00 0 \n7f5f4a7fd000-7f5f4a7fe000 ---p 00000000 00:00 0 \n7f5f4a7fe000-7f5f4affe000 rw-p 00000000 00:00 0 \n7f5f4affe000-7f5f4afff000 ---p 00000000 00:00 0 \n7f5f4afff000-7f5f4b7ff000 rw-p 00000000 00:00 0 \n7f5f4b7ff000-7f5f4b800000 ---p 00000000 00:00 0 \n7f5f4b800000-7f5f4c000000 rw-p 00000000 00:00 0 \n7f5f4c000000-7f5f4c07d000 rw-p 00000000 00:00 0 \n7f5f4c07d000-7f5f50000000 ---p 00000000 00:00 0 \n7f5f50000000-7f5f5007d000 rw-p 00000000 00:00 0 \n7f5f5007d000-7f5f54000000 ---p 00000000 00:00 0 \n7f5f54000000-7f5f54021000 rw-p 00000000 00:00 0 \n7f5f54021000-7f5f58000000 ---p 00000000 00:00 0 \n7f5f58000000-7f5f5807d000 rw-p 00000000 00:00 0 \n7f5f5807d000-7f5f5c000000 ---p 00000000 00:00 0 \n7f5f5c000000-7f5f5c65e000 rw-p 00000000 00:00 0 \n7f5f5c65e000-7f5f60000000 ---p 00000000 00:00 0 \n7f5f60000000-7f5f618e7000 rw-p 00000000 00:00 0 \n7f5f618e7000-7f5f64000000 ---p 00000000 00:00 0 \n7f5f64000000-7f5f644e9000 rw-p 00000000 00:00 0 \n7f5f644e9000-7f5f68000000 ---p 00000000 00:00 0 \n7f5f68000000-7f5f6c000000 rw-p 00000000 00:00 0 \n7f5f6c013000-7f5f73800000 rw-p 00000000 00:00 0 \n7f5f73800000-7f5f80000000 rw-s 14242b000 00:06 1394                      /dev/dri/renderD128\n7f5f80000000-7f5f88000000 rw-s 14ec2b000 00:06 1394                      /dev/dri/renderD128\n7f5f88000000-7f5f8807d000 rw-p 00000000 00:00 0 \n7f5f8807d000-7f5f8c000000 ---p 00000000 00:00 0 \n7f5f8c000000-7f5f8c021000 rw-p 00000000 00:00 0 \n7f5f8c021000-7f5f90000000 ---p 00000000 00:00 0 \n7f5f90000000-7f5f93ffb000 rw-p 00000000 00:00 0 \n7f5f93ffb000-7f5f94000000 ---p 00000000 00:00 0 \n7f5f94068000-7f5f94069000 ---p 00000000 00:00 0 \n7f5f94069000-7f5f94169000 rw-p 00000000 00:00 0 \n7f5f94169000-7f5f9416a000 ---p 00000000 00:00 0 \n7f5f9416a000-7f5f9496a000 rw-p 00000000 00:00 0 \n7f5f9496a000-7f5f9496b000 ---p 00000000 00:00 0 \n7f5f9496b000-7f5f9516b000 rw-p 00000000 00:00 0 \n7f5f9516b000-7f5f9516c000 ---p 00000000 00:00 0 \n7f5f9516c000-7f5f9596c000 rw-p 00000000 00:00 0 \n7f5f9596c000-7f5f9596d000 ---p 00000000 00:00 0 \n7f5f9596d000-7f5f9616d000 rw-p 00000000 00:00 0 \n7f5f9616d000-7f5f9616e000 ---p 00000000 00:00 0 \n7f5f9616e000-7f5f9696e000 rw-p 00000000 00:00 0 \n7f5f9696e000-7f5f9696f000 ---p 00000000 00:00 0 \n7f5f9696f000-7f5f9716f000 rw-p 00000000 00:00 0 \n7f5f9716f000-7f5f977fc000 rw-p 00000000 00:00 0 \n7f5f977fc000-7f5f977fd000 ---p 00000000 00:00 0 \n7f5f977fd000-7f5f97ffd000 rw-p 00000000 00:00 0 \n7f5f97ffd000-7f5f97ffe000 ---p 00000000 00:00 0 \n7f5f97ffe000-7f5f987fe000 rw-p 00000000 00:00 0 \n7f5f987fe000-7f5f98ffe000 rw-s 16c1f3000 00:06 1394                      /dev/dri/renderD128\n7f5f98ffe000-7f5f99ffe000 rw-s 12370c000 00:06 1394                      /dev/dri/renderD128\n7f5f99ffe000-7f5f99fff000 ---p 00000000 00:00 0 \n7f5f99fff000-7f5f9a7ff000 rw-p 00000000 00:00 0 \n7f5f9a7ff000-7f5f9a800000 ---p 00000000 00:00 0 \n7f5f9a800000-7f5f9b000000 rw-p 00000000 00:00 0 \n7f5f9b0fb000-7f5f9b0fc000 ---p 00000000 00:00 0 \n7f5f9b0fc000-7f5f9b1fc000 rw-p 00000000 00:00 0 \n7f5f9b1fc000-7f5f9b1fd000 ---p 00000000 00:00 0 \n7f5f9b1fd000-7f5f9b2fd000 rw-p 00000000 00:00 0 \n7f5f9b2fd000-7f5f9b2fe000 ---p 00000000 00:00 0 \n7f5f9b2fe000-7f5f9b3fe000 rw-p 00000000 00:00 0 \n7f5f9b3fe000-7f5f9b3ff000 ---p 00000000 00:00 0 \n7f5f9b3ff000-7f5f9b4ff000 rw-p 00000000 00:00 0 \n7f5f9b4ff000-7f5f9b500000 ---p 00000000 00:00 0 \n7f5f9b500000-7f5f9b600000 rw-p 00000000 00:00 0 \n7f5f9be00000-7f5f9c600000 rw-s 135195000 00:06 1394                      /dev/dri/renderD128\n7f5f9c600000-7f5f9c60b000 r--p 00000000 00:1a 115630                     /usr/lib/libvulkan_radeon.so\n7f5f9c60b000-7f5f9cc09000 r-xp 0000b000 00:1a 115630                     /usr/lib/libvulkan_radeon.so\n7f5f9cc09000-7f5f9d594000 r--p 00609000 00:1a 115630                     /usr/lib/libvulkan_radeon.so\n7f5f9d594000-7f5f9d5e3000 r--p 00f93000 00:1a 115630                     /usr/lib/libvulkan_radeon.so\n7f5f9d5e3000-7f5f9d5f9000 rw-p 00fe2000 00:1a 115630                     /usr/lib/libvulkan_radeon.so\n7f5f9d5f9000-7f5f9d5ff000 rw-p 00000000 00:00 0 \n7f5f9d6fa000-7f5f9d6fb000 ---p 00000000 00:00 0 \n7f5f9d6fb000-7f5f9d7fb000 rw-p 00000000 00:00 0 \n7f5f9d7fb000-7f5f9d7fc000 ---p 00000000 00:00 0 \n7f5f9d7fc000-7f5f9dffc000 rw-p 00000000 00:00 0 \n7f5f9dffc000-7f5fa008c000 rw-p 00000000 00:00 0 \n7f5fa008c000-7f5fa4000000 ---p 00000000 00:00 0 \n7f5fa4000000-7f5fa42a9000 rw-p 00000000 00:00 0 \n7f5fa42a9000-7f5fa8000000 ---p 00000000 00:00 0 \n7f5fa8000000-7f5fa8021000 rw-p 00000000 00:00 0 \n7f5fa8021000-7f5fac000000 ---p 00000000 00:00 0 \n7f5fac000000-7f5fac021000 rw-p 00000000 00:00 0 \n7f5fac021000-7f5fb0000000 ---p 00000000 00:00 0 \n7f5fb0000000-7f5fb0021000 rw-p 00000000 00:00 0 \n7f5fb0021000-7f5fb4000000 ---p 00000000 00:00 0 \n7f5fb4000000-7f5fb4021000 rw-p 00000000 00:00 0 \n7f5fb4021000-7f5fb8000000 ---p 00000000 00:00 0 \n7f5fb8000000-7f5fb8093000 rw-p 00000000 00:00 0 \n7f5fb8093000-7f5fbc000000 ---p 00000000 00:00 0 \n7f5fbc000000-7f5fbc02e000 rw-p 00000000 00:00 0 \n7f5fbc02e000-7f5fc0000000 ---p 00000000 00:00 0 \n7f5fc0000000-7f5fc0021000 rw-p 00000000 00:00 0 \n7f5fc0021000-7f5fc4000000 ---p 00000000 00:00 0 \n7f5fc4000000-7f5fc4021000 rw-p 00000000 00:00 0 \n7f5fc4021000-7f5fc8000000 ---p 00000000 00:00 0 \n7f5fc8000000-7f5fc804b000 rw-p 00000000 00:00 0 \n7f5fc804b000-7f5fcc000000 ---p 00000000 00:00 0 \n7f5fcc000000-7f5fcc021000 rw-p 00000000 00:00 0 \n7f5fcc021000-7f5fd0000000 ---p 00000000 00:00 0 \n7f5fd0000000-7f5fd002e000 rw-p 00000000 00:00 0 \n7f5fd002e000-7f5fd4000000 ---p 00000000 00:00 0 \n7f5fd400d000-7f5fd400e000 ---p 00000000 00:00 0 \n7f5fd400e000-7f5fd410e000 rw-p 00000000 00:00 0 \n7f5fd410e000-7f5fd410f000 ---p 00000000 00:00 0 \n7f5fd410f000-7f5fd420f000 rw-p 00000000 00:00 0 \n7f5fd420f000-7f5fd4210000 ---p 00000000 00:00 0 \n7f5fd4210000-7f5fd4310000 rw-p 00000000 00:00 0 \n7f5fd4310000-7f5fd4311000 ---p 00000000 00:00 0 \n7f5fd4311000-7f5fd4411000 rw-p 00000000 00:00 0 \n7f5fd4411000-7f5fd4412000 ---p 00000000 00:00 0 \n7f5fd4412000-7f5fd8393000 rw-p 00000000 00:00 0 \n7f5fd8393000-7f5fdc000000 ---p 00000000 00:00 0 \n7f5fdc0a6000-7f5fdedfe000 rw-p 00000000 00:00 0 \n7f5fdedfe000-7f5fdedff000 ---p 00000000 00:00 0 \n7f5fdedff000-7f5fdf5ff000 rw-p 00000000 00:00 0 \n7f5fdf5ff000-7f5fdf600000 ---p 00000000 00:00 0 \n7f5fdf600000-7f5fdfe00000 rw-p 00000000 00:00 0 \n7f5fdfe00000-7f5fe7e00000 rw-p 00000000 00:00 0 \n7f5fe7e00000-7f5fe7e01000 ---p 00000000 00:00 0 \n7f5fe7eff000-7f5fe7f00000 ---p 00000000 00:00 0 \n7f5fe7f00000-7f5fe88f3000 rw-p 00000000 00:00 0 \n7f5fe88f3000-7f5fec000000 ---p 00000000 00:00 0 \n7f5fec087000-7f5fec1c8000 rw-s 00000000 103:08 7047909                   /home/deck/xemu-research/workspace/Results/20261003-162005404-45b117287d1041c99ca8628fc5a74e41/state/driver-cache/radv_builtin_shaders/index\n7f5fec1c8000-7f5fec5f9000 rw-p 00000000 00:00 0 \n7f5fec5f9000-7f5fec5fa000 ---p 00000000 00:00 0 \n7f5fec5fa000-7f5fecdfa000 rw-p 00000000 00:00 0 \n7f5fecdfa000-7f5fecdfb000 ---p 00000000 00:00 0 \n7f5fecdfb000-7f5fed5fb000 rw-p 00000000 00:00 0 \n7f5fed5fb000-7f5fed5fc000 ---p 00000000 00:00 0 \n7f5fed5fc000-7f5feddfc000 rw-p 00000000 00:00 0 \n7f5feddfc000-7f5feddfd000 ---p 00000000 00:00 0 \n7f5feddfd000-7f5fee5fd000 rw-p 00000000 00:00 0 \n7f5fee5fd000-7f5fee5fe000 ---p 00000000 00:00 0 \n7f5fee5fe000-7f5feedfe000 rw-p 00000000 00:00 0 \n7f5feedfe000-7f5feedff000 ---p 00000000 00:00 0 \n7f5feedff000-7f5fef5ff000 rw-p 00000000 00:00 0 \n7f5fef5ff000-7f5fef600000 ---p 00000000 00:00 0 \n7f5fef600000-7f5fefe00000 rw-p 00000000 00:00 0 \n7f5fefe00000-7f5ff7e00000 rw-p 00000000 00:00 0 \n7f5ff7e00000-7f5ff7e01000 ---p 00000000 00:00 0 \n7f5ff7ebf000-7f5ff8000000 rw-s 00000000 103:08 7047871                   /home/deck/xemu-research/workspace/Results/20261003-162005404-45b117287d1041c99ca8628fc5a74e41/state/driver-cache/mesa_shader_cache/index\n7f5ff8000000-7f5ff8021000 rw-p 00000000 00:00 0 \n7f5ff8021000-7f5ffc000000 ---p 00000000 00:00 0 \n7f5ffc000000-7f5ffc200000 rw-s 1700f3000 00:06 1394                      /dev/dri/renderD128\n7f5ffc200000-7f5ffc300000 rw-p 00000000 00:00 0 \n7f5ffc300000-7f5ffc301000 ---p 00000000 00:00 0 \n7f5ffc3fb000-7f5ffc3fc000 ---p 00000000 00:00 0 \n7f5ffc3fc000-7f5ffcbfc000 rw-p 00000000 00:00 0 \n7f5ffcbfc000-7f5ffcbfd000 ---p 00000000 00:00 0 \n7f5ffcbfd000-7f5ffd3fd000 rw-p 00000000 00:00 0 \n7f5ffd3fd000-7f5ffd3fe000 ---p 00000000 00:00 0 \n7f5ffd3fe000-7f5ffdbfe000 rw-p 00000000 00:00 0 \n7f5ffdbfe000-7f5ffdbff000 ---p 00000000 00:00 0 \n7f5ffdbff000-7f5ffe3ff000 rw-p 00000000 00:00 0 \n7f5ffe3ff000-7f5ffe400000 ---p 00000000 00:00 0 \n7f5ffe400000-7f5ffec00000 rw-p 00000000 00:00 0 \n7f5ffec00000-7f5ffed00000 rw-p 00000000 00:00 0 \n7f5ffed00000-7f5ffed01000 ---p 00000000 00:00 0 \n7f5ffee00000-7f5ffef00000 rw-p 00000000 00:00 0 \n7f5ffef00000-7f5ffef01000 ---p 00000000 00:00 0 \n7f5ffefb2000-7f5ffefd2000 rw-s 12b952000 00:06 1394                      /dev/dri/renderD128\n7f5ffefd2000-7f5ffefe2000 rw-s 10f0e5000 00:06 1394                      /dev/dri/renderD128\n7f5ffefe2000-7f5ffefea000 rw-s 123303000 00:06 1394                      /dev/dri/renderD128\n7f5ffefea000-7f5ffeffe000 rw-s 126ab9000 00:06 1394                      /dev/dri/renderD128\n7f5ffeffe000-7f5ffefff000 ---p 00000000 00:00 0 \n7f5ffefff000-7f5fff7ff000 rw-p 00000000 00:00 0 \n7f5fff7ff000-7f5fff800000 ---p 00000000 00:00 0 \n7f5fff800000-7f6000000000 rw-p 00000000 00:00 0 \n7f6000000000-7f603ffff000 rwxp 00000000 00:00 0 \n7f603ffff000-7f6040000000 ---p 00000000 00:00 0 \n7f6040000000-7f6040584000 rw-p 00000000 00:00 0 \n7f6040584000-7f6044000000 ---p 00000000 00:00 0 \n7f6044000000-7f6044021000 rw-p 00000000 00:00 0 \n7f6044021000-7f6048000000 ---p 00000000 00:00 0 \n7f6048000000-7f604855d000 rw-p 00000000 00:00 0 \n7f604855d000-7f604c000000 ---p 00000000 00:00 0 \n7f604c000000-7f604e307000 rw-p 00000000 00:00 0 \n7f604e307000-7f6050000000 ---p 00000000 00:00 0 \n7f6050000000-7f6050137000 rw-p 00000000 00:00 0 \n7f6050137000-7f6054000000 ---p 00000000 00:00 0 \n7f6054000000-7f6054607000 rw-p 00000000 00:00 0 \n7f6054607000-7f6058000000 ---p 00000000 00:00 0 \n7f6058000000-7f6058419000 rw-p 00000000 00:00 0 \n7f6058419000-7f605c000000 ---p 00000000 00:00 0 \n7f605c000000-7f605c007000 r-xp 00000000 00:00 0 \n7f605c007000-7f605c01b000 rw-s 127ba4000 00:06 1394                      /dev/dri/renderD128\n7f605c01b000-7f605c05b000 rw-s 1278bf000 00:06 1394                      /dev/dri/renderD128\n7f605c05b000-7f605c086000 r-xp 00000000 00:00 0 \n7f605c086000-7f605c087000 ---p 00000000 00:00 0 \n7f605c087000-7f605c2f7000 rw-p 00000000 00:00 0 \n7f605c2f7000-7f605c2f8000 ---p 00000000 00:00 0 \n7f605c2f8000-7f605c3f8000 rw-p 00000000 00:00 0 \n7f605c3f8000-7f605c3f9000 ---p 00000000 00:00 0 \n7f605c3f9000-7f605cbf9000 rw-p 00000000 00:00 0 \n7f605cbf9000-7f605cdf9000 rw-s 1616f7000 00:06 1394                      /dev/dri/renderD128\n7f605cdf9000-7f605cffa000 rw-p 00000000 00:00 0 \n7f605cffa000-7f605cffb000 ---p 00000000 00:00 0 \n7f605cffb000-7f605d7fb000 rw-p 00000000 00:00 0 \n7f605d7fb000-7f605d7fc000 ---p 00000000 00:00 0 \n7f605d7fc000-7f605dffc000 rw-p 00000000 00:00 0 \n7f605dffc000-7f605dffd000 ---p 00000000 00:00 0 \n7f605dffd000-7f605e7fd000 rw-p 00000000 00:00 0 \n7f605e7fd000-7f605e7fe000 ---p 00000000 00:00 0 \n7f605e7fe000-7f605effe000 rw-p 00000000 00:00 0 \n7f605effe000-7f605efff000 ---p 00000000 00:00 0 \n7f605efff000-7f605f7ff000 rw-p 00000000 00:00 0 \n7f605f7ff000-7f605f800000 ---p 00000000 00:00 0 \n7f605f800000-7f6060000000 rw-p 00000000 00:00 0 \n7f6060000000-7f6060021000 rw-p 00000000 00:00 0 \n7f6060021000-7f6064000000 ---p 00000000 00:00 0 \n7f6064000000-7f6064021000 rw-p 00000000 00:00 0 \n7f6064021000-7f6068000000 ---p 00000000 00:00 0 \n7f6068000000-7f6068021000 rw-p 00000000 00:00 0 \n7f6068021000-7f606c000000 ---p 00000000 00:00 0 \n7f606c000000-7f606c021000 rw-p 00000000 00:00 0 \n7f606c021000-7f6070000000 ---p 00000000 00:00 0 \n7f6070000000-7f6070021000 rw-p 00000000 00:00 0 \n7f6070021000-7f6074000000 ---p 00000000 00:00 0 \n7f6074000000-7f6074021000 rw-p 00000000 00:00 0 \n7f6074021000-7f6078000000 ---p 00000000 00:00 0 \n7f6078000000-7f6078021000 rw-p 00000000 00:00 0 \n7f6078021000-7f607c000000 ---p 00000000 00:00 0 \n7f607c000000-7f607c2ff000 rw-p 00000000 00:00 0 \n7f607c2ff000-7f6080000000 ---p 00000000 00:00 0 \n7f6080000000-7f6080006000 r-xp 00000000 00:00 0 \n7f6080006000-7f608001a000 rw-s 113681000 00:06 1394                      /dev/dri/renderD128\n7f608001a000-7f608001c000 r--p 00000000 00:1a 115650                     /usr/lib/spa-0.2/audioconvert/libspa-audioconvert.so\n7f608001c000-7f608007c000 r-xp 00002000 00:1a 115650                     /usr/lib/spa-0.2/audioconvert/libspa-audioconvert.so\n7f608007c000-7f60800e7000 r--p 00062000 00:1a 115650                     /usr/lib/spa-0.2/audioconvert/libspa-audioconvert.so\n7f60800e7000-7f60800f5000 r--p 000cc000 00:1a 115650                     /usr/lib/spa-0.2/audioconvert/libspa-audioconvert.so\n7f60800f5000-7f60800f8000 rw-p 000da000 00:1a 115650                     /usr/lib/spa-0.2/audioconvert/libspa-audioconvert.so\n7f60800f8000-7f60800f9000 ---p 00000000 00:00 0 \n7f60800f9000-7f60801f9000 rw-p 00000000 00:00 0 \n7f60801f9000-7f60803f9000 rw-s 1612f5000 00:06 1394                      /dev/dri/renderD128\n7f60803f9000-7f60805f9000 rw-s 129e53000 00:06 1394                      /dev/dri/renderD128\n7f60805f9000-7f608067f000 r-xp 00000000 00:00 0 \n7f608071f000-7f60807f9000 r-xp 00000000 00:00 0 \n7f60807f9000-7f60807fa000 ---p 00000000 00:00 0 \n7f60807fa000-7f6080ffa000 rw-p 00000000 00:00 0 \n7f6080ffa000-7f6080ffb000 ---p 00000000 00:00 0 \n7f6080ffb000-7f60817fb000 rw-p 00000000 00:00 0 \n7f60817fb000-7f60817fc000 ---p 00000000 00:00 0 \n7f60817fc000-7f6081ffc000 rw-p 00000000 00:00 0 \n7f6081ffc000-7f6081ffd000 ---p 00000000 00:00 0 \n7f6081ffd000-7f60827fd000 rw-p 00000000 00:00 0 \n7f60827fd000-7f60827fe000 ---p 00000000 00:00 0 \n7f60827fe000-7f6082ffe000 rw-p 00000000 00:00 0 \n7f6082ffe000-7f6082fff000 ---p 00000000 00:00 0 \n7f6082fff000-7f60837ff000 rw-p 00000000 00:00 0 \n7f60837ff000-7f6083800000 ---p 00000000 00:00 0 \n7f6083800000-7f6084000000 rw-p 00000000 00:00 0 \n7f6084000000-7f6084021000 rw-p 00000000 00:00 0 \n7f6084021000-7f6088000000 ---p 00000000 00:00 0 \n7f6088000000-7f6088021000 rw-p 00000000 00:00 0 \n7f6088021000-7f608c000000 ---p 00000000 00:00 0 \n7f608c000000-7f608c021000 rw-p 00000000 00:00 0 \n7f608c021000-7f6090000000 ---p 00000000 00:00 0 \n7f6090000000-7f6090021000 rw-p 00000000 00:00 0 \n7f6090021000-7f6094000000 ---p 00000000 00:00 0 \n7f6094000000-7f60945df000 rw-p 00000000 00:00 0 \n7f60945df000-7f6098000000 ---p 00000000 00:00 0 \n7f6098000000-7f6098021000 rw-p 00000000 00:00 0 \n7f6098021000-7f609c000000 ---p 00000000 00:00 0 \n7f609c000000-7f609c4aa000 rw-p 00000000 00:00 0 \n7f609c4aa000-7f60a0000000 ---p 00000000 00:00 0 \n7f60a0000000-7f60a0090000 rw-p 00000000 00:00 0 \n7f60a0090000-7f60a4000000 ---p 00000000 00:00 0 \n7f60a4000000-7f60a406c000 rw-s 171c1f000 00:06 1394                      /dev/dri/renderD128\n7f60a406c000-7f60a406f000 r--p 00000000 00:1a 115626                     /usr/lib/libVkLayer_MESA_device_select.so\n7f60a406f000-7f60a407d000 r-xp 00003000 00:1a 115626                     /usr/lib/libVkLayer_MESA_device_select.so\n7f60a407d000-7f60a4081000 r--p 00011000 00:1a 115626                     /usr/lib/libVkLayer_MESA_device_select.so\n7f60a4081000-7f60a4082000 r--p 00015000 00:1a 115626                     /usr/lib/libVkLayer_MESA_device_select.so\n7f60a4082000-7f60a4083000 rw-p 00016000 00:1a 115626                     /usr/lib/libVkLayer_MESA_device_select.so\n7f60a4083000-7f60a4085000 rw-p 00000000 00:00 0 \n7f60a4085000-7f60a4086000 r-xp 00000000 00:00 0 \n7f60a4086000-7f60a409a000 rw-s 120b0e000 00:06 1394                      /dev/dri/renderD128\n7f60a409a000-7f60a409e000 r-xp 00000000 00:00 0 \n7f60a40ac000-7f60a40ad000 rw-s 00000000 00:01 13257                      /memfd:xshmfence (deleted)\n7f60a40ad000-7f60a40ae000 rw-s 00000000 00:01 14209                      /memfd:xshmfence (deleted)\n7f60a40ae000-7f60a40be000 rw-s 10584a000 00:06 1394                      /dev/dri/renderD128\n7f60a40be000-7f60a40c1000 r--p 00000000 00:1a 112393                     /usr/lib/libwayland-client.so.0.23.1\n7f60a40c1000-7f60a40c7000 r-xp 00003000 00:1a 112393                     /usr/lib/libwayland-client.so.0.23.1\n7f60a40c7000-7f60a40ca000 r--p 00009000 00:1a 112393                     /usr/lib/libwayland-client.so.0.23.1\n7f60a40ca000-7f60a40cc000 r--p 0000b000 00:1a 112393                     /usr/lib/libwayland-client.so.0.23.1\n7f60a40cc000-7f60a40cd000 rw-p 0000d000 00:1a 112393                     /usr/lib/libwayland-client.so.0.23.1\n7f60a40cd000-7f60a42cd000 rw-s 1704f3000 00:06 1394                      /dev/dri/renderD128\n7f60a42cd000-7f60a44cd000 rw-s 1702f3000 00:06 1394                      /dev/dri/renderD128\n7f60a44cd000-7f60a4529000 r-xp 00000000 00:00 0 \n7f60a4529000-7f60a45a9000 rw-s 12cbc1000 00:06 1394                      /dev/dri/renderD128\n7f60a45a9000-7f60a45f9000 r-xp 00000000 00:00 0 \n7f60a45f9000-7f60a47f9000 rw-s 125b0c000 00:06 1394                      /dev/dri/renderD128\n7f60a47f9000-7f60a47fa000 ---p 00000000 00:00 0 \n7f60a47fa000-7f60a4ffa000 rw-p 00000000 00:00 0 \n7f60a4ffa000-7f60a4ffb000 ---p 00000000 00:00 0 \n7f60a4ffb000-7f60a57fb000 rw-p 00000000 00:00 0 \n7f60a57fb000-7f60a57fc000 ---p 00000000 00:00 0 \n7f60a57fc000-7f60a5ffc000 rw-p 00000000 00:00 0 \n7f60a5ffc000-7f60a5ffd000 ---p 00000000 00:00 0 \n7f60a5ffd000-7f60a67fd000 rw-p 00000000 00:00 0 \n7f60a67fd000-7f60a67fe000 ---p 00000000 00:00 0 \n7f60a67fe000-7f60a6ffe000 rw-p 00000000 00:00 0 \n7f60a6ffe000-7f60a6fff000 ---p 00000000 00:00 0 \n7f60a6fff000-7f60a77ff000 rw-p 00000000 00:00 0 \n7f60a77ff000-7f60a7800000 ---p 00000000 00:00 0 \n7f60a7800000-7f60a8000000 rw-p 00000000 00:00 0 \n7f60a8000000-7f60a8021000 rw-p 00000000 00:00 0 \n7f60a8021000-7f60ac000000 ---p 00000000 00:00 0 \n7f60ac000000-7f60ac006000 r-xp 00000000 00:00 0 \n7f60ac006000-7f60ac007000 r--p 00000000 00:1a 113256                     /usr/lib/libxcb-keysyms.so.1.0.0\n7f60ac007000-7f60ac008000 r-xp 00001000 00:1a 113256                     /usr/lib/libxcb-keysyms.so.1.0.0\n7f60ac008000-7f60ac009000 r--p 00002000 00:1a 113256                     /usr/lib/libxcb-keysyms.so.1.0.0\n7f60ac009000-7f60ac00a000 r--p 00002000 00:1a 113256                     /usr/lib/libxcb-keysyms.so.1.0.0\n7f60ac00a000-7f60ac00b000 rw-p 00003000 00:1a 113256                     /usr/lib/libxcb-keysyms.so.1.0.0\n7f60ac00b000-7f60ac012000 r--p 00000000 00:1a 112774                     /usr/lib/libvulkan.so.1.4.321\n7f60ac012000-7f60ac067000 r-xp 00007000 00:1a 112774                     /usr/lib/libvulkan.so.1.4.321\n7f60ac067000-7f60ac096000 r--p 0005c000 00:1a 112774                     /usr/lib/libvulkan.so.1.4.321\n7f60ac096000-7f60ac098000 r--p 0008a000 00:1a 112774                     /usr/lib/libvulkan.so.1.4.321\n7f60ac098000-7f60ac099000 rw-p 0008c000 00:1a 112774                     /usr/lib/libvulkan.so.1.4.321\n7f60ac099000-7f60ac09a000 r--p 00000000 00:1a 102482                     /usr/lib/gconv/UTF-16.so\n7f60ac09a000-7f60ac09c000 r-xp 00001000 00:1a 102482                     /usr/lib/gconv/UTF-16.so\n7f60ac09c000-7f60ac09d000 r--p 00003000 00:1a 102482                     /usr/lib/gconv/UTF-16.so\n7f60ac09d000-7f60ac09e000 r--p 00003000 00:1a 102482                     /usr/lib/gconv/UTF-16.so\n7f60ac09e000-7f60ac09f000 rw-p 00004000 00:1a 102482                     /usr/lib/gconv/UTF-16.so\n7f60ac09f000-7f60ac0a8000 rw-s 00008000 00:01 11149                      /memfd:pipewire-memfd:flags=0x0000000f,type=2,size=65664 (deleted)\n7f60ac0a8000-7f60ac0b1000 rw-s 00000000 00:01 11149                      /memfd:pipewire-memfd:flags=0x0000000f,type=2,size=65664 (deleted)\n7f60ac0b1000-7f60ac0ba000 rw-s 00008000 00:01 11148                      /memfd:pipewire-memfd:flags=0x0000000f,type=2,size=65664 (deleted)\n7f60ac0ba000-7f60ac0c3000 rw-s 00000000 00:01 11148                      /memfd:pipewire-memfd:flags=0x0000000f,type=2,size=65664 (deleted)\n7f60ac0c3000-7f60ac0c5000 r--p 00000000 00:1a 115878                     /usr/lib/pipewire-0.3/libpipewire-module-session-manager.so\n7f60ac0c5000-7f60ac0e3000 r-xp 00002000 00:1a 115878                     /usr/lib/pipewire-0.3/libpipewire-module-session-manager.so\n7f60ac0e3000-7f60ac0e8000 r--p 00020000 00:1a 115878                     /usr/lib/pipewire-0.3/libpipewire-module-session-manager.so\n7f60ac0e8000-7f60ac0ea000 r--p 00024000 00:1a 115878                     /usr/lib/pipewire-0.3/libpipewire-module-session-manager.so\n7f60ac0ea000-7f60ac0eb000 rw-p 00026000 00:1a 115878                     /usr/lib/pipewire-0.3/libpipewire-module-session-manager.so\n7f60ac0eb000-7f60ac0ec000 ---p 00000000 00:00 0 \n7f60ac0ec000-7f60ac28d000 rw-p 00000000 00:00 0 \n7f60ac28d000-7f60ac28e000 r-xp 00000000 00:00 0 \n7f60ac28e000-7f60ac28f000 r-xp 00000000 00:00 0 \n7f60ac28f000-7f60ac29c000 r--p 00000000 00:1a 111785                     /usr/lib/libpipewire-0.3.so.0.1604.0\n7f60ac29c000-7f60ac321000 r-xp 0000d000 00:1a 111785                     /usr/lib/libpipewire-0.3.so.0.1604.0\n7f60ac321000-7f60ac33e000 r--p 00092000 00:1a 111785                     /usr/lib/libpipewire-0.3.so.0.1604.0\n7f60ac33e000-7f60ac35a000 r--p 000ae000 00:1a 111785                     /usr/lib/libpipewire-0.3.so.0.1604.0\n7f60ac35a000-7f60ac35b000 rw-p 000ca000 00:1a 111785                     /usr/lib/libpipewire-0.3.so.0.1604.0\n7f60ac35b000-7f60ac3fd000 rw-p 00000000 00:00 0 \n7f60ac3fd000-7f60ac5fd000 rw-s 16fddc000 00:06 1394                      /dev/dri/renderD128\n7f60ac5fd000-7f60ac7fd000 rw-s 17161f000 00:06 1394                      /dev/dri/renderD128\n7f60ac7fd000-7f60ac7fe000 ---p 00000000 00:00 0 \n7f60ac7fe000-7f60acffe000 rw-p 00000000 00:00 0 \n7f60acffe000-7f60acfff000 ---p 00000000 00:00 0 \n7f60acfff000-7f60ad7ff000 rw-p 00000000 00:00 0 \n7f60ad7ff000-7f60ad800000 ---p 00000000 00:00 0 \n7f60ad800000-7f60ae000000 rw-p 00000000 00:00 0 \n7f60ae000000-7f60afe62000 r--p 00000000 00:1a 111078                     /usr/lib/libicudata.so.76.1\n7f60afe62000-7f60afe63000 r--p 01e61000 00:1a 111078                     /usr/lib/libicudata.so.76.1\n7f60afe63000-7f60afe66000 r-xp 00000000 00:00 0 \n7f60afe67000-7f60afe69000 r--p 00000000 00:1a 115872                     /usr/lib/pipewire-0.3/libpipewire-module-metadata.so\n7f60afe69000-7f60afe72000 r-xp 00002000 00:1a 115872                     /usr/lib/pipewire-0.3/libpipewire-module-metadata.so\n7f60afe72000-7f60afe73000 r--p 0000b000 00:1a 115872                     /usr/lib/pipewire-0.3/libpipewire-module-metadata.so\n7f60afe73000-7f60afe74000 r--p 0000c000 00:1a 115872                     /usr/lib/pipewire-0.3/libpipewire-module-metadata.so\n7f60afe74000-7f60afe75000 rw-p 0000d000 00:1a 115872                     /usr/lib/pipewire-0.3/libpipewire-module-metadata.so\n7f60afe75000-7f60afe77000 r--p 00000000 00:1a 115868                     /usr/lib/pipewire-0.3/libpipewire-module-client-device.so\n7f60afe77000-7f60afe84000 r-xp 00002000 00:1a 115868                     /usr/lib/pipewire-0.3/libpipewire-module-client-device.so\n7f60afe84000-7f60afe85000 r--p 0000f000 00:1a 115868                     /usr/lib/pipewire-0.3/libpipewire-module-client-device.so\n7f60afe85000-7f60afe86000 r--p 00010000 00:1a 115868                     /usr/lib/pipewire-0.3/libpipewire-module-client-device.so\n7f60afe86000-7f60afe87000 rw-p 00011000 00:1a 115868                     /usr/lib/pipewire-0.3/libpipewire-module-client-device.so\n7f60afe87000-7f60afe8a000 r--p 00000000 00:1a 115875                     /usr/lib/pipewire-0.3/libpipewire-module-protocol-native.so\n7f60afe8a000-7f60afea8000 r-xp 00003000 00:1a 115875                     /usr/lib/pipewire-0.3/libpipewire-module-protocol-native.so\n7f60afea8000-7f60afeb3000 r--p 00021000 00:1a 115875                     /usr/lib/pipewire-0.3/libpipewire-module-protocol-native.so\n7f60afeb3000-7f60afebe000 r--p 0002b000 00:1a 115875                     /usr/lib/pipewire-0.3/libpipewire-module-protocol-native.so\n7f60afebe000-7f60afebf000 rw-p 00036000 00:1a 115875                     /usr/lib/pipewire-0.3/libpipewire-module-protocol-native.so\n7f60afebf000-7f60b0000000 rw-s 00000000 103:08 7047871                   /home/deck/xemu-research/workspace/Results/20261003-162005404-45b117287d1041c99ca8628fc5a74e41/state/driver-cache/mesa_shader_cache/index\n7f60b0000000-7f60b0048000 r--p 00000000 00:1a 111093                     /usr/lib/libicuuc.so.76.1\n7f60b0048000-7f60b015f000 r-xp 00048000 00:1a 111093                     /usr/lib/libicuuc.so.76.1\n7f60b015f000-7f60b01ec000 r--p 0015f000 00:1a 111093                     /usr/lib/libicuuc.so.76.1\n7f60b01ec000-7f60b01ff000 r--p 001ec000 00:1a 111093                     /usr/lib/libicuuc.so.76.1\n7f60b01ff000-7f60b0200000 rw-p 001ff000 00:1a 111093                     /usr/lib/libicuuc.so.76.1\n7f60b0200000-7f60b0202000 rw-p 00000000 00:00 0 \n7f60b0202000-7f60b0203000 r-xp 00000000 00:00 0 \n7f60b0203000-7f60b0206000 r-xp 00000000 00:00 0 \n7f60b0206000-7f60b0208000 r--p 00000000 00:1a 115867                     /usr/lib/pipewire-0.3/libpipewire-module-adapter.so\n7f60b0208000-7f60b020c000 r-xp 00002000 00:1a 115867                     /usr/lib/pipewire-0.3/libpipewire-module-adapter.so\n7f60b020c000-7f60b020e000 r--p 00006000 00:1a 115867                     /usr/lib/pipewire-0.3/libpipewire-module-adapter.so\n7f60b020e000-7f60b020f000 r--p 00007000 00:1a 115867                     /usr/lib/pipewire-0.3/libpipewire-module-adapter.so\n7f60b020f000-7f60b0210000 rw-p 00008000 00:1a 115867                     /usr/lib/pipewire-0.3/libpipewire-module-adapter.so\n7f60b0210000-7f60b0213000 r--p 00000000 00:1a 115869                     /usr/lib/pipewire-0.3/libpipewire-module-client-node.so\n7f60b0213000-7f60b022e000 r-xp 00003000 00:1a 115869                     /usr/lib/pipewire-0.3/libpipewire-module-client-node.so\n7f60b022e000-7f60b0233000 r--p 0001e000 00:1a 115869                     /usr/lib/pipewire-0.3/libpipewire-module-client-node.so\n7f60b0233000-7f60b0235000 r--p 00022000 00:1a 115869                     /usr/lib/pipewire-0.3/libpipewire-module-client-node.so\n7f60b0235000-7f60b0236000 rw-p 00024000 00:1a 115869                     /usr/lib/pipewire-0.3/libpipewire-module-client-node.so\n7f60b0236000-7f60b023a000 r--p 00000000 00:1a 110931                     /usr/lib/liblzma.so.5.8.1\n7f60b023a000-7f60b025d000 r-xp 00004000 00:1a 110931                     /usr/lib/liblzma.so.5.8.1\n7f60b025d000-7f60b0268000 r--p 00027000 00:1a 110931                     /usr/lib/liblzma.so.5.8.1\n7f60b0268000-7f60b0269000 r--p 00032000 00:1a 110931                     /usr/lib/liblzma.so.5.8.1\n7f60b0269000-7f60b026a000 rw-p 00033000 00:1a 110931                     /usr/lib/liblzma.so.5.8.1\n7f60b026a000-7f60b027e000 r--p 00000000 00:1a 112390                     /usr/lib/libSPIRV-Tools.so\n7f60b027e000-7f60b038b000 r-xp 00014000 00:1a 112390                     /usr/lib/libSPIRV-Tools.so\n7f60b038b000-7f60b03fc000 r--p 00121000 00:1a 112390                     /usr/lib/libSPIRV-Tools.so\n7f60b03fc000-7f60b03ff000 r--p 00191000 00:1a 112390                     /usr/lib/libSPIRV-Tools.so\n7f60b03ff000-7f60b0400000 rw-p 00194000 00:1a 112390                     /usr/lib/libSPIRV-Tools.so\n7f60b0400000-7f60b0947000 r--p 00000000 00:1a 112376                     /usr/lib/libLLVM.so.20.1\n7f60b0947000-7f60b5fe4000 r-xp 00547000 00:1a 112376                     /usr/lib/libLLVM.so.20.1\n7f60b5fe4000-7f60b9798000 r--p 05be4000 00:1a 112376                     /usr/lib/libLLVM.so.20.1\n7f60b9798000-7f60b9986000 r--p 09397000 00:1a 112376                     /usr/lib/libLLVM.so.20.1\n7f60b9986000-7f60b99ce000 rw-p 09585000 00:1a 112376                     /usr/lib/libLLVM.so.20.1\n7f60b99ce000-7f60b9a90000 rw-p 00000000 00:00 0 \n7f60b9a90000-7f60b9a94000 rw-s 171eb0000 00:06 1394                      /dev/dri/renderD128\n7f60b9a94000-7f60b9a96000 r--p 00000000 00:1a 115876                     /usr/lib/pipewire-0.3/libpipewire-module-rt.so\n7f60b9a96000-7f60b9a9a000 r-xp 00002000 00:1a 115876                     /usr/lib/pipewire-0.3/libpipewire-module-rt.so\n7f60b9a9a000-7f60b9a9c000 r--p 00006000 00:1a 115876                     /usr/lib/pipewire-0.3/libpipewire-module-rt.so\n7f60b9a9c000-7f60b9a9d000 r--p 00007000 00:1a 115876                     /usr/lib/pipewire-0.3/libpipewire-module-rt.so\n7f60b9a9d000-7f60b9a9e000 rw-p 00008000 00:1a 115876                     /usr/lib/pipewire-0.3/libpipewire-module-rt.so\n7f60b9a9e000-7f60b9aac000 r--p 00000000 00:1a 112431                     /usr/lib/libOpenGL.so.0.0.0\n7f60b9aac000-7f60b9ab7000 r-xp 0000e000 00:1a 112431                     /usr/lib/libOpenGL.so.0.0.0\n7f60b9ab7000-7f60b9abc000 r--p 00019000 00:1a 112431                     /usr/lib/libOpenGL.so.0.0.0\n7f60b9abc000-7f60b9ac1000 r--p 0001e000 00:1a 112431                     /usr/lib/libOpenGL.so.0.0.0\n7f60b9ac1000-7f60b9ac2000 rw-p 00023000 00:1a 112431                     /usr/lib/libOpenGL.so.0.0.0\n7f60b9ac2000-7f60b9add000 r--p 00000000 00:1a 111096                     /usr/lib/libxml2.so.16.0.5\n7f60b9add000-7f60b9bb9000 r-xp 0001b000 00:1a 111096                     /usr/lib/libxml2.so.16.0.5\n7f60b9bb9000-7f60b9bf6000 r--p 000f7000 00:1a 111096                     /usr/lib/libxml2.so.16.0.5\n7f60b9bf6000-7f60b9bfe000 r--p 00134000 00:1a 111096                     /usr/lib/libxml2.so.16.0.5\n7f60b9bfe000-7f60b9bff000 rw-p 0013c000 00:1a 111096                     /usr/lib/libxml2.so.16.0.5\n7f60b9bff000-7f60b9c00000 rw-p 00000000 00:00 0 \n7f60b9c00000-7f60b9c15000 r--p 00000000 00:1a 112410                     /usr/lib/libgallium-25.3.0.so\n7f60b9c15000-7f60bafb6000 r-xp 00015000 00:1a 112410                     /usr/lib/libgallium-25.3.0.so\n7f60bafb6000-7f60bbdf0000 r--p 013b6000 00:1a 112410                     /usr/lib/libgallium-25.3.0.so\n7f60bbdf0000-7f60bbe89000 r--p 021f0000 00:1a 112410                     /usr/lib/libgallium-25.3.0.so\n7f60bbe89000-7f60bbea3000 rw-p 02289000 00:1a 112410                     /usr/lib/libgallium-25.3.0.so\n7f60bbea3000-7f60bbee8000 rw-p 00000000 00:00 0 \n7f60bbee8000-7f60bbee9000 rw-s 127bb8000 00:06 1394                      /dev/dri/renderD128\n7f60bbee9000-7f60bbeea000 rw-s 00000000 00:01 1076                       /memfd:pipewire-memfd:flags=0x0000000f,type=2,size=2312 (deleted)\n7f60bbeea000-7f60bbeec000 r--p 00000000 00:1a 115684                     /usr/lib/spa-0.2/support/libspa-support.so\n7f60bbeec000-7f60bbf07000 r-xp 00002000 00:1a 115684                     /usr/lib/spa-0.2/support/libspa-support.so\n7f60bbf07000-7f60bbf0d000 r--p 0001d000 00:1a 115684                     /usr/lib/spa-0.2/support/libspa-support.so\n7f60bbf0d000-7f60bbf15000 r--p 00022000 00:1a 115684                     /usr/lib/spa-0.2/support/libspa-support.so\n7f60bbf15000-7f60bbf16000 rw-p 0002a000 00:1a 115684                     /usr/lib/spa-0.2/support/libspa-support.so\n7f60bbf16000-7f60bbf23000 r--p 00000000 00:1a 103252                     /usr/lib/libncursesw.so.6.5\n7f60bbf23000-7f60bbf6a000 r-xp 0000d000 00:1a 103252                     /usr/lib/libncursesw.so.6.5\n7f60bbf6a000-7f60bbf80000 r--p 00054000 00:1a 103252                     /usr/lib/libncursesw.so.6.5\n7f60bbf80000-7f60bbf84000 r--p 0006a000 00:1a 103252                     /usr/lib/libncursesw.so.6.5\n7f60bbf84000-7f60bbf85000 rw-p 0006e000 00:1a 103252                     /usr/lib/libncursesw.so.6.5\n7f60bbf85000-7f60bbf8b000 r--p 00000000 00:1a 111776                     /usr/lib/libedit.so.0.0.75\n7f60bbf8b000-7f60bbfac000 r-xp 00006000 00:1a 111776                     /usr/lib/libedit.so.0.0.75\n7f60bbfac000-7f60bbfb9000 r--p 00027000 00:1a 111776                     /usr/lib/libedit.so.0.0.75\n7f60bbfb9000-7f60bbfbb000 r--p 00034000 00:1a 111776                     /usr/lib/libedit.so.0.0.75\n7f60bbfbb000-7f60bbfbc000 rw-p 00036000 00:1a 111776                     /usr/lib/libedit.so.0.0.75\n7f60bbfbc000-7f60bbfbf000 rw-p 00000000 00:00 0 \n7f60bbfbf000-7f60bbfc2000 r--p 00000000 00:1a 112357                     /usr/lib/libdrm_intel.so.1.129.0\n7f60bbfc2000-7f60bbfd9000 r-xp 00003000 00:1a 112357                     /usr/lib/libdrm_intel.so.1.129.0\n7f60bbfd9000-7f60bbfe2000 r--p 0001a000 00:1a 112357                     /usr/lib/libdrm_intel.so.1.129.0\n7f60bbfe2000-7f60bbfe3000 r--p 00023000 00:1a 112357                     /usr/lib/libdrm_intel.so.1.129.0\n7f60bbfe3000-7f60bbfe4000 rw-p 00024000 00:1a 112357                     /usr/lib/libdrm_intel.so.1.129.0\n7f60bbfe4000-7f60bbfe7000 r--p 00000000 00:1a 111534                     /usr/lib/libelf-0.193.so\n7f60bbfe7000-7f60bbffa000 r-xp 00003000 00:1a 111534                     /usr/lib/libelf-0.193.so\n7f60bbffa000-7f60bbffe000 r--p 00016000 00:1a 111534                     /usr/lib/libelf-0.193.so\n7f60bbffe000-7f60bbfff000 r--p 0001a000 00:1a 111534                     /usr/lib/libelf-0.193.so\n7f60bbfff000-7f60bc000000 rw-p 0001b000 00:1a 111534                     /usr/lib/libelf-0.193.so\n7f60bc000000-7f60bc021000 rw-p 00000000 00:00 0 \n7f60bc021000-7f60c0000000 ---p 00000000 00:00 0 \n7f60c0000000-7f60c0001000 rw-s 00000000 00:01 14204                      /memfd:pipewire-memfd:flags=0x0000000f,type=2,size=4096 (deleted)\n7f60c0001000-7f60c0003000 r--p 00000000 00:1a 112348                     /usr/lib/libpciaccess.so.0.11.1\n7f60c0003000-7f60c0008000 r-xp 00002000 00:1a 112348                     /usr/lib/libpciaccess.so.0.11.1\n7f60c0008000-7f60c000a000 r--p 00007000 00:1a 112348                     /usr/lib/libpciaccess.so.0.11.1\n7f60c000a000-7f60c000b000 r--p 00008000 00:1a 112348                     /usr/lib/libpciaccess.so.0.11.1\n7f60c000b000-7f60c000c000 rw-p 00009000 00:1a 112348                     /usr/lib/libpciaccess.so.0.11.1\n7f60c000c000-7f60c000e000 r--p 00000000 00:1a 111137                     /usr/lib/libffi.so.8.2.0\n7f60c000e000-7f60c0015000 r-xp 00002000 00:1a 111137                     /usr/lib/libffi.so.8.2.0\n7f60c0015000-7f60c0016000 r--p 00009000 00:1a 111137                     /usr/lib/libffi.so.8.2.0\n7f60c0016000-7f60c0017000 r--p 0000a000 00:1a 111137                     /usr/lib/libffi.so.8.2.0\n7f60c0017000-7f60c0018000 rw-p 0000b000 00:1a 111137                     /usr/lib/libffi.so.8.2.0\n7f60c0018000-7f60c001b000 r--p 00000000 00:1a 112354                     /usr/lib/libdrm_amdgpu.so.1.129.0\n7f60c001b000-7f60c0021000 r-xp 00003000 00:1a 112354                     /usr/lib/libdrm_amdgpu.so.1.129.0\n7f60c0021000-7f60c0023000 r--p 00009000 00:1a 112354                     /usr/lib/libdrm_amdgpu.so.1.129.0\n7f60c0023000-7f60c0024000 r--p 0000a000 00:1a 112354                     /usr/lib/libdrm_amdgpu.so.1.129.0\n7f60c0024000-7f60c0025000 rw-p 0000b000 00:1a 112354                     /usr/lib/libdrm_amdgpu.so.1.129.0\n7f60c0025000-7f60c0028000 r--p 00000000 00:1a 112241                     /usr/lib/libxcb-sync.so.1.0.0\n7f60c0028000-7f60c002b000 r-xp 00003000 00:1a 112241                     /usr/lib/libxcb-sync.so.1.0.0\n7f60c002b000-7f60c002c000 r--p 00006000 00:1a 112241                     /usr/lib/libxcb-sync.so.1.0.0\n7f60c002c000-7f60c002d000 r--p 00007000 00:1a 112241                     /usr/lib/libxcb-sync.so.1.0.0\n7f60c002d000-7f60c002e000 rw-p 00008000 00:1a 112241                     /usr/lib/libxcb-sync.so.1.0.0\n7f60c002e000-7f60c0035000 r--p 00000000 00:1a 112220                     /usr/lib/libxcb-randr.so.0.1.0\n7f60c0035000-7f60c003b000 r-xp 00007000 00:1a 112220                     /usr/lib/libxcb-randr.so.0.1.0\n7f60c003b000-7f60c003e000 r--p 0000d000 00:1a 112220                     /usr/lib/libxcb-randr.so.0.1.0\n7f60c003e000-7f60c003f000 r--p 00010000 00:1a 112220                     /usr/lib/libxcb-randr.so.0.1.0\n7f60c003f000-7f60c0040000 rw-p 00011000 00:1a 112220                     /usr/lib/libxcb-randr.so.0.1.0\n7f60c0040000-7f60c0042000 r--p 00000000 00:1a 112383                     /usr/lib/libsensors.so.5.0.0\n7f60c0042000-7f60c004a000 r-xp 00002000 00:1a 112383                     /usr/lib/libsensors.so.5.0.0\n7f60c004a000-7f60c004e000 r--p 0000a000 00:1a 112383                     /usr/lib/libsensors.so.5.0.0\n7f60c004e000-7f60c004f000 r--p 0000e000 00:1a 112383                     /usr/lib/libsensors.so.5.0.0\n7f60c004f000-7f60c0050000 rw-p 0000f000 00:1a 112383                     /usr/lib/libsensors.so.5.0.0\n7f60c0050000-7f60c0053000 r--p 00000000 00:1a 112247                     /usr/lib/libxcb-xfixes.so.0.0.0\n7f60c0053000-7f60c0056000 r-xp 00003000 00:1a 112247                     /usr/lib/libxcb-xfixes.so.0.0.0\n7f60c0056000-7f60c0057000 r--p 00006000 00:1a 112247                     /usr/lib/libxcb-xfixes.so.0.0.0\n7f60c0057000-7f60c0058000 r--p 00007000 00:1a 112247                     /usr/lib/libxcb-xfixes.so.0.0.0\n7f60c0058000-7f60c0059000 rw-p 00008000 00:1a 112247                     /usr/lib/libxcb-xfixes.so.0.0.0\n7f60c0059000-7f60c005b000 r--p 00000000 00:1a 111514                     /usr/lib/libexpat.so.1.10.2\n7f60c005b000-7f60c0078000 r-xp 00002000 00:1a 111514                     /usr/lib/libexpat.so.1.10.2\n7f60c0078000-7f60c0080000 r--p 0001f000 00:1a 111514                     /usr/lib/libexpat.so.1.10.2\n7f60c0080000-7f60c0082000 r--p 00026000 00:1a 111514                     /usr/lib/libexpat.so.1.10.2\n7f60c0082000-7f60c0083000 rw-p 00028000 00:1a 111514                     /usr/lib/libexpat.so.1.10.2\n7f60c0083000-7f60c0088000 r--p 00000000 00:1a 112409                     /usr/lib/libGLX_mesa.so.0.0.0\n7f60c0088000-7f60c00b4000 r-xp 00005000 00:1a 112409                     /usr/lib/libGLX_mesa.so.0.0.0\n7f60c00b4000-7f60c00c3000 r--p 00031000 00:1a 112409                     /usr/lib/libGLX_mesa.so.0.0.0\n7f60c00c3000-7f60c00c7000 r--p 0003f000 00:1a 112409                     /usr/lib/libGLX_mesa.so.0.0.0\n7f60c00c7000-7f60c00c8000 rw-p 00043000 00:1a 112409                     /usr/lib/libGLX_mesa.so.0.0.0\n7f60c00c8000-7f60c00ca000 r--p 00000000 00:1a 112428                     /usr/lib/libGLdispatch.so.0.0.0\n7f60c00ca000-7f60c0109000 r-xp 00002000 00:1a 112428                     /usr/lib/libGLdispatch.so.0.0.0\n7f60c0109000-7f60c011c000 r--p 00041000 00:1a 112428                     /usr/lib/libGLdispatch.so.0.0.0\n7f60c011c000-7f60c0138000 r--p 00054000 00:1a 112428                     /usr/lib/libGLdispatch.so.0.0.0\n7f60c0138000-7f60c0139000 rw-p 00070000 00:1a 112428                     /usr/lib/libGLdispatch.so.0.0.0\n7f60c0139000-7f60c0141000 rw-p 00000000 00:00 0 \n7f60c0141000-7f60c0170000 r--p 00000000 00:1a 112419                     /usr/lib/libGL.so.1.7.0\n7f60c0170000-7f60c018f000 r-xp 0002f000 00:1a 112419                     /usr/lib/libGL.so.1.7.0\n7f60c018f000-7f60c01a3000 r--p 0004e000 00:1a 112419                     /usr/lib/libGL.so.1.7.0\n7f60c01a3000-7f60c01b1000 r--p 00062000 00:1a 112419                     /usr/lib/libGL.so.1.7.0\n7f60c01b1000-7f60c01b2000 rw-p 00070000 00:1a 112419                     /usr/lib/libGL.so.1.7.0\n7f60c01b2000-7f60c0200000 rw-p 00000000 00:00 0 \n7f60c0200000-7f60c0478000 r--p 00000000 00:1a 102598                     /usr/lib/locale/en_US.utf8/LC_COLLATE\n7f60c0478000-7f60c0479000 r--p 00000000 00:1a 112369                     /usr/lib/libxshmfence.so.1.0.0\n7f60c0479000-7f60c047a000 r-xp 00001000 00:1a 112369                     /usr/lib/libxshmfence.so.1.0.0\n7f60c047a000-7f60c047b000 r--p 00002000 00:1a 112369                     /usr/lib/libxshmfence.so.1.0.0\n7f60c047b000-7f60c047c000 r--p 00002000 00:1a 112369                     /usr/lib/libxshmfence.so.1.0.0\n7f60c047c000-7f60c047d000 rw-p 00003000 00:1a 112369                     /usr/lib/libxshmfence.so.1.0.0\n7f60c047d000-7f60c047e000 r--p 00000000 00:1a 112217                     /usr/lib/libxcb-present.so.0.0.0\n7f60c047e000-7f60c047f000 r-xp 00001000 00:1a 112217                     /usr/lib/libxcb-present.so.0.0.0\n7f60c047f000-7f60c0480000 r--p 00002000 00:1a 112217                     /usr/lib/libxcb-present.so.0.0.0\n7f60c0480000-7f60c0481000 r--p 00002000 00:1a 112217                     /usr/lib/libxcb-present.so.0.0.0\n7f60c0481000-7f60c0482000 rw-p 00003000 00:1a 112217                     /usr/lib/libxcb-present.so.0.0.0\n7f60c0482000-7f60c0484000 r--p 00000000 00:1a 112211                     /usr/lib/libxcb-dri3.so.0.1.0\n7f60c0484000-7f60c0486000 r-xp 00002000 00:1a 112211                     /usr/lib/libxcb-dri3.so.0.1.0\n7f60c0486000-7f60c0487000 r--p 00004000 00:1a 112211                     /usr/lib/libxcb-dri3.so.0.1.0\n7f60c0487000-7f60c0488000 r--p 00004000 00:1a 112211                     /usr/lib/libxcb-dri3.so.0.1.0\n7f60c0488000-7f60c0489000 rw-p 00005000 00:1a 112211                     /usr/lib/libxcb-dri3.so.0.1.0\n7f60c0489000-7f60c048a000 r--p 00000000 00:1a 112238                     /usr/lib/libxcb-shm.so.0.0.0\n7f60c048a000-7f60c048b000 r-xp 00001000 00:1a 112238                     /usr/lib/libxcb-shm.so.0.0.0\n7f60c048b000-7f60c048c000 r--p 00002000 00:1a 112238                     /usr/lib/libxcb-shm.so.0.0.0\n7f60c048c000-7f60c048d000 r--p 00002000 00:1a 112238                     /usr/lib/libxcb-shm.so.0.0.0\n7f60c048d000-7f60c048e000 rw-p 00003000 00:1a 112238                     /usr/lib/libxcb-shm.so.0.0.0\n7f60c048e000-7f60c048f000 r--p 00000000 00:1a 112372                     /usr/lib/libXxf86vm.so.1.0.0\n7f60c048f000-7f60c0492000 r-xp 00001000 00:1a 112372                     /usr/lib/libXxf86vm.so.1.0.0\n7f60c0492000-7f60c0493000 r--p 00004000 00:1a 112372                     /usr/lib/libXxf86vm.so.1.0.0\n7f60c0493000-7f60c0494000 r--p 00004000 00:1a 112372                     /usr/lib/libXxf86vm.so.1.0.0\n7f60c0494000-7f60c0495000 rw-p 00005000 00:1a 112372                     /usr/lib/libXxf86vm.so.1.0.0\n7f60c0495000-7f60c04a1000 r--p 00000000 00:1a 112214                     /usr/lib/libxcb-glx.so.0.0.0\n7f60c04a1000-7f60c04aa000 r-xp 0000c000 00:1a 112214                     /usr/lib/libxcb-glx.so.0.0.0\n7f60c04aa000-7f60c04af000 r--p 00015000 00:1a 112214                     /usr/lib/libxcb-glx.so.0.0.0\n7f60c04af000-7f60c04b1000 r--p 0001a000 00:1a 112214                     /usr/lib/libxcb-glx.so.0.0.0\n7f60c04b1000-7f60c04b2000 rw-p 0001c000 00:1a 112214                     /usr/lib/libxcb-glx.so.0.0.0\n7f60c04b2000-7f60c04b4000 r--p 00000000 00:1a 112425                     /usr/lib/libGLX.so.0.0.0\n7f60c04b4000-7f60c04ce000 r-xp 00002000 00:1a 112425                     /usr/lib/libGLX.so.0.0.0\n7f60c04ce000-7f60c04d1000 r--p 0001c000 00:1a 112425                     /usr/lib/libGLX.so.0.0.0\n7f60c04d1000-7f60c04d2000 r--p 0001f000 00:1a 112425                     /usr/lib/libGLX.so.0.0.0\n7f60c04d2000-7f60c04d3000 rw-p 00020000 00:1a 112425                     /usr/lib/libGLX.so.0.0.0\n7f60c04d3000-7f60c04e3000 rw-p 00000000 00:00 0 \n7f60c04e3000-7f60c04e4000 rw-s 00000000 00:01 14203                      /memfd:pipewire-memfd:flags=0x0000000f,type=2,size=2312 (deleted)\n7f60c04e4000-7f60c04e5000 rw-s 00000000 00:01 16611                      /memfd:pipewire-memfd:flags=0x0000000f,type=2,size=2312 (deleted)\n7f60c04e5000-7f60c04e6000 r--p 00000000 00:1a 115682                     /usr/lib/spa-0.2/support/libspa-dbus.so\n7f60c04e6000-7f60c04e9000 r-xp 00001000 00:1a 115682                     /usr/lib/spa-0.2/support/libspa-dbus.so\n7f60c04e9000-7f60c04ea000 r--p 00004000 00:1a 115682                     /usr/lib/spa-0.2/support/libspa-dbus.so\n7f60c04ea000-7f60c04eb000 r--p 00004000 00:1a 115682                     /usr/lib/spa-0.2/support/libspa-dbus.so\n7f60c04eb000-7f60c04ec000 rw-p 00005000 00:1a 115682                     /usr/lib/spa-0.2/support/libspa-dbus.so\n7f60c04ec000-7f60c04ed000 r--p 00000000 00:1a 115683                     /usr/lib/spa-0.2/support/libspa-journal.so\n7f60c04ed000-7f60c04ef000 r-xp 00001000 00:1a 115683                     /usr/lib/spa-0.2/support/libspa-journal.so\n7f60c04ef000-7f60c04f0000 r--p 00003000 00:1a 115683                     /usr/lib/spa-0.2/support/libspa-journal.so\n7f60c04f0000-7f60c04f1000 r--p 00003000 00:1a 115683                     /usr/lib/spa-0.2/support/libspa-journal.so\n7f60c04f1000-7f60c04f2000 rw-p 00004000 00:1a 115683                     /usr/lib/spa-0.2/support/libspa-journal.so\n7f60c04f2000-7f60c04f3000 rw-s 00000000 00:01 10172                      /memfd:xshmfence (deleted)\n7f60c04f3000-7f60c04f4000 rw-s 16ffdd000 00:06 1394                      /dev/dri/renderD128\n7f60c04f4000-7f60c04f5000 rw-s 00000000 00:01 13258                      /memfd:xshmfence (deleted)\n7f60c04f5000-7f60c04f6000 rw-s 00000000 00:01 15133                      /memfd:xshmfence (deleted)\n7f60c04f6000-7f60c04f7000 rw-s 10d630000 00:06 1394                      /dev/dri/renderD128\n7f60c04f7000-7f60c04f8000 rw-s 00000000 00:01 15132                      /memfd:xshmfence (deleted)\n7f60c04f8000-7f60c04f9000 rw-s 10d62f000 00:06 1394                      /dev/dri/renderD128\n7f60c04f9000-7f60c04fb000 r--p 00000000 00:1a 112416                     /usr/lib/libEGL.so.1.1.0\n7f60c04fb000-7f60c0505000 r-xp 00002000 00:1a 112416                     /usr/lib/libEGL.so.1.1.0\n7f60c0505000-7f60c0509000 r--p 0000c000 00:1a 112416                     /usr/lib/libEGL.so.1.1.0\n7f60c0509000-7f60c050a000 r--p 0000f000 00:1a 112416                     /usr/lib/libEGL.so.1.1.0\n7f60c050a000-7f60c050b000 rw-p 00010000 00:1a 112416                     /usr/lib/libEGL.so.1.1.0\n7f60c050b000-7f60c050c000 rw-s 00000000 00:01 16613                      /memfd:xshmfence (deleted)\n7f60c050c000-7f60c050d000 rw-s 10d62e000 00:06 1394                      /dev/dri/renderD128\n7f60c050d000-7f60c0567000 r--p 00000000 00:1a 102562                     /usr/lib/locale/en_US.utf8/LC_CTYPE\n7f60c0567000-7f60c0568000 r--p 00000000 00:1a 114492                     /usr/lib/libXss.so.1.0.0\n7f60c0568000-7f60c0569000 r-xp 00001000 00:1a 114492                     /usr/lib/libXss.so.1.0.0\n7f60c0569000-7f60c056a000 r--p 00002000 00:1a 114492                     /usr/lib/libXss.so.1.0.0\n7f60c056a000-7f60c056b000 r--p 00002000 00:1a 114492                     /usr/lib/libXss.so.1.0.0\n7f60c056b000-7f60c056c000 rw-p 00003000 00:1a 114492                     /usr/lib/libXss.so.1.0.0\n7f60c056c000-7f60c056e000 r--p 00000000 00:1a 112522                     /usr/lib/libXrandr.so.2.2.0\n7f60c056e000-7f60c0575000 r-xp 00002000 00:1a 112522                     /usr/lib/libXrandr.so.2.2.0\n7f60c0575000-7f60c0577000 r--p 00009000 00:1a 112522                     /usr/lib/libXrandr.so.2.2.0\n7f60c0577000-7f60c0578000 r--p 0000a000 00:1a 112522                     /usr/lib/libXrandr.so.2.2.0\n7f60c0578000-7f60c0579000 rw-p 0000b000 00:1a 112522                     /usr/lib/libXrandr.so.2.2.0\n7f60c0579000-7f60c057c000 r--p 00000000 00:1a 112441                     /usr/lib/libXi.so.6.1.0\n7f60c057c000-7f60c0588000 r-xp 00003000 00:1a 112441                     /usr/lib/libXi.so.6.1.0\n7f60c0588000-7f60c058a000 r--p 0000f000 00:1a 112441                     /usr/lib/libXi.so.6.1.0\n7f60c058a000-7f60c058b000 r--p 00011000 00:1a 112441                     /usr/lib/libXi.so.6.1.0\n7f60c058b000-7f60c058c000 rw-p 00012000 00:1a 112441                     /usr/lib/libXi.so.6.1.0\n7f60c058c000-7f60c058e000 r--p 00000000 00:1a 112311                     /usr/lib/libXfixes.so.3.1.0\n7f60c058e000-7f60c0591000 r-xp 00002000 00:1a 112311                     /usr/lib/libXfixes.so.3.1.0\n7f60c0591000-7f60c0592000 r--p 00005000 00:1a 112311                     /usr/lib/libXfixes.so.3.1.0\n7f60c0592000-7f60c0593000 r--p 00005000 00:1a 112311                     /usr/lib/libXfixes.so.3.1.0\n7f60c0593000-7f60c0594000 rw-p 00006000 00:1a 112311                     /usr/lib/libXfixes.so.3.1.0\n7f60c0594000-7f60c0596000 r--p 00000000 00:1a 112519                     /usr/lib/libXrender.so.1.3.0\n7f60c0596000-7f60c059d000 r-xp 00002000 00:1a 112519                     /usr/lib/libXrender.so.1.3.0\n7f60c059d000-7f60c059e000 r--p 00009000 00:1a 112519                     /usr/lib/libXrender.so.1.3.0\n7f60c059e000-7f60c059f000 r--p 00009000 00:1a 112519                     /usr/lib/libXrender.so.1.3.0\n7f60c059f000-7f60c05a0000 rw-p 0000a000 00:1a 112519                     /usr/lib/libXrender.so.1.3.0\n7f60c05a0000-7f60c05a3000 r--p 00000000 00:1a 112631                     /usr/lib/libXcursor.so.1.0.2\n7f60c05a3000-7f60c05a9000 r-xp 00003000 00:1a 112631                     /usr/lib/libXcursor.so.1.0.2\n7f60c05a9000-7f60c05ab000 r--p 00009000 00:1a 112631                     /usr/lib/libXcursor.so.1.0.2\n7f60c05ab000-7f60c05ac000 r--p 0000a000 00:1a 112631                     /usr/lib/libXcursor.so.1.0.2\n7f60c05ac000-7f60c05ad000 rw-p 0000b000 00:1a 112631                     /usr/lib/libXcursor.so.1.0.2\n7f60c05ad000-7f60c05b1000 r--p 00000000 00:1a 112366                     /usr/lib/libXext.so.6.4.0\n7f60c05b1000-7f60c05bc000 r-xp 00004000 00:1a 112366                     /usr/lib/libXext.so.6.4.0\n7f60c05bc000-7f60c05c0000 r--p 0000f000 00:1a 112366                     /usr/lib/libXext.so.6.4.0\n7f60c05c0000-7f60c05c1000 r--p 00012000 00:1a 112366                     /usr/lib/libXext.so.6.4.0\n7f60c05c1000-7f60c05c2000 rw-p 00013000 00:1a 112366                     /usr/lib/libXext.so.6.4.0\n7f60c05c2000-7f60c05ce000 r--p 00000000 00:1a 112268                     /usr/lib/libxcb.so.1.1.0\n7f60c05ce000-7f60c05e2000 r-xp 0000c000 00:1a 112268                     /usr/lib/libxcb.so.1.1.0\n7f60c05e2000-7f60c05eb000 r--p 00020000 00:1a 112268                     /usr/lib/libxcb.so.1.1.0\n7f60c05eb000-7f60c05ec000 r--p 00028000 00:1a 112268                     /usr/lib/libxcb.so.1.1.0\n7f60c05ec000-7f60c05ed000 rw-p 00029000 00:1a 112268                     /usr/lib/libxcb.so.1.1.0\n7f60c05ed000-7f60c0604000 r--p 00000000 00:1a 112308                     /usr/lib/libX11.so.6.4.0\n7f60c0604000-7f60c0698000 r-xp 00017000 00:1a 112308                     /usr/lib/libX11.so.6.4.0\n7f60c0698000-7f60c0727000 r--p 000ab000 00:1a 112308                     /usr/lib/libX11.so.6.4.0\n7f60c0727000-7f60c072a000 r--p 00139000 00:1a 112308                     /usr/lib/libX11.so.6.4.0\n7f60c072a000-7f60c072e000 rw-p 0013c000 00:1a 112308                     /usr/lib/libX11.so.6.4.0\n7f60c072e000-7f60c072f000 ---p 00000000 00:00 0 \n7f60c072f000-7f60c0f2f000 rw-p 00000000 00:00 0 \n7f60c0f2f000-7f60c0f30000 r--p 00000000 00:1a 111151                     /usr/lib/libbrotlicommon.so.1.1.0\n7f60c0f30000-7f60c0f31000 r-xp 00001000 00:1a 111151                     /usr/lib/libbrotlicommon.so.1.1.0\n7f60c0f31000-7f60c0f50000 r--p 00002000 00:1a 111151                     /usr/lib/libbrotlicommon.so.1.1.0\n7f60c0f50000-7f60c0f51000 r--p 00021000 00:1a 111151                     /usr/lib/libbrotlicommon.so.1.1.0\n7f60c0f51000-7f60c0f52000 rw-p 00022000 00:1a 111151                     /usr/lib/libbrotlicommon.so.1.1.0\n7f60c0f52000-7f60c0f63000 r--p 00000000 00:1a 110895                     /usr/lib/libkrb5.so.3.3\n7f60c0f63000-7f60c0fce000 r-xp 00011000 00:1a 110895                     /usr/lib/libkrb5.so.3.3\n7f60c0fce000-7f60c1008000 r--p 0007c000 00:1a 110895                     /usr/lib/libkrb5.so.3.3\n7f60c1008000-7f60c1016000 r--p 000b6000 00:1a 110895                     /usr/lib/libkrb5.so.3.3\n7f60c1016000-7f60c1018000 rw-p 000c4000 00:1a 110895                     /usr/lib/libkrb5.so.3.3\n7f60c1018000-7f60c1027000 r--p 00000000 00:1a 111068                     /usr/lib/libunistring.so.5.2.0\n7f60c1027000-7f60c106b000 r-xp 0000f000 00:1a 111068                     /usr/lib/libunistring.so.5.2.0\n7f60c106b000-7f60c11f6000 r--p 00053000 00:1a 111068                     /usr/lib/libunistring.so.5.2.0\n7f60c11f6000-7f60c11fa000 r--p 001de000 00:1a 111068                     /usr/lib/libunistring.so.5.2.0\n7f60c11fa000-7f60c11fb000 rw-p 001e2000 00:1a 111068                     /usr/lib/libunistring.so.5.2.0\n7f60c11fb000-7f60c120f000 r--p 00000000 00:1a 110941                     /usr/lib/libsystemd.so.0.40.0\n7f60c120f000-7f60c12cd000 r-xp 00014000 00:1a 110941                     /usr/lib/libsystemd.so.0.40.0\n7f60c12cd000-7f60c130c000 r--p 000d2000 00:1a 110941                     /usr/lib/libsystemd.so.0.40.0\n7f60c130c000-7f60c1319000 r--p 00110000 00:1a 110941                     /usr/lib/libsystemd.so.0.40.0\n7f60c1319000-7f60c131a000 rw-p 0011d000 00:1a 110941                     /usr/lib/libsystemd.so.0.40.0\n7f60c131a000-7f60c131b000 rw-p 00000000 00:00 0 \n7f60c131b000-7f60c1327000 r--p 00000000 00:1a 110934                     /usr/lib/libzstd.so.1.5.7\n7f60c1327000-7f60c13ed000 r-xp 0000c000 00:1a 110934                     /usr/lib/libzstd.so.1.5.7\n7f60c13ed000-7f60c13fe000 r--p 000d2000 00:1a 110934                     /usr/lib/libzstd.so.1.5.7\n7f60c13fe000-7f60c13ff000 r--p 000e3000 00:1a 110934                     /usr/lib/libzstd.so.1.5.7\n7f60c13ff000-7f60c1400000 rw-p 000e4000 00:1a 110934                     /usr/lib/libzstd.so.1.5.7\n7f60c1400000-7f60c1452000 r--p 00000000 00:1a 110788                     /usr/lib/libcrypto.so.3\n7f60c1452000-7f60c17ce000 r-xp 00052000 00:1a 110788                     /usr/lib/libcrypto.so.3\n7f60c17ce000-7f60c18df000 r--p 003ce000 00:1a 110788                     /usr/lib/libcrypto.so.3\n7f60c18df000-7f60c195c000 r--p 004de000 00:1a 110788                     /usr/lib/libcrypto.so.3\n7f60c195c000-7f60c195f000 rw-p 0055b000 00:1a 110788                     /usr/lib/libcrypto.so.3\n7f60c195f000-7f60c1962000 rw-p 00000000 00:00 0 \n7f60c1962000-7f60c1963000 rw-s 135bc9000 00:06 1394                      /dev/dri/renderD128\n7f60c1963000-7f60c1965000 r--p 00000000 00:1a 112190                     /usr/lib/libXdmcp.so.6.0.0\n7f60c1965000-7f60c1967000 r-xp 00002000 00:1a 112190                     /usr/lib/libXdmcp.so.6.0.0\n7f60c1967000-7f60c1969000 r--p 00004000 00:1a 112190                     /usr/lib/libXdmcp.so.6.0.0\n7f60c1969000-7f60c196a000 r--p 00005000 00:1a 112190                     /usr/lib/libXdmcp.so.6.0.0\n7f60c196a000-7f60c196b000 rw-p 00006000 00:1a 112190                     /usr/lib/libXdmcp.so.6.0.0\n7f60c196b000-7f60c196c000 r--p 00000000 00:1a 112193                     /usr/lib/libXau.so.6.0.0\n7f60c196c000-7f60c196d000 r-xp 00001000 00:1a 112193                     /usr/lib/libXau.so.6.0.0\n7f60c196d000-7f60c196e000 r--p 00002000 00:1a 112193                     /usr/lib/libXau.so.6.0.0\n7f60c196e000-7f60c196f000 r--p 00002000 00:1a 112193                     /usr/lib/libXau.so.6.0.0\n7f60c196f000-7f60c1970000 rw-p 00003000 00:1a 112193                     /usr/lib/libXau.so.6.0.0\n7f60c1970000-7f60c1975000 rw-p 00000000 00:00 0 \n7f60c1975000-7f60c1978000 r--p 00000000 00:1a 102537                     /usr/lib/libresolv.so.2\n7f60c1978000-7f60c1981000 r-xp 00003000 00:1a 102537                     /usr/lib/libresolv.so.2\n7f60c1981000-7f60c1983000 r--p 0000c000 00:1a 102537                     /usr/lib/libresolv.so.2\n7f60c1983000-7f60c1984000 r--p 0000e000 00:1a 102537                     /usr/lib/libresolv.so.2\n7f60c1984000-7f60c1985000 rw-p 0000f000 00:1a 102537                     /usr/lib/libresolv.so.2\n7f60c1985000-7f60c1987000 rw-p 00000000 00:00 0 \n7f60c1987000-7f60c198a000 r--p 00000000 00:1a 110898                     /usr/lib/libkrb5support.so.0.1\n7f60c198a000-7f60c1991000 r-xp 00003000 00:1a 110898                     /usr/lib/libkrb5support.so.0.1\n7f60c1991000-7f60c1993000 r--p 0000a000 00:1a 110898                     /usr/lib/libkrb5support.so.0.1\n7f60c1993000-7f60c1994000 r--p 0000c000 00:1a 110898                     /usr/lib/libkrb5support.so.0.1\n7f60c1994000-7f60c1995000 rw-p 0000d000 00:1a 110898                     /usr/lib/libkrb5support.so.0.1\n7f60c1995000-7f60c1998000 r--p 00000000 00:1a 110875                     /usr/lib/libk5crypto.so.3.1\n7f60c1998000-7f60c19b4000 r-xp 00003000 00:1a 110875                     /usr/lib/libk5crypto.so.3.1\n7f60c19b4000-7f60c19bf000 r--p 0001f000 00:1a 110875                     /usr/lib/libk5crypto.so.3.1\n7f60c19bf000-7f60c19c1000 r--p 0002a000 00:1a 110875                     /usr/lib/libk5crypto.so.3.1\n7f60c19c1000-7f60c19c2000 rw-p 0002c000 00:1a 110875                     /usr/lib/libk5crypto.so.3.1\n7f60c19c2000-7f60c19c5000 r--p 00000000 00:1a 111008                     /usr/lib/libcap.so.2.76\n7f60c19c5000-7f60c19ca000 r-xp 00003000 00:1a 111008                     /usr/lib/libcap.so.2.76\n7f60c19ca000-7f60c19cc000 r--p 00008000 00:1a 111008                     /usr/lib/libcap.so.2.76\n7f60c19cc000-7f60c19cd000 r--p 00009000 00:1a 111008                     /usr/lib/libcap.so.2.76\n7f60c19cd000-7f60c19ce000 rw-p 0000a000 00:1a 111008                     /usr/lib/libcap.so.2.76\n7f60c19ce000-7f60c19cf000 r--p 00000000 00:1a 111154                     /usr/lib/libbrotlidec.so.1.1.0\n7f60c19cf000-7f60c19d8000 r-xp 00001000 00:1a 111154                     /usr/lib/libbrotlidec.so.1.1.0\n7f60c19d8000-7f60c19db000 r--p 0000a000 00:1a 111154                     /usr/lib/libbrotlidec.so.1.1.0\n7f60c19db000-7f60c19dc000 r--p 0000c000 00:1a 111154                     /usr/lib/libbrotlidec.so.1.1.0\n7f60c19dc000-7f60c19dd000 rw-p 0000d000 00:1a 111154                     /usr/lib/libbrotlidec.so.1.1.0\n7f60c19dd000-7f60c19e6000 r--p 00000000 00:1a 110869                     /usr/lib/libgssapi_krb5.so.2.2\n7f60c19e6000-7f60c1a23000 r-xp 00009000 00:1a 110869                     /usr/lib/libgssapi_krb5.so.2.2\n7f60c1a23000-7f60c1a2d000 r--p 00046000 00:1a 110869                     /usr/lib/libgssapi_krb5.so.2.2\n7f60c1a2d000-7f60c1a2f000 r--p 00050000 00:1a 110869                     /usr/lib/libgssapi_krb5.so.2.2\n7f60c1a2f000-7f60c1a30000 rw-p 00052000 00:1a 110869                     /usr/lib/libgssapi_krb5.so.2.2\n7f60c1a30000-7f60c1a44000 r--p 00000000 00:1a 110790                     /usr/lib/libssl.so.3\n7f60c1a44000-7f60c1ae5000 r-xp 00014000 00:1a 110790                     /usr/lib/libssl.so.3\n7f60c1ae5000-7f60c1b09000 r--p 000b5000 00:1a 110790                     /usr/lib/libssl.so.3\n7f60c1b09000-7f60c1b13000 r--p 000d8000 00:1a 110790                     /usr/lib/libssl.so.3\n7f60c1b13000-7f60c1b17000 rw-p 000e2000 00:1a 110790                     /usr/lib/libssl.so.3\n7f60c1b17000-7f60c1b1d000 r--p 00000000 00:1a 111172                     /usr/lib/libssh2.so.1.0.1\n7f60c1b1d000-7f60c1b53000 r-xp 00006000 00:1a 111172                     /usr/lib/libssh2.so.1.0.1\n7f60c1b53000-7f60c1b5f000 r--p 0003c000 00:1a 111172                     /usr/lib/libssh2.so.1.0.1\n7f60c1b5f000-7f60c1b61000 r--p 00048000 00:1a 111172                     /usr/lib/libssh2.so.1.0.1\n7f60c1b61000-7f60c1b62000 rw-p 0004a000 00:1a 111172                     /usr/lib/libssh2.so.1.0.1\n7f60c1b62000-7f60c1b64000 r--p 00000000 00:1a 111160                     /usr/lib/libidn2.so.0.4.0\n7f60c1b64000-7f60c1b68000 r-xp 00002000 00:1a 111160                     /usr/lib/libidn2.so.0.4.0\n7f60c1b68000-7f60c1b82000 r--p 00006000 00:1a 111160                     /usr/lib/libidn2.so.0.4.0\n7f60c1b82000-7f60c1b83000 r--p 0001f000 00:1a 111160                     /usr/lib/libidn2.so.0.4.0\n7f60c1b83000-7f60c1b84000 rw-p 00020000 00:1a 111160                     /usr/lib/libidn2.so.0.4.0\n7f60c1b84000-7f60c1b88000 r--p 00000000 00:1a 111163                     /usr/lib/libnghttp2.so.14.28.5\n7f60c1b88000-7f60c1b9c000 r-xp 00004000 00:1a 111163                     /usr/lib/libnghttp2.so.14.28.5\n7f60c1b9c000-7f60c1ba8000 r--p 00018000 00:1a 111163                     /usr/lib/libnghttp2.so.14.28.5\n7f60c1ba8000-7f60c1bab000 r--p 00023000 00:1a 111163                     /usr/lib/libnghttp2.so.14.28.5\n7f60c1bab000-7f60c1bac000 rw-p 00026000 00:1a 111163                     /usr/lib/libnghttp2.so.14.28.5\n7f60c1bac000-7f60c1bae000 r--p 00000000 00:1a 111166                     /usr/lib/libnghttp3.so.9.3.0\n7f60c1bae000-7f60c1bc2000 r-xp 00002000 00:1a 111166                     /usr/lib/libnghttp3.so.9.3.0\n7f60c1bc2000-7f60c1bce000 r--p 00016000 00:1a 111166                     /usr/lib/libnghttp3.so.9.3.0\n7f60c1bce000-7f60c1bcf000 r--p 00021000 00:1a 111166                     /usr/lib/libnghttp3.so.9.3.0\n7f60c1bcf000-7f60c1bd1000 rw-p 00022000 00:1a 111166                     /usr/lib/libnghttp3.so.9.3.0\n7f60c1bd1000-7f60c1bd6000 r--p 00000000 00:1a 110944                     /usr/lib/libudev.so.1.7.10\n7f60c1bd6000-7f60c1bfd000 r-xp 00005000 00:1a 110944                     /usr/lib/libudev.so.1.7.10\n7f60c1bfd000-7f60c1c11000 r--p 0002c000 00:1a 110944                     /usr/lib/libudev.so.1.7.10\n7f60c1c11000-7f60c1c16000 r--p 0003f000 00:1a 110944                     /usr/lib/libudev.so.1.7.10\n7f60c1c16000-7f60c1c17000 rw-p 00044000 00:1a 110944                     /usr/lib/libudev.so.1.7.10\n7f60c1c17000-7f60c1c25000 r--p 00000000 00:1a 111522                     /usr/lib/libdbus-1.so.3.38.3\n7f60c1c25000-7f60c1c56000 r-xp 0000e000 00:1a 111522                     /usr/lib/libdbus-1.so.3.38.3\n7f60c1c56000-7f60c1c67000 r--p 0003f000 00:1a 111522                     /usr/lib/libdbus-1.so.3.38.3\n7f60c1c67000-7f60c1c69000 r--p 0004f000 00:1a 111522                     /usr/lib/libdbus-1.so.3.38.3\n7f60c1c69000-7f60c1c6a000 rw-p 00051000 00:1a 111522                     /usr/lib/libdbus-1.so.3.38.3\n7f60c1c6a000-7f60c1c6d000 r--p 00000000 00:1a 111054                     /usr/lib/libpcre2-8.so.0.15.0\n7f60c1c6d000-7f60c1ceb000 r-xp 00003000 00:1a 111054                     /usr/lib/libpcre2-8.so.0.15.0\n7f60c1ceb000-7f60c1d16000 r--p 00081000 00:1a 111054                     /usr/lib/libpcre2-8.so.0.15.0\n7f60c1d16000-7f60c1d17000 r--p 000ab000 00:1a 111054                     /usr/lib/libpcre2-8.so.0.15.0\n7f60c1d17000-7f60c1d18000 rw-p 000ac000 00:1a 111054                     /usr/lib/libpcre2-8.so.0.15.0\n7f60c1d18000-7f60c1d3c000 r--p 00000000 00:1a 102507                     /usr/lib/libc.so.6\n7f60c1d3c000-7f60c1eac000 r-xp 00024000 00:1a 102507                     /usr/lib/libc.so.6\n7f60c1eac000-7f60c1efa000 r--p 00194000 00:1a 102507                     /usr/lib/libc.so.6\n7f60c1efa000-7f60c1efe000 r--p 001e1000 00:1a 102507                     /usr/lib/libc.so.6\n7f60c1efe000-7f60c1f00000 rw-p 001e5000 00:1a 102507                     /usr/lib/libc.so.6\n7f60c1f00000-7f60c1f08000 rw-p 00000000 00:00 0 \n7f60c1f08000-7f60c1f17000 r--p 00000000 00:1a 102517                     /usr/lib/libm.so.6\n7f60c1f17000-7f60c1f9d000 r-xp 0000f000 00:1a 102517                     /usr/lib/libm.so.6\n7f60c1f9d000-7f60c1ffe000 r--p 00095000 00:1a 102517                     /usr/lib/libm.so.6\n7f60c1ffe000-7f60c1fff000 r--p 000f6000 00:1a 102517                     /usr/lib/libm.so.6\n7f60c1fff000-7f60c2000000 rw-p 000f7000 00:1a 102517                     /usr/lib/libm.so.6\n7f60c2000000-7f60c2097000 r--p 00000000 00:1a 103225                     /usr/lib/libstdc++.so.6.0.34\n7f60c2097000-7f60c21ec000 r-xp 00097000 00:1a 103225                     /usr/lib/libstdc++.so.6.0.34\n7f60c21ec000-7f60c227e000 r--p 001ec000 00:1a 103225                     /usr/lib/libstdc++.so.6.0.34\n7f60c227e000-7f60c228f000 r--p 0027e000 00:1a 103225                     /usr/lib/libstdc++.so.6.0.34\n7f60c228f000-7f60c2290000 rw-p 0028f000 00:1a 103225                     /usr/lib/libstdc++.so.6.0.34\n7f60c2290000-7f60c2298000 rw-p 00000000 00:00 0 \n7f60c2298000-7f60c229a000 r--p 00000000 00:1a 110775                     /usr/lib/libkeyutils.so.1.10\n7f60c229a000-7f60c229c000 r-xp 00002000 00:1a 110775                     /usr/lib/libkeyutils.so.1.10\n7f60c229c000-7f60c229d000 r--p 00004000 00:1a 110775                     /usr/lib/libkeyutils.so.1.10\n7f60c229d000-7f60c229e000 r--p 00004000 00:1a 110775                     /usr/lib/libkeyutils.so.1.10\n7f60c229e000-7f60c229f000 rw-p 00005000 00:1a 110775                     /usr/lib/libkeyutils.so.1.10\n7f60c229f000-7f60c22a1000 r--p 00000000 00:1a 111169                     /usr/lib/libpsl.so.5.3.5\n7f60c22a1000-7f60c22a3000 r-xp 00002000 00:1a 111169                     /usr/lib/libpsl.so.5.3.5\n7f60c22a3000-7f60c22b1000 r--p 00004000 00:1a 111169                     /usr/lib/libpsl.so.5.3.5\n7f60c22b1000-7f60c22b2000 r--p 00011000 00:1a 111169                     /usr/lib/libpsl.so.5.3.5\n7f60c22b2000-7f60c22b3000 rw-p 00012000 00:1a 111169                     /usr/lib/libpsl.so.5.3.5\n7f60c22b3000-7f60c22b7000 r--p 00000000 00:1a 103195                     /usr/lib/libgcc_s.so.1\n7f60c22b7000-7f60c22da000 r-xp 00004000 00:1a 103195                     /usr/lib/libgcc_s.so.1\n7f60c22da000-7f60c22de000 r--p 00027000 00:1a 103195                     /usr/lib/libgcc_s.so.1\n7f60c22de000-7f60c22df000 r--p 0002a000 00:1a 103195                     /usr/lib/libgcc_s.so.1\n7f60c22df000-7f60c22e0000 rw-p 0002b000 00:1a 103195                     /usr/lib/libgcc_s.so.1\n7f60c22e0000-7f60c22e1000 r--p 00000000 00:1a 112853                     /usr/lib/libsamplerate.so.0.2.2\n7f60c22e1000-7f60c22e6000 r-xp 00001000 00:1a 112853                     /usr/lib/libsamplerate.so.0.2.2\n7f60c22e6000-7f60c244c000 r--p 00006000 00:1a 112853                     /usr/lib/libsamplerate.so.0.2.2\n7f60c244c000-7f60c244d000 r--p 0016b000 00:1a 112853                     /usr/lib/libsamplerate.so.0.2.2\n7f60c244d000-7f60c244e000 rw-p 0016c000 00:1a 112853                     /usr/lib/libsamplerate.so.0.2.2\n7f60c244e000-7f60c245a000 r--p 00000000 00:1a 111175                     /usr/lib/libcurl.so.4.8.0\n7f60c245a000-7f60c2506000 r-xp 0000c000 00:1a 111175                     /usr/lib/libcurl.so.4.8.0\n7f60c2506000-7f60c252a000 r--p 000b8000 00:1a 111175                     /usr/lib/libcurl.so.4.8.0\n7f60c252a000-7f60c2530000 r--p 000dc000 00:1a 111175                     /usr/lib/libcurl.so.4.8.0\n7f60c2530000-7f60c2531000 rw-p 000e2000 00:1a 111175                     /usr/lib/libcurl.so.4.8.0\n7f60c2531000-7f60c2535000 r--p 00000000 00:1a 111210                     /usr/lib/libusb-1.0.so.0.5.0\n7f60c2535000-7f60c2545000 r-xp 00004000 00:1a 111210                     /usr/lib/libusb-1.0.so.0.5.0\n7f60c2545000-7f60c254d000 r--p 00014000 00:1a 111210                     /usr/lib/libusb-1.0.so.0.5.0\n7f60c254d000-7f60c254e000 r--p 0001c000 00:1a 111210                     /usr/lib/libusb-1.0.so.0.5.0\n7f60c254e000-7f60c254f000 rw-p 0001d000 00:1a 111210                     /usr/lib/libusb-1.0.so.0.5.0\n7f60c254f000-7f60c2556000 r--p 00000000 103:08 7047822                   /home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/lib/libpcap.so.0.8\n7f60c2556000-7f60c257e000 r-xp 00007000 103:08 7047822                   /home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/lib/libpcap.so.0.8\n7f60c257e000-7f60c259a000 r--p 0002f000 103:08 7047822                   /home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/lib/libpcap.so.0.8\n7f60c259a000-7f60c259c000 r--p 0004b000 103:08 7047822                   /home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/lib/libpcap.so.0.8\n7f60c259c000-7f60c259d000 rw-p 0004d000 103:08 7047822                   /home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/lib/libpcap.so.0.8\n7f60c259d000-7f60c25bb000 r--p 00000000 00:1a 111358                     /usr/lib/libglib-2.0.so.0.8400.3\n7f60c25bb000-7f60c2661000 r-xp 0001e000 00:1a 111358                     /usr/lib/libglib-2.0.so.0.8400.3\n7f60c2661000-7f60c26f0000 r--p 000c4000 00:1a 111358                     /usr/lib/libglib-2.0.so.0.8400.3\n7f60c26f0000-7f60c26f1000 r--p 00153000 00:1a 111358                     /usr/lib/libglib-2.0.so.0.8400.3\n7f60c26f1000-7f60c26f2000 rw-p 00154000 00:1a 111358                     /usr/lib/libglib-2.0.so.0.8400.3\n7f60c26f2000-7f60c26f3000 rw-p 00000000 00:00 0 \n7f60c26f3000-7f60c273d000 r--p 00000000 00:1a 112489                     /usr/lib/libepoxy.so.0.0.0\n7f60c273d000-7f60c27a3000 r-xp 0004a000 00:1a 112489                     /usr/lib/libepoxy.so.0.0.0\n7f60c27a3000-7f60c27f1000 r--p 000b0000 00:1a 112489                     /usr/lib/libepoxy.so.0.0.0\n7f60c27f1000-7f60c27f9000 r--p 000fd000 00:1a 112489                     /usr/lib/libepoxy.so.0.0.0\n7f60c27f9000-7f60c2800000 rw-p 00105000 00:1a 112489                     /usr/lib/libepoxy.so.0.0.0\n7f60c2800000-7f60c2815000 r--p 00000000 00:1a 112655                     /usr/lib/libSDL3.so.0.2.18\n7f60c2815000-7f60c29f8000 r-xp 00015000 00:1a 112655                     /usr/lib/libSDL3.so.0.2.18\n7f60c29f8000-7f60c2a85000 r--p 001f8000 00:1a 112655                     /usr/lib/libSDL3.so.0.2.18\n7f60c2a85000-7f60c2a92000 r--p 00284000 00:1a 112655                     /usr/lib/libSDL3.so.0.2.18\n7f60c2a92000-7f60c2a9e000 rw-p 00291000 00:1a 112655                     /usr/lib/libSDL3.so.0.2.18\n7f60c2a9e000-7f60c2aa8000 rw-p 00000000 00:00 0 \n7f60c2aa8000-7f60c2aaa000 r--p 00000000 00:1a 110400                     /usr/lib/libcom_err.so.2.1\n7f60c2aaa000-7f60c2aab000 r-xp 00002000 00:1a 110400                     /usr/lib/libcom_err.so.2.1\n7f60c2aab000-7f60c2aac000 r--p 00003000 00:1a 110400                     /usr/lib/libcom_err.so.2.1\n7f60c2aac000-7f60c2aad000 r--p 00003000 00:1a 110400                     /usr/lib/libcom_err.so.2.1\n7f60c2aad000-7f60c2aae000 rw-p 00004000 00:1a 110400                     /usr/lib/libcom_err.so.2.1\n7f60c2aae000-7f60c2ab8000 rw-p 00000000 00:00 0 \n7f60c2ab8000-7f60c2abc000 r--p 00000000 103:08 7047824                   /home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/lib/libslirp.so.0\n7f60c2abc000-7f60c2ad3000 r-xp 00004000 103:08 7047824                   /home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/lib/libslirp.so.0\n7f60c2ad3000-7f60c2ad9000 r--p 0001b000 103:08 7047824                   /home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/lib/libslirp.so.0\n7f60c2ad9000-7f60c2ada000 r--p 00021000 103:08 7047824                   /home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/lib/libslirp.so.0\n7f60c2ada000-7f60c2adc000 rw-p 00022000 103:08 7047824                   /home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/lib/libslirp.so.0\n7f60c2adc000-7f60c2add000 rw-p 00000000 00:00 0 \n7f60c2add000-7f60c2ae0000 r--p 00000000 00:1a 103329                     /usr/lib/libz.so.1.3.1\n7f60c2ae0000-7f60c2aee000 r-xp 00003000 00:1a 103329                     /usr/lib/libz.so.1.3.1\n7f60c2aee000-7f60c2af4000 r--p 00011000 00:1a 103329                     /usr/lib/libz.so.1.3.1\n7f60c2af4000-7f60c2af5000 r--p 00017000 00:1a 103329                     /usr/lib/libz.so.1.3.1\n7f60c2af5000-7f60c2af6000 rw-p 00018000 00:1a 103329                     /usr/lib/libz.so.1.3.1\n7f60c2af6000-7f60c2af7000 rw-s 135bc8000 00:06 1394                      /dev/dri/renderD128\n7f60c2af7000-7f60c2af8000 rw-s 127a7d000 00:06 1394                      /dev/dri/renderD128\n7f60c2af8000-7f60c2af9000 rw-p 00000000 00:00 0 \n7f60c2af9000-7f60c2afa000 rw-p 00000000 00:00 0 \n7f60c2afa000-7f60c2afb000 r--p 00000000 00:1a 112305                     /usr/lib/libX11-xcb.so.1.0.0\n7f60c2afb000-7f60c2afc000 r-xp 00001000 00:1a 112305                     /usr/lib/libX11-xcb.so.1.0.0\n7f60c2afc000-7f60c2afd000 r--p 00002000 00:1a 112305                     /usr/lib/libX11-xcb.so.1.0.0\n7f60c2afd000-7f60c2afe000 r--p 00002000 00:1a 112305                     /usr/lib/libX11-xcb.so.1.0.0\n7f60c2afe000-7f60c2aff000 rw-p 00003000 00:1a 112305                     /usr/lib/libX11-xcb.so.1.0.0\n7f60c2aff000-7f60c2b04000 r--p 00000000 00:1a 112351                     /usr/lib/libdrm.so.2.129.0\n7f60c2b04000-7f60c2b10000 r-xp 00005000 00:1a 112351                     /usr/lib/libdrm.so.2.129.0\n7f60c2b10000-7f60c2b14000 r--p 00011000 00:1a 112351                     /usr/lib/libdrm.so.2.129.0\n7f60c2b14000-7f60c2b15000 r--p 00015000 00:1a 112351                     /usr/lib/libdrm.so.2.129.0\n7f60c2b15000-7f60c2b16000 rw-p 00016000 00:1a 112351                     /usr/lib/libdrm.so.2.129.0\n7f60c2b16000-7f60c2b17000 r--p 00000000 00:1a 102667                     /usr/lib/locale/en_US.utf8/LC_NUMERIC\n7f60c2b17000-7f60c2b18000 r--p 00000000 00:1a 102778                     /usr/lib/locale/en_US.utf8/LC_TIME\n7f60c2b18000-7f60c2b19000 r--p 00000000 00:1a 102776                     /usr/lib/locale/en_US.utf8/LC_MONETARY\n7f60c2b19000-7f60c2b1a000 r--p 00000000 00:1a 102664                     /usr/lib/locale/en_US.utf8/LC_MESSAGES/SYS_LC_MESSAGES\n7f60c2b1a000-7f60c2b1b000 r--p 00000000 00:1a 102691                     /usr/lib/locale/en_US.utf8/LC_PAPER\n7f60c2b1b000-7f60c2b1c000 r--p 00000000 00:1a 102666                     /usr/lib/locale/en_US.utf8/LC_NAME\n7f60c2b1c000-7f60c2b1d000 r--p 00000000 00:1a 102772                     /usr/lib/locale/en_US.utf8/LC_ADDRESS\n7f60c2b1d000-7f60c2b1e000 r--p 00000000 00:1a 102777                     /usr/lib/locale/en_US.utf8/LC_TELEPHONE\n7f60c2b1e000-7f60c2b1f000 r--p 00000000 00:1a 102774                     /usr/lib/locale/en_US.utf8/LC_MEASUREMENT\n7f60c2b1f000-7f60c2b20000 r--p 00000000 00:1a 102773                     /usr/lib/locale/en_US.utf8/LC_IDENTIFICATION\n7f60c2b20000-7f60c2b22000 rw-p 00000000 00:00 0 \n7f60c2b22000-7f60c2b26000 r--p 00000000 00:00 0                          [vvar]\n7f60c2b26000-7f60c2b28000 r--p 00000000 00:00 0                          [vvar_vclock]\n7f60c2b28000-7f60c2b2a000 r-xp 00000000 00:00 0                          [vdso]\n7f60c2b2a000-7f60c2b2b000 r--p 00000000 00:1a 102498                     /usr/lib/ld-linux-x86-64.so.2\n7f60c2b2b000-7f60c2b54000 r-xp 00001000 00:1a 102498                     /usr/lib/ld-linux-x86-64.so.2\n7f60c2b54000-7f60c2b5f000 r--p 0002a000 00:1a 102498                     /usr/lib/ld-linux-x86-64.so.2\n7f60c2b5f000-7f60c2b61000 r--p 00034000 00:1a 102498                     /usr/lib/ld-linux-x86-64.so.2\n7f60c2b61000-7f60c2b62000 rw-p 00036000 00:1a 102498                     /usr/lib/ld-linux-x86-64.so.2\n7f60c2b62000-7f60c2b63000 rw-p 00000000 00:00 0 \n7ffe3039a000-7ffe303bb000 rw-p 00000000 00:00 0                          [stack]\nffffffffff600000-ffffffffff601000 --xp 00000000 00:00 0                  [vsyscall]",
+      "status": "captured",
+      "captureDurationNs": 17309940
+    },
+    "generatedMappingSnapshotOnly": [
+      {
+        "mapping": "0x7f608071f000-0x7f60807f9000 r-xp [anonymous]",
+        "samples": 677,
+        "period": 15524427832,
+        "processPeriodPercent": 9.625361776732257
+      },
+      {
+        "mapping": "0x7f60805f9000-0x7f608067f000 r-xp [anonymous]",
+        "samples": 181,
+        "period": 4257154927,
+        "processPeriodPercent": 2.639495429745201
+      },
+      {
+        "mapping": "0x7f6000000000-0x7f603ffff000 rwxp [anonymous]",
+        "samples": 126,
+        "period": 3171160837,
+        "processPeriodPercent": 1.9661639474668962
+      },
+      {
+        "mapping": "0x7f60a44cd000-0x7f60a4529000 r-xp [anonymous]",
+        "samples": 133,
+        "period": 3046159184,
+        "processPeriodPercent": 1.8886611791951755
+      },
+      {
+        "mapping": "0x7f60a409a000-0x7f60a409e000 r-xp [anonymous]",
+        "samples": 74,
+        "period": 1893275789,
+        "processPeriodPercent": 1.1738573949044209
+      },
+      {
+        "mapping": "0x7f60a45a9000-0x7f60a45f9000 r-xp [anonymous]",
+        "samples": 21,
+        "period": 440669271,
+        "processPeriodPercent": 0.27322109408250095
+      },
+      {
+        "mapping": "0x7f605c05b000-0x7f605c086000 r-xp [anonymous]",
+        "samples": 16,
+        "period": 402668774,
+        "processPeriodPercent": 0.24966025594541472
+      },
+      {
+        "mapping": "0x7f6080000000-0x7f6080006000 r-xp [anonymous]",
+        "samples": 2,
+        "period": 53318084,
+        "processPeriodPercent": 0.033057955713146805
+      },
+      {
+        "mapping": "0x7f60a4085000-0x7f60a4086000 r-xp [anonymous]",
+        "samples": 1,
+        "period": 29354039,
+        "processPeriodPercent": 0.018199913583991208
+      }
+    ],
+    "threadDso": [
+      {
+        "tid": "99103",
+        "dso": "/tmp/perf-99042.map",
+        "samples": 1105,
+        "period": 25647027900,
+        "processPeriodPercent": 15.901514999902108
+      },
+      {
+        "tid": "99103",
+        "dso": "/home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/xemu",
+        "samples": 680,
+        "period": 15208616709,
+        "processPeriodPercent": 9.429554475819996
+      },
+      {
+        "tid": "99094",
+        "dso": "/home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/xemu",
+        "samples": 321,
+        "period": 6766671645,
+        "processPeriodPercent": 4.195430795409232
+      },
+      {
+        "tid": "99090",
+        "dso": "/home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/xemu",
+        "samples": 334,
+        "period": 6610069184,
+        "processPeriodPercent": 4.098335085437587
+      },
+      {
+        "tid": "99092",
+        "dso": "/home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/xemu",
+        "samples": 320,
+        "period": 6469726737,
+        "processPeriodPercent": 4.011320810926136
+      },
+      {
+        "tid": "99097",
+        "dso": "/usr/lib/libsamplerate.so.0.2.2",
+        "samples": 303,
+        "period": 6289055386,
+        "processPeriodPercent": 3.89930205346305
+      },
+      {
+        "tid": "99095",
+        "dso": "/usr/lib/libsamplerate.so.0.2.2",
+        "samples": 296,
+        "period": 6281127885,
+        "processPeriodPercent": 3.894386892277327
+      },
+      {
+        "tid": "99091",
+        "dso": "/usr/lib/libsamplerate.so.0.2.2",
+        "samples": 291,
+        "period": 6266975627,
+        "processPeriodPercent": 3.8856122949342375
+      },
+      {
+        "tid": "99093",
+        "dso": "/home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/xemu",
+        "samples": 315,
+        "period": 6234108271,
+        "processPeriodPercent": 3.8652340758096297
+      },
+      {
+        "tid": "99095",
+        "dso": "/home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/xemu",
+        "samples": 311,
+        "period": 6145725383,
+        "processPeriodPercent": 3.810435452563828
+      },
+      {
+        "tid": "99096",
+        "dso": "/usr/lib/libsamplerate.so.0.2.2",
+        "samples": 282,
+        "period": 6060649186,
+        "processPeriodPercent": 3.757687023856807
+      },
+      {
+        "tid": "99097",
+        "dso": "/home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/xemu",
+        "samples": 297,
+        "period": 6059807121,
+        "processPeriodPercent": 3.7571649318124347
+      },
+      {
+        "tid": "99090",
+        "dso": "/usr/lib/libsamplerate.so.0.2.2",
+        "samples": 268,
+        "period": 5955215199,
+        "processPeriodPercent": 3.6923164814174636
+      },
+      {
+        "tid": "99094",
+        "dso": "/usr/lib/libsamplerate.so.0.2.2",
+        "samples": 277,
+        "period": 5888344404,
+        "processPeriodPercent": 3.6508556558631744
+      },
+      {
+        "tid": "99091",
+        "dso": "/home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/xemu",
+        "samples": 285,
+        "period": 5836184249,
+        "processPeriodPercent": 3.6185156322797902
+      },
+      {
+        "tid": "99092",
+        "dso": "/usr/lib/libsamplerate.so.0.2.2",
+        "samples": 276,
+        "period": 5833635429,
+        "processPeriodPercent": 3.616935328331119
+      },
+      {
+        "tid": "99093",
+        "dso": "/usr/lib/libsamplerate.so.0.2.2",
+        "samples": 262,
+        "period": 5771275071,
+        "processPeriodPercent": 3.578271036624388
+      },
+      {
+        "tid": "99096",
+        "dso": "/home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/xemu",
+        "samples": 289,
+        "period": 5735398452,
+        "processPeriodPercent": 3.5560270324692604
+      },
+      {
+        "tid": "99089",
+        "dso": "/home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/xemu",
+        "samples": 260,
+        "period": 5626312063,
+        "processPeriodPercent": 3.4883919498494667
+      },
+      {
+        "tid": "99089",
+        "dso": "/tmp/perf-99042.map",
+        "samples": 126,
+        "period": 3171160837,
+        "processPeriodPercent": 1.9661639474668962
+      },
+      {
+        "tid": "99042",
+        "dso": "/usr/lib/libgallium-25.3.0.so",
+        "samples": 116,
+        "period": 1706492937,
+        "processPeriodPercent": 1.058049421583563
+      },
+      {
+        "tid": "99104",
+        "dso": "/home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/xemu",
+        "samples": 78,
+        "period": 1079600910,
+        "processPeriodPercent": 0.6693676215119244
+      },
+      {
+        "tid": "99042",
+        "dso": "/home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/xemu",
+        "samples": 46,
+        "period": 840153003,
+        "processPeriodPercent": 0.5209065795657867
+      },
+      {
+        "tid": "99113",
+        "dso": "/usr/lib/libvulkan_radeon.so",
+        "samples": 21,
+        "period": 534958390,
+        "processPeriodPercent": 0.33168166292315227
+      },
+      {
+        "tid": "99093",
+        "dso": "/usr/lib/libm.so.6",
+        "samples": 22,
+        "period": 519623648,
+        "processPeriodPercent": 0.32217390900782905
+      },
+      {
+        "tid": "99091",
+        "dso": "/usr/lib/libm.so.6",
+        "samples": 24,
+        "period": 495122015,
+        "processPeriodPercent": 0.30698255482087483
+      },
+      {
+        "tid": "99042",
+        "dso": "/usr/lib/libc.so.6",
+        "samples": 29,
+        "period": 483447778,
+        "processPeriodPercent": 0.299744365059015
+      },
+      {
+        "tid": "99057",
+        "dso": "/usr/lib/libgallium-25.3.0.so",
+        "samples": 64,
+        "period": 478734147,
+        "processPeriodPercent": 0.29682184809748813
+      },
+      {
+        "tid": "99097",
+        "dso": "/usr/lib/libm.so.6",
+        "samples": 19,
+        "period": 451807924,
+        "processPeriodPercent": 0.28012721429451215
+      },
+      {
+        "tid": "99042",
+        "dso": "/usr/lib/libSDL3.so.0.2.18",
+        "samples": 28,
+        "period": 432979380,
+        "processPeriodPercent": 0.26845325441075046
+      },
+      {
+        "tid": "99096",
+        "dso": "/usr/lib/libm.so.6",
+        "samples": 17,
+        "period": 377374719,
+        "processPeriodPercent": 0.23397758906646424
+      },
+      {
+        "tid": "99089",
+        "dso": "/usr/lib/libglib-2.0.so.0.8400.3",
+        "samples": 16,
+        "period": 358427762,
+        "processPeriodPercent": 0.22223021147118346
+      },
+      {
+        "tid": "99092",
+        "dso": "/usr/lib/libm.so.6",
+        "samples": 18,
+        "period": 349549270,
+        "processPeriodPercent": 0.21672542260188488
+      },
+      {
+        "tid": "99090",
+        "dso": "/usr/lib/libm.so.6",
+        "samples": 18,
+        "period": 329003824,
+        "processPeriodPercent": 0.20398695953230328
+      },
+      {
+        "tid": "99104",
+        "dso": "[vdso]",
+        "samples": 17,
+        "period": 295145757,
+        "processPeriodPercent": 0.18299448577014113
+      },
+      {
+        "tid": "99095",
+        "dso": "/usr/lib/libm.so.6",
+        "samples": 13,
+        "period": 292367377,
+        "processPeriodPercent": 0.1812718514197715
+      },
+      {
+        "tid": "99104",
+        "dso": "/usr/lib/libc.so.6",
+        "samples": 22,
+        "period": 269271340,
+        "processPeriodPercent": 0.16695198635681838
+      },
+      {
+        "tid": "99085",
+        "dso": "/home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/xemu",
+        "samples": 29,
+        "period": 264174708,
+        "processPeriodPercent": 0.16379200343353467
+      },
+      {
+        "tid": "99089",
+        "dso": "/usr/lib/libc.so.6",
+        "samples": 13,
+        "period": 261691711,
+        "processPeriodPercent": 0.16225251066290403
+      },
+      {
+        "tid": "99094",
+        "dso": "/usr/lib/libm.so.6",
+        "samples": 13,
+        "period": 255707836,
+        "processPeriodPercent": 0.1585424247051452
+      },
+      {
+        "tid": "99103",
+        "dso": "/usr/lib/libc.so.6",
+        "samples": 12,
+        "period": 237195006,
+        "processPeriodPercent": 0.1470642119046812
+      },
+      {
+        "tid": "99120",
+        "dso": "[vdso]",
+        "samples": 32,
+        "period": 205892200,
+        "processPeriodPercent": 0.12765603560102357
+      },
+      {
+        "tid": "99103",
+        "dso": "[unknown]",
+        "samples": 12,
+        "period": 186864898,
+        "processPeriodPercent": 0.11585884298516232
+      },
+      {
+        "tid": "99090",
+        "dso": "[unknown]",
+        "samples": 17,
+        "period": 159187691,
+        "processPeriodPercent": 0.09869858862813034
+      },
+      {
+        "tid": "99097",
+        "dso": "[unknown]",
+        "samples": 15,
+        "period": 139139889,
+        "processPeriodPercent": 0.08626867177924404
+      },
+      {
+        "tid": "99120",
+        "dso": "/home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/xemu",
+        "samples": 26,
+        "period": 135422937,
+        "processPeriodPercent": 0.08396410969850811
+      },
+      {
+        "tid": "99093",
+        "dso": "/usr/lib/libc.so.6",
+        "samples": 13,
+        "period": 133982806,
+        "processPeriodPercent": 0.08307120839284361
+      },
+      {
+        "tid": "99094",
+        "dso": "[unknown]",
+        "samples": 13,
+        "period": 122255724,
+        "processPeriodPercent": 0.07580025399394884
+      },
+      {
+        "tid": "99057",
+        "dso": "/usr/lib/libdrm.so.2.129.0",
+        "samples": 1,
+        "period": 119124591,
+        "processPeriodPercent": 0.07385890786369455
+      },
+      {
+        "tid": "99042",
+        "dso": "/usr/lib/libxcb.so.1.1.0",
+        "samples": 6,
+        "period": 118077398,
+        "processPeriodPercent": 0.07320963359837929
+      },
+      {
+        "tid": "99104",
+        "dso": "/usr/lib/libvulkan_radeon.so",
+        "samples": 3,
+        "period": 113332375,
+        "processPeriodPercent": 0.07026765315902474
+      },
+      {
+        "tid": "99042",
+        "dso": "[unknown]",
+        "samples": 11,
+        "period": 92415279,
+        "processPeriodPercent": 0.057298761905999966
+      },
+      {
+        "tid": "99091",
+        "dso": "[unknown]",
+        "samples": 16,
+        "period": 91909175,
+        "processPeriodPercent": 0.05698497036731214
+      },
+      {
+        "tid": "99042",
+        "dso": "/usr/lib/libOpenGL.so.0.0.0",
+        "samples": 6,
+        "period": 91169161,
+        "processPeriodPercent": 0.05652615136625598
+      },
+      {
+        "tid": "99093",
+        "dso": "[unknown]",
+        "samples": 13,
+        "period": 79901514,
+        "processPeriodPercent": 0.04954005307515138
+      },
+      {
+        "tid": "99096",
+        "dso": "[unknown]",
+        "samples": 16,
+        "period": 78192327,
+        "processPeriodPercent": 0.04848033329693343
+      },
+      {
+        "tid": "99092",
+        "dso": "[unknown]",
+        "samples": 12,
+        "period": 77805140,
+        "processPeriodPercent": 0.048240271956794006
+      },
+      {
+        "tid": "99085",
+        "dso": "/usr/lib/libglib-2.0.so.0.8400.3",
+        "samples": 18,
+        "period": 77156169,
+        "processPeriodPercent": 0.04783790088552452
+      },
+      {
+        "tid": "99045",
+        "dso": "/usr/lib/libgallium-25.3.0.so",
+        "samples": 47,
+        "period": 70044841,
+        "processPeriodPercent": 0.04342877834305542
+      },
+      {
+        "tid": "99042",
+        "dso": "/usr/lib/libGLX.so.0.0.0",
+        "samples": 3,
+        "period": 68579271,
+        "processPeriodPercent": 0.0425201045025904
+      },
+      {
+        "tid": "99095",
+        "dso": "/usr/lib/libc.so.6",
+        "samples": 6,
+        "period": 61114218,
+        "processPeriodPercent": 0.03789166752668006
+      },
+      {
+        "tid": "99092",
+        "dso": "/usr/lib/libc.so.6",
+        "samples": 8,
+        "period": 59404801,
+        "processPeriodPercent": 0.03683180514525427
+      },
+      {
+        "tid": "99085",
+        "dso": "[vdso]",
+        "samples": 2,
+        "period": 58331771,
+        "processPeriodPercent": 0.03616651157958754
+      },
+      {
+        "tid": "99103",
+        "dso": "[vdso]",
+        "samples": 3,
+        "period": 57731103,
+        "processPeriodPercent": 0.035794089042005275
+      },
+      {
+        "tid": "99090",
+        "dso": "/usr/lib/libc.so.6",
+        "samples": 9,
+        "period": 55269739,
+        "processPeriodPercent": 0.03426800903309247
+      },
+      {
+        "tid": "99045",
+        "dso": "[unknown]",
+        "samples": 27,
+        "period": 50004612,
+        "processPeriodPercent": 0.031003556859790563
+      },
+      {
+        "tid": "99120",
+        "dso": "/usr/lib/libSDL3.so.0.2.18",
+        "samples": 17,
+        "period": 49834907,
+        "processPeriodPercent": 0.030898337392896373
+      },
+      {
+        "tid": "99057",
+        "dso": "/usr/lib/libc.so.6",
+        "samples": 13,
+        "period": 48700138,
+        "processPeriodPercent": 0.030194764786149065
+      },
+      {
+        "tid": "99042",
+        "dso": "/usr/lib/libdbus-1.so.3.38.3",
+        "samples": 3,
+        "period": 48681887,
+        "processPeriodPercent": 0.030183448911600373
+      },
+      {
+        "tid": "99103",
+        "dso": "/usr/lib/libSDL3.so.0.2.18",
+        "samples": 2,
+        "period": 44900902,
+        "processPeriodPercent": 0.027839185477789203
+      },
+      {
+        "tid": "99095",
+        "dso": "[unknown]",
+        "samples": 13,
+        "period": 34610144,
+        "processPeriodPercent": 0.021458771991462292
+      },
+      {
+        "tid": "99120",
+        "dso": "/usr/lib/libc.so.6",
+        "samples": 18,
+        "period": 33804179,
+        "processPeriodPercent": 0.02095906245058032
+      },
+      {
+        "tid": "99042",
+        "dso": "/usr/lib/libX11.so.6.4.0",
+        "samples": 2,
+        "period": 28148506,
+        "processPeriodPercent": 0.017452466310290654
+      },
+      {
+        "tid": "99094",
+        "dso": "/usr/lib/libc.so.6",
+        "samples": 8,
+        "period": 25075240,
+        "processPeriodPercent": 0.015546998527113753
+      },
+      {
+        "tid": "99104",
+        "dso": "/usr/lib/libglib-2.0.so.0.8400.3",
+        "samples": 2,
+        "period": 24997349,
+        "processPeriodPercent": 0.01549870502075946
+      },
+      {
+        "tid": "99085",
+        "dso": "[unknown]",
+        "samples": 2,
+        "period": 24439698,
+        "processPeriodPercent": 0.015152953623139995
+      },
+      {
+        "tid": "99085",
+        "dso": "/usr/lib/libc.so.6",
+        "samples": 11,
+        "period": 24147776,
+        "processPeriodPercent": 0.014971957911671946
+      },
+      {
+        "tid": "99042",
+        "dso": "/usr/lib/libudev.so.1.7.10",
+        "samples": 1,
+        "period": 23744311,
+        "processPeriodPercent": 0.014721803984501479
+      },
+      {
+        "tid": "99120",
+        "dso": "[unknown]",
+        "samples": 14,
+        "period": 22583758,
+        "processPeriodPercent": 0.014002244938141905
+      },
+      {
+        "tid": "99096",
+        "dso": "/usr/lib/libc.so.6",
+        "samples": 3,
+        "period": 22035792,
+        "processPeriodPercent": 0.013662498375600194
+      },
+      {
+        "tid": "99042",
+        "dso": "/usr/lib/libgcc_s.so.1",
+        "samples": 1,
+        "period": 19791240,
+        "processPeriodPercent": 0.012270844830588054
+      },
+      {
+        "tid": "99104",
+        "dso": "[unknown]",
+        "samples": 2,
+        "period": 19591082,
+        "processPeriodPercent": 0.012146744078962544
+      },
+      {
+        "tid": "99091",
+        "dso": "/usr/lib/libc.so.6",
+        "samples": 8,
+        "period": 18716898,
+        "processPeriodPercent": 0.011604737806622722
+      },
+      {
+        "tid": "99042",
+        "dso": "/usr/lib/libdrm.so.2.129.0",
+        "samples": 4,
+        "period": 17401223,
+        "processPeriodPercent": 0.010789000956759654
+      },
+      {
+        "tid": "99042",
+        "dso": "/usr/lib/libGL.so.1.7.0",
+        "samples": 3,
+        "period": 16951960,
+        "processPeriodPercent": 0.010510451630839475
+      },
+      {
+        "tid": "99042",
+        "dso": "/usr/lib/libGLX_mesa.so.0.0.0",
+        "samples": 2,
+        "period": 15443975,
+        "processPeriodPercent": 0.009575479898807812
+      },
+      {
+        "tid": "99057",
+        "dso": "[unknown]",
+        "samples": 8,
+        "period": 14860446,
+        "processPeriodPercent": 0.009213683780265053
+      },
+      {
+        "tid": "99042",
+        "dso": "/usr/lib/libxcb-present.so.0.0.0",
+        "samples": 1,
+        "period": 12897706,
+        "processPeriodPercent": 0.007996757605715686
+      },
+      {
+        "tid": "99045",
+        "dso": "/usr/lib/libc.so.6",
+        "samples": 15,
+        "period": 11631655,
+        "processPeriodPercent": 0.007211788327963972
+      },
+      {
+        "tid": "99102",
+        "dso": "/usr/lib/spa-0.2/support/libspa-support.so",
+        "samples": 14,
+        "period": 6373320,
+        "processPeriodPercent": 0.003951547289390834
+      },
+      {
+        "tid": "99102",
+        "dso": "/usr/lib/libSDL3.so.0.2.18",
+        "samples": 4,
+        "period": 1590410,
+        "processPeriodPercent": 0.0009860763816221493
+      },
+      {
+        "tid": "99102",
+        "dso": "/usr/lib/libpipewire-0.3.so.0.1604.0",
+        "samples": 2,
+        "period": 1395022,
+        "processPeriodPercent": 0.0008649330965243516
+      },
+      {
+        "tid": "99045",
+        "dso": "/usr/lib/libdrm.so.2.129.0",
+        "samples": 1,
+        "period": 1230741,
+        "processPeriodPercent": 0.0007630765852792837
+      },
+      {
+        "tid": "99102",
+        "dso": "/usr/lib/spa-0.2/audioconvert/libspa-audioconvert.so",
+        "samples": 3,
+        "period": 140935,
+        "processPeriodPercent": 8.738166563585341e-05
+      },
+      {
+        "tid": "99088",
+        "dso": "/usr/lib/libglib-2.0.so.0.8400.3",
+        "samples": 28,
+        "period": 119445,
+        "processPeriodPercent": 7.40575659124739e-05
+      },
+      {
+        "tid": "99127",
+        "dso": "[unknown]",
+        "samples": 12,
+        "period": 110594,
+        "processPeriodPercent": 6.856982246660922e-05
+      },
+      {
+        "tid": "99087",
+        "dso": "/home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/xemu",
+        "samples": 16,
+        "period": 96633,
+        "processPeriodPercent": 5.9913807751015875e-05
+      },
+      {
+        "tid": "99087",
+        "dso": "/usr/lib/libc.so.6",
+        "samples": 14,
+        "period": 73442,
+        "processPeriodPercent": 4.553506430360341e-05
+      },
+      {
+        "tid": "99115",
+        "dso": "/usr/lib/libc.so.6",
+        "samples": 3,
+        "period": 62064,
+        "processPeriodPercent": 3.848054561339345e-05
+      },
+      {
+        "tid": "99120",
+        "dso": "/usr/lib/libglib-2.0.so.0.8400.3",
+        "samples": 1,
+        "period": 61139,
+        "processPeriodPercent": 3.790703271231732e-05
+      },
+      {
+        "tid": "99113",
+        "dso": "/usr/lib/libc.so.6",
+        "samples": 3,
+        "period": 50401,
+        "processPeriodPercent": 3.1249322948257334e-05
+      },
+      {
+        "tid": "99117",
+        "dso": "/usr/lib/libc.so.6",
+        "samples": 3,
+        "period": 42884,
+        "processPeriodPercent": 2.65886781078365e-05
+      },
+      {
+        "tid": "99105",
+        "dso": "[unknown]",
+        "samples": 2,
+        "period": 24185,
+        "processPeriodPercent": 1.4995037310839142e-05
+      },
+      {
+        "tid": "99088",
+        "dso": "[vdso]",
+        "samples": 4,
+        "period": 19817,
+        "processPeriodPercent": 1.228681638986559e-05
+      },
+      {
+        "tid": "99088",
+        "dso": "[unknown]",
+        "samples": 1,
+        "period": 19219,
+        "processPeriodPercent": 1.191604804949421e-05
+      },
+      {
+        "tid": "99088",
+        "dso": "/home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/xemu",
+        "samples": 2,
+        "period": 17556,
+        "processPeriodPercent": 1.0884964855451396e-05
+      },
+      {
+        "tid": "99127",
+        "dso": "/usr/lib/libc.so.6",
+        "samples": 14,
+        "period": 16657,
+        "processPeriodPercent": 1.0327572317000108e-05
+      },
+      {
+        "tid": "99087",
+        "dso": "[unknown]",
+        "samples": 10,
+        "period": 16135,
+        "processPeriodPercent": 1.0003925036609038e-05
+      },
+      {
+        "tid": "99116",
+        "dso": "/usr/lib/libc.so.6",
+        "samples": 4,
+        "period": 15594,
+        "processPeriodPercent": 9.66849749122289e-06
+      },
+      {
+        "tid": "99102",
+        "dso": "/usr/lib/libc.so.6",
+        "samples": 18,
+        "period": 523,
+        "processPeriodPercent": 3.242672943381795e-07
+      },
+      {
+        "tid": "99089",
+        "dso": "[unknown]",
+        "samples": 4,
+        "period": 256,
+        "processPeriodPercent": 1.5872357045998846e-07
+      },
+      {
+        "tid": "99091",
+        "dso": "[vdso]",
+        "samples": 2,
+        "period": 208,
+        "processPeriodPercent": 1.2896290099874062e-07
+      },
+      {
+        "tid": "99115",
+        "dso": "[unknown]",
+        "samples": 1,
+        "period": 199,
+        "processPeriodPercent": 1.2338277547475664e-07
+      },
+      {
+        "tid": "99113",
+        "dso": "[unknown]",
+        "samples": 1,
+        "period": 162,
+        "processPeriodPercent": 1.0044225943171144e-07
+      },
+      {
+        "tid": "99117",
+        "dso": "[unknown]",
+        "samples": 1,
+        "period": 125,
+        "processPeriodPercent": 7.750174338866624e-08
+      },
+      {
+        "tid": "99105",
+        "dso": "/usr/lib/libvulkan_radeon.so",
+        "samples": 2,
+        "period": 101,
+        "processPeriodPercent": 6.262140865804232e-08
+      },
+      {
+        "tid": "99127",
+        "dso": "/home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/xemu",
+        "samples": 8,
+        "period": 8,
+        "processPeriodPercent": 4.960111576874639e-09
+      },
+      {
+        "tid": "99097",
+        "dso": "/usr/lib/libc.so.6",
+        "samples": 6,
+        "period": 6,
+        "processPeriodPercent": 3.7200836826559794e-09
+      },
+      {
+        "tid": "99088",
+        "dso": "/usr/lib/libc.so.6",
+        "samples": 5,
+        "period": 5,
+        "processPeriodPercent": 3.1000697355466495e-09
+      },
+      {
+        "tid": "99116",
+        "dso": "[unknown]",
+        "samples": 3,
+        "period": 3,
+        "processPeriodPercent": 1.8600418413279897e-09
+      },
+      {
+        "tid": "99102",
+        "dso": "[unknown]",
+        "samples": 2,
+        "period": 2,
+        "processPeriodPercent": 1.2400278942186598e-09
+      },
+      {
+        "tid": "99093",
+        "dso": "[vdso]",
+        "samples": 1,
+        "period": 1,
+        "processPeriodPercent": 6.200139471093299e-10
+      },
+      {
+        "tid": "99090",
+        "dso": "[vdso]",
+        "samples": 1,
+        "period": 1,
+        "processPeriodPercent": 6.200139471093299e-10
+      },
+      {
+        "tid": "99097",
+        "dso": "[vdso]",
+        "samples": 1,
+        "period": 1,
+        "processPeriodPercent": 6.200139471093299e-10
+      },
+      {
+        "tid": "99095",
+        "dso": "[vdso]",
+        "samples": 1,
+        "period": 1,
+        "processPeriodPercent": 6.200139471093299e-10
+      },
+      {
+        "tid": "99096",
+        "dso": "[vdso]",
+        "samples": 1,
+        "period": 1,
+        "processPeriodPercent": 6.200139471093299e-10
+      },
+      {
+        "tid": "99117",
+        "dso": "/usr/lib/libvulkan_radeon.so",
+        "samples": 1,
+        "period": 1,
+        "processPeriodPercent": 6.200139471093299e-10
+      },
+      {
+        "tid": "99115",
+        "dso": "/usr/lib/libvulkan_radeon.so",
+        "samples": 1,
+        "period": 1,
+        "processPeriodPercent": 6.200139471093299e-10
+      },
+      {
+        "tid": "99113",
+        "dso": "/home/deck/xemu-research/workspace/Queue/Testing/agent-i250-host-profile-20261003-001-t001/xemu",
+        "samples": 1,
+        "period": 1,
+        "processPeriodPercent": 6.200139471093299e-10
+      },
+      {
+        "tid": "99105",
+        "dso": "/usr/lib/libc.so.6",
+        "samples": 1,
+        "period": 1,
+        "processPeriodPercent": 6.200139471093299e-10
+      }
+    ]
+  },
+  "sceneAudit": {
+    "reviewed": "profile-start.png",
+    "sha256": "a85ba8988b069f71992f7f8ea780b8ab7702aadb0e463370fd17852176b21474",
+    "scene": "Hong Kong race, position6/6, player0MPH, gear1; rivals ahead",
+    "sceneReachedAtStart": true,
+    "endMissing": true,
+    "fullProfileSceneQualified": false,
+    "originalFailurePreserved": true
+  },
+  "cacheQualification": {
+    "DriverNamespaceVerified": true,
+    "DriverQualification": "mesa_private_disk_writes_observed",
+    "ComparisonReady": true
+  },
+  "source": "76c23c7d444a6f12c9778bb2c35fab513f6c8056",
+  "executableSha256": "5a3e3d8bc02abb602c1167ec19bff60afdbd072db791196f764cb34dad01c97b",
+  "collection": {
+    "ok": true,
+    "jobId": "i250-host-profile-20261003-001-t001",
+    "runId": "20261003-162005404-45b117287d1041c99ca8628fc5a74e41",
+    "fileCount": 880,
+    "bytes": 63723369,
+    "directory": "/home/codex/src/steamdeck-xemu/artifacts/issue250-host-profile-20261003/collected/20261003-162005404-45b117287d1041c99ca8628fc5a74e41",
+    "complete": true,
+    "scope": "allEligibleArtifacts",
+    "excluded": 0
+  },
+  "publicPayloads": 73,
+  "publicExclusion": "Only binary state cache contents, fully retained locally and hashed publicly",
+  "zipSha256": "07343564c4d192ce38efbb8e34bfd6b18c9e5186523d8423add6e04f8260912f"
+}
