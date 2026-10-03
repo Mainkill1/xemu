@@ -586,6 +586,25 @@ static inline ComputePipelineKey pgraph_vk_compute_pipeline_key(
     return key;
 }
 
+static inline uint32_t pgraph_vk_compute_workgroup_size(
+    uint64_t output_units, uint32_t max_size_x, uint32_t max_invocations)
+{
+    uint32_t limit = MIN(1024u, MIN(max_size_x, max_invocations));
+
+    if (!output_units || !limit) {
+        return 0;
+    }
+
+    uint32_t group_size = 1;
+    while (group_size <= limit / 2) {
+        group_size *= 2;
+    }
+    while (group_size > 1 && output_units % group_size != 0) {
+        group_size /= 2;
+    }
+    return group_size;
+}
+
 typedef struct ComputePipeline {
     LruNode node;
     ComputePipelineKey key;

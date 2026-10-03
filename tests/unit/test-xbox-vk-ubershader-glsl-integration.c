@@ -205,6 +205,21 @@ static void test_depth_alias_pipeline_identity(void)
     g_assert_true(memcmp(&unpack, &alias, sizeof(pack)) != 0);
 }
 
+static void test_compute_workgroup_selection(void)
+{
+    g_assert_cmpuint(pgraph_vk_compute_workgroup_size(307200, 1024, 1024),
+                     ==, 1024);
+    g_assert_cmpuint(pgraph_vk_compute_workgroup_size(307200, 256, 1024),
+                     ==, 256);
+    g_assert_cmpuint(pgraph_vk_compute_workgroup_size(307200, 1024, 128),
+                     ==, 128);
+    g_assert_cmpuint(pgraph_vk_compute_workgroup_size(1000, 256, 256),
+                     ==, 8);
+    g_assert_cmpuint(pgraph_vk_compute_workgroup_size(1, 1, 1), ==, 1);
+    g_assert_cmpuint(pgraph_vk_compute_workgroup_size(0, 1024, 1024), ==, 0);
+    g_assert_cmpuint(pgraph_vk_compute_workgroup_size(32, 0, 1024), ==, 0);
+}
+
 static void test_depth_replace_compiles_for_both_fragment_routes(void)
 {
     PGRAPHVkGlslCompileConfig config = { .api_version = VK_API_VERSION_1_1 };
@@ -510,6 +525,8 @@ int main(int argc, char **argv)
                     test_depth_alias_compute_compiles);
     g_test_add_func("/xbox/vk/surface-alias/pipeline-identity",
                     test_depth_alias_pipeline_identity);
+    g_test_add_func("/xbox/vk/surface-alias/workgroup-selection",
+                    test_compute_workgroup_selection);
     g_test_add_func("/xbox/vk/psh/depth-replace-compile",
                     test_depth_replace_compiles_for_both_fragment_routes);
     g_test_add_func("/xbox/vk/vsh/nv20-arithmetic-compile",
