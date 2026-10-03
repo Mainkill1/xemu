@@ -3562,9 +3562,8 @@ void pgraph_vk_set_surface_dirty(PGRAPHState *pg, bool color, bool zeta)
 
     PGRAPHVkState *r = pg->vk_renderer_state;
 
-    /* FIXME: Does this apply to CLEARs too? */
     color = color && (pg->clearing || pgraph_color_write_enabled(pg));
-    zeta = zeta && (pg->clearing || pgraph_zeta_draw_write_enabled(pg));
+    zeta = pgraph_zeta_surface_dirty_required(pg, zeta);
     pg->surface_color.draw_dirty |= color;
     pg->surface_zeta.draw_dirty |= zeta;
 

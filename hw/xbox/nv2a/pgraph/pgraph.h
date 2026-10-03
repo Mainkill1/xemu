@@ -473,6 +473,13 @@ static inline bool pgraph_zeta_draw_write_enabled(PGRAPHState *pg)
             (control_0 & NV_PGRAPH_CONTROL_0_STENCIL_WRITE_ENABLE));
 }
 
+static inline bool pgraph_zeta_surface_dirty_required(PGRAPHState *pg,
+                                                       bool zeta_accessed)
+{
+    return zeta_accessed &&
+           (pg->clearing || pgraph_zeta_draw_write_enabled(pg));
+}
+
 static inline void pgraph_apply_anti_aliasing_factor(PGRAPHState *pg,
                                               unsigned int *width,
                                               unsigned int *height)
