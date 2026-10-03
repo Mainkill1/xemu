@@ -73,7 +73,7 @@ static void test_production_auto_initialization(void)
  * v2 is distinct from the historical 45-voice fixture: muted sends use bin 2.
  * Retain bin 31 as a grouped control rather than changing historic identity.
  */
-static void prepare_voices(int workers, bool grouped)
+static void prepare_voices(int workers, bool grouped, bool linear)
 {
     setup_voice(2048, false);
     uint8_t template[NV_PAVS_SIZE];
@@ -117,7 +117,8 @@ static void prepare_voices(int workers, bool grouped)
                     0x1000 + v * NV_PAVS_SIZE + NV_PAVS_VOICE_TAR_VOLC,
                     0xffffffff);
     }
-    g_config.audio.vp.resampler = CONFIG_AUDIO_VP_RESAMPLER_LINEAR;
+    g_config.audio.vp.resampler = linear ? CONFIG_AUDIO_VP_RESAMPLER_LINEAR :
+                                           CONFIG_AUDIO_VP_RESAMPLER_SINC;
     g_config.audio.vp.num_workers = workers;
     host_cpus = 16;
     d.monitor.point = MCPX_APU_DEBUG_MON_GP_OR_EP;
@@ -131,7 +132,7 @@ static void test_queue_membership_and_mix(void)
 
     for (int grouped = 0; grouped < 2; grouped++) {
         for (int r = 0; r < ARRAY_SIZE(requests); r++) {
-            prepare_voices(requests[r], grouped);
+            prepare_voices(requests[r], grouped, true);
             VoiceWorkDispatch *vwd = &d.vp.voice_work_dispatch;
             int workers = vwd->num_workers;
             bool seen[45] = { 0 };
@@ -188,7 +189,7 @@ static void test_unequal_multipass_groups(void)
     const int sizes[] = { 3, 2, 4, 1 };
 
     for (int r = 0; r < ARRAY_SIZE(requests); r++) {
-        prepare_voices(requests[r], false);
+        prepare_voices(requests[r], false, true);
         VoiceWorkDispatch *vwd = &d.vp.voice_work_dispatch;
         int id = 0;
         for (int group = 0; group < ARRAY_SIZE(sizes); group++) {
@@ -245,6 +246,99 @@ static void test_unequal_multipass_groups(void)
     }
 }
 
+/* Missing/duplicated voices or incorrect parallel reduction changes this PCM.
+ */
+static void test_distinct_signed_pcm(void)
+{
+    const int requests[] = { 1, 4, 16 };
+    const int blocks = 16;
+    float reference[16][2][NUM_SAMPLES_PER_FRAME];
+    uint32_t reference_cursor[45];
+
+    for (int linear = 0; linear < 2; linear++) {
+        for (int stereo = 0; stereo < 2; stereo++) {
+            for (int r = 0; r < ARRAY_SIZE(requests); r++) {
+                prepare_voices(requests[r], false, linear);
+                d.vp.submix_headroom[0] = d.vp.submix_headroom[1] = 0;
+                for (int page = 0; page < 6; page++) {
+                    stl_le_phys(&address_space_memory, 0x9000 + page * 8,
+                                0xa000 + page * 0x1000);
+                }
+                for (int i = 0; i < 45; i++) {
+                    int v = 64 + i;
+                    int stride = 128 * (stereo ? 4 : 2);
+                    voice_set_mask(&d, v, NV_PAVS_VOICE_CUR_PSL_START,
+                                   NV_PAVS_VOICE_CUR_PSL_START_BA, i * stride);
+                    voice_set_mask(&d, v, NV_PAVS_VOICE_PAR_NEXT,
+                                   NV_PAVS_VOICE_PAR_NEXT_EBO, 127);
+                    voice_set_mask(&d, v, NV_PAVS_VOICE_CFG_FMT,
+                                   NV_PAVS_VOICE_CFG_FMT_STEREO, stereo);
+                    voice_set_mask(&d, v, NV_PAVS_VOICE_CFG_FMT,
+                                   NV_PAVS_VOICE_CFG_FMT_SAMPLES_PER_BLOCK,
+                                   stereo);
+                    for (int sample = 0; sample < 128; sample++) {
+                        for (int ch = 0; ch <= stereo; ch++) {
+                            int sign =
+                                (sample + i * 3 + ch * 17) % 128 < 64 ? 1 : -1;
+                            int value = sign * (32000 - i * 71);
+                            stw_le_phys(&address_space_memory,
+                                        0xa000 + i * stride +
+                                            (sample * (stereo + 1) + ch) * 2,
+                                        (uint16_t)value);
+                        }
+                    }
+                }
+                float peak = 0;
+                for (int f = 0; f < blocks; f++) {
+                    float bins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME] = { 0 };
+                    for (int i = 0; i < 45; i++) {
+                        voice_work_enqueue(&d, 64 + i, 0);
+                    }
+                    voice_work_dispatch(&d, bins);
+                    for (int b = 0; b < NUM_MIXBINS; b++) {
+                        for (int sample = 0; sample < NUM_SAMPLES_PER_FRAME;
+                             sample++) {
+                            g_assert_true(isfinite(bins[b][sample]));
+                            if (b < 2) {
+                                peak = fmaxf(peak, fabsf(bins[b][sample]));
+                                if (r == 0) {
+                                    reference[f][b][sample] = bins[b][sample];
+                                } else {
+                                    /* 45 FP additions in different orders. */
+                                    g_assert_cmpfloat_with_epsilon(
+                                        bins[b][sample],
+                                        reference[f][b][sample], 0.00002f);
+                                }
+                            } else {
+                                g_assert_cmpfloat(bins[b][sample], ==, 0);
+                            }
+                        }
+                    }
+                }
+                g_assert_cmpfloat(peak, >, 0.9f);
+                for (int i = 0; i < 45; i++) {
+                    int v = 64 + i;
+                    uint32_t cbo =
+                        voice_get_mask(&d, v, NV_PAVS_VOICE_PAR_OFFSET,
+                                       NV_PAVS_VOICE_PAR_OFFSET_CBO);
+                    if (r == 0) {
+                        reference_cursor[i] = cbo;
+                    } else {
+                        g_assert_cmpuint(cbo, ==, reference_cursor[i]);
+                    }
+                    g_assert_cmpuint(
+                        voice_get_mask(&d, v, NV_PAVS_VOICE_PAR_STATE,
+                                       NV_PAVS_VOICE_PAR_STATE_ACTIVE_VOICE),
+                        ==, 1);
+                }
+                g_test_message("signed PCM mode=%d stereo=%d pool=%d peak=%g",
+                               linear, stereo, requests[r], peak);
+                finalize_test_pool();
+            }
+        }
+    }
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -258,5 +352,7 @@ int main(int argc, char **argv)
                     test_queue_membership_and_mix);
     g_test_add_func("/xbox/apu/worker/unequal-multipass-groups",
                     test_unequal_multipass_groups);
+    g_test_add_func("/xbox/apu/worker/distinct-signed-pcm",
+                    test_distinct_signed_pcm);
     return g_test_run();
 }
