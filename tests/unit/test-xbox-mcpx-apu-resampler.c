@@ -243,6 +243,66 @@ typedef struct ProductionAdapter {
     int callbacks;
 } ProductionAdapter;
 
+typedef struct ObservedSource {
+    uint64_t cursor;
+    uint64_t fetched;
+    uint64_t callbacks;
+    uint32_t loop_start;
+    uint32_t loop_end;
+    uint32_t loops;
+    uint32_t notifications;
+    int channels;
+    bool looping;
+    bool active;
+} ObservedSource;
+
+typedef struct ObservedAdapter {
+    ObservedSource source;
+    float stereo[32][2];
+    float mono[32];
+} ObservedAdapter;
+
+static int fetch_observed_source(void *opaque, float samples[][2],
+                                 int requested)
+{
+    ObservedSource *source = opaque;
+    int count = 0;
+
+    source->callbacks++;
+    while (count < requested && source->active) {
+        if (source->cursor == source->loop_end) {
+            source->notifications++;
+            if (!source->looping) {
+                source->active = false;
+                break;
+            }
+            source->cursor = source->loop_start;
+            source->loops++;
+        }
+
+        float phase = 2.0f * (float)M_PI * source->cursor / 48.0f;
+        samples[count][0] = sinf(phase);
+        samples[count][1] = source->channels == 1 ?
+                                samples[count][0] :
+                                cosf(phase + 0.35f);
+        source->cursor++;
+        source->fetched++;
+        count++;
+    }
+
+    return count > 0 ? count : -1;
+}
+
+static long observed_adapter_callback(void *opaque, float **data)
+{
+    ObservedAdapter *adapter = opaque;
+
+    return mcpx_apu_resampler_fill_input_block(
+        adapter->source.channels, ARRAY_SIZE(adapter->stereo),
+        fetch_observed_source, &adapter->source, adapter->stereo, adapter->mono,
+        data);
+}
+
 static int fetch_production_input(void *opaque, float samples[][2],
                                   int requested)
 {
@@ -608,6 +668,151 @@ static void test_full_reset_discards_resampler_history(void)
     }
 }
 
+static void run_deterministic_pitch_sweep(int converter_type, int channels)
+{
+    enum {
+        OUTPUT_FRAMES = 32,
+        WARMUP_BLOCKS = 8,
+        MEASURE_BLOCKS = 32,
+    };
+    static const double rates[] = { 0.55, 0.83, 1.0, 1.19, 1.71 };
+
+    for (int rate_index = 0; rate_index < ARRAY_SIZE(rates); rate_index++) {
+        ObservedAdapter adapter = {
+            .source = {
+                .loop_end = UINT32_MAX,
+                .channels = channels,
+                .active = true,
+            },
+        };
+        float output[OUTPUT_FRAMES * 2];
+        int error;
+        SRC_STATE *resampler = src_callback_new(
+            observed_adapter_callback, converter_type, channels, &error,
+            &adapter);
+
+        g_assert_nonnull(resampler);
+        g_assert_cmpint(error, ==, 0);
+
+        float previous = 0.0f;
+        bool have_previous = false;
+        int positive_crossings = 0;
+        uint64_t previous_fetched = 0;
+        for (int block = 0; block < WARMUP_BLOCKS + MEASURE_BLOCKS;
+             block++) {
+            memset(output, 0, sizeof(output));
+            long generated = src_callback_read(
+                resampler, rates[rate_index], OUTPUT_FRAMES, output);
+
+            g_assert_cmpint(generated, ==, OUTPUT_FRAMES);
+            g_assert_cmpuint(adapter.source.fetched, >=, previous_fetched);
+            previous_fetched = adapter.source.fetched;
+            for (int frame = 0; frame < OUTPUT_FRAMES; frame++) {
+                float left = output[frame * channels];
+                g_assert_true(isfinite(left));
+                if (channels == 2) {
+                    g_assert_true(isfinite(output[frame * channels + 1]));
+                }
+                if (block >= WARMUP_BLOCKS) {
+                    if (have_previous && previous <= 0.0f && left > 0.0f) {
+                        positive_crossings++;
+                    }
+                    previous = left;
+                    have_previous = true;
+                }
+            }
+        }
+
+        double expected_crossings =
+            (MEASURE_BLOCKS * OUTPUT_FRAMES) / (48.0 * rates[rate_index]);
+        g_assert_cmpfloat(fabs(positive_crossings - expected_crossings), <,
+                          1.0);
+        g_assert_cmpuint(adapter.source.callbacks, >, 0);
+        g_assert_cmpuint(adapter.source.notifications, ==, 0);
+        g_assert_true(adapter.source.active);
+        src_delete(resampler);
+    }
+}
+
+static void test_deterministic_pitch_sweep(void)
+{
+    static const int converter_types[] = { SRC_SINC_FASTEST, SRC_LINEAR };
+
+    for (int converter = 0; converter < ARRAY_SIZE(converter_types);
+         converter++) {
+        for (int channels = 1; channels <= 2; channels++) {
+            run_deterministic_pitch_sweep(converter_types[converter],
+                                          channels);
+        }
+    }
+}
+
+static void run_loop_transition(int converter_type, int channels)
+{
+    enum {
+        OUTPUT_FRAMES = 32,
+        OUTPUT_BLOCKS = 24,
+    };
+    ObservedAdapter adapter = {
+        .source = {
+            .cursor = 11,
+            .loop_start = 11,
+            .loop_end = 59,
+            .channels = channels,
+            .looping = true,
+            .active = true,
+        },
+    };
+    float output[OUTPUT_FRAMES * 2];
+    int error;
+    SRC_STATE *resampler = src_callback_new(observed_adapter_callback,
+                                             converter_type, channels, &error,
+                                             &adapter);
+
+    g_assert_nonnull(resampler);
+    g_assert_cmpint(error, ==, 0);
+
+    float previous[2] = { 0 };
+    bool have_previous = false;
+    float max_step = 0.0f;
+    for (int block = 0; block < OUTPUT_BLOCKS; block++) {
+        memset(output, 0, sizeof(output));
+        g_assert_cmpint(src_callback_read(resampler, 1.0, OUTPUT_FRAMES,
+                                         output),
+                        ==, OUTPUT_FRAMES);
+        for (int frame = 0; frame < OUTPUT_FRAMES; frame++) {
+            for (int channel = 0; channel < channels; channel++) {
+                float value = output[frame * channels + channel];
+                g_assert_true(isfinite(value));
+                if (have_previous) {
+                    max_step = MAX(max_step,
+                                   fabsf(value - previous[channel]));
+                }
+                previous[channel] = value;
+            }
+            have_previous = true;
+        }
+    }
+
+    g_assert_cmpuint(adapter.source.loops, >, 0);
+    g_assert_cmpuint(adapter.source.notifications, ==, adapter.source.loops);
+    g_assert_true(adapter.source.active);
+    g_assert_cmpfloat(max_step, <, 0.25f);
+    src_delete(resampler);
+}
+
+static void test_loop_transition(void)
+{
+    static const int converter_types[] = { SRC_SINC_FASTEST, SRC_LINEAR };
+
+    for (int converter = 0; converter < ARRAY_SIZE(converter_types);
+         converter++) {
+        for (int channels = 1; channels <= 2; channels++) {
+            run_loop_transition(converter_types[converter], channels);
+        }
+    }
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -632,5 +837,9 @@ int main(int argc, char **argv)
                     test_channel_change_at_stream_reset);
     g_test_add_func("/mcpx/apu/resampler/full-reset-discards-history",
                     test_full_reset_discards_resampler_history);
+    g_test_add_func("/mcpx/apu/resampler/production-adapter-pitch-sweep",
+                    test_deterministic_pitch_sweep);
+    g_test_add_func("/mcpx/apu/resampler/production-adapter-loop-transition",
+                    test_loop_transition);
     return g_test_run();
 }
