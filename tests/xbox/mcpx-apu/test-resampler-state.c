@@ -4,6 +4,7 @@
 #include "qemu/module.h"
 #include "qapi/error.h"
 #include "hw/boards.h"
+#include "monitor/monitor.h"
 #include "system/cpus.h"
 #include "hw/xbox/mcpx/apu/apu_int.h"
 
@@ -31,7 +32,7 @@ typedef struct Trace {
     unsigned generated_frames;
     unsigned active_transitions;
     unsigned notify_transitions;
-    unsigned callback_at_off;
+    unsigned callbacks_at_completion;
     unsigned frame_at_off;
     unsigned vp_frame;
     unsigned last_cbo;
@@ -70,10 +71,9 @@ static uint8_t *notifier_ptr(void)
 static long traced_callback(void *opaque, float **data)
 {
     Trace *t = opaque;
-    bool active = voice_active();
-    unsigned notified = *notifier_ptr();
     long count = t->callback(t->opaque, data);
-    g_assert_cmpint(count, ==, NUM_SAMPLES_PER_FRAME);
+    g_assert_cmpint(count, >=, 0);
+    g_assert_cmpint(count, <=, NUM_SAMPLES_PER_FRAME);
     t->callbacks++;
     for (long i = 0; i < count; i++) {
         /* Constant nonzero PCM / zero-nibble IMA payload identifies actual
@@ -83,14 +83,6 @@ static long traced_callback(void *opaque, float **data)
             g_assert_cmpfloat((*data)[i * t->channels], ==, 0.125f);
             t->payload_frames++;
         }
-    }
-    if (active && !voice_active()) {
-        t->active_transitions++;
-        t->callback_at_off = t->callbacks;
-        t->frame_at_off = t->vp_frame;
-    }
-    if (notified != *notifier_ptr()) {
-        t->notify_transitions++;
     }
     t->last_cbo = ldl_le_p(voice_ptr() + NV_PAVS_VOICE_PAR_OFFSET) & 0xffffff;
     if (report_trace) {
@@ -111,7 +103,13 @@ SRC_STATE *__wrap_src_callback_new(src_callback_t callback, int type,
 SRC_STATE *__wrap_src_callback_new(src_callback_t callback, int type,
                                    int channels, int *error, void *opaque)
 {
+#ifdef MCPX_TEST_RESAMPLER_SELECTOR
+    /* When compiled against PR #189, qualify its real restart-latched
+     * selector. It must pass the chosen converter to the constructor. */
+    g_assert_cmpint(type, ==, converter);
+#else
     g_assert_cmpint(type, ==, SRC_SINC_FASTEST);
+#endif
     trace.callback = callback;
     trace.opaque = opaque;
     trace.channels = channels;
@@ -127,7 +125,8 @@ long __wrap_src_callback_read(SRC_STATE *state, double ratio, long frames,
                               float *output)
 {
     long count = __real_src_callback_read(state, ratio, frames, output);
-    g_assert_cmpint(count, ==, frames);
+    g_assert_cmpint(count, >=, 0);
+    g_assert_cmpint(count, <=, frames);
     trace.generated_frames += count;
     return count;
 }
@@ -198,6 +197,11 @@ static MCPXAPUState *prepare(enum Payload payload, unsigned frames, int pitch)
     d->monitor.point =
         negative_silence ? MCPX_APU_DEBUG_MON_VP : MCPX_APU_DEBUG_MON_GP_OR_EP;
     g_config.audio.vp.num_workers = 1;
+#ifdef MCPX_TEST_RESAMPLER_SELECTOR
+    g_config.audio.vp.resampler = converter == SRC_LINEAR ?
+                                      CONFIG_AUDIO_VP_RESAMPLER_LINEAR :
+                                      CONFIG_AUDIO_VP_RESAMPLER_SINC;
+#endif
     mcpx_apu_vp_init(d);
     return d;
 }
@@ -220,7 +224,17 @@ static void run_case(enum Payload payload, unsigned frames, int pitch)
     unsigned post_completion = 0;
     for (trace.vp_frame = 1; trace.vp_frame <= limit; trace.vp_frame++) {
         float bins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME] = { 0 };
+        bool active_before = voice_active();
+        unsigned notifier_before = *notifier_ptr();
         mcpx_apu_vp_frame(d, bins);
+        if (active_before && !voice_active()) {
+            trace.active_transitions++;
+            trace.callbacks_at_completion = trace.callbacks;
+            trace.frame_at_off = trace.vp_frame;
+        }
+        if (notifier_before != *notifier_ptr()) {
+            trace.notify_transitions++;
+        }
         unsigned mixed_before = mixed_frames;
         for (unsigned i = 0; i < NUM_SAMPLES_PER_FRAME; i++) {
             g_assert_true(isfinite(bins[0][i]));
@@ -230,9 +244,9 @@ static void run_case(enum Payload payload, unsigned frames, int pitch)
                 mixed_frames++;
             }
             mixed_energy += (double)bins[0][i] * bins[0][i];
-            if (!voice_active()) {
-                /* Existing voice_process discards generated PCM after its
-                 * callback clears ACTIVE. Record that boundary explicitly. */
+            if (!active_before) {
+                /* Completion inside the last frame can follow mixing in a
+                 * draining implementation. Later inactive frames are silent. */
                 g_assert_cmpfloat(bins[0][i], ==, 0);
             }
             for (unsigned b = 2; b < NUM_MIXBINS; b++) {
@@ -266,18 +280,26 @@ static void run_case(enum Payload payload, unsigned frames, int pitch)
     g_assert_cmpuint(trace.payload_frames, <=, frames);
     g_assert_cmpuint(trace.payload_frames, >=, frames - 1);
     g_assert_cmpuint(trace.callbacks, >, 0);
-    g_assert_cmpuint(trace.generated_frames, ==,
+    g_assert_cmpuint(trace.generated_frames, <=,
                      trace.frame_at_off * NUM_SAMPLES_PER_FRAME);
     if (frames == 257 && pitch == 0) {
         /* Both converters must mix some payload for this long control. */
         g_assert_cmpuint(mixed_frames, >, 0);
     }
-    if (require_finite_tail && pitch == 0) {
-        /* Explicit negative control for the unchanged main path. A future
-         * draining implementation needs to preserve finite source payload
-         * and mix its full unity-rate duration before completing. */
+    double rate = 1.0 / pow(2.0, pitch / 4096.0);
+    long expected_output_frames = lround(frames * rate);
+    long duration_delta = (long)mixed_frames - expected_output_frames;
+    if (require_finite_tail) {
+        /* Main fails exact source consumption. PR #189 may add one silent
+         * input guard for a final one-frame linear block; record and bound
+         * the resulting output extension instead of hiding it. */
         g_assert_cmpuint(trace.payload_frames, ==, frames);
-        g_assert_cmpuint(mixed_frames, ==, frames);
+        if (converter == SRC_LINEAR && frames % NUM_SAMPLES_PER_FRAME == 1) {
+            g_assert_cmpint(duration_delta, >=, 0);
+            g_assert_cmpint(duration_delta, <=, (long)ceil(rate));
+        } else {
+            g_assert_cmpint(llabs(duration_delta), <=, 1);
+        }
     }
     mcpx_apu_vp_finalize(d);
     g_assert_null(d->vp.filters[voice_handle].resampler);
@@ -287,16 +309,17 @@ static void run_case(enum Payload payload, unsigned frames, int pitch)
         printf("{\"kind\":\"case\",\"converter\":\"%s\",\"profile\":\"%s\","
                "\"input_frames\":%u,\"pitch\":%d,\"callbacks\":%u,"
                "\"payload_frames\":%u,\"generated_frames\":%u,"
-               "\"frame_at_off\":%u,\"callback_at_off\":%u,"
+               "\"frame_at_off\":%u,\"callbacks_at_completion\":%u,"
                "\"active_transitions\":%u,\"notify_transitions\":%u,"
                "\"final_cbo\":%u,\"mixed_frames\":%u,"
+               "\"expected_output_frames\":%ld,\"duration_delta\":%ld,"
                "\"mixed_energy\":%.17g,\"invariants\":\"PASS\"}\n",
                converter == SRC_LINEAR ? "linear" : "sinc",
                payload_names[payload], frames, pitch, trace.callbacks,
                trace.payload_frames, trace.generated_frames, trace.frame_at_off,
-               trace.callback_at_off, trace.active_transitions,
+               trace.callbacks_at_completion, trace.active_transitions,
                trace.notify_transitions, trace.last_cbo, mixed_frames,
-               mixed_energy);
+               expected_output_frames, duration_delta, mixed_energy);
     }
 }
 
@@ -337,6 +360,7 @@ int __wrap_main(int argc, char **argv)
     }
     qemu_init_cpu_loop();
     bql_lock();
+    monitor_init_globals();
     module_call_init(MODULE_INIT_QOM);
     current_machine = MACHINE(object_new("xbox-machine"));
     object_property_add_child(object_get_root(), "machine",

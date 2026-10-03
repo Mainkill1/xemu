@@ -44,22 +44,33 @@ real payload versus silence padding without guessing fetched counts from CBO.
 |---|---|
 | `input_frames` | Number of source samples per channel; EBO is length minus one. |
 | `vp_frame` / `frame_at_off` | One-based VP output block number; each block requests 32 output samples per channel. |
-| `callbacks` / `callback_at_off` | Input callback invocation count, including the invocation that clears ACTIVE. |
+| `callbacks` / `callbacks_at_completion` | Input callback invocations, including EOF/padding callbacks, through the VP frame that completes the voice. |
 | `payload_frames` | Nonzero left input samples returned by the real callback; valid as a payload count for this constant fixture only. |
 | `generated_frames` | Output samples per channel returned by SRC, including samples the VP subsequently discards or mixes as silence. |
 | `mixed_frames` | Nonzero samples in left output bin 0; **not** a general count of all samples mixed for arbitrary audio. |
+| `expected_output_frames` / `duration_delta` | Rounded input length times rate, and `mixed_frames` minus that value. Linear's one-frame safety guard can extend output as described below. |
 | `mixed_energy` | Sum of squared left-bin sample values, after voice volume and headroom; not decibels. |
 | `final_cbo` / `cbo` | Guest source cursor, in samples per channel. Main clamps it to EBO at completion. |
-| `active_transitions` | Observed ACTIVE-to-inactive transitions inside the source callback. |
+| `active_transitions` | Observed ACTIVE-to-inactive transitions across a completed VP output block. Callback rows separately expose state during fetch. |
 | `notify_transitions` | Observed completion status byte transitions, not the number of repeated writes of the same status. |
 
 The ordinary passing suite checks finite termination, cursor bounds, one ACTIVE
 and notifier transition, notifier payload, interrupt request bits, channel
 relationships, unused bins, and resampler destruction. It records output
 duration and energy; it does **not** bless main's finite-tail truncation or assert
-sinc/linear waveform or guest-state equivalence. The source currently captures
-main's completion inside the callback and its subsequent discard before mixing.
-Testing a draining implementation requires adapting that completion oracle.
+sinc/linear waveform or guest-state equivalence. The trace captures main's
+completion inside the callback and its subsequent discard before mixing. Its
+bounds also allow partial or empty finite EOF callbacks and completion after
+mixing, so the same observer can qualify a draining path.
+
+When compiling this fixture against PR #189, add
+`-DMCPX_TEST_RESAMPLER_SELECTOR` to this test target's `c_args`. That test-only
+compatibility mode sets the existing `audio.vp.resampler` option before VP
+initialization and asserts the actual constructor receives the chosen converter.
+The full VP implementation and source-drain adapter remain the production
+candidate. Compile against that candidate's headers, generated configuration and
+objects. `--require-finite-tail --matrix` requires every real source sample and
+bounds output duration. Preserve each failed cell.
 
 ## Retained negative controls
 
@@ -72,8 +83,12 @@ the ordinary Meson suite and preserve their nonzero exits:
 ./tests/unit/test-xbox-mcpx-apu-resampler --linear-single-frame --tap -p /mcpx/apu/resampler/linear/streaming-equivalence
 ```
 
-The first demands complete finite input consumption and unity-rate audible
-duration: main mixes zero samples for the one-sample control. The second selects
+The first demands complete finite input consumption and bounded audible duration:
+main consumes no payload in some one-sample cases. PR #189's linear safety guard
+adds up to `ceil(rate)` output samples when the final real block has one sample (source
+lengths 1, 33, 65, 129 and 257 here); every other duration stays within one
+sample of rounded input length times rate. This bound records a known audio
+tradeoff and does not establish native listening acceptance. The second selects
 the actual VP monitor path that clears mixbins, catching a tool setup that would
 report success while hearing silence. The third is an opt-in library diagnostic
 for libsamplerate 0.2.2's known unsafe one-frame linear callback schedule
