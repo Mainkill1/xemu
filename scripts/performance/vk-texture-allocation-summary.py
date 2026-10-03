@@ -219,6 +219,13 @@ def file_identity(stat):
     return stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns
 
 
+def sha256_stream(stream):
+    digest = hashlib.sha256()
+    for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+        digest.update(chunk)
+    return digest.hexdigest()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('source', type=Path)
@@ -234,7 +241,7 @@ def main():
                 result['sourceBytesAtRead'] = before.st_size
             else:
                 stream.seek(0)
-                result['sourceSha256'] = hashlib.file_digest(stream.buffer, 'sha256').hexdigest()
+                result['sourceSha256'] = sha256_stream(stream.buffer)
                 if (file_identity(before) != file_identity(os.fstat(stream.fileno()))
                         or file_identity(before) != file_identity(args.source.stat())):
                     raise ValueError('Source changed during analysis')

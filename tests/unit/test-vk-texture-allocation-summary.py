@@ -67,6 +67,15 @@ class AllocationSummaryTests(unittest.TestCase):
         return self.module.summarize(io.StringIO(
             ''.join(json.dumps(row) + '\n' for row in records)))
 
+    def test_sha256_stream_supports_python_39(self):
+        stream = io.BytesIO(b'xemu allocation trace\n')
+
+        self.assertEqual(
+            self.module.sha256_stream(stream),
+            '6b374096e24ad7e67a8766bd4e3e8d1c54ce63dd12f7f56ed8bdf7428e0c8f48',
+        )
+        self.assertEqual(stream.tell(), len(stream.getvalue()))
+
     def test_actual_calls_duration_bytes_and_handle_generation(self):
         result = self.summarize(self.records())
         self.assertEqual(result['creates'], {'calls': 2, 'successful': 2,
