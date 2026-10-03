@@ -10,6 +10,12 @@ xbox_i386_target_headers = declare_dependency(
   ],
 )
 
+adpcm_reader_test = declare_dependency(
+  dependencies: [xbox_i386_target_headers, sdl, libsamplerate],
+  compile_args: ['-ffunction-sections', '-fdata-sections'],
+  link_args: ['-Wl,--gc-sections'],
+)
+
 tests = {
   'check-block-qdict': [],
   'check-qdict': [],
@@ -166,6 +172,7 @@ tests = {
   'test-lru-active': [],
   'test-xbox-mcpx-apu-resampler': [libsamplerate],
   'test-xbox-mcpx-apu-adpcm': [],
+  'test-xbox-mcpx-apu-adpcm-reader': [adpcm_reader_test],
 }
 
 if host_os == 'windows'

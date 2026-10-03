@@ -895,6 +895,7 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
     int adpcm_block_index = -1;
     uint32_t adpcm_block[MCPX_ADPCM_MAX_BLOCK_BYTES / sizeof(uint32_t)];
     const int16_t *adpcm_decoded = NULL;
+    int adpcm_decoded_samples = 0;
 
     // FIXME: Only update if necessary
     struct McpxApuDebugVoice *dbg = &g_dbg.vp.v[v];
@@ -1013,6 +1014,12 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
     DPRINTF("CBO=%d EBO=%d\n", cbo, ebo);
 
     block_size *= samples_per_block;
+    if (adpcm &&
+        (block_size > sizeof(adpcm_block) ||
+         !mcpx_apu_adpcm_fits_cache(block_size, channels))) {
+        mcpx_apu_adpcm_cache_reset(&d->vp.filters[v].adpcm_cache);
+        return -1;
+    }
 
     // FIXME: Restructure this loop
     int sample_count = 0;
@@ -1040,15 +1047,14 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
                         linear_addr += 4;
                     }
                 }
-                int decoded_samples;
                 adpcm_decoded = mcpx_apu_adpcm_decode_cached(
                     &d->vp.filters[v].adpcm_cache, (uint8_t *)adpcm_block,
-                    block_size, channels, &decoded_samples, NULL);
-                if (adpcm_decoded == NULL ||
-                    block_position >= decoded_samples) {
-                    return -1;
-                }
+                    block_size, channels, &adpcm_decoded_samples, NULL);
                 adpcm_block_index = block_index;
+            }
+            if (adpcm_decoded == NULL || adpcm_decoded_samples <= 0 ||
+                block_position >= (unsigned int)adpcm_decoded_samples) {
+                goto adpcm_invalid;
             }
 
             samples[sample_count][0] =
@@ -1131,6 +1137,15 @@ static int voice_get_samples(MCPXAPUState *d, uint32_t v, float samples[][2],
     voice_set_mask(d, v, NV_PAVS_VOICE_PAR_OFFSET,
                    NV_PAVS_VOICE_PAR_OFFSET_CBO, cbo);
     return sample_count;
+
+adpcm_invalid:
+    mcpx_apu_adpcm_cache_reset(&d->vp.filters[v].adpcm_cache);
+    if (sample_count > 0) {
+        voice_set_mask(d, v, NV_PAVS_VOICE_PAR_OFFSET,
+                       NV_PAVS_VOICE_PAR_OFFSET_CBO, cbo);
+        return sample_count;
+    }
+    return -1;
 }
 
 static long voice_resample_callback(void *cb_data, float **data)
