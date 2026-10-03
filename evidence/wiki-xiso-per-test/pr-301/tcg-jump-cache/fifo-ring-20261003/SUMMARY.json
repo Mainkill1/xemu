@@ -1,0 +1,288 @@
+{
+  "aa": {
+    "comparison": "Identical previous candidate A/A",
+    "status": "eligible",
+    "rows": [
+      {
+        "testId": "cpu_translation_blocks.jump_cache_collision2",
+        "baselineSeconds": 0.6567275,
+        "candidateSeconds": 0.5520199,
+        "timeSavedSeconds": 0.10470759999999997,
+        "improvementPercent": 15.943843,
+        "abbaImprovementPercent": 15.149603,
+        "baabImprovementPercent": 19.038716,
+        "aSamplesSeconds": [
+          0.548799,
+          0.763211,
+          0.8102117,
+          0.550244
+        ],
+        "bSamplesSeconds": [
+          0.5616502,
+          0.5515955,
+          0.5489980999999999,
+          0.5524443
+        ]
+      },
+      {
+        "testId": "cpu_translation_blocks.jump_cache_collision8",
+        "baselineSeconds": 0.64760345,
+        "candidateSeconds": 0.6005472,
+        "timeSavedSeconds": 0.04705625,
+        "improvementPercent": 7.266214,
+        "abbaImprovementPercent": 7.426366,
+        "baabImprovementPercent": 21.236104,
+        "aSamplesSeconds": [
+          0.592873,
+          0.7023339000000001,
+          0.9422445,
+          0.5875173
+        ],
+        "bSamplesSeconds": [
+          0.6015578,
+          0.5974623,
+          0.5995366,
+          0.6053634
+        ]
+      },
+      {
+        "testId": "cpu_translation_blocks.jump_cache_collision10",
+        "baselineSeconds": 1.0981845499999998,
+        "candidateSeconds": 1.2581613500000002,
+        "timeSavedSeconds": -0.15997680000000028,
+        "improvementPercent": -14.567388,
+        "abbaImprovementPercent": -14.120501,
+        "baabImprovementPercent": -6.467262,
+        "aSamplesSeconds": [
+          1.0652343999999998,
+          1.1589275,
+          1.1311347,
+          1.045989
+        ],
+        "bSamplesSeconds": [
+          1.2843033000000001,
+          1.2539213999999999,
+          1.2624013,
+          1.0555227
+        ]
+      },
+      {
+        "testId": "cpu_translation_blocks.jump_cache_noncollision8",
+        "baselineSeconds": 0.38348659999999996,
+        "candidateSeconds": 0.3682391,
+        "timeSavedSeconds": 0.0152475,
+        "improvementPercent": 3.976019,
+        "abbaImprovementPercent": 4.523634,
+        "baabImprovementPercent": 3.926181,
+        "aSamplesSeconds": [
+          0.3670911,
+          0.4091322,
+          0.39988209999999996,
+          0.3633685
+        ],
+        "bSamplesSeconds": [
+          0.3686325,
+          0.3724773,
+          0.3678457,
+          0.3654383
+        ]
+      }
+    ]
+  },
+  "fifo": {
+    "comparison": "Previous FIFO \u2192 circular FIFO",
+    "status": "inconclusive",
+    "rows": [
+      {
+        "testId": "cpu_translation_blocks.jump_cache_collision2",
+        "baselineSeconds": 0.5516993,
+        "candidateSeconds": 0.54875615,
+        "timeSavedSeconds": 0.0029431500000000233,
+        "improvementPercent": 0.53347,
+        "abbaImprovementPercent": -0.211167,
+        "baabImprovementPercent": 1.861385,
+        "aSamplesSeconds": [
+          0.5481762,
+          0.5470234,
+          0.5552224,
+          0.5650025
+        ],
+        "bSamplesSeconds": [
+          0.5440824000000001,
+          0.5534299,
+          0.5424758000000001,
+          0.5568974
+        ]
+      },
+      {
+        "testId": "cpu_translation_blocks.jump_cache_collision8",
+        "baselineSeconds": 0.6032318000000001,
+        "candidateSeconds": 0.6278865,
+        "timeSavedSeconds": -0.024654699999999953,
+        "improvementPercent": -4.087102,
+        "abbaImprovementPercent": -4.363969,
+        "baabImprovementPercent": -3.994019,
+        "aSamplesSeconds": [
+          0.6042634,
+          0.6022002,
+          0.59236,
+          0.6075341999999999
+        ],
+        "bSamplesSeconds": [
+          0.6298799,
+          0.6292334,
+          0.6265396,
+          0.6212786
+        ]
+      },
+      {
+        "testId": "cpu_translation_blocks.jump_cache_collision10",
+        "baselineSeconds": 1.246345,
+        "candidateSeconds": 1.2136976000000002,
+        "timeSavedSeconds": 0.03264739999999991,
+        "improvementPercent": 2.619451,
+        "abbaImprovementPercent": 1.739463,
+        "baabImprovementPercent": -4.067052,
+        "aSamplesSeconds": [
+          1.2573358000000001,
+          1.2438506,
+          1.0612464,
+          1.2488393999999998
+        ],
+        "bSamplesSeconds": [
+          1.2326827,
+          1.2249965,
+          1.2023987,
+          1.2016395
+        ]
+      },
+      {
+        "testId": "cpu_translation_blocks.jump_cache_noncollision8",
+        "baselineSeconds": 0.3663166,
+        "candidateSeconds": 0.37363669999999993,
+        "timeSavedSeconds": -0.007320099999999977,
+        "improvementPercent": -1.998299,
+        "abbaImprovementPercent": -3.29619,
+        "baabImprovementPercent": 0.726938,
+        "aSamplesSeconds": [
+          0.36543709999999996,
+          0.3651731,
+          0.36719609999999997,
+          0.3741191
+        ],
+        "bSamplesSeconds": [
+          0.3781604,
+          0.3765321,
+          0.3707413,
+          0.365185
+        ]
+      }
+    ]
+  },
+  "parent": {
+    "comparison": "Production parent \u2192 circular FIFO",
+    "status": "eligible",
+    "rows": [
+      {
+        "testId": "cpu_translation_blocks.jump_cache_collision2",
+        "baselineSeconds": 0.8382040500000001,
+        "candidateSeconds": 0.5534278499999999,
+        "timeSavedSeconds": 0.2847762000000001,
+        "improvementPercent": 33.974567,
+        "abbaImprovementPercent": 34.056363,
+        "baabImprovementPercent": 32.188494,
+        "aSamplesSeconds": [
+          0.9334548,
+          0.7429873,
+          0.9334208,
+          0.7223255
+        ],
+        "bSamplesSeconds": [
+          0.5513676999999999,
+          0.5541391999999999,
+          0.5527165,
+          0.57007
+        ]
+      },
+      {
+        "testId": "cpu_translation_blocks.jump_cache_collision8",
+        "baselineSeconds": 0.86819245,
+        "candidateSeconds": 0.62963275,
+        "timeSavedSeconds": 0.23855969999999996,
+        "improvementPercent": 27.477744,
+        "abbaImprovementPercent": 27.477744,
+        "baabImprovementPercent": 26.931644,
+        "aSamplesSeconds": [
+          0.9410341,
+          0.7953508,
+          0.9618026,
+          0.7736934
+        ],
+        "bSamplesSeconds": [
+          0.6254805999999999,
+          0.6337849,
+          0.6246765,
+          0.6434219
+        ]
+      },
+      {
+        "testId": "cpu_translation_blocks.jump_cache_collision10",
+        "baselineSeconds": 0.89501675,
+        "candidateSeconds": 1.1925244,
+        "timeSavedSeconds": -0.2975076499999999,
+        "improvementPercent": -33.240456,
+        "abbaImprovementPercent": -24.697481,
+        "baabImprovementPercent": -34.298704,
+        "aSamplesSeconds": [
+          0.9699936,
+          0.8097535,
+          0.969715,
+          0.8203185
+        ],
+        "bSamplesSeconds": [
+          1.1978181,
+          1.0214817,
+          1.2167611,
+          1.1872307
+        ]
+      },
+      {
+        "testId": "cpu_translation_blocks.jump_cache_noncollision8",
+        "baselineSeconds": 0.37802515000000003,
+        "candidateSeconds": 0.37017384999999997,
+        "timeSavedSeconds": 0.007851300000000047,
+        "improvementPercent": 2.076925,
+        "abbaImprovementPercent": 2.068632,
+        "baabImprovementPercent": 1.989941,
+        "aSamplesSeconds": [
+          0.3779551,
+          0.3780952,
+          0.37554740000000003,
+          0.3798319
+        ],
+        "bSamplesSeconds": [
+          0.3647123,
+          0.3756981,
+          0.3700245,
+          0.3703232
+        ]
+      }
+    ]
+  },
+  "decision": "HOLD",
+  "ringIntegrated": false,
+  "candidateCommit": "6aeb757c56c34c5a429702cf738157b5bf186745",
+  "retainedTraceCommit": "8b5ed0c266709736157a7341198d081111b59b3d",
+  "unchangedCurrentRuntimeProduct": "5679cce099eb777977e761245de47e77d05d0c05",
+  "attempts": 24,
+  "collectedFiles": 7441,
+  "ringHelperCases": 15,
+  "ringHelperFiles": 21,
+  "retainedHelperCases": 14,
+  "retainedHelperFiles": 21,
+  "excluded": 0,
+  "CPUCorrect": true,
+  "MesaQualified": true,
+  "renderingQualified": false,
+  "zipSha256": "c461f0b578595978dfff437b797c9070d4c825d6cc6875b2f299dfdc5d0388f5"
+}
