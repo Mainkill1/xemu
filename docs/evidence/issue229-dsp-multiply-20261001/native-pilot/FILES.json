@@ -1,0 +1,332 @@
+[
+  {
+    "path": "IDENTITY.json",
+    "bytes": 665,
+    "sha256": "e6c6758345158c99410f093fb83b3f571dcff5eacffd6234027811b901fc1cf3"
+  },
+  {
+    "path": "README.md",
+    "bytes": 5649,
+    "sha256": "9b6614581b7194cab67e203be8a03ecc8ebbc0e6af2f5777b69e0500f1cd9b2e"
+  },
+  {
+    "path": "SUMMARY.json",
+    "bytes": 4585,
+    "sha256": "423838c0694ff8839772075f780b32b446e5b477d1ec21ffabe0d9397957b3db"
+  },
+  {
+    "path": "deck-c-candidate-smoke/20261001-160117345-e6e9a752f9094559a1491c9c0c5227a5/assessment.json",
+    "bytes": 2237,
+    "sha256": "02086a6adb307c8380323ee3e00da5e51049daa95b5d527f971a89216ee13633"
+  },
+  {
+    "path": "deck-c-candidate-smoke/20261001-160117345-e6e9a752f9094559a1491c9c0c5227a5/diagnostics/run-state/config-effective.toml",
+    "bytes": 1079,
+    "sha256": "86732555a4e0df7ceb63277f444c6091d379a26c118df1a7053bcc95bd21bbb7"
+  },
+  {
+    "path": "deck-c-candidate-smoke/20261001-160117345-e6e9a752f9094559a1491c9c0c5227a5/diagnostics/run-state/report.json",
+    "bytes": 166351,
+    "sha256": "8f060167ad6682a217bcd60d36675724c059ab08a2c05db804c225413c8d7517"
+  },
+  {
+    "path": "deck-c-candidate-smoke/20261001-160117345-e6e9a752f9094559a1491c9c0c5227a5/guest-flips.log",
+    "bytes": 1037,
+    "sha256": "52adcb918652f6396353d6cb7fb16a64c821b6f6bd08fd37f0bd79d21388b76b"
+  },
+  {
+    "path": "deck-c-candidate-smoke/20261001-160117345-e6e9a752f9094559a1491c9c0c5227a5/guest-frames.log",
+    "bytes": 172189,
+    "sha256": "24dd145f9fcb13b4b9aee00adc756031c4557cb335962bd3776a2292e04bb310"
+  },
+  {
+    "path": "deck-c-candidate-smoke/20261001-160117345-e6e9a752f9094559a1491c9c0c5227a5/metrics.csv",
+    "bytes": 53590,
+    "sha256": "44331b5f634b992bfd78ade7a0165172e4b786e591a20ac48bb82f2a5845fe87"
+  },
+  {
+    "path": "deck-c-candidate-smoke/20261001-160117345-e6e9a752f9094559a1491c9c0c5227a5/performance.json",
+    "bytes": 1794,
+    "sha256": "43474eb1a6fb85f14faf91787592083ff5e1f3c61965bffb95dcb3bf9ec7bb72"
+  },
+  {
+    "path": "deck-c-candidate-smoke/20261001-160117345-e6e9a752f9094559a1491c9c0c5227a5/screenshots/recording-end.png",
+    "bytes": 611258,
+    "sha256": "64d4238ae050b04a542e33dc5c160283b96b71cb86d1f5f86f34fc674726dd0e"
+  },
+  {
+    "path": "deck-c-candidate-smoke/20261001-160117345-e6e9a752f9094559a1491c9c0c5227a5/screenshots/recording-start.png",
+    "bytes": 659485,
+    "sha256": "65e815f4753bb4e48db34c93d0c9f62dd4640f66e905b94da81e4d62161da5e0"
+  },
+  {
+    "path": "deck-c-candidate-smoke/20261001-160117345-e6e9a752f9094559a1491c9c0c5227a5/segments.jsonl",
+    "bytes": 238,
+    "sha256": "dbd7786b2c6dec925e68693aae5159eea93eefb2e90781a4f89014cc329e4c90"
+  },
+  {
+    "path": "deck-c-candidate-smoke/20261001-160117345-e6e9a752f9094559a1491c9c0c5227a5/stderr.log",
+    "bytes": 1800,
+    "sha256": "11599c4eed8ff04e19e95373af7adfd0d9a253391e3892263d2a94e97b6d772f"
+  },
+  {
+    "path": "deck-c-candidate-smoke/20261001-160117345-e6e9a752f9094559a1491c9c0c5227a5/stdout.log",
+    "bytes": 851,
+    "sha256": "adf0051f89626241cadf3130e8c7d40d88ea9d7f104e3041cab50db6a4ef8d44"
+  },
+  {
+    "path": "deck-c-candidate-smoke/mesa-qualification-summary.json",
+    "bytes": 612,
+    "sha256": "558c127c900adadbe23df1d1fc0c37ee1bcfa779c033186f72324ffd51894fe0"
+  },
+  {
+    "path": "deck-c-parent-smoke/assessment.json",
+    "bytes": 2227,
+    "sha256": "34424681c1df9b902a966aeeee6ddc449c356ab9d006078d3f67dd4a058d64b7"
+  },
+  {
+    "path": "deck-c-parent-smoke/diagnostics/run-state/config-effective.toml",
+    "bytes": 1079,
+    "sha256": "4823074c6b9a4d05a09d2e0deb1ad842b084dae5874a043d9b29777bade1cece"
+  },
+  {
+    "path": "deck-c-parent-smoke/diagnostics/run-state/report.json",
+    "bytes": 166336,
+    "sha256": "f6cbc60763c64dab55dcfc9e887b929d53f15e71ee52074d778468e0c7a6bf61"
+  },
+  {
+    "path": "deck-c-parent-smoke/guest-flips.log",
+    "bytes": 1042,
+    "sha256": "3f86fa1543e0511650b8712ab8bff6e5ca1892c92908b8006892e7dc84690f5b"
+  },
+  {
+    "path": "deck-c-parent-smoke/guest-frames.log",
+    "bytes": 180476,
+    "sha256": "1f9cbe3062b24ad6e8c715d940693eab35c0955d4de80f7e0b38279f44f89230"
+  },
+  {
+    "path": "deck-c-parent-smoke/mesa-qualification-summary.json",
+    "bytes": 612,
+    "sha256": "22acbabfe4efa40730b61da13e32639b7f5483330755f0ef78d01e4a963ea671"
+  },
+  {
+    "path": "deck-c-parent-smoke/metrics.csv",
+    "bytes": 53892,
+    "sha256": "f0f5bb73f42301801198e173080a87ed0f65e6a345b13c0ac8ed5d0145137f77"
+  },
+  {
+    "path": "deck-c-parent-smoke/performance.json",
+    "bytes": 1790,
+    "sha256": "bea58ffad00cb87832edd1c0c512cc2b29fa80e7423ddf301545e507f95b8b82"
+  },
+  {
+    "path": "deck-c-parent-smoke/screenshots/recording-end.png",
+    "bytes": 610558,
+    "sha256": "8803c9b28d6a811cc185c75c54402830463dbd3b863d9fb5ee1dc208cc4a9ae0"
+  },
+  {
+    "path": "deck-c-parent-smoke/screenshots/recording-start.png",
+    "bytes": 645444,
+    "sha256": "830e108a02516c9503f7226697177f08cc13cf74d433ddaf6675d0c00ec22129"
+  },
+  {
+    "path": "deck-c-parent-smoke/segments.jsonl",
+    "bytes": 237,
+    "sha256": "1f48754113286e96cd2b80829fd3a2a29fc7e49c19f218e99987b612168f592e"
+  },
+  {
+    "path": "deck-c-parent-smoke/stderr.log",
+    "bytes": 1797,
+    "sha256": "f26286bd2c5f0a038a60db934de48d262a5c7c6c8b84ecc28619d401afd1477e"
+  },
+  {
+    "path": "deck-c-parent-smoke/stdout.log",
+    "bytes": 848,
+    "sha256": "8f1023879a3a43b35ff92865ae9c05a20cb22983e9d5d083c2161ae3bcc9871b"
+  },
+  {
+    "path": "deck-jit-parent-smoke/20261001-160834157-061d667ade3244389721ceec59596c6f/assessment.json",
+    "bytes": 2136,
+    "sha256": "630de3e4a82c01a83a14f7710cb2cbb6b3b90e509c2f45e218088aa32afd68a3"
+  },
+  {
+    "path": "deck-jit-parent-smoke/20261001-160834157-061d667ade3244389721ceec59596c6f/diagnostics/run-state/config-effective.toml",
+    "bytes": 1078,
+    "sha256": "793fc2f2e91e59151dc29c9dfe6bc15c034cfa85919b51c3d87fcd32b2ce362d"
+  },
+  {
+    "path": "deck-jit-parent-smoke/20261001-160834157-061d667ade3244389721ceec59596c6f/diagnostics/run-state/report.json",
+    "bytes": 171027,
+    "sha256": "9126e236eadcfa43730f67ddd2c7c4813ec91c585d7f709c8ab6198a39e9815b"
+  },
+  {
+    "path": "deck-jit-parent-smoke/20261001-160834157-061d667ade3244389721ceec59596c6f/guest-flips.log",
+    "bytes": 1003,
+    "sha256": "b849fc31ee5803391f43d9571704b7bc1608c66df1142dbba004d39ceba0e6f2"
+  },
+  {
+    "path": "deck-jit-parent-smoke/20261001-160834157-061d667ade3244389721ceec59596c6f/guest-frames.log",
+    "bytes": 193707,
+    "sha256": "89d0c415d41dea7f3f357142791fc2046eaa3f57b1e02f0840b4f93a14469f4c"
+  },
+  {
+    "path": "deck-jit-parent-smoke/20261001-160834157-061d667ade3244389721ceec59596c6f/metrics.csv",
+    "bytes": 53909,
+    "sha256": "0dd8774c16c06be4ed5deed2de1e6965697be24fbdfd31dd91e55c34971efa62"
+  },
+  {
+    "path": "deck-jit-parent-smoke/20261001-160834157-061d667ade3244389721ceec59596c6f/performance.json",
+    "bytes": 1810,
+    "sha256": "6ed31dbc02b7d993940731e4f78fac7904a7715a9bc87a587da9c4a41d6554cc"
+  },
+  {
+    "path": "deck-jit-parent-smoke/20261001-160834157-061d667ade3244389721ceec59596c6f/screenshots/recording-end.png",
+    "bytes": 619747,
+    "sha256": "099dfe393de6330fb8eca9cab4f425925badccf21033ef5893ff6813a217c0bf"
+  },
+  {
+    "path": "deck-jit-parent-smoke/20261001-160834157-061d667ade3244389721ceec59596c6f/screenshots/recording-start.png",
+    "bytes": 610560,
+    "sha256": "bcdac21e55f620c3048d52a59edd30d06cea49bcf7a459a12bb956e8c8408a23"
+  },
+  {
+    "path": "deck-jit-parent-smoke/20261001-160834157-061d667ade3244389721ceec59596c6f/segments.jsonl",
+    "bytes": 238,
+    "sha256": "a85ee84240f821a43505a909a25abcc974843b4893ec45a96c4c195729649ea8"
+  },
+  {
+    "path": "deck-jit-parent-smoke/20261001-160834157-061d667ade3244389721ceec59596c6f/stderr.log",
+    "bytes": 1799,
+    "sha256": "e3a30d2473ef277c7a04399c6b6eadb98930483b27d142030d7fe039e392508e"
+  },
+  {
+    "path": "deck-jit-parent-smoke/20261001-160834157-061d667ade3244389721ceec59596c6f/stdout.log",
+    "bytes": 850,
+    "sha256": "04e539334cc401fbd379274182e443bbd67eaf3ca2b78718666c4b4f655225c1"
+  },
+  {
+    "path": "deck-jit-parent-smoke/mesa-qualification-summary.json",
+    "bytes": 612,
+    "sha256": "e931280684cf8356a07fa4613008c03bfa74332d0e18a1c92484641293b76542"
+  },
+  {
+    "path": "deck-operator-before-upgrade.json",
+    "bytes": 1151,
+    "sha256": "589da472b36f0011e0770e560d5c4ad951c2ebb7369113bf663bd2fdf52ab891"
+  },
+  {
+    "path": "deck-operator-upgrade.json",
+    "bytes": 424,
+    "sha256": "fbdf72d9a7333a318e7fdac78607f6ee51bfcd1ca7412a70ee0defae8db7c385"
+  },
+  {
+    "path": "deck-operator-upgrade.log",
+    "bytes": 533,
+    "sha256": "ebf1694a94618585dbbc833143d6a970890df1c399d96ad0adb15c19e7bee1bb"
+  },
+  {
+    "path": "frozen-procedures/issue229-deck-pgr2-full-dsp-c-v1/baked.json",
+    "bytes": 514,
+    "sha256": "a1074032b7dd6041ea01f6bd43972764d0ceb89fdc3747e8ee035793679545ea"
+  },
+  {
+    "path": "frozen-procedures/issue229-deck-pgr2-full-dsp-c-v1/created.json",
+    "bytes": 24262,
+    "sha256": "007e9688a4f65fda33cddf4000292a59f0c77b65a1ff765be4da283a215aa94f"
+  },
+  {
+    "path": "frozen-procedures/issue229-deck-pgr2-full-dsp-c-v1/files-ready.json",
+    "bytes": 24653,
+    "sha256": "e69261a4a1346f836716c001cc22ec1ae2513e1dafd06c291877083352fa8308"
+  },
+  {
+    "path": "frozen-procedures/issue229-deck-pgr2-full-dsp-c-v1/manifest.json",
+    "bytes": 22164,
+    "sha256": "f13e45f91b4cf3e79ad50f56db2922e17966fa372180d7534212c95d1a24206b"
+  },
+  {
+    "path": "frozen-procedures/issue229-deck-pgr2-full-dsp-c-v1/xemu.toml",
+    "bytes": 462,
+    "sha256": "3fffde65d47e6a4d3d7979414bd004c05f4b713be17833cdc6ab358752a0fe41"
+  },
+  {
+    "path": "frozen-procedures/issue229-deck-pgr2-full-dsp-jit-v1/baked.json",
+    "bytes": 522,
+    "sha256": "dea1d2f203dcbf117945b5f110b704584b344b7fba183b2951e2f53876e34987"
+  },
+  {
+    "path": "frozen-procedures/issue229-deck-pgr2-full-dsp-jit-v1/created.json",
+    "bytes": 24288,
+    "sha256": "1d3a705af813d79a38825053726cb625618fcbe9425ccea719ecfe82c3cd2694"
+  },
+  {
+    "path": "frozen-procedures/issue229-deck-pgr2-full-dsp-jit-v1/files-ready.json",
+    "bytes": 24817,
+    "sha256": "110c318d235762e2245cd3745111864f71c89966ca9c9cfdf95969c9f0345b77"
+  },
+  {
+    "path": "frozen-procedures/issue229-deck-pgr2-full-dsp-jit-v1/manifest.json",
+    "bytes": 22174,
+    "sha256": "68010e51fda23833f10a7d18192885f33491fc6e13b9a10d2f6ea9f7bce62213"
+  },
+  {
+    "path": "frozen-procedures/issue229-deck-pgr2-full-dsp-jit-v1/xemu.toml",
+    "bytes": 461,
+    "sha256": "4382e021c83c40c2b64f0bd2379271d9cb8a83b63958eb128f0324f20efd3e0e"
+  },
+  {
+    "path": "library-equivalence.json",
+    "bytes": 8645,
+    "sha256": "d43444a04f68bdd1480f8eb215189551263d9822772a347098e2d7aafe4221fc"
+  },
+  {
+    "path": "prepare-native.py",
+    "bytes": 3896,
+    "sha256": "4bdced73750f0a59bcaf98517fb4d562d88035824b4ffe85886a9781164225e7"
+  },
+  {
+    "path": "windows-recovery/catalog-verification.json",
+    "bytes": 8661,
+    "sha256": "614cbad6799d8e97a947264276f9f1a1ef4e68831adeae70c07ab4b1c76841cd"
+  },
+  {
+    "path": "windows-recovery/disk-catalog-after.json",
+    "bytes": 7364,
+    "sha256": "9cf07a9bb53112fcc519ed917f6a450af54d458166f7602bff7ea7cb00bfc064"
+  },
+  {
+    "path": "windows-recovery/disk-catalog-before.json",
+    "bytes": 7364,
+    "sha256": "9cf07a9bb53112fcc519ed917f6a450af54d458166f7602bff7ea7cb00bfc064"
+  },
+  {
+    "path": "windows-recovery/failed-seed-after.json",
+    "bytes": 16511,
+    "sha256": "00d5b6cce625bdf299262d5ca5d606b6a1425659ca4689d74e7ad3ea3556d7fd"
+  },
+  {
+    "path": "windows-recovery/failed-seed-before.json",
+    "bytes": 16511,
+    "sha256": "00d5b6cce625bdf299262d5ca5d606b6a1425659ca4689d74e7ad3ea3556d7fd"
+  },
+  {
+    "path": "windows-recovery/host-after.stdout.txt",
+    "bytes": 1796,
+    "sha256": "6280d48aaefa4419226ccede8989e13fd4da1fbd4d6e5837c6905ba1386316b5"
+  },
+  {
+    "path": "windows-recovery/recovery-report.json",
+    "bytes": 6489,
+    "sha256": "57578c2dc504447cea5177d26dfeeeca8a355a5cb56bfdf59e3d7d016e55e8ea"
+  },
+  {
+    "path": "windows-recovery/saved-source-definition-after.json",
+    "bytes": 15230,
+    "sha256": "cf6bd2c1dd2af58019640642bdecb3a3c5fddc4a5433129b48e1c4d2d3c14641"
+  },
+  {
+    "path": "windows-recovery/status-after.json",
+    "bytes": 2323,
+    "sha256": "c1e907ea98222c1f009527e1a3948211e2adf99ef654950a9a024068ebc1c816"
+  }
+]

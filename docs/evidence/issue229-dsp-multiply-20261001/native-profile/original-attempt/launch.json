@@ -1,0 +1,66 @@
+{
+  "runId": "20261001-162746650-9a3fecbf40d5444aa610e51450f3972d",
+  "attempt": 1,
+  "job": "issue229-deck-c-parent-profile-20261001",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu",
+  "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+  "jobSha256": "97b9f00a7558f73d27692e6bd53cf000019fbdf16f669d0433f13fc0a0ea9fd4",
+  "arguments": [
+    "-config_path",
+    "xemu.toml",
+    "-qmp",
+    "tcp:127.0.0.1:46811,server=on,wait=off"
+  ],
+  "environmentKeys": [
+    "LD_LIBRARY_PATH",
+    "SDL_VIDEODRIVER",
+    "XDG_CACHE_HOME",
+    "XDG_DATA_HOME",
+    "XEMU_FLIP_LOG",
+    "XEMU_FRAME_LOG"
+  ],
+  "workingDirectory": ".",
+  "runtimeDirectory": "/home/deck/xemu-research/workspace/Runtime/20261001-162746650-9a3fecbf40d5444aa610e51450f3972d",
+  "experiment": {
+    "Id": "issue229-full-c-profile-20261001",
+    "Variant": "build",
+    "Reference": "ee5ce48b4878",
+    "VariedFactors": [
+      "native C DSP multiply"
+    ],
+    "ControlledFactors": [
+      "fixed-full-DSP-setting",
+      "same-native-procedure",
+      "matching-runtime-dependencies"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "operations": {
+    "Mode": "smoke",
+    "AllowPreview": false,
+    "AllowManualInput": false,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": true,
+    "AllowBulkTransfers": false,
+    "PreviewAllowed": false,
+    "ManualInputAllowed": false,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B0ba533ed89c8bb3cf530c4bfff8dbb190b3f08be",
+    "machine": "steamdeck",
+    "os": "SteamOS",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 8,
+    "dotnet": "10.0.12"
+  }
+}

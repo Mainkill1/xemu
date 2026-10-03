@@ -1,0 +1,3 @@
+/usr/bin/kill
+-INT
+32999

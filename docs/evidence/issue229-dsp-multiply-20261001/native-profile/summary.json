@@ -1,0 +1,30 @@
+{
+  "event": "cycles:Pu",
+  "samples": 6812,
+  "lostSamples": 0,
+  "period": 151296884201,
+  "groupingsOverlap": true,
+  "selfOnly": true,
+  "groups": {
+    "xemu DSO": {
+      "samples": 4118,
+      "period": 100246211396,
+      "percent": 66.25794835458841
+    },
+    "libsamplerate DSO": {
+      "samples": 1496,
+      "period": 36475664811,
+      "percent": 24.108668862302263
+    },
+    "named C/DSP functions": {
+      "samples": 2105,
+      "period": 58253593627,
+      "percent": 38.50283760609987
+    },
+    "multiply-family instruction functions": {
+      "samples": 180,
+      "period": 5003490312,
+      "percent": 3.307067649425479
+    }
+  }
+}

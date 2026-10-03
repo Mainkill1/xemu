@@ -1,0 +1,36 @@
+......F....
+======================================================================
+FAIL: test_invalid_job_json_is_retained (__main__.Recipes.test_invalid_job_json_is_retained)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/src/steamdeck-xemu/scratch/issue229-check-evidence-recipes.py", line 122, in test_invalid_job_json_is_retained
+    self.assertEqual(self.summarize()['comparisons'], [])
+                     ~~~~~~~~~~~~~~^^
+  File "/home/codex/src/steamdeck-xemu/scratch/issue229-check-evidence-recipes.py", line 57, in summarize
+    self.run_recipe('issue229-summarize-native-balanced-v3.py')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/codex/src/steamdeck-xemu/scratch/issue229-check-evidence-recipes.py", line 54, in run_recipe
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 46, in <module>
+    job = optional_json(directory / 'job.json')
+  File "<string>", line 20, in optional_json
+    return json.loads(path.read_text()) if path.exists() else None
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/usr/lib/python3.13/json/decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/json/decoder.py", line 361, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ~~~~~~~~~~~~~~^^^^^^^^
+json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.559s
+
+FAILED (failures=1)

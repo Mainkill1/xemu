@@ -1,0 +1,155 @@
+[
+  {
+    "attempt": "deck-c-parent-smoke",
+    "runId": "20261001-155117884-9e2ab42313cf49baa6b58fc49761095a",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "failed",
+      "evidence": "incomplete",
+      "comparison": "ineligible"
+    },
+    "cpuMeanCorePercent": 200.84245161290323,
+    "reportedFlipCadenceFps": 1.57428390401613,
+    "frameTail": null,
+    "storage": {
+      "Schema": 2,
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false,
+      "TargetStopped": true,
+      "Uncontrolled": [
+        "os-page-cache",
+        "driver-memory-cache"
+      ],
+      "Issues": [],
+      "DriverBefore": {
+        "Files": 0,
+        "Bytes": 0,
+        "TreeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "DriverAfter": {
+        "Files": 795,
+        "Bytes": 3797539,
+        "TreeSha256": "cd8c4e9f8deff98f4d058dea10a51b7bda3af66409d0df37750b6fcd84b480e7"
+      }
+    },
+    "failures": [
+      {
+        "Name": "analysis:frames",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "frames: Insufficient positive frame intervals."
+      },
+      {
+        "Name": "recording-start-visible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "PNG has 4.693% non-black pixels above RGB threshold 96; expected at least 5.000%."
+      }
+    ]
+  },
+  {
+    "attempt": "deck-c-candidate-smoke",
+    "runId": "20261001-160117345-e6e9a752f9094559a1491c9c0c5227a5",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "failed",
+      "evidence": "incomplete",
+      "comparison": "ineligible"
+    },
+    "cpuMeanCorePercent": 190.1451290322581,
+    "reportedFlipCadenceFps": 1.2827780486475615,
+    "frameTail": null,
+    "storage": {
+      "Schema": 2,
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false,
+      "TargetStopped": true,
+      "Uncontrolled": [
+        "os-page-cache",
+        "driver-memory-cache"
+      ],
+      "Issues": [],
+      "DriverBefore": {
+        "Files": 0,
+        "Bytes": 0,
+        "TreeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "DriverAfter": {
+        "Files": 795,
+        "Bytes": 3797539,
+        "TreeSha256": "82e7df906f3fe98562d19e06527d54250d418d25b19a1ce1389e19f543aeac21"
+      }
+    },
+    "failures": [
+      {
+        "Name": "analysis:frames",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "frames: Insufficient positive frame intervals."
+      },
+      {
+        "Name": "recording-start-visible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "PNG has 3.991% non-black pixels above RGB threshold 96; expected at least 5.000%."
+      },
+      {
+        "Name": "recording-end-visible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "PNG has 4.352% non-black pixels above RGB threshold 96; expected at least 5.000%."
+      }
+    ]
+  },
+  {
+    "attempt": "deck-jit-parent-smoke",
+    "runId": "20261001-160834157-061d667ade3244389721ceec59596c6f",
+    "outcome": {
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "incomplete",
+      "comparison": "ineligible"
+    },
+    "cpuMeanCorePercent": 243.19355555555555,
+    "reportedFlipCadenceFps": 0.42109140153816266,
+    "frameTail": null,
+    "storage": {
+      "Schema": 2,
+      "DriverCache": "mesa",
+      "DriverNamespaceVerified": true,
+      "DriverQualification": "mesa_private_disk_writes_observed",
+      "ComparisonReady": true,
+      "AllowUncontrolledDriverCache": false,
+      "TargetStopped": true,
+      "Uncontrolled": [
+        "os-page-cache",
+        "driver-memory-cache"
+      ],
+      "Issues": [],
+      "DriverBefore": {
+        "Files": 0,
+        "Bytes": 0,
+        "TreeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "DriverAfter": {
+        "Files": 818,
+        "Bytes": 3839741,
+        "TreeSha256": "f97f7aa345dfcaba518d938defa650c3e50247f2f0f6a73c2711e4f468600a91"
+      }
+    },
+    "failures": [
+      {
+        "Name": "analysis:frames",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "frames: Insufficient positive frame intervals."
+      }
+    ]
+  }
+]

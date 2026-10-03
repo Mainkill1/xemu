@@ -1,0 +1,74 @@
+{
+  "Execution": "completed",
+  "Correctness": "failed",
+  "Evidence": "incomplete",
+  "Comparison": "ineligible",
+  "ComparisonReasons": [
+    "Correctness outcome is Failed; a passing correctness contract is required.",
+    "Evidence outcome is Incomplete; complete evidence is required."
+  ],
+  "Checks": [
+    {
+      "Name": "analysis:monitor",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+    },
+    {
+      "Name": "analysis:flips",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+    },
+    {
+      "Name": "analysis:frames",
+      "Passed": false,
+      "Category": "evidence",
+      "Detail": "frames: Insufficient positive frame intervals."
+    },
+    {
+      "Name": "recording-start-visible",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "PNG has 3.991% non-black pixels above RGB threshold 96; expected at least 5.000%."
+    },
+    {
+      "Name": "recording-end-visible",
+      "Passed": false,
+      "Category": "correctness",
+      "Detail": "PNG has 4.352% non-black pixels above RGB threshold 96; expected at least 5.000%."
+    },
+    {
+      "Name": "guest-progress",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "result:guest-frames.log satisfied the declared requirement."
+    },
+    {
+      "Name": "measurement-segments",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "result:segments.jsonl satisfied the declared requirement."
+    },
+    {
+      "Name": "minimum_metric_samples",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "Required \u003E= 160; actual 288."
+    },
+    {
+      "Name": "plan_completion",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "The declared plan completed."
+    },
+    {
+      "Name": "run_storage_state",
+      "Passed": true,
+      "Category": "state",
+      "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+    }
+  ],
+  "IsExecutionSuccess": true,
+  "IsCorrectnessSuccess": false
+}

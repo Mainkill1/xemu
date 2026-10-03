@@ -1,0 +1,9714 @@
+[
+  {
+    "percent": 11.6,
+    "samples": 639,
+    "period": 17552678227,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "dsp56k_execute_instruction"
+  },
+  {
+    "percent": 6.59,
+    "samples": 442,
+    "period": 9975205179,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "address_space_ldl_internal.llvm.9823001788323054012"
+  },
+  {
+    "percent": 4.44,
+    "samples": 243,
+    "period": 6716623987,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_update_rn"
+  },
+  {
+    "percent": 4.29,
+    "samples": 238,
+    "period": 6491629813,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "dsp_c_run.llvm.5225988660000961437"
+  },
+  {
+    "percent": 3.24,
+    "samples": 215,
+    "period": 4906225417,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "voice_worker_thread.llvm.1301536018277380079"
+  },
+  {
+    "percent": 2.8,
+    "samples": 170,
+    "period": 4243532410,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000328a"
+  },
+  {
+    "percent": 2.63,
+    "samples": 181,
+    "period": 3985467471,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "address_space_translate_internal.llvm.9823001788323054012"
+  },
+  {
+    "percent": 2.47,
+    "samples": 168,
+    "period": 3735664723,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "voice_resample_callback"
+  },
+  {
+    "percent": 2.38,
+    "samples": 128,
+    "period": 3605934293,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_pm_5"
+  },
+  {
+    "percent": 2.25,
+    "samples": 146,
+    "period": 3399004383,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000031d1"
+  },
+  {
+    "percent": 2.06,
+    "samples": 114,
+    "period": 3121660629,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_calc_ea"
+  },
+  {
+    "percent": 1.98,
+    "samples": 140,
+    "period": 3000251801,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "get_ptr_rcu_reader"
+  },
+  {
+    "percent": 1.7,
+    "samples": 92,
+    "period": 2566880191,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_mac_p_y0_x0_a"
+  },
+  {
+    "percent": 1.64,
+    "samples": 103,
+    "period": 2478592850,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000324a"
+  },
+  {
+    "percent": 1.58,
+    "samples": 88,
+    "period": 2393023510,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_ccr_update_e_u_n_z"
+  },
+  {
+    "percent": 1.23,
+    "samples": 67,
+    "period": 1862430408,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_pm_2"
+  },
+  {
+    "percent": 1.2,
+    "samples": 99,
+    "period": 1817299441,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "physical_memory_all_dirty"
+  },
+  {
+    "percent": 1.16,
+    "samples": 57,
+    "period": 1758490801,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "dsp56k_read_memory"
+  },
+  {
+    "percent": 1.11,
+    "samples": 68,
+    "period": 1683728854,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003174"
+  },
+  {
+    "percent": 1.07,
+    "samples": 70,
+    "period": 1626337530,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003194"
+  },
+  {
+    "percent": 0.99,
+    "samples": 55,
+    "period": 1496937383,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_move_xy_imm"
+  },
+  {
+    "percent": 0.97,
+    "samples": 63,
+    "period": 1468534439,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000321c"
+  },
+  {
+    "percent": 0.97,
+    "samples": 63,
+    "period": 1463903405,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000031a4"
+  },
+  {
+    "percent": 0.91,
+    "samples": 59,
+    "period": 1381343279,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003292"
+  },
+  {
+    "percent": 0.82,
+    "samples": 48,
+    "period": 1244247605,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_pm_8"
+  },
+  {
+    "percent": 0.76,
+    "samples": 40,
+    "period": 1154068116,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "dsp56k_write_memory"
+  },
+  {
+    "percent": 0.76,
+    "samples": 50,
+    "period": 1153102491,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003242"
+  },
+  {
+    "percent": 0.74,
+    "samples": 27,
+    "period": 1121268772,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "dsp_dma_write"
+  },
+  {
+    "percent": 0.74,
+    "samples": 42,
+    "period": 1120410727,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "qht_lookup_custom"
+  },
+  {
+    "percent": 0.72,
+    "samples": 43,
+    "period": 1084535694,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000031d5"
+  },
+  {
+    "percent": 0.7,
+    "samples": 32,
+    "period": 1059854951,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000326a"
+  },
+  {
+    "percent": 0.61,
+    "samples": 41,
+    "period": 928463328,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000031c1"
+  },
+  {
+    "percent": 0.61,
+    "samples": 35,
+    "period": 919861532,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_move"
+  },
+  {
+    "percent": 0.59,
+    "samples": 43,
+    "period": 897262630,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "address_space_stl_internal.llvm.9823001788323054012"
+  },
+  {
+    "percent": 0.51,
+    "samples": 25,
+    "period": 773376426,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003217"
+  },
+  {
+    "percent": 0.48,
+    "samples": 27,
+    "period": 733753277,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_pm_4"
+  },
+  {
+    "percent": 0.48,
+    "samples": 19,
+    "period": 727775158,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "tcg_tb_lookup"
+  },
+  {
+    "percent": 0.48,
+    "samples": 26,
+    "period": 724211374,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "lookup_tb_ptr_common"
+  },
+  {
+    "percent": 0.47,
+    "samples": 27,
+    "period": 707379833,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000327e"
+  },
+  {
+    "percent": 0.44,
+    "samples": 40,
+    "period": 665819233,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "tlb_reset_dirty"
+  },
+  {
+    "percent": 0.43,
+    "samples": 28,
+    "period": 647713864,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000324e"
+  },
+  {
+    "percent": 0.43,
+    "samples": 24,
+    "period": 645871024,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_add_x0_a"
+  },
+  {
+    "percent": 0.4,
+    "samples": 25,
+    "period": 610177684,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000002fdd"
+  },
+  {
+    "percent": 0.4,
+    "samples": 23,
+    "period": 604360534,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "helper_lookup_tb_ptr_i32"
+  },
+  {
+    "percent": 0.4,
+    "samples": 24,
+    "period": 600608846,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "mcpx_apu_dsp_frame"
+  },
+  {
+    "percent": 0.38,
+    "samples": 24,
+    "period": 571782900,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003326"
+  },
+  {
+    "percent": 0.31,
+    "samples": 22,
+    "period": 467269097,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000031a8"
+  },
+  {
+    "percent": 0.3,
+    "samples": 25,
+    "period": 461230761,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "qemu_ram_ptr_length.llvm.9823001788323054012"
+  },
+  {
+    "percent": 0.3,
+    "samples": 20,
+    "period": 451807100,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000313c"
+  },
+  {
+    "percent": 0.3,
+    "samples": 20,
+    "period": 450090330,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "physical_memory_set_dirty_range"
+  },
+  {
+    "percent": 0.29,
+    "samples": 18,
+    "period": 443790222,
+    "comm": "xemu",
+    "dso": "libm.so.6",
+    "symbol": "0x0000000000059749"
+  },
+  {
+    "percent": 0.29,
+    "samples": 17,
+    "period": 441675530,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_mpy_p_x0_y1_a"
+  },
+  {
+    "percent": 0.29,
+    "samples": 18,
+    "period": 437578403,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000330e"
+  },
+  {
+    "percent": 0.29,
+    "samples": 15,
+    "period": 434038429,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_move_x_long.llvm.12752694138931587586"
+  },
+  {
+    "percent": 0.29,
+    "samples": 14,
+    "period": 431996767,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_macr_p_x1_x0_a"
+  },
+  {
+    "percent": 0.28,
+    "samples": 41,
+    "period": 429046758,
+    "comm": "xemu",
+    "dso": "[vdso]",
+    "symbol": "0x00000000000009cc"
+  },
+  {
+    "percent": 0.25,
+    "samples": 15,
+    "period": 379907013,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "dsp_write_reg"
+  },
+  {
+    "percent": 0.23,
+    "samples": 15,
+    "period": 341372240,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000031cd"
+  },
+  {
+    "percent": 0.22,
+    "samples": 13,
+    "period": 337416049,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000329e"
+  },
+  {
+    "percent": 0.22,
+    "samples": 12,
+    "period": 330979729,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_mpy_p_y0_x0_a"
+  },
+  {
+    "percent": 0.21,
+    "samples": 16,
+    "period": 318929819,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "src_callback_read"
+  },
+  {
+    "percent": 0.2,
+    "samples": 14,
+    "period": 303459977,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003138"
+  },
+  {
+    "percent": 0.2,
+    "samples": 13,
+    "period": 300349064,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003234"
+  },
+  {
+    "percent": 0.19,
+    "samples": 10,
+    "period": 287009693,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000341d"
+  },
+  {
+    "percent": 0.19,
+    "samples": 14,
+    "period": 286435120,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003220"
+  },
+  {
+    "percent": 0.18,
+    "samples": 10,
+    "period": 278798772,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000032f9"
+  },
+  {
+    "percent": 0.18,
+    "samples": 1,
+    "period": 271445012,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000002edd"
+  },
+  {
+    "percent": 0.17,
+    "samples": 10,
+    "period": 264484681,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_mac_p_y1_x1_a"
+  },
+  {
+    "percent": 0.17,
+    "samples": 10,
+    "period": 264132431,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003286"
+  },
+  {
+    "percent": 0.17,
+    "samples": 10,
+    "period": 257454299,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_asl_imm.llvm.12752694138931587586"
+  },
+  {
+    "percent": 0.17,
+    "samples": 8,
+    "period": 249870119,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "do_tb_phys_invalidate.llvm.8758571221256236108"
+  },
+  {
+    "percent": 0.17,
+    "samples": 10,
+    "period": 249739146,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "tb_lookup_cmp"
+  },
+  {
+    "percent": 0.16,
+    "samples": 9,
+    "period": 242245754,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000032ce"
+  },
+  {
+    "percent": 0.16,
+    "samples": 9,
+    "period": 241879367,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000032c0"
+  },
+  {
+    "percent": 0.16,
+    "samples": 9,
+    "period": 237158257,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000032b3"
+  },
+  {
+    "percent": 0.16,
+    "samples": 13,
+    "period": 236203777,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "physical_memory_range_includes_clean"
+  },
+  {
+    "percent": 0.16,
+    "samples": 3,
+    "period": 234723282,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "cpu_unwind_data_from_tb.llvm.12212837843232634813"
+  },
+  {
+    "percent": 0.15,
+    "samples": 15,
+    "period": 228874159,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "voice_step_envelope"
+  },
+  {
+    "percent": 0.15,
+    "samples": 11,
+    "period": 224321666,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "address_space_lduw_internal.llvm.9823001788323054012"
+  },
+  {
+    "percent": 0.15,
+    "samples": 9,
+    "period": 222362648,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003321"
+  },
+  {
+    "percent": 0.14,
+    "samples": 8,
+    "period": 213232662,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "src_process"
+  },
+  {
+    "percent": 0.14,
+    "samples": 11,
+    "period": 208623610,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003246"
+  },
+  {
+    "percent": 0.14,
+    "samples": 11,
+    "period": 204676037,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000317d"
+  },
+  {
+    "percent": 0.13,
+    "samples": 7,
+    "period": 201375108,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_move_x_imm.llvm.12752694138931587586"
+  },
+  {
+    "percent": 0.13,
+    "samples": 6,
+    "period": 199890494,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003162"
+  },
+  {
+    "percent": 0.13,
+    "samples": 7,
+    "period": 196352925,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000032ed"
+  },
+  {
+    "percent": 0.13,
+    "samples": 1,
+    "period": 192929391,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bed9db82"
+  },
+  {
+    "percent": 0.13,
+    "samples": 8,
+    "period": 191913424,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000327b"
+  },
+  {
+    "percent": 0.13,
+    "samples": 7,
+    "period": 189475604,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000031a0"
+  },
+  {
+    "percent": 0.12,
+    "samples": 7,
+    "period": 177805250,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000032f5"
+  },
+  {
+    "percent": 0.11,
+    "samples": 9,
+    "period": 170053646,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "ImGui::NewFrame()"
+  },
+  {
+    "percent": 0.11,
+    "samples": 7,
+    "period": 163660319,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "tb_htable_lookup_common.llvm.15934127697401424413"
+  },
+  {
+    "percent": 0.11,
+    "samples": 6,
+    "period": 162403372,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd34893e"
+  },
+  {
+    "percent": 0.11,
+    "samples": 6,
+    "period": 160829374,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "float32_mul"
+  },
+  {
+    "percent": 0.1,
+    "samples": 6,
+    "period": 155417192,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_move_y_imm.llvm.12752694138931587586"
+  },
+  {
+    "percent": 0.1,
+    "samples": 15,
+    "period": 151875654,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "mcpx_apu_vp_frame"
+  },
+  {
+    "percent": 0.1,
+    "samples": 5,
+    "period": 146996550,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "c_dma_mem_read.llvm.5225988660000961437"
+  },
+  {
+    "percent": 0.1,
+    "samples": 6,
+    "period": 143885467,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "tb_tc_cmp"
+  },
+  {
+    "percent": 0.09,
+    "samples": 1,
+    "period": 141807517,
+    "comm": "xemu:gdrv0",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016ca8e"
+  },
+  {
+    "percent": 0.09,
+    "samples": 8,
+    "period": 141147605,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "ImGui::Begin(char const*, bool*, int)"
+  },
+  {
+    "percent": 0.09,
+    "samples": 5,
+    "period": 141050270,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000031f0"
+  },
+  {
+    "percent": 0.09,
+    "samples": 5,
+    "period": 139598139,
+    "comm": "xemu",
+    "dso": "libm.so.6",
+    "symbol": "0x0000000000059744"
+  },
+  {
+    "percent": 0.09,
+    "samples": 5,
+    "period": 138381668,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_lua_rel.llvm.12752694138931587586"
+  },
+  {
+    "percent": 0.09,
+    "samples": 5,
+    "period": 137869110,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_mac_p_y1_x1_b"
+  },
+  {
+    "percent": 0.09,
+    "samples": 5,
+    "period": 136243900,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_add_imm.llvm.12752694138931587586"
+  },
+  {
+    "percent": 0.09,
+    "samples": 5,
+    "period": 136095530,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "cpu_exec_loop"
+  },
+  {
+    "percent": 0.09,
+    "samples": 5,
+    "period": 135254919,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_mpy_p_x1_x0_a"
+  },
+  {
+    "percent": 0.09,
+    "samples": 6,
+    "period": 130042418,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "invalidate_and_set_dirty.llvm.9823001788323054012"
+  },
+  {
+    "percent": 0.08,
+    "samples": 5,
+    "period": 126850860,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_mpy_p_y0_x0_b"
+  },
+  {
+    "percent": 0.08,
+    "samples": 1,
+    "period": 126201141,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000031cb5d"
+  },
+  {
+    "percent": 0.08,
+    "samples": 4,
+    "period": 125551451,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_mpy_p_x1_y0_a"
+  },
+  {
+    "percent": 0.08,
+    "samples": 6,
+    "period": 124904948,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000325a"
+  },
+  {
+    "percent": 0.08,
+    "samples": 4,
+    "period": 121061758,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_andi.llvm.12752694138931587586"
+  },
+  {
+    "percent": 0.08,
+    "samples": 4,
+    "period": 118929850,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003116"
+  },
+  {
+    "percent": 0.07,
+    "samples": 5,
+    "period": 113304563,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "probe_access_internal.llvm.15400734734619096472"
+  },
+  {
+    "percent": 0.07,
+    "samples": 6,
+    "period": 112993067,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "pgraph_vk_get_framebuffer_surface"
+  },
+  {
+    "percent": 0.07,
+    "samples": 5,
+    "period": 112895025,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003a1e"
+  },
+  {
+    "percent": 0.07,
+    "samples": 5,
+    "period": 112694773,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003104"
+  },
+  {
+    "percent": 0.07,
+    "samples": 4,
+    "period": 111861964,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_macr_p_x1_y0_a"
+  },
+  {
+    "percent": 0.07,
+    "samples": 5,
+    "period": 111101123,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000331e"
+  },
+  {
+    "percent": 0.07,
+    "samples": 5,
+    "period": 109525288,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "pgraph_vk_bind_textures"
+  },
+  {
+    "percent": 0.07,
+    "samples": 4,
+    "period": 108928893,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000323e"
+  },
+  {
+    "percent": 0.07,
+    "samples": 4,
+    "period": 107475010,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_ori.llvm.12752694138931587586"
+  },
+  {
+    "percent": 0.07,
+    "samples": 6,
+    "period": 107149501,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000009a7fc"
+  },
+  {
+    "percent": 0.07,
+    "samples": 4,
+    "period": 105105590,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "iotlb_to_section"
+  },
+  {
+    "percent": 0.07,
+    "samples": 4,
+    "period": 104993163,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000002fe1"
+  },
+  {
+    "percent": 0.07,
+    "samples": 4,
+    "period": 104121645,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "helper_mulss"
+  },
+  {
+    "percent": 0.07,
+    "samples": 5,
+    "period": 100889545,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000002fda"
+  },
+  {
+    "percent": 0.07,
+    "samples": 5,
+    "period": 100673819,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000031ec"
+  },
+  {
+    "percent": 0.07,
+    "samples": 4,
+    "period": 100098452,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "pgraph_method_log"
+  },
+  {
+    "percent": 0.07,
+    "samples": 4,
+    "period": 99150515,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "helper_cc_compute_c"
+  },
+  {
+    "percent": 0.07,
+    "samples": 4,
+    "period": 98735392,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "helper_comiss"
+  },
+  {
+    "percent": 0.06,
+    "samples": 2,
+    "period": 96786218,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003160"
+  },
+  {
+    "percent": 0.06,
+    "samples": 3,
+    "period": 96756383,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000394b"
+  },
+  {
+    "percent": 0.06,
+    "samples": 4,
+    "period": 94015931,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "memory_region_dispatch_write"
+  },
+  {
+    "percent": 0.06,
+    "samples": 4,
+    "period": 93593868,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "float32_add"
+  },
+  {
+    "percent": 0.06,
+    "samples": 3,
+    "period": 93491845,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "scatter_gather_rw"
+  },
+  {
+    "percent": 0.06,
+    "samples": 3,
+    "period": 93071458,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016c1bb"
+  },
+  {
+    "percent": 0.06,
+    "samples": 3,
+    "period": 91858555,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd123d27"
+  },
+  {
+    "percent": 0.06,
+    "samples": 3,
+    "period": 88803442,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000002e90"
+  },
+  {
+    "percent": 0.06,
+    "samples": 4,
+    "period": 88704685,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003189"
+  },
+  {
+    "percent": 0.06,
+    "samples": 4,
+    "period": 88384872,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000002fd5"
+  },
+  {
+    "percent": 0.06,
+    "samples": 4,
+    "period": 88145234,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000030a7"
+  },
+  {
+    "percent": 0.06,
+    "samples": 17,
+    "period": 87012817,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc444065"
+  },
+  {
+    "percent": 0.06,
+    "samples": 6,
+    "period": 86543157,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "mcpx_apu_frame_thread"
+  },
+  {
+    "percent": 0.06,
+    "samples": 5,
+    "period": 85310144,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003329"
+  },
+  {
+    "percent": 0.05,
+    "samples": 5,
+    "period": 83004520,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000318e"
+  },
+  {
+    "percent": 0.05,
+    "samples": 3,
+    "period": 82866427,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_mac_p_x0_x0_b"
+  },
+  {
+    "percent": 0.05,
+    "samples": 3,
+    "period": 82250661,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "do_ld4_mmu.llvm.15400734734619096472"
+  },
+  {
+    "percent": 0.05,
+    "samples": 3,
+    "period": 81818970,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_mac_p_y0_x0_b"
+  },
+  {
+    "percent": 0.05,
+    "samples": 4,
+    "period": 79794687,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000002fd9"
+  },
+  {
+    "percent": 0.05,
+    "samples": 3,
+    "period": 79118925,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003109"
+  },
+  {
+    "percent": 0.05,
+    "samples": 3,
+    "period": 78653898,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "mmu_lookup1"
+  },
+  {
+    "percent": 0.05,
+    "samples": 3,
+    "period": 77188555,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000031b4"
+  },
+  {
+    "percent": 0.05,
+    "samples": 3,
+    "period": 76643253,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000003dce4b"
+  },
+  {
+    "percent": 0.05,
+    "samples": 3,
+    "period": 76412362,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd115bf0"
+  },
+  {
+    "percent": 0.05,
+    "samples": 4,
+    "period": 76113955,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000002ef2"
+  },
+  {
+    "percent": 0.05,
+    "samples": 3,
+    "period": 72839585,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_dor_imm.llvm.12752694138931587586"
+  },
+  {
+    "percent": 0.05,
+    "samples": 3,
+    "period": 72566349,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000002e54"
+  },
+  {
+    "percent": 0.05,
+    "samples": 3,
+    "period": 71612503,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000030f0"
+  },
+  {
+    "percent": 0.05,
+    "samples": 5,
+    "period": 69765946,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "SDL_PeepEventsInternal.llvm.4769681012858742499"
+  },
+  {
+    "percent": 0.05,
+    "samples": 3,
+    "period": 69486903,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "prepare_vertex_data"
+  },
+  {
+    "percent": 0.05,
+    "samples": 2,
+    "period": 69224892,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000400d95"
+  },
+  {
+    "percent": 0.05,
+    "samples": 2,
+    "period": 69000490,
+    "comm": "xemu",
+    "dso": "libm.so.6",
+    "symbol": "0x000000000007d134"
+  },
+  {
+    "percent": 0.05,
+    "samples": 1,
+    "period": 68505194,
+    "comm": "xemu",
+    "dso": "libGL.so.1.7.0",
+    "symbol": "0x00000000000467c4"
+  },
+  {
+    "percent": 0.05,
+    "samples": 3,
+    "period": 68224762,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003309"
+  },
+  {
+    "percent": 0.04,
+    "samples": 7,
+    "period": 68047487,
+    "comm": "xemu",
+    "dso": "libglib-2.0.so.0",
+    "symbol": "g_get_monotonic_time"
+  },
+  {
+    "percent": 0.04,
+    "samples": 3,
+    "period": 67841629,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "pic_set_irq"
+  },
+  {
+    "percent": 0.04,
+    "samples": 7,
+    "period": 67285141,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc00008f"
+  },
+  {
+    "percent": 0.04,
+    "samples": 1,
+    "period": 67171571,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000004e20f1"
+  },
+  {
+    "percent": 0.04,
+    "samples": 3,
+    "period": 67123113,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "inv_tb_lookup_cmp.llvm.15934127697401424413"
+  },
+  {
+    "percent": 0.04,
+    "samples": 3,
+    "period": 66090046,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000030d1"
+  },
+  {
+    "percent": 0.04,
+    "samples": 3,
+    "period": 65881489,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003032"
+  },
+  {
+    "percent": 0.04,
+    "samples": 2,
+    "period": 65454975,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000003b6134"
+  },
+  {
+    "percent": 0.04,
+    "samples": 3,
+    "period": 64285597,
+    "comm": "xemu",
+    "dso": "libm.so.6",
+    "symbol": "0x000000000007d158"
+  },
+  {
+    "percent": 0.04,
+    "samples": 2,
+    "period": 63920508,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000003b6d07"
+  },
+  {
+    "percent": 0.04,
+    "samples": 3,
+    "period": 63620527,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000072211"
+  },
+  {
+    "percent": 0.04,
+    "samples": 3,
+    "period": 63563038,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000957b85"
+  },
+  {
+    "percent": 0.04,
+    "samples": 5,
+    "period": 62709650,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "get_bql_locked.llvm.3674820917739037335"
+  },
+  {
+    "percent": 0.04,
+    "samples": 3,
+    "period": 62603091,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "do_st4_mmu.llvm.15400734734619096472"
+  },
+  {
+    "percent": 0.04,
+    "samples": 1,
+    "period": 62168675,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "helper_fyl2x__hard"
+  },
+  {
+    "percent": 0.04,
+    "samples": 2,
+    "period": 62114155,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016ca2d"
+  },
+  {
+    "percent": 0.04,
+    "samples": 5,
+    "period": 62084963,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "object_dynamic_cast_assert"
+  },
+  {
+    "percent": 0.04,
+    "samples": 2,
+    "period": 61987182,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000a267b"
+  },
+  {
+    "percent": 0.04,
+    "samples": 3,
+    "period": 60506907,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "nv_dma_map"
+  },
+  {
+    "percent": 0.04,
+    "samples": 3,
+    "period": 60291017,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003080"
+  },
+  {
+    "percent": 0.04,
+    "samples": 2,
+    "period": 59879757,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000030ad"
+  },
+  {
+    "percent": 0.04,
+    "samples": 4,
+    "period": 59639184,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016ca93"
+  },
+  {
+    "percent": 0.04,
+    "samples": 3,
+    "period": 59526366,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "xemu_hud_update"
+  },
+  {
+    "percent": 0.04,
+    "samples": 21,
+    "period": 59125856,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "SDL_DelayPrecise_REAL"
+  },
+  {
+    "percent": 0.04,
+    "samples": 2,
+    "period": 58650900,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "update_surface_part"
+  },
+  {
+    "percent": 0.04,
+    "samples": 2,
+    "period": 56991684,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "float32_sub"
+  },
+  {
+    "percent": 0.04,
+    "samples": 12,
+    "period": 56807090,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc000080"
+  },
+  {
+    "percent": 0.04,
+    "samples": 2,
+    "period": 56573690,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000323a"
+  },
+  {
+    "percent": 0.04,
+    "samples": 3,
+    "period": 56471734,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000009a7d1"
+  },
+  {
+    "percent": 0.04,
+    "samples": 2,
+    "period": 56132952,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "helper_ldul_mmu"
+  },
+  {
+    "percent": 0.04,
+    "samples": 2,
+    "period": 55997006,
+    "comm": "xemu",
+    "dso": "libm.so.6",
+    "symbol": "0x000000000007c9e0"
+  },
+  {
+    "percent": 0.04,
+    "samples": 4,
+    "period": 55667094,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "qemu_mutex_lock_impl"
+  },
+  {
+    "percent": 0.04,
+    "samples": 2,
+    "period": 55524908,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000038cf"
+  },
+  {
+    "percent": 0.04,
+    "samples": 2,
+    "period": 55417419,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_max"
+  },
+  {
+    "percent": 0.04,
+    "samples": 2,
+    "period": 54969336,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003323"
+  },
+  {
+    "percent": 0.04,
+    "samples": 1,
+    "period": 54846055,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000a3f84"
+  },
+  {
+    "percent": 0.04,
+    "samples": 1,
+    "period": 54708445,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000003b6c06"
+  },
+  {
+    "percent": 0.04,
+    "samples": 2,
+    "period": 54620055,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016bf85"
+  },
+  {
+    "percent": 0.04,
+    "samples": 1,
+    "period": 54316674,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000331b3f"
+  },
+  {
+    "percent": 0.04,
+    "samples": 3,
+    "period": 54015416,
+    "comm": "xemu:gdrv0",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016ca84"
+  },
+  {
+    "percent": 0.04,
+    "samples": 3,
+    "period": 53756445,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc7158e1"
+  },
+  {
+    "percent": 0.04,
+    "samples": 1,
+    "period": 53512658,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000002feb"
+  },
+  {
+    "percent": 0.04,
+    "samples": 2,
+    "period": 53281110,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000304f"
+  },
+  {
+    "percent": 0.04,
+    "samples": 3,
+    "period": 52961625,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016bbb3"
+  },
+  {
+    "percent": 0.03,
+    "samples": 1,
+    "period": 52780895,
+    "comm": "xemu",
+    "dso": "libm.so.6",
+    "symbol": "0x000000000007bea1"
+  },
+  {
+    "percent": 0.03,
+    "samples": 3,
+    "period": 52635115,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "find_first_item.llvm.1263716629711278591"
+  },
+  {
+    "percent": 0.03,
+    "samples": 3,
+    "period": 51945195,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "qemu_clock_get_ns"
+  },
+  {
+    "percent": 0.03,
+    "samples": 3,
+    "period": 51581934,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000009376c2"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 51415219,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbcb1877f"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 51312645,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_macr_p_y0_x0_b"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 51062547,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000320a"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 50863429,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003947"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 50517487,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000302d"
+  },
+  {
+    "percent": 0.03,
+    "samples": 1,
+    "period": 50283019,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7beaeac77"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 50133094,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "helper_addss"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 50003075,
+    "comm": "xemu",
+    "dso": "libm.so.6",
+    "symbol": "0x000000000007d11d"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 49536791,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "helper_cc_compute_all"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 49315310,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000393f"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 48733879,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_calc_cc"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 48316705,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003a5b"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 47981976,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_macr_p_x1_y0_b"
+  },
+  {
+    "percent": 0.03,
+    "samples": 3,
+    "period": 47891597,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000002b55ed"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 47689175,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bdf59fd3"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 47607169,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000032e4"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 47333694,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "flatview_read_continue"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 47095301,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "x86_cpu_mmu_index.llvm.12251549622918587978"
+  },
+  {
+    "percent": 0.03,
+    "samples": 1,
+    "period": 46774356,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000316a"
+  },
+  {
+    "percent": 0.03,
+    "samples": 1,
+    "period": 46678816,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "SnapshotManager::DrawSnapshotDiscLoadDialog()"
+  },
+  {
+    "percent": 0.03,
+    "samples": 1,
+    "period": 46282782,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbd2ba37e"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 46229444,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "pgraph_NV097_SET_TRANSFORM_CONSTANT_handler"
+  },
+  {
+    "percent": 0.03,
+    "samples": 4,
+    "period": 45423332,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc443f03"
+  },
+  {
+    "percent": 0.03,
+    "samples": 1,
+    "period": 45295779,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000009a8c9"
+  },
+  {
+    "percent": 0.03,
+    "samples": 1,
+    "period": 45155535,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd345903"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 45025005,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016c1c5"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 44262879,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "pgraph_vk_render_display"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 43995386,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003304"
+  },
+  {
+    "percent": 0.03,
+    "samples": 1,
+    "period": 43590263,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bebf1d83"
+  },
+  {
+    "percent": 0.03,
+    "samples": 1,
+    "period": 43540367,
+    "comm": "xemu",
+    "dso": "libm.so.6",
+    "symbol": "0x000000000007d052"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 43402408,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "pgraph_glsl_set_vsh_uniform_values"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 43058026,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_abs_b"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 42590768,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000004f99f3"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 42270950,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000098dba"
+  },
+  {
+    "percent": 0.03,
+    "samples": 4,
+    "period": 41605509,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc444fcd"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 41470695,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000023e0"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 40999728,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000a6d84"
+  },
+  {
+    "percent": 0.03,
+    "samples": 1,
+    "period": 40784471,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000009411fc"
+  },
+  {
+    "percent": 0.03,
+    "samples": 1,
+    "period": 40613766,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bcdbdc03"
+  },
+  {
+    "percent": 0.03,
+    "samples": 3,
+    "period": 39930680,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "mmu_lookup.llvm.15400734734619096472"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 38923589,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "XXH3_hashLong_64b_default.llvm.7025552882428450528"
+  },
+  {
+    "percent": 0.03,
+    "samples": 3,
+    "period": 38717454,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "x86_cpu_exec_interrupt"
+  },
+  {
+    "percent": 0.03,
+    "samples": 1,
+    "period": 38632809,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bee083b3"
+  },
+  {
+    "percent": 0.03,
+    "samples": 2,
+    "period": 38328337,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "ImDrawList::_ResetForNewFrame()"
+  },
+  {
+    "percent": 0.03,
+    "samples": 1,
+    "period": 37975440,
+    "comm": "xemu",
+    "dso": "libm.so.6",
+    "symbol": "0x000000000007d0dc"
+  },
+  {
+    "percent": 0.03,
+    "samples": 1,
+    "period": 37960734,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000023a4"
+  },
+  {
+    "percent": 0.03,
+    "samples": 4,
+    "period": 37894918,
+    "comm": "xemu",
+    "dso": "libm.so.6",
+    "symbol": "0x000000000007bedb"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 37711426,
+    "comm": "xemu",
+    "dso": "libm.so.6",
+    "symbol": "0x000000000007d2bd"
+  },
+  {
+    "percent": 0.02,
+    "samples": 3,
+    "period": 37678003,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "HIDAPI_UpdateDevices"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 37542784,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000003da24"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 37338035,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000394f"
+  },
+  {
+    "percent": 0.02,
+    "samples": 2,
+    "period": 37120792,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbd2e7385"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 36653355,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "roundAndPackFloatx80"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 36570283,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000003b45f3"
+  },
+  {
+    "percent": 0.02,
+    "samples": 2,
+    "period": 36452619,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000098d67"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 36383329,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x000000000033cd0a"
+  },
+  {
+    "percent": 0.02,
+    "samples": 2,
+    "period": 36118901,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "xemu_input_update_controllers"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 36046307,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd02d183"
+  },
+  {
+    "percent": 0.02,
+    "samples": 2,
+    "period": 35770471,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "subpage_accepts"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 35459629,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "SDL_HashObject.llvm.17375349995870347641"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 35335022,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bdfb1915"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 35286162,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_macr_p_y1_x1_a"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 35265290,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc29394e"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 35244877,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x000000000032dddd"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 35121751,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bcb867c2"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 35029247,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000400fa5"
+  },
+  {
+    "percent": 0.02,
+    "samples": 2,
+    "period": 34977354,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "X11_GL_SwapWindow"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34947814,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbd2d2fac"
+  },
+  {
+    "percent": 0.02,
+    "samples": 2,
+    "period": 34869914,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003374"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34868360,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x000000000029dd54"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34823266,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000002a23b5"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34819497,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000003daeda"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34812621,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000331800"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34801624,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000331ff9"
+  },
+  {
+    "percent": 0.02,
+    "samples": 2,
+    "period": 34799634,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x000000000033201f"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34799032,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000004d852e"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34798937,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000331448"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34795419,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000499529"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34795005,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000004efe5a"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34786757,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "physical_memory_set_dirty_range_nocode"
+  },
+  {
+    "percent": 0.02,
+    "samples": 2,
+    "period": 34780341,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000002a3656"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34776231,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000003b6d03"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34774984,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000331790"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34761172,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000384341"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34693214,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "victim_tlb_hit"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34686960,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000003b5ed6"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34685436,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x000000000033d31d"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34656280,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000331852"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34603809,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000003d69c1"
+  },
+  {
+    "percent": 0.02,
+    "samples": 5,
+    "period": 34590120,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "dsp_c_write_memory.llvm.5225988660000961437"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34562551,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000a5344"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34561296,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bcdb6843"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34530366,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000401586"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34518578,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003972"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34511955,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bdbb2cf9"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34493532,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000401bc1"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34455478,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000002a7f20"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34442635,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000a274c"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34417888,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000003b6dbe"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34414761,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000331746"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34406160,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x000000000032dc48"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34374056,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bcdba17e"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34337501,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x000000000036adb6"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34295242,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000004e3847"
+  },
+  {
+    "percent": 0.02,
+    "samples": 3,
+    "period": 34264484,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "xemu_input_process_sdl_events"
+  },
+  {
+    "percent": 0.02,
+    "samples": 3,
+    "period": 34222996,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "memory_region_access_valid"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34211884,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd030b9c"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34189304,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000003ce410"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34185195,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_brclr_pp.llvm.12752694138931587586"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 34182013,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_cmp_imm.llvm.12752694138931587586"
+  },
+  {
+    "percent": 0.02,
+    "samples": 2,
+    "period": 34178110,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "ImDrawList::_PathArcToFastEx(ImVec2 const&, float, int, int, int)"
+  },
+  {
+    "percent": 0.02,
+    "samples": 2,
+    "period": 34030681,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "ImGui_ImplOpenGL3_SetupRenderState(ImDrawData*, int, int, unsigned int)"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 33991470,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000400fd6"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 33954490,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000002a3dfd"
+  },
+  {
+    "percent": 0.02,
+    "samples": 3,
+    "period": 33937173,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "gl_render_frame"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 33823734,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7be934342"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 33748351,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bf0f4662"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 33689221,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000401388"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 33667870,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bdd2b761"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 33591965,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000002a20f7"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 33537818,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bdbb1dd1"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 33486271,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000418986"
+  },
+  {
+    "percent": 0.02,
+    "samples": 2,
+    "period": 33437617,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "physical_memory_take_dirty_pages"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 33412392,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "floatx80_round_pack_canonical.llvm.11702124999211424084"
+  },
+  {
+    "percent": 0.02,
+    "samples": 2,
+    "period": 33396371,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc000125"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 33382479,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016bf95"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 33307101,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000003b6d98"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 33268981,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bdfd3f9c"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 33200677,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bdada9c3"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 33068586,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "page_trylock_add"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 33058157,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd1136e2"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 33046603,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000338144"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 32817764,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000331794"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 32626107,
+    "comm": "xemu",
+    "dso": "libm.so.6",
+    "symbol": "0x000000000007bead"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 32540105,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "pgraph_glsl_set_psh_state"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 32530677,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000004025d7"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 32428548,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "c_read_peripheral.llvm.5225988660000961437"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 32371074,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016c0b5"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 32250706,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000400704"
+  },
+  {
+    "percent": 0.02,
+    "samples": 2,
+    "period": 31964194,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc43f1c5"
+  },
+  {
+    "percent": 0.02,
+    "samples": 2,
+    "period": 31900909,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000031d32e"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 31898252,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bdbd3583"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 31849173,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000003aaca0"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 31750457,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000002e50"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 31630022,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000401798"
+  },
+  {
+    "percent": 0.02,
+    "samples": 2,
+    "period": 31595816,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc4440b1"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 31536969,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000004a3270"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 31479078,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_bcc_long.llvm.12752694138931587586"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 31422945,
+    "comm": "xemu",
+    "dso": "[vdso]",
+    "symbol": "0x0000000000000a1e"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 31407850,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000003aa9d1"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 31360936,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bcf90f81"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 31352619,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bc217ba2"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 31279346,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000456f91"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 31261256,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000a57ec"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 31186772,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "helper_ret_protected"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 31174338,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "pgraph_vk_surface_update"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 31145224,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "flatview_write.llvm.9823001788323054012"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 31061860,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000347de9"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 31020102,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bdfa7802"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 31013153,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003344"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 30893937,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bf0b6304"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 30846396,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000347d84"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 30818930,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_macr_p_y1_x1_b"
+  },
+  {
+    "percent": 0.02,
+    "samples": 2,
+    "period": 30809625,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "qemu_lockcnt_cmpxchg_or_wait.llvm.4107108306098829098"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 30759141,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "helper_mulps_xmm"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 30742925,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd04c583"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 30728015,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000899e44"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 30643640,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000003fb99a"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 30599897,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd04a383"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 30580978,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "tb_link_page"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 30566963,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x000000000029d5c5"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 30388781,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000330db0"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 30377416,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd123a83"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 30302585,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "tcg_gen_code"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 30281848,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bcb96a43"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 30071202,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd3416f8"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 30057352,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "helper_shufps_xmm"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 30015836,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7be8d59d2"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29989992,
+    "comm": "xemu",
+    "dso": "libglib-2.0.so.0",
+    "symbol": "0x0000000000024012"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29954228,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x000000000034804c"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29943238,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000098d81"
+  },
+  {
+    "percent": 0.02,
+    "samples": 2,
+    "period": 29943053,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000341c56"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29932047,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bdff1461"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29919591,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000000b6296"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29914349,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd046b01"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29878522,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "xemu_input_update_sdl_kbd_controller_state"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29824123,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7be172183"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29786490,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bf219c03"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29722435,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bedb1382"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29683829,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "event_watch_callback"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29670922,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000002a2a58"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29609948,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000a3d5d"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29566381,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "voice_set_mask"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29536226,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7beb309a8"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29500002,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000003ffd4d"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29390947,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bdd4eeb3"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29387034,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000003ab3c2"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29362312,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "tcg_optimize"
+  },
+  {
+    "percent": 0.02,
+    "samples": 2,
+    "period": 29320642,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000310c"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29279142,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd025905"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29268950,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bdff3965"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29250187,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000088d574"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29201476,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7be8d778a"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29171414,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd11ff43"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29116525,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003422"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29108381,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7beb01103"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29071956,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bea70925"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 29022248,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd34d93d"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 28947886,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bf13ee01"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 28920493,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd116581"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 28826096,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x000000000032dd60"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 28772511,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "physical_memory_set_dirty_flag"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 28764171,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "c_dma_mem_write.llvm.5225988660000961437"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 28744343,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "do_st_mmio_leN.llvm.15400734734619096472"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 28708398,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000031ff"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 28536565,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000000a82c4"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 28451898,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd0988c3"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 28404926,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000004e128c"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 28310512,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bc088648"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 28067693,
+    "comm": "xemu",
+    "dso": "libm.so.6",
+    "symbol": "0x0000000000047e5a"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 28057584,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bdfa7866"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 28054091,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "populate_surface_binding_target_sized"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 28016484,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000023e9"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 27998384,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bcbeae83"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 27959891,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bf156fc5"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 27717494,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003749"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 27636149,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000002ef7"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 27595782,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_cmp_y0_a"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 27592750,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000073e7c0"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 27518946,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bcdb8b01"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 27511141,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd2a46ad"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 27501541,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003223"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 27376629,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc41d0c4"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 27297307,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003201"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 27164062,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "pgraph_method"
+  },
+  {
+    "percent": 0.02,
+    "samples": 3,
+    "period": 27160095,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc444e64"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 27062389,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bc78ec43"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 26981016,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000094332"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 26965775,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bc209d03"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 26843000,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "cpu_exec_longjmp_cleanup"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 26770099,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003c2b"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 26755649,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "pgraph_vk_update_descriptor_sets"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 26744074,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000004e68cd"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 26695309,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016c171"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 26631999,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bedb2d63"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 26594243,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bedee4f3"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 26588971,
+    "comm": "xemu:gdrv0",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000116f73"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 26498456,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000098e5c"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 26443124,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000008fd487"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 26438592,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd02c6cd"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 26409485,
+    "comm": "xemu",
+    "dso": "libGLdispatch.so.0.0.0",
+    "symbol": "0x000000000001a8a4"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 26264026,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bdfcef78"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 26255840,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7beff5af1"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 26192160,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000030cb"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 26109043,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000008b2be1"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 26062245,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bf00276d"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 26053923,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbd2d04e4"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 26000285,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bcdb9504"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25955122,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "helper_fcomi_ST0_FT0__hard"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25935674,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "q_tree_insert_internal.llvm.2723673033334799554"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25896712,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "SDL_GetDisplayBounds_REAL"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25866802,
+    "comm": "xemu",
+    "dso": "libxcb-present.so.0.0.0",
+    "symbol": "0x00000000000013b4"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25829866,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000a6d60"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25823047,
+    "comm": "xemu",
+    "dso": "libxcb.so.1.1.0",
+    "symbol": "0x000000000001427b"
+  },
+  {
+    "percent": 0.02,
+    "samples": 3,
+    "period": 25771060,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "aio_ctx_check"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25730349,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "parts64_uncanon.llvm.11702124999211424084"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25683259,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003943"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25676537,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc4440a9"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25633298,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000008ef76f"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25632016,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc444096"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25539991,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "SDL_GetPerformanceCounter_REAL"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25521779,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "ImGuiIO::AddKeyAnalogEvent(ImGuiKey, bool, float)"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25521410,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000003aac08"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25489993,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bc20ff71"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25438188,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "helper_outb"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25433509,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "soft_f32_mul.llvm.11702124999211424084"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25372584,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "mttcg_cpu_thread_fn"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25357766,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bc19c543"
+  },
+  {
+    "percent": 0.02,
+    "samples": 2,
+    "period": 25353285,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000e29a2"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25282869,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bdbb2cfc"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25266808,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000000abde6"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25260050,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "lrint@plt"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25254163,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016c097"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25214462,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bcdb4c44"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25211521,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd11fa12"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25196646,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc43f126"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25163001,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000313214"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25099828,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd34dcc3"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 25051511,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7befeed03"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 24997019,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc441454"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 24973120,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bc218bc2"
+  },
+  {
+    "percent": 0.02,
+    "samples": 2,
+    "period": 24958879,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "pgraph_vk_process_hybrid_completions"
+  },
+  {
+    "percent": 0.02,
+    "samples": 4,
+    "period": 24915113,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000009a7e7"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 24833930,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "pgraph_vk_bind_vertex_attributes"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 24827208,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "ImDrawList::PrimReserve(int, int)"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 24808031,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000191464"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 24797644,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc3ad97a"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 24757960,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003170"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 24573925,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "float32_to_int32_scalbn"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 24553512,
+    "comm": "xemu",
+    "dso": "libm.so.6",
+    "symbol": "0x000000000007d028"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 24531304,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000949e64"
+  },
+  {
+    "percent": 0.02,
+    "samples": 2,
+    "period": 24463160,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "vp_write.llvm.1301536018277380079"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 24399749,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "pgraph_update_inline_value"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 24380508,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016c1a4"
+  },
+  {
+    "percent": 0.02,
+    "samples": 2,
+    "period": 24365525,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc444fd5"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 24364933,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bc00001f"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 24230942,
+    "comm": "xemu:gdrv0",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016ca89"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 24210891,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "usb_packet_set_state"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 24165292,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000742738"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 24150667,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bcdbddc3"
+  },
+  {
+    "percent": 0.02,
+    "samples": 2,
+    "period": 24144760,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc444fb8"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 24104221,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bebcc4c7"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 24082623,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd0785c3"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 23944585,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000001dd074"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 23864962,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd2c3c83"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 23847694,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003384"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 23804759,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000030f201"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 23729547,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_bsr_long.llvm.12752694138931587586"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 23656467,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "ImGui::RenderNavCursor(ImRect const&, unsigned int, int)"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 23502350,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bdd20643"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 23469799,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bc19cd42"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 23331374,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd34d662"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 23321326,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bdf8eb33"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 23314365,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "qht_remove"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 23312852,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bedb2b74"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 23304052,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "pic_read_irq"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 23291101,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bdd2c57b"
+  },
+  {
+    "percent": 0.02,
+    "samples": 8,
+    "period": 23208492,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "pfifo_thread"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 23099291,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016ba34"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 23029061,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bed6c5a0"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 22983529,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bdd3ab44"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 22930354,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000006db897"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 22903089,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd0c5c03"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 22892792,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000018a410"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 22830914,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000006dc33f"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 22801552,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bedc1b40"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 22773067,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bc1b7af3"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 22772399,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd0799c3"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 22769429,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_sub_b_a"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 22757313,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x000000000009d1f8"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 22748619,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000002b5fbf"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 22721990,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "do_interrupt_all"
+  },
+  {
+    "percent": 0.02,
+    "samples": 1,
+    "period": 22721458,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000091f84"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 22636367,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000391f"
+  },
+  {
+    "percent": 0.01,
+    "samples": 4,
+    "period": 22626419,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000094d25"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 22613598,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003936"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 22543084,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000003dc74"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 22541144,
+    "comm": "xemu",
+    "dso": "libm.so.6",
+    "symbol": "0x000000000007d0d2"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 22502611,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bdfb4484"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 22484733,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_brset_reg.llvm.12752694138931587586"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 22471782,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bdfb88c8"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 22426923,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000097dff"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 22407878,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bdbd2d81"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 22354499,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016c033"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 22314685,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000032b8"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 22270362,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "pgraph_vk_flush_draw_internal"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 22204168,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016caf7"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 22135116,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd049204"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 22123550,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7be91173c"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 22066561,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016c1ed"
+  },
+  {
+    "percent": 0.01,
+    "samples": 4,
+    "period": 22063651,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc00012a"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 22038140,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "usb_packet_setup"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 22035784,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000322f"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 22021587,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000337a"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 21974216,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bf0bc3c3"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 21955537,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000639ad"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 21904873,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "helper_cmpltps_xmm"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 21783514,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000939afa"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 21765296,
+    "comm": "xemu",
+    "dso": "libOpenGL.so.0.0.0",
+    "symbol": "0x000000000000f044"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 21756444,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000098dde"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 21619051,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000018e8f4"
+  },
+  {
+    "percent": 0.01,
+    "samples": 2,
+    "period": 21610719,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000009a8c0"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 21594914,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003902"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 21558137,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003198"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 21537983,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "vga_get_resolution"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 21508034,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc43f1fa"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 21466334,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd097f02"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 21399318,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "pgraph_NV097_SET_FOG_GEN_MODE_handler"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 21373492,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000024a4fd"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 21364046,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000002e83"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 21344768,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016bfa2"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 21287782,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016c1ca"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 21266579,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000001cf0ab"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 21214964,
+    "comm": "xemu",
+    "dso": "libOpenGL.so.0.0.0",
+    "symbol": "0x00000000000127e4"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 21168577,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7beaaea82"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 21117619,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000319df3"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 21077839,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd340f02"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 20958598,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000b66ea6"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 20940121,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000006dad77"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 20938398,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000bd1069"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 20911534,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000939b65"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 20900431,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000001810c0"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 20834446,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000002fba"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 20749738,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bdfe98c2"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 20744977,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "SDL_UpdateJoysticks_REAL"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 20719735,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003916"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 20705785,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "usb_pcap_data"
+  },
+  {
+    "percent": 0.01,
+    "samples": 10,
+    "period": 20623997,
+    "comm": "xemu:cs0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000937183"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 20551994,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bdd27dd9"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 20511392,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "SDL_RumbleJoystick_REAL"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 20478562,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "pic_update_irq"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 20472441,
+    "comm": "xemu",
+    "dso": "libm.so.6",
+    "symbol": "0x000000000007d09a"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 20444746,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000002d456d"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 20368364,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000000236c4"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 20293456,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000000b4fc4"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 20283383,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000090eac8"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 20245876,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000000d2cf1"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 20189052,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "update_uniform_rows"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 20183571,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd086a43"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 20168055,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000340183"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 20113455,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000008f98b3"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 20056253,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000000976ae"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19970086,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000007fcca4"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19968673,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "helper_divss"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19942889,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000340154"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19928322,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000022c04"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19901364,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bf0c2bbc"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19877337,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bf040c2f"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19866100,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bcb84b8b"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19856819,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000097ce3"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19852734,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_tcc.llvm.12752694138931587586"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19828077,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bcbf7b85"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19770264,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000001e2a11"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19731523,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000319ddc"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19720459,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_movep_23.llvm.12752694138931587586"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19616229,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000008f56a0"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19583875,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "parts128_uncanon_normal.llvm.11702124999211424084"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19567841,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "memory_region_sync_dirty_bitmap.llvm.4206699993733168639"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19513150,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000002362"
+  },
+  {
+    "percent": 0.01,
+    "samples": 3,
+    "period": 19477338,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc0014f0"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19437975,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd1142c4"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19427197,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd34d1df"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19423927,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd098fc3"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19399243,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "SDL_TransferTemporaryMemoryFromEvent.llvm.4769681012858742499"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19395820,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000000a21b4"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19369618,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000000c78b4"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19285732,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000002f09"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19256312,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc0014f4"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19200290,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "ImDrawList::AddDrawCmd()"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19196263,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bc78bf43"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19146752,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000006d671"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19110274,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000199064"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19092263,
+    "comm": "xemu",
+    "dso": "libm.so.6",
+    "symbol": "0x000000000007bf03"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19037059,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000002a114"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 19020040,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000026d01"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18932604,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003afb"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18930035,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000182a43"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18921511,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000006eba4"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18843834,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc43f294"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18821546,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc715901"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18783983,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000008f96c7"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18706789,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000024ed16"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18705459,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bdff084b"
+  },
+  {
+    "percent": 0.01,
+    "samples": 2,
+    "period": 18651601,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbd2d05ce"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18633233,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "SDL_DispatchEventWatchList"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18539058,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "ImGui::ItemHoverable(ImRect const&, unsigned int, int)"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18472153,
+    "comm": "xemu",
+    "dso": "libGL.so.1.7.0",
+    "symbol": "0x00000000000368a4"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18452281,
+    "comm": "xemu",
+    "dso": "libdbus-1.so.3",
+    "symbol": "0x0000000000012d2c"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18451481,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000003677b9"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18406412,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7beded40e"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18393451,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "mmu_translate"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18392588,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000001dc996"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18370067,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7beec7633"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18342086,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000070d74"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18307839,
+    "comm": "xemu",
+    "dso": "libGL.so.1.7.0",
+    "symbol": "0x0000000000033824"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18299978,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000742664"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18289814,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000002366"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18270771,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "SDL_SendJoystickSensor"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18181322,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "ImGui::BeginPopupModal(char const*, bool*, int)"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18169680,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "SDL_GetKeyboardFocus_REAL"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18160565,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016b8b6"
+  },
+  {
+    "percent": 0.01,
+    "samples": 3,
+    "period": 18153821,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "timerlistgroup_deadline_ns"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18120853,
+    "comm": "xemu",
+    "dso": "libm.so.6",
+    "symbol": "0x0000000000047e7d"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18110148,
+    "comm": "xemu",
+    "dso": "libGLX.so.0.0.0",
+    "symbol": "0x0000000000017b2c"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18108926,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000001db286"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18090612,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bedfc783"
+  },
+  {
+    "percent": 0.01,
+    "samples": 6,
+    "period": 18090164,
+    "comm": "xemu",
+    "dso": "libglib-2.0.so.0",
+    "symbol": "g_mutex_lock"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18089324,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "SDL_GetVideoDisplayForFullscreenWindow"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 18022433,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000073c1c1"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 17916078,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc611b27"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 17893033,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000034560f"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 17855099,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003131"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 17814164,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000062cfb"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 17777596,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000339b35"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 17657666,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "ImGui::End()"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 17654200,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "HIDAPI_DriverSteamDeck_UpdateDevice"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 17608275,
+    "comm": "xemu",
+    "dso": "libGLX.so.0.0.0",
+    "symbol": "0x0000000000013580"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 17568984,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000024dd32"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 17562215,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000e29a5"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 17539765,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "helper_stl_mmu"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 17451236,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000154212"
+  },
+  {
+    "percent": 0.01,
+    "samples": 3,
+    "period": 17443436,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016ca89"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 17424503,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000340a0f"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 17412581,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000009aff8b"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 17330932,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000002b802a"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 17247106,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000b686c7"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 17230765,
+    "comm": "xemu",
+    "dso": "libdbus-1.so.3",
+    "symbol": "0x000000000002bc52"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 17226737,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003a78"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 17223050,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000322d63"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 17198975,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7be172a03"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 17189036,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "replay_has_exception"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 17183465,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bc20ab43"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 17157523,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "ImDrawList::PathRect(ImVec2 const&, ImVec2 const&, float, int)"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 17138350,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd414906"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 17106033,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "CreateShaderModule.llvm.13408746550447476854"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 17073197,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000033edb9"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 16979719,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000003049d0"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 16905565,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "ImDrawList::PushTextureID(unsigned long long)"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 16815180,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "SDL_GetWindowFlags_REAL"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 16767126,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bd048b43"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 16720533,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000003455f4"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 16436058,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000898a10"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 16377019,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000188e14"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 16353552,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000a6dd3"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 16340988,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000006d58a"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 16333928,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000018a414"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 16303102,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000001d61c0"
+  },
+  {
+    "percent": 0.01,
+    "samples": 2,
+    "period": 16272697,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "timerlist_run_timers"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 16243296,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bc71ce03"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 16235140,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003267"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 16233619,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000001cf092"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 16204541,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003047"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 16200030,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc635b14"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 16104703,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000008fec44"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 16051269,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000002baa94"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 16025685,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000033f8e4"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 16005509,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000008fdba1"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 16002314,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000002362e"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 16000404,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "X11_PumpEvents"
+  },
+  {
+    "percent": 0.01,
+    "samples": 6,
+    "period": 15992543,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbd2e7380"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 15954326,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000088c780"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 15929075,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "SDL_GetWindowDisplayScale_REAL"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 15898646,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000007fa784"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 15826055,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000251a78"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 15818032,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000001a222f"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 15813362,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc293b87"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 15771689,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000939171"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 15740802,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000031da16"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 15735489,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "HIDAPI_JoystickUpdate"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 15709612,
+    "comm": "xemu",
+    "dso": "libm.so.6",
+    "symbol": "0x0000000000059740"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 15656020,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000000d2920"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 15536547,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "SDL_GetKeyboardState_REAL"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 15503127,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016bf70"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 15482982,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000008fb6a0"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 15441549,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000098d96"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 15435922,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "ImGui::CollapseButton(unsigned int, ImVec2 const&)"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 15349340,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc716544"
+  },
+  {
+    "percent": 0.01,
+    "samples": 3,
+    "period": 15338487,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000e2994"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 15256904,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "pgraph_NV097_SET_BLEND_ENABLE_handler"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 15230919,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000001d61c4"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 15225153,
+    "comm": "xemu:gdrv0",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000a799c"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 15105819,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000002b5621"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 15095717,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000001cf064"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 15063891,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "SDL_UpdateCursorAnimation"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 15047257,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000006d3eb"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 15030619,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000065f3ca"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 14988844,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000302680"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 14984226,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000341c44"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 14959190,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "SDL_GetGamepadButton_REAL"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 14950197,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000009764d"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 14908608,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000024dcc4"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 14814691,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000092854"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 14770110,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000937848"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 14753372,
+    "comm": "xemu",
+    "dso": "libOpenGL.so.0.0.0",
+    "symbol": "0x0000000000016ec4"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 14611779,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016c1b3"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 14500552,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000071abb"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 14440724,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x000000000048163f"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 14427471,
+    "comm": "xemu",
+    "dso": "libdbus-1.so.3",
+    "symbol": "0x000000000002b93d"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 14365422,
+    "comm": "xemu",
+    "dso": "libGLdispatch.so.0.0.0",
+    "symbol": "0x00000000000050e4"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 14352657,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000007403a4"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 14218034,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000340a9b"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 14209575,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "SDL_RemoveFromHashTable"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 14080383,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc43f1b3"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 14072645,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc611575"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 13973851,
+    "comm": "xemu:cs0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc294781"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 13966875,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000355288"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 13934444,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000002f4900"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 13872128,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000022da1"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 13838721,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000185a14"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 13702767,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000188e10"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 13698070,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "CompatibilityReporter::Draw()"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 13656685,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000001a2224"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 13605255,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000073b1f0"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 13600793,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000004f8bd1"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 13592900,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000073bb42"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 13532960,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000007f9ac0"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 13465163,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc44002f"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 13291274,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000006db5ae"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 13247279,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000002f31"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 13226001,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000955ec2"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 13160702,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000749524"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 13125784,
+    "comm": "xemu",
+    "dso": "libxcb.so.1.1.0",
+    "symbol": "0x0000000000013f02"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 13071101,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000031d3ac"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 13059660,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000a400d"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 13019788,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000192b34"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 13014284,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000001dd7d7"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 13011127,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "pit_irq_timer"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 12913014,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000006d644"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 12667495,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000001abd3f"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 12588368,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000d7acf7"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 12562986,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000000a2bd6"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 12510689,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbcffdf2d"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 12492230,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000003414f3"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 12453963,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000031d332"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 12448679,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000009201f"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 12443291,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "helper_fyl2x_common"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 12362600,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000906746"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 12139187,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000027341"
+  },
+  {
+    "percent": 0.01,
+    "samples": 2,
+    "period": 12032861,
+    "comm": "xemu",
+    "dso": "[vdso]",
+    "symbol": "0x00000000000009f4"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 11920811,
+    "comm": "xemu",
+    "dso": "libGLX_mesa.so.0.0.0",
+    "symbol": "0x000000000001d264"
+  },
+  {
+    "percent": 0.01,
+    "samples": 6,
+    "period": 11748397,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "vga_update_display"
+  },
+  {
+    "percent": 0.01,
+    "samples": 2,
+    "period": 11738366,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "vblank_timer_thread"
+  },
+  {
+    "percent": 0.01,
+    "samples": 4,
+    "period": 11683527,
+    "comm": "xemu:cs0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc444065"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 11303142,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "ohci_service_ed_list"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 11167954,
+    "comm": "xemu:gdrv0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc4440b1"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 11018372,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "publish_prepared_vertex_data"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 10994234,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "SDL_GetJoystickButton_REAL"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 10947527,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000004ed281"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 10580918,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016bb9d"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 10417572,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000001de5fb"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 10323940,
+    "comm": "xemu",
+    "dso": "libxcb.so.1.1.0",
+    "symbol": "0x000000000000f153"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 10293453,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000002f60"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 10150033,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "SDL_UpdateSteamVirtualGamepadInfo"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 10143381,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000030f7"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 10054929,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000086c3a5"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 9631562,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "emu_brclr_reg.llvm.12752694138931587586"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 9562021,
+    "comm": "xemu:cs0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc000087"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 9267771,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7beae75e3"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 8981081,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000039e9"
+  },
+  {
+    "percent": 0.01,
+    "samples": 4,
+    "period": 8715065,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000ee859"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 8589480,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "memory_region_clear_dirty_bitmap"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 8166189,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000006dbb42"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 8071929,
+    "comm": "xemu:cs0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc611e67"
+  },
+  {
+    "percent": 0.01,
+    "samples": 1,
+    "period": 7605042,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "glslang::TInputScanner::get()"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 7305353,
+    "comm": "SDLAudioP15",
+    "dso": "libspa-audioconvert.so",
+    "symbol": "0x0000000000030d1e"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 7277337,
+    "comm": "xemu:cs0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbd2e7385"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 6881791,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000000c65f7"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 6838703,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000003b6208"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 6778059,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "pgraph_reg_w"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 6529291,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000000632b8"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 6446820,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000003fba6c"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 5992588,
+    "comm": "SDLAudioP15",
+    "dso": "xemu",
+    "symbol": "NextAudioStreamIter"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 4804137,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc444004"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 3812984,
+    "comm": "xemu:cs0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc000080"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 3418947,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "ImFont::RenderText(ImDrawList*, float, ImVec2 const&, unsigned int, ImVec4 const&, char const*, char const*, float, bool)"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 3201561,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000008a3994"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 3201561,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000939124"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 2649061,
+    "comm": "xemu:cs0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc722b33"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 2647060,
+    "comm": "xemu:cs0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc444038"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 2576679,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000009307f0"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 2558660,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000097344"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 2361498,
+    "comm": "xemu:cs0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000093a646"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 2258172,
+    "comm": "xemu:cs0",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000094c9c"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 2160233,
+    "comm": "xemu:cs0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc722b55"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 2094895,
+    "comm": "xemu:cs0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000093a9b9"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 2025972,
+    "comm": "xemu:cs0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000004f881d"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 2003664,
+    "comm": "xemu:cs0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000093807f"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1798500,
+    "comm": "xemu:cs0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000093aa8c"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1787680,
+    "comm": "xemu:cs0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000093ae1a"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1783010,
+    "comm": "xemu:cs0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000b686b4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1675808,
+    "comm": "xemu:cs0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc000125"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1655037,
+    "comm": "xemu:cs0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc0014f0"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1582964,
+    "comm": "xemu:cs0",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000114f14"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1504828,
+    "comm": "xemu:cs0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000093a2ef"
+  },
+  {
+    "percent": 0.0,
+    "samples": 3,
+    "period": 1447774,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000279db"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1265426,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000031d0be"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1225973,
+    "comm": "xemu:cs0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc7126b1"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1182033,
+    "comm": "xemu:cs0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbd2e7380"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1166062,
+    "comm": "xemu:cs0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc44002f"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1112719,
+    "comm": "xemu:cs0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000936755"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1008011,
+    "comm": "xemu",
+    "dso": "libdbus-1.so.3",
+    "symbol": "0x0000000000016fc5"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 882025,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "memory_region_snapshot_get_dirty"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 861747,
+    "comm": "xemu:cs0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc440024"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 784130,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000747441"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 702810,
+    "comm": "xemu",
+    "dso": "libX11.so.6.4.0",
+    "symbol": "0x000000000003e7d7"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 579753,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "qemu_main_loop"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 439156,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc444d40"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 226617,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000008a3624"
+  },
+  {
+    "percent": 0.0,
+    "samples": 3,
+    "period": 214972,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000a4ec5"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 102506,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000002bf44"
+  },
+  {
+    "percent": 0.0,
+    "samples": 3,
+    "period": 87901,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbd2e7388"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 86094,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000008f7e3b"
+  },
+  {
+    "percent": 0.0,
+    "samples": 14,
+    "period": 76630,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "worker_thread"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 73854,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "SDL_GetDisplayForWindow_REAL"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 73566,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "usb_hub_find_device"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 68245,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "x86_need_replay_interrupt"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 67446,
+    "comm": "SDLAudioP15",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000e2990"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 67384,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000006bbaa"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 67384,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000344e9e"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 65094,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000090b683"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 61588,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000937d56"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 61184,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000088dd41"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 61184,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000008efc81"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 61184,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000008f23b4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 60216,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000009083ff"
+  },
+  {
+    "percent": 0.0,
+    "samples": 7,
+    "period": 57339,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc000084"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 57050,
+    "comm": "xemu",
+    "dso": "libglib-2.0.so.0",
+    "symbol": "g_main_context_acquire"
+  },
+  {
+    "percent": 0.0,
+    "samples": 3,
+    "period": 54960,
+    "comm": "SDLAudioP15",
+    "dso": "libpipewire-0.3.so.0.1604.0",
+    "symbol": "0x000000000005e9b4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 54689,
+    "comm": "xemu:disk$3",
+    "dso": "libzstd.so.1",
+    "symbol": "ZSTD_compressBlock_doubleFast"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 54262,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "nv2a_vga_gfx_update.llvm.1925204183175983276"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 51896,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016e3e0"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 50082,
+    "comm": "SDLAudioP15",
+    "dso": "libspa-support.so",
+    "symbol": "0x00000000000065a0"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 49528,
+    "comm": "SDLAudioP15",
+    "dso": "xemu",
+    "symbol": "SDL_GetAudioStreamDataAdjustGain"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 49428,
+    "comm": "xemu:cs0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc712709"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 49351,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "monitor_fdsets_cleanup"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 49072,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000a669a"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 48617,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000908335"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 48617,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000009afc24"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 48173,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "poll_set_started.llvm.8706293261740590077"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 45214,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000ef194"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 44700,
+    "comm": "xemu",
+    "dso": "[JIT] tid 32843",
+    "symbol": "0x00007fe7bc46ed66"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 44289,
+    "comm": "SDLAudioP15",
+    "dso": "libspa-audioconvert.so",
+    "symbol": "0x000000000005f38c"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 43020,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000116f54"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 40499,
+    "comm": "xemu:cs0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc3ff548"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 40475,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000008fa2f8"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 40475,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000008fd2d2"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 36080,
+    "comm": "xemu:cs0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000009366c4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 34730,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "ohci_process_lists"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 34354,
+    "comm": "xemu",
+    "dso": "libglib-2.0.so.0",
+    "symbol": "g_hash_table_new_full"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 33819,
+    "comm": "SDLAudioP15",
+    "dso": "libspa-support.so",
+    "symbol": "0x00000000000065b3"
+  },
+  {
+    "percent": 0.0,
+    "samples": 5,
+    "period": 32881,
+    "comm": "xemu",
+    "dso": "[vdso]",
+    "symbol": "0x00000000000009b5"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 31198,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc6f0c64"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 30688,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "raise_interrupt2.llvm.17674443717612516967"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 30521,
+    "comm": "xemu:cs0",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000a6e35"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 30237,
+    "comm": "xemu:disk$2",
+    "dso": "libzstd.so.1",
+    "symbol": "malloc@plt"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 30094,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc6f43a4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 30065,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000341ad2"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 29633,
+    "comm": "xemu:cs0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000093a250"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 29077,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000091fa0"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 28933,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "address_space_stb"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 28155,
+    "comm": "xemu:disk$3",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016e407"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 27899,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "qio_channel_fd_source_check"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 27781,
+    "comm": "xemu:disk$1",
+    "dso": "libzstd.so.1",
+    "symbol": "ZSTD_compress"
+  },
+  {
+    "percent": 0.0,
+    "samples": 3,
+    "period": 27357,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbd2d0534"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 26881,
+    "comm": "SDLAudioP15",
+    "dso": "xemu",
+    "symbol": "SDL_ReadFromAudioQueue"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 26850,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc7243d7"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 26665,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000331ec4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 25748,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000011ace4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 25597,
+    "comm": "xemu:disk$0",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000064f91"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 24983,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc724348"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 24475,
+    "comm": "xemu:disk$3",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000a669a"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 24150,
+    "comm": "xemu:disk$1",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000a6dd3"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 23603,
+    "comm": "xemu:disk$3",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000a27d1"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 23314,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbcb1878a"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 22675,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000010c0c4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 22504,
+    "comm": "xemu:disk$2",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbd2d7a56"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 22463,
+    "comm": "xemu:disk$1",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000002c22bb"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 16053,
+    "comm": "xemu:disk$2",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000089dc0"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 13674,
+    "comm": "xemu:disk$0",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000006435d"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 11798,
+    "comm": "xemu:disk$0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc78ec64"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 10487,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc7243a5"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 7640,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "ohci_frame_boundary.llvm.7797944754390777359"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 5760,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc722b33"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 4725,
+    "comm": "xemu",
+    "dso": "libGLX_mesa.so.0.0.0",
+    "symbol": "0x0000000000028e82"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 4316,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc430006"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 3859,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000938401"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 3358,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "hybrid_pipeline_create"
+  },
+  {
+    "percent": 0.0,
+    "samples": 12,
+    "period": 2355,
+    "comm": "xemu",
+    "dso": "libglib-2.0.so.0",
+    "symbol": "g_main_context_check"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1121,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc424465"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 864,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000892684"
+  },
+  {
+    "percent": 0.0,
+    "samples": 6,
+    "period": 551,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "fdmon_poll_gsource_check.llvm.8715163228567524058"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 531,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc42ffa4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 3,
+    "period": 509,
+    "comm": "SDLAudioP15",
+    "dso": "libspa-support.so",
+    "symbol": "0x00000000000066ed"
+  },
+  {
+    "percent": 0.0,
+    "samples": 5,
+    "period": 456,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016ca8e"
+  },
+  {
+    "percent": 0.0,
+    "samples": 4,
+    "period": 398,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000939ab3"
+  },
+  {
+    "percent": 0.0,
+    "samples": 6,
+    "period": 314,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc000087"
+  },
+  {
+    "percent": 0.0,
+    "samples": 8,
+    "period": 311,
+    "comm": "xemu",
+    "dso": "libglib-2.0.so.0",
+    "symbol": "g_private_get"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 298,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc385dc4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 6,
+    "period": 291,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc43f3a4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 267,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000114f10"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 264,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc2938c0"
+  },
+  {
+    "percent": 0.0,
+    "samples": 3,
+    "period": 259,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "main_loop_wait"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 256,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbd2d5d76"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 255,
+    "comm": "SDLAudioP15",
+    "dso": "libpipewire-0.3.so.0.1604.0",
+    "symbol": "0x000000000005e9f8"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 254,
+    "comm": "xemu",
+    "dso": "libglib-2.0.so.0",
+    "symbol": "g_source_ref"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 253,
+    "comm": "xemu:gdrv0",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000098d60"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 253,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000074552c"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 244,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000097360"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 241,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000004f83fb"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 240,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000074319d"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 239,
+    "comm": "xemu:cs0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000009bcb04"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 220,
+    "comm": "xemu:gdrv0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc43f3a4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 215,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc430065"
+  },
+  {
+    "percent": 0.0,
+    "samples": 3,
+    "period": 215,
+    "comm": "xemu:gdrv0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc44002f"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 207,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc42ffab"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 204,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbd2d2fc2"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 190,
+    "comm": "xemu:cs0",
+    "dso": "libdrm.so.2.129.0",
+    "symbol": "0x000000000000bd90"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 190,
+    "comm": "xemu:disk$3",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000089a44"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 185,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc294173"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 183,
+    "comm": "xemu:cs0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000939ddd"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 181,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000004f8777"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 180,
+    "comm": "SDLAudioP15",
+    "dso": "libspa-support.so",
+    "symbol": "0x000000000001b9a0"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 179,
+    "comm": "xemu:gdrv0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc43f115"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 178,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "cpu_tb_exec"
+  },
+  {
+    "percent": 0.0,
+    "samples": 7,
+    "period": 177,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016ca84"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 176,
+    "comm": "xemu:cs0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc44157e"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 174,
+    "comm": "xemu",
+    "dso": "[vdso]",
+    "symbol": "0x00000000000009ac"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 163,
+    "comm": "xemu:disk$0",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000006392a"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 162,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000004f8744"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 158,
+    "comm": "xemu:cs0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000b686b0"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 141,
+    "comm": "xemu:disk$0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc4440b1"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 140,
+    "comm": "xemu:disk$2",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000063948"
+  },
+  {
+    "percent": 0.0,
+    "samples": 16,
+    "period": 139,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000091fe5"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 137,
+    "comm": "xemu:cs0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc0000ba"
+  },
+  {
+    "percent": 0.0,
+    "samples": 11,
+    "period": 126,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc000116"
+  },
+  {
+    "percent": 0.0,
+    "samples": 3,
+    "period": 119,
+    "comm": "xemu:cs0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000939a47"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 117,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000009a80a"
+  },
+  {
+    "percent": 0.0,
+    "samples": 3,
+    "period": 117,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000939a47"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 116,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "apic_get_interrupt"
+  },
+  {
+    "percent": 0.0,
+    "samples": 3,
+    "period": 116,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc43f116"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 114,
+    "comm": "xemu:disk$1",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc444055"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 112,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "handle_aiocb_rw"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 111,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc001a75"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 110,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000092015"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 110,
+    "comm": "xemu:disk$3",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc444065"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 109,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x000000000034d8e2"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 109,
+    "comm": "xemu:cs0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000939dc2"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 108,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000347df0"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 107,
+    "comm": "SDLAudioP15",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000098d67"
+  },
+  {
+    "percent": 0.0,
+    "samples": 3,
+    "period": 106,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc43f115"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 103,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc444042"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 103,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc722b55"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 102,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbd2d3f70"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 101,
+    "comm": "xemu",
+    "dso": "libglib-2.0.so.0",
+    "symbol": "0x0000000000054194"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 101,
+    "comm": "xemu:disk$1",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x000000000029ae74"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 100,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "pipeline_worker.llvm.14916639479844345005"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 99,
+    "comm": "xemu:disk$0",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000946e0"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 97,
+    "comm": "xemu:disk$2",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc000080"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 95,
+    "comm": "xemu:disk$2",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc444065"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 95,
+    "comm": "xemu:disk$3",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc440e82"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 92,
+    "comm": "xemu:disk$1",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc440f65"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 92,
+    "comm": "xemu:disk$3",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000002a6e27"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 91,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000928d4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 91,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000115e14"
+  },
+  {
+    "percent": 0.0,
+    "samples": 6,
+    "period": 6,
+    "comm": "SDLAudioP15",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000098d60"
+  },
+  {
+    "percent": 0.0,
+    "samples": 5,
+    "period": 5,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000e2990"
+  },
+  {
+    "percent": 0.0,
+    "samples": 5,
+    "period": 5,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "pgraph_vk_process_pending"
+  },
+  {
+    "percent": 0.0,
+    "samples": 5,
+    "period": 5,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "qemu_cond_wait_impl"
+  },
+  {
+    "percent": 0.0,
+    "samples": 4,
+    "period": 4,
+    "comm": "SDLAudioP15",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000091fde"
+  },
+  {
+    "percent": 0.0,
+    "samples": 4,
+    "period": 4,
+    "comm": "SDLAudioP15",
+    "dso": "libspa-support.so",
+    "symbol": "0x000000000001bc8c"
+  },
+  {
+    "percent": 0.0,
+    "samples": 4,
+    "period": 4,
+    "comm": "xemu",
+    "dso": "libglib-2.0.so.0",
+    "symbol": "g_main_context_get_thread_default"
+  },
+  {
+    "percent": 0.0,
+    "samples": 3,
+    "period": 3,
+    "comm": "SDLAudioP15",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000091fe5"
+  },
+  {
+    "percent": 0.0,
+    "samples": 3,
+    "period": 3,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000279d0"
+  },
+  {
+    "percent": 0.0,
+    "samples": 3,
+    "period": 3,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000920d8"
+  },
+  {
+    "percent": 0.0,
+    "samples": 3,
+    "period": 3,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000094eb3"
+  },
+  {
+    "percent": 0.0,
+    "samples": 3,
+    "period": 3,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000004eaebb"
+  },
+  {
+    "percent": 0.0,
+    "samples": 3,
+    "period": 3,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "x86_cpu_pending_interrupt"
+  },
+  {
+    "percent": 0.0,
+    "samples": 3,
+    "period": 3,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbd2d052f"
+  },
+  {
+    "percent": 0.0,
+    "samples": 3,
+    "period": 3,
+    "comm": "xemu:cs0",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000094d25"
+  },
+  {
+    "percent": 0.0,
+    "samples": 3,
+    "period": 3,
+    "comm": "xemu:disk$2",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000094d25"
+  },
+  {
+    "percent": 0.0,
+    "samples": 3,
+    "period": 3,
+    "comm": "xemu:disk$3",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000091fe5"
+  },
+  {
+    "percent": 0.0,
+    "samples": 3,
+    "period": 3,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000744125"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 2,
+    "comm": "SDLAudioP15",
+    "dso": "libspa-support.so",
+    "symbol": "0x0000000000006643"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 2,
+    "comm": "SDLAudioP15",
+    "dso": "libspa-support.so",
+    "symbol": "0x000000000001bce8"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 2,
+    "comm": "xemu",
+    "dso": "[vdso]",
+    "symbol": "0x0000000000000984"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 2,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000097f67"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 2,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000098d8e"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 2,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000009a8c4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 2,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000939a44"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 2,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "do_ld_mmio_beN.llvm.15400734734619096472"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 2,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "qemu_cond_timedwait_impl"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 2,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "qemu_mutex_unlock_impl"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 2,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc0000ab"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 2,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc43f206"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 2,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc444da3"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 2,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbd2e605b"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 2,
+    "comm": "xemu:cs0",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000091fe5"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 2,
+    "comm": "xemu:cs0",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000094c74"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 2,
+    "comm": "xemu:disk$1",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000091fe5"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 2,
+    "comm": "xemu:disk$1",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000002a6df4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 2,
+    "comm": "xemu:disk$1",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000002a6e27"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 2,
+    "comm": "xemu:disk$2",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000002a6df4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 2,
+    "comm": "xemu:disk$3",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000002a6df4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 2,
+    "comm": "xemu:gdrv0",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000094bd0"
+  },
+  {
+    "percent": 0.0,
+    "samples": 2,
+    "period": 2,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000090eca6"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[vdso]",
+    "symbol": "0x00000000000009d9"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000279e4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000091f99"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000091fda"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000091fde"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000092014"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000092628"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000009264d"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000092856"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000094944"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000009494d"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000094c57"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000094c9c"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000094cb6"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000094e6e"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000094e8c"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000094f2f"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000097f89"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000098d6d"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000098e61"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000009a7b4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000ee85c"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016ca00"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016ca97"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016ca9a"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000016cab6"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000090ef35"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000090ef42"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000939a50"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libglib-2.0.so.0",
+    "symbol": "0x0000000000053daa"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libglib-2.0.so.0",
+    "symbol": "0x0000000000054110"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libglib-2.0.so.0",
+    "symbol": "0x00000000000ab428"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libglib-2.0.so.0",
+    "symbol": "0x00000000000ab42f"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x0000000000331f20"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000003334c4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x000000000034810a"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x000000000034d8de"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "ImGui_ImplSDL3_ProcessEvent(SDL_Event const*)"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "hybrid_compiler_blocking_worker.llvm.6238223597989429767"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "hybrid_compiler_worker.llvm.6238223597989429767"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "main"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "memory_region_write_accessor"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "pic_ioport_write"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "qemu_cond_timedwait_ts.llvm.7942547344437843778"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "replay_mutex_lock"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "voice_lock"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc0000b4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc0000c2"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc0000d2"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc000111"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc001610"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc001a30"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc3909aa"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc41d10a"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc43f143"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc43f170"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc43f17a"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc43f290"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc43f324"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc43f340"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc43f341"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc43f37a"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc43f3ad"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc43f4eb"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc440e54"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc440e69"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc440f65"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc44157d"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc443fd4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc443fdb"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc44401f"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc444063"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc444d57"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc444d5c"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc444ea2"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc444f7b"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc722b6c"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbd2d04e0"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbd2d04fd"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbd2d0519"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:cs0",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000091fde"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:cs0",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000092612"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:cs0",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000094c57"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:cs0",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000009a7ff"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:cs0",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000009a8c0"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:cs0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000541cef"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:cs0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000939d88"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:cs0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc000116"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:cs0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc001a30"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:cs0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc43f324"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:disk$0",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000091fde"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:disk$0",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000091fe5"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:disk$0",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000009494d"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:disk$0",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000094c57"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:disk$0",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000009a8c0"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:disk$0",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000002a6df4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:disk$0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc43f18c"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:disk$0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc444ea2"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:disk$0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc444fcd"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:disk$1",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000097f94"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:disk$1",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000002dd13f"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:disk$1",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc000116"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:disk$2",
+    "dso": "libc.so.6",
+    "symbol": "0x000000000009a8c4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:disk$2",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x000000000029f8d4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:disk$2",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000002dd13f"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:disk$2",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc0000b4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:disk$3",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000091fda"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:disk$3",
+    "dso": "libc.so.6",
+    "symbol": "0x00000000000946e4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:disk$3",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000094c57"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:disk$3",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000002a6e8f"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:disk$3",
+    "dso": "libvulkan_radeon.so",
+    "symbol": "0x00000000002dd13f"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:disk$3",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc43f206"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:gdrv0",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000091fe5"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:gdrv0",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000094c2c"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:gdrv0",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000094c57"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:gdrv0",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000094cc4"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:gdrv0",
+    "dso": "libc.so.6",
+    "symbol": "0x0000000000094d25"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000004f83e5"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x00000000004f881d"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x0000000000744a62"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:gdrv0",
+    "dso": "libgallium-25.3.0.so",
+    "symbol": "0x000000000090ec88"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:gdrv0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc0000ab"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:gdrv0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc000116"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:gdrv0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc43f1c1"
+  },
+  {
+    "percent": 0.0,
+    "samples": 1,
+    "period": 1,
+    "comm": "xemu:gdrv0",
+    "dso": "[unknown]",
+    "symbol": "[k] 0xffffffffbc440e54"
+  }
+]

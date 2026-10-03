@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "id": "runner848-deck-followup-quit-canary-20261001",
+  "testId": "runner848-deck-native-followup-quit-v1",
+  "revision": "e63ce9b708697495ac30ed0467e0a34def7f98e636545f9602ded4a941e0ccd7",
+  "state": "queued",
+  "operation": "/api/v1/jobs/runner848-deck-followup-quit-canary-20261001/operation",
+  "next": "/api/v1/jobs/runner848-deck-followup-quit-canary-20261001?view=summary"
+}

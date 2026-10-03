@@ -1,0 +1,386 @@
+{
+  "runId": "20261001-163656280-a3546f341dc74aaab9b0a8b56ae49005",
+  "job": "issue229-deck-c-parent-profile-20261001",
+  "jobPackage": "agent-issue229-deck-c-parent-profile-20261001",
+  "attempt": 2,
+  "status": "unresponsive",
+  "detail": "QMP watchdog threshold reached. This is not a guest-progress verdict.",
+  "startedUtc": "2026-10-01T16:36:56.2808247+00:00",
+  "endedUtc": "2026-10-01T16:38:55.8346146+00:00",
+  "durationMs": 119553.79,
+  "processId": 33203,
+  "exitCode": 0,
+  "crash": {
+    "RunId": "20261001-163656280-a3546f341dc74aaab9b0a8b56ae49005",
+    "ExecutableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+    "Platform": "linux",
+    "ProcessId": 33203,
+    "ExitCode": 0,
+    "RunnerTerminated": false,
+    "Crashed": false,
+    "Source": "waitpid",
+    "Code": null,
+    "Capture": "partial",
+    "Dump": "unavailable",
+    "Analysis": "unavailable",
+    "TopFrames": [],
+    "Issues": [
+      "linux_core_metadata_unavailable:captured"
+    ]
+  },
+  "diagnosticBundle": "diagnostic-bundle.json",
+  "launchMode": "direct",
+  "snapshotName": null,
+  "startPaused": false,
+  "executable": "xemu",
+  "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+  "arguments": [
+    "-config_path",
+    "xemu.toml",
+    "-qmp",
+    "tcp:127.0.0.1:41455,server=on,wait=off"
+  ],
+  "watchdog": {
+    "Failures": 3,
+    "LastSuccessUtc": "2026-10-01T16:38:31.9686918+00:00",
+    "Error": "Unable to read data from the transport connection: Connection reset by peer."
+  },
+  "failureCaptureError": null,
+  "automaticDiagnostic": {
+    "Id": "auto-hang-163848497",
+    "Type": "hang_bundle",
+    "Status": "completed",
+    "StartedUtc": "2026-10-01T16:38:48.5033764+00:00",
+    "EndedUtc": "2026-10-01T16:38:49.2262416+00:00",
+    "Directory": "/home/deck/xemu-research/workspace/Results/20261001-163656280-a3546f341dc74aaab9b0a8b56ae49005/diagnostics/20261001-163848503-auto-hang-163848497",
+    "Detail": " Pause after diagnostic failed: Connection refused",
+    "Artifacts": [
+      "screen.png",
+      "gdb-backtrace.txt"
+    ]
+  },
+  "automaticDiagnosticError": null,
+  "diagnostics": [
+    {
+      "Id": "auto-hang-163848497",
+      "Type": "hang_bundle",
+      "Status": "completed",
+      "StartedUtc": "2026-10-01T16:38:48.5033764+00:00",
+      "EndedUtc": "2026-10-01T16:38:49.2262416+00:00",
+      "Directory": "/home/deck/xemu-research/workspace/Results/20261001-163656280-a3546f341dc74aaab9b0a8b56ae49005/diagnostics/20261001-163848503-auto-hang-163848497",
+      "Detail": " Pause after diagnostic failed: Connection refused",
+      "Artifacts": [
+        "screen.png",
+        "gdb-backtrace.txt"
+      ]
+    }
+  ],
+  "operatorActivity": {
+    "Intervened": true,
+    "ManualInputs": 1,
+    "Pauses": 0,
+    "Screenshots": 0,
+    "PreviewCaptures": 0,
+    "BulkTransfers": 0,
+    "Diagnostics": 1,
+    "HostStateChanges": 0
+  },
+  "workload": {
+    "Correctness": "failed",
+    "Evidence": "incomplete",
+    "Checks": [
+      {
+        "Name": "analysis:monitor",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "monitor: Selected segment has insufficient CPU/duty samples."
+      },
+      {
+        "Name": "analysis:flips",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "analysis:frames",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "recording-start-visible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "PNG has 4.721% non-black pixels above RGB threshold 96; expected at least 5.000%."
+      },
+      {
+        "Name": "recording-end-visible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Required artifact is missing: /home/deck/xemu-research/workspace/Results/20261001-163656280-a3546f341dc74aaab9b0a8b56ae49005/screenshots/recording-end.png"
+      },
+      {
+        "Name": "guest-progress",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:guest-frames.log satisfied the declared requirement."
+      },
+      {
+        "Name": "measurement-segments",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:segments.jsonl satisfied the declared requirement."
+      },
+      {
+        "Name": "minimum_metric_samples",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Required \u003E= 160; actual 217."
+      },
+      {
+        "Name": "plan_completion",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "The declared plan completed."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": true,
+        "Category": "state",
+        "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+      }
+    ],
+    "Measurements": [
+      {
+        "Name": "guest/cadence_fps",
+        "Value": 30.61293615780791,
+        "Unit": "fps",
+        "Direction": "higher",
+        "Source": "result:performance.json#guest/cadence_fps"
+      },
+      {
+        "Name": "guest/flip_frames",
+        "Value": 775,
+        "Unit": "frames",
+        "Direction": "neutral",
+        "Source": "result:performance.json#guest/flip_frames"
+      },
+      {
+        "Name": "guest/flip_elapsed_s",
+        "Value": 25.316095,
+        "Unit": "s",
+        "Direction": "neutral",
+        "Source": "result:performance.json#guest/flip_elapsed_s"
+      },
+      {
+        "Name": "guest/interval_mean_ms",
+        "Value": 34.70955201109571,
+        "Unit": "ms",
+        "Direction": "lower",
+        "Source": "result:performance.json#guest/interval_mean_ms"
+      },
+      {
+        "Name": "guest/interval_p50_ms",
+        "Value": 28.272,
+        "Unit": "ms",
+        "Direction": "lower",
+        "Source": "result:performance.json#guest/interval_p50_ms"
+      },
+      {
+        "Name": "guest/interval_p95_ms",
+        "Value": 46.77,
+        "Unit": "ms",
+        "Direction": "lower",
+        "Source": "result:performance.json#guest/interval_p95_ms"
+      },
+      {
+        "Name": "guest/interval_p99_ms",
+        "Value": 75.18359999999986,
+        "Unit": "ms",
+        "Direction": "lower",
+        "Source": "result:performance.json#guest/interval_p99_ms"
+      },
+      {
+        "Name": "guest/interval_samples",
+        "Value": 721,
+        "Unit": "samples",
+        "Direction": "neutral",
+        "Source": "result:performance.json#guest/interval_samples"
+      }
+    ]
+  },
+  "assessment": {
+    "Execution": "unresponsive",
+    "Correctness": "failed",
+    "Evidence": "incomplete",
+    "Comparison": "ineligible",
+    "ComparisonReasons": [
+      "Execution outcome is Unresponsive.",
+      "Correctness outcome is Failed; a passing correctness contract is required.",
+      "Evidence outcome is Incomplete; complete evidence is required.",
+      "Operator, transfer, preview, or host-state intervention was recorded."
+    ],
+    "Checks": [
+      {
+        "Name": "analysis:monitor",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "monitor: Selected segment has insufficient CPU/duty samples."
+      },
+      {
+        "Name": "analysis:flips",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "analysis:frames",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "recording-start-visible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "PNG has 4.721% non-black pixels above RGB threshold 96; expected at least 5.000%."
+      },
+      {
+        "Name": "recording-end-visible",
+        "Passed": false,
+        "Category": "correctness",
+        "Detail": "Required artifact is missing: /home/deck/xemu-research/workspace/Results/20261001-163656280-a3546f341dc74aaab9b0a8b56ae49005/screenshots/recording-end.png"
+      },
+      {
+        "Name": "guest-progress",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:guest-frames.log satisfied the declared requirement."
+      },
+      {
+        "Name": "measurement-segments",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:segments.jsonl satisfied the declared requirement."
+      },
+      {
+        "Name": "minimum_metric_samples",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Required \u003E= 160; actual 217."
+      },
+      {
+        "Name": "plan_completion",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "The declared plan completed."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": true,
+        "Category": "state",
+        "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+      }
+    ],
+    "IsExecutionSuccess": false,
+    "IsCorrectnessSuccess": false
+  },
+  "correctnessStatus": "failed",
+  "evidenceStatus": "incomplete",
+  "comparisonStatus": "ineligible",
+  "experiment": {
+    "Id": "issue229-full-c-profile-20261001",
+    "Variant": "build",
+    "Reference": "ee5ce48b4878",
+    "VariedFactors": [
+      "native C DSP multiply"
+    ],
+    "ControlledFactors": [
+      "fixed-full-DSP-setting",
+      "same-native-procedure",
+      "matching-runtime-dependencies"
+    ],
+    "RequireCorrectnessPass": true,
+    "RequireCompleteEvidence": true,
+    "AllowOperatorIntervention": false,
+    "AllowDiagnostics": true
+  },
+  "operations": {
+    "Mode": "smoke",
+    "AllowPreview": false,
+    "AllowManualInput": false,
+    "AllowPauseResume": null,
+    "AllowDiagnostics": true,
+    "AllowBulkTransfers": false,
+    "PreviewAllowed": false,
+    "ManualInputAllowed": false,
+    "PauseResumeAllowed": true,
+    "DiagnosticsAllowed": true,
+    "BulkTransfersAllowed": false
+  },
+  "inputManifest": "input-manifest.json",
+  "controllerInput": null,
+  "runtimeDirectory": "/home/deck/xemu-research/workspace/Runtime/20261001-163656280-a3546f341dc74aaab9b0a8b56ae49005",
+  "hostInventory": "host-inventory.json",
+  "workstationStart": {
+    "Supported": false,
+    "Platform": "linux",
+    "SessionLocked": null,
+    "InputDesktop": null,
+    "DisplayState": "unknown",
+    "PowerState": "unknown",
+    "PowerSource": "unknown",
+    "BatteryPercent": null,
+    "BatterySaver": null,
+    "UserIdleSeconds": null,
+    "TimestampUtc": "2026-10-01T16:36:55.0774724+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": null,
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "workstation monitoring is currently implemented for Windows only",
+    "EventSequence": 1,
+    "RenderingRisk": false
+  },
+  "workstationEnd": {
+    "Supported": false,
+    "Platform": "linux",
+    "SessionLocked": null,
+    "InputDesktop": null,
+    "DisplayState": "unknown",
+    "PowerState": "unknown",
+    "PowerSource": "unknown",
+    "BatteryPercent": null,
+    "BatterySaver": null,
+    "UserIdleSeconds": null,
+    "TimestampUtc": "2026-10-01T16:36:55.0774724+00:00",
+    "LastSessionChangeUtc": null,
+    "LastDisplayChangeUtc": null,
+    "LastSuspendUtc": null,
+    "LastResumeUtc": null,
+    "LastEvent": "workstation monitoring is currently implemented for Windows only",
+    "EventSequence": 1,
+    "RenderingRisk": false
+  },
+  "host": {
+    "runnerVersion": "0.2.0\u002B0ba533ed89c8bb3cf530c4bfff8dbb190b3f08be",
+    "machine": "steamdeck",
+    "os": "SteamOS",
+    "architecture": "X64",
+    "processArchitecture": "X64",
+    "processorCount": 8,
+    "dotnet": "10.0.12"
+  },
+  "monitoring": {
+    "intervalMs": 500,
+    "samples": 217,
+    "overruns": 0,
+    "droppedWriteSamples": 0,
+    "averageCollectorDutyPercent": 0.3422946543778802,
+    "maxCollectorDutyPercent": 1.9773199999999997,
+    "maxCollectorDurationMs": 9.8866,
+    "gpuProviders": [
+      "Linux DRM sysfs"
+    ]
+  }
+}

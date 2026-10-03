@@ -1,0 +1,254 @@
+[
+  {
+    "percent": 3.47,
+    "samples": 237,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "X11_SetWindowPosition"
+  },
+  {
+    "percent": 3.12,
+    "samples": 173,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "0x00000000010586ad"
+  },
+  {
+    "percent": 2.8,
+    "samples": 170,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000328a"
+  },
+  {
+    "percent": 2.7,
+    "samples": 185,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "X11Toolkit_CreateIconControl"
+  },
+  {
+    "percent": 2.31,
+    "samples": 130,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "0x000000000104aeff"
+  },
+  {
+    "percent": 2.25,
+    "samples": 146,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000031d1"
+  },
+  {
+    "percent": 2.09,
+    "samples": 119,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "std::pair<std::__detail::_Node_iterator<int, true, false>, bool> std::_Hashtable<int, int, std::allocator<int>, std::__detail::_Identity, std::equal_to<int>, std::hash<int>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, true, true> >::_M_insert_unique<int, int, std::__detail::_AllocNode<std::allocator<std::__detail::_Hash_node<int, false> > > >(int&&, int&&, std::__detail::_AllocNode<std::allocator<std::__detail::_Hash_node<int, false> > > const&)"
+  },
+  {
+    "percent": 1.96,
+    "samples": 131,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "glslang::TConstTraverser::visitConstantUnion(glslang::TIntermConstantUnion*)"
+  },
+  {
+    "percent": 1.75,
+    "samples": 99,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "0x0000000001048e3a"
+  },
+  {
+    "percent": 1.73,
+    "samples": 96,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "0x000000000104b021"
+  },
+  {
+    "percent": 1.64,
+    "samples": 103,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000324a"
+  },
+  {
+    "percent": 1.13,
+    "samples": 62,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "0x0000000000d2001b"
+  },
+  {
+    "percent": 1.11,
+    "samples": 68,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003174"
+  },
+  {
+    "percent": 1.07,
+    "samples": 70,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003194"
+  },
+  {
+    "percent": 1.05,
+    "samples": 61,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "stbi__do_zlib"
+  },
+  {
+    "percent": 1.05,
+    "samples": 73,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "0x00000000011cb328"
+  },
+  {
+    "percent": 1.03,
+    "samples": 74,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "X11_SetWindowMinMax"
+  },
+  {
+    "percent": 0.97,
+    "samples": 63,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000321c"
+  },
+  {
+    "percent": 0.97,
+    "samples": 69,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "X11_UpdateWindowPosition"
+  },
+  {
+    "percent": 0.97,
+    "samples": 63,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000031a4"
+  },
+  {
+    "percent": 0.91,
+    "samples": 59,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003292"
+  },
+  {
+    "percent": 0.85,
+    "samples": 69,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "X11Toolkit_CreateLabelControl"
+  },
+  {
+    "percent": 0.76,
+    "samples": 50,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003242"
+  },
+  {
+    "percent": 0.72,
+    "samples": 43,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000031d5"
+  },
+  {
+    "percent": 0.7,
+    "samples": 32,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x000000000000326a"
+  },
+  {
+    "percent": 0.68,
+    "samples": 37,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "0x000000000104b099"
+  },
+  {
+    "percent": 0.66,
+    "samples": 54,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "stbi__create_png_image_raw"
+  },
+  {
+    "percent": 0.66,
+    "samples": 35,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "0x0000000001048e1d"
+  },
+  {
+    "percent": 0.63,
+    "samples": 36,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "0x00000000011cf01e"
+  },
+  {
+    "percent": 0.61,
+    "samples": 41,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x00000000000031c1"
+  },
+  {
+    "percent": 0.61,
+    "samples": 31,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "0x000000000104ae89"
+  },
+  {
+    "percent": 0.61,
+    "samples": 35,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "0x000000000105a7b0"
+  },
+  {
+    "percent": 0.59,
+    "samples": 33,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "0x0000000001048e10"
+  },
+  {
+    "percent": 0.57,
+    "samples": 31,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "0x000000000104afb9"
+  },
+  {
+    "percent": 0.53,
+    "samples": 29,
+    "comm": "xemu",
+    "dso": "xemu",
+    "symbol": "0x0000000001048e33"
+  },
+  {
+    "percent": 0.51,
+    "samples": 25,
+    "comm": "xemu",
+    "dso": "libsamplerate.so.0",
+    "symbol": "0x0000000000003217"
+  }
+]

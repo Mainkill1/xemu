@@ -1,0 +1,38 @@
+{
+  "parent": {
+    "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+    "buildId": "7cc47cc0deb81956e198d71935d1a198116cdb02",
+    "debugSha256": "614ec7555af52d876e51de31263126b7fe700aac87c9592c218a959a24fffb0b",
+    "compileUnits": 7797,
+    "producers": [
+      "(indirect string, offset: 0x29bfe6): Ubuntu clang version 21.1.8 (++20251221032842+2078da43e25a-1~exp1~20251221153008.77)",
+      "(indirect string, offset: 0x29c040): clang LLVM (rustc version 1.96.0 (ac68faa20 2026-05-25))"
+    ],
+    "dspTranslationUnits": [
+      {
+        "producer": "(indirect string, offset: 0x29bfe6): Ubuntu clang version 21.1.8 (++20251221032842+2078da43e25a-1~exp1~20251221153008.77)",
+        "name": "(indirect string, offset: 0x915fab): ../hw/xbox/mcpx/apu/dsp/interp/dsp_cpu.c",
+        "comp_dir": "(indirect string, offset: 0x50765): ./build"
+      }
+    ],
+    "readelfStderr": "readelf: Error: Unable to find program interpreter name\n"
+  },
+  "candidate": {
+    "executableSha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+    "buildId": "f2651a0697422ddca5f707ac1cbd8f1d2691363a",
+    "debugSha256": "303487b5ce5d359c56aac86d8e0c5650cf203ca7faa4a2fed0303830537f3649",
+    "compileUnits": 7797,
+    "producers": [
+      "(indirect string, offset: 0x29bfe6): Ubuntu clang version 21.1.8 (++20251221032842+2078da43e25a-1~exp1~20251221153008.77)",
+      "(indirect string, offset: 0x29c040): clang LLVM (rustc version 1.96.0 (ac68faa20 2026-05-25))"
+    ],
+    "dspTranslationUnits": [
+      {
+        "producer": "(indirect string, offset: 0x29bfe6): Ubuntu clang version 21.1.8 (++20251221032842+2078da43e25a-1~exp1~20251221153008.77)",
+        "name": "(indirect string, offset: 0x915fab): ../hw/xbox/mcpx/apu/dsp/interp/dsp_cpu.c",
+        "comp_dir": "(indirect string, offset: 0x50765): ./build"
+      }
+    ],
+    "readelfStderr": "readelf: Error: Unable to find program interpreter name\n"
+  }
+}

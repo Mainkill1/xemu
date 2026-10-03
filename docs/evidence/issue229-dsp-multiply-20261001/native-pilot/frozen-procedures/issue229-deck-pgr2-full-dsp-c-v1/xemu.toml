@@ -1,0 +1,25 @@
+[general]
+show_welcome = false
+[input]
+background_input_capture = true
+[input.virtual_ports]
+port1_connected = 1
+[input.bindings]
+port1_driver = "usb-xbox-gamepad"
+port1 = "keyboard"
+[display]
+renderer = "VULKAN"
+[display.window]
+vsync = false
+[display.quality]
+surface_scale = 1
+[audio]
+use_dsp = true
+use_dsp_jit = false
+[audio.vp]
+num_workers = 0
+[sys]
+mem_limit = "128"
+[sys.files]
+hdd_path = "{runtimeDir}/hdd.qcow2"
+eeprom_path = "{runtimeDir}/eeprom.bin"

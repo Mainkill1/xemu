@@ -1,0 +1,39 @@
+{
+  "exe": "/home/deck/xemu-research/runner-6089e8b8/XemuTestRunner-0.2.0-linux-x64/XemuTestRunner",
+  "cmdline": [
+    "/home/deck/xemu-research/runner-6089e8b8/XemuTestRunner-0.2.0-linux-x64/XemuTestRunner",
+    "run",
+    "-c",
+    "/home/deck/xemu-research/runner.json",
+    "--non-interactive",
+    ""
+  ],
+  "cgroup": "0::/user.slice/user-1000.slice/user@1000.service/app.slice/xemu-research-runner-20260930.service\n",
+  "environment": {
+    "PATH": "/usr/local/sbin:/usr/local/bin:/usr/bin:/var/lib/flatpak/exports/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl",
+    "XDG_RUNTIME_DIR": "/run/user/1000",
+    "DBUS_SESSION_BUS_ADDRESS": "unix:path=/run/user/1000/bus",
+    "DISPLAY": ":0",
+    "XAUTHORITY": "/run/user/1000/xauth_IUEWSd"
+  },
+  "configKeys": [
+    "Workspace",
+    "Queue",
+    "Monitoring",
+    "Http",
+    "XemuControl",
+    "Ui",
+    "Reliability",
+    "Diagnostics"
+  ],
+  "http": {
+    "Enabled": true,
+    "BindAddress": "0.0.0.0",
+    "Port": 9368,
+    "FileRoot": "Files",
+    "TransferBufferBytes": 1048576,
+    "MaxHeaderBytes": 65536,
+    "AdvertiseAddress": "10.0.0.123"
+  },
+  "workspace": null
+}

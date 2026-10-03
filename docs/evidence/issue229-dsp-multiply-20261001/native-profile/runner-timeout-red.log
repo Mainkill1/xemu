@@ -1,0 +1,81 @@
+
+Welcome to .NET 10.0!
+---------------------
+SDK Version: 10.0.401
+
+Telemetry
+---------
+The .NET tools collect usage data in order to help us improve your experience. It is collected by Microsoft and shared with the community. You can opt-out of telemetry by setting the DOTNET_CLI_TELEMETRY_OPTOUT environment variable to '1' or 'true' using your favorite shell.
+
+Read more about .NET CLI Tools telemetry: https://aka.ms/dotnet-cli-telemetry
+
+----------------
+Installed an ASP.NET Core HTTPS development certificate.
+To trust the certificate, run 'dotnet dev-certs https --trust'
+Learn about HTTPS: https://aka.ms/dotnet-https
+
+----------------
+Write your first app: https://aka.ms/dotnet-hello-world
+Find out what's new: https://aka.ms/dotnet-whats-new
+Explore documentation: https://aka.ms/dotnet-docs
+Report issues and find source on GitHub: https://github.com/dotnet/core
+Use 'dotnet --help' to see available commands or visit: https://aka.ms/dotnet-cli
+--------------------------------------------------------------------------------------
+PASS QMP readiness retries a timed-out handshake
+PASS QMP readiness stops at the configured deadline
+PASS QMP readiness preserves caller cancellation
+PASS HTTP defaults to a remotely reachable bind address
+PASS preflight validates exact executable hash
+PASS artifact checks reject blank screenshots when requested
+PASS artifact checks support thresholded image regions
+PASS workspace lease excludes a second owner and can be reacquired
+PASS recovery requires released ownership before archiving durable results
+PASS recovery retains durable retry intent and excludes cleanup failure
+PASS package archival retries transient file locks
+PASS watchdog trips only after consecutive failed probes
+PASS preview is single-flight and run-scoped
+PASS preview failure is backed off instead of repeatedly capturing
+PASS large evidence tail is bounded and ranges remain 64 bit
+PASS watchdog cancellation is not an unresponsive verdict
+PASS Win32 INPUT layout matches pointer width
+PASS transfer started while idle marks the next active run
+PASS diagnostic recipes reject ambiguous RenderDoc capture semantics
+PASS perf clock selection is explicit and opt-in
+PASS job package validates diagnostic references and ignores runtime package property
+PASS quit is accepted only as the final plan step
+PASS diagnostic tool catalog reports an explicit missing executable
+PASS QMP monitor and external recipes validate bounded configuration
+PASS benchmark intervention remains visible in final summary
+PASS native input failure cannot qualify a comparison
+PASS workstation rendering risk flags lock display sleep and battery saver
+PASS runner publishes host telemetry while idle
+PASS queue holds incomplete and changing packages before claim
+PASS automation exit codes distinguish success failure and queue blockage
+PASS terminal display loss leaves the engine authoritative
+PASS engine failure survives terminal display loss
+PASS terminal error reporting preserves the original failure
+PASS missing terminal fallback cannot terminate the runner
+FAIL diagnostic timeout archives failure and continues the queue: System.IO.IOException: System.TimeoutException: Diagnostic tool or output drain exceeded 100 ms: /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/tests/RunnerChecks/bin/Debug/net10.0/RunnerChecks
+   at XemuTestRunner.Diagnostics.ToolProcess.RunAsync(String executable, IEnumerable`1 arguments, String workingDirectory, Int32 timeoutMs, CancellationToken cancellationToken, IReadOnlyDictionary`2 environment) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Diagnostics/ToolProcess.cs:line 115
+   at XemuTestRunner.Diagnostics.ToolProcess.RunAsync(String executable, IEnumerable`1 arguments, String workingDirectory, Int32 timeoutMs, CancellationToken cancellationToken, IReadOnlyDictionary`2 environment) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Diagnostics/ToolProcess.cs:line 127
+   at XemuTestRunner.Diagnostics.DiagnosticHub.RunExternalAsync(ActiveContext context, DiagnosticRecipe recipe, String directory, CancellationToken ct) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 741
+   at XemuTestRunner.Diagnostics.DiagnosticHub.RunAsync(ActiveContext context, DiagnosticRecipe recipe, CancellationToken cancellationToken, Boolean linkRunLifetime) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 239
+   at XemuTestRunner.Diagnostics.DiagnosticHub.RunAsync(ActiveContext context, DiagnosticRecipe recipe, CancellationToken cancellationToken, Boolean linkRunLifetime) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 291
+   at XemuTestRunner.Diagnostics.DiagnosticHub.RunByIdAsync(String id, CancellationToken cancellationToken) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 102
+   at XemuTestRunner.Runtime.RunnerEngine.<>c__DisplayClass13_0.<<ExecuteJobAsync>b__6>d.MoveNext() in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Runtime/RunnerEngine.cs:line 746
+--- End of stack trace from previous location ---
+   at XemuTestRunner.Control.XemuControlManager.ExecutePlanAsync(IReadOnlyList`1 plan, CancellationToken cancellationToken, Func`3 diagnosticRunner, Action`1 segmentStart, Action`1 segmentEnd, Func`5 artifactWaiter) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Control/XemuControlManager.cs:line 594
+   at XemuTestRunner.Control.XemuControlManager.ExecutePlanAsync(IReadOnlyList`1 plan, CancellationToken cancellationToken, Func`3 diagnosticRunner, Action`1 segmentStart, Action`1 segmentEnd, Func`5 artifactWaiter) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Control/XemuControlManager.cs:line 635
+   at XemuTestRunner.Runtime.RunnerEngine.ExecuteJobAsync(String package, Task serverTask, MetricCollector telemetry, CancellationToken ct) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Runtime/RunnerEngine.cs:line 838 plan did not stop: Diagnostic tool or output drain exceeded 100 ms: /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/tests/RunnerChecks/bin/Debug/net10.0/RunnerChecks
+   at XemuTestRunner.Runtime.RunnerEngine.ExecuteJobAsync(String package, Task serverTask, MetricCollector telemetry, CancellationToken ct) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Runtime/RunnerEngine.cs:line 1335
+   at XemuTestRunner.Runtime.RunnerEngine.RunAsync(Boolean once, Nullable`1 maxJobs, CancellationToken cancellationToken) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Runtime/RunnerEngine.cs:line 235
+   at XemuTestRunner.Runtime.RunnerEngine.RunAsync(Boolean once, Nullable`1 maxJobs, CancellationToken cancellationToken) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Runtime/RunnerEngine.cs:line 286
+   at Program.<>c__DisplayClass0_0.<<<Main>$>b__36>d.MoveNext() in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/tests/RunnerChecks/Program.cs:line 958
+--- End of stack trace from previous location ---
+   at Program.<>c__DisplayClass0_0.<<<Main>$>g__Check|0>d.MoveNext() in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/tests/RunnerChecks/Program.cs:line 57
+PASS one-shot runner processes at most one queued package
+PASS advertised HTTP address never reports wildcard when an override is supplied
+PASS system telemetry produces baseline process and memory values
+PASS runner completes a queued QMP job and retains its evidence
+PASS release identity is available to the CLI and evidence
+Failures: 1

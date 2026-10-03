@@ -1,0 +1,86 @@
+{
+  "SchemaVersion": 1,
+  "ProfileSha256": "c24dfe3e05bdc7bc9260be10fb3943a745282103a3be85aa4ff9c182a3c712e4",
+  "Profile": {
+    "Segment": "stationary-grid",
+    "MetricsPath": "metrics.csv",
+    "GuestFlipsPath": "guest-flips.log",
+    "GuestFramesPath": "guest-frames.log",
+    "FlipTailSamples": 40,
+    "FrameTailSeconds": 300,
+    "MinimumCpuSamples": 540,
+    "MinimumFrameSamples": 160
+  },
+  "Monitoring": {
+    "Segment": "stationary-grid",
+    "Rows": 603,
+    "MissingCpuSamples": 0,
+    "MissingDutySamples": 0,
+    "Cpu": {
+      "Count": 603,
+      "Mean": 202.4162736318409,
+      "Median": 202.152,
+      "Min": 192.011,
+      "Max": 242.453,
+      "P95": 210.0197,
+      "P99": 214.12146000000004
+    },
+    "CollectorDuty": {
+      "Count": 603,
+      "Mean": 0.3966235489220565,
+      "Median": 0.368,
+      "Min": 0.293,
+      "Max": 0.748,
+      "P95": 0.6026999999999999,
+      "P99": 0.6679200000000001
+    },
+    "Overruns": 0
+  },
+  "Flips": {
+    "Samples": 40,
+    "Frames": 178,
+    "ElapsedUs": 226647520,
+    "CadenceFps": 0.7853604575068812
+  },
+  "Frames": {
+    "WindowStartUs": 141215736572,
+    "WindowEndUs": 141515736572,
+    "FirstSampleUs": 141216425065,
+    "LastSampleUs": 141515736572,
+    "ZeroIntervals": 0,
+    "IntervalsMs": {
+      "Count": 236,
+      "Mean": 1272.9204279661017,
+      "Median": 1272.4009999999998,
+      "Min": 355.273,
+      "Max": 2268.071,
+      "P95": 1790.24075,
+      "P99": 1928.7066000000004
+    }
+  },
+  "Sources": [
+    {
+      "Path": "metrics.csv",
+      "Bytes": 179321,
+      "Sha256": "240039c9ae565625af0138b675825fdd93fd1ff2d52037f3888ba7f26e518403",
+      "Records": 949,
+      "IgnoredRecords": 345
+    },
+    {
+      "Path": "guest-flips.log",
+      "Bytes": 3283,
+      "Sha256": "2a8aa4e7e84857ba012a0778c748bd7490c37c1e7efa53b6fda1fd6dc4d45bd6",
+      "Records": 85,
+      "IgnoredRecords": 0
+    },
+    {
+      "Path": "guest-frames.log",
+      "Bytes": 196245,
+      "Sha256": "934f9fd9b24659cb38688f95f606403f708998ec0d74253d5fb1d27ae67bc3ab",
+      "Records": 3785,
+      "IgnoredRecords": 0
+    }
+  ],
+  "Errors": [],
+  "Complete": true
+}

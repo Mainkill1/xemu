@@ -1,0 +1,91 @@
+{
+  "runId": "20261001-185009712-57d17139e3434e3daf4d07eeb402e64b",
+  "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+  "executionStatus": "plan_failed",
+  "exitCode": 137,
+  "detail": "System.TimeoutException: QMP quit exceeded 10000 ms.\n   at XemuTestRunner.Control.XemuQmpClient.ExecuteAsync(String command, Object arguments, TimeSpan timeout, CancellationToken cancellationToken) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Control/XemuQmpClient.cs:line 38\n   at XemuTestRunner.Control.XemuControlManager.QuitAsync(CancellationToken cancellationToken) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Control/XemuControlManager.cs:line 234\n   at XemuTestRunner.Control.XemuControlManager.ExecutePlanAsync(IReadOnlyList`1 plan, CancellationToken cancellationToken, Func`3 diagnosticRunner, Action`1 segmentStart, Action`1 segmentEnd, Func`5 artifactWaiter) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Control/XemuControlManager.cs:line 583\n   at XemuTestRunner.Control.XemuControlManager.ExecutePlanAsync(IReadOnlyList`1 plan, CancellationToken cancellationToken, Func`3 diagnosticRunner, Action`1 segmentStart, Action`1 segmentEnd, Func`5 artifactWaiter) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Control/XemuControlManager.cs:line 634\n   at XemuTestRunner.Runtime.RunnerEngine.ExecuteJobAsync(String package, Task serverTask, MetricCollector telemetry, CancellationToken ct) in /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/Runtime/RunnerEngine.cs:line 838 plan: QMP quit exceeded 10000 ms.",
+  "assessment": {
+    "Execution": "failed",
+    "Correctness": "passed",
+    "Evidence": "incomplete",
+    "Comparison": "ineligible",
+    "ComparisonReasons": [
+      "Execution outcome is Failed.",
+      "Evidence outcome is Incomplete; complete evidence is required."
+    ],
+    "Checks": [
+      {
+        "Name": "analysis:monitor",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Complete bounded source analysis; see performance.json for windows and SHA-256."
+      },
+      {
+        "Name": "analysis:flips",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "flips: Insufficient flip tail records."
+      },
+      {
+        "Name": "analysis:frames",
+        "Passed": false,
+        "Category": "evidence",
+        "Detail": "frames: Insufficient positive frame intervals."
+      },
+      {
+        "Name": "recording-start-visible",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "result:screenshots/recording-start.png satisfied the declared requirement."
+      },
+      {
+        "Name": "recording-end-visible",
+        "Passed": true,
+        "Category": "correctness",
+        "Detail": "result:screenshots/recording-end.png satisfied the declared requirement."
+      },
+      {
+        "Name": "guest-progress",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:guest-frames.log satisfied the declared requirement."
+      },
+      {
+        "Name": "measurement-segments",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "result:segments.jsonl satisfied the declared requirement."
+      },
+      {
+        "Name": "minimum_metric_samples",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "Required >= 160; actual 729."
+      },
+      {
+        "Name": "plan_completion",
+        "Passed": true,
+        "Category": "evidence",
+        "Detail": "The declared plan completed."
+      },
+      {
+        "Name": "run_storage_state",
+        "Passed": true,
+        "Category": "state",
+        "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+      }
+    ],
+    "IsExecutionSuccess": false,
+    "IsCorrectnessSuccess": true
+  },
+  "positiveFrameTailIntervals": 135,
+  "flipSummaryRecords": 64,
+  "driverQualification": "mesa_private_disk_writes_observed",
+  "driverIssues": [],
+  "driverAfterFiles": 833,
+  "driverAfterBytes": 3864265,
+  "targetStopped": true,
+  "cacheWaiver": false,
+  "archiveVerifiedFiles": 868,
+  "archiveVerifiedBytes": 6495575
+}

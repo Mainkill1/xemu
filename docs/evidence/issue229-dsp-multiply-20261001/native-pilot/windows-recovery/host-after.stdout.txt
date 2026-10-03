@@ -1,0 +1,66 @@
+PROCESSES
+[
+    {
+        "ProcessId":  7928,
+        "ParentProcessId":  7788,
+        "SessionId":  1,
+        "Name":  "explorer.exe",
+        "CommandLine":  "C:\\Windows\\Explorer.EXE"
+    },
+    {
+        "ProcessId":  301364,
+        "ParentProcessId":  297720,
+        "SessionId":  1,
+        "Name":  "XemuTestRunner.exe",
+        "CommandLine":  "\"D:\\xemu-lab\\incoming\\runner-0ba533ed-issue229\\XemuTestRunner.exe\" run --config D:\\xemu-lab\\incoming\\runner-0ba533ed-issue229\\runner-issue229-http.json"
+    }
+]
+CONFIG_HASHES
+[
+    {
+        "Path":  "C:\\xemu-lab\\incoming\\runner-main-1ba4c530\\runner-pr184-v2-http.json",
+        "Hash":  "544BF8D43DD2709E7CD96A39879AEA89C89CD111478229883B46DD47F1E9E928"
+    },
+    {
+        "Path":  "D:\\xemu-lab\\incoming\\runner-0ba533ed-issue229\\runner-issue229-http.json",
+        "Hash":  "A7EC67D0A9AB660EE845982A6FCBCB27195663B96BD8A4ECFE22F1445448B21A"
+    },
+    {
+        "Path":  "D:\\xemu-lab\\incoming\\runner-0ba533ed-issue229\\XemuTestRunner.exe",
+        "Hash":  "3BC262410331B5BDE9E6172E3652C27D16A7C4B4D1E1BC686FF7C609730428EF"
+    }
+]
+DISKS
+[
+    {
+        "DeviceID":  "C:",
+        "FreeSpace":  6879227904,
+        "Size":  1024191361024
+    },
+    {
+        "DeviceID":  "D:",
+        "FreeSpace":  558873968640,
+        "Size":  999665168384
+    }
+]
+TASKS
+[
+    {
+        "TaskName":  "XemuTestRunner-0ba533ed-issue229",
+        "State":  4,
+        "User":  "codex",
+        "Logon":  "Interactive"
+    },
+    {
+        "TaskName":  "XemuTestRunner-1ba4c530",
+        "State":  3,
+        "User":  "codex",
+        "Logon":  "Interactive"
+    }
+]
+LISTENER
+{
+    "LocalAddress":  "0.0.0.0",
+    "LocalPort":  9368,
+    "OwningProcess":  301364
+}

@@ -1,0 +1,404 @@
+{
+  "JobId": "issue229-deck-c-parent-profile-20261001",
+  "CreatedUtc": "2026-10-01T16:27:46.7181343+00:00",
+  "PackageDirectory": "/home/deck/xemu-research/workspace/Queue/Testing/agent-issue229-deck-c-parent-profile-20261001",
+  "JobManifestSha256": "97b9f00a7558f73d27692e6bd53cf000019fbdf16f669d0433f13fc0a0ea9fd4",
+  "ExecutableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+  "Inputs": [
+    {
+      "Path": "xemu",
+      "Role": "parent-or-candidate-emulator",
+      "Bytes": 25548144,
+      "LastWriteUtc": "2026-10-01T16:27:44.6168716Z",
+      "Sha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "ExpectedSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "Verified": true
+    },
+    {
+      "Path": "xemu.toml",
+      "Role": "pgr2-fixed-full-dsp-c",
+      "Bytes": 462,
+      "LastWriteUtc": "2026-10-01T16:27:44.6458715Z",
+      "Sha256": "3fffde65d47e6a4d3d7979414bd004c05f4b713be17833cdc6ab358752a0fe41",
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "state/seed-eeprom.bin",
+      "Role": "required",
+      "Bytes": 256,
+      "LastWriteUtc": "2026-10-01T16:27:44.6008716Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libcrypto.so.3",
+      "Role": "required",
+      "Bytes": 4611672,
+      "LastWriteUtc": "2026-10-01T16:27:44.473872Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libbrotlicommon.so.1",
+      "Role": "required",
+      "Bytes": 140592,
+      "LastWriteUtc": "2026-10-01T16:27:44.461872Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libgcrypt.so.20",
+      "Role": "required",
+      "Bytes": 1313912,
+      "LastWriteUtc": "2026-10-01T16:27:44.4958719Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libcap.so.2",
+      "Role": "required",
+      "Bytes": 43336,
+      "LastWriteUtc": "2026-10-01T16:27:44.468872Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libffi.so.8",
+      "Role": "required",
+      "Bytes": 51360,
+      "LastWriteUtc": "2026-10-01T16:27:44.4918719Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libudev.so.1",
+      "Role": "required",
+      "Bytes": 173424,
+      "LastWriteUtc": "2026-10-01T16:27:44.5888716Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libsystemd.so.0",
+      "Role": "required",
+      "Bytes": 834768,
+      "LastWriteUtc": "2026-10-01T16:27:44.5838717Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libpsl.so.5",
+      "Role": "required",
+      "Bytes": 79528,
+      "LastWriteUtc": "2026-10-01T16:27:44.5648717Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libgssapi_krb5.so.2",
+      "Role": "required",
+      "Bytes": 351720,
+      "LastWriteUtc": "2026-10-01T16:27:44.5118719Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libunistring.so.2",
+      "Role": "required",
+      "Bytes": 1766104,
+      "LastWriteUtc": "2026-10-01T16:27:44.5918716Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libdbus-1.so.3",
+      "Role": "required",
+      "Bytes": 336328,
+      "LastWriteUtc": "2026-10-01T16:27:44.4848719Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libglib-2.0.so.0",
+      "Role": "required",
+      "Bytes": 1335888,
+      "LastWriteUtc": "2026-10-01T16:27:44.5008719Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libsasl2.so.2",
+      "Role": "required",
+      "Bytes": 109664,
+      "LastWriteUtc": "2026-10-01T16:27:44.5738717Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libnghttp2.so.14",
+      "Role": "required",
+      "Bytes": 175504,
+      "LastWriteUtc": "2026-10-01T16:27:44.5518717Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libtasn1.so.6",
+      "Role": "required",
+      "Bytes": 96480,
+      "LastWriteUtc": "2026-10-01T16:27:44.5868716Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libidn2.so.0",
+      "Role": "required",
+      "Bytes": 132848,
+      "LastWriteUtc": "2026-10-01T16:27:44.5178718Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libkrb5support.so.0",
+      "Role": "required",
+      "Bytes": 57512,
+      "LastWriteUtc": "2026-10-01T16:27:44.5358718Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libssh.so.4",
+      "Role": "required",
+      "Bytes": 465064,
+      "LastWriteUtc": "2026-10-01T16:27:44.5788717Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/librtmp.so.1",
+      "Role": "required",
+      "Bytes": 128056,
+      "LastWriteUtc": "2026-10-01T16:27:44.5668717Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libpcap.so.0.8",
+      "Role": "required",
+      "Bytes": 315728,
+      "LastWriteUtc": "2026-10-01T16:27:44.5588717Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libslirp.so.0",
+      "Role": "required",
+      "Bytes": 133360,
+      "LastWriteUtc": "2026-10-01T16:27:44.5758717Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/liblzma.so.5",
+      "Role": "required",
+      "Bytes": 176296,
+      "LastWriteUtc": "2026-10-01T16:27:44.5468718Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/liblz4.so.1",
+      "Role": "required",
+      "Bytes": 130848,
+      "LastWriteUtc": "2026-10-01T16:27:44.5438718Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libzstd.so.1",
+      "Role": "required",
+      "Bytes": 863128,
+      "LastWriteUtc": "2026-10-01T16:27:44.5978716Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libp11-kit.so.0",
+      "Role": "required",
+      "Bytes": 1291592,
+      "LastWriteUtc": "2026-10-01T16:27:44.5548717Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libhogweed.so.6",
+      "Role": "required",
+      "Bytes": 303152,
+      "LastWriteUtc": "2026-10-01T16:27:44.5148718Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libgnutls.so.30",
+      "Role": "required",
+      "Bytes": 2071960,
+      "LastWriteUtc": "2026-10-01T16:27:44.5068719Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libkrb5.so.3",
+      "Role": "required",
+      "Bytes": 856536,
+      "LastWriteUtc": "2026-10-01T16:27:44.5318718Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libldap-2.5.so.0",
+      "Role": "required",
+      "Bytes": 403000,
+      "LastWriteUtc": "2026-10-01T16:27:44.5407525Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libk5crypto.so.3",
+      "Role": "required",
+      "Bytes": 188760,
+      "LastWriteUtc": "2026-10-01T16:27:44.5268718Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libepoxy.so.0",
+      "Role": "required",
+      "Bytes": 1390520,
+      "LastWriteUtc": "2026-10-01T16:27:44.4878719Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libkeyutils.so.1",
+      "Role": "required",
+      "Bytes": 26928,
+      "LastWriteUtc": "2026-10-01T16:27:44.5288718Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libpcre.so.3",
+      "Role": "required",
+      "Bytes": 481040,
+      "LastWriteUtc": "2026-10-01T16:27:44.5608717Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libnettle.so.8",
+      "Role": "required",
+      "Bytes": 299128,
+      "LastWriteUtc": "2026-10-01T16:27:44.5497483Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libbrotlidec.so.1",
+      "Role": "required",
+      "Bytes": 55376,
+      "LastWriteUtc": "2026-10-01T16:27:44.465872Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libcurl-gnutls.so.4",
+      "Role": "required",
+      "Bytes": 669480,
+      "LastWriteUtc": "2026-10-01T16:27:44.4808719Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/liblber-2.5.so.0",
+      "Role": "required",
+      "Bytes": 69792,
+      "LastWriteUtc": "2026-10-01T16:27:44.5385465Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "lib/libsamplerate.so.0",
+      "Role": "required",
+      "Bytes": 1500560,
+      "LastWriteUtc": "2026-10-01T16:27:44.5698717Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    },
+    {
+      "Path": "c47cc0deb81956e198d71935d1a198116cdb02.debug",
+      "Role": "required",
+      "Bytes": 39496560,
+      "LastWriteUtc": "2026-10-01T16:27:44.4198721Z",
+      "Sha256": null,
+      "ExpectedSha256": null,
+      "Verified": true
+    }
+  ],
+  "RuntimeFiles": [
+    {
+      "Source": "state/seed-eeprom.bin",
+      "Destination": "eeprom.bin",
+      "Bytes": 256,
+      "Sha256": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+    },
+    {
+      "Source": "disk-asset:research247-pgr2-save-7b0f55",
+      "Destination": "hdd.qcow2",
+      "Bytes": 1441792,
+      "Sha256": "7b0f55920d8740e9c77183392aad9969f775ba823f1de4612ef461796a055b52",
+      "DiskAssetId": "research247-pgr2-save-7b0f55",
+      "AssetKind": "xiso-seed",
+      "Retention": "deleteAfterEvidence"
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+{"timestampUtc":"2026-10-01T16:38:32.9661851+00:00","elapsedMs":96675.5395,"kind":"manual_input","detail":{"action":"quit"}}
+{"timestampUtc":"2026-10-01T16:38:48.5172628+00:00","elapsedMs":112226.6171,"kind":"diagnostic","detail":{"Id":"auto-hang-163848497","Type":"hang_bundle","Reason":"QMP watchdog threshold reached. This is not a guest-progress verdict."}}

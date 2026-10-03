@@ -1,0 +1,172 @@
+{
+  "items": [
+    {
+      "id": "defjam-usa-readonly-v1",
+      "kind": "readonly-input",
+      "length": 3023831040,
+      "sha256": "ac70b2be01ca17c812398a21ad325814b9e671ac3df01a90c98a480ea5059ac7",
+      "description": "User-selected existing Def Jam USA disc, immutable private tester input",
+      "createdUtc": "2026-09-29T16:52:50.4028629+00:00",
+      "ready": true,
+      "uploadState": "complete",
+      "upload": "/api/v1/disk-assets/defjam-usa-readonly-v1/content"
+    },
+    {
+      "id": "devbox-complex4627-readonly-v1",
+      "kind": "readonly-input",
+      "length": 1048576,
+      "sha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f",
+      "description": "Existing Windows dev-box Complex BIOS, immutable tester input",
+      "createdUtc": "2026-09-29T16:52:47.4693021+00:00",
+      "ready": true,
+      "uploadState": "complete",
+      "upload": "/api/v1/disk-assets/devbox-complex4627-readonly-v1/content"
+    },
+    {
+      "id": "devbox-mcpx10-readonly-v1",
+      "kind": "readonly-input",
+      "length": 512,
+      "sha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335",
+      "description": "Existing Windows dev-box boot ROM, immutable tester input",
+      "createdUtc": "2026-09-29T16:52:47.3821633+00:00",
+      "ready": true,
+      "uploadState": "complete",
+      "upload": "/api/v1/disk-assets/devbox-mcpx10-readonly-v1/content"
+    },
+    {
+      "id": "ghoulies-user-snapshot-20260929",
+      "kind": "snapshot-carrier",
+      "length": 1914110464,
+      "sha256": "13ea4baa206bb7c8cc37c8da2203ce8cea1f073dfcf8d0d9247b1077bcdc4ea6",
+      "description": "User-provided Ghoulies full snapshot carrier; immutable byte-for-byte copy for PR260 viewer validation",
+      "createdUtc": "2026-09-29T09:30:58.2007451+00:00",
+      "ready": true,
+      "uploadState": "complete",
+      "upload": "/api/v1/disk-assets/ghoulies-user-snapshot-20260929/content"
+    },
+    {
+      "id": "morrowind-heavy-vm-20260905015459-pr267",
+      "kind": "snapshot-carrier",
+      "length": 2690581504,
+      "sha256": "d178ecc4154abad5fc7cb9e428f380a1c8d49d20cbed66ba552eaaa6ed7514ad",
+      "description": "PR267 immutable Morrowind heavy snapshot carrier",
+      "createdUtc": "2026-09-29T21:28:52.4933428+00:00",
+      "ready": true,
+      "uploadState": "complete",
+      "upload": "/api/v1/disk-assets/morrowind-heavy-vm-20260905015459-pr267/content"
+    },
+    {
+      "id": "pgr2-freshboot-base-v1",
+      "kind": "xiso-seed",
+      "length": 2621702656,
+      "sha256": "8b4f7c81be6ece5db3fc98d683d86d0515db43b2447e8dff14bfd9b45078c606",
+      "description": "PGR2 fresh-boot seed for shared transient runtime HDD tests",
+      "createdUtc": "2026-09-24T08:16:53.0909402+00:00",
+      "ready": true,
+      "uploadState": "complete",
+      "upload": "/api/v1/disk-assets/pgr2-freshboot-base-v1/content"
+    },
+    {
+      "id": "pr267-morrowind-archive-restored-v1",
+      "kind": "snapshot-carrier",
+      "length": 557449216,
+      "sha256": "d62e336ae43e9790954604a46c1236c4884e952bf1aace9a56106bed631891c3",
+      "description": "Private PR267 Morrowind carrier restored from official chunk archive; byte-identical to user snapshot",
+      "createdUtc": "2026-09-30T05:16:02.9925672+00:00",
+      "ready": true,
+      "uploadState": "complete",
+      "upload": "/api/v1/disk-assets/pr267-morrowind-archive-restored-v1/content"
+    },
+    {
+      "id": "pr267-morrowind-user-snapshot-20260929-v1",
+      "kind": "snapshot-carrier",
+      "length": 557449216,
+      "sha256": "d62e336ae43e9790954604a46c1236c4884e952bf1aace9a56106bed631891c3",
+      "description": "User-provided Morrowind VM snapshot for PR267 performance validation",
+      "createdUtc": "2026-09-29T23:25:13.3478897+00:00",
+      "ready": true,
+      "uploadState": "complete",
+      "upload": "/api/v1/disk-assets/pr267-morrowind-user-snapshot-20260929-v1/content"
+    },
+    {
+      "id": "pr267-pfifo-saturation-fatx-v4",
+      "kind": "xiso-seed",
+      "length": 1310720,
+      "sha256": "2cc376a12ff71021fda4172ea00de553d81c711092615ae4dc58d4718f5d8e5c",
+      "description": null,
+      "createdUtc": "2026-09-29T23:09:48.1161655+00:00",
+      "ready": true,
+      "uploadState": "complete",
+      "upload": "/api/v1/disk-assets/pr267-pfifo-saturation-fatx-v4/content"
+    },
+    {
+      "id": "pr267-pgr2-save-portable-v1",
+      "kind": "xiso-seed",
+      "length": 1441792,
+      "sha256": "7b0f55920d8740e9c77183392aad9969f775ba823f1de4612ef461796a055b52",
+      "description": "PR267 private portable fresh FATX seed with five verified PGR2 save files; 8 GiB virtual",
+      "createdUtc": "2026-09-30T04:59:46.9573601+00:00",
+      "ready": true,
+      "uploadState": "complete",
+      "upload": "/api/v1/disk-assets/pr267-pgr2-save-portable-v1/content"
+    },
+    {
+      "id": "pr267-shader-pilot-prepared-fatx-v1",
+      "kind": "xiso-seed",
+      "length": 1310720,
+      "sha256": "eab70873f2927626f0ad9c7cc48afb0bc118a468f69e6c5c6757c25871984c51",
+      "description": "Fresh 8GiB FATX E partition with preallocated 4096-byte current-catalog XISO config; PR267 private test fixture",
+      "createdUtc": "2026-09-29T22:39:06.3318977+00:00",
+      "ready": true,
+      "uploadState": "complete",
+      "upload": "/api/v1/disk-assets/pr267-shader-pilot-prepared-fatx-v1/content"
+    },
+    {
+      "id": "pr267-shader-pilot-prepared-fatx-v2",
+      "kind": "xiso-seed",
+      "length": 1310720,
+      "sha256": "26d86011519337a5317669965e10777420331cd7bc5292a832411dc5e018c467",
+      "description": "Fresh 8GiB FATX E partition with preallocated current-catalog config and E:/xemu_perf_tests output path; PR267 private test fixture",
+      "createdUtc": "2026-09-29T22:44:03.1014152+00:00",
+      "ready": true,
+      "uploadState": "complete",
+      "upload": "/api/v1/disk-assets/pr267-shader-pilot-prepared-fatx-v2/content"
+    },
+    {
+      "id": "pr267-shader-pilot-prepared-fatx-v3",
+      "kind": "xiso-seed",
+      "length": 1310720,
+      "sha256": "65b576a391832307c3ffd4671696319d6a4008b2b6e6e8749d4de67217307af7",
+      "description": null,
+      "createdUtc": "2026-09-29T22:55:01.1515414+00:00",
+      "ready": true,
+      "uploadState": "complete",
+      "upload": "/api/v1/disk-assets/pr267-shader-pilot-prepared-fatx-v3/content"
+    },
+    {
+      "id": "research245-cpu-fatx-compat010-78af83a6",
+      "kind": "xiso-seed",
+      "length": 1310720,
+      "sha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+      "description": "Issue245 fixed clean FATX CPU fixture seed; private per-run copy",
+      "createdUtc": "2026-09-30T18:06:02.479508+00:00",
+      "ready": true,
+      "uploadState": "complete",
+      "upload": "/api/v1/disk-assets/research245-cpu-fatx-compat010-78af83a6/content"
+    },
+    {
+      "id": "research245-cpu-iso-c02a1a44-74a10c40",
+      "kind": "readonly-input",
+      "length": 3670016,
+      "sha256": "74a10c400f4fb280dcb4037e38e7e4d3150e73e0061a04f65b3c68cc61a49e63",
+      "description": "Pinned issue245 fixed-work CPU fixture ISO c02a1a44",
+      "createdUtc": "2026-09-30T18:06:02.5805919+00:00",
+      "ready": true,
+      "uploadState": "complete",
+      "upload": "/api/v1/disk-assets/research245-cpu-iso-c02a1a44-74a10c40/content"
+    }
+  ],
+  "nextOffset": null,
+  "storedBytes": 11377838592,
+  "storedBytesComplete": true
+}

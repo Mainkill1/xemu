@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "scope": "retained-C-DSP arithmetic and synthetic instruction execution",
+  "platform": "Linux-6.12.101+deb13-amd64-x86_64-with-glibc2.41",
+  "cpuAffinity": [
+    0
+  ],
+  "frequencyPolicy": "not changed; frequency and shared-host contention uncontrolled",
+  "rounds": 8,
+  "binaries": {
+    "A": {
+      "path": "/home/codex/src/steamdeck-xemu/artifacts/issue229-dsp-multiply/parent-clang-release",
+      "sha256": "2f604fb1928e347697d434a40ba81810eab58218818ce6af3b2926cbcfbe4838"
+    },
+    "B": {
+      "path": "/home/codex/src/steamdeck-xemu/artifacts/issue229-dsp-multiply/candidate-clang-release",
+      "sha256": "3ca245de5dcfef4532c7111ff4c427f5268c0fedd2d5708aa0ca6a5806b745bd"
+    }
+  }
+}

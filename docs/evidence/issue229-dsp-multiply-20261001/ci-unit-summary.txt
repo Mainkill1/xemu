@@ -1,0 +1,28 @@
+Run https://github.com/Mainkill1/xemu/actions/runs/36881642099
+Job https://github.com/Mainkill1/xemu/actions/runs/36881642099/job/110435039960
+Complete raw job log remains available at the job URL.
+
+2026-10-01T15:13:56.7956426Z   2/153 qemu:unit / test-crypto-block                        SKIP             0.03s
+2026-10-01T15:13:57.2137584Z  19/153 qemu:unit / test-xbox-mcpx-dsp-mul                   OK               0.28s   4 subtests passed
+2026-10-01T15:13:57.2556625Z  25/153 qemu:unit / test-xbox-vk-debug-macros                SKIP             0.01s
+2026-10-01T15:13:57.3127939Z  34/153 qemu:unit / test-xbox-vk-device-selection            SKIP             0.01s
+2026-10-01T15:13:57.3185980Z  35/153 qemu:unit / test-xbox-vk-device-inventory            SKIP             0.01s
+2026-10-01T15:13:57.3243653Z  36/153 qemu:unit / test-xemu-gpu-launch                     SKIP             0.01s
+2026-10-01T15:13:57.3303821Z  37/153 qemu:unit / test-xemu-gpu-info                       SKIP             0.01s
+2026-10-01T15:13:57.3758048Z  44/153 qemu:unit / test-xbox-vk-pipeline-lifetime           SKIP             0.01s
+2026-10-01T15:13:57.3816364Z  45/153 qemu:unit / test-xbox-vk-pipeline-cache-data         SKIP             0.01s
+2026-10-01T15:13:57.3937029Z  47/153 qemu:unit / test-xbox-vk-ubershader-controls         SKIP             0.01s
+2026-10-01T15:13:57.4001576Z  48/153 qemu:unit / test-xbox-vk-ubershader-combiner         SKIP             0.01s
+2026-10-01T15:13:57.4127815Z  50/153 qemu:unit / test-xbox-vk-hybrid-policy               SKIP             0.01s
+2026-10-01T15:13:57.5259452Z  63/153 qemu:unit / test-xbox-vk-spirv-prewarm               SKIP             0.08s
+2026-10-01T15:14:03.7600324Z  92/153 qemu:unit / test-xbox-gloffscreen                    SKIP             0.02s
+2026-10-01T15:14:03.8225956Z  93/153 qemu:unit / test-xbox-psh-depth-replace              OK               0.06s   1 subtests passed
+2026-10-01T15:14:04.8684133Z 110/153 qemu:unit / test-crypto-cipher                       SKIP             0.00s
+2026-10-01T15:14:04.9686326Z 120/153 qemu:unit / test-io-channel-command                  SKIP             0.01s   0 subtests passed
+2026-10-01T15:14:05.0408944Z 129/153 qemu:unit / test-crypto-pbkdf                        SKIP             0.00s
+2026-10-01T15:14:08.2420772Z Ok:                137 
+2026-10-01T15:14:08.2421299Z Fail:              0   
+2026-10-01T15:14:08.2421769Z Skipped:           16  
+2026-10-01T15:14:10.0720648Z 1/1 qemu:unit / test-xbox-psh-depth-replace OK              1.35s   17 subtests passed
+2026-10-01T15:14:10.0872926Z Ok:                1   
+2026-10-01T15:14:10.0873351Z Fail:              0   

@@ -1,0 +1,6 @@
+{
+  "id": "issue229-candidate-native-linux-v1",
+  "sha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+  "source": "/home/codex/src/steamdeck-xemu/artifacts/issue229-dsp-multiply/native-builds/candidate-linux/squashfs-root/usr/bin/xemu",
+  "started": false
+}

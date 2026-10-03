@@ -1,0 +1,4 @@
+  Determining projects to restore...
+  Restored /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/XemuTestRunner.csproj (in 1.37 sec).
+  XemuTestRunner -> /home/codex/src/steamdeck-xemu/worktrees/runner-plan-timeout/src/XemuTestRunner/bin/Release/net10.0/linux-x64/XemuTestRunner.dll
+  XemuTestRunner -> /home/codex/src/steamdeck-xemu/artifacts/runner-plan-timeout/linux-x64/

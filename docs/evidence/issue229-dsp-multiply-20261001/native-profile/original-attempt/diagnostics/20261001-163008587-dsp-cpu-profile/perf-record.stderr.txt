@@ -1,0 +1,2 @@
+[ perf record: Woken up 109 times to write data ]
+[ perf record: Captured and wrote 28.374 MB /home/deck/xemu-research/workspace/Results/20261001-162746650-9a3fecbf40d5444aa610e51450f3972d/diagnostics/20261001-163008587-dsp-cpu-profile/dsp-cpu-profile.data (6812 samples) ]

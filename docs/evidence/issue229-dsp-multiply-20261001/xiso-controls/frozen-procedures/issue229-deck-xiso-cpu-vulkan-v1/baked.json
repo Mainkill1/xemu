@@ -1,0 +1,10 @@
+{
+  "id": "issue229-deck-xiso-cpu-vulkan-v1",
+  "revision": "316aba385bd1718f8d765e22e157aecaae0f124124a9a30a00b779457e6e76ad",
+  "description": "Issue229 unaffected CPU controls; exact historical CPU oracle; matched parent runtime libraries; private inputs; vulkan",
+  "sourceJobId": "issue229-deck-xiso-cpu-vulkan-v1-seed",
+  "stepCount": 0,
+  "fileCount": 44,
+  "buildFileCount": 1,
+  "self": "/api/v1/tests/issue229-deck-xiso-cpu-vulkan-v1/316aba385bd1718f8d765e22e157aecaae0f124124a9a30a00b779457e6e76ad"
+}

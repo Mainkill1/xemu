@@ -1,0 +1,14 @@
+{
+  "scope": "Windows readiness inspection; no performance attempt launched",
+  "httpEndpoint": "http://10.0.7.1:9368",
+  "runnerRevision": "0ba533ed89c8bb3cf530c4bfff8dbb190b3f08be",
+  "runnerIdle": true,
+  "sessionLocked": false,
+  "powerSource": "ac",
+  "batterySaver": false,
+  "existingTemplateHasIsolationContract": false,
+  "guardSource": "src/XemuTestRunner/Runtime/RunStorageSession.cs",
+  "guardSourceSha256": "9dead91ddaf693d699c6aeae267da52c5d0dd06ad01d8e90ecf8b839b50691d3",
+  "guard": "if (!OperatingSystem.IsLinux()) throw new InvalidDataException(\"Driver cache adapters currently support Linux only; Windows must remain explicitly uncontrolled.\");",
+  "finding": "Managed driver namespace adapters support Linux only. The existing Windows PGR2 template is unmanaged. New comparable Windows game measurements need a deliberate Windows driver-cache/private-state contract; the Deck Mesa qualification is not Windows proof. No waiver or cache purge applied."
+}

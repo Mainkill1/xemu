@@ -1,0 +1,124 @@
+{
+  "recordedUtc": "2026-10-01T16:17:07.324318+00:00",
+  "purpose": "Separate reversible operator capacity recovery for issue229 Windows native qualification; no game test launched by recovery agent",
+  "endpoint": "http://10.0.7.1:9368",
+  "oldVersion": "0.1.0+079e3d483523b3e53a11983efd40e2c530747b5f",
+  "newVersion": "0.2.0+0ba533ed89c8bb3cf530c4bfff8dbb190b3f08be",
+  "oldExecutablePath": "C:/xemu-lab/incoming/runner-main-1ba4c530/XemuTestRunner.exe",
+  "oldExecutableSha256": "37ba44a4dea106d000144bbd6584a89803069f12a1f13d9c8d8b004219ce62fb",
+  "newExecutablePath": "D:/xemu-lab/incoming/runner-0ba533ed-issue229/XemuTestRunner.exe",
+  "newExecutableSha256": "3bc262410331b5bde9e6172e3652c27d16a7c4b4d1e1bc686ff7c609730428ef",
+  "oldConfigPath": "C:/xemu-lab/incoming/runner-main-1ba4c530/runner-pr184-v2-http.json",
+  "oldConfigSha256": "544bf8d43dd2709e7cd96a39879aea89c89cd111478229883b46dd47f1e9e928",
+  "newConfigPath": "D:/xemu-lab/incoming/runner-0ba533ed-issue229/runner-issue229-http.json",
+  "newConfigSha256": "a7ec67d0a9ab660ee845982a6fcbcb27195663b96bd8a4ecfe22f1445448b21a",
+  "pathDesign": {
+    "workspace": "D:\\xemu-lab\\incoming\\runner-0ba533ed-issue229\\workspace",
+    "queue": {
+      "Pending": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Pending",
+      "Testing": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Testing",
+      "Tested": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Queue\\Tested",
+      "Results": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Results",
+      "ScanIntervalMs": 500,
+      "PackageStabilityMs": 750,
+      "FiniteWaitTimeoutSeconds": 30,
+      "InterruptedAction": "retry"
+    },
+    "fileRoot": "C:\\xemu-lab\\incoming\\pr184-register-read-windows\\workspace-v2\\Files",
+    "reason": "Retain existing C API drafts, frozen saved tests, baseline/results and asset sources; place private runtime copies and immutable catalog on roomy D drive. Queue renames remain on C."
+  },
+  "catalogCopy": {
+    "files": 30,
+    "bytes": 11377843780,
+    "allSourceDestinationHashesEqual": true,
+    "allAssetContentVerifiedAgainstManifest": true,
+    "originalCatalogRetained": true,
+    "proof": "catalog-verification.json"
+  },
+  "seed": {
+    "id": "pgr2-freshboot-base-v1",
+    "kind": "xiso-seed",
+    "length": 2621702656,
+    "sha256": "8b4f7c81be6ece5db3fc98d683d86d0515db43b2447e8dff14bfd9b45078c606",
+    "description": "PGR2 fresh-boot seed for shared transient runtime HDD tests",
+    "createdUtc": "2026-09-24T08:16:53.0909402+00:00",
+    "ready": true,
+    "uploadState": "complete",
+    "upload": "/api/v1/disk-assets/pgr2-freshboot-base-v1/content"
+  },
+  "failedSeed": {
+    "jobId": "issue229-windows-pgr2-full-dsp-c-v1-seed",
+    "revision": "\"c36ab069e3a88d5f07ee1799ff13c04539d04a6d2230ab66ce16afe991f1ce2e\"",
+    "operation": {
+      "id": "8bf01ba95bbf46a692524a5f34c293f6",
+      "jobId": "issue229-windows-pgr2-full-dsp-c-v1-seed",
+      "action": "reuse",
+      "state": "failed",
+      "startedUtc": "2026-10-01T15:44:21.0626556+00:00",
+      "finishedUtc": "2026-10-01T15:44:23.3621117+00:00",
+      "filesChecked": 4,
+      "error": "There is not enough space on the disk.",
+      "hint": "Check the draft's declared file lengths/digests and upload status. Existing run evidence is unchanged.",
+      "result": null,
+      "sourceJobId": "pgr2-pr184-baseline-assets",
+      "errorCode": "package_operation_failed"
+    },
+    "afterRecoveryUnchanged": true,
+    "beforeEvidence": "failed-seed-before.json",
+    "afterEvidence": "failed-seed-after.json"
+  },
+  "savedSourcePreserved": {
+    "id": "issue247-win-pgr2-equal-store-common",
+    "revision": "783958562f437def56dad00b8a173bb3c02f35e8a3779917e5e3f45f460e2027",
+    "definitionByteEquivalentAsParsedJson": true,
+    "proof": "saved-source-definition-after.json"
+  },
+  "executor": {
+    "processId": 301364,
+    "sessionId": 1,
+    "task": "XemuTestRunner-0ba533ed-issue229",
+    "logonType": "Interactive",
+    "user": "codex",
+    "oneRunnerAndOneListenerVerified": true,
+    "proof": "host-after.stdout.txt"
+  },
+  "hostFreeBytesAtFinalAudit": {
+    "C": 6879227904,
+    "D": 558873968640
+  },
+  "verification": [
+    "Doctor exit0 on staged config",
+    "HTTP client connect exit0",
+    "Direct-LAN discovery reports expected0ba source",
+    "Catalog definitions before/after identical",
+    "Failed seed operation/revision before/after identical",
+    "Saved source definition/revision before/after identical",
+    "Historical issue247 run remains readable over HTTP",
+    "One runner Session1 owns9368; oldtaskReady/newtaskRunning"
+  ],
+  "operatorActions": [
+    "Captured HTTP state and failedseed diagnostics",
+    "Discovered other issue247 jobs; left them to complete",
+    "Staged executable/config/tools on D and verified executable SHA",
+    "Doctor verified absolute paths/config",
+    "Checked authoritative idle and queue0, then POST /api/v1/runner/stop received202",
+    "Refused catalog copy unless runner/xemu absent and9368 listener absent",
+    "Copied catalog without deletion and verified source/destination SHA for all30 files, manifest pins for15assets",
+    "Created one on-demand Interactive scheduled task with no restart trigger",
+    "Confirmed upgraded HTTP and preserved source/failedseed/evidence identities"
+  ],
+  "retainedOriginals": [
+    "Old runner executable/config/start script/task",
+    "C workspace queues/API drafts/tests/results/baseline/runtime",
+    "C asset catalog and firmware/DVD/seed sources"
+  ],
+  "limitations": [
+    "Queue packages and results remain on C; free-space gate remains1073741824 bytes",
+    "Old C .disk-imports acquisition receipts remain at original path; newworkspace starts separate import receipt store",
+    "No game run or private-runtime materialization was launched by recovery agent; root coordinates test scheduling"
+  ],
+  "operatorDiagnosticNotes": [
+    "Two combined nested PowerShell metadata captures timed out; separate raw config/hash/script reads and doctor succeeded. Their queries were stopped; no test target stopped. Recovery transport now records timeouts and keeps600s transfer timeout."
+  ],
+  "rollback": "After authoritative idle queue0, stop newrunner via HTTP, verify runner/target/listener exited, then Start-ScheduledTask XemuTestRunner-1ba4c530. Old configuration/binary/workspace/catalog retained. Do not launch old/new concurrently."
+}

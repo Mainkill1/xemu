@@ -1,0 +1,10 @@
+{
+  "id": "issue229-deck-pgr2-full-dsp-c-v1",
+  "revision": "6944074de8e224d19c16ebdb6f2ceec05e6342e6941fc3595a81efd81f28ba06",
+  "description": "Issue229 matched full DSP C backend; PGR2 fixed input path and 30s window; same runtime dependencies; kernel change only",
+  "sourceJobId": "issue229-deck-pgr2-full-dsp-c-v1-seed",
+  "stepCount": 31,
+  "fileCount": 41,
+  "buildFileCount": 1,
+  "self": "/api/v1/tests/issue229-deck-pgr2-full-dsp-c-v1/6944074de8e224d19c16ebdb6f2ceec05e6342e6941fc3595a81efd81f28ba06"
+}

@@ -1,0 +1,25 @@
+{
+  "Execution": "completed",
+  "Correctness": "notEvaluated",
+  "Evidence": "complete",
+  "Comparison": "ineligible",
+  "ComparisonReasons": [
+    "Correctness outcome is NotEvaluated; a passing correctness contract is required."
+  ],
+  "Checks": [
+    {
+      "Name": "plan_completion",
+      "Passed": true,
+      "Category": "evidence",
+      "Detail": "The declared plan completed."
+    },
+    {
+      "Name": "run_storage_state",
+      "Passed": true,
+      "Category": "state",
+      "Detail": "Application cache and private guest inputs recorded; driver and OS caches remain explicitly disclosed limitations."
+    }
+  ],
+  "IsExecutionSuccess": true,
+  "IsCorrectnessSuccess": true
+}

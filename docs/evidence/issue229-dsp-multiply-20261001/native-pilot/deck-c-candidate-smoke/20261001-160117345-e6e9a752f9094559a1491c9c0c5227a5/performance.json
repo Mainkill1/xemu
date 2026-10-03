@@ -1,0 +1,73 @@
+{
+  "SchemaVersion": 1,
+  "ProfileSha256": "6e2104f18c1dfc48e61e4c980c956185688d22f944466861d52ab330bb4c28cb",
+  "Profile": {
+    "Segment": "in-game-throttle",
+    "MetricsPath": "metrics.csv",
+    "GuestFlipsPath": "guest-flips.log",
+    "GuestFramesPath": "guest-frames.log",
+    "FlipTailSamples": 5,
+    "FrameTailSeconds": 25,
+    "MinimumCpuSamples": 55,
+    "MinimumFrameSamples": 160
+  },
+  "Monitoring": {
+    "Segment": "in-game-throttle",
+    "Rows": 62,
+    "MissingCpuSamples": 0,
+    "MissingDutySamples": 0,
+    "Cpu": {
+      "Count": 62,
+      "Mean": 190.1451290322581,
+      "Median": 182.1675,
+      "Min": 173.895,
+      "Max": 286.767,
+      "P95": 220.2182,
+      "P99": 285.97217
+    },
+    "CollectorDuty": {
+      "Count": 62,
+      "Mean": 0.3198064516129032,
+      "Median": 0.2885,
+      "Min": 0.224,
+      "Max": 0.746,
+      "P95": 0.4969999999999999,
+      "P99": 0.6197300000000001
+    },
+    "Overruns": 0
+  },
+  "Flips": {
+    "Samples": 5,
+    "Frames": 35,
+    "ElapsedUs": 27284533,
+    "CadenceFps": 1.2827780486475615
+  },
+  "Frames": null,
+  "Sources": [
+    {
+      "Path": "metrics.csv",
+      "Bytes": 53590,
+      "Sha256": "44331b5f634b992bfd78ade7a0165172e4b786e591a20ac48bb82f2a5845fe87",
+      "Records": 289,
+      "IgnoredRecords": 226
+    },
+    {
+      "Path": "guest-flips.log",
+      "Bytes": 1037,
+      "Sha256": "52adcb918652f6396353d6cb7fb16a64c821b6f6bd08fd37f0bd79d21388b76b",
+      "Records": 26,
+      "IgnoredRecords": 0
+    },
+    {
+      "Path": "guest-frames.log",
+      "Bytes": 172189,
+      "Sha256": "24dd145f9fcb13b4b9aee00adc756031c4557cb335962bd3776a2292e04bb310",
+      "Records": 3332,
+      "IgnoredRecords": 0
+    }
+  ],
+  "Errors": [
+    "frames: Insufficient positive frame intervals."
+  ],
+  "Complete": false
+}

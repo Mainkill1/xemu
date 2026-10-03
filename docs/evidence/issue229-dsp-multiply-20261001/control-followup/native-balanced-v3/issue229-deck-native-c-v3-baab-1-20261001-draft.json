@@ -1,0 +1,932 @@
+{
+  "id": "issue229-deck-native-c-v3-baab-1-20261001",
+  "state": "draft",
+  "revision": "\"639d5b602419a7c7c5d88cdf2f320868a4de756efad5e1ed6325e194f6c70e29\"",
+  "createdUtc": "2026-10-01T19:20:00.0013636+00:00",
+  "job": {
+    "id": "issue229-deck-native-c-v3-baab-1-20261001",
+    "executable": "xemu",
+    "arguments": [
+      "-config_path",
+      "xemu.toml"
+    ],
+    "workingDirectory": ".",
+    "environment": {
+      "SDL_VIDEODRIVER": "x11",
+      "XDG_DATA_HOME": "{runtimeDir}/xdg-data",
+      "XDG_CACHE_HOME": "{runtimeDir}/xdg-cache",
+      "XEMU_FRAME_LOG": "{resultDir}/guest-frames.log",
+      "XEMU_FLIP_LOG": "{resultDir}/guest-flips.log",
+      "LD_LIBRARY_PATH": "{packageDir}/lib"
+    },
+    "timeoutSeconds": 600,
+    "tags": [
+      "issue229",
+      "pgr2",
+      "stationary-grid",
+      "full-dsp",
+      "c",
+      "cold-launch-scene-warmup",
+      "pilot-not-performance-proof",
+      "test-definition:issue229-deck-pgr2-stationary-full-c-v3@8f0c913a98217a306760fd5a87ca1104e40784cf913d5beeb0013bdaedb72d12"
+    ],
+    "plan": [
+      {
+        "type": "require_input",
+        "delayMs": 0,
+        "button": null,
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "wait",
+        "delayMs": 30000,
+        "button": null,
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "button",
+        "delayMs": 0,
+        "button": "A",
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "wait",
+        "delayMs": 12000,
+        "button": null,
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "button",
+        "delayMs": 0,
+        "button": "A",
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "wait",
+        "delayMs": 4000,
+        "button": null,
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "button",
+        "delayMs": 0,
+        "button": "A",
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "wait",
+        "delayMs": 4000,
+        "button": null,
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "button",
+        "delayMs": 0,
+        "button": "A",
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "wait",
+        "delayMs": 4000,
+        "button": null,
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "button",
+        "delayMs": 0,
+        "button": "DPadRight",
+        "durationMs": 80,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "wait",
+        "delayMs": 4000,
+        "button": null,
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "button",
+        "delayMs": 0,
+        "button": "A",
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "wait",
+        "delayMs": 4000,
+        "button": null,
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "button",
+        "delayMs": 0,
+        "button": "A",
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "wait",
+        "delayMs": 4000,
+        "button": null,
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "button",
+        "delayMs": 0,
+        "button": "A",
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "wait",
+        "delayMs": 4000,
+        "button": null,
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "button",
+        "delayMs": 0,
+        "button": "A",
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "wait",
+        "delayMs": 4000,
+        "button": null,
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "button",
+        "delayMs": 0,
+        "button": "A",
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "wait",
+        "delayMs": 10000,
+        "button": null,
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "button",
+        "delayMs": 0,
+        "button": "A",
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "wait",
+        "delayMs": 20000,
+        "button": null,
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "wait",
+        "delayMs": 60000,
+        "button": null,
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "segment_start",
+        "delayMs": 0,
+        "button": null,
+        "durationMs": 100,
+        "name": "stationary-grid",
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "screenshot",
+        "delayMs": 0,
+        "button": null,
+        "durationMs": 100,
+        "name": "recording-start",
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "wait",
+        "delayMs": 300000,
+        "button": null,
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "screenshot",
+        "delayMs": 0,
+        "button": null,
+        "durationMs": 100,
+        "name": "recording-end",
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "segment_end",
+        "delayMs": 0,
+        "button": null,
+        "durationMs": 100,
+        "name": "stationary-grid",
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "wait",
+        "delayMs": 6000,
+        "button": null,
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      },
+      {
+        "type": "quit",
+        "delayMs": 0,
+        "button": null,
+        "durationMs": 100,
+        "name": null,
+        "diagnosticId": null,
+        "condition": null,
+        "timeoutMs": 10000,
+        "pollIntervalMs": 100
+      }
+    ],
+    "targetOs": "linux",
+    "expectedExecutableSha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+    "requiredFiles": [
+      "xemu",
+      "xemu.toml",
+      "state/seed-eeprom.bin",
+      "lib/libcrypto.so.3",
+      "lib/libbrotlicommon.so.1",
+      "lib/libgcrypt.so.20",
+      "lib/libcap.so.2",
+      "lib/libffi.so.8",
+      "lib/libudev.so.1",
+      "lib/libsystemd.so.0",
+      "lib/libpsl.so.5",
+      "lib/libgssapi_krb5.so.2",
+      "lib/libunistring.so.2",
+      "lib/libdbus-1.so.3",
+      "lib/libglib-2.0.so.0",
+      "lib/libsasl2.so.2",
+      "lib/libnghttp2.so.14",
+      "lib/libtasn1.so.6",
+      "lib/libidn2.so.0",
+      "lib/libkrb5support.so.0",
+      "lib/libssh.so.4",
+      "lib/librtmp.so.1",
+      "lib/libpcap.so.0.8",
+      "lib/libslirp.so.0",
+      "lib/liblzma.so.5",
+      "lib/liblz4.so.1",
+      "lib/libzstd.so.1",
+      "lib/libp11-kit.so.0",
+      "lib/libhogweed.so.6",
+      "lib/libgnutls.so.30",
+      "lib/libkrb5.so.3",
+      "lib/libldap-2.5.so.0",
+      "lib/libk5crypto.so.3",
+      "lib/libepoxy.so.0",
+      "lib/libkeyutils.so.1",
+      "lib/libpcre.so.3",
+      "lib/libnettle.so.8",
+      "lib/libbrotlidec.so.1",
+      "lib/libcurl-gnutls.so.4",
+      "lib/liblber-2.5.so.0",
+      "lib/libsamplerate.so.0"
+    ],
+    "launchMode": "direct",
+    "snapshotName": null,
+    "startPaused": false,
+    "requireInput": true,
+    "diagnostics": [],
+    "runtimeState": {
+      "enabled": true,
+      "keepOnSuccess": false,
+      "keepOnFailure": true,
+      "files": [
+        {
+          "source": "state/seed-eeprom.bin",
+          "destination": "eeprom.bin",
+          "expectedSha256": null
+        }
+      ],
+      "diskAssets": [
+        {
+          "assetId": "research247-pgr2-save-7b0f55",
+          "expectedSha256": "7b0f55920d8740e9c77183392aad9969f775ba823f1de4612ef461796a055b52",
+          "destination": "hdd.qcow2",
+          "retention": "deleteAfterEvidence"
+        }
+      ],
+      "isolation": {
+        "cacheMode": "cold",
+        "cacheShaders": true,
+        "driverCache": "mesa",
+        "allowUncontrolledDriverCache": false,
+        "seedDirectory": null,
+        "seedSha256": null,
+        "requirePrivateGuestState": true,
+        "maximumFiles": 4096,
+        "maximumBytes": 268435456,
+        "deadlineSeconds": 15,
+        "readOnlyAssets": [
+          {
+            "field": "bootrom_path",
+            "assetId": "research247-bootrom-e99e3a",
+            "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+          },
+          {
+            "field": "flashrom_path",
+            "assetId": "research247-bios-1de4c8",
+            "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+          },
+          {
+            "field": "dvd_path",
+            "assetId": "research247-pgr2-disc-694365",
+            "expectedSha256": "6943653e6e8540f2c473579cf27c8e710d79ac76f88abaa95ec0c011c5bd69cd"
+          }
+        ]
+      }
+    },
+    "inputs": [
+      {
+        "path": "xemu",
+        "role": "parent-or-candidate-emulator",
+        "hash": true,
+        "expectedSha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418"
+      },
+      {
+        "path": "xemu.toml",
+        "role": "fixed-full-C-stationary-fullscreen",
+        "hash": true,
+        "expectedSha256": "a43385303cdb2c88aadc928f5660603579940280263cec9e19b675210ec37fa7"
+      }
+    ],
+    "workload": {
+      "correctnessChecks": [
+        {
+          "name": "recording-start-visible",
+          "scope": "result",
+          "path": "screenshots/recording-start.png",
+          "mustExist": true,
+          "minimumBytes": 1000,
+          "minimumNonBlackPixelRatio": 0.05,
+          "nonBlackPixelThreshold": 96,
+          "imageRegion": {
+            "x": 0.08333333333333333,
+            "y": 0,
+            "width": 0.8333333333333334,
+            "height": 1
+          },
+          "expectedSha256": null,
+          "containsText": null,
+          "equalsText": null
+        },
+        {
+          "name": "recording-end-visible",
+          "scope": "result",
+          "path": "screenshots/recording-end.png",
+          "mustExist": true,
+          "minimumBytes": 1000,
+          "minimumNonBlackPixelRatio": 0.05,
+          "nonBlackPixelThreshold": 96,
+          "imageRegion": {
+            "x": 0.08333333333333333,
+            "y": 0,
+            "width": 0.8333333333333334,
+            "height": 1
+          },
+          "expectedSha256": null,
+          "containsText": null,
+          "equalsText": null
+        }
+      ],
+      "evidenceRequirements": [
+        {
+          "name": "guest-progress",
+          "scope": "result",
+          "path": "guest-frames.log",
+          "mustExist": true,
+          "minimumBytes": 1000,
+          "minimumNonBlackPixelRatio": null,
+          "nonBlackPixelThreshold": 0,
+          "imageRegion": null,
+          "expectedSha256": null,
+          "containsText": null,
+          "equalsText": null
+        },
+        {
+          "name": "measurement-segments",
+          "scope": "result",
+          "path": "segments.jsonl",
+          "mustExist": true,
+          "minimumBytes": 20,
+          "minimumNonBlackPixelRatio": null,
+          "nonBlackPixelThreshold": 0,
+          "imageRegion": null,
+          "expectedSha256": null,
+          "containsText": null,
+          "equalsText": null
+        }
+      ],
+      "reportedMetrics": [],
+      "minimumMetricSamples": 160,
+      "requirePlanCompletion": true,
+      "analysis": {
+        "segment": "stationary-grid",
+        "metricsPath": "metrics.csv",
+        "guestFlipsPath": "guest-flips.log",
+        "guestFramesPath": "guest-frames.log",
+        "flipTailSamples": 40,
+        "frameTailSeconds": 300,
+        "minimumCpuSamples": 540,
+        "minimumFrameSamples": 160
+      }
+    },
+    "experiment": {
+      "id": "issue229-deck-native-c-v3-balanced",
+      "variant": "candidate",
+      "reference": "ee5ce48b48784f999af374c1452003f8b2b1230f",
+      "variedFactors": [
+        "C DSP multiply"
+      ],
+      "controlledFactors": [
+        "same-parent-runtime-libraries",
+        "private guest state",
+        "cold Mesa namespace at launch",
+        "60-second stationary warmup",
+        "300-second observation",
+        "fullscreen 4:3 viewport",
+        "full DSP C VPworkers0 Vulkan vsyncoff"
+      ],
+      "requireCorrectnessPass": true,
+      "requireCompleteEvidence": true,
+      "allowOperatorIntervention": false,
+      "allowDiagnostics": false
+    },
+    "operations": {
+      "mode": "benchmark",
+      "allowPreview": false,
+      "allowManualInput": false,
+      "allowPauseResume": false,
+      "allowDiagnostics": false,
+      "allowBulkTransfers": false,
+      "previewAllowed": false,
+      "manualInputAllowed": false,
+      "pauseResumeAllowed": false,
+      "diagnosticsAllowed": false,
+      "bulkTransfersAllowed": false
+    }
+  },
+  "files": [
+    {
+      "path": "lib/libbrotlicommon.so.1",
+      "length": 140592,
+      "sha256": "bfe785ce98c25bb854e2cf998561be74f78f743029b13ad7476beab5440408b5",
+      "executable": false
+    },
+    {
+      "path": "lib/libbrotlidec.so.1",
+      "length": 55376,
+      "sha256": "86f803ed147ee2d8395f2be189057e04337188efdfa73e8842bf523c490a52c9",
+      "executable": false
+    },
+    {
+      "path": "lib/libcap.so.2",
+      "length": 43336,
+      "sha256": "507b03ad6351343928e8b46ba0a29835f5d2862b5d9161fa15620e5e0403d137",
+      "executable": false
+    },
+    {
+      "path": "lib/libcrypto.so.3",
+      "length": 4611672,
+      "sha256": "b771991f547901bd67531100069cc24e00bda385b6876924b5ce09519a2057ac",
+      "executable": false
+    },
+    {
+      "path": "lib/libcurl-gnutls.so.4",
+      "length": 669480,
+      "sha256": "71c96d9e1800ffb5670e1cd0d3960d15994a3c77dc9f177678a8a83298206cff",
+      "executable": false
+    },
+    {
+      "path": "lib/libdbus-1.so.3",
+      "length": 336328,
+      "sha256": "75ab39f40f3c0852b0cc1950e5097ae67ed416717bec51b51d7b400dc7f2705d",
+      "executable": false
+    },
+    {
+      "path": "lib/libepoxy.so.0",
+      "length": 1390520,
+      "sha256": "c71a2b95acabb06e7c957699922946134aeebae6b3e7d84ea5673b6ba08f5907",
+      "executable": false
+    },
+    {
+      "path": "lib/libffi.so.8",
+      "length": 51360,
+      "sha256": "3c79d61c14b340560e10cecfaf36085efab30318076bde0f081fded2a1ee5641",
+      "executable": false
+    },
+    {
+      "path": "lib/libgcrypt.so.20",
+      "length": 1313912,
+      "sha256": "3543f9144edc85fac43fafc012f50dfa0b623981fda2e87416d6a4c30472e5b8",
+      "executable": false
+    },
+    {
+      "path": "lib/libglib-2.0.so.0",
+      "length": 1335888,
+      "sha256": "96dbcd8324a278f45945c5745051dc0c669abed1238c323be70ea012b3a571c5",
+      "executable": false
+    },
+    {
+      "path": "lib/libgnutls.so.30",
+      "length": 2071960,
+      "sha256": "073c16a6bccefd026a4e5aeb56ec7e096110f30b828ba26f8cef2ad73b961bce",
+      "executable": false
+    },
+    {
+      "path": "lib/libgssapi_krb5.so.2",
+      "length": 351720,
+      "sha256": "84d71a0ad21288aeca10816647e0ee809720aaa72062051b227f4db50517c565",
+      "executable": false
+    },
+    {
+      "path": "lib/libhogweed.so.6",
+      "length": 303152,
+      "sha256": "ff69a96e5af06a9638d38189bc41cd345b23c53b1ddf3fe91a11a6818791f0ab",
+      "executable": false
+    },
+    {
+      "path": "lib/libidn2.so.0",
+      "length": 132848,
+      "sha256": "7534a45c32036fe0ad27733d27ce8849c2f63849ef2462118ca6d177f603897e",
+      "executable": false
+    },
+    {
+      "path": "lib/libk5crypto.so.3",
+      "length": 188760,
+      "sha256": "20033c4eec975ee2d1c28e048d74bb2f9c3f8dc657360994eb50b138a7346a50",
+      "executable": false
+    },
+    {
+      "path": "lib/libkeyutils.so.1",
+      "length": 26928,
+      "sha256": "40ef65dad8898edcdaa3e3b4a518749047b088e814da32ac8915cac64ee55b3c",
+      "executable": false
+    },
+    {
+      "path": "lib/libkrb5.so.3",
+      "length": 856536,
+      "sha256": "158676f5a0a250fd13b3465245c4d61cfb0006b92d321d3bc00ce3910940dae1",
+      "executable": false
+    },
+    {
+      "path": "lib/libkrb5support.so.0",
+      "length": 57512,
+      "sha256": "23fe85bd3bc1b5dcabbd79d10b359cdb9ca5c9fb62952d82d8a4046cef59ecad",
+      "executable": false
+    },
+    {
+      "path": "lib/liblber-2.5.so.0",
+      "length": 69792,
+      "sha256": "4d923a63a3c28c3f40683d8cb6ab9bc9173caf12e1f71d9c2c3f0e150550963d",
+      "executable": false
+    },
+    {
+      "path": "lib/libldap-2.5.so.0",
+      "length": 403000,
+      "sha256": "58b50e0fa0c56d80590123789265374a2961b7d5dbf8f6e54ae516dd989b2a42",
+      "executable": false
+    },
+    {
+      "path": "lib/liblz4.so.1",
+      "length": 130848,
+      "sha256": "bd788ffde800b619613d9f800f56a7ad6ecdf320b43e2c37bf3f0fd712576bfb",
+      "executable": false
+    },
+    {
+      "path": "lib/liblzma.so.5",
+      "length": 176296,
+      "sha256": "f753a25e71d2c84a36985afa986c8a3f4372ba3ff520ae1da0ed0562fdcd4dc3",
+      "executable": false
+    },
+    {
+      "path": "lib/libnettle.so.8",
+      "length": 299128,
+      "sha256": "84eb28e7628edd01df3c58f03765aa096faf6049ea8c352c3596d9bbb3068706",
+      "executable": false
+    },
+    {
+      "path": "lib/libnghttp2.so.14",
+      "length": 175504,
+      "sha256": "b7565ca44181a4618b6cfe6dcf7c38d6975673d8ea90d0e7cc1c9629d7c64fde",
+      "executable": false
+    },
+    {
+      "path": "lib/libp11-kit.so.0",
+      "length": 1291592,
+      "sha256": "f77e4489c68f501c8cdf0525c5ac6b281a9f3ea6cb71ebb5122f0d474fff9de2",
+      "executable": false
+    },
+    {
+      "path": "lib/libpcap.so.0.8",
+      "length": 315728,
+      "sha256": "4d6ab2b00affdb7cd7d4d486a0ddb3541e7a7a67e9d5a53de3ff7502e797b3e7",
+      "executable": false
+    },
+    {
+      "path": "lib/libpcre.so.3",
+      "length": 481040,
+      "sha256": "d93d66b7507debfff14d7cae606997a496ccbe3ad6a2dd54b9ac5c6371489101",
+      "executable": false
+    },
+    {
+      "path": "lib/libpsl.so.5",
+      "length": 79528,
+      "sha256": "88ff48b87eae6a0b8a24fb2b8f042558f8d844b978938800850cec5460d693f9",
+      "executable": false
+    },
+    {
+      "path": "lib/librtmp.so.1",
+      "length": 128056,
+      "sha256": "548c4794c71c4b9e3c1ff267c6406c0888e1f7bb6f97b7cde988583a16823c97",
+      "executable": false
+    },
+    {
+      "path": "lib/libsamplerate.so.0",
+      "length": 1500560,
+      "sha256": "a3f494838886b6669bf9cf5312b63e744a7f3734c4d82130d158f7bb6520bb41",
+      "executable": false
+    },
+    {
+      "path": "lib/libsasl2.so.2",
+      "length": 109664,
+      "sha256": "529fafde8492ce12c03fe74e496676eea5e672bdf087c0c4c0ec7eb7c0138ff5",
+      "executable": false
+    },
+    {
+      "path": "lib/libslirp.so.0",
+      "length": 133360,
+      "sha256": "0e343afd0a6073b6ac5405618c0ec2c04e14ec138d964233603ac34dfd1ea8df",
+      "executable": false
+    },
+    {
+      "path": "lib/libssh.so.4",
+      "length": 465064,
+      "sha256": "7a52c294894982872a8c19a39aae5ff6e9089cc0bacaa817cac10b2d0e20f765",
+      "executable": false
+    },
+    {
+      "path": "lib/libsystemd.so.0",
+      "length": 834768,
+      "sha256": "06afffb54d5b82ed67dbd3ff8f73f816980dd4851667ba35c76e8d3adcc7909a",
+      "executable": false
+    },
+    {
+      "path": "lib/libtasn1.so.6",
+      "length": 96480,
+      "sha256": "140770ecfef43bc1390a8e0483a63ec02cc15419c2b4dc6d9aca0797fe84d99a",
+      "executable": false
+    },
+    {
+      "path": "lib/libudev.so.1",
+      "length": 173424,
+      "sha256": "274c8783556224e7499427c1806599f7e3d51864b6557e48aea70a19cd012409",
+      "executable": false
+    },
+    {
+      "path": "lib/libunistring.so.2",
+      "length": 1766104,
+      "sha256": "3185897de7a8125f7bcc2b61a5fd458854d6d14e357b2ec4d34d682bab4137ed",
+      "executable": false
+    },
+    {
+      "path": "lib/libzstd.so.1",
+      "length": 863128,
+      "sha256": "f908cc9e1ba594a313d7a316a4dadfbde456da35be934ad1be40344a01c382df",
+      "executable": false
+    },
+    {
+      "path": "state/seed-eeprom.bin",
+      "length": 256,
+      "sha256": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3",
+      "executable": false
+    },
+    {
+      "path": "xemu",
+      "length": 25531760,
+      "sha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+      "executable": true
+    },
+    {
+      "path": "xemu.toml",
+      "length": 520,
+      "sha256": "a43385303cdb2c88aadc928f5660603579940280263cec9e19b675210ec37fa7",
+      "executable": false
+    }
+  ],
+  "runId": null,
+  "operation": {
+    "id": "8502133fd9ab4e0a800452c439881e12",
+    "jobId": "issue229-deck-native-c-v3-baab-1-20261001",
+    "action": "reuse",
+    "state": "completed",
+    "startedUtc": "2026-10-01T19:20:00.0044488+00:00",
+    "finishedUtc": "2026-10-01T19:20:00.1516755+00:00",
+    "filesChecked": 40,
+    "error": null,
+    "hint": null,
+    "result": {
+      "job": "/api/v1/jobs/issue229-deck-native-c-v3-baab-1-20261001",
+      "reusedFiles": 40,
+      "reusedBytes": 23431720,
+      "remainingFiles": 1,
+      "next": "/api/v1/jobs/issue229-deck-native-c-v3-baab-1-20261001/files"
+    },
+    "sourceJobId": "issue229-deck-pgr2-stationary-full-c-v3-seed",
+    "errorCode": null
+  },
+  "actions": {
+    "self": {
+      "method": "GET",
+      "href": "/api/v1/jobs/issue229-deck-native-c-v3-baab-1-20261001",
+      "purpose": "Read state and the current plan revision."
+    },
+    "files": {
+      "method": "GET",
+      "href": "/api/v1/jobs/issue229-deck-native-c-v3-baab-1-20261001/files",
+      "purpose": "Inspect declarations and committed upload offsets."
+    },
+    "validation": {
+      "method": "GET",
+      "href": "/api/v1/jobs/issue229-deck-native-c-v3-baab-1-20261001/validation",
+      "purpose": "Read the last structured validation report, or null before validation."
+    },
+    "operation": {
+      "method": "GET",
+      "href": "/api/v1/jobs/issue229-deck-native-c-v3-baab-1-20261001/operation",
+      "purpose": "Poll the last operation; do not resubmit while running."
+    },
+    "edit": {
+      "method": "PUT",
+      "href": "/api/v1/jobs/issue229-deck-native-c-v3-baab-1-20261001/plan",
+      "purpose": "Replace the draft plan with If-Match: revision."
+    },
+    "validate": {
+      "method": "POST",
+      "href": "/api/v1/jobs/issue229-deck-native-c-v3-baab-1-20261001/validate",
+      "purpose": "Check payload hashes and preflight without launching."
+    },
+    "submit": {
+      "method": "POST",
+      "href": "/api/v1/jobs/issue229-deck-native-c-v3-baab-1-20261001/submit",
+      "purpose": "Validate then atomically publish the whole package to Pending."
+    },
+    "cancel": {
+      "method": "DELETE",
+      "href": "/api/v1/jobs/issue229-deck-native-c-v3-baab-1-20261001",
+      "purpose": "Cancel an unstarted job, retaining its files."
+    },
+    "clone": {
+      "method": "POST",
+      "href": "/api/v1/jobs/issue229-deck-native-c-v3-baab-1-20261001/clone",
+      "purpose": "Copy this package into a new draft ID for a separate attempt."
+    }
+  }
+}

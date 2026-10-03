@@ -1,0 +1,18 @@
+{
+  "id": "issue229-deck-xiso-cpu-opengl-v1-suite",
+  "revision": "24dd41f8c92686d58bfa61123ebc832a911737a6f8457cea289cfeeeaacec583",
+  "qualification": "unverified",
+  "target": null,
+  "isoSha256": "74a10c400f4fb280dcb4037e38e7e4d3150e73e0061a04f65b3c68cc61a49e63",
+  "catalogId": "sha256:34b8ee7f91f3412b5e7758aab9f4ca08746ef2e97fee8b5c61be8947e145f7f4",
+  "catalogSha256": "c78f03d06d1ae014c10783c736fe03f934d95055e69dc0304d881ed701a268a9",
+  "leafCount": 156,
+  "groupCount": 5,
+  "settings": {
+    "warmup_iterations": 3,
+    "measurement_iterations_multiplier": 4,
+    "gpu_completion_mode": "per_iteration"
+  },
+  "categories": "/api/v1/xiso-suites/issue229-deck-xiso-cpu-opengl-v1-suite/categories",
+  "tests": "/api/v1/xiso-suites/issue229-deck-xiso-cpu-opengl-v1-suite/tests"
+}

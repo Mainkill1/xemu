@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "parentCommit": "ee5ce48b48784f999af374c1452003f8b2b1230f",
+  "candidateCodeCommit": "1e6cebe0cb6452f875329710fa19795f8644ad2d",
+  "productScope": "retained C DSP only; no full emulator performance qualification",
+  "sourceSha256": {
+    "hw/xbox/mcpx/apu/dsp/interp/dsp_cpu.c": "c5a6f3fc01fa620740b9ad2e363c78ce4c8e8730f6762a4d2bd2a77116c1f6ea",
+    "tests/unit/test-xbox-mcpx-dsp-mul.c": "4a5752c2fc76592344ccb530e5cf6db292be7636a4012c9e8fbe248e48de724c",
+    "tests/unit/benchmark-xbox-mcpx-dsp-mul.py": "88c218c47f01dc5dad9e0a72942e48bca68424d83356aa55de72b2aec44c31a1",
+    "tests/unit/meson.build": "422df8690aad42372fabf48cc5d7816c818d0c300736673f2105bbfe20e6d614"
+  },
+  "executables": {
+    "parent-gcc-release-v2": {
+      "sha256": "5399a1ab14f5b0ef15cbfb7a2dd6702d435dbdd7ebc859776206f4b203dff7ac",
+      "compileArgv": "parent-gcc-release-v2-compile-argv.json",
+      "unitLog": "parent-gcc-release-v2-unit.log"
+    },
+    "candidate-gcc-release-v2": {
+      "sha256": "121faac5c703f0d2a3c359f2f6e3e4d26264b9d60b2d2af7882d4ea7ed3cd855",
+      "compileArgv": "candidate-gcc-release-v2-compile-argv.json",
+      "unitLog": "candidate-gcc-release-v2-unit.log"
+    },
+    "parent-clang-release-v2": {
+      "sha256": "23f54521a7a152e07f7ba0c23c928286ece08f2f8f52e9da188b7070cefeff8d",
+      "compileArgv": "parent-clang-release-v2-compile-argv.json",
+      "unitLog": "parent-clang-release-v2-unit.log"
+    },
+    "candidate-clang-release-v2": {
+      "sha256": "9b7bc0ceb2cc4a8f7640b7df7f236b2ded400879fc114f185eec2b5bb6c31cda",
+      "compileArgv": "candidate-clang-release-v2-compile-argv.json",
+      "unitLog": "candidate-clang-release-v2-unit.log"
+    },
+    "candidate-ubsan-v2": {
+      "sha256": "61a56c7ccd7ba363d98c492bfdc0b66790e571eb991d855f29b22f6bcf6bc11f",
+      "compileArgv": "candidate-ubsan-v2-compile-argv.json",
+      "unitLog": "candidate-ubsan-v2-unit.log"
+    }
+  },
+  "primaryCampaigns": [
+    "gcc-balanced-v2",
+    "clang-balanced-v2"
+  ],
+  "supersededCampaigns": [
+    "gcc-balanced",
+    "clang-balanced"
+  ],
+  "negativeControls": {
+    "missingFractionalShift": {
+      "exitCode": -6,
+      "result": "expected assertion failure"
+    },
+    "swappedResultWords": {
+      "exitCode": -6,
+      "result": "expected assertion failure"
+    }
+  },
+  "CI": {
+    "result": "20/20 jobs successful",
+    "run": "https://github.com/Mainkill1/xemu/actions/runs/36881642099",
+    "branchHead": "778338b8ba38484ff1afecf6e69e513e482658e9",
+    "sourcePackageCommit": "b9359dbf55c72bd7e8569f677dc4aafd771592d7",
+    "unitPassed": 137,
+    "unitSkipped": 16,
+    "unitFailed": 0,
+    "productAndTestSourceHashesUnchanged": true
+  },
+  "nativeGames": "not measured",
+  "pcmParity": "not measured",
+  "jitControl": "not measured; JIT sources unchanged"
+}

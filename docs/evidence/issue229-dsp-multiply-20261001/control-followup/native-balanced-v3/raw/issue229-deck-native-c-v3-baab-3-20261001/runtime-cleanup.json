@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261001-202256505-98bc8b5f945e4467b38b2e6266044b1f",
+  "state": "complete",
+  "targetStopped": true,
+  "evidenceFinalized": true,
+  "runtimeDirectory": "/home/deck/xemu-research/workspace/Runtime/20261001-202256505-98bc8b5f945e4467b38b2e6266044b1f",
+  "files": [
+    {
+      "assetId": "research247-pgr2-save-7b0f55",
+      "path": "hdd.qcow2",
+      "retention": "deleteAfterEvidence",
+      "deleted": true,
+      "error": null
+    }
+  ],
+  "updatedUtc": "2026-10-01T20:30:59.1005382+00:00"
+}

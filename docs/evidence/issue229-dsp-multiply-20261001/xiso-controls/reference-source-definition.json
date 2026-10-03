@@ -1,0 +1,454 @@
+{
+  "revision": "a958e1cd8bcced1f11a2649e4c5058cb9ff4c0e3f1ee657f1dffa214c0b063a3",
+  "definition": {
+    "id": "research245-deck-cpu-xiso-suite-base-v2",
+    "sourceJobId": "research245-cpu-main-2d289cb-deck-v3",
+    "description": "",
+    "job": {
+      "id": "research245-deck-cpu-xiso-suite-base-v2",
+      "executable": "xemu",
+      "arguments": [
+        "-config_path",
+        "{packageDir}/xemu.toml",
+        "-name",
+        "xemu-research245-cpu,debug-threads=on",
+        "-msg",
+        "timestamp=on"
+      ],
+      "workingDirectory": ".",
+      "environment": {
+        "SDL_VIDEODRIVER": "x11",
+        "XDG_DATA_HOME": "{runtimeDir}/xdg-data",
+        "XDG_CACHE_HOME": "{runtimeDir}/xdg-cache",
+        "XEMU_FRAME_LOG": "{resultDir}/guest-frames.log",
+        "XEMU_FLIP_LOG": "{resultDir}/guest-flips.log",
+        "LD_LIBRARY_PATH": "{packageDir}/lib"
+      },
+      "timeoutSeconds": 600,
+      "tags": [
+        "research245",
+        "cpu",
+        "xiso",
+        "steam-deck",
+        "main-calibration"
+      ],
+      "plan": [],
+      "targetOs": "linux",
+      "expectedExecutableSha256": "5b3764acb93ee6d319b9cf7822295ae8748896b87b39ba52702838f1294f22f9",
+      "requiredFiles": [
+        "xemu",
+        "xemu.toml",
+        "state/seed-eeprom.bin",
+        "lib/libslirp.so.0",
+        "cpu-code-rewrite-suite-reference.json"
+      ],
+      "launchMode": "direct",
+      "snapshotName": null,
+      "startPaused": false,
+      "requireInput": false,
+      "diagnostics": [],
+      "runtimeState": {
+        "enabled": true,
+        "keepOnSuccess": false,
+        "keepOnFailure": true,
+        "files": [
+          {
+            "source": "state/seed-eeprom.bin",
+            "destination": "eeprom.bin",
+            "expectedSha256": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+          }
+        ],
+        "diskAssets": [
+          {
+            "assetId": "research245-cpu-fatx-compat010-78af83a6",
+            "expectedSha256": "78af83a6c8a1f84cefd37b811a4197419ace68e09ad197376ca9bb2cca05e56b",
+            "destination": "hdd.qcow2",
+            "retention": "deleteAfterEvidence"
+          }
+        ],
+        "isolation": {
+          "cacheMode": "cold",
+          "cacheShaders": false,
+          "driverCache": "mesa",
+          "allowUncontrolledDriverCache": false,
+          "seedDirectory": null,
+          "seedSha256": null,
+          "requirePrivateGuestState": true,
+          "maximumFiles": 4096,
+          "maximumBytes": 268435456,
+          "deadlineSeconds": 15,
+          "readOnlyAssets": [
+            {
+              "field": "bootrom_path",
+              "assetId": "research247-bootrom-e99e3a",
+              "expectedSha256": "e99e3a772bf5f5d262786aee895664eb96136196e37732fe66e14ae062f20335"
+            },
+            {
+              "field": "flashrom_path",
+              "assetId": "research247-bios-1de4c8",
+              "expectedSha256": "1de4c87effe40d44f95581d204f9fa0600fbd5fe2171692316dcf97af0f4113f"
+            },
+            {
+              "field": "dvd_path",
+              "assetId": "research245-cpu-iso-c02a1a44-74a10c40",
+              "expectedSha256": "74a10c400f4fb280dcb4037e38e7e4d3150e73e0061a04f65b3c68cc61a49e63"
+            }
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "path": "xemu",
+          "role": "pinned-cpu-fixture-input",
+          "hash": true,
+          "expectedSha256": "5b3764acb93ee6d319b9cf7822295ae8748896b87b39ba52702838f1294f22f9"
+        },
+        {
+          "path": "xemu.toml",
+          "role": "pinned-cpu-fixture-input",
+          "hash": true,
+          "expectedSha256": "aa356a9d7b916ace9b71ff1ef47946db1ac289e36a8b00235c4397f57523b0b8"
+        },
+        {
+          "path": "state/seed-eeprom.bin",
+          "role": "pinned-cpu-fixture-input",
+          "hash": true,
+          "expectedSha256": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3"
+        },
+        {
+          "path": "lib/libslirp.so.0",
+          "role": "pinned-cpu-fixture-input",
+          "hash": true,
+          "expectedSha256": "0e343afd0a6073b6ac5405618c0ec2c04e14ec138d964233603ac34dfd1ea8df"
+        },
+        {
+          "path": "cpu-code-rewrite-suite-reference.json",
+          "role": "pinned-cpu-fixture-input",
+          "hash": true,
+          "expectedSha256": "fe7ea361d2427e81e58e6addfd745f037023497bebd9ea59bf68e90dbc13848f"
+        }
+      ],
+      "workload": {
+        "correctnessChecks": [],
+        "evidenceRequirements": [],
+        "reportedMetrics": [],
+        "minimumMetricSamples": 0,
+        "requirePlanCompletion": false,
+        "guestHddResults": {
+          "image": "hdd.qcow2",
+          "partitionOffsetBytes": 2884108288,
+          "partitionLengthBytes": 5120024576,
+          "guestPath": "xemu_perf_tests/results.txt",
+          "expectedResults": "cpu-code-rewrite-suite-reference.json",
+          "expectedResultsSha256": "fe7ea361d2427e81e58e6addfd745f037023497bebd9ea59bf68e90dbc13848f",
+          "maximumResultBytes": 16777216
+        }
+      },
+      "experiment": {
+        "id": "research245-deck-cpu-main-v1",
+        "variant": "main-calibration",
+        "reference": null,
+        "variedFactors": [],
+        "controlledFactors": [
+          "main-2d289cb",
+          "fixture-c02a1a44",
+          "stable-50m-rewrite-1m",
+          "warmups-3",
+          "multiplier-4",
+          "cpuid-both-leaves",
+          "128mb-ram",
+          "vulkan-radv",
+          "cold-private-application-cache",
+          "mesa-driver-cache-unverified"
+        ],
+        "requireCorrectnessPass": true,
+        "requireCompleteEvidence": true,
+        "allowOperatorIntervention": false,
+        "allowDiagnostics": false
+      },
+      "operations": {
+        "mode": "diagnostic",
+        "allowPreview": null,
+        "allowManualInput": null,
+        "allowPauseResume": null,
+        "allowDiagnostics": null,
+        "allowBulkTransfers": null,
+        "previewAllowed": true,
+        "manualInputAllowed": true,
+        "pauseResumeAllowed": true,
+        "diagnosticsAllowed": true,
+        "bulkTransfersAllowed": true
+      }
+    },
+    "files": [
+      {
+        "path": "cpu-code-rewrite-reference.json",
+        "length": 868,
+        "sha256": "012286767ceb727d81f4646463cc46dcb13c9e7f30a891eeda74fba63f78401c",
+        "executable": false
+      },
+      {
+        "path": "cpu-code-rewrite-suite-reference.json",
+        "length": 164935,
+        "sha256": "fe7ea361d2427e81e58e6addfd745f037023497bebd9ea59bf68e90dbc13848f",
+        "executable": false
+      },
+      {
+        "path": "lib/libbrotlicommon.so.1",
+        "length": 140592,
+        "sha256": "bfe785ce98c25bb854e2cf998561be74f78f743029b13ad7476beab5440408b5",
+        "executable": false
+      },
+      {
+        "path": "lib/libbrotlidec.so.1",
+        "length": 55376,
+        "sha256": "86f803ed147ee2d8395f2be189057e04337188efdfa73e8842bf523c490a52c9",
+        "executable": false
+      },
+      {
+        "path": "lib/libcap.so.2",
+        "length": 43336,
+        "sha256": "507b03ad6351343928e8b46ba0a29835f5d2862b5d9161fa15620e5e0403d137",
+        "executable": false
+      },
+      {
+        "path": "lib/libcrypto.so.3",
+        "length": 4611672,
+        "sha256": "b771991f547901bd67531100069cc24e00bda385b6876924b5ce09519a2057ac",
+        "executable": false
+      },
+      {
+        "path": "lib/libcurl-gnutls.so.4",
+        "length": 669480,
+        "sha256": "71c96d9e1800ffb5670e1cd0d3960d15994a3c77dc9f177678a8a83298206cff",
+        "executable": false
+      },
+      {
+        "path": "lib/libdbus-1.so.3",
+        "length": 336328,
+        "sha256": "75ab39f40f3c0852b0cc1950e5097ae67ed416717bec51b51d7b400dc7f2705d",
+        "executable": false
+      },
+      {
+        "path": "lib/libepoxy.so.0",
+        "length": 1390520,
+        "sha256": "c71a2b95acabb06e7c957699922946134aeebae6b3e7d84ea5673b6ba08f5907",
+        "executable": false
+      },
+      {
+        "path": "lib/libffi.so.8",
+        "length": 51360,
+        "sha256": "3c79d61c14b340560e10cecfaf36085efab30318076bde0f081fded2a1ee5641",
+        "executable": false
+      },
+      {
+        "path": "lib/libgcrypt.so.20",
+        "length": 1313912,
+        "sha256": "3543f9144edc85fac43fafc012f50dfa0b623981fda2e87416d6a4c30472e5b8",
+        "executable": false
+      },
+      {
+        "path": "lib/libglib-2.0.so.0",
+        "length": 1335888,
+        "sha256": "96dbcd8324a278f45945c5745051dc0c669abed1238c323be70ea012b3a571c5",
+        "executable": false
+      },
+      {
+        "path": "lib/libgnutls.so.30",
+        "length": 2071960,
+        "sha256": "073c16a6bccefd026a4e5aeb56ec7e096110f30b828ba26f8cef2ad73b961bce",
+        "executable": false
+      },
+      {
+        "path": "lib/libgssapi_krb5.so.2",
+        "length": 351720,
+        "sha256": "84d71a0ad21288aeca10816647e0ee809720aaa72062051b227f4db50517c565",
+        "executable": false
+      },
+      {
+        "path": "lib/libhogweed.so.6",
+        "length": 303152,
+        "sha256": "ff69a96e5af06a9638d38189bc41cd345b23c53b1ddf3fe91a11a6818791f0ab",
+        "executable": false
+      },
+      {
+        "path": "lib/libidn2.so.0",
+        "length": 132848,
+        "sha256": "7534a45c32036fe0ad27733d27ce8849c2f63849ef2462118ca6d177f603897e",
+        "executable": false
+      },
+      {
+        "path": "lib/libk5crypto.so.3",
+        "length": 188760,
+        "sha256": "20033c4eec975ee2d1c28e048d74bb2f9c3f8dc657360994eb50b138a7346a50",
+        "executable": false
+      },
+      {
+        "path": "lib/libkeyutils.so.1",
+        "length": 26928,
+        "sha256": "40ef65dad8898edcdaa3e3b4a518749047b088e814da32ac8915cac64ee55b3c",
+        "executable": false
+      },
+      {
+        "path": "lib/libkrb5.so.3",
+        "length": 856536,
+        "sha256": "158676f5a0a250fd13b3465245c4d61cfb0006b92d321d3bc00ce3910940dae1",
+        "executable": false
+      },
+      {
+        "path": "lib/libkrb5support.so.0",
+        "length": 57512,
+        "sha256": "23fe85bd3bc1b5dcabbd79d10b359cdb9ca5c9fb62952d82d8a4046cef59ecad",
+        "executable": false
+      },
+      {
+        "path": "lib/liblber-2.5.so.0",
+        "length": 69792,
+        "sha256": "4d923a63a3c28c3f40683d8cb6ab9bc9173caf12e1f71d9c2c3f0e150550963d",
+        "executable": false
+      },
+      {
+        "path": "lib/libldap-2.5.so.0",
+        "length": 403000,
+        "sha256": "58b50e0fa0c56d80590123789265374a2961b7d5dbf8f6e54ae516dd989b2a42",
+        "executable": false
+      },
+      {
+        "path": "lib/liblz4.so.1",
+        "length": 130848,
+        "sha256": "bd788ffde800b619613d9f800f56a7ad6ecdf320b43e2c37bf3f0fd712576bfb",
+        "executable": false
+      },
+      {
+        "path": "lib/liblzma.so.5",
+        "length": 176296,
+        "sha256": "f753a25e71d2c84a36985afa986c8a3f4372ba3ff520ae1da0ed0562fdcd4dc3",
+        "executable": false
+      },
+      {
+        "path": "lib/libnettle.so.8",
+        "length": 299128,
+        "sha256": "84eb28e7628edd01df3c58f03765aa096faf6049ea8c352c3596d9bbb3068706",
+        "executable": false
+      },
+      {
+        "path": "lib/libnghttp2.so.14",
+        "length": 175504,
+        "sha256": "b7565ca44181a4618b6cfe6dcf7c38d6975673d8ea90d0e7cc1c9629d7c64fde",
+        "executable": false
+      },
+      {
+        "path": "lib/libp11-kit.so.0",
+        "length": 1291592,
+        "sha256": "f77e4489c68f501c8cdf0525c5ac6b281a9f3ea6cb71ebb5122f0d474fff9de2",
+        "executable": false
+      },
+      {
+        "path": "lib/libpcap.so.0.8",
+        "length": 315728,
+        "sha256": "4d6ab2b00affdb7cd7d4d486a0ddb3541e7a7a67e9d5a53de3ff7502e797b3e7",
+        "executable": false
+      },
+      {
+        "path": "lib/libpcre.so.3",
+        "length": 481040,
+        "sha256": "d93d66b7507debfff14d7cae606997a496ccbe3ad6a2dd54b9ac5c6371489101",
+        "executable": false
+      },
+      {
+        "path": "lib/libpsl.so.5",
+        "length": 79528,
+        "sha256": "88ff48b87eae6a0b8a24fb2b8f042558f8d844b978938800850cec5460d693f9",
+        "executable": false
+      },
+      {
+        "path": "lib/librtmp.so.1",
+        "length": 128056,
+        "sha256": "548c4794c71c4b9e3c1ff267c6406c0888e1f7bb6f97b7cde988583a16823c97",
+        "executable": false
+      },
+      {
+        "path": "lib/libsamplerate.so.0",
+        "length": 1500560,
+        "sha256": "a3f494838886b6669bf9cf5312b63e744a7f3734c4d82130d158f7bb6520bb41",
+        "executable": false
+      },
+      {
+        "path": "lib/libsasl2.so.2",
+        "length": 109664,
+        "sha256": "529fafde8492ce12c03fe74e496676eea5e672bdf087c0c4c0ec7eb7c0138ff5",
+        "executable": false
+      },
+      {
+        "path": "lib/libslirp.so.0",
+        "length": 133360,
+        "sha256": "0e343afd0a6073b6ac5405618c0ec2c04e14ec138d964233603ac34dfd1ea8df",
+        "executable": false
+      },
+      {
+        "path": "lib/libssh.so.4",
+        "length": 465064,
+        "sha256": "7a52c294894982872a8c19a39aae5ff6e9089cc0bacaa817cac10b2d0e20f765",
+        "executable": false
+      },
+      {
+        "path": "lib/libsystemd.so.0",
+        "length": 834768,
+        "sha256": "06afffb54d5b82ed67dbd3ff8f73f816980dd4851667ba35c76e8d3adcc7909a",
+        "executable": false
+      },
+      {
+        "path": "lib/libtasn1.so.6",
+        "length": 96480,
+        "sha256": "140770ecfef43bc1390a8e0483a63ec02cc15419c2b4dc6d9aca0797fe84d99a",
+        "executable": false
+      },
+      {
+        "path": "lib/libudev.so.1",
+        "length": 173424,
+        "sha256": "274c8783556224e7499427c1806599f7e3d51864b6557e48aea70a19cd012409",
+        "executable": false
+      },
+      {
+        "path": "lib/libunistring.so.2",
+        "length": 1766104,
+        "sha256": "3185897de7a8125f7bcc2b61a5fd458854d6d14e357b2ec4d34d682bab4137ed",
+        "executable": false
+      },
+      {
+        "path": "lib/libzstd.so.1",
+        "length": 863128,
+        "sha256": "f908cc9e1ba594a313d7a316a4dadfbde456da35be934ad1be40344a01c382df",
+        "executable": false
+      },
+      {
+        "path": "reference-results.txt",
+        "length": 146557,
+        "sha256": "831354e1839e44be382ffd6242be18803d5327998acb1bf0537b38860be13c60",
+        "executable": false
+      },
+      {
+        "path": "state/seed-eeprom.bin",
+        "length": 256,
+        "sha256": "a076678d81b90d638fd4fc21d7f580b133efb634b990f497363ad3cb1a572eb3",
+        "executable": false
+      },
+      {
+        "path": "xemu",
+        "length": 25544048,
+        "sha256": "5b3764acb93ee6d319b9cf7822295ae8748896b87b39ba52702838f1294f22f9",
+        "executable": true
+      },
+      {
+        "path": "xemu.toml",
+        "length": 383,
+        "sha256": "aa356a9d7b916ace9b71ff1ef47946db1ac289e36a8b00235c4397f57523b0b8",
+        "executable": false
+      }
+    ],
+    "buildFiles": [
+      "xemu"
+    ]
+  },
+  "createdUtc": "2026-09-30T14:18:19.1447664+00:00"
+}

@@ -1,0 +1,1 @@
+{"test": "issue229-deck-pgr2-stationary-full-c-v2", "revision": "086a5425654e44af35e542ae2a3878dbd09a132ea88c59b9c6e9ae0b81bf6e94", "timeoutSeconds": 480, "minimumFrames": 160, "imageMinimum": 0.05, "imageThreshold": 96, "started": false}

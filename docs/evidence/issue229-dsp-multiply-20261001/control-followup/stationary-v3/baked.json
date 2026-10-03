@@ -1,0 +1,10 @@
+{
+  "id": "issue229-deck-pgr2-stationary-full-c-v3",
+  "revision": "8f0c913a98217a306760fd5a87ca1104e40784cf913d5beeb0013bdaedb72d12",
+  "description": "Full C stationary-grid pilot: cold private launch, 60s warmup, 300s observation, fullscreen viewport; retains 5%/96 image and160-frame gates; CPU sample floor540; no gameplay gain claim",
+  "sourceJobId": "issue229-deck-pgr2-stationary-full-c-v3-seed",
+  "stepCount": 32,
+  "fileCount": 41,
+  "buildFileCount": 1,
+  "self": "/api/v1/tests/issue229-deck-pgr2-stationary-full-c-v3/8f0c913a98217a306760fd5a87ca1104e40784cf913d5beeb0013bdaedb72d12"
+}

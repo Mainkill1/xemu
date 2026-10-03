@@ -1,0 +1,69 @@
+{
+  "SchemaVersion": 1,
+  "ProfileSha256": "55e02f64c6dc843c932a9a8c2a8e481a4f118e5b745d20f5b7b4d3f3c3e49525",
+  "Profile": {
+    "Segment": "stationary-grid",
+    "MetricsPath": "metrics.csv",
+    "GuestFlipsPath": "guest-flips.log",
+    "GuestFramesPath": "guest-frames.log",
+    "FlipTailSamples": 256,
+    "FrameTailSeconds": 180,
+    "MinimumCpuSamples": 320,
+    "MinimumFrameSamples": 160
+  },
+  "Monitoring": {
+    "Segment": "stationary-grid",
+    "Rows": 363,
+    "MissingCpuSamples": 0,
+    "MissingDutySamples": 0,
+    "Cpu": {
+      "Count": 363,
+      "Mean": 197.9017245179064,
+      "Median": 197.878,
+      "Min": 188.23,
+      "Max": 246.815,
+      "P95": 204.2849,
+      "P99": 209.18964
+    },
+    "CollectorDuty": {
+      "Count": 363,
+      "Mean": 0.393077134986226,
+      "Median": 0.361,
+      "Min": 0.261,
+      "Max": 0.717,
+      "P95": 0.6091999999999999,
+      "P99": 0.6677
+    },
+    "Overruns": 0
+  },
+  "Flips": null,
+  "Frames": null,
+  "Sources": [
+    {
+      "Path": "metrics.csv",
+      "Bytes": 136780,
+      "Sha256": "5eea463d040621244964b9407d3b72aa4af69a2f4a92143c3127a5dca58afc87",
+      "Records": 730,
+      "IgnoredRecords": 366
+    },
+    {
+      "Path": "guest-flips.log",
+      "Bytes": 2484,
+      "Sha256": "512d855afbf84b4df8c1ac97b00143b527310fba698b88df28755bf0afd17aa4",
+      "Records": 64,
+      "IgnoredRecords": 0
+    },
+    {
+      "Path": "guest-frames.log",
+      "Bytes": 189762,
+      "Sha256": "943480672a1fa8f311d5c98b2cebcf89a1a251d278ec3216e79b88fadf75ac7c",
+      "Records": 3664,
+      "IgnoredRecords": 0
+    }
+  ],
+  "Errors": [
+    "flips: Insufficient flip tail records.",
+    "frames: Insufficient positive frame intervals."
+  ],
+  "Complete": false
+}

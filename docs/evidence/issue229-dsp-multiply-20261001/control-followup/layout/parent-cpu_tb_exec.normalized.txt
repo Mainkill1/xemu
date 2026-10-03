@@ -1,0 +1,149 @@
+pushq %r15
+pushq %r14
+pushq %r13
+pushq %r12
+pushq %rbx
+movq %rdx, %r15
+movq %rdi, %rbx
+movq 0x28(%rsi), %r14
+leaq qemu_loglevel+0x0(%rip), %r13
+movzwl (%r13), %eax
+testl $0x120, %eax
+je self+0x57
+movq %rsi, %r12
+movl 0x14(%rsi), %eax
+testl $0x20000, %eax
+jne self+0x39
+movq (%r12), %rdi
+jmp self+0x4c
+movq 0x98(%rbx), %rax
+movq %rbx, %rdi
+callq *_ZN17cranelift_codegen6timing7enabled9PASS_TIME29_$u7b$$u7b$constant$u7d$$u7d$28_$u7b$$u7b$closure$u7d$$u7d$23__RUST_STD_INTERNAL_VAL17h61b25d95c795a40aE+0x90(%rax)
+movq %rax, %rdi
+movq %rbx, %rsi
+movq %r12, %rdx
+callq log_cpu_exec+0x0
+leaq tcg_qemu_tb_exec+0x0(%rip), %rax
+leaq 0x4b60(%rbx), %rdi
+movq %r14, %rsi
+callq *(%rax)
+movb $0x1, 0x4b54(%rbx)
+movq %rax, %r14
+andq $-0x4, %r14
+leaq tcg_splitwx_diff+0x0(%rip), %rcx
+movq %r14, %r12
+subq (%rcx), %r12
+testq %r14, %r14
+cmovneq %r12, %r14
+andl $0x3, %eax
+movl %eax, (%r15)
+leaq trace_events_enabled_count+0x0(%rip), %rcx
+cmpl $0x0, (%rcx)
+jne self+0x1c6
+cmpl $0x2, %eax
+jl self+0x1a8
+movq 0x98(%rbx), %rax
+movq 0x150(%rax), %rcx
+movq 0x20(%rcx), %rcx
+testq %rcx, %rcx
+je self+0xd6
+movq %rbx, %rdi
+movq %r14, %rsi
+callq *%rcx
+testb $0x20, (%r13)
+jne self+0xfe
+jmp self+0x1a8
+movl 0x14(%r14), %ecx
+movq 0xf0(%rax), %rax
+testq %rax, %rax
+je self+0x218
+movq (%r12), %rsi
+movq %rbx, %rdi
+callq *%rax
+testb $0x20, (%r13)
+je self+0x1a8
+movl 0x14(%r14), %eax
+testl $0x20000, %eax
+jne self+0x10f
+movq (%r12), %r15
+jmp self+0x122
+movq 0x98(%rbx), %rax
+movq %rbx, %rdi
+callq *_ZN17cranelift_codegen6timing7enabled9PASS_TIME29_$u7b$$u7b$constant$u7d$$u7d$28_$u7b$$u7b$closure$u7d$$u7d$23__RUST_STD_INTERNAL_VAL17h61b25d95c795a40aE+0x90(%rax)
+movq %rax, %r15
+movq debug_regions.llvm.10603651962656422115+0x0(%rip), %rcx
+testq %rcx, %rcx
+je self+0x15c
+movl 0x8(%rcx), %eax
+testl %eax, %eax
+je self+0x1a8
+movq (%rcx), %rcx
+xorl %edx, %edx
+jmp self+0x146
+nopl (%rax)
+incl %edx
+cmpl %edx, %eax
+je self+0x1a8
+movslq %edx, %rsi
+shlq $0x4, %rsi
+cmpq (%rcx,%rsi), %r15
+jb self+0x140
+addq %rcx, %rsi
+cmpq 0x8(%rsi), %r15
+ja self+0x140
+movq 0x28(%r12), %r12
+leaq syminfos+0x0(%rip), %rax
+movq (%rax), %r13
+testq %r13, %r13
+je self+0x18a
+movq %r13, %rdi
+movq %r15, %rsi
+callq *(%r13)
+cmpb $0x0, (%rax)
+jne self+0x191
+movq 0x20(%r13), %r13
+testq %r13, %r13
+jne self+0x170
+jmp self+0x191
+leaq .str.llvm.8888395333387108797+0x0(%rip), %rax
+leaq rodata-string:bbd0cb36302e9701260c48b9edaaec34381b4313f90aa820b477d17da7d5f36a(%rip), %rdi
+movq %r12, %rsi
+movq %r15, %rdx
+movq %rax, %rcx
+xorl %eax, %eax
+callq qemu_log+0x0
+cmpl $0x0, 0xd4(%rbx)
+jne self+0x1fd
+movq %r14, %rax
+popq %rbx
+popq %r12
+popq %r13
+popq %r14
+popq %r15
+xorl %ecx, %ecx
+xorl %edi, %edi
+xorl %edx, %edx
+xorl %esi, %esi
+retq
+leaq _TRACE_EXEC_TB_EXIT_DSTATE+0x0(%rip), %rcx
+cmpw $0x0, (%rcx)
+je self+0xa2
+testb $-0x80, 0x1(%r13)
+je self+0xa2
+leaq rodata-string:d5490dd5175c99777de51df89eb1d8e7bb4939e9f7b828c42f8a5416311f508f(%rip), %rdi
+movq %r14, %rsi
+movl %eax, %edx
+xorl %eax, %eax
+callq qemu_log+0x0
+movl (%r15), %eax
+jmp self+0xa2
+cmpl $-0x1, 0x2d0(%rbx)
+jne self+0x1b1
+movl $0x10002, 0x2d0(%rbx)
+movq %rbx, %rdi
+callq cpu_loop_exit+0x0
+leaq rodata-string:8799e682b30029110869112eb0bb6605ced3fd5245962eb399b010b58dcabc47(%rip), %rdi
+leaq rodata-string:0e0656f7429df07946cdfbe36ec15fee5aacc5485b041393568a49c7e7842e07(%rip), %rsi
+leaq rodata-string:3eef75efebe9ed0901c5e5c1f826966d5cf8dfe638715cb315a20677493781c6(%rip), %rcx
+movl $0x202, %edx
+callq __assert_fail@GLIBC_2.2.5@plt

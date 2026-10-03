@@ -1,0 +1,10 @@
+{
+  "Id": "dsp-cpu-profile",
+  "Type": "perf",
+  "Status": "failed",
+  "StartedUtc": "2026-10-01T16:30:08.5874708+00:00",
+  "EndedUtc": "2026-10-01T16:31:39.1100794+00:00",
+  "Directory": "/home/deck/xemu-research/workspace/Results/20261001-162746650-9a3fecbf40d5444aa610e51450f3972d/diagnostics/20261001-163008587-dsp-cpu-profile",
+  "Detail": "System.TimeoutException: Diagnostic tool or output drain exceeded 60000 ms: /usr/bin/perf\n   at XemuTestRunner.Diagnostics.ToolProcess.RunAsync(String executable, IEnumerable\u00601 arguments, String workingDirectory, Int32 timeoutMs, CancellationToken cancellationToken, IReadOnlyDictionary\u00602 environment) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Diagnostics/ToolProcess.cs:line 115\n   at XemuTestRunner.Diagnostics.ToolProcess.RunAsync(String executable, IEnumerable\u00601 arguments, String workingDirectory, Int32 timeoutMs, CancellationToken cancellationToken, IReadOnlyDictionary\u00602 environment) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Diagnostics/ToolProcess.cs:line 126\n   at XemuTestRunner.Diagnostics.DiagnosticHub.CapturePerfAsync(ActiveContext context, DiagnosticRecipe recipe, String directory, CancellationToken ct) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 472\n   at XemuTestRunner.Diagnostics.DiagnosticHub.CapturePerfAsync(ActiveContext context, DiagnosticRecipe recipe, String directory, CancellationToken ct) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 480\n   at XemuTestRunner.Diagnostics.DiagnosticHub.RunAsync(ActiveContext context, DiagnosticRecipe recipe, CancellationToken cancellationToken, Boolean linkRunLifetime) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 218",
+  "Artifacts": []
+}

@@ -1,0 +1,22 @@
+{
+  "id": "issue229-deck-cpu-opengl-baab-v1",
+  "revision": "54abe8e243a762c707c7215f6eefd4c2186f42e777a967573440d9256bd4fb97",
+  "state": "uploaded",
+  "event": "attention",
+  "terminal": false,
+  "startRequested": false,
+  "selectedLeaves": 2,
+  "chunkCount": 1,
+  "attemptCount": 4,
+  "finished": 0,
+  "passed": 0,
+  "failed": 0,
+  "incomplete": 0,
+  "remaining": 4,
+  "active": null,
+  "error": null,
+  "next": "/api/v1/xiso-campaigns/issue229-deck-cpu-opengl-baab-v1/wait",
+  "details": "/api/v1/xiso-campaigns/issue229-deck-cpu-opengl-baab-v1/attempts",
+  "comparisonEligible": 0,
+  "qualification": "unverified"
+}

@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "id": "issue229-deck-parent-stationary-v3-20261001",
+  "state": "queued",
+  "runId": null,
+  "cursor": "63e6c849eb694b3a9d11848efe26d08a:92c96dc9d390b58c",
+  "changed": true,
+  "next": {
+    "method": "GET",
+    "href": "/api/v1/jobs/issue229-deck-parent-stationary-v3-20261001?view=summary&since=63e6c849eb694b3a9d11848efe26d08a%3A92c96dc9d390b58c&wait=20"
+  },
+  "blocker": null,
+  "operation": {
+    "id": "b158bd618b664041a497853318e50b1e",
+    "action": "submit",
+    "state": "completed",
+    "filesChecked": 41,
+    "errorCode": null
+  }
+}

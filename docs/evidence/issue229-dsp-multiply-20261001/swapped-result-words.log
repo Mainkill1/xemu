@@ -1,0 +1,9 @@
+TAP version 14
+# random seed: R02S56546a377b2027917292814076d2da78
+# Start of xbox tests
+# Start of dsp tests
+# Start of mul tests
+not ok /xbox/dsp/mul/boundaries - ERROR:/home/codex/src/steamdeck-xemu/worktrees/issue229-dsp-multiply/tests/unit/test-xbox-mcpx-dsp-mul.c:67:check_product: assertion failed (result_bits(actual) == reference_product(x, y, sign)): (0x02000000 == 0x00000002)
+Bail out!
+**
+ERROR:/home/codex/src/steamdeck-xemu/worktrees/issue229-dsp-multiply/tests/unit/test-xbox-mcpx-dsp-mul.c:67:check_product: assertion failed (result_bits(actual) == reference_product(x, y, sign)): (0x02000000 == 0x00000002)

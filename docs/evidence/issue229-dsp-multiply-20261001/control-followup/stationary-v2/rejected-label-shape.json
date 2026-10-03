@@ -1,0 +1,11 @@
+{
+  "phase": "before-job-creation",
+  "error": "HTTP400: experiment is not a member of AgentTestRunRequest",
+  "rejectedLabels": {
+    "experiment": {
+      "variant": "parent",
+      "reference": "ee5ce48b48784f999af374c1452003f8b2b1230f"
+    }
+  },
+  "correction": "Use supported top-level variant/reference fields; same intended job ID, no emulator execution occurred."
+}

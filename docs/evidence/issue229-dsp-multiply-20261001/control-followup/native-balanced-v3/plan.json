@@ -1,0 +1,203 @@
+{
+  "testId": "issue229-deck-pgr2-stationary-full-c-v3",
+  "revision": "8f0c913a98217a306760fd5a87ca1104e40784cf913d5beeb0013bdaedb72d12",
+  "parent": "ee5ce48b48784f999af374c1452003f8b2b1230f",
+  "candidateCode": "1e6cebe0cb6452f875329710fa19795f8644ad2d",
+  "physicalOrder": "ABBA BAAB",
+  "attempts": [
+    {
+      "id": "issue229-deck-native-c-v3-abba-1-20261001",
+      "order": "abba",
+      "position": 1,
+      "physicalVariant": "A",
+      "variant": "parent",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "request": {
+        "id": "issue229-deck-native-c-v3-abba-1-20261001",
+        "testId": "issue229-deck-pgr2-stationary-full-c-v3",
+        "revision": "8f0c913a98217a306760fd5a87ca1104e40784cf913d5beeb0013bdaedb72d12",
+        "files": [
+          {
+            "Path": "xemu",
+            "Length": 25548144,
+            "Sha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+            "Executable": true
+          }
+        ],
+        "experimentId": "issue229-deck-native-c-v3-balanced",
+        "variant": "parent",
+        "reference": "ee5ce48b48784f999af374c1452003f8b2b1230f"
+      }
+    },
+    {
+      "id": "issue229-deck-native-c-v3-abba-2-20261001",
+      "order": "abba",
+      "position": 2,
+      "physicalVariant": "B",
+      "variant": "candidate",
+      "executableSha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+      "request": {
+        "id": "issue229-deck-native-c-v3-abba-2-20261001",
+        "testId": "issue229-deck-pgr2-stationary-full-c-v3",
+        "revision": "8f0c913a98217a306760fd5a87ca1104e40784cf913d5beeb0013bdaedb72d12",
+        "files": [
+          {
+            "Path": "xemu",
+            "Length": 25531760,
+            "Sha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+            "Executable": true
+          }
+        ],
+        "experimentId": "issue229-deck-native-c-v3-balanced",
+        "variant": "candidate",
+        "reference": "ee5ce48b48784f999af374c1452003f8b2b1230f"
+      }
+    },
+    {
+      "id": "issue229-deck-native-c-v3-abba-3-20261001",
+      "order": "abba",
+      "position": 3,
+      "physicalVariant": "B",
+      "variant": "candidate",
+      "executableSha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+      "request": {
+        "id": "issue229-deck-native-c-v3-abba-3-20261001",
+        "testId": "issue229-deck-pgr2-stationary-full-c-v3",
+        "revision": "8f0c913a98217a306760fd5a87ca1104e40784cf913d5beeb0013bdaedb72d12",
+        "files": [
+          {
+            "Path": "xemu",
+            "Length": 25531760,
+            "Sha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+            "Executable": true
+          }
+        ],
+        "experimentId": "issue229-deck-native-c-v3-balanced",
+        "variant": "candidate",
+        "reference": "ee5ce48b48784f999af374c1452003f8b2b1230f"
+      }
+    },
+    {
+      "id": "issue229-deck-native-c-v3-abba-4-20261001",
+      "order": "abba",
+      "position": 4,
+      "physicalVariant": "A",
+      "variant": "parent",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "request": {
+        "id": "issue229-deck-native-c-v3-abba-4-20261001",
+        "testId": "issue229-deck-pgr2-stationary-full-c-v3",
+        "revision": "8f0c913a98217a306760fd5a87ca1104e40784cf913d5beeb0013bdaedb72d12",
+        "files": [
+          {
+            "Path": "xemu",
+            "Length": 25548144,
+            "Sha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+            "Executable": true
+          }
+        ],
+        "experimentId": "issue229-deck-native-c-v3-balanced",
+        "variant": "parent",
+        "reference": "ee5ce48b48784f999af374c1452003f8b2b1230f"
+      }
+    },
+    {
+      "id": "issue229-deck-native-c-v3-baab-1-20261001",
+      "order": "baab",
+      "position": 1,
+      "physicalVariant": "B",
+      "variant": "candidate",
+      "executableSha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+      "request": {
+        "id": "issue229-deck-native-c-v3-baab-1-20261001",
+        "testId": "issue229-deck-pgr2-stationary-full-c-v3",
+        "revision": "8f0c913a98217a306760fd5a87ca1104e40784cf913d5beeb0013bdaedb72d12",
+        "files": [
+          {
+            "Path": "xemu",
+            "Length": 25531760,
+            "Sha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+            "Executable": true
+          }
+        ],
+        "experimentId": "issue229-deck-native-c-v3-balanced",
+        "variant": "candidate",
+        "reference": "ee5ce48b48784f999af374c1452003f8b2b1230f"
+      }
+    },
+    {
+      "id": "issue229-deck-native-c-v3-baab-2-20261001",
+      "order": "baab",
+      "position": 2,
+      "physicalVariant": "A",
+      "variant": "parent",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "request": {
+        "id": "issue229-deck-native-c-v3-baab-2-20261001",
+        "testId": "issue229-deck-pgr2-stationary-full-c-v3",
+        "revision": "8f0c913a98217a306760fd5a87ca1104e40784cf913d5beeb0013bdaedb72d12",
+        "files": [
+          {
+            "Path": "xemu",
+            "Length": 25548144,
+            "Sha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+            "Executable": true
+          }
+        ],
+        "experimentId": "issue229-deck-native-c-v3-balanced",
+        "variant": "parent",
+        "reference": "ee5ce48b48784f999af374c1452003f8b2b1230f"
+      }
+    },
+    {
+      "id": "issue229-deck-native-c-v3-baab-3-20261001",
+      "order": "baab",
+      "position": 3,
+      "physicalVariant": "A",
+      "variant": "parent",
+      "executableSha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+      "request": {
+        "id": "issue229-deck-native-c-v3-baab-3-20261001",
+        "testId": "issue229-deck-pgr2-stationary-full-c-v3",
+        "revision": "8f0c913a98217a306760fd5a87ca1104e40784cf913d5beeb0013bdaedb72d12",
+        "files": [
+          {
+            "Path": "xemu",
+            "Length": 25548144,
+            "Sha256": "4a6e0dae0a83a870aebde726ca40687f35c9293f3da1147a6d7d14e8c4e8e01a",
+            "Executable": true
+          }
+        ],
+        "experimentId": "issue229-deck-native-c-v3-balanced",
+        "variant": "parent",
+        "reference": "ee5ce48b48784f999af374c1452003f8b2b1230f"
+      }
+    },
+    {
+      "id": "issue229-deck-native-c-v3-baab-4-20261001",
+      "order": "baab",
+      "position": 4,
+      "physicalVariant": "B",
+      "variant": "candidate",
+      "executableSha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+      "request": {
+        "id": "issue229-deck-native-c-v3-baab-4-20261001",
+        "testId": "issue229-deck-pgr2-stationary-full-c-v3",
+        "revision": "8f0c913a98217a306760fd5a87ca1104e40784cf913d5beeb0013bdaedb72d12",
+        "files": [
+          {
+            "Path": "xemu",
+            "Length": 25531760,
+            "Sha256": "84ac46913180a55b2fce18cf304fd820d3ff21a828477f7b73c0136401e17418",
+            "Executable": true
+          }
+        ],
+        "experimentId": "issue229-deck-native-c-v3-balanced",
+        "variant": "candidate",
+        "reference": "ee5ce48b48784f999af374c1452003f8b2b1230f"
+      }
+    }
+  ],
+  "failurePolicy": "Keep every attempt; no automatic or intentional reruns.",
+  "scope": "Cold private launch and 60 s scene warmup; 300 s stationary observation. Power, OS page cache and driver RAM uncontrolled; PCM absent. Not fully warm-cache qualification."
+}

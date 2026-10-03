@@ -1,0 +1,146 @@
+{
+  "attempts": [
+    {
+      "runId": "20261001-192105153-9ef78b39a0124c9e88671ba5967f247d",
+      "job": "issue229-deck-native-c-v3-abba-1-20261001",
+      "samples": 603,
+      "cacheAfterTreeSha256": "b480aa6b29d35997169d379045a91e04dbedefcef04a5225ff034bc410ace960",
+      "driverAfterTreeSha256": "0a591694f8aa159b5a410d5ba98308f95f0dd3dd33c93f66aa9f050b5a451f3f",
+      "driverAfterFiles": 833,
+      "host_cpu_pct": {
+        "mean": 28.02827031509121,
+        "min": 23.797,
+        "max": 41.045,
+        "count": 603
+      },
+      "process_cpu_core_pct": {
+        "mean": 197.96096351575457,
+        "min": 186.265,
+        "max": 242.413,
+        "count": 603
+      },
+      "gpu_pct": {
+        "mean": 14.81592039800995,
+        "min": 0.0,
+        "max": 100.0,
+        "count": 603
+      },
+      "process_gpu_pct": null,
+      "gpu_temp_c": null,
+      "gpu_power_w": null,
+      "vram_used": {
+        "mean": 969248795.1708126,
+        "min": 968187904.0,
+        "max": 981413888.0,
+        "count": 603
+      },
+      "swap_used": {
+        "mean": 840671232.0,
+        "min": 840671232.0,
+        "max": 840671232.0,
+        "count": 603
+      },
+      "collector_duty_pct": {
+        "mean": 0.3632802653399668,
+        "min": 0.244,
+        "max": 0.818,
+        "count": 603
+      }
+    },
+    {
+      "runId": "20261001-193003200-d219227f3a1c449eb510444af66f20e0",
+      "job": "issue229-deck-native-c-v3-abba-2-20261001",
+      "samples": 603,
+      "cacheAfterTreeSha256": "e0e7f8f3e2e85b8b441cfe21b5048b7332200c74a0603bf868013986478ce14b",
+      "driverAfterTreeSha256": "ec6a2e5211833854e88034de0bfe7051375b26bb44009fdda7a4243c12709481",
+      "driverAfterFiles": 833,
+      "host_cpu_pct": {
+        "mean": 29.190575456053068,
+        "min": 26.166,
+        "max": 61.026,
+        "count": 603
+      },
+      "process_cpu_core_pct": {
+        "mean": 200.40884742951908,
+        "min": 134.166,
+        "max": 242.419,
+        "count": 603
+      },
+      "gpu_pct": {
+        "mean": 10.316749585406301,
+        "min": 0.0,
+        "max": 99.0,
+        "count": 603
+      },
+      "process_gpu_pct": null,
+      "gpu_temp_c": null,
+      "gpu_power_w": null,
+      "vram_used": {
+        "mean": 973894453.9170812,
+        "min": 972148736.0,
+        "max": 974839808.0,
+        "count": 603
+      },
+      "swap_used": {
+        "mean": 840623988.7495854,
+        "min": 840519680.0,
+        "max": 840663040.0,
+        "count": 603
+      },
+      "collector_duty_pct": {
+        "mean": 0.38899336650082916,
+        "min": 0.243,
+        "max": 0.803,
+        "count": 603
+      }
+    },
+    {
+      "runId": "20261001-193947547-cc91248e125a4bdaa110ba4daca82cfb",
+      "job": "issue229-deck-native-c-v3-abba-3-20261001",
+      "samples": 603,
+      "cacheAfterTreeSha256": "d016612478ef6c36539b6902c4dec7265561d902b692d6f2f5cb2589f7a1dabe",
+      "driverAfterTreeSha256": "6aa9e317cbc4fa7c9456ded0d1b8408730b55c7190bf0a70131109e16c420907",
+      "driverAfterFiles": 833,
+      "host_cpu_pct": {
+        "mean": 28.135519071310117,
+        "min": 25.065,
+        "max": 46.096,
+        "count": 603
+      },
+      "process_cpu_core_pct": {
+        "mean": 195.68628192371477,
+        "min": 183.883,
+        "max": 243.896,
+        "count": 603
+      },
+      "gpu_pct": {
+        "mean": 11.522388059701493,
+        "min": 0.0,
+        "max": 100.0,
+        "count": 603
+      },
+      "process_gpu_pct": null,
+      "gpu_temp_c": null,
+      "gpu_power_w": null,
+      "vram_used": {
+        "mean": 967427990.7131011,
+        "min": 966836224.0,
+        "max": 971051008.0,
+        "count": 603
+      },
+      "swap_used": {
+        "mean": 840515584.0,
+        "min": 840515584.0,
+        "max": 840515584.0,
+        "count": 603
+      },
+      "collector_duty_pct": {
+        "mean": 0.3922603648424544,
+        "min": 0.287,
+        "max": 0.742,
+        "count": 603
+      }
+    }
+  ],
+  "interpretation": "Recorded samples only; CPU clocks, power policy and Linux temperatures are unavailable. No causal attribution from these correlations."
+}

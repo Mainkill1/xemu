@@ -1,0 +1,60 @@
+× xemu-research-runner-20261001-mesa.service - [systemd-run] /home/deck/xemu-research/runner-0ba533e/XemuTestRunner run -c /home/deck/xemu-research/runner.json --non-interactive
+     Loaded: loaded (/run/user/1000/systemd/transient/xemu-research-runner-20261001-mesa.service; transient)
+  Transient: yes
+     Active: failed (Result: exit-code) since Thu 2026-10-01 08:31:46 AKDT; 51s ago
+   Duration: 56min 32.545s
+ Invocation: ea19cc4a42154f5d9f9a14daca51d4b1
+    Process: 31931 ExecStart=/home/deck/xemu-research/runner-0ba533e/XemuTestRunner run -c /home/deck/xemu-research/runner.json --non-interactive (code=exited, status=1/FAILURE)
+   Main PID: 31931 (code=exited, status=1/FAILURE)
+   Mem peak: 6.5G
+        CPU: 30min 12.827s
+
+Oct 01 08:31:46 steamdeck XemuTestRunner[31931]:    at XemuTestRunner.Diagnostics.DiagnosticHub.RunByIdAsync(String id, CancellationToken cancellationToken) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 102
+Oct 01 08:31:46 steamdeck XemuTestRunner[31931]:    at XemuTestRunner.Runtime.RunnerEngine.<>c__DisplayClass13_0.<<ExecuteJobAsync>b__7>d.MoveNext() in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Runtime/RunnerEngine.cs:line 746
+Oct 01 08:31:46 steamdeck XemuTestRunner[31931]: --- End of stack trace from previous location ---
+Oct 01 08:31:46 steamdeck XemuTestRunner[31931]:    at XemuTestRunner.Control.XemuControlManager.ExecutePlanAsync(IReadOnlyList`1 plan, CancellationToken cancellationToken, Func`3 diagnosticRunner, Action`1 segmentStart, Action`1 segmentEnd, Func`5 artifactWaiter) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Control/XemuControlManager.cs:line 594
+Oct 01 08:31:46 steamdeck XemuTestRunner[31931]:    at XemuTestRunner.Control.XemuControlManager.ExecutePlanAsync(IReadOnlyList`1 plan, CancellationToken cancellationToken, Func`3 diagnosticRunner, Action`1 segmentStart, Action`1 segmentEnd, Func`5 artifactWaiter) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Control/XemuControlManager.cs:line 634
+Oct 01 08:31:46 steamdeck XemuTestRunner[31931]:    at XemuTestRunner.Runtime.RunnerEngine.ExecuteJobAsync(String package, Task serverTask, MetricCollector telemetry, CancellationToken ct) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Runtime/RunnerEngine.cs:line 838 plan did not stop: Diagnostic tool or output drain exceeded 60000 ms: /usr/bin/perf
+Oct 01 08:31:46 steamdeck XemuTestRunner[31931]: hint: Check disk space, file locks, package staging state, and path permissions before retrying.
+Oct 01 08:31:46 steamdeck systemd[1369]: xemu-research-runner-20261001-mesa.service: Main process exited, code=exited, status=1/FAILURE
+Oct 01 08:31:46 steamdeck systemd[1369]: xemu-research-runner-20261001-mesa.service: Failed with result 'exit-code'.
+Oct 01 08:31:46 steamdeck systemd[1369]: xemu-research-runner-20261001-mesa.service: Consumed 30min 12.827s CPU time, 6.5G memory peak.
+Oct 01 07:35:13 steamdeck systemd[1369]: Started [systemd-run] /home/deck/xemu-research/runner-0ba533e/XemuTestRunner run -c /home/deck/xemu-research/runner.json --non-interactive.
+Oct 01 07:35:14 steamdeck XemuTestRunner[31931]: 2026-10-01T15:35:14.3013855+00:00 phase=idle queue=0/0/149
+Oct 01 07:51:16 steamdeck XemuTestRunner[31931]: 2026-10-01T15:51:16.8477736+00:00 phase=waiting_for_package queue=1/0/149 queue_issue=package_stabilizing
+Oct 01 07:51:18 steamdeck XemuTestRunner[31931]: 2026-10-01T15:51:18.0997204+00:00 phase=preflight queue=0/1/149
+Oct 01 07:51:23 steamdeck XemuTestRunner[31931]: 2026-10-01T15:51:23.3515064+00:00 phase=running queue=0/1/149 job=issue229-deck-c-parent-smoke-20261001 pid=32089
+Oct 01 07:53:52 steamdeck XemuTestRunner[31931]: 2026-10-01T15:53:52.4226392+00:00 phase=idle queue=0/0/150 last_result=completed
+Oct 01 08:01:16 steamdeck XemuTestRunner[31931]: 2026-10-01T16:01:16.3658250+00:00 phase=waiting_for_package queue=1/0/150 queue_issue=package_stabilizing last_result=completed
+Oct 01 08:01:17 steamdeck XemuTestRunner[31931]: 2026-10-01T16:01:17.3677488+00:00 phase=preflight queue=0/1/150 last_result=completed
+Oct 01 08:01:21 steamdeck XemuTestRunner[31931]: 2026-10-01T16:01:21.8699695+00:00 phase=running queue=0/1/150 job=issue229-deck-c-candidate-smoke-20261001 pid=32333 last_result=completed
+Oct 01 08:03:49 steamdeck XemuTestRunner[31931]: 2026-10-01T16:03:49.9671194+00:00 phase=idle queue=0/0/151 last_result=completed
+Oct 01 08:08:33 steamdeck XemuTestRunner[31931]: 2026-10-01T16:08:33.2177601+00:00 phase=waiting_for_package queue=1/0/151 queue_issue=package_stabilizing last_result=completed
+Oct 01 08:08:34 steamdeck XemuTestRunner[31931]: 2026-10-01T16:08:34.2183752+00:00 phase=preflight queue=0/1/151 last_result=completed
+Oct 01 08:08:38 steamdeck XemuTestRunner[31931]: 2026-10-01T16:08:38.7206584+00:00 phase=running queue=0/1/151 job=issue229-deck-jit-parent-smoke-20261001 pid=32549 last_result=completed
+Oct 01 08:11:07 steamdeck XemuTestRunner[31931]: 2026-10-01T16:11:07.5646446+00:00 phase=idle queue=0/0/152 last_result=completed
+Oct 01 08:27:45 steamdeck XemuTestRunner[31931]: 2026-10-01T16:27:45.7116092+00:00 phase=waiting_for_package queue=1/0/152 queue_issue=package_stabilizing last_result=completed
+Oct 01 08:27:46 steamdeck XemuTestRunner[31931]: 2026-10-01T16:27:46.7139800+00:00 phase=preflight queue=0/1/152 last_result=completed
+Oct 01 08:27:51 steamdeck XemuTestRunner[31931]: 2026-10-01T16:27:51.2148565+00:00 phase=running queue=0/1/152 job=issue229-deck-c-parent-profile-20261001 pid=32843 last_result=completed
+Oct 01 08:31:39 steamdeck XemuTestRunner[31931]: 2026-10-01T16:31:39.3370453+00:00 phase=paused queue=0/1/152 job=issue229-deck-c-parent-profile-20261001 pid=32843 last_result=completed
+Oct 01 08:31:44 steamdeck XemuTestRunner[31931]: 2026-10-01T16:31:44.0913689+00:00 phase=collecting_diagnostics queue=0/1/152 job=issue229-deck-c-parent-profile-20261001 pid=32843 last_result=completed
+Oct 01 08:31:46 steamdeck XemuTestRunner[31931]: 2026-10-01T16:31:46.2770746+00:00 phase=faulted queue=0/1/152 job=issue229-deck-c-parent-profile-20261001 pid=32843 last_result=completed
+Oct 01 08:31:46 steamdeck XemuTestRunner[31931]: io_error: Runner failed: System.TimeoutException: Diagnostic tool or output drain exceeded 60000 ms: /usr/bin/perf
+Oct 01 08:31:46 steamdeck XemuTestRunner[31931]:    at XemuTestRunner.Diagnostics.ToolProcess.RunAsync(String executable, IEnumerable`1 arguments, String workingDirectory, Int32 timeoutMs, CancellationToken cancellationToken, IReadOnlyDictionary`2 environment) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Diagnostics/ToolProcess.cs:line 115
+Oct 01 08:31:46 steamdeck XemuTestRunner[31931]:    at XemuTestRunner.Diagnostics.ToolProcess.RunAsync(String executable, IEnumerable`1 arguments, String workingDirectory, Int32 timeoutMs, CancellationToken cancellationToken, IReadOnlyDictionary`2 environment) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Diagnostics/ToolProcess.cs:line 126
+Oct 01 08:31:46 steamdeck XemuTestRunner[31931]:    at XemuTestRunner.Diagnostics.DiagnosticHub.CapturePerfAsync(ActiveContext context, DiagnosticRecipe recipe, String directory, CancellationToken ct) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 472
+Oct 01 08:31:46 steamdeck XemuTestRunner[31931]:    at XemuTestRunner.Diagnostics.DiagnosticHub.CapturePerfAsync(ActiveContext context, DiagnosticRecipe recipe, String directory, CancellationToken ct) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 480
+Oct 01 08:31:46 steamdeck XemuTestRunner[31931]:    at XemuTestRunner.Diagnostics.DiagnosticHub.RunAsync(ActiveContext context, DiagnosticRecipe recipe, CancellationToken cancellationToken, Boolean linkRunLifetime) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 218
+Oct 01 08:31:46 steamdeck XemuTestRunner[31931]:    at XemuTestRunner.Diagnostics.DiagnosticHub.RunAsync(ActiveContext context, DiagnosticRecipe recipe, CancellationToken cancellationToken, Boolean linkRunLifetime) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 290
+Oct 01 08:31:46 steamdeck XemuTestRunner[31931]:    at XemuTestRunner.Diagnostics.DiagnosticHub.RunByIdAsync(String id, CancellationToken cancellationToken) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Diagnostics/DiagnosticHub.cs:line 102
+Oct 01 08:31:46 steamdeck XemuTestRunner[31931]:    at XemuTestRunner.Runtime.RunnerEngine.<>c__DisplayClass13_0.<<ExecuteJobAsync>b__7>d.MoveNext() in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Runtime/RunnerEngine.cs:line 746
+Oct 01 08:31:46 steamdeck XemuTestRunner[31931]: --- End of stack trace from previous location ---
+Oct 01 08:31:46 steamdeck XemuTestRunner[31931]:    at XemuTestRunner.Control.XemuControlManager.ExecutePlanAsync(IReadOnlyList`1 plan, CancellationToken cancellationToken, Func`3 diagnosticRunner, Action`1 segmentStart, Action`1 segmentEnd, Func`5 artifactWaiter) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Control/XemuControlManager.cs:line 594
+Oct 01 08:31:46 steamdeck XemuTestRunner[31931]:    at XemuTestRunner.Control.XemuControlManager.ExecutePlanAsync(IReadOnlyList`1 plan, CancellationToken cancellationToken, Func`3 diagnosticRunner, Action`1 segmentStart, Action`1 segmentEnd, Func`5 artifactWaiter) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Control/XemuControlManager.cs:line 634
+Oct 01 08:31:46 steamdeck XemuTestRunner[31931]:    at XemuTestRunner.Runtime.RunnerEngine.ExecuteJobAsync(String package, Task serverTask, MetricCollector telemetry, CancellationToken ct) in /home/codex/src/steamdeck-xemu/worktrees/runner-mesa-qualification/src/XemuTestRunner/Runtime/RunnerEngine.cs:line 838 plan did not stop: Diagnostic tool or output drain exceeded 60000 ms: /usr/bin/perf
+Oct 01 08:31:46 steamdeck XemuTestRunner[31931]: hint: Check disk space, file locks, package staging state, and path permissions before retrying.
+Oct 01 08:31:46 steamdeck systemd[1369]: xemu-research-runner-20261001-mesa.service: Main process exited, code=exited, status=1/FAILURE
+Oct 01 08:31:46 steamdeck systemd[1369]: xemu-research-runner-20261001-mesa.service: Failed with result 'exit-code'.
+Oct 01 08:31:46 steamdeck systemd[1369]: xemu-research-runner-20261001-mesa.service: Consumed 30min 12.827s CPU time, 6.5G memory peak.
+  33091 bash            bash -c systemctl --user status xemu-research-runner-20261001-mesa.service --no-pager; journalctl --user -u xemu-research-runner-20261001-mesa.service -n 65 --no-pager; ps -eo pid,comm,args | rg "XemuTestRunner|xemu|perf record"
+  33095 rg              rg XemuTestRunner|xemu|perf record

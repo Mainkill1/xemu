@@ -1,0 +1,31 @@
+...........F
+======================================================================
+FAIL: test_unreadable_cleanup_retains_raw_failure (__main__.Recipes.test_unreadable_cleanup_retains_raw_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/codex/src/steamdeck-xemu/scratch/issue229-check-evidence-recipes.py", line 127, in test_unreadable_cleanup_retains_raw_failure
+    self.run_recipe('issue229-package-native-balanced-v3.py')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/codex/src/steamdeck-xemu/scratch/issue229-check-evidence-recipes.py", line 54, in run_recipe
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 39, in <module>
+    cleanup = json.loads(cleanup_path.read_text()) if cleanup_path.exists() else {}
+              ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "/usr/lib/python3.13/json/decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.13/json/decoder.py", line 361, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ~~~~~~~~~~~~~~^^^^^^^^
+json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.713s
+
+FAILED (failures=1)
