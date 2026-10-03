@@ -605,6 +605,28 @@ static inline uint32_t pgraph_vk_compute_workgroup_size(
     return group_size;
 }
 
+static inline bool pgraph_vk_compute_dispatch_plan(
+    uint64_t output_units, uint32_t max_size_x, uint32_t max_invocations,
+    uint32_t max_group_count, uint32_t *workgroup_size,
+    uint32_t *group_count)
+{
+    uint32_t size = pgraph_vk_compute_workgroup_size(
+        output_units, max_size_x, max_invocations);
+
+    if (!size || !max_group_count || !workgroup_size || !group_count) {
+        return false;
+    }
+
+    uint64_t count = DIV_ROUND_UP(output_units, size);
+    if (count > max_group_count) {
+        return false;
+    }
+
+    *workgroup_size = size;
+    *group_count = count;
+    return true;
+}
+
 typedef struct ComputePipeline {
     LruNode node;
     ComputePipelineKey key;
@@ -1122,6 +1144,9 @@ bool pgraph_vk_unswizzle_packed_depth(PGRAPHState *pg, VkCommandBuffer cmd,
                                      VkBuffer src, VkDeviceSize src_size,
                                      VkBuffer dst, VkDeviceSize dst_size,
                                      uint32_t width, uint32_t height);
+bool pgraph_vk_convert_depth_alias(PGRAPHState *pg,
+                                   SurfaceBinding *producer,
+                                   SurfaceBinding *view);
 
 // display.c
 void pgraph_vk_init_display(PGRAPHState *pg);
