@@ -26,6 +26,15 @@ bool mcpx_apu_debug_is_muted(uint16_t voice)
     return false;
 }
 
+static void finalize_test_pool(void)
+{
+    mcpx_apu_vp_finalize(&d);
+    VoiceWorkDispatch *vwd = &d.vp.voice_work_dispatch;
+    qemu_cond_destroy(&vwd->work_pending);
+    qemu_cond_destroy(&vwd->work_finished);
+    qemu_mutex_destroy(&vwd->lock);
+}
+
 static void test_production_auto_initialization(void)
 {
     const int cpus[] = { 1, 2, 3, 4, 8, 16 };
@@ -54,7 +63,7 @@ static void test_production_auto_initialization(void)
                                 expected);
                 g_assert_cmpint(d.vp.resampler_type, ==,
                                 linear ? SRC_LINEAR : SRC_SINC_FASTEST);
-                mcpx_apu_vp_finalize(&d);
+                finalize_test_pool();
             }
         }
     }
@@ -166,7 +175,7 @@ static void test_queue_membership_and_mix(void)
                 }
             }
             vwd->queue_len = 0;
-            mcpx_apu_vp_finalize(&d);
+            finalize_test_pool();
         }
     }
 }
@@ -230,7 +239,7 @@ static void test_unequal_multipass_groups(void)
                     bins[b][i], b < 2 ? 6.0f / 256.0f : 0, 1e-6f);
             }
         }
-        mcpx_apu_vp_finalize(&d);
+        finalize_test_pool();
     }
 }
 
