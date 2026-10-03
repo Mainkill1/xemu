@@ -169,6 +169,11 @@ static void test_live_descriptor(void)
     mcpx_apu_sge_cache_clear(&cache);
     g_assert_null(cache.mapping.mrs.mr);
     g_assert_null(cache.mapping.fv);
+    g_assert_true(cache.mapping.ptr == mapping);
+
+    sge_rcu_guard_entries = 0;
+    g_assert_cmphex(get_data_ptr(0x2000, UINT_MAX, 12, &cache), ==, 0x500c);
+    g_assert_cmpuint(sge_rcu_guard_entries, ==, 1);
 }
 
 static void test_direct_hit_avoids_rcu_bookkeeping(void)
