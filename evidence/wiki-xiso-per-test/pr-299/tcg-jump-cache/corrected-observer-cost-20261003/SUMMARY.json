@@ -1,0 +1,546 @@
+{
+  "productCommit": "31c083ece2e7d44e87b2c7c4039cfc6b2365848d",
+  "runnerCommit": "c264004dfc906eef008c8a7235764c37daee330b",
+  "campaigns": {
+    "dormant": {
+      "campaign": "i167-correct-dormant-31c-001",
+      "status": {
+        "id": "i167-correct-dormant-31c-001",
+        "revision": "7cd059e3f7dfcba86381821653a135999f8a98dc52fe8d1a9ebf32f5031feb62",
+        "state": "passed",
+        "event": "finished",
+        "terminal": true,
+        "startRequested": true,
+        "selectedLeaves": 2,
+        "chunkCount": 1,
+        "attemptCount": 8,
+        "finished": 8,
+        "passed": 8,
+        "failed": 0,
+        "incomplete": 0,
+        "remaining": 0,
+        "active": null,
+        "error": null,
+        "next": "/api/v1/xiso-campaigns/i167-correct-dormant-31c-001/wait",
+        "details": "/api/v1/xiso-campaigns/i167-correct-dormant-31c-001/attempts",
+        "comparisonEligible": 8,
+        "qualification": "unverified"
+      },
+      "suiteQualification": "unverified",
+      "rows": [
+        {
+          "testId": "cpu_translation_blocks.code_stable",
+          "category": "cpu",
+          "metric": "max_us",
+          "unit": "us",
+          "a": {
+            "count": 4,
+            "mean": 2556200,
+            "median": 2561871,
+            "min": 2513636,
+            "max": 2587422,
+            "sampleStdDev": 32897.607116627805
+          },
+          "b": {
+            "count": 4,
+            "mean": 2963393.5,
+            "median": 2597575.5,
+            "min": 2584760,
+            "max": 4073663,
+            "sampleStdDev": 740237.0513335576
+          },
+          "aSamples": [
+            2575941,
+            2587422,
+            2547801,
+            2513636
+          ],
+          "bSamples": [
+            4073663,
+            2589050,
+            2584760,
+            2606101
+          ],
+          "improvementPercent": -1.393688,
+          "abbaImprovementPercent": -29.038245,
+          "baabImprovementPercent": -2.55706,
+          "overOnePercent": true,
+          "orderDisagreement": false
+        },
+        {
+          "testId": "cpu_translation_blocks.code_stable",
+          "category": "cpu",
+          "metric": "mean_us",
+          "unit": "us",
+          "a": {
+            "count": 4,
+            "mean": 2511493.9,
+            "median": 2512130.65,
+            "min": 2499446.5,
+            "max": 2522267.8,
+            "sampleStdDev": 9477.289083910016
+          },
+          "b": {
+            "count": 4,
+            "mean": 2653329.55,
+            "median": 2557325.3499999996,
+            "min": 2554231.9,
+            "max": 2944435.6,
+            "sampleStdDev": 194076.37428120073
+          },
+          "aSamples": [
+            2522267.8,
+            2514058,
+            2510203.3,
+            2499446.5
+          ],
+          "bSamples": [
+            2944435.6,
+            2554231.9,
+            2556987.9,
+            2557662.8
+          ],
+          "improvementPercent": -1.799059,
+          "abbaImprovementPercent": -9.180139,
+          "baabImprovementPercent": -2.095973,
+          "overOnePercent": true,
+          "orderDisagreement": false
+        },
+        {
+          "testId": "cpu_translation_blocks.code_stable",
+          "category": "cpu",
+          "metric": "median_us",
+          "unit": "us",
+          "a": {
+            "count": 4,
+            "mean": 2506435.625,
+            "median": 2504288.25,
+            "min": 2503837.5,
+            "max": 2513328.5,
+            "sampleStdDev": 4600.564935871109
+          },
+          "b": {
+            "count": 4,
+            "mean": 2573212.125,
+            "median": 2559348.5,
+            "min": 2549879,
+            "max": 2624272.5,
+            "sampleStdDev": 34855.436334415615
+          },
+          "aSamples": [
+            2513328.5,
+            2503837.5,
+            2504213.5,
+            2504363
+          ],
+          "bSamples": [
+            2624272.5,
+            2551976,
+            2566721,
+            2549879
+          ],
+          "improvementPercent": -2.198639,
+          "abbaImprovementPercent": -3.170764,
+          "baabImprovementPercent": -2.15677,
+          "overOnePercent": true,
+          "orderDisagreement": false
+        },
+        {
+          "testId": "cpu_translation_blocks.code_stable",
+          "category": "cpu",
+          "metric": "min_us",
+          "unit": "us",
+          "a": {
+            "count": 4,
+            "mean": 2485013.25,
+            "median": 2485627,
+            "min": 2471586,
+            "max": 2497213,
+            "sampleStdDev": 10488.593467032058
+          },
+          "b": {
+            "count": 4,
+            "mean": 2526367.75,
+            "median": 2524947,
+            "min": 2504144,
+            "max": 2551433,
+            "sampleStdDev": 19417.48465301313
+          },
+          "aSamples": [
+            2497213,
+            2485904,
+            2485350,
+            2471586
+          ],
+          "bSamples": [
+            2551433,
+            2504144,
+            2523379,
+            2526515
+          ],
+          "improvementPercent": -1.581895,
+          "abbaImprovementPercent": -1.45411,
+          "baabImprovementPercent": -1.875312,
+          "overOnePercent": true,
+          "orderDisagreement": false
+        },
+        {
+          "testId": "cpu_translation_blocks.code_stable",
+          "category": "cpu",
+          "metric": "p95_us",
+          "unit": "us",
+          "a": {
+            "count": 4,
+            "mean": 2556200,
+            "median": 2561871,
+            "min": 2513636,
+            "max": 2587422,
+            "sampleStdDev": 32897.607116627805
+          },
+          "b": {
+            "count": 4,
+            "mean": 2963393.5,
+            "median": 2597575.5,
+            "min": 2584760,
+            "max": 4073663,
+            "sampleStdDev": 740237.0513335576
+          },
+          "aSamples": [
+            2575941,
+            2587422,
+            2547801,
+            2513636
+          ],
+          "bSamples": [
+            4073663,
+            2589050,
+            2584760,
+            2606101
+          ],
+          "improvementPercent": -1.393688,
+          "abbaImprovementPercent": -29.038245,
+          "baabImprovementPercent": -2.55706,
+          "overOnePercent": true,
+          "orderDisagreement": false
+        },
+        {
+          "testId": "cpu_translation_blocks.code_rewrite",
+          "category": "cpu",
+          "metric": "max_us",
+          "unit": "us",
+          "a": {
+            "count": 4,
+            "mean": 3138126.5,
+            "median": 3136815.5,
+            "min": 3058421,
+            "max": 3220454,
+            "sampleStdDev": 75034.43485271724
+          },
+          "b": {
+            "count": 4,
+            "mean": 3278320.5,
+            "median": 3264651,
+            "min": 3123155,
+            "max": 3460825,
+            "sampleStdDev": 139540.70090717857
+          },
+          "aSamples": [
+            3093478,
+            3220454,
+            3058421,
+            3180153
+          ],
+          "bSamples": [
+            3460825,
+            3282774,
+            3246528,
+            3123155
+          ],
+          "improvementPercent": -4.075327,
+          "abbaImprovementPercent": -6.805062,
+          "baabImprovementPercent": -2.101586,
+          "overOnePercent": true,
+          "orderDisagreement": false
+        },
+        {
+          "testId": "cpu_translation_blocks.code_rewrite",
+          "category": "cpu",
+          "metric": "mean_us",
+          "unit": "us",
+          "a": {
+            "count": 4,
+            "mean": 3056083.175,
+            "median": 3064022.3,
+            "min": 2960387.5,
+            "max": 3135900.6,
+            "sampleStdDev": 72730.61488256392
+          },
+          "b": {
+            "count": 4,
+            "mean": 3135789.8,
+            "median": 3096189.3,
+            "min": 3056142.5,
+            "max": 3294638.1,
+            "sampleStdDev": 112101.93942821267
+          },
+          "aSamples": [
+            3053661.7,
+            3074382.9,
+            2960387.5,
+            3135900.6
+          ],
+          "bSamples": [
+            3294638.1,
+            3057539.2,
+            3134839.4,
+            3056142.5
+          ],
+          "improvementPercent": -1.049829,
+          "abbaImprovementPercent": -3.657491,
+          "baabImprovementPercent": -1.553303,
+          "overOnePercent": true,
+          "orderDisagreement": false
+        },
+        {
+          "testId": "cpu_translation_blocks.code_rewrite",
+          "category": "cpu",
+          "metric": "median_us",
+          "unit": "us",
+          "a": {
+            "count": 4,
+            "mean": 3057891,
+            "median": 3069428.5,
+            "min": 2956560.5,
+            "max": 3136146.5,
+            "sampleStdDev": 75104.6103445055
+          },
+          "b": {
+            "count": 4,
+            "mean": 3128454.5,
+            "median": 3095984,
+            "min": 3043490.5,
+            "max": 3278359.5,
+            "sampleStdDev": 109160.01848357002
+          },
+          "aSamples": [
+            3057937.5,
+            3080919.5,
+            2956560.5,
+            3136146.5
+          ],
+          "bSamples": [
+            3278359.5,
+            3043490.5,
+            3140417.5,
+            3051550.5
+          ],
+          "improvementPercent": -0.865161,
+          "abbaImprovementPercent": -2.980897,
+          "baabImprovementPercent": -1.629177,
+          "overOnePercent": false,
+          "orderDisagreement": false
+        },
+        {
+          "testId": "cpu_translation_blocks.code_rewrite",
+          "category": "cpu",
+          "metric": "min_us",
+          "unit": "us",
+          "a": {
+            "count": 4,
+            "mean": 2987107.5,
+            "median": 2970519,
+            "min": 2911855,
+            "max": 3095537,
+            "sampleStdDev": 77649.77479898657
+          },
+          "b": {
+            "count": 4,
+            "mean": 3042254.75,
+            "median": 3030646,
+            "min": 2957079,
+            "max": 3150648,
+            "sampleStdDev": 83652.93865479763
+          },
+          "aSamples": [
+            2978207,
+            2962831,
+            2911855,
+            3095537
+          ],
+          "bSamples": [
+            3150648,
+            2957079,
+            3059971,
+            3001321
+          ],
+          "improvementPercent": -2.024124,
+          "abbaImprovementPercent": -2.805722,
+          "baabImprovementPercent": -0.897228,
+          "overOnePercent": true,
+          "orderDisagreement": false
+        },
+        {
+          "testId": "cpu_translation_blocks.code_rewrite",
+          "category": "cpu",
+          "metric": "p95_us",
+          "unit": "us",
+          "a": {
+            "count": 4,
+            "mean": 3138126.5,
+            "median": 3136815.5,
+            "min": 3058421,
+            "max": 3220454,
+            "sampleStdDev": 75034.43485271724
+          },
+          "b": {
+            "count": 4,
+            "mean": 3278320.5,
+            "median": 3264651,
+            "min": 3123155,
+            "max": 3460825,
+            "sampleStdDev": 139540.70090717857
+          },
+          "aSamples": [
+            3093478,
+            3220454,
+            3058421,
+            3180153
+          ],
+          "bSamples": [
+            3460825,
+            3282774,
+            3246528,
+            3123155
+          ],
+          "improvementPercent": -4.075327,
+          "abbaImprovementPercent": -6.805062,
+          "baabImprovementPercent": -2.101586,
+          "overOnePercent": true,
+          "orderDisagreement": false
+        }
+      ],
+      "blockers": [],
+      "cacheQualification": [
+        {
+          "Status": "complete",
+          "CacheMode": "cold",
+          "DriverNamespaceVerified": true,
+          "DriverQualification": "mesa_private_disk_writes_observed",
+          "ComparisonReady": true,
+          "AllowUncontrolledDriverCache": false,
+          "Issues": [],
+          "label": "A1",
+          "runId": "20261003-050400277-d5c6988560564d1c80dee6676eef8a17",
+          "driverBeforeFiles": 0,
+          "driverAfterFiles": 275,
+          "driverAfterBytes": 2886729
+        },
+        {
+          "Status": "complete",
+          "CacheMode": "cold",
+          "DriverNamespaceVerified": true,
+          "DriverQualification": "mesa_private_disk_writes_observed",
+          "ComparisonReady": true,
+          "AllowUncontrolledDriverCache": false,
+          "Issues": [],
+          "label": "B1",
+          "runId": "20261003-050513280-f3b0485a821042a1a37e903e2e83a12e",
+          "driverBeforeFiles": 0,
+          "driverAfterFiles": 275,
+          "driverAfterBytes": 2886729
+        },
+        {
+          "Status": "complete",
+          "CacheMode": "cold",
+          "DriverNamespaceVerified": true,
+          "DriverQualification": "mesa_private_disk_writes_observed",
+          "ComparisonReady": true,
+          "AllowUncontrolledDriverCache": false,
+          "Issues": [],
+          "label": "B2",
+          "runId": "20261003-050633009-d51808224b1244919361314acf018b17",
+          "driverBeforeFiles": 0,
+          "driverAfterFiles": 275,
+          "driverAfterBytes": 2886729
+        },
+        {
+          "Status": "complete",
+          "CacheMode": "cold",
+          "DriverNamespaceVerified": true,
+          "DriverQualification": "mesa_private_disk_writes_observed",
+          "ComparisonReady": true,
+          "AllowUncontrolledDriverCache": false,
+          "Issues": [],
+          "label": "A2",
+          "runId": "20261003-050746385-bdedbe18daf841bf814ebe46f92acf8f",
+          "driverBeforeFiles": 0,
+          "driverAfterFiles": 276,
+          "driverAfterBytes": 2886974
+        },
+        {
+          "Status": "complete",
+          "CacheMode": "cold",
+          "DriverNamespaceVerified": true,
+          "DriverQualification": "mesa_private_disk_writes_observed",
+          "ComparisonReady": true,
+          "AllowUncontrolledDriverCache": false,
+          "Issues": [],
+          "label": "B3",
+          "runId": "20261003-050859596-475c1c10ee1b4b51a7f6970e8c730626",
+          "driverBeforeFiles": 0,
+          "driverAfterFiles": 275,
+          "driverAfterBytes": 2886729
+        },
+        {
+          "Status": "complete",
+          "CacheMode": "cold",
+          "DriverNamespaceVerified": true,
+          "DriverQualification": "mesa_private_disk_writes_observed",
+          "ComparisonReady": true,
+          "AllowUncontrolledDriverCache": false,
+          "Issues": [],
+          "label": "A3",
+          "runId": "20261003-051013779-0e1ff15247fc4d38a1ad4dea90ab5888",
+          "driverBeforeFiles": 0,
+          "driverAfterFiles": 275,
+          "driverAfterBytes": 2886729
+        },
+        {
+          "Status": "complete",
+          "CacheMode": "cold",
+          "DriverNamespaceVerified": true,
+          "DriverQualification": "mesa_private_disk_writes_observed",
+          "ComparisonReady": true,
+          "AllowUncontrolledDriverCache": false,
+          "Issues": [],
+          "label": "A4",
+          "runId": "20261003-051125684-ec55f5b87f474efa85afcadd028f49af",
+          "driverBeforeFiles": 0,
+          "driverAfterFiles": 275,
+          "driverAfterBytes": 2886729
+        },
+        {
+          "Status": "complete",
+          "CacheMode": "cold",
+          "DriverNamespaceVerified": true,
+          "DriverQualification": "mesa_private_disk_writes_observed",
+          "ComparisonReady": true,
+          "AllowUncontrolledDriverCache": false,
+          "Issues": [],
+          "label": "B4",
+          "runId": "20261003-051239252-6341c717ca6e455bb513598b7db4d75b",
+          "driverBeforeFiles": 0,
+          "driverAfterFiles": 276,
+          "driverAfterBytes": 2886974
+        }
+      ],
+      "nativeFilesCollected": 2482,
+      "nativeCollectionExclusions": 0
+    }
+  },
+  "nativeFilesCollected": 2482,
+  "nativeCollectionExclusions": 0,
+  "publicNativeFiles": 280,
+  "privateNativeFiles": 2202,
+  "decision": "HOLD: observer costs are diagnostic overhead, not production cache gains. Preserve every sample; combined medians alone do not establish under-5% qualification."
+}

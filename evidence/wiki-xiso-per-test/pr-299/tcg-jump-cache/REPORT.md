@@ -9,7 +9,9 @@ they do not justify readiness or a predicted FPS improvement.
 complete 16 correct, eligible runs with qualified private Mesa namespaces. Mean-work
 parity is -0.03% stable / -0.20% rewrite; identical-parent A/A variation is -0.11% /
 +3.35%. Product correction is `31c083ece2e`; the original attribution packet below
-describes `7cb38844fb2`. Corrected dormant observer qualification is running.
+describes `7cb38844fb2`. The [corrected dormant observer packet](corrected-observer-cost-20261003/REPORT.md)
+adds eight correct/eligible/Mesa-qualified runs: -1.80% stable / -1.05% rewrite mean
+work, with stable ABBA -9.18%. It does not establish an under-5% cost bound.
 
 ## What changed and why
 
@@ -150,7 +152,9 @@ original disabled expression and passes both builds/all 29 checks. Fresh whole
 parent and corrected binaries have new campaign identities. The
 [corrected A/A and parent/default-off parity packet](corrected-parent-parity-20261003/REPORT.md)
 contains all 16 completed outcomes and per-test reports. Corrected dormant
-qualification is running; counters and conflicts remain staged and unstarted.
+qualification has completed in the [observer-cost packet](corrected-observer-cost-20261003/REPORT.md).
+Counters is running; conflicts remains staged and unstarted. Every B1 slow sample
+is preserved, with cause unclassified.
 
 First isolate OFF/counters/conflicts observer costs and obtain a reached retail
 workload; any PGR2 measurement lasts at least 300 seconds. Then test one simple
