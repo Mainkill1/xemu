@@ -43,6 +43,93 @@ bool pgraph_vk_alias_morton_index(uint32_t x, uint32_t y, uint32_t width,
     return true;
 }
 
+bool pgraph_vk_depth_alias_read_only_eligible(
+    const PGRAPHVkDepthAliasView *producer,
+    const PGRAPHVkDepthAliasView *view,
+    bool depth_or_stencil_writes, bool clearing, uint32_t scale,
+    bool antialiasing)
+{
+    uint32_t unused_index;
+
+    if (!producer || !view || depth_or_stencil_writes || clearing ||
+        scale != 1 || antialiasing || producer->color || view->color ||
+        producer->swizzled || !view->swizzled || !producer->initialized ||
+        producer->upload_pending || producer->download_pending ||
+        producer->superseded_by_guest || !producer->guest_z24s8 ||
+        !view->guest_z24s8 || !producer->host_supported ||
+        !view->host_supported || !producer->host_format ||
+        producer->host_format != view->host_format ||
+        producer->address != view->address ||
+        producer->dma_address != view->dma_address ||
+        producer->dma_length != view->dma_length ||
+        producer->pitch != view->pitch ||
+        (uint64_t)producer->width * sizeof(uint32_t) != producer->pitch ||
+        producer->extent < view->extent ||
+        producer->width < view->width ||
+        producer->height < view->height ||
+        ((uint64_t)producer->width * producer->height <
+         (uint64_t)view->width * view->height) ||
+        !pgraph_vk_alias_morton_index(0, 0, view->width, view->height,
+                                      &unused_index)) {
+        return false;
+    }
+
+    uint64_t producer_bytes =
+        (uint64_t)producer->width * producer->height * sizeof(uint32_t);
+    uint64_t view_bytes =
+        (uint64_t)view->width * view->height * sizeof(uint32_t);
+
+    return producer_bytes <= 2 * 1024 * 1024 &&
+           producer->extent >= producer_bytes &&
+           view->extent >= view_bytes &&
+           (producer->width != view->width ||
+            producer->height != view->height);
+}
+
+bool pgraph_vk_depth_alias_plan(uint32_t producer_width,
+                               uint32_t producer_height, uint32_t view_width,
+                               uint32_t view_height, uint64_t alignment,
+                               uint64_t max_storage_range,
+                               PGRAPHVkDepthAliasPlan *plan)
+{
+    uint32_t unused_index;
+    uint64_t producer_pixels = (uint64_t)producer_width * producer_height;
+    uint64_t view_pixels = (uint64_t)view_width * view_height;
+
+    if (!plan || !producer_pixels || producer_pixels > INT_MAX ||
+        !pgraph_vk_alias_morton_index(0, 0, view_width, view_height,
+                                      &unused_index) ||
+        alignment > UINT32_MAX || !is_power_of_two(alignment)) {
+        return false;
+    }
+
+    uint64_t producer_depth = producer_pixels * sizeof(uint32_t);
+    uint64_t view_depth = view_pixels * sizeof(uint32_t);
+    uint64_t producer_stencil_offset =
+        (producer_depth + alignment - 1) & ~(alignment - 1);
+    uint64_t view_stencil_offset =
+        (view_depth + alignment - 1) & ~(alignment - 1);
+    uint64_t compute_dst = MAX(producer_stencil_offset + producer_pixels,
+                               view_depth);
+    uint64_t compute_src = MAX(producer_depth,
+                               view_stencil_offset + view_pixels);
+
+    if (compute_dst > max_storage_range ||
+        compute_src > max_storage_range) {
+        return false;
+    }
+
+    *plan = (PGRAPHVkDepthAliasPlan){
+        .producer_pixels = producer_pixels,
+        .view_pixels = view_pixels,
+        .producer_stencil_offset = producer_stencil_offset,
+        .view_stencil_offset = view_stencil_offset,
+        .compute_dst_bytes = compute_dst,
+        .compute_src_bytes = compute_src,
+    };
+    return true;
+}
+
 char *pgraph_vk_alias_unswizzle_glsl(unsigned int workgroup_size)
 {
     g_return_val_if_fail(workgroup_size > 0, NULL);
