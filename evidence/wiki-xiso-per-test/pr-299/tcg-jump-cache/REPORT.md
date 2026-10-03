@@ -135,8 +135,14 @@ Archive size: 561,899 bytes.
 The [updated-runner A/A packet](observer-aa-20261003/REPORT.md) adds eight
 correct, evidence-complete, eligible runs with qualified private Mesa namespaces.
 Identical executable bytes differ by -0.40% on stable mean time and -4.25% on
-rewrite mean time; small rewrite changes cannot be accepted as gains. A matched
-dormant-probe campaign is running. This does not establish observer cost yet.
+rewrite mean time; small rewrite changes cannot be accepted as gains.
+The [completed dormant comparison](observer-dormant-7cb-20261003/REPORT.md)
+adds eight further passing/eligible runs. Its apparent +23.82% stable gain is
+confounded by an outlined compiled-out lookup versus an inlined enabled lookup;
+it is not a cache optimization. Repair `31c083ece2e` restores the parent's
+original disabled expression and passes both builds/all 29 checks. Fresh whole
+parent and corrected binaries have new campaign identities; production-parent
+A/A is running before parity and observer costs are interpreted.
 
 First isolate OFF/counters/conflicts observer costs and obtain a reached retail
 workload; any PGR2 measurement lasts at least 300 seconds. Then test one simple
