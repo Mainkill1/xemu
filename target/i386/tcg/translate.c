@@ -1758,6 +1758,24 @@ static void gen_flush_fp(DisasContext *s)
             return; \
         }} while(0)
 
+static void gen_fnstsw_ax(DisasContext *s, TCGv_i32 result)
+{
+    GEN_HELPER_FALLBACK_T_v(fnstsw, result);
+
+    /* Preserve the helper's architectural FP checkpoint: a later memory
+     * access in this TB may fault before another helper or BB boundary.
+     * fpstt already holds architectural TOP; fpstt_delta only maps the
+     * translation-local register cache and must not be added here.
+     */
+    gen_flush_fp(s);
+    TCGv_i32 top = tcg_temp_new_i32();
+    tcg_gen_ld16u_i32(result, tcg_env, offsetof(CPUX86State, fpus));
+    tcg_gen_andi_i32(result, result, ~0x3800);
+    tcg_gen_andi_i32(top, fpstt, 7);
+    tcg_gen_shli_i32(top, top, 11);
+    tcg_gen_or_i32(result, result, top);
+}
+
 static void gen_fpush(DisasContext *s)
 {
     GEN_HELPER_FALLBACK_v_v(fpush);
@@ -3437,7 +3455,7 @@ static void gen_x87(DisasContext *s, X86DecodedInsn *decode)
         case 0x3c: /* df/4 */
             switch (rm) {
             case 0:
-                gen_helper_fnstsw(s->tmp2_i32, tcg_env);
+                gen_fnstsw_ax(s, s->tmp2_i32);
                 tcg_gen_extu_i32_tl(s->T0, s->tmp2_i32);
                 gen_op_mov_reg_v(s, MO_16, R_EAX, s->T0);
                 break;
