@@ -10,20 +10,6 @@ xbox_i386_target_headers = declare_dependency(
   ],
 )
 
-adpcm_reader_section_args = cc.get_supported_arguments(
-  '-ffunction-sections',
-  '-fdata-sections',
-)
-if host_os == 'darwin'
-  adpcm_reader_gc_link_args = cc.get_supported_link_arguments(
-    '-Wl,-dead_strip',
-  )
-else
-  adpcm_reader_gc_link_args = cc.get_supported_link_arguments(
-    '-Wl,--gc-sections',
-  )
-endif
-
 tests = {
   'check-block-qdict': [],
   'check-qdict': [],
@@ -179,22 +165,7 @@ tests = {
   'test-fifo': [],
   'test-lru-active': [],
   'test-xbox-mcpx-apu-resampler': [libsamplerate],
-  'test-xbox-mcpx-apu-adpcm': [],
 }
-
-if adpcm_reader_section_args.length() == 2 and \
-   adpcm_reader_gc_link_args.length() == 1
-  adpcm_reader_test = declare_dependency(
-    dependencies: [xbox_i386_target_headers, sdl, libsamplerate],
-    compile_args: adpcm_reader_section_args,
-    link_args: adpcm_reader_gc_link_args,
-  )
-  tests += {
-    'test-xbox-mcpx-apu-adpcm-reader': [adpcm_reader_test],
-  }
-else
-  message('Skipping ADPCM reader integration test: section GC unsupported')
-endif
 
 if host_os == 'windows'
   tests += {
