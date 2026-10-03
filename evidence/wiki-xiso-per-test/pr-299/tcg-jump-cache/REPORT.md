@@ -5,6 +5,12 @@ miss classification and FIFO victim recoverability. No production cache candidat
 or speedup has been tested. These counts justify a bounded victim-cache experiment;
 they do not justify readiness or a predicted FPS improvement.
 
+**Latest qualification:** [corrected parent A/A and default-off parity](corrected-parent-parity-20261003/REPORT.md)
+complete 16 correct, eligible runs with qualified private Mesa namespaces. Mean-work
+parity is -0.03% stable / -0.20% rewrite; identical-parent A/A variation is -0.11% /
++3.35%. Product correction is `31c083ece2e`; the original attribution packet below
+describes `7cb38844fb2`. Corrected dormant observer qualification is running.
+
 ## What changed and why
 
 Product `7cb38844fb2dddb1b24cc65501831c9cdcedb43e`, based on
@@ -141,8 +147,10 @@ adds eight further passing/eligible runs. Its apparent +23.82% stable gain is
 confounded by an outlined compiled-out lookup versus an inlined enabled lookup;
 it is not a cache optimization. Repair `31c083ece2e` restores the parent's
 original disabled expression and passes both builds/all 29 checks. Fresh whole
-parent and corrected binaries have new campaign identities; production-parent
-A/A is running before parity and observer costs are interpreted.
+parent and corrected binaries have new campaign identities. The
+[corrected A/A and parent/default-off parity packet](corrected-parent-parity-20261003/REPORT.md)
+contains all 16 completed outcomes and per-test reports. Corrected dormant
+qualification is running; counters and conflicts remain staged and unstarted.
 
 First isolate OFF/counters/conflicts observer costs and obtain a reached retail
 workload; any PGR2 measurement lasts at least 300 seconds. Then test one simple
