@@ -1370,30 +1370,36 @@ static void voice_process(MCPXAPUState *d,
     bool multipass = voice_get_mask(d, v, NV_PAVS_VOICE_CFG_FMT,
                                     NV_PAVS_VOICE_CFG_FMT_MULTIPASS);
     dbg->multipass = multipass;
+    int generated_frames = 0;
 
     if (multipass) {
         get_multipass_samples(d, mixbins, v, samples);
     } else {
-        for (int sample_count = 0; sample_count < NUM_SAMPLES_PER_FRAME;) {
+        while (generated_frames < NUM_SAMPLES_PER_FRAME) {
             int active = voice_get_mask(d, v, NV_PAVS_VOICE_PAR_STATE,
                                         NV_PAVS_VOICE_PAR_STATE_ACTIVE_VOICE);
             if (!active) {
-                return;
+                break;
             }
             int count =
-                voice_resample(d, v, &samples[sample_count],
-                               NUM_SAMPLES_PER_FRAME - sample_count, rate,
+                voice_resample(d, v, &samples[generated_frames],
+                               NUM_SAMPLES_PER_FRAME - generated_frames, rate,
                                stereo);
             if (count < 0) {
                 break;
             }
-            sample_count += count;
+            generated_frames += count;
         }
     }
 
     int active = voice_get_mask(d, v, NV_PAVS_VOICE_PAR_STATE,
                                 NV_PAVS_VOICE_PAR_STATE_ACTIVE_VOICE);
-    if (!active) {
+    /*
+     * The source can reach EBO while libsamplerate is producing this block.
+     * Mix the generated terminal block before honoring the inactive state on
+     * the next frame; it can still contain buffered audible samples.
+     */
+    if (!mcpx_apu_resampler_should_mix_block(active, generated_frames)) {
         return;
     }
 

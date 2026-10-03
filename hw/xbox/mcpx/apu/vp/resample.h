@@ -5,6 +5,12 @@
 
 #include <samplerate.h>
 
+static inline bool mcpx_apu_resampler_should_mix_block(bool source_active,
+                                                        int generated_frames)
+{
+    return source_active || generated_frames > 0;
+}
+
 static inline void mcpx_apu_resampler_destroy(SRC_STATE **resampler,
                                                int *channels)
 {

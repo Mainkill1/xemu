@@ -3,6 +3,7 @@
 #include "qemu/osdep.h"
 #include "hw/xbox/mcpx/apu/vp/resample.h"
 
+#include <math.h>
 #include <samplerate.h>
 
 typedef struct TestSamples {
@@ -13,6 +14,12 @@ typedef struct TestSamples {
     long callback_calls;
     int channels;
 } TestSamples;
+
+typedef struct FiniteTailSamples {
+    float samples[45];
+    long offset;
+    bool active;
+} FiniteTailSamples;
 
 static long sample_callback(void *opaque, float **data)
 {
@@ -30,6 +37,26 @@ static long sample_callback(void *opaque, float **data)
                       remaining;
     *data = &samples->samples[samples->offset * samples->channels];
     samples->offset += frames;
+    return frames;
+}
+
+static long finite_tail_callback(void *opaque, float **data)
+{
+    FiniteTailSamples *samples = opaque;
+    long remaining = ARRAY_SIZE(samples->samples) - samples->offset;
+
+    if (remaining == 0) {
+        samples->active = false;
+        *data = NULL;
+        return 0;
+    }
+
+    long frames = MIN(remaining, 32);
+    *data = &samples->samples[samples->offset];
+    samples->offset += frames;
+    if (samples->offset == ARRAY_SIZE(samples->samples)) {
+        samples->active = false;
+    }
     return frames;
 }
 
@@ -345,6 +372,39 @@ static void test_full_reset_discards_resampler_history(void)
     g_assert_cmpint(resampler_channels, ==, 0);
 }
 
+static void test_terminal_block_remains_mixable(void)
+{
+    enum { OUTPUT_FRAMES = 32 };
+    FiniteTailSamples samples = { .active = true };
+    float output[OUTPUT_FRAMES];
+
+    for (int i = 0; i < ARRAY_SIZE(samples.samples); i++) {
+        samples.samples[i] = sinf(i * 0.19f + 0.2f);
+    }
+
+    int error;
+    SRC_STATE *resampler = src_callback_new(finite_tail_callback,
+                                             SRC_SINC_FASTEST, 1, &error,
+                                             &samples);
+    g_assert_nonnull(resampler);
+    g_assert_cmpint(error, ==, 0);
+
+    long generated = src_callback_read(resampler, 1.0, OUTPUT_FRAMES, output);
+    g_assert_cmpint(generated, >, 0);
+    g_assert_false(samples.active);
+    g_assert_false(mcpx_apu_resampler_should_mix_block(false, 0));
+    g_assert_true(mcpx_apu_resampler_should_mix_block(true, 0));
+    g_assert_true(mcpx_apu_resampler_should_mix_block(samples.active,
+                                                       generated));
+    bool audible = false;
+    for (int i = 0; i < OUTPUT_FRAMES; i++) {
+        g_assert_true(isfinite(output[i]));
+        audible |= fabsf(output[i]) > 0.01f;
+    }
+    g_assert_true(audible);
+    src_delete(resampler);
+}
+
 int main(int argc, char **argv)
 {
     g_test_init(&argc, &argv, NULL);
@@ -358,5 +418,7 @@ int main(int argc, char **argv)
                     test_sinc_channel_change_at_stream_reset);
     g_test_add_func("/mcpx/apu/resampler/full-reset-discards-history",
                     test_full_reset_discards_resampler_history);
+    g_test_add_func("/mcpx/apu/resampler/terminal-block-remains-mixable",
+                    test_terminal_block_remains_mixable);
     return g_test_run();
 }
