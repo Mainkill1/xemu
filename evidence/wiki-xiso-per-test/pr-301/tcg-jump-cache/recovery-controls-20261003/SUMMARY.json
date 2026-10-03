@@ -1,0 +1,54 @@
+{
+  "decision": "HOLD",
+  "rows": [
+    {
+      "testId": "cpu_translation_blocks.code_stable",
+      "baselineSeconds": 2.53283375,
+      "candidateSeconds": 2.5290085,
+      "timeSavedSeconds": 0.00382525,
+      "improvementPercent": 0.151026,
+      "abbaImprovementPercent": 0.142139,
+      "baabImprovementPercent": 5.280577,
+      "aSamplesSeconds": [
+        2.5207634,
+        2.5368317,
+        2.5288358,
+        2.8286295
+      ],
+      "bSamplesSeconds": [
+        2.535323,
+        2.5150832999999997,
+        2.5518662,
+        2.522694
+      ]
+    },
+    {
+      "testId": "cpu_translation_blocks.code_rewrite",
+      "baselineSeconds": 3.1339079,
+      "candidateSeconds": 3.0119190999999996,
+      "timeSavedSeconds": 0.12198880000000029,
+      "improvementPercent": 3.892546,
+      "abbaImprovementPercent": 1.317037,
+      "baabImprovementPercent": 4.080027,
+      "aSamplesSeconds": [
+        3.0116999,
+        3.1382479,
+        3.1295679,
+        3.1504987
+      ],
+      "bSamplesSeconds": [
+        2.9740314,
+        3.0949193,
+        3.0260583999999997,
+        2.9977798
+      ]
+    }
+  ],
+  "attempts": 8,
+  "allCorrect": true,
+  "allMesaQualified": true,
+  "newCandidateMeasurements": 0,
+  "sourceControlsBuilt": true,
+  "runnerDeploymentBlockedByAuthentication": true,
+  "zipSha256": "adc873b7aac531a86c86273eb9592e936b65225deb12f5e7965aee92c9110efd"
+}

@@ -1,0 +1,233 @@
+{
+  "files": {
+    "native/20261003-140414716-cac8ed764bff468a98ef6192ef6c6230/assessment.json": {
+      "bytes": 3011,
+      "sha256": "5debfff23bbeedf65beada8823bd9ea166f9b865fcd16802d79ec0fa74ee9960"
+    },
+    "native/20261003-140414716-cac8ed764bff468a98ef6192ef6c6230/crash/native/exit-native.json": {
+      "bytes": 139,
+      "sha256": "cb2b0de676d75d00a302f7d5bdc05adf4de1fbb9de033649b88b2e0ade8848ea"
+    },
+    "native/20261003-140414716-cac8ed764bff468a98ef6192ef6c6230/crash/native/ready.json": {
+      "bytes": 59,
+      "sha256": "26cef5f6970113bc9a275528d0bc1211d8a4548f25e2f6c648e7d2404b798175"
+    },
+    "native/20261003-140414716-cac8ed764bff468a98ef6192ef6c6230/crash/native/start": {
+      "bytes": 1,
+      "sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    "native/20261003-140414716-cac8ed764bff468a98ef6192ef6c6230/crash/report.json": {
+      "bytes": 425,
+      "sha256": "cb133add4c9e070781f74c706078a2e11bbf59916fb35fbee4ca403fb1b21adf"
+    },
+    "native/20261003-140414716-cac8ed764bff468a98ef6192ef6c6230/crash/report.txt": {
+      "bytes": 198,
+      "sha256": "d0fd1c5008aa43c64829dc8b2ec4ea0fcfcdde346de9b3c464ab808e3ceddee1"
+    },
+    "native/20261003-140414716-cac8ed764bff468a98ef6192ef6c6230/diagnostic-bundle.json": {
+      "bytes": 360,
+      "sha256": "55bc289865f9ed3239488bcef5e9880c8f79281da18926b4c9c684cad1109a2b"
+    },
+    "native/20261003-140414716-cac8ed764bff468a98ef6192ef6c6230/diagnostics/run-state/report.json": {
+      "bytes": 1281,
+      "sha256": "678e110a760b7c41f1829d0fb38588d04c0a408a2ef8ef2faf96164a45618d0f"
+    },
+    "native/20261003-140414716-cac8ed764bff468a98ef6192ef6c6230/host-inventory.json": {
+      "bytes": 466,
+      "sha256": "73c3118aebd7c705f2a6aea67a93574e2c4751e8f81fb9558f0f946f475c21a4"
+    },
+    "native/20261003-140414716-cac8ed764bff468a98ef6192ef6c6230/input-manifest.json": {
+      "bytes": 1363,
+      "sha256": "27d1825de88ed007d1be75edbabca36ead2e226673d51c68c133829fe62f0061"
+    },
+    "native/20261003-140414716-cac8ed764bff468a98ef6192ef6c6230/job.json": {
+      "bytes": 8088,
+      "sha256": "a32d89b46463cc7736c583721ab3808b439a42cdef9cb8dc56365b64c9c9bc89"
+    },
+    "native/20261003-140414716-cac8ed764bff468a98ef6192ef6c6230/launch.json": {
+      "bytes": 1537,
+      "sha256": "36cdda5b8b870e30ea2c99a99c68511fa2fa7c3442832a28386ee47d6b0eb119"
+    },
+    "native/20261003-140414716-cac8ed764bff468a98ef6192ef6c6230/metrics.csv": {
+      "bytes": 343,
+      "sha256": "15b1865acec06e1f9d0b01c059e65459e54e9196d205ca37e7c378fe22cc6040"
+    },
+    "native/20261003-140414716-cac8ed764bff468a98ef6192ef6c6230/operator-events.jsonl": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native/20261003-140414716-cac8ed764bff468a98ef6192ef6c6230/pre-run-environment.json": {
+      "bytes": 1576,
+      "sha256": "94072a1d31b984f664e1585175d2991bfa35a12b814db9b1fda2807be8b6d30b"
+    },
+    "native/20261003-140414716-cac8ed764bff468a98ef6192ef6c6230/preflight.json": {
+      "bytes": 1504,
+      "sha256": "f202ca7b886ea8009478528e70a46cdce3b742faea52d7c84f11832a5ca1ea75"
+    },
+    "native/20261003-140414716-cac8ed764bff468a98ef6192ef6c6230/result.json": {
+      "bytes": 10589,
+      "sha256": "02f64952f3783215803372bdb1fa8cd37ddee3629ca4b2ab403e6f0b9bf54330"
+    },
+    "native/20261003-140414716-cac8ed764bff468a98ef6192ef6c6230/runtime-state.json": {
+      "bytes": 58,
+      "sha256": "84a3230f7043fd79213906fbf46592e64d8eada284b1bd51100e9347363934ef"
+    },
+    "native/20261003-140414716-cac8ed764bff468a98ef6192ef6c6230/stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native/20261003-140414716-cac8ed764bff468a98ef6192ef6c6230/stdout.log": {
+      "bytes": 809,
+      "sha256": "c21f741466bcb192af949c9ec1b92d2e340bdd787aa6ddfb0784eb0847a9cef7"
+    },
+    "regression/green-expanded.log": {
+      "bytes": 2900,
+      "sha256": "598b21553e1355b29521df83cbf74be7d6830a7fe53a12c59d7a45a9c3702876"
+    },
+    "regression/green.log": {
+      "bytes": 2824,
+      "sha256": "4c3816060dd709fba1e18cab6c981461faba5c15c9e6b14fa0e33dda0447244a"
+    },
+    "regression/red.log": {
+      "bytes": 3476,
+      "sha256": "a0ea2989ecd95cb55206db7869fc34933f9d0b7447bc40792f3777da12a9091b"
+    },
+    "release/provenance-linux-x64.json": {
+      "bytes": 278,
+      "sha256": "7e8d1a706574efffb60cf151993499075e44ab66fe64257abf88be53755572ee"
+    },
+    "upgrade/AgentChecks.log": {
+      "bytes": 10060,
+      "sha256": "da9e67826d47f86bc6867c283adbb8cc530b1e614b90711dc28a993d8492c7ea"
+    },
+    "upgrade/RunnerChecks-corrected.log": {
+      "bytes": 3038,
+      "sha256": "29350c186e024ff1c4dab328e251f99b53f63f81d501d4178df9e0b2dd2044aa"
+    },
+    "upgrade/RunnerChecks-fixed.log": {
+      "bytes": 3179,
+      "sha256": "8329a3e2a2a0651c52e3df8906dea08cd9b324ed8986344d746b4ee0983eb248"
+    },
+    "upgrade/RunnerChecks.log": {
+      "bytes": 4031,
+      "sha256": "e59bf5f8a3e9626c2fc3806ebb51d50e70a1392e9b0e77c26d6c6340e9020d4d"
+    },
+    "upgrade/XisoChecks.log": {
+      "bytes": 1869,
+      "sha256": "2938906c2b72b1824a40867bd065878ad9362a34d8612375117b51dde5a18ede"
+    },
+    "upgrade/after-aa-plan.json": {
+      "bytes": 7097,
+      "sha256": "949649ac101cff8fd28084a7c9c2848ad9a53a780e2e62df3b5bde701a5be5fc"
+    },
+    "upgrade/after-aa-report.json": {
+      "bytes": 18462,
+      "sha256": "44c73a0992d31f56f5dbf6b935232a3bf93680f323aa3693028daed9ffc032b6"
+    },
+    "upgrade/after-discovery.json": {
+      "bytes": 1237,
+      "sha256": "0c71049c8a4cc6f1535fffb44f7419b88718111affc8949b087d5cf359ed12b9"
+    },
+    "upgrade/after-retained-test.json": {
+      "bytes": 10457,
+      "sha256": "dbdaa826c655063ce1893d505b455b631ac1fa946f3910714b3e3adf386a6744"
+    },
+    "upgrade/after-status.json": {
+      "bytes": 2349,
+      "sha256": "0399d515d0b16af457303d0e7b75b31ce50af2ff6fcc1ff661203ec634410870"
+    },
+    "upgrade/baseline-RunnerChecks.log": {
+      "bytes": 2901,
+      "sha256": "bf1a32c03965ccfa8cf107cff3e9b4ffa86d7af3e32036022044d42494c3cdc0"
+    },
+    "upgrade/before-aa-plan.json": {
+      "bytes": 7097,
+      "sha256": "949649ac101cff8fd28084a7c9c2848ad9a53a780e2e62df3b5bde701a5be5fc"
+    },
+    "upgrade/before-aa-report.json": {
+      "bytes": 18462,
+      "sha256": "44c73a0992d31f56f5dbf6b935232a3bf93680f323aa3693028daed9ffc032b6"
+    },
+    "upgrade/before-discovery.json": {
+      "bytes": 1237,
+      "sha256": "1ea6176731d0a376ea8b739bbf736cccbca9728e0258e663750106f34dfaa22c"
+    },
+    "upgrade/before-retained-test.json": {
+      "bytes": 10457,
+      "sha256": "dbdaa826c655063ce1893d505b455b631ac1fa946f3910714b3e3adf386a6744"
+    },
+    "upgrade/before-status-preflight.json": {
+      "bytes": 2514,
+      "sha256": "7afd8138c87c12ee09c911b11c2c6956091d466c6025569fdc99945a1a6d5ea3"
+    },
+    "upgrade/before-status.json": {
+      "bytes": 2514,
+      "sha256": "5743ec629e8cd8ba92bcd8aeaf26708de97589d8da199bff68b850c11e012b61"
+    },
+    "upgrade/fixed-publish.log": {
+      "bytes": 430,
+      "sha256": "bbcbc05f201f9197a3c45082efed99b097a2bd6bf0a542643b19a1bad4294f02"
+    },
+    "upgrade/metadata-after.json": {
+      "bytes": 630216,
+      "sha256": "43454c57675fc0246abcf55edd2470ad3acfb75f6abb9ba1ebf4a2f79e25eac1"
+    },
+    "upgrade/metadata-before.json": {
+      "bytes": 630216,
+      "sha256": "43454c57675fc0246abcf55edd2470ad3acfb75f6abb9ba1ebf4a2f79e25eac1"
+    },
+    "upgrade/notes.md": {
+      "bytes": 1522,
+      "sha256": "05968675d8e8c7f0a414a241ff301df14fe76f512367512f874e658f843c3b7d"
+    },
+    "upgrade/operator-upgrade.log": {
+      "bytes": 473,
+      "sha256": "debc1023faef74e402aa73d75ba37fe480a4166a6ad47b57a72597c22b8caa00"
+    },
+    "upgrade/operator-upgrade.sh": {
+      "bytes": 3884,
+      "sha256": "6fc9478b467920f57de866e53979ef6da9fc0b5db1f4cae00fa00a817aedce05"
+    },
+    "upgrade/publish.log": {
+      "bytes": 424,
+      "sha256": "93fa21331d53f980596cc44af2949bd0c21302c91805165f1546a3ecd1862043"
+    },
+    "upgrade/python-tests-fixture-env.log": {
+      "bytes": 192,
+      "sha256": "1b2f44b622d3d753eab03e0bb6f1960ab02e095ce43973797896d8f0c3fcf8d6"
+    },
+    "upgrade/python-tests.log": {
+      "bytes": 50131,
+      "sha256": "64150429ef129130fdad644715f5419fd3e47e2a77a6a83fea0241bc512e9cc9"
+    },
+    "upgrade/retained-collect.json": {
+      "bytes": 366,
+      "sha256": "6625f83f3a69fe3f79dca40d016bdd8a85ddefb49fdca9884632c577f805d0de"
+    },
+    "upgrade/retained-select.json": {
+      "bytes": 504,
+      "sha256": "3d30cf23f614d6ed31c5e8537c703da2b99774e5c79326143a89835b94e1bd76"
+    },
+    "upgrade/retained-status.json": {
+      "bytes": 690,
+      "sha256": "b0d6f3516364c89bf80c266e45878b72ee973391208d19835f07c6303797cb9d"
+    },
+    "upgrade/retained-wait.json": {
+      "bytes": 780,
+      "sha256": "88a61336a95224fdab2a8f026281d0fa6262579a922e5a4f2b1e8eb8b43b1941"
+    },
+    "upgrade/source-provenance.json": {
+      "bytes": 578,
+      "sha256": "6b9e212066f57d11067326adfd9ef6336be007a160b4c5f01cb1d383c64500df"
+    }
+  },
+  "archive": {
+    "bytes": 419993,
+    "sha256": "d528ca7ffb9654e4f96cb402aac0822314295ba321d1cb98356e71fa3110d5ed"
+  },
+  "localOnly": [
+    "packaged executables/native helper binaries",
+    "independent metadata backup archive and original runner configuration",
+    "native diagnostics.zip (remaining 20 native artifacts published)"
+  ]
+}

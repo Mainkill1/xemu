@@ -1,0 +1,11 @@
+{
+  "decision": "HOLD",
+  "parent": "76c23c7d444a6f12c9778bb2c35fab513f6c8056",
+  "product": "5679cce099eb777977e761245de47e77d05d0c05",
+  "unitCasesPerBuild": 13,
+  "mutationRejections": 4,
+  "candidatePerformanceMeasured": false,
+  "fullUnitGate": "failed-unchanged-resampler-missing-math-h",
+  "zipSha256": "10f5ba7da13af29cbc57749c62a16ef41973f2d8522b756eee56c4b8ab22ccfa",
+  "zipBytes": 173732
+}

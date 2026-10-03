@@ -1,0 +1,56 @@
+{
+  "decision": "HOLD",
+  "statisticalVerdict": "inconclusive",
+  "attempts": 8,
+  "allCorrect": true,
+  "allMesaQualified": true,
+  "candidateMode": "compile-disabled",
+  "rows": [
+    {
+      "testId": "cpu_translation_blocks.code_stable",
+      "baselineSeconds": 2.5140223499999994,
+      "candidateSeconds": 2.5222201500000003,
+      "timeSavedSeconds": -0.008197800000000746,
+      "improvementPercent": -0.326083,
+      "abbaImprovementPercent": -0.909742,
+      "baabImprovementPercent": -0.230529,
+      "aSamplesSeconds": [
+        2.516821,
+        2.5057452999999996,
+        2.5136349,
+        2.5144097999999997
+      ],
+      "bSamplesSeconds": [
+        2.5148677000000004,
+        2.553391,
+        2.5100632000000003,
+        2.5295726000000003
+      ]
+    },
+    {
+      "testId": "cpu_translation_blocks.code_rewrite",
+      "baselineSeconds": 3.0562671,
+      "candidateSeconds": 3.0343735499999998,
+      "timeSavedSeconds": 0.02189355000000028,
+      "improvementPercent": 0.716349,
+      "abbaImprovementPercent": 3.247307,
+      "baabImprovementPercent": -1.873302,
+      "aSamplesSeconds": [
+        3.0913257,
+        3.1811065,
+        2.9894773,
+        3.0212085
+      ],
+      "bSamplesSeconds": [
+        3.0320197,
+        3.0367273999999997,
+        3.1340367000000002,
+        2.9892474
+      ]
+    }
+  ],
+  "workloadReruns": 0,
+  "collectedFiles": 2480,
+  "zipSha256": "fc2e076c95b1459d7d0028051a0f7887cf5cb1cb1ca2aac4e4cefe92b3f2a7e5",
+  "zipBytes": 418424
+}

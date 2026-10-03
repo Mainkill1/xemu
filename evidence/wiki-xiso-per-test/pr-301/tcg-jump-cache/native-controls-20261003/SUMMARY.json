@@ -1,0 +1,59 @@
+{
+  "decision": "HOLD",
+  "productCommit": "5679cce099eb777977e761245de47e77d05d0c05",
+  "runnerCommit": "55a360daf82a699ecd12d69d8484f32bf1cf3752",
+  "parentAaAttempts": 8,
+  "nativeHelperAttempts": 2,
+  "nativeHelperPassingCases": 13,
+  "initialHelperEvidenceFailureRetained": true,
+  "aa": [
+    {
+      "testId": "cpu_translation_blocks.code_stable",
+      "baselineSeconds": 2.51570855,
+      "candidateSeconds": 2.50626325,
+      "timeSavedSeconds": 0.009445299999999813,
+      "improvementPercent": 0.375453,
+      "abbaImprovementPercent": 0.535019,
+      "baabImprovementPercent": 0.267808,
+      "aSamplesSeconds": [
+        2.546504,
+        2.5127561000000003,
+        2.518661,
+        2.5057878
+      ],
+      "bSamplesSeconds": [
+        2.5045875,
+        2.5276046,
+        2.507939,
+        2.5030539
+      ]
+    },
+    {
+      "testId": "cpu_translation_blocks.code_rewrite",
+      "baselineSeconds": 2.9887025499999997,
+      "candidateSeconds": 3.1188146500000005,
+      "timeSavedSeconds": -0.13011210000000056,
+      "improvementPercent": -4.353464,
+      "abbaImprovementPercent": -4.301025,
+      "baabImprovementPercent": -1.757628,
+      "aSamplesSeconds": [
+        2.9626748,
+        2.9877994,
+        2.9896057000000003,
+        3.1512614
+      ],
+      "bSamplesSeconds": [
+        3.09259,
+        3.1138156,
+        3.124987,
+        3.1238137000000004
+      ]
+    }
+  ],
+  "candidatePerformanceMeasured": false,
+  "collectedArtifacts": 2522,
+  "archiveFiles": 356,
+  "indexedFiles": 2566,
+  "zipSha256": "b759ab946037e00b5d63545cef22ac6287e0ad635570b479499088813875853e",
+  "zipBytes": 449108
+}

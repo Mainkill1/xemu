@@ -1,0 +1,867 @@
+{
+  "recommendation": "HOLD",
+  "integrated": false,
+  "directComparison": "inconclusive",
+  "nativeMeasurementAttempts": 16,
+  "measurementArtifacts": 4960,
+  "helperArtifacts": 21,
+  "guestSamples": 640,
+  "candidateRows": [
+    {
+      "testId": "cpu_translation_blocks.jump_cache_collision2",
+      "category": "cpu",
+      "metric": "mean_us",
+      "unit": "us",
+      "a": {
+        "count": 4,
+        "mean": 553107.875,
+        "median": 551018.5,
+        "min": 548031.6,
+        "max": 562362.9,
+        "sampleStdDev": 6391.6065228156995
+      },
+      "b": {
+        "count": 4,
+        "mean": 554113.675,
+        "median": 554175.35,
+        "min": 551831.7,
+        "max": 556272.3,
+        "sampleStdDev": 2388.502560706236
+      },
+      "aSamples": [
+        562362.9,
+        552114.6,
+        549922.4,
+        548031.6
+      ],
+      "bSamples": [
+        551831.7,
+        556272.3,
+        552272.7,
+        556078
+      ],
+      "improvementPercent": -0.572912,
+      "abbaImprovementPercent": 0.571882,
+      "baabImprovementPercent": -0.946916,
+      "overOnePercent": false,
+      "orderDisagreement": false
+    },
+    {
+      "testId": "cpu_translation_blocks.jump_cache_collision8",
+      "category": "cpu",
+      "metric": "mean_us",
+      "unit": "us",
+      "a": {
+        "count": 4,
+        "mean": 593053.2999999999,
+        "median": 591386.3500000001,
+        "min": 590315.1,
+        "max": 599125.4,
+        "sampleStdDev": 4087.8571591157024
+      },
+      "b": {
+        "count": 4,
+        "mean": 598306.125,
+        "median": 597452.3999999999,
+        "min": 589033.1,
+        "max": 609286.6,
+        "sampleStdDev": 10300.766638257233
+      },
+      "aSamples": [
+        590315.1,
+        599125.4,
+        591065.3,
+        591707.4
+      ],
+      "bSamples": [
+        604878.7,
+        609286.6,
+        589033.1,
+        590026.1
+      ],
+      "improvementPercent": -1.025734,
+      "abbaImprovementPercent": -2.078692,
+      "baabImprovementPercent": 0.313966,
+      "overOnePercent": true,
+      "orderDisagreement": false
+    },
+    {
+      "testId": "cpu_translation_blocks.jump_cache_collision10",
+      "category": "cpu",
+      "metric": "mean_us",
+      "unit": "us",
+      "a": {
+        "count": 4,
+        "mean": 1216419.325,
+        "median": 1257119.05,
+        "min": 1051278,
+        "max": 1300161.2,
+        "sampleStdDev": 112046.90740421695
+      },
+      "b": {
+        "count": 4,
+        "mean": 1161716.85,
+        "median": 1165054.6,
+        "min": 1040296.8,
+        "max": 1276461.4,
+        "sampleStdDev": 119453.05500160581
+      },
+      "aSamples": [
+        1262873.8,
+        1251364.3,
+        1300161.2,
+        1051278
+      ],
+      "bSamples": [
+        1078811.7,
+        1276461.4,
+        1040296.8,
+        1251297.5
+      ],
+      "improvementPercent": 7.323447,
+      "abbaImprovementPercent": 6.322591,
+      "baabImprovementPercent": 2.545033,
+      "overOnePercent": true,
+      "orderDisagreement": false
+    },
+    {
+      "testId": "cpu_translation_blocks.jump_cache_noncollision8",
+      "category": "cpu",
+      "metric": "mean_us",
+      "unit": "us",
+      "a": {
+        "count": 4,
+        "mean": 366829.525,
+        "median": 366341.45,
+        "min": 362080.9,
+        "max": 372554.3,
+        "sampleStdDev": 4314.1395282450585
+      },
+      "b": {
+        "count": 4,
+        "mean": 368221.625,
+        "median": 368188.3,
+        "min": 365472.1,
+        "max": 371037.8,
+        "sampleStdDev": 2600.4753570260964
+      },
+      "aSamples": [
+        366476.5,
+        362080.9,
+        372554.3,
+        366206.4
+      ],
+      "bSamples": [
+        369736.6,
+        371037.8,
+        365472.1,
+        366640
+      ],
+      "improvementPercent": -0.504134,
+      "abbaImprovementPercent": -1.676875,
+      "baabImprovementPercent": 0.899967,
+      "overOnePercent": false,
+      "orderDisagreement": false
+    }
+  ],
+  "aaRows": [
+    {
+      "testId": "cpu_translation_blocks.jump_cache_collision2",
+      "category": "cpu",
+      "metric": "mean_us",
+      "unit": "us",
+      "a": {
+        "count": 4,
+        "mean": 559274.75,
+        "median": 552064.15,
+        "min": 544866,
+        "max": 588104.7,
+        "sampleStdDev": 19563.82775609106
+      },
+      "b": {
+        "count": 4,
+        "mean": 553677.175,
+        "median": 553483.55,
+        "min": 544150.4,
+        "max": 563591.2,
+        "sampleStdDev": 9972.527346122766
+      },
+      "aSamples": [
+        553717.4,
+        544866,
+        588104.7,
+        550410.9
+      ],
+      "bSamples": [
+        544150.4,
+        560873.8,
+        563591.2,
+        546093.3
+      ],
+      "improvementPercent": -0.257108,
+      "abbaImprovementPercent": -0.586282,
+      "baabImprovementPercent": 2.532341,
+      "overOnePercent": false,
+      "orderDisagreement": false
+    },
+    {
+      "testId": "cpu_translation_blocks.jump_cache_collision8",
+      "category": "cpu",
+      "metric": "mean_us",
+      "unit": "us",
+      "a": {
+        "count": 4,
+        "mean": 679119.1749999999,
+        "median": 606825.85,
+        "min": 595298.6,
+        "max": 907526.4,
+        "sampleStdDev": 152411.69135107662
+      },
+      "b": {
+        "count": 4,
+        "mean": 594590.2749999999,
+        "median": 596239.25,
+        "min": 584117.4,
+        "max": 601765.2,
+        "sampleStdDev": 7960.416503916933
+      },
+      "aSamples": [
+        602377.7,
+        595298.6,
+        611274,
+        907526.4
+      ],
+      "bSamples": [
+        601765.2,
+        599667.5,
+        592811,
+        584117.4
+      ],
+      "improvementPercent": 1.744586,
+      "abbaImprovementPercent": -0.313641,
+      "baabImprovementPercent": 22.509344,
+      "overOnePercent": true,
+      "orderDisagreement": false
+    },
+    {
+      "testId": "cpu_translation_blocks.jump_cache_collision10",
+      "category": "cpu",
+      "metric": "mean_us",
+      "unit": "us",
+      "a": {
+        "count": 4,
+        "mean": 1226342.375,
+        "median": 1259932.45,
+        "min": 1121921.8,
+        "max": 1263582.8,
+        "sampleStdDev": 69658.99074454905
+      },
+      "b": {
+        "count": 4,
+        "mean": 1264803.5750000002,
+        "median": 1266280.2999999998,
+        "min": 1245077.1,
+        "max": 1281576.6,
+        "sampleStdDev": 19007.301205479776
+      },
+      "aSamples": [
+        1257692.7,
+        1263582.8,
+        1121921.8,
+        1262172.2
+      ],
+      "bSamples": [
+        1280580.7,
+        1251979.9,
+        1245077.1,
+        1281576.6
+      ],
+      "improvementPercent": -0.503825,
+      "abbaImprovementPercent": -0.447595,
+      "baabImprovementPercent": -5.979617,
+      "overOnePercent": false,
+      "orderDisagreement": false
+    },
+    {
+      "testId": "cpu_translation_blocks.jump_cache_noncollision8",
+      "category": "cpu",
+      "metric": "mean_us",
+      "unit": "us",
+      "a": {
+        "count": 4,
+        "mean": 429620.47500000003,
+        "median": 376230.4,
+        "min": 366321.8,
+        "max": 599699.3,
+        "sampleStdDev": 113699.49357135459
+      },
+      "b": {
+        "count": 4,
+        "mean": 369431.1,
+        "median": 368337,
+        "min": 366107.8,
+        "max": 374942.6,
+        "sampleStdDev": 4021.1316806756427
+      },
+      "aSamples": [
+        367622.4,
+        366321.8,
+        384838.4,
+        599699.3
+      ],
+      "bSamples": [
+        369868.9,
+        366805.1,
+        374942.6,
+        366107.8
+      ],
+      "improvementPercent": 2.098023,
+      "abbaImprovementPercent": -0.371936,
+      "baabImprovementPercent": 24.73113,
+      "overOnePercent": true,
+      "orderDisagreement": false
+    }
+  ],
+  "attempts": [
+    {
+      "campaign": "aa",
+      "id": "xc-i167-publish-aa-20261003-001-001",
+      "label": "A1",
+      "variant": "reference",
+      "chunk": 1,
+      "state": "tested",
+      "runId": "20261003-145244940-9ff973e32aa545e28c94768feafc3103",
+      "terminal": true,
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible",
+      "error": null,
+      "executableSha256": "51cd99ef27b7212ba75029c489b31b36b44f732302cee27276c2c62756357c24",
+      "driverQualification": "mesa_private_disk_writes_observed",
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      },
+      "workSeconds": {
+        "cpu_translation_blocks.jump_cache_collision10": 1.2576927,
+        "cpu_translation_blocks.jump_cache_collision2": 0.5537174,
+        "cpu_translation_blocks.jump_cache_collision8": 0.6023776999999999,
+        "cpu_translation_blocks.jump_cache_noncollision8": 0.3676224
+      }
+    },
+    {
+      "campaign": "aa",
+      "id": "xc-i167-publish-aa-20261003-001-002",
+      "label": "B1",
+      "variant": "candidate",
+      "chunk": 1,
+      "state": "tested",
+      "runId": "20261003-145330133-e46665e6e4654765a9270c0ad66168fc",
+      "terminal": true,
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible",
+      "error": null,
+      "executableSha256": "51cd99ef27b7212ba75029c489b31b36b44f732302cee27276c2c62756357c24",
+      "driverQualification": "mesa_private_disk_writes_observed",
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      },
+      "workSeconds": {
+        "cpu_translation_blocks.jump_cache_collision10": 1.2805807,
+        "cpu_translation_blocks.jump_cache_collision2": 0.5441504,
+        "cpu_translation_blocks.jump_cache_collision8": 0.6017652,
+        "cpu_translation_blocks.jump_cache_noncollision8": 0.3698689
+      }
+    },
+    {
+      "campaign": "aa",
+      "id": "xc-i167-publish-aa-20261003-001-003",
+      "label": "B2",
+      "variant": "candidate",
+      "chunk": 1,
+      "state": "tested",
+      "runId": "20261003-145415382-2822b4c3b40245e991ce4d4b98581225",
+      "terminal": true,
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible",
+      "error": null,
+      "executableSha256": "51cd99ef27b7212ba75029c489b31b36b44f732302cee27276c2c62756357c24",
+      "driverQualification": "mesa_private_disk_writes_observed",
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      },
+      "workSeconds": {
+        "cpu_translation_blocks.jump_cache_collision10": 1.2519798999999998,
+        "cpu_translation_blocks.jump_cache_collision2": 0.5608738000000001,
+        "cpu_translation_blocks.jump_cache_collision8": 0.5996675,
+        "cpu_translation_blocks.jump_cache_noncollision8": 0.3668051
+      }
+    },
+    {
+      "campaign": "aa",
+      "id": "xc-i167-publish-aa-20261003-001-004",
+      "label": "A2",
+      "variant": "reference",
+      "chunk": 1,
+      "state": "tested",
+      "runId": "20261003-145500403-974862bd0c8c4f10a38f46551d5c094e",
+      "terminal": true,
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible",
+      "error": null,
+      "executableSha256": "51cd99ef27b7212ba75029c489b31b36b44f732302cee27276c2c62756357c24",
+      "driverQualification": "mesa_private_disk_writes_observed",
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      },
+      "workSeconds": {
+        "cpu_translation_blocks.jump_cache_collision10": 1.2635828,
+        "cpu_translation_blocks.jump_cache_collision2": 0.544866,
+        "cpu_translation_blocks.jump_cache_collision8": 0.5952986,
+        "cpu_translation_blocks.jump_cache_noncollision8": 0.3663218
+      }
+    },
+    {
+      "campaign": "aa",
+      "id": "xc-i167-publish-aa-20261003-001-005",
+      "label": "B3",
+      "variant": "candidate",
+      "chunk": 1,
+      "state": "tested",
+      "runId": "20261003-145545552-677c5c22b24b4e71add9872b579e22c2",
+      "terminal": true,
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible",
+      "error": null,
+      "executableSha256": "51cd99ef27b7212ba75029c489b31b36b44f732302cee27276c2c62756357c24",
+      "driverQualification": "mesa_private_disk_writes_observed",
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      },
+      "workSeconds": {
+        "cpu_translation_blocks.jump_cache_collision10": 1.2450771,
+        "cpu_translation_blocks.jump_cache_collision2": 0.5635912,
+        "cpu_translation_blocks.jump_cache_collision8": 0.592811,
+        "cpu_translation_blocks.jump_cache_noncollision8": 0.37494259999999996
+      }
+    },
+    {
+      "campaign": "aa",
+      "id": "xc-i167-publish-aa-20261003-001-006",
+      "label": "A3",
+      "variant": "reference",
+      "chunk": 1,
+      "state": "tested",
+      "runId": "20261003-145630713-815ead04081d4f0785d77f7f88cc1030",
+      "terminal": true,
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible",
+      "error": null,
+      "executableSha256": "51cd99ef27b7212ba75029c489b31b36b44f732302cee27276c2c62756357c24",
+      "driverQualification": "mesa_private_disk_writes_observed",
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      },
+      "workSeconds": {
+        "cpu_translation_blocks.jump_cache_collision10": 1.1219218,
+        "cpu_translation_blocks.jump_cache_collision2": 0.5881046999999999,
+        "cpu_translation_blocks.jump_cache_collision8": 0.611274,
+        "cpu_translation_blocks.jump_cache_noncollision8": 0.3848384
+      }
+    },
+    {
+      "campaign": "aa",
+      "id": "xc-i167-publish-aa-20261003-001-007",
+      "label": "A4",
+      "variant": "reference",
+      "chunk": 1,
+      "state": "tested",
+      "runId": "20261003-145715045-1c902e3e7c084e5fb6b459b9eebfaa71",
+      "terminal": true,
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible",
+      "error": null,
+      "executableSha256": "51cd99ef27b7212ba75029c489b31b36b44f732302cee27276c2c62756357c24",
+      "driverQualification": "mesa_private_disk_writes_observed",
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      },
+      "workSeconds": {
+        "cpu_translation_blocks.jump_cache_collision10": 1.2621722,
+        "cpu_translation_blocks.jump_cache_collision2": 0.5504109,
+        "cpu_translation_blocks.jump_cache_collision8": 0.9075264000000001,
+        "cpu_translation_blocks.jump_cache_noncollision8": 0.5996993
+      }
+    },
+    {
+      "campaign": "aa",
+      "id": "xc-i167-publish-aa-20261003-001-008",
+      "label": "B4",
+      "variant": "candidate",
+      "chunk": 1,
+      "state": "tested",
+      "runId": "20261003-145805930-d54bcdd8c15e459da078c2786511fb00",
+      "terminal": true,
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible",
+      "error": null,
+      "executableSha256": "51cd99ef27b7212ba75029c489b31b36b44f732302cee27276c2c62756357c24",
+      "driverQualification": "mesa_private_disk_writes_observed",
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      },
+      "workSeconds": {
+        "cpu_translation_blocks.jump_cache_collision10": 1.2815766000000002,
+        "cpu_translation_blocks.jump_cache_collision2": 0.5460933,
+        "cpu_translation_blocks.jump_cache_collision8": 0.5841174,
+        "cpu_translation_blocks.jump_cache_noncollision8": 0.3661078
+      }
+    },
+    {
+      "campaign": "fifo",
+      "id": "xc-i167-publish-vs-fifo-20261003-001-001",
+      "label": "A1",
+      "variant": "reference",
+      "chunk": 1,
+      "state": "tested",
+      "runId": "20261003-150244988-fe0be1e206d14e39a87f6d6b47242e74",
+      "terminal": true,
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible",
+      "error": null,
+      "executableSha256": "51cd99ef27b7212ba75029c489b31b36b44f732302cee27276c2c62756357c24",
+      "driverQualification": "mesa_private_disk_writes_observed",
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      },
+      "workSeconds": {
+        "cpu_translation_blocks.jump_cache_collision10": 1.2628738000000002,
+        "cpu_translation_blocks.jump_cache_collision2": 0.5623629,
+        "cpu_translation_blocks.jump_cache_collision8": 0.5903151,
+        "cpu_translation_blocks.jump_cache_noncollision8": 0.3664765
+      }
+    },
+    {
+      "campaign": "fifo",
+      "id": "xc-i167-publish-vs-fifo-20261003-001-002",
+      "label": "B1",
+      "variant": "candidate",
+      "chunk": 1,
+      "state": "tested",
+      "runId": "20261003-150330209-c14955b6dfc143319974e9e6040f0ce6",
+      "terminal": true,
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible",
+      "error": null,
+      "executableSha256": "0c856d3a4c82c7b049a52bb7b3bec0079799d038d5983be97ced449d9e899fcc",
+      "driverQualification": "mesa_private_disk_writes_observed",
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      },
+      "workSeconds": {
+        "cpu_translation_blocks.jump_cache_collision10": 1.0788117,
+        "cpu_translation_blocks.jump_cache_collision2": 0.5518316999999999,
+        "cpu_translation_blocks.jump_cache_collision8": 0.6048787,
+        "cpu_translation_blocks.jump_cache_noncollision8": 0.36973659999999997
+      }
+    },
+    {
+      "campaign": "fifo",
+      "id": "xc-i167-publish-vs-fifo-20261003-001-003",
+      "label": "B2",
+      "variant": "candidate",
+      "chunk": 1,
+      "state": "tested",
+      "runId": "20261003-150414040-c227013c4c5c42acb6abb14d106bede4",
+      "terminal": true,
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible",
+      "error": null,
+      "executableSha256": "0c856d3a4c82c7b049a52bb7b3bec0079799d038d5983be97ced449d9e899fcc",
+      "driverQualification": "mesa_private_disk_writes_observed",
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      },
+      "workSeconds": {
+        "cpu_translation_blocks.jump_cache_collision10": 1.2764613999999999,
+        "cpu_translation_blocks.jump_cache_collision2": 0.5562723,
+        "cpu_translation_blocks.jump_cache_collision8": 0.6092866,
+        "cpu_translation_blocks.jump_cache_noncollision8": 0.3710378
+      }
+    },
+    {
+      "campaign": "fifo",
+      "id": "xc-i167-publish-vs-fifo-20261003-001-004",
+      "label": "A2",
+      "variant": "reference",
+      "chunk": 1,
+      "state": "tested",
+      "runId": "20261003-150459965-a313e57a21de4ba29c990351ccf14e8f",
+      "terminal": true,
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible",
+      "error": null,
+      "executableSha256": "51cd99ef27b7212ba75029c489b31b36b44f732302cee27276c2c62756357c24",
+      "driverQualification": "mesa_private_disk_writes_observed",
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      },
+      "workSeconds": {
+        "cpu_translation_blocks.jump_cache_collision10": 1.2513643,
+        "cpu_translation_blocks.jump_cache_collision2": 0.5521146,
+        "cpu_translation_blocks.jump_cache_collision8": 0.5991254,
+        "cpu_translation_blocks.jump_cache_noncollision8": 0.36208090000000004
+      }
+    },
+    {
+      "campaign": "fifo",
+      "id": "xc-i167-publish-vs-fifo-20261003-001-005",
+      "label": "B3",
+      "variant": "candidate",
+      "chunk": 1,
+      "state": "tested",
+      "runId": "20261003-150545297-94b9ed7d1abe48ff84796af656b6694a",
+      "terminal": true,
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible",
+      "error": null,
+      "executableSha256": "0c856d3a4c82c7b049a52bb7b3bec0079799d038d5983be97ced449d9e899fcc",
+      "driverQualification": "mesa_private_disk_writes_observed",
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      },
+      "workSeconds": {
+        "cpu_translation_blocks.jump_cache_collision10": 1.0402968000000001,
+        "cpu_translation_blocks.jump_cache_collision2": 0.5522727,
+        "cpu_translation_blocks.jump_cache_collision8": 0.5890331,
+        "cpu_translation_blocks.jump_cache_noncollision8": 0.36547209999999997
+      }
+    },
+    {
+      "campaign": "fifo",
+      "id": "xc-i167-publish-vs-fifo-20261003-001-006",
+      "label": "A3",
+      "variant": "reference",
+      "chunk": 1,
+      "state": "tested",
+      "runId": "20261003-150628908-6188d2cdb59a48ff90da3bdf2ced5ed7",
+      "terminal": true,
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible",
+      "error": null,
+      "executableSha256": "51cd99ef27b7212ba75029c489b31b36b44f732302cee27276c2c62756357c24",
+      "driverQualification": "mesa_private_disk_writes_observed",
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      },
+      "workSeconds": {
+        "cpu_translation_blocks.jump_cache_collision10": 1.3001612,
+        "cpu_translation_blocks.jump_cache_collision2": 0.5499224,
+        "cpu_translation_blocks.jump_cache_collision8": 0.5910653,
+        "cpu_translation_blocks.jump_cache_noncollision8": 0.3725543
+      }
+    },
+    {
+      "campaign": "fifo",
+      "id": "xc-i167-publish-vs-fifo-20261003-001-007",
+      "label": "A4",
+      "variant": "reference",
+      "chunk": 1,
+      "state": "tested",
+      "runId": "20261003-150714463-a9df2656cf3649a3b7935599e1d01551",
+      "terminal": true,
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible",
+      "error": null,
+      "executableSha256": "51cd99ef27b7212ba75029c489b31b36b44f732302cee27276c2c62756357c24",
+      "driverQualification": "mesa_private_disk_writes_observed",
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      },
+      "workSeconds": {
+        "cpu_translation_blocks.jump_cache_collision10": 1.051278,
+        "cpu_translation_blocks.jump_cache_collision2": 0.5480316,
+        "cpu_translation_blocks.jump_cache_collision8": 0.5917074,
+        "cpu_translation_blocks.jump_cache_noncollision8": 0.36620640000000004
+      }
+    },
+    {
+      "campaign": "fifo",
+      "id": "xc-i167-publish-vs-fifo-20261003-001-008",
+      "label": "B4",
+      "variant": "candidate",
+      "chunk": 1,
+      "state": "tested",
+      "runId": "20261003-150757319-aac95cda2d3a4826a5102a33d0e446bf",
+      "terminal": true,
+      "execution": "completed",
+      "correctness": "passed",
+      "evidence": "complete",
+      "comparison": "eligible",
+      "error": null,
+      "executableSha256": "0c856d3a4c82c7b049a52bb7b3bec0079799d038d5983be97ced449d9e899fcc",
+      "driverQualification": "mesa_private_disk_writes_observed",
+      "operatorActivity": {
+        "Intervened": false,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 0,
+        "HostStateChanges": 0
+      },
+      "workSeconds": {
+        "cpu_translation_blocks.jump_cache_collision10": 1.2512975,
+        "cpu_translation_blocks.jump_cache_collision2": 0.556078,
+        "cpu_translation_blocks.jump_cache_collision8": 0.5900261,
+        "cpu_translation_blocks.jump_cache_noncollision8": 0.36664
+      }
+    }
+  ],
+  "unit": {
+    "ok": true,
+    "jobId": "i167-publish-helper-qualified-20261003-t001",
+    "runId": "20261003-150046851-17b867d64f7a41d489016040cac18728",
+    "fileCount": 21,
+    "bytes": 44876,
+    "directory": "/home/codex/src/steamdeck-xemu/artifacts/issue167-publication-exchange-20261003/native-unit/20261003-150046851-17b867d64f7a41d489016040cac18728",
+    "complete": true,
+    "scope": "allEligibleArtifacts",
+    "excluded": 0
+  },
+  "zipSha256": "579f45e533b66005e4e4ec3dcb20fcc570c04d99bd9ab0bc61b33a3873fd653f"
+}

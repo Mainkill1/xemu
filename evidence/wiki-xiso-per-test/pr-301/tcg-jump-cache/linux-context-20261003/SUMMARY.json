@@ -1,0 +1,301 @@
+{
+  "decision": "HOLD",
+  "diagnosticOnly": true,
+  "cleanComparison": false,
+  "attempts": 4,
+  "collectedArtifacts": 1260,
+  "context": [
+    {
+      "runId": "20261003-142826132-1a6c4d5ddeb74355be523322336447dd",
+      "samples": 64,
+      "captureMedianMs": 13.6560485,
+      "captureP95Ms": 16.999718,
+      "captureMaxMs": 22.970322,
+      "captureTotalMs": 905.86639,
+      "spanSeconds": 32.417343862,
+      "vcpuLastObservedCpus": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "vcpuObservedCpuChanges": 35,
+      "vcpuAllowedCpus": [
+        "0-7"
+      ],
+      "vcpuInvoluntarySwitchDelta": 1530,
+      "reportedFrequencyKhzMin": 1555271,
+      "reportedFrequencyKhzMax": 3501571,
+      "reportedFrequencyKhzMedian": 3499538.5,
+      "hardwareFrequencyAvailable": false,
+      "driver": [
+        "amd-pstate-epp"
+      ],
+      "governor": [
+        "powersave"
+      ],
+      "gpuBusyMedian": 18.0,
+      "temp1InputMin": 44000,
+      "temp1InputMax": 59000,
+      "power1AverageMin": 5249000,
+      "power1AverageMax": 16015000,
+      "randomizeVaSpace": "2",
+      "mapsSha256": "fc65eebbd95f11caf30220282cdfb76b7d7dc29acd159af7352b1f132f223bf9",
+      "xemuTextMappings": [
+        "55a9da174000-55a9dafe3000 r-xp 001d5000 103:08 6983665                   /home/deck/xemu-research/workspace/Queue/Testing/agent-xc-i167-linux-context-20261003-001-001/xemu"
+      ],
+      "sampleErrorMessages": [
+        "/sys/devices/system/cpu/cpufreq/policy0/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy0/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy1/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy1/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy2/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy2/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy3/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy3/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy4/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy4/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy5/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy5/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy6/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy6/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy7/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy7/cpuinfo_cur_freq'"
+      ],
+      "leafWorkSeconds": {
+        "cpu_translation_blocks.jump_cache_collision10": 1.2540197,
+        "cpu_translation_blocks.jump_cache_collision2": 0.5579917,
+        "cpu_translation_blocks.jump_cache_collision8": 0.5965927,
+        "cpu_translation_blocks.jump_cache_noncollision8": 0.366709
+      },
+      "operatorEventTypes": [
+        "diagnostic"
+      ],
+      "operatorActivity": {
+        "Intervened": true,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 1,
+        "HostStateChanges": 0
+      }
+    },
+    {
+      "runId": "20261003-142916202-8d3804629d544785bc3932012216e7cf",
+      "samples": 64,
+      "captureMedianMs": 13.9743405,
+      "captureP95Ms": 18.119508,
+      "captureMaxMs": 22.53969,
+      "captureTotalMs": 914.017392,
+      "spanSeconds": 32.425128085,
+      "vcpuLastObservedCpus": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7
+      ],
+      "vcpuObservedCpuChanges": 27,
+      "vcpuAllowedCpus": [
+        "0-7"
+      ],
+      "vcpuInvoluntarySwitchDelta": 1094,
+      "reportedFrequencyKhzMin": 1549803,
+      "reportedFrequencyKhzMax": 3503911,
+      "reportedFrequencyKhzMedian": 3499422.0,
+      "hardwareFrequencyAvailable": false,
+      "driver": [
+        "amd-pstate-epp"
+      ],
+      "governor": [
+        "powersave"
+      ],
+      "gpuBusyMedian": 19.0,
+      "temp1InputMin": 52000,
+      "temp1InputMax": 63000,
+      "power1AverageMin": 5071000,
+      "power1AverageMax": 18009000,
+      "randomizeVaSpace": "2",
+      "mapsSha256": "065d2d8f8f4c7c3eca6b8c6d3a4d50f251919d031ac187e5023c7d8f3d25ae83",
+      "xemuTextMappings": [
+        "557047c4a000-557048ab9000 r-xp 001d5000 103:08 6984202                   /home/deck/xemu-research/workspace/Queue/Testing/agent-xc-i167-linux-context-20261003-002-001/xemu"
+      ],
+      "sampleErrorMessages": [
+        "/sys/devices/system/cpu/cpufreq/policy0/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy0/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy1/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy1/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy2/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy2/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy3/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy3/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy4/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy4/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy5/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy5/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy6/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy6/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy7/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy7/cpuinfo_cur_freq'"
+      ],
+      "leafWorkSeconds": {
+        "cpu_translation_blocks.jump_cache_collision10": 1.0458808,
+        "cpu_translation_blocks.jump_cache_collision2": 0.5566424,
+        "cpu_translation_blocks.jump_cache_collision8": 0.60046,
+        "cpu_translation_blocks.jump_cache_noncollision8": 0.3757889
+      },
+      "operatorEventTypes": [
+        "diagnostic"
+      ],
+      "operatorActivity": {
+        "Intervened": true,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 1,
+        "HostStateChanges": 0
+      }
+    },
+    {
+      "runId": "20261003-143004536-aeb51dde2652439e97a9f229a1d26693",
+      "samples": 64,
+      "captureMedianMs": 14.01042,
+      "captureP95Ms": 17.673214,
+      "captureMaxMs": 19.656367,
+      "captureTotalMs": 908.557561,
+      "spanSeconds": 32.419485446,
+      "vcpuLastObservedCpus": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "vcpuObservedCpuChanges": 41,
+      "vcpuAllowedCpus": [
+        "0-7"
+      ],
+      "vcpuInvoluntarySwitchDelta": 1127,
+      "reportedFrequencyKhzMin": 1554112,
+      "reportedFrequencyKhzMax": 3501730,
+      "reportedFrequencyKhzMedian": 3499481.0,
+      "hardwareFrequencyAvailable": false,
+      "driver": [
+        "amd-pstate-epp"
+      ],
+      "governor": [
+        "powersave"
+      ],
+      "gpuBusyMedian": 18.0,
+      "temp1InputMin": 54000,
+      "temp1InputMax": 63000,
+      "power1AverageMin": 7044000,
+      "power1AverageMax": 15235000,
+      "randomizeVaSpace": "2",
+      "mapsSha256": "bac5f4c25f7025e2f5e0a05e22ed6b364074550b8ea7bd3f7d585ec5b20aff7e",
+      "xemuTextMappings": [
+        "559c036b9000-559c04528000 r-xp 001d5000 103:08 7012404                   /home/deck/xemu-research/workspace/Queue/Testing/agent-xc-i167-linux-context-20261003-003-001/xemu"
+      ],
+      "sampleErrorMessages": [
+        "/sys/devices/system/cpu/cpufreq/policy0/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy0/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy1/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy1/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy2/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy2/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy3/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy3/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy4/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy4/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy5/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy5/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy6/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy6/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy7/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy7/cpuinfo_cur_freq'"
+      ],
+      "leafWorkSeconds": {
+        "cpu_translation_blocks.jump_cache_collision10": 1.2711114000000001,
+        "cpu_translation_blocks.jump_cache_collision2": 0.5479621,
+        "cpu_translation_blocks.jump_cache_collision8": 0.6113772,
+        "cpu_translation_blocks.jump_cache_noncollision8": 0.3702971
+      },
+      "operatorEventTypes": [
+        "diagnostic"
+      ],
+      "operatorActivity": {
+        "Intervened": true,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 1,
+        "HostStateChanges": 0
+      }
+    },
+    {
+      "runId": "20261003-143054320-e5e27155eab844698d30e5ae6c552199",
+      "samples": 64,
+      "captureMedianMs": 13.500399,
+      "captureP95Ms": 17.163011,
+      "captureMaxMs": 20.895777,
+      "captureTotalMs": 893.447406,
+      "spanSeconds": 32.404454908,
+      "vcpuLastObservedCpus": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "vcpuObservedCpuChanges": 29,
+      "vcpuAllowedCpus": [
+        "0-7"
+      ],
+      "vcpuInvoluntarySwitchDelta": 1314,
+      "reportedFrequencyKhzMin": 1553930,
+      "reportedFrequencyKhzMax": 3500904,
+      "reportedFrequencyKhzMedian": 3499519.5,
+      "hardwareFrequencyAvailable": false,
+      "driver": [
+        "amd-pstate-epp"
+      ],
+      "governor": [
+        "powersave"
+      ],
+      "gpuBusyMedian": 20.5,
+      "temp1InputMin": 54000,
+      "temp1InputMax": 64000,
+      "power1AverageMin": 6131000,
+      "power1AverageMax": 17183000,
+      "randomizeVaSpace": "2",
+      "mapsSha256": "58441dede59983f3c559aa874287b27aaafdd77a9cebcb04052a698db9f11da8",
+      "xemuTextMappings": [
+        "563b8166a000-563b824d9000 r-xp 001d5000 103:08 7012941                   /home/deck/xemu-research/workspace/Queue/Testing/agent-xc-i167-linux-context-20261003-004-001/xemu"
+      ],
+      "sampleErrorMessages": [
+        "/sys/devices/system/cpu/cpufreq/policy0/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy0/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy1/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy1/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy2/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy2/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy3/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy3/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy4/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy4/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy5/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy5/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy6/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy6/cpuinfo_cur_freq'",
+        "/sys/devices/system/cpu/cpufreq/policy7/cpuinfo_cur_freq: FileNotFoundError: [Errno 2] No such file or directory: '/sys/devices/system/cpu/cpufreq/policy7/cpuinfo_cur_freq'"
+      ],
+      "leafWorkSeconds": {
+        "cpu_translation_blocks.jump_cache_collision10": 1.2592710999999999,
+        "cpu_translation_blocks.jump_cache_collision2": 0.5513089,
+        "cpu_translation_blocks.jump_cache_collision8": 0.6101129000000001,
+        "cpu_translation_blocks.jump_cache_noncollision8": 0.36475789999999997
+      },
+      "operatorEventTypes": [
+        "diagnostic"
+      ],
+      "operatorActivity": {
+        "Intervened": true,
+        "ManualInputs": 0,
+        "Pauses": 0,
+        "Screenshots": 0,
+        "PreviewCaptures": 0,
+        "BulkTransfers": 0,
+        "Diagnostics": 1,
+        "HostStateChanges": 0
+      }
+    }
+  ],
+  "zipSha256": "9ca5a55d758468f1bc32bcc5445c5c7ac892ebf9f64854583955abcf1422d888"
+}

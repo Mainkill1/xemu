@@ -1,0 +1,60 @@
+{
+  "decision": "HOLD",
+  "statisticalVerdict": "inconclusive",
+  "parent": "76c23c7d444a6f12c9778bb2c35fab513f6c8056",
+  "product": "5679cce099eb777977e761245de47e77d05d0c05",
+  "attempts": 8,
+  "allCorrect": true,
+  "allMesaQualified": true,
+  "collectedArtifacts": 2483,
+  "collectionExclusions": 0,
+  "rows": [
+    {
+      "testId": "cpu_translation_blocks.code_stable",
+      "baselineSeconds": 2.5303098499999996,
+      "candidateSeconds": 2.44859435,
+      "timeSavedSeconds": 0.08171549999999954,
+      "improvementPercent": 3.229466,
+      "abbaImprovementPercent": 2.882506,
+      "baabImprovementPercent": 4.377343,
+      "aSamplesSeconds": [
+        2.5447284,
+        2.506022,
+        2.5967328,
+        2.5158913
+      ],
+      "bSamplesSeconds": [
+        2.429599,
+        2.4755632000000003,
+        2.4675897,
+        2.4212372999999996
+      ]
+    },
+    {
+      "testId": "cpu_translation_blocks.code_rewrite",
+      "baselineSeconds": 3.10976045,
+      "candidateSeconds": 3.1355814000000004,
+      "timeSavedSeconds": -0.025820950000000186,
+      "improvementPercent": -0.83032,
+      "abbaImprovementPercent": 0.773492,
+      "baabImprovementPercent": -2.55936,
+      "aSamplesSeconds": [
+        3.1128834,
+        3.1787682999999998,
+        3.0984289,
+        3.1066375
+      ],
+      "bSamplesSeconds": [
+        3.0606092,
+        3.1823771,
+        3.2750907000000002,
+        3.0887857000000003
+      ]
+    }
+  ],
+  "stableCodeImprovementPromising": true,
+  "rewriteInconclusive": true,
+  "recoveryMechanismIsolated": false,
+  "zipSha256": "20ddd649de0e84695ab02460b7a8d07c65cb443437473ed17a2d9c8b3f684fbf",
+  "zipBytes": 423516
+}
