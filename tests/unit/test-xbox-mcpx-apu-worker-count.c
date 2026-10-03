@@ -1,8 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 
-#include <limits.h>
-#include <stdbool.h>
-#include <stdio.h>
+#include "qemu/osdep.h"
 
 #include "hw/xbox/mcpx/apu/vp/worker-count.h"
 
