@@ -6,7 +6,8 @@
 #include "io/channel-buffer.h"
 #include "qapi/error.h"
 
-/* Reuse the real AddressSpace setup and production reader, not sample doubles. */
+/* Reuse the real AddressSpace setup and production reader, not sample doubles.
+ */
 int voice_samples_main(int argc, char **argv);
 #define main voice_samples_main
 #include "test-xbox-mcpx-apu-voice-samples.c"
@@ -23,8 +24,10 @@ int voice_samples_main(int argc, char **argv);
 #include "hw/xbox/mcpx/apu/apu.c"
 
 const VMStateDescription vmstate_pci_device = {
-    .name = "pci-device", .version_id = 2, .minimum_version_id = 1,
-    .fields = (VMStateField[]) { VMSTATE_END_OF_LIST() },
+    .name = "pci-device",
+    .version_id = 2,
+    .minimum_version_id = 1,
+    .fields = (VMStateField[]){ VMSTATE_END_OF_LIST() },
 };
 
 void dsp_invalidate_opcache(DSPState *dsp)
@@ -71,8 +74,7 @@ static int round_trip_descriptions(const VMStateDescription *save,
     QIOChannelBuffer *buffer = qio_channel_buffer_new(0);
     QEMUFile *file = qemu_file_new_output(QIO_CHANNEL(buffer));
 
-    g_assert_cmpint(vmstate_save_state(file, save,
-                                       &d, NULL, &err), ==, 0);
+    g_assert_cmpint(vmstate_save_state(file, save, &d, NULL, &err), ==, 0);
     g_assert_null(err);
     qemu_put_byte(file, 0); /* Delimit the device section. */
     qemu_fflush(file);
@@ -117,13 +119,13 @@ static void test_terminal_round_trip(gconstpointer opaque)
         g_assert_cmpuint(notification(), ==, 0);
 
         /* Actual device pre_load + real VMState serializer. */
-        g_assert_cmpint(round_trip_descriptions(&vmstate_mcpx_apu,
-                                                &vmstate_mcpx_apu), ==, 0);
+        g_assert_cmpint(
+            round_trip_descriptions(&vmstate_mcpx_apu, &vmstate_mcpx_apu), ==,
+            0);
         g_assert_null(d.vp.filters[0].resampler);
         g_assert_true(d.vp.filters[0].resampler_source_finished);
         /* Poison the already-read terminal source to expose a refetch. */
-        stw_le_phys(&address_space_memory,
-                    0x4000 + 63 * channels * 2, 30000);
+        stw_le_phys(&address_space_memory, 0x4000 + 63 * channels * 2, 30000);
         g_assert_cmpint(voice_resample(&d, 0, samples, 32, 1, channels == 2),
                         ==, 0);
         g_assert_true(d.vp.filters[0].resampler_deactivate_after_mix);
@@ -131,7 +133,7 @@ static void test_terminal_round_trip(gconstpointer opaque)
         float bins[NUM_MIXBINS][NUM_SAMPLES_PER_FRAME] = { 0 };
         voice_process(&d, bins, samples, 0, 0);
         g_assert_cmpuint(notification(), ==,
-                        NV1BA0_NOTIFICATION_STATUS_DONE_SUCCESS);
+                         NV1BA0_NOTIFICATION_STATUS_DONE_SUCCESS);
         for (int i = 0; i < NUM_SAMPLES_PER_FRAME; i++) {
             g_assert_cmpfloat(bins[0][i], ==, 0);
         }
@@ -213,7 +215,8 @@ static void test_automatic_completion(gconstpointer opaque)
                         heard_tail |= fabsf(bins[0][i]) > 0.01f;
                     }
                     if (notification()) {
-                        g_assert_cmpuint(notification(), ==,
+                        g_assert_cmpuint(
+                            notification(), ==,
                             NV1BA0_NOTIFICATION_STATUS_DONE_SUCCESS);
                         break;
                     }
@@ -228,9 +231,10 @@ static void test_automatic_completion(gconstpointer opaque)
                 g_assert_cmpuint(notification_writes, ==, 1);
                 g_assert_cmpint(heard_tail, ==, !muted);
                 g_assert_cmpuint(cursor(), ==, lengths[n] - 1);
-                g_assert_cmpuint(voice_get_mask(&d, 0,
-                                NV_PAVS_VOICE_PAR_STATE,
-                                NV_PAVS_VOICE_PAR_STATE_ACTIVE_VOICE), ==, 0);
+                g_assert_cmpuint(
+                    voice_get_mask(&d, 0, NV_PAVS_VOICE_PAR_STATE,
+                                   NV_PAVS_VOICE_PAR_STATE_ACTIVE_VOICE),
+                    ==, 0);
                 cleanup_snapshot_voice();
             }
         }
@@ -257,8 +261,9 @@ static void test_before_eof_and_pending_output(gconstpointer opaque)
             /* EOF reached during a full output block, before completion. */
             g_assert_true(d.vp.filters[0].resampler_source_finished);
         }
-        g_assert_cmpint(round_trip_descriptions(&vmstate_mcpx_apu,
-                                               &vmstate_mcpx_apu), ==, 0);
+        g_assert_cmpint(
+            round_trip_descriptions(&vmstate_mcpx_apu, &vmstate_mcpx_apu), ==,
+            0);
         g_assert_cmpint(d.vp.filters[0].resampler_source_finished, ==, !before);
         int generated = voice_resample(&d, 0, samples, 32, 4, false);
         /* Lost host history is intentional; consumed source must not replay. */
@@ -307,8 +312,8 @@ static void test_old_reader_rejects_terminal_subsection(void)
 
     setup_snapshot_voice();
     d.vp.filters[0].resampler_source_finished = true;
-    g_assert_cmpint(round_trip_descriptions(&vmstate_mcpx_apu, &old),
-                    ==, -ENOENT);
+    g_assert_cmpint(round_trip_descriptions(&vmstate_mcpx_apu, &old), ==,
+                    -ENOENT);
     cleanup_snapshot_voice();
 }
 
@@ -317,11 +322,11 @@ static void test_sparse_terminal_flags(void)
     setup_snapshot_voice();
     d.vp.filters[17].resampler_source_finished = true;
     d.vp.filters[MCPX_HW_MAX_VOICES - 1].resampler_source_finished = true;
-    g_assert_cmpint(round_trip_descriptions(&vmstate_mcpx_apu,
-                                           &vmstate_mcpx_apu), ==, 0);
+    g_assert_cmpint(
+        round_trip_descriptions(&vmstate_mcpx_apu, &vmstate_mcpx_apu), ==, 0);
     for (int v = 0; v < MCPX_HW_MAX_VOICES; v++) {
-        g_assert_cmpint(d.vp.filters[v].resampler_source_finished,
-                        ==, v == 17 || v == MCPX_HW_MAX_VOICES - 1);
+        g_assert_cmpint(d.vp.filters[v].resampler_source_finished, ==,
+                        v == 17 || v == MCPX_HW_MAX_VOICES - 1);
     }
     cleanup_snapshot_voice();
 }
@@ -334,16 +339,15 @@ int main(int argc, char **argv)
     rust_bql_mock_lock();
     init_memory();
     memory_region_init_io(&notification_region, object_new(TYPE_CONTAINER),
-                           &notification_ops, NULL, "completion-status", 1);
-    memory_region_add_subregion_overlap(get_system_memory(),
-        0x3000 + 16 * MCPX_HW_NOTIFIER_BASE_OFFSET + 15,
+                          &notification_ops, NULL, "completion-status", 1);
+    memory_region_add_subregion_overlap(
+        get_system_memory(), 0x3000 + 16 * MCPX_HW_NOTIFIER_BASE_OFFSET + 15,
         &notification_region, 1);
     g_test_add_data_func("/xbox/apu/vmstate/terminal-sinc",
                          GINT_TO_POINTER(SRC_SINC_FASTEST),
                          test_terminal_round_trip);
     g_test_add_data_func("/xbox/apu/vmstate/terminal-linear",
-                         GINT_TO_POINTER(SRC_LINEAR),
-                         test_terminal_round_trip);
+                         GINT_TO_POINTER(SRC_LINEAR), test_terminal_round_trip);
     g_test_add_data_func("/xbox/apu/vmstate/automatic-completion-sinc",
                          GINT_TO_POINTER(SRC_SINC_FASTEST),
                          test_automatic_completion);
