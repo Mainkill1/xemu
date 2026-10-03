@@ -12,7 +12,7 @@ static int test_logical_cpus(void)
 
 /* Only CPU discovery is replaced; exercise actual VP initialization/queues. */
 #define SDL_GetNumLogicalCPUCores test_logical_cpus
-int voice_samples_main(int argc, char **argv);
+static int voice_samples_main(int argc, char **argv) G_GNUC_UNUSED;
 #define main voice_samples_main
 #include "test-xbox-mcpx-apu-voice-samples.c"
 #undef main
@@ -69,8 +69,10 @@ static void test_production_auto_initialization(void)
     }
 }
 
-/* v2 is distinct from the historical 45-voice fixture: muted sends use bin 2.
- * Retain bin 31 as a grouped control rather than changing historic identity. */
+/*
+ * v2 is distinct from the historical 45-voice fixture: muted sends use bin 2.
+ * Retain bin 31 as a grouped control rather than changing historic identity.
+ */
 static void prepare_voices(int workers, bool grouped)
 {
     setup_voice(2048, false);
@@ -167,7 +169,7 @@ static void test_queue_membership_and_mix(void)
                 for (int b = 0; b < NUM_MIXBINS; b++) {
                     for (int s = 0; s < NUM_SAMPLES_PER_FRAME; s++) {
                         g_assert_cmpfloat_with_epsilon(
-                            bins[b][s], b < 2 ? 45.0f / 512.0f : 0, 1e-6f);
+                            bins[b][s], b < 2 ? 45.0f / 512.0f : 0, 0.000001f);
                     }
                 }
                 for (int i = 0; i < 45; i++) {
@@ -236,7 +238,7 @@ static void test_unequal_multipass_groups(void)
         for (int b = 0; b < NUM_MIXBINS; b++) {
             for (int i = 0; i < NUM_SAMPLES_PER_FRAME; i++) {
                 g_assert_cmpfloat_with_epsilon(
-                    bins[b][i], b < 2 ? 6.0f / 256.0f : 0, 1e-6f);
+                    bins[b][i], b < 2 ? 6.0f / 256.0f : 0, 0.000001f);
             }
         }
         finalize_test_pool();
