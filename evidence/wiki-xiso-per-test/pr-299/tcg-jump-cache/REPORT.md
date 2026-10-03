@@ -12,6 +12,8 @@ parity is -0.03% stable / -0.20% rewrite; identical-parent A/A variation is -0.1
 describes `7cb38844fb2`. The [corrected dormant observer packet](corrected-observer-cost-20261003/REPORT.md)
 adds eight correct/eligible/Mesa-qualified runs: -1.80% stable / -1.05% rewrite mean
 work, with stable ABBA -9.18%. It does not establish an under-5% cost bound.
+The same packet now adds eight counters outcomes: -4.65% stable / -3.64% rewrite;
+stable BAAB and rewrite ABBA exceed 5%. Conflicts measurement is running.
 
 ## What changed and why
 
@@ -153,8 +155,8 @@ parent and corrected binaries have new campaign identities. The
 [corrected A/A and parent/default-off parity packet](corrected-parent-parity-20261003/REPORT.md)
 contains all 16 completed outcomes and per-test reports. Corrected dormant
 qualification has completed in the [observer-cost packet](corrected-observer-cost-20261003/REPORT.md).
-Counters is running; conflicts remains staged and unstarted. Every B1 slow sample
-is preserved, with cause unclassified.
+Counters has completed and conflicts is running. Every B1 slow sample is
+preserved, with cause unclassified.
 
 First isolate OFF/counters/conflicts observer costs and obtain a reached retail
 workload; any PGR2 measurement lasts at least 300 seconds. Then test one simple

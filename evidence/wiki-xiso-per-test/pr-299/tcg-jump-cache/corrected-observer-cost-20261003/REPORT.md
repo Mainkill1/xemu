@@ -3,8 +3,15 @@
 **Decision: HOLD.** With the parent code-shape regression repaired, compiling in
 the dormant observer has measurable cost in the stable-code fixture. Combined
 medians are below 5%, but one order is not; these results do not establish an
-under-5% overhead bound. Active counters/classifier qualification remains pending.
+under-5% overhead bound. Counters also fails consistent under-5% qualification;
+conflict-classifier measurement remains pending.
 No production cache optimization or cache speedup is tested here.
+
+**Counters update:** All eight counters attempts are correct, eligible and
+Mesa-qualified. Combined stable cost is 4.65%, rewrite 3.64%; stable BAAB and
+rewrite ABBA exceed 5%. Conflict-classifier measurement is now running. These
+comparisons measure compiler hooks plus accounting; costs cannot be isolated by
+subtracting separate campaigns.
 
 ## Reference and candidate
 
@@ -32,14 +39,34 @@ means less time: `100 * (A - B) / A`. Vulkan/RADV throughout.
 | `cpu_translation_blocks.code_stable`, 50 million operations | 2.512131 s | 2.557325 s | -0.045195 s | -1.80% | -9.18% | -2.10% | PASS 8/8 |
 | `cpu_translation_blocks.code_rewrite`, 1 million operations | 3.064022 s | 3.096189 s | -0.032167 s | -1.05% | -3.66% | -1.55% | PASS 8/8 |
 
-Stable-code B1 has mean 2.944436 s versus 2.554232–2.557663 s in the other B
+### Baseline versus active counters
+
+The executable identities are unchanged; both definitions freeze `counters` in
+the environment. A is compiled out, so the variable is inactive there. B counts
+lookups and clears with no timing/occupancy/classifier collection. This is combined
+hook/accounting cost, not same-executable activation cost.
+
+| Test ID / fixed work | Baseline A | Counters B | Time saved | Improvement % | ABBA | BAAB | Correctness |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| `cpu_translation_blocks.code_stable`, 50 million operations | 2.519083 s | 2.636122 s | -0.117039 s | -4.65% | -4.08% | -5.13% | PASS 8/8 |
+| `cpu_translation_blocks.code_rewrite`, 1 million operations | 2.998746 s | 3.107752 s | -0.109006 s | -3.64% | -5.54% | -2.99% | PASS 8/8 |
+
+Both orders have slower mean work in both workloads. Small rewrite effects remain
+limited by the A/A variation below. The compact report's attempt-median metric
+is stable -4.81% (ABBA -4.41%, BAAB -5.49%) and rewrite -3.83% (ABBA -6.15%,
+BAAB -3.01%). No samples are excluded. Counters B1 rewrite mean is 3.273506 s
+with all ten samples 3.204353–3.332858 s; cause remains unclassified.
+
+### Preserved dormant B1 result
+
+Dormant stable-code B1 has mean 2.944436 s versus 2.554232–2.557663 s in the other B
 attempts. Its first three stable samples were 3.433507, 4.073663 and 3.793782 s;
 the remaining seven were 2.551433–2.635957 s. Its rewrite mean was 3.294638 s.
 The cause is **unclassified**. It is not discarded, repeated or dismissed as
 host noise. The -9.18% ABBA mean-work result matters even though the combined
 median is -1.80%.
 
-The compact maintained report uses attempt-level medians instead: stable -2.20%
+The compact dormant report uses attempt-level medians instead: stable -2.20%
 (ABBA -3.17%, BAAB -2.16%); rewrite -0.87% (ABBA -2.98%, BAAB -1.63%). Full
 reports preserve mean, median, minimum, maximum, p95 and raw samples. Ten samples
 per leaf make nearest-rank p95 equal to the maximum; no resolved tail or confidence
@@ -53,8 +80,9 @@ guest work timings, not whole-game FPS or suite duration.
 
 ## Qualification and identities
 
-- Campaign `i167-correct-dormant-31c-001`; all 8/8 attempts completed, passed
-  original references and were evidence-complete/comparison-eligible.
+- Campaigns `i167-correct-dormant-31c-001` and `i167-correct-counters-31c-001`;
+  all 16/16 attempts completed, passed original references and were
+  evidence-complete/comparison-eligible.
 - Steam Deck `10.0.0.123`, maintained LAN HTTP only. Runner
   `c264004dfc906eef008c8a7235764c37daee330b` includes main #93/#94/#95 fixes.
 - ISO `74a10c400f4fb280dcb4037e38e7e4d3150e73e0061a04f65b3c68cc61a49e63`;
@@ -63,21 +91,22 @@ guest work timings, not whole-game FPS or suite duration.
   per-iteration completion. No monitor queries, external sampler or guest clock changes.
 - Suite remains **unverified**, not selfapproved. Exact suite/application hashes,
   frozen plans, run IDs and outcomes are in the archive.
-- All 8 private cold Mesa disk namespaces start empty and qualify with observed
+- All 16 private cold Mesa disk namespaces start empty and qualify with observed
   writes, zero issues and no uncontrolled-cache waiver or global purge. OS page
   cache and driver in-memory state remain uncontrolled.
 
-All **2,482 native files** were collected with **zero exclusions**. The archive
-publishes 280 native evidence files; [INDEX.json](INDEX.json) individually hashes
-the 2,202 private runtime/cache files retained locally. Guest extraction bytes
+All **4,962 native files** were collected with **zero exclusions**: dormant 2,482,
+counters 2,480. The archive publishes 560 native evidence files;
+[INDEX.json](INDEX.json) individually hashes the 4,402 private runtime/cache files
+retained locally. Guest extraction bytes
 match their ledger. No native failure, silent rerun or reference substitution
 occurred. [SUMMARY.json](SUMMARY.json) and [EVIDENCE.zip](EVIDENCE.zip) retain every
 metric and attempt, including B1. Archive size/SHA-256 are in INDEX.json.
 
 ## Remaining work
 
-The corrected counters ABBA/BAAB campaign is running. Conflicts remains staged
-and unstarted. Those compare compiled-out A against compiled-in active B, so
+The corrected conflicts ABBA/BAAB campaign is running. Counters is complete.
+These compare compiled-out A against compiled-in active B, so
 they measure combined hook and accounting cost rather than same-binary activation.
 After qualification, obtain a reached retail scene with explicit controller
 binding and a 300-second diagnostic window. Counts or slow instrumentation alone
